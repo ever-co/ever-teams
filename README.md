@@ -1,2 +1,4 @@
-# ever-gauzy-team
-Gauzy Team
+# Gauzy Team
+
+https://gauzy.team
+
