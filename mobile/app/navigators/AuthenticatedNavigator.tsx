@@ -10,12 +10,12 @@ import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import { AuthenticatedProfileScreen, AuthenticatedHomeScreen } from "../screens"
 
 // HELPERS
-import { translate } from "../i18n"
+// import { translate } from "../i18n"
 import { colors, spacing, typography } from "../theme"
 
 export type AuthenticatedTabParamList = {
+  Timer: undefined
   Teams: undefined
-  Profile: undefined
 }
 
 /**
@@ -47,20 +47,20 @@ export function AuthenticatedNavigator() {
       }}
     >
       <Tab.Screen
-        name="Teams"
+        name="Timer"
         component={AuthenticatedHomeScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.componentsTab"),
-          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
+          tabBarLabel: "Timer",
+          tabBarIcon: ({ focused }) => <Icon icon="bell" color={focused && colors.tint} />,
         }}
       />
 
       <Tab.Screen
-        name="Profile"
+        name="Teams"
         component={AuthenticatedProfileScreen}
         options={{
-          tabBarLabel: translate("demoNavigator.podcastListTab"),
-          tabBarIcon: ({ focused }) => <Icon icon="podcast" color={focused && colors.tint} />,
+          tabBarLabel: "Teams",
+          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
         }}
       />
     </Tab.Navigator>
