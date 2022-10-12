@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 // COMPONENTS
 import { Icon } from "../components"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
-import { AuthenticatedProfileScreen, AuthenticatedHomeScreen } from "../screens"
+import { AuthenticatedTeamsScreen, AuthenticatedTimerScreen } from "../screens"
 
 // HELPERS
 // import { translate } from "../i18n"
@@ -47,20 +47,20 @@ export function AuthenticatedNavigator() {
       }}
     >
       <Tab.Screen
-        name="Timer"
-        component={AuthenticatedHomeScreen}
+        name="Teams"
+        component={AuthenticatedTeamsScreen}
         options={{
-          tabBarLabel: "Timer",
-          tabBarIcon: ({ focused }) => <Icon icon="bell" color={focused && colors.tint} />,
+          tabBarLabel: "Teams",
+          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
         }}
       />
 
       <Tab.Screen
-        name="Teams"
-        component={AuthenticatedProfileScreen}
+        name="Timer"
+        component={AuthenticatedTimerScreen}
         options={{
-          tabBarLabel: "Teams",
-          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
+          tabBarLabel: "Timer",
+          tabBarIcon: ({ focused }) => <Icon icon="bell" color={focused && colors.tint} />,
         }}
       />
     </Tab.Navigator>
