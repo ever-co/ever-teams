@@ -1,8 +1,8 @@
 import React from "react";
 
-const Header = () => (
-  <div className="h-10 flex justify-between px-6">
-    <div className="flex">
+export const Header = () => (
+  <div className="h-10 flex justify-between px-6 py-3">
+    <div className="flex items-center">
       <h3 className="text-primary mr-2 text-xl">Gauzy Team</h3>
       {"-"}
       <h3 className="ml-2">Super Team</h3>
