@@ -7,3 +7,5 @@ export * from "./DemoShowroomScreen/DemoShowroomScreen"
 // @demo remove-block-end
 export * from "./ErrorScreen/ErrorBoundary"
 // export other screens here
+export * from "./Authenticated/HomeScreen"
+export * from "./Authenticated/ProfileScreen"
