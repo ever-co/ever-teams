@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Footer from "./footer/footer";
+import Header from "./header/header";
 import Meta from "./Meta";
 
 interface AppLayoutProps {
@@ -12,7 +13,8 @@ export const AppLayout = (props: AppLayoutProps) => {
     <>
       <Meta />
       <div className="flex flex-col h-screen justify-between">
-        <div className="mb-auto">{props.children}</div>
+        <Header />
+        <div className="">{props.children}</div>
         <Footer />
       </div>
     </>
