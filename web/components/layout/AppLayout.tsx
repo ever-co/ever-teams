@@ -14,7 +14,9 @@ export const AppLayout = (props: AppLayoutProps) => {
       <Meta />
       <div className="flex flex-col h-screen justify-between">
         <Header />
-        <div className="container flex-1">{props.children}</div>
+        <div className="md:container md:mx-auto bg-gray-600">
+          {props.children}
+        </div>
         <Footer />
       </div>
     </>
