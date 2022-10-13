@@ -32,7 +32,8 @@ const en = {
   },
   loginScreen: {
     welcome: "Welcome to Gauzy Team",
-    enterDetails: "Join team",
+    enterDetails: "Join as a manager",
+    enterDetails2: "Join as a team member",
     emailFieldLabel: "Your email",
     teamNameFieldLabel: "Team name",
     emailFieldPlaceholder: "Enter your email address",

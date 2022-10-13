@@ -239,7 +239,7 @@ const $inputWrapperStyle: ViewStyle = {
   borderWidth: 1,
   borderRadius: 4,
   backgroundColor: colors.palette.neutral100,
-  borderColor: colors.palette.neutral400,
+  borderColor: colors.text,
   overflow: "hidden",
 }
 
