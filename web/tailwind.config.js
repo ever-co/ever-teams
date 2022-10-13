@@ -34,6 +34,9 @@ module.exports = {
         button_dark: {
           DEFAULT: "#fa754e",
         },
+        label: {
+          DEFAULT: "#07074D",
+        },
       },
     },
   },
