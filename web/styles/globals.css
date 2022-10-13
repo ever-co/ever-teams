@@ -1,3 +1,32 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.toggleThemeContainer {
+  border-radius: 25px;
+  border: 2px solid #6a7c90;
+  width: max-content;
+  height: 2.1rem;
+  transform: scale(0.85);
+}
+
+.toggleThemeContainer button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.navbar .toggleThemeContainer #moon {
+  fill: #fff !important;
+}
+
+.navbar .toggleThemeContainer #moon {
+  fill: #c2ced9 !important;
+}
+
+.light-mode .toggleThemeContainer button #sun-svg {
+  background: #3d5a80 !important;
+}
+.light-mode .toggleThemeContainer button #sun {
+  fill: #ffffff !important;
+}
