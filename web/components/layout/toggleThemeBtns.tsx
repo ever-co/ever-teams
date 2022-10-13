@@ -1,25 +1,18 @@
-import { useCallback, useState } from "react";
+import { useTheme } from "next-themes";
 
 function ToggleThemeContainer() {
-  const [colorMode, setColorMode] = useState("light");
-
-  const toggleColorMode = useCallback(
-    (type: string) => {
-      setColorMode(type);
-    },
-    [setColorMode]
-  );
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="toggleThemeContainer">
-      <button className="border-none" onClick={() => toggleColorMode("dark")}>
+      <button className="border-none" onClick={() => setTheme("dark")}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="30"
           height="30"
           viewBox="0 0 30 30"
           style={{
-            background: colorMode == "dark" ? "#6a7c90" : "transparent",
+            background: theme == "dark" ? "#6a7c90" : "transparent",
             borderRadius: "50%",
           }}
         >
@@ -27,7 +20,7 @@ function ToggleThemeContainer() {
             id="moon"
             transform="translate(7.576 7.576)"
             style={{
-              fill: colorMode == "dark" ? "#2A3342" : "#9AC2DA",
+              fill: theme == "dark" ? "#2A3342" : "#9AC2DA",
             }}
           >
             <path
@@ -37,14 +30,14 @@ function ToggleThemeContainer() {
           </g>
         </svg>
       </button>
-      <button className="border-none" onClick={() => toggleColorMode("light")}>
+      <button className="border-none" onClick={() => setTheme("light")}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="30"
           height="30"
           viewBox="0 0 30 30"
           style={{
-            background: colorMode == "light" ? "#1b005d" : "transparent",
+            background: theme == "light" ? "#1b005d" : "transparent",
             borderRadius: "50%",
           }}
           id="sun-svg"
@@ -53,7 +46,7 @@ function ToggleThemeContainer() {
             id="sun"
             transform="translate(0)"
             style={{
-              fill: colorMode === "light" ? "#fff" : "#fff",
+              fill: theme === "light" ? "#fff" : "#fff",
             }}
           >
             <g transform="translate(4.662 4.616)">
