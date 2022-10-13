@@ -1,8 +1,9 @@
 import React from "react";
+import ToggleThemeContainer from "../toggleThemeBtns";
 
 const Footer = () => {
   return (
-    <footer className="h-10 flex justify-between px-6">
+    <footer className="h-10 flex justify-between px-2 container mx-auto">
       <div className="text-light">
         @ 2019-Present,{" "}
         <a
@@ -25,6 +26,9 @@ const Footer = () => {
         All rights reserved.
       </div>
       <div className="flex">
+        <div className="flex space-x-2 px-4">
+          <ToggleThemeContainer />
+        </div>
         <div className="flex space-x-4">
           <a
             href="https://demo.gauzy.co/#/pages/legal/terms"
