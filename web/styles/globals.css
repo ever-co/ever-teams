@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  background-color: #f4f1f1;
-}
-
 .container,
 .container-fluid,
 .container-xxl,
