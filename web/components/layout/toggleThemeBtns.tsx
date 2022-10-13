@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 
 function ToggleThemeContainer() {
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
 
   return (
     <div className="toggleThemeContainer">
@@ -11,18 +11,9 @@ function ToggleThemeContainer() {
           width="30"
           height="30"
           viewBox="0 0 30 30"
-          style={{
-            background: theme == "dark" ? "#6a7c90" : "transparent",
-            borderRadius: "50%",
-          }}
+          className="dark:bg-[#6a7c90] bg-transparent rounded-2xl"
         >
-          <g
-            id="moon"
-            transform="translate(7.576 7.576)"
-            style={{
-              fill: theme == "dark" ? "#2A3342" : "#9AC2DA",
-            }}
-          >
+          <g id="moon" transform="translate(7.576 7.576)">
             <path
               d="M13.642,8.666a1.1,1.1,0,0,0-1-.442,6.077,6.077,0,0,1-.788.031A5.836,5.836,0,0,1,6.117,2.546,5.759,5.759,0,0,1,6.235,1.29,1.069,1.069,0,0,0,5.88.263,1.1,1.1,0,0,0,4.8.061,7.1,7.1,0,0,0,0,6.844a6.994,6.994,0,0,0,2.143,4.944A7.223,7.223,0,0,0,7.19,13.846h.019a7.265,7.265,0,0,0,3.914-1.136,7.142,7.142,0,0,0,2.62-2.959A1.068,1.068,0,0,0,13.642,8.666Zm-6.434,3.89H7.193A5.878,5.878,0,0,1,1.311,6.828,5.8,5.8,0,0,1,4.883,1.415,7,7,0,0,0,6.895,7.437,7.225,7.225,0,0,0,11.82,9.543c.188,0,.377,0,.565-.007A5.938,5.938,0,0,1,7.208,12.556Z"
               transform="translate(0 0)"
@@ -36,17 +27,14 @@ function ToggleThemeContainer() {
           width="30"
           height="30"
           viewBox="0 0 30 30"
-          style={{
-            background: theme == "light" ? "#1b005d" : "transparent",
-            borderRadius: "50%",
-          }}
+          className="bg-[#1b005d] dark:bg-transparent rounded-2xl"
           id="sun-svg"
         >
           <g
             id="sun"
             transform="translate(0)"
             style={{
-              fill: theme === "light" ? "#fff" : "#fff",
+              fill: "#fff",
             }}
           >
             <g transform="translate(4.662 4.616)">
