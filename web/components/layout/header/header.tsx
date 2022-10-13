@@ -1,7 +1,7 @@
 import React from "react";
 
 export const Header = () => (
-  <div className="h-10 flex justify-between px-6 py-3">
+  <div className="h-10 flex justify-between py-3 container">
     <div className="flex items-center">
       <h3 className="text-primary mr-2 text-xl">Gauzy Team</h3>
       {"-"}

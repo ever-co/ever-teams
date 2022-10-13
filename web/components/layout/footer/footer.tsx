@@ -2,7 +2,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="h-10 flex justify-between px-6">
+    <footer className="h-10 flex justify-between container">
       <div className="text-light">
         @ 2019-Present,{" "}
         <a

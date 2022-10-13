@@ -1,9 +1,8 @@
 import type { NextPage } from "next";
+import { MainContent } from "../components/layout/main";
 
 const Home: NextPage = () => {
-  return <section>
-    <h1 className="text-3xl font-bold flex items-center justify-center">Gauzy Team App</h1>    
-  </section>
+  return <MainContent />;
 };
 
 export default Home;
