@@ -1,10 +1,3 @@
-/**
- * This Api class lets you define an API endpoint and methods to request
- * data and process it.
- *
- * See the [Backend API Integration](https://github.com/infinitered/ignite/blob/master/docs/Backend-API-Integration.md)
- * documentation for more details.
- */
 import {
   ApiResponse, // @demo remove-current-line
   ApisauceInstance,
@@ -46,6 +39,81 @@ export class Api {
         Accept: "application/json",
       },
     })
+  }
+
+  async commonGetApi<T>(url: string): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+    // make the api call
+    const response: ApiResponse<T> = await this.apisauce.get(url)
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const rawData = response.data
+
+      return { kind: "ok", data: rawData }
+    } catch (e) {
+      if (__DEV__) {
+        console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      }
+      return { kind: "bad-data" }
+    }
+  }
+
+  async commonPostApi<T>(
+    url: string,
+    body: any,
+  ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+    // make the api call
+    const response: ApiResponse<T> = await this.apisauce.post(url, body)
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const rawData = response.data
+
+      return { kind: "ok", data: rawData }
+    } catch (e) {
+      if (__DEV__) {
+        console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      }
+      return { kind: "bad-data" }
+    }
+  }
+
+  async commonPutApi<T>(
+    url: string,
+    body: any,
+  ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+    // make the api call
+    const response: ApiResponse<T> = await this.apisauce.put(url, body)
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const rawData = response.data
+
+      return { kind: "ok", data: rawData }
+    } catch (e) {
+      if (__DEV__) {
+        console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      }
+      return { kind: "bad-data" }
+    }
   }
 
   // @demo remove-block-start
