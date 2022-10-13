@@ -19,7 +19,7 @@ module.exports = {
           DEFAULT: "#7e7e8f",
         },
         primary: {
-          DEFAULT: "#7d56fd",
+          DEFAULT: "#3E1DAD",
           light: "#dbd3f7",
           lighter: "#BCE9E4",
           disabled: "#EDF8F6",
