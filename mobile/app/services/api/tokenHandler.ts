@@ -7,8 +7,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 export type DecodedToken = {
   readonly tokenType: string
   readonly id: string
-  readonly username: string
-  readonly roles: string[]
   readonly iat: number
   readonly exp: number
 }
@@ -20,8 +18,6 @@ export default class LocalStorage {
     this.decoded = {
       tokenType: "",
       id: "",
-      username: "",
-      roles: [""],
       iat: 0,
       exp: 0,
     }
