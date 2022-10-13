@@ -5,10 +5,10 @@ function TimerTasksSection() {
   return (
     <div className="grid grid-cols-4 py-36 justify-between">
       <div className="col-span-2">
-        <div className="max-w-sm rounded drop-shadow-sm bg-[#ffffff]">
-          <div className="px-6 py-4 inline-flex space-x-6">
-            <div className="font-bold text-xl">Active task: </div>
-            <span>
+        <div className="max-w-[22rem] rounded drop-shadow-sm bg-white">
+          <div className="px-4 py-4 inline-flex items-center space-x-6 w-full">
+            <div className="font-bold text-md flex-1">Active task: </div>
+            <span className="flex-[2]">
               <TeamDropdown />
             </span>
           </div>
@@ -18,14 +18,14 @@ function TimerTasksSection() {
         </div>
       </div>
       <div className="col-span-2 justify-end flex">
-        <div className="w-96 rounded py-4">
+        <div className="p-4 w-96 rounded py-4 bg-white">
           <div className="flex flex-row justify-between py-1">
             <div>
               <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
                 02:10:59
               </h2>
             </div>
-            <div>
+            {/* <div>
               <svg
                 width="32"
                 height="32"
@@ -42,6 +42,25 @@ function TimerTasksSection() {
                   fill="#6E49E8"
                 />
               </svg>
+            </div> */}
+
+            <div>
+              <div className="px-4 py-2 inline-flex rounded-md items-center bg-[#6E49E8]">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="white"
+                  className="w-4 h-6 mr-2"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+
+                <span className="text-white text-sm font-bold">Start</span>
+              </div>
             </div>
           </div>
           <div className="flex flex-row py-2">

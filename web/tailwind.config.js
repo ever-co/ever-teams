@@ -12,6 +12,9 @@ module.exports = {
       lg: "976px",
       xl: "1440px",
     },
+    fontFamily: {
+      poppins: ["Poppins", "sans-serif"],
+    },
     extend: {
       colors: {
         transparent: "transparent",
