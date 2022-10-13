@@ -9,7 +9,7 @@ const Footer = () => {
         <a
           href="https://gauzy.co"
           target="_blank"
-          className="text-primary"
+          className="text-primary dark:text-gray-300"
           rel="noreferrer"
         >
           Gauzy
@@ -18,7 +18,7 @@ const Footer = () => {
         <a
           href="https://ever.co"
           target="_blank"
-          className="text-primary"
+          className="text-primary dark:text-gray-300"
           rel="noreferrer"
         >
           Ever Co. LTD.
@@ -30,7 +30,7 @@ const Footer = () => {
           <a
             href="https://demo.gauzy.co/#/pages/legal/terms"
             target="_blank"
-            className="text-primary "
+            className="text-primary dark:text-gray-300"
             rel="noreferrer"
           >
             Terms Of Service
@@ -38,7 +38,7 @@ const Footer = () => {
           <a
             href="https://demo.gauzy.co/#/pages/legal/privacy"
             target="_blank"
-            className="text-primary"
+            className="text-primary dark:text-gray-300"
             rel="noreferrer"
           >
             Privacy Policy
