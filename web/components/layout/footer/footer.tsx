@@ -1,8 +1,6 @@
-import React from "react";
-
 const Footer = () => {
   return (
-    <footer className="h-10 flex justify-between container">
+    <footer className="py-8 flex justify-between container">
       <div className="text-light">
         @ 2019-Present,{" "}
         <a
