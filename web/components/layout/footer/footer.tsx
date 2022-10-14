@@ -1,9 +1,8 @@
-import React from "react";
 import ToggleThemeContainer from "../toggleThemeBtns";
 
 const Footer = () => {
   return (
-    <footer className="h-16 flex items-center justify-between container mx-auto font-light">
+    <footer className="py-8 h-16 flex items-center justify-between container mx-auto font-light">
       <div className="text-light">
         @ 2019-Present,{" "}
         <a

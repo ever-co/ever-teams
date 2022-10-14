@@ -4,8 +4,8 @@ import TeamDropdown from "./teamDropdown";
 
 export const Header = () => (
   <header className="fixed w-full">
-    <nav className="bg-white px-4 lg:px-10 py-6  shadow-md dark:bg-dark_card_background_color dark:bg-opacity-30">
-      <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+    <nav className="bg-white py-6 dark:bg-gray-800 shadow-sm">
+      <div className="flex container flex-wrap justify-between items-center mx-auto max-w-screen-xl">
         <div className="flex items-center space-x-3">
           <MainLogo />
           <div className="">-</div>
@@ -15,7 +15,7 @@ export const Header = () => (
         <div className="flex items-center">
           <ul className="flex flex-row justify-start pl-0 mb-0 md-max:w-full">
             <li className="flex items-center px-4">
-              < a
+              <a
                 href="#"
                 className="p-0 transition-all text-sm ease-nav-brand text-black dark:text-gray-300"
               >
