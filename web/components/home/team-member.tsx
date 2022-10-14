@@ -4,8 +4,8 @@ export function TeamMemberSection() {
 
 const members = [
   { name: "Raslan Kanviser", status: "working" },
-  { name: "Paradoxe Ngwasi", status: "inactive" },
-  { name: "Felix Tshisekedi", status: "offline" },
+  { name: "Ramesh Jena", status: "inactive" },
+  { name: "Peace Sundri", status: "offline" },
 ] as const;
 
 function TeamList() {
