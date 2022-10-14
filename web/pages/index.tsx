@@ -1,9 +1,8 @@
 import type { NextPage } from "next";
+import Team from "./team";
 
 const Home: NextPage = () => {
-  return <section>
-    <h1 className="text-3xl font-bold flex items-center justify-center">Gauzy Team App</h1>    
-  </section>
+  return <Team />;
 };
 
 export default Home;

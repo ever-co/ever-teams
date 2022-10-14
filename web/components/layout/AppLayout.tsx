@@ -12,9 +12,9 @@ export const AppLayout = (props: AppLayoutProps) => {
   return (
     <>
       <Meta />
-      <div className="flex flex-col h-screen justify-between">
+      <div className="flex flex-col h-screen justify-between dark:bg-dark_background_color">
         <Header />
-        <div className="">{props.children}</div>
+        <div className="flex-1 container min-h-min">{props.children}</div>
         <Footer />
       </div>
     </>

@@ -1,10 +1,3 @@
-/**
- * This Api class lets you define an API endpoint and methods to request
- * data and process it.
- *
- * See the [Backend API Integration](https://github.com/infinitered/ignite/blob/master/docs/Backend-API-Integration.md)
- * documentation for more details.
- */
 import {
   ApiResponse, // @demo remove-current-line
   ApisauceInstance,
@@ -17,6 +10,7 @@ import type {
   ApiFeedResponse, // @demo remove-current-line
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
+import LocalStorage, { getToken } from "./tokenHandler"
 
 /**
  * Configuring the apisauce instance.
@@ -33,12 +27,14 @@ export const DEFAULT_API_CONFIG: ApiConfig = {
 export class Api {
   apisauce: ApisauceInstance
   config: ApiConfig
+  authToken: string | null = null
 
   /**
    * Set up our API instance. Keep this lightweight!
    */
   constructor(config: ApiConfig = DEFAULT_API_CONFIG) {
     this.config = config
+    this.loadAsync()
     this.apisauce = create({
       baseURL: this.config.url,
       timeout: this.config.timeout,
@@ -46,6 +42,110 @@ export class Api {
         Accept: "application/json",
       },
     })
+  }
+
+  /**
+   * @description: Load async data from local storage
+   */
+  private loadAsync = async () => {
+    const token = await getToken()
+    if (token) {
+      this.authToken = token
+    }
+  }
+
+  /**
+   *
+   * @param url: string
+   * @param isProtected: if true, then we'll add the auth token to the header
+   * @returns Promise<{ kind: "ok"; data: T } | GeneralApiProblem>
+   */
+  async commonGetApi<T>(url: string, isProtected: boolean = true): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+    // make the api call
+    const response: ApiResponse<T> = await this.apisauce.get(url, {
+      headers: isProtected ? { Authorization: `Bearer ${this.authToken}` } : {},
+    })
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const rawData = response.data
+
+      return { kind: "ok", data: rawData }
+    } catch (e) {
+      if (__DEV__) {
+        console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      }
+      return { kind: "bad-data" }
+    }
+  }
+
+  async commonPostApi<T>(
+    url: string,
+    body: any,
+  ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+    // make the api call
+    const response: ApiResponse<T> = await this.apisauce.post(url, body)
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const rawData = response.data
+
+      return { kind: "ok", data: rawData }
+    } catch (e) {
+      if (__DEV__) {
+        console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      }
+      return { kind: "bad-data" }
+    }
+  }
+
+  async commonPutApi<T>(
+    url: string,
+    body: any,
+  ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+    // make the api call
+    const response: ApiResponse<T> = await this.apisauce.put(url, body)
+
+    // the typical ways to die when calling an api
+    if (!response.ok) {
+      const problem = getGeneralApiProblem(response)
+      if (problem) return problem
+    }
+
+    // transform the data into the format we are expecting
+    try {
+      const rawData = response.data
+
+      return { kind: "ok", data: rawData }
+    } catch (e) {
+      if (__DEV__) {
+        console.tron.error(`Bad data: ${e.message}\n${response.data}`, e.stack)
+      }
+      return { kind: "bad-data" }
+    }
+  }
+
+  get routes() {
+    return {
+      loginUser: 'auth/login',
+      registerUser: 'auth/register',
+      authenticatedUser: 'auth/authenticated',
+      userProfile: 'user/me',
+      createWorkspace: 'tenant',
+      createOrganization: 'organization',
+    }
   }
 
   // @demo remove-block-start

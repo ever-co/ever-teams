@@ -21,6 +21,27 @@ export interface EpisodeItem {
   categories: string[]
 }
 
+export interface IUser {
+  firstName: string
+  lastName?: string
+  email: string
+  imageUrl?: string
+  tenantId?: string
+  thirdPartyId?: string
+  username?: string
+  preferredLanguage: string
+  preferredComponentLayout?: string
+  isActive: boolean
+  roleId?: string
+  id: string
+}
+
+export interface ITenant {
+  name: string
+  logo?: string
+  id: string
+}
+
 export interface ApiFeedResponse {
   status: string
   feed: {
@@ -32,6 +53,21 @@ export interface ApiFeedResponse {
     image: string
   }
   items: EpisodeItem[]
+}
+
+export interface SignupApiResponse {
+  status: string
+  user: IUser
+}
+
+export interface LoginApiResponse extends SignupApiResponse {
+  token: string
+  refresh_token: string
+}
+
+export interface CreateTenantResponse {
+  status: string
+  tenant: ITenant
 }
 
 /**
