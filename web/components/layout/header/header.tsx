@@ -3,8 +3,8 @@ import MainLogo from "./mainLogo";
 import TeamDropdown from "./teamDropdown";
 
 export const Header = () => (
-  <header className="fixed w-full">
-    <nav className="bg-white py-6 dark:bg-gray-800 shadow-sm">
+  <header className="fixed w-full z-50">
+    <nav className="bg-white py-6 dark:bg-[#19191d] shadow-sm">
       <div className="flex container flex-wrap justify-between items-center mx-auto max-w-screen-xl">
         <div className="flex items-center space-x-3">
           <MainLogo />
@@ -68,7 +68,7 @@ export const Header = () => (
               </a>
             </li>
             <li className="flex items-center space-x-4">
-              <span className="font-normal ml-3 block truncate">
+              <span className="font-normal ml-3 block truncate dark:text-white font-poppins">
                 Roslan Kan
               </span>
               <img
