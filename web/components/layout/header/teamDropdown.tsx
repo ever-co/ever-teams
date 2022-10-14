@@ -1,4 +1,10 @@
-export default function TeamDropdown() {
+import React from "react";
+
+export default function TeamDropdown(list: string[]) {
+  const [isActive, setIsActive] = React.useState<boolean>(false);
+  const [selected, setSelected] = React.useState<String>();
+  list = ["Team Alpha", "Team Beta"];
+
   return (
     <div className="relative inline-block w-full">
       <div>
@@ -6,8 +12,9 @@ export default function TeamDropdown() {
           type="button"
           className="inline-flex w-full justify-between rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
           id="menu-button"
+          onClick={() => setIsActive(!isActive)}
         >
-          <span>Team Names</span>
+          <span>{selected == null ? "Team Names" : selected}</span>
           <svg
             className="-mr-1 ml-2 h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"
@@ -23,6 +30,22 @@ export default function TeamDropdown() {
           </svg>
         </button>
       </div>
+      {isActive && (
+        <div className="absolute z-1 top-110 bg-white shadow-lg w-full p-1 cursor-pointer">
+          {list.map((item, index) => (
+            <div
+              key={index}
+              onClick={(e) => {
+                setSelected(item);
+                setIsActive(false);
+              }}
+              className="p-1 cursor-pointer hover:bg-gray-100 ease-out duration-200"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
