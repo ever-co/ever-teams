@@ -17,7 +17,7 @@ const Meta = ({ title, keywords, description }: MetaProps) => {
 };
 
 Meta.defaultProps = {
-  title: "Gauzy - team ",
+  title: "Gauzy Teams",
   keywords: "",
   description: "",
 };

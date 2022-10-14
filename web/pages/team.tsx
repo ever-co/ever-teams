@@ -11,7 +11,7 @@ const Team = () => {
   return (
     <div className="flex flex-col h-screen justify-between bg-white dark:bg-dark_background_color">
       <div></div>
-      <div className="w-[476px] mx-auto rounded drop-shadow-md bg-white p-10 dark:bg-dark_card_background_color dark:bg-opacity-30">
+      <div className="w-[476px] mx-auto rounded drop-shadow-md bg-white p-10 card__bg-color">
         <div className="flex justify-center w-full">
           <TeamLogo />
         </div>

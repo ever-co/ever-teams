@@ -1,4 +1,4 @@
-export default function TeamDropdown() {
+export default function TeamDropdown({ text = "Team Name" }) {
   return (
     <div className="relative inline-block w-full">
       <div>
@@ -7,7 +7,7 @@ export default function TeamDropdown() {
           className="inline-flex w-full justify-between rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
           id="menu-button"
         >
-          <span>Team Names</span>
+          <span>{text}</span>
           <svg
             className="-mr-1 ml-2 h-5 w-5"
             xmlns="http://www.w3.org/2000/svg"

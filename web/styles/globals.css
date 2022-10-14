@@ -5,8 +5,13 @@
 @tailwind utilities;
 
 body {
-  @apply font-poppins bg-[#f5f5f5];
+  @apply bg-[#f5f5f5] dark:bg-dark_background_color;
 }
+
+.card__bg-color {
+  @apply dark:bg-dark_card_background_color dark:bg-opacity-50;
+}
+
 .container,
 .container-fluid,
 .container-xxl,
@@ -70,6 +75,10 @@ body {
   width: max-content;
   height: 2.1rem;
   transform: scale(0.85);
+}
+
+.dark\:bg-dark_card_background_color {
+  @apply dark:bg-opacity-30;
 }
 
 .toggleThemeContainer button {
