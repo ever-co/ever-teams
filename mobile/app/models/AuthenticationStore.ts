@@ -6,6 +6,7 @@ export const AuthenticationStoreModel = types
     authToken: types.maybe(types.string),
     authEmail: types.optional(types.string, ""),
     authTeamName: types.optional(types.string, ""),
+    authUsername: types.optional(types.string, ""),
     authInviteCode: types.optional(types.string, ""),
   })
   .views((store) => ({
@@ -39,12 +40,16 @@ export const AuthenticationStoreModel = types
       store.authTeamName = value.replace(/ /g, "")
     },
     setAuthInviteCode(value: string) {
-      store.authTeamName = value.replace(/ /g, "")
+      store.authInviteCode = value.replace(/ /g, "")
+    },
+    setAuthUsername(value: string) {
+      store.authUsername = value.replace(/ /g, "")
     },
     logout() {
       store.authToken = undefined
       store.authEmail = ""
       store.authTeamName = ""
+      store.authUserName = ""
       store.authInviteCode = ""
     },
   }))

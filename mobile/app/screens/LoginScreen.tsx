@@ -7,6 +7,7 @@ import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
+
 import * as Animatable from "react-native-animatable"
 const pkg = require("../../package.json")
 
@@ -15,17 +16,22 @@ interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const authTeamInput = useRef<TextInput>()
-  const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [newteam, setNewteam] = useState<boolean>(false)
+  const [screenstatus, setScreenStatus] = useState<{ screen: boolean; animation: boolean }>({
+    screen: false,
+    animation: false,
+  })
+  const [withteam, setWithTeam] = useState<boolean>(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
   const {
     authenticationStore: {
       authEmail,
       authTeamName,
+      authUsername,
       authInviteCode,
       setAuthEmail,
       setAuthTeamName,
+      setAuthUsername,
       setAuthToken,
       setAuthInviteCode,
       validationErrors,
@@ -35,8 +41,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   useEffect(() => {
     // Here is where you could fetch credientials from keychain or storage
     // and pre-fill the form fields.
-    setAuthEmail("gauzy@ever.tech")
-    setAuthTeamName("GauzyTeam")
+    // setAuthEmail("gauzy@ever.tech")
+    // setAuthTeamName("GauzyTeam")
   }, [])
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
@@ -52,6 +58,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setIsSubmitted(false)
     setAuthTeamName("")
     setAuthEmail("")
+    setAuthUsername("")
     setAuthInviteCode("")
 
     // We'll mock this with a fake token.
@@ -70,6 +77,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setAuthTeamName("")
     setAuthEmail("")
     setAuthInviteCode("")
+    setAuthUsername("")
 
     // We'll mock this with a fake token.
     setAuthToken(String(Date.now()))
@@ -93,8 +101,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
         <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={$smalltext} />
       </Animatable.View>
-      {!newteam ? (
-        <Animatable.View animation="bounceInDown" delay={1000} style={$container}>
+      {!screenstatus.screen && !withteam ? (
+        <Animatable.View
+          animation={screenstatus.animation ? "bounceInLeft" : "bounceInDown"}
+          delay={1000}
+          style={$container}
+        >
           <View style={$form}>
             <Text
               testID="login-heading"
@@ -116,6 +128,67 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               status={errors?.authTeamName ? "error" : undefined}
               onSubmitEditing={() => authTeamInput.current?.focus()}
             />
+
+            <Button
+              testID="login-button"
+              tx="loginScreen.tapContinue"
+              style={$tapButton}
+              textStyle={{}}
+              preset="reversed"
+              onPress={
+                authTeamName !== ""
+                  ? () => {
+                      setScreenStatus({ screen: true, animation: true })
+                    }
+                  : null
+              }
+            />
+            <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
+              {" "}
+              You got a invite code ?{" "}
+            </Text>
+            <Pressable
+              onPress={() => {
+                setWithTeam(true)
+                setScreenStatus({ screen: screenstatus.screen, animation: false })
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 17,
+                  fontFamily: "Helvetica Neue",
+                  textDecorationLine: "underline",
+                }}
+              >
+                {" "}
+                Join as a team member
+              </Text>
+            </Pressable>
+          </View>
+        </Animatable.View>
+      ) : screenstatus.screen ? (
+        <Animatable.View animation={"bounceInRight"} delay={1000} style={$container}>
+          <View style={$form}>
+            <Text
+              testID="login-heading"
+              tx="loginScreen.enterDetails"
+              preset="heading"
+              style={$text}
+            />
+
+            <TextField
+              ref={authTeamInput}
+              value={authUsername}
+              onChangeText={setAuthUsername}
+              containerStyle={$textField}
+              autoCapitalize="none"
+              autoCorrect={false}
+              labelTx="loginScreen.userNameFieldLabel"
+              placeholderTx="loginScreen.userNameFieldPlaceholder"
+              helper={errors?.authTeamName}
+              status={errors?.authTeamName ? "error" : undefined}
+              onSubmitEditing={() => authTeamInput.current?.focus()}
+            />
             <TextField
               value={authEmail}
               onChangeText={setAuthEmail}
@@ -130,35 +203,30 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               status={errors?.authEmail ? "error" : undefined}
               onSubmitEditing={() => authTeamInput.current?.focus()}
             />
-
-            <Button
-              testID="login-button"
-              tx="loginScreen.tapCreate"
-              style={$tapButton}
-              textStyle={{}}
-              preset="reversed"
-              onPress={createNewTeam}
-            />
-            <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
-              {" "}
-              You got a invite code ?{" "}
-            </Text>
-            <Pressable
-              onPress={() => {
-                setNewteam(true)
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 17,
-                  fontFamily: "Helvetica Neue",
-                  textDecorationLine: "underline",
+            <View style={$buttonsView}>
+              <Button
+                testID="login-button"
+                // tx="loginScreen.tapCreate"
+                style={$backButton}
+                textStyle={{}}
+                preset="reversed"
+                onPress={() => {
+                  setWithTeam(false)
+                  setScreenStatus({ screen: false, animation: true })
                 }}
               >
-                {" "}
-                Join as a team member
-              </Text>
-            </Pressable>
+                <Icon icon="back" />
+              </Button>
+
+              <Button
+                testID="login-button"
+                tx="loginScreen.tapCreate"
+                style={$tapButton}
+                textStyle={{}}
+                preset="reversed"
+                onPress={createNewTeam}
+              />
+            </View>
           </View>
         </Animatable.View>
       ) : (
@@ -213,7 +281,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
             </Text>
             <Pressable
               onPress={() => {
-                setNewteam(false)
+                setWithTeam(false)
               }}
             >
               <Text
@@ -291,11 +359,6 @@ const $text: TextStyle = {
 const $welcomeLogo: ImageStyle = {
   width: "100%",
 }
-const $hint: TextStyle = {
-  color: colors.tint,
-  marginBottom: spacing.medium,
-  fontFamily: "Helvetica Neue",
-}
 
 const $textField: ViewStyle = {
   marginBottom: spacing.large,
@@ -305,9 +368,27 @@ const $textField: ViewStyle = {
 
 const $tapButton: ViewStyle = {
   marginTop: spacing.extraSmall,
-  width: "98%",
+  width: "80%",
   borderRadius: 50,
   backgroundColor: colors.primary,
+}
+const $buttonsView: ViewStyle = {
+  width: "100%",
+  display: "flex",
+  flexDirection: "row",
+  alignContent: "center",
+  justifyContent: "space-around",
+}
+
+const $backButton: ViewStyle = {
+  height: 45,
+  width: 45,
+  marginTop: spacing.extraSmall,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 50,
+  backgroundColor: colors.palette.neutral200,
 }
 const $release: TextStyle = {
   fontSize: 10,
