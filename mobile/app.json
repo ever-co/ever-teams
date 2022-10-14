@@ -1,10 +1,10 @@
 {
-  "name": "gauzy team",
-  "displayName": "Gauzy Team",
+  "name": "gauzy-teams",
+  "displayName": "Gauzy Teams",
   "expo": {
-    "name": "Gauzy Team",
-    "slug": "Gauzy Team",
-    "version": "1.0.0",
+    "name": "Gauzy Teams",
+    "slug": "Gauzy Teams",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon-all.png",
     "splash": {
