@@ -15,7 +15,7 @@ export function TimerTasksSection() {
           </div>
         </div>
         <div className="mt-5">
-          <span className="font-poppins dark:text-opacity-80  bg-[#6e49e82a] rounded-md text-sm font-medium text-slate-600  dark:text-white p-2">
+          <span className="dark:text-opacity-80  bg-[#6e49e82a] rounded-md text-sm font-medium text-slate-600  dark:text-white p-2">
             Estimated: 40h:15min
           </span>
         </div>

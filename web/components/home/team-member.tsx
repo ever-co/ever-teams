@@ -26,7 +26,7 @@ function TeamList() {
   return (
     <div className="p-0 overflow-x-auto mt-9">
       <div className="py-6">
-        <h5 className="font-poppins mb-0 capitalize text-lg text-slate-400 font-semibold leading-tight">
+        <h5 className=" mb-0 capitalize text-lg text-slate-400 font-semibold leading-tight">
           Team members
         </h5>
       </div>
@@ -59,7 +59,7 @@ function TeamList() {
                     <div className={`rounded-[50%] w-5 h-5 ${bgColor}`}></div>
                   </div>
                   <div className="flex flex-col justify-center">
-                    <h6 className="font-poppins mb-0 text-base leading-normal dark:text-white dark:opacity-80">
+                    <h6 className=" mb-0 text-base leading-normal dark:text-white dark:opacity-80">
                       {item.name}
                     </h6>
                   </div>
