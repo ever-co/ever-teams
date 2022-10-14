@@ -8,7 +8,7 @@ const palette = {
   neutral500: "#978F8A",
   neutral600: "#564E4A",
   neutral700: "#3C3836",
-  neutral800: "#191015",
+  neutral800: "#173A56",
   neutral900: "#000000",
 
   primary100: "#DCDDE9",
@@ -36,6 +36,8 @@ const palette = {
 
   overlay20: "rgba(25, 16, 21, 0.2)",
   overlay50: "rgba(25, 16, 21, 0.5)",
+  background: "rgb(255,255,255)",
+  primaryPurple: "#11008B",
 }
 
 export const colors = {
@@ -60,7 +62,8 @@ export const colors = {
   /**
    * The default color of the screen background.
    */
-  background: palette.neutral200,
+  primary: palette.primaryPurple,
+  background: palette.background,
   /**
    * The default border color.
    */
