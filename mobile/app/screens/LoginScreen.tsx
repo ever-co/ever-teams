@@ -23,9 +23,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     authenticationStore: {
       authEmail,
       authTeamName,
+      authInviteCode,
       setAuthEmail,
       setAuthTeamName,
       setAuthToken,
+      setAuthInviteCode,
       validationErrors,
     },
   } = useStores()
@@ -39,7 +41,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
-  function login() {
+  function joinTeam() {
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 
@@ -50,6 +52,24 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setIsSubmitted(false)
     setAuthTeamName("")
     setAuthEmail("")
+    setAuthInviteCode("")
+
+    // We'll mock this with a fake token.
+    setAuthToken(String(Date.now()))
+  }
+
+  function createNewTeam() {
+    setIsSubmitted(true)
+    setAttemptsCount(attemptsCount + 1)
+
+    if (Object.values(validationErrors).some((v) => !!v)) return
+
+    // Make a request to your server to get an authentication token.
+    // If successful, reset the fields and set the token.
+    setIsSubmitted(false)
+    setAuthTeamName("")
+    setAuthEmail("")
+    setAuthInviteCode("")
 
     // We'll mock this with a fake token.
     setAuthToken(String(Date.now()))
@@ -59,6 +79,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     return () => {
       setAuthTeamName("")
       setAuthEmail("")
+      setAuthInviteCode("")
     }
   }, [])
 
@@ -116,7 +137,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               style={$tapButton}
               textStyle={{}}
               preset="reversed"
-              onPress={login}
+              onPress={createNewTeam}
             />
             <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
               {" "}
@@ -152,8 +173,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
             <TextField
               ref={authTeamInput}
-              value={authTeamName}
-              onChangeText={setAuthTeamName}
+              value={authInviteCode}
+              onChangeText={setAuthInviteCode}
               containerStyle={$textField}
               autoCapitalize="none"
               autoCorrect={false}
@@ -184,7 +205,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               style={$tapButton}
               textStyle={{}}
               preset="reversed"
-              onPress={login}
+              onPress={joinTeam}
             />
             <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
               {" "}
