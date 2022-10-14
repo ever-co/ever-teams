@@ -7,16 +7,17 @@ import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
+import * as Animatable from "react-native-animatable"
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/logo.png")
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
-  const authPasswordInput = useRef<TextInput>()
+  const authTeamInput = useRef<TextInput>()
   const [isAuthPasswordHidden, setIsAuthPasswordHidden] = useState(true)
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [ismanager, setIsmanager] = useState<boolean>(false)
+  const [newteam, setNewteam] = useState<boolean>(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
   const {
     authenticationStore: {
@@ -67,74 +68,147 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       contentContainerStyle={$screenContentContainer}
       safeAreaEdges={["top", "bottom"]}
     >
-      <View style={$header}>
+      <Animatable.View animation="wobble" duration={2500} style={$header}>
         <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
         <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={$smalltext} />
-      </View>
-
-      <View style={$container}>
-        <View style={$form}>
-          <Text
-            testID="login-heading"
-            tx="loginScreen.enterDetails"
-            preset="heading"
-            style={$text}
-          />
-          {attemptsCount > 2 && (
-            <Text tx="loginScreen.hint" size="sm" weight="light" style={$hint} />
-          )}
-          <TextField
-            ref={authPasswordInput}
-            value={authTeamName}
-            onChangeText={setAuthTeamName}
-            inputWrapperStyle={$textField}
-            autoCapitalize="none"
-            autoCorrect={false}
-            labelTx="loginScreen.teamNameFieldLabel"
-            placeholderTx="loginScreen.teamNameFieldPlaceholder"
-            onSubmitEditing={login}
-          />
-          <TextField
-            value={authEmail}
-            onChangeText={setAuthEmail}
-            inputWrapperStyle={$textField}
-            autoCapitalize="none"
-            autoComplete="email"
-            autoCorrect={false}
-            keyboardType="email-address"
-            labelTx="loginScreen.emailFieldLabel"
-            placeholderTx="loginScreen.emailFieldPlaceholder"
-            helper={errors?.authEmail}
-            status={errors?.authEmail ? "error" : undefined}
-            onSubmitEditing={() => authPasswordInput.current?.focus()}
-          />
-
-          <Button
-            testID="login-button"
-            tx="loginScreen.tapToSignIn"
-            style={$tapButton}
-            textStyle={{}}
-            preset="reversed"
-            onPress={login}
-          />
-          <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
-            {" "}
-            You got a invite code ?{" "}
-          </Text>
-          <Pressable>
+      </Animatable.View>
+      {!newteam ? (
+        <Animatable.View animation="bounceInDown" delay={1000} style={$container}>
+          <View style={$form}>
             <Text
-              style={{
-                fontSize: 17,
-                fontFamily: "Helvetica Neue",
-                textDecorationLine: "underline",
+              testID="login-heading"
+              tx="loginScreen.enterDetails"
+              preset="heading"
+              style={$text}
+            />
+
+            <TextField
+              ref={authTeamInput}
+              value={authTeamName}
+              onChangeText={setAuthTeamName}
+              containerStyle={$textField}
+              autoCapitalize="none"
+              autoCorrect={false}
+              labelTx="loginScreen.teamNameFieldLabel"
+              placeholderTx="loginScreen.teamNameFieldPlaceholder"
+              helper={errors?.authTeamName}
+              status={errors?.authTeamName ? "error" : undefined}
+              onSubmitEditing={() => authTeamInput.current?.focus()}
+            />
+            <TextField
+              value={authEmail}
+              onChangeText={setAuthEmail}
+              containerStyle={$textField}
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect={false}
+              keyboardType="email-address"
+              labelTx="loginScreen.emailFieldLabel"
+              placeholderTx="loginScreen.emailFieldPlaceholder"
+              helper={errors?.authEmail}
+              status={errors?.authEmail ? "error" : undefined}
+              onSubmitEditing={() => authTeamInput.current?.focus()}
+            />
+
+            <Button
+              testID="login-button"
+              tx="loginScreen.tapCreate"
+              style={$tapButton}
+              textStyle={{}}
+              preset="reversed"
+              onPress={login}
+            />
+            <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
+              {" "}
+              You got a invite code ?{" "}
+            </Text>
+            <Pressable
+              onPress={() => {
+                setNewteam(true)
               }}
             >
+              <Text
+                style={{
+                  fontSize: 17,
+                  fontFamily: "Helvetica Neue",
+                  textDecorationLine: "underline",
+                }}
+              >
+                {" "}
+                Join as a team member
+              </Text>
+            </Pressable>
+          </View>
+        </Animatable.View>
+      ) : (
+        <Animatable.View animation="bounceInUp" style={$container}>
+          <View style={$form}>
+            <Text
+              testID="login-heading"
+              tx="loginScreen.enterDetails2"
+              preset="heading"
+              style={$text}
+            />
+
+            <TextField
+              ref={authTeamInput}
+              value={authTeamName}
+              onChangeText={setAuthTeamName}
+              containerStyle={$textField}
+              autoCapitalize="none"
+              autoCorrect={false}
+              labelTx="loginScreen.inviteCodeFieldLabel"
+              placeholderTx="loginScreen.inviteCodeFieldPlaceholder"
+              helper={errors?.authTeamName}
+              status={errors?.authTeamName ? "error" : undefined}
+              onSubmitEditing={() => authTeamInput.current?.focus()}
+            />
+            <TextField
+              value={authEmail}
+              onChangeText={setAuthEmail}
+              containerStyle={$textField}
+              autoCapitalize="none"
+              autoComplete="email"
+              autoCorrect={false}
+              keyboardType="email-address"
+              labelTx="loginScreen.emailFieldLabel"
+              placeholderTx="loginScreen.emailFieldPlaceholder"
+              helper={errors?.authEmail}
+              status={errors?.authEmail ? "error" : undefined}
+              onSubmitEditing={() => authTeamInput.current?.focus()}
+            />
+
+            <Button
+              testID="login-button"
+              tx="loginScreen.tapJoin"
+              style={$tapButton}
+              textStyle={{}}
+              preset="reversed"
+              onPress={login}
+            />
+            <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
               {" "}
-              Join as a team member
+              or{" "}
             </Text>
-          </Pressable>
-        </View>
-      </View>
+            <Pressable
+              onPress={() => {
+                setNewteam(false)
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 17,
+                  fontFamily: "Helvetica Neue",
+                  textDecorationLine: "underline",
+                }}
+              >
+                {" "}
+                Create new team
+              </Text>
+            </Pressable>
+          </View>
+        </Animatable.View>
+      )}
       <Text style={$release}> Version: {pkg.version}</Text>
     </Screen>
   )
@@ -157,12 +231,14 @@ const $header: ViewStyle = {
 }
 
 const $container: ViewStyle = {
-  // paddingVertical: spacing.huge,
+  paddingVertical: spacing.large,
   width: "100%",
-  height: "80%",
+  // height: "60%",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+
+  overflow: "hidden",
 }
 
 const $form: ViewStyle = {

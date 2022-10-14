@@ -36,9 +36,12 @@ const en = {
     enterDetails2: "Join as a team member",
     emailFieldLabel: "Your email",
     teamNameFieldLabel: "Team name",
+    inviteCodeFieldLabel: "Invite code",
     emailFieldPlaceholder: "Enter your email address",
     teamNameFieldPlaceholder: "Enter team name",
-    tapToSignIn: "Create team",
+    inviteCodeFieldPlaceholder: "Enter your invite code",
+    tapCreate: "Create team",
+    tapJoin: "Join",
     hint: "Hint: you can use any email address and your favorite password :)",
   },
   demoNavigator: {
