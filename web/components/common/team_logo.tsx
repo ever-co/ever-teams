@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { useTheme } from "next-themes";
-export default function MainLogo() {
+export default function TeamLogo() {
   return (
     <Link href="/">
       <a target="_self">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="154.604"
-          height="35"
+          width="354.604"
+          height="45"
           viewBox="0 0 134.604 25"
           className="text-primary dark:text-white"
         >
