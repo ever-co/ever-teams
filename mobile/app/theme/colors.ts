@@ -8,21 +8,22 @@ const palette = {
   neutral500: "#978F8A",
   neutral600: "#564E4A",
   neutral700: "#3C3836",
-  neutral800: "#191015",
+  neutral800: "#173A56",
   neutral900: "#000000",
 
-  primary100: "#F4E0D9",
-  primary200: "#E8C1B4",
-  primary300: "#DDA28E",
-  primary400: "#D28468",
-  primary500: "#C76542",
-  primary600: "#A54F31",
+  primary100: "#DCDDE9",
+  primary200: "#BCC0D6",
+  primary300: "#9196B9",
+  primary400: "#626894",
+  primary500: "#41476E",
+  primary600: "#6E49E8",
 
-  secondary100: "#DCDDE9",
-  secondary200: "#BCC0D6",
-  secondary300: "#9196B9",
-  secondary400: "#626894",
-  secondary500: "#41476E",
+  secondary100: "#F4E0D9",
+  secondary200: "#E8C1B4",
+  secondary300: "#DDA28E",
+  secondary400: "#D28468",
+  secondary500: "#C76542",
+  secondary600: "#A54F31",
 
   accent100: "#FFEED4",
   accent200: "#FFE1B2",
@@ -35,6 +36,8 @@ const palette = {
 
   overlay20: "rgba(25, 16, 21, 0.2)",
   overlay50: "rgba(25, 16, 21, 0.5)",
+  background: "rgb(255,255,255)",
+  primaryPurple: "#11008B",
 }
 
 export const colors = {
@@ -59,7 +62,8 @@ export const colors = {
   /**
    * The default color of the screen background.
    */
-  background: palette.neutral200,
+  primary: palette.primaryPurple,
+  background: palette.background,
   /**
    * The default border color.
    */

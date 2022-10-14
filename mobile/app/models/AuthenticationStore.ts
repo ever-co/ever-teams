@@ -5,7 +5,9 @@ export const AuthenticationStoreModel = types
   .props({
     authToken: types.maybe(types.string),
     authEmail: types.optional(types.string, ""),
-    authPassword: types.optional(types.string, ""),
+    authTeamName: types.optional(types.string, ""),
+    authUsername: types.optional(types.string, ""),
+    authInviteCode: types.optional(types.string, ""),
   })
   .views((store) => ({
     get isAuthenticated() {
@@ -14,15 +16,14 @@ export const AuthenticationStoreModel = types
     get validationErrors() {
       return {
         authEmail: (function () {
-          if (store.authEmail.length === 0) return "can't be blank"
-          if (store.authEmail.length < 6) return "must be at least 6 characters"
+          if (store.authEmail.length === 0) return "This filed can't be blank"
+          if (store.authEmail.length < 6) return "Must be at least 6 characters"
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(store.authEmail))
-            return "must be a valid email address"
+            return "Must be a valid email address"
           return ""
         })(),
-        authPassword: (function () {
-          if (store.authPassword.length === 0) return "can't be blank"
-          if (store.authPassword.length < 6) return "must be at least 6 characters"
+        authTeamName: (function () {
+          if (store.authTeamName.length === 0) return "This filed can't be blank"
           return ""
         })(),
       }
@@ -35,13 +36,21 @@ export const AuthenticationStoreModel = types
     setAuthEmail(value: string) {
       store.authEmail = value.replace(/ /g, "")
     },
-    setAuthPassword(value: string) {
-      store.authPassword = value.replace(/ /g, "")
+    setAuthTeamName(value: string) {
+      store.authTeamName = value.replace(/ /g, "")
+    },
+    setAuthInviteCode(value: string) {
+      store.authInviteCode = value.replace(/ /g, "")
+    },
+    setAuthUsername(value: string) {
+      store.authUsername = value.replace(/ /g, "")
     },
     logout() {
       store.authToken = undefined
       store.authEmail = ""
-      store.authPassword = ""
+      store.authTeamName = ""
+      store.authUserName = ""
+      store.authInviteCode = ""
     },
   }))
 

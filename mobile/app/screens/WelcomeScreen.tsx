@@ -15,6 +15,9 @@ import { useStores } from "../models" // @demo remove-current-line
 import { AppStackScreenProps } from "../navigators" // @demo remove-current-line
 import { colors, spacing } from "../theme"
 
+// STYLES
+import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
+
 const welcomeLogo = require("../../assets/images/logo.png")
 const welcomeFace = require("../../assets/images/welcome-face.png")
 
@@ -30,6 +33,10 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
   } = useStores()
 
   function goNext() {
+    navigation.navigate("Authenticated")
+  }
+
+  function goToDemo() {
     navigation.navigate("Demo", { screen: "DemoShowroom" })
   }
 
@@ -59,12 +66,17 @@ export const WelcomeScreen: FC<WelcomeScreenProps> = observer(function WelcomeSc
         <View style={$bottomContentContainer}>
           <Text tx="welcomeScreen.postscript" size="md" />
           {/* @demo remove-block-start */}
-          <Button
-            testID="next-screen-button"
-            preset="reversed"
-            tx="welcomeScreen.letsGo"
-            onPress={goNext}
-          />
+          <View style={GS.inlineItems}>
+            <Button
+              testID="next-screen-button"
+              preset="reversed"
+              tx="welcomeScreen.letsGo"
+              onPress={goNext}
+              style={[GS.mr2, GS.flex1]}
+            />
+
+            <Button testID="next-screen-button" tx="demoDebugScreen.demoList" onPress={goToDemo} />
+          </View>
           {/* @demo remove-block-end */}
         </View>
       </SafeAreaView>
