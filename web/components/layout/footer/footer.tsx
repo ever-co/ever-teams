@@ -1,15 +1,14 @@
-import React from "react";
 import ToggleThemeContainer from "../toggleThemeBtns";
 
 const Footer = () => {
   return (
-    <footer className="h-16 flex items-center justify-between container mx-auto font-light">
+    <footer className="py-8 h-16 flex items-center justify-between container mx-auto font-light">
       <div className="text-light">
         @ 2019-Present,{" "}
         <a
           href="https://gauzy.co"
           target="_blank"
-          className="text-primary"
+          className="text-primary dark:text-gray-300"
           rel="noreferrer"
         >
           Gauzy
@@ -18,7 +17,7 @@ const Footer = () => {
         <a
           href="https://ever.co"
           target="_blank"
-          className="text-primary"
+          className="text-primary dark:text-gray-300"
           rel="noreferrer"
         >
           Ever Co. LTD.
@@ -30,7 +29,7 @@ const Footer = () => {
           <a
             href="https://demo.gauzy.co/#/pages/legal/terms"
             target="_blank"
-            className="text-primary "
+            className="text-primary dark:text-gray-300"
             rel="noreferrer"
           >
             Terms Of Service
@@ -38,7 +37,7 @@ const Footer = () => {
           <a
             href="https://demo.gauzy.co/#/pages/legal/privacy"
             target="_blank"
-            className="text-primary"
+            className="text-primary dark:text-gray-300"
             rel="noreferrer"
           >
             Privacy Policy
