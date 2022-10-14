@@ -21,6 +21,7 @@ import {
   LoginScreen, // @demo remove-current-line
   WelcomeScreen,
 } from "../screens"
+import { AuthenticatedNavigator, AuthenticatedTabParamList } from "./AuthenticatedNavigator"
 import { DemoNavigator, DemoTabParamList } from "./DemoNavigator" // @demo remove-current-line
 import { navigationRef, useBackButtonHandler } from "./navigationUtilities"
 
@@ -42,6 +43,7 @@ export type AppStackParamList = {
   Login: undefined // @demo remove-current-line
   Demo: NavigatorScreenParams<DemoTabParamList> // @demo remove-current-line
   // 🔥 Your screens go here
+  Authenticated: NavigatorScreenParams<AuthenticatedTabParamList> // @demo remove-current-line
 }
 
 /**
@@ -77,6 +79,8 @@ const AppStack = observer(function AppStack() {
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           {/* @demo remove-block-start */}
           <Stack.Screen name="Demo" component={DemoNavigator} />
+          {/* @app custom-block */}
+          <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} />
         </>
       ) : (
         <>
