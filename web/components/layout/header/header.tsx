@@ -1,6 +1,7 @@
 import React from "react";
 import MainLogo from "./mainLogo";
 import TeamDropdown from "./teamDropdown";
+import Image from "next/image";
 
 export const Header = () => (
   <header className="fixed w-full z-50">
@@ -68,10 +69,10 @@ export const Header = () => (
               </a>
             </li>
             <li className="flex items-center space-x-4">
-              <span className="font-normal ml-3 block truncate dark:text-white font-poppins">
+              <span className="font-normal ml-3 block truncate dark:text-white">
                 Roslan Kan
               </span>
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                 alt=""
                 className="h-6 w-6 flex-shrink-0 rounded-full"
