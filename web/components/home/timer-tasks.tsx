@@ -1,6 +1,10 @@
-import TeamDropdown from "../layout/header/teamDropdown";
+import { useState } from "react";
+import DropDown from "../common/dropDown";
+
+const tasks: string[] = ["Api integration", "Implement header"];
 
 export function TimerTasksSection() {
+  const [selectedTask, setSelectedTask] = useState(tasks[0]);
   return (
     <div className="grid grid-cols-4 pt-36 mb-4 justify-between">
       <div className="col-span-2">
@@ -10,7 +14,11 @@ export function TimerTasksSection() {
               Active task:{" "}
             </div>
             <span className="flex-[2]">
-              
+              <DropDown
+                data={tasks}
+                selectedData={selectedTask}
+                handleSelectData={setSelectedTask}
+              />
             </span>
           </div>
         </div>
