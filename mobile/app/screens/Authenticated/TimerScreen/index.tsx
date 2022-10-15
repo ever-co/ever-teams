@@ -2,7 +2,7 @@ import React, { FC } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 
 // COMPONENTS
-import { Screen, Text } from "../../../components"
+import { Screen, SelectCard, Text } from "../../../components"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import TimerCard from "../TimerScreen/components/TimerCard"
 
@@ -16,6 +16,8 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         <Text preset="heading" style={$title}>
           Timer
         </Text>
+
+        <SelectCard label="Select project" />
 
         {/* Timer card */}
         <TimerCard />
