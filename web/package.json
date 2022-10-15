@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.12",
+    "axios": "^1.1.2",
+    "js-cookie": "^3.0.1",
     "next": "12.3.1",
     "next-themes": "^0.2.1",
     "postcss": "^8.4.17",
