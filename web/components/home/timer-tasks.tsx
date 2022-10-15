@@ -10,7 +10,7 @@ export function TimerTasksSection() {
               Active task:{" "}
             </div>
             <span className="flex-[2]">
-              <TeamDropdown text="Task name" />
+              
             </span>
           </div>
         </div>
