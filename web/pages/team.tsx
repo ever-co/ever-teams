@@ -1,17 +1,42 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import TeamLogo from "../components/common/team_logo";
 import Footer from "../components/layout/footer/footer";
 import Router from "next/router";
+import FirstStep from "../components/team/steppers/firstStep";
+import SecondStep from "../components/team/steppers/secondStep";
+import { IRegisterData, IUser, IUserData } from "../app/interfaces/IUserData";
+import { register } from "../app/services/auth";
+
+const FIRST_STEP = "STEP1";
+const SECOND_STEP = "STEP2";
 
 const Team = () => {
+  const [step, setStep] = useState(FIRST_STEP);
+  const [formValues, setFormValues] = useState<IUser>({ firstName: '', lastName: '', email: '' });
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    Router.push("/main");
+    if (step === FIRST_STEP) {
+      setStep(SECOND_STEP);
+    } else {
+      const passwordRandom = Math.random().toString(36).slice(2, 10);
+      const userData: IRegisterData = { user: formValues, password: passwordRandom, confirmPassword: passwordRandom }
+      register(userData);
+    }
   };
+
+  const handleOnChange = useCallback((e: any) => {
+    const { name, value } = e.target;
+    setFormValues(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  }, []);
+
   return (
     <div className="flex flex-col h-screen justify-between bg-white dark:bg-dark_background_color">
-      <div></div>
-      <div className="w-[476px] mx-auto rounded drop-shadow-md bg-white p-10 card__bg-color">
+      <div />
+      <div className="w-[476px] mx-auto rounded bg-white p-10 dark:bg-dark_card_background_color dark:bg-opacity-30">
         <div className="flex justify-center w-full">
           <TeamLogo />
         </div>
@@ -22,40 +47,8 @@ const Team = () => {
           Create new Team
         </div>
         <form onSubmit={handleSubmit} method="post">
-          <div className="mb-5">
-            <label
-              htmlFor="email"
-              className="mb-3 block text-base font-medium text-label dark:text-gray-400"
-            >
-              Team name:
-            </label>
-            <input
-              type="text"
-              name="name"
-              id="name"
-              placeholder="Gauzy team"
-              required
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-primary focus:shadow-md dark:bg-dark_background_color"
-            />
-          </div>
-
-          <div className="mb-5">
-            <label
-              htmlFor="email"
-              className="mb-3 block text-base font-medium text-label dark:text-gray-400"
-            >
-              Your email :
-            </label>
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder="example@domain.com"
-              required
-              className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-primary focus:shadow-md dark:bg-dark_background_color"
-            />
-          </div>
-
+          {step === FIRST_STEP && <FirstStep handleOnChange={handleOnChange} />}
+          {step === SECOND_STEP && <SecondStep handleOnChange={handleOnChange} />}
           <div className="mb-5 flex justify-between items-center">
             <div className="underline text-label cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
               Join as Team member ?
@@ -64,7 +57,7 @@ const Team = () => {
               className="w-1/2 my-4 px-4 py-2 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-md hover:opacity-90 focus:outline-none"
               type="submit"
             >
-              Create Team
+              {step === FIRST_STEP ? "Next" : "Create Team"}
             </button>
           </div>
         </form>
