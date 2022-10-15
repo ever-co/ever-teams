@@ -1,16 +1,16 @@
 import React, { FC } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 
-// COMPONENTS
-import ActiveTaskCard from "./components/ActiveTaskCard"
-import TimerCard from "./components/TimerCard"
-import { Button, Screen, Text } from "../../../components"
+// TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
+
+// COMPONENTS
+import { Button, Screen, Text, SelectCard } from "../../../components"
+import ListCardItem from "./components/ListCardItem"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
-import ListCardItem from "./components/ListCardItem"
 
 export const AuthenticatedTeamsScreen: FC<AuthenticatedTabScreenProps<"Teams">> =
   function AuthenticatedTeamsScreen(_props) {
@@ -20,11 +20,15 @@ export const AuthenticatedTeamsScreen: FC<AuthenticatedTabScreenProps<"Teams">> 
           Teams
         </Text>
 
-        {/* Timer card */}
-        <TimerCard />
-
         {/* Active task card */}
-        <ActiveTaskCard />
+        <SelectCard
+          label="Active task"
+          FooterComponent={
+            <Text size="md" weight="bold" style={{ ...GS.ml3 }}>
+              Estimated: {40}h:{15}min
+            </Text>
+          }
+        />
 
         {/* Users activity list */}
         <View style={{ ...GS.my3 }}>

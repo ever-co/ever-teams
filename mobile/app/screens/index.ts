@@ -9,3 +9,4 @@ export * from "./ErrorScreen/ErrorBoundary"
 // export other screens here
 export * from "./Authenticated/TimerScreen"
 export * from "./Authenticated/TeamsScreen"
+export * from "./Authenticated/ProfileScreen"

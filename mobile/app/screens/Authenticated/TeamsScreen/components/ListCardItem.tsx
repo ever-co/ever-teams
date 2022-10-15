@@ -1,5 +1,5 @@
 import React from "react"
-import { View, ViewStyle } from "react-native"
+import { ScrollView, View, ViewStyle, TouchableOpacity } from "react-native"
 
 // COMPONENTS
 import { Icon, Card, Text } from "../../../../components"
@@ -8,50 +8,73 @@ import { Icon, Card, Text } from "../../../../components"
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 
-export type Props = {
+export type ListItemContentProps = {
   variant: "success" | "warning" | "danger"
 }
 
-export const ListItemContent = () => (
+export interface Props extends ListItemContentProps {}
+
+export const ListItemContent: React.FC<ListItemContentProps> = ({ variant }) => (
   <View style={{ ...GS.inlineItems }}>
-    <Text size="sm" weight="bold" style={{ ...GS.p2 }}>
-      User 1
-    </Text>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <TouchableOpacity>
+        <View style={{ ...GS.inlineItems }}>
+          <Text size="sm" weight="bold" style={{ ...GS.p2 }}>
+            User 1
+          </Text>
 
-    <View
-      // eslint-disable-next-line react-native/no-inline-styles
-      style={$listItemSeparatorContent}
-    />
+          <View style={$listItemSeparatorContent} />
 
-    <Text size="sm" style={{ ...GS.p2, ...GS.flex1 }}>
-      02.10.59
-    </Text>
+          <Text size="sm" style={{ ...GS.p2, ...GS.flex1 }}>
+            Task description
+          </Text>
 
-    <View
-      // eslint-disable-next-line react-native/no-inline-styles
-      style={$listItemSeparatorContent}
-    />
+          <View style={$listItemSeparatorContent} />
 
-    <Text size="sm" style={{ ...GS.p2, ...GS.flex1 }}>
-      02.10.59
-    </Text>
+          <View
+            style={{
+              ...GS.positionRelative,
+              ...GS.overflowHidden,
+              ...GS.roundedSm,
+              ...GS.mx2,
+              ...GS.mb2,
+              backgroundColor: colors.palette.neutral200,
+              width: parseInt("80"),
+            }}
+          >
+            <View style={{ ...GS.py1, width: `${70}%`, backgroundColor: CC[variant] }} />
+          </View>
 
-    <Icon icon="caretRight" />
+          <View style={$listItemSeparatorContent} />
+
+          <Text size="sm" style={{ ...GS.p2, ...GS.flex1 }}>
+            02.10.59
+          </Text>
+
+          <View style={$listItemSeparatorContent} />
+
+          <Text size="sm" style={{ ...GS.p2, ...GS.flex1 }}>
+            02.10.59
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </ScrollView>
+
+    <TouchableOpacity>
+      <Icon icon="caretRight" />
+    </TouchableOpacity>
   </View>
 )
 
-const ListCardItem: React.FC<Props> = ({ variant }) => (
+const ListCardItem: React.FC<Props> = (props) => (
   <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
-    <View style={{ ...GS.mr2 }}>
-      <View style={{ ...GS.p3, ...GS.roundedFull, backgroundColor: CC[variant] }} />
-    </View>
-
     <Card
       style={{
         ...$listCard,
-        borderColor: CC[variant],
+        backgroundColor: colors.palette.neutral200 + "55",
+        borderColor: CC[props.variant],
       }}
-      HeadingComponent={<ListItemContent />}
+      HeadingComponent={<ListItemContent {...props} />}
     />
   </View>
 )
