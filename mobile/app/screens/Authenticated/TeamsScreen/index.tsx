@@ -1,14 +1,17 @@
 import React, { FC } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 
+// TYPES
+import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
+
 // COMPONENTS
 import { Button, Screen, Text, SelectCard } from "../../../components"
-import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import ListCardItem from "./components/ListCardItem"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
+
 export const AuthenticatedTeamsScreen: FC<AuthenticatedTabScreenProps<"Teams">> =
   function AuthenticatedTeamsScreen(_props) {
     return (
