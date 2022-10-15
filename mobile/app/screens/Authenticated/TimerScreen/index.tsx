@@ -21,6 +21,12 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
         {/* Timer card */}
         <TimerCard />
+
+        <Text preset="subheading">Details</Text>
+        <Text weight="light">
+          Slack | ever_gauzy | Ever - 14 October 2022 Ruslan Konviser ・a day ago Comments There
+          aren't any comments yet. Be the first. Add a comment on the video above.
+        </Text>
       </Screen>
     )
   }

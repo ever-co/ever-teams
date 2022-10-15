@@ -1,12 +1,12 @@
 import React from "react"
-import { TouchableNativeFeedback, View, ViewStyle } from "react-native"
+import { View } from "react-native"
 
 // COMPONENTS
-import { Icon, Card, Text } from "../../../../components"
+import { Card, Text, Button } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing } from "../../../../theme"
+import { colors } from "../../../../theme"
 
 export type Props = Record<string, unknown>
 
@@ -17,7 +17,7 @@ export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
         02:10:59
       </Text>
 
-      <View>
+      {/* <View>
         <View style={{ ...GS.roundedFull, ...GS.overflowHidden }}>
           <TouchableNativeFeedback>
             <View style={$playButton}>
@@ -25,7 +25,11 @@ export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
             </View>
           </TouchableNativeFeedback>
         </View>
-      </View>
+      </View> */}
+
+      <Button preset="reversed" style={{ backgroundColor: colors.primary }}>
+        Start
+      </Button>
     </View>
   )
 }
@@ -66,13 +70,13 @@ export const TimerCard: React.FC<Record<string, unknown>> = () => {
 
 export default TimerCard
 
-const $playButton: ViewStyle = {
-  ...GS.roundedFull,
-  ...GS.border,
-  ...GS.py0,
-  ...GS.centered,
-  height: spacing.huge,
-  width: spacing.huge,
-  borderColor: colors.palette.primary600,
-  borderWidth: spacing.micro,
-}
+// const $playButton: ViewStyle = {
+//   ...GS.roundedFull,
+//   ...GS.border,
+//   ...GS.py0,
+//   ...GS.centered,
+//   height: spacing.huge,
+//   width: spacing.huge,
+//   borderColor: colors.palette.primary600,
+//   borderWidth: spacing.micro,
+// }
