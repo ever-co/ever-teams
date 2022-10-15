@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import TeamLogo from "../components/common/team_logo";
 import Footer from "../components/layout/footer/footer";
 import Router from "next/router";
@@ -10,26 +10,32 @@ import { register } from "../app/services/auth";
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
 
+const initialValues: IUser = {
+  fullName: "",
+  email: "",
+};
+
 const Team = () => {
   const [step, setStep] = useState(FIRST_STEP);
-  const [formValues, setFormValues] = useState<IUser>({ firstName: '', lastName: '', email: '' });
+  const [formValues, setFormValues] = useState<IUser>(initialValues);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (step === FIRST_STEP) {
       setStep(SECOND_STEP);
     } else {
-      const passwordRandom = Math.random().toString(36).slice(2, 10);
-      const userData: IRegisterData = { user: formValues, password: passwordRandom, confirmPassword: passwordRandom }
-      register(userData);
+      Router.push("/main");
+      // const passwordRandom = Math.random().toString(36).slice(2, 10);
+      // const userData: IRegisterData = { user: formValues, password: passwordRandom, confirmPassword: passwordRandom }
+      // register(userData);
     }
   };
 
   const handleOnChange = useCallback((e: any) => {
     const { name, value } = e.target;
-    setFormValues(prevState => ({
+    setFormValues((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   }, []);
 
@@ -48,7 +54,9 @@ const Team = () => {
         </div>
         <form onSubmit={handleSubmit} method="post">
           {step === FIRST_STEP && <FirstStep handleOnChange={handleOnChange} />}
-          {step === SECOND_STEP && <SecondStep handleOnChange={handleOnChange} />}
+          {step === SECOND_STEP && (
+            <SecondStep handleOnChange={handleOnChange} />
+          )}
           <div className="mb-5 flex justify-between items-center">
             <div className="underline text-label cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
               Join as Team member ?

@@ -1,6 +1,5 @@
 import { Fragment, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
-// import { CheckIcon } from "@heroicons/react/solid";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
 
 interface IDropDownProps {
@@ -25,7 +24,7 @@ const DropDown = ({ data, handleSelectData, selectedData }: IDropDownProps) => {
   return (
     <Combobox value={selectedData} onChange={handleSelectData}>
       <div className="relative mt-1">
-        <div className="relative w-full cursor-default overflow-hidden rounded bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
+        <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-red-500 dark:bg-red-500 text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
           <Combobox.Input
             className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
             onChange={(event) => setQuery(event.target.value)}
