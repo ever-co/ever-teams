@@ -1,9 +1,28 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function TeamDropdown(list: string[]) {
   const [isActive, setIsActive] = React.useState<boolean>(false);
   const [selected, setSelected] = React.useState<String>();
-  list = ["Team Alpha", "Team Beta"];
+  list = [
+    "Team Alpha",
+    "Team Beta",
+    "Team C",
+    "Team D",
+    "Team F",
+    "Team G",
+    "Team H",
+  ];
+
+  // const ref = useRef();
+
+  // useEffect(() => {
+  //   const handleClickOutside = (event: any) => {
+  //     if (!ref?.current?.contains(event.target)) {
+  //       setIsActive(false);
+  //     }
+  //   };
+  //   document.addEventListener("mousedown", handleClickOutside);
+  // }, [ref]);
 
   return (
     <div className="relative inline-block w-full">
@@ -31,19 +50,34 @@ export default function TeamDropdown(list: string[]) {
         </button>
       </div>
       {isActive && (
-        <div className="absolute z-1 top-110 bg-white shadow-lg w-full p-1 cursor-pointer">
-          {list.map((item, index) => (
-            <div
-              key={index}
-              onClick={(e) => {
-                setSelected(item);
-                setIsActive(false);
-              }}
-              className="p-1 cursor-pointer hover:bg-gray-100 ease-out duration-200"
-            >
-              {item}
+        <div className="absolute -mt-7 bg-white shadow-lg rounded-md w-full cursor-pointer border z-1">
+          <div>
+            <div className="w-full flex justify-between p-1 border-b">
+              <div>Teams</div>
+              <div>Add</div>
             </div>
-          ))}
+            <div className="p-1 border-b flex justify-center">
+              <input
+                placeholder="Type or choose a team"
+                type={"text"}
+                className="rounded border pl-1 text-xs w-full h-7 outline-0"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col scroll-smooth max-h-32 overflow-y-auto overflow-hidden">
+            {list.map((item, index) => (
+              <div
+                key={index}
+                onClick={(e) => {
+                  setSelected(item);
+                  setIsActive(false);
+                }}
+                className="pl-3 py-1 cursor-pointer border-b hover:bg-gray-100 ease-out duration-200"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
