@@ -3,7 +3,6 @@ import { TextStyle, View, ViewStyle } from "react-native"
 
 // COMPONENTS
 import ActiveTaskCard from "./components/ActiveTaskCard"
-import TimerCard from "./components/TimerCard"
 import { Button, Screen, Text } from "../../../components"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
@@ -19,9 +18,6 @@ export const AuthenticatedTeamsScreen: FC<AuthenticatedTabScreenProps<"Teams">> 
         <Text preset="heading" style={$title}>
           Teams
         </Text>
-
-        {/* Timer card */}
-        <TimerCard />
 
         {/* Active task card */}
         <ActiveTaskCard />
