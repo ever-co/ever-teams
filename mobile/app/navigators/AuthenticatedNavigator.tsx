@@ -9,7 +9,7 @@ import { Icon } from "../components"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import {
   AuthenticatedProfileScreen,
-  AuthenticatedTeamsScreen,
+  AuthenticatedTeamScreen,
   AuthenticatedTimerScreen,
 } from "../screens"
 
@@ -19,7 +19,7 @@ import { colors, spacing, typography } from "../theme"
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
-  Teams: undefined
+  Team: undefined
   Profile: undefined
 }
 
@@ -61,10 +61,10 @@ export function AuthenticatedNavigator() {
       />
 
       <Tab.Screen
-        name="Teams"
-        component={AuthenticatedTeamsScreen}
+        name="Team"
+        component={AuthenticatedTeamScreen}
         options={{
-          tabBarLabel: "Teams",
+          tabBarLabel: "Team",
           tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
         }}
       />

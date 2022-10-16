@@ -2,7 +2,8 @@ import React, { FC } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 
 // COMPONENTS
-import { Screen, SelectCard, Text } from "../../../components"
+import ActiveTaskCard from "./components/ActiveTaskCard"
+import { Screen, Text } from "../../../components"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import TimerCard from "../TimerScreen/components/TimerCard"
 
@@ -17,16 +18,11 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
           Timer
         </Text>
 
-        <SelectCard label="Select project" />
+        {/* Active task card */}
+        <ActiveTaskCard />
 
         {/* Timer card */}
         <TimerCard />
-
-        <Text preset="subheading">Details</Text>
-        <Text weight="light">
-          Slack | ever_gauzy | Ever - 14 October 2022 Ruslan Konviser ・a day ago Comments There
-          aren't any comments yet. Be the first. Add a comment on the video above.
-        </Text>
       </Screen>
     )
   }

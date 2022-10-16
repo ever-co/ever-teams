@@ -5,30 +5,20 @@ import { TextStyle, View, ViewStyle } from "react-native"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // COMPONENTS
-import { Button, Screen, Text, SelectCard } from "../../../components"
+import { Button, Screen, Text } from "../../../components"
 import ListCardItem from "./components/ListCardItem"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
 
-export const AuthenticatedTeamsScreen: FC<AuthenticatedTabScreenProps<"Teams">> =
-  function AuthenticatedTeamsScreen(_props) {
+export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
+  function AuthenticatedTeamScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <Text preset="heading" style={$title}>
-          Teams
+          Team
         </Text>
-
-        {/* Active task card */}
-        <SelectCard
-          label="Active task"
-          FooterComponent={
-            <Text size="md" weight="bold" style={{ ...GS.ml3 }}>
-              Estimated: {40}h:{15}min
-            </Text>
-          }
-        />
 
         {/* Users activity list */}
         <View style={{ ...GS.my3 }}>
