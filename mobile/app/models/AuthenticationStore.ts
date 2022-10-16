@@ -49,7 +49,6 @@ export const AuthenticationStoreModel = types
       store.authToken = undefined
       store.authEmail = ""
       store.authTeamName = ""
-      store.authUserName = ""
       store.authInviteCode = ""
     },
   }))
