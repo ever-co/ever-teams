@@ -7,7 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 // COMPONENTS
 import { Icon } from "../components"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
-import { AuthenticatedTeamsScreen, AuthenticatedTimerScreen } from "../screens"
+import {
+  AuthenticatedProfileScreen,
+  AuthenticatedTeamScreen,
+  AuthenticatedTimerScreen,
+} from "../screens"
 
 // HELPERS
 // import { translate } from "../i18n"
@@ -15,7 +19,8 @@ import { colors, spacing, typography } from "../theme"
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
-  Teams: undefined
+  Team: undefined
+  Profile: undefined
 }
 
 /**
@@ -47,20 +52,29 @@ export function AuthenticatedNavigator() {
       }}
     >
       <Tab.Screen
-        name="Teams"
-        component={AuthenticatedTeamsScreen}
-        options={{
-          tabBarLabel: "Teams",
-          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
-        }}
-      />
-
-      <Tab.Screen
         name="Timer"
         component={AuthenticatedTimerScreen}
         options={{
           tabBarLabel: "Timer",
           tabBarIcon: ({ focused }) => <Icon icon="bell" color={focused && colors.tint} />,
+        }}
+      />
+
+      <Tab.Screen
+        name="Team"
+        component={AuthenticatedTeamScreen}
+        options={{
+          tabBarLabel: "Team",
+          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
+        }}
+      />
+
+      <Tab.Screen
+        name="Profile"
+        component={AuthenticatedProfileScreen}
+        options={{
+          tabBarLabel: "Profile",
+          tabBarIcon: ({ focused }) => <Icon icon="settings" color={focused && colors.tint} />,
         }}
       />
     </Tab.Navigator>

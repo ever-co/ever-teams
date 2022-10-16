@@ -4,9 +4,10 @@ interface IInputProps {
   type: string;
   placeholder: string;
   required: boolean;
+  onChange: any;
 }
 
-const Input = ({ label, name, type, placeholder, required }: IInputProps) => {
+const Input = ({ label, name, type, placeholder, required, onChange }: IInputProps) => {
   return (
     <div className="mb-5">
       <label
@@ -21,6 +22,7 @@ const Input = ({ label, name, type, placeholder, required }: IInputProps) => {
         id={name}
         placeholder={placeholder}
         required={required}
+        onChange={onChange}
         className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#7D56fd] focus:border focus:shadow-md dark:bg-dark_background_color"
       />
     </div>

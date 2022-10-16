@@ -2,19 +2,27 @@ import React, { FC } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 
 // COMPONENTS
-import { Screen, Text } from "../../components"
-import { AuthenticatedTabScreenProps } from "../../navigators/AuthenticatedNavigator"
+import ActiveTaskCard from "./components/ActiveTaskCard"
+import { Screen, Text } from "../../../components"
+import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
+import TimerCard from "../TimerScreen/components/TimerCard"
 
 // STYLES
-import { spacing } from "../../theme"
+import { spacing } from "../../../theme"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <Text preset="heading" style={$title}>
-          ⏳ Timer
+          Timer
         </Text>
+
+        {/* Active task card */}
+        <ActiveTaskCard />
+
+        {/* Timer card */}
+        <TimerCard />
       </Screen>
     )
   }

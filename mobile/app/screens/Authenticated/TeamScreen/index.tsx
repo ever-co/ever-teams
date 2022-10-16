@@ -1,30 +1,24 @@
 import React, { FC } from "react"
 import { TextStyle, View, ViewStyle } from "react-native"
 
-// COMPONENTS
-import ActiveTaskCard from "./components/ActiveTaskCard"
-import TimerCard from "./components/TimerCard"
-import { Button, Screen, Text } from "../../../components"
+// TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
+
+// COMPONENTS
+import { Button, Screen, Text } from "../../../components"
+import ListCardItem from "./components/ListCardItem"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
-import ListCardItem from "./components/ListCardItem"
 
-export const AuthenticatedTeamsScreen: FC<AuthenticatedTabScreenProps<"Teams">> =
-  function AuthenticatedTeamsScreen(_props) {
+export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
+  function AuthenticatedTeamScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <Text preset="heading" style={$title}>
-          Teams
+          Team
         </Text>
-
-        {/* Timer card */}
-        <TimerCard />
-
-        {/* Active task card */}
-        <ActiveTaskCard />
 
         {/* Users activity list */}
         <View style={{ ...GS.my3 }}>
