@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { ScrollView, ViewStyle } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -15,19 +15,21 @@ import { colors, spacing } from "../../../theme"
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
     return (
-      <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <Text preset="heading" style={$title}>
-          Team
-        </Text>
+      <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <Text preset="heading">Team</Text>
 
         {/* Users activity list */}
-        <View style={{ ...GS.my3 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+          style={{ ...GS.my3 }}
+        >
           <ListCardItem variant="success" />
 
           <ListCardItem variant="danger" />
 
           <ListCardItem variant="warning" />
-        </View>
+        </ScrollView>
 
         {/* Invite btn */}
         <Button
@@ -42,10 +44,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.large + spacing.extraLarge,
+  ...GS.flex1,
+  paddingTop: spacing.extraLarge,
   paddingHorizontal: spacing.large,
-}
-
-const $title: TextStyle = {
-  marginBottom: spacing.small,
 }
