@@ -1,13 +1,19 @@
 import React from "react"
-import { View, ViewStyle, Image, ImageStyle, TouchableNativeFeedback } from "react-native"
+import {
+  View,
+  ViewStyle,
+  Image,
+  ImageStyle,
+  TouchableNativeFeedback,
+  TouchableOpacity,
+} from "react-native"
 
 // COMPONENTS
-import { Card, Text } from "../../../../components"
+import { Card, Icon, Text } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
-
 export type ListItemProps = {
   variant: "success" | "warning" | "danger"
 }
@@ -16,7 +22,7 @@ export interface Props extends ListItemProps {}
 
 export const ListItemContent: React.FC<ListItemProps> = ({ variant }) => (
   <TouchableNativeFeedback>
-    <View style={{ ...GS.p3 }}>
+    <View style={{ ...GS.p3, ...GS.positionRelative }}>
       <View style={{ ...GS.inlineItems, ...GS.py2 }}>
         <Image
           source={{
@@ -30,14 +36,14 @@ export const ListItemContent: React.FC<ListItemProps> = ({ variant }) => (
 
       <View style={{ ...GS.mb3 }}>
         <Text weight="semiBold" size="md">
-          Task name:
+          Task:
         </Text>
-        <Text>Task description</Text>
+        <Text>Task name</Text>
       </View>
 
       <View style={{}}>
         <Text weight="semiBold" size="md" style={{ ...GS.mb1 }}>
-          Total worked time:
+          Worked time:
         </Text>
 
         <View style={{ ...GS.inlineItems, ...GS.justifyBetween }}>
@@ -62,6 +68,16 @@ export const ListItemContent: React.FC<ListItemProps> = ({ variant }) => (
           <View style={{ ...GS.py1, width: `${70}%`, backgroundColor: CC[variant] }} />
         </View>
       </View>
+
+      <View style={{}}>
+        <Text weight="semiBold" size="md" style={{ ...GS.mb1 }}>
+          Total worked time:
+        </Text>
+
+        <Text size="sm" style={{ ...GS.mb2 }}>
+          12:10:59
+        </Text>
+      </View>
     </View>
   </TouchableNativeFeedback>
 )
@@ -73,6 +89,22 @@ const ListCardItem: React.FC<Props> = (props) => (
       ...GS.mb3,
       borderColor: CC[props.variant],
     }}
+    HeadingComponent={
+      <View
+        style={{
+          ...GS.positionAbsolute,
+          ...GS.t0,
+          ...GS.r0,
+          ...GS.m3,
+          ...GS.p2,
+          ...GS.zIndexFront,
+        }}
+      >
+        <TouchableOpacity>
+          <Icon icon="more" />
+        </TouchableOpacity>
+      </View>
+    }
     ContentComponent={<ListItemContent {...props} />}
   />
 )
