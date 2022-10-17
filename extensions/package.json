@@ -1,6 +1,6 @@
 {
   "name": "gauzy-teams",
-  "displayName": "Gauzy teams",
+  "displayName": "Gauzy Teams",
   "version": "0.0.0",
   "description": "A basic Plasmo extension.",
   "author": "Admin",
@@ -11,9 +11,11 @@
   "dependencies": {
     "@tailwindcss/forms": "0.5.3",
     "@tailwindcss/typography": "0.5.7",
+    "classnames": "^2.3.2",
     "plasmo": "0.56.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-timer-hook": "^3.0.5",
     "tailwindcss": "^3.1.8"
   },
   "devDependencies": {
