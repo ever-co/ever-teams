@@ -20,9 +20,9 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
           <View style={{ ...GS.flex1 }}>
-            <Text preset="heading">Team</Text>
+            <Text preset="subheading" size="xl">Team / GauzyT</Text>
             <Text preset="subheading">
-              Current task{taskList.length > 1 ? "s" : ""}: {taskList.length}
+              Member{taskList.length > 1 ? "s" : ""}: {taskList.length}
             </Text>
           </View>
 
