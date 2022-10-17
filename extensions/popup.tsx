@@ -1,12 +1,12 @@
 import React from "react"
 
+import Header from "~components/popup/Header"
+import Tasks from "~components/popup/Tasks"
 import { useStopwatch } from "~node_modules/react-timer-hook"
-
-import Header from "./components/popup/Header"
 
 import "./style.css"
 
-const tailwindInputClass = `form-control
+export const tailwindInputClass = `form-control
 block
 px-3
 py-1.5
@@ -31,31 +31,7 @@ function IndexPopup() {
   return (
     <div className="flex flex-col p-4" style={{ width: "400px" }}>
       <Header />
-
-      {/* activeTask */}
-      <div className="bg-zinc-100 rounded p-2">
-        <div className="flex items-center mb-2">
-          <span className=" w-24">Active Task:</span>
-          <input
-            type="text"
-            className={tailwindInputClass}
-            placeholder="Gauzy Teams Chrome Extension"
-          />
-          <button className="ml-2 bg-slate-900 text-white rounded p-2">
-            Add
-          </button>
-        </div>
-        <div>
-          <div className="flex items-center">
-            <span className="w-24">Estimated: </span>
-            <input
-              className={tailwindInputClass}
-              type="text"
-              placeholder="00:00:00"
-            />
-          </div>
-        </div>
-      </div>
+      <Tasks />
 
       {/* timer */}
       <div className="my-12 text-center">
