@@ -14,6 +14,7 @@ specifiers:
   prettier: 2.7.1
   react: 18.2.0
   react-dom: 18.2.0
+  react-timer-hook: ^3.0.5
   tailwindcss: ^3.1.8
   typescript: 4.8.4
 
@@ -24,6 +25,7 @@ dependencies:
   plasmo: 0.56.1_4svxu5e6cp3nvumytbder6ny3m
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
+  react-timer-hook: 3.0.5_biqbaboplfbrettd7655fr4n2y
   tailwindcss: 3.1.8_postcss@8.4.18
 
 devDependencies:
@@ -3760,6 +3762,16 @@ packages:
   /react-refresh/0.9.0:
     resolution: {integrity: sha512-Gvzk7OZpiqKSkxsQvO/mbTN1poglhmAV7gR/DdIrRrSMXraRQQlfikRJOr3Nb9GTMPC5kof948Zy6jJZIFtDvQ==}
     engines: {node: '>=0.10.0'}
+    dev: false
+
+  /react-timer-hook/3.0.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-n+98SdmYvui2ne3KyWb3Ldu4k0NYQa3g/VzW6VEIfZJ8GAk/jJsIY700M8Nd2vNSTj05c7wKyQfJBqZ0x7zfiA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react/18.2.0:
