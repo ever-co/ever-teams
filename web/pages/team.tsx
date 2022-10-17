@@ -6,6 +6,7 @@ import FirstStep from "../components/team/steppers/firstStep";
 import SecondStep from "../components/team/steppers/secondStep";
 import { IRegisterData, IUser, IUserData } from "../app/interfaces/IUserData";
 import { register } from "../app/services/auth";
+import Link from "next/link";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
@@ -59,7 +60,7 @@ const Team = () => {
           )}
           <div className="mb-5 flex justify-between items-center">
             <div className="underline text-label cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
-              Join as Team member ?
+              <Link href={"/passcode"}>Join as Team member ?</Link>
             </div>
             <button
               className="w-1/2 my-4 px-4 py-2 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-md hover:opacity-90 focus:outline-none"
