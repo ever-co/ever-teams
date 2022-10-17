@@ -3,7 +3,6 @@ import React from "react"
 import Header from "~components/popup/Header"
 import Tasks from "~components/popup/Tasks"
 import Timer from "~components/popup/Timer"
-import { useStopwatch } from "~node_modules/react-timer-hook"
 
 import "./style.css"
 
