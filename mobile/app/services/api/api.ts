@@ -10,7 +10,7 @@ import type {
   ApiFeedResponse, // @demo remove-current-line
 } from "./api.types"
 import type { EpisodeSnapshotIn } from "../../models/Episode" // @demo remove-current-line
-import LocalStorage, { getToken } from "./tokenHandler"
+import { getToken } from "./tokenHandler"
 
 /**
  * Configuring the apisauce instance.
@@ -60,7 +60,7 @@ export class Api {
    * @param isProtected: if true, then we'll add the auth token to the header
    * @returns Promise<{ kind: "ok"; data: T } | GeneralApiProblem>
    */
-  async commonGetApi<T>(url: string, isProtected: boolean = true): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
+  async commonGetApi<T>(url: string, isProtected = true): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
     // make the api call
     const response: ApiResponse<T> = await this.apisauce.get(url, {
       headers: isProtected ? { Authorization: `Bearer ${this.authToken}` } : {},
@@ -88,7 +88,7 @@ export class Api {
   async commonPostApi<T>(
     url: string,
     body: any,
-    isProtected: boolean = true,
+    isProtected = true,
   ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
     // make the api call
     const response: ApiResponse<T> = await this.apisauce.post(url, body, {

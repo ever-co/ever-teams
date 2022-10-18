@@ -27,7 +27,8 @@ export const formatDate = (date: string, dateFormat?: string, options?: Options)
  * @returns formattedDuration:string The duration in the format of "hh:mm:ss"
  */
 export const formatDuration = (duration: number) => {
-  const time = intervalToDuration({ start: 0, end: duration })
+  console.log("duration", duration)
+  const time = intervalToDuration({ start: 0, end: Number(duration) || 0 })
   const hours = time.hours ? `${time.hours}h ` : ""
   const minutes = time.minutes ? `${time.minutes}m ` : ""
   const seconds = time.seconds ? `${time.seconds}s` : ""

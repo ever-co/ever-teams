@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useEffect } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 
@@ -8,9 +9,11 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 import TimerCard from "../TimerScreen/components/TimerCard"
 
 // STYLES
+import { colors, spacing } from "../../../theme"
+
+// HELPERS
 import { api } from "../../../services/api"
 import LocalStorage from "../../../services/api/tokenHandler"
-import { colors, spacing } from "../../../theme"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
@@ -18,12 +21,12 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     // FUNCTIONS
     const startTimer = async () => {
       // update the local storage
-      await LocalStorage.set('timer', { started: true, startTime: new Date().getTime() });
+      await LocalStorage.set("timer", { started: true, startTime: new Date().getTime() })
 
       // start the timer
-      const response = await api.commonPostApi(api.routes.startTimer, {});
+      const response = await api.commonPostApi(api.routes.startTimer, {})
 
-      console.log('TIMER RESPONSE', response);
+      console.log("TIMER RESPONSE", response)
     }
     useEffect(() => {
       // startTimer()
@@ -39,7 +42,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         <ActiveTaskCard />
 
         {/* Timer card */}
-        <TimerCard />
+        <TimerCard
+          onTimerStart={() => console.log("starting")}
+          onTimerStop={() => console.log("stoping")}
+          startTime={1000000}
+          totalTime={10000000}
+          workedTime={10000}
+        />
 
         {/*  */}
         <Button

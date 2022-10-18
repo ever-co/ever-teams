@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { View } from "react-native"
 
 // COMPONENTS
@@ -8,6 +8,7 @@ import { Card, Text, Button } from "../../../../components"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors } from "../../../../theme"
 import { formatDuration } from "../../../../utils/formatDate"
+import LocalStorage from "../../../../services/api/tokenHandler"
 
 export type Props = Record<string, unknown>
 
@@ -20,13 +21,24 @@ export type TimerCardProps = {
   onTimerStop: () => void
   workedTime: number
   startTime: number
+  timerStarted?: boolean
 }
 
-export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
+export type SavedTimer = {
+  started: boolean
+  startTime: number
+}
+
+export const HeaderTimerCard: React.FC<Partial<TimerCardProps>> = (props) => {
+  const { workedTime, onTimerStart, onTimerStop, timerStarted } = props
+
+  useEffect(() => {
+    //
+  }, [timerStarted])
   return (
     <View style={{ ...GS.inlineItems, ...GS.justifyBetween, ...GS.mb4 }}>
       <Text weight="bold" size="xl">
-        02:10:59
+        {formatDuration(workedTime)}
       </Text>
 
       {/* <View>
@@ -40,16 +52,20 @@ export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
       </View> */}
 
       <View style={{ ...GS.inlineItems }}>
-        <Button preset="reversed" style={{ ...GS.mr2, backgroundColor: colors.primary }}>
-          Start
+        <Button
+          onPress={timerStarted ? onTimerStop : onTimerStart}
+          preset="reversed"
+          style={{ ...GS.mr2, backgroundColor: colors.primary }}
+        >
+          {timerStarted ? "Stop" : "Start"}
         </Button>
       </View>
     </View>
   )
 }
 
-export const ContentTimerCard: React.FC<TimerCardProps> = (props) => {
-  const { totalTime, onTimerStart, onTimerStop, workedTime, startTime } = props
+export const ContentTimerCard: React.FC<Partial<TimerCardProps>> = (props) => {
+  const { workedTime, startTime } = props
 
   return (
     <View>
@@ -66,7 +82,7 @@ export const ContentTimerCard: React.FC<TimerCardProps> = (props) => {
       </View>
 
       <View style={{ ...GS.inlineItems, ...GS.justifyBetween }}>
-        <Text>{}</Text>
+        <Text>{formatDuration(startTime)}</Text>
 
         <Text>{formatDuration(workedTime)}</Text>
       </View>
@@ -74,11 +90,34 @@ export const ContentTimerCard: React.FC<TimerCardProps> = (props) => {
   )
 }
 
-export const TimerCard: React.FC<Record<string, unknown>> = () => {
+export const TimerCard: React.FC<TimerCardProps> = (props) => {
+  const { totalTime, onTimerStart, onTimerStop, workedTime, startTime } = props
+  const [isTimerStarted, setIsTimerStarted] = useState(false)
+
+  const isTimerRunning = async () => {
+    const timer = JSON.parse(await LocalStorage.get("timer")) as SavedTimer
+    if (timer.started) {
+      setIsTimerStarted(true)
+    } else {
+      setIsTimerStarted(false)
+    }
+  }
+
+  useEffect(() => {
+    isTimerRunning()
+  }, [])
+
   return (
     <Card
-      HeadingComponent={<HeaderTimerCard />}
-      ContentComponent={<ContentTimerCard />}
+      HeadingComponent={
+        <HeaderTimerCard
+          timerStarted={isTimerStarted}
+          onTimerStart={onTimerStart}
+          onTimerStop={onTimerStop}
+          totalTime={totalTime}
+        />
+      }
+      ContentComponent={<ContentTimerCard workedTime={workedTime} startTime={startTime} />}
       style={{ ...GS.p3, ...GS.mb4, ...GS.shadow }}
     />
   )
