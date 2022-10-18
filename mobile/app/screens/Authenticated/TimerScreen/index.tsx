@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useEffect } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 
@@ -28,6 +27,16 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
       console.log("TIMER RESPONSE", response)
     }
+
+    const stopTimer = async () => {
+      // update the local storage
+      await LocalStorage.set("timer", { started: false, startTime: 0 })
+
+      // stop the timer
+      const response = await api.commonPostApi(api.routes.stopTimer, {})
+
+      console.log("TIMER RESPONSE STOP", response)
+    }
     useEffect(() => {
       // startTimer()
       // startTimer();
@@ -43,8 +52,8 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
         {/* Timer card */}
         <TimerCard
-          onTimerStart={() => console.log("starting")}
-          onTimerStop={() => console.log("stoping")}
+          onTimerStart={startTimer}
+          onTimerStop={stopTimer}
           startTime={1000000}
           totalTime={10000000}
           workedTime={10000}
