@@ -8,10 +8,14 @@ export const AuthenticationStoreModel = types
     authTeamName: types.optional(types.string, ""),
     authUsername: types.optional(types.string, ""),
     authInviteCode: types.optional(types.string, ""),
+    activeTeamStats: types.optional(types.frozen(), {}),
   })
   .views((store) => ({
     get isAuthenticated() {
       return !!store.authToken
+    },
+    get activeTeaStats() {
+      return store.activeTeamStats
     },
     get validationErrors() {
       return {
@@ -45,6 +49,9 @@ export const AuthenticationStoreModel = types
     setAuthUsername(value: string) {
       store.authUsername = value.replace(/ /g, "")
     },
+    setActiveTeamStats(value: any) {
+      store.activeTeamStats = value
+    },
     logout() {
       store.authToken = undefined
       store.authEmail = ""
@@ -55,5 +62,3 @@ export const AuthenticationStoreModel = types
 
 export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
 export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}
-
-// @demo remove-file
