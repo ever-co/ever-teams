@@ -1,5 +1,11 @@
-export enum MessageTypesEnum {
+export enum MessageTypesToBackgroundEnum {
   startTimer,
   stopTimer,
-  pauseTimer
+  pauseTimer,
+  updateTasks,
+  updateActiveTaskIndex
+}
+
+export enum MessageTypesFromBackgroundEnum {
+  taskUpdate
 }

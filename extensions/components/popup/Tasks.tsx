@@ -1,84 +1,109 @@
 import classNames from "classnames"
-import { useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
+import { act } from "react-dom/test-utils"
 
-import { tailwindInputClass } from "~popup"
+import AppDropdown from "~components/shared/AppDropdown"
+import { roundInput, textEllipsis } from "~misc/tailwindClasses"
+import {
+  MessageTypesFromBackgroundEnum,
+  MessageTypesToBackgroundEnum
+} from "~typescript/enums/MessageTypesEnum"
+import { TimerStateEnum } from "~typescript/enums/TimerStateEnum"
+import type { IPostMessage } from "~typescript/interfaces/PostMessage"
+import type { ITimerUpdate } from "~typescript/interfaces/TimerUpdate"
+import type { ITask } from "~typescript/types/Tasks"
 
-const tailwindInputUnderline = `bg-transparent 
-border-0 border-grey-300 border-b-2 
-outline-none
-focus:ring-0 p-0 pl-[0.2rem]`
+import TasksEstimatedInputs from "./TasksEstimatedInputs"
 
-const fakeTasks = ["Build a chrome extension for Gauzy Teams", "Fix bug #2"]
-const defaultTask = "Select a task"
+const fakeTasks: ITask[] = [
+  {
+    id: 1,
+    title: "Build a chrome extension for Gauzy Teams",
+    estimated: "12:00"
+  },
+  { id: 2, title: "Fix bug #2", estimated: "00:25" }
+]
 
-const Tasks = () => {
-  const [dropdownHidden, setHidden] = useState<boolean>(true)
+interface Props {
+  port: chrome.runtime.Port | null
+}
+const Tasks: React.FC<Props> = ({ port }) => {
+  const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(null)
+  const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
+  const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>("")
 
-  const [tasks, setTasks] = useState<string[]>(fakeTasks)
-  const [selectedTask, setSelectedTask] = useState<string>(defaultTask)
-  const [activeTask, setActiveTask] = useState<string>("")
+  useEffect(() => {
+    if (port) {
+      port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
+        if (msg.type === MessageTypesFromBackgroundEnum.taskUpdate) {
+          const task = tasks.find((x) => x.id === msg.payload.id)
 
-  const [hoursEst, setHoursEstimate] = useState<string>("")
-  const [minutesEst, setMinutesEstimate] = useState<string>("")
+          if (task) {
+            setSelectedTask(task)
+            setActiveTaskTitle(task.title)
+          }
+        }
+      })
+    }
+  }, [port])
+
+  useEffect(() => {
+    if (port && tasks) {
+      port.postMessage({
+        type: MessageTypesToBackgroundEnum.updateTasks,
+        payload: tasks
+      })
+    }
+  }, [port, tasks])
+
+  useEffect(() => {
+    if (selectedTask) {
+      port.postMessage({
+        type: MessageTypesToBackgroundEnum.updateActiveTaskIndex,
+        payload: selectedTask
+      })
+    }
+  }, [selectedTask])
+
+  const onTaskSelect = (task: ITask) => {
+    setActiveTaskTitle(task.title)
+    setSelectedTask(task)
+  }
 
   const onActiveTaskChange = (event) => {
-    setActiveTask(event.target.value)
-    setSelectedTask(defaultTask)
+    setActiveTaskTitle(event.target.value)
+    setSelectedTask(null)
   }
 
-  const onTaskSelect = (name: string) => {
-    setSelectedTask(name)
-    setActiveTask(name)
-    setHidden(true)
-  }
-
-  const taskOptions = tasks.map((name) => {
-    return (
-      <li key={name} onClick={() => onTaskSelect(name)}>
-        <a
-          href="#"
-          className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-          {name}
-        </a>
-      </li>
-    )
-  })
-
-  const onHoursChange = (event) => {
-    const value = event.target.value
-    if (value > 999 || value.split("").length > 3 || +value < 0) {
-      return setHoursEstimate("")
-    }
-
-    setHoursEstimate(value)
-  }
-
-  const onMinuteChange = (event) => {
-    const value = event.target.value
-    if (value > 60 || value.split("").length > 2 || +value < 0) {
-      return setMinutesEstimate("")
-    }
-
-    setMinutesEstimate(value)
-  }
-
-  const onNumberBlur = () => {
-    if (+hoursEst < 10 && hoursEst[0] !== "0") {
-      const formatEstimate = "0" + hoursEst
-      setHoursEstimate(formatEstimate)
-    } else if (+minutesEst < 10 && minutesEst[0] !== "0") {
-      const formatEstimate = "0" + minutesEst
-      setMinutesEstimate(formatEstimate)
-    }
+  const onActiveEstimateChange = (
+    hoursEstimate: string,
+    minutesEstimate: string
+  ) => {
+    const hours = hoursEstimate ? hoursEstimate : "00"
+    const mins = minutesEstimate ? minutesEstimate : "00"
+    const newEstimate = `${hours}:${mins}`
+    setActiveTaskEstimate(newEstimate)
   }
 
   const addNewTask = () => {
-    const newTasks = [...tasks, activeTask]
+    if (isEmptyEstimate()) return
+
+    const newId = tasks[tasks.length - 1].id + 1
+    const newTask = {
+      id: newId,
+      title: activeTaskTitle,
+      estimated: activeTaskEstimate
+    }
+    const newTasks = [...tasks, newTask]
     setTasks(newTasks)
-    setSelectedTask(activeTask)
+    setSelectedTask(newTask)
+    setActiveTaskEstimate("")
   }
 
-  const isNewTask = !!activeTask && selectedTask === defaultTask
+  const isNewTask = !!activeTaskTitle && selectedTask === null
+  const isEmptyEstimate = () =>
+    activeTaskEstimate === "00:00" || activeTaskEstimate === ""
 
   return (
     <div className="bg-zinc-100 rounded p-2">
@@ -86,71 +111,45 @@ const Tasks = () => {
         <div className="flex items-center border-b-2 pb-2 mb-2">
           <span className="w-24">All Tasks:</span>
           <div className="relative">
-            <button
-              id="dropdownDefault"
-              data-dropdown-toggle="dropdown"
-              className={classNames(
-                tailwindInputClass,
-                "min-w-[207px] max-w-[207px] overflow-hidden whitespace-nowrap text-ellipsis text-start"
+            <AppDropdown
+              buttonClassNames={classNames(
+                roundInput,
+                textEllipsis,
+                "min-w-[207px] max-w-[207px] text-start"
               )}
-              type="button"
-              onClick={() => setHidden((prev) => !prev)}>
-              <span className="w-24">{selectedTask}</span>
-            </button>
-            <div
-              id="dropdown"
-              className={classNames(
-                "scrollbar absolute overflow-auto max-h-64 mt-1.5 z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700",
-                dropdownHidden && "hidden"
-              )}>
-              <ul
-                className="py-1 text-sm text-gray-700 dark:text-gray-200"
-                aria-labelledby="dropdownDefault">
-                {taskOptions}
-              </ul>
-            </div>
+              buttonTitle={selectedTask ? selectedTask.title : "Select a task"}
+              options={tasks}
+              onOptionSelect={onTaskSelect}
+              optionContainerClassNames="min-w-[207px] max-w-[207px]"
+            />
           </div>
         </div>
         <div className="flex items-center">
           <span className="w-24">Active Task:</span>
           <input
             type="text"
-            className={tailwindInputClass}
+            className={roundInput}
             placeholder="ex. Gauzy Teams Extension"
-            value={activeTask}
+            value={activeTaskTitle}
             onChange={onActiveTaskChange}
           />
         </div>
       </div>
-      <div>
-        <div className="flex items-center">
-          <span className="w-24">Estimated: </span>
-          <input
-            className={classNames(tailwindInputUnderline, "w-8")}
-            type="number"
-            placeholder="00"
-            value={hoursEst}
-            onChange={onHoursChange}
-            onBlur={onNumberBlur}
-          />
-          <span className="mx-2">hh</span>
-          <input
-            className={classNames(tailwindInputUnderline, "w-6")}
-            type="number"
-            placeholder="00"
-            value={minutesEst}
-            onChange={onMinuteChange}
-            onBlur={onNumberBlur}
-          />
-          <span className="mx-2">mm</span>
-          {isNewTask && (
-            <button
-              className="ml-2 bg-slate-900 text-white rounded p-2"
-              onClick={addNewTask}>
-              Add Task
-            </button>
-          )}
-        </div>
+      <div className="flex items-center">
+        <TasksEstimatedInputs
+          task={selectedTask}
+          onEstimateChange={onActiveEstimateChange}
+        />
+        {isNewTask && (
+          <button
+            className={classNames(
+              "ml-2 bg-slate-900 text-white rounded p-2",
+              isEmptyEstimate() && "bg-slate-600"
+            )}
+            onClick={addNewTask}>
+            Add Task
+          </button>
+        )}
       </div>
     </div>
   )
