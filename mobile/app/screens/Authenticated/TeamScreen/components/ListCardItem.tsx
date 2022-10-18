@@ -126,9 +126,9 @@ const ListCardItem: React.FC<Props> = (props) => {
               }}
             >
               <View style={{}}>
+                <ListItem>Edit</ListItem>
+                <ListItem>Release</ListItem>
                 <ListItem>Estimate now</ListItem>
-                <ListItem>Stop</ListItem>
-                <ListItem>See more</ListItem>
               </View>
             </View>
 
