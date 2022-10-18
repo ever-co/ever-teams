@@ -4,9 +4,9 @@ import React, { FC, useState } from "react"
 
 import AppDropdown from "~components/shared/AppDropdown"
 import { textEllipsis } from "~misc/tailwindClasses"
-import type { ITeam } from "~typescript/types/ITeam"
+import type { Team } from "~typescript/types/Team"
 
-const teams: ITeam[] = [
+const teams: Team[] = [
   { id: 1, title: "ViktorOrfey" },
   { id: 2, title: "Ever IQ Team" },
   { id: 3, title: "Gauzy Teams Team" },
@@ -14,9 +14,9 @@ const teams: ITeam[] = [
 ]
 
 const Header: FC = () => {
-  const [team, setTeam] = useState<ITeam>(teams[0])
+  const [team, setTeam] = useState<Team>(teams[0])
 
-  const onTeamSelect = (team: ITeam) => {
+  const onTeamSelect = (team: Team) => {
     setTeam(team)
   }
 

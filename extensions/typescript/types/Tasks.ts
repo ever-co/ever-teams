@@ -3,3 +3,8 @@ export interface ITask {
   title: string
   estimated: string
 }
+
+export interface ITimerTask {
+  id: number
+  timer: number
+}

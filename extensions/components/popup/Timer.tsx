@@ -1,34 +1,54 @@
+import classNames from "classnames"
 import React, { useEffect, useState } from "react"
 
 import browser from "~misc/browser"
-import { MessageTypesEnum } from "~typescript/enums/MessageTypesEnum"
+import {
+  MessageTypesFromBackgroundEnum,
+  MessageTypesToBackgroundEnum
+} from "~typescript/enums/MessageTypesEnum"
 import { TimerStateEnum } from "~typescript/enums/TimerStateEnum"
+import type { IPostMessage } from "~typescript/interfaces/PostMessage"
+import type { ITimerUpdate } from "~typescript/interfaces/TimerUpdate"
 
-const Timer = () => {
-  const [port, setPort] = useState<chrome.runtime.Port | null>(null)
+interface Props {
+  port: chrome.runtime.Port | null
+}
+const Timer: React.FC<Props> = ({ port }) => {
+  const [activeTaskId, setActiveTaskId] = useState<number | null>(null)
   const [timeString, setTimeString] = useState<string>("00:00:00")
+  const [totalWorked, setTotalWorked] = useState<string>("00:00:00")
   const [isRunning, setIsRunning] = useState<boolean>(false)
 
   useEffect(() => {
-    const newPort = browser.runtime.connect({ name: "timer" })
-    setPort(newPort)
-    newPort.onMessage.addListener((msg) => {
-      const parsedString = new Date(msg.timer * 1000)
-        .toISOString()
-        .substr(11, 8)
-      setTimeString(parsedString)
-      setIsRunning(msg.runState === TimerStateEnum.running)
-    })
-  }, [])
+    if (port) {
+      port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
+        if (msg.type === MessageTypesFromBackgroundEnum.taskUpdate) {
+          const taskWorkedTime = msg.payload.timer
+            ? new Date(msg.payload.timer * 1000).toISOString().substr(11, 8)
+            : "00:00:00"
+          const totalWorkedTime =
+            msg.payload.totalWorked > 0
+              ? new Date(msg.payload.totalWorked * 1000)
+                  .toISOString()
+                  .substr(11, 8)
+              : "00:00:00"
+          setTimeString(taskWorkedTime)
+          setActiveTaskId(msg.payload.id)
+          setTotalWorked(totalWorkedTime)
+          setIsRunning(msg.payload.runState === TimerStateEnum.running)
+        }
+      })
+    }
+  }, [port])
 
   const startTimer = async () => {
     setIsRunning(true)
-    port.postMessage(MessageTypesEnum.startTimer)
+    port.postMessage({ type: MessageTypesToBackgroundEnum.startTimer })
   }
 
   const pauseTimer = async () => {
     setIsRunning(false)
-    port.postMessage(MessageTypesEnum.pauseTimer)
+    port.postMessage({ type: MessageTypesToBackgroundEnum.pauseTimer })
   }
 
   return (
@@ -45,12 +65,16 @@ const Timer = () => {
         <div className="flex justify-between mb-2">
           <span>
             Total worked today:
-            <b>{timeString}</b>
+            <b>{totalWorked}</b>
           </span>
           <a>Check team</a>
         </div>
         <button
-          className="p-2 text-lg bg-slate-800 rounded-lg text-white outline-none"
+          disabled={activeTaskId === null}
+          className={classNames(
+            "p-2 text-lg bg-slate-800 rounded-lg text-white outline-none",
+            activeTaskId === null ? "bg-gray-400 cursor-not-allowed" : ""
+          )}
           onClick={!isRunning ? startTimer : pauseTimer}>
           {!isRunning ? "Start" : "Pause"}
         </button>

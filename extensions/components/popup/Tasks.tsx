@@ -1,9 +1,17 @@
 import classNames from "classnames"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import { act } from "react-dom/test-utils"
 
 import AppDropdown from "~components/shared/AppDropdown"
 import { roundInput, textEllipsis } from "~misc/tailwindClasses"
-import type { ITask } from "~typescript/types/ITask"
+import {
+  MessageTypesFromBackgroundEnum,
+  MessageTypesToBackgroundEnum
+} from "~typescript/enums/MessageTypesEnum"
+import { TimerStateEnum } from "~typescript/enums/TimerStateEnum"
+import type { IPostMessage } from "~typescript/interfaces/PostMessage"
+import type { ITimerUpdate } from "~typescript/interfaces/TimerUpdate"
+import type { ITask } from "~typescript/types/Tasks"
 
 import TasksEstimatedInputs from "./TasksEstimatedInputs"
 
@@ -18,15 +26,42 @@ const fakeTasks: ITask[] = [
 
 const defaultTask = { id: 0, title: "Select a task", estimated: ":" }
 
-const Tasks = () => {
+interface Props {
+  port: chrome.runtime.Port | null
+}
+const Tasks: React.FC<Props> = ({ port }) => {
   const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
-  const [selectedTask, setSelectedTask] = useState<ITask>(defaultTask)
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(defaultTask)
   const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
   const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>("")
+
+  useEffect(() => {
+    if (port && tasks) {
+      port.postMessage({
+        type: MessageTypesToBackgroundEnum.updateTasks,
+        payload: tasks
+      })
+      port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
+        if (
+          msg.type === MessageTypesFromBackgroundEnum.taskUpdate &&
+          selectedTask === null
+        ) {
+          const task = tasks.find((x) => x.id === msg.payload.id)
+          setSelectedTask(task)
+          setActiveTaskTitle(task.title)
+        }
+      })
+    }
+  }, [port, tasks])
+
 
   const onTaskSelect = (task: ITask) => {
     setActiveTaskTitle(task.title)
     setSelectedTask(task)
+    port.postMessage({
+      type: MessageTypesToBackgroundEnum.updateActiveTaskIndex,
+      payload: task
+    })
   }
 
   const onActiveTaskChange = (event) => {
@@ -57,6 +92,10 @@ const Tasks = () => {
     setTasks(newTasks)
     setSelectedTask(newTask)
     setActiveTaskEstimate("")
+    port.postMessage({
+      type: MessageTypesToBackgroundEnum.updateTasks,
+      payload: newTasks
+    })
   }
 
   const isNewTask = !!activeTaskTitle && selectedTask === defaultTask
