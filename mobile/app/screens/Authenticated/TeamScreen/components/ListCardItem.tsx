@@ -133,7 +133,7 @@ const ListCardItem: React.FC<Props> = (props) => {
             </View>
 
             <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-              <Icon icon="more" />
+              <Icon icon={showMenu ? "x" : "more"} />
             </TouchableOpacity>
           </View>
         </View>
