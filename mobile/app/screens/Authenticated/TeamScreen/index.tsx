@@ -1,11 +1,11 @@
 import React, { FC } from "react"
-import { TextStyle, View, ViewStyle } from "react-native"
+import { ScrollView, View, TouchableOpacity, ViewStyle } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // COMPONENTS
-import { Button, Screen, Text } from "../../../components"
+import { Button, Icon, Screen, Text } from "../../../components"
 import ListCardItem from "./components/ListCardItem"
 
 // STYLES
@@ -14,20 +14,47 @@ import { colors, spacing } from "../../../theme"
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
+    const [taskList] = React.useState(["success", "danger", "warning"])
+
     return (
-      <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <Text preset="heading" style={$title}>
-          Team
-        </Text>
+      <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
+          <View style={{ ...GS.flex1 }}>
+            <Text preset="subheading" size="xl">Team / GauzyT</Text>
+            <Text preset="subheading">
+              Member{taskList.length > 1 ? "s" : ""}: {taskList.length}
+            </Text>
+          </View>
+
+          <View style={{ ...GS.inlineItems }}>
+            <View style={{ ...$headerIconContainer, ...GS.mr2 }}>
+              <TouchableOpacity style={{ ...GS.p2 }}>
+                <Icon icon="components" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={$headerIconContainer}>
+              <TouchableOpacity style={{ ...GS.p2 }}>
+                <Icon icon="more" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
 
         {/* Users activity list */}
-        <View style={{ ...GS.my3 }}>
-          <ListCardItem variant="success" />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+          style={{ ...GS.my2 }}
+        >
+          {taskList.map((item, index) => (
+            <ListCardItem key={index.toString()} variant={item as any} />
+          ))}
 
           <ListCardItem variant="danger" />
 
           <ListCardItem variant="warning" />
-        </View>
+        </ScrollView>
 
         {/* Invite btn */}
         <Button
@@ -42,10 +69,13 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.large + spacing.extraLarge,
+  ...GS.flex1,
+  paddingTop: spacing.extraLarge,
   paddingHorizontal: spacing.large,
 }
 
-const $title: TextStyle = {
-  marginBottom: spacing.small,
+const $headerIconContainer = {
+  ...GS.roundedFull,
+  ...GS.shadowSm,
+  backgroundColor: colors.background,
 }
