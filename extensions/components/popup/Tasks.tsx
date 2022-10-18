@@ -3,27 +3,27 @@ import React, { useState } from "react"
 
 import AppDropdown from "~components/shared/AppDropdown"
 import { roundInput, textEllipsis } from "~misc/tailwindClasses"
-import type { Task } from "~typescript/types/Task"
+import type { ITask } from "~typescript/types/ITask"
 
 import TasksEstimatedInputs from "./TasksEstimatedInputs"
 
 const fakeTasks = [
-  { id: 1, title: "Build a chrome extension for Gauzy Teams" },
-  { id: 2, title: "Fix bug #2" }
+  { id: 1, title: "Build a chrome extension for Gauzy Teams", estimated: "" },
+  { id: 2, title: "Fix bug #2", estimated: "" }
 ]
-const defaultTask = { id: 0, title: "Select a task" }
+const defaultTask = { id: 0, title: "Select a task", estimated: "" }
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState<Task[]>(fakeTasks)
-  const [selectedTask, setSelectedTask] = useState<Task>(defaultTask)
-  const [activeTask, setActiveTask] = useState<Task | null>(null)
+  const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
+  const [selectedTask, setSelectedTask] = useState<ITask>(defaultTask)
+  const [activeTask, setActiveTask] = useState<ITask | null>(null)
 
   const onActiveTaskChange = (event) => {
     setActiveTask(event.target.value)
     setSelectedTask(defaultTask)
   }
 
-  const onTaskSelect = (task: Task) => {
+  const onTaskSelect = (task: ITask) => {
     setSelectedTask(task)
     setActiveTask(task)
   }
