@@ -1,8 +1,16 @@
 import classNames from "classnames"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
+import { act } from "react-dom/test-utils"
 
 import AppDropdown from "~components/shared/AppDropdown"
 import { roundInput, textEllipsis } from "~misc/tailwindClasses"
+import {
+  MessageTypesFromBackgroundEnum,
+  MessageTypesToBackgroundEnum
+} from "~typescript/enums/MessageTypesEnum"
+import { TimerStateEnum } from "~typescript/enums/TimerStateEnum"
+import type { IPostMessage } from "~typescript/interfaces/PostMessage"
+import type { ITimerUpdate } from "~typescript/interfaces/TimerUpdate"
 import type { ITask } from "~typescript/types/Tasks"
 
 import TasksEstimatedInputs from "./TasksEstimatedInputs"
@@ -14,10 +22,32 @@ const fakeTasks = [
 
 const defaultTask = { id: 0, title: "Select a task", estimated: "" }
 
-const Tasks = () => {
+interface Props {
+  port: chrome.runtime.Port | null
+}
+const Tasks: React.FC<Props> = ({ port }) => {
   const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
   const [selectedTask, setSelectedTask] = useState<ITask>(defaultTask)
   const [activeTask, setActiveTask] = useState<ITask | null>(null)
+
+  useEffect(() => {
+    if (port && tasks) {
+      port.postMessage({
+        type: MessageTypesToBackgroundEnum.updateTasks,
+        payload: tasks
+      })
+      port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
+        if (
+          msg.type === MessageTypesFromBackgroundEnum.taskUpdate &&
+          activeTask === null
+        ) {
+          const task = tasks.find((x) => x.id === msg.payload.id)
+          setSelectedTask(task)
+          setActiveTask(task)
+        }
+      })
+    }
+  }, [port, tasks])
 
   const onActiveTaskChange = (event) => {
     setActiveTask(event.target.value)
@@ -27,12 +57,20 @@ const Tasks = () => {
   const onTaskSelect = (task: ITask) => {
     setSelectedTask(task)
     setActiveTask(task)
+    port.postMessage({
+      type: MessageTypesToBackgroundEnum.updateActiveTaskIndex,
+      payload: task
+    })
   }
 
   const addNewTask = () => {
     const newTasks = [...tasks, activeTask]
     setTasks(newTasks)
     setSelectedTask(activeTask)
+    port.postMessage({
+      type: MessageTypesToBackgroundEnum.updateTasks,
+      payload: newTasks
+    })
   }
 
   const isNewTask = activeTask !== null && selectedTask === defaultTask
