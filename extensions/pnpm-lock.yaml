@@ -8,20 +8,24 @@ specifiers:
   '@types/node': 18.8.3
   '@types/react': 18.0.21
   '@types/react-dom': 18.0.6
+  classnames: ^2.3.2
   plasmo: 0.56.1
   postcss: ^8.4.18
   prettier: 2.7.1
   react: 18.2.0
   react-dom: 18.2.0
+  react-timer-hook: ^3.0.5
   tailwindcss: ^3.1.8
   typescript: 4.8.4
 
 dependencies:
   '@tailwindcss/forms': 0.5.3_tailwindcss@3.1.8
   '@tailwindcss/typography': 0.5.7_tailwindcss@3.1.8
+  classnames: 2.3.2
   plasmo: 0.56.1_4svxu5e6cp3nvumytbder6ny3m
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
+  react-timer-hook: 3.0.5_biqbaboplfbrettd7655fr4n2y
   tailwindcss: 3.1.8_postcss@8.4.18
 
 devDependencies:
@@ -2069,6 +2073,10 @@ packages:
     engines: {node: '>=6.0'}
     dev: false
 
+  /classnames/2.3.2:
+    resolution: {integrity: sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==}
+    dev: false
+
   /cli-cursor/4.0.0:
     resolution: {integrity: sha512-VGtlMu3x/4DOtIUwEkRezxUZ2lBacNJCHash0N0WeZDBS+7Ux1dm3XWAgWYxLJFMMdOeXMHXorshEFhbMSGelg==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -3754,6 +3762,16 @@ packages:
   /react-refresh/0.9.0:
     resolution: {integrity: sha512-Gvzk7OZpiqKSkxsQvO/mbTN1poglhmAV7gR/DdIrRrSMXraRQQlfikRJOr3Nb9GTMPC5kof948Zy6jJZIFtDvQ==}
     engines: {node: '>=0.10.0'}
+    dev: false
+
+  /react-timer-hook/3.0.5_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-n+98SdmYvui2ne3KyWb3Ldu4k0NYQa3g/VzW6VEIfZJ8GAk/jJsIY700M8Nd2vNSTj05c7wKyQfJBqZ0x7zfiA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     dev: false
 
   /react/18.2.0:

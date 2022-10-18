@@ -7,6 +7,8 @@ import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
+import { typography } from "../theme"
+import { Api } from "../services/api"
 
 import * as Animatable from "react-native-animatable"
 const pkg = require("../../package.json")
@@ -143,7 +145,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   : null
               }
             />
-            <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontFamily: typography.secondary.normal,
+                marginTop: spacing.small,
+              }}
+            >
               {" "}
               You got a invite code ?{" "}
             </Text>
@@ -156,7 +164,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               <Text
                 style={{
                   fontSize: 17,
-                  fontFamily: "Helvetica Neue",
+                  fontFamily: typography.secondary.normal,
                   textDecorationLine: "underline",
                 }}
               >
@@ -275,7 +283,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               preset="reversed"
               onPress={joinTeam}
             />
-            <Text style={{ fontSize: 13, fontFamily: "Helvetica Neue", marginTop: spacing.small }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontFamily: typography.secondary.normal,
+                marginTop: spacing.small,
+              }}
+            >
               {" "}
               or{" "}
             </Text>
@@ -287,7 +301,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               <Text
                 style={{
                   fontSize: 17,
-                  fontFamily: "Helvetica Neue",
+                  fontFamily: typography.secondary.normal,
                   textDecorationLine: "underline",
                 }}
               >
@@ -341,7 +355,7 @@ const $smalltext: TextStyle = {
   top: 50,
   fontSize: 16,
   color: colors.text,
-  fontFamily: "Helvetica Neue",
+  fontFamily: typography.secondary.normal,
   fontWeight: "700",
 }
 const $text: TextStyle = {
@@ -349,7 +363,7 @@ const $text: TextStyle = {
 
   fontSize: 26,
   color: colors.text,
-  fontFamily: "Helvetica Neue",
+  fontFamily: typography.secondary.normal,
   fontWeight: "700",
 }
 
@@ -390,6 +404,6 @@ const $backButton: ViewStyle = {
 const $release: TextStyle = {
   fontSize: 10,
   color: colors.text,
-  fontFamily: "Helvetica Neue",
+  fontFamily: typography.secondary.normal,
   fontWeight: "700",
 }
