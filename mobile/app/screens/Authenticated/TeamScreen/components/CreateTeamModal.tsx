@@ -16,7 +16,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
   return (
     <Modal visible={visible} statusBarTranslucent onDismiss={onDismiss}>
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <Text preset="heading" style={{}}>
+        <Text preset="heading" style={{ ...GS.mb5 }}>
           Create Team
         </Text>
 
