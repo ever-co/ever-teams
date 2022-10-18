@@ -51,7 +51,7 @@ function TeamList() {
           return (
             <li
               key={i}
-              className="bg-white card__bg-color flex justify-between px-5 py-2 mb-3 items-center rounded-md"
+              className="bg-white hover:border hover:border-primary card__bg-color flex justify-between px-5 py-2 mb-3 items-center rounded-xl"
             >
               <div
                 style={style}
