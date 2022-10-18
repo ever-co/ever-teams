@@ -7,6 +7,7 @@ export const AuthenticationStoreModel = types
     authEmail: types.optional(types.string, ""),
     authTeamName: types.optional(types.string, ""),
     authUsername: types.optional(types.string, ""),
+    authConfirmCode: types.optional(types.string, ""),
     authInviteCode: types.optional(types.string, ""),
   })
   .views((store) => ({
@@ -26,6 +27,15 @@ export const AuthenticationStoreModel = types
           if (store.authTeamName.length === 0) return "This filed can't be blank"
           return ""
         })(),
+        authUsername: (function () {
+          if (store.authUsername.length === 0) return "This filed can't be blank"
+          return ""
+        })(),
+
+        authConfirmCode: (function () {
+          if (store.authConfirmCode.length === 0) return "This filed can't be blank"
+          return ""
+        })(),
       }
     },
   }))
@@ -39,6 +49,9 @@ export const AuthenticationStoreModel = types
     setAuthTeamName(value: string) {
       store.authTeamName = value.replace(/ /g, "")
     },
+    setAuthConfirmCode(value: string) {
+      store.authConfirmCode = value.replace(/ /g, "")
+    },
     setAuthInviteCode(value: string) {
       store.authInviteCode = value.replace(/ /g, "")
     },
@@ -49,8 +62,9 @@ export const AuthenticationStoreModel = types
       store.authToken = undefined
       store.authEmail = ""
       store.authTeamName = ""
-      store.authUserName = ""
+      store.authUsername = ""
       store.authInviteCode = ""
+      store.authConfirmCode = ""
     },
   }))
 
