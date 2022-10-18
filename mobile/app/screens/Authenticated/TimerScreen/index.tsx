@@ -3,12 +3,12 @@ import { TextStyle, ViewStyle } from "react-native"
 
 // COMPONENTS
 import ActiveTaskCard from "./components/ActiveTaskCard"
-import { Screen, Text } from "../../../components"
+import { Button, Screen, Text } from "../../../components"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import TimerCard from "../TimerScreen/components/TimerCard"
 
 // STYLES
-import { spacing } from "../../../theme"
+import { colors, spacing } from "../../../theme"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
@@ -23,6 +23,15 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
         {/* Timer card */}
         <TimerCard />
+
+        {/*  */}
+        <Button
+          preset="default"
+          textStyle={{ color: colors.primary }}
+          style={{ borderColor: colors.primary }}
+        >
+          Estimate now
+        </Button>
       </Screen>
     )
   }
