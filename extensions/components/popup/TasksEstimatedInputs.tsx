@@ -1,11 +1,33 @@
 import classNames from "classnames"
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 
 import { underlineInput } from "~misc/tailwindClasses"
+import type { ITask } from "~typescript/types/ITask"
 
-const TasksEstimatedInputs: FC = () => {
+interface ITasksEstimatedInputs {
+  task: ITask
+  onEstimateChange?: (hoursEstimate: string, minutesEstimate: string) => void
+}
+
+const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({
+  task,
+  onEstimateChange
+}) => {
   const [hoursEst, setHoursEstimate] = useState<string>("")
   const [minutesEst, setMinutesEstimate] = useState<string>("")
+
+  useEffect(() => {
+    if (!task) return
+
+    const hours = task.estimated.split(":")[0]
+    const minutes = task.estimated.split(":")[1]
+    setHoursEstimate(hours)
+    setMinutesEstimate(minutes)
+  }, [task])
+
+  useEffect(() => {
+    onEstimateChange(hoursEst, minutesEst)
+  }, [hoursEst, minutesEst])
 
   const onHoursChange = (event) => {
     const value = event.target.value
@@ -25,15 +47,18 @@ const TasksEstimatedInputs: FC = () => {
     setMinutesEstimate(value)
   }
 
-  const onEstimateBlur = (event) => {
-    const value = event.target.value
-    if (!value) return
+  const onHoursEstimateBlur = (event) => {
+    if (!event.target.value) return
 
     if (+hoursEst < 10 && hoursEst[0] !== "0") {
       const hours = hoursEst ? hoursEst : "0"
       const format = "0" + hours
       setHoursEstimate(format)
     }
+  }
+
+  const onMinutesEstimateBlur = (event) => {
+    if (!event.target.value) return
 
     if (+minutesEst < 10 && minutesEst[0] !== "0") {
       const mins = minutesEst ? minutesEst : "0"
@@ -51,7 +76,7 @@ const TasksEstimatedInputs: FC = () => {
         placeholder="00"
         value={hoursEst}
         onChange={onHoursChange}
-        onBlur={onEstimateBlur}
+        onBlur={onHoursEstimateBlur}
       />
       <span className="mx-2">hh</span>
       <input
@@ -60,7 +85,7 @@ const TasksEstimatedInputs: FC = () => {
         placeholder="00"
         value={minutesEst}
         onChange={onMinuteChange}
-        onBlur={onEstimateBlur}
+        onBlur={onMinutesEstimateBlur}
       />
       <span className="mx-2">mm</span>
     </>

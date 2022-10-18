@@ -7,17 +7,22 @@ import type { ITask } from "~typescript/types/ITask"
 
 import TasksEstimatedInputs from "./TasksEstimatedInputs"
 
-const fakeTasks = [
-  { id: 1, title: "Build a chrome extension for Gauzy Teams", estimated: "" },
-  { id: 2, title: "Fix bug #2", estimated: "" }
+const fakeTasks: ITask[] = [
+  {
+    id: 1,
+    title: "Build a chrome extension for Gauzy Teams",
+    estimated: "12:00"
+  },
+  { id: 2, title: "Fix bug #2", estimated: "00:25" }
 ]
 
-const defaultTask = { id: 0, title: "Select a task", estimated: "" }
+const defaultTask = { id: 0, title: "Select a task", estimated: ":" }
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
   const [selectedTask, setSelectedTask] = useState<ITask>(defaultTask)
   const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
+  const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>("")
 
   const onTaskSelect = (task: ITask) => {
     setActiveTaskTitle(task.title)
@@ -25,20 +30,38 @@ const Tasks = () => {
   }
 
   const onActiveTaskChange = (event) => {
-    const value = event.target.value
-    setActiveTaskTitle(value)
+    setActiveTaskTitle(event.target.value)
     setSelectedTask(defaultTask)
   }
 
+  const onActiveEstimateChange = (
+    hoursEstimate: string,
+    minutesEstimate: string
+  ) => {
+    const hours = hoursEstimate ? hoursEstimate : "00"
+    const mins = minutesEstimate ? minutesEstimate : "00"
+    const newEstimate = `${hours}:${mins}`
+    setActiveTaskEstimate(newEstimate)
+  }
+
   const addNewTask = () => {
+    if (isEmptyEstimate()) return
+
     const newId = tasks[tasks.length - 1].id + 1
-    const newTask = { id: newId, title: activeTaskTitle, estimated: "" }
+    const newTask = {
+      id: newId,
+      title: activeTaskTitle,
+      estimated: activeTaskEstimate
+    }
     const newTasks = [...tasks, newTask]
     setTasks(newTasks)
     setSelectedTask(newTask)
+    setActiveTaskEstimate("")
   }
 
-  const isNewTask = activeTaskTitle !== null && selectedTask === defaultTask
+  const isNewTask = !!activeTaskTitle && selectedTask === defaultTask
+  const isEmptyEstimate = () =>
+    activeTaskEstimate === "00:00" || activeTaskEstimate === ""
 
   return (
     <div className="bg-zinc-100 rounded p-2">
@@ -71,10 +94,16 @@ const Tasks = () => {
         </div>
       </div>
       <div className="flex items-center">
-        <TasksEstimatedInputs />
+        <TasksEstimatedInputs
+          task={selectedTask}
+          onEstimateChange={onActiveEstimateChange}
+        />
         {isNewTask && (
           <button
-            className="ml-2 bg-slate-900 text-white rounded p-2"
+            className={classNames(
+              "ml-2 bg-slate-900 text-white rounded p-2",
+              isEmptyEstimate() && "bg-slate-600"
+            )}
             onClick={addNewTask}>
             Add Task
           </button>

@@ -4,11 +4,16 @@ import React, { FC, useRef, useState } from "react"
 import useOnClickOutside from "~hooks/useOnClickOutside"
 import { textEllipsis } from "~misc/tailwindClasses"
 
+interface IOption {
+  id: number
+  title: string
+}
+
 interface IAppDropdownProps {
   buttonClassNames: string
   buttonTitle: string
-  options: any[]
-  onOptionSelect: (option: any) => void
+  options: IOption[]
+  onOptionSelect: (option: IOption) => void
   optionContainerClassNames?: string
 }
 
