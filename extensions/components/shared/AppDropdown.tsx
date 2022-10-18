@@ -24,18 +24,18 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
 
   useOnClickOutside(ref, () => setHidden(true))
 
-  const selectOption = (name: string) => {
+  const selectOption = (option: any) => {
     setHidden(true)
-    onOptionSelect(name)
+    onOptionSelect(option)
   }
 
-  const optionElements = options.map((name) => {
+  const optionElements = options.map((option) => {
     return (
-      <li key={name} onClick={() => selectOption(name)}>
+      <li key={option.id} onClick={() => selectOption(option)}>
         <a
           href="#"
           className="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-          {name}
+          {option.title}
         </a>
       </li>
     )

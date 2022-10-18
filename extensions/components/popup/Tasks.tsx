@@ -11,6 +11,7 @@ const fakeTasks = [
   { id: 1, title: "Build a chrome extension for Gauzy Teams", estimated: "" },
   { id: 2, title: "Fix bug #2", estimated: "" }
 ]
+
 const defaultTask = { id: 0, title: "Select a task", estimated: "" }
 
 const Tasks = () => {
@@ -34,7 +35,7 @@ const Tasks = () => {
     setSelectedTask(activeTask)
   }
 
-  const isNewTask = !!activeTask && selectedTask === defaultTask
+  const isNewTask = !activeTask && selectedTask === defaultTask
 
   return (
     <div className="bg-zinc-100 rounded p-2">
@@ -61,7 +62,7 @@ const Tasks = () => {
             type="text"
             className={roundInput}
             placeholder="ex. Gauzy Teams Extension"
-            value={activeTask.title}
+            value={activeTask ? activeTask.title : undefined}
             onChange={onActiveTaskChange}
           />
         </div>
