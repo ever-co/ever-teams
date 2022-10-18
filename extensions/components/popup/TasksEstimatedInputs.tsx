@@ -25,13 +25,20 @@ const TasksEstimatedInputs: FC = () => {
     setMinutesEstimate(value)
   }
 
-  const onNumberBlur = () => {
+  const onEstimateBlur = (event) => {
+    const value = event.target.value
+    if (!value) return
+
     if (+hoursEst < 10 && hoursEst[0] !== "0") {
-      const formatEstimate = "0" + hoursEst
-      setHoursEstimate(formatEstimate)
-    } else if (+minutesEst < 10 && minutesEst[0] !== "0") {
-      const formatEstimate = "0" + minutesEst
-      setMinutesEstimate(formatEstimate)
+      const hours = hoursEst ? hoursEst : "0"
+      const format = "0" + hours
+      setHoursEstimate(format)
+    }
+
+    if (+minutesEst < 10 && minutesEst[0] !== "0") {
+      const mins = minutesEst ? minutesEst : "0"
+      const format = "0" + mins
+      setMinutesEstimate(format)
     }
   }
 
@@ -44,7 +51,7 @@ const TasksEstimatedInputs: FC = () => {
         placeholder="00"
         value={hoursEst}
         onChange={onHoursChange}
-        onBlur={onNumberBlur}
+        onBlur={onEstimateBlur}
       />
       <span className="mx-2">hh</span>
       <input
@@ -53,7 +60,7 @@ const TasksEstimatedInputs: FC = () => {
         placeholder="00"
         value={minutesEst}
         onChange={onMinuteChange}
-        onBlur={onNumberBlur}
+        onBlur={onEstimateBlur}
       />
       <span className="mx-2">mm</span>
     </>
