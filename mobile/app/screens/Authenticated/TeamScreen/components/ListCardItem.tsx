@@ -9,19 +9,20 @@ import {
 } from "react-native"
 
 // COMPONENTS
-import { Card, Icon, Text } from "../../../../components"
+import { Card, Icon, ListItem, Text } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 export type ListItemProps = {
   variant: "success" | "warning" | "danger"
+  onPressIn?: () => unknown
 }
 
 export interface Props extends ListItemProps {}
 
-export const ListItemContent: React.FC<ListItemProps> = ({ variant }) => (
-  <TouchableNativeFeedback>
+export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn }) => (
+  <TouchableNativeFeedback onPressIn={onPressIn}>
     <View style={{ ...GS.p3, ...GS.positionRelative }}>
       <View style={{ ...GS.inlineItems, ...GS.py2 }}>
         <Image
@@ -82,32 +83,76 @@ export const ListItemContent: React.FC<ListItemProps> = ({ variant }) => (
   </TouchableNativeFeedback>
 )
 
-const ListCardItem: React.FC<Props> = (props) => (
-  <Card
-    style={{
-      ...$listCard,
-      ...GS.mb3,
-      borderColor: CC[props.variant],
-    }}
-    HeadingComponent={
-      <View
-        style={{
-          ...GS.positionAbsolute,
-          ...GS.t0,
-          ...GS.r0,
-          ...GS.m3,
-          ...GS.p2,
-          ...GS.zIndexFront,
-        }}
-      >
-        <TouchableOpacity>
-          <Icon icon="more" />
-        </TouchableOpacity>
-      </View>
-    }
-    ContentComponent={<ListItemContent {...props} />}
-  />
-)
+const ListCardItem: React.FC<Props> = (props) => {
+  // STATS
+  const [showMenu, setShowMenu] = React.useState(false)
+
+  return (
+    <Card
+      style={{
+        ...$listCard,
+        ...GS.mb3,
+        borderColor: CC[props.variant],
+      }}
+      HeadingComponent={
+        <View
+          style={{
+            ...GS.positionAbsolute,
+            ...GS.t0,
+            ...GS.r0,
+            ...GS.m3,
+            ...GS.p2,
+            ...GS.zIndexFront,
+          }}
+        >
+          <View
+            style={{
+              ...GS.positionRelative,
+            }}
+          >
+            <View
+              style={{
+                ...GS.positionAbsolute,
+                ...GS.p2,
+                ...GS.pt4,
+                ...GS.shadow,
+                ...GS.r0,
+                ...GS.roundedSm,
+                marginTop: -spacing.extraSmall,
+                marginRight: -spacing.extraSmall,
+                backgroundColor: colors.background,
+                minWidth: spacing.massive * 2.5,
+                ...(!showMenu ? { display: "none" } : {}),
+              }}
+            >
+              <View style={{}}>
+                <ListItem>Estimate now</ListItem>
+                <ListItem>Stop</ListItem>
+                <ListItem>See more</ListItem>
+              </View>
+            </View>
+
+            <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
+              <Icon icon="more" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      }
+      ContentComponent={
+        <ListItemContent
+          {...props}
+          onPressIn={() => {
+            setShowMenu(false)
+
+            if (typeof props?.onPressIn === "function") {
+              props.onPressIn()
+            }
+          }}
+        />
+      }
+    />
+  )
+}
 
 export default ListCardItem
 
