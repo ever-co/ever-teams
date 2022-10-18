@@ -1,5 +1,7 @@
 export enum MessageTypesEnum {
   startTimer,
   stopTimer,
-  pauseTimer
+  pauseTimer,
+  updateTasks,
+  updateActiveTaskIndex
 }

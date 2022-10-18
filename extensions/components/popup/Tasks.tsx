@@ -3,7 +3,7 @@ import React, { useState } from "react"
 
 import AppDropdown from "~components/shared/AppDropdown"
 import { roundInput, textEllipsis } from "~misc/tailwindClasses"
-import type { ITask } from "~typescript/types/ITask"
+import type { ITask } from "~typescript/types/Tasks"
 
 import TasksEstimatedInputs from "./TasksEstimatedInputs"
 
