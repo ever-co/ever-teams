@@ -35,7 +35,7 @@ const Tasks = () => {
     setSelectedTask(activeTask)
   }
 
-  const isNewTask = !activeTask && selectedTask === defaultTask
+  const isNewTask = activeTask !== null && selectedTask === defaultTask
 
   return (
     <div className="bg-zinc-100 rounded p-2">
