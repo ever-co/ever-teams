@@ -17,10 +17,8 @@ const TasksEstimatedInputs: FC<ITasksEstimatedInputs> = ({
   const [minutesEst, setMinutesEstimate] = useState<string>("")
 
   useEffect(() => {
-    if (!task) return
-
-    const hours = task.estimated.split(":")[0]
-    const minutes = task.estimated.split(":")[1]
+    const hours = task?.estimated.split(":")[0] || ""
+    const minutes = task?.estimated.split(":")[1] || ""
     setHoursEstimate(hours)
     setMinutesEstimate(minutes)
   }, [task])
