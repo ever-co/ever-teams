@@ -23,7 +23,6 @@ const Timer: React.FC<Props> = ({ port }) => {
     if (port) {
       port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
         if (msg.type === MessageTypesFromBackgroundEnum.taskUpdate) {
-          console.log(msg.payload)
           if (msg.payload.id !== null) {
             const taskWorkedTime =
               msg.payload.timer && msg.payload.timer > 0
