@@ -1,3 +1,5 @@
+import Header from "./header";
+
 export function TeamMemberSection() {
   return <TeamList />;
 }
@@ -23,6 +25,7 @@ const members = [
 ] as const;
 
 function TeamList() {
+  const style = { width: `${100 / members.length}%` };
   return (
     <div className="p-0 overflow-x-auto mt-9">
       <div className="py-6">
@@ -31,8 +34,8 @@ function TeamList() {
         </h5>
       </div>
       <ul className="items-center w-full mb-0 align-top text-slate-500">
+        <Header style={style} />
         {members.map((item, i) => {
-          const style = { width: `${100 / members.length}%` };
           const bgColorOp =
             item.status === "working"
               ? "bg-[#02b1028a]"
@@ -90,7 +93,7 @@ function TeamList() {
                 className="text-center align-middle bg-transparent whitespace-nowrap shadow-transparent"
               >
                 <span className="text-sm font-semibold dark:text-white dark:opacity-80 leading-tight">
-                  02:12:30
+                  06:34:30
                 </span>
               </div>
             </li>
