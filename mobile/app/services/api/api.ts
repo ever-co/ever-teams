@@ -88,9 +88,17 @@ export class Api {
   async commonPostApi<T>(
     url: string,
     body: any,
+    isProtected: boolean = true,
   ): Promise<{ kind: "ok"; data: T } | GeneralApiProblem> {
     // make the api call
-    const response: ApiResponse<T> = await this.apisauce.post(url, body)
+    const response: ApiResponse<T> = await this.apisauce.post(url, body, {
+      headers: isProtected ? { Authorization: `Bearer ${this.authToken}` } : {},
+    })
+
+    // CHECK THE RESPONSE (@debug only)
+    if (__DEV__) {
+      console.log("response POST", response)
+    }
 
     // the typical ways to die when calling an api
     if (!response.ok) {
@@ -145,6 +153,9 @@ export class Api {
       userProfile: 'user/me',
       createWorkspace: 'tenant',
       createOrganization: 'organization',
+      startTimer: 'timesheet/timer/start',
+      stopTimer: 'timesheet/timer/stop',
+      createTeam: 'organization-team',
     }
   }
 

@@ -7,8 +7,20 @@ import { Card, Text, Button } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors } from "../../../../theme"
+import { formatDuration } from "../../../../utils/formatDate"
 
 export type Props = Record<string, unknown>
+
+/**
+ * TimerCardProps
+ */
+export type TimerCardProps = {
+  totalTime: number
+  onTimerStart: () => void
+  onTimerStop: () => void
+  workedTime: number
+  startTime: number
+}
 
 export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
   return (
@@ -40,7 +52,9 @@ export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
   )
 }
 
-export const ContentTimerCard: React.FC<Record<string, unknown>> = () => {
+export const ContentTimerCard: React.FC<TimerCardProps> = (props) => {
+  const { totalTime, onTimerStart, onTimerStop, workedTime, startTime } = props
+
   return (
     <View>
       <View
@@ -56,9 +70,9 @@ export const ContentTimerCard: React.FC<Record<string, unknown>> = () => {
       </View>
 
       <View style={{ ...GS.inlineItems, ...GS.justifyBetween }}>
-        <Text>00:00</Text>
+        <Text>{}</Text>
 
-        <Text>02:12:30</Text>
+        <Text>{formatDuration(workedTime)}</Text>
       </View>
     </View>
   )

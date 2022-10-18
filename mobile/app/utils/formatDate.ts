@@ -1,4 +1,4 @@
-import { Locale, format, parseISO } from "date-fns"
+import { Locale, format, parseISO, intervalToDuration } from "date-fns"
 import I18n from "i18n-js"
 
 import ar from "date-fns/locale/ar-SA"
@@ -19,4 +19,17 @@ export const formatDate = (date: string, dateFormat?: string, options?: Options)
     locale,
   }
   return format(parseISO(date), dateFormat ?? "MMM dd, yyyy", dateOptions)
+}
+
+/**
+ * 
+ * @param duration The duration in miliseconds
+ * @returns formattedDuration:string The duration in the format of "hh:mm:ss"
+ */
+export const formatDuration = (duration: number) => {
+  const time = intervalToDuration({ start: 0, end: duration })
+  const hours = time.hours ? `${time.hours}h ` : ""
+  const minutes = time.minutes ? `${time.minutes}m ` : ""
+  const seconds = time.seconds ? `${time.seconds}s` : ""
+  return `${hours}${minutes}${seconds}`
 }
