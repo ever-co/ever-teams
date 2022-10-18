@@ -31,10 +31,6 @@ export const HeaderTimerCard: React.FC<Record<string, unknown>> = () => {
         <Button preset="reversed" style={{ ...GS.mr2, backgroundColor: colors.primary }}>
           Start
         </Button>
-
-        <Button preset="reversed" style={{ backgroundColor: colors.palette.secondary500 }}>
-          Stop
-        </Button>
       </View>
     </View>
   )
