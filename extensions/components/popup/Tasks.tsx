@@ -17,25 +17,28 @@ const defaultTask = { id: 0, title: "Select a task", estimated: "" }
 const Tasks = () => {
   const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
   const [selectedTask, setSelectedTask] = useState<ITask>(defaultTask)
-  const [activeTask, setActiveTask] = useState<ITask | null>(null)
+  const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
+
+  const onTaskSelect = (task: ITask) => {
+    setActiveTaskTitle(task.title)
+    setSelectedTask(task)
+  }
 
   const onActiveTaskChange = (event) => {
-    setActiveTask(event.target.value)
+    const value = event.target.value
+    setActiveTaskTitle(value)
     setSelectedTask(defaultTask)
   }
 
-  const onTaskSelect = (task: ITask) => {
-    setSelectedTask(task)
-    setActiveTask(task)
-  }
-
   const addNewTask = () => {
-    const newTasks = [...tasks, activeTask]
+    const newId = tasks[tasks.length - 1].id + 1
+    const newTask = { id: newId, title: activeTaskTitle, estimated: "" }
+    const newTasks = [...tasks, newTask]
     setTasks(newTasks)
-    setSelectedTask(activeTask)
+    setSelectedTask(newTask)
   }
 
-  const isNewTask = activeTask !== null && selectedTask === defaultTask
+  const isNewTask = activeTaskTitle !== null && selectedTask === defaultTask
 
   return (
     <div className="bg-zinc-100 rounded p-2">
@@ -62,7 +65,7 @@ const Tasks = () => {
             type="text"
             className={roundInput}
             placeholder="ex. Gauzy Teams Extension"
-            value={activeTask ? activeTask.title : undefined}
+            value={activeTaskTitle}
             onChange={onActiveTaskChange}
           />
         </div>
