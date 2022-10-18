@@ -24,14 +24,12 @@ const fakeTasks: ITask[] = [
   { id: 2, title: "Fix bug #2", estimated: "00:25" }
 ]
 
-const defaultTask = { id: 0, title: "Select a task", estimated: ":" }
-
 interface Props {
   port: chrome.runtime.Port | null
 }
 const Tasks: React.FC<Props> = ({ port }) => {
   const [tasks, setTasks] = useState<ITask[]>(fakeTasks)
-  const [selectedTask, setSelectedTask] = useState<ITask | null>(defaultTask)
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(null)
   const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
   const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>("")
 
@@ -54,7 +52,6 @@ const Tasks: React.FC<Props> = ({ port }) => {
     }
   }, [port, tasks])
 
-
   const onTaskSelect = (task: ITask) => {
     setActiveTaskTitle(task.title)
     setSelectedTask(task)
@@ -66,7 +63,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
 
   const onActiveTaskChange = (event) => {
     setActiveTaskTitle(event.target.value)
-    setSelectedTask(defaultTask)
+    setSelectedTask(null)
   }
 
   const onActiveEstimateChange = (
@@ -98,7 +95,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
     })
   }
 
-  const isNewTask = !!activeTaskTitle && selectedTask === defaultTask
+  const isNewTask = !!activeTaskTitle && selectedTask === null
   const isEmptyEstimate = () =>
     activeTaskEstimate === "00:00" || activeTaskEstimate === ""
 
@@ -114,7 +111,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
                 textEllipsis,
                 "min-w-[207px] max-w-[207px] text-start"
               )}
-              buttonTitle={selectedTask.title}
+              buttonTitle={selectedTask ? selectedTask.title : "Select a task"}
               options={tasks}
               onOptionSelect={onTaskSelect}
               optionContainerClassNames="min-w-[207px] max-w-[207px]"
