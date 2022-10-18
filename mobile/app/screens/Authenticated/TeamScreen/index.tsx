@@ -12,7 +12,9 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 
 // COMPONENTS
 import { Button, Icon, ListItem, Screen, Text } from "../../../components"
+import InviteUserModal from "./components/InviteUserModal"
 import ListCardItem from "./components/ListCardItem"
+import NewTeamModal from "./components/CreateTeamModal"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
@@ -23,9 +25,17 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
     // STATES
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
+    const [showInviteModal, setShowInviteModal] = React.useState(false)
+    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
     return (
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
+        <NewTeamModal
+          visible={showCreateTeamModal}
+          onDismiss={() => setShowCreateTeamModal(false)}
+        />
+
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={{ ...GS.flex1 }}>
             <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
@@ -40,7 +50,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
               <View style={{ ...GS.inlineItems }}>
                 <View style={{ ...$headerIconContainer, ...GS.mr2 }}>
-                  <TouchableOpacity style={{ ...GS.p2 }}>
+                  <TouchableOpacity
+                    style={{ ...GS.p2 }}
+                    onPress={() => setShowCreateTeamModal(true)}
+                  >
                     <Icon icon="components" />
                   </TouchableOpacity>
                 </View>
@@ -88,17 +101,14 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
               {taskList.map((item, index) => (
                 <ListCardItem key={index.toString()} variant={item as any} />
               ))}
-
-              <ListCardItem variant="danger" />
-
-              <ListCardItem variant="warning" />
             </ScrollView>
 
             {/* Invite btn */}
             <Button
               preset="default"
-              textStyle={{ color: colors.palette.primary600 }}
-              style={{ ...GS.bgTransparent, ...GS.mb2, borderColor: colors.palette.primary600 }}
+              textStyle={{ color: colors.primary }}
+              style={{ ...GS.bgTransparent, ...GS.mb2, borderColor: colors.primary }}
+              onPress={() => setShowInviteModal(true)}
             >
               Invite
             </Button>
