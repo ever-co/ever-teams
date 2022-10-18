@@ -3,25 +3,29 @@ import React, { useState } from "react"
 
 import AppDropdown from "~components/shared/AppDropdown"
 import { roundInput, textEllipsis } from "~misc/tailwindClasses"
+import type { Task } from "~typescript/types/Task"
 
 import TasksEstimatedInputs from "./TasksEstimatedInputs"
 
-const fakeTasks = ["Build a chrome extension for Gauzy Teams", "Fix bug #2"]
-const defaultTask = "Select a task"
+const fakeTasks = [
+  { id: 1, title: "Build a chrome extension for Gauzy Teams" },
+  { id: 2, title: "Fix bug #2" }
+]
+const defaultTask = { id: 0, title: "Select a task" }
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState<string[]>(fakeTasks)
-  const [selectedTask, setSelectedTask] = useState<string>(defaultTask)
-  const [activeTask, setActiveTask] = useState<string>("")
+  const [tasks, setTasks] = useState<Task[]>(fakeTasks)
+  const [selectedTask, setSelectedTask] = useState<Task>(defaultTask)
+  const [activeTask, setActiveTask] = useState<Task | null>(null)
 
   const onActiveTaskChange = (event) => {
     setActiveTask(event.target.value)
     setSelectedTask(defaultTask)
   }
 
-  const onTaskSelect = (name: string) => {
-    setSelectedTask(name)
-    setActiveTask(name)
+  const onTaskSelect = (task: Task) => {
+    setSelectedTask(task)
+    setActiveTask(task)
   }
 
   const addNewTask = () => {
@@ -44,7 +48,7 @@ const Tasks = () => {
                 textEllipsis,
                 "min-w-[207px] max-w-[207px] text-start"
               )}
-              buttonTitle={selectedTask}
+              buttonTitle={selectedTask.title}
               options={tasks}
               onOptionSelect={onTaskSelect}
               optionContainerClassNames="min-w-[207px] max-w-[207px]"
@@ -57,7 +61,7 @@ const Tasks = () => {
             type="text"
             className={roundInput}
             placeholder="ex. Gauzy Teams Extension"
-            value={activeTask}
+            value={activeTask.title}
             onChange={onActiveTaskChange}
           />
         </div>
