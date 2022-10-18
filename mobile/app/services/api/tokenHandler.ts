@@ -53,7 +53,7 @@ export default class LocalStorage {
 
   static async set(item: string, value: any) {
     // eslint-disable-next-line no-return-await
-    if (item === "access-token" || item === "refresh-token") {
+    if (item === "token" || item === "refresh-token") {
       return AsyncStorage.setItem(item, value)
     }
     return AsyncStorage.setItem(item, JSON.stringify(value))

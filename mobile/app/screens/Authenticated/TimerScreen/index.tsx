@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useEffect } from "react"
 import { TextStyle, ViewStyle } from "react-native"
 
 // COMPONENTS
@@ -10,8 +10,37 @@ import TimerCard from "../TimerScreen/components/TimerCard"
 // STYLES
 import { colors, spacing } from "../../../theme"
 
+// HELPERS
+import { api } from "../../../services/api"
+import LocalStorage from "../../../services/api/tokenHandler"
+
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
+    // STATE
+    // FUNCTIONS
+    const startTimer = async () => {
+      // update the local storage
+      await LocalStorage.set("timer", { started: true, startTime: new Date().getTime() })
+
+      // start the timer
+      const response = await api.commonPostApi(api.routes.startTimer, {})
+
+      console.log("TIMER RESPONSE", response)
+    }
+
+    const stopTimer = async () => {
+      // update the local storage
+      await LocalStorage.set("timer", { started: false, startTime: 0 })
+
+      // stop the timer
+      const response = await api.commonPostApi(api.routes.stopTimer, {})
+
+      console.log("TIMER RESPONSE STOP", response)
+    }
+    useEffect(() => {
+      // startTimer()
+      // startTimer();
+    }, [])
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <Text preset="heading" style={$title}>
@@ -22,7 +51,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         <ActiveTaskCard />
 
         {/* Timer card */}
-        <TimerCard />
+        <TimerCard
+          onTimerStart={startTimer}
+          onTimerStop={stopTimer}
+          startTime={1000000}
+          totalTime={10000000}
+          workedTime={10000}
+        />
 
         {/*  */}
         <Button

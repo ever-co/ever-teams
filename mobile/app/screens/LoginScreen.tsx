@@ -407,7 +407,6 @@ const $screenContentContainer: ViewStyle = {
 }
 
 const $header: ViewStyle = {
-  // paddingVertical: spacing.huge,
   width: "100%",
   display: "flex",
   alignItems: "center",
@@ -417,7 +416,6 @@ const $header: ViewStyle = {
 const $container: ViewStyle = {
   paddingVertical: spacing.large,
   width: "100%",
-  // height: "60%",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -426,7 +424,6 @@ const $container: ViewStyle = {
 }
 
 const $form: ViewStyle = {
-  // paddingVertical: spacing.huge,
   width: "100%",
   display: "flex",
   alignItems: "center",
@@ -491,5 +488,3 @@ const $release: TextStyle = {
   fontFamily: typography.secondary.normal,
   fontWeight: "700",
 }
-
-// @demo remove-file
