@@ -1,6 +1,7 @@
 import classNames from "classnames"
-import React, { FC, useState } from "react"
+import React, { FC, useRef, useState } from "react"
 
+import useOnClickOutside from "~hooks/useOnClickOutside"
 import { textEllipsis } from "~misc/tailwindClasses"
 
 interface IAppDropdownProps {
@@ -18,7 +19,10 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
   onOptionSelect,
   optionContainerClassNames = ""
 }) => {
+  const ref = useRef()
   const [dropdownHidden, setHidden] = useState<boolean>(true)
+
+  useOnClickOutside(ref, () => setHidden(true))
 
   const selectOption = (name: string) => {
     setHidden(true)
@@ -38,7 +42,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
   })
 
   return (
-    <>
+    <div ref={ref}>
       <button
         id="dropdownDefault"
         data-dropdown-toggle="dropdown"
@@ -64,7 +68,7 @@ export const AppDropdown: FC<IAppDropdownProps> = ({
           {optionElements}
         </ul>
       </div>
-    </>
+    </div>
   )
 }
 

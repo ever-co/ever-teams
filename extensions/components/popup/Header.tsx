@@ -22,7 +22,7 @@ const Header: FC = () => {
   return (
     <div className="flex justify-between mb-4 items-center">
       <img className="w-32 h-full" src={logoImg}></img>
-      <div className="min-w-[180px] text-end">
+      <div className="flex items-center min-w-[180px] text-end">
         <span className="mr-2">Team:</span>
         <AppDropdown
           buttonTitle={team}
@@ -33,7 +33,7 @@ const Header: FC = () => {
           )}
           options={teams}
           onOptionSelect={onTeamSelect}
-          optionContainerClassNames="ml-6"
+          optionContainerClassNames="-ml-8"
         />
       </div>
     </div>
