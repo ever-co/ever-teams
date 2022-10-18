@@ -23,19 +23,27 @@ const Timer: React.FC<Props> = ({ port }) => {
     if (port) {
       port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
         if (msg.type === MessageTypesFromBackgroundEnum.taskUpdate) {
-          const taskWorkedTime = msg.payload.timer
-            ? new Date(msg.payload.timer * 1000).toISOString().substr(11, 8)
-            : "00:00:00"
-          const totalWorkedTime =
-            msg.payload.totalWorked > 0
-              ? new Date(msg.payload.totalWorked * 1000)
-                  .toISOString()
-                  .substr(11, 8)
-              : "00:00:00"
-          setTimeString(taskWorkedTime)
-          setActiveTaskId(msg.payload.id)
-          setTotalWorked(totalWorkedTime)
-          setIsRunning(msg.payload.runState === TimerStateEnum.running)
+          console.log(msg.payload)
+          if (msg.payload.id !== null) {
+            const taskWorkedTime =
+              msg.payload.timer && msg.payload.timer > 0
+                ? new Date(msg.payload.timer * 1000).toISOString().substr(11, 8)
+                : "00:00:00"
+            const totalWorkedTime =
+              msg.payload.totalWorked > 0
+                ? new Date(msg.payload.totalWorked * 1000)
+                    .toISOString()
+                    .substr(11, 8)
+                : "00:00:00"
+            setTimeString(taskWorkedTime)
+            setActiveTaskId(msg.payload.id)
+            setTotalWorked(totalWorkedTime)
+            setIsRunning(msg.payload.runState === TimerStateEnum.running)
+          }
+        } else {
+          setTimeString("00:00:00")
+          setActiveTaskId(null)
+          setIsRunning(false)
         }
       })
     }

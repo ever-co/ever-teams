@@ -19,27 +19,31 @@ browser.runtime.onConnect.addListener((port) => {
   let expected = Date.now() + interval
 
   function postUpdateTask() {
-    console.log(workPort)
+    const activeTask = tasks[activeTaskIndex]
     if (workPort) {
       const totalWorked = tasks.reduce((a, v) => v.timer + a, 0)
       workPort.postMessage({
         type: MessageTypesFromBackgroundEnum.taskUpdate,
         payload: {
-          id: tasks[activeTaskIndex].id,
-          timer: tasks[activeTaskIndex].timer,
-          runState,
+          id: activeTask ? activeTask.id : null,
+          timer: activeTask ? activeTask.timer : 0,
+          runState: activeTask ? runState : TimerStateEnum.paused,
           totalWorked
         }
       })
     }
   }
 
-  if (tasks.length > 0 && activeTaskIndex !== null) {
+  if (tasks.length > 0 && activeTaskIndex !== null && tasks[activeTaskIndex]) {
     postUpdateTask()
   }
 
   function step() {
-    if (tasks.length > 0 && activeTaskIndex !== null) {
+    if (
+      tasks.length > 0 &&
+      activeTaskIndex !== null &&
+      tasks[activeTaskIndex]
+    ) {
       let dt = Date.now() - expected // the drift (positive for overshooting)
       if (dt > interval) {
         // something awful happened. Maybe the browser (tab) was inactive?
@@ -85,26 +89,19 @@ browser.runtime.onConnect.addListener((port) => {
       msg.payload &&
       Array.isArray(msg.payload)
     ) {
-      msg.payload.forEach((x) => {
-        const index = tasks.findIndex((y) => y.id === x.id)
+      tasks = msg.payload.map((x) => {
+        const element = tasks.find((y) => y.id === x.id)
 
-        if (index === -1) {
-          tasks.push({ id: x.id, timer: 0 })
-        }
+        return element ? element : { id: x.id, timer: 0 }
       })
     }
-    if (
-      msg.type == MessageTypesToBackgroundEnum.updateActiveTaskIndex &&
-      msg.payload &&
-      tasks.length > 0
-    ) {
+    if (msg.type == MessageTypesToBackgroundEnum.updateActiveTaskIndex) {
       const index = tasks.findIndex((x) => x.id === msg.payload.id)
 
       if (index !== -1) {
         activeTaskIndex = index
+        postUpdateTask()
       }
-
-      postUpdateTask()
     }
   })
 })

@@ -32,7 +32,21 @@ const Tasks: React.FC<Props> = ({ port }) => {
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null)
   const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
   const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>("")
-  const initialLoaded = useRef(false)
+
+  useEffect(() => {
+    if (port) {
+      port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
+        if (msg.type === MessageTypesFromBackgroundEnum.taskUpdate) {
+          const task = tasks.find((x) => x.id === msg.payload.id)
+
+          if (task) {
+            setSelectedTask(task)
+            setActiveTaskTitle(task.title)
+          }
+        }
+      })
+    }
+  }, [port])
 
   useEffect(() => {
     if (port && tasks) {
@@ -40,29 +54,21 @@ const Tasks: React.FC<Props> = ({ port }) => {
         type: MessageTypesToBackgroundEnum.updateTasks,
         payload: tasks
       })
-      if (initialLoaded.current === false) {
-        port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
-          if (
-            msg.type === MessageTypesFromBackgroundEnum.taskUpdate &&
-            selectedTask === null
-          ) {
-            const task = tasks.find((x) => x.id === msg.payload.id)
-            setSelectedTask(task)
-            setActiveTaskTitle(task.title)
-          }
-        })
-        initialLoaded.current = true
-      }
     }
   }, [port, tasks])
+
+  useEffect(() => {
+    if (selectedTask) {
+      port.postMessage({
+        type: MessageTypesToBackgroundEnum.updateActiveTaskIndex,
+        payload: selectedTask
+      })
+    }
+  }, [selectedTask])
 
   const onTaskSelect = (task: ITask) => {
     setActiveTaskTitle(task.title)
     setSelectedTask(task)
-    port.postMessage({
-      type: MessageTypesToBackgroundEnum.updateActiveTaskIndex,
-      payload: task
-    })
   }
 
   const onActiveTaskChange = (event) => {
@@ -93,10 +99,6 @@ const Tasks: React.FC<Props> = ({ port }) => {
     setTasks(newTasks)
     setSelectedTask(newTask)
     setActiveTaskEstimate("")
-    port.postMessage({
-      type: MessageTypesToBackgroundEnum.updateTasks,
-      payload: newTasks
-    })
   }
 
   const isNewTask = !!activeTaskTitle && selectedTask === null
