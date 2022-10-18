@@ -28,10 +28,10 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
   }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.large + spacing.extraLarge,
+  paddingTop: spacing.extraLarge,
   paddingHorizontal: spacing.large,
 }
 
 const $title: TextStyle = {
-  marginBottom: spacing.small,
+  marginBottom: spacing.large,
 }
