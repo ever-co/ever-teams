@@ -2,7 +2,7 @@ import classNames from "classnames"
 import React, { FC, useEffect, useState } from "react"
 
 import { underlineInput } from "~misc/tailwindClasses"
-import type { ITask } from "~typescript/types/ITask"
+import type { ITask } from "~typescript/types/Tasks"
 
 interface ITasksEstimatedInputs {
   task: ITask

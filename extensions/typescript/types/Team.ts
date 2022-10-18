@@ -1,4 +1,4 @@
-export interface Team {
+export interface ITeam {
   id: number
   title: string
 }
