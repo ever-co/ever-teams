@@ -1,5 +1,5 @@
 import classNames from "classnames"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { act } from "react-dom/test-utils"
 
 import AppDropdown from "~components/shared/AppDropdown"
@@ -32,6 +32,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null)
   const [activeTaskTitle, setActiveTaskTitle] = useState<string>("")
   const [activeTaskEstimate, setActiveTaskEstimate] = useState<string>("")
+  const initialLoaded = useRef(false)
 
   useEffect(() => {
     if (port && tasks) {
@@ -39,16 +40,19 @@ const Tasks: React.FC<Props> = ({ port }) => {
         type: MessageTypesToBackgroundEnum.updateTasks,
         payload: tasks
       })
-      port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
-        if (
-          msg.type === MessageTypesFromBackgroundEnum.taskUpdate &&
-          selectedTask === null
-        ) {
-          const task = tasks.find((x) => x.id === msg.payload.id)
-          setSelectedTask(task)
-          setActiveTaskTitle(task.title)
-        }
-      })
+      if (initialLoaded.current === false) {
+        port.onMessage.addListener((msg: IPostMessage<ITimerUpdate>) => {
+          if (
+            msg.type === MessageTypesFromBackgroundEnum.taskUpdate &&
+            selectedTask === null
+          ) {
+            const task = tasks.find((x) => x.id === msg.payload.id)
+            setSelectedTask(task)
+            setActiveTaskTitle(task.title)
+          }
+        })
+        initialLoaded.current = true
+      }
     }
   }, [port, tasks])
 
