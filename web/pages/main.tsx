@@ -1,7 +1,7 @@
 import React, { useState, Fragment } from "react";
 import { TeamMemberSection } from "../components/home/team-member";
 import { TimerTasksSection } from "../components/home/timer-tasks";
-import Invite from "../components/invite/Invite";
+import Invite from "../components/invite/invite";
 import { AppLayout } from "../components/layout";
 
 const Main = () => {
