@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 
 import Header from "~components/popup/Header"
 import Tasks from "~components/popup/Tasks"
@@ -6,27 +6,25 @@ import Timer from "~components/popup/Timer"
 
 import "./style.css"
 
-export const tailwindInputClass = `form-control
-block
-px-3
-py-1.5
-text-base
-font-normal
-text-gray-700
-bg-white bg-clip-padding
-border border-solid border-gray-300
-rounded
-transition
-ease-in-out
-m-0
-focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none`
+import browser from "~misc/browser"
+import { MessageTypesFromBackgroundEnum } from "~typescript/enums/MessageTypesEnum"
+import { TimerStateEnum } from "~typescript/enums/TimerStateEnum"
+import { IPostMessage } from "~typescript/interfaces/PostMessage"
+import { ITimerUpdate } from "~typescript/interfaces/TimerUpdate"
 
 function IndexPopup() {
+  const [port, setPort] = useState<chrome.runtime.Port | null>(null)
+
+  useEffect(() => {
+    const newPort = browser.runtime.connect({ name: "timer" })
+    setPort(newPort)
+  }, [])
+
   return (
     <div className="flex flex-col p-4" style={{ width: "400px" }}>
       <Header />
-      <Tasks />
-      <Timer />
+      <Tasks port={port} />
+      <Timer port={port} />
     </div>
   )
 }

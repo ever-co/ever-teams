@@ -45,7 +45,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
   }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.large + spacing.extraLarge,
+  paddingTop:  spacing.extraLarge,
   paddingHorizontal: spacing.large,
 }
 
