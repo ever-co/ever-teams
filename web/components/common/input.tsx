@@ -1,13 +1,13 @@
-interface IInputProps {
-  label: string;
-  name: string;
-  type: string;
-  placeholder: string;
-  required: boolean;
-  onChange: any;
-}
+import { IInputProps } from "../../app/interfaces/hooks";
 
-const Input = ({ label, name, type, placeholder, required, onChange }: IInputProps) => {
+const Input = ({
+  label,
+  name,
+  type,
+  placeholder,
+  required,
+  onChange,
+}: IInputProps) => {
   return (
     <div className="mb-5">
       <label

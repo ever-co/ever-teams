@@ -10,7 +10,7 @@ export const Header = () => {
     <header className="fixed w-full z-50">
       <nav className="bg-white py-6 dark:bg-[#19191d] shadow-sm">
         <div className="flex container flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 justify-center ">
             <MainLogo />
             <div className="">-</div>
             <DropDown

@@ -1,12 +1,7 @@
-import { ReactNode } from "react";
+import { AppLayoutProps } from "../../app/interfaces/hooks";
 import Footer from "./footer/footer";
 import Header from "./header/header";
 import Meta from "./Meta";
-
-interface AppLayoutProps {
-  children: ReactNode;
-  additionalClass?: string;
-}
 
 export const AppLayout = (props: AppLayoutProps) => {
   return (

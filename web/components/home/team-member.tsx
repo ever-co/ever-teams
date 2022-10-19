@@ -1,17 +1,9 @@
 import Header from "./header";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { IMembers } from "../../app/interfaces/hooks";
 
 export function TeamMemberSection() {
   return <TeamList />;
-}
-
-interface IMembers {
-  name: string;
-  status: string;
-  task: string;
-  current: string;
-  estimate: string;
-  total: string;
 }
 
 const members: IMembers[] = [

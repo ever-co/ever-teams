@@ -1,12 +1,5 @@
 import React from "react";
-
-interface IInputEmail {
-  name: string;
-  type: string;
-  placeholder: string;
-  required: boolean;
-  onChange: any;
-}
+import { IInputEmail } from "../../../app/interfaces/hooks";
 
 export const InputEmail = ({
   name,

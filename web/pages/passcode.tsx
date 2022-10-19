@@ -19,7 +19,7 @@ const Passcode = () => {
         <div className="flex justify-center font-light text-center text-gray-600 dark:text-gray-400 w-full py-2">
           Welcome to Gauzy team
         </div>
-        <div className="text-xl text-center text-primary font-bold text-label dark:text-white my-10">
+        <div className="text-xl text-center text-primary font-bold dark:text-white my-10">
           Join Our Team
         </div>
         <form onSubmit={handleSubmit} method="post">
