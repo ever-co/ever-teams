@@ -2,17 +2,7 @@ import React, { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import InputEmail from "../team/passcode/inputEmail";
 import TeamLogo from "../common/team_logo";
-
-interface IInviteProps {
-  isOpen: boolean;
-  Fragment: any;
-  closeModal: any;
-}
-
-interface IInvite {
-  email: string;
-  name: string;
-}
+import { IInvite, IInviteProps } from "../../app/interfaces/hooks";
 
 const initalValues: IInvite = {
   email: "",

@@ -1,12 +1,8 @@
 import React from "react";
+import { IStepProps } from "../../../app/interfaces/hooks";
 import Input from "../../common/input";
 
-interface ISecondStepProps {
-  handleOnChange: any;
-}
-
-const SecondStep = ({ handleOnChange }: ISecondStepProps) => {
-
+const SecondStep = ({ handleOnChange }: IStepProps) => {
   return (
     <>
       <Input

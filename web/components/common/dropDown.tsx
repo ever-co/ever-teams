@@ -1,12 +1,7 @@
 import { Fragment, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
-
-interface IDropDownProps {
-  data: string[];
-  selectedData: string;
-  handleSelectData: any;
-}
+import { IDropDownProps } from "../../app/interfaces/ui";
 
 const DropDown = ({ data, handleSelectData, selectedData }: IDropDownProps) => {
   const [query, setQuery] = useState("");

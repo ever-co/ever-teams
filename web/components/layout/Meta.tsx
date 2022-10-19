@@ -1,10 +1,5 @@
 import Head from "next/head";
-
-interface MetaProps {
-  title: string;
-  keywords: string;
-  description: string;
-}
+import { MetaProps } from "../../app/interfaces/hooks";
 
 const Meta = ({ title, keywords, description }: MetaProps) => {
   return (
