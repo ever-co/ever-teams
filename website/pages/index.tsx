@@ -7,9 +7,7 @@ const Home: NextPage = () => {
       <div className="my-5">
         <TeamLogo />
       </div>
-      <h1 className="text-3xl font-bold flex items-center justify-center">
-        Gauzy Teams
-      </h1>
+      <h1 className="text-3xl font-bold">Gauzy Teams</h1>
     </section>
   );
 };
