@@ -1,6 +1,4 @@
-import Image from "next/image";
 import Link from "next/link";
-import Logo from "/assets/logo.svg";
 
 export default function TeamLogo() {
   return (
