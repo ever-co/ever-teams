@@ -2,23 +2,23 @@ import React, { useCallback, useState } from "react";
 import TeamLogo from "../components/common/team_logo";
 import Footer from "../components/layout/footer/footer";
 import Router from "next/router";
-import FirstStep from "../components/team/steppers/firstStep";
-import SecondStep from "../components/team/steppers/secondStep";
-import { IRegisterData, IUser, IUserData } from "../app/interfaces/IUserData";
-import { register } from "../app/services/auth";
-import Link from "next/link";
+import { ITeamProps } from "../app/interfaces/IUserData";
+import Input from "../components/common/input";
+import Button from "../components/common/login/button";
+import JoinTeamButton from "../components/common/login/join_team_button";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
 
-const initialValues: IUser = {
-  fullName: "",
+const initialValues: ITeamProps = {
+  team: "",
+  name: "",
   email: "",
 };
 
 const Team = () => {
   const [step, setStep] = useState(FIRST_STEP);
-  const [formValues, setFormValues] = useState<IUser>(initialValues);
+  const [formValues, setFormValues] = useState<ITeamProps>(initialValues);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -26,9 +26,6 @@ const Team = () => {
       setStep(SECOND_STEP);
     } else {
       Router.push("/main");
-      // const passwordRandom = Math.random().toString(36).slice(2, 10);
-      // const userData: IRegisterData = { user: formValues, password: passwordRandom, confirmPassword: passwordRandom }
-      // register(userData);
     }
   };
 
@@ -41,33 +38,50 @@ const Team = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen justify-between bg-white dark:bg-dark_background_color">
-      <div />
-      <div className="w-[476px] mx-auto rounded shadow bg-white p-10 dark:bg-dark_card_background_color dark:bg-opacity-30">
-        <div className="flex justify-center w-full">
+    <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-dark_background_color">
+      <div className="invisible" />
+      <div className="w-[446px] mx-auto rounded-[40px] bg-white p-12 dark:bg-dark_card_background_color dark:bg-opacity-30 shadow-2xl shadow-[#3E1DAD0D]">
+        <div className="flex justify-left w-full">
           <TeamLogo />
         </div>
-        <div className="flex justify-center font-light text-center text-gray-600 dark:text-gray-400 w-full py-2">
-          Welcome to Gauzy team
+        <div className="flex font-light text-lg text-primary-light dark:text-gray-400 w-full ">
+          Welcome! to Gauzy teams
         </div>
         <div className="text-xl font-bold text-label dark:text-white my-10">
           Create new Team
         </div>
         <form onSubmit={handleSubmit} method="post">
-          {step === FIRST_STEP && <FirstStep handleOnChange={handleOnChange} />}
-          {step === SECOND_STEP && (
-            <SecondStep handleOnChange={handleOnChange} />
-          )}
-          <div className="mb-5 flex justify-between items-center">
-            <div className="underline text-label cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
-              <Link href={"/passcode"}>Join as Team member ?</Link>
-            </div>
-            <button
-              className="w-1/2 my-4 px-4 py-2 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-md hover:opacity-90 focus:outline-none"
-              type="submit"
-            >
-              {step === FIRST_STEP ? "Next" : "Create Team"}
-            </button>
+          <Input
+            label="Team name"
+            type="text"
+            placeholder="Team Name"
+            required={true}
+            name="team"
+            value={formValues.team}
+            onChange={handleOnChange}
+          />
+          <Input
+            label="User name"
+            name="name"
+            type="text"
+            placeholder="User name"
+            required={true}
+            value={formValues.name}
+            onChange={handleOnChange}
+          />
+          <Input
+            label="Your email"
+            name="email"
+            type="email"
+            placeholder="Your email"
+            required={true}
+            value={formValues.email}
+            onChange={handleOnChange}
+          />
+
+          <div className="mt-10">
+            <Button value="Create New Team" />
+            <JoinTeamButton value="Join as Team member?" />
           </div>
         </form>
       </div>

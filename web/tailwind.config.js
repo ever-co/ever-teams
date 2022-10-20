@@ -7,7 +7,7 @@ module.exports = {
   ],
   theme: {
     screens: {
-      sm: "480px",
+      sm: "414px",
       md: "768px",
       lg: "976px",
       xl: "1440px",
@@ -20,14 +20,18 @@ module.exports = {
           DEFAULT: "#7e7e8f",
         },
         primary: {
-          DEFAULT: "#3E1DAD",
-          light: "#dbd3f7",
-          lighter: "#BCE9E4",
+          DEFAULT: "#1B005D",
+          light: "#ACB3BB",
+          lighter: "#3E1DAD",
           disabled: "#EDF8F6",
+        },
+        main_background: {
+          DEFAULT: "#F9FAFB",
         },
         dark_background_color: {
           DEFAULT: "#202023",
         },
+
         dark_card_background_color: {
           DEFAULT: "#101014",
         },
