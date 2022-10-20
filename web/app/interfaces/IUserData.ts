@@ -1,3 +1,8 @@
+export interface ITeamProps {
+  email: string;
+  name: string;
+  team: string;
+}
 export interface IUser {
   id?: string;
   email: string;

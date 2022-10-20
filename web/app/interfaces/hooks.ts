@@ -14,6 +14,7 @@ export interface IInputProps {
   placeholder: string;
   required: boolean;
   onChange: any;
+  value: string;
 }
 
 //Header props interface
@@ -69,4 +70,9 @@ export interface IInputEmail {
 //Step props interface
 export interface IStepProps {
   handleOnChange: any;
+}
+
+// Login button props
+export interface IButtonProps {
+  value: string;
 }

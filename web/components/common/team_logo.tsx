@@ -12,7 +12,7 @@ export default function TeamLogo() {
         width="250px"
         height="39.54px"
         viewBox="0 0 150 19.54"
-        className="fill-primary dark:fill-white cursor-pointer"
+        className="fill-primary-lighter dark:fill-white cursor-pointer"
       >
         <g>
           <g>
