@@ -1,12 +1,7 @@
-import { ReactNode } from "react";
+import { AppLayoutProps } from "../../app/interfaces/hooks";
 import Footer from "./footer/footer";
 import Header from "./header/header";
 import Meta from "./Meta";
-
-interface AppLayoutProps {
-  children: ReactNode;
-  additionalClass?: string;
-}
 
 export const AppLayout = (props: AppLayoutProps) => {
   return (
@@ -14,7 +9,7 @@ export const AppLayout = (props: AppLayoutProps) => {
       <Meta />
       <div className="flex flex-col h-screen justify-between">
         <Header />
-        <div className="flex-1 container min-h-min">{props.children}</div>
+        <div className="w-full mx-auto max-w-screen-xl">{props.children}</div>
         <Footer />
       </div>
     </>

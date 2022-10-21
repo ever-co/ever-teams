@@ -11,7 +11,7 @@ const Footer = () => {
           className="text-primary dark:text-gray-300"
           rel="noreferrer"
         >
-          Gauzy
+          Gauzy Teams
         </a>{" "}
         by{" "}
         <a

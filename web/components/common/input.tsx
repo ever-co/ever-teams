@@ -1,29 +1,33 @@
-interface IInputProps {
-  label: string;
-  name: string;
-  type: string;
-  placeholder: string;
-  required: boolean;
-  onChange: any;
-}
+import { IInputProps } from "../../app/interfaces/hooks";
 
-const Input = ({ label, name, type, placeholder, required, onChange }: IInputProps) => {
+const Input = ({
+  label,
+  name,
+  type,
+  placeholder,
+  required,
+  onChange,
+  value,
+}: IInputProps) => {
   return (
-    <div className="mb-5">
-      <label
-        htmlFor={name}
-        className="mb-3 block text-base font-medium text-label dark:text-gray-400"
-      >
-        {label}:
-      </label>
+    <div className="mt-10">
+      {value.length > 0 && (
+        <label
+          htmlFor={name}
+          className="block text-sm font-light text-[#ACB3BB]"
+        >
+          {label}
+        </label>
+      )}
       <input
         type={type}
         name={name}
+        value={value}
         id={name}
         placeholder={placeholder}
         required={required}
         onChange={onChange}
-        className="w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-[#7D56fd] focus:border focus:shadow-md dark:bg-dark_background_color"
+        className="w-full pt-1 border-b placeholder:font-light border-[#D7E1EB] bg-white pb-1 font-medium text-primary dark:text-white outline-none dark:bg-transparent"
       />
     </div>
   );

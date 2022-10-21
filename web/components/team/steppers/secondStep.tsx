@@ -1,20 +1,17 @@
 import React from "react";
+import { IStepProps } from "../../../app/interfaces/hooks";
 import Input from "../../common/input";
 
-interface ISecondStepProps {
-  handleOnChange: any;
-}
-
-const SecondStep = ({ handleOnChange }: ISecondStepProps) => {
-
+const SecondStep = ({ handleOnChange, values }: IStepProps) => {
   return (
     <>
       <Input
         label="Your name"
-        name="lastName"
+        name="name"
         type="text"
         placeholder="Your name"
         required={true}
+        value={values.name}
         onChange={handleOnChange}
       />
       <Input
@@ -23,6 +20,7 @@ const SecondStep = ({ handleOnChange }: ISecondStepProps) => {
         type="email"
         placeholder="example@domain.com"
         required={true}
+        value={values.email}
         onChange={handleOnChange}
       />
     </>

@@ -1,8 +1,5 @@
 import React from "react";
-
-interface IHeader {
-  style: any;
-}
+import { IHeader } from "../../app/interfaces/hooks";
 
 const Header = ({ style }: IHeader) => {
   return (
