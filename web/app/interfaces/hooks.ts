@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { ITeamProps } from "./IUserData";
 //Dropdown props interface
 export interface IDropDownProps {
   data: string[];
@@ -14,6 +15,7 @@ export interface IInputProps {
   placeholder: string;
   required: boolean;
   onChange: any;
+  value: string;
 }
 
 //Header props interface
@@ -69,4 +71,10 @@ export interface IInputEmail {
 //Step props interface
 export interface IStepProps {
   handleOnChange: any;
+  values: ITeamProps;
+}
+
+// Login button props
+export interface IButtonProps {
+  value: string;
 }

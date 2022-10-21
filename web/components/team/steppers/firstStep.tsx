@@ -2,14 +2,15 @@ import React from "react";
 import { IStepProps } from "../../../app/interfaces/hooks";
 import Input from "../../common/input";
 
-const FirstStep = ({ handleOnChange }: IStepProps) => {
+const FirstStep = ({ handleOnChange, values }: IStepProps) => {
   return (
     <Input
       label="Team name"
       type="text"
-      placeholder="Gauzy team"
+      placeholder="Please enter your team name"
       required={true}
-      name="firstName"
+      name="team"
+      value={values.team}
       onChange={handleOnChange}
     />
   );
