@@ -16,6 +16,7 @@ export interface IInputProps {
   required: boolean;
   onChange: any;
   value: string;
+  centered?: boolean;
 }
 
 //Header props interface
