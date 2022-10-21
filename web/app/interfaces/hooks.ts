@@ -78,3 +78,8 @@ export interface IStepProps {
 export interface IButtonProps {
   value: string;
 }
+
+// Login button props
+export interface IButtonProps {
+  value: string;
+}

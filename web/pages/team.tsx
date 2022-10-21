@@ -32,9 +32,6 @@ const Team = () => {
       setStep(SECOND_STEP);
     } else {
       Router.push("/main");
-      // const passwordRandom = Math.random().toString(36).slice(2, 10);
-      // const userData: IRegisterData = { user: formValues, password: passwordRandom, confirmPassword: passwordRandom }
-      // register(userData);
     }
   };
 
