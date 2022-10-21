@@ -2,18 +2,24 @@ import React, { useCallback, useState } from "react";
 import TeamLogo from "../components/common/team_logo";
 import Footer from "../components/layout/footer/footer";
 import Router from "next/router";
-import { ITeamProps } from "../app/interfaces/IUserData";
-import Input from "../components/common/input";
-import Button from "../components/common/login/button";
-import JoinTeamButton from "../components/common/login/join_team_button";
+import FirstStep from "../components/team/steppers/firstStep";
+import SecondStep from "../components/team/steppers/secondStep";
+import {
+  IRegisterData,
+  ITeamProps,
+  IUser,
+  IUserData,
+} from "../app/interfaces/IUserData";
+import { register } from "../app/services/auth";
+import Link from "next/link";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
 
 const initialValues: ITeamProps = {
-  team: "",
   name: "",
   email: "",
+  team: "",
 };
 
 const Team = () => {
@@ -39,49 +45,36 @@ const Team = () => {
 
   return (
     <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-dark_background_color">
-      <div className="invisible" />
-      <div className="w-[446px] mx-auto rounded-[40px] bg-white p-12 dark:bg-dark_card_background_color dark:bg-opacity-30 shadow-2xl shadow-[#3E1DAD0D]">
-        <div className="flex justify-left w-full">
+      <div />
+      <div className="w-[406px] mx-auto rounded-[40px] shadow-2xl bg-white p-10 dark:bg-dark_card_background_color dark:bg-opacity-30">
+        <div className="flex justify-center w-full">
           <TeamLogo />
         </div>
-        <div className="flex font-light text-lg text-primary-light dark:text-gray-400 w-full ">
-          Welcome! to Gauzy teams
+        <div className="flex justify-center font-light text-center text-gray-600 dark:text-gray-400 w-full py-2">
+          Visibility for your Team
         </div>
         <div className="text-xl font-bold text-label dark:text-white my-10">
           Create new Team
         </div>
         <form onSubmit={handleSubmit} method="post">
-          <Input
-            label="Team name"
-            type="text"
-            placeholder="Team Name"
-            required={true}
-            name="team"
-            value={formValues.team}
-            onChange={handleOnChange}
-          />
-          <Input
-            label="User name"
-            name="name"
-            type="text"
-            placeholder="User name"
-            required={true}
-            value={formValues.name}
-            onChange={handleOnChange}
-          />
-          <Input
-            label="Your email"
-            name="email"
-            type="email"
-            placeholder="Your email"
-            required={true}
-            value={formValues.email}
-            onChange={handleOnChange}
-          />
-
-          <div className="mt-10">
-            <Button value="Create New Team" />
-            <JoinTeamButton value="Join as Team member?" />
+          {step === FIRST_STEP && (
+            <FirstStep handleOnChange={handleOnChange} values={formValues} />
+          )}
+          {step === SECOND_STEP && (
+            <SecondStep handleOnChange={handleOnChange} values={formValues} />
+          )}
+          <div className="mt-10 flex-col justify-between items-center">
+            <button
+              className="w-full my-4 px-4 py-2 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none "
+              type="submit"
+            >
+              {step === FIRST_STEP ? "Next" : "Create Team"}
+            </button>
+            <div className="w-full text-center underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
+              {step === FIRST_STEP && (
+                <Link href={"/passcode"}>Joining existed Team?</Link>
+              )}
+            </div>
           </div>
         </form>
       </div>
