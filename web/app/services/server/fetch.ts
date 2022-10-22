@@ -1,29 +1,35 @@
-import { IncomingHttpHeaders, IncomingMessage } from "http";
-import { NextRequest } from "next/server";
+import getConfig from "next/config";
 
-const BASE_SERVER_URL = "";
+const { gauzy_api_server_url } = getConfig().serverRuntimeConfig;
 
-export function serverFetch(
-  path: string = "",
-  nextRequest: NextRequest | IncomingMessage,
+export function serverFetch<T>(
+  path: string,
+  method: "POST" | "GET" | "PUT" | "DELETE",
+  body: any,
+  bearer_token?: string,
   init?: RequestInit
 ) {
-  let headers: IncomingHttpHeaders | Headers | {} = {};
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
 
-  if (nextRequest instanceof NextRequest) {
-    const request = nextRequest.clone();
-
-    headers = request.headers;
-    (headers as Headers).set("Content-Type", "application/json");
-    (headers as Headers).set("Accept", "application/json");
-  } else {
-    headers = nextRequest.headers;
-    (headers as IncomingHttpHeaders)["Content-Type"] = "application/json";
-    (headers as IncomingHttpHeaders)["Accept"] = "application/json";
+  if (bearer_token) {
+    headers["authorization"] = `Bearer ${bearer_token}`;
   }
 
-  return fetch(BASE_SERVER_URL + path, {
-    headers,
+  return fetch(gauzy_api_server_url + path, {
+    body: JSON.stringify(body),
     ...(init || {}),
+    headers: {
+      ...headers,
+      ...(init?.headers || {}),
+    },
+    method,
+  }).then(async (res) => {
+    return {
+      data: (await res.json().catch(console.error)) as T,
+      response: res,
+    };
   });
 }

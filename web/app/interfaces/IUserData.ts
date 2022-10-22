@@ -22,7 +22,7 @@ export interface IUser {
 }
 
 export interface IRegisterData {
-  user: IUser;
+  user: Required<Pick<IUser, "email" | "firstName" | "lastName">>;
   password: string;
   confirmPassword: string;
 }
