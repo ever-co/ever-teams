@@ -1,7 +1,7 @@
 import ReCAPTCHA from "react-google-recaptcha";
 
 export function SiteReCAPTCHA({
-  key = "6LfB02MeAAAAAFKnuwL0zU2lyZt_fIXUKZ5gY4ME",
+  key = process.env.CAPTCHA_SITE_KEY,
   onChange,
   onErrored,
   onExpired,
