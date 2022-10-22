@@ -10,7 +10,7 @@ import {
   IUser,
   IUserData,
 } from "../app/interfaces/IUserData";
-import { register } from "../app/services/auth";
+import { register } from "../app/services/client/auth";
 import Link from "next/link";
 
 const FIRST_STEP = "STEP1";

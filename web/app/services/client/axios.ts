@@ -1,8 +1,9 @@
-import axios, { AxiosResponse } from 'axios';
-import { getCookies } from '../../helpers/getCookies';
+import axios, { AxiosResponse } from "axios";
+import { getCookies } from "../../helpers/getCookies";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  timeout: 30 * 1000,
 });
 
 api.interceptors.request.use(
@@ -10,14 +11,14 @@ api.interceptors.request.use(
     const { token } = getCookies();
 
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;      
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
 
     return config;
   },
   (error: any) => {
     Promise.reject(error);
-  },
+  }
 );
 
 api.interceptors.response.use(
@@ -27,13 +28,11 @@ api.interceptors.response.use(
 
     if (statusCode === 401) {
       //await signOut();
-      window.location.assign(
-        `${process.env.NEXT_PUBLIC_WEBSITE_URL}`,
-      );
+      window.location.assign(`${process.env.NEXT_PUBLIC_WEBSITE_URL}`);
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;
