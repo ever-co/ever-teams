@@ -55,7 +55,7 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
                   Invite member to your team
                 </div>
                 <div className="font-light mt-[5px] text-[16px] text-[#ACB3BB] text-center">
-                  Send invitation links to team member
+                  Send an invitation to a team member by email
                 </div>
 
                 <form
