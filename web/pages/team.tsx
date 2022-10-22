@@ -4,6 +4,7 @@ import Footer from "../components/layout/footer/footer";
 import Router from "next/router";
 import FirstStep from "../components/team/steppers/firstStep";
 import SecondStep from "../components/team/steppers/secondStep";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import {
   IRegisterData,
   ITeamProps,
@@ -66,14 +67,20 @@ const Team = () => {
           {step === SECOND_STEP && (
             <SecondStep handleOnChange={handleOnChange} values={formValues} />
           )}
-          <div className="mt-[50px] flex justify-between items-center">
+          <div className="mt-[40px] flex justify-between items-center">
             <div className="w-1/2 justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
               {step === FIRST_STEP && (
                 <Link href={"/passcode"}>Joining existed Team?</Link>
               )}
 
               {step === SECOND_STEP && (
-                <Link href={"/passcode"}>Joining existed Team?</Link>
+                <ArrowLeftIcon
+                  className="h-[30px] text-[#0200074D] hover:text-primary cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => {
+                    setStep(FIRST_STEP);
+                  }}
+                />
               )}
             </div>
             <button
