@@ -24,7 +24,7 @@ const SecondStep = ({ handleOnChange, values }: IStepProps) => {
           label="Your email"
           name="email"
           type="email"
-          placeholder="example@domain.com"
+          placeholder="Your Email"
           required={true}
           value={values.email}
           onChange={handleOnChange}
