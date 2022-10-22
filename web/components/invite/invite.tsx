@@ -89,7 +89,7 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
                       className="w-full mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
                       type="submit"
                     >
-                      Invite
+                      Send Invite
                     </button>
                     <div />
                   </div>
