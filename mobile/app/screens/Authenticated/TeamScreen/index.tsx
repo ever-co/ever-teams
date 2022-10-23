@@ -20,6 +20,7 @@ import NewTeamModal from "./components/CreateTeamModal"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
+import DropDown from "./components/DropDown"
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
@@ -36,7 +37,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
           visible={showCreateTeamModal}
           onDismiss={() => setShowCreateTeamModal(false)}
         />
-        <HomeHeader></HomeHeader>
+        <HomeHeader />
+        <DropDown />
 
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={{ ...GS.flex1 }}>

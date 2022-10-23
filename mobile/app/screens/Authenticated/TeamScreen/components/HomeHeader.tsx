@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1B005D",
     paddingTop: 10,
     paddingBottom: 20,
+    marginBottom: 10,
   },
   textColor: {
     color: "#FFFFFF",
