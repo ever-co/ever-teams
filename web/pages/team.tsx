@@ -29,6 +29,7 @@ const Team = () => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    console.log("dotenv : ", process.env.CAPTCHA_SITE_KEY);
     if (step === FIRST_STEP) {
       setStep(SECOND_STEP);
     } else {
