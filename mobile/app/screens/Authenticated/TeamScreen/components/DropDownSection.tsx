@@ -1,5 +1,6 @@
 import React from "react"
 import { View, Text, StyleSheet, Image } from "react-native"
+import Icon from "react-native-vector-icons/Ionicons"
 
 const data = [
   {
@@ -55,6 +56,10 @@ const DropDownSection = () => {
         <Image source={require("../../../../../assets/images/mask.png")}></Image>
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Massaza Technologies (6)</Text>
       </View>
+      <View style={styles.buttonStyle}>
+        <Icon name="ios-book" color="#4F8EF7" />
+        <Text style={{ color: "#1B005D", fontSize: 18, fontWeight: "bold" }}>Create new team</Text>
+      </View>
 
       {/* {data.map((datum, i) => (
         <DropItem key={i} {...datum} />
@@ -69,7 +74,6 @@ type IDropItem = {
 }
 
 const DropItem = ({ img, word }: IDropItem) => {
-  console.log(img)
   return (
     <View>
       <Image source={img}></Image> <Text>{word}</Text>
@@ -87,10 +91,22 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "500%",
     borderRadius: 10,
+    justifyContent: "space-around",
   },
   indDropDown: {
     flexDirection: "row",
     paddingLeft: "10%",
+  },
+  buttonStyle: {
+    flexDirection: "row",
+    backgroundColor: "#D7E1EB",
+    borderRadius: 10,
+    width: "80%",
+    marginLeft: "10%",
+    paddingTop: 5,
+    paddingBottom: 5,
+    justifyContent: "space-around",
+    alignItems: "center",
   },
 })
 
