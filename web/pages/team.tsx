@@ -4,6 +4,7 @@ import Footer from "../components/layout/footer/footer";
 import Router from "next/router";
 import FirstStep from "../components/team/steppers/firstStep";
 import SecondStep from "../components/team/steppers/secondStep";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import {
   IRegisterData,
   ITeamProps,
@@ -46,14 +47,17 @@ const Team = () => {
   return (
     <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-dark_background_color">
       <div />
-      <div className="w-[406px] mx-auto rounded-[40px] shadow-2xl bg-white p-10 dark:bg-dark_card_background_color dark:bg-opacity-30">
+      <div
+        className="w-[486px] py-[50px] px-[70px] mx-auto rounded-[40px] shadow-2xl bg-white
+       dark:bg-dark_card_background_color dark:bg-opacity-30"
+      >
         <div className="flex justify-center w-full">
           <TeamLogo />
         </div>
-        <div className="flex justify-center font-light text-center text-gray-600 dark:text-gray-400 w-full py-2">
+        <div className="flex justify-center text-[#ACB3BB] font-light text-center text-[18px] w-full mt-[10px]">
           Visibility for your Team
         </div>
-        <div className="text-xl font-bold text-label dark:text-white my-10">
+        <div className="text-[24px]  mt-[30px] font-bold text-primary dark:text-white">
           Create new Team
         </div>
         <form onSubmit={handleSubmit} method="post">
@@ -63,18 +67,28 @@ const Team = () => {
           {step === SECOND_STEP && (
             <SecondStep handleOnChange={handleOnChange} values={formValues} />
           )}
-          <div className="mt-10 flex-col justify-between items-center">
-            <button
-              className="w-full my-4 px-4 py-2 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none "
-              type="submit"
-            >
-              {step === FIRST_STEP ? "Next" : "Create Team"}
-            </button>
-            <div className="w-full text-center underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
+          <div className="mt-[40px] flex justify-between items-center">
+            <div className="w-1/2 justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
               {step === FIRST_STEP && (
                 <Link href={"/passcode"}>Joining existed Team?</Link>
               )}
+
+              {step === SECOND_STEP && (
+                <ArrowLeftIcon
+                  className="h-[30px] text-[#0200074D] hover:text-primary cursor-pointer"
+                  aria-hidden="true"
+                  onClick={() => {
+                    setStep(FIRST_STEP);
+                  }}
+                />
+              )}
             </div>
+            <button
+              className="w-1/2 h-[50px] my-4 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none "
+              type="submit"
+            >
+              {step === FIRST_STEP ? "Continue" : "Create Team"}
+            </button>
           </div>
         </form>
       </div>
