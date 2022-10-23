@@ -1,20 +1,25 @@
-import React from "react"
+import React, { useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native"
 import DropDownSection from "./DropDownSection"
 
 const DropDown = () => {
-  const [expanded, setExpanded] = React.useState(true)
+  const [expanded, setExpanded] = useState(true)
   const handlePress = () => setExpanded(!expanded)
+
+  const [showDrop, setShowDrop] = useState(false)
 
   return (
     <View style={styles.mainContainer}>
-      <TouchableOpacity style={styles.mainDropDown} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={styles.mainDropDown}
+        activeOpacity={0.7}
+        onPress={() => setShowDrop(!showDrop)}
+      >
         <Image source={require("../../../../../assets/images/mask.png")}></Image>
         <Text style={{ color: "#1B005D" }}> Super Team (5)</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")}></Image>
       </TouchableOpacity>
-
-      <DropDownSection />
+      {showDrop && <DropDownSection />}
 
       {/* <List.Accordion
         style={styles.list}
