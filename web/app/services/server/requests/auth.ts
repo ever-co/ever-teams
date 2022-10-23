@@ -20,3 +20,9 @@ export const whetherUserAuthenticatedRequest = (bearer_token: string) => {
 export const currentAuthenticatedUserRequest = (bearer_token: string) => {
   return serverFetch<IUser>("/user/me", "GET", {}, bearer_token);
 };
+
+export const refreshTokenRequest = (refresh_token: string) => {
+  return serverFetch<{ token: string }>("/auth/refresh-token", "POST", {
+    refresh_token,
+  });
+};
