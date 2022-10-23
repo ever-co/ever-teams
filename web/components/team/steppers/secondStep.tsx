@@ -1,11 +1,21 @@
-import React, { useState } from "react";
+import { SiteReCAPTCHA } from "@components/services/recaptcha";
+import React, { useEffect, useState } from "react";
 import { IStepProps } from "../../../app/interfaces/hooks";
-import { Iframe } from "../../common/IFrame/iFrame";
 import Input from "../../common/input";
 
-const SecondStep = ({ handleOnChange, values }: IStepProps) => {
+const SecondStep = ({
+  handleOnChange,
+  values,
+  errors,
+}: IStepProps & { errors?: { [x: string]: any } }) => {
   const [notARobot, setNotARobot] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string>("");
+  const [ierrors, setIErrors] = useState<{ [x: string]: string }>(errors || {});
+
+  useEffect(() => {
+    if (errors) setIErrors(errors);
+  }, [errors]);
+
   return (
     <>
       <div className="mt-[30px]">
@@ -18,6 +28,11 @@ const SecondStep = ({ handleOnChange, values }: IStepProps) => {
           value={values.name}
           onChange={handleOnChange}
         />
+        {ierrors["name"] && (
+          <span className="text-sm text-red-600 font-medium">
+            {ierrors["name"]}
+          </span>
+        )}
       </div>
       <div className="mt-[30px]">
         <Input
@@ -29,16 +44,27 @@ const SecondStep = ({ handleOnChange, values }: IStepProps) => {
           value={values.email}
           onChange={handleOnChange}
         />
+        {ierrors["email"] && (
+          <span className="text-sm text-red-600 font-medium">
+            {ierrors["email"]}
+          </span>
+        )}
       </div>
       <div className="mt-[30px]">
-        <Iframe
-          onChange={() => {
+        <SiteReCAPTCHA
+          onChange={(res) => {
+            handleOnChange({ target: { name: "recaptcha", value: res } });
             setNotARobot(true);
             setFeedback("");
           }}
           onErrored={() => setFeedback("network issue, please try again later")}
           onExpired={() => setNotARobot(false)}
         />
+        {(ierrors["recaptcha"] || feedback) && (
+          <span className="text-sm text-red-600 font-medium">
+            {ierrors["recaptcha"] || feedback}
+          </span>
+        )}
       </div>
     </>
   );

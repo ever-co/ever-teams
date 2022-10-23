@@ -1,18 +1,12 @@
 import React, { useCallback, useState } from "react";
 import TeamLogo from "../components/common/team_logo";
 import Footer from "../components/layout/footer/footer";
-import Router from "next/router";
 import FirstStep from "../components/team/steppers/firstStep";
 import SecondStep from "../components/team/steppers/secondStep";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import {
-  IRegisterData,
-  ITeamProps,
-  IUser,
-  IUserData,
-} from "../app/interfaces/IUserData";
-import { register } from "../app/services/client/auth";
+import { ITeamProps } from "../app/interfaces/IUserData";
 import Link from "next/link";
+import { EMAIL_REGEX } from "@app/helpers/regex";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
@@ -21,28 +15,84 @@ const initialValues: ITeamProps = {
   name: "",
   email: "",
   team: "",
+  recaptcha: "",
+};
+
+type Err = { [x in keyof ITeamProps]: string | undefined };
+
+const validate = (keys: (keyof ITeamProps)[], values: ITeamProps) => {
+  const err = {} as Err;
+  keys.forEach((key) => {
+    switch (key) {
+      case "email":
+        if (!EMAIL_REGEX.test(values["email"])) {
+          err["email"] = "Please provide a properly formatted email address";
+        }
+        break;
+      case "name":
+        if (values["name"].trim().length < 2) {
+          err["name"] = "You must provide a valid Name";
+        }
+        break;
+      case "recaptcha":
+        if (values["recaptcha"].trim().length < 2) {
+          err["recaptcha"] =
+            "Please check the ReCaptcha checkbox before continue";
+        }
+        break;
+      case "team":
+        if (values["team"].trim().length < 2) {
+          err["team"] = "You must provide a valid Team Name";
+        }
+        break;
+    }
+  });
+
+  return {
+    valid: Object.keys(err).length === 0,
+    errors: err,
+  };
 };
 
 const Team = () => {
   const [step, setStep] = useState(FIRST_STEP);
   const [formValues, setFormValues] = useState<ITeamProps>(initialValues);
+  const [errors, setErrors] = useState(initialValues);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (step === FIRST_STEP) {
-      setStep(SECOND_STEP);
-    } else {
-      Router.push("/main");
+      const { errors, valid } = validate(["team"], formValues);
+      setErrors(errors as any);
+      valid && setStep(SECOND_STEP);
+      return;
+    }
+
+    const { errors, valid } = validate(
+      ["name", "email", "recaptcha"],
+      formValues
+    );
+
+    if (!valid) {
+      setErrors(errors as any);
+      return;
     }
   };
 
-  const handleOnChange = useCallback((e: any) => {
-    const { name, value } = e.target;
-    setFormValues((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  }, []);
+  const handleOnChange = useCallback(
+    (e: any) => {
+      const { name, value } = e.target;
+      const $name = name as keyof ITeamProps;
+      if (errors[$name]) {
+        errors[$name] = "";
+      }
+      setFormValues((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    },
+    [errors]
+  );
 
   return (
     <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-dark_background_color">
@@ -62,10 +112,18 @@ const Team = () => {
         </div>
         <form onSubmit={handleSubmit} method="post">
           {step === FIRST_STEP && (
-            <FirstStep handleOnChange={handleOnChange} values={formValues} />
+            <FirstStep
+              errors={errors}
+              handleOnChange={handleOnChange}
+              values={formValues}
+            />
           )}
           {step === SECOND_STEP && (
-            <SecondStep handleOnChange={handleOnChange} values={formValues} />
+            <SecondStep
+              errors={errors}
+              handleOnChange={handleOnChange}
+              values={formValues}
+            />
           )}
           <div className="mt-[40px] flex justify-between items-center">
             <div className="w-1/2 justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
