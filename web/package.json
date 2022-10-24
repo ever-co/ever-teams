@@ -11,6 +11,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.3",
     "@heroicons/react": "^2.0.12",
+    "@types/react-google-recaptcha": "^2.1.5",
     "autoprefixer": "^10.4.12",
     "axios": "^1.1.2",
     "js-cookie": "^3.0.1",
@@ -19,6 +20,7 @@
     "postcss": "^8.4.17",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-google-recaptcha": "^2.1.0",
     "react-redux": "^8.0.4",
     "tailwindcss": "^3.1.8"
   },

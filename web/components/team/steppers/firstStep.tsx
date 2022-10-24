@@ -4,15 +4,17 @@ import Input from "../../common/input";
 
 const FirstStep = ({ handleOnChange, values }: IStepProps) => {
   return (
-    <Input
-      label="Team name"
-      type="text"
-      placeholder="Please enter your team name"
-      required={true}
-      name="team"
-      value={values.team}
-      onChange={handleOnChange}
-    />
+    <div className="mt-[30px]">
+      <Input
+        label="Team name"
+        type="text"
+        placeholder="Please enter your team name"
+        required={true}
+        name="team"
+        value={values.team}
+        onChange={handleOnChange}
+      />
+    </div>
   );
 };
 

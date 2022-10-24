@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import InputEmail from "../team/passcode/inputEmail";
-import TeamLogo from "../common/team_logo";
 import { IInvite, IInviteProps } from "../../app/interfaces/hooks";
+import UserIcon from "../common/invite/userIcon";
+import Input from "../common/input";
 
 const initalValues: IInvite = {
   email: "",
@@ -23,6 +23,7 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <div className="fixed inset-0 blur-xl bg-black/30" aria-hidden="true" />
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -32,7 +33,7 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="fixed inset-0 bg-black blur-xl bg-opacity-25" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -46,49 +47,51 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <div className="flex my-5 justify-center w-full">
-                  <TeamLogo />
+              <Dialog.Panel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white text-left align-middle shadow-xl transition-all">
+                <div className="flex justify-center items-center w-full">
+                  <UserIcon />
                 </div>
-                <div className="text-primary text-center text-bold">
-                  Invite member to your channel
+                <div className="text-primary mt-[22px] text-center font-bold text-[22px]">
+                  Invite member to your team
                 </div>
-                <div className="text-center text-sm text-gray-700 my-3">
-                  Send invitation links to team member
+                <div className="font-light w-full mt-[5px] text-[16px] text-[#ACB3BB] text-center">
+                  Send an invitation to a team member by email
                 </div>
-                <form onSubmit={handleSubmit} method="post">
-                  <div className="mt-10">
-                    <div className="text-center text-sm w-full text-gray-500 my-2">
-                      Your email
-                    </div>
-                    <InputEmail
-                      name="email"
-                      type="email"
-                      placeholder="example@domain.com"
-                      required={true}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="mt-10">
-                    <div className="text-center text-sm w-full text-gray-500 my-2">
-                      Team Member Name
-                    </div>
-                    <InputEmail
+
+                <form
+                  onSubmit={handleSubmit}
+                  method="post"
+                  className="mt-[50px]"
+                >
+                  <Input
+                    name="email"
+                    type="email"
+                    label="Team Member's Email"
+                    placeholder="example@domain.com"
+                    required={true}
+                    value={formData.email}
+                    onChange={handleChange}
+                  />
+
+                  <div className="mt-[30px]">
+                    <Input
                       name="name"
                       type="text"
-                      placeholder="Member name"
+                      label="Team Member's Full Name"
+                      placeholder="Team Member's Full Name"
+                      value={formData.name}
                       required={true}
                       onChange={handleChange}
                     />
                   </div>
 
-                  <div className="mb-5 flex justify-between items-center">
+                  <div className="flex justify-between items-center">
                     <div />
                     <button
-                      className="w-1/2 my-4 px-4 py-2 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-md hover:opacity-90 focus:outline-none"
+                      className="w-full mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
                       type="submit"
                     >
-                      Invite
+                      Send Invite
                     </button>
                     <div />
                   </div>

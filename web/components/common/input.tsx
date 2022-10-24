@@ -11,13 +11,13 @@ const Input = ({
   centered = false,
 }: IInputProps) => {
   return (
-    <div className="mt-10">
+    <div>
       {value.length > 0 && (
         <label
           htmlFor={name}
           className={`block ${
             centered && "text-center"
-          } text-sm font-light text-[#ACB3BB]`}
+          } text-[14px] font-light text-[#ACB3BB]`}
         >
           {label}
         </label>
@@ -30,9 +30,11 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         onChange={onChange}
-        className={`w-full pt-1 ${
+        className={`w-full pt-1 text-[18px] ${
           centered && "text-center"
-        } border-b placeholder:font-light border-[#D7E1EB] bg-white pb-1 font-medium text-primary dark:text-white outline-none dark:bg-transparent`}
+        } border-b placeholder:font-light focus:border-b-2 focus:border-[#1B005D]
+         border-[#D7E1EB] bg-white pb-1 
+        font-medium text-primary dark:text-white outline-none dark:bg-transparent`}
       />
     </div>
   );
