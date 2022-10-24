@@ -16,6 +16,10 @@ export const customFontsToLoad = {
   spaceGroteskMedium,
   spaceGroteskSemiBold,
   spaceGroteskBold,
+  'Helvetica Neue': require('../../assets/fonts/HelveticaNeue.ttf'),
+  'HelveticaNeue-Thin': require('../../assets/fonts/HelveticaNeue_Thin.ttf'),
+  'HelveticaNeue-Light': require('../../assets/fonts/HelveticaNeue_Light.ttf'),
+  'HelveticaNeue-Medium': require('../../assets/fonts/HelveticaNeue_Medium.ttf'),
 }
 
 const fonts = {
