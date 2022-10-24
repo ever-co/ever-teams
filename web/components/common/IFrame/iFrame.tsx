@@ -1,7 +1,7 @@
 import { SiteReCAPTCHA } from "../../services/recaptcha";
 
 type IFrameProps = {
-  onChange?: (res: string) => void;
+  onChange: (token: string | null) => void;
   onErrored?: () => void;
   onExpired?: () => void;
 };

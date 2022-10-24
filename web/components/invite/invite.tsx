@@ -54,7 +54,7 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
                 <div className="text-primary mt-[22px] text-center font-bold text-[22px]">
                   Invite member to your team
                 </div>
-                <div className="font-light mt-[5px] text-[16px] text-[#ACB3BB] text-center">
+                <div className="font-light w-full mt-[5px] text-[16px] text-[#ACB3BB] text-center">
                   Send an invitation to a team member by email
                 </div>
 
@@ -73,15 +73,17 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
                     onChange={handleChange}
                   />
 
-                  <Input
-                    name="name"
-                    type="text"
-                    label="Team Member's Full Name"
-                    placeholder="Team Member's Full Name"
-                    value={formData.name}
-                    required={true}
-                    onChange={handleChange}
-                  />
+                  <div className="mt-[30px]">
+                    <Input
+                      name="name"
+                      type="text"
+                      label="Team Member's Full Name"
+                      placeholder="Team Member's Full Name"
+                      value={formData.name}
+                      required={true}
+                      onChange={handleChange}
+                    />
+                  </div>
 
                   <div className="flex justify-between items-center">
                     <div />
