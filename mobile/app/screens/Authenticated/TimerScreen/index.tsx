@@ -13,6 +13,9 @@ import { colors, spacing } from "../../../theme"
 // HELPERS
 import { api } from "../../../services/api"
 import LocalStorage from "../../../services/api/tokenHandler"
+import HomeHeader from "../TeamScreen/components/HomeHeader"
+import DropDown from "../TeamScreen/components/DropDown"
+import NewTimerCard from "./components/NewTimerCard"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
@@ -43,6 +46,10 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     }, [])
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <HomeHeader />
+        <DropDown />
+        <NewTimerCard />
+
         <Text preset="heading" style={$title}>
           Timer
         </Text>
