@@ -11,9 +11,11 @@ import { typography } from "../theme"
 import { Api } from "../services/api"
 
 import * as Animatable from "react-native-animatable"
+import { CodeInput } from "../components/CodeInput"
 const pkg = require("../../package.json")
 
-const welcomeLogo = require("../../assets/images/logo.png")
+const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
+const inviteCodeLogo = require("../../assets/images/lock-cloud.png")
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
@@ -109,7 +111,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     >
       <Animatable.View animation="wobble" duration={2500} style={$header}>
         <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
-        <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={$smalltext} />
+        <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={[$smalltext,{ marginTop:10}]} />
       </Animatable.View>
       {screenstatus.screen === 1 && !withteam ? (
         //ENTER TEAM NAME SCREEN STARTS HERE
@@ -174,7 +176,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 }}
               >
                 {" "}
-                Join as a team member
+                Join existed team ?
               </Text>
             </Pressable>
           </View>
@@ -317,6 +319,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         //JOIN TEAM SCREEN STARTS HERE
         <Animatable.View animation="bounceInUp" style={$container}>
           <View style={$form}>
+            <View style={$joinTeamLogoContainer}>
+              <Image style={$joinTeamLogo} source={inviteCodeLogo} resizeMode="contain" />
+            </View>
+
             <Text
               testID="login-heading"
               tx="loginScreen.enterDetails2"
@@ -324,19 +330,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               style={$text}
             />
 
-            <TextField
-              ref={authTeamInput}
-              value={authInviteCode}
-              onChangeText={setAuthInviteCode}
-              containerStyle={$textField}
-              autoCapitalize="none"
-              autoCorrect={false}
-              labelTx="loginScreen.inviteCodeFieldLabel"
-              placeholderTx="loginScreen.inviteCodeFieldPlaceholder"
-              helper={errors?.authUsername}
-              status={errors?.authUsername ? "error" : undefined}
-              onSubmitEditing={() => authTeamInput.current?.focus()}
+            <Text
+              testID="login-heading"
+              tx="loginScreen.confirmDetails2"
+              preset="heading"
+              style={$confirmtext}
             />
+
+            <CodeInput />
+
             <TextField
               value={authEmail}
               onChangeText={setAuthEmail}
@@ -356,7 +358,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               testID="login-button"
               tx="loginScreen.tapJoin"
               style={$tapButton}
-              textStyle={{}}
+              textStyle={$joinButtonText}
               preset="reversed"
               onPress={joinTeam}
             />
@@ -410,6 +412,7 @@ const $header: ViewStyle = {
   width: "100%",
   display: "flex",
   alignItems: "center",
+  paddingTop: 15,
   justifyContent: "flex-start",
 }
 
@@ -433,25 +436,51 @@ const $form: ViewStyle = {
 const $smalltext: TextStyle = {
   marginBottom: spacing.small,
   position: "absolute",
-  top: 50,
+  top: 40,
   fontSize: 16,
   color: colors.text,
   fontFamily: typography.secondary.normal,
-  fontWeight: "700",
+  fontWeight: "300",
 }
 const $text: TextStyle = {
   marginBottom: spacing.small,
-
-  fontSize: 26,
+  fontSize: 20,
   color: colors.text,
   fontFamily: typography.secondary.normal,
   fontWeight: "700",
 }
 
+const $confirmtext: TextStyle = {
+  marginBottom: spacing.small,
+  fontSize: 16,
+  color: colors.text,
+  textAlign: "center",
+  fontFamily: typography.secondary.normal,
+  fontWeight: "300",
+}
+
 const $welcomeLogo: ImageStyle = {
+  width: "70%",
+}
+
+const $joinButtonText: TextStyle = {
+  fontWeight: "700",
+}
+
+const $joinTeamLogo: ImageStyle = {
   width: "100%",
 }
 
+const $joinTeamLogoContainer: ViewStyle = {
+  width: 120,
+  height: 120,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: colors.palette.neutral200,
+  borderRadius: 60,
+  marginTop: 50,
+}
 const $textField: ViewStyle = {
   marginBottom: spacing.large,
   width: "98%",
