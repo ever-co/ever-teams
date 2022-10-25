@@ -17,7 +17,6 @@ const HomeHeader = () => {
 
         <View style={styles.secondContainer}>
           <Image source={require("../../../../../assets/images/gauzy-teams.png")}></Image>
-          <Image source={require("../../../../../assets/images/ham.png")}></Image>
           <View style={{ flexDirection: "column" }}>
             <View style={styles.line}></View>
             <View style={styles.line}></View>
@@ -59,7 +58,7 @@ const styles = StyleSheet.create({
   },
   line: {
     backgroundColor: "#fff",
-    height: 3,
+    height: 2,
     width: 20,
     marginBottom: 3,
   },
