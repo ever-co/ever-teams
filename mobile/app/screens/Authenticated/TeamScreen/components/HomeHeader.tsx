@@ -18,6 +18,11 @@ const HomeHeader = () => {
         <View style={styles.secondContainer}>
           <Image source={require("../../../../../assets/images/gauzy-teams.png")}></Image>
           <Image source={require("../../../../../assets/images/ham.png")}></Image>
+          <View style={{ flexDirection: "column" }}>
+            <View style={styles.line}></View>
+            <View style={styles.line}></View>
+            <View style={styles.line}></View>
+          </View>
         </View>
       </View>
     </View>
@@ -51,6 +56,12 @@ const styles = StyleSheet.create({
     paddingLeft: 25,
     paddingRight: 15,
     marginBottom: 10,
+  },
+  line: {
+    backgroundColor: "#fff",
+    height: 3,
+    width: 20,
+    marginBottom: 3,
   },
 })
 
