@@ -14,7 +14,7 @@ import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
 const pkg = require("../../package.json")
 
-const welcomeLogo = require("../../assets/images/gauzy-teams-blue.png")
+const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
 const inviteCodeLogo = require("../../assets/images/lock-cloud.png")
 interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
 
@@ -111,7 +111,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     >
       <Animatable.View animation="wobble" duration={2500} style={$header}>
         <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
-        <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={$smalltext} />
+        <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={[$smalltext,{ marginTop:10}]} />
       </Animatable.View>
       {screenstatus.screen === 1 && !withteam ? (
         //ENTER TEAM NAME SCREEN STARTS HERE
@@ -176,7 +176,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 }}
               >
                 {" "}
-                Join as a team member
+                Join existed team ?
               </Text>
             </Pressable>
           </View>
@@ -460,7 +460,7 @@ const $confirmtext: TextStyle = {
 }
 
 const $welcomeLogo: ImageStyle = {
-  width: "40%",
+  width: "70%",
 }
 
 const $joinButtonText: TextStyle = {

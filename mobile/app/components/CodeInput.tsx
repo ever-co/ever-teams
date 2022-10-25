@@ -1,5 +1,5 @@
 import React from "react"
-import { TextInput, View } from "react-native"
+import { TextInput, View, StyleSheet } from "react-native"
 import { colors } from "../theme"
 
 interface inputType {
@@ -10,32 +10,38 @@ interface inputType {
 export const CodeInput = () => {
   let inputs = [1, 2, 3, 4, 5, 6]
   return (
-    <View style={{ flexDirection: "row", marginBottom:10 }}>
-      {inputs.map((item) => (
-        <View
-          key={item}
-          style={{
-            width: "13%",
-            height: 35,
-            display: "flex",
-            borderRadius: 5,
-            justifyContent: "center",
-            marginHorizontal: 5,
-            borderWidth: 1,
-            borderColor: colors.border,
-          }}
-        >
-          <TextInput
-            placeholder="1"
-            style={{
-              width: "100%",
-              height: "96%",
-              textAlign: "center",
-              backgroundColor: colors.palette.neutral200,
-            }}
-          />
-        </View>
-      ))}
+    <View style={{ flexDirection: "row", marginBottom: 10 }}>
+      <Input />
+      <Input />
+      <Input />
+      <Input />
+      <Input />
+      <Input />
     </View>
   )
 }
+
+const Input = () => (
+  <View style={styles.container}>
+    <TextInput placeholder="1" maxLength={1} keyboardType="numeric" style={styles.inputStyle} />
+  </View>
+)
+
+const styles = StyleSheet.create({
+  container: {
+    width: "13%",
+    height: 35,
+    display: "flex",
+    borderRadius: 5,
+    justifyContent: "center",
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  inputStyle: {
+    width: "100%",
+    height: "96%",
+    textAlign: "center",
+    backgroundColor: colors.palette.neutral200,
+  },
+})
