@@ -1,9 +1,10 @@
+import { RECAPTCHA_SITE_KEY } from "@app/constants";
 import ReCAPTCHA from "react-google-recaptcha";
 
 const ReactReCAPTCHA = ReCAPTCHA as any;
 
 export function SiteReCAPTCHA({
-  key = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY,
+  key = RECAPTCHA_SITE_KEY,
   onChange,
   onErrored,
   onExpired,

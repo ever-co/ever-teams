@@ -4,6 +4,7 @@ import { getCookies } from "@app/helpers/getCookies";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   timeout: 30 * 1000,
 });
 

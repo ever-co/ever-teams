@@ -4,74 +4,39 @@ import Footer from "../components/layout/footer/footer";
 import FirstStep from "../components/team/steppers/firstStep";
 import SecondStep from "../components/team/steppers/secondStep";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { ITeamProps } from "../app/interfaces/IUserData";
 import Link from "next/link";
-import { EMAIL_REGEX } from "@app/helpers/regex";
 import { registerUserTeamAPI } from "@app/services/client/api/auth";
 import { useQuery } from "@app/hooks/useQuery";
+import { authFormValidate } from "@app/helpers/validations";
+import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
+import { AxiosError } from "axios";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
 
-const initialValues: ITeamProps = {
+const initialValues: IRegisterDataAPI = {
   name: "",
   email: "",
   team: "",
   recaptcha: "",
 };
 
-type Err = { [x in keyof ITeamProps]: string | undefined };
-
-const validate = (keys: (keyof ITeamProps)[], values: ITeamProps) => {
-  const err = {} as Err;
-  keys.forEach((key) => {
-    switch (key) {
-      case "email":
-        if (!EMAIL_REGEX.test(values["email"])) {
-          err["email"] = "Please provide a properly formatted email address";
-        }
-        break;
-      case "name":
-        if (values["name"].trim().length < 2) {
-          err["name"] = "You must provide a valid Name";
-        }
-        break;
-      case "recaptcha":
-        if (values["recaptcha"].trim().length < 2) {
-          err["recaptcha"] =
-            "Please check the ReCaptcha checkbox before continue";
-        }
-        break;
-      case "team":
-        if (values["team"].trim().length < 2) {
-          err["team"] = "You must provide a valid Team Name";
-        }
-        break;
-    }
-  });
-
-  return {
-    valid: Object.keys(err).length === 0,
-    errors: err,
-  };
-};
-
 const Team = () => {
   const [step, setStep] = useState(FIRST_STEP);
-  const [formValues, setFormValues] = useState<ITeamProps>(initialValues);
+  const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
   const [errors, setErrors] = useState(initialValues);
-  const { callQuery, loading } = useQuery(registerUserTeamAPI);
+  const { queryCall, loading } = useQuery(registerUserTeamAPI);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
     if (step === FIRST_STEP) {
-      const { errors, valid } = validate(["team"], formValues);
+      const { errors, valid } = authFormValidate(["team"], formValues);
       setErrors(errors as any);
       valid && setStep(SECOND_STEP);
       return;
     }
 
-    const { errors, valid } = validate(
+    const { errors, valid } = authFormValidate(
       ["name", "email", "recaptcha"],
       formValues
     );
@@ -81,17 +46,23 @@ const Team = () => {
       return;
     }
 
-    callQuery(formValues).then((res) => {
-      console.log(res);
-    });
+    queryCall(formValues)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err: AxiosError) => {
+        if (err.response?.status === 400) {
+          setErrors((err.response?.data as any)?.errors || {});
+        }
+      });
   };
 
   const handleOnChange = useCallback(
     (e: any) => {
       const { name, value } = e.target;
-      const $name = name as keyof ITeamProps;
-      if (errors[$name]) {
-        errors[$name] = "";
+      const key = name as keyof IRegisterDataAPI;
+      if (errors[key]) {
+        errors[key] = "";
       }
       setFormValues((prevState) => ({
         ...prevState,
@@ -125,13 +96,12 @@ const Team = () => {
               values={formValues}
             />
           )}
-          {step === SECOND_STEP && (
-            <SecondStep
-              errors={errors}
-              handleOnChange={handleOnChange}
-              values={formValues}
-            />
-          )}
+          <SecondStep
+            errors={errors}
+            showForm={step === SECOND_STEP}
+            handleOnChange={handleOnChange}
+            values={formValues}
+          />
           <div className="mt-[40px] flex justify-between items-center">
             <div className="w-1/2 justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
               {step === FIRST_STEP && (
