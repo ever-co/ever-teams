@@ -24,7 +24,7 @@ const FirstStep = ({
         onChange={handleOnChange}
       />
       {ierrors["team"] && (
-        <span className="text-sm text-red-600 font-medium">
+        <span className="text-sm text-red-600 font-light">
           {ierrors["team"]}
         </span>
       )}

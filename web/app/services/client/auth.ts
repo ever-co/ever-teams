@@ -1,14 +1,18 @@
 import { removeCookies } from "../../helpers/getCookies";
 import { handleResponse, storeUserTokens } from "../../helpers/_helper";
 import { IDataResponse } from "../../interfaces/IDataResponse";
-import { IRegisterData, IUser, IUserData } from "../../interfaces/IUserData";
+import { IUser, IUserData } from "../../interfaces/IUserData";
 
 import cookie from "js-cookie";
 import {
   getUserDataAPI,
-  registerUserEmailPassAPI,
+  registerUserTeamAPI,
   signInWithEmailAndPassword,
 } from "./api/auth";
+import {
+  IRegisterDataAPI,
+  IRegisterDataRequest,
+} from "@app/interfaces/IAuthentication";
 
 export const login = async (
   email: string,
@@ -18,21 +22,10 @@ export const login = async (
     email,
     password
   );
-
-  if (response) {
-    handleResponse(response);
-  }
-
-  return response;
 };
 
-export const register = async (data: IRegisterData): Promise<IDataResponse> => {
-  const response: IDataResponse = await registerUserEmailPassAPI(data);
-  if (response) {
-    console.log(response.data, "response.data");
-    await login(response.email, data.password);
-  }
-  return response;
+export const register = async (data: IRegisterDataAPI) => {
+  const response = await registerUserTeamAPI(data);
 };
 
 export const signOut = async (skipMessage?: boolean): Promise<void> => {

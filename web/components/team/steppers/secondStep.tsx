@@ -29,7 +29,7 @@ const SecondStep = ({
           onChange={handleOnChange}
         />
         {ierrors["name"] && (
-          <span className="text-sm text-red-600 font-medium">
+          <span className="text-sm text-red-600 font-light">
             {ierrors["name"]}
           </span>
         )}
@@ -45,7 +45,7 @@ const SecondStep = ({
           onChange={handleOnChange}
         />
         {ierrors["email"] && (
-          <span className="text-sm text-red-600 font-medium">
+          <span className="text-sm text-red-600 font-light">
             {ierrors["email"]}
           </span>
         )}
@@ -61,7 +61,7 @@ const SecondStep = ({
           onExpired={() => setNotARobot(false)}
         />
         {(ierrors["recaptcha"] || feedback) && (
-          <span className="text-sm text-red-600 font-medium">
+          <span className="text-sm text-red-600 font-light">
             {ierrors["recaptcha"] || feedback}
           </span>
         )}

@@ -22,12 +22,6 @@ export interface IUser {
   updatedAt: string;
 }
 
-export interface IRegisterData {
-  user: Required<Pick<IUser, "email" | "firstName" | "lastName">>;
-  password: string;
-  confirmPassword: string;
-}
-
 export interface ITokens {
   token: string;
 }

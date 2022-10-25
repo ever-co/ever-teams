@@ -1,5 +1,7 @@
-import { IDataResponse } from "../../../interfaces/IDataResponse";
-import { IRegisterData } from "../../../interfaces/IUserData";
+import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
+import { IDataResponse } from "@app/interfaces/IDataResponse";
+import { IUser } from "@app/interfaces/IUserData";
+import { AxiosResponse } from "axios";
 import api from "../axios";
 
 const signInWithEmailAndPassword = (
@@ -12,9 +14,9 @@ const signInWithEmailAndPassword = (
   });
 };
 
-const registerUserEmailPassAPI = (
-  data: IRegisterData
-): Promise<IDataResponse> => {
+const registerUserTeamAPI = (
+  data: IRegisterDataAPI
+): Promise<AxiosResponse<IUser>> => {
   return api.post("/auth/register", data);
 };
 
@@ -22,4 +24,4 @@ const getUserDataAPI = (): Promise<IDataResponse> => {
   return api.get(`/auth/user-data`);
 };
 
-export { signInWithEmailAndPassword, registerUserEmailPassAPI, getUserDataAPI };
+export { signInWithEmailAndPassword, registerUserTeamAPI, getUserDataAPI };

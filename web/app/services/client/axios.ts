@@ -1,17 +1,18 @@
+import { API_BASE_URL, DEFAULT_APP_PATH } from "@app/constants";
 import axios, { AxiosResponse } from "axios";
-import { getCookies } from "../../helpers/getCookies";
+import { getCookies } from "@app/helpers/getCookies";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 30 * 1000,
 });
 
 api.interceptors.request.use(
   async (config: any) => {
-    const { token } = getCookies();
+    const cookie = getCookies();
 
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+    if (cookie?.token) {
+      config.headers["Authorization"] = `Bearer ${cookie.token}`;
     }
 
     return config;
@@ -22,13 +23,13 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response: AxiosResponse) => response.data,
+  (response: AxiosResponse) => response,
   async (error: { response: AxiosResponse }) => {
     const statusCode = error.response?.status;
 
     if (statusCode === 401) {
       //await signOut();
-      window.location.assign(`${process.env.NEXT_PUBLIC_WEBSITE_URL}`);
+      window.location.assign(DEFAULT_APP_PATH);
     }
 
     return Promise.reject(error);

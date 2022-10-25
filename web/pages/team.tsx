@@ -7,6 +7,8 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { ITeamProps } from "../app/interfaces/IUserData";
 import Link from "next/link";
 import { EMAIL_REGEX } from "@app/helpers/regex";
+import { registerUserTeamAPI } from "@app/services/client/api/auth";
+import { useQuery } from "@app/hooks/useQuery";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
@@ -58,6 +60,7 @@ const Team = () => {
   const [step, setStep] = useState(FIRST_STEP);
   const [formValues, setFormValues] = useState<ITeamProps>(initialValues);
   const [errors, setErrors] = useState(initialValues);
+  const { callQuery, loading } = useQuery(registerUserTeamAPI);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -77,6 +80,10 @@ const Team = () => {
       setErrors(errors as any);
       return;
     }
+
+    callQuery(formValues).then((res) => {
+      console.log(res);
+    });
   };
 
   const handleOnChange = useCallback(
@@ -142,10 +149,18 @@ const Team = () => {
               )}
             </div>
             <button
-              className="w-1/2 h-[50px] my-4 tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none "
+              disabled={loading}
+              className={`w-1/2 h-[50px] ${
+                loading ? "opacity-50" : ""
+              } my-4 inline-flex justify-center items-center tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[10px] hover:text-opacity-90 focus:outline-none`}
               type="submit"
             >
-              {step === FIRST_STEP ? "Continue" : "Create Team"}
+              {loading && (
+                <span>
+                  <Spinner />
+                </span>
+              )}{" "}
+              <span>{step === FIRST_STEP ? "Continue" : "Create Team"}</span>
             </button>
           </div>
         </form>
@@ -154,5 +169,30 @@ const Team = () => {
     </div>
   );
 };
+
+function Spinner() {
+  return (
+    <svg
+      className="animate-spin h-5 w-5 mr-3 text-white"
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle
+        className="opacity-25"
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="4"
+      />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
+  );
+}
 
 export default Team;

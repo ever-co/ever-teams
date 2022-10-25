@@ -1,8 +1,11 @@
-import { ILoginReponse } from "@app/interfaces/IAuthentication";
-import { IRegisterData, IUser } from "@app/interfaces/IUserData";
+import {
+  ILoginReponse,
+  IRegisterDataRequest,
+} from "@app/interfaces/IAuthentication";
+import { IUser } from "@app/interfaces/IUserData";
 import { serverFetch } from "../fetch";
 
-export const registerUserRequest = (data: IRegisterData) => {
+export const registerUserRequest = (data: IRegisterDataRequest) => {
   return serverFetch<IUser>("/auth/register", "POST", data);
 };
 
