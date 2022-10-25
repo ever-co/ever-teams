@@ -42,7 +42,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={{ ...GS.flex1 }}>
-            <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
+            {/* <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
               <View style={{ ...GS.flex1 }}>
                 <Text preset="subheading" size="xl">
                   Team / GauzyT
@@ -94,7 +94,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
                   </View>
                 </View>
               </View>
-            </View>
+            </View> */}
 
             {/* Users activity list */}
             <ScrollView

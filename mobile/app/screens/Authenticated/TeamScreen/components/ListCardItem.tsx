@@ -6,6 +6,7 @@ import {
   ImageStyle,
   TouchableNativeFeedback,
   TouchableOpacity,
+  TextStyle,
 } from "react-native"
 
 // COMPONENTS
@@ -24,7 +25,7 @@ export interface Props extends ListItemProps {}
 export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn }) => (
   <TouchableNativeFeedback onPressIn={onPressIn}>
     <View style={{ ...GS.p3, ...GS.positionRelative }}>
-      <View style={{ ...GS.inlineItems, ...GS.py2 }}>
+      <View style={{ ...GS.inlineItems, ...GS.py1 }}>
         <Image
           source={{
             uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Breezeicons-actions-22-im-user.svg/1200px-Breezeicons-actions-22-im-user.svg.png",
@@ -32,32 +33,39 @@ export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn })
           style={$userProfile}
         />
 
-        <Text preset="subheading">User name</Text>
+        <Text preset="default">Rouslan Konviser</Text>
       </View>
 
       <View style={{ ...GS.mb3 }}>
-        <Text weight="semiBold" size="md">
-          Task:
+        <Text weight="light" size="xxs">
+          Open Platform for On-Demand and Sharing Economies.
         </Text>
-        <Text>Task name</Text>
       </View>
 
+      <View style={{ width: "100%", height: 0.5, backgroundColor: colors.separator }} />
+
       <View style={{}}>
-        <Text weight="semiBold" size="md" style={{ ...GS.mb1 }}>
-          Worked time:
-        </Text>
-
         <View style={{ ...GS.inlineItems, ...GS.justifyBetween }}>
-          <Text size="sm" style={{ ...GS.mb2 }}>
-            02:10:59
-          </Text>
+          <View>
+            <Text size="xs" style={{ ...GS.mb1, ...GS.mt1 }}>
+              Current Time
+            </Text>
+            <Text weight="bold" size="sm" style={{ ...GS.mb1 }}>
+              02:10:59
+            </Text>
+          </View>
 
-          <Text size="sm" style={{ ...GS.mb2 }}>
-            03:00:00
-          </Text>
+          <View>
+            <Text size="xs" style={{ ...GS.mb1, ...GS.mt1 }}>
+              Total Time
+            </Text>
+            <Text weight="bold" size="sm" style={{ ...GS.mb1 }}>
+              03:00
+            </Text>
+          </View>
         </View>
 
-        <View
+        {/* <View
           style={{
             ...GS.positionRelative,
             ...GS.overflowHidden,
@@ -67,10 +75,10 @@ export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn })
           }}
         >
           <View style={{ ...GS.py1, width: `${70}%`, backgroundColor: CC[variant] }} />
-        </View>
+        </View> */}
       </View>
 
-      <View style={{}}>
+      {/* <View style={{}}>
         <Text weight="semiBold" size="md" style={{ ...GS.mb1 }}>
           Total worked time:
         </Text>
@@ -78,7 +86,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn })
         <Text size="sm" style={{ ...GS.mb2 }}>
           12:10:59
         </Text>
-      </View>
+      </View> */}
     </View>
   </TouchableNativeFeedback>
 )
@@ -172,4 +180,8 @@ const $userProfile: ImageStyle = {
   backgroundColor: colors.background,
   width: spacing.huge - spacing.tiny,
   height: spacing.huge - spacing.tiny,
+}
+
+const $taskStyle: TextStyle = {
+  textAlign: "center",
 }
