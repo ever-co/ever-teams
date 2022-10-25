@@ -6,13 +6,42 @@ const NewTimerCard = () => {
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.timer}>Timer</Text>
-      <Text style={styles.estimate}>What you working on?</Text>
+      <Text style={styles.working}>What you working on?</Text>
       <TextInput style={styles.textInput}></TextInput>
-      <Text style={styles.estimate}>Estimate</Text>
-      <View style={styles.horizontalInput}>
-        <TextInput style={styles.textInputOne} placeholder="Hours"></TextInput>
-        <TextInput style={styles.textInputOne} placeholder="Minutes"></TextInput>
+
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Text style={styles.estimate}>Estimate: </Text>
+        <View style={styles.horizontalInput}>
+          <View>
+            <TextInput style={styles.textInputOne} placeholder="Hours"></TextInput>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+            </View>
+          </View>
+          <Text> / </Text>
+          <View>
+            <TextInput style={styles.textInputOne} placeholder="Minutes"></TextInput>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+              <View style={styles.line}></View>
+            </View>
+          </View>
+        </View>
       </View>
+
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>01:10:36:20</Text>
@@ -46,6 +75,12 @@ const styles = StyleSheet.create({
     color: "#9490A0",
     fontWeight: "600",
     marginBottom: 10,
+    alignSelf: "flex-end",
+  },
+  working: {
+    color: "#9490A0",
+    fontWeight: "600",
+    marginBottom: 10,
   },
   horizontal: {
     flexDirection: "row",
@@ -59,18 +94,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   textInputOne: {
-    backgroundColor: "#EEEFF5",
-    width: "45%",
     height: 30,
-    // borderRadius: 10,
-    borderStyle: "dashed",
-    borderBottomColor: "#EEEFF5",
-    borderBottomWidth: 10,
   },
   horizontalInput: {
     flexDirection: "row",
-    justifyContent: "space-between",
     height: 40,
+  },
+  dashed: {
+    borderBottomColor: "#fff",
+    borderBottomWidth: 10,
+  },
+  line: {
+    backgroundColor: "#1B1B1E",
+    height: 2,
+    width: 8,
+    marginLeft: 3,
   },
 })
 
