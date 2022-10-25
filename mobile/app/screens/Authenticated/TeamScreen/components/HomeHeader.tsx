@@ -1,6 +1,5 @@
 import React from "react"
 import { View, Text, Image, StyleSheet } from "react-native"
-import Icon from "react-native-vector-icons/Ionicons"
 
 const HomeHeader = () => {
   return (
@@ -9,9 +8,11 @@ const HomeHeader = () => {
         <View style={styles.firstContainer}>
           <Text style={styles.textColor}>9: 41</Text>
           <View style={styles.icons}>
-            <Icon name="ios-book" color="#4F8EF7" />
-            <Icon name="ios-book" color="#4F8EF7" />
-            <Icon name="ios-book" color="#4F8EF7" />
+            <Image source={require("../../../../../assets/icons/icons8-wi-fi-15.png")}></Image>
+            <Image source={require("../../../../../assets/icons/icons8-signal-15.png")}></Image>
+            <Image
+              source={require("../../../../../assets/icons/icons8-full-battery-15.png")}
+            ></Image>
           </View>
         </View>
 
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
   icons: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "10%",
+    width: "20%",
   },
   firstContainer: {
     flexDirection: "row",
