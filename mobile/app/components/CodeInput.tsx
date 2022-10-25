@@ -10,7 +10,7 @@ interface inputType {
 export const CodeInput = () => {
   let inputs = [1, 2, 3, 4, 5, 6]
   return (
-    <View style={{ flexDirection: "row" }}>
+    <View style={{ flexDirection: "row", marginBottom:10 }}>
       {inputs.map((item) => (
         <View
           key={item}

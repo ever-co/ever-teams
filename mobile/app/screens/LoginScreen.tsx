@@ -3,14 +3,7 @@ import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useMemo, useRef, useState } from "react"
 import { Pressable } from "react-native"
 import { TextInput, TextStyle, View, ViewStyle, Image, ImageStyle } from "react-native"
-import {
-  Button,
-  Icon,
-  Screen,
-  Text,
-  TextField,
-  TextFieldAccessoryProps,
-} from "../components"
+import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "../components"
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
@@ -337,26 +330,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               style={$text}
             />
 
-<Text
+            <Text
               testID="login-heading"
               tx="loginScreen.confirmDetails2"
               preset="heading"
               style={$confirmtext}
             />
-
-            {/* <TextField
-              ref={authTeamInput}
-              value={authInviteCode}
-              onChangeText={setAuthInviteCode}
-              containerStyle={$textField}
-              autoCapitalize="none"
-              autoCorrect={false}
-              labelTx="loginScreen.inviteCodeFieldLabel"
-              placeholderTx="loginScreen.inviteCodeFieldPlaceholder"
-              helper={errors?.authUsername}
-              status={errors?.authUsername ? "error" : undefined}
-              onSubmitEditing={() => authTeamInput.current?.focus()}
-            /> */}
 
             <CodeInput />
 
@@ -379,7 +358,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               testID="login-button"
               tx="loginScreen.tapJoin"
               style={$tapButton}
-              textStyle={{}}
+              textStyle={$joinButtonText}
               preset="reversed"
               onPress={joinTeam}
             />
@@ -471,17 +450,21 @@ const $text: TextStyle = {
   fontWeight: "700",
 }
 
-const $confirmtext : TextStyle={
+const $confirmtext: TextStyle = {
   marginBottom: spacing.small,
   fontSize: 16,
   color: colors.text,
-  textAlign:'center',
+  textAlign: "center",
   fontFamily: typography.secondary.normal,
   fontWeight: "300",
 }
 
 const $welcomeLogo: ImageStyle = {
   width: "40%",
+}
+
+const $joinButtonText: TextStyle = {
+  fontWeight: "700",
 }
 
 const $joinTeamLogo: ImageStyle = {
@@ -496,6 +479,7 @@ const $joinTeamLogoContainer: ViewStyle = {
   alignItems: "center",
   backgroundColor: colors.palette.neutral200,
   borderRadius: 60,
+  marginTop: 50,
 }
 const $textField: ViewStyle = {
   marginBottom: spacing.large,
