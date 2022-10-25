@@ -2,17 +2,24 @@ export interface ITeamProps {
   email: string;
   name: string;
   team: string;
-}
-export interface IUser {
-  id?: string;
-  email: string;
-  fullName: string;
+  recaptcha: string;
 }
 
-export interface IRegisterData {
-  user: IUser;
-  password: string;
-  confirmPassword: string;
+export interface IUser {
+  lastName: string;
+  email: string;
+  imageUrl: string;
+  tenantId: string | null;
+  thirdPartyId: string | null;
+  firstName: string | null;
+  username: string | null;
+  preferredLanguage: string;
+  preferredComponentLayout: string;
+  isActive: boolean;
+  roleId: string | null;
+  id: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ITokens {
