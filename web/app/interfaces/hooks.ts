@@ -32,6 +32,8 @@ export interface IMembers {
   current: string;
   estimate: string;
   total: string;
+  image?: any;
+  admin?: boolean;
 }
 
 //Invite props interface
@@ -83,4 +85,21 @@ export interface IButtonProps {
 // Login button props
 export interface IButtonProps {
   value: string;
+}
+
+// Start and Pause button props
+export interface IIconProps {
+  width: number;
+  height: number;
+}
+
+// Start section props
+export interface IStartSection {
+  started: boolean;
+  setStarted: React.Dispatch<React.SetStateAction<boolean>>;
+}
+//Dropdown Data props
+export interface IDrowDownData {
+  name: string;
+  color: string;
 }

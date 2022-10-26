@@ -17,6 +17,6 @@
     "resolveJsonModule": true
   },
   "exclude": ["node_modules"],
-  "include": ["index.js", "App.js", "app", "test"],
+  "include": ["index.js", "App.js", "app", "test", "assets/images/LoginScreen.tsx"],
   "extends": "expo/tsconfig.base"
 }
