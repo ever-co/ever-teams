@@ -81,7 +81,7 @@ export default async function handler(
   // Create user organization team
   const { data: team } = await createOrganizationTeamRequest(
     {
-      name: firstName,
+      name: body.team,
       tenantId: tenant.id,
       organizationId: organization.id,
       managers: [user.id],
