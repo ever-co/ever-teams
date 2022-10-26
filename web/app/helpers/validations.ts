@@ -39,3 +39,7 @@ export const authFormValidate = (
     errors: err,
   };
 };
+
+export const hasErrors = (errors: { [x: string]: string }) => {
+  return { errors };
+};
