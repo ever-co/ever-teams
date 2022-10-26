@@ -1,6 +1,4 @@
-import getConfig from "next/config";
-
-const { gauzy_api_server_url } = getConfig().serverRuntimeConfig;
+import { GAUZY_API_SERVER_URL } from "@app/constants";
 
 export function serverFetch<T>({
   path,
@@ -29,7 +27,7 @@ export function serverFetch<T>({
     datas["body"] = JSON.stringify(body);
   }
 
-  return fetch(gauzy_api_server_url + path, {
+  return fetch((GAUZY_API_SERVER_URL || "") + path, {
     ...datas,
     ...(init || {}),
     headers: {
