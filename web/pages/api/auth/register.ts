@@ -50,14 +50,13 @@ export default async function handler(
   // General a random password with 8 chars
   const password = generateToken(8);
   const names = body.name.split(" ");
-  const firstName = names[0];
 
   // Register user
   const { data: user } = await registerUserRequest({
     password: password,
     confirmPassword: password,
     user: {
-      firstName: firstName,
+      firstName: names[0],
       lastName: names[1] || "",
       email: body.email,
     },
@@ -66,13 +65,13 @@ export default async function handler(
   const { data: loginRes } = await loginUserRequest(body.email, password);
 
   // Create user tenant
-  const { data: tenant } = await createTenantRequest(firstName, loginRes.token);
+  const { data: tenant } = await createTenantRequest(body.team, loginRes.token);
 
   // Create user organization
   const { data: organization } = await createOrganizationRequest(
     {
       currency: "USD",
-      name: firstName,
+      name: body.team,
       tenantId: tenant.id,
     },
     loginRes.token
