@@ -30,7 +30,7 @@ export interface IMembers {
   status: string;
   task: string;
   current: string;
-  estimate: string;
+  estimate?: string;
   total: string;
   image?: any;
   admin?: boolean;
