@@ -9,7 +9,7 @@ export function SiteReCAPTCHA({
   onExpired,
 }: {
   key?: string;
-  onChange?: (res: string) => void;
+  onChange: (token: string | null) => void;
   onExpired?: () => void;
   onErrored?: () => void;
 }) {

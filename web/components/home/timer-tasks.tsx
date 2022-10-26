@@ -1,72 +1,55 @@
 import { useState } from "react";
-import DropDown from "../common/dropDown";
+import { PauseIcon } from "../common/main/pauseIcon";
+import { PlayIcon } from "../common/main/playIcon";
 
 const tasks: string[] = ["Api integration", "Implement header"];
 
-export function TimerTasksSection() {
-  const [selectedTask, setSelectedTask] = useState(tasks[0]);
+interface ITimerTasksSection {
+  started: boolean;
+  setStarted: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
   return (
-    <div className="grid grid-cols-4 pt-36 mb-4 justify-between">
-      <div className="col-span-2">
-        <div className="max-w-[22rem] rounded drop-shadow-sm bg-white card__bg-color">
-          <div className="px-4 py-4 inline-flex items-center space-x-6 w-full">
-            <div className="font-bold text-md flex-1 dark:text-white ">
-              Active task:{" "}
-            </div>
-            <span className="flex-[2]">
-              <DropDown
-                data={tasks}
-                selectedData={selectedTask}
-                handleSelectData={setSelectedTask}
-              />
-            </span>
-          </div>
+    <div className="bg-[#FFFFFF] dark:bg-[#202023] mt-[140px] rounded-[20px] w-full h-[130px] flex justify-between items-center">
+      <div className="ml-[16px] flex flex-col space-y-[15px]">
+        <div className="">
+          <input
+            className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-[470px] rounded-[10px] px-[20px] py-[18px] shadow-inner"
+            placeholder="What you working on?"
+          />
         </div>
-        <div className="mt-5">
-          <span className="dark:text-opacity-80  bg-gray-300 dark:bg-gray-900 rounded-md text-sm font-medium text-slate-600  dark:text-white p-2">
-            Estimated: 40h:15min
+        <div className="flex ml-[20px] ">
+          <span className="text-[18px] text-[#9490A0] dark:text-[#616164] font-base">
+            Estimate :{" "}
           </span>
+          <input
+            className="placeholder:font-light w-[50px] mx-5 text-[14px] text-center border-b-2 dark:border-[#616164] border-dashed  placeholder:text-center bg-transparent"
+            placeholder="Hours"
+          />{" "}
+          /{" "}
+          <input
+            className="placeholder:font-light w-[50px] mx-5 text-[14px] text-center border-b-2  dark:border-[#616164] border-dashed placeholder:text-center bg-transparent"
+            placeholder="Minutes"
+          />
         </div>
       </div>
-      <div className="col-span-2 justify-end flex">
-        <div className="p-4 w-96 rounded py-4 bg-white card__bg-color">
-          <div className="flex flex-row justify-between py-1">
-            <div>
-              <h2 className="mb-4 text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-                02 : 10 : 59
-              </h2>
-            </div>
-
-            <div>
-              <button className="px-4 py-2 inline-flex cursor-pointer rounded-md items-center bg-[#6E49E8]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="white"
-                  className="w-4 h-6 mr-2"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span className="text-white text-sm font-bold">Start</span>
-              </button>
-            </div>
+      <div className="flex justify-center items-center space-x-[27px] mr-[27px]">
+        <div className="flex flex-col">
+          <h1 className="text-[53px] text-primary dark:text-[#FFFFFF]">
+            01 : 10 : 36 : <span className="text-[35px]">20</span>
+          </h1>
+          <div className="flex w-[284px]">
+            <div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
+            <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
           </div>
-          <div className="flex flex-row py-2">
-            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div
-                className="bg-purple-600 h-2.5 rounded-full dark:bg-purple-500"
-                style={{ width: "45%" }}
-              ></div>
-            </div>
-          </div>
-          <div className="flex flex-row justify-between px-0.5">
-            <div>2:15:30</div>
-            <div>4:05:00</div>
-          </div>
+        </div>
+        <div className="cursor-pointer" onClick={() => setStarted(!started)}>
+          {started ? (
+            <PauseIcon width={68} height={68} />
+          ) : (
+            <PlayIcon width={68} height={68} />
+          )}
         </div>
       </div>
     </div>
