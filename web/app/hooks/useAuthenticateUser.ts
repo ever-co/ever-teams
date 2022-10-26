@@ -1,26 +1,34 @@
-import { useEffect } from "react";
+import { IUser } from "@app/interfaces/IUserData";
+import { getAuthenticatedUserDataAPI } from "@app/services/client/api/auth";
+import { userState } from "@app/stores";
+import { useCallback, useMemo, useRef } from "react";
+import { useRecoilState } from "recoil";
 
-import { useSelector, useDispatch } from "react-redux";
-import { IUser, IUserData } from "../interfaces/IUserData";
-import { updateUserDataFromTokens } from "../services/client/auth";
+import { useQuery } from "./useQuery";
 
-/** To be used with single pages that on browser reload will lose their user because there is no container component for authentication like index.tsx */
-const useAuthenticateUser = () => {
-  const user: IUser = useSelector((state: any) => state.auth.user);
-  const dispatch = useDispatch();
+const useAuthenticateUser = (defaultUser?: IUser) => {
+  const [user, setUser] = useRecoilState(userState);
+  const $user = useRef(defaultUser);
 
-  useEffect(() => {
-    if (!user) {
-      const updateUser = async () => {
-        const user: IUserData | null = await updateUserDataFromTokens();
-        if (user) {
-        }
-      };
-      updateUser();
-    }
-  }, [user, dispatch]);
+  const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } =
+    useQuery(getAuthenticatedUserDataAPI);
 
-  return user;
+  const updateUserFromAPI = useCallback(() => {
+    refreshUserQueryCall().then((res) => {
+      setUser(res.data.user);
+    });
+  }, []);
+
+  $user.current = useMemo(() => {
+    return user || $user.current;
+  }, [user]);
+
+  return {
+    user: $user.current,
+    setUser,
+    updateUserFromAPI,
+    refreshUserLoading,
+  };
 };
 
 export default useAuthenticateUser;
