@@ -8,7 +8,6 @@ import { authFormValidate } from "@app/helpers/validations";
 import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
 import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
-  currentAuthenticatedUserRequest,
   loginUserRequest,
   registerUserRequest,
 } from "@app/services/server/requests/auth";
@@ -22,6 +21,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method !== "POST") {
+    return res.status(405);
+  }
+
   const body = req.body as IRegisterDataAPI;
 
   const { errors, valid: formValid } = authFormValidate(
@@ -86,14 +89,8 @@ export default async function handler(
     loginRes.token
   );
 
-  setCookie(REFRESH_TOKEN_COOKIE_NAME, loginRes.refresh_token, {
-    res: res,
-    req: req,
-  });
-  setCookie(TOKEN_COOKIE_NAME, loginRes.token, {
-    res: res,
-    req: req,
-  });
+  setCookie(REFRESH_TOKEN_COOKIE_NAME, loginRes.refresh_token, { res, req });
+  setCookie(TOKEN_COOKIE_NAME, loginRes.token, { res, req });
 
   res.status(200).json({ loginRes, team });
 }
