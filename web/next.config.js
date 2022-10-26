@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   serverRuntimeConfig: {
-    gauzy_api_server_url: process.env.GAUZY_API_SERVER_URL,
+    gauzy_api_server_url: process.env.GAUZY_DEMOAPI_SERVER_URL,
     gauz_demoapi_server_url: process.env.GAUZY_DEMOAPI_SERVER_URL,
   },
 };

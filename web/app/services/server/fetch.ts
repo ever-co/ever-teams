@@ -5,7 +5,7 @@ const { gauzy_api_server_url } = getConfig().serverRuntimeConfig;
 export function serverFetch<T>({
   path,
   method,
-  body = {},
+  body,
   init,
   bearer_token,
 }: {
