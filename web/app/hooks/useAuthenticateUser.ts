@@ -1,6 +1,8 @@
+import { REFRESH_TOKEN_COOKIE_NAME, TOKEN_COOKIE_NAME } from "@app/constants";
 import { IUser } from "@app/interfaces/IUserData";
 import { getAuthenticatedUserDataAPI } from "@app/services/client/api/auth";
 import { userState } from "@app/stores";
+import { removeCookies } from "cookies-next";
 import { useCallback, useMemo, useRef } from "react";
 import { useRecoilState } from "recoil";
 
@@ -19,6 +21,14 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
     });
   }, []);
 
+  const logOut = useCallback(() => {
+    removeCookies(TOKEN_COOKIE_NAME);
+    removeCookies(REFRESH_TOKEN_COOKIE_NAME);
+    if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  }, []);
+
   $user.current = useMemo(() => {
     return user || $user.current;
   }, [user]);
@@ -28,6 +38,7 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
     setUser,
     updateUserFromAPI,
     refreshUserLoading,
+    logOut,
   };
 };
 
