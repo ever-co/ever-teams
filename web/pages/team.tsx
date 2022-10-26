@@ -47,9 +47,7 @@ const Team = () => {
     }
 
     queryCall(formValues)
-      .then((res) => {
-        console.log(res.data);
-      })
+      .then(() => window.location.reload())
       .catch((err: AxiosError) => {
         if (err.response?.status === 400) {
           setErrors((err.response?.data as any)?.errors || {});
