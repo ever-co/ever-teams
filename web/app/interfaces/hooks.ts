@@ -98,3 +98,8 @@ export interface IStartSection {
   started: boolean;
   setStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
+//Dropdown Data props
+export interface IDrowDownData {
+  name: string;
+  color: string;
+}

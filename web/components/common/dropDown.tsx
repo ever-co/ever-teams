@@ -1,87 +1,118 @@
-import { Fragment, useState } from "react";
-import { Combobox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/solid";
-import { IDropDownProps } from "../../app/interfaces/hooks";
+import { IDrowDownData } from "@app/interfaces/hooks";
+import { Popover, Transition } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { PlusIcon } from "@heroicons/react/24/solid";
+import { Fragment } from "react";
 
-const DropDown = ({ data, handleSelectData, selectedData }: IDropDownProps) => {
-  const [query, setQuery] = useState("");
-
-  const filteredData =
-    query === ""
-      ? data
-      : data.filter((value) =>
-          value
-            .toLowerCase()
-            .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, ""))
-        );
-
+interface IDropDown {
+  data: IDrowDownData[];
+  selectedTeam: IDrowDownData;
+  setSelectedTeam: React.Dispatch<React.SetStateAction<IDrowDownData>>;
+}
+const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
   return (
-    <Combobox value={selectedData} onChange={handleSelectData}>
-      <div className="relative mt-1">
-        <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-primary sm:text-sm">
-          <Combobox.Input
-            className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
-            onChange={(event) => setQuery(event.target.value)}
-          />
-          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-            <ChevronUpDownIcon
-              className="h-5 w-5 text-gray-400"
-              aria-hidden="true"
-            />
-          </Combobox.Button>
-        </div>
-        <Transition
-          as={Fragment}
-          leave="transition ease-in duration-100"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-          afterLeave={() => setQuery("")}
-        >
-          <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {filteredData.length === 0 && query !== "" ? (
-              <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
-                Nothing found.
+    <div className="w-[290px] max-w-sm">
+      <Popover className="relative">
+        {({ open }) => (
+          <>
+            <Popover.Button
+              className={`w-[290px] h-[50px]
+                ${open ? "" : "text-opacity-90"}
+                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
+            >
+              <div className="w-full flex items-center justify-between">
+                <div className="flex items-center justify-center space-x-4">
+                  <div className="w-[32px] h-[32px] rounded-full bg-white text-primary flex justify-center items-center text-[10px]">
+                    {selectedTeam.name.split(" ")[1]
+                      ? selectedTeam.name
+                          .split(" ")[0]
+                          .charAt(0)
+                          .toUpperCase() +
+                        selectedTeam.name.split(" ")[1].charAt(0).toUpperCase()
+                      : selectedTeam.name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <span className="text-[18px] text-primary text-normal dark:text-white">
+                    {selectedTeam.name}
+                  </span>
+                </div>
+                <ChevronDownIcon
+                  className={`${open ? "" : "text-opacity-70"}
+                  ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
+                  aria-hidden="true"
+                />
               </div>
-            ) : (
-              filteredData.map((singleData) => (
-                <Combobox.Option
-                  key={singleData}
-                  className={({ active }) =>
-                    `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                      active ? "bg-primary text-white" : "text-gray-900"
-                    }`
-                  }
-                  value={singleData}
-                >
-                  {({ selected, active }) => (
-                    <>
-                      <span
-                        className={`block truncate ${
-                          selected ? "font-medium" : "font-normal"
-                        }`}
+            </Popover.Button>
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[290px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
+                <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#18181B] px-3 py-4 lg:grid-cols-1 w-full">
+                    {data.map((item: IDrowDownData) => (
+                      <div
+                        key={item.name}
+                        className="cursor-pointer font-light"
+                        onClick={() => setSelectedTeam(item)}
                       >
-                        {singleData}
-                      </span>
-                      {selected ? (
-                        <span
-                          className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-                            active ? "text-white" : "text-primary"
-                          }`}
-                        >
-                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                        <div className="flex items-center justify-start space-x-4">
+                          <div
+                            className={`w-[32px] h-[32px] rounded-full font-bold bg-[${item.color}] text-primary flex justify-center items-center text-[10px]`}
+                          >
+                            {item.name.split(" ")[1]
+                              ? item.name
+                                  .split(" ")[0]
+                                  .charAt(0)
+                                  .toUpperCase() +
+                                item.name.split(" ")[1].charAt(0).toUpperCase()
+                              : item.name.substring(0, 2).toUpperCase()}
+                          </div>
+                          <span className="text-[16px] text-primary text-normal dark:text-white">
+                            {item.name}
+                          </span>
+                        </div>
+                      </div>
+                      // <a
+                      //   key={item.name}
+                      //   href={item.href}
+                      //   className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
+                      // >
+                      //   <div className="flex h-10 w-10 shrink-0 items-center justify-center text-white sm:h-12 sm:w-12">
+                      //     <item.icon aria-hidden="true" />
+                      //   </div>
+                      //   <div className="ml-4">
+                      //     <p className="text-sm font-medium text-gray-900">
+                      //       {item.name}
+                      //     </p>
+                      //     <p className="text-sm text-gray-500">
+                      //       {item.description}
+                      //     </p>
+                      //   </div>
+                      // </a>
+                    ))}
+                  </div>
+                  <div className="bg-white dark:bg-[#18181B] p-4">
+                    <button className="rounded-[8px] bg-[#D7E1EB] dark:bg-[#202023] text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]">
+                      <div className="flex items-center justify-center">
+                        <span className="mr-[11px]">
+                          <PlusIcon className="text-primary dark:text-white font-bold w-[16px] h-[16px]" />
                         </span>
-                      ) : null}
-                    </>
-                  )}
-                </Combobox.Option>
-              ))
-            )}
-          </Combobox.Options>
-        </Transition>
-      </div>
-    </Combobox>
+                        Create new team
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </Popover.Panel>
+            </Transition>
+          </>
+        )}
+      </Popover>
+    </div>
   );
 };
-
 export default DropDown;
