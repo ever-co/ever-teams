@@ -12,10 +12,12 @@ const ProfileHeader = () => {
     <View>
       <View style={styles.firstContainer}>
         <Text style={styles.profile}>Profile</Text>
-        <Image
-          source={require("../../../../../assets/images/Ruslan.png")}
-          style={styles.profileImage}
-        />
+        <View style={styles.pictureContainer}>
+          <Image
+            source={require("../../../../../assets/images/Ruslan.png")}
+            style={styles.profileImage}
+          />
+        </View>
       </View>
 
       <View style={styles.secondContainer}>
@@ -29,8 +31,8 @@ const ProfileHeader = () => {
 const styles = StyleSheet.create({
   firstContainer: {
     backgroundColor: "#1B005D",
-    // justifyContent: "center",
     alignItems: "center",
+    height: "35%",
   },
   profile: {
     color: "#fff",
@@ -40,9 +42,16 @@ const styles = StyleSheet.create({
   profileImage: {
     borderRadius: 200,
     padding: 0,
+    width: "100%",
+    top: "-15%",
+  },
+  pictureContainer: {
+    position: "absolute",
+    top: "60%",
     backgroundColor: "#fff",
-    position: "relative",
-    top: "50%",
+    borderRadius: 5000,
+    width: 150,
+    height: 150,
   },
   secondContainer: {
     marginTop: 120,
