@@ -5,7 +5,7 @@ export function useQuery<T extends (...params: any[]) => Promise<any>>(
 ) {
   const [loading, setLoading] = useState(false);
 
-  const callQuery = useCallback((...params: Parameters<T>) => {
+  const queryCall = useCallback((...params: Parameters<T>) => {
     setLoading(true);
 
     const promise = queryFunction(...params);
@@ -15,5 +15,5 @@ export function useQuery<T extends (...params: any[]) => Promise<any>>(
     return promise;
   }, []) as T;
 
-  return { callQuery, loading };
+  return { queryCall, loading };
 }

@@ -1,18 +1,23 @@
-import { API_BASE_URL, DEFAULT_APP_PATH } from "@app/constants";
+import {
+  API_BASE_URL,
+  DEFAULT_APP_PATH,
+  TOKEN_COOKIE_NAME,
+} from "@app/constants";
 import axios, { AxiosResponse } from "axios";
-import { getCookies } from "@app/helpers/getCookies";
+import { getCookie } from "cookies-next";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
   timeout: 30 * 1000,
 });
 
 api.interceptors.request.use(
   async (config: any) => {
-    const cookie = getCookies();
+    const cookie = getCookie(TOKEN_COOKIE_NAME);
 
-    if (cookie?.token) {
-      config.headers["Authorization"] = `Bearer ${cookie.token}`;
+    if (cookie) {
+      config.headers["Authorization"] = `Bearer ${cookie}`;
     }
 
     return config;
