@@ -8,20 +8,18 @@ const HomeHeader = () => {
         <View style={styles.firstContainer}>
           <Text style={styles.textColor}>9: 41</Text>
           <View style={styles.icons}>
-            <Image source={require("../../../../../assets/icons/icons8-wi-fi-15.png")}></Image>
-            <Image source={require("../../../../../assets/icons/icons8-signal-15.png")}></Image>
-            <Image
-              source={require("../../../../../assets/icons/icons8-full-battery-15.png")}
-            ></Image>
+            <Image source={require("../../../../../assets/icons/icons8-wi-fi-15.png")} />
+            <Image source={require("../../../../../assets/icons/icons8-signal-15.png")} />
+            <Image source={require("../../../../../assets/icons/icons8-full-battery-15.png")} />
           </View>
         </View>
 
         <View style={styles.secondContainer}>
-          <Image source={require("../../../../../assets/images/gauzy-teams.png")}></Image>
+          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
           <View style={{ flexDirection: "column" }}>
-            <View style={styles.line}></View>
-            <View style={styles.line}></View>
-            <View style={styles.line}></View>
+            <View style={styles.line} />
+            <View style={styles.line} />
+            <View style={styles.line} />
           </View>
         </View>
       </View>
@@ -34,7 +32,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#1B005D",
     paddingTop: 10,
     paddingBottom: 20,
-    marginBottom: 10,
   },
   textColor: {
     color: "#FFFFFF",
