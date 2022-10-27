@@ -1,21 +1,16 @@
-import {
-  RECAPTCHA_SECRET_KEY,
-  REFRESH_TOKEN_COOKIE_NAME,
-  TOKEN_COOKIE_NAME,
-} from "@app/constants";
 import { generateToken } from "@app/helpers/generate-token";
 import { authFormValidate } from "@app/helpers/validations";
 import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
 import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
+  createOrganizationRequest,
+  createOrganizationTeamRequest,
+  createTenantRequest,
   loginUserRequest,
   registerUserRequest,
-} from "@app/services/server/requests/auth";
-import { createOrganizationRequest } from "@app/services/server/requests/organization";
-import { createOrganizationTeamRequest } from "@app/services/server/requests/organization-team";
-import { createTenantRequest } from "@app/services/server/requests/tenant";
+} from "@app/services/server/requests";
 import { NextApiRequest, NextApiResponse } from "next";
-import { setCookie } from "cookies-next";
+import { setAuthCookies } from "@app/helpers/cookies";
 
 export default async function handler(
   req: NextApiRequest,
@@ -88,8 +83,17 @@ export default async function handler(
     loginRes.token
   );
 
-  setCookie(REFRESH_TOKEN_COOKIE_NAME, loginRes.refresh_token, { res, req });
-  setCookie(TOKEN_COOKIE_NAME, loginRes.token, { res, req });
+  setAuthCookies(
+    {
+      access_token: loginRes.token,
+      refresh_token: loginRes.refresh_token,
+      teamId: team.id,
+      tenantId: tenant.id,
+      organizationId: organization.id,
+    },
+    req,
+    res
+  );
 
   res.status(200).json({ loginRes, team });
 }

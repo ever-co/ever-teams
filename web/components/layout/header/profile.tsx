@@ -2,12 +2,12 @@ import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import Image from "next/image";
 
 const Profile = () => {
-  const { logOut } = useAuthenticateUser();
+  const { logOut, user } = useAuthenticateUser();
   return (
     <div className="flex justify-center items-right cursor-pointer">
       <Image
         onClick={logOut}
-        src="/assets/profiles/Profile.png"
+        src={user?.imageUrl || ""}
         alt="User Icon"
         width={48}
         height={48}

@@ -16,7 +16,7 @@ export async function authenticatedGuard(
   if (!r_res) {
     res.status(401);
     return {
-      $res: res,
+      $res: () => res.json({ statusCode: 401, message: "Unauthorized" }),
       user: null,
     };
   }
@@ -24,5 +24,6 @@ export async function authenticatedGuard(
   return {
     $res: res,
     user: r_res.data,
+    access_token: access_token as string,
   };
 }

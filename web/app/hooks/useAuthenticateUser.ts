@@ -1,8 +1,7 @@
-import { REFRESH_TOKEN_COOKIE_NAME, TOKEN_COOKIE_NAME } from "@app/constants";
+import { removeAuthCookies } from "@app/helpers/cookies";
 import { IUser } from "@app/interfaces/IUserData";
 import { getAuthenticatedUserDataAPI } from "@app/services/client/api/auth";
 import { userState } from "@app/stores";
-import { removeCookies } from "cookies-next";
 import { useCallback, useMemo, useRef } from "react";
 import { useRecoilState } from "recoil";
 
@@ -22,8 +21,7 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
   }, []);
 
   const logOut = useCallback(() => {
-    removeCookies(TOKEN_COOKIE_NAME);
-    removeCookies(REFRESH_TOKEN_COOKIE_NAME);
+    removeAuthCookies();
     if (typeof window !== "undefined") {
       window.location.reload();
     }
