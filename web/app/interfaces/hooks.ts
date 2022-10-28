@@ -30,7 +30,7 @@ export interface IMembers {
   status: string;
   task: string;
   current: string;
-  estimate?: string;
+  estimate: { hours: number; minutes: number };
   total: string;
   image?: any;
   admin?: boolean;
@@ -102,4 +102,13 @@ export interface IStartSection {
 export interface IDrowDownData {
   name: string;
   color: string;
+}
+
+//Estimate Time input ports
+export interface ITimeInputProps {
+  placeholder: string;
+  handleChange: any;
+  value: string;
+  type: string;
+  style: string;
 }
