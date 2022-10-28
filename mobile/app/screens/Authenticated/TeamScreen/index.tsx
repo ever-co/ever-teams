@@ -110,8 +110,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
             {/* Invite btn */}
             <Button
               preset="default"
-              textStyle={{ color: colors.primary }}
-              style={{ ...GS.bgTransparent, ...GS.mb2, borderColor: colors.primary }}
+              textStyle={{ color: colors.palette.neutral100 }}
+              style={{
+                ...GS.bgTransparent,
+                ...GS.mb2,
+
+                borderColor: colors.primary,
+                backgroundColor: colors.primary,
+                // color: colors.palette.neutral100,
+              }}
               onPress={() => setShowInviteModal(true)}
             >
               Invite
