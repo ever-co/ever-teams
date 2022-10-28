@@ -6,9 +6,9 @@
     "slug": "Gauzy Teams",
     "version": "0.1.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app-icon-all.png",
+    "icon": "./assets/images/gauzy-teams-logo.png",
     "splash": {
-      "image": "./assets/images/splash-logo-all.png",
+      "image": "./assets/images/gauzy-teams-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -25,7 +25,7 @@
         "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
       },
       "splash": {
-        "image": "./assets/images/splash-logo-android-universal.png",
+        "image": "./assets/images/gauzy-teams-logo.png",
         "resizeMode": "contain",
         "backgroundColor": "ffffff"
       }
@@ -35,7 +35,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "gauzy.team",
       "splash": {
-        "image": "./assets/images/splash-logo-ios-mobile.png",
+        "image": "./assets/images/gauzy-teams-logo.png",
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
