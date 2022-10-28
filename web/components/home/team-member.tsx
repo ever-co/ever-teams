@@ -20,7 +20,6 @@ const TeamMemberSection = ({ started, setStarted }: IStartSection) => {
       status: "inactive",
       task: "Creating the main time recording screen and user table",
       current: "1:40:00",
-      estimate: "5:00:00",
       total: "04:10:10",
       image: "/assets/profiles/roska.png",
     },
