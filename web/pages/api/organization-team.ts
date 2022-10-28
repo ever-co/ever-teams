@@ -10,14 +10,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { $res, user, access_token } = await authenticatedGuard(req, res);
+  const { $res, user, access_token, tenantId, organizationId } =
+    await authenticatedGuard(req, res);
   if (!user) return $res();
 
   const { data } = await getAllOrganizationTeamRequest(
-    {
-      tenantId: getTenantIdCookie({ req, res }),
-      organizationId: getOrganizationIdCookie({ req, res }),
-    },
+    { tenantId, organizationId },
     access_token
   );
 
