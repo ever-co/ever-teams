@@ -21,6 +21,7 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
 import DropDown from "./components/DropDown"
+import NewListCardItem from "./components/NewListCardItem"
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
@@ -94,6 +95,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
                   </View>
                 </View>
               </View>
+            </View>
+
+            {/* Users activity list */}
+            <View
+              // showsVerticalScrollIndicator={false}
+              // contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+              style={{ ...GS.my2 }}
+            >
+              <NewListCardItem />
             </View>
 
             {/* Users activity list */}
