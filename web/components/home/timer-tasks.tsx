@@ -1,4 +1,5 @@
 import { TimeInput } from "@components/common/main/time-input";
+import TaskInput from "@components/common/main/task-input";
 import { PauseIcon } from "../common/main/pauseIcon";
 import { PlayIcon } from "../common/main/playIcon";
 
@@ -11,13 +12,10 @@ interface ITimerTasksSection {
 
 export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
   return (
-    <div className="bg-[#FFFFFF] dark:bg-[#202023] mt-[140px] rounded-[20px] w-full h-[130px] flex justify-between items-center">
-      <div className="ml-[16px] flex flex-col space-y-[15px]">
-        <div className="">
-          <input
-            className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-[470px] rounded-[10px] px-[20px] py-[18px] shadow-inner"
-            placeholder="What you working on?"
-          />
+    <div className="bg-[#FFFF] dark:bg-[#202023] mt-[140px] rounded-[20px] w-full h-[130px] flex items-center">
+      <div className="ml-[16px] flex flex-col space-y-[15px] w-full">
+        <div className="w-full">
+          <TaskInput />
         </div>
         <div className="flex ml-[20px] ">
           <span className="text-[18px] text-[#9490A0] dark:text-[#616164] font-base">
@@ -40,7 +38,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
           />
         </div>
       </div>
-      <div className="flex justify-center items-center space-x-[27px] mr-[27px]">
+      <div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
         <div className="flex flex-col">
           <h1 className="text-[53px] text-primary dark:text-[#FFFFFF]">
             01 : 10 : 36 : <span className="text-[35px]">20</span>
