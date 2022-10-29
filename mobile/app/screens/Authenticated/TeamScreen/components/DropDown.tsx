@@ -15,9 +15,9 @@ const DropDown = () => {
         activeOpacity={0.7}
         onPress={() => setShowDrop(!showDrop)}
       >
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D" }}> Super Team (5)</Text>
-        <Image source={require("../../../../../assets/icons/caretDown.png")}></Image>
+        <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
       {showDrop && <DropDownSection />}
 
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 10,
   },
   mainDropDown: {
     flexDirection: "row",

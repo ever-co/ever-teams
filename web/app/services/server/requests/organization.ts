@@ -8,10 +8,10 @@ export function createOrganizationRequest(
   datas: IOrganizationCreate,
   bearer_token: string
 ) {
-  return serverFetch<IOrganization>(
-    "/organization",
-    "POST",
-    datas,
-    bearer_token
-  );
+  return serverFetch<IOrganization>({
+    path: "/organization",
+    method: "POST",
+    body: datas,
+    bearer_token,
+  });
 }

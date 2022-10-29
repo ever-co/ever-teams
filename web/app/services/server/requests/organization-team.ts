@@ -8,10 +8,10 @@ export function createOrganizationTeamRequest(
   datas: IOrganizationTeamCreate,
   bearer_token: string
 ) {
-  return serverFetch<IOrganizationTeam>(
-    "/organization-team",
-    "POST",
-    datas,
-    bearer_token
-  );
+  return serverFetch<IOrganizationTeam>({
+    path: "/organization-team",
+    method: "POST",
+    body: datas,
+    bearer_token,
+  });
 }

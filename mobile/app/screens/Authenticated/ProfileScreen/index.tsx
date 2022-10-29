@@ -5,16 +5,20 @@ import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // COMPONENTS
-import {  ListItem, Screen, Text } from "../../../components"
+import { ListItem, Screen, Text } from "../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from ".././../../theme"
+import HomeHeader from "../TeamScreen/components/HomeHeader"
+import ProfileHeader from "./components/ProfileHeader"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
   function AuthenticatedProfileScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <HomeHeader />
+        <ProfileHeader />
         <Text preset="heading" style={$title}>
           Profile
         </Text>
@@ -45,7 +49,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
   }
 
 const $container: ViewStyle = {
-  paddingTop:  spacing.extraLarge,
+  paddingTop: spacing.extraLarge,
   paddingHorizontal: spacing.large,
 }
 

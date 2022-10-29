@@ -1,28 +1,58 @@
 import React, { useState } from "react";
 import MainLogo from "./mainLogo";
 import DropDown from "../../common/dropDown";
+import Profile from "./profile";
+import { IDrowDownData } from "@app/interfaces/hooks";
 
-const teams = ["Gauzy", "Alpha", "Kuluna"];
+const teams: IDrowDownData[] = [
+  {
+    name: "All",
+    color: "#F5F6FB",
+  },
+  {
+    name: "Ever® Saas (10)",
+    color: "#F5F6FB",
+  },
+  {
+    name: "Super Team (5)",
+    color: "#E8EBF8",
+  },
+  {
+    name: "Ever® Gauzy™ (7)",
+    color: "#D7E1EB",
+  },
+  {
+    name: "Ever Traduora Platform (25)",
+    color: "#E3EDF9",
+  },
+  {
+    name: "Massaza Technologies (6)",
+    color: "#F5F6FB",
+  },
+];
 
 export const Header = () => {
-  const [selectedTeam, setSelectedTeam] = useState(teams[0]);
+  const [selectedTeam, setSelectedTeam] = useState(teams[2]);
   return (
     <header className="fixed w-full z-50">
-      <nav className="bg-white py-6 dark:bg-[#19191d] shadow-sm">
+      <nav className="bg-white py-6 dark:bg-[#202023] shadow-sm">
         <div className="flex container flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          <div className="flex items-center space-x-3 justify-center ">
+          <div className="flex items-center justify-center ">
             <MainLogo />
-            <div className="">-</div>
-            <DropDown
-              data={teams}
-              selectedData={selectedTeam}
-              handleSelectData={setSelectedTeam}
-            />
           </div>
 
-          <div className="flex items-center">
-            <ul className="flex flex-row justify-start pl-0 mb-0 md-max:w-full">
-              <li className="flex items-center px-4">
+          <div className="w-[380px] flex items-center justify-between">
+            <div>
+              <DropDown
+                data={teams}
+                selectedTeam={selectedTeam}
+                setSelectedTeam={setSelectedTeam}
+              />
+            </div>
+            <div>
+              <Profile />
+            </div>
+            {/* <li className="flex items-center px-4">
                 <a
                   href="#"
                   className="p-0 transition-all text-sm ease-nav-brand text-black dark:text-gray-300"
@@ -44,48 +74,7 @@ export const Header = () => {
                     />
                   </svg>
                 </a>
-              </li>
-
-              <li className="flex items-center px-4">
-                <a
-                  href="#"
-                  className="p-0 transition-all text-sm ease-nav-brand text-black dark:text-gray-300 "
-                >
-                  <svg
-                    width="20"
-                    height="19"
-                    viewBox="0 0 20 19"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M15 2.83331H4.99999C3.15904 2.83331 1.66666 4.3257 1.66666 6.16665V14.5C1.66666 16.3409 3.15904 17.8333 4.99999 17.8333H15C16.8409 17.8333 18.3333 16.3409 18.3333 14.5V6.16665C18.3333 4.3257 16.8409 2.83331 15 2.83331Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M6.66666 1.16666V4.49999M13.3333 1.16666V4.49999M1.66666 7.83332H18.3333"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </a>
-              </li>
-              <li className="flex items-center space-x-4">
-                <span className="font-normal ml-3 block truncate dark:text-white">
-                  Roslan Kan
-                </span>
-                <img
-                  src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                  alt=""
-                  className="h-6 w-6 flex-shrink-0 rounded-full"
-                />
-              </li>
-            </ul>
+              </li> */}
           </div>
         </div>
       </nav>

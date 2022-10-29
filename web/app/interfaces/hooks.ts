@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { ITeamProps } from "./IUserData";
+import { IRegisterDataAPI } from "./IAuthentication";
 //Dropdown props interface
 export interface IDropDownProps {
   data: string[];
@@ -30,8 +30,10 @@ export interface IMembers {
   status: string;
   task: string;
   current: string;
-  estimate: string;
+  estimate: { hours: number; minutes: number };
   total: string;
+  image?: any;
+  admin?: boolean;
 }
 
 //Invite props interface
@@ -72,7 +74,7 @@ export interface IInputEmail {
 //Step props interface
 export interface IStepProps {
   handleOnChange: any;
-  values: ITeamProps;
+  values: IRegisterDataAPI;
 }
 
 // Login button props
@@ -83,4 +85,30 @@ export interface IButtonProps {
 // Login button props
 export interface IButtonProps {
   value: string;
+}
+
+// Start and Pause button props
+export interface IIconProps {
+  width: number;
+  height: number;
+}
+
+// Start section props
+export interface IStartSection {
+  started: boolean;
+  setStarted: React.Dispatch<React.SetStateAction<boolean>>;
+}
+//Dropdown Data props
+export interface IDrowDownData {
+  name: string;
+  color: string;
+}
+
+//Estimate Time input ports
+export interface ITimeInputProps {
+  placeholder: string;
+  handleChange: any;
+  value: string;
+  type: string;
+  style: string;
 }

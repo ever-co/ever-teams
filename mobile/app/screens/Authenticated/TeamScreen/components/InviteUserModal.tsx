@@ -1,10 +1,10 @@
 import React, { FC } from "react"
-import { View, ViewStyle, Modal, ScrollView } from "react-native"
+import { View, ViewStyle, Modal, ScrollView, Image, StyleSheet, TextInput } from "react-native"
 
 // COMPONENTS
 import { Button, Screen, Text, TextField } from "../../../../components"
 // STYLES
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 
 export interface Props {
@@ -16,6 +16,35 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
   return (
     <Modal visible={visible} statusBarTranslucent onDismiss={onDismiss}>
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <View style={styles.mainContainer}>
+          <Image source={require("../../../../../assets/images/lock-cloud.png")} />
+          <Text preset="heading" style={{ fontSize: CONSTANT_SIZE.FONT_SIZE_MD, color: "#1B005D" }}>
+            Invite member to your team
+          </Text>
+
+          <Text style={{ color: "#ACB3BB", fontSize: 10, marginBottom: 10 }}>
+            Send an invitation to a team member by email
+          </Text>
+
+          <View style={styles.blueBottom}>
+            <TextInput placeholder="example@domain.com"></TextInput>
+          </View>
+
+          <View style={styles.greyBottom}>
+            <TextInput placeholder="Team Member's Name"></TextInput>
+          </View>
+
+          <Button
+            text="Send Invite"
+            preset="filled"
+            textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
+            style={{
+              backgroundColor: colors.primary,
+              width: "100%",
+            }}
+          ></Button>
+        </View>
+
         <Text preset="heading" style={{ ...GS.mb5 }}>
           Invite user
         </Text>
@@ -68,3 +97,33 @@ const $container: ViewStyle = {
   paddingTop: spacing.extraLarge + spacing.large,
   paddingHorizontal: spacing.large,
 }
+
+const styles = StyleSheet.create({
+  mainContainer: {
+    alignItems: "center",
+    shadowColor: "#1B005D0D",
+    shadowOffset: { width: 10, height: 10 },
+    shadowRadius: 10,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 30,
+    borderColor: "#1B005D0D",
+    borderWidth: 2,
+  },
+  theTextField: {
+    borderWidth: 0,
+    width: "100%",
+  },
+  blueBottom: {
+    borderBottomWidth: 2,
+    borderColor: "#1B005D",
+    width: "100%",
+    marginBottom: 25,
+  },
+  greyBottom: {
+    borderBottomWidth: 2,
+    borderColor: "#ACB3BB",
+    width: "100%",
+    marginBottom: 25,
+  },
+})

@@ -33,27 +33,27 @@ const DropDownSection = () => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>All</Text>
       </View>
       <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Ever® Saas (10)</Text>
       </View>
       <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Super Team (5)</Text>
       </View>
       <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Ever® Gauzy™ (7)</Text>
       </View>
       <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Ever Traduora Platform (25)</Text>
       </View>
       <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")}></Image>
+        <Image source={require("../../../../../assets/images/mask.png")} />
         <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Massaza Technologies (6)</Text>
       </View>
       <View style={styles.buttonStyle}>

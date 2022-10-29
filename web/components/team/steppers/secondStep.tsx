@@ -7,7 +7,8 @@ const SecondStep = ({
   handleOnChange,
   values,
   errors,
-}: IStepProps & { errors?: { [x: string]: any } }) => {
+  showForm,
+}: IStepProps & { errors?: { [x: string]: any }; showForm: boolean }) => {
   const [notARobot, setNotARobot] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string>("");
   const [ierrors, setIErrors] = useState<{ [x: string]: string }>(errors || {});
@@ -18,39 +19,44 @@ const SecondStep = ({
 
   return (
     <>
-      <div className="mt-[30px]">
-        <Input
-          label="Your name"
-          name="name"
-          type="text"
-          placeholder="Your name"
-          required={true}
-          value={values.name}
-          onChange={handleOnChange}
-        />
-        {ierrors["name"] && (
-          <span className="text-sm text-red-600 font-light">
-            {ierrors["name"]}
-          </span>
-        )}
-      </div>
-      <div className="mt-[30px]">
-        <Input
-          label="Your email"
-          name="email"
-          type="email"
-          placeholder="Your Email"
-          required={true}
-          value={values.email}
-          onChange={handleOnChange}
-        />
-        {ierrors["email"] && (
-          <span className="text-sm text-red-600 font-light">
-            {ierrors["email"]}
-          </span>
-        )}
-      </div>
-      <div className="mt-[30px]">
+      {showForm && (
+        <>
+          <div className="mt-[30px]">
+            <Input
+              label="Your name"
+              name="name"
+              type="text"
+              placeholder="Your name"
+              required={true}
+              value={values.name}
+              onChange={handleOnChange}
+            />
+            {ierrors["name"] && (
+              <span className="text-sm text-red-600 font-light">
+                {ierrors["name"]}
+              </span>
+            )}
+          </div>
+          <div className="mt-[30px]">
+            <Input
+              label="Your email"
+              name="email"
+              type="email"
+              placeholder="Your Email"
+              required={true}
+              value={values.email}
+              onChange={handleOnChange}
+            />
+            {ierrors["email"] && (
+              <span className="text-sm text-red-600 font-light">
+                {ierrors["email"]}
+              </span>
+            )}
+          </div>
+        </>
+      )}
+
+      <div className={`mt-[30px] ${showForm ? "" : "hidden"}`}>
         <SiteReCAPTCHA
           onChange={(res) => {
             handleOnChange({ target: { name: "recaptcha", value: res } });
