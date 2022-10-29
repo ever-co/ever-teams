@@ -1,7 +1,8 @@
 import React from "react"
 import { Image, Text, View, ImageStyle, StyleSheet } from "react-native"
+import { ProgressBar } from "react-native-paper"
 
-import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 
 const NewListCardItem = () => {
@@ -15,12 +16,16 @@ const NewListCardItem = () => {
         <Text style={styles.name}>Ruslan Konviser</Text>
         <View style={styles.estimate}>
           <Text style={{ color: "#fff" }}>Estimate Now</Text>
+          <Text style={styles.notEstimate}>Not Estimated</Text>
         </View>
+        {/* <Text style={{ color: "#ACB3BB", fontSize: 12, fontWeight: 400 }}>Not Estimated</Text> */}
+
         <Image source={require("../../../../../assets/icons/more-vertical.png")}></Image>
       </View>
       <Text style={styles.otherText}>
         Lorem Ipsum is simply dummy text of the printing and typesetting industry.
       </Text>
+      <ProgressBar progress={0.1} color="#28D581" style={{}} />
       <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }}></View>
       <View style={styles.times}>
         <View>
@@ -62,7 +67,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "bold",
   },
-
   estimate: {
     backgroundColor: "#1B005D",
     padding: 5,
@@ -86,6 +90,11 @@ const styles = StyleSheet.create({
   otherText: {
     fontSize: 12,
     color: "#ACB3BB",
+  },
+  notEstimate: {
+    color: "#ACB3BB",
+    fontSize: 12,
+    fontWeight: 400,
   },
 })
 export default NewListCardItem
