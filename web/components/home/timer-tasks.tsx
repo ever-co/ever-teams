@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { TimeInput } from "@components/common/main/time-input";
 import { PauseIcon } from "../common/main/pauseIcon";
 import { PlayIcon } from "../common/main/playIcon";
 
@@ -23,14 +23,20 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
           <span className="text-[18px] text-[#9490A0] dark:text-[#616164] font-base">
             Estimate :{" "}
           </span>
-          <input
-            className="placeholder:font-light w-[50px] mx-5 text-[14px] text-center border-b-2 dark:border-[#616164] border-dashed  placeholder:text-center bg-transparent"
+          <TimeInput
+            type="text"
+            value=""
+            handleChange={() => {}}
             placeholder="Hours"
+            style="mx-5 w-[50px]"
           />{" "}
           /{" "}
-          <input
-            className="placeholder:font-light w-[50px] mx-5 text-[14px] text-center border-b-2  dark:border-[#616164] border-dashed placeholder:text-center bg-transparent"
+          <TimeInput
+            type="text"
+            value=""
+            handleChange={() => {}}
             placeholder="Minutes"
+            style="mx-5 w-[50px]"
           />
         </div>
       </div>
