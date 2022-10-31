@@ -4,16 +4,30 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
+import OpenTaskIcon from "./dropdownIcons/open-task";
+import CompletedTask from "./dropdownIcons/completed-task";
+import UnassignedTask from "./dropdownIcons/unassigned-task";
 
 interface IUser {
   name: string;
   image: string;
+}
+interface IStatusIcon {
+  taskStatus: TaskStatus;
+}
+
+enum TaskStatus {
+  COMPLETED = "Completed",
+  IN_PROGRESS = "In Progress",
+  ASSIGNED = "Assigned",
+  UNASSIGNED = "Unassigned",
 }
 
 interface ITask {
   id: number;
   name: string;
   assignees: IUser[];
+  status: TaskStatus;
 }
 const tasks: ITask[] = [
   {
@@ -23,6 +37,7 @@ const tasks: ITask[] = [
       { name: "miracle", image: "/assets/profiles/kevin.png" },
       { name: "isaac", image: "/assets/profiles/roska.png" },
     ],
+    status: TaskStatus.COMPLETED,
   },
   {
     id: 2,
@@ -33,8 +48,14 @@ const tasks: ITask[] = [
         image: "/assets/profiles/ruslan.png",
       },
     ],
+    status: TaskStatus.IN_PROGRESS,
   },
-  { id: 3, name: "Improve Main Page Design", assignees: [] },
+  {
+    id: 3,
+    name: "Improve Main Page Design",
+    assignees: [],
+    status: TaskStatus.UNASSIGNED,
+  },
   {
     id: 4,
     name: "Deploy App",
@@ -44,8 +65,22 @@ const tasks: ITask[] = [
         image: "/assets/profiles/ruslan.png",
       },
     ],
+    status: TaskStatus.ASSIGNED,
   },
 ];
+
+const StatusIcon = ({ taskStatus }: IStatusIcon) => {
+  switch (taskStatus) {
+    case TaskStatus.IN_PROGRESS:
+      return <OpenTaskIcon />;
+      break;
+    case TaskStatus.COMPLETED:
+      return <CompletedTask />;
+      break;
+    default:
+      return <UnassignedTask />;
+  }
+};
 
 export default function Example() {
   const [selected, setSelected] = useState(null);
@@ -118,7 +153,10 @@ export default function Example() {
                         >
                           <div className="flex items-center justify-between w-full">
                             {" "}
-                            {filteredTask.name}{" "}
+                            <div className="flex items-center justify-center space-x-4">
+                              <StatusIcon taskStatus={filteredTask.status} />
+                              {filteredTask.name}
+                            </div>{" "}
                             <div className="flex items-center space-x-4">
                               <div className="flex items-center justify-center space-x-1">
                                 {filteredTask.assignees &&
