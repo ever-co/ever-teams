@@ -1,7 +1,7 @@
 const CompletedTask = () => {
   return (
     <svg
-      className="octicon octicon-issue-closed closed mr-4"
+      className="octicon octicon-issue-closed closed mr-1"
       viewBox="0 0 16 16"
       version="1.1"
       width="15"

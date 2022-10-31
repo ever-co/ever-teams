@@ -17,8 +17,8 @@ interface IStatusIcon {
 }
 
 enum TaskStatus {
-  COMPLETED = "Completed",
-  IN_PROGRESS = "In Progress",
+  COMPLETED = "Complete",
+  IN_PROGRESS = "Progress",
   ASSIGNED = "Assigned",
   UNASSIGNED = "Unassigned",
 }
@@ -47,6 +47,10 @@ const tasks: ITask[] = [
         name: "julien",
         image: "/assets/profiles/ruslan.png",
       },
+      {
+        name: "miracle",
+        image: "/assets/profiles/Profile.png",
+      },
     ],
     status: TaskStatus.IN_PROGRESS,
   },
@@ -72,13 +76,35 @@ const tasks: ITask[] = [
 const StatusIcon = ({ taskStatus }: IStatusIcon) => {
   switch (taskStatus) {
     case TaskStatus.IN_PROGRESS:
-      return <OpenTaskIcon />;
+      return (
+        <div className="px-2 py-1 bg-[#dcfce7] text-[#166534] rounded-2xl text-xs flex items-center justify-center">
+          <OpenTaskIcon /> {taskStatus}
+        </div>
+      );
       break;
     case TaskStatus.COMPLETED:
-      return <CompletedTask />;
+      return (
+        <div className="px-2 py-1 bg-[#f3e8ff] text-[#6b21a8] rounded-2xl text-xs flex items-center justify-center">
+          <CompletedTask />
+          {taskStatus}
+        </div>
+      );
+      break;
+    case TaskStatus.ASSIGNED:
+      return (
+        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
+          <UnassignedTask color="#3730a3" />
+          {taskStatus}
+        </div>
+      );
       break;
     default:
-      return <UnassignedTask />;
+      return (
+        <div className="px-2 py-1 bg-[#f3f4f6] text-[#1f2937] rounded-2xl text-xs flex items-center justify-center">
+          <UnassignedTask />
+          {taskStatus}
+        </div>
+      );
   }
 };
 
@@ -152,12 +178,9 @@ export default function Example() {
                           }`}
                         >
                           <div className="flex items-center justify-between w-full">
-                            {" "}
-                            <div className="flex items-center justify-center space-x-4">
-                              <StatusIcon taskStatus={filteredTask.status} />
-                              {filteredTask.name}
-                            </div>{" "}
+                            {filteredTask.name}
                             <div className="flex items-center space-x-4">
+                              <StatusIcon taskStatus={filteredTask.status} />
                               <div className="flex items-center justify-center space-x-1">
                                 {filteredTask.assignees &&
                                   filteredTask.assignees.map((assignee) => (
