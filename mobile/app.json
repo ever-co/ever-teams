@@ -8,8 +8,8 @@
     "orientation": "portrait",
     "icon": "./assets/images/gauzy-teams-logo.png",
     "splash": {
-      "image": "./assets/images/gauzy-teams-logo.png",
-      "resizeMode": "contain",
+      "image": "./assets/images/splash.png",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "updates": {
@@ -25,8 +25,8 @@
         "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
       },
       "splash": {
-        "image": "./assets/images/gauzy-teams-logo.png",
-        "resizeMode": "contain",
+        "image": "./assets/images/splash.png",
+        "resizeMode": "cover",
         "backgroundColor": "ffffff"
       }
     },
@@ -35,9 +35,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "gauzy.team",
       "splash": {
-        "image": "./assets/images/gauzy-teams-logo.png",
+        "image": "./assets/images/splash.png",
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
-        "resizeMode": "contain",
+        "resizeMode": "cover",
         "backgroundColor": "#ffffff"
       }
     },
