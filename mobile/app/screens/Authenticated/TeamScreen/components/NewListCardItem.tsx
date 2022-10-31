@@ -3,12 +3,19 @@ import { Image, Text, View, ImageStyle, StyleSheet } from "react-native"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 
-const NewListCardItem = () => {
+type INewCardItem = {
+  name: string
+  text: string
+  currentTime: string
+  totalTime: string
+}
+
+const NewListCardItem = ({ name, text, currentTime, totalTime }: INewCardItem) => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.firstContainer}>
         <Image source={require("../../../../../assets/images/Ruslan.png")} style={$userProfile} />
-        <Text style={styles.name}>Ruslan Konviser</Text>
+        <Text style={styles.name}>{name}</Text>
 
         <View style={styles.estimate}>
           <Text style={{ color: "#FFF" }}>Estimate Now</Text>
@@ -18,18 +25,16 @@ const NewListCardItem = () => {
         <Image source={require("../../../../../assets/icons/more-vertical.png")} />
       </View>
 
-      <Text style={styles.otherText}>
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-      </Text>
+      <Text style={styles.otherText}>{text}</Text>
       <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
       <View style={styles.times}>
         <View>
           <Text style={styles.timeHeading}>Current time</Text>
-          <Text style={styles.timeNumber}>02:25:15</Text>
+          <Text style={styles.timeNumber}>{currentTime}</Text>
         </View>
         <View>
           <Text style={styles.timeHeading}>Total time</Text>
-          <Text style={styles.timeNumber}>07:22</Text>
+          <Text style={styles.timeNumber}>{totalTime}</Text>
         </View>
       </View>
     </View>
@@ -51,6 +56,7 @@ const styles = StyleSheet.create({
     height: 180,
     justifyContent: "space-around",
     padding: 10,
+    marginBottom: 10,
   },
   times: {
     flexDirection: "row",

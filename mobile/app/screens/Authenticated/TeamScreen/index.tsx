@@ -22,6 +22,7 @@ import { colors, spacing } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
 import DropDown from "./components/DropDown"
 import NewListCardItem from "./components/NewListCardItem"
+import { team } from "./data"
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
@@ -98,13 +99,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
             </View>
 
             {/* Users activity list */}
-            <View
-              // showsVerticalScrollIndicator={false}
-              // contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
               style={{ ...GS.my2 }}
             >
-              <NewListCardItem />
-            </View>
+              {team.map((one, i) => (
+                <NewListCardItem key={i} {...one} />
+              ))}
+            </ScrollView>
 
             {/* Users activity list */}
             <ScrollView
