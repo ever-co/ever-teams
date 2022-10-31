@@ -8,19 +8,22 @@ type INewCardItem = {
   text: string
   currentTime: string
   totalTime: string
+  estimate: boolean
 }
 
-const NewListCardItem = ({ name, text, currentTime, totalTime }: INewCardItem) => {
+const NewListCardItem = ({ name, text, currentTime, totalTime, estimate }: INewCardItem) => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.firstContainer}>
         <Image source={require("../../../../../assets/images/Ruslan.png")} style={$userProfile} />
         <Text style={styles.name}>{name}</Text>
-
-        <View style={styles.estimate}>
-          <Text style={{ color: "#FFF" }}>Estimate Now</Text>
-        </View>
-        {/* <Text style={styles.notEstimate}>Not Estimated</Text> */}
+        {estimate ? (
+          <View style={styles.estimate}>
+            <Text style={{ color: "#FFF" }}>Estimate Now</Text>
+          </View>
+        ) : (
+          <Text style={styles.notEstimate}>Not Estimated</Text>
+        )}
 
         <Image source={require("../../../../../assets/icons/more-vertical.png")} />
       </View>
