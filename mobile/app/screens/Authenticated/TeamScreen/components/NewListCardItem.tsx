@@ -1,7 +1,5 @@
 import React from "react"
 import { Image, Text, View, ImageStyle, StyleSheet } from "react-native"
-import { ProgressBar } from "react-native-paper"
-
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 
@@ -9,24 +7,21 @@ const NewListCardItem = () => {
   return (
     <View style={styles.mainContainer}>
       <View style={styles.firstContainer}>
-        <Image
-          source={require("../../../../../assets/images/Ruslan.png")}
-          style={$userProfile}
-        ></Image>
+        <Image source={require("../../../../../assets/images/Ruslan.png")} style={$userProfile} />
         <Text style={styles.name}>Ruslan Konviser</Text>
-        <View style={styles.estimate}>
-          <Text style={{ color: "#fff" }}>Estimate Now</Text>
-          <Text style={styles.notEstimate}>Not Estimated</Text>
-        </View>
-        {/* <Text style={{ color: "#ACB3BB", fontSize: 12, fontWeight: 400 }}>Not Estimated</Text> */}
 
-        <Image source={require("../../../../../assets/icons/more-vertical.png")}></Image>
+        <View style={styles.estimate}>
+          <Text style={{ color: "#FFF" }}>Estimate Now</Text>
+        </View>
+        {/* <Text style={styles.notEstimate}>Not Estimated</Text> */}
+
+        <Image source={require("../../../../../assets/icons/more-vertical.png")} />
       </View>
+
       <Text style={styles.otherText}>
         Lorem Ipsum is simply dummy text of the printing and typesetting industry.
       </Text>
-      <ProgressBar progress={0.1} color="#28D581" style={{}} />
-      <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }}></View>
+      <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
       <View style={styles.times}>
         <View>
           <Text style={styles.timeHeading}>Current time</Text>
@@ -57,6 +52,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     padding: 10,
   },
+  times: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  otherText: {
+    fontSize: 12,
+    color: "#ACB3BB",
+  },
+  timeNumber: {
+    color: "#1B005D",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  timeHeading: {
+    color: "#ACB3BB",
+    fontSize: 18,
+  },
   firstContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -72,29 +86,11 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 5,
   },
-  times: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingLeft: 10,
-    paddingRight: 10,
-  },
-  timeNumber: {
-    color: "#1B005D",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  timeHeading: {
-    color: "#ACB3BB",
-    fontSize: 18,
-  },
-  otherText: {
-    fontSize: 12,
-    color: "#ACB3BB",
-  },
   notEstimate: {
     color: "#ACB3BB",
     fontSize: 12,
-    fontWeight: 400,
+    fontWeight: "400",
   },
 })
+
 export default NewListCardItem
