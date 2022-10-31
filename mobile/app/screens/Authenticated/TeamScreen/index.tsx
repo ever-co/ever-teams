@@ -123,7 +123,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
             {/* Invite btn */}
             <Button
               preset="default"
-              textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
+              textStyle={{ color: colors.palette.neutral100 }}
               style={{
                 ...GS.bgTransparent,
                 ...GS.mb2,
