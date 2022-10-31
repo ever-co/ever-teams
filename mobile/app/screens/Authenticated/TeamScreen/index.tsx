@@ -127,10 +127,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
               style={{
                 ...GS.bgTransparent,
                 ...GS.mb2,
-
                 borderColor: colors.primary,
                 backgroundColor: colors.primary,
-                // color: colors.palette.neutral100,
               }}
               onPress={() => setShowInviteModal(true)}
             >
