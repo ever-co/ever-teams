@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
 interface ITask {
   id: number;
@@ -17,7 +18,7 @@ export default function Example() {
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState("");
 
-  const filteredPeople =
+  const filteredTasks =
     query === ""
       ? tasks
       : tasks.filter((task) =>
@@ -53,7 +54,7 @@ export default function Example() {
             afterLeave={() => setQuery("")}
           >
             <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {filteredPeople.length === 0 && query !== "" ? (
+              {filteredTasks.length === 0 && query !== "" ? (
                 <div className="relative cursor-pointer select-none py-2 px-4 text-gray-700">
                   <div className="flex items-center justify-start cursor-pointer text-primary dark:text-white">
                     <span className="mr-[11px]">
@@ -63,9 +64,9 @@ export default function Example() {
                   </div>
                 </div>
               ) : (
-                filteredPeople.map((person) => (
+                filteredTasks.map((filteredTask) => (
                   <Combobox.Option
-                    key={person.id}
+                    key={filteredTask.id}
                     className={({ active }) =>
                       `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
                         active
@@ -73,16 +74,20 @@ export default function Example() {
                           : "text-gray-900 dark:text-white"
                       }`
                     }
-                    value={person}
+                    value={filteredTask}
                   >
                     {({ selected, active }) => (
                       <>
                         <span
-                          className={`block truncate ${
+                          className={`truncate h-[30px] flex items-center ${
                             selected ? "font-medium" : "font-normal"
                           }`}
                         >
-                          {person.name}
+                          <div className="flex items-center justify-between w-full group">
+                            {" "}
+                            {filteredTask.name}{" "}
+                            <XMarkIcon className="w-5 h-5 text-gray-400 hidden group-hover:block hover:text-primary" />
+                          </div>
                         </span>
                         {selected ? (
                           <span
