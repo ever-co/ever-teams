@@ -6,6 +6,7 @@ import {
   ImageStyle,
   TouchableNativeFeedback,
   TouchableOpacity,
+  StyleSheet,
 } from "react-native"
 
 // COMPONENTS
@@ -23,61 +24,28 @@ export interface Props extends ListItemProps {}
 
 export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn }) => (
   <TouchableNativeFeedback onPressIn={onPressIn}>
-    <View style={{ ...GS.p3, ...GS.positionRelative }}>
-      <View style={{ ...GS.inlineItems, ...GS.py2 }}>
-        <Image
-          source={{
-            uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Breezeicons-actions-22-im-user.svg/1200px-Breezeicons-actions-22-im-user.svg.png",
-          }}
-          style={$userProfile}
-        />
-
-        <Text preset="subheading">User name</Text>
-      </View>
-
-      <View style={{ ...GS.mb3 }}>
-        <Text weight="semiBold" size="md">
-          Task:
-        </Text>
-        <Text>Task name</Text>
-      </View>
-
-      <View style={{}}>
-        <Text weight="semiBold" size="md" style={{ ...GS.mb1 }}>
-          Worked time:
-        </Text>
-
-        <View style={{ ...GS.inlineItems, ...GS.justifyBetween }}>
-          <Text size="sm" style={{ ...GS.mb2 }}>
-            02:10:59
-          </Text>
-
-          <Text size="sm" style={{ ...GS.mb2 }}>
-            03:00:00
-          </Text>
-        </View>
-
-        <View
-          style={{
-            ...GS.positionRelative,
-            ...GS.overflowHidden,
-            ...GS.roundedSm,
-            ...GS.mb2,
-            backgroundColor: colors.palette.neutral200,
-          }}
-        >
-          <View style={{ ...GS.py1, width: `${70}%`, backgroundColor: CC[variant] }} />
+    <View style={{ ...GS.p2, ...GS.positionRelative }}>
+      <View style={styles.firstContainer}>
+        <Image source={require("../../../../../assets/images/Ruslan.png")} style={$usersProfile} />
+        <Text style={styles.name}>Ruslan Konviser</Text>
+        <View style={styles.estimate}>
+          <Text style={{ color: "#FFF", fontSize: 10 }}>Estimate Now</Text>
         </View>
       </View>
 
-      <View style={{}}>
-        <Text weight="semiBold" size="md" style={{ ...GS.mb1 }}>
-          Total worked time:
-        </Text>
-
-        <Text size="sm" style={{ ...GS.mb2 }}>
-          12:10:59
-        </Text>
+      <Text style={styles.otherText}>
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum, minus cupiditate corporis
+      </Text>
+      <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
+      <View style={styles.times}>
+        <View>
+          <Text style={styles.timeHeading}>Current time</Text>
+          <Text style={styles.timeNumber}>00:00:00</Text>
+        </View>
+        <View>
+          <Text style={styles.timeHeading}>Total time</Text>
+          <Text style={styles.timeNumber}>00:00:00</Text>
+        </View>
       </View>
     </View>
   </TouchableNativeFeedback>
@@ -100,8 +68,9 @@ const ListCardItem: React.FC<Props> = (props) => {
             ...GS.positionAbsolute,
             ...GS.t0,
             ...GS.r0,
-            ...GS.m3,
-            ...GS.p2,
+            // ...GS.m3,
+            // ...GS.p2,
+            ...GS.pt2,
             ...GS.zIndexFront,
           }}
         >
@@ -133,7 +102,7 @@ const ListCardItem: React.FC<Props> = (props) => {
             </View>
 
             <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-              <Icon icon={showMenu ? "x" : "more"} />
+              <Icon icon={showMenu ? "x" : "VMore"} />
             </TouchableOpacity>
           </View>
         </View>
@@ -165,11 +134,66 @@ const $listCard: ViewStyle = {
   borderLeftWidth: spacing.extraSmall - spacing.micro,
   minHeight: null,
 }
-const $userProfile: ImageStyle = {
+
+const $usersProfile: ImageStyle = {
   ...GS.roundedFull,
-  ...GS.mr2,
-  ...GS.borderSm,
   backgroundColor: colors.background,
   width: spacing.huge - spacing.tiny,
   height: spacing.huge - spacing.tiny,
 }
+
+const styles = StyleSheet.create({
+  mainContainer: {
+    borderColor: "#1B005D",
+    borderWidth: 0.5,
+    borderRadius: 20,
+    height: 180,
+    justifyContent: "space-around",
+    padding: 10,
+    marginBottom: 10,
+  },
+  times: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingLeft: 10,
+    paddingRight: 10,
+    marginVertical: 10,
+  },
+  otherText: {
+    fontSize: 12,
+    color: "#ACB3BB",
+    width: "80%",
+    lineHeight: 15,
+    marginVertical: 15,
+  },
+  timeNumber: {
+    color: "#1B005D",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  timeHeading: {
+    color: "#ACB3BB",
+    fontSize: 14,
+  },
+  firstContainer: {
+    flexDirection: "row",
+    // justifyContent: "space-between",
+    alignItems: "center",
+  },
+  name: {
+    color: "#1B005D",
+    fontSize: 13,
+    fontWeight: "bold",
+  },
+  estimate: {
+    backgroundColor: "#1B005D",
+    padding: 3,
+    borderRadius: 5,
+    marginLeft: 25,
+  },
+  notEstimate: {
+    color: "#ACB3BB",
+    fontSize: 12,
+    fontWeight: "400",
+  },
+})

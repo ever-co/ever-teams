@@ -104,17 +104,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
               contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
               style={{ ...GS.my2 }}
             >
-              {team.map((one, i) => (
-                <NewListCardItem key={i} {...one} />
-              ))}
-            </ScrollView>
-
-            {/* Users activity list */}
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-              style={{ ...GS.my2 }}
-            >
               {taskList.map((item, index) => (
                 <ListCardItem key={index.toString()} variant={item as any} />
               ))}
