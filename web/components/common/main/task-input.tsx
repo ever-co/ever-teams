@@ -3,15 +3,48 @@ import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
+
+interface IUser {
+  name: string;
+  image: string;
+}
 
 interface ITask {
   id: number;
   name: string;
+  assignees: IUser[];
 }
 const tasks: ITask[] = [
-  { id: 1, name: "API Integration" },
-  { id: 2, name: "Design Profile Screen" },
-  { id: 3, name: "Improve Main Page Design" },
+  {
+    id: 1,
+    name: "API Integration",
+    assignees: [
+      { name: "miracle", image: "/assets/profiles/kevin.png" },
+      { name: "isaac", image: "/assets/profiles/roska.png" },
+    ],
+  },
+  {
+    id: 2,
+    name: "Design Profile Screen",
+    assignees: [
+      {
+        name: "julien",
+        image: "/assets/profiles/ruslan.png",
+      },
+    ],
+  },
+  { id: 3, name: "Improve Main Page Design", assignees: [] },
+  {
+    id: 4,
+    name: "Deploy App",
+    assignees: [
+      {
+        name: "julien",
+        image: "/assets/profiles/ruslan.png",
+      },
+    ],
+  },
 ];
 
 export default function Example() {
@@ -83,10 +116,29 @@ export default function Example() {
                             selected ? "font-medium" : "font-normal"
                           }`}
                         >
-                          <div className="flex items-center justify-between w-full group">
+                          <div className="flex items-center justify-between w-full">
                             {" "}
                             {filteredTask.name}{" "}
-                            <XMarkIcon className="w-5 h-5 text-gray-400 hidden group-hover:block hover:text-primary" />
+                            <div className="flex items-center space-x-4">
+                              <div className="flex items-center justify-center space-x-1">
+                                {filteredTask.assignees &&
+                                  filteredTask.assignees.map((assignee) => (
+                                    <div
+                                      className="flex justify-center items-center"
+                                      key={assignee.name}
+                                    >
+                                      <Image
+                                        src={assignee.image}
+                                        alt={assignee.name}
+                                        width={30}
+                                        height={30}
+                                      />
+                                    </div>
+                                  ))}{" "}
+                              </div>
+
+                              <XMarkIcon className="w-5 h-5 text-gray-400 hover:text-primary" />
+                            </div>
                           </div>
                         </span>
                         {selected ? (
