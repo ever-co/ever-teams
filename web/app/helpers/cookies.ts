@@ -73,6 +73,10 @@ export function getActiveTeamIdCookie(ctx?: NextCtx) {
   return getCookie(ACTIVE_TEAM_COOKIE_NAME, { ...(ctx || {}) }) as string;
 }
 
+export function setActiveTeamIdCookie(teamIds: string, ctx?: NextCtx) {
+  return setCookie(ACTIVE_TEAM_COOKIE_NAME, teamIds, { ...(ctx || {}) });
+}
+
 // Organization Id
 export function getOrganizationIdCookie(ctx: NextCtx) {
   return getCookie(ORGANIZATION_ID_COOKIE_NAME, { ...ctx }) as string;

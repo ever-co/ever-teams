@@ -1,4 +1,7 @@
-import { getActiveTeamIdCookie } from "@app/helpers/cookies";
+import {
+  getActiveTeamIdCookie,
+  setActiveTeamIdCookie,
+} from "@app/helpers/cookies";
 import { getOrganizationTeamsAPI } from "@app/services/client/api/organization-team";
 import {
   activeTeamIdState,
@@ -26,6 +29,7 @@ export function useOrganizationTeams() {
   const setActiveTeam = useCallback(
     (teamId: string) => {
       setActiveTeamId(teamId);
+      setActiveTeamIdCookie(teamId);
     },
     [setActiveTeamId]
   );

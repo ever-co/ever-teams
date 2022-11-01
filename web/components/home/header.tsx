@@ -1,4 +1,3 @@
-import React from "react";
 import { IHeader } from "../../app/interfaces/hooks";
 
 const Header = ({ style }: IHeader) => {

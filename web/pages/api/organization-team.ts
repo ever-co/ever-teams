@@ -1,7 +1,3 @@
-import {
-  getOrganizationIdCookie,
-  getTenantIdCookie,
-} from "@app/helpers/cookies";
 import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
 import { getAllOrganizationTeamRequest } from "@app/services/server/requests";
 import { NextApiRequest, NextApiResponse } from "next";
