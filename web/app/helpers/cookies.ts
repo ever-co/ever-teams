@@ -38,15 +38,17 @@ export function setAuthCookies(
     timezone,
   } = datas;
 
+  const expires = addHours(6, changeTimezone(new Date(), timezone));
+
   setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, {
     res,
     req,
-    expires: addHours(6, changeTimezone(new Date(), timezone)),
+    expires,
   });
-  setCookie(TOKEN_COOKIE_NAME, access_token, { res, req });
-  setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, { res, req });
-  setCookie(TENANT_ID_COOKIE_NAME, tenantId, { res, req });
-  setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, { res, req });
+  setCookie(TOKEN_COOKIE_NAME, access_token, { res, req, expires });
+  setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, { res, req, expires });
+  setCookie(TENANT_ID_COOKIE_NAME, tenantId, { res, req, expires });
+  setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, { res, req, expires });
 }
 
 export function removeAuthCookies() {
