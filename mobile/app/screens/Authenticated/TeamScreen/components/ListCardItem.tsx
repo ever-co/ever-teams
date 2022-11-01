@@ -15,36 +15,49 @@ import { Card, Icon, ListItem, Text } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
+import ProgressTimeIndicator from "./ProgressTimeIndicator"
 export type ListItemProps = {
-  variant: "success" | "warning" | "danger"
+  // variant: "success" | "warning" | "danger"
+  // onPressIn?: () => unknown
+  item: {
+    name: string
+    text: string
+    currentTime: string
+    totalTime: string
+    estimate: boolean
+  }
   onPressIn?: () => unknown
 }
 
 export interface Props extends ListItemProps {}
 
-export const ListItemContent: React.FC<ListItemProps> = ({ variant, onPressIn }) => (
+export const ListItemContent: React.FC<ListItemProps> = ({ item, onPressIn }) => (
   <TouchableNativeFeedback onPressIn={onPressIn}>
     <View style={{ ...GS.p2, ...GS.positionRelative }}>
       <View style={styles.firstContainer}>
         <Image source={require("../../../../../assets/images/Ruslan.png")} style={$usersProfile} />
-        <Text style={styles.name}>Ruslan Konviser</Text>
-        <View style={styles.estimate}>
-          <Text style={{ color: "#FFF", fontSize: 10 }}>Estimate Now</Text>
-        </View>
+        <Text style={styles.name}>{item.name}</Text>
+        {item.estimate ? (
+          <View style={styles.estimate}>
+            <Text style={{ color: "#FFF", fontSize: 10 }}>Estimate Now</Text>
+          </View>
+        ) : (
+          <View style={{ marginLeft: "auto", marginRight: 10 }}>
+            <ProgressTimeIndicator estimatedHours={50} workedHours={30} />
+          </View>
+        )}
       </View>
 
-      <Text style={styles.otherText}>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum, minus cupiditate corporis
-      </Text>
+      <Text style={styles.otherText}>{item.text}</Text>
       <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
       <View style={styles.times}>
         <View>
           <Text style={styles.timeHeading}>Current time</Text>
-          <Text style={styles.timeNumber}>00:00:00</Text>
+          <Text style={styles.timeNumber}>{item.currentTime}</Text>
         </View>
         <View>
           <Text style={styles.timeHeading}>Total time</Text>
-          <Text style={styles.timeNumber}>00:00:00</Text>
+          <Text style={styles.timeNumber}>{item.totalTime}</Text>
         </View>
       </View>
     </View>
@@ -60,7 +73,7 @@ const ListCardItem: React.FC<Props> = (props) => {
       style={{
         ...$listCard,
         ...GS.mb3,
-        borderColor: CC[props.variant],
+        borderColor: CC[props.item.estimate? "warning" : "success"],
       }}
       HeadingComponent={
         <View

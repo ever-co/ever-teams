@@ -21,7 +21,6 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
 import DropDown from "./components/DropDown"
-import NewListCardItem from "./components/NewListCardItem"
 import { team } from "./data"
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
@@ -42,32 +41,32 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
         <HomeHeader />
         <DropDown />
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-          <View style={{ ...GS.flex1 }}>
+          <View style={$cardContainer}>
             {/* Users activity list */}
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
               style={{ ...GS.my2 }}
             >
-              {taskList.map((item, index) => (
-                <ListCardItem key={index.toString()} variant={item as any} />
+              {team.map((item, index) => (
+                <ListCardItem key={index.toString()} item={item as any} />
               ))}
-            </ScrollView>
 
-            {/* Invite btn */}
-            <Button
-              preset="default"
-              textStyle={{ color: colors.palette.neutral100 }}
-              style={{
-                ...GS.bgTransparent,
-                ...GS.mb2,
-                borderColor: colors.primary,
-                backgroundColor: colors.primary,
-              }}
-              onPress={() => setShowInviteModal(true)}
-            >
-              Invite
-            </Button>
+              {/* Invite btn */}
+              <Button
+                preset="default"
+                textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
+                style={{
+                  ...GS.bgTransparent,
+                  ...GS.mb2,
+                  borderColor: colors.primary,
+                  backgroundColor: colors.primary,
+                }}
+                onPress={() => setShowInviteModal(true)}
+              >
+                Invite
+              </Button>
+            </ScrollView>
           </View>
         </TouchableWithoutFeedback>
       </Screen>
@@ -76,12 +75,17 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
 const $container: ViewStyle = {
   ...GS.flex1,
-  paddingTop: spacing.extraLarge,
-  paddingHorizontal: spacing.large,
 }
 
 const $headerIconContainer = {
   ...GS.roundedFull,
   ...GS.shadowSm,
   backgroundColor: colors.background,
+}
+
+const $cardContainer: ViewStyle = {
+  ...GS.flex1,
+  backgroundColor: colors.palette.neutral200,
+  paddingHorizontal: spacing.medium,
+  marginTop: spacing.small,
 }
