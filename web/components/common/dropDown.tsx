@@ -1,6 +1,4 @@
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
-import { IOrganizationTeamList } from "@app/interfaces/IOrganizationTeam";
-import { activeTeamState } from "@app/stores";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
