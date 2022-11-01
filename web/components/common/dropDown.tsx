@@ -81,7 +81,7 @@ export const TeamsDropDown = () => {
                               {imgTitle(item.name)}
                             </div>
                             <span className="text-[16px] text-primary text-normal dark:text-white">
-                              {item.name}
+                              {item.name} ({item.members.length})
                             </span>
                           </div>
                         </div>
