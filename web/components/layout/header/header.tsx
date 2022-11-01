@@ -1,38 +1,9 @@
-import React, { useState } from "react";
 import MainLogo from "./mainLogo";
-import DropDown from "../../common/dropDown";
+import { TeamsDropDown } from "../../common/dropDown";
 import Profile from "./profile";
 import { IDrowDownData } from "@app/interfaces/hooks";
 
-const teams: IDrowDownData[] = [
-  {
-    name: "All",
-    color: "#F5F6FB",
-  },
-  {
-    name: "Ever® Saas (10)",
-    color: "#F5F6FB",
-  },
-  {
-    name: "Super Team (5)",
-    color: "#E8EBF8",
-  },
-  {
-    name: "Ever® Gauzy™ (7)",
-    color: "#D7E1EB",
-  },
-  {
-    name: "Ever Traduora Platform (25)",
-    color: "#E3EDF9",
-  },
-  {
-    name: "Massaza Technologies (6)",
-    color: "#F5F6FB",
-  },
-];
-
 export const Header = () => {
-  const [selectedTeam, setSelectedTeam] = useState(teams[2]);
   return (
     <header className="fixed w-full z-50">
       <nav className="bg-white py-6 dark:bg-[#202023] shadow-sm">
@@ -43,11 +14,7 @@ export const Header = () => {
 
           <div className="w-[380px] flex items-center justify-between">
             <div>
-              <DropDown
-                data={teams}
-                selectedTeam={selectedTeam}
-                setSelectedTeam={setSelectedTeam}
-              />
+              <TeamsDropDown />
             </div>
             <div>
               <Profile />
