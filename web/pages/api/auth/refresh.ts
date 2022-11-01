@@ -1,10 +1,9 @@
-import { TOKEN_COOKIE_NAME } from "@app/constants";
+import { setAccessTokenCookie } from "@app/helpers/cookies";
 import { hasErrors } from "@app/helpers/validations";
 import {
   currentAuthenticatedUserRequest,
   refreshTokenRequest,
 } from "@app/services/server/requests/auth";
-import { setCookie } from "cookies-next";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -31,7 +30,7 @@ export default async function handler(
 
   const { data: user } = await currentAuthenticatedUserRequest(data.token);
 
-  setCookie(TOKEN_COOKIE_NAME, data.token, { res, req });
+  setAccessTokenCookie(data.token, { res, req });
 
   res.status(200).json({ user, token: data.token });
 }

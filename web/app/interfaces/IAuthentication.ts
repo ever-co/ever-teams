@@ -12,4 +12,15 @@ export interface IRegisterDataRequest {
   confirmPassword: string;
 }
 
-export interface IRegisterDataAPI extends ITeamProps {}
+export interface IDecodedRefreshToken {
+  id: string;
+  email: string;
+  tenantId: any;
+  role: any;
+  iat: number;
+  exp: number;
+}
+
+export interface IRegisterDataAPI extends ITeamProps {
+  timezone?: string;
+}

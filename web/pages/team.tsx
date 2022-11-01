@@ -10,6 +10,7 @@ import { useQuery } from "@app/hooks/useQuery";
 import { authFormValidate } from "@app/helpers/validations";
 import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
 import { AxiosError } from "axios";
+import { userTimezone } from "@app/helpers/date";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
@@ -45,6 +46,8 @@ const Team = () => {
       setErrors(errors as any);
       return;
     }
+
+    formValues["timezone"] = userTimezone();
 
     queryCall(formValues)
       .then(() => window.location.reload())
@@ -141,7 +144,7 @@ const Team = () => {
 function Spinner() {
   return (
     <svg
-      className="animate-spin h-5 w-5 mr-3 text-white"
+      className="animate-spin h-5 w-5 mr-3 text-white dark:text-primary"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

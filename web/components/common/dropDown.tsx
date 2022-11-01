@@ -1,17 +1,30 @@
-import { IDrowDownData } from "@app/interfaces/hooks";
+import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { BackspaceIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Fragment, useState } from "react";
 
-interface IDropDown {
-  data: IDrowDownData[];
-  selectedTeam: IDrowDownData;
-  setSelectedTeam: React.Dispatch<React.SetStateAction<IDrowDownData>>;
-}
-const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
+const imgTitle = (name: string) => {
+  return name.split(" ")[1]
+    ? name.split(" ")[0].charAt(0).toUpperCase() +
+        name.split(" ")[1].charAt(0).toUpperCase()
+    : name.substring(0, 2).toUpperCase();
+};
+
+const colors = [
+  "#F5F6FB",
+  "#F5F6FB",
+  "#E8EBF8",
+  "#D7E1EB",
+  "#E3EDF9",
+  "#F5F6FB",
+];
+
+export const TeamsDropDown = () => {
   const [edit, setEdit] = useState<boolean>(false);
+  const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
+
   return (
     <div className="w-[290px] max-w-sm">
       <Popover className="relative">
@@ -25,16 +38,10 @@ const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
               <div className="w-full flex items-center justify-between">
                 <div className="flex items-center justify-center space-x-4">
                   <div className="w-[32px] h-[32px] rounded-full bg-white text-primary flex justify-center items-center text-[10px]">
-                    {selectedTeam.name.split(" ")[1]
-                      ? selectedTeam.name
-                          .split(" ")[0]
-                          .charAt(0)
-                          .toUpperCase() +
-                        selectedTeam.name.split(" ")[1].charAt(0).toUpperCase()
-                      : selectedTeam.name.substring(0, 2).toUpperCase()}
+                    {activeTeam ? imgTitle(activeTeam.name) : ""}
                   </div>
                   <span className="text-[18px] text-primary text-normal dark:text-white">
-                    {selectedTeam.name}
+                    {activeTeam?.name}
                   </span>
                 </div>
                 <ChevronDownIcon
@@ -56,36 +63,34 @@ const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
               <Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[290px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
                 <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#18181B] px-3 py-4 lg:grid-cols-1 w-full">
-                    {data.map((item: IDrowDownData) => (
-                      <div
-                        key={item.name}
-                        className="cursor-pointer font-light"
-                        onClick={() => setSelectedTeam(item)}
-                      >
-                        <div className="flex items-center justify-start space-x-4">
-                          <div
-                            className={`w-[32px] h-[32px] rounded-full font-bold bg-[${item.color}] text-primary flex justify-center items-center text-[10px]`}
-                          >
-                            {item.name.split(" ")[1]
-                              ? item.name
-                                  .split(" ")[0]
-                                  .charAt(0)
-                                  .toUpperCase() +
-                                item.name.split(" ")[1].charAt(0).toUpperCase()
-                              : item.name.substring(0, 2).toUpperCase()}
+                    {teams.map((item) => {
+                      const color =
+                        colors[Math.floor(Math.random() * colors.length)];
+                      return (
+                        <div
+                          key={item.id}
+                          className="cursor-pointer font-light"
+                          onClick={() => setActiveTeam(item.id)}
+                        >
+                          <div className="flex items-center justify-start space-x-4">
+                            <div
+                              className={`w-[32px] h-[32px] rounded-full font-bold bg-[${color}]  text-primary flex justify-center items-center text-[10px]`}
+                            >
+                              {imgTitle(item.name)}
+                            </div>
+                            <span className="text-[16px] text-primary text-normal dark:text-white">
+                              {item.name} ({item.members.length})
+                            </span>
                           </div>
-                          <span className="text-[16px] text-primary text-normal dark:text-white">
-                            {item.name}
-                          </span>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   {edit === true ? (
                     <div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0] border-opacity-10 ">
                       <div className="relative text-gray-600 focus-within:text-gray-400">
                         <input
-                          className="w-full h-[40px] pr-[20px] text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
+                          className="w-full h-[40px] pr-[20px] text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
                           placeholder="Please enter your team name"
                         />
                         <span className="absolute inset-y-0 right-0 flex items-center pl-2">
@@ -95,7 +100,9 @@ const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
                           />
                         </span>
                       </div>
-                      <span className="text-xs text-[#9490A0] pl-[10px]">Press Enter to validate</span>
+                      <span className="text-xs text-[#9490A0] pl-[10px]">
+                        Press Enter to validate
+                      </span>
                     </div>
                   ) : (
                     <div className="bg-white dark:bg-[#18181B] p-4">
@@ -123,4 +130,3 @@ const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
     </div>
   );
 };
-export default DropDown;

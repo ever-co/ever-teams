@@ -1,10 +1,6 @@
-import {
-  API_BASE_URL,
-  DEFAULT_APP_PATH,
-  TOKEN_COOKIE_NAME,
-} from "@app/constants";
+import { API_BASE_URL, DEFAULT_APP_PATH } from "@app/constants";
+import { getActiveTeamIdCookie } from "@app/helpers/cookies";
 import axios, { AxiosResponse } from "axios";
-import { getCookie } from "cookies-next";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -14,7 +10,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config: any) => {
-    const cookie = getCookie(TOKEN_COOKIE_NAME);
+    const cookie = getActiveTeamIdCookie();
 
     if (cookie) {
       config.headers["Authorization"] = `Bearer ${cookie}`;

@@ -7,6 +7,11 @@ interface IResponseMetadata {
 export type IDataResponse<T = any> = IResponseMetadata & T;
 
 export enum ResStatusEnum {
-  error = 'error',
-  success = 'success',
+  error = "error",
+  success = "success",
 }
+
+export type PaginationResponse<T> = {
+  items: T[];
+  count: number;
+};

@@ -13,8 +13,6 @@ export const config = {
   matcher: ["/", "/main"],
 };
 
-// access_token
-
 export async function middleware(request: NextRequest) {
   // Setting cookies on the response
   let response = NextResponse.next();
@@ -31,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
   const protected_path = PROTECTED_APP_URL_PATHS.includes(url.pathname);
 
-  if (protected_path && (!refresh_token || !access_token)) {
+  if ((protected_path && !refresh_token) || (protected_path && !access_token)) {
     deny_redirect();
     // Next codition, if all tokens are presents
   } else if (protected_path) {
