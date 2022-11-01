@@ -1,8 +1,9 @@
 import { IDrowDownData } from "@app/interfaces/hooks";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { BackspaceIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 
 interface IDropDown {
   data: IDrowDownData[];
@@ -10,6 +11,7 @@ interface IDropDown {
   setSelectedTeam: React.Dispatch<React.SetStateAction<IDrowDownData>>;
 }
 const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
+  const [edit, setEdit] = useState<boolean>(false);
   return (
     <div className="w-[290px] max-w-sm">
       <Popover className="relative">
@@ -77,35 +79,41 @@ const DropDown = ({ data, selectedTeam, setSelectedTeam }: IDropDown) => {
                           </span>
                         </div>
                       </div>
-                      // <a
-                      //   key={item.name}
-                      //   href={item.href}
-                      //   className="-m-3 flex items-center rounded-lg p-2 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50"
-                      // >
-                      //   <div className="flex h-10 w-10 shrink-0 items-center justify-center text-white sm:h-12 sm:w-12">
-                      //     <item.icon aria-hidden="true" />
-                      //   </div>
-                      //   <div className="ml-4">
-                      //     <p className="text-sm font-medium text-gray-900">
-                      //       {item.name}
-                      //     </p>
-                      //     <p className="text-sm text-gray-500">
-                      //       {item.description}
-                      //     </p>
-                      //   </div>
-                      // </a>
                     ))}
                   </div>
-                  <div className="bg-white dark:bg-[#18181B] p-4">
-                    <button className="rounded-[8px] bg-[#D7E1EB] dark:bg-[#202023] text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]">
-                      <div className="flex items-center justify-center">
-                        <span className="mr-[11px]">
-                          <PlusIcon className="text-primary dark:text-white font-bold w-[16px] h-[16px]" />
+                  {edit === true ? (
+                    <div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0] border-opacity-10 ">
+                      <div className="relative text-gray-600 focus-within:text-gray-400">
+                        <input
+                          className="w-full h-[40px] pr-[20px] text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
+                          placeholder="Please enter your team name"
+                        />
+                        <span className="absolute inset-y-0 right-0 flex items-center pl-2">
+                          <XMarkIcon
+                            className="w-6 h-6 px-1 hover:bg-gray-300 hover:text-primary cursor-pointer mr-1 rounded-lg flex justify-center items-center"
+                            onClick={() => setEdit(false)}
+                          />
                         </span>
-                        Create new team
                       </div>
-                    </button>
-                  </div>
+                      <span className="text-xs text-[#9490A0] pl-[10px]">Press Enter to validate</span>
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-[#18181B] p-4">
+                      <button
+                        className="rounded-[8px] bg-[#D7E1EB] dark:bg-[#202023] text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]"
+                        onClick={() => {
+                          setEdit(true);
+                        }}
+                      >
+                        <div className="flex items-center justify-center">
+                          <span className="mr-[11px]">
+                            <PlusIcon className="text-primary dark:text-white font-bold w-[16px] h-[16px]" />
+                          </span>
+                          Create new team
+                        </div>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Popover.Panel>
             </Transition>

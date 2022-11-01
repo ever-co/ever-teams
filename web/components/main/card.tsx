@@ -4,6 +4,7 @@ import Separator from "../common/separator";
 import { PauseIcon } from "../common/main/pauseIcon";
 import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from "@components/common/main/dropdown-user";
+import { TimeInput } from "@components/common/main/time-input";
 
 interface ICardProps extends IMembers, IStartSection {
   style: { width: string };
@@ -74,21 +75,28 @@ const Card = ({
       <Separator />
       <div className="w-[245px]  flex justify-center items-center">
         <div>
-          {estimate ? (
-            <>
-              <div className="flex w-[245px]">
-                <div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
-                <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
-              </div>
-              <div className="text-center text-[14px] text-[#9490A0]  py-1 font-light">
-                Estimate : {estimate}
-              </div>
-            </>
-          ) : (
-            <button className="h-[36px] bg-primary text-white dark:text-black dark:bg-white rounded-[6px] font-normal text-[16px] px-[22px] py-[6px]">
-              Estimate Now
-            </button>
-          )}
+          <div className="flex w-[245px]">
+            <div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
+            <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
+          </div>
+          <div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
+            <div>Estimate :</div>
+            <TimeInput
+              value={estimate.hours + "h"}
+              type="string"
+              placeholder="Hours"
+              handleChange={() => {}}
+              style="w-[30px]"
+            />
+            /
+            <TimeInput
+              value={estimate.minutes + "m"}
+              type="string"
+              placeholder="Minutes"
+              handleChange={() => {}}
+              style="w-[30px]"
+            />
+          </div>
         </div>
       </div>
       <Separator />

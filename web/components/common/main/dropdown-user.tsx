@@ -7,7 +7,7 @@ const DropdownUser = () => {
     <Popover className="relative border-none no-underline">
       {({ open }) => (
         <>
-          <Popover.Button className="border-none active:border-none no-underline">
+          <Popover.Button className="border-none outline-none active:border-none no-underline">
             <EllipsisVerticalIcon
               className="h-7 w-7 text-gray-300 dark:text-[#616164] cursor-pointer no-underline"
               aria-hidden="true"
