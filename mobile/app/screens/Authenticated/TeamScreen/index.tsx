@@ -41,63 +41,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
         />
         <HomeHeader />
         <DropDown />
-
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={{ ...GS.flex1 }}>
-            <View style={{ ...GS.inlineItems, ...GS.mb2 }}>
-              <View style={{ ...GS.flex1 }}>
-                <Text preset="subheading" size="xl">
-                  Team / GauzyT
-                </Text>
-                <Text preset="subheading">
-                  Member{taskList.length > 1 ? "s" : ""}: {taskList.length}
-                </Text>
-              </View>
-
-              <View style={{ ...GS.inlineItems }}>
-                <View style={{ ...$headerIconContainer, ...GS.mr2 }}>
-                  <TouchableOpacity
-                    style={{ ...GS.p2 }}
-                    onPress={() => setShowCreateTeamModal(true)}
-                  >
-                    <Icon icon="components" />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={{ ...GS.positionRelative, ...GS.zIndexFront }}>
-                  <TouchableWithoutFeedback>
-                    <View
-                      style={{
-                        ...GS.positionAbsolute,
-                        ...GS.pt5,
-                        ...GS.px2,
-                        ...GS.shadow,
-                        ...GS.r0,
-                        ...GS.roundedSm,
-                        backgroundColor: colors.background,
-                        minWidth: spacing.massive * 2.5,
-                        ...(!showMoreMenu ? { display: "none" } : {}),
-                      }}
-                    >
-                      <View style={{}}>
-                        <ListItem>Switch Team</ListItem>
-                        <ListItem>Refresh</ListItem>
-                      </View>
-                    </View>
-                  </TouchableWithoutFeedback>
-
-                  <View style={{ ...$headerIconContainer, ...(showMoreMenu ? GS.noShadow : {}) }}>
-                    <TouchableOpacity
-                      style={{ ...GS.p2 }}
-                      onPress={() => setShowMoreMenu(!showMoreMenu)}
-                    >
-                      <Icon icon={showMoreMenu ? "x" : "more"} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </View>
-
             {/* Users activity list */}
             <ScrollView
               showsVerticalScrollIndicator={false}

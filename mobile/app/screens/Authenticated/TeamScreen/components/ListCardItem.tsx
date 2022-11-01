@@ -68,8 +68,6 @@ const ListCardItem: React.FC<Props> = (props) => {
             ...GS.positionAbsolute,
             ...GS.t0,
             ...GS.r0,
-            // ...GS.m3,
-            // ...GS.p2,
             ...GS.pt2,
             ...GS.zIndexFront,
           }}
@@ -177,7 +175,6 @@ const styles = StyleSheet.create({
   },
   firstContainer: {
     flexDirection: "row",
-    // justifyContent: "space-between",
     alignItems: "center",
   },
   name: {
@@ -190,6 +187,7 @@ const styles = StyleSheet.create({
     padding: 3,
     borderRadius: 5,
     marginLeft: 25,
+    paddingHorizontal: 15,
   },
   notEstimate: {
     color: "#ACB3BB",
