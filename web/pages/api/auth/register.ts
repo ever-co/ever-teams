@@ -96,6 +96,7 @@ export default async function handler(
         token: loginRes.refresh_token,
         decoded: decoded_rt,
       },
+      timezone: body["timezone"],
       teamId: team.id,
       tenantId: tenant.id,
       organizationId: organization.id,

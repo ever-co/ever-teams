@@ -21,4 +21,6 @@ export interface IDecodedRefreshToken {
   exp: number;
 }
 
-export interface IRegisterDataAPI extends ITeamProps {}
+export interface IRegisterDataAPI extends ITeamProps {
+  timezone?: string;
+}

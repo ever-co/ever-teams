@@ -10,6 +10,7 @@ import { useQuery } from "@app/hooks/useQuery";
 import { authFormValidate } from "@app/helpers/validations";
 import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
 import { AxiosError } from "axios";
+import { userTimezone } from "@app/helpers/date";
 
 const FIRST_STEP = "STEP1";
 const SECOND_STEP = "STEP2";
@@ -46,8 +47,10 @@ const Team = () => {
       return;
     }
 
+    formValues["timezone"] = userTimezone();
+
     queryCall(formValues)
-      .then(() => window.location.reload())
+      .then(() => {})
       .catch((err: AxiosError) => {
         if (err.response?.status === 400) {
           setErrors((err.response?.data as any)?.errors || {});

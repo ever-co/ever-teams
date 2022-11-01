@@ -8,6 +8,7 @@ import {
 import { IDecodedRefreshToken } from "@app/interfaces/IAuthentication";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { NextApiRequest, NextApiResponse } from "next";
+import { addHours, changeTimezone } from "./date";
 
 type DataParams = {
   refresh_token: {
@@ -18,6 +19,7 @@ type DataParams = {
   teamId: string;
   tenantId: string;
   organizationId: string;
+  timezone?: string;
 };
 
 type NextCtx = { req: NextApiRequest; res: NextApiResponse };
@@ -27,12 +29,19 @@ export function setAuthCookies(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { refresh_token, access_token, tenantId, teamId, organizationId } =
-    datas;
+  const {
+    refresh_token,
+    access_token,
+    tenantId,
+    teamId,
+    organizationId,
+    timezone,
+  } = datas;
 
   setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, {
     res,
     req,
+    expires: addHours(6, changeTimezone(new Date(), timezone)),
   });
   setCookie(TOKEN_COOKIE_NAME, access_token, { res, req });
   setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, { res, req });
