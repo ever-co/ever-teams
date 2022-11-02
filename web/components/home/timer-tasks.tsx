@@ -2,6 +2,7 @@ import { TimeInput } from "@components/common/main/time-input";
 import TaskInput from "@components/common/main/task-input";
 import { PauseIcon } from "../common/main/pauseIcon";
 import { PlayIcon } from "../common/main/playIcon";
+import StatusDropdown from "@components/common/main/status-dropdown";
 
 const tasks: string[] = ["Api integration", "Implement header"];
 
@@ -17,7 +18,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
         <div className="w-full">
           <TaskInput />
         </div>
-        <div className="flex ml-[20px] ">
+        <div className="flex ml-[20px]">
           <span className="text-[18px] text-[#9490A0] dark:text-[#616164] font-base">
             Estimate :{" "}
           </span>
@@ -36,6 +37,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
             placeholder="Minutes"
             style="mx-5 w-[50px]"
           />
+          <StatusDropdown />
         </div>
       </div>
       <div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
