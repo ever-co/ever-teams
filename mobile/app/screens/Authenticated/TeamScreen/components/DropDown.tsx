@@ -1,8 +1,13 @@
-import React, { useState } from "react"
+import React, { FC, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native"
-import DropDownSection from "./DropDownSection"
+import DropDownSection, { teamItem } from "./DropDownSection"
 
-const DropDown = () => {
+export interface Props {
+  teams: teamItem[]
+  onCreateTeam: () => unknown
+}
+
+const DropDown : FC<Props> = function CreateTeamModal({ teams, onCreateTeam }) {
   const [expanded, setExpanded] = useState(true)
   const handlePress = () => setExpanded(!expanded)
 
@@ -19,7 +24,7 @@ const DropDown = () => {
         <Text style={{ color: "#1B005D" }}> Super Team (5)</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
-      {showDrop && <DropDownSection />}
+      {showDrop && <DropDownSection teams={teams} onCreateTeam={onCreateTeam}/>}
 
       {/* <List.Accordion
         style={styles.list}
