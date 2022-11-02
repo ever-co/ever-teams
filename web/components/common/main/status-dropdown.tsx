@@ -52,7 +52,7 @@ const StatusDropdown = () => {
       <Combobox value={selected} onChange={setSelected}>
         <div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
           <Combobox.Input
-            className="h-[30px] bg-[#F0ECFD] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-1"
+            className="h-[30px] bg-[#F0ECFD] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] outline-none py-1"
             displayValue={(task: ITasks) => task && task.name}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Status"
