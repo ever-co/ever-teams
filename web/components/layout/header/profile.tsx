@@ -11,6 +11,7 @@ const Profile = () => {
         alt="User Icon"
         width={48}
         height={48}
+        className="rounded-full "
       />
     </div>
   );

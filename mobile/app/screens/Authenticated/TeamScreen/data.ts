@@ -1,3 +1,5 @@
+import { teamItem } from "./components/DropDownSection";
+
 export const team = [
   {
     name: "Ruslan Konviser",
@@ -21,3 +23,30 @@ export const team = [
     estimate: true,
   },
 ]
+
+export const data : teamItem[] = [
+  {
+    img: "../../../../../assets/icons/community.png",
+    title: "All",
+  },
+  {
+    img: "../../../../../assets/images/cr-logo.png",
+    title: "Ever® Saas (10)",
+  },
+  {
+    img: "../../../../../assets/images/mask.png",
+    title: "Super Team (5)",
+  },
+  {
+    img: "../../../../../assets/images/cr-logo.png",
+    title: "Ever® Gauzy™ (7)",
+  },
+  {
+    img: "../../../../../assets/images/cr-logo.png",
+    title: "Ever Traduora Platform (25)",
+  },
+  {
+    img: "../../../../../assets/images/cr-logo.png",
+    title: "Massaza Technologies (6)",
+  },
+];
