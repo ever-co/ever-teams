@@ -1,82 +1,41 @@
-import React from "react"
-import { View, Text, StyleSheet, Image } from "react-native"
+import React, { FC } from "react"
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
 import Icon from "react-native-vector-icons/Ionicons"
 
-const data = [
-  {
-    img: require("../../../../../assets/icons/community.png"),
-    word: "All",
-  },
-  {
-    img: require("../../../../../assets/images/cr-logo.png"),
-    word: "Ever® Saas (10)",
-  },
-  {
-    img: require("../../../../../assets/images/mask.png"),
-    word: "Super Team (5)",
-  },
-  {
-    img: require("../../../../../assets/images/cr-logo.png"),
-    word: "Ever® Gauzy™ (7)",
-  },
-  {
-    img: require("../../../../../assets/images/cr-logo.png"),
-    word: "Ever Traduora Platform (25)",
-  },
-  {
-    img: require("../../../../../assets/images/cr-logo.png"),
-    word: "Massaza Technologies (6)",
-  },
-]
+export interface Props {
+  teams: teamItem[]
+  onCreateTeam: () => unknown
+}
 
-const DropDownSection = () => {
+export interface teamItem {
+  img: string
+  title: string
+}
+
+const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam }) {
   return (
     <View style={styles.mainContainer}>
-      <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>All</Text>
-      </View>
-      <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Ever® Saas (10)</Text>
-      </View>
-      <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Super Team (5)</Text>
-      </View>
-      <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Ever® Gauzy™ (7)</Text>
-      </View>
-      <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Ever Traduora Platform (25)</Text>
-      </View>
-      <View style={styles.indDropDown}>
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>Massaza Technologies (6)</Text>
-      </View>
-      <View style={styles.buttonStyle}>
-        <Icon name="ios-book" color="#4F8EF7" />
-        <Text style={{ color: "#1B005D", fontSize: 18, fontWeight: "bold" }}>Create new team</Text>
-      </View>
+      {teams.map((item, index) => (
+        <DropItem key={index} {...item} />
+      ))}
 
-      {/* {data.map((datum, i) => (
-        <DropItem key={i} {...datum} />
-      ))} */}
+      <TouchableOpacity onPress={() => onCreateTeam()}>
+        <View style={styles.buttonStyle}>
+          {/* <Icon name="ios-book" color="#4F8EF7" /> */}
+          <Text style={{ color: "#1B005D", fontSize: 18, fontWeight: "bold" }}>
+            Create new team
+          </Text>
+        </View>
+      </TouchableOpacity>
     </View>
   )
 }
 
-type IDropItem = {
-  img: any
-  word: string
-}
-
-const DropItem = ({ img, word }: IDropItem) => {
+const DropItem = ({ img, title }: teamItem) => {
   return (
-    <View>
-      <Image source={img}></Image> <Text>{word}</Text>
+    <View style={styles.indDropDown}>
+      <Image style={styles.teamImage} source={require("../../../../../assets/icons/community.png")} />
+      <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>{title}</Text>
     </View>
   )
 }
@@ -96,6 +55,11 @@ const styles = StyleSheet.create({
   indDropDown: {
     flexDirection: "row",
     paddingLeft: "10%",
+  },
+  teamImage: {
+    width: 25,
+    height: 20,
+    resizeMode: "stretch",
   },
   buttonStyle: {
     flexDirection: "row",

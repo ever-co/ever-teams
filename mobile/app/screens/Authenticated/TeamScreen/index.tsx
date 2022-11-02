@@ -21,7 +21,9 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
 import DropDown from "./components/DropDown"
-import { team } from "./data"
+import { team, data } from "./data"
+import CreateTeamModal from "./components/CreateTeamModal"
+
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
@@ -29,17 +31,20 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
     const [showInviteModal, setShowInviteModal] = React.useState(false)
-    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(true)
+
+  
 
     return (
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
+        <CreateTeamModal visible={showCreateTeamModal} onDismiss={()=>setShowCreateTeamModal(false)} />
         <NewTeamModal
           visible={showCreateTeamModal}
           onDismiss={() => setShowCreateTeamModal(false)}
         />
         <HomeHeader />
-        <DropDown />
+        <DropDown teams={data} onCreateTeam={()=>setShowCreateTeamModal(true)} />
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={$cardContainer}>
             {/* Users activity list */}
