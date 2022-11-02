@@ -22,9 +22,9 @@ const Card = ({
   task,
   image,
   admin,
-  started,
-  setStarted,
-}: ICardProps) => {
+}: // started,
+// setStarted,
+ICardProps) => {
   const [nameEdit, setNameEdit] = useState(false);
   const [taskEdit, setTaskEdit] = useState(false);
   const [formValues, setFormValues] = useState({
@@ -130,7 +130,7 @@ const Card = ({
       <Separator />
       <div className="w-[122px]  text-center flex justify-center items-center">
         {current}
-        {admin && (
+        {/* {admin && (
           <div
             className="ml-[10px] cursor-pointer"
             onClick={() => setStarted(!started)}
@@ -141,7 +141,7 @@ const Card = ({
               <PlayIcon width={24} height={24} />
             )}
           </div>
-        )}
+        )} */}
       </div>
       <Separator />
       <div className="w-[245px]  flex justify-center items-center">
