@@ -58,10 +58,10 @@ const Card = ({
       : "bg-[#DF7C00]";
   return (
     <div
-      className={`w-full rounded-[15px] ${
+      className={`w-full rounded-[15px] border ${
         admin
-          ? "border border-primary dark:border-gray-100"
-          : " border border-white hover:border-primary"
+          ? " border-primary dark:border-gray-100 "
+          : " hover:border hover:border-primary dark:border-[#202023]"
       } bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex 
     justify-between text-primary dark:hover:border-gray-100  
     font-bold py-[24px] dark:text-[#FFFFFF]`}
@@ -118,7 +118,7 @@ const Card = ({
           />
         ) : (
           <div
-            className={`w-[334px]  h-[48px]  font-light text-normal px-[14px] border border-white hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}
+            className={`w-[334px]  h-[48px]  font-light text-normal px-[14px] border border-white dark:border-[#202023] hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}
             onDoubleClick={() => {
               setTaskEdit(true);
             }}
