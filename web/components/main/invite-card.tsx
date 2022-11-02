@@ -17,7 +17,7 @@ const InviteCard = () => {
       <div className="w-[60px]  flex justify-center items-center">
         <div className="rounded-[50%] w-5 h-5 bg-[#E8EBF8]"></div>
       </div>
-      <div className="w-[215px] h-[48px] flex items-center justify-center">
+      <div className="w-[235px] h-[48px] flex items-center justify-center">
         <div className="flex justify-center items-center">
           <button
             onClick={openModal}
@@ -26,7 +26,7 @@ const InviteCard = () => {
             Invite
           </button>
         </div>
-        <div className="w-[147px] mx-[20px] h-[48px] flex justify-center items-center"></div>
+        <div className="w-[137px] mx-[20px] h-[48px] flex justify-center items-center"></div>
       </div>
       <Separator />
       <div className="w-[334px]  font-light text-normal px-[14px]"> </div>
