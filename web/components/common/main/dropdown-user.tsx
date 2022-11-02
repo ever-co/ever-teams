@@ -1,43 +1,48 @@
 import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
-import { Fragment } from "react";
+import { Dispatch, Fragment, MouseEventHandler, SetStateAction } from "react";
 
 interface IOption {
   name: string;
-  handleClick: React.Dispatch<React.SetStateAction<() => void>>;
+  handleClick: any;
 }
-const options: IOption[] = [
-  {
-    name: "Edit",
-    handleClick: () => {},
-  },
-  {
-    name: "Estimate",
-    handleClick: () => {},
-  },
-  {
-    name: "Assign new task",
-    handleClick: () => {},
-  },
-  {
-    name: "Unassign task",
-    handleClick: () => {},
-  },
-  {
-    name: "Make a manager ",
-    handleClick: () => {},
-  },
-  {
-    name: "Remove",
-    handleClick: () => {},
-  },
-  {
-    name: "Add new task",
-    handleClick: () => {},
-  },
-];
 
-const DropdownUser = () => {
+interface IDropdownUserProps {
+  setEdit: Dispatch<SetStateAction<boolean>>;
+}
+
+const DropdownUser = ({ setEdit }: IDropdownUserProps) => {
+  const options: IOption[] = [
+    {
+      name: "Edit",
+      handleClick: setEdit,
+    },
+    {
+      name: "Estimate",
+      handleClick: () => {},
+    },
+    {
+      name: "Assign new task",
+      handleClick: () => {},
+    },
+    {
+      name: "Unassign task",
+      handleClick: () => {},
+    },
+    {
+      name: "Make a manager ",
+      handleClick: () => {},
+    },
+    {
+      name: "Remove",
+      handleClick: () => {},
+    },
+    {
+      name: "Add new task",
+      handleClick: () => {},
+    },
+  ];
+
   return (
     <Popover className="relative border-none no-underline">
       {({ open }) => (
@@ -62,6 +67,7 @@ const DropdownUser = () => {
                 {options.map((option) => (
                   <button
                     key={option.name}
+                    onClick={option.handleClick}
                     className="hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
                   >
                     {option.name}

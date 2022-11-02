@@ -5,6 +5,7 @@ import { PauseIcon } from "../common/main/pauseIcon";
 import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from "@components/common/main/dropdown-user";
 import { TimeInput } from "@components/common/main/time-input";
+import { useState } from "react";
 
 interface ICardProps extends IMembers, IStartSection {
   style: { width: string };
@@ -24,6 +25,31 @@ const Card = ({
   started,
   setStarted,
 }: ICardProps) => {
+  const [nameEdit, setNameEdit] = useState(false);
+  const [taskEdit, setTaskEdit] = useState(false);
+  const [formValues, setFormValues] = useState({
+    devName: name,
+    devTask: task,
+  });
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormValues((prevState) => ({ ...prevState, [name]: value }));
+  };
+
+  const handleNameEdit = (e: any) => {
+    setNameEdit(false);
+  };
+
+  const handleTaskEdit = (e: any) => {
+    setTaskEdit(false);
+  };
+
+  const handeEditBoth = () => {
+    setNameEdit(true);
+    setTaskEdit(true);
+  };
+
   const bgColor =
     status === "working"
       ? "bg-[#02b102]"
@@ -32,10 +58,10 @@ const Card = ({
       : "bg-[#DF7C00]";
   return (
     <div
-      className={`w-full rounded-[15px] ${
+      className={`w-full rounded-[15px] border ${
         admin
-          ? "border border-primary dark:border-gray-100 "
-          : " hover:border hover:border-primary"
+          ? " border-primary dark:border-gray-100 "
+          : " hover:border hover:border-primary dark:border-[#202023]"
       } bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex 
     justify-between text-primary dark:hover:border-gray-100  
     font-bold py-[24px] dark:text-[#FFFFFF]`}
@@ -43,18 +69,63 @@ const Card = ({
       <div className="w-[60px]  flex justify-center items-center">
         <div className={`rounded-[50%] w-5 h-5 ${bgColor}`}></div>
       </div>
-      <div className="w-[215px] h-[48px] flex items-center justify-center">
+      <div className="w-[235px] h-[48px] flex items-center justify-center">
         <div className="flex justify-center items-center">
           <Image src={image} alt="User Icon" width={48} height={48} />
         </div>
-        <div className="w-[147px] mx-[20px] h-[48px] flex justify-center items-center">
-          {name}
+
+        <div
+          className="w-[137px] mx-[20px] h-[48px] flex justify-start items-center"
+          onDoubleClick={() => {
+            setNameEdit(true);
+          }}
+        >
+          {nameEdit === true ? (
+            <input
+              value={formValues.devName}
+              name="devName"
+              onChange={handleChange}
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  handleNameEdit(this);
+                }
+              }}
+              className="w-full h-[40px] rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
+            />
+          ) : (
+            formValues.devName
+          )}
         </div>
       </div>
       <Separator />
-      <div className="w-[334px]  font-light text-normal px-[14px] hover:border hover:border-[#D7E1EB] dark:hover:border-[#27272A] hover:rounded-[8px] hover:cursor-text">
-        {" "}
-        {task}
+      <div
+        className={`w-[334px]  h-[48px] font-light text-normal hover:rounded-[8px] hover:cursor-text`}
+        onDoubleClick={() => {
+          setTaskEdit(true);
+        }}
+      >
+        {taskEdit === true ? (
+          <textarea
+            name="devTask"
+            value={formValues.devTask}
+            onChange={handleChange}
+            onKeyPress={(event) => {
+              if (event.key === "Enter") {
+                handleTaskEdit(this);
+              }
+            }}
+            className="w-full resize-none h-[48px] text-xs rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
+          />
+        ) : (
+          <div
+            className={`w-[334px]  h-[48px]  font-light text-normal px-[14px] border border-white dark:border-[#202023] hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}
+            onDoubleClick={() => {
+              setTaskEdit(true);
+            }}
+          >
+            {formValues.devTask}
+          </div>
+        )}
       </div>
       <Separator />
       <div className="w-[122px]  text-center flex justify-center items-center">
@@ -103,7 +174,7 @@ const Card = ({
       <div className="w-[184px]  flex items-center">
         <div className="w-[177px] text-center text-"> {total}</div>
         <div className="mr-[20px]">
-          <DropdownUser />
+          <DropdownUser setEdit={handeEditBoth} />
         </div>
       </div>
     </div>
