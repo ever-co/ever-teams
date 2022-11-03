@@ -20,18 +20,7 @@ const Profile = () => {
       name: "Settings",
       handleClick: () => {},
     },
-    {
-      name: "Manager only on/off",
-      handleClick: () => {},
-    },
-    {
-      name: "Leave Team",
-      handleClick: () => {},
-    },
-    {
-      name: "Dark / Light theme",
-      handleClick: () => {},
-    },
+
     {
       name: "Logout",
       handleClick: logOut,
