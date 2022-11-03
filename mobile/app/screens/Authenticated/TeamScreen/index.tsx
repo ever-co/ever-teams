@@ -31,7 +31,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
     const [showInviteModal, setShowInviteModal] = React.useState(false)
-    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(true)
+    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
   
 
@@ -54,7 +54,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
               style={{ ...GS.my2 }}
             >
               {team.map((item, index) => (
-                <ListCardItem key={index.toString()} item={item as any} />
+                <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
               ))}
 
               {/* Invite btn */}

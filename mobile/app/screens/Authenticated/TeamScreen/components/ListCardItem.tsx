@@ -7,6 +7,7 @@ import {
   TouchableNativeFeedback,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
 } from "react-native"
 
 // COMPONENTS
@@ -17,8 +18,6 @@ import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/
 import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
 export type ListItemProps = {
-  // variant: "success" | "warning" | "danger"
-  // onPressIn?: () => unknown
   item: {
     name: string
     text: string
@@ -27,53 +26,82 @@ export type ListItemProps = {
     estimate: boolean
   }
   onPressIn?: () => unknown
+  enableEstimate: boolean
 }
 
 export interface Props extends ListItemProps {}
 
-export const ListItemContent: React.FC<ListItemProps> = ({ item, onPressIn }) => (
-  <TouchableNativeFeedback onPressIn={onPressIn}>
-    <View style={{ ...GS.p2, ...GS.positionRelative }}>
-      <View style={styles.firstContainer}>
-        <Image source={require("../../../../../assets/images/Ruslan.png")} style={$usersProfile} />
-        <Text style={styles.name}>{item.name}</Text>
-        {item.estimate ? (
-          <View style={styles.estimate}>
-            <Text style={{ color: "#FFF", fontSize: 10 }}>Estimate Now</Text>
-          </View>
-        ) : (
-          <View style={{ marginLeft: "auto", marginRight: 10 }}>
-            <ProgressTimeIndicator estimatedHours={50} workedHours={30} />
-          </View>
-        )}
-      </View>
+export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
+  return (
+    <TouchableNativeFeedback onPressIn={onPressIn}>
+      <View style={{ ...GS.p2, ...GS.positionRelative }}>
+        <View style={styles.firstContainer}>
+          <Image
+            source={require("../../../../../assets/images/Ruslan.png")}
+            style={$usersProfile}
+          />
+          <Text style={styles.name}>{item.name}</Text>
+           {/* ENABLE ESTIMATE INPUTS */}
+          {!item.estimate && enableEstimate ? (
+            <View style={styles.estimate}>
+              <TextInput
+                maxLength={2}
+                keyboardType={"numeric"}
+                placeholder="Hh"
+                style={styles.estimateInput}
+              />
+              <Text style={styles.estimateDivider}>/</Text>
+              <TextInput
+                maxLength={2}
+                keyboardType={"numeric"}
+                placeholder="Mm"
+                style={styles.estimateInput}
+              />
+            </View>
+          ) : (
+            <View style={{ marginLeft: "auto", marginRight: 10 }}>
+              <ProgressTimeIndicator
+                estimated={item.estimate}
+                estimatedHours={50}
+                workedHours={30}
+              />
+            </View>
+          )}
+        </View>
 
-      <Text style={styles.otherText}>{item.text}</Text>
-      <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
-      <View style={styles.times}>
-        <View>
-          <Text style={styles.timeHeading}>Current time</Text>
-          <Text style={styles.timeNumber}>{item.currentTime}</Text>
-        </View>
-        <View>
-          <Text style={styles.timeHeading}>Total time</Text>
-          <Text style={styles.timeNumber}>{item.totalTime}</Text>
+        <Text style={styles.otherText}>{item.text}</Text>
+        <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
+        <View style={styles.times}>
+          <View>
+            <Text style={styles.timeHeading}>Current time</Text>
+            <Text style={styles.timeNumber}>{item.currentTime}</Text>
+          </View>
+          <View>
+            <Text style={styles.timeHeading}>Total time</Text>
+            <Text style={styles.timeNumber}>{item.totalTime}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  </TouchableNativeFeedback>
-)
+    </TouchableNativeFeedback>
+  )
+}
 
 const ListCardItem: React.FC<Props> = (props) => {
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
+  const [estimateNow, setEstimateNow] = React.useState(false)
+
+  const handleEstimate = () => {
+    setEstimateNow(true)
+    setShowMenu(false)
+  }
 
   return (
     <Card
       style={{
         ...$listCard,
         ...GS.mb3,
-        borderColor: CC[props.item.estimate? "warning" : "success"],
+        borderColor: CC[props.item.estimate ? "warning" : "success"],
       }}
       HeadingComponent={
         <View
@@ -108,7 +136,7 @@ const ListCardItem: React.FC<Props> = (props) => {
               <View style={{}}>
                 <ListItem>Edit</ListItem>
                 <ListItem>Release</ListItem>
-                <ListItem>Estimate now</ListItem>
+                <ListItem onPress={() => handleEstimate()}>Estimate now</ListItem>
               </View>
             </View>
 
@@ -121,6 +149,7 @@ const ListCardItem: React.FC<Props> = (props) => {
       ContentComponent={
         <ListItemContent
           {...props}
+          enableEstimate={estimateNow}
           onPressIn={() => {
             setShowMenu(false)
 
@@ -196,15 +225,28 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   estimate: {
-    backgroundColor: "#1B005D",
+    backgroundColor: "#E8EBF8",
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 3,
+    alignItems: "center",
     borderRadius: 5,
-    marginLeft: 25,
-    paddingHorizontal: 15,
+    marginLeft: "auto",
+    marginRight: 10,
+    paddingHorizontal: 10,
   },
   notEstimate: {
     color: "#ACB3BB",
     fontSize: 12,
     fontWeight: "400",
   },
+  estimateDivider: {
+    fontWeight: "700",
+  },
+  estimateInput:{
+    borderBottomColor: "gray",
+    borderStyle: "dashed",
+    borderBottomWidth: 2,
+    padding: 2,
+  }
 })

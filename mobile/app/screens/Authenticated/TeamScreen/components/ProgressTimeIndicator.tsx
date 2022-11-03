@@ -2,20 +2,21 @@ import React from "react"
 import { View, TextInput, StyleSheet } from "react-native"
 import Svg, { G, Circle } from "react-native-svg"
 
-type progressProps={
-    estimatedHours:number;
-    workedHours:number;
+import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+
+type progressProps = {
+  estimatedHours: number
+  workedHours: number
+  estimated: boolean
 }
 
-const ProgressTimeIndicator = ({estimatedHours, workedHours}:progressProps) => {
+const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progressProps) => {
+  const percentage = workedHours
+  const max = estimatedHours
 
-  const percentage = workedHours;
-  const max = estimatedHours;
-  
-  
   const radius = 20
   const strokeWidth = 3
-  const color = "green"
+  const color = CC["success"]
   const maxPerc = (100 * percentage) / max
   const circleCircumference = 2 * Math.PI * radius
   const strokeDashoffset = circleCircumference - (circleCircumference * maxPerc) / 100
@@ -28,7 +29,7 @@ const ProgressTimeIndicator = ({estimatedHours, workedHours}:progressProps) => {
             cx="50%"
             cy="50%"
             r={radius}
-            stroke={color}
+            stroke={"gray"}
             strokeWidth={strokeWidth}
             fill="transparent"
             strokeOpacity={0.2}
@@ -41,18 +42,18 @@ const ProgressTimeIndicator = ({estimatedHours, workedHours}:progressProps) => {
             fill="transparent"
             strokeWidth={strokeWidth}
             strokeDasharray={circleCircumference}
-            strokeDashoffset={strokeDashoffset}
+            strokeDashoffset={estimated ? strokeDashoffset : circleCircumference}
           />
         </G>
       </Svg>
       <TextInput
         underlineColorAndroid={"transparent"}
         editable={false}
-        defaultValue={`${estimatedHours}h`}
+        defaultValue={`${estimated ? estimatedHours + "h" : "00:00"}`}
         style={[
           StyleSheet.absoluteFillObject,
-          { fontSize: radius / 1.5, color: "green" },
-          { fontWeight: "900", textAlign: "center" },
+          { fontSize: radius / 1.6, color: `${estimated ? CC["success"] : "gray"}` },
+          { fontWeight: "900", textAlign: "center", opacity: estimated ? 1 : 0.2 },
         ]}
       />
     </View>
