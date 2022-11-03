@@ -32,7 +32,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
             >
               <Dialog.Panel className="w-[414px] px-[40px] py-[16px] max-w-md transform overflow-hidden rounded-[40px] bg-[#FFFFFF] dark:bg-[#202023] text-left align-middle shadow-xl shadow-[#3E1DAD0D] transition-all">
                 <div className="text-primary text-[18px] dark:text-white text-center mb-4 mt-[30px]">
-                  Please confirm if you want to close the task
+                  Please confirm if you want to Delete the task
                 </div>
                 <div className="flex items-center justify-between w-full mt-2">
                   <button
