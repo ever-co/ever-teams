@@ -4,6 +4,7 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Fragment, useState } from "react";
+import { Spinner } from "./spinner";
 
 const imgTitle = (name: string) => {
   return name.split(" ")[1]
@@ -11,15 +12,6 @@ const imgTitle = (name: string) => {
         name.split(" ")[1].charAt(0).toUpperCase()
     : name.substring(0, 2).toUpperCase();
 };
-
-const colors = [
-  "#F5F6FB",
-  "#F5F6FB",
-  "#E8EBF8",
-  "#D7E1EB",
-  "#E3EDF9",
-  "#F5F6FB",
-];
 
 export const TeamsDropDown = () => {
   const [edit, setEdit] = useState<boolean>(false);
@@ -64,8 +56,7 @@ export const TeamsDropDown = () => {
                 <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#18181B] px-3 py-4 lg:grid-cols-1 w-full">
                     {teams.map((item) => {
-                      const color =
-                        colors[Math.floor(Math.random() * colors.length)];
+                      const color = "#F5F6FB";
                       return (
                         <div
                           key={item.id}
@@ -87,23 +78,7 @@ export const TeamsDropDown = () => {
                     })}
                   </div>
                   {edit === true ? (
-                    <div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0] border-opacity-10 ">
-                      <div className="relative text-gray-600 focus-within:text-gray-400">
-                        <input
-                          className="w-full h-[40px] pr-[20px] text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
-                          placeholder="Please enter your team name"
-                        />
-                        <span className="absolute inset-y-0 right-0 flex items-center pl-2">
-                          <XMarkIcon
-                            className="w-6 h-6 px-1 hover:bg-gray-300 hover:text-primary cursor-pointer mr-1 rounded-lg flex justify-center items-center"
-                            onClick={() => setEdit(false)}
-                          />
-                        </span>
-                      </div>
-                      <span className="text-xs text-[#9490A0] pl-[10px]">
-                        Press Enter to validate
-                      </span>
-                    </div>
+                    <CreateNewTeam setEdit={setEdit} />
                   ) : (
                     <div className="bg-white dark:bg-[#18181B] p-4">
                       <button
@@ -130,3 +105,60 @@ export const TeamsDropDown = () => {
     </div>
   );
 };
+
+function CreateNewTeam({
+  setEdit,
+}: {
+  setEdit: (value: React.SetStateAction<boolean>) => void;
+}) {
+  const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+  const [error, setError] = useState<string | null>(null);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    const form = new FormData(e.currentTarget);
+    const name = form.get("name") || "";
+
+    createOrganizationTeam(name.toString())
+      .then(() => {
+        setEdit(false);
+      })
+      .catch((err) => {
+        setError(err?.message);
+      });
+  };
+
+  return (
+    <div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0] border-opacity-10 ">
+      <form
+        onSubmit={handleSubmit}
+        className="relative text-gray-600 focus-within:text-gray-400"
+      >
+        <input
+          className="w-full h-[40px] pr-[20px] dark:text-white text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
+          placeholder="Please enter your team name"
+          disabled={createOTeamLoading}
+          name="name"
+        />
+
+        <span className="absolute inset-y-0 right-0 flex items-center pl-2">
+          {createOTeamLoading ? (
+            <Spinner />
+          ) : (
+            <XMarkIcon
+              className="w-6 h-6 px-1 hover:bg-gray-300 hover:text-primary cursor-pointer mr-1 rounded-lg flex justify-center items-center"
+              onClick={() => setEdit(false)}
+            />
+          )}
+        </span>
+      </form>
+      {error ? (
+        <span className="text-xs text-red-400 pl-[10px]">{error}</span>
+      ) : (
+        <span className="text-xs text-[#9490A0] pl-[10px]">
+          Press Enter to validate
+        </span>
+      )}
+    </div>
+  );
+}
