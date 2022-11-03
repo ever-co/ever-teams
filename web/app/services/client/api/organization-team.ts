@@ -8,7 +8,7 @@ export function getOrganizationTeamsAPI() {
   );
 }
 
-export function createOrganizationAPI(name: string) {
+export function createOrganizationTeamAPI(name: string) {
   return api.post<PaginationResponse<IOrganizationTeamList>>(
     "/organization-team",
     { name }
