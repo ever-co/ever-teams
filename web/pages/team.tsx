@@ -112,7 +112,7 @@ const Team = () => {
 
               {step === SECOND_STEP && (
                 <ArrowLeftIcon
-                  className="h-[30px] text-[#0200074D] hover:text-primary cursor-pointer"
+                  className="h-[30px] dark:text-white text-[#0200074D] hover:text-primary cursor-pointer"
                   aria-hidden="true"
                   onClick={() => {
                     setStep(FIRST_STEP);
@@ -129,7 +129,7 @@ const Team = () => {
             >
               {loading && (
                 <span>
-                  <Spinner />
+                  <Spinner dark={true} />
                 </span>
               )}{" "}
               <span>{step === FIRST_STEP ? "Continue" : "Create Team"}</span>
