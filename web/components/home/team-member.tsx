@@ -45,7 +45,7 @@ const TeamMemberSection = ({ started, setStarted }: IStartSection) => {
   ];
   const style = { width: `${100 / members.length}%` };
   return (
-    <div className="mt-[72px]">
+    <div className="mt-[42px]">
       <ul className="w-full">
         <Header style={style} />
         {members.map((item, i) => (
