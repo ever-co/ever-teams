@@ -6,9 +6,9 @@ import { IDrowDownData } from "@app/interfaces/hooks";
 export const Header = () => {
   return (
     <header className="fixed w-full z-50">
-      <nav className="bg-white py-6 dark:bg-[#202023] shadow-sm">
+      <nav className="bg-white py-2 dark:bg-[#202023] shadow-sm">
         <div className="flex container flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          <div className="flex items-center justify-center ">
+          <div className="flex items-center justify-center">
             <MainLogo />
           </div>
 
@@ -16,7 +16,7 @@ export const Header = () => {
             <div>
               <TeamsDropDown />
             </div>
-            <div>
+            <div className="flex items-center justify-center h-full">
               <Profile />
             </div>
             {/* <li className="flex items-center px-4">
