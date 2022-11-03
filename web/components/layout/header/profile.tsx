@@ -31,14 +31,14 @@ const Profile = () => {
     <Popover className="relative border-none no-underline">
       {({ open }) => (
         <>
-          <Popover.Button className="border-none outline-none active:border-none no-underline">
-            <div className="flex justify-center items-right cursor-pointer">
+          <Popover.Button className="p-0 m-0 outline-none mt-1">
+            <div className="flex justify-center items-center cursor-pointer">
               <Image
                 src={user?.imageUrl || ""}
                 alt="User Icon"
                 width={48}
                 height={48}
-                className="rounded-full "
+                className="rounded-full flex items-center justify-center"
               />
             </div>
           </Popover.Button>
