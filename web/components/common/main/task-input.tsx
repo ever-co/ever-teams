@@ -7,6 +7,7 @@ import Image from "next/image";
 import OpenTaskIcon from "./dropdownIcons/open-task";
 import CompletedTask from "./dropdownIcons/completed-task";
 import UnassignedTask from "./dropdownIcons/unassigned-task";
+import DeleteTask from "../delete-task";
 
 interface IUser {
   name: string;
@@ -111,6 +112,15 @@ const StatusIcon = ({ taskStatus }: IStatusIcon) => {
 export default function Example() {
   const [selected, setSelected] = useState(null);
   const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeModal = () => {
+    setIsOpen(false);
+  };
+
+  const openModal = () => {
+    setIsOpen(true);
+  };
 
   const filteredTasks =
     query === ""
@@ -198,7 +208,10 @@ export default function Example() {
                                   ))}{" "}
                               </div>
 
-                              <XMarkIcon className="w-5 h-5 text-gray-400 hover:text-primary" />
+                              <XMarkIcon
+                                className="w-5 h-5 text-gray-400 hover:text-primary"
+                                onClick={openModal}
+                              />
                             </div>
                           </div>
                         </span>
@@ -220,6 +233,7 @@ export default function Example() {
           </Transition>
         </div>
       </Combobox>
+      <DeleteTask isOpen={isOpen} closeModal={closeModal} Fragment={Fragment} />
     </div>
   );
 }
