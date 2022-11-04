@@ -1,6 +1,7 @@
 import React from "react"
 import { Text, TextInput, View, Image, StyleSheet } from "react-native"
 import { ProgressBar } from "react-native-paper"
+import TaskStatusDropdown from "./TaskStatusDropdown"
 
 const NewTimerCard = () => {
   return (
@@ -40,6 +41,10 @@ const NewTimerCard = () => {
             </View>
           </View>
         </View>
+      </View>
+
+      <View>
+        <TaskStatusDropdown />
       </View>
 
       <View style={styles.horizontal}>
