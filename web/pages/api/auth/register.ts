@@ -1,9 +1,6 @@
 import { generateToken } from "@app/helpers/generate-token";
 import { authFormValidate } from "@app/helpers/validations";
-import {
-  IDecodedRefreshToken,
-  IRegisterDataAPI,
-} from "@app/interfaces/IAuthentication";
+import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
 import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
   createOrganizationRequest,
@@ -14,7 +11,6 @@ import {
 } from "@app/services/server/requests";
 import { NextApiRequest, NextApiResponse } from "next";
 import { setAuthCookies } from "@app/helpers/cookies";
-import jwt_decode from "jwt-decode";
 
 export default async function handler(
   req: NextApiRequest,
@@ -87,14 +83,11 @@ export default async function handler(
     loginRes.token
   );
 
-  const decoded_rt = jwt_decode<IDecodedRefreshToken>(loginRes.refresh_token);
-
   setAuthCookies(
     {
       access_token: loginRes.token,
       refresh_token: {
         token: loginRes.refresh_token,
-        decoded: decoded_rt,
       },
       timezone: body["timezone"],
       teamId: team.id,
