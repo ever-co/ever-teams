@@ -27,6 +27,7 @@ const Card = ({
 ICardProps) => {
   const [nameEdit, setNameEdit] = useState(false);
   const [taskEdit, setTaskEdit] = useState(false);
+  const [estimateEdit, setEstimateEdit] = useState(false);
   const [formValues, setFormValues] = useState({
     devName: name,
     devTask: task,
@@ -43,6 +44,10 @@ ICardProps) => {
 
   const handleTaskEdit = (e: any) => {
     setTaskEdit(false);
+  };
+
+  const handleEstimate = () => {
+    setEstimateEdit(true);
   };
 
   const handeEditBoth = () => {
@@ -157,7 +162,11 @@ ICardProps) => {
               type="string"
               placeholder="Hours"
               handleChange={() => {}}
-              style="w-[30px]"
+              style={`w-[30px] ${
+                estimateEdit === true
+                  ? "bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
+                  : "bg-transparent"
+              } `}
             />
             /
             <TimeInput
@@ -165,7 +174,11 @@ ICardProps) => {
               type="string"
               placeholder="Minutes"
               handleChange={() => {}}
-              style="w-[30px]"
+              style={`w-[30px] ${
+                estimateEdit === true
+                  ? "bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
+                  : "bg-transparent"
+              } `}
             />
           </div>
         </div>
@@ -174,7 +187,10 @@ ICardProps) => {
       <div className="w-[184px]  flex items-center">
         <div className="w-[177px] text-center text-"> {total}</div>
         <div className="mr-[20px]">
-          <DropdownUser setEdit={handeEditBoth} />
+          <DropdownUser
+            setEdit={handeEditBoth}
+            setEstimateEdit={handleEstimate}
+          />
         </div>
       </div>
     </div>
