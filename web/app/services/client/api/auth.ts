@@ -4,10 +4,10 @@ import {
 } from "@app/interfaces/IAuthentication";
 import api from "../axios";
 
-export const signInWithEmailAndPassword = (email: string, password: string) => {
+export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
   return api.post<ILoginReponse>(`/auth/login`, {
     email,
-    password,
+    code,
   });
 };
 

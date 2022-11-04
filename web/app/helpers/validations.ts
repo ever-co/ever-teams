@@ -31,6 +31,11 @@ export const authFormValidate = (
           err["team"] = "You must provide a valid Team Name";
         }
         break;
+      case "code":
+        if (values["code"].trim().length < 6) {
+          err["code"] = "Your invitation code must contain 6 digits";
+        }
+        break;
     }
   });
 

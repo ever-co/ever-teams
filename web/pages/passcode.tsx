@@ -1,18 +1,46 @@
+import { authFormValidate } from "@app/helpers/validations";
+import { useQuery } from "@app/hooks/useQuery";
+import { signInWithEmailAndCodeAPI } from "@app/services/client/api";
+import AuthCodeInput from "@components/common/authCodeInput";
+import { Spinner } from "@components/common/spinner";
+import { AxiosError } from "axios";
 import React, { useState } from "react";
 import Input from "../components/common/input";
 import LockIcon from "../components/common/passcode/lockIcon";
 import Footer from "../components/layout/footer/footer";
-import InputCode from "../components/team/passcode/inputCode";
 
 const Passcode = () => {
-  const [formValues, setFormValues] = useState({ email: "" });
+  const [formValues, setFormValues] = useState({ email: "", code: "" });
+  const [errors, setErrors] = useState({} as { [x: string]: any });
+  const { queryCall, loading } = useQuery(signInWithEmailAndCodeAPI);
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormValues((prevState) => ({ ...prevState, [name]: value }));
   };
+
   const handleSubmit = (e: any) => {
     e.preventDefault();
+    setErrors({});
+    const { errors, valid } = authFormValidate(
+      ["email", "code"],
+      formValues as any
+    );
+
+    if (!valid) {
+      setErrors(errors);
+      return;
+    }
+
+    queryCall(formValues.email, formValues.code)
+      .then(() => window.location.reload())
+      .catch((err: AxiosError) => {
+        if (err.response?.status === 400) {
+          setErrors((err.response?.data as any)?.errors || {});
+        }
+      });
   };
+
   return (
     <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-dark_background_color">
       <div />
@@ -29,14 +57,23 @@ const Passcode = () => {
           <div className="text-[14px] mt-[30px] font-light text-center text-[#ACB3BB] w-full p-0">
             Please enter the invitation code we sent to your Email
           </div>
-          <div className="mt-[21px] flex justify-between">
-            <InputCode />
-            <InputCode />
-            <InputCode />
-            <InputCode />
-            <InputCode />
-            <InputCode />
-          </div>
+          <AuthCodeInput
+            allowedCharacters="numeric"
+            length={6}
+            containerClassName="mt-[21px] flex justify-between"
+            inputClassName="rounded-md w-[45px] round-[8px] border border-[#F5F6FB] bg-[#F5F6FB] 
+              py-2 px-2 text-xl text-center font-light text-[#9490A0] outline-none focus:border-[#7D56fd] 
+              focus:border focus:shadow-md dark:bg-dark_background_color"
+            onChange={(code) => {
+              setFormValues((v) => ({ ...v, code }));
+            }}
+          />
+          {errors["code"] && (
+            <span className="text-sm text-red-600 font-light">
+              {errors["code"]}
+            </span>
+          )}
+
           <div className="text-center text-[14px] mt-[21px]">
             <span className="text-[#ACB3BB] font-light">
               Didn’t receive code?{" "}
@@ -56,17 +93,27 @@ const Passcode = () => {
               onChange={handleChange}
               centered={true}
             />
+            {errors["email"] && (
+              <span className="text-sm text-red-600 font-light">
+                {errors["email"]}
+              </span>
+            )}
           </div>
           <div className="flex justify-between items-center">
             <div />
             <button
               className="w-full h-[55px] text-[18px] mt-10 font-bold 
               tracking-wide text-white dark:text-primary transition-colors 
-              duration-200 transform bg-primary dark:bg-white rounded-[12px] 
-              hover:text-opacity-90 focus:outline-none"
+              duration-200 transform bg-primary dark:bg-white rounded-[12px]
+              hover:text-opacity-90 focus:outline-none inline-flex justify-center items-center"
               type="submit"
             >
-              Join Team
+              {loading && (
+                <span>
+                  <Spinner dark={true} />
+                </span>
+              )}{" "}
+              <span>Join Team</span>
             </button>
             <div />
           </div>
