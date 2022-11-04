@@ -70,6 +70,11 @@ export function getAccessTokenCookie(ctx?: NextCtx) {
   return getCookie(TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
 }
 
+// Refresh Token
+export function getRefreshTokenCookie(ctx?: NextCtx) {
+  return getCookie(REFRESH_TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
+}
+
 export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
   return setCookie(TOKEN_COOKIE_NAME, accessToken, { ...(ctx || {}) });
 }

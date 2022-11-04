@@ -1,3 +1,4 @@
+import { getRefreshTokenCookie } from "@app/helpers/cookies";
 import {
   ILoginReponse,
   IRegisterDataAPI,
@@ -8,6 +9,12 @@ export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
   return api.post<ILoginReponse>(`/auth/login`, {
     email,
     code,
+  });
+};
+
+export const refreshTokenAPI = () => {
+  return api.post<ILoginReponse>(`/auth/refresh`, {
+    refresh_token: getRefreshTokenCookie(),
   });
 };
 
