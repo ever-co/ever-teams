@@ -3,7 +3,7 @@ import {
   setActiveTeamIdCookie,
 } from "@app/helpers/cookies";
 import {
-  createOrganizationAPI,
+  createOrganizationTeamAPI,
   getOrganizationTeamsAPI,
 } from "@app/services/client/api/organization-team";
 import {
@@ -16,7 +16,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 
 function useCreateOrganizationTeam() {
-  const { loading, queryCall } = useQuery(createOrganizationAPI);
+  const { loading, queryCall } = useQuery(createOrganizationTeamAPI);
   const [teams, setTeams] = useRecoilState(organizationTeamsState);
   const teamsRef = useRef(teams);
   const setActiveTeamId = useSetRecoilState(activeTeamIdState);
