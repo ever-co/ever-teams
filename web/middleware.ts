@@ -5,26 +5,28 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   TOKEN_COOKIE_NAME,
 } from "@app/constants";
+import { cookiesKeys } from "@app/helpers/cookies";
 import { currentAuthenticatedUserRequest } from "@app/services/server/requests/auth";
 import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const config = {
-  matcher: ["/", "/main"],
+  matcher: ["/", "/main", "/passcode"],
 };
 
 export async function middleware(request: NextRequest) {
   // Setting cookies on the response
   let response = NextResponse.next();
-  const access_token = request.cookies.get(TOKEN_COOKIE_NAME);
-  const refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME);
+  const access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.trim();
+  const refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.trim();
 
   const url = new URL(request.url);
 
   const deny_redirect = () => {
-    response = NextResponse.redirect(url.origin + DEFAULT_APP_PATH);
-    response.cookies.delete(TOKEN_COOKIE_NAME);
-    response.cookies.delete(REFRESH_TOKEN_COOKIE_NAME);
+    response = NextResponse.redirect(url.origin + DEFAULT_APP_PATH, {});
+    cookiesKeys().forEach((key) => {
+      response.cookies.set(key, "");
+    });
   };
 
   const protected_path = PROTECTED_APP_URL_PATHS.includes(url.pathname);
@@ -36,7 +38,8 @@ export async function middleware(request: NextRequest) {
     const res = await currentAuthenticatedUserRequest(access_token!).catch(
       console.error
     );
-    if (!res) {
+
+    if (!res || res.response.status !== 200) {
       deny_redirect();
     } else {
       response.headers.set("x-user", JSON.stringify(res.data));
