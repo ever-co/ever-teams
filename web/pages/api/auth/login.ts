@@ -79,7 +79,7 @@ export default async function handler(
       },
       teamId: team.id,
       tenantId,
-      organizationId: organization.id,
+      organizationId: organization.organizationId,
     },
     req,
     res

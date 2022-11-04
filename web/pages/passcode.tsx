@@ -106,6 +106,7 @@ const Passcode = () => {
               tracking-wide text-white dark:text-primary transition-colors 
               duration-200 transform bg-primary dark:bg-white rounded-[12px]
               hover:text-opacity-90 focus:outline-none inline-flex justify-center items-center"
+              disabled={loading}
               type="submit"
             >
               {loading && (
