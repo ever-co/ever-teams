@@ -30,7 +30,7 @@ interface ITask {
   assignees: IUser[];
   status: TaskStatus;
 }
-const tasks: ITask[] = [
+export const tasks: ITask[] = [
   {
     id: 1,
     name: "API Integration",
@@ -74,7 +74,7 @@ const tasks: ITask[] = [
   },
 ];
 
-const StatusIcon = ({ taskStatus }: IStatusIcon) => {
+export const StatusIcon = ({ taskStatus }: IStatusIcon) => {
   switch (taskStatus) {
     case TaskStatus.IN_PROGRESS:
       return (
