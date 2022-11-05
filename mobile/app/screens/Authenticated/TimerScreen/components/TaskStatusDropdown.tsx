@@ -1,5 +1,6 @@
 import React from "react"
 import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
 
 const TaskStatusDropdown = () => {
   const [isOpened, setIsOpened] = React.useState(false)
@@ -25,34 +26,24 @@ const TaskStatusDropdown = () => {
       {isOpened ? (
         <View style={styles.dropdownContainer}>
           <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("No Status")}>
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/no-status.png")}
-            />
-            <Text style={[styles.dropdownItemTxt, { color: "gray" }]}>No Status</Text>
+            <Entypo name="circle" size={14} color="gray" />
+            <Text style={[styles.dropdownItemTxt, { color: "gray", marginLeft: 5 }]}>
+              No Status
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.dropdownItem}
             onPress={() => OnItemPressed("In progress")}
           >
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/in-progress.png")}
-            />
+            <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
             <Text style={styles.dropdownItemTxt}>In progress</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("In review")}>
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/in-review.png")}
-            />
+            <AntDesign name="search1" size={14} color="#1B005D" />
             <Text style={styles.dropdownItemTxt}>In review</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("Completed")}>
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/complete-task.png")}
-            />
+            <AntDesign name="checkcircleo" size={14} color="green" />
             <Text style={[styles.dropdownItemTxt, { color: "green" }]}>Completed</Text>
           </TouchableOpacity>
         </View>
@@ -90,6 +81,7 @@ const styles = StyleSheet.create({
   },
   dropdownItemTxt: {
     color: "#1B005D",
+    marginLeft: 5,
   },
   iconStyle: {
     width: 12,
