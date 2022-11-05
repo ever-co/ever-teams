@@ -1,8 +1,8 @@
 import { IMembers, IStartSection } from "../../app/interfaces/hooks";
 import Image from "next/image";
 import Separator from "../common/separator";
-import { PauseIcon } from "../common/main/pauseIcon";
-import { PlayIcon } from "../common/main/playIcon";
+// import { PauseIcon } from "../common/main/pauseIcon";
+// import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from "@components/common/main/dropdown-user";
 import { TimeInput } from "@components/common/main/time-input";
 import { useState } from "react";
@@ -27,9 +27,12 @@ const Card = ({
 ICardProps) => {
   const [nameEdit, setNameEdit] = useState(false);
   const [taskEdit, setTaskEdit] = useState(false);
+  const [estimateEdit, setEstimateEdit] = useState(false);
   const [formValues, setFormValues] = useState({
     devName: name,
     devTask: task,
+    estimateHours: estimate.hours,
+    estimateMinutes: estimate.minutes,
   });
 
   const handleChange = (e: any) => {
@@ -43,6 +46,10 @@ ICardProps) => {
 
   const handleTaskEdit = (e: any) => {
     setTaskEdit(false);
+  };
+
+  const handleEstimate = () => {
+    setEstimateEdit(true);
   };
 
   const handeEditBoth = () => {
@@ -153,19 +160,37 @@ ICardProps) => {
           <div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
             <div>Estimate :</div>
             <TimeInput
-              value={estimate.hours + "h"}
+              value={formValues.estimateHours + "h"}
               type="string"
               placeholder="Hours"
-              handleChange={() => {}}
-              style="w-[30px]"
+              name="hours"
+              handleChange={handleChange}
+              handleDoubleClick={handleEstimate}
+              handleEnter={() => {
+                setEstimateEdit(false);
+              }}
+              style={`w-[30px] ${
+                estimateEdit === true
+                  ? "bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
+                  : "bg-transparent"
+              } `}
             />
             /
             <TimeInput
-              value={estimate.minutes + "m"}
+              value={formValues.estimateMinutes + "m"}
               type="string"
               placeholder="Minutes"
-              handleChange={() => {}}
-              style="w-[30px]"
+              name="estimateMinutes"
+              handleChange={handleChange}
+              handleDoubleClick={handleEstimate}
+              handleEnter={() => {
+                setEstimateEdit(false);
+              }}
+              style={`w-[30px] ${
+                estimateEdit === true
+                  ? "bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
+                  : "bg-transparent"
+              } `}
             />
           </div>
         </div>
@@ -174,7 +199,10 @@ ICardProps) => {
       <div className="w-[184px]  flex items-center">
         <div className="w-[177px] text-center text-"> {total}</div>
         <div className="mr-[20px]">
-          <DropdownUser setEdit={handeEditBoth} />
+          <DropdownUser
+            setEdit={handeEditBoth}
+            setEstimateEdit={handleEstimate}
+          />
         </div>
       </div>
     </div>
