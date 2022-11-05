@@ -27,7 +27,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
             value=""
             handleChange={() => {}}
             placeholder="Hours"
-            style="mx-5 w-[50px]"
+            style="mx-5 w-[50px] bg-transparent"
           />{" "}
           /{" "}
           <TimeInput
@@ -35,7 +35,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
             value=""
             handleChange={() => {}}
             placeholder="Minutes"
-            style="mx-5 w-[50px]"
+            style="mx-5 w-[50px] bg-transparent"
           />
           <StatusDropdown />
         </div>

@@ -9,9 +9,10 @@ interface IOption {
 
 interface IDropdownUserProps {
   setEdit: Dispatch<SetStateAction<boolean>>;
+  setEstimateEdit: Dispatch<SetStateAction<boolean>>;
 }
 
-const DropdownUser = ({ setEdit }: IDropdownUserProps) => {
+const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
   const options: IOption[] = [
     {
       name: "Edit",
@@ -19,7 +20,7 @@ const DropdownUser = ({ setEdit }: IDropdownUserProps) => {
     },
     {
       name: "Estimate",
-      handleClick: () => {},
+      handleClick: setEstimateEdit,
     },
     {
       name: "Assign new task",

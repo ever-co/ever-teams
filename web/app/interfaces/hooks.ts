@@ -111,4 +111,7 @@ export interface ITimeInputProps {
   value: string;
   type: string;
   style: string;
+  name: string;
+  handleDoubleClick: any;
+  handleEnter: any;
 }
