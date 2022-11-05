@@ -59,7 +59,7 @@ const propsMap: { [key: string]: InputProps } = {
   },
 };
 
-const AuthCode = forwardRef<AuthCodeRef, AuthCodeProps>(
+const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
   (
     {
       allowedCharacters = "alphanumeric",
@@ -217,4 +217,6 @@ const AuthCode = forwardRef<AuthCodeRef, AuthCodeProps>(
   }
 );
 
-export default AuthCode;
+AuthCodeInput.displayName = "AuthCodeInput";
+
+export default AuthCodeInput;
