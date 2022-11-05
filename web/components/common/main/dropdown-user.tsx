@@ -18,8 +18,12 @@ interface IDropdownUserProps {
 }
 
 const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
-  let [referenceElement, setReferenceElement] = useState();
-  let [popperElement, setPopperElement] = useState();
+  let [referenceElement, setReferenceElement] = useState<
+    Element | null | undefined
+  >();
+  let [popperElement, setPopperElement] = useState<
+    HTMLElement | null | undefined
+  >();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   let { styles, attributes } = usePopper(referenceElement, popperElement, {
