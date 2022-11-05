@@ -160,24 +160,25 @@ ICardProps) => {
           <div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
             <div>Estimate :</div>
             <TimeInput
-              value={formValues.estimateHours + "h"}
+              value={"" + formValues.estimateHours}
               type="string"
               placeholder="Hours"
-              name="hours"
+              name="estimateHours"
               handleChange={handleChange}
               handleDoubleClick={handleEstimate}
               handleEnter={() => {
                 setEstimateEdit(false);
               }}
-              style={`w-[30px] ${
+              style={`${
                 estimateEdit === true
-                  ? "bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
-                  : "bg-transparent"
+                  ? " w-[30px] bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
+                  : "bg-transparent w-[20px]"
               } `}
+              disabled={!estimateEdit}
             />
-            /
+            h /
             <TimeInput
-              value={formValues.estimateMinutes + "m"}
+              value={"" + formValues.estimateMinutes}
               type="string"
               placeholder="Minutes"
               name="estimateMinutes"
@@ -186,12 +187,14 @@ ICardProps) => {
               handleEnter={() => {
                 setEstimateEdit(false);
               }}
-              style={`w-[30px] ${
+              style={` ${
                 estimateEdit === true
-                  ? "bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
-                  : "bg-transparent"
+                  ? " w-[30px] bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
+                  : "bg-transparent w-[20px]"
               } `}
+              disabled={!estimateEdit}
             />
+            m
           </div>
         </div>
       </div>

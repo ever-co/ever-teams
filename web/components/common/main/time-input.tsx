@@ -9,6 +9,7 @@ export const TimeInput = ({
   name,
   handleDoubleClick,
   handleEnter,
+  disabled,
 }: ITimeInputProps) => {
   return (
     <input
@@ -24,6 +25,7 @@ export const TimeInput = ({
           handleEnter(this);
         }
       }}
+      disabled={disabled}
     />
   );
 };
