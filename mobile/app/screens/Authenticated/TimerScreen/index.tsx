@@ -56,7 +56,6 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
             flex: 1,
             backgroundColor: colors.palette.neutral200,
             paddingHorizontal: 20,
-            justifyContent: "center",
           }}
         >
           <NewTimerCard />
