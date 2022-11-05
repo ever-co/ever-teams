@@ -114,5 +114,5 @@ export interface ITimeInputProps {
   name?: string;
   handleDoubleClick?: any;
   handleEnter?: any;
-  disabled: boolean;
+  disabled?: boolean;
 }
