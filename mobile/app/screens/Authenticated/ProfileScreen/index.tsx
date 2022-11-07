@@ -4,7 +4,7 @@ import { Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 // DATA
-import { data, team } from "../TeamScreen/data"
+import { tasks, teams } from "../TeamScreen/data"
 
 // COMPONENTS
 import { ListItem, Screen, Text } from "../../../components"
@@ -26,7 +26,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
         <ProfileHeader />
         <View style={$wrapComboboxes}>
           <View style={{ flex: 2, alignItems: "flex-start" }}>
-            <DropDown teams={data} onCreateTeam={() => {}} />
+            <DropDown teams={teams} onCreateTeam={() => {}} />
           </View>
           <View style={{ width: "30%", justifyContent: "center" }}>
             <FilterSection />
@@ -51,7 +51,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
               </View>
             </View>
-            <ListCardItem item={team[0] as any} enableEstimate={false} />
+            <ListCardItem item={tasks[0] as any} enableEstimate={false} />
           </View>
           <View>
             <View
@@ -63,7 +63,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
               </View>
             </View>
-            {team.map((item, index) => (
+            {tasks.map((item, index) => (
               <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
             ))}
           </View>
