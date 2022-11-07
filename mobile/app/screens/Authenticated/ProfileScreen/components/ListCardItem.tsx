@@ -56,7 +56,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
               />
             </View>
           ) : (
-            <View style={{ marginLeft: "auto", marginRight: 10, marginBottom:10 }}>
+            <View style={{ marginLeft: "auto", marginRight: 10, marginBottom: 10 }}>
               <ProgressTimeIndicator
                 estimated={item.estimate}
                 estimatedHours={50}
@@ -72,8 +72,8 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
             <Text style={styles.timeHeading}>Worked time</Text>
             <Text style={styles.timeNumber}>{item.currentTime}</Text>
           </View>
-          <View style={{ width:150}}>
-           <TaskStatusDropdown />
+          <View style={{ width: 150 }}>
+            <TaskStatusDropdown/>
           </View>
         </View>
       </View>
@@ -166,7 +166,7 @@ const $listCard: ViewStyle = {
   ...GS.rounded,
   ...GS.noBorder,
   ...GS.shadow,
-  borderWidth:1,
+  borderWidth: 1,
   minHeight: null,
 }
 

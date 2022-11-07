@@ -22,30 +22,51 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
   function AuthenticatedProfileScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        {/* <View style={{height:'30%', backgroundColor:'red'}}> */}
-          <HomeHeader />
-        {/* </View> */}
+        <HomeHeader />
         <ProfileHeader />
-        <View
-          style={{
-            width: "100%",
-            flexDirection: "row",
-            paddingBottom: 10,
-            backgroundColor:colors.palette.neutral200,
-            justifyContent: "space-between",
-          }}
-        >
-          <View style={{ flex: 1, justifyContent: "center" }}>
+        <View style={$wrapComboboxes}>
+          <View style={{ flex: 2, alignItems: "flex-start" }}>
             <DropDown teams={data} onCreateTeam={() => {}} />
           </View>
-          <View style={{ flex: 1, justifyContent: "center" }}>
+          <View style={{ width: "30%", justifyContent: "center" }}>
             <FilterSection />
           </View>
         </View>
-        <ScrollView style={{ padding: 10, backgroundColor:colors.palette.neutral200 }}>
-          {team.map((item, index) => (
-            <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
-          ))}
+        <ScrollView
+          style={{
+            flex: 1,
+            zIndex: 999,
+            paddingHorizontal: 10,
+            paddingBottom: 50,
+            backgroundColor: colors.palette.neutral200,
+          }}
+        >
+          <View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 15 }}
+            >
+              <Text style={$textLabel}>Now</Text>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ color: "gray" }}>Total Time:</Text>
+                <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
+              </View>
+            </View>
+            <ListCardItem item={team[0] as any} enableEstimate={false} />
+          </View>
+          <View>
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 15 }}
+            >
+              <Text style={$textLabel}>Last 24 hours</Text>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ color: "gray" }}>Total Time:</Text>
+                <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
+              </View>
+            </View>
+            {team.map((item, index) => (
+              <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
+            ))}
+          </View>
         </ScrollView>
       </Screen>
     )
@@ -66,4 +87,19 @@ const $userProfile: ImageStyle = {
   backgroundColor: colors.background,
   width: spacing.huge * 2,
   height: spacing.huge * 2,
+}
+
+const $textLabel: TextStyle = {
+  color: colors.primary,
+  fontWeight: "700",
+}
+
+const $wrapComboboxes: ViewStyle = {
+  zIndex: 1000,
+  width: "100%",
+  flexDirection: "row",
+  paddingBottom: 10,
+  paddingHorizontal: 10,
+  backgroundColor: colors.palette.neutral200,
+  justifyContent: "space-between",
 }

@@ -1,8 +1,11 @@
 import React, { FC } from "react"
-import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
 import { colors } from "../../../../theme"
 import DropDown from "../../TeamScreen/components/DropDown"
 import { teamItem } from "../../TeamScreen/components/DropDownSection"
+
+// COMPONENTS
+import { Text } from "../../../../components"
 
 interface Props {
   teams: teamItem[]
@@ -13,7 +16,7 @@ const FilterSection = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.wrapText} onPress={() => setIsOpened(!isOpened)}>
-        <Text>Worked Tasks</Text>
+        <Text>Worked</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
       {isOpened ? (
@@ -41,6 +44,7 @@ const styles = StyleSheet.create({
     padding: 8,
     width: "90%",
     borderRadius: 5,
+    zIndex:1000
   },
   wrapText: {
     flexDirection: "row",
@@ -53,6 +57,7 @@ const styles = StyleSheet.create({
     marginTop: 42,
     elevation: 100,
     borderRadius: 5,
+    zIndex:999
   },
   dropdownItem: {
     paddingVertical: 3,

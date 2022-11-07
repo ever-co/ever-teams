@@ -1,7 +1,10 @@
 import React from "react"
-import { View, StyleSheet, Text, Image } from "react-native"
+import { View, StyleSheet, Image } from "react-native"
 import { colors } from "../../../../theme"
 import { Feather } from "@expo/vector-icons"
+
+// COMPONENTS
+import { Text } from "../../../../components"
 
 type IProfileHeader = {
   image: string
@@ -21,19 +24,7 @@ const ProfileHeader = () => {
           <View style={styles.wrapEditIcon}>
             <Feather name="edit-2" size={10} color="gray" />
           </View>
-          <View
-            style={{
-              backgroundColor: "green",
-              width: 10,
-              height: 10,
-              borderRadius: 5,
-              position: "absolute",
-              right: 10,
-              top: 64,
-              borderWidth: 1,
-              borderColor: "#fff",
-            }}
-          />
+          <View style={styles.onlineIcon} />
         </View>
       </View>
 
@@ -41,13 +32,13 @@ const ProfileHeader = () => {
         <View style={{ flexDirection: "row" }}>
           <Text style={styles.name}>Ruslan Konviser</Text>
           <View style={styles.wrapEditIconSmall}>
-          <Feather name="edit-2" size={8} color="gray" />
+            <Feather name="edit-2" size={8} color="gray" />
           </View>
         </View>
         <View style={{ flexDirection: "row" }}>
           <Text style={styles.email}>Ruslan.k@everiq.com</Text>
-          <View style={[styles.wrapEditIconSmall, { top: 4 }]}>
-          <Feather name="edit-2" size={8} color="gray" />
+          <View style={styles.wrapEditIconSmall}>
+            <Feather name="edit-2" size={8} color="gray" />
           </View>
         </View>
       </View>
@@ -57,8 +48,8 @@ const ProfileHeader = () => {
 
 const styles = StyleSheet.create({
   container: {
-    height:'18%',
-    backgroundColor:colors.palette.neutral200
+    height: "18%",
+    backgroundColor: colors.palette.neutral200,
   },
   firstContainer: {
     backgroundColor: "#1B005D",
@@ -83,7 +74,7 @@ const styles = StyleSheet.create({
     height: 85,
   },
   secondContainer: {
-    marginTop: 48,
+    marginTop: 54,
     alignItems: "center",
   },
   name: {
@@ -112,13 +103,23 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: "center",
     alignItems: "center",
-    top: 10,
     left: 5,
     backgroundColor: "#fff",
     padding: 5,
     borderRadius: 10,
     borderColor: colors.border,
     borderWidth: 1,
+  },
+  onlineIcon: {
+    backgroundColor: "green",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    position: "absolute",
+    right: 9,
+    top: 64,
+    borderWidth: 1,
+    borderColor: "#fff",
   },
 })
 
