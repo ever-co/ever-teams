@@ -30,10 +30,10 @@ const Input = ({
         placeholder={placeholder}
         required={required}
         onChange={onChange}
-        className={`w-full pt-1 text-[18px] ${
+        className={`w-full py-[9px] text-[16px] ${
           centered && "text-center"
         } border-b placeholder:font-light focus:border-b-2 focus:border-[#1B005D]
-         border-[#D7E1EB] bg-white pb-1 
+         border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1 
         font-medium text-primary dark:text-white outline-none dark:bg-transparent`}
       />
     </div>

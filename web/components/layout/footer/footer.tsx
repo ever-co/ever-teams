@@ -2,8 +2,8 @@ import ToggleThemeContainer from "../toggleThemeBtns";
 
 const Footer = () => {
   return (
-    <footer className="py-2 flex flex-row lg:flex-col items-center text-sm text-center sm:text-start justify-between container mx-auto font-light">
-      <div className="text-light flex flex-col sm:flex-row md:flex-start  sm:items-center  text-center md:flex-row">
+    <footer className="py-2 flex flex-col md:flex-row items-center text-sm lg:text-md text-center sm:text-start justify-between container mx-auto font-light">
+      <div className="text-light flex flex-col space-x-1 sm:flex-row md:flex-start  sm:items-center  text-center md:flex-row">
         <div className="flex items-center justify-between sm:justify-start sm:space-x-2 space-x-1">
           <span className="px-1">@ 2019-Present,</span>
           <a
@@ -14,7 +14,7 @@ const Footer = () => {
           >
             Gauzy Teams
           </a>
-          by
+          <div>by</div>
           <a
             href="https://ever.co"
             target="_blank"
