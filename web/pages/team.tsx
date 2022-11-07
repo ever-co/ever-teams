@@ -130,7 +130,7 @@ const Team = () => {
               >
                 {loading && (
                   <span>
-                    <Spinner dark={true} />
+                    <Spinner />
                   </span>
                 )}{" "}
                 <span>{step === FIRST_STEP ? "Continue" : "Create Team"}</span>
@@ -143,71 +143,6 @@ const Team = () => {
         <Footer />
       </div>
     </div>
-    // <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-[#18181B]">
-    // <div className="flex h-screen justify-between dark:bg-[#18181B] bg-red-500">
-    //
-    //   <div
-    //     className="w-[486px] py-[50px] px-[10px] sm:px-[70px] mx-auto rounded-[40px] drop-shadow-[0px_3px_50px_#3E1DAD0D] dark:drop-shadow-[0px_3px_50px_#FFFFF]  bg-white
-    //    dark:bg-[#202023] dark:bg-opacity-30"
-    //   >
-    //     <div className="flex justify-center w-full">
-    //       <TeamLogo />
-    //     </div>
-    //     <div className="flex justify-center text-[#ACB3BB] font-light text-center text-[18px] w-full mt-[10px]">
-    //       Visibility for your Team
-    //     </div>
-    //     <div className="text-[24px]  mt-[30px] font-bold text-primary dark:text-white">
-    //       Create new Team
-    //     </div>
-    //     <form onSubmit={handleSubmit} method="post">
-    //       {step === FIRST_STEP && (
-    //         <FirstStep
-    //           errors={errors}
-    //           handleOnChange={handleOnChange}
-    //           values={formValues}
-    //         />
-    //       )}
-    //       <SecondStep
-    //         errors={errors}
-    //         showForm={step === SECOND_STEP}
-    //         handleOnChange={handleOnChange}
-    //         values={formValues}
-    //       />
-    //       <div className="mt-[40px] flex justify-between items-center">
-    //         <div className="w-1/2 justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
-    //           {step === FIRST_STEP && (
-    //             <Link href={"/passcode"}>Joining existed Team?</Link>
-    //           )}
-
-    //           {step === SECOND_STEP && (
-    //             <ArrowLeftIcon
-    //               className="h-[30px] dark:text-white text-[#0200074D] hover:text-primary cursor-pointer"
-    //               aria-hidden="true"
-    //               onClick={() => {
-    //                 setStep(FIRST_STEP);
-    //               }}
-    //             />
-    //           )}
-    //         </div>
-    //         <button
-    //           disabled={loading}
-    //           className={`w-1/2 h-[50px] ${
-    //             loading ? "opacity-50" : ""
-    //           } my-4 inline-flex justify-center items-center tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[10px] hover:text-opacity-90 focus:outline-none`}
-    //           type="submit"
-    //         >
-    //           {loading && (
-    //             <span>
-    //               <Spinner dark={true} />
-    //             </span>
-    //           )}{" "}
-    //           <span>{step === FIRST_STEP ? "Continue" : "Create Team"}</span>
-    //         </button>
-    //       </div>
-    //     </form>
-    //   </div>
-    //   <Footer />
-    // </div>
   );
 };
 
