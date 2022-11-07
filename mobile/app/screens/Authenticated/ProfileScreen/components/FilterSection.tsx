@@ -37,7 +37,7 @@ export default FilterSection
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.palette.neutral200,
+    backgroundColor: "#E8EBF8",
     padding: 8,
     width: "90%",
     borderRadius: 5,

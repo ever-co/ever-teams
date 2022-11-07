@@ -57,10 +57,9 @@ export default TaskStatusDropdown
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#EEEFF5",
-    marginVertical: 30,
     padding: 8,
     borderRadius: 5,
-    width: "50%",
+    width: "100%",
     zIndex: 1,
   },
   dropdownContainer: {

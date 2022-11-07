@@ -1,6 +1,7 @@
 import React from "react"
 import { View, StyleSheet, Text, Image } from "react-native"
 import { colors } from "../../../../theme"
+import { Feather } from "@expo/vector-icons"
 
 type IProfileHeader = {
   image: string
@@ -18,8 +19,21 @@ const ProfileHeader = () => {
             style={styles.profileImage}
           />
           <View style={styles.wrapEditIcon}>
-            <Image source={require("../../../../../assets/icons/pencil.png")} />
+            <Feather name="edit-2" size={10} color="gray" />
           </View>
+          <View
+            style={{
+              backgroundColor: "green",
+              width: 10,
+              height: 10,
+              borderRadius: 5,
+              position: "absolute",
+              right: 10,
+              top: 64,
+              borderWidth: 1,
+              borderColor: "#fff",
+            }}
+          />
         </View>
       </View>
 
@@ -27,19 +41,13 @@ const ProfileHeader = () => {
         <View style={{ flexDirection: "row" }}>
           <Text style={styles.name}>Ruslan Konviser</Text>
           <View style={styles.wrapEditIconSmall}>
-            <Image
-              style={{ width: 10, height: 10 }}
-              source={require("../../../../../assets/icons/pencil.png")}
-            />
+          <Feather name="edit-2" size={8} color="gray" />
           </View>
         </View>
         <View style={{ flexDirection: "row" }}>
           <Text style={styles.email}>Ruslan.k@everiq.com</Text>
           <View style={[styles.wrapEditIconSmall, { top: 4 }]}>
-            <Image
-              style={{ width: 10, height: 10 }}
-              source={require("../../../../../assets/icons/pencil.png")}
-            />
+          <Feather name="edit-2" size={8} color="gray" />
           </View>
         </View>
       </View>
@@ -49,34 +57,33 @@ const ProfileHeader = () => {
 
 const styles = StyleSheet.create({
   container: {
-    height:'45%'
+    height:'18%',
+    backgroundColor:colors.palette.neutral200
   },
   firstContainer: {
     backgroundColor: "#1B005D",
     alignItems: "center",
-    height: "35%",
-  },
-  profile: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
+    height: "10%",
   },
   profileImage: {
     borderRadius: 200,
     padding: 0,
-    width: "100%",
-    top: "-15%",
+    right: 18,
+    width: 120,
+    height: 120,
+    top: "-20%",
   },
   pictureContainer: {
     position: "absolute",
-    top: "30%",
+    bottom: "auto",
+    top: -20,
     backgroundColor: "#fff",
-    borderRadius: 5000,
-    width: 150,
-    height: 150,
+    borderRadius: 75,
+    width: 84,
+    height: 85,
   },
   secondContainer: {
-    marginTop: 120,
+    marginTop: 48,
     alignItems: "center",
   },
   name: {
@@ -90,13 +97,13 @@ const styles = StyleSheet.create({
   },
   wrapEditIcon: {
     position: "absolute",
-    width: 30,
-    height: 30,
-    right: 20,
+    width: 22,
+    height: 22,
+    right: 2,
     top: 5,
     backgroundColor: "#fff",
     padding: 5,
-    borderRadius: 15,
+    borderRadius: 12,
     borderColor: colors.border,
     borderWidth: 1,
   },

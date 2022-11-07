@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { Image, ImageStyle, TextStyle, View, ViewStyle } from "react-native"
+import { Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -16,17 +16,22 @@ import HomeHeader from "../TeamScreen/components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
 import DropDown from "../TeamScreen/components/DropDown"
 import FilterSection from "./components/FilterSection"
+import ListCardItem from "./components/ListCardItem"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
   function AuthenticatedProfileScreen(_props) {
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <HomeHeader />
+        {/* <View style={{height:'30%', backgroundColor:'red'}}> */}
+          <HomeHeader />
+        {/* </View> */}
         <ProfileHeader />
         <View
           style={{
             width: "100%",
             flexDirection: "row",
+            paddingBottom: 10,
+            backgroundColor:colors.palette.neutral200,
             justifyContent: "space-between",
           }}
         >
@@ -37,6 +42,11 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             <FilterSection />
           </View>
         </View>
+        <ScrollView style={{ padding: 10, backgroundColor:colors.palette.neutral200 }}>
+          {team.map((item, index) => (
+            <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
+          ))}
+        </ScrollView>
       </Screen>
     )
   }
