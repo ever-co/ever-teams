@@ -75,10 +75,11 @@ const Team = () => {
   );
 
   return (
-    <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-[#18181B]">
+    // <div className="flex flex-col h-screen justify-between bg-main_background dark:bg-[#18181B]">
+    <div className="flex flex-col h-screen justify-between dark:bg-[#18181B]">
       <div />
-      <div
-        className="w-[486px] py-[50px] px-[70px] mx-auto rounded-[40px] drop-shadow-[0px_3px_50px_#3E1DAD0D] dark:drop-shadow-[0px_3px_50px_#FFFFF]  bg-white
+      {/* <div
+        className="w-[486px] py-[50px] px-[10px] sm:px-[70px] mx-auto rounded-[40px] drop-shadow-[0px_3px_50px_#3E1DAD0D] dark:drop-shadow-[0px_3px_50px_#FFFFF]  bg-white
        dark:bg-[#202023] dark:bg-opacity-30"
       >
         <div className="flex justify-center w-full">
@@ -136,7 +137,7 @@ const Team = () => {
             </button>
           </div>
         </form>
-      </div>
+      </div> */}
       <Footer />
     </div>
   );
