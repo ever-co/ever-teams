@@ -8,9 +8,11 @@ import { colors, spacing } from "../../../../theme"
 type IIndividualTask = {
   text: string
   status: "Completed" | "Unassigned" | "In progress" | "In Review"
+  image1?: any
+  image2?: any
 }
 
-const IndividualTask = ({ text, status }: IIndividualTask) => {
+const IndividualTask = ({ text, status, image1, image2 }: IIndividualTask) => {
   return (
     <View style={styles.container}>
       <Text style={{ color: "#1B005D", fontSize: 10 }}>{text}</Text>
@@ -66,14 +68,8 @@ const IndividualTask = ({ text, status }: IIndividualTask) => {
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={{ flexDirection: "row" }}>
-            <Image
-              source={require("../../../../../assets/images/Ruslan.png")}
-              style={$usersProfileOne}
-            />
-            <Image
-              source={require("../../../../../assets/images/Ruslan.png")}
-              style={$usersProfile}
-            />
+            <Image source={image1} style={$usersProfileOne} />
+            <Image source={image2} style={$usersProfile} />
           </View>
           <Entypo name="cross" size={15} color="#8F97A1" />
         </View>
@@ -85,11 +81,12 @@ const IndividualTask = ({ text, status }: IIndividualTask) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginBottom: 4,
+    marginBottom: 10,
     alignItems: "center",
     borderBottomColor: "#8F97A1",
     borderBottomWidth: 1,
     justifyContent: "space-between",
+    paddingBottom: 5,
   },
   statusDisplay: {
     flexDirection: "row",
@@ -152,17 +149,17 @@ const $usersProfile: ImageStyle = {
   ...GS.roundedFull,
   backgroundColor: colors.background,
   width: spacing.extraLarge - spacing.tiny,
-  height: spacing.huge - spacing.tiny,
+  height: spacing.extraLarge - spacing.tiny,
 }
 
 const $usersProfileOne: ImageStyle = {
   ...GS.roundedFull,
   backgroundColor: colors.background,
   width: spacing.extraLarge - spacing.tiny,
-  height: spacing.huge - spacing.tiny,
+  height: spacing.extraLarge - spacing.tiny,
   zIndex: 7,
   position: "relative",
-  left: "25%",
+  left: "50%",
 }
 
 export default IndividualTask

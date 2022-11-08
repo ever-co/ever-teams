@@ -10,10 +10,25 @@ const ComboBox = () => {
         <TaskDisplayBox text="32 Open" openTask />
         <TaskDisplayBox text="25 Closed" openTask={false} />
       </View>
-      <IndividualTask text="API Integration" status="Completed" />
+      <IndividualTask
+        text="API Integration"
+        status="Completed"
+        image1={require("../../../../../assets/images/person1.png")}
+        image2={require("../../../../../assets/images/Konstantin.png")}
+      />
       <IndividualTask text="Design Profile Screen" status="Unassigned" />
-      <IndividualTask text="Improve Main Page Design" status="In progress" />
-      <IndividualTask text="Deploy App" status="In Review" />
+      <IndividualTask
+        text="Improve Main Page Design"
+        status="In progress"
+        image1={require("../../../../../assets/images/person2.png")}
+        image2={require("../../../../../assets/images/person1.png")}
+      />
+      <IndividualTask
+        text="Deploy App"
+        status="In Review"
+        image1={require("../../../../../assets/images/Konstantin.png")}
+        image2={require("../../../../../assets/images/person2.png")}
+      />
     </View>
   )
 }
