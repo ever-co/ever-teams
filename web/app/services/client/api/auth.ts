@@ -25,7 +25,3 @@ export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 export const getAuthenticatedUserDataAPI = () => {
   return api.get<Pick<ILoginReponse, "user">>(`/user/me`);
 };
-=======
-export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
-  return api.post<ILoginReponse>("/auth/register", data);
-};
