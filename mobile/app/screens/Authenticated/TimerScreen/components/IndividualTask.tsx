@@ -8,12 +8,15 @@ import DeletePopUp from "./DeletePopUp"
 
 type IIndividualTask = {
   text: string
-  status: "Completed" | "Unassigned" | "In progress" | "In Review"
+  //   status: "Completed" | "Unassigned" | "In progress" | "In Review"
+  status: string
   image1?: any
   image2?: any
+  index?: number
+  removeUser: any
 }
 
-const IndividualTask = ({ text, status, image1, image2 }: IIndividualTask) => {
+const IndividualTask = ({ text, status, image1, image2, index, removeUser }: IIndividualTask) => {
   const [showDel, setShowDel] = useState(false)
 
   return (
@@ -75,7 +78,7 @@ const IndividualTask = ({ text, status, image1, image2 }: IIndividualTask) => {
             <Image source={image2} style={$usersProfile} />
           </View>
           <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />
-          {showDel && <DeletePopUp />}
+          {showDel && <DeletePopUp index={index} removeUser={removeUser} setShowDel={setShowDel} />}
         </View>
       </View>
     </View>

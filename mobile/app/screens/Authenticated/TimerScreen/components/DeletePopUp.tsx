@@ -1,11 +1,32 @@
 import React from "react"
 import { StyleSheet, Text, TouchableOpacity } from "react-native"
 
-const DeletePopUp = () => {
+type IDeletePopUp = {
+  index: number
+  removeUser: any
+  setShowDel: any
+}
+
+const DeletePopUp = ({ index, removeUser, setShowDel }: IDeletePopUp) => {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container}>
-      <Text style={{ fontWeight: "bold", color: "#1B005D", fontSize: 8 }}>Confirm</Text>
-      <Text style={{ color: "#1B005D", fontSize: 8 }}>Cancel</Text>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => {
+          removeUser(index)
+          setShowDel(false)
+        }}
+      >
+        <Text style={{ fontWeight: "bold", color: "#1B005D", fontSize: 8 }}>Confirm</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => {
+          setShowDel(false)
+        }}
+      >
+        <Text style={{ color: "#1B005D", fontSize: 8 }}>Cancel</Text>
+      </TouchableOpacity>
     </TouchableOpacity>
   )
 }

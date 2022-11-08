@@ -1,34 +1,52 @@
-import React from "react"
+import React, { useState } from "react"
 import { View, StyleSheet } from "react-native"
 import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
 
 const ComboBox = () => {
+  const [users, setUsers] = useState([
+    {
+      text: "API Integration",
+      status: "Completed",
+      image1: require("../../../../../assets/images/person1.png"),
+      image2: require("../../../../../assets/images/Konstantin.png"),
+      index: 0,
+    },
+    {
+      text: "Design Profile Screen",
+      status: "Unassigned",
+      index: 1,
+    },
+    {
+      text: "Improve Main Page Design",
+      status: "In progress",
+      image1: require("../../../../../assets/images/person2.png"),
+      image2: require("../../../../../assets/images/person1.png"),
+      index: 2,
+    },
+    {
+      text: "Deploy App",
+      status: "In Review",
+      image1: require("../../../../../assets/images/Konstantin.png"),
+      image2: require("../../../../../assets/images/person2.png"),
+      index: 3,
+    },
+  ])
+
+  const removeUser = (index) => {
+    let newUser = users.filter((user) => user.index !== index)
+    setUsers(newUser)
+  }
+
   return (
     <View style={styles.mainContainer}>
       <View style={{ flexDirection: "row", marginBottom: 10 }}>
         <TaskDisplayBox text="32 Open" openTask />
         <TaskDisplayBox text="25 Closed" openTask={false} />
       </View>
-      <IndividualTask
-        text="API Integration"
-        status="Completed"
-        image1={require("../../../../../assets/images/person1.png")}
-        image2={require("../../../../../assets/images/Konstantin.png")}
-      />
-      <IndividualTask text="Design Profile Screen" status="Unassigned" />
-      <IndividualTask
-        text="Improve Main Page Design"
-        status="In progress"
-        image1={require("../../../../../assets/images/person2.png")}
-        image2={require("../../../../../assets/images/person1.png")}
-      />
-      <IndividualTask
-        text="Deploy App"
-        status="In Review"
-        image1={require("../../../../../assets/images/Konstantin.png")}
-        image2={require("../../../../../assets/images/person2.png")}
-      />
+      {users.map((user, i) => (
+        <IndividualTask key={i} {...user} removeUser={removeUser} />
+      ))}
     </View>
   )
 }
