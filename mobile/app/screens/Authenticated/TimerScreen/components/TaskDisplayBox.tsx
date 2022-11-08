@@ -26,9 +26,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     backgroundColor: "#F0ECFD",
-    width: 90,
-    height: 35,
-    borderRadius: 10,
+    width: 80,
+    height: 25,
+    borderRadius: 6,
     alignItems: "center",
     justifyContent: "space-around",
     marginRight: 10,
@@ -36,9 +36,11 @@ const styles = StyleSheet.create({
   openTask: {
     fontWeight: "bold",
     color: "#1B005D",
+    fontSize: 11,
   },
   closedTask: {
     color: "#ACB3BB",
+    fontSize: 11,
   },
 })
 
