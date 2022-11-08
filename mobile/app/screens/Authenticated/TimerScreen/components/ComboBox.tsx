@@ -1,5 +1,5 @@
 import React from "react"
-import { View, StyleSheet, TextInput, Text } from "react-native"
+import { View, StyleSheet } from "react-native"
 import TaskDisplayBox from "./TaskDisplayBox"
 
 const ComboBox = () => {
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     borderColor: "#1B005D0D",
-    borderWidth: 2,
+    borderWidth: 1,
     marginHorizontal: 5,
     shadowColor: "#1B005D",
     shadowOffset: { width: 5, height: 5 },
