@@ -1,14 +1,19 @@
 import React from "react"
 import { View, StyleSheet } from "react-native"
+import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
 
 const ComboBox = () => {
   return (
     <View style={styles.mainContainer}>
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "row", marginBottom: 10 }}>
         <TaskDisplayBox text="32 Open" openTask />
         <TaskDisplayBox text="25 Closed" openTask={false} />
       </View>
+      <IndividualTask text="API Integration" status="Completed" />
+      <IndividualTask text="Design Profile Screen" status="Unassigned" />
+      <IndividualTask text="Improve Main Page Design" status="In progress" />
+      <IndividualTask text="Deploy App" status="In Review" />
     </View>
   )
 }
