@@ -28,7 +28,9 @@ export default async function handler(
 
   const { data } = await refreshTokenRequest(refresh_token);
 
-  const { data: user } = await currentAuthenticatedUserRequest(data.token);
+  const { data: user } = await currentAuthenticatedUserRequest({
+    bearer_token: data.token,
+  });
 
   setAccessTokenCookie(data.token, { res, req });
 
