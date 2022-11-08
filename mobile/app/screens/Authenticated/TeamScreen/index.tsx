@@ -24,7 +24,6 @@ import DropDown from "./components/DropDown"
 import { teams, tasks } from "./data"
 import CreateTeamModal from "./components/CreateTeamModal"
 
-
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
     // STATES
@@ -33,18 +32,25 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
     const [showInviteModal, setShowInviteModal] = React.useState(false)
     const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
-  
+    const { navigation } = _props
+
+    function goToProfile() {
+      navigation.navigate("Profile")
+    }
 
     return (
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
-        <CreateTeamModal visible={showCreateTeamModal} onDismiss={()=>setShowCreateTeamModal(false)} />
+        <CreateTeamModal
+          visible={showCreateTeamModal}
+          onDismiss={() => setShowCreateTeamModal(false)}
+        />
         <NewTeamModal
           visible={showCreateTeamModal}
           onDismiss={() => setShowCreateTeamModal(false)}
         />
         <HomeHeader />
-        <DropDown teams={teams} onCreateTeam={()=>setShowCreateTeamModal(true)} />
+        <DropDown teams={teams} onCreateTeam={() => setShowCreateTeamModal(true)} />
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={$cardContainer}>
             {/* Users activity list */}
@@ -54,7 +60,12 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
               style={{ ...GS.my2 }}
             >
               {tasks.map((item, index) => (
-                <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
+                <ListCardItem
+                  key={index.toString()}
+                  item={item as any}
+                  onPressIn={() => goToProfile()}
+                  enableEstimate={false}
+                />
               ))}
 
               {/* Invite btn */}
