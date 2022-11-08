@@ -57,6 +57,10 @@ const NewTimerCard = () => {
         <TaskStatusDropdown />
       </View>
 
+      <View>
+        <TaskStatusDropdown />
+      </View>
+
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>01:10:36:20</Text>

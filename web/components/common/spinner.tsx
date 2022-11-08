@@ -1,4 +1,4 @@
-export function Spinner() {
+export function Spinner({ dark = false }: { dark?: boolean }) {
   return (
     <svg
       className={`animate-spin h-5 w-5 mr-3 text-white dark:text-primary`}
