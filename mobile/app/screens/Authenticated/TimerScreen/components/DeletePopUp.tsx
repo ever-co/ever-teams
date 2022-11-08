@@ -1,12 +1,12 @@
 import React from "react"
-import { View, StyleSheet, Text } from "react-native"
+import { StyleSheet, Text, TouchableOpacity } from "react-native"
 
 const DeletePopUp = () => {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity activeOpacity={0.7} style={styles.container}>
       <Text style={{ fontWeight: "bold", color: "#1B005D", fontSize: 8 }}>Confirm</Text>
       <Text style={{ color: "#1B005D", fontSize: 8 }}>Cancel</Text>
-    </View>
+    </TouchableOpacity>
   )
 }
 

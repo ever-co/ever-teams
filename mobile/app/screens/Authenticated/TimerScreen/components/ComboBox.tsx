@@ -47,6 +47,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
+    zIndex: 5,
+    position: "absolute",
+    top: "35%",
+    left: 5,
+    width: "100%",
   },
 })
 
