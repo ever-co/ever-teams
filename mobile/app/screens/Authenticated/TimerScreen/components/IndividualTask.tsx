@@ -1,9 +1,10 @@
-import React from "react"
+import React, { useState } from "react"
 import { View, StyleSheet, Text, Image, ImageStyle } from "react-native"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
+import DeletePopUp from "./DeletePopUp"
 
 type IIndividualTask = {
   text: string
@@ -13,6 +14,8 @@ type IIndividualTask = {
 }
 
 const IndividualTask = ({ text, status, image1, image2 }: IIndividualTask) => {
+  const [showDel, setShowDel] = useState(false)
+
   return (
     <View style={styles.container}>
       <Text style={{ color: "#1B005D", fontSize: 10 }}>{text}</Text>
@@ -71,7 +74,8 @@ const IndividualTask = ({ text, status, image1, image2 }: IIndividualTask) => {
             <Image source={image1} style={$usersProfileOne} />
             <Image source={image2} style={$usersProfile} />
           </View>
-          <Entypo name="cross" size={15} color="#8F97A1" />
+          <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />
+          {showDel && <DeletePopUp />}
         </View>
       </View>
     </View>
@@ -81,7 +85,7 @@ const IndividualTask = ({ text, status, image1, image2 }: IIndividualTask) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginBottom: 10,
+    marginBottom: 15,
     alignItems: "center",
     borderBottomColor: "#8F97A1",
     borderBottomWidth: 1,
