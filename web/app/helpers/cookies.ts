@@ -93,6 +93,10 @@ export function getOrganizationIdCookie(ctx: NextCtx) {
   return getCookie(ORGANIZATION_ID_COOKIE_NAME, { ...ctx }) as string;
 }
 
+export function setOrganizationIdCookie(orgId: string, ctx?: NextCtx) {
+  return setCookie(ORGANIZATION_ID_COOKIE_NAME, orgId, { ...(ctx || {}) });
+}
+
 // Tenant Id
 export function getTenantIdCookie(ctx: NextCtx) {
   return getCookie(TENANT_ID_COOKIE_NAME, { ...ctx }) as string;

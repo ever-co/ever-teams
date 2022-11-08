@@ -61,7 +61,7 @@ export const TeamsDropDown = () => {
                         <div
                           key={item.id}
                           className="cursor-pointer font-light"
-                          onClick={() => setActiveTeam(item.id)}
+                          onClick={() => setActiveTeam(item)}
                         >
                           <div className="flex items-center justify-start space-x-4">
                             <div
