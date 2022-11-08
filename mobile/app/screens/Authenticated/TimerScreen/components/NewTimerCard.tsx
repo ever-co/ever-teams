@@ -5,6 +5,7 @@ import { colors } from "../../../../theme"
 import TaskStatusDropdown from "./TaskStatusDropdown"
 
 import { Feather } from "@expo/vector-icons"
+import ComboBox from "./ComboBox"
 
 const NewTimerCard = () => {
   return (
@@ -30,7 +31,7 @@ const NewTimerCard = () => {
         <Feather name="check" size={24} color="green" />
       </View>
 
-      <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
+      {/* <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
         <View style={{ paddingTop: 25 }}>
           <Text style={styles.estimate}>Estimate: </Text>
         </View>
@@ -63,7 +64,9 @@ const NewTimerCard = () => {
           <ProgressBar progress={0.7} color="#28D581" />
         </View>
         <Image source={require("../../../../../assets/images/play.png")}></Image>
-      </View>
+      </View> */}
+
+      <ComboBox />
     </View>
   )
 }
