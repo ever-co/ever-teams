@@ -6,12 +6,14 @@ export function serverFetch<T>({
   body,
   init,
   bearer_token,
+  tenantId,
 }: {
   path: string;
   method: "POST" | "GET" | "PUT" | "DELETE";
   body?: any;
   bearer_token?: string;
   init?: RequestInit;
+  tenantId?: string;
 }) {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -20,6 +22,10 @@ export function serverFetch<T>({
 
   if (bearer_token) {
     headers["authorization"] = `Bearer ${bearer_token}`;
+  }
+
+  if (tenantId) {
+    headers["tenant-id"] = tenantId;
   }
 
   const datas: { body?: string } = {};
