@@ -1,46 +1,60 @@
 import React from "react"
 import { Text, TextInput, View, Image, StyleSheet } from "react-native"
 import { ProgressBar } from "react-native-paper"
+import { colors } from "../../../../theme"
 import TaskStatusDropdown from "./TaskStatusDropdown"
+
+import { Feather } from "@expo/vector-icons"
 
 const NewTimerCard = () => {
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.timer}>Timer</Text>
       <Text style={styles.working}>What you working on?</Text>
-      <TextInput style={styles.textInput}></TextInput>
+      <View
+        style={[
+          styles.wrapInput,
+          {
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingHorizontal: 10,
+          },
+        ]}
+      >
+        <TextInput
+          selectionColor={colors.primary}
+          style={styles.textInput}
+          defaultValue="Open Platform for..."
+        />
+        <Feather name="check" size={24} color="green" />
+      </View>
 
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Text style={styles.estimate}>Estimate: </Text>
+      <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
+        <View style={{ paddingTop: 25 }}>
+          <Text style={styles.estimate}>Estimate: </Text>
+        </View>
+
         <View style={styles.horizontalInput}>
+          <TextInput
+            selectionColor={colors.primary}
+            style={[styles.estimateInput, { right: 5 }]}
+            placeholder="Hours"
+          />
+          <View style={styles.separator} />
+          <TextInput
+            selectionColor={colors.primary}
+            style={styles.estimateInput}
+            placeholder="Minutes"
+          />
           <View>
-            <TextInput style={styles.textInputOne} placeholder="Hours"></TextInput>
-            <View style={{ flexDirection: "row" }}>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-            </View>
-          </View>
-          <Text> / </Text>
-          <View>
-            <TextInput style={styles.textInputOne} placeholder="Minutes"></TextInput>
-            <View style={{ flexDirection: "row" }}>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-              <View style={styles.line}></View>
-            </View>
+            <Feather name="check" size={24} color="green" />
           </View>
         </View>
+      </View>
+
+      <View>
+        <TaskStatusDropdown />
       </View>
 
       <View>
@@ -82,6 +96,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignSelf: "flex-end",
   },
+  estimateInput: {
+    borderColor: colors.border,
+    borderBottomWidth: 1,
+    paddingHorizontal: 10,
+    borderStyle: "dashed",
+    width: "35%",
+  },
   working: {
     color: "#9490A0",
     fontWeight: "600",
@@ -90,30 +111,33 @@ const styles = StyleSheet.create({
   horizontal: {
     flexDirection: "row",
     justifyContent: "center",
+    marginBottom: 20,
   },
   textInput: {
-    backgroundColor: "#EEEFF5",
-    height: 50,
-    width: "100%",
-    borderRadius: 10,
-    marginBottom: 20,
+    color: colors.primary,
   },
   textInputOne: {
     height: 30,
   },
   horizontalInput: {
     flexDirection: "row",
-    height: 40,
   },
   dashed: {
     borderBottomColor: "#fff",
     borderBottomWidth: 10,
   },
-  line: {
-    backgroundColor: "#1B1B1E",
-    height: 2,
-    width: 8,
-    marginLeft: 3,
+  separator: {
+    backgroundColor: colors.border,
+    width: 2,
+    marginHorizontal: 5,
+    transform: [{ rotate: "20deg" }],
+  },
+  wrapInput: {
+    backgroundColor: "#EEEFF5",
+    height: 50,
+    width: "100%",
+    borderRadius: 10,
+    marginBottom: 20,
   },
 })
 

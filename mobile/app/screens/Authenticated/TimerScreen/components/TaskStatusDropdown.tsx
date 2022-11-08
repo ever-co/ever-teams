@@ -1,5 +1,9 @@
 import React from "react"
-import { Text, View, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
+
+// COMPONENTS
+import { Text } from "../../../../components"
 
 const TaskStatusDropdown = () => {
   const [isOpened, setIsOpened] = React.useState(false)
@@ -11,48 +15,61 @@ const TaskStatusDropdown = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: status === "Completed" ? "#D4F7E6" : "#EEEFF5" },
+      ]}
+    >
       <TouchableOpacity
         onPress={() => setIsOpened(!isOpened)}
         style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
-        <Text style={[styles.dropdownItemTxt, { fontSize: 16 }]}>
-          {status === null ? "Status" : status}
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View>
+            {status === null ? <Entypo name="circle" size={14} color="gray" /> : null}
+            {status === "No Status" ? <Entypo name="circle" size={14} color="gray" /> : null}
+            {status === "In progress" ? (
+              <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
+            ) : null}
+            {status === "In review" ? <AntDesign name="search1" size={14} color="#1B005D" /> : null}
+            {status === "Completed" ? (
+              <AntDesign name="checkcircleo" size={14} color="green" />
+            ) : null}
+          </View>
+          <Text
+            style={[
+              styles.dropdownItemTxt,
+              { fontSize: 16, marginLeft: 5, color: status === "Completed" ? "green" : "#1B005D" },
+            ]}
+          >
+            {status === null ? "Status" : status}
+          </Text>
+        </View>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
 
       {isOpened ? (
         <View style={styles.dropdownContainer}>
           <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("No Status")}>
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/no-status.png")}
-            />
-            <Text style={[styles.dropdownItemTxt, { color: "gray" }]}>No Status</Text>
+            <Entypo name="circle" size={14} color="gray" />
+            <Text style={[styles.dropdownItemTxt, { color: "gray", marginLeft: 5 }]}>
+              No Status
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.dropdownItem}
             onPress={() => OnItemPressed("In progress")}
           >
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/in-progress.png")}
-            />
+            <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
             <Text style={styles.dropdownItemTxt}>In progress</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("In review")}>
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/in-review.png")}
-            />
+            <AntDesign name="search1" size={14} color="#1B005D" />
             <Text style={styles.dropdownItemTxt}>In review</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("Completed")}>
-            <Image
-              style={styles.iconStyle}
-              source={require("../../../../../assets/icons/complete-task.png")}
-            />
+            <AntDesign name="checkcircleo" size={14} color="green" />
             <Text style={[styles.dropdownItemTxt, { color: "green" }]}>Completed</Text>
           </TouchableOpacity>
         </View>
@@ -66,11 +83,10 @@ export default TaskStatusDropdown
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#EEEFF5",
-    marginVertical: 30,
     padding: 8,
     borderRadius: 5,
-    width: "50%",
-    zIndex: 1,
+    width: "100%",
+    zIndex: 1000,
   },
   dropdownContainer: {
     backgroundColor: "#FFF",
@@ -80,7 +96,7 @@ const styles = StyleSheet.create({
     top: 41,
     width: "110%",
     borderRadius: 5,
-    zIndex: 10,
+    zIndex: 1000,
     elevation: 9,
   },
   dropdownItem: {
@@ -90,6 +106,7 @@ const styles = StyleSheet.create({
   },
   dropdownItemTxt: {
     color: "#1B005D",
+    marginLeft: 5,
   },
   iconStyle: {
     width: 12,

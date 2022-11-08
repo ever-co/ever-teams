@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from "react"
-import { TextStyle, ViewStyle } from "react-native"
+import { TextStyle, ViewStyle, View } from "react-native"
 
 // COMPONENTS
 import ActiveTaskCard from "./components/ActiveTaskCard"
@@ -16,6 +16,7 @@ import LocalStorage from "../../../services/api/tokenHandler"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import DropDown from "../TeamScreen/components/DropDown"
 import NewTimerCard from "./components/NewTimerCard"
+import { teams } from "../TeamScreen/data"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
@@ -47,40 +48,24 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <HomeHeader />
-        <DropDown />
-        <NewTimerCard />
-
-        <Text preset="heading" style={$title}>
-          Timer
-        </Text>
-
-        {/* Active task card */}
-        <ActiveTaskCard />
-
-        {/* Timer card */}
-        <TimerCard
-          onTimerStart={startTimer}
-          onTimerStop={stopTimer}
-          startTime={1000000}
-          totalTime={10000000}
-          workedTime={10000}
-        />
-
-        {/*  */}
-        <Button
-          preset="default"
-          textStyle={{ color: colors.primary }}
-          style={{ borderColor: colors.primary }}
+        <View style={{ paddingBottom: 10 }}>
+          <DropDown teams={teams} onCreateTeam={()=>{} } />
+        </View>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: colors.palette.neutral200,
+            paddingHorizontal: 20,
+          }}
         >
-          Estimate now
-        </Button>
+          <NewTimerCard />
+        </View>
       </Screen>
     )
   }
 
 const $container: ViewStyle = {
-  paddingTop: spacing.extraLarge,
-  paddingHorizontal: spacing.large,
+  flex: 1,
 }
 
 const $title: TextStyle = {

@@ -1,6 +1,6 @@
 import { teamItem } from "./components/DropDownSection";
 
-export const team = [
+export const tasks = [
   {
     name: "Ruslan Konviser",
     text: "Open Platform for On-Demand and Sharing Economies.",
@@ -24,7 +24,7 @@ export const team = [
   },
 ]
 
-export const data : teamItem[] = [
+export const teams : teamItem[] = [
   {
     img: "../../../../../assets/icons/community.png",
     title: "All",
