@@ -1,9 +1,13 @@
 import React, { useState } from "react"
-import { View, StyleSheet, Text, Image } from "react-native"
+import { View, StyleSheet, Text, Image, TouchableOpacity } from "react-native"
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons"
 import { Switch } from "react-native-paper"
 
-const HamMenu = () => {
+type IHomeHeader = {
+  setShowHam: any
+}
+
+const HamMenu = ({ setShowHam }: IHomeHeader) => {
   const [isSwitchOn, setIsSwitchOn] = React.useState(false)
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn)
@@ -11,16 +15,23 @@ const HamMenu = () => {
     <View style={styles.container}>
       <View style={styles.firstContainer}>
         <View style={styles.firstIcons}>
-          <AntDesign name="left" size={15} color="black" />
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              setShowHam(false)
+            }}
+          >
+            <AntDesign name="left" size={15} color="black" />
+          </TouchableOpacity>
           <Feather name="edit" size={15} color="black" />
         </View>
         <Image
           source={require("../../../../../assets/images/Ruslan.png")}
           style={styles.profileImage}
         />
-        <View style={{ justifyContent: "flex-start" }}>
-          <Text style={{ color: "#1B005D" }}>Ruslan Konviser</Text>
-          <Text style={{ color: "#1B005D" }}>Ruslan.k@everiq.com</Text>
+        <View style={{ position: "relative", top: -80 }}>
+          <Text style={{ color: "#1B005D", fontSize: 30 }}>Ruslan Konviser</Text>
+          <Text style={{ color: "#00000029", alignSelf: "center" }}>Ruslan.k@everiq.com</Text>
         </View>
 
         <View style={styles.line}></View>
@@ -83,6 +94,8 @@ const styles = StyleSheet.create({
     borderRadius: 200,
     width: 120,
     height: 120,
+    position: "relative",
+    top: -40,
   },
   firstIcons: {
     flexDirection: "row",

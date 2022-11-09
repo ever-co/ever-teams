@@ -1,7 +1,11 @@
 import React from "react"
-import { View, Text, Image, StyleSheet } from "react-native"
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native"
 
-const HomeHeader = () => {
+type IHomeHeader = {
+  setShowHam?: any
+}
+
+const HomeHeader = ({ setShowHam }: IHomeHeader) => {
   return (
     <View style={styles.mainContainer}>
       <View>
@@ -16,11 +20,20 @@ const HomeHeader = () => {
 
         <View style={styles.secondContainer}>
           <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
-          <View style={{ flexDirection: "column" }}>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              if (setShowHam !== undefined) {
+                setShowHam(true)
+              }
+            }}
+            style={{ flexDirection: "column" }}
+          >
             <View style={styles.line} />
             <View style={styles.line} />
             <View style={styles.line} />
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>

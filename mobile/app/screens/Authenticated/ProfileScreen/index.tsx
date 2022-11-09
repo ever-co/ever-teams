@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import { ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 
 // TYPES
@@ -21,9 +21,11 @@ import HamMenu from "./components/HamMenu"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
   function AuthenticatedProfileScreen(_props) {
+    const [showHam, setShowHam] = useState(false)
+
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <HomeHeader />
+        <HomeHeader setShowHam={setShowHam} />
         <ProfileHeader />
         <View style={$wrapComboboxes}>
           <View style={{ flex: 2, alignItems: "flex-start" }}>
@@ -69,7 +71,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             ))}
           </View>
         </ScrollView>
-        <HamMenu />
+        {showHam && <HamMenu setShowHam={setShowHam} />}
       </Screen>
     )
   }
