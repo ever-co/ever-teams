@@ -16,5 +16,5 @@ export default async function handler(
     bearer_token: access_token,
   });
 
-  $res.json(tasks);
+  $res.status(200).json(tasks);
 }

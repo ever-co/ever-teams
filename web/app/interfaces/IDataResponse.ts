@@ -15,3 +15,8 @@ export type PaginationResponse<T> = {
   items: T[];
   total: number;
 };
+
+export type DeleteReponse = {
+  raw: string[];
+  affected: number;
+};

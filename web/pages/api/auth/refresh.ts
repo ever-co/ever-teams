@@ -11,7 +11,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (req.method !== "POST") {
-    return res.status(405);
+    return res.status(405).send({});
   }
 
   const body = req.body as { refresh_token: string } | null;

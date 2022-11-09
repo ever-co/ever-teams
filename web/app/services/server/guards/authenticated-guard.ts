@@ -26,6 +26,8 @@ export async function authenticatedGuard(
     };
   }
 
+  res.status(200);
+
   return {
     $res: res,
     user: r_res.data,

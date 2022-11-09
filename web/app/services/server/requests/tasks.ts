@@ -1,4 +1,7 @@
-import { PaginationResponse } from "@app/interfaces/IDataResponse";
+import {
+  DeleteReponse,
+  PaginationResponse,
+} from "@app/interfaces/IDataResponse";
 import { ITeamTask } from "@app/interfaces/ITask";
 import { serverFetch } from "../fetch";
 
@@ -18,6 +21,23 @@ export function getTeamTasksRequest({
   return serverFetch<PaginationResponse<ITeamTask>>({
     path: `/tasks/team?${query.toString()}`,
     method: "GET",
+    bearer_token,
+    tenantId,
+  });
+}
+
+export function deleteTaskRequest({
+  tenantId,
+  taskId,
+  bearer_token,
+}: {
+  tenantId: string;
+  taskId: string;
+  bearer_token: string;
+}) {
+  return serverFetch<DeleteReponse>({
+    path: `/tasks/${taskId}?tenantId=${tenantId}`,
+    method: "DELETE",
     bearer_token,
     tenantId,
   });
