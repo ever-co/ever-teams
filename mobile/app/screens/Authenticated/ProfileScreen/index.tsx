@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { Image, ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
+import { ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -7,7 +7,7 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 import { tasks, teams } from "../TeamScreen/data"
 
 // COMPONENTS
-import { ListItem, Screen, Text } from "../../../components"
+import { Screen, Text } from "../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
@@ -17,6 +17,7 @@ import ProfileHeader from "./components/ProfileHeader"
 import DropDown from "../TeamScreen/components/DropDown"
 import FilterSection from "./components/FilterSection"
 import ListCardItem from "./components/ListCardItem"
+import HamMenu from "./components/HamMenu"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
   function AuthenticatedProfileScreen(_props) {
@@ -68,6 +69,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             ))}
           </View>
         </ScrollView>
+        <HamMenu />
       </Screen>
     )
   }
