@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { View, StyleSheet, Text, Image } from "react-native"
-import { AntDesign, Feather, MaterialIcons, Entypo } from "@expo/vector-icons"
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons"
 import { Switch } from "react-native-paper"
 
 const HamMenu = () => {
@@ -10,31 +10,36 @@ const HamMenu = () => {
   return (
     <View style={styles.container}>
       <View style={styles.firstContainer}>
-        <View>
-          <AntDesign name="left" size={24} color="black" />
-          <Feather name="edit" size={24} color="black" />
+        <View style={styles.firstIcons}>
+          <AntDesign name="left" size={15} color="black" />
+          <Feather name="edit" size={15} color="black" />
         </View>
         <Image
           source={require("../../../../../assets/images/Ruslan.png")}
           style={styles.profileImage}
         />
-        <Text>Ruslan Konviser</Text>
-        <Text>Ruslan.k@everiq.com</Text>
-        <View></View>
+        <View style={{ justifyContent: "flex-start" }}>
+          <Text style={{ color: "#1B005D" }}>Ruslan Konviser</Text>
+          <Text style={{ color: "#1B005D" }}>Ruslan.k@everiq.com</Text>
+        </View>
+
+        <View style={styles.line}></View>
         <View>
-          <Twin icon={<MaterialIcons name="people-alt" size={24} color="black" />} text="Team" />
-          <Twin icon={<MaterialIcons name="access-time" size={24} color="black" />} text="Timer" />
+          <Twin icon={<MaterialIcons name="people-alt" size={15} color="#1B005D" />} text="Team" />
           <Twin
-            icon={<MaterialIcons name="person-outline" size={24} color="black" />}
+            icon={<MaterialIcons name="access-time" size={15} color="#1B005D" />}
+            text="Timer"
+          />
+          <Twin
+            icon={<MaterialIcons name="person-outline" size={15} color="#1B005D" />}
             text="Profile"
           />
-          <Twin icon={<Feather name="settings" size={24} color="black" />} text="Settings" />
+          <Twin icon={<Feather name="settings" size={15} color="#1B005D" />} text="Settings" />
         </View>
-        <View></View>
-        <View>
-          <Twin icon={<Entypo name="login" size={24} color="black" />} text="Logout" />
-
-          <Switch value={isSwitchOn} onValueChange={onToggleSwitch} />
+        <View style={styles.line}></View>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Twin icon={<MaterialIcons name="login" size={15} color="#1B005D" />} text="Logout" />
+          <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color="#1B005D" />
         </View>
       </View>
       <View style={styles.secondContainer}></View>
@@ -48,9 +53,9 @@ type ITwin = {
 }
 
 const Twin = ({ icon, text }: ITwin) => (
-  <View>
+  <View style={styles.twin}>
     {icon}
-    <Text>{text}</Text>
+    <Text style={{ color: "#1B005D" }}>{text}</Text>
   </View>
 )
 
@@ -63,18 +68,37 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   firstContainer: {
-    backgroundColor: "red",
+    backgroundColor: "#fff",
     flex: 4,
+    paddingVertical: 30,
+    justifyContent: "space-around",
+    alignItems: "center",
   },
   secondContainer: {
     flex: 1,
-    backgroundColor: "#fff",
-    opacity: 0.3,
+    backgroundColor: "#D9D9D9",
+    opacity: 0.5,
   },
   profileImage: {
     borderRadius: 200,
     width: 120,
     height: 120,
+  },
+  firstIcons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    alignSelf: "stretch",
+  },
+  twin: {
+    flexDirection: "row",
+    alignSelf: "stretch",
+    alignItems: "center",
+  },
+  line: {
+    backgroundColor: "#00000029",
+    width: 150,
+    height: 1,
   },
 })
 
