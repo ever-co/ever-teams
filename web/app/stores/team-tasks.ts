@@ -5,3 +5,8 @@ export const teamTasksState = atom<ITeamTask[]>({
   key: "teamTasksState",
   default: [],
 });
+
+export const activeTeamTaskState = atom<ITeamTask | null>({
+  key: "activeTeamTaskState",
+  default: null,
+});
