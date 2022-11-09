@@ -29,7 +29,6 @@ api.interceptors.response.use(
     const statusCode = error.response?.status;
 
     if (statusCode === 401) {
-      //await signOut();
       window.location.assign(DEFAULT_APP_PATH);
     }
 

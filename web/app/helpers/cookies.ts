@@ -4,11 +4,11 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   TENANT_ID_COOKIE_NAME,
   TOKEN_COOKIE_NAME,
+  ACTIVE_TASK_COOKIE_NAME,
 } from "@app/constants";
 import { IDecodedRefreshToken } from "@app/interfaces/IAuthentication";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { NextApiRequest, NextApiResponse } from "next";
-import { addHours, changeTimezone } from "./date";
 
 type DataParams = {
   refresh_token: {
@@ -54,15 +54,12 @@ export function cookiesKeys() {
     ACTIVE_TEAM_COOKIE_NAME,
     TENANT_ID_COOKIE_NAME,
     ORGANIZATION_ID_COOKIE_NAME,
+    ACTIVE_TASK_COOKIE_NAME,
   ];
 }
 
 export function removeAuthCookies() {
-  deleteCookie(REFRESH_TOKEN_COOKIE_NAME);
-  deleteCookie(TOKEN_COOKIE_NAME);
-  deleteCookie(ACTIVE_TEAM_COOKIE_NAME);
-  deleteCookie(TENANT_ID_COOKIE_NAME);
-  deleteCookie(ORGANIZATION_ID_COOKIE_NAME);
+  cookiesKeys().forEach((key) => deleteCookie(key));
 }
 
 // Access Token
@@ -93,7 +90,21 @@ export function getOrganizationIdCookie(ctx: NextCtx) {
   return getCookie(ORGANIZATION_ID_COOKIE_NAME, { ...ctx }) as string;
 }
 
+export function setOrganizationIdCookie(orgId: string, ctx?: NextCtx) {
+  return setCookie(ORGANIZATION_ID_COOKIE_NAME, orgId, { ...(ctx || {}) });
+}
+
 // Tenant Id
 export function getTenantIdCookie(ctx: NextCtx) {
   return getCookie(TENANT_ID_COOKIE_NAME, { ...ctx }) as string;
+}
+
+// Active tasks
+
+export function getActiveTaskIdCookie(ctx?: NextCtx) {
+  return getCookie(ACTIVE_TASK_COOKIE_NAME, { ...(ctx || {}) }) as string;
+}
+
+export function setActiveTaskIdCookie(taskId: string, ctx?: NextCtx) {
+  return setCookie(ACTIVE_TASK_COOKIE_NAME, taskId, { ...(ctx || {}) });
 }
