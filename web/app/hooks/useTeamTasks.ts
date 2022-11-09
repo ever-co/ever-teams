@@ -25,7 +25,6 @@ export function useTeamTasks() {
           return ts.filter((t) => t.id !== task.id);
         });
       }
-
       return res;
     });
   }, []);
