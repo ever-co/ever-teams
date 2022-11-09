@@ -143,7 +143,7 @@ function CreateNewTeam({
 
         <span className="absolute inset-y-0 right-0 flex items-center pl-2">
           {createOTeamLoading ? (
-            <Spinner />
+            <Spinner dark={false} />
           ) : (
             <XMarkIcon
               className="w-6 h-6 px-1 hover:bg-gray-300 hover:text-primary cursor-pointer mr-1 rounded-lg flex justify-center items-center"
