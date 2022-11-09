@@ -25,32 +25,54 @@ const HamMenu = ({ setShowHam }: IHomeHeader) => {
           </TouchableOpacity>
           <Feather name="edit" size={15} color="black" />
         </View>
-        <Image
-          source={require("../../../../../assets/images/Ruslan.png")}
-          style={styles.profileImage}
-        />
-        <View style={{ position: "relative", top: -80 }}>
-          <Text style={{ color: "#1B005D", fontSize: 30 }}>Ruslan Konviser</Text>
-          <Text style={{ color: "#00000029", alignSelf: "center" }}>Ruslan.k@everiq.com</Text>
+        <View style={{ flex: 3, alignItems: "center" }}>
+          <Image
+            source={require("../../../../../assets/images/Ruslan.png")}
+            style={styles.profileImage}
+          />
         </View>
 
-        <View style={styles.line}></View>
-        <View>
-          <Twin icon={<MaterialIcons name="people-alt" size={15} color="#1B005D" />} text="Team" />
+        <View style={{ flex: 3, alignItems: "center" }}>
+          <Text style={{ color: "#1B005D", fontSize: 30 }}>Ruslan Konviser</Text>
+          <Text style={{ color: "#00000029" }}>Ruslan.k@everiq.com</Text>
+        </View>
+        <View style={{ alignItems: "center" }}>
+          <View style={styles.line}></View>
+        </View>
+
+        <View style={{ flex: 10, marginTop: 20, marginLeft: 70 }}>
+          <Twin icon={<MaterialIcons name="people-alt" size={18} color="#1B005D" />} text="Team" />
           <Twin
-            icon={<MaterialIcons name="access-time" size={15} color="#1B005D" />}
+            icon={<MaterialIcons name="access-time" size={18} color="#1B005D" />}
             text="Timer"
           />
           <Twin
-            icon={<MaterialIcons name="person-outline" size={15} color="#1B005D" />}
+            icon={<MaterialIcons name="person-outline" size={18} color="#1B005D" />}
             text="Profile"
           />
-          <Twin icon={<Feather name="settings" size={15} color="#1B005D" />} text="Settings" />
+          <Twin icon={<Feather name="settings" size={18} color="#1B005D" />} text="Settings" />
         </View>
-        <View style={styles.line}></View>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Twin icon={<MaterialIcons name="login" size={15} color="#1B005D" />} text="Logout" />
-          <Switch value={isSwitchOn} onValueChange={onToggleSwitch} color="#1B005D" />
+        <View style={{ alignItems: "center" }}>
+          <View style={styles.line}></View>
+        </View>
+        <View style={{ flex: 1, alignItems: "center" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: 150,
+              marginTop: 5,
+            }}
+          >
+            <Twin icon={<MaterialIcons name="login" size={15} color="#1B005D" />} text="Logout" />
+            <Switch
+              value={isSwitchOn}
+              onValueChange={onToggleSwitch}
+              color="#1B005D"
+              style={{ position: "relative", top: -8 }}
+            />
+          </View>
         </View>
       </View>
       <View style={styles.secondContainer}></View>
@@ -66,7 +88,7 @@ type ITwin = {
 const Twin = ({ icon, text }: ITwin) => (
   <View style={styles.twin}>
     {icon}
-    <Text style={{ color: "#1B005D" }}>{text}</Text>
+    <Text style={{ color: "#1B005D", marginLeft: 10, fontWeight: "bold" }}>{text}</Text>
   </View>
 )
 
@@ -81,9 +103,9 @@ const styles = StyleSheet.create({
   firstContainer: {
     backgroundColor: "#fff",
     flex: 4,
-    paddingVertical: 30,
-    justifyContent: "space-around",
-    alignItems: "center",
+    paddingVertical: 20,
+    // justifyContent: "space-around",
+    // alignItems: "center",
   },
   secondContainer: {
     flex: 1,
@@ -94,19 +116,19 @@ const styles = StyleSheet.create({
     borderRadius: 200,
     width: 120,
     height: 120,
-    position: "relative",
-    top: -40,
   },
   firstIcons: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 10,
-    alignSelf: "stretch",
+    // alignSelf: "stretch",
+    flex: 1,
   },
   twin: {
     flexDirection: "row",
     alignSelf: "stretch",
     alignItems: "center",
+    marginBottom: 15,
   },
   line: {
     backgroundColor: "#00000029",
