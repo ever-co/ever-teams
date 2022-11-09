@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   View,
   ViewStyle,
@@ -17,7 +17,8 @@ import { Card, Icon, ListItem, Text } from "../../../../components"
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "../../TeamScreen/components/ProgressTimeIndicator"
-import TaskStatusDropdown from "../../TimerScreen/components/TaskStatusDropdown"
+import TaskStatus from "./TaskStatus"
+
 export type ListItemProps = {
   item: {
     name: string
@@ -30,9 +31,10 @@ export type ListItemProps = {
   enableEstimate: boolean
 }
 
-export interface Props extends ListItemProps {}
+export interface Props extends ListItemProps { }
 
 export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
+
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p2, ...GS.positionRelative }}>
@@ -72,14 +74,14 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
             <Text style={styles.timeHeading}>Worked time</Text>
             <Text style={styles.timeNumber}>{item.currentTime}</Text>
           </View>
-          <View style={{ width: 150 }}>
-            <TaskStatusDropdown/>
-          </View>
+          <TaskStatus />
         </View>
       </View>
     </TouchableNativeFeedback>
   )
 }
+
+
 
 const ListCardItem: React.FC<Props> = (props) => {
   // STATS
@@ -96,6 +98,7 @@ const ListCardItem: React.FC<Props> = (props) => {
       style={{
         ...$listCard,
         ...GS.mb3,
+        zIndex: 0,
         borderColor: colors.primary,
       }}
       HeadingComponent={
