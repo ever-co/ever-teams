@@ -1,6 +1,6 @@
 import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Dispatch, Fragment, SetStateAction, useState } from "react";
+import React, { Dispatch, Fragment, SetStateAction, useState } from "react";
 import { usePopper } from "react-popper";
 import { StatusIcon, tasks } from "./task-input";
 import Image from "next/image";
@@ -101,15 +101,14 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                 <div className="bg-white shadow dark:bg-[#18181B] rounded-[10px] text-[14px] font-light">
                   {options.map((option) =>
                     !option.extramenu ? (
-                      <>
+                      <React.Fragment key={option.name}>
                         <button
-                          key={option.name}
                           onClick={option.handleClick}
                           className="hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
                         >
                           {option.name}
                         </button>
-                      </>
+                      </React.Fragment>
                     ) : (
                       <Popover
                         key={option.name}

@@ -13,5 +13,10 @@ export enum ResStatusEnum {
 
 export type PaginationResponse<T> = {
   items: T[];
-  count: number;
+  total: number;
+};
+
+export type DeleteReponse = {
+  raw: string[];
+  affected: number;
 };
