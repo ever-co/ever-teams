@@ -2,7 +2,7 @@ import {
   DeleteReponse,
   PaginationResponse,
 } from "@app/interfaces/IDataResponse";
-import { ITeamTask } from "@app/interfaces/ITask";
+import { ICreateTask, ITeamTask } from "@app/interfaces/ITask";
 import { serverFetch } from "../fetch";
 
 export function getTeamTasksRequest({
@@ -40,5 +40,20 @@ export function deleteTaskRequest({
     method: "DELETE",
     bearer_token,
     tenantId,
+  });
+}
+
+export function createTaskRequest({
+  data,
+  bearer_token,
+}: {
+  data: ICreateTask;
+  bearer_token: string;
+}) {
+  return serverFetch({
+    path: "/tasks",
+    method: "POST",
+    body: data,
+    bearer_token,
   });
 }

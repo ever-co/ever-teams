@@ -3,7 +3,11 @@ import {
   setActiveTaskIdCookie,
 } from "@app/helpers/cookies";
 import { ITeamTask } from "@app/interfaces/ITask";
-import { deleteTaskAPI, getTeamTasksAPI } from "@app/services/client/api";
+import {
+  createTeamTaskAPI,
+  deleteTaskAPI,
+  getTeamTasksAPI,
+} from "@app/services/client/api";
 import { activeTeamState } from "@app/stores";
 import { activeTeamTaskState, teamTasksState } from "@app/stores/team-tasks";
 import { useCallback, useEffect, useState } from "react";
@@ -15,11 +19,13 @@ export function useTeamTasks() {
   const [Ltasks, setLTasks] = useState<ITeamTask[]>([]);
   const [activeTeamTask, setActiveTeamTask] =
     useRecoilState(activeTeamTaskState);
-
   const activeTeam = useRecoilValue(activeTeamState);
+
   const { queryCall, loading } = useQuery(getTeamTasksAPI);
   const { queryCall: deleteQueryCall, loading: deleteLoading } =
     useQuery(deleteTaskAPI);
+  const { queryCall: createQueryCall, loading: createLoading } =
+    useQuery(createTeamTaskAPI);
 
   const loadTeamTasksData = useCallback(() => {
     return queryCall().then((res) => {
@@ -57,7 +63,9 @@ export function useTeamTasks() {
     });
   }, []);
 
-  const createTask = useCallback(() => {}, []);
+  const createTask = useCallback(() => {
+    // createQueryCall
+  }, []);
 
   const setActiveTask = useCallback((task: typeof tasks[0]) => {
     setActiveTaskIdCookie(task.id);

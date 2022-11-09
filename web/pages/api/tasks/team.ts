@@ -1,5 +1,9 @@
+import { getActiveTeamIdCookie } from "@app/helpers/cookies";
 import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
-import { getTeamTasksRequest } from "@app/services/server/requests";
+import {
+  createTaskRequest,
+  getTeamTasksRequest,
+} from "@app/services/server/requests";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -9,6 +13,25 @@ export default async function handler(
   const { $res, user, tenantId, organizationId, access_token } =
     await authenticatedGuard(req, res);
   if (!user) return $res();
+
+  if (req.method === "POST") {
+    const body = req.body as { name?: string };
+    const $name = body.name?.trim() || "";
+    if ($name.trim().length < 2) {
+      return res.status(400).json({ errors: { name: "Invalid task name !" } });
+    }
+    const activeTeam = getActiveTeamIdCookie({ req, res });
+
+    // const s = await createTaskRequest({
+    //   bearer_token: access_token,
+    //   data: {
+    //     title: $name,
+    //     description: "",
+    //     status: "Todo",
+    //     members: []
+    //   },
+    // });
+  }
 
   const { data: tasks } = await getTeamTasksRequest({
     tenantId,

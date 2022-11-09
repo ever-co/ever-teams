@@ -88,3 +88,19 @@ interface Creator {
   name: string;
   employeeId: any;
 }
+
+export interface ICreateTask {
+  title: string;
+  status: "Todo" | "In Progress" | "For Testing" | "Completed";
+  members?: [];
+  estimateDays: number;
+  estimateHours: string;
+  estimateMinutes: string;
+  dueDate?: string;
+  description: string;
+  tags: { id: string }[];
+  teams: { id: string }[];
+  estimate: number;
+  organizationId: string;
+  tenantId: string;
+}
