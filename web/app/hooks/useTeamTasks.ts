@@ -22,6 +22,7 @@ export function useTeamTasks() {
   const activeTeam = useRecoilValue(activeTeamState);
   const firstLoad = useRef(false);
 
+  // Queries hooks
   const { queryCall, loading } = useQuery(getTeamTasksAPI);
   const { queryCall: deleteQueryCall, loading: deleteLoading } =
     useQuery(deleteTaskAPI);
@@ -42,6 +43,7 @@ export function useTeamTasks() {
       .finally(() => {});
   }, []);
 
+  // Filter tasks by getting only tasks that correspond to the active team
   useEffect(() => {
     if (activeTeam) {
       setTasks((ts) => {
@@ -54,12 +56,14 @@ export function useTeamTasks() {
     }
   }, [activeTeam, Ltasks]);
 
+  // Reload tasks after active team changed
   useEffect(() => {
     if (activeTeam && firstLoad.current) {
       loadTeamTasksData();
     }
   }, [activeTeam]);
 
+  // Get the active team from cookie and put on global store
   useEffect(() => {
     const active_taskid = getActiveTaskIdCookie() || "";
     setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
