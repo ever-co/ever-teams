@@ -28,7 +28,7 @@ export function useTeamTasks() {
   const { queryCall: createQueryCall, loading: createLoading } =
     useQuery(createTeamTaskAPI);
 
-  // to bo called once
+  // to be called once
   const firstLoadTasksData = useCallback(() => {
     firstLoad.current = true;
   }, []);
