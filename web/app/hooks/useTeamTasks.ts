@@ -71,7 +71,7 @@ export function useTeamTasks() {
     }
   }, [activeTeam]);
 
-  // Get the active team from cookie and put on global store
+  // Get the active task from cookie and put on global store
   useEffect(() => {
     const active_taskid = getActiveTaskIdCookie() || "";
     setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
