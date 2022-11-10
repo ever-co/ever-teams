@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
@@ -12,6 +12,7 @@ import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITeamTask, ITaskStatus } from "@app/interfaces/ITask";
 import TodoTask from "./dropdownIcons/todo-task";
 import TestingTask from "./dropdownIcons/testing-task";
+import { Spinner } from "../spinner";
 
 export const StatusIcon = ({ taskStatus }: { taskStatus: ITaskStatus }) => {
   switch (taskStatus) {
@@ -53,19 +54,6 @@ export const StatusIcon = ({ taskStatus }: { taskStatus: ITaskStatus }) => {
   }
 };
 
-function CreateTaskOption() {
-  return (
-    <div className="relative cursor-pointer select-none py-2 px-4 text-gray-700">
-      <div className="flex items-center justify-start cursor-pointer text-primary dark:text-white">
-        <span className="mr-[11px]">
-          <PlusIcon className=" font-bold w-[16px] h-[16px]" />
-        </span>
-        Create new
-      </div>
-    </div>
-  );
-}
-
 function TaskItem({
   selected,
   item,
@@ -94,7 +82,10 @@ function TaskItem({
                   <div className="flex justify-center items-center" key={i}>
                     <Image
                       src={member.user.imageUrl}
-                      alt={member.user.firstName || ""}
+                      alt={
+                        (member.user.firstName || "") +
+                        (member.user.lastName || "")
+                      }
                       width={30}
                       height={30}
                     />
@@ -111,9 +102,7 @@ function TaskItem({
       </span>
       {selected ? (
         <span
-          className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
-            active ? "text-white" : "text-primary"
-          }`}
+          className={`absolute inset-y-0 left-0 flex items-center dark:text-white text-primary pl-3`}
         >
           <CheckIcon className="h-5 w-5" aria-hidden="true" />
         </span>
@@ -122,13 +111,34 @@ function TaskItem({
   );
 }
 
-export default function Example() {
-  const [selected, setSelected] = useState(null);
-  const [query, setQuery] = useState("");
+function CreateTaskOption({
+  onClick,
+  loading,
+}: {
+  onClick: () => void;
+  loading?: boolean;
+}) {
+  return (
+    <div
+      className="relative cursor-pointer select-none py-2 px-4 text-gray-700"
+      onClick={!loading ? onClick : undefined}
+    >
+      <div className="flex items-center justify-start cursor-pointer text-primary dark:text-white">
+        <span className="mr-[11px]">
+          {loading ? (
+            <Spinner dark={false} />
+          ) : (
+            <PlusIcon className=" font-bold w-[16px] h-[16px]" />
+          )}
+        </span>
+        Create new
+      </div>
+    </div>
+  );
+}
+
+function useModal() {
   const [isOpen, setIsOpen] = useState(false);
-
-  const { tasks: ltasks, activeTeamTask } = useTeamTasks();
-
   const closeModal = useCallback(() => {
     setIsOpen(false);
   }, []);
@@ -137,20 +147,53 @@ export default function Example() {
     setIsOpen(true);
   }, []);
 
-  const filteredTasks =
-    query.trim() === ""
-      ? ltasks
-      : ltasks.filter((task) =>
+  return {
+    isOpen,
+    closeModal,
+    openModal,
+  };
+}
+
+export default function TaskInput() {
+  const { isOpen, openModal, closeModal } = useModal();
+  const {
+    tasks,
+    activeTeamTask,
+    setActiveTask,
+    createLoading,
+    tasksFetching,
+    createTask,
+  } = useTeamTasks();
+
+  const [query, setQuery] = useState("");
+
+  const filteredTasks = useMemo(() => {
+    return query.trim() === ""
+      ? tasks
+      : tasks.filter((task) =>
           task.title
             .trim()
             .toLowerCase()
             .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, ""))
+            .startsWith(query.toLowerCase().replace(/\s+/g, ""))
         );
+  }, [query, tasks]);
+
+  const hasCreateForm = filteredTasks.length === 0 && query !== "";
+
+  const handleTaskCreation = () => {
+    if (query.trim().length < 2) return;
+    createTask(query.trim()).then((res) => {
+      setQuery("");
+      const items = res.data?.items || [];
+      const created = items.find((t) => t.title === query.trim());
+      if (created) setActiveTask(created);
+    });
+  };
 
   return (
     <div className="w-full">
-      <Combobox value={selected} onChange={setSelected}>
+      <Combobox value={activeTeamTask} onChange={setActiveTask}>
         <div className="relative mt-1">
           <div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
             <Combobox.Input
@@ -158,12 +201,17 @@ export default function Example() {
               displayValue={(task: ITeamTask) => task && task.title}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="What you working on?"
+              readOnly={tasksFetching}
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronUpDownIcon
-                className="h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
+              {tasksFetching ? (
+                <Spinner dark={false} />
+              ) : (
+                <ChevronUpDownIcon
+                  className="h-5 w-5 text-gray-400"
+                  aria-hidden="true"
+                />
+              )}
             </Combobox.Button>
           </div>
           <Transition
@@ -171,36 +219,41 @@ export default function Example() {
             leave="transition ease-in duration-100"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
-            afterLeave={() => setQuery("")}
+            afterLeave={() => !createLoading && setQuery("")}
           >
             <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {filteredTasks.length === 0 && query !== "" ? (
-                <CreateTaskOption />
+              {hasCreateForm ? (
+                <CreateTaskOption
+                  onClick={handleTaskCreation}
+                  loading={createLoading}
+                />
               ) : (
-                filteredTasks.map((task) => (
-                  <Combobox.Option
-                    key={task.id}
-                    className={({ active }) =>
-                      `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-                        active
-                          ? "bg-[#F9FAFB] text-primary dark:text-white dark:bg-[#202023] cursor-pointer"
-                          : "text-gray-900 dark:text-white"
-                      }`
-                    }
-                    value={task}
-                  >
-                    {({ selected, active }) => {
-                      return (
-                        <TaskItem
-                          selected={selected}
-                          active={active}
-                          item={task}
-                          onDelete={openModal}
-                        />
-                      );
-                    }}
-                  </Combobox.Option>
-                ))
+                filteredTasks.map((task) => {
+                  return (
+                    <Combobox.Option
+                      key={task.id}
+                      className={({ active }) =>
+                        `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                          active
+                            ? "bg-[#F9FAFB] text-primary dark:text-white dark:bg-[#202023] cursor-pointer"
+                            : "text-gray-900 dark:text-white"
+                        }`
+                      }
+                      value={task}
+                    >
+                      {({ selected, active }) => {
+                        return (
+                          <TaskItem
+                            selected={selected}
+                            active={active}
+                            item={task}
+                            onDelete={openModal}
+                          />
+                        );
+                      }}
+                    </Combobox.Option>
+                  );
+                })
               )}
             </Combobox.Options>
           </Transition>

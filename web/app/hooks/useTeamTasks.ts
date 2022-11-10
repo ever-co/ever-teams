@@ -8,7 +8,7 @@ import {
   deleteTaskAPI,
   getTeamTasksAPI,
 } from "@app/services/client/api";
-import { activeTeamState } from "@app/stores";
+import { activeTeamState, tasksFetchingState } from "@app/stores";
 import { activeTeamTaskState, teamTasksState } from "@app/stores/team-tasks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -16,10 +16,13 @@ import { useQuery } from "./useQuery";
 
 export function useTeamTasks() {
   const [tasks, setTasks] = useRecoilState(teamTasksState);
-  const [Ltasks, setLTasks] = useState<ITeamTask[]>([]);
+  const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
+
+  const activeTeam = useRecoilValue(activeTeamState);
   const [activeTeamTask, setActiveTeamTask] =
     useRecoilState(activeTeamTaskState);
-  const activeTeam = useRecoilValue(activeTeamState);
+
+  const [Ltasks, setLTasks] = useState<ITeamTask[]>([]);
   const firstLoad = useRef(false);
 
   // Queries hooks
@@ -35,24 +38,29 @@ export function useTeamTasks() {
   }, []);
 
   const loadTeamTasksData = useCallback(() => {
-    return queryCall()
-      .then((res) => {
-        setLTasks(res.data?.items || []);
-        return res;
-      })
-      .finally(() => {});
+    return queryCall().then((res) => {
+      setLTasks(res.data?.items || []);
+      return res;
+    });
   }, []);
+
+  // Global loading state
+  useEffect(() => {
+    if (firstLoad.current) {
+      setTasksFetching(loading);
+    }
+  }, [loading]);
 
   // Filter tasks by getting only tasks that correspond to the active team
   useEffect(() => {
     if (activeTeam) {
-      setTasks((ts) => {
-        return ts.filter((t) => {
+      setTasks(
+        Ltasks.filter((t) => {
           return t.teams.some((tm) => {
             return tm.id === activeTeam.id;
           });
-        });
-      });
+        })
+      );
     }
   }, [activeTeam, Ltasks]);
 
@@ -86,6 +94,7 @@ export function useTeamTasks() {
       title: taskName,
     }).then((res) => {
       setLTasks(res.data?.items || []);
+      return res;
     });
   }, []);
 
@@ -97,6 +106,7 @@ export function useTeamTasks() {
   return {
     tasks,
     loading,
+    tasksFetching,
     deleteTask,
     deleteLoading,
     createTask,

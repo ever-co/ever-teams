@@ -11,7 +11,7 @@ const TodoTask = ({ color = "#747474" }: { color?: string }) => {
       className="mr-1"
     >
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         fill={color}
         d="M6 0a6 6 0 100 12A6 6 0 006 0zm-.705 8.737L9.63 4.403 8.392 3.166 5.295 6.263l-1.7-1.702L2.356 5.8l2.938 2.938z"
       ></path>
