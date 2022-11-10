@@ -2,9 +2,75 @@ import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, { Dispatch, Fragment, SetStateAction, useState } from "react";
 import { usePopper } from "react-popper";
-import { StatusIcon, tasks } from "./task-input";
+import { StatusIcon } from "./task-input";
 import Image from "next/image";
 import DeleteTask from "../delete-task";
+
+interface IUser {
+  name: string;
+  image: string;
+}
+interface IStatusIcon {
+  taskStatus: TaskStatus;
+}
+
+enum TaskStatus {
+  COMPLETED = "Complete",
+  IN_PROGRESS = "Progress",
+  ASSIGNED = "Assigned",
+  UNASSIGNED = "Unassigned",
+}
+
+interface ITask {
+  id: number;
+  name: string;
+  assignees: IUser[];
+  status: TaskStatus;
+}
+
+const tasks: ITask[] = [
+  {
+    id: 1,
+    name: "API Integration",
+    assignees: [
+      { name: "miracle", image: "/assets/profiles/kevin.png" },
+      { name: "isaac", image: "/assets/profiles/roska.png" },
+    ],
+    status: TaskStatus.COMPLETED,
+  },
+  {
+    id: 2,
+    name: "Design Profile Screen",
+    assignees: [
+      {
+        name: "julien",
+        image: "/assets/profiles/ruslan.png",
+      },
+      {
+        name: "miracle",
+        image: "/assets/profiles/Profile.png",
+      },
+    ],
+    status: TaskStatus.IN_PROGRESS,
+  },
+  {
+    id: 3,
+    name: "Improve Main Page Design",
+    assignees: [],
+    status: TaskStatus.UNASSIGNED,
+  },
+  {
+    id: 4,
+    name: "Deploy App",
+    assignees: [
+      {
+        name: "julien",
+        image: "/assets/profiles/ruslan.png",
+      },
+    ],
+    status: TaskStatus.ASSIGNED,
+  },
+];
 
 interface IOption {
   name: string;
@@ -147,9 +213,9 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                   >
                                     {filteredTask.name}
                                     <div className="flex items-center space-x-4">
-                                      <StatusIcon
+                                      {/* <StatusIcon
                                         taskStatus={filteredTask.status}
-                                      />
+                                      /> */}
                                       <div className="flex items-center justify-center space-x-1">
                                         {filteredTask.assignees &&
                                           filteredTask.assignees.map(

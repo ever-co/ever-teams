@@ -40,9 +40,10 @@ function useCreateOrganizationTeam() {
       setTeams(dt);
       const created = dt.find((t) => t.name === $name);
       if (created) {
-        setActiveTeamId(created.id);
         setActiveTeamIdCookie(created.id);
         setOrganizationIdCookie(created.organizationId);
+        // This must be called at the end (Update store)
+        setActiveTeamId(created.id);
       }
       return res;
     });
@@ -73,9 +74,10 @@ export function useOrganizationTeams() {
 
   const setActiveTeam = useCallback(
     (teamId: typeof teams[0]) => {
-      setActiveTeamId(teamId.id);
       setActiveTeamIdCookie(teamId.id);
       setOrganizationIdCookie(teamId.organizationId);
+      // This must be called at the end (Update store)
+      setActiveTeamId(teamId.id);
     },
     [setActiveTeamId]
   );

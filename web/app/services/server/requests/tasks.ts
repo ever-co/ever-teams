@@ -17,6 +17,9 @@ export function getTeamTasksRequest({
   const query = new URLSearchParams({
     "where[organizationId]": organizationId,
     "where[tenantId]": tenantId,
+    "join[alias]": "task",
+    "join[leftJoinAndSelect][members]": "task.members",
+    "join[leftJoinAndSelect][user]": "members.user",
   });
   return serverFetch<PaginationResponse<ITeamTask>>({
     path: `/tasks/team?${query.toString()}`,

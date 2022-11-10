@@ -15,22 +15,31 @@ export default async function handler(
   if (!user) return $res();
 
   if (req.method === "POST") {
-    const body = req.body as { name?: string };
-    const $name = body.name?.trim() || "";
-    if ($name.trim().length < 2) {
+    const body = req.body as { title?: string };
+    const title = body.title?.trim() || "";
+    if (title.trim().length < 2) {
       return res.status(400).json({ errors: { name: "Invalid task name !" } });
     }
     const activeTeam = getActiveTeamIdCookie({ req, res });
 
-    // const s = await createTaskRequest({
-    //   bearer_token: access_token,
-    //   data: {
-    //     title: $name,
-    //     description: "",
-    //     status: "Todo",
-    //     members: []
-    //   },
-    // });
+    await createTaskRequest({
+      bearer_token: access_token,
+      data: {
+        title,
+        description: "",
+        status: "Todo",
+        members: [],
+        teams: [
+          {
+            id: activeTeam,
+          },
+        ],
+        tags: [],
+        organizationId,
+        tenantId,
+        estimate: 0,
+      },
+    });
   }
 
   const { data: tasks } = await getTeamTasksRequest({

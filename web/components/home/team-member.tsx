@@ -43,6 +43,7 @@ const TeamMemberSection = ({ started, setStarted }: IStartSection) => {
       image: "/assets/profiles/kevin.png",
     },
   ];
+
   const style = { width: `${100 / members.length}%` };
   return (
     <div className="mt-[42px]">
