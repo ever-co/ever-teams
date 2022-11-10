@@ -2,7 +2,7 @@ interface IUnassignedTask {
   color?: string;
 }
 
-export const UnassignedTask = ({ color = "#8b949e" }: IUnassignedTask) => {
+const UnassignedTask = ({ color = "#8b949e" }: IUnassignedTask) => {
   return (
     <svg
       aria-hidden="true"

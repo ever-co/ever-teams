@@ -10,11 +10,11 @@ const Main = () => {
   const [started, setStarted] = useState(false);
   const { loadTeamsData } = useOrganizationTeams();
   const { timeToTimeRefreshToken } = useAuthenticateUser();
-  const { loadTeamTasksData } = useTeamTasks();
+  const { firstLoadTasksData } = useTeamTasks();
 
   useEffect(() => {
     loadTeamsData();
-    loadTeamTasksData();
+    firstLoadTasksData();
     timeToTimeRefreshToken();
   }, []);
 
