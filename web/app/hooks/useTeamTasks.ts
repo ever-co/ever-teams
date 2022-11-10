@@ -10,7 +10,7 @@ import {
 } from "@app/services/client/api";
 import { activeTeamState } from "@app/stores";
 import { activeTeamTaskState, teamTasksState } from "@app/stores/team-tasks";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useQuery } from "./useQuery";
 
@@ -20,6 +20,7 @@ export function useTeamTasks() {
   const [activeTeamTask, setActiveTeamTask] =
     useRecoilState(activeTeamTaskState);
   const activeTeam = useRecoilValue(activeTeamState);
+  const firstLoad = useRef(false);
 
   const { queryCall, loading } = useQuery(getTeamTasksAPI);
   const { queryCall: deleteQueryCall, loading: deleteLoading } =
@@ -27,11 +28,18 @@ export function useTeamTasks() {
   const { queryCall: createQueryCall, loading: createLoading } =
     useQuery(createTeamTaskAPI);
 
+  // to bo called once
+  const firstLoadTasksData = useCallback(() => {
+    firstLoad.current = true;
+  }, []);
+
   const loadTeamTasksData = useCallback(() => {
-    return queryCall().then((res) => {
-      setLTasks(res.data?.items || []);
-      return res;
-    });
+    return queryCall()
+      .then((res) => {
+        setLTasks(res.data?.items || []);
+        return res;
+      })
+      .finally(() => {});
   }, []);
 
   useEffect(() => {
@@ -45,6 +53,12 @@ export function useTeamTasks() {
       });
     }
   }, [activeTeam, Ltasks]);
+
+  useEffect(() => {
+    if (activeTeam && firstLoad.current) {
+      loadTeamTasksData();
+    }
+  }, [activeTeam]);
 
   useEffect(() => {
     const active_taskid = getActiveTaskIdCookie() || "";
@@ -63,8 +77,12 @@ export function useTeamTasks() {
     });
   }, []);
 
-  const createTask = useCallback(() => {
-    // createQueryCall
+  const createTask = useCallback((taskName: string) => {
+    return createQueryCall({
+      title: taskName,
+    }).then((res) => {
+      setLTasks(res.data?.items || []);
+    });
   }, []);
 
   const setActiveTask = useCallback((task: typeof tasks[0]) => {
@@ -74,12 +92,13 @@ export function useTeamTasks() {
 
   return {
     tasks,
-    loadTeamTasksData,
     loading,
     deleteTask,
     deleteLoading,
     createTask,
+    createLoading,
     setActiveTask,
     activeTeamTask,
+    firstLoadTasksData,
   };
 }
