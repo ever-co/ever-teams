@@ -97,9 +97,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     elevation: 5,
     shadowColor: "#1B005D0D",
-    shadowOffset: { width: 3, height: 3.5 },
-    shadowOpacity: 0.7,
-    shadowRadius: 5,
+    shadowOffset: { width: 10, height: 10.5 },
+    shadowOpacity: 1,
+    shadowRadius: 15,
   },
   estimate: {
     color: "#9490A0",
