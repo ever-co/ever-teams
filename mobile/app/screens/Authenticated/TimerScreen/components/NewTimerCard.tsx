@@ -10,8 +10,9 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 
 const NewTimerCard = () => {
   const [showCombo, setShowCombo] = useState(false)
-  const [text1, setText1] = useState("")
-  const [text2, setText2] = useState("")
+  const [text1, setText1] = useState("00")
+  const [text2, setText2] = useState("00")
+  const [mainText, setMainText] = useState("Open Platform for...")
 
   return (
     <View style={styles.mainContainer}>
@@ -32,9 +33,12 @@ const NewTimerCard = () => {
         <TextInput
           selectionColor={colors.primary}
           style={styles.textInput}
-          defaultValue="Open Platform for..."
+          defaultValue={mainText}
+          onChangeText={(newText) => setMainText(newText)}
         />
-        <Feather name="check" size={24} color="green" />
+        {mainText === "Open Platform for..." ? null : (
+          <Feather name="check" size={24} color="green" />
+        )}
       </TouchableOpacity>
       {showCombo && <ComboBox />}
 
@@ -53,7 +57,6 @@ const NewTimerCard = () => {
             <TextInput
               selectionColor={colors.primary}
               style={[styles.estimateInput, { right: 5 }]}
-              placeholder="00"
               onChangeText={(newText) => setText1(newText)}
               defaultValue={text1}
             />
@@ -61,12 +64,11 @@ const NewTimerCard = () => {
             <TextInput
               selectionColor={colors.primary}
               style={styles.estimateInput}
-              placeholder="00"
               onChangeText={(newText) => setText2(newText)}
               defaultValue={text2}
             />
             <View style={{ justifyContent: "flex-end" }}>
-              {text1 === "" && text2 === "" ? null : (
+              {text1 === "00" && text2 === "00" ? null : (
                 <Feather name="check" size={15} color="green" />
               )}
             </View>
