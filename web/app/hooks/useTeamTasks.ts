@@ -8,8 +8,12 @@ import {
   deleteTaskAPI,
   getTeamTasksAPI,
 } from "@app/services/client/api";
-import { activeTeamState, tasksFetchingState } from "@app/stores";
-import { activeTeamTaskState, teamTasksState } from "@app/stores/team-tasks";
+import { activeTeamState } from "@app/stores";
+import {
+  activeTeamTaskState,
+  tasksFetchingState,
+  teamTasksState,
+} from "@app/stores/team-tasks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useQuery } from "./useQuery";
