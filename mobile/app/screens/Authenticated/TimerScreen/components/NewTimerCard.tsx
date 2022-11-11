@@ -10,16 +10,16 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 
 const NewTimerCard = () => {
   const [showCombo, setShowCombo] = useState(false)
-  const [text1, setText1] = useState("00")
-  const [text2, setText2] = useState("00")
+  const [text1, setText1] = useState("")
+  const [text2, setText2] = useState("")
   const [mainText, setMainText] = useState("Open Platform for...")
 
   const onCheckLimitOne = (value: string) => {
     const parsedQty = Number.parseInt(value)
     if (Number.isNaN(parsedQty)) {
-      setText1("00")
-    } else if (parsedQty > 24) {
-      setText1("24")
+      setText1("")
+    } else if (parsedQty > 23) {
+      setText1("23")
     } else {
       setText1(parsedQty.toString())
     }
@@ -28,9 +28,9 @@ const NewTimerCard = () => {
   const onCheckLimitTwo = (value: string) => {
     const parsedQty = Number.parseInt(value)
     if (Number.isNaN(parsedQty)) {
-      setText2("00")
-    } else if (parsedQty > 60) {
-      setText2("60")
+      setText2("")
+    } else if (parsedQty > 59) {
+      setText2("59")
     } else {
       setText2(parsedQty.toString())
     }
@@ -72,14 +72,31 @@ const NewTimerCard = () => {
         }}
       >
         <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
-          <View style={{ paddingTop: 25, marginRight: 5 }}>
+          <View style={{ paddingTop: 20, marginRight: 7 }}>
             <Text style={styles.estimate}>Estimate: </Text>
           </View>
           <View style={styles.horizontalInput}>
             <TextInput
               selectionColor={colors.primary}
-              style={[styles.estimateInput, { right: 5 }]}
-              // onChangeText={(newText) => setText1(newText)}
+              style={
+                text1 === "" && text2 === ""
+                  ? {
+                      borderColor: colors.border,
+                      borderBottomWidth: 2,
+                      borderStyle: "dashed",
+                      width: 20,
+                      color: "#9490A0",
+                      height: 15,
+                    }
+                  : {
+                      borderColor: colors.border,
+                      borderBottomWidth: 0,
+                      borderStyle: "dashed",
+                      width: 20,
+                      color: "#9490A0",
+                      height: 15,
+                    }
+              }
               onChangeText={onCheckLimitOne}
               defaultValue={text1}
               maxLength={2}
@@ -89,7 +106,25 @@ const NewTimerCard = () => {
             <View style={styles.separator} />
             <TextInput
               selectionColor={colors.primary}
-              style={styles.estimateInput}
+              style={
+                text2 === "" && text1 === ""
+                  ? {
+                      borderColor: colors.border,
+                      borderBottomWidth: 2,
+                      borderStyle: "dashed",
+                      width: 20,
+                      color: "#9490A0",
+                      height: 15,
+                    }
+                  : {
+                      borderColor: colors.border,
+                      borderBottomWidth: 0,
+                      borderStyle: "dashed",
+                      width: 20,
+                      color: "#9490A0",
+                      height: 15,
+                    }
+              }
               onChangeText={onCheckLimitTwo}
               defaultValue={text2}
               maxLength={2}
@@ -97,7 +132,7 @@ const NewTimerCard = () => {
             />
             <Text style={{ color: "#9490A0" }}>m</Text>
             <View style={{ justifyContent: "flex-end" }}>
-              {text1 === "00" && text2 === "00" ? null : (
+              {text1 === "" && text2 === "" ? null : (
                 <Feather name="check" size={15} color="green" />
               )}
             </View>
@@ -138,13 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 10,
     alignSelf: "flex-end",
-  },
-  estimateInput: {
-    borderColor: colors.border,
-    borderBottomWidth: 2,
-    borderStyle: "dashed",
-    width: 20,
-    color: "#9490A0",
   },
   working: {
     color: "#9490A0",

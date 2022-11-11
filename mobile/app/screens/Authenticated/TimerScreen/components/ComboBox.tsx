@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     zIndex: 5,
     position: "absolute",
     top: "35%",
-    left: 5,
+    left: 15,
     width: "100%",
   },
 })
