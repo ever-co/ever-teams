@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderStyle: "dashed",
     width: 35,
+    color: "#9490A0",
   },
   working: {
     color: "#9490A0",
