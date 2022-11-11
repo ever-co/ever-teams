@@ -32,6 +32,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingLeft: 15,
     paddingRight: 15,
+    paddingTop: 10,
+    height: 30,
+    alignItems: "center",
   },
   icons: {
     flexDirection: "row",
