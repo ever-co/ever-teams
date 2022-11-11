@@ -6,12 +6,12 @@ const HomeHeader = () => {
     <View style={styles.mainContainer}>
       <View>
         <View style={styles.secondContainer}>
-          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
           <View style={{ flexDirection: "column" }}>
             <View style={styles.line} />
             <View style={styles.line} />
             <View style={styles.line} />
           </View>
+          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
         </View>
       </View>
     </View>
