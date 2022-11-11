@@ -23,7 +23,12 @@ export default async function handler(
       return res.status(400).json({ errors: { name: "Invalid team name !" } });
     }
     await createOrganizationTeamRequest(
-      { name: $name, tenantId, organizationId, managers: [user.id] },
+      {
+        name: $name,
+        tenantId,
+        organizationId,
+        managers: [user.id],
+      },
       access_token
     );
   }
