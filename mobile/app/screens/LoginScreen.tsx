@@ -2,25 +2,29 @@ import { Link } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useMemo, useRef, useState } from "react"
 import { Pressable } from "react-native"
+import { ActivityIndicator } from 'react-native-paper';
 import { TextInput, TextStyle, View, ViewStyle, Image, ImageStyle } from "react-native"
 import { Button, Icon, Screen, Text, TextField, TextFieldAccessoryProps } from "../components"
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
 import { typography } from "../theme"
-import { Api } from "../services/api"
+
+// import { Api } from "../services/api"
 
 import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
+import { IRegister, IRegisterResponse, register } from "../services/auth/register"
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
 const inviteCodeLogo = require("../../assets/images/lock-cloud.png")
-interface LoginScreenProps extends AppStackScreenProps<"Login"> {}
+interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const authTeamInput = useRef<TextInput>()
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [screenstatus, setScreenStatus] = useState<{ screen: number; animation: boolean }>({
     screen: 1,
     animation: false,
@@ -44,18 +48,24 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     },
   } = useStores()
 
+
   useEffect(() => {
     // Here is where you could fetch credientials from keychain or storage
     // and pre-fill the form fields.
     // setAuthEmail("gauzy@ever.tech")
     // setAuthTeamName("GauzyTeam")
+
   }, [])
+
+
+
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
   console.log(errors)
-  const api = new Api()
+  //const api = new Api()
   function joinTeam() {
     setIsSubmitted(true)
+
     setAttemptsCount(attemptsCount + 1)
 
     if (Object.values(validationErrors).some((v) => !!v)) return
@@ -73,23 +83,36 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setAuthToken(String(Date.now()))
   }
 
-  function createNewTeam() {
+  const createNewTeam = async () => {
     setIsSubmitted(true)
+    setIsLoading(true)
     setAttemptsCount(attemptsCount + 1)
 
     if (Object.values(validationErrors).some((v) => !!v)) return
 
     // Make a request to your server to get an authentication token.
-    // If successful, reset the fields and set the token.
-    setIsSubmitted(false)
-    setAuthTeamName("")
-    setAuthEmail("")
-    setAuthInviteCode("")
-    setAuthUsername("")
-    setAuthConfirmCode("")
 
-    // We'll mock this with a fake token.
-    setAuthToken(String(Date.now()))
+
+    let response: IRegisterResponse = await register({
+      team: authTeamName,
+      name: authUsername,
+      email: authEmail
+    });
+
+    // If successful, reset the fields and set the token.
+    if (response.status === 200) {
+      setIsSubmitted(false)
+      setAuthTeamName("")
+      setAuthEmail("")
+      setAuthInviteCode("")
+      setAuthUsername("")
+      setAuthConfirmCode("")
+
+      setIsLoading(false)
+      // We'll mock this with a fake token.
+      setAuthToken(response.loginRes.token);
+      console.log(response.loginRes.token);
+    }
   }
 
   useEffect(() => {
@@ -111,7 +134,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     >
       <Animatable.View animation="wobble" duration={2500} style={$header}>
         <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
-        <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={[$smalltext,{ marginTop:10}]} />
+        <Text testID="login-heading" tx="loginScreen.welcome" preset="heading" style={[$smalltext, { marginTop: 10 }]} />
       </Animatable.View>
       {screenstatus.screen === 1 && !withteam ? (
         //ENTER TEAM NAME SCREEN STARTS HERE
@@ -135,6 +158,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               containerStyle={$textField}
               autoCapitalize="none"
               autoCorrect={false}
+              editable={!isLoading}
               labelTx="loginScreen.teamNameFieldLabel"
               placeholderTx="loginScreen.teamNameFieldPlaceholder"
               helper={errors?.authTeamName}
@@ -182,217 +206,221 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           </View>
         </Animatable.View>
       ) : //ENTER TEAM NAME SCREEN ENDS HERE
-      screenstatus.screen === 2 ? (
-        //CREATE TEAM SCREEN STARTS HERE
+        screenstatus.screen === 2 ? (
+          //CREATE TEAM SCREEN STARTS HERE
 
-        <Animatable.View animation={"bounceInRight"} delay={1000} style={$container}>
-          <View style={$form}>
-            <Text
-              testID="login-heading"
-              tx="loginScreen.enterDetails"
-              preset="heading"
-              style={$text}
-            />
-
-            <TextField
-              ref={authTeamInput}
-              value={authUsername}
-              onChangeText={setAuthUsername}
-              containerStyle={$textField}
-              autoCapitalize="none"
-              autoCorrect={false}
-              labelTx="loginScreen.userNameFieldLabel"
-              placeholderTx="loginScreen.userNameFieldPlaceholder"
-              helper={errors?.authTeamName}
-              status={errors?.authTeamName ? "error" : undefined}
-              onSubmitEditing={() => authTeamInput.current?.focus()}
-            />
-            <TextField
-              value={authEmail}
-              onChangeText={setAuthEmail}
-              containerStyle={$textField}
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect={false}
-              keyboardType="email-address"
-              labelTx="loginScreen.emailFieldLabel"
-              placeholderTx="loginScreen.emailFieldPlaceholder"
-              helper={errors?.authEmail}
-              status={errors?.authEmail ? "error" : undefined}
-              onSubmitEditing={() => authTeamInput.current?.focus()}
-            />
-            <View style={$buttonsView}>
-              <Button
-                testID="login-button"
-                // tx="loginScreen.tapCreate"
-                style={$backButton}
-                preset="reversed"
-                onPress={() => {
-                  setWithTeam(false)
-                  setScreenStatus({ screen: 1, animation: true })
-                }}
-              >
-                <Icon icon="back" />
-              </Button>
-
-              <Button
-                testID="login-button"
-                tx="loginScreen.tapCreate"
-                style={$tapButton}
-                textStyle={{}}
-                preset="reversed"
-                onPress={() => setScreenStatus({ screen: 3, animation: true })}
-              />
-            </View>
-          </View>
-        </Animatable.View>
-      ) : //CREATE TEAM SCREEN ENDS HERE
-      screenstatus.screen === 3 ? (
-        //EMAIL CONFIRMATION SCREEN STARTS HERE
-        <Animatable.View animation={"bounceIn"} delay={1000} style={$container}>
-          <View style={$form}>
-            <Text
-              testID="login-heading"
-              tx="loginScreen.confirmDetails"
-              preset="heading"
-              style={$text}
-            />
-
-            <TextField
-              ref={authTeamInput}
-              value={authConfirmCode}
-              onChangeText={setAuthConfirmCode}
-              containerStyle={$textField}
-              autoCapitalize="none"
-              autoCorrect={false}
-              labelTx="loginScreen.confirmCodeFieldLabel"
-              placeholderTx="loginScreen.confirmCodePlaceholder"
-              helper={errors?.authConfirmCode}
-              status={errors?.authConfirmCode ? "error" : undefined}
-              onSubmitEditing={() => authTeamInput.current?.focus()}
-            />
-
-            <View style={$buttonsView}>
-              <Button
-                testID="login-button"
-                // tx="loginScreen.tapCreate"
-                style={$backButton}
-                textStyle={{}}
-                preset="reversed"
-                onPress={() => {
-                  setWithTeam(false)
-                  setScreenStatus({ screen: 2, animation: true })
-                }}
-              >
-                <Icon icon="back" />
-              </Button>
-              <Button
-                testID="login-button"
-                tx="loginScreen.tapConfirm"
-                style={$tapButton}
-                textStyle={{}}
-                preset="reversed"
-                onPress={createNewTeam}
-              />
-            </View>
-          </View>
-          <Pressable
-            onPress={() => {
-              setWithTeam(false)
-            }}
-            style={{ marginTop: 10 }}
-          >
-            <Text
-              style={{
-                fontSize: 17,
-                fontFamily: typography.secondary.normal,
-                textDecorationLine: "underline",
-              }}
-            >
-              {" "}
-              Resend code
-            </Text>
-          </Pressable>
-        </Animatable.View>
-      ) : (
-        //EMAIL CONFIRMATION SCREEN ENDS HERE
-        //JOIN TEAM SCREEN STARTS HERE
-        <Animatable.View animation="bounceInUp" style={$container}>
-          <View style={$form}>
-            <View style={$joinTeamLogoContainer}>
-              <Image style={$joinTeamLogo} source={inviteCodeLogo} resizeMode="contain" />
-            </View>
-
-            <Text
-              testID="login-heading"
-              tx="loginScreen.enterDetails2"
-              preset="heading"
-              style={$text}
-            />
-
-            <Text
-              testID="login-heading"
-              tx="loginScreen.confirmDetails2"
-              preset="heading"
-              style={$confirmtext}
-            />
-
-            <CodeInput />
-
-            <TextField
-              value={authEmail}
-              onChangeText={setAuthEmail}
-              containerStyle={$textField}
-              autoCapitalize="none"
-              autoComplete="email"
-              autoCorrect={false}
-              keyboardType="email-address"
-              labelTx="loginScreen.emailFieldLabel"
-              placeholderTx="loginScreen.emailFieldPlaceholder"
-              helper={errors?.authEmail}
-              status={errors?.authEmail ? "error" : undefined}
-              onSubmitEditing={() => authTeamInput.current?.focus()}
-            />
-
-            <Button
-              testID="login-button"
-              tx="loginScreen.tapJoin"
-              style={$tapButton}
-              textStyle={$joinButtonText}
-              preset="reversed"
-              onPress={joinTeam}
-            />
-            <Text
-              style={{
-                fontSize: 13,
-                fontFamily: typography.secondary.normal,
-                marginTop: spacing.small,
-              }}
-            >
-              {" "}
-              or{" "}
-            </Text>
-            <Pressable
-              onPress={() => {
-                setWithTeam(false)
-              }}
-            >
+          <Animatable.View animation={"bounceInRight"} delay={1000} style={$container}>
+            <View style={$form}>
               <Text
-                style={{
-                  fontSize: 17,
-                  fontFamily: typography.secondary.normal,
-                  textDecorationLine: "underline",
-                }}
-              >
-                {" "}
-                Create new team
-              </Text>
-            </Pressable>
-          </View>
-        </Animatable.View>
+                testID="login-heading"
+                tx="loginScreen.enterDetails"
+                preset="heading"
+                style={$text}
+              />
 
-        //JOIN TEAM SCREEN ENDS HERE
-      )}
+              <TextField
+                ref={authTeamInput}
+                value={authUsername}
+                onChangeText={setAuthUsername}
+                containerStyle={$textField}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!isLoading}
+                labelTx="loginScreen.userNameFieldLabel"
+                placeholderTx="loginScreen.userNameFieldPlaceholder"
+                helper={errors?.authTeamName}
+                status={errors?.authTeamName ? "error" : undefined}
+                onSubmitEditing={() => authTeamInput.current?.focus()}
+              />
+              <TextField
+                value={authEmail}
+                onChangeText={setAuthEmail}
+                containerStyle={$textField}
+                autoCapitalize="none"
+                autoComplete="email"
+                autoCorrect={false}
+                editable={!isLoading}
+                keyboardType="email-address"
+                labelTx="loginScreen.emailFieldLabel"
+                placeholderTx="loginScreen.emailFieldPlaceholder"
+                helper={errors?.authEmail}
+                status={errors?.authEmail ? "error" : undefined}
+                onSubmitEditing={() => authTeamInput.current?.focus()}
+              />
+              <View style={$buttonsView}>
+                <Button
+                  testID="login-button"
+                  // tx="loginScreen.tapCreate"
+                  style={$backButton}
+                  preset="reversed"
+                  onPress={() => {
+                    setWithTeam(false)
+                    setScreenStatus({ screen: 1, animation: true })
+                  }}
+                >
+                  <Icon icon="back" />
+                </Button>
+
+                <Button
+                  testID="login-button"
+                  tx="loginScreen.tapCreate"
+                  style={$tapButton}
+                  textStyle={{}}
+                  preset="reversed"
+                  onPress={() => setScreenStatus({ screen: 3, animation: true })}
+                />
+              </View>
+            </View>
+          </Animatable.View>
+        ) : //CREATE TEAM SCREEN ENDS HERE
+          screenstatus.screen === 3 ? (
+            //EMAIL CONFIRMATION SCREEN STARTS HERE
+            <Animatable.View animation={"bounceIn"} delay={1000} style={$container}>
+              <View style={$form}>
+                <Text
+                  testID="login-heading"
+                  tx="loginScreen.confirmDetails"
+                  preset="heading"
+                  style={$text}
+                />
+
+                <TextField
+                  ref={authTeamInput}
+                  value={authConfirmCode}
+                  onChangeText={setAuthConfirmCode}
+                  containerStyle={$textField}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                  labelTx="loginScreen.confirmCodeFieldLabel"
+                  placeholderTx="loginScreen.confirmCodePlaceholder"
+                  helper={errors?.authConfirmCode}
+                  status={errors?.authConfirmCode ? "error" : undefined}
+                  onSubmitEditing={() => authTeamInput.current?.focus()}
+                />
+
+                <View style={$buttonsView}>
+                  <Button
+                    testID="login-button"
+                    // tx="loginScreen.tapCreate"
+                    style={$backButton}
+                    textStyle={{}}
+                    preset="reversed"
+                    onPress={() => {
+                      setWithTeam(false)
+                      setScreenStatus({ screen: 2, animation: true })
+                    }}
+                  >
+                    <Icon icon="back" />
+                  </Button>
+                  <Button
+                    testID="login-button"
+                    tx="loginScreen.tapConfirm"
+                    style={$tapButton}
+                    textStyle={{}}
+                    preset="reversed"
+                    onPress={createNewTeam}
+                  />
+                </View>
+              </View>
+              <Pressable
+                onPress={() => {
+                  setWithTeam(false)
+                }}
+                style={{ marginTop: 10 }}
+              >
+                <Text
+                  style={{
+                    fontSize: 17,
+                    fontFamily: typography.secondary.normal,
+                    textDecorationLine: "underline",
+                  }}
+                >
+                  {" "}
+                  Resend code
+                </Text>
+              </Pressable>
+            </Animatable.View>
+          ) : (
+            //EMAIL CONFIRMATION SCREEN ENDS HERE
+            //JOIN TEAM SCREEN STARTS HERE
+            <Animatable.View animation="bounceInUp" style={$container}>
+              <View style={$form}>
+                <View style={$joinTeamLogoContainer}>
+                  <Image style={$joinTeamLogo} source={inviteCodeLogo} resizeMode="contain" />
+                </View>
+
+                <Text
+                  testID="login-heading"
+                  tx="loginScreen.enterDetails2"
+                  preset="heading"
+                  style={$text}
+                />
+
+                <Text
+                  testID="login-heading"
+                  tx="loginScreen.confirmDetails2"
+                  preset="heading"
+                  style={$confirmtext}
+                />
+
+                <CodeInput />
+
+                <TextField
+                  value={authEmail}
+                  onChangeText={setAuthEmail}
+                  containerStyle={$textField}
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  labelTx="loginScreen.emailFieldLabel"
+                  placeholderTx="loginScreen.emailFieldPlaceholder"
+                  helper={errors?.authEmail}
+                  status={errors?.authEmail ? "error" : undefined}
+                  onSubmitEditing={() => authTeamInput.current?.focus()}
+                />
+
+                <Button
+                  testID="login-button"
+                  tx="loginScreen.tapJoin"
+                  style={$tapButton}
+                  textStyle={$joinButtonText}
+                  preset="reversed"
+                  onPress={joinTeam}
+                />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontFamily: typography.secondary.normal,
+                    marginTop: spacing.small,
+                  }}
+                >
+                  {" "}
+                  or{" "}
+                </Text>
+                <Pressable
+                  onPress={() => {
+                    setWithTeam(false)
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 17,
+                      fontFamily: typography.secondary.normal,
+                      textDecorationLine: "underline",
+                    }}
+                  >
+                    {" "}
+                    Create new team
+                  </Text>
+                </Pressable>
+              </View>
+            </Animatable.View>
+
+            //JOIN TEAM SCREEN ENDS HERE
+          )}
+      <ActivityIndicator style={$loading} animating={true} size={'small'} color={colors.primary} />
       <Text style={$release}> Version: {pkg.version}</Text>
     </Screen>
   )
@@ -431,6 +459,11 @@ const $form: ViewStyle = {
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-start",
+}
+
+const $loading:ViewStyle={
+  position:"absolute",
+  bottom:"15%"
 }
 
 const $smalltext: TextStyle = {
