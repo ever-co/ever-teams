@@ -420,7 +420,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
             //JOIN TEAM SCREEN ENDS HERE
           )}
-      <ActivityIndicator style={$loading} animating={true} size={'small'} color={colors.primary} />
+      <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={colors.primary} />
       <Text style={$release}> Version: {pkg.version}</Text>
     </Screen>
   )
