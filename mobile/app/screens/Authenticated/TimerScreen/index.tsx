@@ -49,12 +49,12 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <HomeHeader />
         <View style={{ paddingBottom: 10 }}>
-          <DropDown teams={teams} onCreateTeam={()=>{} } />
+          <DropDown teams={teams} onCreateTeam={() => {}} />
         </View>
         <View
           style={{
             flex: 1,
-            backgroundColor: colors.palette.neutral200,
+            backgroundColor: "#F9FAFB",
             paddingHorizontal: 20,
           }}
         >

@@ -3,6 +3,7 @@ import { TextStyle, ViewStyle } from "react-native"
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { CompositeScreenProps } from "@react-navigation/native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Icon } from "../components"
@@ -55,8 +56,8 @@ export function AuthenticatedNavigator() {
         name="Timer"
         component={AuthenticatedTimerScreen}
         options={{
-          tabBarLabel: "Timer",
-          tabBarIcon: ({ focused }) => <Icon icon="bell" color={focused && colors.tint} />,
+          tabBarLabel: "",
+          tabBarIcon: () => <MaterialCommunityIcons name="clock" size={25} color="#1B005D" />,
         }}
       />
 
@@ -64,8 +65,8 @@ export function AuthenticatedNavigator() {
         name="Team"
         component={AuthenticatedTeamScreen}
         options={{
-          tabBarLabel: "Team",
-          tabBarIcon: ({ focused }) => <Icon icon="community" color={focused && colors.tint} />,
+          tabBarLabel: "",
+          tabBarIcon: () => <Icon icon="community" color={"#1B005D"} />,
         }}
       />
 
@@ -73,8 +74,8 @@ export function AuthenticatedNavigator() {
         name="Profile"
         component={AuthenticatedProfileScreen}
         options={{
-          tabBarLabel: "Profile",
-          tabBarIcon: ({ focused }) => <Icon icon="settings" color={focused && colors.tint} />,
+          tabBarLabel: "",
+          tabBarIcon: ({ focused }) => <Icon icon="clipApprove" color={focused && colors.tint} />,
         }}
       />
     </Tab.Navigator>

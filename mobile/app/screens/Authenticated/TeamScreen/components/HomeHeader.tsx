@@ -5,22 +5,13 @@ const HomeHeader = () => {
   return (
     <View style={styles.mainContainer}>
       <View>
-        <View style={styles.firstContainer}>
-          <Text style={styles.textColor}>9: 41</Text>
-          <View style={styles.icons}>
-            <Image source={require("../../../../../assets/icons/icons8-wi-fi-15.png")} />
-            <Image source={require("../../../../../assets/icons/icons8-signal-15.png")} />
-            <Image source={require("../../../../../assets/icons/icons8-full-battery-15.png")} />
-          </View>
-        </View>
-
         <View style={styles.secondContainer}>
-          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
-          <View style={{ flexDirection: "column" }}>
+          <View style={{ flexDirection: "column", paddingRight: 10 }}>
             <View style={styles.line} />
             <View style={styles.line} />
             <View style={styles.line} />
           </View>
+          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
         </View>
       </View>
     </View>
@@ -38,21 +29,17 @@ const styles = StyleSheet.create({
   },
   secondContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     paddingLeft: 15,
     paddingRight: 15,
+    height: 30,
+    paddingTop: 12,
+    alignItems: "center",
   },
   icons: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "20%",
-  },
-  firstContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingLeft: 25,
-    paddingRight: 15,
-    marginBottom: 10,
   },
   line: {
     backgroundColor: "#fff",
