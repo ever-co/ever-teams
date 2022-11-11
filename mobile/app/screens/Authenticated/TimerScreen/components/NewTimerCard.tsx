@@ -14,6 +14,28 @@ const NewTimerCard = () => {
   const [text2, setText2] = useState("00")
   const [mainText, setMainText] = useState("Open Platform for...")
 
+  const onCheckLimitOne = (value: string) => {
+    const parsedQty = Number.parseInt(value)
+    if (Number.isNaN(parsedQty)) {
+      setText1("00")
+    } else if (parsedQty > 24) {
+      setText1("24")
+    } else {
+      setText1(parsedQty.toString())
+    }
+  }
+
+  const onCheckLimitTwo = (value: string) => {
+    const parsedQty = Number.parseInt(value)
+    if (Number.isNaN(parsedQty)) {
+      setText2("00")
+    } else if (parsedQty > 60) {
+      setText2("60")
+    } else {
+      setText2(parsedQty.toString())
+    }
+  }
+
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.working}>What you working on?</Text>
@@ -57,16 +79,23 @@ const NewTimerCard = () => {
             <TextInput
               selectionColor={colors.primary}
               style={[styles.estimateInput, { right: 5 }]}
-              onChangeText={(newText) => setText1(newText)}
+              // onChangeText={(newText) => setText1(newText)}
+              onChangeText={onCheckLimitOne}
               defaultValue={text1}
+              maxLength={2}
+              keyboardType="numeric"
             />
+            <Text style={{ color: "#9490A0" }}>h</Text>
             <View style={styles.separator} />
             <TextInput
               selectionColor={colors.primary}
               style={styles.estimateInput}
-              onChangeText={(newText) => setText2(newText)}
+              onChangeText={onCheckLimitTwo}
               defaultValue={text2}
+              maxLength={2}
+              keyboardType="numeric"
             />
+            <Text style={{ color: "#9490A0" }}>m</Text>
             <View style={{ justifyContent: "flex-end" }}>
               {text1 === "00" && text2 === "00" ? null : (
                 <Feather name="check" size={15} color="green" />
@@ -106,16 +135,15 @@ const styles = StyleSheet.create({
   estimate: {
     color: "#9490A0",
     fontWeight: "600",
-    fontSize: 10,
+    fontSize: 12,
     marginBottom: 10,
     alignSelf: "flex-end",
   },
   estimateInput: {
     borderColor: colors.border,
     borderBottomWidth: 2,
-    paddingHorizontal: 10,
     borderStyle: "dashed",
-    width: 35,
+    width: 20,
     color: "#9490A0",
   },
   working: {
@@ -136,6 +164,7 @@ const styles = StyleSheet.create({
   },
   horizontalInput: {
     flexDirection: "row",
+    alignItems: "flex-end",
   },
   dashed: {
     borderBottomColor: "#fff",
@@ -146,7 +175,7 @@ const styles = StyleSheet.create({
     width: 2,
     marginHorizontal: 5,
     transform: [{ rotate: "20deg" }],
-    height: 30,
+    height: 20,
   },
   wrapInput: {
     backgroundColor: "#EEEFF5",
