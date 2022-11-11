@@ -13,7 +13,7 @@ const CompletedTask = () => {
         fill="#a371f7"
       ></path>
       <path
-        fill-rule="evenodd"
+        fillRule="evenodd"
         d="M16 8A8 8 0 110 8a8 8 0 0116 0zm-1.5 0a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"
         fill="#a371f7"
       ></path>

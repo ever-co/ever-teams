@@ -34,10 +34,6 @@ export function getUserOrganizationsRequest(
     path: `/user-organization?data=${query.toString()}`,
     method: "GET",
     bearer_token,
-    init: {
-      headers: {
-        "tenant-id": tenantId,
-      },
-    },
+    tenantId,
   });
 }

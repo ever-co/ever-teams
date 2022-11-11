@@ -15,11 +15,7 @@ export function getTimerStatusRequest(
     path: `/timesheet/timer/status?${params.toString()}`,
     method: "GET",
     bearer_token,
-    init: {
-      headers: {
-        "tenant-id": tenantId,
-      },
-    },
+    tenantId,
   });
 }
 
@@ -28,11 +24,7 @@ export function startTimerRequest(tenantId: string, bearer_token: string) {
     path: "/timesheet/timer/start",
     method: "POST",
     bearer_token,
-    init: {
-      headers: {
-        "tenant-id": tenantId,
-      },
-    },
+    tenantId,
   });
 }
 
@@ -41,10 +33,6 @@ export function stopTimerRequest(tenantId: string, bearer_token: string) {
     path: "/timesheet/timer/stop",
     method: "POST",
     bearer_token,
-    init: {
-      headers: {
-        "tenant-id": tenantId,
-      },
-    },
+    tenantId,
   });
 }

@@ -1,5 +1,6 @@
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
+import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import React, { useEffect, useState } from "react";
 import TeamMemberSection from "../components/home/team-member";
 import { TimerTasksSection } from "../components/home/timer-tasks";
@@ -9,11 +10,11 @@ const Main = () => {
   const [started, setStarted] = useState(false);
   const { loadTeamsData } = useOrganizationTeams();
   const { timeToTimeRefreshToken } = useAuthenticateUser();
+  const { firstLoadTasksData } = useTeamTasks();
 
   useEffect(() => {
-    loadTeamsData().then((res) => {
-      console.log(res.data);
-    });
+    loadTeamsData();
+    firstLoadTasksData();
     timeToTimeRefreshToken();
   }, []);
 

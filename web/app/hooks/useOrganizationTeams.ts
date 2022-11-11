@@ -1,6 +1,7 @@
 import {
   getActiveTeamIdCookie,
   setActiveTeamIdCookie,
+  setOrganizationIdCookie,
 } from "@app/helpers/cookies";
 import {
   createOrganizationTeamAPI,
@@ -33,13 +34,16 @@ function useCreateOrganizationTeam() {
     if (exits || $name.length < 2) {
       return Promise.reject(new Error("Invalid team name !"));
     }
+
     return queryCall($name).then((res) => {
       const dt = res.data?.items || [];
       setTeams(dt);
       const created = dt.find((t) => t.name === $name);
       if (created) {
-        setActiveTeamId(created.id);
         setActiveTeamIdCookie(created.id);
+        setOrganizationIdCookie(created.organizationId);
+        // This must be called at the end (Update store)
+        setActiveTeamId(created.id);
       }
       return res;
     });
@@ -69,9 +73,11 @@ export function useOrganizationTeams() {
   }, []);
 
   const setActiveTeam = useCallback(
-    (teamId: string) => {
-      setActiveTeamId(teamId);
-      setActiveTeamIdCookie(teamId);
+    (teamId: typeof teams[0]) => {
+      setActiveTeamIdCookie(teamId.id);
+      setOrganizationIdCookie(teamId.organizationId);
+      // This must be called at the end (Update store)
+      setActiveTeamId(teamId.id);
     },
     [setActiveTeamId]
   );

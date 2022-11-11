@@ -14,9 +14,9 @@ export async function authenticatedGuard(
   const tenantId = getTenantIdCookie({ req, res });
   const organizationId = getOrganizationIdCookie({ req, res });
 
-  const r_res = await currentAuthenticatedUserRequest(
-    access_token?.toString() || ""
-  ).catch(console.error);
+  const r_res = await currentAuthenticatedUserRequest({
+    bearer_token: access_token?.toString() || "",
+  }).catch(console.error);
 
   if (!r_res || (r_res.data as any).statusCode === 401) {
     res.status(401);
@@ -25,6 +25,8 @@ export async function authenticatedGuard(
       user: null,
     };
   }
+
+  res.status(200);
 
   return {
     $res: res,
