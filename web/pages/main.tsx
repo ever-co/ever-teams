@@ -15,7 +15,10 @@ const Main = () => {
   useEffect(() => {
     loadTeamsData();
     firstLoadTasksData();
-    timeToTimeRefreshToken();
+    const clear = timeToTimeRefreshToken();
+    return () => {
+      clear();
+    };
   }, []);
 
   return (
