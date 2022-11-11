@@ -10,6 +10,9 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 
 const NewTimerCard = () => {
   const [showCombo, setShowCombo] = useState(false)
+  const [text1, setText1] = useState("")
+  const [text2, setText2] = useState("")
+
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.working}>What you working on?</Text>
@@ -38,7 +41,7 @@ const NewTimerCard = () => {
       <View
         style={{
           flexDirection: "row",
-          marginBottom: 10,
+          marginBottom: 40,
           justifyContent: "space-between",
         }}
       >
@@ -51,15 +54,21 @@ const NewTimerCard = () => {
               selectionColor={colors.primary}
               style={[styles.estimateInput, { right: 5 }]}
               placeholder="00"
+              onChangeText={(newText) => setText1(newText)}
+              defaultValue={text1}
             />
             <View style={styles.separator} />
             <TextInput
               selectionColor={colors.primary}
               style={styles.estimateInput}
               placeholder="00"
+              onChangeText={(newText) => setText2(newText)}
+              defaultValue={text2}
             />
             <View style={{ justifyContent: "flex-end" }}>
-              <Feather name="check" size={15} color="green" />
+              {text1 === "" && text2 === "" ? null : (
+                <Feather name="check" size={15} color="green" />
+              )}
             </View>
           </View>
         </View>
@@ -95,6 +104,7 @@ const styles = StyleSheet.create({
   estimate: {
     color: "#9490A0",
     fontWeight: "600",
+    fontSize: 10,
     marginBottom: 10,
     alignSelf: "flex-end",
   },
@@ -103,7 +113,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 2,
     paddingHorizontal: 10,
     borderStyle: "dashed",
-    width: 10,
+    width: 35,
   },
   working: {
     color: "#9490A0",
@@ -140,7 +150,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: "100%",
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 6,
   },
 })
 

@@ -97,9 +97,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEEFF5",
     padding: 8,
     borderRadius: 5,
-    width: "50%",
+    width: "45%",
     height: 40,
-    marginTop: 10,
+    marginTop: 5,
+    zIndex: 1,
   },
   dropdownContainer: {
     backgroundColor: "#FFF",
