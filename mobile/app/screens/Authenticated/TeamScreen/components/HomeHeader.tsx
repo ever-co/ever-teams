@@ -6,7 +6,7 @@ const HomeHeader = () => {
     <View style={styles.mainContainer}>
       <View>
         <View style={styles.secondContainer}>
-          <View style={{ flexDirection: "column", paddingBottom: 10 }}>
+          <View style={{ flexDirection: "column", paddingRight: 10 }}>
             <View style={styles.line} />
             <View style={styles.line} />
             <View style={styles.line} />
@@ -28,12 +28,13 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   secondContainer: {
-    flexDirection: "column",
-    justifyContent: "space-between",
+    flexDirection: "row",
+    justifyContent: "flex-start",
     paddingLeft: 15,
     paddingRight: 15,
-    paddingTop: 10,
-    alignItems: "flex-start",
+    height: 30,
+    paddingTop: 12,
+    alignItems: "center",
   },
   icons: {
     flexDirection: "row",

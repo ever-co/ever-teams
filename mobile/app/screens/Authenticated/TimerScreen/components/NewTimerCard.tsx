@@ -6,12 +6,12 @@ import TaskStatusDropdown from "./TaskStatusDropdown"
 
 import { Feather } from "@expo/vector-icons"
 import ComboBox from "./ComboBox"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 
 const NewTimerCard = () => {
   const [showCombo, setShowCombo] = useState(false)
   return (
     <View style={styles.mainContainer}>
-      <Text style={styles.timer}>Timer</Text>
       <Text style={styles.working}>What you working on?</Text>
       <TouchableOpacity
         activeOpacity={0.7}
@@ -35,34 +35,34 @@ const NewTimerCard = () => {
       </TouchableOpacity>
       {showCombo && <ComboBox />}
 
-      <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
-        <View style={{ paddingTop: 25 }}>
-          <Text style={styles.estimate}>Estimate: </Text>
-        </View>
-
-        <View style={styles.horizontalInput}>
-          <TextInput
-            selectionColor={colors.primary}
-            style={[styles.estimateInput, { right: 5 }]}
-            placeholder="Hours"
-          />
-          <View style={styles.separator} />
-          <TextInput
-            selectionColor={colors.primary}
-            style={styles.estimateInput}
-            placeholder="Minutes"
-          />
-          <View>
-            <Feather name="check" size={24} color="green" />
+      <View
+        style={{
+          flexDirection: "row",
+          marginBottom: 10,
+          justifyContent: "space-between",
+        }}
+      >
+        <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
+          <View style={{ paddingTop: 25, marginRight: 5 }}>
+            <Text style={styles.estimate}>Estimate: </Text>
+          </View>
+          <View style={styles.horizontalInput}>
+            <TextInput
+              selectionColor={colors.primary}
+              style={[styles.estimateInput, { right: 5 }]}
+              placeholder="00"
+            />
+            <View style={styles.separator} />
+            <TextInput
+              selectionColor={colors.primary}
+              style={styles.estimateInput}
+              placeholder="00"
+            />
+            <View style={{ justifyContent: "flex-end" }}>
+              <Feather name="check" size={15} color="green" />
+            </View>
           </View>
         </View>
-      </View>
-
-      <View>
-        <TaskStatusDropdown />
-      </View>
-
-      <View>
         <TaskStatusDropdown />
       </View>
 
@@ -80,20 +80,17 @@ const NewTimerCard = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     marginTop: 20,
-    shadowColor: "#1B005D0D",
-    shadowOffset: { width: 10, height: 10 },
-    shadowRadius: 10,
+    paddingTop: 30,
     backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 10,
-    borderColor: "#1B005D0D",
-    borderWidth: 2,
-  },
-  timer: {
-    color: "#1B005D",
-    fontWeight: "bold",
-    fontSize: 25,
-    marginBottom: 15,
+    borderRadius: 25,
+    padding: 20,
+    ...GS.noBorder,
+    borderWidth: 1,
+    elevation: 5,
+    shadowColor: "#1B005D0D",
+    shadowOffset: { width: 3, height: 3.5 },
+    shadowOpacity: 0.7,
+    shadowRadius: 5,
   },
   estimate: {
     color: "#9490A0",
@@ -103,10 +100,10 @@ const styles = StyleSheet.create({
   },
   estimateInput: {
     borderColor: colors.border,
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     paddingHorizontal: 10,
     borderStyle: "dashed",
-    width: "35%",
+    width: 10,
   },
   working: {
     color: "#9490A0",
@@ -136,6 +133,7 @@ const styles = StyleSheet.create({
     width: 2,
     marginHorizontal: 5,
     transform: [{ rotate: "20deg" }],
+    height: 30,
   },
   wrapInput: {
     backgroundColor: "#EEEFF5",
