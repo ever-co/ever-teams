@@ -4,55 +4,10 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import OpenTaskIcon from "./dropdownIcons/open-task";
-import CompletedTask from "./dropdownIcons/completed-task";
-import UnassignedTask from "./dropdownIcons/unassigned-task";
 import DeleteTask from "../delete-task";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import { ITeamTask, ITaskStatus } from "@app/interfaces/ITask";
-import TodoTask from "./dropdownIcons/todo-task";
-import TestingTask from "./dropdownIcons/testing-task";
+import { ITeamTask } from "@app/interfaces/ITask";
 import { Spinner } from "../spinner";
-
-export const StatusIcon = ({ taskStatus }: { taskStatus: ITaskStatus }) => {
-  switch (taskStatus) {
-    case "In Progress":
-      return (
-        <div className="px-2 py-1 bg-[#dcfce7] text-[#166534] rounded-2xl text-xs flex items-center justify-center">
-          <OpenTaskIcon /> {taskStatus}
-        </div>
-      );
-      break;
-    case "Completed":
-      return (
-        <div className="px-2 py-1 bg-[#f3e8ff] text-[#6b21a8] rounded-2xl text-xs flex items-center justify-center">
-          <CompletedTask /> {taskStatus}
-        </div>
-      );
-      break;
-    case "Todo":
-      return (
-        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
-          <TodoTask /> {taskStatus}
-        </div>
-      );
-      break;
-    case "For Testing":
-      return (
-        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
-          <TestingTask /> {taskStatus}
-        </div>
-      );
-      break;
-    default:
-      return (
-        <div className="px-2 py-1 bg-[#f3f4f6] text-[#1f2937] rounded-2xl text-xs flex items-center justify-center">
-          <UnassignedTask />
-          Unassigned
-        </div>
-      );
-  }
-};
 
 function TaskItem({
   selected,
@@ -75,7 +30,7 @@ function TaskItem({
         <div className="flex items-center justify-between w-full">
           {item.title}
           <div className="flex items-center space-x-4">
-            <StatusIcon taskStatus={item.status} />
+            {/* <StatusIcon taskStatus={item.status} /> */}
             <div className="flex items-center justify-center space-x-1">
               {item.members &&
                 item.members.map((member, i) => (

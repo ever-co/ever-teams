@@ -149,6 +149,8 @@ export type ITaskStatus =
   | "In Progress"
   | "For Testing"
   | "Completed"
+  | "Closed"
+  | "In Review"
   | "Unassigned";
 
 export interface ICreateTask {
