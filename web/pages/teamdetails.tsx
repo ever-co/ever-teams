@@ -31,8 +31,16 @@ function Teamdetails() {
       </div>
       <div className="mt-10 w-[85rem] mx-[6rem]">
         <div className="">
-          <button className="bg-gray-400 px-2 py-1 text-white font-bold rounded-md mb-6">
-            Back to Team
+          <button className="bg-gray-400 px-2 py-1 text-white font-bold rounded-md mb-6 flex">
+            <div className="flex-1 mr-2">
+              <Image
+              src="/assets/backbutton/left-arrow.png"
+              alt=""
+              width={10}
+              height={10}
+              />
+            </div>
+            <div className="">Back to Team</div>
           </button>
         </div>
         <div className="">
