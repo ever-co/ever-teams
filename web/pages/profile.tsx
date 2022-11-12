@@ -1,29 +1,34 @@
-import TeamLogo from "@components/common/team_logo";
-import Header from "../components/home/header";
-import TeamMemberSection from "../components/home/team-member";
-import Footer from "@components/layout/footer/footer";
 import Image from "next/image";
-import { SetStateAction, useState } from "react";
-import { Button } from "reactstrap";
+import { useState } from "react";
 import { TeamsDropDown } from "@components/common/dropDown";
-import Profile from "@components/layout/header/profile";
-import { TimerTasksSection } from "../components/home/timer-tasks";
-import { Timer } from "@components/home/timer";
 import { AppLayout } from "@components/layout";
-const style = { width: 100 };
-const tasks: string[] = ["Api integration", "Implement header"];
+import Timer from "@components/common/main/timer";
 
 interface ITimerTasksSection {
   started: boolean;
   setStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function Teamdetails() {
+const Profile = () => {
   const [started, setStarted] = useState(false);
   return (
-    <AppLayout>
-              <TimerTasksSection started={started} setStarted={setStarted} />
-     {/* <div className="mx-9 my-9 flex">
+    <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
+      <AppLayout>
+        <div className="bg-[#FFFF] dark:bg-[#202023] mt-[120px] rounded-[20px] w-full h-[130px] flex items-center justify-between">
+          <div className="ml-[16px] flex flex-col space-y-[15px]">
+            <Image
+              src="/assets/profiles/ruslan.png"
+              alt="User Icon"
+              width={80}
+              height={80}
+              className="rounded-full flex items-center justify-center"
+            />
+          </div>
+          <div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
+            <Timer started={started} setStarted={setStarted} />
+          </div>
+        </div>
+        {/* <div className="mx-9 my-9 flex">
         <div className="mt-10 w-[85rem] mx-[6rem]">
           <div className="">
             <button className="bg-gray-400 px-2 py-1 text-white font-bold rounded-md mb-6 flex">
@@ -71,8 +76,9 @@ function Teamdetails() {
           </div>
         </div>
       </div>  */}
-    </AppLayout>
+      </AppLayout>
+    </div>
   );
-}
+};
 
-export default Teamdetails;
+export default Profile;

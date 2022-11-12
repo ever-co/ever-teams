@@ -1,12 +1,11 @@
 import { TimeInput } from "@components/common/main/time-input";
 import TaskInput from "@components/common/main/task-input";
-import { PauseIcon } from "../common/main/pauseIcon";
-import { PlayIcon } from "../common/main/playIcon";
 import StatusDropdown from "@components/common/main/status-dropdown";
+import Timer from "@components/common/main/timer";
 
 const tasks: string[] = ["Api integration", "Implement header"];
 
-interface ITimerTasksSection {
+export interface ITimerTasksSection {
   started: boolean;
   setStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -41,22 +40,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
         </div>
       </div>
       <div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
-        <div className="flex flex-col">
-          <h1 className="text-[53px] text-primary dark:text-[#FFFFFF]">
-            01 : 10 : 36 : <span className="text-[35px]">20</span>
-          </h1>
-          <div className="flex w-[284px]">
-            <div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
-            <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
-          </div>
-        </div>
-        <div className="cursor-pointer" onClick={() => setStarted(!started)}>
-          {started ? (
-            <PauseIcon width={68} height={68} />
-          ) : (
-            <PlayIcon width={68} height={68} />
-          )}
-        </div>
+        <Timer started={started} setStarted={setStarted} />
       </div>
     </div>
   );
