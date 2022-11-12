@@ -54,3 +54,9 @@
 .light-mode .toggleThemeContainer button #sun {
   fill: #ffffff !important;
 }
+
+.timer{
+  display: flex;
+  align-items:flex-end;
+  justify-content: end;
+}
