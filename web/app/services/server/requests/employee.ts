@@ -1,0 +1,15 @@
+import { ICreateEmployee, IEmployee } from "@app/interfaces/IEmployee";
+import { serverFetch } from "../fetch";
+
+export function createEmployeeRequest(
+  data: ICreateEmployee,
+  bearer_token: string
+) {
+  return serverFetch<IEmployee>({
+    path: "/employee",
+    method: "POST",
+    bearer_token,
+    body: data,
+    tenantId: data.tenantId,
+  });
+}

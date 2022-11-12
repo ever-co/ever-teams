@@ -53,3 +53,8 @@ export interface IEmployee {
   user: IUser;
   fullName: string;
 }
+
+export type ICreateEmployee = Pick<
+  IEmployee,
+  "tenantId" | "userId" | "fullName" | "organizationId" | "isActive"
+> & { user: Pick<IEmployee["user"], "id"> };
