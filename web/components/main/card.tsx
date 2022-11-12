@@ -6,6 +6,7 @@ import Separator from "../common/separator";
 import DropdownUser from "@components/common/main/dropdown-user";
 import { TimeInput } from "@components/common/main/time-input";
 import { useState } from "react";
+import Link from "next/link";
 
 interface ICardProps extends IMembers, IStartSection {
   style: { width: string };
@@ -77,8 +78,8 @@ ICardProps) => {
         <div className={`rounded-[50%] w-5 h-5 ${bgColor}`}></div>
       </div>
       <div className="w-[235px] h-[48px] flex items-center justify-center">
-        <div className="flex justify-center items-center">
-          <Image src={image} alt="User Icon" width={48} height={48} />
+        <div className="flex justify-center items-center cursor-pointer">
+          <Link href={"../../profile"}><Image src={image} alt="User Icon" width={48} height={48} /></Link>
         </div>
 
         <div
