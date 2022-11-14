@@ -12,6 +12,9 @@ export interface ITeamTask {
   description: string;
   status: ITaskStatus;
   estimate: null | number;
+  estimateDays?: number;
+  estimateHours?: number;
+  estimateMinutes?: number;
   dueDate: string;
   projectId: string;
   creatorId: string;

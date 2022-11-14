@@ -1,5 +1,5 @@
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
 import { StatusIcon, statusIcons } from "./dropdownIcons";
 import { ITaskStatus } from "@app/interfaces/ITask";
@@ -16,30 +16,43 @@ const StatusDropdown = () => {
     setSelected(activeTeamTask?.status || null);
   }, [activeTeamTask]);
 
-  useEffect(() => {
-    if (selected && activeTeamTask && selected !== activeTeamTask.status) {
-      updateTask({
-        ...activeTeamTask,
-        id: activeTeamTask.id,
-        status: selected,
-      });
-    }
-  }, [selected, activeTeamTask]);
+  const handleChange = useCallback(
+    (status: ITaskStatus) => {
+      setSelected(status);
+
+      if (activeTeamTask && status !== activeTeamTask.status) {
+        updateTask({
+          ...activeTeamTask,
+          status: status,
+        });
+      }
+    },
+    [activeTeamTask]
+  );
 
   return (
-    <div className="w-[141px] h-[30px]">
-      <Combobox value={selected} onChange={setSelected}>
+    <div className="w-[145px] max-w-[150px] h-[30px]">
+      <Combobox value={selected} onChange={handleChange}>
         <div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
-          <Combobox.Input
-            className="h-[30px] bg-[#F0ECFD] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] outline-none py-1"
-            displayValue={(status: ITaskStatus) => status}
-            onChange={(_) => {}}
-            readOnly
-            placeholder="Status"
-          />
+          <div className="flex px-[10px] items-center justify-center">
+            {selected && (
+              <Combobox.Label className="mr-1">
+                <StatusIcon status={selected} />
+              </Combobox.Label>
+            )}
+            <Combobox.Input
+              className="h-[30px] bg-[#F0ECFD] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-none py-1"
+              displayValue={(status: ITaskStatus) => status}
+              onChange={(_) => {}}
+              readOnly
+              placeholder="Status"
+            />
+          </div>
           <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
             {updateLoading ? (
-              <Spinner dark={false} />
+              <span className="ml-2 h-5 w-5">
+                <Spinner dark={false} />
+              </span>
             ) : (
               <ChevronDownIcon
                 className={`ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
