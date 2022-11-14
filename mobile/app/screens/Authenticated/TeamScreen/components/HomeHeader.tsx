@@ -1,26 +1,32 @@
 import React from "react"
-import { View, Text, Image, StyleSheet } from "react-native"
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native"
 
-const HomeHeader = () => {
+type IHomeHeader = {
+  setShowHam?: any
+}
+
+const HomeHeader = ({ setShowHam }: IHomeHeader) => {
   return (
     <View style={styles.mainContainer}>
       <View>
-        <View style={styles.firstContainer}>
-          <Text style={styles.textColor}>9: 41</Text>
-          <View style={styles.icons}>
-            <Image source={require("../../../../../assets/icons/icons8-wi-fi-15.png")} />
-            <Image source={require("../../../../../assets/icons/icons8-signal-15.png")} />
-            <Image source={require("../../../../../assets/icons/icons8-full-battery-15.png")} />
-          </View>
-        </View>
-
         <View style={styles.secondContainer}>
+
           <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
-          <View style={{ flexDirection: "column" }}>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => {
+              if (setShowHam !== undefined) {
+                setShowHam(true)
+              }
+            }}
+            style={{ flexDirection: "column" }}
+          >
             <View style={styles.line} />
             <View style={styles.line} />
             <View style={styles.line} />
-          </View>
+          </TouchableOpacity>
+
         </View>
       </View>
     </View>
@@ -38,21 +44,17 @@ const styles = StyleSheet.create({
   },
   secondContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     paddingLeft: 15,
     paddingRight: 15,
+    height: 30,
+    paddingTop: 12,
+    alignItems: "center",
   },
   icons: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "20%",
-  },
-  firstContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingLeft: 25,
-    paddingRight: 15,
-    marginBottom: 10,
   },
   line: {
     backgroundColor: "#fff",

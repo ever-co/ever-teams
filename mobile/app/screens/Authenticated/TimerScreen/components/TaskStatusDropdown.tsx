@@ -23,11 +23,11 @@ const TaskStatusDropdown = () => {
     >
       <TouchableOpacity
         onPress={() => setIsOpened(!isOpened)}
-        style={{ flexDirection: "row", justifyContent: "space-between" }}
+        style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View>
-            {status === null ? <Entypo name="circle" size={14} color="gray" /> : null}
+            {status === null ? null : null}
             {status === "No Status" ? <Entypo name="circle" size={14} color="gray" /> : null}
             {status === "In progress" ? (
               <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
@@ -40,13 +40,23 @@ const TaskStatusDropdown = () => {
           <Text
             style={[
               styles.dropdownItemTxt,
-              { fontSize: 16, marginLeft: 5, color: status === "Completed" ? "green" : "#1B005D" },
+              {
+                fontSize: 14,
+                marginLeft: 5,
+                color: status === "Completed" ? "green" : "#1B005D",
+                fontWeight: "bold",
+              },
             ]}
           >
             {status === null ? "Status" : status}
           </Text>
         </View>
-        <Image source={require("../../../../../assets/icons/caretDown.png")} />
+
+        {isOpened ? (
+          <AntDesign name="up" size={18} color="#1B005D" />
+        ) : (
+          <AntDesign name="down" size={18} color="#1B005D" />
+        )}
       </TouchableOpacity>
 
       {isOpened ? (
@@ -73,7 +83,9 @@ const TaskStatusDropdown = () => {
             <Text style={[styles.dropdownItemTxt, { color: "green" }]}>Completed</Text>
           </TouchableOpacity>
         </View>
-      ) : null}
+      ) : (
+        <></>
+      )}
     </View>
   )
 }
@@ -85,8 +97,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEEFF5",
     padding: 8,
     borderRadius: 5,
-    width: "100%",
-    zIndex: 1000,
+    width: "45%",
+    height: 40,
+    marginTop: 5,
+    zIndex: 1,
   },
   dropdownContainer: {
     backgroundColor: "#FFF",
