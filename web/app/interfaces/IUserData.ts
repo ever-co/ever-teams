@@ -1,3 +1,5 @@
+import { IEmployee } from "./IEmployee";
+
 export interface ITeamProps {
   email: string;
   name: string;
@@ -18,7 +20,7 @@ export interface IUser {
   isActive: boolean;
   roleId: string | null;
   id: string;
-  employee: any;
+  employee: IEmployee;
   role: Role;
   tenant: Tenant;
   createdAt: string;

@@ -4,16 +4,27 @@ import { Combobox, Transition } from "@headlessui/react";
 import { StatusIcon, statusIcons } from "./dropdownIcons";
 import { ITaskStatus } from "@app/interfaces/ITask";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { Spinner } from "../spinner";
 
 const statusKeys = Object.keys(statusIcons) as ITaskStatus[];
 
 const StatusDropdown = () => {
   const [selected, setSelected] = useState<ITaskStatus | null>(null);
-  const { activeTeamTask } = useTeamTasks();
+  const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
 
   useEffect(() => {
     setSelected(activeTeamTask?.status || null);
   }, [activeTeamTask]);
+
+  useEffect(() => {
+    if (selected && activeTeamTask && selected !== activeTeamTask.status) {
+      updateTask({
+        ...activeTeamTask,
+        id: activeTeamTask.id,
+        status: selected,
+      });
+    }
+  }, [selected, activeTeamTask]);
 
   return (
     <div className="w-[141px] h-[30px]">
@@ -22,15 +33,19 @@ const StatusDropdown = () => {
           <Combobox.Input
             className="h-[30px] bg-[#F0ECFD] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] outline-none py-1"
             displayValue={(status: ITaskStatus) => status}
-            onChange={(event) => {}}
+            onChange={(_) => {}}
             readOnly
             placeholder="Status"
           />
           <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-            <ChevronDownIcon
-              className={`ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
-              aria-hidden="true"
-            />
+            {updateLoading ? (
+              <Spinner dark={false} />
+            ) : (
+              <ChevronDownIcon
+                className={`ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
+                aria-hidden="true"
+              />
+            )}
           </Combobox.Button>
         </div>
         <Transition

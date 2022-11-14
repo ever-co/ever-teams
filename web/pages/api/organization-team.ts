@@ -27,7 +27,7 @@ export default async function handler(
         name: $name,
         tenantId,
         organizationId,
-        managers: [user.id],
+        managers: [user.employee.id],
       },
       access_token
     );

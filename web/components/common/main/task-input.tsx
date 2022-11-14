@@ -157,6 +157,7 @@ export default function TaskInput() {
               className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
               displayValue={(task: ITeamTask) => task && task.title}
               onChange={(event) => setQuery(event.target.value)}
+              autoComplete="off"
               placeholder="What you working on?"
               readOnly={tasksFetching}
             />

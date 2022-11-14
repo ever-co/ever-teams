@@ -32,7 +32,7 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
     }
   }, []);
 
-  const timeToTimeRefreshToken = useCallback((interval = 2000 * 60) => {
+  const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
     window.clearInterval(intervalRt.current);
     intervalRt.current = window.setInterval(refreshTokenAPI, interval);
 

@@ -13,6 +13,10 @@ export function deleteTaskAPI(taskId: string) {
   return api.delete<DeleteReponse>(`/tasks/${taskId}`);
 }
 
+export function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
+  return api.put<PaginationResponse<ITeamTask>>(`/tasks/${taskId}`, body);
+}
+
 export function createTeamTaskAPI(
   body: Partial<ICreateTask> & { title: string }
 ) {
