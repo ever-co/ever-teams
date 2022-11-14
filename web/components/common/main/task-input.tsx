@@ -8,6 +8,7 @@ import DeleteTask from "../delete-task";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITeamTask } from "@app/interfaces/ITask";
 import { Spinner } from "../spinner";
+import { BadgedTaskStatus } from "./dropdownIcons";
 
 function TaskItem({
   selected,
@@ -30,7 +31,7 @@ function TaskItem({
         <div className="flex items-center justify-between w-full">
           {item.title}
           <div className="flex items-center space-x-4">
-            {/* <StatusIcon taskStatus={item.status} /> */}
+            <BadgedTaskStatus status={item.status} />
             <div className="flex items-center justify-center space-x-1">
               {item.members &&
                 item.members.map((member, i) => (
