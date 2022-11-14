@@ -50,11 +50,11 @@ export interface IEmployee {
   userId: string;
   contactId: any;
   organizationPositionId: any;
-  user: IUser;
+  user?: IUser;
   fullName: string;
 }
 
 export type ICreateEmployee = Pick<
   IEmployee,
-  "tenantId" | "userId" | "fullName" | "organizationId" | "isActive"
-> & { user: Pick<IEmployee["user"], "id"> };
+  "tenantId" | "userId" | "organizationId" | "startedWorkOn"
+>;

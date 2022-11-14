@@ -36,10 +36,11 @@ function TaskItem({
                 item.members.map((member, i) => (
                   <div className="flex justify-center items-center" key={i}>
                     <Image
-                      src={member.user.imageUrl}
+                      src={member.user?.imageUrl || ""}
                       alt={
-                        (member.user.firstName || "") +
-                        (member.user.lastName || "")
+                        (member.user?.firstName || "") +
+                        " " +
+                        (member.user?.lastName || "")
                       }
                       width={30}
                       height={30}

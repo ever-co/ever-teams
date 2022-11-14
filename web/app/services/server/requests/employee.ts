@@ -1,7 +1,7 @@
 import { ICreateEmployee, IEmployee } from "@app/interfaces/IEmployee";
 import { serverFetch } from "../fetch";
 
-export function createEmployeeRequest(
+export function createEmployeeFromUser(
   data: ICreateEmployee,
   bearer_token: string
 ) {
