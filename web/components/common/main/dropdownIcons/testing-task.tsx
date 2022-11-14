@@ -1,13 +1,10 @@
-const TestingTask = ({ color = "#747474" }: { color?: string }) => {
+export const TestingTaskIcon = ({ color = "#736efb" }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      height="16"
       viewBox="0 0 16 16"
-      version="1.1"
       width="16"
-      data-view-component="true"
+      height="16"
       className="mr-1"
     >
       <path
@@ -18,5 +15,3 @@ const TestingTask = ({ color = "#747474" }: { color?: string }) => {
     </svg>
   );
 };
-
-export default TestingTask;

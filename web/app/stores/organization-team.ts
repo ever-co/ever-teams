@@ -11,8 +11,8 @@ export const activeTeamIdState = atom<string | null>({
   default: null,
 });
 
-export const tasksFetchingState = atom<boolean>({
-  key: "tasksFetchingState",
+export const teamsFetchingState = atom<boolean>({
+  key: "teamsFetchingState",
   default: false,
 });
 

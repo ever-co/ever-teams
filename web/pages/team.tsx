@@ -27,7 +27,7 @@ const Team = () => {
   const [step, setStep] = useState(FIRST_STEP);
   const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
   const [errors, setErrors] = useState(initialValues);
-  const { queryCall, loading } = useQuery(registerUserTeamAPI);
+  const { queryCall, loading, infiniteLoading } = useQuery(registerUserTeamAPI);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -49,6 +49,7 @@ const Team = () => {
     }
 
     formValues["timezone"] = userTimezone();
+    infiniteLoading.current = true;
 
     queryCall(formValues)
       .then(() => window.location.reload())

@@ -3,6 +3,7 @@ import { authFormValidate } from "@app/helpers/validations";
 import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
 import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
+  createEmployeeFromUser,
   createOrganizationRequest,
   createOrganizationTeamRequest,
   createTenantRequest,
@@ -58,9 +59,10 @@ export default async function handler(
   });
   // User Login, get the access token
   const { data: loginRes } = await loginUserRequest(body.email, password);
+  const auth_token = loginRes.token;
 
   // Create user tenant
-  const { data: tenant } = await createTenantRequest(body.team, loginRes.token);
+  const { data: tenant } = await createTenantRequest(body.team, auth_token);
 
   // Create user organization
   const { data: organization } = await createOrganizationRequest(
@@ -69,7 +71,18 @@ export default async function handler(
       name: body.team,
       tenantId: tenant.id,
     },
-    loginRes.token
+    auth_token
+  );
+
+  // Create employee
+  const { data: employee } = await createEmployeeFromUser(
+    {
+      organizationId: organization.id,
+      startedWorkOn: new Date().toISOString(),
+      tenantId: tenant.id,
+      userId: user.id,
+    },
+    auth_token
   );
 
   // Create user organization team
@@ -78,14 +91,14 @@ export default async function handler(
       name: body.team,
       tenantId: tenant.id,
       organizationId: organization.id,
-      managers: [user.id],
+      managers: [employee.id],
     },
-    loginRes.token
+    auth_token
   );
 
   setAuthCookies(
     {
-      access_token: loginRes.token,
+      access_token: auth_token,
       refresh_token: {
         token: loginRes.refresh_token,
       },
@@ -98,5 +111,5 @@ export default async function handler(
     res
   );
 
-  res.status(200).json({ loginRes, team });
+  res.status(200).json({ loginRes, team, employee });
 }

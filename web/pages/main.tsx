@@ -15,14 +15,17 @@ const Main = () => {
   useEffect(() => {
     loadTeamsData();
     firstLoadTasksData();
-    timeToTimeRefreshToken();
+    const clear = timeToTimeRefreshToken();
+    return () => {
+      clear();
+    };
   }, []);
 
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
       <AppLayout>
         <div className="">
-          <TimerTasksSection started={started} setStarted={setStarted} />
+          <TimerTasksSection />
           <TeamMemberSection started={started} setStarted={setStarted} />
         </div>
       </AppLayout>

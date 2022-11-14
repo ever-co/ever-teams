@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ChangeEventHandler, ReactNode } from "react";
 import { IRegisterDataAPI } from "./IAuthentication";
 //Dropdown props interface
 export interface IDropDownProps {
@@ -102,17 +102,4 @@ export interface IStartSection {
 export interface IDrowDownData {
   name: string;
   color: string;
-}
-
-//Estimate Time input ports
-export interface ITimeInputProps {
-  placeholder: string;
-  handleChange: any;
-  value: string;
-  type: string;
-  style: string;
-  name?: string;
-  handleDoubleClick?: any;
-  handleEnter?: any;
-  disabled?: boolean;
 }

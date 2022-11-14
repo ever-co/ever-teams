@@ -18,15 +18,17 @@ export default async function handler(
   const refresh_token = body?.refresh_token;
 
   if (!refresh_token || refresh_token.trim().length < 2) {
-    res.status(401).json(
+    return res.status(401).json(
       hasErrors({
         refresh_token: "The refresh token must be provided on the request body",
       })
     );
-    return;
   }
 
   const { data } = await refreshTokenRequest(refresh_token);
+  if (!data) {
+    return res.status(401);
+  }
 
   const { data: user } = await currentAuthenticatedUserRequest({
     bearer_token: data.token,

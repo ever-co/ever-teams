@@ -1,4 +1,4 @@
-export const TodoTaskIcon = ({ color = "#56f000" }: { color?: string }) => {
+export const InReviewTaskIcon = ({ color = "#0a6bd9" }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -7,11 +7,10 @@ export const TodoTaskIcon = ({ color = "#56f000" }: { color?: string }) => {
       height="16"
       className="mr-1"
     >
-      <path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill={color}></path>
       <path
         fillRule="evenodd"
-        d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"
         fill={color}
+        d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z"
       ></path>
     </svg>
   );
