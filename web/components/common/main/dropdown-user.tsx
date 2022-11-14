@@ -6,44 +6,6 @@ import Image from "next/image";
 import DeleteTask from "../delete-task";
 import { ITaskStatus } from "@app/interfaces/ITask";
 
-const StatusIcon = ({ taskStatus }: { taskStatus: ITaskStatus }) => {
-  switch (taskStatus) {
-    case "In Progress":
-      return (
-        <div className="px-2 py-1 bg-[#dcfce7] text-[#166534] rounded-2xl text-xs flex items-center justify-center">
-          {taskStatus}
-        </div>
-      );
-      break;
-    case "Completed":
-      return (
-        <div className="px-2 py-1 bg-[#f3e8ff] text-[#6b21a8] rounded-2xl text-xs flex items-center justify-center">
-          {taskStatus}
-        </div>
-      );
-      break;
-    case "Todo":
-      return (
-        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
-          {taskStatus}
-        </div>
-      );
-      break;
-    case "For Testing":
-      return (
-        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
-          {taskStatus}
-        </div>
-      );
-      break;
-    default:
-      return (
-        <div className="px-2 py-1 bg-[#f3f4f6] text-[#1f2937] rounded-2xl text-xs flex items-center justify-center">
-          Unassigned
-        </div>
-      );
-  }
-};
 interface IUser {
   name: string;
   image: string;
