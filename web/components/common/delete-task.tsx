@@ -51,7 +51,9 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
                 </div>
                 <div className="flex items-center justify-between w-full mt-2">
                   <button
-                    className={`w-[120px] h-[40px] my-4 inline-flex justify-center items-center tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none`}
+                    className={`w-[120px] h-[40px] ${
+                      updateLoading ? "opacity-50" : ""
+                    } my-4 inline-flex justify-center items-center tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white rounded-[12px] hover:text-opacity-90 focus:outline-none`}
                     type="submit"
                     onClick={handleChange}
                   >

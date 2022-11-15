@@ -9,13 +9,11 @@ export function EstimateTime() {
   const [value, setValue] = useState({ hours: "", minutes: "" });
 
   useEffect(() => {
-    if (activeTeamTask) {
-      const { h, m } = secondsToTime(activeTeamTask.estimate || 0);
-      setValue({
-        hours: h.toString(),
-        minutes: m.toString(),
-      });
-    }
+    const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
+    setValue({
+      hours: h.toString(),
+      minutes: m.toString(),
+    });
   }, [activeTeamTask]);
 
   const onChange = useCallback((c: keyof typeof value) => {
