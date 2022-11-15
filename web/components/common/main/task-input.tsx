@@ -159,6 +159,18 @@ export default function TaskInput() {
         );
   }, [query, tasks, filter]);
 
+  const filteredTasks2 = useMemo(() => {
+    return query.trim() === ""
+      ? tasks
+      : tasks.filter((task) =>
+          task.title
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .startsWith(query.toLowerCase().replace(/\s+/g, ""))
+        );
+  }, [query, tasks]);
+
   const hasCreateForm = filteredTasks.length === 0 && query !== "";
 
   const handleTaskCreation = () => {
@@ -209,7 +221,7 @@ export default function TaskInput() {
               <div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
                 <TaskFilter
                   count={
-                    filteredTasks.filter((f_task) => {
+                    filteredTasks2.filter((f_task) => {
                       return f_task.status !== "Closed";
                     }).length
                   }
@@ -223,7 +235,7 @@ export default function TaskInput() {
                 />
                 <TaskFilter
                   count={
-                    filteredTasks.filter((f_task) => {
+                    filteredTasks2.filter((f_task) => {
                       return f_task.status === "Closed";
                     }).length
                   }
