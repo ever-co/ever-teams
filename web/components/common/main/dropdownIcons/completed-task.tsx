@@ -1,11 +1,16 @@
-export const CompletedTaskIcon = ({ color = "#a371f7" }) => {
+export const CompletedTaskIcon = ({
+  color = "#a371f7",
+}: {
+  color: string;
+  background: string;
+}) => {
   return (
     <svg
       className="mr-1"
       viewBox="0 0 16 16"
       version="1.1"
-      width="16"
-      height="16"
+      width="13"
+      height="13"
       aria-hidden="true"
     >
       <path

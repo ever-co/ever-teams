@@ -1,10 +1,15 @@
-export const TestingTaskIcon = ({ color = "#736efb" }) => {
+export const TestingTaskIcon = ({
+  color = "#736efb",
+}: {
+  color: string;
+  background: string;
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"
-      width="16"
-      height="16"
+      width="13"
+      height="13"
       className="mr-1"
     >
       <path

@@ -1,11 +1,16 @@
-export const ProgressTaskIcon = ({ color = "#2dccff" }) => {
+export const ProgressTaskIcon = ({
+  color = "#2dccff",
+}: {
+  color: string;
+  background: string;
+}) => {
   return (
     <svg
       className="mr-1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"
-      width="16"
-      height="16"
+      width="11"
+      height="11"
     >
       <path
         fillRule="evenodd"

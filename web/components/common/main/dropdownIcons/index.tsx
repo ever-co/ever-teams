@@ -9,12 +9,12 @@ import { InReviewTaskIcon } from "./review-task";
 import { UnassignedTaskIcon } from "./unassigned-task";
 
 export const statusIcons: { [x in ITaskStatus]: React.ReactElement } = {
-  Todo: <TodoTaskIcon color="#3d9a6c" />,
-  "In Progress": <ProgressTaskIcon color="#24a9d5" />,
-  "In Review": <InReviewTaskIcon color="#0a6bd9" />,
-  "For Testing": <TestingTaskIcon color="#736efb" />,
-  Completed: <CompletedTaskIcon color="#a371f7" />,
-  Closed: <ClosedTaskIcon color="#9ea7ad" />,
+  Todo: <TodoTaskIcon color="#3D9A6D" background="#28D58133" />,
+  "In Progress": <ProgressTaskIcon color="#735EA8" background="#E8EBF8" />,
+  "In Review": <InReviewTaskIcon color="#8B7FAA" background="#F5F6FB" />,
+  "For Testing": <TestingTaskIcon color="#E1AB2D" background="#CE930B1A" />,
+  Completed: <CompletedTaskIcon color="#3D9A6D" background="#CFF3E3" />,
+  Closed: <ClosedTaskIcon color="#8F97A1" background="#F2F4F6" />,
   Unassigned: <UnassignedTaskIcon color="#5f5f5f" />,
 };
 
@@ -28,7 +28,7 @@ export function BadgedTaskStatus({ status }: { status: ITaskStatus }) {
   return (
     <div
       style={{
-        background: (node.props.color || "") + "46",
+        background: node.props.background,
         color: node.props.color,
       }}
       className={`px-2 py-1 rounded-2xl text-xs flex items-center justify-center`}

@@ -1,10 +1,15 @@
-export const TodoTaskIcon = ({ color = "#56f000" }: { color?: string }) => {
+export const TodoTaskIcon = ({
+  color = "#56f000",
+}: {
+  color?: string;
+  background: string;
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"
-      width="16"
-      height="16"
+      width="13"
+      height="13"
       className="mr-1"
     >
       <path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill={color}></path>
