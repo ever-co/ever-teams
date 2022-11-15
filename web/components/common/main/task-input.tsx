@@ -9,6 +9,7 @@ import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITaskStatus, ITeamTask } from "@app/interfaces/ITask";
 import { Spinner } from "../spinner";
 import { BadgedTaskStatus } from "./dropdownIcons";
+import TaskFilter from "./task-filter";
 
 function TaskItem({
   selected,
@@ -113,7 +114,9 @@ function useModal() {
 
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
-  const [task, setTask] = useState<ITeamTask | null>(null);
+  const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [closeFilter, setCloseFilter] = useState(false);
   const {
     tasks,
     activeTeamTask,
@@ -124,7 +127,7 @@ export default function TaskInput() {
   } = useTeamTasks();
 
   const handleOpenModal = (concernedTask: ITeamTask) => {
-    setTask(concernedTask);
+    setCloseTask(concernedTask);
     openModal();
   };
 
@@ -192,32 +195,54 @@ export default function TaskInput() {
                   loading={createLoading}
                 />
               ) : (
-                filteredTasks.map((task) => {
-                  return (
-                    <Combobox.Option
-                      key={task.id}
-                      className={({ active }) =>
-                        `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-                          active
-                            ? "bg-[#F9FAFB] text-primary dark:text-white dark:bg-[#202023] cursor-pointer"
-                            : "text-gray-900 dark:text-white"
-                        }`
-                      }
-                      value={task}
-                    >
-                      {({ selected, active }) => {
-                        return (
-                          <TaskItem
-                            selected={selected}
-                            active={active}
-                            item={task}
-                            onDelete={() => handleOpenModal(task)}
-                          />
-                        );
+                <>
+                  <div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
+                    <TaskFilter
+                      count={32}
+                      type="open"
+                      selected={openFilter}
+                      handleChange={() => {
+                        setOpenFilter(true);
+                        setCloseFilter(false);
                       }}
-                    </Combobox.Option>
-                  );
-                })
+                    />
+                    <TaskFilter
+                      count={2}
+                      type="closed"
+                      selected={closeFilter}
+                      handleChange={() => {
+                        setCloseFilter(true);
+                        setOpenFilter(false);
+                      }}
+                    />
+                  </div>
+                  {filteredTasks.map((task) => {
+                    return (
+                      <Combobox.Option
+                        key={task.id}
+                        className={({ active }) =>
+                          `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                            active
+                              ? "bg-[#F9FAFB] text-primary dark:text-white dark:bg-[#202023] cursor-pointer"
+                              : "text-gray-900 dark:text-white"
+                          }`
+                        }
+                        value={task}
+                      >
+                        {({ selected, active }) => {
+                          return (
+                            <TaskItem
+                              selected={selected}
+                              active={active}
+                              item={task}
+                              onDelete={() => handleOpenModal(task)}
+                            />
+                          );
+                        }}
+                      </Combobox.Option>
+                    );
+                  })}
+                </>
               )}
             </Combobox.Options>
           </Transition>
@@ -227,7 +252,7 @@ export default function TaskInput() {
         isOpen={isOpen}
         closeModal={closeModal}
         Fragment={Fragment}
-        task={task}
+        task={closeTask}
       />
     </div>
   );
