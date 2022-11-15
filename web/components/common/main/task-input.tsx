@@ -125,6 +125,7 @@ export default function TaskInput() {
     tasksFetching,
     createTask,
   } = useTeamTasks();
+  const [filter, setFilter] = useState<"closed" | "open" | "all">("all");
 
   const handleOpenModal = (concernedTask: ITeamTask) => {
     setCloseTask(concernedTask);
@@ -133,17 +134,30 @@ export default function TaskInput() {
 
   const [query, setQuery] = useState("");
 
+  const h_filter = (status: ITaskStatus, filters: typeof filter) => {
+    switch (filters) {
+      case "open":
+        return status !== "Closed";
+      case "closed":
+        return status === "Closed";
+      default:
+        return true;
+    }
+  };
+
   const filteredTasks = useMemo(() => {
     return query.trim() === ""
-      ? tasks
-      : tasks.filter((task) =>
-          task.title
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, "")
-            .startsWith(query.toLowerCase().replace(/\s+/g, ""))
+      ? tasks.filter((task) => h_filter(task.status, filter))
+      : tasks.filter(
+          (task) =>
+            task.title
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, "")
+              .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
+            h_filter(task.status, filter)
         );
-  }, [query, tasks]);
+  }, [query, tasks, filter]);
 
   const hasCreateForm = filteredTasks.length === 0 && query !== "";
 
@@ -186,7 +200,10 @@ export default function TaskInput() {
             leave="transition ease-in duration-100"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
-            afterLeave={() => !createLoading && setQuery("")}
+            afterLeave={() => {
+              !createLoading && setQuery("");
+              setFilter("all");
+            }}
           >
             <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
               {hasCreateForm ? (
@@ -204,6 +221,7 @@ export default function TaskInput() {
                       handleChange={() => {
                         setOpenFilter(true);
                         setCloseFilter(false);
+                        setFilter("open");
                       }}
                     />
                     <TaskFilter
@@ -213,6 +231,7 @@ export default function TaskInput() {
                       handleChange={() => {
                         setCloseFilter(true);
                         setOpenFilter(false);
+                        setFilter("closed");
                       }}
                     />
                   </div>
