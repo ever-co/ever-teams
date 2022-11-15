@@ -27,7 +27,7 @@ const StatusDropdown = () => {
         });
       }
     },
-    [activeTeamTask]
+    [activeTeamTask, updateTask]
   );
 
   return (
