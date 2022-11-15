@@ -206,6 +206,36 @@ export default function TaskInput() {
             }}
           >
             <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
+                <TaskFilter
+                  count={
+                    filteredTasks.filter((f_task) => {
+                      return f_task.status !== "Closed";
+                    }).length
+                  }
+                  type="open"
+                  selected={openFilter}
+                  handleChange={() => {
+                    setOpenFilter(true);
+                    setCloseFilter(false);
+                    setFilter("open");
+                  }}
+                />
+                <TaskFilter
+                  count={
+                    filteredTasks.filter((f_task) => {
+                      return f_task.status === "Closed";
+                    }).length
+                  }
+                  type="closed"
+                  selected={closeFilter}
+                  handleChange={() => {
+                    setCloseFilter(true);
+                    setOpenFilter(false);
+                    setFilter("closed");
+                  }}
+                />
+              </div>
               {hasCreateForm ? (
                 <CreateTaskOption
                   onClick={handleTaskCreation}
@@ -213,28 +243,6 @@ export default function TaskInput() {
                 />
               ) : (
                 <>
-                  <div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
-                    <TaskFilter
-                      count={32}
-                      type="open"
-                      selected={openFilter}
-                      handleChange={() => {
-                        setOpenFilter(true);
-                        setCloseFilter(false);
-                        setFilter("open");
-                      }}
-                    />
-                    <TaskFilter
-                      count={2}
-                      type="closed"
-                      selected={closeFilter}
-                      handleChange={() => {
-                        setCloseFilter(true);
-                        setOpenFilter(false);
-                        setFilter("closed");
-                      }}
-                    />
-                  </div>
                   {filteredTasks.map((task) => {
                     return (
                       <Combobox.Option
