@@ -260,22 +260,27 @@ export default function TaskInput() {
                       <Combobox.Option
                         key={task.id}
                         className={({ active }) =>
-                          `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                          `relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${
                             active
-                              ? "bg-[#F9FAFB] text-primary dark:text-white dark:bg-[#202023] cursor-pointer"
-                              : "text-gray-900 dark:text-white"
+                              ? "bg-[#F9FAFB] text-opacity-80 dark:text-white dark:bg-[#202023] cursor-pointer"
+                              : " dark:text-white text-opacity-100"
                           }`
                         }
                         value={task}
                       >
                         {({ selected, active }) => {
                           return (
-                            <TaskItem
-                              selected={selected}
-                              active={active}
-                              item={task}
-                              onDelete={() => handleOpenModal(task)}
-                            />
+                            <div>
+                              <div className="py-2">
+                                <TaskItem
+                                  selected={selected}
+                                  active={active}
+                                  item={task}
+                                  onDelete={() => handleOpenModal(task)}
+                                />
+                              </div>
+                              <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
+                            </div>
                           );
                         }}
                       </Combobox.Option>
