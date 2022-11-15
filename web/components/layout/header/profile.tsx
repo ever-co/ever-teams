@@ -17,22 +17,16 @@ const Profile = () => {
   const { logOut, user } = useAuthenticateUser();
 
   const options: IOption[] = [
-    { name: "Team", icon: "/assets/png/user-icon.png", handleClick: () => {} },
     {
       name: "Profile",
-      icon: "",
+      icon: "/assets/svg/profile-icon.svg",
       handleClick: () => {},
     },
+    { name: "Team", icon: "/assets/svg/teams-icon.svg", handleClick: () => {} },
     {
       name: "Settings",
-      icon: "",
+      icon: "/assets/svg/settings-icon.svg",
       handleClick: () => {},
-    },
-
-    {
-      name: "Logout",
-      icon: "/assets/png/logout-icon.png",
-      handleClick: logOut,
     },
   ];
 
@@ -87,23 +81,45 @@ const Profile = () => {
                   {options.map((option) => (
                     <div
                       key={option.name}
-                      className="flex items-center space-x-2"
+                      className="flex items-center space-x-2 "
                     >
-                      <Image
-                        src={option.icon}
-                        alt={option.name + " icon"}
-                        width={16}
-                        height={16}
-                        className="cursor-pointer"
-                      />
+                      <div className="mt-1 flex items-center justify-center py-2">
+                        <Image
+                          src={option.icon}
+                          alt={option.name + " icon"}
+                          width={16}
+                          height={16}
+                          className="cursor-pointer"
+                        />
+                      </div>
                       <button
                         onClick={option.handleClick}
-                        className="hover:text-opacity-75 py-2 mt-1 flex items-center text-[#1B005D] text-[15px] font-bold dark:text-gray-200 justify-start w-full"
+                        className="hover:text-opacity-75  py-2 mt-1 flex items-center text-[#1B005D] text-[15px] font-normal dark:text-gray-200 justify-start w-full"
                       >
                         {option.name}
                       </button>
                     </div>
                   ))}
+                </div>
+                <div className="bg-[#EDEEF2] mt-[10px] h-[1px] w-full"></div>
+                <div className="mt-[10px]">
+                  <div className="flex items-center space-x-2 ">
+                    <div className="mt-1 flex items-center justify-center py-2">
+                      <Image
+                        src="/assets/svg/log-out-icon.svg"
+                        alt="logout icon"
+                        width={16}
+                        height={16}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    <button
+                      onClick={logOut}
+                      className="hover:text-opacity-75  py-2 mt-1 flex items-center text-[#DE437B] text-[15px] font-normal justify-start w-full"
+                    >
+                      Logout
+                    </button>
+                  </div>
                 </div>
               </div>{" "}
             </Popover.Panel>
