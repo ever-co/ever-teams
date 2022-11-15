@@ -1,13 +1,16 @@
 import Image from "next/image";
-import { useState } from "react";
+import { SetStateAction, useState } from "react";
 import { TeamsDropDown } from "@components/common/dropDown";
 import { AppLayout } from "@components/layout";
 import Timer from "@components/common/main/timer";
+import { Card } from "reactstrap";
+import ProfileCard from "@components/home/profile-card";
 
 interface ITimerTasksSection {
   started: boolean;
   setStarted: React.Dispatch<React.SetStateAction<boolean>>;
 }
+const style = { width: `${100 / 10}%` };
 
 const Profile = () => {
   const [started, setStarted] = useState(false);
@@ -31,13 +34,24 @@ const Profile = () => {
             </div>
             <div className="flex">
               <div className="">
-                <Image
-                  src="/assets/profiles/ruslan.png"
-                  alt="User Icon"
-                  width={90}
-                  height={68}
-                  className="rounded-full flex items-center justify-center"
-                />
+                <div className="relative">
+                  <Image
+                    src="/assets/profiles/ruslan.png"
+                    alt="User Icon"
+                    width={90}
+                    height={68}
+                    className="rounded-full flex items-center justify-center block"
+                  />
+                </div>
+                <div className="absolute">
+                  <Image
+                    src="/assets/backbutton/Edit.svg"
+                    alt=""
+                    width={16}
+                    height={16}
+                    className="rounded-full"
+                  />
+                </div>
               </div>
 
               <div className="flex-1 ml-5 mt-2">
@@ -102,26 +116,9 @@ const Profile = () => {
             <p>Total Time : 03:31</p>
           </div>
         </div>
-        {/* <div className="mx-9 my-9 flex">
-        <div className="mt-10 w-[85rem] mx-[6rem]">
-          
-          <div className="">
-            <div className="flex flex-row">
-              <div className="">
-                <Image
-                  src="/assets/profiles/ruslan.png"
-                  alt="User Icon"
-                  width={80}
-                  height={80}
-                  className="rounded-full flex items-center justify-center"
-                />
-              </div>
-              
-            </div>
-          </div>
-         
+        <div>
+          <ProfileCard style={style} />
         </div>
-      </div>  */}
       </AppLayout>
     </div>
   );
