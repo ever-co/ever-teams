@@ -6,7 +6,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import DeleteTask from "../delete-task";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import { ITeamTask } from "@app/interfaces/ITask";
+import { ITaskStatus, ITeamTask } from "@app/interfaces/ITask";
 import { Spinner } from "../spinner";
 import { BadgedTaskStatus } from "./dropdownIcons";
 
@@ -113,6 +113,7 @@ function useModal() {
 
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
+  const [task, setTask] = useState<ITeamTask | null>(null);
   const {
     tasks,
     activeTeamTask,
@@ -121,6 +122,11 @@ export default function TaskInput() {
     tasksFetching,
     createTask,
   } = useTeamTasks();
+
+  const handleOpenModal = (concernedTask: ITeamTask) => {
+    setTask(concernedTask);
+    openModal();
+  };
 
   const [query, setQuery] = useState("");
 
@@ -205,7 +211,7 @@ export default function TaskInput() {
                             selected={selected}
                             active={active}
                             item={task}
-                            onDelete={openModal}
+                            onDelete={() => handleOpenModal(task)}
                           />
                         );
                       }}
@@ -217,7 +223,12 @@ export default function TaskInput() {
           </Transition>
         </div>
       </Combobox>
-      <DeleteTask isOpen={isOpen} closeModal={closeModal} Fragment={Fragment} />
+      <DeleteTask
+        isOpen={isOpen}
+        closeModal={closeModal}
+        Fragment={Fragment}
+        task={task}
+      />
     </div>
   );
 }
