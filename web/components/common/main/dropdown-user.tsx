@@ -260,6 +260,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
         closeModal={() => {
           setIsOpen(false);
         }}
+        task={null}
         Fragment={Fragment}
       />
     </>
