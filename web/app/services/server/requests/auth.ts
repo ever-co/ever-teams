@@ -32,9 +32,25 @@ export const whetherUserAuthenticatedRequest = (bearer_token: string) => {
   });
 };
 
-export const currentAuthenticatedUserRequest = (bearer_token: string) => {
+type IUEmployeeParam = {
+  bearer_token: string;
+  relations?: string[];
+};
+
+export const currentAuthenticatedUserRequest = ({
+  bearer_token,
+  relations = ["employee", "role", "tenant"],
+}: IUEmployeeParam) => {
+  const params = {} as { [x: string]: string };
+
+  relations.forEach((rl, i) => {
+    params[`relations[${i}]`] = rl;
+  });
+
+  const query = new URLSearchParams(params);
+
   return serverFetch<IUser>({
-    path: "/user/me",
+    path: `/user/me?${query.toString()}`,
     method: "GET",
     bearer_token,
   });

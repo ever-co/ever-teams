@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { IRegisterDataAPI } from "./IAuthentication";
+import { ITeamTask } from "./ITask";
 //Dropdown props interface
 export interface IDropDownProps {
   data: string[];
@@ -41,6 +42,7 @@ export interface IInviteProps {
   isOpen: boolean;
   Fragment: any;
   closeModal: any;
+  task: ITeamTask | null;
 }
 
 //Invite interface
@@ -102,17 +104,4 @@ export interface IStartSection {
 export interface IDrowDownData {
   name: string;
   color: string;
-}
-
-//Estimate Time input ports
-export interface ITimeInputProps {
-  placeholder: string;
-  handleChange: any;
-  value: string;
-  type: string;
-  style: string;
-  name?: string;
-  handleDoubleClick?: any;
-  handleEnter?: any;
-  disabled?: boolean;
 }

@@ -21,9 +21,8 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
 import DropDown from "./components/DropDown"
-import { team, data } from "./data"
+import { teams, tasks } from "./data"
 import CreateTeamModal from "./components/CreateTeamModal"
-
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
@@ -33,18 +32,25 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
     const [showInviteModal, setShowInviteModal] = React.useState(false)
     const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
-  
+    const { navigation } = _props
+
+    function goToProfile() {
+      navigation.navigate("Profile")
+    }
 
     return (
       <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
-        <CreateTeamModal visible={showCreateTeamModal} onDismiss={()=>setShowCreateTeamModal(false)} />
+        <CreateTeamModal
+          visible={showCreateTeamModal}
+          onDismiss={() => setShowCreateTeamModal(false)}
+        />
         <NewTeamModal
           visible={showCreateTeamModal}
           onDismiss={() => setShowCreateTeamModal(false)}
         />
         <HomeHeader />
-        <DropDown teams={data} onCreateTeam={()=>setShowCreateTeamModal(true)} />
+        <DropDown teams={teams} onCreateTeam={() => setShowCreateTeamModal(true)} />
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={$cardContainer}>
             {/* Users activity list */}
@@ -53,8 +59,13 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
               contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
               style={{ ...GS.my2 }}
             >
-              {team.map((item, index) => (
-                <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
+              {tasks.map((item, index) => (
+                <ListCardItem
+                  key={index.toString()}
+                  item={item as any}
+                  onPressIn={() => goToProfile()}
+                  enableEstimate={false}
+                />
               ))}
 
               {/* Invite btn */}

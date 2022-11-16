@@ -8,8 +8,6 @@ PODS:
     - ExpoModulesCore
   - EXDevice (4.3.0):
     - ExpoModulesCore
-  - EXErrorRecovery (3.2.0):
-    - ExpoModulesCore
   - EXFileSystem (14.1.0):
     - ExpoModulesCore
   - EXFont (10.2.1):
@@ -22,7 +20,7 @@ PODS:
     - ExpoModulesCore
   - ExpoLocalization (13.1.0):
     - ExpoModulesCore
-  - ExpoModulesCore (0.11.8):
+  - ExpoModulesCore (0.11.9):
     - React-Core
     - ReactCommon/turbomodule/core
   - EXSplashScreen (0.16.2):
@@ -435,6 +433,10 @@ PODS:
   - RNScreens (3.15.0):
     - React-Core
     - React-RCTImage
+  - RNSVG (12.3.0):
+    - React-Core
+  - RNVectorIcons (9.2.0):
+    - React-Core
   - SocketRocket (0.6.0)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -446,7 +448,6 @@ DEPENDENCIES:
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXDevice (from `../node_modules/expo-device/ios`)
-  - EXErrorRecovery (from `../node_modules/expo-error-recovery/ios`)
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - Expo (from `../node_modules/expo`)
@@ -517,6 +518,8 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
+  - RNSVG (from `../node_modules/react-native-svg`)
+  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -548,8 +551,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-constants/ios"
   EXDevice:
     :path: "../node_modules/expo-device/ios"
-  EXErrorRecovery:
-    :path: "../node_modules/expo-error-recovery/ios"
   EXFileSystem:
     :path: "../node_modules/expo-file-system/ios"
   EXFont:
@@ -640,6 +641,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-reanimated"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
+  RNVectorIcons:
+    :path: "../node_modules/react-native-vector-icons"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -650,14 +655,13 @@ SPEC CHECKSUMS:
   EXApplication: e418d737a036e788510f2c4ad6c10a7d54d18586
   EXConstants: 7c44785d41d8e959d527d23d29444277a4d1ee73
   EXDevice: 7647ca9b1fd8b269dfd896a7643d659343358054
-  EXErrorRecovery: 74d71ee59f6814315457b09d68e86aa95cc7d05d
   EXFileSystem: 927e0a8885aa9c49e50fc38eaba2c2389f2f1019
   EXFont: 06df627203afcb8a3b3152ec06eb2f11f46f0cff
   Expo: 7e821e708a35d2720ef6baa658e224dd91c4821e
   ExpoKeepAwake: 0e8f18142e71bbf2c7f6aa66ebed249ba1420320
   ExpoLinearGradient: 1a3af07c6dab3c612967a294836df9ae717431df
   ExpoLocalization: 63204f4b9d4f653469d266332ceaa6c6ac8a305d
-  ExpoModulesCore: 39ec590ce622289c060183aba57f77b1e73b4e11
+  ExpoModulesCore: f9d1730cc2dde38e46b0becb97628b3ebbd29f21
   EXSplashScreen: 799bece80089219b2c989c1082d70f3b00995cda
   FBLazyVector: 739d2f9719faecb463c7aa191591af31c8c94182
   FBReactNativeSpec: 957de82f66e31f2f14bbec34e37242282fdd26de
@@ -708,6 +712,8 @@ SPEC CHECKSUMS:
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
   RNReanimated: 2cf7451318bb9cc430abeec8d67693f9cf4e039c
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
+  RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
+  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: 75bf4b0131cfb46a659cd0c13309b79a6fcff66d
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a

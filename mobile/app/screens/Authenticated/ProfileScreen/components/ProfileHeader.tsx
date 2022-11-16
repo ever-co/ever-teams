@@ -1,5 +1,10 @@
 import React from "react"
-import { View, StyleSheet, Text, Image } from "react-native"
+import { View, StyleSheet, Image } from "react-native"
+import { colors } from "../../../../theme"
+import { Feather } from "@expo/vector-icons"
+
+// COMPONENTS
+import { Text } from "../../../../components"
 
 type IProfileHeader = {
   image: string
@@ -9,52 +14,67 @@ type IProfileHeader = {
 
 const ProfileHeader = () => {
   return (
-    <View>
+    <View style={styles.container}>
       <View style={styles.firstContainer}>
-        <Text style={styles.profile}>Profile</Text>
         <View style={styles.pictureContainer}>
           <Image
             source={require("../../../../../assets/images/Ruslan.png")}
             style={styles.profileImage}
           />
+          <View style={styles.wrapEditIcon}>
+            <Feather name="edit-2" size={10} color="gray" />
+          </View>
+          <View style={styles.onlineIcon} />
         </View>
       </View>
 
       <View style={styles.secondContainer}>
-        <Text style={styles.name}>Ruslan Konviser</Text>
-        <Text style={styles.email}>Ruslan.k@everiq.com</Text>
+        <View style={{ flexDirection: "row" }}>
+          <Text style={styles.name}>Ruslan Konviser</Text>
+          <View style={styles.wrapEditIconSmall}>
+            <Feather name="edit-2" size={8} color="gray" />
+          </View>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          <Text style={styles.email}>Ruslan.k@everiq.com</Text>
+          <View style={styles.wrapEditIconSmall}>
+            <Feather name="edit-2" size={8} color="gray" />
+          </View>
+        </View>
       </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    height: "18%",
+    backgroundColor: colors.palette.neutral200,
+  },
   firstContainer: {
     backgroundColor: "#1B005D",
     alignItems: "center",
-    height: "35%",
-  },
-  profile: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
+    height: "10%",
   },
   profileImage: {
     borderRadius: 200,
     padding: 0,
-    width: "100%",
-    top: "-15%",
+    right: 18,
+    width: 120,
+    height: 120,
+    top: "-20%",
   },
   pictureContainer: {
     position: "absolute",
-    top: "60%",
+    bottom: "auto",
+    top: -20,
     backgroundColor: "#fff",
-    borderRadius: 5000,
-    width: 150,
-    height: 150,
+    borderRadius: 75,
+    width: 84,
+    height: 85,
   },
   secondContainer: {
-    marginTop: 120,
+    marginTop: 54,
     alignItems: "center",
   },
   name: {
@@ -65,6 +85,41 @@ const styles = StyleSheet.create({
   email: {
     color: "#B0B5C7",
     fontSize: 18,
+  },
+  wrapEditIcon: {
+    position: "absolute",
+    width: 22,
+    height: 22,
+    right: 2,
+    top: 5,
+    backgroundColor: "#fff",
+    padding: 5,
+    borderRadius: 12,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  wrapEditIconSmall: {
+    width: 20,
+    height: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    left: 5,
+    backgroundColor: "#fff",
+    padding: 5,
+    borderRadius: 10,
+    borderColor: colors.border,
+    borderWidth: 1,
+  },
+  onlineIcon: {
+    backgroundColor: "green",
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    position: "absolute",
+    right: 9,
+    top: 64,
+    borderWidth: 1,
+    borderColor: "#fff",
   },
 })
 

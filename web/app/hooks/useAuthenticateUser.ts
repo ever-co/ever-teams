@@ -5,7 +5,7 @@ import {
   refreshTokenAPI,
 } from "@app/services/client/api/auth";
 import { userState } from "@app/stores";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRecoilState } from "recoil";
 
 import { useQuery } from "./useQuery";
@@ -32,9 +32,13 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
     }
   }, []);
 
-  const timeToTimeRefreshToken = useCallback((interval = 2000 * 60) => {
+  const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
     window.clearInterval(intervalRt.current);
     intervalRt.current = window.setInterval(refreshTokenAPI, interval);
+
+    return () => {
+      window.clearInterval(intervalRt.current);
+    };
   }, []);
 
   $user.current = useMemo(() => {

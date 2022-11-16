@@ -1,7 +1,7 @@
-import { TimeInput } from "@components/common/main/time-input";
 import TaskInput from "@components/common/main/task-input";
 import StatusDropdown from "@components/common/main/status-dropdown";
 import Timer from "@components/common/main/timer";
+import { EstimateTime } from "./estimate-time";
 
 const tasks: string[] = ["Api integration", "Implement header"];
 
@@ -18,24 +18,7 @@ export function TimerTasksSection({ started, setStarted }: ITimerTasksSection) {
           <TaskInput />
         </div>
         <div className="flex ml-[20px]">
-          <span className="text-[18px] text-[#9490A0] dark:text-[#616164] font-base">
-            Estimate :{" "}
-          </span>
-          <TimeInput
-            type="text"
-            value=""
-            handleChange={() => {}}
-            placeholder="Hours"
-            style="mx-5 w-[50px] bg-transparent"
-          />{" "}
-          /{" "}
-          <TimeInput
-            type="text"
-            value=""
-            handleChange={() => {}}
-            placeholder="Minutes"
-            style="mx-5 w-[50px] bg-transparent"
-          />
+          <EstimateTime />
           <StatusDropdown />
         </div>
       </div>

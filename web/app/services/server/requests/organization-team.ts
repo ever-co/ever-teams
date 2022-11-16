@@ -18,6 +18,19 @@ export function createOrganizationTeamRequest(
   });
 }
 
+export function updateOrganizationTeamRequest(
+  datas: IOrganizationTeamCreate & { id: string },
+  bearer_token: string
+) {
+  const { id, ...body } = datas;
+  return serverFetch<IOrganizationTeam>({
+    path: `/organization-team/${id}`,
+    method: "PUT",
+    body,
+    bearer_token,
+  });
+}
+
 export function getOrganizationTeamRequest(id: string, bearer_token: string) {
   return serverFetch<IOrganizationTeamList>({
     path: `/organization-team/${id}`,
@@ -60,10 +73,6 @@ export function getAllOrganizationTeamRequest(
     path: `/organization-team?${query.toString()}`,
     method: "GET",
     bearer_token,
-    init: {
-      headers: {
-        "tenant-id": tenantId,
-      },
-    },
+    tenantId,
   });
 }

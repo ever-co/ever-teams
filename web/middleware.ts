@@ -35,9 +35,9 @@ export async function middleware(request: NextRequest) {
     deny_redirect();
     // Next codition, if all tokens are presents
   } else if (protected_path) {
-    const res = await currentAuthenticatedUserRequest(access_token!).catch(
-      console.error
-    );
+    const res = await currentAuthenticatedUserRequest({
+      bearer_token: access_token!,
+    }).catch(console.error);
 
     if (!res || res.response.status !== 200) {
       deny_redirect();

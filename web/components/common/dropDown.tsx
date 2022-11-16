@@ -15,7 +15,8 @@ const imgTitle = (name: string) => {
 
 export const TeamsDropDown = () => {
   const [edit, setEdit] = useState<boolean>(false);
-  const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
+  const { teams, activeTeam, setActiveTeam, teamsFetching } =
+    useOrganizationTeams();
 
   return (
     <div className="w-[290px] max-w-sm">
@@ -36,11 +37,16 @@ export const TeamsDropDown = () => {
                     {activeTeam?.name}
                   </span>
                 </div>
-                <ChevronDownIcon
-                  className={`${open ? "" : "text-opacity-70"}
+
+                {teamsFetching ? (
+                  <Spinner dark={false} />
+                ) : (
+                  <ChevronDownIcon
+                    className={`${open ? "" : "text-opacity-70"}
                   ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
-                  aria-hidden="true"
-                />
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             </Popover.Button>
             <Transition
@@ -61,7 +67,7 @@ export const TeamsDropDown = () => {
                         <div
                           key={item.id}
                           className="cursor-pointer font-light"
-                          onClick={() => setActiveTeam(item.id)}
+                          onClick={() => setActiveTeam(item)}
                         >
                           <div className="flex items-center justify-start space-x-4">
                             <div
@@ -143,7 +149,7 @@ function CreateNewTeam({
 
         <span className="absolute inset-y-0 right-0 flex items-center pl-2">
           {createOTeamLoading ? (
-            <Spinner />
+            <Spinner dark={false} />
           ) : (
             <XMarkIcon
               className="w-6 h-6 px-1 hover:bg-gray-300 hover:text-primary cursor-pointer mr-1 rounded-lg flex justify-center items-center"

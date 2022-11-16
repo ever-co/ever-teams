@@ -1,4 +1,16 @@
-import { ITimeInputProps } from "@app/interfaces/hooks";
+import { ChangeEventHandler, HTMLInputTypeAttribute, useCallback } from "react";
+
+type ITimeInputProps = {
+  placeholder: string;
+  handleChange?: ChangeEventHandler<HTMLInputElement>;
+  value: string;
+  type: HTMLInputTypeAttribute;
+  style: string;
+  name?: string;
+  handleDoubleClick?: any;
+  handleEnter?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
+};
 
 export const TimeInput = ({
   value,
@@ -11,6 +23,12 @@ export const TimeInput = ({
   handleEnter,
   disabled,
 }: ITimeInputProps) => {
+  const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleEnter && handleEnter(event);
+    }
+  };
+
   return (
     <input
       className={`placeholder:font-light text-[14px] text-center border-b-2 dark:border-[#616164] border-dashed outline-none  placeholder:text-center ${style}`}
@@ -20,11 +38,7 @@ export const TimeInput = ({
       onChange={handleChange}
       type={type}
       onDoubleClick={handleDoubleClick}
-      onKeyPress={(event) => {
-        if (event.key === "Enter") {
-          handleEnter(this);
-        }
-      }}
+      onKeyPress={onEnter}
       disabled={disabled}
     />
   );

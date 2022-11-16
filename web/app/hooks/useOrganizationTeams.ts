@@ -1,6 +1,7 @@
 import {
   getActiveTeamIdCookie,
   setActiveTeamIdCookie,
+  setOrganizationIdCookie,
 } from "@app/helpers/cookies";
 import {
   createOrganizationTeamAPI,
@@ -10,8 +11,9 @@ import {
   activeTeamIdState,
   activeTeamState,
   organizationTeamsState,
+  teamsFetchingState,
 } from "@app/stores";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 
@@ -33,13 +35,16 @@ function useCreateOrganizationTeam() {
     if (exits || $name.length < 2) {
       return Promise.reject(new Error("Invalid team name !"));
     }
+
     return queryCall($name).then((res) => {
       const dt = res.data?.items || [];
       setTeams(dt);
       const created = dt.find((t) => t.name === $name);
       if (created) {
-        setActiveTeamId(created.id);
         setActiveTeamIdCookie(created.id);
+        setOrganizationIdCookie(created.organizationId);
+        // This must be called at the end (Update store)
+        setActiveTeamId(created.id);
       }
       return res;
     });
@@ -56,9 +61,14 @@ export function useOrganizationTeams() {
   const [teams, setTeams] = useRecoilState(organizationTeamsState);
   const activeTeam = useRecoilValue(activeTeamState);
   const setActiveTeamId = useSetRecoilState(activeTeamIdState);
+  const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 
   const { createOrganizationTeam, loading: createOTeamLoading } =
     useCreateOrganizationTeam();
+
+  useEffect(() => {
+    setTeamsFetching(loading);
+  }, [loading]);
 
   const loadTeamsData = useCallback(() => {
     setActiveTeamId(getActiveTeamIdCookie());
@@ -69,9 +79,11 @@ export function useOrganizationTeams() {
   }, []);
 
   const setActiveTeam = useCallback(
-    (teamId: string) => {
-      setActiveTeamId(teamId);
-      setActiveTeamIdCookie(teamId);
+    (teamId: typeof teams[0]) => {
+      setActiveTeamIdCookie(teamId.id);
+      setOrganizationIdCookie(teamId.organizationId);
+      // This must be called at the end (Update store)
+      setActiveTeamId(teamId.id);
     },
     [setActiveTeamId]
   );
@@ -80,6 +92,7 @@ export function useOrganizationTeams() {
     loadTeamsData,
     loading,
     teams,
+    teamsFetching,
     activeTeam,
     setActiveTeam,
     createOrganizationTeam,

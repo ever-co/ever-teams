@@ -9,7 +9,7 @@ export default function TeamLogo() {
         id="Layer_1"
         x="0px"
         y="0px"
-        width="250px"
+        width="220px"
         height="39.54px"
         viewBox="0 0 150 19.54"
         className="fill-primary-lighter dark:fill-white cursor-pointer"
