@@ -38,8 +38,9 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
         const isUser = member.employee.userId === $u?.id;
         return isUser && member.role && member.role.name === "MANAGER";
       });
-
       setTeamManager(!!isM);
+    } else {
+      setTeamManager(false);
     }
   }, [activeTeam, user]);
 

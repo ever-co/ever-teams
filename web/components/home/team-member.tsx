@@ -2,8 +2,10 @@ import Header from "./header";
 import { IMembers, IStartSection } from "../../app/interfaces/hooks";
 import Card from "../main/card";
 import InviteCard from "../main/invite-card";
+import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 
 const TeamMemberSection = ({ started, setStarted }: IStartSection) => {
+  const { isTeamManager } = useAuthenticateUser();
   const members: IMembers[] = [
     {
       name: "Raslan Kanviser",
@@ -68,9 +70,12 @@ const TeamMemberSection = ({ started, setStarted }: IStartSection) => {
             />
           </li>
         ))}
-        <li>
-          <InviteCard />
-        </li>
+
+        {isTeamManager && (
+          <li>
+            <InviteCard />
+          </li>
+        )}
       </ul>
     </div>
   );
