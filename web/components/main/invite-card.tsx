@@ -44,7 +44,12 @@ const InviteCard = () => {
         <div className="w-[177px] text-center text-"> </div>
         <div></div>
       </div>
-      <Invite isOpen={isOpen} closeModal={closeModal} Fragment={Fragment} />
+      <Invite
+        task={null}
+        isOpen={isOpen}
+        closeModal={closeModal}
+        Fragment={Fragment}
+      />
     </div>
   );
 };
