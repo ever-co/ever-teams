@@ -1,10 +1,12 @@
 import Image from "next/image";
-import { SetStateAction, useState } from "react";
-import { TeamsDropDown } from "@components/common/dropDown";
+import { useState } from "react";
 import { AppLayout } from "@components/layout";
 import Timer from "@components/common/main/timer";
-import { Card } from "reactstrap";
 import ProfileCard from "@components/home/profile-card";
+import { ChevronLeftIcon } from "@heroicons/react/24/outline";
+import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
+import { Capitalize } from "@components/layout/header/profile";
+import Link from "next/link";
 
 interface ITimerTasksSection {
   started: boolean;
@@ -13,78 +15,68 @@ interface ITimerTasksSection {
 const style = { width: `${100 / 10}%` };
 
 const Profile = () => {
+  const { user } = useAuthenticateUser();
   const [started, setStarted] = useState(false);
+  const [tab, setTab] = useState<"worked" | "assigned" | "unassigned">(
+    "worked"
+  );
+
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
       <AppLayout>
-        <div className="bg-[#FFFF] dark:bg-[#202023] mt-[120px] rounded-[20px] w-full h-[130px] flex items-center justify-between">
-          <div className="ml-[16px] flex flex-col space-y-[15px]">
-            <div className="">
-              <button className="bg-gray-400 px-2 py-1 text-white font-bold rounded-md mb-6 flex">
-                <div className="flex-1 mr-2">
-                  <Image
-                    src="/assets/backbutton/left-arrow.png"
-                    alt=""
-                    width={10}
-                    height={10}
-                  />
-                </div>
-                <div className="">Back to Team</div>
-              </button>
+        <div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
+          <div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
+            <div className="w-[171px] bg-[#ACB3BB] mt-[20px] mb-2 text-[18px] text-[#FFFFFF] rounded-[8px] px-[17px] py-[5px] flex items-center cursor-pointer hover:opacity-80">
+              <ChevronLeftIcon className="w-[15px] mr-[10px]" />
+              <Link href="/main">Back to Team</Link>
             </div>
-            <div className="flex">
-              <div className="">
-                <div className="relative">
+            <div className="flex items-center mb-[100px]">
+              <div className="relative">
+                <Image
+                  src={user?.imageUrl || ""}
+                  alt="User Icon"
+                  width={137}
+                  height={137}
+                  className="rounded-full "
+                />
+
+                <div className="absolute rounded-full bg-white p-[1px] top-[8px] right-[1px] flex items-center justify-center cursor-pointer">
                   <Image
-                    src="/assets/profiles/ruslan.png"
-                    alt="User Icon"
-                    width={90}
-                    height={68}
-                    className="rounded-full flex items-center justify-center block"
+                    src="/assets/png/edit.png"
+                    width={26}
+                    height={26}
+                    alt="edit icon"
                   />
                 </div>
-                <div className="absolute">
-                  <Image
-                    src="/assets/backbutton/Edit.svg"
-                    alt=""
-                    width={16}
-                    height={16}
-                    className="rounded-full"
-                  />
+                <div className="absolute rounded-full bg-white p-[1px] top-[100px] right-[5px]">
+                  <div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
                 </div>
               </div>
-
-              <div className="flex-1 ml-5 mt-2">
-                <div className="flex">
-                  <div>
-                    <h1 className="text-[#533F85] font-bold">
-                      Ruslan Konviser
-                    </h1>
-                  </div>
-
-                  <div className="flex-1 ml-1 mt-1">
+              <div className="ml-[24px]">
+                <div className="text-[30px] text-[#1B005D] font-bold flex items-center ">
+                  <span className="flex items-center">
+                    {user?.firstName && Capitalize(user.firstName)}
+                    {user?.lastName && " " + Capitalize(user.lastName)}
+                  </span>
+                  <span className="ml-[15px] flex items-center cursor-pointer">
                     <Image
-                      src="/assets/backbutton/Edit.svg"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="rounded-full"
+                      src="/assets/png/edit.png"
+                      width={26}
+                      height={26}
+                      alt="edit icon"
                     />
-                  </div>
+                  </span>
                 </div>
-                <div className="flex">
-                  <div>
-                    <h2 className="text-slate-400">Ruslan.k@everiq.com</h2>
-                  </div>
-                  <div className="flex-1 ml-1 mt-1">
+                <div className="text-[#B0B5C7] flex items-center">
+                  <span className="flex items-center">{user?.email}</span>
+                  <span className="ml-[15px] flex items-center cursor-pointer">
                     <Image
-                      src="/assets/backbutton/Edit.svg"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="rounded-full"
+                      src="/assets/png/edit.png"
+                      width={26}
+                      height={26}
+                      alt="edit icon"
                     />
-                  </div>
+                  </span>
                 </div>
               </div>
             </div>
@@ -94,16 +86,40 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="my-20">
-          <a href="#" className="underline mr-10 text-slate-500">
+        <div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex">
+          <div
+            className={`mr-10 ${
+              tab === "worked" && "font-medium"
+            } cursor-pointer`}
+            onClick={() => setTab("worked")}
+          >
             Worked
-          </a>
-          <a href="#" className="mr-10 text-slate-500">
+            {tab === "worked" && (
+              <div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
+            )}
+          </div>
+          <div
+            className={`mr-10 ${
+              tab === "assigned" && "font-medium"
+            } cursor-pointer`}
+            onClick={() => setTab("assigned")}
+          >
             Assigned
-          </a>
-          <a href="#" className="text-slate-500">
+            {tab === "assigned" && (
+              <div className="w-[78px] h-[2px] bg-[#ACB3BB]" />
+            )}
+          </div>
+          <div
+            className={`mr-10 ${
+              tab === "unassigned" && "font-medium"
+            } cursor-pointer`}
+            onClick={() => setTab("unassigned")}
+          >
             Unassigned
-          </a>
+            {tab === "unassigned" && (
+              <div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
+            )}
+          </div>
         </div>
         <div className="flex">
           <div>
