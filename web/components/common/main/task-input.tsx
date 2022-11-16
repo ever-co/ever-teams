@@ -171,7 +171,7 @@ export default function TaskInput() {
         );
   }, [query, tasks]);
 
-  const hasCreateForm = filteredTasks.length === 0 && query !== "";
+  const hasCreateForm = filteredTasks2.length === 0 && query !== "";
 
   const handleTaskCreation = () => {
     if (query.trim().length < 2) return;
