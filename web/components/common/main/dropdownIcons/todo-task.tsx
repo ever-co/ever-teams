@@ -1,22 +1,23 @@
-const TodoTask = ({ color = "#747474" }: { color?: string }) => {
+export const TodoTaskIcon = ({
+  color = "#56f000",
+}: {
+  color?: string;
+  background: string;
+}) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-      height="16"
       viewBox="0 0 16 16"
-      version="1.1"
-      width="16"
-      data-view-component="true"
+      width="13"
+      height="13"
       className="mr-1"
     >
+      <path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill={color}></path>
       <path
         fillRule="evenodd"
+        d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"
         fill={color}
-        d="M6 0a6 6 0 100 12A6 6 0 006 0zm-.705 8.737L9.63 4.403 8.392 3.166 5.295 6.263l-1.7-1.702L2.356 5.8l2.938 2.938z"
       ></path>
     </svg>
   );
 };
-
-export default TodoTask;

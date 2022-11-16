@@ -1,5 +1,5 @@
+import { IEmployee } from "./IEmployee";
 import { IOrganizationTeam } from "./IOrganizationTeam";
-import { IUser } from "./IUserData";
 
 export interface ITeamTask {
   id: string;
@@ -12,6 +12,9 @@ export interface ITeamTask {
   description: string;
   status: ITaskStatus;
   estimate: null | number;
+  estimateDays?: number;
+  estimateHours?: number;
+  estimateMinutes?: number;
   dueDate: string;
   projectId: string;
   creatorId: string;
@@ -19,67 +22,13 @@ export interface ITeamTask {
   project: Project;
   tags: Tag[];
   organizationSprint: any;
-  members: Member[];
+  members: IEmployee[];
   teams: Pick<
     IOrganizationTeam,
     "id" | "createdAt" | "name" | "organizationId" | "tenantId" | "updatedAt"
   >[];
   creator: Creator;
   taskNumber: string;
-}
-
-interface Member {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-  organizationId: string;
-  valueDate: any;
-  isActive: boolean;
-  short_description: any;
-  description: any;
-  startedWorkOn: string;
-  endWork: any;
-  payPeriod: string;
-  billRateValue: number;
-  billRateCurrency: string;
-  reWeeklyLimit: number;
-  offerDate: any;
-  acceptDate: any;
-  rejectDate: any;
-  employeeLevel: any;
-  anonymousBonus: any;
-  averageIncome: any;
-  averageBonus: any;
-  totalWorkHours: any;
-  averageExpenses: any;
-  show_anonymous_bonus: any;
-  show_average_bonus: any;
-  show_average_expenses: any;
-  show_average_income: any;
-  show_billrate: any;
-  show_payperiod: any;
-  show_start_work_on: any;
-  isJobSearchActive: any;
-  linkedInUrl: any;
-  facebookUrl: any;
-  instagramUrl: any;
-  twitterUrl: any;
-  githubUrl: any;
-  gitlabUrl: any;
-  upworkUrl: any;
-  stackoverflowUrl: any;
-  isVerified: any;
-  isVetted: any;
-  totalJobs: any;
-  jobSuccess: any;
-  profile_link: string;
-  isTrackingEnabled: boolean;
-  userId: string;
-  contactId: any;
-  organizationPositionId: any;
-  user: IUser;
-  fullName: string;
 }
 
 interface Project {
@@ -149,6 +98,8 @@ export type ITaskStatus =
   | "In Progress"
   | "For Testing"
   | "Completed"
+  | "Closed"
+  | "In Review"
   | "Unassigned";
 
 export interface ICreateTask {

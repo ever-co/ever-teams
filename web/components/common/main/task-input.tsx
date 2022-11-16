@@ -4,55 +4,12 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-import OpenTaskIcon from "./dropdownIcons/open-task";
-import CompletedTask from "./dropdownIcons/completed-task";
-import UnassignedTask from "./dropdownIcons/unassigned-task";
 import DeleteTask from "../delete-task";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import { ITeamTask, ITaskStatus } from "@app/interfaces/ITask";
-import TodoTask from "./dropdownIcons/todo-task";
-import TestingTask from "./dropdownIcons/testing-task";
+import { ITaskStatus, ITeamTask } from "@app/interfaces/ITask";
 import { Spinner } from "../spinner";
-
-export const StatusIcon = ({ taskStatus }: { taskStatus: ITaskStatus }) => {
-  switch (taskStatus) {
-    case "In Progress":
-      return (
-        <div className="px-2 py-1 bg-[#dcfce7] text-[#166534] rounded-2xl text-xs flex items-center justify-center">
-          <OpenTaskIcon /> {taskStatus}
-        </div>
-      );
-      break;
-    case "Completed":
-      return (
-        <div className="px-2 py-1 bg-[#f3e8ff] text-[#6b21a8] rounded-2xl text-xs flex items-center justify-center">
-          <CompletedTask /> {taskStatus}
-        </div>
-      );
-      break;
-    case "Todo":
-      return (
-        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
-          <TodoTask /> {taskStatus}
-        </div>
-      );
-      break;
-    case "For Testing":
-      return (
-        <div className="px-2 py-1 bg-[#e0e7ff] text-[#3730a3] rounded-2xl text-xs flex items-center justify-center">
-          <TestingTask /> {taskStatus}
-        </div>
-      );
-      break;
-    default:
-      return (
-        <div className="px-2 py-1 bg-[#f3f4f6] text-[#1f2937] rounded-2xl text-xs flex items-center justify-center">
-          <UnassignedTask />
-          Unassigned
-        </div>
-      );
-  }
-};
+import { BadgedTaskStatus } from "./dropdownIcons";
+import TaskFilter from "./task-filter";
 
 function TaskItem({
   selected,
@@ -75,16 +32,17 @@ function TaskItem({
         <div className="flex items-center justify-between w-full">
           {item.title}
           <div className="flex items-center space-x-4">
-            <StatusIcon taskStatus={item.status} />
+            <BadgedTaskStatus status={item.status} />
             <div className="flex items-center justify-center space-x-1">
               {item.members &&
                 item.members.map((member, i) => (
                   <div className="flex justify-center items-center" key={i}>
                     <Image
-                      src={member.user.imageUrl}
+                      src={member.user?.imageUrl || ""}
                       alt={
-                        (member.user.firstName || "") +
-                        (member.user.lastName || "")
+                        (member.user?.firstName || "") +
+                        " " +
+                        (member.user?.lastName || "")
                       }
                       width={30}
                       height={30}
@@ -156,6 +114,9 @@ function useModal() {
 
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
+  const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [closeFilter, setCloseFilter] = useState(false);
   const {
     tasks,
     activeTeamTask,
@@ -164,10 +125,41 @@ export default function TaskInput() {
     tasksFetching,
     createTask,
   } = useTeamTasks();
+  const [filter, setFilter] = useState<"closed" | "open" | "all">("all");
+
+  const handleOpenModal = (concernedTask: ITeamTask) => {
+    setCloseTask(concernedTask);
+    openModal();
+  };
 
   const [query, setQuery] = useState("");
 
+  const h_filter = (status: ITaskStatus, filters: typeof filter) => {
+    switch (filters) {
+      case "open":
+        return status !== "Closed";
+      case "closed":
+        return status === "Closed";
+      default:
+        return true;
+    }
+  };
+
   const filteredTasks = useMemo(() => {
+    return query.trim() === ""
+      ? tasks.filter((task) => h_filter(task.status, filter))
+      : tasks.filter(
+          (task) =>
+            task.title
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, "")
+              .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
+            h_filter(task.status, filter)
+        );
+  }, [query, tasks, filter]);
+
+  const filteredTasks2 = useMemo(() => {
     return query.trim() === ""
       ? tasks
       : tasks.filter((task) =>
@@ -200,11 +192,17 @@ export default function TaskInput() {
               className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
               displayValue={(task: ITeamTask) => task && task.title}
               onChange={(event) => setQuery(event.target.value)}
+              onKeyUp={(event: any) => {
+                if (event.key === "Enter") {
+                  handleTaskCreation();
+                }
+              }}
+              autoComplete="off"
               placeholder="What you working on?"
               readOnly={tasksFetching}
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-              {tasksFetching ? (
+              {tasksFetching || createLoading ? (
                 <Spinner dark={false} />
               ) : (
                 <ChevronUpDownIcon
@@ -219,47 +217,92 @@ export default function TaskInput() {
             leave="transition ease-in duration-100"
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
-            afterLeave={() => !createLoading && setQuery("")}
+            afterLeave={() => {
+              !createLoading && setQuery("");
+              setFilter("all");
+            }}
           >
             <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+              <div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
+                <TaskFilter
+                  count={
+                    filteredTasks2.filter((f_task) => {
+                      return f_task.status !== "Closed";
+                    }).length
+                  }
+                  type="open"
+                  selected={openFilter}
+                  handleChange={() => {
+                    setOpenFilter(true);
+                    setCloseFilter(false);
+                    setFilter("open");
+                  }}
+                />
+                <TaskFilter
+                  count={
+                    filteredTasks2.filter((f_task) => {
+                      return f_task.status === "Closed";
+                    }).length
+                  }
+                  type="closed"
+                  selected={closeFilter}
+                  handleChange={() => {
+                    setCloseFilter(true);
+                    setOpenFilter(false);
+                    setFilter("closed");
+                  }}
+                />
+              </div>
               {hasCreateForm ? (
                 <CreateTaskOption
                   onClick={handleTaskCreation}
                   loading={createLoading}
                 />
               ) : (
-                filteredTasks.map((task) => {
-                  return (
-                    <Combobox.Option
-                      key={task.id}
-                      className={({ active }) =>
-                        `relative cursor-pointer select-none py-2 pl-10 pr-4 ${
-                          active
-                            ? "bg-[#F9FAFB] text-primary dark:text-white dark:bg-[#202023] cursor-pointer"
-                            : "text-gray-900 dark:text-white"
-                        }`
-                      }
-                      value={task}
-                    >
-                      {({ selected, active }) => {
-                        return (
-                          <TaskItem
-                            selected={selected}
-                            active={active}
-                            item={task}
-                            onDelete={openModal}
-                          />
-                        );
-                      }}
-                    </Combobox.Option>
-                  );
-                })
+                <>
+                  {filteredTasks.map((task) => {
+                    return (
+                      <Combobox.Option
+                        key={task.id}
+                        className={({ active }) =>
+                          `relative text-[14px] cursor-pointer select-none pl-10 pr-4 text-primary ${
+                            active
+                              ? "bg-[#F9FAFB] text-opacity-80 dark:text-white dark:bg-[#202023] cursor-pointer"
+                              : " dark:text-white text-opacity-100"
+                          }`
+                        }
+                        value={task}
+                      >
+                        {({ selected, active }) => {
+                          return (
+                            <div>
+                              <div className="py-2">
+                                <TaskItem
+                                  selected={selected}
+                                  active={active}
+                                  item={task}
+                                  onDelete={() => handleOpenModal(task)}
+                                />
+                              </div>
+                              <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
+                            </div>
+                          );
+                        }}
+                      </Combobox.Option>
+                    );
+                  })}
+                </>
               )}
             </Combobox.Options>
           </Transition>
         </div>
       </Combobox>
-      <DeleteTask isOpen={isOpen} closeModal={closeModal} Fragment={Fragment} />
+      <DeleteTask
+        isOpen={isOpen}
+        closeModal={closeModal}
+        Fragment={Fragment}
+        task={closeTask}
+      />
     </div>
   );
 }

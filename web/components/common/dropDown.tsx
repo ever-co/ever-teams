@@ -15,7 +15,8 @@ const imgTitle = (name: string) => {
 
 export const TeamsDropDown = () => {
   const [edit, setEdit] = useState<boolean>(false);
-  const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
+  const { teams, activeTeam, setActiveTeam, teamsFetching } =
+    useOrganizationTeams();
 
   return (
     <div className="w-[290px] max-w-sm">
@@ -36,11 +37,16 @@ export const TeamsDropDown = () => {
                     {activeTeam?.name}
                   </span>
                 </div>
-                <ChevronDownIcon
-                  className={`${open ? "" : "text-opacity-70"}
+
+                {teamsFetching ? (
+                  <Spinner dark={false} />
+                ) : (
+                  <ChevronDownIcon
+                    className={`${open ? "" : "text-opacity-70"}
                   ml-2 h-5 w-5 text-primary dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80`}
-                  aria-hidden="true"
-                />
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             </Popover.Button>
             <Transition

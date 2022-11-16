@@ -108,6 +108,7 @@ export const iconRegistry = {
   view: require("../../assets/icons/view.png"),
   x: require("../../assets/icons/x.png"),
   VMore: require("../../assets/icons/more-vertical.png"),
+  clipApprove: require("../../assets/icons/clipboard-approve.png"),
 }
 
 const $imageStyle: ImageStyle = {

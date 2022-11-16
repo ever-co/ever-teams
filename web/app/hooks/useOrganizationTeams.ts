@@ -11,8 +11,9 @@ import {
   activeTeamIdState,
   activeTeamState,
   organizationTeamsState,
+  teamsFetchingState,
 } from "@app/stores";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 
@@ -60,9 +61,14 @@ export function useOrganizationTeams() {
   const [teams, setTeams] = useRecoilState(organizationTeamsState);
   const activeTeam = useRecoilValue(activeTeamState);
   const setActiveTeamId = useSetRecoilState(activeTeamIdState);
+  const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 
   const { createOrganizationTeam, loading: createOTeamLoading } =
     useCreateOrganizationTeam();
+
+  useEffect(() => {
+    setTeamsFetching(loading);
+  }, [loading]);
 
   const loadTeamsData = useCallback(() => {
     setActiveTeamId(getActiveTeamIdCookie());
@@ -86,6 +92,7 @@ export function useOrganizationTeams() {
     loadTeamsData,
     loading,
     teams,
+    teamsFetching,
     activeTeam,
     setActiveTeam,
     createOrganizationTeam,

@@ -7,9 +7,14 @@ import {
   createTeamTaskAPI,
   deleteTaskAPI,
   getTeamTasksAPI,
+  updateTaskAPI,
 } from "@app/services/client/api";
-import { activeTeamState, tasksFetchingState } from "@app/stores";
-import { activeTeamTaskState, teamTasksState } from "@app/stores/team-tasks";
+import { activeTeamState } from "@app/stores";
+import {
+  activeTeamTaskState,
+  tasksFetchingState,
+  teamTasksState,
+} from "@app/stores/team-tasks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { useQuery } from "./useQuery";
@@ -27,10 +32,15 @@ export function useTeamTasks() {
 
   // Queries hooks
   const { queryCall, loading } = useQuery(getTeamTasksAPI);
+
   const { queryCall: deleteQueryCall, loading: deleteLoading } =
     useQuery(deleteTaskAPI);
+
   const { queryCall: createQueryCall, loading: createLoading } =
     useQuery(createTeamTaskAPI);
+
+  const { queryCall: updateQueryCall, loading: updateLoading } =
+    useQuery(updateTaskAPI);
 
   // to be called once
   const firstLoadTasksData = useCallback(() => {
@@ -77,6 +87,7 @@ export function useTeamTasks() {
     setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
   }, [tasks]);
 
+  // Queries calls
   const deleteTask = useCallback((task: typeof tasks[0]) => {
     return deleteQueryCall(task.id).then((res) => {
       const affected = res.data?.affected || 0;
@@ -98,6 +109,17 @@ export function useTeamTasks() {
     });
   }, []);
 
+  const updateTask = useCallback(
+    (task: Partial<typeof tasks[0]> & { id: string }) => {
+      return updateQueryCall(task.id, task).then((res) => {
+        setLTasks(res.data?.items || []);
+        return res;
+      });
+    },
+    []
+  );
+
+  // Change active task
   const setActiveTask = useCallback((task: typeof tasks[0]) => {
     setActiveTaskIdCookie(task.id);
     setActiveTeamTask(task);
@@ -111,6 +133,8 @@ export function useTeamTasks() {
     deleteLoading,
     createTask,
     createLoading,
+    updateTask,
+    updateLoading,
     setActiveTask,
     activeTeamTask,
     firstLoadTasksData,

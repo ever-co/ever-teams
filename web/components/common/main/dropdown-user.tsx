@@ -2,9 +2,9 @@ import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import React, { Dispatch, Fragment, SetStateAction, useState } from "react";
 import { usePopper } from "react-popper";
-import { StatusIcon } from "./task-input";
 import Image from "next/image";
 import DeleteTask from "../delete-task";
+import { ITaskStatus } from "@app/interfaces/ITask";
 
 interface IUser {
   name: string;
@@ -260,6 +260,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
         closeModal={() => {
           setIsOpen(false);
         }}
+        task={null}
         Fragment={Fragment}
       />
     </>
