@@ -1,7 +1,7 @@
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import TeamMemberSection from "../components/home/team-member";
 import { TimerTasksSection } from "../components/home/timer-tasks";
 import { AppLayout } from "../components/layout";
