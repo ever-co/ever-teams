@@ -121,19 +121,32 @@ const Profile = () => {
             )}
           </div>
         </div>
-        <div className="flex">
-          <div>
-            <p>Now</p>
+        <div className="flex items-center justify-between">
+          <div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
+            Now
           </div>
-          <div className="flex-1 mt-4">
-            <hr />
-          </div>
-          <div className="flex-2">
-            <p>Total Time : 03:31</p>
+          <div className="bg-[#D7E1EB] w-full h-[1px] mx-[10px]" />
+          <div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+            Total time: 03:31
           </div>
         </div>
         <div>
-          <ProfileCard style={style} />
+          <ProfileCard now={true} />
+        </div>
+        <div className="flex items-center justify-between mt-[40px]">
+          <div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
+            Last 24 hours
+          </div>
+          <div className="bg-[#D7E1EB] w-full h-[1px] mx-[10px]" />
+          <div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+            Total time: 03:31
+          </div>
+        </div>
+        <div>
+          <ProfileCard />
+        </div>
+        <div>
+          <ProfileCard />
         </div>
       </AppLayout>
     </div>

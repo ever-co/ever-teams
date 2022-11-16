@@ -8,14 +8,18 @@ import { TimeInput } from "@components/common/main/time-input";
 import { useState } from "react";
 import Link from "next/link";
 import StatusDropdown from "@components/common/main/status-dropdown";
-// import { PauseIcon } from "@heroicons/react/20/solid";
 
-const ProfileCard = () => {
+interface IProfileCard {
+  now?: boolean;
+}
+const ProfileCard = ({ now = false }: IProfileCard) => {
   return (
     <div
-      className={`w-full rounded-[10px] border ${" border-primary dark:border-[#202023]"} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] 
+      className={`w-full rounded-[10px] border ${
+        now === true && " border-primary dark:border-[#202023]"
+      } bg-[#FFFFFF] my-[15px] dark:bg-[#202023] drop-shadow-[0px_3px_15px_#3E1DAD1A] 
   justify-between  dark:hover:border-gray-100  
-  font-bold pt-[2px] pb-6 px-[24px] dark:text-[#FFFFFF]`}
+  font-bold pt-[2px] pb-6 px-[24px] dark:text-[#FFFFFF] shad`}
     >
       <div className="flex justify-end">
         <div className="flex  space-x-[100px] text-slate-500 text-[12px]">
@@ -69,7 +73,12 @@ const ProfileCard = () => {
           </div>
         </div>
         <div>
-          <StatusDropdown />
+          {/* <div className="flex items-center justify-between">
+            <div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">Now</div>
+            <div className="bg-[#D7E1EB] w-full h-[1px] mx-[10px]" />
+            <div>Total time: 03:31</div>
+          </div> */}
+          {/* <StatusDropdown /> */}
         </div>
       </div>
     </div>
