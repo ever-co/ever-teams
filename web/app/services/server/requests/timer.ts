@@ -1,13 +1,13 @@
-import { ITimer, ITimerStatus } from "@app/interfaces/ITimer";
+import {
+  ITimer,
+  ITimerStatusParams,
+  ITimerStatus,
+  IToggleTimerParams,
+} from "@app/interfaces/ITimer";
 import { serverFetch } from "../fetch";
 
-type TimerStatusRequestParams = {
-  source?: "BROWSER";
-  tenantId: string;
-};
-
 export function getTimerStatusRequest(
-  { source = "BROWSER", tenantId }: TimerStatusRequestParams,
+  { source = "BROWSER", tenantId }: ITimerStatusParams,
   bearer_token: string
 ) {
   const params = new URLSearchParams({ source, tenantId });
@@ -32,6 +32,29 @@ export function stopTimerRequest(tenantId: string, bearer_token: string) {
   return serverFetch<ITimer>({
     path: "/timesheet/timer/stop",
     method: "POST",
+    bearer_token,
+    tenantId,
+  });
+}
+
+export function toggleTimerRequest(
+  {
+    source = "BROWSER",
+    logType = "TRACKED",
+    taskId,
+    tenantId,
+  }: IToggleTimerParams,
+  bearer_token: string
+) {
+  return serverFetch<ITimer>({
+    path: "/timesheet/timer/toggle",
+    method: "POST",
+    body: {
+      source,
+      logType,
+      taskId,
+      tenantId,
+    },
     bearer_token,
     tenantId,
   });

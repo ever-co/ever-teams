@@ -27,3 +27,13 @@ export interface ITimerStatus {
   lastLog: ITimer;
   running: boolean;
 }
+
+export type ITimerStatusParams = {
+  source?: "BROWSER";
+  tenantId: string;
+};
+
+export type IToggleTimerParams = ITimerStatusParams & {
+  logType?: "TRACKED";
+  taskId: string;
+};
