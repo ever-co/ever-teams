@@ -1,73 +1,14 @@
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import { Combobox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import Image from "next/image";
-import DeleteTask from "../delete-task";
+
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITaskStatus, ITeamTask } from "@app/interfaces/ITask";
 import { Spinner } from "../spinner";
-import { BadgedTaskStatus } from "./dropdownIcons";
+import { TaskItem } from "./task-item";
+import DeleteTask from "../delete-task";
 import TaskFilter from "./task-filter";
-
-function TaskItem({
-  selected,
-  item,
-  active,
-  onDelete,
-}: {
-  selected: boolean;
-  item: ITeamTask;
-  active: boolean;
-  onDelete: () => void;
-}) {
-  return (
-    <>
-      <span
-        className={`truncate h-[30px] flex items-center ${
-          selected ? "font-medium" : "font-normal"
-        }`}
-      >
-        <div className="flex items-center justify-between w-full">
-          {item.title}
-          <div className="flex items-center space-x-4">
-            <BadgedTaskStatus status={item.status} />
-            <div className="flex items-center justify-center space-x-1">
-              {item.members &&
-                item.members.map((member, i) => (
-                  <div className="flex justify-center items-center" key={i}>
-                    <Image
-                      src={member.user?.imageUrl || ""}
-                      alt={
-                        (member.user?.firstName || "") +
-                        " " +
-                        (member.user?.lastName || "")
-                      }
-                      width={30}
-                      height={30}
-                    />
-                  </div>
-                ))}{" "}
-            </div>
-
-            <XMarkIcon
-              className="w-5 h-5 text-gray-400 hover:text-primary"
-              onClick={onDelete}
-            />
-          </div>
-        </div>
-      </span>
-      {selected ? (
-        <span
-          className={`absolute inset-y-0 left-0 flex items-center dark:text-white text-primary pl-3`}
-        >
-          <CheckIcon className="h-5 w-5" aria-hidden="true" />
-        </span>
-      ) : null}
-    </>
-  );
-}
 
 function CreateTaskOption({
   onClick,
@@ -171,7 +112,7 @@ export default function TaskInput() {
         );
   }, [query, tasks]);
 
-  const hasCreateForm = filteredTasks.length === 0 && query !== "";
+  const hasCreateForm = filteredTasks2.length === 0 && query !== "";
 
   const handleTaskCreation = () => {
     if (query.trim().length < 2) return;
