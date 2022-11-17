@@ -2,14 +2,15 @@ import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import Image from "next/image";
 import { Popover, Transition } from "@headlessui/react";
 import { Fragment } from "react";
+import Link from "next/link";
 
 interface IOption {
   name: string;
   icon: string;
-  handleClick: any;
+  link: string;
 }
 
-function Capitalize(value: string) {
+export function Capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
@@ -20,13 +21,13 @@ const Profile = () => {
     {
       name: "Profile",
       icon: "/assets/svg/profile-icon.svg",
-      handleClick: () => {},
+      link: "/profile",
     },
-    { name: "Team", icon: "/assets/svg/teams-icon.svg", handleClick: () => {} },
+    { name: "Team", icon: "/assets/svg/teams-icon.svg", link: "" },
     {
       name: "Settings",
       icon: "/assets/svg/settings-icon.svg",
-      handleClick: () => {},
+      link: "",
     },
   ];
 
@@ -92,12 +93,12 @@ const Profile = () => {
                           className="cursor-pointer"
                         />
                       </div>
-                      <button
-                        onClick={option.handleClick}
+                      <Link
+                        href={option.link}
                         className="hover:text-opacity-75  py-2 mt-1 flex items-center text-[#1B005D] text-[15px] font-normal dark:text-gray-200 justify-start w-full"
                       >
                         {option.name}
-                      </button>
+                      </Link>
                     </div>
                   ))}
                 </div>
