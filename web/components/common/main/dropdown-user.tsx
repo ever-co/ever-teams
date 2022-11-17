@@ -131,7 +131,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                 className="w-[578px] bg-[#FFFFFF] dark:bg-[#1B1B1E] rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
                               >
                                 {tasks.map((task) => (
-                                  <div key={task.id} className="px-2">
+                                  <div key={task.id} className="px-9">
                                     <TaskItem
                                       selected={false}
                                       active={false}
