@@ -1,6 +1,7 @@
 import React from "react"
 import { TextStyle, ViewStyle } from "react-native"
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { CompositeScreenProps } from "@react-navigation/native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
@@ -17,6 +18,8 @@ import {
 // HELPERS
 // import { translate } from "../i18n"
 import { colors, spacing, typography } from "../theme"
+import HamburgerMenu from "../components/HamburgerMenu";
+import HomeHeader from "../screens/Authenticated/TeamScreen/components/HomeHeader";
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
@@ -37,7 +40,7 @@ export type AuthenticatedTabScreenProps<T extends keyof AuthenticatedTabParamLis
 
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>()
 
-export function AuthenticatedNavigator() {
+function TabNavigator() {
   const { bottom } = useSafeAreaInsets()
 
   return (
@@ -81,6 +84,19 @@ export function AuthenticatedNavigator() {
     </Tab.Navigator>
   )
 }
+
+const drawer=createDrawerNavigator();
+
+
+export function AuthenticatedNavigator(){
+  return(
+    <drawer.Navigator drawerContent={props => <HamburgerMenu {...props} />} screenOptions={{ headerShown: false}}>
+      <drawer.Screen
+       name="AuthenticatedTab" component={TabNavigator} />
+    </drawer.Navigator>
+  )
+}
+
 
 const $tabBar: ViewStyle = {
   backgroundColor: colors.background,

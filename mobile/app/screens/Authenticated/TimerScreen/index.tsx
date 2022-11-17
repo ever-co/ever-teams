@@ -47,7 +47,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     }, [])
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <HomeHeader />
+        <HomeHeader {..._props} />
         <View style={{ paddingBottom: 10 }}>
           <DropDown teams={teams} onCreateTeam={() => {}} />
         </View>
