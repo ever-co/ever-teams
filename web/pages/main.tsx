@@ -25,7 +25,7 @@ const Main = () => {
     <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
       <AppLayout>
         <div className="">
-          <TimerTasksSection />
+          <TimerTasksSection started={started} setStarted={setStarted} />
           <TeamMemberSection started={started} setStarted={setStarted} />
         </div>
       </AppLayout>

@@ -1,0 +1,9 @@
+<svg id="Group_5894" data-name="Group 5894" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 26 26">
+  <g id="Rectangle_709" data-name="Rectangle 709" fill="none" stroke="#d1d1d1" stroke-width="1">
+    <rect width="26" height="26" rx="13" stroke="none"/>
+    <rect x="0.5" y="0.5" width="25" height="25" rx="12.5" fill="none"/>
+  </g>
+  <g id="Icon_feather-edit-3" data-name="Icon feather-edit-3" transform="translate(7.174 7.174)">
+    <path id="Icon_material-edit" data-name="Icon material-edit" d="M4.5,13.828v2.455H6.955L14.2,9.042,11.741,6.586ZM16.095,7.143a.652.652,0,0,0,0-.923L14.563,4.688a.652.652,0,0,0-.923,0l-1.2,1.2L14.9,8.341Z" transform="translate(-4.5 -4.496)" fill="#656565"/>
+  </g>
+</svg>
