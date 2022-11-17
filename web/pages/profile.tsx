@@ -16,7 +16,6 @@ const style = { width: `${100 / 10}%` };
 
 const Profile = () => {
   const { user } = useAuthenticateUser();
-  const [started, setStarted] = useState(false);
   const [tab, setTab] = useState<"worked" | "assigned" | "unassigned">(
     "worked"
   );
@@ -82,7 +81,7 @@ const Profile = () => {
             </div>
           </div>
           <div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
-            <Timer started={started} setStarted={setStarted} />
+            <Timer />
           </div>
         </div>
 

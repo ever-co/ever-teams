@@ -1,8 +1,10 @@
-import { ITimerTasksSection } from "@components/home/timer-tasks";
+import { useState } from "react";
 import { PauseIcon } from "./pauseIcon";
 import { PlayIcon } from "./playIcon";
 
-const Timer = ({ started, setStarted }: ITimerTasksSection) => {
+const Timer = () => {
+  const [started, setStarted] = useState(true);
+
   return (
     <>
       <div className="flex flex-col">
