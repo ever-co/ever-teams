@@ -1,32 +1,24 @@
 import React from "react"
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native"
+import { View, Image, StyleSheet, TouchableOpacity } from "react-native"
+import { Feather } from '@expo/vector-icons';
 
-type IHomeHeader = {
-  setShowHam?: any
-}
 
-const HomeHeader = ({ setShowHam }: IHomeHeader) => {
+
+
+const HomeHeader = (props) => {
+
   return (
     <View style={styles.mainContainer}>
       <View>
         <View style={styles.secondContainer}>
-
-          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
-
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => {
-              if (setShowHam !== undefined) {
-                setShowHam(true)
-              }
-            }}
-            style={{ flexDirection: "column" }}
+            onPress={() => props.navigation.openDrawer()}
+            style={{ marginRight: 15 }}
           >
-            <View style={styles.line} />
-            <View style={styles.line} />
-            <View style={styles.line} />
+            <Feather name="menu" size={30} color="#fff" />
           </TouchableOpacity>
-
+          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
         </View>
       </View>
     </View>
@@ -48,7 +40,6 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 15,
     height: 30,
-    paddingTop: 12,
     alignItems: "center",
   },
   icons: {

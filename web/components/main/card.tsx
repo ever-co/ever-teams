@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Separator from "../common/separator";
 // import { PauseIcon } from "../common/main/pauseIcon";
@@ -7,8 +7,9 @@ import DropdownUser from "@components/common/main/dropdown-user";
 import { TimeInput } from "@components/common/main/time-input";
 import { IOrganizationTeamList } from "@app/interfaces/IOrganizationTeam";
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
-import { secondsToTime } from "@app/helpers/date";
 import { PlayIcon } from "@components/common/main/playIcon";
+import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { ITeamTask } from "@app/interfaces/ITask";
 
 type IMember = IOrganizationTeamList["members"][number];
 
@@ -20,6 +21,7 @@ const workStatus = {
 
 const Card = ({ member }: { member: IMember }) => {
   const { isTeamManager, user } = useAuthenticateUser();
+  const { activeTeamTask } = useTeamTasks();
   const isManager = member.employee.userId === user?.id && isTeamManager;
   const isAuthUser = member.employee.userId === user?.id;
   const iuser = member.employee.user;
@@ -28,13 +30,31 @@ const Card = ({ member }: { member: IMember }) => {
   const [nameEdit, setNameEdit] = useState(false);
   const [taskEdit, setTaskEdit] = useState(false);
   const [estimateEdit, setEstimateEdit] = useState(false);
+  const [memberTask, setMemberTask] = useState<ITeamTask | null>(null);
 
   const [formValues, setFormValues] = useState({
     devName: `${iuser?.firstName} ${iuser?.lastName}`,
-    devTask: "task",
+    devTask: "",
     estimateHours: 0,
     estimateMinutes: 0,
   });
+
+  useEffect(() => {
+    if (isAuthUser) {
+      setMemberTask(activeTeamTask);
+    }
+  }, [activeTeamTask, isAuthUser]);
+
+  useEffect(() => {
+    if (memberTask) {
+      setFormValues((d) => {
+        return {
+          ...d,
+          devTask: memberTask.title,
+        };
+      });
+    }
+  }, [memberTask]);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -137,12 +157,7 @@ const Card = ({ member }: { member: IMember }) => {
       </div>
       <Separator />
       <div className="w-[122px]  text-center flex justify-center items-center">
-        {0}
-        {isAuthUser && (
-          <div className="ml-[10px] cursor-pointer">
-            <PlayIcon width={24} height={24} />
-          </div>
-        )}
+        0h:0m
       </div>
       <Separator />
       <div className="w-[245px]  flex justify-center items-center">
@@ -170,7 +185,7 @@ const Card = ({ member }: { member: IMember }) => {
               } `}
               disabled={!estimateEdit}
             />
-            h /
+            {"h"} /
             <TimeInput
               value={"" + formValues.estimateMinutes}
               type="string"
@@ -188,14 +203,14 @@ const Card = ({ member }: { member: IMember }) => {
               } `}
               disabled={!estimateEdit}
             />
-            m
+            {"m"}
           </div>
         </div>
       </div>
 
       <Separator />
       <div className="w-[184px]  flex items-center">
-        <div className="w-[177px] text-center text-"> 0</div>
+        <div className="w-[177px] text-center text-">0h:0m</div>
         {isTeamManager && (
           <div className="mr-[20px]">
             <DropdownUser
