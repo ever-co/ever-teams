@@ -3,6 +3,7 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
+  StatusBar,
   ViewStyle,
   TouchableWithoutFeedback,
 } from "react-native"
@@ -24,6 +25,7 @@ import DropDown from "./components/DropDown"
 import { teams, tasks } from "./data"
 import CreateTeamModal from "./components/CreateTeamModal"
 
+
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
   function AuthenticatedTeamScreen(_props) {
     // STATES
@@ -39,53 +41,53 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
     }
 
     return (
-      <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
-        <CreateTeamModal
-          visible={showCreateTeamModal}
-          onDismiss={() => setShowCreateTeamModal(false)}
-        />
-        <NewTeamModal
-          visible={showCreateTeamModal}
-          onDismiss={() => setShowCreateTeamModal(false)}
-        />
-        <HomeHeader />
-        <DropDown teams={teams} onCreateTeam={() => setShowCreateTeamModal(true)} />
-        <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-          <View style={$cardContainer}>
-            {/* Users activity list */}
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-              style={{ ...GS.my2 }}
-            >
-              {tasks.map((item, index) => (
-                <ListCardItem
-                  key={index.toString()}
-                  item={item as any}
-                  onPressIn={() => goToProfile()}
-                  enableEstimate={false}
-                />
-              ))}
-
-              {/* Invite btn */}
-              <Button
-                preset="default"
-                textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
-                style={{
-                  ...GS.bgTransparent,
-                  ...GS.mb2,
-                  borderColor: colors.primary,
-                  backgroundColor: colors.primary,
-                }}
-                onPress={() => setShowInviteModal(true)}
+        <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{backgroundColor:'black'}} safeAreaEdges={["top"]}>
+          <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
+          <CreateTeamModal
+            visible={showCreateTeamModal}
+            onDismiss={() => setShowCreateTeamModal(false)}
+          />
+          <NewTeamModal
+            visible={showCreateTeamModal}
+            onDismiss={() => setShowCreateTeamModal(false)}
+          />
+          <HomeHeader {..._props} />
+          <DropDown teams={teams} onCreateTeam={() => setShowCreateTeamModal(true)} />
+          <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
+            <View style={$cardContainer}>
+              {/* Users activity list */}
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+                style={{ ...GS.my2 }}
               >
-                Invite
-              </Button>
-            </ScrollView>
-          </View>
-        </TouchableWithoutFeedback>
-      </Screen>
+                {tasks.map((item, index) => (
+                  <ListCardItem
+                    key={index.toString()}
+                    item={item as any}
+                    onPressIn={() => goToProfile()}
+                    enableEstimate={false}
+                  />
+                ))}
+
+                {/* Invite btn */}
+                <Button
+                  preset="default"
+                  textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
+                  style={{
+                    ...GS.bgTransparent,
+                    ...GS.mb2,
+                    borderColor: colors.primary,
+                    backgroundColor: colors.primary,
+                  }}
+                  onPress={() => setShowInviteModal(true)}
+                >
+                  Invite
+                </Button>
+              </ScrollView>
+            </View>
+          </TouchableWithoutFeedback>
+        </Screen>
     )
   }
 

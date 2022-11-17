@@ -17,7 +17,7 @@ import ProfileHeader from "./components/ProfileHeader"
 import DropDown from "../TeamScreen/components/DropDown"
 import FilterSection from "./components/FilterSection"
 import ListCardItem from "./components/ListCardItem"
-import HamMenu from "./components/HamMenu"
+import HamburgerMenu from "../../../components/HamburgerMenu"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
   function AuthenticatedProfileScreen(_props) {
@@ -25,7 +25,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <HomeHeader setShowHam={setShowHam} />
+       <HomeHeader {..._props} />
         <ProfileHeader />
         <View style={$wrapComboboxes}>
           <View style={{ flex: 2, alignItems: "flex-start" }}>
@@ -71,7 +71,6 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             ))}
           </View>
         </ScrollView>
-        {showHam && <HamMenu setShowHam={setShowHam} />}
       </Screen>
     )
   }
