@@ -136,7 +136,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                       selected={false}
                                       active={false}
                                       item={task}
-                                      onDelete={() => {}}
+                                      onDelete={openModal}
                                     />
                                   </div>
                                 ))}
