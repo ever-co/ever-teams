@@ -5,72 +5,8 @@ import { usePopper } from "react-popper";
 import Image from "next/image";
 import DeleteTask from "../delete-task";
 import { ITaskStatus } from "@app/interfaces/ITask";
-
-interface IUser {
-  name: string;
-  image: string;
-}
-interface IStatusIcon {
-  taskStatus: TaskStatus;
-}
-
-enum TaskStatus {
-  COMPLETED = "Complete",
-  IN_PROGRESS = "Progress",
-  ASSIGNED = "Assigned",
-  UNASSIGNED = "Unassigned",
-}
-
-interface ITask {
-  id: number;
-  name: string;
-  assignees: IUser[];
-  status: TaskStatus;
-}
-
-const tasks: ITask[] = [
-  {
-    id: 1,
-    name: "API Integration",
-    assignees: [
-      { name: "miracle", image: "/assets/profiles/kevin.png" },
-      { name: "isaac", image: "/assets/profiles/roska.png" },
-    ],
-    status: TaskStatus.COMPLETED,
-  },
-  {
-    id: 2,
-    name: "Design Profile Screen",
-    assignees: [
-      {
-        name: "julien",
-        image: "/assets/profiles/ruslan.png",
-      },
-      {
-        name: "miracle",
-        image: "/assets/profiles/Profile.png",
-      },
-    ],
-    status: TaskStatus.IN_PROGRESS,
-  },
-  {
-    id: 3,
-    name: "Improve Main Page Design",
-    assignees: [],
-    status: TaskStatus.UNASSIGNED,
-  },
-  {
-    id: 4,
-    name: "Deploy App",
-    assignees: [
-      {
-        name: "julien",
-        image: "/assets/profiles/ruslan.png",
-      },
-    ],
-    status: TaskStatus.ASSIGNED,
-  },
-];
+import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { TaskItem } from "./task-item";
 
 interface IOption {
   name: string;
@@ -84,6 +20,7 @@ interface IDropdownUserProps {
 }
 
 const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
+  const { tasks } = useTeamTasks();
   let [referenceElement, setReferenceElement] = useState<
     Element | null | undefined
   >();
@@ -91,7 +28,6 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     HTMLElement | null | undefined
   >();
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
   let { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "left",
   });
@@ -133,16 +69,6 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     },
   ];
 
-  const filteredTasks =
-    query === ""
-      ? tasks
-      : tasks.filter((task) =>
-          task.name
-            .toLowerCase()
-            .replace(/\s+/g, "")
-            .includes(query.toLowerCase().replace(/\s+/g, ""))
-        );
-
   return (
     <>
       <Popover className="relative border-none no-underline">
@@ -182,14 +108,12 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                       >
                         {({ open }) => (
                           <>
-                            <Popover.Button className="outline-none w-full">
-                              <button
-                                onClick={option.handleClick}
-                                ref={setReferenceElement}
-                                className="hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
-                              >
-                                {option.name}
-                              </button>{" "}
+                            <Popover.Button
+                              onClick={option.handleClick}
+                              ref={setReferenceElement}
+                              className="outline-none  hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
+                            >
+                              {option.name}{" "}
                             </Popover.Button>
                             <Transition
                               as={Fragment}
@@ -206,40 +130,14 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                 {...attributes.popper}
                                 className="w-[578px] bg-[#FFFFFF] dark:bg-[#1B1B1E] rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
                               >
-                                {filteredTasks.map((filteredTask) => (
-                                  <div
-                                    className="flex items-center justify-between px-[20px] py-2  cursor-pointer text-gray-900 dark:text-white hover:bg-[#F9FAFB] hover:text-primary dark:hover:text-white dark:hover:bg-[#202023]"
-                                    key={filteredTask.id}
-                                  >
-                                    {filteredTask.name}
-                                    <div className="flex items-center space-x-4">
-                                      {/* <StatusIcon
-                                        taskStatus={filteredTask.status}
-                                      /> */}
-                                      <div className="flex items-center justify-center space-x-1">
-                                        {filteredTask.assignees &&
-                                          filteredTask.assignees.map(
-                                            (assignee) => (
-                                              <div
-                                                className="flex justify-center items-center"
-                                                key={assignee.name}
-                                              >
-                                                <Image
-                                                  src={assignee.image}
-                                                  alt={assignee.name}
-                                                  width={30}
-                                                  height={30}
-                                                />
-                                              </div>
-                                            )
-                                          )}{" "}
-                                      </div>
-
-                                      <XMarkIcon
-                                        className="w-5 h-5 text-gray-400 hover:text-primary"
-                                        onClick={openModal}
-                                      />
-                                    </div>
+                                {tasks.map((task) => (
+                                  <div key={task.id} className="px-2">
+                                    <TaskItem
+                                      selected={false}
+                                      active={false}
+                                      item={task}
+                                      onDelete={() => {}}
+                                    />
                                   </div>
                                 ))}
                               </Popover.Panel>

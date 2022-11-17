@@ -1,13 +1,12 @@
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import TeamMemberSection from "../components/home/team-member";
 import { TimerTasksSection } from "../components/home/timer-tasks";
 import { AppLayout } from "../components/layout";
 
 const Main = () => {
-  const [started, setStarted] = useState(false);
   const { loadTeamsData } = useOrganizationTeams();
   const { timeToTimeRefreshToken } = useAuthenticateUser();
   const { firstLoadTasksData } = useTeamTasks();
@@ -26,7 +25,7 @@ const Main = () => {
       <AppLayout>
         <div className="">
           <TimerTasksSection />
-          <TeamMemberSection started={started} setStarted={setStarted} />
+          <TeamMemberSection />
         </div>
       </AppLayout>
     </div>
