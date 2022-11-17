@@ -131,7 +131,11 @@ const Profile = () => {
           </div>
         </div>
         <div>
-          <ProfileCard now={true} />
+          <ProfileCard
+            now={true}
+            task="Open Platform for On-Demand and Sharing Economies."
+            current="01:10"
+          />
         </div>
         <div className="flex items-center justify-between mt-[40px]">
           <div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
@@ -143,10 +147,13 @@ const Profile = () => {
           </div>
         </div>
         <div>
-          <ProfileCard />
+          <ProfileCard
+            task="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+            current="02:25"
+          />
         </div>
         <div>
-          <ProfileCard />
+          <ProfileCard task="Lorem Ipsum is simply dummy" current="00:00" />
         </div>
       </AppLayout>
     </div>
