@@ -2,9 +2,9 @@ import { IEmployee } from "./IEmployee";
 
 export interface IOrganizationTeamCreate {
   name: string;
-  members?: any[];
+  memberIds?: any[];
+  managerIds?: any[];
   tags?: any[];
-  managers?: any[];
   organizationId: string;
   tenantId: string;
 }

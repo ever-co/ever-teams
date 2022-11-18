@@ -10,6 +10,8 @@ const TeamMemberSection = () => {
   const members = activeTeam?.members || [];
   const style = { width: `${100 / members.length}%` };
 
+  const $teamsFetching = teamsFetching && members.length === 0;
+
   const currentUser = members.find((m) => {
     return m.employee.userId === user?.id;
   });
@@ -39,7 +41,7 @@ const TeamMemberSection = () => {
           </li>
         )}
 
-        {teamsFetching &&
+        {$teamsFetching &&
           [1, 2].map((_, i) => {
             return (
               <li
@@ -64,7 +66,7 @@ const TeamMemberSection = () => {
             );
           })}
 
-        {teamsFetching && (
+        {$teamsFetching && (
           <li
             role="status"
             className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"

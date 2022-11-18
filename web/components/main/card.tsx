@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Separator from "../common/separator";
 // import { PauseIcon } from "../common/main/pauseIcon";
@@ -61,22 +61,34 @@ const Card = ({ member }: { member: IMember }) => {
     setFormValues((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleNameEdit = (e: any) => {
+  const canEditName = useCallback(() => {
+    (isManager || isAuthUser) && setNameEdit(true);
+  }, [isManager, isAuthUser]);
+
+  const canEditTaskName = useCallback(() => {
+    (isManager || isAuthUser) && setTaskEdit(true);
+  }, []);
+
+  const handeEditBoth = useCallback(() => {
+    canEditName();
+    canEditTaskName();
+  }, [canEditName, canEditTaskName]);
+
+  const canEditEstimate = useCallback(() => {
+    (isManager || isAuthUser) && setEstimateEdit(true);
+  }, []);
+
+  const handleNameEdit = useCallback(() => {
     setNameEdit(false);
-  };
+  }, []);
 
-  const handleTaskEdit = (e: any) => {
+  const handleTaskEdit = useCallback(() => {
     setTaskEdit(false);
-  };
+  }, []);
 
-  const handleEstimate = () => {
-    setEstimateEdit(true);
-  };
-
-  const handeEditBoth = () => {
-    setNameEdit(true);
-    setTaskEdit(true);
-  };
+  const handleEstimate = useCallback(() => {
+    setTaskEdit(false);
+  }, []);
 
   return (
     <div
@@ -104,20 +116,14 @@ const Card = ({ member }: { member: IMember }) => {
 
         <div
           className="w-[137px] mx-[20px] h-[48px] flex justify-start items-center"
-          onDoubleClick={() => {
-            (isManager || isAuthUser) && setNameEdit(true);
-          }}
+          onDoubleClick={canEditName}
         >
           {nameEdit === true ? (
             <input
               value={formValues.devName}
               name="devName"
               onChange={handleChange}
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  handleNameEdit(this);
-                }
-              }}
+              onKeyPress={(event) => event.key === "Enter" && handleNameEdit()}
               className="w-full h-[40px] rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
             />
           ) : (
@@ -137,19 +143,13 @@ const Card = ({ member }: { member: IMember }) => {
             name="devTask"
             value={formValues.devTask}
             onChange={handleChange}
-            onKeyPress={(event) => {
-              if (event.key === "Enter") {
-                handleTaskEdit(this);
-              }
-            }}
+            onKeyPress={(event) => event.key === "Enter" && handleTaskEdit()}
             className="w-full resize-none h-[48px] text-xs rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
           />
         ) : (
           <div
             className={`w-[334px] text-center h-[48px]  font-light text-normal px-[14px] border border-white dark:border-[#202023] hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}
-            onDoubleClick={() => {
-              (isManager || isAuthUser) && setTaskEdit(true);
-            }}
+            onDoubleClick={canEditTaskName}
           >
             {formValues.devTask}
           </div>
@@ -174,7 +174,7 @@ const Card = ({ member }: { member: IMember }) => {
               placeholder="Hours"
               name="estimateHours"
               handleChange={handleChange}
-              handleDoubleClick={handleEstimate}
+              handleDoubleClick={canEditEstimate}
               handleEnter={() => {
                 setEstimateEdit(false);
               }}
@@ -192,10 +192,8 @@ const Card = ({ member }: { member: IMember }) => {
               placeholder="Minutes"
               name="estimateMinutes"
               handleChange={handleChange}
-              handleDoubleClick={handleEstimate}
-              handleEnter={() => {
-                setEstimateEdit(false);
-              }}
+              handleDoubleClick={canEditEstimate}
+              handleEnter={handleEstimate}
               style={` ${
                 estimateEdit === true
                   ? " w-[30px] bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
@@ -215,7 +213,7 @@ const Card = ({ member }: { member: IMember }) => {
           <div className="mr-[20px]">
             <DropdownUser
               setEdit={handeEditBoth}
-              setEstimateEdit={handleEstimate}
+              setEstimateEdit={canEditEstimate}
             />
           </div>
         )}
