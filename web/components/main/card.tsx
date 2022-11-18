@@ -10,6 +10,7 @@ import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { PlayIcon } from "@components/common/main/playIcon";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITeamTask } from "@app/interfaces/ITask";
+import { secondsToTime } from "@app/helpers/date";
 
 type IMember = IOrganizationTeamList["members"][number];
 
@@ -47,10 +48,13 @@ const Card = ({ member }: { member: IMember }) => {
 
   useEffect(() => {
     if (memberTask) {
+      const { m, h } = secondsToTime(memberTask.estimate || 0);
       setFormValues((d) => {
         return {
           ...d,
           devTask: memberTask.title,
+          estimateHours: h,
+          estimateMinutes: m,
         };
       });
     }
@@ -103,6 +107,8 @@ const Card = ({ member }: { member: IMember }) => {
       <div className="w-[60px]  flex justify-center items-center">
         <div className={`rounded-[50%] w-5 h-5 bg-[#02b102]`}></div>
       </div>
+
+      {/* User info */}
       <div className="w-[235px] h-[48px] flex items-center justify-center">
         <div className="flex justify-center items-center">
           <Image
@@ -132,6 +138,8 @@ const Card = ({ member }: { member: IMember }) => {
         </div>
       </div>
       <Separator />
+
+      {/* Task info */}
       <div
         className={`w-[334px]  h-[48px] font-light text-normal hover:rounded-[8px] hover:cursor-text`}
         onDoubleClick={() => {
@@ -152,6 +160,7 @@ const Card = ({ member }: { member: IMember }) => {
             onDoubleClick={canEditTaskName}
           >
             {formValues.devTask}
+            {memberTask ? ` #${memberTask.taskNumber}` : ""}
           </div>
         )}
       </div>

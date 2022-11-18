@@ -1,5 +1,6 @@
 import {
   getAccessTokenCookie,
+  getActiveTeamIdCookie,
   getOrganizationIdCookie,
   getTenantIdCookie,
 } from "@app/helpers/cookies";
@@ -13,6 +14,7 @@ export async function authenticatedGuard(
   const access_token = getAccessTokenCookie({ req, res });
   const tenantId = getTenantIdCookie({ req, res });
   const organizationId = getOrganizationIdCookie({ req, res });
+  const teamId = getActiveTeamIdCookie({ req, res });
 
   const r_res = await currentAuthenticatedUserRequest({
     bearer_token: access_token?.toString() || "",
@@ -34,5 +36,6 @@ export async function authenticatedGuard(
     access_token: access_token as string,
     tenantId,
     organizationId,
+    teamId,
   };
 }

@@ -3,6 +3,8 @@ import { Dialog, Transition } from "@headlessui/react";
 import { IInvite, IInviteProps } from "../../app/interfaces/hooks";
 import UserIcon from "../common/invite/userIcon";
 import Input from "../common/input";
+import { useQuery } from "@app/hooks/useQuery";
+import { inviteByEmailsAPI } from "@app/services/client/api";
 
 const initalValues: IInvite = {
   email: "",
@@ -10,6 +12,7 @@ const initalValues: IInvite = {
 };
 const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
   const [formData, setFormData] = useState<IInvite>(initalValues);
+  const { queryCall, loading } = useQuery(inviteByEmailsAPI);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -18,7 +21,12 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    closeModal();
+    queryCall({
+      email: formData.email,
+      name: formData.name,
+    }).then((res) => {
+      // console.log(res);
+    });
   };
   return (
     <Transition appear show={isOpen} as={Fragment}>
