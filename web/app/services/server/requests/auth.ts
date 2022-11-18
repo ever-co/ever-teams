@@ -5,13 +5,29 @@ import {
 import { IUser } from "@app/interfaces/IUserData";
 import { serverFetch } from "../fetch";
 
-export const registerUserRequest = (data: IRegisterDataRequest) => {
+export function registerUserRequest(data: IRegisterDataRequest) {
   return serverFetch<IUser>({
     path: "/auth/register",
     method: "POST",
     body: data,
   });
-};
+}
+
+export function sendAuthCode(email: string) {
+  return serverFetch<{ status: number; message: string | "ok" }>({
+    path: "/auth/send-code",
+    method: "POST",
+    body: { email },
+  });
+}
+
+export function verifyAuthCode(email: string, code: string) {
+  return serverFetch<IUser>({
+    path: "/auth/verify-code",
+    method: "POST",
+    body: { email, code },
+  });
+}
 
 export const loginUserRequest = (email: string, password: string) => {
   return serverFetch<ILoginReponse>({

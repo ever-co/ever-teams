@@ -67,6 +67,7 @@ export default function TaskInput() {
     createTask,
   } = useTeamTasks();
   const [filter, setFilter] = useState<"closed" | "open" | "all">("all");
+  const [editMode, setEditMode] = useState(false);
 
   const handleOpenModal = (concernedTask: ITeamTask) => {
     setCloseTask(concernedTask);
@@ -130,8 +131,15 @@ export default function TaskInput() {
         <div className="relative mt-1">
           <div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
             <Combobox.Input
+              key={`${editMode}`}
               className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
-              displayValue={(task: ITeamTask) => task && task.title}
+              displayValue={(task: ITeamTask) => {
+                return task
+                  ? task.title + (!editMode ? ` #${task.taskNumber}` : "")
+                  : "";
+              }}
+              onFocus={() => setEditMode(true)}
+              onBlur={() => setEditMode(false)}
               onChange={(event) => setQuery(event.target.value)}
               onKeyUp={(event: any) => {
                 if (event.key === "Enter") {

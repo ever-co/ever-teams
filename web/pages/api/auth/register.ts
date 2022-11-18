@@ -91,7 +91,7 @@ export default async function handler(
       name: body.team,
       tenantId: tenant.id,
       organizationId: organization.id,
-      managers: [employee.id],
+      managerIds: [employee.id],
     },
     auth_token
   );
