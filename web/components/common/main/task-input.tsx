@@ -56,7 +56,7 @@ function useModal() {
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
   const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
-  const [openFilter, setOpenFilter] = useState(false);
+  const [openFilter, setOpenFilter] = useState(true);
   const [closeFilter, setCloseFilter] = useState(false);
   const {
     tasks,
@@ -66,7 +66,7 @@ export default function TaskInput() {
     tasksFetching,
     createTask,
   } = useTeamTasks();
-  const [filter, setFilter] = useState<"closed" | "open" | "all">("all");
+  const [filter, setFilter] = useState<"closed" | "open">("open");
   const [editMode, setEditMode] = useState(false);
 
   const handleOpenModal = (concernedTask: ITeamTask) => {
@@ -134,9 +134,10 @@ export default function TaskInput() {
               key={`${editMode}`}
               className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
               displayValue={(task: ITeamTask) => {
-                return task
-                  ? task.title + (!editMode ? ` #${task.taskNumber}` : "")
-                  : "";
+                // return task
+                //   ? task.title + (!editMode ? ` #${task.taskNumber}` : "")
+                //   : "";
+                return task ? task.title : "";
               }}
               onFocus={() => setEditMode(true)}
               onBlur={() => setEditMode(false)}
@@ -168,7 +169,7 @@ export default function TaskInput() {
             leaveTo="opacity-0"
             afterLeave={() => {
               !createLoading && setQuery("");
-              setFilter("all");
+              setFilter("open");
             }}
           >
             <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">

@@ -23,7 +23,8 @@ export function TaskItem({
         }`}
       >
         <div className="flex items-center justify-between w-full">
-          {item.title} #{item.taskNumber}
+          {/* {item.title} #{item.taskNumber} */}
+          {item.title}
           <div className="flex items-center space-x-4">
             <BadgedTaskStatus status={item.status} />
             <div className="flex items-center justify-center space-x-1">
