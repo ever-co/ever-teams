@@ -160,7 +160,7 @@ const Card = ({ member }: { member: IMember }) => {
             onDoubleClick={canEditTaskName}
           >
             {formValues.devTask}
-            {/* {memberTask ? ` #${memberTask.taskNumber}` : ""} */}
+            {memberTask ? ` #${memberTask.taskNumber}` : ""}
           </div>
         )}
       </div>
