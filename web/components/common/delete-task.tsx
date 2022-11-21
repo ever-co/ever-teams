@@ -5,7 +5,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Spinner } from "./spinner";
 
 const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
-  const { updateTask, updateLoading } = useTeamTasks();
+  const { updateTask, updateLoading, setActiveTask, tasks } = useTeamTasks();
 
   const handleChange = useCallback(async () => {
     if (task) {
@@ -14,6 +14,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
         status: "Closed",
       });
     }
+    setActiveTask(tasks.filter((tas) => tas?.status !== "Closed")[0]);
     closeModal();
   }, [closeModal, task, updateTask]);
 

@@ -1,12 +1,20 @@
 import { Popover, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import React, { Dispatch, Fragment, SetStateAction, useState } from "react";
+import React, {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useMemo,
+  useState,
+} from "react";
 import { usePopper } from "react-popper";
 import Image from "next/image";
 import DeleteTask from "../delete-task";
-import { ITaskStatus } from "@app/interfaces/ITask";
+import { ITaskStatus, ITeamTask } from "@app/interfaces/ITask";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { TaskItem } from "./task-item";
+import TaskFilter from "./task-filter";
+import { h_filter } from "./task-input";
 
 interface IOption {
   name: string;
@@ -31,6 +39,11 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
   let { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "left",
   });
+
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"closed" | "open">("open");
+  const [openFilter, setOpenFilter] = useState(true);
+  const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
 
   const openModal = () => {
     setIsOpen(true);
@@ -68,6 +81,37 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
       handleClick: () => {},
     },
   ];
+
+  const filteredTasks = useMemo(() => {
+    return query.trim() === ""
+      ? tasks.filter((task) => h_filter(task.status, filter))
+      : tasks.filter(
+          (task) =>
+            task.title
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, "")
+              .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
+            h_filter(task.status, filter)
+        );
+  }, [query, tasks, filter]);
+
+  const filteredTasks2 = useMemo(() => {
+    return query.trim() === ""
+      ? tasks
+      : tasks.filter((task) =>
+          task.title
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .startsWith(query.toLowerCase().replace(/\s+/g, ""))
+        );
+  }, [query, tasks]);
+
+  const handleOpenModal = (concernedTask: ITeamTask) => {
+    setCloseTask(concernedTask);
+    openModal();
+  };
 
   return (
     <>
@@ -130,14 +174,57 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                 {...attributes.popper}
                                 className="w-[578px] bg-[#FFFFFF] dark:bg-[#1B1B1E] rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
                               >
-                                {tasks.map((task) => (
-                                  <div key={task.id} className="px-9">
-                                    <TaskItem
-                                      selected={false}
-                                      active={false}
-                                      item={task}
-                                      onDelete={openModal}
-                                    />
+                                <div className="mx-9">
+                                  <input
+                                    className="w-[508px] text-normal h-[50px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] rounded-[10px] px-[20px] py-[18px] shadow-inner outline-none"
+                                    placeholder="What you working on?"
+                                    onChange={(event) =>
+                                      setQuery(event.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="ml-9 flex items-center justify-start space-x-2 mb-4 mt-[26px]">
+                                  <TaskFilter
+                                    count={
+                                      filteredTasks2.filter((f_task) => {
+                                        return f_task.status !== "Closed";
+                                      }).length
+                                    }
+                                    type="open"
+                                    selected={openFilter}
+                                    handleChange={() => {
+                                      setOpenFilter(true);
+                                      setFilter("open");
+                                    }}
+                                  />
+                                  <TaskFilter
+                                    count={
+                                      filteredTasks2.filter((f_task) => {
+                                        return f_task.status === "Closed";
+                                      }).length
+                                    }
+                                    type="closed"
+                                    selected={!openFilter}
+                                    handleChange={() => {
+                                      setOpenFilter(false);
+                                      setFilter("closed");
+                                    }}
+                                  />
+                                </div>
+                                {filteredTasks.map((task) => (
+                                  <div
+                                    key={task.id}
+                                    className="px-9 cursor-pointer"
+                                  >
+                                    <div className="py-2">
+                                      <TaskItem
+                                        selected={false}
+                                        active={false}
+                                        item={task}
+                                        onDelete={() => handleOpenModal(task)}
+                                      />
+                                    </div>
+                                    <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
                                   </div>
                                 ))}
                               </Popover.Panel>
@@ -158,7 +245,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
         closeModal={() => {
           setIsOpen(false);
         }}
-        task={null}
+        task={closeTask}
         Fragment={Fragment}
       />
     </>

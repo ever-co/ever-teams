@@ -30,7 +30,7 @@ function CreateTaskOption({
             <PlusIcon className=" font-bold w-[16px] h-[16px]" />
           )}
         </span>
-        Create new
+        Create new task
       </div>
     </div>
   );
@@ -53,10 +53,21 @@ function useModal() {
   };
 }
 
+export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
+  switch (filters) {
+    case "open":
+      return status !== "Closed";
+    case "closed":
+      return status === "Closed";
+    default:
+      return true;
+  }
+};
+
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
   const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
-  const [openFilter, setOpenFilter] = useState(false);
+  const [openFilter, setOpenFilter] = useState(true);
   const [closeFilter, setCloseFilter] = useState(false);
   const {
     tasks,
@@ -66,7 +77,7 @@ export default function TaskInput() {
     tasksFetching,
     createTask,
   } = useTeamTasks();
-  const [filter, setFilter] = useState<"closed" | "open" | "all">("all");
+  const [filter, setFilter] = useState<"closed" | "open">("open");
   const [editMode, setEditMode] = useState(false);
 
   const handleOpenModal = (concernedTask: ITeamTask) => {
@@ -75,17 +86,6 @@ export default function TaskInput() {
   };
 
   const [query, setQuery] = useState("");
-
-  const h_filter = (status: ITaskStatus, filters: typeof filter) => {
-    switch (filters) {
-      case "open":
-        return status !== "Closed";
-      case "closed":
-        return status === "Closed";
-      default:
-        return true;
-    }
-  };
 
   const filteredTasks = useMemo(() => {
     return query.trim() === ""
@@ -168,7 +168,7 @@ export default function TaskInput() {
             leaveTo="opacity-0"
             afterLeave={() => {
               !createLoading && setQuery("");
-              setFilter("all");
+              setFilter("open");
             }}
           >
             <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
