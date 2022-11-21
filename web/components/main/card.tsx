@@ -236,7 +236,7 @@ const Card = ({ member }: { member: IMember }) => {
             {!estimateEdit && (
               <div className="flex items-center">
                 <div>
-                  Estimate : {formValues.estimateHours}H
+                  Estimate : {formValues.estimateHours}h
                   {formValues.estimateMinutes}m
                 </div>
                 <span
