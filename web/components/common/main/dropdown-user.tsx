@@ -174,7 +174,16 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                 {...attributes.popper}
                                 className="w-[578px] bg-[#FFFFFF] dark:bg-[#1B1B1E] rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
                               >
-                                <div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
+                                <div className="mx-9">
+                                  <input
+                                    className="w-[508px] text-normal h-[50px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] rounded-[10px] px-[20px] py-[18px] shadow-inner outline-none"
+                                    placeholder="What you working on?"
+                                    onChange={(event) =>
+                                      setQuery(event.target.value)
+                                    }
+                                  />
+                                </div>
+                                <div className="ml-9 flex items-center justify-start space-x-2 mb-4 mt-[26px]">
                                   <TaskFilter
                                     count={
                                       filteredTasks2.filter((f_task) => {
@@ -203,7 +212,10 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                   />
                                 </div>
                                 {filteredTasks.map((task) => (
-                                  <div key={task.id} className="px-9 cursor-pointer">
+                                  <div
+                                    key={task.id}
+                                    className="px-9 cursor-pointer"
+                                  >
                                     <div className="py-2">
                                       <TaskItem
                                         selected={false}
