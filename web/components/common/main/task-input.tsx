@@ -134,10 +134,9 @@ export default function TaskInput() {
               key={`${editMode}`}
               className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
               displayValue={(task: ITeamTask) => {
-                // return task
-                //   ? task.title + (!editMode ? ` #${task.taskNumber}` : "")
-                //   : "";
-                return task ? task.title : "";
+                return task
+                  ? task.title + (!editMode ? ` #${task.taskNumber}` : "")
+                  : "";
               }}
               onFocus={() => setEditMode(true)}
               onBlur={() => setEditMode(false)}
