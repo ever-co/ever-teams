@@ -53,6 +53,17 @@ function useModal() {
   };
 }
 
+export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
+  switch (filters) {
+    case "open":
+      return status !== "Closed";
+    case "closed":
+      return status === "Closed";
+    default:
+      return true;
+  }
+};
+
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
   const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
@@ -75,17 +86,6 @@ export default function TaskInput() {
   };
 
   const [query, setQuery] = useState("");
-
-  const h_filter = (status: ITaskStatus, filters: typeof filter) => {
-    switch (filters) {
-      case "open":
-        return status !== "Closed";
-      case "closed":
-        return status === "Closed";
-      default:
-        return true;
-    }
-  };
 
   const filteredTasks = useMemo(() => {
     return query.trim() === ""
