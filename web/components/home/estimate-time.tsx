@@ -23,7 +23,7 @@ export function EstimateTime() {
 
       switch (c) {
         case "hours":
-          if (!isInteger || tm < 0 || tm > 99999) {
+          if (!isInteger || tm < 0 || tm > 999) {
             return;
           }
           break;
@@ -72,7 +72,7 @@ export function EstimateTime() {
 
   return (
     <>
-      <span className="text-[18px] flex text-[#9490A0] dark:text-[#616164] font-base">
+      <span className="text-[16px] flex text-[#9490A0] dark:text-[#616164] font-base items-end">
         Estimate (H/m):{" "}
       </span>
       <TimeInput
@@ -82,7 +82,8 @@ export function EstimateTime() {
         handleEnter={handleSubmit}
         placeholder="Hours"
         name="hours"
-        style="mx-5 w-[50px] bg-transparent"
+        style="mx-5 w-[30px] bg-transparent"
+        disabled={activeTeamTask ? false : true}
       />{" "}
       <span className="w-3 h-3">
         {updateLoading ? <Spinner dark={false} /> : "/"}
@@ -93,8 +94,9 @@ export function EstimateTime() {
         handleChange={onChange("minutes")}
         placeholder="Minutes"
         name="minutes"
-        style="mx-5 w-[50px] bg-transparent"
+        style="mx-5 w-[30px] bg-transparent"
         handleEnter={handleSubmit}
+        disabled={activeTeamTask ? false : true}
       />
     </>
   );

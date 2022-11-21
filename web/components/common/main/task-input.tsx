@@ -67,7 +67,7 @@ export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
 export default function TaskInput() {
   const { isOpen, openModal, closeModal } = useModal();
   const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
-  const [openFilter, setOpenFilter] = useState(false);
+  const [openFilter, setOpenFilter] = useState(true);
   const [closeFilter, setCloseFilter] = useState(false);
   const {
     tasks,
