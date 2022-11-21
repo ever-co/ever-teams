@@ -52,7 +52,7 @@ const Profile = () => {
                 </div>
               </div>
               <div className="ml-[24px]">
-                <div className="text-[30px] text-[#1B005D] font-bold flex items-center ">
+                <div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
                   <span className="flex items-center">
                     {user?.firstName && Capitalize(user.firstName)}
                     {user?.lastName && " " + Capitalize(user.lastName)}
