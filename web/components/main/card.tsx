@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Separator from "../common/separator";
 // import { PauseIcon } from "../common/main/pauseIcon";
@@ -11,6 +11,7 @@ import { PlayIcon } from "@components/common/main/playIcon";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITeamTask } from "@app/interfaces/ITask";
 import { secondsToTime } from "@app/helpers/date";
+import { Spinner } from "@components/common/spinner";
 
 type IMember = IOrganizationTeamList["members"][number];
 
@@ -22,7 +23,7 @@ const workStatus = {
 
 const Card = ({ member }: { member: IMember }) => {
   const { isTeamManager, user } = useAuthenticateUser();
-  const { activeTeamTask } = useTeamTasks();
+  const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
   const isManager = member.employee.userId === user?.id && isTeamManager;
   const isAuthUser = member.employee.userId === user?.id;
   const iuser = member.employee.user;
@@ -65,6 +66,35 @@ const Card = ({ member }: { member: IMember }) => {
     setFormValues((prevState) => ({ ...prevState, [name]: value }));
   };
 
+  const onChangeEstimate = useCallback((c: keyof typeof formValues) => {
+    return (e: ChangeEvent<HTMLInputElement>) => {
+      const tm = +e.currentTarget.value.trim();
+      const isInteger = !isNaN(tm) && Number.isInteger(tm);
+
+      switch (c) {
+        case "estimateHours":
+          if (!isInteger || tm < 0 || tm > 999) {
+            return;
+          }
+          break;
+        case "estimateMinutes":
+          if (!isInteger || tm < 0 || tm > 60) {
+            return;
+          }
+          break;
+        default:
+          return;
+      }
+
+      setFormValues((vls) => {
+        return {
+          ...vls,
+          [c]: tm,
+        };
+      });
+    };
+  }, []);
+
   const canEditName = useCallback(() => {
     (isManager || isAuthUser) && setNameEdit(true);
   }, [isManager, isAuthUser]);
@@ -93,6 +123,33 @@ const Card = ({ member }: { member: IMember }) => {
   const handleEstimate = useCallback(() => {
     setTaskEdit(false);
   }, []);
+
+  const handleSubmit = useCallback(async () => {
+    if (!activeTeamTask) return;
+
+    const hours = +formValues["estimateHours"];
+    const minutes = +formValues["estimateMinutes"];
+    if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
+      return;
+    }
+
+    const { h: estimateHours, m: estimateMinutes } = secondsToTime(
+      activeTeamTask.estimate || 0
+    );
+
+    if (hours === estimateHours && minutes === estimateMinutes) {
+      return;
+    }
+
+    await updateTask({
+      ...activeTeamTask,
+      estimateHours: hours,
+      estimateMinutes: minutes,
+      estimate: hours * 60 * 60 + minutes * 60, // time seconds
+    });
+
+    setEstimateEdit(false);
+  }, [activeTeamTask, formValues, updateTask]);
 
   return (
     <div
@@ -176,41 +233,67 @@ const Card = ({ member }: { member: IMember }) => {
             <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
           </div>
           <div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
-            <div>Estimate :</div>
-            <TimeInput
-              value={"" + formValues.estimateHours}
-              type="string"
-              placeholder="Hours"
-              name="estimateHours"
-              handleChange={handleChange}
-              handleDoubleClick={canEditEstimate}
-              handleEnter={() => {
-                setEstimateEdit(false);
-              }}
-              style={`${
-                estimateEdit === true
-                  ? " w-[30px] bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
-                  : "bg-transparent w-[20px]"
-              } `}
-              disabled={!estimateEdit}
-            />
-            {"h"} /
-            <TimeInput
-              value={"" + formValues.estimateMinutes}
-              type="string"
-              placeholder="Minutes"
-              name="estimateMinutes"
-              handleChange={handleChange}
-              handleDoubleClick={canEditEstimate}
-              handleEnter={handleEstimate}
-              style={` ${
-                estimateEdit === true
-                  ? " w-[30px] bg-[#F2F4FB] rounded-[6px] h-[30px] px-1 w-[42px]"
-                  : "bg-transparent w-[20px]"
-              } `}
-              disabled={!estimateEdit}
-            />
-            {"m"}
+            {!estimateEdit && (
+              <div className="flex items-center">
+                <div>
+                  Estimate : {formValues.estimateHours}H
+                  {formValues.estimateMinutes}m
+                </div>
+                <span
+                  className="ml-[15px] flex items-center cursor-pointer"
+                  onClick={canEditEstimate}
+                >
+                  <Image
+                    src="/assets/png/edit.png"
+                    width={20}
+                    height={20}
+                    alt="edit icon"
+                  />
+                </span>
+              </div>
+            )}
+            {estimateEdit && (
+              <>
+                <div className="flex items-center justify-center">
+                  <div className="bg-[#F2F4FB]">
+                    <TimeInput
+                      value={"" + formValues.estimateHours}
+                      type="string"
+                      placeholder="h"
+                      name="estimateHours"
+                      handleChange={onChangeEstimate("estimateHours")}
+                      handleDoubleClick={canEditEstimate}
+                      handleEnter={handleSubmit}
+                      style={`${
+                        estimateEdit === true
+                          ? " w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]"
+                          : "bg-transparent w-[10px]"
+                      } `}
+                      disabled={!estimateEdit}
+                    />
+                    /
+                    <TimeInput
+                      value={"" + formValues.estimateMinutes}
+                      type="string"
+                      placeholder="m"
+                      name="estimateMinutes"
+                      handleChange={onChangeEstimate("estimateMinutes")}
+                      handleDoubleClick={canEditEstimate}
+                      handleEnter={handleSubmit}
+                      style={` ${
+                        estimateEdit === true
+                          ? " w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]"
+                          : "bg-transparent w-[10px]"
+                      } `}
+                      disabled={!estimateEdit}
+                    />
+                  </div>{" "}
+                  <span className="w-3 h-5 ml-2">
+                    {updateLoading && <Spinner dark={false} />}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
