@@ -18,22 +18,24 @@ interface IProfileCard {
 const ProfileCard = ({ now = false, task, current }: IProfileCard) => {
   return (
     <div
-      className={`w-full rounded-[10px] border ${
-        now === true && " border-primary dark:border-[#202023]"
+      className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border ${
+        now === true
+          ? "  border-primary dark:border-gray-100"
+          : " hover:border hover:border-primary dark:border-[#202023]"
       } bg-[#FFFFFF] my-[15px] dark:bg-[#202023] 
   justify-between  dark:hover:border-gray-100  
   font-bold px-[24px] dark:text-[#FFFFFF] py-[10px]`}
     >
       <div className="flex items-center justify-between ">
         <div
-          className={`text-primary text-[14px] ${
+          className={`text-primary dark:text-[#FFFFFF] text-[14px] ${
             now == true ? "font-normal" : "font-light"
           } w-[413px]`}
         >
           {task}
         </div>
         <Separator />
-        <div className="w-[122px]  text-center text-primary flex justify-center items-center">
+        <div className="w-[122px]  text-center text-primary dark:text-[#FFFFFF] flex justify-center items-center">
           {current}
         </div>
         <Separator />

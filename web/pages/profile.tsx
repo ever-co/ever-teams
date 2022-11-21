@@ -52,7 +52,7 @@ const Profile = () => {
                 </div>
               </div>
               <div className="ml-[24px]">
-                <div className="text-[30px] text-[#1B005D] font-bold flex items-center ">
+                <div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
                   <span className="flex items-center">
                     {user?.firstName && Capitalize(user.firstName)}
                     {user?.lastName && " " + Capitalize(user.lastName)}
@@ -124,7 +124,7 @@ const Profile = () => {
           <div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
             Now
           </div>
-          <div className="bg-[#D7E1EB] w-full h-[1px] mx-[10px]" />
+          <div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
           <div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
             Total time: 03:31
           </div>
@@ -140,7 +140,7 @@ const Profile = () => {
           <div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
             Last 24 hours
           </div>
-          <div className="bg-[#D7E1EB] w-full h-[1px] mx-[10px]" />
+          <div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
           <div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
             Total time: 03:31
           </div>
