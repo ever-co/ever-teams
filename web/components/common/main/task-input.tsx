@@ -30,7 +30,7 @@ function CreateTaskOption({
             <PlusIcon className=" font-bold w-[16px] h-[16px]" />
           )}
         </span>
-        Create new
+        Create new task
       </div>
     </div>
   );
