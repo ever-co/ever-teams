@@ -55,14 +55,14 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
                 <div className="flex justify-center items-center w-full">
                   <UserIcon />
                 </div>
-                <div className="text-primary mt-[22px] text-center font-bold text-[22px]">
+                <div className="text-primary dark:text-white mt-[22px] text-center font-bold text-[22px]">
                   Invite member to your team
                 </div>
-                <div className="font-light w-full mt-[5px] text-[16px] text-[#ACB3BB] text-center">
+                <div className="font-light w-full mt-[5px] text-[14px] text-[#ACB3BB] text-center">
                   Send an invitation to a team member by email
                 </div>
 
