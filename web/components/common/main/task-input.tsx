@@ -207,9 +207,15 @@ export default function TaskInput() {
                   type="closed"
                   selected={closeFilter}
                   handleChange={() => {
-                    setCloseFilter(true);
-                    setOpenFilter(false);
-                    setFilter("closed");
+                    if (
+                      filteredTasks2.filter((f_task) => {
+                        return f_task.status === "Closed";
+                      }).length > 0
+                    ) {
+                      setCloseFilter(true);
+                      setOpenFilter(false);
+                      setFilter("closed");
+                    }
                   }}
                 />
               </div>
