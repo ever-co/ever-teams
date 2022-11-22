@@ -12,14 +12,15 @@ export function TaskItem({
   active,
   onDelete,
   onReopen,
+  updateLoading,
 }: {
   selected: boolean;
   item: ITeamTask;
   active: boolean;
   onDelete: () => void;
   onReopen: () => void;
+  updateLoading: boolean;
 }) {
-  const { updateLoading } = useTeamTasks();
   return (
     <>
       <span

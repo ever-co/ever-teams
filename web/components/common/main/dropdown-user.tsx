@@ -40,6 +40,8 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     placement: "left",
   });
 
+  const { updateLoading } = useTeamTasks();
+
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"closed" | "open">("open");
   const [openFilter, setOpenFilter] = useState(true);
@@ -232,6 +234,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                         item={task}
                                         onDelete={() => handleOpenModal(task)}
                                         onReopen={() => handleReopenModal(task)}
+                                        updateLoading={updateLoading}
                                       />
                                     </div>
                                     <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />

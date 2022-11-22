@@ -243,6 +243,7 @@ export default function TaskInput() {
                                   item={task}
                                   onDelete={() => handleOpenModal(task)}
                                   onReopen={() => handleReopenTask(task)}
+                                  updateLoading={updateLoading}
                                 />
                               </div>
                               <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
