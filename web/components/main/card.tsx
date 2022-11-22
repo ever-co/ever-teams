@@ -116,9 +116,15 @@ const Card = ({ member }: { member: IMember }) => {
     setNameEdit(false);
   }, []);
 
-  const handleTaskEdit = useCallback(() => {
+  const handleTaskEdit = async () => {
+    if (memberTask) {
+      await updateTask({
+        ...memberTask,
+        title: formValues.devTask,
+      });
+    }
     setTaskEdit(false);
-  }, []);
+  };
 
   const handleEstimate = useCallback(() => {
     setTaskEdit(false);
@@ -204,13 +210,18 @@ const Card = ({ member }: { member: IMember }) => {
         }}
       >
         {taskEdit === true ? (
-          <textarea
-            name="devTask"
-            value={formValues.devTask}
-            onChange={handleChange}
-            onKeyPress={(event) => event.key === "Enter" && handleTaskEdit()}
-            className="w-full resize-none h-[48px] text-xs rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
-          />
+          <div className="flex items-center">
+            <input
+              name="devTask"
+              value={formValues.devTask}
+              onChange={handleChange}
+              onKeyPress={(event) => event.key === "Enter" && handleTaskEdit()}
+              className="w-full resize-none h-[48px] text-xs rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
+            />
+            <span className="w-3 h-5 ml-2">
+              {updateLoading && <Spinner dark={false} />}
+            </span>
+          </div>
         ) : (
           <div
             className={`w-[334px] text-center h-[48px]  font-light text-normal px-[14px] border border-white dark:border-[#202023] hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}

@@ -75,7 +75,9 @@ export default function TaskInput() {
     setActiveTask,
     createLoading,
     tasksFetching,
+    updateLoading,
     createTask,
+    updateTask,
   } = useTeamTasks();
   const [filter, setFilter] = useState<"closed" | "open">("open");
   const [editMode, setEditMode] = useState(false);
@@ -83,6 +85,15 @@ export default function TaskInput() {
   const handleOpenModal = (concernedTask: ITeamTask) => {
     setCloseTask(concernedTask);
     openModal();
+  };
+
+  const handleReopenTask = (concernedTask: ITeamTask) => {
+    if (concernedTask) {
+      updateTask({
+        ...concernedTask,
+        status: "Todo",
+      });
+    }
   };
 
   const [query, setQuery] = useState("");
@@ -151,7 +162,7 @@ export default function TaskInput() {
               readOnly={tasksFetching}
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-              {tasksFetching || createLoading ? (
+              {tasksFetching || createLoading || updateLoading ? (
                 <Spinner dark={false} />
               ) : (
                 <ChevronUpDownIcon
@@ -196,9 +207,15 @@ export default function TaskInput() {
                   type="closed"
                   selected={closeFilter}
                   handleChange={() => {
-                    setCloseFilter(true);
-                    setOpenFilter(false);
-                    setFilter("closed");
+                    if (
+                      filteredTasks2.filter((f_task) => {
+                        return f_task.status === "Closed";
+                      }).length > 0
+                    ) {
+                      setCloseFilter(true);
+                      setOpenFilter(false);
+                      setFilter("closed");
+                    }
                   }}
                 />
               </div>
@@ -231,6 +248,8 @@ export default function TaskInput() {
                                   active={active}
                                   item={task}
                                   onDelete={() => handleOpenModal(task)}
+                                  onReopen={() => handleReopenTask(task)}
+                                  updateLoading={updateLoading}
                                 />
                               </div>
                               <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
