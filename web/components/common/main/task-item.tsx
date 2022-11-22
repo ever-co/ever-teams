@@ -1,19 +1,25 @@
 import { ITeamTask } from "@app/interfaces/ITask";
 import Image from "next/image";
 import { BadgedTaskStatus } from "./dropdownIcons";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { Spinner } from "../spinner";
 
 export function TaskItem({
   selected,
   item,
   active,
   onDelete,
+  onReopen,
+  updateLoading,
 }: {
   selected: boolean;
   item: ITeamTask;
   active: boolean;
   onDelete: () => void;
+  onReopen: () => void;
+  updateLoading: boolean;
 }) {
   return (
     <>
@@ -43,11 +49,21 @@ export function TaskItem({
                   </div>
                 ))}{" "}
             </div>
-
-            <XMarkIcon
-              className="w-5 h-5 text-gray-400 hover:text-primary"
-              onClick={onDelete}
-            />
+            {item.status === "Closed" ? (
+              updateLoading ? (
+                <Spinner dark={false} />
+              ) : (
+                <ArrowPathIcon
+                  className="w-5 h-5 text-gray-400 hover:text-primary dark:hover:text-white"
+                  onClick={onReopen}
+                />
+              )
+            ) : (
+              <XMarkIcon
+                className="w-5 h-5 text-gray-400 hover:text-primary dark:hover:text-white"
+                onClick={onDelete}
+              />
+            )}
           </div>
         </div>
       </span>

@@ -28,7 +28,7 @@ interface IDropdownUserProps {
 }
 
 const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
-  const { tasks } = useTeamTasks();
+  const { tasks, updateTask } = useTeamTasks();
   let [referenceElement, setReferenceElement] = useState<
     Element | null | undefined
   >();
@@ -39,6 +39,8 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
   let { styles, attributes } = usePopper(referenceElement, popperElement, {
     placement: "left",
   });
+
+  const { updateLoading } = useTeamTasks();
 
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"closed" | "open">("open");
@@ -111,6 +113,15 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
   const handleOpenModal = (concernedTask: ITeamTask) => {
     setCloseTask(concernedTask);
     openModal();
+  };
+
+  const handleReopenModal = (concernedTask: ITeamTask) => {
+    if (concernedTask) {
+      updateTask({
+        ...concernedTask,
+        status: "Todo",
+      });
+    }
   };
 
   return (
@@ -222,6 +233,8 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                         active={false}
                                         item={task}
                                         onDelete={() => handleOpenModal(task)}
+                                        onReopen={() => handleReopenModal(task)}
+                                        updateLoading={updateLoading}
                                       />
                                     </div>
                                     <div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
