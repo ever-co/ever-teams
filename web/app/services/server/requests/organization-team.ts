@@ -3,6 +3,7 @@ import {
   IOrganizationTeam,
   IOrganizationTeamCreate,
   IOrganizationTeamList,
+  IOrganizationTeamWithMStatus,
 } from "@app/interfaces/IOrganizationTeam";
 import { serverFetch } from "../fetch";
 
@@ -31,11 +32,18 @@ export function updateOrganizationTeamRequest(
   });
 }
 
-export function getOrganizationTeamRequest(id: string, bearer_token: string) {
-  return serverFetch<IOrganizationTeamList>({
-    path: `/organization-team/${id}`,
+export function getOrganizationTeamRequest(
+  id: string,
+  bearer_token: string,
+  tenantId: string,
+  params?: { [x: string]: string }
+) {
+  const queries = new URLSearchParams(params || {});
+  return serverFetch<IOrganizationTeamWithMStatus>({
+    path: `/organization-team/${id}?${queries.toString()}`,
     method: "GET",
     bearer_token,
+    tenantId,
   });
 }
 

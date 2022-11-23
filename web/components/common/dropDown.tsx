@@ -1,3 +1,4 @@
+import { imgTitle } from "@app/helpers/img-title";
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
@@ -5,13 +6,6 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { Fragment, useState } from "react";
 import { Spinner } from "./spinner";
-
-const imgTitle = (name: string) => {
-  return name.split(" ")[1]
-    ? name.split(" ")[0].charAt(0).toUpperCase() +
-        name.split(" ")[1].charAt(0).toUpperCase()
-    : name.substring(0, 2).toUpperCase();
-};
 
 export const TeamsDropDown = () => {
   const [edit, setEdit] = useState<boolean>(false);

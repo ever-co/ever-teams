@@ -1,5 +1,8 @@
 import { PaginationResponse } from "@app/interfaces/IDataResponse";
-import { IOrganizationTeamList } from "@app/interfaces/IOrganizationTeam";
+import {
+  IOrganizationTeamList,
+  IOrganizationTeamWithMStatus,
+} from "@app/interfaces/IOrganizationTeam";
 import api from "../axios";
 
 export function getOrganizationTeamsAPI() {
@@ -13,4 +16,8 @@ export function createOrganizationTeamAPI(name: string) {
     "/organization-team",
     { name }
   );
+}
+
+export function getOrganizationTeamAPI(teamId: string) {
+  return api.get<IOrganizationTeamWithMStatus>(`/organization-team/${teamId}`);
 }

@@ -42,8 +42,14 @@ export function serverFetch<T>({
     },
     method,
   }).then(async (res) => {
+    const data = (await res.json().catch(console.error)) as T;
+
+    if (!res.ok) {
+      throw Promise.reject(data);
+    }
+
     return {
-      data: (await res.json().catch(console.error)) as T,
+      data,
       response: res,
     };
   });

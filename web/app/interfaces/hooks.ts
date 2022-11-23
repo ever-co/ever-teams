@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ChangeEventHandler, ReactNode } from "react";
 import { IRegisterDataAPI } from "./IAuthentication";
 import { ITeamTask } from "./ITask";
 //Dropdown props interface
@@ -15,9 +15,10 @@ export interface IInputProps {
   type: string;
   placeholder: string;
   required: boolean;
-  onChange: any;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
   value: string;
   centered?: boolean;
+  errors?: { [x: string]: any };
 }
 
 //Header props interface
