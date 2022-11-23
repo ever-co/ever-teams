@@ -21,13 +21,9 @@ const FirstStep = ({
         required={true}
         name="team"
         value={values.team}
+        errors={ierrors}
         onChange={handleOnChange}
       />
-      {ierrors["team"] && (
-        <span className="text-sm text-red-600 font-light">
-          {ierrors["team"]}
-        </span>
-      )}
     </div>
   );
 };

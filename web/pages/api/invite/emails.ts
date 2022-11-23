@@ -1,6 +1,8 @@
+import { authFormValidate, validateForm } from "@app/helpers/validations";
 import { IInviteRequest } from "@app/interfaces/IInvite";
 import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
 import {
+  getTeamInvitationsRequest,
   inviteByEmailsRequest,
   sendAuthCode,
 } from "@app/services/server/requests";
@@ -16,9 +18,15 @@ export default async function handler(
 
   const body = req.body as IInviteRequest;
 
-  const { data } = await inviteByEmailsRequest(
+  const { errors, isValid: formValid } = validateForm(["email", "name"], body);
+
+  if (!formValid) {
+    return res.status(400).json({ errors });
+  }
+
+  await inviteByEmailsRequest(
     {
-      startedWorkOn: new Date().toDateString(),
+      startedWorkOn: new Date().toISOString(),
       tenantId,
       organizationId,
       emailIds: [body.email],
@@ -26,7 +34,18 @@ export default async function handler(
       invitationExpirationPeriod: "Never",
       inviteType: "EMPLOYEE",
       invitedById: user.id,
-      teams: [teamId],
+      teamIds: [teamId],
+      projectIds: [teamId],
+    },
+    access_token
+  );
+
+  const { data } = await getTeamInvitationsRequest(
+    {
+      tenantId,
+      teamId,
+      organizationId,
+      role: "EMPLOYEE",
     },
     access_token
   );

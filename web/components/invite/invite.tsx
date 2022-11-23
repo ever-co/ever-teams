@@ -3,8 +3,9 @@ import { Dialog, Transition } from "@headlessui/react";
 import { IInvite, IInviteProps } from "../../app/interfaces/hooks";
 import UserIcon from "../common/invite/userIcon";
 import Input from "../common/input";
-import { useQuery } from "@app/hooks/useQuery";
-import { inviteByEmailsAPI } from "@app/services/client/api";
+import { useTeamInvitations } from "@app/hooks/useTeamInvitations";
+import { Spinner } from "@components/common/spinner";
+import { AxiosError } from "axios";
 
 const initalValues: IInvite = {
   email: "",
@@ -12,21 +13,32 @@ const initalValues: IInvite = {
 };
 const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
   const [formData, setFormData] = useState<IInvite>(initalValues);
-  const { queryCall, loading } = useQuery(inviteByEmailsAPI);
+  const { invateUser, inviteLoading } = useTeamInvitations();
+  const [errors, setErrors] = useState({});
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setErrors((er) => {
+      return {
+        ...er,
+        [name]: "",
+      };
+    });
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    queryCall({
-      email: formData.email,
-      name: formData.name,
-    }).then((res) => {
-      // console.log(res);
-    });
+    invateUser(formData.email, formData.name)
+      .then(() => {
+        setFormData(initalValues);
+        closeModal();
+      })
+      .catch((err: AxiosError) => {
+        if (err.response?.status === 400) {
+          setErrors((err.response?.data as any)?.errors || {});
+        }
+      });
   };
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -79,6 +91,7 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
                     required={true}
                     value={formData.email}
                     onChange={handleChange}
+                    errors={errors}
                   />
 
                   <div className="mt-[30px]">
@@ -90,16 +103,23 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
                       value={formData.name}
                       required={true}
                       onChange={handleChange}
+                      errors={errors}
                     />
                   </div>
 
                   <div className="flex justify-between items-center">
                     <div />
                     <button
-                      className="w-full mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
+                      className="w-full flex justify-center items-center mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
                       type="submit"
+                      disabled={inviteLoading}
                     >
-                      Send Invite
+                      <span>Send Invite</span>{" "}
+                      {inviteLoading && (
+                        <span className="ml-2">
+                          <Spinner />
+                        </span>
+                      )}
                     </button>
                     <div />
                   </div>

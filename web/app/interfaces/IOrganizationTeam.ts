@@ -30,8 +30,18 @@ export interface IOrganizationTeamList {
   tenantId: string;
   organizationId: string;
   name: string;
+  updated?: boolean;
   members: OT_Member[];
 }
+
+export type IOrganizationTeamWithMStatus = Omit<
+  IOrganizationTeamList,
+  "members"
+> & {
+  members: MS_Member[];
+};
+
+type MS_Member = Omit<OT_Member, "role" | "employee">;
 
 interface OT_Member {
   id: string;
@@ -44,6 +54,9 @@ interface OT_Member {
   roleId?: string;
   role?: OT_Role;
   employee: IEmployee;
+  lastWorkedTask?: any;
+  running?: boolean;
+  duration?: number;
 }
 
 interface OT_Role {

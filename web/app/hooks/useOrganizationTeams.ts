@@ -5,15 +5,16 @@ import {
 } from "@app/helpers/cookies";
 import {
   createOrganizationTeamAPI,
+  getOrganizationTeamAPI,
   getOrganizationTeamsAPI,
-} from "@app/services/client/api/organization-team";
+} from "@app/services/client/api";
 import {
   activeTeamIdState,
   activeTeamState,
   organizationTeamsState,
   teamsFetchingState,
 } from "@app/stores";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 
@@ -60,8 +61,9 @@ export function useOrganizationTeams() {
   const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
   const [teams, setTeams] = useRecoilState(organizationTeamsState);
   const activeTeam = useRecoilValue(activeTeamState);
-  const setActiveTeamId = useSetRecoilState(activeTeamIdState);
+  const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
   const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
+  const [firstLoad, setFirstLoad] = useState(false); // should always have false as default value
 
   const { createOrganizationTeam, loading: createOTeamLoading } =
     useCreateOrganizationTeam();
@@ -69,6 +71,13 @@ export function useOrganizationTeams() {
   useEffect(() => {
     setTeamsFetching(loading);
   }, [loading]);
+
+  /**
+   * To be called once, at the top level component (e.g main.tsx)
+   */
+  const firstLoadTeamsData = useCallback(() => {
+    setFirstLoad(true);
+  }, []);
 
   const loadTeamsData = useCallback(() => {
     setActiveTeamId(getActiveTeamIdCookie());
@@ -88,6 +97,34 @@ export function useOrganizationTeams() {
     [setActiveTeamId]
   );
 
+  useEffect(() => {
+    if (activeTeamId && firstLoad) {
+      getOrganizationTeamAPI(activeTeamId).then((res) => {
+        const members = res.data?.members;
+        const id = res.data.id;
+        if (!members) return;
+
+        // Update active teams fields with from team Status API
+        setTeams((tms) => {
+          const idx_tm = tms.findIndex((t) => t.id === id);
+          if (idx_tm < 0) return tms;
+          const new_tms = [...tms];
+          new_tms[idx_tm] = { ...new_tms[idx_tm] };
+          const new_members = [...new_tms[idx_tm].members];
+          // merges status fields for a members
+          new_members.forEach((mem, i) => {
+            const new_mem = members.find((m) => m.id === mem.id);
+            if (!new_mem) return;
+            new_members[i] = { ...mem, ...new_mem };
+          });
+          // Update members for a team
+          new_tms[idx_tm].members = new_members;
+          return new_tms;
+        });
+      });
+    }
+  }, [activeTeamId, firstLoad]);
+
   return {
     loadTeamsData,
     loading,
@@ -97,5 +134,6 @@ export function useOrganizationTeams() {
     setActiveTeam,
     createOrganizationTeam,
     createOTeamLoading,
+    firstLoadTeamsData,
   };
 }

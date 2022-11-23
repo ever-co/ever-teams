@@ -3,10 +3,13 @@ import Card from "../main/card";
 import InviteCard from "../main/invite-card";
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
+import { useTeamInvitations } from "@app/hooks/useTeamInvitations";
+import { InvitedCard } from "@components/main/invited-card";
 
 const TeamMemberSection = () => {
   const { isTeamManager, user } = useAuthenticateUser();
   const { activeTeam, teamsFetching } = useOrganizationTeams();
+  const { teamInvitations } = useTeamInvitations();
   const members = activeTeam?.members || [];
   const style = { width: `${100 / members.length}%` };
 
@@ -34,6 +37,13 @@ const TeamMemberSection = () => {
             <Card member={member} />
           </li>
         ))}
+
+        {members.length > 0 &&
+          teamInvitations.map((invitation) => (
+            <li key={invitation.id}>
+              <InvitedCard invitation={invitation} />
+            </li>
+          ))}
 
         {isTeamManager && (
           <li>
