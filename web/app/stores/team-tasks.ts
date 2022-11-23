@@ -1,5 +1,6 @@
 import { ITeamTask } from "@app/interfaces/ITask";
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
+import { activeTeamIdState } from "./organization-team";
 
 export const teamTasksState = atom<ITeamTask[]>({
   key: "teamTasksState",
@@ -14,4 +15,17 @@ export const activeTeamTaskState = atom<ITeamTask | null>({
 export const tasksFetchingState = atom<boolean>({
   key: "tasksFetchingState",
   default: false,
+});
+
+export const tasksByTeamState = selector<ITeamTask[]>({
+  key: "tasksByTeamState",
+  get: ({ get }) => {
+    const tasks = get(teamTasksState);
+    const activeTeamId = get(activeTeamIdState);
+    return tasks.filter((task) => {
+      return task.teams.some((tm) => {
+        return tm.id === activeTeamId;
+      });
+    });
+  },
 });

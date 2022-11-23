@@ -61,7 +61,7 @@ export function useOrganizationTeams() {
   const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
   const [teams, setTeams] = useRecoilState(organizationTeamsState);
   const activeTeam = useRecoilValue(activeTeamState);
-  const setActiveTeamId = useSetRecoilState(activeTeamIdState);
+  const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
   const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
   const firstLoad = useRef(false);
 
@@ -98,8 +98,8 @@ export function useOrganizationTeams() {
   );
 
   useEffect(() => {
-    if (activeTeam && !activeTeam.updated && firstLoad.current) {
-      getOrganizationTeamAPI(activeTeam.id).then((res) => {
+    if (activeTeamId && firstLoad.current) {
+      getOrganizationTeamAPI(activeTeamId).then((res) => {
         const members = res.data?.members;
         const id = res.data.id;
         if (!members) return;
@@ -119,12 +119,11 @@ export function useOrganizationTeams() {
           });
           // Update members for a team
           new_tms[idx_tm].members = new_members;
-          new_tms[idx_tm].updated = true;
           return new_tms;
         });
       });
     }
-  }, [activeTeam]);
+  }, [activeTeamId]);
 
   return {
     loadTeamsData,

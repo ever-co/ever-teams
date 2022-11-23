@@ -9,26 +9,26 @@ import {
   getTeamTasksAPI,
   updateTaskAPI,
 } from "@app/services/client/api";
-import { activeTeamState } from "@app/stores";
+import { activeTeamIdState, activeTeamState } from "@app/stores";
 import {
   activeTeamTaskState,
+  tasksByTeamState,
   tasksFetchingState,
   teamTasksState,
 } from "@app/stores/team-tasks";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 
 export function useTeamTasks() {
-  const [tasks, setTasks] = useRecoilState(teamTasksState);
+  const setAllTasks = useSetRecoilState(teamTasksState);
+  const tasks = useRecoilValue(tasksByTeamState);
   const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 
-  const activeTeam = useRecoilValue(activeTeamState);
+  const activeTeamId = useRecoilValue(activeTeamIdState);
   const [activeTeamTask, setActiveTeamTask] =
     useRecoilState(activeTeamTaskState);
-
-  const [Ltasks, setLTasks] = useState<ITeamTask[]>([]);
-  const firstLoad = useRef(false);
+  const [firstLoad, setFirstLoad] = useState(false);
 
   // Queries hooks
   const { queryCall, loading } = useQuery(getTeamTasksAPI);
@@ -46,42 +46,29 @@ export function useTeamTasks() {
    * To be called once, at the top level component (e.g main.tsx)
    */
   const firstLoadTasksData = useCallback(() => {
-    firstLoad.current = true;
+    setFirstLoad(true);
   }, []);
 
   const loadTeamTasksData = useCallback(() => {
     return queryCall().then((res) => {
-      setLTasks(res.data?.items || []);
+      setAllTasks(res.data?.items || []);
       return res;
     });
   }, []);
 
   // Global loading state
   useEffect(() => {
-    if (firstLoad.current) {
+    if (firstLoad) {
       setTasksFetching(loading);
     }
-  }, [loading]);
-
-  // Filter tasks by getting only tasks that correspond to the active team
-  useEffect(() => {
-    if (activeTeam) {
-      setTasks(
-        Ltasks.filter((t) => {
-          return t.teams.some((tm) => {
-            return tm.id === activeTeam.id;
-          });
-        })
-      );
-    }
-  }, [activeTeam, Ltasks]);
+  }, [loading, firstLoad]);
 
   // Reload tasks after active team changed
   useEffect(() => {
-    if (activeTeam && firstLoad.current) {
+    if (activeTeamId && firstLoad) {
       loadTeamTasksData();
     }
-  }, [activeTeam]);
+  }, [activeTeamId, firstLoad]);
 
   // Get the active task from cookie and put on global store
   useEffect(() => {
@@ -94,7 +81,7 @@ export function useTeamTasks() {
     return deleteQueryCall(task.id).then((res) => {
       const affected = res.data?.affected || 0;
       if (affected > 0) {
-        setLTasks((ts) => {
+        setAllTasks((ts) => {
           return ts.filter((t) => t.id !== task.id);
         });
       }
@@ -106,7 +93,7 @@ export function useTeamTasks() {
     return createQueryCall({
       title: taskName,
     }).then((res) => {
-      setLTasks(res.data?.items || []);
+      setAllTasks(res.data?.items || []);
       return res;
     });
   }, []);
@@ -114,7 +101,7 @@ export function useTeamTasks() {
   const updateTask = useCallback(
     (task: Partial<typeof tasks[0]> & { id: string }) => {
       return updateQueryCall(task.id, task).then((res) => {
-        setLTasks(res.data?.items || []);
+        setAllTasks(res.data?.items || []);
         return res;
       });
     },
