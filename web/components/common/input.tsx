@@ -9,6 +9,7 @@ const Input = ({
   onChange,
   value,
   centered = false,
+  errors,
 }: IInputProps) => {
   return (
     <div>
@@ -36,6 +37,9 @@ const Input = ({
          border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1 
         font-medium text-primary dark:text-white outline-none dark:bg-transparent`}
       />
+      {errors && errors[name] && (
+        <span className="text-sm text-red-600 font-light">{errors[name]}</span>
+      )}
     </div>
   );
 };

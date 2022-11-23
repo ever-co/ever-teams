@@ -4,9 +4,10 @@ import {
   getAuthenticatedUserDataAPI,
   refreshTokenAPI,
 } from "@app/services/client/api/auth";
-import { activeTeamState, userState } from "@app/stores";
+import { userState } from "@app/stores";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
+import { useOrganizationTeams } from "./useOrganizationTeams";
 
 import { useQuery } from "./useQuery";
 
@@ -14,7 +15,7 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
   const [user, setUser] = useRecoilState(userState);
   const $user = useRef(defaultUser);
   const intervalRt = useRef(0);
-  const activeTeam = useRecoilValue(activeTeamState);
+  const { activeTeam } = useOrganizationTeams();
   const [isTeamManager, setTeamManager] = useState(false);
 
   const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } =

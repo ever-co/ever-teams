@@ -2,7 +2,6 @@ import {
   getActiveTaskIdCookie,
   setActiveTaskIdCookie,
 } from "@app/helpers/cookies";
-import { ITeamTask } from "@app/interfaces/ITask";
 import {
   createTeamTaskAPI,
   deleteTaskAPI,
@@ -15,7 +14,7 @@ import {
   tasksByTeamState,
   tasksFetchingState,
   teamTasksState,
-} from "@app/stores/team-tasks";
+} from "@app/stores";
 import { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";

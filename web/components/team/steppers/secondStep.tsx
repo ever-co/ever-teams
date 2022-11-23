@@ -30,12 +30,8 @@ const SecondStep = ({
               required={true}
               value={values.name}
               onChange={handleOnChange}
+              errors={ierrors}
             />
-            {ierrors["name"] && (
-              <span className="text-sm text-red-600 font-light">
-                {ierrors["name"]}
-              </span>
-            )}
           </div>
           <div className="mt-[30px]">
             <Input
@@ -46,12 +42,8 @@ const SecondStep = ({
               required={true}
               value={values.email}
               onChange={handleOnChange}
+              errors={errors}
             />
-            {ierrors["email"] && (
-              <span className="text-sm text-red-600 font-light">
-                {ierrors["email"]}
-              </span>
-            )}
           </div>
         </>
       )}
