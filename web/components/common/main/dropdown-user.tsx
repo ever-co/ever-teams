@@ -217,8 +217,14 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                     type="closed"
                                     selected={!openFilter}
                                     handleChange={() => {
-                                      setOpenFilter(false);
-                                      setFilter("closed");
+                                      if (
+                                        filteredTasks2.filter((f_task) => {
+                                          return f_task.status === "Closed";
+                                        }).length > 0
+                                      ) {
+                                        setOpenFilter(false);
+                                        setFilter("closed");
+                                      }
                                     }}
                                   />
                                 </div>
