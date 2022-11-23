@@ -1,8 +1,10 @@
+import { types } from "mobx-state-tree";
+
 export interface IOrganizationTeamCreate {
   name: string;
-  members?: any[];
+  memberIds?: any[];
+  managerIds?: any[];
   tags?: any[];
-  managers?: any[];
   organizationId: string;
   tenantId: string;
 }
@@ -125,3 +127,19 @@ interface OT_User {
   name: string;
   employeeId: any;
 }
+
+
+
+export const typeTeam = types.model({
+  tenantId: types.optional(types.string, ""),
+  organizationId: types.optional(types.string, ""),
+  name: types.optional(types.string, ""),
+  tenant: types.model({
+    id: types.optional(types.string, ""),
+  }),
+  members: types.array(types.optional(types.string, "")),
+  tags: types.array(types.optional(types.string, "")),
+  id: types.optional(types.string, ""),
+  createdAt: types.optional(types.string, ""),
+  updatedAt: types.optional(types.string, ""),
+})

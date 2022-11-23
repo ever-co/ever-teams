@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { typeTeam } from "../services/interfaces/IOrganizationTeam"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
@@ -9,14 +10,19 @@ export const AuthenticationStoreModel = types
     authUsername: types.optional(types.string, ""),
     authConfirmCode: types.optional(types.string, ""),
     authInviteCode: types.optional(types.string, ""),
-    activeTeamStats: types.optional(types.frozen(), {}),
+    activeTeamState: types.optional(types.frozen(), {}),
+    activeTeamIdState:types.optional(types.string, ""),
+    organizationId:types.optional(types.string, ""),
+    tenantId:types.optional(types.string, ""),
+    userId:types.optional(types.string, ""),
+    employeeId:types.optional(types.string, ""),
   })
   .views((store) => ({
     get isAuthenticated() {
       return !!store.authToken
     },
-    get activeTeaStats() {
-      return store.activeTeamStats
+    get activeTeamStats() {
+      return store.activeTeamState
     },
     get validationErrors() {
       return {
@@ -62,8 +68,23 @@ export const AuthenticationStoreModel = types
     setAuthUsername(value: string) {
       store.authUsername = value.replace(/ /g, "")
     },
-    setActiveTeamStats(value: any) {
-      store.activeTeamStats = value
+    setActiveTeamState(value: any) {
+      store.activeTeamState = value
+    },
+    setActiveTeamId(value: string) {
+      store.activeTeamIdState = value.replace(/ /g, "")
+    },
+    setOrganizationId(value: string) {
+      store.organizationId = value.replace(/ /g, "")
+    }, 
+    setEmployeeId(value :string){
+      store.employeeId=value.replace(/ /g, "")
+    },
+    setUserId(value :string){
+      store.userId=value.replace(/ /g, "")
+    },
+    setTenantId(value: string) {
+      store.tenantId = value.replace(/ /g, "")
     },
     logout() {
       store.authToken = undefined
@@ -72,6 +93,12 @@ export const AuthenticationStoreModel = types
       store.authUsername = ""
       store.authInviteCode = ""
       store.authConfirmCode = ""
+      store.tenantId=""
+      store.organizationId=""
+      store.activeTeamIdState=""
+      store.userId=""
+      store.activeTeamState={}
+      store.employeeId=""
     },
   }))
 

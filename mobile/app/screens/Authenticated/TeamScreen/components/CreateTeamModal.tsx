@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import {
   View,
   ViewStyle,
@@ -20,6 +20,7 @@ import { TextInput } from "react-native-gesture-handler"
 
 export interface Props {
   visible: boolean
+  onCreateTeam:(value:string)=>unknown
   onDismiss: () => unknown
 }
 
@@ -58,7 +59,15 @@ const ModalPopUp = ({ visible, children }) => {
   )
 }
 
-const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss }) {
+const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss, onCreateTeam }) {
+
+  const [teamText, setTeamText]=useState("");
+
+  const handleSubmit=()=>{
+    onCreateTeam(teamText)
+    setTeamText("")
+    onDismiss();
+  }
 
   return (
     <ModalPopUp visible={visible}>
@@ -80,7 +89,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
             style={[$text, { marginTop: spacing.large }]}
           />
           <View>
-            <TextInput style={[$inputStyle, $inputText]} placeholder="Please enter your team name" />
+            <TextInput value={teamText} onChangeText={(text)=>setTeamText(text)}  style={[$inputStyle, $inputText]} placeholder="Please enter your team name" />
           </View>
           <View
             style={{
@@ -99,7 +108,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
               preset="reversed"
               style={{ ...GS.mb2, backgroundColor: colors.primary, flex: 1 }}
               textStyle={{ fontWeight: "700" }}
-              onPress={() => onDismiss()}
+              onPress={() => handleSubmit()}
             >
               Create Team
             </Button>
