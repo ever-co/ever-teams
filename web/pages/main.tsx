@@ -1,4 +1,3 @@
-import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { useEffect } from "react";
@@ -7,17 +6,16 @@ import { TimerTasksSection } from "../components/home/timer-tasks";
 import { AppLayout } from "../components/layout";
 
 const Main = () => {
-  const { loadTeamsData } = useOrganizationTeams();
-  const { timeToTimeRefreshToken } = useAuthenticateUser();
+  const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeams();
   const { firstLoadTasksData } = useTeamTasks();
 
   useEffect(() => {
-    loadTeamsData();
+    //To be called once, at the top level component (e.g main.tsx);
+    firstLoadTeamsData();
     firstLoadTasksData();
-    const clear = timeToTimeRefreshToken();
-    return () => {
-      clear();
-    };
+    // --------------
+
+    loadTeamsData();
   }, []);
 
   return (

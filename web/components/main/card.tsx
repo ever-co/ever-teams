@@ -7,7 +7,6 @@ import DropdownUser from "@components/common/main/dropdown-user";
 import { TimeInput } from "@components/common/main/time-input";
 import { IOrganizationTeamList } from "@app/interfaces/IOrganizationTeam";
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
-import { PlayIcon } from "@components/common/main/playIcon";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITeamTask } from "@app/interfaces/ITask";
 import { secondsToTime } from "@app/helpers/date";
@@ -24,8 +23,8 @@ const workStatus = {
 const Card = ({ member }: { member: IMember }) => {
   const { isTeamManager, user } = useAuthenticateUser();
   const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
-  const isManager = member.employee.userId === user?.id && isTeamManager;
   const isAuthUser = member.employee.userId === user?.id;
+  const isManager = isAuthUser && isTeamManager;
   const iuser = member.employee.user;
   const iemployee = member.employee;
 
@@ -35,7 +34,7 @@ const Card = ({ member }: { member: IMember }) => {
   const [memberTask, setMemberTask] = useState<ITeamTask | null>(null);
 
   const [formValues, setFormValues] = useState({
-    devName: `${iuser?.firstName} ${iuser?.lastName}`,
+    devName: `${iuser?.firstName} ${iuser?.lastName || ""}`,
     devTask: "",
     estimateHours: 0,
     estimateMinutes: 0,

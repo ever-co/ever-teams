@@ -2,6 +2,7 @@ export interface IInviteCreate {
   emailIds: string[];
   projectIds?: string[];
   departmentIds?: string[];
+  teamIds: string[];
   organizationContactIds?: string[];
   roleId: string;
   organizationId: string;
@@ -10,7 +11,6 @@ export interface IInviteCreate {
   inviteType: string;
   startedWorkOn: string;
   appliedDate?: any;
-  teams?: string[];
   invitationExpirationPeriod: string;
 }
 

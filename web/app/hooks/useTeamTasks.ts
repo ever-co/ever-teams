@@ -42,7 +42,9 @@ export function useTeamTasks() {
   const { queryCall: updateQueryCall, loading: updateLoading } =
     useQuery(updateTaskAPI);
 
-  // to be called once
+  /**
+   * To be called once, at the top level component (e.g main.tsx)
+   */
   const firstLoadTasksData = useCallback(() => {
     firstLoad.current = true;
   }, []);
@@ -119,7 +121,9 @@ export function useTeamTasks() {
     []
   );
 
-  // Change active task
+  /**
+   * Change active task
+   */
   const setActiveTask = useCallback((task: typeof tasks[0]) => {
     setActiveTaskIdCookie(task.id);
     setActiveTeamTask(task);

@@ -18,7 +18,7 @@ export default async function handler(
 
   const { data } = await inviteByEmailsRequest(
     {
-      startedWorkOn: new Date().toDateString(),
+      startedWorkOn: new Date().toISOString(),
       tenantId,
       organizationId,
       emailIds: [body.email],
@@ -26,7 +26,8 @@ export default async function handler(
       invitationExpirationPeriod: "Never",
       inviteType: "EMPLOYEE",
       invitedById: user.id,
-      teams: [teamId],
+      teamIds: [teamId],
+      projectIds: [teamId],
     },
     access_token
   );

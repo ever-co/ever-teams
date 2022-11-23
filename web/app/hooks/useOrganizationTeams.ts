@@ -5,8 +5,9 @@ import {
 } from "@app/helpers/cookies";
 import {
   createOrganizationTeamAPI,
+  getOrganizationTeamAPI,
   getOrganizationTeamsAPI,
-} from "@app/services/client/api/organization-team";
+} from "@app/services/client/api";
 import {
   activeTeamIdState,
   activeTeamState,
@@ -62,6 +63,7 @@ export function useOrganizationTeams() {
   const activeTeam = useRecoilValue(activeTeamState);
   const setActiveTeamId = useSetRecoilState(activeTeamIdState);
   const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
+  const firstLoad = useRef(false);
 
   const { createOrganizationTeam, loading: createOTeamLoading } =
     useCreateOrganizationTeam();
@@ -69,6 +71,13 @@ export function useOrganizationTeams() {
   useEffect(() => {
     setTeamsFetching(loading);
   }, [loading]);
+
+  /**
+   * To be called once, at the top level component (e.g main.tsx)
+   */
+  const firstLoadTeamsData = useCallback(() => {
+    firstLoad.current = true;
+  }, []);
 
   const loadTeamsData = useCallback(() => {
     setActiveTeamId(getActiveTeamIdCookie());
@@ -88,6 +97,35 @@ export function useOrganizationTeams() {
     [setActiveTeamId]
   );
 
+  useEffect(() => {
+    if (activeTeam && !activeTeam.updated && firstLoad.current) {
+      getOrganizationTeamAPI(activeTeam.id).then((res) => {
+        const members = res.data?.members;
+        const id = res.data.id;
+        if (!members) return;
+
+        // Update active teams fields with from team Status API
+        setTeams((tms) => {
+          const idx_tm = tms.findIndex((t) => t.id === id);
+          if (idx_tm < 0) return tms;
+          const new_tms = [...tms];
+          new_tms[idx_tm] = { ...new_tms[idx_tm] };
+          const new_members = [...new_tms[idx_tm].members];
+          // merges status fields for a members
+          new_members.forEach((mem, i) => {
+            const new_mem = members.find((m) => m.id === mem.id);
+            if (!new_mem) return;
+            new_members[i] = { ...mem, ...new_mem };
+          });
+          // Update members for a team
+          new_tms[idx_tm].members = new_members;
+          new_tms[idx_tm].updated = true;
+          return new_tms;
+        });
+      });
+    }
+  }, [activeTeam]);
+
   return {
     loadTeamsData,
     loading,
@@ -97,5 +135,6 @@ export function useOrganizationTeams() {
     setActiveTeam,
     createOrganizationTeam,
     createOTeamLoading,
+    firstLoadTeamsData,
   };
 }
