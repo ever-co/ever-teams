@@ -7,6 +7,7 @@ import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
 import { Capitalize } from "@components/layout/header/profile";
 import Link from "next/link";
+import { useTeamTasks } from "@app/hooks/useTeamTasks";
 
 interface ITimerTasksSection {
   started: boolean;
@@ -16,9 +17,16 @@ const style = { width: `${100 / 10}%` };
 
 const Profile = () => {
   const { user } = useAuthenticateUser();
+  const { activeTeamTask, tasks } = useTeamTasks();
   const [tab, setTab] = useState<"worked" | "assigned" | "unassigned">(
     "worked"
   );
+
+  const otherTasks = activeTeamTask
+    ? tasks.filter((t) => {
+        return t.id !== activeTeamTask.id;
+      })
+    : tasks;
 
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
@@ -130,11 +138,9 @@ const Profile = () => {
           </div>
         </div>
         <div>
-          <ProfileCard
-            now={true}
-            task="Open Platform for On-Demand and Sharing Economies."
-            current="01:10"
-          />
+          {activeTeamTask && (
+            <ProfileCard now={true} task={activeTeamTask} current="00:00" />
+          )}
         </div>
         <div className="flex items-center justify-between mt-[40px]">
           <div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
@@ -145,15 +151,11 @@ const Profile = () => {
             Total time: 03:31
           </div>
         </div>
-        <div>
-          <ProfileCard
-            task="Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-            current="02:25"
-          />
-        </div>
-        <div>
-          <ProfileCard task="Lorem Ipsum is simply dummy" current="00:00" />
-        </div>
+        {otherTasks.map((ta) => (
+          <div key={ta.id}>
+            <ProfileCard task={ta} current="00:00" />
+          </div>
+        ))}
       </AppLayout>
     </div>
   );
