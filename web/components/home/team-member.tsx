@@ -38,11 +38,12 @@ const TeamMemberSection = () => {
           </li>
         ))}
 
-        {teamInvitations.map((invitation) => (
-          <li key={invitation.id}>
-            <InvitedCard invitation={invitation} />
-          </li>
-        ))}
+        {members.length > 0 &&
+          teamInvitations.map((invitation) => (
+            <li key={invitation.id}>
+              <InvitedCard invitation={invitation} />
+            </li>
+          ))}
 
         {isTeamManager && (
           <li>
