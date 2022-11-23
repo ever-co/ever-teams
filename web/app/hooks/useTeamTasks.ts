@@ -9,14 +9,14 @@ import {
   getTeamTasksAPI,
   updateTaskAPI,
 } from "@app/services/client/api";
-import { activeTeamIdState, activeTeamState } from "@app/stores";
+import { activeTeamIdState } from "@app/stores";
 import {
   activeTeamTaskState,
   tasksByTeamState,
   tasksFetchingState,
   teamTasksState,
 } from "@app/stores/team-tasks";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 

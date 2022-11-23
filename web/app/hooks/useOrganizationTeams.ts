@@ -14,7 +14,7 @@ import {
   organizationTeamsState,
   teamsFetchingState,
 } from "@app/stores";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { useQuery } from "./useQuery";
 
@@ -63,7 +63,7 @@ export function useOrganizationTeams() {
   const activeTeam = useRecoilValue(activeTeamState);
   const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
   const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
-  const firstLoad = useRef(false);
+  const [firstLoad, setFirstLoad] = useState(false); // should always have false as default value
 
   const { createOrganizationTeam, loading: createOTeamLoading } =
     useCreateOrganizationTeam();
@@ -76,7 +76,7 @@ export function useOrganizationTeams() {
    * To be called once, at the top level component (e.g main.tsx)
    */
   const firstLoadTeamsData = useCallback(() => {
-    firstLoad.current = true;
+    setFirstLoad(true);
   }, []);
 
   const loadTeamsData = useCallback(() => {
@@ -98,7 +98,7 @@ export function useOrganizationTeams() {
   );
 
   useEffect(() => {
-    if (activeTeamId && firstLoad.current) {
+    if (activeTeamId && firstLoad) {
       getOrganizationTeamAPI(activeTeamId).then((res) => {
         const members = res.data?.members;
         const id = res.data.id;
@@ -123,7 +123,7 @@ export function useOrganizationTeams() {
         });
       });
     }
-  }, [activeTeamId]);
+  }, [activeTeamId, firstLoad]);
 
   return {
     loadTeamsData,
