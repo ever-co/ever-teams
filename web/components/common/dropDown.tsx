@@ -21,7 +21,7 @@ export const TeamsDropDown = () => {
   return (
     <div className="w-[290px] max-w-sm">
       <Popover className="relative">
-        {({ open }) => (
+        {({ open, close }) => (
           <>
             <Popover.Button
               className={`w-[290px] h-[50px]
@@ -67,7 +67,10 @@ export const TeamsDropDown = () => {
                         <div
                           key={item.id}
                           className="cursor-pointer font-light"
-                          onClick={() => setActiveTeam(item)}
+                          onClick={() => {
+                            setActiveTeam(item);
+                            close();
+                          }}
                         >
                           <div className="flex items-center justify-start space-x-4">
                             <div
