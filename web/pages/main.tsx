@@ -28,6 +28,8 @@ const Main = () => {
     firstLoadTeamInvitationsData,
     firstLoadTeamsData,
     loadTeamsData,
+    getTimerStatus,
+    firstLoadTimerData,
   ]);
 
   return (
