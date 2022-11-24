@@ -109,7 +109,7 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
       if (autoFocus) {
         inputsRef.current[0].focus();
       }
-    }, []);
+    }, [autoFocus]);
 
     const sendResult = () => {
       const res = inputsRef.current.map((input) => input.value).join("");

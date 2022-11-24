@@ -19,7 +19,12 @@ const Main = () => {
     // --------------
 
     loadTeamsData();
-  }, []);
+  }, [
+    firstLoadTasksData,
+    firstLoadTeamInvitationsData,
+    firstLoadTeamsData,
+    loadTeamsData,
+  ]);
 
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
