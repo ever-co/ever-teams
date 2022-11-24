@@ -16,7 +16,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
     }
     setActiveTask(tasks.filter((tas) => tas?.status !== "Closed")[0]);
     closeModal();
-  }, [closeModal, task, updateTask]);
+  }, [closeModal, setActiveTask, task, tasks, updateTask]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
