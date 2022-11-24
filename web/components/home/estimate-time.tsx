@@ -68,7 +68,7 @@ export function EstimateTime() {
       estimateMinutes: minutes,
       estimate: hours * 60 * 60 + minutes * 60, // time seconds
     });
-  }, [activeTeamTask, value]);
+  }, [activeTeamTask, updateTask, value]);
 
   return (
     <>
