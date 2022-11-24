@@ -49,7 +49,7 @@ function useCreateOrganizationTeam() {
       }
       return res;
     });
-  }, []);
+  }, [queryCall, setActiveTeamId, setTeams]);
 
   return {
     createOrganizationTeam,
@@ -70,7 +70,7 @@ export function useOrganizationTeams() {
 
   useEffect(() => {
     setTeamsFetching(loading);
-  }, [loading]);
+  }, [loading, setTeamsFetching]);
 
   /**
    * To be called once, at the top level component (e.g main.tsx)
@@ -85,7 +85,7 @@ export function useOrganizationTeams() {
       setTeams(res.data?.items || []);
       return res;
     });
-  }, []);
+  }, [queryCall, setActiveTeamId, setTeams]);
 
   const setActiveTeam = useCallback(
     (teamId: typeof teams[0]) => {
@@ -123,7 +123,7 @@ export function useOrganizationTeams() {
         });
       });
     }
-  }, [activeTeamId, firstLoad]);
+  }, [activeTeamId, firstLoad, setTeams]);
 
   return {
     loadTeamsData,

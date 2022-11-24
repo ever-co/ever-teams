@@ -53,49 +53,55 @@ export function useTeamTasks() {
       setAllTasks(res.data?.items || []);
       return res;
     });
-  }, []);
+  }, [queryCall, setAllTasks]);
 
   // Global loading state
   useEffect(() => {
     if (firstLoad) {
       setTasksFetching(loading);
     }
-  }, [loading, firstLoad]);
+  }, [loading, firstLoad, setTasksFetching]);
 
   // Reload tasks after active team changed
   useEffect(() => {
     if (activeTeamId && firstLoad) {
       loadTeamTasksData();
     }
-  }, [activeTeamId, firstLoad]);
+  }, [activeTeamId, firstLoad, loadTeamTasksData]);
 
   // Get the active task from cookie and put on global store
   useEffect(() => {
     const active_taskid = getActiveTaskIdCookie() || "";
     setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
-  }, [tasks]);
+  }, [setActiveTeamTask, tasks]);
 
   // Queries calls
-  const deleteTask = useCallback((task: typeof tasks[0]) => {
-    return deleteQueryCall(task.id).then((res) => {
-      const affected = res.data?.affected || 0;
-      if (affected > 0) {
-        setAllTasks((ts) => {
-          return ts.filter((t) => t.id !== task.id);
-        });
-      }
-      return res;
-    });
-  }, []);
+  const deleteTask = useCallback(
+    (task: typeof tasks[0]) => {
+      return deleteQueryCall(task.id).then((res) => {
+        const affected = res.data?.affected || 0;
+        if (affected > 0) {
+          setAllTasks((ts) => {
+            return ts.filter((t) => t.id !== task.id);
+          });
+        }
+        return res;
+      });
+    },
+    [deleteQueryCall, setAllTasks]
+  );
 
-  const createTask = useCallback((taskName: string) => {
-    return createQueryCall({
-      title: taskName,
-    }).then((res) => {
-      setAllTasks(res.data?.items || []);
-      return res;
-    });
-  }, []);
+  const createTask = useCallback(
+    (taskName: string) => {
+      return createQueryCall({
+        title: taskName,
+      }).then((res) => {
+        setAllTasks(res.data?.items || []);
+        return res;
+      });
+    },
+    [createQueryCall, setAllTasks]
+  );
 
   const updateTask = useCallback(
     (task: Partial<typeof tasks[0]> & { id: string }) => {
@@ -104,16 +110,19 @@ export function useTeamTasks() {
         return res;
       });
     },
-    []
+    [setAllTasks, updateQueryCall]
   );
 
   /**
    * Change active task
    */
-  const setActiveTask = useCallback((task: typeof tasks[0]) => {
-    setActiveTaskIdCookie(task.id);
-    setActiveTeamTask(task);
-  }, []);
+  const setActiveTask = useCallback(
+    (task: typeof tasks[0]) => {
+      setActiveTaskIdCookie(task.id);
+      setActiveTeamTask(task);
+    },
+    [setActiveTeamTask]
+  );
 
   return {
     tasks,
