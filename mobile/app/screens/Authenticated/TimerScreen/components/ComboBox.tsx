@@ -1,41 +1,28 @@
-import React, { useState } from "react"
+import React, { FC, useState } from "react"
+import { Text } from "react-native-paper"
 import { View, StyleSheet } from "react-native"
+import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
 
-const ComboBox = () => {
-  const [users, setUsers] = useState([
-    {
-      text: "API Integration",
-      status: "Completed",
-      image1: require("../../../../../assets/images/person1.png"),
-      image2: require("../../../../../assets/images/Konstantin.png"),
-      index: 0,
-    },
-    {
-      text: "Design Profile Screen",
-      status: "Unassigned",
-      index: 1,
-    },
-    {
-      text: "Improve Main Page Design",
-      status: "In progress",
-      image1: require("../../../../../assets/images/person2.png"),
-      image2: require("../../../../../assets/images/person1.png"),
-      index: 2,
-    },
-    {
-      text: "Deploy App",
-      status: "In Review",
-      image1: require("../../../../../assets/images/Konstantin.png"),
-      image2: require("../../../../../assets/images/person2.png"),
-      index: 3,
-    },
-  ])
+export interface Props {
+  tasks: ITeamTask[],
+  handleActiveTask: (value: ITeamTask) => unknown
+  onCreateNewTask: () => unknown
+}
+
+
+const ComboBox: FC<Props> = function ComboBox({ tasks, onCreateNewTask, handleActiveTask }) {
+  const [users, setUsers] = useState([])
 
   const removeUser = (index) => {
     let newUser = users.filter((user) => user.index !== index)
     setUsers(newUser)
+  }
+
+  const onCreateTask = () => {
+    onCreateNewTask()
   }
 
   return (
@@ -44,9 +31,15 @@ const ComboBox = () => {
         <TaskDisplayBox text="32 Open" openTask />
         <TaskDisplayBox text="25 Closed" openTask={false} />
       </View>
-      {users.map((user, i) => (
-        <IndividualTask key={i} {...user} removeUser={removeUser} />
-      ))}
+
+      <TouchableOpacity onPress={() => onCreateTask()} style={styles.createTaskBtn}>
+        <Text>Create New Task</Text>
+      </TouchableOpacity>
+      <View>
+        {tasks.map((task, i) => (
+          <IndividualTask key={i} task={task} handleActiveTask={handleActiveTask} />
+        ))}
+      </View>
     </View>
   )
 }
@@ -67,10 +60,20 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 5,
     position: "absolute",
-    top: "35%",
+    top: "39%",
     left: 15,
+    maxHeight: 300,
     width: "100%",
   },
+  createTaskBtn: {
+    borderColor: 'gray',
+    borderWidth: 1,
+    width: '60%',
+    borderRadius: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5
+  }
 })
 
 export default ComboBox

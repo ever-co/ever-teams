@@ -16,6 +16,10 @@ export const AuthenticationStoreModel = types
     tenantId:types.optional(types.string, ""),
     userId:types.optional(types.string, ""),
     employeeId:types.optional(types.string, ""),
+    activeTaskState:types.optional(types.frozen(), {}),
+    activeTaskId:types.optional(types.string, ""),
+    fetchingTeams:types.optional(types.boolean, false),
+    fetchingTasks:types.optional(types.boolean, false),
   })
   .views((store) => ({
     get isAuthenticated() {
@@ -86,6 +90,18 @@ export const AuthenticationStoreModel = types
     setTenantId(value: string) {
       store.tenantId = value.replace(/ /g, "")
     },
+    setActiveTaskId(value: string) {
+      store.activeTaskId = value.replace(/ /g, "")
+    },
+    setActiveTaskState(value: any) {
+      store.activeTaskState = value
+    },
+    setFetchingTeams(value: boolean) {
+      store.fetchingTeams= value
+    },
+    setFetchingTasks(value: boolean) {
+      store.fetchingTasks= value
+    },
     logout() {
       store.authToken = undefined
       store.authEmail = ""
@@ -99,6 +115,10 @@ export const AuthenticationStoreModel = types
       store.userId=""
       store.activeTeamState={}
       store.employeeId=""
+      store.activeTaskId=""
+      store.activeTaskState={}
+      store.fetchingTasks=false
+      store.fetchingTeams=false
     },
   }))
 

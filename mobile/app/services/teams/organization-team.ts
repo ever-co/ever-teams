@@ -21,8 +21,8 @@ export interface ITeamsParams {
 }
 
 export interface IOTeams {
-    items: IOrganizationTeamList[];
-    total: number
+  items: IOrganizationTeamList[];
+  total: number
 }
 
 
@@ -64,17 +64,22 @@ export default async function Teams(params: ITeamsParams) {
     );
   });
 
-  const teams = await Promise.all(call_teams).then((tms) => {
-    return tms.reduce(
-      (acc, { data }) => {
-        acc.items.push(...data.items);
-        acc.total += data.total;
-        return acc;
-      },
-      { items: [] as IOrganizationTeamList[], total: 0 }
-    );
-  });
+  try {
+
+    const teams: IOTeams = await Promise.all(call_teams).then((tms) => {
+      return tms.reduce(
+        (acc, { data }) => {
+          acc.items.push(...data.items);
+          acc.total += data.total;
+          return acc;
+        },
+        { items: [] as IOrganizationTeamList[], total: 0 }
+      );
+    });
+    return teams;
+  } catch (error) {
+    console.log(error);
+  }
 
 
-  return teams;
 }

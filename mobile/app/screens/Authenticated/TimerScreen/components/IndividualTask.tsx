@@ -1,44 +1,40 @@
-import React, { useState } from "react"
-import { View, StyleSheet, Text, Image, ImageStyle } from "react-native"
+import React, { FC, useState } from "react"
+import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
 
-type IIndividualTask = {
-  text: string
-  //   status: "Completed" | "Unassigned" | "In progress" | "In Review"
-  status: string
-  image1?: any
-  image2?: any
-  index?: number
-  removeUser: any
+export interface Props {
+  task: ITeamTask
+  handleActiveTask: (value: ITeamTask) => unknown
 }
 
-const IndividualTask = ({ text, status, image1, image2, index, removeUser }: IIndividualTask) => {
+const IndividualTask: FC<Props> = ({ task, handleActiveTask }) => {
   const [showDel, setShowDel] = useState(false)
 
   return (
-    <View style={styles.container}>
-      <Text style={{ color: "#1B005D", fontSize: 10 }}>{text}</Text>
+    <TouchableOpacity style={styles.container} onPress={() => handleActiveTask(task)}>
+      <Text style={{ color: "#1B005D", fontSize: 10 }}>{task.title}</Text>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <View
           style={
-            status === "Completed"
+            task.status === "Completed"
               ? styles.completed
-              : status === "In Review"
-              ? styles.inReview
-              : status === "In progress"
-              ? styles.inProgress
-              : styles.unAssigned
+              : task.status === "In Review"
+                ? styles.inReview
+                : task.status === "In progress"
+                  ? styles.inProgress
+                  : styles.unAssigned
           }
         >
-          {status === "Completed" ? (
+          {task.status === "Completed" ? (
             <AntDesign name="checkcircleo" size={8} color="#3D9A6D" />
-          ) : status === "In Review" ? (
+          ) : task.status === "In Review" ? (
             <AntDesign name="search1" size={8} color="#8F97A1" />
-          ) : status === "In progress" ? (
+          ) : task.status === "In progress" ? (
             <MaterialCommunityIcons name="progress-check" size={8} color="#735EA8" />
           ) : (
             <Entypo name="circle" size={8} color="#8B7FAA" />
@@ -46,42 +42,41 @@ const IndividualTask = ({ text, status, image1, image2, index, removeUser }: IIn
 
           <Text
             style={
-              status === "Completed"
+              task.status === "Completed"
                 ? styles.textCompleted
-                : status === "In Review"
-                ? styles.textInReview
-                : status === "In progress"
-                ? styles.textInProgress
-                : styles.textUnAssigned
+                : task.status === "In Review"
+                  ? styles.textInReview
+                  : task.status === "In progress"
+                    ? styles.textInProgress
+                    : styles.textUnAssigned
             }
           >
-            {status}
+            {task.status}
           </Text>
           <AntDesign
             name="down"
             size={8}
             color={
-              status === "Completed"
+              task.status === "Completed"
                 ? "#3D9A6D"
-                : status === "In Review"
-                ? "#8F97A1"
-                : status === "In progress"
-                ? "#735EA8"
-                : "#8B7FAA"
+                : task.status === "In Review"
+                  ? "#8F97A1"
+                  : task.status === "In progress"
+                    ? "#735EA8"
+                    : "#8B7FAA"
             }
           />
         </View>
 
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={{ flexDirection: "row" }}>
-            <Image source={image1} style={$usersProfileOne} />
-            <Image source={image2} style={$usersProfile} />
+            <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
           </View>
           <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />
-          {showDel && <DeletePopUp index={index} removeUser={removeUser} setShowDel={setShowDel} />}
+          {/* {showDel && <DeletePopUp index={index} removeUser={removeUser} setShowDel={setShowDel} />} */}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
