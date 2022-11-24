@@ -35,7 +35,7 @@ export function useTimer() {
     useQuery(stopTimerAPI);
 
   const wasRunning = timerStatus?.running || false;
-  const timerTaskId = useSyncRef(timerStatus?.lastLog.taskId);
+  const timerTaskId = useSyncRef(timerStatus?.lastLog?.taskId);
   const taskId = useSyncRef(activeTeamTask?.id);
   const timeCounterInterval = useRef(0);
   const lastActiveTeamId = useRef<string | null>(null);
