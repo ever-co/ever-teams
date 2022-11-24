@@ -1,18 +1,33 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native"
-import DropDownSection, { teamItem } from "./DropDownSection"
+import { useStores } from "../../../../models"
+import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../../../services/interfaces/IOrganizationTeam"
+import DropDownSection from "./DropDownSection"
 
 export interface Props {
-  teams: teamItem[]
+  teams: IOrganizationTeamList[],
+  total:number,
   onCreateTeam: () => unknown
 }
 
-const DropDown : FC<Props> = function CreateTeamModal({ teams, onCreateTeam }) {
+const DropDown: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, total}) {
+  const { authenticationStore: { activeTeamIdState, setActiveTeamId, setActiveTeamState, activeTeamState } } = useStores();
   const [expanded, setExpanded] = useState(true)
   const handlePress = () => setExpanded(!expanded)
-
   const [showDrop, setShowDrop] = useState(false)
+  const activeTeam: IOrganizationTeamList = activeTeamState;
 
+
+  useEffect(() => {
+    
+  })
+
+  const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
+    setActiveTeamState(newActiveTeam);
+    setActiveTeamId(newActiveTeam.id);
+    setShowDrop(!showDrop)
+  }
+  
   return (
     <View style={styles.mainContainer}>
       <TouchableOpacity
@@ -21,10 +36,10 @@ const DropDown : FC<Props> = function CreateTeamModal({ teams, onCreateTeam }) {
         onPress={() => setShowDrop(!showDrop)}
       >
         <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D" }}> Super Team (5)</Text>
+        <Text style={{ color: "#1B005D" }}>{`${activeTeam.name} (${!total ? 1: total})`}</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
-      {showDrop && <DropDownSection teams={teams} onCreateTeam={onCreateTeam}/>}
+      {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams} onCreateTeam={onCreateTeam} />}
 
       {/* <List.Accordion
         style={styles.list}

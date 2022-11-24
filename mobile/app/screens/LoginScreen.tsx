@@ -15,11 +15,14 @@ import { typography } from "../theme"
 import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
 import { IRegister, IRegisterResponse, register } from "../services/auth/register"
+import Teams from "../services/teams/organization-team";
+import { IUser } from "../services/interfaces/IUserData";
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
 const inviteCodeLogo = require("../../assets/images/lock-cloud.png")
 interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
+
 
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const authTeamInput = useRef<TextInput>()
@@ -45,6 +48,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode,
       setAuthInviteCode,
       validationErrors,
+      setActiveTeamState,
+      setOrganizationId,
+      setActiveTeamId,
+      setUserId,
+      setTenantId,
+      setEmployeeId
     },
   } = useStores()
 
@@ -101,6 +110,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
     // If successful, reset the fields and set the token.
     if (response.status === 200) {
+
+      const employee = response.employee;
+      const loginRes = response.loginRes;
+      const user = loginRes.user;
+ 
+
       setIsSubmitted(false)
       setAuthTeamName("")
       setAuthEmail("")
@@ -109,11 +124,18 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode("")
 
       setIsLoading(false)
-      // We'll mock this with a fake token.
-      setAuthToken(response.loginRes.token);
-      console.log(response.loginRes.token);
+      
+      // Save Auth Data
+      setAuthToken(loginRes.token);
+      setActiveTeamState(response.team)
+      setActiveTeamId(response.team.id)
+      setOrganizationId(response.team.organizationId)
+      setUserId(loginRes.user.id) 
+      setTenantId(response.team.tenantId)
+      setEmployeeId(employee.id)
     }
   }
+
 
   useEffect(() => {
     return () => {
@@ -461,9 +483,9 @@ const $form: ViewStyle = {
   justifyContent: "flex-start",
 }
 
-const $loading:ViewStyle={
-  position:"absolute",
-  bottom:"15%"
+const $loading: ViewStyle = {
+  position: "absolute",
+  bottom: "15%"
 }
 
 const $smalltext: TextStyle = {

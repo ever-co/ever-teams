@@ -7,6 +7,7 @@ import TaskStatusDropdown from "./TaskStatusDropdown"
 import { Feather } from "@expo/vector-icons"
 import ComboBox from "./ComboBox"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import Teams from "../../../../services/teams/organization-team"
 
 const NewTimerCard = () => {
   const [showCombo, setShowCombo] = useState(false)
@@ -35,6 +36,7 @@ const NewTimerCard = () => {
       setText2(parsedQty.toString())
     }
   }
+
 
   return (
     <View style={styles.mainContainer}>
@@ -146,7 +148,9 @@ const NewTimerCard = () => {
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>01:10:36:20</Text>
           <ProgressBar progress={0.7} color="#28D581" />
         </View>
+        <TouchableOpacity onPress={()=>{}}>
         <Image source={require("../../../../../assets/images/play.png")}></Image>
+        </TouchableOpacity>
       </View>
     </View>
   )

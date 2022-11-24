@@ -1,22 +1,24 @@
 import React, { FC } from "react"
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
 import Icon from "react-native-vector-icons/Ionicons"
+import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../../../services/interfaces/IOrganizationTeam"
 
 export interface Props {
-  teams: teamItem[]
+  teams: IOrganizationTeamList[]
+  changeTeam:(value:IOrganizationTeamList)=>any
   onCreateTeam: () => unknown
 }
 
-export interface teamItem {
-  img: string
-  title: string
-}
+// export interface teamItem {
+//   img: string
+//   title: string
+// }
 
-const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam }) {
+const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, changeTeam }) {
   return (
     <View style={styles.mainContainer}>
       {teams.map((item, index) => (
-        <DropItem key={index} {...item} />
+        <DropItem key={index} team={item} changeTeam={changeTeam} />
       ))}
 
       <TouchableOpacity onPress={() => onCreateTeam()}>
@@ -31,12 +33,17 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
   )
 }
 
-const DropItem = ({ img, title }: teamItem) => {
+export interface IDropItem {
+  team: IOrganizationTeamList
+  changeTeam:(value:IOrganizationTeamList)=>any
+}
+
+const DropItem:FC<IDropItem> = function CreateTeamModal({ team, changeTeam }) {
   return (
-    <View style={styles.indDropDown}>
+    <TouchableOpacity onPress={()=>changeTeam(team)} style={styles.indDropDown}>
       <Image style={styles.teamImage} source={require("../../../../../assets/icons/community.png")} />
-      <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>{title}</Text>
-    </View>
+      <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>{team.name}</Text>
+    </TouchableOpacity>
   )
 }
 
@@ -48,13 +55,13 @@ const styles = StyleSheet.create({
     zIndex: 10,
     backgroundColor: "#fff",
     width: "80%",
-    height: "500%",
     borderRadius: 10,
     justifyContent: "space-around",
   },
   indDropDown: {
     flexDirection: "row",
     paddingLeft: "10%",
+    marginBottom:10
   },
   teamImage: {
     width: 25,
@@ -69,6 +76,7 @@ const styles = StyleSheet.create({
     marginLeft: "10%",
     paddingTop: 5,
     paddingBottom: 5,
+    marginBottom:10,
     justifyContent: "space-around",
     alignItems: "center",
   },

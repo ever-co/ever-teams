@@ -17,10 +17,19 @@ import HomeHeader from "../TeamScreen/components/HomeHeader"
 import DropDown from "../TeamScreen/components/DropDown"
 import NewTimerCard from "./components/NewTimerCard"
 import { teams } from "../TeamScreen/data"
+import { useStores } from "../../../models"
+import Teams, { IOTeams} from "../../../services/teams/organization-team"
+import { IOrganizationTeamList } from "../../../services/interfaces/IOrganizationTeam"
+import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
+
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
+    // Get Authenticate data
+    const { authenticationStore: { userId, tenantId, organizationId, employeeId, activeTeamState, authToken } } = useStores();
     // STATE
+    const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>(activeTeamState)
+    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
     // FUNCTIONS
     const startTimer = async () => {
       // update the local storage
@@ -41,15 +50,48 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
       console.log("TIMER RESPONSE STOP", response)
     }
+
+    // Load teams
+    const getTeamsData = async () => {
+      const responseTeams = await Teams({
+        userId: userId,
+        tenantId: tenantId,
+        organizationId: organizationId,
+        access_token: authToken,
+        employeeId,
+        method: "GET",
+      });
+        setOrganizationTeams(responseTeams)
+    }
+
+    // Create New Team
+    const createNewTeam = async (text: string) => {
+      const responseTeams = await Teams({
+        userId: userId,
+        tenantId: tenantId,
+        organizationId: organizationId,
+        access_token: authToken,
+        employeeId,
+        method: "POST",
+        teamName: text
+      }); 
+        setOrganizationTeams(responseTeams)
+    }
+
     useEffect(() => {
-      // startTimer()
-      // startTimer();
-    }, [])
+
+      getTeamsData();
+    }, [organizationTeams])
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <CreateTeamModal
+          onCreateTeam={createNewTeam}
+          visible={showCreateTeamModal}
+          onDismiss={() => setShowCreateTeamModal(false)}
+        />
         <HomeHeader {..._props} />
         <View style={{ paddingBottom: 10 }}>
-          <DropDown teams={teams} onCreateTeam={() => {}} />
+          <DropDown total={organizationTeams?.total}    teams={organizationTeams?.items} onCreateTeam={() => setShowCreateTeamModal(true)} />
         </View>
         <View
           style={{
