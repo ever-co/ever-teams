@@ -6,6 +6,7 @@ import {
   toggleTimerAPI,
 } from "@app/services/client/api/timer";
 import {
+  activeTeamIdState,
   activeTeamTaskState,
   timeCounterState,
   timerStatusFetchingState,
@@ -18,6 +19,7 @@ import { useSyncRef } from "./useSyncRef";
 
 export function useTimer() {
   const activeTeamTask = useRecoilValue(activeTeamTaskState);
+  const activeTeamId = useRecoilValue(activeTeamIdState);
   const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
   const [timeCounter, setTimeCounter] = useRecoilState(timeCounterState);
   const [firstLoad, setFirstLoad] = useState(false);
@@ -36,6 +38,8 @@ export function useTimer() {
   const timerTaskId = useSyncRef(timerStatus?.lastLog.taskId);
   const taskId = useSyncRef(activeTeamTask?.id);
   const timeCounterInterval = useRef(0);
+  const lastActiveTeamId = useRef<string | null>(null);
+  const canRunTimer = !!activeTeamTask;
 
   /**
    * To be called once, at the top level component (e.g main.tsx)
@@ -100,6 +104,20 @@ export function useTimer() {
     });
   }, []);
 
+  // If active team change then stope the timer
+  useEffect(() => {
+    if (
+      lastActiveTeamId.current !== null &&
+      activeTeamId !== lastActiveTeamId.current &&
+      firstLoad
+    ) {
+      stopTimer();
+    }
+    if (activeTeamId) {
+      lastActiveTeamId.current = activeTeamId;
+    }
+  }, [activeTeamId]);
+
   // Time Counter
   useEffect(() => {
     if (!firstLoad || !timerStatus) return;
@@ -138,5 +156,6 @@ export function useTimer() {
     firstLoadTimerData,
     startTimer,
     stopTimer,
+    canRunTimer,
   };
 }

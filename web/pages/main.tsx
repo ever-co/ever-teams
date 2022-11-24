@@ -21,10 +21,7 @@ const Main = () => {
     firstLoadTimerData();
     // --------------
 
-    getTimerStatus().then((res) => {
-      console.log(res.data);
-    });
-
+    getTimerStatus();
     loadTeamsData();
   }, []);
 

@@ -13,11 +13,11 @@ const Timer = () => {
     timerStatusFetching,
     startTimer,
     stopTimer,
+    canRunTimer,
   } = useTimer();
 
   const timerHanlder = () => {
-    if (timerStatusFetching) return;
-
+    if (timerStatusFetching || !canRunTimer) return;
     if (timerStatus?.running) {
       stopTimer();
     } else {
@@ -33,12 +33,14 @@ const Timer = () => {
           {/* : <span className="text-[35px]">20</span> */}
         </h1>
         <div className="flex w-[284px]">
-          <div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
-          <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
+          <div className="bg-[#28D581] w-[10%] h-[8px] rounded-l-full"></div>
+          <div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-r-full" />
         </div>
       </div>
       <div
-        className={`cursor-pointer ${timerStatusFetching ? "opacity-30" : ""}`}
+        className={`cursor-pointer ${
+          timerStatusFetching || !canRunTimer ? "opacity-30" : ""
+        }`}
         onClick={!timerStatusFetching ? timerHanlder : undefined}
       >
         {timerStatus?.running ? (
