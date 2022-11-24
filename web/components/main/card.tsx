@@ -226,7 +226,13 @@ const Card = ({ member }: { member: IMember }) => {
             className={`w-[334px] text-center h-[48px]  font-light text-normal px-[14px] border border-white dark:border-[#202023] hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}
             onDoubleClick={canEditTaskName}
           >
-            {memberTask ? `#${memberTask.taskNumber} ` : ""}
+            {memberTask ? (
+              <span className="text-[#9490A0]">
+                {`#${memberTask.taskNumber} `}
+              </span>
+            ) : (
+              ""
+            )}
             {formValues.devTask}
           </div>
         )}
