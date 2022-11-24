@@ -36,6 +36,7 @@ export function useTimer() {
 
   const wasRunning = timerStatus?.running || false;
   const timerTaskId = useSyncRef(timerStatus?.lastLog?.taskId);
+  const timerStatusRef = useSyncRef(timerStatus);
   const taskId = useSyncRef(activeTeamTask?.id);
   const timeCounterInterval = useRef(0);
   const lastActiveTeamId = useRef<string | null>(null);
@@ -109,7 +110,8 @@ export function useTimer() {
     if (
       lastActiveTeamId.current !== null &&
       activeTeamId !== lastActiveTeamId.current &&
-      firstLoad
+      firstLoad &&
+      timerStatusRef.current?.running
     ) {
       stopTimer();
     }
