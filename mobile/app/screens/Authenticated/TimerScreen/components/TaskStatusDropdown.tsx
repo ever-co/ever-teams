@@ -1,11 +1,15 @@
-import React from "react"
+import React, { FC } from "react"
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
 import { AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Text } from "../../../../components"
 
-const TaskStatusDropdown = () => {
+export interface Props {
+  activeTaskStatus: string,
+}
+
+const TaskStatusDropdown: FC<Props> = ({ activeTaskStatus }) => {
   const [isOpened, setIsOpened] = React.useState(false)
   const [status, setStatus] = React.useState(null)
 
@@ -48,7 +52,7 @@ const TaskStatusDropdown = () => {
               },
             ]}
           >
-            {status === null ? "Status" : status}
+            {activeTaskStatus}
           </Text>
         </View>
 
