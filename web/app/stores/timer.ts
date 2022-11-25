@@ -6,17 +6,12 @@ export const timerStatusState = atom<ITimerStatus | null>({
   default: null,
 });
 
-export const timerDataState = atom<ITimerData>({
-  key: "timerDataState",
-  default: { ms: 0, s: 0, m: 0, h: 0 },
-});
-
-export const intervState = atom<any>({
-  key: "intervState",
-  default: null,
-});
-
-export const runningStatusStateBiss = atom<boolean>({
-  key: "runningStatusStateBiss",
+export const timerStatusFetchingState = atom<boolean>({
+  key: "timerStatusFetchingState",
   default: false,
+});
+
+export const timeCounterState = atom<number>({
+  key: "timeCounterState",
+  default: 0,
 });

@@ -2,15 +2,15 @@ import {
   ITimer,
   ITimerStatusParams,
   ITimerStatus,
-  IToggleTimerParams,
+  ITimerParams,
 } from "@app/interfaces/ITimer";
 import { serverFetch } from "../fetch";
 
 export function getTimerStatusRequest(
-  { source = "BROWSER", tenantId }: ITimerStatusParams,
+  { source = "BROWSER", tenantId, organizationId }: ITimerStatusParams,
   bearer_token: string
 ) {
-  const params = new URLSearchParams({ source, tenantId });
+  const params = new URLSearchParams({ source, tenantId, organizationId });
   return serverFetch<ITimerStatus>({
     path: `/timesheet/timer/status?${params.toString()}`,
     method: "GET",
@@ -19,21 +19,23 @@ export function getTimerStatusRequest(
   });
 }
 
-export function startTimerRequest(tenantId: string, bearer_token: string) {
+export function startTimerRequest(params: ITimerParams, bearer_token: string) {
   return serverFetch<ITimer>({
     path: "/timesheet/timer/start",
     method: "POST",
     bearer_token,
-    tenantId,
+    body: params,
+    tenantId: params.tenantId,
   });
 }
 
-export function stopTimerRequest(tenantId: string, bearer_token: string) {
+export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
   return serverFetch<ITimer>({
     path: "/timesheet/timer/stop",
     method: "POST",
     bearer_token,
-    tenantId,
+    body: params,
+    tenantId: params.tenantId,
   });
 }
 
@@ -43,7 +45,8 @@ export function toggleTimerRequest(
     logType = "TRACKED",
     taskId,
     tenantId,
-  }: IToggleTimerParams,
+    organizationId,
+  }: ITimerParams,
   bearer_token: string
 ) {
   return serverFetch<ITimer>({
@@ -54,6 +57,7 @@ export function toggleTimerRequest(
       logType,
       taskId,
       tenantId,
+      organizationId,
     },
     bearer_token,
     tenantId,
