@@ -5,6 +5,7 @@ import { MutableSnapshot, RecoilRoot } from "recoil";
 import { GetServerSidePropsContext } from "next";
 import { userState } from "@app/stores";
 import { IUser } from "@app/interfaces/IUserData";
+import { AppState } from "@components/InitState";
 
 function MyApp({
   Component,
@@ -18,6 +19,7 @@ function MyApp({
   return (
     <RecoilRoot initializeState={initializeState}>
       <ThemeProvider attribute="class">
+        <AppState />
         <Component {...pageProps} />
       </ThemeProvider>
     </RecoilRoot>
