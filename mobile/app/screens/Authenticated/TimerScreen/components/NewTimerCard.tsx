@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { Text, TextInput, View, Image, StyleSheet, TouchableOpacity } from "react-native"
 import { ProgressBar } from "react-native-paper"
 import { colors } from "../../../../theme"
@@ -7,13 +7,21 @@ import TaskStatusDropdown from "./TaskStatusDropdown"
 import { Feather } from "@expo/vector-icons"
 import ComboBox from "./ComboBox"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import Teams from "../../../../services/teams/organization-team"
+import { createTaskRequest, getTeamTasksRequest } from "../../../../services/requests/tasks"
+import { useStores } from "../../../../models"
+import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
 
-const NewTimerCard = () => {
+export interface Props {
+  tasks: ITeamTask[],
+}
+
+const NewTimerCard: FC<Props> = ({ tasks }) => {
+  const { authenticationStore: { tenantId, organizationId, activeTeamIdState, authToken, activeTaskState, setActiveTaskState, setActiveTaskId } } = useStores();
   const [showCombo, setShowCombo] = useState(false)
   const [text1, setText1] = useState("")
   const [text2, setText2] = useState("")
-  const [mainText, setMainText] = useState("Open Platform for...")
+  const [taskInputText, setTaskInputText] = useState<string>("")
+  const [activeTask, setActiveTask] = useState<ITeamTask>(activeTaskState)
 
   const onCheckLimitOne = (value: string) => {
     const parsedQty = Number.parseInt(value)
@@ -37,13 +45,58 @@ const NewTimerCard = () => {
     }
   }
 
+  const createNewTask = async () => {
+    if (taskInputText.trim().length < 2) return;
+
+    const dataBody: ICreateTask = {
+      title: taskInputText,
+      status: "Todo",
+      description: "",
+      tags: [],
+      teams: [{
+        id: activeTeamIdState
+      }],
+      estimate: 0,
+      organizationId: organizationId,
+      tenantId: tenantId
+    }
+    const { data } = await createTaskRequest({
+      data: dataBody,
+      bearer_token: authToken
+    })
+    setShowCombo(false)
+    //setTaskInputText("");
+  }
+
+
+  const handleChangeText = (value: string) => {
+    setTaskInputText(value)
+    if (value.trim().length > 2) {
+      setShowCombo(true)
+    } else {
+      setShowCombo(false)
+    }
+  }
+
+  const handleActiveTask = (value: ITeamTask) => {
+    if (value) {
+      setActiveTaskId(value.id)
+      setActiveTaskState(value)
+      setActiveTask(value)
+      setTaskInputText(value.title)
+      setShowCombo(false);
+    }
+    console.log(value)
+  }
+
+  useEffect(()=>{
+    setActiveTask(activeTaskState)
+  },[activeTaskState])
 
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.working}>What you working on?</Text>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={() => setShowCombo(!showCombo)}
+      <View
         style={[
           styles.wrapInput,
           {
@@ -57,14 +110,18 @@ const NewTimerCard = () => {
         <TextInput
           selectionColor={colors.primary}
           style={styles.textInput}
-          defaultValue={mainText}
-          onChangeText={(newText) => setMainText(newText)}
+          defaultValue={activeTask.title}
+          value={taskInputText}
+          // onEndEditing={() => setShowCombo(false)}
+          onFocus={() => setShowCombo(true)}
+          onChangeText={(newText) => handleChangeText(newText)}
         />
-        {mainText === "Open Platform for..." ? null : (
+        {taskInputText === "" || taskInputText.length > 5 ? null : (
           <Feather name="check" size={24} color="green" />
         )}
-      </TouchableOpacity>
-      {showCombo && <ComboBox />}
+      </View>
+
+      {showCombo && <ComboBox tasks={tasks} onCreateNewTask={createNewTask} handleActiveTask={handleActiveTask} />}
 
       <View
         style={{
@@ -83,21 +140,21 @@ const NewTimerCard = () => {
               style={
                 text1 === "" && text2 === ""
                   ? {
-                      borderColor: colors.border,
-                      borderBottomWidth: 2,
-                      borderStyle: "dashed",
-                      width: 20,
-                      color: "#9490A0",
-                      height: 15,
-                    }
+                    borderColor: colors.border,
+                    borderBottomWidth: 2,
+                    borderStyle: "dashed",
+                    width: 20,
+                    color: "#9490A0",
+                    height: 15,
+                  }
                   : {
-                      borderColor: colors.border,
-                      borderBottomWidth: 0,
-                      borderStyle: "dashed",
-                      width: 20,
-                      color: "#9490A0",
-                      height: 15,
-                    }
+                    borderColor: colors.border,
+                    borderBottomWidth: 0,
+                    borderStyle: "dashed",
+                    width: 20,
+                    color: "#9490A0",
+                    height: 15,
+                  }
               }
               onChangeText={onCheckLimitOne}
               defaultValue={text1}
@@ -111,21 +168,21 @@ const NewTimerCard = () => {
               style={
                 text2 === "" && text1 === ""
                   ? {
-                      borderColor: colors.border,
-                      borderBottomWidth: 2,
-                      borderStyle: "dashed",
-                      width: 20,
-                      color: "#9490A0",
-                      height: 15,
-                    }
+                    borderColor: colors.border,
+                    borderBottomWidth: 2,
+                    borderStyle: "dashed",
+                    width: 20,
+                    color: "#9490A0",
+                    height: 15,
+                  }
                   : {
-                      borderColor: colors.border,
-                      borderBottomWidth: 0,
-                      borderStyle: "dashed",
-                      width: 20,
-                      color: "#9490A0",
-                      height: 15,
-                    }
+                    borderColor: colors.border,
+                    borderBottomWidth: 0,
+                    borderStyle: "dashed",
+                    width: 20,
+                    color: "#9490A0",
+                    height: 15,
+                  }
               }
               onChangeText={onCheckLimitTwo}
               defaultValue={text2}
@@ -140,7 +197,7 @@ const NewTimerCard = () => {
             </View>
           </View>
         </View>
-        <TaskStatusDropdown />
+        <TaskStatusDropdown activeTaskStatus={activeTask.status} />
       </View>
 
       <View style={styles.horizontal}>
@@ -148,8 +205,8 @@ const NewTimerCard = () => {
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>01:10:36:20</Text>
           <ProgressBar progress={0.7} color="#28D581" />
         </View>
-        <TouchableOpacity onPress={()=>{}}>
-        <Image source={require("../../../../../assets/images/play.png")}></Image>
+        <TouchableOpacity onPress={() => { }}>
+          <Image source={require("../../../../../assets/images/play.png")}></Image>
         </TouchableOpacity>
       </View>
     </View>
@@ -190,6 +247,8 @@ const styles = StyleSheet.create({
   },
   textInput: {
     color: colors.primary,
+    width: '85%',
+    height: '90%'
   },
   textInputOne: {
     height: 30,

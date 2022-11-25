@@ -18,17 +18,24 @@ import DropDown from "../TeamScreen/components/DropDown"
 import NewTimerCard from "./components/NewTimerCard"
 import { teams } from "../TeamScreen/data"
 import { useStores } from "../../../models"
-import Teams, { IOTeams} from "../../../services/teams/organization-team"
+import Teams, { IOTeams } from "../../../services/teams/organization-team"
 import { IOrganizationTeamList } from "../../../services/interfaces/IOrganizationTeam"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
+import { getTeamTasksRequest } from "../../../services/requests/tasks"
+import { ITeamTask } from "../../../services/interfaces/ITask"
+import { getTasksByTeamState } from "../../../services/teams/tasks"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
   function AuthenticatedTimerScreen(_props) {
     // Get Authenticate data
-    const { authenticationStore: { userId, tenantId, organizationId, employeeId, activeTeamState, authToken } } = useStores();
+    const { authenticationStore: { userId, tenantId, fetchingTasks, fetchingTeams, setFetchingTeams, setFetchingTasks, organizationId, employeeId, activeTeamIdState, authToken } } = useStores();
     // STATE
-    const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>(activeTeamState)
+    const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
+      items: [],
+      total: 0
+    })
+    const [teamTasks, setTeamTasks] = React.useState<ITeamTask[]>([]);
     const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
     // FUNCTIONS
     const startTimer = async () => {
@@ -61,7 +68,8 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         employeeId,
         method: "GET",
       });
-        setOrganizationTeams(responseTeams)
+      setOrganizationTeams(responseTeams)
+      loadTeamTasks();
     }
 
     // Create New Team
@@ -74,12 +82,21 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         employeeId,
         method: "POST",
         teamName: text
-      }); 
-        setOrganizationTeams(responseTeams)
+      });
+      setOrganizationTeams(responseTeams)
+    }
+
+    const loadTeamTasks = async () => {
+      const { data } = await getTeamTasksRequest({
+        bearer_token: authToken,
+        tenantId: tenantId,
+        organizationId: organizationId
+      });
+      const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId: activeTeamIdState })
+      setTeamTasks(tasks);
     }
 
     useEffect(() => {
-
       getTeamsData();
     }, [organizationTeams])
     return (
@@ -91,7 +108,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         />
         <HomeHeader {..._props} />
         <View style={{ paddingBottom: 10 }}>
-          <DropDown total={organizationTeams?.total}    teams={organizationTeams?.items} onCreateTeam={() => setShowCreateTeamModal(true)} />
+          <DropDown total={organizationTeams?.total} teams={organizationTeams?.items} onCreateTeam={() => setShowCreateTeamModal(true)} />
         </View>
         <View
           style={{
@@ -100,7 +117,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
             paddingHorizontal: 20,
           }}
         >
-          <NewTimerCard />
+          <NewTimerCard tasks={teamTasks} />
         </View>
       </Screen>
     )

@@ -11,7 +11,7 @@ import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const config = {
-  matcher: ["/", "/main", "/passcode"],
+  matcher: ["/", "/main", "/passcode", "/profile"],
 };
 
 export async function middleware(request: NextRequest) {

@@ -16,7 +16,7 @@ export interface ITimer {
   employeeId: string;
   timesheetId: string;
   projectId: any;
-  taskId: any;
+  taskId: string | null;
   organizationContactId: any;
   duration: number;
   isEdited: boolean;
@@ -28,12 +28,38 @@ export interface ITimerStatus {
   running: boolean;
 }
 
+export interface ITimerData {
+  ms: number;
+  s: number;
+  m: number;
+  h: number;
+}
+
 export type ITimerStatusParams = {
   source?: "BROWSER";
   tenantId: string;
+  organizationId: string;
+};
+
+export type ITimerParams = {
+  organizationId: string;
+  tenantId: string;
+  taskId: string;
+  logType: "TRACKED";
+  source: "BROWSER";
+  tags: any[];
 };
 
 export type IToggleTimerParams = ITimerStatusParams & {
   logType?: "TRACKED";
   taskId: string;
 };
+
+// ===================== TImesheet ===============
+
+export interface ITasksTimesheet {
+  title: string;
+  id: string;
+  duration: number;
+  durationPercentage: number;
+}

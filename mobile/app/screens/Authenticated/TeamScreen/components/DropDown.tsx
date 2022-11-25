@@ -11,7 +11,7 @@ export interface Props {
 }
 
 const DropDown: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, total}) {
-  const { authenticationStore: { activeTeamIdState, setActiveTeamId, setActiveTeamState, activeTeamState } } = useStores();
+  const { authenticationStore: { activeTeamIdState, setActiveTeamId, setActiveTeamState, activeTeamState, setActiveTaskState, setActiveTaskId } } = useStores();
   const [expanded, setExpanded] = useState(true)
   const handlePress = () => setExpanded(!expanded)
   const [showDrop, setShowDrop] = useState(false)
@@ -26,6 +26,9 @@ const DropDown: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, tota
     setActiveTeamState(newActiveTeam);
     setActiveTeamId(newActiveTeam.id);
     setShowDrop(!showDrop)
+    setActiveTaskId("")
+    setActiveTaskState({})
+    
   }
   
   return (

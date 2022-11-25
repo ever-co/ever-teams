@@ -6,14 +6,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const { $res, user, tenantId, access_token } = await authenticatedGuard(
-    req,
-    res
-  );
+  const { $res, user, tenantId, access_token, organizationId } =
+    await authenticatedGuard(req, res);
   if (!user) return $res();
 
   const { data } = await getTimerStatusRequest(
-    { tenantId, source: "BROWSER" },
+    { tenantId, organizationId, source: "BROWSER" },
     access_token
   );
 
