@@ -15,3 +15,8 @@ export const timeCounterState = atom<number>({
   key: "timeCounterState",
   default: 0,
 });
+
+export const timeCounterIntervalState = atom<number>({
+  key: "timeCounterIntervalState",
+  default: 0,
+});

@@ -8,6 +8,7 @@ import {
 import {
   activeTeamIdState,
   activeTeamTaskState,
+  timeCounterIntervalState,
   timeCounterState,
   timerStatusFetchingState,
   timerStatusState,
@@ -26,6 +27,9 @@ export function useTimer() {
   const [timerStatusFetching, setTimerStatusFetching] = useRecoilState(
     timerStatusFetchingState
   );
+  const [timeCounterInterval, setTimeCounterInterval] = useRecoilState(
+    timeCounterIntervalState
+  );
 
   // Queries
   const { queryCall, loading } = useQuery(getTimerStatusAPI);
@@ -38,7 +42,7 @@ export function useTimer() {
   const timerTaskId = useSyncRef(timerStatus?.lastLog?.taskId);
   const timerStatusRef = useSyncRef(timerStatus);
   const taskId = useSyncRef(activeTeamTask?.id);
-  const timeCounterInterval = useRef(0);
+  const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
   const lastActiveTeamId = useRef<string | null>(null);
   const canRunTimer = !!activeTeamTask;
 
@@ -99,7 +103,7 @@ export function useTimer() {
 
   // Stop timer
   const stopTimer = useCallback(() => {
-    window.clearInterval(timeCounterInterval.current);
+    window.clearInterval(timeCounterIntervalRef.current);
     stopTimerQueryCall().then((res) => {
       res.data && setTimerStatus(res.data);
     });
@@ -123,12 +127,14 @@ export function useTimer() {
   // Time Counter
   useEffect(() => {
     if (!firstLoad || !timerStatus) return;
-    window.clearInterval(timeCounterInterval.current);
+    window.clearInterval(timeCounterIntervalRef.current);
     setTimeCounter(timerStatus.duration);
     if (timerStatus.running) {
-      timeCounterInterval.current = window.setInterval(() => {
-        setTimeCounter((c) => c + 1);
-      }, 1000);
+      setTimeCounterInterval(
+        window.setInterval(() => {
+          setTimeCounter((c) => c + 1);
+        }, 1000)
+      );
     }
   }, [timerStatus, firstLoad]);
 
@@ -159,5 +165,6 @@ export function useTimer() {
     startTimer,
     stopTimer,
     canRunTimer,
+    firstLoad,
   };
 }
