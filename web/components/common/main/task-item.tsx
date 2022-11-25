@@ -29,7 +29,10 @@ export function TaskItem({
         }`}
       >
         <div className="flex items-center justify-between w-full">
-        #{item.taskNumber} {item.title}
+          <div>
+            <span className="text-[#9490A0]">#{item.taskNumber}</span>{" "}
+            {item.title}
+          </div>
           <div className="flex items-center space-x-4">
             <BadgedTaskStatus status={item.status} />
             <div className="flex items-center justify-center space-x-1">

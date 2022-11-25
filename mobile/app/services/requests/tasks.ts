@@ -60,3 +60,15 @@ export function createTaskRequest({
     bearer_token,
   });
 }
+
+export function updateTaskRequest<ITeamTask>(
+  { data, id }: { data: ITeamTask; id: string },
+  bearer_token: string
+) {
+  return serverFetch({
+    path: `/tasks/${id}`,
+    method: "PUT",
+    body: data,
+    bearer_token,
+  });
+}

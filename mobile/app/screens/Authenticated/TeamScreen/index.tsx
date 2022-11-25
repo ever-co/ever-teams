@@ -33,7 +33,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
     //Get authentificate data
     const { authenticationStore: { userId, tenantId, organizationId, authToken, activeTeamState, employeeId } } = useStores();
-    const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>(activeTeamState)
+    const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
+      items:[activeTeamState],
+      total:1
+    })
     // STATES
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
