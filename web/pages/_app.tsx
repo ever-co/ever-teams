@@ -19,8 +19,8 @@ function MyApp({
   return (
     <RecoilRoot initializeState={initializeState}>
       <ThemeProvider attribute="class">
-        <Component {...pageProps} />
         <AppState />
+        <Component {...pageProps} />
       </ThemeProvider>
     </RecoilRoot>
   );
