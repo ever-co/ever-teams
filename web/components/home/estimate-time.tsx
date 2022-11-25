@@ -28,7 +28,7 @@ export function EstimateTime() {
           }
           break;
         case "minutes":
-          if (!isInteger || tm < 0 || tm > 60) {
+          if (!isInteger || tm < 0 || tm > 59) {
             return;
           }
           break;

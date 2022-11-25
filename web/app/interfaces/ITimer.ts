@@ -28,6 +28,13 @@ export interface ITimerStatus {
   running: boolean;
 }
 
+export interface ITimerData {
+  ms: number;
+  s: number;
+  m: number;
+  h: number;
+}
+
 export type ITimerStatusParams = {
   source?: "BROWSER";
   tenantId: string;
