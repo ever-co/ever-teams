@@ -77,11 +77,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     {
       name: "Remove",
       handleClick: () => {},
-    },
-    {
-      name: "Add new task",
-      handleClick: () => {},
-    },
+    }
   ];
 
   const filteredTasks = useMemo(() => {
