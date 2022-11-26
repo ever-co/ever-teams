@@ -59,10 +59,10 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
   };
 
   const options: IOption[] = [
-    {
-      name: "Edit",
-      handleClick: setEdit,
-    },
+    // {
+    //   name: "Edit",
+    //   handleClick: setEdit,
+    // },
     {
       name: "Estimate",
       handleClick: setEstimateEdit,
