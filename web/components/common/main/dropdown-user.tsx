@@ -1,5 +1,5 @@
 import { Popover, Transition } from "@headlessui/react";
-import { EllipsisVerticalIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
 import React, {
   Dispatch,
   Fragment,
@@ -8,13 +8,14 @@ import React, {
   useState,
 } from "react";
 import { usePopper } from "react-popper";
-import Image from "next/image";
 import DeleteTask from "../delete-task";
-import { ITaskStatus, ITeamTask } from "@app/interfaces/ITask";
+import { ITeamTask } from "@app/interfaces/ITask";
 import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { TaskItem } from "./task-item";
 import TaskFilter from "./task-filter";
-import { h_filter } from "./task-input";
+import { CreateTaskOption, h_filter } from "./task-input";
+import { Combobox } from "@headlessui/react";
+import { Spinner } from "../spinner";
 
 interface IOption {
   name: string;
@@ -28,7 +29,6 @@ interface IDropdownUserProps {
 }
 
 const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
-  const { tasks, updateTask } = useTeamTasks();
   let [referenceElement, setReferenceElement] = useState<
     Element | null | undefined
   >();
@@ -40,22 +40,29 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     placement: "left",
   });
 
-  const { updateLoading } = useTeamTasks();
-
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"closed" | "open">("open");
   const [openFilter, setOpenFilter] = useState(true);
+  const [editMode] = useState(false);
   const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
+  const {
+    tasks,
+    createLoading,
+    tasksFetching,
+    updateLoading,
+    createTask,
+    updateTask,
+  } = useTeamTasks();
 
   const openModal = () => {
     setIsOpen(true);
   };
 
   const options: IOption[] = [
-    {
-      name: "Edit",
-      handleClick: setEdit,
-    },
+    // {
+    //   name: "Edit",
+    //   handleClick: setEdit,
+    // },
     {
       name: "Estimate",
       handleClick: setEstimateEdit,
@@ -76,10 +83,6 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     },
     {
       name: "Remove",
-      handleClick: () => {},
-    },
-    {
-      name: "Add new task",
       handleClick: () => {},
     },
   ];
@@ -123,6 +126,15 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
       });
     }
   };
+
+  const handleTaskCreation = () => {
+    if (query.trim().length < 2) return;
+    createTask(query.trim()).then((res) => {
+      setQuery("");
+    });
+  };
+
+  const hasCreateForm = filteredTasks2.length === 0 && query !== "";
 
   return (
     <>
@@ -186,13 +198,62 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                                 className="w-[578px] bg-[#FFFFFF] dark:bg-[#1B1B1E] rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] dark:drop-shadow-[0px_3px_15px_#0000000D] py-[20px]"
                               >
                                 <div className="mx-9">
-                                  <input
-                                    className="w-[508px] text-normal h-[50px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] rounded-[10px] px-[20px] py-[18px] shadow-inner outline-none"
-                                    placeholder="What you working on?"
-                                    onChange={(event) =>
-                                      setQuery(event.target.value)
-                                    }
-                                  />
+                                  <Combobox>
+                                    <div className="relative mt-1">
+                                      <div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
+                                        <Combobox.Input
+                                          key={`${editMode}`}
+                                          className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
+                                          displayValue={(task: ITeamTask) => {
+                                            return task
+                                              ? (!editMode
+                                                  ? `#${task.taskNumber} `
+                                                  : "") + task.title
+                                              : "";
+                                          }}
+                                          onChange={(event) =>
+                                            setQuery(event.target.value)
+                                          }
+                                          onKeyUp={(event: any) => {
+                                            if (event.key === "Enter") {
+                                              handleTaskCreation();
+                                            }
+                                          }}
+                                          autoComplete="off"
+                                          placeholder="What you working on?"
+                                          readOnly={tasksFetching}
+                                        />
+                                        <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                          {tasksFetching ||
+                                          createLoading ||
+                                          updateLoading ? (
+                                            <Spinner dark={false} />
+                                          ) : (
+                                            <></>
+                                          )}
+                                        </Combobox.Button>
+                                      </div>
+                                      <Transition
+                                        as={Fragment}
+                                        leave="transition ease-in duration-100"
+                                        leaveFrom="opacity-100"
+                                        leaveTo="opacity-0"
+                                        afterLeave={() => {
+                                          !createLoading && setQuery("");
+                                          setFilter("open");
+                                        }}
+                                      >
+                                        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                          {hasCreateForm && (
+                                            <CreateTaskOption
+                                              onClick={handleTaskCreation}
+                                              loading={createLoading}
+                                            />
+                                          )}
+                                        </Combobox.Options>
+                                      </Transition>
+                                    </div>
+                                  </Combobox>
                                 </div>
                                 <div className="ml-9 flex items-center justify-start space-x-2 mb-4 mt-[26px]">
                                   <TaskFilter
