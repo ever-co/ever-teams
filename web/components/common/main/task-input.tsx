@@ -10,7 +10,7 @@ import { TaskItem } from "./task-item";
 import DeleteTask from "../delete-task";
 import TaskFilter from "./task-filter";
 
-function CreateTaskOption({
+export function CreateTaskOption({
   onClick,
   loading,
 }: {
