@@ -2,10 +2,8 @@ import React, { FC, useEffect } from "react"
 import { TextStyle, ViewStyle, View } from "react-native"
 
 // COMPONENTS
-import ActiveTaskCard from "./components/ActiveTaskCard"
-import { Button, Screen, Text } from "../../../components"
+import {  Screen, Text } from "../../../components"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
-import TimerCard from "../TimerScreen/components/TimerCard"
 
 // STYLES
 import { colors, spacing } from "../../../theme"
@@ -16,26 +14,24 @@ import LocalStorage from "../../../services/api/tokenHandler"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import DropDown from "../TeamScreen/components/DropDown"
 import NewTimerCard from "./components/NewTimerCard"
-import { teams } from "../TeamScreen/data"
 import { useStores } from "../../../models"
-import Teams, { IOTeams } from "../../../services/teams/organization-team"
-import { IOrganizationTeamList } from "../../../services/interfaces/IOrganizationTeam"
+import { IOTeams } from "../../../services/teams/organization-team"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
-import { getTeamTasksRequest } from "../../../services/requests/tasks"
-import { ITeamTask } from "../../../services/interfaces/ITask"
-import { getTasksByTeamState } from "../../../services/teams/tasks"
+import { observer } from "mobx-react-lite"
 
 
-export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
-  function AuthenticatedTimerScreen(_props) {
+export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =observer(function AuthenticatedTimerScreen(_props) {
     // Get Authenticate data
-    const { authenticationStore: { userId, tenantId, fetchingTasks, fetchingTeams, setFetchingTeams, setFetchingTasks, organizationId, employeeId, activeTeamIdState, authToken } } = useStores();
+    const {
+      authenticationStore: { userId, tenantId, organizationId, employeeId, authToken },
+      teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam },
+      TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
+    } = useStores();
     // STATE
     const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
       items: [],
       total: 0
     })
-    const [teamTasks, setTeamTasks] = React.useState<ITeamTask[]>([]);
     const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
     // FUNCTIONS
     const startTimer = async () => {
@@ -58,47 +54,31 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
       console.log("TIMER RESPONSE STOP", response)
     }
 
-    // Load teams
-    const getTeamsData = async () => {
-      const responseTeams = await Teams({
-        userId: userId,
-        tenantId: tenantId,
-        organizationId: organizationId,
-        access_token: authToken,
-        employeeId,
-        method: "GET",
-      });
-      setOrganizationTeams(responseTeams)
-      loadTeamTasks();
-    }
 
     // Create New Team
     const createNewTeam = async (text: string) => {
-      const responseTeams = await Teams({
-        userId: userId,
+      const responseTeams = {
         tenantId: tenantId,
         organizationId: organizationId,
         access_token: authToken,
         employeeId,
-        method: "POST",
+        userId: userId,
         teamName: text
-      });
-      setOrganizationTeams(responseTeams)
+      };
+      createTeam(responseTeams)
+
     }
 
     const loadTeamTasks = async () => {
-      const { data } = await getTeamTasksRequest({
-        bearer_token: authToken,
-        tenantId: tenantId,
-        organizationId: organizationId
-      });
-      const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId: activeTeamIdState })
-      setTeamTasks(tasks);
+       await getUserTeams({ tenantId: tenantId, userId: userId, authToken: authToken });
     }
 
+
     useEffect(() => {
-      getTeamsData();
-    }, [organizationTeams])
+      
+
+    }, [])
+
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <CreateTeamModal
@@ -108,7 +88,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         />
         <HomeHeader {..._props} />
         <View style={{ paddingBottom: 10 }}>
-          <DropDown total={organizationTeams?.total} teams={organizationTeams?.items} onCreateTeam={() => setShowCreateTeamModal(true)} />
+          <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
         </View>
         <View
           style={{
@@ -117,11 +97,11 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
             paddingHorizontal: 20,
           }}
         >
-          <NewTimerCard tasks={teamTasks} />
+          <NewTimerCard />
         </View>
       </Screen>
     )
-  }
+  })
 
 const $container: ViewStyle = {
   flex: 1,

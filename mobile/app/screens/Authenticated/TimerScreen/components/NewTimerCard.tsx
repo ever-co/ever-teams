@@ -7,71 +7,36 @@ import TaskStatusDropdown from "./TaskStatusDropdown"
 import { Feather } from "@expo/vector-icons"
 import ComboBox from "./ComboBox"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { createTaskRequest, getTeamTasksRequest } from "../../../../services/requests/tasks"
 import { useStores } from "../../../../models"
-import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
+import EstimateTime from "./EstimateTime"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
 
 export interface Props {
-  tasks: ITeamTask[],
 }
 
-const NewTimerCard: FC<Props> = ({ tasks }) => {
-  const { authenticationStore: { tenantId, organizationId, activeTeamIdState, authToken, activeTaskState, setActiveTaskState, setActiveTaskId } } = useStores();
+const NewTimerCard: FC<Props> = () => {
+  const {
+    authenticationStore: { tenantId, organizationId, authToken },
+    teamStore: { activeTeamId },
+    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, teamTasks }
+  } = useStores();
   const [showCombo, setShowCombo] = useState(false)
   const [text1, setText1] = useState("")
   const [text2, setText2] = useState("")
   const [taskInputText, setTaskInputText] = useState<string>("")
-  const [activeTask, setActiveTask] = useState<ITeamTask>(activeTaskState)
 
-  const onCheckLimitOne = (value: string) => {
-    const parsedQty = Number.parseInt(value)
-    if (Number.isNaN(parsedQty)) {
-      setText1("")
-    } else if (parsedQty > 23) {
-      setText1("23")
-    } else {
-      setText1(parsedQty.toString())
-    }
-  }
 
-  const onCheckLimitTwo = (value: string) => {
-    const parsedQty = Number.parseInt(value)
-    if (Number.isNaN(parsedQty)) {
-      setText2("")
-    } else if (parsedQty > 59) {
-      setText2("59")
-    } else {
-      setText2(parsedQty.toString())
-    }
-  }
 
-  const createNewTask = async () => {
-    if (taskInputText.trim().length < 2) return;
+  const onCreateNewTask = async () => {
 
-    const dataBody: ICreateTask = {
-      title: taskInputText,
-      status: "Todo",
-      description: "",
-      tags: [],
-      teams: [{
-        id: activeTeamIdState
-      }],
-      estimate: 0,
-      organizationId: organizationId,
-      tenantId: tenantId
-    }
-    const { data } = await createTaskRequest({
-      data: dataBody,
-      bearer_token: authToken
-    })
-    setShowCombo(false)
-    //setTaskInputText("");
+    createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
+
   }
 
 
   const handleChangeText = (value: string) => {
     setTaskInputText(value)
-    if (value.trim().length > 2) {
+    if (value.trim().length >0) {
       setShowCombo(true)
     } else {
       setShowCombo(false)
@@ -79,19 +44,16 @@ const NewTimerCard: FC<Props> = ({ tasks }) => {
   }
 
   const handleActiveTask = (value: ITeamTask) => {
-    if (value) {
-      setActiveTaskId(value.id)
-      setActiveTaskState(value)
-      setActiveTask(value)
-      setTaskInputText(value.title)
-      setShowCombo(false);
-    }
-    console.log(value)
+    setActiveTask(value);
+    setTaskInputText(value.title)
+    setShowCombo(false)
   }
 
-  useEffect(()=>{
-    setActiveTask(activeTaskState)
-  },[activeTaskState])
+
+
+  useEffect(() => {
+    getTeamTasks({ tenantId, organizationId, activeTeamId, authToken })
+  }, [])
 
   return (
     <View style={styles.mainContainer}>
@@ -116,12 +78,14 @@ const NewTimerCard: FC<Props> = ({ tasks }) => {
           onFocus={() => setShowCombo(true)}
           onChangeText={(newText) => handleChangeText(newText)}
         />
-        {taskInputText === "" || taskInputText.length > 5 ? null : (
+        {taskInputText.length < 4 ? null : (
+          <TouchableOpacity onPress={()=>onCreateNewTask()}>
           <Feather name="check" size={24} color="green" />
+          </TouchableOpacity>
         )}
       </View>
 
-      {showCombo && <ComboBox tasks={tasks} onCreateNewTask={createNewTask} handleActiveTask={handleActiveTask} />}
+      {showCombo && <ComboBox tasks={teamTasks} onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
 
       <View
         style={{
@@ -130,74 +94,11 @@ const NewTimerCard: FC<Props> = ({ tasks }) => {
           justifyContent: "space-between",
         }}
       >
-        <View style={{ flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
-          <View style={{ paddingTop: 20, marginRight: 7 }}>
-            <Text style={styles.estimate}>Estimate: </Text>
-          </View>
-          <View style={styles.horizontalInput}>
-            <TextInput
-              selectionColor={colors.primary}
-              style={
-                text1 === "" && text2 === ""
-                  ? {
-                    borderColor: colors.border,
-                    borderBottomWidth: 2,
-                    borderStyle: "dashed",
-                    width: 20,
-                    color: "#9490A0",
-                    height: 15,
-                  }
-                  : {
-                    borderColor: colors.border,
-                    borderBottomWidth: 0,
-                    borderStyle: "dashed",
-                    width: 20,
-                    color: "#9490A0",
-                    height: 15,
-                  }
-              }
-              onChangeText={onCheckLimitOne}
-              defaultValue={text1}
-              maxLength={2}
-              keyboardType="numeric"
-            />
-            <Text style={{ color: "#9490A0" }}>h</Text>
-            <View style={styles.separator} />
-            <TextInput
-              selectionColor={colors.primary}
-              style={
-                text2 === "" && text1 === ""
-                  ? {
-                    borderColor: colors.border,
-                    borderBottomWidth: 2,
-                    borderStyle: "dashed",
-                    width: 20,
-                    color: "#9490A0",
-                    height: 15,
-                  }
-                  : {
-                    borderColor: colors.border,
-                    borderBottomWidth: 0,
-                    borderStyle: "dashed",
-                    width: 20,
-                    color: "#9490A0",
-                    height: 15,
-                  }
-              }
-              onChangeText={onCheckLimitTwo}
-              defaultValue={text2}
-              maxLength={2}
-              keyboardType="numeric"
-            />
-            <Text style={{ color: "#9490A0" }}>m</Text>
-            <View style={{ justifyContent: "flex-end" }}>
-              {text1 === "" && text2 === "" ? null : (
-                <Feather name="check" size={15} color="green" />
-              )}
-            </View>
-          </View>
+        <View style={{ flexDirection: 'row' }}>
+          <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>Estimate:</Text>
+          <EstimateTime />
         </View>
-        <TaskStatusDropdown activeTaskStatus={activeTask.status} />
+        <TaskStatusDropdown />
       </View>
 
       <View style={styles.horizontal}>

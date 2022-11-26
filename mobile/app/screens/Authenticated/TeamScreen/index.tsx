@@ -26,17 +26,18 @@ import { teams, tasks } from "./data"
 import CreateTeamModal from "./components/CreateTeamModal"
 import { useStores } from "../../../models"
 import Teams, { IOTeams} from "../../../services/teams/organization-team"
+import { observer } from "mobx-react-lite"
 
 
-export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
+export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =observer(
   function AuthenticatedTeamScreen(_props) {
 
     //Get authentificate data
-    const { authenticationStore: { userId, tenantId, organizationId, authToken, activeTeamState, employeeId } } = useStores();
-    const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
-      items:[activeTeamState],
-      total:1
-    })
+    const { 
+      authenticationStore: { userId, tenantId, organizationId, authToken, employeeId },
+      teamStore:{teams, createTeam}
+     } = useStores();
+   
     // STATES
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
@@ -49,37 +50,20 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
       navigation.navigate("Profile")
     }
 
-    // Load Teams
-    const getTeamsData = async () => {
-      const responseTeams = await Teams({
-        userId: userId,
-        tenantId: tenantId,
-        organizationId: organizationId,
-        access_token: authToken,
-        employeeId,
-        method: "GET",
-      });
-      
-        setOrganizationTeams(responseTeams)
-    }
 
     // Create New Team
     const createNewTeam = async (text: string) => {
-      const responseTeams = await Teams({
-        userId: userId,
+      const responseTeams = {
         tenantId: tenantId,
         organizationId: organizationId,
         access_token: authToken,
         employeeId,
-        method: "POST",
+        userId: userId,
         teamName: text
-      });
-        setOrganizationTeams(responseTeams)
-    }
+      };
+      createTeam(responseTeams)
 
-    useEffect(() => {
-      getTeamsData();
-    }, [organizationTeams])
+    }
 
     return (
       <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
@@ -90,7 +74,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
           onDismiss={() => setShowCreateTeamModal(false)}
         />
         <HomeHeader {..._props} />
-        <DropDown total={organizationTeams?.total} teams={organizationTeams?.items}  onCreateTeam={() => setShowCreateTeamModal(true)} />
+        <DropDown  onCreateTeam={() => setShowCreateTeamModal(true)} />
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={$cardContainer}>
             {/* Users activity list */}
@@ -127,7 +111,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
         </TouchableWithoutFeedback>
       </Screen>
     )
-  }
+  })
 
 const $container: ViewStyle = {
   ...GS.flex1,

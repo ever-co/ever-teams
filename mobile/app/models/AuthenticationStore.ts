@@ -1,5 +1,4 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { typeTeam } from "../services/interfaces/IOrganizationTeam"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
@@ -10,23 +9,14 @@ export const AuthenticationStoreModel = types
     authUsername: types.optional(types.string, ""),
     authConfirmCode: types.optional(types.string, ""),
     authInviteCode: types.optional(types.string, ""),
-    activeTeamState: types.optional(types.frozen(), {}),
-    activeTeamIdState:types.optional(types.string, ""),
     organizationId:types.optional(types.string, ""),
     tenantId:types.optional(types.string, ""),
     userId:types.optional(types.string, ""),
     employeeId:types.optional(types.string, ""),
-    activeTaskState:types.optional(types.frozen(), {}),
-    activeTaskId:types.optional(types.string, ""),
-    fetchingTeams:types.optional(types.boolean, false),
-    fetchingTasks:types.optional(types.boolean, false),
   })
   .views((store) => ({
     get isAuthenticated() {
       return !!store.authToken
-    },
-    get activeTeamStats() {
-      return store.activeTeamState
     },
     get validationErrors() {
       return {
@@ -72,12 +62,6 @@ export const AuthenticationStoreModel = types
     setAuthUsername(value: string) {
       store.authUsername = value.replace(/ /g, "")
     },
-    setActiveTeamState(value: any) {
-      store.activeTeamState = value
-    },
-    setActiveTeamId(value: string) {
-      store.activeTeamIdState = value.replace(/ /g, "")
-    },
     setOrganizationId(value: string) {
       store.organizationId = value.replace(/ /g, "")
     }, 
@@ -90,18 +74,6 @@ export const AuthenticationStoreModel = types
     setTenantId(value: string) {
       store.tenantId = value.replace(/ /g, "")
     },
-    setActiveTaskId(value: string) {
-      store.activeTaskId = value.replace(/ /g, "")
-    },
-    setActiveTaskState(value: any) {
-      store.activeTaskState = value
-    },
-    setFetchingTeams(value: boolean) {
-      store.fetchingTeams= value
-    },
-    setFetchingTasks(value: boolean) {
-      store.fetchingTasks= value
-    },
     logout() {
       store.authToken = undefined
       store.authEmail = ""
@@ -111,14 +83,8 @@ export const AuthenticationStoreModel = types
       store.authConfirmCode = ""
       store.tenantId=""
       store.organizationId=""
-      store.activeTeamIdState=""
       store.userId=""
-      store.activeTeamState={}
       store.employeeId=""
-      store.activeTaskId=""
-      store.activeTaskState={}
-      store.fetchingTasks=false
-      store.fetchingTeams=false
     },
   }))
 

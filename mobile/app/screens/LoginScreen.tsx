@@ -48,14 +48,16 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode,
       setAuthInviteCode,
       validationErrors,
-      setActiveTeamState,
       setOrganizationId,
-      setActiveTeamId,
       setUserId,
       setTenantId,
       setEmployeeId
     },
+    teamStore: {
+      setActiveTeam, getUserTeams
+    }
   } = useStores()
+
 
 
   useEffect(() => {
@@ -114,7 +116,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const employee = response.employee;
       const loginRes = response.loginRes;
       const user = loginRes.user;
- 
+
 
       setIsSubmitted(false)
       setAuthTeamName("")
@@ -124,15 +126,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode("")
 
       setIsLoading(false)
-      
+
       // Save Auth Data
       setAuthToken(loginRes.token);
-      setActiveTeamState(response.team)
-      setActiveTeamId(response.team.id)
+      setActiveTeam(response.team)
       setOrganizationId(response.team.organizationId)
-      setUserId(loginRes.user.id) 
+      setUserId(loginRes.user.id)
       setTenantId(response.team.tenantId)
       setEmployeeId(employee.id)
+      getUserTeams({ tenantId: response.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
     }
   }
 

@@ -5,6 +5,8 @@ import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { useStores } from "../../../../models"
+import { observer } from "mobx-react-lite"
 
 export interface Props {
   tasks: ITeamTask[],
@@ -13,7 +15,7 @@ export interface Props {
 }
 
 
-const ComboBox: FC<Props> = function ComboBox({ tasks, onCreateNewTask, handleActiveTask }) {
+const ComboBox: FC<Props> =observer(function ComboBox({ tasks, onCreateNewTask, handleActiveTask }) {
   const [users, setUsers] = useState([])
 
   const removeUser = (index) => {
@@ -35,14 +37,16 @@ const ComboBox: FC<Props> = function ComboBox({ tasks, onCreateNewTask, handleAc
       <TouchableOpacity onPress={() => onCreateTask()} style={styles.createTaskBtn}>
         <Text>Create New Task</Text>
       </TouchableOpacity>
+      <ScrollView>
       <View>
         {tasks.map((task, i) => (
           <IndividualTask key={i} task={task} handleActiveTask={handleActiveTask} />
         ))}
       </View>
+      </ScrollView>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   mainContainer: {
