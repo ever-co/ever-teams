@@ -21,7 +21,7 @@ const Profile = () => {
     {
       name: "Profile",
       icon: "/assets/svg/profile-icon.svg",
-      link: "/profile",
+      link: `/profile/${user?.id}`,
     },
     { name: "Team", icon: "/assets/svg/teams-icon.svg", link: "" },
     {
