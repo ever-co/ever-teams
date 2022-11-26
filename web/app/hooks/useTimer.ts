@@ -44,7 +44,7 @@ export function useTimer() {
   const taskId = useSyncRef(activeTeamTask?.id);
   const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
   const lastActiveTeamId = useRef<string | null>(null);
-  const canRunTimer = !!activeTeamTask;
+  const canRunTimer = !!activeTeamTask && activeTeamTask.status !== "Closed";
 
   /**
    * To be called once, at the top level component (e.g main.tsx)
