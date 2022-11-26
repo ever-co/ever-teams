@@ -87,6 +87,11 @@ export const TaskStoreModel = types
         setTeamTasks(tasks:any){
             store.teamTasks=tasks
             console.log(store.teamTasks)
+        },
+        resetTeamTasksData(){
+            store.activeTask={}
+            store.activeTaskId=""
+            store.teamTasks.clear()
         }
 
     }))

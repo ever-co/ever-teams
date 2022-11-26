@@ -15,8 +15,6 @@ import { typography } from "../theme"
 import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
 import { IRegister, IRegisterResponse, register } from "../services/auth/register"
-import Teams from "../services/teams/organization-team";
-import { IUser } from "../services/interfaces/IUserData";
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
@@ -55,6 +53,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     },
     teamStore: {
       setActiveTeam, getUserTeams
+    },
+    TaskStore: {
+      getTeamTasks
     }
   } = useStores()
 
@@ -134,7 +135,17 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setUserId(loginRes.user.id)
       setTenantId(response.team.tenantId)
       setEmployeeId(employee.id)
+      //Load first team data
       getUserTeams({ tenantId: response.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
+      //Load tasks for current team or initialize tasks
+
+      getTeamTasks(
+        {
+          tenantId: response.team.tenantId,
+          activeTeamId: response.team.id,
+          authToken: loginRes.token,
+          organizationId: response.team.organizationId
+        })
     }
   }
 
