@@ -1,24 +1,26 @@
-import Image from "next/image";
-import { useState } from "react";
+import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
 import { AppLayout } from "@components/layout";
+import { useRouter } from "next/router";
+import Image from "next/image";
+import React, { useState } from "react";
+import { Capitalize } from "@components/layout/header/profile";
+import StatusDropdown from "@components/common/main/status-dropdown";
+import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { ChevronLeftIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import Timer from "@components/common/main/timer";
 import ProfileCard from "@components/home/profile-card";
-import { ChevronLeftIcon } from "@heroicons/react/24/outline";
-import useAuthenticateUser from "@app/hooks/useAuthenticateUser";
-import { Capitalize } from "@components/layout/header/profile";
-import Link from "next/link";
-import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import StatusDropdown from "@components/common/main/status-dropdown";
-
-interface ITimerTasksSection {
-  started: boolean;
-  setStarted: React.Dispatch<React.SetStateAction<boolean>>;
-}
-const style = { width: `${100 / 10}%` };
 
 const Profile = () => {
-  const { user } = useAuthenticateUser();
+  const { activeTeam, teamsFetching } = useOrganizationTeams();
   const { activeTeamTask, tasks } = useTeamTasks();
+  const router = useRouter();
+  const { memberId } = router.query;
+  const members = activeTeam?.members || [];
+  const currentUser = members.find((m) => {
+    return m.employee.userId === memberId;
+  });
+  const user = currentUser?.employee.user;
   const [tab, setTab] = useState<"worked" | "assigned" | "unassigned">(
     "worked"
   );
@@ -28,7 +30,6 @@ const Profile = () => {
         return t.id !== activeTeamTask.id;
       })
     : tasks;
-
   return (
     <div className="bg-[#F9FAFB] dark:bg-[#18181B]">
       <AppLayout>

@@ -11,6 +11,7 @@ import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { ITeamTask } from "@app/interfaces/ITask";
 import { secondsToTime } from "@app/helpers/date";
 import { Spinner } from "@components/common/spinner";
+import Link from "next/link";
 
 type IMember = IOrganizationTeamList["members"][number];
 
@@ -173,19 +174,20 @@ const Card = ({ member }: { member: IMember }) => {
       {/* User info */}
       <div className="w-[235px] h-[48px] flex items-center justify-center">
         <div className="flex justify-center items-center">
-          <Image
-            src={iuser?.imageUrl || ""}
-            alt="User Icon"
-            className="rounded-[50%]"
-            width={48}
-            height={48}
-          />
+          <Link href={`/profile/${iuser?.id}`}>
+            <div>
+              <Image
+                src={iuser?.imageUrl || ""}
+                alt="User Icon"
+                className="rounded-[50%] cursor-pointer"
+                width={48}
+                height={48}
+              />
+            </div>
+          </Link>
         </div>
 
-        <div
-          className="w-[137px] mx-[20px] h-[48px] flex justify-start items-center"
-          onDoubleClick={canEditName}
-        >
+        <div className="w-[137px] mx-[20px] h-[48px] flex justify-start items-center cursor-pointer">
           {nameEdit === true ? (
             <input
               value={formValues.devName}
@@ -195,7 +197,9 @@ const Card = ({ member }: { member: IMember }) => {
               className="w-full h-[40px] rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
             />
           ) : (
-            formValues.devName
+            <Link href={`/profile/${iuser?.id}`}>
+              <div>{formValues.devName}</div>
+            </Link>
           )}
         </div>
       </div>
