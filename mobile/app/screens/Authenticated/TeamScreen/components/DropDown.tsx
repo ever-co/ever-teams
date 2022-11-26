@@ -1,3 +1,4 @@
+import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native"
 import { useStores } from "../../../../models"
@@ -5,32 +6,31 @@ import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../../../serv
 import DropDownSection from "./DropDownSection"
 
 export interface Props {
-  teams: IOrganizationTeamList[],
-  total:number,
   onCreateTeam: () => unknown
 }
 
-const DropDown: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, total}) {
-  const { authenticationStore: { activeTeamIdState, setActiveTeamId, setActiveTeamState, activeTeamState, setActiveTaskState, setActiveTaskId } } = useStores();
+const DropDown: FC<Props> = function CreateTeamModal({ onCreateTeam }) {
+  const {
+    authenticationStore:{tenantId, organizationId, authToken},
+    teamStore: { teams, setActiveTeam, activeTeamId, activeTeam },
+    TaskStore: { setActiveTask, getTeamTasks}
+  } = useStores();
+
   const [expanded, setExpanded] = useState(true)
   const handlePress = () => setExpanded(!expanded)
   const [showDrop, setShowDrop] = useState(false)
-  const activeTeam: IOrganizationTeamList = activeTeamState;
+
 
 
   useEffect(() => {
-    
   })
 
   const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
-    setActiveTeamState(newActiveTeam);
-    setActiveTeamId(newActiveTeam.id);
+    setActiveTeam(newActiveTeam)
+    getTeamTasks({authToken,organizationId,tenantId,activeTeamId:newActiveTeam.id})
     setShowDrop(!showDrop)
-    setActiveTaskId("")
-    setActiveTaskState({})
-    
   }
-  
+
   return (
     <View style={styles.mainContainer}>
       <TouchableOpacity
@@ -39,28 +39,10 @@ const DropDown: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, tota
         onPress={() => setShowDrop(!showDrop)}
       >
         <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D" }}>{`${activeTeam.name} (${!total ? 1: total})`}</Text>
+        <Text style={{ color: "#1B005D" }}>{`${activeTeam.name} (${teams.total})`}</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
-      {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams} onCreateTeam={onCreateTeam} />}
-
-      {/* <List.Accordion
-        style={styles.list}
-        title="Uncontrolled Accordion"
-        left={(props) => <List.Icon {...props} icon="folder" />}
-      >
-        <List.Item title="First item" />
-        <List.Item title="Second item" />
-      </List.Accordion> */}
-      {/* <List.Section title="Accordions">
-        <List.Accordion
-          title="Uncontrolled Accordion"
-          left={(props) => <List.Icon {...props} icon="folder" />}
-        >
-          <List.Item title="First item" />
-          <List.Item title="Second item" />
-        </List.Accordion>
-      </List.Section> */}
+      {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
     </View>
   )
 }

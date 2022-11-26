@@ -57,7 +57,7 @@ export default async function Teams(params: ITeamsParams) {
     access_token
   );
 
-  const call_teams = organizations.items.map((item) => {
+  const call_teams = organizations.items.map((item) => { 
     return getAllOrganizationTeamRequest(
       { tenantId, organizationId: item.organizationId },
       access_token

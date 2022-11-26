@@ -1,21 +1,42 @@
 import React, { FC } from "react"
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
 import { AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
+import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 
 // COMPONENTS
 import { Text } from "../../../../components"
+import { useStores } from "../../../../models"
+import { observer } from "mobx-react-lite"
 
 export interface Props {
-  activeTaskStatus: string,
 }
 
-const TaskStatusDropdown: FC<Props> = ({ activeTaskStatus }) => {
+const TaskStatusDropdown: FC<Props> = observer(() => {
+  const { 
+    authenticationStore: { authToken, organizationId, tenantId },
+   TaskStore:{activeTask, updateTask},
+   teamStore:{activeTeamId}
+ } = useStores();
   const [isOpened, setIsOpened] = React.useState(false)
-  const [status, setStatus] = React.useState(null)
+  const [status, setStatus] = React.useState<ITaskStatus | null>(null)
+  const statusList = ["Todo", "In Progress", "For Testing", "Completed", "Unassigned"]
 
-  const OnItemPressed = (status: string) => {
+  const OnItemPressed = (text) => {
     setIsOpened(false)
-    setStatus(status)
+    onChangeStatus(text);
+  }
+  const onChangeStatus = (text) => {
+    const value:ITaskStatus=text;
+    const task = {
+     ...activeTask,
+      status: value
+    };
+const refreshData={
+  activeTeamId,
+  tenantId,
+  organizationId
+}
+  updateTask({ taskData: task, taskId: task.id, authToken , refreshData});
   }
 
   return (
@@ -32,11 +53,11 @@ const TaskStatusDropdown: FC<Props> = ({ activeTaskStatus }) => {
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View>
             {status === null ? null : null}
-            {status === "No Status" ? <Entypo name="circle" size={14} color="gray" /> : null}
-            {status === "In progress" ? (
+            {status === statusList[3] ? <Entypo name="circle" size={14} color="gray" /> : null}
+            {status === statusList[3] ? (
               <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
             ) : null}
-            {status === "In review" ? <AntDesign name="search1" size={14} color="#1B005D" /> : null}
+            {status === statusList[3] ? <AntDesign name="search1" size={14} color="#1B005D" /> : null}
             {status === "Completed" ? (
               <AntDesign name="checkcircleo" size={14} color="green" />
             ) : null}
@@ -52,7 +73,7 @@ const TaskStatusDropdown: FC<Props> = ({ activeTaskStatus }) => {
               },
             ]}
           >
-            {activeTaskStatus}
+            {activeTask.status}
           </Text>
         </View>
 
@@ -65,34 +86,21 @@ const TaskStatusDropdown: FC<Props> = ({ activeTaskStatus }) => {
 
       {isOpened ? (
         <View style={styles.dropdownContainer}>
-          <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("No Status")}>
-            <Entypo name="circle" size={14} color="gray" />
-            <Text style={[styles.dropdownItemTxt, { color: "gray", marginLeft: 5 }]}>
-              No Status
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.dropdownItem}
-            onPress={() => OnItemPressed("In progress")}
-          >
-            <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
-            <Text style={styles.dropdownItemTxt}>In progress</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("In review")}>
-            <AntDesign name="search1" size={14} color="#1B005D" />
-            <Text style={styles.dropdownItemTxt}>In review</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.dropdownItem} onPress={() => OnItemPressed("Completed")}>
-            <AntDesign name="checkcircleo" size={14} color="green" />
-            <Text style={[styles.dropdownItemTxt, { color: "green" }]}>Completed</Text>
-          </TouchableOpacity>
+          {statusList.map((item, idx) => (
+            <TouchableOpacity key={idx} style={styles.dropdownItem} onPress={() => OnItemPressed(item)}>
+              <Entypo name="circle" size={14} color="gray" />
+              <Text style={[styles.dropdownItemTxt, { color: "gray", marginLeft: 5 }]}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       ) : (
         <></>
       )}
     </View>
   )
-}
+})
 
 export default TaskStatusDropdown
 

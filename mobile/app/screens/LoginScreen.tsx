@@ -15,8 +15,6 @@ import { typography } from "../theme"
 import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
 import { IRegister, IRegisterResponse, register } from "../services/auth/register"
-import Teams from "../services/teams/organization-team";
-import { IUser } from "../services/interfaces/IUserData";
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
@@ -48,14 +46,19 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode,
       setAuthInviteCode,
       validationErrors,
-      setActiveTeamState,
       setOrganizationId,
-      setActiveTeamId,
       setUserId,
       setTenantId,
       setEmployeeId
     },
+    teamStore: {
+      setActiveTeam, getUserTeams
+    },
+    TaskStore: {
+      getTeamTasks
+    }
   } = useStores()
+
 
 
   useEffect(() => {
@@ -114,7 +117,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const employee = response.employee;
       const loginRes = response.loginRes;
       const user = loginRes.user;
- 
+
 
       setIsSubmitted(false)
       setAuthTeamName("")
@@ -124,15 +127,25 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode("")
 
       setIsLoading(false)
-      
+
       // Save Auth Data
       setAuthToken(loginRes.token);
-      setActiveTeamState(response.team)
-      setActiveTeamId(response.team.id)
+      setActiveTeam(response.team)
       setOrganizationId(response.team.organizationId)
-      setUserId(loginRes.user.id) 
+      setUserId(loginRes.user.id)
       setTenantId(response.team.tenantId)
       setEmployeeId(employee.id)
+      //Load first team data
+      getUserTeams({ tenantId: response.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
+      //Load tasks for current team or initialize tasks
+
+      getTeamTasks(
+        {
+          tenantId: response.team.tenantId,
+          activeTeamId: response.team.id,
+          authToken: loginRes.token,
+          organizationId: response.team.organizationId
+        })
     }
   }
 

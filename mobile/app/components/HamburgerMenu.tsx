@@ -10,15 +10,15 @@ import { useStores } from "../models"
 
 
 const HamburgerMenu = (props) => {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(true)
   const navigation = useNavigation();
 
   const {
-    authenticationStore: { logout },
+    authenticationStore: { logout, isAuthenticated },
+    TaskStore:{resetTeamTasksData}
   } = useStores()
 
   const onToggleSwitch = () => {
-    setIsLoggedIn(!isLoggedIn)
+    resetTeamTasksData()
     logout()
   }
   return (
@@ -86,7 +86,7 @@ const HamburgerMenu = (props) => {
             <MaterialIcons name="exit-to-app" size={25} color="#1B005D" />
             <Text style={{ marginLeft: 10, color: "#1B005D", fontWeight: "700", fontSize: 17 }}>Logout</Text>
           </View>
-          <Switch value={isLoggedIn} style={{ width: 50 }} onValueChange={onToggleSwitch} />
+          <Switch value={isAuthenticated} style={{ width: 50 }} onValueChange={onToggleSwitch} />
         </View>
       </View>
     </View>

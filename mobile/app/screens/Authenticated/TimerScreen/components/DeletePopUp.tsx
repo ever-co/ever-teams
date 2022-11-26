@@ -2,18 +2,17 @@ import React from "react"
 import { StyleSheet, Text, TouchableOpacity } from "react-native"
 
 type IDeletePopUp = {
-  index: number
   removeUser: any
   setShowDel: any
 }
 
-const DeletePopUp = ({ index, removeUser, setShowDel }: IDeletePopUp) => {
+const DeletePopUp = ({ removeUser, setShowDel }: IDeletePopUp) => {
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container}>
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={() => {
-          removeUser(index)
+          removeUser()
           setShowDel(false)
         }}
       >

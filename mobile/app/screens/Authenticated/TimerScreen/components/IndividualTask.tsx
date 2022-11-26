@@ -6,14 +6,26 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { useStores } from "../../../../models"
+import { observer } from "mobx-react-lite"
+
 
 export interface Props {
   task: ITeamTask
   handleActiveTask: (value: ITeamTask) => unknown
 }
 
-const IndividualTask: FC<Props> = ({ task, handleActiveTask }) => {
+const IndividualTask: FC<Props> =observer(({ task, handleActiveTask }) => {
   const [showDel, setShowDel] = useState(false)
+  const {
+    authenticationStore:{ tenantId, authToken, organizationId },
+    teamStore:{activeTeamId},
+    TaskStore:{deleteTask}
+}=useStores();
+
+  const removeTask=()=>{
+    deleteTask({tenantId,authToken, taskId:task.id, organizationId, activeTeamId:activeTeamId})
+  }
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => handleActiveTask(task)}>
@@ -23,18 +35,18 @@ const IndividualTask: FC<Props> = ({ task, handleActiveTask }) => {
           style={
             task.status === "Completed"
               ? styles.completed
-              : task.status === "In Review"
+              : task.status === "In Progress"
                 ? styles.inReview
-                : task.status === "In progress"
+                : task.status === "For Testing"
                   ? styles.inProgress
                   : styles.unAssigned
           }
         >
           {task.status === "Completed" ? (
             <AntDesign name="checkcircleo" size={8} color="#3D9A6D" />
-          ) : task.status === "In Review" ? (
+          ) : task.status === "In review" ? (
             <AntDesign name="search1" size={8} color="#8F97A1" />
-          ) : task.status === "In progress" ? (
+          ) : task.status === "In Progress" ? (
             <MaterialCommunityIcons name="progress-check" size={8} color="#735EA8" />
           ) : (
             <Entypo name="circle" size={8} color="#8B7FAA" />
@@ -73,12 +85,12 @@ const IndividualTask: FC<Props> = ({ task, handleActiveTask }) => {
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
           </View>
           <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />
-          {/* {showDel && <DeletePopUp index={index} removeUser={removeUser} setShowDel={setShowDel} />} */}
+          {showDel && <DeletePopUp removeUser={removeTask} setShowDel={setShowDel} />}
         </View>
       </View>
     </TouchableOpacity>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {
