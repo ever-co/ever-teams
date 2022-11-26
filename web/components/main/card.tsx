@@ -271,7 +271,7 @@ const Card = ({ member }: { member: IMember }) => {
             {estimateEdit && (
               <>
                 <div className="flex items-center justify-center">
-                  <div className="bg-[#F2F4FB]">
+                  <div className="bg-[#F2F4FB] dark:bg-[#18181B]">
                     <TimeInput
                       value={"" + formValues.estimateHours}
                       type="string"
