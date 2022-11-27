@@ -8,6 +8,8 @@ on:
       - '.deploy/website/**'
       - '.github/workflows/**'
       - 'apps/website/**'
+      - 'package.json'
+      - 'yarn.lock'      
 
 jobs:
   deploy:
