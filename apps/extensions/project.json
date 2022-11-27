@@ -1,0 +1,8 @@
+{
+    "root": "apps/extensions",
+    "sourceRoot": "apps/extensions",
+    "projectType": "application",
+    "targets": {
+    }
+  }
+  

@@ -1,0 +1,30 @@
+{
+	"projects": {
+		"web-e2e": {
+			"tags": [],
+			"implicitDependencies": ["web"]
+		},
+		"web": {
+			"tags": []
+		},        
+        "website-e2e": {
+			"tags": [],
+			"implicitDependencies": ["web"]
+		},
+		"website": {
+			"tags": []
+		},
+		"api": {
+			"tags": []
+		},
+		"mobile": {
+			"tags": []
+		},
+        "extensions": {
+			"tags": []
+		},
+		"desktop": {
+			"tags": []
+		}
+	}
+}

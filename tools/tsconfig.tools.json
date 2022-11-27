@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"outDir": "../dist/out-tsc/tools",
+		"rootDir": ".",
+		"module": "commonjs",
+		"target": "es2016",
+		"types": ["node"],
+		"importHelpers": false
+	},
+	"include": ["**/*.ts"]
+}
