@@ -15,11 +15,13 @@ import Link from "next/link";
 
 type IMember = IOrganizationTeamList["members"][number];
 
+/*
 const workStatus = {
   working: "bg-[#02b102]",
   offline: "bg-[#de211e]",
   timeroff: "bg-[#DF7C00]",
 };
+*/
 
 const Card = ({ member }: { member: IMember }) => {
   const { isTeamManager, user } = useAuthenticateUser();
@@ -27,7 +29,7 @@ const Card = ({ member }: { member: IMember }) => {
   const isAuthUser = member.employee.userId === user?.id;
   const isManager = isAuthUser && isTeamManager;
   const iuser = member.employee.user;
-  const iemployee = member.employee;
+  // const iemployee = member.employee;
 
   const [nameEdit, setNameEdit] = useState(false);
   const [taskEdit, setTaskEdit] = useState(false);
@@ -126,9 +128,11 @@ const Card = ({ member }: { member: IMember }) => {
     setTaskEdit(false);
   };
 
+  /*
   const handleEstimate = useCallback(() => {
     setTaskEdit(false);
   }, []);
+  */
 
   const handleSubmit = useCallback(async () => {
     if (!activeTeamTask) return;

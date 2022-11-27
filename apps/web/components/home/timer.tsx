@@ -1,4 +1,3 @@
-import { PauseIcon } from "../common/main/pauseIcon";
 import { PlayIcon } from "../common/main/playIcon";
 
 export function TimerController() {
@@ -14,7 +13,6 @@ export function TimerController() {
         </div>
       </div>
       <div className="cursor-pointer">
-        {/* <PauseIcon width={68} height={68} /> */}
         <PlayIcon width={68} height={68} />
       </div>
     </>

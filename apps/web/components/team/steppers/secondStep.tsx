@@ -9,7 +9,7 @@ const SecondStep = ({
   errors,
   showForm,
 }: IStepProps & { errors?: { [x: string]: any }; showForm: boolean }) => {
-  const [notARobot, setNotARobot] = useState<boolean>(false);
+  const [, setNotARobot] = useState<boolean>(false);
   const [feedback, setFeedback] = useState<string>("");
   const [ierrors, setIErrors] = useState<{ [x: string]: string }>(errors || {});
 

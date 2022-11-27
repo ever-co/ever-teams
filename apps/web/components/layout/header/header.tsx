@@ -1,7 +1,7 @@
 import MainLogo from "./mainLogo";
 import { TeamsDropDown } from "../../common/dropDown";
 import Profile from "./profile";
-import { IDrowDownData } from "@app/interfaces/hooks";
+// import { IDrowDownData } from "@app/interfaces/hooks";
 
 export const Header = () => {
   return (

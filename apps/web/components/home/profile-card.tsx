@@ -1,14 +1,6 @@
-import { IMembers, IStartSection } from "../../app/interfaces/hooks";
-import Image from "next/image";
 import Separator from "../common/separator";
-import { PauseIcon } from "../common/main/pauseIcon";
-import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from "@components/common/main/dropdown-user";
-import { TimeInput } from "@components/common/main/time-input";
-import { useState } from "react";
-import Link from "next/link";
 import StatusDropdown from "@components/common/main/status-dropdown";
-import { BadgedTaskStatus } from "@components/common/main/dropdownIcons";
 import { ITeamTask } from "@app/interfaces/ITask";
 import { secondsToTime } from "@app/helpers/date";
 

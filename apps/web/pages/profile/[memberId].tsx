@@ -12,7 +12,9 @@ import Timer from "@components/common/main/timer";
 import ProfileCard from "@components/home/profile-card";
 
 const Profile = () => {
-  const { activeTeam, teamsFetching } = useOrganizationTeams();
+  const { activeTeam //
+    // ,teamsFetching
+   } = useOrganizationTeams();
   const { activeTeamTask, tasks } = useTeamTasks();
   const router = useRouter();
   const { memberId } = router.query;

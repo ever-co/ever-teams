@@ -1,7 +1,7 @@
 import { generateToken } from "@app/helpers/generate-token";
 import { authFormValidate } from "@app/helpers/validations";
 import { IRegisterDataAPI } from "@app/interfaces/IAuthentication";
-import { recaptchaVerification } from "@app/services/server/recaptcha";
+// import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
   createEmployeeFromUser,
   createOrganizationRequest,

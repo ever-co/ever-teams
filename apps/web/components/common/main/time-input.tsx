@@ -1,4 +1,4 @@
-import { ChangeEventHandler, HTMLInputTypeAttribute, useCallback } from "react";
+import { ChangeEventHandler, HTMLInputTypeAttribute } from "react";
 
 type ITimeInputProps = {
   placeholder?: string;

@@ -3,7 +3,6 @@ import Image from "next/image";
 import { BadgedTaskStatus } from "./dropdownIcons";
 import { ArrowPathIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { useTeamTasks } from "@app/hooks/useTeamTasks";
 import { Spinner } from "../spinner";
 
 export function TaskItem({

@@ -35,7 +35,7 @@ export function setAuthCookies(
     tenantId,
     teamId,
     organizationId,
-    timezone,
+    // timezone,
   } = datas;
 
   // const expires = addHours(6, changeTimezone(new Date(), timezone));
