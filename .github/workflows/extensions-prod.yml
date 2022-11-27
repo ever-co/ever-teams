@@ -1,0 +1,37 @@
+name: "Extensions Build & Publish"
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.deploy/extensions/**'
+      - '.github/workflows/**'
+      - 'apps/extensions/**'
+      - 'package.json'
+      - 'yarn.lock'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3           
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: "yarn"
+
+      - name: Install Packages
+        run: |
+          cd apps/extensions && yarn install --frozen-lockfile
+
+      - name: Build and zip extension artifact
+        run: cd apps/extensions && yarn build -- --zip
+
+#
+#      - name: Browser Platform Publish
+#        uses: PlasmoHQ/bpp@v2
+#        with:
+#          keys: ${{ secrets.SUBMIT_KEYS }}
+#          artifact: build/chrome-mv3-prod.zip

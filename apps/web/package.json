@@ -27,7 +27,7 @@
     "jwt-decode": "^3.1.2",
     "next": "12.3.1",
     "next-themes": "^0.2.1",
-    "postcss": "^8.4.17",
+    "postcss": "^8.4.19",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-recaptcha": "^2.1.0",
