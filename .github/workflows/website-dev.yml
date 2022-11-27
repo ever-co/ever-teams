@@ -1,0 +1,34 @@
+name: Website Build & Deploy DEV
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - '.deploy/website/**'
+      - '.github/workflows/**'
+      - 'apps/website/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Packages
+        run: |
+          yarn install
+
+      - name: Build Website
+        run: |
+          yarn build:website
+      
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}  #Required
+          vercel-project-id: ${{ secrets.VERCEL_WEBSITE_PROJECT_ID}} #Required
+          working-directory: ./
+          alias-domains: |
+            appdev.gauzy.team

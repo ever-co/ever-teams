@@ -1,0 +1,33 @@
+name: Web Build & Deploy PROD
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.deploy/web/**'
+      - '.github/workflows/**'
+      - 'apps/web/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest    
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Packages
+        run: |
+          yarn install
+
+      - name: Build Web
+        run: |
+          yarn build:web
+      
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }} # Required
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Optional
+          vercel-args: '--prod' # Optional
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}  #Required
+          vercel-project-id: ${{ secrets.VERCEL_WEB_PROJECT_ID}} #Required
+          working-directory: ./

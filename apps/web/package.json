@@ -1,6 +1,12 @@
 {
   "name": "@ever-gauzy-teams/web",
   "version": "0.1.0",
+  "license": "UNLICENSED",
+  "author": {
+    "name": "Ever Co. LTD",
+    "email": "ever@ever.co",
+    "url": "https://ever.co"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",

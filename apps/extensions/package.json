@@ -1,8 +1,9 @@
 {
   "name": "@ever-gauzy-teams/extensions",
   "displayName": "Gauzy Teams",
-  "version": "0.1.0",
+  "version": "0.1.0",  
   "description": "Ever Gauzy Teams Browser Extensions",
+  "license": "UNLICENSED",
   "author": {
     "name": "Ever Co. LTD",
     "email": "ever@ever.co",

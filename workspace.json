@@ -1,0 +1,11 @@
+{
+    "version": 2,
+    "projects": {
+      "api": "apps/api",
+      "website": "apps/website",
+      "web": "apps/web",
+      "mobile": "apps/mobile",
+      "extensions": "apps/extensions"
+    }
+  }
+  

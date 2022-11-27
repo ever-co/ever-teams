@@ -1,0 +1,25 @@
+name: Web Build Before Merge
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+    paths:
+      - '.deploy/web/**'
+      - '.github/workflows/**'
+      - 'apps/web/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Packages
+        run: |
+          yarn install
+
+      - name: Build Web
+        run: |
+          yarn build:web

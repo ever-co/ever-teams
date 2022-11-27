@@ -1,0 +1,25 @@
+name: Website Build Before Merge
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+    paths:
+      - '.deploy/website/**'
+      - '.github/workflows/**'
+      - 'apps/website/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Packages
+        run: |
+          yarn install
+
+      - name: Build Website
+        run: |
+          yarn build:website
