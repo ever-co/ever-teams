@@ -1,0 +1,52 @@
+{
+    "name": "ever-gauzy-teams",
+    "homepage": "https://gauzy.team",
+    "license": "UNLICENSED",
+    "author": {
+      "name": "Ever Co. LTD",
+      "email": "ever@ever.co",
+      "url": "https://ever.co"
+    },
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "start": "yarn dev",
+      "build": "lerna run build --parallel",
+      "build-web": "lerna bootstrap && (cd apps/web && yarn run build)",
+      "build-website": "lerna bootstrap && (cd apps/website && yarn run build)",
+      "build-mobile": "lerna bootstrap && (cd apps/mobile && yarn run build)",
+      "build-extensions": "lerna bootstrap && (cd apps/extensions && yarn run build)",
+      "dev": "lerna run dev --parallel",
+      "format": "lerna run format",      
+      "lint": "lerna run lint",
+      "lint-fix": "cd apps/web && eslint . --fix",
+      "lint-fix:scss": "cd apps/web && stylelint **/*.{scss,css} --fix",
+      "prettier": "cd apps/web && prettier --write **/*.{js,jsx,ts,tsx,scss,css} --config ./.prettierrc",
+      "postinstall": "lerna bootstrap",
+      "precommit": "yarn lint-fix && yarn lint-fix:scss && yarn prettier",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "devDependencies": {
+      "@next/eslint-plugin-next": "^12.3.1",      
+      "@types/node": "^18.7.19",
+      "@typescript-eslint/eslint-plugin": "^5.44.0",
+      "@typescript-eslint/parser": "^5.44.0",
+      "eslint": "^8.28.0",
+      "eslint-config-prettier": "^8.5.0",
+      "eslint-plugin-prettier": "^4.2.1",
+      "eslint-plugin-react": "^7.31.8",
+      "lerna": "^6.0.3",
+      "prettier": "^2.7.1"
+    },
+    "workspaces": {
+      "packages": [
+        "apps:/*",
+        "packages/*",
+        "libs:/*"
+      ]
+    },
+    "dependencies": {      
+      "dotenv": "^16.0.3"      
+    }
+  }
+  

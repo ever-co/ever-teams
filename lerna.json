@@ -1,0 +1,15 @@
+{
+  "lerna": "3.22.1",
+  "npmClient": "yarn",
+  "version": "independent",
+  "concurrency": 8,
+  "changelog": {
+		"repo": "ever-co/ever-gauzy-teams",
+		"cacheDir": ".changelog",
+		"labels": {}
+  },
+  "packages": ["libs/*", "apps/*", "packages/*"],
+  "useWorkspaces": true,
+  "stream": true,
+  "npmClientArgs": ["--no-package-lock"]  
+}

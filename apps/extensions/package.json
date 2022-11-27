@@ -1,0 +1,40 @@
+{
+  "name": "@ever-gauzy-teams/extensions",
+  "displayName": "Gauzy Teams",
+  "version": "0.1.0",
+  "description": "Ever Gauzy Teams Browser Extensions",
+  "author": {
+    "name": "Ever Co. LTD",
+    "email": "ever@ever.co",
+    "url": "https://ever.co"
+  },
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build"
+  },
+  "dependencies": {
+    "@tailwindcss/forms": "0.5.3",
+    "@tailwindcss/typography": "0.5.7",
+    "classnames": "^2.3.2",
+    "plasmo": "0.56.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-timer-hook": "^3.0.5",
+    "tailwindcss": "^3.1.8"
+  },
+  "devDependencies": {
+    "@plasmohq/prettier-plugin-sort-imports": "3.5.2",
+    "@types/chrome": "0.0.197",
+    "@types/node": "18.8.3",
+    "@types/react": "18.0.21",
+    "@types/react-dom": "18.0.6",
+    "postcss": "^8.4.18",
+    "prettier": "2.7.1",
+    "typescript": "4.8.4"
+  },
+  "manifest": {
+    "host_permissions": [
+      "https://*/*"
+    ]
+  }
+}
