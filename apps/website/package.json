@@ -9,10 +9,10 @@
   },
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "yarn next dev",
+    "build": "yarn next build",
+    "start": "yarn next start",
+    "lint": "yarn next lint"
   },
   "dependencies": {
     "autoprefixer": "^10.4.12",
