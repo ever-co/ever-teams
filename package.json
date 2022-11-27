@@ -190,7 +190,7 @@
       "eslint-plugin-prettier": "^4.2.1",
       "eslint-plugin-react": "^7.31.8",
       "eslint-plugin-cypress": "^2.12.1",
-      "husky": "^6.0.0",
+      "husky": "^8.0.2",
       "lerna": "^6.0.3",
       "lerna-changelog": "^2.2.0",
       "lint-staged": "^10.4.0",		  
@@ -199,11 +199,11 @@
       "pretty-quick": "^3.1.0",
       "rimraf": "^3.0.2",
 		  "semantic-release": "^19.0.5",
-		  "snyk": "^1.573.0",
+		  "snyk": "^1.1061.0",
       "ts-node": "^10.9.1"
     },       
     "engines": {
-      "node": ">=14.0.0",
+      "node": ">=16.0.0",
       "yarn": ">=1.13.0"
     },
     "snyk": true
