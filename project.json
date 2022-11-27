@@ -17,6 +17,9 @@
 		"api": {
 			"tags": []
 		},
+		"mobile": {
+			"tags": []
+		},
         "extensions": {
 			"tags": []
 		},
