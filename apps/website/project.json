@@ -20,7 +20,7 @@
       "options": {
         "buildTarget": "website:build",
         "dev": true,
-        "port": 4200,
+        "port": 3000,
         "hostname": "localhost"
       },
       "configurations": {
