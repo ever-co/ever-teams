@@ -19,12 +19,15 @@
       "executor": "@nrwl/next:server",
       "options": {
         "buildTarget": "website:build",
-        "dev": true
+        "dev": true,
+        "port": 4200,
+        "hostname": "localhost"
       },
       "configurations": {
         "production": {
           "buildTarget": "website:build:production",
-          "dev": false
+          "dev": false,
+          "hostname": "gauzy.team"
         }
       }
     },
