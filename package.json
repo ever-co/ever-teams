@@ -9,8 +9,26 @@
     },
     "version": "0.1.0",
     "private": true,
-    "scripts": {      
+    "scripts": {  
+      "prepare:husky": "npx husky install .husky",
+		  "ng": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
+		  "ng:prod": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
+		  "ng:ci": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=7000 yarn nx",    
+      "start": "yarn build:package:all && yarn concurrently --raw --kill-others \"yarn start:api\" \"yarn start:gauzy\"",
+		  "start:prod": "yarn build:package:all && yarn concurrently --raw --kill-others \"yarn start:api:prod\" \"yarn start:gauzy:prod\"",
+		  "start:web": "yarn run postinstall.web && yarn run config:dev && yarn ng serve gauzy --open",
+		  "start:web:forever": "yarn run config:dev && forever start node_modules/@angular/cli/bin/ng serve gauzy --disable-host-check --host 0.0.0.0",
+		  "start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:package:all && yarn build:gauzy && yarn ts-node ./apps/gauzy/src/pm2bootstrap.ts",
+		  "start:web:prod": "yarn run config:prod && yarn ng serve gauzy --configuration production --disable-host-check --host 0.0.0.0 --prod",
+		  "start:api": "yarn ng serve api",
+		  "start:api:prod": "yarn ng:prod serve api --host 0.0.0.0 -c=production --prod",
+		  "start:api:ci": "yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci serve api -c=production --prod",
+		  "start:api:forever": "forever start node_modules/@angular/cli/bin/ng serve api --host 0.0.0.0",
+		  "start:api:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn run build:api && yarn ts-node -r tsconfig-paths/register --project apps/api/tsconfig.app.json ./apps/api/src/pm2bootstrap.ts",		  
       "build": "yarn build:web && yarn build:website && yarn build:mobile && yarn build:extensions",
+      "build:api": "yarn ng build api",
+		  "build:api:prod": "yarn ng:prod build api -c=production --prod",
+		  "build:api:prod:ci": "yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci build api -c=production --prod",
       "build:web": "lerna bootstrap && (cd apps/web && yarn run build)",
       "build:website": "lerna bootstrap && (cd apps/website && yarn run build)",
       "build:mobile": "lerna bootstrap && (cd apps/mobile && yarn run build)",
@@ -41,35 +59,110 @@
       "dep-graph": "nx dep-graph",
       "help": "nx help"
     },
+    "config": {
+      "commitizen": {
+        "path": "cz-conventional-changelog"
+      }
+    },
+    "commitlint": {
+      "extends": [
+        "@commitlint/config-conventional"
+      ]
+    },
+    "husky": {
+      "hooks": {
+        "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+        "pre-commit": "pretty-quick --no-verify --staged"
+      }
+    },
+    "lint-staged": {},
+    "release": {
+      "verifyConditions": [
+        "@semantic-release/changelog",
+        "@semantic-release/npm",
+        "@semantic-release/git",
+        "@semantic-release/github"
+      ],
+      "prepare": [
+        "@semantic-release/changelog",
+        "@semantic-release/npm",
+        "@semantic-release/git"
+      ],
+      "publish": [
+        "@semantic-release/github"
+      ],
+      "generateNotes": {
+        "preset": "angular"
+      },
+      "npmPublish": false
+    },
+    "resolutions": {
+
+    },
+    "dependencies": {      
+      "yargs": "^17.5.0",
+      "dotenv": "^16.0.3"      
+    },
     "devDependencies": {
-      "@nrwl/cli": "^13.7.3",
-      "@nrwl/cypress": "^13.7.3",
-      "@nrwl/detox": "^13.7.3",
-      "@nrwl/eslint-plugin-nx": "^13.7.3",
-      "@nrwl/jest": "^13.7.3",
-      "@nrwl/linter": "^13.7.3",
-      "@nrwl/nest": "^13.7.3",
-      "@nrwl/next": "^13.10.4",
-      "@nrwl/node": "^13.7.3",
-      "@nrwl/react": "^13.7.3",
-      "@nrwl/tao": "^13.7.3",
-      "@nrwl/web": "^13.7.3",
-      "@nrwl/workspace": "^13.7.3",
-      "@next/eslint-plugin-next": "^12.3.1",      
-      "@types/node": "^18.7.19",
-      "@types/detox": "17.14.0",
+      "@commitlint/cli": "^15.0.0",
+		  "@commitlint/config-conventional": "^15.0.0",
+		  "@commitlint/config-lerna-scopes": "^15.0.0",
+		  "@commitlint/travis-cli": "^15.0.0",
+		  "@compodoc/compodoc": "^1.1.11",
+		  "@cypress/browserify-preprocessor": "^3.0.2",
+      "@nrwl/cli": "^15.2.1",
+		  "@nrwl/cypress": "^15.2.1",
+		  "@nrwl/eslint-plugin-nx": "^15.2.1",
+		  "@nrwl/jest": "^15.2.1",
+		  "@nrwl/linter": "^15.2.1",
+		  "@nrwl/nest": "^15.2.1",
+		  "@nrwl/node": "^15.2.1",
+		  "@nrwl/tao": "^15.2.1",
+		  "@nrwl/workspace": "^15.2.1",      
+      "@nrwl/detox": "^15.2.1",            
+      "@nrwl/next": "^15.2.1",      
+      "@nrwl/react": "^15.2.1",      
+      "@nrwl/web": "^15.2.1",      
+      "@next/eslint-plugin-next": "^13.0.5",
+      "@semantic-release/changelog": "^5.0.1",
+		  "@semantic-release/git": "^9.0.0",
+		  "@semantic-release/github": "^7.2.1",
+		  "@semantic-release/npm": "^7.1.1",
+      "@types/node": "^18.11.9",
+      "@types/detox": "^18.1.0",
+      "@types/yargs": "^15.0.9",
       "@typescript-eslint/eslint-plugin": "^5.44.0",
       "@typescript-eslint/parser": "^5.44.0",
-      "cypress": "^8.3.0",
+      "cloc": "^2.7.0",		  
+		  "commitizen": "^4.2.1",
+		  "concurrently": "^5.3.0",
+		  "conventional-changelog": "^3.1.23",
+		  "conventional-changelog-cli": "^2.1.0",
+      "cross-env": "^7.0.3",
+      "cypress": "^11.2.0",
+      "@cucumber/cucumber": "^8.9.0",
+      "@cucumber/cucumber-expressions": "^16.0.1",
+      "@cucumber/gherkin": "^25.0.2",
+		  "cypress-file-upload": "^5.0.8",
+		  "cz-conventional-changelog": "^3.3.0",
+      "envalid": "^6.0.2",
       "detox": "^20.0.3",
       "eslint": "^8.28.0",
       "eslint-config-prettier": "^8.5.0",
       "eslint-plugin-prettier": "^4.2.1",
       "eslint-plugin-react": "^7.31.8",
+      "eslint-plugin-cypress": "^2.12.1",
+      "husky": "^6.0.0",
       "lerna": "^6.0.3",
+      "lerna-changelog": "^2.2.0",
+      "lint-staged": "^10.4.0",		  
       "prettier": "^2.8.0",
-      "prettier-eslint-cli": "^7.1.0"      
-    },
+      "prettier-eslint-cli": "^7.1.0",
+      "pretty-quick": "^3.1.0",
+      "rimraf": "^3.0.2",
+		  "semantic-release": "^17.4.2",
+		  "snyk": "^1.573.0"
+    },    
     "workspaces": {
       "packages": [
         "apps:/*",
@@ -77,9 +170,7 @@
         "libs:/*"
       ],
       "nohoist": []
-    },
-    "dependencies": {      
-      "dotenv": "^16.0.3"      
-    }
+    },    
+    "snyk": true
   }
   
