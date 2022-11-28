@@ -25,11 +25,9 @@ const initialValues: IRegisterDataAPI = {
 
 const Team = () => {
 	const [step, setStep] = useState(FIRST_STEP);
-	const [formValues, setFormValues] =
-		useState<IRegisterDataAPI>(initialValues);
+	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);
-	const { queryCall, loading, infiniteLoading } =
-		useQuery(registerUserTeamAPI);
+	const { queryCall, loading, infiniteLoading } = useQuery(registerUserTeamAPI);
 
 	const handleSubmit = (e: any) => {
 		e.preventDefault();
@@ -111,9 +109,7 @@ const Team = () => {
 						<div className="mt-[20px] md:mt-[40px] flex flex-col-reverse w-full md:flex-row justify-between items-center">
 							<div className="w-full md:w-1/2 text-center md:text-start justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
 								{step === FIRST_STEP && (
-									<Link href={'/passcode'}>
-										Joining existed Team?
-									</Link>
+									<Link href={'/passcode'}>Joining existed Team?</Link>
 								)}
 
 								{step === SECOND_STEP && (
@@ -138,11 +134,7 @@ const Team = () => {
 										<Spinner />
 									</span>
 								)}{' '}
-								<span>
-									{step === FIRST_STEP
-										? 'Continue'
-										: 'Create Team'}
-								</span>
+								<span>{step === FIRST_STEP ? 'Continue' : 'Create Team'}</span>
 							</button>
 						</div>
 					</form>

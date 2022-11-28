@@ -68,10 +68,8 @@ const Profile = () => {
 							<div className="ml-[24px]">
 								<div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
 									<span className="flex items-center">
-										{user?.firstName &&
-											Capitalize(user.firstName)}
-										{user?.lastName &&
-											' ' + Capitalize(user.lastName)}
+										{user?.firstName && Capitalize(user.firstName)}
+										{user?.lastName && ' ' + Capitalize(user.lastName)}
 									</span>
 									<span className="ml-[15px] flex items-center cursor-pointer">
 										<Image
@@ -83,9 +81,7 @@ const Profile = () => {
 									</span>
 								</div>
 								<div className="text-[#B0B5C7] flex items-center">
-									<span className="flex items-center">
-										{user?.email}
-									</span>
+									<span className="flex items-center">{user?.email}</span>
 									<span className="ml-[15px] flex items-center cursor-pointer">
 										<Image
 											src="/assets/png/edit.png"
@@ -159,11 +155,7 @@ const Profile = () => {
 				</div>
 				<div>
 					{activeTeamTask && (
-						<ProfileCard
-							now={true}
-							task={activeTeamTask}
-							current="00:00"
-						/>
+						<ProfileCard now={true} task={activeTeamTask} current="00:00" />
 					)}
 				</div>
 				<div className="flex items-center justify-between mt-[40px]">
