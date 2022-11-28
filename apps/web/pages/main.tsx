@@ -1,8 +1,4 @@
-import {
-	getAuthenticationProps,
-	withAuthentication,
-} from '@components/authenticator';
-import { GetServerSideProps } from 'next';
+import { withAuthentication } from '@components/authenticator';
 import TeamMemberSection from '../components/home/team-member';
 import { TimerTasksSection } from '../components/home/timer-tasks';
 import { AppLayout } from '../components/layout';
@@ -21,11 +17,3 @@ const Main = () => {
 };
 
 export default withAuthentication(Main, 'MainPage');
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	return {
-		props: {
-			...getAuthenticationProps(context),
-		},
-	};
-};
