@@ -10,22 +10,21 @@ import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Timer from '@components/common/main/timer';
 import ProfileCard from '@components/home/profile-card';
-import {
-	getAuthenticationProps,
-	withAuthentication,
-} from '@components/authenticator';
-import { GetServerSideProps } from 'next';
+import { withAuthentication } from '@components/authenticator';
+import useAuthenticateUser from '@app/hooks/useAuthenticateUser';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, tasks } = useTeamTasks();
+	const { user: auth } = useAuthenticateUser();
 	const router = useRouter();
 	const { memberId } = router.query;
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => {
 		return m.employee.userId === memberId;
 	});
-	const user = currentUser?.employee.user;
+	const user =
+		auth?.employee.id === memberId ? auth : currentUser?.employee.user;
 	const [tab, setTab] = useState<'worked' | 'assigned' | 'unassigned'>(
 		'worked'
 	);
@@ -178,11 +177,3 @@ const Profile = () => {
 };
 
 export default withAuthentication(Profile, 'ProfilePage');
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	return {
-		props: {
-			...getAuthenticationProps(context),
-		},
-	};
-};
