@@ -51,15 +51,6 @@ const Profile = () => {
 									height={137}
 									className="rounded-full "
 								/>
-
-								<div className="absolute rounded-full bg-white p-[1px] top-[8px] right-[1px] flex items-center justify-center cursor-pointer">
-									<Image
-										src="/assets/png/edit.png"
-										width={26}
-										height={26}
-										alt="edit icon"
-									/>
-								</div>
 								<div className="absolute rounded-full bg-white p-[1px] top-[100px] right-[5px]">
 									<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
 								</div>
@@ -70,25 +61,9 @@ const Profile = () => {
 										{user?.firstName && Capitalize(user.firstName)}
 										{user?.lastName && ' ' + Capitalize(user.lastName)}
 									</span>
-									<span className="ml-[15px] flex items-center cursor-pointer">
-										<Image
-											src="/assets/png/edit.png"
-											width={26}
-											height={26}
-											alt="edit icon"
-										/>
-									</span>
 								</div>
 								<div className="text-[#B0B5C7] flex items-center">
 									<span className="flex items-center">{user?.email}</span>
-									<span className="ml-[15px] flex items-center cursor-pointer">
-										<Image
-											src="/assets/png/edit.png"
-											width={26}
-											height={26}
-											alt="edit icon"
-										/>
-									</span>
 								</div>
 							</div>
 						</div>
