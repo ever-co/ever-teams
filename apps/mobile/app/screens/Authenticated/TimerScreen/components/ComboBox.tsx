@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import { ActivityIndicator, Text } from "react-native-paper"
 import { View, StyleSheet } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
@@ -31,25 +31,9 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
   const [filter, setFilter] = useState<"open" | "closed">("open")
   const [openFilter, setOpenFilter] = useState(true);
   const [closeFilter, setCloseFilter] = useState(false);
+  const [isLoading, setIsLoading]=useState<boolean>(false)
 
-  // const removeUser = (index) => {
-  //   let newUser = users.filter((user) => user.index !== index)
-  //   setUsers(newUser)
-  // }
 
-  // const filteredTasks = useMemo(() => {
-  //   return query.trim() === ""
-  //     ? teamTasks.filter((task) => h_filter(task.status, filter))
-  //     : teamTasks.filter(
-  //       (task) =>
-  //         task.title
-  //           .trim()
-  //           .toLowerCase()
-  //           .replace(/\s+/g, "")
-  //           .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
-  //         h_filter(task.status, filter)
-  //     );
-  // }, [query, teamTasks, filter]);
 
 
   const filteredTasks2 = useMemo(() => {
@@ -67,6 +51,10 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
   const onCreateTask = () => {
     onCreateNewTask()
   }
+
+  useEffect(()=>{
+    setIsLoading(fetchingTasks)
+  },[fetchingTasks])
 
   return (
     <View style={styles.mainContainer}>
@@ -93,7 +81,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
             }).length
           } openTask={false} selected={closeFilter} />
         </TouchableOpacity>
-        {fetchingTasks && <ActivityIndicator color="#1B005D" style={styles.loading} />}
+        {/* {isLoading && <ActivityIndicator color="#1B005D" style={styles.loading} />} */}
       </View>
 
       <TouchableOpacity onPress={() => onCreateTask()} style={styles.createTaskBtn}>

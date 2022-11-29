@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import {
   View,
   ViewStyle,
@@ -17,32 +17,32 @@ import { Card, Icon, ListItem, Text } from "../../../../components"
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
+import { useStores } from "../../../../models"
+import { secondsToTime } from "../../../../helpers/date"
 export type ListItemProps = {
-  item: {
-    name: string
-    text: string
-    currentTime: string
-    totalTime: string
-    estimate: boolean
-  }
+  item: any,
   onPressIn?: () => unknown
   enableEstimate: boolean
 }
 
-export interface Props extends ListItemProps {}
+export interface Props extends ListItemProps { }
 
 export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
+  const { TaskStore: { activeTask } } = useStores();
+  const [isManager, setIsManager] = useState(true)
+  const iuser = item.employee.user
+  console.log(activeTask)
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
-      <View style={{ ...GS.p2, ...GS.positionRelative }}>
+      <View style={[{ ...GS.p2, ...GS.positionRelative }, isManager ? { borderWidth: 1, borderColor: "black", borderRadius: 20 } : null]}>
         <View style={styles.firstContainer}>
           <Image
-            source={require("../../../../../assets/images/Ruslan.png")}
+            source={{ uri: iuser.imageUrl }}
             style={$usersProfile}
           />
-          <Text style={styles.name}>{item.name}</Text>
-           {/* ENABLE ESTIMATE INPUTS */}
-          {!item.estimate && enableEstimate ? (
+          <Text style={styles.name}>{iuser.name}</Text>
+          {/* ENABLE ESTIMATE INPUTS */}
+          {activeTask.estimate == 0 && enableEstimate ? (
             <View style={styles.estimate}>
               <TextInput
                 maxLength={2}
@@ -61,15 +61,17 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           ) : (
             <View style={{ marginLeft: "auto", marginRight: 10 }}>
               <ProgressTimeIndicator
-                estimated={item.estimate}
-                estimatedHours={50}
-                workedHours={30}
+                estimated={activeTask.estimate > 0 ? true : false}
+                estimatedHours={activeTask.estimate}
+                workedHours={30000}
               />
             </View>
           )}
         </View>
-
-        <Text style={styles.otherText}>{item.text}</Text>
+        <View style={{ flexDirection: 'row' }}>
+          {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
+          <Text style={styles.otherText}>{activeTask.title}</Text>
+        </View>
         <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
         <View style={styles.times}>
           <View>
@@ -168,18 +170,18 @@ export default ListCardItem
 const $listCard: ViewStyle = {
   ...GS.flex1,
   ...GS.p0,
-  ...GS.rounded,
   ...GS.noBorder,
   ...GS.shadow,
   borderLeftWidth: spacing.extraSmall - spacing.micro,
   minHeight: null,
+  borderRadius: spacing.large
 }
 
 const $usersProfile: ImageStyle = {
   ...GS.roundedFull,
   backgroundColor: colors.background,
-  width: spacing.huge - spacing.tiny,
-  height: spacing.huge - spacing.tiny,
+  width: spacing.huge - spacing.small,
+  height: spacing.huge - spacing.small,
 }
 
 const styles = StyleSheet.create({
@@ -222,6 +224,7 @@ const styles = StyleSheet.create({
   name: {
     color: "#1B005D",
     fontSize: 13,
+    left: 10,
     fontWeight: "bold",
   },
   estimate: {
@@ -243,10 +246,16 @@ const styles = StyleSheet.create({
   estimateDivider: {
     fontWeight: "700",
   },
-  estimateInput:{
+  estimateInput: {
     borderBottomColor: "gray",
     borderStyle: "dashed",
     borderBottomWidth: 2,
     padding: 2,
+  },
+  taskNumberStyle: {
+    fontSize: 12,
+    marginVertical: 9,
+    right: 3,
+    color: "#ACB3BB",
   }
 })

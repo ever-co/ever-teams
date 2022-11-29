@@ -40,6 +40,7 @@ export const TaskStoreModel = types
     }))
     .actions((store) => ({
         async createNewTask({ taskTitle, teamId, tenantId, organizationId, authToken }: ITaskCreateParams) {
+            this.setFetchingTasks(true)
             if (taskTitle.trim().length < 2) return;
 
             const dataBody: ICreateTask = {
@@ -60,6 +61,7 @@ export const TaskStoreModel = types
             })
 
             this.getTeamTasks({ tenantId, organizationId, authToken, activeTeamId: teamId })
+            this.setFetchingTasks(true)
         },
         async getTeamTasks({ tenantId, organizationId, activeTeamId, authToken }: ITaskGetParams) {
             const { data } = await getTeamTasksRequest({
@@ -95,18 +97,18 @@ export const TaskStoreModel = types
         setFetchingTasks(value: boolean) {
             store.fetchingTasks = value
         },
-        filterDataByStatus(query, tasks:ITeamTask[],filter){
+        filterDataByStatus(query, tasks: ITeamTask[], filter) {
             return query.trim() === ""
-            ? tasks.filter((task) => h_filter(task.status, filter))
-            : tasks.filter(
-              (task) =>
-                task.title
-                  .trim()
-                  .toLowerCase()
-                  .replace(/\s+/g, "")
-                  .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
-                h_filter(task.status, filter)
-            );
+                ? tasks.filter((task) => h_filter(task.status, filter))
+                : tasks.filter(
+                    (task) =>
+                        task.title
+                            .trim()
+                            .toLowerCase()
+                            .replace(/\s+/g, "")
+                            .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
+                        h_filter(task.status, filter)
+                );
         },
         resetTeamTasksData() {
             store.activeTask = {}

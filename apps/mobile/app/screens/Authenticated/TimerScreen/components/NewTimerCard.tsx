@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { Text, TextInput, View, Image, StyleSheet, TouchableOpacity } from "react-native"
-import { ProgressBar } from "react-native-paper"
+import { ActivityIndicator, ProgressBar } from "react-native-paper"
 import { colors } from "../../../../theme"
 import TaskStatusDropdown from "./TaskStatusDropdown"
 
@@ -19,19 +19,20 @@ const NewTimerCard: FC<Props> = () => {
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId },
-    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, teamTasks }
+    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks }
   } = useStores();
   const [showCombo, setShowCombo] = useState(false)
   const [text1, setText1] = useState("")
   const [text2, setText2] = useState("")
   const [taskInputText, setTaskInputText] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
 
   const onCreateNewTask = async () => {
-
-    createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
-
+    setIsLoading(true)
+    await createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
+    setIsLoading(false)
   }
 
 
@@ -84,6 +85,7 @@ const NewTimerCard: FC<Props> = () => {
             <Feather name="check" size={24} color="green" />
           </TouchableOpacity>
         )}
+        {isLoading && fetchingTasks ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
       </View>
 
       {showCombo && <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
@@ -177,6 +179,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 6,
   },
+  loading: {
+    position: 'absolute',
+    right: 10,
+    top: 15
+  }
 })
 
 export default NewTimerCard

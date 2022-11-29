@@ -47,12 +47,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthInviteCode,
       validationErrors,
       setOrganizationId,
-      setUserId,
+      setUser,
       setTenantId,
       setEmployeeId
     },
     teamStore: {
-      setActiveTeam, getUserTeams
+      setActiveTeam, getUserTeams, setActiveTeamId
     },
     TaskStore: {
       getTeamTasks
@@ -131,8 +131,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       // Save Auth Data
       setAuthToken(loginRes.token);
       setActiveTeam(response.team)
+      setActiveTeamId(response.team.id)
       setOrganizationId(response.team.organizationId)
-      setUserId(loginRes.user.id)
+      setUser(loginRes.user)
       setTenantId(response.team.tenantId)
       setEmployeeId(employee.id)
       //Load first team data

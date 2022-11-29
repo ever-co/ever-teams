@@ -11,7 +11,7 @@ export const AuthenticationStoreModel = types
     authInviteCode: types.optional(types.string, ""),
     organizationId:types.optional(types.string, ""),
     tenantId:types.optional(types.string, ""),
-    userId:types.optional(types.string, ""),
+    user:types.optional(types.frozen(), {}),
     employeeId:types.optional(types.string, ""),
   })
   .views((store) => ({
@@ -51,7 +51,7 @@ export const AuthenticationStoreModel = types
       store.authEmail = value.replace(/ /g, "")
     },
     setAuthTeamName(value: string) {
-      store.authTeamName = value.replace(/ /g, "")
+      store.authTeamName = value
     },
     setAuthConfirmCode(value: string) {
       store.authConfirmCode = value.replace(/ /g, "")
@@ -60,7 +60,7 @@ export const AuthenticationStoreModel = types
       store.authInviteCode = value.replace(/ /g, "")
     },
     setAuthUsername(value: string) {
-      store.authUsername = value.replace(/ /g, "")
+      store.authUsername = value
     },
     setOrganizationId(value: string) {
       store.organizationId = value.replace(/ /g, "")
@@ -68,8 +68,8 @@ export const AuthenticationStoreModel = types
     setEmployeeId(value :string){
       store.employeeId=value.replace(/ /g, "")
     },
-    setUserId(value :string){
-      store.userId=value.replace(/ /g, "")
+    setUser(value:any){
+      store.user=value
     },
     setTenantId(value: string) {
       store.tenantId = value.replace(/ /g, "")
@@ -83,7 +83,7 @@ export const AuthenticationStoreModel = types
       store.authConfirmCode = ""
       store.tenantId=""
       store.organizationId=""
-      store.userId=""
+      store.user={}
       store.employeeId=""
     },
   }))

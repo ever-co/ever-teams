@@ -9,7 +9,7 @@ export interface Props {
   onCreateTeam: () => unknown
 }
 
-const DropDown: FC<Props> = function CreateTeamModal({ onCreateTeam }) {
+const DropDown: FC<Props> =observer(function CreateTeamModal({ onCreateTeam }) {
   const {
     authenticationStore:{tenantId, organizationId, authToken},
     teamStore: { teams, setActiveTeam, activeTeamId, activeTeam },
@@ -29,6 +29,7 @@ const DropDown: FC<Props> = function CreateTeamModal({ onCreateTeam }) {
     setActiveTeam(newActiveTeam)
     getTeamTasks({authToken,organizationId,tenantId,activeTeamId:newActiveTeam.id})
     setShowDrop(!showDrop)
+    setActiveTask({})
   }
 
   return (
@@ -45,7 +46,7 @@ const DropDown: FC<Props> = function CreateTeamModal({ onCreateTeam }) {
       {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   mainContainer: {

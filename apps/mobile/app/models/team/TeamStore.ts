@@ -33,7 +33,7 @@ export const TeamStoreModel = types
                 },
                 access_token
             );
-            this.getUserTeams({tenantId,userId,authToken:access_token});
+            this.getUserTeams({ tenantId, userId, authToken: access_token });
         },
 
         async getUserTeams({ tenantId, userId, authToken }: IGetTeamsParams) {
@@ -63,8 +63,10 @@ export const TeamStoreModel = types
         setActiveTeam(team: IOrganizationTeamList) {
             store.activeTeam = team;
             store.activeTeamId = team.id
-        }
-        ,
+        },
+        setActiveTeamId(id: string) {
+            store.activeTeamId=id
+        },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
         }

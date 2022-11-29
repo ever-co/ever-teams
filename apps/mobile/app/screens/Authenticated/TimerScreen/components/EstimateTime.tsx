@@ -5,17 +5,19 @@ import { colors } from "../../../../theme/colors";
 import { secondsToTime } from "../../../../helpers/date";
 import { values } from "mobx";
 import { useStores } from "../../../../models";
+import { ActivityIndicator } from "react-native-paper";
 
 
 const EstimateTime = () => {
-    const { 
+    const {
         authenticationStore: { authToken, tenantId, organizationId },
-        TaskStore: { activeTask, updateTask },
-        teamStore:{activeTeamId}
- } = useStores();
+        TaskStore: { activeTask, updateTask, fetchingTasks },
+        teamStore: { activeTeamId }
+    } = useStores();
     const [estimate, setEstimate] = useState({ hours: "", minutes: "" });
     const [validEstimate, setValidEstimate] = useState({ validHour: false, validMinute: false })
     const [editing, setEditing] = useState({ editingHour: false, editingMinutes: false })
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
         const { h, m } = secondsToTime(activeTask?.estimate || 0);
@@ -66,7 +68,7 @@ const EstimateTime = () => {
 
     const handleSubmit = useCallback(() => {
         if (!activeTask) return;
-
+        setIsLoading(true)
         const hours = +estimate.hours;
         const minutes = +estimate.minutes;
         if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
@@ -85,16 +87,16 @@ const EstimateTime = () => {
             estimate: hours * 60 * 60 + minutes * 60 // time seconds
         }
 
-        const refreshData={
+        const refreshData = {
             activeTeamId,
             tenantId,
             organizationId
-          }
-            const response=updateTask({ taskData: task, taskId: task.id, authToken , refreshData});
-            setEditing({ editingHour: false, editingMinutes: false })
-
+        }
+        const response = updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+        setEditing({ editingHour: false, editingMinutes: false })
+        setIsLoading(false)
     }, [activeTask, updateTask, estimate]);
-// console.log(activeTask)
+    // console.log(activeTask)
     return (
         <View style={[styles.estimate, {}]}>
             <TextInput
@@ -119,10 +121,11 @@ const EstimateTime = () => {
                 style={styles.estimateInput}
             />
             {validEstimate.validHour && validEstimate.validMinute ? (
-                <TouchableOpacity style={styles.checkButton} onPress={() =>handleSubmit()}>
+                <TouchableOpacity style={styles.checkButton} onPress={() => handleSubmit()}>
                     <Feather size={25} color={"green"} name="check" />
                 </TouchableOpacity>
             ) : null}
+            {isLoading && fetchingTasks ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
         </View>
     )
 }
@@ -148,5 +151,10 @@ const styles = StyleSheet.create({
     },
     checkButton: {
         margin: 2
+    },
+    loading: {
+        position: 'absolute',
+        left: 22,
+        top: 15
     }
 })
