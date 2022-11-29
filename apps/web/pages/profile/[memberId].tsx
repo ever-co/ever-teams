@@ -1,7 +1,7 @@
 import { useOrganizationTeams } from '@app/hooks/useOrganizationTeams';
 import { AppLayout } from '@components/layout';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
+import Image from 'next/legacy/image';
 import { useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
@@ -43,14 +43,17 @@ const Profile = () => {
 							<Link href="/main">Back to Team</Link>
 						</div>
 						<div className="flex items-center mb-[100px]">
-							<div className="relative">
-								<Image
-									src={user?.imageUrl || ''}
-									alt="User Icon"
-									width={137}
-									height={137}
-									className="rounded-full "
-								/>
+							<div className="relative h-[137px] w-[137px]">
+								{user?.imageUrl && (
+									<Image
+										src={user?.imageUrl}
+										alt="User Icon"
+										className="rounded-full h-full w-full"
+										layout="fill"
+										objectFit="cover"
+									/>
+								)}
+
 								<div className="absolute rounded-full bg-white p-[1px] top-[100px] right-[5px]">
 									<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
 								</div>
