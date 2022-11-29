@@ -1,5 +1,5 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
+import Image from 'next/legacy/image';
 import Separator from '../common/separator';
 // import { PauseIcon } from "../common/main/pauseIcon";
 // import { PlayIcon } from "../common/main/playIcon";
@@ -182,13 +182,13 @@ const Card = ({ member }: { member: IMember }) => {
 			<div className="w-[235px] h-[48px] flex items-center justify-center">
 				<div className="flex justify-center items-center">
 					<Link href={`/profile/${iuser?.id}`}>
-						<div>
+						<div className="relative w-[48px] h-[48px]">
 							<Image
 								src={iuser?.imageUrl || ''}
 								alt="User Icon"
-								className="rounded-[50%] cursor-pointer"
-								width={48}
-								height={48}
+								layout="fill"
+								objectFit="cover"
+								className="rounded-[50%] cursor-pointer h-full w-full"
 							/>
 						</div>
 					</Link>
