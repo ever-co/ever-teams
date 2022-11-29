@@ -2,14 +2,10 @@ import React, { FC } from "react"
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
 import { colors } from "../../../../theme"
 import DropDown from "../../TeamScreen/components/DropDown"
-import { teamItem } from "../../TeamScreen/components/DropDownSection"
 
 // COMPONENTS
 import { Text } from "../../../../components"
 
-interface Props {
-  teams: teamItem[]
-}
 
 const FilterSection = () => {
   const [isOpened, setIsOpened] = React.useState(false)

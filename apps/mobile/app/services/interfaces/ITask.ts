@@ -147,8 +147,10 @@ interface Creator {
 export type ITaskStatus =
   | "Todo"
   | "In Progress"
+  | "In Review"
   | "For Testing"
   | "Completed"
+  | "Closed"
   | "Unassigned";
 
 export interface ICreateTask {

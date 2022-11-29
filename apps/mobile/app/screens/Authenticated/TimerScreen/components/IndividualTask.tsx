@@ -44,7 +44,7 @@ const IndividualTask: FC<Props> =observer(({ task, handleActiveTask }) => {
         >
           {task.status === "Completed" ? (
             <AntDesign name="checkcircleo" size={8} color="#3D9A6D" />
-          ) : task.status === "In review" ? (
+          ) : task.status === "In Review" ? (
             <AntDesign name="search1" size={8} color="#8F97A1" />
           ) : task.status === "In Progress" ? (
             <MaterialCommunityIcons name="progress-check" size={8} color="#735EA8" />
@@ -58,7 +58,7 @@ const IndividualTask: FC<Props> =observer(({ task, handleActiveTask }) => {
                 ? styles.textCompleted
                 : task.status === "In Review"
                   ? styles.textInReview
-                  : task.status === "In progress"
+                  : task.status === "In Progress"
                     ? styles.textInProgress
                     : styles.textUnAssigned
             }
@@ -73,7 +73,7 @@ const IndividualTask: FC<Props> =observer(({ task, handleActiveTask }) => {
                 ? "#3D9A6D"
                 : task.status === "In Review"
                   ? "#8F97A1"
-                  : task.status === "In progress"
+                  : task.status === "In Progress"
                     ? "#735EA8"
                     : "#8B7FAA"
             }

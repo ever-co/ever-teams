@@ -66,7 +66,7 @@ export async function register(params: IRegister) {
       name: params.team,
       tenantId: tenant.id,
       organizationId: organization.id,
-      managers: [employee.id],
+      managerIds: [employee.id],
     },
     auth_token
   );

@@ -1,4 +1,3 @@
-import { teamItem } from "./components/DropDownSection";
 
 export const tasks = [
   {
@@ -24,7 +23,7 @@ export const tasks = [
   },
 ]
 
-export const teams : teamItem[] = [
+export const teams = [
   {
     img: "../../../../../assets/icons/community.png",
     title: "All",
