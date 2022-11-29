@@ -10,6 +10,7 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { useStores } from "../../../../models"
 import EstimateTime from "./EstimateTime"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { observer } from "mobx-react-lite"
 
 export interface Props {
 }
@@ -36,7 +37,7 @@ const NewTimerCard: FC<Props> = () => {
 
   const handleChangeText = (value: string) => {
     setTaskInputText(value)
-    if (value.trim().length >0) {
+    if (value.trim().length > 0) {
       setShowCombo(true)
     } else {
       setShowCombo(false)
@@ -79,13 +80,13 @@ const NewTimerCard: FC<Props> = () => {
           onChangeText={(newText) => handleChangeText(newText)}
         />
         {taskInputText.length < 4 ? null : (
-          <TouchableOpacity onPress={()=>onCreateNewTask()}>
-          <Feather name="check" size={24} color="green" />
+          <TouchableOpacity onPress={() => onCreateNewTask()}>
+            <Feather name="check" size={24} color="green" />
           </TouchableOpacity>
         )}
       </View>
 
-      {showCombo && <ComboBox tasks={teamTasks} onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
+      {showCombo && <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
 
       <View
         style={{

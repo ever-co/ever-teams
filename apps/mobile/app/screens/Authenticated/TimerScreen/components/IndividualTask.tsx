@@ -1,11 +1,10 @@
 import React, { FC, useState } from "react"
 import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
-import { AntDesign, Entypo } from "@expo/vector-icons"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
+import { AntDesign, Entypo, EvilIcons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
 
@@ -15,21 +14,48 @@ export interface Props {
   handleActiveTask: (value: ITeamTask) => unknown
 }
 
-const IndividualTask: FC<Props> =observer(({ task, handleActiveTask }) => {
+const IndividualTask: FC<Props> = observer(({ task, handleActiveTask }) => {
   const [showDel, setShowDel] = useState(false)
   const {
-    authenticationStore:{ tenantId, authToken, organizationId },
-    teamStore:{activeTeamId},
-    TaskStore:{deleteTask}
-}=useStores();
+    authenticationStore: { tenantId, authToken, organizationId },
+    teamStore: { activeTeamId },
+    TaskStore: { updateTask }
+  } = useStores();
 
-  const removeTask=()=>{
-    deleteTask({tenantId,authToken, taskId:task.id, organizationId, activeTeamId:activeTeamId})
+  const onCloseTask = () => {
+    const value: ITaskStatus = "Closed";
+    const EditTask = {
+      ...task,
+      status: value
+    };
+    const refreshData = {
+      activeTeamId,
+      tenantId,
+      organizationId
+    }
+    updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
+  }
+
+  const reOpen=()=>{
+    const value: ITaskStatus = "Todo";
+    const EditTask = {
+      ...task,
+      status: value
+    };
+    const refreshData = {
+      activeTeamId,
+      tenantId,
+      organizationId
+    }
+    updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
   }
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => handleActiveTask(task)}>
-      <Text style={{ color: "#1B005D", fontSize: 10 }}>{task.title}</Text>
+      <View style={{ flexDirection: "row" }}>
+        <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text>
+        <Text style={{ color: "#1B005D", fontSize: 12, marginLeft: 5 }}>{task.title}</Text>
+      </View>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <View
           style={
@@ -84,8 +110,9 @@ const IndividualTask: FC<Props> =observer(({ task, handleActiveTask }) => {
           <View style={{ flexDirection: "row" }}>
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
           </View>
-          <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />
-          {showDel && <DeletePopUp removeUser={removeTask} setShowDel={setShowDel} />}
+          {task.status === "Closed" ? <EvilIcons name="refresh" size={24} color="#8F97A1" onPress={()=>reOpen()}  /> :
+            <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />}
+          {showDel && <DeletePopUp onCloseTask={onCloseTask} setShowDel={setShowDel} />}
         </View>
       </View>
     </TouchableOpacity>
