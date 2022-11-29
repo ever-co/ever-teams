@@ -2,32 +2,44 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { StatusIcon, statusIcons } from './dropdownIcons';
-import { ITaskStatus } from '@app/interfaces/ITask';
+import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { useTeamTasks } from '@app/hooks/useTeamTasks';
 import { Spinner } from '../spinner';
 
 const statusKeys = Object.keys(statusIcons) as ITaskStatus[];
 
 const StatusDropdown = () => {
-	const [selected, setSelected] = useState<ITaskStatus | null>(null);
-	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
+	const { activeTeamTask } = useTeamTasks();
+
+	return <RawStatusDropdown task={activeTeamTask} />;
+};
+
+export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
+	const { updateTask, updateLoading } = useTeamTasks();
+	const [selected, setSelected] = useState<ITaskStatus | null>(
+		task?.status || null
+	);
 
 	useEffect(() => {
-		setSelected(activeTeamTask?.status || null);
-	}, [activeTeamTask]);
+		setSelected(task?.status || null);
+	}, [task]);
+
+	useEffect(() => {
+		setSelected(task?.status || null);
+	}, [task]);
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
 			setSelected(status);
 
-			if (activeTeamTask && status !== activeTeamTask.status) {
+			if (task && status !== task.status) {
 				updateTask({
-					...activeTeamTask,
+					...task,
 					status: status,
 				});
 			}
 		},
-		[activeTeamTask, updateTask]
+		[task, updateTask]
 	);
 
 	return (
@@ -35,11 +47,11 @@ const StatusDropdown = () => {
 			<Combobox
 				value={selected}
 				onChange={handleChange}
-				disabled={activeTeamTask ? false : true}
+				disabled={task ? false : true}
 			>
 				<div
 					className={`relative w-full cursor-default overflow-hidden rounded-lg  ${
-						activeTeamTask ? 'bg-[#EEEFF5]' : 'bg-white'
+						task ? 'bg-[#EEEFF5]' : 'bg-white'
 					} dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm`}
 				>
 					<div className="flex px-[10px] items-center justify-center">
@@ -50,7 +62,7 @@ const StatusDropdown = () => {
 						)}
 						<Combobox.Input
 							className={`h-[30px] ${
-								activeTeamTask ? 'bg-[#F0ECFD]' : 'bg-white'
+								task ? 'bg-[#F0ECFD]' : 'bg-white'
 							} dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-none py-1`}
 							displayValue={(status: ITaskStatus) => status}
 							onChange={(_) => {
@@ -119,6 +131,6 @@ const StatusDropdown = () => {
 			</Combobox>
 		</div>
 	);
-};
+}
 
 export default StatusDropdown;
