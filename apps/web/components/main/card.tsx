@@ -12,6 +12,7 @@ import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
 import { Spinner } from '@components/common/spinner';
 import Link from 'next/link';
+import { pad } from '@app/helpers/number';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -262,8 +263,8 @@ const Card = ({ member }: { member: IMember }) => {
 						{!estimateEdit && (
 							<div className="flex items-center">
 								<div>
-									Estimate : {formValues.estimateHours}h
-									{formValues.estimateMinutes}m
+									Estimate : {formValues.estimateHours}h{' '}
+									{pad(formValues.estimateMinutes)}m
 								</div>
 								<span
 									className="ml-[15px] flex items-center cursor-pointer"
