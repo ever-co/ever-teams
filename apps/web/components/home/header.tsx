@@ -1,6 +1,6 @@
-import { IHeader } from "../../app/interfaces/hooks";
+// import { IHeader } from "../../app/interfaces/hooks";
 
-const Header = ({ style }: IHeader) => {
+const Header = () => {
   return (
     <li>
       <div className="flex items-center justify-between text-primary font-bold dark:text-[#FFFFFF]">
