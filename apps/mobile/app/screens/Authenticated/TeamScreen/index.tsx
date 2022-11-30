@@ -27,6 +27,9 @@ import CreateTeamModal from "./components/CreateTeamModal"
 import { useStores } from "../../../models"
 import Teams, { IOTeams } from "../../../services/teams/organization-team"
 import { observer } from "mobx-react-lite"
+import { IInviteRequest } from "../../../services/interfaces/IInvite"
+import inviteByEmail from "../../../services/invite/invite"
+import { IUser } from "../../../services/interfaces/IUserData"
 
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -35,8 +38,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     //Get authentificate data
     const {
       authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
-      teamStore: { teams, createTeam, activeTeam, activeTeamId },
-      TaskStore:{activeTask}
+      teamStore: { teams, createTeam, activeTeamId }
     } = useStores();
 
     // STATES
@@ -89,13 +91,25 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
       createTeam(responseTeams)
     }
 
+    const onInviteMember = async (inviteData: IInviteRequest) => {
+      const response = await inviteByEmail({
+        user: user as IUser,
+        organizationId: organizationId,
+        tenantId: tenantId,
+        teamId: activeTeamId,
+        inviteBody: inviteData,
+        access_token: authToken
+      })
+      // console.log("Data :" + JSON.stringify(response))
+    }
+
     useEffect(() => {
       isTeamManager();
     }, [activeTeam, user, teams, activeTask])
 
     return (
       <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
-        <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
+        <InviteUserModal onInviteMember={onInviteMember} visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
         <CreateTeamModal
           onCreateTeam={createNewTeam}
           visible={showCreateTeamModal}
