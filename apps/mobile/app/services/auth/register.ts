@@ -66,11 +66,11 @@ export async function register(params: IRegister) {
       name: params.team,
       tenantId: tenant.id,
       organizationId: organization.id,
-      managers: [employee.id],
+      managerIds: [employee.id],
     },
-    auth_token
+    auth_token 
   );
-
+console.log(team)
   // Save auth data
 LocalStorage.set("token",auth_token);
 

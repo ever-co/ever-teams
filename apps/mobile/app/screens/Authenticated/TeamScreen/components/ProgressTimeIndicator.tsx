@@ -3,6 +3,7 @@ import { View, TextInput, StyleSheet } from "react-native"
 import Svg, { G, Circle } from "react-native-svg"
 
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { secondsToTime } from "../../../../helpers/date"
 
 type progressProps = {
   estimatedHours: number
@@ -20,6 +21,8 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
   const maxPerc = (100 * percentage) / max
   const circleCircumference = 2 * Math.PI * radius
   const strokeDashoffset = circleCircumference - (circleCircumference * maxPerc) / 100
+
+  const { h: estimateHours, m: estimateMinutes } = secondsToTime(estimatedHours);
 
   return (
     <View>
@@ -49,7 +52,7 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
       <TextInput
         underlineColorAndroid={"transparent"}
         editable={false}
-        defaultValue={`${estimated ? estimatedHours + "h" : "00:00"}`}
+        defaultValue={estimated && estimatedHours > 0 ? `${estimateHours}h${estimateMinutes !== 0 ? estimateMinutes : ""}` : "00:00"}
         style={[
           StyleSheet.absoluteFillObject,
           { fontSize: radius / 1.6, color: `${estimated ? CC["success"] : "gray"}` },

@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { Text, TextInput, View, Image, StyleSheet, TouchableOpacity } from "react-native"
-import { ProgressBar } from "react-native-paper"
+import { ActivityIndicator, ProgressBar } from "react-native-paper"
 import { colors } from "../../../../theme"
 import TaskStatusDropdown from "./TaskStatusDropdown"
 
@@ -10,6 +10,7 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { useStores } from "../../../../models"
 import EstimateTime from "./EstimateTime"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { observer } from "mobx-react-lite"
 
 export interface Props {
 }
@@ -18,25 +19,26 @@ const NewTimerCard: FC<Props> = () => {
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId },
-    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, teamTasks }
+    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks }
   } = useStores();
   const [showCombo, setShowCombo] = useState(false)
   const [text1, setText1] = useState("")
   const [text2, setText2] = useState("")
   const [taskInputText, setTaskInputText] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
 
   const onCreateNewTask = async () => {
-
-    createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
-
+    setIsLoading(true)
+    await createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
+    setIsLoading(false)
   }
 
 
   const handleChangeText = (value: string) => {
     setTaskInputText(value)
-    if (value.trim().length >0) {
+    if (value.trim().length > 0) {
       setShowCombo(true)
     } else {
       setShowCombo(false)
@@ -79,13 +81,14 @@ const NewTimerCard: FC<Props> = () => {
           onChangeText={(newText) => handleChangeText(newText)}
         />
         {taskInputText.length < 4 ? null : (
-          <TouchableOpacity onPress={()=>onCreateNewTask()}>
-          <Feather name="check" size={24} color="green" />
+          <TouchableOpacity onPress={() => onCreateNewTask()}>
+            <Feather name="check" size={24} color="green" />
           </TouchableOpacity>
         )}
+        {isLoading && fetchingTasks ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
       </View>
 
-      {showCombo && <ComboBox tasks={teamTasks} onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
+      {showCombo && <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
 
       <View
         style={{
@@ -176,6 +179,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 6,
   },
+  loading: {
+    position: 'absolute',
+    right: 10,
+    top: 15
+  }
 })
 
 export default NewTimerCard

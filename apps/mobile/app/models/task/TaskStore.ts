@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { h_filter } from "../../screens/Authenticated/TimerScreen/components/ComboBox";
 import { ICreateTask, ITeamTask } from "../../services/interfaces/ITask";
 import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../services/requests/tasks";
 import { getTasksByTeamState, ITaskCreateParams, ITaskDeleteParams, ITaskGetParams, ITaskUpdateParams } from "./Task";
@@ -32,12 +33,14 @@ export const TaskStoreModel = types
             taskNumber: ""
         }),
         activeTaskId: types.optional(types.string, ""),
+        fetchingTasks: types.optional(types.boolean, false)
     })
     .views((store) => ({
 
     }))
     .actions((store) => ({
         async createNewTask({ taskTitle, teamId, tenantId, organizationId, authToken }: ITaskCreateParams) {
+            this.setFetchingTasks(true)
             if (taskTitle.trim().length < 2) return;
 
             const dataBody: ICreateTask = {
@@ -58,6 +61,7 @@ export const TaskStoreModel = types
             })
 
             this.getTeamTasks({ tenantId, organizationId, authToken, activeTeamId: teamId })
+            this.setFetchingTasks(true)
         },
         async getTeamTasks({ tenantId, organizationId, activeTeamId, authToken }: ITaskGetParams) {
             const { data } = await getTeamTasksRequest({
@@ -75,22 +79,40 @@ export const TaskStoreModel = types
         },
 
         async updateTask({ taskData, taskId, authToken, refreshData }: ITaskUpdateParams) {
+            this.setFetchingTasks(true)
             const { data } = await updateTaskRequest({ data: taskData, id: taskId }, authToken);
             this.setActiveTask(data)
-            this.getTeamTasks({authToken,tenantId:refreshData.tenantId, organizationId:refreshData.organizationId, activeTeamId:refreshData.activeTeamId})
+            console.log(data)
+            this.getTeamTasks({ authToken, tenantId: refreshData.tenantId, organizationId: refreshData.organizationId, activeTeamId: refreshData.activeTeamId })
+            this.setFetchingTasks(false)
         },
-        setActiveTask(task:any) {
+        setActiveTask(task: any) {
 
             store.activeTask = task;
             store.activeTaskId = task.id;
         },
-        setTeamTasks(tasks:any){
-            store.teamTasks=tasks
-            console.log(store.teamTasks)
+        setTeamTasks(tasks: any) {
+            store.teamTasks = tasks
         },
-        resetTeamTasksData(){
-            store.activeTask={}
-            store.activeTaskId=""
+        setFetchingTasks(value: boolean) {
+            store.fetchingTasks = value
+        },
+        filterDataByStatus(query, tasks: ITeamTask[], filter) {
+            return query.trim() === ""
+                ? tasks.filter((task) => h_filter(task.status, filter))
+                : tasks.filter(
+                    (task) =>
+                        task.title
+                            .trim()
+                            .toLowerCase()
+                            .replace(/\s+/g, "")
+                            .startsWith(query.toLowerCase().replace(/\s+/g, "")) &&
+                        h_filter(task.status, filter)
+                );
+        },
+        resetTeamTasksData() {
+            store.activeTask = {}
+            store.activeTaskId = ""
             store.teamTasks.clear()
         }
 

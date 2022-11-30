@@ -29,7 +29,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
         <ProfileHeader />
         <View style={$wrapComboboxes}>
           <View style={{ flex: 2, alignItems: "flex-start" }}>
-            <DropDown teams={teams} onCreateTeam={() => {}} />
+            <DropDown onCreateTeam={() => {}} />
           </View>
           <View style={{ width: "30%", justifyContent: "center" }}>
             <FilterSection />

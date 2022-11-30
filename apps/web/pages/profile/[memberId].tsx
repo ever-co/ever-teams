@@ -1,7 +1,7 @@
 import { useOrganizationTeams } from '@app/hooks/useOrganizationTeams';
 import { AppLayout } from '@components/layout';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
+import Image from 'next/legacy/image';
 import { useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
@@ -43,24 +43,22 @@ const Profile = () => {
 							<Link href="/main">Back to Team</Link>
 						</div>
 						<div className="flex items-center mb-[100px]">
-							<div className="relative">
-								<Image
-									src={user?.imageUrl || ''}
-									alt="User Icon"
-									width={137}
-									height={137}
-									className="rounded-full "
-								/>
-
-								<div className="absolute rounded-full bg-white p-[1px] top-[8px] right-[1px] flex items-center justify-center cursor-pointer">
+							<div className="relative h-[137px] w-[137px]">
+								{user?.imageUrl && (
 									<Image
-										src="/assets/png/edit.png"
-										width={26}
-										height={26}
-										alt="edit icon"
+										src={user?.imageUrl}
+										alt="User Icon"
+										className="rounded-full h-full w-full z-20"
+										layout="fill"
+										objectFit="cover"
 									/>
+								)}
+
+								<div className="absolute z-10 inset-0 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+									<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 								</div>
-								<div className="absolute rounded-full bg-white p-[1px] top-[100px] right-[5px]">
+
+								<div className="absolute z-30 rounded-full bg-white p-[1px] top-[100px] right-[5px]">
 									<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
 								</div>
 							</div>
@@ -70,25 +68,9 @@ const Profile = () => {
 										{user?.firstName && Capitalize(user.firstName)}
 										{user?.lastName && ' ' + Capitalize(user.lastName)}
 									</span>
-									<span className="ml-[15px] flex items-center cursor-pointer">
-										<Image
-											src="/assets/png/edit.png"
-											width={26}
-											height={26}
-											alt="edit icon"
-										/>
-									</span>
 								</div>
 								<div className="text-[#B0B5C7] flex items-center">
 									<span className="flex items-center">{user?.email}</span>
-									<span className="ml-[15px] flex items-center cursor-pointer">
-										<Image
-											src="/assets/png/edit.png"
-											width={26}
-											height={26}
-											alt="edit icon"
-										/>
-									</span>
 								</div>
 							</div>
 						</div>
@@ -98,79 +80,85 @@ const Profile = () => {
 					</div>
 				</div>
 
-				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
-					<div className="flex">
+				<div className="relative z-10">
+					<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
+						<div className="flex">
+							<div
+								className={`mr-10 ${
+									tab === 'worked' && 'font-medium'
+								} cursor-pointer`}
+								onClick={() => setTab('worked')}
+							>
+								Worked
+								{tab === 'worked' && (
+									<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
+								)}
+							</div>
+							<div
+								className={`mr-10 ${
+									tab === 'assigned' && 'font-medium'
+								} cursor-pointer`}
+								onClick={() => setTab('assigned')}
+							>
+								Assigned
+								{tab === 'assigned' && (
+									<div className="w-[78px] h-[2px] bg-[#ACB3BB]" />
+								)}
+							</div>
+							<div
+								className={`mr-10 ${
+									tab === 'unassigned' && 'font-medium'
+								} cursor-pointer`}
+								onClick={() => setTab('unassigned')}
+							>
+								Unassigned
+								{tab === 'unassigned' && (
+									<div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
+								)}
+							</div>
+						</div>
+						<div className="flex items-center">
+							<div className="mr-4 h-full relative z-10">
+								<StatusDropdown />
+							</div>
+							<button className="rounded-[7px] hover:bg-opacity-80 w-[140px] text-md h-[36px] bg-primary text-white dark:bg-[#1B1B1E] dark:text-[#ACB3BB] dark:border-white dark:hover:text-white">
+								Assign Task
+							</button>
+						</div>
+					</div>
+					<div className="flex items-center justify-between">
+						<div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
+							Now
+						</div>
+						<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
+						<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+							Total time: 03:31
+						</div>
+					</div>
+					<div className="relative">
+						{activeTeamTask && (
+							<ProfileCard now={true} task={activeTeamTask} current="00:00" />
+						)}
+					</div>
+					<div className="flex items-center justify-between mt-[40px]">
+						<div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
+							Last 24 hours
+						</div>
+						<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
+						<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+							Total time: 03:31
+						</div>
+					</div>
+					{otherTasks.map((ta, i) => (
 						<div
-							className={`mr-10 ${
-								tab === 'worked' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('worked')}
+							key={ta.id}
+							className="relative"
+							style={{ zIndex: `-${i + 1}` }}
 						>
-							Worked
-							{tab === 'worked' && (
-								<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
-							)}
+							<ProfileCard task={ta} current="00:00" />
 						</div>
-						<div
-							className={`mr-10 ${
-								tab === 'assigned' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('assigned')}
-						>
-							Assigned
-							{tab === 'assigned' && (
-								<div className="w-[78px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
-						<div
-							className={`mr-10 ${
-								tab === 'unassigned' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('unassigned')}
-						>
-							Unassigned
-							{tab === 'unassigned' && (
-								<div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
-					</div>
-					<div className="flex items-center">
-						<div className="mr-4 h-full">
-							<StatusDropdown />
-						</div>
-						<button className="rounded-[7px] hover:bg-opacity-80 w-[140px] text-md h-[36px] bg-primary text-white dark:bg-[#1B1B1E] dark:text-[#ACB3BB] dark:border-white dark:hover:text-white">
-							Assign Task
-						</button>
-					</div>
+					))}
 				</div>
-				<div className="flex items-center justify-between">
-					<div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
-						Now
-					</div>
-					<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
-					<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
-						Total time: 03:31
-					</div>
-				</div>
-				<div>
-					{activeTeamTask && (
-						<ProfileCard now={true} task={activeTeamTask} current="00:00" />
-					)}
-				</div>
-				<div className="flex items-center justify-between mt-[40px]">
-					<div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
-						Last 24 hours
-					</div>
-					<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
-					<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
-						Total time: 03:31
-					</div>
-				</div>
-				{otherTasks.map((ta) => (
-					<div key={ta.id}>
-						<ProfileCard task={ta} current="00:00" />
-					</div>
-				))}
 			</AppLayout>
 		</div>
 	);
