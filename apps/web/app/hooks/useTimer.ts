@@ -130,10 +130,11 @@ export function useTimer() {
 		window.clearInterval(timeCounterIntervalRef.current);
 		setTimeCounter(timerStatus.duration * 1000);
 		if (timerStatus.running) {
+			const INTERVAL = 50; // MS
 			setTimeCounterInterval(
 				window.setInterval(() => {
-					setTimeCounter((c) => c + 10);
-				}, 10)
+					setTimeCounter((c) => c + INTERVAL);
+				}, INTERVAL)
 			);
 		}
 	}, [timerStatus, firstLoad]);
