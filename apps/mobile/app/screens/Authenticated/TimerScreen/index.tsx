@@ -23,7 +23,7 @@ import { observer } from "mobx-react-lite"
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =observer(function AuthenticatedTimerScreen(_props) {
     // Get Authenticate data
     const {
-      authenticationStore: { userId, tenantId, organizationId, employeeId, authToken },
+      authenticationStore: { user, tenantId, organizationId, employeeId, authToken },
       teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam },
       TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
     } = useStores();
@@ -62,7 +62,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         organizationId: organizationId,
         access_token: authToken,
         employeeId,
-        userId: userId,
+        userId: user?.id,
         teamName: text
       };
       createTeam(responseTeams)
@@ -70,7 +70,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     }
 
     const loadTeamTasks = async () => {
-       await getUserTeams({ tenantId: tenantId, userId: userId, authToken: authToken });
+       await getUserTeams({ tenantId: tenantId, userId: user?.id, authToken: authToken });
     }
 
 

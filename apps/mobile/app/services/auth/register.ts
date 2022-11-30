@@ -68,9 +68,9 @@ export async function register(params: IRegister) {
       organizationId: organization.id,
       managerIds: [employee.id],
     },
-    auth_token
+    auth_token 
   );
-
+console.log(team)
   // Save auth data
 LocalStorage.set("token",auth_token);
 
