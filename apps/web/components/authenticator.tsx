@@ -18,7 +18,7 @@ export function withAuthentication(
 			queryCall().then((res) => {
 				setUser(res.data.user);
 			});
-		}, []);
+		}, [queryCall, setUser]);
 
 		return (
 			<>

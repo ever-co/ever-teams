@@ -37,7 +37,7 @@ export default async function handler(
     });
   }
 
-  const tenantId = loginRes.user.tenantId!;
+  const tenantId = loginRes.user.tenantId || '';
   const access_token = loginRes.token;
   const userId = loginRes.user.id;
 

@@ -28,7 +28,7 @@ interface IDropdownUserProps {
   setEstimateEdit: Dispatch<SetStateAction<boolean>>;
 }
 
-const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
+const DropdownUser = ({ setEstimateEdit }: IDropdownUserProps) => {
   const [referenceElement, setReferenceElement] = useState<
     Element | null | undefined
   >();
@@ -70,14 +70,14 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
     {
       name: "Assign new task",
       handleClick: () => {
-        // 
+        //
       },
       extramenu: true,
     },
     {
       name: "Unassign task",
       handleClick: () => {
-        // 
+        //
       },
       extramenu: true,
     },
@@ -137,7 +137,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
 
   const handleTaskCreation = () => {
     if (query.trim().length < 2) return;
-    createTask(query.trim()).then((res) => {
+    createTask(query.trim()).then(() => {
       setQuery("");
     });
   };
@@ -147,7 +147,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
   return (
     <>
       <Popover className="relative border-none no-underline">
-        {({ open }) => (
+        {() => (
           <>
             <Popover.Button className="border-none outline-none active:border-none no-underline">
               <EllipsisVerticalIcon
@@ -181,7 +181,7 @@ const DropdownUser = ({ setEdit, setEstimateEdit }: IDropdownUserProps) => {
                         key={option.name}
                         className="relative border-none no-underline"
                       >
-                        {({ open }) => (
+                        {() => (
                           <>
                             <Popover.Button
                               onClick={option.handleClick}

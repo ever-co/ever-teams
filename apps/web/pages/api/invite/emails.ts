@@ -30,7 +30,7 @@ export default async function handler(
       tenantId,
       organizationId,
       emailIds: [body.email],
-      roleId: user.roleId!,
+      roleId: user.roleId || '',
       invitationExpirationPeriod: "Never",
       inviteType: "EMPLOYEE",
       invitedById: user.id,
