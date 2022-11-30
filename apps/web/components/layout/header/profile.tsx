@@ -33,7 +33,7 @@ const Profile = () => {
 
 	return (
 		<Popover className="relative border-none no-underline">
-			{({ open }) => (
+			{() => (
 				<>
 					<Popover.Button className="p-0 m-0 outline-none mt-1">
 						<div className="cursor-pointer relative w-[48px] h-[48px]">

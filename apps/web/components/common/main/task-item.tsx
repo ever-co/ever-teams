@@ -8,7 +8,6 @@ import { Spinner } from "../spinner";
 export function TaskItem({
   selected,
   item,
-  active,
   onDelete,
   onReopen,
   updateLoading,

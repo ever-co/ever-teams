@@ -11,7 +11,7 @@ const TeamMemberSection = () => {
 	const { activeTeam, teamsFetching } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
 	const members = activeTeam?.members || [];
-	const style = { width: `${100 / members.length}%` };
+	// const style = { width: `${100 / members.length}%` };
 
 	const $teamsFetching = teamsFetching && members.length === 0;
 
@@ -26,7 +26,7 @@ const TeamMemberSection = () => {
 	return (
 		<div className="mt-[42px]">
 			<ul className="w-full">
-				<Header style={style} />
+				<Header />
 				{currentUser && (
 					<li key={currentUser.id}>
 						<Card member={currentUser} />

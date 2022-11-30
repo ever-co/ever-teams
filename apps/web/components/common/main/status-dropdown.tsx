@@ -65,7 +65,7 @@ export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 								task ? 'bg-[#F0ECFD]' : 'bg-white'
 							} dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] outline-none py-1`}
 							displayValue={(status: ITaskStatus) => status}
-							onChange={(_) => {
+							onChange={() => {
 								//
 							}}
 							readOnly
