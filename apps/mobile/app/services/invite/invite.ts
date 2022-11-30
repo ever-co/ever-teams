@@ -7,7 +7,7 @@ import {
     // sendAuthCode,
 } from "../requests/invite";
 
-interface Params {
+interface ISendInvitation {
     user: IUser;
     organizationId: string;
     access_token: string;
@@ -18,8 +18,15 @@ interface Params {
         email: string
     }
 }
+interface IGetInvitations {
+    user: IUser;
+    organizationId: string;
+    access_token: string;
+    teamId: string;
+    tenantId: string;
+}
 
-export default async function inviteByEmail({ user, organizationId, access_token, teamId, tenantId,inviteBody }: Params) {
+export async function inviteByEmail({ user, organizationId, access_token, teamId, tenantId, inviteBody }: ISendInvitation) {
     if (!user) return {};
     console.log(inviteBody)
 
@@ -34,7 +41,7 @@ export default async function inviteByEmail({ user, organizationId, access_token
     //     }
     // }
 
-    const {response}=await inviteByEmailsRequest(
+    const { response } = await inviteByEmailsRequest(
         {
             startedWorkOn: new Date().toISOString(),
             tenantId,
@@ -62,9 +69,24 @@ export default async function inviteByEmail({ user, organizationId, access_token
 
     // const { data: k } = await sendAuthCode(body.email);
 
-    return response;
-    // {
-    //     status: 200,
-    //     data: JSON.stringify(data)
-    // }
+    return {
+        status: 200,
+        data: JSON.stringify(data)
+    }
 }
+
+export async function getTeamInvitations({ user, organizationId, access_token, teamId, tenantId }: IGetInvitations) {
+    if (!user) return {};
+
+    const { data } = await getTeamInvitationsRequest(
+        {
+            tenantId,
+            teamId,
+            organizationId,
+            role: "EMPLOYEE",
+        },
+        access_token
+    );
+    console.log(data)
+    return data
+} 

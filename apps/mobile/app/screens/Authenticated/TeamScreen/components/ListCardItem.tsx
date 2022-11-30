@@ -31,10 +31,11 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
   const { TaskStore: { activeTask } } = useStores();
   const [isManager, setIsManager] = useState(true)
   const iuser = item.employee.user
-  console.log(activeTask)
+
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={[{ ...GS.p2, ...GS.positionRelative }, isManager ? { borderWidth: 1, borderColor: "black", borderRadius: 20 } : null]}>
+      <View style={[styles.statusLine,{backgroundColor:CC["success"]}]}/>
         <View style={styles.firstContainer}>
           <Image
             source={{ uri: iuser.imageUrl }}
@@ -70,17 +71,17 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
         </View>
         <View style={{ flexDirection: 'row' }}>
           {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
-          <Text style={styles.otherText}>{activeTask.title}</Text>
+          <Text style={styles.otherText}>{"Lorem Ipsum is simply dummy text of the printing"}</Text>
         </View>
         <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
         <View style={styles.times}>
           <View>
             <Text style={styles.timeHeading}>Current time</Text>
-            <Text style={styles.timeNumber}>{item.currentTime}</Text>
+            <Text style={styles.timeNumber}>{"00:00"}</Text>
           </View>
           <View>
             <Text style={styles.timeHeading}>Total time</Text>
-            <Text style={styles.timeNumber}>{item.totalTime}</Text>
+            <Text style={styles.timeNumber}>{"00:00"}</Text>
           </View>
         </View>
       </View>
@@ -172,7 +173,6 @@ const $listCard: ViewStyle = {
   ...GS.p0,
   ...GS.noBorder,
   ...GS.shadow,
-  borderLeftWidth: spacing.extraSmall - spacing.micro,
   minHeight: null,
   borderRadius: spacing.large
 }
@@ -197,16 +197,14 @@ const styles = StyleSheet.create({
   times: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginVertical: 10,
+    paddingHorizontal: 10,
   },
   otherText: {
     fontSize: 12,
     color: "#ACB3BB",
     width: "80%",
     lineHeight: 15,
-    marginVertical: 15,
+    marginVertical: 5,
   },
   timeNumber: {
     color: "#1B005D",
@@ -223,7 +221,7 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "#1B005D",
-    fontSize: 13,
+    fontSize: 16,
     left: 10,
     fontWeight: "bold",
   },
@@ -257,5 +255,12 @@ const styles = StyleSheet.create({
     marginVertical: 9,
     right: 3,
     color: "#ACB3BB",
-  }
+  },
+  statusLine: { 
+    width: "1.5%", 
+    height: "80%", 
+    position: "absolute", 
+    top: "17%", 
+    left: -3, 
+    borderRadius: 3 }
 })

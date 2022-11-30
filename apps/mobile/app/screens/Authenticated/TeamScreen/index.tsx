@@ -28,8 +28,9 @@ import { useStores } from "../../../models"
 import Teams, { IOTeams } from "../../../services/teams/organization-team"
 import { observer } from "mobx-react-lite"
 import { IInviteRequest } from "../../../services/interfaces/IInvite"
-import inviteByEmail from "../../../services/invite/invite"
+import {getTeamInvitations, inviteByEmail} from "../../../services/invite/invite"
 import { IUser } from "../../../services/interfaces/IUserData"
+import InviteCardItem from "./components/InviteCardItem"
 
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -38,7 +39,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     //Get authentificate data
     const {
       authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
-      teamStore: { teams, createTeam, activeTeamId }
+      teamStore: { teams, createTeam, activeTeam },
+      TaskStore:{activeTask}
     } = useStores();
 
     // STATES
@@ -96,15 +98,17 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
         user: user as IUser,
         organizationId: organizationId,
         tenantId: tenantId,
-        teamId: activeTeamId,
+        teamId: activeTeam?.id,
         inviteBody: inviteData,
         access_token: authToken
       })
-      // console.log("Data :" + JSON.stringify(response))
+      setShowInviteModal(false)
+      console.log("Data :" + JSON.stringify(response))
     }
 
     useEffect(() => {
       isTeamManager();
+      getTeamInvitations({user,organizationId,access_token:authToken,tenantId, teamId:activeTeam?.id})
     }, [activeTeam, user, teams, activeTask])
 
     return (
@@ -141,6 +145,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                   enableEstimate={false}
                 />
               ))}
+
+              <InviteCardItem item={{}} />
 
               {/* Invite btn */}
               {teamManager ? (
