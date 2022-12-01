@@ -30,7 +30,7 @@ const Timer = () => {
 					<span className="text-[35px] w-7 inline-block">{pad(ms_p)}</span>
 				</h1>
 				<div className="flex w-[284px]">
-					<div className="bg-[#28D581] w-[10%] h-[8px] rounded-l-full"></div>
+					<div className="bg-[#28D581] w-[0%] h-[8px] rounded-l-full"></div>
 					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-r-full" />
 				</div>
 			</div>
