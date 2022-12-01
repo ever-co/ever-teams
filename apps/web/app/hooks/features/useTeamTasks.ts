@@ -1,141 +1,136 @@
 import {
-  getActiveTaskIdCookie,
-  setActiveTaskIdCookie,
-} from "@app/helpers/cookies";
+	getActiveTaskIdCookie,
+	setActiveTaskIdCookie,
+} from '@app/helpers/cookies';
 import {
-  createTeamTaskAPI,
-  deleteTaskAPI,
-  getTeamTasksAPI,
-  updateTaskAPI,
-} from "@app/services/client/api";
-import { activeTeamIdState } from "@app/stores";
+	createTeamTaskAPI,
+	deleteTaskAPI,
+	getTeamTasksAPI,
+	updateTaskAPI,
+} from '@app/services/client/api';
+import { activeTeamIdState } from '@app/stores';
 import {
-  activeTeamTaskState,
-  tasksByTeamState,
-  tasksFetchingState,
-  teamTasksState,
-} from "@app/stores";
-import { useCallback, useEffect, useState } from "react";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { useQuery } from "../useQuery";
+	activeTeamTaskState,
+	tasksByTeamState,
+	tasksFetchingState,
+	teamTasksState,
+} from '@app/stores';
+import { useCallback, useEffect } from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useFirstLoad } from '../useFirstLoad';
+import { useQuery } from '../useQuery';
 
 export function useTeamTasks() {
-  const setAllTasks = useSetRecoilState(teamTasksState);
-  const tasks = useRecoilValue(tasksByTeamState);
-  const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
+	const setAllTasks = useSetRecoilState(teamTasksState);
+	const tasks = useRecoilValue(tasksByTeamState);
+	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 
-  const activeTeamId = useRecoilValue(activeTeamIdState);
-  const [activeTeamTask, setActiveTeamTask] =
-    useRecoilState(activeTeamTaskState);
-  const [firstLoad, setFirstLoad] = useState(false);
+	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const [activeTeamTask, setActiveTeamTask] =
+		useRecoilState(activeTeamTaskState);
 
-  // Queries hooks
-  const { queryCall, loading } = useQuery(getTeamTasksAPI);
+	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
-  const { queryCall: deleteQueryCall, loading: deleteLoading } =
-    useQuery(deleteTaskAPI);
+	// Queries hooks
+	const { queryCall, loading } = useQuery(getTeamTasksAPI);
 
-  const { queryCall: createQueryCall, loading: createLoading } =
-    useQuery(createTeamTaskAPI);
+	const { queryCall: deleteQueryCall, loading: deleteLoading } =
+		useQuery(deleteTaskAPI);
 
-  const { queryCall: updateQueryCall, loading: updateLoading } =
-    useQuery(updateTaskAPI);
+	const { queryCall: createQueryCall, loading: createLoading } =
+		useQuery(createTeamTaskAPI);
 
-  /**
-   * To be called once, at the top level component (e.g main.tsx)
-   */
-  const firstLoadTasksData = useCallback(() => {
-    setFirstLoad(true);
-  }, []);
+	const { queryCall: updateQueryCall, loading: updateLoading } =
+		useQuery(updateTaskAPI);
 
-  const loadTeamTasksData = useCallback(() => {
-    return queryCall().then((res) => {
-      setAllTasks(res.data?.items || []);
-      return res;
-    });
-  }, [queryCall, setAllTasks]);
+	const loadTeamTasksData = useCallback(() => {
+		return queryCall().then((res) => {
+			setAllTasks(res.data?.items || []);
+			return res;
+		});
+	}, [queryCall, setAllTasks]);
 
-  // Global loading state
-  useEffect(() => {
-    if (firstLoad) {
-      setTasksFetching(loading);
-    }
-  }, [loading, firstLoad, setTasksFetching]);
+	// Global loading state
+	useEffect(() => {
+		if (firstLoad) {
+			setTasksFetching(loading);
+		}
+	}, [loading, firstLoad, setTasksFetching]);
 
-  // Reload tasks after active team changed
-  useEffect(() => {
-    if (activeTeamId && firstLoad) {
-      loadTeamTasksData();
-    }
-  }, [activeTeamId, firstLoad, loadTeamTasksData]);
+	// Reload tasks after active team changed
+	useEffect(() => {
+		if (activeTeamId && firstLoad) {
+			loadTeamTasksData();
+		}
+	}, [activeTeamId, firstLoad, loadTeamTasksData]);
 
-  // Get the active task from cookie and put on global store
-  useEffect(() => {
-    const active_taskid = getActiveTaskIdCookie() || "";
-    setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
-  }, [setActiveTeamTask, tasks]);
+	// Get the active task from cookie and put on global store
+	useEffect(() => {
+		const active_taskid = getActiveTaskIdCookie() || '';
+		setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+	}, [setActiveTeamTask, tasks]);
 
-  // Queries calls
-  const deleteTask = useCallback(
-    (task: typeof tasks[0]) => {
-      return deleteQueryCall(task.id).then((res) => {
-        const affected = res.data?.affected || 0;
-        if (affected > 0) {
-          setAllTasks((ts) => {
-            return ts.filter((t) => t.id !== task.id);
-          });
-        }
-        return res;
-      });
-    },
-    [deleteQueryCall, setAllTasks]
-  );
+	// Queries calls
+	const deleteTask = useCallback(
+		(task: typeof tasks[0]) => {
+			return deleteQueryCall(task.id).then((res) => {
+				const affected = res.data?.affected || 0;
+				if (affected > 0) {
+					setAllTasks((ts) => {
+						return ts.filter((t) => t.id !== task.id);
+					});
+				}
+				return res;
+			});
+		},
+		[deleteQueryCall, setAllTasks]
+	);
 
-  const createTask = useCallback(
-    (taskName: string) => {
-      return createQueryCall({
-        title: taskName,
-      }).then((res) => {
-        setAllTasks(res.data?.items || []);
-        return res;
-      });
-    },
-    [createQueryCall, setAllTasks]
-  );
+	const createTask = useCallback(
+		(taskName: string) => {
+			return createQueryCall({
+				title: taskName,
+			}).then((res) => {
+				setAllTasks(res.data?.items || []);
+				return res;
+			});
+		},
+		[createQueryCall, setAllTasks]
+	);
 
-  const updateTask = useCallback(
-    (task: Partial<typeof tasks[0]> & { id: string }) => {
-      return updateQueryCall(task.id, task).then((res) => {
-        setAllTasks(res.data?.items || []);
-        return res;
-      });
-    },
-    [setAllTasks, updateQueryCall]
-  );
+	const updateTask = useCallback(
+		(task: Partial<typeof tasks[0]> & { id: string }) => {
+			return updateQueryCall(task.id, task).then((res) => {
+				setAllTasks(res.data?.items || []);
+				return res;
+			});
+		},
+		[setAllTasks, updateQueryCall]
+	);
 
-  /**
-   * Change active task
-   */
-  const setActiveTask = useCallback(
-    (task: typeof tasks[0]) => {
-      setActiveTaskIdCookie(task.id);
-      setActiveTeamTask(task);
-    },
-    [setActiveTeamTask]
-  );
+	/**
+	 * Change active task
+	 */
+	const setActiveTask = useCallback(
+		(task: typeof tasks[0]) => {
+			setActiveTaskIdCookie(task.id);
+			setActiveTeamTask(task);
+		},
+		[setActiveTeamTask]
+	);
 
-  return {
-    tasks,
-    loading,
-    tasksFetching,
-    deleteTask,
-    deleteLoading,
-    createTask,
-    createLoading,
-    updateTask,
-    updateLoading,
-    setActiveTask,
-    activeTeamTask,
-    firstLoadTasksData,
-  };
+	return {
+		tasks,
+		loading,
+		tasksFetching,
+		deleteTask,
+		deleteLoading,
+		createTask,
+		createLoading,
+		updateTask,
+		updateLoading,
+		setActiveTask,
+		activeTeamTask,
+		firstLoadTasksData,
+	};
 }

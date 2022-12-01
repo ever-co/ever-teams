@@ -15,8 +15,9 @@ import {
 	timerStatusFetchingState,
 	timerStatusState,
 } from '@app/stores';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
+import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 
@@ -116,10 +117,11 @@ export function useTimer() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
 
-	const [firstLoad, setFirstLoad] = useState(false);
 	const [timerStatusFetching, setTimerStatusFetching] = useRecoilState(
 		timerStatusFetchingState
 	);
+
+	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
 
 	// Queries
 	const { queryCall, loading } = useQuery(getTimerStatusAPI);
@@ -140,13 +142,6 @@ export function useTimer() {
 		timerStatus,
 		firstLoad
 	);
-
-	/**
-	 * To be called once, at the top level component (e.g main.tsx)
-	 */
-	const firstLoadTimerData = useCallback(() => {
-		setFirstLoad(true);
-	}, []);
 
 	const getTimerStatus = useCallback(() => {
 		return queryCall().then((res) => {

@@ -25,5 +25,7 @@ export function createTeamTaskAPI(
 }
 
 export function tasksTimesheetStatisticsAPI() {
-	return api.get<ITasksTimesheet[]>('/timer/timesheet/statistics-tasks');
+	return api.get<{ global: ITasksTimesheet[] }>(
+		'/timer/timesheet/statistics-tasks'
+	);
 }

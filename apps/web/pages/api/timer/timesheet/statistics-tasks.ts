@@ -19,5 +19,7 @@ export default async function handler(
 		access_token
 	);
 
-	$res.json(data);
+	$res.json({
+		global: data,
+	});
 }
