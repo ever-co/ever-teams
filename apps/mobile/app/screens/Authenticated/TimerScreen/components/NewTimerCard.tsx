@@ -11,6 +11,7 @@ import { useStores } from "../../../../models"
 import EstimateTime from "./EstimateTime"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
+import { useTimer } from "../../../../models/timer/useTimer"
 
 export interface Props {
 }
@@ -19,17 +20,19 @@ const NewTimerCard: FC<Props> = () => {
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId },
-    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks }
+    TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks },
+    TimerStore:{timerStatusState, startTimer}
   } = useStores();
+  const {startTimerFunction, stopTimerFunction, getTimerStatus, toggleTimer}=useTimer();
   const [showCombo, setShowCombo] = useState(false)
-  const [text1, setText1] = useState("")
-  const [text2, setText2] = useState("")
   const [taskInputText, setTaskInputText] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
 
 
 
   const onCreateNewTask = async () => {
+    setShowCheckIcon(false)
     setIsLoading(true)
     await createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
     setIsLoading(false)
@@ -40,21 +43,28 @@ const NewTimerCard: FC<Props> = () => {
     setTaskInputText(value)
     if (value.trim().length > 0) {
       setShowCombo(true)
+      setShowCheckIcon(false)
     } else {
       setShowCombo(false)
+    }
+
+    if (value.trim().length <= 3) {
+      setShowCheckIcon(true)
     }
   }
 
   const handleActiveTask = (value: ITeamTask) => {
     setActiveTask(value);
+    setShowCheckIcon(false)
     setTaskInputText(value.title)
     setShowCombo(false)
   }
 
 
-
   useEffect(() => {
-    getTeamTasks({ tenantId, organizationId, activeTeamId, authToken })
+    // getTeamTasks({ tenantId, organizationId, activeTeamId, authToken })
+      // toggleTimer(activeTask?.id);
+      stopTimerFunction();
   }, [])
 
   return (
@@ -80,12 +90,12 @@ const NewTimerCard: FC<Props> = () => {
           onFocus={() => setShowCombo(true)}
           onChangeText={(newText) => handleChangeText(newText)}
         />
-        {taskInputText.length < 4 ? null : (
+        {showCheckIcon ? null : (
           <TouchableOpacity onPress={() => onCreateNewTask()}>
             <Feather name="check" size={24} color="green" />
           </TouchableOpacity>
         )}
-        {isLoading && fetchingTasks ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
+        {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
       </View>
 
       {showCombo && <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
@@ -106,7 +116,7 @@ const NewTimerCard: FC<Props> = () => {
 
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
-          <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>01:10:36:20</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>00:00:00</Text>
           <ProgressBar progress={0.7} color="#28D581" />
         </View>
         <TouchableOpacity onPress={() => { }}>

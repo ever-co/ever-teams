@@ -15,9 +15,9 @@ const EstimateTime = () => {
         teamStore: { activeTeamId }
     } = useStores();
     const [estimate, setEstimate] = useState({ hours: "", minutes: "" });
-    const [validEstimate, setValidEstimate] = useState({ validHour: false, validMinute: false })
     const [editing, setEditing] = useState({ editingHour: false, editingMinutes: false })
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
 
     useEffect(() => {
         const { h, m } = secondsToTime(activeTask?.estimate || 0);
@@ -36,13 +36,11 @@ const EstimateTime = () => {
                 ...estimate,
                 hours: "23"
             })
-            setValidEstimate({ ...validEstimate, validHour: true })
         } else {
             setEstimate({
                 ...estimate,
                 hours: parsedQty.toString()
             })
-            setValidEstimate({ ...validEstimate, validHour: true })
         }
     }
 
@@ -55,13 +53,19 @@ const EstimateTime = () => {
                 ...estimate,
                 minutes: "59"
             })
-            setValidEstimate({ ...validEstimate, validMinute: true })
         } else {
             setEstimate({
                 ...estimate,
                 minutes: parsedQty.toString()
             })
-            setValidEstimate({ ...validEstimate, validMinute: true })
+        }
+    }
+
+    const handleCheckIcon = () => {
+        const intHour = Number.parseInt(estimate.hours);
+        const intMinutes = Number.parseInt(estimate.minutes);
+        if (intHour > 0 && intMinutes) {
+            setShowCheckIcon(true)
         }
     }
 
@@ -96,7 +100,7 @@ const EstimateTime = () => {
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
     }, [activeTask, updateTask, estimate]);
-    // console.log(activeTask)
+
     return (
         <View style={[styles.estimate, {}]}>
             <TextInput
@@ -120,11 +124,7 @@ const EstimateTime = () => {
                 onChangeText={(text) => onChangeMinutes(text)}
                 style={styles.estimateInput}
             />
-            {validEstimate.validHour && validEstimate.validMinute ? (
-                <TouchableOpacity style={styles.checkButton} onPress={() => handleSubmit()}>
-                    <Feather size={25} color={"green"} name="check" />
-                </TouchableOpacity>
-            ) : null}
+            <Feather size={25} color={"green"} name="check" onPress={() => handleSubmit()} />
             {isLoading && fetchingTasks ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
         </View>
     )

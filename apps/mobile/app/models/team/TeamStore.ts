@@ -15,6 +15,7 @@ export const TeamStoreModel = types
 
     }))
     .actions((store) => ({
+        // Create New Team
         async createTeam({ teamName, userId, tenantId, organizationId, employeeId, access_token }: ICreateTeamParams) {
             const $name = teamName.trim() || "";
             if ($name.trim().length < 2) {
@@ -33,9 +34,9 @@ export const TeamStoreModel = types
                 },
                 access_token
             );
-            this.getUserTeams({ tenantId, userId, authToken: access_token });
+             this.getUserTeams({ tenantId, userId, authToken: access_token });
         },
-
+        // Get All teams
         async getUserTeams({ tenantId, userId, authToken }: IGetTeamsParams) {
             const { data: organizations } = await getUserOrganizationsRequest(
                 { tenantId, userId },
