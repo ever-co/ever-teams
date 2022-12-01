@@ -38,6 +38,7 @@ function InitState() {
 		loadTeamsData,
 		getTimerStatus,
 		firstLoadTimerData,
+		firstLoadtasksStatisticsData,
 	]);
 	return <></>;
 }

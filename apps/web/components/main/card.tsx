@@ -101,18 +101,13 @@ const Card = ({ member }: { member: IMember }) => {
 		};
 	}, []);
 
-	const canEditName = useCallback(() => {
-		(isManager || isAuthUser) && setNameEdit(true);
-	}, [isManager, isAuthUser]);
-
 	const canEditTaskName = useCallback(() => {
 		(isManager || isAuthUser) && setTaskEdit(true);
 	}, [isAuthUser, isManager]);
 
 	const handeEditBoth = useCallback(() => {
-		// canEditName();
 		canEditTaskName();
-	}, [canEditName, canEditTaskName]);
+	}, [canEditTaskName]);
 
 	const canEditEstimate = useCallback(() => {
 		(isManager || isAuthUser) && setEstimateEdit(true);
