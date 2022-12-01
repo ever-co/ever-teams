@@ -66,11 +66,15 @@ function useLocalTimeCounter(
 	useEffect(() => {
 		if (firstLoad) {
 			const localStatus = getLocalCounterStatus();
-			setLocalTimerStatus(localStatus);
+			localStatus &&
+				setLocalTimerStatus({
+					...localStatus,
+					duration: localStatus.running ? localStatus.duration : 0,
+				});
 
 			timerStatus &&
 				updateLocalTimerStatus({
-					duration: localStatus ? localStatus.duration : 0,
+					duration: localStatus?.running ? localStatus.duration : 0,
 					running: timerStatus.running,
 					lastTaskId: timerStatus.lastLog?.taskId || null,
 				});
