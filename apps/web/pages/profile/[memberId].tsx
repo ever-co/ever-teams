@@ -1,17 +1,17 @@
-import { useOrganizationTeams } from '@app/hooks/useOrganizationTeams';
+import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { AppLayout } from '@components/layout';
 import { useRouter } from 'next/router';
 import Image from 'next/legacy/image';
 import { useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
-import { useTeamTasks } from '@app/hooks/useTeamTasks';
+import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Timer from '@components/common/main/timer';
 import ProfileCard from '@components/home/profile-card';
 import { withAuthentication } from '@components/authenticator';
-import useAuthenticateUser from '@app/hooks/useAuthenticateUser';
+import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();

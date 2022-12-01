@@ -6,13 +6,16 @@ import Separator from '../common/separator';
 import DropdownUser from '@components/common/main/dropdown-user';
 import { TimeInput } from '@components/common/main/time-input';
 import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
-import useAuthenticateUser from '@app/hooks/useAuthenticateUser';
-import { useTeamTasks } from '@app/hooks/useTeamTasks';
+import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
+import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
 import { Spinner } from '@components/common/spinner';
 import Link from 'next/link';
 import { pad } from '@app/helpers/number';
+import { useOutsideClick } from '@app/hooks/useOutsideClick';
+import { useTimer } from '@app/hooks/features/useTimer';
+import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -98,18 +101,13 @@ const Card = ({ member }: { member: IMember }) => {
 		};
 	}, []);
 
-	const canEditName = useCallback(() => {
-		(isManager || isAuthUser) && setNameEdit(true);
-	}, [isManager, isAuthUser]);
-
 	const canEditTaskName = useCallback(() => {
 		(isManager || isAuthUser) && setTaskEdit(true);
 	}, [isAuthUser, isManager]);
 
 	const handeEditBoth = useCallback(() => {
-		canEditName();
 		canEditTaskName();
-	}, [canEditName, canEditTaskName]);
+	}, [canEditTaskName]);
 
 	const canEditEstimate = useCallback(() => {
 		(isManager || isAuthUser) && setEstimateEdit(true);
@@ -129,14 +127,8 @@ const Card = ({ member }: { member: IMember }) => {
 		setTaskEdit(false);
 	};
 
-	/*
-  const handleEstimate = useCallback(() => {
-    setTaskEdit(false);
-  }, []);
-  */
-
-	const handleSubmit = useCallback(async () => {
-		if (!activeTeamTask) return;
+	const handleEstimateSubmit = useCallback(async () => {
+		if (!memberTask) return;
 
 		const hours = +formValues['estimateHours'];
 		const minutes = +formValues['estimateMinutes'];
@@ -146,7 +138,7 @@ const Card = ({ member }: { member: IMember }) => {
 		}
 
 		const { h: estimateHours, m: estimateMinutes } = secondsToTime(
-			activeTeamTask.estimate || 0
+			memberTask.estimate || 0
 		);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
@@ -155,14 +147,18 @@ const Card = ({ member }: { member: IMember }) => {
 		}
 
 		await updateTask({
-			...activeTeamTask,
+			...memberTask,
 			estimateHours: hours,
 			estimateMinutes: minutes,
 			estimate: hours * 60 * 60 + minutes * 60, // time seconds
 		});
 
 		setEstimateEdit(false);
-	}, [activeTeamTask, formValues, updateTask]);
+	}, [memberTask, formValues, updateTask]);
+
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() =>
+		setEstimateEdit(false)
+	);
 
 	return (
 		<div
@@ -249,16 +245,15 @@ const Card = ({ member }: { member: IMember }) => {
 				)}
 			</div>
 			<Separator />
-			<div className="w-[122px]  text-center flex justify-center items-center">
-				0h:0m
-			</div>
+
+			{/* Time worked on task */}
+			<WorkedOnTask memberTask={memberTask} />
 			<Separator />
+
+			{/* Estimate time */}
 			<div className="w-[245px]  flex justify-center items-center">
 				<div>
-					<div className="flex w-[200px]">
-						<div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
-						<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
-					</div>
+					<EstimationProgress memberTask={memberTask} />
 					<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 						{!estimateEdit && (
 							<div className="flex items-center">
@@ -269,6 +264,7 @@ const Card = ({ member }: { member: IMember }) => {
 								<span
 									className="ml-[15px] flex items-center cursor-pointer"
 									onClick={canEditEstimate}
+									ref={ignoreElementRef}
 								>
 									<Image
 										src="/assets/png/edit.png"
@@ -280,54 +276,53 @@ const Card = ({ member }: { member: IMember }) => {
 							</div>
 						)}
 						{estimateEdit && (
-							<>
-								<div className="flex items-center justify-center">
-									<div className="bg-[#F2F4FB] dark:bg-[#18181B]">
-										<TimeInput
-											value={'' + formValues.estimateHours}
-											type="string"
-											placeholder="h"
-											name="estimateHours"
-											handleChange={onChangeEstimate('estimateHours')}
-											handleDoubleClick={canEditEstimate}
-											handleEnter={handleSubmit}
-											style={`${
-												estimateEdit === true
-													? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
-													: 'bg-transparent w-[10px]'
-											} `}
-											disabled={!estimateEdit}
-										/>
-										/
-										<TimeInput
-											value={'' + formValues.estimateMinutes}
-											type="string"
-											placeholder="m"
-											name="estimateMinutes"
-											handleChange={onChangeEstimate('estimateMinutes')}
-											handleDoubleClick={canEditEstimate}
-											handleEnter={handleSubmit}
-											style={` ${
-												estimateEdit === true
-													? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
-													: 'bg-transparent w-[10px]'
-											} `}
-											disabled={!estimateEdit}
-										/>
-									</div>{' '}
-									<span className="w-3 h-5 ml-2">
-										{updateLoading && <Spinner dark={false} />}
-									</span>
-								</div>
-							</>
+							<div className="flex items-center justify-center">
+								<div className="bg-[#F2F4FB] dark:bg-[#18181B]" ref={targetEl}>
+									<TimeInput
+										value={'' + formValues.estimateHours}
+										type="string"
+										placeholder="h"
+										name="estimateHours"
+										handleChange={onChangeEstimate('estimateHours')}
+										handleDoubleClick={canEditEstimate}
+										handleEnter={handleEstimateSubmit}
+										style={`${
+											estimateEdit === true
+												? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
+												: 'bg-transparent w-[10px]'
+										} `}
+										disabled={!estimateEdit}
+									/>
+									/
+									<TimeInput
+										value={'' + formValues.estimateMinutes}
+										type="string"
+										placeholder="m"
+										name="estimateMinutes"
+										handleChange={onChangeEstimate('estimateMinutes')}
+										handleDoubleClick={canEditEstimate}
+										handleEnter={handleEstimateSubmit}
+										style={` ${
+											estimateEdit === true
+												? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
+												: 'bg-transparent w-[10px]'
+										} `}
+										disabled={!estimateEdit}
+									/>
+								</div>{' '}
+								<span className="w-3 h-5 ml-2">
+									{updateLoading && <Spinner dark={false} />}
+								</span>
+							</div>
 						)}
 					</div>
 				</div>
 			</div>
-
 			<Separator />
+
+			{/* Time worked on 24 hours */}
 			<div className="w-[184px]  flex items-center">
-				<div className="w-[177px] text-center text-">0h:0m</div>
+				<Worked24Hours isAuthUser={isAuthUser} />
 				{isTeamManager && (
 					<div className="mr-[20px]">
 						<DropdownUser
@@ -340,5 +335,46 @@ const Card = ({ member }: { member: IMember }) => {
 		</div>
 	);
 };
+
+function EstimationProgress({ memberTask }: { memberTask: ITeamTask | null }) {
+	const { estimation } = useTaskStatistics(memberTask);
+	return (
+		<div className="flex w-[200px] relative rounded-full mb-3">
+			<div
+				className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
+				style={{ width: `${estimation}%` }}
+			/>
+			<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[100%] h-[8px] rounded-r-full absolute z-10" />
+		</div>
+	);
+}
+function WorkedOnTask({ memberTask }: { memberTask: ITeamTask | null }) {
+	const { stask } = useTaskStatistics(memberTask);
+	const { h, m } = secondsToTime(stask?.duration || 0);
+
+	return (
+		<div className="w-[122px]  text-center flex justify-center items-center">
+			{h}h:{m}m
+		</div>
+	);
+}
+
+function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {
+	const { timerStatus } = useTimer();
+	const { h, m } = secondsToTime(timerStatus?.duration || 0);
+	if (!isAuthUser) {
+		return (
+			<div className="w-[177px] text-center">
+				{0}h:{0}m
+			</div>
+		);
+	}
+
+	return (
+		<div className="w-[177px] text-center ">
+			{h}h:{m}m
+		</div>
+	);
+}
 
 export default Card;

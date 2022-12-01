@@ -1,5 +1,7 @@
 import { pad } from '@app/helpers/number';
-import { useTimer } from '@app/hooks/useTimer';
+import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { useTimer } from '@app/hooks/features/useTimer';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
 
@@ -12,6 +14,9 @@ const Timer = () => {
 		stopTimer,
 		canRunTimer,
 	} = useTimer();
+
+	const { activeTeamTask } = useTeamTasks();
+	const { estimation } = useTaskStatistics(activeTeamTask);
 
 	const timerHanlder = () => {
 		if (timerStatusFetching || !canRunTimer) return;
@@ -29,9 +34,12 @@ const Timer = () => {
 					{pad(hours)} : {pad(minutes)} : {pad(seconds)}:
 					<span className="text-[35px] w-7 inline-block">{pad(ms_p)}</span>
 				</h1>
-				<div className="flex w-[284px]">
-					<div className="bg-[#28D581] w-[10%] h-[8px] rounded-l-full"></div>
-					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-r-full" />
+				<div className="flex w-[284px] relative">
+					<div
+						className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
+						style={{ width: `${estimation}%` }}
+					></div>
+					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-full absolute z-10" />
 				</div>
 			</div>
 			<div

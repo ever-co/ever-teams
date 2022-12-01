@@ -3,7 +3,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { IInvite, IInviteProps } from "../../app/interfaces/hooks";
 import UserIcon from "../common/invite/userIcon";
 import Input from "../common/input";
-import { useTeamInvitations } from "@app/hooks/useTeamInvitations";
+import { useTeamInvitations } from "@app/hooks/features/useTeamInvitations";
 import { Spinner } from "@components/common/spinner";
 import { AxiosError } from "axios";
 

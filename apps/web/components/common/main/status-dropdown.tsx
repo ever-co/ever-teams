@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { StatusIcon, statusIcons } from './dropdownIcons';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
-import { useTeamTasks } from '@app/hooks/useTeamTasks';
+import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { Spinner } from '../spinner';
 
 const statusKeys = Object.keys(statusIcons) as ITaskStatus[];

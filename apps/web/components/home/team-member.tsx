@@ -1,9 +1,9 @@
 import Header from './header';
 import Card from '../main/card';
 import InviteCard from '../main/invite-card';
-import useAuthenticateUser from '@app/hooks/useAuthenticateUser';
-import { useOrganizationTeams } from '@app/hooks/useOrganizationTeams';
-import { useTeamInvitations } from '@app/hooks/useTeamInvitations';
+import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
+import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
+import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
 import { InvitedCard } from '@components/main/invited-card';
 
 const TeamMemberSection = () => {

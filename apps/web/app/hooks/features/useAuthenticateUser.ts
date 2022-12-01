@@ -8,7 +8,7 @@ import { activeTeamState, userState } from "@app/stores";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
-import { useQuery } from "./useQuery";
+import { useQuery } from "../useQuery";
 
 const useAuthenticateUser = (defaultUser?: IUser) => {
   const [user, setUser] = useRecoilState(userState);
