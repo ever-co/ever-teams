@@ -16,7 +16,7 @@ import {
 } from "@app/stores";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { useQuery } from "./useQuery";
+import { useQuery } from "../useQuery";
 
 function useCreateOrganizationTeam() {
   const { loading, queryCall } = useQuery(createOrganizationTeamAPI);

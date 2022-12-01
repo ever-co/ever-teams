@@ -17,7 +17,7 @@ import {
 } from "@app/stores";
 import { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import { useQuery } from "./useQuery";
+import { useQuery } from "../useQuery";
 
 export function useTeamTasks() {
   const setAllTasks = useSetRecoilState(teamTasksState);

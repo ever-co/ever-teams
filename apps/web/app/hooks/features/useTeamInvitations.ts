@@ -9,7 +9,7 @@ import {
 } from "@app/stores";
 import { useCallback, useEffect, useState } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { useQuery } from "./useQuery";
+import { useQuery } from "../useQuery";
 
 export function useTeamInvitations() {
   const [teamInvitations, setTeamInvitations] =

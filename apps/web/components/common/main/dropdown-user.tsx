@@ -10,7 +10,7 @@ import React, {
 import { usePopper } from "react-popper";
 import DeleteTask from "../delete-task";
 import { ITeamTask } from "@app/interfaces/ITask";
-import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { useTeamTasks } from "@app/hooks/features/useTeamTasks";
 import { TaskItem } from "./task-item";
 import TaskFilter from "./task-filter";
 import { CreateTaskOption, h_filter } from "./task-input";

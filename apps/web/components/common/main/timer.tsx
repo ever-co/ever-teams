@@ -1,5 +1,5 @@
 import { pad } from '@app/helpers/number';
-import { useTimer } from '@app/hooks/useTimer';
+import { useTimer } from '@app/hooks/features/useTimer';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
 

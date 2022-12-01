@@ -17,8 +17,8 @@ import {
 } from '@app/stores';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { useQuery } from './useQuery';
-import { useSyncRef } from './useSyncRef';
+import { useQuery } from '../useQuery';
+import { useSyncRef } from '../useSyncRef';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-team';
 

@@ -3,7 +3,7 @@ import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
 
-import { useTeamTasks } from '@app/hooks/useTeamTasks';
+import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '../spinner';
 import { TaskItem } from './task-item';

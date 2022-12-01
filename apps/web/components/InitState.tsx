@@ -1,7 +1,7 @@
-import { useOrganizationTeams } from "@app/hooks/useOrganizationTeams";
-import { useTeamInvitations } from "@app/hooks/useTeamInvitations";
-import { useTeamTasks } from "@app/hooks/useTeamTasks";
-import { useTimer } from "@app/hooks/useTimer";
+import { useOrganizationTeams } from "@app/hooks/features/useOrganizationTeams";
+import { useTeamInvitations } from "@app/hooks/features/useTeamInvitations";
+import { useTeamTasks } from "@app/hooks/features/useTeamTasks";
+import { useTimer } from "@app/hooks/features/useTimer";
 import { userState } from "@app/stores";
 import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
