@@ -1,4 +1,4 @@
-import useAuthenticateUser from '@app/hooks/useAuthenticateUser';
+import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import Image from 'next/legacy/image';
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';

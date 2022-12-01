@@ -1,92 +1,118 @@
-import React, { FC } from "react"
-import { View, ViewStyle, Modal, ScrollView, Image, StyleSheet, TextInput } from "react-native"
+import React, { FC, useState } from "react"
+import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated } from "react-native"
+import { Entypo } from '@expo/vector-icons';
 
 // COMPONENTS
 import { Button, Screen, Text, TextField } from "../../../../components"
 // STYLES
 import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing } from "../../../../theme"
+import { IInviteRequest } from "../../../../services/interfaces/IInvite";
+import { on } from "process";
 
 export interface Props {
   visible: boolean
   onDismiss: () => unknown
+  onInviteMember: (req: IInviteRequest) => unknown
 }
 
-const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
+const ModalPopUp = ({ visible, children }) => {
+  const [showModal, setShowModal] = React.useState(visible)
+  const scaleValue = React.useRef(new Animated.Value(0)).current
+  React.useEffect(() => {
+    toggleModal()
+  }, [visible])
+  const toggleModal = () => {
+    if (visible) {
+      setShowModal(true)
+      Animated.spring(scaleValue, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start()
+    } else {
+      setTimeout(() => setShowModal(false), 200)
+      Animated.timing(scaleValue, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start()
+    }
+  }
   return (
-    <Modal visible={visible} statusBarTranslucent onDismiss={onDismiss}>
-      <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <View style={styles.mainContainer}>
-          <Image source={require("../../../../../assets/images/lock-cloud.png")} />
-          <Text preset="heading" style={{ fontSize: CONSTANT_SIZE.FONT_SIZE_MD, color: "#1B005D" }}>
-            Invite member to your team
-          </Text>
+    <Modal transparent visible={showModal}>
+      <View style={$modalBackGround}>
+        <Animated.View style={[{ transform: [{ scale: scaleValue }] }]}>
+          {children}
+        </Animated.View>
+      </View>
+    </Modal>
+  )
+}
 
-          <Text style={{ color: "#ACB3BB", fontSize: 10, marginBottom: 10 }}>
-            Send an invitation to a team member by email
-          </Text>
+const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss, onInviteMember }) {
+  const [memberName, setMemberName]=useState("")
+  const [memberEmail, setMemberEmail]=useState("");
+  const [errors, setErrors]=useState({
+    emailError:null,
+    nameError:null
+  })
 
-          <View style={styles.blueBottom}>
-            <TextInput placeholder="example@domain.com"></TextInput>
-          </View>
+  const handleSubmit=()=>{
+    const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    if(memberEmail.trim().length==0 || !memberEmail.match(EMAIL_REGEX)){
+      setErrors({...errors, emailError:"Email is not valid"})
+      console.log("Email is not valid")
+      return
+    }else{
+      setErrors({...errors, emailError:null})
+    }
 
-          <View style={styles.greyBottom}>
-            <TextInput placeholder="Team Member's Name"></TextInput>
-          </View>
+    if(memberName.trim().length<3 ){
+      setErrors({...errors, nameError:"Name is not valid"})
+      console.log("Name is not valid")
+      return
+    }else{
+      setErrors({...errors, nameError:null})
+    }
 
-          <Button
-            text="Send Invite"
-            preset="filled"
-            textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
-            style={{
-              backgroundColor: colors.primary,
-              width: "100%",
-            }}
-          ></Button>
-        </View>
+    onInviteMember({email:memberEmail, name:memberName})
+  }
 
-        <Text preset="heading" style={{ ...GS.mb5 }}>
-          Invite user
+
+  return (
+    <ModalPopUp visible={visible}>
+      {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
+      <View style={styles.mainContainer}>
+        <Image source={require("../../../../../assets/images/lock-cloud.png")} />
+        <Text preset="heading" style={{ fontSize: CONSTANT_SIZE.FONT_SIZE_MD, color: "#1B005D" }}>
+          Invite member to your team
         </Text>
 
-        {/* Users activity list */}
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-          style={{ ...GS.my2 }}
-        >
-          <TextField
-            label="User"
-            helper="Provide a valid user name"
-            placeholder="Text goes here"
-            style={{ ...GS.my3 }}
-            containerStyle={{ ...GS.mb3 }}
-          />
+        <Text style={{ color: "#ACB3BB", fontSize: 10, marginBottom: 10 }}>
+          Send an invitation to a team member by email
+        </Text>
 
-          <TextField
-            status="error"
-            helper="Email invalid"
-            label="Email"
-            placeholder="Enter the user mail"
-            style={{ ...GS.my3 }}
-          />
-        </ScrollView>
-
-        <View style={{ ...GS.mb2 }}>
-          <Button
-            preset="reversed"
-            style={{ ...GS.mb2, backgroundColor: colors.primary }}
-            onPress={() => onDismiss()}
-          >
-            Confirm
-          </Button>
-
-          <Button preset="default" onPress={() => onDismiss()}>
-            Cancel
-          </Button>
+        <View style={styles.blueBottom}>
+          <TextInput onChangeText={(text)=>setMemberEmail(text)} placeholder="example@domain.com" />
         </View>
-      </Screen>
-    </Modal>
+
+        <View style={styles.greyBottom}>
+          <TextInput onChangeText={(text)=>setMemberName(text)} placeholder="Team Member's Name" />
+        </View>
+
+        <Button
+          text="Send Invite"
+          preset="filled"
+          textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
+          onPress={()=>handleSubmit()}
+          style={{
+            backgroundColor: colors.primary,
+            width: "100%",
+          }}
+        ></Button>
+        <Entypo name="cross" size={24} color="#1B005D" style={styles.crossIcon} onPress={() => onDismiss()} />
+      </View>
+    </ModalPopUp>
   )
 }
 
@@ -96,6 +122,22 @@ const $container: ViewStyle = {
   ...GS.flex1,
   paddingTop: spacing.extraLarge + spacing.large,
   paddingHorizontal: spacing.large,
+}
+const $modalBackGround: ViewStyle = {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+}
+const $modalContainer: ViewStyle = {
+  width: "95%",
+  height: 350,
+  backgroundColor: "white",
+  paddingHorizontal: 30,
+  paddingVertical: 30,
+  borderRadius: 30,
+  elevation: 20,
+  justifyContent: 'center'
 }
 
 const styles = StyleSheet.create({
@@ -126,4 +168,9 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 25,
   },
+  crossIcon: {
+    position: "absolute",
+    right: 10,
+    top: 10
+  }
 })

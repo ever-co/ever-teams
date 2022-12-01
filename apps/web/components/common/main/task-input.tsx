@@ -3,7 +3,7 @@ import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
 
-import { useTeamTasks } from '@app/hooks/useTeamTasks';
+import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '../spinner';
 import { TaskItem } from './task-item';
@@ -127,7 +127,8 @@ export default function TaskInput() {
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = () => {
-		if (query.trim().length < 2) return;
+		if (query.trim().length < 2 || activeTeamTask?.title === query.trim())
+			return;
 		createTask(query.trim()).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
@@ -135,6 +136,10 @@ export default function TaskInput() {
 			if (created) setActiveTask(created);
 		});
 	};
+
+	const closedTaskCount = filteredTasks2.filter((f_task) => {
+		return f_task.status === 'Closed';
+	}).length;
 
 	return (
 		<div className="w-full">
@@ -152,7 +157,7 @@ export default function TaskInput() {
 							onFocus={() => setEditMode(true)}
 							onBlur={() => setEditMode(false)}
 							onChange={(event) => setQuery(event.target.value)}
-							onKeyUp={(event: any) => {
+							onKeyDown={(event: any) => {
 								if (event.key === 'Enter') {
 									handleTaskCreation();
 								}
@@ -185,11 +190,7 @@ export default function TaskInput() {
 						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 							<div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
 								<TaskFilter
-									count={
-										filteredTasks2.filter((f_task) => {
-											return f_task.status !== 'Closed';
-										}).length
-									}
+									count={closedTaskCount}
 									type="open"
 									selected={openFilter}
 									handleChange={() => {
@@ -207,11 +208,7 @@ export default function TaskInput() {
 									type="closed"
 									selected={closeFilter}
 									handleChange={() => {
-										if (
-											filteredTasks2.filter((f_task) => {
-												return f_task.status === 'Closed';
-											}).length > 0
-										) {
+										if (closedTaskCount > 0) {
 											setCloseFilter(true);
 											setOpenFilter(false);
 											setFilter('closed');

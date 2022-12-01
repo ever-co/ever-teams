@@ -1,5 +1,5 @@
 import { IInviteProps } from "@app/interfaces/hooks";
-import { useTeamTasks } from "@app/hooks/useTeamTasks";
+import { useTeamTasks } from "@app/hooks/features/useTeamTasks";
 import React, { useCallback } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Spinner } from "./spinner";
