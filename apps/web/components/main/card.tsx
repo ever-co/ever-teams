@@ -365,6 +365,8 @@ function WorkedOnTask({ memberTask }: { memberTask: ITeamTask | null }) {
 }
 
 function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {
+	const { timerStatus } = useTimer();
+	const { h, m } = secondsToTime(timerStatus?.duration || 0);
 	if (!isAuthUser) {
 		return (
 			<div className="w-[177px] text-center">
@@ -372,8 +374,6 @@ function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {
 			</div>
 		);
 	}
-	const { timerStatus } = useTimer();
-	const { h, m } = secondsToTime(timerStatus?.duration || 0);
 
 	return (
 		<div className="w-[177px] text-center ">

@@ -109,7 +109,7 @@ export default function TaskInput() {
 							.replace(/\s+/g, '')
 							.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
 						h_filter(task.status, filter)
-			  );
+				);
 	}, [query, tasks, filter]);
 
 	const filteredTasks2 = useMemo(() => {
@@ -121,7 +121,7 @@ export default function TaskInput() {
 						.toLowerCase()
 						.replace(/\s+/g, '')
 						.startsWith(query.toLowerCase().replace(/\s+/g, ''));
-			  });
+				});
 	}, [query, tasks]);
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';

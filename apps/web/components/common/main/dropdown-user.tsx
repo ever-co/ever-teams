@@ -106,7 +106,7 @@ const DropdownUser = ({ setEstimateEdit, setEdit }: IDropdownUserProps) => {
 							.replace(/\s+/g, '')
 							.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
 						h_filter(task.status, filter)
-			  );
+				);
 	}, [query, tasks, filter]);
 
 	const filteredTasks2 = useMemo(() => {
@@ -118,7 +118,7 @@ const DropdownUser = ({ setEstimateEdit, setEdit }: IDropdownUserProps) => {
 						.toLowerCase()
 						.replace(/\s+/g, '')
 						.startsWith(query.toLowerCase().replace(/\s+/g, ''))
-			  );
+				);
 	}, [query, tasks]);
 
 	const handleOpenModal = (concernedTask: ITeamTask) => {
