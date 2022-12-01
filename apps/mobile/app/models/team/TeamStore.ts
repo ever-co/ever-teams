@@ -38,10 +38,12 @@ export const TeamStoreModel = types
         },
         // Get All teams
         async getUserTeams({ tenantId, userId, authToken }: IGetTeamsParams) {
+
             const { data: organizations } = await getUserOrganizationsRequest(
                 { tenantId, userId },
                 authToken
             );
+            console.log(organizations)
             const call_teams = organizations.items.map((item) => {
                 return getAllOrganizationTeamRequest(
                     { tenantId, organizationId: item.organizationId },
@@ -62,11 +64,12 @@ export const TeamStoreModel = types
             this.setOrganizationTeams(data);
         },
         setActiveTeam(team: IOrganizationTeamList) {
+            console.log(team)
             store.activeTeam = team;
             store.activeTeamId = team.id
         },
         setActiveTeamId(id: string) {
-            store.activeTeamId=id
+            store.activeTeamId = id
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams

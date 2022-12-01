@@ -3,7 +3,7 @@ import { View, TextInput, StyleSheet } from "react-native"
 import Svg, { G, Circle } from "react-native-svg"
 
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { secondsToTime } from "../../../../helpers/date"
+import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
 
 type progressProps = {
   estimatedHours: number

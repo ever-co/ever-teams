@@ -8,8 +8,9 @@ export const TimerStoreModel = types
         timerStatusState: types.optional(types.frozen(), {}),
         timerStatusFetchingState: types.optional(types.boolean, false),
         timeCounterState: types.optional(types.number, 0),
-        timeCounterIntervalState: types.optional(types.number, 0),
+        timeCounterIntervalState: types.optional(types.frozen(),{}),
         canRunTimer: types.optional(types.boolean, false),
+        localTimerStatusState:types.optional(types.frozen(),{})
     })
     .actions((store) => ({
         async startTimer(parms: ITimerParams, bearer_token: string) {
@@ -39,6 +40,10 @@ export const TimerStoreModel = types
         },
         setCanRunTimer(value: boolean) {
             store.canRunTimer = value
+        },
+        setLocalTimerStatusState(value:any){
+            store.localTimerStatusState=value;
+            console.log("Time store:"+JSON.stringify(value))
         }
     }))
 
