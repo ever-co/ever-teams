@@ -72,6 +72,34 @@ const NewTimerCard: FC<Props> = observer(() => {
     setShowCombo(false)
   }
 
+  const getEstimateData = () => {
+    if (activeTask.estimate && activeTask.estimate > 0) {
+      const percentage = timeCounter / activeTask.estimate;
+      return {
+        color: "#28D581",
+        percent: percentage
+      }
+    } else {
+      return {
+        color: "gray",
+        percent: 0
+      }
+    }
+  }
+
+  const getTimePercentage = () => {
+    if (!activeTask.estimate) {
+      return 0;
+    }
+
+    if (activeTask.estimate) {
+      // convert milliseconds to seconds
+      const seconds = timeCounter / 1000
+      return seconds / activeTask.estimate
+    }
+  }
+
+
 
   useEffect(() => {
     handleChangeText("")
@@ -126,7 +154,7 @@ const NewTimerCard: FC<Props> = observer(() => {
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}:<Text style={{ fontSize: 25 }}>{pad(ms_p)}</Text></Text>
-          <ProgressBar progress={0.7} color="#28D581" />
+          <ProgressBar progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#28D581" : "#F0F0F0"} />
         </View>
 
         {localTimerStatusState.running ? (

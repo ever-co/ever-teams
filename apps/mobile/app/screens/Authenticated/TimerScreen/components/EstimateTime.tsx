@@ -68,7 +68,8 @@ const EstimateTime = () => {
         const intHour = Number.parseInt(estimate.hours);
         const intMinutes = Number.parseInt(estimate.minutes);
         if (estimate.hours!=="" && estimate.minutes!=="") {
-            setShowCheckIcon(intHour>0?true:false)
+            const seconds=intHour * 60 * 60 + intMinutes * 60
+            setShowCheckIcon(seconds>0?true:false)
         }
     }
 

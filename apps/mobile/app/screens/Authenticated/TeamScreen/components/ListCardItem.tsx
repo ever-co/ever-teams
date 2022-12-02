@@ -21,6 +21,7 @@ import { useStores } from "../../../../models"
 import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
+import EstimateTime from "../../TimerScreen/components/EstimateTime"
 export type ListItemProps = {
   item: any,
   onPressIn?: () => unknown
@@ -43,6 +44,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
   } = useTimer();
   
   const [isManager, setIsManager] = useState(true)
+  const [editEstimate, setEditEstimate]=useState(false);
   const iuser = item.employee.user
 
   return (
@@ -56,29 +58,20 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           />
           <Text style={styles.name}>{iuser.name}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
-          {activeTask.estimate == 0 && enableEstimate ? (
+          {activeTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
-              <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                placeholder="Hh"
-                style={styles.estimateInput}
-              />
-              <Text style={styles.estimateDivider}>/</Text>
-              <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                placeholder="Mm"
-                style={styles.estimateInput}
-              />
+            <EstimateTime/>
             </View>
+            
           ) : (
             <View style={{ marginLeft: "auto", marginRight: 10 }}>
+              <TouchableOpacity onPress={()=>setEditEstimate(true)}>
               <ProgressTimeIndicator
                 estimated={activeTask.estimate > 0 ? true : false}
                 estimatedHours={activeTask.estimate}
                 workedHours={30000}
               />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -145,7 +138,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                 marginTop: -spacing.extraSmall,
                 marginRight: -spacing.extraSmall,
                 backgroundColor: colors.background,
-                minWidth: spacing.massive * 2.5,
+                minWidth: spacing.huge * 2,
                 ...(!showMenu ? { display: "none" } : {}),
               }}
             >
@@ -242,12 +235,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EBF8",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 3,
+    padding: 2,
     alignItems: "center",
     borderRadius: 5,
     marginLeft: "auto",
     marginRight: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
   },
   notEstimate: {
     color: "#ACB3BB",
