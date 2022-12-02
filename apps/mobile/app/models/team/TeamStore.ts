@@ -73,8 +73,12 @@ export const TeamStoreModel = types
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
+        },
+        clearStoredTeamData(){
+            store.teams={items:[], total:0},
+            store.activeTeam={}
+            store.activeTeamId=""
         }
-
     }))
 
 export interface TeamStore extends Instance<typeof TeamStoreModel> { }

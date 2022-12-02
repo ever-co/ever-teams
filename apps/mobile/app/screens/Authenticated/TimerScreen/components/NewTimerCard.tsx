@@ -20,7 +20,7 @@ export interface Props {
 const NewTimerCard: FC<Props> = observer(() => {
   const {
     authenticationStore: { tenantId, organizationId, authToken },
-    teamStore: { activeTeamId },
+    teamStore: { activeTeamId, activeTeam },
     TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks },
     TimerStore: { timerStatusState, localTimerStatusState, timeCounterState }
   } = useStores();
@@ -60,7 +60,7 @@ const NewTimerCard: FC<Props> = observer(() => {
       setShowCombo(false)
     }
 
-    if (value.trim().length <= 3) {
+    if (value.trim().length >= 3) {
       setShowCheckIcon(true)
     }
   }
@@ -74,9 +74,8 @@ const NewTimerCard: FC<Props> = observer(() => {
 
 
   useEffect(() => {
-    // firstLoadTimerData()
-    // startTimer();
-  }, [firstLoad])
+    handleChangeText("")
+  }, [activeTeam])
 
   return (
     <View style={styles.mainContainer}>
@@ -97,11 +96,10 @@ const NewTimerCard: FC<Props> = observer(() => {
           style={styles.textInput}
           defaultValue={activeTask.title}
           value={taskInputText}
-          // onEndEditing={() => setShowCombo(false)}
           onFocus={() => setShowCombo(true)}
           onChangeText={(newText) => handleChangeText(newText)}
         />
-        {showCheckIcon ? null : (
+        {showCheckIcon && (
           <TouchableOpacity onPress={() => onCreateNewTask()}>
             <Feather name="check" size={24} color="green" />
           </TouchableOpacity>
@@ -127,7 +125,7 @@ const NewTimerCard: FC<Props> = observer(() => {
 
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
-          <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}</Text>
+          <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}:<Text style={{ fontSize: 25 }}>{pad(ms_p)}</Text></Text>
           <ProgressBar progress={0.7} color="#28D581" />
         </View>
 

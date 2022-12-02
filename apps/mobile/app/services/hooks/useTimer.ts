@@ -43,18 +43,12 @@ function useLocalTimeCounter(
     const updateLocalTimerStatus = useCallback((status: ILocalTimerStatus) => {
         updateLocalStorage(status); // the order is important (first update localstorage, then update the store state)
         setLocalTimerStatusState(status);
-        console.log("Update :"+JSON.stringify(status))
+        console.log("Update :" + JSON.stringify(status))
     }, []);
 
     const getLocalCounterStatus = useCallback(() => {
         let data: ILocalTimerStatus | null = null;
-        // const localStatus = LocalStorage.get(LOCAL_TIMER_STORAGE_KEY) || 'null'
-        // console.log("Get Local status :" + JSON.stringify(localStatus));
-        // try {
-        //     data = JSON.parse(localTimerStatusState);
-        // } catch (error) {
-        //     console.log(error);
-        // }
+
         return localTimerStatusState;
     }, []);
 
@@ -111,7 +105,7 @@ function useLocalTimeCounter(
         }
     }, [localTimerStatus?.duration, firstLoad]);
 
-    return { updateLocalTimerStatus, timeCounter };
+    return { updateLocalTimerStatus, timeCounter, setTimeCounter };
 }
 
 export function useTimer() {
@@ -146,11 +140,11 @@ export function useTimer() {
     const taskId = useSyncRef(activeTeamTask?.id);
     const lastActiveTeamId = useRef<string | null>(null);
     const lastActiveTaskId = useRef<string | null>(null);
-    const canRunTimer = activeTeamTask.id!==undefined && activeTeamTask.status !== 'Closed';
+    const canRunTimer = activeTeamTask.id !== undefined && activeTeamTask.status !== 'Closed';
     // Local time status
-    const { timeCounter, updateLocalTimerStatus } = useLocalTimeCounter(
+    const { timeCounter, updateLocalTimerStatus, setTimeCounter } = useLocalTimeCounter(
         timerStatusState,
-        firstLoad
+        firstLoad,
     );
 
     const getTimerStatus = useCallback(async () => {
@@ -206,6 +200,8 @@ export function useTimer() {
 
     // Stop timer
     const stopTimer = useCallback(async () => {
+        setTimerCounterState(0);
+        setTimeCounter(0)
         updateLocalTimerStatus({
             lastTaskId: taskId.current || null,
             running: false,
@@ -221,7 +217,6 @@ export function useTimer() {
         }
         const { data } = await stopTimerRequest(params, authToken);
         setTimerStatus(data)
-        setTimerCounterState(0);
     }, [taskId.current]);
 
     // If active team changes then stop the timer
@@ -229,7 +224,7 @@ export function useTimer() {
         if (
             lastActiveTeamId.current !== null &&
             activeTeamId !== lastActiveTeamId.current &&
-            !firstLoad && timerStatusRef.current?.isRunning   
+            !firstLoad && timerStatusRef.current?.isRunning
         ) {
             stopTimer();
         }
@@ -248,7 +243,7 @@ export function useTimer() {
             timerStatusRef.current?.isRunning
         ) {
             stopTimer();
-           
+
         }
         if (taskId) {
             lastActiveTaskId.current = taskId;

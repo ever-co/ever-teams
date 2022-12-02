@@ -25,6 +25,7 @@ const EstimateTime = () => {
             hours: h.toString(),
             minutes: m.toString(),
         });
+        setShowCheckIcon(false)
     }, [activeTask]);
 
     const onChangeHours = (value: string) => {
@@ -42,6 +43,7 @@ const EstimateTime = () => {
                 hours: parsedQty.toString()
             })
         }
+        handleCheckIcon();
     }
 
     const onChangeMinutes = (value: string) => {
@@ -59,20 +61,21 @@ const EstimateTime = () => {
                 minutes: parsedQty.toString()
             })
         }
+        handleCheckIcon();
     }
 
     const handleCheckIcon = () => {
         const intHour = Number.parseInt(estimate.hours);
         const intMinutes = Number.parseInt(estimate.minutes);
-        if (intHour > 0 && intMinutes) {
-            setShowCheckIcon(true)
+        if (estimate.hours!=="" && estimate.minutes!=="") {
+            setShowCheckIcon(intHour>0?true:false)
         }
     }
 
 
-    const handleSubmit = useCallback(() => {
+    const handleSubmit = useCallback(async() => {
         if (!activeTask) return;
-        setIsLoading(true)
+
         const hours = +estimate.hours;
         const minutes = +estimate.minutes;
         if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
@@ -96,7 +99,9 @@ const EstimateTime = () => {
             tenantId,
             organizationId
         }
-        const response = updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+        setShowCheckIcon(false)
+        setIsLoading(true)
+        const response = await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
     }, [activeTask, updateTask, estimate]);
@@ -111,7 +116,7 @@ const EstimateTime = () => {
                 onEndEditing={() => setEditing({ ...editing, editingHour: false })}
                 onChangeText={(text) => onChangeHours(text)}
                 placeholder="Hh"
-                style={styles.estimateInput}
+                style={[styles.estimateInput,estimate.hours.length!==0 && {borderBottomColor:"white"}]}
             />
             <Text style={{ margin: 2 }}>:</Text>
             <TextInput
@@ -122,10 +127,10 @@ const EstimateTime = () => {
                 value={!editing.editingMinutes && estimate.minutes}
                 placeholder="Mm"
                 onChangeText={(text) => onChangeMinutes(text)}
-                style={styles.estimateInput}
+                style={[styles.estimateInput,estimate.minutes.length>0 && {borderBottomColor:"white"}]}
             />
-            <Feather size={25} color={"green"} name="check" onPress={() => handleSubmit()} />
-            {isLoading && fetchingTasks ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
+            {showCheckIcon && <Feather style={styles.thickIconStyle} size={25} color={"green"} name="check" onPress={() => handleSubmit()} />}
+            {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
         </View>
     )
 }
@@ -156,5 +161,9 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 22,
         top: 15
+    },
+    thickIconStyle:{
+        position:"absolute",
+        right:-10
     }
 })
