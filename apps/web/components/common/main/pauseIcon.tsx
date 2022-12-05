@@ -1,53 +1,18 @@
-import { IIconProps } from "../../../app/interfaces/hooks";
+import { IIconProps } from '../../../app/interfaces/hooks';
 
 export const PauseIcon = ({ width, height }: IIconProps) => {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={width}
-      height={height}
-      viewBox="0 0 68 68"
-      className="fill-primary dark:fill-white "
-    >
-      <g
-        id="Group_7255"
-        data-name="Group 7255"
-        transform="translate(-0.167 -0.027)"
-      >
-        <circle
-          id="Ellipse_226"
-          data-name="Ellipse 226"
-          cx="34"
-          cy="34"
-          r="34"
-          transform="translate(0.167 0.027)"
-          fill="c"
-        />
-        <g
-          id="Group_7278"
-          data-name="Group 7278"
-          transform="translate(-0.075 2.725)"
-        >
-          <rect
-            id="Rectangle_733"
-            data-name="Rectangle 733"
-            width="5.533"
-            height="20.55"
-            rx="2.766"
-            transform="translate(26.164 21.027)"
-            className="fill-white dark:fill-black"
-          />
-          <rect
-            id="Rectangle_734"
-            data-name="Rectangle 734"
-            width="5.533"
-            height="20.55"
-            rx="2.766"
-            transform="translate(36.787 21.027)"
-            className="fill-white dark:fill-black"
-          />
-        </g>
-      </g>
-    </svg>
-  );
+	return (
+		<svg
+			stroke="currentColor"
+			width={width}
+			height={height}
+			className="fill-primary dark:fill-white "
+			fill="currentColor"
+			strokeWidth="0"
+			viewBox="0 0 16 16"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.5 5A1.5 1.5 0 0 0 5 6.5v3A1.5 1.5 0 0 0 6.5 11h3A1.5 1.5 0 0 0 11 9.5v-3A1.5 1.5 0 0 0 9.5 5h-3z"></path>
+		</svg>
+	);
 };

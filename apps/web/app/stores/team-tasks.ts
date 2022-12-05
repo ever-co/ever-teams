@@ -35,3 +35,8 @@ export const tasksStatisticsState = atom<ITasksTimesheet[]>({
 	key: 'tasksStatisticsState',
 	default: [],
 });
+
+export const tasksTodayStatisticsState = atom<ITasksTimesheet[]>({
+	key: 'tasksTodayStatisticsState',
+	default: [],
+});
