@@ -44,6 +44,11 @@ const Timer = () => {
 				</div>
 			</div>
 			<div
+				title={
+					timerStatusFetching || !canRunTimer
+						? 'Please, select or create a new task to start tracking the time'
+						: undefined
+				}
 				className={`cursor-pointer ${
 					timerStatusFetching || !canRunTimer ? 'opacity-30' : ''
 				}`}
