@@ -134,7 +134,7 @@ const Card = ({ member }: { member: IMember }) => {
 
 		const hours = +formValues['estimateHours'];
 		const minutes = +formValues['estimateMinutes'];
-		if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
+		if (isNaN(hours) || isNaN(minutes)) {
 			setEstimateEdit(false);
 			return;
 		}
