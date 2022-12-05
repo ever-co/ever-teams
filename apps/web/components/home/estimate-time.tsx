@@ -80,7 +80,7 @@ export function EstimateTime() {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '0' ? (+oldVa.minutes).toString() : '',
+				minutes: oldVa.minutes !== '00' ? oldVa.minutes : '',
 			};
 		});
 		setEditableMode(true);
