@@ -12,7 +12,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import debounce from 'lodash/debounce';
 
-export function useTaskStatistics(task?: ITeamTask | null) {
+export function useTaskStatistics(task?: ITeamTask | null, addSeconds = 0) {
 	const [stasks, setSTasks] = useRecoilState(tasksStatisticsState);
 	const { queryCall } = useQuery(tasksTimesheetStatisticsAPI);
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
@@ -57,7 +57,10 @@ export function useTaskStatistics(task?: ITeamTask | null) {
 		stask,
 		estimation:
 			task && task.estimate && stask
-				? Math.min(Math.floor((stask.duration * 100) / task.estimate), 100)
+				? Math.min(
+						Math.floor(((stask.duration + addSeconds) * 100) / task.estimate),
+						100
+				  )
 				: 0,
 	};
 }

@@ -13,10 +13,11 @@ const Timer = () => {
 		startTimer,
 		stopTimer,
 		canRunTimer,
+		timerSeconds,
 	} = useTimer();
 
 	const { activeTeamTask } = useTeamTasks();
-	const { estimation } = useTaskStatistics(activeTeamTask);
+	const { estimation } = useTaskStatistics(activeTeamTask, timerSeconds);
 
 	const timerHanlder = () => {
 		if (timerStatusFetching || !canRunTimer) return;
@@ -29,7 +30,7 @@ const Timer = () => {
 
 	return (
 		<>
-			<div className="flex flex-col">
+			<div className="flex flex-col min-w-[300px]">
 				<h1 className="text-[53px] text-primary dark:text-[#FFFFFF]">
 					{pad(hours)} : {pad(minutes)} : {pad(seconds)}:
 					<span className="text-[35px] w-7 inline-block">{pad(ms_p)}</span>

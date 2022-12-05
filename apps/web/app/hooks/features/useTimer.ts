@@ -10,13 +10,15 @@ import {
 	activeTeamIdState,
 	activeTeamTaskState,
 	localTimerStatusState,
+	tasksStatisticsState,
 	timeCounterIntervalState,
 	timeCounterState,
+	timerSecondsState,
 	timerStatusFetchingState,
 	timerStatusState,
 } from '@app/stores';
-import { useCallback, useEffect, useRef } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
@@ -36,9 +38,16 @@ function useLocalTimeCounter(
 	const [localTimerStatus, setLocalTimerStatus] = useRecoilState(
 		localTimerStatusState
 	);
-	const localTimerStatusRef = useSyncRef(localTimerStatus);
-	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
+
 	const [timeCounter, setTimeCounter] = useRecoilState(timeCounterState); // in millisencods
+	const setTimerSeconds = useSetRecoilState(timerSecondsState);
+	const statStasks = useRecoilValue(tasksStatisticsState); // task statistics status
+
+	// Refs
+	const localTimerStatusRef = useSyncRef(localTimerStatus);
+	const timerStatusRef = useSyncRef(timerStatus);
+	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
+	const timerSecondsRef = useRef(0);
 	const { seconds } = convertMsToTime(timeCounter);
 
 	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
@@ -81,6 +90,21 @@ function useLocalTimeCounter(
 		}
 	}, [firstLoad, timerStatus]);
 
+	// THis is form constant update of the progress line
+	timerSecondsRef.current = useMemo(() => {
+		if (seconds > timerSecondsRef.current) {
+			timerSecondsRef.current = seconds;
+		}
+		if (timerStatusRef.current && !timerStatusRef.current.running) {
+			timerSecondsRef.current = 0;
+		}
+		return timerSecondsRef.current;
+	}, [seconds, statStasks]);
+
+	useEffect(() => {
+		setTimerSeconds(timerSecondsRef.current);
+	}, [timerSecondsRef.current]);
+
 	// Update local timer status
 	useEffect(() => {
 		if (localTimerStatusRef.current?.running && firstLoad) {
@@ -113,7 +137,11 @@ function useLocalTimeCounter(
 		}
 	}, [localTimerStatus?.duration, firstLoad]);
 
-	return { updateLocalTimerStatus, timeCounter };
+	return {
+		updateLocalTimerStatus,
+		timeCounter,
+		timerSeconds: timerSecondsRef.current,
+	};
 }
 
 export function useTimer() {
@@ -142,10 +170,8 @@ export function useTimer() {
 	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'Closed';
 
 	// Local time status
-	const { timeCounter, updateLocalTimerStatus } = useLocalTimeCounter(
-		timerStatus,
-		firstLoad
-	);
+	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
+		useLocalTimeCounter(timerStatus, firstLoad);
 
 	const getTimerStatus = useCallback(() => {
 		return queryCall().then((res) => {
@@ -273,5 +299,6 @@ export function useTimer() {
 		canRunTimer,
 		firstLoad,
 		toggleTimer,
+		timerSeconds,
 	};
 }

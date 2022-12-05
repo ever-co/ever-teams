@@ -16,6 +16,8 @@ import { pad } from '@app/helpers/number';
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { useTimer } from '@app/hooks/features/useTimer';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useRecoilValue } from 'recoil';
+import { timerSecondsState } from '@app/stores';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -253,7 +255,7 @@ const Card = ({ member }: { member: IMember }) => {
 			{/* Estimate time */}
 			<div className="w-[245px]  flex justify-center items-center">
 				<div>
-					<EstimationProgress memberTask={memberTask} />
+					<EstimationProgress memberTask={memberTask} isAuthUser={isAuthUser} />
 					<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 						{!estimateEdit && (
 							<div className="flex items-center">
@@ -336,8 +338,19 @@ const Card = ({ member }: { member: IMember }) => {
 	);
 };
 
-function EstimationProgress({ memberTask }: { memberTask: ITeamTask | null }) {
-	const { estimation } = useTaskStatistics(memberTask);
+function EstimationProgress({
+	memberTask,
+	isAuthUser,
+}: {
+	memberTask: ITeamTask | null;
+	isAuthUser: boolean;
+}) {
+	const seconds = useRecoilValue(timerSecondsState);
+	const { estimation } = useTaskStatistics(
+		memberTask,
+		isAuthUser ? seconds : 0
+	);
+
 	return (
 		<div className="flex w-[200px] relative rounded-full mb-3">
 			<div
@@ -348,6 +361,7 @@ function EstimationProgress({ memberTask }: { memberTask: ITeamTask | null }) {
 		</div>
 	);
 }
+
 function WorkedOnTask({ memberTask }: { memberTask: ITeamTask | null }) {
 	const { stask } = useTaskStatistics(memberTask);
 	const { h, m } = secondsToTime(stask?.duration || 0);
