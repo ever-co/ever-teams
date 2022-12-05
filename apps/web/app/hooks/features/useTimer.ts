@@ -84,6 +84,7 @@ function useLocalTimeCounter(
 			timerStatus &&
 				updateLocalTimerStatus({
 					duration: localStatus?.running ? localStatus.duration : 0,
+					runnedDateTime: localStatus?.runnedDateTime || 0,
 					running: timerStatus.running,
 					lastTaskId: timerStatus.lastLog?.taskId || null,
 				});
@@ -102,16 +103,20 @@ function useLocalTimeCounter(
 	}, [seconds, statStasks]);
 
 	useEffect(() => {
-		setTimerSeconds(timerSecondsRef.current);
-	}, [timerSecondsRef.current]);
+		if (firstLoad) {
+			setTimerSeconds(timerSecondsRef.current);
+		}
+	}, [timerSecondsRef.current, firstLoad]);
 
 	// Update local timer status
 	useEffect(() => {
 		if (localTimerStatusRef.current?.running && firstLoad) {
+			const local = localTimerStatusRef.current;
 			updateLocalStorage({
 				duration: timeCounter,
-				running: localTimerStatusRef.current.running,
-				lastTaskId: localTimerStatusRef.current.lastTaskId,
+				runnedDateTime: local.runnedDateTime,
+				running: local.running,
+				lastTaskId: local.lastTaskId,
 			});
 		}
 	}, [seconds, firstLoad]);
@@ -124,7 +129,8 @@ function useLocalTimeCounter(
 			const INTERVAL = 50; // MS
 			setTimeCounterInterval(
 				window.setInterval(() => {
-					setTimeCounter((c) => c + INTERVAL);
+					const now = Date.now();
+					setTimeCounter(now - localTimerStatus.runnedDateTime);
 				}, INTERVAL)
 			);
 		}
@@ -209,6 +215,7 @@ export function useTimer() {
 		if (!taskId.current) return;
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current,
+			runnedDateTime: Date.now(),
 			running: true,
 			duration: 0,
 		});
@@ -228,6 +235,7 @@ export function useTimer() {
 	const stopTimer = useCallback(() => {
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
+			runnedDateTime: 0,
 			running: false,
 			duration: 0,
 		});
