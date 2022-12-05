@@ -57,7 +57,7 @@ export function useTaskStatistics(task?: ITeamTask | null) {
 		stask,
 		estimation:
 			task && task.estimate && stask
-				? Math.floor((stask.duration * 100) / task.estimate)
+				? Math.min(Math.floor((stask.duration * 100) / task.estimate), 100)
 				: 0,
 	};
 }
