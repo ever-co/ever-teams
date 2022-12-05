@@ -80,7 +80,7 @@ export function EstimateTime() {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '0' ? (+oldVa.minutes).toString() : '',
+				minutes: oldVa.minutes !== '00' ? oldVa.minutes : '',
 			};
 		});
 		setEditableMode(true);
@@ -91,7 +91,7 @@ export function EstimateTime() {
 
 		const hours = +value['hours'];
 		const minutes = +value['minutes'];
-		if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
+		if (isNaN(hours) || isNaN(minutes)) {
 			return;
 		}
 

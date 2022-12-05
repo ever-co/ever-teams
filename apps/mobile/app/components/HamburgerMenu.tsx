@@ -14,11 +14,13 @@ const HamburgerMenu = (props) => {
 
   const {
     authenticationStore: { logout, isAuthenticated },
-    TaskStore:{resetTeamTasksData}
+    TaskStore: { resetTeamTasksData },
+    teamStore: { clearStoredTeamData }
   } = useStores()
 
   const onToggleSwitch = () => {
     resetTeamTasksData()
+    clearStoredTeamData()
     logout()
   }
   return (

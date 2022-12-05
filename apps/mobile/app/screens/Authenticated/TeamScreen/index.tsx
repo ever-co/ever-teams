@@ -71,7 +71,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
         const $u = user;
         const isM = activeTeam.members.find((member) => {
           const isUser = member.employee.userId === $u?.id;
-          console.log("Is User:" + user)
           return isUser && member.role && member.role.name === "MANAGER";
         });
         setTeamManager(!!isM);

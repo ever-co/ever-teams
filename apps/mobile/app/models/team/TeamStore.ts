@@ -15,6 +15,7 @@ export const TeamStoreModel = types
 
     }))
     .actions((store) => ({
+        // Create New Team
         async createTeam({ teamName, userId, tenantId, organizationId, employeeId, access_token }: ICreateTeamParams) {
             const $name = teamName.trim() || "";
             if ($name.trim().length < 2) {
@@ -33,14 +34,16 @@ export const TeamStoreModel = types
                 },
                 access_token
             );
-            this.getUserTeams({ tenantId, userId, authToken: access_token });
+             this.getUserTeams({ tenantId, userId, authToken: access_token });
         },
-
+        // Get All teams
         async getUserTeams({ tenantId, userId, authToken }: IGetTeamsParams) {
+
             const { data: organizations } = await getUserOrganizationsRequest(
                 { tenantId, userId },
                 authToken
             );
+            console.log(organizations)
             const call_teams = organizations.items.map((item) => {
                 return getAllOrganizationTeamRequest(
                     { tenantId, organizationId: item.organizationId },
@@ -61,16 +64,21 @@ export const TeamStoreModel = types
             this.setOrganizationTeams(data);
         },
         setActiveTeam(team: IOrganizationTeamList) {
+            console.log(team)
             store.activeTeam = team;
             store.activeTeamId = team.id
         },
         setActiveTeamId(id: string) {
-            store.activeTeamId=id
+            store.activeTeamId = id
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
+        },
+        clearStoredTeamData(){
+            store.teams={items:[], total:0},
+            store.activeTeam={}
+            store.activeTeamId=""
         }
-
     }))
 
 export interface TeamStore extends Instance<typeof TeamStoreModel> { }

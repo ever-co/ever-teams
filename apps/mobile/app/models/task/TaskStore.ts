@@ -60,8 +60,12 @@ export const TaskStoreModel = types
                 bearer_token: authToken
             })
 
-            this.getTeamTasks({ tenantId, organizationId, authToken, activeTeamId: teamId })
+            const tasks = this.getTeamTasks({ tenantId, organizationId, authToken, activeTeamId: teamId })
             this.setFetchingTasks(true)
+
+            const created = (await tasks).find(task => task.id === data?.id)
+            this.setActiveTask(created)
+            return created;
         },
         async getTeamTasks({ tenantId, organizationId, activeTeamId, authToken }: ITaskGetParams) {
             const { data } = await getTeamTasksRequest({
@@ -71,6 +75,7 @@ export const TaskStoreModel = types
             });
             const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId: activeTeamId })
             this.setTeamTasks(tasks);
+            return tasks;
         },
 
         async deleteTask({ tenantId, taskId, authToken, organizationId, activeTeamId }: ITaskDeleteParams) {

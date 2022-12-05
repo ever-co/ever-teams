@@ -19,7 +19,7 @@ const Profile = () => {
 
 	const options: IOption[] = [
 		{
-			name: 'Profile',
+			name: 'Tasks',
 			icon: '/assets/svg/profile-icon.svg',
 			link: `/profile/${user?.id}`,
 		},
