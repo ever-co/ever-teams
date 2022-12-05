@@ -44,7 +44,6 @@ function useLocalTimeCounter(
 	const statStasks = useRecoilValue(tasksStatisticsState); // task statistics status
 
 	// Refs
-	const localTimerStatusRef = useSyncRef(localTimerStatus);
 	const timerStatusRef = useSyncRef(timerStatus);
 	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
 	const timerSecondsRef = useRef(0);
@@ -75,15 +74,10 @@ function useLocalTimeCounter(
 	useEffect(() => {
 		if (firstLoad) {
 			const localStatus = getLocalCounterStatus();
-			localStatus &&
-				setLocalTimerStatus({
-					...localStatus,
-					duration: localStatus.running ? localStatus.duration : 0,
-				});
+			localStatus && setLocalTimerStatus(localStatus);
 
 			timerStatus &&
 				updateLocalTimerStatus({
-					duration: localStatus?.running ? localStatus.duration : 0,
 					runnedDateTime: localStatus?.runnedDateTime || 0,
 					running: timerStatus.running,
 					lastTaskId: timerStatus.lastLog?.taskId || null,
@@ -108,40 +102,21 @@ function useLocalTimeCounter(
 		}
 	}, [timerSecondsRef.current, firstLoad]);
 
-	// Update local timer status
-	useEffect(() => {
-		if (localTimerStatusRef.current?.running && firstLoad) {
-			const local = localTimerStatusRef.current;
-			updateLocalStorage({
-				duration: timeCounter,
-				runnedDateTime: local.runnedDateTime,
-				running: local.running,
-				lastTaskId: local.lastTaskId,
-			});
-		}
-	}, [seconds, firstLoad]);
-
 	// Time Counter
 	useEffect(() => {
 		if (!firstLoad || !localTimerStatus) return;
 		window.clearInterval(timeCounterIntervalRef.current);
 		if (localTimerStatus.running) {
-			const INTERVAL = 50; // MS
 			setTimeCounterInterval(
 				window.setInterval(() => {
 					const now = Date.now();
 					setTimeCounter(now - localTimerStatus.runnedDateTime);
-				}, INTERVAL)
+				}, 50)
 			);
+		} else {
+			setTimeCounter(0);
 		}
 	}, [localTimerStatus, firstLoad]);
-
-	// Update time counter from local timer status
-	useEffect(() => {
-		if (firstLoad) {
-			setTimeCounter(localTimerStatus?.duration || 0);
-		}
-	}, [localTimerStatus?.duration, firstLoad]);
 
 	return {
 		updateLocalTimerStatus,
@@ -217,7 +192,6 @@ export function useTimer() {
 			lastTaskId: taskId.current,
 			runnedDateTime: Date.now(),
 			running: true,
-			duration: 0,
 		});
 
 		setTimerStatusFetching(true);
@@ -237,7 +211,6 @@ export function useTimer() {
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
 			running: false,
-			duration: 0,
 		});
 		stopTimerQueryCall().then((res) => {
 			res.data && setTimerStatus(res.data);

@@ -30,7 +30,6 @@ export interface ITimerStatus {
 
 export type ILocalTimerStatus = {
 	lastTaskId: string | null;
-	duration: number;
 	runnedDateTime: number;
 	running: boolean;
 };
