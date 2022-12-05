@@ -25,7 +25,12 @@ export function createTeamTaskAPI(
 }
 
 export function tasksTimesheetStatisticsAPI() {
-	return api.get<{ global: ITasksTimesheet[] }>(
-		'/timer/timesheet/statistics-tasks'
+	const date = new Date();
+	let ye = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
+	let mo = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(date);
+	let da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
+	const datestring = `${ye}-${mo}-${da}`;
+	return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
+		`/timer/timesheet/statistics-tasks?date=${datestring}`
 	);
 }

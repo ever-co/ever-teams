@@ -363,12 +363,13 @@ function EstimationProgress({
 }
 
 function WorkedOnTask({ memberTask }: { memberTask: ITeamTask | null }) {
-	const { stask } = useTaskStatistics(memberTask);
+	const { stask, dtask } = useTaskStatistics(memberTask);
 	const { h, m } = secondsToTime(stask?.duration || 0);
+	const { h: dh, m: dm } = secondsToTime(dtask?.duration || 0);
 
 	return (
-		<div className="w-[122px]  text-center flex justify-center items-center">
-			{h}h:{m}m
+		<div className="w-[122px]  text-center">
+			Today {dh}h:{dm}m <br /> <span className="opacity-60">Total {h}h:{m}m</span>
 		</div>
 	);
 }
