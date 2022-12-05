@@ -30,6 +30,7 @@ const DropDown: FC<Props> =observer(function CreateTeamModal({ onCreateTeam }) {
     getTeamTasks({authToken,organizationId,tenantId,activeTeamId:newActiveTeam.id})
     setShowDrop(!showDrop)
     setActiveTask({})
+    console.log("changed")
   }
 
   return (

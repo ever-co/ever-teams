@@ -28,7 +28,7 @@ export interface Props extends ListItemProps { }
 
 export const InviteCardItemContent: React.FC<ListItemProps> = ({ item, onPressIn }) => {
     const { TaskStore: { activeTask }, authenticationStore: { user } } = useStores();
-    const [estimate, setEstimate]=useState(false)
+    const [estimate, setEstimate] = useState(false)
 
 
     return (
@@ -61,9 +61,9 @@ export const InviteCardItemContent: React.FC<ListItemProps> = ({ item, onPressIn
                     ) : (
                         <View style={{ marginLeft: "auto", marginRight: 10 }}>
                             <ProgressTimeIndicator
-                                estimated={activeTask.estimate > 0 ? true : false}
-                                estimatedHours={activeTask.estimate}
-                                workedHours={30000}
+                                estimated={false}
+                                estimatedHours={0}
+                                workedHours={0}
                             />
                         </View>
                     )}
@@ -163,7 +163,7 @@ const InviteCardItem: React.FC<Props> = (props) => {
         />
     )
 }
- 
+
 export default InviteCardItem
 
 const $listCard: ViewStyle = {

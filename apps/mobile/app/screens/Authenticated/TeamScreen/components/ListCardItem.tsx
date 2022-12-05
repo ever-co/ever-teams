@@ -18,7 +18,9 @@ import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/
 import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
-import { secondsToTime } from "../../../../helpers/date"
+import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
+import { pad } from "../../../../helpers/number"
+import { useTimer } from "../../../../services/hooks/useTimer"
 export type ListItemProps = {
   item: any,
   onPressIn?: () => unknown
@@ -29,6 +31,17 @@ export interface Props extends ListItemProps { }
 
 export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
   const { TaskStore: { activeTask } } = useStores();
+  const {
+    startTimer,
+    stopTimer,
+    getTimerStatus,
+    toggleTimer,
+    timeCounter,
+    fomatedTimeCounter: { hours, minutes, seconds, ms_p },
+    timerStatusFetchingState,
+    canRunTimer,
+  } = useTimer();
+  
   const [isManager, setIsManager] = useState(true)
   const iuser = item.employee.user
 
@@ -71,13 +84,13 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
         </View>
         <View style={{ flexDirection: 'row' }}>
           {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
-          <Text style={styles.otherText}>{"Lorem Ipsum is simply dummy text of the printing"}</Text>
+          <Text style={styles.otherText}>{activeTask.title}</Text>
         </View>
         <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
         <View style={styles.times}>
           <View>
             <Text style={styles.timeHeading}>Current time</Text>
-            <Text style={styles.timeNumber}>{"00:00"}</Text>
+            <Text style={styles.timeNumber}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}</Text>
           </View>
           <View>
             <Text style={styles.timeHeading}>Total time</Text>
@@ -252,7 +265,7 @@ const styles = StyleSheet.create({
   },
   taskNumberStyle: {
     fontSize: 12,
-    marginVertical: 9,
+    marginVertical: 0,
     right: 3,
     color: "#ACB3BB",
   },
