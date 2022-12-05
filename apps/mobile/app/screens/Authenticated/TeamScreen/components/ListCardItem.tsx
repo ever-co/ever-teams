@@ -60,7 +60,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           {/* ENABLE ESTIMATE INPUTS */}
           {activeTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
-            <EstimateTime/>
+            <EstimateTime editEstimate={setEditEstimate}/>
             </View>
             
           ) : (
@@ -235,12 +235,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EBF8",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 2,
+    paddingVertical: 2,
     alignItems: "center",
     borderRadius: 5,
     marginLeft: "auto",
     marginRight: 10,
-    paddingHorizontal: 5,
   },
   notEstimate: {
     color: "#ACB3BB",

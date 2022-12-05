@@ -7,8 +7,10 @@ import { values } from "mobx";
 import { useStores } from "../../../../models";
 import { ActivityIndicator } from "react-native-paper";
 
-
-const EstimateTime = () => {
+interface params{
+    editEstimate?:any
+}
+const EstimateTime = ({editEstimate}:params) => {
     const {
         authenticationStore: { authToken, tenantId, organizationId },
         TaskStore: { activeTask, updateTask, fetchingTasks },
@@ -105,6 +107,7 @@ const EstimateTime = () => {
         const response = await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
+        editEstimate(false)
     }, [activeTask, updateTask, estimate]);
 
     return (
