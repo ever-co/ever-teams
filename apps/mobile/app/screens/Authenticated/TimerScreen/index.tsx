@@ -66,7 +66,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         onDismiss={() => setShowCreateTeamModal(false)}
       />
       <HomeHeader {..._props} />
-      <View style={{ paddingBottom: 10 }}>
+      <View style={{ paddingBottom: 10, zIndex:10 }}>
         <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
       </View>
       <View

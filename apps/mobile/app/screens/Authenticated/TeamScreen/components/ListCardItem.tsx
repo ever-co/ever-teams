@@ -21,6 +21,7 @@ import { useStores } from "../../../../models"
 import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
+import EstimateTime from "../../TimerScreen/components/EstimateTime"
 export type ListItemProps = {
   item: any,
   onPressIn?: () => unknown
@@ -41,14 +42,15 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
     timerStatusFetchingState,
     canRunTimer,
   } = useTimer();
-  
+
   const [isManager, setIsManager] = useState(true)
+  const [editEstimate, setEditEstimate] = useState(false);
   const iuser = item.employee.user
 
   return (
-    <TouchableNativeFeedback onPressIn={onPressIn}>
+    <TouchableOpacity onPressIn={onPressIn}>
       <View style={[{ ...GS.p2, ...GS.positionRelative }, isManager ? { borderWidth: 1, borderColor: "black", borderRadius: 20 } : null]}>
-      <View style={[styles.statusLine,{backgroundColor:CC["success"]}]}/>
+        <View style={[styles.statusLine, { backgroundColor: "#28D580" }]} />
         <View style={styles.firstContainer}>
           <Image
             source={{ uri: iuser.imageUrl }}
@@ -56,33 +58,26 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           />
           <Text style={styles.name}>{iuser.name}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
-          {activeTask.estimate == 0 && enableEstimate ? (
+          {activeTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
-              <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                placeholder="Hh"
-                style={styles.estimateInput}
-              />
-              <Text style={styles.estimateDivider}>/</Text>
-              <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                placeholder="Mm"
-                style={styles.estimateInput}
-              />
+              <EstimateTime setEditEstimate={setEditEstimate} />
             </View>
+
           ) : (
             <View style={{ marginLeft: "auto", marginRight: 10 }}>
-              <ProgressTimeIndicator
-                estimated={activeTask.estimate > 0 ? true : false}
-                estimatedHours={activeTask.estimate}
-                workedHours={30000}
-              />
+              <TouchableOpacity onPress={() => setEditEstimate(true)}>
+                <View style={{}}>
+                  <ProgressTimeIndicator
+                    estimated={activeTask.estimate > 0 ? true : false}
+                    estimatedHours={activeTask.estimate}
+                    workedHours={30000}
+                  />
+                </View>
+              </TouchableOpacity>
             </View>
           )}
         </View>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', paddingLeft: 5, paddingBottom: 5 }}>
           {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
           <Text style={styles.otherText}>{activeTask.title}</Text>
         </View>
@@ -98,7 +93,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           </View>
         </View>
       </View>
-    </TouchableNativeFeedback>
+    </TouchableOpacity>
   )
 }
 
@@ -117,7 +112,6 @@ const ListCardItem: React.FC<Props> = (props) => {
       style={{
         ...$listCard,
         ...GS.mb3,
-        borderColor: CC[props.item.estimate ? "warning" : "success"],
       }}
       HeadingComponent={
         <View
@@ -145,7 +139,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                 marginTop: -spacing.extraSmall,
                 marginRight: -spacing.extraSmall,
                 backgroundColor: colors.background,
-                minWidth: spacing.massive * 2.5,
+                minWidth: spacing.huge * 2,
                 ...(!showMenu ? { display: "none" } : {}),
               }}
             >
@@ -242,12 +236,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#E8EBF8",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 3,
+    paddingVertical: 2,
     alignItems: "center",
     borderRadius: 5,
     marginLeft: "auto",
     marginRight: 10,
-    paddingHorizontal: 10,
   },
   notEstimate: {
     color: "#ACB3BB",
@@ -269,11 +262,12 @@ const styles = StyleSheet.create({
     right: 3,
     color: "#ACB3BB",
   },
-  statusLine: { 
-    width: "1.5%", 
-    height: "80%", 
-    position: "absolute", 
-    top: "17%", 
-    left: -3, 
-    borderRadius: 3 }
+  statusLine: {
+    width: "1.5%",
+    height: "80%",
+    position: "absolute",
+    top: "17%",
+    left: -3,
+    borderRadius: 3
+  }
 })
