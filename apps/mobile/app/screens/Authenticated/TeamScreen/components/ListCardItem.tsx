@@ -42,15 +42,15 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
     timerStatusFetchingState,
     canRunTimer,
   } = useTimer();
-  
+
   const [isManager, setIsManager] = useState(true)
-  const [editEstimate, setEditEstimate]=useState(false);
+  const [editEstimate, setEditEstimate] = useState(false);
   const iuser = item.employee.user
 
   return (
-    <TouchableNativeFeedback onPressIn={onPressIn}>
+    <TouchableOpacity onPressIn={onPressIn}>
       <View style={[{ ...GS.p2, ...GS.positionRelative }, isManager ? { borderWidth: 1, borderColor: "black", borderRadius: 20 } : null]}>
-      <View style={[styles.statusLine,{backgroundColor:CC["success"]}]}/>
+        <View style={[styles.statusLine, { backgroundColor: "#28D580" }]} />
         <View style={styles.firstContainer}>
           <Image
             source={{ uri: iuser.imageUrl }}
@@ -60,22 +60,24 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           {/* ENABLE ESTIMATE INPUTS */}
           {activeTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
-            <EstimateTime editEstimate={setEditEstimate}/>
+              <EstimateTime setEditEstimate={setEditEstimate} />
             </View>
-            
+
           ) : (
             <View style={{ marginLeft: "auto", marginRight: 10 }}>
-              <TouchableOpacity onPress={()=>setEditEstimate(true)}>
-              <ProgressTimeIndicator
-                estimated={activeTask.estimate > 0 ? true : false}
-                estimatedHours={activeTask.estimate}
-                workedHours={30000}
-              />
+              <TouchableOpacity onPress={() => setEditEstimate(true)}>
+                <View style={{}}>
+                  <ProgressTimeIndicator
+                    estimated={activeTask.estimate > 0 ? true : false}
+                    estimatedHours={activeTask.estimate}
+                    workedHours={30000}
+                  />
+                </View>
               </TouchableOpacity>
             </View>
           )}
         </View>
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', paddingLeft: 5, paddingBottom: 5 }}>
           {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
           <Text style={styles.otherText}>{activeTask.title}</Text>
         </View>
@@ -91,7 +93,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           </View>
         </View>
       </View>
-    </TouchableNativeFeedback>
+    </TouchableOpacity>
   )
 }
 
@@ -110,7 +112,6 @@ const ListCardItem: React.FC<Props> = (props) => {
       style={{
         ...$listCard,
         ...GS.mb3,
-        borderColor: CC[props.item.estimate ? "warning" : "success"],
       }}
       HeadingComponent={
         <View
@@ -261,11 +262,12 @@ const styles = StyleSheet.create({
     right: 3,
     color: "#ACB3BB",
   },
-  statusLine: { 
-    width: "1.5%", 
-    height: "80%", 
-    position: "absolute", 
-    top: "17%", 
-    left: -3, 
-    borderRadius: 3 }
+  statusLine: {
+    width: "1.5%",
+    height: "80%",
+    position: "absolute",
+    top: "17%",
+    left: -3,
+    borderRadius: 3
+  }
 })

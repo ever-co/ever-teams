@@ -8,9 +8,9 @@ import { useStores } from "../../../../models";
 import { ActivityIndicator } from "react-native-paper";
 
 interface params{
-    editEstimate?:any
+    setEditEstimate?:(value:boolean)=>unknown
 }
-const EstimateTime = ({editEstimate}:params) => {
+const EstimateTime = ({setEditEstimate}:params) => {
     const {
         authenticationStore: { authToken, tenantId, organizationId },
         TaskStore: { activeTask, updateTask, fetchingTasks },
@@ -107,7 +107,7 @@ const EstimateTime = ({editEstimate}:params) => {
         const response = await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
-        editEstimate(false)
+        setEditEstimate(false)
     }, [activeTask, updateTask, estimate]);
 
     return (
