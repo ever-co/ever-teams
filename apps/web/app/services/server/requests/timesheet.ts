@@ -7,6 +7,9 @@ type TTasksTimesheetStatisticsParams = {
 	startDate?: string;
 	endDate?: string;
 	'employeeIds[0]': string;
+	defaultRange?: string;
+	'taskIds[0]'?: string;
+	unitOfTime?: 'day';
 };
 export function tasksTimesheetStatisticsRequest(
 	params: TTasksTimesheetStatisticsParams,

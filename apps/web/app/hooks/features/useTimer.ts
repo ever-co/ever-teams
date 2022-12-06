@@ -7,10 +7,10 @@ import {
 	toggleTimerAPI,
 } from '@app/services/client/api/timer';
 import {
+	activeTaskStatisticsState,
 	activeTeamIdState,
 	activeTeamTaskState,
 	localTimerStatusState,
-	tasksStatisticsState,
 	timeCounterIntervalState,
 	timeCounterState,
 	timerSecondsState,
@@ -18,7 +18,7 @@ import {
 	timerStatusState,
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
@@ -40,8 +40,8 @@ function useLocalTimeCounter(
 	);
 
 	const [timeCounter, setTimeCounter] = useRecoilState(timeCounterState); // in millisencods
-	const setTimerSeconds = useSetRecoilState(timerSecondsState);
-	const statStasks = useRecoilValue(tasksStatisticsState); // task statistics status
+	const [timerSeconds, setTimerSeconds] = useRecoilState(timerSecondsState);
+	const activeTaskStat = useRecoilValue(activeTaskStatisticsState); // active task statistics status
 
 	// Refs
 	const timerStatusRef = useSyncRef(timerStatus);
@@ -87,14 +87,15 @@ function useLocalTimeCounter(
 
 	// THis is form constant update of the progress line
 	timerSecondsRef.current = useMemo(() => {
+		if (!firstLoad) return 0;
 		if (seconds > timerSecondsRef.current) {
-			timerSecondsRef.current = seconds;
+			return seconds;
 		}
 		if (timerStatusRef.current && !timerStatusRef.current.running) {
-			timerSecondsRef.current = 0;
+			return 0;
 		}
 		return timerSecondsRef.current;
-	}, [seconds, statStasks]);
+	}, [seconds, activeTaskStat, firstLoad]);
 
 	useEffect(() => {
 		if (firstLoad) {
@@ -121,7 +122,7 @@ function useLocalTimeCounter(
 	return {
 		updateLocalTimerStatus,
 		timeCounter,
-		timerSeconds: timerSecondsRef.current,
+		timerSeconds: timerSeconds,
 	};
 }
 

@@ -1,6 +1,5 @@
 import { pad } from '@app/helpers/number';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
-import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { useTimer } from '@app/hooks/features/useTimer';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
@@ -16,8 +15,7 @@ const Timer = () => {
 		timerSeconds,
 	} = useTimer();
 
-	const { activeTeamTask } = useTeamTasks();
-	const { estimation } = useTaskStatistics(activeTeamTask, timerSeconds);
+	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
 
 	const timerHanlder = () => {
 		if (timerStatusFetching || !canRunTimer) return;
@@ -38,7 +36,7 @@ const Timer = () => {
 				<div className="flex w-[284px] relative">
 					<div
 						className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
-						style={{ width: `${estimation}%` }}
+						style={{ width: `${activeTaskEstimation}%` }}
 					></div>
 					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-full absolute z-10" />
 				</div>

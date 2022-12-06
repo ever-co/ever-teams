@@ -1,75 +1,133 @@
 import { ITeamTask } from '@app/interfaces/ITask';
-import { tasksTimesheetStatisticsAPI } from '@app/services/client/api';
 import {
+	activeTaskTimesheetStatisticsAPI,
+	tasksTimesheetStatisticsAPI,
+} from '@app/services/client/api';
+import {
+	activeTaskStatisticsState,
 	activeTeamIdState,
 	activeTeamTaskState,
 	tasksStatisticsState,
-	tasksTodayStatisticsState,
 	timerStatusState,
 } from '@app/stores';
 import { useCallback, useEffect, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
-import { useQuery } from '../useQuery';
 import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
+import { useSyncRef } from '../useSyncRef';
 
-export function useTaskStatistics(task?: ITeamTask | null, addSeconds = 0) {
-	const [stasks, setSTasks] = useRecoilState(tasksStatisticsState);
-	const [dtasks, setDTasks] = useRecoilState(tasksTodayStatisticsState);
+export function useTaskStatistics(addSeconds = 0) {
+	const [statActiveTask, setStatActiveTask] = useRecoilState(
+		activeTaskStatisticsState
+	);
+	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
 
-	const { queryCall } = useQuery(tasksTimesheetStatisticsAPI);
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
 		useFirstLoad();
 
+	// Refs
 	const initialLoad = useRef(false);
+	const statTasksRef = useSyncRef(statTasks);
 
 	// Dep status
 	const timerStatus = useRecoilValue(timerStatusState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 
-	const loadData = useCallback(() => {
-		const promise = queryCall();
+	/**
+	 * Get employee all tasks statistics  (API Call)
+	 */
+	const getAllTasksStatsData = useCallback(() => {
+		tasksTimesheetStatisticsAPI().then(({ data }) => {
+			setStatTasks({
+				all: data.global || [],
+				today: data.today || [],
+			});
+		});
+	}, []);
+
+	const getTaskStat = useCallback((task: ITeamTask | null) => {
+		const stats = statTasksRef.current;
+		return {
+			taskTotalStat: stats.all.find((t) => t.id === task?.id),
+			taskDailyStat: stats.today.find((t) => t.id === task?.id),
+		};
+	}, []);
+
+	/**
+	 * Get statistics of the active tasks fresh (API Call)
+	 */
+	const getActiveTaskStatData = useCallback(() => {
+		const promise = activeTaskTimesheetStatisticsAPI();
 		promise.then(({ data }) => {
-			data.global && setSTasks(data.global);
-			data.today && setDTasks(data.today);
+			setStatActiveTask({
+				total: data.global ? data.global[0] || null : null,
+				today: data.today ? data.today[0] || null : null,
+			});
 		});
 		return promise;
 	}, []);
 
-	const loadByDelay = useCallback(debounce(loadData, 100), []);
+	const debounceLoadActiveTaskStat = useCallback(
+		debounce(getActiveTaskStatData, 100),
+		[]
+	);
 
+	/**
+	 * Get statistics of the active tasks at the component load
+	 */
 	useEffect(() => {
 		if (firstLoad) {
-			loadData().then(() => {
+			getActiveTaskStatData().then(() => {
 				initialLoad.current = true;
 			});
 		}
 	}, [firstLoad]);
 
+	/**
+	 * Get fresh statistic of the active task
+	 */
 	useEffect(() => {
 		if (firstLoad && initialLoad.current) {
-			loadByDelay();
+			debounceLoadActiveTaskStat();
 		}
-	}, [firstLoad, timerStatus, activeTeamId, activeTeamTask]);
+	}, [firstLoad, timerStatus, activeTeamId, activeTeamTask?.id]);
 
-	const stask = task ? stasks.find((t) => t.id === task.id) : undefined;
-	const dtask = task ? dtasks.find((t) => t.id === task.id) : undefined;
+	/**
+	 * set null to active team stats when active team or active task are changed
+	 */
+	useEffect(() => {
+		if (firstLoad && initialLoad.current) {
+			setStatActiveTask({
+				today: null,
+				total: null,
+			});
+		}
+	}, [firstLoad, activeTeamId, activeTeamTask?.id]);
 
-	const getEstimation = (_task: ITasksTimesheet) =>
+	const getEstimation = (_task: ITasksTimesheet | null) =>
 		Math.min(
-			Math.floor(((_task.duration + addSeconds) * 100) / (task?.estimate || 0)),
+			Math.floor(
+				(((_task?.duration || 0) + addSeconds) * 100) /
+					(activeTeamTask?.estimate || 0)
+			),
 			100
 		);
 
 	return {
 		firstLoadtasksStatisticsData,
-		stasks,
-		stask,
-		dtasks,
-		dtask,
-		estimation: task && task.estimate && stask ? getEstimation(stask) : 0,
-		dailyEstimation: task && task.estimate && dtask ? getEstimation(dtask) : 0,
+		getAllTasksStatsData,
+		getTaskStat,
+		activeTaskTotalStat: statActiveTask.total,
+		activeTaskDailyStat: statActiveTask.today,
+		activeTaskEstimation:
+			activeTeamTask && activeTeamTask.estimate
+				? getEstimation(statActiveTask.total)
+				: 0,
+		activeTaskDailyEstimation:
+			activeTeamTask && activeTeamTask.estimate
+				? getEstimation(statActiveTask.today)
+				: 0,
 	};
 }

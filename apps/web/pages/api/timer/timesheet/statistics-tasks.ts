@@ -6,39 +6,44 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	const { $res, user, tenantId, organizationId, access_token } =
+	const { $res, user, tenantId, organizationId, access_token, taskId } =
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
-	const date = req.query.date;
+	const activeTask = req.query.activeTask;
+
+	if (activeTask && !taskId) {
+		return $res.json({
+			global: [],
+			today: [],
+		});
+	}
 
 	const { data } = await tasksTimesheetStatisticsRequest(
 		{
 			tenantId,
 			organizationId,
 			'employeeIds[0]': user.employee.id,
+			defaultRange: 'false',
+			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
 		},
 		access_token
 	);
 
-	if (date) {
-		const { data: todayData } = await tasksTimesheetStatisticsRequest(
-			{
-				tenantId,
-				organizationId,
-				'employeeIds[0]': user.employee.id,
-				startDate: `${date} 00:00`,
-				endDate: `${date} 23:59`,
-			},
-			access_token
-		);
-		return $res.json({
-			global: data,
-			today: todayData,
-		});
-	}
+	const { data: todayData } = await tasksTimesheetStatisticsRequest(
+		{
+			tenantId,
+			organizationId,
+			'employeeIds[0]': user.employee.id,
+			defaultRange: 'true',
+			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
+			unitOfTime: 'day',
+		},
+		access_token
+	);
 
-	$res.json({
+	return $res.json({
 		global: data,
+		today: todayData,
 	});
 }

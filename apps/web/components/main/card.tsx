@@ -249,7 +249,7 @@ const Card = ({ member }: { member: IMember }) => {
 			<Separator />
 
 			{/* Time worked on task */}
-			<WorkedOnTask memberTask={memberTask} />
+			<WorkedOnTask memberTask={memberTask} isAuthUser={isAuthUser} />
 			<Separator />
 
 			{/* Estimate time */}
@@ -346,30 +346,53 @@ function EstimationProgress({
 	isAuthUser: boolean;
 }) {
 	const seconds = useRecoilValue(timerSecondsState);
-	const { estimation } = useTaskStatistics(
-		memberTask,
-		isAuthUser ? seconds : 0
-	);
+	const { activeTaskEstimation } = useTaskStatistics(isAuthUser ? seconds : 0);
 
 	return (
 		<div className="flex w-[200px] relative rounded-full mb-3">
 			<div
 				className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
-				style={{ width: `${estimation}%` }}
+				style={{ width: `${isAuthUser ? activeTaskEstimation : 0}%` }}
 			/>
 			<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[100%] h-[8px] rounded-r-full absolute z-10" />
 		</div>
 	);
 }
 
-function WorkedOnTask({ memberTask }: { memberTask: ITeamTask | null }) {
-	const { stask, dtask } = useTaskStatistics(memberTask);
-	const { h, m } = secondsToTime(stask?.duration || 0);
-	const { h: dh, m: dm } = secondsToTime(dtask?.duration || 0);
+function WorkedOnTask({
+	memberTask,
+	isAuthUser,
+}: {
+	memberTask: ITeamTask | null;
+	isAuthUser: boolean;
+}) {
+	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } =
+		useTaskStatistics();
+
+	if (isAuthUser) {
+		const { h, m } = secondsToTime(activeTaskTotalStat?.duration || 0);
+		const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);
+
+		return (
+			<div className="w-[122px]  text-center">
+				Today {dh}h:{dm}m <br />{' '}
+				<span className="opacity-60">
+					Total {h}h:{m}m
+				</span>
+			</div>
+		);
+	}
+	const { taskDailyStat, taskTotalStat } = getTaskStat(memberTask);
+
+	const { h, m } = secondsToTime(taskTotalStat?.duration || 0);
+	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0);
 
 	return (
 		<div className="w-[122px]  text-center">
-			Today {dh}h:{dm}m <br /> <span className="opacity-60">Total {h}h:{m}m</span>
+			Today {dh}h:{dm}m <br />{' '}
+			<span className="opacity-60">
+				Total {h}h:{m}m
+			</span>
 		</div>
 	);
 }
