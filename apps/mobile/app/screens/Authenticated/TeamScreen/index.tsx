@@ -61,8 +61,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     });
     const { navigation } = _props
 
-    function goToProfile() {
-      navigation.navigate("Profile")
+    function goToProfile(user:IUser) {
+      navigation.navigate("Profile",{user:user})
     }
 
 
@@ -131,7 +131,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
               {currentUser && (
                 <ListCardItem
                   item={currentUser as any}
-                  onPressIn={() => goToProfile()}
+                  onPressIn={goToProfile}
                   enableEstimate={false}
                 />
               )}
@@ -140,7 +140,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                 <ListCardItem
                   key={index}
                   item={member}
-                  onPressIn={() => goToProfile()}
+                  onPressIn={goToProfile}
                   enableEstimate={false}
                 />
               ))}

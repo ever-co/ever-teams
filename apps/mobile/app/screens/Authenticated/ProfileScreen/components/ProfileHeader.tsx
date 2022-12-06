@@ -5,6 +5,7 @@ import { Feather } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Text } from "../../../../components"
+import { IUser } from "../../../../services/interfaces/IUserData"
 
 type IProfileHeader = {
   image: string
@@ -12,34 +13,25 @@ type IProfileHeader = {
   email: string
 }
 
-const ProfileHeader = () => {
+const ProfileHeader = (member:IUser) => {
   return (
     <View style={styles.container}>
       <View style={styles.firstContainer}>
         <View style={styles.pictureContainer}>
           <Image
-            source={require("../../../../../assets/images/Ruslan.png")}
+            source={{uri:member.imageUrl}}
             style={styles.profileImage}
           />
-          <View style={styles.wrapEditIcon}>
-            <Feather name="edit-2" size={10} color="gray" />
-          </View>
           <View style={styles.onlineIcon} />
         </View>
       </View>
 
       <View style={styles.secondContainer}>
         <View style={{ flexDirection: "row" }}>
-          <Text style={styles.name}>Ruslan Konviser</Text>
-          <View style={styles.wrapEditIconSmall}>
-            <Feather name="edit-2" size={8} color="gray" />
-          </View>
+          <Text style={styles.name}>{member?.name}</Text>
         </View>
         <View style={{ flexDirection: "row" }}>
-          <Text style={styles.email}>Ruslan.k@everiq.com</Text>
-          <View style={styles.wrapEditIconSmall}>
-            <Feather name="edit-2" size={8} color="gray" />
-          </View>
+          <Text style={styles.email}>{member.email}</Text>
         </View>
       </View>
     </View>
@@ -59,10 +51,10 @@ const styles = StyleSheet.create({
   profileImage: {
     borderRadius: 200,
     padding: 0,
-    right: 18,
-    width: 120,
-    height: 120,
-    top: "-20%",
+    left: 2,
+    width: 80,
+    height: 80,
+    top: "2%",
   },
   pictureContainer: {
     position: "absolute",
