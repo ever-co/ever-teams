@@ -1,4 +1,5 @@
 import { convertMsToTime } from '@app/helpers/date';
+import { ITeamTask } from '@app/interfaces/ITask';
 import { ILocalTimerStatus, ITimerStatus } from '@app/interfaces/ITimer';
 import {
 	getTimerStatusAPI,
@@ -30,6 +31,7 @@ const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-team';
  */
 function useLocalTimeCounter(
 	timerStatus: ITimerStatus | null,
+	activeTeamTask: ITeamTask | null,
 	firstLoad: boolean
 ) {
 	const [timeCounterInterval, setTimeCounterInterval] = useRecoilState(
@@ -86,6 +88,7 @@ function useLocalTimeCounter(
 	}, [firstLoad, timerStatus]);
 
 	// THis is form constant update of the progress line
+
 	timerSecondsRef.current = useMemo(() => {
 		if (!firstLoad) return 0;
 		if (seconds > timerSecondsRef.current) {
@@ -96,6 +99,13 @@ function useLocalTimeCounter(
 		}
 		return timerSecondsRef.current;
 	}, [seconds, activeTaskStat, firstLoad]);
+
+	useEffect(() => {
+		if (firstLoad) {
+			timerSecondsRef.current = 0;
+			setTimerSeconds(0);
+		}
+	}, [activeTeamTask?.id, firstLoad]);
 
 	useEffect(() => {
 		if (firstLoad) {
@@ -153,7 +163,7 @@ export function useTimer() {
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
-		useLocalTimeCounter(timerStatus, firstLoad);
+		useLocalTimeCounter(timerStatus, activeTeamTask, firstLoad);
 
 	const getTimerStatus = useCallback(() => {
 		return queryCall().then((res) => {

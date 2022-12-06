@@ -5,13 +5,13 @@ import {
 } from '@app/services/client/api';
 import {
 	activeTaskStatisticsState,
-	activeTeamIdState,
 	activeTeamTaskState,
+	tasksFetchingState,
 	tasksStatisticsState,
 	timerStatusState,
 } from '@app/stores';
 import { useCallback, useEffect, useRef } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
@@ -22,6 +22,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTaskStatisticsState
 	);
 	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
+	const setTasksFetching = useSetRecoilState(tasksFetchingState);
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
 		useFirstLoad();
@@ -32,7 +33,6 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	// Dep status
 	const timerStatus = useRecoilValue(timerStatusState);
-	const activeTeamId = useRecoilValue(activeTeamIdState);
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 
 	/**
@@ -59,12 +59,16 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(() => {
+		setTasksFetching(true);
 		const promise = activeTaskTimesheetStatisticsAPI();
 		promise.then(({ data }) => {
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,
 				today: data.today ? data.today[0] || null : null,
 			});
+		});
+		promise.finally(() => {
+			setTasksFetching(false);
 		});
 		return promise;
 	}, []);
@@ -92,7 +96,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		if (firstLoad && initialLoad.current) {
 			debounceLoadActiveTaskStat();
 		}
-	}, [firstLoad, timerStatus, activeTeamId, activeTeamTask?.id]);
+	}, [firstLoad, timerStatus, activeTeamTask?.id]);
 
 	/**
 	 * set null to active team stats when active team or active task are changed
@@ -104,7 +108,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				total: null,
 			});
 		}
-	}, [firstLoad, activeTeamId, activeTeamTask?.id]);
+	}, [firstLoad, activeTeamTask?.id]);
 
 	const getEstimation = (_task: ITasksTimesheet | null) =>
 		Math.min(
