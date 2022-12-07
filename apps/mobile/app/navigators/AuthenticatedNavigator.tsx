@@ -20,11 +20,12 @@ import {
 import { colors, spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
 import HomeHeader from "../screens/Authenticated/TeamScreen/components/HomeHeader";
+import { IUser } from "../services/interfaces/IUserData";
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
   Team: undefined
-  Profile: undefined
+  Profile: {user:IUser}
 }
 
 /**

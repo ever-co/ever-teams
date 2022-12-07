@@ -13,6 +13,7 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
+import ManageTaskCard from "../../../../components/ManageTaskCard"
 
 export interface Props {
 }
@@ -72,20 +73,6 @@ const NewTimerCard: FC<Props> = observer(() => {
     setShowCombo(false)
   }
 
-  const getEstimateData = () => {
-    if (activeTask.estimate && activeTask.estimate > 0) {
-      const percentage = timeCounter / activeTask.estimate;
-      return {
-        color: "#28D581",
-        percent: percentage
-      }
-    } else {
-      return {
-        color: "gray",
-        percent: 0
-      }
-    }
-  }
 
   const getTimePercentage = () => {
     if (!activeTask.estimate) {
@@ -108,49 +95,7 @@ const NewTimerCard: FC<Props> = observer(() => {
   return (
     <View style={styles.mainContainer}>
       <Text style={styles.working}>What you working on?</Text>
-      <View
-        style={[
-          styles.wrapInput,
-          {
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            paddingHorizontal: 10,
-          },
-        ]}
-      >
-        <TextInput
-          selectionColor={colors.primary}
-          style={styles.textInput}
-          defaultValue={activeTask.title}
-          value={taskInputText}
-          onFocus={() => setShowCombo(true)}
-          onChangeText={(newText) => handleChangeText(newText)}
-        />
-        {showCheckIcon && (
-          <TouchableOpacity onPress={() => onCreateNewTask()}>
-            <Feather name="check" size={24} color="green" />
-          </TouchableOpacity>
-        )}
-        {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
-      </View>
-
-      {showCombo && <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
-
-      <View
-        style={{
-          flexDirection: "row",
-          marginBottom: 40,
-          justifyContent: "space-between",
-        }}
-      >
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>Estimate:</Text>
-          <EstimateTime />
-        </View>
-        <TaskStatusDropdown />
-      </View>
-
+      <ManageTaskCard />
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}:<Text style={{ fontSize: 25 }}>{pad(ms_p)}</Text></Text>

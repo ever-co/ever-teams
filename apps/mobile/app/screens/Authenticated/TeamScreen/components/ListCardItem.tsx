@@ -22,9 +22,11 @@ import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
+import { IUser } from "../../../../services/interfaces/IUserData"
+
 export type ListItemProps = {
   item: any,
-  onPressIn?: () => unknown
+  onPressIn?: (user: IUser) => unknown
   enableEstimate: boolean
 }
 
@@ -48,7 +50,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
   const iuser = item.employee.user
 
   return (
-    <TouchableOpacity onPressIn={onPressIn}>
+    <TouchableOpacity onPress={() => onPressIn(iuser)}>
       <View style={[{ ...GS.p2, ...GS.positionRelative }, isManager ? { borderWidth: 1, borderColor: "black", borderRadius: 20 } : null]}>
         <View style={[styles.statusLine, { backgroundColor: "#28D580" }]} />
         <View style={styles.firstContainer}>
@@ -160,13 +162,10 @@ const ListCardItem: React.FC<Props> = (props) => {
         <ListItemContent
           {...props}
           enableEstimate={estimateNow}
-          onPressIn={() => {
-            setShowMenu(false)
-
-            if (typeof props?.onPressIn === "function") {
-              props.onPressIn()
-            }
-          }}
+          // onPressIn={() => {
+          //   setShowMenu(false)
+          //   props.onPressIn
+          // }}
         />
       }
     />
