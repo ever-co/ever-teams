@@ -2,7 +2,7 @@ import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { AppLayout } from '@components/layout';
 import { useRouter } from 'next/router';
 import Image from 'next/legacy/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
@@ -12,11 +12,13 @@ import Timer from '@components/common/main/timer';
 import ProfileCard from '@components/home/profile-card';
 import { withAuthentication } from '@components/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
+import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, tasks } = useTeamTasks();
 	const { user: auth } = useAuthenticateUser();
+	const { getAllTasksStatsData } = useTaskStatistics();
 	const router = useRouter();
 	const { memberId } = router.query;
 	const members = activeTeam?.members || [];
@@ -32,6 +34,10 @@ const Profile = () => {
 	const otherTasks = activeTeamTask
 		? tasks.filter((t) => t.id !== activeTeamTask.id)
 		: tasks;
+
+	useEffect(() => {
+		getAllTasksStatsData();
+	}, []);
 
 	return (
 		<div className="bg-[#F9FAFB] dark:bg-[#18181B]">
