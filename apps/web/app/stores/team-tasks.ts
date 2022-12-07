@@ -31,12 +31,24 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 	},
 });
 
-export const tasksStatisticsState = atom<ITasksTimesheet[]>({
+export const tasksStatisticsState = atom<{
+	all: ITasksTimesheet[];
+	today: ITasksTimesheet[];
+}>({
 	key: 'tasksStatisticsState',
-	default: [],
+	default: {
+		all: [],
+		today: [],
+	},
 });
 
-export const tasksTodayStatisticsState = atom<ITasksTimesheet[]>({
-	key: 'tasksTodayStatisticsState',
-	default: [],
+export const activeTaskStatisticsState = atom<{
+	total: ITasksTimesheet | null;
+	today: ITasksTimesheet | null;
+}>({
+	key: 'activeTaskStatisticsState',
+	default: {
+		total: null,
+		today: null,
+	},
 });

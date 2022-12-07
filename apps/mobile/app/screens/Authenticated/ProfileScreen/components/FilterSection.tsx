@@ -12,19 +12,19 @@ const FilterSection = () => {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.wrapText} onPress={() => setIsOpened(!isOpened)}>
-        <Text>Worked</Text>
+        <Text style={{}}>Worked</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
       {isOpened ? (
         <View style={styles.downContainer}>
           <TouchableOpacity style={styles.dropdownItem}>
-            <Text style={{ color: colors.primary }}>Worked</Text>
+            <Text style={{ color: colors.primary, fontSize:12 }}>Worked</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.dropdownItem}>
-            <Text style={{ color: "gray" }}>Assigned</Text>
+            <Text style={{ color: "gray", fontSize:12 }}>Assigned</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.dropdownItem}>
-            <Text style={{ color: "gray" }}>Unassigned</Text>
+            <Text style={{ color: "gray", fontSize:12 }}>Unassigned</Text>
           </TouchableOpacity>
         </View>
       ) : null}
@@ -37,20 +37,26 @@ export default FilterSection
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#E8EBF8",
-    padding: 8,
-    width: "90%",
+    alignItems:'center',
+    justifyContent:"center",
+    paddingVertical: 10,
+    paddingHorizontal:5,
+    width: "100%",
     borderRadius: 5,
+    marginTop:10,
+    minWidth:110,
     zIndex:1000
   },
   wrapText: {
     flexDirection: "row",
     justifyContent: "space-between",
+    width:100
   },
   downContainer: {
     backgroundColor: "#fff",
     position: "absolute",
-    width: "110%",
-    marginTop: 42,
+    width: "100%",
+    top:42,
     elevation: 100,
     borderRadius: 5,
     zIndex:999
@@ -58,5 +64,6 @@ const styles = StyleSheet.create({
   dropdownItem: {
     paddingVertical: 3,
     paddingHorizontal: 5,
+    fontSize:12,
   },
 })

@@ -9,29 +9,7 @@ export const TaskStoreModel = types
     .model("TaskStore")
     .props({
         teamTasks: types.array(types.frozen<ITeamTask>()),
-        activeTask: types.optional(types.frozen(), {
-            id: "",
-            createdAt: "",
-            updatedAt: "",
-            tenantId: "",
-            organizationId: "",
-            number: 0,
-            title: "",
-            description: "",
-            status: "Todo",
-            estimate: 0,
-            dueDate: "",
-            projectId: "",
-            creatorId: "",
-            organizationSprintId: undefined,
-            project: undefined,
-            tags: [],
-            organizationSprint: undefined,
-            members: [],
-            teams: [],
-            creator: undefined,
-            taskNumber: ""
-        }),
+        activeTask: types.optional(types.frozen(), {}),
         activeTaskId: types.optional(types.string, ""),
         fetchingTasks: types.optional(types.boolean, false)
     })

@@ -1,5 +1,5 @@
 import React from "react"
-import { View, TextInput, StyleSheet } from "react-native"
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native"
 import Svg, { G, Circle } from "react-native-svg"
 
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
@@ -15,9 +15,9 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
   const percentage = workedHours
   const max = estimatedHours
 
-  const radius = 20
-  const strokeWidth = 3
-  const color = CC["success"]
+  const radius = 23
+  const strokeWidth = 4
+  const color = "#28D581"
   const maxPerc = (100 * percentage) / max
   const circleCircumference = 2 * Math.PI * radius
   const strokeDashoffset = circleCircumference - (circleCircumference * maxPerc) / 100
@@ -55,7 +55,7 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
         defaultValue={estimated && estimatedHours > 0 ? `${estimateHours}h${estimateMinutes !== 0 ? estimateMinutes : ""}` : "00:00"}
         style={[
           StyleSheet.absoluteFillObject,
-          { fontSize: radius / 1.6, color: `${estimated ? CC["success"] : "gray"}` },
+          { fontSize: radius / 1.8, color: `${estimated ? "#1B005D" : "gray"}` },
           { fontWeight: "900", textAlign: "center", opacity: estimated ? 1 : 0.2 },
         ]}
       />

@@ -4,7 +4,6 @@ import { ImageStyle, ScrollView, TextStyle, View, ViewStyle } from "react-native
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 // DATA
-import { tasks, teams } from "../TeamScreen/data"
 
 // COMPONENTS
 import { Screen, Text } from "../../../components"
@@ -18,27 +17,52 @@ import DropDown from "../TeamScreen/components/DropDown"
 import FilterSection from "./components/FilterSection"
 import ListCardItem from "./components/ListCardItem"
 import HamburgerMenu from "../../../components/HamburgerMenu"
+import AssignTaskSection from "./components/AssignTaskSection"
+import { useStores } from "../../../models"
+import { ITeamTask } from "../../../services/interfaces/ITask"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
   function AuthenticatedProfileScreen(_props) {
+    const { authenticationStore: { user },
+      teamStore: { activeTeam },
+      TaskStore: { teamTasks, activeTask }
+    } = useStores();
     const [showHam, setShowHam] = useState(false)
+
+    const { params } = _props.route;
+    const memberInfo = params?.user;
+
+    const members = activeTeam?.members || [];
+    const currentUser = members.find((m) => {
+      return m.employee.userId === memberInfo.id;
+    });
+    const member =
+      user?.id === memberInfo.id ? user : currentUser?.employee.user;
+
+
+    const otherTasks = teamTasks
+      ? teamTasks.filter((t) => t.id !== activeTask.id)
+      : teamTasks;
 
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-       <HomeHeader {..._props} />
-        <ProfileHeader />
+        <HomeHeader {..._props} />
+        <ProfileHeader {...memberInfo} />
+        <View style={{ zIndex: 1000 }}>
+          <AssignTaskSection />
+        </View>
         <View style={$wrapComboboxes}>
-          <View style={{ flex: 2, alignItems: "flex-start" }}>
-            <DropDown onCreateTeam={() => {}} />
+          <View style={{ flex: 2, marginHorizontal: -15 }}>
+            <DropDown onCreateTeam={() => { }} />
           </View>
-          <View style={{ width: "30%", justifyContent: "center" }}>
+          <View style={{ marginRight: 10 }}>
             <FilterSection />
           </View>
         </View>
         <ScrollView
           style={{
             flex: 1,
-            zIndex: 999,
+            zIndex: 998,
             paddingHorizontal: 10,
             paddingBottom: 50,
             backgroundColor: colors.palette.neutral200,
@@ -54,7 +78,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
               </View>
             </View>
-            <ListCardItem item={tasks[0] as any} enableEstimate={false} />
+            {activeTask.id &&
+              <ListCardItem item={activeTask as ITeamTask} enableEstimate={false} />}
           </View>
           <View>
             <View
@@ -66,7 +91,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
               </View>
             </View>
-            {tasks.map((item, index) => (
+            {otherTasks.map((item, index) => (
               <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
             ))}
           </View>
@@ -98,11 +123,10 @@ const $textLabel: TextStyle = {
 }
 
 const $wrapComboboxes: ViewStyle = {
-  zIndex: 1000,
-  width: "100%",
   flexDirection: "row",
+  alignItems: "center",
   paddingBottom: 10,
-  paddingHorizontal: 10,
   backgroundColor: colors.palette.neutral200,
-  justifyContent: "space-between",
+  justifyContent: "space-around",
+  zIndex: 999
 }

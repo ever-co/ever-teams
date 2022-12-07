@@ -18,15 +18,10 @@ import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/
 import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "../../TeamScreen/components/ProgressTimeIndicator"
 import TaskStatus from "./TaskStatus"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
 
 export type ListItemProps = {
-  item: {
-    name: string
-    text: string
-    currentTime: string
-    totalTime: string
-    estimate: boolean
-  }
+  item: ITeamTask
   onPressIn?: () => unknown
   enableEstimate: boolean
 }
@@ -34,12 +29,12 @@ export type ListItemProps = {
 export interface Props extends ListItemProps { }
 
 export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
-
+ 
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p2, ...GS.positionRelative }}>
         <View style={styles.firstContainer}>
-          <Text style={styles.otherText}>{item.text}</Text>
+          <Text style={styles.otherText}>{`${item.taskNumber?"#"+item.taskNumber:""} ${item.title}`}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
           {!item.estimate && enableEstimate ? (
             <View style={styles.estimate}>
@@ -60,8 +55,8 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
           ) : (
             <View style={{ marginLeft: "auto", marginRight: 10, marginBottom: 10 }}>
               <ProgressTimeIndicator
-                estimated={item.estimate}
-                estimatedHours={50}
+                estimated={item.estimate > 0 ? true : false}
+                estimatedHours={item.estimate}
                 workedHours={30}
               />
             </View>
@@ -72,9 +67,9 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
         <View style={styles.times}>
           <View>
             <Text style={styles.timeHeading}>Worked time</Text>
-            <Text style={styles.timeNumber}>{item.currentTime}</Text>
+            <Text style={styles.timeNumber}>{"00:00"}</Text>
           </View>
-          <TaskStatus />
+          <TaskStatus {...item} />
         </View>
       </View>
     </TouchableNativeFeedback>
