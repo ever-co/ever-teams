@@ -158,9 +158,20 @@ const Card = ({ member }: { member: IMember }) => {
 		setEstimateEdit(false);
 	}, [memberTask, formValues, updateTask]);
 
-	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() =>
-		setEstimateEdit(false)
-	);
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
+		setEstimateEdit(false);
+		if (memberTask) {
+			const { m, h } = secondsToTime(memberTask.estimate || 0);
+			setFormValues((d) => {
+				return {
+					...d,
+					devTask: memberTask.title,
+					estimateHours: h,
+					estimateMinutes: m,
+				};
+			});
+		}
+	});
 
 	return (
 		<div
@@ -279,7 +290,10 @@ const Card = ({ member }: { member: IMember }) => {
 						)}
 						{estimateEdit && (
 							<div className="flex items-center justify-center">
-								<div className="bg-[#F2F4FB] dark:bg-[#18181B]" ref={targetEl}>
+								<div
+									className="bg-[#F2F4FB] dark:bg-[#18181B] flex"
+									ref={targetEl}
+								>
 									<TimeInput
 										value={'' + formValues.estimateHours}
 										type="string"
@@ -288,14 +302,13 @@ const Card = ({ member }: { member: IMember }) => {
 										handleChange={onChangeEstimate('estimateHours')}
 										handleDoubleClick={canEditEstimate}
 										handleEnter={handleEstimateSubmit}
-										style={`${
-											estimateEdit === true
-												? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
-												: 'bg-transparent w-[10px]'
-										} `}
+										style={`w-[30px] h-[30px] pt-1 bg-transparent`}
 										disabled={!estimateEdit}
 									/>
-									/
+									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
+										h
+									</div>
+									<div className="flex items-center">/</div>
 									<TimeInput
 										value={'' + formValues.estimateMinutes}
 										type="string"
@@ -304,13 +317,12 @@ const Card = ({ member }: { member: IMember }) => {
 										handleChange={onChangeEstimate('estimateMinutes')}
 										handleDoubleClick={canEditEstimate}
 										handleEnter={handleEstimateSubmit}
-										style={` ${
-											estimateEdit === true
-												? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
-												: 'bg-transparent w-[10px]'
-										} `}
+										style={`w-[30px] bg-transparent h-[30px] pt-1`}
 										disabled={!estimateEdit}
 									/>
+									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
+										m
+									</div>
 								</div>{' '}
 								<span className="w-3 h-5 ml-2">
 									{updateLoading && <Spinner dark={false} />}
@@ -326,7 +338,7 @@ const Card = ({ member }: { member: IMember }) => {
 			<div className="w-[184px]  flex items-center">
 				<Worked24Hours isAuthUser={isAuthUser} />
 				{isTeamManager && (
-					<div className="mr-[20px]">
+					<div className="mr-[20px]" ref={ignoreElementRef}>
 						<DropdownUser
 							setEdit={handeEditBoth}
 							setEstimateEdit={canEditEstimate}
