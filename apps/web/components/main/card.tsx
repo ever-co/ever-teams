@@ -120,7 +120,7 @@ const Card = ({ member }: { member: IMember }) => {
 	}, []);
 
 	const handleTaskEdit = async () => {
-		if (memberTask) {
+		if (memberTask && memberTask.title !== formValues.devTask) {
 			await updateTask({
 				...memberTask,
 				title: formValues.devTask,
@@ -172,6 +172,15 @@ const Card = ({ member }: { member: IMember }) => {
 			});
 		}
 	});
+
+	const { targetEl: editTaskInputEl } = useOutsideClick<HTMLInputElement>(
+		() => {
+			setEstimateEdit(false);
+			if (!updateLoading) {
+				handleTaskEdit();
+			}
+		}
+	);
 
 	return (
 		<div
@@ -232,6 +241,7 @@ const Card = ({ member }: { member: IMember }) => {
 					<div className="flex items-center">
 						<input
 							name="devTask"
+							ref={editTaskInputEl}
 							value={formValues.devTask}
 							onChange={handleChange}
 							onKeyPress={(event) => event.key === 'Enter' && handleTaskEdit()}
