@@ -30,7 +30,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const [showHam, setShowHam] = useState(false)
 
     const { params } = _props.route;
-    const memberInfo = params?.user;
+    const memberInfo = params?.user || user;
 
     const members = activeTeam?.members || [];
     const currentUser = members.find((m) => {

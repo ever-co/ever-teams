@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     elevation: 5,
     zIndex: 5,
     position: "absolute",
-    top: "27%",
+    top: "30%",
     maxHeight: 300,
     width: "100%",
   },
