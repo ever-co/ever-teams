@@ -60,7 +60,7 @@ const EstimateTime = ({setEditEstimate}:params) => {
         } else {
             setEstimate({
                 ...estimate,
-                minutes: parsedQty.toString()
+                minutes: parsedQty<10 ? "0"+parsedQty.toString() :parsedQty.toString()
             })
         }
         handleCheckIcon();
@@ -119,9 +119,9 @@ const EstimateTime = ({setEditEstimate}:params) => {
                 onFocus={() => setEditing({ ...editing, editingHour: true })}
                 onEndEditing={() => setEditing({ ...editing, editingHour: false })}
                 onChangeText={(text) => onChangeHours(text)}
-                placeholder="Hh"
                 style={[styles.estimateInput,estimate.hours.length!==0 && {borderBottomColor:"white"}]}
             />
+            <Text>h</Text>
             <Text style={{ margin: 2 }}>:</Text>
             <TextInput
                 maxLength={2}
@@ -129,12 +129,12 @@ const EstimateTime = ({setEditEstimate}:params) => {
                 onFocus={() => setEditing({ ...editing, editingMinutes: true })}
                 onEndEditing={() => setEditing({ ...editing, editingMinutes: false })}
                 value={!editing.editingMinutes && estimate.minutes}
-                placeholder="Mm"
                 onChangeText={(text) => onChangeMinutes(text)}
                 style={[styles.estimateInput,estimate.minutes.length>0 && {borderBottomColor:"white"}]}
             />
+            <Text>m</Text>
             {showCheckIcon && <Feather style={styles.thickIconStyle} size={25} color={"green"} name="check" onPress={() => handleSubmit()} />}
-            {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
+            {isLoading ? <ActivityIndicator size={14} color="#1B005D" style={styles.loading} /> : null}
         </View>
     )
 }
@@ -143,31 +143,29 @@ export default EstimateTime;
 
 const styles = StyleSheet.create({
     estimate: {
-        // backgroundColor: "#E8EBF8"
+        // backgroundColor: "#E8EBF8",
         flexDirection: "row",
         justifyContent: "space-between",
-        padding: 3,
+        // padding: 3,
         alignItems: "center",
-        borderRadius: 5,
+        borderRadius: 8,
         marginLeft: "auto",
         marginRight: 10,
-        paddingHorizontal: 10,
     },
     estimateInput: {
         borderBottomColor: "gray",
         borderBottomWidth: 1,
-        padding: 2,
+        textAlign:"center",
     },
     checkButton: {
         margin: 2
     },
     loading: {
         position: 'absolute',
-        left: 22,
-        top: 15
+        right:-18,
     },
     thickIconStyle:{
         position:"absolute",
-        right:-10
+        right:-23
     }
 })

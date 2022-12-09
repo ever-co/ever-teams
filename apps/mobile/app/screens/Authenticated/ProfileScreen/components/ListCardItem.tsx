@@ -67,21 +67,20 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p2, ...GS.positionRelative }}>
         <View style={styles.firstContainer}>
-          <View>
+          <View style={{}}>
             <TouchableOpacity onLongPress={() => handleTaskTitle()}>
               <TextInput
                 style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null]}
                 defaultValue={enableEditTaskTitle ? titleInput : "#1 " + item.title}
                 editable={enableEditTaskTitle}
-                multiline={true}
                 onChangeText={(text) => setTitleInput(text)}
               />
+              {titleInput !== item.title && titleInput.trim().length > 3 && enableEditTaskTitle && !loading ?
+                <AntDesign style={styles.checkBtn} name="check" size={24} onPress={() => onChangeTaskTitle()} color="green" />
+                : null
+              }
+              {loading && <ActivityIndicator style={styles.checkBtn} />}
             </TouchableOpacity>
-            {titleInput !== item.title && titleInput.trim().length > 3 && enableEditTaskTitle && !loading ?
-              <AntDesign style={styles.checkBtn} name="check" size={24} onPress={()=>onChangeTaskTitle()} color="green" />
-              : null
-            }
-            {loading && <ActivityIndicator style={styles.checkBtn} />}
           </View>
           {/* ENABLE ESTIMATE INPUTS */}
           {enableEstimate ? (
@@ -299,5 +298,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: 21
+  },
+  editModeContainer: {
+
   }
 })

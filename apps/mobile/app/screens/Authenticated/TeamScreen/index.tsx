@@ -96,7 +96,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 
     useEffect(() => {
       isTeamManager();
-      getTeamInvitations({user,organizationId,access_token:authToken,tenantId, teamId:activeTeam?.id})
     }, [activeTeam, user, teams])
 
     return (
