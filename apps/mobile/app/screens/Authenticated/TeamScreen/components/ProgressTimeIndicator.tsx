@@ -13,12 +13,13 @@ type progressProps = {
 
 const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progressProps) => {
   const percentage = workedHours
-  const max = estimatedHours
+  // Convert seconds to milliseconds
+  const maxMillis = estimatedHours * 1000
 
   const radius = 23
   const strokeWidth = 4
   const color = "#28D581"
-  const maxPerc = (100 * percentage) / max
+  const maxPerc = (100 * percentage) / maxMillis
   const circleCircumference = 2 * Math.PI * radius
   const strokeDashoffset = circleCircumference - (circleCircumference * maxPerc) / 100
 
@@ -52,7 +53,7 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
       <TextInput
         underlineColorAndroid={"transparent"}
         editable={false}
-        defaultValue={estimated && estimatedHours > 0 ? `${estimateHours}h${estimateMinutes !== 0 ? estimateMinutes : ""}` : "00:00"}
+        defaultValue={estimated && estimatedHours > 0 ? `${estimateHours}:${estimateMinutes !== 0 ? estimateMinutes : ""}` : "00:00"}
         style={[
           StyleSheet.absoluteFillObject,
           { fontSize: radius / 1.8, color: `${estimated ? "#1B005D" : "gray"}` },

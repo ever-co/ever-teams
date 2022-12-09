@@ -20,8 +20,9 @@ import HamburgerMenu from "../../../components/HamburgerMenu"
 import AssignTaskSection from "./components/AssignTaskSection"
 import { useStores } from "../../../models"
 import { ITeamTask } from "../../../services/interfaces/ITask"
+import { observer } from "mobx-react-lite"
 
-export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
+export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
     const { authenticationStore: { user },
       teamStore: { activeTeam },
@@ -99,6 +100,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       </Screen>
     )
   }
+)
 
 const $container: ViewStyle = {
   flex: 1,

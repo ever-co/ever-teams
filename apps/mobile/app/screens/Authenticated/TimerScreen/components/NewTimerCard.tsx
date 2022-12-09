@@ -99,7 +99,7 @@ const NewTimerCard: FC<Props> = observer(() => {
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}:<Text style={{ fontSize: 25 }}>{pad(ms_p)}</Text></Text>
-          <ProgressBar progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#28D581" : "#F0F0F0"} />
+          <ProgressBar style={{backgroundColor:"#E9EBF8"}} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#28D581" : "#F0F0F0"} />
         </View>
 
         {localTimerStatusState.running ? (

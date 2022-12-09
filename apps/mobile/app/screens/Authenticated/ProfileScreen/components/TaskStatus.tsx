@@ -7,8 +7,9 @@ import { useStores } from "../../../../models";
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask";
 import { Feather } from "@expo/vector-icons"
 import { BadgedTaskStatus, getBackground, StatusIcon } from "../../../../components/StatusIcon";
+import { observer } from "mobx-react-lite";
 
-const TaskStatus = (currentTask: ITeamTask) => {
+const TaskStatus = observer((currentTask: ITeamTask) => {
   const {
     authenticationStore: { authToken, organizationId, tenantId },
     TaskStore: { activeTask, updateTask },
@@ -25,7 +26,7 @@ const TaskStatus = (currentTask: ITeamTask) => {
     "Completed",
     "Closed"]
 
-  const onChangeStatus = (text) => {
+ const onChangeStatus = (text) => {
     const value: ITaskStatus = text;
     const task = {
       ...currentTask,
@@ -37,14 +38,14 @@ const TaskStatus = (currentTask: ITeamTask) => {
       organizationId
     }
     updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
-  }
+  } 
 
 
   return (
     <>
       <View style={{ width: 150 }}>
-        <TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)} style={{ flexDirection: 'row', backgroundColor: getBackground({status:selectedStatus}), padding: 5, width: 150, justifyContent: 'space-between', borderRadius: 5 }}>
-          <BadgedTaskStatus showColor={true} status={selectedStatus} />
+        <TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)} style={{ flexDirection: 'row', backgroundColor: getBackground({ status: selectedStatus }), padding: 5, width: 150, justifyContent: 'space-between', borderRadius: 5 }}>
+          <BadgedTaskStatus showColor={true} status={currentTask.status ? currentTask.status:"Todo"} />
           <Image source={require("../../../../../assets/icons/caretDown.png")} />
         </TouchableOpacity>
       </View>
@@ -82,6 +83,6 @@ const TaskStatus = (currentTask: ITeamTask) => {
       </View>
     </>
   )
-}
+})
 
 export default TaskStatus;

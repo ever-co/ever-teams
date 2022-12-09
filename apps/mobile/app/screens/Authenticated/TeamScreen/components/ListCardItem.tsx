@@ -72,7 +72,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
                   <ProgressTimeIndicator
                     estimated={activeTask.estimate > 0 ? true : false}
                     estimatedHours={activeTask.estimate}
-                    workedHours={30000}
+                    workedHours={timeCounter}
                   />
                 </View>
               </TouchableOpacity>
@@ -87,7 +87,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
         <View style={styles.times}>
           <View>
             <Text style={styles.timeHeading}>Current time</Text>
-            <Text style={styles.timeNumber}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}</Text>
+            <Text style={styles.timeNumber}>{pad(hours)}:{pad(minutes)}</Text>
           </View>
           <View>
             <Text style={styles.timeHeading}>Total time</Text>
@@ -162,10 +162,10 @@ const ListCardItem: React.FC<Props> = (props) => {
         <ListItemContent
           {...props}
           enableEstimate={estimateNow}
-          // onPressIn={() => {
-          //   setShowMenu(false)
-          //   props.onPressIn
-          // }}
+        // onPressIn={() => {
+        //   setShowMenu(false)
+        //   props.onPressIn
+        // }}
         />
       }
     />

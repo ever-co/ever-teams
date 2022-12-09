@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   View,
   ViewStyle,
@@ -9,6 +9,7 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native"
+import { AntDesign } from '@expo/vector-icons';
 
 // COMPONENTS
 import { Card, Icon, ListItem, Text } from "../../../../components"
@@ -19,46 +20,83 @@ import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "../../TeamScreen/components/ProgressTimeIndicator"
 import TaskStatus from "./TaskStatus"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
+import EstimateTime from "../../TimerScreen/components/EstimateTime"
+import { observer } from "mobx-react-lite"
+import { useStores } from "../../../../models";
+import { ActivityIndicator } from "react-native-paper";
 
 export type ListItemProps = {
   item: ITeamTask
   onPressIn?: () => unknown
+  handleEstimate: () => unknown
   enableEstimate: boolean
+  enableEditTaskTitle: boolean,
+  handleTaskTitle: () => unknown
 }
 
 export interface Props extends ListItemProps { }
 
-export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
- 
+export const ListItemContent: React.FC<ListItemProps> = (props) => {
+  const { authenticationStore: { authToken, tenantId, organizationId }, teamStore: { activeTeamId }, TaskStore: { updateTask } } = useStores();
+  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn } = props;
+  const [titleInput, setTitleInput] = useState("")
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setTitleInput(item.title)
+  }, [enableEditTaskTitle])
+
+  const onChangeTaskTitle = () => {
+
+    const task: ITeamTask = {
+      ...item,
+      title: titleInput
+    };
+    const refreshData = {
+      activeTeamId,
+      tenantId,
+      organizationId
+    }
+    setLoading(true)
+    updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+    setLoading(false)
+    handleTaskTitle()
+  }
+
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p2, ...GS.positionRelative }}>
         <View style={styles.firstContainer}>
-          <Text style={styles.otherText}>{`${item.taskNumber?"#"+item.taskNumber:""} ${item.title}`}</Text>
+          <View>
+            <TouchableOpacity onLongPress={() => handleTaskTitle()}>
+              <TextInput
+                style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null]}
+                defaultValue={enableEditTaskTitle ? titleInput : "#1 " + item.title}
+                editable={enableEditTaskTitle}
+                multiline={true}
+                onChangeText={(text) => setTitleInput(text)}
+              />
+            </TouchableOpacity>
+            {titleInput !== item.title && titleInput.trim().length > 3 && enableEditTaskTitle && !loading ?
+              <AntDesign style={styles.checkBtn} name="check" size={24} onPress={()=>onChangeTaskTitle()} color="green" />
+              : null
+            }
+            {loading && <ActivityIndicator style={styles.checkBtn} />}
+          </View>
           {/* ENABLE ESTIMATE INPUTS */}
-          {!item.estimate && enableEstimate ? (
+          {enableEstimate ? (
             <View style={styles.estimate}>
-              <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                placeholder="Hh"
-                style={styles.estimateInput}
-              />
-              <Text style={styles.estimateDivider}>/</Text>
-              <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                placeholder="Mm"
-                style={styles.estimateInput}
-              />
+              <EstimateTime setEditEstimate={handleEstimate} />
             </View>
           ) : (
             <View style={{ marginLeft: "auto", marginRight: 10, marginBottom: 10 }}>
-              <ProgressTimeIndicator
-                estimated={item.estimate > 0 ? true : false}
-                estimatedHours={item.estimate}
-                workedHours={30}
-              />
+              <TouchableOpacity onPress={() => handleEstimate()}>
+                <ProgressTimeIndicator
+                  estimated={item.estimate > 0 ? true : false}
+                  estimatedHours={item.estimate}
+                  workedHours={30}
+                />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -77,14 +115,18 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
 }
 
 
-
 const ListCardItem: React.FC<Props> = (props) => {
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
   const [estimateNow, setEstimateNow] = React.useState(false)
+  const [editTaskTitle, setEditTaskTitle] = React.useState(false)
 
   const handleEstimate = () => {
-    setEstimateNow(true)
+    setEstimateNow(!estimateNow)
+    setShowMenu(false)
+  }
+  const handleTaskTitle = () => {
+    setEditTaskTitle(!editTaskTitle)
     setShowMenu(false)
   }
 
@@ -120,14 +162,14 @@ const ListCardItem: React.FC<Props> = (props) => {
                 ...GS.r0,
                 ...GS.roundedSm,
                 marginTop: -spacing.extraSmall,
-                marginRight: -spacing.extraSmall,
+                marginRight: -spacing.tiny,
                 backgroundColor: colors.background,
-                minWidth: spacing.massive * 2.5,
+                minWidth: spacing.massive * 1.5,
                 ...(!showMenu ? { display: "none" } : {}),
               }}
             >
               <View style={{}}>
-                <ListItem>Edit</ListItem>
+                <ListItem onPress={() => handleTaskTitle()}>Edit</ListItem>
                 <ListItem>Release</ListItem>
                 <ListItem onPress={() => handleEstimate()}>Estimate now</ListItem>
               </View>
@@ -142,10 +184,14 @@ const ListCardItem: React.FC<Props> = (props) => {
       ContentComponent={
         <ListItemContent
           {...props}
+          handleEstimate={handleEstimate}
           enableEstimate={estimateNow}
+          enableEditTaskTitle={editTaskTitle}
+          handleTaskTitle={handleTaskTitle}
           onPressIn={() => {
             setShowMenu(false)
-
+            setEditTaskTitle(false)
+            setEstimateNow(false)
             if (typeof props?.onPressIn === "function") {
               props.onPressIn()
             }
@@ -195,9 +241,21 @@ const styles = StyleSheet.create({
   otherText: {
     fontSize: 12,
     color: "#ACB3BB",
-    width: "80%",
+    width: "100%",
+    minWidth: 200,
     lineHeight: 15,
     marginVertical: 15,
+    marginLeft: 5
+  },
+  titleEditMode: {
+    minWidth: 220,
+    height: 40,
+    borderColor: colors.primary,
+    borderWidth: 0.3,
+    width: 230,
+    borderRadius: 5,
+    color: colors.primary,
+    paddingHorizontal: 5
   },
   timeNumber: {
     color: "#1B005D",
@@ -225,6 +283,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 5,
     marginLeft: "auto",
+    marginBottom: 5,
     marginRight: 10,
     paddingHorizontal: 10,
   },
@@ -236,10 +295,9 @@ const styles = StyleSheet.create({
   estimateDivider: {
     fontWeight: "700",
   },
-  estimateInput: {
-    borderBottomColor: "gray",
-    borderStyle: "dashed",
-    borderBottomWidth: 2,
-    padding: 2,
-  },
+  checkBtn: {
+    position: "absolute",
+    right: 0,
+    top: 21
+  }
 })
