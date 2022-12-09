@@ -56,8 +56,8 @@ const ManageTaskCard = observer(() => {
     }
 
     useEffect(()=>{
-        setTaskInputText("")
-    },[activeTeam])
+        setTaskInputText(activeTask.title)
+    },[activeTask])
 
     return (
         <View>

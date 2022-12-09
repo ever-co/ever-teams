@@ -44,7 +44,7 @@ export const TeamStoreModel = types
                 { tenantId, userId },
                 authToken
             );
-            console.log(organizations)
+        
             const call_teams = organizations.items.map((item) => {
                 return getAllOrganizationTeamRequest(
                     { tenantId, organizationId: item.organizationId },
@@ -70,7 +70,7 @@ export const TeamStoreModel = types
         },
         setActiveTeamId(id: string) {
             store.activeTeamId = id
-            console.log(store.activeTeamId)
+            
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
