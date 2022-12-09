@@ -19,6 +19,7 @@ import { colors, spacing } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
 import { secondsToTime } from "../../../../helpers/date"
+import { imgTitle } from "../../../../helpers/img-title"
 export type ListItemProps = {
     item: any,
     onPressIn?: () => unknown
@@ -36,11 +37,14 @@ export const InviteCardItemContent: React.FC<ListItemProps> = ({ item, onPressIn
             <View style={{ ...GS.p2, ...GS.positionRelative, borderRadius: 20 }}>
                 <View style={[styles.statusLine, { backgroundColor: "black" }]} />
                 <View style={styles.firstContainer}>
-                    <Image
+                    {/* <Image
                         source={require("../../../../../assets/images/person2.png")}
                         style={$usersProfile}
-                    />
-                    <Text style={styles.name}>Chetan Khandala</Text>
+                    /> */}
+                    <View style={$usersProfile}>
+                        <Text>{imgTitle(item?.fullName)}</Text>
+                    </View>
+                    <Text style={styles.name}>{item?.fullName}</Text>
                     {/* ENABLE ESTIMATE INPUTS */}
                     {estimate ? (
                         <View style={styles.estimate}>
@@ -70,7 +74,7 @@ export const InviteCardItemContent: React.FC<ListItemProps> = ({ item, onPressIn
                 </View>
                 <View style={{ flexDirection: 'row' }}>
                     {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
-                    <Text style={styles.otherText}>{"Lorem Ipsum is simply dummy text of the printing"}</Text>
+                    <Text style={styles.otherText}>{""}</Text>
                 </View>
                 <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
                 <View style={styles.times}>
@@ -177,10 +181,14 @@ const $listCard: ViewStyle = {
     borderRadius: spacing.large
 }
 
-const $usersProfile: ImageStyle = {
-    ...GS.roundedFull,
+const $usersProfile: ViewStyle = {
     width: spacing.huge - spacing.small,
     height: spacing.huge - spacing.small,
+    borderColor:colors.primary,
+    justifyContent:'center',
+    alignItems:'center',
+    borderWidth:1,
+    borderRadius:20
 }
 
 const styles = StyleSheet.create({

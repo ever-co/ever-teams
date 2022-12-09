@@ -18,7 +18,6 @@ import { useStores } from "../../../models"
 import { IOTeams } from "../../../services/teams/organization-team"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
-import { useFirstLoad } from "../../../models/timer/useFirstLoad"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {

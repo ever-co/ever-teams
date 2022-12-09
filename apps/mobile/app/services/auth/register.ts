@@ -5,6 +5,7 @@ import { IEmployee } from "../interfaces/IEmployee";
 import { IOrganizationTeam } from "../interfaces/IOrganizationTeam";
 import { loginUserRequest, registerUserRequest } from "../requests/auth";
 import { createEmployeeFromUser } from "../requests/employee";
+import { createStmpTenantRequest } from "../requests/features/smtp";
 import { createOrganizationRequest } from "../requests/organization";
 import { createOrganizationTeamRequest } from "../requests/organization-team";
 import { createTenantRequest } from "../requests/tenant";
@@ -39,6 +40,10 @@ export async function register(params: IRegister) {
   // Create user tenant
   const { data: tenant } = await createTenantRequest(params.team, auth_token);
 
+  // Create STMP for the current Tenant
+  const { data } = await createStmpTenantRequest(
+    auth_token,tenant.id)
+
   // Create user organization
   const { data: organization } = await createOrganizationRequest(
     {
@@ -68,11 +73,11 @@ export async function register(params: IRegister) {
       organizationId: organization.id,
       managerIds: [employee.id],
     },
-    auth_token 
+    auth_token
   );
-console.log(team)
+  console.log(team)
   // Save auth data
-LocalStorage.set("token",auth_token);
+  LocalStorage.set("token", auth_token);
 
   const res: IRegisterResponse = {
     status: 200,

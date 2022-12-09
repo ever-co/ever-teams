@@ -27,10 +27,10 @@ import CreateTeamModal from "./components/CreateTeamModal"
 import { useStores } from "../../../models"
 import Teams, { IOTeams } from "../../../services/teams/organization-team"
 import { observer } from "mobx-react-lite"
-import { IInviteRequest } from "../../../services/interfaces/IInvite"
-import {getTeamInvitations, inviteByEmail} from "../../../services/invite/invite"
+import { IInvitation, IInviteRequest } from "../../../services/interfaces/IInvite"
 import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
+import FlashMessage from "react-native-flash-message"
 
 
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -39,8 +39,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     //Get authentificate data
     const {
       authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
-      teamStore: { teams, createTeam, activeTeam },
-      TaskStore:{activeTask}
+      teamStore: { teams, createTeam, activeTeam, teamInvitations },
+      TaskStore: { activeTask }
     } = useStores();
 
     // STATES
@@ -61,8 +61,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     });
     const { navigation } = _props
 
-    function goToProfile(user:IUser) {
-      navigation.navigate("Profile",{user:user})
+    function goToProfile(user: IUser) {
+      navigation.navigate("Profile", { user: user })
     }
 
 
@@ -92,27 +92,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
       createTeam(responseTeams)
     }
 
-    const onInviteMember = async (inviteData: IInviteRequest) => {
-      const response = await inviteByEmail({
-        user: user as IUser,
-        organizationId: organizationId,
-        tenantId: tenantId,
-        teamId: activeTeam?.id,
-        inviteBody: inviteData,
-        access_token: authToken
-      })
-      setShowInviteModal(false)
-      console.log("Data :" + JSON.stringify(response))
-    }
+
 
     useEffect(() => {
       isTeamManager();
-      getTeamInvitations({user,organizationId,access_token:authToken,tenantId, teamId:activeTeam?.id})
     }, [activeTeam, user, teams, activeTask])
 
     return (
       <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
-        <InviteUserModal onInviteMember={onInviteMember} visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
+        <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
         <CreateTeamModal
           onCreateTeam={createNewTeam}
           visible={showCreateTeamModal}
@@ -144,8 +132,9 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                   enableEstimate={false}
                 />
               ))}
-
-              <InviteCardItem item={{}} />
+              {teamInvitations.items?.map((invite :any) => (
+                <InviteCardItem key={invite.id} item={invite} />
+              ))}
 
               {/* Invite btn */}
               {teamManager ? (
@@ -166,6 +155,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
             </ScrollView>
           </View>
         </TouchableWithoutFeedback>
+        <FlashMessage position="bottom" /> 
       </Screen>
     )
   })

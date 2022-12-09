@@ -10,6 +10,7 @@ export const TeamStoreModel = types
         teams: types.optional(types.frozen(), { items: [], total: 0 }),
         activeTeam: types.optional(types.frozen(), {}),
         activeTeamId: types.optional(types.string, ""),
+        teamInvitations: types.optional(types.frozen(), { items: [], total: 0 })
     })
     .views((store) => ({
 
@@ -34,7 +35,7 @@ export const TeamStoreModel = types
                 },
                 access_token
             );
-             this.getUserTeams({ tenantId, userId, authToken: access_token });
+            this.getUserTeams({ tenantId, userId, authToken: access_token });
         },
         // Get All teams
         async getUserTeams({ tenantId, userId, authToken }: IGetTeamsParams) {
@@ -64,20 +65,23 @@ export const TeamStoreModel = types
             this.setOrganizationTeams(data);
         },
         setActiveTeam(team: IOrganizationTeamList) {
-            console.log(team)
             store.activeTeam = team;
-            store.activeTeamId = team.id
+            this.setActiveTeamId(team.id)
         },
         setActiveTeamId(id: string) {
             store.activeTeamId = id
+            console.log(store.activeTeamId)
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
         },
-        clearStoredTeamData(){
-            store.teams={items:[], total:0},
-            store.activeTeam={}
-            store.activeTeamId=""
+        setTeamInvitations(invitations: any) {
+            store.teamInvitations = invitations
+        },
+        clearStoredTeamData() {
+            store.teams = { items: [], total: 0 },
+                store.activeTeam = {}
+            store.activeTeamId = ""
         }
     }))
 
