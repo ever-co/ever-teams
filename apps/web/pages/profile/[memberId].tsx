@@ -9,10 +9,11 @@ import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Timer from '@components/common/main/timer';
-import ProfileCard from '@components/home/profile-card';
+import TaskDetailCard from '@components/home/task-card';
 import { withAuthentication } from '@components/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { IUser } from '@app/interfaces/IUserData';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -42,50 +43,7 @@ const Profile = () => {
 	return (
 		<div className="bg-[#F9FAFB] dark:bg-[#18181B]">
 			<AppLayout>
-				<div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
-					<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
-						<div className="w-[171px] bg-[#ACB3BB] mt-[20px] mb-2 text-[18px] text-[#FFFFFF] rounded-[8px] px-[17px] py-[5px] flex items-center cursor-pointer hover:opacity-80">
-							<ChevronLeftIcon className="w-[15px] mr-[10px]" />
-							<Link href="/main">Back to Team</Link>
-						</div>
-						<div className="flex items-center mb-[100px]">
-							<div className="relative h-[137px] w-[137px]">
-								{user?.imageUrl && (
-									<Image
-										src={user?.imageUrl}
-										alt="User Icon"
-										className="rounded-full h-full w-full z-20"
-										layout="fill"
-										objectFit="cover"
-									/>
-								)}
-
-								<div className="absolute z-10 inset-0 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
-									<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-								</div>
-
-								<div className="absolute z-30 rounded-full bg-white p-[1px] top-[100px] right-[5px]">
-									<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
-								</div>
-							</div>
-							<div className="ml-[24px]">
-								<div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
-									<span className="flex items-center">
-										{user?.firstName && Capitalize(user.firstName)}
-										{user?.lastName && ' ' + Capitalize(user.lastName)}
-									</span>
-								</div>
-								<div className="text-[#B0B5C7] flex items-center">
-									<span className="flex items-center">{user?.email}</span>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
-						<Timer />
-					</div>
-				</div>
-
+				<Header user={user} />
 				<div className="relative z-10">
 					<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 						<div className="flex">
@@ -143,7 +101,11 @@ const Profile = () => {
 					</div>
 					<div className="relative">
 						{activeTeamTask && (
-							<ProfileCard now={true} task={activeTeamTask} current="00:00" />
+							<TaskDetailCard
+								now={true}
+								task={activeTeamTask}
+								current="00:00"
+							/>
 						)}
 					</div>
 					<div className="flex items-center justify-between mt-[40px]">
@@ -161,7 +123,7 @@ const Profile = () => {
 							className="relative"
 							style={{ zIndex: `-${i + 1}` }}
 						>
-							<ProfileCard task={ta} current="00:00" />
+							<TaskDetailCard task={ta} current="00:00" />
 						</div>
 					))}
 				</div>
@@ -169,5 +131,53 @@ const Profile = () => {
 		</div>
 	);
 };
+
+function Header({ user }: { user: IUser | undefined }) {
+	return (
+		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
+			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
+				<div className="w-[171px] bg-[#ACB3BB] mt-[20px] mb-2 text-[18px] text-[#FFFFFF] rounded-[8px] px-[17px] py-[5px] flex items-center cursor-pointer hover:opacity-80">
+					<ChevronLeftIcon className="w-[15px] mr-[10px]" />
+					<Link href="/main">Back to Team</Link>
+				</div>
+				<div className="flex items-center mb-[100px]">
+					<div className="relative h-[137px] w-[137px]">
+						{user?.imageUrl && (
+							<Image
+								src={user?.imageUrl}
+								alt="User Icon"
+								className="rounded-full h-full w-full z-20"
+								layout="fill"
+								objectFit="cover"
+							/>
+						)}
+
+						<div className="absolute z-10 inset-0 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
+						</div>
+
+						<div className="absolute z-30 rounded-full bg-white p-[1px] top-[100px] right-[5px]">
+							<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
+						</div>
+					</div>
+					<div className="ml-[24px]">
+						<div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
+							<span className="flex items-center">
+								{user?.firstName && Capitalize(user.firstName)}
+								{user?.lastName && ' ' + Capitalize(user.lastName)}
+							</span>
+						</div>
+						<div className="text-[#B0B5C7] flex items-center">
+							<span className="flex items-center">{user?.email}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
+				<Timer />
+			</div>
+		</div>
+	);
+}
 
 export default withAuthentication(Profile, 'ProfilePage');

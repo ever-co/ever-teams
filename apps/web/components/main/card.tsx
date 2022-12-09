@@ -18,6 +18,7 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
+import { ProgressBar } from '@components/common/progress-bar';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -371,12 +372,11 @@ function EstimationProgress({
 	const { activeTaskEstimation } = useTaskStatistics(isAuthUser ? seconds : 0);
 
 	return (
-		<div className="flex w-[200px] relative rounded-full mb-3">
-			<div
-				className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
-				style={{ width: `${isAuthUser ? activeTaskEstimation : 0}%` }}
+		<div className="mb-3">
+			<ProgressBar
+				width={200}
+				progress={`${isAuthUser ? activeTaskEstimation : 0}%`}
 			/>
-			<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[100%] h-[8px] rounded-r-full absolute z-10" />
 		</div>
 	);
 }

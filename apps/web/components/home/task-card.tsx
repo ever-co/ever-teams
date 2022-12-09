@@ -3,14 +3,24 @@ import DropdownUser from '@components/common/main/dropdown-user';
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
+import { ProgressBar } from '@components/common/progress-bar';
+import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 
-interface IProfileCard {
+interface ITaskDetailCard {
 	now?: boolean;
 	task: ITeamTask | null;
 	current: string;
 }
-const ProfileCard = ({ now = false, task, current }: IProfileCard) => {
+const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
+	const { getTaskStat } = useTaskStatistics();
+	const { taskTotalStat } = getTaskStat(task);
 	const { m, h } = secondsToTime((task && task.estimate) || 0);
+
+	const estimationPourtcent = Math.min(
+		Math.floor(((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)),
+		100
+	);
+
 	return (
 		<div
 			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
@@ -38,9 +48,8 @@ const ProfileCard = ({ now = false, task, current }: IProfileCard) => {
 						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 							<div> Estimate</div>
 						</div>
-						<div className="flex w-[200px]">
-							<div className="bg-[#28D581] w-[211px] h-[8px] rounded-l-full"></div>
-							<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[73px] h-[8px] rounded-r-full" />
+						<div className="mb-2">
+							<ProgressBar width={200} progress={`${estimationPourtcent}%`} />
 						</div>
 						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 							<div>
@@ -71,4 +80,4 @@ const ProfileCard = ({ now = false, task, current }: IProfileCard) => {
 		</div>
 	);
 };
-export default ProfileCard;
+export default TaskDetailCard;
