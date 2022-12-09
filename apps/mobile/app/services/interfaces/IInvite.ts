@@ -2,18 +2,12 @@ import { IOrganizationTeam } from "./IOrganizationTeam";
 
 export interface IInviteCreate {
   emailIds: string[];
-  projectIds?: string[];
-  departmentIds?: string[];
   teamIds: string[];
-  organizationContactIds?: string[];
   roleId: string;
   organizationId: string;
-  tenantId: string;
-  invitedById: string;
   inviteType: string;
-  startedWorkOn: string;
-  appliedDate?: any;
-  invitationExpirationPeriod: string;
+  fullName: string;
+  invitationExpirationPeriod: number;
 }
 
 export interface IInvitation {

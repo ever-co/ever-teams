@@ -9,16 +9,19 @@ import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styl
 import { colors, spacing } from "../../../../theme"
 import { IInviteRequest } from "../../../../services/interfaces/IInvite";
 import { on } from "process";
+import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation";
+import { ActivityIndicator } from "react-native-paper";
+import { showMessage } from "react-native-flash-message";
 
 export interface Props {
   visible: boolean
   onDismiss: () => unknown
-  onInviteMember: (req: IInviteRequest) => unknown
 }
 
 const ModalPopUp = ({ visible, children }) => {
   const [showModal, setShowModal] = React.useState(visible)
   const scaleValue = React.useRef(new Animated.Value(0)).current
+
   React.useEffect(() => {
     toggleModal()
   }, [visible])
@@ -49,33 +52,36 @@ const ModalPopUp = ({ visible, children }) => {
   )
 }
 
-const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss, onInviteMember }) {
-  const [memberName, setMemberName]=useState("")
-  const [memberEmail, setMemberEmail]=useState("");
-  const [errors, setErrors]=useState({
-    emailError:null,
-    nameError:null
+const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
+  const { inviterMember, loading } = useTeamInvitations();
+  const [memberName, setMemberName] = useState("")
+  const [memberEmail, setMemberEmail] = useState("");
+  const [errors, setErrors] = useState({
+    emailError: null,
+    nameError: null
   })
 
-  const handleSubmit=()=>{
+  const handleSubmit = () => {
     const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    if(memberEmail.trim().length==0 || !memberEmail.match(EMAIL_REGEX)){
-      setErrors({...errors, emailError:"Email is not valid"})
-      console.log("Email is not valid")
+    if (memberEmail.trim().length == 0 || !memberEmail.match(EMAIL_REGEX)) {
+      setErrors({ ...errors, emailError: "Email is not valid" })
+      console.log("")
+      showMessage({message:"Email is not valid", type:"warning"})
       return
-    }else{
-      setErrors({...errors, emailError:null})
+    } else {
+      setErrors({ ...errors, emailError: null })
     }
 
-    if(memberName.trim().length<3 ){
-      setErrors({...errors, nameError:"Name is not valid"})
-      console.log("Name is not valid")
+    if (memberName.trim().length < 3) {
+      showMessage({message:"Name is not valid", type:"warning"})
+     
       return
-    }else{
-      setErrors({...errors, nameError:null})
+    } else {
+      setErrors({ ...errors, nameError: null })
     }
 
-    onInviteMember({email:memberEmail, name:memberName})
+    inviterMember({ email: memberEmail, name: memberName })
+    onDismiss()
   }
 
 
@@ -93,25 +99,27 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
         </Text>
 
         <View style={styles.blueBottom}>
-          <TextInput onChangeText={(text)=>setMemberEmail(text)} placeholder="example@domain.com" />
+          <TextInput onChangeText={(text) => setMemberEmail(text)} placeholder="example@domain.com" />
         </View>
 
         <View style={styles.greyBottom}>
-          <TextInput onChangeText={(text)=>setMemberName(text)} placeholder="Team Member's Name" />
+          <TextInput onChangeText={(text) => setMemberName(text)} placeholder="Team Member's Name" />
         </View>
 
         <Button
           text="Send Invite"
           preset="filled"
           textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
-          onPress={()=>handleSubmit()}
+          onPress={() => handleSubmit()}
           style={{
             backgroundColor: colors.primary,
+            opacity: loading ? 0.5 : 1,
             width: "100%",
           }}
         ></Button>
         <Entypo name="cross" size={24} color="#1B005D" style={styles.crossIcon} onPress={() => onDismiss()} />
       </View>
+      <ActivityIndicator color={colors.primary} style={styles.loading} />
     </ModalPopUp>
   )
 }
@@ -172,5 +180,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 10,
     top: 10
+  },
+  loading: {
+    position: "absolute",
+    bottom: "12%",
+    left: "15%"
   }
 })

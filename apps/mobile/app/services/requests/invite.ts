@@ -4,14 +4,15 @@ import { serverFetch } from "../fetch";
 
 export function inviteByEmailsRequest(
   body: IInviteCreate,
-  bearer_token: string
+  bearer_token: string,
+  tenantId:string
 ) {
   return serverFetch<PaginationResponse<IInvitation>>({
     path: "/invite/emails",
     method: "POST",
     body,
     bearer_token,
-    tenantId: body.tenantId,
+    tenantId
   });
 }
 

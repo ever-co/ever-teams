@@ -12,7 +12,7 @@ export interface Props {
 const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) {
   const {
     authenticationStore: { tenantId, organizationId, authToken },
-    teamStore: { teams, setActiveTeam, activeTeamId, activeTeam },
+    teamStore: { teams, setActiveTeam, activeTeamId, activeTeam, setTeamInvitations },
     TaskStore: { setActiveTask, getTeamTasks }
   } = useStores();
 
@@ -30,6 +30,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
     getTeamTasks({ authToken, organizationId, tenantId, activeTeamId: newActiveTeam.id })
     setShowDrop(!showDrop)
     setActiveTask({})
+    setTeamInvitations({items:[], total:0})
   }
 
   return (

@@ -6,6 +6,13 @@ export function useOutsideClick<T extends HTMLElement>(
 	const targetEl = useRef<T>(null);
 	const refs = useRef<Node[]>([]);
 
+	const onChangeRef = useRef(onClickOuSide);
+	onChangeRef.current = onClickOuSide;
+
+	const handleChange = useCallback((el: T, nodeTarget: HTMLElement) => {
+		onChangeRef.current && onChangeRef.current(el, nodeTarget);
+	}, []);
+
 	useEffect(() => {
 		const onBodyClick = (ev: MouseEvent) => {
 			if (!targetEl.current) return;
@@ -19,7 +26,7 @@ export function useOutsideClick<T extends HTMLElement>(
 			) {
 				return;
 			}
-			onClickOuSide && onClickOuSide(el, ev.target as HTMLElement);
+			handleChange && handleChange(el, ev.target as HTMLElement);
 		};
 
 		document.body.addEventListener('click', onBodyClick);

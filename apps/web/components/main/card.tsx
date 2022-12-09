@@ -18,6 +18,7 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
+import { ProgressBar } from '@components/common/progress-bar';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -120,7 +121,7 @@ const Card = ({ member }: { member: IMember }) => {
 	}, []);
 
 	const handleTaskEdit = async () => {
-		if (memberTask) {
+		if (memberTask && memberTask.title !== formValues.devTask) {
 			await updateTask({
 				...memberTask,
 				title: formValues.devTask,
@@ -158,8 +159,28 @@ const Card = ({ member }: { member: IMember }) => {
 		setEstimateEdit(false);
 	}, [memberTask, formValues, updateTask]);
 
-	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() =>
-		setEstimateEdit(false)
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
+		setEstimateEdit(false);
+		if (memberTask) {
+			const { m, h } = secondsToTime(memberTask.estimate || 0);
+			setFormValues((d) => {
+				return {
+					...d,
+					devTask: memberTask.title,
+					estimateHours: h,
+					estimateMinutes: m,
+				};
+			});
+		}
+	});
+
+	const { targetEl: editTaskInputEl } = useOutsideClick<HTMLInputElement>(
+		() => {
+			setEstimateEdit(false);
+			if (!updateLoading) {
+				handleTaskEdit();
+			}
+		}
 	);
 
 	return (
@@ -221,10 +242,11 @@ const Card = ({ member }: { member: IMember }) => {
 					<div className="flex items-center">
 						<input
 							name="devTask"
+							ref={editTaskInputEl}
 							value={formValues.devTask}
 							onChange={handleChange}
 							onKeyPress={(event) => event.key === 'Enter' && handleTaskEdit()}
-							className="w-full resize-none h-[48px] text-xs rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
+							className="w-full resize-none h-[48px] rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
 						/>
 						<span className="w-3 h-5 ml-2">
 							{updateLoading && <Spinner dark={false} />}
@@ -279,7 +301,10 @@ const Card = ({ member }: { member: IMember }) => {
 						)}
 						{estimateEdit && (
 							<div className="flex items-center justify-center">
-								<div className="bg-[#F2F4FB] dark:bg-[#18181B]" ref={targetEl}>
+								<div
+									className="bg-[#F2F4FB] dark:bg-[#18181B] flex"
+									ref={targetEl}
+								>
 									<TimeInput
 										value={'' + formValues.estimateHours}
 										type="string"
@@ -288,14 +313,13 @@ const Card = ({ member }: { member: IMember }) => {
 										handleChange={onChangeEstimate('estimateHours')}
 										handleDoubleClick={canEditEstimate}
 										handleEnter={handleEstimateSubmit}
-										style={`${
-											estimateEdit === true
-												? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
-												: 'bg-transparent w-[10px]'
-										} `}
+										style={`w-[30px] h-[30px] pt-1 bg-transparent`}
 										disabled={!estimateEdit}
 									/>
-									/
+									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
+										h
+									</div>
+									<div className="flex items-center">/</div>
 									<TimeInput
 										value={'' + formValues.estimateMinutes}
 										type="string"
@@ -304,13 +328,12 @@ const Card = ({ member }: { member: IMember }) => {
 										handleChange={onChangeEstimate('estimateMinutes')}
 										handleDoubleClick={canEditEstimate}
 										handleEnter={handleEstimateSubmit}
-										style={` ${
-											estimateEdit === true
-												? ' w-[30px] bg-transparent rounded-[6px] h-[30px] px-1 w-[42px]'
-												: 'bg-transparent w-[10px]'
-										} `}
+										style={`w-[30px] bg-transparent h-[30px] pt-1`}
 										disabled={!estimateEdit}
 									/>
+									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
+										m
+									</div>
 								</div>{' '}
 								<span className="w-3 h-5 ml-2">
 									{updateLoading && <Spinner dark={false} />}
@@ -326,7 +349,7 @@ const Card = ({ member }: { member: IMember }) => {
 			<div className="w-[184px]  flex items-center">
 				<Worked24Hours isAuthUser={isAuthUser} />
 				{isTeamManager && (
-					<div className="mr-[20px]">
+					<div className="mr-[20px]" ref={ignoreElementRef}>
 						<DropdownUser
 							setEdit={handeEditBoth}
 							setEstimateEdit={canEditEstimate}
@@ -349,12 +372,11 @@ function EstimationProgress({
 	const { activeTaskEstimation } = useTaskStatistics(isAuthUser ? seconds : 0);
 
 	return (
-		<div className="flex w-[200px] relative rounded-full mb-3">
-			<div
-				className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
-				style={{ width: `${isAuthUser ? activeTaskEstimation : 0}%` }}
+		<div className="mb-3">
+			<ProgressBar
+				width={200}
+				progress={`${isAuthUser ? activeTaskEstimation : 0}%`}
 			/>
-			<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-[100%] h-[8px] rounded-r-full absolute z-10" />
 		</div>
 	);
 }
