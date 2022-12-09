@@ -1,6 +1,7 @@
 import { pad } from '@app/helpers/number';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTimer } from '@app/hooks/features/useTimer';
+import { ProgressBar } from '../progress-bar';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
 
@@ -33,13 +34,7 @@ const Timer = () => {
 					{pad(hours)} : {pad(minutes)} : {pad(seconds)}:
 					<span className="text-[35px] w-7 inline-block">{pad(ms_p)}</span>
 				</h1>
-				<div className="flex w-[284px] relative">
-					<div
-						className="bg-[#28D581] h-[8px] rounded-full absolute z-20"
-						style={{ width: `${activeTaskEstimation}%` }}
-					></div>
-					<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-full absolute z-10" />
-				</div>
+				<ProgressBar width={284} progress={`${activeTaskEstimation}%`} />
 			</div>
 			<div
 				title={

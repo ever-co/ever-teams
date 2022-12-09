@@ -1,6 +1,7 @@
 import { secondsToTime } from '@app/helpers/date';
 import { pad } from '@app/helpers/number';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { TimeInput } from '@components/common/main/time-input';
 import { Spinner } from '@components/common/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
@@ -113,42 +114,49 @@ export function EstimateTime() {
 		setEditableMode(false);
 	}, [activeTeamTask, updateTask, value]);
 
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
+		if (updateLoading) return;
+		handleSubmit();
+	});
+
 	return (
 		<>
 			<div className=" flex items-end">
 				<span className="text-[16px] flex text-[#9490A0] dark:text-[#616164] items-end">
 					Estimate :{' '}
 				</span>
-				<TimeInput
-					type="text"
-					value={value['hours']}
-					handleChange={onChange('hours')}
-					handleEnter={handleSubmit}
-					name="hours"
-					style="ml-3 w-[30px] bg-transparent pr-1 pt-1 text-end flex pb-0"
-					disabled={activeTeamTask ? false : true}
-					handleFocus={handleFocus}
-					handleBlur={handleBlur}
-				/>
-				<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-[#616164] border-dashed ">
-					h
+				<div className="flex" ref={targetEl}>
+					<TimeInput
+						type="text"
+						value={value['hours']}
+						handleChange={onChange('hours')}
+						handleEnter={handleSubmit}
+						name="hours"
+						style="ml-3 w-[30px] bg-transparent pr-1 pt-1 text-end flex pb-0"
+						disabled={activeTeamTask ? false : true}
+						handleFocus={handleFocus}
+						handleBlur={handleBlur}
+					/>
+					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-[#616164] border-dashed ">
+						h
+					</div>
+					:
+					<TimeInput
+						type="text"
+						value={value['minutes']}
+						handleChange={onChange('minutes')}
+						name="minutes"
+						style="ml-1 w-[25px] bg-transparent pr-1 pt-1 text-end flex pb-0"
+						handleEnter={handleSubmit}
+						disabled={activeTeamTask ? false : true}
+						handleFocus={handleFocusMinutes}
+						handleBlur={handleBlurMinutes}
+					/>
+					<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-[#616164] border-dashed ">
+						m
+					</div>
 				</div>
-				:
-				<TimeInput
-					type="text"
-					value={value['minutes']}
-					handleChange={onChange('minutes')}
-					name="minutes"
-					style="ml-1 w-[25px] bg-transparent pr-1 pt-1 text-end flex pb-0"
-					handleEnter={handleSubmit}
-					disabled={activeTeamTask ? false : true}
-					handleFocus={handleFocusMinutes}
-					handleBlur={handleBlurMinutes}
-				/>
-				<div className="mr-1 h-[27px] text-[14px] flex items-end border-b-2 dark:border-[#616164] border-dashed ">
-					m
-				</div>
-				<span className="mr-1 w-6 h-[27px">
+				<span className="mr-1 w-6 h-[27px" ref={ignoreElementRef}>
 					{updateLoading ? (
 						<Spinner dark={false} />
 					) : editableMode ? (

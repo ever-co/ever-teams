@@ -67,8 +67,6 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 export default function TaskInput() {
 	const { isOpen, openModal, closeModal } = useModal();
 	const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
-	const [openFilter, setOpenFilter] = useState(true);
-	const [closeFilter, setCloseFilter] = useState(false);
 	const {
 		tasks,
 		activeTeamTask,
@@ -141,6 +139,10 @@ export default function TaskInput() {
 		return f_task.status === 'Closed';
 	}).length;
 
+	const openTaskCount = filteredTasks2.filter((f_task) => {
+		return f_task.status !== 'Closed';
+	}).length;
+
 	return (
 		<div className="w-full">
 			<Combobox value={activeTeamTask} onChange={setActiveTask}>
@@ -190,27 +192,19 @@ export default function TaskInput() {
 						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 							<div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
 								<TaskFilter
-									count={closedTaskCount}
+									count={openTaskCount}
 									type="open"
-									selected={openFilter}
+									selected={filter === 'open'}
 									handleChange={() => {
-										setOpenFilter(true);
-										setCloseFilter(false);
 										setFilter('open');
 									}}
 								/>
 								<TaskFilter
-									count={
-										filteredTasks2.filter((f_task) => {
-											return f_task.status === 'Closed';
-										}).length
-									}
+									count={closedTaskCount}
 									type="closed"
-									selected={closeFilter}
+									selected={filter === 'closed'}
 									handleChange={() => {
 										if (closedTaskCount > 0) {
-											setCloseFilter(true);
-											setOpenFilter(false);
 											setFilter('closed');
 										}
 									}}
