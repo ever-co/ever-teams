@@ -15,10 +15,12 @@ export function withAuthentication(
 		const { queryCall, loading } = useQuery(getAuthenticatedUserDataAPI);
 
 		useEffect(() => {
-			queryCall().then((res) => {
-				setUser(res.data.user);
-			});
-		}, [queryCall, setUser]);
+			if (!user) {
+				queryCall().then((res) => {
+					setUser(res.data.user);
+				});
+			}
+		}, [queryCall, setUser, user]);
 
 		return (
 			<>

@@ -49,7 +49,7 @@ function useLocalTimeCounter(
 	const timerStatusRef = useSyncRef(timerStatus);
 	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
 	const timerSecondsRef = useRef(0);
-	const { seconds } = convertMsToTime(timeCounter);
+	const seconds = timeCounter / 1000;
 
 	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
 		localStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));

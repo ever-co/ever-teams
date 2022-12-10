@@ -5,6 +5,9 @@ import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
 import { ProgressBar } from '@components/common/progress-bar';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useRecoilValue } from 'recoil';
+import { timerSecondsState } from '@app/stores';
+import { useRef } from 'react';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -12,14 +15,24 @@ interface ITaskDetailCard {
 	current: string;
 }
 const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
-	const { getTaskStat } = useTaskStatistics();
-	const { taskTotalStat } = getTaskStat(task);
-	const { m, h } = secondsToTime((task && task.estimate) || 0);
+	const estimationPourtcent = useRef(0);
 
-	const estimationPourtcent = Math.min(
-		Math.floor(((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)),
-		100
-	);
+	const timerReconds = useRecoilValue(timerSecondsState);
+	const { getTaskStat, activeTaskTotalStat, activeTaskEstimation } =
+		useTaskStatistics(timerReconds);
+	if (activeTaskTotalStat?.id === task?.id) {
+		estimationPourtcent.current = activeTaskEstimation;
+	} else {
+		const { taskTotalStat } = getTaskStat(task);
+		estimationPourtcent.current = Math.min(
+			Math.floor(
+				((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)
+			),
+			100
+		);
+	}
+
+	const { m, h } = secondsToTime((task && task.estimate) || 0);
 
 	return (
 		<div
@@ -49,7 +62,10 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 							<div> Estimate</div>
 						</div>
 						<div className="mb-2">
-							<ProgressBar width={200} progress={`${estimationPourtcent}%`} />
+							<ProgressBar
+								width={200}
+								progress={`${estimationPourtcent.current}%`}
+							/>
 						</div>
 						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 							<div>
