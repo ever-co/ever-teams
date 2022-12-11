@@ -112,8 +112,8 @@ export function useTeamTasks() {
 	 * Change active task
 	 */
 	const setActiveTask = useCallback(
-		(task: typeof tasks[0]) => {
-			setActiveTaskIdCookie(task.id);
+		(task: typeof tasks[0] | null) => {
+			setActiveTaskIdCookie(task?.id || '');
 			setActiveTeamTask(task);
 		},
 		[setActiveTeamTask]

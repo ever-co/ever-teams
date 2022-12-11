@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -91,9 +91,9 @@ export function useTaskInput() {
 	);
 
 	const handleReopenTask = useCallback(
-		(concernedTask: ITeamTask) => {
+		async (concernedTask: ITeamTask) => {
 			if (concernedTask) {
-				updateTask({
+				return updateTask({
 					...concernedTask,
 					status: 'Todo',
 				});
@@ -202,6 +202,17 @@ export function TasksList({
 		closeModal,
 		closeableTask,
 	} = useTaskInput();
+	const [combxShow, setCombxShow] = useState<true | undefined>(undefined);
+
+	useEffect(() => {
+		if (isModalOpen) {
+			setCombxShow(true);
+		}
+	}, [isModalOpen]);
+
+	const closeCombox = useCallback(() => {
+		setCombxShow(undefined);
+	}, [combxShow]);
 
 	return (
 		<>
@@ -231,7 +242,10 @@ export function TasksList({
 							placeholder="What you working on?"
 							readOnly={tasksFetching}
 						/>
-						<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+						<Combobox.Button
+							onClick={closeCombox}
+							className="absolute inset-y-0 right-0 flex items-center pr-2"
+						>
 							{tasksFetching || createLoading || updateLoading ? (
 								<Spinner dark={false} />
 							) : (
@@ -247,6 +261,8 @@ export function TasksList({
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
+						show={combxShow}
+						appear={true}
 						afterLeave={() => {
 							!createLoading && setQuery('');
 							setFilter('open');
@@ -297,13 +313,12 @@ export function TasksList({
 													return (
 														<div>
 															<div className="py-2">
-																<TaskItem
+																<InputTaskItem
 																	selected={selected}
 																	active={active}
 																	item={task}
 																	onDelete={() => handleOpenModal(task)}
 																	onReopen={() => handleReopenTask(task)}
-																	updateLoading={updateLoading}
 																/>
 															</div>
 															<div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
@@ -315,17 +330,47 @@ export function TasksList({
 									})}
 								</>
 							)}
+
+							<DeleteTask
+								isOpen={isModalOpen}
+								closeModal={closeModal}
+								Fragment={Fragment}
+								task={closeableTask}
+							/>
 						</Combobox.Options>
 					</Transition>
 				</div>
 			</Combobox>
-			<DeleteTask
-				isOpen={isModalOpen}
-				closeModal={closeModal}
-				Fragment={Fragment}
-				task={closeableTask}
-			/>
 		</>
+	);
+}
+
+function InputTaskItem({
+	selected,
+	item,
+	onDelete,
+	onReopen,
+}: {
+	selected: boolean;
+	item: ITeamTask;
+	active: boolean;
+	onDelete: () => void;
+	onReopen: () => Promise<any>;
+}) {
+	const [loading, setLoading] = useState(false);
+
+	const handleOnReopen = useCallback(() => {
+		setLoading(true);
+		return onReopen().finally(() => setLoading(false));
+	}, []);
+	return (
+		<TaskItem
+			selected={selected}
+			item={item}
+			onDelete={onDelete}
+			onReopen={handleOnReopen}
+			updateLoading={loading}
+		/>
 	);
 }
 
