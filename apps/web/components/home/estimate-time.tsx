@@ -5,12 +5,13 @@ import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { TimeInput } from '@components/common/main/time-input';
 import { Spinner } from '@components/common/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 export function EstimateTime() {
 	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
+	const editMode = useRef(false);
 
 	useEffect(() => {
 		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
@@ -21,6 +22,7 @@ export function EstimateTime() {
 	}, [activeTeamTask]);
 
 	const onChange = useCallback((c: keyof typeof value) => {
+		editMode.current = true;
 		return (e: ChangeEvent<HTMLInputElement>) => {
 			const tm = +e.currentTarget.value.trim();
 			const isInteger = !isNaN(tm) && Number.isInteger(tm);
@@ -87,6 +89,10 @@ export function EstimateTime() {
 		setEditableMode(true);
 	};
 
+	useEffect(() => {
+		editMode.current = false;
+	}, [activeTeamTask]);
+
 	const handleSubmit = useCallback(() => {
 		if (!activeTeamTask) return;
 
@@ -115,7 +121,7 @@ export function EstimateTime() {
 	}, [activeTeamTask, updateTask, value]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
-		if (updateLoading) return;
+		if (updateLoading || !editMode.current) return;
 		handleSubmit();
 	});
 
@@ -166,8 +172,8 @@ export function EstimateTime() {
 					) : (
 						''
 					)}
-				</span>{' '}
-			</div>{' '}
+				</span>
+			</div>
 		</>
 	);
 }
