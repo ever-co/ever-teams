@@ -130,6 +130,11 @@ const Card = ({ member }: { member: IMember }) => {
 		setTaskEdit(false);
 	};
 
+	const blurEstimationFields = useCallback(() => {
+		document.querySelector<HTMLInputElement>('[name=estimateHours]')?.blur();
+		document.querySelector<HTMLInputElement>('[name=estimateMinutes]')?.blur();
+	}, []);
+
 	const handleEstimateSubmit = useCallback(async () => {
 		if (!memberTask) return;
 
@@ -149,6 +154,8 @@ const Card = ({ member }: { member: IMember }) => {
 			return;
 		}
 
+		blurEstimationFields();
+
 		await updateTask({
 			...memberTask,
 			estimateHours: hours,
@@ -160,7 +167,9 @@ const Card = ({ member }: { member: IMember }) => {
 	}, [memberTask, formValues, updateTask]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
-		handleEstimateSubmit();
+		if (!updateLoading) {
+			handleEstimateSubmit();
+		}
 	});
 
 	const { targetEl: editTaskInputEl } = useOutsideClick<HTMLInputElement>(
