@@ -49,7 +49,7 @@ function useLocalTimeCounter(
 	const timerStatusRef = useSyncRef(timerStatus);
 	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
 	const timerSecondsRef = useRef(0);
-	const { seconds } = convertMsToTime(timeCounter);
+	const seconds = Math.floor(timeCounter / 1000);
 
 	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
 		localStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
@@ -88,7 +88,6 @@ function useLocalTimeCounter(
 	}, [firstLoad, timerStatus]);
 
 	// THis is form constant update of the progress line
-
 	timerSecondsRef.current = useMemo(() => {
 		if (!firstLoad) return 0;
 		if (seconds > timerSecondsRef.current) {

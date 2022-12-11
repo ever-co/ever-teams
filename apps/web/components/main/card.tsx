@@ -19,6 +19,7 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
 import { ProgressBar } from '@components/common/progress-bar';
+import { mergeRefs } from '@app/helpers/merge-refs';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -130,6 +131,11 @@ const Card = ({ member }: { member: IMember }) => {
 		setTaskEdit(false);
 	};
 
+	const blurEstimationFields = useCallback(() => {
+		document.querySelector<HTMLInputElement>('[name=estimateHours]')?.blur();
+		document.querySelector<HTMLInputElement>('[name=estimateMinutes]')?.blur();
+	}, []);
+
 	const handleEstimateSubmit = useCallback(async () => {
 		if (!memberTask) return;
 
@@ -149,6 +155,8 @@ const Card = ({ member }: { member: IMember }) => {
 			return;
 		}
 
+		blurEstimationFields();
+
 		await updateTask({
 			...memberTask,
 			estimateHours: hours,
@@ -157,31 +165,21 @@ const Card = ({ member }: { member: IMember }) => {
 		});
 
 		setEstimateEdit(false);
-	}, [memberTask, formValues, updateTask]);
+	}, [memberTask, formValues, updateTask, blurEstimationFields]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
-		setEstimateEdit(false);
-		if (memberTask) {
-			const { m, h } = secondsToTime(memberTask.estimate || 0);
-			setFormValues((d) => {
-				return {
-					...d,
-					devTask: memberTask.title,
-					estimateHours: h,
-					estimateMinutes: m,
-				};
-			});
+		if (!updateLoading) {
+			handleEstimateSubmit();
 		}
 	});
 
-	const { targetEl: editTaskInputEl } = useOutsideClick<HTMLInputElement>(
-		() => {
+	const { targetEl: editTaskInputEl, ignoreElementRef: ignoreElementTaskIRef } =
+		useOutsideClick<HTMLInputElement>(() => {
 			setEstimateEdit(false);
 			if (!updateLoading) {
 				handleTaskEdit();
 			}
-		}
-	);
+		});
 
 	return (
 		<div
@@ -319,7 +317,7 @@ const Card = ({ member }: { member: IMember }) => {
 									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
 										h
 									</div>
-									<div className="flex items-center">/</div>
+									<div className="flex items-center">:</div>
 									<TimeInput
 										value={'' + formValues.estimateMinutes}
 										type="string"
@@ -349,8 +347,12 @@ const Card = ({ member }: { member: IMember }) => {
 			<div className="w-[184px]  flex items-center">
 				<Worked24Hours isAuthUser={isAuthUser} />
 				{isTeamManager && (
-					<div className="mr-[20px]" ref={ignoreElementRef}>
+					<div
+						className="mr-[20px]"
+						ref={mergeRefs([ignoreElementRef, ignoreElementTaskIRef])}
+					>
 						<DropdownUser
+							member={member}
 							setEdit={handeEditBoth}
 							setEstimateEdit={canEditEstimate}
 						/>
@@ -362,7 +364,6 @@ const Card = ({ member }: { member: IMember }) => {
 };
 
 function EstimationProgress({
-	memberTask,
 	isAuthUser,
 }: {
 	memberTask: ITeamTask | null;

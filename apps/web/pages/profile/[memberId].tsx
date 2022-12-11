@@ -38,7 +38,7 @@ const Profile = () => {
 
 	useEffect(() => {
 		getAllTasksStatsData();
-	}, []);
+	}, [getAllTasksStatsData]);
 
 	return (
 		<div className="bg-[#F9FAFB] dark:bg-[#18181B]">

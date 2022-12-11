@@ -138,6 +138,7 @@ function CreateNewTeam({
         className="relative text-gray-600 focus-within:text-gray-400"
       >
         <input
+					autoFocus
           className="w-full h-[40px] pr-[20px] dark:text-white text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
           placeholder="Please enter your team name"
           disabled={createOTeamLoading}

@@ -96,7 +96,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 
     useEffect(() => {
       isTeamManager();
-    }, [activeTeam, user, teams, activeTask])
+    }, [activeTeam, user, teams])
 
     return (
       <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
