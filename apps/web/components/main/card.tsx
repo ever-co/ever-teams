@@ -319,7 +319,7 @@ const Card = ({ member }: { member: IMember }) => {
 									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
 										h
 									</div>
-									<div className="flex items-center">/</div>
+									<div className="flex items-center">:</div>
 									<TimeInput
 										value={'' + formValues.estimateMinutes}
 										type="string"
