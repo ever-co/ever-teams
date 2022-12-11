@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
@@ -64,9 +64,11 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	}
 };
 
-export default function TaskInput() {
-	const { isOpen, openModal, closeModal } = useModal();
-	const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
+export function useTaskInput() {
+	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
+	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
+		null
+	);
 	const {
 		tasks,
 		activeTeamTask,
@@ -80,19 +82,25 @@ export default function TaskInput() {
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
 	const [editMode, setEditMode] = useState(false);
 
-	const handleOpenModal = (concernedTask: ITeamTask) => {
-		setCloseTask(concernedTask);
-		openModal();
-	};
+	const handleOpenModal = useCallback(
+		(concernedTask: ITeamTask) => {
+			setCloseableTaskTask(concernedTask);
+			openModal();
+		},
+		[setCloseableTaskTask, openModal]
+	);
 
-	const handleReopenTask = (concernedTask: ITeamTask) => {
-		if (concernedTask) {
-			updateTask({
-				...concernedTask,
-				status: 'Todo',
-			});
-		}
-	};
+	const handleReopenTask = useCallback(
+		async (concernedTask: ITeamTask) => {
+			if (concernedTask) {
+				return updateTask({
+					...concernedTask,
+					status: 'Todo',
+				});
+			}
+		},
+		[updateTask]
+	);
 
 	const [query, setQuery] = useState('');
 
@@ -124,14 +132,14 @@ export default function TaskInput() {
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
-	const handleTaskCreation = () => {
+	const handleTaskCreation = (autoActiveTask = true) => {
 		if (query.trim().length < 2 || activeTeamTask?.title === query.trim())
 			return;
 		createTask(query.trim()).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
-			if (created) setActiveTask(created);
+			if (created && autoActiveTask) setActiveTask(created);
 		});
 	};
 
@@ -143,9 +151,75 @@ export default function TaskInput() {
 		return f_task.status !== 'Closed';
 	}).length;
 
+	return {
+		closedTaskCount,
+		openTaskCount,
+		hasCreateForm,
+		handleTaskCreation,
+		filteredTasks,
+		handleReopenTask,
+		handleOpenModal,
+		createLoading,
+		tasksFetching,
+		updateLoading,
+		setFilter,
+		closeModal,
+		isModalOpen,
+		closeableTask,
+		editMode,
+		setEditMode,
+		activeTeamTask,
+		setActiveTask,
+		setQuery,
+		filter,
+	};
+}
+
+export function TasksList({
+	onClickTask,
+}: {
+	onClickTask?: (task: ITeamTask) => void;
+}) {
+	const {
+		activeTeamTask,
+		setActiveTask,
+		editMode,
+		setEditMode,
+		setQuery,
+		handleTaskCreation,
+		tasksFetching,
+		createLoading,
+		updateLoading,
+		setFilter,
+		openTaskCount,
+		filter,
+		closedTaskCount,
+		hasCreateForm,
+		filteredTasks,
+		handleOpenModal,
+		handleReopenTask,
+		isModalOpen,
+		closeModal,
+		closeableTask,
+	} = useTaskInput();
+	const [combxShow, setCombxShow] = useState<true | undefined>(undefined);
+
+	useEffect(() => {
+		if (isModalOpen) {
+			setCombxShow(true);
+		}
+	}, [isModalOpen]);
+
+	const closeCombox = useCallback(() => {
+		setCombxShow(undefined);
+	}, [setCombxShow]);
+
 	return (
-		<div className="w-full">
-			<Combobox value={activeTeamTask} onChange={setActiveTask}>
+		<>
+			<Combobox
+				value={activeTeamTask}
+				onChange={onClickTask ? onClickTask : setActiveTask}
+			>
 				<div className="relative mt-1">
 					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 						<Combobox.Input
@@ -168,7 +242,10 @@ export default function TaskInput() {
 							placeholder="What you working on?"
 							readOnly={tasksFetching}
 						/>
-						<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+						<Combobox.Button
+							onClick={closeCombox}
+							className="absolute inset-y-0 right-0 flex items-center pr-2"
+						>
 							{tasksFetching || createLoading || updateLoading ? (
 								<Spinner dark={false} />
 							) : (
@@ -184,6 +261,8 @@ export default function TaskInput() {
 						leave="transition ease-in duration-100"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
+						show={combxShow}
+						appear={true}
 						afterLeave={() => {
 							!createLoading && setQuery('');
 							setFilter('open');
@@ -234,13 +313,12 @@ export default function TaskInput() {
 													return (
 														<div>
 															<div className="py-2">
-																<TaskItem
+																<InputTaskItem
 																	selected={selected}
 																	active={active}
 																	item={task}
 																	onDelete={() => handleOpenModal(task)}
 																	onReopen={() => handleReopenTask(task)}
-																	updateLoading={updateLoading}
 																/>
 															</div>
 															<div className="w-full h-[1px] bg-[#EDEEF2] dark:bg-gray-700" />
@@ -252,16 +330,54 @@ export default function TaskInput() {
 									})}
 								</>
 							)}
+
+							<DeleteTask
+								isOpen={isModalOpen}
+								closeModal={closeModal}
+								Fragment={Fragment}
+								task={closeableTask}
+							/>
 						</Combobox.Options>
 					</Transition>
 				</div>
 			</Combobox>
-			<DeleteTask
-				isOpen={isOpen}
-				closeModal={closeModal}
-				Fragment={Fragment}
-				task={closeTask}
-			/>
+		</>
+	);
+}
+
+function InputTaskItem({
+	selected,
+	item,
+	onDelete,
+	onReopen,
+}: {
+	selected: boolean;
+	item: ITeamTask;
+	active: boolean;
+	onDelete: () => void;
+	onReopen: () => Promise<any>;
+}) {
+	const [loading, setLoading] = useState(false);
+
+	const handleOnReopen = useCallback(() => {
+		setLoading(true);
+		return onReopen().finally(() => setLoading(false));
+	}, [onReopen]);
+	return (
+		<TaskItem
+			selected={selected}
+			item={item}
+			onDelete={onDelete}
+			onReopen={handleOnReopen}
+			updateLoading={loading}
+		/>
+	);
+}
+
+export default function TaskInput() {
+	return (
+		<div className="w-full">
+			<TasksList />
 		</div>
 	);
 }

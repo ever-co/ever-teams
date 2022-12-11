@@ -1,25 +1,49 @@
 import Separator from '../common/separator';
-import DropdownUser from '@components/common/main/dropdown-user';
+// import DropdownUser from '@components/common/main/dropdown-user';
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
 import { ProgressBar } from '@components/common/progress-bar';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useRecoilValue } from 'recoil';
+import { timerSecondsState } from '@app/stores';
+import { useRef } from 'react';
+import { ITasksTimesheet } from '@app/interfaces/ITimer';
 
 interface ITaskDetailCard {
 	now?: boolean;
 	task: ITeamTask | null;
 	current: string;
 }
-const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
-	const { getTaskStat } = useTaskStatistics();
-	const { taskTotalStat } = getTaskStat(task);
-	const { m, h } = secondsToTime((task && task.estimate) || 0);
+const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
+	const estimationPourtcent = useRef(0);
+	const timerReconds = useRecoilValue(timerSecondsState);
 
-	const estimationPourtcent = Math.min(
-		Math.floor(((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)),
-		100
-	);
+	let taskStat: ITasksTimesheet | null | undefined = null;
+
+	const {
+		getTaskStat,
+		activeTeamTask,
+		activeTaskEstimation,
+		activeTaskTotalStat,
+	} = useTaskStatistics(timerReconds);
+
+	if (activeTeamTask?.id === task?.id) {
+		estimationPourtcent.current = activeTaskEstimation;
+		taskStat = activeTaskTotalStat;
+	} else {
+		const { taskTotalStat } = getTaskStat(task);
+		taskStat = taskTotalStat;
+		estimationPourtcent.current = Math.min(
+			Math.floor(
+				((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)
+			),
+			100
+		);
+	}
+
+	const { m, h } = secondsToTime((task && task.estimate) || 0);
+	const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 
 	return (
 		<div
@@ -39,7 +63,7 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 				</div>
 				<Separator />
 				<div className="w-[122px]  text-center text-primary dark:text-[#FFFFFF] flex justify-center items-center">
-					{current}
+					{th}h {tm}m
 				</div>
 				<Separator />
 
@@ -49,12 +73,14 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 							<div> Estimate</div>
 						</div>
 						<div className="mb-2">
-							<ProgressBar width={200} progress={`${estimationPourtcent}%`} />
+							<ProgressBar
+								width={200}
+								progress={`${estimationPourtcent.current}%`}
+							/>
 						</div>
 						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 							<div>
-								{' '}
-								{h}h{m}m
+								{h}h {m}m
 							</div>
 						</div>
 					</div>
@@ -67,14 +93,14 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 
 				<Separator />
 				<div className="w-[14px]  flex items-center">
-					<DropdownUser
+					{/* <DropdownUser
 						setEdit={() => {
 							//
 						}}
 						setEstimateEdit={() => {
 							//
 						}}
-					/>
+					/> */}
 				</div>
 			</div>
 		</div>
