@@ -160,18 +160,7 @@ const Card = ({ member }: { member: IMember }) => {
 	}, [memberTask, formValues, updateTask]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
-		setEstimateEdit(false);
-		if (memberTask) {
-			const { m, h } = secondsToTime(memberTask.estimate || 0);
-			setFormValues((d) => {
-				return {
-					...d,
-					devTask: memberTask.title,
-					estimateHours: h,
-					estimateMinutes: m,
-				};
-			});
-		}
+		handleEstimateSubmit();
 	});
 
 	const { targetEl: editTaskInputEl } = useOutsideClick<HTMLInputElement>(
