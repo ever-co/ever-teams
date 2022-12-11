@@ -19,6 +19,7 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
 import { ProgressBar } from '@components/common/progress-bar';
+import { mergeRefs } from '@app/helpers/merge-refs';
 
 type IMember = IOrganizationTeamList['members'][number];
 
@@ -172,14 +173,13 @@ const Card = ({ member }: { member: IMember }) => {
 		}
 	});
 
-	const { targetEl: editTaskInputEl } = useOutsideClick<HTMLInputElement>(
-		() => {
+	const { targetEl: editTaskInputEl, ignoreElementRef: ignoreElementTaskIRef } =
+		useOutsideClick<HTMLInputElement>(() => {
 			setEstimateEdit(false);
 			if (!updateLoading) {
 				handleTaskEdit();
 			}
-		}
-	);
+		});
 
 	return (
 		<div
@@ -347,7 +347,10 @@ const Card = ({ member }: { member: IMember }) => {
 			<div className="w-[184px]  flex items-center">
 				<Worked24Hours isAuthUser={isAuthUser} />
 				{isTeamManager && (
-					<div className="mr-[20px]" ref={ignoreElementRef}>
+					<div
+						className="mr-[20px]"
+						ref={mergeRefs([ignoreElementRef, ignoreElementTaskIRef])}
+					>
 						<DropdownUser
 							setEdit={handeEditBoth}
 							setEstimateEdit={canEditEstimate}
