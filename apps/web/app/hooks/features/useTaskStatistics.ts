@@ -133,5 +133,6 @@ export function useTaskStatistics(addSeconds = 0) {
 			activeTeamTask && activeTeamTask.estimate
 				? getEstimation(statActiveTask.today)
 				: 0,
+		activeTeamTask,
 	};
 }

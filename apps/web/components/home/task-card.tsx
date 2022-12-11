@@ -8,6 +8,7 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
 import { useRef } from 'react';
+import { ITasksTimesheet } from '@app/interfaces/ITimer';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -16,14 +17,23 @@ interface ITaskDetailCard {
 }
 const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
-
 	const timerReconds = useRecoilValue(timerSecondsState);
-	const { getTaskStat, activeTaskTotalStat, activeTaskEstimation } =
-		useTaskStatistics(timerReconds);
-	if (activeTaskTotalStat?.id === task?.id) {
+
+	let taskStat: ITasksTimesheet | null | undefined = null;
+
+	const {
+		getTaskStat,
+		activeTeamTask,
+		activeTaskEstimation,
+		activeTaskTotalStat,
+	} = useTaskStatistics(timerReconds);
+
+	if (activeTeamTask?.id === task?.id) {
 		estimationPourtcent.current = activeTaskEstimation;
+		taskStat = activeTaskTotalStat;
 	} else {
 		const { taskTotalStat } = getTaskStat(task);
+		taskStat = taskTotalStat;
 		estimationPourtcent.current = Math.min(
 			Math.floor(
 				((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)
@@ -33,6 +43,7 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 	}
 
 	const { m, h } = secondsToTime((task && task.estimate) || 0);
+	const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 
 	return (
 		<div
@@ -52,7 +63,7 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 				</div>
 				<Separator />
 				<div className="w-[122px]  text-center text-primary dark:text-[#FFFFFF] flex justify-center items-center">
-					{current}
+					{th}h {tm}m
 				</div>
 				<Separator />
 
@@ -69,8 +80,7 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 						</div>
 						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
 							<div>
-								{' '}
-								{h}h{m}m
+								{h}h {m}m
 							</div>
 						</div>
 					</div>
