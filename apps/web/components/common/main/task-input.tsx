@@ -115,7 +115,7 @@ export function useTaskInput() {
 							.replace(/\s+/g, '')
 							.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
 						h_filter(task.status, filter)
-			  );
+				);
 	}, [query, tasks, filter]);
 
 	const filteredTasks2 = useMemo(() => {
@@ -127,7 +127,7 @@ export function useTaskInput() {
 						.toLowerCase()
 						.replace(/\s+/g, '')
 						.startsWith(query.toLowerCase().replace(/\s+/g, ''));
-			  });
+				});
 	}, [query, tasks]);
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
@@ -212,7 +212,7 @@ export function TasksList({
 
 	const closeCombox = useCallback(() => {
 		setCombxShow(undefined);
-	}, [combxShow]);
+	}, [setCombxShow]);
 
 	return (
 		<>
@@ -362,7 +362,7 @@ function InputTaskItem({
 	const handleOnReopen = useCallback(() => {
 		setLoading(true);
 		return onReopen().finally(() => setLoading(false));
-	}, []);
+	}, [onReopen]);
 	return (
 		<TaskItem
 			selected={selected}

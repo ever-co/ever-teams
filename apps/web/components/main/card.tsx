@@ -165,7 +165,7 @@ const Card = ({ member }: { member: IMember }) => {
 		});
 
 		setEstimateEdit(false);
-	}, [memberTask, formValues, updateTask]);
+	}, [memberTask, formValues, updateTask, blurEstimationFields]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
 		if (!updateLoading) {
@@ -364,7 +364,6 @@ const Card = ({ member }: { member: IMember }) => {
 };
 
 function EstimationProgress({
-	memberTask,
 	isAuthUser,
 }: {
 	memberTask: ITeamTask | null;

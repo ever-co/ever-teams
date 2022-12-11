@@ -5,7 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Spinner } from './spinner';
 
 const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
-	const { updateTask, updateLoading, setActiveTask, tasks, activeTeamTask } =
+	const { updateTask, updateLoading, setActiveTask, activeTeamTask } =
 		useTeamTasks();
 
 	const handleChange = useCallback(async () => {
@@ -19,7 +19,11 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 		if (activeTeamTask?.id === task?.id) {
 			setActiveTask(null);
 		}
-	}, [closeModal, setActiveTask, task, tasks, updateTask]);
+	}, [closeModal, setActiveTask, task, updateTask, activeTeamTask?.id]);
+
+	const onClose = useCallback(() => {
+		return;
+	}, []);
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
@@ -27,7 +31,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 				as="div"
 				onClick={(e: any) => e.stopPropagation()}
 				className="relative z-10"
-				onClose={() => {}}
+				onClose={onClose}
 			>
 				<div className="fixed inset-0 blur-xl bg-black/30" aria-hidden="true" />
 				<Transition.Child
