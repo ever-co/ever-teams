@@ -132,14 +132,14 @@ export function useTaskInput() {
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
-	const handleTaskCreation = () => {
+	const handleTaskCreation = (autoActiveTask = true) => {
 		if (query.trim().length < 2 || activeTeamTask?.title === query.trim())
 			return;
 		createTask(query.trim()).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
-			if (created) setActiveTask(created);
+			if (created && autoActiveTask) setActiveTask(created);
 		});
 	};
 

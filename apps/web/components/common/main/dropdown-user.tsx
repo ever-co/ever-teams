@@ -7,6 +7,7 @@ import React, {
 	Fragment,
 	PropsWithChildren,
 	SetStateAction,
+	useMemo,
 	useState,
 } from 'react';
 import { usePopper } from 'react-popper';
@@ -182,6 +183,10 @@ const DropdownUser = ({
 		closeableTask,
 	} = useTaskInput();
 
+	const reversedTask = useMemo(() => {
+		return filteredTasks.slice().reverse();
+	}, [filteredTasks]);
+
 	return (
 		<>
 			<OptionPopover setEstimateEdit={setEstimateEdit} setEdit={setEdit}>
@@ -199,9 +204,9 @@ const DropdownUser = ({
 											: '';
 									}}
 									onChange={(event) => setQuery(event.target.value)}
-									onKeyUp={(event: any) => {
+									onKeyDown={(event: any) => {
 										if (event.key === 'Enter') {
-											handleTaskCreation();
+											handleTaskCreation(false);
 										}
 									}}
 									autoComplete="off"
@@ -229,7 +234,7 @@ const DropdownUser = ({
 								<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
-											onClick={handleTaskCreation}
+											onClick={() => handleTaskCreation(false)}
 											loading={createLoading}
 										/>
 									)}
@@ -256,7 +261,7 @@ const DropdownUser = ({
 				</div>
 
 				{/* task list */}
-				{filteredTasks.map((task) => (
+				{reversedTask.map((task) => (
 					<div key={task.id} className="px-9 cursor-pointer">
 						<div className="py-2">
 							<TaskItem
