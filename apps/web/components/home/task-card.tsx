@@ -1,5 +1,5 @@
 import Separator from '../common/separator';
-import DropdownUser from '@components/common/main/dropdown-user';
+// import DropdownUser from '@components/common/main/dropdown-user';
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
@@ -93,14 +93,14 @@ const TaskDetailCard = ({ now = false, task, current }: ITaskDetailCard) => {
 
 				<Separator />
 				<div className="w-[14px]  flex items-center">
-					<DropdownUser
+					{/* <DropdownUser
 						setEdit={() => {
 							//
 						}}
 						setEstimateEdit={() => {
 							//
 						}}
-					/>
+					/> */}
 				</div>
 			</div>
 		</div>

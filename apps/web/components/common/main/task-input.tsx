@@ -64,9 +64,11 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	}
 };
 
-export default function TaskInput() {
-	const { isOpen, openModal, closeModal } = useModal();
-	const [closeTask, setCloseTask] = useState<ITeamTask | null>(null);
+export function useTaskInput() {
+	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
+	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
+		null
+	);
 	const {
 		tasks,
 		activeTeamTask,
@@ -80,19 +82,25 @@ export default function TaskInput() {
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
 	const [editMode, setEditMode] = useState(false);
 
-	const handleOpenModal = (concernedTask: ITeamTask) => {
-		setCloseTask(concernedTask);
-		openModal();
-	};
+	const handleOpenModal = useCallback(
+		(concernedTask: ITeamTask) => {
+			setCloseableTaskTask(concernedTask);
+			openModal();
+		},
+		[setCloseableTaskTask, openModal]
+	);
 
-	const handleReopenTask = (concernedTask: ITeamTask) => {
-		if (concernedTask) {
-			updateTask({
-				...concernedTask,
-				status: 'Todo',
-			});
-		}
-	};
+	const handleReopenTask = useCallback(
+		(concernedTask: ITeamTask) => {
+			if (concernedTask) {
+				updateTask({
+					...concernedTask,
+					status: 'Todo',
+				});
+			}
+		},
+		[updateTask]
+	);
 
 	const [query, setQuery] = useState('');
 
@@ -107,7 +115,7 @@ export default function TaskInput() {
 							.replace(/\s+/g, '')
 							.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
 						h_filter(task.status, filter)
-				);
+			  );
 	}, [query, tasks, filter]);
 
 	const filteredTasks2 = useMemo(() => {
@@ -119,7 +127,7 @@ export default function TaskInput() {
 						.toLowerCase()
 						.replace(/\s+/g, '')
 						.startsWith(query.toLowerCase().replace(/\s+/g, ''));
-				});
+			  });
 	}, [query, tasks]);
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
@@ -143,9 +151,64 @@ export default function TaskInput() {
 		return f_task.status !== 'Closed';
 	}).length;
 
+	return {
+		closedTaskCount,
+		openTaskCount,
+		hasCreateForm,
+		handleTaskCreation,
+		filteredTasks,
+		handleReopenTask,
+		handleOpenModal,
+		createLoading,
+		tasksFetching,
+		updateLoading,
+		setFilter,
+		closeModal,
+		isModalOpen,
+		closeableTask,
+		editMode,
+		setEditMode,
+		activeTeamTask,
+		setActiveTask,
+		setQuery,
+		filter,
+	};
+}
+
+export function TasksList({
+	onClickTask,
+}: {
+	onClickTask?: (task: ITeamTask) => void;
+}) {
+	const {
+		activeTeamTask,
+		setActiveTask,
+		editMode,
+		setEditMode,
+		setQuery,
+		handleTaskCreation,
+		tasksFetching,
+		createLoading,
+		updateLoading,
+		setFilter,
+		openTaskCount,
+		filter,
+		closedTaskCount,
+		hasCreateForm,
+		filteredTasks,
+		handleOpenModal,
+		handleReopenTask,
+		isModalOpen,
+		closeModal,
+		closeableTask,
+	} = useTaskInput();
+
 	return (
-		<div className="w-full">
-			<Combobox value={activeTeamTask} onChange={setActiveTask}>
+		<>
+			<Combobox
+				value={activeTeamTask}
+				onChange={onClickTask ? onClickTask : setActiveTask}
+			>
 				<div className="relative mt-1">
 					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 						<Combobox.Input
@@ -257,11 +320,19 @@ export default function TaskInput() {
 				</div>
 			</Combobox>
 			<DeleteTask
-				isOpen={isOpen}
+				isOpen={isModalOpen}
 				closeModal={closeModal}
 				Fragment={Fragment}
-				task={closeTask}
+				task={closeableTask}
 			/>
+		</>
+	);
+}
+
+export default function TaskInput() {
+	return (
+		<div className="w-full">
+			<TasksList />
 		</div>
 	);
 }

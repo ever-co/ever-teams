@@ -352,6 +352,7 @@ const Card = ({ member }: { member: IMember }) => {
 						ref={mergeRefs([ignoreElementRef, ignoreElementTaskIRef])}
 					>
 						<DropdownUser
+							member={member}
 							setEdit={handeEditBoth}
 							setEstimateEdit={canEditEstimate}
 						/>
