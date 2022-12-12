@@ -9,10 +9,11 @@ export interface IInviteCreate {
 	tenantId: string;
 	invitedById: string;
 	fullName?: string;
-	inviteType: string;
+	inviteType: 'TEAM';
 	startedWorkOn: string;
 	appliedDate?: any;
 	invitationExpirationPeriod: string;
+	callbackUrl?: string;
 }
 
 export interface IInvitation {
@@ -36,4 +37,9 @@ export interface IInvitation {
 export type IInviteRequest = {
 	name: string;
 	email: string;
+};
+
+export type IInviteVerifyCode = {
+	email: string;
+	code: string;
 };

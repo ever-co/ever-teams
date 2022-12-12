@@ -1,3 +1,4 @@
+import { INVITE_CALLBACK_URL } from '@app/constants';
 import { validateForm } from '@app/helpers/validations';
 import { IInviteRequest } from '@app/interfaces/IInvite';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
@@ -38,11 +39,12 @@ export default async function handler(
 			emailIds: [body.email],
 			roleId: employeeRole?.id || '',
 			invitationExpirationPeriod: 'Never',
-			inviteType: 'EMPLOYEE',
+			inviteType: 'TEAM',
 			invitedById: user.id,
 			teamIds: [teamId],
 			projectIds: [teamId],
 			fullName: body.name,
+			...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
 		},
 		access_token
 	);
