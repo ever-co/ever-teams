@@ -1,56 +1,61 @@
-import { validateForm } from "@app/helpers/validations";
-import { IInviteRequest } from "@app/interfaces/IInvite";
-import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
+import { validateForm } from '@app/helpers/validations';
+import { IInviteRequest } from '@app/interfaces/IInvite';
+import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
-  getTeamInvitationsRequest,
-  inviteByEmailsRequest,
-  // sendAuthCode,
-} from "@app/services/server/requests";
-import { NextApiRequest, NextApiResponse } from "next";
+	getEmployeeRoleRequest,
+	getTeamInvitationsRequest,
+	inviteByEmailsRequest,
+} from '@app/services/server/requests';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
+	req: NextApiRequest,
+	res: NextApiResponse
 ) {
-  const { $res, user, organizationId, access_token, teamId, tenantId } =
-    await authenticatedGuard(req, res);
-  if (!user) return $res();
+	const { $res, user, organizationId, access_token, teamId, tenantId } =
+		await authenticatedGuard(req, res);
+	if (!user) return $res();
 
-  const body = req.body as IInviteRequest;
+	const body = req.body as IInviteRequest;
 
-  const { errors, isValid: formValid } = validateForm(["email", "name"], body);
+	const { errors, isValid: formValid } = validateForm(['email', 'name'], body);
 
-  if (!formValid) {
-    return res.status(400).json({ errors });
-  }
+	if (!formValid) {
+		return res.status(400).json({ errors });
+	}
 
-  await inviteByEmailsRequest(
-    {
-      startedWorkOn: new Date().toISOString(),
-      tenantId,
-      organizationId,
-      emailIds: [body.email],
-      roleId: user.roleId || '',
-      invitationExpirationPeriod: "Never",
-      inviteType: "EMPLOYEE",
-      invitedById: user.id,
-      teamIds: [teamId],
-      projectIds: [teamId],
-    },
-    access_token
-  );
+	const { data: employeeRole } = await getEmployeeRoleRequest({
+		tenantId,
+		role: 'EMPLOYEE',
+		bearer_token: access_token,
+	});
 
-  const { data } = await getTeamInvitationsRequest(
-    {
-      tenantId,
-      teamId,
-      organizationId,
-      role: "EMPLOYEE",
-    },
-    access_token
-  );
+	await inviteByEmailsRequest(
+		{
+			startedWorkOn: new Date().toISOString(),
+			tenantId,
+			organizationId,
+			emailIds: [body.email],
+			roleId: employeeRole?.id || '',
+			invitationExpirationPeriod: 'Never',
+			inviteType: 'EMPLOYEE',
+			invitedById: user.id,
+			teamIds: [teamId],
+			projectIds: [teamId],
+			fullName: body.name,
+		},
+		access_token
+	);
 
-  // const { data: k } = await sendAuthCode(body.email);
+	const { data } = await getTeamInvitationsRequest(
+		{
+			tenantId,
+			teamId,
+			organizationId,
+			role: 'EMPLOYEE',
+		},
+		access_token
+	);
 
-  $res.status(200).json(data);
+	$res.status(200).json(data);
 }
