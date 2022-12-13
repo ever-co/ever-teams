@@ -28,10 +28,10 @@ import { ActivityIndicator } from "react-native-paper";
 export type ListItemProps = {
   item: ITeamTask
   onPressIn?: () => unknown
-  handleEstimate: () => unknown
-  enableEstimate: boolean
-  enableEditTaskTitle: boolean,
-  handleTaskTitle: () => unknown
+  handleEstimate?: () => unknown
+  enableEstimate?: boolean
+  enableEditTaskTitle?: boolean,
+  handleTaskTitle?: () => unknown
 }
 
 export interface Props extends ListItemProps { }
@@ -71,7 +71,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             <TouchableOpacity onLongPress={() => handleTaskTitle()}>
               <TextInput
                 style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null]}
-                defaultValue={enableEditTaskTitle ? titleInput : "#1 " + item.title}
+                defaultValue={enableEditTaskTitle ? titleInput : "#"+item.taskNumber+ " "+item.title}
                 editable={enableEditTaskTitle}
                 onChangeText={(text) => setTitleInput(text)}
               />

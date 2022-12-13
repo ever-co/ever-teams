@@ -41,7 +41,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
         onPress={() => setShowDrop(!showDrop)}
       >
         <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#1B005D" }}>{`${activeTeam.name} (${teams.total})`}</Text>
+        <Text style={{ color: "#282048", fontWeight:"600", fontSize:14 }}>{`${activeTeam.name} (${teams.total})`}</Text>
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
       {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
@@ -60,11 +60,13 @@ const styles = StyleSheet.create({
   mainDropDown: {
     flexDirection: "row",
     width: "80%",
-    backgroundColor: "#E8EBF8",
+    backgroundColor: "#FFF",
     justifyContent: "space-around",
     borderRadius: 10,
     paddingTop: 10,
     paddingBottom: 10,
+    borderColor:"gray",
+    borderWidth:1
   },
 })
 

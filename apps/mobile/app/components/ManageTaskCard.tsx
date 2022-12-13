@@ -31,6 +31,7 @@ const ManageTaskCard = observer(() => {
         setIsLoading(true)
         await createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
         setIsLoading(false)
+        setShowCombo(false)
     }
 
 
@@ -53,6 +54,7 @@ const ManageTaskCard = observer(() => {
         setShowCheckIcon(false)
         setTaskInputText(value.title)
         setShowCombo(false)
+        console.log(value)
     }
 
     useEffect(()=>{

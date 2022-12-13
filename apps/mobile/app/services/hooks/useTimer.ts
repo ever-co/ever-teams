@@ -92,7 +92,6 @@ function useLocalTimeCounter(
             setTimerCounterIntervalState(
                 setInterval(() => {
                     setTimeCounter((c) => c + INTERVAL);
-                    setTimerCounterState(timeCounter+INTERVAL);
                 }, INTERVAL)
             );
         }

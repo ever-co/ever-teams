@@ -23,6 +23,7 @@ import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { IUser } from "../../../../services/interfaces/IUserData"
+import { observer } from "mobx-react-lite"
 
 export type ListItemProps = {
   item: any,
@@ -32,8 +33,8 @@ export type ListItemProps = {
 
 export interface Props extends ListItemProps { }
 
-export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate, onPressIn }) => {
-  const { TaskStore: { activeTask } } = useStores();
+export const ListItemContent: React.FC<ListItemProps> = observer(({ item, enableEstimate, onPressIn }) => {
+  const { TaskStore: { activeTask }, TimerStore:{timeCounterState} } = useStores();
   const {
     startTimer,
     stopTimer,
@@ -58,7 +59,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
             source={{ uri: iuser.imageUrl }}
             style={$usersProfile}
           />
-          <Text style={styles.name}>{iuser.name}</Text>
+          <Text style={styles.name}>{iuser.name}{timeCounterState}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
           {activeTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
@@ -97,7 +98,7 @@ export const ListItemContent: React.FC<ListItemProps> = ({ item, enableEstimate,
       </View>
     </TouchableOpacity>
   )
-}
+})
 
 const ListCardItem: React.FC<Props> = (props) => {
   // STATS
