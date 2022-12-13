@@ -15,6 +15,7 @@ import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';
 import AssignedTask from '@components/home/assigned-tasks';
+import UnAssignedTask from '@components/home/unassigned-task';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -130,7 +131,7 @@ const Profile = () => {
 						))}
 					</div>
 				)}
-				{(tab === 'assigned' || tab === 'unassigned') && (
+				{tab === 'assigned' && (
 					<div>
 						<div className="relative">
 							{activeTeamTask && (
@@ -148,6 +149,28 @@ const Profile = () => {
 								style={{ zIndex: `-${i + 1}` }}
 							>
 								<AssignedTask task={ta} current="00:00" />
+							</div>
+						))}
+					</div>
+				)}
+				{tab === 'unassigned' && (
+					<div>
+						<div className="relative">
+							{activeTeamTask && (
+								<UnAssignedTask
+									now={true}
+									task={activeTeamTask}
+									current="00:00"
+								/>
+							)}
+						</div>
+						{otherTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
+								<UnAssignedTask task={ta} current="00:00" />
 							</div>
 						))}
 					</div>
