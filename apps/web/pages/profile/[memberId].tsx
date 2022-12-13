@@ -14,6 +14,7 @@ import { withAuthentication } from '@components/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';
+import AssignedTask from '@components/home/assigned-tasks';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -65,7 +66,7 @@ const Profile = () => {
 						>
 							Assigned
 							{tab === 'assigned' && (
-								<div className="w-[78px] h-[2px] bg-[#ACB3BB]" />
+								<div className="w-[78px] h-[2px] bg-[#ACB3BB]"></div>
 							)}
 						</div>
 						<div
@@ -89,34 +90,68 @@ const Profile = () => {
 						</button>
 					</div>
 				</div>
-				<div className="flex items-center justify-between">
-					<div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
-						Now
+				{tab === 'worked' && (
+					<div>
+						<div className="flex items-center justify-between">
+							<div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
+								Now
+							</div>
+							<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
+							<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+								Total time: 03:31
+							</div>
+						</div>
+						<div className="relative">
+							{activeTeamTask && (
+								<TaskDetailCard
+									now={true}
+									task={activeTeamTask}
+									current="00:00"
+								/>
+							)}
+						</div>
+						<div className="flex items-center justify-between mt-[40px]">
+							<div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
+								Last 24 hours
+							</div>
+							<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
+							<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+								Total time: 03:31
+							</div>
+						</div>
+						{otherTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
+								<TaskDetailCard task={ta} current="00:00" />
+							</div>
+						))}
 					</div>
-					<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
-					<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
-						Total time: 03:31
+				)}
+				{(tab === 'assigned' || tab === 'unassigned') && (
+					<div>
+						<div className="relative">
+							{activeTeamTask && (
+								<AssignedTask
+									now={true}
+									task={activeTeamTask}
+									current="00:00"
+								/>
+							)}
+						</div>
+						{otherTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
+								<AssignedTask task={ta} current="00:00" />
+							</div>
+						))}
 					</div>
-				</div>
-				<div className="relative">
-					{activeTeamTask && (
-						<TaskDetailCard now={true} task={activeTeamTask} current="00:00" />
-					)}
-				</div>
-				<div className="flex items-center justify-between mt-[40px]">
-					<div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
-						Last 24 hours
-					</div>
-					<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
-					<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
-						Total time: 03:31
-					</div>
-				</div>
-				{otherTasks.map((ta, i) => (
-					<div key={ta.id} className="relative" style={{ zIndex: `-${i + 1}` }}>
-						<TaskDetailCard task={ta} current="00:00" />
-					</div>
-				))}
+				)}
 			</div>
 		</AppLayout>
 	);
