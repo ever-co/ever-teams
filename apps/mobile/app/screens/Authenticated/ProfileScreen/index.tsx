@@ -13,11 +13,8 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { colors, spacing } from ".././../../theme"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
-import DropDown from "../TeamScreen/components/DropDown"
 import FilterSection from "./components/FilterSection"
 import ListCardItem from "./components/ListCardItem"
-import HamburgerMenu from "../../../components/HamburgerMenu"
-import AssignTaskSection from "./components/AssignTaskSection"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
@@ -28,7 +25,6 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       teamStore: { activeTeam },
       TaskStore: { teamTasks, activeTask }
     } = useStores();
-    const [showHam, setShowHam] = useState(false)
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
     const tabs = ["Worked", "Assigned", "Unassigned"];
