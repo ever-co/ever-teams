@@ -1,14 +1,11 @@
 import React, { FC, useEffect, useState } from "react"
-import { Text, TextInput, View, Image, StyleSheet, TouchableOpacity } from "react-native"
-import { ActivityIndicator, ProgressBar } from "react-native-paper"
+import { Text, View, StyleSheet } from "react-native"
+import { ProgressBar } from "react-native-paper"
 import { colors } from "../../../../theme"
-import TaskStatusDropdown from "./TaskStatusDropdown"
 
-import { Feather, AntDesign } from "@expo/vector-icons"
-import ComboBox from "./ComboBox"
+import { AntDesign } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { useStores } from "../../../../models"
-import EstimateTime from "./EstimateTime"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { pad } from "../../../../helpers/number"
@@ -23,7 +20,7 @@ const NewTimerCard: FC<Props> = observer(() => {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId, activeTeam },
     TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks },
-    TimerStore: { timerStatusState, localTimerStatusState, timeCounterState }
+    TimerStore: { timerStatusState, localTimerStatusState, timeCounterState, setTimerCounterState }
   } = useStores();
   const {
     startTimer,
@@ -78,12 +75,9 @@ const NewTimerCard: FC<Props> = observer(() => {
     if (!activeTask.estimate) {
       return 0;
     }
-
-    if (activeTask.estimate) {
-      // convert milliseconds to seconds
-      const seconds = timeCounter / 1000
-      return seconds / activeTask.estimate
-    }
+    // convert milliseconds to seconds
+    const seconds = timeCounter / 1000
+    return seconds / activeTask.estimate
   }
 
 
@@ -99,7 +93,7 @@ const NewTimerCard: FC<Props> = observer(() => {
       <View style={styles.horizontal}>
         <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
           <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}:<Text style={{ fontSize: 25 }}>{pad(ms_p)}</Text></Text>
-          <ProgressBar style={{backgroundColor:"#E9EBF8"}} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#28D581" : "#F0F0F0"} />
+          <ProgressBar style={{ backgroundColor: "#E9EBF8" }} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#28D581" : "#F0F0F0"} />
         </View>
 
         {localTimerStatusState.running ? (

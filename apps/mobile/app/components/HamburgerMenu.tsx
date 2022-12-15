@@ -6,6 +6,10 @@ import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer"
 import { colors } from "../theme"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "../models"
+import DropDownSection from "../screens/Authenticated/TeamScreen/components/DropDownSection"
+import DropDown from "../screens/Authenticated/TeamScreen/components/DropDown"
+import CreateTeamModal from "../screens/Authenticated/TeamScreen/components/CreateTeamModal"
+import ProfileImage from "./ProfileImage"
 
 
 
@@ -13,10 +17,27 @@ const HamburgerMenu = (props) => {
   const navigation = useNavigation();
 
   const {
-    authenticationStore: { logout, isAuthenticated },
     TaskStore: { resetTeamTasksData },
-    teamStore: { clearStoredTeamData }
+    authenticationStore: { user, tenantId, organizationId, employeeId, authToken, logout, isAuthenticated },
+    teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam, clearStoredTeamData },
+    TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
   } = useStores()
+
+  const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+
+  // Create New Team
+  const createNewTeam = async (text: string) => {
+    const responseTeams = {
+      tenantId: tenantId,
+      organizationId: organizationId,
+      access_token: authToken,
+      employeeId,
+      userId: user?.id,
+      teamName: text
+    };
+    createTeam(responseTeams)
+
+  }
 
   const onToggleSwitch = () => {
     resetTeamTasksData()
@@ -25,6 +46,11 @@ const HamburgerMenu = (props) => {
   }
   return (
     <View style={styles.container}>
+      <CreateTeamModal
+        onCreateTeam={createNewTeam}
+        visible={showCreateTeamModal}
+        onDismiss={() => setShowCreateTeamModal(false)}
+      />
       <DrawerContentScrollView style={{ width: '100%' }} {...props}>
         <View style={styles.headerIconsContainer}>
           <TouchableOpacity onPress={() => props.navigation.closeDrawer()}>
@@ -35,11 +61,12 @@ const HamburgerMenu = (props) => {
           </TouchableOpacity>
         </View>
         <View style={styles.profileSection}>
-          <View style={styles.profileImageContainer}>
-            <Image resizeMode="contain" source={require("../../assets/images/Ruslan.png")} style={styles.profileImage} />
+          <View style={{marginBottom:40}}>
+          <ProfileImage imageUrl={user?.imageUrl}/>
           </View>
-          <Text style={styles.userProfileName}>Ruslan Konviser</Text>
-          <Text>ruslan.k@everiq.com</Text>
+          <Text style={styles.userProfileName}>{user?.name}</Text>
+          <Text style={{fontSize:12}}>{user?.email}</Text>
+          <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
         </View>
         <View style={styles.navigationSection}>
           <DrawerItem
@@ -106,8 +133,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10
   },
   navigationSection: {
-    marginHorizontal: '15%',
-    marginTop: 30
+    marginHorizontal: '1%',
+    marginTop: 20,
+    zIndex: 1
   },
   profileImage: {
     borderRadius: 60,
@@ -130,16 +158,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.palette.neutral200
   },
   profileSection: {
-    marginHorizontal: '15%',
+    marginHorizontal: '1%',
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomColor: "#f4f4f4",
     borderBottomWidth: 1,
-    paddingBottom: 30
+    paddingBottom: 20,
+    zIndex: 10
   },
   bottomSection: {
     marginBottom: 25,
-    marginHorizontal: "15%",
+    marginHorizontal: "7%",
     paddingVertical: 10,
     borderTopColor: "#f4f4f4",
     borderTopWidth: 1,
