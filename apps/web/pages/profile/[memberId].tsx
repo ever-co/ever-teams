@@ -17,6 +17,7 @@ import { IUser } from '@app/interfaces/IUserData';
 import AssignedTask from '@components/home/assigned-tasks';
 import UnAssignedTask from '@components/home/unassigned-task';
 import Tooltip from '@components/common/tooltip';
+import { text } from 'stream/consumers';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -58,13 +59,20 @@ const Profile = () => {
 						>
 							<div
 								className={`mr-10 ${
-									tab === 'worked' && 'font-medium'
+									tab === 'worked' && 'text-[#3826A5]'
 								} cursor-pointer`}
 								onClick={() => setTab('worked')}
 							>
-								Worked
+								<div className="flex">
+									<div className="flex-1">Worked</div>
+									<div className="bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1">
+										<p className="text-center font-medium text-xs">4</p>
+									</div>
+								</div>
 								{tab === 'worked' && (
-									<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
+									<div className="flex">
+										<div className="w-[92px] h-[2px] bg-[#3826A5] mt-[10px]"></div>
+									</div>
 								)}
 							</div>
 						</Tooltip>
@@ -77,13 +85,20 @@ const Profile = () => {
 						>
 							<div
 								className={`mr-10 ${
-									tab === 'assigned' && 'font-medium'
+									tab === 'assigned' && 'text-[#3826A5]'
 								} cursor-pointer`}
 								onClick={() => setTab('assigned')}
 							>
-								Assigned
+								<div className="flex">
+									<div className="flex-1">Assigned</div>
+									<div className="bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[17px] mt-1">
+										<p className="text-center font-medium text-xs">2</p>
+									</div>
+								</div>
 								{tab === 'assigned' && (
-									<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
+									<div className="flex">
+										<div className="w-[95px] h-[2px] bg-[#3826A5] mt-[10px]"></div>
+									</div>
 								)}
 							</div>
 						</Tooltip>
@@ -94,16 +109,25 @@ const Profile = () => {
 								</span>
 							}
 						>
-							<div
-								className={`mr-10 ${
-									tab === 'unassigned' && 'font-medium'
-								} cursor-pointer`}
-								onClick={() => setTab('unassigned')}
-							>
-								Unassigned
-								{tab === 'unassigned' && (
-									<div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
-								)}
+							<div className="flex">
+								<div
+									className={`mr-10 ${
+										tab === 'unassigned' && 'text-[#3826A5]'
+									} cursor-pointer flex-1`}
+									onClick={() => setTab('unassigned')}
+								>
+									<div className="flex">
+										<div className="flex-1">Unassigned</div>
+										<div className="bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1">
+											<p className="text-center font-medium text-xs">4</p>
+										</div>
+									</div>
+									{tab === 'unassigned' && (
+										<div className="flex">
+											<div className="w-[108px] h-[2px] bg-[#3826A5] mt-[10px]"></div>
+										</div>
+									)}
+								</div>
 							</div>
 						</Tooltip>
 					</div>
