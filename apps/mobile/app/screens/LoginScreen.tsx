@@ -15,6 +15,7 @@ import { typography } from "../theme"
 import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
 import { IRegister, IRegisterResponse, register } from "../services/auth/register"
+import { useTeamInvitations } from "../services/hooks/useTeamInvitation";
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
@@ -32,6 +33,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   })
   const [withteam, setWithTeam] = useState<boolean>(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
+  const { verifyInviteByCode } = useTeamInvitations();
   const {
     authenticationStore: {
       authEmail,
@@ -73,15 +75,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
-  console.log(errors)
+
   //const api = new Api()
   function joinTeam() {
     setIsSubmitted(true)
 
     setAttemptsCount(attemptsCount + 1)
 
-    if (Object.values(validationErrors).some((v) => !!v)) return
-
+    // if (Object.values(validationErrors).some((v) => !!v)) return
+    verifyInviteByCode({ email: authEmail, code: authInviteCode });
     // Make a request to your server to get an authentication token.
     // If successful, reset the fields and set the token.
     setIsSubmitted(false)
@@ -400,7 +402,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   style={$confirmtext}
                 />
 
-                <CodeInput />
+                <CodeInput onChange={setAuthInviteCode} />
 
                 <TextField
                   value={authEmail}
