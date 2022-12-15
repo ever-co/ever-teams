@@ -16,6 +16,7 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';
 import AssignedTask from '@components/home/assigned-tasks';
 import UnAssignedTask from '@components/home/unassigned-task';
+import Tooltip from '@components/common/tooltip';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -48,39 +49,63 @@ const Profile = () => {
 			<div className="relative z-10">
 				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 					<div className="flex">
-						<div
-							className={`mr-10 ${
-								tab === 'worked' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('worked')}
+						<Tooltip
+							label={
+								<span className="flex items-center bg-[#534D6D] text-white text-sm font-medium py-1 px-2 rounded-[8px] shadow-md">
+									Here are all the tasks a member started working on
+								</span>
+							}
 						>
-							Worked
-							{tab === 'worked' && (
-								<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
-						<div
-							className={`mr-10 ${
-								tab === 'assigned' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('assigned')}
+							<div
+								className={`mr-10 ${
+									tab === 'worked' && 'font-medium'
+								} cursor-pointer`}
+								onClick={() => setTab('worked')}
+							>
+								Worked
+								{tab === 'worked' && (
+									<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
+								)}
+							</div>
+						</Tooltip>
+						<Tooltip
+							label={
+								<span className="flex items-center bg-[#534D6D] text-white text-sm font-medium py-1 px-2 rounded-[8px] shadow-md">
+									Here are all the tasks assigned to a member
+								</span>
+							}
 						>
-							Assigned
-							{tab === 'assigned' && (
-								<div className="w-[78px] h-[2px] bg-[#ACB3BB]"></div>
-							)}
-						</div>
-						<div
-							className={`mr-10 ${
-								tab === 'unassigned' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('unassigned')}
+							<div
+								className={`mr-10 ${
+									tab === 'assigned' && 'font-medium'
+								} cursor-pointer`}
+								onClick={() => setTab('assigned')}
+							>
+								Assigned
+								{tab === 'assigned' && (
+									<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
+								)}
+							</div>
+						</Tooltip>
+						<Tooltip
+							label={
+								<span className="flex items-center bg-[#534D6D] text-white text-sm font-medium py-1 px-2 mt-[-5px] rounded-[8px] shadow-md">
+									Here are all the tasks unassigned to a member
+								</span>
+							}
 						>
-							Unassigned
-							{tab === 'unassigned' && (
-								<div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
+							<div
+								className={`mr-10 ${
+									tab === 'unassigned' && 'font-medium'
+								} cursor-pointer`}
+								onClick={() => setTab('unassigned')}
+							>
+								Unassigned
+								{tab === 'unassigned' && (
+									<div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
+								)}
+							</div>
+						</Tooltip>
 					</div>
 					<div className="flex items-center">
 						<div className="mr-4 h-full relative z-10">
