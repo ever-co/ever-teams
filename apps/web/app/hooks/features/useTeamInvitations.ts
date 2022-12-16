@@ -5,16 +5,17 @@ import {
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
+	getTeamInvitationsState,
 	teamInvitationsState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 
 export function useTeamInvitations() {
-	const [teamInvitations, setTeamInvitations] =
-		useRecoilState(teamInvitationsState);
+	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
+	const teamInvitations = useRecoilValue(getTeamInvitationsState);
 	const [fetchingInvitations, setFetchingInvitations] = useRecoilState(
 		fetchingTeamInvitationsState
 	);
