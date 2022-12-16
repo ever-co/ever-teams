@@ -1,3 +1,4 @@
+import { IUserOrganization } from '@app/interfaces/IOrganization';
 import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
@@ -38,14 +39,22 @@ export default async function handler(
 		access_token
 	);
 
-	const call_teams = organizations.items.map((item) => {
+	const organizationsItems = organizations.items;
+
+	const filteredOrganization = organizationsItems.reduce((acc, org) => {
+		if (!acc.find((o) => o.organizationId === org.organizationId)) {
+			acc.push(org);
+		}
+		return acc;
+	}, [] as IUserOrganization[]);
+
+	const call_teams = filteredOrganization.map((item) => {
 		return getAllOrganizationTeamRequest(
 			{ tenantId, organizationId: item.organizationId },
 			access_token
 		);
 	});
 
-	console.log(organizations.items);
 	const teams = await Promise.all(call_teams).then((tms) => {
 		return tms.reduce(
 			(acc, { data }) => {

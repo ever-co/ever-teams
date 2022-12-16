@@ -30,6 +30,9 @@ export function getUserOrganizationsRequest(
     }).toString(),
   });
 
+	console.log(`/user-organization?data=${query.toString()}`);
+
+
   return serverFetch<PaginationResponse<IUserOrganization>>({
     path: `/user-organization?data=${query.toString()}`,
     method: "GET",
