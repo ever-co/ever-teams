@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { generateToken } from "../../helpers/generate-token";
 import { useStores } from "../../models";
 import { IInviteCreate } from "../interfaces/IInvite";
-import { acceptInviteRequest, getTeamInvitationsRequest, inviteByEmailsRequest, verifyInviteCodeRequest } from "../requests/invite";
-import { getEmployeeRoleRequest } from "../requests/roles";
+import { acceptInviteRequest, getTeamInvitationsRequest, inviteByEmailsRequest, verifyInviteCodeRequest } from "../client/requests/invite";
+import { getEmployeeRoleRequest } from "../client/requests/roles";
 
 export function useTeamInvitations() {
     const { authenticationStore: { 

@@ -1,13 +1,13 @@
 import { number } from "mobx-state-tree/dist/internal";
 import { IOrganizationTeamList } from "../interfaces/IOrganizationTeam";
 import { IUser } from "../interfaces/IUserData";
-import { getUserOrganizationsRequest } from "../requests/organization";
+import { getUserOrganizationsRequest } from "../client/requests/organization";
 // import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
 import {
   createOrganizationTeamRequest,
   getAllOrganizationTeamRequest,
   getOrganizationTeamRequest,
-} from "../requests/organization-team";
+} from "../client/requests/organization-team";
 // import { NextApiRequest, NextApiResponse } from "next";
 
 export interface ITeamsParams {

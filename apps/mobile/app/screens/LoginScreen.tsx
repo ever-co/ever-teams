@@ -14,7 +14,8 @@ import { typography } from "../theme"
 
 import * as Animatable from "react-native-animatable"
 import { CodeInput } from "../components/CodeInput"
-import { IRegister, IRegisterResponse, register } from "../services/auth/register"
+import { register } from "../services/client/api/auth/register"
+import { login } from "../services/client/api/auth/login"
 import { useTeamInvitations } from "../services/hooks/useTeamInvitation";
 const pkg = require("../../package.json")
 
@@ -77,13 +78,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
   //const api = new Api()
-  function joinTeam() {
+  const joinTeam=async()=> {
     setIsSubmitted(true)
 
     setAttemptsCount(attemptsCount + 1)
 
     // if (Object.values(validationErrors).some((v) => !!v)) return
-    verifyInviteByCode({ email: authEmail, code: authInviteCode });
+    // verifyInviteByCode({ email: authEmail, code: authInviteCode });
+   const {response}= await login({ email: authEmail, code: authInviteCode })
+   console.log(JSON.stringify(response))
     // Make a request to your server to get an authentication token.
     // If successful, reset the fields and set the token.
     setIsSubmitted(false)
@@ -94,7 +97,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setAuthConfirmCode("")
 
     // We'll mock this with a fake token.
-    setAuthToken(String(Date.now()))
+    // setAuthToken(String(Date.now()))
   }
 
   const createNewTeam = async () => {
@@ -107,7 +110,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     // Make a request to your server to get an authentication token.
 
 
-    let response: IRegisterResponse = await register({
+    const { response } = await register({
       team: authTeamName,
       name: authUsername,
       email: authEmail
@@ -115,9 +118,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
     // If successful, reset the fields and set the token.
     if (response.status === 200) {
+      const data = response.data
 
-      const employee = response.employee;
-      const loginRes = response.loginRes;
+      const employee = data.employee;
+      const loginRes = data.loginRes;
       const user = loginRes.user;
 
 
@@ -132,22 +136,22 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
       // Save Auth Data
       setAuthToken(loginRes.token);
-      setActiveTeam(response.team)
+      setActiveTeam(data.team)
       // setActiveTeamId(response.team.id)
-      setOrganizationId(response.team.organizationId)
+      setOrganizationId(data.team.organizationId)
       setUser(loginRes.user)
-      setTenantId(response.team.tenantId)
+      setTenantId(data.team.tenantId)
       setEmployeeId(employee.id)
       //Load first team data
-      getUserTeams({ tenantId: response.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
+      getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
       //Load tasks for current team or initialize tasks
 
       getTeamTasks(
         {
-          tenantId: response.team.tenantId,
-          activeTeamId: response.team.id,
+          tenantId: data.team.tenantId,
+          activeTeamId: data.team.id,
           authToken: loginRes.token,
-          organizationId: response.team.organizationId
+          organizationId: data.team.organizationId
         })
     }
   }

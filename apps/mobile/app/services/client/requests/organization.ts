@@ -1,9 +1,9 @@
-import { PaginationResponse } from "../interfaces/IDataResponse";
+import { PaginationResponse } from "../../interfaces/IDataResponse";
 import {
   IOrganization,
   IOrganizationCreate,
   IUserOrganization,
-} from "../interfaces/IOrganization";
+} from "../../interfaces/IOrganization";
 import { serverFetch } from "../fetch";
 
 export function createOrganizationRequest(

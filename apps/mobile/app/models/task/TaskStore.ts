@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { h_filter } from "../../screens/Authenticated/TimerScreen/components/ComboBox";
 import { ICreateTask, ITeamTask } from "../../services/interfaces/ITask";
-import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../services/requests/tasks";
+import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../services/client/requests/tasks";
 import { getTasksByTeamState, ITaskCreateParams, ITaskDeleteParams, ITaskGetParams, ITaskUpdateParams } from "./Task";
 
 

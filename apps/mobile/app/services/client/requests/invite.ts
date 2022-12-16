@@ -1,9 +1,9 @@
-import { PaginationResponse } from '../interfaces/IDataResponse';
+import { PaginationResponse } from '../../interfaces/IDataResponse';
 import {
 	IInvitation,
 	IInviteCreate,
 	IInviteVerifyCode,
-} from '../interfaces/IInvite';
+} from '../../interfaces/IInvite';
 import { serverFetch } from '../fetch';
 
 /**
@@ -107,7 +107,7 @@ export interface AcceptInviteParams {
 		email: string;
 	};
 	password: string;
-	code: string;
+	code: number;
 	email: string;
 }
 

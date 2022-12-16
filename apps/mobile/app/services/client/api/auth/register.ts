@@ -1,23 +1,39 @@
-import { generateToken } from "../../helpers/generate-token";
-import LocalStorage from "../api/tokenHandler";
-import { ILoginReponse } from "../interfaces/IAuthentication";
-import { IEmployee } from "../interfaces/IEmployee";
-import { IOrganizationTeam } from "../interfaces/IOrganizationTeam";
-import { loginUserRequest, registerUserRequest } from "../requests/auth";
-import { createEmployeeFromUser } from "../requests/employee";
-import { createStmpTenantRequest } from "../requests/features/smtp";
-import { createOrganizationRequest } from "../requests/organization";
-import { createOrganizationTeamRequest } from "../requests/organization-team";
-import { createTenantRequest } from "../requests/tenant";
+import { generateToken } from "../../../../helpers/generate-token";
+import { authFormValidate } from "../../../../helpers/validations";
+import LocalStorage from "../../../api/tokenHandler";
+import { ILoginReponse, IRegisterDataAPI } from "../../../interfaces/IAuthentication";
+import { IEmployee } from "../../../interfaces/IEmployee";
+import { IOrganizationTeam } from "../../../interfaces/IOrganizationTeam";
+import { loginUserRequest, registerUserRequest } from "../../requests/auth";
+import { createEmployeeFromUser } from "../../requests/employee";
+import { createStmpTenantRequest } from "../../requests/features/smtp";
+import { createOrganizationRequest } from "../../requests/organization";
+import { createOrganizationTeamRequest } from "../../requests/organization-team";
+import { createTenantRequest } from "../../requests/tenant";
 
 
-export interface IRegister {
-  name: string;
-  team: string;
-  email: string;
-}
+// export interface IRegister {
+//   name: string;
+//   team: string;
+//   email: string;
+// }
 
-export async function register(params: IRegister) {
+export async function register(params: IRegisterDataAPI) {
+
+  const { errors, valid: formValid } = authFormValidate(
+    ["email", "name", "team"],
+    params
+  );
+
+  if (!formValid) {
+    return {
+      response: {
+        statut: 400,
+        errors
+      }
+
+    }
+  }
 
   // General a random password with 8 chars
   const password = "123456" || generateToken(8);
@@ -42,7 +58,7 @@ export async function register(params: IRegister) {
 
   // Create STMP for the current Tenant
   const { data } = await createStmpTenantRequest(
-    auth_token,tenant.id)
+    auth_token, tenant.id)
 
   // Create user organization
   const { data: organization } = await createOrganizationRequest(
@@ -75,24 +91,22 @@ export async function register(params: IRegister) {
     },
     auth_token
   );
-  console.log(team)
+
   // Save auth data
   LocalStorage.set("token", auth_token);
 
-  const res: IRegisterResponse = {
-    status: 200,
-    loginRes,
-    team,
-    employee
+  // setAuthToken(auth_token)
+
+  return {
+    response: {
+      status: 200,
+      data: {
+        team,
+        loginRes,
+        employee
+      }
+    }
   };
-  console.log(res);
-  return res;
 
 }
 
-export interface IRegisterResponse {
-  status: 200;
-  loginRes: ILoginReponse;
-  team: IOrganizationTeam;
-  employee: IEmployee
-}

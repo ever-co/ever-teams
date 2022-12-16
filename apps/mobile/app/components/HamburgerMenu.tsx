@@ -38,7 +38,7 @@ const HamburgerMenu = (props) => {
       userId: user?.id,
       teamName: text
     };
-    createTeam(responseTeams)
+    // createTeam(responseTeams)
 
   }
 

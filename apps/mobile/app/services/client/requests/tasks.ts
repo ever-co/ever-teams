@@ -1,8 +1,8 @@
 import {
   DeleteReponse,
   PaginationResponse,
-} from "../interfaces/IDataResponse";
-import { ICreateTask, ITeamTask } from "../interfaces/ITask";
+} from "../../interfaces/IDataResponse";
+import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
 import { serverFetch } from "../fetch";
 
 export function getTeamTasksRequest({
