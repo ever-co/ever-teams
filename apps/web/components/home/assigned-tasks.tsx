@@ -56,24 +56,27 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 			<div className="flex items-center justify-between ">
 				<div
 					className={`text-black dark:text-[#FFFFFF] text-[14px] ${
-						now == true ? 'font-normal' : 'font-light'
+						now == true ? 'font-semibold' : 'font-semibold'
 					} w-[413px]`}
 				>
 					{`#${task && task.taskNumber} `} {task && task.title}
 				</div>
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
-				<div className="w-[135px]  text-center text-primary dark:text-[#FFFFFF] flex justify-center items-center">
-					Estimated : {th}h {tm}m
+				<div className="w-[135px]  text-center  dark:text-[#FFFFFF] flex justify-center items-center">
+					<div className="text-[#CECDD5]">Estimated: </div>
+					<div className='ml-2'>
+						{th}h:{tm}m
+					</div>
 				</div>
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 
 				<div className="w-[245px]  flex justify-center items-center">
-					<div>
-						<div className="text-center text-[14px] text-[#C1BFC9]  py-1 font-light flex items-center justify-center">
-							<div> Worked Time </div>
+					<div className="flex">
+						<div className="text-center text-[14px] text-[#C1BFC9] font-semibold flex-1 items-center justify-center">
+							Today
 						</div>
 
-						<div className="text-center text-[14px] text-black dark:text-[#FFFFFF]  py-1 font-light flex items-center justify-center">
+						<div className="text-center text-[14px] text-black dark:text-[#FFFFFF] ml-2 font-semibold items-center justify-center">
 							<div>
 								{h}h {m}m
 							</div>

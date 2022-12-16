@@ -17,7 +17,6 @@ import { IUser } from '@app/interfaces/IUserData';
 import AssignedTask from '@components/home/assigned-tasks';
 import UnAssignedTask from '@components/home/unassigned-task';
 import Tooltip from '@components/common/tooltip';
-import { text } from 'stream/consumers';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -64,8 +63,12 @@ const Profile = () => {
 								onClick={() => setTab('worked')}
 							>
 								<div className="flex">
-									<div className="flex-1">Worked</div>
-									<div className="bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1">
+									<div className="flex-1 font-semibold">Worked</div>
+									<div
+										className={`bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1 ${
+											tab === 'worked' && 'bg-[#3826A5]'
+										} cursor-pointer`}
+									>
 										<p className="text-center font-medium text-xs">4</p>
 									</div>
 								</div>
@@ -90,8 +93,12 @@ const Profile = () => {
 								onClick={() => setTab('assigned')}
 							>
 								<div className="flex">
-									<div className="flex-1">Assigned</div>
-									<div className="bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[17px] mt-1">
+									<div className="flex-1 font-semibold">Assigned</div>
+									<div
+										className={`bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[17px] mt-1 ${
+											tab === 'assigned' && 'bg-[#3826A5]'
+										} cursor-pointer`}
+									>
 										<p className="text-center font-medium text-xs">2</p>
 									</div>
 								</div>
@@ -117,8 +124,12 @@ const Profile = () => {
 									onClick={() => setTab('unassigned')}
 								>
 									<div className="flex">
-										<div className="flex-1">Unassigned</div>
-										<div className="bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1">
+										<div className="flex-1 font-semibold">Unassigned</div>
+										<div
+											className={`bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1 ${
+												tab === 'unassigned' && 'bg-[#3826A5]'
+											} cursor-pointer`}
+										>
 											<p className="text-center font-medium text-xs">4</p>
 										</div>
 									</div>
