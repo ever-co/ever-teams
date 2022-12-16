@@ -22,6 +22,12 @@ export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 	return api.post<ILoginReponse>('/auth/register', data);
 };
 
+export const sendAuthCodeAPI = (email: string) => {
+	return api.post<{ status: number; message: string }>(`/auth/send-code`, {
+		email,
+	});
+};
+
 export const getAuthenticatedUserDataAPI = () => {
 	return api.get<Pick<ILoginReponse, 'user'>>(`/user/me`);
 };
