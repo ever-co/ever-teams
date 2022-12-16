@@ -1,5 +1,4 @@
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
-import React from 'react';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
 
@@ -9,7 +8,6 @@ import { timerSecondsState } from '@app/stores';
 import { useRef } from 'react';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { PlayIcon } from '@heroicons/react/20/solid';
-import DropdownUser from '@components/common/main/dropdown-user';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -64,7 +62,7 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 				<div className="w-[135px]  text-center  dark:text-[#FFFFFF] flex justify-center items-center">
 					<div className="text-[#CECDD5]">Estimated: </div>
-					<div className='ml-2'>
+					<div className="ml-2">
 						{th}h:{tm}m
 					</div>
 				</div>
@@ -92,9 +90,7 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 					<RawStatusDropdown task={task} />
 				</div>
 
-				<div className="w-[14px]">
-					<DropdownUser />
-				</div>
+				<div className="w-[14px]">{/* <DropdownUser /> */}</div>
 			</div>
 		</div>
 	);

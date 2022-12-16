@@ -10,7 +10,10 @@ export default async function handler(
 ) {
 	const body = req.body as IInviteVerifyCode;
 
-	const { errors, isValid: formValid } = validateForm(['code', 'email'], body);
+	const { errors, isValid: formValid } = validateForm(
+		['code', 'email'],
+		body as any
+	);
 
 	if (!formValid) {
 		return res.status(400).json({ errors });

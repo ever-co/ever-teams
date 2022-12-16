@@ -14,8 +14,8 @@ import { withAuthentication } from '@components/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';
-import AssignedTask from '@components/home/assigned-tasks';
-import UnAssignedTask from '@components/home/unassigned-task';
+// import AssignedTask from '@components/home/assigned-tasks';
+// import UnAssignedTask from '@components/home/unassigned-task';
 import Tooltip from '@components/common/tooltip';
 import { useAuthTeamTasks } from '@app/hooks/features/useAuthTeamTasks';
 

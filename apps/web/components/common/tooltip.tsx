@@ -20,17 +20,18 @@ const Tooltip: React.FC<TooltipProps> = (props) => {
 	} = props;
 
 	const [isOpen, setIsOpen] = useState(false);
-	let [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(
+	const [referenceElement, setReferenceElement] =
+		useState<HTMLDivElement | null>(null);
+	const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
 		null
 	);
-	let [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
-	let { styles, attributes } = usePopper(referenceElement, popperElement, {
+	const { styles, attributes } = usePopper(referenceElement, popperElement, {
 		placement,
 		modifiers: [{ name: 'offset', options: { offset: [0, 4] } }],
 	});
 
-	let enterTimeout = useRef<NodeJS.Timeout>();
-	let leaveTimeout = useRef<NodeJS.Timeout>();
+	const enterTimeout = useRef<NodeJS.Timeout>();
+	const leaveTimeout = useRef<NodeJS.Timeout>();
 	const handleMouseEnter = useCallback(() => {
 		leaveTimeout.current && clearTimeout(leaveTimeout.current);
 		enterTimeout.current = setTimeout(() => setIsOpen(true), enterDelay);
@@ -55,7 +56,9 @@ const Tooltip: React.FC<TooltipProps> = (props) => {
 				ref={setPopperElement}
 				style={styles.popper}
 				{...attributes.popper}
-				className={`transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'} mt-[5px]`}
+				className={`transition-opacity ${
+					isOpen ? 'opacity-100' : 'opacity-0'
+				} mt-[5px]`}
 			>
 				{label}
 			</div>

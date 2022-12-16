@@ -98,7 +98,7 @@ function PasscodeForm({ email }: { email: string }) {
 			return;
 		}
 
-		// infiniteLoading.current = true;
+		infiniteLoading.current = true;
 
 		queryCall(formValues.email, formValues.code)
 			.then((res) => {

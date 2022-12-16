@@ -1,5 +1,4 @@
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
-import React from 'react';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
 
@@ -9,7 +8,6 @@ import { timerSecondsState } from '@app/stores';
 import { useRef } from 'react';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { PlayIcon } from '@heroicons/react/20/solid';
-import DropdownUser from '@components/common/main/dropdown-user';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -44,7 +42,8 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	}
 
 	const { m, h } = secondsToTime((task && task.estimate) || 0);
-	const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
+	secondsToTime((taskStat && taskStat.duration) || 0);
+	// const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 	return (
 		<div
 			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
@@ -63,7 +62,7 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 				</div>
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 				<div className="w-[236px]  text-center text-[#C1BFC9] dark:text-[#FFFFFF] flex flex-col justify-center items-center">
-					<div className=''>Assigned By</div>
+					<div className="">Assigned By</div>
 					<div className="text-black flex-2">No One Assigned to this Task</div>
 				</div>
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
@@ -90,9 +89,7 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 					<RawStatusDropdown task={task} />
 				</div>
 
-				<div className="w-[14px]">
-					<DropdownUser />
-				</div>
+				<div className="w-[14px]">{/* <DropdownUser /> */}</div>
 			</div>
 		</div>
 	);
