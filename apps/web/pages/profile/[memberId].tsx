@@ -2,7 +2,7 @@ import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { AppLayout } from '@components/layout';
 import { useRouter } from 'next/router';
 import Image from 'next/legacy/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
@@ -17,23 +17,31 @@ import { IUser } from '@app/interfaces/IUserData';
 import AssignedTask from '@components/home/assigned-tasks';
 import UnAssignedTask from '@components/home/unassigned-task';
 import Tooltip from '@components/common/tooltip';
+import { useAuthTeamTasks } from '@app/hooks/features/useAuthTeamTasks';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
-	const { activeTeamTask, tasks } = useTeamTasks();
 	const { user: auth } = useAuthenticateUser();
-	const { getAllTasksStatsData } = useTaskStatistics();
 	const router = useRouter();
-	const { memberId } = router.query;
-	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => {
-		return m.employee.userId === memberId;
-	});
-	const user =
-		auth?.employee.id === memberId ? auth : currentUser?.employee.user;
+
+	const { activeTeamTask, tasks } = useTeamTasks();
+	const { getAllTasksStatsData } = useTaskStatistics();
+
 	const [tab, setTab] = useState<'worked' | 'assigned' | 'unassigned'>(
 		'worked'
 	);
+
+	const user = useMemo(() => {
+		const { memberId } = router.query;
+		const members = activeTeam?.members || [];
+		const currentUser = members.find((m) => {
+			return m.employee.userId === memberId;
+		});
+
+		return auth?.employee.id === memberId ? auth : currentUser?.employee.user;
+	}, [auth, router, activeTeam]);
+
+	const { unassignedTasks, assignedTasks } = useAuthTeamTasks(user);
 
 	const otherTasks = activeTeamTask
 		? tasks.filter((t) => t.id !== activeTeamTask.id)
@@ -47,6 +55,7 @@ const Profile = () => {
 		<AppLayout>
 			<Header user={user} />
 			<div className="relative z-10">
+				{/* Table header*/}
 				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 					<div className="flex">
 						<Tooltip
@@ -151,6 +160,8 @@ const Profile = () => {
 						</button>
 					</div>
 				</div>
+
+				{/* Tab content (worked) */}
 				{tab === 'worked' && (
 					<div>
 						<div className="flex items-center justify-between">
@@ -186,54 +197,40 @@ const Profile = () => {
 								className="relative"
 								style={{ zIndex: `-${i + 1}` }}
 							>
+								<TaskDetailCard task={ta} />
+							</div>
+						))}
+					</div>
+				)}
+
+				{/* Tab content (assigned) */}
+				{tab === 'assigned' && (
+					<>
+						{assignedTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
 								<TaskDetailCard task={ta} current="00:00" />
 							</div>
 						))}
-					</div>
+					</>
 				)}
-				{tab === 'assigned' && (
-					<div>
-						<div className="relative">
-							{activeTeamTask && (
-								<AssignedTask
-									now={true}
-									task={activeTeamTask}
-									current="00:00"
-								/>
-							)}
-						</div>
-						{otherTasks.map((ta, i) => (
-							<div
-								key={ta.id}
-								className="relative"
-								style={{ zIndex: `-${i + 1}` }}
-							>
-								<AssignedTask task={ta} current="00:00" />
-							</div>
-						))}
-					</div>
-				)}
+
+				{/* Tab content (unassigned) */}
 				{tab === 'unassigned' && (
-					<div>
-						<div className="relative">
-							{activeTeamTask && (
-								<UnAssignedTask
-									now={true}
-									task={activeTeamTask}
-									current="00:00"
-								/>
-							)}
-						</div>
-						{otherTasks.map((ta, i) => (
+					<>
+						{unassignedTasks.map((ta, i) => (
 							<div
 								key={ta.id}
 								className="relative"
 								style={{ zIndex: `-${i + 1}` }}
 							>
-								<UnAssignedTask task={ta} current="00:00" />
+								<TaskDetailCard task={ta} current="00:00" />
 							</div>
 						))}
-					</div>
+					</>
 				)}
 			</div>
 		</AppLayout>

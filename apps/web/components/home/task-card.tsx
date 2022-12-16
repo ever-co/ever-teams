@@ -13,7 +13,7 @@ import { ITasksTimesheet } from '@app/interfaces/ITimer';
 interface ITaskDetailCard {
 	now?: boolean;
 	task: ITeamTask | null;
-	current: string;
+	current?: string;
 }
 const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
