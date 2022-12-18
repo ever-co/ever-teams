@@ -44,7 +44,7 @@ const Timer = () => {
 						? 'Please, select or create a new task to start tracking the time'
 						: undefined
 				}
-				className={`cursor-pointer mt-5 ${
+				className={`cursor-pointer mt-[35px] ml-[24px] ${
 					timerStatusFetching || !canRunTimer ? '' : ''
 				}`}
 				onClick={!timerStatusFetching ? timerHanlder : undefined}
