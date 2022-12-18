@@ -125,10 +125,10 @@ const Profile = () => {
 
 function Header({ user }: { user: IUser | undefined }) {
 	return (
-		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[124px] rounded-[20px] w-full flex items-center justify-between mx-[80px]">
+		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[124px] rounded-[20px] w-full flex items-center justify-between mx-[70px]">
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
-				<div className="flex flex-row space-x-4 mb-[58px]">
-					<div>
+				<div className="flex flex-row space-x-7 mb-[58px]">
+					<div className=''>
 						<Link href="/main">
 							<LeftArrow />
 						</Link>
@@ -176,7 +176,7 @@ function Header({ user }: { user: IUser | undefined }) {
 					</div>
 				</div>
 			</div>
-			<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px] mt-[34px]">
+			<div className="flex justify-center items-center w-[391px] space-x-[27px] mr-[130px] mt-[34px] border-2 border-[#00000008] rounded-[20px]">
 				<Timer />
 			</div>
 		</div>
