@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { boolean } from "yargs";
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam";
 import { getUserOrganizationsRequest } from "../../services/requests/organization";
 import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from "../../services/requests/organization-team";
@@ -10,7 +11,8 @@ export const TeamStoreModel = types
         teams: types.optional(types.frozen(), { items: [], total: 0 }),
         activeTeam: types.optional(types.frozen(), {}),
         activeTeamId: types.optional(types.string, ""),
-        teamInvitations: types.optional(types.frozen(), { items: [], total: 0 })
+        teamInvitations: types.optional(types.frozen(), { items: [], total: 0 }),
+        teamsFetching: types.optional(types.boolean, false)
     })
     .views((store) => ({
 
@@ -44,7 +46,7 @@ export const TeamStoreModel = types
                 { tenantId, userId },
                 authToken
             );
-        
+
             const call_teams = organizations.items.map((item) => {
                 return getAllOrganizationTeamRequest(
                     { tenantId, organizationId: item.organizationId },
@@ -63,6 +65,10 @@ export const TeamStoreModel = types
                 );
             });
             this.setOrganizationTeams(data);
+
+            //Update active team
+            const activeTeam = data.items.find((t) => t.id == store.activeTeamId)
+            this.setActiveTeam(activeTeam)
         },
         setActiveTeam(team: IOrganizationTeamList) {
             store.activeTeam = team;
@@ -70,13 +76,16 @@ export const TeamStoreModel = types
         },
         setActiveTeamId(id: string) {
             store.activeTeamId = id
-            
+
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
         },
         setTeamInvitations(invitations: any) {
             store.teamInvitations = invitations
+        },
+        setTeamsFetching(value: boolean) {
+            store.teamsFetching = value
         },
         clearStoredTeamData() {
             store.teams = { items: [], total: 0 },

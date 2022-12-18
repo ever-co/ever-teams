@@ -5,14 +5,10 @@ import { AppLayout } from '../components/layout';
 
 const Main = () => {
 	return (
-		<div className="bg-[#F9FAFB] dark:bg-[#18181B]">
-			<AppLayout>
-				<div className="">
-					<TimerTasksSection />
-					<TeamMemberSection />
-				</div>
-			</AppLayout>
-		</div>
+		<AppLayout>
+			<TimerTasksSection />
+			<TeamMemberSection />
+		</AppLayout>
 	);
 };
 

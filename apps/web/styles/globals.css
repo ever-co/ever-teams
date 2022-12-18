@@ -2,55 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-/* .card__bg-color {
-  @apply dark:bg-dark_card_background_color dark:bg-opacity-50;
-}
-
-.container,
-.container-fluid,
-.container-xxl,
-.container-xl,
-.container-lg,
-.container-md,
-.container-sm {
-  --gutter-x: 1.5rem;
-  --gutter-y: 0;
-  width: 100%;
-  padding-right: calc(var(--gutter-x) * 0.5);
-  padding-left: calc(var(--gutter-x) * 0.5);
-  margin-right: auto;
-  margin-left: auto;
-}
-.dark\:bg-dark_card_background_color {
-  @apply dark:bg-opacity-30;
-}
-*/
-
 .toggleThemeContainer {
-  border-radius: 25px;
-  border: 2px solid #6a7c90;
-  width: max-content;
-  height: 2.1rem;
-  transform: scale(0.85);
+	border-radius: 25px;
+	border: 2px solid #6a7c90;
+	width: max-content;
+	height: 2.1rem;
+	transform: scale(0.85);
 }
 
 .toggleThemeContainer button {
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+	background: transparent;
+	border: none;
+	padding: 0;
+	cursor: pointer;
 }
 .navbar .toggleThemeContainer #moon {
-  fill: #fff !important;
+	fill: #fff !important;
 }
 
 .navbar .toggleThemeContainer #moon {
-  fill: #c2ced9 !important;
+	fill: #c2ced9 !important;
 }
 
 .light-mode .toggleThemeContainer button #sun-svg {
-  background: #3d5a80 !important;
+	background: #3d5a80 !important;
 }
 .light-mode .toggleThemeContainer button #sun {
-  fill: #ffffff !important;
+	fill: #ffffff !important;
+}
+
+@layer base {
+	.x-container-fluid {
+		@apply max-w-screen-xl mx-auto w-11/12;
+	}
 }

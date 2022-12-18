@@ -1,4 +1,3 @@
-// import { IInviteRequest } from "@app/interfaces/IInvite";
 import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
 import { getTeamInvitationsRequest } from "@app/services/server/requests";
 import { NextApiRequest, NextApiResponse } from "next";

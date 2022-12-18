@@ -49,7 +49,7 @@ const DropItem:FC<IDropItem> = function CreateTeamModal({ team, changeTeam }) {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    elevation: 10000,
+    elevation: 100,
     position: "absolute",
     top: 50,
     zIndex: 10,

@@ -76,9 +76,9 @@ const Team = () => {
 	);
 
 	return (
-		<div className="flex flex-col h-screen items-center justify-between bg-main_background dark:bg-[#18181B]">
+		<div className="flex flex-col h-screen items-center justify-between">
 			<div />
-			<div className="w-full md:w-[486px] px-[20px] md:px-[0px]">
+			<div className="w-full md:w-[486px] p-[20px] md:px-[0px]">
 				<div
 					className="w-full  md:w-[486px] py-[30px] md:py-[50px] px-[30px] md:px-[70px] sm:px-[70px] md:mx-auto rounded-[40px] drop-shadow-[0px_3px_50px_#3E1DAD0D] dark:drop-shadow-[0px_3px_50px_#FFFFF]  bg-white
        dark:bg-[#202023] dark:bg-opacity-30 "

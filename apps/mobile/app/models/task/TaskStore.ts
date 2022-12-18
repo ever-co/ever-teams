@@ -64,8 +64,6 @@ export const TaskStoreModel = types
         async updateTask({ taskData, taskId, authToken, refreshData }: ITaskUpdateParams) {
             this.setFetchingTasks(true)
             const { data } = await updateTaskRequest({ data: taskData, id: taskId }, authToken);
-            this.setActiveTask(data)
-            console.log(data)
             this.getTeamTasks({ authToken, tenantId: refreshData.tenantId, organizationId: refreshData.organizationId, activeTeamId: refreshData.activeTeamId })
             this.setFetchingTasks(false)
         },

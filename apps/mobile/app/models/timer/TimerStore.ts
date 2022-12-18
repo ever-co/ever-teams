@@ -32,7 +32,7 @@ export const TimerStoreModel = types
         setTimerStatusFetching(value: any) {
             store.timerStatusFetchingState = value
         },
-        setTimerCounterState(value: any) {
+        setTimerCounterState(value: number) {
             store.timeCounterState = value
         },
         setTimerCounterIntervalState(value: any) {

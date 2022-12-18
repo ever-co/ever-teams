@@ -7,7 +7,7 @@ export const Header = () => {
   return (
     <header className="fixed w-full z-50">
       <nav className="bg-white py-2 dark:bg-[#202023] shadow-sm">
-        <div className="flex container flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+        <div className="flex flex-wrap justify-between items-center x-container-fluid">
           <div className="flex items-center justify-center">
             <MainLogo />
           </div>
