@@ -1,6 +1,4 @@
-import { IIconProps } from "@app/interfaces/hooks";
-
-export const PlayIcon = ({ width, height }: IIconProps) => {
+export const PlayIcon = () => {
 	return (
 		<svg
 			width="104"

@@ -37,7 +37,7 @@ const Timer = () => {
 				</h1>
 				<ProgressBar width={284} progress={`${activeTaskEstimation}%`} />
 			</div>
-			<SlashIcon width={1} height={90} />
+			<SlashIcon />
 			<div
 				title={
 					timerStatusFetching || !canRunTimer
@@ -49,11 +49,7 @@ const Timer = () => {
 				}`}
 				onClick={!timerStatusFetching ? timerHanlder : undefined}
 			>
-				{timerStatus?.running ? (
-					<PauseIcon width={68} height={68} />
-				) : (
-					<PlayIcon width={68} height={68} />
-				)}
+				{timerStatus?.running ? <PauseIcon /> : <PlayIcon />}
 			</div>
 		</>
 	);
