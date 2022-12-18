@@ -30,21 +30,24 @@ const Timer = () => {
 
 	return (
 		<>
-			<div className="flex flex-col min-w-[300px]">
-				<h1 className="text-[53px] text-primary dark:text-[#FFFFFF]">
-					{pad(hours)} : {pad(minutes)} : {pad(seconds)}:
-					<span className="text-[35px] w-7 inline-block">{pad(ms_p)}</span>
+			<div className="flex flex-col min-w-[227px] ml-[30px]">
+				<h1 className="text-[40px] text-[#282048] dark:text-[rgb(255,255,255)] font-['Plus Jakarta Sans'] font-medium">
+					{pad(hours)} : {pad(minutes)} : {pad(seconds)}
+					<span className="text-[20px] w-7 inline-block">:{pad(ms_p)}</span>
 				</h1>
-				<ProgressBar width={284} progress={`${activeTaskEstimation}%`} />
+				<ProgressBar width={221} progress={`${activeTaskEstimation}%`} />
 			</div>
-			<SlashIcon />
+			<div className="">
+				<SlashIcon />
+			</div>
+
 			<div
 				title={
 					timerStatusFetching || !canRunTimer
 						? 'Please, select or create a new task to start tracking the time'
 						: undefined
 				}
-				className={`cursor-pointer mt-5 ${
+				className={`cursor-pointer mt-[35px] ${
 					timerStatusFetching || !canRunTimer ? '' : ''
 				}`}
 				onClick={!timerStatusFetching ? timerHanlder : undefined}

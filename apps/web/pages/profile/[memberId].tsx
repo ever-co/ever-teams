@@ -43,8 +43,8 @@ const Profile = () => {
 
 	return (
 		<AppLayout>
-			<Header user={user} />
-			<div className="relative z-10">
+			<Header user={user}/>
+			<div className="relative z-10 mx-[80px]">
 				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 					<div className="flex">
 						<div
@@ -125,10 +125,10 @@ const Profile = () => {
 
 function Header({ user }: { user: IUser | undefined }) {
 	return (
-		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
+		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[124px] rounded-[20px] w-full flex items-center justify-between mx-[70px]">
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
-				<div className="flex flex-row space-x-4">
-					<div>
+				<div className="flex flex-row space-x-7 mb-[58px]">
+					<div className=''>
 						<Link href="/main">
 							<LeftArrow />
 						</Link>
@@ -144,7 +144,7 @@ function Header({ user }: { user: IUser | undefined }) {
 					</div>
 				</div>
 				<div className="flex items-center mb-[100px]">
-					<div className="relative h-[137px] w-[137px]">
+					<div className="relative h-[100px] w-[100px]">
 						{user?.imageUrl && (
 							<Image
 								src={user?.imageUrl}
@@ -155,28 +155,28 @@ function Header({ user }: { user: IUser | undefined }) {
 							/>
 						)}
 
-						<div className="absolute z-10 inset-0 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+						<div className="absolute z-10 inset-0 w-full h-full animate-pulse dark:divide-gray-700 dark:border-gray-700">
 							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 						</div>
 
-						<div className="absolute z-30 rounded-full bg-white p-[1px] top-[100px] right-[5px]">
-							<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
+						<div className="absolute z-30 rounded-full bg-white p-[1px] top-[80px] left-[68px]">
+							<div className="bg-[#02C536] w-[20px] h-[20px] rounded-full"></div>
 						</div>
 					</div>
 					<div className="ml-[24px]">
-						<div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
-							<span className="flex items-center">
+						<div className="text-[36px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
+							<span className="flex items-center mt-[9px]">
 								{user?.firstName && Capitalize(user.firstName)}
 								{user?.lastName && ' ' + Capitalize(user.lastName)}
 							</span>
 						</div>
-						<div className="text-[#B0B5C7] flex items-center">
+						<div className="text-[#B0B5C7] flex items-center text-[18px] mt-[14px]">
 							<span className="flex items-center">{user?.email}</span>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
+			<div className="flex justify-center items-center w-[391px] space-x-[27px] mr-[130px] mt-[34px] border-2 border-[#00000008] rounded-[20px]">
 				<Timer />
 			</div>
 		</div>
