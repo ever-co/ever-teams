@@ -1,6 +1,4 @@
-import { IIconProps } from '@app/interfaces/hooks';
-
-export const RightArrow = ({ width, height }: IIconProps) => {
+export const RightArrow = () => {
 	return (
 		<svg
 			width="16"

@@ -1,6 +1,4 @@
-import { IIconProps } from '@app/interfaces/hooks';
-
-export const SlashIcon = ({ width, height }: IIconProps) => {
+export const SlashIcon = () => {
 	return (
 		<svg
 			width="2"

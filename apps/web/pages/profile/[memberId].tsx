@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
-import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Timer from '@components/common/main/timer';
 import TaskDetailCard from '@components/home/task-card';
@@ -131,14 +130,14 @@ function Header({ user }: { user: IUser | undefined }) {
 				<div className="flex flex-row space-x-4">
 					<div>
 						<Link href="/main">
-							<LeftArrow h={0} w={16.83} />
+							<LeftArrow />
 						</Link>
 					</div>
 					<div className="text-[14px] text-[#B1AEBC]">
 						<Link href="/main">Dashboard</Link>
 					</div>
 					<div className="mt-1">
-						<RightArrow h={10.56} w={4.73} />
+						<RightArrow />
 					</div>
 					<div className="text-[#282048] text-[14px] font-semibold">
 						Task Profile
