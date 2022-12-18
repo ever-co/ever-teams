@@ -1,14 +1,17 @@
-export function ProgressBar(){
+export function ProgressBar({
+	width,
+	progress,
+}: {
+	width: number | string;
+	progress: number | string;
+}) {
 	return (
-		<svg
-			width="221"
-			height="10"
-			viewBox="0 0 221 10"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-		>
-			<rect width="221" height="10" rx="5" fill="#F0F0F0" />
-			<rect width="88" height="10" rx="5" fill="#27AE60" />
-		</svg>
+		<div className="flex relative" style={{ width }}>
+			<div
+				className="bg-[#28D581] h-[8px] rounded-full absolute z-[1]"
+				style={{ width: progress }}
+			></div>
+			<div className="bg-[#E8EBF8] dark:bg-[#18181B] w-full h-[8px] rounded-full absolute z-[0]" />
+		</div>
 	);
 }

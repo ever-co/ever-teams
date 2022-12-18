@@ -35,7 +35,7 @@ const Timer = () => {
 					{pad(hours)} : {pad(minutes)} : {pad(seconds)}:
 					<span className="text-[35px] w-7 inline-block">{pad(ms_p)}</span>
 				</h1>
-				<ProgressBar />
+				<ProgressBar width={284} progress={`${activeTaskEstimation}%`} />
 			</div>
 			<SlashIcon width={1} height={90} />
 			<div
