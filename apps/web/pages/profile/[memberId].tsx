@@ -155,7 +155,7 @@ function Header({ user }: { user: IUser | undefined }) {
 							/>
 						)}
 
-						<div className="absolute z-10 inset-0 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+						<div className="absolute z-10 inset-0 w-full h-full animate-pulse dark:divide-gray-700 dark:border-gray-700">
 							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 						</div>
 

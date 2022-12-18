@@ -4,7 +4,7 @@ import Profile from './profile';
 
 export const Header = () => {
 	return (
-		<header className="fixed w-full z-50 ">
+		<header className="fixed w-full z-50 shadow-sm">
 			<nav className="bg-white py-2 dark:bg-[#202023] mx-[80px]">
 				<div className="flex flex-wrap justify-between items-center x-container-fluid">
 					<div className="flex items-center justify-center">
