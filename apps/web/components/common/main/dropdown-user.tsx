@@ -123,7 +123,7 @@ function OptionPopover({
 													<Popover.Button
 														onClick={option.handleClick}
 														ref={setReferenceElement}
-														className="outline-none  hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
+														className="outline-none hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full "
 													>
 														{option.name}{' '}
 													</Popover.Button>

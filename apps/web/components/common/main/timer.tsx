@@ -4,6 +4,7 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '../progress-bar';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
+import { SlashIcon } from './slashIcon';
 
 const Timer = () => {
 	const {
@@ -36,14 +37,15 @@ const Timer = () => {
 				</h1>
 				<ProgressBar width={284} progress={`${activeTaskEstimation}%`} />
 			</div>
+			<SlashIcon width={1} height={90} />
 			<div
 				title={
 					timerStatusFetching || !canRunTimer
 						? 'Please, select or create a new task to start tracking the time'
 						: undefined
 				}
-				className={`cursor-pointer ${
-					timerStatusFetching || !canRunTimer ? 'opacity-30' : ''
+				className={`cursor-pointer mt-5 ${
+					timerStatusFetching || !canRunTimer ? '' : ''
 				}`}
 				onClick={!timerStatusFetching ? timerHanlder : undefined}
 			>
