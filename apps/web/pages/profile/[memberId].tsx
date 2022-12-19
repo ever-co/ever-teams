@@ -16,7 +16,6 @@ import { IUser } from '@app/interfaces/IUserData';
 import { LeftArrow } from '@components/common/main/leftArrow';
 import { RightArrow } from '@components/common/main/rightArrow';
 import { LeftArrowDark } from '@components/common/main/leftArrowDark';
-import { theme } from 'tailwind.config';
 import { useTheme } from 'next-themes';
 
 const Profile = () => {
