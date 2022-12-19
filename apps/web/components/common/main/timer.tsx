@@ -1,10 +1,12 @@
 import { pad } from '@app/helpers/number';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTimer } from '@app/hooks/features/useTimer';
+import { useTheme } from 'next-themes';
 import { ProgressBar } from '../progress-bar';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
 import { SlashIcon } from './slashIcon';
+import { SlashIconDark } from './slashIconDark';
 
 const Timer = () => {
 	const {
@@ -27,6 +29,7 @@ const Timer = () => {
 			startTimer();
 		}
 	};
+	const { theme } = useTheme();
 
 	return (
 		<>
@@ -38,7 +41,7 @@ const Timer = () => {
 				<ProgressBar width={221} progress={`${activeTaskEstimation}%`} />
 			</div>
 			<div className="">
-				<SlashIcon />
+				{theme === 'dark' ? <SlashIconDark /> : <SlashIcon />}
 			</div>
 
 			<div

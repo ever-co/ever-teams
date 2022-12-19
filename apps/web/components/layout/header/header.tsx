@@ -4,8 +4,8 @@ import Profile from './profile';
 
 export const Header = () => {
 	return (
-		<header className="fixed w-full z-50 shadow-sm">
-			<nav className="bg-white py-2 dark:bg-[#202023] mx-[80px]">
+		<header className="fixed w-full z-50 shadow-sm dark:bg-[#232C3B]">
+			<nav className="bg-white py-3 mx-[80px] dark:bg-[#232C3B]">
 				<div className="flex flex-wrap justify-between items-center x-container-fluid">
 					<div className="flex items-center justify-center">
 						<MainLogo />
