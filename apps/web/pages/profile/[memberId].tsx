@@ -180,7 +180,7 @@ function Header({ user }: { user: IUser | undefined }) {
 					</div>
 				</div>
 			</div>
-			<div className="flex justify-center items-center w-[391px] space-x-[27px] mr-[130px] mt-[34px] border-2 border-[#00000008] rounded-[20px]">
+			<div className="flex justify-center items-center w-[391px] space-x-[27px] mr-[130px] mt-[34px] border-2 border-[#00000008] dark:bg-[#2E394D] rounded-[20px]">
 				<Timer />
 			</div>
 		</div>
