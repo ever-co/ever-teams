@@ -15,6 +15,9 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';
 import { LeftArrow } from '@components/common/main/leftArrow';
 import { RightArrow } from '@components/common/main/rightArrow';
+import { LeftArrowDark } from '@components/common/main/leftArrowDark';
+import { theme } from 'tailwind.config';
+import { useTheme } from 'next-themes';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -43,7 +46,7 @@ const Profile = () => {
 
 	return (
 		<AppLayout>
-			<Header user={user}/>
+			<Header user={user} />
 			<div className="relative z-10 mx-[80px]">
 				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 					<div className="flex">
@@ -124,13 +127,14 @@ const Profile = () => {
 };
 
 function Header({ user }: { user: IUser | undefined }) {
+	const { theme } = useTheme();
 	return (
-		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[124px] rounded-[20px] w-full flex items-center justify-between mx-[70px]">
+		<div className="bg-[#FFFF] dark:bg-[#232C3B] mt-[124px] rounded-[20px] w-full flex items-center justify-between mx-[70px]">
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
 				<div className="flex flex-row space-x-7 mb-[58px]">
-					<div className=''>
+					<div className="">
 						<Link href="/main">
-							<LeftArrow />
+							{theme === 'dark' ? <LeftArrowDark /> : <LeftArrow />}
 						</Link>
 					</div>
 					<div className="text-[14px] text-[#B1AEBC]">
@@ -139,7 +143,7 @@ function Header({ user }: { user: IUser | undefined }) {
 					<div className="mt-1">
 						<RightArrow />
 					</div>
-					<div className="text-[#282048] text-[14px] font-semibold">
+					<div className="text-[#282048] text-[14px] font-semibold dark:text-[#FFFFFF]">
 						Task Profile
 					</div>
 				</div>
