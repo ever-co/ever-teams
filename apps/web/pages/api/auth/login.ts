@@ -1,89 +1,164 @@
-import { setAuthCookies } from "@app/helpers/cookies";
-import { authFormValidate } from "@app/helpers/validations";
-import { ILoginDataAPI } from "@app/interfaces/IAuthentication";
+import { setAuthCookies } from '@app/helpers/cookies';
+import { generateToken } from '@app/helpers/generate-token';
+import { authFormValidate } from '@app/helpers/validations';
+import { ILoginDataAPI, ILoginReponse } from '@app/interfaces/IAuthentication';
 import {
-  getAllOrganizationTeamRequest,
-  getUserOrganizationsRequest,
-  loginUserRequest,
-} from "@app/services/server/requests";
-import { NextApiRequest, NextApiResponse } from "next";
+	acceptInviteRequest,
+	getAllOrganizationTeamRequest,
+	getUserOrganizationsRequest,
+	verifyAuthCodeRequest,
+	verifyInviteCodeRequest,
+} from '@app/services/server/requests';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+const notFound = (res: NextApiResponse) =>
+	res.status(400).json({
+		errors: {
+			email: 'Authentication code or email address invalid',
+		},
+	});
 
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
+	req: NextApiRequest,
+	res: NextApiResponse
 ) {
-  const body = req.body as ILoginDataAPI;
+	const body = req.body as ILoginDataAPI;
+	let loginResponse: ILoginReponse | null = null;
 
-  const { errors, valid: formValid } = authFormValidate(
-    ["email", "code"],
-    body as any
-  );
+	const { errors, valid: formValid } = authFormValidate(
+		['email', 'code'],
+		body as any
+	);
 
-  if (!formValid) {
-    return res.status(400).json({ errors });
-  }
+	if (!formValid) {
+		return res.status(400).json({ errors });
+	}
 
-  // User Login, get the access token
-  const { data: loginRes, response } = await loginUserRequest(
-    body.email,
-    body.code
-  );
+	/**
+	 * Verify first if match with invite code
+	 */
+	const inviteReq = await verifyInviteCodeRequest({
+		email: body.email,
+		code: parseInt(body.code, 10),
+	}).catch(() => void 0);
 
-  if (!response.ok || (loginRes as any).status === 404) {
-    return res.status(400).json({
-      errors: {
-        email: "We couldn't find account  associated to this email",
-      },
-    });
-  }
+	/**
+	 * If the invite code verification failed then try again with auth code
+	 */
+	if (
+		!inviteReq ||
+		!inviteReq.response.ok ||
+		(inviteReq.data as any).response?.statusCode
+	) {
+		const authReq = await verifyAuthCodeRequest(
+			body.email,
+			parseInt(body.code, 10)
+		);
 
-  const tenantId = loginRes.user.tenantId || '';
-  const access_token = loginRes.token;
-  const userId = loginRes.user.id;
+		console.log(authReq);
 
-  const { data: organizations } = await getUserOrganizationsRequest(
-    { tenantId, userId },
-    access_token
-  );
+		if (
+			!authReq.response.ok ||
+			(authReq.data as any).status === 404 ||
+			(authReq.data as any).status === 400 ||
+			(authReq.data as any).status === 401
+		) {
+			return notFound(res);
+		}
 
-  const organization = organizations?.items[0];
+		loginResponse = authReq.data;
 
-  if (!organization) {
-    return res.status(400).json({
-      errors: {
-        email: "Your account is not yet ready to be used on the gauzy team",
-      },
-    });
-  }
+		/**
+		 * If provided code is an invite code and
+		 * verified the accepte and register the related user
+		 */
+	} else {
+		// General a random password with 8 chars
+		const password = generateToken(8);
+		const names = inviteReq.data.fullName.split(' ');
+		const { data: acceptedInvite, response: acceptRes } =
+			await acceptInviteRequest({
+				code: body.code,
+				email: inviteReq.data.email,
+				password: password,
+				user: {
+					firstName: names[0],
+					lastName: names[1] || '',
+					email: body.email,
+				},
+			});
 
-  const { data: teams } = await getAllOrganizationTeamRequest(
-    { tenantId, organizationId: organization.organizationId },
-    access_token
-  );
+		if (!acceptRes.ok || (acceptedInvite as any).response?.statusCode) {
+			return res.status(400).json({
+				errors: {
+					email: 'Authentication code or email address invalid',
+				},
+			});
+		}
 
-  const team = teams.items[0];
+		loginResponse = acceptedInvite;
+	}
 
-  if (!team) {
-    return res.status(400).json({
-      errors: {
-        email: "We couldn't find any teams associated with this account",
-      },
-    });
-  }
+	if (!loginResponse) {
+		return res.status(400).json({
+			errors: {
+				email: 'Authentication code or email address invalid',
+			},
+		});
+	}
 
-  setAuthCookies(
-    {
-      access_token: loginRes.token,
-      refresh_token: {
-        token: loginRes.refresh_token,
-      },
-      teamId: team.id,
-      tenantId,
-      organizationId: organization.organizationId,
-    },
-    req,
-    res
-  );
+	/**
+	 * Get the first team from first organization
+	 */
+	const tenantId = loginResponse.user.tenantId || '';
+	const access_token = loginResponse.token;
+	const userId = loginResponse.user.id;
 
-  res.status(200).json({ team, loginRes });
+	const { data: organizations } = await getUserOrganizationsRequest(
+		{ tenantId, userId },
+		access_token
+	);
+
+	console.log('getUserOrganizationsRequest', organizations);
+
+	const organization = organizations?.items[0];
+
+	if (!organization) {
+		return res.status(400).json({
+			errors: {
+				email: 'Your account is not yet ready to be used on the gauzy team',
+			},
+		});
+	}
+
+	const { data: teams } = await getAllOrganizationTeamRequest(
+		{ tenantId, organizationId: organization.organizationId },
+		access_token
+	);
+
+	const team = teams.items[0];
+
+	if (!team) {
+		return res.status(400).json({
+			errors: {
+				email: "We couldn't find any teams associated to this account",
+			},
+		});
+	}
+
+	setAuthCookies(
+		{
+			access_token: loginResponse.token,
+			refresh_token: {
+				token: loginResponse.refresh_token,
+			},
+			teamId: team.id,
+			tenantId,
+			organizationId: organization.organizationId,
+		},
+		req,
+		res
+	);
+
+	res.status(200).json({ team, loginResponse });
 }

@@ -1,21 +1,20 @@
-import Separator from '../common/separator';
-// import DropdownUser from '@components/common/main/dropdown-user';
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
-import { ProgressBar } from '@components/common/progress-bar';
+
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
 import { useRef } from 'react';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
+import { PlayIcon } from '@heroicons/react/20/solid';
 
 interface ITaskDetailCard {
 	now?: boolean;
 	task: ITeamTask | null;
-	current?: string;
+	current: string;
 }
-const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
+const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
 	const timerReconds = useRecoilValue(timerSecondsState);
 
@@ -43,8 +42,8 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 	}
 
 	const { m, h } = secondsToTime((task && task.estimate) || 0);
-	const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
-
+	secondsToTime((taskStat && taskStat.duration) || 0);
+	// const { m: tm, h: th } = secondsToTime((taskStat && taskStat.duration) || 0);
 	return (
 		<div
 			className={`w-full rounded-[10px] drop-shadow-[0px_3px_15px_#3E1DAD1A] border relative  ${
@@ -55,55 +54,45 @@ const TaskDetailCard = ({ now = false, task }: ITaskDetailCard) => {
 		>
 			<div className="flex items-center justify-between ">
 				<div
-					className={`text-primary dark:text-[#FFFFFF] text-[14px] ${
-						now == true ? 'font-normal' : 'font-light'
+					className={`text-black dark:text-[#FFFFFF] text-[14px] ${
+						now == true ? 'font-semibold' : 'font-semibold'
 					} w-[413px]`}
 				>
 					{`#${task && task.taskNumber} `} {task && task.title}
 				</div>
-				<Separator />
-				<div className="w-[122px]  text-center text-primary dark:text-[#FFFFFF] flex justify-center items-center">
-					{th}h {tm}m
+				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
+				<div className="w-[236px]  text-center text-[#C1BFC9] dark:text-[#FFFFFF] flex flex-col justify-center items-center">
+					<div className="">Assigned By</div>
+					<div className="text-black flex-2">No One Assigned to this Task</div>
 				</div>
-				<Separator />
+				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 
 				<div className="w-[245px]  flex justify-center items-center">
 					<div>
-						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
-							<div> Estimate</div>
+						<div className="text-center text-[14px] text-[#C1BFC9]  py-1 font-semibold flex items-center justify-center">
+							<div> Total Time </div>
 						</div>
-						<div className="mb-2">
-							<ProgressBar
-								width={200}
-								progress={`${estimationPourtcent.current}%`}
-							/>
-						</div>
-						<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
+
+						<div className="text-center text-[14px] text-black dark:text-[#FFFFFF]  py-1 font-semibold flex items-center justify-center">
 							<div>
-								{h}h {m}m
+								{h}h:{m}m
 							</div>
 						</div>
 					</div>
+					<div className="h-[30px] w-[30px] ml-9">
+						<PlayIcon></PlayIcon>
+					</div>
 				</div>
-				<Separator />
+				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 
 				<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex flex-col items-center justify-center">
 					<RawStatusDropdown task={task} />
 				</div>
 
-				<Separator />
-				<div className="w-[14px]  flex items-center">
-					{/* <DropdownUser
-						setEdit={() => {
-							//
-						}}
-						setEstimateEdit={() => {
-							//
-						}}
-					/> */}
-				</div>
+				<div className="w-[14px]">{/* <DropdownUser /> */}</div>
 			</div>
 		</div>
 	);
 };
-export default TaskDetailCard;
+
+export default UnAssignedTask;

@@ -2,7 +2,7 @@ import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { AppLayout } from '@components/layout';
 import { useRouter } from 'next/router';
 import Image from 'next/legacy/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
@@ -13,6 +13,10 @@ import { withAuthentication } from '@components/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';
+// import AssignedTask from '@components/home/assigned-tasks';
+// import UnAssignedTask from '@components/home/unassigned-task';
+import Tooltip from '@components/common/tooltip';
+import { useAuthTeamTasks } from '@app/hooks/features/useAuthTeamTasks';
 import { LeftArrow } from '@components/common/main/leftArrow';
 import { RightArrow } from '@components/common/main/rightArrow';
 import { LeftArrowDark } from '@components/common/main/leftArrowDark';
@@ -20,20 +24,27 @@ import { useTheme } from 'next-themes';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
-	const { activeTeamTask, tasks } = useTeamTasks();
 	const { user: auth } = useAuthenticateUser();
-	const { getAllTasksStatsData } = useTaskStatistics();
 	const router = useRouter();
-	const { memberId } = router.query;
-	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => {
-		return m.employee.userId === memberId;
-	});
-	const user =
-		auth?.employee.id === memberId ? auth : currentUser?.employee.user;
+
+	const { activeTeamTask, tasks } = useTeamTasks();
+	const { getAllTasksStatsData } = useTaskStatistics();
+
 	const [tab, setTab] = useState<'worked' | 'assigned' | 'unassigned'>(
 		'worked'
 	);
+
+	const user = useMemo(() => {
+		const { memberId } = router.query;
+		const members = activeTeam?.members || [];
+		const currentUser = members.find((m) => {
+			return m.employee.userId === memberId;
+		});
+
+		return auth?.employee.id === memberId ? auth : currentUser?.employee.user;
+	}, [auth, router, activeTeam]);
+
+	const { unassignedTasks, assignedTasks } = useAuthTeamTasks(user);
 
 	const otherTasks = activeTeamTask
 		? tasks.filter((t) => t.id !== activeTeamTask.id)
@@ -49,39 +60,98 @@ const Profile = () => {
 			<div className="relative z-10 mx-[80px]">
 				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 					<div className="flex">
-						<div
-							className={`mr-10 ${
-								tab === 'worked' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('worked')}
+						<Tooltip
+							label={
+								<span className="flex items-center bg-[#534D6D] text-white text-sm font-medium py-1 px-2 rounded-[8px] shadow-md">
+									Here are all the tasks a member started working on
+								</span>
+							}
 						>
-							Worked
-							{tab === 'worked' && (
-								<div className="w-[65px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
-						<div
-							className={`mr-10 ${
-								tab === 'assigned' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('assigned')}
+							<div
+								className={`mr-10 ${
+									tab === 'worked' && 'text-[#3826A5]'
+								} cursor-pointer`}
+								onClick={() => setTab('worked')}
+							>
+								<div className="flex">
+									<div className="flex-1 font-semibold">Worked</div>
+									<div
+										className={`bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1 ${
+											tab === 'worked' && 'bg-[#3826A5]'
+										} cursor-pointer`}
+									>
+										<p className="text-center font-medium text-xs">4</p>
+									</div>
+								</div>
+								{tab === 'worked' && (
+									<div className="flex">
+										<div className="w-[92px] h-[2px] bg-[#3826A5] mt-[10px]"></div>
+									</div>
+								)}
+							</div>
+						</Tooltip>
+						<Tooltip
+							label={
+								<span className="flex items-center bg-[#534D6D] text-white text-sm font-medium py-1 px-2 rounded-[8px] shadow-md">
+									Here are all the tasks assigned to a member
+								</span>
+							}
 						>
-							Assigned
-							{tab === 'assigned' && (
-								<div className="w-[78px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
-						<div
-							className={`mr-10 ${
-								tab === 'unassigned' && 'font-medium'
-							} cursor-pointer`}
-							onClick={() => setTab('unassigned')}
+							<div
+								className={`mr-10 ${
+									tab === 'assigned' && 'text-[#3826A5]'
+								} cursor-pointer`}
+								onClick={() => setTab('assigned')}
+							>
+								<div className="flex">
+									<div className="flex-1 font-semibold">Assigned</div>
+									<div
+										className={`bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[17px] mt-1 ${
+											tab === 'assigned' && 'bg-[#3826A5]'
+										} cursor-pointer`}
+									>
+										<p className="text-center font-medium text-xs">2</p>
+									</div>
+								</div>
+								{tab === 'assigned' && (
+									<div className="flex">
+										<div className="w-[95px] h-[2px] bg-[#3826A5] mt-[10px]"></div>
+									</div>
+								)}
+							</div>
+						</Tooltip>
+						<Tooltip
+							label={
+								<span className="flex items-center bg-[#534D6D] text-white text-sm font-medium py-1 px-2 mt-[-5px] rounded-[8px] shadow-md">
+									Here are all the tasks unassigned to a member
+								</span>
+							}
 						>
-							Unassigned
-							{tab === 'unassigned' && (
-								<div className="w-[98px] h-[2px] bg-[#ACB3BB]" />
-							)}
-						</div>
+							<div className="flex">
+								<div
+									className={`mr-10 ${
+										tab === 'unassigned' && 'text-[#3826A5]'
+									} cursor-pointer flex-1`}
+									onClick={() => setTab('unassigned')}
+								>
+									<div className="flex">
+										<div className="flex-1 font-semibold">Unassigned</div>
+										<div
+											className={`bg-[#ACB3BB] h-[20px] w-[15px] rounded-[2px] text-white px-0 ml-[15px] mt-1 ${
+												tab === 'unassigned' && 'bg-[#3826A5]'
+											} cursor-pointer`}
+										>
+											<p className="text-center font-medium text-xs">4</p>
+										</div>
+									</div>
+									{tab === 'unassigned' && (
+										<div className="flex">
+											<div className="w-[108px] h-[2px] bg-[#3826A5] mt-[10px]"></div>
+										</div>
+									)}
+								</div>
+							</div>
+						</Tooltip>
 					</div>
 					<div className="flex items-center">
 						<div className="mr-4 h-full relative z-10">
@@ -92,34 +162,78 @@ const Profile = () => {
 						</button>
 					</div>
 				</div>
-				<div className="flex items-center justify-between">
-					<div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
-						Now
+
+				{/* Tab content (worked) */}
+				{tab === 'worked' && (
+					<div>
+						<div className="flex items-center justify-between">
+							<div className="text-[#ACB3BB] text-[16px] w-[35px] font-normal">
+								Now
+							</div>
+							<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
+							<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+								Total time: 03:31
+							</div>
+						</div>
+						<div className="relative">
+							{activeTeamTask && (
+								<TaskDetailCard
+									now={true}
+									task={activeTeamTask}
+									current="00:00"
+								/>
+							)}
+						</div>
+						<div className="flex items-center justify-between mt-[40px]">
+							<div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
+								Last 24 hours
+							</div>
+							<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
+							<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
+								Total time: 03:31
+							</div>
+						</div>
+						{otherTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
+								<TaskDetailCard task={ta} />
+							</div>
+						))}
 					</div>
-					<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
-					<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
-						Total time: 03:31
-					</div>
-				</div>
-				<div className="relative">
-					{activeTeamTask && (
-						<TaskDetailCard now={true} task={activeTeamTask} current="00:00" />
-					)}
-				</div>
-				<div className="flex items-center justify-between mt-[40px]">
-					<div className="text-[#ACB3BB] text-[16px] w-[130px] font-normal">
-						Last 24 hours
-					</div>
-					<div className="bg-[#D7E1EB] dark:bg-gray-600 w-full h-[1px] mx-[10px]" />
-					<div className="text-[#ACB3BB] text-[16px] w-[164px] font-normal">
-						Total time: 03:31
-					</div>
-				</div>
-				{otherTasks.map((ta, i) => (
-					<div key={ta.id} className="relative" style={{ zIndex: `-${i + 1}` }}>
-						<TaskDetailCard task={ta} current="00:00" />
-					</div>
-				))}
+				)}
+
+				{/* Tab content (assigned) */}
+				{tab === 'assigned' && (
+					<>
+						{assignedTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
+								<TaskDetailCard task={ta} current="00:00" />
+							</div>
+						))}
+					</>
+				)}
+
+				{/* Tab content (unassigned) */}
+				{tab === 'unassigned' && (
+					<>
+						{unassignedTasks.map((ta, i) => (
+							<div
+								key={ta.id}
+								className="relative"
+								style={{ zIndex: `-${i + 1}` }}
+							>
+								<TaskDetailCard task={ta} current="00:00" />
+							</div>
+						))}
+					</>
+				)}
 			</div>
 		</AppLayout>
 	);
