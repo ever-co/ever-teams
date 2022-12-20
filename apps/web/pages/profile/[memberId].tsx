@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Capitalize } from '@components/layout/header/profile';
 import StatusDropdown from '@components/common/main/status-dropdown';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
-import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Timer from '@components/common/main/timer';
 import TaskDetailCard from '@components/home/task-card';
@@ -18,6 +17,10 @@ import { IUser } from '@app/interfaces/IUserData';
 // import UnAssignedTask from '@components/home/unassigned-task';
 import Tooltip from '@components/common/tooltip';
 import { useAuthTeamTasks } from '@app/hooks/features/useAuthTeamTasks';
+import { LeftArrow } from '@components/common/main/leftArrow';
+import { RightArrow } from '@components/common/main/rightArrow';
+import { LeftArrowDark } from '@components/common/main/leftArrowDark';
+import { useTheme } from 'next-themes';
 
 const Profile = () => {
 	const { activeTeam } = useOrganizationTeams();
@@ -54,8 +57,7 @@ const Profile = () => {
 	return (
 		<AppLayout>
 			<Header user={user} />
-			<div className="relative z-10">
-				{/* Table header*/}
+			<div className="relative z-10 mx-[80px]">
 				<div className="my-[41px] text-[18px] text-[#ACB3BB] font-light flex justify-between items-center w-full">
 					<div className="flex">
 						<Tooltip
@@ -238,15 +240,28 @@ const Profile = () => {
 };
 
 function Header({ user }: { user: IUser | undefined }) {
+	const { theme } = useTheme();
 	return (
-		<div className="bg-[#FFFF] dark:bg-[#202023] mt-[100px] rounded-[20px] w-full flex items-center justify-between">
+		<div className="bg-[#FFFF] dark:bg-[#232C3B] mt-[124px] rounded-[20px] w-full flex items-center justify-between mx-[70px]">
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
-				<div className="w-[171px] bg-[#ACB3BB] mt-[20px] mb-2 text-[18px] text-[#FFFFFF] rounded-[8px] px-[17px] py-[5px] flex items-center cursor-pointer hover:opacity-80">
-					<ChevronLeftIcon className="w-[15px] mr-[10px]" />
-					<Link href="/main">Back to Team</Link>
+				<div className="flex flex-row space-x-7 mb-[58px]">
+					<div className="">
+						<Link href="/main">
+							{theme === 'dark' ? <LeftArrowDark /> : <LeftArrow />}
+						</Link>
+					</div>
+					<div className="text-[14px] text-[#B1AEBC]">
+						<Link href="/main">Dashboard</Link>
+					</div>
+					<div className="mt-1">
+						<RightArrow />
+					</div>
+					<div className="text-[#282048] text-[14px] font-semibold dark:text-[#FFFFFF]">
+						Task Profile
+					</div>
 				</div>
 				<div className="flex items-center mb-[100px]">
-					<div className="relative h-[137px] w-[137px]">
+					<div className="relative h-[100px] w-[100px]">
 						{user?.imageUrl && (
 							<Image
 								src={user?.imageUrl}
@@ -257,28 +272,28 @@ function Header({ user }: { user: IUser | undefined }) {
 							/>
 						)}
 
-						<div className="absolute z-10 inset-0 w-full h-full shadow animate-pulse dark:divide-gray-700 dark:border-gray-700">
+						<div className="absolute z-10 inset-0 w-full h-full animate-pulse dark:divide-gray-700 dark:border-gray-700">
 							<div className="w-full h-full rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 						</div>
 
-						<div className="absolute z-30 rounded-full bg-white p-[1px] top-[100px] right-[5px]">
-							<div className="bg-[#02C536] w-[22px] h-[22px] rounded-full"></div>
+						<div className="absolute z-30 rounded-full bg-white p-[1px] top-[80px] left-[68px]">
+							<div className="bg-[#02C536] w-[20px] h-[20px] rounded-full"></div>
 						</div>
 					</div>
 					<div className="ml-[24px]">
-						<div className="text-[30px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
-							<span className="flex items-center">
+						<div className="text-[36px] text-[#1B005D] dark:text-[#FFFFFF] font-bold flex items-center ">
+							<span className="flex items-center mt-[9px]">
 								{user?.firstName && Capitalize(user.firstName)}
 								{user?.lastName && ' ' + Capitalize(user.lastName)}
 							</span>
 						</div>
-						<div className="text-[#B0B5C7] flex items-center">
+						<div className="text-[#B0B5C7] flex items-center text-[18px] mt-[14px]">
 							<span className="flex items-center">{user?.email}</span>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
+			<div className="flex justify-center items-center w-[391px] space-x-[27px] mr-[130px] mt-[34px] border-2 border-[#00000008] dark:bg-[#2E394D] rounded-[20px]">
 				<Timer />
 			</div>
 		</div>
