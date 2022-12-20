@@ -103,8 +103,7 @@ function PasscodeForm({ email }: { email: string }) {
 		queryCall(formValues.email, formValues.code)
 			.then((res) => {
 				console.log(res.data);
-
-				// window.location.reload()
+				window.location.reload();
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
