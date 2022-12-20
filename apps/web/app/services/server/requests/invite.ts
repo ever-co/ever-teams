@@ -1,7 +1,9 @@
+import { ILoginReponse } from '@app/interfaces/IAuthentication';
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import {
 	IInvitation,
 	IInviteCreate,
+	IInviteVerified,
 	IInviteVerifyCode,
 } from '@app/interfaces/IInvite';
 import { serverFetch } from '../fetch';
@@ -14,7 +16,7 @@ import { serverFetch } from '../fetch';
  * @returns
  */
 export function inviteByEmailsRequest(
-	body: IInviteCreate,
+	{ tenantId, ...body }: IInviteCreate & { tenantId: string },
 	bearer_token: string
 ) {
 	return serverFetch<PaginationResponse<IInvitation>>({
@@ -22,7 +24,7 @@ export function inviteByEmailsRequest(
 		method: 'POST',
 		body,
 		bearer_token,
-		tenantId: body.tenantId,
+		tenantId,
 	});
 }
 
@@ -93,7 +95,7 @@ export function resendInvitationEmailRequest(
  * @returns
  */
 export function verifyInviteCodeRequest(params: IInviteVerifyCode) {
-	return serverFetch<any>({
+	return serverFetch<IInviteVerified>({
 		path: '/invite/validate-by-code',
 		method: 'POST',
 		body: params,
@@ -118,7 +120,7 @@ export interface AcceptInviteParams {
  * @returns
  */
 export function acceptInviteRequest(params: AcceptInviteParams) {
-	return serverFetch<any>({
+	return serverFetch<ILoginReponse>({
 		path: '/invite/accept',
 		method: 'POST',
 		body: params,

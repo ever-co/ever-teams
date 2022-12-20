@@ -1,18 +1,15 @@
 export interface IInviteCreate {
 	emailIds: string[];
-	projectIds?: string[];
-	departmentIds?: string[];
-	teamIds: string[];
-	organizationContactIds?: string[];
+	projectIds: any[];
+	departmentIds: any[];
+	organizationContactIds: any[];
+	teamIds: any[];
+	inviteType: 'TEAM';
+	appliedDate?: null;
+	invitationExpirationPeriod: 'Never' | number;
 	roleId: string;
 	organizationId: string;
-	tenantId: string;
-	invitedById: string;
-	fullName?: string;
-	inviteType: 'TEAM';
-	startedWorkOn: string;
-	appliedDate?: any;
-	invitationExpirationPeriod: string;
+	fullName: string;
 	callbackUrl?: string;
 }
 
@@ -41,5 +38,15 @@ export type IInviteRequest = {
 
 export type IInviteVerifyCode = {
 	email: string;
-	code: string;
+	code: number;
 };
+
+export interface IInviteVerified {
+	id: string;
+	email: string;
+	fullName: string;
+	organization: {
+		name: string;
+	};
+	isExpired: boolean;
+}

@@ -33,18 +33,19 @@ export default async function handler(
 
 	await inviteByEmailsRequest(
 		{
-			startedWorkOn: new Date().toISOString(),
-			tenantId,
-			organizationId,
 			emailIds: [body.email],
+			projectIds: [],
+			departmentIds: [],
+			organizationContactIds: [],
+			teamIds: [teamId],
 			roleId: employeeRole?.id || '',
 			invitationExpirationPeriod: 'Never',
 			inviteType: 'TEAM',
-			invitedById: user.id,
-			teamIds: [teamId],
-			projectIds: [teamId],
+			appliedDate: null,
 			fullName: body.name,
 			...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+			organizationId,
+			tenantId,
 		},
 		access_token
 	);
