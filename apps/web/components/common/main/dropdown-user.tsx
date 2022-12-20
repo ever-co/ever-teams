@@ -102,7 +102,7 @@ function OptionPopover({
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[150px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl drop-shadow-[0px_3px_15px_#3E1DAD1A]">
-							<div className="bg-white shadow rounded-[10px] text-[14px] font-light">
+							<div className="bg-white shadow dark:bg-[#18181B] rounded-[10px] text-[14px] font-light">
 								{options.map((option) =>
 									!option.extramenu ? (
 										<React.Fragment key={option.name}>
@@ -123,7 +123,7 @@ function OptionPopover({
 													<Popover.Button
 														onClick={option.handleClick}
 														ref={setReferenceElement}
-														className="outline-none hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full "
+														className="outline-none  hover:bg-gray-100 dark:hover:bg-[#202023] dark:hover:text-white py-2 px-4 mt-1 flex items-center text-gray-600 dark:text-gray-200 justify-start w-full"
 													>
 														{option.name}{' '}
 													</Popover.Button>

@@ -38,7 +38,7 @@ const Passcode = () => {
 					});
 				});
 		}
-	}, []);
+	}, [passcodeRef]);
 
 	return (
 		<div className="flex flex-col h-screen justify-between">
@@ -103,8 +103,7 @@ function PasscodeForm({ email }: { email: string }) {
 		queryCall(formValues.email, formValues.code)
 			.then((res) => {
 				console.log(res.data);
-
-				// window.location.reload()
+				window.location.reload();
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
@@ -121,7 +120,7 @@ function PasscodeForm({ email }: { email: string }) {
 					setErrors((err.response?.data as any)?.errors || {});
 				}
 			});
-	}, [formValues]);
+	}, [formValues, sendCodeQueryCall]);
 
 	return (
 		<form onSubmit={handleSubmit} method="post" autoComplete="off">
