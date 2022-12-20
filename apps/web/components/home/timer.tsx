@@ -13,7 +13,7 @@ export function TimerController() {
 				</div>
 			</div>
 			<div className="cursor-pointer">
-				<PlayIcon />
+				<PlayIcon width={20} height={20} />
 			</div>
 		</>
 	);
