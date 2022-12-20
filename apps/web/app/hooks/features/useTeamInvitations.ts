@@ -12,6 +12,7 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import useAuthenticateUser from './useAuthenticateUser';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
@@ -23,6 +24,8 @@ export function useTeamInvitations() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } =
 		useFirstLoad();
+
+	const { isTeamManager } = useAuthenticateUser();
 
 	// Queries
 	const { queryCall, loading } = useQuery(getTeamInvitationsAPI);
@@ -37,12 +40,12 @@ export function useTeamInvitations() {
 	}, []);
 
 	useEffect(() => {
-		if (activeTeamId && firstLoad) {
+		if (activeTeamId && firstLoad && isTeamManager) {
 			queryCall().then((res) => {
 				setTeamInvitations(res.data?.items || []);
 			});
 		}
-	}, [activeTeamId, firstLoad]);
+	}, [activeTeamId, firstLoad, isTeamManager]);
 
 	useEffect(() => {
 		if (firstLoad) {

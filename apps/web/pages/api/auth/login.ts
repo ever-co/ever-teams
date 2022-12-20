@@ -55,8 +55,6 @@ export default async function handler(
 			parseInt(body.code, 10)
 		);
 
-		console.log(authReq);
-
 		if (
 			!authReq.response.ok ||
 			(authReq.data as any).status === 404 ||
@@ -76,19 +74,24 @@ export default async function handler(
 		// General a random password with 8 chars
 		const password = generateToken(8);
 		const names = inviteReq.data.fullName.split(' ');
-		const { data: acceptedInvite, response: acceptRes } =
-			await acceptInviteRequest({
-				code: body.code,
-				email: inviteReq.data.email,
-				password: password,
-				user: {
-					firstName: names[0],
-					lastName: names[1] || '',
-					email: body.email,
-				},
-			});
+		const acceptInviteRes = await acceptInviteRequest({
+			code: body.code,
+			email: inviteReq.data.email,
+			password: password,
+			user: {
+				firstName: names[0],
+				lastName: names[1] || '',
+				email: body.email,
+			},
+		}).catch(() => void 0);
 
-		if (!acceptRes.ok || (acceptedInvite as any).response?.statusCode) {
+		if (
+			!acceptInviteRes ||
+			!acceptInviteRes.response.ok ||
+			acceptInviteRes.response.status === 401 ||
+			acceptInviteRes.response.status === 400 ||
+			(acceptInviteRes.data as any).response?.statusCode
+		) {
 			return res.status(400).json({
 				errors: {
 					email: 'Authentication code or email address invalid',
@@ -96,7 +99,7 @@ export default async function handler(
 			});
 		}
 
-		loginResponse = acceptedInvite;
+		loginResponse = acceptInviteRes.data;
 	}
 
 	if (!loginResponse) {
@@ -118,8 +121,6 @@ export default async function handler(
 		{ tenantId, userId },
 		access_token
 	);
-
-	console.log('getUserOrganizationsRequest', organizations);
 
 	const organization = organizations?.items[0];
 

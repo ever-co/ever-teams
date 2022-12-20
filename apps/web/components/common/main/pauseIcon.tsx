@@ -1,9 +1,11 @@
-export const PauseIcon = () => {
+import { IIconProps } from '../../../app/interfaces/hooks';
+
+export const PauseIcon = ({ width, height }: IIconProps) => {
 	return (
 		<svg
 			stroke="currentColor"
-			width="68"
-			height="68"
+			width={width}
+			height={height}
 			className="fill-primary dark:fill-white "
 			fill="currentColor"
 			strokeWidth="0"

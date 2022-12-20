@@ -4,33 +4,30 @@ import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { useTheme } from 'next-themes';
 import { Fragment, useState } from 'react';
-import { SettingIcon } from './main/settingIcon';
-import { SettingIconDark } from './main/settingIconDark';
 import { Spinner } from './spinner';
 
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
 	const { teams, activeTeam, setActiveTeam, teamsFetching } =
 		useOrganizationTeams();
-	const { theme } = useTheme();
+
 	return (
-		<div className="w-[223px] max-w-sm ">
+		<div className="w-[290px] max-w-sm">
 			<Popover className="relative">
 				{({ open, close }) => (
 					<>
 						<Popover.Button
-							className={`w-[223px] h-[50px]
+							className={`w-[290px] h-[50px]
                 ${open ? '' : 'text-opacity-90'}
-                group inline-flex items-center rounded-[12px] bg-[#ffffff] dark:bg-[#2E394D] px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 border-solid border-1 border-[#000000]`}
+                group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
 						>
 							<div className="w-full flex items-center justify-between">
 								<div className="flex items-center justify-center space-x-4">
 									<div className="w-[32px] h-[32px] rounded-full bg-white text-primary flex justify-center items-center text-[10px]">
 										{activeTeam ? imgTitle(activeTeam.name) : ''}
 									</div>
-									<span className="text-[18px] text-[#282048] text-semibold dark:text-white">
+									<span className="text-[18px] text-primary text-normal dark:text-white">
 										{activeTeam?.name}
 									</span>
 								</div>
@@ -55,9 +52,9 @@ export const TeamsDropDown = () => {
 							leaveFrom="opacity-100 translate-y-0"
 							leaveTo="opacity-0 translate-y-1"
 						>
-							<Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[271px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl ml-[20px]">
+							<Popover.Panel className="absolute left-1/2 z-10 mt-3 w-[290px] max-w-sm -translate-x-1/2 transform px-4 sm:px-0 lg:max-w-3xl">
 								<div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
-									<div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#2E394D] px-3 py-4 lg:grid-cols-1 w-full">
+									<div className="relative grid gap-[8px] bg-[#FFFFFF] dark:bg-[#18181B] px-3 py-4 lg:grid-cols-1 w-full">
 										{teams.map((item) => {
 											const color = '#F5F6FB';
 											return (
@@ -69,44 +66,15 @@ export const TeamsDropDown = () => {
 														close();
 													}}
 												>
-													<div className="flex flex-row">
-														<div className="flex item-center justify-start mb-4 gap-[10px]">
-															<div
-																className={`w-[32px] h-[32px] rounded-full font-bold bg-[${color}]  text-primary flex justify-center items-center text-[10px]`}
-															>
-																AL
-															</div>
-															<div className="text-[16px] text-primary text-normal dark:text-white">
-																ALL
-															</div>
+													<div className="flex items-center justify-start space-x-4">
+														<div
+															className={`w-[32px] h-[32px] rounded-full font-bold bg-[${color}]  text-primary flex justify-center items-center text-[10px]`}
+														>
+															{imgTitle(item.name)}
 														</div>
-
-														<div className="ml-auto">
-															{theme === 'dark' ? (
-																<SettingIconDark />
-															) : (
-																<SettingIcon />
-															)}
-														</div>
-													</div>
-													<div className="flex flex-row">
-														<div className="flex items-center justify-start space-x-4">
-															<div
-																className={`w-[34px] h-[34px] rounded-full font-bold bg-[${color}]  text-primary flex justify-center items-center text-[10px]`}
-															>
-																{imgTitle(item.name)}
-															</div>
-															<div className="text-[16px] text-primary text-normal dark:text-white">
-																{item.name} ({item.members.length})
-															</div>
-														</div>
-														<div className="ml-auto">
-															{theme === 'dark' ? (
-																<SettingIconDark />
-															) : (
-																<SettingIcon />
-															)}
-														</div>
+														<span className="text-[16px] text-primary text-normal dark:text-white">
+															{item.name} ({item.members.length})
+														</span>
 													</div>
 												</div>
 											);
@@ -115,16 +83,16 @@ export const TeamsDropDown = () => {
 									{edit === true ? (
 										<CreateNewTeam setEdit={setEdit} />
 									) : (
-										<div className="bg-white dark:bg-[#2E394D] p-4">
+										<div className="bg-white dark:bg-[#18181B] p-4">
 											<button
-												className="rounded-[8px] bg-[#ffffff] dark:bg-[#2E394D] text-[16px] text-primary dark:text-white font-semibold text-center w-[239px] h-[40px] border-solid border-[1.5px] border-[#3826A6] dark:border-[#fff]"
+												className="rounded-[8px] bg-[#D7E1EB] dark:bg-[#202023] text-[16px] text-primary dark:text-white font-medium text-center w-[261px] h-[40px]"
 												onClick={() => {
 													setEdit(true);
 												}}
 											>
-												<div className="flex items-center justify-center w-[239px]">
+												<div className="flex items-center justify-center">
 													<span className="mr-[11px]">
-														<PlusIcon className="text-[#3826A6] dark:text-white font-bold w-[16px] h-[16px]" />
+														<PlusIcon className="text-primary dark:text-white font-bold w-[16px] h-[16px]" />
 													</span>
 													Create new team
 												</div>
