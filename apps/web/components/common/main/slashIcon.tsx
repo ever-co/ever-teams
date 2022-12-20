@@ -7,7 +7,7 @@ export const SlashIcon = () => {
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
 		>
-			<path d="M1 0V90" stroke="black" stroke-opacity="0.08" stroke-width="2" />
+			<path d="M1 0V90" stroke="black" strokeOpacity="0.08" strokeWidth="2" />
 		</svg>
 	);
 };
