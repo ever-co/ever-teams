@@ -1,5 +1,5 @@
 import { generateToken } from '@app/helpers/generate-token';
-import { authFormValidate } from '@app/helpers/validations';
+import { authFormValidate, validSMTPConfig } from '@app/helpers/validations';
 import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 // import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
@@ -7,6 +7,7 @@ import {
 	createOrganizationRequest,
 	createOrganizationTeamRequest,
 	createTenantRequest,
+	createTenantSmtpRequest,
 	loginUserRequest,
 	registerUserRequest,
 } from '@app/services/server/requests';
@@ -18,7 +19,7 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	if (req.method !== 'POST') {
-		return res.status(405).send({});
+		return res.status(405).json({});
 	}
 
 	const body = req.body as IRegisterDataAPI;
@@ -43,6 +44,18 @@ export default async function handler(
 	//     .json({ errors: { recaptcha: "Invalid reCAPTCHA. Please try again" } });
 	// }
 
+	/**
+	 * Verify if the SMTP has been configured
+	 */
+	const hasSMTPConfig = validSMTPConfig();
+
+	if (!hasSMTPConfig) {
+		return res.status(400).json({
+			status: 400,
+			message: 'Unable to find SMTP configuration',
+		});
+	}
+
 	// General a random password with 8 chars
 	const password = generateToken(8);
 	const names = body.name.split(' ');
@@ -63,6 +76,12 @@ export default async function handler(
 
 	// Create user tenant
 	const { data: tenant } = await createTenantRequest(body.team, auth_token);
+
+	// Create tenant SMTP
+	await createTenantSmtpRequest({
+		access_token: auth_token,
+		tenantId: tenant.id,
+	});
 
 	// Create user organization
 	const { data: organization } = await createOrganizationRequest(

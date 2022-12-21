@@ -1,3 +1,5 @@
+import { I_SMTPRequest } from './interfaces/ISmtp';
+
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/';
 export const DEFAULT_MAIN_PATH = '/main';
@@ -15,3 +17,19 @@ export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL;
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
+
+export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';
+export const SMTP_HOST = process.env.SMTP_HOST || '';
+export const SMTP_PORT = process.env.SMTP_PORT || '';
+export const SMTP_SECURE = process.env.SMTP_SECURE || '';
+export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
+export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
+
+export const smtpConfiguration: () => I_SMTPRequest = () => ({
+	fromAddress: SMTP_FROM_ADDRESS,
+	host: SMTP_HOST,
+	port: parseInt(SMTP_PORT, 10) || 0,
+	secure: SMTP_SECURE === 'true' ? true : false,
+	username: SMTP_USERNAME,
+	password: SMTP_PASSWORD,
+});

@@ -8,3 +8,4 @@ export * from './employee';
 export * from './invite';
 export * from './timesheet';
 export * from './roles';
+export * from './smtp';
