@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Dimensions
 } from "react-native"
 import { AntDesign } from '@expo/vector-icons';
 
@@ -16,7 +17,7 @@ import { Card, Icon, ListItem, Text } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { colors, spacing } from "../../../../theme"
+import { colors, spacing, typography } from "../../../../theme"
 import ProgressTimeIndicator from "../../TeamScreen/components/ProgressTimeIndicator"
 import TaskStatus from "./TaskStatus"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
@@ -28,7 +29,9 @@ import { ActivityIndicator } from "react-native-paper";
 export type ListItemProps = {
   item: ITeamTask
   onPressIn?: () => unknown
-  handleEstimate?: () => unknown
+  handleEstimate?: () => unknown,
+  isActive: boolean,
+  tabIndex: number,
   enableEstimate?: boolean
   enableEditTaskTitle?: boolean,
   handleTaskTitle?: () => unknown
@@ -36,9 +39,11 @@ export type ListItemProps = {
 
 export interface Props extends ListItemProps { }
 
+const { width, height } = Dimensions.get("window")
+
 export const ListItemContent: React.FC<ListItemProps> = (props) => {
   const { authenticationStore: { authToken, tenantId, organizationId }, teamStore: { activeTeamId }, TaskStore: { updateTask } } = useStores();
-  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn } = props;
+  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex } = props;
   const [titleInput, setTitleInput] = useState("")
   const [loading, setLoading] = useState(false);
 
@@ -65,14 +70,23 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
 
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
-      <View style={{ ...GS.p2, ...GS.positionRelative }}>
+      <View style={{ ...GS.p4, ...GS.positionRelative }}>
+        <View>
+          <View style={styles.wrapTotalTime}>
+            <Text style={styles.totalTimeTitle}>Total time : </Text>
+            <Text style={styles.totalTimeTxt}>20 h:30 m</Text>
+          </View>
+        </View>
+
         <View style={styles.firstContainer}>
           <View style={{}}>
             <TouchableOpacity onLongPress={() => handleTaskTitle()}>
               <TextInput
                 style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null]}
-                defaultValue={enableEditTaskTitle ? titleInput : "#"+item.taskNumber+ " "+item.title}
+                defaultValue={enableEditTaskTitle ? titleInput : item.title}
                 editable={enableEditTaskTitle}
+                multiline={true}
+                numberOfLines={2}
                 onChangeText={(text) => setTitleInput(text)}
               />
               {titleInput !== item.title && titleInput.trim().length > 3 && enableEditTaskTitle && !loading ?
@@ -88,7 +102,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
               <EstimateTime setEditEstimate={handleEstimate} />
             </View>
           ) : (
-            <View style={{ marginLeft: "auto", marginRight: 10, marginBottom: 10 }}>
+            <View style={{ right: -5, top: -5 }}>
               <TouchableOpacity onPress={() => handleEstimate()}>
                 <ProgressTimeIndicator
                   estimated={item.estimate > 0 ? true : false}
@@ -100,13 +114,28 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
           )}
         </View>
 
-        <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
         <View style={styles.times}>
-          <View>
-            <Text style={styles.timeHeading}>Worked time</Text>
-            <Text style={styles.timeNumber}>{"00:00"}</Text>
+          <View style={{ flexDirection: "row", width: "50%", alignItems: "center" }}>
+            {tabIndex === 1 ? null : (
+              <TouchableOpacity style={[styles.timerBtn, isActive ? {} : { backgroundColor: "#fff" }]}>
+                <Image resizeMode="contain" style={[styles.timerIcon,]} source={isActive ? require("../../../../../assets/icons/new/stop.png") : require("../../../../../assets/icons/new/play.png")} />
+              </TouchableOpacity>
+            )}
+            {tabIndex === 2 ? (
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Text style={styles.timeHeading}>Assigned by</Text>
+                <Text style={styles.timeNumber}>8 people</Text>
+              </View>
+            ) : (
+              <View style={{ justifyContent: "center", alignItems: "center" }}>
+                <Text style={styles.timeHeading}>Worked time</Text>
+                <Text style={styles.timeNumber}>{"00 h:00 m"}</Text>
+              </View>
+            )}
           </View>
-          <TaskStatus {...item} />
+          <View style={{ width: 133, height: 33 }}>
+            <TaskStatus {...item} />
+          </View>
         </View>
       </View>
     </TouchableNativeFeedback>
@@ -128,21 +157,21 @@ const ListCardItem: React.FC<Props> = (props) => {
     setEditTaskTitle(!editTaskTitle)
     setShowMenu(false)
   }
-
+  const { isActive } = props;
   return (
     <Card
-      style={{
+      style={[{
         ...$listCard,
         ...GS.mb3,
         zIndex: 0,
-        borderColor: colors.primary,
-      }}
+      }, isActive ? { borderColor: "#8C7AE4", borderWidth: 3 } : null]}
       HeadingComponent={
         <View
           style={{
             ...GS.positionAbsolute,
             ...GS.t0,
             ...GS.r0,
+            ...GS.mr3,
             ...GS.pt2,
             ...GS.zIndexFront,
           }}
@@ -206,11 +235,10 @@ export default ListCardItem
 const $listCard: ViewStyle = {
   ...GS.flex1,
   ...GS.p0,
-  ...GS.rounded,
+  borderRadius: 14,
   ...GS.noBorder,
   ...GS.shadow,
-  borderWidth: 1,
-  minHeight: null,
+  minHeight: 188,
 }
 
 const $usersProfile: ImageStyle = {
@@ -225,26 +253,23 @@ const styles = StyleSheet.create({
     borderColor: "#1B005D",
     borderWidth: 0.5,
     borderRadius: 20,
-    height: 180,
     justifyContent: "space-around",
-    padding: 10,
-    marginBottom: 10,
   },
   times: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingLeft: 10,
-    paddingRight: 10,
-    marginVertical: 10,
+    alignItems: "center",
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.06)",
   },
   otherText: {
-    fontSize: 12,
-    color: "#ACB3BB",
-    width: "100%",
-    minWidth: 200,
+    fontSize: 14,
+    color: colors.primary,
+    fontFamily: typography.primary,
+    width: width / 1.7,
     lineHeight: 15,
     marginVertical: 15,
-    marginLeft: 5
   },
   titleEditMode: {
     minWidth: 220,
@@ -257,17 +282,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5
   },
   timeNumber: {
-    color: "#1B005D",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: "#282048",
+    fontSize: 14,
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
   timeHeading: {
-    color: "#ACB3BB",
-    fontSize: 14,
+    color: "#7E7991",
+    fontSize: 10,
+    fontFamily: typography.fonts.PlusJakartaSans.medium
   },
   firstContainer: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
+    width: "100%",
   },
   name: {
     color: "#1B005D",
@@ -299,7 +327,33 @@ const styles = StyleSheet.create({
     right: 0,
     top: 21
   },
-  editModeContainer: {
-
+  wrapTotalTime: {
+    flexDirection: "row"
+  },
+  totalTimeTitle: {
+    color: "#7E7991",
+    fontSize: 10,
+    fontFamily: typography.secondary
+  },
+  totalTimeTxt: {
+    fontFamily: typography.primary,
+    fontSize: 12,
+    color: "#282048"
+  },
+  timerIcon: {
+    width: 21,
+    height: 21
+  },
+  timerBtn: {
+    width: 42,
+    height: 42,
+    backgroundColor: "#3826A6",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 5,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    ...GS.shadow
   }
 })

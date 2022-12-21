@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react"
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
-import { colors } from "../../../../theme"
-import DropDown from "../../TeamScreen/components/DropDown"
+import { colors, typography } from "../../../../theme"
+import DropDown from "../../../../components/TeamDropdown/DropDown"
 
 // COMPONENTS
 import { Text } from "../../../../components"
@@ -29,7 +29,7 @@ const FilterSection: FC<Props> = ({ selectStatus }) => {
         {selectedStatus ?
           <BadgedTaskStatus showColor={true} status={selectedStatus} />
           :
-          <Text>Task Status</Text>
+          <Text style={{color:"#B1AEBC", fontFamily:typography.secondary, fontSize:14}}>Task Status</Text>
         }
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
@@ -56,9 +56,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 15,
     width: "50%",
-    borderRadius: 5,
-    borderColor: "gray",
-    borderWidth: 0.5,
+    borderRadius: 10,
+    borderColor: "rgba(0, 0, 0, 0.13)",
+    borderWidth: 1,
     minWidth: 110,
     zIndex: 1000
   },

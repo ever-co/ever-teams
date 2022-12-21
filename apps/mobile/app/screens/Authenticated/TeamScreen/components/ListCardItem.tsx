@@ -8,14 +8,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Text
 } from "react-native"
 
 // COMPONENTS
-import { Card, Icon, ListItem, Text } from "../../../../components"
+import { Card, Icon, ListItem } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { colors, spacing } from "../../../../theme"
+import { colors, spacing, typography } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
 import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
@@ -28,13 +29,19 @@ import { observer } from "mobx-react-lite"
 export type ListItemProps = {
   item: any,
   onPressIn?: (user: IUser) => unknown
-  enableEstimate: boolean
+  enableEstimate: boolean,
+  index: number,
+  userStatus: string;
+}
+interface IUserStatus {
+  icon: any,
+  color: string
 }
 
 export interface Props extends ListItemProps { }
 
-export const ListItemContent: React.FC<ListItemProps> = observer(({ item, enableEstimate, onPressIn }) => {
-  const { TaskStore: { activeTask }, TimerStore:{timeCounterState} } = useStores();
+export const ListItemContent: React.FC<ListItemProps> = observer(({ item, enableEstimate, onPressIn, userStatus }) => {
+  const { TaskStore: { activeTask }, TimerStore: { timeCounterState } } = useStores();
   const {
     startTimer,
     stopTimer,
@@ -50,50 +57,56 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ item, enable
   const [editEstimate, setEditEstimate] = useState(false);
   const iuser = item.employee.user
 
+
   return (
     <TouchableOpacity onPress={() => onPressIn(iuser)}>
-      <View style={[{ ...GS.p2, ...GS.positionRelative }, isManager ? { borderWidth: 1, borderColor: "black", borderRadius: 20 } : null]}>
-        <View style={[styles.statusLine, { backgroundColor: "#28D580" }]} />
+      <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: "#fff" }, { borderRadius: 20 }]}>
         <View style={styles.firstContainer}>
-          <Image
-            source={{ uri: iuser.imageUrl }}
-            style={$usersProfile}
-          />
-          <Text style={styles.name}>{iuser.name}{timeCounterState}</Text>
+          <View style={styles.wrapProfileImg}>
+            <Image
+              source={{ uri: iuser.imageUrl }}
+              style={$usersProfile}
+            />
+            <Image style={styles.statusIcon} source={getStatusImage(userStatus).icon} />
+          </View>
+          <Text style={styles.name}>{iuser.name}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
+          <View style={styles.wrapTotalTime}>
+            <Text style={styles.totalTimeTitle}>Total time:</Text>
+            <Text style={styles.totalTimeText}>20 h:30 m</Text>
+          </View>
+        </View>
+        <View style={styles.wrapTaskTitle}>
+          {/* {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>} */}
+          <Text style={styles.otherText}>{activeTask.title}</Text>
+        </View>
+        <View style={styles.times}>
+          <View style={{ ...GS.alignCenter }}>
+            <Text style={styles.timeHeading}>Today work</Text>
+            <Text style={styles.timeNumber}>{pad(hours)} h:{pad(minutes)} m</Text>
+          </View>
+          <View style={{ ...GS.alignCenter }}>
+            <Text style={styles.timeHeading}>Total work</Text>
+            <Text style={styles.timeNumber}>{"01 h:10 m"}</Text>
+          </View>
           {activeTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
               <EstimateTime setEditEstimate={setEditEstimate} />
             </View>
 
           ) : (
-            <View style={{ marginLeft: "auto", marginRight: 10 }}>
+            <View style={{}}>
               <TouchableOpacity onPress={() => setEditEstimate(true)}>
                 <View style={{}}>
                   <ProgressTimeIndicator
                     estimated={activeTask.estimate > 0 ? true : false}
                     estimatedHours={activeTask.estimate}
-                    workedHours={timeCounter}
+                    workedHours={3000000}
                   />
                 </View>
               </TouchableOpacity>
             </View>
           )}
-        </View>
-        <View style={{ flexDirection: 'row', paddingLeft: 5, paddingBottom: 5 }}>
-          {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
-          <Text style={styles.otherText}>{activeTask.title}</Text>
-        </View>
-        <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
-        <View style={styles.times}>
-          <View>
-            <Text style={styles.timeHeading}>Current time</Text>
-            <Text style={styles.timeNumber}>{pad(hours)}:{pad(minutes)}</Text>
-          </View>
-          <View>
-            <Text style={styles.timeHeading}>Total time</Text>
-            <Text style={styles.timeNumber}>{"00:00"}</Text>
-          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -110,11 +123,15 @@ const ListCardItem: React.FC<Props> = (props) => {
     setShowMenu(false)
   }
 
+  const { index, userStatus } = props;
   return (
     <Card
       style={{
         ...$listCard,
         ...GS.mb3,
+        paddingTop: 5,
+        backgroundColor: getStatusImage(userStatus).color,
+        zIndex: 999 - index
       }}
       HeadingComponent={
         <View
@@ -122,34 +139,42 @@ const ListCardItem: React.FC<Props> = (props) => {
             ...GS.positionAbsolute,
             ...GS.t0,
             ...GS.r0,
-            ...GS.pt2,
-            ...GS.zIndexFront,
+            ...GS.pt5,
+            ...GS.pr3,
+            ...GS.zIndexFront
           }}
         >
           <View
             style={{
               ...GS.positionRelative,
+              backgroundColor: "#fff",
+              ...GS.zIndexFront
             }}
           >
             <View
               style={{
                 ...GS.positionAbsolute,
                 ...GS.p2,
-                ...GS.pt4,
+                ...GS.pt1,
                 ...GS.shadow,
                 ...GS.r0,
                 ...GS.roundedSm,
+                ...GS.zIndexFront,
+                width: 172,
                 marginTop: -spacing.extraSmall,
-                marginRight: -spacing.extraSmall,
+                marginRight: 17,
                 backgroundColor: colors.background,
                 minWidth: spacing.huge * 2,
                 ...(!showMenu ? { display: "none" } : {}),
               }}
             >
               <View style={{}}>
-                <ListItem>Edit</ListItem>
-                <ListItem>Release</ListItem>
-                <ListItem onPress={() => handleEstimate()}>Estimate now</ListItem>
+                <ListItem textStyle={styles.dropdownTxt}>Edit Task</ListItem>
+                <ListItem textStyle={styles.dropdownTxt} onPress={() => handleEstimate()}>Estimate</ListItem>
+                <ListItem textStyle={styles.dropdownTxt}>Assign Task</ListItem>
+                <ListItem textStyle={styles.dropdownTxt}>Unassign Task</ListItem>
+                <ListItem textStyle={styles.dropdownTxt}>Make a Manager</ListItem>
+                <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
               </View>
             </View>
 
@@ -181,14 +206,14 @@ const $listCard: ViewStyle = {
   ...GS.noBorder,
   ...GS.shadow,
   minHeight: null,
-  borderRadius: spacing.large
+  borderRadius: spacing.large,
 }
 
 const $usersProfile: ImageStyle = {
   ...GS.roundedFull,
   backgroundColor: colors.background,
-  width: spacing.huge - spacing.small,
-  height: spacing.huge - spacing.small,
+  width: spacing.huge - spacing.extraSmall,
+  height: spacing.huge - spacing.extraSmall,
 }
 
 const styles = StyleSheet.create({
@@ -199,28 +224,35 @@ const styles = StyleSheet.create({
     height: 180,
     justifyContent: "space-around",
     padding: 10,
-    marginBottom: 10,
   },
   times: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+    alignItems: "center",
+    marginTop: 16,
+    paddingTop: 5,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.06)",
+    // backgroundColor:"yellow"
   },
   otherText: {
-    fontSize: 12,
-    color: "#ACB3BB",
-    width: "80%",
+    fontSize: 14,
+    color: "#282048",
+    width: "100%",
     lineHeight: 15,
     marginVertical: 5,
+    fontStyle: "normal",
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold,
   },
   timeNumber: {
-    color: "#1B005D",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: "#282048",
+    fontSize: 14,
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
   timeHeading: {
-    color: "#ACB3BB",
-    fontSize: 14,
+    color: "#7E7991",
+    fontSize: 10,
+    fontFamily: typography.fonts.PlusJakartaSans.medium
   },
   firstContainer: {
     flexDirection: "row",
@@ -228,9 +260,9 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "#1B005D",
-    fontSize: 16,
-    left: 10,
-    fontWeight: "bold",
+    fontSize: 12,
+    left: 15,
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
   estimate: {
     backgroundColor: "#E8EBF8",
@@ -242,32 +274,69 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     marginRight: 10,
   },
-  notEstimate: {
-    color: "#ACB3BB",
-    fontSize: 12,
-    fontWeight: "400",
-  },
-  estimateDivider: {
-    fontWeight: "700",
-  },
-  estimateInput: {
-    borderBottomColor: "gray",
-    borderStyle: "dashed",
-    borderBottomWidth: 2,
-    padding: 2,
-  },
-  taskNumberStyle: {
-    fontSize: 12,
-    marginVertical: 0,
-    right: 3,
-    color: "#ACB3BB",
-  },
-  statusLine: {
-    width: "1.5%",
-    height: "80%",
+
+
+  wrapTotalTime: {
     position: "absolute",
-    top: "17%",
-    left: -3,
-    borderRadius: 3
+    right: 0,
+    marginRight: 30,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  totalTimeTitle: {
+    fontSize: 10,
+    fontFamily: typography.fonts.PlusJakartaSans.medium,
+    fontWeight: "500",
+    color: "#7E7991"
+  },
+  totalTimeText: {
+    fontSize: 14,
+    color: "#282048",
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
+  },
+  wrapProfileImg: {
+    flexDirection: "row"
+  },
+  statusIcon: {
+    position: "absolute",
+    bottom: 0,
+    marginLeft: 27
+  },
+  dropdownTxt: {
+    color: "#282048",
+    fontSize: 14,
+    fontFamily: typography.primary
+  },
+  wrapTaskTitle: {
+    flexDirection: 'row',
+    marginTop: 16,
+    width: "100%",
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.06)",
+    paddingTop: 10
   }
 })
+
+const getStatusImage = (status: string) => {
+  let res: IUserStatus
+  if (status == "online") {
+    res = {
+      icon: require("../../../../../assets/icons/new/play-small.png"),
+      color: "#88D1A5"
+    }
+  }
+  else if (status == "pause") {
+
+    res = {
+      icon: require("../../../../../assets/icons/new/on-pause.png"),
+      color: "#EBC386"
+    }
+  } else {
+
+    res = {
+      icon: require("../../../../../assets/icons/new/away.png"),
+      color: "#F1A2A2"
+    }
+  }
+  return res;
+}

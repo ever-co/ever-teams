@@ -1,21 +1,21 @@
 import React, { FC, useEffect, useState } from "react"
-import { Text, View, StyleSheet } from "react-native"
+import { Text, View, StyleSheet, TextInput, Image, TouchableOpacity } from "react-native"
 import { ProgressBar } from "react-native-paper"
-import { colors } from "../../../../theme"
+import { colors, typography } from "../theme"
 
 import { AntDesign } from "@expo/vector-icons"
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { useStores } from "../../../../models"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
+import { useStores } from "../models"
+import { ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
-import { pad } from "../../../../helpers/number"
-import { useTimer } from "../../../../services/hooks/useTimer"
-import ManageTaskCard from "../../../../components/ManageTaskCard"
+import { pad } from "../helpers/number"
+import { useTimer } from "../services/hooks/useTimer"
+import ManageTaskCard from "./ManageTaskCard"
 
 export interface Props {
 }
 
-const NewTimerCard: FC<Props> = observer(() => {
+const TimerCard: FC<Props> = observer(() => {
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId, activeTeam },
@@ -88,19 +88,21 @@ const NewTimerCard: FC<Props> = observer(() => {
 
   return (
     <View style={styles.mainContainer}>
-      <Text style={styles.working}>What you working on?</Text>
-      <ManageTaskCard />
       <View style={styles.horizontal}>
-        <View style={{ width: "70%", marginRight: 10, justifyContent: "space-around" }}>
-          <Text style={{ fontWeight: "bold", fontSize: 35, color: "#1B005D" }}>{pad(hours)}:{pad(minutes)}:{(pad(seconds))}:<Text style={{ fontSize: 25 }}>{pad(ms_p)}</Text></Text>
-          <ProgressBar style={{ backgroundColor: "#E9EBF8" }} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#28D581" : "#F0F0F0"} />
+        <View style={{ justifyContent: "space-around" }}>
+          <Text style={styles.timerText}>00:30:01<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
+          <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height:6, borderRadius:3 }} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
         </View>
-
-        {localTimerStatusState.running ? (
-          <AntDesign name="pausecircle" size={64} color="#1B005D" onPress={() => stopTimer()} />
-        ) : (
-          <AntDesign style={{ opacity: canRunTimer ? 1 : 0.4 }} name="play" size={64} color="#1B005D" onPress={() => { canRunTimer ? startTimer() : {} }} />
-        )}
+        <View style={styles.timerBtn}>
+          {localTimerStatusState.running ? (
+            <AntDesign name="pausecircle" size={64} color="#1B005D" onPress={() => stopTimer()} />
+          ) : (
+            // <AntDesign style={{ opacity: canRunTimer ? 1 : 0.4 }} name="play" size={64} color="#1B005D" onPress={() => { canRunTimer ? startTimer() : {} }} />
+            <TouchableOpacity>
+              <Image source={require("../../assets/images/new/pause-icon.png")} />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   )
@@ -108,18 +110,18 @@ const NewTimerCard: FC<Props> = observer(() => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    marginTop: 20,
-    paddingTop: 30,
-    backgroundColor: "#fff",
-    borderRadius: 25,
-    padding: 20,
-    ...GS.noBorder,
-    borderWidth: 1,
-    elevation: 5,
-    shadowColor: "#1B005D0D",
-    shadowOffset: { width: 10, height: 10.5 },
-    shadowOpacity: 1,
-    shadowRadius: 15,
+    width: "100%",
+    borderTopColor: "rgba(0, 0, 0, 0.06)",
+    borderTopWidth: 1,
+    paddingTop: 20,
+    zIndex:998
+  },
+  timerBtn: {
+    marginLeft: 5,
+    paddingLeft: -5,
+    marginVertical: 4,
+    borderLeftWidth: 2,
+    borderLeftColor: "rgba(0, 0, 0, 0.08)"
   },
   estimate: {
     color: "#9490A0",
@@ -135,8 +137,9 @@ const styles = StyleSheet.create({
   },
   horizontal: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 20,
+    justifyContent: "space-between",
+    width: "100%",
+    height: 60,
   },
   textInput: {
     color: colors.primary,
@@ -172,7 +175,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     top: 15
+  },
+  timerText: {
+    fontWeight: "600",
+    fontSize: 35,
+    color: "#1B005D",
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
   }
 })
 
-export default NewTimerCard
+export default TimerCard

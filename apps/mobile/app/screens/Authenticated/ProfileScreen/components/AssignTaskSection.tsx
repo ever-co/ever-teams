@@ -4,7 +4,7 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles";
 import { Button, Card } from "../../../../components";
 import ManageTaskCard from "../../../../components/ManageTaskCard";
 import { colors } from "../../../../theme";
-import NewTimerCard from "../../TimerScreen/components/NewTimerCard";
+import NewTimerCard from "../../../../components/TimerCard";
 
 const AssignTaskSection = () => {
     const [assignClicked, setAssignClicekd] = React.useState(false);

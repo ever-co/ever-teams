@@ -1,10 +1,11 @@
 import React from "react"
-import { TextStyle, ViewStyle } from "react-native"
+import { Image, TextStyle, ViewStyle } from "react-native"
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { CompositeScreenProps } from "@react-navigation/native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons"
+import { MaterialCommunityIcons, Feather, SimpleLineIcons, FontAwesome } from "@expo/vector-icons"
+
 
 // COMPONENTS
 import { Icon } from "../components"
@@ -25,7 +26,7 @@ import { IUser } from "../services/interfaces/IUserData";
 export type AuthenticatedTabParamList = {
   Timer: undefined
   Team: undefined
-  Profile: {user:IUser}
+  Profile: { user: IUser }
 }
 
 /**
@@ -49,7 +50,7 @@ function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [$tabBar, { height: bottom + 70 }],
+        tabBarStyle: [$tabBar, { height: bottom + 100 }],
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text,
         tabBarLabelStyle: $tabBarLabel,
@@ -58,10 +59,11 @@ function TabNavigator() {
     >
       <Tab.Screen
         name="Timer"
-        component={AuthenticatedTimerScreen}
+        component={AuthenticatedProfileScreen}
         options={{
-          tabBarLabel: "",
-          tabBarIcon: () => <MaterialCommunityIcons name="clock" size={25} color="#1B005D" />,
+          tabBarLabel: "Tasks",
+          tabBarIcon: ({ focused }) => focused ? <Image source={require("../../assets/icons/new/briefcase-active.png")} /> : <Image source={require("../../assets/icons/new/briefcase.png")} />,
+          tabBarActiveTintColor: "#3826A6"
         }}
       />
 
@@ -69,31 +71,33 @@ function TabNavigator() {
         name="Team"
         component={AuthenticatedTeamScreen}
         options={{
-          tabBarLabel: "",
-          tabBarIcon: () => <Icon icon="community" color={"#1B005D"} />,
+          tabBarLabel: "Teams",
+          tabBarIcon: ({ focused }) => focused ? <Image source={require("../../assets/icons/new/people-active.png")} /> : <Image source={require("../../assets/icons/new/people.png")} />,
+          tabBarActiveTintColor: "#3826A6"
         }}
       />
 
       <Tab.Screen
         name="Profile"
-        component={AuthenticatedProfileScreen}
+        component={AuthenticatedTimerScreen}
         options={{
-          tabBarLabel: "",
-          tabBarIcon: ({ focused }) => <Icon icon="clipApprove" color={focused && colors.tint} />,
+          tabBarLabel: "My Work",
+          tabBarIcon: ({ focused }) => <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} />,
+          tabBarActiveTintColor: "#3826A6"
         }}
       />
     </Tab.Navigator>
   )
 }
 
-const drawer=createDrawerNavigator();
+const drawer = createDrawerNavigator();
 
 
-export function AuthenticatedNavigator(){
-  return(
-    <drawer.Navigator drawerContent={props => <HamburgerMenu {...props} />} screenOptions={{ headerShown: false}}>
+export function AuthenticatedNavigator() {
+  return (
+    <drawer.Navigator drawerContent={props => <HamburgerMenu {...props} />} screenOptions={{ headerShown: false, drawerPosition: "right" }}>
       <drawer.Screen
-       name="AuthenticatedTab" component={TabNavigator} />
+        name="AuthenticatedTab" component={TabNavigator} />
     </drawer.Navigator>
   )
 }
@@ -110,8 +114,9 @@ const $tabBarItem: ViewStyle = {
 
 const $tabBarLabel: TextStyle = {
   fontSize: 12,
-  fontFamily: typography.primary.medium,
+  fontFamily: typography.fonts.PlusJakartaSans.semiBold,
   lineHeight: 16,
+  fontWeight: "500",
   flex: 1,
 }
 
