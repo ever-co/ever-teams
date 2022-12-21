@@ -1,21 +1,21 @@
 import React, { useState } from "react"
-import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
-import { AntDesign, Feather, FontAwesome5, MaterialIcons, SimpleLineIcons } from "@expo/vector-icons"
+import { View, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native"
+import { AntDesign, Feather, FontAwesome5, MaterialIcons, SimpleLineIcons, Ionicons } from "@expo/vector-icons"
 import { Switch, Title, Paragraph, Text, Drawer } from "react-native-paper"
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer"
-import { colors } from "../theme"
+import { useDrawerStatus } from '@react-navigation/drawer'
+import { colors, typography } from "../theme"
 import { useNavigation } from "@react-navigation/native"
 import { useStores } from "../models"
-import DropDownSection from "../screens/Authenticated/TeamScreen/components/DropDownSection"
-import DropDown from "../screens/Authenticated/TeamScreen/components/DropDown"
+import DropDownSection from "./TeamDropdown/DropDownSection"
+import DropDown from "./TeamDropdown/DropDown"
 import CreateTeamModal from "../screens/Authenticated/TeamScreen/components/CreateTeamModal"
 import ProfileImage from "./ProfileImage"
 
 
 
-const HamburgerMenu = (props) => {
-  const navigation = useNavigation();
 
+const HamburgerMenu = (props) => {
   const {
     TaskStore: { resetTeamTasksData },
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken, logout, isAuthenticated },
@@ -24,6 +24,9 @@ const HamburgerMenu = (props) => {
   } = useStores()
 
   const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+
+  const { navigation } = props;
+  const isOpen = useDrawerStatus() === "open";
 
   // Create New Team
   const createNewTeam = async (text: string) => {
@@ -39,7 +42,7 @@ const HamburgerMenu = (props) => {
 
   }
 
-  const onToggleSwitch = () => {
+  const onLogout = () => {
     resetTeamTasksData()
     clearStoredTeamData()
     logout()
@@ -51,91 +54,84 @@ const HamburgerMenu = (props) => {
         visible={showCreateTeamModal}
         onDismiss={() => setShowCreateTeamModal(false)}
       />
-      <DrawerContentScrollView style={{ width: '100%' }} {...props}>
-        <View style={styles.headerIconsContainer}>
-          <TouchableOpacity onPress={() => props.navigation.closeDrawer()}>
-            <MaterialIcons name="keyboard-arrow-left" size={24} color="#1B005D" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Feather name="edit" size={24} color="#1B005D" />
-          </TouchableOpacity>
-        </View>
+      <DrawerContentScrollView style={{ width: '100%', }} {...props}>
         <View style={styles.profileSection}>
-          <View style={{marginBottom:40}}>
-          <ProfileImage imageUrl={user?.imageUrl}/>
+          <View style={{ marginBottom: 40 }}>
+            <ProfileImage size={76} imageUrl={user?.imageUrl} />
           </View>
           <Text style={styles.userProfileName}>{user?.name}</Text>
-          <Text style={{fontSize:12}}>{user?.email}</Text>
+          <Text style={{ fontSize: 14, marginBottom: 20, fontFamily: typography.secondary, marginTop: 4 }}>{user?.email}</Text>
           <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+
         </View>
         <View style={styles.navigationSection}>
-          <DrawerItem
-            style={[styles.screenItem, { marginTop: 0 }]}
-            icon={() => (
-              <MaterialIcons name="work-outline" size={24} color="#1B005D" />
-            )}
-            label={"My work"}
-            labelStyle={styles.screenLabel}
-            onPress={() => props.navigation.navigate("Timer")}
-          />
-          <DrawerItem
-            style={[styles.screenItem, { marginTop: 0 }]}
-            icon={() => (
-              <SimpleLineIcons name="people" size={24} color="#1B005D" />
-            )}
-            label={"Teams"}
-            labelStyle={styles.screenLabel}
-            onPress={() => props.navigation.navigate("Team")}
-          />
-          <DrawerItem
-            style={[styles.screenItem, { marginTop: 0 }]}
-            icon={() => (
-              <FontAwesome5 name="tasks" size={24} color="#1B005D" />
-            )}
-            label={"Tasks"}
-            labelStyle={styles.screenLabel}
-            onPress={() => props.navigation.navigate("Profile")}
-          />
-          <DrawerItem
-            style={[styles.screenItem, { marginTop: 0 }]}
-            icon={() => (
-              <Feather name="settings" size={24} color="#1B005D" />
-            )}
-            label={"Settings"}
-            labelStyle={styles.screenLabel}
-            onPress={() => { }}
-          />
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 20 }} onPress={() => navigation.navigate("Profile")}>
+            <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/user.png")} />
+            <Text style={styles.screenLabel}>My work</Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 20 }} onPress={() => navigation.navigate("Team")}>
+            <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/people.png")} />
+            <Text style={styles.screenLabel}>Teams</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 20 }} onPress={() => navigation.navigate("Timer")}>
+            <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/briefcase.png")} />
+            <Text style={styles.screenLabel}>Tasks</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 5 }} onPress={() => navigation.navigate("")}>
+            <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/setting-2.png")} />
+            <Text style={styles.screenLabel}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.screenItem} onPress={() => navigation.navigate("")}>
+            <View style={{ flexDirection: "row" }}>
+              <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/moon.png")} />
+              <Text style={styles.screenLabel}>Dark Mode</Text>
+            </View>
+            <Image style={{ top: 8, height: 50 }} source={require("../../assets/icons/new/toogle-light.png")} />
+          </TouchableOpacity>
         </View>
       </DrawerContentScrollView>
 
       <View style={styles.bottomSection}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <TouchableOpacity style={{ flexDirection: "row", justifyContent: "space-between", }} onPress={() => onLogout()}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <MaterialIcons name="exit-to-app" size={25} color="#1B005D" />
-            <Text style={{ marginLeft: 10, color: "#1B005D", fontWeight: "700", fontSize: 17 }}>Logout</Text>
+            <Image source={require("../../assets/icons/new/logout.png")} />
+            <Text style={{ marginLeft: 10, color: "#DE437B", fontFamily: typography.primary, fontSize: 16 }}>Log Out</Text>
           </View>
-          <Switch value={isAuthenticated} style={{ width: 50 }} onValueChange={onToggleSwitch} />
-        </View>
+        </TouchableOpacity>
       </View>
+      {isOpen ?
+        <TouchableOpacity style={styles.close} onPress={() => navigation.closeDrawer()}>
+          <Text>X</Text>
+        </TouchableOpacity>
+        : null
+      }
     </View>
   )
 }
 
+const NavigationItem = (props) => {
+  return (
+    <View>
 
+    </View>
+  )
+}
+
+const { width, height } = Dimensions.get("window")
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 20
   },
   headerIconsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10
   },
   navigationSection: {
-    marginHorizontal: '1%',
     marginTop: 20,
-    zIndex: 1
+    zIndex: 1,
+    padding: 0
   },
   profileImage: {
     borderRadius: 60,
@@ -145,8 +141,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center'
   },
   userProfileName: {
-    fontSize: 25,
-    color: "#1B005D",
+    fontSize: 20,
+    color: colors.primary,
+    fontFamily: typography.primary,
     marginTop: 15
   },
   profileImageContainer: {
@@ -161,25 +158,38 @@ const styles = StyleSheet.create({
     marginHorizontal: '1%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderBottomColor: "#f4f4f4",
+    borderBottomColor: "rgba(0, 0, 0, 0.16)",
     borderBottomWidth: 1,
-    paddingBottom: 20,
+    paddingBottom: 10,
     zIndex: 10
   },
   bottomSection: {
-    marginBottom: 25,
-    marginHorizontal: "7%",
-    paddingVertical: 10,
-    borderTopColor: "#f4f4f4",
+    marginBottom: 37,
+    paddingTop: 37,
+    borderTopColor: "rgba(0, 0, 0, 0.16)",
     borderTopWidth: 1,
   },
   screenItem: {
-    marginTop: -10
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   screenLabel: {
-    marginLeft: -25,
+    fontFamily: typography.secondary,
     fontSize: 16,
-    color: '#1B005D'
+    color: colors.primary
+  },
+  close: {
+    position: "absolute",
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    left: -(width / 4),
+    top: 66,
+    zIndex: 1000
   }
 })
 

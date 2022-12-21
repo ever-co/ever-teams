@@ -2,19 +2,22 @@ import React, { FC, useState } from "react"
 import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
 import { AntDesign, Entypo, EvilIcons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing } from "../../../../theme"
+import { colors, spacing, typography } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
+import TaskStatusDropdown from "./TaskStatusDropdown"
+import TaskStatus from "../../ProfileScreen/components/TaskStatus"
 
 
 export interface Props {
-  task: ITeamTask
+  task: ITeamTask,
+  index:number,
   handleActiveTask: (value: ITeamTask) => unknown
 }
 
-const IndividualTask: FC<Props> = observer(({ task, handleActiveTask }) => {
+const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) => {
   const [showDel, setShowDel] = useState(false)
   const {
     authenticationStore: { tenantId, authToken, organizationId },
@@ -36,7 +39,7 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask }) => {
     updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
   }
 
-  const reOpen=()=>{
+  const reOpen = () => {
     const value: ITaskStatus = "Todo";
     const EditTask = {
       ...task,
@@ -51,66 +54,21 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask }) => {
   }
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => handleActiveTask(task)}>
+    <TouchableOpacity style={[styles.container, {zIndex:1000-index}]} onPress={() => handleActiveTask(task)}>
       <View style={{ flexDirection: "row" }}>
-        <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text>
-        <Text style={{ color: "#1B005D", fontSize: 12, marginLeft: 5 }}>{task.title}</Text>
+        {/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
+        <Text style={styles.taskTitle}>{task.title}</Text>
       </View>
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <View
-          style={
-            task.status === "Completed"
-              ? styles.completed
-              : task.status === "In Progress"
-                ? styles.inReview
-                : task.status === "For Testing"
-                  ? styles.inProgress
-                  : styles.unAssigned
-          }
-        >
-          {task.status === "Completed" ? (
-            <AntDesign name="checkcircleo" size={8} color="#3D9A6D" />
-          ) : task.status === "In Review" ? (
-            <AntDesign name="search1" size={8} color="#8F97A1" />
-          ) : task.status === "In Progress" ? (
-            <MaterialCommunityIcons name="progress-check" size={8} color="#735EA8" />
-          ) : (
-            <Entypo name="circle" size={8} color="#8B7FAA" />
-          )}
-
-          <Text
-            style={
-              task.status === "Completed"
-                ? styles.textCompleted
-                : task.status === "In Review"
-                  ? styles.textInReview
-                  : task.status === "In Progress"
-                    ? styles.textInProgress
-                    : styles.textUnAssigned
-            }
-          >
-            {task.status}
-          </Text>
-          <AntDesign
-            name="down"
-            size={8}
-            color={
-              task.status === "Completed"
-                ? "#3D9A6D"
-                : task.status === "In Review"
-                  ? "#8F97A1"
-                  : task.status === "In Progress"
-                    ? "#735EA8"
-                    : "#8B7FAA"
-            }
-          />
+      <View style={{ flexDirection: "row", alignItems: "center", zIndex: 101 }}>
+        <View style={{ left: -15, width: 113, height: 32, borderRadius: 10, zIndex: 999 }}>
+          <TaskStatus {...task as any} />
         </View>
-
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: "row", alignItems: "center"}}>
           <View style={{ flexDirection: "row" }}>
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
+            <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile2} />
           </View>
-          {task.status === "Closed" ? <EvilIcons name="refresh" size={24} color="#8F97A1" onPress={()=>reOpen()}  /> :
+          {task.status === "Closed" ? <EvilIcons name="refresh" size={24} color="#8F97A1" onPress={() => reOpen()} /> :
             <Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />}
           {showDel && <DeletePopUp onCloseTask={onCloseTask} setShowDel={setShowDel} />}
         </View>
@@ -122,12 +80,12 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    marginBottom: 15,
     alignItems: "center",
-    borderBottomColor: "#8F97A1",
+    borderBottomColor: "rgba(0, 0, 0, 0.06)",
     borderBottomWidth: 1,
     justifyContent: "space-between",
-    paddingBottom: 5,
+    paddingVertical: 12,
+    zIndex: 100
   },
   statusDisplay: {
     flexDirection: "row",
@@ -184,6 +142,13 @@ const styles = StyleSheet.create({
     color: "#735EA8",
     fontSize: 8,
   },
+  taskTitle: {
+    color: "#282048",
+    fontSize: 10,
+    // marginLeft: 5,
+    width: 99,
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
+  }
 })
 
 const $usersProfile: ImageStyle = {
@@ -191,16 +156,19 @@ const $usersProfile: ImageStyle = {
   backgroundColor: colors.background,
   width: spacing.extraLarge - spacing.tiny,
   height: spacing.extraLarge - spacing.tiny,
+  borderColor:"#fff",
+  borderWidth:2,
 }
 
-const $usersProfileOne: ImageStyle = {
+const $usersProfile2: ImageStyle = {
   ...GS.roundedFull,
   backgroundColor: colors.background,
   width: spacing.extraLarge - spacing.tiny,
   height: spacing.extraLarge - spacing.tiny,
-  zIndex: 7,
-  position: "relative",
-  left: "50%",
+  borderColor:"#fff",
+  borderWidth:2,
+  position:"absolute",
+  left:-15
 }
 
 export default IndividualTask

@@ -1,50 +1,48 @@
 import React, { FC } from 'react'
-import {View, Image, StyleSheet} from 'react-native'
+import { View, Image, StyleSheet } from 'react-native'
 
-interface Props{
-    imageUrl:string
+interface Props {
+    imageUrl: string,
+    size?: number
 }
-const ProfileImage: FC<Props> = ({imageUrl}) => {
+const ProfileImage: FC<Props> = ({ imageUrl, size }) => {
     return (
         <View style={styles.container}>
-            <View style={styles.pictureContainer}>
+            <View>
                 <Image
-                    source={{ uri:imageUrl }}
-                    style={styles.profileImage}
+                    source={{ uri: imageUrl }}
+                    style={[styles.profileImage, size ? { width: size, height: size } : {}]}
                     resizeMode="contain"
                 />
-                <View style={styles.onlineIcon} />
+                <View style={[styles.onlineIcon, size ? { marginRight: 10, bottom: 3 } : {}]} />
             </View>
         </View>
     )
 }
 export default ProfileImage;
 
-const styles=StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         alignItems: "center",
         height: "10%",
-      },
-      profileImage: {
+    },
+    profileImage: {
         borderRadius: 200,
-        width: 60,
-        height: 60,
-      },
-      pictureContainer: {
-        backgroundColor: "#86DAA9",
-        padding: 2,
-        left: 10,
-        borderRadius: 75,
-      },
-      onlineIcon: {
-        backgroundColor: "green",
+        width: 56,
+        height: 56,
+        borderWidth: 3,
+        borderColor: "#86DAA9"
+    },
+    onlineIcon: {
+        backgroundColor: "#27AE60",
         width: 15,
         height: 15,
         borderRadius: 10,
         position: "absolute",
-        right: 9,
-        top: 48,
+        right: 0,
+        marginRight: 4,
+        bottom: 0,
         borderWidth: 3,
         borderColor: "#fff",
-      },
+    },
 })

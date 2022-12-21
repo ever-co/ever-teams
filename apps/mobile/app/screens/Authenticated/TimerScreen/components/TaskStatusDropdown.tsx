@@ -8,42 +8,48 @@ import { Text } from "../../../../components"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
 
+
+// STYLES
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { typography } from "../../../../theme"
+import { BadgedTaskStatus } from "../../../../components/StatusIcon"
+
 export interface Props {
+  task: ITeamTask
 }
 
-const TaskStatusDropdown: FC<Props> = observer(() => {
-  const { 
+const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
+  const {
     authenticationStore: { authToken, organizationId, tenantId },
-   TaskStore:{activeTask, updateTask},
-   teamStore:{activeTeamId}
- } = useStores();
+    TaskStore: { activeTask, updateTask },
+    teamStore: { activeTeamId }
+  } = useStores();
   const [isOpened, setIsOpened] = React.useState(false)
   const [status, setStatus] = React.useState<ITaskStatus | null>(null)
-  const statusList = ["Todo", "In Progress", "For Testing", "Completed", "Unassigned"]
+  const statusList: ITaskStatus[] = ["Todo", "In Progress", "For Testing", "Completed", "Unassigned", "In Review", "Closed"]
 
   const OnItemPressed = (text) => {
     setIsOpened(false)
     onChangeStatus(text);
   }
   const onChangeStatus = (text) => {
-    const value:ITaskStatus=text;
+    const value: ITaskStatus = text;
     const task = {
-     ...activeTask,
+      ...activeTask,
       status: value
     };
-const refreshData={
-  activeTeamId,
-  tenantId,
-  organizationId
-}
-  updateTask({ taskData: task, taskId: task.id, authToken , refreshData});
+    const refreshData = {
+      activeTeamId,
+      tenantId,
+      organizationId
+    }
+    updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
   }
 
   return (
     <View
       style={[
         styles.container,
-        { backgroundColor: status === "Completed" ? "#D4F7E6" : "#EEEFF5" },
       ]}
     >
       <TouchableOpacity
@@ -51,29 +57,16 @@ const refreshData={
         style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View>
-            {status === null ? null : null}
-            {status === statusList[3] ? <Entypo name="circle" size={14} color="gray" /> : null}
-            {status === statusList[3] ? (
-              <MaterialCommunityIcons name="progress-check" size={14} color="#1B005D" />
-            ) : null}
-            {status === statusList[3] ? <AntDesign name="search1" size={14} color="#1B005D" /> : null}
-            {status === "Completed" ? (
-              <AntDesign name="checkcircleo" size={14} color="green" />
-            ) : null}
-          </View>
           <Text
             style={[
               styles.dropdownItemTxt,
               {
-                fontSize: 14,
-                marginLeft: 5,
-                color: status === "Completed" ? "green" : "#1B005D",
-                fontWeight: "bold",
+                fontSize: 10,
+                color: "#1B005D",
               },
             ]}
           >
-            {activeTask.status}
+            {task ? task.status : "Status"}
           </Text>
         </View>
 
@@ -88,10 +81,7 @@ const refreshData={
         <View style={styles.dropdownContainer}>
           {statusList.map((item, idx) => (
             <TouchableOpacity key={idx} style={styles.dropdownItem} onPress={() => OnItemPressed(item)}>
-              <Entypo name="circle" size={14} color="gray" />
-              <Text style={[styles.dropdownItemTxt, { color: "gray", marginLeft: 5 }]}>
-                {item}
-              </Text>
+              <BadgedTaskStatus status={item} showColor={false} />
             </TouchableOpacity>
           ))}
         </View>
@@ -106,24 +96,30 @@ export default TaskStatusDropdown
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#EEEFF5",
-    padding: 8,
-    borderRadius: 5,
-    width: "45%",
-    height: 40,
-    marginTop: 5,
-    zIndex: 1,
+    backgroundColor: "#F2F2F2",
+    paddingHorizontal: 12,
+    justifyContent: "center",
+    borderRadius: 10,
+    width: "100%",
+    height: "100%",
+    zIndex: 999,
   },
   dropdownContainer: {
     backgroundColor: "#FFF",
     position: "absolute",
-    shadowColor: "gray",
     paddingHorizontal: 5,
-    top: 41,
-    width: "110%",
+    top: 37,
+    width: "100%",
+    minWidth: 135,
     borderRadius: 5,
     zIndex: 1000,
-    elevation: 9,
+    ...GS.noBorder,
+    borderWidth: 1,
+    elevation: 10,
+    shadowColor: "rgba(0, 0, 0, 0.1)",
+    shadowOffset: { width: 10, height: 10.5 },
+    shadowOpacity: 1,
+    shadowRadius: 15,
   },
   dropdownItem: {
     paddingVertical: 2,
@@ -131,8 +127,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dropdownItemTxt: {
-    color: "#1B005D",
-    marginLeft: 5,
+    color: "#282048",
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+    fontSize: 10
+
   },
   iconStyle: {
     width: 12,

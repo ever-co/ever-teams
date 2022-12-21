@@ -1,8 +1,10 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native"
-import { useStores } from "../../../../models"
-import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../../../services/interfaces/IOrganizationTeam"
+import { imgTitle } from "../../helpers/img-title"
+import { useStores } from "../../models"
+import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
+import { typography } from "../../theme"
 import DropDownSection from "./DropDownSection"
 
 export interface Props {
@@ -30,8 +32,9 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
     getTeamTasks({ authToken, organizationId, tenantId, activeTeamId: newActiveTeam.id })
     setShowDrop(!showDrop)
     setActiveTask({})
-    setTeamInvitations({items:[], total:0})
+    setTeamInvitations({ items: [], total: 0 })
   }
+
 
   return (
     <View style={styles.mainContainer}>
@@ -40,9 +43,13 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
         activeOpacity={0.7}
         onPress={() => setShowDrop(!showDrop)}
       >
-        <Image source={require("../../../../../assets/images/mask.png")} />
-        <Text style={{ color: "#282048", fontWeight:"600", fontSize:14 }}>{`${activeTeam.name} (${teams.total})`}</Text>
-        <Image source={require("../../../../../assets/icons/caretDown.png")} />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={styles.teamImage}>
+            <Text style={styles.prefix}>{imgTitle(activeTeam.name)}</Text>
+          </View>
+          <Text style={styles.activeTeamTxt}>{`${activeTeam.name} (${teams.total})`}</Text>
+        </View>
+        <Image source={require("../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
       {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
     </View>
@@ -54,20 +61,50 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
-    zIndex:999
+    zIndex: 999,
+    width: "100%"
   },
   mainDropDown: {
     flexDirection: "row",
-    width: "80%",
+    width: "100%",
     backgroundColor: "#FFF",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+    alignItems: 'center',
     borderRadius: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderColor:"gray",
-    borderWidth:1
+    borderColor: "#DCE4E8",
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    height: 56,
+    borderWidth: 1
   },
+  teamImage: {
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 18,
+    backgroundColor: "#C1E0EA",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1.5,
+    },
+    shadowOpacity: 0.18,
+    shadowRadius: 1.00,
+    elevation: 2,
+  },
+  activeTeamTxt: {
+    color: "#282048",
+    fontWeight: "600",
+    fontSize: 14,
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+    left: 12
+  },
+  prefix: {
+    fontSize: 14,
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+    fontWeight: "600"
+  }
 })
 
 export default DropDown

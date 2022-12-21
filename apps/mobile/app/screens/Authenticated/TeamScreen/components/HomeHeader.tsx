@@ -9,50 +9,43 @@ const HomeHeader = (props) => {
 
   return (
     <View style={styles.mainContainer}>
-      <View>
         <View style={styles.secondContainer}>
+          <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams.png")} resizeMode="contain" />
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => props.navigation.openDrawer()}
-            style={{ marginRight: 15 }}
           >
-            <Feather name="menu" size={30} color="#fff" />
+            <Feather name="menu" size={24} color="#000" />
           </TouchableOpacity>
-          <Image source={require("../../../../../assets/images/gauzy-teams.png")} />
         </View>
-      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: "#1B005D",
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  textColor: {
-    color: "#FFFFFF",
+    backgroundColor: "#fff",
+    paddingHorizontal:25,
+    paddingVertical:20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.07,
+    shadowRadius: 1.00,
+    elevation: 1, 
   },
   secondContainer: {
     flexDirection: "row",
-    justifyContent: "flex-start",
-    paddingLeft: 15,
-    paddingRight: 15,
-    height: 30,
+    justifyContent: "space-between",
     alignItems: "center",
+    backgroundColor:"#fff"
   },
-  icons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "20%",
-  },
-  line: {
-    backgroundColor: "#fff",
-    height: 2,
-    width: 20,
-    marginBottom: 3,
-  },
+logo:{
+  width:120,
+  height:15
+}
 })
 
 export default HomeHeader

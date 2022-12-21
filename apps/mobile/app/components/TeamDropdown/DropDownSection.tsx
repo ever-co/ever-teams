@@ -1,7 +1,10 @@
 import React, { FC } from "react"
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
 import Icon from "react-native-vector-icons/Ionicons"
-import { IOrganizationTeamList } from "../../../../services/interfaces/IOrganizationTeam"
+import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
+
+// STYLES
+import { GLOBAL_STYLE as GS } from "../../../assets/ts/styles"
 
 export interface Props {
   teams: IOrganizationTeamList[]
@@ -41,7 +44,7 @@ export interface IDropItem {
 const DropItem:FC<IDropItem> = function CreateTeamModal({ team, changeTeam }) {
   return (
     <TouchableOpacity onPress={()=>changeTeam(team)} style={styles.indDropDown}>
-      <Image style={styles.teamImage} source={require("../../../../../assets/icons/community.png")} />
+      <Image style={styles.teamImage} source={require("../../..//assets/icons/community.png")} />
       <Text style={{ color: "#1B005D", paddingLeft: "5%" }}>{team.name}</Text>
     </TouchableOpacity>
   )
@@ -51,12 +54,13 @@ const styles = StyleSheet.create({
   mainContainer: {
     elevation: 100,
     position: "absolute",
-    top: 50,
+    top: 58,
     zIndex: 10,
     backgroundColor: "#fff",
-    width: "80%",
+    width: "100%",
     borderRadius: 10,
     justifyContent: "space-around",
+    ...GS.shadow
   },
   indDropDown: {
     flexDirection: "row",
