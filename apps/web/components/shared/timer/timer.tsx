@@ -2,8 +2,8 @@ import { pad } from '@app/helpers/number';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
-import { PauseIcon } from './pauseIcon';
-import { PlayIcon } from './playIcon';
+import { PauseIcon } from '@components/ui/svgs/pause-icon';
+import { PlayIcon } from '@components/ui/svgs/play-icon';
 
 const Timer = () => {
 	const {

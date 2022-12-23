@@ -1,6 +1,6 @@
 import TaskInput from '@components/common/main/task-input';
 import StatusDropdown from '@components/common/main/status-dropdown';
-import Timer from '@components/common/main/timer';
+import Timer from '@components/shared/timer/timer';
 import { EstimateTime } from './estimate-time';
 
 export function TimerTasksSection() {

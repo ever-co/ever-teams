@@ -8,7 +8,7 @@ import StatusDropdown from '@components/common/main/status-dropdown';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
-import Timer from '@components/common/main/timer';
+import Timer from '@components/shared/timer/timer';
 import TaskDetailCard from '@components/home/task-card';
 import { withAuthentication } from '@components/app/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';

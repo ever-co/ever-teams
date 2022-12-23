@@ -2,7 +2,7 @@ import { secondsToTime } from '@app/helpers/date';
 import { pad } from '@app/helpers/number';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
-import { TimeInput } from '@components/common/main/time-input';
+import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/common/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';

@@ -11,7 +11,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import Input from '@components/common/input';
-import LockIcon from '@components/common/passcode/lockIcon';
+import LockIcon from '@components/ui/svgs/lock-icon';
 import Footer from '@components/layout/footer/footer';
 
 const Passcode = () => {

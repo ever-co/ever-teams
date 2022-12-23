@@ -3,7 +3,7 @@ import Image from 'next/legacy/image';
 // import { PauseIcon }../../ui/separatorpauseIcon";
 // import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from '@components/common/main/dropdown-user';
-import { TimeInput } from '@components/common/main/time-input';
+import { TimeInput } from '@components/ui/inputs/time-input';
 import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
