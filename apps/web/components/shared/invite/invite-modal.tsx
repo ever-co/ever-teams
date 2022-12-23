@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { IInvite, IInviteProps } from '../../app/interfaces/hooks';
-import UserIcon from '../ui/svgs/user-icon';
-import Input from '../common/input';
+import { IInvite, IInviteProps } from '../../../app/interfaces/hooks';
+import UserIcon from '../../ui/svgs/user-icon';
+import Input from '@components/ui/inputs/input';
 import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
-import { Spinner } from '@components/common/spinner';
+import { Spinner } from '@components/ui/loaders/spinner';
 import { AxiosError } from 'axios';
 
 const initalValues: IInvite = {
 	email: '',
 	name: '',
 };
-const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
+const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initalValues);
 	const { invateUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState({});
@@ -136,4 +136,4 @@ const Invite = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	);
 };
 
-export default Invite;
+export default InviteModal;

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { BadgedTaskStatus } from '../../ui/status-icons';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CheckIcon } from '@heroicons/react/20/solid';
-import { Spinner } from '../spinner';
+import { Spinner } from '../../ui/loaders/spinner';
 
 export function TaskItem({
 	selected,

@@ -1,7 +1,7 @@
-import TaskInput from '@components/common/main/task-input';
-import StatusDropdown from '@components/common/main/status-dropdown';
-import Timer from '@components/shared/timer/timer';
-import { EstimateTime } from './estimate-time';
+import StatusDropdown from '@components/shared/tasks/status-dropdown';
+import TaskInput from '@components/shared/tasks/task-input';
+import TimerCard from '@components/shared/timer/timer-card';
+import { EstimateTime } from '@components/shared/timer/estimate-time';
 
 export function TimerTasksSection() {
 	return (
@@ -16,7 +16,7 @@ export function TimerTasksSection() {
 				</div>
 			</div>
 			<div className="flex justify-center items-center space-x-[27px] mr-[27px] w-1/2 ml-[48px]">
-				<Timer />
+				<TimerCard />
 			</div>
 		</div>
 	);

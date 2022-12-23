@@ -8,11 +8,11 @@ import { authFormValidate } from '@app/helpers/validations';
 import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 import { AxiosError } from 'axios';
 import { userTimezone } from '@app/helpers/date';
-import { Spinner } from '@components/common/spinner';
-import { UserStep } from '@components/pages/auth/steppers/UserStep';
-import TeamLogo from '@components/common/team_logo';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { UserStep } from '@components/pages/auth/steppers/user-step';
+import AppLogo from '@components/ui/svgs/app-logo';
 import Footer from '@components/layout/footer/footer';
-import { TeamStep } from '@components/pages/auth/steppers/teamStep';
+import { TeamStep } from '@components/pages/auth/steppers/team-step';
 
 const FIRST_STEP = 'STEP1';
 const SECOND_STEP = 'STEP2';
@@ -85,7 +85,7 @@ const Team = () => {
        dark:bg-[#202023] dark:bg-opacity-30 "
 				>
 					<div className="flex justify-center w-full">
-						<TeamLogo />
+						<AppLogo />
 					</div>
 					<div className="flex justify-center text-[#ACB3BB] font-light text-center text-[16px] md:text-[18px] w-full mt-[0px] md:mt-[10px]">
 						Visibility for your Team

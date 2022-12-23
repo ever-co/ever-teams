@@ -5,7 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Fragment, useState } from 'react';
-import { Spinner } from './spinner';
+import { Spinner } from '../../ui/loaders/spinner';
 
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);

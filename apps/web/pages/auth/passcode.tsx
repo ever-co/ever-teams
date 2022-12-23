@@ -6,13 +6,13 @@ import {
 	signInWithEmailAndCodeAPI,
 } from '@app/services/client/api';
 import AuthCodeInput from '@components/ui/inputs/auth-code-input';
-import { Spinner } from '@components/common/spinner';
+import { Spinner } from '@components/ui/loaders/spinner';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
-import Input from '@components/common/input';
 import LockIcon from '@components/ui/svgs/lock-icon';
 import Footer from '@components/layout/footer/footer';
+import Input from '@components/ui/inputs/input';
 
 const Passcode = () => {
 	const { query } = useRouter();
@@ -38,7 +38,7 @@ const Passcode = () => {
 					});
 				});
 		}
-	}, [passcodeRef]);
+	}, [passcodeRef, queryCall]);
 
 	return (
 		<div className="flex flex-col h-screen justify-between">

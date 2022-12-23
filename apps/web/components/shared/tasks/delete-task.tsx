@@ -2,7 +2,7 @@ import { IInviteProps } from '@app/interfaces/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { useCallback } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Spinner } from './spinner';
+import { Spinner } from '../../ui/loaders/spinner';
 
 const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 	const { updateTask, updateLoading, setActiveTask, activeTeamTask } =

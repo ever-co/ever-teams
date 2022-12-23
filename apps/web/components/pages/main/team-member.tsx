@@ -1,10 +1,9 @@
-import Header from './header';
-import Card from '../pages/main/card';
-import InviteCard from '../pages/main/invite-card';
+import UsersCard from '@components/shared/users/users-card';
+import InviteCard from '@components/shared/invite/invite-card';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
-import { InvitedCard } from '@components/pages/main/invited-card';
+import { InvitedCard } from '@components/shared/invite/invited-card';
 
 const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -29,12 +28,12 @@ const TeamMemberSection = () => {
 				<Header />
 				{currentUser && (
 					<li key={currentUser.id}>
-						<Card member={currentUser} />
+						<UsersCard member={currentUser} />
 					</li>
 				)}
 				{$members.map((member) => (
 					<li key={member.id}>
-						<Card member={member} />
+						<UsersCard member={member} />
 					</li>
 				))}
 
@@ -91,6 +90,27 @@ const TeamMemberSection = () => {
 				)}
 			</ul>
 		</div>
+	);
+};
+
+const Header = () => {
+	return (
+		<li>
+			<div className="flex items-center justify-between text-primary font-bold dark:text-[#FFFFFF]">
+				<div className="w-[60px]  text-center">Status</div>
+				<div className="w-[215px]  text-center">Name</div>
+				<div></div>
+				<div className="w-[334px]  text-center">Task</div>
+				<div></div>
+				<div className="w-[122px]  text-center">Worked on task</div>
+				<div></div>
+				<div className="w-[245px]  text-center">Estimate</div>
+				<div></div>
+				<div className="w-[184px]  text-center flex items-center justify-center">
+					<span className="w-[104px]">Total worked Today</span>
+				</div>
+			</div>
+		</li>
 	);
 };
 export default TeamMemberSection;

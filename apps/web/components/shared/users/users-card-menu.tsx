@@ -11,11 +11,11 @@ import React, {
 	useState,
 } from 'react';
 import { usePopper } from 'react-popper';
-import DeleteTask from '../delete-task';
-import { Spinner } from '../spinner';
-import TaskFilter from './task-filter';
-import { CreateTaskOption, useTaskInput } from './task-input';
-import { TaskItem } from './task-item';
+import DeleteTask from '../tasks/delete-task';
+import { Spinner } from '../../ui/loaders/spinner';
+import TaskFilter from '../tasks/task-filter';
+import { TaskItem } from '../tasks/task-item';
+import { CreateTaskOption, useTaskInput } from '../tasks/task-input';
 
 interface IOption {
 	name: string;
@@ -159,7 +159,7 @@ function OptionPopover({
 	);
 }
 
-const DropdownUser = ({
+const UserCardMenu = ({
 	setEstimateEdit,
 	setEdit,
 }: IDropdownUserProps & { member: IMember }) => {
@@ -287,4 +287,4 @@ const DropdownUser = ({
 	);
 };
 
-export default DropdownUser;
+export default UserCardMenu;

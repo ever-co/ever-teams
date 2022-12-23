@@ -1,7 +1,7 @@
 import { SiteReCAPTCHA } from '@components/ui/services/recaptcha';
 import { useEffect, useState } from 'react';
-import { IStepProps } from '../../../../app/interfaces/hooks';
-import Input from '../../../common/input';
+import { IStepProps } from '@app/interfaces/hooks';
+import Input from '@components/ui/inputs/input';
 
 export const UserStep = ({
 	handleOnChange,

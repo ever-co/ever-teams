@@ -1,6 +1,6 @@
 import { useState, Fragment } from 'react';
 import Separator from '@components/ui/separator';
-import Invite from '@components/invite/invite';
+import InviteModal from '@components/shared/invite/invite-modal';
 
 const InviteCard = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +44,7 @@ const InviteCard = () => {
 				<div className="w-[177px] text-center text-"> </div>
 				<div></div>
 			</div>
-			<Invite
+			<InviteModal
 				task={null}
 				isOpen={isOpen}
 				closeModal={closeModal}

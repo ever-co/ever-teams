@@ -1,6 +1,6 @@
+import Input from '@components/ui/inputs/input';
 import { useEffect, useState } from 'react';
-import { IStepProps } from '../../../../app/interfaces/hooks';
-import Input from '../../../common/input';
+import { IStepProps } from '@app/interfaces/hooks';
 
 export const TeamStep = ({
 	handleOnChange,
