@@ -12,4 +12,4 @@ const Main = () => {
 	);
 };
 
-export default withAuthentication(Main, 'MainPage');
+export default withAuthentication(Main, { displayName: 'MainPage' });

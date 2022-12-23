@@ -1,35 +1,22 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/legacy/image';
-// import { PauseIcon }../../ui/separatorpauseIcon";
-// import { PlayIcon } from "../common/main/playIcon";
-import DropdownUser from '@components/shared/users/users-card-menu';
+import DropdownUser from '@components/shared/members-card/components/users-card-menu';
 import { TimeInput } from '@components/ui/inputs/time-input';
-import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
-import { Spinner } from '@components/ui/loaders/spinner';
-import Link from 'next/link';
 import { pad } from '@app/helpers/number';
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
-import { useTimer } from '@app/hooks/features/useTimer';
-import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
-import { useRecoilValue } from 'recoil';
-import { timerSecondsState } from '@app/stores';
-import { ProgressBar } from '@components/ui/progress-bar';
 import { mergeRefs } from '@app/helpers/merge-refs';
 import Separator from '@components/ui/separator';
-
-type IMember = IOrganizationTeamList['members'][number];
-
-/*
-const workStatus = {
-  working: "bg-[#02b102]",
-  offline: "bg-[#de211e]",
-  timeroff: "bg-[#DF7C00]",
-};
-*/
+import { EstimationProgress } from './components/estimation-progress';
+import { WorkedOnTask } from './components/worked-on-task';
+import { Worked24Hours } from './components/worked-24-hours';
+import { MemberInfo } from './components/member-info';
+import { IMember, MC_EditableValues } from './types';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { TaskInfo } from './components/task-info';
 
 const Card = ({ member }: { member: IMember }) => {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -37,16 +24,17 @@ const Card = ({ member }: { member: IMember }) => {
 	const isAuthUser = member.employee.userId === user?.id;
 	const isManager = isAuthUser && isTeamManager;
 	const iuser = member.employee.user;
-	// const iemployee = member.employee;
 
-	const [nameEdit, setNameEdit] = useState(false);
-	const [taskEdit, setTaskEdit] = useState(false);
-	const [estimateEdit, setEstimateEdit] = useState(false);
 	const [memberTask, setMemberTask] = useState<ITeamTask | null>(null);
 
-	const [formValues, setFormValues] = useState({
-		devName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
-		devTask: '',
+	// Can edit hooks
+	const hasEditMode = isManager || isAuthUser;
+	const [taskEditMode, setTaskEditMode] = useState(false);
+	const [estimateEdit, setEstimateEdit] = useState(false);
+
+	const [formValues, setFormValues] = useState<MC_EditableValues>({
+		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
+		memberTask: '',
 		estimateHours: 0,
 		estimateMinutes: 0,
 	});
@@ -63,7 +51,7 @@ const Card = ({ member }: { member: IMember }) => {
 			setFormValues((d) => {
 				return {
 					...d,
-					devTask: memberTask.title,
+					memberTask: memberTask.title,
 					estimateHours: h,
 					estimateMinutes: m,
 				};
@@ -71,7 +59,7 @@ const Card = ({ member }: { member: IMember }) => {
 		}
 	}, [memberTask]);
 
-	const handleChange = (e: any) => {
+	const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setFormValues((prevState) => ({ ...prevState, [name]: value }));
 	};
@@ -105,30 +93,18 @@ const Card = ({ member }: { member: IMember }) => {
 		};
 	}, []);
 
-	const canEditTaskName = useCallback(() => {
-		(isManager || isAuthUser) && setTaskEdit(true);
-	}, [isAuthUser, isManager]);
-
-	const handeEditBoth = useCallback(() => {
-		canEditTaskName();
-	}, [canEditTaskName]);
-
 	const canEditEstimate = useCallback(() => {
 		(isManager || isAuthUser) && setEstimateEdit(true);
 	}, [isAuthUser, isManager]);
 
-	const handleNameEdit = useCallback(() => {
-		setNameEdit(false);
-	}, []);
-
 	const handleTaskEdit = async () => {
-		if (memberTask && memberTask.title !== formValues.devTask) {
+		if (memberTask && memberTask.title !== formValues.memberTask) {
 			await updateTask({
 				...memberTask,
-				title: formValues.devTask,
+				title: formValues.memberTask,
 			});
 		}
-		setTaskEdit(false);
+		setTaskEditMode(false);
 	};
 
 	const blurEstimationFields = useCallback(() => {
@@ -196,76 +172,26 @@ const Card = ({ member }: { member: IMember }) => {
 			</div>
 
 			{/* User info */}
-			<div className="w-[235px] h-[48px] flex items-center justify-center">
-				<div className="flex justify-center items-center">
-					<Link href={`/profile/${iuser?.id}`}>
-						<div className="relative w-[48px] h-[48px]">
-							<Image
-								src={iuser?.imageUrl || ''}
-								alt="User Icon"
-								layout="fill"
-								objectFit="cover"
-								className="rounded-[50%] cursor-pointer h-full w-full"
-							/>
-						</div>
-					</Link>
-				</div>
-
-				<div className="w-[137px] mx-[20px] h-[48px] flex justify-start items-center cursor-pointer">
-					{nameEdit === true ? (
-						<input
-							value={formValues.devName}
-							name="devName"
-							onChange={handleChange}
-							onKeyPress={(event) => event.key === 'Enter' && handleNameEdit()}
-							className="w-full h-[40px] rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
-						/>
-					) : (
-						<Link href={`/profile/${iuser?.id}`}>
-							<div>{formValues.devName}</div>
-						</Link>
-					)}
-				</div>
-			</div>
+			<MemberInfo
+				member={iuser}
+				editMode={false}
+				editable={formValues}
+				onChangeName={handleChange}
+			/>
 			<Separator />
 
 			{/* Task info */}
-			<div
-				className={`w-[334px]  h-[48px] font-light text-normal hover:rounded-[8px] hover:cursor-text`}
-				onDoubleClick={() => {
-					setTaskEdit(true);
-				}}
-			>
-				{taskEdit === true ? (
-					<div className="flex items-center">
-						<input
-							name="devTask"
-							ref={editTaskInputEl}
-							value={formValues.devTask}
-							onChange={handleChange}
-							onKeyPress={(event) => event.key === 'Enter' && handleTaskEdit()}
-							className="w-full resize-none h-[48px] rounded-lg px-2 py-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
-						/>
-						<span className="w-3 h-5 ml-2">
-							{updateLoading && <Spinner dark={false} />}
-						</span>
-					</div>
-				) : (
-					<div
-						className={`w-[334px] text-center h-[48px]  font-light text-normal px-[14px] border border-white dark:border-[#202023] hover:border-[#D7E1EB] dark:hover:border-[#27272A]  hover:rounded-[8px] hover:cursor-text`}
-						onDoubleClick={canEditTaskName}
-					>
-						{memberTask ? (
-							<span className="text-[#9490A0]">
-								{`#${memberTask.taskNumber} `}
-							</span>
-						) : (
-							''
-						)}
-						{formValues.devTask}
-					</div>
-				)}
-			</div>
+			<TaskInfo
+				memberTask={memberTask}
+				editMode={taskEditMode}
+				setEditMode={setTaskEditMode}
+				editable={formValues}
+				hasEditMode={hasEditMode}
+				onChangeName={handleChange}
+				onSubmitName={handleTaskEdit}
+				loading={updateLoading}
+				ref={editTaskInputEl}
+			/>
 			<Separator />
 
 			{/* Time worked on task */}
@@ -353,7 +279,7 @@ const Card = ({ member }: { member: IMember }) => {
 					>
 						<DropdownUser
 							member={member}
-							setEdit={handeEditBoth}
+							setEdit={() => hasEditMode && setTaskEditMode(true)}
 							setEstimateEdit={canEditEstimate}
 						/>
 					</div>
@@ -362,80 +288,5 @@ const Card = ({ member }: { member: IMember }) => {
 		</div>
 	);
 };
-
-function EstimationProgress({
-	isAuthUser,
-}: {
-	memberTask: ITeamTask | null;
-	isAuthUser: boolean;
-}) {
-	const seconds = useRecoilValue(timerSecondsState);
-	const { activeTaskEstimation } = useTaskStatistics(isAuthUser ? seconds : 0);
-
-	return (
-		<div className="mb-3">
-			<ProgressBar
-				width={200}
-				progress={`${isAuthUser ? activeTaskEstimation : 0}%`}
-			/>
-		</div>
-	);
-}
-
-function WorkedOnTask({
-	memberTask,
-	isAuthUser,
-}: {
-	memberTask: ITeamTask | null;
-	isAuthUser: boolean;
-}) {
-	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } =
-		useTaskStatistics();
-
-	if (isAuthUser) {
-		const { h, m } = secondsToTime(activeTaskTotalStat?.duration || 0);
-		const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);
-
-		return (
-			<div className="w-[122px]  text-center">
-				Today {dh}h:{dm}m <br />{' '}
-				<span className="opacity-60">
-					Total {h}h:{m}m
-				</span>
-			</div>
-		);
-	}
-	const { taskDailyStat, taskTotalStat } = getTaskStat(memberTask);
-
-	const { h, m } = secondsToTime(taskTotalStat?.duration || 0);
-	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0);
-
-	return (
-		<div className="w-[122px]  text-center">
-			Today {dh}h:{dm}m <br />{' '}
-			<span className="opacity-60">
-				Total {h}h:{m}m
-			</span>
-		</div>
-	);
-}
-
-function Worked24Hours({ isAuthUser }: { isAuthUser: boolean }) {
-	const { timerStatus } = useTimer();
-	const { h, m } = secondsToTime(timerStatus?.duration || 0);
-	if (!isAuthUser) {
-		return (
-			<div className="w-[177px] text-center">
-				{0}h:{0}m
-			</div>
-		);
-	}
-
-	return (
-		<div className="w-[177px] text-center ">
-			{h}h:{m}m
-		</div>
-	);
-}
 
 export default Card;

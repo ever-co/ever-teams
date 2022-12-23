@@ -11,11 +11,11 @@ import React, {
 	useState,
 } from 'react';
 import { usePopper } from 'react-popper';
-import DeleteTask from '../tasks/delete-task';
-import { Spinner } from '../../ui/loaders/spinner';
-import TaskFilter from '../tasks/task-filter';
-import { TaskItem } from '../tasks/task-item';
-import { CreateTaskOption, useTaskInput } from '../tasks/task-input';
+import DeleteTask from '../../tasks/delete-task';
+import { Spinner } from '../../../ui/loaders/spinner';
+import TaskFilter from '../../tasks/task-filter';
+import { TaskItem } from '../../tasks/task-item';
+import { CreateTaskOption, useTaskInput } from '../../tasks/task-input';
 
 interface IOption {
 	name: string;

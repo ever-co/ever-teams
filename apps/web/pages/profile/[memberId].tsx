@@ -75,4 +75,4 @@ const Profile = () => {
 	);
 };
 
-export default withAuthentication(Profile, 'ProfilePage');
+export default withAuthentication(Profile, { displayName: 'ProfilePage' });
