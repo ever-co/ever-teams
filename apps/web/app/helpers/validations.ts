@@ -93,7 +93,11 @@ export function validSMTPConfig() {
 
 	const keys = Object.keys(SMTPConfig) as (keyof I_SMTPRequest)[];
 
-	if (keys.some((key) => !SMTPConfig[key])) {
+	if (
+		keys.some(
+			(key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined
+		)
+	) {
 		return null;
 	}
 
