@@ -11,7 +11,7 @@ export function Header({ user }: { user: IUser | undefined }) {
 			<div className="ml-[16px] mb-[20px] flex flex-col space-y-[15px]">
 				<div className="w-[171px] bg-[#ACB3BB] mt-[20px] mb-2 text-[18px] text-[#FFFFFF] rounded-[8px] px-[17px] py-[5px] flex items-center cursor-pointer hover:opacity-80">
 					<ChevronLeftIcon className="w-[15px] mr-[10px]" />
-					<Link href="/main">Back to Team</Link>
+					<Link href="/">Back to Team</Link>
 				</div>
 				<div className="flex items-center mb-[100px]">
 					<div className="relative h-[137px] w-[137px]">
