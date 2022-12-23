@@ -44,7 +44,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 	) => {
 		const canEditMode = useCallback(() => {
 			hasEditMode && setEditMode(true);
-		}, []);
+		}, [setEditMode, hasEditMode]);
 
 		return (
 			<div className="w-[245px]  flex justify-center items-center">
@@ -113,3 +113,5 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 		);
 	}
 );
+
+EstimateTimeInfo.displayName = 'EstimateTimeInfo';

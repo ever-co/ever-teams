@@ -12,7 +12,7 @@ import { Worked24Hours } from './components/worked-24-hours';
 import { MemberInfo } from './components/member-info';
 import { IMember, MC_EditableValues } from './types';
 import { TaskInfo } from './components/task-info';
-import { EstimateTimeInfo } from './components/estimate-time';
+import { EstimateTimeInfo } from './components/estimate-time-info';
 
 const Card = ({ member }: { member: IMember }) => {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -159,8 +159,8 @@ const Card = ({ member }: { member: IMember }) => {
 		<div
 			className={`w-full rounded-[15px] border ${
 				isManager
-					? ' border-primary dark:border-gray-100'
-					: ' hover:border hover:border-primary dark:border-[#202023]'
+					? 'border-primary dark:border-gray-100'
+					: 'hover:border hover:border-primary dark:border-[#202023]'
 			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary dark:hover:border-gray-100 font-bold py-[24px] dark:text-[#FFFFFF]`}
 		>
 			<div className="w-[60px]  flex justify-center items-center">

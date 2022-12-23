@@ -72,3 +72,5 @@ export const TaskInfo = forwardRef<HTMLInputElement, Props>(
 		);
 	}
 );
+
+TaskInfo.displayName = 'TaskInfo';
