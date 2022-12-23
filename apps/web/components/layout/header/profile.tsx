@@ -1,17 +1,14 @@
-import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import Image from 'next/legacy/image';
+import capitalize from 'lodash/capitalize';
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Link from 'next/link';
+import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 
 interface IOption {
 	name: string;
 	icon: string;
 	link: string;
-}
-
-export function Capitalize(value: string) {
-	return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 const Profile = () => {
@@ -70,8 +67,8 @@ const Profile = () => {
 										</div>
 									</div>
 									<div className="text-[18px] mt-[7px] font-medium text-[#293241] dark:text-white flex items-center justify-center">
-										{user?.firstName && Capitalize(user.firstName)}
-										{user?.lastName && ' ' + Capitalize(user.lastName)}
+										{user?.firstName && capitalize(user.firstName)}
+										{user?.lastName && ' ' + capitalize(user.lastName)}
 									</div>
 									<div className="text-[#B0B5C7] text-[14px] text-center font-normal">
 										{user?.email}

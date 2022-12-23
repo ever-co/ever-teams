@@ -1,5 +1,5 @@
 import MainLogo from './mainLogo';
-import { TeamsDropDown } from '../../common/dropDown';
+import { TeamsDropDown } from '../../shared/teams/teams-dropdown';
 import Profile from './profile';
 // import { IDrowDownData } from "@app/interfaces/hooks";
 
