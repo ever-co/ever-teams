@@ -6,11 +6,12 @@ import { secondsToTime } from "../../../../helpers/date";
 import { values } from "mobx";
 import { useStores } from "../../../../models";
 import { ActivityIndicator } from "react-native-paper";
+import { typography } from "../../../../theme";
 
-interface params{
-    setEditEstimate?:(value:boolean)=>unknown
+interface params {
+    setEditEstimate?: (value: boolean) => unknown
 }
-const EstimateTime = ({setEditEstimate}:params) => {
+const EstimateTime = ({ setEditEstimate }: params) => {
     const {
         authenticationStore: { authToken, tenantId, organizationId },
         TaskStore: { activeTask, updateTask, fetchingTasks },
@@ -60,7 +61,7 @@ const EstimateTime = ({setEditEstimate}:params) => {
         } else {
             setEstimate({
                 ...estimate,
-                minutes: parsedQty<10 ? "0"+parsedQty.toString() :parsedQty.toString()
+                minutes: parsedQty < 10 ? "0" + parsedQty.toString() : parsedQty.toString()
             })
         }
         handleCheckIcon();
@@ -69,14 +70,14 @@ const EstimateTime = ({setEditEstimate}:params) => {
     const handleCheckIcon = () => {
         const intHour = Number.parseInt(estimate.hours);
         const intMinutes = Number.parseInt(estimate.minutes);
-        if (estimate.hours!=="" && estimate.minutes!=="") {
-            const seconds=intHour * 60 * 60 + intMinutes * 60
-            setShowCheckIcon(seconds>0?true:false)
+        if (estimate.hours !== "" && estimate.minutes !== "") {
+            const seconds = intHour * 60 * 60 + intMinutes * 60
+            setShowCheckIcon(seconds > 0 ? true : false)
         }
     }
 
 
-    const handleSubmit = useCallback(async() => {
+    const handleSubmit = useCallback(async () => {
         if (!activeTask) return;
 
         const hours = +estimate.hours;
@@ -107,32 +108,61 @@ const EstimateTime = ({setEditEstimate}:params) => {
         const response = await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
-        setEditEstimate(false)
+        if (setEditEstimate)
+            setEditEstimate(false)
     }, [activeTask, updateTask, estimate]);
+
+    const formatTwoDigit = (value: string) => {
+        const intValue = Number.parseInt(value)
+        if (Number.isNaN(intValue)) {
+            return "00"
+        }
+
+        if (intValue < 10) {
+            return "0" + value
+        } else {
+            return value;
+        }
+
+    }
 
     return (
         <View style={[styles.estimate, {}]}>
-            <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                value={!editing.editingHour && estimate.hours}
-                onFocus={() => setEditing({ ...editing, editingHour: true })}
-                onEndEditing={() => setEditing({ ...editing, editingHour: false })}
-                onChangeText={(text) => onChangeHours(text)}
-                style={[styles.estimateInput,estimate.hours.length!==0 && {borderBottomColor:"white"}]}
-            />
-            <Text>h</Text>
+            <View>
+                <TextInput
+                    maxLength={2}
+                    keyboardType={"numeric"}
+                    value={!editing.editingHour && formatTwoDigit(estimate.hours)}
+                    onFocus={() => setEditing({ ...editing, editingHour: true })}
+                    onEndEditing={() => setEditing({ ...editing, editingHour: false })}
+                    onChangeText={(text) => onChangeHours(text)}
+                    style={[styles.estimateInput, estimate.hours.length !== 0 && { borderBottomColor: "#7E7991" }]}
+                />
+                <View style={{ flexDirection: "row", justifyContent: "space-between", paddingLeft: 2 }}>
+                    <View style={{ width: 5, height: 1, backgroundColor: "black" }} />
+                    <View style={{ width: 5, height: 1, backgroundColor: "black" }} />
+                    <View />
+                </View>
+            </View>
+            <Text style={styles.suffix}>h</Text>
             <Text style={{ margin: 2 }}>:</Text>
-            <TextInput
-                maxLength={2}
-                keyboardType={"numeric"}
-                onFocus={() => setEditing({ ...editing, editingMinutes: true })}
-                onEndEditing={() => setEditing({ ...editing, editingMinutes: false })}
-                value={!editing.editingMinutes && estimate.minutes}
-                onChangeText={(text) => onChangeMinutes(text)}
-                style={[styles.estimateInput,estimate.minutes.length>0 && {borderBottomColor:"white"}]}
-            />
-            <Text>m</Text>
+            <View>
+                <TextInput
+                    maxLength={2}
+                    keyboardType={"numeric"}
+                    onFocus={() => setEditing({ ...editing, editingMinutes: true })}
+                    onEndEditing={() => setEditing({ ...editing, editingMinutes: false })}
+                    value={!editing.editingMinutes && formatTwoDigit(estimate.minutes)}
+                    onChangeText={(text) => onChangeMinutes(text)}
+                    style={[styles.estimateInput, estimate.minutes.length > 0 && { borderBottomColor: "#7E7991" }]}
+                />
+                <View style={{ flexDirection: "row", justifyContent: "space-between", paddingLeft: 2 }}>
+                    <View style={{ width: 5, height: 1, backgroundColor: "black" }} />
+                    <View style={{ width: 5, height: 1, backgroundColor: "black" }} />
+                    <View />
+                </View>
+            </View>
+            <Text style={styles.suffix}>m</Text>
             {showCheckIcon && <Feather style={styles.thickIconStyle} size={25} color={"green"} name="check" onPress={() => handleSubmit()} />}
             {isLoading ? <ActivityIndicator size={14} color="#1B005D" style={styles.loading} /> : null}
         </View>
@@ -153,19 +183,27 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     estimateInput: {
-        borderBottomColor: "gray",
-        borderBottomWidth: 1,
-        textAlign:"center",
+        textAlign: "center",
+        color: "#282048",
+        fontSize: 14,
+        fontWeight: "600",
+        fontFamily: typography.fonts.PlusJakartaSans.semiBold
+
+    },
+    suffix: {
+        fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+        color: " #282048",
+        fontSize: 14
     },
     checkButton: {
         margin: 2
     },
     loading: {
         position: 'absolute',
-        right:-18,
+        right: -18,
     },
-    thickIconStyle:{
-        position:"absolute",
-        right:-23
+    thickIconStyle: {
+        position: "absolute",
+        right: -26
     }
 })

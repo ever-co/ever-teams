@@ -1,6 +1,6 @@
 import React from "react"
 import { View, StyleSheet, Image } from "react-native"
-import { colors } from "../../../../theme"
+import { colors, typography } from "../../../../theme"
 import { Feather } from "@expo/vector-icons"
 
 // COMPONENTS
@@ -24,20 +24,22 @@ const ProfileHeader = (member: IUser) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    paddingVertical: 10
+    paddingVertical: 10,
+    paddingHorizontal:20,
+    backgroundColor:"#fff"
   },
   containerInfo: {
-    marginTop: 14,
-    marginLeft:20
+    marginLeft:10,
   },
   name: {
-    color: "#1B005D",
-    fontSize: 25,
-    fontWeight: "bold",
+    color: "#282048",
+    fontSize: 18,
+    fontFamily:typography.primary.semiBold
   },
   email: {
-    color: "#B0B5C7",
+    color: "#7E7991",
     fontSize: 12,
+    fontFamily:typography.secondary.medium
   },
   wrapEditIcon: {
     position: "absolute",

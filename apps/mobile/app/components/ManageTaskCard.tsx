@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { View, StyleSheet, TextInput, Text, TouchableOpacity } from "react-native"
+import { View, StyleSheet, TextInput, Text, TouchableOpacity, Dimensions } from "react-native"
 import { ActivityIndicator } from "react-native-paper";
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles";
 import { useStores } from "../models";
@@ -10,7 +10,14 @@ import { ITeamTask } from "../services/interfaces/ITask";
 import { colors } from "../theme/colors";
 import { Feather } from '@expo/vector-icons';
 import { observer } from "mobx-react-lite";
+import TaskSize from "./TaskSize";
+import TaskPriorities from "./TaskPriorities";
+import TaskStatus from "../screens/Authenticated/ProfileScreen/components/TaskStatus";
+import TaskLabel from "./TaskLabel";
+import { typography } from "../theme";
+import TimerCard from "./TimerCard";
 
+const { width, height } = Dimensions.get("window");
 const ManageTaskCard = observer(() => {
     const {
         authenticationStore: { tenantId, organizationId, authToken },
@@ -57,12 +64,12 @@ const ManageTaskCard = observer(() => {
         console.log(value)
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         setTaskInputText(activeTask.title)
-    },[activeTask])
+    }, [activeTask])
 
     return (
-        <View>
+        <View style={styles.container}>
             <View
                 style={[
                     styles.wrapInput,
@@ -70,7 +77,6 @@ const ManageTaskCard = observer(() => {
                         flexDirection: "row",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        paddingHorizontal: 10,
                     },
                 ]}
             >
@@ -78,6 +84,7 @@ const ManageTaskCard = observer(() => {
                     selectionColor={colors.primary}
                     style={styles.textInput}
                     defaultValue={activeTask.title}
+                    placeholder="What you working on"
                     value={taskInputText}
                     onFocus={() => setShowCombo(true)}
                     onChangeText={(newText) => handleChangeText(newText)}
@@ -90,29 +97,58 @@ const ManageTaskCard = observer(() => {
                 {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
             </View>
 
-            {showCombo && <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />}
+            {showCombo ? <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} /> :
+                <View>
+                    <View
+                        style={{
+                            width: "100%",
+                            flexDirection: "row",
+                            marginVertical: 20,
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                        }}
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: "center" }}>
+                            <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate: </Text>
+                            <EstimateTime />
+                        </View>
+                        <TaskSize />
+                    </View>
+                    <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", zIndex: 1000 }}>
 
-            <View
-                style={{
-                    flexDirection: "row",
-                    marginBottom: 10,
-                    justifyContent: "space-between",
-                }}
-            >
-                <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ textAlign: 'center', textAlignVertical: 'center' }}>Estimate:</Text>
-                    <EstimateTime />
+                        <View style={{ width: 136, height: 32 }}>
+                            <TaskStatusDropdown task={activeTask} />
+                        </View>
+                        <TaskPriorities />
+                    </View>
+                    <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
+                        <TaskLabel />
+                    </View>
+                    <TimerCard />
                 </View>
-                <TaskStatusDropdown />
-            </View>
+            }
         </View>
     )
 })
 export default ManageTaskCard;
 
 const styles = StyleSheet.create({
-    mainContainer: {
+    container: {
         marginTop: 20,
+        backgroundColor: "#fff",
+        padding: 20,
+        borderRadius: 16,
+        ...GS.noBorder,
+        borderWidth: 1,
+        elevation: 10,
+        shadowColor: "rgba(0, 0, 0, 0.1)",
+        shadowOffset: { width: 10, height: 10.5 },
+        shadowOpacity: 1,
+        shadowRadius: 15,
+        zIndex: 998
+    },
+    mainContainer: {
+        // marginTop: 20,
         paddingTop: 30,
         backgroundColor: "#fff",
         borderRadius: 25,
@@ -143,9 +179,15 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     textInput: {
-        color: colors.primary,
-        width: '85%',
-        height: '90%',
+        color: "rgba(40, 32, 72, 0.4)",
+        width: "90%",
+        height: 43,
+        paddingVertical: 13,
+        paddingHorizontal: 16,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        fontSize: 12,
+        fontFamily: typography.fonts.PlusJakartaSans.semiBold
     },
     textInputOne: {
         height: 30,
@@ -166,15 +208,18 @@ const styles = StyleSheet.create({
         height: 20,
     },
     wrapInput: {
-        backgroundColor: "#EEEFF5",
-        height: 50,
         width: "100%",
+        height: 45,
+        backgroundColor: "#fff",
+        borderColor: "rgba(0, 0, 0, 0.1)",
+        borderWidth: 1,
         borderRadius: 10,
-        marginBottom: 6,
+        paddingVertical: 2
     },
     loading: {
         position: 'absolute',
         right: 10,
         top: 15
     }
+
 })

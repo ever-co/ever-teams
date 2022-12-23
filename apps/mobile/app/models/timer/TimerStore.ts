@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { ITimerParams, ITimerStatusParams } from "../../services/interfaces/ITimer"
-import { getTimerStatusRequest, startTimerRequest, stopTimerRequest } from "../../services/requests/timer"
+import { getTimerStatusRequest, startTimerRequest, stopTimerRequest } from "../../services/client/requests/timer"
 
 export const TimerStoreModel = types
     .model("TimerStore")

@@ -8,89 +8,89 @@ import {
     TouchableOpacity,
     StyleSheet,
     TextInput,
+    Text
 } from "react-native"
 
 // COMPONENTS
-import { Card, Icon, ListItem, Text } from "../../../../components"
+import { Card, Icon, ListItem } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { colors, spacing } from "../../../../theme"
+import { colors, spacing, typography } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
-import { secondsToTime } from "../../../../helpers/date"
+import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
+import { pad } from "../../../../helpers/number"
+import { useTimer } from "../../../../services/hooks/useTimer"
+import EstimateTime from "../../TimerScreen/components/EstimateTime"
+import { IUser } from "../../../../services/interfaces/IUserData"
+import { observer } from "mobx-react-lite"
 import { imgTitle } from "../../../../helpers/img-title"
+
 export type ListItemProps = {
     item: any,
-    onPressIn?: () => unknown
+    //   onPressIn?: (user: IUser) => unknown
+}
+interface IUserStatus {
+    icon: any,
+    color: string
 }
 
 export interface Props extends ListItemProps { }
 
-export const InviteCardItemContent: React.FC<ListItemProps> = ({ item, onPressIn }) => {
-    const { TaskStore: { activeTask }, authenticationStore: { user } } = useStores();
-    const [estimate, setEstimate] = useState(false)
+export const ListItemContent: React.FC<ListItemProps> = observer(({ item }) => {
 
+
+
+    const status = "online"
 
     return (
-        <TouchableNativeFeedback onPressIn={onPressIn}>
-            <View style={{ ...GS.p2, ...GS.positionRelative, borderRadius: 20 }}>
-                <View style={[styles.statusLine, { backgroundColor: "black" }]} />
+        <TouchableOpacity onPress={() => {}}>
+            <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: "#fff" }, { borderRadius: 20 }]}>
                 <View style={styles.firstContainer}>
-                    {/* <Image
-                        source={require("../../../../../assets/images/person2.png")}
-                        style={$usersProfile}
-                    /> */}
-                    <View style={$usersProfile}>
-                        <Text>{imgTitle(item?.fullName)}</Text>
+                    <View style={styles.wrapProfileImg}>
+                        <View style={$usersProfile}>
+                            <Text style={{fontFamily:typography.primary.semiBold}}>{imgTitle(item?.fullName)}</Text>
+                        </View>
+                        <Image style={styles.statusIcon} source={require("../../../../../assets/icons/new/invite-status-icon.png")} />
                     </View>
                     <Text style={styles.name}>{item?.fullName}</Text>
                     {/* ENABLE ESTIMATE INPUTS */}
-                    {estimate ? (
-                        <View style={styles.estimate}>
-                            <TextInput
-                                maxLength={2}
-                                keyboardType={"numeric"}
-                                placeholder="Hh"
-                                style={styles.estimateInput}
-                            />
-                            <Text style={styles.estimateDivider}>/</Text>
-                            <TextInput
-                                maxLength={2}
-                                keyboardType={"numeric"}
-                                placeholder="Mm"
-                                style={styles.estimateInput}
-                            />
-                        </View>
-                    ) : (
-                        <View style={{ marginLeft: "auto", marginRight: 10 }}>
-                            <ProgressTimeIndicator
-                                estimated={false}
-                                estimatedHours={0}
-                                workedHours={0}
-                            />
-                        </View>
-                    )}
+                    <View style={styles.wrapTotalTime}>
+                        <Text style={styles.totalTimeTitle}>Total time:</Text>
+                        <Text style={styles.totalTimeText}>0 h:0 m</Text>
+                    </View>
                 </View>
-                <View style={{ flexDirection: 'row' }}>
-                    {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>}
-                    <Text style={styles.otherText}>{""}</Text>
+                <View style={{ flexDirection: 'row', marginTop: 16, width: "100%" }}>
+                    {/* {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>} */}
+                    <Text style={styles.otherText}>{"Working on UI Design & making prototype for user testing tomorrow"}</Text>
                 </View>
-                <View style={{ borderBottomWidth: 2, borderBottomColor: "#E8EBF8" }} />
                 <View style={styles.times}>
                     <View>
-                        <Text style={styles.timeHeading}>Current time</Text>
-                        <Text style={styles.timeNumber}>{"00:00"}</Text>
+                        <Text style={styles.timeHeading}>Today work</Text>
+                        <Text style={styles.timeNumber}>0 h:0 m</Text>
                     </View>
                     <View>
-                        <Text style={styles.timeHeading}>Total time</Text>
-                        <Text style={styles.timeNumber}>{"00:00"}</Text>
+                        <Text style={styles.timeHeading}>Total work</Text>
+                        <Text style={styles.timeNumber}>{"01 h:10 m"}</Text>
                     </View>
+        
+                        <View style={{}}>
+                            <TouchableOpacity onPress={() => {}}>
+                                <View style={{}}>
+                                    <ProgressTimeIndicator
+                                        estimated={false}
+                                        estimatedHours={0}
+                                        workedHours={0}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                 </View>
             </View>
-        </TouchableNativeFeedback>
+        </TouchableOpacity>
     )
-}
+})
 
 const InviteCardItem: React.FC<Props> = (props) => {
     // STATS
@@ -101,13 +101,16 @@ const InviteCardItem: React.FC<Props> = (props) => {
         setEstimateNow(true)
         setShowMenu(false)
     }
+    const status = "online"
 
     return (
         <Card
             style={{
                 ...$listCard,
                 ...GS.mb3,
-                borderColor: CC["success"],
+                paddingTop: 5,
+                backgroundColor: "#DCD6D6",
+                zIndex: 800
             }}
             HeadingComponent={
                 <View
@@ -115,34 +118,42 @@ const InviteCardItem: React.FC<Props> = (props) => {
                         ...GS.positionAbsolute,
                         ...GS.t0,
                         ...GS.r0,
-                        ...GS.pt2,
-                        ...GS.zIndexFront,
+                        ...GS.pt5,
+                        ...GS.pr3,
+                        ...GS.zIndexFront
                     }}
                 >
                     <View
                         style={{
                             ...GS.positionRelative,
+                            backgroundColor: "#fff",
+                            ...GS.zIndexFront
                         }}
                     >
                         <View
                             style={{
                                 ...GS.positionAbsolute,
                                 ...GS.p2,
-                                ...GS.pt4,
+                                ...GS.pt1,
                                 ...GS.shadow,
                                 ...GS.r0,
                                 ...GS.roundedSm,
+                                ...GS.zIndexFront,
+                                width: 172,
                                 marginTop: -spacing.extraSmall,
-                                marginRight: -spacing.extraSmall,
+                                marginRight: 17,
                                 backgroundColor: colors.background,
-                                minWidth: spacing.massive * 2.5,
+                                minWidth: spacing.huge * 2,
                                 ...(!showMenu ? { display: "none" } : {}),
                             }}
                         >
                             <View style={{}}>
-                                <ListItem>Edit</ListItem>
-                                <ListItem>Release</ListItem>
-                                <ListItem onPress={() => handleEstimate()}>Estimate now</ListItem>
+                                <ListItem textStyle={styles.dropdownTxt}>Edit Task</ListItem>
+                                <ListItem textStyle={styles.dropdownTxt} onPress={() => handleEstimate()}>Estimate</ListItem>
+                                <ListItem textStyle={styles.dropdownTxt}>Assign Task</ListItem>
+                                <ListItem textStyle={styles.dropdownTxt}>Unassign Task</ListItem>
+                                <ListItem textStyle={styles.dropdownTxt}>Make a Manager</ListItem>
+                                <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
                             </View>
                         </View>
 
@@ -153,15 +164,12 @@ const InviteCardItem: React.FC<Props> = (props) => {
                 </View>
             }
             ContentComponent={
-                <InviteCardItemContent
+                <ListItemContent
                     {...props}
-                    onPressIn={() => {
-                        setShowMenu(false)
-
-                        if (typeof props?.onPressIn === "function") {
-                            props.onPressIn()
-                        }
-                    }}
+                // onPressIn={() => {
+                //   setShowMenu(false)
+                //   props.onPressIn
+                // }}
                 />
             }
         />
@@ -175,20 +183,19 @@ const $listCard: ViewStyle = {
     ...GS.p0,
     ...GS.noBorder,
     ...GS.shadow,
-    backgroundColor: "white",
-    opacity: 0.45,
     minHeight: null,
-    borderRadius: spacing.large
+    borderRadius: spacing.large,
 }
 
 const $usersProfile: ViewStyle = {
-    width: spacing.huge - spacing.small,
-    height: spacing.huge - spacing.small,
+    width: spacing.huge - spacing.extraSmall,
+    height: spacing.huge - spacing.extraSmall,
     borderColor:colors.primary,
     justifyContent:'center',
     alignItems:'center',
     borderWidth:1,
-    borderRadius:20
+    borderRadius:20,
+    opacity:0.2
 }
 
 const styles = StyleSheet.create({
@@ -205,23 +212,32 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         paddingHorizontal: 10,
-        marginVertical: 5,
+        marginTop: 16,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: "rgba(0, 0, 0, 0.06)",
     },
     otherText: {
-        fontSize: 12,
-        color: "#ACB3BB",
-        width: "80%",
+        fontSize: 14,
+        color: "#282048",
+        width: "100%",
         lineHeight: 15,
         marginVertical: 5,
+        fontStyle: "normal",
+        fontFamily: typography.primary.semiBold,
+        opacity:0.2
     },
     timeNumber: {
-        color: "#1B005D",
-        fontSize: 18,
-        fontWeight: "bold",
+        color: "#282048",
+        fontSize: 14,
+        fontFamily: typography.primary.semiBold,
+        opacity:0.2
     },
     timeHeading: {
-        color: "#ACB3BB",
-        fontSize: 14,
+        color: "#7E7991",
+        fontSize: 10,
+        fontFamily: typography.secondary.medium,
+        opacity:0.2
     },
     firstContainer: {
         flexDirection: "row",
@@ -229,47 +245,42 @@ const styles = StyleSheet.create({
     },
     name: {
         color: "#1B005D",
-        fontSize: 16,
-        left: 10,
-        fontWeight: "bold",
-    },
-    estimate: {
-        backgroundColor: "#E8EBF8",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        padding: 3,
-        alignItems: "center",
-        borderRadius: 5,
-        marginLeft: "auto",
-        marginRight: 10,
-        paddingHorizontal: 10,
-    },
-    notEstimate: {
-        color: "#ACB3BB",
         fontSize: 12,
-        fontWeight: "400",
+        left: 15,
+        fontFamily: typography.primary.semiBold,
+        opacity:0.2
     },
-    estimateDivider: {
-        fontWeight: "700",
-    },
-    estimateInput: {
-        borderBottomColor: "gray",
-        borderStyle: "dashed",
-        borderBottomWidth: 2,
-        padding: 2,
-    },
-    taskNumberStyle: {
-        fontSize: 12,
-        marginVertical: 9,
-        right: 3,
-        color: "#ACB3BB",
-    },
-    statusLine: {
-        width: "1.5%",
-        height: "80%",
+    wrapTotalTime: {
         position: "absolute",
-        top: "17%",
-        left: -2,
-        borderRadius: 3
+        right: 0,
+        marginRight: 30,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    totalTimeTitle: {
+        fontSize: 10,
+        fontFamily: typography.secondary.semiBold,
+        fontWeight: "500",
+        color: "#7E7991",
+        opacity:0.2
+    },
+    totalTimeText: {
+        fontSize: 14,
+        color: "#282048",
+        fontFamily: typography.primary.semiBold,
+        opacity:0.2
+    },
+    wrapProfileImg: {
+        flexDirection: "row"
+    },
+    statusIcon: {
+        position: "absolute",
+        bottom: 0,
+        marginLeft: 27
+    },
+    dropdownTxt: {
+        color: "#282048",
+        fontSize: 14,
+        fontFamily: typography.primary.semiBold
     }
 })

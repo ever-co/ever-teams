@@ -6,22 +6,24 @@ import {
   StatusBar,
   ViewStyle,
   TouchableWithoutFeedback,
+  TextStyle,
+  Text, Dimensions
 } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // COMPONENTS
-import { Button, Icon, ListItem, Screen, Text } from "../../../components"
+import { Button, Icon, ListItem, Screen, } from "../../../components"
 import InviteUserModal from "./components/InviteUserModal"
 import ListCardItem from "./components/ListCardItem"
 import NewTeamModal from "./components/CreateTeamModal"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
-import { colors, spacing } from "../../../theme"
+import { colors, spacing, typography } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
-import DropDown from "./components/DropDown"
+import DropDown from "../../../components/TeamDropdown/DropDown"
 import { teams, tasks } from "./data"
 import CreateTeamModal from "./components/CreateTeamModal"
 import { useStores } from "../../../models"
@@ -32,7 +34,7 @@ import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
 import FlashMessage from "react-native-flash-message"
 
-
+const { width, height } = Dimensions.get("window");
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
   function AuthenticatedTeamScreen(_props) {
 
@@ -107,7 +109,21 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
           onDismiss={() => setShowCreateTeamModal(false)}
         />
         <HomeHeader {..._props} />
-        <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+        <View style={$wrapTeam}>
+          <View style={{ width: teamManager ? width / 1.9 : "100%" }}>
+            <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+          </View>
+          {teamManager ? (
+            <TouchableOpacity
+              style={$inviteButton}
+              onPress={() => setShowInviteModal(true)}
+            >
+              <Text style={$inviteButtonText}>
+                Invite
+              </Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
         <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
           <View style={$cardContainer}>
             {/* Users activity list */}
@@ -118,44 +134,32 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
             >
               {currentUser && (
                 <ListCardItem
-                  item={currentUser as any}
+                  member={currentUser as IUser}
                   onPressIn={goToProfile}
                   enableEstimate={false}
+                  index={7}
+                  userStatus={"online"}
                 />
               )}
+
 
               {$members.map((member, index) => (
                 <ListCardItem
                   key={index}
-                  item={member}
+                  member={member as IUser}
                   onPressIn={goToProfile}
                   enableEstimate={false}
+                  index={9}
+                  userStatus={"online"}
                 />
               ))}
-              {teamInvitations.items?.map((invite :any) => (
+              {teamInvitations.items?.map((invite: any) => (
                 <InviteCardItem key={invite.id} item={invite} />
               ))}
-
-              {/* Invite btn */}
-              {teamManager ? (
-                <Button
-                  preset="default"
-                  textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
-                  style={{
-                    ...GS.bgTransparent,
-                    ...GS.mb2,
-                    borderColor: colors.primary,
-                    backgroundColor: colors.primary,
-                  }}
-                  onPress={() => setShowInviteModal(true)}
-                >
-                  Invite
-                </Button>
-              ) : null}
             </ScrollView>
           </View>
         </TouchableWithoutFeedback>
-        <FlashMessage position="bottom" /> 
+        <FlashMessage position="bottom" />
       </Screen>
     )
   })
@@ -172,7 +176,31 @@ const $headerIconContainer = {
 
 const $cardContainer: ViewStyle = {
   ...GS.flex1,
-  backgroundColor: colors.palette.neutral200,
+  backgroundColor: "#F7F7F8",
   paddingHorizontal: spacing.medium,
-  marginTop: spacing.small,
+}
+const $inviteButton: ViewStyle = {
+  width: width / 3,
+  height: 52,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderRadius: 10,
+  borderWidth: 2,
+  borderColor: "#3826A6",
+  justifyContent: "center",
+  alignItems: "center"
+}
+const $inviteButtonText: TextStyle = {
+  fontSize: 14,
+  fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+  color: "#3826A6"
+}
+
+const $wrapTeam: ViewStyle = {
+  flexDirection: "row",
+  width: "100%",
+  padding: 20,
+  justifyContent: "space-between",
+  alignItems: "center",
+  zIndex: 999
 }

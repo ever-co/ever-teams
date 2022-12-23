@@ -7,17 +7,18 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 
 // STYLES
 import { colors, spacing } from "../../../theme"
-
+import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 // HELPERS
 import { api } from "../../../services/api"
 import LocalStorage from "../../../services/api/tokenHandler"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
-import DropDown from "../TeamScreen/components/DropDown"
-import NewTimerCard from "./components/NewTimerCard"
+import DropDown from "../../../components/TeamDropdown/DropDown"
+import NewTimerCard from "../../../components/TimerCard"
 import { useStores } from "../../../models"
 import { IOTeams } from "../../../services/teams/organization-team"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
+import ManageTaskCard from "../../../components/ManageTaskCard"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
@@ -65,17 +66,11 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         onDismiss={() => setShowCreateTeamModal(false)}
       />
       <HomeHeader {..._props} />
-      <View style={{ paddingBottom: 10, zIndex:10 }}>
+      <View style={{ padding: 20, zIndex: 2 }}>
         <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
       </View>
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "#F9FAFB",
-          paddingHorizontal: 20,
-        }}
-      >
-        <NewTimerCard />
+      <View style={$timerSection}>
+        <ManageTaskCard />
       </View>
     </Screen>
   )
@@ -87,4 +82,14 @@ const $container: ViewStyle = {
 
 const $title: TextStyle = {
   marginBottom: spacing.large,
+}
+
+const $timerSection: ViewStyle = {
+  flex: 1,
+  backgroundColor: "#F7F7F8",
+  paddingHorizontal: 20,
+  zIndex: 1
+}
+const $card: ViewStyle = {
+
 }

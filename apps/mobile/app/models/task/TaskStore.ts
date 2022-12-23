@@ -1,7 +1,7 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { h_filter } from "../../screens/Authenticated/TimerScreen/components/ComboBox";
 import { ICreateTask, ITeamTask } from "../../services/interfaces/ITask";
-import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../services/requests/tasks";
+import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../services/client/requests/tasks";
 import { getTasksByTeamState, ITaskCreateParams, ITaskDeleteParams, ITaskGetParams, ITaskUpdateParams } from "./Task";
 
 
@@ -66,6 +66,7 @@ export const TaskStoreModel = types
             const { data } = await updateTaskRequest({ data: taskData, id: taskId }, authToken);
             this.getTeamTasks({ authToken, tenantId: refreshData.tenantId, organizationId: refreshData.organizationId, activeTeamId: refreshData.activeTeamId })
             this.setFetchingTasks(false)
+            return data
         },
         setActiveTask(task: any) {
 

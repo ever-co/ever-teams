@@ -1,16 +1,16 @@
 import React, { FC, useState } from "react"
-import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle } from "react-native"
+import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 // DATA
 
 // COMPONENTS
-import { Screen, Text } from "../../../components"
+import { Screen } from "../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
-import { colors, spacing } from ".././../../theme"
+import { colors, spacing, typography } from ".././../../theme"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
 import FilterSection from "./components/FilterSection"
@@ -18,7 +18,9 @@ import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
+import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
 
+const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
     const { authenticationStore: { user },
@@ -39,6 +41,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const member =
       user?.id === memberInfo.id ? user : currentUser?.employee.user;
 
+    const isAuthUser = member.id === user.id;
+
     const filterTasksByStatus = (status: ITaskStatus) => {
       if (!status) return teamTasks;
 
@@ -51,15 +55,18 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       ? new_teamTasks.filter((t) => t.id !== activeTask.id)
       : new_teamTasks;
 
+    const { assignedTasks, unassignedTasks } = useAuthTeamTasks(member);
 
 
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
         <HomeHeader {..._props} />
-        <ProfileHeader {...memberInfo} />
-        <View style={{ zIndex: 1000, padding: 10, flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={{ paddingTop: 10 }}>
+          <ProfileHeader {...memberInfo} />
+        </View>
+        <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
           <TouchableOpacity style={$assignStyle}>
-            <Text style={{ fontSize: 14 }}>Create Task</Text>
+            <Text style={$createTaskTitle}>Create Task</Text>
           </TouchableOpacity>
           <FilterSection selectStatus={setFilterStatus} />
         </View>
@@ -71,9 +78,9 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
               key={idx}
               onPress={() => setSelectedTabIndex(idx)}
             >
-              <Text>{item}</Text>
-              <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? colors.primary : "#F2F2F2" }]}>
-                <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#F2F2F2" : colors.primary }]}>3</Text>
+              <Text style={[$tabText, { color: selectedTabIndex === idx ? "#3826A6" : "#7E7991" }]}>{item}</Text>
+              <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? "#3826A6" : "#F5F5F5" }]}>
+                <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>3</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -82,40 +89,96 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           style={{
             flex: 1,
             zIndex: 998,
-            paddingHorizontal: 10,
+            paddingHorizontal: 20,
             paddingBottom: 50,
             backgroundColor: "#f2f2f2",
           }}
         >
+          {/* START WORKED TAB CONTENT */}
           {selectedTabIndex === 0 &&
             <View>
               <View>
                 <View
-                  style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 15 }}
+                  style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
                 >
                   <Text style={$textLabel}>Now</Text>
-                  <View style={{ backgroundColor: "gray", width: "45%", height: 1, alignSelf: 'center', top: 2 }} />
+                  <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={{ color: "gray" }}>Total Time:</Text>
-                    <Text style={[$textLabel, { marginLeft: 5 }]}>03:31</Text>
+                    <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
+                    <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
                   </View>
                 </View>
                 {activeTask.id &&
-                  <ListCardItem item={activeTask as ITeamTask} enableEstimate={false} handleEstimate={() => { }} handleTaskTitle={() => { }} />}
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={true}
+                    item={activeTask as ITeamTask}
+                    isAuthUser={isAuthUser}
+                    enableEstimate={false}
+                    handleEstimate={() => { }}
+                    handleTaskTitle={() => { }}
+                  />}
               </View>
               <View>
                 <View
-                  style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 15 }}
+                  style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
                 >
-                  <Text style={$textLabel}>Others ({otherTasks.length})</Text>
-                  <View style={{ backgroundColor: "gray", width: "100%", height: 1, alignSelf: 'center', marginLeft: 12, top: 2 }} />
+                  <Text style={$textLabel}>Last 24 hours ({otherTasks.length})</Text>
+                  <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
                 </View>
                 {otherTasks.map((item, index) => (
-                  <ListCardItem key={index.toString()} item={item as any} enableEstimate={false} />
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={false}
+                    isAuthUser={isAuthUser}
+                    key={index.toString()}
+                    item={item as any}
+                    enableEstimate={false} />
                 ))}
               </View>
             </View>
           }
+          {/* END WORKED TAB CONTENT */}
+          {/* ------------------------------------------------------------ */}
+          {/* START ASSIGNED TAB CONTENT */}
+
+          {selectedTabIndex === 1 &&
+            <View style={{ ...GS.mt2 }}>
+              <View>
+                {assignedTasks.map((item, index) => (
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={false}
+                    isAuthUser={isAuthUser}
+                    key={index.toString()}
+                    item={item as any}
+                    enableEstimate={false} />
+                ))}
+              </View>
+            </View>
+          }
+
+          {/* END ASSIGNED TAB CONTENT */}
+          {/* ----------------------------------------------------------------------- */}
+
+          {/* START UNASSIGNED TAB CONTENT */}
+          {selectedTabIndex === 2 &&
+            <View style={{ ...GS.mt2 }}>
+              <View>
+                {unassignedTasks.map((item, index) => (
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={false}
+                    isAuthUser={isAuthUser}
+                    key={index.toString()}
+                    item={item as any}
+                    enableEstimate={false} />
+                ))}
+              </View>
+            </View>
+          }
+          {/* END UNASSIGNED TAB CONTENT */}
+
         </ScrollView>
       </Screen>
     )
@@ -141,7 +204,8 @@ const $userProfile: ImageStyle = {
 
 const $textLabel: TextStyle = {
   color: colors.primary,
-  fontWeight: "700",
+  fontFamily: typography.primary.semiBold,
+  fontSize: 12
 }
 
 const $wrapComboboxes: ViewStyle = {
@@ -155,37 +219,45 @@ const $wrapComboboxes: ViewStyle = {
 const $selectedTab: ViewStyle = {
   borderBottomColor: colors.primary,
   borderBottomWidth: 2,
-  padding: 5,
+  padding: 10,
   flexDirection: "row"
 }
 
 const $unselectedTab: ViewStyle = {
-  padding: 5,
+  padding: 10,
   flexDirection: "row"
 }
 const $wrapperCountTasks: ViewStyle = {
-  backgroundColor: "#F2F2F2",
+  width: 18,
   left: 3,
-  borderRadius: 2,
-  paddingHorizontal: 4,
-  height: 17,
+  borderRadius: 4,
+  paddingHorizontal: 2,
+  height: 18,
   justifyContent: "center",
   alignItems: 'center',
-  top: 5
 }
 
 const $countTasks: TextStyle = {
   fontSize: 10,
-  top: -3
+  fontFamily: typography.secondary.medium
 }
 
 const $assignStyle: ViewStyle = {
   borderColor: "#3826A6",
-  borderWidth: 1.5,
+  borderWidth: 2,
   justifyContent: "center",
   alignItems: "center",
   paddingHorizontal: 20,
   paddingVertical: 5,
-  width: "40%",
+  width: width / 2.5,
   borderRadius: 8
+}
+
+const $createTaskTitle: TextStyle = {
+  fontSize: 14,
+  fontFamily: typography.primary.semiBold
+}
+const $tabText: TextStyle = {
+  fontFamily: typography.primary.semiBold,
+  fontSize: 12,
 }

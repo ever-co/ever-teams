@@ -11,7 +11,7 @@ import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export const config = {
-	matcher: ['/', '/main', '/passcode', '/profile', '/profile/:path*'],
+	matcher: ['/', '/auth/(.*)', '/profile/:path*'],
 };
 
 export async function middleware(request: NextRequest) {
@@ -32,13 +32,10 @@ export async function middleware(request: NextRequest) {
 	};
 
 	const protected_path = PROTECTED_APP_URL_PATHS.some((v) => {
-		return url.pathname.startsWith(v);
+		return v.test(url.pathname);
 	});
 
-	if (
-		(protected_path && !refresh_token) ||
-		(protected_path && !access_token)
-	) {
+	if ((protected_path && !refresh_token) || (protected_path && !access_token)) {
 		deny_redirect();
 		// Next condition, if all tokens are presents
 	} else if (protected_path) {
