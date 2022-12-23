@@ -50,7 +50,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ item }) => {
                 <View style={styles.firstContainer}>
                     <View style={styles.wrapProfileImg}>
                         <View style={$usersProfile}>
-                            <Text style={{fontFamily:typography.primary}}>{imgTitle(item?.fullName)}</Text>
+                            <Text style={{fontFamily:typography.primary.semiBold}}>{imgTitle(item?.fullName)}</Text>
                         </View>
                         <Image style={styles.statusIcon} source={require("../../../../../assets/icons/new/invite-status-icon.png")} />
                     </View>
@@ -224,19 +224,19 @@ const styles = StyleSheet.create({
         lineHeight: 15,
         marginVertical: 5,
         fontStyle: "normal",
-        fontFamily: typography.primary,
+        fontFamily: typography.primary.semiBold,
         opacity:0.2
     },
     timeNumber: {
         color: "#282048",
         fontSize: 14,
-        fontFamily: typography.primary,
+        fontFamily: typography.primary.semiBold,
         opacity:0.2
     },
     timeHeading: {
         color: "#7E7991",
         fontSize: 10,
-        fontFamily: typography.secondary,
+        fontFamily: typography.secondary.medium,
         opacity:0.2
     },
     firstContainer: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
         color: "#1B005D",
         fontSize: 12,
         left: 15,
-        fontFamily: typography.primary,
+        fontFamily: typography.primary.semiBold,
         opacity:0.2
     },
     wrapTotalTime: {
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     },
     totalTimeTitle: {
         fontSize: 10,
-        fontFamily: typography.secondary,
+        fontFamily: typography.secondary.semiBold,
         fontWeight: "500",
         color: "#7E7991",
         opacity:0.2
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     totalTimeText: {
         fontSize: 14,
         color: "#282048",
-        fontFamily: typography.primary,
+        fontFamily: typography.primary.semiBold,
         opacity:0.2
     },
     wrapProfileImg: {
@@ -281,6 +281,6 @@ const styles = StyleSheet.create({
     dropdownTxt: {
         color: "#282048",
         fontSize: 14,
-        fontFamily: typography.primary
+        fontFamily: typography.primary.semiBold
     }
 })

@@ -34,7 +34,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
     setActiveTask({})
     setTeamInvitations({ items: [], total: 0 })
   }
-
+  console.log(activeTeam)
 
   return (
     <View style={styles.mainContainer}>
@@ -47,12 +47,12 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
           <View style={styles.teamImage}>
             <Text style={styles.prefix}>{imgTitle(activeTeam.name)}</Text>
           </View>
-          <Text style={styles.activeTeamTxt}>{`${activeTeam.name} (${teams.total})`}</Text>
+          <Text style={styles.activeTeamTxt}>{`${activeTeam.name} (${activeTeam.members.length})`}</Text>
         </View>
         <Image source={require("../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>
       {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
-    </View>
+    </View >
   )
 })
 
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
     fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-    left: 12
+    left: 5
   },
   prefix: {
     fontSize: 14,

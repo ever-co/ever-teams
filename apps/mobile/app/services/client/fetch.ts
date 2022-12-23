@@ -1,5 +1,5 @@
-import Config from "../config";
-import { getToken } from "./api/tokenHandler";
+import Config from "../../config";
+import { getToken } from "../api/tokenHandler";
 
 
 export function serverFetch<T>({

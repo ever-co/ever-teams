@@ -1,8 +1,8 @@
 import {
   ILoginReponse,
   IRegisterDataRequest,
-} from "../interfaces/IAuthentication";
-import { IUser } from "../interfaces/IUserData";
+} from "../../interfaces/IAuthentication";
+import { IUser } from "../../interfaces/IUserData";
 import { serverFetch } from "../fetch";
 
 export const registerUserRequest = (data: IRegisterDataRequest) => {

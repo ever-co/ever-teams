@@ -21,7 +21,7 @@ export interface Props {
 const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
   const {
     authenticationStore: { authToken, organizationId, tenantId },
-    TaskStore: { activeTask, updateTask },
+    TaskStore: { activeTask, updateTask, setActiveTask },
     teamStore: { activeTeamId }
   } = useStores();
   const [isOpened, setIsOpened] = React.useState(false)
@@ -32,7 +32,7 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
     setIsOpened(false)
     onChangeStatus(text);
   }
-  const onChangeStatus = (text) => {
+  const onChangeStatus =async (text) => {
     const value: ITaskStatus = text;
     const task = {
       ...activeTask,
@@ -43,7 +43,8 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
       tenantId,
       organizationId
     }
-    updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+    const taskEdited=await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+    setActiveTask(taskEdited);
   }
 
   return (

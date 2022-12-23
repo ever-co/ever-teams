@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useStores } from "../../models";
-import { createOrganizationTeamRequest } from "../requests/organization-team";
+import { createOrganizationTeamRequest } from "../client/requests/organization-team";
 
 function useCreateOrganizationTeam() {
     const {

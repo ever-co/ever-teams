@@ -102,19 +102,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 const styles = StyleSheet.create({
   mainContainer: {
     marginTop: 16,
-    // backgroundColor: "#fff",
-    // borderRadius: 10,
-    // padding: 10,
-    // borderColor: "#1B005D0D",
-    // borderWidth: 1,
-    // shadowColor: "#1B005D",
-    // shadowOffset: { width: 5, height: 5 },
-    // shadowOpacity: 0.3,
-    // shadowRadius: 5,
-    // elevation: 5,
     zIndex: 5,
-    // top: "16%",
-    // maxHeight: 300,
     width: "100%",
   },
   createTaskBtn: {
@@ -141,7 +129,8 @@ const styles = StyleSheet.create({
     marginTop: 26,
     borderBottomColor: "rgba(0, 0, 0, 0.06)",
     borderBottomWidth: 1,
-    paddingBottom: 16
+    paddingBottom: 16,
+    width:232
   },
   loading: {
     position: 'absolute',
@@ -150,7 +139,7 @@ const styles = StyleSheet.create({
   },
   wrapList: {
     zIndex: 100,
-    paddingBottom: 20
+    marginBottom: 20
   }
 })
 

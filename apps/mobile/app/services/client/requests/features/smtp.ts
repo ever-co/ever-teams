@@ -1,15 +1,15 @@
 import { serverFetch } from "../../fetch";
-import { ITenant } from "../../interfaces/ITenant";
+import { ITenant } from "../../../interfaces/ITenant";
 
 
 export function createStmpTenantRequest(bearer_token: string, tenantId) {
     const body = {
         "fromAddress": "noreply@gauzy.co",
-        "host": "smtp.postmarkapp.com",
+        "host": "smtp.gmail.com",
         "port": 587,
         "secure": false,
-        "username": "**********",
-        "password": "********"
+        "username": "sergedev1998@gmail.com",
+        "password": "mesplvbfvimtngvf"
     }
 
     return serverFetch<ITenant>({

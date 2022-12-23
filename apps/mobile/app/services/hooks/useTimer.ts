@@ -1,10 +1,10 @@
 import { convertMsToTime } from '../../helpers/date';
-import { startTimerRequest, stopTimerRequest, getTimerStatusRequest, toggleTimerRequest } from '../../services/requests/timer';
+import { startTimerRequest, stopTimerRequest, getTimerStatusRequest, toggleTimerRequest } from '../client/requests/timer';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSyncRef } from './useSyncRef';
-import { ILocalTimerStatus, ITimerParams, ITimerStatus } from '../../services/interfaces/ITimer';
+import { ILocalTimerStatus, ITimerParams, ITimerStatus } from '../interfaces/ITimer';
 import { useFirstLoad } from './useFirstLoad';
-import LocalStorage from '../../services/api/tokenHandler';
+import LocalStorage from '../api/tokenHandler';
 import { useStores } from '../../models';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-teams';

@@ -18,6 +18,7 @@ import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
+import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -40,6 +41,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const member =
       user?.id === memberInfo.id ? user : currentUser?.employee.user;
 
+    const isAuthUser = member.id === user.id;
+
     const filterTasksByStatus = (status: ITaskStatus) => {
       if (!status) return teamTasks;
 
@@ -52,6 +55,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       ? new_teamTasks.filter((t) => t.id !== activeTask.id)
       : new_teamTasks;
 
+    const { assignedTasks, unassignedTasks } = useAuthTeamTasks(member);
 
 
     return (
@@ -100,12 +104,20 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                   <Text style={$textLabel}>Now</Text>
                   <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary }}>Total Time:</Text>
-                    <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary, fontSize: 12 }]}>03:31</Text>
+                    <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
+                    <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
                   </View>
                 </View>
                 {activeTask.id &&
-                  <ListCardItem tabIndex={selectedTabIndex} isActive={true} item={activeTask as ITeamTask} enableEstimate={false} handleEstimate={() => { }} handleTaskTitle={() => { }} />}
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={true}
+                    item={activeTask as ITeamTask}
+                    isAuthUser={isAuthUser}
+                    enableEstimate={false}
+                    handleEstimate={() => { }}
+                    handleTaskTitle={() => { }}
+                  />}
               </View>
               <View>
                 <View
@@ -117,7 +129,11 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 {otherTasks.map((item, index) => (
                   <ListCardItem
                     tabIndex={selectedTabIndex}
-                    isActive={false} key={index.toString()} item={item as any} enableEstimate={false} />
+                    isActive={false}
+                    isAuthUser={isAuthUser}
+                    key={index.toString()}
+                    item={item as any}
+                    enableEstimate={false} />
                 ))}
               </View>
             </View>
@@ -128,19 +144,15 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
           {selectedTabIndex === 1 &&
             <View style={{ ...GS.mt2 }}>
-              {activeTask.id &&
-                <ListCardItem
-                  tabIndex={selectedTabIndex}
-                  isActive={false}
-                  item={activeTask as ITeamTask}
-                  enableEstimate={false}
-                  handleEstimate={() => { }}
-                  handleTaskTitle={() => { }}
-                />
-              }
               <View>
-                {otherTasks.map((item, index) => (
-                  <ListCardItem tabIndex={selectedTabIndex} isActive={false} key={index.toString()} item={item as any} enableEstimate={false} />
+                {assignedTasks.map((item, index) => (
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={false}
+                    isAuthUser={isAuthUser}
+                    key={index.toString()}
+                    item={item as any}
+                    enableEstimate={false} />
                 ))}
               </View>
             </View>
@@ -152,19 +164,15 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           {/* START UNASSIGNED TAB CONTENT */}
           {selectedTabIndex === 2 &&
             <View style={{ ...GS.mt2 }}>
-              {activeTask.id &&
-                <ListCardItem
-                  tabIndex={selectedTabIndex}
-                  isActive={false}
-                  item={activeTask as ITeamTask}
-                  enableEstimate={false}
-                  handleEstimate={() => { }}
-                  handleTaskTitle={() => { }}
-                />
-              }
               <View>
-                {otherTasks.map((item, index) => (
-                  <ListCardItem tabIndex={selectedTabIndex} isActive={false} key={index.toString()} item={item as any} enableEstimate={false} />
+                {unassignedTasks.map((item, index) => (
+                  <ListCardItem
+                    tabIndex={selectedTabIndex}
+                    isActive={false}
+                    isAuthUser={isAuthUser}
+                    key={index.toString()}
+                    item={item as any}
+                    enableEstimate={false} />
                 ))}
               </View>
             </View>
@@ -196,7 +204,7 @@ const $userProfile: ImageStyle = {
 
 const $textLabel: TextStyle = {
   color: colors.primary,
-  fontFamily: typography.primary,
+  fontFamily: typography.primary.semiBold,
   fontSize: 12
 }
 
@@ -231,7 +239,7 @@ const $wrapperCountTasks: ViewStyle = {
 
 const $countTasks: TextStyle = {
   fontSize: 10,
-  fontFamily: typography.secondary
+  fontFamily: typography.secondary.medium
 }
 
 const $assignStyle: ViewStyle = {
@@ -247,9 +255,9 @@ const $assignStyle: ViewStyle = {
 
 const $createTaskTitle: TextStyle = {
   fontSize: 14,
-  fontFamily: typography.primary
+  fontFamily: typography.primary.semiBold
 }
 const $tabText: TextStyle = {
-  fontFamily: typography.primary,
+  fontFamily: typography.primary.semiBold,
   fontSize: 12,
 }

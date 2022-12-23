@@ -1,9 +1,9 @@
-import { PaginationResponse } from "../interfaces/IDataResponse";
+import { PaginationResponse } from "../../interfaces/IDataResponse";
 import {
   IOrganizationTeam,
   IOrganizationTeamCreate,
   IOrganizationTeamList,
-} from "../interfaces/IOrganizationTeam";
+} from "../../interfaces/IOrganizationTeam";
 import { serverFetch } from "../fetch";
 
 export function createOrganizationTeamRequest(

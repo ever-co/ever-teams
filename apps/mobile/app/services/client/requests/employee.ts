@@ -1,4 +1,4 @@
-import { ICreateEmployee, IEmployee } from "../interfaces/IEmployee";
+import { ICreateEmployee, IEmployee } from "../../interfaces/IEmployee";
 import { serverFetch } from "../fetch";
 
 export function createEmployeeFromUser(

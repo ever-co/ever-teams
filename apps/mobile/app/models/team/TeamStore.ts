@@ -1,9 +1,10 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { boolean } from "yargs";
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam";
-import { getUserOrganizationsRequest } from "../../services/requests/organization";
-import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from "../../services/requests/organization-team";
+import { getUserOrganizationsRequest } from "../../services/client/requests/organization";
+import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from "../../services/client/requests/organization-team";
 import { ICreateTeamParams, IGetTeamsParams, ITeamsOut } from "./team";
+import { IUserOrganization } from "../../services/interfaces/IOrganization";
 
 export const TeamStoreModel = types
     .model("TeamStore")
@@ -37,6 +38,7 @@ export const TeamStoreModel = types
                 },
                 access_token
             );
+            console.log("Team Created: " + JSON.stringify(data))
             this.getUserTeams({ tenantId, userId, authToken: access_token });
         },
         // Get All teams
@@ -47,7 +49,17 @@ export const TeamStoreModel = types
                 authToken
             );
 
-            const call_teams = organizations.items.map((item) => {
+            const organizationsItems = organizations.items;
+
+            const filteredOrganization = organizationsItems.reduce((acc, org) => {
+                if (!acc.find((o) => o.organizationId === org.organizationId)) {
+                    acc.push(org);
+                }
+                return acc;
+            }, [] as IUserOrganization[]);
+
+
+            const call_teams = filteredOrganization.map((item) => {
                 return getAllOrganizationTeamRequest(
                     { tenantId, organizationId: item.organizationId },
                     authToken
@@ -64,6 +76,7 @@ export const TeamStoreModel = types
                     { items: [] as IOrganizationTeamList[], total: 0 }
                 );
             });
+            console.log(data)
             this.setOrganizationTeams(data);
 
             //Update active team
@@ -90,7 +103,8 @@ export const TeamStoreModel = types
         clearStoredTeamData() {
             store.teams = { items: [], total: 0 },
                 store.activeTeam = {}
-            store.activeTeamId = ""
+            store.activeTeamId = "",
+                store.teamInvitations = { items: [], total: 0 }
         }
     }))
 

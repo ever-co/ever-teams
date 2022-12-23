@@ -25,7 +25,7 @@ const TaskStatus = observer((currentTask: ITeamTask) => {
     "Completed",
     "Closed"]
 
- const onChangeStatus = (text) => {
+  const onChangeStatus = (text) => {
     const value: ITaskStatus = text;
     const task = {
       ...currentTask,
@@ -37,14 +37,14 @@ const TaskStatus = observer((currentTask: ITeamTask) => {
       organizationId
     }
     updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
-  } 
+  }
 
 
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)} style={[styles.secondCont, {backgroundColor: getBackground({ status: selectedStatus })}]}>
-          <BadgedTaskStatus showColor={true} status={currentTask.status ? currentTask.status:"Todo"} />
+        <TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)} style={[styles.secondCont, { backgroundColor: getBackground({ status: selectedStatus }) }]}>
+          <BadgedTaskStatus showColor={true} status={currentTask.status ? currentTask.status : "Todo"} />
           <Image source={require("../../../../../assets/icons/caretDown.png")} />
         </TouchableOpacity>
       </View>
@@ -56,10 +56,12 @@ const TaskStatus = observer((currentTask: ITeamTask) => {
           ...GS.shadow,
           ...GS.r0,
           ...GS.roundedSm,
-          marginTop: -(spacing.massive + 15),
-          marginRight: spacing.small,
+          top: 0,
+          marginTop: 38,
+          right: 0,
+          // marginRight: spacing.small,
           backgroundColor: colors.background,
-          minWidth: spacing.massive * 2.5,
+          width:"100%",
           ...(!showTaskStatus ? { display: "none" } : {}),
         }}
       >
@@ -84,18 +86,18 @@ const TaskStatus = observer((currentTask: ITeamTask) => {
   )
 })
 
-const styles=StyleSheet.create({
-  container:{
-    height:"100%"
+const styles = StyleSheet.create({
+  container: {
+    height: "100%"
   },
-  secondCont:{
+  secondCont: {
     flexDirection: 'row',
-     padding: 10, 
-     width:"100%", 
-     height:38,
-     justifyContent: 'space-between',
-     alignItems:"center",
-     borderRadius: 10
+    padding: 10,
+    width: "100%",
+    height: 38,
+    justifyContent: 'space-between',
+    alignItems: "center",
+    borderRadius: 10
   }
 })
 

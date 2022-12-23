@@ -116,7 +116,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
           {teamManager ? (
             <TouchableOpacity
               style={$inviteButton}
-              onPress={()=>setShowInviteModal(true)}
+              onPress={() => setShowInviteModal(true)}
             >
               <Text style={$inviteButtonText}>
                 Invite
@@ -134,29 +134,11 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
             >
               {currentUser && (
                 <ListCardItem
-                  item={currentUser as any}
+                  member={currentUser as IUser}
                   onPressIn={goToProfile}
                   enableEstimate={false}
                   index={7}
                   userStatus={"online"}
-                />
-              )}
-              {currentUser && (
-                <ListCardItem
-                  item={currentUser as any}
-                  onPressIn={goToProfile}
-                  enableEstimate={false}
-                  index={8}
-                  userStatus={"pause"}
-                />
-              )}
-              {currentUser && (
-                <ListCardItem
-                  item={currentUser as any}
-                  onPressIn={goToProfile}
-                  enableEstimate={false}
-                  index={9}
-                  userStatus={"not working"}
                 />
               )}
 
@@ -164,16 +146,16 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
               {$members.map((member, index) => (
                 <ListCardItem
                   key={index}
-                  item={member}
+                  member={member as IUser}
                   onPressIn={goToProfile}
                   enableEstimate={false}
                   index={9}
                   userStatus={"online"}
                 />
               ))}
-              {/* {teamInvitations.items?.map((invite: any) => ( */}
-                <InviteCardItem item={{fullName:"Elvis Matondo"}}   />
-              {/* ))} */}
+              {teamInvitations.items?.map((invite: any) => (
+                <InviteCardItem key={invite.id} item={invite} />
+              ))}
             </ScrollView>
           </View>
         </TouchableWithoutFeedback>

@@ -1,4 +1,4 @@
-import { ITenant } from "../interfaces/ITenant";
+import { ITenant } from "../../interfaces/ITenant";
 import { serverFetch } from "../fetch";
 
 export function createTenantRequest(name: string, bearer_token: string) {

@@ -55,15 +55,15 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
 
   return (
     <TouchableOpacity style={[styles.container, {zIndex:1000-index}]} onPress={() => handleActiveTask(task)}>
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "row", width:"40%" }}>
         {/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
-        <Text style={styles.taskTitle}>{task.title}</Text>
+        <Text style={styles.taskTitle} numberOfLines={2}>{task.title}</Text>
       </View>
-      <View style={{ flexDirection: "row", alignItems: "center", zIndex: 101 }}>
-        <View style={{ left: -15, width: 113, height: 32, borderRadius: 10, zIndex: 999 }}>
+      <View style={{ flexDirection: "row",width:"55%", alignItems: "center", zIndex: 101, justifyContent:"space-between" }}>
+        <View style={{ left: -15, width: 100, height: 30, borderRadius: 10, zIndex: 999 }}>
           <TaskStatus {...task as any} />
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center"}}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent:"space-between", width:"30%"}}>
           <View style={{ flexDirection: "row" }}>
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile2} />

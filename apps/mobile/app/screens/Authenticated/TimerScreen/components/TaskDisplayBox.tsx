@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingVertical: 6,
     paddingLeft: 10,
-    width: 130,
+    width: 110,
     height: 36,
     borderColor: "rgba(0, 0, 0, 0.1)",
     borderWidth: 1,
@@ -45,14 +45,14 @@ const styles = StyleSheet.create({
     color: "#BEBCC8",
     fontSize: 11,
     left: 8,
-    fontFamily:typography.fonts.PlusJakartaSans.semiBold
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
   activeFilter: {
     fontWeight: "bold",
     color: "#1B005D",
     left: 8,
     fontSize: 11,
-    fontFamily:typography.fonts.PlusJakartaSans.semiBold
+    fontFamily: typography.fonts.PlusJakartaSans.semiBold
   }
 })
 

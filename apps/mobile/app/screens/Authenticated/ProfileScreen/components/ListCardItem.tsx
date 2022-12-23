@@ -32,6 +32,7 @@ export type ListItemProps = {
   handleEstimate?: () => unknown,
   isActive: boolean,
   tabIndex: number,
+  isAuthUser: boolean,
   enableEstimate?: boolean
   enableEditTaskTitle?: boolean,
   handleTaskTitle?: () => unknown
@@ -43,9 +44,10 @@ const { width, height } = Dimensions.get("window")
 
 export const ListItemContent: React.FC<ListItemProps> = (props) => {
   const { authenticationStore: { authToken, tenantId, organizationId }, teamStore: { activeTeamId }, TaskStore: { updateTask } } = useStores();
-  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex } = props;
+  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex, isAuthUser } = props;
   const [titleInput, setTitleInput] = useState("")
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     setTitleInput(item.title)
@@ -116,13 +118,17 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
 
         <View style={styles.times}>
           <View style={{ flexDirection: "row", width: "50%", alignItems: "center" }}>
-            {tabIndex === 1 ? null : (
+            {isAuthUser ? (
               <TouchableOpacity style={[styles.timerBtn, isActive ? {} : { backgroundColor: "#fff" }]}>
                 <Image resizeMode="contain" style={[styles.timerIcon,]} source={isActive ? require("../../../../../assets/icons/new/stop.png") : require("../../../../../assets/icons/new/play.png")} />
               </TouchableOpacity>
-            )}
+            ) : tabIndex == 2 ? (
+              <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]}>
+                <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/arrow-right.png")} />
+              </TouchableOpacity>
+            ) : null}
             {tabIndex === 2 ? (
-              <View style={{ justifyContent: "center", alignItems: "center" }}>
+              <View style={{ left: 12, justifyContent: "center", alignItems: "center" }}>
                 <Text style={styles.timeHeading}>Assigned by</Text>
                 <Text style={styles.timeNumber}>8 people</Text>
               </View>
@@ -266,7 +272,7 @@ const styles = StyleSheet.create({
   otherText: {
     fontSize: 14,
     color: colors.primary,
-    fontFamily: typography.primary,
+    fontFamily: typography.primary.semiBold,
     width: width / 1.7,
     lineHeight: 15,
     marginVertical: 15,
@@ -333,10 +339,10 @@ const styles = StyleSheet.create({
   totalTimeTitle: {
     color: "#7E7991",
     fontSize: 10,
-    fontFamily: typography.secondary
+    fontFamily: typography.secondary.medium
   },
   totalTimeTxt: {
-    fontFamily: typography.primary,
+    fontFamily: typography.primary.semiBold,
     fontSize: 12,
     color: "#282048"
   },

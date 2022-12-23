@@ -1,7 +1,8 @@
 import React from "react";
-import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native"
+import { View, StyleSheet, Text, TouchableOpacity, Image, Dimensions } from "react-native"
 import { typography } from "../theme";
 
+const {width, height}=Dimensions.get("window")
 const TaskPriorities = () => {
     return (
         <View style={{}}>
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
         borderColor: "rgba(0, 0, 0, 0.13)",
         borderWidth:1,
         borderRadius: 10,
-        width: 136,
+        width: width/3,
         height: 32,
         flexDirection:"row",
         alignItems:"center",

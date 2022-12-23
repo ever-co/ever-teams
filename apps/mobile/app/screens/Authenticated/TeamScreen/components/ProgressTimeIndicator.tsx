@@ -58,7 +58,7 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
         style={[
           StyleSheet.absoluteFillObject,
           { fontSize: 12, color: colors.primary },
-          { fontFamily:typography.primary, textAlign: "center" },
+          { fontFamily:typography.primary.semiBold, textAlign: "center" },
         ]}
       />
     </View>

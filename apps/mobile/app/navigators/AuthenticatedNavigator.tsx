@@ -50,15 +50,16 @@ function TabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [$tabBar, { height: bottom + 100 }],
+        tabBarStyle: [$tabBar, { height: bottom + 50 }],
         tabBarActiveTintColor: colors.text,
         tabBarInactiveTintColor: colors.text,
         tabBarLabelStyle: $tabBarLabel,
         tabBarItemStyle: $tabBarItem,
       }}
+      initialRouteName="Timer"
     >
       <Tab.Screen
-        name="Timer"
+        name="Profile"
         component={AuthenticatedProfileScreen}
         options={{
           tabBarLabel: "Tasks",
@@ -78,7 +79,7 @@ function TabNavigator() {
       />
 
       <Tab.Screen
-        name="Profile"
+        name="Timer"
         component={AuthenticatedTimerScreen}
         options={{
           tabBarLabel: "My Work",

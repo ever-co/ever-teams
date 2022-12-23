@@ -3,7 +3,7 @@ import {
     ITimerStatusParams,
     ITimerStatus,
     ITimerParams,
-  } from "../interfaces/ITimer";
+  } from "../../interfaces/ITimer";
   import { serverFetch } from "../fetch";
   
   export function getTimerStatusRequest(
