@@ -55,7 +55,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setEmployeeId
     },
     teamStore: {
-      setActiveTeam, getUserTeams
+      setActiveTeam, getUserTeams,
+      setActiveTeamId
     },
     TaskStore: {
       getTeamTasks
@@ -78,26 +79,62 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
   //const api = new Api()
-  const joinTeam=async()=> {
+  const joinTeam = async () => {
     setIsSubmitted(true)
 
     setAttemptsCount(attemptsCount + 1)
 
     // if (Object.values(validationErrors).some((v) => !!v)) return
     // verifyInviteByCode({ email: authEmail, code: authInviteCode });
-   const {response}= await login({ email: authEmail, code: authInviteCode })
-   console.log(JSON.stringify(response))
+    const { response } = await login({ email: authEmail, code: authInviteCode })
+
     // Make a request to your server to get an authentication token.
     // If successful, reset the fields and set the token.
-    setIsSubmitted(false)
-    setAuthTeamName("")
-    setAuthEmail("")
-    setAuthUsername("")
-    setAuthInviteCode("")
-    setAuthConfirmCode("")
+    if (response.status == 200) {
+      setIsSubmitted(false)
+      setAuthTeamName("")
+      setAuthEmail("")
+      setAuthUsername("")
+      setAuthInviteCode("")
+      setAuthConfirmCode("")
 
-    // We'll mock this with a fake token.
-    // setAuthToken(String(Date.now()))
+      const data = response.data
+
+      const employee = data.loginRes.user.employee;
+      const loginRes = data.loginRes;
+      const user = loginRes.user;
+
+
+      setIsSubmitted(false)
+      setAuthTeamName("")
+      setAuthEmail("")
+      setAuthInviteCode("")
+      setAuthUsername("")
+      setAuthConfirmCode("")
+
+      setIsLoading(false)
+      setActiveTeamId(data.team.id)
+      setActiveTeam(data.team)
+      setOrganizationId(data.team.organizationId)
+      setUser(loginRes.user)
+      setTenantId(data.team.tenantId)
+      setEmployeeId(employee.id)
+      //Load first team data
+      getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
+      //Load tasks for current team or initialize tasks
+
+      getTeamTasks(
+        {
+          tenantId: data.team.tenantId,
+          activeTeamId: data.team.id,
+          authToken: loginRes.token,
+          organizationId: data.team.organizationId
+        })
+
+      // Save Auth Data
+      setAuthToken(loginRes.token);
+    }
+
   }
 
   const createNewTeam = async () => {
@@ -134,10 +171,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
       setIsLoading(false)
 
-      // Save Auth Data
-      setAuthToken(loginRes.token);
+      setActiveTeamId(data.team.id)
       setActiveTeam(data.team)
-      // setActiveTeamId(response.team.id)
       setOrganizationId(data.team.organizationId)
       setUser(loginRes.user)
       setTenantId(data.team.tenantId)
@@ -153,7 +188,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           authToken: loginRes.token,
           organizationId: data.team.organizationId
         })
+      // Save Auth Data
+      setAuthToken(loginRes.token);
     }
+
+
   }
 
 

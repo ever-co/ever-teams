@@ -66,7 +66,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         onDismiss={() => setShowCreateTeamModal(false)}
       />
       <HomeHeader {..._props} />
-      <View style={{ padding: 20 }}>
+      <View style={{ padding: 20, zIndex: 2 }}>
         <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
       </View>
       <View style={$timerSection}>
@@ -88,6 +88,7 @@ const $timerSection: ViewStyle = {
   flex: 1,
   backgroundColor: "#F7F7F8",
   paddingHorizontal: 20,
+  zIndex: 1
 }
 const $card: ViewStyle = {
 

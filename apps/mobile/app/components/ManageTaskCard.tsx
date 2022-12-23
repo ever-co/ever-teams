@@ -109,7 +109,7 @@ const ManageTaskCard = observer(() => {
                         }}
                     >
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
-                            <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate :</Text>
+                            <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate: </Text>
                             <EstimateTime />
                         </View>
                         <TaskSize />

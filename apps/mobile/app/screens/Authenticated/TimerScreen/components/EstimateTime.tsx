@@ -108,7 +108,8 @@ const EstimateTime = ({ setEditEstimate }: params) => {
         const response = await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
-        setEditEstimate(false)
+        if (setEditEstimate)
+            setEditEstimate(false)
     }, [activeTask, updateTask, estimate]);
 
     const formatTwoDigit = (value: string) => {
@@ -143,7 +144,7 @@ const EstimateTime = ({ setEditEstimate }: params) => {
                     <View />
                 </View>
             </View>
-            <Text style={styles.suffix}> h</Text>
+            <Text style={styles.suffix}>h</Text>
             <Text style={{ margin: 2 }}>:</Text>
             <View>
                 <TextInput
@@ -161,7 +162,7 @@ const EstimateTime = ({ setEditEstimate }: params) => {
                     <View />
                 </View>
             </View>
-            <Text style={styles.suffix}> m</Text>
+            <Text style={styles.suffix}>m</Text>
             {showCheckIcon && <Feather style={styles.thickIconStyle} size={25} color={"green"} name="check" onPress={() => handleSubmit()} />}
             {isLoading ? <ActivityIndicator size={14} color="#1B005D" style={styles.loading} /> : null}
         </View>

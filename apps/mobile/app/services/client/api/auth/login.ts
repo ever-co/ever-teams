@@ -112,6 +112,10 @@ export async function login(params: ILoginDataAPI) {
         }
     }
 
+    const {data:refreshRes}=await refreshTokenRequest(loginRes.refresh_token)
+
+
+
 
     return {
         response: {
@@ -120,7 +124,7 @@ export async function login(params: ILoginDataAPI) {
                 team,
                 loginRes,
                 authStoreData: {
-                    access_token: loginRes.token,
+                    access_token: refreshRes.token,
                     refresh_token: {
                         token: loginRes.refresh_token,
                     },

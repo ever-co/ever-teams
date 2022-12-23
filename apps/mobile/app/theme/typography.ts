@@ -78,12 +78,12 @@ export const typography = {
    * The primary font. Used in most places.
    */
   // primary: fonts.spaceGrotesk,
-  primary:fonts.PlusJakartaSans.semiBold,
+  primary:fonts.PlusJakartaSans,
   /**
    * An alternate font used for perhaps titles and stuff.
    */
   // secondary: Platform.select({ ios: fonts.helveticaNeue, android: fonts.sansSerif }),
-  secondary: fonts.PlusJakartaSans.medium,
+  secondary: fonts.PlusJakartaSans,
 
   /**
    * Lets get fancy with a monospace font!

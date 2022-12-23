@@ -34,12 +34,12 @@ const styles = StyleSheet.create({
   name: {
     color: "#282048",
     fontSize: 18,
-    fontFamily:typography.primary
+    fontFamily:typography.primary.semiBold
   },
   email: {
     color: "#7E7991",
     fontSize: 12,
-    fontFamily:typography.secondary
+    fontFamily:typography.secondary.medium
   },
   wrapEditIcon: {
     position: "absolute",

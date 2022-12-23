@@ -29,7 +29,7 @@ const FilterSection: FC<Props> = ({ selectStatus }) => {
         {selectedStatus ?
           <BadgedTaskStatus showColor={true} status={selectedStatus} />
           :
-          <Text style={{color:"#B1AEBC", fontFamily:typography.secondary, fontSize:14}}>Task Status</Text>
+          <Text style={{color:"#B1AEBC", fontFamily:typography.secondary.medium, fontSize:14}}>Task Status</Text>
         }
         <Image source={require("../../../../../assets/icons/caretDown.png")} />
       </TouchableOpacity>

@@ -90,21 +90,22 @@ const TimerCard: FC<Props> = observer(() => {
     <View style={styles.mainContainer}>
       <View style={styles.horizontal}>
         <View style={{ justifyContent: "space-around" }}>
-          <Text style={styles.timerText}>00:30:01<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
-          <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height:6, borderRadius:3 }} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
+          <Text style={styles.timerText}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
+          <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height: 6, borderRadius: 3 }} progress={getTimePercentage()} color={activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
         </View>
         <View style={styles.timerBtn}>
-          {localTimerStatusState.running ? (
-            <AntDesign name="pausecircle" size={64} color="#1B005D" onPress={() => stopTimer()} />
+          {!localTimerStatusState.running ? (
+            <TouchableOpacity activeOpacity={canRunTimer ? 1 : 0.4} style={[styles.timerBtnInactive, { backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 }]} onPress={() => { canRunTimer ? startTimer() : {} }}>
+              <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../assets/icons/new/play.png")} />
+            </TouchableOpacity>
           ) : (
-            // <AntDesign style={{ opacity: canRunTimer ? 1 : 0.4 }} name="play" size={64} color="#1B005D" onPress={() => { canRunTimer ? startTimer() : {} }} />
-            <TouchableOpacity>
-              <Image source={require("../../assets/images/new/pause-icon.png")} />
+            <TouchableOpacity onPress={() => stopTimer()}>
+              <Image resizeMode="contain" source={require("../../assets/images/new/pause-icon.png")} />
             </TouchableOpacity>
           )}
         </View>
       </View>
-    </View>
+    </View >
   )
 })
 
@@ -114,14 +115,15 @@ const styles = StyleSheet.create({
     borderTopColor: "rgba(0, 0, 0, 0.06)",
     borderTopWidth: 1,
     paddingTop: 20,
-    zIndex:998
+    zIndex: 998
   },
   timerBtn: {
     marginLeft: 5,
     paddingLeft: -5,
     marginVertical: 4,
     borderLeftWidth: 2,
-    borderLeftColor: "rgba(0, 0, 0, 0.08)"
+    borderLeftColor: "rgba(0, 0, 0, 0.08)",
+    width: 100
   },
   estimate: {
     color: "#9490A0",
@@ -181,6 +183,22 @@ const styles = StyleSheet.create({
     fontSize: 35,
     color: "#1B005D",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
+  },
+  timerIcon: {
+    width: 21,
+    height: 21
+  },
+  timerBtnInactive: {
+    width: 60,
+    height: 60,
+    backgroundColor: "#3826A6",
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 15,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    ...GS.shadow
   }
 })
 

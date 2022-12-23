@@ -60,25 +60,25 @@ const HamburgerMenu = (props) => {
             <ProfileImage size={76} imageUrl={user?.imageUrl} />
           </View>
           <Text style={styles.userProfileName}>{user?.name}</Text>
-          <Text style={{ fontSize: 14, marginBottom: 20, fontFamily: typography.secondary, marginTop: 4 }}>{user?.email}</Text>
+          <Text style={{ fontSize: 14, marginBottom: 20, fontFamily: typography.secondary.medium, marginTop: 4 }}>{user?.email}</Text>
           <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
 
         </View>
         <View style={styles.navigationSection}>
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 20 }} onPress={() => navigation.navigate("Profile")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Profile")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/user.png")} />
             <Text style={styles.screenLabel}>My work</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 20 }} onPress={() => navigation.navigate("Team")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Team")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/people.png")} />
             <Text style={styles.screenLabel}>Teams</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 20 }} onPress={() => navigation.navigate("Timer")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Timer")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/briefcase.png")} />
             <Text style={styles.screenLabel}>Tasks</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 5 }} onPress={() => navigation.navigate("")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 17 }} onPress={() => navigation.navigate("")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/setting-2.png")} />
             <Text style={styles.screenLabel}>Settings</Text>
           </TouchableOpacity>
@@ -96,7 +96,7 @@ const HamburgerMenu = (props) => {
         <TouchableOpacity style={{ flexDirection: "row", justifyContent: "space-between", }} onPress={() => onLogout()}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image source={require("../../assets/icons/new/logout.png")} />
-            <Text style={{ marginLeft: 10, color: "#DE437B", fontFamily: typography.primary, fontSize: 16 }}>Log Out</Text>
+            <Text style={{ marginLeft: 10, color: "#DE437B", fontFamily: typography.primary.semiBold, fontSize: 16 }}>Log Out</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   userProfileName: {
     fontSize: 20,
     color: colors.primary,
-    fontFamily: typography.primary,
+    fontFamily: typography.primary.semiBold,
     marginTop: 15
   },
   profileImageContainer: {
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   screenLabel: {
-    fontFamily: typography.secondary,
+    fontFamily: typography.secondary.medium,
     fontSize: 16,
     color: colors.primary
   },
