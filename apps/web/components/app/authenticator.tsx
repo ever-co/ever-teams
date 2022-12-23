@@ -1,6 +1,7 @@
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
+import Meta from '@components/layout/Meta';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useEffect } from 'react';
@@ -8,7 +9,7 @@ import { useRecoilState } from 'recoil';
 
 export function withAuthentication(
 	Component: NextPage<any, any>,
-	displayName: string
+	{ displayName, pageTitle }: { displayName: string; pageTitle?: string }
 ) {
 	const AppComponent = (props: any) => {
 		const [user, setUser] = useRecoilState(userState);
@@ -31,7 +32,7 @@ export function withAuthentication(
 						<PageSpinner />
 					</div>
 				)}
-
+				<Meta title={pageTitle} />
 				{user && <Component {...props} />}
 			</>
 		);
