@@ -1,22 +1,18 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import Image from 'next/legacy/image';
 import DropdownUser from '@components/shared/members-card/components/users-card-menu';
-import { TimeInput } from '@components/ui/inputs/time-input';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
-import { pad } from '@app/helpers/number';
 import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { mergeRefs } from '@app/helpers/merge-refs';
 import Separator from '@components/ui/separator';
-import { EstimationProgress } from './components/estimation-progress';
 import { WorkedOnTask } from './components/worked-on-task';
 import { Worked24Hours } from './components/worked-24-hours';
 import { MemberInfo } from './components/member-info';
 import { IMember, MC_EditableValues } from './types';
-import { Spinner } from '@components/ui/loaders/spinner';
 import { TaskInfo } from './components/task-info';
+import { EstimateTimeInfo } from './components/estimate-time';
 
 const Card = ({ member }: { member: IMember }) => {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -30,7 +26,7 @@ const Card = ({ member }: { member: IMember }) => {
 	// Can edit hooks
 	const hasEditMode = isManager || isAuthUser;
 	const [taskEditMode, setTaskEditMode] = useState(false);
-	const [estimateEdit, setEstimateEdit] = useState(false);
+	const [estimateEditMode, setEstimateEditMode] = useState(false);
 
 	const [formValues, setFormValues] = useState<MC_EditableValues>({
 		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
@@ -93,10 +89,6 @@ const Card = ({ member }: { member: IMember }) => {
 		};
 	}, []);
 
-	const canEditEstimate = useCallback(() => {
-		(isManager || isAuthUser) && setEstimateEdit(true);
-	}, [isAuthUser, isManager]);
-
 	const handleTaskEdit = async () => {
 		if (memberTask && memberTask.title !== formValues.memberTask) {
 			await updateTask({
@@ -118,7 +110,7 @@ const Card = ({ member }: { member: IMember }) => {
 		const hours = +formValues['estimateHours'];
 		const minutes = +formValues['estimateMinutes'];
 		if (isNaN(hours) || isNaN(minutes)) {
-			setEstimateEdit(false);
+			setEstimateEditMode(false);
 			return;
 		}
 
@@ -127,7 +119,7 @@ const Card = ({ member }: { member: IMember }) => {
 		);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
-			setEstimateEdit(false);
+			setEstimateEditMode(false);
 			return;
 		}
 
@@ -140,18 +132,24 @@ const Card = ({ member }: { member: IMember }) => {
 			estimate: hours * 60 * 60 + minutes * 60, // time seconds
 		});
 
-		setEstimateEdit(false);
+		setEstimateEditMode(false);
 	}, [memberTask, formValues, updateTask, blurEstimationFields]);
 
+	/**
+	 *  On click outside estimation inputs
+	 */
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
 		if (!updateLoading) {
 			handleEstimateSubmit();
 		}
 	});
 
+	/**
+	 * On click outside task edit
+	 */
 	const { targetEl: editTaskInputEl, ignoreElementRef: ignoreElementTaskIRef } =
 		useOutsideClick<HTMLInputElement>(() => {
-			setEstimateEdit(false);
+			setEstimateEditMode(false);
 			if (!updateLoading) {
 				handleTaskEdit();
 			}
@@ -163,9 +161,7 @@ const Card = ({ member }: { member: IMember }) => {
 				isManager
 					? ' border-primary dark:border-gray-100'
 					: ' hover:border hover:border-primary dark:border-[#202023]'
-			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex
-    justify-between text-primary dark:hover:border-gray-100
-    font-bold py-[24px] dark:text-[#FFFFFF]`}
+			} bg-[#FFFFFF] my-[15px] dark:bg-[#202023] flex justify-between text-primary dark:hover:border-gray-100 font-bold py-[24px] dark:text-[#FFFFFF]`}
 		>
 			<div className="w-[60px]  flex justify-center items-center">
 				<div className={`rounded-[50%] w-5 h-5 bg-[#02b102]`}></div>
@@ -199,74 +195,19 @@ const Card = ({ member }: { member: IMember }) => {
 			<Separator />
 
 			{/* Estimate time */}
-			<div className="w-[245px]  flex justify-center items-center">
-				<div>
-					<EstimationProgress memberTask={memberTask} isAuthUser={isAuthUser} />
-					<div className="text-center text-[14px] text-[#9490A0]  py-1 font-light flex items-center justify-center">
-						{!estimateEdit && (
-							<div className="flex items-center">
-								<div>
-									Estimate : {formValues.estimateHours}h{' '}
-									{pad(formValues.estimateMinutes)}m
-								</div>
-								<span
-									className="ml-[15px] flex items-center cursor-pointer"
-									onClick={canEditEstimate}
-									ref={ignoreElementRef}
-								>
-									<Image
-										src="/assets/png/edit.png"
-										width={20}
-										height={20}
-										alt="edit icon"
-									/>
-								</span>
-							</div>
-						)}
-						{estimateEdit && (
-							<div className="flex items-center justify-center">
-								<div
-									className="bg-[#F2F4FB] dark:bg-[#18181B] flex"
-									ref={targetEl}
-								>
-									<TimeInput
-										value={'' + formValues.estimateHours}
-										type="string"
-										placeholder="h"
-										name="estimateHours"
-										handleChange={onChangeEstimate('estimateHours')}
-										handleDoubleClick={canEditEstimate}
-										handleEnter={handleEstimateSubmit}
-										style={`w-[30px] h-[30px] pt-1 bg-transparent`}
-										disabled={!estimateEdit}
-									/>
-									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
-										h
-									</div>
-									<div className="flex items-center">:</div>
-									<TimeInput
-										value={'' + formValues.estimateMinutes}
-										type="string"
-										placeholder="m"
-										name="estimateMinutes"
-										handleChange={onChangeEstimate('estimateMinutes')}
-										handleDoubleClick={canEditEstimate}
-										handleEnter={handleEstimateSubmit}
-										style={`w-[30px] bg-transparent h-[30px] pt-1`}
-										disabled={!estimateEdit}
-									/>
-									<div className="mr-2 h-[30px] flex items-end text-[14px] border-b-2 dark:border-[#616164] border-dashed">
-										m
-									</div>
-								</div>{' '}
-								<span className="w-3 h-5 ml-2">
-									{updateLoading && <Spinner dark={false} />}
-								</span>
-							</div>
-						)}
-					</div>
-				</div>
-			</div>
+			<EstimateTimeInfo
+				ref={targetEl}
+				clickIgnoreEl={ignoreElementRef}
+				editable={formValues}
+				hasEditMode={hasEditMode}
+				editMode={estimateEditMode}
+				setEditMode={setEstimateEditMode}
+				memberTask={memberTask}
+				loading={updateLoading}
+				onChangeEstimate={onChangeEstimate}
+				onSubmitEstimation={handleEstimateSubmit}
+				isAuthUser={isAuthUser}
+			/>
 			<Separator />
 
 			{/* Time worked on 24 hours */}
@@ -280,7 +221,7 @@ const Card = ({ member }: { member: IMember }) => {
 						<DropdownUser
 							member={member}
 							setEdit={() => hasEditMode && setTaskEditMode(true)}
-							setEstimateEdit={canEditEstimate}
+							setEstimateEdit={() => hasEditMode && setEstimateEditMode(true)}
 						/>
 					</div>
 				)}
