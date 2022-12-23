@@ -1,8 +1,15 @@
-import type { NextPage } from 'next';
-import Team from './team';
+import { withAuthentication } from '@components/authenticator';
+import TeamMemberSection from '../components/home/team-member';
+import { TimerTasksSection } from '../components/home/timer-tasks';
+import { AppLayout } from '../components/layout';
 
-const Home: NextPage = () => {
-	return <Team />;
+const Main = () => {
+	return (
+		<AppLayout>
+			<TimerTasksSection />
+			<TeamMemberSection />
+		</AppLayout>
+	);
 };
 
-export default Home;
+export default withAuthentication(Main, 'MainPage');

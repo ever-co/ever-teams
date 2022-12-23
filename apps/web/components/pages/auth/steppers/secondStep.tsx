@@ -1,7 +1,7 @@
 import { SiteReCAPTCHA } from "@components/services/recaptcha";
 import React, { useEffect, useState } from "react";
-import { IStepProps } from "../../../app/interfaces/hooks";
-import Input from "../../common/input";
+import { IStepProps } from "../../../../app/interfaces/hooks";
+import Input from "../../../common/input";
 
 const SecondStep = ({
   handleOnChange,

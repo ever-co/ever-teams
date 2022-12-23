@@ -1,8 +1,5 @@
 import { useCallback, useState } from 'react';
-import TeamLogo from '../components/common/team_logo';
-import Footer from '../components/layout/footer/footer';
-import FirstStep from '../components/team/steppers/firstStep';
-import SecondStep from '../components/team/steppers/secondStep';
+
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { registerUserTeamAPI } from '@app/services/client/api/auth';
@@ -12,6 +9,10 @@ import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 import { AxiosError } from 'axios';
 import { userTimezone } from '@app/helpers/date';
 import { Spinner } from '@components/common/spinner';
+import FirstStep from '@components/pages/auth/steppers/firstStep';
+import TeamLogo from '@components/common/team_logo';
+import SecondStep from '@components/pages/auth/steppers/secondStep';
+import Footer from '@components/layout/footer/footer';
 
 const FIRST_STEP = 'STEP1';
 const SECOND_STEP = 'STEP2';
@@ -109,7 +110,7 @@ const Team = () => {
 						<div className="mt-[20px] md:mt-[40px] flex flex-col-reverse w-full md:flex-row justify-between items-center">
 							<div className="w-full md:w-1/2 text-center md:text-start justify-between underline text-primary cursor-pointer hover:text-primary dark:text-gray-400 dark:hover:opacity-90">
 								{step === FIRST_STEP && (
-									<Link href={'/passcode'}>Joining existed Team?</Link>
+									<Link href={'/auth/passcode'}>Joining existed Team?</Link>
 								)}
 
 								{step === SECOND_STEP && (

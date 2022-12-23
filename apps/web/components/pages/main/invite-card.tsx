@@ -1,6 +1,6 @@
 import { useState, Fragment } from 'react';
-import Separator from '../common/separator';
-import Invite from '../../components/invite/invite';
+import Separator from '../../common/separator';
+import Invite from '../../invite/invite';
 
 const InviteCard = () => {
 	const [isOpen, setIsOpen] = useState(false);

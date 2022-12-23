@@ -1,9 +1,12 @@
 import { I_SMTPRequest } from './interfaces/ISmtp';
 
 export const API_BASE_URL = '/api';
-export const DEFAULT_APP_PATH = '/';
-export const DEFAULT_MAIN_PATH = '/main';
-export const PROTECTED_APP_URL_PATHS = ['/main', '/profile'];
+export const DEFAULT_APP_PATH = '/auth/team';
+export const DEFAULT_MAIN_PATH = '/';
+export const PROTECTED_APP_URL_PATHS: RegExp[] = [
+	/^\/$/,
+	/^(\/profile(\/)?)(.*)$/,
+];
 
 export const TOKEN_COOKIE_NAME = 'auth-token';
 export const REFRESH_TOKEN_COOKIE_NAME = 'auth-refresh-token';

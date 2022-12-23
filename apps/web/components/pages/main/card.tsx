@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/legacy/image';
-import Separator from '../common/separator';
+import Separator from '../../common/separator';
 // import { PauseIcon } from "../common/main/pauseIcon";
 // import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from '@components/common/main/dropdown-user';
