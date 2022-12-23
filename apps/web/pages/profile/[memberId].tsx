@@ -10,7 +10,7 @@ import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import Timer from '@components/common/main/timer';
 import TaskDetailCard from '@components/home/task-card';
-import { withAuthentication } from '@components/authenticator';
+import { withAuthentication } from '@components/app/authenticator';
 import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { IUser } from '@app/interfaces/IUserData';

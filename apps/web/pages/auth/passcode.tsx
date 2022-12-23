@@ -5,14 +5,14 @@ import {
 	sendAuthCodeAPI,
 	signInWithEmailAndCodeAPI,
 } from '@app/services/client/api';
-import AuthCodeInput from '@components/common/authCodeInput';
+import AuthCodeInput from '@components/ui/inputs/auth-code-input';
 import { Spinner } from '@components/common/spinner';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
-import Input from '../../components/common/input';
-import LockIcon from '../../components/common/passcode/lockIcon';
-import Footer from '../../components/layout/footer/footer';
+import Input from '@components/common/input';
+import LockIcon from '@components/common/passcode/lockIcon';
+import Footer from '@components/layout/footer/footer';
 
 const Passcode = () => {
 	const { query } = useRouter();

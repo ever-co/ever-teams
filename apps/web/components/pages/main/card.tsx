@@ -1,7 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import Image from 'next/legacy/image';
-import Separator from '../../common/separator';
-// import { PauseIcon } from "../common/main/pauseIcon";
+// import { PauseIcon }../../ui/separatorpauseIcon";
 // import { PlayIcon } from "../common/main/playIcon";
 import DropdownUser from '@components/common/main/dropdown-user';
 import { TimeInput } from '@components/common/main/time-input';
@@ -18,8 +17,9 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
-import { ProgressBar } from '@components/common/progress-bar';
+import { ProgressBar } from '@components/ui/progress-bar';
 import { mergeRefs } from '@app/helpers/merge-refs';
+import Separator from '@components/ui/separator';
 
 type IMember = IOrganizationTeamList['members'][number];
 

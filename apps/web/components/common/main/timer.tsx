@@ -1,7 +1,7 @@
 import { pad } from '@app/helpers/number';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTimer } from '@app/hooks/features/useTimer';
-import { ProgressBar } from '../progress-bar';
+import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from './pauseIcon';
 import { PlayIcon } from './playIcon';
 

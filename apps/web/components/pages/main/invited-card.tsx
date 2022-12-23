@@ -1,6 +1,6 @@
 import { imgTitle } from '@app/helpers/img-title';
 import { IInvitation } from '@app/interfaces/IInvite';
-import Separator from '@components/common/separator';
+import Separator from '@components/ui/separator';
 
 export function InvitedCard({ invitation }: { invitation: IInvitation }) {
 	return (

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { IInvite, IInviteProps } from '../../app/interfaces/hooks';
-import UserIcon from '../common/invite/userIcon';
+import UserIcon from '../ui/svgs/user-icon';
 import Input from '../common/input';
 import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
 import { Spinner } from '@components/common/spinner';

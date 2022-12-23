@@ -1,9 +1,9 @@
-import Separator from '../common/separator';
+import Separator from '@components/ui/separator';
 // import DropdownUser from '@components/common/main/dropdown-user';
 import { RawStatusDropdown } from '@components/common/main/status-dropdown';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
-import { ProgressBar } from '@components/common/progress-bar';
+import { ProgressBar } from '@components/ui/progress-bar';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';

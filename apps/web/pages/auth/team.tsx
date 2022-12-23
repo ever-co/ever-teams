@@ -9,10 +9,10 @@ import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 import { AxiosError } from 'axios';
 import { userTimezone } from '@app/helpers/date';
 import { Spinner } from '@components/common/spinner';
-import FirstStep from '@components/pages/auth/steppers/firstStep';
+import { UserStep } from '@components/pages/auth/steppers/UserStep';
 import TeamLogo from '@components/common/team_logo';
-import SecondStep from '@components/pages/auth/steppers/secondStep';
 import Footer from '@components/layout/footer/footer';
+import { TeamStep } from '@components/pages/auth/steppers/teamStep';
 
 const FIRST_STEP = 'STEP1';
 const SECOND_STEP = 'STEP2';
@@ -95,13 +95,13 @@ const Team = () => {
 					</div>
 					<form onSubmit={handleSubmit} method="post">
 						{step === FIRST_STEP && (
-							<FirstStep
+							<TeamStep
 								errors={errors}
 								handleOnChange={handleOnChange}
 								values={formValues}
 							/>
 						)}
-						<SecondStep
+						<UserStep
 							errors={errors}
 							showForm={step === SECOND_STEP}
 							handleOnChange={handleOnChange}
