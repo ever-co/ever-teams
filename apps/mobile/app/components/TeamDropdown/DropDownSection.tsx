@@ -21,6 +21,10 @@ export interface Props {
 // }
 
 const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, changeTeam }) {
+  const { teamStore: { activeTeamId, activeTeam } } = useStores();
+
+  const others = teams.filter((t) => t.id !== activeTeamId);
+
   return (
     <View style={styles.mainContainer}>
       <View style={styles.indDropDown}>
@@ -34,8 +38,9 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
           <Image resizeMode="contain" source={require("../../../assets/icons/new/setting-2.png")} />
         </TouchableOpacity>
       </View>
-      {teams.map((item, index) => (
-        <DropItem key={index} team={item} changeTeam={changeTeam} />
+      {activeTeamId && <DropItem team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
+      {others.map((item, index) => (
+        <DropItem key={index} team={item} changeTeam={changeTeam} isActiveTeam={false} />
       ))}
 
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
@@ -51,19 +56,20 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
 }
 
 export interface IDropItem {
-  team: IOrganizationTeamList
+  team: IOrganizationTeamList,
+  isActiveTeam: boolean
   changeTeam: (value: IOrganizationTeamList) => any
 }
 
-const DropItem: FC<IDropItem> = function CreateTeamModal({ team, changeTeam }) {
-  const { teamStore: { activeTeamId } } = useStores();
+const DropItem: FC<IDropItem> = function CreateTeamModal({ team, changeTeam, isActiveTeam }) {
+
   return (
     <View style={styles.indDropDown}>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => changeTeam(team)}>
         <View style={styles.teamImage}>
           <Text style={styles.prefix}>{imgTitle(team.name)}</Text>
         </View>
-        <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: activeTeamId === team.id ? typography.primary.semiBold : typography.primary.normal }}>{team.name} ({team.members.length})</Text>
+        <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal }}>{team.name} ({team.members.length})</Text>
       </TouchableOpacity>
       <TouchableOpacity>
         <Image resizeMode="contain" source={require("../../../assets/icons/new/setting-2.png")} />
