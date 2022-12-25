@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useMemo, useState } from "react"
 import { ActivityIndicator, Text } from "react-native-paper"
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Dimensions } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
@@ -13,7 +13,7 @@ export interface Props {
   handleActiveTask: (value: ITeamTask) => unknown
   onCreateNewTask: () => unknown
 }
-
+const {height}=Dimensions.get("window")
 export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
   switch (filters) {
     case "open":
@@ -88,12 +88,12 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
         {/* {isLoading && <ActivityIndicator color="#1B005D" style={styles.loading} />} */}
       </View>
 
-      <ScrollView>
-        <View style={styles.wrapList}>
+      <ScrollView style={{maxHeight:350}}>
+      {/* <View style={styles.wrapList}> */}
           {filterDataByStatus(query, teamTasks, filter).map((task, i) => (
             <IndividualTask index={i} key={i} task={task} handleActiveTask={handleActiveTask} />
           ))}
-        </View>
+        {/* </View> */}
       </ScrollView>
     </View>
   )
@@ -139,7 +139,8 @@ const styles = StyleSheet.create({
   },
   wrapList: {
     zIndex: 100,
-    marginBottom: 20
+    marginBottom: 20,
+    maxHeight:height/3
   }
 })
 

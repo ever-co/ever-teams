@@ -18,7 +18,7 @@ import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
-import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
+import AssingTaskFormModal from "./components/AssignTaskSection"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -29,6 +29,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     } = useStores();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
+    const [showModal, setShowModal] = useState(false)
     const tabs = ["Worked", "Assigned", "Unassigned"];
 
     const { params } = _props.route;
@@ -55,18 +56,18 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       ? new_teamTasks.filter((t) => t.id !== activeTask.id)
       : new_teamTasks;
 
-    const { assignedTasks, unassignedTasks } = useAuthTeamTasks(member);
 
 
     return (
       <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        <AssingTaskFormModal isAuthUser={isAuthUser} visible={showModal} onDismiss={() => setShowModal(false)} />
         <HomeHeader {..._props} />
         <View style={{ paddingTop: 10 }}>
           <ProfileHeader {...memberInfo} />
         </View>
         <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
-          <TouchableOpacity style={$assignStyle}>
-            <Text style={$createTaskTitle}>Create Task</Text>
+          <TouchableOpacity onPress={()=>setShowModal(true)} style={$assignStyle}>
+            <Text style={$createTaskTitle}>{isAuthUser ? "Create Task":"Assign Task"}</Text>
           </TouchableOpacity>
           <FilterSection selectStatus={setFilterStatus} />
         </View>
@@ -109,15 +110,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                   </View>
                 </View>
                 {activeTask.id &&
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={true}
-                    item={activeTask as ITeamTask}
-                    isAuthUser={isAuthUser}
-                    enableEstimate={false}
-                    handleEstimate={() => { }}
-                    handleTaskTitle={() => { }}
-                  />}
+                  <ListCardItem tabIndex={selectedTabIndex} isActive={true} item={activeTask as ITeamTask} enableEstimate={false} handleEstimate={() => { }} handleTaskTitle={() => { }} isAuthUser={false} />}
               </View>
               <View>
                 <View
@@ -129,11 +122,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 {otherTasks.map((item, index) => (
                   <ListCardItem
                     tabIndex={selectedTabIndex}
-                    isActive={false}
-                    isAuthUser={isAuthUser}
-                    key={index.toString()}
-                    item={item as any}
-                    enableEstimate={false} />
+                    isActive={false} key={index.toString()} item={item as any} enableEstimate={false} isAuthUser={false} />
                 ))}
               </View>
             </View>
@@ -144,15 +133,24 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
           {selectedTabIndex === 1 &&
             <View style={{ ...GS.mt2 }}>
+              {activeTask.id &&
+                <ListCardItem
+                  tabIndex={selectedTabIndex}
+                  isActive={false}
+                  item={activeTask as ITeamTask}
+                  enableEstimate={false}
+                  handleEstimate={() => { }}
+                  handleTaskTitle={() => { }} isAuthUser={false} />
+              }
               <View>
-                {assignedTasks.map((item, index) => (
+                {otherTasks.map((item, index) => (
                   <ListCardItem
                     tabIndex={selectedTabIndex}
                     isActive={false}
-                    isAuthUser={isAuthUser}
                     key={index.toString()}
                     item={item as any}
-                    enableEstimate={false} />
+                    enableEstimate={false}
+                    isAuthUser={false} />
                 ))}
               </View>
             </View>
@@ -164,15 +162,24 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           {/* START UNASSIGNED TAB CONTENT */}
           {selectedTabIndex === 2 &&
             <View style={{ ...GS.mt2 }}>
+              {activeTask.id &&
+                <ListCardItem
+                  tabIndex={selectedTabIndex}
+                  isActive={false}
+                  item={activeTask as ITeamTask}
+                  enableEstimate={false}
+                  handleEstimate={() => { }}
+                  handleTaskTitle={() => { }}
+                  isAuthUser={false} />
+              }
               <View>
-                {unassignedTasks.map((item, index) => (
+                {otherTasks.map((item, index) => (
                   <ListCardItem
                     tabIndex={selectedTabIndex}
                     isActive={false}
-                    isAuthUser={isAuthUser}
                     key={index.toString()}
-                    item={item as any}
-                    enableEstimate={false} />
+                    item={item as any} enableEstimate={false}
+                    isAuthUser={false} />
                 ))}
               </View>
             </View>

@@ -1,12 +1,13 @@
 import React, { FC } from "react"
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
-import Icon from "react-native-vector-icons/Ionicons"
+import { Ionicons } from "@expo/vector-icons"
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../assets/ts/styles"
 import { colors, typography } from "../../theme"
 import { imgTitle } from "../../helpers/img-title"
+import { useStores } from "../../models"
 
 export interface Props {
   teams: IOrganizationTeamList[]
@@ -22,14 +23,25 @@ export interface Props {
 const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, changeTeam }) {
   return (
     <View style={styles.mainContainer}>
+      <View style={styles.indDropDown}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={styles.teamImage}>
+            <Text style={styles.prefix}>{imgTitle("ALL")}</Text>
+          </View>
+          <Text style={{ color: "#7E7991", paddingLeft: "5%", fontSize: 16, fontFamily: typography.primary.normal }}>{"ALL"}</Text>
+        </View>
+        <TouchableOpacity>
+          <Image resizeMode="contain" source={require("../../../assets/icons/new/setting-2.png")} />
+        </TouchableOpacity>
+      </View>
       {teams.map((item, index) => (
         <DropItem key={index} team={item} changeTeam={changeTeam} />
       ))}
 
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
         <View style={styles.buttonStyle}>
-          {/* <Icon name="ios-book" color="#4F8EF7" /> */}
-          <Text style={{ color: colors.primary, fontSize: 18, }}>
+          <Ionicons name="add" size={24} color="#3826A6" />
+          <Text style={{ color: colors.primary, fontSize: 14, fontFamily: typography.primary.semiBold }}>
             Create new team
           </Text>
         </View>
@@ -44,13 +56,14 @@ export interface IDropItem {
 }
 
 const DropItem: FC<IDropItem> = function CreateTeamModal({ team, changeTeam }) {
+  const { teamStore: { activeTeamId } } = useStores();
   return (
     <View style={styles.indDropDown}>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => changeTeam(team)}>
         <View style={styles.teamImage}>
           <Text style={styles.prefix}>{imgTitle(team.name)}</Text>
         </View>
-        <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16 }}>{team.name} ({team.members.length})</Text>
+        <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: activeTeamId === team.id ? typography.primary.semiBold : typography.primary.normal }}>{team.name} ({team.members.length})</Text>
       </TouchableOpacity>
       <TouchableOpacity>
         <Image resizeMode="contain" source={require("../../../assets/icons/new/setting-2.png")} />
@@ -92,7 +105,7 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     marginBottom: 10,
     marginTop: 10,
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
   },
   teamImage: {

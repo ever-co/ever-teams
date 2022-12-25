@@ -34,7 +34,6 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
     setActiveTask({})
     setTeamInvitations({ items: [], total: 0 })
   }
-  console.log(activeTeam)
 
   return (
     <View style={styles.mainContainer}>

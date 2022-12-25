@@ -82,6 +82,7 @@ const ManageTaskCard = observer(() => {
             >
                 <TextInput
                     selectionColor={colors.primary}
+                    placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                     style={styles.textInput}
                     defaultValue={activeTask.title}
                     placeholder="What you working on"
@@ -124,7 +125,7 @@ const ManageTaskCard = observer(() => {
                     <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
                         <TaskLabel />
                     </View>
-                    <TimerCard />
+                    {/* <TimerCard /> */}
                 </View>
             }
         </View>
@@ -134,18 +135,7 @@ export default ManageTaskCard;
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 20,
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 16,
-        ...GS.noBorder,
-        borderWidth: 1,
-        elevation: 10,
-        shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 10, height: 10.5 },
-        shadowOpacity: 1,
-        shadowRadius: 15,
-        zIndex: 998
+
     },
     mainContainer: {
         // marginTop: 20,

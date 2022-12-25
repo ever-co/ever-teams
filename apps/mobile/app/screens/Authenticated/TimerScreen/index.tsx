@@ -19,6 +19,7 @@ import { IOTeams } from "../../../services/teams/organization-team"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
 import ManageTaskCard from "../../../components/ManageTaskCard"
+import TimerCard from "../../../components/TimerCard"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
@@ -66,11 +67,12 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         onDismiss={() => setShowCreateTeamModal(false)}
       />
       <HomeHeader {..._props} />
-      <View style={{ padding: 20, zIndex: 2 }}>
+      <View style={{ padding: 20, zIndex: 999 }}>
         <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
       </View>
       <View style={$timerSection}>
         <ManageTaskCard />
+        <TimerCard />
       </View>
     </Screen>
   )
@@ -85,10 +87,19 @@ const $title: TextStyle = {
 }
 
 const $timerSection: ViewStyle = {
-  flex: 1,
-  backgroundColor: "#F7F7F8",
-  paddingHorizontal: 20,
-  zIndex: 1
+  marginTop: 20,
+  backgroundColor: "#fff",
+  padding: 20,
+  marginHorizontal: 20,
+  borderRadius: 16,
+  ...GS.noBorder,
+  borderWidth: 1,
+  elevation: 10,
+  shadowColor: "rgba(0, 0, 0, 0.1)",
+  shadowOffset: { width: 10, height: 10.5 },
+  shadowOpacity: 1,
+  shadowRadius: 15,
+  zIndex: 100
 }
 const $card: ViewStyle = {
 
