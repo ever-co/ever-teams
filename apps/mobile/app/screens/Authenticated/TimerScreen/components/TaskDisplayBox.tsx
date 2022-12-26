@@ -1,6 +1,6 @@
 import React from "react"
 import { View, StyleSheet, TextInput, Text } from "react-native"
-import { FontAwesome, EvilIcons } from "@expo/vector-icons"
+import { FontAwesome, AntDesign } from "@expo/vector-icons"
 import { Entypo } from "@expo/vector-icons"
 import { colors, typography } from "../../../../theme"
 
@@ -15,12 +15,12 @@ const TaskDisplayBox = ({ count, openTask, selected }: ITasDisplayBox) => {
     <View style={styles.container}>
       {openTask ? (
         <>
-          <FontAwesome name="circle" size={24} color="#D4EFDF" />
+          <FontAwesome name="circle" size={18} color="#D4EFDF" />
           <Text style={selected ? styles.activeFilter : styles.inactiveFilter}>{`${count} Open`}</Text>
         </>
       ) : (
         <>
-          <EvilIcons name="check" size={24} color="#BEBCC8" />
+        <AntDesign name="checkcircleo" size={18} color="#BEBCC8" />
           <Text style={selected ? styles.activeFilter : styles.inactiveFilter}>{`${count} Closed`}</Text>
         </>
       )}
@@ -32,10 +32,10 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
-    paddingVertical: 6,
+    // paddingVertical: ,
     paddingLeft: 10,
     width: 110,
-    height: 36,
+    height: 26,
     borderColor: "rgba(0, 0, 0, 0.1)",
     borderWidth: 1,
     borderRadius: 38,
