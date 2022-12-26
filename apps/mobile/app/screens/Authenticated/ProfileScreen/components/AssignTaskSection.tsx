@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react"
 import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
 import { Entypo } from '@expo/vector-icons';
+import{ BlurView} from "expo-blur"
 
 // COMPONENTS
 import { Button, Screen, Text, TextField } from "../../../../components"
@@ -44,7 +45,7 @@ const ModalPopUp = ({ visible, children }) => {
         }
     }
     return (
-        <Modal transparent visible={showModal}>
+        <Modal animationType="fade" transparent visible={showModal}>
             <View style={$modalBackGround}>
                 <Animated.View style={[{ transform: [{ scale: scaleValue }] }]}>
                     {children}
@@ -91,16 +92,16 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
         <ModalPopUp visible={visible}>
             {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
             <View style={styles.mainContainer}>
-                <View style={{width:"100%", marginBottom:20}}>
-                <Text style={styles.mainTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
+                <View style={{ width: "100%", marginBottom: 20 }}>
+                    <Text style={styles.mainTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
                 </View>
                 <View style={{ width: "100%" }}>
                     <ManageTaskCard />
                     <View style={styles.wrapButtons}>
-                        <TouchableOpacity onPress={() => onDismiss()} style={styles.cancelButton}>
-                            <Text style={styles.buttonText}>Cancel</Text>
+                        <TouchableOpacity onPress={() => onDismiss()} style={[styles.button,{backgroundColor:"#E6E6E9"}]}>
+                            <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>Cancel</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.createButton}>
+                        <TouchableOpacity style={[styles.button,{backgroundColor:"#3826A6"}]}>
                             <Text style={styles.buttonText}>{isAuthUser ? "Create" : "Assign"}</Text>
                         </TouchableOpacity>
                     </View>
@@ -120,10 +121,12 @@ const $container: ViewStyle = {
 }
 const $modalBackGround: ViewStyle = {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "#000000AA",
+
     justifyContent: "flex-end"
 
 }
+
 const $modalContainer: ViewStyle = {
     width: "100%",
     height: height,
@@ -144,8 +147,8 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 10, height: 10 },
         shadowRadius: 10,
         backgroundColor: "#fff",
-        borderTopRightRadius:24,
-        borderTopLeftRadius:24,
+        borderTopRightRadius: 24,
+        borderTopLeftRadius: 24,
         paddingHorizontal: 20,
         paddingVertical: 30,
         borderColor: "#1B005D0D",
@@ -164,23 +167,13 @@ const styles = StyleSheet.create({
     wrapButtons: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginVertical: 20
+        marginVertical: 10
     },
-    cancelButton: {
-        width: 155,
-        height: 57,
-        backgroundColor: "#E6E6E9",
+    button: {
+        width: width/2.5,
+        height: height/16,
         borderRadius: 11,
-        padding: 16,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    createButton: {
-        width: 155,
-        height: 57,
-        backgroundColor: "#3826A6",
-        borderRadius: 11,
-        padding: 16,
+        padding: 10,
         justifyContent: "center",
         alignItems: "center"
     },

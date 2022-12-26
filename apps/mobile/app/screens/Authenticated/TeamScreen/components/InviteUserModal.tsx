@@ -125,10 +125,10 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
             <Text style={[styles.hint, { color: "red" }]}>{errors.nameError}</Text>
           </View>
           <View style={styles.wrapButtons}>
-            <TouchableOpacity onPress={() => onDismiss()} style={styles.cancelButton}>
-              <Text style={styles.buttonText}>Cancel</Text>
+            <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
+              <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.createButton} onPress={() => handleSubmit()}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
               <Text style={styles.buttonText}>{"Send"}</Text>
             </TouchableOpacity>
           </View>
@@ -186,26 +186,17 @@ const styles = StyleSheet.create({
   wrapButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 40
+    marginVertical: 10
   },
-  cancelButton: {
-    width: 155,
-    height: 57,
-    backgroundColor: "#E6E6E9",
+  button: {
+    width: width / 2.5,
+    height: height / 16,
     borderRadius: 11,
-    padding: 16,
+    padding: 10,
     justifyContent: "center",
     alignItems: "center"
   },
-  createButton: {
-    width: 155,
-    height: 57,
-    backgroundColor: "#3826A6",
-    borderRadius: 11,
-    padding: 16,
-    justifyContent: "center",
-    alignItems: "center"
-  },
+
   mainTitle: {
     fontFamily: typography.primary.semiBold,
     fontSize: 24,

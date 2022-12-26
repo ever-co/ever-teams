@@ -19,6 +19,7 @@ import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import AssingTaskFormModal from "./components/AssignTaskSection"
+import { BlurView } from "expo-blur"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -59,135 +60,138 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
 
     return (
-      <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <AssingTaskFormModal isAuthUser={isAuthUser} visible={showModal} onDismiss={() => setShowModal(false)} />
-        <HomeHeader {..._props} />
-        <View style={{ paddingTop: 10 }}>
-          <ProfileHeader {...memberInfo} />
-        </View>
-        <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
-          <TouchableOpacity onPress={()=>setShowModal(true)} style={$assignStyle}>
-            <Text style={$createTaskTitle}>{isAuthUser ? "Create Task":"Assign Task"}</Text>
-          </TouchableOpacity>
-          <FilterSection selectStatus={setFilterStatus} />
-        </View>
-        <View style={{ flexDirection: 'row', width: "100%", justifyContent: "space-around", backgroundColor: "#fff" }}>
-          {tabs.map((item, idx) => (
-            <TouchableOpacity
-              style={selectedTabIndex === idx ? $selectedTab : $unselectedTab}
-              activeOpacity={0.7}
-              key={idx}
-              onPress={() => setSelectedTabIndex(idx)}
-            >
-              <Text style={[$tabText, { color: selectedTabIndex === idx ? "#3826A6" : "#7E7991" }]}>{item}</Text>
-              <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? "#3826A6" : "#F5F5F5" }]}>
-                <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>3</Text>
-              </View>
+      <>
+        {showModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+        <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+          <AssingTaskFormModal isAuthUser={isAuthUser} visible={showModal} onDismiss={() => setShowModal(false)} />
+          <HomeHeader {..._props} />
+          <View style={{ paddingTop: 10 }}>
+            <ProfileHeader {...memberInfo} />
+          </View>
+          <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
+            <TouchableOpacity onPress={() => setShowModal(true)} style={$assignStyle}>
+              <Text style={$createTaskTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-        <ScrollView
-          style={{
-            flex: 1,
-            zIndex: 998,
-            paddingHorizontal: 20,
-            paddingBottom: 50,
-            backgroundColor: "#f2f2f2",
-          }}
-        >
-          {/* START WORKED TAB CONTENT */}
-          {selectedTabIndex === 0 &&
-            <View>
+            <FilterSection selectStatus={setFilterStatus} />
+          </View>
+          <View style={{ flexDirection: 'row', width: "100%", justifyContent: "space-around", backgroundColor: "#fff" }}>
+            {tabs.map((item, idx) => (
+              <TouchableOpacity
+                style={selectedTabIndex === idx ? $selectedTab : $unselectedTab}
+                activeOpacity={0.7}
+                key={idx}
+                onPress={() => setSelectedTabIndex(idx)}
+              >
+                <Text style={[$tabText, { color: selectedTabIndex === idx ? "#3826A6" : "#7E7991" }]}>{item}</Text>
+                <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? "#3826A6" : "#F5F5F5" }]}>
+                  <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>3</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <ScrollView
+            style={{
+              flex: 1,
+              zIndex: 998,
+              paddingHorizontal: 20,
+              paddingBottom: 50,
+              backgroundColor: "#f2f2f2",
+            }}
+          >
+            {/* START WORKED TAB CONTENT */}
+            {selectedTabIndex === 0 &&
               <View>
-                <View
-                  style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                >
-                  <Text style={$textLabel}>Now</Text>
-                  <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
-                  <View style={{ flexDirection: "row" }}>
-                    <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
-                    <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                <View>
+                  <View
+                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                  >
+                    <Text style={$textLabel}>Now</Text>
+                    <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
+                      <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                    </View>
                   </View>
+                  {activeTask.id &&
+                    <ListCardItem tabIndex={selectedTabIndex} isActive={true} item={activeTask as ITeamTask} enableEstimate={false} handleEstimate={() => { }} handleTaskTitle={() => { }} isAuthUser={false} />}
                 </View>
+                <View>
+                  <View
+                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                  >
+                    <Text style={$textLabel}>Last 24 hours ({otherTasks.length})</Text>
+                    <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
+                  </View>
+                  {otherTasks.map((item, index) => (
+                    <ListCardItem
+                      tabIndex={selectedTabIndex}
+                      isActive={false} key={index.toString()} item={item as any} enableEstimate={false} isAuthUser={false} />
+                  ))}
+                </View>
+              </View>
+            }
+            {/* END WORKED TAB CONTENT */}
+            {/* ------------------------------------------------------------ */}
+            {/* START ASSIGNED TAB CONTENT */}
+
+            {selectedTabIndex === 1 &&
+              <View style={{ ...GS.mt2 }}>
                 {activeTask.id &&
-                  <ListCardItem tabIndex={selectedTabIndex} isActive={true} item={activeTask as ITeamTask} enableEstimate={false} handleEstimate={() => { }} handleTaskTitle={() => { }} isAuthUser={false} />}
-              </View>
-              <View>
-                <View
-                  style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                >
-                  <Text style={$textLabel}>Last 24 hours ({otherTasks.length})</Text>
-                  <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
-                </View>
-                {otherTasks.map((item, index) => (
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={false} key={index.toString()} item={item as any} enableEstimate={false} isAuthUser={false} />
-                ))}
-              </View>
-            </View>
-          }
-          {/* END WORKED TAB CONTENT */}
-          {/* ------------------------------------------------------------ */}
-          {/* START ASSIGNED TAB CONTENT */}
-
-          {selectedTabIndex === 1 &&
-            <View style={{ ...GS.mt2 }}>
-              {activeTask.id &&
-                <ListCardItem
-                  tabIndex={selectedTabIndex}
-                  isActive={false}
-                  item={activeTask as ITeamTask}
-                  enableEstimate={false}
-                  handleEstimate={() => { }}
-                  handleTaskTitle={() => { }} isAuthUser={false} />
-              }
-              <View>
-                {otherTasks.map((item, index) => (
                   <ListCardItem
                     tabIndex={selectedTabIndex}
                     isActive={false}
-                    key={index.toString()}
-                    item={item as any}
+                    item={activeTask as ITeamTask}
                     enableEstimate={false}
-                    isAuthUser={false} />
-                ))}
+                    handleEstimate={() => { }}
+                    handleTaskTitle={() => { }} isAuthUser={false} />
+                }
+                <View>
+                  {otherTasks.map((item, index) => (
+                    <ListCardItem
+                      tabIndex={selectedTabIndex}
+                      isActive={false}
+                      key={index.toString()}
+                      item={item as any}
+                      enableEstimate={false}
+                      isAuthUser={false} />
+                  ))}
+                </View>
               </View>
-            </View>
-          }
+            }
 
-          {/* END ASSIGNED TAB CONTENT */}
-          {/* ----------------------------------------------------------------------- */}
+            {/* END ASSIGNED TAB CONTENT */}
+            {/* ----------------------------------------------------------------------- */}
 
-          {/* START UNASSIGNED TAB CONTENT */}
-          {selectedTabIndex === 2 &&
-            <View style={{ ...GS.mt2 }}>
-              {activeTask.id &&
-                <ListCardItem
-                  tabIndex={selectedTabIndex}
-                  isActive={false}
-                  item={activeTask as ITeamTask}
-                  enableEstimate={false}
-                  handleEstimate={() => { }}
-                  handleTaskTitle={() => { }}
-                  isAuthUser={false} />
-              }
-              <View>
-                {otherTasks.map((item, index) => (
+            {/* START UNASSIGNED TAB CONTENT */}
+            {selectedTabIndex === 2 &&
+              <View style={{ ...GS.mt2 }}>
+                {activeTask.id &&
                   <ListCardItem
                     tabIndex={selectedTabIndex}
                     isActive={false}
-                    key={index.toString()}
-                    item={item as any} enableEstimate={false}
+                    item={activeTask as ITeamTask}
+                    enableEstimate={false}
+                    handleEstimate={() => { }}
+                    handleTaskTitle={() => { }}
                     isAuthUser={false} />
-                ))}
+                }
+                <View>
+                  {otherTasks.map((item, index) => (
+                    <ListCardItem
+                      tabIndex={selectedTabIndex}
+                      isActive={false}
+                      key={index.toString()}
+                      item={item as any} enableEstimate={false}
+                      isAuthUser={false} />
+                  ))}
+                </View>
               </View>
-            </View>
-          }
-          {/* END UNASSIGNED TAB CONTENT */}
+            }
+            {/* END UNASSIGNED TAB CONTENT */}
 
-        </ScrollView>
-      </Screen>
+          </ScrollView>
+        </Screen>
+      </>
     )
   }
 )
@@ -228,6 +232,15 @@ const $selectedTab: ViewStyle = {
   borderBottomWidth: 2,
   padding: 10,
   flexDirection: "row"
+}
+
+const $blurContainer: ViewStyle = {
+  // flex: 1,
+  height: height,
+  width: "100%",
+  position: "absolute",
+  top: 0,
+  zIndex: 1001
 }
 
 const $unselectedTab: ViewStyle = {

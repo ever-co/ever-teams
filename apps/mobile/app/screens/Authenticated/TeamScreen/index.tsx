@@ -33,6 +33,7 @@ import { IInvitation, IInviteRequest } from "../../../services/interfaces/IInvit
 import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
 import FlashMessage from "react-native-flash-message"
+import { BlurView } from "expo-blur"
 
 const { width, height } = Dimensions.get("window");
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -101,66 +102,69 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     }, [activeTeam, user, teams])
 
     return (
-      <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
-        <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
-        <CreateTeamModal
-          onCreateTeam={createNewTeam}
-          visible={showCreateTeamModal}
-          onDismiss={() => setShowCreateTeamModal(false)}
-        />
-        <HomeHeader {..._props} />
-        <View style={$wrapTeam}>
-          <View style={{ width: teamManager ? width / 1.9 : "100%" }}>
-            <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+      <>
+        {showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+        <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
+          <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
+          <CreateTeamModal
+            onCreateTeam={createNewTeam}
+            visible={showCreateTeamModal}
+            onDismiss={() => setShowCreateTeamModal(false)}
+          />
+          <HomeHeader {..._props} />
+          <View style={$wrapTeam}>
+            <View style={{ width: teamManager ? width / 1.9 : "100%" }}>
+              <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+            </View>
+            {teamManager ? (
+              <TouchableOpacity
+                style={$inviteButton}
+                onPress={() => setShowInviteModal(true)}
+              >
+                <Text style={$inviteButtonText}>
+                  Invite
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
-          {teamManager ? (
-            <TouchableOpacity
-              style={$inviteButton}
-              onPress={() => setShowInviteModal(true)}
-            >
-              <Text style={$inviteButtonText}>
-                Invite
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-        <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-          <View style={$cardContainer}>
-            {/* Users activity list */}
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-              style={{ ...GS.my2 }}
-            >
-              {currentUser && (
-                <ListCardItem
-                  member={currentUser as IUser}
-                  onPressIn={goToProfile}
-                  enableEstimate={false}
-                  index={7}
-                  userStatus={"online"}
-                />
-              )}
+          <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
+            <View style={$cardContainer}>
+              {/* Users activity list */}
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+                style={{ ...GS.my2 }}
+              >
+                {currentUser && (
+                  <ListCardItem
+                    member={currentUser as IUser}
+                    onPressIn={goToProfile}
+                    enableEstimate={false}
+                    index={7}
+                    userStatus={"online"}
+                  />
+                )}
 
 
-              {$members.map((member, index) => (
-                <ListCardItem
-                  key={index}
-                  member={member as IUser}
-                  onPressIn={goToProfile}
-                  enableEstimate={false}
-                  index={9}
-                  userStatus={"online"}
-                />
-              ))}
-              {teamInvitations.items?.map((invite: any) => (
-                <InviteCardItem key={invite.id} item={invite} />
-              ))}
-            </ScrollView>
-          </View>
-        </TouchableWithoutFeedback>
-        <FlashMessage position="bottom" />
-      </Screen>
+                {$members.map((member, index) => (
+                  <ListCardItem
+                    key={index}
+                    member={member as IUser}
+                    onPressIn={goToProfile}
+                    enableEstimate={false}
+                    index={9}
+                    userStatus={"online"}
+                  />
+                ))}
+                {teamInvitations.items?.map((invite: any) => (
+                  <InviteCardItem key={invite.id} item={invite} />
+                ))}
+              </ScrollView>
+            </View>
+          </TouchableWithoutFeedback>
+          <FlashMessage position="bottom" />
+        </Screen>
+      </>
     )
   })
 
@@ -179,6 +183,15 @@ const $cardContainer: ViewStyle = {
   backgroundColor: "#F7F7F8",
   paddingHorizontal: spacing.medium,
 }
+const $blurContainer: ViewStyle = {
+  // flex: 1,
+  height: height,
+  width: "100%",
+  position: "absolute",
+  top: 0,
+  zIndex: 1001
+}
+
 const $inviteButton: ViewStyle = {
   width: width / 3,
   height: 52,
