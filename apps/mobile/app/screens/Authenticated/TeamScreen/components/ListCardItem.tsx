@@ -26,10 +26,11 @@ import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 
 export type ListItemProps = {
   member: IUser,
-  onPressIn?: (user: IUser) => unknown
+  onPressIn?: ({ userId, tabIndex }: { userId: string, tabIndex: number }) => unknown
   enableEstimate: boolean,
   index: number,
   userStatus: string;
@@ -72,7 +73,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
   }, [isAuthUser, activeTask, activeTeam])
 
   return (
-    <TouchableOpacity onPress={() => onPressIn(iuser)}>
+    <TouchableOpacity onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
       <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: "#fff" }, { borderRadius: 20 }]}>
         <View style={styles.firstContainer}>
           <View style={styles.wrapProfileImg}>
@@ -91,7 +92,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         </View>
         <View style={styles.wrapTaskTitle}>
           {/* {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>} */}
-          <Text style={styles.otherText}>{memberTask ? memberTask.title:""}</Text>
+          <Text style={styles.otherText}>{memberTask ? memberTask.title : ""}</Text>
         </View>
         <View style={styles.times}>
           <View style={{ ...GS.alignCenter }}>
@@ -102,7 +103,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
             <Text style={styles.timeHeading}>Total work</Text>
             <Text style={styles.timeNumber}>{"01 h:10 m"}</Text>
           </View>
-          {activeTask.estimate == 0 && editEstimate ? (
+          {memberTask && memberTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
               <EstimateTime setEditEstimate={setEditEstimate} />
             </View>
@@ -113,7 +114,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
                 <View style={{}}>
                   <ProgressTimeIndicator
                     estimated={memberTask && memberTask.estimate > 0 ? true : false}
-                    estimatedHours={memberTask ? memberTask.estimate :0}
+                    estimatedHours={memberTask ? memberTask.estimate : 0}
                     workedHours={3000000}
                   />
                 </View>
@@ -127,6 +128,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 })
 
 const ListCardItem: React.FC<Props> = (props) => {
+  const { isTeamManager } = useOrganizationTeam();
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
   const [estimateNow, setEstimateNow] = React.useState(false)
@@ -136,7 +138,9 @@ const ListCardItem: React.FC<Props> = (props) => {
     setShowMenu(false)
   }
 
-  const { index, userStatus } = props;
+  const { index, userStatus, onPressIn, member } = props;
+  const iuser = member.employee.user
+
   return (
     <Card
       style={{
@@ -184,10 +188,23 @@ const ListCardItem: React.FC<Props> = (props) => {
               <View style={{}}>
                 <ListItem textStyle={styles.dropdownTxt}>Edit Task</ListItem>
                 <ListItem textStyle={styles.dropdownTxt} onPress={() => handleEstimate()}>Estimate</ListItem>
-                <ListItem textStyle={styles.dropdownTxt}>Assign Task</ListItem>
-                <ListItem textStyle={styles.dropdownTxt}>Unassign Task</ListItem>
-                <ListItem textStyle={styles.dropdownTxt}>Make a Manager</ListItem>
-                <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
+                <ListItem textStyle={styles.dropdownTxt}
+                  onPress={() => {
+                    onPressIn({ userId: iuser?.id, tabIndex: 2 })
+                    setShowMenu(!showMenu)
+                  }}
+                >Assign Task</ListItem>
+                <ListItem textStyle={styles.dropdownTxt}
+                  onPress={() => {
+                    onPressIn({ userId: iuser?.id, tabIndex: 1 })
+                    setShowMenu(!showMenu)
+                  }}>Unassign Task</ListItem>
+                {isTeamManager ? (
+                  <>
+                    <ListItem textStyle={styles.dropdownTxt}>Make a Manager</ListItem>
+                    <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
+                  </>
+                ) : null}
               </View>
             </View>
 

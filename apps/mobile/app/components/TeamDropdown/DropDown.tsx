@@ -15,7 +15,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { teams, setActiveTeam, activeTeamId, activeTeam, setTeamInvitations },
-    TaskStore: { setActiveTask, getTeamTasks }
+    TaskStore: { setActiveTask }
   } = useStores();
 
   const [expanded, setExpanded] = useState(true)
@@ -29,12 +29,10 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
 
   const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
     setActiveTeam(newActiveTeam)
-    getTeamTasks({ authToken, organizationId, tenantId, activeTeamId: newActiveTeam.id })
     setShowDrop(!showDrop)
     setActiveTask({})
     setTeamInvitations({ items: [], total: 0 })
   }
-  console.log(activeTeam)
 
   return (
     <View style={styles.mainContainer}>

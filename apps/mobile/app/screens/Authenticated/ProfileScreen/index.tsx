@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text } from "react-native"
 
 // TYPES
@@ -18,30 +18,39 @@ import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
+import AssingTaskFormModal from "./components/AssignTaskSection"
+import { BlurView } from "expo-blur"
 import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
-    const { authenticationStore: { user },
+    const { authenticationStore: { user, authToken, tenantId, organizationId },
       teamStore: { activeTeam },
       TaskStore: { teamTasks, activeTask }
     } = useStores();
-    const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+    const { params } = _props.route;
+    const { tabIndex, userId } = params;
+    const { members } = useOrganizationTeam();
+    const { onAssignTask, onUnassignedTask, loadAssignAndUnassign } = useTeamTasks();
+
+    const [selectedTabIndex, setSelectedTabIndex] = useState(tabIndex);
     const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
+    const [showModal, setShowModal] = useState(false)
     const tabs = ["Worked", "Assigned", "Unassigned"];
 
-    const { params } = _props.route;
-    const memberInfo = params?.user || user;
 
-    const members = activeTeam?.members || [];
-    const currentUser = members.find((m) => {
-      return m.employee.userId === memberInfo.id;
-    });
-    const member =
-      user?.id === memberInfo.id ? user : currentUser?.employee.user;
 
-    const isAuthUser = member.id === user.id;
+    const member = userId ? members.find((m) => {
+      return m.employee.userId === userId;
+    }) : user;
+
+    const currentUser =
+      user?.id === !userId ? user : member?.employee.user;
+
+    const isAuthUser = currentUser.id === user.id;
 
     const filterTasksByStatus = (status: ITaskStatus) => {
       if (!status) return teamTasks;
@@ -51,136 +60,164 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
     const new_teamTasks = filterTasksByStatus(filterStatus)
 
-    const otherTasks = teamTasks
+    const otherTasks = activeTask
       ? new_teamTasks.filter((t) => t.id !== activeTask.id)
       : new_teamTasks;
 
-    const { assignedTasks, unassignedTasks } = useAuthTeamTasks(member);
+    const { assignedTasks, unassignedTasks, countTasksByTab } = useAuthTeamTasks(currentUser);
 
+    useEffect(() => {
+      setSelectedTabIndex(tabIndex)
+    }, [tabIndex])
+
+
+    const hangleAssignTask = async (taskId: string) => {
+      const data = await onAssignTask({
+        taskId,
+        memberId: currentUser?.id
+      })
+    }
+
+    const hangleUnassignTask = async (taskId: string) => {
+      const data = await onUnassignedTask({
+        taskId,
+        memberId: currentUser?.id
+      })
+    }
 
     return (
-      <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-        <HomeHeader {..._props} />
-        <View style={{ paddingTop: 10 }}>
-          <ProfileHeader {...memberInfo} />
-        </View>
-        <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
-          <TouchableOpacity style={$assignStyle}>
-            <Text style={$createTaskTitle}>Create Task</Text>
-          </TouchableOpacity>
-          <FilterSection selectStatus={setFilterStatus} />
-        </View>
-        <View style={{ flexDirection: 'row', width: "100%", justifyContent: "space-around", backgroundColor: "#fff" }}>
-          {tabs.map((item, idx) => (
-            <TouchableOpacity
-              style={selectedTabIndex === idx ? $selectedTab : $unselectedTab}
-              activeOpacity={0.7}
-              key={idx}
-              onPress={() => setSelectedTabIndex(idx)}
-            >
-              <Text style={[$tabText, { color: selectedTabIndex === idx ? "#3826A6" : "#7E7991" }]}>{item}</Text>
-              <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? "#3826A6" : "#F5F5F5" }]}>
-                <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>3</Text>
-              </View>
+      <>
+        {showModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+        <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+          <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
+          <HomeHeader {..._props} />
+          <View style={{ paddingTop: 10 }}>
+            <ProfileHeader {...currentUser} />
+          </View>
+          <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
+            <TouchableOpacity onPress={() => setShowModal(true)} style={$assignStyle}>
+              <Text style={$createTaskTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-        <ScrollView
-          style={{
-            flex: 1,
-            zIndex: 998,
-            paddingHorizontal: 20,
-            paddingBottom: 50,
-            backgroundColor: "#f2f2f2",
-          }}
-        >
-          {/* START WORKED TAB CONTENT */}
-          {selectedTabIndex === 0 &&
-            <View>
+            <FilterSection selectStatus={setFilterStatus} />
+          </View>
+          <View style={{ flexDirection: 'row', width: "100%", justifyContent: "space-around", backgroundColor: "#fff" }}>
+            {tabs.map((item, idx) => (
+              <TouchableOpacity
+                style={selectedTabIndex === idx ? $selectedTab : $unselectedTab}
+                activeOpacity={0.7}
+                key={idx}
+                onPress={() => setSelectedTabIndex(idx)}
+              >
+                <Text style={[$tabText, { color: selectedTabIndex === idx ? "#3826A6" : "#7E7991" }]}>{item}</Text>
+                <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? "#3826A6" : "#F5F5F5" }]}>
+                  <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>{countTasksByTab(idx)}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <ScrollView
+            style={{
+              flex: 1,
+              zIndex: 998,
+              paddingHorizontal: 20,
+              paddingBottom: 50,
+              backgroundColor: "#f2f2f2",
+            }}
+          >
+            {/* START WORKED TAB CONTENT */}
+            {selectedTabIndex === 0 &&
               <View>
-                <View
-                  style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                >
-                  <Text style={$textLabel}>Now</Text>
-                  <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
-                  <View style={{ flexDirection: "row" }}>
-                    <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
-                    <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                <View>
+                  <View
+                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                  >
+                    <Text style={$textLabel}>Now</Text>
+                    <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
+                      <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                    </View>
                   </View>
+                  {activeTask &&
+                    <ListCardItem
+                      tabIndex={selectedTabIndex} isActive={true}
+                      member={member}
+                      index={1000}
+                      item={activeTask as ITeamTask}
+                      enableEstimate={false} handleEstimate={() => { }}
+                      handleTaskTitle={() => { }}
+                      isAuthUser={false} />
+                  }
                 </View>
-                {activeTask.id &&
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={true}
-                    item={activeTask as ITeamTask}
-                    isAuthUser={isAuthUser}
-                    enableEstimate={false}
-                    handleEstimate={() => { }}
-                    handleTaskTitle={() => { }}
-                  />}
-              </View>
-              <View>
-                <View
-                  style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                >
-                  <Text style={$textLabel}>Last 24 hours ({otherTasks.length})</Text>
-                  <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
+                <View>
+                  <View
+                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                  >
+                    <Text style={$textLabel}>Last 24 hours ({otherTasks.length})</Text>
+                    <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
+                  </View>
+                  {otherTasks.map((item, index) => (
+                    <ListCardItem
+                      tabIndex={selectedTabIndex}
+                      isActive={false} key={index.toString()}
+                      member={member}
+                      index={index}
+                      item={item as any}
+                      enableEstimate={false}
+                      isAuthUser={isAuthUser} />
+                  ))}
                 </View>
-                {otherTasks.map((item, index) => (
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={false}
-                    isAuthUser={isAuthUser}
-                    key={index.toString()}
-                    item={item as any}
-                    enableEstimate={false} />
-                ))}
               </View>
-            </View>
-          }
-          {/* END WORKED TAB CONTENT */}
-          {/* ------------------------------------------------------------ */}
-          {/* START ASSIGNED TAB CONTENT */}
+            }
+            {/* END WORKED TAB CONTENT */}
+            {/* ------------------------------------------------------------ */}
+            {/* START ASSIGNED TAB CONTENT */}
 
-          {selectedTabIndex === 1 &&
-            <View style={{ ...GS.mt2 }}>
-              <View>
-                {assignedTasks.map((item, index) => (
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={false}
-                    isAuthUser={isAuthUser}
-                    key={index.toString()}
-                    item={item as any}
-                    enableEstimate={false} />
-                ))}
+            {selectedTabIndex === 1 &&
+              <View style={{ ...GS.mt2 }}>
+                <View>
+                  {assignedTasks.map((item, index) => (
+                    <ListCardItem
+                      tabIndex={selectedTabIndex}
+                      member={member}
+                      index={index}
+                      isActive={false}
+                      key={index.toString()}
+                      onUnassignTask={hangleUnassignTask}
+                      item={item as any}
+                      enableEstimate={false}
+                      isAuthUser={isAuthUser} />
+                  ))}
+                </View>
               </View>
-            </View>
-          }
+            }
 
-          {/* END ASSIGNED TAB CONTENT */}
-          {/* ----------------------------------------------------------------------- */}
+            {/* END ASSIGNED TAB CONTENT */}
+            {/* ----------------------------------------------------------------------- */}
 
-          {/* START UNASSIGNED TAB CONTENT */}
-          {selectedTabIndex === 2 &&
-            <View style={{ ...GS.mt2 }}>
-              <View>
-                {unassignedTasks.map((item, index) => (
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={false}
-                    isAuthUser={isAuthUser}
-                    key={index.toString()}
-                    item={item as any}
-                    enableEstimate={false} />
-                ))}
+            {/* START UNASSIGNED TAB CONTENT */}
+            {selectedTabIndex === 2 &&
+              <View style={{ ...GS.mt2 }}>
+                <View>
+                  {unassignedTasks.map((item, index) => (
+                    <ListCardItem
+                      tabIndex={selectedTabIndex}
+                      member={member}
+                      index={index}
+                      isActive={false}
+                      key={index.toString()}
+                      onAssignTask={hangleAssignTask}
+                      item={item as any} enableEstimate={false}
+                      isAuthUser={isAuthUser} />
+                  ))}
+                </View>
               </View>
-            </View>
-          }
-          {/* END UNASSIGNED TAB CONTENT */}
+            }
+            {/* END UNASSIGNED TAB CONTENT */}
 
-        </ScrollView>
-      </Screen>
+          </ScrollView>
+        </Screen>
+      </>
     )
   }
 )
@@ -221,6 +258,15 @@ const $selectedTab: ViewStyle = {
   borderBottomWidth: 2,
   padding: 10,
   flexDirection: "row"
+}
+
+const $blurContainer: ViewStyle = {
+  // flex: 1,
+  height: height,
+  width: "100%",
+  position: "absolute",
+  top: 0,
+  zIndex: 1001
 }
 
 const $unselectedTab: ViewStyle = {

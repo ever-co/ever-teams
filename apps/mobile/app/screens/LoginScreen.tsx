@@ -17,6 +17,7 @@ import { CodeInput } from "../components/CodeInput"
 import { register } from "../services/client/api/auth/register"
 import { login } from "../services/client/api/auth/login"
 import { useTeamInvitations } from "../services/hooks/useTeamInvitation";
+import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
@@ -58,11 +59,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setActiveTeam, getUserTeams,
       setActiveTeamId
     },
-    TaskStore: {
-      getTeamTasks
-    }
   } = useStores()
 
+  const { loadTeamTasksData } = useTeamTasks();
 
 
   useEffect(() => {
@@ -122,15 +121,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       //Load first team data
       getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
       //Load tasks for current team or initialize tasks
-
-      getTeamTasks(
-        {
-          tenantId: data.team.tenantId,
-          activeTeamId: data.team.id,
-          authToken: loginRes.token,
-          organizationId: data.team.organizationId
-        })
-
+      loadTeamTasksData();
       // Save Auth Data
       setAuthToken(loginRes.token);
     }
@@ -156,7 +147,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     // If successful, reset the fields and set the token.
     if (response.status === 200) {
       const data = response.data
-
+      console.log(JSON.stringify(data))
       const employee = data.employee;
       const loginRes = data.loginRes;
       const user = loginRes.user;
@@ -181,13 +172,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
       //Load tasks for current team or initialize tasks
 
-      getTeamTasks(
-        {
-          tenantId: data.team.tenantId,
-          activeTeamId: data.team.id,
-          authToken: loginRes.token,
-          organizationId: data.team.organizationId
-        })
+      loadTeamTasksData();
       // Save Auth Data
       setAuthToken(loginRes.token);
     }

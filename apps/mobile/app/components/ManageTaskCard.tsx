@@ -16,16 +16,16 @@ import TaskStatus from "../screens/Authenticated/ProfileScreen/components/TaskSt
 import TaskLabel from "./TaskLabel";
 import { typography } from "../theme";
 import TimerCard from "./TimerCard";
+import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 
 const { width, height } = Dimensions.get("window");
 const ManageTaskCard = observer(() => {
     const {
-        authenticationStore: { tenantId, organizationId, authToken },
-        teamStore: { activeTeamId, activeTeam },
-        TaskStore: { createNewTask, setActiveTask, activeTask, getTeamTasks, fetchingTasks },
-        TimerStore: { timerStatusState, localTimerStatusState, timeCounterState }
+
+        TaskStore: { setActiveTask, activeTask, fetchingTasks },
     } = useStores();
 
+    const { createNewTask } = useTeamTasks();
     const [showCombo, setShowCombo] = useState(false)
     const [taskInputText, setTaskInputText] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,7 +36,7 @@ const ManageTaskCard = observer(() => {
     const onCreateNewTask = async () => {
         setShowCheckIcon(false)
         setIsLoading(true)
-        await createNewTask({ organizationId, teamId: activeTeamId, authToken, taskTitle: taskInputText, tenantId })
+        await createNewTask(taskInputText)
         setIsLoading(false)
         setShowCombo(false)
     }
@@ -65,7 +65,7 @@ const ManageTaskCard = observer(() => {
     }
 
     useEffect(() => {
-        setTaskInputText(activeTask.title)
+        setTaskInputText(activeTask && activeTask.title)
     }, [activeTask])
 
     return (
@@ -82,8 +82,9 @@ const ManageTaskCard = observer(() => {
             >
                 <TextInput
                     selectionColor={colors.primary}
+                    placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                     style={styles.textInput}
-                    defaultValue={activeTask.title}
+                    defaultValue={activeTask && activeTask.title}
                     placeholder="What you working on"
                     value={taskInputText}
                     onFocus={() => setShowCombo(true)}
@@ -124,7 +125,7 @@ const ManageTaskCard = observer(() => {
                     <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
                         <TaskLabel />
                     </View>
-                    <TimerCard />
+                    {/* <TimerCard /> */}
                 </View>
             }
         </View>
@@ -134,18 +135,7 @@ export default ManageTaskCard;
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 20,
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 16,
-        ...GS.noBorder,
-        borderWidth: 1,
-        elevation: 10,
-        shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 10, height: 10.5 },
-        shadowOpacity: 1,
-        shadowRadius: 15,
-        zIndex: 998
+
     },
     mainContainer: {
         // marginTop: 20,

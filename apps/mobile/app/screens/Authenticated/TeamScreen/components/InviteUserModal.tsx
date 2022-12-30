@@ -1,22 +1,24 @@
 import React, { FC, useState } from "react"
-import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated } from "react-native"
+import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
 import { Entypo } from '@expo/vector-icons';
 
 // COMPONENTS
 import { Button, Screen, Text, TextField } from "../../../../components"
 // STYLES
 import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing } from "../../../../theme"
+import { colors, spacing, typography } from "../../../../theme"
 import { IInviteRequest } from "../../../../services/interfaces/IInvite";
 import { on } from "process";
 import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation";
 import { ActivityIndicator } from "react-native-paper";
 import { showMessage } from "react-native-flash-message";
+import { EMAIL_REGEX } from "../../../../helpers/regex";
 
 export interface Props {
   visible: boolean
   onDismiss: () => unknown
 }
+const { width, height } = Dimensions.get("window");
 
 const ModalPopUp = ({ visible, children }) => {
   const [showModal, setShowModal] = React.useState(visible)
@@ -61,20 +63,40 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
     nameError: null
   })
 
-  const handleSubmit = () => {
-    const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    if (memberEmail.trim().length == 0 || !memberEmail.match(EMAIL_REGEX)) {
+  const handleEmailInput = (email: string) => {
+    if (email.trim().length == 0 || !email.match(EMAIL_REGEX)) {
       setErrors({ ...errors, emailError: "Email is not valid" })
-      console.log("")
-      showMessage({message:"Email is not valid", type:"warning"})
       return
     } else {
-      setErrors({ ...errors, emailError: null })
+      setErrors({ ...errors, emailError: "" })
+      setMemberEmail(email)
+    }
+  }
+
+  const handleNameInput = (name: string) => {
+    if (name.trim().length < 3) {
+      setErrors({ ...errors, nameError: "Name is not valid" })
+      return
+    } else {
+      setErrors({ ...errors, nameError: "" })
+      setMemberName(name)
+    }
+  }
+
+  const handleSubmit = () => {
+
+    if (memberEmail.trim().length == 0 || !memberEmail.match(EMAIL_REGEX)) {
+      setErrors({ ...errors, emailError: "Email is not valid" })
+
+      showMessage({ message: "Email is not valid", type: "warning" })
+      return
+    } else {
+      setErrors({ ...errors, emailError: "" })
     }
 
     if (memberName.trim().length < 3) {
-      showMessage({message:"Name is not valid", type:"warning"})
-     
+      showMessage({ message: "Name is not valid", type: "warning" })
+      setErrors({ ...errors, nameError: "Name is not valid" })
       return
     } else {
       setErrors({ ...errors, nameError: null })
@@ -89,37 +111,30 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
     <ModalPopUp visible={visible}>
       {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
       <View style={styles.mainContainer}>
-        <Image source={require("../../../../../assets/images/lock-cloud.png")} />
-        <Text preset="heading" style={{ fontSize: CONSTANT_SIZE.FONT_SIZE_MD, color: "#1B005D" }}>
-          Invite member to your team
-        </Text>
-
-        <Text style={{ color: "#ACB3BB", fontSize: 10, marginBottom: 10 }}>
-          Send an invitation to a team member by email
-        </Text>
-
-        <View style={styles.blueBottom}>
-          <TextInput onChangeText={(text) => setMemberEmail(text)} placeholder="example@domain.com" />
+        <View style={{ width: "100%", marginBottom: 20 }}>
+          <Text style={styles.mainTitle}>{"Invite member to your team"}</Text>
+          <Text style={styles.hint}>Send a invitation to a team member by email</Text>
         </View>
-
-        <View style={styles.greyBottom}>
-          <TextInput onChangeText={(text) => setMemberName(text)} placeholder="Team Member's Name" />
+        <View style={{ width: "100%" }}>
+          <View>
+            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={styles.textInput} placeholder="Input email address" onChangeText={(text) => handleEmailInput(text)} />
+            <Text style={[styles.hint, { color: "red" }]}>{errors.emailError}</Text>
+          </View>
+          <View>
+            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={[styles.textInput, { marginTop: 16 }]} placeholder="Input team member name" onChangeText={(text) => handleNameInput(text)} />
+            <Text style={[styles.hint, { color: "red" }]}>{errors.nameError}</Text>
+          </View>
+          <View style={styles.wrapButtons}>
+            <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
+              <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
+              <Text style={styles.buttonText}>{"Send"}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <Button
-          text="Send Invite"
-          preset="filled"
-          textStyle={{ color: colors.palette.neutral100, fontWeight: "bold" }}
-          onPress={() => handleSubmit()}
-          style={{
-            backgroundColor: colors.primary,
-            opacity: loading ? 0.5 : 1,
-            width: "100%",
-          }}
-        ></Button>
-        <Entypo name="cross" size={24} color="#1B005D" style={styles.crossIcon} onPress={() => onDismiss()} />
       </View>
-      <ActivityIndicator color={colors.primary} style={styles.loading} />
+      {/* <ActivityIndicator color={colors.primary} style={styles.loading} /> */}
     </ModalPopUp>
   )
 }
@@ -134,12 +149,12 @@ const $container: ViewStyle = {
 const $modalBackGround: ViewStyle = {
   flex: 1,
   backgroundColor: "rgba(0,0,0,0.5)",
-  justifyContent: "center",
-  alignItems: "center",
+  justifyContent: "flex-end"
+
 }
 const $modalContainer: ViewStyle = {
-  width: "95%",
-  height: 350,
+  width: "100%",
+  height: height,
   backgroundColor: "white",
   paddingHorizontal: 30,
   paddingVertical: 30,
@@ -150,13 +165,17 @@ const $modalContainer: ViewStyle = {
 
 const styles = StyleSheet.create({
   mainContainer: {
+    width: "100%",
     alignItems: "center",
+    height: height / 2.2,
     shadowColor: "#1B005D0D",
     shadowOffset: { width: 10, height: 10 },
     shadowRadius: 10,
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 30,
+    borderTopRightRadius: 24,
+    borderTopLeftRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
     borderColor: "#1B005D0D",
     borderWidth: 2,
   },
@@ -164,17 +183,29 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     width: "100%",
   },
-  blueBottom: {
-    borderBottomWidth: 2,
-    borderColor: "#1B005D",
-    width: "100%",
-    marginBottom: 25,
+  wrapButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10
   },
-  greyBottom: {
-    borderBottomWidth: 2,
-    borderColor: "#ACB3BB",
-    width: "100%",
-    marginBottom: 25,
+  button: {
+    width: width / 2.5,
+    height: height / 16,
+    borderRadius: 11,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+
+  mainTitle: {
+    fontFamily: typography.primary.semiBold,
+    fontSize: 24,
+    color: colors.primary
+  },
+  buttonText: {
+    fontFamily: typography.primary.semiBold,
+    fontSize: 18,
+    color: "#FFF"
   },
   crossIcon: {
     position: "absolute",
@@ -185,5 +216,21 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: "12%",
     left: "15%"
-  }
+  },
+  textInput: {
+    width: "100%",
+    borderRadius: 10,
+    borderWidth: 1,
+    color: colors.primary,
+    height: 45,
+    paddingVertical: 16,
+    paddingHorizontal: 13,
+    borderColor: "rgba(0, 0, 0, 0.1)"
+  },
+  hint: {
+    color: "#7E7991",
+    fontSize: 12,
+    fontFamily: typography.primary.semiBold
+  },
+
 })

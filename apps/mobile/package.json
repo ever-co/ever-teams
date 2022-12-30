@@ -56,6 +56,7 @@
     "date-fns": "^2.29.2",
     "expo": "~46.0.3",
     "expo-application": "~4.2.2",
+    "expo-blur": "~11.2.0",
     "expo-constants": "~13.2.3",
     "expo-device": "~4.3.0",
     "expo-file-system": "~14.1.0",
