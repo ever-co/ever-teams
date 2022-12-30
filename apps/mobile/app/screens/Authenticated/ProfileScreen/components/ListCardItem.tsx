@@ -19,23 +19,27 @@ import { Card, Icon, ListItem, Text } from "../../../../components"
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { colors, spacing, typography } from "../../../../theme"
 import ProgressTimeIndicator from "../../TeamScreen/components/ProgressTimeIndicator"
-import TaskStatus from "./TaskStatus"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import { observer } from "mobx-react-lite"
 import { useStores } from "../../../../models";
 import { ActivityIndicator } from "react-native-paper";
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization";
+import { IUser } from "../../../../services/interfaces/IUserData";
 
 export type ListItemProps = {
   item: ITeamTask
   onPressIn?: () => unknown
   handleEstimate?: () => unknown,
+  onAssignTask?: (taskId: string) => unknown,
+  onUnassignTask?: (taskId: string) => unknown,
   isActive: boolean,
   tabIndex: number,
   isAuthUser: boolean,
   enableEstimate?: boolean
   enableEditTaskTitle?: boolean,
-  handleTaskTitle?: () => unknown
+  handleTaskTitle?: () => unknown,
+  member: IUser,
+  index: number,
 }
 
 export interface Props extends ListItemProps { }
@@ -43,11 +47,10 @@ export interface Props extends ListItemProps { }
 const { width, height } = Dimensions.get("window")
 
 export const ListItemContent: React.FC<ListItemProps> = (props) => {
-  const { authenticationStore: { authToken, tenantId, organizationId }, teamStore: { activeTeamId }, TaskStore: { updateTask } } = useStores();
-  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex, isAuthUser } = props;
+  const { authenticationStore: { authToken, tenantId, organizationId, user }, teamStore: { activeTeamId }, TaskStore: { updateTask } } = useStores();
+  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex, isAuthUser, onAssignTask } = props;
   const [titleInput, setTitleInput] = useState("")
   const [loading, setLoading] = useState(false);
-
 
   useEffect(() => {
     setTitleInput(item.title)
@@ -69,6 +72,8 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     setLoading(false)
     handleTaskTitle()
   }
+
+
 
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
@@ -123,7 +128,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
                 <Image resizeMode="contain" style={[styles.timerIcon,]} source={isActive ? require("../../../../../assets/icons/new/stop.png") : require("../../../../../assets/icons/new/play.png")} />
               </TouchableOpacity>
             ) : tabIndex == 2 ? (
-              <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]}>
+              <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]} onPress={() => onAssignTask(item.id)}>
                 <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/arrow-right.png")} />
               </TouchableOpacity>
             ) : null}
@@ -140,7 +145,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             )}
           </View>
           <View style={{ width: 133, height: 33 }}>
-            <TaskStatus {...item} />
+            {/* <TaskStatus {...item} /> */}
           </View>
         </View>
       </View>
@@ -150,6 +155,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
 
 
 const ListCardItem: React.FC<Props> = (props) => {
+  const { isTeamManager } = useOrganizationTeam();
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
   const [estimateNow, setEstimateNow] = React.useState(false)
@@ -163,7 +169,11 @@ const ListCardItem: React.FC<Props> = (props) => {
     setEditTaskTitle(!editTaskTitle)
     setShowMenu(false)
   }
-  const { isActive } = props;
+
+
+  const { index, onAssignTask, onUnassignTask, member, isActive, item } = props;
+  const iuser = member.employee.user
+
   return (
     <Card
       style={[{
@@ -191,21 +201,34 @@ const ListCardItem: React.FC<Props> = (props) => {
               style={{
                 ...GS.positionAbsolute,
                 ...GS.p2,
-                ...GS.pt4,
+                ...GS.pt1,
                 ...GS.shadow,
                 ...GS.r0,
                 ...GS.roundedSm,
+                ...GS.zIndexFront,
+                width: 172,
                 marginTop: -spacing.extraSmall,
-                marginRight: -spacing.tiny,
+                marginRight: 17,
                 backgroundColor: colors.background,
-                minWidth: spacing.massive * 1.5,
+                minWidth: spacing.huge * 2,
                 ...(!showMenu ? { display: "none" } : {}),
               }}
             >
               <View style={{}}>
-                <ListItem onPress={() => handleTaskTitle()}>Edit</ListItem>
-                <ListItem>Release</ListItem>
-                <ListItem onPress={() => handleEstimate()}>Estimate now</ListItem>
+                <ListItem textStyle={styles.dropdownTxt} onPress={() => handleTaskTitle()}>Edit Task</ListItem>
+                <ListItem textStyle={styles.dropdownTxt} onPress={() => handleEstimate()}>Estimate</ListItem>
+                {onAssignTask && <ListItem textStyle={styles.dropdownTxt}
+                  onPress={() => {
+                    onAssignTask(item.id)
+                    setShowMenu(!showMenu)
+                  }}
+                >Assign Task</ListItem>}
+
+                {onUnassignTask && <ListItem textStyle={styles.dropdownTxt}
+                  onPress={() => {
+                    onUnassignTask(item.id)
+                    setShowMenu(!showMenu)
+                  }}>Unassign Task</ListItem>}
               </View>
             </View>
 
@@ -291,6 +314,11 @@ const styles = StyleSheet.create({
     color: "#282048",
     fontSize: 14,
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
+  },
+  dropdownTxt: {
+    color: "#282048",
+    fontSize: 14,
+    fontFamily: typography.primary.semiBold
   },
   timeHeading: {
     color: "#7E7991",

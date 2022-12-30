@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react"
 import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
 import { Entypo } from '@expo/vector-icons';
-import{ BlurView} from "expo-blur"
+import { BlurView } from "expo-blur"
 
 // COMPONENTS
 import { Button, Screen, Text, TextField } from "../../../../components"
@@ -14,10 +14,18 @@ import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation
 import { ActivityIndicator } from "react-native-paper";
 import { showMessage } from "react-native-flash-message";
 import ManageTaskCard from "../../../../components/ManageTaskCard";
+import TaskLabel from "../../../../components/TaskLabel";
+import TaskPriorities from "../../../../components/TaskPriorities";
+import TaskStatusDropdown from "../../TimerScreen/components/TaskStatusDropdown";
+import TaskSize from "../../../../components/TaskSize";
+import EstimateTime from "../../TimerScreen/components/EstimateTime";
+import { ITeamTask } from "../../../../services/interfaces/ITask";
+import { useStores } from "../../../../models";
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 
 export interface Props {
     visible: boolean
-    isAuthUser: boolean
+    memberId: string,
     onDismiss: () => unknown
 }
 const { width, height } = Dimensions.get("window");
@@ -55,36 +63,40 @@ const ModalPopUp = ({ visible, children }) => {
     )
 }
 
-const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDismiss, isAuthUser }) {
-    const { inviterMember, loading } = useTeamInvitations();
-    const [memberName, setMemberName] = useState("")
-    const [memberEmail, setMemberEmail] = useState("");
-    const [errors, setErrors] = useState({
-        emailError: null,
-        nameError: null
-    })
+const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDismiss, memberId }) {
+    const {
+        authenticationStore: { user },
+        TaskStore: { fetchingTasks },
+    } = useStores();
 
-    const handleSubmit = () => {
-        const EMAIL_REGEX = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-        if (memberEmail.trim().length == 0 || !memberEmail.match(EMAIL_REGEX)) {
-            setErrors({ ...errors, emailError: "Email is not valid" })
-            console.log("")
-            showMessage({ message: "Email is not valid", type: "warning" })
-            return
-        } else {
-            setErrors({ ...errors, emailError: null })
+    const { createAndAssign } = useTeamTasks();
+
+    const isAuthUser = user?.id === memberId;
+
+    const [taskInputText, setTaskInputText] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
+
+
+
+    const onCreateNewTask = async () => {
+        setShowCheckIcon(false)
+        setIsLoading(true)
+        await createAndAssign({ title: taskInputText, userId: memberId });
+        setIsLoading(false)
+        setTaskInputText("")
+        onDismiss();
+    }
+
+
+    const handleChangeText = (value: string) => {
+        setTaskInputText(value)
+        if (value.trim().length > 0) {
+            setShowCheckIcon(false)
         }
-
-        if (memberName.trim().length < 3) {
-            showMessage({ message: "Name is not valid", type: "warning" })
-
-            return
-        } else {
-            setErrors({ ...errors, nameError: null })
+        if (value.trim().length >= 3) {
+            setShowCheckIcon(true)
         }
-
-        inviterMember({ email: memberEmail, name: memberName })
-        onDismiss()
     }
 
 
@@ -96,18 +108,67 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
                     <Text style={styles.mainTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
                 </View>
                 <View style={{ width: "100%" }}>
-                    <ManageTaskCard />
+                    <View style={{}}>
+                        <View
+                            style={[
+                                styles.wrapInput,
+                                {
+                                    flexDirection: "row",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                },
+                            ]}
+                        >
+                            <TextInput
+                                selectionColor={colors.primary}
+                                placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
+                                style={styles.textInput}
+                                defaultValue={""}
+                                placeholder="What you working on"
+                                value={taskInputText}
+                                onChangeText={(newText) => handleChangeText(newText)}
+                            />
+                            {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
+                        </View>
+
+                        <View>
+                            <View
+                                style={{
+                                    width: "100%",
+                                    flexDirection: "row",
+                                    marginVertical: 20,
+                                    justifyContent: "space-between",
+                                    alignItems: "center"
+                                }}
+                            >
+                                <View style={{ flexDirection: 'row', alignItems: "center" }}>
+                                    <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate: </Text>
+                                    <EstimateTime />
+                                </View>
+                                <TaskSize />
+                            </View>
+                            <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", zIndex: 1000 }}>
+
+                                <View style={{ width: 136, height: 32 }}>
+                                    <TaskStatusDropdown task={{}} />
+                                </View>
+                                <TaskPriorities />
+                            </View>
+                            <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
+                                <TaskLabel />
+                            </View>
+                        </View>
+                    </View>
                     <View style={styles.wrapButtons}>
-                        <TouchableOpacity onPress={() => onDismiss()} style={[styles.button,{backgroundColor:"#E6E6E9"}]}>
-                            <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>Cancel</Text>
+                        <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
+                            <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>Cancel</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button,{backgroundColor:"#3826A6"}]}>
+                        <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6", opacity: isLoading ? 0.6 : 1 }]} onPress={() => onCreateNewTask()}>
                             <Text style={styles.buttonText}>{isAuthUser ? "Create" : "Assign"}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
-            {/* <ActivityIndicator color={colors.primary} style={styles.loading} /> */}
         </ModalPopUp>
     )
 }
@@ -170,8 +231,8 @@ const styles = StyleSheet.create({
         marginVertical: 10
     },
     button: {
-        width: width/2.5,
-        height: height/16,
+        width: width / 2.5,
+        height: height / 16,
         borderRadius: 11,
         padding: 10,
         justifyContent: "center",
@@ -193,8 +254,29 @@ const styles = StyleSheet.create({
         top: 10
     },
     loading: {
-        position: "absolute",
-        bottom: "12%",
-        left: "15%"
+        position: 'absolute',
+        right: 10,
+        top: 11
+    },
+    textInput: {
+        color: "rgba(40, 32, 72, 0.4)",
+        width: "90%",
+        height: 43,
+        paddingVertical: 13,
+        paddingHorizontal: 16,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+        fontSize: 12,
+        fontFamily: typography.fonts.PlusJakartaSans.semiBold
+    },
+
+    wrapInput: {
+        width: "100%",
+        height: 45,
+        backgroundColor: "#fff",
+        borderColor: "rgba(0, 0, 0, 0.1)",
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingVertical: 2
     }
 })

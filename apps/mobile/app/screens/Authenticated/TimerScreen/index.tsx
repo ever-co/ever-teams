@@ -50,9 +50,6 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
   }
 
-  const loadTeamTasks = async () => {
-    await getUserTeams({ tenantId: tenantId, userId: user?.id, authToken: authToken });
-  }
 
 
   useEffect(() => {

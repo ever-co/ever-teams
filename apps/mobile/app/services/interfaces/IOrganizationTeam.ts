@@ -33,7 +33,7 @@ export interface IOrganizationTeamList {
   members: OT_Member[];
 }
 
-interface OT_Member {
+export interface OT_Member {
   id: string;
   createdAt: string;
   updatedAt: string;

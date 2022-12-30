@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text } from "react-native"
 
 // TYPES
@@ -20,30 +20,37 @@ import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import AssingTaskFormModal from "./components/AssignTaskSection"
 import { BlurView } from "expo-blur"
+import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
-    const { authenticationStore: { user },
+    const { authenticationStore: { user, authToken, tenantId, organizationId },
       teamStore: { activeTeam },
       TaskStore: { teamTasks, activeTask }
     } = useStores();
-    const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+    const { params } = _props.route;
+    const { tabIndex, userId } = params;
+    const { members } = useOrganizationTeam();
+    const { onAssignTask, onUnassignedTask, loadAssignAndUnassign } = useTeamTasks();
+
+    const [selectedTabIndex, setSelectedTabIndex] = useState(tabIndex);
     const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
     const [showModal, setShowModal] = useState(false)
     const tabs = ["Worked", "Assigned", "Unassigned"];
 
-    const { params } = _props.route;
-    const memberInfo = params?.user || user;
 
-    const members = activeTeam?.members || [];
-    const currentUser = members.find((m) => {
-      return m.employee.userId === memberInfo.id;
-    });
-    const member =
-      user?.id === memberInfo.id ? user : currentUser?.employee.user;
 
-    const isAuthUser = member.id === user.id;
+    const member = userId ? members.find((m) => {
+      return m.employee.userId === userId;
+    }) : user;
+
+    const currentUser =
+      user?.id === !userId ? user : member?.employee.user;
+
+    const isAuthUser = currentUser.id === user.id;
 
     const filterTasksByStatus = (status: ITaskStatus) => {
       if (!status) return teamTasks;
@@ -53,20 +60,39 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
     const new_teamTasks = filterTasksByStatus(filterStatus)
 
-    const otherTasks = teamTasks
+    const otherTasks = activeTask
       ? new_teamTasks.filter((t) => t.id !== activeTask.id)
       : new_teamTasks;
 
+    const { assignedTasks, unassignedTasks, countTasksByTab } = useAuthTeamTasks(currentUser);
 
+    useEffect(() => {
+      setSelectedTabIndex(tabIndex)
+    }, [tabIndex])
+
+
+    const hangleAssignTask = async (taskId: string) => {
+      const data = await onAssignTask({
+        taskId,
+        memberId: currentUser?.id
+      })
+    }
+
+    const hangleUnassignTask = async (taskId: string) => {
+      const data = await onUnassignedTask({
+        taskId,
+        memberId: currentUser?.id
+      })
+    }
 
     return (
       <>
         {showModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
         <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-          <AssingTaskFormModal isAuthUser={isAuthUser} visible={showModal} onDismiss={() => setShowModal(false)} />
+          <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
           <HomeHeader {..._props} />
           <View style={{ paddingTop: 10 }}>
-            <ProfileHeader {...memberInfo} />
+            <ProfileHeader {...currentUser} />
           </View>
           <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
             <TouchableOpacity onPress={() => setShowModal(true)} style={$assignStyle}>
@@ -84,7 +110,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
               >
                 <Text style={[$tabText, { color: selectedTabIndex === idx ? "#3826A6" : "#7E7991" }]}>{item}</Text>
                 <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? "#3826A6" : "#F5F5F5" }]}>
-                  <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>3</Text>
+                  <Text style={[$countTasks, { color: selectedTabIndex === idx ? "#FFF" : "#7E7991" }]}>{countTasksByTab(idx)}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -112,8 +138,16 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
                     </View>
                   </View>
-                  {activeTask.id &&
-                    <ListCardItem tabIndex={selectedTabIndex} isActive={true} item={activeTask as ITeamTask} enableEstimate={false} handleEstimate={() => { }} handleTaskTitle={() => { }} isAuthUser={false} />}
+                  {activeTask &&
+                    <ListCardItem
+                      tabIndex={selectedTabIndex} isActive={true}
+                      member={member}
+                      index={1000}
+                      item={activeTask as ITeamTask}
+                      enableEstimate={false} handleEstimate={() => { }}
+                      handleTaskTitle={() => { }}
+                      isAuthUser={false} />
+                  }
                 </View>
                 <View>
                   <View
@@ -125,7 +159,12 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                   {otherTasks.map((item, index) => (
                     <ListCardItem
                       tabIndex={selectedTabIndex}
-                      isActive={false} key={index.toString()} item={item as any} enableEstimate={false} isAuthUser={false} />
+                      isActive={false} key={index.toString()}
+                      member={member}
+                      index={index}
+                      item={item as any}
+                      enableEstimate={false}
+                      isAuthUser={isAuthUser} />
                   ))}
                 </View>
               </View>
@@ -136,24 +175,18 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
             {selectedTabIndex === 1 &&
               <View style={{ ...GS.mt2 }}>
-                {activeTask.id &&
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={false}
-                    item={activeTask as ITeamTask}
-                    enableEstimate={false}
-                    handleEstimate={() => { }}
-                    handleTaskTitle={() => { }} isAuthUser={false} />
-                }
                 <View>
-                  {otherTasks.map((item, index) => (
+                  {assignedTasks.map((item, index) => (
                     <ListCardItem
                       tabIndex={selectedTabIndex}
+                      member={member}
+                      index={index}
                       isActive={false}
                       key={index.toString()}
+                      onUnassignTask={hangleUnassignTask}
                       item={item as any}
                       enableEstimate={false}
-                      isAuthUser={false} />
+                      isAuthUser={isAuthUser} />
                   ))}
                 </View>
               </View>
@@ -165,24 +198,17 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             {/* START UNASSIGNED TAB CONTENT */}
             {selectedTabIndex === 2 &&
               <View style={{ ...GS.mt2 }}>
-                {activeTask.id &&
-                  <ListCardItem
-                    tabIndex={selectedTabIndex}
-                    isActive={false}
-                    item={activeTask as ITeamTask}
-                    enableEstimate={false}
-                    handleEstimate={() => { }}
-                    handleTaskTitle={() => { }}
-                    isAuthUser={false} />
-                }
                 <View>
-                  {otherTasks.map((item, index) => (
+                  {unassignedTasks.map((item, index) => (
                     <ListCardItem
                       tabIndex={selectedTabIndex}
+                      member={member}
+                      index={index}
                       isActive={false}
                       key={index.toString()}
+                      onAssignTask={hangleAssignTask}
                       item={item as any} enableEstimate={false}
-                      isAuthUser={false} />
+                      isAuthUser={isAuthUser} />
                   ))}
                 </View>
               </View>
