@@ -11,67 +11,28 @@ export const TaskStoreModel = types
         teamTasks: types.array(types.frozen<ITeamTask>()),
         activeTask: types.optional(types.frozen(), {}),
         activeTaskId: types.optional(types.string, ""),
+        assignedTasks: types.array(types.frozen<ITeamTask>()),
+        unassignedTasks: types.array(types.frozen<ITeamTask>()),
         fetchingTasks: types.optional(types.boolean, false)
     })
     .views((store) => ({
 
     }))
     .actions((store) => ({
-        async createNewTask({ taskTitle, teamId, tenantId, organizationId, authToken }: ITaskCreateParams) {
-            this.setFetchingTasks(true)
-            if (taskTitle.trim().length < 2) return;
 
-            const dataBody: ICreateTask = {
-                title: taskTitle,
-                status: "Todo",
-                description: "",
-                tags: [],
-                teams: [{
-                    id: teamId
-                }],
-                estimate: 0,
-                organizationId: organizationId,
-                tenantId: tenantId
-            }
-            const { data } = await createTaskRequest({
-                data: dataBody,
-                bearer_token: authToken
-            })
-
-            const tasks = this.getTeamTasks({ tenantId, organizationId, authToken, activeTeamId: teamId })
-            this.setFetchingTasks(true)
-
-            const created = (await tasks).find(task => task.id === data?.id)
-            this.setActiveTask(created)
-            return created;
-        },
-        async getTeamTasks({ tenantId, organizationId, activeTeamId, authToken }: ITaskGetParams) {
-            const { data } = await getTeamTasksRequest({
-                bearer_token: authToken,
-                tenantId: tenantId,
-                organizationId: organizationId
-            });
-            const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId: activeTeamId })
-            this.setTeamTasks(tasks);
-            return tasks;
+        setAssignedTasks(value: any) {
+            store.assignedTasks = value
         },
 
-        async deleteTask({ tenantId, taskId, authToken, organizationId, activeTeamId }: ITaskDeleteParams) {
-            const { data } = await deleteTaskRequest({ tenantId, taskId, bearer_token: authToken })
-            this.getTeamTasks({ tenantId, organizationId, activeTeamId: activeTeamId, authToken })
+        setUnassignedTasks(value: any) {
+            store.unassignedTasks = value
         },
 
-        async updateTask({ taskData, taskId, authToken, refreshData }: ITaskUpdateParams) {
-            this.setFetchingTasks(true)
-            const { data } = await updateTaskRequest({ data: taskData, id: taskId }, authToken);
-            this.getTeamTasks({ authToken, tenantId: refreshData.tenantId, organizationId: refreshData.organizationId, activeTeamId: refreshData.activeTeamId })
-            this.setFetchingTasks(false)
-            return data
-        },
         setActiveTask(task: any) {
-
             store.activeTask = task;
-            store.activeTaskId = task.id;
+        },
+        setActiveTaskId(id: string) {
+            store.activeTaskId = id;
         },
         setTeamTasks(tasks: any) {
             store.teamTasks = tasks

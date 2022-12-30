@@ -34,6 +34,7 @@ import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
 import FlashMessage from "react-native-flash-message"
 import { BlurView } from "expo-blur"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 
 const { width, height } = Dimensions.get("window");
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -46,41 +47,19 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
       TaskStore: { activeTask }
     } = useStores();
 
+    const { $otherMembers, isTeamManager, currentUser } = useOrganizationTeam();
     // STATES
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
     const [showInviteModal, setShowInviteModal] = React.useState(false)
     const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
-    const [teamManager, setTeamManager] = useState<boolean>(false);
 
-    const members = activeTeam?.members || [];
-
-    const currentUser = members.find((m) => {
-      return m.employee.userId === user?.id;
-    });
-
-    const $members = members.filter((m) => {
-      return m.employee.userId !== user?.id;
-    });
     const { navigation } = _props
 
-    function goToProfile(user: IUser) {
-      navigation.navigate("Profile", { user: user })
+    function goToProfile({ userId, tabIndex }: { userId: string, tabIndex: number }) {
+      navigation.navigate("Profile", { userId, tabIndex })
     }
 
-
-    const isTeamManager = () => {
-      if (activeTeam) {
-        const $u = user;
-        const isM = activeTeam.members.find((member) => {
-          const isUser = member.employee.userId === $u?.id;
-          return isUser && member.role && member.role.name === "MANAGER";
-        });
-        setTeamManager(!!isM);
-      } else {
-        setTeamManager(false);
-      }
-    }
 
     // Create New Team
     const createNewTeam = async (text: string) => {
@@ -97,10 +76,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 
 
 
-    useEffect(() => {
-      isTeamManager();
-    }, [activeTeam, user, teams])
-
     return (
       <>
         {showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
@@ -113,10 +88,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
           />
           <HomeHeader {..._props} />
           <View style={$wrapTeam}>
-            <View style={{ width: teamManager ? width / 1.9 : "100%" }}>
+            <View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
               <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
             </View>
-            {teamManager ? (
+            {isTeamManager ? (
               <TouchableOpacity
                 style={$inviteButton}
                 onPress={() => setShowInviteModal(true)}
@@ -146,7 +121,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                 )}
 
 
-                {$members.map((member, index) => (
+                {$otherMembers.map((member, index) => (
                   <ListCardItem
                     key={index}
                     member={member as IUser}

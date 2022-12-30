@@ -26,7 +26,7 @@ import { IUser } from "../services/interfaces/IUserData";
 export type AuthenticatedTabParamList = {
   Timer: undefined
   Team: undefined
-  Profile: { user: IUser }
+  Profile: { userId: string, tabIndex: number }
 }
 
 /**
