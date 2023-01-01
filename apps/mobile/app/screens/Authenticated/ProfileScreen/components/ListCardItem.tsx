@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import {
   View,
   ViewStyle,
@@ -25,6 +25,11 @@ import { useStores } from "../../../../models";
 import { ActivityIndicator } from "react-native-paper";
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization";
 import { IUser } from "../../../../services/interfaces/IUserData";
+import { useTimer } from "../../../../services/hooks/useTimer";
+import { pad } from "../../../../helpers/number";
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
+import WorkedDayHours from "../../../../components/WorkedDayHours";
+import WorkedOnTask from "../../../../components/WorkedOnTask";
 
 export type ListItemProps = {
   item: ITeamTask
@@ -34,7 +39,6 @@ export type ListItemProps = {
   onUnassignTask?: (taskId: string) => unknown,
   isActive: boolean,
   tabIndex: number,
-  isAuthUser: boolean,
   enableEstimate?: boolean
   enableEditTaskTitle?: boolean,
   handleTaskTitle?: () => unknown,
@@ -47,31 +51,53 @@ export interface Props extends ListItemProps { }
 const { width, height } = Dimensions.get("window")
 
 export const ListItemContent: React.FC<ListItemProps> = (props) => {
-  const { authenticationStore: { authToken, tenantId, organizationId, user }, teamStore: { activeTeamId }, TaskStore: { updateTask } } = useStores();
-  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex, isAuthUser, onAssignTask } = props;
+  const {
+    authenticationStore: { authToken, tenantId, organizationId, user },
+    teamStore: { activeTeamId },
+    TaskStore: { activeTask },
+    TimerStore: {
+      timeCounterState, localTimerStatus
+    } } = useStores();
+  const { item, enableEditTaskTitle, enableEstimate, handleEstimate, handleTaskTitle, onPressIn, isActive, tabIndex, onAssignTask, member } = props;
+
+  const {
+    startTimer,
+    stopTimer,
+    getTimerStatus,
+    toggleTimer,
+    fomatedTimeCounter: { hours, minutes, seconds, ms_p },
+    timerStatusFetchingState,
+    canRunTimer,
+  } = useTimer();
+
+  const { updateTask } = useTeamTasks();
+
   const [titleInput, setTitleInput] = useState("")
   const [loading, setLoading] = useState(false);
+  const [memberTask, setMemberTask] = useState<ITeamTask | null>(item)
+  const isAuthUser = member.employee.userId === user?.id;
 
   useEffect(() => {
-    setTitleInput(item.title)
-  }, [enableEditTaskTitle])
+    if (isAuthUser && isActive) {
+      setMemberTask(activeTask);
+    }
+  }, [isAuthUser, activeTask, member])
 
-  const onChangeTaskTitle = () => {
-
+  const onChangeTaskTitle = async () => {
     const task: ITeamTask = {
       ...item,
       title: titleInput
     };
-    const refreshData = {
-      activeTeamId,
-      tenantId,
-      organizationId
-    }
     setLoading(true)
-    updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+    await updateTask(task, task?.id);
     setLoading(false)
     handleTaskTitle()
   }
+
+  const isAnAssignedTask = useMemo(() => {
+    const exist = item.members.find((m) => m.userId === member.id)
+    return !!exist
+  }, [item, member])
 
 
 
@@ -79,10 +105,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p4, ...GS.positionRelative }}>
         <View>
-          <View style={styles.wrapTotalTime}>
-            <Text style={styles.totalTimeTitle}>Total time : </Text>
-            <Text style={styles.totalTimeTxt}>20 h:30 m</Text>
-          </View>
+          <WorkedOnTask memberTask={memberTask}  isAuthUser={isAuthUser} title={"Total time"} containerStyle={{flexDirection:"row", alignItems:"center"}} />
         </View>
 
         <View style={styles.firstContainer}>
@@ -90,7 +113,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             <TouchableOpacity onLongPress={() => handleTaskTitle()}>
               <TextInput
                 style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null]}
-                defaultValue={enableEditTaskTitle ? titleInput : item.title}
+                defaultValue={enableEditTaskTitle ? titleInput : memberTask.title}
                 editable={enableEditTaskTitle}
                 multiline={true}
                 numberOfLines={2}
@@ -106,15 +129,14 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
           {/* ENABLE ESTIMATE INPUTS */}
           {enableEstimate ? (
             <View style={styles.estimate}>
-              <EstimateTime setEditEstimate={handleEstimate} />
+              <EstimateTime setEditEstimate={handleEstimate} currentTask={memberTask} />
             </View>
           ) : (
             <View style={{ right: -5, top: -5 }}>
               <TouchableOpacity onPress={() => handleEstimate()}>
                 <ProgressTimeIndicator
-                  estimated={item.estimate > 0 ? true : false}
-                  estimatedHours={item.estimate}
-                  workedHours={30}
+                  estimatedHours={memberTask.estimate}
+                  workedHours={isActive && isAuthUser ? timeCounterState : 0}
                 />
               </TouchableOpacity>
             </View>
@@ -124,32 +146,59 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
         <View style={styles.times}>
           <View style={{ flexDirection: "row", width: "50%", alignItems: "center" }}>
             {isAuthUser ? (
-              <TouchableOpacity style={[styles.timerBtn, isActive ? {} : { backgroundColor: "#fff" }]}>
-                <Image resizeMode="contain" style={[styles.timerIcon,]} source={isActive ? require("../../../../../assets/icons/new/stop.png") : require("../../../../../assets/icons/new/play.png")} />
-              </TouchableOpacity>
-            ) : tabIndex == 2 ? (
-              <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]} onPress={() => onAssignTask(item.id)}>
-                <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/arrow-right.png")} />
-              </TouchableOpacity>
-            ) : null}
-            {tabIndex === 2 ? (
-              <View style={{ left: 12, justifyContent: "center", alignItems: "center" }}>
-                <Text style={styles.timeHeading}>Assigned by</Text>
-                <Text style={styles.timeNumber}>8 people</Text>
-              </View>
+              <>
+                {activeTask.id === item.id ? (
+                  <>
+                    {localTimerStatus.running ?
+                      <TouchableOpacity style={[styles.timerBtn]} onPress={() => stopTimer()}>
+                        <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/stop.png")} />
+                      </TouchableOpacity>
+                      :
+                      <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]} onPress={() => startTimer()}>
+                        <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/play.png")} />
+                      </TouchableOpacity>
+                    }
+                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                      <Text style={styles.timeHeading}>Today work</Text>
+                      <Text style={styles.timeNumber}>{pad(hours)} h:{pad(minutes)} m</Text>
+                    </View>
+                  </>
+                )
+                  :
+                  <>
+                    <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]}>
+                      <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/play.png")} />
+                    </TouchableOpacity>
+                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                      <Text style={styles.timeHeading}>Today work</Text>
+                      <Text style={styles.timeNumber}>{pad(hours)} h:{pad(minutes)} m</Text>
+                    </View>
+                  </>
+                }
+              </>
             ) : (
-              <View style={{ justifyContent: "center", alignItems: "center" }}>
-                <Text style={styles.timeHeading}>Worked time</Text>
-                <Text style={styles.timeNumber}>{"00 h:00 m"}</Text>
-              </View>
+              <>
+                {!isAnAssignedTask ? (
+                  <TouchableOpacity style={[styles.timerBtn, { backgroundColor: "#fff" }]} onPress={() => onAssignTask(item.id)}>
+                    <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../../../../assets/icons/new/arrow-right.png")} />
+                  </TouchableOpacity>
+                ) : null}
+                <View style={{ left: 12, justifyContent: "center", alignItems: "center" }}>
+                  <Text style={styles.timeHeading}>Assigned by</Text>
+                  <Text style={styles.timeNumber}>8 people</Text>
+                </View>
+              </>
             )}
+
+
+
           </View>
           <View style={{ width: 133, height: 33 }}>
             {/* <TaskStatus {...item} /> */}
           </View>
         </View>
       </View>
-    </TouchableNativeFeedback>
+    </TouchableNativeFeedback >
   )
 }
 

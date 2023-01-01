@@ -9,6 +9,7 @@ import { ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { pad } from "../helpers/number"
 import { useTimer } from "../services/hooks/useTimer"
+import { convertMsToTime } from "../helpers/date"
 
 export interface Props {
 }
@@ -18,12 +19,12 @@ const TimerCard: FC<Props> = observer(() => {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId, activeTeam },
     TaskStore: { setActiveTask, activeTask, fetchingTasks },
-    TimerStore: { localTimerStatusState }
+    TimerStore: { localTimerStatus, timeCounterState }
   } = useStores();
   const {
     startTimer,
     stopTimer,
-    timeCounter,
+    getTimerStatus,
     fomatedTimeCounter: { hours, minutes, seconds, ms_p },
     canRunTimer,
   } = useTimer();
@@ -55,7 +56,7 @@ const TimerCard: FC<Props> = observer(() => {
         return 0;
       }
       // convert milliseconds to seconds
-      const seconds = timeCounter / 1000
+      const seconds = timeCounterState / 1000
       return seconds / activeTask.estimate
     } else {
       return 0
@@ -63,10 +64,10 @@ const TimerCard: FC<Props> = observer(() => {
   }
 
 
-
   useEffect(() => {
     handleChangeText("")
   }, [activeTeam])
+
 
   return (
     <View style={styles.mainContainer}>
@@ -76,7 +77,7 @@ const TimerCard: FC<Props> = observer(() => {
           <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height: 6, borderRadius: 3 }} progress={getTimePercentage()} color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
         </View>
         <View style={styles.timerBtn}>
-          {!localTimerStatusState.running ? (
+          {!localTimerStatus.running ? (
             <TouchableOpacity activeOpacity={canRunTimer ? 1 : 0.4} style={[styles.timerBtnInactive, { backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 }]} onPress={() => { canRunTimer ? startTimer() : {} }}>
               <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../assets/icons/new/play.png")} />
             </TouchableOpacity>

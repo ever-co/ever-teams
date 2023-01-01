@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { TextInput, TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons"
 import { colors } from "../../../../theme/colors";
@@ -7,29 +7,31 @@ import { values } from "mobx";
 import { useStores } from "../../../../models";
 import { ActivityIndicator } from "react-native-paper";
 import { typography } from "../../../../theme";
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
+import { ITeamTask } from "../../../../services/interfaces/ITask";
 
-interface params {
-    setEditEstimate?: (value: boolean) => unknown
+interface Props {
+    setEditEstimate?: (value: boolean) => unknown,
+    currentTask: ITeamTask
 }
-const EstimateTime = ({ setEditEstimate }: params) => {
+const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
     const {
-        authenticationStore: { authToken, tenantId, organizationId },
-        TaskStore: { activeTask, updateTask, fetchingTasks },
         teamStore: { activeTeamId }
     } = useStores();
+    const { updateTask } = useTeamTasks();
     const [estimate, setEstimate] = useState({ hours: "", minutes: "" });
     const [editing, setEditing] = useState({ editingHour: false, editingMinutes: false })
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
 
     useEffect(() => {
-        const { h, m } = secondsToTime(activeTask?.estimate || 0);
+        const { h, m } = secondsToTime(currentTask?.estimate || 0);
         setEstimate({
             hours: h.toString(),
             minutes: m.toString(),
         });
         setShowCheckIcon(false)
-    }, [activeTask]);
+    }, [currentTask]);
 
     const onChangeHours = (value: string) => {
         const parsedQty = Number.parseInt(value)
@@ -78,7 +80,7 @@ const EstimateTime = ({ setEditEstimate }: params) => {
 
 
     const handleSubmit = useCallback(async () => {
-        if (!activeTask) return;
+        if (!currentTask) return;
 
         const hours = +estimate.hours;
         const minutes = +estimate.minutes;
@@ -87,30 +89,27 @@ const EstimateTime = ({ setEditEstimate }: params) => {
         }
 
         const { h: estimateHours, m: estimateMinutes } = secondsToTime(
-            activeTask.estimate || 0
+            currentTask.estimate || 0
         );
 
         if (hours === estimateHours && minutes === estimateMinutes) {
             return;
         }
         const task = {
-            ...activeTask,
+            ...currentTask,
             estimate: hours * 60 * 60 + minutes * 60 // time seconds
         }
 
-        const refreshData = {
-            activeTeamId,
-            tenantId,
-            organizationId
-        }
+
         setShowCheckIcon(false)
         setIsLoading(true)
-        const response = await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+        const response = await updateTask(task, task.id);
+
         setEditing({ editingHour: false, editingMinutes: false })
         setIsLoading(false)
         if (setEditEstimate)
             setEditEstimate(false)
-    }, [activeTask, updateTask, estimate]);
+    }, [currentTask, updateTask, estimate]);
 
     const formatTwoDigit = (value: string) => {
         const intValue = Number.parseInt(value)

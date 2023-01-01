@@ -13,7 +13,9 @@ export const TaskStoreModel = types
         activeTaskId: types.optional(types.string, ""),
         assignedTasks: types.array(types.frozen<ITeamTask>()),
         unassignedTasks: types.array(types.frozen<ITeamTask>()),
-        fetchingTasks: types.optional(types.boolean, false)
+        fetchingTasks: types.optional(types.boolean, false),
+        tasksStatisticsState: types.optional(types.frozen(), null),
+        statActiveTask: types.optional(types.frozen(), {total:0, today:0})
     })
     .views((store) => ({
 
@@ -33,6 +35,12 @@ export const TaskStoreModel = types
         },
         setActiveTaskId(id: string) {
             store.activeTaskId = id;
+        },
+        setTasksStatisticsState(stats: any) {
+            store.tasksStatisticsState = stats
+        },
+        setStatActiveTask(stats: any) {
+            store.statActiveTask = stats
         },
         setTeamTasks(tasks: any) {
             store.teamTasks = tasks
