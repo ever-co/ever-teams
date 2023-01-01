@@ -9,13 +9,13 @@ import { colors, typography } from "../../../../theme"
 type progressProps = {
   estimatedHours: number
   workedHours: number
-  estimated: boolean
 }
 
-const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progressProps) => {
+const ProgressTimeIndicator = ({ estimatedHours, workedHours }: progressProps) => {
   const percentage = workedHours
   // Convert seconds to milliseconds
   const maxMillis = estimatedHours * 1000
+  const estimated = estimatedHours > 0;
 
   const radius = 27
   const strokeWidth = 5
@@ -58,7 +58,7 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours, estimated }: progr
         style={[
           StyleSheet.absoluteFillObject,
           { fontSize: 12, color: colors.primary },
-          { fontFamily:typography.primary.semiBold, textAlign: "center" },
+          { fontFamily: typography.primary.semiBold, textAlign: "center" },
         ]}
       />
     </View>

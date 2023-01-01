@@ -68,6 +68,7 @@
     "expo-status-bar": "~1.4.0",
     "i18n-js": "3.9.2",
     "jwt-decode": "^3.1.2",
+    "lodash": "^4.17.21",
     "mobx": "6.6.0",
     "mobx-react-lite": "3.4.0",
     "mobx-state-tree": "5.1.5",

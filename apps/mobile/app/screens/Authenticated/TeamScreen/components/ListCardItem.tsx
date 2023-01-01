@@ -27,6 +27,9 @@ import { IUser } from "../../../../services/interfaces/IUserData"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import WorkedDayHours from "../../../../components/WorkedDayHours"
+import WorkedOnTask from "../../../../components/WorkedOnTask"
 
 export type ListItemProps = {
   member: IUser,
@@ -54,14 +57,15 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
     stopTimer,
     getTimerStatus,
     toggleTimer,
-    timeCounter,
     fomatedTimeCounter: { hours, minutes, seconds, ms_p },
     timerStatusFetchingState,
     canRunTimer,
   } = useTimer();
 
+  const {}=useTeamTasks();
+  const {isTeamManager}=useOrganizationTeam();
+
   const isAuthUser = member.employee.userId === user?.id;
-  const [isManager, setIsManager] = useState(true)
   const [editEstimate, setEditEstimate] = useState(false);
   const [memberTask, setMemberTask] = useState<ITeamTask | null>(null)
   const iuser = member.employee.user
@@ -71,6 +75,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
       setMemberTask(activeTask);
     }
   }, [isAuthUser, activeTask, activeTeam])
+
 
   return (
     <TouchableOpacity onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
@@ -86,8 +91,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
           <Text style={styles.name}>{iuser.name}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
           <View style={styles.wrapTotalTime}>
-            <Text style={styles.totalTimeTitle}>Total time:</Text>
-            <Text style={styles.totalTimeText}>20 h:30 m</Text>
+            <WorkedOnTask memberTask={memberTask} isAuthUser={isAuthUser} title={"Total time"} containerStyle={{ alignItems: "center", justifyContent:"center", flexDirection:"row" }} />
           </View>
         </View>
         <View style={styles.wrapTaskTitle}>
@@ -100,12 +104,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
             <Text style={styles.timeNumber}>{pad(hours)} h:{pad(minutes)} m</Text>
           </View>
           <View style={{ ...GS.alignCenter }}>
-            <Text style={styles.timeHeading}>Total work</Text>
-            <Text style={styles.timeNumber}>{"01 h:10 m"}</Text>
+            <WorkedOnTask memberTask={memberTask} isAuthUser={isAuthUser} title={"Total work"} containerStyle={{ alignItems: "center", justifyContent:"center" }} />
           </View>
           {memberTask && memberTask.estimate == 0 && editEstimate ? (
             <View style={styles.estimate}>
-              <EstimateTime setEditEstimate={setEditEstimate} />
+              <EstimateTime setEditEstimate={setEditEstimate} currentTask={memberTask} />
             </View>
 
           ) : (
@@ -113,9 +116,8 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
               <TouchableOpacity onPress={() => setEditEstimate(true)}>
                 <View style={{}}>
                   <ProgressTimeIndicator
-                    estimated={memberTask && memberTask.estimate > 0 ? true : false}
                     estimatedHours={memberTask ? memberTask.estimate : 0}
-                    workedHours={3000000}
+                    workedHours={timeCounterState}
                   />
                 </View>
               </TouchableOpacity>
@@ -304,8 +306,9 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     marginRight: 10,
   },
+  taskNumberStyle:{
 
-
+  },
   wrapTotalTime: {
     position: "absolute",
     right: 0,

@@ -65,7 +65,7 @@ const HamburgerMenu = (props) => {
 
         </View>
         <View style={styles.navigationSection}>
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Profile")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Timer")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/user.png")} />
             <Text style={styles.screenLabel}>My work</Text>
           </TouchableOpacity>
@@ -74,7 +74,7 @@ const HamburgerMenu = (props) => {
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/people.png")} />
             <Text style={styles.screenLabel}>Teams</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Timer")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Profile",{ userId:user?.id, tabIndex:0 })}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/briefcase.png")} />
             <Text style={styles.screenLabel}>Tasks</Text>
           </TouchableOpacity>

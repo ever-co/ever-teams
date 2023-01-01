@@ -18,6 +18,7 @@ import { register } from "../services/client/api/auth/register"
 import { login } from "../services/client/api/auth/login"
 import { useTeamInvitations } from "../services/hooks/useTeamInvitation";
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
+import { useFirstLoad } from "../services/hooks/useFirstLoad";
 const pkg = require("../../package.json")
 
 const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
@@ -62,6 +63,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   } = useStores()
 
   const { loadTeamTasksData } = useTeamTasks();
+  const { firstLoadData } = useFirstLoad();
 
 
   useEffect(() => {
@@ -122,6 +124,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
       //Load tasks for current team or initialize tasks
       loadTeamTasksData();
+      firstLoadData();
       // Save Auth Data
       setAuthToken(loginRes.token);
     }
@@ -173,6 +176,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       //Load tasks for current team or initialize tasks
 
       loadTeamTasksData();
+      firstLoadData();
       // Save Auth Data
       setAuthToken(loginRes.token);
     }

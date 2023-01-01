@@ -146,7 +146,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       item={activeTask as ITeamTask}
                       enableEstimate={false} handleEstimate={() => { }}
                       handleTaskTitle={() => { }}
-                      isAuthUser={false} />
+                      />
                   }
                 </View>
                 <View>
@@ -164,7 +164,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       index={index}
                       item={item as any}
                       enableEstimate={false}
-                      isAuthUser={isAuthUser} />
+                     />
                   ))}
                 </View>
               </View>
@@ -186,7 +186,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       onUnassignTask={hangleUnassignTask}
                       item={item as any}
                       enableEstimate={false}
-                      isAuthUser={isAuthUser} />
+                   />
                   ))}
                 </View>
               </View>
@@ -208,7 +208,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       key={index.toString()}
                       onAssignTask={hangleAssignTask}
                       item={item as any} enableEstimate={false}
-                      isAuthUser={isAuthUser} />
+                     />
                   ))}
                 </View>
               </View>
