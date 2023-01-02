@@ -1,6 +1,6 @@
 import React, { FC, useRef, useState } from "react"
 import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData } from "react-native"
-import { colors } from "../theme"
+import { colors, typography } from "../theme"
 
 interface IInput {
   onChange: (code: string) => void
@@ -41,7 +41,7 @@ export const CodeInput: FC<IInput> = ({ onChange }) => {
           key={i}
           maxLength={1}
           keyboardType="numeric"
-          style={[styles.inputStyle, { borderColor: active === i ? colors.primary : "gray" }]}
+          style={[styles.inputStyle, { borderColor: active === i ? colors.primary : "rgba(0, 0, 0, 0.1)" }]}
           onKeyPress={onKeyPress}
           autoFocus={active === i}
           ref={(r) => {
@@ -50,64 +50,13 @@ export const CodeInput: FC<IInput> = ({ onChange }) => {
           onChangeText={(num) => onChangeCode(num, i)}
         />
       ))}
-
-      {/* 
-      <TextInput
-        maxLength={1}
-        keyboardType="numeric"
-        style={styles.inputStyle}
-        onKeyPress={onKeyPress}
-        autoFocus={active === 1}
-        ref={(r) => {
-          inputsRef.current[1] = r;
-        }}
-      />
-      <TextInput
-        maxLength={1}
-        keyboardType="numeric"
-        style={styles.inputStyle}
-        onKeyPress={onKeyPress}
-        autoFocus={active === 2}
-        ref={(r) => {
-          inputsRef.current[2] = r;
-        }}
-      />
-      <TextInput
-        maxLength={1}
-        keyboardType="numeric"
-        style={styles.inputStyle}
-        onKeyPress={onKeyPress}
-        autoFocus={active === 3}
-        ref={(r) => {
-          inputsRef.current[3] = r;
-        }}
-      />
-      <TextInput
-        maxLength={1}
-        keyboardType="numeric"
-        style={styles.inputStyle}
-        onKeyPress={onKeyPress}
-        autoFocus={active === 4}
-        ref={(r) => {
-          inputsRef.current[4] = r;
-        }}
-      />
-      <TextInput
-        maxLength={1}
-        keyboardType="numeric"
-        style={styles.inputStyle}
-        onKeyPress={onKeyPress}
-        autoFocus={active === 5}
-        ref={(r) => {
-          inputsRef.current[5] = r;
-        }}
-      /> */}
     </View>
   );
 
 }
 type InputProps = {
   onKeyPress: () => unknown;
+  onFocus:()=>unknown
   active: number;
   inputsRef: any,
   index: number
@@ -120,6 +69,7 @@ const Input: FC<InputProps> = ({ onKeyPress, active, inputsRef, index }) => (
       keyboardType="numeric"
       style={styles.inputStyle}
       onKeyPress={onKeyPress}
+      onFocus={onKeyPress}
       autoFocus={active === index}
       ref={(r) => {
         inputsRef.current[index] = r;
@@ -132,15 +82,19 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     justifyContent: "center",
+    marginTop:32
   },
   inputStyle: {
-    width: 50,
-    height: 50,
+    width: 39,
+    height: 53,
+    backgroundColor:"#fff",
     textAlign: "center",
-    fontSize: 14,
+    fontSize: 16,
+    color:colors.primary,
+    fontFamily:typography.primary.semiBold,
     borderWidth: 1,
-    borderColor: colors.border,
-    margin: 2,
-    borderRadius: 5
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    marginHorizontal: 4,
+    borderRadius: 10
   },
 })
