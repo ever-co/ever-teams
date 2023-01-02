@@ -90,7 +90,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
         {showModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
         <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
           <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
-          <HomeHeader {..._props} />
+          <HomeHeader props={_props} showTimer={true} />
           <View style={{ paddingTop: 10 }}>
             <ProfileHeader {...currentUser} />
           </View>

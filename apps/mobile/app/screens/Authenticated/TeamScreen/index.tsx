@@ -86,7 +86,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
             visible={showCreateTeamModal}
             onDismiss={() => setShowCreateTeamModal(false)}
           />
-          <HomeHeader {..._props} />
+          <HomeHeader props={_props} showTimer={true} />
           <View style={$wrapTeam}>
             <View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
               <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
