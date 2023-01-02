@@ -203,15 +203,26 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     >
       <View style={{ paddingHorizontal: 20, marginTop: 20, width, backgroundColor: colors.primary }}>
         <Image source={require("../../assets/images/new/gauzy-teams-white.png")} />
-        <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-          <Text style={$screenTitle}>Create New Team</Text>
-          {!width ?
-            <Text style={$smalltext}>Please enter your team details to create a new team.</Text>
-            :
-            <Text style={$smalltext}>Please enter email and invitation code to join existing team.</Text>
 
-          }
-        </View>
+        {withteam ? (
+          <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
+            <Text style={$screenTitle}>Join Existing Team</Text>
+            <Text style={$smalltext}>Please enter email and invitation code to join existing team.</Text>
+          </View>
+        ) : !withteam && screenstatus.screen !== 3 ?
+          (
+            <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
+              <Text style={$screenTitle}>Create New Team</Text>
+              <Text style={$smalltext}>Please enter your team details to create a new team.</Text>
+            </View>
+          ) : (
+            <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
+              <Text style={$screenTitle}>Join Team</Text>
+              <Text style={$smalltext}>Enter the invitation code we sent to your email</Text>
+            </View>
+          )
+        }
+
       </View>
       <View style={{ width, height: height / 1.9, backgroundColor: "#fff" }}>
 
@@ -330,7 +341,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               </View>
               <View style={[$buttonsView]}>
                 <Button
-                  style={[$tapButton, { width: "100%", opacity:isLoading ? 0.7 :1 }]}
+                  style={[$tapButton, { width: "100%", opacity: isLoading ? 0.7 : 1 }]}
                   textStyle={$tapButtonText}
                   onPress={() => createNewTeam()}
                 >
@@ -375,7 +386,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               </View>
               <View style={[$buttonsView]}>
                 <Button
-                  style={[$tapButton, { width: "100%", opacity:isLoading ? 0.7 :1 }]}
+                  style={[$tapButton, { width: "100%", opacity: isLoading ? 0.7 : 1 }]}
                   textStyle={$tapButtonText}
                   onPress={() => joinTeam()}
                 >
