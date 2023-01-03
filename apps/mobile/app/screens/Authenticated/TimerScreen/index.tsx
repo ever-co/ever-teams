@@ -20,6 +20,7 @@ import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
 import ManageTaskCard from "../../../components/ManageTaskCard"
 import TimerCard from "../../../components/TimerCard"
+import { useFirstLoad } from "../../../services/hooks/useFirstLoad"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
@@ -29,6 +30,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam },
     TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
   } = useStores();
+  const { firstLoadData, firstLoad } = useFirstLoad();
   // STATE
   const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
     items: [],
@@ -53,7 +55,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
 
   useEffect(() => {
-
+    firstLoadData();
   }, [])
 
   return (
@@ -63,7 +65,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
         visible={showCreateTeamModal}
         onDismiss={() => setShowCreateTeamModal(false)}
       />
-      <HomeHeader {..._props} />
+      <HomeHeader props={_props} showTimer={false} />
       <View style={{ padding: 20, zIndex: 999 }}>
         <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
       </View>

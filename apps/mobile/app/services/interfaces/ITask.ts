@@ -1,5 +1,5 @@
 import { IOrganizationTeam } from "./IOrganizationTeam";
-import { IUser } from "./IUserData";
+import { IUser} from "./IUserData";
 
 export interface ITeamTask {
   id: string;
@@ -167,4 +167,12 @@ export interface ICreateTask {
   estimate: number;
   organizationId: string;
   tenantId: string;
+}
+
+export interface IParamsStatistic {
+  bearer_token: string;
+  tenantId: string;
+  organizationId: string,
+  taskId: string;
+  activeTask?:boolean;
 }

@@ -47,7 +47,7 @@ export function useTeamTasks() {
     const updateTask = useCallback(async (task: ITeamTask, id: string) => {
 
         const { data } = await updateTaskRequest({ data: task, id }, authToken);
-        loadTeamTasksData();
+        await loadTeamTasksData();
         return { data }
     }, [])
 
@@ -225,7 +225,7 @@ export function useTeamTasks() {
         loadTeamTasksData,
         deleteTask,
         updateTask,
-        // setActiveTeamTask,
+        setActiveTeamTask,
         onUnassignedTask,
         onAssignTask,
         createAndAssign,

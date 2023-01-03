@@ -21,9 +21,10 @@ import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 const { width, height } = Dimensions.get("window");
 const ManageTaskCard = observer(() => {
     const {
-
-        TaskStore: { setActiveTask, activeTask, fetchingTasks },
+        TaskStore: { activeTask },
     } = useStores();
+
+    const { setActiveTeamTask } = useTeamTasks();
 
     const { createNewTask } = useTeamTasks();
     const [showCombo, setShowCombo] = useState(false)
@@ -57,11 +58,10 @@ const ManageTaskCard = observer(() => {
     }
 
     const handleActiveTask = (value: ITeamTask) => {
-        setActiveTask(value);
+        setActiveTeamTask(value);
         setShowCheckIcon(false)
         setTaskInputText(value.title)
         setShowCombo(false)
-        console.log(value)
     }
 
     useEffect(() => {
@@ -87,7 +87,6 @@ const ManageTaskCard = observer(() => {
                     defaultValue={activeTask && activeTask.title}
                     placeholder="What you working on"
                     value={taskInputText}
-                    onFocus={() => setShowCombo(true)}
                     onChangeText={(newText) => handleChangeText(newText)}
                 />
                 {showCheckIcon && (
@@ -111,7 +110,7 @@ const ManageTaskCard = observer(() => {
                     >
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
                             <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate: </Text>
-                            <EstimateTime />
+                            <EstimateTime currentTask={activeTask} />
                         </View>
                         <TaskSize />
                     </View>
