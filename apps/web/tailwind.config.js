@@ -7,7 +7,7 @@ module.exports = {
 	content: [
 		join(
 			__dirname,
-			'{src,pages,components}/**/*!(*.stories|*.spec).{ts,tsx,html}'
+			'{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'
 		),
 		...createGlobPatternsForDependencies(__dirname),
 	],
@@ -23,30 +23,15 @@ module.exports = {
 			colors: {
 				transparent: 'transparent',
 				current: 'currentColor',
-				light: {
-					DEFAULT: '#7e7e8f',
+				neutral: '#7E7991',
+				'light--theme': {
+					light: '#fff',
+					DEFAULT: '#f7f7f8',
+					dark: '#E7E7EA',
 				},
-				primary: {
-					DEFAULT: '#1B005D',
-					light: '#ACB3BB',
-					lighter: '#3E1DAD',
-					disabled: '#EDF8F6',
-				},
-				main_background: {
-					DEFAULT: '#F9FAFB',
-				},
-				dark_background_color: {
-					DEFAULT: '#202023',
-				},
-
-				dark_card_background_color: {
-					DEFAULT: '#101014',
-				},
-				button_dark: {
-					DEFAULT: '#fa754e',
-				},
-				label: {
-					DEFAULT: '#07074D',
+				'dark--theme': {
+					light: '#25272D',
+					DEFAULT: '#1E2025',
 				},
 			},
 		},
