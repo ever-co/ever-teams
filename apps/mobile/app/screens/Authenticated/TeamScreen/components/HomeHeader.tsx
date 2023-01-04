@@ -16,7 +16,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
       <View style={styles.secondContainer}>
         <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams.png")} resizeMode="contain" />
         {showTimer &&
-          <View style={{ width: width / 2.5 }}>
+          <View style={{ width: 126 }}>
             <HeaderTimer />
           </View>
         }

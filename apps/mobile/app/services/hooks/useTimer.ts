@@ -121,9 +121,8 @@ function useLocalTimeCounter(
             );
         } else {
             setTimerCounterState(0);
-            setTimerCounterIntervalState(clearInterval(timeCounterIntervalRef.current))
         }
-    }, [localTimerStatus, firstLoad]);
+    }, [localTimerStatus.running, firstLoad]);
 
     return {
         updateLocalTimerStatus,
@@ -202,7 +201,12 @@ export function useTimer() {
     // Start timer
     const startTimer = useCallback(async () => {
 
-        if (!taskId.current) return;
+        if (!taskId.current) {
+            return {
+
+            }
+        }
+
         updateLocalTimerStatus({
             lastTaskId: taskId.current,
             runnedDateTime: Date.now(),

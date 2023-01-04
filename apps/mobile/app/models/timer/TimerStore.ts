@@ -10,12 +10,11 @@ export const TimerStoreModel = types
         timeCounterState: types.optional(types.number, 0),
         timeCounterInterval: types.optional(types.number,0),
         canRunTimer: types.optional(types.boolean, false),
-        localTimerStatus:types.optional(types.frozen(),{})
+        localTimerStatus:types.optional(types.frozen(),null)
     })
     .actions((store) => ({
         setTimerStatus(value: ITimerStatus) {
             store.timerStatus = value
-            console.log("Timer Status:"+JSON.stringify(value))
         },
         setTimerStatusFetching(value: any) {
             store.timerStatusFetchingState = value
@@ -31,6 +30,7 @@ export const TimerStoreModel = types
         },
         setLocalTimerStatus(value:any){
             store.localTimerStatus=value;
+            console.log(value)
         }
     }))
 

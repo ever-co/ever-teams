@@ -30,6 +30,7 @@ import { pad } from "../../../../helpers/number";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import WorkedDayHours from "../../../../components/WorkedDayHours";
 import WorkedOnTask from "../../../../components/WorkedOnTask";
+import TaskStatus from "./TaskStatus";
 
 export type ListItemProps = {
   item: ITeamTask
@@ -105,7 +106,12 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p4, ...GS.positionRelative }}>
         <View>
-          <WorkedOnTask memberTask={memberTask}  isAuthUser={isAuthUser} title={"Total time"} containerStyle={{flexDirection:"row", alignItems:"center"}} />
+          <WorkedOnTask
+            memberTask={memberTask}
+            isAuthUser={isAuthUser}
+            title={"Total time"}
+            containerStyle={{ flexDirection: "row", alignItems: "center" }}
+          />
         </View>
 
         <View style={styles.firstContainer}>
@@ -194,7 +200,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
 
           </View>
           <View style={{ width: 133, height: 33 }}>
-            {/* <TaskStatus {...item} /> */}
+            <TaskStatus {...item} />
           </View>
         </View>
       </View>

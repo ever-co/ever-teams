@@ -6,17 +6,17 @@ import { acceptInviteRequest, getTeamInvitationsRequest, inviteByEmailsRequest, 
 import { getEmployeeRoleRequest } from "../client/requests/roles";
 
 export function useTeamInvitations() {
-    const { authenticationStore: { 
-        user, 
-        organizationId, 
-        tenantId, 
-        authToken, 
-        employeeId, 
-        setOrganizationId, 
-        setTenantId, 
+    const { authenticationStore: {
+        user,
+        organizationId,
+        tenantId,
+        authToken,
+        employeeId,
+        setOrganizationId,
+        setTenantId,
         setAuthToken,
         setUser,
-        setEmployeeId 
+        setEmployeeId
     },
         teamStore: { activeTeamId, activeTeam, teamInvitations, setTeamInvitations, teams } } = useStores();
 
@@ -50,7 +50,7 @@ export function useTeamInvitations() {
                 // ...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
             },
             authToken
-        );
+        )
 
         const { data } = await getTeamInvitationsRequest(
             {
@@ -62,9 +62,7 @@ export function useTeamInvitations() {
             authToken
         );
         setLoading(false)
-        console.log(data)
         setTeamInvitations(data)
-        console.log("INVITATION RESPONSE : " + JSON.stringify(response))
     }
 
     const getTeamInvitations = async () => {
@@ -79,7 +77,6 @@ export function useTeamInvitations() {
             authToken
         );
         setTeamInvitations(data)
-        console.log("Load invitations:" + JSON.stringify(data))
         return data;
     }
 
@@ -88,8 +85,6 @@ export function useTeamInvitations() {
         try {
 
             const { data: inviteData, response: verifyResponse } = await verifyInviteCodeRequest({ email, code: parseInt(code) });
-            console.log("INVITE DATA" + JSON.stringify(inviteData))
-            console.log("INVITE RESPONSE :" + JSON.stringify(inviteData))
 
             const password = "123456" || generateToken(8);
             const names = inviteData.fullName.split(" ");
@@ -104,34 +99,24 @@ export function useTeamInvitations() {
                 code: parseInt(code),
                 email
             })
+
             setOrganizationId(data.employee?.organizationId)
             setAuthToken(data?.token)
             setTenantId(data.employee?.tenantId)
             setEmployeeId(data.employee?.id)
             setUser(data?.user)
-        
-            console.log("ACCEPT DATA :" + JSON.stringify(data))
-            // console.log("ACCEPT RESPONSE :" + JSON.stringify(response));
-            console.log({
-                authToken,
-                organizationId,
-                tenantId,
-                user,
-                employeeId
-            })
 
         } catch (error) {
-            console.log("catch error"+error)
+            console.log("catch error" + error)
         }
     }
 
-    // useEffect(() => {
-    //     getTeamInvitations()
-    // }, [activeTeamId, loading])
+    useEffect(() => {
+        getTeamInvitations()
+    }, [activeTeamId, loading, user])
 
     return {
         inviterMember,
-        verifyInviteByCode,
         loading
     }
 }

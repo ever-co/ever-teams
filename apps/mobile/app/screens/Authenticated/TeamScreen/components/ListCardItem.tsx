@@ -62,8 +62,8 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
     canRunTimer,
   } = useTimer();
 
-  const {}=useTeamTasks();
-  const {isTeamManager}=useOrganizationTeam();
+  const { } = useTeamTasks();
+  const { isTeamManager } = useOrganizationTeam();
 
   const isAuthUser = member.employee.userId === user?.id;
   const [editEstimate, setEditEstimate] = useState(false);
@@ -91,7 +91,13 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
           <Text style={styles.name}>{iuser.name}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
           <View style={styles.wrapTotalTime}>
-            <WorkedOnTask memberTask={memberTask} isAuthUser={isAuthUser} title={"Total time"} containerStyle={{ alignItems: "center", justifyContent:"center", flexDirection:"row" }} />
+            <WorkedOnTask
+              memberTask={memberTask}
+              isAuthUser={isAuthUser}
+              title={"Total time"}
+              containerStyle={{ alignItems: "center", justifyContent: "center" }}
+              totalTimeText={{marginTop:5, fontSize:12, color:colors.primary, fontFamily: typography.primary.semiBold}}
+            />
           </View>
         </View>
         <View style={styles.wrapTaskTitle}>
@@ -99,30 +105,38 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
           <Text style={styles.otherText}>{memberTask ? memberTask.title : ""}</Text>
         </View>
         <View style={styles.times}>
-          <View style={{ ...GS.alignCenter }}>
-            <Text style={styles.timeHeading}>Today work</Text>
-            <Text style={styles.timeNumber}>{pad(hours)} h:{pad(minutes)} m</Text>
-          </View>
-          <View style={{ ...GS.alignCenter }}>
-            <WorkedOnTask memberTask={memberTask} isAuthUser={isAuthUser} title={"Total work"} containerStyle={{ alignItems: "center", justifyContent:"center" }} />
-          </View>
-          {memberTask && memberTask.estimate == 0 && editEstimate ? (
-            <View style={styles.estimate}>
-              <EstimateTime setEditEstimate={setEditEstimate} currentTask={memberTask} />
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: 48, width: "100%" }}>
+            <View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
+              <Text style={styles.totalTimeTitle}>Today work</Text>
+              <Text style={styles.totalTimeText}>{pad(hours)} h:{pad(minutes)} m</Text>
             </View>
+            <View style={{ ...GS.alignCenter }}>
+              <WorkedOnTask
+                memberTask={memberTask}
+                isAuthUser={isAuthUser}
+                title={"Total work"}
+                containerStyle={{ alignItems: "center", height: "80%", justifyContent: "space-between" }}
+                totalTimeText={styles.totalTimeText}
+              />
+            </View>
+            {memberTask && memberTask.estimate == 0 && editEstimate ? (
+              <View style={styles.estimate}>
+                <EstimateTime setEditEstimate={setEditEstimate} currentTask={memberTask} />
+              </View>
 
-          ) : (
-            <View style={{}}>
-              <TouchableOpacity onPress={() => setEditEstimate(true)}>
-                <View style={{}}>
-                  <ProgressTimeIndicator
-                    estimatedHours={memberTask ? memberTask.estimate : 0}
-                    workedHours={timeCounterState}
-                  />
-                </View>
-              </TouchableOpacity>
-            </View>
-          )}
+            ) : (
+              <View style={{}}>
+                <TouchableOpacity onPress={() => setEditEstimate(true)}>
+                  <View style={{}}>
+                    <ProgressTimeIndicator
+                      estimatedHours={memberTask ? memberTask.estimate : 0}
+                      workedHours={timeCounterState}
+                    />
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -262,10 +276,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 16,
-    paddingTop: 5,
+    paddingTop: 15,
     borderTopWidth: 1,
     borderTopColor: "rgba(0, 0, 0, 0.06)",
-    // backgroundColor:"yellow"
   },
   otherText: {
     fontSize: 14,
@@ -306,7 +319,7 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     marginRight: 10,
   },
-  taskNumberStyle:{
+  taskNumberStyle: {
 
   },
   wrapTotalTime: {
@@ -320,10 +333,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: typography.fonts.PlusJakartaSans.medium,
     fontWeight: "500",
-    color: "#7E7991"
+    marginBottom: 9,
+    color: "#7E7991",
   },
   totalTimeText: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#282048",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },

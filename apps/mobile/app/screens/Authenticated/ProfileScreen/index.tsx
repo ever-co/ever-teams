@@ -23,14 +23,16 @@ import { BlurView } from "expo-blur"
 import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
+import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
-    const { authenticationStore: { user, authToken, tenantId, organizationId },
+    const { authenticationStore: { authToken, tenantId, organizationId },
       teamStore: { activeTeam },
       TaskStore: { teamTasks, activeTask }
     } = useStores();
+    const { user } = useAuthenticateUser();
     const { params } = _props.route;
     const { tabIndex, userId } = params;
     const { members } = useOrganizationTeam();
@@ -42,13 +44,12 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const tabs = ["Worked", "Assigned", "Unassigned"];
 
 
-
     const member = userId ? members.find((m) => {
       return m.employee.userId === userId;
     }) : user;
 
     const currentUser =
-      user?.id === !userId ? user : member?.employee.user;
+      user?.id === userId ? user : member?.employee.user;
 
     const isAuthUser = currentUser.id === user.id;
 
@@ -146,7 +147,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       item={activeTask as ITeamTask}
                       enableEstimate={false} handleEstimate={() => { }}
                       handleTaskTitle={() => { }}
-                      />
+                    />
                   }
                 </View>
                 <View>
@@ -164,7 +165,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       index={index}
                       item={item as any}
                       enableEstimate={false}
-                     />
+                    />
                   ))}
                 </View>
               </View>
@@ -186,7 +187,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       onUnassignTask={hangleUnassignTask}
                       item={item as any}
                       enableEstimate={false}
-                   />
+                    />
                   ))}
                 </View>
               </View>
@@ -208,7 +209,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       key={index.toString()}
                       onAssignTask={hangleAssignTask}
                       item={item as any} enableEstimate={false}
-                     />
+                    />
                   ))}
                 </View>
               </View>
