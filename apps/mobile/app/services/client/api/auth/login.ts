@@ -1,13 +1,14 @@
 import { generateToken } from "../../../../helpers/generate-token";
 import { authFormValidate } from "../../../../helpers/validations";
-import { ILoginDataAPI } from "../../../interfaces/IAuthentication";
-import { loginUserRequest, refreshTokenRequest } from "../../requests/auth";
+import { ILoginDataAPI, ILoginReponse } from "../../../interfaces/IAuthentication";
+import { verifyAuthCodeRequest } from "../../requests/auth";
 import { acceptInviteRequest, verifyInviteCodeRequest } from "../../requests/invite";
 import { getUserOrganizationsRequest } from "../../requests/organization";
 import { getAllOrganizationTeamRequest } from "../../requests/organization-team";
 
 export async function login(params: ILoginDataAPI) {
 
+    let loginResponse: ILoginReponse | null = null;
 
     const { errors, valid: formValid } = authFormValidate(
         ["email", "code"],
@@ -23,64 +24,100 @@ export async function login(params: ILoginDataAPI) {
         }
     }
 
-    // Verify invite email and invite code
-    const { data: verificationData, response: verifyResponse } = await verifyInviteCodeRequest({ email: params.email, code: parseInt(params.code) });
-   
+    /**
+      * Verify first if match with invite code
+      */
+    const inviteResponse = await verifyInviteCodeRequest({
+        email: params.email,
+        code: parseInt(params.code)
+    }).catch(() => void 0);
 
-    if (!verifyResponse.ok || (verificationData as any).status == 400) {
-        return {
-            response: {
-                status: 400,
-                errors: {
-                    email: "We couldn't find account  associated to this email",
-                },
+
+    if (!inviteResponse.response.ok || (inviteResponse.data as any).response?.statusCode) {
+
+        /**
+         * If the invite code verification failed then try again with auth code
+         */
+        const authReq = await verifyAuthCodeRequest(
+            params.email,
+            parseInt(params.code, 10)
+        ).catch(() => void 0);
+
+        if (
+            !authReq.response.ok ||
+            (authReq.data as any).statusCode === 404 ||
+            (authReq.data as any).statusCode === 400 ||
+            (authReq.data as any).statusCode === 401
+        ) {
+            return {
+                error: "Authentication code or email address invalid"
+            }
+
+        }
+
+        loginResponse = authReq.data;
+
+        /**
+         * If provided code is an invite code and
+         * verified the accepte and register the related user
+         */
+
+    } else {
+        
+        // generate a random password
+        const password = "123456" || generateToken(8);
+        const names = inviteResponse.data.fullName.split(" ");
+
+        const { data, response } = await acceptInviteRequest({
+            user: {
+                firstName: names[0],
+                lastName: names[1] || "",
+                email: inviteResponse.data.email
+            },
+            password,
+            code: parseInt(params.code),
+            email: params.email
+        }).catch(() => void 0)
+
+
+        if (!response.ok || (response as any).status === 404) {
+            return {
+                response: {
+                    status: 400,
+                    errors: {
+                        email: "We couldn't find account  associated to this email",
+                    },
+                }
             }
         }
+        loginResponse = data;
     }
 
- // generate a random password
-    const password = "123456" || generateToken(8);
-    const names = verificationData.fullName.split(" ");
 
-    const { data, response } = await acceptInviteRequest({
-        user: {
-            firstName: names[0],
-            lastName: names[1] || "",
-            email: verificationData.email
-        },
-        password,
-        code: parseInt(params.code),
-        email: params.email
-    })
-
-    // User Login, get the access token
-    const { data: loginRes } = await loginUserRequest(
-        params.email,
-        password
-    );
-
-    if (!response.ok || (loginRes as any).status === 404) {
+    if (!loginResponse) {
         return {
-            response: {
-                status: 400,
-                errors: {
-                    email: "We couldn't find account  associated to this email",
-                },
-            }
-        }
+            status: 400,
+            errors: {
+                email: 'Authentication code or email address invalid',
+            },
+        };
     }
 
-    const tenantId = loginRes.user.tenantId || '';
-    const access_token = loginRes.token;
-    const userId = loginRes.user.id;
+    /**
+     * Get the first team from first organization
+     */
+
+    const tenantId = loginResponse.user.tenantId || '';
+    const access_token = loginResponse.token;
+    const userId = loginResponse.user.id;
 
     const { data: organizations } = await getUserOrganizationsRequest(
         { tenantId, userId },
         access_token
     );
-  
+
     const organization = organizations?.items[0];
- 
+
     if (!organization) {
         return {
             response: {
@@ -91,8 +128,6 @@ export async function login(params: ILoginDataAPI) {
             }
         }
     }
-
-    // All above code are working well, the problem starts with this request below
 
     const { data: teams } = await getAllOrganizationTeamRequest(
         { tenantId, organizationId: organization.organizationId },
@@ -112,21 +147,16 @@ export async function login(params: ILoginDataAPI) {
         }
     }
 
-    const {data:refreshRes}=await refreshTokenRequest(loginRes.refresh_token)
-
-
-
-
     return {
         response: {
             status: 200,
             data: {
                 team,
-                loginRes,
+                loginResponse,
                 authStoreData: {
-                    access_token: refreshRes.token,
+                    access_token: loginResponse.token,
                     refresh_token: {
-                        token: loginRes.refresh_token,
+                        token: loginResponse.refresh_token,
                     },
                     teamId: team.id,
                     tenantId,

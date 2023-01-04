@@ -37,6 +37,7 @@ export function useTeamTasks() {
             bearer_token: authToken
         })
         setFetchingTasks(false)
+        setActiveTeamTask(data);
         return {
             data
         }

@@ -21,6 +21,7 @@ import { observer } from "mobx-react-lite"
 import ManageTaskCard from "../../../components/ManageTaskCard"
 import TimerCard from "../../../components/TimerCard"
 import { useFirstLoad } from "../../../services/hooks/useFirstLoad"
+import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
@@ -31,6 +32,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
     TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
   } = useStores();
   const { firstLoadData, firstLoad } = useFirstLoad();
+  const {loadTeamTasksData}=useTeamTasks();
   // STATE
   const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
     items: [],
@@ -56,6 +58,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
   useEffect(() => {
     firstLoadData();
+    loadTeamTasksData();
   }, [])
 
   return (

@@ -19,6 +19,7 @@ import { useTeamInvitations } from "../services/hooks/useTeamInvitation";
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 import { useFirstLoad } from "../services/hooks/useFirstLoad";
 import { ActivityIndicator } from "react-native-paper";
+import sendAuthCode from "../services/client/api/auth/sendAuthCode";
 const pkg = require("../../package.json")
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
@@ -34,7 +35,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   })
   const [withteam, setWithTeam] = useState<boolean>(false)
   const [attemptsCount, setAttemptsCount] = useState(0)
-  const { verifyInviteByCode } = useTeamInvitations();
+
   const {
     authenticationStore: {
       authEmail,
@@ -52,7 +53,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setOrganizationId,
       setUser,
       setTenantId,
-      setEmployeeId
+      setEmployeeId,
+      setRefreshToken
     },
     teamStore: {
       setActiveTeam, getUserTeams,
@@ -83,9 +85,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
     setAttemptsCount(attemptsCount + 1)
 
-    if (Object.values(validationErrors).some((v) => !!v)) return
-    // verifyInviteByCode({ email: authEmail, code: authInviteCode });
+    // if (Object.values(validationErrors).some((v) => !!v)) return
+    setIsLoading(true)
+
     const { response } = await login({ email: authEmail, code: authInviteCode })
+
 
     // Make a request to your server to get an authentication token.
     // If successful, reset the fields and set the token.
@@ -97,11 +101,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthInviteCode("")
       setAuthConfirmCode("")
 
-      const data = response.data
-
-      const employee = data.loginRes.user.employee;
-      const loginRes = data.loginRes;
-      const user = loginRes.user;
+      const loginRes = response.data.loginResponse
+      const user = loginRes.user
+      const employee = user.employee;
+      const team = response.data.team
 
 
       setIsSubmitted(false)
@@ -111,20 +114,20 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthUsername("")
       setAuthConfirmCode("")
 
-      setIsLoading(false)
-      setActiveTeamId(data.team.id)
-      setActiveTeam(data.team)
-      setOrganizationId(data.team.organizationId)
-      setUser(loginRes.user)
-      setTenantId(data.team.tenantId)
+      setActiveTeamId(team.id)
+      setActiveTeam(team)
+      setOrganizationId(team.organizationId)
+      setUser(user)
+      setTenantId(team.tenantId)
       setEmployeeId(employee.id)
       //Load first team data
-      getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
+      getUserTeams({ tenantId: team.tenantId, userId: user.id, authToken: loginRes.token });
       //Load tasks for current team or initialize tasks
       loadTeamTasksData();
       firstLoadData();
       // Save Auth Data
       setAuthToken(loginRes.token);
+      setRefreshToken(loginRes.refresh_token)
       setIsLoading(false)
     }
 
@@ -144,11 +147,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       name: authUsername,
       email: authEmail
     });
-    console.log("RESPONSE" + JSON.stringify(response))
+
     // If successful, reset the fields and set the token.
     if (response.status === 200) {
       const data = response.data
-      console.log(JSON.stringify(data))
+
       const employee = data.employee;
       const loginRes = data.loginRes;
       const user = loginRes.user;
@@ -177,8 +180,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       firstLoadData();
       // Save Auth Data
       setAuthToken(loginRes.token);
+      setRefreshToken(loginRes.refresh_token)
       setIsLoading(false)
     }
+  }
+
+  const getAuthCode = async () => {
+    setIsSubmitted(true)
+    const { data, status, error } = await sendAuthCode(authEmail);
+    setIsSubmitted(false);
   }
 
 
@@ -377,10 +387,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   onChange={setAuthInviteCode}
                 />
                 <TouchableOpacity style={$resendWrapper}
-                  onPress={() => setScreenStatus({
-                    screen: 2,
-                    animation: true
-                  })}>
+                  onPress={() => getAuthCode()}>
                   <Text style={$resendText}>Didn’t recieve code ?Re-<Text style={{ color: colors.primary }}>send Code</Text></Text>
                 </TouchableOpacity>
               </View>

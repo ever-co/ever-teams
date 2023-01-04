@@ -60,25 +60,25 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: "row",
         width: "100%",
+        height:38,
         backgroundColor: "#fff",
-        paddingVertical: 4,
         alignItems: 'center',
         borderWidth: 1,
         borderColor: "rgba(0, 0, 0, 0.1)",
         borderRadius: 9,
         elevation: 10,
         shadowColor: "rgba(0, 0, 0, 0.1)",
-        shadowOffset: { width: 2, height: 2 },
+        shadowOffset: { width: 5, height: 5 },
         shadowOpacity: 0.3,
         shadowRadius: 1,
+        justifyContent:"space-around"
     },
     progressContainer: {
-        //    backgroundColor:"yellow",
         height: 21,
-        width: "50%",
+        width: "60%",
     },
     buttonStyle: {
-        paddingHorizontal: 13,
+        // paddingHorizontal: 13,
         paddingVertical: 10
     },
     timerText: {
