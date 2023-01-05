@@ -1,14 +1,13 @@
 import React from "react"
 import { Image, TextStyle, ViewStyle } from "react-native"
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import { CompositeScreenProps } from "@react-navigation/native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { MaterialCommunityIcons, Feather, SimpleLineIcons, FontAwesome } from "@expo/vector-icons"
+import { Feather } from "@expo/vector-icons"
 
 
 // COMPONENTS
-import { Icon } from "../components"
 import { AppStackParamList, AppStackScreenProps } from "./AppNavigator"
 import {
   AuthenticatedProfileScreen,
@@ -20,8 +19,7 @@ import {
 // import { translate } from "../i18n"
 import { colors, spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
-import HomeHeader from "../screens/Authenticated/TeamScreen/components/HomeHeader";
-import { IUser } from "../services/interfaces/IUserData";
+import { AuthenticatedSettingScreen } from "../screens/Authenticated/SettingScreen";
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
@@ -29,6 +27,10 @@ export type AuthenticatedTabParamList = {
   Profile: { userId: string, tabIndex: number }
 }
 
+export type AuthenticatedDrawerParamList = {
+  Setting: undefined,
+  AuthenticatedTab: undefined
+}
 /**
  * Helper for automatically generating navigation prop types for each route.
  *
@@ -37,6 +39,12 @@ export type AuthenticatedTabParamList = {
 export type AuthenticatedTabScreenProps<T extends keyof AuthenticatedTabParamList> =
   CompositeScreenProps<
     BottomTabScreenProps<AuthenticatedTabParamList, T>,
+    AppStackScreenProps<keyof AppStackParamList>
+  >
+
+export type AuthenticatedDrawerScreenProps<T extends keyof AuthenticatedDrawerParamList> =
+  CompositeScreenProps<
+    DrawerScreenProps<AuthenticatedDrawerParamList, T>,
     AppStackScreenProps<keyof AppStackParamList>
   >
 
@@ -91,7 +99,7 @@ function TabNavigator() {
   )
 }
 
-const drawer = createDrawerNavigator();
+const drawer = createDrawerNavigator<AuthenticatedDrawerParamList>();
 
 
 export function AuthenticatedNavigator() {
@@ -99,6 +107,8 @@ export function AuthenticatedNavigator() {
     <drawer.Navigator drawerContent={props => <HamburgerMenu {...props} />} screenOptions={{ headerShown: false, drawerPosition: "right" }}>
       <drawer.Screen
         name="AuthenticatedTab" component={TabNavigator} />
+      <drawer.Screen
+        name="Setting" component={AuthenticatedSettingScreen} />
     </drawer.Navigator>
   )
 }

@@ -78,7 +78,7 @@ const HamburgerMenu = (props) => {
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/briefcase.png")} />
             <Text style={styles.screenLabel}>Tasks</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 17 }} onPress={() => navigation.navigate("")}>
+          <TouchableOpacity style={{ flexDirection: "row", marginBottom: 17 }} onPress={() => navigation.navigate("Setting")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/setting-2.png")} />
             <Text style={styles.screenLabel}>Settings</Text>
           </TouchableOpacity>

@@ -13,10 +13,11 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
 
 
     const updateUserFromAPI = useCallback(async () => {
-        const { user, access_token } = await refresh(refreshToken)
-            setUser(user)
-            setAuthToken(access_token)
-            console.log("Refresh")
+        const { user: authUser, access_token } = await refresh(refreshToken)
+        console.log("Auth user"+JSON.stringify(+authUser))
+        setUser(authUser)
+        setAuthToken(access_token)
+        return authUser;
     }, []);
 
 
@@ -43,6 +44,7 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
     }, []);
 
     const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
+        console.log("LAUNCH")
         clearInterval(intervalRt.current);
         intervalRt.current = setInterval(updateUserFromAPI, interval) as any;
 
