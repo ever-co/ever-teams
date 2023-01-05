@@ -21,7 +21,7 @@ export function ThemeToggler() {
 			<button
 				onClick={() => setTheme('light')}
 				className={clsxm(
-					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ',
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] ml-[-2px]',
 					theme === 'light' ? 'bg-white shadow-md' : ''
 				)}
 			>
@@ -32,7 +32,7 @@ export function ThemeToggler() {
 			<button
 				onClick={() => setTheme('dark')}
 				className={clsxm(
-					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px]',
+					'flex flex-row justify-center items-center p-2 w-8 h-8 rounded-[60px] mr-[-2px]',
 					theme === 'dark' ? 'bg-[#3B4454]' : ''
 				)}
 			>

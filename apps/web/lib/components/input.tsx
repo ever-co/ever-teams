@@ -1,8 +1,10 @@
 import clsxm from '@app/utils/clsxm';
 import { useEffect, useState } from 'react';
+import { Text } from './typography';
 
 type Props = {
 	readonly errors?: Record<string, string>;
+	wrapperClassName?: string;
 } & React.ComponentPropsWithRef<'input'>;
 
 export function InputField({
@@ -10,6 +12,7 @@ export function InputField({
 	type = 'text',
 	errors,
 	name,
+	wrapperClassName,
 	...res
 }: Props) {
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -23,25 +26,27 @@ export function InputField({
 	}, [errors, name]);
 
 	return (
-		<>
+		<div className={clsxm('w-full mb-3', wrapperClassName)}>
 			<input
 				type={type}
 				name={name}
 				className={clsxm(
 					'bg-light--theme-light dark:bg-dark--theme-light',
 					'border-[#0000001a] dark:border-[#ffffff33] border-solid border',
-					'py-2 px-4',
+					'py-2 px-4 mb-1',
 					'rounded-[10px] text-sm outline-none ',
 					'h-[50px] w-full',
-					'font-normal tracking-tight',
+					'font-light tracking-tight',
 					className
 				)}
 				onKeyUp={() => setError(undefined)}
 				{...res}
 			/>
 			{error && (
-				<span className="text-sm text-red-600 font-normal">{error}</span>
+				<Text.Error className="self-start justify-self-start">
+					{error}
+				</Text.Error>
 			)}
-		</>
+		</div>
 	);
 }
