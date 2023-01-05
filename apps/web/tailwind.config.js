@@ -14,10 +14,11 @@ module.exports = {
 	theme: {
 		screens: {
 			xs: '414px',
-			sm: '640px',
+			sm: '576px',
 			md: '768px',
-			lg: '976px',
-			xl: '1440px',
+			lg: '992px',
+			xl: '1200px',
+			'2xl': '1400px',
 		},
 		extend: {
 			colors: {
@@ -33,7 +34,13 @@ module.exports = {
 					light: '#25272D',
 					DEFAULT: '#1E2025',
 				},
+				primary: {
+					DEFAULT: '#3826A6',
+					light: '#6755C9',
+				},
+				dark: '#1A1C1E',
 			},
+			fontFamily: {},
 		},
 	},
 	plugins: [],

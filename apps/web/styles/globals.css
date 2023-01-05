@@ -15,10 +15,21 @@
 		font-size: 16px;
 		line-height: 160%;
 	}
+
+	.x-container {
+		@apply 2xl:max-w-[1320px] xl:max-w-[1140px];
+	}
 }
 
-/* @layer base {
-	.x-container-fluid {
-		@apply max-w-screen-xl mx-auto w-11/12;
+@layer components {
+	/* --------------------- Container ------------------------------------ */
+	.x-container {
+		--tblr-gutter-x: 1.5rem;
+		--tblr-gutter-y: 0;
+		width: 100%;
+		padding-right: calc(var(--tblr-gutter-x) * 0.5);
+		padding-left: calc(var(--tblr-gutter-x) * 0.5);
+		margin-right: auto;
+		margin-left: auto;
 	}
-} */
+}
