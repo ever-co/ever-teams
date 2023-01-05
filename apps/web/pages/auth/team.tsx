@@ -171,7 +171,7 @@ function FillUserDataForm({
 				</button>
 
 				<Button type="submit" disabled={loading}>
-					Create teams
+					Create team
 				</Button>
 			</div>
 		</div>
