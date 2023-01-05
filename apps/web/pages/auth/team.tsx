@@ -1,5 +1,12 @@
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
-import { Card, Text, InputField, Button, SiteReCAPTCHA } from 'lib/components';
+import {
+	Card,
+	Text,
+	InputField,
+	Button,
+	SiteReCAPTCHA,
+	BackdropLoader,
+} from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
@@ -43,6 +50,11 @@ export default function AuthTeam() {
 					</div>
 				</Card>
 			</form>
+
+			<BackdropLoader
+				show={loading}
+				title="We are now creating your new workplace, hold on..."
+			/>
 		</AuthLayout>
 	);
 }
@@ -129,7 +141,7 @@ function FillUserDataForm({
 				/>
 
 				<div className="w-full flex">
-					<div className="dark:invert-[0.93] dark:hue-rotate-180 scale-[1] origin-[0]">
+					<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
 						<SiteReCAPTCHA
 							onChange={(res) => {
 								handleOnChange({ target: { name: 'recaptcha', value: res } });

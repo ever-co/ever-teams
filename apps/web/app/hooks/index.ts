@@ -10,5 +10,6 @@ export * from './features/useTaskStatistics';
 export * from './features/useTeamInvitations';
 export * from './features/useTeamTasks';
 export * from './features/useTimer';
+export * from './useHasMounted';
 
 export * from './auth/useAuthenticationTeam';

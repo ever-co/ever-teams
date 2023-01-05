@@ -19,6 +19,8 @@ export function Button({
 				[
 					variant === 'primary' && [
 						'bg-primary dark:bg-primary-light text-white text-sm',
+						'disabled:bg-primary-light disabled:opacity-40',
+						// 'disabled:bg-primary-light dark:disabled:bg-[#33353E] disabled:opacity-40 dark:disabled:opacity-50',
 					],
 				],
 				className
