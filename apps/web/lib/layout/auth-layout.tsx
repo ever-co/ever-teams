@@ -29,19 +29,15 @@ export function AuthLayout({ children, title, description }: Props) {
 						</Text>
 					</div>
 					{['auth-bg-cover.png', 'auth-bg-cover-dark.png'].map((image) => {
-						let hidden = true;
-
-						if (!image.endsWith('dark.png')) {
-							hidden = theme === undefined || theme !== 'light';
-						}
-
-						if (image.endsWith('dark.png') && theme) {
-							hidden = theme !== 'dark';
-						}
 						return (
 							<div
-								className="w-[110%] h-full min-h-[800px] relative ml-[12%] rounded-3xl"
-								hidden={hidden}
+								className={clsxm(
+									'w-[110%] h-full min-h-[800px] relative ml-[12%] rounded-3xl',
+									[
+										!image.endsWith('dark.png') && ['dark:hidden'],
+										image.endsWith('dark.png') && ['hidden dark:block'],
+									]
+								)}
 								key={image}
 								style={
 									theme === 'dark'
