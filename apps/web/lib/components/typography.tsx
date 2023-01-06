@@ -1,6 +1,11 @@
 import clsxm from '@app/utils/clsxm';
 import Link from 'next/link';
-import { forwardRef, PropsWithChildren } from 'react';
+import {
+	DetailedHTMLProps,
+	forwardRef,
+	HTMLAttributes,
+	PropsWithChildren,
+} from 'react';
 import { IVariant } from './types';
 
 type Props = PropsWithChildren & { className?: string };
@@ -82,47 +87,61 @@ Text.Error = forwardRef<
 Text.Error.displayName = 'TextError';
 
 /**
- * <h3 /> with error color
- */
-Text.H3 = forwardRef<
-	HTMLHeadingElement,
-	Props & React.ComponentPropsWithRef<'h3'>
->(({ children, className, ...rest }, ref) => {
-	return (
-		<h3
-			ref={ref}
-			className={clsxm(
-				'text-lg font-medium text-dark dark:text-white',
-				className
-			)}
-			{...rest}
-		>
-			{children}
-		</h3>
-	);
-});
-
-Text.H3.displayName = 'TextH3';
-
-/**
  * <h1 /> with error color
  */
-Text.H1 = forwardRef<
-	HTMLHeadingElement,
-	Props & React.ComponentPropsWithRef<'h1'>
->(({ children, className, ...rest }, ref) => {
-	return (
-		<h1
-			ref={ref}
-			className={clsxm(
-				'text-3xl font-medium text-[#282048] dark:text-white',
-				className
-			)}
-			{...rest}
-		>
-			{children}
-		</h1>
-	);
-});
+type HeadingProps = { as: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' } & Props &
+	DetailedHTMLProps<HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement>;
 
-Text.H1.displayName = 'TextH1';
+Text.Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
+	({ children, className, as: asel, ...rest }, ref) => {
+		const elClassName = clsxm(
+			[
+				asel === 'h1' && [
+					'text-3xl font-medium text-[#282048] dark:text-white',
+				],
+				asel === 'h3' && ['text-lg font-medium text-dark dark:text-white'],
+			],
+			className
+		);
+
+		const h1 = (
+			<h1 ref={ref} className={elClassName} {...rest}>
+				{children}
+			</h1>
+		);
+		return (
+			(
+				{
+					h1,
+					h2: (
+						<h2 ref={ref} className={elClassName} {...rest}>
+							{children}
+						</h2>
+					),
+					h3: (
+						<h3 ref={ref} className={elClassName} {...rest}>
+							{children}
+						</h3>
+					),
+					h4: (
+						<h4 ref={ref} className={elClassName} {...rest}>
+							{children}
+						</h4>
+					),
+					h5: (
+						<h5 ref={ref} className={elClassName} {...rest}>
+							{children}
+						</h5>
+					),
+					h6: (
+						<h6 ref={ref} className={elClassName} {...rest}>
+							{children}
+						</h6>
+					),
+				} as Record<typeof asel, React.ReactElement>
+			)[asel] || h1
+		);
+	}
+);
+
+Text.Heading.displayName = 'TextHeading';

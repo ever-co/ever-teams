@@ -72,7 +72,9 @@ function FillTeamNameForm({
 }: IStepProps & { errors: Record<string, string> }) {
 	return (
 		<div className="flex flex-col justify-between items-center min-h-[186px]">
-			<Text.H3 className="text-center">Input your team name</Text.H3>
+			<Text.Heading as="h3" className="text-center">
+				Input your team name
+			</Text.Heading>
 
 			<InputField
 				name="team"
@@ -120,7 +122,9 @@ function FillUserDataForm({
 
 	return (
 		<div className="flex flex-col justify-between items-center h-full">
-			<Text.H3 className="text-center mb-10">Input details teams</Text.H3>
+			<Text.Heading as="h3" className="text-center mb-10">
+				Input details teams
+			</Text.Heading>
 
 			<div className="w-full mb-8">
 				<InputField
