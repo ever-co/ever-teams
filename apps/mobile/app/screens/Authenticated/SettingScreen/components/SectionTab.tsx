@@ -1,34 +1,41 @@
+import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
+import { translate } from "../../../../i18n";
 import { colors, typography } from "../../../../theme";
 
-export type ISectionTabs = "Personal" | "Team";
+
 
 interface ISectionTab {
-    title: ISectionTabs;
+    id:number;
+    title: string;
     activeIcon: any;
     inactiveIcon: any
 }
-const sections: ISectionTab[] = [
-    {
-        title: "Personal",
-        activeIcon: require("../../../../../assets/icons/new/user-active.png"),
-        inactiveIcon: require("../../../../../assets/icons/new/user-inactive.png")
-    },
-    {
-        title: "Team",
-        activeIcon: require("../../../../../assets/icons/new/people-active.png"),
-        inactiveIcon: require("../../../../../assets/icons/new/people-inactive.png")
-    }
-];
-const SectionTab = ({ activeTab, toggleTab }: { activeTab: ISectionTabs, toggleTab: (tab:ISectionTabs) => unknown }) => {
 
+const SectionTab =({ activeTabId, toggleTab }: { activeTabId: number, toggleTab: (tab: number) => unknown }) => {
+
+    const sections: ISectionTab[] = [
+        {
+            id:1,
+            title: translate("settingScreen.personalSection.name"),
+            activeIcon: require("../../../../../assets/icons/new/user-active.png"),
+            inactiveIcon: require("../../../../../assets/icons/new/user-inactive.png")
+        },
+        {
+            id:2,
+            title: translate("settingScreen.teamSection.name"),
+            activeIcon: require("../../../../../assets/icons/new/people-active.png"),
+            inactiveIcon: require("../../../../../assets/icons/new/people-inactive.png")
+        }
+    ];
+    
     return (
         <View style={styles.contaniner}>
             {sections.map((tab, idx) => (
                 <Tab
                     key={idx}
-                    isActiveTab={activeTab === tab.title}
+                    isActiveTab={tab.id===activeTabId}
                     item={tab}
                     toggleTab={toggleTab}
                 />
@@ -46,12 +53,12 @@ const Tab = ({
     {
         item: ISectionTab,
         isActiveTab: boolean
-        toggleTab: (tab: ISectionTabs) => unknown
+        toggleTab: (tab: number) => unknown
     }) => {
     return (
         <TouchableOpacity
             style={isActiveTab ? styles.activeSection : styles.inactiveSection}
-            onPress={() => toggleTab(item.title)}
+            onPress={() => toggleTab(item.id)}
         >
             <Image source={isActiveTab ? item.activeIcon : item.inactiveIcon} />
             <Text style={isActiveTab ? styles.activeText : styles.inactiveText}>{item.title}</Text>

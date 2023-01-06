@@ -30,6 +30,7 @@ import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import WorkedDayHours from "../../../../components/WorkedDayHours"
 import WorkedOnTask from "../../../../components/WorkedOnTask"
+import { translate } from "../../../../i18n"
 
 export type ListItemProps = {
   member: IUser,
@@ -94,7 +95,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
             <WorkedOnTask
               memberTask={memberTask}
               isAuthUser={isAuthUser}
-              title={"Total time"}
+              title={translate("teamScreen.cardTotalTimeLabel")}
               containerStyle={{ alignItems: "center", justifyContent: "center" }}
               totalTimeText={{marginTop:5, fontSize:12, color:colors.primary, fontFamily: typography.primary.semiBold}}
             />
@@ -107,14 +108,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         <View style={styles.times}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: 48, width: "100%" }}>
             <View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
-              <Text style={styles.totalTimeTitle}>Today work</Text>
+              <Text style={styles.totalTimeTitle}>{translate("teamScreen.cardTodayWorkLabel")}</Text>
               <Text style={styles.totalTimeText}>{pad(hours)} h:{pad(minutes)} m</Text>
             </View>
             <View style={{ ...GS.alignCenter }}>
               <WorkedOnTask
                 memberTask={memberTask}
                 isAuthUser={isAuthUser}
-                title={"Total work"}
+                title={translate("teamScreen.cardTotalWorkLabel")}
                 containerStyle={{ alignItems: "center", height: "80%", justifyContent: "space-between" }}
                 totalTimeText={styles.totalTimeText}
               />

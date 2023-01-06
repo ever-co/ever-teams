@@ -10,15 +10,14 @@ import { AppStackScreenProps } from "../navigators"
 import { colors, spacing } from "../theme"
 import { typography } from "../theme"
 
-// import { Api } from "../services/api"
 
 import { CodeInput } from "../components/CodeInput"
 import { register } from "../services/client/api/auth/register"
 import { login } from "../services/client/api/auth/login"
-import { useTeamInvitations } from "../services/hooks/useTeamInvitation";
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 import { useFirstLoad } from "../services/hooks/useFirstLoad";
 import { ActivityIndicator } from "react-native-paper";
+import { translate } from "../i18n";
 import sendAuthCode from "../services/client/api/auth/sendAuthCode";
 const pkg = require("../../package.json")
 
@@ -216,19 +215,19 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
         {withteam ? (
           <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-            <Text style={$screenTitle}>Join Existing Team</Text>
-            <Text style={$smalltext}>Please enter email and invitation code to join existing team.</Text>
+            <Text style={$screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
+            <Text style={$smalltext}>{translate("loginScreen.hintDetails2")}</Text>
           </View>
         ) : !withteam && screenstatus.screen !== 3 ?
           (
             <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-              <Text style={$screenTitle}>Create New Team</Text>
-              <Text style={$smalltext}>Please enter your team details to create a new team.</Text>
+              <Text style={$screenTitle}>{translate("loginScreen.enterDetails")}</Text>
+              <Text style={$smalltext}>{translate("loginScreen.hintDetails")}</Text>
             </View>
           ) : (
             <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-              <Text style={$screenTitle}>Join Team</Text>
-              <Text style={$smalltext}>Enter the invitation code we sent to your email</Text>
+              <Text style={$screenTitle}>{translate("loginScreen.joinTeam")}</Text>
+              <Text style={$smalltext}>{translate("loginScreen.joinTeamHint")}</Text>
             </View>
           )
         }
@@ -240,9 +239,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
         {/* STEP 1 : PROVIDE TEAM NAME */}
         {screenstatus.screen === 1 && !withteam ? (
           <Animatable.View animation={"bounceIn"} delay={1000} style={$form}>
-            <Text style={$text}>Select Team Name</Text>
+            <Text style={$text}>{translate("loginScreen.step1Title")}</Text>
             <TextField
-              placeholder="Please Enter your team name |"
+              placeholder={translate("loginScreen.teamNameFieldPlaceholder")}
               containerStyle={$textField}
               placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
               inputWrapperStyle={$inputStyleOverride}
@@ -257,8 +256,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               onSubmitEditing={() => authTeamInput.current?.focus()}
             />
             <View style={[$buttonsView]}>
-              <TouchableOpacity style={{}} onPress={() => setWithTeam(true)}>
-                <Text style={$backButtonText}>Joining existing team?</Text>
+              <TouchableOpacity style={{ width: 130 }} onPress={() => setWithTeam(true)}>
+                <Text style={$backButtonText}>{translate("loginScreen.joinExistTeam")}</Text>
               </TouchableOpacity>
               <Button
                 style={$tapButton}
@@ -268,7 +267,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   animation: true
                 })}
               >
-                <Text>Continue</Text>
+                <Text>{translate("loginScreen.tapContinue")}</Text>
               </Button>
             </View>
           </Animatable.View>
@@ -278,9 +277,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           : screenstatus.screen === 2 ? (
             // STEP 2 : ENTER YOUR NAME AND EMAIL
             <Animatable.View animation={"bounceIn"} delay={1000} style={$form}>
-              <Text style={$text}>Provide More Details</Text>
+              <Text style={$text}>{translate("loginScreen.step2Title")}</Text>
               <TextField
-                placeholder="Enter your name |"
+                placeholder={translate("loginScreen.userNameFieldPlaceholder")}
                 containerStyle={$textField}
                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                 inputWrapperStyle={$inputStyleOverride}
@@ -295,7 +294,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 onSubmitEditing={() => authTeamInput.current?.focus()}
               />
               <TextField
-                placeholder="Enter your email address |"
+                placeholder={translate("loginScreen.emailFieldPlaceholder")}
                 containerStyle={[$textField, { marginTop: 20 }]}
                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                 inputWrapperStyle={$inputStyleOverride}
@@ -318,7 +317,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   })}
                 >
                   <Image source={require("../../assets/icons/back.png")} />
-                  <Text style={[$backButtonText, { color: colors.primary, fontSize: 14 }]}>Back</Text>
+                  <Text style={[$backButtonText, { color: colors.primary, fontSize: 14 }]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
                   style={[$tapButton, { width: width / 2.1 }]}
@@ -328,7 +327,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                     animation: true
                   })}
                 >
-                  <Text>Continue</Text>
+                  <Text>{translate("loginScreen.tapContinue")}</Text>
                 </Button>
               </View>
             </Animatable.View>
@@ -336,7 +335,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           ) : screenstatus.screen === 3 ? (
             // START STEP 3 : EMAIL VERIFICATION
             <Animatable.View animation={"bounceIn"} delay={1000} style={$form}>
-              <Text style={$text}>Invitation code</Text>
+              <Text style={$text}>{translate("loginScreen.step3Title")}</Text>
               <View>
                 <CodeInput
                   onChange={setAuthConfirmCode}
@@ -346,7 +345,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                     screen: 2,
                     animation: true
                   })}>
-                  <Text style={$resendText}>Didn’t recieve code ?Re<Text style={{ color: colors.primary }}>send Code</Text></Text>
+                  <Text style={$resendText}>{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
                 </TouchableOpacity>
               </View>
               <View style={[$buttonsView]}>
@@ -355,7 +354,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   textStyle={$tapButtonText}
                   onPress={() => createNewTeam()}
                 >
-                  <Text>Join</Text>
+                  <Text>{translate("loginScreen.tapJoin")}</Text>
                 </Button>
                 <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>
@@ -365,9 +364,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           ) : (
             // JOIN EXISTED TEAM STARTS HERE
             <Animatable.View animation={"bounceInUp"} style={$form}>
-              <Text style={$text}>Provide your Email</Text>
+              <Text style={$text}>{translate("loginScreen.inviteStepLabel")}</Text>
               <TextField
-                placeholder="Enter your name |"
+                placeholder={translate("loginScreen.emailFieldPlaceholder")}
                 containerStyle={$textField}
                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                 inputWrapperStyle={$inputStyleOverride}
@@ -382,13 +381,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 onSubmitEditing={() => authTeamInput.current?.focus()}
               />
               <View style={{ marginTop: 32 }}>
-                <Text style={$inputInviteTitle}>Input invitation code</Text>
+                <Text style={$inputInviteTitle}>{translate("loginScreen.inviteCodeFieldLabel")}</Text>
                 <CodeInput
                   onChange={setAuthInviteCode}
                 />
                 <TouchableOpacity style={$resendWrapper}
                   onPress={() => getAuthCode()}>
-                  <Text style={$resendText}>Didn’t recieve code ?Re-<Text style={{ color: colors.primary }}>send Code</Text></Text>
+                  <Text style={$resendText}>{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
                 </TouchableOpacity>
               </View>
               <View style={[$buttonsView]}>
@@ -397,7 +396,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   textStyle={$tapButtonText}
                   onPress={() => joinTeam()}
                 >
-                  <Text>Join</Text>
+                  <Text>{translate("loginScreen.tapJoin")}</Text>
                 </Button>
                 <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>

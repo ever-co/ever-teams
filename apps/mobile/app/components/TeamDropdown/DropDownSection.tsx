@@ -8,6 +8,7 @@ import { GLOBAL_STYLE as GS } from "../../../assets/ts/styles"
 import { colors, typography } from "../../theme"
 import { imgTitle } from "../../helpers/img-title"
 import { useStores } from "../../models"
+import { translate } from "../../i18n"
 
 export interface Props {
   teams: IOrganizationTeamList[]
@@ -47,7 +48,7 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
         <View style={styles.buttonStyle}>
           <Ionicons name="add" size={24} color="#3826A6" />
           <Text style={{ color: colors.primary, fontSize: 14, fontFamily: typography.primary.semiBold }}>
-            Create new team
+            {translate("teamScreen.createNewTeamButton")}
           </Text>
         </View>
       </TouchableOpacity>

@@ -12,11 +12,10 @@ import { Feather } from '@expo/vector-icons';
 import { observer } from "mobx-react-lite";
 import TaskSize from "./TaskSize";
 import TaskPriorities from "./TaskPriorities";
-import TaskStatus from "../screens/Authenticated/ProfileScreen/components/TaskStatus";
 import TaskLabel from "./TaskLabel";
 import { typography } from "../theme";
-import TimerCard from "./TimerCard";
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
+import { translate } from "../i18n";
 
 const { width, height } = Dimensions.get("window");
 const ManageTaskCard = observer(() => {
@@ -85,7 +84,7 @@ const ManageTaskCard = observer(() => {
                     placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                     style={styles.textInput}
                     defaultValue={activeTask && activeTask.title}
-                    placeholder="What you working on"
+                    placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
                     onChangeText={(newText) => handleChangeText(newText)}
                 />
@@ -109,7 +108,7 @@ const ManageTaskCard = observer(() => {
                         }}
                     >
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
-                            <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate: </Text>
+                            <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>{translate("myWorkScreen.estimateLabel")}: </Text>
                             <EstimateTime currentTask={activeTask} />
                         </View>
                         <TaskSize />
@@ -124,7 +123,6 @@ const ManageTaskCard = observer(() => {
                     <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
                         <TaskLabel />
                     </View>
-                    {/* <TimerCard /> */}
                 </View>
             }
         </View>
