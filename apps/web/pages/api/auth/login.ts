@@ -14,7 +14,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 const notFound = (res: NextApiResponse) =>
 	res.status(400).json({
 		errors: {
-			email: 'Authentication code or email address invalid',
+			code: 'Authentication code or email address invalid',
 		},
 	});
 

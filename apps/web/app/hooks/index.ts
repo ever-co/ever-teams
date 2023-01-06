@@ -13,3 +13,4 @@ export * from './features/useTimer';
 export * from './useHasMounted';
 
 export * from './auth/useAuthenticationTeam';
+export * from './auth/useAuthenticationPasscode';

@@ -6,16 +6,28 @@ import { Card } from './card';
 export function SpinnerLoader({
 	size = 31,
 	className,
+	variant = 'primary',
 }: {
 	size?: number;
 	className?: string;
+	variant?: 'primary' | 'light' | 'dark';
 }) {
 	return (
 		<span
 			className={clsxm(
 				'animate-spin',
-				'border-t-primary border-r-primary border-b-transparent border-l-primary',
-				'dark:border-t-primary-light dark:border-r-primary-light dark:border-b-transparent dark:border-l-primary-light',
+				[
+					variant === 'primary' && [
+						'border-t-primary border-r-primary border-b-transparent border-l-primary',
+						'dark:border-t-primary-light dark:border-r-primary-light dark:border-b-transparent dark:border-l-primary-light',
+					],
+					variant === 'light' && [
+						'border-t-white border-r-white border-b-transparent border-l-white',
+					],
+					variant === 'dark' && [
+						'border-t-dark border-r-dark border-b-transparent border-l-dark',
+					],
+				],
 				className
 			)}
 			style={{

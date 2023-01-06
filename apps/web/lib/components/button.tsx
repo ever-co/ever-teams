@@ -1,8 +1,10 @@
 import clsxm from '@app/utils/clsxm';
 import { PropsWithChildren } from 'react';
+import { SpinnerLoader } from './loader';
 
 type Props = {
 	variant?: 'primary' | 'outline' | 'ghost' | 'light' | 'dark';
+	loading?: boolean;
 } & PropsWithChildren &
 	React.ComponentPropsWithRef<'button'>;
 
@@ -10,12 +12,13 @@ export function Button({
 	children,
 	className,
 	variant = 'primary',
+	loading,
 	...rest
 }: Props) {
 	return (
 		<button
 			className={clsxm(
-				'flex-row items-center justify-center py-3 px-4 gap-3 rounded-md min-w-[140px]',
+				'flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md min-w-[140px]',
 				[
 					variant === 'primary' && [
 						'bg-primary dark:bg-primary-light text-white text-sm',
@@ -27,6 +30,12 @@ export function Button({
 			)}
 			{...rest}
 		>
+			{loading && (
+				<SpinnerLoader
+					size={17}
+					variant={variant === 'primary' ? 'light' : 'dark'}
+				/>
+			)}
 			{children}
 		</button>
 	);
