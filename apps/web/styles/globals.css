@@ -1,38 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-.toggleThemeContainer {
-	border-radius: 25px;
-	border: 2px solid #6a7c90;
-	width: max-content;
-	height: 2.1rem;
-	transform: scale(0.85);
-}
-
-.toggleThemeContainer button {
-	background: transparent;
-	border: none;
-	padding: 0;
-	cursor: pointer;
-}
-.navbar .toggleThemeContainer #moon {
-	fill: #fff !important;
-}
-
-.navbar .toggleThemeContainer #moon {
-	fill: #c2ced9 !important;
-}
-
-.light-mode .toggleThemeContainer button #sun-svg {
-	background: #3d5a80 !important;
-}
-.light-mode .toggleThemeContainer button #sun {
-	fill: #ffffff !important;
-}
-
 @layer base {
-	.x-container-fluid {
-		@apply max-w-screen-xl mx-auto w-11/12;
+	html {
+		font-family: 'Poppins', sans-serif;
+	}
+
+	body {
+		font-style: normal;
+		font-weight: 300;
+		font-size: 16px;
+		line-height: 160%;
+	}
+
+	.x-container {
+		@apply 2xl:max-w-[1320px] xl:max-w-[1140px];
+	}
+}
+
+@layer components {
+	/* --------------------- Container ------------------------------------ */
+	.x-container {
+		--tblr-gutter-x: 1.5rem;
+		--tblr-gutter-y: 0;
+		width: 100%;
+		padding-right: calc(var(--tblr-gutter-x) * 0.5);
+		padding-left: calc(var(--tblr-gutter-x) * 0.5);
+		margin-right: auto;
+		margin-left: auto;
+	}
+
+	/* ----------------Fade IN and Fade out */
+
+	.fade-out {
+		opacity: 0;
+		width: 0;
+		height: 0;
+		transition: width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s;
+	}
+	.fade-in {
+		opacity: 1;
+		width: 100%;
+		height: 100%;
+		transition: width 0.2s, height 0.2s, opacity 0.2s 0.2s;
 	}
 }

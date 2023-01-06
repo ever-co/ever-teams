@@ -7,48 +7,40 @@ module.exports = {
 	content: [
 		join(
 			__dirname,
-			'{src,pages,components}/**/*!(*.stories|*.spec).{ts,tsx,html}'
+			'{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'
 		),
 		...createGlobPatternsForDependencies(__dirname),
 	],
 	theme: {
 		screens: {
 			xs: '414px',
-			sm: '640px',
+			sm: '576px',
 			md: '768px',
-			lg: '976px',
-			xl: '1440px',
+			lg: '992px',
+			xl: '1200px',
+			'2xl': '1400px',
 		},
 		extend: {
 			colors: {
 				transparent: 'transparent',
 				current: 'currentColor',
-				light: {
-					DEFAULT: '#7e7e8f',
+				neutral: '#7E7991',
+				'light--theme': {
+					light: '#fff',
+					DEFAULT: '#f7f7f8',
+					dark: '#E7E7EA',
+				},
+				'dark--theme': {
+					light: '#25272D',
+					DEFAULT: '#1E2025',
 				},
 				primary: {
-					DEFAULT: '#1B005D',
-					light: '#ACB3BB',
-					lighter: '#3E1DAD',
-					disabled: '#EDF8F6',
+					DEFAULT: '#3826A6',
+					light: '#6755C9',
 				},
-				main_background: {
-					DEFAULT: '#F9FAFB',
-				},
-				dark_background_color: {
-					DEFAULT: '#202023',
-				},
-
-				dark_card_background_color: {
-					DEFAULT: '#101014',
-				},
-				button_dark: {
-					DEFAULT: '#fa754e',
-				},
-				label: {
-					DEFAULT: '#07074D',
-				},
+				dark: '#1A1C1E',
 			},
+			fontFamily: {},
 		},
 	},
 	plugins: [],
