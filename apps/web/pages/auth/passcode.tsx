@@ -33,7 +33,9 @@ export default function AuthPasscode() {
 			>
 				<Card className="w-full" shadow="bigger">
 					<div className="flex flex-col justify-between items-center">
-						<Text.H3 className="text-center mb-10">Join Teams</Text.H3>
+						<Text.Heading as="h3" className="text-center mb-10">
+							Join Teams
+						</Text.Heading>
 
 						{/* Email input */}
 						<InputField
