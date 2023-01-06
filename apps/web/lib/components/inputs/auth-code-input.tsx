@@ -196,7 +196,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 
 		const inputs = [];
 		for (let i = 0; i < length; i++) {
-			const dvalue = validDefaultValue ? defaultValue!.charAt(i) : undefined;
+			const dvalue = validDefaultValue ? defaultValue?.charAt(i) : undefined;
 
 			inputs.push(
 				<InputField
@@ -229,3 +229,5 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		return <div className={containerClassName}>{inputs}</div>;
 	}
 );
+
+AuthCodeInputField.displayName = 'AuthCodeInputField';

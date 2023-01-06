@@ -73,7 +73,7 @@ export default function AuthPasscode() {
 							{/* Send code */}
 							<div className="flex flex-col items-start">
 								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
-									Didn't recieve code ?
+									Didn&apos;t recieve code ?
 								</Text>
 
 								{!sendCodeLoading && (
