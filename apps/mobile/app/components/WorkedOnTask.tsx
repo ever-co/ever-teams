@@ -1,12 +1,12 @@
 import React from "react"
-import { View, StyleSheet, Text, ViewStyle } from "react-native"
+import { View, StyleSheet, Text, ViewStyle, TextStyle } from "react-native"
 import { secondsToTime } from "../helpers/date"
 import { pad } from "../helpers/number"
 import { useTaskStatistics } from "../services/hooks/features/useTaskStatics"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { typography } from "../theme/typography"
 
-const WorkedOnTask = ({ isAuthUser, title, containerStyle, memberTask }: { isAuthUser: boolean, title: string, memberTask: ITeamTask, containerStyle: ViewStyle }) => {
+const WorkedOnTask = ({ isAuthUser, title, containerStyle, memberTask, totalTimeText }: { isAuthUser: boolean, title: string, memberTask: ITeamTask, containerStyle: ViewStyle, totalTimeText: TextStyle }) => {
     const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } =
         useTaskStatistics();
 
@@ -14,11 +14,9 @@ const WorkedOnTask = ({ isAuthUser, title, containerStyle, memberTask }: { isAut
         const { h, m } = secondsToTime(activeTaskTotalStat?.duration || 0);
         const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);
         return (
-            <View>
-                <View style={containerStyle}>
-                    <Text style={styles.totalTimeTitle}>{title} : </Text>
-                    <Text style={styles.totalTimeTxt}>{pad(h)} h:{pad(m)} m</Text>
-                </View>
+            <View style={containerStyle}>
+                <Text style={styles.totalTimeTitle}>{title} : </Text>
+                <Text style={totalTimeText}>{pad(h)} h:{pad(m)} m</Text>
             </View>
         )
     }
@@ -29,11 +27,9 @@ const WorkedOnTask = ({ isAuthUser, title, containerStyle, memberTask }: { isAut
     const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0);
 
     return (
-        <View>
-            <View style={containerStyle}>
-                <Text style={styles.totalTimeTitle}>{title} : </Text>
-                <Text style={styles.totalTimeTxt}>28 h:30 m</Text>
-            </View>
+        <View style={containerStyle}>
+            <Text style={styles.totalTimeTitle}>{title} : </Text>
+            <Text style={totalTimeText}>28 h:30 m</Text>
         </View>
     )
 

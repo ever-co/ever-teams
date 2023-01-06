@@ -4,6 +4,7 @@ export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
     authToken: types.maybe(types.string),
+    refreshToken:types.maybe(types.string),
     authEmail: types.optional(types.string, ""),
     authTeamName: types.optional(types.string, ""),
     authUsername: types.optional(types.string, ""),
@@ -71,20 +72,24 @@ export const AuthenticationStoreModel = types
     setUser(value:any){
       store.user=value
     },
+    setRefreshToken(value:string){
+      store.refreshToken=value
+    },
     setTenantId(value: string) {
       store.tenantId = value.replace(/ /g, "")
     },
     logout() {
-      store.authToken = undefined
+      store.authToken = ""
       store.authEmail = ""
       store.authTeamName = ""
       store.authUsername = ""
       store.authInviteCode = ""
-      store.authConfirmCode = ""
+      store.authConfirmCode = 
       store.tenantId=""
       store.organizationId=""
-      store.user={}
+      store.user=null
       store.employeeId=""
+      store.refreshToken=""
     },
   }))
 

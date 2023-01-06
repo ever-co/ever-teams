@@ -65,3 +65,19 @@ export const refreshTokenRequest = (refresh_token: string) => {
     },
   });
 };
+
+export function sendAuthCodeRequest(email: string) {
+	return serverFetch<{ status: number; message: string | 'ok' }>({
+		path: '/auth/send-code',
+		method: 'POST',
+		body: { email },
+	});
+}
+
+export function verifyAuthCodeRequest(email: string, code: number) {
+	return serverFetch<ILoginReponse>({
+		path: '/auth/verify-code',
+		method: 'POST',
+		body: { email, code },
+	});
+}

@@ -17,7 +17,7 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours }: progressProps) =
   const maxMillis = estimatedHours * 1000
   const estimated = estimatedHours > 0;
 
-  const radius = 27
+  const radius = 23
   const strokeWidth = 5
   const color = "#27AE60"
   const maxPerc = (100 * percentage) / maxMillis
