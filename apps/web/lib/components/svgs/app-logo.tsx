@@ -14,7 +14,7 @@ export function AppLogo({ className }: { className?: string }) {
 				height="39.54px"
 				viewBox="0 0 150 19.54"
 				className={clsxm(
-					'fill-primary-light dark:fill-white cursor-pointer',
+					'fill-primary dark:fill-white cursor-pointer',
 					className
 				)}
 			>

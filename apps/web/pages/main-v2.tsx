@@ -1,3 +1,5 @@
+import { MainLayout } from 'lib/layout';
+
 export default function MainPage() {
-	return <div className=""></div>;
+	return <MainLayout>dd</MainLayout>;
 }

@@ -1,4 +1,4 @@
-import { withAuthentication } from '@components/app/authenticator';
+import { withAuthentication } from 'lib/app/authenticator';
 import TeamMemberSection from '@components/pages/main/team-member';
 import { TimerTasksSection } from '@components/pages/main/timer-tasks';
 import { AppLayout } from '@components/layout';

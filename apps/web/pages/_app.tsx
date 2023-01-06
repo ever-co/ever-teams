@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import { RecoilRoot } from 'recoil';
-import { AppState } from '@components/app/InitState';
+import { AppState } from 'lib/app/init-state';
 import Head from 'next/head';
 
 export default function MyApp({ Component, pageProps }: AppProps) {

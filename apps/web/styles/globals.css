@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	--tw-color-dark--theme: #1e2025;
+}
+
 @layer base {
 	html {
 		font-family: 'Poppins', sans-serif;
