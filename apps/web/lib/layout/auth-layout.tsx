@@ -47,7 +47,7 @@ export function AuthLayout({ children, title, description }: Props) {
 									theme === 'dark'
 										? {
 												boxShadow: '-76px -13px 244px -42px rgba(0,0,0,0.75',
-										  }
+											}
 										: {}
 								}
 							>
