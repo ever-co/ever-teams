@@ -21,7 +21,9 @@ export default function AuthPasscode() {
 								length={6}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"
-								onChange={(code) => {}}
+								onChange={(code) => {
+									console.log(code);
+								}}
 							/>
 						</div>
 

@@ -17,7 +17,7 @@ export function Modal({
 	description,
 	className,
 }: Props) {
-	let refDiv = useRef(null);
+	const refDiv = useRef(null);
 
 	return (
 		<Transition

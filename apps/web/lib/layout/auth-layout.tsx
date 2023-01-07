@@ -61,6 +61,7 @@ export function AuthLayout({ children, title, description }: Props) {
 											objectFit="fill"
 											width={2880}
 											height={2840}
+											alt="Guaze Teams"
 											className={
 												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
 											}

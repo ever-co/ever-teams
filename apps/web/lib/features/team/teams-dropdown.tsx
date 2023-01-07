@@ -30,7 +30,7 @@ export const TeamsDropDown = () => {
 		if (teamItem?.data) {
 			setActiveTeam(teamItem?.data);
 		}
-	}, [teamItem]);
+	}, [teamItem, setActiveTeam]);
 
 	return (
 		<>
