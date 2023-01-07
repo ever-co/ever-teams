@@ -22,6 +22,7 @@ import EstimateTime from "../../TimerScreen/components/EstimateTime";
 import { ITeamTask } from "../../../../services/interfaces/ITask";
 import { useStores } from "../../../../models";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
+import { translate } from "../../../../i18n";
 
 export interface Props {
     visible: boolean
@@ -105,7 +106,7 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
             {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
             <View style={styles.mainContainer}>
                 <View style={{ width: "100%", marginBottom: 20 }}>
-                    <Text style={styles.mainTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
+                    <Text style={styles.mainTitle}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
                 </View>
                 <View style={{ width: "100%" }}>
                     <View style={{}}>
@@ -124,7 +125,7 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
                                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
                                 style={styles.textInput}
                                 defaultValue={""}
-                                placeholder="What you working on"
+                                placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                                 value={taskInputText}
                                 onChangeText={(newText) => handleChangeText(newText)}
                             />
@@ -142,15 +143,15 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
                                 }}
                             >
                                 <View style={{ flexDirection: 'row', alignItems: "center" }}>
-                                    <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>Estimate: </Text>
-                                    <EstimateTime />
+                                    <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>{translate("myWorkScreen.estimateLabel")}: </Text>
+                                    <EstimateTime currentTask={undefined} />
                                 </View>
                                 <TaskSize />
                             </View>
                             <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", zIndex: 1000 }}>
 
                                 <View style={{ width: 136, height: 32 }}>
-                                    <TaskStatusDropdown task={{}} />
+                                    <TaskStatusDropdown task={undefined} />
                                 </View>
                                 <TaskPriorities />
                             </View>
@@ -161,10 +162,10 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
                     </View>
                     <View style={styles.wrapButtons}>
                         <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
-                            <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>Cancel</Text>
+                            <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6", opacity: isLoading ? 0.6 : 1 }]} onPress={() => onCreateNewTask()}>
-                            <Text style={styles.buttonText}>{isAuthUser ? "Create" : "Assign"}</Text>
+                            <Text style={styles.buttonText}>{isAuthUser ? translate("tasksScreen.createButton") : translate("tasksScreen.assignButton")}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

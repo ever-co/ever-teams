@@ -1,5 +1,6 @@
 import React from "react"
 import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native"
+import { translate } from "../../../../i18n";
 import { colors, typography } from "../../../../theme";
 
 const SettingHeader = (props) => {
@@ -9,7 +10,7 @@ const SettingHeader = (props) => {
             <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Image source={require("../../../../../assets/icons/new/arrow-left.png")} />
             </TouchableOpacity>
-            <Text style={styles.title}>Settings</Text>
+            <Text style={styles.title}>{translate("settingScreen.name")}</Text>
             <Image source={require("../../../../../assets/icons/new/info-circle.png")} />
         </View>
     )

@@ -11,6 +11,7 @@ import DropDownSection from "./TeamDropdown/DropDownSection"
 import DropDown from "./TeamDropdown/DropDown"
 import CreateTeamModal from "../screens/Authenticated/TeamScreen/components/CreateTeamModal"
 import ProfileImage from "./ProfileImage"
+import { translate } from "../i18n"
 
 
 
@@ -67,25 +68,25 @@ const HamburgerMenu = (props) => {
         <View style={styles.navigationSection}>
           <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Timer")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/user.png")} />
-            <Text style={styles.screenLabel}>My work</Text>
+            <Text style={styles.screenLabel}>{translate("myWorkScreen.name")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Team")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/people.png")} />
-            <Text style={styles.screenLabel}>Teams</Text>
+            <Text style={styles.screenLabel}>{translate("teamScreen.name")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ flexDirection: "row", marginBottom: 30 }} onPress={() => navigation.navigate("Profile",{ userId:user?.id, tabIndex:0 })}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/briefcase.png")} />
-            <Text style={styles.screenLabel}>Tasks</Text>
+            <Text style={styles.screenLabel}>{translate("tasksScreen.name")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ flexDirection: "row", marginBottom: 17 }} onPress={() => navigation.navigate("Setting")}>
             <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/setting-2.png")} />
-            <Text style={styles.screenLabel}>Settings</Text>
+            <Text style={styles.screenLabel}>{translate("settingScreen.name")}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.screenItem} onPress={() => navigation.navigate("")}>
             <View style={{ flexDirection: "row" }}>
               <Image style={{ marginRight: 15 }} source={require("../../assets/icons/new/moon.png")} />
-              <Text style={styles.screenLabel}>Dark Mode</Text>
+              <Text style={styles.screenLabel}>{translate("hamburgerMenu.darkMode")}</Text>
             </View>
             <Image style={{ top: 8, height: 50 }} source={require("../../assets/icons/new/toogle-light.png")} />
           </TouchableOpacity>
@@ -96,7 +97,7 @@ const HamburgerMenu = (props) => {
         <TouchableOpacity style={{ flexDirection: "row", justifyContent: "space-between", }} onPress={() => onLogout()}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Image source={require("../../assets/icons/new/logout.png")} />
-            <Text style={{ marginLeft: 10, color: "#DE437B", fontFamily: typography.primary.semiBold, fontSize: 16 }}>Log Out</Text>
+            <Text style={{ marginLeft: 10, color: "#DE437B", fontFamily: typography.primary.semiBold, fontSize: 16 }}>{translate("common.logOut")}</Text>
           </View>
         </TouchableOpacity>
       </View>

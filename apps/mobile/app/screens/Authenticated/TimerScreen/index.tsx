@@ -9,11 +9,8 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 import { colors, spacing } from "../../../theme"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 // HELPERS
-import { api } from "../../../services/api"
-import LocalStorage from "../../../services/api/tokenHandler"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
-import NewTimerCard from "../../../components/TimerCard"
 import { useStores } from "../../../models"
 import { IOTeams } from "../../../services/teams/organization-team"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"

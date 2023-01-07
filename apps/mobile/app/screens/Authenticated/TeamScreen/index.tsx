@@ -35,6 +35,8 @@ import InviteCardItem from "./components/InviteCardItem"
 import FlashMessage from "react-native-flash-message"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { translate } from "../../../i18n"
+
 
 const { width, height } = Dimensions.get("window");
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -97,7 +99,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                 onPress={() => setShowInviteModal(true)}
               >
                 <Text style={$inviteButtonText}>
-                  Invite
+                  {translate("teamScreen.inviteButton")}
                 </Text>
               </TouchableOpacity>
             ) : null}
