@@ -9,11 +9,12 @@ on:
       - 'apps/web/**'
       - 'package.json'
       - 'yarn.lock'
+      - 'README.md'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
 
@@ -30,7 +31,7 @@ jobs:
       - name: Build Web
         run: |
           yarn build:web
-      
+
       - name: Deploy to Vercel
         uses: BetaHuhn/deploy-to-vercel-action@v1
         with:
@@ -41,4 +42,3 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID}}  #Required
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID}} #Required
           WORKING_DIRECTORY: ./
-          
