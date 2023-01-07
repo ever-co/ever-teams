@@ -46,8 +46,10 @@ const SingleInfo: FC<Props> = ({ title, value, onPress }) => {
                             </TouchableOpacity>
                         )
                         : (
-                            <TouchableOpacity style={styles.toggle}>
-                                <Image source={require("../../../../../assets/icons/new/toogle-light.png")} />
+                            <TouchableOpacity style={styles.toggle} onPress={() => onPress()}>
+                                {dark ?
+                                    <Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} /> :
+                                    <Image source={require("../../../../../assets/icons/new/toogle-light.png")} />}
                             </TouchableOpacity>
                         )
                     }
