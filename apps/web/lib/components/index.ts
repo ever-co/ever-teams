@@ -8,6 +8,7 @@ export * from './button';
 export * from './loader';
 export * from './meta';
 export * from './dropdown';
+export * from './modal';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';

@@ -25,6 +25,11 @@ export function Button({
 						'disabled:bg-primary-light disabled:opacity-40',
 						// 'disabled:bg-primary-light dark:disabled:bg-[#33353E] disabled:opacity-40 dark:disabled:opacity-50',
 					],
+					variant === 'outline' && [
+						'text-primary border border-primary font-medium',
+						'dark:text-primary-light border dark:border-primary-light',
+						'disabled:opacity-40',
+					],
 				],
 				className
 			)}

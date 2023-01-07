@@ -3,6 +3,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import clsxm from '@app/utils/clsxm';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card } from './card';
+import { SpinnerLoader } from './loader';
 
 export type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
@@ -16,9 +17,10 @@ export type DropdownItem<D = { [x: string]: any }> = {
 type Props<T extends DropdownItem> = {
 	className?: string;
 	value?: T;
-	onChange?: Dispatch<SetStateAction<T>>;
+	onChange?: Dispatch<SetStateAction<T | undefined>>;
 	buttonClassName?: string;
 	items: T[];
+	loading?: boolean;
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({
@@ -28,6 +30,7 @@ export function Dropdown<T extends DropdownItem>({
 	value: Value,
 	onChange,
 	items,
+	loading,
 }: Props<T>) {
 	return (
 		<div className={clsxm('relative', className)}>
@@ -46,12 +49,17 @@ export function Dropdown<T extends DropdownItem>({
 					>
 						{Value?.selectedLabel || (Value?.Label && <Value.Label />)}
 					</div>
-					<ChevronDownIcon
-						className={clsxm(
-							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
-						)}
-						aria-hidden="true"
-					/>
+
+					{loading ? (
+						<SpinnerLoader size={20} variant="primary" />
+					) : (
+						<ChevronDownIcon
+							className={clsxm(
+								'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+							)}
+							aria-hidden="true"
+						/>
+					)}
 				</Listbox.Button>
 
 				<Transition
@@ -62,7 +70,7 @@ export function Dropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Listbox.Options className="absolute mt-3">
+					<Listbox.Options className="absolute mt-3 min-w-full">
 						<Card
 							shadow="custom"
 							className="md:px-4 py-4 rounded-[12px]"
@@ -85,7 +93,7 @@ export function Dropdown<T extends DropdownItem>({
 							))}
 
 							{/* Additional content */}
-							{children}
+							<Listbox.Button as="div">{children}</Listbox.Button>
 						</Card>
 					</Listbox.Options>
 				</Transition>
