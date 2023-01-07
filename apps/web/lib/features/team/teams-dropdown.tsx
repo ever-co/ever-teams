@@ -59,6 +59,9 @@ export const TeamsDropDown = () => {
 	);
 };
 
+/**
+ * Create team modal
+ */
 function CreateTeamModal({
 	open,
 	closeModal,
