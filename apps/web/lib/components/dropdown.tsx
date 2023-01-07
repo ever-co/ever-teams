@@ -6,7 +6,7 @@ import { Card } from './card';
 
 export type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
-	label: React.ReactNode;
+	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
 	selectedLabel?: React.ReactNode;
 	itemTitle?: string;
 	disabled?: boolean;
@@ -25,13 +25,13 @@ export function Dropdown<T extends DropdownItem>({
 	className,
 	buttonClassName,
 	children,
-	value,
+	value: Value,
 	onChange,
 	items,
 }: Props<T>) {
 	return (
 		<div className={clsxm('relative', className)}>
-			<Listbox value={value} onChange={onChange}>
+			<Listbox value={Value} onChange={onChange}>
 				<Listbox.Button
 					className={clsxm(
 						'input-border',
@@ -41,10 +41,10 @@ export function Dropdown<T extends DropdownItem>({
 					)}
 				>
 					<div
-						title={value?.itemTitle}
+						title={Value?.itemTitle}
 						className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
 					>
-						{value?.selectedLabel || value?.label}
+						{Value?.selectedLabel || (Value?.Label && <Value.Label />)}
 					</div>
 					<ChevronDownIcon
 						className={clsxm(
@@ -68,13 +68,19 @@ export function Dropdown<T extends DropdownItem>({
 							className="md:px-4 py-4 rounded-[12px]"
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
-							{items.map((item) => (
+							{items.map((Item) => (
 								<Listbox.Option
-									key={item.key}
-									value={item}
-									disabled={item.disabled}
+									key={Item.key}
+									value={Item}
+									disabled={Item.disabled}
 								>
-									{item.label}
+									{({ active, selected }) => {
+										return Item.Label ? (
+											<Item.Label active={active} selected={selected} />
+										) : (
+											<></>
+										);
+									}}
 								</Listbox.Option>
 							))}
 

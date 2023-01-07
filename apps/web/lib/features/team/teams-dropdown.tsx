@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { imgTitle } from '@app/helpers';
 import { Dropdown, DropdownItem } from 'lib/components';
 import { IOrganizationTeamList } from '@app/interfaces';
@@ -6,11 +6,11 @@ import clsxm from '@app/utils/clsxm';
 
 type TeamItem = DropdownItem<IOrganizationTeamList>;
 
-export const TeamsDropDown = () => {
+function mapTeamItems(teams: IOrganizationTeamList[]) {
 	const items = teams.map<TeamItem>((team) => {
 		return {
 			key: team.id,
-			label: (
+			Label: () => (
 				<div className="">
 					<TeamItem team={team} />
 				</div>
@@ -20,7 +20,21 @@ export const TeamsDropDown = () => {
 		};
 	});
 
-	const [item, setItem] = useState(items[0] || undefined);
+	if (items.length > 0) {
+		items.unshift({
+			key: 0,
+			Label: () => <div className="">All</div>,
+			disabled: true,
+			selectedLabel: <span>All</span>,
+		});
+	}
+
+	return items;
+}
+
+export const TeamsDropDown = () => {
+	const items = useMemo(() => mapTeamItems(teams), [teams]);
+	const [item, setItem] = useState(items[1] || undefined);
 
 	return (
 		<Dropdown
