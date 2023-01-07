@@ -1,19 +1,15 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
-import { Entypo } from '@expo/vector-icons';
-
+import { Text } from "react-native-paper"
 // COMPONENTS
-import { Button, Screen, Text, TextField } from "../../../../components"
 // STYLES
 import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing, typography } from "../../../../theme"
-import { IInviteRequest } from "../../../../services/interfaces/IInvite";
-import { on } from "process";
 import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation";
-import { ActivityIndicator } from "react-native-paper";
 import { showMessage } from "react-native-flash-message";
 import { EMAIL_REGEX } from "../../../../helpers/regex";
 import { translate } from "../../../../i18n";
+import { useAppTheme } from "../../../../app";
 
 export interface Props {
   visible: boolean
@@ -57,6 +53,7 @@ const ModalPopUp = ({ visible, children }) => {
 
 const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
   const { inviterMember, loading } = useTeamInvitations();
+  const { colors } = useAppTheme();
   const [memberName, setMemberName] = useState("")
   const [memberEmail, setMemberEmail] = useState("");
   const [errors, setErrors] = useState({
@@ -107,27 +104,43 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
     onDismiss()
   }
 
+  useEffect(() => {
+    setErrors({
+      emailError: null,
+      nameError: null
+    })
+    setMemberName("")
+    setMemberEmail("")
+  }, [onDismiss])
 
   return (
     <ModalPopUp visible={visible}>
-      {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
-      <View style={styles.mainContainer}>
+      <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
         <View style={{ width: "100%", marginBottom: 20 }}>
-          <Text style={styles.mainTitle}>{translate("teamScreen.inviteModalTitle")}</Text>
+          <Text style={[styles.mainTitle, { color: colors.primary }]}>{translate("teamScreen.inviteModalTitle")}</Text>
           <Text style={styles.hint}>{translate("teamScreen.inviteModalHint")}</Text>
         </View>
         <View style={{ width: "100%" }}>
           <View>
-            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={styles.textInput} placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")} onChangeText={(text) => handleEmailInput(text)} />
+            <TextInput
+              placeholderTextColor={colors.tertiary} style={[styles.textInput,
+              { borderColor: colors.border, color: colors.primary }]}
+              placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")}
+              onChangeText={(text) => handleEmailInput(text)}
+            />
             <Text style={[styles.hint, { color: "red" }]}>{errors.emailError}</Text>
           </View>
           <View>
-            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={[styles.textInput, { marginTop: 16 }]} placeholder={translate("teamScreen.inviteNameFieldPlaceholder")} onChangeText={(text) => handleNameInput(text)} />
+            <TextInput placeholderTextColor={colors.tertiary}
+              style={[styles.textInput, { marginTop: 16, borderColor: colors.border, color: colors.primary }]}
+              placeholder={translate("teamScreen.inviteNameFieldPlaceholder")}
+              onChangeText={(text) => handleNameInput(text)}
+            />
             <Text style={[styles.hint, { color: "red" }]}>{errors.nameError}</Text>
           </View>
           <View style={styles.wrapButtons}>
             <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
-              <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>{translate("common.cancel")}</Text>
+              <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
               <Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
@@ -172,7 +185,6 @@ const styles = StyleSheet.create({
     shadowColor: "#1B005D0D",
     shadowOffset: { width: 10, height: 10 },
     shadowRadius: 10,
-    backgroundColor: "#fff",
     borderTopRightRadius: 24,
     borderTopLeftRadius: 24,
     paddingHorizontal: 20,
@@ -224,7 +236,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     color: colors.primary,
     height: 45,
-    paddingVertical: 16,
     paddingHorizontal: 13,
     borderColor: "rgba(0, 0, 0, 0.1)"
   },

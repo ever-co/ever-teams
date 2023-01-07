@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useState } from "react"
+import { AntDesign } from "@expo/vector-icons"
 import { Modal, View, ViewStyle, StyleSheet, Dimensions, Animated, TouchableOpacity, Image, ScrollView } from "react-native"
 import { spacing } from "../../../../theme/spacing"
 import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { typography } from "../../../../theme/typography"
-import { colors } from "../../../../theme/colors"
 import i18n from "i18n-js"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import * as Updates from 'expo-updates';
@@ -14,6 +14,7 @@ import { Text } from "../../../../components"
 import { observer } from "mobx-react-lite"
 import { translate } from "../../../../i18n"
 import { useStores } from "../../../../models"
+import { useAppTheme } from "../../../../app"
 
 
 export interface Props {
@@ -102,6 +103,9 @@ const ModalPopUp = ({ visible, children }) => {
 }
 
 const LanguageModal: FC<Props> = observer(function Language({ visible, onDismiss, currentLanguage }) {
+
+    const { colors, dark } = useAppTheme();
+
     const { authenticationStore: { setPreferredLanguage } } = useStores();
     const [lang, setLang] = useState<ISupportedLanguage>(supportedLanguages[2]);
     const [isOpened, setIsOpened] = useState(false)
@@ -130,12 +134,12 @@ const LanguageModal: FC<Props> = observer(function Language({ visible, onDismiss
     }, [])
     return (
         <ModalPopUp visible={visible}>
-            <View style={styles.mainContainer}>
-                <Text style={styles.mainTitle}>{translate("settingScreen.modalChangeLanguageTitle")}</Text>
+            <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+                <Text style={[styles.mainTitle, { color: colors.primary }]}>{translate("settingScreen.modalChangeLanguageTitle")}</Text>
 
-                <TouchableOpacity style={styles.field} onPress={() => setIsOpened(!isOpened)}>
-                    <Text style={styles.text}>{lang.locale}</Text>
-                    <Image source={require("../../../../../assets/icons/caretDown.png")} />
+                <TouchableOpacity style={[styles.field, { borderColor: colors.border }]} onPress={() => setIsOpened(!isOpened)}>
+                    <Text style={[styles.text, { color: colors.primary }]}>{lang.locale}</Text>
+                    <AntDesign name="down" size={20} color={colors.primary} />
                 </TouchableOpacity>
                 {isOpened &&
                     <View style={styles.dropdown}>
@@ -153,13 +157,13 @@ const LanguageModal: FC<Props> = observer(function Language({ visible, onDismiss
                         </ScrollView>
                     </View>
                 }
- 
+
                 <View style={styles.wrapButtons}>
-                    <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
-                        <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
+                    <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}>
+                        <Text style={[styles.buttonText, { color: dark ? colors.primary : "#1A1C1E" }]}>{translate("common.cancel")}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6", opacity: 1 }]} onPress={() => changeLanguage(lang)}>
-                        <Text style={styles.buttonText}>{translate("common.save")}</Text>
+                    <TouchableOpacity style={[styles.button, { backgroundColor: !dark ? "#3826A6" : "#6755C9", opacity: 1 }]} onPress={() => changeLanguage(lang)}>
+                        <Text style={[styles.buttonText,{color:colors.primary}]}>{translate("common.save")}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -220,7 +224,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         marginVertical: 10,
         width: "100%",
-        zIndex:10
+        zIndex: 10
     },
     button: {
         width: width / 2.5,
@@ -233,7 +237,6 @@ const styles = StyleSheet.create({
     mainTitle: {
         fontFamily: typography.primary.semiBold,
         fontSize: 24,
-        color: colors.primary,
         textAlign: "left",
         width: "100%"
     },
@@ -251,7 +254,6 @@ const styles = StyleSheet.create({
         position: "absolute",
         width: "100%",
         zIndex: 1000,
-        backgroundColor: colors.background,
         padding: 10,
         borderRadius: 18,
         top: 135,
@@ -279,6 +281,5 @@ const styles = StyleSheet.create({
     text: {
         fontFamily: typography.primary.medium,
         fontSize: 16,
-        color: colors.primary
     }
 })

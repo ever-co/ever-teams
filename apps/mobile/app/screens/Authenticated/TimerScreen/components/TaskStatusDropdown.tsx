@@ -13,15 +13,20 @@ import { observer } from "mobx-react-lite"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { typography } from "../../../../theme"
 import { BadgedTaskStatus } from "../../../../components/StatusIcon"
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import { useAppTheme } from "../../../../app"
+import { useTheme } from "react-native-paper"
 
 export interface Props {
   task: ITeamTask
 }
 
 const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
+  const { updateTask } = useTeamTasks();
+  const { colors } = useAppTheme()
   const {
     authenticationStore: { authToken, organizationId, tenantId },
-    TaskStore: { activeTask, updateTask, setActiveTask },
+    TaskStore: { activeTask, setActiveTask },
     teamStore: { activeTeamId }
   } = useStores();
   const [isOpened, setIsOpened] = React.useState(false)
@@ -32,9 +37,9 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
     setIsOpened(false)
     onChangeStatus(text);
   }
-  const onChangeStatus =async (text) => {
+  const onChangeStatus = async (text) => {
     const value: ITaskStatus = text;
-    const task = {
+    const task: ITeamTask = {
       ...activeTask,
       status: value
     };
@@ -43,7 +48,7 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
       tenantId,
       organizationId
     }
-    const taskEdited=await updateTask({ taskData: task, taskId: task.id, authToken, refreshData });
+    const taskEdited = await updateTask(task, task.id);
     setActiveTask(taskEdited);
   }
 
@@ -51,6 +56,7 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
     <View
       style={[
         styles.container,
+        { backgroundColor: colors.background }
       ]}
     >
       <TouchableOpacity
@@ -63,7 +69,7 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
               styles.dropdownItemTxt,
               {
                 fontSize: 10,
-                color: "#1B005D",
+                color: colors.primary,
               },
             ]}
           >
@@ -72,14 +78,14 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
         </View>
 
         {isOpened ? (
-          <AntDesign name="up" size={18} color="#1B005D" />
+          <AntDesign name="up" size={18} color={colors.primary} />
         ) : (
-          <AntDesign name="down" size={18} color="#1B005D" />
+          <AntDesign name="down" size={18} color={colors.primary} />
         )}
       </TouchableOpacity>
 
       {isOpened ? (
-        <View style={styles.dropdownContainer}>
+        <View style={[styles.dropdownContainer, { backgroundColor: colors.background }]}>
           {statusList.map((item, idx) => (
             <TouchableOpacity key={idx} style={styles.dropdownItem} onPress={() => OnItemPressed(item)}>
               <BadgedTaskStatus status={item} showColor={false} />
@@ -97,7 +103,6 @@ export default TaskStatusDropdown
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F2F2F2",
     paddingHorizontal: 12,
     justifyContent: "center",
     borderRadius: 10,
@@ -106,7 +111,6 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   dropdownContainer: {
-    backgroundColor: "#FFF",
     position: "absolute",
     paddingHorizontal: 5,
     top: 37,
@@ -128,7 +132,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dropdownItemTxt: {
-    color: "#282048",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold,
     fontSize: 10
 

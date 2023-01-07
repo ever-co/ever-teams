@@ -3,8 +3,9 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native"
 import Svg, { G, Circle } from "react-native-svg"
 
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { useAppTheme } from "../../../../app"
 import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
-import { colors, typography } from "../../../../theme"
+import { typography } from "../../../../theme"
 
 type progressProps = {
   estimatedHours: number
@@ -12,13 +13,14 @@ type progressProps = {
 }
 
 const ProgressTimeIndicator = ({ estimatedHours, workedHours }: progressProps) => {
+ const {colors, dark}=useAppTheme();
   const percentage = workedHours
   // Convert seconds to milliseconds
   const maxMillis = estimatedHours * 1000
   const estimated = estimatedHours > 0;
 
   const radius = 23
-  const strokeWidth = 5
+  const strokeWidth = 8
   const color = "#27AE60"
   const maxPerc = (100 * percentage) / maxMillis
   const circleCircumference = 2 * Math.PI * radius
@@ -34,17 +36,17 @@ const ProgressTimeIndicator = ({ estimatedHours, workedHours }: progressProps) =
             cx="50%"
             cy="50%"
             r={radius}
-            stroke={"gray"}
+            stroke={"#484A4E"}
             strokeWidth={strokeWidth}
-            fill="transparent"
-            strokeOpacity={0.2}
+            fill={dark ? colors.background2 : colors.background}
+            strokeOpacity={dark ? 1 : 0.2}
           />
           <Circle
             cx="50%"
             cy="50%"
             r={radius}
             stroke={color}
-            fill="transparent"
+            fill={dark ? colors.background2 : colors.background}
             strokeWidth={strokeWidth}
             strokeDasharray={circleCircumference}
             strokeDashoffset={estimated ? strokeDashoffset : circleCircumference}

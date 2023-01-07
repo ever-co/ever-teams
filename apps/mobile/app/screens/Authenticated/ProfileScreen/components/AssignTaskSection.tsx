@@ -1,28 +1,23 @@
 import React, { FC, useState } from "react"
-import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
-import { Entypo } from '@expo/vector-icons';
-import { BlurView } from "expo-blur"
+import { View, Text, ViewStyle, Modal, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
+
 
 // COMPONENTS
-import { Button, Screen, Text, TextField } from "../../../../components"
+
 // STYLES
 import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography } from "../../../../theme"
-import { IInviteRequest } from "../../../../services/interfaces/IInvite";
-import { on } from "process";
-import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation";
+import { spacing, typography } from "../../../../theme"
+
 import { ActivityIndicator } from "react-native-paper";
-import { showMessage } from "react-native-flash-message";
-import ManageTaskCard from "../../../../components/ManageTaskCard";
 import TaskLabel from "../../../../components/TaskLabel";
 import TaskPriorities from "../../../../components/TaskPriorities";
 import TaskStatusDropdown from "../../TimerScreen/components/TaskStatusDropdown";
 import TaskSize from "../../../../components/TaskSize";
 import EstimateTime from "../../TimerScreen/components/EstimateTime";
-import { ITeamTask } from "../../../../services/interfaces/ITask";
 import { useStores } from "../../../../models";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { translate } from "../../../../i18n";
+import { useAppTheme } from "../../../../app";
 
 export interface Props {
     visible: boolean
@@ -78,7 +73,7 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
 
-
+const {colors}=useAppTheme();
 
     const onCreateNewTask = async () => {
         setShowCheckIcon(false)
@@ -103,10 +98,9 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 
     return (
         <ModalPopUp visible={visible}>
-            {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
-            <View style={styles.mainContainer}>
+            <View style={[styles.mainContainer,{backgroundColor:colors.background}]}>
                 <View style={{ width: "100%", marginBottom: 20 }}>
-                    <Text style={styles.mainTitle}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
+                    <Text style={[styles.mainTitle,{color:colors.primary}]}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
                 </View>
                 <View style={{ width: "100%" }}>
                     <View style={{}}>
@@ -117,13 +111,15 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
                                     flexDirection: "row",
                                     justifyContent: "space-between",
                                     alignItems: "center",
+                                    backgroundColor:colors.background,
+                                    borderColor:colors.border
                                 },
                             ]}
                         >
                             <TextInput
                                 selectionColor={colors.primary}
-                                placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-                                style={styles.textInput}
+                                placeholderTextColor={colors.tertiary}
+                                style={[styles.textInput,{color:colors.primary, backgroundColor:colors.background}]}
                                 defaultValue={""}
                                 placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                                 value={taskInputText}
@@ -242,7 +238,6 @@ const styles = StyleSheet.create({
     mainTitle: {
         fontFamily: typography.primary.semiBold,
         fontSize: 24,
-        color: colors.primary
     },
     buttonText: {
         fontFamily: typography.primary.semiBold,
