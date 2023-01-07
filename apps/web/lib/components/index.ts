@@ -6,6 +6,7 @@ export * from './typography';
 export * from './theme-toggler';
 export * from './button';
 export * from './loader';
+export * from './meta';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';
