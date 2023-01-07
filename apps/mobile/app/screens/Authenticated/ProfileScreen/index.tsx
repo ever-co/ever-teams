@@ -24,6 +24,7 @@ import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTa
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
+import { translate } from "../../../i18n"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -41,8 +42,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const [selectedTabIndex, setSelectedTabIndex] = useState(tabIndex);
     const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
     const [showModal, setShowModal] = useState(false)
-    const tabs = ["Worked", "Assigned", "Unassigned"];
-
+    const tabs = [translate("tasksScreen.workedTab"), translate("tasksScreen.assignedTab"), translate("tasksScreen.unassignedTab")];
 
     const member = userId ? members.find((m) => {
       return m.employee.userId === userId;
@@ -97,7 +97,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           </View>
           <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: "#fff", opacity: 0.7 }}>
             <TouchableOpacity onPress={() => setShowModal(true)} style={$assignStyle}>
-              <Text style={$createTaskTitle}>{isAuthUser ? "Create Task" : "Assign Task"}</Text>
+              <Text style={$createTaskTitle}>{isAuthUser ? translate("tasksScreen.createTaskButton"): translate("tasksScreen.assignTaskButton")}</Text>
             </TouchableOpacity>
             <FilterSection selectStatus={setFilterStatus} />
           </View>
@@ -132,10 +132,10 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                   <View
                     style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
                   >
-                    <Text style={$textLabel}>Now</Text>
+                    <Text style={$textLabel}>{translate("tasksScreen.now")}</Text>
                     <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
                     <View style={{ flexDirection: "row" }}>
-                      <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>Total Time:</Text>
+                      <Text style={{ color: "#B1AEBC", fontSize: 12, fontFamily: typography.secondary.medium }}>{translate("tasksScreen.totalTimeLabel")}:</Text>
                       <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
                     </View>
                   </View>
@@ -154,7 +154,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                   <View
                     style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
                   >
-                    <Text style={$textLabel}>Last 24 hours ({otherTasks.length})</Text>
+                    <Text style={$textLabel}>{translate("tasksScreen.last24hours")} ({otherTasks.length})</Text>
                     <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: "rgba(0, 0, 0, 0.16)" }} />
                   </View>
                   {otherTasks.map((item, index) => (

@@ -13,6 +13,7 @@ import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation
 import { ActivityIndicator } from "react-native-paper";
 import { showMessage } from "react-native-flash-message";
 import { EMAIL_REGEX } from "../../../../helpers/regex";
+import { translate } from "../../../../i18n";
 
 export interface Props {
   visible: boolean
@@ -112,24 +113,24 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
       {/* <Screen contentContainerStyle={$container} safeAreaEdges={["top"]}> */}
       <View style={styles.mainContainer}>
         <View style={{ width: "100%", marginBottom: 20 }}>
-          <Text style={styles.mainTitle}>{"Invite member to your team"}</Text>
-          <Text style={styles.hint}>Send a invitation to a team member by email</Text>
+          <Text style={styles.mainTitle}>{translate("teamScreen.inviteModalTitle")}</Text>
+          <Text style={styles.hint}>{translate("teamScreen.inviteModalHint")}</Text>
         </View>
         <View style={{ width: "100%" }}>
           <View>
-            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={styles.textInput} placeholder="Input email address" onChangeText={(text) => handleEmailInput(text)} />
+            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={styles.textInput} placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")} onChangeText={(text) => handleEmailInput(text)} />
             <Text style={[styles.hint, { color: "red" }]}>{errors.emailError}</Text>
           </View>
           <View>
-            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={[styles.textInput, { marginTop: 16 }]} placeholder="Input team member name" onChangeText={(text) => handleNameInput(text)} />
+            <TextInput placeholderTextColor={"rgba(40, 32, 72, 0.4)"} style={[styles.textInput, { marginTop: 16 }]} placeholder={translate("teamScreen.inviteNameFieldPlaceholder")} onChangeText={(text) => handleNameInput(text)} />
             <Text style={[styles.hint, { color: "red" }]}>{errors.nameError}</Text>
           </View>
           <View style={styles.wrapButtons}>
             <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
-              <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>Cancel</Text>
+              <Text style={[styles.buttonText,{color:"#1A1C1E"}]}>{translate("common.cancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
-              <Text style={styles.buttonText}>{"Send"}</Text>
+              <Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
             </TouchableOpacity>
           </View>
         </View>

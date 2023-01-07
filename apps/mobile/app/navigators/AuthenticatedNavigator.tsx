@@ -16,7 +16,7 @@ import {
 } from "../screens"
 
 // HELPERS
-// import { translate } from "../i18n"
+import { translate } from "../i18n"
 import { colors, spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
 import { AuthenticatedSettingScreen } from "../screens/Authenticated/SettingScreen";
@@ -70,7 +70,7 @@ function TabNavigator() {
         name="Profile"
         component={AuthenticatedProfileScreen}
         options={{
-          tabBarLabel: "Tasks",
+          tabBarLabel: translate("tasksScreen.name"),
           tabBarIcon: ({ focused }) => focused ? <Image source={require("../../assets/icons/new/briefcase-active.png")} /> : <Image source={require("../../assets/icons/new/briefcase.png")} />,
           tabBarActiveTintColor: "#3826A6"
         }}
@@ -80,7 +80,7 @@ function TabNavigator() {
         name="Team"
         component={AuthenticatedTeamScreen}
         options={{
-          tabBarLabel: "Teams",
+          tabBarLabel: translate("teamScreen.name"),
           tabBarIcon: ({ focused }) => focused ? <Image source={require("../../assets/icons/new/people-active.png")} /> : <Image source={require("../../assets/icons/new/people.png")} />,
           tabBarActiveTintColor: "#3826A6"
         }}
@@ -90,7 +90,7 @@ function TabNavigator() {
         name="Timer"
         component={AuthenticatedTimerScreen}
         options={{
-          tabBarLabel: "My Work",
+          tabBarLabel: translate("myWorkScreen.name"),
           tabBarIcon: ({ focused }) => <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} />,
           tabBarActiveTintColor: "#3826A6"
         }}
