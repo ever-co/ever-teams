@@ -25,7 +25,7 @@ export function SpinnerLoader({
 						'border-t-white border-r-white border-b-transparent border-l-white',
 					],
 					variant === 'dark' && [
-						'border-t-dark border-r-dark border-b-transparent border-l-dark',
+						'border-t-default border-r-default border-b-transparent border-l-default',
 					],
 				],
 				className

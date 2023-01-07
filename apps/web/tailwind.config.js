@@ -25,6 +25,9 @@ module.exports = {
 				transparent: 'transparent',
 				current: 'currentColor',
 				neutral: '#7E7991',
+				default: {
+					DEFAULT: '#282048',
+				},
 				'light--theme': {
 					light: '#fff',
 					DEFAULT: '#f7f7f8',

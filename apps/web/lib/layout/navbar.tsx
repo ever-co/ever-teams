@@ -1,6 +1,7 @@
 import clsxm from '@app/utils/clsxm';
 import { Container } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
+import { TeamsDropDown } from 'lib/features';
 
 export function Navbar({ className }: { className?: string }) {
 	return (
@@ -14,6 +15,7 @@ export function Navbar({ className }: { className?: string }) {
 			<Container>
 				<div className="w-full flex justify-between items-center min-h-[70px]">
 					<AppLogo className="scale-[0.7] origin-[0]" />
+					<TeamsDropDown />
 				</div>
 			</Container>
 		</nav>
