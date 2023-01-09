@@ -15,6 +15,7 @@
     "lint": "yarn next lint"
   },
   "dependencies": {
+    "@vercel/analytics": "^0.1.6",
     "autoprefixer": "^10.4.12",
     "next": "^13.0.5",
     "postcss": "^8.4.19",
