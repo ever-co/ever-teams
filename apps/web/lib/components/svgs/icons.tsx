@@ -410,7 +410,7 @@ export function DevicesIcon({ className }: { className?: string }) {
 
 // ============================= Timer Stop ===============================//
 
-export function TimerPlayIcon() {
+export function TimerStopIcon() {
 	return (
 		<svg
 			width="28"
@@ -433,7 +433,7 @@ export function TimerPlayIcon() {
 
 // ============================= Timer Play ===============================//
 
-export function PlayTimerIcon() {
+export function TimerPlayIcon() {
 	return (
 		<svg
 			width="28"

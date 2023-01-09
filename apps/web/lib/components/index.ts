@@ -12,6 +12,7 @@ export * from './avatar';
 export * from './toggler';
 export * from './divider';
 export * from './breadcrumb';
+export * from './progress-bar';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';
