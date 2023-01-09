@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { Button, Text } from 'lib/components';
 import { TimerPlayIcon } from 'lib/components/svgs';
 

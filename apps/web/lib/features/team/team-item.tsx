@@ -1,6 +1,6 @@
 import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
 import stc from 'string-to-color';

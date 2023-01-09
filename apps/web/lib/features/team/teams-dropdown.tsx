@@ -10,7 +10,7 @@ import {
 import { mapTeamItems } from './team-item';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { useModal, useOrganizationTeams } from '@app/hooks';
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 
 export const TeamsDropDown = () => {
 	const { teams, activeTeam, setActiveTeam, teamsFetching } =

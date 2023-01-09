@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { Meta, Text } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
 import { useTheme } from 'next-themes';

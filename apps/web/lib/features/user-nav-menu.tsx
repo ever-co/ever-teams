@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import {

@@ -1,5 +1,5 @@
 import { useHasMounted } from '@app/hooks';
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
 import {

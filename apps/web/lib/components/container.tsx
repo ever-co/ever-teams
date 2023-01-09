@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { PropsWithChildren } from 'react';
 
 export function Container({

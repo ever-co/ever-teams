@@ -1,5 +1,5 @@
 import { useHasMounted } from '@app/hooks';
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { createPortal } from 'react-dom';
 import { Card } from './card';
 

@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { forwardRef, useEffect, useState } from 'react';
 import { Text } from '../typography';
 

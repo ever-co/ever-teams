@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { Container } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
 import { TeamsDropDown, UserNavAvatar } from 'lib/features';

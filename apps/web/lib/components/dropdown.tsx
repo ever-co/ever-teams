@@ -1,6 +1,6 @@
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';

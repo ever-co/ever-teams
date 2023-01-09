@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { Breadcrumb, Card, Container, InputField } from 'lib/components';
 import { Timer } from 'lib/features';
 import { MainLayout } from 'lib/layout';

@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import Image from 'next/legacy/image';
 import { PropsWithChildren } from 'react';
 

@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { Text, ThemeToggler } from 'lib/components';
 
 export function Footer({ className }: { className?: string }) {
