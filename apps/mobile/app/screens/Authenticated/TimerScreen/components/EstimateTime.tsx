@@ -1,24 +1,23 @@
 import React, { FC, useCallback, useEffect, useState } from "react";
-import { TextInput, TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet , TextInput} from "react-native";
+import { Text, ActivityIndicator } from "react-native-paper"
 import { Feather } from "@expo/vector-icons"
-import { colors } from "../../../../theme/colors";
 import { secondsToTime } from "../../../../helpers/date";
-import { values } from "mobx";
-import { useStores } from "../../../../models";
-import { ActivityIndicator } from "react-native-paper";
 import { typography } from "../../../../theme";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { ITeamTask } from "../../../../services/interfaces/ITask";
+import { useAppTheme } from "../../../../app";
 
 interface Props {
     setEditEstimate?: (value: boolean) => unknown,
     currentTask: ITeamTask
 }
 const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
-    const {
-        teamStore: { activeTeamId }
-    } = useStores();
+    // Hooks
     const { updateTask } = useTeamTasks();
+    const { colors } = useAppTheme()
+
+    // STATES
     const [estimate, setEstimate] = useState({ hours: "", minutes: "" });
     const [editing, setEditing] = useState({ editingHour: false, editingMinutes: false })
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -135,7 +134,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
                     onFocus={() => setEditing({ ...editing, editingHour: true })}
                     onEndEditing={() => setEditing({ ...editing, editingHour: false })}
                     onChangeText={(text) => onChangeHours(text)}
-                    style={[styles.estimateInput, estimate.hours.length !== 0 && { borderBottomColor: "#7E7991" }]}
+                    style={[styles.estimateInput,{color:colors.primary}, estimate.hours.length !== 0 && { borderBottomColor: colors.tertiary }]}
                 />
                 <View style={{ flexDirection: "row", justifyContent: "space-between", paddingLeft: 2 }}>
                     <View style={{ width: 5, height: 1, backgroundColor: "black" }} />
@@ -143,7 +142,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
                     <View />
                 </View>
             </View>
-            <Text style={styles.suffix}>h</Text>
+            <Text style={[styles.suffix, { color: colors.primary }]}>h</Text>
             <Text style={{ margin: 2 }}>:</Text>
             <View>
                 <TextInput
@@ -153,7 +152,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
                     onEndEditing={() => setEditing({ ...editing, editingMinutes: false })}
                     value={!editing.editingMinutes && formatTwoDigit(estimate.minutes)}
                     onChangeText={(text) => onChangeMinutes(text)}
-                    style={[styles.estimateInput, estimate.minutes.length > 0 && { borderBottomColor: "#7E7991" }]}
+                    style={[styles.estimateInput,{color:colors.primary}, estimate.minutes.length > 0 && { borderBottomColor: colors.tertiary }]}
                 />
                 <View style={{ flexDirection: "row", justifyContent: "space-between", paddingLeft: 2 }}>
                     <View style={{ width: 5, height: 1, backgroundColor: "black" }} />
@@ -161,7 +160,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
                     <View />
                 </View>
             </View>
-            <Text style={styles.suffix}>m</Text>
+            <Text style={[styles.suffix, { color: colors.primary }]}>m</Text>
             {showCheckIcon && <Feather style={styles.thickIconStyle} size={25} color={"green"} name="check" onPress={() => handleSubmit()} />}
             {isLoading ? <ActivityIndicator size={14} color="#1B005D" style={styles.loading} /> : null}
         </View>
@@ -172,10 +171,8 @@ export default EstimateTime;
 
 const styles = StyleSheet.create({
     estimate: {
-        // backgroundColor: "#E8EBF8",
         flexDirection: "row",
         justifyContent: "space-between",
-        // padding: 3,
         alignItems: "center",
         borderRadius: 8,
         marginLeft: "auto",
@@ -183,15 +180,12 @@ const styles = StyleSheet.create({
     },
     estimateInput: {
         textAlign: "center",
-        color: "#282048",
         fontSize: 14,
         fontWeight: "600",
         fontFamily: typography.fonts.PlusJakartaSans.semiBold
-
     },
     suffix: {
         fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-        color: " #282048",
         fontSize: 14
     },
     checkButton: {

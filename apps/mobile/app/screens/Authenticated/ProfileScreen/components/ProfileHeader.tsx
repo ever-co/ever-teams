@@ -1,21 +1,23 @@
 import React from "react"
 import { View, StyleSheet, Image } from "react-native"
-import { colors, typography } from "../../../../theme"
+import { typography } from "../../../../theme"
 import { Feather } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Text } from "../../../../components"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import ProfileImage from "../../../../components/ProfileImage"
+import { useAppTheme } from "../../../../app"
 
 
 const ProfileHeader = (member: IUser) => {
+  const {colors}=useAppTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container,{backgroundColor:colors.background}]}>
       <ProfileImage imageUrl={member.imageUrl} />
       <View style={styles.containerInfo}>
-        <Text style={styles.name}>{member?.name}</Text>
-        <Text style={styles.email}>{member.email}</Text>
+        <Text style={[styles.name,{color:colors.primary}]}>{member?.name}</Text>
+        <Text style={[styles.email, {color:colors.tertiary}]}>{member.email}</Text>
       </View>
     </View>
   )
@@ -24,12 +26,13 @@ const ProfileHeader = (member: IUser) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    paddingVertical: 10,
+    paddingVertical: 24,
     paddingHorizontal:20,
     backgroundColor:"#fff"
   },
   containerInfo: {
     marginLeft:10,
+   justifyContent:"center"
   },
   name: {
     color: "#282048",
@@ -50,7 +53,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 5,
     borderRadius: 12,
-    borderColor: colors.border,
     borderWidth: 1,
   },
   wrapEditIconSmall: {
@@ -62,7 +64,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 5,
     borderRadius: 10,
-    borderColor: colors.border,
     borderWidth: 1,
   },
 })

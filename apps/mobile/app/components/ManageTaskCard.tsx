@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react"
 import { View, StyleSheet, TextInput, Text, TouchableOpacity, Dimensions } from "react-native"
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, useTheme } from "react-native-paper";
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles";
 import { useStores } from "../models";
 import ComboBox from "../screens/Authenticated/TimerScreen/components/ComboBox";
 import EstimateTime from "../screens/Authenticated/TimerScreen/components/EstimateTime";
 import TaskStatusDropdown from "../screens/Authenticated/TimerScreen/components/TaskStatusDropdown";
 import { ITeamTask } from "../services/interfaces/ITask";
-import { colors } from "../theme/colors";
 import { Feather } from '@expo/vector-icons';
 import { observer } from "mobx-react-lite";
 import TaskSize from "./TaskSize";
@@ -16,12 +15,15 @@ import TaskLabel from "./TaskLabel";
 import { typography } from "../theme";
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 import { translate } from "../i18n";
+import { useAppTheme } from "../app";
 
 const { width, height } = Dimensions.get("window");
 const ManageTaskCard = observer(() => {
     const {
         TaskStore: { activeTask },
     } = useStores();
+
+    const { colors } = useAppTheme()
 
     const { setActiveTeamTask } = useTeamTasks();
 
@@ -76,13 +78,15 @@ const ManageTaskCard = observer(() => {
                         flexDirection: "row",
                         justifyContent: "space-between",
                         alignItems: "center",
+                        backgroundColor:colors.background,
+                        borderColor:colors.border
                     },
                 ]}
             >
                 <TextInput
                     selectionColor={colors.primary}
-                    placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-                    style={styles.textInput}
+                    placeholderTextColor={colors.tertiary}
+                    style={[styles.textInput,{backgroundColor:colors.background, color:colors.primary}]}
                     defaultValue={activeTask && activeTask.title}
                     placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
@@ -108,7 +112,7 @@ const ManageTaskCard = observer(() => {
                         }}
                     >
                         <View style={{ flexDirection: 'row', alignItems: "center" }}>
-                            <Text style={{ textAlign: 'center', fontSize: 12, color: "#7E7991" }}>{translate("myWorkScreen.estimateLabel")}: </Text>
+                            <Text style={{ textAlign: 'center', fontSize: 12, color: colors.tertiary }}>{translate("myWorkScreen.estimateLabel")}: </Text>
                             <EstimateTime currentTask={activeTask} />
                         </View>
                         <TaskSize />
@@ -135,7 +139,6 @@ const styles = StyleSheet.create({
 
     },
     mainContainer: {
-        // marginTop: 20,
         paddingTop: 30,
         backgroundColor: "#fff",
         borderRadius: 25,
@@ -186,13 +189,6 @@ const styles = StyleSheet.create({
     dashed: {
         borderBottomColor: "#fff",
         borderBottomWidth: 10,
-    },
-    separator: {
-        backgroundColor: colors.border,
-        width: 2,
-        marginHorizontal: 5,
-        transform: [{ rotate: "20deg" }],
-        height: 20,
     },
     wrapInput: {
         width: "100%",

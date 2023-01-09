@@ -1,17 +1,20 @@
 import React from "react"
+import {AntDesign} from "@expo/vector-icons"
 import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native"
+import { useAppTheme } from "../../../../app";
 import { translate } from "../../../../i18n";
-import { colors, typography } from "../../../../theme";
+import { typography } from "../../../../theme";
 
 const SettingHeader = (props) => {
+    const {colors}=useAppTheme();
     const { navigation } = props;
     return (
-        <View style={styles.container}>
+        <View style={[styles.container,{backgroundColor:colors.background}]}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Image source={require("../../../../../assets/icons/new/arrow-left.png")} />
+            <AntDesign name="arrowleft" size={24} color={colors.primary} />
             </TouchableOpacity>
-            <Text style={styles.title}>{translate("settingScreen.name")}</Text>
-            <Image source={require("../../../../../assets/icons/new/info-circle.png")} />
+            <Text style={[styles.title,{color:colors.primary}]}>{translate("settingScreen.name")}</Text>
+            <AntDesign name="exclamationcircleo" size={24} color={colors.primary} />
         </View>
     )
 }
@@ -28,6 +31,5 @@ const styles = StyleSheet.create({
     title: {
         fontFamily: typography.primary.semiBold,
         fontSize: 16,
-        color: colors.primary
     }
 })

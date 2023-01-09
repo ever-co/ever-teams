@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react"
-import { Text, View, StyleSheet, TextInput, Image, TouchableOpacity } from "react-native"
-import { ProgressBar } from "react-native-paper"
-import { colors, typography } from "../theme"
+import {View, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { ProgressBar, Text, useTheme } from "react-native-paper"
+import { typography } from "../theme"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
@@ -10,11 +10,13 @@ import { observer } from "mobx-react-lite"
 import { pad } from "../helpers/number"
 import { useTimer } from "../services/hooks/useTimer"
 import { convertMsToTime } from "../helpers/date"
+import { useAppTheme } from "../app"
 
 export interface Props {
 }
 
 const TimerCard: FC<Props> = observer(() => {
+  const { colors } = useAppTheme()
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { activeTeamId, activeTeam },
@@ -73,7 +75,7 @@ const TimerCard: FC<Props> = observer(() => {
     <View style={styles.mainContainer}>
       <View style={styles.horizontal}>
         <View style={{ justifyContent: "space-around" }}>
-          <Text style={styles.timerText}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
+          <Text style={[styles.timerText, {color:colors.primary}]}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
           <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height: 6, borderRadius: 3 }} progress={getTimePercentage()} color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
         </View>
         <View style={styles.timerBtn}>
@@ -127,7 +129,6 @@ const styles = StyleSheet.create({
     height: 60,
   },
   textInput: {
-    color: colors.primary,
     width: '85%',
     height: '90%'
   },
@@ -141,13 +142,6 @@ const styles = StyleSheet.create({
   dashed: {
     borderBottomColor: "#fff",
     borderBottomWidth: 10,
-  },
-  separator: {
-    backgroundColor: colors.border,
-    width: 2,
-    marginHorizontal: 5,
-    transform: [{ rotate: "20deg" }],
-    height: 20,
   },
   wrapInput: {
     backgroundColor: "#EEEFF5",

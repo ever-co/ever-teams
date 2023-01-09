@@ -1,19 +1,22 @@
 import React from "react";
+import { AntDesign } from "@expo/vector-icons"
 import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native"
+import { useAppTheme } from "../app";
 import { typography } from "../theme";
 
 const TaskLabel = () => {
+    const {colors}=useAppTheme();
     return (
         <View style={{ width: "100%" }}>
             <TouchableOpacity
                 activeOpacity={0.7}
-                style={styles.container}
+                style={[styles.container, {borderColor:colors.border}]}
             >
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <Image source={require("../../assets/images/new/record-blue.png")} />
-                    <Text style={{ left: 10, color: "#282048", fontSize: 10, fontFamily:typography.fonts.PlusJakartaSans.semiBold }}>Label</Text>
+                    <Text style={{ left: 10, color: colors.primary, fontSize: 10, fontFamily:typography.fonts.PlusJakartaSans.semiBold }}>Label</Text>
                 </View>
-                <Image source={require("../../assets/icons/caretDown.png")} />
+                <AntDesign name="down" size={20} color={colors.primary} />
             </TouchableOpacity>
         </View>
     )

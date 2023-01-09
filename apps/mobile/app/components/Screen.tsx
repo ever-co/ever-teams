@@ -13,7 +13,7 @@ import {
 import { StatusBar, StatusBarProps } from "expo-status-bar"
 import { Edge, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useScrollToTop } from "@react-navigation/native"
-import { colors } from "../theme"
+import { useAppTheme } from "../app"
 
 interface BaseScreenProps {
   /**
@@ -139,8 +139,8 @@ function useAutoPreset(props: AutoScreenProps) {
 
 function useSafeAreaInsetPadding(safeAreaEdges?: Edge[]) {
   const insets = useSafeAreaInsets()
-
-  const insetStyles: ViewStyle = {}
+const {colors, dark}=useAppTheme();
+  const insetStyles: ViewStyle = {backgroundColor: dark ? colors.background2 :colors.background}
   safeAreaEdges?.forEach((edge: Edge) => {
     const paddingProp = `padding${edge.charAt(0).toUpperCase()}${edge.slice(1)}`
     insetStyles[paddingProp] = insets[edge]
@@ -200,20 +200,21 @@ function ScreenWithScrolling(props: ScreenProps) {
 }
 
 export function Screen(props: ScreenProps) {
+  const {dark, colors}=useAppTheme();
   const {
     backgroundColor = colors.background,
     KeyboardAvoidingViewProps,
     keyboardOffset = 0,
     safeAreaEdges,
     StatusBarProps,
-    statusBarStyle = "dark",
+    statusBarStyle =dark ? "light": "dark",
   } = props
 
   const insetPadding = useSafeAreaInsetPadding(safeAreaEdges)
-
+  
   return (
     <View style={[$containerStyle, { backgroundColor }, insetPadding]}>
-      <StatusBar style={statusBarStyle} {...StatusBarProps} />
+      <StatusBar style={statusBarStyle} backgroundColor={dark ? colors.background2 :colors.background}    {...StatusBarProps} />
 
       <KeyboardAvoidingView
         behavior={isIos ? "padding" : undefined}

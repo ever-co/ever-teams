@@ -6,7 +6,7 @@ import { Screen, Text } from "../../../components"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // STYLES
-import { colors, spacing } from "../../../theme"
+import { spacing } from "../../../theme"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 // HELPERS
 import HomeHeader from "../TeamScreen/components/HomeHeader"
@@ -19,24 +19,24 @@ import ManageTaskCard from "../../../components/ManageTaskCard"
 import TimerCard from "../../../components/TimerCard"
 import { useFirstLoad } from "../../../services/hooks/useFirstLoad"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
+import { useAppTheme } from "../../../app"
+import { useTheme } from "react-native-paper"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
-  // Get Store data
+  // HOOKS
+  const { firstLoadData, firstLoad } = useFirstLoad();
+  const { loadTeamTasksData } = useTeamTasks();
+
+  // STATES
   const {
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken },
-    teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam },
-    TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
+    teamStore: { createTeam },
   } = useStores();
-  const { firstLoadData, firstLoad } = useFirstLoad();
-  const {loadTeamTasksData}=useTeamTasks();
-  // STATE
-  const [organizationTeams, setOrganizationTeams] = React.useState<IOTeams>({
-    items: [],
-    total: 0
-  })
+
   const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
+  const { colors } = useAppTheme()
   // Create New Team
   const createNewTeam = async (text: string) => {
     const responseTeams = {
@@ -51,27 +51,31 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
   }
 
-
-
   useEffect(() => {
     firstLoadData();
     loadTeamTasksData();
   }, [])
 
   return (
-    <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+    <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={["top"]}>
       <CreateTeamModal
         onCreateTeam={createNewTeam}
         visible={showCreateTeamModal}
         onDismiss={() => setShowCreateTeamModal(false)}
       />
-      <HomeHeader props={_props} showTimer={false} />
-      <View style={{ padding: 20, zIndex: 999 }}>
+      <View style={{ zIndex: 1000 }}>
+        <HomeHeader props={_props} showTimer={false} />
+      </View>
+      <View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
         <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
       </View>
-      <View style={$timerSection}>
-        <ManageTaskCard />
-        <TimerCard />
+      <View style={[$timerSection, { backgroundColor: colors.background }]}>
+        <View style={{ zIndex: 100 }}>
+          <ManageTaskCard />
+        </View>
+        <View style={{ zIndex: 99 }}>
+          <TimerCard />
+        </View>
       </View>
     </Screen>
   )
@@ -87,7 +91,6 @@ const $title: TextStyle = {
 
 const $timerSection: ViewStyle = {
   marginTop: 20,
-  backgroundColor: "#fff",
   padding: 20,
   marginHorizontal: 20,
   borderRadius: 16,
@@ -95,10 +98,9 @@ const $timerSection: ViewStyle = {
   borderWidth: 1,
   elevation: 10,
   shadowColor: "rgba(0, 0, 0, 0.1)",
-  shadowOffset: { width: 10, height: 10.5 },
+  shadowOffset: { width: 15, height: 15 },
   shadowOpacity: 1,
-  shadowRadius: 15,
-  zIndex: 100
+  shadowRadius: 16,
 }
 const $card: ViewStyle = {
 
