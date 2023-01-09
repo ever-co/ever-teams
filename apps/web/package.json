@@ -19,6 +19,7 @@
     "@heroicons/react": "^2.0.12",
     "@popperjs/core": "^2.11.6",
     "@types/react-google-recaptcha": "^2.1.5",
+    "@vercel/analytics": "^0.1.6",
     "autoprefixer": "^10.4.12",
     "axios": "^1.1.2",
     "clsx": "^1.2.1",
