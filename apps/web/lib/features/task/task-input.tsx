@@ -45,8 +45,6 @@ export function TaskCard() {
 				<a href="/security">Security</a>
 				<a href="/integrations">Integrations</a>
 			</div>
-
-			<img src="/solutions.jpg" alt="" />
 		</Card>
 	);
 }

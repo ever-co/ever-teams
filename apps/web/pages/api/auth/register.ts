@@ -36,7 +36,7 @@ export default async function handler(
 	}
 
 	const { success } = await recaptchaVerification({
-		secret: RECAPTCHA_SECRET_KEY!,
+		secret: RECAPTCHA_SECRET_KEY || '',
 		response: body.recaptcha,
 	});
 
