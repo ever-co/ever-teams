@@ -404,7 +404,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           )}
 
         <View style={$bottomSection}>
-          <Text style={$bottomSectionTxt}>©2022. https://gauzy.teams, Powered by Gauzy. All right reserved, Terms of Services</Text>
+          <Text style={$bottomSectionTxt}>© 2022-Present, Gauzy Teams by Ever Co. LTD. All rights reserved.</Text>
           <Image style={{ height: 50, marginBottom: -25 }} source={require("../../assets/icons/new/toogle-light.png")} />
         </View>
       </View>

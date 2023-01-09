@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"description": "Gauzy Teams API",
 	"license": "UNLICENSED",
-	"homepage": "https://gauzy.teams",
+	"homepage": "https://gauzy.team",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ever-co/ever-gauzy-teams.git"
