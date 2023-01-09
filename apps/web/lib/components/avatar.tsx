@@ -29,7 +29,11 @@ export function Avatar({
 				<Image
 					layout="fill"
 					src={imageUrl}
-					className="w-full h-full"
+					className={clsxm(
+						'w-full h-full',
+						shape === 'circle' && ['rounded-full'],
+						shape === 'square' && ['rounded-md']
+					)}
 					objectFit="cover"
 				/>
 			)}

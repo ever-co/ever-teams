@@ -19,7 +19,7 @@ export function SpinnerLoader({
 				[
 					variant === 'primary' && [
 						'border-t-primary border-r-primary border-b-transparent border-l-primary',
-						'dark:border-t-primary-light dark:border-r-primary-light dark:border-b-transparent dark:border-l-primary-light',
+						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white',
 					],
 					variant === 'light' && [
 						'border-t-white border-r-white border-b-transparent border-l-white',
@@ -46,23 +46,27 @@ export function SpinnerLoader({
 export function BackdropLoader({
 	title,
 	show,
+	fadeIn = true,
+	canCreatePortal = true,
 }: {
 	title?: string;
 	show?: boolean;
+	fadeIn?: boolean;
+	canCreatePortal?: boolean;
 }) {
 	const { mounted } = useHasMounted();
 
-	if (!mounted) {
-		return <></>;
-	}
-
-	return createPortal(
+	const content = (
 		<div
 			className={clsxm(
 				'fixed inset-0 z-[9999]',
 				'backdrop-brightness-90 backdrop-blur-sm',
 				'flex justify-center items-center',
-				[show ? ['fade-in h-full w-full'] : ['fade-out h-0 w-0']]
+				[
+					show
+						? [fadeIn ? ['fade-in'] : ['opacity-100'], 'h-full w-full']
+						: ['fade-out h-0 w-0'],
+				]
 			)}
 		>
 			<div>
@@ -76,7 +80,16 @@ export function BackdropLoader({
 					<div className="text-xs whitespace-nowrap text-ellipsis">{title}</div>
 				</Card>
 			</div>
-		</div>,
-		document.body
+		</div>
 	);
+
+	if (!canCreatePortal) {
+		return content;
+	}
+
+	if (!mounted) {
+		return <></>;
+	}
+
+	return createPortal(content, document.body);
 }

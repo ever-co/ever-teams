@@ -16,8 +16,8 @@ export type DropdownItem<D = { [x: string]: any }> = {
 
 type Props<T extends DropdownItem> = {
 	className?: string;
-	value?: T;
-	onChange?: Dispatch<SetStateAction<T | undefined>>;
+	value?: T | null;
+	onChange?: Dispatch<SetStateAction<T | undefined>> | ((item: T) => void);
 	buttonClassName?: string;
 	items: T[];
 	loading?: boolean;
@@ -51,7 +51,13 @@ export function Dropdown<T extends DropdownItem>({
 					</div>
 
 					{loading ? (
-						<SpinnerLoader size={20} variant="primary" />
+						<div className="h-[20px] w-[20px]">
+							<SpinnerLoader
+								size={20}
+								variant="primary"
+								className="w-full h-full"
+							/>
+						</div>
 					) : (
 						<ChevronDownIcon
 							className={clsxm(

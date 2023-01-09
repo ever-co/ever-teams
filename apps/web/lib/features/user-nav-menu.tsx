@@ -1,3 +1,4 @@
+import { useAuthenticateUser } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -13,6 +14,7 @@ import {
 	BoxIcon,
 	BriefcaseIcon,
 	DevicesIcon,
+	LogoutIcon,
 	MoonIcon,
 	PeopleIcon,
 	SettingsOutlineIcon,
@@ -20,13 +22,15 @@ import {
 import { useTheme } from 'next-themes';
 
 export function UserNavAvatar() {
+	const { user } = useAuthenticateUser();
+
 	return (
 		<Popover className="relative">
 			<Popover.Button className="outline-none">
 				<Avatar
 					size={35}
 					className="relative cursor-pointer"
-					imageUrl="/assets/profiles/ruslan.png"
+					imageUrl={user?.imageUrl}
 				/>
 			</Popover.Button>
 
@@ -64,6 +68,8 @@ function MenuIndicator() {
 }
 
 function UserNavMenu() {
+	const { user, logOut } = useAuthenticateUser();
+
 	return (
 		<Card
 			shadow="custom"
@@ -73,12 +79,14 @@ function UserNavMenu() {
 				<Avatar
 					size={72}
 					className="relative cursor-pointer mb-5"
-					imageUrl="/assets/profiles/ruslan.png"
+					imageUrl={user?.imageUrl}
 				/>
 
 				<div className="text-center">
-					<Text.Heading as="h3">Alexandro Bernard</Text.Heading>
-					<Text className="text-sm">Alexandro@mail.com</Text>
+					<Text.Heading as="h3">
+						{user?.firstName} {user?.lastName}
+					</Text.Heading>
+					<Text className="text-sm">{user?.email}</Text>
 				</div>
 
 				<Divider className="mt-6" />
@@ -120,7 +128,19 @@ function UserNavMenu() {
 						<ThemeDropdown />
 					</li>
 				</ul>
-				<Divider className="mt-6" />
+				<Divider className="mt-4 mb-3" />
+				<ul className="w-full">
+					{/* Logout menu */}
+					<li>
+						<button
+							className="flex space-x-3 items-center font-normal mb-3"
+							onClick={logOut}
+						>
+							<LogoutIcon className="w-5 h-5 text-red-500" />{' '}
+							<span>Logout</span>
+						</button>
+					</li>
+				</ul>
 			</div>
 		</Card>
 	);

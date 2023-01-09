@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Button,
 	Card,
@@ -7,7 +7,7 @@ import {
 	Modal,
 	Text,
 } from 'lib/components';
-import { mapTeamItems } from './team-item';
+import { mapTeamItems, TeamItem } from './team-item';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
@@ -18,19 +18,19 @@ export const TeamsDropDown = () => {
 
 	const items = useMemo(() => mapTeamItems(teams), [teams]);
 
-	const defaultItem = useMemo(() => {
-		return items.find((i) => i.key === activeTeam?.id);
-	}, [activeTeam, items]);
-
-	const [teamItem, setTeamItem] = useState(defaultItem);
+	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
 
 	const { isOpen, closeModal, openModal } = useModal();
 
 	useEffect(() => {
-		if (teamItem?.data) {
-			setActiveTeam(teamItem?.data);
+		setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
+	}, [activeTeam, items]);
+
+	const onChangeActiveTeam = useCallback((item: TeamItem) => {
+		if (item.data) {
+			setActiveTeam(item.data);
 		}
-	}, [teamItem, setActiveTeam]);
+	}, []);
 
 	return (
 		<>
@@ -41,7 +41,7 @@ export const TeamsDropDown = () => {
 					items.length === 0 && ['py-2']
 				)}
 				value={teamItem}
-				onChange={setTeamItem}
+				onChange={onChangeActiveTeam}
 				items={items}
 				loading={teamsFetching}
 			>

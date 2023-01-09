@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import TaskDetailCard from '@components/shared/tasks/task-card';
 import { withAuthentication } from 'lib/app/authenticator';
-import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
-import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
+import { useAuthenticateUser, useTaskStatistics } from '@app/hooks';
 import { Header } from '@components/pages/profile/header';
 import {
 	IProfileTabs,

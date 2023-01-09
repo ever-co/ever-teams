@@ -376,7 +376,7 @@ export function DevicesIcon({ className }: { className?: string }) {
 				d="M17.0095 12.7303C17.6004 12.7303 18.0794 12.2512 18.0794 11.6603C18.0794 11.0693 17.6004 10.5903 17.0095 10.5903C16.4185 10.5903 15.9395 11.0693 15.9395 11.6603C15.9395 12.2512 16.4185 12.7303 17.0095 12.7303Z"
 				className="stroke-default dark:stroke-white"
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -384,7 +384,7 @@ export function DevicesIcon({ className }: { className?: string }) {
 				d="M19.9995 7.79022C19.7495 7.76022 19.4595 7.74023 19.1495 7.74023H14.8695C12.7295 7.74023 12.0195 8.45027 12.0195 10.5903V19.1503C12.0195 21.2903 12.7295 22.0002 14.8695 22.0002H19.1495C21.2895 22.0002 21.9995 21.2903 21.9995 19.1503V10.5903C21.9995 8.76027 21.4795 7.98022 19.9995 7.79022ZM17.0096 10.5903C17.5996 10.5903 18.0795 11.0702 18.0795 11.6602C18.0795 12.2502 17.5996 12.7302 17.0096 12.7302C16.4196 12.7302 15.9395 12.2502 15.9395 11.6602C15.9395 11.0702 16.4196 10.5903 17.0096 10.5903ZM17.0096 19.1503C15.8296 19.1503 14.8695 18.1903 14.8695 17.0103C14.8695 16.5203 15.0395 16.0603 15.3195 15.7003C15.7095 15.2003 16.3196 14.8702 17.0096 14.8702C17.5496 14.8702 18.0395 15.0703 18.4095 15.3903C18.8595 15.7903 19.1495 16.3703 19.1495 17.0103C19.1495 18.1903 18.1896 19.1503 17.0096 19.1503Z"
 				className="stroke-default dark:stroke-white"
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -392,7 +392,7 @@ export function DevicesIcon({ className }: { className?: string }) {
 				d="M19.1491 17.0101C19.1491 18.1901 18.1892 19.1501 17.0092 19.1501C15.8292 19.1501 14.8691 18.1901 14.8691 17.0101C14.8691 16.5201 15.0392 16.0601 15.3192 15.7001C15.7092 15.2001 16.3192 14.8701 17.0092 14.8701C17.5492 14.8701 18.0391 15.0701 18.4091 15.3901C18.8591 15.7901 19.1491 16.3701 19.1491 17.0101Z"
 				className="stroke-default dark:stroke-white"
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -400,7 +400,7 @@ export function DevicesIcon({ className }: { className?: string }) {
 				d="M17.0095 12.7303C17.6004 12.7303 18.0794 12.2512 18.0794 11.6603C18.0794 11.0693 17.6004 10.5903 17.0095 10.5903C16.4185 10.5903 15.9395 11.0693 15.9395 11.6603C15.9395 12.2512 16.4185 12.7303 17.0095 12.7303Z"
 				className="stroke-default dark:stroke-white"
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -449,6 +449,27 @@ export function PlayTimerIcon() {
 			<path
 				d="M21.1056 18.0367L16.3806 20.7667L11.6673 23.485C9.97559 24.4533 8.06226 24.255 6.67393 23.275C5.99726 22.8083 6.07893 21.77 6.79059 21.35L21.6189 12.46C22.3189 12.04 23.2406 12.4367 23.3689 13.2417C23.6606 15.05 22.9139 16.9983 21.1056 18.0367Z"
 				fill="white"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Logout Icons ============================= //
+
+export function LogoutIcon({ className }: { className?: string }) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			fill="none"
+			viewBox="0 0 24 24"
+			strokeWidth={1.5}
+			stroke="currentColor"
+			className={clsxm('w-6 h-6', className)}
+		>
+			<path
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
 			/>
 		</svg>
 	);
