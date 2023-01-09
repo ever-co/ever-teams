@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import Link from 'next/link';
 import {
 	DetailedHTMLProps,
@@ -37,8 +37,8 @@ Text.Link = forwardRef<HTMLAnchorElement, LinkProps>(
 				className={clsxm(
 					[
 						variant === 'primary' && ['text-primary dark:text-primary-light'],
-						variant === 'dark' && ['text-dark dark:text-white'],
-						variant === 'light' && ['text-white dark:text-dark'],
+						variant === 'dark' && ['text-default dark:text-white'],
+						variant === 'light' && ['text-white dark:text-default'],
 						underline && ['underline'],
 					],
 					className
@@ -99,7 +99,7 @@ Text.Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
 				asel === 'h1' && [
 					'text-3xl font-medium text-[#282048] dark:text-white',
 				],
-				asel === 'h3' && ['text-lg font-medium text-dark dark:text-white'],
+				asel === 'h3' && ['text-lg font-medium text-default dark:text-white'],
 			],
 			className
 		);

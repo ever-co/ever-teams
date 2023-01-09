@@ -25,6 +25,9 @@ module.exports = {
 				transparent: 'transparent',
 				current: 'currentColor',
 				neutral: '#7E7991',
+				default: {
+					DEFAULT: '#282048',
+				},
 				'light--theme': {
 					light: '#fff',
 					DEFAULT: '#f7f7f8',
@@ -32,7 +35,7 @@ module.exports = {
 				},
 				'dark--theme': {
 					light: '#25272D',
-					DEFAULT: '#1E2025',
+					DEFAULT: 'var(--tw-color-dark--theme)',
 				},
 				primary: {
 					DEFAULT: '#3826A6',
@@ -40,7 +43,10 @@ module.exports = {
 					xlight: '#8E76FA',
 					mid: '#483A95',
 				},
-				dark: '#1A1C1E',
+				dark: {
+					high: '#16171B',
+					DEFAULT: '#1A1C1E',
+				},
 			},
 			fontFamily: {},
 		},

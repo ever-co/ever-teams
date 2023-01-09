@@ -1,4 +1,4 @@
-import clsxm from '@app/utils/clsxm';
+import { clsxm } from '@app/utils';
 import { forwardRef, useEffect, useState } from 'react';
 import { Text } from '../typography';
 
@@ -38,7 +38,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				ref={ref}
 				className={clsxm(
 					'bg-light--theme-light dark:bg-dark--theme-light',
-					'border-[#00000021] dark:border-[#ffffff33] border-solid border',
+					'input-border',
 					'py-2 px-4 mb-1',
 					'rounded-[10px] text-sm outline-none ',
 					'h-[50px] w-full',

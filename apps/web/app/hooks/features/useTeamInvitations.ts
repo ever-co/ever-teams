@@ -12,7 +12,7 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
-import useAuthenticateUser from './useAuthenticateUser';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);

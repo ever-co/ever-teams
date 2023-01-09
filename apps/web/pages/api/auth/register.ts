@@ -13,6 +13,8 @@ import {
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
+import { recaptchaVerification } from '@app/services/server/recaptcha';
+import { RECAPTCHA_SECRET_KEY } from '@app/constants';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -33,16 +35,16 @@ export default async function handler(
 		return res.status(400).json({ errors });
 	}
 
-	// const { success } = await recaptchaVerification({
-	//   secret: RECAPTCHA_SECRET_KEY!,
-	//   response: body.recaptcha,
-	// });
+	const { success } = await recaptchaVerification({
+		secret: RECAPTCHA_SECRET_KEY || '',
+		response: body.recaptcha,
+	});
 
-	// if (!success) {
-	//   return res
-	//     .status(400)
-	//     .json({ errors: { recaptcha: "Invalid reCAPTCHA. Please try again" } });
-	// }
+	if (!success) {
+		return res
+			.status(400)
+			.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
+	}
 
 	/**
 	 * Verify if the SMTP has been configured

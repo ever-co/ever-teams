@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import DropdownUser from '@components/shared/members-card/components/users-card-menu';
-import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
+import { useAuthenticateUser } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
