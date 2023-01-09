@@ -49,7 +49,7 @@ export const TeamsDropDown = () => {
 				loading={teamsFetching}
 			>
 				<Button
-					className="w-full text-xs mt-3"
+					className="w-full text-xs mt-3 dark:text-white dark:border-white"
 					variant="outline"
 					onClick={openModal}
 				>
