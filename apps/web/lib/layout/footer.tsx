@@ -10,10 +10,9 @@ export function Footer({ className }: { className?: string }) {
 			)}
 		>
 			<p className="text-neutral text-xs font-normal leading-4 -tracking-[-0.02em] text-center md:mb-2 mb-7">
-				©{new Date().getFullYear() - 1}-Present,{' '}
-				<Text.Link href="https://gauzy.teams">Gauzy Teams</Text.Link> by{' '}
-				<Text.Link href="https://ever.co/">Ever Co</Text.Link>. LTD. All rights
-				reserved.
+				©{' '}2022-Present,{' '}
+				<Text.Link href="https://gauzy.team">Gauzy Teams</Text.Link> by{' '}
+				<Text.Link href="https://ever.co/">Ever Co</Text.Link>. LTD. All rights reserved.
 			</p>
 
 			<div>
