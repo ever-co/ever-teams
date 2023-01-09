@@ -9,7 +9,8 @@ on:
       - '.github/workflows/**'
       - 'apps/website/**'
       - 'package.json'
-      - 'yarn.lock'      
+      - 'yarn.lock'
+      - 'README.md'
 
 jobs:
   deploy:

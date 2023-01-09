@@ -3,7 +3,6 @@ import {
   ScrollView,
   View,
   TouchableOpacity,
-  StatusBar,
   ViewStyle,
   TouchableWithoutFeedback,
   TextStyle,
@@ -14,32 +13,33 @@ import {
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // COMPONENTS
-import { Button, Icon, ListItem, Screen, } from "../../../components"
+import {  Screen, } from "../../../components"
 import InviteUserModal from "./components/InviteUserModal"
 import ListCardItem from "./components/ListCardItem"
-import NewTeamModal from "./components/CreateTeamModal"
+
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
-import { colors, spacing, typography } from "../../../theme"
+import { spacing, typography } from "../../../theme"
 import HomeHeader from "./components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
-import { teams, tasks } from "./data"
 import CreateTeamModal from "./components/CreateTeamModal"
 import { useStores } from "../../../models"
-import Teams, { IOTeams } from "../../../services/teams/organization-team"
 import { observer } from "mobx-react-lite"
-import { IInvitation, IInviteRequest } from "../../../services/interfaces/IInvite"
 import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
 import FlashMessage from "react-native-flash-message"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { translate } from "../../../i18n"
+import { useAppTheme } from "../../../app"
+
 
 const { width, height } = Dimensions.get("window");
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
   function AuthenticatedTeamScreen(_props) {
 
+    const {colors}=useAppTheme();
     //Get authentificate data
     const {
       authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
@@ -79,7 +79,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     return (
       <>
         {showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
-        <Screen contentContainerStyle={$container} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
+        <Screen contentContainerStyle={[$container,{backgroundColor:colors.background}]} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
           <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
           <CreateTeamModal
             onCreateTeam={createNewTeam}
@@ -93,17 +93,17 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
             </View>
             {isTeamManager ? (
               <TouchableOpacity
-                style={$inviteButton}
+                style={[$inviteButton,{borderColor:colors.secondary}]}
                 onPress={() => setShowInviteModal(true)}
               >
-                <Text style={$inviteButtonText}>
-                  Invite
+                <Text style={[$inviteButtonText,{color:colors.secondary}]}>
+                  {translate("teamScreen.inviteButton")}
                 </Text>
               </TouchableOpacity>
             ) : null}
           </View>
           <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-            <View style={$cardContainer}>
+            <View style={[$cardContainer,{backgroundColor:colors.background2}]}>
               {/* Users activity list */}
               <ScrollView
                 showsVerticalScrollIndicator={false}
@@ -131,8 +131,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                     userStatus={"online"}
                   />
                 ))}
-                {teamInvitations.items?.map((invite: any) => (
-                  <InviteCardItem key={invite.id} item={invite} />
+                {["teamInvitations.items"]?.map((invite: any) => (
+                  <InviteCardItem key={"invite.id"} invite={{fullName:"Elvis Matondo"}} />
                 ))}
               </ScrollView>
             </View>
@@ -147,15 +147,8 @@ const $container: ViewStyle = {
   ...GS.flex1,
 }
 
-const $headerIconContainer = {
-  ...GS.roundedFull,
-  ...GS.shadowSm,
-  backgroundColor: colors.background,
-}
-
 const $cardContainer: ViewStyle = {
   ...GS.flex1,
-  backgroundColor: "#F7F7F8",
   paddingHorizontal: spacing.medium,
 }
 const $blurContainer: ViewStyle = {
@@ -174,7 +167,6 @@ const $inviteButton: ViewStyle = {
   paddingVertical: 10,
   borderRadius: 10,
   borderWidth: 2,
-  borderColor: "#3826A6",
   justifyContent: "center",
   alignItems: "center"
 }

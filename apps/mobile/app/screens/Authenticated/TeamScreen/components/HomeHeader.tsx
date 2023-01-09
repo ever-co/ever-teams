@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import { View, Image, StyleSheet, TouchableOpacity, Dimensions } from "react-native"
 import { Feather } from '@expo/vector-icons';
 import HeaderTimer from "../../../../components/HeaderTimer";
+import { useAppTheme } from "../../../../app";
 
 interface Props {
   showTimer: boolean,
@@ -10,11 +11,14 @@ interface Props {
 
 const { width } = Dimensions.get("window");
 const HomeHeader: FC<Props> = ({ props, showTimer }) => {
-
+  const { colors, dark } = useAppTheme();
   return (
-    <View style={styles.mainContainer}>
-      <View style={styles.secondContainer}>
-        <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams.png")} resizeMode="contain" />
+    <View style={[styles.mainContainer, { backgroundColor: dark ? colors.background2 :colors.background }]}>
+      <View style={[styles.secondContainer, { backgroundColor: dark ? colors.background2 :colors.background }]}>
+        {dark ?
+          <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams-white.png")} resizeMode="contain" /> :
+          <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams.png")} resizeMode="contain" />
+        }
         {showTimer &&
           <View style={{ width: 126 }}>
             <HeaderTimer />
@@ -24,7 +28,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
           activeOpacity={0.7}
           onPress={() => props.navigation.openDrawer()}
         >
-          <Feather name="menu" size={24} color="#000" />
+          <Feather name="menu" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -33,13 +37,12 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: "#fff",
     paddingHorizontal: 25,
     paddingVertical: 20,
-    shadowColor: "#000",
+    shadowColor: "rgba(0, 0, 0, 0.7)",
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 1,
+      height: 3,
     },
     shadowOpacity: 0.07,
     shadowRadius: 1.00,
@@ -49,7 +52,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   logo: {
     width: 120,

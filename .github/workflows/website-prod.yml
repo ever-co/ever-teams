@@ -9,6 +9,7 @@ on:
       - 'apps/website/**'
       - 'package.json'
       - 'yarn.lock'
+      - 'README.md'
 
 jobs:
   deploy:

@@ -2,18 +2,21 @@ import React, { FC, useEffect, useMemo, useState } from "react"
 import { ActivityIndicator, Text } from "react-native-paper"
 import { View, StyleSheet, Dimensions } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
+import { Ionicons } from "@expo/vector-icons"
 import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
-import { typography } from "../../../../theme"
+import { colors, typography } from "../../../../theme"
+import { translate } from "../../../../i18n"
+import { useAppTheme } from "../../../../app"
 
 export interface Props {
   handleActiveTask: (value: ITeamTask) => unknown
   onCreateNewTask: () => unknown
 }
-const {height}=Dimensions.get("window")
+const { height } = Dimensions.get("window")
 export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
   switch (filters) {
     case "open":
@@ -27,6 +30,9 @@ export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
 
 
 const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handleActiveTask }) {
+  
+  const {colors}=useAppTheme();
+  
   const { TaskStore: { teamTasks, fetchingTasks, filterDataByStatus } } = useStores();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"open" | "closed">("open")
@@ -59,8 +65,11 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 
   return (
     <View style={styles.mainContainer}>
-      <TouchableOpacity onPress={() => onCreateTask()} style={styles.createTaskBtn}>
-        <Text style={styles.createTaskTxt}>+  Create New Task</Text>
+      <TouchableOpacity onPress={() => onCreateTask()} 
+      style={[styles.createTaskBtn,{backgroundColor:colors.background, borderColor:colors.secondary}]}
+      >
+        <Ionicons name="add-sharp" size={24} color={colors.secondary} />
+        <Text style={[styles.createTaskTxt,{color:colors.secondary}]}>{translate("myWorkScreen.tabCreateTask")}</Text>
       </TouchableOpacity>
       <View style={styles.filterSection}>
         <TouchableOpacity activeOpacity={0.7} onPress={() => {
@@ -88,11 +97,11 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
         {/* {isLoading && <ActivityIndicator color="#1B005D" style={styles.loading} />} */}
       </View>
 
-      <ScrollView style={{maxHeight:350}}>
-      {/* <View style={styles.wrapList}> */}
-          {filterDataByStatus(query, teamTasks, filter).map((task, i) => (
-            <IndividualTask index={i} key={i} task={task} handleActiveTask={handleActiveTask} />
-          ))}
+      <ScrollView style={{ maxHeight: 350 }}>
+        {/* <View style={styles.wrapList}> */}
+        {filterDataByStatus(query, teamTasks, filter).map((task, i) => (
+          <IndividualTask index={i} key={i} task={task} handleActiveTask={handleActiveTask} />
+        ))}
         {/* </View> */}
       </ScrollView>
     </View>
@@ -106,14 +115,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   createTaskBtn: {
-    borderColor: '#3826A6',
-    backgroundColor: '#fff',
     borderWidth: 1.5,
     width: '100%',
     borderRadius: 10,
+    flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 10,
+    height:33,
     paddingLeft: 24,
     paddingRight: 16
   },
@@ -130,7 +138,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "rgba(0, 0, 0, 0.06)",
     borderBottomWidth: 1,
     paddingBottom: 16,
-    width:232
+    width: 232
   },
   loading: {
     position: 'absolute',
@@ -140,7 +148,7 @@ const styles = StyleSheet.create({
   wrapList: {
     zIndex: 100,
     marginBottom: 20,
-    maxHeight:height/3
+    maxHeight: height / 3
   }
 })
 

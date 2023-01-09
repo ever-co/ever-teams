@@ -5,8 +5,6 @@
  * and a "main" flow which the user will use once logged in.
  */
 import {
-  DarkTheme,
-  DefaultTheme,
   NavigationContainer,
   NavigatorScreenParams, // @demo remove-current-line
 } from "@react-navigation/native"
@@ -93,17 +91,15 @@ const AppStack = observer(function AppStack() {
   )
 })
 
-interface NavigationProps extends Partial<React.ComponentProps<typeof NavigationContainer>> {}
+interface NavigationProps extends Partial<React.ComponentProps<typeof NavigationContainer>> { }
 
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
-  const colorScheme = useColorScheme()
 
   useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
 
   return (
     <NavigationContainer
       ref={navigationRef}
-      theme={colorScheme === "dark" ? DarkTheme : DefaultTheme}
       {...props}
     >
       <AppStack />

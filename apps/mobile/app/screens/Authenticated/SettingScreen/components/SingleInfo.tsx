@@ -2,29 +2,33 @@ import React, { FC, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image, Switch } from "react-native"
 import { useStores } from "../../../../models";
 import { AntDesign } from "@expo/vector-icons"
-import { colors, typography } from "../../../../theme";
+import { typography } from "../../../../theme";
 import { Toggle } from "../../../../components/Toggle";
+import { translate } from "../../../../i18n";
+import { useAppTheme } from "../../../../app";
 
 interface Props {
     title: string;
     value: string;
+    onPress?: () => unknown
 }
-const SingleInfo: FC<Props> = ({ title, value }) => {
+const SingleInfo: FC<Props> = ({ title, value, onPress }) => {
+    const { colors, dark } = useAppTheme();
     const [isEnabled, setIsEnabled] = useState(true);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
     return (
         <View style={styles.container}>
             <View style={styles.wrapperInfo}>
-                <Text style={styles.infoTitle}>{title}</Text>
-                <Text style={styles.infoText}>{value}</Text>
+                <Text style={[styles.infoTitle, { color: colors.primary }]}>{title}</Text>
+                <Text style={[styles.infoText, { color: colors.tertiary }]}>{value}</Text>
             </View>
-            {title === "Time Zone" &&
-                <TouchableOpacity style={styles.detectWrapper} >
-                    <Text style={[styles.infoTitle, { fontSize: 12 }]}>Detect</Text>
+            {title === translate("settingScreen.personalSection.timeZone") &&
+                <TouchableOpacity style={[styles.detectWrapper, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]} >
+                    <Text style={[styles.infoTitle, { fontSize: 12, color: colors.primary }]}>Detect</Text>
                 </TouchableOpacity>
             }
-            {title === "Time Tracking" ? (
+            {title === translate("settingScreen.teamSection.timeTracking") ? (
 
                 <Toggle
                     inputInnerStyle={{ backgroundColor: "#DBD3FA" }}
@@ -35,15 +39,17 @@ const SingleInfo: FC<Props> = ({ title, value }) => {
                 />
             ) : (
                 <>
-                    {title !== "Themes" ?
+                    {title !== translate("settingScreen.personalSection.themes") ?
                         (
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => onPress()}>
                                 <AntDesign name="right" size={24} color="#938FA4" />
                             </TouchableOpacity>
                         )
                         : (
-                            <TouchableOpacity style={styles.toggle}>
-                                <Image source={require("../../../../../assets/icons/new/toogle-light.png")} />
+                            <TouchableOpacity style={styles.toggle} onPress={() => onPress()}>
+                                {dark ?
+                                    <Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} /> :
+                                    <Image source={require("../../../../../assets/icons/new/toogle-light.png")} />}
                             </TouchableOpacity>
                         )
                     }
@@ -69,7 +75,6 @@ const styles = StyleSheet.create({
     infoTitle: {
         fontSize: 16,
         fontFamily: typography.primary.semiBold,
-        color: colors.primary,
     },
     infoText: {
         fontSize: 14,
@@ -80,7 +85,6 @@ const styles = StyleSheet.create({
     detectWrapper: {
         paddingVertical: 8,
         paddingHorizontal: 13,
-        backgroundColor: "#E6E6E9",
         borderRadius: 8
     },
     toggle: {

@@ -1,19 +1,22 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { ISupportedLanguage } from "../screens/Authenticated/SettingScreen/components/LanguageModal"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
     authToken: types.maybe(types.string),
-    refreshToken:types.maybe(types.string),
+    refreshToken: types.maybe(types.string),
     authEmail: types.optional(types.string, ""),
     authTeamName: types.optional(types.string, ""),
     authUsername: types.optional(types.string, ""),
     authConfirmCode: types.optional(types.string, ""),
     authInviteCode: types.optional(types.string, ""),
-    organizationId:types.optional(types.string, ""),
-    tenantId:types.optional(types.string, ""),
-    user:types.optional(types.frozen(), {}),
-    employeeId:types.optional(types.string, ""),
+    organizationId: types.optional(types.string, ""),
+    tenantId: types.optional(types.string, ""),
+    user: types.optional(types.frozen(), {}),
+    employeeId: types.optional(types.string, ""),
+    preferredLanguage: types.optional(types.frozen(), null),
+    isDarkMode: types.optional(types.boolean, false)
   })
   .views((store) => ({
     get isAuthenticated() {
@@ -65,18 +68,24 @@ export const AuthenticationStoreModel = types
     },
     setOrganizationId(value: string) {
       store.organizationId = value.replace(/ /g, "")
-    }, 
-    setEmployeeId(value :string){
-      store.employeeId=value.replace(/ /g, "")
     },
-    setUser(value:any){
-      store.user=value
+    setEmployeeId(value: string) {
+      store.employeeId = value.replace(/ /g, "")
     },
-    setRefreshToken(value:string){
-      store.refreshToken=value
+    setUser(value: any) {
+      store.user = value
+    },
+    setRefreshToken(value: string) {
+      store.refreshToken = value
     },
     setTenantId(value: string) {
       store.tenantId = value.replace(/ /g, "")
+    },
+    setPreferredLanguage(locale: ISupportedLanguage) {
+      store.preferredLanguage = locale
+    },
+    toggleTheme() {
+      store.isDarkMode = !store.isDarkMode
     },
     logout() {
       store.authToken = ""
@@ -84,14 +93,14 @@ export const AuthenticationStoreModel = types
       store.authTeamName = ""
       store.authUsername = ""
       store.authInviteCode = ""
-      store.authConfirmCode = 
-      store.tenantId=""
-      store.organizationId=""
-      store.user=null
-      store.employeeId=""
-      store.refreshToken=""
+      store.authConfirmCode =
+        store.tenantId = ""
+      store.organizationId = ""
+      store.user = null
+      store.employeeId = ""
+      store.refreshToken = ""
     },
   }))
 
-export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> {}
-export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> {}
+export interface AuthenticationStore extends Instance<typeof AuthenticationStoreModel> { }
+export interface AuthenticationStoreSnapshot extends SnapshotOut<typeof AuthenticationStoreModel> { }

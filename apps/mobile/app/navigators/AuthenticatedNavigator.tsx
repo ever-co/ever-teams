@@ -16,10 +16,11 @@ import {
 } from "../screens"
 
 // HELPERS
-// import { translate } from "../i18n"
-import { colors, spacing, typography } from "../theme"
+import { translate } from "../i18n"
+import {spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
 import { AuthenticatedSettingScreen } from "../screens/Authenticated/SettingScreen";
+import { useAppTheme } from "../app";
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
@@ -52,15 +53,16 @@ const Tab = createBottomTabNavigator<AuthenticatedTabParamList>()
 
 function TabNavigator() {
   const { bottom } = useSafeAreaInsets()
+  const {colors}=useAppTheme();
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [$tabBar, { height: bottom + 50 }],
-        tabBarActiveTintColor: colors.text,
-        tabBarInactiveTintColor: colors.text,
+        tabBarStyle: [{backgroundColor:colors.background}, { height: bottom + 50 }],
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.tertiary,
         tabBarLabelStyle: $tabBarLabel,
         tabBarItemStyle: $tabBarItem,
       }}
@@ -70,7 +72,7 @@ function TabNavigator() {
         name="Profile"
         component={AuthenticatedProfileScreen}
         options={{
-          tabBarLabel: "Tasks",
+          tabBarLabel: translate("tasksScreen.name"),
           tabBarIcon: ({ focused }) => focused ? <Image source={require("../../assets/icons/new/briefcase-active.png")} /> : <Image source={require("../../assets/icons/new/briefcase.png")} />,
           tabBarActiveTintColor: "#3826A6"
         }}
@@ -80,7 +82,7 @@ function TabNavigator() {
         name="Team"
         component={AuthenticatedTeamScreen}
         options={{
-          tabBarLabel: "Teams",
+          tabBarLabel: translate("teamScreen.name"),
           tabBarIcon: ({ focused }) => focused ? <Image source={require("../../assets/icons/new/people-active.png")} /> : <Image source={require("../../assets/icons/new/people.png")} />,
           tabBarActiveTintColor: "#3826A6"
         }}
@@ -90,7 +92,7 @@ function TabNavigator() {
         name="Timer"
         component={AuthenticatedTimerScreen}
         options={{
-          tabBarLabel: "My Work",
+          tabBarLabel: translate("myWorkScreen.name"),
           tabBarIcon: ({ focused }) => <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} />,
           tabBarActiveTintColor: "#3826A6"
         }}
@@ -114,10 +116,7 @@ export function AuthenticatedNavigator() {
 }
 
 
-const $tabBar: ViewStyle = {
-  backgroundColor: colors.background,
-  borderTopColor: colors.transparent,
-}
+
 
 const $tabBarItem: ViewStyle = {
   paddingTop: spacing.medium,

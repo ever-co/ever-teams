@@ -1,93 +1,120 @@
 import React, { FC, useEffect, useState } from "react";
-import { View, ScrollView, Text, ViewStyle, TextStyle } from "react-native";
+import { View, ScrollView, Text, ViewStyle, TextStyle, Dimensions } from "react-native";
 import { Screen } from "../../../components";
 import { useStores } from "../../../models";
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator";
-import { colors, typography } from "../../../theme";
+import { typography } from "../../../theme";
+import LanguageModal, { ISupportedLanguage, supportedLanguages } from "./components/LanguageModal";
 import PictureSection from "./components/PictureSection";
-import SectionTab, { ISectionTabs } from "./components/SectionTab";
+import SectionTab from "./components/SectionTab";
 import SettingHeader from "./components/SettingHeader";
 import SingleInfo from "./components/SingleInfo";
+import { BlurView } from "expo-blur";
+import { translate } from "../../../i18n";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAppTheme } from "../../../app";
+import { observer } from "mobx-react-lite";
 
 
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Setting">> = function AuthenticatedDrawerScreen(_props) {
+    const { colors } = useAppTheme();
     const {
-        authenticationStore: { user },
+        authenticationStore: { user, toggleTheme },
         teamStore: { activeTeam }
     } = useStores();
 
-    const [activeTab, setActiveTab] = useState<ISectionTabs>("Personal")
+    // STATES
+    const [activeTab, setActiveTab] = useState(1)
+    const [languageModal, setLanguageModal] = useState(false)
+    const [lang, setLang] = useState<ISupportedLanguage>(supportedLanguages[2])
 
+    const setLanguageLabel = async () => {
+        const localCode = await AsyncStorage.getItem("Language");
+        if (!localCode) {
+            const language = supportedLanguages.find((l) => l.localeCode === "en");
+            setLang(language)
+        } else {
+            const language = supportedLanguages.find((l) => l.localeCode === localCode);
+            setLang(language)
+        }
+    }
 
+    useEffect(() => {
+        setLanguageLabel();
+    }, [])
     return (
-        <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-            <View style={$headerContainer}>
-                <SettingHeader {..._props} />
-                <SectionTab activeTab={activeTab} toggleTab={setActiveTab} />
-            </View>
-            <ScrollView>
-                {activeTab === "Personal" ?
-                    // PERSONAL SECTION CONTENT STARTS HERE
-                    <View style={$contentContainer}>
-                        <PictureSection
-                            imageUrl={user?.imageUrl}
-                            buttonLabel={"Change Avatar"}
-                            onDelete={() => { }}
-                            onChange={() => { }}
-                        />
-                        <SingleInfo title="Full Name" value={user?.name} />
-                        <SingleInfo title="Your Contact" value={"Your contact information"} />
-                        <SingleInfo title="Themes" value={"Light Mode to Dark Mode"} />
-                        <SingleInfo title="Languange" value={"English ( United States )"} />
-                        <SingleInfo title="Time Zone" value={"Eastern Time Zone (UTC-05:00)"} />
-                        <SingleInfo title="Work Schedule" value={"Set your work schedule now"} />
+        <>
+            {languageModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+            <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
+                <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} />
+                <View style={[$headerContainer, { backgroundColor: colors.background }]}>
+                    <SettingHeader {..._props} />
+                    <SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
+                </View>
+                <ScrollView>
+                    {activeTab === 1 ?
+                        // PERSONAL SECTION CONTENT STARTS HERE
+                        <View style={[$contentContainer, { backgroundColor: colors.background2 }]}>
+                            <PictureSection
+                                imageUrl={user?.imageUrl}
+                                buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
+                                onDelete={() => { }}
+                                onChange={() => { }}
+                            />
+                            <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} />
+                            <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} />
+                            <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
+                            <SingleInfo onPress={() => setLanguageModal(true)} title={translate("settingScreen.personalSection.language")} value={lang.locale} />
+                            <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={"Eastern Time Zone (UTC-05:00)"} />
+                            <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} />
 
-                        <View style={$dangerZoneContainer}>
-                            <Text style={$dangerZoneTitle}>Danger Zone</Text>
-                            <SingleInfo title="Remove Account" value={"Account will be removed from all teams, except where you are the only manager"} />
-                            <SingleInfo title="Delete Account" value={"Your account will be deleted permanently with remolving from all teams"} />
+                            <View style={$dangerZoneContainer}>
+                                <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
+                                <SingleInfo title={translate("settingScreen.personalSection.removeAccount")} value={translate("settingScreen.personalSection.removeAccountHint")} />
+                                <SingleInfo title={translate("settingScreen.personalSection.deleteAccount")} value={translate("settingScreen.personalSection.deleteAccountHint")} />
+                            </View>
                         </View>
-                    </View>
-                    // PERSONAL SECTION CONTENT ENDS HERE
-                    :
-                    // TEAM SECTION CONTENT STARTS HERE
-                    <View style={$contentContainer}>
-                        <PictureSection
-                            imageUrl={""}
-                            buttonLabel={"Change Logo"}
-                            onDelete={() => { }}
-                            onChange={() => { }}
-                        />
-                        <SingleInfo title="Team Name" value={activeTeam?.name} />
-                        <SingleInfo title="Time Tracking" value={"Enable time tracking"} />
-                        <SingleInfo title="Task Statuses" value={"there are 7 active statuses"} />
-                        <SingleInfo title="Task Priorities" value={"there are 4 active priorities"} />
-                        <SingleInfo title="Task Sizes" value={"there are 5 active sizes"} />
-                        <SingleInfo title="Task Label" value={"there are 8 active label"} />
-                        <SingleInfo title="Manager Member & Role" value={"No"} />
-                        <SingleInfo title="Work Schedule" value={"Set your work schedule now"} />
+                        // PERSONAL SECTION CONTENT ENDS HERE
+                        :
+                        // TEAM SECTION CONTENT STARTS HERE
+                        <View style={[$contentContainer, { backgroundColor: colors.background2 }]}>
+                            <PictureSection
+                                imageUrl={""}
+                                buttonLabel={translate("settingScreen.teamSection.changeLogo")}
+                                onDelete={() => { }}
+                                onChange={() => { }}
+                            />
+                            <SingleInfo title={translate("settingScreen.teamSection.teamName")} value={activeTeam?.name} />
+                            <SingleInfo title={translate("settingScreen.teamSection.timeTracking")} value={translate("settingScreen.teamSection.timeTrackingHint")} />
+                            <SingleInfo title={translate("settingScreen.teamSection.taskPriorities")} value={"there are 4 active priorities"} />
+                            <SingleInfo title={translate("settingScreen.teamSection.taskSizes")} value={"there are 5 active sizes"} />
+                            <SingleInfo title={translate("settingScreen.teamSection.taskLabel")} value={"there are 8 active label"} />
+                            <SingleInfo title={translate("settingScreen.teamSection.teamRole")} value={"No"} />
+                            <SingleInfo title={translate("settingScreen.teamSection.workSchedule")} value={translate("settingScreen.teamSection.workScheduleHint")} />
 
-                        <View style={$dangerZoneContainer}>
-                            <Text style={$dangerZoneTitle}>Danger Zone</Text>
-                            <SingleInfo title="Transfer Ownership" value={"Transfer full ownership of team to another user"} />
-                            <SingleInfo title="Remove Team" value={"Team will be completely removed for the system and team members lost access"} />
-                            <SingleInfo title="Quit the team" value={"You are about to quit the team"} />
+                            <View style={$dangerZoneContainer}>
+                                <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
+                                <SingleInfo title={translate("settingScreen.teamSection.transferOwnership")} value={translate("settingScreen.teamSection.transferOwnership")} />
+                                <SingleInfo title={translate("settingScreen.teamSection.removeTeam")} value={translate("settingScreen.teamSection.removeTeamHint")} />
+                                <SingleInfo title={translate("settingScreen.teamSection.quitTeam")} value={translate("settingScreen.teamSection.quitTeamHint")} />
+                            </View>
                         </View>
-                    </View>
-                    // TEAM SECTION CONTENT ENDS HERE
-                }
-            </ScrollView>
-        </Screen>
+                        // TEAM SECTION CONTENT ENDS HERE
+                    }
+                </ScrollView>
+            </Screen>
+        </>
+
     )
 }
 
+const { height, width } = Dimensions.get("window");
+
 const $container: ViewStyle = {
     flex: 1,
-    paddingBottom: 50
 }
 
 const $headerContainer: ViewStyle = {
-    backgroundColor: colors.background,
     padding: 20,
     paddingBottom: 32,
     shadowColor: "rgba(0, 0, 0, 0.6)",
@@ -99,6 +126,15 @@ const $headerContainer: ViewStyle = {
     shadowRadius: 1.00,
     elevation: 1,
     zIndex: 10
+}
+
+const $blurContainer: ViewStyle = {
+    // flex: 1,
+    height: height,
+    width: "100%",
+    position: "absolute",
+    top: 0,
+    zIndex: 1001
 }
 
 const $contentContainer: ViewStyle = {

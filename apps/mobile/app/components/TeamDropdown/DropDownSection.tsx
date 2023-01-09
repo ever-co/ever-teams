@@ -5,9 +5,12 @@ import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTe
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../assets/ts/styles"
-import { colors, typography } from "../../theme"
+import { typography } from "../../theme"
 import { imgTitle } from "../../helpers/img-title"
 import { useStores } from "../../models"
+import { translate } from "../../i18n"
+import { useAppTheme } from "../../app"
+import { Avatar } from "react-native-paper"
 
 export interface Props {
   teams: IOrganizationTeamList[]
@@ -22,20 +25,18 @@ export interface Props {
 
 const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, changeTeam }) {
   const { teamStore: { activeTeamId, activeTeam } } = useStores();
-
   const others = teams.filter((t) => t.id !== activeTeamId);
 
+  const {colors}=useAppTheme();
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer, {backgroundColor:colors.background, shadowColor:colors.divider}]}>
       <View style={styles.indDropDown}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View style={styles.teamImage}>
-            <Text style={styles.prefix}>{imgTitle("ALL")}</Text>
-          </View>
-          <Text style={{ color: "#7E7991", paddingLeft: "5%", fontSize: 16, fontFamily: typography.primary.normal }}>{"ALL"}</Text>
+        <Avatar.Text style={styles.teamImage} size={30} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
+          <Text style={{ color: colors.tertiary, paddingLeft: "5%", fontSize: 16, fontFamily: typography.primary.normal }}>{"ALL"}</Text>
         </View>
         <TouchableOpacity>
-          <Image resizeMode="contain" source={require("../../../assets/icons/new/setting-2.png")} />
+        <Ionicons name="settings-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
       {activeTeamId && <DropItem team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
@@ -44,10 +45,10 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
       ))}
 
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
-        <View style={styles.buttonStyle}>
-          <Ionicons name="add" size={24} color="#3826A6" />
-          <Text style={{ color: colors.primary, fontSize: 14, fontFamily: typography.primary.semiBold }}>
-            Create new team
+        <View style={[styles.buttonStyle,{backgroundColor:colors.background}]}>
+          <Ionicons name="add" size={24} color={colors.secondary} />
+          <Text style={{ color: colors.secondary, fontSize: 14, fontFamily: typography.primary.semiBold }}>
+            {translate("teamScreen.createNewTeamButton")}
           </Text>
         </View>
       </TouchableOpacity>
@@ -62,17 +63,15 @@ export interface IDropItem {
 }
 
 const DropItem: FC<IDropItem> = function CreateTeamModal({ team, changeTeam, isActiveTeam }) {
-
+  const {colors}=useAppTheme();
   return (
     <View style={styles.indDropDown}>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => changeTeam(team)}>
-        <View style={styles.teamImage}>
-          <Text style={styles.prefix}>{imgTitle(team.name)}</Text>
-        </View>
+      <Avatar.Text style={styles.teamImage} size={30} label={imgTitle(team.name)} labelStyle={styles.prefix} />
         <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal }}>{team.name} ({team.members.length})</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-        <Image resizeMode="contain" source={require("../../../assets/icons/new/setting-2.png")} />
+      <Ionicons name="settings-outline" size={24} color={colors.primary} />
       </TouchableOpacity>
     </View>
   )
@@ -85,12 +84,12 @@ const styles = StyleSheet.create({
     top: 58,
     zIndex: 10,
     paddingTop: 10,
-    backgroundColor: "#fff",
     width: "100%",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    ...GS.shadow
+    ...GS.shadow,
+    shadowOffset:{width:0, height:5}
   },
   indDropDown: {
     flexDirection: "row",
@@ -115,11 +114,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   teamImage: {
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 18,
     backgroundColor: "#C1E0EA",
     shadowColor: "#000",
     shadowOffset: {

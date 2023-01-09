@@ -1,6 +1,9 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
-import { View, StyleSheet, TouchableOpacity, Text, Image } from "react-native"
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native"
+import { Avatar } from 'react-native-paper';
+import {AntDesign} from "@expo/vector-icons"
+import { useAppTheme } from "../../app"
 import { imgTitle } from "../../helpers/img-title"
 import { useStores } from "../../models"
 import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
@@ -12,6 +15,7 @@ export interface Props {
 }
 
 const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) {
+  const {colors}=useAppTheme();
   const {
     authenticationStore: { tenantId, organizationId, authToken },
     teamStore: { teams, setActiveTeam, activeTeamId, activeTeam, setTeamInvitations },
@@ -35,19 +39,20 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
   }
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer,]}>
       <TouchableOpacity
-        style={styles.mainDropDown}
+        style={[styles.mainDropDown,{backgroundColor:colors.background, borderColor:colors.border}]}
         activeOpacity={0.7}
         onPress={() => setShowDrop(!showDrop)}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <View style={styles.teamImage}>
-            <Text style={styles.prefix}>{imgTitle(activeTeam.name)}</Text>
-          </View>
-          <Text style={styles.activeTeamTxt}>{`${activeTeam.name} (${activeTeam.members.length})`}</Text>
+          <Avatar.Text style={styles.teamImage} size={40} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
+          <Text style={[styles.activeTeamTxt,{color:colors.primary}]}>{`${activeTeam.name} (${activeTeam.members.length})`}</Text>
         </View>
-        <Image source={require("../../../assets/icons/caretDown.png")} />
+        {showDrop ?
+        <AntDesign name="up" size={24} color={colors.primary} /> :
+        <AntDesign name="down" size={24} color={colors.primary} />
+        }
       </TouchableOpacity>
       {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
     </View >
@@ -65,22 +70,15 @@ const styles = StyleSheet.create({
   mainDropDown: {
     flexDirection: "row",
     width: "100%",
-    backgroundColor: "#FFF",
     justifyContent: "space-between",
     alignItems: 'center',
     borderRadius: 10,
-    borderColor: "#DCE4E8",
     paddingVertical: 10,
     paddingHorizontal: 10,
     height: 56,
     borderWidth: 1
   },
   teamImage: {
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 18,
     backgroundColor: "#C1E0EA",
     shadowColor: "#000",
     shadowOffset: {
@@ -92,11 +90,10 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   activeTeamTxt: {
-    color: "#282048",
     fontWeight: "600",
     fontSize: 14,
     fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-    left: 5
+    left: 12
   },
   prefix: {
     fontSize: 14,
