@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { ISupportedLanguage} from "../screens/Authenticated/SettingScreen/components/LanguageModal"
+import { ISupportedLanguage } from "../screens/Authenticated/SettingScreen/components/LanguageModal"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
@@ -15,7 +15,8 @@ export const AuthenticationStoreModel = types
     tenantId: types.optional(types.string, ""),
     user: types.optional(types.frozen(), {}),
     employeeId: types.optional(types.string, ""),
-    preferredLanguage: types.optional(types.frozen(), null)
+    preferredLanguage: types.optional(types.frozen(), null),
+    isDarkMode: types.optional(types.boolean, false)
   })
   .views((store) => ({
     get isAuthenticated() {
@@ -82,6 +83,9 @@ export const AuthenticationStoreModel = types
     },
     setPreferredLanguage(locale: ISupportedLanguage) {
       store.preferredLanguage = locale
+    },
+    toggleTheme() {
+      store.isDarkMode = !store.isDarkMode
     },
     logout() {
       store.authToken = ""

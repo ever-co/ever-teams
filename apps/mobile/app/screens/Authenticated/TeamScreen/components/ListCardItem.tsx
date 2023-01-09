@@ -2,24 +2,21 @@ import React, { useEffect, useState } from "react"
 import {
   View,
   ViewStyle,
-  Image,
   ImageStyle,
-  TouchableNativeFeedback,
   TouchableOpacity,
   StyleSheet,
-  TextInput,
-  Text
 } from "react-native"
+import { Avatar, Text } from "react-native-paper"
+import { Ionicons, Entypo } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Card, Icon, ListItem } from "../../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography } from "../../../../theme"
+import { spacing, typography } from "../../../../theme"
 import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
-import { convertMsToTime, secondsToTime } from "../../../../helpers/date"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
@@ -27,10 +24,10 @@ import { IUser } from "../../../../services/interfaces/IUserData"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
-import WorkedDayHours from "../../../../components/WorkedDayHours"
 import WorkedOnTask from "../../../../components/WorkedOnTask"
 import { translate } from "../../../../i18n"
+import { useAppTheme } from "../../../../app"
+
 
 export type ListItemProps = {
   member: IUser,
@@ -47,6 +44,7 @@ interface IUserStatus {
 export interface Props extends ListItemProps { }
 
 export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enableEstimate, onPressIn, userStatus }) => {
+  // HOOKS
   const {
     teamStore: { activeTeam },
     TaskStore: { activeTask },
@@ -54,16 +52,10 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
     authenticationStore: { user }
   } = useStores();
   const {
-    startTimer,
-    stopTimer,
-    getTimerStatus,
-    toggleTimer,
     fomatedTimeCounter: { hours, minutes, seconds, ms_p },
-    timerStatusFetchingState,
-    canRunTimer,
   } = useTimer();
 
-  const { } = useTeamTasks();
+  const { colors } = useAppTheme();
   const { isTeamManager } = useOrganizationTeam();
 
   const isAuthUser = member.employee.userId === user?.id;
@@ -80,16 +72,13 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 
   return (
     <TouchableOpacity onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
-      <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: "#fff" }, { borderRadius: 20 }]}>
+      <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, }, { borderRadius: 10 }]}>
         <View style={styles.firstContainer}>
           <View style={styles.wrapProfileImg}>
-            <Image
-              source={{ uri: iuser.imageUrl }}
-              style={$usersProfile}
-            />
-            <Image style={styles.statusIcon} source={getStatusImage(userStatus).icon} />
+            <Avatar.Image size={40} source={{ uri: iuser.imageUrl }} />
+            <Avatar.Image style={styles.statusIcon} size={20} source={getStatusImage(userStatus).icon} />
           </View>
-          <Text style={styles.name}>{iuser.name}</Text>
+          <Text style={[styles.name, { color: colors.primary }]}>{iuser.name}</Text>
           {/* ENABLE ESTIMATE INPUTS */}
           <View style={styles.wrapTotalTime}>
             <WorkedOnTask
@@ -97,19 +86,21 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
               isAuthUser={isAuthUser}
               title={translate("teamScreen.cardTotalTimeLabel")}
               containerStyle={{ alignItems: "center", justifyContent: "center" }}
-              totalTimeText={{marginTop:5, fontSize:12, color:colors.primary, fontFamily: typography.primary.semiBold}}
+              totalTimeText={{ marginTop: 5, fontSize: 12, color: colors.primary, fontFamily: typography.primary.semiBold }}
             />
           </View>
         </View>
-        <View style={styles.wrapTaskTitle}>
-          {/* {activeTask.taskNumber && <Text style={styles.taskNumberStyle}>{`#${activeTask.taskNumber}`}</Text>} */}
-          <Text style={styles.otherText}>{memberTask ? memberTask.title : ""}</Text>
+        <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
+          <Text style={[styles.otherText, { color: colors.primary }]}>
+            {/* {memberTask ? memberTask.title : ""} */}
+            Working on UI Design & making prototype for user testing tomorrow
+          </Text>
         </View>
-        <View style={styles.times}>
+        <View style={[styles.times, { borderTopColor: colors.divider }]}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: 48, width: "100%" }}>
             <View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
               <Text style={styles.totalTimeTitle}>{translate("teamScreen.cardTodayWorkLabel")}</Text>
-              <Text style={styles.totalTimeText}>{pad(hours)} h:{pad(minutes)} m</Text>
+              <Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>{pad(hours)} h:{pad(minutes)} m</Text>
             </View>
             <View style={{ ...GS.alignCenter }}>
               <WorkedOnTask
@@ -117,7 +108,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
                 isAuthUser={isAuthUser}
                 title={translate("teamScreen.cardTotalWorkLabel")}
                 containerStyle={{ alignItems: "center", height: "80%", justifyContent: "space-between" }}
-                totalTimeText={styles.totalTimeText}
+                totalTimeText={{
+                  fontSize: 14,
+                  color: colors.primary,
+                  fontFamily: typography.fonts.PlusJakartaSans.semiBold
+                }}
               />
             </View>
             {memberTask && memberTask.estimate == 0 && editEstimate ? (
@@ -145,6 +140,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 })
 
 const ListCardItem: React.FC<Props> = (props) => {
+  const { colors } = useAppTheme();
   const { isTeamManager } = useOrganizationTeam();
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
@@ -163,7 +159,7 @@ const ListCardItem: React.FC<Props> = (props) => {
       style={{
         ...$listCard,
         ...GS.mb3,
-        paddingTop: 5,
+        paddingTop: 4,
         backgroundColor: getStatusImage(userStatus).color,
         zIndex: 999 - index
       }}
@@ -181,7 +177,7 @@ const ListCardItem: React.FC<Props> = (props) => {
           <View
             style={{
               ...GS.positionRelative,
-              backgroundColor: "#fff",
+              backgroundColor: colors.background,
               ...GS.zIndexFront
             }}
           >
@@ -203,22 +199,22 @@ const ListCardItem: React.FC<Props> = (props) => {
               }}
             >
               <View style={{}}>
-                <ListItem textStyle={styles.dropdownTxt}>Edit Task</ListItem>
-                <ListItem textStyle={styles.dropdownTxt} onPress={() => handleEstimate()}>Estimate</ListItem>
-                <ListItem textStyle={styles.dropdownTxt}
+                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Edit Task</ListItem>
+                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]} onPress={() => handleEstimate()}>Estimate</ListItem>
+                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}
                   onPress={() => {
                     onPressIn({ userId: iuser?.id, tabIndex: 2 })
                     setShowMenu(!showMenu)
                   }}
                 >Assign Task</ListItem>
-                <ListItem textStyle={styles.dropdownTxt}
+                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}
                   onPress={() => {
                     onPressIn({ userId: iuser?.id, tabIndex: 1 })
                     setShowMenu(!showMenu)
                   }}>Unassign Task</ListItem>
                 {isTeamManager ? (
                   <>
-                    <ListItem textStyle={styles.dropdownTxt}>Make a Manager</ListItem>
+                    <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Make a Manager</ListItem>
                     <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
                   </>
                 ) : null}
@@ -226,7 +222,11 @@ const ListCardItem: React.FC<Props> = (props) => {
             </View>
 
             <TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-              <Icon icon={showMenu ? "x" : "VMore"} />
+              {!showMenu ?
+                <Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+                :
+                <Entypo name="cross" size={24} color={colors.primary} />
+              }
             </TouchableOpacity>
           </View>
         </View>
@@ -251,14 +251,14 @@ const $listCard: ViewStyle = {
   ...GS.flex1,
   ...GS.p0,
   ...GS.noBorder,
-  ...GS.shadow,
+  // ...GS.shadow,
+  shadowOffset: { width: 0, height: 15 },
   minHeight: null,
-  borderRadius: spacing.large,
+  borderRadius: 14,
 }
 
 const $usersProfile: ImageStyle = {
-  ...GS.roundedFull,
-  backgroundColor: colors.background,
+  // ...GS.roundedFull,
   width: spacing.huge - spacing.extraSmall,
   height: spacing.huge - spacing.extraSmall,
 }
@@ -276,17 +276,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 16,
-    paddingTop: 15,
+    paddingTop: 16,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.06)",
   },
   otherText: {
     fontSize: 14,
     color: "#282048",
     width: "100%",
     lineHeight: 15,
-    marginVertical: 5,
     fontStyle: "normal",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold,
   },
@@ -348,7 +345,7 @@ const styles = StyleSheet.create({
   statusIcon: {
     position: "absolute",
     bottom: 0,
-    marginLeft: 27
+    right: -4
   },
   dropdownTxt: {
     color: "#282048",
@@ -360,8 +357,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     width: "100%",
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 0, 0, 0.06)",
-    paddingTop: 10
+    paddingVertical: 16
   }
 })
 

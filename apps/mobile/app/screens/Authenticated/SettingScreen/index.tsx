@@ -3,7 +3,7 @@ import { View, ScrollView, Text, ViewStyle, TextStyle, Dimensions } from "react-
 import { Screen } from "../../../components";
 import { useStores } from "../../../models";
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator";
-import { colors, typography } from "../../../theme";
+import { typography } from "../../../theme";
 import LanguageModal, { ISupportedLanguage, supportedLanguages } from "./components/LanguageModal";
 import PictureSection from "./components/PictureSection";
 import SectionTab from "./components/SectionTab";
@@ -12,11 +12,14 @@ import SingleInfo from "./components/SingleInfo";
 import { BlurView } from "expo-blur";
 import { translate } from "../../../i18n";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAppTheme } from "../../../app";
+import { observer } from "mobx-react-lite";
 
 
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Setting">> = function AuthenticatedDrawerScreen(_props) {
+    const { colors } = useAppTheme();
     const {
-        authenticationStore: { user },
+        authenticationStore: { user, toggleTheme },
         teamStore: { activeTeam }
     } = useStores();
 
@@ -42,16 +45,16 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
     return (
         <>
             {languageModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
-            <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+            <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
                 <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} />
-                <View style={$headerContainer}>
+                <View style={[$headerContainer, { backgroundColor: colors.background }]}>
                     <SettingHeader {..._props} />
                     <SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
                 </View>
                 <ScrollView>
                     {activeTab === 1 ?
                         // PERSONAL SECTION CONTENT STARTS HERE
-                        <View style={$contentContainer}>
+                        <View style={[$contentContainer, { backgroundColor: colors.background2 }]}>
                             <PictureSection
                                 imageUrl={user?.imageUrl}
                                 buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
@@ -60,7 +63,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                             />
                             <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} />
                             <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} />
-                            <SingleInfo title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
+                            <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
                             <SingleInfo onPress={() => setLanguageModal(true)} title={translate("settingScreen.personalSection.language")} value={lang.locale} />
                             <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={"Eastern Time Zone (UTC-05:00)"} />
                             <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} />
@@ -74,7 +77,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                         // PERSONAL SECTION CONTENT ENDS HERE
                         :
                         // TEAM SECTION CONTENT STARTS HERE
-                        <View style={$contentContainer}>
+                        <View style={[$contentContainer, { backgroundColor: colors.background2 }]}>
                             <PictureSection
                                 imageUrl={""}
                                 buttonLabel={translate("settingScreen.teamSection.changeLogo")}
@@ -109,11 +112,9 @@ const { height, width } = Dimensions.get("window");
 
 const $container: ViewStyle = {
     flex: 1,
-    paddingBottom: 50
 }
 
 const $headerContainer: ViewStyle = {
-    backgroundColor: colors.background,
     padding: 20,
     paddingBottom: 32,
     shadowColor: "rgba(0, 0, 0, 0.6)",

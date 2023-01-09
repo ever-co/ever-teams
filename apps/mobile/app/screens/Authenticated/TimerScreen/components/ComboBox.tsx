@@ -10,6 +10,7 @@ import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
 import { colors, typography } from "../../../../theme"
 import { translate } from "../../../../i18n"
+import { useAppTheme } from "../../../../app"
 
 export interface Props {
   handleActiveTask: (value: ITeamTask) => unknown
@@ -29,6 +30,9 @@ export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
 
 
 const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handleActiveTask }) {
+  
+  const {colors}=useAppTheme();
+  
   const { TaskStore: { teamTasks, fetchingTasks, filterDataByStatus } } = useStores();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<"open" | "closed">("open")
@@ -61,9 +65,11 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 
   return (
     <View style={styles.mainContainer}>
-      <TouchableOpacity onPress={() => onCreateTask()} style={styles.createTaskBtn}>
-        <Ionicons name="add-sharp" size={24} color={"#3826A6"} />
-        <Text style={styles.createTaskTxt}>{translate("myWorkScreen.tabCreateTask")}</Text>
+      <TouchableOpacity onPress={() => onCreateTask()} 
+      style={[styles.createTaskBtn,{backgroundColor:colors.background, borderColor:colors.secondary}]}
+      >
+        <Ionicons name="add-sharp" size={24} color={colors.secondary} />
+        <Text style={[styles.createTaskTxt,{color:colors.secondary}]}>{translate("myWorkScreen.tabCreateTask")}</Text>
       </TouchableOpacity>
       <View style={styles.filterSection}>
         <TouchableOpacity activeOpacity={0.7} onPress={() => {
@@ -109,15 +115,13 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   createTaskBtn: {
-    borderColor: '#3826A6',
-    backgroundColor: '#fff',
     borderWidth: 1.5,
     width: '100%',
     borderRadius: 10,
     flexDirection: "row",
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 10,
+    height:33,
     paddingLeft: 24,
     paddingRight: 16
   },

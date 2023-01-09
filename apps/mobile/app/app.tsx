@@ -12,15 +12,26 @@
 import "./i18n"
 import "./utils/ignoreWarnings"
 import { useFonts } from "expo-font"
-import React from "react"
+import React, { useState } from "react"
+import {
+  Provider as PaperProvider,
+  MD2LightTheme as PaperDefaultTheme,
+  MD3DarkTheme as PaperDarkTheme,
+  useTheme
+} from "react-native-paper"
+import {
+  DarkTheme as NavigationDarkTheme,
+  DefaultTheme as NavigationDefaulTheme,
+} from "@react-navigation/native"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
-import { useInitialRootStore } from "./models"
+import { useInitialRootStore, useStores } from "./models"
 import { AppNavigator, useNavigationPersistence } from "./navigators"
 import { ErrorBoundary } from "./screens/ErrorScreen/ErrorBoundary"
 import * as storage from "./utils/storage"
 import { customFontsToLoad } from "./theme"
 import { setupReactotron } from "./services/reactotron"
 import Config from "./config"
+import { observer } from "mobx-react-lite"
 
 // Set up Reactotron, which is a free desktop app for inspecting and debugging
 // React Native apps. Learn more here: https://github.com/infinitered/reactotron
@@ -43,16 +54,51 @@ interface AppProps {
   hideSplashScreen: () => Promise<void>
 }
 
+const customDarkTheme = {
+  ...NavigationDarkTheme,
+  ...PaperDarkTheme,
+  colors: {
+    ...NavigationDarkTheme.colors,
+    ...PaperDarkTheme.colors,
+    primary: "#FFFFFF",
+    secondary: "#8C7AE4",
+    tertiary: "#7B8089",
+    background: "#1E2025",
+    background2: "#16171B",
+    divider: "rgba(255, 255, 255, 0.16)",
+    border: "rgba(255, 255, 255, 0.13)"
+  }
+}
+
+const customLightTheme = {
+  ...NavigationDefaulTheme,
+  ...PaperDefaultTheme,
+  colors: {
+    ...NavigationDefaulTheme.colors,
+    ...PaperDefaultTheme.colors,
+    primary: "#282048",
+    secondary: "#3826A6",
+    tertiary: "#7E7991",
+    background: "#FFFFFF",
+    background2: "#F2F2F2",
+    divider: "rgba(0, 0, 0, 0.16)",
+    border: "rgba(0, 0, 0, 0.13)"
+  }
+}
+export type AppTheme = typeof customDarkTheme;
+
+export const useAppTheme = () => useTheme<AppTheme>();
 /**
  * This is the root component of our app.
  */
-function App(props: AppProps) {
+const App = observer((props: AppProps) => {
   const { hideSplashScreen } = props
   const {
     initialNavigationState,
     onNavigationStateChange,
     isRestored: isNavigationStateRestored,
   } = useNavigationPersistence(storage, NAVIGATION_PERSISTENCE_KEY)
+  const { authenticationStore: { isDarkMode } } = useStores();
 
   const [areFontsLoaded] = useFonts(customFontsToLoad)
 
@@ -75,16 +121,23 @@ function App(props: AppProps) {
   if (!rehydrated || !isNavigationStateRestored || !areFontsLoaded) return null
 
   // otherwise, we're ready to render the app
+
+
+  const theme = isDarkMode ? customDarkTheme : customLightTheme;
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <ErrorBoundary catchErrors={Config.catchErrors}>
-        <AppNavigator
-          initialState={initialNavigationState}
-          onStateChange={onNavigationStateChange}
-        />
-      </ErrorBoundary>
-    </SafeAreaProvider>
+      <PaperProvider theme={theme}>
+        <ErrorBoundary catchErrors={Config.catchErrors}>
+          <AppNavigator
+            theme={theme}
+            initialState={initialNavigationState}
+            onStateChange={onNavigationStateChange}
+          />
+        </ErrorBoundary>
+      </PaperProvider>
+    </SafeAreaProvider >
+
   )
 }
-
+)
 export default App
