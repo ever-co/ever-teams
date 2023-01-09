@@ -13,8 +13,11 @@ type Props = PropsWithChildren & { className?: string };
 /**
  * <p />
  */
-export const Text = ({ children, className }: Props) => {
-	return <p className={className}>{children}</p>;
+export const Text = ({
+	children,
+	...props
+}: Props & React.ComponentPropsWithRef<'p'>) => {
+	return <p {...props}>{children}</p>;
 };
 
 /**
