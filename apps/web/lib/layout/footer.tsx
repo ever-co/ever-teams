@@ -1,5 +1,5 @@
 import clsxm from '@app/utils/clsxm';
-import { ThemeToggler } from 'lib/components';
+import { Text, ThemeToggler } from 'lib/components';
 
 export function Footer({ className }: { className?: string }) {
 	return (
@@ -10,8 +10,10 @@ export function Footer({ className }: { className?: string }) {
 			)}
 		>
 			<p className="text-neutral text-xs font-normal leading-4 -tracking-[-0.02em] text-center md:mb-2 mb-7">
-				©2022. https://gauzy.teams, Powered by Gauzy. All right reserved, Terms
-				of Services
+				©{new Date().getFullYear() - 1}-Present,{' '}
+				<Text.Link href="https://gauzy.teams">Gauzy Teams</Text.Link> by{' '}
+				<Text.Link href="https://ever.co/">Ever Co</Text.Link>. LTD. All rights
+				reserved.
 			</p>
 
 			<div>

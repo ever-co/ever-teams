@@ -7,7 +7,7 @@ export function Navbar({ className }: { className?: string }) {
 	return (
 		<nav
 			className={clsxm(
-				'bg-white dark:bg-dark-high w-full shadow-lg nav-items--shadow',
+				'bg-white dark:bg-dark-high w-full nav-items--shadow',
 				className
 			)}
 		>

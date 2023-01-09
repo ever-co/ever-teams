@@ -11,6 +11,7 @@ export * from './modal';
 export * from './avatar';
 export * from './toggler';
 export * from './divider';
+export * from './breadcrumb';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';

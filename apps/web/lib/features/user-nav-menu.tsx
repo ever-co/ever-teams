@@ -38,7 +38,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute z-50 -right-5 mt-5">
+				<Popover.Panel className="absolute z-50 right-0 xl:-right-5 mt-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>
@@ -54,7 +54,8 @@ function MenuIndicator() {
 				'absolute -top-4 right-0 -z-10 bg-transparent dark:bg-transparent',
 				'nav-items--shadow rounded-none !py-0 !px-0',
 				'w-0 h-0',
-				'border-l-[35px] border-l-transparent border-r-[35px] border-r-transparent',
+				'border-l-[15px] border-r-[15px]',
+				'xl:border-l-[35px] border-l-transparent xl:border-r-[35px] border-r-transparent',
 				'border-solid border-b-light--theme-light dark:border-b-dark--theme-light border-b-[50px]'
 			)}
 			shadow="custom"

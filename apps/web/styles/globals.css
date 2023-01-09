@@ -62,4 +62,8 @@
 	.nav-items--shadow {
 		box-shadow: 0px 14px 24px -10px rgba(0, 0, 0, 0.04);
 	}
+
+	.main--card-border {
+		@apply border dark:border-[#28292F];
+	}
 }
