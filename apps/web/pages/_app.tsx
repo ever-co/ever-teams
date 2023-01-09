@@ -5,6 +5,7 @@ import { RecoilRoot } from 'recoil';
 import { AppState } from '@components/app/InitState';
 import Head from 'next/head';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
 	return (
@@ -33,6 +34,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 					<Component {...pageProps} />
 				</ThemeProvider>
 			</RecoilRoot>
+			<Analytics />
 		</>
 	);
 }
