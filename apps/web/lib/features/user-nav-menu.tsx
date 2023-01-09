@@ -31,6 +31,7 @@ export function UserNavAvatar() {
 					size={35}
 					className="relative cursor-pointer"
 					imageUrl={user?.imageUrl}
+					alt={user?.firstName || undefined}
 				/>
 			</Popover.Button>
 
@@ -80,6 +81,7 @@ function UserNavMenu() {
 					size={72}
 					className="relative cursor-pointer mb-5"
 					imageUrl={user?.imageUrl}
+					alt={user?.firstName || undefined}
 				/>
 
 				<div className="text-center">

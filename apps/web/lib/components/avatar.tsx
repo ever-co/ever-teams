@@ -7,6 +7,7 @@ type Props = {
 	size: number;
 	imageUrl?: string;
 	shape?: 'circle' | 'square';
+	alt?: string;
 } & PropsWithChildren;
 export function Avatar({
 	className,
@@ -14,6 +15,7 @@ export function Avatar({
 	size,
 	shape = 'circle',
 	children,
+	alt,
 }: Props) {
 	return (
 		<div
@@ -34,6 +36,7 @@ export function Avatar({
 						shape === 'circle' && ['rounded-full'],
 						shape === 'square' && ['rounded-md']
 					)}
+					alt={alt}
 					objectFit="cover"
 				/>
 			)}

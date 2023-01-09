@@ -26,11 +26,14 @@ export const TeamsDropDown = () => {
 		setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
 	}, [activeTeam, items]);
 
-	const onChangeActiveTeam = useCallback((item: TeamItem) => {
-		if (item.data) {
-			setActiveTeam(item.data);
-		}
-	}, []);
+	const onChangeActiveTeam = useCallback(
+		(item: TeamItem) => {
+			if (item.data) {
+				setActiveTeam(item.data);
+			}
+		},
+		[setActiveTeam]
+	);
 
 	return (
 		<>

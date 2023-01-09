@@ -43,7 +43,7 @@ export function Timer({ className }: { className?: string }) {
 				</div>
 			</div>
 
-			<div className="ml-5">
+			<div className="ml-5 z-[0]">
 				<Button
 					onClick={!timerStatusFetching ? timerHanlder : undefined}
 					className={clsxm(
