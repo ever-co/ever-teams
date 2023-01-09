@@ -3,7 +3,7 @@ import capitalize from 'lodash/capitalize';
 import { Popover, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import Link from 'next/link';
-import useAuthenticateUser from '@app/hooks/features/useAuthenticateUser';
+import { useAuthenticateUser } from '@app/hooks';
 
 interface IOption {
 	name: string;

@@ -10,7 +10,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { useQuery } from '../useQuery';
 
-const useAuthenticateUser = (defaultUser?: IUser) => {
+export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const [user, setUser] = useRecoilState(userState);
 	const $user = useRef(defaultUser);
 	const intervalRt = useRef(0);
@@ -70,5 +70,3 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
 		timeToTimeRefreshToken,
 	};
 };
-
-export default useAuthenticateUser;

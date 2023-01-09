@@ -15,7 +15,7 @@
     "lint": "yarn next lint"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.3",
+    "@headlessui/react": "^1.7.7",
     "@heroicons/react": "^2.0.12",
     "@popperjs/core": "^2.11.6",
     "@types/react-google-recaptcha": "^2.1.5",
@@ -25,6 +25,7 @@
     "clsx": "^1.2.1",
     "cookie": "^0.5.0",
     "cookies-next": "^2.1.1",
+    "embla-carousel-react": "^7.0.5",
     "js-cookie": "^3.0.1",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
@@ -36,6 +37,7 @@
     "react-google-recaptcha": "^2.1.0",
     "react-popper": "^2.3.0",
     "recoil": "^0.7.6",
+    "string-to-color": "^2.2.2",
     "tailwind-merge": "^1.8.1",
     "tailwindcss": "^3.1.8"
   },
