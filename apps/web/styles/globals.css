@@ -57,4 +57,9 @@
 	.input-border {
 		@apply border-[#00000021] dark:border-[#ffffff33] border-solid border;
 	}
+
+	/* Shadow */
+	.nav-items--shadow {
+		box-shadow: 0px 14px 24px -10px rgba(0, 0, 0, 0.04);
+	}
 }

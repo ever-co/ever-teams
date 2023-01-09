@@ -1,5 +1,5 @@
 import { Footer, Navbar } from '.';
-import { Container, Meta } from 'lib/components';
+import { Container, Divider, Meta } from 'lib/components';
 import { PropsWithChildren } from 'react';
 
 type Props = PropsWithChildren & { title?: string };
@@ -19,10 +19,10 @@ export function MainLayout({ children, title }: Props) {
 			<Navbar className="fixed" />
 
 			<div className="w-full flex flex-col items-start justify-between h-screen min-h-[500px] pt-20">
-				<div className="flex-1">{children}</div>
+				<div className="flex-1 w-full">{children}</div>
 
 				<Container>
-					<hr className="dark:opacity-25" />
+					<Divider />
 					<Footer className="justify-between px-0" />
 				</Container>
 			</div>
