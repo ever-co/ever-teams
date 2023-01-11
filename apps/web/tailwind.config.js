@@ -50,8 +50,10 @@ module.exports = {
 			},
 			fontFamily: {},
 			boxShadow: {
-				lgcard: '0px 50px 200px rgba(0,_0,_0,_0.1)',
+				lgcard: '0px 50px 200px rgba(0, 0, 0, 0.1)',
 				xlcard: '0px 16px 79px rgba(0, 0, 0, 0.12)',
+				'lgcard-white': '0px 50px 200px rgba(255, 255, 255, 0.1)',
+				'xlcard-white': '0px 16px 79px rgba(255, 255, 255, 0.12)',
 			},
 		},
 	},
