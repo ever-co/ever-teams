@@ -1,3 +1,4 @@
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { forwardRef, useEffect, useState } from 'react';
 import { Text } from '../typography';
@@ -66,3 +67,42 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 );
 
 InputField.displayName = 'InputField';
+
+/**
+ * TimeInputField
+ */
+
+type ITimeProps = {
+	label: string;
+	dash?: string;
+	wrapperClassName?: string;
+} & IClassName &
+	React.ComponentPropsWithRef<'input'>;
+
+export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
+	(
+		{ className, type = 'text', label, dash = '__', wrapperClassName, ...res },
+		ref
+	) => {
+		return (
+			<div className="flex items-center">
+				<div className={clsxm('relative isolate w-7', wrapperClassName)}>
+					<input
+						type={type}
+						ref={ref}
+						defaultValue="00"
+						{...res}
+						className={clsxm(
+							'outline-none p-0 bg-transparent w-full text-center mb-[2px]',
+							className
+						)}
+					/>
+					<span className="absolute bottom-0 left-0 w-full text-center -z-10">
+						{dash}
+					</span>
+				</div>
+				<span className="pl-1">{label}</span>
+			</div>
+		);
+	}
+);
