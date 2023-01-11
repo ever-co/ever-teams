@@ -1,7 +1,8 @@
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text, ThemeToggler } from 'lib/components';
 
-export function Footer({ className }: { className?: string }) {
+export function Footer({ className }: IClassName) {
 	return (
 		<footer
 			className={clsxm(

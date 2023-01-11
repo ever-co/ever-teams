@@ -3,8 +3,9 @@ import { clsxm } from '@app/utils';
 import { Button, ProgressBar, Text } from 'lib/components';
 import { TimerPlayIcon, TimerStopIcon } from 'lib/components/svgs';
 import { pad } from '@app/helpers';
+import { IClassName } from '@app/interfaces';
 
-export function Timer({ className }: { className?: string }) {
+export function Timer({ className }: IClassName) {
 	const {
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 		timerStatus,

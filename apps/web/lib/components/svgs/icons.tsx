@@ -1,8 +1,9 @@
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 
 // ============================= BoxIcon ===========================//
 
-export function BoxIcon({ className }: { className?: string }) {
+export function BoxIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="24"
@@ -39,7 +40,7 @@ export function BoxIcon({ className }: { className?: string }) {
 
 // ============================= BoxIcon ===========================//
 
-export function SettingsOutlineIcon({ className }: { className?: string }) {
+export function SettingsOutlineIcon({ className }: IClassName) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +110,7 @@ export function MoonDarkIcon() {
 
 // ============================= PeopleIcon ===========================//
 
-export function PeopleIcon({ className }: { className?: string }) {
+export function PeopleIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="24"
@@ -217,7 +218,7 @@ export function SunDarkIcon() {
 
 // ============================= BriefcaseIcon ===========================//
 
-export function BriefcaseIcon({ className }: { className?: string }) {
+export function BriefcaseIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="24"
@@ -273,7 +274,7 @@ export function BriefcaseIcon({ className }: { className?: string }) {
 
 // ============================= ArrowLeft ===========================//
 
-export function ArrowLeft({ className }: { className?: string }) {
+export function ArrowLeft({ className }: IClassName) {
 	return (
 		<svg
 			width="24"
@@ -305,7 +306,7 @@ export function ArrowLeft({ className }: { className?: string }) {
 
 // ============================= StopIcon ===========================//
 
-export function StopIcon({ className }: { className?: string }) {
+export function StopIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -327,7 +328,7 @@ export function StopIcon({ className }: { className?: string }) {
 
 // ============================= DevicesIcon ===========================//
 
-export function DevicesIcon({ className }: { className?: string }) {
+export function DevicesIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="24"
@@ -456,7 +457,7 @@ export function TimerPlayIcon() {
 
 //  ============================= Logout Icons ============================= //
 
-export function LogoutIcon({ className }: { className?: string }) {
+export function LogoutIcon({ className }: IClassName) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
@@ -470,6 +471,34 @@ export function LogoutIcon({ className }: { className?: string }) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Tick Circle Icon ============================= //
+
+export function TickCircleIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="16"
+			height="16"
+			viewBox="0 0 16 16"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#BEBCC8]', className)}
+		>
+			<path
+				d="M7.99992 14.6666C11.6666 14.6666 14.6666 11.6666 14.6666 7.99992C14.6666 4.33325 11.6666 1.33325 7.99992 1.33325C4.33325 1.33325 1.33325 4.33325 1.33325 7.99992C1.33325 11.6666 4.33325 14.6666 7.99992 14.6666Z"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M5.16675 7.99995L7.05341 9.88661L10.8334 6.11328"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

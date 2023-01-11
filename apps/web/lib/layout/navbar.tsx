@@ -1,9 +1,10 @@
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Container } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
 import { TeamsDropDown, UserNavAvatar } from 'lib/features';
 
-export function Navbar({ className }: { className?: string }) {
+export function Navbar({ className }: IClassName) {
 	return (
 		<nav
 			className={clsxm(

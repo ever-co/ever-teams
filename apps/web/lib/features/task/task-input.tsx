@@ -1,7 +1,16 @@
 import { useOutsideClick } from '@app/hooks';
 import { Popover, Transition } from '@headlessui/react';
-import { Card, InputField } from 'lib/components';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import {
+	Button,
+	Card,
+	Divider,
+	InputField,
+	OutlineBadge,
+} from 'lib/components';
+import { TickCircleIcon } from 'lib/components/svgs';
 import { useState } from 'react';
+import { TaskItem } from './task-item';
 
 export function TaskInput() {
 	const [open, setOpen] = useState(false);
@@ -38,13 +47,34 @@ export function TaskInput() {
 
 export function TaskCard() {
 	return (
-		<Card shadow="bigger" className="rounded-lg md:px-4 md:py-4">
-			<div className="grid grid-cols-2">
-				<a href="/analytics">Analytics</a>
-				<a href="/engagement">Engagement</a>
-				<a href="/security">Security</a>
-				<a href="/integrations">Integrations</a>
+		<Card
+			shadow="bigger"
+			className="rounded-lg md:px-4 md:py-4 min-w-[400px] shadow-xlcard"
+		>
+			<Button variant="outline" className="font-normal text-sm rounded-xl">
+				<PlusIcon className="w-[16px] h-[16px]" /> Create new task
+			</Button>
+
+			<div className="mt-4 flex space-x-3">
+				<OutlineBadge className="input-border text-xs py-2">
+					<div className="w-4 h-4 bg-green-300 rounded-full opacity-50" />
+					<span>23 Open</span>
+				</OutlineBadge>
+
+				<OutlineBadge className="input-border text-xs py-2">
+					<TickCircleIcon className="opacity-50" />
+					<span>25 Closed</span>
+				</OutlineBadge>
 			</div>
+
+			<Divider className="mt-4" />
+
+			<ul className="mt-6">
+				<li>
+					<TaskItem title="Api Integration" />
+					<Divider className="mt-5" />
+				</li>
+			</ul>
 		</Card>
 	);
 }
