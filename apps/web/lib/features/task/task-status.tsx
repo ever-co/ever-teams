@@ -32,11 +32,11 @@ type TStatusItem = {
 	name?: string;
 };
 
-type TStatus = {
-	[k in Status]: TStatusItem;
+type TStatus<T extends Status> = {
+	[k in T]: TStatusItem;
 };
 
-export const taskStatus: TStatus = {
+export const taskStatus: TStatus<Status> = {
 	Todo: {
 		icon: <LoginIcon />,
 		bgColor: '#D6E4F9',
@@ -82,17 +82,22 @@ export function TaskStatus({
 			)}
 			style={{ backgroundColor }}
 		>
-			{icon}
-			<span>{name}</span>
+			<div className="flex space-x-3 items-center whitespace-nowrap">
+				{icon}
+				<span>{name}</span>
+			</div>
 			{children}
 		</div>
 	);
 }
 
-export function TaskStatusDropdown() {
+function useStatusValue<T extends TStatus<any>>(
+	statusItems: T,
+	defaultValue: keyof T
+) {
 	const items = useMemo(() => {
-		return Object.keys(taskStatus).map((key) => {
-			const vlue = taskStatus[key as Status];
+		return Object.keys(statusItems).map((key) => {
+			const vlue = statusItems[key as Status];
 			return {
 				...vlue,
 				name: key,
@@ -100,15 +105,147 @@ export function TaskStatusDropdown() {
 		});
 	}, []);
 
-	const [value, setValue] = useState<Status>('In Progress');
+	const [value, setValue] = useState<keyof T>(defaultValue);
 
 	const item = items.find((r) => r.name === value) || items[0];
 
-	const onChange = useCallback((value: Status) => {
+	const onChange = useCallback((value: keyof T) => {
 		setValue(value);
 	}, []);
 
-	return <StatusDropdown items={items} value={item} onChange={onChange} />;
+	return {
+		items,
+		item,
+		onChange,
+	};
+}
+
+/**
+ * Task status dropwdown
+ */
+export function TaskStatusDropdown({ className }: IClassName) {
+	const { item, items, onChange } = useStatusValue(taskStatus, 'In Progress');
+
+	return (
+		<StatusDropdown
+			className={className}
+			items={items}
+			value={item}
+			onChange={onChange}
+		/>
+	);
+}
+
+// =============== Task properties ================= //
+
+export const taskProperties = {
+	Medium: {
+		icon: <LoginIcon />,
+		bgColor: '#ECE8FC',
+	},
+	High: {
+		icon: <LoginIcon />,
+		bgColor: '#B8D1F5',
+	},
+	Low: {
+		icon: <LoginIcon />,
+		bgColor: '#D4EFDF',
+	},
+	Urgent: {
+		icon: <LoginIcon />,
+		bgColor: '#F5B8B8',
+	},
+} satisfies TStatus<any>;
+
+/**
+ * Task status dropwdown
+ */
+export function TaskPropertiesDropdown({ className }: IClassName) {
+	const { item, items, onChange } = useStatusValue(taskProperties, 'Low');
+
+	return (
+		<StatusDropdown
+			className={className}
+			items={items}
+			value={item}
+			onChange={onChange}
+		/>
+	);
+}
+
+// =============== Task Sizes ================= //
+
+export const taskSizes = {
+	'Extra Large': {
+		icon: <TickCircleIcon className="stroke-[#292D32]" />,
+		bgColor: '#F5B8B8',
+	},
+	Large: {
+		icon: <TickCircleIcon className="stroke-[#292D32]" />,
+		bgColor: '#F3D8B0',
+	},
+	Medium: {
+		icon: <TickCircleIcon className="stroke-[#292D32]" />,
+		bgColor: '#F5F1CB',
+	},
+	Small: {
+		icon: <TickCircleIcon className="stroke-[#292D32]" />,
+		bgColor: '#B8D1F5',
+	},
+	Tiny: {
+		icon: <TickCircleIcon className="stroke-[#292D32]" />,
+		bgColor: '#ECE8FC',
+	},
+} satisfies TStatus<any>;
+
+/**
+ * Task status dropwdown
+ */
+export function TaskSizesDropdown({ className }: IClassName) {
+	const { item, items, onChange } = useStatusValue(taskSizes, 'Medium');
+
+	return (
+		<StatusDropdown
+			className={className}
+			items={items}
+			value={item}
+			onChange={onChange}
+		/>
+	);
+}
+
+// =============== Task Devices ================= //
+
+export const taskDevices = {
+	'UI/UX': {
+		icon: <ClockIcon />,
+		bgColor: '#c2b1c6',
+	},
+	Mobile: {
+		icon: <ClockIcon />,
+		bgColor: '#7c7ab7',
+	},
+	WEB: {
+		icon: <ClockIcon />,
+		bgColor: '#97b7c1',
+	},
+	Tablet: {
+		icon: <ClockIcon />,
+		bgColor: '#b0c8a8',
+	},
+} satisfies TStatus<any>;
+
+export function TaskDevicesDropdown({ className }: IClassName) {
+	const { item, items, onChange } = useStatusValue(taskDevices, 'WEB');
+
+	return (
+		<StatusDropdown
+			className={className}
+			items={items}
+			value={item}
+			onChange={onChange}
+		/>
+	);
 }
 
 /**
@@ -118,18 +255,20 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 	value,
 	onChange,
 	items,
+	className,
 }: {
 	value: T;
 	onChange?(value: string): void;
 	items: T[];
+	className?: string;
 }) {
 	return (
-		<div className="relative">
+		<div className={clsxm('relative', className)}>
 			<Listbox value={value.name} onChange={onChange}>
 				{({ open }) => (
 					<>
-						<Listbox.Button>
-							<TaskStatus {...value}>
+						<Listbox.Button className="w-full">
+							<TaskStatus {...value} className="w-full justify-between">
 								<ChevronDownIcon
 									className={clsxm(
 										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80'

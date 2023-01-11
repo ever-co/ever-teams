@@ -1,4 +1,5 @@
 import { useOutsideClick } from '@app/hooks';
+import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import {
@@ -49,7 +50,10 @@ export function TaskCard() {
 	return (
 		<Card
 			shadow="bigger"
-			className="rounded-lg md:px-4 md:py-4 w-[500px] max-h-96 overflow-auto shadow-xlcard"
+			className={clsxm(
+				'rounded-lg md:px-4 md:py-4 w-[500px] max-h-96',
+				'overflow-auto shadow-xlcard dark:shadow-xlcard'
+			)}
 		>
 			<Button variant="outline" className="font-normal text-sm rounded-xl">
 				<PlusIcon className="w-[16px] h-[16px]" /> Create new task
