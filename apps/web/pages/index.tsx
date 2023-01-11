@@ -27,7 +27,7 @@ function MainPage() {
 				</Container>
 			</div>
 
-			<Container className='mb-10'>
+			<Container className="mb-10">
 				<TeamMembers />
 			</Container>
 		</MainLayout>

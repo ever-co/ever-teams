@@ -2,6 +2,7 @@ import { clsxm } from '@app/utils';
 import { Avatar, Card, Text } from 'lib/components';
 import { MailIcon, TimerPlayIcon } from 'lib/components/svgs';
 import { taskStatus, TaskStatus } from '../task/task-status';
+import { useCustomEmblaCarousel } from '@app/hooks';
 
 export function UserTeamCardHeader() {
 	return (
@@ -48,16 +49,56 @@ function Dragger() {
 }
 
 function TaskInfo() {
+	const {
+		viewportRef,
+		nextBtnEnabled,
+		scrollNext,
+		prevBtnEnabled,
+		scrollPrev,
+	} = useCustomEmblaCarousel(0, {
+		dragFree: true,
+		containScroll: 'trimSnaps',
+	});
+
 	return (
-		<div className="border-l-[2px] dark:border-l-gray-600 flex flex-col items-start justify-center w-80 overflow-x-hidden px-4">
+		<div className="border-l-[2px] dark:border-l-gray-600 flex flex-col items-start justify-center w-80 px-4">
 			<Text className="text-sm">
 				Working on UI Design & making prototype for user testing tomorrow
 			</Text>
 
-			<div className="flex space-x-2 mt-2">
-				<TaskStatus {...taskStatus['In Review']} name="In Review" />
-				<TaskStatus {...taskStatus['Blocked']} name="Blocked" />
-				<TaskStatus {...taskStatus['Completed']} name="Completed" />
+			<div className="relative w-full h-full flex flex-col justify-center">
+				<div ref={viewportRef} className="overflow-hidden w-full relative">
+					<div className="flex space-x-2 mt-2">
+						<TaskStatus {...taskStatus['In Review']} name="In Review" />
+						<TaskStatus {...taskStatus['Blocked']} name="Blocked" />
+						<TaskStatus {...taskStatus['Completed']} name="Completed" />
+						<TaskStatus {...taskStatus['Todo']} name="Todo" />
+					</div>
+				</div>
+
+				{nextBtnEnabled && (
+					<button
+						onClick={scrollNext}
+						className={clsxm(
+							'absolute w-6 h-6 bg-white rounded-full -right-3 shadow-[0px_4px_24px_rgba(0,0,0,0.25)]',
+							'flex justify-center items-center -mb-2 text-default'
+						)}
+					>
+						{'>'}
+					</button>
+				)}
+
+				{prevBtnEnabled && (
+					<button
+						onClick={scrollPrev}
+						className={clsxm(
+							'absolute w-6 h-6 bg-white rounded-full -right-3 shadow-[0px_4px_24px_rgba(0,0,0,0.25)]',
+							'flex justify-center items-center -mb-2 text-default'
+						)}
+					>
+						{'<'}
+					</button>
+				)}
 			</div>
 		</div>
 	);
