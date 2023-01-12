@@ -34,15 +34,15 @@ export function TaskItem({
 					<div className="flex items-center space-x-4">
 						<BadgedTaskStatus status={item.status} />
 						<div className="flex items-center justify-center space-x-1">
-							{item.members &&
-								item.members.map((member, i) => (
+							{item.selectedTeam?.members &&
+								item.selectedTeam?.members.map((member, i) => (
 									<div className="flex justify-center items-center" key={i}>
 										<Image
-											src={member.user?.imageUrl || ''}
+											src={member.employee.user?.imageUrl || ''}
 											alt={
-												(member.user?.firstName || '') +
+												(member.employee.user?.firstName || '') +
 												' ' +
-												(member.user?.lastName || '')
+												(member.employee.user?.lastName || '')
 											}
 											width={30}
 											height={30}

@@ -38,8 +38,8 @@ export function TaskInput() {
 	);
 
 	useEffect(() => {
-		setQuery(taskName);
-	}, [taskName]);
+		setQuery(taskName === activeTeamTask?.title ? '' : taskName);
+	}, [taskName, activeTeamTask, setQuery]);
 
 	useEffect(() => {
 		setTaskName(activeTeamTask?.title || '');
@@ -113,7 +113,7 @@ export function TaskCard({ datas }: { datas: Partial<RTuseTaskInput> }) {
 					<span
 						className={clsxm(
 							datas.filter === 'open' && [
-								'text-primary dark:text-white font-normal',
+								'text-primary dark:text-primary-light font-semibold',
 							]
 						)}
 					>
@@ -129,7 +129,7 @@ export function TaskCard({ datas }: { datas: Partial<RTuseTaskInput> }) {
 					<span
 						className={clsxm(
 							datas.filter === 'closed' && [
-								'text-primary dark:text-white font-normal',
+								'text-primary dark:text-primary-light font-semibold',
 							]
 						)}
 					>

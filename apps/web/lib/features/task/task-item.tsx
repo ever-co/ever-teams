@@ -20,7 +20,8 @@ export function TaskItem({ task, onClick, className }: Props) {
 			</div>
 
 			<div className="flex items-center space-x-3 pl-2">
-				<TaskStatusDropdown />
+				<TaskStatusDropdown defaultValue={task?.status} />
+
 				<div className="avatars flex -space-x-2">
 					<Avatar
 						shape="circle"
