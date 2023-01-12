@@ -14,6 +14,7 @@ export * from './divider';
 export * from './breadcrumb';
 export * from './progress-bar';
 export * from './badge';
+export * from './tooltip';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';

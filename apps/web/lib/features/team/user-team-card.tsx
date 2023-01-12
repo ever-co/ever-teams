@@ -1,5 +1,5 @@
 import { clsxm } from '@app/utils';
-import { Avatar, Card, Text } from 'lib/components';
+import { Avatar, Card, RoundedButton, Text } from 'lib/components';
 import { MailIcon, TimerPlayIcon } from 'lib/components/svgs';
 import { taskStatus, TaskStatus } from '../task/task-status';
 import { useCustomEmblaCarousel } from '@app/hooks';
@@ -77,27 +77,21 @@ function TaskInfo() {
 				</div>
 
 				{nextBtnEnabled && (
-					<button
+					<RoundedButton
 						onClick={scrollNext}
-						className={clsxm(
-							'absolute w-6 h-6 bg-white rounded-full -right-3 shadow-[0px_4px_24px_rgba(0,0,0,0.25)]',
-							'flex justify-center items-center -mb-2 text-default'
-						)}
+						className={'absolute w-6 h-6 -right-3 -mb-2'}
 					>
 						{'>'}
-					</button>
+					</RoundedButton>
 				)}
 
 				{prevBtnEnabled && (
-					<button
+					<RoundedButton
 						onClick={scrollPrev}
-						className={clsxm(
-							'absolute w-6 h-6 bg-white rounded-full -right-3 shadow-[0px_4px_24px_rgba(0,0,0,0.25)]',
-							'flex justify-center items-center -mb-2 text-default'
-						)}
+						className={'absolute w-6 h-6 -left-3  -mb-2'}
 					>
 						{'<'}
-					</button>
+					</RoundedButton>
 				)}
 			</div>
 		</div>

@@ -1,6 +1,6 @@
 import { useTaskStatistics, useTimer } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Button, ProgressBar, Text } from 'lib/components';
+import { Button, ProgressBar, Text, Tooltip } from 'lib/components';
 import { TimerPlayIcon, TimerStopIcon } from 'lib/components/svgs';
 import { pad } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
@@ -44,20 +44,26 @@ export function Timer({ className }: IClassName) {
 				</div>
 			</div>
 
-			<div className="ml-5 z-[0]">
-				<Button
-					onClick={!timerStatusFetching ? timerHanlder : undefined}
-					className={clsxm(
-						'bg-primary dark:bg-[#1E2430] w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
-						'flex justify-center items-center dark:border-[#28292F] dark:border',
-						'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
-						(timerStatusFetching || !canRunTimer) && [
-							'opacity-70 cursor-default',
-						]
-					)}
+			<div className="ml-5 z-[50]">
+				<Tooltip
+					label="Please, select or create a new task to start tracking the time"
+					placement="top-start"
+					enabled={!canRunTimer}
 				>
-					{timerStatus?.running ? <TimerStopIcon /> : <TimerPlayIcon />}
-				</Button>
+					<Button
+						onClick={!timerStatusFetching ? timerHanlder : undefined}
+						className={clsxm(
+							'bg-primary dark:bg-[#1E2430] w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
+							'flex justify-center items-center dark:border-[#28292F] dark:border',
+							'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
+							(timerStatusFetching || !canRunTimer) && [
+								'opacity-70 cursor-default',
+							]
+						)}
+					>
+						{timerStatus?.running ? <TimerStopIcon /> : <TimerPlayIcon />}
+					</Button>
+				</Tooltip>
 			</div>
 		</div>
 	);

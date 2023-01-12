@@ -36,6 +36,7 @@
     "react-dom": "18.2.0",
     "react-google-recaptcha": "^2.1.0",
     "react-popper": "^2.3.0",
+    "react-popper-tooltip": "^4.4.2",
     "recoil": "^0.7.6",
     "string-to-color": "^2.2.2",
     "tailwind-merge": "^1.8.1",

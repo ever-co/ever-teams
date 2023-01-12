@@ -6,6 +6,11 @@
 
 :root {
 	--tw-color-dark--theme: #1e2025;
+	--tooltipBackground: #282048;
+}
+
+html.dark {
+	--tooltipBackground: #282048;
 }
 
 @layer base {
@@ -65,5 +70,26 @@
 
 	.main--card-border {
 		@apply border dark:border-[#28292F];
+	}
+
+	/* Tooplip  */
+
+	.tooltip-container,
+	.tooltip-arrow {
+		--tooltipBackground: #282048 !important;
+		@apply !text-white;
+	}
+
+	.tooltip-container {
+		@apply !border-none !px-2 !py-3;
+	}
+
+	.tooltip-arrow {
+		@apply before:!border-none;
+	}
+
+	html.dark .tooltip-container,
+	html.dark .tooltip-arrow {
+		--tooltipBackground: #8c7ae4 !important;
 	}
 }
