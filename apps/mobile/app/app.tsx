@@ -81,7 +81,7 @@ const customLightTheme = {
     tertiary: "#7E7991",
     background: "#FFFFFF",
     background2: "#F2F2F2",
-    divider: "rgba(0, 0, 0, 0.16)",
+    divider: "rgba(0, 0, 0, 0.06)",
     border: "rgba(0, 0, 0, 0.13)"
   }
 }

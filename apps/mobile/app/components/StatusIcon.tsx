@@ -3,6 +3,7 @@ import { Feather, Entypo, FontAwesome, MaterialCommunityIcons, AntDesign } from 
 import { View, Text, Image } from "react-native";
 import { ITaskStatus, } from "../services/interfaces/ITask";
 import { typography } from "../theme";
+import { useAppTheme } from "../app";
 
 export const statusIcons: { [x in ITaskStatus]: React.ReactElement } = {
     Todo: <FontAwesome name="dot-circle-o" size={18} color="#3D9A6D" background="#28D58133" />,
@@ -25,7 +26,7 @@ export function getBackground({ status }: { status: ITaskStatus }) {
 
 export function BadgedTaskStatus({ status, showColor }: { status: ITaskStatus, showColor: boolean }) {
     const node = statusIcons[status];
-
+    const { colors, dark } = useAppTheme();
 
     return (
         <View
@@ -33,7 +34,7 @@ export function BadgedTaskStatus({ status, showColor }: { status: ITaskStatus, s
                 flexDirection: 'row'
             }}
         >
-            {node}<Text style={{ color: showColor ? node.props.color : "gray", left: 5, top: 2, fontSize:10, fontFamily:typography.fonts.PlusJakartaSans.semiBold }}>{status}</Text>
+            {node}<Text style={{ color: showColor ? "#282048" : "gray", left: 5, top: 2, fontSize: 10, fontFamily: typography.fonts.PlusJakartaSans.semiBold }}>{status}</Text>
         </View>
     );
 }

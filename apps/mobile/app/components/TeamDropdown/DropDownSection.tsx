@@ -27,16 +27,16 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
   const { teamStore: { activeTeamId, activeTeam } } = useStores();
   const others = teams.filter((t) => t.id !== activeTeamId);
 
-  const {colors}=useAppTheme();
+  const { colors } = useAppTheme();
   return (
-    <View style={[styles.mainContainer, {backgroundColor:colors.background, shadowColor:colors.divider}]}>
+    <View style={[styles.mainContainer, { backgroundColor: colors.background, shadowColor: "rgba(0, 0, 0, 0.12)" }]}>
       <View style={styles.indDropDown}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Avatar.Text style={styles.teamImage} size={30} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
+          <Avatar.Text style={styles.teamImage} size={30} label={imgTitle("ALL")} labelStyle={styles.prefix} />
           <Text style={{ color: colors.tertiary, paddingLeft: "5%", fontSize: 16, fontFamily: typography.primary.normal }}>{"ALL"}</Text>
         </View>
         <TouchableOpacity>
-        <Ionicons name="settings-outline" size={24} color={colors.primary} />
+          <Ionicons name="settings-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
       {activeTeamId && <DropItem team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
@@ -45,7 +45,7 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
       ))}
 
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
-        <View style={[styles.buttonStyle,{backgroundColor:colors.background}]}>
+        <View style={[styles.buttonStyle, { backgroundColor: colors.background }]}>
           <Ionicons name="add" size={24} color={colors.secondary} />
           <Text style={{ color: colors.secondary, fontSize: 14, fontFamily: typography.primary.semiBold }}>
             {translate("teamScreen.createNewTeamButton")}
@@ -63,15 +63,15 @@ export interface IDropItem {
 }
 
 const DropItem: FC<IDropItem> = function CreateTeamModal({ team, changeTeam, isActiveTeam }) {
-  const {colors}=useAppTheme();
+  const { colors } = useAppTheme();
   return (
     <View style={styles.indDropDown}>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => changeTeam(team)}>
-      <Avatar.Text style={styles.teamImage} size={30} label={imgTitle(team.name)} labelStyle={styles.prefix} />
+        <Avatar.Text style={styles.teamImage} size={30} label={imgTitle(team.name)} labelStyle={styles.prefix} />
         <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal }}>{team.name} ({team.members.length})</Text>
       </TouchableOpacity>
       <TouchableOpacity>
-      <Ionicons name="settings-outline" size={24} color={colors.primary} />
+        <Ionicons name="settings-outline" size={24} color={colors.primary} />
       </TouchableOpacity>
     </View>
   )
@@ -84,12 +84,14 @@ const styles = StyleSheet.create({
     top: 58,
     zIndex: 10,
     paddingTop: 10,
+    left: 0,
     width: "100%",
+    minWidth: 240,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
     ...GS.shadow,
-    shadowOffset:{width:0, height:5}
+    shadowOffset: { width: 0, height: 10 }
   },
   indDropDown: {
     flexDirection: "row",

@@ -9,6 +9,7 @@ import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
 import TaskStatusDropdown from "./TaskStatusDropdown"
 import TaskStatus from "../../ProfileScreen/components/TaskStatus"
+import { useAppTheme } from "../../../../app"
 
 
 export interface Props {
@@ -18,11 +19,13 @@ export interface Props {
 }
 
 const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) => {
+ 
+ const {colors}=useAppTheme()
   const [showDel, setShowDel] = useState(false)
   const {
     authenticationStore: { tenantId, authToken, organizationId },
     teamStore: { activeTeamId },
-    TaskStore: { updateTask }
+    TaskStore: { }
   } = useStores();
 
   const onCloseTask = () => {
@@ -36,7 +39,7 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
       tenantId,
       organizationId
     }
-    updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
+    // updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
   }
 
   const reOpen = () => {
@@ -50,17 +53,17 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
       tenantId,
       organizationId
     }
-    updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
+    // updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
   }
 
   return (
     <TouchableOpacity style={[styles.container, {zIndex:1000-index}]} onPress={() => handleActiveTask(task)}>
       <View style={{ flexDirection: "row", width:"40%" }}>
         {/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
-        <Text style={styles.taskTitle} numberOfLines={2}>{task.title}</Text>
+        <Text style={[styles.taskTitle, {color:colors.primary}]} numberOfLines={2}>{task.title}</Text>
       </View>
       <View style={{ flexDirection: "row",width:"55%", alignItems: "center", zIndex: 101, justifyContent:"space-between" }}>
-        <View style={{ left: -15, width: 100, height: 30, borderRadius: 10, zIndex: 999 }}>
+        <View style={{ left: -15, width: 100, height: 27, borderRadius: 10, zIndex: 999 }}>
           <TaskStatus {...task as any} />
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent:"space-between", width:"30%"}}>

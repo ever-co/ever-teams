@@ -53,7 +53,7 @@ const HamburgerMenu = (props) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: dark ? colors.background2 : colors.background }]}>
       <CreateTeamModal
         onCreateTeam={createNewTeam}
         visible={showCreateTeamModal}
