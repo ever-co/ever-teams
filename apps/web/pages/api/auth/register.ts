@@ -1,5 +1,5 @@
 import { generateToken } from '@app/helpers/generate-token';
-import { authFormValidate, validSMTPConfig } from '@app/helpers/validations';
+import { authFormValidate } from '@app/helpers/validations';
 import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 // import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
@@ -49,14 +49,14 @@ export default async function handler(
 	/**
 	 * Verify if the SMTP has been configured
 	 */
-	const hasSMTPConfig = validSMTPConfig();
+	// const hasSMTPConfig = validSMTPConfig();
 
-	if (!hasSMTPConfig) {
-		return res.status(400).json({
-			status: 400,
-			message: 'Unable to find SMTP configuration',
-		});
-	}
+	// if (0 && hasSMTPConfig) {
+	// 	return res.status(400).json({
+	// 		status: 400,
+	// 		message: 'Unable to find SMTP configuration',
+	// 	});
+	// }
 
 	// General a random password with 8 chars
 	const password = generateToken(8);

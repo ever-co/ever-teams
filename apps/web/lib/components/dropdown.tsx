@@ -21,6 +21,7 @@ type Props<T extends DropdownItem> = {
 	buttonClassName?: string;
 	items: T[];
 	loading?: boolean;
+	buttonStyle?: React.CSSProperties;
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({
@@ -31,6 +32,7 @@ export function Dropdown<T extends DropdownItem>({
 	onChange,
 	items,
 	loading,
+	buttonStyle,
 }: Props<T>) {
 	return (
 		<div className={clsxm('relative', className)}>
@@ -42,6 +44,7 @@ export function Dropdown<T extends DropdownItem>({
 						'font-normal',
 						buttonClassName
 					)}
+					style={buttonStyle}
 				>
 					<div
 						title={Value?.itemTitle}
