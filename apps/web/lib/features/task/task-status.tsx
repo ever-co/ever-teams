@@ -109,9 +109,12 @@ function useStatusValue<T extends TStatus<any>>(
 
 	const item = items.find((r) => r.name === value) || items[0];
 
-	const onChange = useCallback((value: keyof T) => {
-		setValue(value);
-	}, []);
+	const onChange = useCallback(
+		(value: keyof T) => {
+			setValue(value);
+		},
+		[setValue]
+	);
 
 	return {
 		items,

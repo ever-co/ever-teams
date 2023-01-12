@@ -106,3 +106,5 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 		);
 	}
 );
+
+TimeInputField.displayName = 'TimeInputField';
