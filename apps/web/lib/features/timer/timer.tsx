@@ -53,7 +53,7 @@ export function Timer({ className }: IClassName) {
 					<Button
 						onClick={!timerStatusFetching ? timerHanlder : undefined}
 						className={clsxm(
-							'bg-primary dark:bg-[#1E2430] w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
+							'bg-primary dark:bg-dark-lighter w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
 							'flex justify-center items-center dark:border-[#28292F] dark:border',
 							'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
 							(timerStatusFetching || !canRunTimer) && [

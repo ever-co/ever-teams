@@ -57,7 +57,8 @@ export function RoundedButton({
 	return (
 		<button
 			className={clsxm(
-				'bg-white rounded-full shadow-[0px_4px_24px_rgba(0,0,0,0.25)]',
+				'bg-white dark:bg-dark-lighter dark:text-white rounded-full',
+				'shadow-[0px_4px_24px_rgba(0,0,0,0.25)] dark:shadow-darker',
 				'flex justify-center items-center text-default',
 				className
 			)}
