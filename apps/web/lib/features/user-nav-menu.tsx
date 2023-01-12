@@ -74,7 +74,7 @@ function UserNavMenu() {
 	return (
 		<Card
 			shadow="custom"
-			className="w-[308px] p-5 flex flex-col nav-items--shadow z-10 rounded-[10px]"
+			className="w-[308px] p-5 flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard"
 		>
 			<div className="flex flex-col justify-center items-center">
 				<Avatar

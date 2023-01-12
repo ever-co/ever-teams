@@ -90,7 +90,7 @@ function FillTeamNameForm({
 					href="/auth/passcode"
 					underline
 					variant="primary"
-					className="text-xs dark:text-gray-400"
+					className="text-xs dark:text-gray-400 font-normal"
 				>
 					Joining existing team?
 				</Text.Link>

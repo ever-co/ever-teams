@@ -12,6 +12,7 @@ export * from './features/useTeamTasks';
 export * from './features/useTimer';
 export * from './useHasMounted';
 export * from './useModal';
+export * from './useCustomEmblaCarousel';
 
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useAuthenticationPasscode';

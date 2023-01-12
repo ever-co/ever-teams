@@ -1,4 +1,5 @@
 import { useHasMounted } from '@app/hooks';
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren, useEffect, useState } from 'react';
@@ -70,7 +71,7 @@ export function Toggler({
 /**
  * Theme Toggler
  */
-export function ThemeToggler({ className }: { className?: string }) {
+export function ThemeToggler({ className }: IClassName) {
 	const { theme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 
@@ -101,7 +102,7 @@ export function ThemeToggler({ className }: { className?: string }) {
 	);
 }
 
-export function TreeModeToggler({ className }: { className?: string }) {
+export function TreeModeToggler({ className }: IClassName) {
 	return (
 		<Toggler
 			className={className}

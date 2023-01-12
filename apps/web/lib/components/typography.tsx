@@ -1,3 +1,4 @@
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
 import {
@@ -8,13 +9,16 @@ import {
 } from 'react';
 import { IVariant } from './types';
 
-type Props = PropsWithChildren & { className?: string };
+type Props = PropsWithChildren<IClassName>;
 
 /**
  * <p />
  */
-export const Text = ({ children, className }: Props) => {
-	return <p className={className}>{children}</p>;
+export const Text = ({
+	children,
+	...props
+}: Props & React.ComponentPropsWithRef<'p'>) => {
+	return <p {...props}>{children}</p>;
 };
 
 /**

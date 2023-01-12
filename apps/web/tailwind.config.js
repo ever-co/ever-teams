@@ -45,10 +45,19 @@ module.exports = {
 				},
 				dark: {
 					high: '#16171B',
+					lighter: '#1E2430',
 					DEFAULT: '#1A1C1E',
 				},
 			},
 			fontFamily: {},
+			boxShadow: {
+				lgcard: '0px 50px 200px rgba(0, 0, 0, 0.1)',
+				xlcard: '0px 16px 79px rgba(0, 0, 0, 0.12)',
+				'lgcard-white': '0px 50px 200px rgba(255, 255, 255, 0.1)',
+				'xlcard-white': '0px 16px 79px rgba(255, 255, 255, 0.12)',
+				darker:
+					'-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)',
+			},
 		},
 	},
 	plugins: [],
