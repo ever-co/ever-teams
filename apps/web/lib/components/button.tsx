@@ -1,6 +1,7 @@
 import { clsxm } from '@app/utils';
 import { PropsWithChildren } from 'react';
 import { SpinnerLoader } from './loader';
+import { ArrowLeft } from './svgs';
 
 type Props = {
 	variant?: 'primary' | 'outline' | 'ghost' | 'light' | 'dark';
@@ -65,6 +66,25 @@ export function RoundedButton({
 			{...rest}
 		>
 			{children}
+		</button>
+	);
+}
+
+export function BackButton({
+	onClick,
+	className,
+}: {
+	onClick?: () => void;
+	className?: string;
+}) {
+	return (
+		<button
+			type="button"
+			className={clsxm('flex items-center', className)}
+			onClick={onClick}
+		>
+			<ArrowLeft className="mr-2" />
+			<span className="text-sm">Back</span>
 		</button>
 	);
 }

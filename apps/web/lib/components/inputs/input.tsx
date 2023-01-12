@@ -1,10 +1,17 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { forwardRef, useEffect, useState } from 'react';
+import {
+	Dispatch,
+	forwardRef,
+	SetStateAction,
+	useEffect,
+	useState,
+} from 'react';
 import { Text } from '../typography';
 
 type Props = {
 	readonly errors?: Record<string, string>;
+	readonly setErrors?: Dispatch<SetStateAction<Record<string, string>>>;
 	wrapperClassName?: string;
 	noWrapper?: boolean;
 } & React.ComponentPropsWithRef<'input'>;
@@ -18,6 +25,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			name,
 			wrapperClassName,
 			noWrapper,
+			setErrors,
 			...res
 		},
 		ref
@@ -31,6 +39,14 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				setError(undefined);
 			}
 		}, [errors, name]);
+
+		const onKeyUp = () => {
+			if (setErrors && name) {
+				setErrors((ls) => ({ ...ls, [name]: '' }));
+			} else {
+				setError(undefined);
+			}
+		};
 
 		const inputElement = (
 			<input
@@ -46,7 +62,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					'font-light tracking-tight',
 					className
 				)}
-				onKeyUp={() => setError(undefined)}
+				onKeyUp={onKeyUp}
 				{...res}
 			/>
 		);
