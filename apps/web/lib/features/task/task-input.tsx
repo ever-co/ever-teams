@@ -1,4 +1,5 @@
 import { RTuseTaskInput, useOutsideClick, useTaskInput } from '@app/hooks';
+import { ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -10,7 +11,7 @@ import {
 	OutlineBadge,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TaskItem } from './task-item';
 
 export function TaskInput() {
@@ -33,6 +34,7 @@ export function TaskInput() {
 	} = datas;
 
 	const [taskName, setTaskName] = useState('');
+
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(() =>
 		setEditMode(false)
 	);
@@ -49,6 +51,19 @@ export function TaskInput() {
 			});
 		}
 	}, [editMode, activeTeamTask]);
+
+	/**
+	 * Change the active task
+	 */
+	const useItemClick = useCallback(
+		(task: ITeamTask) => {
+			if (datas.setActiveTask) {
+				datas.setActiveTask(task);
+			}
+			setEditMode(false);
+		},
+		[datas, setEditMode]
+	);
 
 	return (
 		<>
@@ -71,7 +86,11 @@ export function TaskInput() {
 					leaveTo="transform scale-95 opacity-0"
 				>
 					<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
-						<TaskCard datas={datas} />
+						<TaskCard
+							datas={datas}
+							onItemClick={useItemClick}
+							autoActiveTask={true}
+						/>
 					</Popover.Panel>
 				</Transition>
 			</Popover>
@@ -79,7 +98,15 @@ export function TaskInput() {
 	);
 }
 
-export function TaskCard({ datas }: { datas: Partial<RTuseTaskInput> }) {
+export function TaskCard({
+	datas,
+	onItemClick,
+	autoActiveTask,
+}: {
+	datas: Partial<RTuseTaskInput>;
+	onItemClick?: (task: ITeamTask) => void;
+	autoActiveTask?: boolean;
+}) {
 	return (
 		<Card
 			shadow="bigger"
@@ -95,7 +122,7 @@ export function TaskCard({ datas }: { datas: Partial<RTuseTaskInput> }) {
 				loading={datas.createLoading}
 				className="font-normal text-sm rounded-xl"
 				onClick={() =>
-					datas?.handleTaskCreation && datas?.handleTaskCreation(true)
+					datas?.handleTaskCreation && datas?.handleTaskCreation(autoActiveTask)
 				}
 			>
 				<PlusIcon className="w-[16px] h-[16px]" /> Create new task
@@ -148,7 +175,7 @@ export function TaskCard({ datas }: { datas: Partial<RTuseTaskInput> }) {
 						<li key={task.id}>
 							<TaskItem
 								task={task}
-								onClick={(t) => datas.setActiveTask && datas.setActiveTask(t)}
+								onClick={onItemClick}
 								className="cursor-pointer"
 							/>
 

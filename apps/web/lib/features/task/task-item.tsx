@@ -12,7 +12,7 @@ type Props = {
 export function TaskItem({ task, onClick, className }: Props) {
 	return (
 		<div
-			className={clsxm('flex justify-between', className)}
+			className={clsxm('flex justify-between items-center', className)}
 			onClick={() => onClick && task && onClick(task)}
 		>
 			<div className="font-normal text-sm overflow-hidden text-ellipsis flex-1">
