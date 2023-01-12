@@ -1,3 +1,4 @@
+import { useModal } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { useCallback, useMemo, useState } from 'react';
@@ -64,7 +65,7 @@ export function useTaskInput() {
 							.replace(/\s+/g, '')
 							.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
 						h_filter(task.status, filter)
-				);
+			  );
 	}, [query, tasks, filter]);
 
 	const filteredTasks2 = useMemo(() => {
@@ -76,7 +77,7 @@ export function useTaskInput() {
 						.toLowerCase()
 						.replace(/\s+/g, '')
 						.startsWith(query.toLowerCase().replace(/\s+/g, ''));
-				});
+			  });
 	}, [query, tasks]);
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
@@ -124,19 +125,4 @@ export function useTaskInput() {
 	};
 }
 
-export function useModal() {
-	const [isOpen, setIsOpen] = useState(false);
-	const closeModal = useCallback(() => {
-		setIsOpen(false);
-	}, []);
-
-	const openModal = useCallback(() => {
-		setIsOpen(true);
-	}, []);
-
-	return {
-		isOpen,
-		closeModal,
-		openModal,
-	};
-}
+export type RTuseTaskInput = ReturnType<typeof useTaskInput>;

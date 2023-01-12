@@ -4,11 +4,11 @@ import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
 
 import { ITeamTask } from '@app/interfaces/ITask';
-import { Spinner } from '../../ui/loaders/spinner';
+import { Spinner } from '@components/ui/loaders/spinner';
 import { TaskItem } from './task-item';
 import DeleteTask from './delete-task';
 import TaskFilter from './task-filter';
-import { useTaskInput } from './hooks';
+import { useTaskInput } from '@app/hooks';
 
 export function CreateTaskOption({
 	onClick,

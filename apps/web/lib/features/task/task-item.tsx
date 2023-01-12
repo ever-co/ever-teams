@@ -1,18 +1,22 @@
-import { IClassName } from '@app/interfaces';
+import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar } from 'lib/components';
 import { CloseIcon } from 'lib/components/svgs';
 import { TaskStatusDropdown } from './task-status';
 
 type Props = {
-	title?: string;
+	task?: ITeamTask;
+	onClick?: (task: ITeamTask) => void;
 } & IClassName;
 
-export function TaskItem({ title, className }: Props) {
+export function TaskItem({ task, onClick, className }: Props) {
 	return (
-		<div className={clsxm('flex justify-between', className)}>
+		<div
+			className={clsxm('flex justify-between', className)}
+			onClick={() => onClick && task && onClick(task)}
+		>
 			<div className="font-normal text-sm overflow-hidden text-ellipsis flex-1">
-				{title}
+				{task?.title}
 			</div>
 
 			<div className="flex items-center space-x-3 pl-2">

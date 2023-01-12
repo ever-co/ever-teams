@@ -16,7 +16,7 @@ import { Spinner } from '@components/shared/../ui/loaders/spinner';
 import TaskFilter from '@components/shared/tasks/task-filter';
 import { TaskItem } from '@components/shared/tasks/task-item';
 import { CreateTaskOption } from '@components/shared/tasks/task-input';
-import { useTaskInput } from '@components/shared/tasks/hooks';
+import { useTaskInput } from '@app/hooks';
 
 interface IOption {
 	name: string;

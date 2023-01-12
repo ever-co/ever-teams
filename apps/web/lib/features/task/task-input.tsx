@@ -1,4 +1,4 @@
-import { useOutsideClick } from '@app/hooks';
+import { RTuseTaskInput, useOutsideClick, useTaskInput } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -10,26 +10,59 @@ import {
 	OutlineBadge,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TaskItem } from './task-item';
 
 export function TaskInput() {
-	const [open, setOpen] = useState(false);
+	const datas = useTaskInput();
+
+	const {
+		activeTeamTask,
+		editMode,
+		setEditMode,
+		setQuery,
+		// tasksFetching,
+		// updateLoading,
+		// closedTaskCount,
+		// hasCreateForm,
+		// handleOpenModal,
+		// handleReopenTask,
+		// isModalOpen,
+		// closeModal,
+		// closeableTask,
+	} = datas;
+
+	const [taskName, setTaskName] = useState('');
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(() =>
-		setOpen(false)
+		setEditMode(false)
 	);
+
+	useEffect(() => {
+		setQuery(taskName);
+	}, [taskName]);
+
+	useEffect(() => {
+		setTaskName(activeTeamTask?.title || '');
+		if (activeTeamTask) {
+			setTaskName((v) => {
+				return (!editMode ? `#${activeTeamTask.taskNumber} ` : '') + v;
+			});
+		}
+	}, [editMode, activeTeamTask]);
 
 	return (
 		<>
 			<Popover className="relative w-full z-30">
 				<InputField
-					onFocus={() => setOpen(true)}
+					value={taskName}
+					onFocus={() => setEditMode(true)}
+					onChange={(event) => setTaskName(event.target.value)}
 					placeholder="What you working on?"
 					ref={targetEl}
 				/>
 
 				<Transition
-					show={open}
+					show={editMode}
 					enter="transition duration-100 ease-out"
 					enterFrom="transform scale-95 opacity-0"
 					enterTo="transform scale-100 opacity-100"
@@ -38,7 +71,7 @@ export function TaskInput() {
 					leaveTo="transform scale-95 opacity-0"
 				>
 					<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
-						<TaskCard />
+						<TaskCard datas={datas} />
 					</Popover.Panel>
 				</Transition>
 			</Popover>
@@ -46,7 +79,7 @@ export function TaskInput() {
 	);
 }
 
-export function TaskCard() {
+export function TaskCard({ datas }: { datas: Partial<RTuseTaskInput> }) {
 	return (
 		<Card
 			shadow="bigger"
@@ -55,40 +88,74 @@ export function TaskCard() {
 				'overflow-auto shadow-xlcard dark:shadow-xlcard'
 			)}
 		>
-			<Button variant="outline" className="font-normal text-sm rounded-xl">
+			{/* Create team button */}
+			<Button
+				variant="outline"
+				disabled={!datas.hasCreateForm || datas.createLoading}
+				loading={datas.createLoading}
+				className="font-normal text-sm rounded-xl"
+				onClick={() =>
+					datas?.handleTaskCreation && datas?.handleTaskCreation(true)
+				}
+			>
 				<PlusIcon className="w-[16px] h-[16px]" /> Create new task
 			</Button>
 
+			{/* Task filter buttons */}
 			<div className="mt-4 flex space-x-3">
-				<OutlineBadge className="input-border text-xs py-2">
-					<div className="w-4 h-4 bg-green-300 rounded-full opacity-50" />
-					<span className="text-primary dark:text-white font-normal">
-						23 Open
+				<OutlineBadge
+					className="input-border text-xs py-2 cursor-pointer"
+					onClick={() => datas.setFilter && datas.setFilter('open')}
+				>
+					<div
+						className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')}
+					/>
+					<span
+						className={clsxm(
+							datas.filter === 'open' && [
+								'text-primary dark:text-white font-normal',
+							]
+						)}
+					>
+						{datas.openTaskCount || 0} Open
 					</span>
 				</OutlineBadge>
 
-				<OutlineBadge className="input-border text-xs py-2">
+				<OutlineBadge
+					className="input-border text-xs py-2 cursor-pointer"
+					onClick={() => datas.setFilter && datas.setFilter('closed')}
+				>
 					<TickCircleIcon className="opacity-50" />
-					<span>25 Closed</span>
+					<span
+						className={clsxm(
+							datas.filter === 'closed' && [
+								'text-primary dark:text-white font-normal',
+							]
+						)}
+					>
+						{datas.closedTaskCount || 0} Closed
+					</span>
 				</OutlineBadge>
 			</div>
 
 			<Divider className="mt-4" />
 
+			{/* Task list */}
 			<ul className="my-6">
-				<li>
-					<TaskItem title="Api Integration" />
-					<Divider className="my-5" />
-				</li>
+				{datas.filteredTasks?.map((task, i) => {
+					const last = (datas.filteredTasks?.length || 0) - 1 === i;
+					return (
+						<li key={task.id}>
+							<TaskItem
+								task={task}
+								onClick={(t) => datas.setActiveTask && datas.setActiveTask(t)}
+								className="cursor-pointer"
+							/>
 
-				<li>
-					<TaskItem title="Design Profile Screen" />
-					<Divider className="my-5" />
-				</li>
-
-				<li>
-					<TaskItem title="Improve main page design" />
-				</li>
+							{!last && <Divider className="my-5" />}
+						</li>
+					);
+				})}
 			</ul>
 		</Card>
 	);
