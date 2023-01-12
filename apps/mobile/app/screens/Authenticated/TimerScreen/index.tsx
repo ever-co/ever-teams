@@ -32,6 +32,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
   const {
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken },
     teamStore: { createTeam },
+    TaskStore:{teamTasks, setTeamTasks}
   } = useStores();
 
   const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)

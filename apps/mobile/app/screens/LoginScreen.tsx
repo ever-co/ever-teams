@@ -155,6 +155,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const loginRes = data.loginRes;
       const user = loginRes.user;
 
+      console.log(JSON.stringify(response))
 
       setIsSubmitted(false)
       setAuthTeamName("")
