@@ -82,7 +82,9 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     return (
       <>
         {showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
-        <Screen contentContainerStyle={[$container, { backgroundColor: colors.background }]} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
+        <Screen contentContainerStyle={[$container, { backgroundColor: colors.background }]}
+          backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
+          statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
           <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
           <CreateTeamModal
             onCreateTeam={createNewTeam}

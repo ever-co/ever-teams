@@ -31,7 +31,6 @@ export const CodeInput: FC<IInput> = ({ onChange }) => {
     codes[inputIndex] = inputCode
     setInviteCode(codes)
     onChange(codes.join(""))
-
   }
 
   return (
