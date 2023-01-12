@@ -63,8 +63,8 @@ const customDarkTheme = {
     primary: "#FFFFFF",
     secondary: "#8C7AE4",
     tertiary: "#7B8089",
-    background: "#1E2025",
-    background2: "#16171B",
+    background: "#191A20",
+    background2: "rgb(16,17,20)",
     divider: "rgba(255, 255, 255, 0.16)",
     border: "rgba(255, 255, 255, 0.13)"
   }
