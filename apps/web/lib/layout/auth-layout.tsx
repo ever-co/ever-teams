@@ -1,7 +1,6 @@
 import { clsxm } from '@app/utils';
 import { Meta, Text } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
-import { useTheme } from 'next-themes';
 import Image from 'next/legacy/image';
 import { PropsWithChildren } from 'react';
 import { Footer } from './footer';
@@ -9,8 +8,6 @@ import { Footer } from './footer';
 type Props = { title?: string; description?: string } & PropsWithChildren;
 
 export function AuthLayout({ children, title, description }: Props) {
-	const { theme } = useTheme();
-
 	return (
 		<>
 			<Meta title={title} />
@@ -25,8 +22,8 @@ export function AuthLayout({ children, title, description }: Props) {
 
 					<div className="overflow-hidden">
 						<div className="p-9 pt-4">
-							<AppLogo className="fill-white scale-75" />
-							<Text className="text-xs ml-7 text-gray-300">
+							<AppLogo className="fill-white scale-75 mt-3 dark:fill-default" />
+							<Text className="text-xs ml-7 text-gray-300 dark:text-default">
 								Welcome to Gauzy teams
 							</Text>
 						</div>
@@ -44,16 +41,11 @@ export function AuthLayout({ children, title, description }: Props) {
 												image.endsWith('dark.png') && [
 													'opacity-0 dark:opacity-100',
 												],
-											]
+											],
+											'shadow-[-76px_-13px_244px_-42px_rgba(40,32,72,0.55)]',
+											'dark:shadow-[-76px_-13px_244px_-42px_rgba(0,0,0,0.75)]'
 										)}
 										key={image}
-										style={
-											(theme === 'dark' &&
-												image.endsWith('dark.png') && {
-													boxShadow: '-76px -13px 244px -42px rgba(0,0,0,0.75',
-												}) ||
-											undefined
-										}
 									>
 										<Image
 											src={`/assets/cover/${image}`}

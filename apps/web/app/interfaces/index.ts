@@ -9,3 +9,4 @@ export * from './ITask';
 export * from './ITenant';
 export * from './ITimer';
 export * from './IUserData';
+export * from './hooks';

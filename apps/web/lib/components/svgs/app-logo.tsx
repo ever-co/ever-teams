@@ -1,7 +1,8 @@
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
 
-export function AppLogo({ className }: { className?: string }) {
+export function AppLogo({ className }: IClassName) {
 	return (
 		<Link href="/" target={'_self'}>
 			<svg
