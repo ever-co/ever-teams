@@ -10,7 +10,7 @@ import { Analytics } from '@vercel/analytics/react';
 export default function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<>
-			<Script
+			{/* <Script
 				strategy="lazyOnload"
 				src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
 			/>
@@ -19,7 +19,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
   				function gtag(){dataLayer.push(arguments);}
   				gtag('js', new Date());
   				gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');`}
-			</Script>
+			</Script> */}
 			<Head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link

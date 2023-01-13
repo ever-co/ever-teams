@@ -93,3 +93,27 @@ html.dark {
 		--tooltipBackground: #8c7ae4 !important;
 	}
 }
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
+	src: url('../public/assets/fonts/PlusJakartaSans-VariableFont_wght.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Regular';
+	src: url('../public/assets/fonts/PlusJakartaSans-Regular.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Bold';
+	src: url('../public/assets/fonts/PlusJakartaSans-Bold.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Light';
+	src: url('../public/assets/fonts/PlusJakartaSans-Light.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-Medium';
+	src: url('../public/assets/fonts/PlusJakartaSans-Medium.ttf');
+}
+@font-face {
+	font-family: 'Plus-Jakarta-Sans-SemiBold';
+	src: url('../public/assets/fonts/PlusJakartaSans-SemiBold.ttf');
+}
