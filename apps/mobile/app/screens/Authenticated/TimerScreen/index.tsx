@@ -32,11 +32,12 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
   const {
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken },
     teamStore: { createTeam },
+    TaskStore: { teamTasks, setTeamTasks }
   } = useStores();
 
   const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
-  const { colors } = useAppTheme()
+  const { colors, dark } = useAppTheme()
   // Create New Team
   const createNewTeam = async (text: string) => {
     const responseTeams = {
@@ -57,7 +58,9 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
   }, [])
 
   return (
-    <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={["top"]}>
+    <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
+      backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
+      safeAreaEdges={["top"]}>
       <CreateTeamModal
         onCreateTeam={createNewTeam}
         visible={showCreateTeamModal}

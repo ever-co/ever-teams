@@ -10,7 +10,7 @@ export const TimerStoreModel = types
         timeCounterState: types.optional(types.number, 0),
         timeCounterInterval: types.optional(types.number,0),
         canRunTimer: types.optional(types.boolean, false),
-        localTimerStatus:types.optional(types.frozen(),null)
+        localTimerStatus:types.optional(types.frozen(),{running:false})
     })
     .actions((store) => ({
         setTimerStatus(value: ITimerStatus) {

@@ -19,6 +19,7 @@ import { useFirstLoad } from "../services/hooks/useFirstLoad";
 import { ActivityIndicator } from "react-native-paper";
 import { translate } from "../i18n";
 import sendAuthCode from "../services/client/api/auth/sendAuthCode";
+import { useAppTheme } from "../app";
 const pkg = require("../../package.json")
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
@@ -53,7 +54,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setUser,
       setTenantId,
       setEmployeeId,
-      setRefreshToken
+      setRefreshToken,
+      toggleTheme,
     },
     teamStore: {
       setActiveTeam, getUserTeams,
@@ -63,6 +65,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const { loadTeamTasksData } = useTeamTasks();
   const { firstLoadData } = useFirstLoad();
+  const { colors, dark } = useAppTheme();
 
 
   useEffect(() => {
@@ -78,7 +81,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
-  //const api = new Api()
   const joinTeam = async () => {
     setIsSubmitted(true)
 
@@ -155,6 +157,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const loginRes = data.loginRes;
       const user = loginRes.user;
 
+      console.log(JSON.stringify(response))
 
       setIsSubmitted(false)
       setAuthTeamName("")
@@ -204,13 +207,14 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   return (
     <Screen
-      preset="auto"
-      contentContainerStyle={$screenContentContainer}
-      backgroundColor={colors.primary}
-      statusBarStyle="light"
+      // preset="scroll"
+      contentContainerStyle={{ ...$screenContentContainer, backgroundColor: "#282149" }}
+      backgroundColor={"#282149"}
+      statusBarStyle={"light"}
       safeAreaEdges={["top"]}
+      KeyboardAvoidingViewProps={{}}
     >
-      <View style={{ paddingHorizontal: 20, marginTop: 20, width, backgroundColor: colors.primary }}>
+      <View style={{ paddingHorizontal: 20, marginTop: 20, width, backgroundColor: "#282149" }}>
         <Image source={require("../../assets/images/new/gauzy-teams-white.png")} />
 
         {withteam ? (
@@ -317,7 +321,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   })}
                 >
                   <Image source={require("../../assets/icons/back.png")} />
-                  <Text style={[$backButtonText, { color: colors.primary, fontSize: 14 }]}>{translate("common.back")}</Text>
+                  <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
                   style={[$tapButton, { width: width / 2.1 }]}
@@ -349,14 +353,24 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 </TouchableOpacity>
               </View>
               <View style={[$buttonsView]}>
+                <TouchableOpacity
+                  style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: 65 }}
+                  onPress={() => setScreenStatus({
+                    screen: 2,
+                    animation: true
+                  })}
+                >
+                  <Image source={require("../../assets/icons/back.png")} />
+                  <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
+                </TouchableOpacity>
                 <Button
-                  style={[$tapButton, { width: "100%", opacity: isLoading ? 0.7 : 1 }]}
+                  style={[$tapButton, { width: width / 2.1 }]}
                   textStyle={$tapButtonText}
                   onPress={() => createNewTeam()}
                 >
-                  <Text>{translate("loginScreen.tapJoin")}</Text>
+                  <Text>{translate("loginScreen.tapContinue")}</Text>
                 </Button>
-                <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#fff"} />
+                {isLoading && <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#000"} />}
               </View>
             </Animatable.View>
 
@@ -391,8 +405,20 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 </TouchableOpacity>
               </View>
               <View style={[$buttonsView]}>
+                <TouchableOpacity
+                  style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: 65 }}
+                  onPress={() => {
+                    setWithTeam(false)
+                    setScreenStatus({
+                    screen: 1,
+                    animation: true
+                  })}}
+                >
+                  <Image source={require("../../assets/icons/back.png")} />
+                  <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
+                </TouchableOpacity>
                 <Button
-                  style={[$tapButton, { width: "100%", opacity: isLoading ? 0.7 : 1 }]}
+                  style={[$tapButton, { width: width / 2.1 }]}
                   textStyle={$tapButtonText}
                   onPress={() => joinTeam()}
                 >
@@ -405,7 +431,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
         <View style={$bottomSection}>
           <Text style={$bottomSectionTxt}>© 2022-Present, Gauzy Teams by Ever Co. LTD. All rights reserved.</Text>
-          <Image style={{ height: 50, marginBottom: -25 }} source={require("../../assets/icons/new/toogle-light.png")} />
+          <TouchableOpacity onPress={() => toggleTheme()}>
+            <Image style={{ height: 50, marginBottom: -25 }} source={require("../../assets/icons/new/toogle-light.png")} />
+          </TouchableOpacity>
         </View>
       </View>
     </Screen>

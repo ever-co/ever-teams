@@ -6,14 +6,14 @@ import {
   ViewStyle,
   TouchableWithoutFeedback,
   TextStyle,
-  Text, Dimensions
+  Text, Dimensions, FlatList
 } from "react-native"
 
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 
 // COMPONENTS
-import {  Screen, } from "../../../components"
+import { Screen, } from "../../../components"
 import InviteUserModal from "./components/InviteUserModal"
 import ListCardItem from "./components/ListCardItem"
 
@@ -39,12 +39,15 @@ const { width, height } = Dimensions.get("window");
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
   function AuthenticatedTeamScreen(_props) {
 
-    const {colors}=useAppTheme();
+    const { colors, dark } = useAppTheme();
     //Get authentificate data
     const {
       authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
       teamStore: { teams, createTeam, activeTeam, teamInvitations },
-      TaskStore: { activeTask }
+      TaskStore: { activeTask },
+      TimerStore: {
+        localTimerStatus
+      }
     } = useStores();
 
     const { $otherMembers, isTeamManager, currentUser } = useOrganizationTeam();
@@ -79,37 +82,39 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     return (
       <>
         {showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
-        <Screen contentContainerStyle={[$container,{backgroundColor:colors.background}]} statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
+        <Screen contentContainerStyle={[$container, { backgroundColor: colors.background }]}
+          backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
+          statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
           <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
           <CreateTeamModal
             onCreateTeam={createNewTeam}
             visible={showCreateTeamModal}
             onDismiss={() => setShowCreateTeamModal(false)}
           />
-          <HomeHeader props={_props} showTimer={true} />
-          <View style={$wrapTeam}>
+          <HomeHeader props={_props} showTimer={localTimerStatus.running} />
+          <View style={{ ...$wrapTeam, backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)", }}>
             <View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
               <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
             </View>
             {isTeamManager ? (
               <TouchableOpacity
-                style={[$inviteButton,{borderColor:colors.secondary}]}
+                style={[$inviteButton, { borderColor: colors.secondary }]}
                 onPress={() => setShowInviteModal(true)}
               >
-                <Text style={[$inviteButtonText,{color:colors.secondary}]}>
+                <Text style={[$inviteButtonText, { color: colors.secondary }]}>
                   {translate("teamScreen.inviteButton")}
                 </Text>
               </TouchableOpacity>
             ) : null}
           </View>
           <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-            <View style={[$cardContainer,{backgroundColor:colors.background2}]}>
-              {/* Users activity list */}
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-                style={{ ...GS.my2 }}
-              >
+            {/* Users activity list */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+              style={[$cardContainer, { backgroundColor: dark ? "rgb(16,17,20)" : "#F7F7F8" }]}
+            >
+              <View >
                 {currentUser && (
                   <ListCardItem
                     member={currentUser as IUser}
@@ -131,11 +136,12 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                     userStatus={"online"}
                   />
                 ))}
+
                 {["teamInvitations.items"]?.map((invite: any) => (
-                  <InviteCardItem key={"invite.id"} invite={{fullName:"Elvis Matondo"}} />
+                  <InviteCardItem key={"invite.id"} invite={{ fullName: "Elvis Matondo" }} />
                 ))}
-              </ScrollView>
-            </View>
+              </View>
+            </ScrollView>
           </TouchableWithoutFeedback>
           <FlashMessage position="bottom" />
         </Screen>
