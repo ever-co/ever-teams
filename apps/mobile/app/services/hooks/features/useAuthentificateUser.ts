@@ -14,7 +14,6 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
 
     const updateUserFromAPI = useCallback(async () => {
         const { user: authUser, access_token } = await refresh(refreshToken)
-        console.log("Auth user"+JSON.stringify(+authUser))
         setUser(authUser)
         setAuthToken(access_token)
         return authUser;

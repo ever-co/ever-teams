@@ -11,6 +11,7 @@ import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { useAppTheme } from "../../app"
 import { Avatar } from "react-native-paper"
+import { useOrganizationTeam } from "../../services/hooks/useOrganization"
 
 export interface Props {
   teams: IOrganizationTeamList[]
@@ -24,7 +25,8 @@ export interface Props {
 // }
 
 const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, changeTeam }) {
-  const { teamStore: { activeTeamId, activeTeam } } = useStores();
+  const { teamStore: { activeTeamId, activeTeam} } = useStores();
+ 
   const others = teams.filter((t) => t.id !== activeTeamId);
 
   const { colors } = useAppTheme();

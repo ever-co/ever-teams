@@ -20,7 +20,7 @@ import { TextInput } from "react-native-gesture-handler"
 
 export interface Props {
   visible: boolean
-  onCreateTeam:(value:string)=>unknown
+  onCreateTeam: (value: string) => unknown
   onDismiss: () => unknown
 }
 
@@ -60,10 +60,9 @@ const ModalPopUp = ({ visible, children }) => {
 }
 
 const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss, onCreateTeam }) {
+  const [teamText, setTeamText] = useState("");
 
-  const [teamText, setTeamText]=useState("");
-
-  const handleSubmit=()=>{
+  const handleSubmit = () => {
     onCreateTeam(teamText)
     setTeamText("")
     onDismiss();
@@ -76,7 +75,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
           <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
           <Text
             testID="login-heading"
-            tx="loginScreen.welcome"
+            // tx="loginScreen.welcome"
             preset="heading"
             style={$smalltext}
           />
@@ -89,7 +88,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
             style={[$text, { marginTop: spacing.large }]}
           />
           <View>
-            <TextInput value={teamText} onChangeText={(text)=>setTeamText(text)}  style={[$inputStyle, $inputText]} placeholder="Please enter your team name" />
+            <TextInput value={teamText} onChangeText={(text) => setTeamText(text)} style={[$inputStyle, $inputText]} placeholder="Please enter your team name" />
           </View>
           <View
             style={{
@@ -135,13 +134,13 @@ const $modalBackGround: ViewStyle = {
 }
 const $modalContainer: ViewStyle = {
   width: "95%",
-  height:350,
+  height: 350,
   backgroundColor: "white",
   paddingHorizontal: 30,
   paddingVertical: 30,
   borderRadius: 30,
   elevation: 20,
-  justifyContent:'center'
+  justifyContent: 'center'
 }
 
 const $welcomeLogo: ImageStyle = {
@@ -173,7 +172,7 @@ const $inputStyle: ViewStyle = {
   width: "100%",
 }
 
-const $inputText: TextStyle={
-  fontWeight:'500',
-  fontSize:17
+const $inputText: TextStyle = {
+  fontWeight: '500',
+  fontSize: 17
 }

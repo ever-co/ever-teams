@@ -37,6 +37,7 @@ import WorkedOnTask from "../../../../components/WorkedOnTask";
 import TaskStatus from "./TaskStatus";
 import { useAppTheme } from "../../../../app";
 import LabelItem from "../../../../components/LabelItem";
+import { secondsToTime } from "../../../../helpers/date";
 
 export type ListItemProps = {
   item: ITeamTask
@@ -56,10 +57,10 @@ export type ListItemProps = {
 export interface Props extends ListItemProps { }
 
 const labels = [
-  { id: 1, label: "Low", color: "#282048", background: ["#93E6BE","#55C0D8","#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
-  { id: 2, label: "Extra Large", color: "#282048", background: ["#F5B8B8","#EF7070","#F5B8B8"], icon: require("../../../../../assets/icons/new/maximize-3.png") },
+  { id: 1, label: "Low", color: "#282048", background: ["#93E6BE", "#55C0D8", "#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
+  { id: 2, label: "Extra Large", color: "#282048", background: ["#F5B8B8", "#EF7070", "#F5B8B8"], icon: require("../../../../../assets/icons/new/maximize-3.png") },
   { id: 3, label: "UIUX", color: "#9641AB", background: ["#EAD9EE"], icon: require("../../../../../assets/icons/new/devices.png") },
-  { id: 4, label: "Low", color: "#282048", background: ["#93E6BE","#55C0D8","#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
+  { id: 4, label: "Low", color: "#282048", background: ["#93E6BE", "#55C0D8", "#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
 ];
 
 const { width, height } = Dimensions.get("window")
@@ -90,6 +91,11 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
   const [labelIndex, setLabelIndex] = useState(0);
   const [titleInput, setTitleInput] = useState("")
   const [loading, setLoading] = useState(false);
+  const [estimatedTime, setEstimateTime] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  })
   const [showMenu, setShowMenu] = React.useState(false)
   const [memberTask, setMemberTask] = useState<ITeamTask | null>(item)
   const isAuthUser = member.employee.userId === user?.id;
@@ -177,6 +183,27 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     setLabelIndex(labelIndex - 1);
   }
 
+
+  const progress = useMemo(() => {
+    if (memberTask && memberTask.estimate > 0) {
+      const percent = (timeCounterState / 100) / memberTask.estimate;
+      return Math.floor(percent * 10);
+    }
+
+    return 0
+  }, [timeCounterState])
+
+  useEffect(() => {
+    if (memberTask) {
+      const { h, m, s } = secondsToTime(memberTask.estimate)
+      setEstimateTime({
+        hours: h,
+        minutes: m,
+        seconds: s
+      })
+    }
+  }, [memberTask, enableEstimate])
+
   return (
     <TouchableNativeFeedback onPressIn={onPressIn}>
       <View style={{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, borderRadius: 14 }}>
@@ -219,18 +246,18 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             <AnimatedCircularProgress
               size={48}
               width={5}
-              fill={70}
+              fill={progress}
               tintColor="#27AE60"
-              onAnimationComplete={() => {}}
+              onAnimationComplete={() => { }}
               backgroundColor="#F0F0F0">
-                 {
-                      (fill) => (
-                        <Text style={{ ...styles.progessText, color: colors.primary }}>
-                          12 H
-                        </Text>
-                      )
-                    }
-              </AnimatedCircularProgress>
+              {
+                (fill) => (
+                  <Text style={{ ...styles.progessText, color: colors.primary }}>
+                    {estimatedTime.hours > 0 ? estimatedTime.hours + " H" : estimatedTime.minutes > 0 ? estimatedTime.minutes + " Min" : "0 H"}
+                  </Text>
+                )
+              }
+            </AnimatedCircularProgress>
           </View>
 
           <View style={styles.labelFlatList}>
@@ -270,7 +297,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
           <View style={{ flexDirection: "row", width: "50%", alignItems: "center" }}>
             {isAuthUser ? (
               <>
-                { activeTask && activeTask.id === item.id ? (
+                {activeTask && activeTask.id === item.id ? (
                   <>
                     <TimerButton isRunning={localTimerStatus.running} />
                     <View style={{ justifyContent: "center", alignItems: "center", left: 10 }}>
@@ -307,18 +334,18 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             <TaskStatus {...item} />
           </View>
         </View>
-        {showMenu && <SidePopUp setShowMenu={()=>setShowMenu(false)} props={props} />}
+        {showMenu && <SidePopUp setShowMenu={() => setShowMenu(false)} props={props} />}
       </View>
     </TouchableNativeFeedback >
   )
 }
 interface IMenuProps {
-  setShowMenu: ()=>unknown
+  setShowMenu: () => unknown
   props: any
 }
-const SidePopUp:FC<IMenuProps> = ({props,setShowMenu}) => {
+const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu }) => {
   const { colors } = useAppTheme();
-  const {onAssignTask, onUnassignTask, item}=props;
+  const { onAssignTask, onUnassignTask, item } = props;
   return (
     <View
       style={{
@@ -330,7 +357,7 @@ const SidePopUp:FC<IMenuProps> = ({props,setShowMenu}) => {
         ...GS.r0,
         ...GS.rounded,
         ...GS.border,
-        borderColor:colors.border,
+        borderColor: colors.border,
         ...GS.zIndexFront,
         width: 120,
         shadowColor: colors.border,
@@ -342,19 +369,19 @@ const SidePopUp:FC<IMenuProps> = ({props,setShowMenu}) => {
       <View style={{}}>
         <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Edit Task</ListItem>
         <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]} onPress={() => { }}>Estimate</ListItem>
-      
+
         {onAssignTask && <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-        onPress={() => {
-          onAssignTask(item.id)
-          setShowMenu()
-        }}
+          onPress={() => {
+            onAssignTask(item.id)
+            setShowMenu()
+          }}
         >Assign Task</ListItem>}
 
         {onUnassignTask && <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-         onPress={() => {
-          onUnassignTask(item.id)
-          setShowMenu()
-        }}
+          onPress={() => {
+            onUnassignTask(item.id)
+            setShowMenu()
+          }}
         >Unassign Task</ListItem>}
       </View>
     </View>
@@ -556,10 +583,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: "74%",
-    marginTop:16
+    marginTop: 16
   },
   progessText: {
     fontFamily: typography.primary.semiBold,
-    fontSize: 12
+    fontSize: 10
   }
 })

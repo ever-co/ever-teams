@@ -1,6 +1,5 @@
-import { Link } from "@react-navigation/native"
 import { observer } from "mobx-react-lite"
-import React, { FC, useEffect, useRef, useState } from "react"
+import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { Dimensions } from "react-native"
 import * as Animatable from 'react-native-animatable';
 import { TextInput, TextStyle, Text, View, ViewStyle, Image, ImageStyle, TouchableOpacity } from "react-native"
@@ -20,6 +19,7 @@ import { ActivityIndicator } from "react-native-paper";
 import { translate } from "../i18n";
 import sendAuthCode from "../services/client/api/auth/sendAuthCode";
 import { useAppTheme } from "../app";
+import { useOrganizationTeam } from "../services/hooks/useOrganization";
 const pkg = require("../../package.json")
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
@@ -58,12 +58,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       toggleTheme,
     },
     teamStore: {
-      setActiveTeam, getUserTeams,
+      setActiveTeam,
       setActiveTeamId
     },
   } = useStores()
 
-  const { loadTeamTasksData } = useTeamTasks();
   const { firstLoadData } = useFirstLoad();
   const { colors, dark } = useAppTheme();
 
@@ -81,7 +80,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
-  const joinTeam = async () => {
+  const joinTeam = useCallback(async () => {
     setIsSubmitted(true)
 
     setAttemptsCount(attemptsCount + 1)
@@ -114,7 +113,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthInviteCode("")
       setAuthUsername("")
       setAuthConfirmCode("")
-
       setActiveTeamId(team.id)
       setActiveTeam(team)
       setOrganizationId(team.organizationId)
@@ -122,19 +120,19 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setTenantId(team.tenantId)
       setEmployeeId(employee.id)
       //Load first team data
-      getUserTeams({ tenantId: team.tenantId, userId: user.id, authToken: loginRes.token });
+      // getUserTeams({ tenantId: team.tenantId, userId: user.id, authToken: loginRes.token });
       //Load tasks for current team or initialize tasks
-      loadTeamTasksData();
-      firstLoadData();
+      // loadTeamTasksData();
+      // firstLoadData();
       // Save Auth Data
       setAuthToken(loginRes.token);
-      setRefreshToken(loginRes.refresh_token)
+      // setRefreshToken(loginRes.refresh_token)
       setIsLoading(false)
     }
 
-  }
+  }, []);
 
-  const createNewTeam = async () => {
+  const createNewTeam = useCallback(async () => {
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 
@@ -174,24 +172,20 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setUser(loginRes.user)
       setTenantId(data.team.tenantId)
       setEmployeeId(employee.id)
-      //Load first team data
-      getUserTeams({ tenantId: data.team.tenantId, userId: loginRes.user.id, authToken: loginRes.token });
-      //Load tasks for current team or initialize tasks
 
-      loadTeamTasksData();
       firstLoadData();
       // Save Auth Data
       setAuthToken(loginRes.token);
       setRefreshToken(loginRes.refresh_token)
       setIsLoading(false)
     }
-  }
+  }, []);
 
-  const getAuthCode = async () => {
+  const getAuthCode = useCallback(async () => {
     setIsSubmitted(true)
     const { data, status, error } = await sendAuthCode(authEmail);
     setIsSubmitted(false);
-  }
+  }, [authEmail])
 
 
   useEffect(() => {
@@ -216,7 +210,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     >
       <View style={{ paddingHorizontal: 20, marginTop: 20, width, backgroundColor: "#282149" }}>
         <Image source={require("../../assets/images/new/gauzy-teams-white.png")} />
-
         {withteam ? (
           <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
             <Text style={$screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
@@ -410,9 +403,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   onPress={() => {
                     setWithTeam(false)
                     setScreenStatus({
-                    screen: 1,
-                    animation: true
-                  })}}
+                      screen: 1,
+                      animation: true
+                    })
+                  }}
                 >
                   <Image source={require("../../assets/icons/back.png")} />
                   <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>

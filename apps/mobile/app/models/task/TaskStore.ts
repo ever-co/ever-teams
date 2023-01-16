@@ -9,13 +9,14 @@ export const TaskStoreModel = types
     .model("TaskStore")
     .props({
         teamTasks: types.array(types.frozen<ITeamTask>()),
-        activeTask: types.optional(types.frozen(), {}),
+        activeTask: types.optional(types.frozen(), {status:"Todo"}),
         activeTaskId: types.optional(types.string, ""),
         assignedTasks: types.array(types.frozen<ITeamTask>()),
         unassignedTasks: types.array(types.frozen<ITeamTask>()),
         fetchingTasks: types.optional(types.boolean, false),
         tasksStatisticsState: types.optional(types.frozen(), null),
-        statActiveTask: types.optional(types.frozen(), {total:0, today:0})
+        statActiveTask: types.optional(types.frozen(), {total:0, today:0}),
+        count:types.optional(types.number,0)
     })
     .views((store) => ({
 
@@ -47,6 +48,9 @@ export const TaskStoreModel = types
         },
         setFetchingTasks(value: boolean) {
             store.fetchingTasks = value
+        },
+        setCount(value:number){
+            store.count=value;
         },
         filterDataByStatus(query, tasks: ITeamTask[], filter) {
             return query.trim() === ""

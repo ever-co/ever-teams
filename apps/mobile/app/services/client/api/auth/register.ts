@@ -1,10 +1,7 @@
 import { generateToken } from "../../../../helpers/generate-token";
 import { authFormValidate } from "../../../../helpers/validations";
-import LocalStorage from "../../../api/tokenHandler";
-import { ILoginReponse, IRegisterDataAPI } from "../../../interfaces/IAuthentication";
-import { IEmployee } from "../../../interfaces/IEmployee";
-import { IOrganizationTeam } from "../../../interfaces/IOrganizationTeam";
-import { loginUserRequest, refreshTokenRequest, registerUserRequest } from "../../requests/auth";
+import { IRegisterDataAPI } from "../../../interfaces/IAuthentication";
+import { loginUserRequest,  registerUserRequest } from "../../requests/auth";
 import { createEmployeeFromUser } from "../../requests/employee";
 import { createStmpTenantRequest } from "../../requests/features/smtp";
 import { createOrganizationRequest } from "../../requests/organization";
@@ -91,12 +88,7 @@ export async function register(params: IRegisterDataAPI) {
     },
     auth_token
   );
-  const {data:refreshRes}=await refreshTokenRequest(loginRes.refresh_token)
-  // Save auth data
-  LocalStorage.set("token", refreshRes.token);
-
-  // Assign the new token from refresh token
-  loginRes.token=refreshRes.token;
+  
 
   return {
     response: {
