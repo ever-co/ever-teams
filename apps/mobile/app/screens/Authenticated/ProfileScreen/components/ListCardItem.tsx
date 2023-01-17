@@ -566,7 +566,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 120,
     height: 33,
-    backgroundColor: "#D4EFDF",
     borderColor: "transparent",
   }
 })

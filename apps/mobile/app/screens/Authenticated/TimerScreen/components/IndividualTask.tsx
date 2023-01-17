@@ -7,9 +7,10 @@ import DeletePopUp from "./DeletePopUp"
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
-import TaskStatusDropdown from "./TaskStatusDropdown"
+import { showMessage } from "react-native-flash-message"
 import TaskStatus from "../../ProfileScreen/components/TaskStatus"
 import { useAppTheme } from "../../../../app"
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 
 
 export interface Props {
@@ -22,38 +23,44 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
 
   const { colors } = useAppTheme()
   const [showDel, setShowDel] = useState(false)
+  const { updateTask } = useTeamTasks();
   const {
     authenticationStore: { tenantId, authToken, organizationId },
     teamStore: { activeTeamId },
     TaskStore: { }
   } = useStores();
 
-  const onCloseTask = () => {
+  const onCloseTask = async () => {
     const value: ITaskStatus = "Closed";
     const EditTask = {
       ...task,
       status: value
     };
-    const refreshData = {
-      activeTeamId,
-      tenantId,
-      organizationId
+    const { response } = await updateTask(EditTask, task.id);
+
+    if (response.status !== 202) {
+      showMessage({
+        message: "Something went wrong",
+        type: "warning"
+      })
     }
-    // updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
+
   }
 
-  const reOpen = () => {
+  const reOpen = async () => {
     const value: ITaskStatus = "Todo";
     const EditTask = {
       ...task,
       status: value
     };
-    const refreshData = {
-      activeTeamId,
-      tenantId,
-      organizationId
+    const { response } = await updateTask(EditTask, task.id);
+
+    if (response.status !== 202) {
+      showMessage({
+        message: "Something went wrong",
+        type: "warning"
+      })
     }
-    // updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
   }
 
   return (
@@ -62,14 +69,14 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
         {/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
         <Text style={[styles.taskTitle, { color: colors.primary }]} numberOfLines={2}>{task.title}</Text>
       </View>
-      <View style={{ flexDirection: "row", width: "55%", alignItems: "center", zIndex: 101, justifyContent: "space-between" }}>
-        <View style={{ left: -15, width: 100, height: 27, borderRadius: 10, zIndex: 999 }}>
+      <View style={{ flexDirection: "row", width: "60%", alignItems: "center", zIndex: 101, justifyContent: "space-between" }}>
+        <View style={{ zIndex: 999 }}>
           <TaskStatus
             task={task}
             containerStyle={styles.statusContainer}
           />
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "30%" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "27%" }}>
           <View style={{ flexDirection: "row" }}>
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile2} />
@@ -87,8 +94,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    borderBottomColor: "rgba(0, 0, 0, 0.06)",
-    borderBottomWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.06)",
+    borderTopWidth: 1,
+    width: "100%",
     justifyContent: "space-between",
     paddingVertical: 12,
     zIndex: 100
@@ -151,17 +159,16 @@ const styles = StyleSheet.create({
   taskTitle: {
     color: "#282048",
     fontSize: 10,
-    // marginLeft: 5,
-    width: 99,
+    width: "77%",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
   statusContainer: {
     paddingHorizontal: 7,
     alignItems: "center",
-    marginRight:6,
+    marginRight: 6,
     width: 113,
     height: 27,
-    backgroundColor:"#ECE8FC",
+    backgroundColor: "#ECE8FC",
     borderColor: "transparent",
   }
 })

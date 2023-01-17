@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text, FlatList, Image } from "react-native"
-
+import FlashMessage from "react-native-flash-message"
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 // DATA
@@ -10,10 +10,9 @@ import { Screen } from "../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
-import { spacing, typography } from ".././../../theme"
+import { typography } from ".././../../theme"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
-import FilterSection from "./components/FilterPopup"
 import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
@@ -73,7 +72,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       ? new_teamTasks.filter((t) => t.id !== activeTask.id)
       : new_teamTasks;
 
-    const { assignedTasks, unassignedTasks, countTasksByTab } = useAuthTeamTasks(currentUser);
+    const { assignedTasks, unassignedTasks, countTasksByTab, } = useAuthTeamTasks(currentUser);
 
     useEffect(() => {
       setSelectedTabIndex(tabIndex)
@@ -253,6 +252,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             }
             {/* END UNASSIGNED TAB CONTENT */}
           </View>
+          <FlashMessage position={"bottom"} />
         </Screen>
       </>
     )

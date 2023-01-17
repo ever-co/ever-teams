@@ -83,6 +83,11 @@ export function useTeamTasks() {
 
         const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId })
         setTeamTasks(tasks)
+
+        if (activeTaskId) {
+            setActiveTask(tasks.find((ts) => ts.id === activeTaskId) || null);
+        }
+
         return tasks
     }, [])
 
@@ -184,12 +189,12 @@ export function useTeamTasks() {
             return !task.members.some((m) => m.userId === userId);
         });
         setUnassignedTasks(unassigntasks)
-    }, []);
+    }, [teamTasks]);
 
     // Get the active task id and update active task data
     useEffect(() => {
-        const active_taskid = activeTaskId || '';
-        setActiveTask(teamTasks.find((ts) => ts.id === active_taskid) || null);
+        const active_taskId = activeTaskId || '';
+        setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
     }, [setActiveTask, teamTasks, updateLoading]);
 
 

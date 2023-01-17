@@ -4,6 +4,7 @@ import { View, Text, Image } from "react-native";
 import { ITaskStatus, } from "../services/interfaces/ITask";
 import { typography } from "../theme";
 import { useAppTheme } from "../app";
+import { observer } from "mobx-react-lite";
 
 export const statusIcons: { [x in ITaskStatus]: React.ReactElement } = {
     Todo: <FontAwesome name="dot-circle-o" size={18} color="#3D9A6D" background="#28D58133" />,
@@ -22,9 +23,9 @@ export function StatusIcon({ status }: { status: ITaskStatus }) {
 export function getBackground({ status }: { status: ITaskStatus }) {
     const node = statusIcons[status];
     return node.props.background;
-}
+};
 
-export function BadgedTaskStatus({ status, showColor }: { status: ITaskStatus, showColor: boolean }) {
+export const BadgedTaskStatus = observer(({ status, showColor }: { status: ITaskStatus, showColor: boolean }) => {
     const node = statusIcons[status];
     const { colors, dark } = useAppTheme();
 
@@ -37,4 +38,4 @@ export function BadgedTaskStatus({ status, showColor }: { status: ITaskStatus, s
             {node}<Text style={{ color: showColor ? "#282048" : "gray", left: 5, top: 2, fontSize: 10, fontFamily: typography.fonts.PlusJakartaSans.semiBold }}>{status}</Text>
         </View>
     );
-}
+})
