@@ -33,6 +33,7 @@ import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
+import { useTeamInvitations } from "../../../services/hooks/useTeamInvitation"
 
 
 const { width, height } = Dimensions.get("window");
@@ -43,14 +44,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     //Get authentificate data
     const {
       authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
-      teamStore: { teams, createTeam, activeTeam, teamInvitations },
+      teamStore: { teams, activeTeam },
       TaskStore: { activeTask },
       TimerStore: {
         localTimerStatus
       }
     } = useStores();
 
-    const { $otherMembers, isTeamManager, currentUser } = useOrganizationTeam();
+    const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser } = useOrganizationTeam();
+    const {teamInvitations}=useTeamInvitations();
     // STATES
     const [taskList] = React.useState(["success", "danger", "warning"])
     const [showMoreMenu, setShowMoreMenu] = React.useState(false)
@@ -66,15 +68,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 
     // Create New Team
     const createNewTeam = async (text: string) => {
-      const responseTeams = {
-        tenantId: tenantId,
-        organizationId: organizationId,
-        access_token: authToken,
-        employeeId,
-        userId: user?.id,
-        teamName: text
-      };
-      createTeam(responseTeams)
+      createOrganizationTeam(text)
     }
 
 
@@ -137,8 +131,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                   />
                 ))}
 
-                {["teamInvitations.items"]?.map((invite: any) => (
-                  <InviteCardItem key={"invite.id"} invite={{ fullName: "Elvis Matondo" }} />
+                {teamInvitations?.items.map((invite, idx) => (
+                  <InviteCardItem key={idx} invite={invite} />
                 ))}
               </View>
             </ScrollView>

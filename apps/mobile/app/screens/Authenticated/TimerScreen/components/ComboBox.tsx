@@ -41,8 +41,6 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
 
-
-
   const filteredTasks2 = useMemo(() => {
     return query.trim() === ""
       ? teamTasks

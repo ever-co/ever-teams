@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { TextStyle, ViewStyle, View } from "react-native"
 
 // COMPONENTS
@@ -12,57 +12,42 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
 import { useStores } from "../../../models"
-import { IOTeams } from "../../../services/teams/organization-team"
 import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
 import ManageTaskCard from "../../../components/ManageTaskCard"
 import TimerCard from "../../../components/TimerCard"
 import { useFirstLoad } from "../../../services/hooks/useFirstLoad"
-import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import { useAppTheme } from "../../../app"
-import { useTheme } from "react-native-paper"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import FlashMessage, {showMessage} from "react-native-flash-message"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
   // HOOKS
   const { firstLoadData, firstLoad } = useFirstLoad();
-  const { loadTeamTasksData } = useTeamTasks();
+  const { loadingTeams, activeTeam, createOrganizationTeam } = useOrganizationTeam();
 
   // STATES
   const {
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken },
-    teamStore: { createTeam },
-    TaskStore: { teamTasks, setTeamTasks }
+    TaskStore: { teamTasks, setTeamTasks, setCount, count }
   } = useStores();
 
   const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+  const [start, setStart]=useState(false)
 
   const { colors, dark } = useAppTheme()
-  // Create New Team
-  const createNewTeam = async (text: string) => {
-    const responseTeams = {
-      tenantId: tenantId,
-      organizationId: organizationId,
-      access_token: authToken,
-      employeeId,
-      userId: user?.id,
-      teamName: text
-    };
-    createTeam(responseTeams)
 
-  }
-
-  useEffect(() => {
-    firstLoadData();
-    loadTeamTasksData();
-  }, [])
+  useEffect(()=>{
+ 
+  },[])
 
   return (
     <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
       backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
       safeAreaEdges={["top"]}>
       <CreateTeamModal
-        onCreateTeam={createNewTeam}
+        onCreateTeam={createOrganizationTeam}
         visible={showCreateTeamModal}
         onDismiss={() => setShowCreateTeamModal(false)}
       />
@@ -74,12 +59,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
       </View>
       <View style={[$timerSection, { backgroundColor: colors.background }]}>
         <View style={{ zIndex: 100 }}>
-          <ManageTaskCard />
+          <ManageTaskCard/>
         </View>
         <View style={{ zIndex: 99 }}>
           <TimerCard />
         </View>
       </View>
+      <FlashMessage position="bottom" />
     </Screen>
   )
 })

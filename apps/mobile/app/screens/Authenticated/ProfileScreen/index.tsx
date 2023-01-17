@@ -27,7 +27,6 @@ import useAuthenticateUser from "../../../services/hooks/features/useAuthentific
 import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
 import TaskTab from "./components/TaskTab"
-import { tasks } from "./fakeData"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -76,7 +75,6 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
     useEffect(() => {
       setSelectedTabIndex(tabIndex)
-      setActiveTask(tasks[0])
     }, [tabIndex])
 
 
@@ -114,7 +112,6 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             >
               <Text style={[$createTaskTitle, { color: colors.secondary }]}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
             </TouchableOpacity>
-            {/* <FilterSection selectStatus={setFilterStatus} /> */}
             <TouchableOpacity style={{ ...$filterButton, borderColor: colors.border }} >
               {dark ?
                 <Image source={require("../../../../assets/icons/new/setting-dark.png")} />
@@ -141,53 +138,58 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
               flex: 1,
               zIndex: 998,
               paddingHorizontal: 20,
-              backgroundColor: dark ? "rgb(16,17,20)": colors.background2,
+              backgroundColor: dark ? "rgb(16,17,20)" : colors.background2,
             }}
           >
             {/* START WORKED TAB CONTENT */}
             {selectedTabIndex === 0 &&
-              <View>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View>
-                  <View
-                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                  >
-                    <Text style={[$textLabel, { color: colors.primary }]}>{translate("tasksScreen.now")}</Text>
-                    <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: colors.border }} />
-                    <View style={{ flexDirection: "row" }}>
-                      <Text style={{ color: colors.primary, fontSize: 12, fontFamily: typography.secondary.medium }}>{translate("tasksScreen.totalTimeLabel")}:</Text>
-                      <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                  <View>
+                    <View
+                      style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                    >
+                      <Text style={[$textLabel, { color: colors.primary }]}>{translate("tasksScreen.now")}</Text>
+                      <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: colors.border }} />
+                      <View style={{ flexDirection: "row" }}>
+                        <Text style={{ color: colors.primary, fontSize: 12, fontFamily: typography.secondary.medium }}>{translate("tasksScreen.totalTimeLabel")}:</Text>
+                        <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                      </View>
                     </View>
+                    {activeTask &&
+                      <ListCardItem
+                        tabIndex={selectedTabIndex} isActive={true}
+                        member={member}
+                        index={1000}
+                        item={activeTask as ITeamTask}
+                        enableEstimate={false} handleEstimate={() => { }}
+                        handleTaskTitle={() => { }}
+                      />
+                    }
                   </View>
-                  {activeTask &&
-                    <ListCardItem
-                      tabIndex={selectedTabIndex} isActive={true}
-                      member={member}
-                      index={1000}
-                      item={tasks[0] as ITeamTask}
-                      enableEstimate={false} handleEstimate={() => { }}
-                      handleTaskTitle={() => { }}
-                    />
-                  }
-                </View>
-                <View>
-                  <View
-                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                  >
-                    <Text style={[$textLabel, { color: colors.primary }]}>{translate("tasksScreen.last24hours")} ({otherTasks.length})</Text>
-                    <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: colors.border }} />
+                  <View>
+                    <View
+                      style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                    >
+                      <Text style={[$textLabel, { color: colors.primary }]}>{translate("tasksScreen.last24hours")} ({otherTasks.length})</Text>
+                      <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: colors.border }} />
+                    </View>
+                    {otherTasks.map((item, index) => (
+                      <View key={index.toString()} style={{ ...GS.mt2 }}>
+                        <ListCardItem
+                          tabIndex={selectedTabIndex}
+                          isActive={false}
+                          member={member}
+                          index={index}
+                          item={item as any}
+                          enableEstimate={false}
+                        />
+                      </View>
+                    ))}
                   </View>
-                  {tasks.map((item, index) => (
-                    <ListCardItem
-                      tabIndex={selectedTabIndex}
-                      isActive={false} key={index.toString()}
-                      member={member}
-                      index={index}
-                      item={item as any}
-                      enableEstimate={false}
-                    />
-                  ))}
+
                 </View>
-              </View>
+              </ScrollView>
             }
             {/* END WORKED TAB CONTENT */}
             {/* ------------------------------------------------------------ */}

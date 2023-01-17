@@ -5,11 +5,9 @@ import { typography } from "../theme"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
-import { ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { pad } from "../helpers/number"
 import { useTimer } from "../services/hooks/useTimer"
-import { convertMsToTime } from "../helpers/date"
 import { useAppTheme } from "../app"
 
 export interface Props {

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { View, StyleSheet, TextInput, Text, TouchableOpacity, Dimensions } from "react-native"
-import { ActivityIndicator, useTheme } from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles";
 import { useStores } from "../models";
 import ComboBox from "../screens/Authenticated/TimerScreen/components/ComboBox";
@@ -18,21 +18,20 @@ import { translate } from "../i18n";
 import { useAppTheme } from "../app";
 
 const { width, height } = Dimensions.get("window");
+
+
 const ManageTaskCard = observer(() => {
     const {
-        TaskStore: { activeTask },
+        TaskStore: { teamTasks, activeTask },
     } = useStores();
 
     const { colors } = useAppTheme()
+    const { createNewTask, setActiveTeamTask} = useTeamTasks();
 
-    const { setActiveTeamTask } = useTeamTasks();
-
-    const { createNewTask } = useTeamTasks();
     const [showCombo, setShowCombo] = useState(false)
     const [taskInputText, setTaskInputText] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
-
 
 
     const onCreateNewTask = async () => {
@@ -78,16 +77,15 @@ const ManageTaskCard = observer(() => {
                         flexDirection: "row",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        backgroundColor:colors.background,
-                        borderColor:colors.border
+                        backgroundColor: colors.background,
+                        borderColor: colors.border
                     },
                 ]}
             >
                 <TextInput
                     selectionColor={colors.primary}
                     placeholderTextColor={colors.tertiary}
-                    style={[styles.textInput,{backgroundColor:colors.background, color:colors.primary}]}
-                    defaultValue={activeTask && activeTask.title}
+                    style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary }]}
                     placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
                     onChangeText={(newText) => handleChangeText(newText)}

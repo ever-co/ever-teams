@@ -30,7 +30,6 @@ export const TimerStoreModel = types
         },
         setLocalTimerStatus(value:any){
             store.localTimerStatus=value;
-            console.log(value)
         }
     }))
 

@@ -152,6 +152,7 @@ export function useTimer() {
             setTimerStatus
         }
     } = useStores();
+
     const [loading, setLoading] = useState(false)
     const [stopTimerLoading, setStopTimerLoading] = useState(false)
 

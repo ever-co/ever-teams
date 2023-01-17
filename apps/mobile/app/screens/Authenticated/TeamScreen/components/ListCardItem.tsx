@@ -30,6 +30,7 @@ import WorkedOnTask from "../../../../components/WorkedOnTask"
 import { translate } from "../../../../i18n"
 import { useAppTheme } from "../../../../app"
 import LabelItem from "../../../../components/LabelItem"
+import { secondsToTime } from "../../../../helpers/date";
 
 
 export type ListItemProps = {
@@ -45,10 +46,10 @@ interface IUserStatus {
 }
 
 const labels = [
-  { id: 1, label: "Low", color: "#282048", background: ["#93E6BE","#55C0D8","#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
-  { id: 2, label: "Extra Large", color: "#282048", background: ["#F5B8B8","#EF7070","#F5B8B8"], icon: require("../../../../../assets/icons/new/maximize-3.png") },
+  { id: 1, label: "Low", color: "#282048", background: ["#93E6BE", "#55C0D8", "#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
+  { id: 2, label: "Extra Large", color: "#282048", background: ["#F5B8B8", "#EF7070", "#F5B8B8"], icon: require("../../../../../assets/icons/new/maximize-3.png") },
   { id: 3, label: "UIUX", color: "#9641AB", background: ["#EAD9EE"], icon: require("../../../../../assets/icons/new/devices.png") },
-  { id: 4, label: "Low", color: "#282048", background: ["#93E6BE","#55C0D8","#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
+  { id: 4, label: "Low", color: "#282048", background: ["#93E6BE", "#55C0D8", "#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
 ];
 
 export interface Props extends ListItemProps { }
@@ -70,6 +71,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
   const flatListRef = useRef<FlatList>(null);
   const isAuthUser = member.employee.userId === user?.id;
   const [editEstimate, setEditEstimate] = useState(false);
+  const [estimatedTime, setEstimateTime] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  })
   const [memberTask, setMemberTask] = useState<ITeamTask | null>(null)
   const [labelIndex, setLabelIndex] = useState(0);
   const iuser = member.employee.user
@@ -107,12 +113,24 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 
   const progress = useMemo(() => {
     if (memberTask && memberTask.estimate > 0) {
-      const percent = (timeCounterState / 1000) / memberTask.estimate;
-      return percent * 10
+      const percent = (timeCounterState / 100) / memberTask.estimate;
+      return Math.floor(percent * 10);
     }
 
     return 0
   }, [timeCounterState])
+
+  useEffect(() => {
+    if (memberTask) {
+      const { h, m, s } = secondsToTime(memberTask.estimate)
+      setEstimateTime({
+        hours: h,
+        minutes: m,
+        seconds: s
+      })
+    }
+  }, [memberTask, enableEstimate])
+
   return (
     <TouchableOpacity onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
       <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: dark ? "#1E2025" : colors.background }, { borderRadius: 14 }]}>
@@ -135,8 +153,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         </View>
         <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
           <Text style={[styles.otherText, { color: colors.primary }]}>
-            {/* {memberTask ? memberTask.title : ""} */}
-            Working on UI Design & making prototype for user testing tomorrow
+            {memberTask ? memberTask.title : ""}
           </Text>
           <View style={{ marginTop: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
 
@@ -202,14 +219,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
                   <AnimatedCircularProgress
                     size={48}
                     width={5}
-                    fill={60}
+                    fill={progress}
                     tintColor="#27AE60"
-                    onAnimationComplete={() => {}}
+                    onAnimationComplete={() => { }}
                     backgroundColor="#F0F0F0">
                     {
                       (fill) => (
                         <Text style={{ ...styles.progessText, color: colors.primary }}>
-                          12 H
+                          {estimatedTime.hours > 0 ? estimatedTime.hours + " H" : estimatedTime.minutes > 0 ? estimatedTime.minutes + " Min" : "0 H"}
                         </Text>
                       )
                     }
@@ -273,7 +290,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                 ...GS.pl4,
                 ...GS.pt1,
                 ...GS.border,
-                borderColor:colors.border,
+                borderColor: colors.border,
                 ...GS.r0,
                 ...GS.roundedMd,
                 ...GS.zIndexFront,
@@ -322,10 +339,10 @@ const ListCardItem: React.FC<Props> = (props) => {
         <ListItemContent
           {...props}
           enableEstimate={estimateNow}
-          // onPressIn={() => {
-          //   props.onPressIn
-          //   setShowMenu(false)
-          // }}
+        // onPressIn={() => {
+        //   props.onPressIn
+        //   setShowMenu(false)
+        // }}
         />
       }
     />
@@ -337,10 +354,10 @@ export default ListCardItem
 const $listCard: ViewStyle = {
   ...GS.flex1,
   ...GS.p0,
-  borderWidth:0,
+  borderWidth: 0,
   minHeight: null,
   borderRadius: 14,
-  shadowOffset:{width:0, height:0}
+  shadowOffset: { width: 0, height: 0 }
 }
 
 const $usersProfile: ImageStyle = {
@@ -463,7 +480,7 @@ const styles = StyleSheet.create({
   },
   progessText: {
     fontFamily: typography.primary.semiBold,
-    fontSize: 12
+    fontSize: 10
   }
 })
 
