@@ -67,7 +67,7 @@ const ManageTaskCard = observer(() => {
 
     useEffect(() => {
         setTaskInputText(activeTask && activeTask.title)
-    }, [activeTask])
+    }, [])
 
     return (
         <View style={styles.container}>
@@ -124,9 +124,10 @@ const ManageTaskCard = observer(() => {
 
                         <View style={{ width: 136, height: 32 }}>
                             <TaskStatus
-                                containerStyle={{...styles.statusContainer, backgroundColor:"#F2F2F2"}}
+                                containerStyle={{ ...styles.statusContainer, backgroundColor: "#F2F2F2" }}
                                 dropdownContainerStyle={{
-                                    top:34
+                                    top: 34,
+                                    width: "100%"
                                 }}
                                 task={activeTask}
                             />
@@ -134,7 +135,7 @@ const ManageTaskCard = observer(() => {
                         <TaskPriorities />
                     </View>
                     <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
-                        <TaskLabel containerStyle={{width:"100%"}} />
+                        <TaskLabel containerStyle={{ width: "100%" }} />
                     </View>
                 </View>
             }
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         width: 136,
         height: 32,
-        borderColor:"transparent",
+        borderColor: "transparent",
     }
 
 })

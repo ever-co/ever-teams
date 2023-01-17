@@ -2,15 +2,14 @@ import React, { FC, useState } from "react";
 import { TouchableOpacity, View, Image, StyleSheet, ViewStyle, TextStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { AntDesign } from "@expo/vector-icons"
-import { Icon, Text } from "../../../../components";
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { useStores } from "../../../../models";
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask";
 import { BadgedTaskStatus, getBackground, StatusIcon } from "../../../../components/StatusIcon";
 import { observer } from "mobx-react-lite";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { useAppTheme } from "../../../../app";
 import { typography } from "../../../../theme/typography";
+import { showMessage } from "react-native-flash-message";
 
 
 interface TaskStatusProps {
@@ -27,14 +26,27 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, status
   const [showTaskStatus, setShowTaskStatus] = useState(false);
 
 
-  const onChangeStatus = (text) => {
+  const onChangeStatus = async (text) => {
     const value: ITaskStatus = text;
     const taskEdit = {
       ...task,
       status: value
     };
     setShowTaskStatus(false)
-    updateTask(taskEdit, task.id);
+    const { response } = await updateTask(taskEdit, task.id);
+
+    if (response.status === 202) {
+      showMessage({
+        message: "Updated",
+        type: "success",
+      })
+    } else {
+      showMessage({
+        message: "Something went wrong",
+        type: "danger",
+      })
+    }
+
   }
 
   if (dark) {
@@ -45,7 +57,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, status
             colors={["#E6BF93", "#D87555"]}
             end={{ y: 0.5, x: 1 }}
             start={{ y: 1, x: 0 }}
-            style={{ ...styles.container, ...containerStyle, backgroundColor: getBackground({ status: "Todo" }).light }}>
+            style={{ ...styles.container, ...containerStyle, backgroundColor: getBackground({ status: task.status }).light }}>
             <BadgedTaskStatus showColor={true} status={task ? task.status : "Todo"} />
             <AntDesign name="down" size={14} color={colors.primary} />
           </LinearGradient>
@@ -59,7 +71,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, status
   return (
     <>
       <TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)} >
-        <View style={{ ...styles.container, ...containerStyle }}>
+        <View style={{ ...styles.container, ...containerStyle, backgroundColor:getBackground({status:task.status}) }}>
           <BadgedTaskStatus showColor={true} status={task ? task.status : "Todo"} />
           <AntDesign name="down" size={14} color={colors.primary} />
         </View>
