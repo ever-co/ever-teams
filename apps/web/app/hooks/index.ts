@@ -16,3 +16,6 @@ export * from './useCustomEmblaCarousel';
 
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useAuthenticationPasscode';
+
+//export user personal setting
+export * from './features/useSettings';

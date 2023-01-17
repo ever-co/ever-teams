@@ -54,7 +54,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		return noWrapper ? (
 			inputElement
 		) : (
-			<div className={clsxm('w-full mb-3', wrapperClassName)}>
+			<div className={clsxm('w-full', wrapperClassName)}>
 				{inputElement}
 				{error && (
 					<Text.Error className="self-start justify-self-start">

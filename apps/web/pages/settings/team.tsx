@@ -19,7 +19,7 @@ import { TeamMembers } from 'lib/features/team/team-members';
 import {  UserGroupIcon, UserIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 // import UserIcon from '@components/ui/svgs/user-icon';
-import LeftSideSettingMenu from '@components/pages/settings/LeftSideSettingMenu';
+import LeftSideSettingMenu from '@components/pages/settings/left-side-setting-menu';
 
 const Team = () => {
 	const { activeTeam } = useOrganizationTeams();
