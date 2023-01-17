@@ -3,7 +3,7 @@ import { useStores } from "../../../models";
 import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../client/requests/tasks";
 import { OT_Member } from "../../interfaces/IOrganizationTeam";
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
-import { getTasksByTeamState } from "../../teams/tasks";
+
 
 export function useTeamTasks() {
     const { authenticationStore: { tenantId, organizationId, authToken, user },
@@ -221,4 +221,20 @@ export function useTeamTasks() {
         createAndAssign,
         loadAssignAndUnassign
     }
+}
+
+interface IFilterTask {
+    tasks: ITeamTask[];
+    activeTeamId: string;
+}
+
+export const getTasksByTeamState = (params: IFilterTask) => {
+    if (!params.tasks) return [];
+    const data = params.tasks.filter((task) => {
+        return task.teams.some((tm) => {
+            return tm.id === params.activeTeamId;
+        });
+    });
+
+    return data;
 }

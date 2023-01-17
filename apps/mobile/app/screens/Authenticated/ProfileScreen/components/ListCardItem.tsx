@@ -330,8 +330,14 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
               </>
             )}
           </View>
-          <View style={{ width: 133, height: 33 }}>
-            <TaskStatus {...item} />
+          <View>
+            <TaskStatus
+              dropdownContainerStyle={{
+                top:-88,
+                width: 120
+              }}
+              containerStyle={styles.statusContainer}
+              task={item} />
           </View>
         </View>
         {showMenu && <SidePopUp setShowMenu={() => setShowMenu(false)} props={props} />}
@@ -482,46 +488,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: typography.fonts.PlusJakartaSans.medium
   },
-  firstContainer2: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "100%",
-  },
-  name: {
-    color: "#1B005D",
-    fontSize: 13,
-    fontWeight: "bold",
-  },
-  estimate: {
-    backgroundColor: "#E8EBF8",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 3,
-    alignItems: "center",
-    borderRadius: 5,
-    marginLeft: "auto",
-    marginBottom: 5,
-    marginRight: 10,
-    paddingHorizontal: 10,
-  },
-  notEstimate: {
-    color: "#ACB3BB",
-    fontSize: 12,
-    fontWeight: "400",
-  },
-  estimateDivider: {
-    fontWeight: "700",
-  },
   checkBtn: {
     position: "absolute",
     right: 0,
     top: 21
   },
-  wrapTotalTime: {
-    flexDirection: "row"
-  },
-  // New
+  //   // New
   totalTimeTitle: {
     color: "#7E7991",
     fontSize: 10,
@@ -588,5 +560,13 @@ const styles = StyleSheet.create({
   progessText: {
     fontFamily: typography.primary.semiBold,
     fontSize: 10
+  },
+  statusContainer: {
+    paddingHorizontal: 9,
+    alignItems: "center",
+    width: 120,
+    height: 33,
+    backgroundColor: "#D4EFDF",
+    borderColor: "transparent",
   }
 })

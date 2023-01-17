@@ -13,7 +13,7 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { spacing, typography } from ".././../../theme"
 import HomeHeader from "../TeamScreen/components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
-import FilterSection from "./components/FilterSection"
+import FilterSection from "./components/FilterPopup"
 import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
@@ -27,6 +27,7 @@ import useAuthenticateUser from "../../../services/hooks/features/useAuthentific
 import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
 import TaskTab from "./components/TaskTab"
+import FilterPopup from "./components/FilterPopup"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -48,6 +49,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const [selectedTabIndex, setSelectedTabIndex] = useState(tabIndex);
     const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
     const [showModal, setShowModal] = useState(false)
+    const [showFilterPopup, setShowFilterPopup] = useState(false)
     const tabs = [translate("tasksScreen.workedTab"), translate("tasksScreen.assignedTab"), translate("tasksScreen.unassignedTab")];
 
     const member = userId ? members.find((m) => {
@@ -94,9 +96,10 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
     return (
       <>
-        {showModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+        {showModal || showFilterPopup && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
         <Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
           <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
+          <FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
           <HomeHeader props={_props} showTimer={localTimerStatus.running} />
           <View style={{ paddingTop: 10 }}>
             <ProfileHeader {...currentUser} />
@@ -112,7 +115,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             >
               <Text style={[$createTaskTitle, { color: colors.secondary }]}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ ...$filterButton, borderColor: colors.border }} >
+            <TouchableOpacity style={{ ...$filterButton, borderColor: colors.border }} onPress={() => setShowFilterPopup(true)} >
               {dark ?
                 <Image source={require("../../../../assets/icons/new/setting-dark.png")} />
                 : <Image source={require("../../../../assets/icons/new/setting-light.png")} />}
@@ -280,7 +283,8 @@ const $filterButton: ViewStyle = {
   borderWidth: 1,
   borderRadius: 10,
   paddingVertical: 12,
-  paddingHorizontal: 24
+  paddingHorizontal: 24,
+  justifyContent:"center"
 }
 
 const $tabWrapper: ViewStyle = {

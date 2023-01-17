@@ -34,22 +34,6 @@ const TimerCard: FC<Props> = observer(() => {
   const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
 
 
-
-  const handleChangeText = (value: string) => {
-    setTaskInputText(value)
-    if (value.trim().length > 0) {
-      setShowCombo(true)
-      setShowCheckIcon(false)
-    } else {
-      setShowCombo(false)
-    }
-
-    if (value.trim().length >= 3) {
-      setShowCheckIcon(true)
-    }
-  }
-
-
   const getTimePercentage = () => {
     if (activeTask) {
       if (!activeTask.estimate) {
@@ -62,11 +46,6 @@ const TimerCard: FC<Props> = observer(() => {
       return 0
     }
   }
-
-
-  useEffect(() => {
-    handleChangeText("")
-  }, [activeTeam])
 
 
   return (

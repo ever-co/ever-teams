@@ -16,6 +16,7 @@ import { typography } from "../theme";
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 import { translate } from "../i18n";
 import { useAppTheme } from "../app";
+import TaskStatus from "../screens/Authenticated/ProfileScreen/components/TaskStatus";
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,7 +27,7 @@ const ManageTaskCard = observer(() => {
     } = useStores();
 
     const { colors } = useAppTheme()
-    const { createNewTask, setActiveTeamTask} = useTeamTasks();
+    const { createNewTask, setActiveTeamTask } = useTeamTasks();
 
     const [showCombo, setShowCombo] = useState(false)
     const [taskInputText, setTaskInputText] = useState<string>("")
@@ -88,6 +89,10 @@ const ManageTaskCard = observer(() => {
                     style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary }]}
                     placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
+                    autoCorrect={false}
+                    onBlur={() => setShowCombo(false)}
+                    onFocus={() => setShowCombo(true)}
+                    onPressOut={() => setShowCombo(false)}
                     onChangeText={(newText) => handleChangeText(newText)}
                 />
                 {showCheckIcon && (
@@ -118,12 +123,18 @@ const ManageTaskCard = observer(() => {
                     <View style={{ flexDirection: "row", width: "100%", justifyContent: "space-between", zIndex: 1000 }}>
 
                         <View style={{ width: 136, height: 32 }}>
-                            <TaskStatusDropdown task={activeTask} />
+                            <TaskStatus
+                                containerStyle={{...styles.statusContainer, backgroundColor:"#F2F2F2"}}
+                                dropdownContainerStyle={{
+                                    top:34
+                                }}
+                                task={activeTask}
+                            />
                         </View>
                         <TaskPriorities />
                     </View>
                     <View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
-                        <TaskLabel />
+                        <TaskLabel containerStyle={{width:"100%"}} />
                     </View>
                 </View>
             }
@@ -201,6 +212,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 10,
         top: 15
+    },
+    statusContainer: {
+        paddingHorizontal: 9,
+        alignItems: "center",
+        width: 136,
+        height: 32,
+        borderColor:"transparent",
     }
 
 })
