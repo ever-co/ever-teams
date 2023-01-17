@@ -80,7 +80,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
-  const joinTeam = useCallback(async () => {
+  const joinTeam = async () => {
     setIsSubmitted(true)
 
     setAttemptsCount(attemptsCount + 1)
@@ -130,9 +130,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setIsLoading(false)
     }
 
-  }, []);
+  }
 
-  const createNewTeam = useCallback(async () => {
+  const createNewTeam = async () => {
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 
@@ -146,7 +146,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       name: authUsername,
       email: authEmail
     });
-
+  
     // If successful, reset the fields and set the token.
     if (response.status === 200) {
       const data = response.data
@@ -155,7 +155,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const loginRes = data.loginRes;
       const user = loginRes.user;
 
-      console.log(JSON.stringify(response))
 
       setIsSubmitted(false)
       setAuthTeamName("")
@@ -179,7 +178,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setRefreshToken(loginRes.refresh_token)
       setIsLoading(false)
     }
-  }, []);
+  }
 
   const getAuthCode = useCallback(async () => {
     setIsSubmitted(true)

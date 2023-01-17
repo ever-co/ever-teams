@@ -56,7 +56,7 @@ function useCreateOrganizationTeam() {
 }
 
 export function useOrganizationTeam() {
-    const { teamStore: { activeTeamId, teams, setActiveTeam, setOrganizationTeams },
+    const { teamStore: { activeTeamId, teams, setActiveTeam, setOrganizationTeams, activeTeam },
         authenticationStore: { user, tenantId, authToken } } = useStores();
 
     const [teamsFetching, setTeamsFetching] = useState(false)
@@ -65,7 +65,7 @@ export function useOrganizationTeam() {
 
     const [isTeamManager, setIsTeamManager] = useState(false);
 
-    const activeTeam = useMemo(() => teams.items.find((t) => t.id === activeTeamId), [activeTeamId])
+    // const activeTeam = useMemo(() => teams.items.find((t) => t.id === activeTeamId), [activeTeamId])
 
     const members = activeTeam?.members || [];
 
@@ -134,9 +134,9 @@ export function useOrganizationTeam() {
 
     }, [])
 
-    useEffect(() => {
-        setActiveTeam(activeTeam)
-    }, [activeTeam])
+    // useEffect(() => {
+    //     setActiveTeam(activeTeam)
+    // }, [activeTeam])
 
     // Load Teams
     useEffect(() => {

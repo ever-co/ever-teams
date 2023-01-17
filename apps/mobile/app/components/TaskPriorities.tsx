@@ -1,27 +1,31 @@
-import React from "react";
+import React, { FC } from "react";
 import { AntDesign } from "@expo/vector-icons"
-import { View, StyleSheet, Text, TouchableOpacity, Image, Dimensions } from "react-native"
+import { View, StyleSheet, Text, TouchableOpacity, Image, Dimensions, ViewStyle, TextStyle } from "react-native"
 import { useAppTheme } from "../app";
 import { typography } from "../theme";
+import { observer } from "mobx-react-lite";
 
 const { width, height } = Dimensions.get("window")
-const TaskPriorities = () => {
+type TaskPrioritiesProps = {
+    prioritieLabel?: string;
+    containerStyle?: ViewStyle;
+    labelStyle?: TextStyle;
+}
+const TaskPriorities: FC<TaskPrioritiesProps> = observer(({ prioritieLabel, containerStyle, labelStyle }) => {
     const { colors } = useAppTheme();
     return (
-        <View style={{}}>
-            <TouchableOpacity
-                activeOpacity={0.7}
-                style={[styles.container, { borderColor: colors.border }]}
-            >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Image source={require("../../assets/images/new/record.png")} />
-                    <Text style={[styles.text, { color: colors.tertiary }]}>Priorities</Text>
-                </View>
-                <AntDesign name="down" size={20} color={colors.primary} />
-            </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+            activeOpacity={0.7}
+            style={[styles.container, containerStyle, { borderColor: colors.border }]}
+        >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Image source={require("../../assets/images/new/record.png")} />
+                <Text style={[styles.text, labelStyle, { color: colors.tertiary }]}>{prioritieLabel ? prioritieLabel : "Priorities"}</Text>
+            </View>
+            <AntDesign name="down" size={14} color={colors.primary} />
+        </TouchableOpacity>
     )
-}
+})
 
 export default TaskPriorities;
 
