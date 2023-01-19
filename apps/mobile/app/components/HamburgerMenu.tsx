@@ -23,7 +23,7 @@ const HamburgerMenu = (props) => {
   const {
     TaskStore: { resetTeamTasksData },
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken, logout, toggleTheme },
-    teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam, clearStoredTeamData },
+    teamStore: { teams, activeTeam, activeTeamId, setActiveTeam, clearStoredTeamData },
     TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
   } = useStores()
 

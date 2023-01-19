@@ -24,6 +24,7 @@ import { useAppTheme } from "../../../app"
 import FilterPopup from "./components/FilterPopup"
 import useProfileScreenLogic from "./logics/useProfileScreenLogic"
 import ProfileTabs from "./components/ProfileTabs"
+import { ITeamTask } from "../../../services/interfaces/ITask"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -35,6 +36,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const {
       TimerStore: { localTimerStatus }
     } = useStores();
+    
     const {
       hangleAssignTask,
       hangleUnassignTask,

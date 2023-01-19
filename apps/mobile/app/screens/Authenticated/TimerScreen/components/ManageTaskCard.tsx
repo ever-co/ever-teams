@@ -20,8 +20,6 @@ import TaskStatus from "../../ProfileScreen/components/TaskStatus";
 import useTeamScreenLogic from "../../TeamScreen/logics/useTeamScreenLogic";
 import useTimerScreenLogic from "../logics/useTimerScreenLogic";
 
-const { width, height } = Dimensions.get("window");
-
 
 const ManageTaskCard = observer(() => {
     const {
