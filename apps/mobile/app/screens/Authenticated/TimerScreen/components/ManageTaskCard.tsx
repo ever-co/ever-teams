@@ -1,22 +1,24 @@
 import React, { FC, useEffect, useState } from "react"
-import { View, StyleSheet, TextInput, Text, TouchableOpacity, Dimensions } from "react-native"
+import { View, StyleSheet, TextInput, Text, TouchableOpacity, Dimensions, TouchableWithoutFeedback } from "react-native"
 import { ActivityIndicator } from "react-native-paper";
-import { GLOBAL_STYLE as GS } from "../../assets/ts/styles";
-import { useStores } from "../models";
-import ComboBox from "../screens/Authenticated/TimerScreen/components/ComboBox";
-import EstimateTime from "../screens/Authenticated/TimerScreen/components/EstimateTime";
-import TaskStatusDropdown from "../screens/Authenticated/TimerScreen/components/TaskStatusDropdown";
-import { ITeamTask } from "../services/interfaces/ITask";
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles";
+import { useStores } from "../../../../models";
+import ComboBox from "./ComboBox";
+import EstimateTime from "./EstimateTime";
+import TaskStatusDropdown from "./TaskStatusDropdown";
+import { ITeamTask } from "../../../../services/interfaces/ITask";
 import { Feather } from '@expo/vector-icons';
 import { observer } from "mobx-react-lite";
-import TaskSize from "./TaskSize";
-import TaskPriorities from "./TaskPriorities";
-import TaskLabel from "./TaskLabel";
-import { typography } from "../theme";
-import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
-import { translate } from "../i18n";
-import { useAppTheme } from "../app";
-import TaskStatus from "../screens/Authenticated/ProfileScreen/components/TaskStatus";
+import TaskSize from "../../../../components/TaskSize";
+import TaskPriorities from "../../../../components/TaskPriorities";
+import TaskLabel from "../../../../components/TaskLabel";
+import { typography } from "../../../../theme";
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
+import { translate } from "../../../../i18n";
+import { useAppTheme } from "../../../../app";
+import TaskStatus from "../../ProfileScreen/components/TaskStatus";
+import useTeamScreenLogic from "../../TeamScreen/logics/useTeamScreenLogic";
+import useTimerScreenLogic from "../logics/useTimerScreenLogic";
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,43 +29,19 @@ const ManageTaskCard = observer(() => {
     } = useStores();
 
     const { colors } = useAppTheme()
-    const { createNewTask, setActiveTeamTask } = useTeamTasks();
+    const {
 
-    const [showCombo, setShowCombo] = useState(false)
-    const [taskInputText, setTaskInputText] = useState<string>("")
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
+        setShowCombo,
+        showCheckIcon,
+        showCombo,
+        handleActiveTask,
+        handleChangeText,
+        taskInputText,
+        isLoading,
+        onCreateNewTask,
+        setTaskInputText
+    } = useTimerScreenLogic();
 
-
-    const onCreateNewTask = async () => {
-        setShowCheckIcon(false)
-        setIsLoading(true)
-        await createNewTask(taskInputText)
-        setIsLoading(false)
-        setShowCombo(false)
-    }
-
-
-    const handleChangeText = (value: string) => {
-        setTaskInputText(value)
-        if (value.trim().length > 0) {
-            setShowCombo(true)
-            setShowCheckIcon(false)
-        } else {
-            setShowCombo(false)
-        }
-
-        if (value.trim().length >= 3) {
-            setShowCheckIcon(true)
-        }
-    }
-
-    const handleActiveTask = (value: ITeamTask) => {
-        setActiveTeamTask(value);
-        setShowCheckIcon(false)
-        setTaskInputText(value.title)
-        setShowCombo(false)
-    }
 
     useEffect(() => {
         setTaskInputText(activeTask && activeTask.title)
@@ -89,10 +67,10 @@ const ManageTaskCard = observer(() => {
                     style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary }]}
                     placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
+                    autoFocus={false}
+                    autoCapitalize="none"
                     autoCorrect={false}
-                    onBlur={() => setShowCombo(false)}
                     onFocus={() => setShowCombo(true)}
-                    onPressOut={() => setShowCombo(false)}
                     onChangeText={(newText) => handleChangeText(newText)}
                 />
                 {showCheckIcon && (

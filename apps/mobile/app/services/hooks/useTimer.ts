@@ -44,6 +44,7 @@ function useLocalTimeCounter(
     const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
     const timerSecondsRef = useRef(0);
     const seconds = Math.floor(timeCounterState / 1000);
+    // const [timerCounter, setTimerCounter] = useState(0);
 
     const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
         AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
@@ -112,16 +113,21 @@ function useLocalTimeCounter(
     useEffect(() => {
         if (firstLoad || !localTimerStatus) return;
         clearInterval(timeCounterIntervalRef.current);
+        let timerFuntion;
+
         if (localTimerStatus.running) {
-            setTimerCounterIntervalState(
-                setInterval(() => {
-                    const now = Date.now();
-                    setTimerCounterState(now - localTimerStatus.runnedDateTime);
-                }, 50)
-            );
+            // setTimerCounterIntervalState(
+            timerFuntion = setInterval(() => {
+                const now = Date.now();
+                setTimerCounterState(now - localTimerStatus.runnedDateTime);
+            }, 50)
+            // );
         } else {
+            clearInterval(timerFuntion)
             setTimerCounterState(0);
+
         }
+        return () => clearInterval(timerFuntion)
     }, [localTimerStatus.running, firstLoad]);
 
     return {
@@ -294,24 +300,6 @@ export function useTimer() {
         }
     }, [firstLoad, activeTask?.id]);
 
-    // Automaticaly change timer status when active task changes
-    // ---------- (Actually it unessecary since start and stop function can modify the timer status)
-    /**
-        useEffect(() => {
-            const canToggle =
-                activeTeamTask &&
-                timerTaskId.current !== activeTeamTask.id &&
-                firstLoad &&
-                wasRunning;
-
-            if (canToggle) {
-                setTimerStatusFetching(true);
-                toggleTimer(activeTeamTask.id).finally(() => {
-                    setTimerStatusFetching(false);
-                });
-            }
-        }, [activeTeamTask?.id, firstLoad, wasRunning]);
-    **/
 
     return {
         timeCounterState,

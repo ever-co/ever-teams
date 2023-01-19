@@ -12,10 +12,10 @@ import {
 } from "react-native"
 
 // COMPONENTS
-import { Button, Screen, Text, TextField } from "../../../../components"
+import { Button, Screen, Text, TextField } from "."
 // STYLES
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography } from "../../../../theme"
+import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
+import { colors, spacing, typography } from "../theme"
 import { TextInput } from "react-native-gesture-handler"
 
 export interface Props {
@@ -24,7 +24,7 @@ export interface Props {
   onDismiss: () => unknown
 }
 
-const welcomeLogo = require("../../../../../assets/images/gauzy-teams-blue-2.png")
+const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
 
 const ModalPopUp = ({ visible, children }) => {
   const [showModal, setShowModal] = React.useState(visible)
@@ -100,7 +100,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
             }}
           >
             <TouchableOpacity onPress={() => onDismiss()} style={{ flex: 1 }}>
-              <Image source={require("../../../../../assets/icons/back.png")} />
+              <Image source={require("../../assets/icons/back.png")} />
             </TouchableOpacity>
 
             <Button

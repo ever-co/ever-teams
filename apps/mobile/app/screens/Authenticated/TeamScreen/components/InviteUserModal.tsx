@@ -10,6 +10,7 @@ import { showMessage } from "react-native-flash-message";
 import { EMAIL_REGEX } from "../../../../helpers/regex";
 import { translate } from "../../../../i18n";
 import { useAppTheme } from "../../../../app";
+import useTeamScreenLogic from "../logics/useTeamScreenLogic"
 
 export interface Props {
   visible: boolean
@@ -53,52 +54,21 @@ const ModalPopUp = ({ visible, children }) => {
 
 const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
   const { inviterMember, loading } = useTeamInvitations();
+  const {
+    memberEmail,
+    memberName,
+    setErrors,
+    setMemberEmail,
+    setMemberName,
+    handleEmailInput,
+    handleNameInput,
+    errors
+  } = useTeamScreenLogic();
   const { colors } = useAppTheme();
-  const [memberName, setMemberName] = useState("")
-  const [memberEmail, setMemberEmail] = useState("");
-  const [errors, setErrors] = useState({
-    emailError: null,
-    nameError: null
-  })
 
-  const handleEmailInput = (email: string) => {
-    if (email.trim().length == 0 || !email.match(EMAIL_REGEX)) {
-      setErrors({ ...errors, emailError: "Email is not valid" })
-      return
-    } else {
-      setErrors({ ...errors, emailError: "" })
-      setMemberEmail(email)
-    }
-  }
 
-  const handleNameInput = (name: string) => {
-    if (name.trim().length < 3) {
-      setErrors({ ...errors, nameError: "Name is not valid" })
-      return
-    } else {
-      setErrors({ ...errors, nameError: "" })
-      setMemberName(name)
-    }
-  }
 
   const handleSubmit = () => {
-
-    if (memberEmail.trim().length == 0 || !memberEmail.match(EMAIL_REGEX)) {
-      setErrors({ ...errors, emailError: "Email is not valid" })
-
-      showMessage({ message: "Email is not valid", type: "warning" })
-      return
-    } else {
-      setErrors({ ...errors, emailError: "" })
-    }
-
-    if (memberName.trim().length < 3) {
-      showMessage({ message: "Name is not valid", type: "warning" })
-      setErrors({ ...errors, nameError: "Name is not valid" })
-      return
-    } else {
-      setErrors({ ...errors, nameError: null })
-    }
 
     inviterMember({ email: memberEmail, name: memberName })
     onDismiss()
@@ -125,6 +95,8 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
             <TextInput
               placeholderTextColor={colors.tertiary} style={[styles.textInput,
               { borderColor: colors.border, color: colors.primary }]}
+              autoCapitalize={"none"}
+              autoCorrect={false}
               placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")}
               onChangeText={(text) => handleEmailInput(text)}
             />
@@ -132,6 +104,8 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
           </View>
           <View>
             <TextInput placeholderTextColor={colors.tertiary}
+              autoCapitalize={"none"}
+              autoCorrect={false}
               style={[styles.textInput, { marginTop: 16, borderColor: colors.border, color: colors.primary }]}
               placeholder={translate("teamScreen.inviteNameFieldPlaceholder")}
               onChangeText={(text) => handleNameInput(text)}
@@ -142,7 +116,7 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
             <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
               <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6"}]} onPress={() => handleSubmit()}>
               <Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
             </TouchableOpacity>
           </View>

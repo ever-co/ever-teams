@@ -57,7 +57,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, status
             colors={["#E6BF93", "#D87555"]}
             end={{ y: 0.5, x: 1 }}
             start={{ y: 1, x: 0 }}
-            style={{ ...styles.container, ...containerStyle, backgroundColor: getBackground({ status: task.status }).light }}>
+            style={{ ...styles.container, ...containerStyle, backgroundColor: getBackground({ status: task.status }) }}>
             <BadgedTaskStatus showColor={true} status={task ? task.status : "Todo"} />
             <AntDesign name="down" size={14} color={colors.primary} />
           </LinearGradient>
@@ -71,7 +71,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, status
   return (
     <>
       <TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)} >
-        <View style={{ ...styles.container, ...containerStyle, backgroundColor:getBackground({status:task.status}) }}>
+        <View style={{ ...styles.container, ...containerStyle }}>
           <BadgedTaskStatus showColor={true} status={task ? task.status : "Todo"} />
           <AntDesign name="down" size={14} color={colors.primary} />
         </View>
