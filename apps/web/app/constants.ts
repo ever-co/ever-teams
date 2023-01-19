@@ -14,6 +14,7 @@ export const ACTIVE_TEAM_COOKIE_NAME = 'auth-active-team';
 export const ACTIVE_TASK_COOKIE_NAME = 'auth-active-task';
 export const TENANT_ID_COOKIE_NAME = 'auth-tenant-id';
 export const ORGANIZATION_ID_COOKIE_NAME = 'auth-organization-id';
+export const ACTIVE_LANGUAGE_COOKIE_NAME = 'auth-active-language';
 
 export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;

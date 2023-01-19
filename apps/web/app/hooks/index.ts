@@ -19,3 +19,6 @@ export * from './auth/useAuthenticationPasscode';
 
 //export user personal setting
 export * from './features/useSettings';
+
+//export user personal setting
+export * from './features/useLanguageSettings';

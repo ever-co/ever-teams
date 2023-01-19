@@ -1,57 +1,46 @@
-import { 
-    //useCallback,
-    //useEffect,
-    //useMemo,
-    // useState,
- } from 'react';
+import { useLanguageSettings } from '@app/hooks';
+import { clsxm } from '@app/utils';
 import {
-	// Button,
-	// Card,
 	Dropdown,
-	// InputField,
-	// Modal,
-	// Text,
 } from 'lib/components';
-// import { mapTeamItems, TeamItem } from './team-item';
-// import { PlusIcon } from '@heroicons/react/24/solid';
-// import { useModal, useOrganizationTeams } from '@app/hooks';
-// import { clsxm } from '@app/utils';
+import { mapLanguageItems, LanguageItem } from 'lib/features';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const LanguageDropDown = () => {
-	// const { teams, activeTeam, setActiveTeam, teamsFetching } =
-		// useOrganizationTeams();
+	const { languages, activeLanguage, setActiveLanguage, languagesFetching } =
+		useLanguageSettings();
 
-	// const items = useMemo(() => mapTeamItems(teams), [teams]);
+	const items = useMemo(() => mapLanguageItems(languages), [languages]);
 
-	// const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
+	const [languageItem, setLanguageItem] = useState<LanguageItem | null>(null);
 
 	// const { isOpen, closeModal, openModal } = useModal();
 
-	// useEffect(() => {
-	// 	setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
-	// }, [activeTeam, items]);
+	useEffect(() => {
+		setLanguageItem(items.find((t) => t.key === activeLanguage?.id) || null);
+	}, [activeLanguage, items]);
 
-	// const onChangeActiveTeam = useCallback(
-	// 	(item: TeamItem) => {
-	// 		if (item.data) {
-	// 			setActiveTeam(item.data);
-	// 		}
-	// 	},
-	// 	[setActiveTeam]
-	// );
+	const onChangeLanguage = useCallback(
+		(item: LanguageItem) => {
+			if (item.data) {
+				setActiveLanguage(item.data);
+			}
+		},
+		[setActiveLanguage]
+	);
 
 	return (
 		<>
 			<Dropdown
-                className="md:w-[231px]" items={[]}
-                // buttonClassName={clsxm(
-				// 	'py-0 font-medium',
-				// 	items.length === 0 && ['py-2']
-				// )}
-				// value={teamItem}
-				// onChange={onChangeActiveTeam}
-				// items={items}
-				// loading={teamsFetching}
+                className="md:w-[231px] z-auto"
+                buttonClassName={clsxm(
+					'py-0 font-medium',
+					items.length === 0 && ['py-2']
+				)}
+				value={languageItem}
+				onChange={onChangeLanguage}
+				items={items}
+				loading={languagesFetching}
 			>
 			</Dropdown>
 		</>

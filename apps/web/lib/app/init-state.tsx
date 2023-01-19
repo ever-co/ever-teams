@@ -1,3 +1,4 @@
+import { useLanguageSettings } from '@app/hooks';
 import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
@@ -19,6 +20,7 @@ function InitState() {
 	const { firstLoadTeamInvitationsData } = useTeamInvitations();
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
+	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
 
 	useEffect(() => {
 		//To be called once, at the top level component (e.g main.tsx);
@@ -27,10 +29,12 @@ function InitState() {
 		firstLoadTeamInvitationsData();
 		firstLoadTimerData();
 		firstLoadtasksStatisticsData();
+		firstLoadLanguagesData();
 		// --------------
 
 		getTimerStatus();
 		loadTeamsData();
+		loadLanguagesData();
 	}, [
 		firstLoadTasksData,
 		firstLoadTeamInvitationsData,
@@ -39,6 +43,8 @@ function InitState() {
 		getTimerStatus,
 		firstLoadTimerData,
 		firstLoadtasksStatisticsData,
+		firstLoadLanguagesData,
+		loadLanguagesData,
 	]);
 	return <></>;
 }

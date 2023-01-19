@@ -1,59 +1,25 @@
-import { 
-    //useCallback,
-    //useEffect,
-    //useMemo,
-    // useState,
- } from 'react';
+import { useMemo, useState } from 'react';
 import {
-	// Button,
-	// Card,
 	Dropdown,
-	// InputField,
-	// Modal,
-	// Text,
 } from 'lib/components';
-// import { mapTeamItems, TeamItem } from './team-item';
-// import { PlusIcon } from '@heroicons/react/24/solid';
-// import { useModal, useOrganizationTeams } from '@app/hooks';
-// import { clsxm } from '@app/utils';
+import timeZones from './timezones';
+import { clsxm } from '@app/utils';
+import { mapTimezoneItems } from 'lib/features';
 
-export const TimezoneDropDown = () => {
-	// const { teams, activeTeam, setActiveTeam, teamsFetching } =
-		// useOrganizationTeams();
-
-	// const items = useMemo(() => mapTeamItems(teams), [teams]);
-
-	// const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
-
-	// const { isOpen, closeModal, openModal } = useModal();
-
-	// useEffect(() => {
-	// 	setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
-	// }, [activeTeam, items]);
-
-	// const onChangeActiveTeam = useCallback(
-	// 	(item: TeamItem) => {
-	// 		if (item.data) {
-	// 			setActiveTeam(item.data);
-	// 		}
-	// 	},
-	// 	[setActiveTeam]
-	// );
-
+export const TimezoneDropDown = ({currectTimezone, onChangeTimezone}:any) => {
+const items = useMemo(() => mapTimezoneItems(timeZones), [timeZones]);
 	return (
-		<>
-			<Dropdown
-                className="md:w-[469px]" items={[]}
-                // buttonClassName={clsxm(
-				// 	'py-0 font-medium',
-				// 	items.length === 0 && ['py-2']
-				// )}
-				// value={teamItem}
-				// onChange={onChangeActiveTeam}
-				// items={items}
-				// loading={teamsFetching}
-			>
-			</Dropdown>
-		</>
+		<Dropdown
+			className="md:w-[469px]"
+			buttonClassName={clsxm(
+				'py-0 font-medium',
+				timeZones.length === 0 && ['py-2']
+			)}
+			value={currectTimezone}
+			onChange={onChangeTimezone}
+			items={items}
+			// loading={languagesFetching}
+		>
+		</Dropdown>
 	);
 };

@@ -85,11 +85,11 @@ export function Dropdown<T extends DropdownItem>({
 							className="md:px-4 py-4 rounded-[12px]"
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
-							{items.map((Item) => (
+							{items.map((Item,index) => (
 								<Listbox.Option
-									key={Item.key}
+									key={Item.key ? Item.key : index}
 									value={Item}
-									disabled={Item.disabled}
+									disabled={Item?.disabled}
 								>
 									{({ active, selected }) => {
 										return Item.Label ? (
@@ -102,7 +102,7 @@ export function Dropdown<T extends DropdownItem>({
 							))}
 
 							{/* Additional content */}
-							<Listbox.Button as="div">{children}</Listbox.Button>
+							{/* <Listbox.Button as="div">{children}</Listbox.Button> */}
 						</Card>
 					</Listbox.Options>
 				</Transition>
