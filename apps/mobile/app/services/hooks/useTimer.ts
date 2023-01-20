@@ -44,7 +44,6 @@ function useLocalTimeCounter(
     const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
     const timerSecondsRef = useRef(0);
     const seconds = Math.floor(timeCounterState / 1000);
-    // const [timerCounter, setTimerCounter] = useState(0);
 
     const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
         AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
@@ -116,12 +115,12 @@ function useLocalTimeCounter(
         let timerFuntion;
 
         if (localTimerStatus.running) {
-            // setTimerCounterIntervalState(
+            setTimerCounterIntervalState(
             timerFuntion = setInterval(() => {
                 const now = Date.now();
                 setTimerCounterState(now - localTimerStatus.runnedDateTime);
             }, 50)
-            // );
+            );
         } else {
             clearInterval(timerFuntion)
             setTimerCounterState(0);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStores } from "../../../models";
 import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../client/requests/tasks";
 import { OT_Member } from "../../interfaces/IOrganizationTeam";
@@ -123,35 +123,6 @@ export function useTeamTasks() {
         return data;
     }
 
-    // Create a new Task and assign to a member
-    // const createAndAssign = useCallback(async ({ title, userId }: { title: string, userId: string }) => {
-
-    //     if (title.trim().length < 2) return {
-    //         error: "Task title is valid"
-    //     };
-
-    //     const dataBody: ICreateTask = {
-    //         title: title,
-    //         status: "Todo",
-    //         description: "",
-    //         tags: [],
-    //         teams: [{
-    //             id: activeTeamId
-    //         }],
-    //         estimate: 0,
-    //         organizationId: organizationId,
-    //         tenantId: tenantId
-    //     }
-    //     const { data: taskCreated } = await createTaskRequest({
-    //         data: dataBody,
-    //         bearer_token: authToken
-    //     })
-
-
-    //     const taskId = taskCreated?.id;
-    //     const editedTask = onAssignTask({ taskId, memberId: userId })
-    //     return editedTask;
-    // }, []);
 
     // UNASSIGN A TASK
     const onUnassignedTask = async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
@@ -212,8 +183,6 @@ export function useTeamTasks() {
         setActiveTeamTask,
         onUnassignedTask,
         onAssignTask,
-        // createAndAssign,
-        // loadAssignAndUnassign
     }
 }
 
