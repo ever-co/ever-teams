@@ -133,7 +133,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     })
   }, [labelIndex])
 
- 
+
 
 
 
@@ -159,7 +159,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
       const percent = (timeCounterState / 100) / memberTask.estimate;
       return Math.floor(percent * 10);
     }
-    
+
     return 0
   }, [timeCounterState])
 
@@ -201,7 +201,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             <TouchableOpacity onLongPress={() => handleTaskTitle()}>
               <TextInput
                 style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null, { color: colors.primary }]}
-                defaultValue={enableEditTaskTitle ? titleInput : limitTextCharaters({text:memberTask.title, numChars:64})}
+                defaultValue={enableEditTaskTitle ? titleInput : limitTextCharaters({ text: memberTask.title, numChars: 64 })}
                 editable={enableEditTaskTitle}
                 multiline={true}
                 numberOfLines={2}
@@ -269,7 +269,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
               <>
                 {activeTask && activeTask.id === item.id ? (
                   <>
-                    <TimerButton  />
+                    <TimerButton />
                     <View style={{ justifyContent: "center", alignItems: "center", left: 10 }}>
                       <Text style={styles.timeHeading}>Today work</Text>
                       <Text style={[styles.timeNumber, { color: colors.primary }]}>{pad(hours)} h:{pad(minutes)} m</Text>
@@ -278,17 +278,17 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
                 )
                   :
                   <>
-                     <TouchableOpacity
-                style={[styles.timerBtn, { backgroundColor: colors.background, borderColor:colors.border }]}
-                onPress={() => {}}>
-                <Image
-                    resizeMode="contain"
-                    style={[styles.timerIcon,]}
-                    source={dark ?
-                        require("../../../../../assets/icons/new/play-dark.png")
-                        :
-                        require("../../../../../assets/icons/new/play.png")} />
-            </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.timerBtn, { backgroundColor: colors.background, borderColor: colors.border }]}
+                      onPress={() => { }}>
+                      <Image
+                        resizeMode="contain"
+                        style={[styles.timerIcon,]}
+                        source={dark ?
+                          require("../../../../../assets/icons/new/play-dark.png")
+                          :
+                          require("../../../../../assets/icons/new/play.png")} />
+                    </TouchableOpacity>
                     <View style={{ justifyContent: "center", alignItems: "center" }}>
                       <Text style={[styles.timeHeading, { color: colors.tertiary }]}>Today work</Text>
                       <Text style={[styles.timeNumber, { color: colors.primary }]}>01 h:01 m</Text>
@@ -313,7 +313,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
           <View>
             <TaskStatus
               dropdownContainerStyle={{
-                top:-88,
+                top: -88,
                 width: 120
               }}
               containerStyle={styles.statusContainer}
