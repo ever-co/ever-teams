@@ -4,6 +4,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import {
     Button,
     InputField,
+	RadioButtonField,
 	Text,
 } from 'lib/components';
 import { LanguageDropDown } from './language-dropdown';
@@ -16,7 +17,7 @@ import { userTimezone } from '@app/helpers';
 import { useSettings } from '@app/hooks';
 
 
-const PersonalSettingForm = () => {
+const TeamSettingForm = () => {
     const [user] = useRecoilState(userState);
     const { register, setValue, handleSubmit } = useForm();
     const [currentTimezone, setCurrentTimezone] = useState("");
@@ -40,86 +41,67 @@ const PersonalSettingForm = () => {
     return (
         <>
             <form
-                className="w-[98%] md:w-[530px]"
+                className="w-[98%] md:w-[930px]"
                 onSubmit={handleSubmit(onSubmit)}
                 autoComplete="off"
             >
                 <div className="flex flex-col justify-between items-center">
                     <div className="w-full mt-5">
                         <div className="">
-                            <div className='flex w-full items-center justify-between gap-8'>
-                                <div className="flex w-full items-center justify-between gap-4">
-                                    <div>
-                                        <Text className="text-md text-gray-400 font-normal mb-2">
-                                            First Name
-                                        </Text>
-                                        <InputField
-                                            type="text"
-                                            placeholder="First Name"
-                                            {...register("firstName", { required: true, maxLength: 80 })}
-                                            className='md:w-[220px] m-0'
-                                        />
-                                    </div>
-                                    <div className="">
-                                        <Text className="text-md text-gray-400 font-normal mb-2">
-                                            Last Name
-                                        </Text>
-                                        <InputField
-                                            type="text"
-                                            placeholder="Last Name"
-                                            {...register("lastName", { required: true, maxLength: 80 })}
-                                            className='md:w-[220px] m-0'
-                                        />
-                                    </div>
-                                </div>
-                                <div className="mt-6">
-                                    <Button
-                                        variant="grey"
-                                        // type="submit"
-                                    >
-                                        Edit
-                                    </Button>
-                                </div>
+                            <div className="flex w-full items-center justify-between gap-12">
+                                <Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+                                    Team Name
+                                </Text>
+                                <div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+                                    <InputField
+                                        type="text"
+                                        // placeholder="First Name"
+                                        {...register("teamName", { required: true, maxLength: 80 })}
+                                        className=''
+                                    />
+                                </div> 
                             </div>
-                            <div className="flex w-full items-center justify-between gap-8 mt-8">
-                                <div className="flex w-full items-center justify-between gap-4">
-                                    <div>
-                                        <Text className="text-md text-gray-400 font-normal mb-2">
-                                            Contact
-                                        </Text>
-                                        <InputField
-                                            type="email"
-                                            placeholder="Email Address"
-                                            {...register("email", {
-                                                required: true,
-                                                pattern: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-                                              })}
-                                            className='md:w-[220px]'
-                                        />
+                            <div className="flex w-full items-center justify-between gap-12 mt-8">
+                                <Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+                                    Team Type
+                                </Text>
+                                <div className="flex flex-grow-0 items-center justify-between w-1/4">
+                                    <div className="flex w-full items-center justify-between gap-4">
+                                        <div>
+                                        <input id="default-radio-1" type="radio" value="" name="default-radio" className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                        <label htmlFor="default-radio-1" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Default radio</label>
+                                        </div>
+                                        <div>
+                                        <input checked id="default-radio-2" type="radio" value="" name="default-radio" className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                                        <label htmlFor="default-radio-2" className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Checked state</label>
+                                        </div>
                                     </div>
-                                    <div className='mt-8'>
+                                </div>
+                                <div className='flex gap-4'>
+                                    <div className='flex flex-row flex-grow-0 items-center justify-between w-64'>
                                         <InputField
                                             type="text"
-                                            placeholder="Phone Number"
+                                            placeholder="https://teamA.gauzy.com"
                                             // value="Alexandro Bernard"
                                             //onChange={handleChange}
                                             //errors={errors}
                                             // required
-                                            className='md:w-[220px]'
+                                            className=''
                                         />
                                     </div>
-                                </div>
-                                <div className='mt-6'>
-                                    <Button
-                                        type="submit"
-                                        //loading={loading}
-                                        //disabled={loading}
-                                    >
-                                        Save
-                                    </Button>
+                                    <div className='flex flex-row flex-grow-0 items-center justify-between w-1/5'>
+                                        <Button
+                                            type="submit"
+                                            variant='outline'
+                                            //loading={loading}
+                                            //disabled={loading}
+                                        >
+                                            Copy Link
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
-                            <div className='flex items-center gap-6 mt-8'>
+                            {/* <div className='flex items-center gap-6 mt-8'>
                                 <div className="">
                                     <Text className="text-md text-gray-400 font-normal mb-2">
                                         Theme
@@ -166,7 +148,7 @@ const PersonalSettingForm = () => {
                                     </Text>
                                     <Text className='text-md font-PlusJakartaSansSemiBold'>No</Text>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -174,4 +156,4 @@ const PersonalSettingForm = () => {
         </>
     );
 };
-export default withAuthentication(PersonalSettingForm, { displayName: 'PersonalSettingForm' });
+export default withAuthentication(TeamSettingForm, { displayName: 'TeamSettingForm' });

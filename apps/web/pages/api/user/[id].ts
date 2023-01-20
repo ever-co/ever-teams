@@ -18,7 +18,7 @@ export default async function handler(
     case "PUT":
       const { data: response } = await updateUserAvatarRequest(
         {
-          data: { imageUrl: body?.imageUrl },
+          data: body,
           id: user.id as string,
           tenantId
         },

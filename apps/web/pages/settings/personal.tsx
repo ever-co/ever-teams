@@ -12,7 +12,7 @@ const Personal = () => {
 		<MainLayout>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
-					<Breadcrumb paths={['Dashboard', 'Personal Settings']} className="text-sm" />
+					<Breadcrumb paths={['Dashboard', 'Settings']} className="text-sm" />
 				</Container>
 			</div>
 

@@ -79,7 +79,7 @@ export function Dropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Listbox.Options className="absolute mt-3 min-w-full">
+					<Listbox.Options className="absolute mt-3 min-w-full max-h-56 overflow-hidden overflow-y-auto">
 						<Card
 							shadow="custom"
 							className="md:px-4 py-4 rounded-[12px]"

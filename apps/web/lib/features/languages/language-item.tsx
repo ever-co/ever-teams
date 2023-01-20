@@ -68,7 +68,7 @@ export function LanguageItem({
 				className
 			)}
 		>
-			<div
+			{/* <div
 				className={clsxm(
 					'w-[27px] h-[27px]',
 					'flex justify-center items-center',
@@ -79,9 +79,9 @@ export function LanguageItem({
 				style={{ background: color || `${stc(title)}80` }}
 			>
 				{title ? imgTitle(title) : ''}
-			</div>
+			</div> */}
 			<span className={clsxm('text-normal')}>
-				{title} {count ? `(${count})` : ''}
+				{title}
 			</span>
 		</div>
 	);

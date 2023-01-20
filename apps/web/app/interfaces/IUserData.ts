@@ -71,6 +71,7 @@ export interface ILanguageItemList {
   description: string;
   color: string;
   items: [];
+  data: any;
 }
 
 //export timezone list inteerface
@@ -85,4 +86,5 @@ export interface ITimezoneItemList {
   description: string;
   color: string;
   items: [];
+  title: string;
 }

@@ -8,7 +8,7 @@ export type TimezoneItem = DropdownItem<ITimezoneItemList>;
 export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
 	const items = timezones.map<TimezoneItem>((timezone, index) => {
 		return {
-			key: index,
+			key: index +1,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
 					<TimezoneItem

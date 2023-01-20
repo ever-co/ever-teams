@@ -108,3 +108,66 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 );
 
 TimeInputField.displayName = 'TimeInputField';
+
+/**
+ * RadioButtonField
+ */
+
+export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
+	(
+		{
+			className,
+			type = 'radio',
+			errors,
+			name,
+			wrapperClassName,
+			noWrapper,
+			...res
+		},
+		ref
+	) => {
+		const [error, setError] = useState<string | undefined>(undefined);
+
+		useEffect(() => {
+			if (errors && name && errors[name]) {
+				setError(errors[name]);
+			} else {
+				setError(undefined);
+			}
+		}, [errors, name]);
+
+		const inputElement = (
+			<input
+				type={type}
+				name={name}
+				ref={ref}
+				className={clsxm(
+					'bg-[#3826A6] dark:bg-dark--theme-light',
+					'input-border',
+					'py-2 px-4 mb-1',
+					'rounded-[10px] text-sm outline-none ',
+					'h-[50px] w-full',
+					'font-light tracking-tight',
+					className
+				)}
+				onKeyUp={() => setError(undefined)}
+				{...res}
+			/>
+		);
+
+		return noWrapper ? (
+			inputElement
+		) : (
+			<div className={clsxm('w-full', wrapperClassName)}>
+				{inputElement}
+				{error && (
+					<Text.Error className="self-start justify-self-start">
+						{error}
+					</Text.Error>
+				)}
+			</div>
+		);
+	}
+);
+
+RadioButtonField.displayName = 'RadioButtonField';

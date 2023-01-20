@@ -14,8 +14,6 @@ export const LanguageDropDown = () => {
 
 	const [languageItem, setLanguageItem] = useState<LanguageItem | null>(null);
 
-	// const { isOpen, closeModal, openModal } = useModal();
-
 	useEffect(() => {
 		setLanguageItem(items.find((t) => t.key === activeLanguage?.id) || null);
 	}, [activeLanguage, items]);
