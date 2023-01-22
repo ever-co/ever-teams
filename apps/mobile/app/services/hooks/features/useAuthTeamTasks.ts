@@ -3,8 +3,9 @@ import { useStores } from "../../../models";
 import { IUser } from "../../interfaces/interfaces/IUserData";
 import { useTeamTasks } from "./useTeamTasks";
 
-export function useAuthTeamTasks(user: IUser | undefined) {
-    const { TaskStore: { teamTasks, fetchingTasks, setTeamTasks, setAssignedTasks, setUnassignedTasks, unassignedTasks, assignedTasks }, teamStore: { activeTeam, setActiveTeam } } = useStores();
+export const useAuthTeamTasks=(user: IUser | undefined) =>{
+    const { TaskStore: { teamTasks, fetchingTasks, setTeamTasks, setAssignedTasks, setUnassignedTasks, unassignedTasks, assignedTasks },
+        teamStore: { activeTeam, setActiveTeam } } = useStores();
 
     const loadAssignedTasks = useCallback(() => {
 
@@ -14,16 +15,23 @@ export function useAuthTeamTasks(user: IUser | undefined) {
         });
         setAssignedTasks(tasks)
         return tasks
-    }, [teamTasks, user, activeTeam]);
+    }, []);
 
     const loadUnassignedTasks = useCallback(() => {
         if (!user) return [];
         const tasks = teamTasks.filter((task) => {
             return !task.members.some((m) => m.userId === user.id);
         });
+
         setUnassignedTasks(tasks)
         return tasks
-    }, [teamTasks, user, activeTeam]);
+    }, []);
+
+    useEffect(()=>{
+        console.log("update tasks")
+        loadAssignedTasks()
+        loadUnassignedTasks();
+    },[user, teamTasks, setTeamTasks])
 
     const countTasksByTab = useCallback((tabIndex: number) => {
         switch (tabIndex) {
@@ -48,5 +56,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
         assignedTasks,
         unassignedTasks,
         countTasksByTab,
+        loadAssignedTasks,
+        loadUnassignedTasks
     };
 }

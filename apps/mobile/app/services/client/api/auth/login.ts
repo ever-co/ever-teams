@@ -34,7 +34,7 @@ export async function login(params: ILoginDataAPI) {
 
 
     if (!inviteResponse.response.ok || (inviteResponse.data as any).response?.statusCode) {
-
+        
         /**
          * If the invite code verification failed then try again with auth code
          */
@@ -56,7 +56,6 @@ export async function login(params: ILoginDataAPI) {
         }
 
         loginResponse = authReq.data;
-
         /**
          * If provided code is an invite code and
          * verified the accepte and register the related user

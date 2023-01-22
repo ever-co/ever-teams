@@ -22,7 +22,6 @@ import { Icon, ListItem, } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { spacing, typography } from "../../../../theme"
-import ProgressTimeIndicator from "../../TeamScreen/components/ProgressTimeIndicator"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { useStores } from "../../../../models";
@@ -38,6 +37,9 @@ import TaskStatus from "./TaskStatus";
 import { useAppTheme } from "../../../../app";
 import LabelItem from "../../../../components/LabelItem";
 import { secondsToTime } from "../../../../helpers/date";
+import useProfileScreenLogic from "../logics/useProfileScreenLogic";
+import { limitTextCharaters } from "../../../../helpers/sub-text";
+import TimerButton from "./TimerButton";
 
 export type ListItemProps = {
   item: ITeamTask
@@ -131,39 +133,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     })
   }, [labelIndex])
 
-  const TimerButton = ({ isRunning }: { isRunning: boolean }) => {
-    if (!dark) {
-      return (
-        <TouchableOpacity
-          style={[styles.timerBtn, { backgroundColor: colors.background }]}
-          onPress={() => { isRunning ? stopTimer() : startTimer() }}>
-          <Image
-            resizeMode="contain"
-            style={[styles.timerIcon,]}
-            source={isRunning ?
-              require("../../../../../assets/icons/new/stop-blue.png")
-              :
-              require("../../../../../assets/icons/new/play.png")} />
-        </TouchableOpacity>
-      )
-    }
 
-    return (
-      <LinearGradient colors={["#E93CB9", "#6A71E7"]} style={[styles.timerBtn]}>
-        <TouchableOpacity
-          onPress={() => { isRunning ? stopTimer() : startTimer() }}>
-          <Image
-            resizeMode="contain"
-            style={[styles.timerIcon,]}
-            source={isRunning ?
-              require("../../../../../assets/icons/new/stop.png")
-              :
-              require("../../../../../assets/icons/new/play-dark.png")}
-          />
-        </TouchableOpacity>
-      </LinearGradient>
-    )
-  }
 
 
 
@@ -231,7 +201,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
             <TouchableOpacity onLongPress={() => handleTaskTitle()}>
               <TextInput
                 style={[styles.otherText, enableEditTaskTitle ? styles.titleEditMode : null, { color: colors.primary }]}
-                defaultValue={enableEditTaskTitle ? titleInput : memberTask.title}
+                defaultValue={enableEditTaskTitle ? titleInput : limitTextCharaters({ text: memberTask.title, numChars: 64 })}
                 editable={enableEditTaskTitle}
                 multiline={true}
                 numberOfLines={2}
@@ -299,7 +269,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
               <>
                 {activeTask && activeTask.id === item.id ? (
                   <>
-                    <TimerButton isRunning={localTimerStatus.running} />
+                    <TimerButton />
                     <View style={{ justifyContent: "center", alignItems: "center", left: 10 }}>
                       <Text style={styles.timeHeading}>Today work</Text>
                       <Text style={[styles.timeNumber, { color: colors.primary }]}>{pad(hours)} h:{pad(minutes)} m</Text>
@@ -308,7 +278,17 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
                 )
                   :
                   <>
-                    <TimerButton isRunning={false} />
+                    <TouchableOpacity
+                      style={[styles.timerBtn, { backgroundColor: colors.background, borderColor: colors.border }]}
+                      onPress={() => { }}>
+                      <Image
+                        resizeMode="contain"
+                        style={[styles.timerIcon,]}
+                        source={dark ?
+                          require("../../../../../assets/icons/new/play-dark.png")
+                          :
+                          require("../../../../../assets/icons/new/play.png")} />
+                    </TouchableOpacity>
                     <View style={{ justifyContent: "center", alignItems: "center" }}>
                       <Text style={[styles.timeHeading, { color: colors.tertiary }]}>Today work</Text>
                       <Text style={[styles.timeNumber, { color: colors.primary }]}>01 h:01 m</Text>
@@ -333,7 +313,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
           <View>
             <TaskStatus
               dropdownContainerStyle={{
-                top:-88,
+                top: -88,
                 width: 120
               }}
               containerStyle={styles.statusContainer}

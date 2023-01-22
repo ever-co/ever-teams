@@ -12,21 +12,20 @@ import { translate } from "../../i18n"
 import { useAppTheme } from "../../app"
 import { Avatar } from "react-native-paper"
 import { useOrganizationTeam } from "../../services/hooks/useOrganization"
+import { observer } from "mobx-react-lite"
+import { limitTextCharaters } from "../../helpers/sub-text"
 
 export interface Props {
   teams: IOrganizationTeamList[]
   changeTeam: (value: IOrganizationTeamList) => any
-  onCreateTeam: () => unknown
+  onCreateTeam: () => unknown;
+  resized: boolean;
 }
 
-// export interface teamItem {
-//   img: string
-//   title: string
-// }
 
-const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTeam, changeTeam }) {
-  const { teamStore: { activeTeamId, activeTeam} } = useStores();
- 
+const DropDownSection: FC<Props> = function DropDownSection({ teams, onCreateTeam, changeTeam, resized }) {
+  const { teamStore: { activeTeamId, activeTeam } } = useStores();
+
   const others = teams.filter((t) => t.id !== activeTeamId);
 
   const { colors } = useAppTheme();
@@ -41,9 +40,9 @@ const DropDownSection: FC<Props> = function CreateTeamModal({ teams, onCreateTea
           <Ionicons name="settings-outline" size={24} color={colors.primary} />
         </TouchableOpacity>
       </View>
-      {activeTeamId && <DropItem team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
+      {activeTeamId && <DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
       {others.map((item, index) => (
-        <DropItem key={index} team={item} changeTeam={changeTeam} isActiveTeam={false} />
+        <DropItem key={index} team={item} resized={resized} changeTeam={changeTeam} isActiveTeam={false} />
       ))}
 
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
@@ -62,15 +61,20 @@ export interface IDropItem {
   team: IOrganizationTeamList,
   isActiveTeam: boolean
   changeTeam: (value: IOrganizationTeamList) => any
+  resized: boolean;
 }
 
-const DropItem: FC<IDropItem> = function CreateTeamModal({ team, changeTeam, isActiveTeam }) {
+const DropItem: FC<IDropItem> = function DropItem({ team, changeTeam, isActiveTeam, resized }) {
   const { colors } = useAppTheme();
   return (
     <View style={styles.indDropDown}>
       <TouchableOpacity style={{ flexDirection: "row", alignItems: "center" }} onPress={() => changeTeam(team)}>
         <Avatar.Text style={styles.teamImage} size={30} label={imgTitle(team.name)} labelStyle={styles.prefix} />
-        <Text style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal }}>{team.name} ({team.members.length})</Text>
+        <Text
+          style={{ color: colors.primary, paddingLeft: "5%", fontSize: 16, fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal }}
+        >
+          {limitTextCharaters({ text: team.name, numChars: resized ? 12 : 20 })} ({team.members.length})
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity>
         <Ionicons name="settings-outline" size={24} color={colors.primary} />

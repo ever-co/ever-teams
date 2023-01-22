@@ -1,8 +1,8 @@
 import React, { FC } from "react"
 import { View, Image, StyleSheet, TouchableOpacity, Dimensions } from "react-native"
 import { Feather } from '@expo/vector-icons';
-import HeaderTimer from "../../../../components/HeaderTimer";
-import { useAppTheme } from "../../../../app";
+import HeaderTimer from "./HeaderTimer";
+import { useAppTheme } from "../app";
 
 interface Props {
   showTimer: boolean,
@@ -16,8 +16,8 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
     <View style={[styles.mainContainer, { backgroundColor: dark ? colors.background2 :colors.background }]}>
       <View style={[styles.secondContainer, { backgroundColor: dark ? colors.background2 :colors.background }]}>
         {dark ?
-          <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams-white.png")} resizeMode="contain" /> :
-          <Image style={styles.logo} source={require("../../../../../assets/images/new/gauzy-teams.png")} resizeMode="contain" />
+          <Image style={styles.logo} source={require("../../assets/images/new/gauzy-teams-white.png")} resizeMode="contain" /> :
+          <Image style={styles.logo} source={require("../../assets/images/new/gauzy-teams.png")} resizeMode="contain" />
         }
         {showTimer &&
           <View style={{ width: 126 }}>

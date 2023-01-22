@@ -21,9 +21,9 @@ import ListCardItem from "./components/ListCardItem"
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { spacing, typography } from "../../../theme"
-import HomeHeader from "./components/HomeHeader"
+import HomeHeader from "../../../components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
-import CreateTeamModal from "./components/CreateTeamModal"
+import CreateTeamModal from "../../../components/CreateTeamModal"
 import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
 import { IUser } from "../../../services/interfaces/IUserData"
@@ -34,6 +34,7 @@ import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
 import { useTeamInvitations } from "../../../services/hooks/useTeamInvitation"
+import useTeamScreenLogic from "./logics/useTeamScreenLogic"
 
 
 const { width, height } = Dimensions.get("window");
@@ -43,35 +44,27 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     const { colors, dark } = useAppTheme();
     //Get authentificate data
     const {
-      authenticationStore: { user, tenantId, organizationId, authToken, employeeId },
-      teamStore: { teams, activeTeam },
-      TaskStore: { activeTask },
       TimerStore: {
         localTimerStatus
       }
     } = useStores();
 
     const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser } = useOrganizationTeam();
-    const {teamInvitations}=useTeamInvitations();
-    // STATES
-    const [taskList] = React.useState(["success", "danger", "warning"])
-    const [showMoreMenu, setShowMoreMenu] = React.useState(false)
-    const [showInviteModal, setShowInviteModal] = React.useState(false)
-    const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+    const { teamInvitations } = useTeamInvitations();
+    const {
+      setShowCreateTeamModal,
+      setShowInviteModal,
+      showCreateTeamModal,
+      showInviteModal,
+      showMoreMenu,
+      setShowMoreMenu
+    } = useTeamScreenLogic();
 
     const { navigation } = _props
 
     function goToProfile({ userId, tabIndex }: { userId: string, tabIndex: number }) {
       navigation.navigate("Profile", { userId, tabIndex })
     }
-
-
-    // Create New Team
-    const createNewTeam = async (text: string) => {
-      createOrganizationTeam(text)
-    }
-
-
 
     return (
       <>
@@ -81,14 +74,14 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
           statusBarStyle="light" StatusBarProps={{ backgroundColor: 'black' }} safeAreaEdges={["top"]}>
           <InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
           <CreateTeamModal
-            onCreateTeam={createNewTeam}
+            onCreateTeam={createOrganizationTeam}
             visible={showCreateTeamModal}
             onDismiss={() => setShowCreateTeamModal(false)}
           />
           <HomeHeader props={_props} showTimer={localTimerStatus.running} />
           <View style={{ ...$wrapTeam, backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)", }}>
             <View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
-              <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+              <DropDown resized={isTeamManager} onCreateTeam={() => setShowCreateTeamModal(true)} />
             </View>
             {isTeamManager ? (
               <TouchableOpacity

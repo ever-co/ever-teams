@@ -21,7 +21,13 @@ export function StatusIcon({ status }: { status: ITaskStatus }) {
 }
 
 export function getBackground({ status }: { status: ITaskStatus }) {
+    if (!status) {
+        return "#F2F2F2"
+    }
     const node = statusIcons[status];
+    if (!node) {
+        return "#F2F2F2"
+    }
     return node.props.background;
 };
 

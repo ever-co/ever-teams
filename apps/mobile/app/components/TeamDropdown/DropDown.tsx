@@ -10,15 +10,17 @@ import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../services/i
 import { typography } from "../../theme"
 import DropDownSection from "./DropDownSection"
 import { useOrganizationTeam } from "../../services/hooks/useOrganization";
+import { limitTextCharaters } from "../../helpers/sub-text";
 
 export interface Props {
   onCreateTeam: () => unknown,
+  resized: boolean;
 }
 
-const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) {
+const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, resized }) {
   const { colors } = useAppTheme();
   const {
-    teamStore: { teams, setActiveTeamId, activeTeam, },
+    teamStore: { teams, setActiveTeam, activeTeam, },
     TaskStore: { setActiveTask }
   } = useStores();
 
@@ -29,7 +31,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
 
 
   const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
-    setActiveTeamId(newActiveTeam.id)
+    setActiveTeam(newActiveTeam)
     setShowDrop(!showDrop)
     setActiveTask({})
   }
@@ -43,14 +45,14 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Avatar.Text style={styles.teamImage} size={40} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
-          <Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${activeTeam.name} (${activeTeam.members.length})`}</Text>
+          <Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${limitTextCharaters({ text: activeTeam.name, numChars: resized ? 9 : 30 })} (${activeTeam.members.length})`}</Text>
         </View>
         {showDrop ?
           <AntDesign name="up" size={24} color={colors.primary} /> :
           <AntDesign name="down" size={24} color={colors.primary} />
         }
       </TouchableOpacity>
-      {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
+      {showDrop && <DropDownSection resized={resized} changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
     </View >
   )
 })

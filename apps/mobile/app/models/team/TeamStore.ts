@@ -22,6 +22,7 @@ export const TeamStoreModel = types
 
         setActiveTeam(team: IOrganizationTeamList) {
             store.activeTeam = team;
+            store.activeTeamId = team.id
         },
         setActiveTeamId(id: string) {
             store.activeTeamId = id

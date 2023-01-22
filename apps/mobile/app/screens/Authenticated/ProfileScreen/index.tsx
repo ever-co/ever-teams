@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react"
-import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text, FlatList, Image } from "react-native"
+import { ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text, FlatList, Image } from "react-native"
 import FlashMessage from "react-native-flash-message"
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -11,91 +11,57 @@ import { Screen } from "../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { typography } from ".././../../theme"
-import HomeHeader from "../TeamScreen/components/HomeHeader"
+import HomeHeader from "../../../components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
 import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
-import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import AssingTaskFormModal from "./components/AssignTaskSection"
 import { BlurView } from "expo-blur"
-import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
-import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
-import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
 import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
-import TaskTab from "./components/TaskTab"
 import FilterPopup from "./components/FilterPopup"
+import useProfileScreenLogic from "./logics/useProfileScreenLogic"
+import ProfileTabs from "./components/ProfileTabs"
+import { ITeamTask } from "../../../services/interfaces/ITask"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
-
+   
     const { colors, dark } = useAppTheme();
-
-    const { authenticationStore: { authToken, tenantId, organizationId },
-      teamStore: { activeTeam },
-      TaskStore: { teamTasks, activeTask, setActiveTask },
+    const { user } = useAuthenticateUser();
+    const { tabIndex, userId } = _props.route.params;
+    const {
       TimerStore: { localTimerStatus }
     } = useStores();
-    const { user } = useAuthenticateUser();
-    const { params } = _props.route;
-    const { tabIndex, userId } = params;
-    const { members } = useOrganizationTeam();
-    const { onAssignTask, onUnassignedTask, loadAssignAndUnassign } = useTeamTasks();
+    
+    const {
+      hangleAssignTask,
+      hangleUnassignTask,
+      showFilterPopup,
+      showModal,
+      currentUser,
+      setShowFilterPopup,
+      setShowModal,
+      selectedTabIndex,
+      setSelectedTabIndex,
+      countTasksByTab,
+      otherTasks,
+      member,
+      assignedTasks,
+      unassignedTasks,
+      activeTask,
+      assignListRefresh
+    } = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex || 0 });
 
-    const [selectedTabIndex, setSelectedTabIndex] = useState(tabIndex);
-    const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
-    const [showModal, setShowModal] = useState(false)
-    const [showFilterPopup, setShowFilterPopup] = useState(false)
-    const tabs = [translate("tasksScreen.workedTab"), translate("tasksScreen.assignedTab"), translate("tasksScreen.unassignedTab")];
-
-    const member = userId ? members.find((m) => {
-      return m.employee.userId === userId;
-    }) : user;
-
-    const currentUser =
-      user?.id === userId ? user : member?.employee.user;
 
     const isAuthUser = currentUser.id === user.id;
 
-    const filterTasksByStatus = (status: ITaskStatus) => {
-      if (!status) return teamTasks;
-
-      return teamTasks.filter((t) => t.status === status)
-    }
-
-    const new_teamTasks = filterTasksByStatus(filterStatus)
-
-    const otherTasks = activeTask
-      ? new_teamTasks.filter((t) => t.id !== activeTask.id)
-      : new_teamTasks;
-
-    const { assignedTasks, unassignedTasks, countTasksByTab, } = useAuthTeamTasks(currentUser);
-
-    useEffect(() => {
-      setSelectedTabIndex(tabIndex)
-    }, [tabIndex])
-
-
-    const hangleAssignTask = async (taskId: string) => {
-      const data = await onAssignTask({
-        taskId,
-        memberId: currentUser?.id
-      })
-    }
-
-    const hangleUnassignTask = async (taskId: string) => {
-      const data = await onUnassignedTask({
-        taskId,
-        memberId: currentUser?.id
-      })
-    }
-
     return (
       <>
-        {showModal || showFilterPopup && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+        {showModal || showFilterPopup ? <BlurView tint="dark" intensity={18} style={$blurContainer} /> : null}
         <Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
           <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
           <FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
@@ -122,19 +88,11 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             </TouchableOpacity>
           </View>
 
-          <View style={{ ...$tabWrapper, backgroundColor: colors.background }}>
-            {tabs.map((item, idx) => (
-              <TaskTab
-                key={idx}
-                setSelectedTabIndex={setSelectedTabIndex}
-                tabIndex={idx}
-                selectedTabIndex={selectedTabIndex}
-                tabTitle={item}
-                countTasks={countTasksByTab(idx)}
-              />
-            ))}
-          </View>
-
+          <ProfileTabs
+            onChangeTab={setSelectedTabIndex}
+            activeTab={selectedTabIndex}
+            countTasksByTab={countTasksByTab}
+          />
           <View
             style={{
               flex: 1,
@@ -216,6 +174,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       />
                     </View>
                   }
+                  extraData={assignListRefresh}
+                  legacyImplementation={true}
                   showsVerticalScrollIndicator={false}
                   keyExtractor={(_, index) => index.toString()}
                 />
@@ -232,7 +192,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 <FlatList
                   data={unassignedTasks}
                   renderItem={({ item, index }) => (
-                    <View key={index} style={{ marginVertical: 4 }}>
+                    <View key={index} style={{ marginBottom: 8 }}>
                       <ListCardItem
                         tabIndex={selectedTabIndex}
                         member={member}
@@ -245,6 +205,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       />
                     </View>
                   )}
+                  extraData={assignListRefresh}
+                  legacyImplementation={true}
                   showsVerticalScrollIndicator={false}
                   keyExtractor={(_, index) => index.toString()}
                 />
@@ -284,15 +246,9 @@ const $filterButton: ViewStyle = {
   borderRadius: 10,
   paddingVertical: 12,
   paddingHorizontal: 24,
-  justifyContent:"center"
+  justifyContent: "center"
 }
 
-const $tabWrapper: ViewStyle = {
-  flexDirection: 'row',
-  width: "100%",
-  justifyContent: "space-between",
-  paddingHorizontal: 20,
-}
 
 const $blurContainer: ViewStyle = {
   height: height,

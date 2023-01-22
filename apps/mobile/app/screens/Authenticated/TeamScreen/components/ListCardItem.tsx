@@ -17,7 +17,6 @@ import { Card, Icon, ListItem } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { spacing, typography } from "../../../../theme"
-import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
@@ -31,6 +30,7 @@ import { translate } from "../../../../i18n"
 import { useAppTheme } from "../../../../app"
 import LabelItem from "../../../../components/LabelItem"
 import { secondsToTime } from "../../../../helpers/date";
+import { limitTextCharaters } from "../../../../helpers/sub-text";
 
 
 export type ListItemProps = {
@@ -153,7 +153,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         </View>
         <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
           <Text style={[styles.otherText, { color: colors.primary }]}>
-            {memberTask ? memberTask.title : ""}
+            {memberTask ? limitTextCharaters({text:memberTask.title, numChars:64 }): ""}
           </Text>
           <View style={{ marginTop: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
 
