@@ -57,7 +57,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     } = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex || 0 });
 
 
-    const isAuthUser = currentUser.id === user.id;
+    // const isAuthUser = currentUser.id === user.id;
 
     return (
       <>
@@ -78,7 +78,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 borderColor: colors.secondary
               }]}
             >
-              <Text style={[$createTaskTitle, { color: colors.secondary }]}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
+              <Text style={[$createTaskTitle, { color: colors.secondary }]}>{true ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ ...$filterButton, borderColor: colors.border }} onPress={() => setShowFilterPopup(true)} >
               {dark ?

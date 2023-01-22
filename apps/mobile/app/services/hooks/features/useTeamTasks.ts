@@ -50,6 +50,7 @@ export function useTeamTasks() {
     const updateTask = async (task: ITeamTask, id: string) => {
         setUpdateLoading(true)
         const { data, response } = await updateTaskRequest({ data: task, id }, authToken);
+        await loadTeamTasksData();
         setUpdateLoading(false)
         return { data, response }
     }

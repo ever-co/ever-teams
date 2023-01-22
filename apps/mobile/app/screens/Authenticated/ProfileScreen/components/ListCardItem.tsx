@@ -93,6 +93,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
   const [labelIndex, setLabelIndex] = useState(0);
   const [titleInput, setTitleInput] = useState("")
   const [loading, setLoading] = useState(false);
+  const [showTaskStatus, setShowTaskStatus] = useState(false);
   const [estimatedTime, setEstimateTime] = useState({
     hours: 0,
     minutes: 0,
@@ -106,7 +107,7 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     if (isAuthUser && isActive) {
       setMemberTask(activeTask);
     }
-  }, [isAuthUser, activeTask, member])
+  }, [isAuthUser, activeTask])
 
   const onChangeTaskTitle = async () => {
     const task: ITeamTask = {
@@ -149,7 +150,6 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
     if (labelIndex === 0) {
       return
     }
-
     setLabelIndex(labelIndex - 1);
   }
 
@@ -172,10 +172,13 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
         seconds: s
       })
     }
-  }, [memberTask, enableEstimate])
+  }, [memberTask])
 
   return (
-    <TouchableNativeFeedback onPressIn={onPressIn}>
+    <TouchableNativeFeedback onPressIn={() => {
+      setShowMenu(false)
+      setShowTaskStatus(false)
+    }}>
       <View style={{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, borderRadius: 14 }}>
 
         <View style={styles.firstContainer}>
@@ -313,11 +316,15 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
           <View>
             <TaskStatus
               dropdownContainerStyle={{
-                top: -88,
-                width: 120
+                top: -150,
+                width: 120,
+                maxHeight: 192
               }}
               containerStyle={styles.statusContainer}
-              task={item} />
+              task={item}
+              showTaskStatus={showTaskStatus}
+              setShowTaskStatus={setShowTaskStatus}
+               />
           </View>
         </View>
         {showMenu && <SidePopUp setShowMenu={() => setShowMenu(false)} props={props} />}

@@ -28,7 +28,6 @@ const ManageTaskCard = observer(() => {
 
     const { colors } = useAppTheme()
     const {
-
         setShowCombo,
         showCheckIcon,
         showCombo,
@@ -37,7 +36,9 @@ const ManageTaskCard = observer(() => {
         taskInputText,
         isLoading,
         onCreateNewTask,
-        setTaskInputText
+        setTaskInputText,
+        setShowTaskStatus,
+        showTaskStatus
     } = useTimerScreenLogic();
 
 
@@ -106,6 +107,8 @@ const ManageTaskCard = observer(() => {
                                     width: "100%"
                                 }}
                                 task={activeTask}
+                                showTaskStatus={showTaskStatus}
+                                setShowTaskStatus={setShowTaskStatus}
                             />
                         </View>
                         <TaskPriorities />
