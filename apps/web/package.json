@@ -35,6 +35,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-google-recaptcha": "^2.1.0",
+    "react-hook-form": "^7.42.1",
     "react-popper": "^2.3.0",
     "react-popper-tooltip": "^4.4.2",
     "recoil": "^0.7.6",

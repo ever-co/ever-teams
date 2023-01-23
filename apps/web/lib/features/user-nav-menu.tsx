@@ -20,6 +20,7 @@ import {
 	SettingsOutlineIcon,
 } from 'lib/components/svgs';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -103,9 +104,11 @@ function UserNavMenu() {
 						<PeopleIcon className="w-5 h-5" /> <span>Team</span>
 					</li>
 					{/* Settings menu */}
+					<Link href={'/settings/personal'}>
 					<li className="flex space-x-3 items-center font-normal mb-3">
 						<SettingsOutlineIcon className="w-5 h-5" /> <span>Settings</span>
 					</li>
+					</Link>
 					{/* Darkmode menu */}
 					<li className="flex space-x-3 items-center justify-between font-normal mb-3">
 						<div className="flex-1 flex items-center space-x-3">

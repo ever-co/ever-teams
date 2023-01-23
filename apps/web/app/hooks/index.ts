@@ -16,3 +16,12 @@ export * from './useCustomEmblaCarousel';
 
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useAuthenticationPasscode';
+
+//export user personal setting
+export * from './features/useSettings';
+
+//export user language setting
+export * from './features/useLanguageSettings';
+
+//export user timezone setting
+export * from './features/useTimezoneSettings';

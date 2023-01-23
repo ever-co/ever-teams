@@ -5,6 +5,7 @@ import {
   TENANT_ID_COOKIE_NAME,
   TOKEN_COOKIE_NAME,
   ACTIVE_TASK_COOKIE_NAME,
+  ACTIVE_LANGUAGE_COOKIE_NAME,
 } from "@app/constants";
 import { IDecodedRefreshToken } from "@app/interfaces/IAuthentication";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
@@ -20,6 +21,7 @@ type DataParams = {
   tenantId: string;
   organizationId: string;
   timezone?: string;
+  languageId: string
 };
 
 type NextCtx = { req: NextApiRequest; res: NextApiResponse };
@@ -35,6 +37,7 @@ export function setAuthCookies(
     tenantId,
     teamId,
     organizationId,
+    languageId,
     // timezone,
   } = datas;
 
@@ -45,6 +48,7 @@ export function setAuthCookies(
   setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, { res, req });
   setCookie(TENANT_ID_COOKIE_NAME, tenantId, { res, req });
   setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, { res, req });
+  setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageId, { res, req });
 }
 
 export function cookiesKeys() {
@@ -55,6 +59,7 @@ export function cookiesKeys() {
     TENANT_ID_COOKIE_NAME,
     ORGANIZATION_ID_COOKIE_NAME,
     ACTIVE_TASK_COOKIE_NAME,
+    ACTIVE_LANGUAGE_COOKIE_NAME,
   ];
 }
 
@@ -107,4 +112,13 @@ export function getActiveTaskIdCookie(ctx?: NextCtx) {
 
 export function setActiveTaskIdCookie(taskId: string, ctx?: NextCtx) {
   return setCookie(ACTIVE_TASK_COOKIE_NAME, taskId, { ...(ctx || {}) });
+}
+
+// Active language id
+export function getActiveLanguageIdCookie(ctx?: NextCtx) {
+  return getCookie(ACTIVE_LANGUAGE_COOKIE_NAME, { ...(ctx || {}) }) as string;
+}
+
+export function setActiveLanguageIdCookie(languageIds: string, ctx?: NextCtx) {
+  return setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageIds, { ...(ctx || {}) });
 }

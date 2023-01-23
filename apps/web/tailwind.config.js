@@ -49,7 +49,14 @@ module.exports = {
 					DEFAULT: '#1A1C1E',
 				},
 			},
-			fontFamily: {},
+			fontFamily: {
+				'PlusJakartaSans':['Plus-Jakarta-Sans-VariableFont_wght'],
+				'PlusJakartaSansRegular':['Plus-Jakarta-Sans-Regular'],
+				'PlusJakartaSansBold':['Plus-Jakarta-Sans-Bold'],
+				'PlusJakartaSansLight':['Plus-Jakarta-Sans-Light'],
+				'PlusJakartaSansMedium':['Plus-Jakarta-Sans-Medium'],
+				'PlusJakartaSansSemiBold':['Plus-Jakarta-Sans-SemiBold'],
+			},
 			boxShadow: {
 				lgcard: '0px 50px 200px rgba(0, 0, 0, 0.1)',
 				xlcard: '0px 16px 79px rgba(0, 0, 0, 0.12)',
