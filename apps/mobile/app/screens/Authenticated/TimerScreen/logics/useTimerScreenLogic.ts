@@ -8,6 +8,7 @@ const useTimerScreenLogic=()=>{
     const [taskInputText, setTaskInputText] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
+    const [showTaskStatus, setShowTaskStatus]=useState(true)
 
     const { createNewTask, setActiveTeamTask } = useTeamTasks();
 
@@ -52,7 +53,9 @@ const useTimerScreenLogic=()=>{
         setShowCombo,
         setShowCheckIcon,
         isLoading,
-        setTaskInputText
+        setTaskInputText,
+        setShowTaskStatus, 
+        showTaskStatus
     }
 }
 

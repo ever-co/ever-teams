@@ -56,6 +56,7 @@ const ModalPopUp = ({ visible, children }) => {
 const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss }) {
 
   const { colors } = useAppTheme();
+  const [showTaskStatus, setShowTaskStatus]=useState(false)
 
   return (
     <ModalPopUp visible={visible}>
@@ -69,9 +70,12 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss }) {
             <TaskStatus
               containerStyle={styles.statusContainer}
               dropdownContainerStyle={{
-                width: width / 2.5,
-                top: 57
+                width: width / 2,
+                padding:10,
+                top: -240
               }}
+              showTaskStatus={showTaskStatus}
+              setShowTaskStatus={setShowTaskStatus}
             />
 
             <TaskPriorities

@@ -74,7 +74,7 @@ const useProfileScreenLogic = (
         setAssignListRefresh(!assignListRefresh)
     }
 
-    
+
     const createAndAssign = useCallback(async (title: string) => {
         const created = await createNewTask(title);
 

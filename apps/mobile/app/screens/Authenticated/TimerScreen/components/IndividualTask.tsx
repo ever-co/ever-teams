@@ -23,6 +23,7 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
 
   const { colors } = useAppTheme()
   const [showDel, setShowDel] = useState(false)
+  const [showTaskStatus, setShowTaskStatus] = useState(false)
   const { updateTask } = useTeamTasks();
   const {
     authenticationStore: { tenantId, authToken, organizationId },
@@ -73,7 +74,13 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
         <View style={{ zIndex: 999 }}>
           <TaskStatus
             task={task}
+            dropdownContainerStyle={{
+              width: "100%",
+              top: 30
+            }}
             containerStyle={styles.statusContainer}
+            showTaskStatus={showTaskStatus}
+            setShowTaskStatus={setShowTaskStatus}
           />
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "27%" }}>
