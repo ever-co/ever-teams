@@ -5,6 +5,9 @@ const nextConfig = {
   images: {
     domains: ["dummyimage.com","res.cloudinary.com", "localhost", "127.0.0.1"],
   },
+	experimental: {
+		appDir: true
+	}
 };
 
 module.exports = nextConfig;
