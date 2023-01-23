@@ -1,5 +1,5 @@
 import {
-	ILoginReponse,
+	ILoginResponse,
 	IRegisterDataRequest,
 } from '@app/interfaces/IAuthentication';
 import { IUser } from '@app/interfaces/IUserData';
@@ -22,7 +22,7 @@ export function sendAuthCodeRequest(email: string) {
 }
 
 export function verifyAuthCodeRequest(email: string, code: number) {
-	return serverFetch<ILoginReponse>({
+	return serverFetch<ILoginResponse>({
 		path: '/auth/verify-code',
 		method: 'POST',
 		body: { email, code },
@@ -30,7 +30,7 @@ export function verifyAuthCodeRequest(email: string, code: number) {
 }
 
 export const loginUserRequest = (email: string, password: string) => {
-	return serverFetch<ILoginReponse>({
+	return serverFetch<ILoginResponse>({
 		path: '/auth/login',
 		method: 'POST',
 		body: {

@@ -26,11 +26,11 @@ const PersonalSettingForm = () => {
         setValue('firstName', user?.firstName)
         setValue('lastName', user?.lastName)
         setValue('email', user?.email)
-    },[user, currentTimezone])
+    },[user, currentTimezone, setValue])
 
     const onSubmit = useCallback(async (values:any) => {
         if (values && user) {
-            await updateAvatar({firstName: values.firstName, lastName: values.lastName, email: values.email, id: user.id});  
+            await updateAvatar({firstName: values.firstName, lastName: values.lastName, email: values.email, id: user.id});
         }
     }, [updateAvatar, user]);
 
@@ -44,13 +44,13 @@ const PersonalSettingForm = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 autoComplete="off"
             >
-                <div className="flex flex-col justify-between items-center">
+                <div className="flex flex-col items-center justify-between">
                     <div className="w-full mt-5">
                         <div className="">
-                            <div className='flex w-full items-center justify-between gap-8'>
-                                <div className="flex w-full items-center justify-between gap-4">
+                            <div className='flex items-center justify-between w-full gap-8'>
+                                <div className="flex items-center justify-between w-full gap-4">
                                     <div>
-                                        <Text className="text-md text-gray-400 font-normal mb-2">
+                                        <Text className="mb-2 font-normal text-gray-400 text-md">
                                             First Name
                                         </Text>
                                         <InputField
@@ -61,7 +61,7 @@ const PersonalSettingForm = () => {
                                         />
                                     </div>
                                     <div className="">
-                                        <Text className="text-md text-gray-400 font-normal mb-2">
+                                        <Text className="mb-2 font-normal text-gray-400 text-md">
                                             Last Name
                                         </Text>
                                         <InputField
@@ -80,10 +80,10 @@ const PersonalSettingForm = () => {
                                     </Button>
                                 </div>
                             </div>
-                            <div className="flex w-full items-center justify-between gap-8 mt-8">
-                                <div className="flex w-full items-center justify-between gap-4">
+                            <div className="flex items-center justify-between w-full gap-8 mt-8">
+                                <div className="flex items-center justify-between w-full gap-4">
                                     <div>
-                                        <Text className="text-md text-gray-400 font-normal mb-2">
+                                        <Text className="mb-2 font-normal text-gray-400 text-md">
                                             Contact
                                         </Text>
                                         <InputField
@@ -114,31 +114,31 @@ const PersonalSettingForm = () => {
                             </div>
                             <div className='flex items-center gap-6 mt-8'>
                                 <div className="">
-                                    <Text className="text-md text-gray-400 font-normal mb-2">
+                                    <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Theme
                                     </Text>
                                     <ToggleThemeContainer />
                                 </div>
                                 <div className="mt-6">
-                                    <Text className="text-sm text-gray-400 font-normal">
+                                    <Text className="text-sm font-normal text-gray-400">
                                         Light Mode
                                     </Text>
                                 </div>
                             </div>
-                            <div className='flex w-full items-center justify-between mt-8'>
+                            <div className='flex items-center justify-between w-full mt-8'>
                                 <div className="">
-                                    <Text className="text-md text-gray-400 font-normal mb-2">
+                                    <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Language
                                     </Text>
                                     <LanguageDropDown  />
                                 </div>
                             </div>
-                            <div className='flex w-full items-center justify-between mt-8 gap-5'>
+                            <div className='flex items-center justify-between w-full gap-5 mt-8'>
                                 <div className="">
-                                    <Text className="text-md text-gray-400 font-normal mb-2">
+                                    <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Timezone
                                     </Text>
-                                    <TimezoneDropDown currentTimezone={currentTimezone} onChangeTimezone={(e:any) => setCurrentTimezone(e.data)}/>
+                                    <TimezoneDropDown currentTimezone={currentTimezone} onChangeTimezone={(e:any) => setCurrentTimezone(e.data)} />
                                 </div>
                                 <div className='mt-8'>
                                     <Button
@@ -152,9 +152,9 @@ const PersonalSettingForm = () => {
                                     </Button>
                                 </div>
                             </div>
-                            <div className='flex w-full items-center justify-between mt-8'>
+                            <div className='flex items-center justify-between w-full mt-8'>
                                 <div className="">
-                                    <Text className="text-md text-gray-400 font-normal mb-2">
+                                    <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Work Schedule
                                     </Text>
                                     <Text className='text-md font-PlusJakartaSansSemiBold'>No</Text>

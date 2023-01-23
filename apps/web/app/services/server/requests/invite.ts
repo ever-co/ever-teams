@@ -1,4 +1,4 @@
-import { ILoginReponse } from '@app/interfaces/IAuthentication';
+import { ILoginResponse } from '@app/interfaces/IAuthentication';
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import {
 	IInvitation,
@@ -120,7 +120,7 @@ export interface AcceptInviteParams {
  * @returns
  */
 export function acceptInviteRequest(params: AcceptInviteParams) {
-	return serverFetch<ILoginReponse>({
+	return serverFetch<ILoginResponse>({
 		path: '/invite/accept',
 		method: 'POST',
 		body: params,

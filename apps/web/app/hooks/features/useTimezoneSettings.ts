@@ -6,17 +6,16 @@ import {
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import timeZones from '@components/pages/settings/timezones';
 
 export function useTimezoneSettings() {
 	const [timezones, setTimezone] = useRecoilState(timezoneListState);
 	const activeTimezone = useRecoilValue(activeTimezoneState);
-	const [activeTimezoneId, setActiveTimezoneId] = useRecoilState(activeTimezoneIdState);
+	const [, setActiveTimezoneId] = useRecoilState(activeTimezoneIdState);
 	const [timezonesFetching, setTimezoneFetching] = useRecoilState(timezonesFetchingState);
 
 	useEffect(() => {
-        setTimezone(timeZones);
-	}, [setTimezoneFetching, activeTimezone]);
+        setTimezone(timezones);
+	}, [setTimezoneFetching, activeTimezone, setTimezone, timezones]);
 
 	const setActiveTimezone = useCallback(
 		(timezoneId: typeof timezones[0]) => {

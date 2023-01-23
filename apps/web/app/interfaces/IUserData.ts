@@ -60,7 +60,7 @@ export interface IUserData {
 }
 
 
-//export language list inteerface
+//export language list interface
 export interface ILanguageItemList {
   id: string;
   createdAt: string;
@@ -74,7 +74,7 @@ export interface ILanguageItemList {
   data: any;
 }
 
-//export timezone list inteerface
+//export timezone list interface
 export interface ITimezoneItemList {
   length: number | undefined;
   id: string;

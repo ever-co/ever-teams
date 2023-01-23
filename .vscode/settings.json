@@ -3,5 +3,6 @@
         "plasmo",
         "tailwindcss",
         "Vercel"
-    ]
+    ],
+    "deepscan.enable": true
 }

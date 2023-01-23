@@ -10,17 +10,18 @@ export default async function handler(
 ) {
   const { $res, user, access_token, tenantId } =
     await authenticatedGuard(req, res);
+
   if (!user) return $res();
+
+	const par = {
+		is_system: user.role.isSystem as boolean,
+		tenantId
+	};
 
   switch (req.method) {
     case "GET":
-      const { data: response } = await getLanguageListRequest(
-        {
-          is_system: user.role.isSystem as boolean,
-          tenantId
-        },
-        access_token
-      );
-      return $res.json(response);
+      return $res.json(await getLanguageListRequest(par,
+				access_token
+			));
   }
 }

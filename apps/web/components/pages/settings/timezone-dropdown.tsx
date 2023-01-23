@@ -2,17 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Dropdown,
 } from 'lib/components';
-import timeZones from './timezones';
+// import timeZones from './timezones';
 import { mapTimezoneItems, TimezoneItem } from 'lib/features';
 import { useTimezoneSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
+import { ITimezoneItemList } from '@app/interfaces';
 
-
-export const TimezoneDropDown = () => {
+export const TimezoneDropDown = (currentTimezone: any, onChangeTimezone: any) => {
 	const { activeTimezone, setActiveTimezone } =
 		useTimezoneSettings();
 
-	const items = useMemo(() => mapTimezoneItems(timeZones), [timeZones]);
+	const timeZonesMap: ITimezoneItemList[] = []; // TODO: we should import here from timeZones
+
+	const items = useMemo(() => mapTimezoneItems(timeZonesMap), [timeZonesMap]);
 
 	const [timezoneItem, setTimezoneItem] = useState<TimezoneItem | null>(null);
 

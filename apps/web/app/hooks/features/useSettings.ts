@@ -10,7 +10,7 @@ import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 
 export function useSettings() {
-	const [user, setUser] = useRecoilState(userState);
+	const [, setUser] = useRecoilState(userState);
 	const { queryCall: updateAvatarQueryCall, loading: updateLoading } =
 		useQuery(updateUserAvatarAPI);
 
@@ -27,7 +27,7 @@ export function useSettings() {
 				return res;
 			});
 		},
-		[ updateAvatarQueryCall]
+		[refreshUserQueryCall, setUser, updateAvatarQueryCall]
 	);
 
 	return {

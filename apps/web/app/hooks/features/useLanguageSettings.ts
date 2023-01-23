@@ -22,7 +22,7 @@ export function useLanguageSettings() {
 	const { loading, queryCall } = useQuery(getLanguageListAPI);
 	const [languages, setLanguages] = useRecoilState(languageListState);
 	const activeLanguage = useRecoilValue(activeLanguageState);
-	const [activeLanguageId, setActiveLanguageId] = useRecoilState(activeLanguageIdState);
+	const [, setActiveLanguageId] = useRecoilState(activeLanguageIdState);
 	const [languagesFetching, setLanguagesFetching] = useRecoilState(languagesFetchingState);
 	const { firstLoadData: firstLoadLanguagesData } = useFirstLoad();
 
@@ -33,17 +33,17 @@ export function useLanguageSettings() {
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
         if (user) {
-            return queryCall(user?.role.isSystem).then((res) => {
+            return queryCall(user.role.isSystem).then((res) => {
                 setLanguages(res.data.items || []);
                 return res;
             });
         }
-	}, [queryCall, setActiveLanguageId, setLanguages]);
+	}, [queryCall, setActiveLanguageId, setLanguages, user]);
 
 	const setActiveLanguage = useCallback(
-		(langauegId: typeof languages[0]) => {
-			setActiveLanguageIdCookie(langauegId.id);
-			setActiveLanguageId(langauegId.id);
+		(languageId: typeof languages[0]) => {
+			setActiveLanguageIdCookie(languageId.id);
+			setActiveLanguageId(languageId.id);
 		},
 		[setActiveLanguageId]
 	);

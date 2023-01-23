@@ -11,13 +11,13 @@ export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
 					<TimezoneItem
-						title={timezone}
+						title={timezone.title}
 						count={timezone.length}
 						className={selected ? 'font-medium' : ''}
 					/>
 				</div>
 			),
-			selectedLabel: <TimezoneItem title={timezone} className="py-2 mb-0" />,
+			selectedLabel: <TimezoneItem title={timezone.title} className="py-2 mb-0" />,
 			data: timezone,
 		};
 	});
@@ -44,10 +44,7 @@ export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
 
 export function TimezoneItem({
 	title,
-	count,
-	className,
-	color,
-	disabled,
+	className
 }: {
 	title?: string;
 	count?: number;
@@ -63,7 +60,7 @@ export function TimezoneItem({
 			)}
 		>
 			<span className={clsxm('text-normal')}>
-				{title} 
+				{title}
 			</span>
 		</div>
 	);

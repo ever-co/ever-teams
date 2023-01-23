@@ -128,6 +128,7 @@ export default async function handler(
 			teamId: team.id,
 			tenantId: tenant.id,
 			organizationId: organization.id,
+			languageId: 'en' // TODO: not sure what should be here
 		},
 		req,
 		res
