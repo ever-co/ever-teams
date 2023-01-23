@@ -1,7 +1,6 @@
 import { withAuthentication } from 'lib/app/authenticator';
 import { MainLayout } from 'lib/layout';
 import { Breadcrumb, Card, Container,Text } from 'lib/components';
-// import UserIcon from '@components/ui/svgs/user-icon';
 import LeftSideSettingMenu from '@components/pages/settings/left-side-setting-menu';
 import ProfileAvatar from '@components/pages/settings/profile-avatar';
 import TeamSettingForm from '@components/pages/settings/team-setting-form';

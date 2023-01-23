@@ -27,8 +27,6 @@ const DangerZone = () => {
                                         variant="danger"
                                         type="submit"
                                         className='float-right'
-                                        //loading={loading}
-                                        //disabled={loading}
                                     >
                                         Remove Everywhere
                                     </Button>
@@ -50,8 +48,6 @@ const DangerZone = () => {
                                         variant="danger"
                                         type="submit"
                                         className='float-right'
-                                        //loading={loading}
-                                        //disabled={loading}
                                     >
                                         Delete This Account
                                     </Button>

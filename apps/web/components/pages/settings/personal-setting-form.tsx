@@ -75,7 +75,6 @@ const PersonalSettingForm = () => {
                                 <div className="mt-6">
                                     <Button
                                         variant="grey"
-                                        // type="submit"
                                     >
                                         Edit
                                     </Button>
@@ -101,10 +100,6 @@ const PersonalSettingForm = () => {
                                         <InputField
                                             type="text"
                                             placeholder="Phone Number"
-                                            // value="Alexandro Bernard"
-                                            //onChange={handleChange}
-                                            //errors={errors}
-                                            // required
                                             className='md:w-[220px]'
                                         />
                                     </div>
@@ -112,8 +107,6 @@ const PersonalSettingForm = () => {
                                 <div className='mt-6'>
                                     <Button
                                         type="submit"
-                                        //loading={loading}
-                                        //disabled={loading}
                                     >
                                         Save
                                     </Button>

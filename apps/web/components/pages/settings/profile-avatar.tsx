@@ -8,7 +8,6 @@ import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import axios from 'axios';
 const ProfileAvatar = () => {
-    // const { user } = useAuthenticateUser();
     const [user] = useRecoilState(userState);
     const { register } = useForm();
     const [avatarBtn, setAvatarBtn] = useState(false);
@@ -80,8 +79,6 @@ const ProfileAvatar = () => {
                                         <Button
                                             variant="grey"
                                             onClick={() => onDeleteAvatar()}
-                                            //loading={loading}
-                                            //disabled={loading}
                                         >
                                             Delete
                                         </Button>

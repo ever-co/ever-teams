@@ -142,12 +142,9 @@ export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
 				name={name}
 				ref={ref}
 				className={clsxm(
-					'bg-[#3826A6] dark:bg-dark--theme-light',
-					'input-border',
-					'py-2 px-4 mb-1',
-					'rounded-[10px] text-sm outline-none ',
-					'h-[50px] w-full',
-					'font-light tracking-tight',
+					'w-4 h-4',
+					'text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6]',
+					'dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600',
 					className
 				)}
 				onKeyUp={() => setError(undefined)}

@@ -1,4 +1,3 @@
-// import { useState } from 'react';
 import { withAuthentication } from 'lib/app/authenticator';
 import { MainLayout } from 'lib/layout';
 import { Breadcrumb, Card, Container,Text } from 'lib/components';

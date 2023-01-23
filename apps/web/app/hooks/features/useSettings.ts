@@ -17,6 +17,7 @@ export function useSettings() {
 	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } =
 		useQuery(getAuthenticatedUserDataAPI);
 
+	//Call API for update user profile
 	const updateAvatar = useCallback(
 		(userData: Partial<IUser> & { id: string }) => {
 			return updateAvatarQueryCall(userData.id, userData).then((res) => {
