@@ -106,7 +106,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           >
             {/* START WORKED TAB CONTENT */}
             {selectedTabIndex === 0 &&
-              <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+              <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
                 <View>
                   <View>
                     <View
