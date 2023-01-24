@@ -40,6 +40,7 @@ import { secondsToTime } from "../../../../helpers/date";
 import useProfileScreenLogic from "../logics/useProfileScreenLogic";
 import { limitTextCharaters } from "../../../../helpers/sub-text";
 import TimerButton from "./TimerButton";
+import { observer } from "mobx-react-lite";
 
 export type ListItemProps = {
   item: ITeamTask
@@ -67,7 +68,7 @@ const labels = [
 
 const { width, height } = Dimensions.get("window")
 
-export const ListItemContent: React.FC<ListItemProps> = (props) => {
+export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
   const { colors, dark } = useAppTheme();
   const {
     authenticationStore: { authToken, tenantId, organizationId, user },
@@ -121,9 +122,16 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
   }
 
   const isAnAssignedTask = useMemo(() => {
-    const exist = item.members.find((m) => m.userId === member.id)
+
+    if (typeof item === 'undefined') {
+      return false
+    }
+    let exist ;
+    if (typeof item.members !== 'undefined') {
+      exist = item.members.find((m) => m.userId === member.id)
+    }
     return !!exist
-  }, [item, member])
+  }, [])
 
 
   useEffect(() => {
@@ -324,14 +332,15 @@ export const ListItemContent: React.FC<ListItemProps> = (props) => {
               task={item}
               showTaskStatus={showTaskStatus}
               setShowTaskStatus={setShowTaskStatus}
-               />
+            />
           </View>
         </View>
         {showMenu && <SidePopUp setShowMenu={() => setShowMenu(false)} props={props} />}
       </View>
     </TouchableNativeFeedback >
   )
-}
+})
+
 interface IMenuProps {
   setShowMenu: () => unknown
   props: any

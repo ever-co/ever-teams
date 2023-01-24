@@ -24,6 +24,7 @@ import useTimerScreenLogic from "../logics/useTimerScreenLogic";
 const ManageTaskCard = observer(() => {
     const {
         TaskStore: { teamTasks, activeTask },
+        teamStore:{activeTeam}
     } = useStores();
 
     const { colors } = useAppTheme()
@@ -44,7 +45,7 @@ const ManageTaskCard = observer(() => {
 
     useEffect(() => {
         setTaskInputText(activeTask && activeTask.title)
-    }, [])
+    }, [activeTeam])
 
     return (
         <View style={styles.container}>

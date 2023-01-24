@@ -122,6 +122,8 @@ const {colors}=useAppTheme();
                                 placeholderTextColor={colors.tertiary}
                                 style={[styles.textInput,{color:colors.primary, backgroundColor:colors.background}]}
                                 defaultValue={""}
+                                autoCorrect={false}
+                                autoCapitalize={"none"}
                                 placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                                 value={taskInputText}
                                 onChangeText={(newText) => handleChangeText(newText)}

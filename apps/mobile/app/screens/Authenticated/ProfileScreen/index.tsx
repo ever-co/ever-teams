@@ -29,14 +29,14 @@ import { ITeamTask } from "../../../services/interfaces/ITask"
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
-   
+
     const { colors, dark } = useAppTheme();
     const { user } = useAuthenticateUser();
-    const { tabIndex, userId } = _props.route.params;
+    const { tabIndex, userId } = _props.route.params || { tabIndex: 0, userId: user.id };
     const {
       TimerStore: { localTimerStatus }
     } = useStores();
-    
+
     const {
       hangleAssignTask,
       hangleUnassignTask,
@@ -54,7 +54,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       unassignedTasks,
       activeTask,
       assignListRefresh
-    } = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex || 0 });
+    } = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex | 0 });
 
 
     // const isAuthUser = currentUser.id === user.id;
@@ -66,7 +66,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
           <FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
           <HomeHeader props={_props} showTimer={localTimerStatus.running} />
-          <View style={{ paddingTop: 10 }}>
+          <View style={{ paddingTop: 5 }}>
             <ProfileHeader {...currentUser} />
           </View>
 

@@ -153,7 +153,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         </View>
         <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
           <Text style={[styles.otherText, { color: colors.primary }]}>
-            {memberTask ? limitTextCharaters({text:memberTask.title, numChars:64 }): ""}
+            {memberTask && limitTextCharaters({text:memberTask && memberTask.title, numChars:64 })}
           </Text>
           <View style={{ marginTop: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
 

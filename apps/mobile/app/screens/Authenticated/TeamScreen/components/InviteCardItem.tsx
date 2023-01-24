@@ -16,7 +16,6 @@ import { Card, Icon, ListItem } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { spacing, typography } from "../../../../theme"
-import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { translate } from "../../../../i18n"

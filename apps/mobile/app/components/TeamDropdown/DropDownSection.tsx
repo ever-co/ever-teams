@@ -24,7 +24,7 @@ export interface Props {
 
 
 const DropDownSection: FC<Props> = function DropDownSection({ teams, onCreateTeam, changeTeam, resized }) {
-  const { teamStore: { activeTeamId, activeTeam } } = useStores();
+  const { teamStore: { activeTeamId, activeTeam, setActiveTeam } } = useStores();
 
   const others = teams.filter((t) => t.id !== activeTeamId);
 
@@ -64,7 +64,7 @@ export interface IDropItem {
   resized: boolean;
 }
 
-const DropItem: FC<IDropItem> = function DropItem({ team, changeTeam, isActiveTeam, resized }) {
+const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, isActiveTeam, resized }) {
   const { colors } = useAppTheme();
   return (
     <View style={styles.indDropDown}>
@@ -81,7 +81,7 @@ const DropItem: FC<IDropItem> = function DropItem({ team, changeTeam, isActiveTe
       </TouchableOpacity>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   mainContainer: {

@@ -26,7 +26,8 @@ const ProfileHeader = (member: IUser) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    paddingVertical: 24,
+    paddingTop: 14,
+    paddingBottom:24,
     paddingHorizontal:20,
     backgroundColor:"#fff"
   },
