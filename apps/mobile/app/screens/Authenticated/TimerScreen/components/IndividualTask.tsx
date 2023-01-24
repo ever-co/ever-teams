@@ -70,13 +70,14 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
         {/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
         <Text style={[styles.taskTitle, { color: colors.primary }]} numberOfLines={2}>{task.title}</Text>
       </View>
-      <View style={{ flexDirection: "row", width: "60%", alignItems: "center", zIndex: 101, justifyContent: "space-between" }}>
-        <View style={{ zIndex: 999 }}>
+      <View style={{ flexDirection: "row", width: "60%", alignItems: "center", zIndex: 1000, justifyContent: "space-between" }}>
+        <View>
           <TaskStatus
             task={task}
             dropdownContainerStyle={{
               width: "100%",
-              top: 30
+              top: 30,
+              zIndex:1000
             }}
             containerStyle={styles.statusContainer}
             showTaskStatus={showTaskStatus}
@@ -106,7 +107,7 @@ const styles = StyleSheet.create({
     width: "100%",
     justifyContent: "space-between",
     paddingVertical: 12,
-    zIndex: 100
+    zIndex: 1000,
   },
   statusDisplay: {
     flexDirection: "row",
@@ -177,6 +178,7 @@ const styles = StyleSheet.create({
     height: 27,
     backgroundColor: "#ECE8FC",
     borderColor: "transparent",
+    zIndex:1000
   }
 })
 

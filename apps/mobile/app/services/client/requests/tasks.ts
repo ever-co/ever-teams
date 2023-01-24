@@ -68,7 +68,7 @@ export function createTaskRequest({
   data: ICreateTask;
   bearer_token: string;
 }) {
-  return serverFetch({
+  return serverFetch<ITeamTask>({
     path: "/tasks",
     method: "POST",
     body: data,

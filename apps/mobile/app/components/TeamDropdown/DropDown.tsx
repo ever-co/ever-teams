@@ -21,7 +21,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
   const { colors } = useAppTheme();
   const {
     teamStore: { teams, setActiveTeam, activeTeam, },
-    TaskStore: { setActiveTask }
+    TaskStore: { setActiveTask, setActiveTaskId }
   } = useStores();
 
   const [expanded, setExpanded] = useState(true)
@@ -33,7 +33,8 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
   const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
     setActiveTeam(newActiveTeam)
     setShowDrop(!showDrop)
-    setActiveTask({})
+    setActiveTask(null)
+    setActiveTaskId("")
   }
 
   return (

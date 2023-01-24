@@ -53,6 +53,14 @@ export interface IEmployee {
   user?: IUser;
   fullName: string;
 }
+export interface IRole {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  tenantId: string;
+  name: string;
+  isSystem: boolean;
+}
 
 export type ICreateEmployee = Pick<
   IEmployee,

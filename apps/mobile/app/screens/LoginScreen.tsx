@@ -146,7 +146,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       name: authUsername,
       email: authEmail
     });
-  
+
     // If successful, reset the fields and set the token.
     if (response.status === 200) {
       const data = response.data
@@ -198,13 +198,16 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     }
   }, [])
 
+  
+
   return (
     <Screen
-      // preset="scroll"
+      preset="scroll"
       contentContainerStyle={{ ...$screenContentContainer, backgroundColor: "#282149" }}
       backgroundColor={"#282149"}
       statusBarStyle={"light"}
       safeAreaEdges={["top"]}
+      ScrollViewProps={{bounces:false}}
       KeyboardAvoidingViewProps={{}}
     >
       <View style={{ paddingHorizontal: 20, marginTop: 20, width, backgroundColor: "#282149" }}>
@@ -356,13 +359,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
-                  style={[$tapButton, { width: width / 2.1 }]}
+                  style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
                   textStyle={$tapButtonText}
                   onPress={() => createNewTeam()}
                 >
                   <Text>{translate("loginScreen.tapContinue")}</Text>
                 </Button>
-                {isLoading && <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#000"} />}
+                <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>
             </Animatable.View>
 
@@ -411,7 +414,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
-                  style={[$tapButton, { width: width / 2.1 }]}
+                  style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
                   textStyle={$tapButtonText}
                   onPress={() => joinTeam()}
                 >
@@ -484,7 +487,7 @@ const $form: ViewStyle = {
 const $loading: ViewStyle = {
   position: "absolute",
   bottom: "20%",
-  left: 10,
+  right: 140,
 
 }
 

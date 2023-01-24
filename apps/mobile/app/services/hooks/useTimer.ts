@@ -110,7 +110,7 @@ function useLocalTimeCounter(
 
     // Time Counter
     useEffect(() => {
-        if (firstLoad || !localTimerStatus) return;
+        if (firstLoad || !localTimerStatus) return void
         clearInterval(timeCounterIntervalRef.current);
         let timerFuntion;
 

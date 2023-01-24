@@ -3,7 +3,7 @@ import { useStores } from "../../../../models";
 import { useAuthTeamTasks } from "../../../../services/hooks/features/useAuthTeamTasks";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization";
-import { ITaskStatus } from "../../../../services/interfaces/ITask";
+import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask";
 
 
 const useProfileScreenLogic = (
@@ -76,10 +76,10 @@ const useProfileScreenLogic = (
 
 
     const createAndAssign = useCallback(async (title: string) => {
-        const created = await createNewTask(title);
+        const {data:created} = await createNewTask(title);
 
         const allTasks = await loadTeamTasksData();
-        await hangleAssignTask(created.data.id)
+        await hangleAssignTask(created?.id)
     }, [])
 
 

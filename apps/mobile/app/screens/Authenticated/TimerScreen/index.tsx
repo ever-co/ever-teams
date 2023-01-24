@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react"
-import { TextStyle, ViewStyle, View, TouchableWithoutFeedback, TouchableOpacity } from "react-native"
+import { TextStyle, ViewStyle, View, TouchableWithoutFeedback, TouchableOpacity, LogBox } from "react-native"
 
 // COMPONENTS
 import { Screen, Text } from "../../../components"
@@ -29,7 +29,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
   const { createOrganizationTeam } = useOrganizationTeam();
   const { showCreateTeamModal, setShowCreateTeamModal, setShowCombo } = useTimerScreenLogic();
 
-
+  LogBox.ignoreAllLogs();
   const { colors, dark } = useAppTheme()
 
   return (
