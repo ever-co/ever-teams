@@ -2,6 +2,7 @@ import {
   DeleteReponse,
   PaginationResponse,
 } from "../../interfaces/IDataResponse";
+import { IOrganizationTeamList } from "../../interfaces/IOrganizationTeam";
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
 import { serverFetch } from "../fetch";
 
@@ -9,18 +10,32 @@ export function getTeamTasksRequest({
   tenantId,
   organizationId,
   bearer_token,
+  relations = [
+    "teams",
+    "creator",
+    "tags",
+    "members"
+  ]
 }: {
   tenantId: string;
   organizationId: string;
   bearer_token: string;
+  relations?: string[]
 }) {
-  const query = new URLSearchParams({
+  const params = {
     "where[organizationId]": organizationId,
     "where[tenantId]": tenantId,
     "join[alias]": "task",
     "join[leftJoinAndSelect][members]": "task.members",
     "join[leftJoinAndSelect][user]": "members.user",
+  } as { [x: string]: string };
+
+  relations.forEach((rl, i) => {
+    params[`relations[${i}]`] = rl;
   });
+
+  const query = new URLSearchParams(params);
+
   return serverFetch<PaginationResponse<ITeamTask>>({
     path: `/tasks/team?${query.toString()}`,
     method: "GET",

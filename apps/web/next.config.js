@@ -3,8 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    domains: ["dummyimage.com", "localhost", "127.0.0.1"],
+    domains: ["dummyimage.com","res.cloudinary.com", "localhost", "127.0.0.1"],
   },
+	experimental: {
+		appDir: true
+	}
 };
 
 module.exports = nextConfig;

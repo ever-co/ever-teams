@@ -149,3 +149,22 @@ Text.Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
 );
 
 Text.Heading.displayName = 'TextHeading';
+
+/**
+ * <label /> by custom
+ */
+Text.Label = forwardRef<
+	HTMLLabelElement,
+	Props & React.ComponentPropsWithRef<'label'>
+>(({ children, className, ...rest }) => {
+	return (
+		<label
+			className={clsxm('ml-2 text-sm font-medium text-gray-900 dark:text-gray-300', className)}
+			{...rest}
+		>
+			{children}
+		</label>
+	);
+});
+
+Text.Label.displayName = 'TextLabel';

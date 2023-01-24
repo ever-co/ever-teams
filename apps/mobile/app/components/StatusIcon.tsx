@@ -3,15 +3,17 @@ import { Feather, Entypo, FontAwesome, MaterialCommunityIcons, AntDesign } from 
 import { View, Text, Image } from "react-native";
 import { ITaskStatus, } from "../services/interfaces/ITask";
 import { typography } from "../theme";
+import { useAppTheme } from "../app";
+import { observer } from "mobx-react-lite";
 
 export const statusIcons: { [x in ITaskStatus]: React.ReactElement } = {
-    Todo: <FontAwesome name="dot-circle-o" size={18} color="#3D9A6D" background="#28D58133" />,
-    "In Progress": <MaterialCommunityIcons name="timer-sand-empty" size={18} color="#735EA8" background="#E8EBF8" />,
-    "In Review": <Feather name="search" size={18} color="#8B7FAA" background="#F3D8B0" />,
-    "For Testing": <AntDesign name="checkcircleo" size={18} color="#E1AB2D" background="#CE930B1A" />,
-    Completed: <AntDesign name="checkcircleo" size={18} color="#3D9A6D" background="#CFF3E3" />,
-    Closed: <AntDesign name="closecircle" size={18} color="#8F97A1" background="#F2F4F6" />,
-    Unassigned: <Entypo size={18} name="circle" color="#5f5f5f" />,
+    Todo: <FontAwesome name="dot-circle-o" size={18} color="#292D32" background="#D6E4F9" />,
+    "In Progress": <MaterialCommunityIcons name="timer-sand-empty" size={18} color="#292D32" background="#E8EBF8" />,
+    "In Review": <Feather name="search" size={18} color="#292D32" background="#F3D8B0" />,
+    "For Testing": <AntDesign name="checkcircleo" size={18} color="#292D32" background="#F5B8B8" />,
+    Completed: <AntDesign name="checkcircleo" size={18} color="#292D32" background="#CFF3E3" />,
+    Closed: <AntDesign name="closecircle" size={18} color="#292D32" background="#F2F4F6" />,
+    Unassigned: <Entypo size={18} name="circle" color="#292D32"  background="#F2F2F2"/>,
 };
 
 export function StatusIcon({ status }: { status: ITaskStatus }) {
@@ -20,12 +22,17 @@ export function StatusIcon({ status }: { status: ITaskStatus }) {
 
 export function getBackground({ status }: { status: ITaskStatus }) {
     const node = statusIcons[status];
-    return node.props.background;
-}
+    if (node) {
 
-export function BadgedTaskStatus({ status, showColor }: { status: ITaskStatus, showColor: boolean }) {
+        return node.props.background;
+    }
+
+    return "#F2F2F2"
+};
+
+export const BadgedTaskStatus = observer(({ status, showColor }: { status: ITaskStatus, showColor: boolean }) => {
     const node = statusIcons[status];
-
+    const { colors, dark } = useAppTheme();
 
     return (
         <View
@@ -33,7 +40,7 @@ export function BadgedTaskStatus({ status, showColor }: { status: ITaskStatus, s
                 flexDirection: 'row'
             }}
         >
-            {node}<Text style={{ color: showColor ? node.props.color : "gray", left: 5, top: 2, fontSize:10, fontFamily:typography.fonts.PlusJakartaSans.semiBold }}>{status}</Text>
+            {node}<Text style={{ color:"#292D32", left: 5, top: 2, fontSize: 10, fontFamily: typography.fonts.PlusJakartaSans.semiBold }}>{status}</Text>
         </View>
     );
-}
+})

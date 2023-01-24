@@ -8,7 +8,7 @@ import { typography } from "../theme"
 import { useStores } from "../models"
 import DropDownSection from "./TeamDropdown/DropDownSection"
 import DropDown from "./TeamDropdown/DropDown"
-import CreateTeamModal from "../screens/Authenticated/TeamScreen/components/CreateTeamModal"
+import CreateTeamModal from "./CreateTeamModal"
 import ProfileImage from "./ProfileImage"
 import { translate } from "../i18n"
 import { useAppTheme } from "../app"
@@ -23,7 +23,7 @@ const HamburgerMenu = (props) => {
   const {
     TaskStore: { resetTeamTasksData },
     authenticationStore: { user, tenantId, organizationId, employeeId, authToken, logout, toggleTheme },
-    teamStore: { teams, activeTeam, activeTeamId, getUserTeams, createTeam, setActiveTeam, clearStoredTeamData },
+    teamStore: { teams, activeTeam, activeTeamId, setActiveTeam, clearStoredTeamData },
     TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask }
   } = useStores()
 
@@ -53,7 +53,7 @@ const HamburgerMenu = (props) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: dark ? colors.background2 : colors.background }]}>
       <CreateTeamModal
         onCreateTeam={createNewTeam}
         visible={showCreateTeamModal}
@@ -66,7 +66,7 @@ const HamburgerMenu = (props) => {
           </View>
           <Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>{user?.name}</Text>
           <Text style={{ color: colors.tertiary, fontSize: 14, marginBottom: 20, fontFamily: typography.secondary.medium, marginTop: 4 }}>{user?.email}</Text>
-          <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
+          <DropDown resized={true} onCreateTeam={() => setShowCreateTeamModal(true)} />
 
         </View>
         <View style={styles.navigationSection}>

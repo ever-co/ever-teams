@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
-import { ImageStyle, ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text } from "react-native"
-
+import { ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text, FlatList, Image } from "react-native"
+import FlashMessage from "react-native-flash-message"
 // TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 // DATA
@@ -10,96 +10,67 @@ import { Screen } from "../../../components"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
-import { spacing, typography } from ".././../../theme"
-import HomeHeader from "../TeamScreen/components/HomeHeader"
+import { typography } from ".././../../theme"
+import HomeHeader from "../../../components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
-import FilterSection from "./components/FilterSection"
 import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
-import { ITaskStatus, ITeamTask } from "../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import AssingTaskFormModal from "./components/AssignTaskSection"
 import { BlurView } from "expo-blur"
-import { useAuthTeamTasks } from "../../../services/hooks/features/useAuthTeamTasks"
-import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
-import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
 import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
+import FilterPopup from "./components/FilterPopup"
+import useProfileScreenLogic from "./logics/useProfileScreenLogic"
+import ProfileTabs from "./components/ProfileTabs"
+import { ITeamTask } from "../../../services/interfaces/ITask"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
   function AuthenticatedProfileScreen(_props) {
-
-    const { colors } = useAppTheme();
-
-    const { authenticationStore: { authToken, tenantId, organizationId },
-      teamStore: { activeTeam },
-      TaskStore: { teamTasks, activeTask }
-    } = useStores();
+   
+    const { colors, dark } = useAppTheme();
     const { user } = useAuthenticateUser();
-    const { params } = _props.route;
-    const { tabIndex, userId } = params;
-    const { members } = useOrganizationTeam();
-    const { onAssignTask, onUnassignedTask, loadAssignAndUnassign } = useTeamTasks();
-
-    const [selectedTabIndex, setSelectedTabIndex] = useState(tabIndex);
-    const [filterStatus, setFilterStatus] = useState<ITaskStatus>()
-    const [showModal, setShowModal] = useState(false)
-    const tabs = [translate("tasksScreen.workedTab"), translate("tasksScreen.assignedTab"), translate("tasksScreen.unassignedTab")];
-
-    const member = userId ? members.find((m) => {
-      return m.employee.userId === userId;
-    }) : user;
-
-    const currentUser =
-      user?.id === userId ? user : member?.employee.user;
-
-    const isAuthUser = currentUser.id === user.id;
-
-    const filterTasksByStatus = (status: ITaskStatus) => {
-      if (!status) return teamTasks;
-
-      return teamTasks.filter((t) => t.status === status)
-    }
-
-    const new_teamTasks = filterTasksByStatus(filterStatus)
-
-    const otherTasks = activeTask
-      ? new_teamTasks.filter((t) => t.id !== activeTask.id)
-      : new_teamTasks;
-
-    const { assignedTasks, unassignedTasks, countTasksByTab } = useAuthTeamTasks(currentUser);
-
-    useEffect(() => {
-      setSelectedTabIndex(tabIndex)
-    }, [tabIndex])
+    const { tabIndex, userId } = _props.route.params;
+    const {
+      TimerStore: { localTimerStatus }
+    } = useStores();
+    
+    const {
+      hangleAssignTask,
+      hangleUnassignTask,
+      showFilterPopup,
+      showModal,
+      currentUser,
+      setShowFilterPopup,
+      setShowModal,
+      selectedTabIndex,
+      setSelectedTabIndex,
+      countTasksByTab,
+      otherTasks,
+      member,
+      assignedTasks,
+      unassignedTasks,
+      activeTask,
+      assignListRefresh
+    } = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex || 0 });
 
 
-    const hangleAssignTask = async (taskId: string) => {
-      const data = await onAssignTask({
-        taskId,
-        memberId: currentUser?.id
-      })
-    }
-
-    const hangleUnassignTask = async (taskId: string) => {
-      const data = await onUnassignedTask({
-        taskId,
-        memberId: currentUser?.id
-      })
-    }
+    // const isAuthUser = currentUser.id === user.id;
 
     return (
       <>
-        {showModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
-        <Screen preset="scroll" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+        {showModal || showFilterPopup ? <BlurView tint="dark" intensity={18} style={$blurContainer} /> : null}
+        <Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
           <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
-          <HomeHeader props={_props} showTimer={true} />
+          <FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
+          <HomeHeader props={_props} showTimer={localTimerStatus.running} />
           <View style={{ paddingTop: 10 }}>
             <ProfileHeader {...currentUser} />
           </View>
-          <View style={{ zIndex: 1000, padding: 10, paddingBottom: 30, flexDirection: "row", justifyContent: "space-between", backgroundColor: colors.background }}>
+
+          <View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
             <TouchableOpacity
               onPress={() => setShowModal(true)}
               style={[$assignStyle, {
@@ -107,78 +78,78 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                 borderColor: colors.secondary
               }]}
             >
-              <Text style={[$createTaskTitle,{color:colors.secondary}]}>{isAuthUser ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
+              <Text style={[$createTaskTitle, { color: colors.secondary }]}>{true ? translate("tasksScreen.createTaskButton") : translate("tasksScreen.assignTaskButton")}</Text>
             </TouchableOpacity>
-            <FilterSection selectStatus={setFilterStatus} />
+            <TouchableOpacity style={{ ...$filterButton, borderColor: colors.border }} onPress={() => setShowFilterPopup(true)} >
+              {dark ?
+                <Image source={require("../../../../assets/icons/new/setting-dark.png")} />
+                : <Image source={require("../../../../assets/icons/new/setting-light.png")} />}
+              <Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>Filter</Text>
+            </TouchableOpacity>
           </View>
-          <View style={{ flexDirection: 'row', width: "100%", justifyContent: "space-around", backgroundColor: colors.background }}>
-            {tabs.map((item, idx) => (
-              <TouchableOpacity
-                style={selectedTabIndex === idx ? [$selectedTab,{borderBottomColor:colors.primary}] : $unselectedTab}
-                activeOpacity={0.7}
-                key={idx}
-                onPress={() => setSelectedTabIndex(idx)}
-              >
-                <Text style={[$tabText, { color: selectedTabIndex === idx ? colors.primary: colors.tertiary }]}>{item}</Text>
-                <View style={[$wrapperCountTasks, { backgroundColor: selectedTabIndex === idx ? colors.tertiary : colors.background2 }]}>
-                  <Text style={[$countTasks, { color: selectedTabIndex === idx ? colors.primary : colors.tertiary }]}>{countTasksByTab(idx)}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <ScrollView
+
+          <ProfileTabs
+            onChangeTab={setSelectedTabIndex}
+            activeTab={selectedTabIndex}
+            countTasksByTab={countTasksByTab}
+          />
+          <View
             style={{
               flex: 1,
               zIndex: 998,
               paddingHorizontal: 20,
-              paddingBottom: 50,
-              backgroundColor: colors.background2,
+              backgroundColor: dark ? "rgb(16,17,20)" : colors.background2,
             }}
           >
             {/* START WORKED TAB CONTENT */}
             {selectedTabIndex === 0 &&
-              <View>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View>
-                  <View
-                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                  >
-                    <Text style={[$textLabel,{color:colors.primary}]}>{translate("tasksScreen.now")}</Text>
-                    <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: colors.border}} />
-                    <View style={{ flexDirection: "row" }}>
-                      <Text style={{ color: colors.primary, fontSize: 12, fontFamily: typography.secondary.medium }}>{translate("tasksScreen.totalTimeLabel")}:</Text>
-                      <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                  <View>
+                    <View
+                      style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                    >
+                      <Text style={[$textLabel, { color: colors.primary }]}>{translate("tasksScreen.now")}</Text>
+                      <View style={{ width: width / 1.8, alignSelf: 'center', borderBottomWidth: 1, borderBottomColor: colors.border }} />
+                      <View style={{ flexDirection: "row" }}>
+                        <Text style={{ color: colors.primary, fontSize: 12, fontFamily: typography.secondary.medium }}>{translate("tasksScreen.totalTimeLabel")}:</Text>
+                        <Text style={[$textLabel, { marginLeft: 5, color: colors.primary, fontFamily: typography.primary.semiBold, fontSize: 12 }]}>03:31</Text>
+                      </View>
                     </View>
+                    {activeTask &&
+                      <ListCardItem
+                        tabIndex={selectedTabIndex} isActive={true}
+                        member={member}
+                        index={1000}
+                        item={activeTask as ITeamTask}
+                        enableEstimate={false} handleEstimate={() => { }}
+                        handleTaskTitle={() => { }}
+                      />
+                    }
                   </View>
-                  {activeTask &&
-                    <ListCardItem
-                      tabIndex={selectedTabIndex} isActive={true}
-                      member={member}
-                      index={1000}
-                      item={activeTask as ITeamTask}
-                      enableEstimate={false} handleEstimate={() => { }}
-                      handleTaskTitle={() => { }}
-                    />
-                  }
-                </View>
-                <View>
-                  <View
-                    style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
-                  >
-                    <Text style={[$textLabel, {color:colors.primary}]}>{translate("tasksScreen.last24hours")} ({otherTasks.length})</Text>
-                    <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: colors.border }} />
+                  <View>
+                    <View
+                      style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 20 }}
+                    >
+                      <Text style={[$textLabel, { color: colors.primary }]}>{translate("tasksScreen.last24hours")} ({otherTasks.length})</Text>
+                      <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: colors.border }} />
+                    </View>
+                    {otherTasks.map((item, index) => (
+                      <View key={index.toString()} style={{ ...GS.mt2 }}>
+                        <ListCardItem
+                          tabIndex={selectedTabIndex}
+                          isActive={false}
+                          member={member}
+                          index={index}
+                          item={item as any}
+                          enableEstimate={false}
+                        />
+                      </View>
+                    ))}
                   </View>
-                  {otherTasks.map((item, index) => (
-                    <ListCardItem
-                      tabIndex={selectedTabIndex}
-                      isActive={false} key={index.toString()}
-                      member={member}
-                      index={index}
-                      item={item as any}
-                      enableEstimate={false}
-                    />
-                  ))}
+
                 </View>
-              </View>
+              </ScrollView>
             }
             {/* END WORKED TAB CONTENT */}
             {/* ------------------------------------------------------------ */}
@@ -186,20 +157,29 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
             {selectedTabIndex === 1 &&
               <View style={{ ...GS.mt2 }}>
-                <View>
-                  {assignedTasks.map((item, index) => (
-                    <ListCardItem
-                      tabIndex={selectedTabIndex}
-                      member={member}
-                      index={index}
-                      isActive={false}
-                      key={index.toString()}
-                      onUnassignTask={hangleUnassignTask}
-                      item={item as any}
-                      enableEstimate={false}
-                    />
-                  ))}
-                </View>
+
+                <FlatList
+                  data={assignedTasks}
+                  renderItem={({ item, index }) =>
+                    <View key={index} style={{ marginVertical: 4 }}>
+                      <ListCardItem
+                        tabIndex={selectedTabIndex}
+                        member={member}
+                        index={index}
+                        isActive={false}
+                        key={index.toString()}
+                        onUnassignTask={hangleUnassignTask}
+                        item={item as any}
+                        enableEstimate={false}
+                      />
+                    </View>
+                  }
+                  extraData={assignListRefresh}
+                  legacyImplementation={true}
+                  showsVerticalScrollIndicator={false}
+                  keyExtractor={(_, index) => index.toString()}
+                />
+
               </View>
             }
 
@@ -209,24 +189,32 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             {/* START UNASSIGNED TAB CONTENT */}
             {selectedTabIndex === 2 &&
               <View style={{ ...GS.mt2 }}>
-                <View>
-                  {unassignedTasks.map((item, index) => (
-                    <ListCardItem
-                      tabIndex={selectedTabIndex}
-                      member={member}
-                      index={index}
-                      isActive={false}
-                      key={index.toString()}
-                      onAssignTask={hangleAssignTask}
-                      item={item as any} enableEstimate={false}
-                    />
-                  ))}
-                </View>
+                <FlatList
+                  data={unassignedTasks}
+                  renderItem={({ item, index }) => (
+                    <View key={index} style={{ marginBottom: 8 }}>
+                      <ListCardItem
+                        tabIndex={selectedTabIndex}
+                        member={member}
+                        index={index}
+                        isActive={false}
+                        key={index.toString()}
+                        onAssignTask={hangleAssignTask}
+                        item={item as any}
+                        enableEstimate={false}
+                      />
+                    </View>
+                  )}
+                  extraData={assignListRefresh}
+                  legacyImplementation={true}
+                  showsVerticalScrollIndicator={false}
+                  keyExtractor={(_, index) => index.toString()}
+                />
               </View>
             }
             {/* END UNASSIGNED TAB CONTENT */}
-
-          </ScrollView>
+          </View>
+          <FlashMessage position={"bottom"} />
         </Screen>
       </>
     )
@@ -237,17 +225,12 @@ const $container: ViewStyle = {
   flex: 1,
 }
 
-const $title: TextStyle = {
-  marginBottom: spacing.large,
-}
-
-const $userProfile: ImageStyle = {
-  ...GS.roundedFull,
-  ...GS.mr2,
-  ...GS.borderSm,
-
-  width: spacing.huge * 2,
-  height: spacing.huge * 2,
+const $wrapButtons: ViewStyle = {
+  zIndex: 1000,
+  paddingHorizontal: 20,
+  paddingBottom: 30,
+  flexDirection: "row",
+  justifyContent: "space-between",
 }
 
 const $textLabel: TextStyle = {
@@ -255,46 +238,24 @@ const $textLabel: TextStyle = {
   fontSize: 12
 }
 
-const $wrapComboboxes: ViewStyle = {
+const $filterButton: ViewStyle = {
   flexDirection: "row",
   alignItems: "center",
-  paddingBottom: 10,
-  justifyContent: "space-around",
-  zIndex: 999
+  width: 149,
+  borderWidth: 1,
+  borderRadius: 10,
+  paddingVertical: 12,
+  paddingHorizontal: 24,
+  justifyContent: "center"
 }
-const $selectedTab: ViewStyle = {
 
-  borderBottomWidth: 2,
-  padding: 10,
-  flexDirection: "row"
-}
 
 const $blurContainer: ViewStyle = {
-  // flex: 1,
   height: height,
   width: "100%",
   position: "absolute",
   top: 0,
   zIndex: 1001
-}
-
-const $unselectedTab: ViewStyle = {
-  padding: 10,
-  flexDirection: "row"
-}
-const $wrapperCountTasks: ViewStyle = {
-  width: 18,
-  left: 3,
-  borderRadius: 4,
-  paddingHorizontal: 2,
-  height: 18,
-  justifyContent: "center",
-  alignItems: 'center',
-}
-
-const $countTasks: TextStyle = {
-  fontSize: 10,
-  fontFamily: typography.secondary.medium
 }
 
 const $assignStyle: ViewStyle = {
@@ -312,7 +273,4 @@ const $createTaskTitle: TextStyle = {
   fontSize: 14,
   fontFamily: typography.primary.semiBold
 }
-const $tabText: TextStyle = {
-  fontFamily: typography.primary.semiBold,
-  fontSize: 12,
-}
+

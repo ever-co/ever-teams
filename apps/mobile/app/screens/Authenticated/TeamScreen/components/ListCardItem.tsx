@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   View,
   ViewStyle,
   ImageStyle,
   TouchableOpacity,
   StyleSheet,
+  FlatList,
 } from "react-native"
 import { Avatar, Text } from "react-native-paper"
-import { Ionicons, Entypo } from "@expo/vector-icons"
+import { Ionicons, AntDesign, Entypo } from "@expo/vector-icons"
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 // COMPONENTS
 import { Card, Icon, ListItem } from "../../../../components"
@@ -15,7 +17,6 @@ import { Card, Icon, ListItem } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
 import { spacing, typography } from "../../../../theme"
-import ProgressTimeIndicator from "./ProgressTimeIndicator"
 import { useStores } from "../../../../models"
 import { pad } from "../../../../helpers/number"
 import { useTimer } from "../../../../services/hooks/useTimer"
@@ -27,6 +28,9 @@ import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import WorkedOnTask from "../../../../components/WorkedOnTask"
 import { translate } from "../../../../i18n"
 import { useAppTheme } from "../../../../app"
+import LabelItem from "../../../../components/LabelItem"
+import { secondsToTime } from "../../../../helpers/date";
+import { limitTextCharaters } from "../../../../helpers/sub-text";
 
 
 export type ListItemProps = {
@@ -40,6 +44,13 @@ interface IUserStatus {
   icon: any,
   color: string
 }
+
+const labels = [
+  { id: 1, label: "Low", color: "#282048", background: ["#93E6BE", "#55C0D8", "#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
+  { id: 2, label: "Extra Large", color: "#282048", background: ["#F5B8B8", "#EF7070", "#F5B8B8"], icon: require("../../../../../assets/icons/new/maximize-3.png") },
+  { id: 3, label: "UIUX", color: "#9641AB", background: ["#EAD9EE"], icon: require("../../../../../assets/icons/new/devices.png") },
+  { id: 4, label: "Low", color: "#282048", background: ["#93E6BE", "#55C0D8", "#D4EFDF"], icon: require("../../../../../assets/icons/new/arrow-down.png") },
+];
 
 export interface Props extends ListItemProps { }
 
@@ -55,13 +66,20 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
     fomatedTimeCounter: { hours, minutes, seconds, ms_p },
   } = useTimer();
 
-  const { colors } = useAppTheme();
+  const { colors, dark } = useAppTheme();
   const { isTeamManager } = useOrganizationTeam();
-
+  const flatListRef = useRef<FlatList>(null);
   const isAuthUser = member.employee.userId === user?.id;
   const [editEstimate, setEditEstimate] = useState(false);
+  const [estimatedTime, setEstimateTime] = useState({
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  })
   const [memberTask, setMemberTask] = useState<ITeamTask | null>(null)
+  const [labelIndex, setLabelIndex] = useState(0);
   const iuser = member.employee.user
+
 
   useEffect(() => {
     if (isAuthUser) {
@@ -69,10 +87,53 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
     }
   }, [isAuthUser, activeTask, activeTeam])
 
+  useEffect(() => {
+    flatListRef.current?.scrollToIndex({
+      animated: true,
+      index: labelIndex,
+      viewPosition: 0
+    })
+  }, [labelIndex])
+
+  const onNextPressed = () => {
+    if (labelIndex === labels.length - 2) {
+      return
+    } else {
+      setLabelIndex(labelIndex + 1);
+    }
+  }
+
+  const onPrevPressed = () => {
+    if (labelIndex === 0) {
+      return
+    }
+
+    setLabelIndex(labelIndex - 1);
+  }
+
+  const progress = useMemo(() => {
+    if (memberTask && memberTask.estimate > 0) {
+      const percent = (timeCounterState / 100) / memberTask.estimate;
+      return Math.floor(percent * 10);
+    }
+
+    return 0
+  }, [timeCounterState])
+
+  useEffect(() => {
+    if (memberTask) {
+      const { h, m, s } = secondsToTime(memberTask.estimate)
+      setEstimateTime({
+        hours: h,
+        minutes: m,
+        seconds: s
+      })
+    }
+  }, [memberTask, enableEstimate])
 
   return (
     <TouchableOpacity onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
-      <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, }, { borderRadius: 10 }]}>
+      <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: dark ? "#1E2025" : colors.background }, { borderRadius: 14 }]}>
         <View style={styles.firstContainer}>
           <View style={styles.wrapProfileImg}>
             <Avatar.Image size={40} source={{ uri: iuser.imageUrl }} />
@@ -92,9 +153,41 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         </View>
         <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
           <Text style={[styles.otherText, { color: colors.primary }]}>
-            {/* {memberTask ? memberTask.title : ""} */}
-            Working on UI Design & making prototype for user testing tomorrow
+            {memberTask ? limitTextCharaters({text:memberTask.title, numChars:64 }): ""}
           </Text>
+          <View style={{ marginTop: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+
+            <FlatList
+              data={labels}
+              initialScrollIndex={labelIndex}
+              renderItem={({ item, index, separators }) => (
+                <View key={index} style={{ marginHorizontal: 2 }}>
+                  <LabelItem
+                    label={item.label}
+                    labelColor={item.color}
+                    background={item.background}
+                    icon={item.icon}
+                  />
+                </View>
+              )}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              ref={flatListRef}
+              keyExtractor={(_, index) => index.toString()}
+              style={{ marginRight: 10, overflow: "scroll" }}
+            />
+            {labelIndex === labels.length - 3 ? null :
+              <TouchableOpacity activeOpacity={0.7} style={[styles.scrollRight, { backgroundColor: colors.background }]} onPress={() => onNextPressed()}>
+                <AntDesign name="right" size={18} color={!dark ? "#938FA4" : colors.primary} />
+              </TouchableOpacity>
+            }
+            {labelIndex !== 0 ?
+              <TouchableOpacity activeOpacity={0.7} style={[styles.scrollRight, { left: 0, backgroundColor: colors.background }]} onPress={() => onPrevPressed()}>
+                <AntDesign name="left" size={18} color={!dark ? "#938FA4" : colors.primary} />
+              </TouchableOpacity>
+              : null}
+
+          </View>
         </View>
         <View style={[styles.times, { borderTopColor: colors.divider }]}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: 48, width: "100%" }}>
@@ -115,7 +208,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
                 }}
               />
             </View>
-            {memberTask && memberTask.estimate == 0 && editEstimate ? (
+            {memberTask && editEstimate ? (
               <View style={styles.estimate}>
                 <EstimateTime setEditEstimate={setEditEstimate} currentTask={memberTask} />
               </View>
@@ -123,12 +216,21 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
             ) : (
               <View style={{}}>
                 <TouchableOpacity onPress={() => setEditEstimate(true)}>
-                  <View style={{}}>
-                    <ProgressTimeIndicator
-                      estimatedHours={memberTask ? memberTask.estimate : 0}
-                      workedHours={timeCounterState}
-                    />
-                  </View>
+                  <AnimatedCircularProgress
+                    size={48}
+                    width={5}
+                    fill={progress}
+                    tintColor="#27AE60"
+                    onAnimationComplete={() => { }}
+                    backgroundColor="#F0F0F0">
+                    {
+                      (fill) => (
+                        <Text style={{ ...styles.progessText, color: colors.primary }}>
+                          {estimatedTime.hours > 0 ? estimatedTime.hours + " H" : estimatedTime.minutes > 0 ? estimatedTime.minutes + " Min" : "0 H"}
+                        </Text>
+                      )
+                    }
+                  </AnimatedCircularProgress>
                 </TouchableOpacity>
               </View>
             )}
@@ -185,10 +287,12 @@ const ListCardItem: React.FC<Props> = (props) => {
               style={{
                 ...GS.positionAbsolute,
                 ...GS.p2,
+                ...GS.pl4,
                 ...GS.pt1,
-                ...GS.shadow,
+                ...GS.border,
+                borderColor: colors.border,
                 ...GS.r0,
-                ...GS.roundedSm,
+                ...GS.roundedMd,
                 ...GS.zIndexFront,
                 width: 172,
                 marginTop: -spacing.extraSmall,
@@ -236,8 +340,8 @@ const ListCardItem: React.FC<Props> = (props) => {
           {...props}
           enableEstimate={estimateNow}
         // onPressIn={() => {
-        //   setShowMenu(false)
         //   props.onPressIn
+        //   setShowMenu(false)
         // }}
         />
       }
@@ -250,11 +354,10 @@ export default ListCardItem
 const $listCard: ViewStyle = {
   ...GS.flex1,
   ...GS.p0,
-  ...GS.noBorder,
-  // ...GS.shadow,
-  shadowOffset: { width: 0, height: 15 },
+  borderWidth: 0,
   minHeight: null,
   borderRadius: 14,
+  shadowOffset: { width: 0, height: 0 }
 }
 
 const $usersProfile: ImageStyle = {
@@ -300,6 +403,7 @@ const styles = StyleSheet.create({
   firstContainer: {
     flexDirection: "row",
     alignItems: "center",
+    width: "95%"
   },
   name: {
     color: "#1B005D",
@@ -353,11 +457,30 @@ const styles = StyleSheet.create({
     fontFamily: typography.primary.semiBold
   },
   wrapTaskTitle: {
-    flexDirection: 'row',
     marginTop: 16,
     width: "100%",
     borderTopWidth: 1,
     paddingVertical: 16
+  },
+  scrollRight: {
+    width: 28,
+    height: 27,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    position: "absolute",
+    padding: 5,
+    right: 0,
+    elevation: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "rgba(0,0,0,0.16)",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 1,
+    shadowRadius: 15
+  },
+  progessText: {
+    fontFamily: typography.primary.semiBold,
+    fontSize: 10
   }
 })
 

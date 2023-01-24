@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useStores } from "../../../models";
 import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../client/requests/tasks";
 import { OT_Member } from "../../interfaces/IOrganizationTeam";
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
-import { IUser } from "../../interfaces/IUserData";
-import { getTasksByTeamState } from "../../teams/tasks";
+
 
 export function useTeamTasks() {
     const { authenticationStore: { tenantId, organizationId, authToken, user },
@@ -12,14 +11,17 @@ export function useTeamTasks() {
         TaskStore: { teamTasks, activeTask, fetchingTasks, setTeamTasks, setActiveTask, activeTaskId, setActiveTaskId, setFetchingTasks, setAssignedTasks, setUnassignedTasks }
     } = useStores();
 
+    const [updateLoading, setUpdateLoading] = useState(false);
+    const [createLoading, setCreateLoading] = useState(false);
 
     // Create a new Task
     const createNewTask = useCallback(async (title: string) => {
+
         if (title.trim().length < 2) return {
             error: "Task title is valid"
         };
 
-        setFetchingTasks(true)
+        setCreateLoading(true)
         const dataBody: ICreateTask = {
             title: title,
             status: "Todo",
@@ -32,25 +34,26 @@ export function useTeamTasks() {
             organizationId: organizationId,
             tenantId: tenantId
         }
-        const { data } = await createTaskRequest({
+        const { data, response } = await createTaskRequest({
             data: dataBody,
             bearer_token: authToken
         })
-        setFetchingTasks(false)
-        setActiveTeamTask(data);
+        setCreateLoading(false)
         return {
-            data
+            data,
+            response
         }
-    }, [])
+    }, [activeTeamId])
 
 
     // Update a task
-    const updateTask = useCallback(async (task: ITeamTask, id: string) => {
-
-        const { data } = await updateTaskRequest({ data: task, id }, authToken);
+    const updateTask = async (task: ITeamTask, id: string) => {
+        setUpdateLoading(true)
+        const { data, response } = await updateTaskRequest({ data: task, id }, authToken);
         await loadTeamTasksData();
-        return { data }
-    }, [])
+        setUpdateLoading(false)
+        return { data, response }
+    }
 
 
     // Delete a Task
@@ -72,24 +75,25 @@ export function useTeamTasks() {
     );
 
     // Load Team Tasks
-    const loadTeamTasksData = useCallback(async () => {
-
+    const loadTeamTasksData =async () => {
         const { data } = await getTeamTasksRequest({
             bearer_token: authToken,
             tenantId: tenantId,
-            organizationId: organizationId
+            organizationId: organizationId,
         });
 
-        const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId: activeTeamId })
+        const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId })
         setTeamTasks(tasks)
-        setFetchingTasks(true)
+
+        if (activeTaskId) {
+            setActiveTask(tasks.find((ts) => ts.id === activeTaskId) || null);
+        }
+
         return tasks
-    }, [])
-
-
+    }
 
     // Assign a task to a member
-    const onAssignTask = useCallback(async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
+    const onAssignTask =async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
 
         const teamMembers: OT_Member[] = activeTeam?.members;
         const currentMember = teamMembers.find((m) => m.employee.user.id === memberId)
@@ -100,11 +104,10 @@ export function useTeamTasks() {
             }
         }
 
+        const allTasks = await loadTeamTasksData();
 
-        const task: ITeamTask = teamTasks.find((ts) => ts.id === taskId);
-
+        const task: ITeamTask = allTasks.find((ts) => ts.id === taskId);
         const members = task.members
-
 
         const editTask =
         {
@@ -116,48 +119,14 @@ export function useTeamTasks() {
                 }
             ]
         }
-
         const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken);
-        const tasks = await loadTeamTasksData();
-        loadAssignAndUnassign(memberId)
+       
         return data;
-    }, [])
-
-
-    // Create a new Task and assign to a member
-    const createAndAssign = useCallback(async ({ title, userId }: { title: string, userId: string }) => {
-
-        if (title.trim().length < 2) return {
-            error: "Task title is valid"
-        };
-
-        const dataBody: ICreateTask = {
-            title: title,
-            status: "Todo",
-            description: "",
-            tags: [],
-            teams: [{
-                id: activeTeamId
-            }],
-            estimate: 0,
-            organizationId: organizationId,
-            tenantId: tenantId
-        }
-        const { data: taskCreated } = await createTaskRequest({
-            data: dataBody,
-            bearer_token: authToken
-        })
-
-        await loadTeamTasksData();
-
-        const taskId = taskCreated?.id;
-        const editedTask = onAssignTask({ taskId, memberId: userId })
-        return editedTask;
-    }, []);
+    }
 
 
     // UNASSIGN A TASK
-    const onUnassignedTask = useCallback(async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
+    const onUnassignedTask = async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
         const teamMembers: OT_Member[] = activeTeam?.members;
         const currentMember = teamMembers.find((m) => m.employee.user.id === memberId)
 
@@ -178,36 +147,21 @@ export function useTeamTasks() {
         }
 
         const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken);
-        const tasks = await loadTeamTasksData();
-        loadAssignAndUnassign(memberId)
+
         return data;
-    }, []);
+    }
 
-    const loadAssignAndUnassign = useCallback((userId: string) => {
-
-        // const allTasks = await loadTeamTasksData();
-        const assigntasks = teamTasks.filter((task) => {
-            return task.members.some((m) => m.userId === userId);
-        });
-
-        setAssignedTasks(assigntasks)
-
-        const unassigntasks = teamTasks.filter((task) => {
-            return !task.members.some((m) => m.userId === userId);
-        });
-        setUnassignedTasks(unassigntasks)
-    }, []);
 
     // Get the active task id and update active task data
     useEffect(() => {
-        const active_taskid = activeTaskId || '';
-        setActiveTask(teamTasks.find((ts) => ts.id === active_taskid) || null);
-    }, [setActiveTask, teamTasks]);
+        const active_taskId = activeTaskId || '';
+        setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
+    }, [setActiveTask, teamTasks, updateLoading]);
 
 
     useEffect(() => {
         loadTeamTasksData();
-    }, [teamTasks, fetchingTasks])
+    }, [teamTasks, activeTeamId, fetchingTasks, updateLoading, createLoading])
 
     /**
  * Change active task
@@ -226,10 +180,25 @@ export function useTeamTasks() {
         loadTeamTasksData,
         deleteTask,
         updateTask,
+        activeTask,
         setActiveTeamTask,
         onUnassignedTask,
         onAssignTask,
-        createAndAssign,
-        loadAssignAndUnassign
     }
+}
+
+interface IFilterTask {
+    tasks: ITeamTask[];
+    activeTeamId: string;
+}
+
+export const getTasksByTeamState = (params: IFilterTask) => {
+    if (!params.tasks) return [];
+    const data = params.tasks.filter((task) => {
+        return task.teams.some((tm) => {
+            return tm.id === params.activeTeamId;
+        });
+    });
+
+    return data;
 }

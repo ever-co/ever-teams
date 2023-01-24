@@ -1,25 +1,25 @@
 import { getRefreshTokenCookie } from '@app/helpers/cookies';
 import {
-	ILoginReponse,
+	ILoginResponse,
 	IRegisterDataAPI,
 } from '@app/interfaces/IAuthentication';
 import api from '../axios';
 
 export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
-	return api.post<ILoginReponse>(`/auth/login`, {
+	return api.post<ILoginResponse>(`/auth/login`, {
 		email,
 		code,
 	});
 };
 
 export const refreshTokenAPI = () => {
-	return api.post<ILoginReponse>(`/auth/refresh`, {
+	return api.post<ILoginResponse>(`/auth/refresh`, {
 		refresh_token: getRefreshTokenCookie(),
 	});
 };
 
 export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
-	return api.post<ILoginReponse>('/auth/register', data);
+	return api.post<ILoginResponse>('/auth/register', data);
 };
 
 export const sendAuthCodeAPI = (email: string) => {
@@ -29,5 +29,5 @@ export const sendAuthCodeAPI = (email: string) => {
 };
 
 export const getAuthenticatedUserDataAPI = () => {
-	return api.get<Pick<ILoginReponse, 'user'>>(`/user/me`);
+	return api.get<Pick<ILoginResponse, 'user'>>(`/user/me`);
 };

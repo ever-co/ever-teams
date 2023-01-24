@@ -19,73 +19,10 @@ export const TeamStoreModel = types
 
     }))
     .actions((store) => ({
-        // Create New Team
-        async createTeam({ teamName, userId, tenantId, organizationId, employeeId, access_token }: ICreateTeamParams) {
-            const $name = teamName.trim() || "";
-            if ($name.trim().length < 2) {
-                //   return {
-                //     status: 400,
-                //     message: "Invalid team name !",
-                //   }
-                return
-            }
-            const { data } = await createOrganizationTeamRequest(
-                {
-                    name: $name,
-                    tenantId,
-                    organizationId,
-                    managerIds: [employeeId],
-                },
-                access_token
-            );
-            console.log("Team Created: " + JSON.stringify(data))
-            this.getUserTeams({ tenantId, userId, authToken: access_token });
-        },
-        // Get All teams
-        async getUserTeams({ tenantId, userId, authToken }: IGetTeamsParams) {
 
-            const { data: organizations } = await getUserOrganizationsRequest(
-                { tenantId, userId },
-                authToken
-            );
-
-            const organizationsItems = organizations.items;
-
-            const filteredOrganization = organizationsItems.reduce((acc, org) => {
-                if (!acc.find((o) => o.organizationId === org.organizationId)) {
-                    acc.push(org);
-                }
-                return acc;
-            }, [] as IUserOrganization[]);
-
-
-            const call_teams = filteredOrganization.map((item) => {
-                return getAllOrganizationTeamRequest(
-                    { tenantId, organizationId: item.organizationId },
-                    authToken
-                );
-            });
-
-            const data: ITeamsOut = await Promise.all(call_teams).then((tms) => {
-                return tms.reduce(
-                    (acc, { data }) => {
-                        acc.items.push(...data.items);
-                        acc.total += data.total;
-                        return acc;
-                    },
-                    { items: [] as IOrganizationTeamList[], total: 0 }
-                );
-            });
-            console.log(data)
-            this.setOrganizationTeams(data);
-
-            //Update active team
-            const activeTeam = data.items.find((t) => t.id == store.activeTeamId)
-            this.setActiveTeam(activeTeam)
-        },
         setActiveTeam(team: IOrganizationTeamList) {
             store.activeTeam = team;
-            this.setActiveTeamId(team.id)
+            store.activeTeamId = team.id
         },
         setActiveTeamId(id: string) {
             store.activeTeamId = id

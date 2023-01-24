@@ -80,7 +80,7 @@ export function TaskStatus({
 			)}
 			style={{ backgroundColor }}
 		>
-			<div className="flex space-x-3 items-center whitespace-nowrap">
+			<div className="flex items-center space-x-3 whitespace-nowrap">
 				{icon}
 				<span>{name}</span>
 			</div>
@@ -95,9 +95,9 @@ function useStatusValue<T extends TStatus<any>>(
 ) {
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
-			const vlue = statusItems[key as ITaskStatus];
+			const value = statusItems[key as ITaskStatus];
 			return {
-				...vlue,
+				...value,
 				name: key,
 			} as Required<TStatusItem>;
 		});
@@ -206,7 +206,7 @@ export const taskSizes = {
 } satisfies TStatus<any>;
 
 /**
- * Task status dropwdown
+ * Task status dropdown
  */
 export function TaskSizesDropdown({ className }: IClassName) {
 	const { item, items, onChange } = useStatusValue(taskSizes, 'Medium');
@@ -275,7 +275,7 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 				{({ open }) => (
 					<>
 						<Listbox.Button className="w-full">
-							<TaskStatus {...value} className="w-full justify-between">
+							<TaskStatus {...value} className="justify-between w-full">
 								<ChevronDownIcon
 									className={clsxm(
 										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80'
