@@ -1,14 +1,11 @@
 import { generateToken } from "../../../../helpers/generate-token";
 import { authFormValidate } from "../../../../helpers/validations";
-import LocalStorage from "../../../api/tokenHandler";
-import { ILoginReponse, IRegisterDataAPI } from "../../../interfaces/IAuthentication";
-import { IEmployee } from "../../../interfaces/IEmployee";
-import { IOrganizationTeam } from "../../../interfaces/IOrganizationTeam";
-import { loginUserRequest, refreshTokenRequest, registerUserRequest } from "../../requests/auth";
+import { IRegisterDataAPI } from "../../../interfaces/IAuthentication";
+import { loginUserRequest, registerUserRequest } from "../../requests/auth";
 import { createEmployeeFromUser } from "../../requests/employee";
 import { createStmpTenantRequest } from "../../requests/features/smtp";
-import { createOrganizationRequest } from "../../requests/organization";
-import { createOrganizationTeamRequest } from "../../requests/organization-team";
+import { createOrganizationRequest, getUserOrganizationsRequest } from "../../requests/organization";
+import { createOrganizationTeamRequest, getAllOrganizationTeamRequest, getOrganizationTeamRequest } from "../../requests/organization-team";
 import { createTenantRequest } from "../../requests/tenant";
 
 
@@ -91,18 +88,26 @@ export async function register(params: IRegisterDataAPI) {
     },
     auth_token
   );
-  const {data:refreshRes}=await refreshTokenRequest(loginRes.refresh_token)
-  // Save auth data
-  LocalStorage.set("token", refreshRes.token);
 
-  // Assign the new token from refresh token
-  loginRes.token=refreshRes.token;
+  const { data: organizations } = await getUserOrganizationsRequest(
+    { tenantId: tenant.id, userId: employee.userId },
+    auth_token
+  );
+
+  const { data: teams } = await getAllOrganizationTeamRequest(
+    { tenantId: tenant.id, organizationId: organization.id },
+    auth_token
+  );
+
+  // const team = teams.items[0];
+
+  const createdTeam = teams.items.find((t) => t.id === team.id);
 
   return {
     response: {
       status: 200,
       data: {
-        team,
+        team: createdTeam,
         loginRes,
         employee
       }

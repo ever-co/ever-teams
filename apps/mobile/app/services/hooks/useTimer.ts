@@ -110,18 +110,23 @@ function useLocalTimeCounter(
 
     // Time Counter
     useEffect(() => {
-        if (firstLoad || !localTimerStatus) return;
+        if (firstLoad || !localTimerStatus) return void
         clearInterval(timeCounterIntervalRef.current);
+        let timerFuntion;
+
         if (localTimerStatus.running) {
             setTimerCounterIntervalState(
-                setInterval(() => {
-                    const now = Date.now();
-                    setTimerCounterState(now - localTimerStatus.runnedDateTime);
-                }, 50)
+            timerFuntion = setInterval(() => {
+                const now = Date.now();
+                setTimerCounterState(now - localTimerStatus.runnedDateTime);
+            }, 50)
             );
         } else {
+            clearInterval(timerFuntion)
             setTimerCounterState(0);
+
         }
+        return () => clearInterval(timerFuntion)
     }, [localTimerStatus.running, firstLoad]);
 
     return {
@@ -152,6 +157,7 @@ export function useTimer() {
             setTimerStatus
         }
     } = useStores();
+
     const [loading, setLoading] = useState(false)
     const [stopTimerLoading, setStopTimerLoading] = useState(false)
 
@@ -293,24 +299,6 @@ export function useTimer() {
         }
     }, [firstLoad, activeTask?.id]);
 
-    // Automaticaly change timer status when active task changes
-    // ---------- (Actually it unessecary since start and stop function can modify the timer status)
-    /**
-        useEffect(() => {
-            const canToggle =
-                activeTeamTask &&
-                timerTaskId.current !== activeTeamTask.id &&
-                firstLoad &&
-                wasRunning;
-
-            if (canToggle) {
-                setTimerStatusFetching(true);
-                toggleTimer(activeTeamTask.id).finally(() => {
-                    setTimerStatusFetching(false);
-                });
-            }
-        }, [activeTeamTask?.id, firstLoad, wasRunning]);
-    **/
 
     return {
         timeCounterState,

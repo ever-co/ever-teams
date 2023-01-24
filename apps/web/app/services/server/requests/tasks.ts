@@ -1,74 +1,89 @@
 import {
-  DeleteReponse,
-  PaginationResponse,
-} from "@app/interfaces/IDataResponse";
-import { ICreateTask, ITeamTask } from "@app/interfaces/ITask";
-import { serverFetch } from "../fetch";
+	DeleteReponse,
+	PaginationResponse,
+} from '@app/interfaces/IDataResponse';
+import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
+import { serverFetch } from '../fetch';
 
 export function getTeamTasksRequest({
-  tenantId,
-  organizationId,
-  bearer_token,
+	tenantId,
+	organizationId,
+	bearer_token,
+	relations = [
+		'tags',
+		'teams',
+		'teams.members',
+		'teams.members.employee',
+		'teams.members.employee.user',
+		'creator',
+	],
 }: {
-  tenantId: string;
-  organizationId: string;
-  bearer_token: string;
+	tenantId: string;
+	organizationId: string;
+	bearer_token: string;
+	relations?: string[];
 }) {
-  const query = new URLSearchParams({
-    "where[organizationId]": organizationId,
-    "where[tenantId]": tenantId,
-    "join[alias]": "task",
-    "join[leftJoinAndSelect][members]": "task.members",
-    "join[leftJoinAndSelect][user]": "members.user",
-  });
-  return serverFetch<PaginationResponse<ITeamTask>>({
-    path: `/tasks/team?${query.toString()}`,
-    method: "GET",
-    bearer_token,
-    tenantId,
-  });
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId,
+		'join[alias]': 'task',
+		'join[leftJoinAndSelect][members]': 'task.members',
+		'join[leftJoinAndSelect][user]': 'members.user',
+	} as Record<string, string>;
+
+	relations.forEach((rl, i) => {
+		obj[`relations[${i}]`] = rl;
+	});
+
+	const query = new URLSearchParams(obj);
+	return serverFetch<PaginationResponse<ITeamTask>>({
+		path: `/tasks/team?${query.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId,
+	});
 }
 
 export function deleteTaskRequest({
-  tenantId,
-  taskId,
-  bearer_token,
+	tenantId,
+	taskId,
+	bearer_token,
 }: {
-  tenantId: string;
-  taskId: string;
-  bearer_token: string;
+	tenantId: string;
+	taskId: string;
+	bearer_token: string;
 }) {
-  return serverFetch<DeleteReponse>({
-    path: `/tasks/${taskId}?tenantId=${tenantId}`,
-    method: "DELETE",
-    bearer_token,
-    tenantId,
-  });
+	return serverFetch<DeleteReponse>({
+		path: `/tasks/${taskId}?tenantId=${tenantId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
 }
 
 export function createTaskRequest({
-  data,
-  bearer_token,
+	data,
+	bearer_token,
 }: {
-  data: ICreateTask;
-  bearer_token: string;
+	data: ICreateTask;
+	bearer_token: string;
 }) {
-  return serverFetch({
-    path: "/tasks",
-    method: "POST",
-    body: data,
-    bearer_token,
-  });
+	return serverFetch({
+		path: '/tasks',
+		method: 'POST',
+		body: data,
+		bearer_token,
+	});
 }
 
 export function updateTaskRequest<ITeamTask>(
-  { data, id }: { data: ITeamTask; id: string },
-  bearer_token: string
+	{ data, id }: { data: ITeamTask; id: string },
+	bearer_token: string
 ) {
-  return serverFetch({
-    path: `/tasks/${id}`,
-    method: "PUT",
-    body: data,
-    bearer_token,
-  });
+	return serverFetch({
+		path: `/tasks/${id}`,
+		method: 'PUT',
+		body: data,
+		bearer_token,
+	});
 }

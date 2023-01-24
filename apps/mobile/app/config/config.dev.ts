@@ -1,3 +1,3 @@
 export default {
-  API_URL: "https://apidemo.gauzy.co/api",
+  API_URL: "https://apistage.gauzy.co/api",
 }

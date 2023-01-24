@@ -6,8 +6,8 @@ import {
 	Button,
 	SiteReCAPTCHA,
 	BackdropLoader,
+	BackButton,
 } from 'lib/components';
-import { ArrowLeft } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 
@@ -165,14 +165,7 @@ function FillUserDataForm({
 			</div>
 
 			<div className="flex justify-between w-full items-center">
-				<button
-					type="button"
-					className="flex items-center"
-					onClick={onPreviousStep}
-				>
-					<ArrowLeft className="mr-2" />
-					<span className="text-sm">Back</span>
-				</button>
+				<BackButton onClick={onPreviousStep} />
 
 				<Button type="submit" disabled={loading}>
 					Create team

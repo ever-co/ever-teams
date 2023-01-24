@@ -18,6 +18,7 @@ import { useStores } from "../../../../models";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { translate } from "../../../../i18n";
 import { useAppTheme } from "../../../../app";
+import useProfileScreenLogic from "../logics/useProfileScreenLogic";
 
 export interface Props {
     visible: boolean
@@ -65,7 +66,7 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
         TaskStore: { fetchingTasks },
     } = useStores();
 
-    const { createAndAssign } = useTeamTasks();
+    const { createAndAssign } = useProfileScreenLogic({userId:memberId, activeTabIndex:1});
 
     const isAuthUser = user?.id === memberId;
 
@@ -78,7 +79,7 @@ const {colors}=useAppTheme();
     const onCreateNewTask = async () => {
         setShowCheckIcon(false)
         setIsLoading(true)
-        await createAndAssign({ title: taskInputText, userId: memberId });
+        await createAndAssign(taskInputText);
         setIsLoading(false)
         setTaskInputText("")
         onDismiss();
@@ -121,6 +122,8 @@ const {colors}=useAppTheme();
                                 placeholderTextColor={colors.tertiary}
                                 style={[styles.textInput,{color:colors.primary, backgroundColor:colors.background}]}
                                 defaultValue={""}
+                                autoCorrect={false}
+                                autoCapitalize={"none"}
                                 placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                                 value={taskInputText}
                                 onChangeText={(newText) => handleChangeText(newText)}

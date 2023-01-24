@@ -140,7 +140,7 @@ function useAutoPreset(props: AutoScreenProps) {
 function useSafeAreaInsetPadding(safeAreaEdges?: Edge[]) {
   const insets = useSafeAreaInsets()
 const {colors, dark}=useAppTheme();
-  const insetStyles: ViewStyle = {backgroundColor: dark ? colors.background2 :colors.background}
+  const insetStyles: ViewStyle = {}
   safeAreaEdges?.forEach((edge: Edge) => {
     const paddingProp = `padding${edge.charAt(0).toUpperCase()}${edge.slice(1)}`
     insetStyles[paddingProp] = insets[edge]
@@ -202,20 +202,19 @@ function ScreenWithScrolling(props: ScreenProps) {
 export function Screen(props: ScreenProps) {
   const {dark, colors}=useAppTheme();
   const {
-    backgroundColor = colors.background,
+    backgroundColor,
     KeyboardAvoidingViewProps,
     keyboardOffset = 0,
     safeAreaEdges,
     StatusBarProps,
-    statusBarStyle =dark ? "light": "dark",
+    statusBarStyle = dark ? "light": "dark",
   } = props
 
   const insetPadding = useSafeAreaInsetPadding(safeAreaEdges)
   
   return (
     <View style={[$containerStyle, { backgroundColor }, insetPadding]}>
-      <StatusBar style={statusBarStyle} backgroundColor={dark ? colors.background2 :colors.background}    {...StatusBarProps} />
-
+      <StatusBar style={statusBarStyle}   {...StatusBarProps} />
       <KeyboardAvoidingView
         behavior={isIos ? "padding" : undefined}
         keyboardVerticalOffset={keyboardOffset}

@@ -1,6 +1,6 @@
 import { generateToken } from "../../../../helpers/generate-token";
 import { authFormValidate } from "../../../../helpers/validations";
-import { ILoginDataAPI, ILoginReponse } from "../../../interfaces/IAuthentication";
+import { ILoginDataAPI, ILoginResponse as ILoginResponse } from "../../../interfaces/IAuthentication";
 import { verifyAuthCodeRequest } from "../../requests/auth";
 import { acceptInviteRequest, verifyInviteCodeRequest } from "../../requests/invite";
 import { getUserOrganizationsRequest } from "../../requests/organization";
@@ -8,7 +8,7 @@ import { getAllOrganizationTeamRequest } from "../../requests/organization-team"
 
 export async function login(params: ILoginDataAPI) {
 
-    let loginResponse: ILoginReponse | null = null;
+    let loginResponse: ILoginResponse | null = null;
 
     const { errors, valid: formValid } = authFormValidate(
         ["email", "code"],
@@ -56,14 +56,13 @@ export async function login(params: ILoginDataAPI) {
         }
 
         loginResponse = authReq.data;
-
         /**
          * If provided code is an invite code and
          * verified the accepte and register the related user
          */
 
     } else {
-        
+
         // generate a random password
         const password = "123456" || generateToken(8);
         const names = inviteResponse.data.fullName.split(" ");

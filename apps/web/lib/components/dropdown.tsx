@@ -79,17 +79,17 @@ export function Dropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Listbox.Options className="absolute mt-3 min-w-full">
+					<Listbox.Options className="absolute mt-3 min-w-full max-h-56 overflow-hidden overflow-y-auto">
 						<Card
 							shadow="custom"
 							className="md:px-4 py-4 rounded-[12px]"
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
-							{items.map((Item) => (
+							{items.map((Item, index) => (
 								<Listbox.Option
-									key={Item.key}
+									key={Item.key ? Item.key : index}
 									value={Item}
-									disabled={Item.disabled}
+									disabled={Item?.disabled}
 								>
 									{({ active, selected }) => {
 										return Item.Label ? (

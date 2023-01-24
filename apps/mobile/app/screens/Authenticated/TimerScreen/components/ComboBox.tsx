@@ -41,8 +41,6 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
 
-
-
   const filteredTasks2 = useMemo(() => {
     return query.trim() === ""
       ? teamTasks
@@ -135,8 +133,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 26,
-    borderBottomColor: "rgba(0, 0, 0, 0.06)",
-    borderBottomWidth: 1,
     paddingBottom: 16,
     width: 232
   },

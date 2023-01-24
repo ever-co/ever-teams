@@ -1,16 +1,15 @@
 import React, { FC, useEffect, useState } from "react"
-import {View, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native"
 import { ProgressBar, Text, useTheme } from "react-native-paper"
 import { typography } from "../theme"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
-import { ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { pad } from "../helpers/number"
 import { useTimer } from "../services/hooks/useTimer"
-import { convertMsToTime } from "../helpers/date"
 import { useAppTheme } from "../app"
+import TimerButton from "./TimerButton"
 
 export interface Props {
 }
@@ -30,26 +29,7 @@ const TimerCard: FC<Props> = observer(() => {
     fomatedTimeCounter: { hours, minutes, seconds, ms_p },
     canRunTimer,
   } = useTimer();
-  const [showCombo, setShowCombo] = useState(false)
-  const [taskInputText, setTaskInputText] = useState<string>("")
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
 
-
-
-  const handleChangeText = (value: string) => {
-    setTaskInputText(value)
-    if (value.trim().length > 0) {
-      setShowCombo(true)
-      setShowCheckIcon(false)
-    } else {
-      setShowCombo(false)
-    }
-
-    if (value.trim().length >= 3) {
-      setShowCheckIcon(true)
-    }
-  }
 
 
   const getTimePercentage = () => {
@@ -66,28 +46,15 @@ const TimerCard: FC<Props> = observer(() => {
   }
 
 
-  useEffect(() => {
-    handleChangeText("")
-  }, [activeTeam])
-
-
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer, { borderTopColor: colors.border }]}>
       <View style={styles.horizontal}>
         <View style={{ justifyContent: "space-around" }}>
-          <Text style={[styles.timerText, {color:colors.primary}]}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
+          <Text style={[styles.timerText, { color: colors.primary }]}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
           <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height: 6, borderRadius: 3 }} progress={getTimePercentage()} color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
         </View>
-        <View style={styles.timerBtn}>
-          {!localTimerStatus.running ? (
-            <TouchableOpacity activeOpacity={canRunTimer ? 1 : 0.4} style={[styles.timerBtnInactive, { backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 }]} onPress={() => { canRunTimer ? startTimer() : {} }}>
-              <Image resizeMode="contain" style={[styles.timerIcon,]} source={require("../../assets/icons/new/play.png")} />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity onPress={() => stopTimer()}>
-              <Image resizeMode="contain" source={require("../../assets/images/new/pause-icon.png")} />
-            </TouchableOpacity>
-          )}
+        <View style={[styles.timerBtn, { borderLeftColor: colors.border }]}>
+          <TimerButton />
         </View>
       </View>
     </View >
@@ -99,16 +66,16 @@ const styles = StyleSheet.create({
     width: "100%",
     borderTopColor: "rgba(0, 0, 0, 0.06)",
     borderTopWidth: 1,
-    paddingTop: 20,
+    paddingTop: 24,
     zIndex: 998
   },
   timerBtn: {
-    marginLeft: 5,
-    paddingLeft: -5,
     marginVertical: 4,
+    justifyContent: "center",
+    alignItems: "center",
     borderLeftWidth: 2,
     borderLeftColor: "rgba(0, 0, 0, 0.08)",
-    width: 100
+    minWidth: 100,
   },
   estimate: {
     color: "#9490A0",
@@ -162,8 +129,8 @@ const styles = StyleSheet.create({
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
   timerIcon: {
-    width: 21,
-    height: 21
+    width: 24,
+    height: 24
   },
   timerBtnInactive: {
     width: 60,

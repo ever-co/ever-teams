@@ -34,7 +34,7 @@ export function useTeamInvitations() {
             bearer_token: authToken,
         });
 
-        const { response } = await inviteByEmailsRequest(
+        const { data, response } = await inviteByEmailsRequest(
             {
                 startedWorkOn: new Date().toISOString(),
                 tenantId,
@@ -51,18 +51,8 @@ export function useTeamInvitations() {
             },
             authToken
         )
-
-        const { data } = await getTeamInvitationsRequest(
-            {
-                tenantId,
-                teamId: activeTeamId,
-                organizationId,
-                role: 'EMPLOYEE',
-            },
-            authToken
-        );
         setLoading(false)
-        setTeamInvitations(data)
+        return response
     }
 
     const getTeamInvitations = async () => {
@@ -80,36 +70,7 @@ export function useTeamInvitations() {
         return data;
     }
 
-    const verifyInviteByCode = async ({ email, code }: { email: string, code: string }) => {
 
-        try {
-
-            const { data: inviteData, response: verifyResponse } = await verifyInviteCodeRequest({ email, code: parseInt(code) });
-
-            const password = "123456" || generateToken(8);
-            const names = inviteData.fullName.split(" ");
-
-            const { data, response } = await acceptInviteRequest({
-                user: {
-                    firstName: names[0],
-                    lastName: names[1] || "",
-                    email: inviteData.email
-                },
-                password,
-                code: parseInt(code),
-                email
-            })
-
-            setOrganizationId(data.employee?.organizationId)
-            setAuthToken(data?.token)
-            setTenantId(data.employee?.tenantId)
-            setEmployeeId(data.employee?.id)
-            setUser(data?.user)
-
-        } catch (error) {
-            console.log("catch error" + error)
-        }
-    }
 
     useEffect(() => {
         getTeamInvitations()
@@ -117,6 +78,7 @@ export function useTeamInvitations() {
 
     return {
         inviterMember,
-        loading
+        loading,
+        teamInvitations
     }
 }

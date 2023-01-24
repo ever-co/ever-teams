@@ -2,24 +2,26 @@ import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native"
 import { Avatar } from 'react-native-paper';
-import {AntDesign} from "@expo/vector-icons"
+import { AntDesign } from "@expo/vector-icons"
 import { useAppTheme } from "../../app"
 import { imgTitle } from "../../helpers/img-title"
 import { useStores } from "../../models"
 import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 import { typography } from "../../theme"
 import DropDownSection from "./DropDownSection"
+import { useOrganizationTeam } from "../../services/hooks/useOrganization";
+import { limitTextCharaters } from "../../helpers/sub-text";
 
 export interface Props {
-  onCreateTeam: () => unknown
+  onCreateTeam: () => unknown,
+  resized: boolean;
 }
 
-const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) {
-  const {colors}=useAppTheme();
+const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, resized }) {
+  const { colors } = useAppTheme();
   const {
-    authenticationStore: { tenantId, organizationId, authToken },
-    teamStore: { teams, setActiveTeam, activeTeamId, activeTeam, setTeamInvitations },
-    TaskStore: { setActiveTask }
+    teamStore: { teams, setActiveTeam, activeTeam, },
+    TaskStore: { setActiveTask, setActiveTaskId }
   } = useStores();
 
   const [expanded, setExpanded] = useState(true)
@@ -28,33 +30,30 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam }) 
 
 
 
-  useEffect(() => {
-  })
-
   const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
     setActiveTeam(newActiveTeam)
     setShowDrop(!showDrop)
-    setActiveTask({})
-    setTeamInvitations({ items: [], total: 0 })
+    setActiveTask(null)
+    setActiveTaskId("")
   }
 
   return (
     <View style={[styles.mainContainer,]}>
       <TouchableOpacity
-        style={[styles.mainDropDown,{backgroundColor:colors.background, borderColor:colors.border}]}
+        style={[styles.mainDropDown, { backgroundColor: colors.background, borderColor: colors.border }]}
         activeOpacity={0.7}
         onPress={() => setShowDrop(!showDrop)}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Avatar.Text style={styles.teamImage} size={40} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
-          <Text style={[styles.activeTeamTxt,{color:colors.primary}]}>{`${activeTeam.name} (${activeTeam.members.length})`}</Text>
+          <Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${limitTextCharaters({ text: activeTeam.name, numChars: resized ? 9 : 30 })} (${activeTeam.members.length})`}</Text>
         </View>
         {showDrop ?
-        <AntDesign name="up" size={24} color={colors.primary} /> :
-        <AntDesign name="down" size={24} color={colors.primary} />
+          <AntDesign name="up" size={24} color={colors.primary} /> :
+          <AntDesign name="down" size={24} color={colors.primary} />
         }
       </TouchableOpacity>
-      {showDrop && <DropDownSection changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
+      {showDrop && <DropDownSection resized={resized} changeTeam={changeActiveTeam} teams={teams.items} onCreateTeam={onCreateTeam} />}
     </View >
   )
 })

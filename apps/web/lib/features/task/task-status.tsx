@@ -20,23 +20,17 @@ import {
 	useState,
 } from 'react';
 
-type Status =
-	| Exclude<ITaskStatus, 'Unassigned' | 'For Testing' | 'Closed'>
-	| 'Blocked'
-	| 'Ready'
-	| 'Backlog';
-
 type TStatusItem = {
 	bgColor?: string;
 	icon: React.ReactNode;
 	name?: string;
 };
 
-type TStatus<T extends Status> = {
+type TStatus<T extends ITaskStatus> = {
 	[k in T]: TStatusItem;
 };
 
-export const taskStatus: TStatus<Status> = {
+export const taskStatus: TStatus<ITaskStatus> = {
 	Todo: {
 		icon: <LoginIcon />,
 		bgColor: '#D6E4F9',
@@ -65,6 +59,10 @@ export const taskStatus: TStatus<Status> = {
 		icon: <CircleIcon />,
 		bgColor: '#F2F2F2',
 	},
+	Closed: {
+		icon: <TickCircleIcon className="stroke-[#acacac]" />,
+		bgColor: '#eaeaea',
+	},
 };
 
 export function TaskStatus({
@@ -82,7 +80,7 @@ export function TaskStatus({
 			)}
 			style={{ backgroundColor }}
 		>
-			<div className="flex space-x-3 items-center whitespace-nowrap">
+			<div className="flex items-center space-x-3 whitespace-nowrap">
 				{icon}
 				<span>{name}</span>
 			</div>
@@ -97,13 +95,13 @@ function useStatusValue<T extends TStatus<any>>(
 ) {
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
-			const vlue = statusItems[key as Status];
+			const value = statusItems[key as ITaskStatus];
 			return {
-				...vlue,
+				...value,
 				name: key,
 			} as Required<TStatusItem>;
 		});
-	}, []);
+	}, [statusItems]);
 
 	const [value, setValue] = useState<keyof T>(defaultValue);
 
@@ -126,8 +124,14 @@ function useStatusValue<T extends TStatus<any>>(
 /**
  * Task status dropwdown
  */
-export function TaskStatusDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskStatus, 'In Progress');
+export function TaskStatusDropdown({
+	className,
+	defaultValue,
+}: IClassName & { defaultValue?: ITaskStatus }) {
+	const { item, items, onChange } = useStatusValue(
+		taskStatus,
+		defaultValue || 'Todo'
+	);
 
 	return (
 		<StatusDropdown
@@ -202,7 +206,7 @@ export const taskSizes = {
 } satisfies TStatus<any>;
 
 /**
- * Task status dropwdown
+ * Task status dropdown
  */
 export function TaskSizesDropdown({ className }: IClassName) {
 	const { item, items, onChange } = useStatusValue(taskSizes, 'Medium');
@@ -271,7 +275,7 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 				{({ open }) => (
 					<>
 						<Listbox.Button className="w-full">
-							<TaskStatus {...value} className="w-full justify-between">
+							<TaskStatus {...value} className="justify-between w-full">
 								<ChevronDownIcon
 									className={clsxm(
 										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80'

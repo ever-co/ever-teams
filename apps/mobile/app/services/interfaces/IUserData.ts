@@ -8,6 +8,7 @@ export interface IUser {
   lastName: string;
   email: string;
   imageUrl: string;
+  name: string;
   tenantId: string | null;
   thirdPartyId: string | null;
   firstName: string | null;

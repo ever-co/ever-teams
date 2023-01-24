@@ -1,7 +1,7 @@
 import { setAuthCookies } from '@app/helpers/cookies';
 import { generateToken } from '@app/helpers/generate-token';
 import { authFormValidate } from '@app/helpers/validations';
-import { ILoginDataAPI, ILoginReponse } from '@app/interfaces/IAuthentication';
+import { ILoginDataAPI, ILoginResponse as ILoginResponse } from '@app/interfaces/IAuthentication';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -23,7 +23,7 @@ export default async function handler(
 	res: NextApiResponse
 ) {
 	const body = req.body as ILoginDataAPI;
-	let loginResponse: ILoginReponse | null = null;
+	let loginResponse: ILoginResponse | null = null;
 
 	const { errors, valid: formValid } = authFormValidate(
 		['email', 'code'],
@@ -156,6 +156,7 @@ export default async function handler(
 			teamId: team.id,
 			tenantId,
 			organizationId: organization.organizationId,
+			languageId: 'en' // TODO: not sure what should be here
 		},
 		req,
 		res

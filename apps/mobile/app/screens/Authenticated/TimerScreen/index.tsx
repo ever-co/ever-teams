@@ -1,5 +1,5 @@
-import React, { FC, useEffect } from "react"
-import { TextStyle, ViewStyle, View } from "react-native"
+import React, { FC, useEffect, useState } from "react"
+import { TextStyle, ViewStyle, View, TouchableWithoutFeedback, TouchableOpacity, LogBox } from "react-native"
 
 // COMPONENTS
 import { Screen, Text } from "../../../components"
@@ -9,74 +9,58 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 import { spacing } from "../../../theme"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 // HELPERS
-import HomeHeader from "../TeamScreen/components/HomeHeader"
+import HomeHeader from "../../../components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
 import { useStores } from "../../../models"
-import { IOTeams } from "../../../services/teams/organization-team"
-import CreateTeamModal from "../TeamScreen/components/CreateTeamModal"
+import CreateTeamModal from "../../../components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
-import ManageTaskCard from "../../../components/ManageTaskCard"
+import ManageTaskCard from "./components/ManageTaskCard"
 import TimerCard from "../../../components/TimerCard"
 import { useFirstLoad } from "../../../services/hooks/useFirstLoad"
-import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import { useAppTheme } from "../../../app"
-import { useTheme } from "react-native-paper"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import FlashMessage, { showMessage } from "react-native-flash-message"
+import useTimerScreenLogic from "./logics/useTimerScreenLogic"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
   // HOOKS
-  const { firstLoadData, firstLoad } = useFirstLoad();
-  const { loadTeamTasksData } = useTeamTasks();
+  // const { firstLoadData, firstLoad } = useFirstLoad();
+  const { createOrganizationTeam } = useOrganizationTeam();
+  const { showCreateTeamModal, setShowCreateTeamModal, setShowCombo } = useTimerScreenLogic();
 
-  // STATES
-  const {
-    authenticationStore: { user, tenantId, organizationId, employeeId, authToken },
-    teamStore: { createTeam },
-  } = useStores();
-
-  const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
-
-  const { colors } = useAppTheme()
-  // Create New Team
-  const createNewTeam = async (text: string) => {
-    const responseTeams = {
-      tenantId: tenantId,
-      organizationId: organizationId,
-      access_token: authToken,
-      employeeId,
-      userId: user?.id,
-      teamName: text
-    };
-    createTeam(responseTeams)
-
-  }
-
-  useEffect(() => {
-    firstLoadData();
-    loadTeamTasksData();
-  }, [])
+  LogBox.ignoreAllLogs();
+  const { colors, dark } = useAppTheme()
 
   return (
-    <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]} safeAreaEdges={["top"]}>
-      <CreateTeamModal
-        onCreateTeam={createNewTeam}
-        visible={showCreateTeamModal}
-        onDismiss={() => setShowCreateTeamModal(false)}
-      />
-      <View style={{ zIndex: 1000 }}>
-        <HomeHeader props={_props} showTimer={false} />
-      </View>
-      <View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
-        <DropDown onCreateTeam={() => setShowCreateTeamModal(true)} />
-      </View>
-      <View style={[$timerSection, { backgroundColor: colors.background }]}>
-        <View style={{ zIndex: 100 }}>
-          <ManageTaskCard />
+    <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
+      backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
+      safeAreaEdges={["top"]}>
+      <TouchableOpacity activeOpacity={1} onPress={() => {
+        setShowCombo(false)}}>
+        <View>
+          <CreateTeamModal
+            onCreateTeam={createOrganizationTeam}
+            visible={showCreateTeamModal}
+            onDismiss={() => setShowCreateTeamModal(false)}
+          />
+          <View style={{ zIndex: 1000 }}>
+            <HomeHeader props={_props} showTimer={false} />
+          </View>
+          <View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
+            <DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
+          </View>
+          <View style={[$timerSection, { backgroundColor: colors.background }]}>
+            <View style={{ zIndex: 100 }}>
+              <ManageTaskCard />
+            </View>
+            <View style={{ zIndex: 99 }}>
+              <TimerCard />
+            </View>
+          </View>
         </View>
-        <View style={{ zIndex: 99 }}>
-          <TimerCard />
-        </View>
-      </View>
+      </TouchableOpacity>
+      <FlashMessage position="bottom" />
     </Screen>
   )
 })

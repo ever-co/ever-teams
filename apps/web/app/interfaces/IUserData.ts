@@ -58,3 +58,33 @@ export interface IUserData {
   username?: string;
   isActive?: boolean;
 }
+
+
+//export language list interface
+export interface ILanguageItemList {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  code: string;
+  name: string;
+  is_system?: boolean;
+  description: string;
+  color: string;
+  items: [];
+  data: any;
+}
+
+//export timezone list interface
+export interface ITimezoneItemList {
+  length: number | undefined;
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  code: string;
+  name: string;
+  is_system?: boolean;
+  description: string;
+  color: string;
+  items: [];
+  title: string;
+}

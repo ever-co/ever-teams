@@ -1,6 +1,6 @@
 import { ITeamProps, IUser } from "./IUserData";
 
-export interface ILoginReponse {
+export interface ILoginResponse {
   user: IUser;
   token: string;
   refresh_token: string;

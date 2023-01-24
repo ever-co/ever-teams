@@ -24,7 +24,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		refreshUserQueryCall().then((res) => {
 			setUser(res.data.user);
 		});
-	}, []);
+	}, [refreshUserQueryCall, setUser]);
 
 	$user.current = useMemo(() => {
 		return user || $user.current;

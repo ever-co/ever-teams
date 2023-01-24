@@ -7,63 +7,84 @@ import DeletePopUp from "./DeletePopUp"
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
-import TaskStatusDropdown from "./TaskStatusDropdown"
+import { showMessage } from "react-native-flash-message"
 import TaskStatus from "../../ProfileScreen/components/TaskStatus"
+import { useAppTheme } from "../../../../app"
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 
 
 export interface Props {
   task: ITeamTask,
-  index:number,
+  index: number,
   handleActiveTask: (value: ITeamTask) => unknown
 }
 
 const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) => {
+
+  const { colors } = useAppTheme()
   const [showDel, setShowDel] = useState(false)
+  const [showTaskStatus, setShowTaskStatus] = useState(false)
+  const { updateTask } = useTeamTasks();
   const {
     authenticationStore: { tenantId, authToken, organizationId },
     teamStore: { activeTeamId },
-    TaskStore: { updateTask }
+    TaskStore: { }
   } = useStores();
 
-  const onCloseTask = () => {
+  const onCloseTask = async () => {
     const value: ITaskStatus = "Closed";
     const EditTask = {
       ...task,
       status: value
     };
-    const refreshData = {
-      activeTeamId,
-      tenantId,
-      organizationId
+    const { response } = await updateTask(EditTask, task.id);
+
+    if (response.status !== 202) {
+      showMessage({
+        message: "Something went wrong",
+        type: "warning"
+      })
     }
-    updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
+
   }
 
-  const reOpen = () => {
+  const reOpen = async () => {
     const value: ITaskStatus = "Todo";
     const EditTask = {
       ...task,
       status: value
     };
-    const refreshData = {
-      activeTeamId,
-      tenantId,
-      organizationId
+    const { response } = await updateTask(EditTask, task.id);
+
+    if (response.status !== 202) {
+      showMessage({
+        message: "Something went wrong",
+        type: "warning"
+      })
     }
-    updateTask({ taskData: EditTask, taskId: task.id, authToken, refreshData });
   }
 
   return (
-    <TouchableOpacity style={[styles.container, {zIndex:1000-index}]} onPress={() => handleActiveTask(task)}>
-      <View style={{ flexDirection: "row", width:"40%" }}>
+    <TouchableOpacity style={[styles.container, { zIndex: 1000 - index }]} onPress={() => handleActiveTask(task)}>
+      <View style={{ flexDirection: "row", width: "40%" }}>
         {/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
-        <Text style={styles.taskTitle} numberOfLines={2}>{task.title}</Text>
+        <Text style={[styles.taskTitle, { color: colors.primary }]} numberOfLines={2}>{task.title}</Text>
       </View>
-      <View style={{ flexDirection: "row",width:"55%", alignItems: "center", zIndex: 101, justifyContent:"space-between" }}>
-        <View style={{ left: -15, width: 100, height: 30, borderRadius: 10, zIndex: 999 }}>
-          <TaskStatus {...task as any} />
+      <View style={{ flexDirection: "row", width: "60%", alignItems: "center", zIndex: 1000, justifyContent: "space-between" }}>
+        <View>
+          <TaskStatus
+            task={task}
+            dropdownContainerStyle={{
+              width: "100%",
+              top: 30,
+              zIndex:1000
+            }}
+            containerStyle={styles.statusContainer}
+            showTaskStatus={showTaskStatus}
+            setShowTaskStatus={setShowTaskStatus}
+          />
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent:"space-between", width:"30%"}}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "27%" }}>
           <View style={{ flexDirection: "row" }}>
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile} />
             <Image source={{ uri: task.creator.imageUrl }} style={$usersProfile2} />
@@ -81,11 +102,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    borderBottomColor: "rgba(0, 0, 0, 0.06)",
-    borderBottomWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.06)",
+    borderTopWidth: 1,
+    width: "100%",
     justifyContent: "space-between",
     paddingVertical: 12,
-    zIndex: 100
+    zIndex: 1000,
   },
   statusDisplay: {
     flexDirection: "row",
@@ -145,9 +167,18 @@ const styles = StyleSheet.create({
   taskTitle: {
     color: "#282048",
     fontSize: 10,
-    // marginLeft: 5,
-    width: 99,
+    width: "77%",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
+  },
+  statusContainer: {
+    paddingHorizontal: 7,
+    alignItems: "center",
+    marginRight: 6,
+    width: 113,
+    height: 27,
+    backgroundColor: "#ECE8FC",
+    borderColor: "transparent",
+    zIndex:1000
   }
 })
 
@@ -156,8 +187,8 @@ const $usersProfile: ImageStyle = {
   backgroundColor: colors.background,
   width: spacing.extraLarge - spacing.tiny,
   height: spacing.extraLarge - spacing.tiny,
-  borderColor:"#fff",
-  borderWidth:2,
+  borderColor: "#fff",
+  borderWidth: 2,
 }
 
 const $usersProfile2: ImageStyle = {
@@ -165,10 +196,10 @@ const $usersProfile2: ImageStyle = {
   backgroundColor: colors.background,
   width: spacing.extraLarge - spacing.tiny,
   height: spacing.extraLarge - spacing.tiny,
-  borderColor:"#fff",
-  borderWidth:2,
-  position:"absolute",
-  left:-15
+  borderColor: "#fff",
+  borderWidth: 2,
+  position: "absolute",
+  left: -15
 }
 
 export default IndividualTask
