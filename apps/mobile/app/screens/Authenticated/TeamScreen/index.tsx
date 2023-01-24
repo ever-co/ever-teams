@@ -97,6 +97,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
           <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
             {/* Users activity list */}
             <ScrollView
+            bounces={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
               style={[$cardContainer, { backgroundColor: dark ? "rgb(16,17,20)" : "#F7F7F8" }]}
