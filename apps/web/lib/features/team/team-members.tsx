@@ -1,3 +1,5 @@
+import { useModal } from '@app/hooks';
+import { InviteFormModal } from './invite/invite-form-modal';
 import { InviteUserTeamCard, UserTeamCard } from './user-team-card';
 
 export function TeamMembers() {
@@ -35,8 +37,19 @@ export function TeamMembers() {
 			</li>
 
 			<li className="mb-4">
-				<InviteUserTeamCard />
+				<Invite />
 			</li>
 		</ul>
+	);
+}
+
+function Invite() {
+	const { openModal, isOpen, closeModal } = useModal();
+
+	return (
+		<>
+			<InviteUserTeamCard onClick={openModal} />
+			<InviteFormModal open={isOpen} closeModal={closeModal} />
+		</>
 	);
 }

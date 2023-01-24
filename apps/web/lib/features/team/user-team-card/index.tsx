@@ -87,7 +87,10 @@ export function UserTeamCard({
 	);
 }
 
-export function InviteUserTeamCard({ className }: IClassName) {
+export function InviteUserTeamCard({
+	className,
+	onClick,
+}: IClassName & { onClick?: () => void }) {
 	return (
 		<Card
 			shadow="bigger"
@@ -103,7 +106,7 @@ export function InviteUserTeamCard({ className }: IClassName) {
 
 			<div className="w-[330px] px-4 flex space-x-3">
 				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
-				<Button>Invite</Button>
+				<Button onClick={onClick}>Invite</Button>
 			</div>
 			{/* VerticalSeparator */}
 			<VerticalSeparator />

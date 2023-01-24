@@ -1,7 +1,6 @@
 import { ITimezoneItemList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
-import React from 'react';
 export type TimezoneItem = DropdownItem<ITimezoneItemList>;
 
 export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
@@ -17,7 +16,9 @@ export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
 					/>
 				</div>
 			),
-			selectedLabel: <TimezoneItem title={timezone.title} className="py-2 mb-0" />,
+			selectedLabel: (
+				<TimezoneItem title={timezone.title} className="py-2 mb-0" />
+			),
 			data: timezone,
 		};
 	});
@@ -44,7 +45,7 @@ export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
 
 export function TimezoneItem({
 	title,
-	className
+	className,
 }: {
 	title?: string;
 	count?: number;
@@ -59,9 +60,7 @@ export function TimezoneItem({
 				className
 			)}
 		>
-			<span className={clsxm('text-normal')}>
-				{title}
-			</span>
+			<span className={clsxm('text-normal')}>{title}</span>
 		</div>
 	);
 }

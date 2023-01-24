@@ -1,7 +1,6 @@
 import { ILanguageItemList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
-import React from 'react';
 
 export type LanguageItem = DropdownItem<ILanguageItemList>;
 
@@ -17,7 +16,9 @@ export function mapLanguageItems(languages: ILanguageItemList[]) {
 					/>
 				</div>
 			),
-			selectedLabel: <LanguageItem title={language.name} className="py-2 mb-0" />,
+			selectedLabel: (
+				<LanguageItem title={language.name} className="py-2 mb-0" />
+			),
 			data: language,
 		};
 	});
@@ -62,9 +63,7 @@ export function LanguageItem({
 				className
 			)}
 		>
-			<span className={clsxm('text-normal')}>
-				{title}
-			</span>
+			<span className={clsxm('text-normal')}>{title}</span>
 		</div>
 	);
 }

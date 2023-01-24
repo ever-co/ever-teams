@@ -30,10 +30,26 @@ export function TaskInfo({ className }: IClassName) {
 			<div className="relative w-full h-full flex flex-col justify-center">
 				<div ref={viewportRef} className="overflow-hidden w-full relative">
 					<div className="flex space-x-2 mt-2">
-						<TaskStatus {...taskStatus['In Review']} name="In Review" />
-						<TaskStatus {...taskStatus['Blocked']} name="Blocked" />
-						<TaskStatus {...taskStatus['Completed']} name="Completed" />
-						<TaskStatus {...taskStatus['Todo']} name="Todo" />
+						<TaskStatus
+							{...taskStatus['In Review']}
+							className="text-xs"
+							name="In Review"
+						/>
+						<TaskStatus
+							{...taskStatus['Blocked']}
+							className="text-xs"
+							name="Blocked"
+						/>
+						<TaskStatus
+							{...taskStatus['Completed']}
+							className="text-xs"
+							name="Completed"
+						/>
+						<TaskStatus
+							{...taskStatus['Todo']}
+							className="text-xs"
+							name="Todo"
+						/>
 					</div>
 				</div>
 

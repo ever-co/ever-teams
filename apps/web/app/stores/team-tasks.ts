@@ -1,7 +1,7 @@
 import { ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { atom, selector } from 'recoil';
-import { activeTeamIdState } from './organization-team';
+import { activeTeamState } from './organization-team';
 
 export const teamTasksState = atom<ITeamTask[]>({
 	key: 'teamTasksState',
@@ -22,12 +22,15 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 	key: 'tasksByTeamState',
 	get: ({ get }) => {
 		const tasks = get(teamTasksState);
-		const activeTeamId = get(activeTeamIdState);
-		return tasks.filter((task) => {
-			return task.teams.some((tm) => {
-				return tm.id === activeTeamId;
-			});
-		});
+		const activeTeamId = get(activeTeamState);
+
+		return tasks
+			.filter((task) => {
+				return task.teams.some((tm) => {
+					return tm.id === activeTeamId?.id;
+				});
+			})
+			.map((task) => ({ ...task, selectedTeam: activeTeamId || undefined }));
 	},
 });
 

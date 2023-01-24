@@ -13610,7 +13610,7 @@ npm-package-arg@8.1.1:
     semver "^7.0.0"
     validate-npm-package-name "^3.0.0"
 
-npm-package-arg@^8.0.0, npm-package-arg@^8.0.1, npm-package-arg@^8.1.0, npm-package-arg@^8.1.2, npm-package-arg@^8.1.4, npm-package-arg@^8.1.5:
+npm-package-arg@^8.0.0, npm-package-arg@^8.0.1, npm-package-arg@^8.1.0, npm-package-arg@^8.1.1, npm-package-arg@^8.1.2, npm-package-arg@^8.1.5:
   version "8.1.5"
   resolved "https://registry.npmjs.org/npm-package-arg/-/npm-package-arg-8.1.5.tgz"
   integrity sha512-LhgZrg0n0VgvzVdSm1oiZworPbTxYHUJCgtsJW8mGvlDpxTM1vSJc3m5QZeUkhAHIzbz3VCHd/R4osi1L1Tg/Q==
@@ -14340,7 +14340,7 @@ pac-resolver@^4.1.0:
     ip "^1.1.5"
     netmask "^2.0.1"
 
-pacote@^11.1.11, pacote@^11.2.6, pacote@^11.3.1, pacote@^11.3.4, pacote@^11.3.5:
+pacote@^11.1.11, pacote@^11.2.6, pacote@^11.3.0, pacote@^11.3.1, pacote@^11.3.5:
   version "11.3.5"
   resolved "https://registry.npmjs.org/pacote/-/pacote-11.3.5.tgz"
   integrity sha512-fT375Yczn4zi+6Hkk2TBe1x1sP8FgFsEIZ2/iWaXY2r/NkhDJfxbcn5paz1+RTFCyNf+dPnaoBDJoAxXSU8Bkg==

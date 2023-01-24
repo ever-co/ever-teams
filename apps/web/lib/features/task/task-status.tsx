@@ -20,23 +20,17 @@ import {
 	useState,
 } from 'react';
 
-type Status =
-	| Exclude<ITaskStatus, 'Unassigned' | 'For Testing' | 'Closed'>
-	| 'Blocked'
-	| 'Ready'
-	| 'Backlog';
-
 type TStatusItem = {
 	bgColor?: string;
 	icon: React.ReactNode;
 	name?: string;
 };
 
-type TStatus<T extends Status> = {
+type TStatus<T extends ITaskStatus> = {
 	[k in T]: TStatusItem;
 };
 
-export const taskStatus: TStatus<Status> = {
+export const taskStatus: TStatus<ITaskStatus> = {
 	Todo: {
 		icon: <LoginIcon />,
 		bgColor: '#D6E4F9',
@@ -64,6 +58,10 @@ export const taskStatus: TStatus<Status> = {
 	Backlog: {
 		icon: <CircleIcon />,
 		bgColor: '#F2F2F2',
+	},
+	Closed: {
+		icon: <TickCircleIcon className="stroke-[#acacac]" />,
+		bgColor: '#eaeaea',
 	},
 };
 
@@ -97,7 +95,7 @@ function useStatusValue<T extends TStatus<any>>(
 ) {
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
-			const value = statusItems[key as Status];
+			const value = statusItems[key as ITaskStatus];
 			return {
 				...value,
 				name: key,
@@ -126,8 +124,14 @@ function useStatusValue<T extends TStatus<any>>(
 /**
  * Task status dropwdown
  */
-export function TaskStatusDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskStatus, 'In Progress');
+export function TaskStatusDropdown({
+	className,
+	defaultValue,
+}: IClassName & { defaultValue?: ITaskStatus }) {
+	const { item, items, onChange } = useStatusValue(
+		taskStatus,
+		defaultValue || 'Todo'
+	);
 
 	return (
 		<StatusDropdown

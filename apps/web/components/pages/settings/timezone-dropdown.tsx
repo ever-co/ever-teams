@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-	Dropdown,
-} from 'lib/components';
+import { Dropdown } from 'lib/components';
 // import timeZones from './timezones';
 import { mapTimezoneItems, TimezoneItem } from 'lib/features';
 import { useTimezoneSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { ITimezoneItemList } from '@app/interfaces';
 
-export const TimezoneDropDown = (currentTimezone: any, onChangeTimezone: any) => {
-	const { activeTimezone, setActiveTimezone } =
-		useTimezoneSettings();
+export const TimezoneDropDown = (
+	currentTimezone: any,
+	onChangeTimezone: any
+) => {
+	const { activeTimezone, setActiveTimezone } = useTimezoneSettings();
 
 	const timeZonesMap: ITimezoneItemList[] = []; // TODO: we should import here from timeZones
 
@@ -39,9 +39,8 @@ export const TimezoneDropDown = (currentTimezone: any, onChangeTimezone: any) =>
 				items.length === 0 && ['py-2']
 			)}
 			value={timezoneItem}
-			onChange={(e:any) => onChangeLanguage(e)}
+			onChange={(e: any) => onChangeLanguage(e)}
 			items={items}
-		>
-		</Dropdown>
+		/>
 	);
 };
