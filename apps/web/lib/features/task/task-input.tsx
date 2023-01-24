@@ -125,7 +125,8 @@ export function TaskCard({
 					datas?.handleTaskCreation && datas?.handleTaskCreation(autoActiveTask)
 				}
 			>
-				<PlusIcon className="w-[16px] h-[16px]" /> Create new task
+				{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
+				Create new task
 			</Button>
 
 			{/* Task filter buttons */}

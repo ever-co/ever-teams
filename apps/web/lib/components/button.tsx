@@ -4,7 +4,14 @@ import { SpinnerLoader } from './loader';
 import { ArrowLeft } from './svgs';
 
 type Props = {
-	variant?: 'primary' | 'outline' | 'ghost' | 'light' | 'dark'| 'grey' | 'danger';
+	variant?:
+		| 'primary'
+		| 'outline'
+		| 'ghost'
+		| 'light'
+		| 'dark'
+		| 'grey'
+		| 'danger';
 	loading?: boolean;
 } & PropsWithChildren &
 	React.ComponentPropsWithRef<'button'>;
@@ -28,11 +35,13 @@ export function Button({
 					],
 					variant === 'outline' && [
 						'text-primary border border-primary font-medium',
-						'dark:text-primary-light border dark:border-primary-light',
+						'dark:text-white border dark:border-white',
 						'disabled:opacity-40',
 					],
 					variant === 'grey' && [
-						'disabled:opacity-40', 'bg-light--theme-dark', 'dark:bg-[#1D222A]',
+						'disabled:opacity-40',
+						'bg-light--theme-dark',
+						'dark:bg-[#1D222A]',
 					],
 					variant === 'danger' && [
 						'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold',
@@ -42,12 +51,7 @@ export function Button({
 			)}
 			{...rest}
 		>
-			{loading && (
-				<SpinnerLoader
-					size={17}
-					variant={variant === 'primary' ? 'light' : 'dark'}
-				/>
-			)}
+			{loading && <SpinnerLoader size={17} variant={'light'} />}
 			{children}
 		</button>
 	);
