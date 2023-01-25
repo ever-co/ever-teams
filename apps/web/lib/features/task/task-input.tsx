@@ -182,6 +182,7 @@ export function TaskCard({
 						<li key={task.id}>
 							<TaskItem
 								task={task}
+								selected={datas.activeTeamTask === task}
 								onClick={onItemClick}
 								className="cursor-pointer"
 							/>

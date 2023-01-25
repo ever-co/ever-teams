@@ -9,9 +9,10 @@ import { TaskStatusDropdown } from './task-status';
 type Props = {
 	task?: ITeamTask;
 	onClick?: (task: ITeamTask) => void;
+	selected?: boolean;
 } & IClassName;
 
-export function TaskItem({ task, onClick, className }: Props) {
+export function TaskItem({ task, selected, onClick, className }: Props) {
 	const { handleStatusUpdate, updateLoading } = useTeamTasks();
 
 	const handleChange = useCallback(
@@ -26,7 +27,13 @@ export function TaskItem({ task, onClick, className }: Props) {
 			className={clsxm('flex justify-between items-center', className)}
 			onClick={() => onClick && task && onClick(task)}
 		>
-			<div className="font-normal text-sm overflow-hidden text-ellipsis flex-1">
+			<div
+				className={clsxm(
+					'font-normal text-sm',
+					'overflow-hidden text-ellipsis flex-1',
+					selected && ['font-medium text-primary dark:text-primary-light']
+				)}
+			>
 				<span className="opacity-50">#{task?.taskNumber}</span> {task?.title}
 			</div>
 
