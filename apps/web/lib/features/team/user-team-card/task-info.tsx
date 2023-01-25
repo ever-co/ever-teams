@@ -31,10 +31,13 @@ export function TaskInfo({ className, task, edition }: Props) {
 			{/* task */}
 			<div
 				className={clsxm(
-					'w-full',
-					edition.editMode ? ['h-[50px]'] : ['max-h-[40px] overflow-hidden']
+					'w-full h-[40px]',
+					edition.editMode
+						? ['mb-2']
+						: ['overflow-hidden flex justify-center items-center']
 				)}
 			>
+				{/* Task value */}
 				{!edition.editMode && (
 					<Text
 						className="text-sm text-ellipsis text-center cursor-default"
@@ -44,11 +47,15 @@ export function TaskInfo({ className, task, edition }: Props) {
 					</Text>
 				)}
 
-				{task && edition.editMode && (
+				{/* Show task input combobox when in edit mode */}
+				{edition.editMode && task && (
 					<TaskInput
 						task={task}
 						initEditMode={true}
 						onCloseCombobox={() => edition.setEditMode(false)}
+						onEnterKey={(e, task) => {
+							console.log(e, task);
+						}}
 						onTaskClick={(e) => {
 							console.log(e);
 						}}

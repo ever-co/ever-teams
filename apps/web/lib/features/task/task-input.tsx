@@ -20,6 +20,8 @@ type Props = {
 	onTaskClick?: (task: ITeamTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
+	inputLoader?: boolean;
+	onEnterKey?: (taskName: string, task: ITeamTask) => void;
 };
 
 /**
@@ -33,6 +35,8 @@ export function TaskInput({
 	onTaskClick,
 	initEditMode,
 	onCloseCombobox,
+	onEnterKey,
+	inputLoader,
 }: Props) {
 	const datas = useTaskInput(task, initEditMode);
 
@@ -93,10 +97,15 @@ export function TaskInput({
 					onChange={(event) => setTaskName(event.target.value)}
 					placeholder="What you working on?"
 					ref={targetEl}
+					onKeyUp={(e) => {
+						if (e.key === 'Enter' && onEnterKey && inputTask) {
+							onEnterKey(taskName, inputTask);
+						}
+					}}
 					trailingNode={
 						<div className="p-2 flex justify-center items-center h-full">
 							{task ? (
-								updateLoading && <SpinnerLoader size={25} />
+								(updateLoading || inputLoader) && <SpinnerLoader size={25} />
 							) : (
 								<>
 									{(tasksFetching || updateLoading) && (
