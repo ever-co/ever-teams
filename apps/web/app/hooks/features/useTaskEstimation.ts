@@ -130,5 +130,9 @@ export function useTaskEstimation() {
 		handleFocus,
 		handleBlur,
 		handleBlurMinutes,
+		value,
+		handleSubmit,
+		activeTeamTask,
+		updateLoading,
 	};
 }
