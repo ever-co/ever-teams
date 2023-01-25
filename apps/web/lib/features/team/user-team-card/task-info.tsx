@@ -1,14 +1,15 @@
-import { useCustomEmblaCarousel } from '@app/hooks';
+import { I_TMCardTaskEdit, useCustomEmblaCarousel } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { RoundedButton, Text } from 'lib/components';
-import { taskStatus, TaskStatus } from 'lib/features';
+import { TaskInput, taskStatus, TaskStatus } from 'lib/features';
 
 type Props = IClassName & {
 	task: ITeamTask | undefined | null;
+	edition: I_TMCardTaskEdit;
 };
 
-export function TaskInfo({ className, task }: Props) {
+export function TaskInfo({ className, task, edition }: Props) {
 	const {
 		viewportRef,
 		nextBtnEnabled,
@@ -28,8 +29,31 @@ export function TaskInfo({ className, task }: Props) {
 			)}
 		>
 			{/* task */}
-			<div className="max-h-[40px] overflow-hidden w-full">
-				<Text className="text-sm text-ellipsis text-center">{task?.title}</Text>
+			<div
+				className={clsxm(
+					'w-full',
+					edition.editMode ? ['h-[50px]'] : ['max-h-[40px] overflow-hidden']
+				)}
+			>
+				{!edition.editMode && (
+					<Text
+						className="text-sm text-ellipsis text-center cursor-default"
+						onDoubleClick={() => edition.setEditMode(true)}
+					>
+						{task?.title}
+					</Text>
+				)}
+
+				{task && edition.editMode && (
+					<TaskInput
+						task={task}
+						initEditMode={true}
+						onCloseCombobox={() => edition.setEditMode(false)}
+						onTaskClick={(e) => {
+							console.log(e);
+						}}
+					/>
+				)}
 			</div>
 
 			<div className="relative w-full h-full flex flex-col justify-center">

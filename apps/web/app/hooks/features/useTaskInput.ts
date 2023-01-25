@@ -14,11 +14,12 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	}
 };
 
-export function useTaskInput() {
+export function useTaskInput(task?: ITeamTask, initEditMode?: boolean) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
 		null
 	);
+
 	const {
 		tasks,
 		activeTeamTask,
@@ -29,8 +30,11 @@ export function useTaskInput() {
 		createTask,
 		updateTask,
 	} = useTeamTasks();
+
+	const inputTask = task || activeTeamTask;
+
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
-	const [editMode, setEditMode] = useState(false);
+	const [editMode, setEditMode] = useState(initEditMode || false);
 
 	const handleOpenModal = useCallback(
 		(concernedTask: ITeamTask) => {
@@ -83,8 +87,8 @@ export function useTaskInput() {
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = (autoActiveTask = true) => {
-		if (query.trim().length < 2 || activeTeamTask?.title === query.trim())
-			return;
+		if (query.trim().length < 2 || inputTask?.title === query.trim()) return;
+
 		createTask(query.trim()).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
@@ -118,7 +122,7 @@ export function useTaskInput() {
 		closeableTask,
 		editMode,
 		setEditMode,
-		activeTeamTask,
+		inputTask,
 		setActiveTask,
 		setQuery,
 		filter,

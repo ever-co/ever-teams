@@ -30,3 +30,14 @@ export function useTeamMemberCard(
 		isAuthUser,
 	};
 }
+
+export function useTMCardTaskEdit(task: ITeamTask | null | undefined) {
+	const [editMode, setEditMode] = useState(false);
+
+	return {
+		editMode,
+		setEditMode,
+	};
+}
+
+export type I_TMCardTaskEdit = ReturnType<typeof useTMCardTaskEdit>;

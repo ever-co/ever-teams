@@ -1,4 +1,4 @@
-import { useTeamMemberCard } from '@app/hooks';
+import { useTeamMemberCard, useTMCardTaskEdit } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import {
@@ -39,6 +39,7 @@ type IUserTeamCard = {
 
 export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 	const { memberUser, memberTask } = useTeamMemberCard(member);
+	const taskEdition = useTMCardTaskEdit(memberTask);
 
 	return (
 		<Card
@@ -68,7 +69,7 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			<VerticalSeparator />
 
 			{/* Task information */}
-			<TaskInfo task={memberTask} className="w-80 px-4" />
+			<TaskInfo task={memberTask} edition={taskEdition} className="w-80 px-4" />
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskTime */}

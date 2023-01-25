@@ -15,23 +15,34 @@ import { TickCircleIcon } from 'lib/components/svgs';
 import { useCallback, useEffect, useState } from 'react';
 import { TaskItem } from './task-item';
 
-export function TaskInput() {
-	const datas = useTaskInput();
+type Props = {
+	task?: ITeamTask;
+	onTaskClick?: (task: ITeamTask) => void;
+	initEditMode?: boolean;
+	onCloseCombobox?: () => void;
+};
+
+/**
+ * If task passed then some function should not considered as global state
+ *
+ * @param param0
+ * @returns
+ */
+export function TaskInput({
+	task,
+	onTaskClick,
+	initEditMode,
+	onCloseCombobox,
+}: Props) {
+	const datas = useTaskInput(task, initEditMode);
 
 	const {
-		activeTeamTask,
+		inputTask,
 		editMode,
 		setEditMode,
 		setQuery,
 		tasksFetching,
 		updateLoading,
-		// closedTaskCount,
-		// hasCreateForm,
-		// handleOpenModal,
-		// handleReopenTask,
-		// isModalOpen,
-		// closeModal,
-		// closeableTask,
 	} = datas;
 
 	const [taskName, setTaskName] = useState('');
@@ -41,22 +52,29 @@ export function TaskInput() {
 	);
 
 	useEffect(() => {
-		setQuery(taskName === activeTeamTask?.title ? '' : taskName);
-	}, [taskName, activeTeamTask, setQuery]);
+		setQuery(taskName === inputTask?.title ? '' : taskName);
+	}, [taskName, inputTask, setQuery]);
 
 	useEffect(() => {
-		setTaskName(activeTeamTask?.title || '');
-		if (activeTeamTask) {
+		setTaskName(inputTask?.title || '');
+		if (inputTask) {
 			setTaskName((v) => {
-				return (!editMode ? `#${activeTeamTask.taskNumber} ` : '') + v;
+				return (!editMode ? `#${inputTask.taskNumber} ` : '') + v;
 			});
 		}
-	}, [editMode, activeTeamTask]);
+	}, [editMode, inputTask]);
+
+	useEffect(() => {
+		/**
+		 * Call onCloseCombobox only when the menu has been closed
+		 */
+		!editMode && onCloseCombobox && onCloseCombobox();
+	}, [editMode]);
 
 	/**
-	 * Change the active task
+	 * set the active task for the authenticated user
 	 */
-	const useItemClick = useCallback(
+	const setAuthActiveTask = useCallback(
 		(task: ITeamTask) => {
 			if (datas.setActiveTask) {
 				datas.setActiveTask(task);
@@ -77,7 +95,15 @@ export function TaskInput() {
 					ref={targetEl}
 					trailingNode={
 						<div className="p-2 flex justify-center items-center h-full">
-							{(tasksFetching || updateLoading) && <SpinnerLoader size={30} />}
+							{task ? (
+								updateLoading && <SpinnerLoader size={25} />
+							) : (
+								<>
+									{(tasksFetching || updateLoading) && (
+										<SpinnerLoader size={25} />
+									)}
+								</>
+							)}
 						</div>
 					}
 				/>
@@ -94,8 +120,10 @@ export function TaskInput() {
 					<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
 						<TaskCard
 							datas={datas}
-							onItemClick={useItemClick}
-							autoActiveTask={true}
+							onItemClick={
+								task || onTaskClick ? onTaskClick : setAuthActiveTask
+							}
+							autoActiveTask={task ? false : true}
 						/>
 					</Popover.Panel>
 				</Transition>
@@ -182,7 +210,7 @@ export function TaskCard({
 						<li key={task.id}>
 							<TaskItem
 								task={task}
-								selected={datas.activeTeamTask === task}
+								selected={datas.inputTask === task}
 								onClick={onItemClick}
 								className="cursor-pointer"
 							/>
