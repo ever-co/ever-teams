@@ -29,7 +29,7 @@ export function UserInfo({
 
 			<div className="w-64">
 				<Text.Heading as="h3">{userName}</Text.Heading>
-				<Text className="text-gray-400 flex items-center space-x-1">
+				<Text className="text-gray-400 flex items-center text-sm space-x-1">
 					<MailIcon /> <span>{userEmail}</span>
 				</Text>
 			</div>

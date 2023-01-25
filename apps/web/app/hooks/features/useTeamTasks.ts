@@ -110,12 +110,18 @@ export function useTeamTasks() {
 	);
 
 	const handleStatusUpdate = useCallback(
-		(status: ITeamTask['status'], task?: ITeamTask | null) => {
+		(
+			status: ITeamTask['status'],
+			task?: ITeamTask | null,
+			loader?: boolean
+		) => {
 			if (task && status !== task.status) {
+				loader && setTasksFetching(true);
+
 				updateTask({
 					...task,
 					status: status,
-				});
+				}).then(() => setTasksFetching(false));
 			}
 		},
 		[updateTask]

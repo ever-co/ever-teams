@@ -1,10 +1,14 @@
 import { useCustomEmblaCarousel } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
+import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { RoundedButton, Text } from 'lib/components';
 import { taskStatus, TaskStatus } from 'lib/features';
 
-export function TaskInfo({ className }: IClassName) {
+type Props = IClassName & {
+	task: ITeamTask | undefined | null;
+};
+
+export function TaskInfo({ className, task }: Props) {
 	const {
 		viewportRef,
 		nextBtnEnabled,
@@ -23,17 +27,18 @@ export function TaskInfo({ className }: IClassName) {
 				className
 			)}
 		>
-			<Text className="text-sm">
-				Working on UI Design & making prototype for user testing tomorrow
-			</Text>
+			{/* task */}
+			<div className="max-h-[40px] overflow-hidden w-full">
+				<Text className="text-sm text-ellipsis text-center">{task?.title}</Text>
+			</div>
 
 			<div className="relative w-full h-full flex flex-col justify-center">
 				<div ref={viewportRef} className="overflow-hidden w-full relative">
 					<div className="flex space-x-2 mt-2">
 						<TaskStatus
-							{...taskStatus['In Review']}
+							{...taskStatus[task?.status || 'Todo']}
 							className="text-xs"
-							name="In Review"
+							name={task?.status}
 						/>
 						<TaskStatus
 							{...taskStatus['Blocked']}

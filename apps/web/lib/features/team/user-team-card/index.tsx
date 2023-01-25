@@ -1,4 +1,5 @@
-import { IClassName } from '@app/interfaces';
+import { useTeamMemberCard } from '@app/hooks';
+import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import {
 	Button,
@@ -33,16 +34,12 @@ type IUserTeamCard = {
 	timerStatus?: ITimerStatus;
 	userName?: string;
 	userEmail?: string;
+	member?: IOrganizationTeamList['members'][number];
 } & IClassName;
 
-export function UserTeamCard({
-	className,
-	active,
-	userImage = '/assets/profiles/mukesh.png',
-	timerStatus = 'running',
-	userName = 'Ryan Reynold',
-	userEmail = 'RyanR@gmail.com',
-}: IUserTeamCard) {
+export function UserTeamCard({ className, active, member }: IUserTeamCard) {
+	const { memberUser, memberTask } = useTeamMemberCard(member);
+
 	return (
 		<Card
 			shadow="bigger"
@@ -60,28 +57,29 @@ export function UserTeamCard({
 				<MoreIcon />
 			</div>
 
+			{/* Show user name, email and image */}
 			<UserInfo
-				userImage={userImage}
-				timerStatus={timerStatus}
-				userName={userName}
-				userEmail={userEmail}
+				userImage={memberUser?.imageUrl}
+				timerStatus="running"
+				userName={`${memberUser?.firstName} ${memberUser?.lastName}`}
+				userEmail={memberUser?.email}
 				className="w-[330px]"
 			/>
-			{/* UserInfo */}
 			<VerticalSeparator />
 
-			<TaskInfo className="w-80 px-4" />
-			{/* TaskInfo */}
+			{/* Task information */}
+			<TaskInfo task={memberTask} className="w-80 px-4" />
 			<VerticalSeparator className="ml-2" />
 
-			<TaskTime className="w-48 px-4" />
 			{/* TaskTime */}
+			<TaskTime className="w-48 px-4" />
 			<VerticalSeparator />
 
-			<TaskEstimate className="px-3 w-52" />
 			{/* TaskEstimate */}
+			<TaskEstimate className="px-3 w-52" />
 			<VerticalSeparator />
 
+			{/* TodayWorkedTime */}
 			<TodayWorkedTime className="flex-1" />
 		</Card>
 	);
@@ -135,5 +133,44 @@ export function InviteUserTeamCard({
 				<Text>00h : 00m</Text>
 			</div>
 		</Card>
+	);
+}
+
+export function UserTeamCardSkeleton() {
+	return (
+		<div
+			role="status"
+			className="p-4 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+		>
+			<div className="flex justify-between items-center">
+				<div className="flex items-center space-x-3">
+					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
+					<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
+					<div>
+						<div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-32 mb-2"></div>
+					</div>
+				</div>
+				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-700 w-24"></div>
+			</div>
+		</div>
+	);
+}
+
+export function InviteUserTeamSkeleton() {
+	return (
+		<div
+			role="status"
+			className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+		>
+			<div className="flex justify-between items-center">
+				<div className="flex items-center space-x-3">
+					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
+					<div className="w-24 h-9 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+				</div>
+			</div>
+		</div>
 	);
 }
