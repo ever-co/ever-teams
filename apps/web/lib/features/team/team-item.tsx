@@ -68,21 +68,23 @@ export function TeamItem({
 			title={title}
 			className={clsxm(
 				'flex items-center justify-start space-x-2 text-sm',
-				'cursor-pointer mb-4 w-full',
+				'cursor-pointer mb-4 max-w-full',
 				className
 			)}
 		>
-			<div
-				className={clsxm(
-					'w-[27px] h-[27px]',
-					'flex justify-center items-center',
-					'rounded-full text-xs text-default dark:text-white',
-					'shadow-md',
-					disabled && ['dark:text-default']
-				)}
-				style={{ background: color || `${stc(title)}80` }}
-			>
-				{title ? imgTitle(title) : ''}
+			<div>
+				<div
+					className={clsxm(
+						'w-[27px] h-[27px]',
+						'flex justify-center items-center',
+						'rounded-full text-xs text-default dark:text-white',
+						'shadow-md',
+						disabled && ['dark:text-default']
+					)}
+					style={{ background: color || `${stc(title)}80` }}
+				>
+					{title ? imgTitle(title) : ''}
+				</div>
 			</div>
 			<span
 				className={clsxm(
