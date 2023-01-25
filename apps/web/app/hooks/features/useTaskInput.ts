@@ -46,12 +46,10 @@ export function useTaskInput(task?: ITeamTask, initEditMode?: boolean) {
 
 	const handleReopenTask = useCallback(
 		async (concernedTask: ITeamTask) => {
-			if (concernedTask) {
-				return updateTask({
-					...concernedTask,
-					status: 'Todo',
-				});
-			}
+			return updateTask({
+				...concernedTask,
+				status: 'Todo',
+			});
 		},
 		[updateTask]
 	);
@@ -97,6 +95,16 @@ export function useTaskInput(task?: ITeamTask, initEditMode?: boolean) {
 		});
 	};
 
+	const updatTaskTitleHandler = useCallback(
+		(itask: ITeamTask, title: string) => {
+			return updateTask({
+				...itask,
+				title,
+			});
+		},
+		[]
+	);
+
 	const closedTaskCount = filteredTasks2.filter((f_task) => {
 		return f_task.status === 'Closed';
 	}).length;
@@ -126,6 +134,7 @@ export function useTaskInput(task?: ITeamTask, initEditMode?: boolean) {
 		setActiveTask,
 		setQuery,
 		filter,
+		updatTaskTitleHandler,
 	};
 }
 

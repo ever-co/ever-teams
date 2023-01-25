@@ -47,6 +47,7 @@ export function TaskInput({
 		setQuery,
 		tasksFetching,
 		updateLoading,
+		updatTaskTitleHandler,
 	} = datas;
 
 	const [taskName, setTaskName] = useState('');
@@ -88,6 +89,17 @@ export function TaskInput({
 		[datas, setEditMode]
 	);
 
+	/**
+	 * On update task name
+	 */
+
+	const updateTaskNameHandler = useCallback(
+		(task: ITeamTask, title: string) => {
+			!updateLoading && updatTaskTitleHandler(task, title);
+		},
+		[updateLoading, updatTaskTitleHandler]
+	);
+
 	return (
 		<>
 			<Popover className="relative w-full z-30">
@@ -98,8 +110,9 @@ export function TaskInput({
 					placeholder="What you working on?"
 					ref={targetEl}
 					onKeyUp={(e) => {
-						if (e.key === 'Enter' && onEnterKey && inputTask) {
-							onEnterKey(taskName, inputTask);
+						if (e.key === 'Enter' && inputTask) {
+							updateTaskNameHandler(inputTask, taskName);
+							onEnterKey && onEnterKey(taskName, inputTask);
 						}
 					}}
 					trailingNode={
