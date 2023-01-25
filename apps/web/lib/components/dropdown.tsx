@@ -19,6 +19,7 @@ type Props<T extends DropdownItem> = {
 	value?: T | null;
 	onChange?: Dispatch<SetStateAction<T | undefined>> | ((item: T) => void);
 	buttonClassName?: string;
+	optionsClassName?: string;
 	items: T[];
 	loading?: boolean;
 	buttonStyle?: React.CSSProperties;
@@ -33,6 +34,7 @@ export function Dropdown<T extends DropdownItem>({
 	items,
 	loading,
 	buttonStyle,
+	optionsClassName,
 }: Props<T>) {
 	return (
 		<div className={clsxm('relative', className)}>
@@ -79,7 +81,13 @@ export function Dropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Listbox.Options className="absolute mt-3 min-w-full max-h-56 overflow-hidden overflow-y-auto">
+					<Listbox.Options
+						className={clsxm(
+							'absolute mt-3 min-w-full max-h-64',
+							'overflow-hidden overflow-y-auto',
+							optionsClassName
+						)}
+					>
 						<Card
 							shadow="custom"
 							className="md:px-4 py-4 rounded-[12px]"

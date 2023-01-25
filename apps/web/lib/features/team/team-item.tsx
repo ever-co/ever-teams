@@ -12,12 +12,15 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 		return {
 			key: team.id,
 			Label: ({ selected }) => (
-				<div className="flex justify-between">
-					<TeamItem
-						title={team.name}
-						count={team.members.length}
-						className={selected ? 'font-medium' : ''}
-					/>
+				<div className="flex justify-between w-full">
+					<div className="max-w-[90%]">
+						<TeamItem
+							title={team.name}
+							count={team.members.length}
+							className={clsxm(selected && ['font-medium'])}
+						/>
+					</div>
+
 					<SettingsOutlineIcon className="cursor-pointer" />
 				</div>
 			),
@@ -62,8 +65,10 @@ export function TeamItem({
 }) {
 	return (
 		<div
+			title={title}
 			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4',
+				'flex items-center justify-start space-x-2 text-sm',
+				'cursor-pointer mb-4 w-full',
 				className
 			)}
 		>
@@ -79,7 +84,12 @@ export function TeamItem({
 			>
 				{title ? imgTitle(title) : ''}
 			</div>
-			<span className={clsxm('text-normal')}>
+			<span
+				className={clsxm(
+					'text-normal',
+					'whitespace-nowrap text-ellipsis overflow-hidden'
+				)}
+			>
 				{title} {count ? `(${count})` : ''}
 			</span>
 		</div>
