@@ -1,7 +1,7 @@
 import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Avatar } from 'lib/components';
+import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
 import { CloseIcon } from 'lib/components/svgs';
 import { useCallback } from 'react';
 import { TaskStatusDropdown } from './task-status';
@@ -12,7 +12,7 @@ type Props = {
 } & IClassName;
 
 export function TaskItem({ task, onClick, className }: Props) {
-	const { handleStatusUpdate } = useTeamTasks();
+	const { handleStatusUpdate, updateLoading } = useTeamTasks();
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
@@ -39,7 +39,17 @@ export function TaskItem({ task, onClick, className }: Props) {
 					/>
 				</div>
 				{task && <TaskAvatars task={task} />}
-				<CloseIcon />
+
+				<div onClick={(e) => e.stopPropagation()}>
+					<ConfirmDropdown
+						onConfirm={() =>
+							handleChange(task?.status === 'Closed' ? 'Todo' : 'Closed')
+						}
+						confirmText={task?.status === 'Closed' ? 'Restore' : 'Confirm'}
+					>
+						{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
+					</ConfirmDropdown>
+				</div>
 			</div>
 		</div>
 	);

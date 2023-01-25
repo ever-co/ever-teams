@@ -297,7 +297,7 @@ export function TaskDevicesDropdown({ className }: IClassName) {
 }
 
 /**
- * Dc Status drop down
+ * Fc Status drop down
  */
 function StatusDropdown<T extends Required<TStatusItem>>({
 	value,
