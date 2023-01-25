@@ -51,7 +51,12 @@ export function Button({
 			)}
 			{...rest}
 		>
-			{loading && <SpinnerLoader size={17} variant={'light'} />}
+			{loading && (
+				<SpinnerLoader
+					size={17}
+					variant={variant === 'outline' ? 'primary' : 'light'}
+				/>
+			)}
 			{children}
 		</button>
 	);

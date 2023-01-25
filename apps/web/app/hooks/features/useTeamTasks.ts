@@ -2,6 +2,7 @@ import {
 	getActiveTaskIdCookie,
 	setActiveTaskIdCookie,
 } from '@app/helpers/cookies';
+import { ITeamTask } from '@app/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,
@@ -99,13 +100,25 @@ export function useTeamTasks() {
 	);
 
 	const updateTask = useCallback(
-		(task: Partial<typeof tasks[0]> & { id: string }) => {
+		(task: Partial<ITeamTask> & { id: string }) => {
 			return updateQueryCall(task.id, task).then((res) => {
 				setAllTasks(res.data?.items || []);
 				return res;
 			});
 		},
 		[setAllTasks, updateQueryCall]
+	);
+
+	const handleStatusUpdate = useCallback(
+		(status: ITeamTask['status'], task?: ITeamTask | null) => {
+			if (task && status !== task.status) {
+				updateTask({
+					...task,
+					status: status,
+				});
+			}
+		},
+		[updateTask]
 	);
 
 	/**
@@ -132,5 +145,6 @@ export function useTeamTasks() {
 		setActiveTask,
 		activeTeamTask,
 		firstLoadTasksData,
+		handleStatusUpdate,
 	};
 }

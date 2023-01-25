@@ -2,12 +2,12 @@ import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
 import {
+	ActiveTaskStatusDropdown,
 	TaskDevicesDropdown,
 	TaskEstimate,
 	TaskInput,
 	TaskPropertiesDropdown,
 	TaskSizesDropdown,
-	TaskStatusDropdown,
 	TeamMembers,
 	Timer,
 	UserTeamCardHeader,
@@ -54,7 +54,8 @@ function TaskTimerSection() {
 					</div>
 
 					<div className="flex-1 flex justify-between space-x-3">
-						<TaskStatusDropdown className="lg:min-w-[170px]" />
+						<ActiveTaskStatusDropdown className="lg:min-w-[170px]" />
+
 						<TaskPropertiesDropdown className="lg:min-w-[170px]" />
 						<TaskSizesDropdown className="lg:min-w-[170px]" />
 						<TaskDevicesDropdown className="lg:min-w-[170px]" />

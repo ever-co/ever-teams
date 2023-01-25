@@ -16,9 +16,11 @@ import {
 	Fragment,
 	PropsWithChildren,
 	useCallback,
+	useEffect,
 	useMemo,
 	useState,
 } from 'react';
+import { useCallbackRef, useTeamTasks } from '@app/hooks';
 
 type TStatusItem = {
 	bgColor?: string;
@@ -29,6 +31,46 @@ type TStatusItem = {
 type TStatus<T extends ITaskStatus> = {
 	[k in T]: TStatusItem;
 };
+
+function useStatusValue<T extends TStatus<any>>(
+	statusItems: T,
+	$value: keyof T,
+	onValueChange?: (v: keyof T) => void
+) {
+	const onValueChangeRef = useCallbackRef(onValueChange);
+
+	const items = useMemo(() => {
+		return Object.keys(statusItems).map((key) => {
+			const value = statusItems[key as ITaskStatus];
+			return {
+				...value,
+				name: key,
+			} as Required<TStatusItem>;
+		});
+	}, [statusItems]);
+
+	const [value, setValue] = useState<keyof T>($value);
+
+	const item = items.find((r) => r.name === value) || items[0];
+
+	useEffect(() => {
+		setValue($value);
+	}, [$value]);
+
+	const onChange = useCallback(
+		(value: keyof T) => {
+			setValue(value);
+			onValueChangeRef.current && onValueChangeRef.current(value);
+		},
+		[setValue]
+	);
+
+	return {
+		items,
+		item,
+		onChange,
+	};
+}
 
 export const taskStatus: TStatus<ITaskStatus> = {
 	Todo: {
@@ -89,53 +131,53 @@ export function TaskStatus({
 	);
 }
 
-function useStatusValue<T extends TStatus<any>>(
-	statusItems: T,
-	defaultValue: keyof T
-) {
-	const items = useMemo(() => {
-		return Object.keys(statusItems).map((key) => {
-			const value = statusItems[key as ITaskStatus];
-			return {
-				...value,
-				name: key,
-			} as Required<TStatusItem>;
-		});
-	}, [statusItems]);
-
-	const [value, setValue] = useState<keyof T>(defaultValue);
-
-	const item = items.find((r) => r.name === value) || items[0];
-
-	const onChange = useCallback(
-		(value: keyof T) => {
-			setValue(value);
-		},
-		[setValue]
-	);
-
-	return {
-		items,
-		item,
-		onChange,
-	};
-}
+// =============== Task Status ================= //
 
 /**
  * Task status dropwdown
  */
+type TTaskStatusDropdown = IClassName & {
+	defaultValue?: ITaskStatus;
+	onValueChange?: (v: ITaskStatus) => void;
+};
 export function TaskStatusDropdown({
 	className,
 	defaultValue,
-}: IClassName & { defaultValue?: ITaskStatus }) {
+	onValueChange,
+}: TTaskStatusDropdown) {
 	const { item, items, onChange } = useStatusValue(
 		taskStatus,
-		defaultValue || 'Todo'
+		defaultValue || 'Todo',
+		onValueChange
 	);
 
 	return (
 		<StatusDropdown
 			className={className}
+			items={items}
+			value={item}
+			onChange={onChange}
+		/>
+	);
+}
+
+export function ActiveTaskStatusDropdown(props: TTaskStatusDropdown) {
+	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
+
+	function onItemChange(status: ITaskStatus) {
+		console.log(status, activeTeamTask);
+		handleStatusUpdate(status, activeTeamTask);
+	}
+
+	const { item, items, onChange } = useStatusValue(
+		taskStatus,
+		activeTeamTask?.status || props.defaultValue || 'Todo',
+		onItemChange
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
 			items={items}
 			value={item}
 			onChange={onChange}
