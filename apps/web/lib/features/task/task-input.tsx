@@ -9,6 +9,7 @@ import {
 	Divider,
 	InputField,
 	OutlineBadge,
+	SpinnerLoader,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
 import { useCallback, useEffect, useState } from 'react';
@@ -22,8 +23,8 @@ export function TaskInput() {
 		editMode,
 		setEditMode,
 		setQuery,
-		// tasksFetching,
-		// updateLoading,
+		tasksFetching,
+		updateLoading,
 		// closedTaskCount,
 		// hasCreateForm,
 		// handleOpenModal,
@@ -74,6 +75,11 @@ export function TaskInput() {
 					onChange={(event) => setTaskName(event.target.value)}
 					placeholder="What you working on?"
 					ref={targetEl}
+					trailingNode={
+						<div className="p-2 flex justify-center items-center h-full">
+							{(tasksFetching || updateLoading) && <SpinnerLoader size={30} />}
+						</div>
+					}
 				/>
 
 				<Transition

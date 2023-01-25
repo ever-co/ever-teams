@@ -3,6 +3,7 @@ import { clsxm } from '@app/utils';
 import {
 	Dispatch,
 	forwardRef,
+	ReactNode,
 	SetStateAction,
 	useEffect,
 	useState,
@@ -14,6 +15,7 @@ type Props = {
 	readonly setErrors?: Dispatch<SetStateAction<Record<string, string>>>;
 	wrapperClassName?: string;
 	noWrapper?: boolean;
+	trailingNode?: ReactNode;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -26,6 +28,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			wrapperClassName,
 			noWrapper,
 			setErrors,
+			trailingNode,
 			...res
 		},
 		ref
@@ -76,6 +79,10 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					<Text.Error className="self-start justify-self-start">
 						{error}
 					</Text.Error>
+				)}
+
+				{trailingNode && (
+					<div className="absolute right-0 top-0 bottom-0">{trailingNode}</div>
 				)}
 			</div>
 		);

@@ -165,7 +165,6 @@ export function ActiveTaskStatusDropdown(props: TTaskStatusDropdown) {
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
 
 	function onItemChange(status: ITaskStatus) {
-		console.log(status, activeTeamTask);
 		handleStatusUpdate(status, activeTeamTask);
 	}
 
