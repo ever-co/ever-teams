@@ -1,7 +1,7 @@
 import { I_TMCardTaskEditHook, useCustomEmblaCarousel } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { RoundedButton } from 'lib/components';
+import { RoundedButton, Tooltip } from 'lib/components';
 import {
 	taskDevices,
 	TaskInput,
@@ -28,9 +28,7 @@ export function TaskInfo({ className, edition }: Props) {
 			<div
 				className={clsxm(
 					'w-full h-[40px]',
-					edition.editMode
-						? ['mb-2']
-						: ['overflow-hidden flex justify-center items-center']
+					edition.editMode ? ['mb-2'] : ['overflow-hidden']
 				)}
 			>
 				<TaskDetailAndEdition edition={edition} />
@@ -45,11 +43,9 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 	const task = edition.task;
 	const canEdit = edition.editMode && !!task;
 
-	const closeFn = () => {
+	edition.taskEditIgnoreElement.onOutsideClick(() => {
 		edition.setEditMode(false);
-	};
-
-	edition.taskEditIgnoreElement.onOutsideClick(closeFn);
+	});
 
 	return (
 		<>
@@ -57,12 +53,18 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
-					'text-sm text-ellipsis text-center cursor-default',
+					'text-sm text-ellipsis text-center cursor-default overflow-hidden',
 					edition.editMode && ['hidden']
 				)}
 				onDoubleClick={() => edition.setEditMode(true)}
 			>
-				{task?.title}
+				<Tooltip
+					label={task?.title || ''}
+					placement="top"
+					enabled={(task?.title && task?.title.length > 60) || false}
+				>
+					{task?.title}
+				</Tooltip>
 			</div>
 
 			{/* Show task input combobox when in edit mode */}

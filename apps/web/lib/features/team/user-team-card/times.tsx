@@ -83,10 +83,10 @@ export function TodayWorkedTime({ className, memberInfo }: Props) {
 		<div className={clsxm('text-center font-normal', className)}>
 			{memberInfo.isAuthUser ? (
 				<Text>
-					{h} h : {m} m
+					{h}h : {m}m
 				</Text>
 			) : (
-				<Text>00 h : 00 m</Text>
+				<Text>00h : 00 m</Text>
 			)}
 		</div>
 	);
