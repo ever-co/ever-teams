@@ -7,7 +7,9 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 	const refs = useRef<Node[]>([]);
 
 	const onChangeRef = useRef(onClickOuSide);
-	onChangeRef.current = onClickOuSide;
+	if (onClickOuSide) {
+		onChangeRef.current = onClickOuSide;
+	}
 
 	const handleChange = useCallback((el: T, nodeTarget: HTMLElement) => {
 		onChangeRef.current && onChangeRef?.current(el, nodeTarget);
@@ -18,6 +20,7 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 			if (!targetEl.current) return;
 			const el = targetEl.current!;
 			const tnode = ev.target! as Node;
+
 			if (
 				el.contains(tnode) ||
 				refs.current.some((ref) => {

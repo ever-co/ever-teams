@@ -35,9 +35,7 @@ export function TaskTime({ className, memberInfo }: Props) {
 		);
 	}
 
-	/**
-	 * Other member team status
-	 */
+	/** Other member team status */
 	const { taskDailyStat, taskTotalStat } = getTaskStat(memberInfo.memberTask);
 	const { h, m } = secondsToTime(taskTotalStat?.duration || 0);
 	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0);

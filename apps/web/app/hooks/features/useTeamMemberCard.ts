@@ -35,7 +35,9 @@ export function useTeamMemberCard(
 export function useTMCardTaskEdit(task: Nullable<ITeamTask>) {
 	const [editMode, setEditMode] = useState(false);
 	const [estimateEditMode, setEstimateEditMode] = useState(false);
+
 	const estimateEditIgnoreElement = useOutsideClick<any>();
+	const taskEditIgnoreElement = useOutsideClick<any>();
 
 	return {
 		editMode,
@@ -44,6 +46,7 @@ export function useTMCardTaskEdit(task: Nullable<ITeamTask>) {
 		estimateEditMode,
 		setEstimateEditMode,
 		estimateEditIgnoreElement,
+		taskEditIgnoreElement,
 	};
 }
 

@@ -14,6 +14,7 @@ import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { TaskTime, TodayWorkedTime } from './times';
 import { UserInfo } from './user-info';
+import { UserTeamCardMenu } from './user-team-card-menu';
 
 export function UserTeamCardHeader() {
 	return (
@@ -54,9 +55,8 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 				<DraggerIcon />
 			</div>
 
-			<div className="absolute right-2">
-				<MoreIcon />
-			</div>
+			{/* Card menu */}
+			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
 
 			{/* Show user name, email and image */}
 			<UserInfo memberInfo={memberInfo} className="w-[330px]" />

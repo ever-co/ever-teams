@@ -12,7 +12,7 @@ import {
 	SpinnerLoader,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
-import { useCallback, useEffect, useState } from 'react';
+import { MutableRefObject, useCallback, useEffect, useState } from 'react';
 import { TaskItem } from './task-item';
 
 type Props = {
@@ -22,6 +22,9 @@ type Props = {
 	onCloseCombobox?: () => void;
 	inputLoader?: boolean;
 	onEnterKey?: (taskName: string, task: ITeamTask) => void;
+	keepOpen?: boolean;
+	loadingRef?: MutableRefObject<boolean>;
+	closeable_fc?: () => void;
 };
 
 /**
@@ -37,6 +40,9 @@ export function TaskInput({
 	onCloseCombobox,
 	onEnterKey,
 	inputLoader,
+	keepOpen,
+	loadingRef,
+	closeable_fc,
 }: Props) {
 	const datas = useTaskInput(task, initEditMode);
 
@@ -52,8 +58,8 @@ export function TaskInput({
 
 	const [taskName, setTaskName] = useState('');
 
-	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(() =>
-		setEditMode(false)
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
+		() => !keepOpen && setEditMode(false)
 	);
 
 	useEffect(() => {
@@ -92,13 +98,27 @@ export function TaskInput({
 	/**
 	 * On update task name
 	 */
-
 	const updateTaskNameHandler = useCallback(
 		(task: ITeamTask, title: string) => {
-			!updateLoading && updatTaskTitleHandler(task, title);
+			if (task.title !== title) {
+				!updateLoading && updatTaskTitleHandler(task, title);
+			}
 		},
 		[updateLoading, updatTaskTitleHandler]
 	);
+
+	/**
+	 * Signle parent about updating and close event (that can trigger close component e.g)
+	 */
+	useEffect(() => {
+		if (loadingRef?.current && !updateLoading) {
+			closeable_fc && closeable_fc();
+		}
+
+		if (loadingRef) {
+			loadingRef.current = updateLoading;
+		}
+	}, [updateLoading]);
 
 	return (
 		<>
