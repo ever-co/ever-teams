@@ -3,6 +3,7 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { RoundedButton, Text } from 'lib/components';
 import { TaskInput, taskStatus, TaskStatus } from 'lib/features';
+import { useEffect } from 'react';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
@@ -15,12 +16,17 @@ export function TaskInfo({ className, edition }: Props) {
 		scrollNext,
 		prevBtnEnabled,
 		scrollPrev,
+		emblaApi,
 	} = useCustomEmblaCarousel(0, {
 		dragFree: true,
 		containScroll: 'trimSnaps',
 	});
 
 	const task = edition.task;
+
+	useEffect(() => {
+		emblaApi?.reInit();
+	}, [task]);
 
 	return (
 		<div

@@ -1,7 +1,7 @@
 import { secondsToTime } from '@app/helpers';
 import { I_TeamMemberCardHook, useTaskStatistics } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
-import { timerSecondsState } from '@app/stores';
+import { timerSecondsState, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { useRecoilValue } from 'recoil';
@@ -74,10 +74,22 @@ function TimeInfo({
 	);
 }
 
-export function TodayWorkedTime({ className }: IClassName) {
+export function TodayWorkedTime({ className, memberInfo }: Props) {
+	// Get current timer seconds
+	const seconds = useRecoilValue(timerSecondsState);
+
+	const timerStatus = useRecoilValue(timerStatusState);
+	const { h, m } = secondsToTime((timerStatus?.duration || 0) + seconds);
+
 	return (
 		<div className={clsxm('text-center font-normal', className)}>
-			<Text>01 h : 10 m</Text>
+			{memberInfo.isAuthUser ? (
+				<Text>
+					{h} h : {m} m
+				</Text>
+			) : (
+				<Text>00 h : 00 m</Text>
+			)}
 		</div>
 	);
 }

@@ -79,7 +79,7 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			<VerticalSeparator />
 
 			{/* TodayWorkedTime */}
-			<TodayWorkedTime className="flex-1" />
+			<TodayWorkedTime memberInfo={memberInfo} className="flex-1" />
 		</Card>
 	);
 }

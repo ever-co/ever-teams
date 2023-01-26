@@ -53,5 +53,6 @@ export const useCustomEmblaCarousel = (
 		selectedIndex,
 		scrollSnaps,
 		scrollTo,
+		emblaApi,
 	};
 };
