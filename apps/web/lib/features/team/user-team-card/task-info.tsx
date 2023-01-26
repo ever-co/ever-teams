@@ -1,15 +1,14 @@
-import { I_TMCardTaskEdit, useCustomEmblaCarousel } from '@app/hooks';
-import { IClassName, ITeamTask } from '@app/interfaces';
+import { I_TMCardTaskEditHook, useCustomEmblaCarousel } from '@app/hooks';
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { RoundedButton, Text } from 'lib/components';
 import { TaskInput, taskStatus, TaskStatus } from 'lib/features';
 
 type Props = IClassName & {
-	task: ITeamTask | undefined | null;
-	edition: I_TMCardTaskEdit;
+	edition: I_TMCardTaskEditHook;
 };
 
-export function TaskInfo({ className, task, edition }: Props) {
+export function TaskInfo({ className, edition }: Props) {
 	const {
 		viewportRef,
 		nextBtnEnabled,
@@ -20,6 +19,8 @@ export function TaskInfo({ className, task, edition }: Props) {
 		dragFree: true,
 		containScroll: 'trimSnaps',
 	});
+
+	const task = edition.task;
 
 	return (
 		<div
@@ -66,11 +67,14 @@ export function TaskInfo({ className, task, edition }: Props) {
 			<div className="relative w-full h-full flex flex-col justify-center">
 				<div ref={viewportRef} className="overflow-hidden w-full relative">
 					<div className="flex space-x-2 mt-2">
-						<TaskStatus
-							{...taskStatus[task?.status || 'Todo']}
-							className="text-xs"
-							name={task?.status}
-						/>
+						{task?.status && (
+							<TaskStatus
+								{...taskStatus[task?.status]}
+								className="text-xs"
+								name={task?.status || 'Status'}
+							/>
+						)}
+
 						<TaskStatus
 							{...taskStatus['Blocked']}
 							className="text-xs"

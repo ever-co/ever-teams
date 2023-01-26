@@ -1,7 +1,8 @@
-import { IOrganizationTeamList, ITeamTask } from '@app/interfaces';
+import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
+import { useOutsideClick } from '../useOutsideClick';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useIsMemberManager } from './useTeamMember';
 
@@ -31,13 +32,21 @@ export function useTeamMemberCard(
 	};
 }
 
-export function useTMCardTaskEdit(task: ITeamTask | null | undefined) {
+export function useTMCardTaskEdit(task: Nullable<ITeamTask>) {
 	const [editMode, setEditMode] = useState(false);
+	const [estimateEditMode, setEstimateEditMode] = useState(false);
+	const estimateEditIgnoreElement = useOutsideClick<any>();
 
 	return {
 		editMode,
 		setEditMode,
+		task,
+		estimateEditMode,
+		setEstimateEditMode,
+		estimateEditIgnoreElement,
 	};
 }
 
-export type I_TMCardTaskEdit = ReturnType<typeof useTMCardTaskEdit>;
+export type I_TMCardTaskEditHook = ReturnType<typeof useTMCardTaskEdit>;
+
+export type I_TeamMemberCardHook = ReturnType<typeof useTeamMemberCard>;

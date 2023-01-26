@@ -10,7 +10,7 @@ import {
 } from 'lib/components';
 import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
 import { ITimerStatus } from 'lib/features';
-import { TaskEstimate } from './task-estimate';
+import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { TaskTime, TodayWorkedTime } from './times';
 import { UserInfo } from './user-info';
@@ -38,8 +38,8 @@ type IUserTeamCard = {
 } & IClassName;
 
 export function UserTeamCard({ className, active, member }: IUserTeamCard) {
-	const { memberUser, memberTask } = useTeamMemberCard(member);
-	const taskEdition = useTMCardTaskEdit(memberTask);
+	const memberInfo = useTeamMemberCard(member);
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	return (
 		<Card
@@ -59,25 +59,23 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			</div>
 
 			{/* Show user name, email and image */}
-			<UserInfo
-				userImage={memberUser?.imageUrl}
-				timerStatus="running"
-				userName={`${memberUser?.firstName} ${memberUser?.lastName}`}
-				userEmail={memberUser?.email}
-				className="w-[330px]"
-			/>
+			<UserInfo memberInfo={memberInfo} className="w-[330px]" />
 			<VerticalSeparator />
 
 			{/* Task information */}
-			<TaskInfo task={memberTask} edition={taskEdition} className="w-80 px-4" />
+			<TaskInfo edition={taskEdition} className="w-80 px-4" />
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskTime */}
-			<TaskTime className="w-48 px-4" />
+			<TaskTime memberInfo={memberInfo} className="w-48 px-4" />
 			<VerticalSeparator />
 
-			{/* TaskEstimate */}
-			<TaskEstimate className="px-3 w-52" />
+			{/* TaskEstimateInfo */}
+			<TaskEstimateInfo
+				memberInfo={memberInfo}
+				edition={taskEdition}
+				className="px-3 w-52"
+			/>
 			<VerticalSeparator />
 
 			{/* TodayWorkedTime */}

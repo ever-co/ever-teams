@@ -1,21 +1,24 @@
 import { pad, secondsToTime } from '@app/helpers';
+import { ITeamTask, Nullable } from '@app/interfaces';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../useOutsideClick';
 import { useTeamTasks } from './useTeamTasks';
 
-export function useTaskEstimation() {
+export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
 
+	const $task = task || activeTeamTask;
+
 	useEffect(() => {
-		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
+		const { h, m } = secondsToTime($task?.estimate || 0);
 		setValue({
 			hours: h.toString(),
 			minutes: pad(m).toString(),
 		});
-	}, [activeTeamTask]);
+	}, [$task]);
 
 	const onChange = useCallback((c: keyof typeof value) => {
 		editMode.current = true;
@@ -87,10 +90,10 @@ export function useTaskEstimation() {
 
 	useEffect(() => {
 		editMode.current = false;
-	}, [activeTeamTask]);
+	}, [$task]);
 
 	const handleSubmit = useCallback(() => {
-		if (!activeTeamTask) return;
+		if (!$task) return;
 
 		const hours = +value['hours'];
 		const minutes = +value['minutes'];
@@ -99,7 +102,7 @@ export function useTaskEstimation() {
 		}
 
 		const { h: estimateHours, m: estimateMinutes } = secondsToTime(
-			activeTeamTask.estimate || 0
+			$task.estimate || 0
 		);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
@@ -107,14 +110,14 @@ export function useTaskEstimation() {
 		}
 
 		updateTask({
-			...activeTeamTask,
+			...$task,
 			estimateHours: hours,
 			estimateMinutes: minutes,
 			estimate: hours * 60 * 60 + minutes * 60, // time seconds
 		});
 
 		setEditableMode(false);
-	}, [activeTeamTask, updateTask, value]);
+	}, [$task, updateTask, value]);
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(() => {
 		if (updateLoading || !editMode.current) return;
@@ -132,7 +135,7 @@ export function useTaskEstimation() {
 		handleBlurMinutes,
 		value,
 		handleSubmit,
-		activeTeamTask,
+		task: $task,
 		updateLoading,
 	};
 }

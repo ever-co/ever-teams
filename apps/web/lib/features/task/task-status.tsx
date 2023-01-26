@@ -34,7 +34,7 @@ type TStatus<T extends ITaskStatus> = {
 
 function useStatusValue<T extends TStatus<any>>(
 	statusItems: T,
-	$value: keyof T,
+	$value: keyof T | undefined,
 	onValueChange?: (v: keyof T) => void
 ) {
 	const onValueChangeRef = useCallbackRef(onValueChange);
@@ -51,7 +51,7 @@ function useStatusValue<T extends TStatus<any>>(
 
 	const [value, setValue] = useState<keyof T>($value);
 
-	const item = items.find((r) => r.name === value) || items[0];
+	const item = items.find((r) => r.name === value);
 
 	useEffect(() => {
 		setValue($value);
@@ -147,7 +147,7 @@ export function TaskStatusDropdown({
 }: TTaskStatusDropdown) {
 	const { item, items, onChange } = useStatusValue(
 		taskStatus,
-		defaultValue || 'Todo',
+		defaultValue,
 		onValueChange
 	);
 
@@ -170,7 +170,7 @@ export function ActiveTaskStatusDropdown(props: TTaskStatusDropdown) {
 
 	const { item, items, onChange } = useStatusValue(
 		taskStatus,
-		activeTeamTask?.status || props.defaultValue || 'Todo',
+		activeTeamTask?.status || props.defaultValue,
 		onItemChange
 	);
 
@@ -179,6 +179,7 @@ export function ActiveTaskStatusDropdown(props: TTaskStatusDropdown) {
 			className={props.className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'Status' : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -296,6 +297,7 @@ export function TaskDevicesDropdown({ className }: IClassName) {
 	);
 }
 
+// =============== FC Status drop down ================= //
 /**
  * Fc Status drop down
  */
@@ -304,22 +306,39 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 	onChange,
 	items,
 	className,
+	defaultItem,
 }: {
-	value: T;
+	value: T | undefined;
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
+	defaultItem?: string;
 }) {
+	const defaultValue: TStatusItem = {
+		bgColor: undefined,
+		icon: <span></span>,
+		name: defaultItem,
+	};
+
 	return (
 		<div className={clsxm('relative', className)}>
-			<Listbox value={value.name} onChange={onChange}>
+			<Listbox value={value?.name || null} onChange={onChange}>
 				{({ open }) => (
 					<>
 						<Listbox.Button className="w-full">
-							<TaskStatus {...value} className="justify-between w-full">
+							<TaskStatus
+								{...(value || defaultValue)}
+								className={clsxm(
+									'justify-between w-full',
+									!value && [
+										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+									]
+								)}
+							>
 								<ChevronDownIcon
 									className={clsxm(
-										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80'
+										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+										!value && ['text-dark dark:text-white']
 									)}
 									aria-hidden="true"
 								/>
