@@ -3,7 +3,6 @@ import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Card, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
-import { ITimerStatus } from 'lib/features';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { TaskTime, TodayWorkedTime } from './times';
@@ -25,10 +24,6 @@ export function UserTeamCardHeader() {
 
 type IUserTeamCard = {
 	active?: boolean;
-	userImage?: string;
-	timerStatus?: ITimerStatus;
-	userName?: string;
-	userEmail?: string;
 	member?: IOrganizationTeamList['members'][number];
 } & IClassName;
 

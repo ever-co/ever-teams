@@ -12,6 +12,7 @@ type Props = {
 
 export function UserInfo({ className, memberInfo }: Props) {
 	const { memberUser } = memberInfo;
+
 	return (
 		<Link
 			href={`/profile/${memberInfo.memberUser?.id}`}

@@ -35,17 +35,19 @@ export function TaskInfo({ className, edition }: Props) {
 					edition.editMode ? ['mb-2'] : ['overflow-hidden']
 				)}
 			>
-				<TaskDetailAndEdition edition={edition} />
+				{edition.task && <TaskDetailAndEdition edition={edition} />}
+				{!edition.task && <div className="text-center">--</div>}
 			</div>
 
-			<TaskStatusInfo edition={edition} />
+			{edition.task && <TaskStatusInfo edition={edition} />}
+			{!edition.task && <div className="text-center self-center">--</div>}
 		</div>
 	);
 }
 
 function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 	const task = edition.task;
-	const canEdit = edition.editMode && !!task;
+	const hasEditMode = edition.editMode && task;
 
 	edition.taskEditIgnoreElement.onOutsideClick(() => {
 		edition.setEditMode(false);
@@ -58,9 +60,9 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
 					'text-sm text-ellipsis text-center cursor-default overflow-hidden',
-					edition.editMode && ['hidden']
+					hasEditMode && ['hidden']
 				)}
-				onDoubleClick={() => edition.setEditMode(true)}
+				onDoubleClick={() => task && edition.setEditMode(true)}
 			>
 				<Tooltip
 					label={task?.title || ''}
@@ -74,9 +76,9 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 			{/* Show task input combobox when in edit mode */}
 			<div
 				ref={edition.taskEditIgnoreElement.ignoreElementRef}
-				className={clsxm(!canEdit && ['hidden'])}
+				className={clsxm(!hasEditMode && ['hidden'])}
 			>
-				{canEdit && (
+				{hasEditMode && (
 					<TaskInput
 						task={task}
 						initEditMode={true}

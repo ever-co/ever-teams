@@ -26,7 +26,7 @@ export function TeamMembers() {
 	});
 
 	const $members = members.filter((m) => {
-		return m.employee.userId !== user?.id;
+		return m.employee.user?.id !== user?.id;
 	});
 
 	return (
@@ -60,12 +60,7 @@ export function TeamMembers() {
 						leaveTo="opacity-0"
 					>
 						<li className="mb-4">
-							<UserTeamCard
-								userName="Arnold Kovacik"
-								userEmail="Arnoldkov@gmail.com"
-								timerStatus="pause"
-								userImage="/assets/profiles/kevin.png"
-							/>
+							<UserTeamCard member={member} />
 						</li>
 					</Transition>
 				);

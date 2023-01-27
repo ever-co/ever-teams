@@ -7,9 +7,10 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useIsMemberManager } from './useTeamMember';
 
 export function useTeamMemberCard(
-	member?: IOrganizationTeamList['members'][number]
+	member: IOrganizationTeamList['members'][number] | undefined
 ) {
-	const { user: authUSer } = useAuthenticateUser();
+	const { user: authUSer, isTeamManager: isAuthTeamManager } =
+		useAuthenticateUser();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 
 	const memberUser = member?.employee.user;
@@ -27,8 +28,10 @@ export function useTeamMemberCard(
 	return {
 		isTeamManager,
 		memberUser,
+		member,
 		memberTask,
 		isAuthUser,
+		isAuthTeamManager,
 	};
 }
 
