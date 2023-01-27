@@ -152,5 +152,6 @@ export function useTeamTasks() {
 		activeTeamTask,
 		firstLoadTasksData,
 		handleStatusUpdate,
+		activeTeamId,
 	};
 }

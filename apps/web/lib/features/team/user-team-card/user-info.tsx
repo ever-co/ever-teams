@@ -4,6 +4,7 @@ import { clsxm } from '@app/utils';
 import { Avatar, Text } from 'lib/components';
 import { MailIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features';
+import Link from 'next/link';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -12,7 +13,10 @@ type Props = {
 export function UserInfo({ className, memberInfo }: Props) {
 	const { memberUser } = memberInfo;
 	return (
-		<div className={clsxm('flex items-center space-x-4', className)}>
+		<Link
+			href={`/profile/${memberInfo.memberUser?.id}`}
+			className={clsxm('flex items-center space-x-4', className)}
+		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
 				<TimerStatus
 					status={'running'}
@@ -28,6 +32,6 @@ export function UserInfo({ className, memberInfo }: Props) {
 					<MailIcon /> <span>{memberUser?.email}</span>
 				</Text>
 			</div>
-		</div>
+		</Link>
 	);
 }

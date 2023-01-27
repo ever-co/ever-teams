@@ -5,7 +5,8 @@ import { useOutsideClick } from '../useOutsideClick';
 import { useTeamTasks } from './useTeamTasks';
 
 export function useTaskEstimation(task?: Nullable<ITeamTask>) {
-	const { activeTeamTask, updateTask, updateLoading } = useTeamTasks();
+	const { activeTeamTask, updateTask, updateLoading, activeTeamId } =
+		useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
@@ -21,7 +22,6 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 	}, [$task]);
 
 	const onChange = useCallback((c: keyof typeof value) => {
-		editMode.current = true;
 		return (e: ChangeEvent<HTMLInputElement>) => {
 			const tm = +e.currentTarget.value.trim();
 			const isInteger = !isNaN(tm) && Number.isInteger(tm);
@@ -51,6 +51,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 	}, []);
 
 	const handleFocus = () => {
+		editMode.current = true;
 		setValue((oldVa) => {
 			return {
 				...oldVa,
@@ -79,6 +80,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 	};
 
 	const handleFocusMinutes = () => {
+		editMode.current = true;
 		setValue((oldVa) => {
 			return {
 				...oldVa,
@@ -90,7 +92,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 
 	useEffect(() => {
 		editMode.current = false;
-	}, [$task]);
+	}, [$task, activeTeamId]);
 
 	const handleSubmit = useCallback(() => {
 		if (!$task) return;
