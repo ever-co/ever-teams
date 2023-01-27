@@ -78,19 +78,21 @@ function UserNavMenu() {
 			className="w-[308px] p-5 flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard"
 		>
 			<div className="flex flex-col justify-center items-center">
-				<Avatar
-					size={72}
-					className="relative cursor-pointer mb-5"
-					imageUrl={user?.imageUrl}
-					alt={user?.firstName || undefined}
-				/>
+				<Link href={`/profile/${user?.id}`}>
+					<Avatar
+						size={72}
+						className="relative cursor-pointer mb-5"
+						imageUrl={user?.imageUrl}
+						alt={user?.firstName || undefined}
+					/>
+				</Link>
 
-				<div className="text-center">
+				<Link href={`/profile/${user?.id}`} className="text-center">
 					<Text.Heading as="h3">
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>
 					<Text className="text-sm">{user?.email}</Text>
-				</div>
+				</Link>
 
 				<Divider className="mt-6" />
 
@@ -105,9 +107,9 @@ function UserNavMenu() {
 					</li>
 					{/* Settings menu */}
 					<Link href={'/settings/personal'}>
-					<li className="flex space-x-3 items-center font-normal mb-3">
-						<SettingsOutlineIcon className="w-5 h-5" /> <span>Settings</span>
-					</li>
+						<li className="flex space-x-3 items-center font-normal mb-3">
+							<SettingsOutlineIcon className="w-5 h-5" /> <span>Settings</span>
+						</li>
 					</Link>
 					{/* Darkmode menu */}
 					<li className="flex space-x-3 items-center justify-between font-normal mb-3">

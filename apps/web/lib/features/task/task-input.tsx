@@ -212,10 +212,10 @@ function TaskCard({
 	return (
 		<>
 			<Card
-				shadow="bigger"
+				shadow="custom"
 				className={clsxm(
 					'rounded-lg md:px-4 md:py-4 w-[500px] max-h-96',
-					'overflow-auto shadow-xlcard dark:shadow-xlcard'
+					'overflow-auto shadow-xlcard'
 				)}
 			>
 				{inputField}

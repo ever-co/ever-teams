@@ -411,7 +411,7 @@ export function DevicesIcon({ className }: IClassName) {
 
 // ============================= Timer Stop ===============================//
 
-export function TimerStopIcon() {
+export function TimerStopIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="28"
@@ -419,6 +419,7 @@ export function TimerStopIcon() {
 			viewBox="0 0 28 28"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M23.7533 9.07667L5.29667 20.16C4.585 20.5917 3.62833 20.16 3.535 19.3317C3.51167 19.11 3.5 18.8883 3.5 18.6667V9.33333C3.5 5.83333 5.83333 3.5 9.33333 3.5H18.6667C22.1667 3.5 23.6017 5.29667 24.2783 7.75833C24.4183 8.27167 24.1967 8.80833 23.7533 9.07667Z"

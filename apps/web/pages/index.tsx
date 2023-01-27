@@ -12,20 +12,18 @@ import {
 	Timer,
 	UserTeamCardHeader,
 } from 'lib/features';
-import { MainLayout } from 'lib/layout';
+import { MainHeader, MainLayout } from 'lib/layout';
 
 function MainPage() {
 	return (
 		<MainLayout>
-			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
-				<Container>
-					<Breadcrumb paths={['Dashboard', 'Team Page']} className="text-sm" />
-					<TaskTimerSection />
+			<MainHeader>
+				<Breadcrumb paths={['Dashboard', 'Team Page']} className="text-sm" />
+				<TaskTimerSection />
 
-					{/* Header user card list */}
-					<UserTeamCardHeader />
-				</Container>
-			</div>
+				{/* Header user card list */}
+				<UserTeamCardHeader />
+			</MainHeader>
 
 			<Container className="mb-10">
 				<TeamMembers />
