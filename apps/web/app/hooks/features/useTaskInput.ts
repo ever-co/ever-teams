@@ -1,5 +1,6 @@
 import { useModal } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -14,7 +15,10 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	}
 };
 
-export function useTaskInput(task?: ITeamTask, initEditMode?: boolean) {
+export function useTaskInput(
+	task?: Nullable<ITeamTask>,
+	initEditMode?: boolean
+) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
 		null
@@ -31,7 +35,10 @@ export function useTaskInput(task?: ITeamTask, initEditMode?: boolean) {
 		updateTask,
 	} = useTeamTasks();
 
-	const inputTask = task || activeTeamTask;
+	/**
+	 * If task has null value then consider it as value 😄
+	 */
+	const inputTask = task !== undefined ? task : activeTeamTask;
 
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
 	const [editMode, setEditMode] = useState(initEditMode || false);

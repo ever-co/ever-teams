@@ -1,5 +1,5 @@
 import { RTuseTaskInput, useOutsideClick, useTaskInput } from '@app/hooks';
-import { ITeamTask } from '@app/interfaces';
+import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -12,11 +12,17 @@ import {
 	SpinnerLoader,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
-import { MutableRefObject, useCallback, useEffect, useState } from 'react';
+import {
+	MutableRefObject,
+	PropsWithChildren,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import { TaskItem } from './task-item';
 
 type Props = {
-	task?: ITeamTask;
+	task?: Nullable<ITeamTask>;
 	onTaskClick?: (task: ITeamTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -25,7 +31,8 @@ type Props = {
 	keepOpen?: boolean;
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
-};
+	viewType?: 'input-trigger' | 'one-view';
+} & PropsWithChildren;
 
 /**
  * If task passed then some function should not considered as global state
@@ -43,6 +50,8 @@ export function TaskInput({
 	keepOpen,
 	loadingRef,
 	closeable_fc,
+	viewType = 'input-trigger',
+	children,
 }: Props) {
 	const datas = useTaskInput(task, initEditMode);
 
@@ -120,68 +129,82 @@ export function TaskInput({
 		}
 	}, [updateLoading]);
 
-	return (
-		<>
-			<Popover className="relative w-full z-30">
-				<InputField
-					value={taskName}
-					onFocus={() => setEditMode(true)}
-					onChange={(event) => setTaskName(event.target.value)}
-					placeholder="What you working on?"
-					ref={targetEl}
-					onKeyUp={(e) => {
-						if (e.key === 'Enter' && inputTask) {
-							updateTaskNameHandler(inputTask, taskName);
-							onEnterKey && onEnterKey(taskName, inputTask);
-						}
-					}}
-					trailingNode={
-						<div className="p-2 flex justify-center items-center h-full">
-							{task ? (
-								(updateLoading || inputLoader) && <SpinnerLoader size={25} />
-							) : (
-								<>
-									{(tasksFetching || updateLoading) && (
-										<SpinnerLoader size={25} />
-									)}
-								</>
-							)}
-						</div>
-					}
-				/>
+	const inputField = (
+		<InputField
+			value={taskName}
+			onFocus={() => setEditMode(true)}
+			onChange={(event) => setTaskName(event.target.value)}
+			placeholder="What you working on?"
+			ref={targetEl}
+			onKeyUp={(e) => {
+				if (e.key === 'Enter' && inputTask) {
+					updateTaskNameHandler(inputTask, taskName);
+					onEnterKey && onEnterKey(taskName, inputTask);
+				}
+			}}
+			trailingNode={
+				<div className="p-2 flex justify-center items-center h-full">
+					{task ? (
+						(updateLoading || inputLoader) && <SpinnerLoader size={25} />
+					) : (
+						<>
+							{(tasksFetching || updateLoading) && <SpinnerLoader size={25} />}
+						</>
+					)}
+				</div>
+			}
+		/>
+	);
 
-				<Transition
-					show={editMode}
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0"
-				>
-					<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
-						<TaskCard
-							datas={datas}
-							onItemClick={
-								task || onTaskClick ? onTaskClick : setAuthActiveTask
-							}
-							autoActiveTask={task ? false : true}
-						/>
-					</Popover.Panel>
-				</Transition>
-			</Popover>
+	const taskCard = (
+		<TaskCard
+			datas={datas}
+			onItemClick={
+				task !== undefined || onTaskClick ? onTaskClick : setAuthActiveTask
+			}
+			autoActiveTask={task !== undefined ? false : true}
+			inputField={viewType === 'one-view' ? inputField : undefined}
+		/>
+	);
+
+	return viewType === 'one-view' ? (
+		<>
+			{taskCard}
+			<div className="h-28 w-2 opacity-0" children="|" />
 		</>
+	) : (
+		<Popover className="relative w-full z-30">
+			{inputField}
+			{children}
+
+			<Transition
+				show={editMode}
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+			>
+				<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
+					{taskCard}
+					<div className="h-28 w-2 opacity-0" children="|" />
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
 
-export function TaskCard({
+function TaskCard({
 	datas,
 	onItemClick,
 	autoActiveTask,
+	inputField,
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
 	autoActiveTask?: boolean;
+	inputField?: JSX.Element;
 }) {
 	return (
 		<Card
@@ -191,6 +214,7 @@ export function TaskCard({
 				'overflow-auto shadow-xlcard dark:shadow-xlcard'
 			)}
 		>
+			{inputField}
 			{/* Create team button */}
 			<Button
 				variant="outline"

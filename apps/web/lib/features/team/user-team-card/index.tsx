@@ -55,9 +55,6 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 				<DraggerIcon />
 			</div>
 
-			{/* Card menu */}
-			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
-
 			{/* Show user name, email and image */}
 			<UserInfo memberInfo={memberInfo} className="w-[330px]" />
 			<VerticalSeparator />
@@ -80,6 +77,9 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 
 			{/* TodayWorkedTime */}
 			<TodayWorkedTime memberInfo={memberInfo} className="flex-1" />
+
+			{/* Card menu */}
+			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
 		</Card>
 	);
 }
