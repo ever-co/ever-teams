@@ -2,12 +2,12 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useOrganizationTeams,
-	// useTeamInvitations,
+	useTeamInvitations,
 } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './invite/invite-form-modal';
+import { InvitedCard, InviteUserTeamCard } from './invite/user-invite-card';
 import {
-	InviteUserTeamCard,
 	InviteUserTeamSkeleton,
 	UserTeamCard,
 	UserTeamCardSkeleton,
@@ -16,7 +16,7 @@ import {
 export function TeamMembers() {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, teamsFetching } = useOrganizationTeams();
-	// const { teamInvitations } = useTeamInvitations();
+	const { teamInvitations } = useTeamInvitations();
 
 	const members = activeTeam?.members || [];
 	const $teamsFetching = teamsFetching && members.length === 0;
@@ -70,6 +70,13 @@ export function TeamMembers() {
 					</Transition>
 				);
 			})}
+
+			{members.length > 0 &&
+				teamInvitations.map((invitation) => (
+					<li key={invitation.id} className="mb-4">
+						<InvitedCard invitation={invitation} />
+					</li>
+				))}
 
 			{/* Invite button */}
 			<Transition

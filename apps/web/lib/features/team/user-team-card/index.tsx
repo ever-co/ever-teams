@@ -1,14 +1,8 @@
 import { useTeamMemberCard, useTMCardTaskEdit } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	Button,
-	Card,
-	Text,
-	TimeInputField,
-	VerticalSeparator,
-} from 'lib/components';
-import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
+import { Card, VerticalSeparator } from 'lib/components';
+import { DraggerIcon } from 'lib/components/svgs';
 import { ITimerStatus } from 'lib/features';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
@@ -80,57 +74,6 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 
 			{/* Card menu */}
 			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
-		</Card>
-	);
-}
-
-export function InviteUserTeamCard({
-	className,
-	onClick,
-}: IClassName & { onClick?: () => void }) {
-	return (
-		<Card
-			shadow="bigger"
-			className={clsxm('relative flex items-center py-3', className)}
-		>
-			<div className="opacity-40 absolute -left-0">
-				<DraggerIcon />
-			</div>
-
-			<div className="opacity-40 absolute right-2">
-				<MoreIcon />
-			</div>
-
-			<div className="w-[330px] px-4 flex space-x-3">
-				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
-				<Button onClick={onClick}>Invite</Button>
-			</div>
-			{/* VerticalSeparator */}
-			<VerticalSeparator />
-
-			<Text className="opacity-40 w-80 px-4">Task Tittle</Text>
-			{/* VerticalSeparator */}
-			<VerticalSeparator className="ml-2" />
-
-			<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
-				<span>Today:</span>
-				<Text>00h : 00m</Text>
-			</div>
-			{/* VerticalSeparator */}
-			<VerticalSeparator />
-
-			<div className="opacity-40 flex items-center justify-center space-x-1 w-52 relative">
-				<TimeInputField defaultValue="00" label="h" />
-				<span>:</span>
-				<TimeInputField defaultValue="00" label="m" />
-				<div className="absolute inset-0" />
-			</div>
-			{/* VerticalSeparator */}
-			<VerticalSeparator />
-
-			<div className="opacity-40 text-center font-normal flex-1">
-				<Text>00h : 00m</Text>
-			</div>
 		</Card>
 	);
 }

@@ -8,7 +8,9 @@ type Props = {
 	imageUrl?: string;
 	shape?: 'circle' | 'square';
 	alt?: string;
+	imageTitle?: string;
 } & PropsWithChildren;
+
 export function Avatar({
 	className,
 	imageUrl,
@@ -16,6 +18,7 @@ export function Avatar({
 	shape = 'circle',
 	children,
 	alt,
+	imageTitle,
 }: Props) {
 	return (
 		<div
@@ -23,10 +26,15 @@ export function Avatar({
 				'bg-slate-400 relative',
 				shape === 'circle' && ['rounded-full'],
 				shape === 'square' && ['rounded-md'],
+				imageTitle && !imageUrl && ['flex justify-center items-center'],
 				className
 			)}
 			style={{ width: size, height: size }}
 		>
+			{imageTitle && !imageUrl && (
+				<span className="uppercase font-normal text-lg">{imageTitle.at(0)}</span>
+			)}
+
 			{imageUrl && (
 				<Image
 					layout="fill"
