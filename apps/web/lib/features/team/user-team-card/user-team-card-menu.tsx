@@ -33,14 +33,14 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			name: 'Edit Task',
 			closable: true,
 			onclick: () => {
-				edition.setEditMode(true);
+				edition.task && edition.setEditMode(true);
 			},
 		},
 		{
 			name: 'Estimate',
 			closable: true,
 			onclick: () => {
-				edition.setEstimateEditMode(true);
+				edition.task && edition.setEstimateEditMode(true);
 			},
 		},
 		{
