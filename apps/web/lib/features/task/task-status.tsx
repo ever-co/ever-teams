@@ -330,9 +330,7 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 								{...(value || defaultValue)}
 								className={clsxm(
 									'justify-between w-full',
-									!value && [
-										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-									]
+									!value && ['text-dark dark:text-white bg-gray-lighter']
 								)}
 							>
 								<ChevronDownIcon
