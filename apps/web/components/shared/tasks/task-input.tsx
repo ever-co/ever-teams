@@ -42,7 +42,7 @@ export function TasksList({
 	onClickTask?: (task: ITeamTask) => void;
 }) {
 	const {
-		activeTeamTask,
+		inputTask,
 		setActiveTask,
 		editMode,
 		setEditMode,
@@ -79,7 +79,7 @@ export function TasksList({
 	return (
 		<>
 			<Combobox
-				value={activeTeamTask}
+				value={inputTask}
 				onChange={onClickTask ? onClickTask : setActiveTask}
 			>
 				<div className="relative mt-1">

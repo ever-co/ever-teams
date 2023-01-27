@@ -1,4 +1,9 @@
-import { RTuseTaskInput, useOutsideClick, useTaskInput } from '@app/hooks';
+import {
+	RTuseTaskInput,
+	useCallbackRef,
+	useOutsideClick,
+	useTaskInput,
+} from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -54,6 +59,8 @@ export function TaskInput({
 	children,
 }: Props) {
 	const datas = useTaskInput(task, initEditMode);
+	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
+	const closeable_fcRef = useCallbackRef(closeable_fc);
 
 	const {
 		inputTask,
@@ -88,8 +95,8 @@ export function TaskInput({
 		/**
 		 * Call onCloseCombobox only when the menu has been closed
 		 */
-		!editMode && onCloseCombobox && onCloseCombobox();
-	}, [editMode]);
+		!editMode && onCloseComboboxRef.current && onCloseComboboxRef.current();
+	}, [editMode, onCloseComboboxRef]);
 
 	/**
 	 * set the active task for the authenticated user
@@ -121,13 +128,13 @@ export function TaskInput({
 	 */
 	useEffect(() => {
 		if (loadingRef?.current && !updateLoading) {
-			closeable_fc && closeable_fc();
+			closeable_fcRef.current && closeable_fcRef.current();
 		}
 
 		if (loadingRef) {
 			loadingRef.current = updateLoading;
 		}
-	}, [updateLoading]);
+	}, [updateLoading, loadingRef, closeable_fcRef]);
 
 	const inputField = (
 		<InputField
@@ -287,7 +294,7 @@ function TaskCard({
 			</Card>
 
 			{/* Just some spaces at the end */}
-			<div className="h-28 w-2 opacity-0" children="|" />
+			<div className="h-28 w-2 opacity-0">{'|'}</div>
 		</>
 	);
 }

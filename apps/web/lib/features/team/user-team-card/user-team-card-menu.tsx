@@ -132,7 +132,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 function AssignActionMenu({ children }: PropsWithChildren) {
 	return (
-		<Popover className="relative -ml-52">
+		<Popover className="relative">
 			<Popover.Button className="flex items-center mb-2 outline-none border-none">
 				{children}
 			</Popover.Button>

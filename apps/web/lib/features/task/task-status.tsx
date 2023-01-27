@@ -62,7 +62,7 @@ function useStatusValue<T extends TStatus<any>>(
 			setValue(value);
 			onValueChangeRef.current && onValueChangeRef.current(value);
 		},
-		[setValue]
+		[setValue, onValueChangeRef]
 	);
 
 	return {

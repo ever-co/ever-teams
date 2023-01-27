@@ -1,4 +1,4 @@
-import { useTaskEstimation } from '@app/hooks';
+import { useCallbackRef, useTaskEstimation } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { TimeInputField } from 'lib/components';
@@ -33,19 +33,22 @@ export function TaskEstimate({
 		editableMode,
 	} = useTaskEstimation(_task);
 
+	const onCloseEditionRef = useCallbackRef(onCloseEdition);
+	const closeable_fcRef = useCallbackRef(closeable_fc);
+
 	useEffect(() => {
-		!editableMode && onCloseEdition && onCloseEdition();
-	}, [editableMode]);
+		!editableMode && onCloseEditionRef.current && onCloseEditionRef.current();
+	}, [editableMode, onCloseEditionRef]);
 
 	useEffect(() => {
 		if (loadingRef?.current && !updateLoading) {
-			closeable_fc && closeable_fc();
+			closeable_fcRef.current && closeable_fcRef.current();
 		}
 
 		if (loadingRef) {
 			loadingRef.current = updateLoading;
 		}
-	}, [updateLoading]);
+	}, [updateLoading, loadingRef, closeable_fcRef]);
 
 	return (
 		<div

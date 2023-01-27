@@ -1,4 +1,8 @@
-import { I_TMCardTaskEditHook, useCustomEmblaCarousel } from '@app/hooks';
+import {
+	I_TMCardTaskEditHook,
+	useCustomEmblaCarousel,
+	useSyncRef,
+} from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { RoundedButton, Tooltip } from 'lib/components';
@@ -100,11 +104,13 @@ function TaskStatusInfo({ edition }: { edition: I_TMCardTaskEditHook }) {
 		containScroll: 'trimSnaps',
 	});
 
+	const emblaApiRef = useSyncRef(emblaApi);
+
 	const task = edition.task;
 
 	useEffect(() => {
-		emblaApi?.reInit();
-	}, [task]);
+		emblaApiRef.current?.reInit();
+	}, [task, emblaApiRef]);
 
 	return (
 		<div className="relative w-full h-full flex flex-col justify-center">
