@@ -63,7 +63,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 }
 
 function TaskAvatars({ task }: { task: ITeamTask }) {
-	const members = task.teams[0]?.members || [];
+	const members = task.members;
 
 	return (
 		<div className="avatars flex -space-x-2">
@@ -73,7 +73,7 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 						key={member.id}
 						shape="circle"
 						className="border"
-						imageUrl={member.employee.user?.imageUrl}
+						imageUrl={member?.user?.imageUrl}
 						size={30}
 					/>
 				);
