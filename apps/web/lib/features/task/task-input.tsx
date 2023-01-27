@@ -168,10 +168,7 @@ export function TaskInput({
 	);
 
 	return viewType === 'one-view' ? (
-		<>
-			{taskCard}
-			<div className="h-28 w-2 opacity-0" children="|" />
-		</>
+		taskCard
 	) : (
 		<Popover className="relative w-full z-30">
 			{inputField}
@@ -188,7 +185,6 @@ export function TaskInput({
 			>
 				<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
 					{taskCard}
-					<div className="h-28 w-2 opacity-0" children="|" />
 				</Popover.Panel>
 			</Transition>
 		</Popover>
@@ -207,85 +203,91 @@ function TaskCard({
 	inputField?: JSX.Element;
 }) {
 	return (
-		<Card
-			shadow="bigger"
-			className={clsxm(
-				'rounded-lg md:px-4 md:py-4 w-[500px] max-h-96',
-				'overflow-auto shadow-xlcard dark:shadow-xlcard'
-			)}
-		>
-			{inputField}
-			{/* Create team button */}
-			<Button
-				variant="outline"
-				disabled={!datas.hasCreateForm || datas.createLoading}
-				loading={datas.createLoading}
-				className="font-normal text-sm rounded-xl"
-				onClick={() =>
-					datas?.handleTaskCreation && datas?.handleTaskCreation(autoActiveTask)
-				}
+		<>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'rounded-lg md:px-4 md:py-4 w-[500px] max-h-96',
+					'overflow-auto shadow-xlcard dark:shadow-xlcard'
+				)}
 			>
-				{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
-				Create new task
-			</Button>
-
-			{/* Task filter buttons */}
-			<div className="mt-4 flex space-x-3">
-				<OutlineBadge
-					className="input-border text-xs py-2 cursor-pointer"
-					onClick={() => datas.setFilter && datas.setFilter('open')}
+				{inputField}
+				{/* Create team button */}
+				<Button
+					variant="outline"
+					disabled={!datas.hasCreateForm || datas.createLoading}
+					loading={datas.createLoading}
+					className="font-normal text-sm rounded-xl"
+					onClick={() =>
+						datas?.handleTaskCreation &&
+						datas?.handleTaskCreation(autoActiveTask)
+					}
 				>
-					<div
-						className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')}
-					/>
-					<span
-						className={clsxm(
-							datas.filter === 'open' && [
-								'text-primary dark:text-primary-light font-semibold',
-							]
-						)}
+					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
+					Create new task
+				</Button>
+
+				{/* Task filter buttons */}
+				<div className="mt-4 flex space-x-3">
+					<OutlineBadge
+						className="input-border text-xs py-2 cursor-pointer"
+						onClick={() => datas.setFilter && datas.setFilter('open')}
 					>
-						{datas.openTaskCount || 0} Open
-					</span>
-				</OutlineBadge>
+						<div
+							className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')}
+						/>
+						<span
+							className={clsxm(
+								datas.filter === 'open' && [
+									'text-primary dark:text-primary-light font-semibold',
+								]
+							)}
+						>
+							{datas.openTaskCount || 0} Open
+						</span>
+					</OutlineBadge>
 
-				<OutlineBadge
-					className="input-border text-xs py-2 cursor-pointer"
-					onClick={() => datas.setFilter && datas.setFilter('closed')}
-				>
-					<TickCircleIcon className="opacity-50" />
-					<span
-						className={clsxm(
-							datas.filter === 'closed' && [
-								'text-primary dark:text-primary-light font-semibold',
-							]
-						)}
+					<OutlineBadge
+						className="input-border text-xs py-2 cursor-pointer"
+						onClick={() => datas.setFilter && datas.setFilter('closed')}
 					>
-						{datas.closedTaskCount || 0} Closed
-					</span>
-				</OutlineBadge>
-			</div>
+						<TickCircleIcon className="opacity-50" />
+						<span
+							className={clsxm(
+								datas.filter === 'closed' && [
+									'text-primary dark:text-primary-light font-semibold',
+								]
+							)}
+						>
+							{datas.closedTaskCount || 0} Closed
+						</span>
+					</OutlineBadge>
+				</div>
 
-			<Divider className="mt-4" />
+				<Divider className="mt-4" />
 
-			{/* Task list */}
-			<ul className="my-6">
-				{datas.filteredTasks?.map((task, i) => {
-					const last = (datas.filteredTasks?.length || 0) - 1 === i;
-					return (
-						<li key={task.id}>
-							<TaskItem
-								task={task}
-								selected={datas.inputTask === task}
-								onClick={onItemClick}
-								className="cursor-pointer"
-							/>
+				{/* Task list */}
+				<ul className="my-6">
+					{datas.filteredTasks?.map((task, i) => {
+						const last = (datas.filteredTasks?.length || 0) - 1 === i;
+						return (
+							<li key={task.id}>
+								<TaskItem
+									task={task}
+									selected={datas.inputTask === task}
+									onClick={onItemClick}
+									className="cursor-pointer"
+								/>
 
-							{!last && <Divider className="my-5" />}
-						</li>
-					);
-				})}
-			</ul>
-		</Card>
+								{!last && <Divider className="my-5" />}
+							</li>
+						);
+					})}
+				</ul>
+			</Card>
+
+			{/* Just some spaces at the end */}
+			<div className="h-28 w-2 opacity-0" children="|" />
+		</>
 	);
 }
