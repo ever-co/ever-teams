@@ -1,6 +1,6 @@
-import React, { FC, useState } from "react"
-import { View, Text, ViewStyle, Modal, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
-
+import React, { FC, useEffect, useState } from "react"
+import { View, Text, ViewStyle, Modal, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity, TouchableWithoutFeedback } from "react-native"
+import { BlurView } from "expo-blur"
 
 // COMPONENTS
 
@@ -9,15 +9,26 @@ import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styl
 import { spacing, typography } from "../../../../theme"
 import { translate } from "../../../../i18n";
 import { useAppTheme } from "../../../../app";
-import TaskStatus from "./TaskStatus";
-import TaskPriorities from "../../../../components/TaskPriorities";
-import TaskLabel from "../../../../components/TaskLabel";
-import TaskSize from "../../../../components/TaskSize";
+import TaskStatusFilter from "./TaskStatusFilter";
+import { ITaskStatus } from "../../../../services/interfaces/ITask"
+import TaskLabelFilter from "./TaskLabelFilter"
+import { useStores } from "../../../../models"
+import TaskPriorityFilter from "./TaskPriorityFilter"
+import TaskSizeFilter from "./TaskSizeFilter"
 
 export interface Props {
   visible: boolean
   onDismiss: () => unknown
 }
+
+export interface IFilter {
+  statuses: ITaskStatus[]
+  labels: string[]
+  sizes: string[]
+  priorities: string[],
+  apply: boolean;
+}
+
 const { width, height } = Dimensions.get("window");
 const ModalPopUp = ({ visible, children }) => {
   const [showModal, setShowModal] = React.useState(visible)
@@ -54,58 +65,148 @@ const ModalPopUp = ({ visible, children }) => {
 }
 
 const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss }) {
-
+  const { TaskStore: { setFilter, filter } } = useStores();
   const { colors } = useAppTheme();
-  const [showTaskStatus, setShowTaskStatus]=useState(false)
+  const [showTaskStatus, setShowTaskStatus] = useState(false)
+  const [showTaskLabel, setShowTaskLabel] = useState(false)
+  const [showTaskPriority, setShowTaskPriority] = useState(false)
+  const [showTaskSize, setShowTaskSize] = useState(false)
+
+
+  const onPressOutSide = () => {
+    setShowTaskLabel(false)
+    setShowTaskPriority(false)
+    setShowTaskSize(false)
+    setShowTaskStatus(false)
+  }
+
+  useEffect(() => {
+    if (showTaskStatus) {
+      setShowTaskLabel(false)
+      setShowTaskPriority(false)
+      setShowTaskSize(false)
+    }
+  }, [showTaskStatus])
+
+  useEffect(() => {
+    if (showTaskLabel) {
+      setShowTaskSize(false)
+      setShowTaskPriority(false)
+      setShowTaskStatus(false)
+    }
+  }, [showTaskLabel])
+
+  useEffect(() => {
+    if (showTaskSize) {
+      setShowTaskLabel(false)
+      setShowTaskPriority(false)
+      setShowTaskStatus(false)
+    }
+  }, [showTaskSize])
+
+  useEffect(() => {
+    if (showTaskPriority) {
+      setShowTaskLabel(false)
+      setShowTaskStatus(false)
+      setShowTaskSize(false)
+    }
+  }, [showTaskPriority])
 
   return (
     <ModalPopUp visible={visible}>
-      <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
-        <View style={{ width: "100%" }}>
-          <Text style={{ ...styles.mainTitle, color: colors.primary }}>Filter</Text>
-        </View>
+      <>
+        {showTaskStatus &&
+          <BlurView tint="dark" intensity={18} style={$blurContainer} />
+        }
+        <TouchableWithoutFeedback onPress={() => onPressOutSide()}>
+          <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+            <View style={{ width: "100%" }}>
+              <Text style={{ ...styles.mainTitle, color: colors.primary }}>Filter</Text>
+            </View>
 
-        <View style={styles.wrapForm}>
-          <View style={{ width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "space-between", zIndex: 999 }}>
-            <TaskStatus
-              containerStyle={styles.statusContainer}
-              dropdownContainerStyle={{
-                width: width / 2,
-                padding:10,
-                top: -240
-              }}
-              showTaskStatus={showTaskStatus}
-              setShowTaskStatus={setShowTaskStatus}
-            />
+            <View style={styles.wrapForm}>
+              <View style={{ width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "space-between", zIndex: 999 }}>
+                <TaskStatusFilter
+                  containerStyle={styles.statusContainer}
+                  dropdownContainerStyle={{
+                    width: width / 2,
+                    top: -400,
+                    zIndex: 1000
+                  }}
+                  showTaskStatus={showTaskStatus}
+                  setShowTaskStatus={setShowTaskStatus}
+                />
 
-            <TaskPriorities
-              containerStyle={styles.statusContainer}
-            />
+                <TaskPriorityFilter
+                  containerStyle={styles.statusContainer}
+                  dropdownContainerStyle={{
+                    width: width / 2,
+                    top: -400
+                  }}
+                  showPriorityPopup={showTaskPriority}
+                  setShowPriorityPopup={setShowTaskPriority}
+                />
+
+              </View>
+
+              <View style={{ width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "space-between", marginTop: 16 }}>
+                <TaskLabelFilter
+                  containerStyle={styles.statusContainer}
+                  dropdownContainerStyle={{
+                    width: width / 2,
+                    top: -475
+                  }}
+                  showLabelPopup={showTaskLabel}
+                  setShowLabelPopup={setShowTaskLabel}
+                />
+
+                <TaskSizeFilter
+                  containerStyle={styles.statusContainer}
+                  dropdownContainerStyle={{
+                    width: width / 2,
+                    top: -475,
+                    zIndex: 100
+                  }}
+                  showSizePopup={showTaskSize}
+                  setShowSizePopup={setShowTaskSize}
+                />
+
+              </View>
+            </View>
+
+
+            <View style={styles.wrapButtons}>
+              <TouchableOpacity
+                onPress={() => {
+                  setFilter({
+                    statuses: [],
+                    labels: [],
+                    priorities: [],
+                    sizes: [],
+                    apply: false
+                  })
+                  onDismiss()
+                }}
+                style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
+                <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>Reset</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#3826A6" }]}
+                onPress={() => {
+                  setFilter({
+                    ...filter,
+                    apply: true
+                  })
+                  onDismiss()
+                }}>
+                <Text style={styles.buttonText}>Apply</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
-
-          <View style={{ width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "space-between", marginTop: 16 }}>
-            <TaskLabel
-              containerStyle={styles.statusContainer}
-            />
-
-            <TaskSize
-              containerStyle={styles.statusContainer}
-            />
-          </View>
-        </View>
-
-
-        <View style={styles.wrapButtons}>
-          <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
-            <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>Reset</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => { }}>
-            <Text style={styles.buttonText}>Apply</Text>
-          </TouchableOpacity>
-        </View>
-
-      </View>
-    </ModalPopUp>
+        </TouchableWithoutFeedback>
+      </>
+    </ModalPopUp >
   )
 }
 
@@ -132,13 +233,14 @@ const styles = StyleSheet.create({
     backgroundColor: "yellow",
     borderColor: "#1B005D0D",
     borderWidth: 2,
+    zIndex: 1000
   },
   wrapButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 40,
     width: "100%",
-    zIndex:999
+    zIndex: 999
   },
   button: {
     width: width / 2.5,
@@ -159,12 +261,22 @@ const styles = StyleSheet.create({
   },
   wrapForm: {
     width: "100%",
-    marginTop: 16
+    marginTop: 16,
+    zIndex: 100
   },
   statusContainer: {
     paddingHorizontal: 16,
     paddingVertical: 10,
     width: 156,
-    height: 57
+    height: 57,
+    zIndex: 1000
   }
 })
+
+const $blurContainer: ViewStyle = {
+  height: height,
+  width: "100%",
+  position: "absolute",
+  top: 0,
+  zIndex: 100
+}
