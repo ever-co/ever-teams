@@ -294,7 +294,7 @@ function TaskCard({
 			</Card>
 
 			{/* Just some spaces at the end */}
-			<div className="h-28 w-2 opacity-0">{'|'}</div>
+			<div className="h-5 w-2 opacity-0">{'|'}</div>
 		</>
 	);
 }

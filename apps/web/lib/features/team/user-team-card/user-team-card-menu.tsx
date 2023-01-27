@@ -1,12 +1,12 @@
 import { mergeRefs } from '@app/helpers';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
+import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { Card, Text } from 'lib/components';
+import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
 import { MoreIcon } from 'lib/components/svgs';
 import { TaskInput } from 'lib/features';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -22,6 +22,12 @@ export function UserTeamCardMenu(props: Props) {
 }
 
 function DropdownMenu({ edition, memberInfo }: Props) {
+	const { onAssignTask, onUnAssignTask, onMakeAManager, onRemoveMember } =
+		useDropdownAction({
+			edition,
+			memberInfo,
+		});
+
 	const menu = [
 		{
 			name: 'Edit Task',
@@ -41,20 +47,26 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			name: 'Assign Task',
 			active: memberInfo.isTeamManager,
 			action: 'assign',
+			onClick: onAssignTask,
 		},
 		{
 			name: 'Unassign Task',
 			active: memberInfo.isTeamManager,
 			action: 'unassign',
+			onClick: onUnAssignTask,
 		},
 		{
 			name: 'Make a Manager',
 			active: memberInfo.isTeamManager,
+			onClick: onMakeAManager,
+			closable: true,
 		},
 		{
 			name: 'Remove',
 			type: 'danger',
 			active: memberInfo.isTeamManager,
+			action: 'remove',
+			onClick: onRemoveMember,
 		},
 	].filter((item) => item.active || item.active === undefined);
 
@@ -67,7 +79,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			])}
 		>
 			<Popover.Button className="flex items-center outline-none border-none">
-				<MoreIcon />
+				{!edition.loading && <MoreIcon />}
+				{edition.loading && <SpinnerLoader size={20} />}
 			</Popover.Button>
 
 			<Transition
@@ -100,13 +113,39 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 										const assignAction =
 											item.action === 'assign' || item.action === 'unassign';
 
+										const removeAction = item.action === 'remove';
+
 										return (
 											<li key={i}>
 												{assignAction && (
-													<AssignActionMenu>{text}</AssignActionMenu>
+													// Show only for item with combobox menu
+													<AssignActionMenu
+														onTaskClick={(task, closeCmbx) => {
+															// Can close all open combobox
+															item.onClick &&
+																item.onClick({
+																	task,
+																	closeCombobox1: closeCmbx,
+																	closeCombobox2: close,
+																});
+														}}
+													>
+														{text}
+													</AssignActionMenu>
 												)}
 
-												{!assignAction && (
+												{removeAction && (
+													<ConfirmDropdown
+														onConfirm={() => {
+															item.onClick && item.onClick({ close });
+														}}
+													>
+														{text}
+													</ConfirmDropdown>
+												)}
+
+												{/* WHen hasn't an action */}
+												{!assignAction && !removeAction && (
 													<button
 														className="mb-2"
 														onClick={() => {
@@ -130,7 +169,12 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	);
 }
 
-function AssignActionMenu({ children }: PropsWithChildren) {
+function AssignActionMenu({
+	children,
+	onTaskClick,
+}: PropsWithChildren<{
+	onTaskClick?: (task: ITeamTask, closeCombobox: () => void) => void;
+}>) {
 	return (
 		<Popover className="relative">
 			<Popover.Button className="flex items-center mb-2 outline-none border-none">
@@ -147,17 +191,44 @@ function AssignActionMenu({ children }: PropsWithChildren) {
 				className="absolute z-10 right-0"
 			>
 				<Popover.Panel>
-					<TaskInput
-						task={null}
-						initEditMode={true}
-						keepOpen={true}
-						viewType="one-view"
-						onTaskClick={(e) => {
-							console.log(e);
-						}}
-					/>
+					{({ close }) => {
+						return (
+							<TaskInput
+								task={null}
+								initEditMode={true}
+								keepOpen={true}
+								viewType="one-view"
+								onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
+							/>
+						);
+					}}
 				</Popover.Panel>
 			</Transition>
 		</Popover>
 	);
+}
+
+type IAssignCall = (params: {
+	task?: ITeamTask;
+	closeCombobox1?: () => void;
+	closeCombobox2?: () => void;
+}) => void;
+
+function useDropdownAction({}: Pick<Props, 'edition' | 'memberInfo'>) {
+	const onAssignTask: IAssignCall = useCallback(() => {}, []);
+	const onUnAssignTask: IAssignCall = useCallback(() => {}, []);
+
+	const onMakeAManager = useCallback(() => {}, []);
+
+	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
+		console.log('on remove');
+		// close && close();
+	}, []);
+
+	return {
+		onAssignTask,
+		onUnAssignTask,
+		onMakeAManager,
+		onRemoveMember,
+	};
 }
