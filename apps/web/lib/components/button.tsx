@@ -7,6 +7,7 @@ type Props = {
 	variant?:
 		| 'primary'
 		| 'outline'
+		| 'outline-dark'
 		| 'ghost'
 		| 'light'
 		| 'dark'
@@ -38,6 +39,10 @@ export function Button({
 						'dark:text-white border dark:border-white',
 						'disabled:opacity-40',
 					],
+					variant === 'outline-dark' && [
+						'input-border font-medium',
+						'disabled:opacity-40',
+					],
 					variant === 'grey' && [
 						'disabled:opacity-40',
 						'bg-light--theme-dark',
@@ -51,7 +56,12 @@ export function Button({
 			)}
 			{...rest}
 		>
-			{loading && <SpinnerLoader size={17} variant={'light'} />}
+			{loading && (
+				<SpinnerLoader
+					size={17}
+					variant={variant === 'outline' ? 'primary' : 'light'}
+				/>
+			)}
 			{children}
 		</button>
 	);

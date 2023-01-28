@@ -1,4 +1,4 @@
-import { IClassName, ITaskStatus } from '@app/interfaces';
+import { IClassName, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card } from 'lib/components';
@@ -16,9 +16,11 @@ import {
 	Fragment,
 	PropsWithChildren,
 	useCallback,
+	useEffect,
 	useMemo,
 	useState,
 } from 'react';
+import { useCallbackRef, useTeamTasks } from '@app/hooks';
 
 type TStatusItem = {
 	bgColor?: string;
@@ -29,6 +31,46 @@ type TStatusItem = {
 type TStatus<T extends ITaskStatus> = {
 	[k in T]: TStatusItem;
 };
+
+function useStatusValue<T extends TStatus<any>>(
+	statusItems: T,
+	$value: keyof T | undefined,
+	onValueChange?: (v: keyof T) => void
+) {
+	const onValueChangeRef = useCallbackRef(onValueChange);
+
+	const items = useMemo(() => {
+		return Object.keys(statusItems).map((key) => {
+			const value = statusItems[key as ITaskStatus];
+			return {
+				...value,
+				name: key,
+			} as Required<TStatusItem>;
+		});
+	}, [statusItems]);
+
+	const [value, setValue] = useState<keyof T>($value);
+
+	const item = items.find((r) => r.name === value);
+
+	useEffect(() => {
+		setValue($value);
+	}, [$value]);
+
+	const onChange = useCallback(
+		(value: keyof T) => {
+			setValue(value);
+			onValueChangeRef.current && onValueChangeRef.current(value);
+		},
+		[setValue, onValueChangeRef]
+	);
+
+	return {
+		items,
+		item,
+		onChange,
+	};
+}
 
 export const taskStatus: TStatus<ITaskStatus> = {
 	Todo: {
@@ -89,48 +131,24 @@ export function TaskStatus({
 	);
 }
 
-function useStatusValue<T extends TStatus<any>>(
-	statusItems: T,
-	defaultValue: keyof T
-) {
-	const items = useMemo(() => {
-		return Object.keys(statusItems).map((key) => {
-			const value = statusItems[key as ITaskStatus];
-			return {
-				...value,
-				name: key,
-			} as Required<TStatusItem>;
-		});
-	}, [statusItems]);
-
-	const [value, setValue] = useState<keyof T>(defaultValue);
-
-	const item = items.find((r) => r.name === value) || items[0];
-
-	const onChange = useCallback(
-		(value: keyof T) => {
-			setValue(value);
-		},
-		[setValue]
-	);
-
-	return {
-		items,
-		item,
-		onChange,
-	};
-}
+// =============== Task Status ================= //
 
 /**
  * Task status dropwdown
  */
+type TTaskStatusDropdown = IClassName & {
+	defaultValue?: ITaskStatus;
+	onValueChange?: (v: ITaskStatus) => void;
+};
 export function TaskStatusDropdown({
 	className,
 	defaultValue,
-}: IClassName & { defaultValue?: ITaskStatus }) {
+	onValueChange,
+}: TTaskStatusDropdown) {
 	const { item, items, onChange } = useStatusValue(
 		taskStatus,
-		defaultValue || 'Todo'
+		defaultValue,
+		onValueChange
 	);
 
 	return (
@@ -138,6 +156,40 @@ export function TaskStatusDropdown({
 			className={className}
 			items={items}
 			value={item}
+			onChange={onChange}
+		/>
+	);
+}
+
+/**
+ * If no task hasn't been passed then the auth active task will used
+ *
+ * @param props
+ * @returns
+ */
+export function ActiveTaskStatusDropdown(
+	props: TTaskStatusDropdown & { task?: Nullable<ITeamTask> }
+) {
+	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
+
+	const task = props.task !== undefined ? props.task : activeTeamTask;
+
+	function onItemChange(status: ITaskStatus) {
+		handleStatusUpdate(status, task, true);
+	}
+
+	const { item, items, onChange } = useStatusValue(
+		taskStatus,
+		task?.status || props.defaultValue,
+		onItemChange
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? 'Status' : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -255,30 +307,46 @@ export function TaskDevicesDropdown({ className }: IClassName) {
 	);
 }
 
+// =============== FC Status drop down ================= //
 /**
- * Dc Status drop down
+ * Fc Status drop down
  */
 function StatusDropdown<T extends Required<TStatusItem>>({
 	value,
 	onChange,
 	items,
 	className,
+	defaultItem,
 }: {
-	value: T;
+	value: T | undefined;
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
+	defaultItem?: string;
 }) {
+	const defaultValue: TStatusItem = {
+		bgColor: undefined,
+		icon: <span></span>,
+		name: defaultItem,
+	};
+
 	return (
 		<div className={clsxm('relative', className)}>
-			<Listbox value={value.name} onChange={onChange}>
+			<Listbox value={value?.name || null} onChange={onChange}>
 				{({ open }) => (
 					<>
 						<Listbox.Button className="w-full">
-							<TaskStatus {...value} className="justify-between w-full">
+							<TaskStatus
+								{...(value || defaultValue)}
+								className={clsxm(
+									'justify-between w-full',
+									!value && ['text-dark dark:text-white bg-gray-lighter']
+								)}
+							>
 								<ChevronDownIcon
 									className={clsxm(
-										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80'
+										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+										!value && ['text-dark dark:text-white']
 									)}
 									aria-hidden="true"
 								/>

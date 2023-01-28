@@ -1,31 +1,22 @@
 import { useTaskStatistics, useTimer } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Button, ProgressBar, Text, Tooltip } from 'lib/components';
-import { TimerPlayIcon, TimerStopIcon } from 'lib/components/svgs';
+import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { pad } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
+import { TimerButton } from './timer-button';
 
 export function Timer({ className }: IClassName) {
 	const {
-		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
-		timerStatus,
-		timerStatusFetching,
-		startTimer,
-		stopTimer,
+		hours,
+		minutes,
+		seconds,
+		activeTaskEstimation,
+		ms_p,
 		canRunTimer,
-		timerSeconds,
-	} = useTimer();
-
-	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
-
-	const timerHanlder = () => {
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			startTimer();
-		}
-	};
+		timerStatusFetching,
+		timerHanlder,
+		timerStatus,
+	} = useTimerView();
 
 	return (
 		<div className={clsxm('flex flex-row', className)}>
@@ -50,21 +41,87 @@ export function Timer({ className }: IClassName) {
 					placement="top-start"
 					enabled={!canRunTimer}
 				>
-					<Button
+					<TimerButton
 						onClick={!timerStatusFetching ? timerHanlder : undefined}
-						className={clsxm(
-							'bg-primary dark:bg-dark-lighter w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
-							'flex justify-center items-center dark:border-[#28292F] dark:border',
-							'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
-							(timerStatusFetching || !canRunTimer) && [
-								'opacity-70 cursor-default',
-							]
-						)}
-					>
-						{timerStatus?.running ? <TimerStopIcon /> : <TimerPlayIcon />}
-					</Button>
+						running={timerStatus?.running}
+						disabled={timerStatusFetching || !canRunTimer}
+					/>
 				</Tooltip>
 			</div>
 		</div>
 	);
+}
+
+export function MinTimerFrame({ className }: IClassName) {
+	const {
+		hours,
+		minutes,
+		seconds,
+		ms_p,
+		canRunTimer,
+		timerStatusFetching,
+		timerHanlder,
+		timerStatus,
+	} = useTimerView();
+
+	return (
+		<div
+			className={clsxm(
+				'input-border rounded-[10px] p-2',
+				'flex items-center space-x-4',
+				className
+			)}
+		>
+			<Text className="text-lg tracking-wide font-normal w-[110px]">
+				{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+				<span className="text-sm">:{pad(ms_p)}</span>
+			</Text>
+
+			<VerticalSeparator />
+
+			<div className="ml-5 z-[50]">
+				<TimerButton
+					onClick={!timerStatusFetching ? timerHanlder : undefined}
+					running={timerStatus?.running}
+					disabled={timerStatusFetching || !canRunTimer}
+					className="w-7 h-7"
+				/>
+			</div>
+		</div>
+	);
+}
+
+function useTimerView() {
+	const {
+		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
+		timerStatus,
+		timerStatusFetching,
+		startTimer,
+		stopTimer,
+		canRunTimer,
+		timerSeconds,
+	} = useTimer();
+
+	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
+
+	const timerHanlder = () => {
+		if (timerStatusFetching || !canRunTimer) return;
+		if (timerStatus?.running) {
+			stopTimer();
+		} else {
+			startTimer();
+		}
+	};
+
+	return {
+		hours,
+		minutes,
+		seconds,
+		ms_p,
+		activeTaskEstimation,
+		timerHanlder,
+		canRunTimer,
+		timerStatusFetching,
+		timerStatus,
+	};
 }

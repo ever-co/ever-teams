@@ -16,6 +16,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { useSyncRef } from '../useSyncRef';
+import { Nullable } from '@app/interfaces';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const [statActiveTask, setStatActiveTask] = useRecoilState(
@@ -47,7 +48,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		});
 	}, []);
 
-	const getTaskStat = useCallback((task: ITeamTask | null) => {
+	/**
+	 * Get task timesheet statistics
+	 */
+	const getTaskStat = useCallback((task: Nullable<ITeamTask>) => {
 		const stats = statTasksRef.current;
 		return {
 			taskTotalStat: stats.all.find((t) => t.id === task?.id),
@@ -110,14 +114,36 @@ export function useTaskStatistics(addSeconds = 0) {
 		}
 	}, [firstLoad, activeTeamTask?.id]);
 
-	const getEstimation = (_task: ITasksTimesheet | null) =>
+	/**
+	 * Get task estimation in
+	 *
+	 * @param timeSheet
+	 * @param _task
+	 * @param addSeconds
+	 * @returns
+	 */
+	const getEstimation = (
+		timeSheet: Nullable<ITasksTimesheet>,
+		_task: Nullable<ITeamTask>,
+		addSeconds: number
+	) =>
 		Math.min(
 			Math.floor(
-				(((_task?.duration || 0) + addSeconds) * 100) /
-					(activeTeamTask?.estimate || 0)
+				(((timeSheet?.duration || 0) + addSeconds) * 100) /
+					(_task?.estimate || 0)
 			),
 			100
 		);
+
+	const activeTaskEstimation =
+		activeTeamTask && activeTeamTask.estimate
+			? getEstimation(statActiveTask.total, activeTeamTask, addSeconds)
+			: 0;
+
+	const activeTaskDailyEstimation =
+		activeTeamTask && activeTeamTask.estimate
+			? getEstimation(statActiveTask.today, activeTeamTask, addSeconds)
+			: 0;
 
 	return {
 		firstLoadtasksStatisticsData,
@@ -125,14 +151,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		getTaskStat,
 		activeTaskTotalStat: statActiveTask.total,
 		activeTaskDailyStat: statActiveTask.today,
-		activeTaskEstimation:
-			activeTeamTask && activeTeamTask.estimate
-				? getEstimation(statActiveTask.total)
-				: 0,
-		activeTaskDailyEstimation:
-			activeTeamTask && activeTeamTask.estimate
-				? getEstimation(statActiveTask.today)
-				: 0,
+		activeTaskEstimation,
+		activeTaskDailyEstimation,
 		activeTeamTask,
+		addSeconds,
+		getEstimation,
 	};
 }

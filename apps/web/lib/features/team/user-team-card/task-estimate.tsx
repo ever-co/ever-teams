@@ -1,19 +1,96 @@
+import { secondsToTime } from '@app/helpers';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
-import { ProgressBar, Text } from 'lib/components';
+import { clsxm } from '@app/utils';
+import { Text } from 'lib/components';
 import { EditIcon } from 'lib/components/svgs';
+import { TaskEstimate, TaskProgressBar } from 'lib/features';
+import { useRef } from 'react';
 
-export function TaskEstimate({ className }: IClassName) {
+type Props = IClassName & {
+	memberInfo: I_TeamMemberCardHook;
+	edition: I_TMCardTaskEditHook;
+	activeAuthTask: boolean;
+};
+
+export function TaskEstimateInfo({
+	className,
+	activeAuthTask,
+	...rest
+}: Props) {
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col space-y-2">
-				<div className="flex space-x-2 items-center mb-2 font-normal text-sm">
-					<span className="text-gray-500">Estimated:</span>
-					<Text>01h 30m</Text>
-					<EditIcon />
-				</div>
+				<TaskEstimateInput {...rest} />
 
-				<ProgressBar width="100%" progress="0%" />
+				<TaskProgressBar
+					task={rest.edition.task}
+					isAuthUser={rest.memberInfo.isAuthUser}
+					activeAuthTask={activeAuthTask}
+				/>
 			</div>
 		</div>
+	);
+}
+
+function TaskEstimateInput({
+	memberInfo,
+	edition,
+}: Omit<Props, 'className' | 'activeAuthTask'>) {
+	const loadingRef = useRef<boolean>(false);
+	const task = memberInfo.memberTask;
+
+	const hasEditMode = edition.estimateEditMode && task;
+
+	const closeFn = () => {
+		setTimeout(() => {
+			!loadingRef.current && edition.setEstimateEditMode(false);
+		}, 1);
+	};
+	edition.estimateEditIgnoreElement.onOutsideClick(closeFn);
+
+	const { h, m } = secondsToTime(task?.estimate || 0);
+
+	return (
+		<>
+			<div
+				className={clsxm(!hasEditMode && ['hidden'])}
+				ref={edition.estimateEditIgnoreElement.ignoreElementRef}
+			>
+				{task && (
+					<TaskEstimate
+						_task={task}
+						loadingRef={loadingRef}
+						closeable_fc={closeFn}
+					/>
+				)}
+			</div>
+
+			<div
+				className={clsxm(
+					'flex space-x-2 items-center mb-2 font-normal text-sm',
+					hasEditMode && ['hidden']
+				)}
+			>
+				<span className="text-gray-500">Estimated:</span>
+				<Text>
+					{h}h {m}m
+				</Text>
+
+				{(memberInfo.isAuthUser || memberInfo.isAuthTeamManager) && (
+					<button
+						ref={edition.estimateEditIgnoreElement.targetEl}
+						onClick={() => task && edition.setEstimateEditMode(true)}
+					>
+						<EditIcon
+							className={clsxm(
+								'cursor-pointer',
+								!task && ['opacity-40 cursor-default']
+							)}
+						/>
+					</button>
+				)}
+			</div>
+		</>
 	);
 }

@@ -9,14 +9,7 @@ export function getTeamTasksRequest({
 	tenantId,
 	organizationId,
 	bearer_token,
-	relations = [
-		'tags',
-		'teams',
-		'teams.members',
-		'teams.members.employee',
-		'teams.members.employee.user',
-		'creator',
-	],
+	relations = ['tags', 'teams', 'members', 'creator'],
 }: {
 	tenantId: string;
 	organizationId: string;

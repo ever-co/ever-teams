@@ -1,3 +1,4 @@
+import { IEmployee } from './IEmployee';
 import { IOrganizationTeamList } from './IOrganizationTeam';
 
 export interface ITeamTask {
@@ -18,7 +19,8 @@ export interface ITeamTask {
 	dueDate: string;
 	projectId: string;
 	creatorId: string;
-	selectedTeam?: SelectedTeam;
+	members: IEmployee[];
+	selectedTeam?: IOrganizationTeamList;
 	tags: Tag[];
 	teams: SelectedTeam[];
 	creator: Creator;
@@ -33,7 +35,6 @@ type SelectedTeam = Pick<
 	| 'organizationId'
 	| 'tenantId'
 	| 'updatedAt'
-	| 'members'
 	| 'prefix'
 >;
 

@@ -30,8 +30,9 @@ export function InviteFormModal({
 			form.get('name')?.toString() || ''
 		)
 			.then(() => {
-				e.currentTarget.reset();
 				closeModal();
+
+				e.currentTarget.reset();
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {

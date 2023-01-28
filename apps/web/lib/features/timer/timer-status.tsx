@@ -4,10 +4,9 @@ import { PauseIcon, StopCircleIcon, TimerPlayIcon } from 'lib/components/svgs';
 
 export type ITimerStatus = 'running' | 'idle' | 'pause';
 
-export function TimerStatus({
-	status,
-	className,
-}: { status: ITimerStatus } & IClassName) {
+type Props = { status: ITimerStatus; showIcon?: boolean } & IClassName;
+
+export function TimerStatus({ status, className, showIcon = true }: Props) {
 	return (
 		<div
 			className={clsxm(
@@ -18,12 +17,14 @@ export function TimerStatus({
 				className
 			)}
 		>
-			{status === 'running' && (
+			{status === 'running' && showIcon && (
 				<TimerPlayIcon className="w-3 h-3 fill-green-700" />
 			)}
-			{status === 'pause' && <PauseIcon className="w-3 h-3 fill-[#B87B1E]" />}
+			{status === 'pause' && showIcon && (
+				<PauseIcon className="w-3 h-3 fill-[#B87B1E]" />
+			)}
 
-			{status === 'idle' && (
+			{status === 'idle' && showIcon && (
 				<StopCircleIcon className="w-3 h-3 fill-[#E65B5B]" />
 			)}
 		</div>

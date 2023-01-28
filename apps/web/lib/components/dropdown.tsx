@@ -1,5 +1,5 @@
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
-import { Listbox, Transition } from '@headlessui/react';
+import { Listbox, Popover, Transition } from '@headlessui/react';
 import { clsxm } from '@app/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card } from './card';
@@ -19,6 +19,7 @@ type Props<T extends DropdownItem> = {
 	value?: T | null;
 	onChange?: Dispatch<SetStateAction<T | undefined>> | ((item: T) => void);
 	buttonClassName?: string;
+	optionsClassName?: string;
 	items: T[];
 	loading?: boolean;
 	buttonStyle?: React.CSSProperties;
@@ -33,6 +34,7 @@ export function Dropdown<T extends DropdownItem>({
 	items,
 	loading,
 	buttonStyle,
+	optionsClassName,
 }: Props<T>) {
 	return (
 		<div className={clsxm('relative', className)}>
@@ -79,7 +81,13 @@ export function Dropdown<T extends DropdownItem>({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Listbox.Options className="absolute mt-3 min-w-full max-h-56 overflow-hidden overflow-y-auto">
+					<Listbox.Options
+						className={clsxm(
+							'absolute mt-3 min-w-full max-h-64',
+							'overflow-hidden overflow-y-auto',
+							optionsClassName
+						)}
+					>
 						<Card
 							shadow="custom"
 							className="md:px-4 py-4 rounded-[12px]"
@@ -108,5 +116,42 @@ export function Dropdown<T extends DropdownItem>({
 				</Transition>
 			</Listbox>
 		</div>
+	);
+}
+
+export function ConfirmDropdown({
+	children,
+	onConfirm,
+	confirmText = 'Confirm',
+}: PropsWithChildren & { onConfirm?: () => void; confirmText?: string }) {
+	return (
+		<Popover className="relative">
+			<Popover.Button>{children}</Popover.Button>
+
+			<Transition
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+				className="absolute z-10 right-0"
+			>
+				<Popover.Panel>
+					<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
+						<ul className="flex flex-col">
+							<li className="text-primary dark:text-white font-semibold mb-2 w-full">
+								<Popover.Button className="w-full" onClick={onConfirm}>
+									{confirmText}
+								</Popover.Button>
+							</li>
+							<li className="text-sm w-full">
+								<Popover.Button>Cancel</Popover.Button>
+							</li>
+						</ul>
+					</Card>
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
