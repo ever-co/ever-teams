@@ -214,15 +214,21 @@ type IAssignCall = (params: {
 	closeCombobox2?: () => void;
 }) => void;
 
-function useDropdownAction({}: Pick<Props, 'edition' | 'memberInfo'>) {
-	const onAssignTask: IAssignCall = useCallback(() => {}, []);
-	const onUnAssignTask: IAssignCall = useCallback(() => {}, []);
+function useDropdownAction({ edition }: Pick<Props, 'edition' | 'memberInfo'>) {
+	const onAssignTask: IAssignCall = useCallback(() => {
+		console.log('onAssignTask', edition);
+	}, [edition]);
 
-	const onMakeAManager = useCallback(() => {}, []);
+	const onUnAssignTask: IAssignCall = useCallback(() => {
+		console.log('onUnAssignTask');
+	}, []);
+
+	const onMakeAManager = useCallback(() => {
+		console.log('onMakeAManager');
+	}, []);
 
 	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
-		console.log('on remove');
-		// close && close();
+		console.log('on remove', close);
 	}, []);
 
 	return {

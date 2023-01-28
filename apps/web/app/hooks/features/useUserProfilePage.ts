@@ -9,6 +9,8 @@ export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, tasks } = useTeamTasks();
 
+	// const {} = useAuthTeamTasks()
+
 	const { user: auth } = useAuthenticateUser();
 	const { getAllTasksStatsData } = useTaskStatistics();
 

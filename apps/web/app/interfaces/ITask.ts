@@ -20,7 +20,7 @@ export interface ITeamTask {
 	projectId: string;
 	creatorId: string;
 	members: IEmployee[];
-	selectedTeam?: SelectedTeam;
+	selectedTeam?: IOrganizationTeamList;
 	tags: Tag[];
 	teams: SelectedTeam[];
 	creator: Creator;
