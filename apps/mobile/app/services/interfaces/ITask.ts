@@ -151,7 +151,31 @@ export type ITaskStatus =
   | "For Testing"
   | "Completed"
   | "Closed"
+  | "Ready"
+  | "Blocked"
+  | "Backlog"
+  | "Open"
   | "Unassigned";
+
+  export type ITaskLabel=
+  | "UI/UX"
+  | "Mobile"
+  | "Web"
+  | "Tablet";
+
+  export type ITaskSize=
+  | "Tiny"
+  | "Small"
+  | "Medium"
+  | "Large"
+  | "Extra Large"
+  | "Large";
+
+  export type ITaskPriority=
+  | "Medium"
+  | "Low"
+  | "High"
+  | "Urgent";
 
 export interface ICreateTask {
   title: string;

@@ -28,34 +28,16 @@ export const useAuthTeamTasks=(user: IUser | undefined) =>{
     }, []);
 
     useEffect(()=>{
-        console.log("update tasks")
         loadAssignedTasks()
         loadUnassignedTasks();
     },[user, teamTasks, setTeamTasks])
 
-    const countTasksByTab = useCallback((tabIndex: number) => {
-        switch (tabIndex) {
-            case 0:
-                return teamTasks.length;
-            case 1:
-                return assignedTasks.length;
-            case 2:
-                return unassignedTasks.length;
-            default:
-                return 0;
 
-        }
-    }, [teamTasks, activeTeam, fetchingTasks])
 
-    useEffect(() => {
-        loadAssignedTasks();
-        loadUnassignedTasks();
-    }, [teamTasks, unassignedTasks, assignedTasks, user])
 
     return {
         assignedTasks,
         unassignedTasks,
-        countTasksByTab,
         loadAssignedTasks,
         loadUnassignedTasks
     };
