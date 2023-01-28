@@ -5,6 +5,7 @@ import { clsxm } from '@app/utils';
 import { Card, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { DraggerIcon, EditIcon, MoreIcon } from 'lib/components/svgs';
 import { useRef, useState } from 'react';
+import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskEstimate } from './task-estimate';
 import { TaskProgressBar } from './task-progress-bar';
@@ -47,12 +48,23 @@ export function TaskCard({
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskEstimateInfo */}
-			<TaskEstimateInfo
-				task={task}
-				isAuthUser={isAuthUser}
-				activeAuthTask={activeAuthTask}
-				className="px-3 w-52"
-			/>
+			<div className="flex space-x-2 items-center">
+				<TaskEstimateInfo
+					task={task}
+					isAuthUser={isAuthUser}
+					activeAuthTask={activeAuthTask}
+					className="px-3 w-52"
+				/>
+				{isAuthUser && (
+					<TimerButton
+						onClick={undefined}
+						running={false}
+						disabled={false}
+						className="h-9 w-9"
+					/>
+				)}
+			</div>
+
 			<VerticalSeparator />
 
 			{/* TaskTimes */}
@@ -169,7 +181,7 @@ function TaskInfo({
 					>
 						<div
 							className={clsxm(
-								'text-sm text-ellipsis text-center cursor-default overflow-hidden'
+								'text-sm text-ellipsis text-center cursor-default overflow-hidden w-full'
 							)}
 						>
 							<Tooltip

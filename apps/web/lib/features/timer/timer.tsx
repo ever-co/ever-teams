@@ -1,15 +1,9 @@
 import { useTaskStatistics, useTimer } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import {
-	Button,
-	ProgressBar,
-	Text,
-	Tooltip,
-	VerticalSeparator,
-} from 'lib/components';
-import { TimerPlayIcon, TimerStopIcon } from 'lib/components/svgs';
+import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { pad } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
+import { TimerButton } from './timer-button';
 
 export function Timer({ className }: IClassName) {
 	const {
@@ -47,26 +41,18 @@ export function Timer({ className }: IClassName) {
 					placement="top-start"
 					enabled={!canRunTimer}
 				>
-					<Button
+					<TimerButton
 						onClick={!timerStatusFetching ? timerHanlder : undefined}
-						className={clsxm(
-							'bg-primary dark:bg-dark-lighter w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
-							'flex justify-center items-center dark:border-[#28292F] dark:border',
-							'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
-							(timerStatusFetching || !canRunTimer) && [
-								'opacity-70 cursor-default',
-							]
-						)}
-					>
-						{timerStatus?.running ? <TimerStopIcon /> : <TimerPlayIcon />}
-					</Button>
+						running={timerStatus?.running}
+						disabled={timerStatusFetching || !canRunTimer}
+					/>
 				</Tooltip>
 			</div>
 		</div>
 	);
 }
 
-export function MinTimerFrame({}: IClassName) {
+export function MinTimerFrame({ className }: IClassName) {
 	const {
 		hours,
 		minutes,
@@ -82,7 +68,8 @@ export function MinTimerFrame({}: IClassName) {
 		<div
 			className={clsxm(
 				'input-border rounded-[10px] p-2',
-				'flex items-center space-x-4'
+				'flex items-center space-x-4',
+				className
 			)}
 		>
 			<Text className="text-lg tracking-wide font-normal w-[110px]">
@@ -93,23 +80,12 @@ export function MinTimerFrame({}: IClassName) {
 			<VerticalSeparator />
 
 			<div className="ml-5 z-[50]">
-				<Button
+				<TimerButton
 					onClick={!timerStatusFetching ? timerHanlder : undefined}
-					className={clsxm(
-						'bg-primary dark:bg-dark-lighter w-7 h-7 rounded-full inline-block min-w-[14px] !px-0 !py-0',
-						'flex justify-center items-center dark:border-[#28292F] dark:border',
-						'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
-						(timerStatusFetching || !canRunTimer) && [
-							'opacity-70 cursor-default',
-						]
-					)}
-				>
-					{timerStatus?.running ? (
-						<TimerStopIcon className="w-4 h-4" />
-					) : (
-						<TimerPlayIcon className="w-4 h-4" />
-					)}
-				</Button>
+					running={timerStatus?.running}
+					disabled={timerStatusFetching || !canRunTimer}
+					className="w-7 h-7"
+				/>
 			</div>
 		</div>
 	);

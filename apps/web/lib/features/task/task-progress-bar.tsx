@@ -19,7 +19,7 @@ export function TaskProgressBar({
 
 	let progress = activeTaskEstimation;
 
-	if (!isAuthUser) {
+	if (!isAuthUser || !activeAuthTask) {
 		const { taskTotalStat } = getTaskStat(task);
 		progress = getEstimation(taskTotalStat, task, 0);
 	}

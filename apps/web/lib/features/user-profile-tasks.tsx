@@ -16,10 +16,31 @@ export function UserProfileTask({ profile }: { profile: I_UserProfilePage }) {
 
 			<TaskCard
 				active
-				task={profile.activeTeamTask}
+				task={profile.activeUserTeamTask}
 				isAuthUser={profile.isAuthUser}
 				activeAuthTask={true}
 			/>
+
+			<div className="flex space-x-2 items-center my-6">
+				<Text className="font-normal">
+					Last 24 Hours ({profile.otherTasks.length})
+				</Text>
+				<Divider className="flex-1" />
+			</div>
+
+			<ul>
+				{profile.otherTasks.map((task) => {
+					return (
+						<li key={task.id} className="mb-8">
+							<TaskCard
+								task={task}
+								isAuthUser={profile.isAuthUser}
+								activeAuthTask={false}
+							/>
+						</li>
+					);
+				})}
+			</ul>
 		</div>
 	);
 }

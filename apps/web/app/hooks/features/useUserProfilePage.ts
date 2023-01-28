@@ -22,9 +22,14 @@ export function useUserProfilePage() {
 	});
 
 	const isAuthUser = auth?.employee.userId === memberId;
+	const activeUserTeamTask = isAuthUser ? activeTeamTask : null;
 
 	const userProfile =
 		auth?.employee.userId === memberId ? auth : matchUser?.employee.user;
+
+	const otherTasks = activeUserTeamTask
+		? tasks.filter((t) => t.id !== activeUserTeamTask.id)
+		: tasks;
 
 	useEffect(() => {
 		getAllTasksStatsData();
@@ -33,7 +38,8 @@ export function useUserProfilePage() {
 	return {
 		isAuthUser,
 		tasks,
-		activeTeamTask: isAuthUser ? activeTeamTask : null,
+		otherTasks,
+		activeUserTeamTask,
 		userProfile,
 	};
 }
