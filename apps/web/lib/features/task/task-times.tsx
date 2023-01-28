@@ -9,9 +9,15 @@ import { useRecoilValue } from 'recoil';
 type Props = {
 	task: Nullable<ITeamTask>;
 	isAuthUser: boolean;
+	activeAuthTask: boolean;
 } & IClassName;
 
-export function TaskTimes({ className, task, isAuthUser }: Props) {
+export function TaskTimes({
+	className,
+	task,
+	isAuthUser,
+	activeAuthTask,
+}: Props) {
 	// Get current timer seconds
 	const seconds = useRecoilValue(timerSecondsState);
 
@@ -21,7 +27,7 @@ export function TaskTimes({ className, task, isAuthUser }: Props) {
 	/**
 	 * If showing the the current auth auth then show live update
 	 */
-	if (isAuthUser) {
+	if (isAuthUser && activeAuthTask) {
 		const { h, m } = secondsToTime(
 			(activeTaskTotalStat?.duration || 0) + addSeconds
 		);
@@ -76,7 +82,7 @@ function TimeInfo({
 export function TodayWorkedTime({
 	className,
 	isAuthUser,
-}: Omit<Props, 'task'>) {
+}: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
 	const seconds = useRecoilValue(timerSecondsState);
 

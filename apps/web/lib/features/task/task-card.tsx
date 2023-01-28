@@ -15,9 +15,16 @@ type Props = {
 	active?: boolean;
 	task?: Nullable<ITeamTask>;
 	isAuthUser: boolean;
+	activeAuthTask: boolean;
 } & IClassName;
 
-export function TaskCard({ active, className, task, isAuthUser }: Props) {
+export function TaskCard({
+	active,
+	className,
+	task,
+	isAuthUser,
+	activeAuthTask,
+}: Props) {
 	return (
 		<Card
 			shadow="bigger"
@@ -43,12 +50,18 @@ export function TaskCard({ active, className, task, isAuthUser }: Props) {
 			<TaskEstimateInfo
 				task={task}
 				isAuthUser={isAuthUser}
+				activeAuthTask={activeAuthTask}
 				className="px-3 w-52"
 			/>
 			<VerticalSeparator />
 
 			{/* TaskTimes */}
-			<TaskTimes task={task} isAuthUser={isAuthUser} className="w-48 px-4" />
+			<TaskTimes
+				activeAuthTask={activeAuthTask}
+				task={task}
+				isAuthUser={isAuthUser}
+				className="w-48 px-4"
+			/>
 			<VerticalSeparator />
 
 			{/* Active Task Status Dropdown */}
@@ -61,13 +74,22 @@ export function TaskCard({ active, className, task, isAuthUser }: Props) {
 }
 
 //* Task Estimate info *
-function TaskEstimateInfo({ className, task, isAuthUser }: Props) {
+function TaskEstimateInfo({
+	className,
+	task,
+	isAuthUser,
+	activeAuthTask,
+}: Props) {
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col space-y-2">
 				<TaskEstimateInput task={task} />
 
-				<TaskProgressBar task={task} isAuthUser={isAuthUser} />
+				<TaskProgressBar
+					activeAuthTask={activeAuthTask}
+					task={task}
+					isAuthUser={isAuthUser}
+				/>
 			</div>
 		</div>
 	);
@@ -139,28 +161,32 @@ function TaskInfo({
 			)}
 		>
 			{/* task */}
-			<div className="w-full h-[40px] overflow-hidden">
-				<div
-					className={clsxm('h-full flex flex-col items-start justify-center')}
-				>
+			{!task && <div className="text-center self-center py-1">--</div>}
+			{task && (
+				<div className="w-full h-[40px] overflow-hidden">
 					<div
-						className={clsxm(
-							'text-sm text-ellipsis text-center cursor-default overflow-hidden'
-						)}
+						className={clsxm('h-full flex flex-col items-start justify-center')}
 					>
-						<Tooltip
-							label={task?.title || ''}
-							placement="top"
-							enabled={(task?.title && task?.title.length > 60) || false}
+						<div
+							className={clsxm(
+								'text-sm text-ellipsis text-center cursor-default overflow-hidden'
+							)}
 						>
-							{task?.title}
-						</Tooltip>
+							<Tooltip
+								label={task?.title || ''}
+								placement="top"
+								enabled={(task?.title && task?.title.length > 60) || false}
+							>
+								{task?.title}
+							</Tooltip>
+						</div>
 					</div>
 				</div>
-			</div>
+			)}
 
 			{/* Task status */}
-			<TaskAllStatusTypes task={task} />
+			{task && <TaskAllStatusTypes task={task} />}
+			{!task && <div className="text-center self-center py-1">--</div>}
 		</div>
 	);
 }

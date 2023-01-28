@@ -7,13 +7,15 @@ import { useRecoilValue } from 'recoil';
 export function TaskProgressBar({
 	isAuthUser,
 	task,
+	activeAuthTask,
 }: {
 	isAuthUser: boolean | undefined;
 	task: Nullable<ITeamTask>;
+	activeAuthTask: boolean;
 }) {
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskEstimation, getTaskStat, getEstimation } =
-		useTaskStatistics(isAuthUser ? seconds : 0);
+		useTaskStatistics(isAuthUser && activeAuthTask ? seconds : 0);
 
 	let progress = activeTaskEstimation;
 

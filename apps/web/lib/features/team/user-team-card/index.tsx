@@ -54,6 +54,7 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 
 			{/* TaskTimes */}
 			<TaskTimes
+				activeAuthTask={true}
 				task={memberInfo.memberTask}
 				isAuthUser={memberInfo.isAuthUser}
 				className="w-48 px-4"
@@ -64,6 +65,7 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			<TaskEstimateInfo
 				memberInfo={memberInfo}
 				edition={taskEdition}
+				activeAuthTask={true}
 				className="px-3 w-52"
 			/>
 			<VerticalSeparator />

@@ -10,9 +10,14 @@ import { useRef } from 'react';
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
 	edition: I_TMCardTaskEditHook;
+	activeAuthTask: boolean;
 };
 
-export function TaskEstimateInfo({ className, ...rest }: Props) {
+export function TaskEstimateInfo({
+	className,
+	activeAuthTask,
+	...rest
+}: Props) {
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col space-y-2">
@@ -21,13 +26,17 @@ export function TaskEstimateInfo({ className, ...rest }: Props) {
 				<TaskProgressBar
 					task={rest.edition.task}
 					isAuthUser={rest.memberInfo.isAuthUser}
+					activeAuthTask={activeAuthTask}
 				/>
 			</div>
 		</div>
 	);
 }
 
-function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className'>) {
+function TaskEstimateInput({
+	memberInfo,
+	edition,
+}: Omit<Props, 'className' | 'activeAuthTask'>) {
 	const loadingRef = useRef<boolean>(false);
 	const task = memberInfo.memberTask;
 

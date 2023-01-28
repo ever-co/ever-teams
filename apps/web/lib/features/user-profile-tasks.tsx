@@ -18,6 +18,7 @@ export function UserProfileTask({ profile }: { profile: I_UserProfilePage }) {
 				active
 				task={profile.activeTeamTask}
 				isAuthUser={profile.isAuthUser}
+				activeAuthTask={true}
 			/>
 		</div>
 	);
