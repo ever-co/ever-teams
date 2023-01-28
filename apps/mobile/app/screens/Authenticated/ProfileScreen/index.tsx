@@ -191,11 +191,11 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
             {/* START UNASSIGNED TAB CONTENT */}
             {selectedTabIndex === 2 &&
-              <View style={{ ...GS.mt2 }}>
+              <View style={{ ...GS.mt2,  }}>
                 <FlatList
                   data={unassignedTasks}
                   renderItem={({ item, index }) => (
-                    <View key={index} style={{ marginBottom: 8 }}>
+                    <View key={index} style={{ }}>
                       <ListCardItem
                         tabIndex={selectedTabIndex}
                         member={member}

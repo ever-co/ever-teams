@@ -3,20 +3,20 @@ import {
   View,
   ViewStyle,
   Modal,
-  Image,
-  ScrollView,
   Animated,
-  ImageStyle,
-  TextStyle,
+  StyleSheet,
   TouchableOpacity,
+  Dimensions,
 } from "react-native"
 
 // COMPONENTS
-import { Button, Screen, Text, TextField } from "."
+import { Text } from "."
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
-import { colors, spacing, typography } from "../theme"
+import { typography } from "../theme"
 import { TextInput } from "react-native-gesture-handler"
+import { translate } from "../i18n"
+import { useAppTheme } from "../app"
 
 export interface Props {
   visible: boolean
@@ -24,7 +24,7 @@ export interface Props {
   onDismiss: () => unknown
 }
 
-const welcomeLogo = require("../../assets/images/gauzy-teams-blue-2.png")
+const { width, height } = Dimensions.get("window")
 
 const ModalPopUp = ({ visible, children }) => {
   const [showModal, setShowModal] = React.useState(visible)
@@ -60,6 +60,7 @@ const ModalPopUp = ({ visible, children }) => {
 }
 
 const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss, onCreateTeam }) {
+  const { colors } = useAppTheme();
   const [teamText, setTeamText] = useState("");
 
   const handleSubmit = () => {
@@ -70,109 +71,115 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 
   return (
     <ModalPopUp visible={visible}>
-      <View>
-        <View style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <Image style={$welcomeLogo} source={welcomeLogo} resizeMode="contain" />
-          <Text
-            testID="login-heading"
-            // tx="loginScreen.welcome"
-            preset="heading"
-            style={$smalltext}
-          />
-        </View>
-        <View>
-          <Text
-            testID="login-heading"
-            tx="loginScreen.enterDetails"
-            preset="heading"
-            style={[$text, { marginTop: spacing.large }]}
-          />
+      <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+        <View style={{ ...GS.w100 }}>
+          <Text style={[styles.mainTitle, { color: colors.primary }]}>{"Enter new team name"}</Text>
           <View>
-            <TextInput value={teamText} onChangeText={(text) => setTeamText(text)} style={[$inputStyle, $inputText]} placeholder="Please enter your team name" />
+            <TextInput
+              placeholderTextColor={colors.tertiary}
+              autoCapitalize={"none"}
+              autoCorrect={false}
+              value={teamText}
+              style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
+              placeholder={"Please enter your team name"}
+              onChangeText={(text) => setTeamText(text)}
+            />
+            <Text style={[styles.hint, { color: "red" }]}>{""}</Text>
           </View>
-          <View
-            style={{
-              ...GS.mb2,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-around",
-              marginTop: 50,
-            }}
-          >
-            <TouchableOpacity onPress={() => onDismiss()} style={{ flex: 1 }}>
-              <Image source={require("../../assets/icons/back.png")} />
+          <View style={styles.wrapButtons}>
+            <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
+              <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
             </TouchableOpacity>
-
-            <Button
-              preset="reversed"
-              style={{ ...GS.mb2, backgroundColor: colors.primary, flex: 1 }}
-              textStyle={{ fontWeight: "700" }}
-              onPress={() => handleSubmit()}
-            >
-              Create Team
-            </Button>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
+              <Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
-    </ModalPopUp>
+    </ModalPopUp >
   )
 }
 
 export default CreateTeamModal
 
-const $container: ViewStyle = {
-  ...GS.flex1,
-  paddingTop: spacing.extraLarge + spacing.large,
-  paddingHorizontal: spacing.large,
-}
-const $modalStyle: ViewStyle = {}
+
 const $modalBackGround: ViewStyle = {
   flex: 1,
   backgroundColor: "rgba(0,0,0,0.5)",
-  justifyContent: "center",
-  alignItems: "center",
+  justifyContent: "flex-end"
+
 }
 const $modalContainer: ViewStyle = {
-  width: "95%",
-  height: 350,
-  backgroundColor: "white",
-  paddingHorizontal: 30,
-  paddingVertical: 30,
-  borderRadius: 30,
-  elevation: 20,
-  justifyContent: 'center'
+  height: height,
+  backgroundColor: "rgba(0,0,0,0.6)",
+  justifyContent: "flex-end"
 }
 
-const $welcomeLogo: ImageStyle = {
-  width: "70%",
-}
-const $text: TextStyle = {
-  marginBottom: spacing.small,
-  fontSize: 20,
-  color: colors.text,
-  fontFamily: typography.secondary.normal,
-  fontWeight: "700",
-}
-
-const $smalltext: TextStyle = {
-  marginBottom: spacing.small,
-  position: "absolute",
-  top: 40,
-  fontSize: 16,
-  color: colors.text,
-  fontFamily: typography.secondary.normal,
-  fontWeight: "300",
-}
-
-const $inputStyle: ViewStyle = {
-  borderColor: colors.primary,
-  borderBottomWidth: 1,
-  marginTop: 15,
-  paddingTop: 10,
-  width: "100%",
-}
-
-const $inputText: TextStyle = {
-  fontWeight: '500',
-  fontSize: 17
-}
+const styles = StyleSheet.create({
+  mainContainer: {
+    width: "100%",
+    alignItems: "center",
+    height: height / 3,
+    shadowColor: "#1B005D0D",
+    shadowOffset: { width: 10, height: 10 },
+    shadowRadius: 10,
+    borderTopRightRadius: 24,
+    borderTopLeftRadius: 24,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderColor: "#1B005D0D",
+    borderWidth: 2,
+  },
+  theTextField: {
+    borderWidth: 0,
+    width: "100%",
+  },
+  wrapButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 30
+  },
+  button: {
+    width: width / 2.5,
+    height: height / 16,
+    borderRadius: 11,
+    padding: 10,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  mainTitle: {
+    fontFamily: typography.primary.semiBold,
+    fontSize: 24,
+    marginBottom: 20
+  },
+  buttonText: {
+    fontFamily: typography.primary.semiBold,
+    fontSize: 18,
+    color: "#FFF"
+  },
+  crossIcon: {
+    position: "absolute",
+    right: 10,
+    top: 10
+  },
+  loading: {
+    position: "absolute",
+    bottom: "12%",
+    left: "15%"
+  },
+  textInput: {
+    width: "100%",
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 53,
+    fontSize: 16,
+    fontWeight:"600",
+    paddingHorizontal: 13,
+    borderColor: "rgba(0, 0, 0, 0.1)"
+  },
+  hint: {
+    color: "#7E7991",
+    fontSize: 12,
+    fontFamily: typography.primary.semiBold
+  }
+})
