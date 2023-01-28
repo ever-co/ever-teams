@@ -1,17 +1,26 @@
+import { secondsToTime } from '@app/helpers';
+import { useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card, Tooltip, VerticalSeparator } from 'lib/components';
-import { DraggerIcon } from 'lib/components/svgs';
+import { Card, Text, Tooltip, VerticalSeparator } from 'lib/components';
+import { DraggerIcon, EditIcon, MoreIcon } from 'lib/components/svgs';
+import { useRef, useState } from 'react';
 import { TaskAllStatusTypes } from './task-all-status-type';
+import { TaskEstimate } from './task-estimate';
+import { TaskProgressBar } from './task-progress-bar';
 
-type Props = { active?: boolean; task?: Nullable<ITeamTask> } & IClassName;
+type Props = {
+	active?: boolean;
+	task?: Nullable<ITeamTask>;
+	isAuthUser?: boolean;
+} & IClassName;
 
-export function TaskCard({ active, className, task }: Props) {
+export function TaskCard({ active, className, task, isAuthUser }: Props) {
 	return (
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'relative flex items-center py-3',
+				'relative flex items-center justify-between py-3',
 				active && ['border-primary-light border-[2px]'],
 				className
 			)}
@@ -20,13 +29,92 @@ export function TaskCard({ active, className, task }: Props) {
 				<DraggerIcon />
 			</div>
 
+			<div className="absolute right-2">
+				<MoreIcon />
+			</div>
+
 			{/* Task information */}
 			<TaskInfo task={task} className="w-80 px-4" />
 			<VerticalSeparator className="ml-2" />
+
+			{/* TaskEstimateInfo */}
+			<TaskEstimateInfo
+				task={task}
+				isAuthUser={isAuthUser}
+				className="px-3 w-52"
+			/>
+			<VerticalSeparator />
 		</Card>
 	);
 }
 
+//* Task Estimate info *
+function TaskEstimateInfo({ className, task, isAuthUser }: Props) {
+	return (
+		<div className={className}>
+			<div className="flex items-center flex-col space-y-2">
+				<TaskEstimateInput task={task} />
+
+				<TaskProgressBar task={task} isAuthUser={isAuthUser} />
+			</div>
+		</div>
+	);
+}
+
+function TaskEstimateInput({ task }: { task?: Nullable<ITeamTask> }) {
+	const loadingRef = useRef<boolean>(false);
+	const [editMode, setEditMode] = useState(false);
+
+	const hasEditMode = editMode && task;
+
+	const closeFn = () => {
+		setTimeout(() => {
+			!loadingRef.current && setEditMode(false);
+		}, 1);
+	};
+
+	const { targetEl, ignoreElementRef } =
+		useOutsideClick<HTMLButtonElement>(closeFn);
+
+	const { h, m } = secondsToTime(task?.estimate || 0);
+
+	return (
+		<>
+			<div className={clsxm(!hasEditMode && ['hidden'])} ref={ignoreElementRef}>
+				{task && (
+					<TaskEstimate
+						_task={task}
+						loadingRef={loadingRef}
+						closeable_fc={closeFn}
+					/>
+				)}
+			</div>
+
+			<div
+				className={clsxm(
+					'flex space-x-2 items-center mb-2 font-normal text-sm',
+					hasEditMode && ['hidden']
+				)}
+			>
+				<span className="text-gray-500">Estimated:</span>
+				<Text>
+					{h}h {m}m
+				</Text>
+
+				<button ref={targetEl} onClick={() => task && setEditMode(true)}>
+					<EditIcon
+						className={clsxm(
+							'cursor-pointer',
+							!task && ['opacity-40 cursor-default']
+						)}
+					/>
+				</button>
+			</div>
+		</>
+	);
+}
+
+//* Task Info FC *
 function TaskInfo({
 	className,
 	task,

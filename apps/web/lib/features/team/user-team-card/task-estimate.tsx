@@ -1,17 +1,11 @@
 import { secondsToTime } from '@app/helpers';
-import {
-	I_TeamMemberCardHook,
-	I_TMCardTaskEditHook,
-	useTaskStatistics,
-} from '@app/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
-import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { ProgressBar, Text } from 'lib/components';
+import { Text } from 'lib/components';
 import { EditIcon } from 'lib/components/svgs';
-import { TaskEstimate } from 'lib/features';
+import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useRef } from 'react';
-import { useRecoilValue } from 'recoil';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -24,7 +18,10 @@ export function TaskEstimateInfo({ className, ...rest }: Props) {
 			<div className="flex items-center flex-col space-y-2">
 				<TaskEstimateInput {...rest} />
 
-				<ProgressBarItem {...rest} />
+				<TaskProgressBar
+					task={rest.edition.task}
+					isAuthUser={rest.memberInfo.isAuthUser}
+				/>
 			</div>
 		</div>
 	);
@@ -70,33 +67,21 @@ function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className'>) {
 				<Text>
 					{h}h {m}m
 				</Text>
-				<button
-					ref={edition.estimateEditIgnoreElement.targetEl}
-					onClick={() => task && edition.setEstimateEditMode(true)}
-				>
-					<EditIcon
-						className={clsxm(
-							'cursor-pointer',
-							!task && ['opacity-40 cursor-default']
-						)}
-					/>
-				</button>
+
+				{(memberInfo.isAuthUser || memberInfo.isAuthTeamManager) && (
+					<button
+						ref={edition.estimateEditIgnoreElement.targetEl}
+						onClick={() => task && edition.setEstimateEditMode(true)}
+					>
+						<EditIcon
+							className={clsxm(
+								'cursor-pointer',
+								!task && ['opacity-40 cursor-default']
+							)}
+						/>
+					</button>
+				)}
 			</div>
 		</>
 	);
-}
-
-function ProgressBarItem({ memberInfo, edition }: Omit<Props, 'className'>) {
-	const seconds = useRecoilValue(timerSecondsState);
-	const { activeTaskEstimation, getTaskStat, getEstimation } =
-		useTaskStatistics(memberInfo.isAuthUser ? seconds : 0);
-
-	let progress = activeTaskEstimation;
-
-	if (!memberInfo.isAuthUser) {
-		const { taskTotalStat } = getTaskStat(edition.task);
-		progress = getEstimation(taskTotalStat, edition.task, 0);
-	}
-
-	return <ProgressBar width="100%" progress={`${progress}%`} />;
 }

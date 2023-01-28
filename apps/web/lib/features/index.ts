@@ -7,6 +7,8 @@ export * from './task/task-estimate';
 export * from './task/task-status';
 export * from './task/task-filters';
 export * from './task/task-all-status-type';
+export * from './task/task-progress-bar';
+export * from './task/task-times';
 
 export * from './team/user-team-card';
 export * from './team/team-members';

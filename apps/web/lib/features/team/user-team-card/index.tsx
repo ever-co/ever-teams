@@ -3,9 +3,9 @@ import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Card, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
+import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
-import { TaskTime, TodayWorkedTime } from './times';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 
@@ -52,8 +52,12 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			<TaskInfo edition={taskEdition} className="w-80 px-4" />
 			<VerticalSeparator className="ml-2" />
 
-			{/* TaskTime */}
-			<TaskTime memberInfo={memberInfo} className="w-48 px-4" />
+			{/* TaskTimes */}
+			<TaskTimes
+				task={memberInfo.memberTask}
+				isAuthUser={memberInfo.isAuthUser}
+				className="w-48 px-4"
+			/>
 			<VerticalSeparator />
 
 			{/* TaskEstimateInfo */}
@@ -65,7 +69,7 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			<VerticalSeparator />
 
 			{/* TodayWorkedTime */}
-			<TodayWorkedTime memberInfo={memberInfo} className="flex-1" />
+			<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="flex-1" />
 
 			{/* Card menu */}
 			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />

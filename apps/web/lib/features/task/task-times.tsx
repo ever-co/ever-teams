@@ -1,16 +1,17 @@
 import { secondsToTime } from '@app/helpers';
-import { I_TeamMemberCardHook, useTaskStatistics } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
+import { useTaskStatistics } from '@app/hooks';
+import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { timerSecondsState, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { useRecoilValue } from 'recoil';
 
-type Props = IClassName & {
-	memberInfo: I_TeamMemberCardHook;
-};
+type Props = {
+	task: Nullable<ITeamTask>;
+	isAuthUser: boolean;
+} & IClassName;
 
-export function TaskTime({ className, memberInfo }: Props) {
+export function TaskTimes({ className, task, isAuthUser }: Props) {
 	// Get current timer seconds
 	const seconds = useRecoilValue(timerSecondsState);
 
@@ -20,7 +21,7 @@ export function TaskTime({ className, memberInfo }: Props) {
 	/**
 	 * If showing the the current auth auth then show live update
 	 */
-	if (memberInfo.isAuthUser) {
+	if (isAuthUser) {
 		const { h, m } = secondsToTime(
 			(activeTaskTotalStat?.duration || 0) + addSeconds
 		);
@@ -36,7 +37,7 @@ export function TaskTime({ className, memberInfo }: Props) {
 	}
 
 	/** Other member team status */
-	const { taskDailyStat, taskTotalStat } = getTaskStat(memberInfo.memberTask);
+	const { taskDailyStat, taskTotalStat } = getTaskStat(task);
 	const { h, m } = secondsToTime(taskTotalStat?.duration || 0);
 	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0);
 
@@ -72,7 +73,10 @@ function TimeInfo({
 	);
 }
 
-export function TodayWorkedTime({ className, memberInfo }: Props) {
+export function TodayWorkedTime({
+	className,
+	isAuthUser,
+}: Omit<Props, 'task'>) {
 	// Get current timer seconds
 	const seconds = useRecoilValue(timerSecondsState);
 
@@ -81,7 +85,7 @@ export function TodayWorkedTime({ className, memberInfo }: Props) {
 
 	return (
 		<div className={clsxm('text-center font-normal', className)}>
-			{memberInfo.isAuthUser ? (
+			{isAuthUser ? (
 				<Text>
 					{h}h : {m}m
 				</Text>
