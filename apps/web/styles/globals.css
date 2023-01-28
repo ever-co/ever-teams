@@ -32,6 +32,11 @@ html.dark {
 }
 
 @layer components {
+	/* Colors custom */
+	.bg-gray-lighter {
+		@apply bg-[#F2F2F2] dark:bg-dark--theme-light;
+	}
+
 	/* --------------------- Container ------------------------------------ */
 	.x-container {
 		--tblr-gutter-x: 1.5rem;
@@ -93,6 +98,7 @@ html.dark {
 		--tooltipBackground: #8c7ae4 !important;
 	}
 }
+
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
 	src: url('../public/assets/fonts/PlusJakartaSans-VariableFont_wght.ttf');

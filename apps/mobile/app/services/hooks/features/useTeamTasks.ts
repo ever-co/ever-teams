@@ -50,7 +50,6 @@ export function useTeamTasks() {
     const updateTask = async (task: ITeamTask, id: string) => {
         setUpdateLoading(true)
         const { data, response } = await updateTaskRequest({ data: task, id }, authToken);
-        await loadTeamTasksData();
         setUpdateLoading(false)
         return { data, response }
     }
@@ -75,7 +74,7 @@ export function useTeamTasks() {
     );
 
     // Load Team Tasks
-    const loadTeamTasksData =async () => {
+    const loadTeamTasksData =useCallback(async () => {
         const { data } = await getTeamTasksRequest({
             bearer_token: authToken,
             tenantId: tenantId,
@@ -90,7 +89,7 @@ export function useTeamTasks() {
         }
 
         return tasks
-    }
+    },[])
 
     // Assign a task to a member
     const onAssignTask =async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
@@ -104,9 +103,8 @@ export function useTeamTasks() {
             }
         }
 
-        const allTasks = await loadTeamTasksData();
 
-        const task: ITeamTask = allTasks.find((ts) => ts.id === taskId);
+        const task: ITeamTask = teamTasks.find((ts) => ts.id === taskId);
         const members = task.members
 
         const editTask =
@@ -153,15 +151,16 @@ export function useTeamTasks() {
 
 
     // Get the active task id and update active task data
-    useEffect(() => {
-        const active_taskId = activeTaskId || '';
-        setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
-    }, [setActiveTask, teamTasks, updateLoading]);
+    // useEffect(() => {
+    //     console.log("UPDATE ACTIVE TASK")
+    //     const active_taskId = activeTaskId || '';
+    //     setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
+    // }, []);
 
 
-    useEffect(() => {
-        loadTeamTasksData();
-    }, [teamTasks, activeTeamId, fetchingTasks, updateLoading, createLoading])
+    // useEffect(() => {
+    //     loadTeamTasksData();
+    // }, [activeTeamId, createTaskRequest, updateTaskRequest])
 
     /**
  * Change active task

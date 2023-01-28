@@ -108,7 +108,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
     if (isAuthUser && isActive) {
       setMemberTask(activeTask);
     }
-  }, [isAuthUser, activeTask])
+  })
 
   const onChangeTaskTitle = async () => {
     const task: ITeamTask = {
@@ -126,7 +126,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
     if (typeof item === 'undefined') {
       return false
     }
-    let exist ;
+    let exist;
     if (typeof item.members !== 'undefined') {
       exist = item.members.find((m) => m.userId === member.id)
     }
@@ -141,10 +141,6 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
       viewPosition: 0
     })
   }, [labelIndex])
-
-
-
-
 
   const onNextPressed = () => {
     if (labelIndex === labels.length - 2) {

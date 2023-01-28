@@ -1,5 +1,6 @@
 import { useModal } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -14,11 +15,15 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	}
 };
 
-export function useTaskInput() {
+export function useTaskInput(
+	task?: Nullable<ITeamTask>,
+	initEditMode?: boolean
+) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
 		null
 	);
+
 	const {
 		tasks,
 		activeTeamTask,
@@ -29,8 +34,14 @@ export function useTaskInput() {
 		createTask,
 		updateTask,
 	} = useTeamTasks();
+
+	/**
+	 * If task has null value then consider it as value 😄
+	 */
+	const inputTask = task !== undefined ? task : activeTeamTask;
+
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
-	const [editMode, setEditMode] = useState(false);
+	const [editMode, setEditMode] = useState(initEditMode || false);
 
 	const handleOpenModal = useCallback(
 		(concernedTask: ITeamTask) => {
@@ -42,12 +53,10 @@ export function useTaskInput() {
 
 	const handleReopenTask = useCallback(
 		async (concernedTask: ITeamTask) => {
-			if (concernedTask) {
-				return updateTask({
-					...concernedTask,
-					status: 'Todo',
-				});
-			}
+			return updateTask({
+				...concernedTask,
+				status: 'Todo',
+			});
 		},
 		[updateTask]
 	);
@@ -83,8 +92,8 @@ export function useTaskInput() {
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = (autoActiveTask = true) => {
-		if (query.trim().length < 2 || activeTeamTask?.title === query.trim())
-			return;
+		if (query.trim().length < 2 || inputTask?.title === query.trim()) return;
+
 		createTask(query.trim()).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
@@ -92,6 +101,16 @@ export function useTaskInput() {
 			if (created && autoActiveTask) setActiveTask(created);
 		});
 	};
+
+	const updatTaskTitleHandler = useCallback(
+		(itask: ITeamTask, title: string) => {
+			return updateTask({
+				...itask,
+				title,
+			});
+		},
+		[]
+	);
 
 	const closedTaskCount = filteredTasks2.filter((f_task) => {
 		return f_task.status === 'Closed';
@@ -118,10 +137,11 @@ export function useTaskInput() {
 		closeableTask,
 		editMode,
 		setEditMode,
-		activeTeamTask,
+		inputTask,
 		setActiveTask,
 		setQuery,
 		filter,
+		updatTaskTitleHandler,
 	};
 }
 

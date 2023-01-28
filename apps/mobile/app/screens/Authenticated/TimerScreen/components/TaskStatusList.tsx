@@ -57,7 +57,7 @@ const TaskStatusList: FC<Props> = observer(({ onDismiss }) => {
         <View style={[styles.dropdownContainer, { backgroundColor: colors.background }]}>
             {statusList.map((item, idx) => (
                 <TouchableOpacity key={idx} style={styles.dropdownItem} onPress={() => OnItemPressed(item)}>
-                    <BadgedTaskStatus status={item} showColor={false} />
+                    <BadgedTaskStatus size={10} status={item} showColor={false} />
                 </TouchableOpacity>
             ))}
         </View>

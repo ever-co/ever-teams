@@ -411,7 +411,7 @@ export function DevicesIcon({ className }: IClassName) {
 
 // ============================= Timer Stop ===============================//
 
-export function TimerStopIcon() {
+export function TimerStopIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="28"
@@ -419,6 +419,7 @@ export function TimerStopIcon() {
 			viewBox="0 0 28 28"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M23.7533 9.07667L5.29667 20.16C4.585 20.5917 3.62833 20.16 3.535 19.3317C3.51167 19.11 3.5 18.8883 3.5 18.6667V9.33333C3.5 5.83333 5.83333 3.5 9.33333 3.5H18.6667C22.1667 3.5 23.6017 5.29667 24.2783 7.75833C24.4183 8.27167 24.1967 8.80833 23.7533 9.07667Z"
@@ -588,6 +589,34 @@ export function SearchStatusIcon({ className }: IClassName) {
 			<path
 				d="M16.5 16.5L15 15"
 				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Search Normal Icon ============================= //
+
+export function SearchNormalIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#282048]', className)}
+		>
+			<path
+				d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M22 22L20 20"
+				strokeWidth="2"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -847,6 +876,64 @@ export function StopCircleIcon({ className }: IClassName) {
 			className={clsxm('fill-[#E65B5B]', className)}
 		>
 			<path d="M4.98728 0.882324C2.71433 0.882324 0.869629 2.72703 0.869629 4.99997C0.869629 7.27291 2.71433 9.11762 4.98728 9.11762C7.26022 9.11762 9.10492 7.27291 9.10492 4.99997C9.10492 2.72703 7.26434 0.882324 4.98728 0.882324ZM6.74139 5.50644C6.74139 6.18997 6.18963 6.74174 5.5061 6.74174H4.49316C3.80963 6.74174 3.25786 6.18997 3.25786 5.50644V4.4935C3.25786 3.80997 3.80963 3.25821 4.49316 3.25821H5.5061C6.18963 3.25821 6.74139 3.80997 6.74139 4.4935V5.50644Z" />
+		</svg>
+	);
+}
+
+//  ============================= Settings 4 Icon ============================= //
+
+export function Settings4Icon({ className }: IClassName) {
+	return (
+		<svg
+			width="14"
+			height="14"
+			viewBox="0 0 14 14"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#282048]', className)}
+		>
+			<path
+				d="M12.833 3.79175H9.33301"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M3.50033 3.79175H1.16699"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M5.83366 5.83333C6.96124 5.83333 7.87533 4.91925 7.87533 3.79167C7.87533 2.66409 6.96124 1.75 5.83366 1.75C4.70608 1.75 3.79199 2.66409 3.79199 3.79167C3.79199 4.91925 4.70608 5.83333 5.83366 5.83333Z"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M12.8333 10.2083H10.5"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M4.66699 10.2083H1.16699"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M8.16667 12.2501C9.29425 12.2501 10.2083 11.336 10.2083 10.2084C10.2083 9.08083 9.29425 8.16675 8.16667 8.16675C7.03909 8.16675 6.125 9.08083 6.125 10.2084C6.125 11.336 7.03909 12.2501 8.16667 12.2501Z"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
 		</svg>
 	);
 }

@@ -110,3 +110,5 @@ export interface IDrowDownData {
 export interface IClassName {
 	className?: string;
 }
+
+export type Nullable<T> = T | null | undefined;

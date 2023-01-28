@@ -38,8 +38,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     } = useStores();
 
     const {
-      hangleAssignTask,
-      hangleUnassignTask,
+      handleAssignTask,
+      handleUnassignTask,
       showFilterPopup,
       showModal,
       currentUser,
@@ -64,7 +64,10 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
         {showModal || showFilterPopup ? <BlurView tint="dark" intensity={18} style={$blurContainer} /> : null}
         <Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
           <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
-          <FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
+          <FilterPopup
+            visible={showFilterPopup}
+            onDismiss={() => setShowFilterPopup(false)}
+          />
           <HomeHeader props={_props} showTimer={localTimerStatus.running} />
           <View style={{ paddingTop: 5 }}>
             <ProfileHeader {...currentUser} />
@@ -103,7 +106,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
           >
             {/* START WORKED TAB CONTENT */}
             {selectedTabIndex === 0 &&
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 <View>
                   <View>
                     <View
@@ -135,7 +138,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                       <View style={{ width: width / 1.5, alignSelf: 'center', top: 3, borderBottomWidth: 1, borderBottomColor: colors.border }} />
                     </View>
                     {otherTasks.map((item, index) => (
-                      <View key={index.toString()} style={{ ...GS.mt2 }}>
+                      <View key={index.toString()} style={{ ...GS.mb4 }}>
                         <ListCardItem
                           tabIndex={selectedTabIndex}
                           isActive={false}
@@ -156,19 +159,19 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             {/* START ASSIGNED TAB CONTENT */}
 
             {selectedTabIndex === 1 &&
-              <View style={{ ...GS.mt2 }}>
+              <View style={{ }}>
 
                 <FlatList
                   data={assignedTasks}
                   renderItem={({ item, index }) =>
-                    <View key={index} style={{ marginVertical: 4 }}>
+                    <View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
                       <ListCardItem
                         tabIndex={selectedTabIndex}
                         member={member}
                         index={index}
                         isActive={false}
                         key={index.toString()}
-                        onUnassignTask={hangleUnassignTask}
+                        onUnassignTask={handleUnassignTask}
                         item={item as any}
                         enableEstimate={false}
                       />
@@ -188,18 +191,18 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 
             {/* START UNASSIGNED TAB CONTENT */}
             {selectedTabIndex === 2 &&
-              <View style={{ ...GS.mt2 }}>
+              <View style={{ ...GS.mt2,  }}>
                 <FlatList
                   data={unassignedTasks}
                   renderItem={({ item, index }) => (
-                    <View key={index} style={{ marginBottom: 8 }}>
+                    <View key={index} style={{ }}>
                       <ListCardItem
                         tabIndex={selectedTabIndex}
                         member={member}
                         index={index}
                         isActive={false}
                         key={index.toString()}
-                        onAssignTask={hangleAssignTask}
+                        onAssignTask={handleAssignTask}
                         item={item as any}
                         enableEstimate={false}
                       />

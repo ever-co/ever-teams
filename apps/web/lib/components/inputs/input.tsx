@@ -3,10 +3,12 @@ import { clsxm } from '@app/utils';
 import {
 	Dispatch,
 	forwardRef,
+	ReactNode,
 	SetStateAction,
 	useEffect,
 	useState,
 } from 'react';
+import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
 
 type Props = {
@@ -14,6 +16,7 @@ type Props = {
 	readonly setErrors?: Dispatch<SetStateAction<Record<string, string>>>;
 	wrapperClassName?: string;
 	noWrapper?: boolean;
+	trailingNode?: ReactNode;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -26,6 +29,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			wrapperClassName,
 			noWrapper,
 			setErrors,
+			trailingNode,
 			...res
 		},
 		ref
@@ -77,6 +81,10 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 						{error}
 					</Text.Error>
 				)}
+
+				{trailingNode && (
+					<div className="absolute right-0 top-0 bottom-0">{trailingNode}</div>
+				)}
 			</div>
 		);
 	}
@@ -92,12 +100,22 @@ type ITimeProps = {
 	label: string;
 	dash?: string;
 	wrapperClassName?: string;
+	loading?: boolean;
 } & IClassName &
 	React.ComponentPropsWithRef<'input'>;
 
 export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 	(
-		{ className, type = 'text', label, dash = '__', wrapperClassName, ...res },
+		{
+			className,
+			type = 'text',
+			label,
+			dash = '__',
+			wrapperClassName,
+			value,
+			loading,
+			...res
+		},
 		ref
 	) => {
 		return (
@@ -106,7 +124,8 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 					<input
 						type={type}
 						ref={ref}
-						defaultValue="00"
+						defaultValue={value === undefined ? '00' : undefined}
+						value={value}
 						{...res}
 						className={clsxm(
 							'outline-none p-0 bg-transparent w-full text-center mb-[2px]',
@@ -117,7 +136,9 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 						{dash}
 					</span>
 				</div>
-				<span className="pl-1">{label}</span>
+				<span className="pl-1">
+					{!loading ? label : <SpinnerLoader size={15} />}
+				</span>
 			</div>
 		);
 	}

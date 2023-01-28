@@ -1,21 +1,14 @@
-import { useCustomEmblaCarousel } from '@app/hooks';
+import { I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { RoundedButton, Text } from 'lib/components';
-import { taskStatus, TaskStatus } from 'lib/features';
+import { Tooltip } from 'lib/components';
+import { TaskAllStatusTypes, TaskInput } from 'lib/features';
 
-export function TaskInfo({ className }: IClassName) {
-	const {
-		viewportRef,
-		nextBtnEnabled,
-		scrollNext,
-		prevBtnEnabled,
-		scrollPrev,
-	} = useCustomEmblaCarousel(0, {
-		dragFree: true,
-		containScroll: 'trimSnaps',
-	});
+type Props = IClassName & {
+	edition: I_TMCardTaskEditHook;
+};
 
+export function TaskInfo({ className, edition }: Props) {
 	return (
 		<div
 			className={clsxm(
@@ -23,54 +16,67 @@ export function TaskInfo({ className }: IClassName) {
 				className
 			)}
 		>
-			<Text className="text-sm">
-				Working on UI Design & making prototype for user testing tomorrow
-			</Text>
-
-			<div className="relative w-full h-full flex flex-col justify-center">
-				<div ref={viewportRef} className="overflow-hidden w-full relative">
-					<div className="flex space-x-2 mt-2">
-						<TaskStatus
-							{...taskStatus['In Review']}
-							className="text-xs"
-							name="In Review"
-						/>
-						<TaskStatus
-							{...taskStatus['Blocked']}
-							className="text-xs"
-							name="Blocked"
-						/>
-						<TaskStatus
-							{...taskStatus['Completed']}
-							className="text-xs"
-							name="Completed"
-						/>
-						<TaskStatus
-							{...taskStatus['Todo']}
-							className="text-xs"
-							name="Todo"
-						/>
-					</div>
-				</div>
-
-				{nextBtnEnabled && (
-					<RoundedButton
-						onClick={scrollNext}
-						className={'absolute w-6 h-6 -right-3 -mb-2'}
-					>
-						{'>'}
-					</RoundedButton>
+			{/* task */}
+			<div
+				className={clsxm(
+					'w-full h-[40px]',
+					edition.editMode ? ['mb-2'] : ['overflow-hidden']
 				)}
+			>
+				{edition.task && <TaskDetailAndEdition edition={edition} />}
+				{!edition.task && <div className="text-center">--</div>}
+			</div>
 
-				{prevBtnEnabled && (
-					<RoundedButton
-						onClick={scrollPrev}
-						className={'absolute w-6 h-6 -left-3  -mb-2'}
-					>
-						{'<'}
-					</RoundedButton>
+			{edition.task && <TaskAllStatusTypes task={edition.task} />}
+			{!edition.task && <div className="text-center self-center">--</div>}
+		</div>
+	);
+}
+
+function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
+	const task = edition.task;
+	const hasEditMode = edition.editMode && task;
+
+	edition.taskEditIgnoreElement.onOutsideClick(() => {
+		edition.setEditMode(false);
+	});
+
+	return (
+		<>
+			{/* Task value */}
+			<div
+				ref={edition.taskEditIgnoreElement.targetEl}
+				className={clsxm(
+					'text-sm text-ellipsis text-center cursor-default overflow-hidden',
+					hasEditMode && ['hidden']
+				)}
+				onDoubleClick={() => task && edition.setEditMode(true)}
+			>
+				<Tooltip
+					label={task?.title || ''}
+					placement="top"
+					enabled={(task?.title && task?.title.length > 60) || false}
+				>
+					{task?.title}
+				</Tooltip>
+			</div>
+
+			{/* Show task input combobox when in edit mode */}
+			<div
+				ref={edition.taskEditIgnoreElement.ignoreElementRef}
+				className={clsxm(!hasEditMode && ['hidden'])}
+			>
+				{hasEditMode && (
+					<TaskInput
+						task={task}
+						initEditMode={true}
+						keepOpen={true}
+						onTaskClick={(e) => {
+							console.log(e);
+						}}
+					/>
 				)}
 			</div>
-		</div>
+		</>
 	);
 }
