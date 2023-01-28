@@ -5,13 +5,12 @@ import {
 	useTeamInvitations,
 } from '@app/hooks';
 import { Transition } from '@headlessui/react';
-import { InviteFormModal } from './invite/invite-form-modal';
-import { InvitedCard, InviteUserTeamCard } from './invite/user-invite-card';
+import { InviteFormModal } from './team/invite/invite-form-modal';
 import {
-	InviteUserTeamSkeleton,
-	UserTeamCard,
-	UserTeamCardSkeleton,
-} from './user-team-card';
+	InvitedCard,
+	InviteUserTeamCard,
+} from './team/invite/user-invite-card';
+import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 
 export function TeamMembers() {
 	const { isTeamManager, user } = useAuthenticateUser();

@@ -8,11 +8,13 @@ import { useRef, useState } from 'react';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskEstimate } from './task-estimate';
 import { TaskProgressBar } from './task-progress-bar';
+import { ActiveTaskStatusDropdown } from './task-status';
+import { TaskTimes } from './task-times';
 
 type Props = {
 	active?: boolean;
 	task?: Nullable<ITeamTask>;
-	isAuthUser?: boolean;
+	isAuthUser: boolean;
 } & IClassName;
 
 export function TaskCard({ active, className, task, isAuthUser }: Props) {
@@ -44,6 +46,16 @@ export function TaskCard({ active, className, task, isAuthUser }: Props) {
 				className="px-3 w-52"
 			/>
 			<VerticalSeparator />
+
+			{/* TaskTimes */}
+			<TaskTimes task={task} isAuthUser={isAuthUser} className="w-48 px-4" />
+			<VerticalSeparator />
+
+			{/* Active Task Status Dropdown */}
+			<ActiveTaskStatusDropdown
+				task={task || null}
+				className="lg:min-w-[170px] mr-4"
+			/>
 		</Card>
 	);
 }

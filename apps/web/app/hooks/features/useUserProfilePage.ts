@@ -21,6 +21,8 @@ export function useUserProfilePage() {
 		return m.employee.userId === memberId;
 	});
 
+	const isAuthUser = auth?.employee.userId === memberId;
+
 	const userProfile =
 		auth?.employee.userId === memberId ? auth : matchUser?.employee.user;
 
@@ -29,9 +31,9 @@ export function useUserProfilePage() {
 	}, [getAllTasksStatsData]);
 
 	return {
-		isAuthUser: auth?.employee.userId === memberId,
+		isAuthUser,
 		tasks,
-		activeTeamTask,
+		activeTeamTask: isAuthUser ? activeTeamTask : null,
 		userProfile,
 	};
 }

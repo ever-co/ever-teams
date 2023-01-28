@@ -11,7 +11,7 @@ export * from './task/task-progress-bar';
 export * from './task/task-times';
 
 export * from './team/user-team-card';
-export * from './team/team-members';
+export * from './team-members';
 export * from './team/create-team-modal';
 export * from './team/teams-dropdown';
 export * from './team/team-item';

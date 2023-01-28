@@ -1,4 +1,4 @@
-import { IClassName, ITaskStatus } from '@app/interfaces';
+import { IClassName, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card } from 'lib/components';
@@ -161,16 +161,26 @@ export function TaskStatusDropdown({
 	);
 }
 
-export function ActiveTaskStatusDropdown(props: TTaskStatusDropdown) {
+/**
+ * If no task hasn't been passed then the auth active task will used
+ *
+ * @param props
+ * @returns
+ */
+export function ActiveTaskStatusDropdown(
+	props: TTaskStatusDropdown & { task?: Nullable<ITeamTask> }
+) {
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
 
+	const task = props.task !== undefined ? props.task : activeTeamTask;
+
 	function onItemChange(status: ITaskStatus) {
-		handleStatusUpdate(status, activeTeamTask, true);
+		handleStatusUpdate(status, task, true);
 	}
 
 	const { item, items, onChange } = useStatusValue(
 		taskStatus,
-		activeTeamTask?.status || props.defaultValue,
+		task?.status || props.defaultValue,
 		onItemChange
 	);
 

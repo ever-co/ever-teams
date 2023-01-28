@@ -14,7 +14,11 @@ export function UserProfileTask({ profile }: { profile: I_UserProfilePage }) {
 				</div>
 			</div>
 
-			<TaskCard active task={profile.activeTeamTask} />
+			<TaskCard
+				active
+				task={profile.activeTeamTask}
+				isAuthUser={profile.isAuthUser}
+			/>
 		</div>
 	);
 }
