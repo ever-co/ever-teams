@@ -6,6 +6,7 @@ export * from './task/task-item';
 export * from './task/task-estimate';
 export * from './task/task-status';
 export * from './task/task-filters';
+export * from './task/task-all-status-type';
 
 export * from './team/user-team-card';
 export * from './team/team-members';
@@ -15,6 +16,7 @@ export * from './team/team-item';
 
 export * from './auth-user-task-input';
 export * from './user-nav-menu';
+export * from './user-profile-tasks';
 
 // custom exports
 export * from './languages/language-item';

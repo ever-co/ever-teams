@@ -35,3 +35,5 @@ export function useUserProfilePage() {
 		userProfile,
 	};
 }
+
+export type I_UserProfilePage = ReturnType<typeof useUserProfilePage>;

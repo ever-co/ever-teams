@@ -4,16 +4,22 @@ import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
-import { TaskFilter, Timer, TimerStatus, useTaskFilter } from 'lib/features';
+import {
+	TaskFilter,
+	Timer,
+	TimerStatus,
+	UserProfileTask,
+	useTaskFilter,
+} from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 
 const Profile = () => {
-	const { isAuthUser, userProfile } = useUserProfilePage();
+	const profile = useUserProfilePage();
 	const hook = useTaskFilter();
 
 	return (
-		<MainLayout showTimer={!isAuthUser}>
+		<MainLayout showTimer={!profile.isAuthUser}>
 			<MainHeader>
 				{/* Breadcrumb */}
 				<div className="flex space-x-5 items-center">
@@ -29,9 +35,9 @@ const Profile = () => {
 
 				{/* User Profil Detail */}
 				<div className="flex justify-between items-center py-10">
-					<UserProfilDetail user={userProfile} />
+					<UserProfilDetail user={profile.userProfile} />
 
-					{isAuthUser && (
+					{profile.isAuthUser && (
 						<Timer
 							className={clsxm(
 								'p-5 rounded-lg shadow-xlcard',
@@ -46,7 +52,7 @@ const Profile = () => {
 			</MainHeader>
 
 			<Container className="mb-10">
-				<p>Profile</p>
+				<UserProfileTask profile={profile} />
 			</Container>
 		</MainLayout>
 	);

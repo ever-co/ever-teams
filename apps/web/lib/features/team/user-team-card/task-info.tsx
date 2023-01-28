@@ -1,20 +1,8 @@
-import {
-	I_TMCardTaskEditHook,
-	useCustomEmblaCarousel,
-	useSyncRef,
-} from '@app/hooks';
+import { I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { RoundedButton, Tooltip } from 'lib/components';
-import {
-	taskDevices,
-	TaskInput,
-	taskProperties,
-	taskSizes,
-	taskStatus,
-	TaskStatus,
-} from 'lib/features';
-import { useEffect } from 'react';
+import { Tooltip } from 'lib/components';
+import { TaskAllStatusTypes, TaskInput } from 'lib/features';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
@@ -39,7 +27,7 @@ export function TaskInfo({ className, edition }: Props) {
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
 
-			{edition.task && <TaskStatusInfo edition={edition} />}
+			{edition.task && <TaskAllStatusTypes task={edition.task} />}
 			{!edition.task && <div className="text-center self-center">--</div>}
 		</div>
 	);
@@ -90,79 +78,5 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 				)}
 			</div>
 		</>
-	);
-}
-
-function TaskStatusInfo({ edition }: { edition: I_TMCardTaskEditHook }) {
-	const {
-		viewportRef,
-		nextBtnEnabled,
-		scrollNext,
-		prevBtnEnabled,
-		scrollPrev,
-		emblaApi,
-	} = useCustomEmblaCarousel(0, {
-		dragFree: true,
-		containScroll: 'trimSnaps',
-	});
-
-	const emblaApiRef = useSyncRef(emblaApi);
-
-	const task = edition.task;
-
-	useEffect(() => {
-		emblaApiRef.current?.reInit();
-	}, [task, emblaApiRef]);
-
-	return (
-		<div className="relative w-full h-full flex flex-col justify-center">
-			<div ref={viewportRef} className="overflow-hidden w-full relative">
-				<div className="flex space-x-2 mt-2">
-					{task?.status && (
-						<TaskStatus
-							{...taskStatus[task?.status]}
-							className="text-xs"
-							name={task?.status || 'Status'}
-						/>
-					)}
-
-					<TaskStatus
-						{...taskProperties['Low']}
-						className="text-xs"
-						name="Low"
-					/>
-
-					<TaskStatus
-						{...taskSizes['Extra Large']}
-						className="text-xs"
-						name="Completed"
-					/>
-
-					<TaskStatus
-						{...taskDevices['Tablet']}
-						className="text-xs"
-						name="Tablet"
-					/>
-				</div>
-			</div>
-
-			{nextBtnEnabled && (
-				<RoundedButton
-					onClick={scrollNext}
-					className={'absolute w-6 h-6 -right-3 -mb-2'}
-				>
-					{'>'}
-				</RoundedButton>
-			)}
-
-			{prevBtnEnabled && (
-				<RoundedButton
-					onClick={scrollPrev}
-					className={'absolute w-6 h-6 -left-3  -mb-2'}
-				>
-					{'<'}
-				</RoundedButton>
-			)}
-		</div>
 	);
 }

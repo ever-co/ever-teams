@@ -78,7 +78,7 @@ function UserNavMenu() {
 			className="w-[308px] p-5 flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard"
 		>
 			<div className="flex flex-col justify-center items-center">
-				<Link href={`/profile/${user?.id}`}>
+				<Link href={`/settings/personal`}>
 					<Avatar
 						size={72}
 						className="relative cursor-pointer mb-5"
@@ -87,7 +87,7 @@ function UserNavMenu() {
 					/>
 				</Link>
 
-				<Link href={`/profile/${user?.id}`} className="text-center">
+				<Link href={`/settings/personal`} className="text-center">
 					<Text.Heading as="h3">
 						{user?.firstName} {user?.lastName}
 					</Text.Heading>
@@ -98,19 +98,29 @@ function UserNavMenu() {
 
 				<ul className="w-full mt-4">
 					{/* Task menu */}
-					<li className="flex space-x-3 items-center font-normal mb-3">
-						<BriefcaseIcon className="w-5 h-5" /> <span>Task</span>
+					<li className=" mb-3">
+						<Link
+							href={`/profile/${user?.id}`}
+							className="text-center flex space-x-3 items-center font-normal"
+						>
+							<BriefcaseIcon className="w-5 h-5" /> <span>Task</span>
+						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="flex space-x-3 items-center font-normal mb-3">
 						<PeopleIcon className="w-5 h-5" /> <span>Team</span>
 					</li>
 					{/* Settings menu */}
-					<Link href={'/settings/personal'}>
-						<li className="flex space-x-3 items-center font-normal mb-3">
+
+					<li className="mb-3">
+						<Link
+							href={'/settings/personal'}
+							className="flex space-x-3 items-center font-normal"
+						>
 							<SettingsOutlineIcon className="w-5 h-5" /> <span>Settings</span>
-						</li>
-					</Link>
+						</Link>
+					</li>
+
 					{/* Darkmode menu */}
 					<li className="flex space-x-3 items-center justify-between font-normal mb-3">
 						<div className="flex-1 flex items-center space-x-3">

@@ -7,6 +7,7 @@ type Props = {
 	variant?:
 		| 'primary'
 		| 'outline'
+		| 'outline-dark'
 		| 'ghost'
 		| 'light'
 		| 'dark'
@@ -36,6 +37,10 @@ export function Button({
 					variant === 'outline' && [
 						'text-primary border border-primary font-medium',
 						'dark:text-white border dark:border-white',
+						'disabled:opacity-40',
+					],
+					variant === 'outline-dark' && [
+						'input-border font-medium',
 						'disabled:opacity-40',
 					],
 					variant === 'grey' && [
