@@ -34,8 +34,9 @@ export function CreateTeamModal({
 				setError(err?.message);
 			});
 	};
+
 	return (
-		<Modal isOpen={open} closeModal={() => undefined}>
+		<Modal isOpen={open} closeModal={closeModal}>
 			<form
 				className="w-[98%] md:w-[530px]"
 				autoComplete="off"
@@ -50,6 +51,7 @@ export function CreateTeamModal({
 						<div className="w-full mt-5">
 							<InputField
 								name="name"
+								autoCustomFocus
 								placeholder="Please Enter your team name"
 								errors={error ? { name: error } : undefined}
 								onKeyUp={() => setError(null)}

@@ -1,3 +1,4 @@
+import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import {
@@ -6,6 +7,7 @@ import {
 	ReactNode,
 	SetStateAction,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import { SpinnerLoader } from '../loader';
@@ -17,6 +19,7 @@ type Props = {
 	wrapperClassName?: string;
 	noWrapper?: boolean;
 	trailingNode?: ReactNode;
+	autoCustomFocus?: boolean;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -30,11 +33,13 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			noWrapper,
 			setErrors,
 			trailingNode,
+			autoCustomFocus,
 			...res
 		},
 		ref
 	) => {
 		const [error, setError] = useState<string | undefined>(undefined);
+		const inputRef = useRef<HTMLInputElement>(null);
 
 		useEffect(() => {
 			if (errors && name && errors[name]) {
@@ -52,11 +57,20 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			}
 		};
 
+		/**
+		 *  Focusing on the input field when the modal is open.
+		 */
+		useEffect(() => {
+			if (autoCustomFocus) {
+				inputRef.current?.focus();
+			}
+		}, [inputRef, autoCustomFocus]);
+
 		const inputElement = (
 			<input
 				type={type}
 				name={name}
-				ref={ref}
+				ref={mergeRefs([ref, inputRef])}
 				className={clsxm(
 					'bg-light--theme-light dark:bg-dark--theme-light',
 					'input-border',

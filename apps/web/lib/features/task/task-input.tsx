@@ -37,6 +37,7 @@ type Props = {
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
+	createOnEnterClick?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -57,6 +58,7 @@ export function TaskInput({
 	closeable_fc,
 	viewType = 'input-trigger',
 	children,
+	createOnEnterClick,
 }: Props) {
 	const datas = useTaskInput(task, initEditMode);
 	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
@@ -136,6 +138,12 @@ export function TaskInput({
 		}
 	}, [updateLoading, loadingRef, closeable_fcRef]);
 
+	/*
+		If task is passed then we don't want to set the active task for the authenticated user.
+		after task creation
+	 */
+	const autoActiveTask = task !== undefined ? false : true;
+
 	const inputField = (
 		<InputField
 			value={taskName}
@@ -145,7 +153,14 @@ export function TaskInput({
 			ref={targetEl}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
-					updateTaskNameHandler(inputTask, taskName);
+					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
+					!createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
+
+					/* Creating a task on enter click. */
+					createOnEnterClick &&
+						datas?.handleTaskCreation &&
+						datas?.handleTaskCreation(autoActiveTask);
+
 					onEnterKey && onEnterKey(taskName, inputTask);
 				}
 			}}
@@ -169,7 +184,7 @@ export function TaskInput({
 			onItemClick={
 				task !== undefined || onTaskClick ? onTaskClick : setAuthActiveTask
 			}
-			autoActiveTask={task !== undefined ? false : true}
+			autoActiveTask={autoActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 		/>
 	);
@@ -198,6 +213,9 @@ export function TaskInput({
 	);
 }
 
+/**
+ * A component that is used to render the task list.
+ */
 function TaskCard({
 	datas,
 	onItemClick,
