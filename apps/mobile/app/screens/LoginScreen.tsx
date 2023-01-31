@@ -3,6 +3,7 @@ import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { Dimensions } from "react-native"
 import * as Animatable from 'react-native-animatable';
 import { TextInput, TextStyle, Text, View, ViewStyle, Image, ImageStyle, TouchableOpacity } from "react-native"
+import EStyleSheet from 'react-native-extended-stylesheet';
 import { Button, Screen, TextField } from "../components"
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
@@ -13,18 +14,17 @@ import { typography } from "../theme"
 import { CodeInput } from "../components/CodeInput"
 import { register } from "../services/client/api/auth/register"
 import { login } from "../services/client/api/auth/login"
-import { useTeamTasks } from "../services/hooks/features/useTeamTasks";
 import { useFirstLoad } from "../services/hooks/useFirstLoad";
 import { ActivityIndicator } from "react-native-paper";
 import { translate } from "../i18n";
 import sendAuthCode from "../services/client/api/auth/sendAuthCode";
 import { useAppTheme } from "../app";
-import { useOrganizationTeam } from "../services/hooks/useOrganization";
 const pkg = require("../../package.json")
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
 
 const { width, height } = Dimensions.get("window")
+
 export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_props) {
   const authTeamInput = useRef<TextInput>()
   const [isSubmitted, setIsSubmitted] = useState(false)
@@ -67,16 +67,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const { colors, dark } = useAppTheme();
 
 
-  useEffect(() => {
-    // Here is where you could fetch credientials from keychain or storage
-    // and pre-fill the form fields.
-    // setAuthEmail("gauzy@ever.tech")
-    // setAuthTeamName("GauzyTeam")
-
-  }, [])
-
-
-
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
@@ -88,48 +78,44 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     // if (Object.values(validationErrors).some((v) => !!v)) return
     setIsLoading(true)
 
+    // Make a request to your server to get an authentication token.
     const { response } = await login({ email: authEmail, code: authInviteCode })
 
 
-    // Make a request to your server to get an authentication token.
+
     // If successful, reset the fields and set the token.
     if (response.status == 200) {
-      setIsSubmitted(false)
-      setAuthTeamName("")
-      setAuthEmail("")
-      setAuthUsername("")
-      setAuthInviteCode("")
-      setAuthConfirmCode("")
 
       const loginRes = response.data.loginResponse
       const user = loginRes.user
       const employee = user.employee;
       const team = response.data.team
 
-
-      setIsSubmitted(false)
-      setAuthTeamName("")
-      setAuthEmail("")
-      setAuthInviteCode("")
-      setAuthUsername("")
-      setAuthConfirmCode("")
       setActiveTeamId(team.id)
       setActiveTeam(team)
       setOrganizationId(team.organizationId)
       setUser(user)
       setTenantId(team.tenantId)
       setEmployeeId(employee.id)
-      //Load first team data
-      // getUserTeams({ tenantId: team.tenantId, userId: user.id, authToken: loginRes.token });
-      //Load tasks for current team or initialize tasks
-      // loadTeamTasksData();
-      // firstLoadData();
-      // Save Auth Data
-      setAuthToken(loginRes.token);
-      // setRefreshToken(loginRes.refresh_token)
-      setIsLoading(false)
-    }
 
+      // Save Auth Token
+      setAuthToken(loginRes.token);
+      setRefreshToken(loginRes.refresh_token)
+      setIsLoading(false)
+
+      // Reset all fields
+      setIsSubmitted(false)
+      setAuthTeamName("")
+      setAuthEmail("")
+      setAuthInviteCode("")
+      setAuthUsername("")
+      setAuthConfirmCode("")
+      setAuthTeamName("")
+      setAuthEmail("")
+      setAuthUsername("")
+      setAuthInviteCode("")
+      setAuthConfirmCode("")
+    }
   }
 
   const createNewTeam = async () => {
@@ -137,10 +123,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setAttemptsCount(attemptsCount + 1)
 
     if (Object.values(validationErrors).some((v) => !!v)) return
+
+
     setIsLoading(true)
     // Make a request to your server to get an authentication token.
-
-
     const { response } = await register({
       team: authTeamName,
       name: authUsername,
@@ -155,16 +141,6 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       const loginRes = data.loginRes;
       const user = loginRes.user;
 
-
-      setIsSubmitted(false)
-      setAuthTeamName("")
-      setAuthEmail("")
-      setAuthInviteCode("")
-      setAuthUsername("")
-      setAuthConfirmCode("")
-
-      setIsLoading(false)
-
       setActiveTeamId(data.team.id)
       setActiveTeam(data.team)
       setOrganizationId(data.team.organizationId)
@@ -176,14 +152,23 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       // Save Auth Data
       setAuthToken(loginRes.token);
       setRefreshToken(loginRes.refresh_token)
+
       setIsLoading(false)
+      setIsSubmitted(false)
+      setAuthTeamName("")
+      setAuthEmail("")
+      setAuthInviteCode("")
+      setAuthUsername("")
+      setAuthConfirmCode("")
     }
   }
 
   const getAuthCode = useCallback(async () => {
     setIsSubmitted(true)
+    setIsLoading(true)
     const { data, status, error } = await sendAuthCode(authEmail);
     setIsSubmitted(false);
+    setIsLoading(true)
   }, [authEmail])
 
 
@@ -198,7 +183,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     }
   }, [])
 
-  
+
 
   return (
     <Screen
@@ -207,43 +192,43 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       backgroundColor={"#282149"}
       statusBarStyle={"light"}
       safeAreaEdges={["top"]}
-      ScrollViewProps={{bounces:false}}
+      ScrollViewProps={{ bounces: false }}
       KeyboardAvoidingViewProps={{}}
     >
-      <View style={{ paddingHorizontal: 20, marginTop: 20, width, backgroundColor: "#282149" }}>
+      <View style={$header}>
         <Image source={require("../../assets/images/new/gauzy-teams-white.png")} />
         {withteam ? (
           <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-            <Text style={$screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
-            <Text style={$smalltext}>{translate("loginScreen.hintDetails2")}</Text>
+            <Text style={styles.screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
+            <Text style={styles.smalltext}>{translate("loginScreen.hintDetails2")}</Text>
           </View>
         ) : !withteam && screenstatus.screen !== 3 ?
           (
             <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-              <Text style={$screenTitle}>{translate("loginScreen.enterDetails")}</Text>
-              <Text style={$smalltext}>{translate("loginScreen.hintDetails")}</Text>
+              <Text style={styles.screenTitle}>{translate("loginScreen.enterDetails")}</Text>
+              <Text style={styles.smalltext}>{translate("loginScreen.hintDetails")}</Text>
             </View>
           ) : (
             <View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-              <Text style={$screenTitle}>{translate("loginScreen.joinTeam")}</Text>
-              <Text style={$smalltext}>{translate("loginScreen.joinTeamHint")}</Text>
+              <Text style={styles.screenTitle}>{translate("loginScreen.joinTeam")}</Text>
+              <Text style={styles.smalltext}>{translate("loginScreen.joinTeamHint")}</Text>
             </View>
           )
         }
-
       </View>
-      <View style={{ width, height: height / 1.9, backgroundColor: "#fff" }}>
+      <View style={$bottom}>
+
 
         {/* CREATE NEW TEAM STARTS HERE */}
         {/* STEP 1 : PROVIDE TEAM NAME */}
         {screenstatus.screen === 1 && !withteam ? (
-          <Animatable.View animation={"bounceIn"} delay={1000} style={$form}>
-            <Text style={$text}>{translate("loginScreen.step1Title")}</Text>
+          <Animatable.View animation={"bounceIn"} delay={1000} style={styles.form}>
+            <Text style={styles.text}>{translate("loginScreen.step1Title")}</Text>
             <TextField
               placeholder={translate("loginScreen.teamNameFieldPlaceholder")}
-              containerStyle={$textField}
+              containerStyle={styles.textField}
               placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-              inputWrapperStyle={$inputStyleOverride}
+              inputWrapperStyle={styles.inputStyleOverride}
               ref={authTeamInput}
               value={authTeamName}
               onChangeText={setAuthTeamName}
@@ -254,13 +239,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               status={errors?.authTeamName ? "error" : undefined}
               onSubmitEditing={() => authTeamInput.current?.focus()}
             />
-            <View style={[$buttonsView]}>
+            <View style={styles.buttonsView}>
               <TouchableOpacity style={{ width: 130 }} onPress={() => setWithTeam(true)}>
-                <Text style={$backButtonText}>{translate("loginScreen.joinExistTeam")}</Text>
+                <Text style={styles.joinExistedText}>{translate("loginScreen.joinExistTeam")}</Text>
               </TouchableOpacity>
               <Button
                 style={$tapButton}
-                textStyle={$tapButtonText}
+                textStyle={styles.tapButtonText}
                 onPress={() => setScreenStatus({
                   screen: 2,
                   animation: true
@@ -272,16 +257,15 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           </Animatable.View>
           // END STEP 1 : PROVIDE TEAM NAME
         )
-
           : screenstatus.screen === 2 ? (
             // STEP 2 : ENTER YOUR NAME AND EMAIL
-            <Animatable.View animation={"bounceIn"} delay={1000} style={$form}>
-              <Text style={$text}>{translate("loginScreen.step2Title")}</Text>
+            <Animatable.View animation={"bounceIn"} delay={1000} style={styles.form}>
+              <Text style={styles.text}>{translate("loginScreen.step2Title")}</Text>
               <TextField
                 placeholder={translate("loginScreen.userNameFieldPlaceholder")}
-                containerStyle={$textField}
+                containerStyle={styles.textField}
                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-                inputWrapperStyle={$inputStyleOverride}
+                inputWrapperStyle={styles.inputStyleOverride}
                 ref={authTeamInput}
                 value={authUsername}
                 onChangeText={setAuthUsername}
@@ -294,9 +278,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
               />
               <TextField
                 placeholder={translate("loginScreen.emailFieldPlaceholder")}
-                containerStyle={[$textField, { marginTop: 20 }]}
+                containerStyle={[styles.textField, { marginTop: 20 }]}
                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-                inputWrapperStyle={$inputStyleOverride}
+                inputWrapperStyle={styles.inputStyleOverride}
                 ref={authTeamInput}
                 value={authEmail}
                 onChangeText={setAuthEmail}
@@ -307,7 +291,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 status={errors?.authEmail ? "error" : undefined}
                 onSubmitEditing={() => authTeamInput.current?.focus()}
               />
-              <View style={[$buttonsView]}>
+              <View style={[styles.buttonsView]}>
                 <TouchableOpacity
                   style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: 65 }}
                   onPress={() => setScreenStatus({
@@ -316,11 +300,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   })}
                 >
                   <Image source={require("../../assets/icons/back.png")} />
-                  <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
+                  <Text style={[styles.backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
                   style={[$tapButton, { width: width / 2.1 }]}
-                  textStyle={$tapButtonText}
+                  textStyle={styles.tapButtonText}
                   onPress={() => setScreenStatus({
                     screen: 3,
                     animation: true
@@ -333,21 +317,24 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
             // END STEP 2 : ENTER YOUR NAME AND EMAIL 
           ) : screenstatus.screen === 3 ? (
             // START STEP 3 : EMAIL VERIFICATION
-            <Animatable.View animation={"bounceIn"} delay={1000} style={$form}>
-              <Text style={$text}>{translate("loginScreen.step3Title")}</Text>
+            <Animatable.View animation={"bounceIn"} delay={1000} style={styles.form}>
+              <Text style={styles.text}>{translate("loginScreen.step3Title")}</Text>
               <View>
                 <CodeInput
                   onChange={setAuthConfirmCode}
+                  editable={!isLoading}
                 />
-                <TouchableOpacity style={$resendWrapper}
+                <TouchableOpacity style={styles.resendWrapper}
                   onPress={() => setScreenStatus({
                     screen: 2,
                     animation: true
                   })}>
-                  <Text style={$resendText}>{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
+                  <Text 
+                  style={{...styles.resendText}}
+                  >{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
                 </TouchableOpacity>
               </View>
-              <View style={[$buttonsView]}>
+              <View style={[styles.buttonsView]}>
                 <TouchableOpacity
                   style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: 65 }}
                   onPress={() => setScreenStatus({
@@ -356,29 +343,29 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   })}
                 >
                   <Image source={require("../../assets/icons/back.png")} />
-                  <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
+                  <Text style={[styles.backButtonText]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
                   style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
-                  textStyle={$tapButtonText}
+                  textStyle={styles.tapButtonText}
                   onPress={() => createNewTeam()}
                 >
                   <Text>{translate("loginScreen.tapContinue")}</Text>
                 </Button>
-                <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#fff"} />
+                <ActivityIndicator style={styles.loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>
             </Animatable.View>
 
             // END STEP 3 : EMAIL VERIFICATION
           ) : (
             // JOIN EXISTED TEAM STARTS HERE
-            <Animatable.View animation={"bounceInUp"} style={$form}>
-              <Text style={$text}>{translate("loginScreen.inviteStepLabel")}</Text>
+            <Animatable.View animation={"bounceInUp"} style={styles.form}>
+              <Text style={styles.text}>{translate("loginScreen.inviteStepLabel")}</Text>
               <TextField
                 placeholder={translate("loginScreen.emailFieldPlaceholder")}
-                containerStyle={$textField}
+                containerStyle={styles.textField}
                 placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-                inputWrapperStyle={$inputStyleOverride}
+                inputWrapperStyle={styles.inputStyleOverride}
                 ref={authTeamInput}
                 value={authEmail}
                 onChangeText={setAuthEmail}
@@ -389,17 +376,18 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 status={errors?.authEmail ? "error" : undefined}
                 onSubmitEditing={() => authTeamInput.current?.focus()}
               />
-              <View style={{ marginTop: 32 }}>
-                <Text style={$inputInviteTitle}>{translate("loginScreen.inviteCodeFieldLabel")}</Text>
+              <View style={{}}>
+                <Text style={styles.inputInviteTitle}>{translate("loginScreen.inviteCodeFieldLabel")}</Text>
                 <CodeInput
                   onChange={setAuthInviteCode}
+                  editable={!isLoading}
                 />
-                <TouchableOpacity style={$resendWrapper}
+                <TouchableOpacity
                   onPress={() => getAuthCode()}>
-                  <Text style={$resendText}>{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
+                  <Text style={styles.resendText}>{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
                 </TouchableOpacity>
               </View>
-              <View style={[$buttonsView]}>
+              <View style={[styles.buttonsView]}>
                 <TouchableOpacity
                   style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: 65 }}
                   onPress={() => {
@@ -411,24 +399,25 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   }}
                 >
                   <Image source={require("../../assets/icons/back.png")} />
-                  <Text style={[$backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
+                  <Text style={[styles.backButtonText]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
                   style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
-                  textStyle={$tapButtonText}
+                  textStyle={styles.tapButtonText}
                   onPress={() => joinTeam()}
                 >
                   <Text>{translate("loginScreen.tapJoin")}</Text>
                 </Button>
-                <ActivityIndicator style={$loading} animating={isLoading} size={'small'} color={"#fff"} />
+                <ActivityIndicator style={styles.loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>
             </Animatable.View>
           )}
 
-        <View style={$bottomSection}>
-          <Text style={$bottomSectionTxt}>© 2022-Present, Gauzy Teams by Ever Co. LTD. All rights reserved.</Text>
-          <TouchableOpacity onPress={() => toggleTheme()}>
-            <Image style={{ height: 50, marginBottom: -25 }} source={require("../../assets/icons/new/toogle-light.png")} />
+
+        <View style={styles.bottomSection}>
+          <Text style={styles.bottomSectionTxt}>© 2022-Present, Gauzy Teams by Ever Co. LTD. All rights reserved.</Text>
+          <TouchableOpacity style={{ flex: 1 }} onPress={() => toggleTheme()}>
+            <Image style={styles.imageTheme} source={require("../../assets/icons/new/toogle-light.png")} />
           </TouchableOpacity>
         </View>
       </View>
@@ -449,116 +438,15 @@ const $screenContentContainer: ViewStyle = {
 const $header: ViewStyle = {
   width: "100%",
   display: "flex",
-  alignItems: "center",
   paddingTop: 15,
+  flex: 1.4,
   justifyContent: "flex-start",
 }
 
-const $container: ViewStyle = {
-  paddingVertical: spacing.large,
-  width: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  overflow: "hidden",
-}
-
-const $form: ViewStyle = {
-  position: "absolute",
-  padding: 24,
-  top: -height / 5.7,
-  width: width / 1.2,
-  alignSelf: 'center',
-  backgroundColor: colors.background,
-  display: "flex",
-  alignItems: "center",
-  borderRadius: 16,
-  justifyContent: "flex-start",
-  borderWidth: 1,
-  borderColor: "rgba(0,0,0,0.1)",
-  elevation: 10,
-  shadowColor: "rgba(0,0,0,0.1)",
-  shadowOffset: { width: 10, height: 10 },
-  shadowOpacity: 5,
-  shadowRadius: 9,
-  minHeight: height / 4
-}
-
-const $loading: ViewStyle = {
-  position: "absolute",
-  bottom: "20%",
-  right: 140,
-
-}
-
-const $smalltext: TextStyle = {
-  marginTop: spacing.medium,
-  fontSize: spacing.small,
-  color: "#fff",
-  fontFamily: typography.secondary.normal,
-  fontWeight: "400",
-}
-const $text: TextStyle = {
-  marginBottom: spacing.small,
-  fontSize: 24,
-  color: "#1A1C1E",
-  fontFamily: typography.primary.semiBold,
-}
-
-const $screenTitle: TextStyle = {
-  marginTop: 40,
-  fontSize: 25,
-  color: "#fff",
-  fontFamily: typography.primary.bold,
-  fontWeight: "700",
-}
-
-const $confirmtext: TextStyle = {
-  marginBottom: spacing.small,
-  fontSize: 16,
-  color: colors.text,
-  textAlign: "center",
-  fontFamily: typography.secondary.normal,
-  fontWeight: "300",
-}
-
-const $welcomeLogo: ImageStyle = {
-  width: "70%",
-}
-
-const $joinButtonText: TextStyle = {
-  fontWeight: "700",
-}
-
-const $joinTeamLogo: ImageStyle = {
-  width: "100%",
-}
-
-const $joinTeamLogoContainer: ViewStyle = {
-  width: 120,
-  height: 120,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: colors.palette.neutral200,
-  borderRadius: 60,
-  marginTop: 50,
-}
-const $textField: ViewStyle = {
-  marginBottom: spacing.large,
-  width: "100%",
-  height: 53,
-  borderRadius: 20,
-}
-const $inputStyleOverride: TextStyle = {
-  marginTop: 28,
-  height: 53,
-  borderColor: "rgba(0,0,0,0.1)",
-  backgroundColor: "#FFFFFF",
-  paddingVertical: 7,
-  paddingHorizontal: 10,
-  borderRadius: 10
-
+const $bottom: ViewStyle = {
+  width,
+  backgroundColor: "#fff",
+  flex: 2
 }
 
 const $tapButton: ViewStyle = {
@@ -568,70 +456,135 @@ const $tapButton: ViewStyle = {
   backgroundColor: "#3826A6",
 }
 
-const $tapButtonText: TextStyle = {
-  color: "#fff",
-  fontFamily: typography.primary.semiBold,
-  fontSize: 16
-}
-const $buttonsView: ViewStyle = {
-  width: "100%",
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  marginTop: 32,
-  justifyContent: "space-between",
-}
-const $resendWrapper: ViewStyle = {
-  marginTop: 24
-}
-
-const $resendText: TextStyle = {
-  fontSize: 14,
-  color: "#B1AEBC",
-  fontFamily: typography.primary.medium
-}
-
-const $backButton: ViewStyle = {
-
-  marginTop: spacing.extraSmall,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 50,
-  backgroundColor: colors.palette.neutral200,
-}
-const $release: TextStyle = {
-  fontSize: 10,
-  color: colors.text,
-  fontFamily: typography.secondary.normal,
-  fontWeight: "700",
-}
-const $backButtonText: TextStyle = {
-  fontSize: 12,
-  fontFamily: typography.primary.semiBold,
-  color: "#3826A6"
-}
-const $bottomSection: ViewStyle = {
-  position: "absolute",
-  justifyContent: "space-between",
-  alignItems: "center",
-  width: width - 40,
-  flexDirection: 'row',
-  alignSelf: "center",
-  bottom: 44,
-  paddingTop: 16,
-  borderTopColor: "rgba(0, 0, 0, 0.16)",
-  borderTopWidth: 1
-}
-const $bottomSectionTxt: TextStyle = {
-  width: width / 1.47,
-  fontSize: 10,
-  fontFamily: typography.primary.medium,
-  color: "rgba(126, 121, 145, 0.7)"
-}
-
-const $inputInviteTitle: TextStyle = {
-  fontSize: 14,
-  fontFamily: typography.primary.medium,
-  color: "#B1AEBC"
-}
+const styles = EStyleSheet.create({
+  form: {
+    position: "absolute",
+    display: "flex",
+    flex: 1,
+    width: "90%",
+    top: "-32%",
+    padding: "1.5rem",
+    alignSelf: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    borderRadius: "1rem",
+    justifyContent: "flex-start",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
+    elevation: 10,
+    shadowColor: "rgba(0,0,0,0.1)",
+    shadowOffset: { width: 10, height: 10 },
+    shadowOpacity: 5,
+    shadowRadius: 9,
+    zIndex: 1000
+  },
+  text: {
+    fontSize: "1.5rem",
+    marginBottom: "2rem",
+    color: "#1A1C1E",
+    width: "100%",
+    textAlign: "center",
+    fontFamily: typography.primary.semiBold,
+  },
+  buttonsView: {
+    width: "100%",
+    display: "flex",
+    marginTop: "2rem",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  imageTheme: {
+    height: "3.1rem",
+    marginBottom: "-1.5rem"
+  },
+  bottomSection: {
+    position: "absolute",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: width - 40,
+    display: "flex",
+    flexDirection: 'row',
+    alignSelf: "center",
+    bottom: 0,
+    marginBottom: "2rem",
+    paddingTop: "1rem",
+    borderTopColor: "rgba(0, 0, 0, 0.16)",
+    borderTopWidth: 1,
+    zIndex: 100
+  },
+  inputStyleOverride: {
+    height: "3.3rem",
+    borderColor: "rgba(0,0,0,0.1)",
+    backgroundColor: "#FFFFFF",
+    paddingVertical: "0.43rem",
+    paddingHorizontal: "0.6rem",
+    borderRadius: "0.6rem"
+  },
+  textField: {
+    width: "100%",
+    borderRadius: "1.25rem",
+  },
+  buttonText: {
+    fontSize: "2rem",
+    fontFamily: typography.primary.semiBold,
+    color: "#3826A6"
+  },
+  joinExistedText: {
+    fontSize: "0.75rem",
+    fontFamily: typography.primary.semiBold,
+    color: "#3826A6"
+  },
+  backButtonText: {
+    fontSize: "0.87rem",
+    fontFamily: typography.primary.semiBold,
+    color: "#3826A6"
+  },
+  tapButtonText: {
+    color: "#fff",
+    fontFamily: typography.primary.semiBold,
+    fontSize: "1rem"
+  },
+  inputInviteTitle: {
+    fontSize: "0.87rem",
+    marginTop: "1.8rem",
+    marginBottom: "1rem",
+    fontFamily: typography.primary.medium,
+    color: "#B1AEBC"
+  },
+  resendText: {
+    fontSize: "0.87rem",
+    color: "#B1AEBC",
+    marginTop: "1.5rem",
+    fontFamily: typography.primary.medium
+  },
+  bottomSectionTxt: {
+    flex: 3,
+    fontSize: "0.7rem",
+    fontFamily: typography.primary.medium,
+    color: "rgba(126, 121, 145, 0.7)"
+  },
+  loading: {
+    position: "absolute",
+    bottom: "20%",
+    right: 140,
+  },
+  screenTitle :{
+    marginTop: "2rem",
+    fontSize: "1.5rem",
+    textAlign:"center",
+    width:"100%",
+    color: "#fff",
+    fontFamily: typography.primary.bold,
+    fontWeight: "700",
+  },
+  smalltext: {
+    marginTop: "1rem",
+    fontSize: '0.7rem',
+    width:"100%",
+    textAlign: "center",
+    color: "#fff",
+    fontFamily: typography.secondary.normal,
+    fontWeight: "400",
+  }
+})
