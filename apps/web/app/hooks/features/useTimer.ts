@@ -9,8 +9,6 @@ import {
 } from '@app/services/client/api/timer';
 import {
 	activeTaskStatisticsState,
-	activeTeamIdState,
-	activeTeamTaskState,
 	localTimerStatusState,
 	timeCounterIntervalState,
 	timeCounterState,
@@ -23,6 +21,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
+import { useTeamTasks } from './useTeamTasks';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-team';
 
@@ -136,8 +135,8 @@ function useLocalTimeCounter(
 }
 
 export function useTimer() {
-	const activeTeamTask = useRecoilValue(activeTeamTaskState);
-	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const { updateTask, activeTeamId, activeTeamTask } = useTeamTasks();
+
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useRecoilState(
@@ -156,6 +155,7 @@ export function useTimer() {
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'Closed';
@@ -210,10 +210,20 @@ export function useTimer() {
 			return;
 		});
 
+		/**
+		 *  Updating the task status to "In Progress" when the timer is started.
+		 */
+		if (activeTeamTaskRef.current) {
+			updateTask({
+				...activeTeamTaskRef.current,
+				status: 'In Progress',
+			});
+		}
+
 		promise.finally(() => setTimerStatusFetching(false));
 
 		return promise;
-	}, [taskId.current]);
+	}, [taskId.current, activeTeamTaskRef]);
 
 	// Stop timer
 	const stopTimer = useCallback(() => {
