@@ -30,6 +30,7 @@ export interface IOrganizationTeamList {
   tenantId: string;
   organizationId: string;
   name: string;
+  managerIds:string[];
   members: OT_Member[];
 }
 

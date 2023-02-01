@@ -18,6 +18,26 @@ export function createOrganizationTeamRequest(
   });
 }
 
+export function updateOrganizationTeamRequest(
+  {
+    id,
+    datas,
+    bearer_token
+  }
+    : {
+      datas: IOrganizationTeamList,
+      id: string,
+      bearer_token: string
+    }
+) {
+  return serverFetch<IOrganizationTeamList>({
+    path: `/organization-team/${id}`,
+    method: "PUT",
+    body: datas,
+    bearer_token,
+  });
+}
+
 export function getOrganizationTeamRequest(id: string, bearer_token: string) {
   return serverFetch<IOrganizationTeamList>({
     path: `/organization-team/${id}`,

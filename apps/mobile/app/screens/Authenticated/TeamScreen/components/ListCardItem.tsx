@@ -243,7 +243,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 
 const ListCardItem: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
-  const { isTeamManager, currentUser } = useOrganizationTeam();
+  const { isTeamManager, currentUser, makeMemberAsManager } = useOrganizationTeam();
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
   const [estimateNow, setEstimateNow] = React.useState(false)
@@ -318,7 +318,13 @@ const ListCardItem: React.FC<Props> = (props) => {
 
                 {isTeamManager ? (
                   <>
-                    {!isAuthUser && <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Make a Manager</ListItem>}
+                    {!isAuthUser && <ListItem
+                      textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+                      onPress={() => {
+                        setShowMenu(false)
+                        makeMemberAsManager(member.employee.id)
+                      }}
+                    >Make a Manager</ListItem>}
                     <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
                   </>
                 ) : null}
