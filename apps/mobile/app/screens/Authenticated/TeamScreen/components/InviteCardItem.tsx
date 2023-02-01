@@ -22,6 +22,7 @@ import { translate } from "../../../../i18n"
 import { useAppTheme } from "../../../../app"
 import LabelItem from "../../../../components/LabelItem"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
+import { imgTitle } from "../../../../helpers/img-title"
 
 
 export type ListItemProps = {
@@ -73,7 +74,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) =>
             <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, borderRadius: 10, opacity: 0.77 }]}>
                 <View style={styles.firstContainer}>
                     <View style={styles.wrapProfileImg}>
-                        <Avatar.Text size={40} label={"EM"} />
+                        <Avatar.Text size={40} label={imgTitle(invite.fullName)} />
                         <Avatar.Image style={styles.statusIcon} size={20} source={require("../../../../../assets/icons/new/invite-status-icon.png")} />
                     </View>
                     <Text style={[styles.name, { color: colors.primary }]}>{invite.fullName}</Text>

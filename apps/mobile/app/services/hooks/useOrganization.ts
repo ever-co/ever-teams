@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { showMessage } from "react-native-flash-message";
 import { useStores } from "../../models";
 import { ITeamsOut } from "../../models/team/team";
 import { getUserOrganizationsRequest } from "../client/requests/organization";
-import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from "../client/requests/organization-team";
+import { createOrganizationTeamRequest, getAllOrganizationTeamRequest, updateOrganizationTeamRequest } from "../client/requests/organization-team";
 import { IUserOrganization } from "../interfaces/IOrganization";
-import { IOrganizationTeamList } from "../interfaces/IOrganizationTeam";
+import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
 
 function useCreateOrganizationTeam() {
     const {
         authenticationStore: { tenantId, organizationId, employeeId, authToken },
-        teamStore: { teams, setOrganizationTeams, setActiveTeamId }
+        teamStore: { teams, setOrganizationTeams, activeTeamId, setActiveTeamId }
     } = useStores();
 
     const [createTeamLoading, setCreateTeamLoading] = useState(false)
@@ -129,20 +130,61 @@ export function useOrganizationTeam() {
             );
         });
 
+        // UPDATE ACTIVE TEAM
+        if (activeTeamId) {
+            const updateActiveTeam = data.items.find((t) => t.id === activeTeamId)
+            setActiveTeam(updateActiveTeam)
+        }
+
         setOrganizationTeams(data);
         setTeamsFetching(false)
 
     }, [])
 
-    // useEffect(() => {
-    //     setActiveTeam(activeTeam)
-    // }, [activeTeam])
+
+    const makeMemberAsManager = useCallback(async (employeeId: string) => {
+        // Check if user is already manager
+        const member: OT_Member = members.find((m) => m.employeeId === employeeId);
+
+        if (member.role) {
+            showMessage({
+                message:"Info",
+                description:"User is already manager",
+                type:"warning"
+            })
+            return
+        }
+
+        const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
+        managerIds.push(employeeId)
+
+        const team: IOrganizationTeamList = {
+            ...activeTeam,
+            managerIds,
+        }
+
+        const { data, response } = await updateOrganizationTeamRequest({
+            datas: team,
+            id: activeTeamId,
+            bearer_token: authToken
+        });
+        await loadingTeams();
+
+        if(response.ok || response.status===202){
+            showMessage({
+                message:"Info",
+                description:"The current user is now manager ! ",
+                type:"success"
+            })
+        }
+    }, [activeTeamId, isManager])
+
 
     // Load Teams
     useEffect(() => {
         isManager();
         loadingTeams()
-    }, [user, createTeamLoading])
+    }, [user, createTeamLoading, updateOrganizationTeamRequest])
 
     return {
         loadingTeams,
@@ -153,6 +195,7 @@ export function useOrganizationTeam() {
         $otherMembers,
         currentUser,
         createTeamLoading,
-        teamsFetching
+        teamsFetching,
+        makeMemberAsManager
     }
 }
