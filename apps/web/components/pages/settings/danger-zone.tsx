@@ -13,41 +13,41 @@ const DangerZone = () => {
                         <div className="">
                             <div className='flex w-full items-center justify-between gap-6'>
                                 <div className="flex-auto w-64">
-                                    <Text className="text-xl text-[#282048] font-semibold">
+                                    <Text className="text-xl text-[#282048] font-normal">
                                         Remove Account
                                     </Text>
                                 </div>
                                 <div className="flex-auto w-64">
-                                    <Text className="text-md text-gray-400 font-normal mb-2">
+                                    <Text className="text-md text-gray-400 font-normal">
                                         Account will be removed from all teams, except where you are only the manager
                                     </Text>
                                 </div>
-                                <div className="flex-auto w-32 mt-6">
+                                <div className="flex-auto w-32">
                                     <Button
                                         variant="danger"
                                         type="submit"
-                                        className='float-right'
+                                        className='float-right w-full'
                                     >
                                         Remove Everywhere
                                     </Button>
                                 </div>
                             </div>
-                            <div className='flex w-full items-center justify-between gap-6'>
+                            <div className='flex w-full items-center justify-between gap-6 mt-5'>
                                 <div className="flex-auto w-64">
-                                    <Text className="text-xl text-[#282048] font-semibold">
+                                    <Text className="text-xl text-[#282048] font-normal">
                                         Delete Account
                                     </Text>
                                 </div>
                                 <div className="flex-auto w-64">
-                                    <Text className="text-md text-gray-400 font-normal mb-2">
+                                    <Text className="text-md text-gray-400 font-normal">
                                         Your Account will be deleted permanently with removing from all teams
                                     </Text>
                                 </div>
-                                <div className="flex-auto w-32 mt-6">
+                                <div className="flex-auto w-32">
                                     <Button
                                         variant="danger"
                                         type="submit"
-                                        className='float-right'
+                                        className='float-right w-full'
                                     >
                                         Delete This Account
                                     </Button>
