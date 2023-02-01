@@ -44,13 +44,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     const { colors, dark } = useAppTheme();
     //Get authentificate data
     const {
+      teamStore:{
+        teamInvitations
+      },
       TimerStore: {
         localTimerStatus
       }
     } = useStores();
 
     const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser } = useOrganizationTeam();
-    const { teamInvitations } = useTeamInvitations();
     const {
       setShowCreateTeamModal,
       setShowInviteModal,
@@ -125,7 +127,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                   />
                 ))}
 
-                {isTeamManager && teamInvitations.map((invite, idx) => (
+                {teamInvitations.map((invite, idx) => (
                   <InviteCardItem key={idx} invite={invite} />
                 ))}
               </View>
