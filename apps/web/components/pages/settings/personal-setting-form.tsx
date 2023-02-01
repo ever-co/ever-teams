@@ -1,10 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import ToggleThemeContainer from '@components/layout/toggleThemeBtns';
 import { withAuthentication } from 'lib/app/authenticator';
 import {
     Button,
     InputField,
 	Text,
+    ThemeToggler,
 } from 'lib/components';
 import { LanguageDropDown } from './language-dropdown';
 import { TimezoneDropDown } from './timezone-dropdown';
@@ -14,6 +14,7 @@ import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { userTimezone } from '@app/helpers';
 import { useSettings } from '@app/hooks';
+import { useTheme } from 'next-themes';
 
 
 const PersonalSettingForm = () => {
@@ -21,6 +22,7 @@ const PersonalSettingForm = () => {
     const { register, setValue, handleSubmit } = useForm();
     const [currentTimezone, setCurrentTimezone] = useState("");
     const { updateAvatar } = useSettings();
+    const { theme } = useTheme();
 
     useEffect(() => {
         setValue('firstName', user?.firstName)
@@ -117,11 +119,11 @@ const PersonalSettingForm = () => {
                                     <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Theme
                                     </Text>
-                                    <ToggleThemeContainer />
+                                    <ThemeToggler />
                                 </div>
-                                <div className="mt-6">
+                                <div className="mt-8">
                                     <Text className="text-sm font-normal text-gray-400">
-                                        Light Mode
+                                        {theme === 'light' ? 'Light' : 'Dark'} Mode
                                     </Text>
                                 </div>
                             </div>
@@ -157,7 +159,7 @@ const PersonalSettingForm = () => {
                                     <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Work Schedule
                                     </Text>
-                                    <Text className='text-md font-PlusJakartaSansSemiBold'>No</Text>
+                                    <Text className='text-md font-normal'>No</Text>
                                 </div>
                             </div>
                         </div>

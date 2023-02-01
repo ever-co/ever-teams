@@ -20,13 +20,13 @@ const Team = () => {
 					<LeftSideSettingMenu />
 					<div className='flex flex-col w-full'>
 					<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
-						<Text className='text-4xl font-PlusJakartaSansSemiBold'>Team Settings</Text>
-						<Text className='text-base font-PlusJakartaSansLight'>Setting dan manage your personal dashboard here</Text>
+						<Text className='text-4xl font-medium'>Team Settings</Text>
+						<Text className='text-base font-normal'>Setting dan manage your personal dashboard here</Text>
 						<ProfileAvatar />
 						<TeamSettingForm />
 					</Card>
 					<Card className='dark:bg-dark--theme p-[32px] mt-[36px]' shadow='bigger'>
-						<Text className='text-2xl text-[#EB6961] font-PlusJakartaSansSemiBold'>Danger Zone</Text>
+						<Text className='text-2xl text-[#EB6961] font-normal'>Danger Zone</Text>
 						<DangerZone />
 					</Card>
 					</div>
