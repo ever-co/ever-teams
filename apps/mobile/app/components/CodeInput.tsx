@@ -4,9 +4,10 @@ import { colors, typography } from "../theme"
 
 interface IInput {
   onChange: (code: string) => void
+  editable: boolean
 }
 
-export const CodeInput: FC<IInput> = ({ onChange }) => {
+export const CodeInput: FC<IInput> = ({ onChange, editable }) => {
   const inputsRef = useRef<TextInput[] | null[]>([]);
   const [active, setActive] = useState<number>(0);
   const [inviteCode, setInviteCode] = useState([])
@@ -40,9 +41,10 @@ export const CodeInput: FC<IInput> = ({ onChange }) => {
           key={i}
           maxLength={1}
           keyboardType="numeric"
-          style={[styles.inputStyle, { borderColor: active === i ? colors.primary : "rgba(0, 0, 0, 0.1)" }]}
+          style={[styles.inputStyle, editable ? { borderColor: active === i ? colors.primary : "rgba(0, 0, 0, 0.1)" }:null]}
           onKeyPress={onKeyPress}
           autoFocus={active === i}
+          editable={editable}
           ref={(r) => {
             inputsRef.current[i] = r;
           }}
@@ -55,7 +57,7 @@ export const CodeInput: FC<IInput> = ({ onChange }) => {
 }
 type InputProps = {
   onKeyPress: () => unknown;
-  onFocus:()=>unknown
+  onFocus: () => unknown
   active: number;
   inputsRef: any,
   index: number
@@ -81,16 +83,15 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     justifyContent: "center",
-    marginTop:32
   },
   inputStyle: {
     width: 39,
     height: 53,
-    backgroundColor:"#fff",
+    backgroundColor: "#fff",
     textAlign: "center",
     fontSize: 16,
-    color:colors.primary,
-    fontFamily:typography.primary.semiBold,
+    color: colors.primary,
+    fontFamily: typography.primary.semiBold,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.1)",
     marginHorizontal: 4,
