@@ -20,13 +20,13 @@ const Personal = () => {
 					<LeftSideSettingMenu />
 					<div className='flex flex-col w-full'>
 					<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
-						<Text className='text-4xl font-PlusJakartaSansSemiBold'>Personal Settings</Text>
-						<Text className='text-base font-PlusJakartaSansLight'>Setting dan manage your personal dashboard here</Text>
+						<Text className='text-4xl font-medium'>Personal Settings</Text>
+						<Text className='text-base font-normal text-gray-400'>Setting dan manage your personal dashboard here</Text>
 						<ProfileAvatar />
 						<PersonalSettingForm />
 					</Card>
 					<Card className='dark:bg-dark--theme p-[32px] mt-[36px]' shadow='bigger'>
-						<Text className='text-2xl text-[#EB6961] font-PlusJakartaSansSemiBold'>Danger Zone</Text>
+						<Text className='text-2xl text-[#EB6961] font-normal'>Danger Zone</Text>
 						<DangerZone />
 					</Card>
 					</div>
