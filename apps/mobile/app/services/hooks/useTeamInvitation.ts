@@ -56,7 +56,6 @@ export function useTeamInvitations() {
     }
 
     const getTeamInvitations = async () => {
-        console.log("LOAD INVITES")
         const { data } = await getTeamInvitationsRequest(
             {
                 tenantId,
