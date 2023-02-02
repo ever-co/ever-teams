@@ -56,6 +56,7 @@ const en = {
     userNameFieldPlaceholder: "Enter your name",
     tapContinue: "Continue",
     tapJoin: "Join",
+    createTeam:"Create Team"
   },
   myWorkScreen: {
     name: "My Work",

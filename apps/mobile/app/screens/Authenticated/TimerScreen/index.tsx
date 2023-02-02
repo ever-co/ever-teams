@@ -57,7 +57,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
             <View style={{ zIndex: 100 }}>
               <ManageTaskCard />
             </View>
-            <View style={{ zIndex: 99 }}>
+            <View style={{ zIndex: 99, }}>
               <TimerCard />
             </View>
           </View>
