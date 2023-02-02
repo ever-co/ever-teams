@@ -244,6 +244,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 const ListCardItem: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
   const { isTeamManager, currentUser, makeMemberAsManager, removeMember } = useOrganizationTeam();
+
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
   const [estimateNow, setEstimateNow] = React.useState(false)
