@@ -6,6 +6,8 @@ import { getUserOrganizationsRequest } from "../client/requests/organization";
 import { createOrganizationTeamRequest, getAllOrganizationTeamRequest, updateOrganizationTeamRequest } from "../client/requests/organization-team";
 import { IUserOrganization } from "../interfaces/IOrganization";
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
+import useAuthenticateUser from "./features/useAuthentificateUser";
+
 
 function useCreateOrganizationTeam() {
     const {
@@ -59,6 +61,7 @@ function useCreateOrganizationTeam() {
 export function useOrganizationTeam() {
     const { teamStore: { activeTeamId, teams, setActiveTeam, setOrganizationTeams, activeTeam },
         authenticationStore: { user, tenantId, authToken } } = useStores();
+    const { logOut } = useAuthenticateUser();
 
     const [teamsFetching, setTeamsFetching] = useState(false)
 
@@ -130,13 +133,22 @@ export function useOrganizationTeam() {
             );
         });
 
+        // If there no team, user will be logged out
+        if (data.total <= 0) {
+            logOut();
+            return
+        }
+
         // UPDATE ACTIVE TEAM
-        if (activeTeamId) {
-            const updateActiveTeam = data.items.find((t) => t.id === activeTeamId)
+        const updateActiveTeam = data.items.find((t) => t.id === activeTeamId)
+        if (updateActiveTeam) {
             setActiveTeam(updateActiveTeam)
+        } else {
+            setActiveTeam(data.items[0])
         }
 
         setOrganizationTeams(data);
+
         setTeamsFetching(false)
 
     }, [])
@@ -148,9 +160,9 @@ export function useOrganizationTeam() {
 
         if (member.role) {
             showMessage({
-                message:"Info",
-                description:"User is already manager",
-                type:"warning"
+                message: "Info",
+                description: "User is already manager",
+                type: "warning"
             })
             return
         }
@@ -170,14 +182,61 @@ export function useOrganizationTeam() {
         });
         await loadingTeams();
 
-        if(response.ok || response.status===202){
+        if (response.ok || response.status === 202) {
             showMessage({
-                message:"Info",
-                description:"The current user is now manager ! ",
-                type:"success"
+                message: "Info",
+                description: "The current user is now manager ! ",
+                type: "success"
             })
         }
     }, [activeTeamId, isManager])
+
+
+    const removeMember = useCallback(async (employeeId: string) => {
+
+        const member = members.find((m) => m.employeeId === employeeId)
+        const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
+
+        // Verify if member is manager And Check if he is the only manager in the active team
+        if (member && member.role && managerIds.length < 2) {
+            showMessage({
+                message: "Critical",
+                description: "You're the only manager you can't remove account",
+                type: "danger"
+            })
+
+            return
+        }
+
+        const newMembers = members.filter((m) => m.employeeId !== employeeId);
+        const index = managerIds.indexOf(employeeId);
+        if (index >= 0) {
+            managerIds.splice(index, 1)
+        }
+        const team: IOrganizationTeamList = {
+            ...activeTeam,
+            members: newMembers,
+            managerIds
+        }
+
+        setActiveTeam(team)
+
+        const { data, response } = await updateOrganizationTeamRequest({
+            datas: team,
+            id: activeTeamId,
+            bearer_token: authToken
+        });
+
+        await loadingTeams();
+
+        if (response.ok || response.status === 202) {
+            showMessage({
+                message: "Info",
+                description: "Member removed successfully ! ",
+                type: "success"
+            })
+        }
+    }, [activeTeam, isTeamManager])
 
 
     // Load Teams
@@ -196,6 +255,7 @@ export function useOrganizationTeam() {
         currentUser,
         createTeamLoading,
         teamsFetching,
-        makeMemberAsManager
+        makeMemberAsManager,
+        removeMember
     }
 }
