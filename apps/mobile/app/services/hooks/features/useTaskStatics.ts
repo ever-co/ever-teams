@@ -53,10 +53,10 @@ export function useTaskStatistics(addSeconds = 0) {
     }, []);
 
     const getTaskStat = useCallback((task: ITeamTask | null) => {
-        const stats = statTasksRef.current;
+        const stats = statTasksRef.current
         return {
-            taskTotalStat: stats.all.find((t) => t.id === task?.id),
-            taskDailyStat: stats.today.find((t) => t.id === task?.id),
+            taskTotalStat:  stats && stats.all.find((t) => t.id === task?.id) || [],
+            taskDailyStat: stats &&  stats.today.find((t) => t.id === task?.id) || [],
         };
     }, []);
 
