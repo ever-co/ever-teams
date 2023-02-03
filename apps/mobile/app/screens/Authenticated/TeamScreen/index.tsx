@@ -28,7 +28,7 @@ import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
 import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
-import FlashMessage from "react-native-flash-message"
+import FlashMessage, { showMessage } from "react-native-flash-message"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { translate } from "../../../i18n"
@@ -44,13 +44,15 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
     const { colors, dark } = useAppTheme();
     //Get authentificate data
     const {
+      teamStore:{
+        teamInvitations
+      },
       TimerStore: {
         localTimerStatus
       }
     } = useStores();
 
     const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser } = useOrganizationTeam();
-    const { teamInvitations } = useTeamInvitations();
     const {
       setShowCreateTeamModal,
       setShowInviteModal,
@@ -97,6 +99,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
           <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
             {/* Users activity list */}
             <ScrollView
+              bounces={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
               style={[$cardContainer, { backgroundColor: dark ? "rgb(16,17,20)" : "#F7F7F8" }]}
@@ -120,11 +123,11 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                     onPressIn={goToProfile}
                     enableEstimate={false}
                     index={9}
-                    userStatus={"online"}
+                    userStatus={"pause"}
                   />
                 ))}
 
-                {teamInvitations?.items.map((invite, idx) => (
+                {teamInvitations.map((invite, idx) => (
                   <InviteCardItem key={idx} invite={invite} />
                 ))}
               </View>

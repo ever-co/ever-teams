@@ -60,7 +60,7 @@ export async function login(params: ILoginDataAPI) {
          * If provided code is an invite code and
          * verified the accepte and register the related user
          */
-
+        
     } else {
 
         // generate a random password
@@ -71,6 +71,7 @@ export async function login(params: ILoginDataAPI) {
             user: {
                 firstName: names[0],
                 lastName: names[1] || "",
+                name: inviteResponse.data.fullName,
                 email: inviteResponse.data.email
             },
             password,

@@ -153,7 +153,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
         </View>
         <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
           <Text style={[styles.otherText, { color: colors.primary }]}>
-            {memberTask && limitTextCharaters({text:memberTask && memberTask.title, numChars:64 })}
+            {memberTask && limitTextCharaters({ text: memberTask && memberTask.title, numChars: 64 })}
           </Text>
           <View style={{ marginTop: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
 
@@ -243,7 +243,8 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 
 const ListCardItem: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
-  const { isTeamManager } = useOrganizationTeam();
+  const { isTeamManager, currentUser, makeMemberAsManager, removeMember } = useOrganizationTeam();
+
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
   const [estimateNow, setEstimateNow] = React.useState(false)
@@ -255,7 +256,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 
   const { index, userStatus, onPressIn, member } = props;
   const iuser = member.employee.user
-
+  const isAuthUser = member.employee.userId === currentUser.id;
   return (
     <Card
       style={{
@@ -286,14 +287,13 @@ const ListCardItem: React.FC<Props> = (props) => {
             <View
               style={{
                 ...GS.positionAbsolute,
-                ...GS.p2,
-                ...GS.pl4,
-                ...GS.pt1,
-                ...GS.border,
-                borderColor: colors.border,
+                paddingHorizontal: 20,
+                ...GS.noBorder,
                 ...GS.r0,
-                ...GS.roundedMd,
                 ...GS.zIndexFront,
+                ...GS.shadow,
+                shadowColor: "rgba(0, 0, 0, 0.2)",
+                borderRadius: 14,
                 width: 172,
                 marginTop: -spacing.extraSmall,
                 marginRight: 17,
@@ -302,7 +302,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                 ...(!showMenu ? { display: "none" } : {}),
               }}
             >
-              <View style={{}}>
+              <View style={{ marginVertical: 10 }}>
                 <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Edit Task</ListItem>
                 <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]} onPress={() => handleEstimate()}>Estimate</ListItem>
                 <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}
@@ -316,12 +316,27 @@ const ListCardItem: React.FC<Props> = (props) => {
                     onPressIn({ userId: iuser?.id, tabIndex: 1 })
                     setShowMenu(!showMenu)
                   }}>Unassign Task</ListItem>
+
                 {isTeamManager ? (
                   <>
-                    <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Make a Manager</ListItem>
-                    <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
+                    {!isAuthUser && <ListItem
+                      textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+                      onPress={() => {
+                        setShowMenu(false)
+                        makeMemberAsManager(member.employee.id)
+                      }}
+                    >Make a Manager</ListItem>}
+                    <ListItem
+                      textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
+                      style={{}}
+                      onPress={() => {
+                        setShowMenu(false)
+                        removeMember(member.employee.id)
+                      }}
+                    >Remove</ListItem>
                   </>
                 ) : null}
+
               </View>
             </View>
 
@@ -454,6 +469,8 @@ const styles = StyleSheet.create({
   dropdownTxt: {
     color: "#282048",
     fontSize: 14,
+    width: "100%",
+    height: 38,
     fontFamily: typography.primary.semiBold
   },
   wrapTaskTitle: {

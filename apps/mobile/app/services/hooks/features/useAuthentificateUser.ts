@@ -4,7 +4,7 @@ import { refresh } from "../../client/api/auth/refresh";
 import { IUser } from "../../interfaces/interfaces/IUserData";
 
 const useAuthenticateUser = (defaultUser?: IUser) => {
-    const { authenticationStore: { user, setUser, refreshToken, setAuthToken }, teamStore: { activeTeam, activeTeamId } } = useStores();
+    const { authenticationStore: { user, setUser, refreshToken, setAuthToken, logout }, teamStore: { activeTeam, activeTeamId, clearStoredTeamData }, TaskStore: { resetTeamTasksData } } = useStores();
 
     const $user = useRef(defaultUser);
     const intervalRt = useRef(0);
@@ -38,12 +38,13 @@ const useAuthenticateUser = (defaultUser?: IUser) => {
     }, [activeTeam, user]);
 
     const logOut = useCallback(() => {
-        // removeAuthCookies();
+        logout()
+        resetTeamTasksData()
+        clearStoredTeamData()
         clearInterval(intervalRt.current);
     }, []);
 
     const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
-        console.log("LAUNCH")
         clearInterval(intervalRt.current);
         intervalRt.current = setInterval(updateUserFromAPI, interval) as any;
 

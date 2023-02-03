@@ -5061,9 +5061,9 @@ cookie@0.5.0:
   integrity sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==
 
 cookiejar@^2.1.0:
-  version "2.1.3"
-  resolved "https://registry.npmjs.org/cookiejar/-/cookiejar-2.1.3.tgz"
-  integrity sha512-JxbCBUdrfr6AQjOXrxoTvAMJO4HBTUIlBzslcJPAz+/KT8yk53fXun51u+RenNYvad/+Vc2DIz5o9UxlCDymFQ==
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/cookiejar/-/cookiejar-2.1.4.tgz#ee669c1fea2cf42dc31585469d193fef0d65771b"
+  integrity sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==
 
 copy-concurrently@^1.0.0:
   version "1.0.5"
@@ -5290,6 +5290,11 @@ css-loader@~3.6.0:
     postcss-value-parser "^4.1.0"
     schema-utils "^2.7.0"
     semver "^6.3.0"
+
+css-mediaquery@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/css-mediaquery/-/css-mediaquery-0.1.2.tgz#6a2c37344928618631c54bd33cedd301da18bea0"
+  integrity sha512-COtn4EROW5dBGlE/4PiKnh6rZpAPxDeFLaEEwt4i10jpDMFt2EhQGS79QmmrO+iKCHv0PU/HrOWEhijFd1x99Q==
 
 css-select-base-adapter@^0.1.1:
   version "0.1.1"
@@ -11508,6 +11513,11 @@ object-keys@^1.0.11, object-keys@^1.1.1:
   resolved "https://registry.npmjs.org/object-keys/-/object-keys-1.1.1.tgz"
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
 
+object-resolve-path@^1.1.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/object-resolve-path/-/object-resolve-path-1.1.1.tgz#a7f8f93e8a20af80e44217ba7db54316d9d12232"
+  integrity sha512-SnDr0lPbDWDB8s6qbWAcDs2dZ4G7niCJpxihaf5g6wluZQd3yHtN4ApwoKz7pLdMnRlGrdXslO57MulC+h3Neg==
+
 object-visit@^1.0.0:
   version "1.0.1"
   resolved "https://registry.npmjs.org/object-visit/-/object-visit-1.0.1.tgz"
@@ -13107,13 +13117,21 @@ react-native-dropdown-picker@^5.4.2:
   resolved "https://registry.npmjs.org/react-native-dropdown-picker/-/react-native-dropdown-picker-5.4.2.tgz"
   integrity sha512-cZBPyN+k52jA9XguFnKoF5tLf31z6gjZ8GijO/pfVNSSEtPwZ14UTUrr87JiiOnMh5K/O2kRzZ/jZN8D0MmUMA==
 
-react-native-flash-message@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/react-native-flash-message/-/react-native-flash-message-0.3.1.tgz#e88073dffa826385c92aebf9244438940fbcffec"
-  integrity sha512-PswNvDdHBOavmIM7G4loLuEwML3oB8E8wVCuOPQ0Q6hRbExwTaF6gsTJvo5fQkyUsCi27ainSkL/F0ZijIkVig==
+react-native-extended-stylesheet@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/react-native-extended-stylesheet/-/react-native-extended-stylesheet-0.12.0.tgz#ebacf22d78a8e2173bdef2a08cbf1acba4dc051f"
+  integrity sha512-y4MEI+a9F8qtAKEjxKbwqotJg1FqKfl6vaiF25ULZ/VGkWI4GNTnsFunU9x6B3XJ6ly1E8O9fybO63u6UazL/A==
+  dependencies:
+    css-mediaquery "^0.1.2"
+    object-resolve-path "^1.1.0"
+
+react-native-flash-message@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/react-native-flash-message/-/react-native-flash-message-0.4.0.tgz#22781a8d3c4d12498fb5ff778efeda2044cf6040"
+  integrity sha512-ZCVnQj+82cQnWqBtkIVPxMEJxwzWqq8WQcIulUqc9UiCdvWQJRLN0Pe0PvzFs/l/GM2ek6zXSck7LJzUq8pahQ==
   dependencies:
     prop-types "^15.8.1"
-    react-native-iphone-x-helper "^1.3.1"
+    react-native-iphone-screen-helper "^2.0.2"
 
 react-native-flipper@^0.164.0:
   version "0.164.0"
@@ -13135,6 +13153,11 @@ react-native-gradle-plugin@^0.0.7:
   version "0.0.7"
   resolved "https://registry.npmjs.org/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.7.tgz"
   integrity sha512-+4JpbIx42zGTONhBTIXSyfyHICHC29VTvhkkoUOJAh/XHPEixpuBduYgf6Y4y9wsN1ARlQhBBoptTvXvAFQf5g==
+
+react-native-iphone-screen-helper@^2.0.2:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-iphone-screen-helper/-/react-native-iphone-screen-helper-2.0.3.tgz#6bc6d19db5e4691d6204e9e996be9214c117c846"
+  integrity sha512-gbSnV0iYWQ3hne3inYoueatSJL/Un49biIkHLGKsm7J7QjFhL+/WSPB1sZhQ87lNIANwFh33nvxcjixxR4T+NQ==
 
 react-native-iphone-x-helper@^1.3.1:
   version "1.3.1"
@@ -15448,9 +15471,9 @@ typescript@4.7.3:
   integrity sha512-WOkT3XYvrpXx4vMMqlD+8R8R37fZkjyLGlxavMc4iB8lrl8L0DeTcHbYgw/v0N/z9wAFsgBhcsF0ruoySS22mA==
 
 ua-parser-js@^0.7.19, ua-parser-js@^0.7.30:
-  version "0.7.31"
-  resolved "https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-0.7.31.tgz"
-  integrity sha512-qLK/Xe9E2uzmYI3qLeOmI0tEOt+TBBQyUIAh4aAgU05FVYzeZrKUdkAZfBNVGRaHVgV0TDkdEngJSw/SyQchkQ==
+  version "0.7.33"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.33.tgz#1d04acb4ccef9293df6f70f2c3d22f3030d8b532"
+  integrity sha512-s8ax/CeZdK9R/56Sui0WM6y9OFREJarMRHqLB2EwkovemBxNQ+Bqu8GAsUnVcXKgphb++ghr/B2BZx4mahujPw==
 
 uglify-es@^3.1.9:
   version "3.3.9"

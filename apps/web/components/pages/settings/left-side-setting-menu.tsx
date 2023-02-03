@@ -15,7 +15,7 @@ const LeftSideSettingMenu = () => {
     return (
         <>
             <div className='w-[320px] mt-[36px] mr-[56px]'>
-                <Text className='text-4xl font-PlusJakartaSansSemiBold mb-[40px]'>Settings</Text>
+                <Text className='text-4xl font-normal mb-[40px]'>Settings</Text>
                 <Link href="/settings/personal">
                     <Button variant="outline" className={`w-full border-t-0 border-r-0 border-b-0 rounded-none
                 font-normal justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
