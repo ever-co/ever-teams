@@ -1,6 +1,6 @@
 import {
 	IClassName,
-	ITaskDevice,
+	ITaskLabel,
 	ITaskProperty,
 	ITaskSize,
 	ITaskStatus,
@@ -18,6 +18,7 @@ import {
 	ClockIcon,
 	CloseCircleIcon,
 	LoginIcon,
+	RecordIcon,
 	SearchStatusIcon,
 	TickCircleIcon,
 	TimerIcon,
@@ -126,17 +127,20 @@ export function TaskStatus({
 	icon,
 	bgColor: backgroundColor,
 	className,
-}: PropsWithChildren<TStatusItem & IClassName>) {
+	active = true,
+}: PropsWithChildren<TStatusItem & IClassName & { active?: boolean }>) {
 	return (
 		<div
 			className={clsxm(
-				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3 dark:text-default',
+				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3',
+				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				className
 			)}
-			style={{ backgroundColor }}
+			style={{ backgroundColor: active ? backgroundColor : undefined }}
 		>
 			<div className="flex items-center space-x-3 whitespace-nowrap">
-				{icon}
+				{active ? icon : <RecordIcon />}
+
 				<span>{name}</span>
 			</div>
 			{children}
@@ -251,7 +255,9 @@ export const taskProperties: TStatus<ITaskProperty> = {
 };
 
 /**
- * Task properties dropwdown
+ * Task dropdown that allows you to select a task property
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A dropdown with the task properties
  */
 export function TaskPropertiesDropdown({ className }: IClassName) {
 	const { item, items, onChange } = useStatusValue<'property'>(
@@ -315,7 +321,9 @@ export const taskSizes: TStatus<ITaskSize> = {
 };
 
 /**
- * Task status dropdown
+ * Task dropdown that lets you select a task size
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A React component
  */
 export function TaskSizesDropdown({ className }: IClassName) {
 	const { item, items, onChange } = useStatusValue<'size'>(taskSizes, 'Medium');
@@ -330,9 +338,27 @@ export function TaskSizesDropdown({ className }: IClassName) {
 	);
 }
 
-//! =============== Task Devices ================= //
+export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskSizes,
+		'size'
+	);
 
-export const taskDevices: TStatus<ITaskDevice> = {
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Label ================= //
+
+export const taskLabels: TStatus<ITaskLabel> = {
 	'UI/UX': {
 		icon: <ClockIcon />,
 		bgColor: '#c2b1c6',
@@ -351,17 +377,32 @@ export const taskDevices: TStatus<ITaskDevice> = {
 	},
 };
 
-export function TaskDevicesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue<'device'>(
-		taskDevices,
-		'WEB'
-	);
+export function TaskLabelsDropdown({ className }: IClassName) {
+	const { item, items, onChange } = useStatusValue<'label'>(taskLabels, 'WEB');
 
 	return (
 		<StatusDropdown
 			className={className}
 			items={items}
 			value={item}
+			onChange={onChange}
+		/>
+	);
+}
+
+export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskLabels,
+		'label'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -382,7 +423,7 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
-	defaultItem?: string;
+	defaultItem?: ITaskStatusField;
 }) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -398,9 +439,12 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 						<Listbox.Button className="w-full">
 							<TaskStatus
 								{...(value || defaultValue)}
+								active={!!value}
 								className={clsxm(
-									'justify-between w-full',
-									!value && ['text-dark dark:text-white bg-gray-lighter']
+									'justify-between w-full capitalize',
+									!value && [
+										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+									]
 								)}
 							>
 								<ChevronDownIcon

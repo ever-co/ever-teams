@@ -74,7 +74,7 @@ export type ITaskProperty = 'Medium' | 'High' | 'Low' | 'Urgent';
 
 export type ITaskSize = 'Extra Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
 
-export type ITaskDevice = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
+export type ITaskLabel = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
 
 export type ITaskStatus =
 	| 'Blocked'
@@ -86,12 +86,12 @@ export type ITaskStatus =
 	| 'Closed'
 	| 'In Review';
 
-export type ITaskStatusField = 'status' | 'size' | 'property' | 'device';
+export type ITaskStatusField = 'status' | 'size' | 'property' | 'label';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
-	device: ITaskDevice;
+	label: ITaskLabel;
 	property: ITaskProperty;
 };
 

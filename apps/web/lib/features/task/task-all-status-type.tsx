@@ -3,7 +3,7 @@ import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
 import { useEffect } from 'react';
 import {
-	taskDevices,
+	taskLabels,
 	taskProperties,
 	taskSizes,
 	taskStatus,
@@ -33,30 +33,32 @@ export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
 		<div className="relative w-full h-full flex flex-col justify-center">
 			<div ref={viewportRef} className="overflow-hidden w-full relative">
 				<div className="flex space-x-2 mt-2">
-					{task?.status && (
-						<TaskStatus
-							{...taskStatus[task?.status]}
-							className="text-xs"
-							name={task?.status || 'Status'}
-						/>
-					)}
-
 					<TaskStatus
-						{...taskProperties['Low']}
+						{...taskStatus[task?.status || 'Closed']}
 						className="text-xs"
-						name="Low"
+						active={!!task?.status}
+						name={task?.status || 'Status'}
 					/>
 
 					<TaskStatus
-						{...taskSizes['Extra Large']}
+						{...taskProperties[task?.property || 'Low']}
 						className="text-xs"
-						name="Completed"
+						active={!!task?.property}
+						name={task?.property || 'Property'}
 					/>
 
 					<TaskStatus
-						{...taskDevices['Tablet']}
+						{...taskSizes[task?.size || 'Medium']}
 						className="text-xs"
-						name="Tablet"
+						active={!!task?.size}
+						name={task?.size || 'Size'}
+					/>
+
+					<TaskStatus
+						{...taskLabels[task?.label || 'WEB']}
+						className="text-xs"
+						active={!!task?.label}
+						name={task?.label || 'Label'}
 					/>
 				</div>
 			</div>

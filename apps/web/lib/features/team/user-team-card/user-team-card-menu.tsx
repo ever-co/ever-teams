@@ -136,6 +136,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 												{removeAction && (
 													<ConfirmDropdown
+														className="right-[110%] top-0"
 														onConfirm={() => {
 															item.onClick && item.onClick({ close });
 														}}
@@ -188,7 +189,7 @@ function AssignActionMenu({
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-0"
+				className="absolute z-10 right-[110%] top-0"
 			>
 				<Popover.Panel>
 					{({ close }) => {
