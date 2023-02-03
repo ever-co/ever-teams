@@ -1,4 +1,14 @@
-import { IClassName, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IClassName,
+	ITaskDevice,
+	ITaskProperty,
+	ITaskSize,
+	ITaskStatus,
+	ITaskStatusField,
+	ITaskStatusStack,
+	ITeamTask,
+	Nullable,
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card } from 'lib/components';
@@ -28,20 +38,58 @@ type TStatusItem = {
 	name?: string;
 };
 
-type TStatus<T extends ITaskStatus> = {
+type TStatus<T extends string> = {
 	[k in T]: TStatusItem;
 };
 
-function useStatusValue<T extends TStatus<any>>(
-	statusItems: T,
-	$value: keyof T | undefined,
-	onValueChange?: (v: keyof T) => void
+type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
+	defaultValue?: ITaskStatusStack[T];
+	onValueChange?: (v: ITaskStatusStack[T]) => void;
+};
+
+type IActiveTaskStatuses<T extends ITaskStatusField> =
+	TTaskStatusesDropdown<T> & {
+		task?: Nullable<ITeamTask>;
+	};
+
+function useActiveTaskStatus<T extends ITaskStatusField>(
+	props: IActiveTaskStatuses<T>,
+	status: TStatus<ITaskStatusStack[T]>,
+	field: T
+) {
+	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
+
+	const task = props.task !== undefined ? props.task : activeTeamTask;
+
+	function onItemChange(status: ITaskStatusStack[T]) {
+		handleStatusUpdate(status, field, task, true);
+	}
+
+	const { item, items, onChange } = useStatusValue<T>(
+		status,
+		task ? task[field] : undefined,
+		onItemChange
+	);
+
+	return {
+		item,
+		items,
+		onChange,
+		task,
+		field,
+	};
+}
+
+function useStatusValue<T extends ITaskStatusField>(
+	statusItems: TStatus<ITaskStatusStack[T]>,
+	$value: ITaskStatusStack[T] | undefined,
+	onValueChange?: (v: ITaskStatusStack[T]) => void
 ) {
 	const onValueChangeRef = useCallbackRef(onValueChange);
 
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
-			const value = statusItems[key as ITaskStatus];
+			const value = statusItems[key as ITaskStatusStack[T]];
 			return {
 				...value,
 				name: key,
@@ -49,7 +97,7 @@ function useStatusValue<T extends TStatus<any>>(
 		});
 	}, [statusItems]);
 
-	const [value, setValue] = useState<keyof T>($value);
+	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 
 	const item = items.find((r) => r.name === value);
 
@@ -58,7 +106,7 @@ function useStatusValue<T extends TStatus<any>>(
 	}, [$value]);
 
 	const onChange = useCallback(
-		(value: keyof T) => {
+		(value: ITaskStatusStack[T]) => {
 			setValue(value);
 			onValueChangeRef.current && onValueChangeRef.current(value);
 		},
@@ -71,6 +119,32 @@ function useStatusValue<T extends TStatus<any>>(
 		onChange,
 	};
 }
+
+export function TaskStatus({
+	children,
+	name,
+	icon,
+	bgColor: backgroundColor,
+	className,
+}: PropsWithChildren<TStatusItem & IClassName>) {
+	return (
+		<div
+			className={clsxm(
+				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3 dark:text-default',
+				className
+			)}
+			style={{ backgroundColor }}
+		>
+			<div className="flex items-center space-x-3 whitespace-nowrap">
+				{icon}
+				<span>{name}</span>
+			</div>
+			{children}
+		</div>
+	);
+}
+
+//! =============== Task Status ================= //
 
 export const taskStatus: TStatus<ITaskStatus> = {
 	Todo: {
@@ -107,45 +181,15 @@ export const taskStatus: TStatus<ITaskStatus> = {
 	},
 };
 
-export function TaskStatus({
-	children,
-	name,
-	icon,
-	bgColor: backgroundColor,
-	className,
-}: PropsWithChildren<TStatusItem & IClassName>) {
-	return (
-		<div
-			className={clsxm(
-				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3 dark:text-default',
-				className
-			)}
-			style={{ backgroundColor }}
-		>
-			<div className="flex items-center space-x-3 whitespace-nowrap">
-				{icon}
-				<span>{name}</span>
-			</div>
-			{children}
-		</div>
-	);
-}
-
-// =============== Task Status ================= //
-
 /**
  * Task status dropwdown
  */
-type TTaskStatusDropdown = IClassName & {
-	defaultValue?: ITaskStatus;
-	onValueChange?: (v: ITaskStatus) => void;
-};
 export function TaskStatusDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskStatusDropdown) {
-	const { item, items, onChange } = useStatusValue(
+}: TTaskStatusesDropdown<'status'>) {
+	const { item, items, onChange } = useStatusValue<'status'>(
 		taskStatus,
 		defaultValue,
 		onValueChange
@@ -167,21 +211,11 @@ export function TaskStatusDropdown({
  * @param props
  * @returns
  */
-export function ActiveTaskStatusDropdown(
-	props: TTaskStatusDropdown & { task?: Nullable<ITeamTask> }
-) {
-	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
-
-	const task = props.task !== undefined ? props.task : activeTeamTask;
-
-	function onItemChange(status: ITaskStatus) {
-		handleStatusUpdate(status, task, true);
-	}
-
-	const { item, items, onChange } = useStatusValue(
+export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
 		taskStatus,
-		task?.status || props.defaultValue,
-		onItemChange
+		'status'
 	);
 
 	return (
@@ -189,15 +223,15 @@ export function ActiveTaskStatusDropdown(
 			className={props.className}
 			items={items}
 			value={item}
-			defaultItem={!item ? 'Status' : undefined}
+			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
-// =============== Task properties ================= //
+//! =============== Task properties ================= //
 
-export const taskProperties = {
+export const taskProperties: TStatus<ITaskProperty> = {
 	Medium: {
 		icon: <LoginIcon />,
 		bgColor: '#ECE8FC',
@@ -214,13 +248,16 @@ export const taskProperties = {
 		icon: <LoginIcon />,
 		bgColor: '#F5B8B8',
 	},
-} satisfies TStatus<any>;
+};
 
 /**
- * Task status dropwdown
+ * Task properties dropwdown
  */
 export function TaskPropertiesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskProperties, 'Low');
+	const { item, items, onChange } = useStatusValue<'property'>(
+		taskProperties,
+		'Low'
+	);
 
 	return (
 		<StatusDropdown
@@ -232,9 +269,29 @@ export function TaskPropertiesDropdown({ className }: IClassName) {
 	);
 }
 
-// =============== Task Sizes ================= //
+export function ActiveTaskPropertiesDropdown(
+	props: IActiveTaskStatuses<'property'>
+) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskProperties,
+		'property'
+	);
 
-export const taskSizes = {
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Sizes ================= //
+
+export const taskSizes: TStatus<ITaskSize> = {
 	'Extra Large': {
 		icon: <TickCircleIcon className="stroke-[#292D32]" />,
 		bgColor: '#F5B8B8',
@@ -255,13 +312,13 @@ export const taskSizes = {
 		icon: <TickCircleIcon className="stroke-[#292D32]" />,
 		bgColor: '#ECE8FC',
 	},
-} satisfies TStatus<any>;
+};
 
 /**
  * Task status dropdown
  */
 export function TaskSizesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskSizes, 'Medium');
+	const { item, items, onChange } = useStatusValue<'size'>(taskSizes, 'Medium');
 
 	return (
 		<StatusDropdown
@@ -273,9 +330,9 @@ export function TaskSizesDropdown({ className }: IClassName) {
 	);
 }
 
-// =============== Task Devices ================= //
+//! =============== Task Devices ================= //
 
-export const taskDevices = {
+export const taskDevices: TStatus<ITaskDevice> = {
 	'UI/UX': {
 		icon: <ClockIcon />,
 		bgColor: '#c2b1c6',
@@ -292,10 +349,13 @@ export const taskDevices = {
 		icon: <ClockIcon />,
 		bgColor: '#b0c8a8',
 	},
-} satisfies TStatus<any>;
+};
 
 export function TaskDevicesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskDevices, 'WEB');
+	const { item, items, onChange } = useStatusValue<'device'>(
+		taskDevices,
+		'WEB'
+	);
 
 	return (
 		<StatusDropdown
@@ -307,7 +367,7 @@ export function TaskDevicesDropdown({ className }: IClassName) {
 	);
 }
 
-// =============== FC Status drop down ================= //
+//! =============== FC Status drop down ================= //
 /**
  * Fc Status drop down
  */

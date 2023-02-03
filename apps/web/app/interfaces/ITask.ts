@@ -1,7 +1,7 @@
 import { IEmployee } from './IEmployee';
 import { IOrganizationTeamList } from './IOrganizationTeam';
 
-export interface ITeamTask {
+export type ITeamTask = {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -11,7 +11,6 @@ export interface ITeamTask {
 	prefix: string;
 	title: string;
 	description: string;
-	status: ITaskStatus;
 	estimate: null | number;
 	estimateDays?: number;
 	estimateHours?: number;
@@ -25,7 +24,7 @@ export interface ITeamTask {
 	teams: SelectedTeam[];
 	creator: Creator;
 	taskNumber: string;
-}
+} & ITaskStatusStack;
 
 type SelectedTeam = Pick<
 	IOrganizationTeamList,
@@ -71,6 +70,12 @@ interface Creator {
 	employeeId: any;
 }
 
+export type ITaskProperty = 'Medium' | 'High' | 'Low' | 'Urgent';
+
+export type ITaskSize = 'Extra Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
+
+export type ITaskDevice = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
+
 export type ITaskStatus =
 	| 'Blocked'
 	| 'Ready'
@@ -80,6 +85,15 @@ export type ITaskStatus =
 	| 'Completed'
 	| 'Closed'
 	| 'In Review';
+
+export type ITaskStatusField = 'status' | 'size' | 'property' | 'device';
+
+export type ITaskStatusStack = {
+	status: ITaskStatus;
+	size: ITaskSize;
+	device: ITaskDevice;
+	property: ITaskProperty;
+};
 
 export interface ICreateTask {
 	title: string;
