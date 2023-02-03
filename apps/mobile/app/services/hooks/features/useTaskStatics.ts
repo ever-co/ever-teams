@@ -9,7 +9,9 @@ import { tasksStatistics } from "../../client/api/timer/tasksStatistics";
 
 export function useTaskStatistics(addSeconds = 0) {
     const { TaskStore: {
-        activeTask, setActiveTask,
+        activeTask,
+        setActiveTask,
+        activeTaskId,
         tasksStatisticsState,
         setTasksStatisticsState,
         statActiveTask,
@@ -27,12 +29,13 @@ export function useTaskStatistics(addSeconds = 0) {
     const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
         useFirstLoad();
 
+
     // Refs
     const initialLoad = useRef(false);
     const statTasksRef = useSyncRef(tasksStatisticsState);
 
     // Dep status
-    const activeTeamTask = activeTask;
+    const activeTeamTask = activeTask
 
     /**
      * Get employee all tasks statistics  (API Call)
@@ -55,8 +58,8 @@ export function useTaskStatistics(addSeconds = 0) {
     const getTaskStat = useCallback((task: ITeamTask | null) => {
         const stats = statTasksRef.current
         return {
-            taskTotalStat:  stats && stats.all.find((t) => t.id === task?.id) || [],
-            taskDailyStat: stats &&  stats.today.find((t) => t.id === task?.id) || [],
+            taskTotalStat: stats && stats.all.find((t) => t.id === task?.id) || [],
+            taskDailyStat: stats && stats.today.find((t) => t.id === task?.id) || [],
         };
     }, []);
 
@@ -64,7 +67,7 @@ export function useTaskStatistics(addSeconds = 0) {
      * Get statistics of the active tasks fresh (API Call)
      */
     const getActiveTaskStatData = useCallback(async () => {
-        setFetchingTasks(true);
+        setFetchingTasks(true)
         const { data } = await tasksStatistics({
             tenantId,
             bearer_token: authToken,
@@ -78,11 +81,7 @@ export function useTaskStatistics(addSeconds = 0) {
             today: data.today ? data.today[0] || null : null,
         });
         return data;
-    }, []);
-
-    const debounceLoadActiveTaskStat = useCallback(() => {
-        debounce(getActiveTaskStatData, 100)
-    }, []);
+    }, [activeTask]);
 
     /**
      * Get statistics of the active tasks at the component load
@@ -92,6 +91,7 @@ export function useTaskStatistics(addSeconds = 0) {
             getActiveTaskStatData().then(() => {
                 initialLoad.current = true;
             });
+            getAllTasksStatsData();
         }
     }, [firstLoad]);
 
@@ -100,7 +100,7 @@ export function useTaskStatistics(addSeconds = 0) {
      */
     useEffect(() => {
         if (!firstLoad && initialLoad.current) {
-            debounceLoadActiveTaskStat();
+            debounce(getActiveTaskStatData(), 100)
         }
     }, [firstLoad, timerStatus, activeTeamTask?.id]);
 
@@ -108,7 +108,7 @@ export function useTaskStatistics(addSeconds = 0) {
      * set null to active team stats when active team or active task are changed
      */
     useEffect(() => {
-        if (firstLoad && initialLoad.current) {
+        if (!firstLoad && initialLoad.current) {
             setStatActiveTask({
                 today: null,
                 total: null,
@@ -129,8 +129,6 @@ export function useTaskStatistics(addSeconds = 0) {
         firstLoadtasksStatisticsData,
         getAllTasksStatsData,
         getTaskStat,
-        activeTaskTotalStat: statActiveTask?.total || 0,
-        activeTaskDailyStat: statActiveTask?.today || 0,
         activeTaskEstimation:
             activeTeamTask && activeTeamTask.estimate
                 ? getEstimation(statActiveTask.total)
