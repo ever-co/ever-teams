@@ -267,7 +267,7 @@ function TaskCard({
 					}
 				>
 					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
-					Create new task
+					{trans.common.CREATE_TASK}
 				</Button>
 
 				{/* Task filter buttons */}

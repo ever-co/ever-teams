@@ -15,6 +15,7 @@ import {
 	NoteIcon,
 	TaskSquareIcon,
 } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import {
 	StatusDropdown,
 	TStatus,
@@ -46,6 +47,7 @@ export function TaskIssuesDropdown({
 	defaultValue,
 	onValueChange,
 }: TTaskStatusesDropdown<'issue'>) {
+	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
 	const { item, items, onChange } = useStatusValue<'issue'>(
 		taskIssues,
@@ -68,7 +70,7 @@ export function TaskIssuesDropdown({
 					variant="outline-danger"
 				>
 					<PlusIcon className="w-4 h-4" />
-					New Issue
+					{trans.common.NEW_ISSUE}
 				</Button>
 			</StatusDropdown>
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />
@@ -83,6 +85,7 @@ export function CreateTaskIssueModal({
 	open: boolean;
 	closeModal: () => void;
 }) {
+	const { trans } = useTranslation();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 	};
@@ -97,21 +100,21 @@ export function CreateTaskIssueModal({
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
-							Create issue
+							{trans.common.CREARE_ISSUE}
 						</Text.Heading>
 
 						<div className="w-full mt-5">
 							<InputField
 								name="name"
 								autoCustomFocus
-								placeholder="Issue name"
+								placeholder={trans.form.ISSUE_NAME_PLACEHOLDER}
 								required
 							/>
 						</div>
 
 						<div className="w-full flex justify-between mt-3 items-center">
 							<BackButton onClick={closeModal} />
-							<Button type="submit">Create</Button>
+							<Button type="submit">{trans.common.CREATE}</Button>
 						</div>
 					</div>
 				</Card>

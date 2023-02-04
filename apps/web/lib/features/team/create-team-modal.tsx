@@ -7,6 +7,7 @@ import {
 	Modal,
 	Text,
 } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { useState } from 'react';
 
 /**
@@ -19,6 +20,8 @@ export function CreateTeamModal({
 	open: boolean;
 	closeModal: () => void;
 }) {
+	const { trans } = useTranslation();
+
 	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
 
@@ -45,14 +48,14 @@ export function CreateTeamModal({
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
-							Create new team
+							{trans.common.CREATE_TEAM}
 						</Text.Heading>
 
 						<div className="w-full mt-5">
 							<InputField
 								name="name"
 								autoCustomFocus
-								placeholder="Please Enter your team name"
+								placeholder={trans.form.TEAM_NAME_PLACEHOLDER}
 								errors={error ? { name: error } : undefined}
 								onKeyUp={() => setError(null)}
 								required
@@ -67,7 +70,7 @@ export function CreateTeamModal({
 								disabled={createOTeamLoading}
 								loading={createOTeamLoading}
 							>
-								Create
+								{trans.common.CREATE}
 							</Button>
 						</div>
 					</div>

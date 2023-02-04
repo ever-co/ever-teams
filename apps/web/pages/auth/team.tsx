@@ -120,17 +120,18 @@ function FillUserDataForm({
 	onPreviousStep?: () => void;
 	loading?: boolean;
 }) {
+	const { trans, translations } = useTranslation('authTeam');
 	const [feedback, setFeedback] = useState<string>('');
 
 	return (
 		<div className="flex flex-col justify-between items-center h-full">
 			<Text.Heading as="h3" className="text-center mb-10">
-				Input details teams
+				{trans.CREATE_FIRST_TEAM}
 			</Text.Heading>
 
 			<div className="w-full mb-8">
 				<InputField
-					placeholder="Enter your name"
+					placeholder={translations.form.NAME_PLACEHOLDER}
 					name="name"
 					value={form.name}
 					errors={errors}
@@ -138,7 +139,7 @@ function FillUserDataForm({
 				/>
 				<InputField
 					type="email"
-					placeholder="Enter your email address"
+					placeholder={translations.form.EMAIL_PLACEHOLDER}
 					wrapperClassName="mb-5"
 					name="email"
 					value={form.email}
@@ -153,9 +154,7 @@ function FillUserDataForm({
 								handleOnChange({ target: { name: 'recaptcha', value: res } });
 								setFeedback('');
 							}}
-							onErrored={() =>
-								setFeedback('network issue, please try again later')
-							}
+							onErrored={() => setFeedback(translations.errors.NETWORK_ISSUE)}
 						/>
 						{(errors['recaptcha'] || feedback) && (
 							<Text.Error className="self-start justify-self-start">
@@ -170,7 +169,7 @@ function FillUserDataForm({
 				<BackButton onClick={onPreviousStep} />
 
 				<Button type="submit" disabled={loading}>
-					Create team
+					{trans.CREATE_TEAM}
 				</Button>
 			</div>
 		</div>

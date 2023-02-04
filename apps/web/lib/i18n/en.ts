@@ -20,6 +20,11 @@ export const en = {
 		CLOSED: 'Closed',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Tittle',
+		CREATE_TASK: 'Create new task',
+		CREATE_TEAM: 'Create new team',
+		CREATE: 'Create',
+		CREARE_ISSUE: 'Create issue',
+		NEW_ISSUE: 'New Issue',
 	},
 	pages: {
 		home: {
@@ -56,6 +61,8 @@ export const en = {
 			LOADING_TEXT: 'We are now creating your new workplace, hold on...',
 			INPUT_TEAM_NAME: 'Input your team name',
 			JOIN_EXISTING_TEAM: 'Joining existing team?',
+			CREATE_FIRST_TEAM: 'Create your first team',
+			CREATE_TEAM: 'Create team',
 		},
 		settings: {
 			BREADCRUMB: ['Dashboard', 'Settings'],
@@ -82,7 +89,11 @@ export const en = {
 	},
 
 	form: {
+		NAME_PLACEHOLDER: 'Enter your name',
 		EMAIL_PLACEHOLDER: 'Enter your email address',
+
+		ISSUE_NAME_PLACEHOLDER: 'Issue name',
+
 		TEAM_NAME_PLACEHOLDER: 'Please Enter your team name',
 		TASK_INPUT_PLACEHOLDER: 'What you working on?',
 
@@ -94,6 +105,10 @@ export const en = {
 		footer: {
 			RIGHTS_RESERVERD: 'All rights reserved.',
 		},
+	},
+
+	errors: {
+		NETWORK_ISSUE: 'network issue, please try again later',
 	},
 };
 
