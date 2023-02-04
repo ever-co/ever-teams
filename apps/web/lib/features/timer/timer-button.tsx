@@ -21,7 +21,7 @@ export function TimerButton({ onClick, running, disabled, className }: Props) {
 				'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-none',
 				disabled && ['opacity-70 cursor-default'],
 				running
-					? ['dark:bg-gradient-to-tl dark:from-[#E93CB9] dark:to-[#6A71E7]']
+					? ['dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue']
 					: ['dark:bg-dark-lighter'],
 				className
 			)}
