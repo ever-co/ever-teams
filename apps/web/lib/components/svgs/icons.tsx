@@ -91,7 +91,7 @@ export function MoonIcon({
 	);
 }
 
-export function MoonDarkIcon() {
+export function MoonDarkIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -99,6 +99,7 @@ export function MoonDarkIcon() {
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M16.1475 11.9475C16.0275 11.745 15.69 11.43 14.85 11.58C14.385 11.6625 13.9125 11.7 13.44 11.6775C11.6925 11.6025 10.11 10.8 9.00753 9.56253C8.03253 8.47503 7.43253 7.05753 7.42502 5.52753C7.42502 4.67253 7.59002 3.84753 7.92753 3.06753C8.25752 2.31003 8.02502 1.91253 7.86002 1.74753C7.68752 1.57503 7.28253 1.33503 6.48752 1.66503C3.42002 2.95503 1.52253 6.03003 1.74753 9.32253C1.97253 12.42 4.14753 15.0675 7.02752 16.065C7.71753 16.305 8.44503 16.4475 9.19503 16.4775C9.31503 16.485 9.43503 16.4925 9.55503 16.4925C12.0675 16.4925 14.4225 15.3075 15.9075 13.29C16.41 12.5925 16.275 12.15 16.1475 11.9475Z"
@@ -168,7 +169,7 @@ export function PeopleIcon({ className }: IClassName) {
 
 // ============================= SunIcon ===========================//
 
-export function SunIcon() {
+export function SunIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -176,6 +177,7 @@ export function SunIcon() {
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M9 14.25C11.8995 14.25 14.25 11.8995 14.25 9C14.25 6.10051 11.8995 3.75 9 3.75C6.10051 3.75 3.75 6.10051 3.75 9C3.75 11.8995 6.10051 14.25 9 14.25Z"
@@ -189,7 +191,7 @@ export function SunIcon() {
 	);
 }
 
-export function SunDarkIcon() {
+export function SunDarkIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -197,6 +199,7 @@ export function SunDarkIcon() {
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M9 13.875C11.6924 13.875 13.875 11.6924 13.875 9C13.875 6.30761 11.6924 4.125 9 4.125C6.30761 4.125 4.125 6.30761 4.125 9C4.125 11.6924 6.30761 13.875 9 13.875Z"

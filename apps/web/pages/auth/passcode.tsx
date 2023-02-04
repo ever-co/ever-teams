@@ -7,6 +7,7 @@ import {
 	SpinnerLoader,
 	Text,
 } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
 
 export default function AuthPasscode() {
@@ -21,10 +22,12 @@ export default function AuthPasscode() {
 		sendAuthCodeHandler,
 	} = useAuthenticationPasscode();
 
+	const { trans, translations } = useTranslation('authPasscode');
+
 	return (
 		<AuthLayout
-			title="Join existing Team"
-			description="Please enter email and invitation code to join existing team."
+			title={trans.HEADING_TITLE}
+			description={trans.HEADING_DESCRIPTION}
 		>
 			<form
 				className="w-[98%] md:w-[530px]"
@@ -34,13 +37,13 @@ export default function AuthPasscode() {
 				<Card className="w-full" shadow="bigger">
 					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center mb-10">
-							Join Teams
+							{translations.pages.auth.JOIN_TEAM}
 						</Text.Heading>
 
 						{/* Email input */}
 						<InputField
 							type="email"
-							placeholder="Enter your email address"
+							placeholder={translations.form.EMAIL_PLACEHOLDER}
 							name="email"
 							value={formValues.email}
 							onChange={handleChange}
@@ -51,7 +54,7 @@ export default function AuthPasscode() {
 						{/* Auth code input */}
 						<div className="w-full mt-5">
 							<Text className="text-xs text-gray-400 font-normal">
-								Input invitation code
+								{translations.pages.auth.INPUT_INVITE_CODE}
 							</Text>
 
 							<AuthCodeInputField
@@ -75,7 +78,7 @@ export default function AuthPasscode() {
 							{/* Send code */}
 							<div className="flex flex-col items-start">
 								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
-									Didn&apos;t recieve code ?
+									{translations.pages.auth.UNRECEIVED_CODE}
 								</Text>
 
 								{!sendCodeLoading && (
@@ -84,9 +87,9 @@ export default function AuthPasscode() {
 										className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
 										onClick={sendAuthCodeHandler}
 									>
-										Re
+										{'Re'}
 										<span className="text-primary dark:text-primary-light">
-											send code
+											{translations.pages.auth.SEND_CODE}
 										</span>
 									</button>
 								)}
@@ -96,7 +99,7 @@ export default function AuthPasscode() {
 							</div>
 
 							<Button type="submit" loading={loading} disabled={loading}>
-								Join
+								{translations.pages.auth.JOIN}
 							</Button>
 						</div>
 					</div>

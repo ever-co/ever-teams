@@ -7,13 +7,16 @@ import {
 	Timer,
 	UserTeamCardHeader,
 } from 'lib/features';
+import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 
 function MainPage() {
+	const { trans } = useTranslation('home');
+
 	return (
 		<MainLayout>
 			<MainHeader>
-				<Breadcrumb paths={['Dashboard', 'Team Page']} className="text-sm" />
+				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 				<TaskTimerSection />
 
 				{/* Header user card list */}

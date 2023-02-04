@@ -72,7 +72,7 @@ export function Toggler({
  * Theme Toggler
  */
 export function ThemeToggler({ className }: IClassName) {
-	const { theme, setTheme } = useTheme();
+	const { setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 
 	// useEffect only runs on the client, so now we can safely show the UI
@@ -91,12 +91,12 @@ export function ThemeToggler({ className }: IClassName) {
 			onClickTwo={() => setTheme('dark')}
 		>
 			<>
-				{theme === 'dark' && <SunDarkIcon />}
-				{theme === 'light' && <SunIcon />}
+				<SunDarkIcon className="hidden dark:inline-block" />
+				<SunIcon className="dark:hidden inline-block" />
 			</>
 			<>
-				{theme === 'dark' && <MoonDarkIcon />}
-				{theme === 'light' && <MoonIcon />}
+				<MoonDarkIcon className="hidden dark:inline-block" />
+				<MoonIcon className="dark:hidden inline-block" />
 			</>
 		</Toggler>
 	);
