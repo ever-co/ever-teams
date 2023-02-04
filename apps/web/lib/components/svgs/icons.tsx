@@ -166,6 +166,57 @@ export function PeopleIcon({ className }: IClassName) {
 	);
 }
 
+// ============================= TrashIcon ===========================//
+
+export function TrashIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="20"
+			height="20"
+			viewBox="0 0 20 20"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M14 3.98665C11.78 3.76665 9.54667 3.65332 7.32 3.65332C6 3.65332 4.68 3.71999 3.36 3.85332L2 3.98665"
+				stroke="#DE5536"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M5.66699 3.31325L5.81366 2.43992C5.92033 1.80659 6.00033 1.33325 7.12699 1.33325H8.87366C10.0003 1.33325 10.087 1.83325 10.187 2.44659L10.3337 3.31325"
+				stroke="#DE5536"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M12.5669 6.09326L12.1336 12.8066C12.0603 13.8533 12.0003 14.6666 10.1403 14.6666H5.86026C4.00026 14.6666 3.94026 13.8533 3.86693 12.8066L3.43359 6.09326"
+				stroke="#DE5536"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M6.88672 11H9.10672"
+				stroke="#DE5536"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M6.33301 8.33325H9.66634"
+				stroke="#DE5536"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	);
+}
+
 // ============================= SunIcon ===========================//
 
 export function SunIcon() {
@@ -793,6 +844,43 @@ export function EditIcon({ className }: IClassName) {
 				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Edit2 Icon ============================= //
+
+export function Edit2Icon({ className }: IClassName) {
+	return (
+		<svg
+			width="20"
+			height="20"
+			viewBox="0 0 20 20"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#292D32] dark:stroke-slate-300', className)}
+		>
+			<path
+				d="M8.83958 2.40006L3.36624 8.1934C3.15958 8.4134 2.95958 8.84673 2.91958 9.14673L2.67291 11.3067C2.58624 12.0867 3.14624 12.6201 3.91958 12.4867L6.06624 12.1201C6.36624 12.0667 6.78624 11.8467 6.99291 11.6201L12.4662 5.82673C13.4129 4.82673 13.8396 3.68673 12.3662 2.2934C10.8996 0.913397 9.78624 1.40006 8.83958 2.40006Z"
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M7.92676 3.3667C8.21342 5.2067 9.70676 6.61337 11.5601 6.80003"
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M2 14.6667H14"
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
 			/>
 		</svg>
 	);

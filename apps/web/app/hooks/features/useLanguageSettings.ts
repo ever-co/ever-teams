@@ -34,7 +34,7 @@ export function useLanguageSettings() {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
 			return queryCall(user.role.isSystem).then((res) => {
-				setLanguages(res.data.items || []);
+				setLanguages(res?.data?.data?.items || []);
 				return res;
 			});
 		}

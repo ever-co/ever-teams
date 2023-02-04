@@ -13,7 +13,7 @@ const DangerZone = () => {
                         <div className="">
                             <div className='flex w-full items-center justify-between gap-6'>
                                 <div className="flex-auto w-64">
-                                    <Text className="text-xl text-[#282048] font-normal">
+                                    <Text className="text-xl  font-normal">
                                         Remove Account
                                     </Text>
                                 </div>
@@ -26,7 +26,7 @@ const DangerZone = () => {
                                     <Button
                                         variant="danger"
                                         type="submit"
-                                        className='float-right w-full'
+                                        className='float-right w-full bg-[#DE5536]'
                                     >
                                         Remove Everywhere
                                     </Button>
@@ -34,7 +34,7 @@ const DangerZone = () => {
                             </div>
                             <div className='flex w-full items-center justify-between gap-6 mt-5'>
                                 <div className="flex-auto w-64">
-                                    <Text className="text-xl text-[#282048] font-normal">
+                                    <Text className="text-xl  font-normal">
                                         Delete Account
                                     </Text>
                                 </div>
@@ -47,7 +47,7 @@ const DangerZone = () => {
                                     <Button
                                         variant="danger"
                                         type="submit"
-                                        className='float-right w-full'
+                                        className='float-right w-full bg-[#DE5536]'
                                     >
                                         Delete This Account
                                     </Button>

@@ -4,7 +4,7 @@ import { Breadcrumb, Card, Container,Text } from 'lib/components';
 import LeftSideSettingMenu from '@components/pages/settings/left-side-setting-menu';
 import ProfileAvatar from '@components/pages/settings/profile-avatar';
 import PersonalSettingForm from '@components/pages/settings/personal-setting-form';
-import DangerZone from '@components/pages/settings/danger-zone';
+import DangerZone from '@components/pages/settings/danger-zone-personal';
 
 const Personal = () => {
 	return (
