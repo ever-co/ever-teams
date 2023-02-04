@@ -8,6 +8,7 @@ type Props = {
 		| 'primary'
 		| 'outline'
 		| 'outline-dark'
+		| 'outline-danger'
 		| 'ghost'
 		| 'light'
 		| 'dark'
@@ -50,6 +51,10 @@ export function Button({
 					],
 					variant === 'danger' && [
 						'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold',
+					],
+					variant === 'outline-danger' && [
+						'text-[#EB6961] border border-[#EB6961] font-medium',
+						'disabled:opacity-40',
 					],
 				],
 				className

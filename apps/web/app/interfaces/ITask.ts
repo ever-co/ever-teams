@@ -86,13 +86,21 @@ export type ITaskStatus =
 	| 'Closed'
 	| 'In Review';
 
-export type ITaskStatusField = 'status' | 'size' | 'property' | 'label';
+export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Custom';
+
+export type ITaskStatusField =
+	| 'status'
+	| 'size'
+	| 'property'
+	| 'label'
+	| 'issue';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
 	label: ITaskLabel;
 	property: ITaskProperty;
+	issue: ITaskIssue;
 };
 
 export interface ICreateTask {

@@ -24,6 +24,7 @@ import {
 	useEffect,
 	useState,
 } from 'react';
+import { TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 
 type Props = {
@@ -38,6 +39,7 @@ type Props = {
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
+	showTaskNumber?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -59,6 +61,7 @@ export function TaskInput({
 	viewType = 'input-trigger',
 	children,
 	createOnEnterClick,
+	showTaskNumber = false,
 }: Props) {
 	const datas = useTaskInput(task, initEditMode);
 	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
@@ -86,11 +89,6 @@ export function TaskInput({
 
 	useEffect(() => {
 		setTaskName(inputTask?.title || '');
-		if (inputTask) {
-			setTaskName((v) => {
-				return (!editMode ? `#${inputTask.taskNumber} ` : '') + v;
-			});
-		}
 	}, [editMode, inputTask]);
 
 	useEffect(() => {
@@ -156,9 +154,10 @@ export function TaskInput({
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
 					!createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
 
-					/* Creating a task on enter click. */
+					/* Creating a new task when the enter key is pressed. */
 					createOnEnterClick &&
 						datas?.handleTaskCreation &&
+						datas.hasCreateForm &&
 						datas?.handleTaskCreation(autoActiveTask);
 
 					onEnterKey && onEnterKey(taskName, inputTask);
@@ -174,6 +173,19 @@ export function TaskInput({
 						</>
 					)}
 				</div>
+			}
+			className={clsxm(showTaskNumber && inputTask && ['pl-2'])}
+			/* Showing the task number. */
+			leadingNode={
+				showTaskNumber &&
+				inputTask && (
+					<div className="pl-3 flex items-center space-x-2">
+						<TaskIssuesDropdown defaultValue="Bug" />
+						<span className="text-gray-500 text-sm">
+							#{inputTask?.taskNumber}
+						</span>
+					</div>
+				)
 			}
 		/>
 	);
@@ -244,7 +256,9 @@ function TaskCard({
 					loading={datas.createLoading}
 					className="font-normal text-sm rounded-xl"
 					onClick={() =>
+						/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 						datas?.handleTaskCreation &&
+						datas.hasCreateForm &&
 						datas?.handleTaskCreation(autoActiveTask)
 					}
 				>

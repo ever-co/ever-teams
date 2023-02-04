@@ -39,11 +39,11 @@ type TStatusItem = {
 	name?: string;
 };
 
-type TStatus<T extends string> = {
+export type TStatus<T extends string> = {
 	[k in T]: TStatusItem;
 };
 
-type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
+export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	defaultValue?: ITaskStatusStack[T];
 	onValueChange?: (v: ITaskStatusStack[T]) => void;
 };
@@ -81,7 +81,7 @@ function useActiveTaskStatus<T extends ITaskStatusField>(
 	};
 }
 
-function useStatusValue<T extends ITaskStatusField>(
+export function useStatusValue<T extends ITaskStatusField>(
 	statusItems: TStatus<ITaskStatusStack[T]>,
 	$value: ITaskStatusStack[T] | undefined,
 	onValueChange?: (v: ITaskStatusStack[T]) => void
@@ -119,33 +119,6 @@ function useStatusValue<T extends ITaskStatusField>(
 		item,
 		onChange,
 	};
-}
-
-export function TaskStatus({
-	children,
-	name,
-	icon,
-	bgColor: backgroundColor,
-	className,
-	active = true,
-}: PropsWithChildren<TStatusItem & IClassName & { active?: boolean }>) {
-	return (
-		<div
-			className={clsxm(
-				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3',
-				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
-				className
-			)}
-			style={{ backgroundColor: active ? backgroundColor : undefined }}
-		>
-			<div className="flex items-center space-x-3 whitespace-nowrap">
-				{active ? icon : <RecordIcon />}
-
-				<span>{name}</span>
-			</div>
-			{children}
-		</div>
-	);
 }
 
 //! =============== Task Status ================= //
@@ -409,27 +382,60 @@ export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
 }
 
 //! =============== FC Status drop down ================= //
+
+export function TaskStatus({
+	children,
+	name,
+	icon,
+	bgColor: backgroundColor,
+	className,
+	active = true,
+}: PropsWithChildren<TStatusItem & IClassName & { active?: boolean }>) {
+	return (
+		<div
+			className={clsxm(
+				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3',
+				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+				className
+			)}
+			style={{ backgroundColor: active ? backgroundColor : undefined }}
+		>
+			<div className="flex items-center space-x-3 whitespace-nowrap">
+				{active ? icon : <RecordIcon />}
+
+				{name && <span>{name}</span>}
+			</div>
+			{children}
+		</div>
+	);
+}
+
 /**
  * Fc Status drop down
  */
-function StatusDropdown<T extends Required<TStatusItem>>({
+export function StatusDropdown<T extends Required<TStatusItem>>({
 	value,
 	onChange,
 	items,
 	className,
 	defaultItem,
-}: {
+	issueType = 'status',
+	children,
+}: PropsWithChildren<{
 	value: T | undefined;
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
 	defaultItem?: ITaskStatusField;
-}) {
+	issueType?: 'status' | 'issue';
+}>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: <span></span>,
 		name: defaultItem,
 	};
+
+	const currentValue = value || defaultValue;
 
 	return (
 		<div className={clsxm('relative', className)}>
@@ -438,22 +444,29 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 					<>
 						<Listbox.Button className="w-full">
 							<TaskStatus
-								{...(value || defaultValue)}
+								{...currentValue}
 								active={!!value}
 								className={clsxm(
 									'justify-between w-full capitalize',
 									!value && [
 										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-									]
+									],
+
+									issueType === 'issue' && ['rounded-md px-2 text-white']
 								)}
+								/* This is to remove the name from the task status dropdown. */
+								name={issueType === 'issue' ? undefined : currentValue.name}
 							>
-								<ChevronDownIcon
-									className={clsxm(
-										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-										!value && ['text-dark dark:text-white']
-									)}
-									aria-hidden="true"
-								/>
+								{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
+								{issueType === 'status' && (
+									<ChevronDownIcon
+										className={clsxm(
+											'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+											!value && ['text-dark dark:text-white']
+										)}
+										aria-hidden="true"
+									/>
+								)}
 							</TaskStatus>
 						</Listbox.Button>
 
@@ -465,9 +478,12 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 							leave="transition duration-75 ease-out"
 							leaveFrom="transform scale-100 opacity-100"
 							leaveTo="transform scale-95 opacity-0"
-							className="relative z-40"
+							className={clsxm(
+								'absolute right-0 left-0 z-40',
+								issueType === 'issue' && ['left-auto right-auto']
+							)}
 						>
-							<Listbox.Options className="absolute right-0 z-40">
+							<Listbox.Options>
 								<Card
 									shadow="bigger"
 									className="!px-2 py-2 shadow-xlcard dark:shadow-lgcard-white"
@@ -475,10 +491,20 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 									{items.map((item, i) => (
 										<Listbox.Option key={i} value={item.name} as={Fragment}>
 											<li className="mb-3 cursor-pointer">
-												<TaskStatus {...item} />
+												<TaskStatus
+													{...item}
+													className={clsxm(
+														issueType === 'issue' && [
+															'rounded-md px-2 text-white',
+														]
+													)}
+												/>
 											</li>
 										</Listbox.Option>
 									))}
+									{children && (
+										<Listbox.Button as="div">{children}</Listbox.Button>
+									)}
 								</Card>
 							</Listbox.Options>
 						</Transition>

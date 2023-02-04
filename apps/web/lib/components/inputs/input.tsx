@@ -19,6 +19,7 @@ type Props = {
 	wrapperClassName?: string;
 	noWrapper?: boolean;
 	trailingNode?: ReactNode;
+	leadingNode?: ReactNode;
 	autoCustomFocus?: boolean;
 } & React.ComponentPropsWithRef<'input'>;
 
@@ -33,6 +34,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			noWrapper,
 			setErrors,
 			trailingNode,
+			leadingNode,
 			autoCustomFocus,
 			...res
 		},
@@ -73,9 +75,9 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				ref={mergeRefs([ref, inputRef])}
 				className={clsxm(
 					'bg-light--theme-light dark:bg-dark--theme-light',
-					'input-border',
-					'py-2 px-4 mb-1',
-					'rounded-[10px] text-sm outline-none ',
+					noWrapper && ['input-border'],
+					'py-2 px-4 rounded-[10px]',
+					'text-sm outline-none ',
 					'h-[50px] w-full',
 					'font-light tracking-tight',
 					className
@@ -88,16 +90,26 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 		return noWrapper ? (
 			inputElement
 		) : (
-			<div className={clsxm('w-full mb-3 relative', wrapperClassName)}>
-				{inputElement}
+			<div
+				className={clsxm(
+					'w-full mb-3 relative bg-light--theme-light dark:bg-dark--theme-light',
+					wrapperClassName
+				)}
+			>
+				<div className="input-border rounded-[10px] flex justify-between h-auto">
+					{leadingNode && (
+						<div className="flex items-center">{leadingNode}</div>
+					)}
+					<div className="flex-1">{inputElement}</div>
+					{trailingNode && (
+						<div className="flex items-center">{trailingNode}</div>
+					)}
+				</div>
+
 				{error && (
 					<Text.Error className="self-start justify-self-start">
 						{error}
 					</Text.Error>
-				)}
-
-				{trailingNode && (
-					<div className="absolute right-0 top-0 bottom-0">{trailingNode}</div>
 				)}
 			</div>
 		);
