@@ -1,3 +1,4 @@
+import { en } from 'lib/i18n';
 import Head from 'next/head';
 
 type Props = {
@@ -11,7 +12,7 @@ export const Meta = ({
 	title = '',
 	keywords = '',
 	description = '',
-	siteName = 'Gauzy Teams',
+	siteName = en.TITLE,
 }: Props) => {
 	return (
 		<Head>

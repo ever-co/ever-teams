@@ -4,6 +4,7 @@ import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { timerSecondsState, timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { useRecoilValue } from 'recoil';
 
 type Props = {
@@ -61,16 +62,17 @@ function TimeInfo({
 	daily: { h: number; m: number };
 	total: { h: number; m: number };
 }) {
+	const { trans } = useTranslation();
 	return (
 		<>
 			<div className="flex space-x-2 items-center mb-2 font-normal">
-				<span className="text-gray-500">Today:</span>
+				<span className="text-gray-500">{trans.common.TODAY}:</span>
 				<Text>
 					{daily.h}h : {daily.m}m
 				</Text>
 			</div>
 			<div className="flex space-x-2 items-center text-sm font-normal">
-				<span className="text-gray-500">Total:</span>
+				<span className="text-gray-500">{trans.common.TOTAL}:</span>
 				<Text>
 					{total.h}h : {total.m}m
 				</Text>

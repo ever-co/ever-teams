@@ -2,6 +2,24 @@ export const en = {
 	TITLE: 'Gauzy Teams',
 	common: {
 		CONTINUE: 'Continue',
+		EDIT_TASK: 'Edit Task',
+		ESTIMATE: 'Estimate',
+		ASSIGN_TASK: 'Assign Task',
+		UNASSIGN_TASK: 'Unassign Task',
+		MAKE_A_MANAGER: 'Make a Manager',
+		REMOVE: 'Remove',
+		TODAY: 'Today',
+		TOTAL: 'Total',
+		ESTIMATED: 'Estimated',
+		STATUS: 'Status',
+		NAME: 'Name',
+		TASK: 'Task',
+		WORKED_ON_TASK: 'Worked on Task',
+		TOTAL_WORKED_TODAY: 'Total worked Today',
+		OPEN: 'Open',
+		CLOSED: 'Closed',
+		INVITE: 'Invite',
+		TASK_TITTLE: 'Task Tittle',
 	},
 	pages: {
 		home: {
@@ -50,10 +68,26 @@ export const en = {
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',
 		},
+
+		invite: {
+			HEADING_TITLE: 'Invite member to your team',
+			HEADING_DESCRIPTION: 'Send invitation to a team member by email',
+			SEND_INVITE: 'Send Invitation',
+		},
 	},
+
+	timer: {
+		START_TIMER:
+			'Please, select or create a new task to start tracking the time',
+	},
+
 	form: {
 		EMAIL_PLACEHOLDER: 'Enter your email address',
 		TEAM_NAME_PLACEHOLDER: 'Please Enter your team name',
+		TASK_INPUT_PLACEHOLDER: 'What you working on?',
+
+		TEAM_MEMBER_NAME_PLACEHOLDER: 'Team member name',
+		TEAM_MEMBER_EMAIL_PLACEHOLDER: 'Team member email address',
 	},
 
 	layout: {

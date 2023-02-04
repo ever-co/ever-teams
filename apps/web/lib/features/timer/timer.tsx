@@ -4,8 +4,10 @@ import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { pad } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { TimerButton } from './timer-button';
+import { useTranslation } from 'lib/i18n';
 
 export function Timer({ className }: IClassName) {
+	const { trans } = useTranslation();
 	const {
 		hours,
 		minutes,
@@ -37,7 +39,7 @@ export function Timer({ className }: IClassName) {
 
 			<div className="ml-5 z-[50]">
 				<Tooltip
-					label="Please, select or create a new task to start tracking the time"
+					label={trans.timer.START_TIMER}
 					placement="top-start"
 					enabled={!canRunTimer}
 				>

@@ -17,6 +17,7 @@ import {
 	SpinnerLoader,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import {
 	MutableRefObject,
 	PropsWithChildren,
@@ -63,6 +64,7 @@ export function TaskInput({
 	createOnEnterClick,
 	showTaskNumber = false,
 }: Props) {
+	const { trans } = useTranslation();
 	const datas = useTaskInput(task, initEditMode);
 	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
@@ -147,7 +149,7 @@ export function TaskInput({
 			value={taskName}
 			onFocus={() => setEditMode(true)}
 			onChange={(event) => setTaskName(event.target.value)}
-			placeholder="What you working on?"
+			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
@@ -239,6 +241,8 @@ function TaskCard({
 	autoActiveTask?: boolean;
 	inputField?: JSX.Element;
 }) {
+	const { trans } = useTranslation();
+
 	return (
 		<>
 			<Card
@@ -282,7 +286,7 @@ function TaskCard({
 								]
 							)}
 						>
-							{datas.openTaskCount || 0} Open
+							{datas.openTaskCount || 0} {trans.common.OPEN}
 						</span>
 					</OutlineBadge>
 
@@ -298,7 +302,7 @@ function TaskCard({
 								]
 							)}
 						>
-							{datas.closedTaskCount || 0} Closed
+							{datas.closedTaskCount || 0} {trans.common.CLOSED}
 						</span>
 					</OutlineBadge>
 				</div>
