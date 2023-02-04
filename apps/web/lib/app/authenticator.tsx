@@ -2,6 +2,7 @@ import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
 import { BackdropLoader } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useEffect } from 'react';
@@ -12,6 +13,7 @@ export function withAuthentication(
 	{ displayName }: { displayName: string; pageTitle?: string }
 ) {
 	const AppComponent = (props: any) => {
+		const { trans } = useTranslation();
 		const [user, setUser] = useRecoilState(userState);
 		const { queryCall, loading } = useQuery(getAuthenticatedUserDataAPI);
 
@@ -28,7 +30,7 @@ export function withAuthentication(
 				<Component {...props} />
 				<BackdropLoader
 					canCreatePortal={false}
-					title="loading"
+					title={trans.common.LOADING}
 					fadeIn={false}
 					show={!user || loading}
 				/>

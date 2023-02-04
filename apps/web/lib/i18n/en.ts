@@ -25,6 +25,7 @@ export const en = {
 		CREATE: 'Create',
 		CREARE_ISSUE: 'Create issue',
 		NEW_ISSUE: 'New Issue',
+		LOADING: 'Loading',
 	},
 	pages: {
 		home: {
