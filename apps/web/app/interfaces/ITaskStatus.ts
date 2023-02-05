@@ -13,3 +13,12 @@ export interface ITaskStatusItemList {
 	isSystem?: boolean;
 	projectId?: string;
 }
+
+export interface ITaskStatusCreate {
+	name: string;
+	description?: string;
+	icon?: string;
+	color?: string;
+	projectId?: string;
+	organizationId?: string;
+}

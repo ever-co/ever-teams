@@ -16,13 +16,25 @@ const TaskStatusesForm = () => {
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 
-	const { loading, taskStatus } = useTaskStatus();
+	const { loading, taskStatus, createTaskStatus } = useTaskStatus();
 
 	useEffect(() => {
 		setValue('teamName', '');
 		setValue('teamType', '');
 		setValue('teamLink', '');
 	}, [user]);
+
+	// TODO: Remove below code, just for testing
+	// useEffect(() => {
+	// 	createTaskStatus({
+	// 		name: 'Backlog',
+	// 		color: '#f5b8b8',
+	// 		description: 'New Backlog',
+	// 		organizationId: user?.employee.organizationId,
+	// 		icon: '',
+	// 		projectId: '',
+	// 	});
+	// }, []);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
