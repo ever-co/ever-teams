@@ -33,6 +33,8 @@ export const en = {
 		ASSIGNED: 'Assigned',
 		UNASSIGNED: 'Unassigned',
 		FILTER: 'Filter',
+		APPLY: 'Apply',
+		RESET: 'Reset',
 	},
 	pages: {
 		home: {

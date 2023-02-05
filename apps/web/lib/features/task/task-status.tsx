@@ -177,6 +177,7 @@ export function TaskStatusDropdown({
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'status' : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -232,10 +233,15 @@ export const taskProperties: TStatus<ITaskProperty> = {
  * @param {IClassName}  - IClassName - This is the interface that the component will accept.
  * @returns A dropdown with the task properties
  */
-export function TaskPropertiesDropdown({ className }: IClassName) {
+export function TaskPropertiesDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'property'>) {
 	const { item, items, onChange } = useStatusValue<'property'>(
 		taskProperties,
-		'Low'
+		defaultValue,
+		onValueChange
 	);
 
 	return (
@@ -243,6 +249,7 @@ export function TaskPropertiesDropdown({ className }: IClassName) {
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'property' : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -298,14 +305,23 @@ export const taskSizes: TStatus<ITaskSize> = {
  * @param {IClassName}  - IClassName - This is the interface that the component will accept.
  * @returns A React component
  */
-export function TaskSizesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue<'size'>(taskSizes, 'Medium');
+export function TaskSizesDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'size'>) {
+	const { item, items, onChange } = useStatusValue<'size'>(
+		taskSizes,
+		defaultValue,
+		onValueChange
+	);
 
 	return (
 		<StatusDropdown
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'size' : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -350,14 +366,23 @@ export const taskLabels: TStatus<ITaskLabel> = {
 	},
 };
 
-export function TaskLabelsDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue<'label'>(taskLabels, 'WEB');
+export function TaskLabelsDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'label'>) {
+	const { item, items, onChange } = useStatusValue<'label'>(
+		taskLabels,
+		defaultValue,
+		onValueChange
+	);
 
 	return (
 		<StatusDropdown
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'label' : undefined}
 			onChange={onChange}
 		/>
 	);
