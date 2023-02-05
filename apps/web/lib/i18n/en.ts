@@ -17,6 +17,7 @@ export const en = {
 		WORKED_ON_TASK: 'Worked on Task',
 		TOTAL_WORKED_TODAY: 'Total worked Today',
 		OPEN: 'Open',
+		NOW: 'Now',
 		CLOSED: 'Closed',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Tittle',
@@ -26,6 +27,8 @@ export const en = {
 		CREARE_ISSUE: 'Create issue',
 		NEW_ISSUE: 'New Issue',
 		LOADING: 'Loading',
+		TOTAL_TIME: 'Total time',
+		LAST_24_HOURS: 'Last 24 Hours',
 	},
 	pages: {
 		home: {

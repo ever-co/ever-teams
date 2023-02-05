@@ -1,10 +1,10 @@
-import { useTaskStatistics, useTimer } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { pad } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { TimerButton } from './timer-button';
 import { useTranslation } from 'lib/i18n';
+import { useTimerView } from '@app/hooks';
 
 export function Timer({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -18,6 +18,7 @@ export function Timer({ className }: IClassName) {
 		timerStatusFetching,
 		timerHanlder,
 		timerStatus,
+		disabled,
 	} = useTimerView();
 
 	return (
@@ -46,7 +47,7 @@ export function Timer({ className }: IClassName) {
 					<TimerButton
 						onClick={!timerStatusFetching ? timerHanlder : undefined}
 						running={timerStatus?.running}
-						disabled={timerStatusFetching || !canRunTimer}
+						disabled={disabled}
 					/>
 				</Tooltip>
 			</div>
@@ -91,39 +92,4 @@ export function MinTimerFrame({ className }: IClassName) {
 			</div>
 		</div>
 	);
-}
-
-function useTimerView() {
-	const {
-		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
-		timerStatus,
-		timerStatusFetching,
-		startTimer,
-		stopTimer,
-		canRunTimer,
-		timerSeconds,
-	} = useTimer();
-
-	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
-
-	const timerHanlder = () => {
-		if (timerStatusFetching || !canRunTimer) return;
-		if (timerStatus?.running) {
-			stopTimer();
-		} else {
-			startTimer();
-		}
-	};
-
-	return {
-		hours,
-		minutes,
-		seconds,
-		ms_p,
-		activeTaskEstimation,
-		timerHanlder,
-		canRunTimer,
-		timerStatusFetching,
-		timerStatus,
-	};
 }

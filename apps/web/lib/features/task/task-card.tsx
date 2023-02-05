@@ -1,10 +1,16 @@
 import { secondsToTime } from '@app/helpers';
-import { useOutsideClick } from '@app/hooks';
+import { useOutsideClick, useTeamTasks, useTimerView } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card, Text, Tooltip, VerticalSeparator } from 'lib/components';
+import {
+	Card,
+	SpinnerLoader,
+	Text,
+	Tooltip,
+	VerticalSeparator,
+} from 'lib/components';
 import { DraggerIcon, EditIcon, MoreIcon } from 'lib/components/svgs';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskEstimate } from './task-estimate';
@@ -55,14 +61,7 @@ export function TaskCard({
 					activeAuthTask={activeAuthTask}
 					className="px-3 w-52"
 				/>
-				{isAuthUser && (
-					<TimerButton
-						onClick={undefined}
-						running={false}
-						disabled={false}
-						className="h-9 w-9"
-					/>
-				)}
+				{isAuthUser && task && <TimerButtonCall task={task} />}
 			</div>
 
 			<VerticalSeparator />
@@ -82,6 +81,46 @@ export function TaskCard({
 				className="lg:min-w-[170px] mr-4"
 			/>
 		</Card>
+	);
+}
+
+function TimerButtonCall({ task }: { task: ITeamTask }) {
+	const [loading, setLoading] = useState(false);
+	const {
+		disabled,
+		timerHanlder,
+		timerStatus,
+		activeTeamTask,
+		startTimer,
+		stopTimer,
+	} = useTimerView();
+
+	const { setActiveTask } = useTeamTasks();
+
+	const activeTaskStatus =
+		activeTeamTask?.id === task.id ? timerStatus : undefined;
+
+	const startTimerWithTask = useCallback(async () => {
+		if (timerStatus?.running) {
+			setLoading(true);
+			await stopTimer().finally(() => setLoading(false));
+		}
+
+		setActiveTask(task);
+		window.setTimeout(startTimer, 100);
+
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [timerStatus, setActiveTask, task, stopTimer]);
+
+	return loading ? (
+		<SpinnerLoader size={30} />
+	) : (
+		<TimerButton
+			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
+			running={activeTaskStatus?.running}
+			disabled={activeTaskStatus ? disabled : false}
+			className="h-9 w-9"
+		/>
 	);
 }
 

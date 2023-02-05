@@ -1,7 +1,7 @@
 import { secondsToTime } from '@app/helpers';
-import { useTaskStatistics } from '@app/hooks';
+import { useLiveTimerStatus, useTaskStatistics } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
-import { timerSecondsState, timerStatusState } from '@app/stores';
+import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
@@ -86,16 +86,13 @@ export function TodayWorkedTime({
 	isAuthUser,
 }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
-	const seconds = useRecoilValue(timerSecondsState);
-
-	const timerStatus = useRecoilValue(timerStatusState);
-	const { h, m } = secondsToTime((timerStatus?.duration || 0) + seconds);
+	const { time } = useLiveTimerStatus();
 
 	return (
 		<div className={clsxm('text-center font-normal', className)}>
 			{isAuthUser ? (
 				<Text>
-					{h}h : {m}m
+					{time.h}h : {time.m}m
 				</Text>
 			) : (
 				<Text>00h : 00 m</Text>
