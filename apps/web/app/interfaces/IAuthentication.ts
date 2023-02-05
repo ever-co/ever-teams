@@ -11,6 +11,10 @@ export interface IRegisterDataRequest {
 	password: string;
 	confirmPassword: string;
 	appEmailConfirmationUrl?: string;
+	appName?: string;
+	appLogo?: string;
+	appSignature?: string;
+	appLink?: string;
 }
 
 export interface IDecodedRefreshToken {
