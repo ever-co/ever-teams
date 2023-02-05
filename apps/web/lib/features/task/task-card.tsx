@@ -127,7 +127,7 @@ function TimerButtonCall({ task }: { task: ITeamTask }) {
 		<TimerButton
 			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 			running={activeTaskStatus?.running}
-			disabled={activeTaskStatus ? disabled : false}
+			disabled={activeTaskStatus ? disabled : task.status === 'Closed'}
 			className="h-9 w-9"
 		/>
 	);
