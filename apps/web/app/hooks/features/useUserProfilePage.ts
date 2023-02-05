@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
@@ -8,8 +9,6 @@ import { useTeamTasks } from './useTeamTasks';
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
 	const { activeTeamTask, tasks } = useTeamTasks();
-
-	// const {} = useAuthTeamTasks()
 
 	const { user: auth } = useAuthenticateUser();
 	const { getAllTasksStatsData } = useTaskStatistics();
@@ -29,9 +28,13 @@ export function useUserProfilePage() {
 	const userProfile =
 		auth?.employee.userId === memberId ? auth : matchUser?.employee.user;
 
+	/* Get all task except the active one */
 	const otherTasks = activeUserTeamTask
 		? tasks.filter((t) => t.id !== activeUserTeamTask.id)
 		: tasks;
+
+	/* Filtering the tasks */
+	const tasksFiltered = useAuthTeamTasks(userProfile);
 
 	useEffect(() => {
 		getAllTasksStatsData();
@@ -43,6 +46,7 @@ export function useUserProfilePage() {
 		otherTasks,
 		activeUserTeamTask,
 		userProfile,
+		tasksFiltered,
 	};
 }
 

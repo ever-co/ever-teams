@@ -17,7 +17,9 @@ import Link from 'next/link';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
-	const hook = useTaskFilter();
+
+	const hook = useTaskFilter(profile);
+
 	const { trans } = useTranslation('profile');
 
 	return (
@@ -51,7 +53,7 @@ const Profile = () => {
 			</MainHeader>
 
 			<Container className="mb-10">
-				<UserProfileTask profile={profile} />
+				<UserProfileTask profile={profile} tabFiltered={hook} />
 			</Container>
 		</MainLayout>
 	);

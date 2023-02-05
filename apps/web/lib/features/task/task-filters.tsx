@@ -1,4 +1,5 @@
-import { IClassName } from '@app/interfaces';
+import { I_UserProfilePage } from '@app/hooks';
+import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
@@ -13,7 +14,12 @@ type ITabs = {
 	description: string;
 };
 
-export function useTaskFilter() {
+/**
+ * It returns an object with the current tab, a function to set the current tab, and an array of tabs
+ * @param {I_UserProfilePage} hook - I_UserProfilePage - this is the hook that we're using in the
+ * component.
+ */
+export function useTaskFilter(profile: I_UserProfilePage) {
 	const { trans } = useTranslation();
 	const [tab, setTab] = useState<ITab>('worked');
 
@@ -22,26 +28,33 @@ export function useTaskFilter() {
 			tab: 'worked',
 			name: trans.common.WORKED,
 			description: trans.task.tabFilter.WORKED_DESCRIPTION,
-			count: 0,
+			count: profile.tasks.length,
 		},
 		{
 			tab: 'assigned',
 			name: trans.common.ASSIGNED,
 			description: trans.task.tabFilter.ASSIGNED_DESCRIPTION,
-			count: 0,
+			count: profile.tasksFiltered.assignedTasks.length,
 		},
 		{
 			tab: 'unassigned',
 			name: trans.common.UNASSIGNED,
 			description: trans.task.tabFilter.UNASSIGNED_DESCRIPTION,
-			count: 0,
+			count: profile.tasksFiltered.unassignedTasks.length,
 		},
 	];
+
+	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
+		unassigned: profile.tasksFiltered.unassignedTasks,
+		assigned: profile.tasksFiltered.assignedTasks,
+		worked: profile.tasksFiltered.workedTasks,
+	};
 
 	return {
 		tab,
 		setTab,
 		tabs,
+		tasksFiltered: tasksFiltered[tab],
 	};
 }
 
