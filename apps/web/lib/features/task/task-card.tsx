@@ -2,17 +2,12 @@ import { secondsToTime } from '@app/helpers';
 import { useOutsideClick, useTeamTasks, useTimerView } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	Card,
-	SpinnerLoader,
-	Text,
-	Tooltip,
-	VerticalSeparator,
-} from 'lib/components';
+import { Card, SpinnerLoader, Text, VerticalSeparator } from 'lib/components';
 import { DraggerIcon, EditIcon, MoreIcon } from 'lib/components/svgs';
 import { useCallback, useRef, useState } from 'react';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
+import { TaskNameInfoDisplay } from './task-displays';
 import { TaskEstimate } from './task-estimate';
 import { TaskProgressBar } from './task-progress-bar';
 import { ActiveTaskStatusDropdown } from './task-status';
@@ -223,13 +218,7 @@ function TaskInfo({
 								'text-sm text-ellipsis text-center cursor-default overflow-hidden w-full'
 							)}
 						>
-							<Tooltip
-								label={task?.title || ''}
-								placement="top"
-								enabled={(task?.title && task?.title.length > 60) || false}
-							>
-								{task?.title}
-							</Tooltip>
+							<TaskNameInfoDisplay task={task} />
 						</div>
 					</div>
 				</div>

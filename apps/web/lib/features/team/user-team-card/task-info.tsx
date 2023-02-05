@@ -1,8 +1,11 @@
 import { I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Tooltip } from 'lib/components';
-import { TaskAllStatusTypes, TaskInput, TaskIssueStatus } from 'lib/features';
+import {
+	TaskAllStatusTypes,
+	TaskInput,
+	TaskNameInfoDisplay,
+} from 'lib/features';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
@@ -52,24 +55,7 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 				)}
 				onDoubleClick={() => task && edition.setEditMode(true)}
 			>
-				<Tooltip
-					label={task?.title || ''}
-					placement="top"
-					enabled={(task?.title && task?.title.length > 60) || false}
-				>
-					<span>
-						{task && (
-							// Show task issue and task number
-							<div className="inline-flex items-center">
-								<div className="mr-1">
-									<TaskIssueStatus className="px-1 py-1" task={task} />
-								</div>
-								<span className="text-gray-500 mr-2">#{task.taskNumber}</span>
-							</div>
-						)}
-						{task?.title}
-					</span>
-				</Tooltip>
+				<TaskNameInfoDisplay task={task} />
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
