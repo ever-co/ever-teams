@@ -119,7 +119,7 @@ function TimerButtonCall({ task }: { task: ITeamTask }) {
 		window.setTimeout(startTimer, 100);
 
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [timerStatus, setActiveTask, task, stopTimer]);
+	}, [timerStatus, setActiveTask, task, stopTimer, startTimer]);
 
 	return loading ? (
 		<SpinnerLoader size={30} />
