@@ -25,7 +25,7 @@ import {
 	useEffect,
 	useState,
 } from 'react';
-import { TaskIssuesDropdown } from './task-issue';
+import { ActiveTaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 
 type Props = {
@@ -182,7 +182,7 @@ export function TaskInput({
 				showTaskNumber &&
 				inputTask && (
 					<div className="pl-3 flex items-center space-x-2">
-						<TaskIssuesDropdown defaultValue="Bug" />
+						<ActiveTaskIssuesDropdown task={inputTask} />
 						<span className="text-gray-500 text-sm">
 							#{inputTask?.taskNumber}
 						</span>

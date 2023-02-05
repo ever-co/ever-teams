@@ -33,7 +33,7 @@ import {
 } from 'react';
 import { useCallbackRef, useTeamTasks } from '@app/hooks';
 
-type TStatusItem = {
+export type TStatusItem = {
 	bgColor?: string;
 	icon: React.ReactNode;
 	name?: string;
@@ -48,12 +48,12 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	onValueChange?: (v: ITaskStatusStack[T]) => void;
 };
 
-type IActiveTaskStatuses<T extends ITaskStatusField> =
+export type IActiveTaskStatuses<T extends ITaskStatusField> =
 	TTaskStatusesDropdown<T> & {
 		task?: Nullable<ITeamTask>;
 	};
 
-function useActiveTaskStatus<T extends ITaskStatusField>(
+export function useActiveTaskStatus<T extends ITaskStatusField>(
 	props: IActiveTaskStatuses<T>,
 	status: TStatus<ITaskStatusStack[T]>,
 	field: T
@@ -68,7 +68,7 @@ function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const { item, items, onChange } = useStatusValue<T>(
 		status,
-		task ? task[field] : undefined,
+		task ? task[field] : props.defaultValue || undefined,
 		onItemChange
 	);
 
@@ -390,12 +390,17 @@ export function TaskStatus({
 	bgColor: backgroundColor,
 	className,
 	active = true,
-}: PropsWithChildren<TStatusItem & IClassName & { active?: boolean }>) {
+	issueType = 'status',
+}: PropsWithChildren<
+	TStatusItem &
+		IClassName & { active?: boolean; issueType?: 'status' | 'issue' }
+>) {
 	return (
 		<div
 			className={clsxm(
 				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3',
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+				issueType === 'issue' && ['rounded-md px-2 text-white'],
 				className
 			)}
 			style={{ backgroundColor: active ? backgroundColor : undefined }}
@@ -403,7 +408,7 @@ export function TaskStatus({
 			<div className="flex items-center space-x-3 whitespace-nowrap">
 				{active ? icon : <RecordIcon />}
 
-				{name && <span>{name}</span>}
+				{name && issueType !== 'issue' && <span>{name}</span>}
 			</div>
 			{children}
 		</div>
@@ -446,16 +451,13 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 							<TaskStatus
 								{...currentValue}
 								active={!!value}
+								issueType={issueType}
 								className={clsxm(
 									'justify-between w-full capitalize',
 									!value && [
 										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-									],
-
-									issueType === 'issue' && ['rounded-md px-2 text-white']
+									]
 								)}
-								/* This is to remove the name from the task status dropdown. */
-								name={issueType === 'issue' ? undefined : currentValue.name}
 							>
 								{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
 								{issueType === 'status' && (
