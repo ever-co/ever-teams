@@ -10,4 +10,5 @@ export * from './ITenant';
 export * from './ITimer';
 export * from './IUserData';
 export * from './ITaskStatus';
+export * from './ITaskPriorities';
 export * from './hooks';

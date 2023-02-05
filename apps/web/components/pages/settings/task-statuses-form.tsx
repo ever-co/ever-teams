@@ -111,10 +111,10 @@ const TaskStatusesForm = () => {
 									taskStatus.map((status) => (
 										<ListCard
 											statusTitle={
-												status?.value && status?.value?.split('-').join(' ')
+												status?.value ? status?.value?.split('-').join(' ') : ''
 											}
-											bgColor={status?.color}
-											statusIcon={status?.icon}
+											bgColor={status?.color || ''}
+											statusIcon={status?.icon || ''}
 											onEdit={() => {
 												console.log('Edit');
 											}}

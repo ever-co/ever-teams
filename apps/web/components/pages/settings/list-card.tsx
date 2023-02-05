@@ -8,7 +8,13 @@ const StatusesListCard = ({
 	bgColor,
 	onEdit,
 	onDelete,
-}: any) => {
+}: {
+	statusIcon: string;
+	statusTitle: string;
+	bgColor: string;
+	onEdit: any;
+	onDelete: any;
+}) => {
 	return (
 		<div className="border w-[49%] flex items-center p-1 rounded-xl justify-between">
 			<div
