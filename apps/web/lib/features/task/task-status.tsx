@@ -50,6 +50,8 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 
 export type IActiveTaskStatuses<T extends ITaskStatusField> =
 	TTaskStatusesDropdown<T> & {
+		onChangeLoading?: (loading: boolean) => void;
+	} & {
 		task?: Nullable<ITeamTask>;
 	};
 
@@ -62,8 +64,21 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 
+	/**
+	 * "When the user changes the status of a task, update the status of the task and then call the
+	 * onChangeLoading function with true, and when the status update is complete, call the onChangeLoading
+	 * function with false."
+	 *
+	 * The first line of the function is a type annotation. It says that the function takes a single
+	 * argument, which is an object of type ITaskStatusStack[T]. The type annotation is optional, but it's
+	 * a good idea to include it
+	 * @param status - The new status of the item.
+	 */
 	function onItemChange(status: ITaskStatusStack[T]) {
-		handleStatusUpdate(status, field, task, true);
+		props.onChangeLoading && props.onChangeLoading(true);
+		handleStatusUpdate(status, field, task, true).finally(() => {
+			props.onChangeLoading && props.onChangeLoading(false);
+		});
 	}
 
 	const { item, items, onChange } = useStatusValue<T>(
