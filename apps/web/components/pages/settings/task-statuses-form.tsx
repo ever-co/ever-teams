@@ -7,20 +7,16 @@ import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import ListCard from './list-card';
 import { LanguageDropDown } from './language-dropdown';
-import {
-	ClockIcon,
-	CloseCircleIcon,
-	LoginIcon,
-	SearchStatusIcon,
-	TickCircleIcon,
-	TimerIcon,
-} from 'lib/components/svgs';
 import { PlusIcon } from '@heroicons/react/20/solid';
+import { useTaskStatus } from '@app/hooks/features/useTaskStatus';
+import { Spinner } from '@components/ui/loaders/spinner';
 
 const TaskStatusesForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
+
+	const { loading, taskStatus } = useTaskStatus();
 
 	useEffect(() => {
 		setValue('teamName', '');
@@ -108,41 +104,25 @@ const TaskStatusesForm = () => {
 								List of Statuses
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
-								<ListCard
-									statusTitle="In Progress"
-									bgColor={'#ECE8FC'}
-									icon={<TimerIcon className="stroke-black" />}
-								/>
-								<ListCard
-									statusTitle="Completed"
-									bgColor={'#D4EFDF'}
-									icon={<TickCircleIcon className="stroke-black" />}
-								/>
-								<ListCard
-									statusTitle="Open"
-									bgColor={'#D6E4F9'}
-									icon={<LoginIcon />}
-								/>
-								<ListCard
-									statusTitle="Blocked"
-									bgColor={'#F5B8B8'}
-									icon={<CloseCircleIcon />}
-								/>
-								<ListCard
-									statusTitle="In Review"
-									bgColor={'#F3D8B0'}
-									icon={<SearchStatusIcon />}
-								/>
-								<ListCard
-									statusTitle="Backlog"
-									bgColor={'#F2F2F2'}
-									icon={<SearchStatusIcon />}
-								/>
-								<ListCard
-									statusTitle="Ready"
-									bgColor={'#F5F1CB'}
-									icon={<ClockIcon />}
-								/>
+								{loading && <Spinner dark={false} />}
+								{!loading &&
+									taskStatus &&
+									taskStatus?.length &&
+									taskStatus.map((status) => (
+										<ListCard
+											statusTitle={
+												status?.value && status?.value?.split('-').join(' ')
+											}
+											bgColor={status?.color}
+											statusIcon={status?.icon}
+											onEdit={() => {
+												console.log('Edit');
+											}}
+											onDelete={() => {
+												console.log('Delete');
+											}}
+										/>
+									))}
 							</div>
 						</div>
 					</div>

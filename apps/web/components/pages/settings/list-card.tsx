@@ -1,13 +1,13 @@
-import { Edit2Icon, PeopleIcon, TrashIcon } from 'lib/components/svgs';
-import { Text } from 'lib/components';
+import { Edit2Icon, TrashIcon } from 'lib/components/svgs';
+import { Button, Text } from 'lib/components';
+import Image from 'next/image';
 
 const StatusesListCard = ({
 	statusIcon,
 	statusTitle,
 	bgColor,
-	editClick,
-	deletCelick,
-	icon,
+	onEdit,
+	onDelete,
 }: any) => {
 	return (
 		<div className="border w-[49%] flex items-center p-1 rounded-xl justify-between">
@@ -15,14 +15,18 @@ const StatusesListCard = ({
 				className={`rounded-xl w-2/3 flex items-center p-3 gap-x-2 `}
 				style={{ backgroundColor: bgColor }}
 			>
-				{icon}
-				<Text className="flex-none flex-grow-0 text-md font-normal dark:text-black">
+				{statusIcon && <Image src={statusIcon} alt={statusTitle} />}
+				<Text className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize">
 					{statusTitle}
 				</Text>
 			</div>
 			<div className="flex items-center gap-x-[12PX] mr-[4px]">
-				<Edit2Icon />
-				<TrashIcon />
+				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onEdit}>
+					<Edit2Icon />
+				</Button>
+				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onDelete}>
+					<TrashIcon />
+				</Button>
 			</div>
 		</div>
 	);
