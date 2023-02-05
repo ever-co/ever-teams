@@ -7,7 +7,7 @@ import ComboBox from "./ComboBox";
 import EstimateTime from "./EstimateTime";
 import TaskStatusDropdown from "./TaskStatusDropdown";
 import { ITeamTask } from "../../../../services/interfaces/ITask";
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { observer } from "mobx-react-lite";
 import TaskSize from "../../../../components/TaskSize";
 import TaskPriorities from "../../../../components/TaskPriorities";
@@ -24,7 +24,7 @@ import useTimerScreenLogic from "../logics/useTimerScreenLogic";
 const ManageTaskCard = observer(() => {
     const {
         TaskStore: { teamTasks, activeTask },
-        teamStore:{activeTeam}
+        teamStore: { activeTeam }
     } = useStores();
 
     const { colors } = useAppTheme()
@@ -54,17 +54,18 @@ const ManageTaskCard = observer(() => {
                     styles.wrapInput,
                     {
                         flexDirection: "row",
-                        justifyContent: "space-between",
                         alignItems: "center",
-                        backgroundColor: colors.background,
                         borderColor: colors.border
                     },
                 ]}
             >
+                <View style={styles.wrapBugIcon}>
+                <MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
+                </View>
                 <TextInput
                     selectionColor={colors.primary}
                     placeholderTextColor={colors.tertiary}
-                    style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary }]}
+                    style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary, width:showCheckIcon ? "85%":"90%" }]}
                     placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
                     autoFocus={false}
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     },
     textInput: {
         color: "rgba(40, 32, 72, 0.4)",
-        width: "90%",
+        width: "80%",
         height: 43,
         paddingVertical: 13,
         paddingHorizontal: 16,
@@ -187,7 +188,8 @@ const styles = StyleSheet.create({
         borderColor: "rgba(0, 0, 0, 0.1)",
         borderWidth: 1,
         borderRadius: 10,
-        paddingVertical: 2
+        paddingVertical: 2,
+        paddingHorizontal:16
     },
     loading: {
         position: 'absolute',
@@ -200,6 +202,14 @@ const styles = StyleSheet.create({
         width: 136,
         height: 32,
         borderColor: "transparent",
+    },
+    wrapBugIcon:{
+        backgroundColor:"#C24A4A",
+        borderRadius:3,
+        width:20,
+        height:20,
+        alignItems:"center",
+        justifyContent:"center"
     }
 
 })

@@ -10,6 +10,7 @@ import { pad } from "../helpers/number"
 import { useTimer } from "../services/hooks/useTimer"
 import { useAppTheme } from "../app"
 import TimerButton from "./TimerButton"
+import EStyleSheet from "react-native-extended-stylesheet"
 
 export interface Props {
 }
@@ -17,17 +18,13 @@ export interface Props {
 const TimerCard: FC<Props> = observer(() => {
   const { colors } = useAppTheme()
   const {
-    authenticationStore: { tenantId, organizationId, authToken },
-    teamStore: { activeTeamId, activeTeam },
-    TaskStore: { setActiveTask, activeTask, fetchingTasks },
-    TimerStore: { localTimerStatus, timeCounterState }
+
+    TaskStore: { activeTask },
+    TimerStore: { timeCounterState }
   } = useStores();
+
   const {
-    startTimer,
-    stopTimer,
-    getTimerStatus,
     fomatedTimeCounter: { hours, minutes, seconds, ms_p },
-    canRunTimer,
   } = useTimer();
 
 
@@ -49,7 +46,7 @@ const TimerCard: FC<Props> = observer(() => {
   return (
     <View style={[styles.mainContainer, { borderTopColor: colors.border }]}>
       <View style={styles.horizontal}>
-        <View style={{ justifyContent: "space-around" }}>
+        <View style={{ justifyContent: "space-around", width:"61%" }}>
           <Text style={[styles.timerText, { color: colors.primary }]}>{pad(hours)}:{pad(minutes)}:{pad(seconds)}<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text></Text>
           <ProgressBar style={{ backgroundColor: "#E9EBF8", width: "84%", height: 6, borderRadius: 3 }} progress={getTimePercentage()} color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"} />
         </View>
@@ -61,7 +58,7 @@ const TimerCard: FC<Props> = observer(() => {
   )
 })
 
-const styles = StyleSheet.create({
+const styles = EStyleSheet.create({
   mainContainer: {
     width: "100%",
     borderTopColor: "rgba(0, 0, 0, 0.06)",
@@ -73,49 +70,16 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     justifyContent: "center",
     alignItems: "center",
+    width:"39%",
     borderLeftWidth: 2,
     borderLeftColor: "rgba(0, 0, 0, 0.08)",
-    minWidth: 100,
-  },
-  estimate: {
-    color: "#9490A0",
-    fontWeight: "600",
-    fontSize: 12,
-    marginBottom: 10,
-    alignSelf: "flex-end",
-  },
-  working: {
-    color: "#9490A0",
-    fontWeight: "600",
-    marginBottom: 10,
   },
   horizontal: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems:"center",
     width: "100%",
     height: 60,
-  },
-  textInput: {
-    width: '85%',
-    height: '90%'
-  },
-  textInputOne: {
-    height: 30,
-  },
-  horizontalInput: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-  },
-  dashed: {
-    borderBottomColor: "#fff",
-    borderBottomWidth: 10,
-  },
-  wrapInput: {
-    backgroundColor: "#EEEFF5",
-    height: 50,
-    width: "100%",
-    borderRadius: 10,
-    marginBottom: 6,
   },
   loading: {
     position: 'absolute',
@@ -124,26 +88,12 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontWeight: "600",
-    fontSize: 35,
+    fontSize: "2rem",
     color: "#1B005D",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold
   },
-  timerIcon: {
-    width: 24,
-    height: 24
-  },
-  timerBtnInactive: {
-    width: 60,
-    height: 60,
-    backgroundColor: "#3826A6",
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 15,
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.1)",
-    ...GS.shadow
-  }
 })
+
+
 
 export default TimerCard
