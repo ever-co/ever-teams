@@ -20,7 +20,7 @@ const StatusesListCard = ({
 					{statusTitle}
 				</Text>
 			</div>
-			<div className="flex items-center ">
+			<div className="flex items-center gap-x-[12PX] mr-[4px]">
 				<Edit2Icon />
 				<TrashIcon />
 			</div>

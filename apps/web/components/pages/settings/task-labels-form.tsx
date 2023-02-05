@@ -44,7 +44,7 @@ const TaskLabelForm = () => {
 			>
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
-						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-[20%]">
+						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[20%]">
 							Task Label
 						</Text>
 
@@ -52,7 +52,7 @@ const TaskLabelForm = () => {
 							{!createNew && (
 								<Button
 									variant="outline"
-									className="font-normal border-2 rounded-2xl text-md w-[250px]"
+									className="font-normal border-2 justify-start rounded-[10px] text-md w-[230px] h-[46px] gap-0"
 									onClick={() => {
 										setCreateNew(true);
 									}}
@@ -66,7 +66,7 @@ const TaskLabelForm = () => {
 
 							{createNew && (
 								<>
-									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2">
+									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2">
 										New Label
 									</Text>
 									<div className="flex  w-full gap-x-5 items-center mt-3">
@@ -104,8 +104,8 @@ const TaskLabelForm = () => {
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-full mt-[32px]">
-								List of Statuses
+							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-full mt-[32px]">
+								List of Labels
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								<ListCard
