@@ -6,6 +6,8 @@ import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 
 export function registerUserRequest(data: IRegisterDataRequest) {
+	data['appEmailConfirmationUrl'] = 'https://app.gauzy.co/#/auth/confirm-email';
+
 	return serverFetch<IUser>({
 		path: '/auth/register',
 		method: 'POST',
