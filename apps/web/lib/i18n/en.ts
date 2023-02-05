@@ -29,6 +29,10 @@ export const en = {
 		LOADING: 'Loading',
 		TOTAL_TIME: 'Total time',
 		LAST_24_HOURS: 'Last 24 Hours',
+		WORKED: 'Worked',
+		ASSIGNED: 'Assigned',
+		UNASSIGNED: 'Unassigned',
+		FILTER: 'Filter',
 	},
 	pages: {
 		home: {
@@ -90,6 +94,15 @@ export const en = {
 	timer: {
 		START_TIMER:
 			'Please, select or create a new task to start tracking the time',
+	},
+
+	task: {
+		tabFilter: {
+			WORKED_DESCRIPTION: 'This tab shows all tasks you started working on',
+			ASSIGNED_DESCRIPTION: 'This tab shows all tasks that are assigned to you',
+			UNASSIGNED_DESCRIPTION:
+				'This tab shows all tasks that are not assigned to you',
+		},
 	},
 
 	form: {

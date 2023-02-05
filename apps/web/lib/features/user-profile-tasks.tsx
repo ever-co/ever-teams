@@ -23,6 +23,7 @@ export function UserProfileTask({ profile }: { profile: I_UserProfilePage }) {
 					<Text className="text-gray-500 text-xs font-normal">
 						{trans.common.TOTAL_TIME}:
 					</Text>
+
 					{profile.isAuthUser ? (
 						<Text className="font-normal">
 							{time.h}h : {time.m}m

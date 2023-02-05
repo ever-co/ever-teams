@@ -2,6 +2,7 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import { useState } from 'react';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
@@ -13,25 +14,27 @@ type ITabs = {
 };
 
 export function useTaskFilter() {
+	const { trans } = useTranslation();
 	const [tab, setTab] = useState<ITab>('worked');
+
 	const tabs: ITabs[] = [
 		{
 			tab: 'worked',
-			name: 'Worked',
+			name: trans.common.WORKED,
+			description: trans.task.tabFilter.WORKED_DESCRIPTION,
 			count: 0,
-			description: 'This tab shows all tasks you started working on',
 		},
 		{
 			tab: 'assigned',
-			name: 'Assigned',
-			description: 'This tab shows all tasks that are assigned to you',
+			name: trans.common.ASSIGNED,
+			description: trans.task.tabFilter.ASSIGNED_DESCRIPTION,
 			count: 0,
 		},
 		{
 			tab: 'unassigned',
-			name: 'Unassigned',
+			name: trans.common.UNASSIGNED,
+			description: trans.task.tabFilter.UNASSIGNED_DESCRIPTION,
 			count: 0,
-			description: 'This tab shows all tasks that are not assigned to you',
 		},
 	];
 
@@ -57,6 +60,8 @@ export function TaskFilter({
 }
 
 function InputFilters() {
+	const { trans } = useTranslation();
+
 	return (
 		<div className="flex space-x-5 items-center">
 			<button className="outline-none">
@@ -67,10 +72,10 @@ function InputFilters() {
 
 			<button className="p-3 px-5 flex space-x-2 input-border rounded-xl items-center">
 				<Settings4Icon className="dark:stroke-white" />
-				<span>{'Filter'}</span>
+				<span>{trans.common.FILTER}</span>
 			</button>
 
-			<Button>{'Assign Task'}</Button>
+			<Button>{trans.common.ASSIGN_TASK}</Button>
 		</div>
 	);
 }
