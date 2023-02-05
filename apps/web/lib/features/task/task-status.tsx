@@ -1,4 +1,14 @@
-import { IClassName, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IClassName,
+	ITaskLabel,
+	ITaskProperty,
+	ITaskSize,
+	ITaskStatus,
+	ITaskStatusField,
+	ITaskStatusStack,
+	ITeamTask,
+	Nullable,
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card } from 'lib/components';
@@ -8,6 +18,7 @@ import {
 	ClockIcon,
 	CloseCircleIcon,
 	LoginIcon,
+	RecordIcon,
 	SearchStatusIcon,
 	TickCircleIcon,
 	TimerIcon,
@@ -22,26 +33,64 @@ import {
 } from 'react';
 import { useCallbackRef, useTeamTasks } from '@app/hooks';
 
-type TStatusItem = {
+export type TStatusItem = {
 	bgColor?: string;
 	icon: React.ReactNode;
 	name?: string;
 };
 
-type TStatus<T extends ITaskStatus> = {
+export type TStatus<T extends string> = {
 	[k in T]: TStatusItem;
 };
 
-function useStatusValue<T extends TStatus<any>>(
-	statusItems: T,
-	$value: keyof T | undefined,
-	onValueChange?: (v: keyof T) => void
+export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
+	defaultValue?: ITaskStatusStack[T];
+	onValueChange?: (v: ITaskStatusStack[T]) => void;
+};
+
+export type IActiveTaskStatuses<T extends ITaskStatusField> =
+	TTaskStatusesDropdown<T> & {
+		task?: Nullable<ITeamTask>;
+	};
+
+export function useActiveTaskStatus<T extends ITaskStatusField>(
+	props: IActiveTaskStatuses<T>,
+	status: TStatus<ITaskStatusStack[T]>,
+	field: T
+) {
+	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
+
+	const task = props.task !== undefined ? props.task : activeTeamTask;
+
+	function onItemChange(status: ITaskStatusStack[T]) {
+		handleStatusUpdate(status, field, task, true);
+	}
+
+	const { item, items, onChange } = useStatusValue<T>(
+		status,
+		task ? task[field] : props.defaultValue || undefined,
+		onItemChange
+	);
+
+	return {
+		item,
+		items,
+		onChange,
+		task,
+		field,
+	};
+}
+
+export function useStatusValue<T extends ITaskStatusField>(
+	statusItems: TStatus<ITaskStatusStack[T]>,
+	$value: ITaskStatusStack[T] | undefined,
+	onValueChange?: (v: ITaskStatusStack[T]) => void
 ) {
 	const onValueChangeRef = useCallbackRef(onValueChange);
 
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
-			const value = statusItems[key as ITaskStatus];
+			const value = statusItems[key as ITaskStatusStack[T]];
 			return {
 				...value,
 				name: key,
@@ -49,7 +98,7 @@ function useStatusValue<T extends TStatus<any>>(
 		});
 	}, [statusItems]);
 
-	const [value, setValue] = useState<keyof T>($value);
+	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 
 	const item = items.find((r) => r.name === value);
 
@@ -58,7 +107,7 @@ function useStatusValue<T extends TStatus<any>>(
 	}, [$value]);
 
 	const onChange = useCallback(
-		(value: keyof T) => {
+		(value: ITaskStatusStack[T]) => {
 			setValue(value);
 			onValueChangeRef.current && onValueChangeRef.current(value);
 		},
@@ -71,6 +120,8 @@ function useStatusValue<T extends TStatus<any>>(
 		onChange,
 	};
 }
+
+//! =============== Task Status ================= //
 
 export const taskStatus: TStatus<ITaskStatus> = {
 	Todo: {
@@ -107,45 +158,15 @@ export const taskStatus: TStatus<ITaskStatus> = {
 	},
 };
 
-export function TaskStatus({
-	children,
-	name,
-	icon,
-	bgColor: backgroundColor,
-	className,
-}: PropsWithChildren<TStatusItem & IClassName>) {
-	return (
-		<div
-			className={clsxm(
-				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3 dark:text-default',
-				className
-			)}
-			style={{ backgroundColor }}
-		>
-			<div className="flex items-center space-x-3 whitespace-nowrap">
-				{icon}
-				<span>{name}</span>
-			</div>
-			{children}
-		</div>
-	);
-}
-
-// =============== Task Status ================= //
-
 /**
  * Task status dropwdown
  */
-type TTaskStatusDropdown = IClassName & {
-	defaultValue?: ITaskStatus;
-	onValueChange?: (v: ITaskStatus) => void;
-};
 export function TaskStatusDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskStatusDropdown) {
-	const { item, items, onChange } = useStatusValue(
+}: TTaskStatusesDropdown<'status'>) {
+	const { item, items, onChange } = useStatusValue<'status'>(
 		taskStatus,
 		defaultValue,
 		onValueChange
@@ -156,6 +177,7 @@ export function TaskStatusDropdown({
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'status' : undefined}
 			onChange={onChange}
 		/>
 	);
@@ -167,21 +189,11 @@ export function TaskStatusDropdown({
  * @param props
  * @returns
  */
-export function ActiveTaskStatusDropdown(
-	props: TTaskStatusDropdown & { task?: Nullable<ITeamTask> }
-) {
-	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
-
-	const task = props.task !== undefined ? props.task : activeTeamTask;
-
-	function onItemChange(status: ITaskStatus) {
-		handleStatusUpdate(status, task, true);
-	}
-
-	const { item, items, onChange } = useStatusValue(
+export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
 		taskStatus,
-		task?.status || props.defaultValue,
-		onItemChange
+		'status'
 	);
 
 	return (
@@ -189,15 +201,15 @@ export function ActiveTaskStatusDropdown(
 			className={props.className}
 			items={items}
 			value={item}
-			defaultItem={!item ? 'Status' : undefined}
+			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
-// =============== Task properties ================= //
+//! =============== Task properties ================= //
 
-export const taskProperties = {
+export const taskProperties: TStatus<ITaskProperty> = {
 	Medium: {
 		icon: <LoginIcon />,
 		bgColor: '#ECE8FC',
@@ -214,27 +226,58 @@ export const taskProperties = {
 		icon: <LoginIcon />,
 		bgColor: '#F5B8B8',
 	},
-} satisfies TStatus<any>;
+};
 
 /**
- * Task status dropwdown
+ * Task dropdown that allows you to select a task property
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A dropdown with the task properties
  */
-export function TaskPropertiesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskProperties, 'Low');
+export function TaskPropertiesDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'property'>) {
+	const { item, items, onChange } = useStatusValue<'property'>(
+		taskProperties,
+		defaultValue,
+		onValueChange
+	);
 
 	return (
 		<StatusDropdown
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'property' : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
-// =============== Task Sizes ================= //
+export function ActiveTaskPropertiesDropdown(
+	props: IActiveTaskStatuses<'property'>
+) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskProperties,
+		'property'
+	);
 
-export const taskSizes = {
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Sizes ================= //
+
+export const taskSizes: TStatus<ITaskSize> = {
 	'Extra Large': {
 		icon: <TickCircleIcon className="stroke-[#292D32]" />,
 		bgColor: '#F5B8B8',
@@ -255,27 +298,56 @@ export const taskSizes = {
 		icon: <TickCircleIcon className="stroke-[#292D32]" />,
 		bgColor: '#ECE8FC',
 	},
-} satisfies TStatus<any>;
+};
 
 /**
- * Task status dropdown
+ * Task dropdown that lets you select a task size
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A React component
  */
-export function TaskSizesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskSizes, 'Medium');
+export function TaskSizesDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'size'>) {
+	const { item, items, onChange } = useStatusValue<'size'>(
+		taskSizes,
+		defaultValue,
+		onValueChange
+	);
 
 	return (
 		<StatusDropdown
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'size' : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
-// =============== Task Devices ================= //
+export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskSizes,
+		'size'
+	);
 
-export const taskDevices = {
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Label ================= //
+
+export const taskLabels: TStatus<ITaskLabel> = {
 	'UI/UX': {
 		icon: <ClockIcon />,
 		bgColor: '#c2b1c6',
@@ -292,43 +364,108 @@ export const taskDevices = {
 		icon: <ClockIcon />,
 		bgColor: '#b0c8a8',
 	},
-} satisfies TStatus<any>;
+};
 
-export function TaskDevicesDropdown({ className }: IClassName) {
-	const { item, items, onChange } = useStatusValue(taskDevices, 'WEB');
+export function TaskLabelsDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'label'>) {
+	const { item, items, onChange } = useStatusValue<'label'>(
+		taskLabels,
+		defaultValue,
+		onValueChange
+	);
 
 	return (
 		<StatusDropdown
 			className={className}
 			items={items}
 			value={item}
+			defaultItem={!item ? 'label' : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
-// =============== FC Status drop down ================= //
+export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskLabels,
+		'label'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== FC Status drop down ================= //
+
+export function TaskStatus({
+	children,
+	name,
+	icon,
+	bgColor: backgroundColor,
+	className,
+	active = true,
+	issueType = 'status',
+}: PropsWithChildren<
+	TStatusItem &
+		IClassName & { active?: boolean; issueType?: 'status' | 'issue' }
+>) {
+	return (
+		<div
+			className={clsxm(
+				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3',
+				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+				issueType === 'issue' && ['rounded-md px-2 text-white'],
+				className
+			)}
+			style={{ backgroundColor: active ? backgroundColor : undefined }}
+		>
+			<div className="flex items-center space-x-3 whitespace-nowrap">
+				{active ? icon : <RecordIcon />}
+
+				{name && issueType !== 'issue' && <span>{name}</span>}
+			</div>
+			{children}
+		</div>
+	);
+}
+
 /**
  * Fc Status drop down
  */
-function StatusDropdown<T extends Required<TStatusItem>>({
+export function StatusDropdown<T extends Required<TStatusItem>>({
 	value,
 	onChange,
 	items,
 	className,
 	defaultItem,
-}: {
+	issueType = 'status',
+	children,
+}: PropsWithChildren<{
 	value: T | undefined;
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
-	defaultItem?: string;
-}) {
+	defaultItem?: ITaskStatusField;
+	issueType?: 'status' | 'issue';
+}>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: <span></span>,
 		name: defaultItem,
 	};
+
+	const currentValue = value || defaultValue;
 
 	return (
 		<div className={clsxm('relative', className)}>
@@ -337,19 +474,26 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 					<>
 						<Listbox.Button className="w-full">
 							<TaskStatus
-								{...(value || defaultValue)}
+								{...currentValue}
+								active={!!value}
+								issueType={issueType}
 								className={clsxm(
-									'justify-between w-full',
-									!value && ['text-dark dark:text-white bg-gray-lighter']
+									'justify-between w-full capitalize',
+									!value && [
+										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+									]
 								)}
 							>
-								<ChevronDownIcon
-									className={clsxm(
-										'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-										!value && ['text-dark dark:text-white']
-									)}
-									aria-hidden="true"
-								/>
+								{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
+								{issueType === 'status' && (
+									<ChevronDownIcon
+										className={clsxm(
+											'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+											!value && ['text-dark dark:text-white']
+										)}
+										aria-hidden="true"
+									/>
+								)}
 							</TaskStatus>
 						</Listbox.Button>
 
@@ -361,9 +505,12 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 							leave="transition duration-75 ease-out"
 							leaveFrom="transform scale-100 opacity-100"
 							leaveTo="transform scale-95 opacity-0"
-							className="relative z-40"
+							className={clsxm(
+								'absolute right-0 left-0 z-40',
+								issueType === 'issue' && ['left-auto right-auto']
+							)}
 						>
-							<Listbox.Options className="absolute right-0 z-40">
+							<Listbox.Options>
 								<Card
 									shadow="bigger"
 									className="!px-2 py-2 shadow-xlcard dark:shadow-lgcard-white"
@@ -371,10 +518,20 @@ function StatusDropdown<T extends Required<TStatusItem>>({
 									{items.map((item, i) => (
 										<Listbox.Option key={i} value={item.name} as={Fragment}>
 											<li className="mb-3 cursor-pointer">
-												<TaskStatus {...item} />
+												<TaskStatus
+													{...item}
+													className={clsxm(
+														issueType === 'issue' && [
+															'rounded-md px-2 text-white',
+														]
+													)}
+												/>
 											</li>
 										</Listbox.Option>
 									))}
+									{children && (
+										<Listbox.Button as="div">{children}</Listbox.Button>
+									)}
 								</Card>
 							</Listbox.Options>
 						</Transition>

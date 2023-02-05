@@ -1,17 +1,20 @@
 import { AuthCodeInputField, Button, Card, Text } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
 
 export default function AuthPasscode() {
+	const { trans } = useTranslation('auth');
+
 	return (
 		<AuthLayout
-			title="Join Team"
-			description="Enter the invitation code we sent to your email."
+			title={trans.JOIN_TEAM}
+			description={trans.INPUT_INVITE_CODE_DESC}
 		>
 			<form className="w-[98%] md:w-[530px]" autoComplete="off">
 				<Card className="w-full" shadow="bigger">
 					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
-							Input invitation code
+							{trans.INPUT_INVITE_CODE}
 						</Text.Heading>
 
 						{/* Auth code input */}
@@ -31,21 +34,21 @@ export default function AuthPasscode() {
 							{/* Send code */}
 							<div className="flex flex-col items-start">
 								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
-									Didn&apos;t recieve code ?
+									{trans.UNRECEIVED_CODE}
 								</Text>
 
 								<button
 									type="button"
 									className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
 								>
-									Re
+									{'Re'}
 									<span className="text-primary dark:text-primary-light">
-										send code
+										{trans.SEND_CODE}
 									</span>
 								</button>
 							</div>
 
-							<Button type="submit">Join</Button>
+							<Button type="submit">{trans.JOIN}</Button>
 						</div>
 					</div>
 				</Card>

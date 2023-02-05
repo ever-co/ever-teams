@@ -8,6 +8,7 @@ import {
 	BackdropLoader,
 	BackButton,
 } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
 
@@ -24,10 +25,12 @@ export default function AuthTeam() {
 		loading,
 	} = useAuthenticationTeam();
 
+	const { trans } = useTranslation('authTeam');
+
 	return (
 		<AuthLayout
-			title="Create New Team"
-			description="Please enter your team details to create a new team."
+			title={trans.HEADING_TITLE}
+			description={trans.HEADING_DESCRIPTION}
 		>
 			<form onSubmit={handleSubmit} className="w-[98%] md:w-[530px]">
 				<Card className="w-full" shadow="bigger">
@@ -51,10 +54,7 @@ export default function AuthTeam() {
 				</Card>
 			</form>
 
-			<BackdropLoader
-				show={loading}
-				title="We are now creating your new workplace, hold on..."
-			/>
+			<BackdropLoader show={loading} title={trans.LOADING_TEXT} />
 		</AuthLayout>
 	);
 }
@@ -70,10 +70,12 @@ function FillTeamNameForm({
 	errors,
 	handleOnChange,
 }: IStepProps & { errors: Record<string, string> }) {
+	const { trans, translations } = useTranslation('authTeam');
+
 	return (
 		<div className="flex flex-col justify-between items-center min-h-[186px]">
 			<Text.Heading as="h3" className="text-center">
-				Input your team name
+				{trans.INPUT_TEAM_NAME}
 			</Text.Heading>
 
 			<InputField
@@ -81,7 +83,7 @@ function FillTeamNameForm({
 				value={form.team}
 				errors={errors}
 				onChange={handleOnChange}
-				placeholder="Please Enter your team name"
+				placeholder={translations.form.TEAM_NAME_PLACEHOLDER}
 				required
 			/>
 
@@ -92,10 +94,10 @@ function FillTeamNameForm({
 					variant="primary"
 					className="text-xs dark:text-gray-400 font-normal"
 				>
-					Joining existing team?
+					{trans.JOIN_EXISTING_TEAM}
 				</Text.Link>
 
-				<Button type="submit">Continue</Button>
+				<Button type="submit">{translations.common.CONTINUE}</Button>
 			</div>
 		</div>
 	);
@@ -118,17 +120,18 @@ function FillUserDataForm({
 	onPreviousStep?: () => void;
 	loading?: boolean;
 }) {
+	const { trans, translations } = useTranslation('authTeam');
 	const [feedback, setFeedback] = useState<string>('');
 
 	return (
 		<div className="flex flex-col justify-between items-center h-full">
 			<Text.Heading as="h3" className="text-center mb-10">
-				Input details teams
+				{trans.CREATE_FIRST_TEAM}
 			</Text.Heading>
 
 			<div className="w-full mb-8">
 				<InputField
-					placeholder="Enter your name"
+					placeholder={translations.form.NAME_PLACEHOLDER}
 					name="name"
 					value={form.name}
 					errors={errors}
@@ -136,7 +139,7 @@ function FillUserDataForm({
 				/>
 				<InputField
 					type="email"
-					placeholder="Enter your email address"
+					placeholder={translations.form.EMAIL_PLACEHOLDER}
 					wrapperClassName="mb-5"
 					name="email"
 					value={form.email}
@@ -151,9 +154,7 @@ function FillUserDataForm({
 								handleOnChange({ target: { name: 'recaptcha', value: res } });
 								setFeedback('');
 							}}
-							onErrored={() =>
-								setFeedback('network issue, please try again later')
-							}
+							onErrored={() => setFeedback(translations.errors.NETWORK_ISSUE)}
 						/>
 						{(errors['recaptcha'] || feedback) && (
 							<Text.Error className="self-start justify-self-start">
@@ -168,7 +169,7 @@ function FillUserDataForm({
 				<BackButton onClick={onPreviousStep} />
 
 				<Button type="submit" disabled={loading}>
-					Create team
+					{trans.CREATE_TEAM}
 				</Button>
 			</div>
 		</div>

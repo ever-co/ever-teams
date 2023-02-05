@@ -17,6 +17,7 @@ import {
 	SpinnerLoader,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import {
 	MutableRefObject,
 	PropsWithChildren,
@@ -24,6 +25,7 @@ import {
 	useEffect,
 	useState,
 } from 'react';
+import { ActiveTaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 
 type Props = {
@@ -37,6 +39,8 @@ type Props = {
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
 	viewType?: 'input-trigger' | 'one-view';
+	createOnEnterClick?: boolean;
+	showTaskNumber?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -57,7 +61,10 @@ export function TaskInput({
 	closeable_fc,
 	viewType = 'input-trigger',
 	children,
+	createOnEnterClick,
+	showTaskNumber = false,
 }: Props) {
+	const { trans } = useTranslation();
 	const datas = useTaskInput(task, initEditMode);
 	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
@@ -84,11 +91,6 @@ export function TaskInput({
 
 	useEffect(() => {
 		setTaskName(inputTask?.title || '');
-		if (inputTask) {
-			setTaskName((v) => {
-				return (!editMode ? `#${inputTask.taskNumber} ` : '') + v;
-			});
-		}
 	}, [editMode, inputTask]);
 
 	useEffect(() => {
@@ -136,16 +138,30 @@ export function TaskInput({
 		}
 	}, [updateLoading, loadingRef, closeable_fcRef]);
 
+	/*
+		If task is passed then we don't want to set the active task for the authenticated user.
+		after task creation
+	 */
+	const autoActiveTask = task !== undefined ? false : true;
+
 	const inputField = (
 		<InputField
 			value={taskName}
 			onFocus={() => setEditMode(true)}
 			onChange={(event) => setTaskName(event.target.value)}
-			placeholder="What you working on?"
+			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
-					updateTaskNameHandler(inputTask, taskName);
+					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
+					!createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
+
+					/* Creating a new task when the enter key is pressed. */
+					createOnEnterClick &&
+						datas?.handleTaskCreation &&
+						datas.hasCreateForm &&
+						datas?.handleTaskCreation(autoActiveTask);
+
 					onEnterKey && onEnterKey(taskName, inputTask);
 				}
 			}}
@@ -160,6 +176,19 @@ export function TaskInput({
 					)}
 				</div>
 			}
+			className={clsxm(showTaskNumber && inputTask && ['pl-2'])}
+			/* Showing the task number. */
+			leadingNode={
+				showTaskNumber &&
+				inputTask && (
+					<div className="pl-3 flex items-center space-x-2">
+						<ActiveTaskIssuesDropdown task={inputTask} />
+						<span className="text-gray-500 text-sm">
+							#{inputTask?.taskNumber}
+						</span>
+					</div>
+				)
+			}
 		/>
 	);
 
@@ -169,7 +198,7 @@ export function TaskInput({
 			onItemClick={
 				task !== undefined || onTaskClick ? onTaskClick : setAuthActiveTask
 			}
-			autoActiveTask={task !== undefined ? false : true}
+			autoActiveTask={autoActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 		/>
 	);
@@ -198,6 +227,9 @@ export function TaskInput({
 	);
 }
 
+/**
+ * A component that is used to render the task list.
+ */
 function TaskCard({
 	datas,
 	onItemClick,
@@ -209,6 +241,8 @@ function TaskCard({
 	autoActiveTask?: boolean;
 	inputField?: JSX.Element;
 }) {
+	const { trans } = useTranslation();
+
 	return (
 		<>
 			<Card
@@ -226,12 +260,14 @@ function TaskCard({
 					loading={datas.createLoading}
 					className="font-normal text-sm rounded-xl"
 					onClick={() =>
+						/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 						datas?.handleTaskCreation &&
+						datas.hasCreateForm &&
 						datas?.handleTaskCreation(autoActiveTask)
 					}
 				>
 					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
-					Create new task
+					{trans.common.CREATE_TASK}
 				</Button>
 
 				{/* Task filter buttons */}
@@ -250,7 +286,7 @@ function TaskCard({
 								]
 							)}
 						>
-							{datas.openTaskCount || 0} Open
+							{datas.openTaskCount || 0} {trans.common.OPEN}
 						</span>
 					</OutlineBadge>
 
@@ -266,7 +302,7 @@ function TaskCard({
 								]
 							)}
 						>
-							{datas.closedTaskCount || 0} Closed
+							{datas.closedTaskCount || 0} {trans.common.CLOSED}
 						</span>
 					</OutlineBadge>
 				</div>

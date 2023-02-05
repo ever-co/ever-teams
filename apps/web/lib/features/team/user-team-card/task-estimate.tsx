@@ -5,6 +5,7 @@ import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { EditIcon } from 'lib/components/svgs';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
+import { useTranslation } from 'lib/i18n';
 import { useRef } from 'react';
 
 type Props = IClassName & {
@@ -37,6 +38,7 @@ function TaskEstimateInput({
 	memberInfo,
 	edition,
 }: Omit<Props, 'className' | 'activeAuthTask'>) {
+	const { trans } = useTranslation();
 	const loadingRef = useRef<boolean>(false);
 	const task = memberInfo.memberTask;
 
@@ -72,7 +74,7 @@ function TaskEstimateInput({
 					hasEditMode && ['hidden']
 				)}
 			>
-				<span className="text-gray-500">Estimated:</span>
+				<span className="text-gray-500">{trans.common.ESTIMATED}:</span>
 				<Text>
 					{h}h {m}m
 				</Text>

@@ -17,7 +17,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
-			handleStatusUpdate(status, task);
+			handleStatusUpdate(status, 'status', task);
 		},
 		[task, handleStatusUpdate]
 	);

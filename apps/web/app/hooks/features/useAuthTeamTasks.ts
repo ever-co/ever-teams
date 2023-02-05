@@ -23,5 +23,6 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 	return {
 		assignedTasks,
 		unassignedTasks,
+		workedTasks: tasks,
 	};
 }

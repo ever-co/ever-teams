@@ -1,12 +1,21 @@
 import { secondsToTime } from '@app/helpers';
-import { useOutsideClick } from '@app/hooks';
+import { useOutsideClick, useTeamTasks, useTimerView } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card, Text, Tooltip, VerticalSeparator } from 'lib/components';
+import { Popover, Transition } from '@headlessui/react';
+import {
+	Card,
+	ConfirmDropdown,
+	SpinnerLoader,
+	Text,
+	VerticalSeparator,
+} from 'lib/components';
 import { DraggerIcon, EditIcon, MoreIcon } from 'lib/components/svgs';
-import { useRef, useState } from 'react';
+import { useTranslation } from 'lib/i18n';
+import { useCallback, useRef, useState } from 'react';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
+import { TaskNameInfoDisplay } from './task-displays';
 import { TaskEstimate } from './task-estimate';
 import { TaskProgressBar } from './task-progress-bar';
 import { ActiveTaskStatusDropdown } from './task-status';
@@ -39,9 +48,7 @@ export function TaskCard({
 				<DraggerIcon />
 			</div>
 
-			<div className="absolute right-2">
-				<MoreIcon />
-			</div>
+			{task && <TaskCardMenu task={task} />}
 
 			{/* Task information */}
 			<TaskInfo task={task} className="w-80 px-4" />
@@ -55,14 +62,7 @@ export function TaskCard({
 					activeAuthTask={activeAuthTask}
 					className="px-3 w-52"
 				/>
-				{isAuthUser && (
-					<TimerButton
-						onClick={undefined}
-						running={false}
-						disabled={false}
-						className="h-9 w-9"
-					/>
-				)}
+				{isAuthUser && task && <TimerButtonCall task={task} />}
 			</div>
 
 			<VerticalSeparator />
@@ -82,6 +82,54 @@ export function TaskCard({
 				className="lg:min-w-[170px] mr-4"
 			/>
 		</Card>
+	);
+}
+
+/**
+ * "If the task is the active task, then use the timer handler, otherwise start the timer with the
+ * task."
+ *
+ * The function is a bit more complicated than that, but that's the gist of it
+ * @param  - `task` - the task that the timer button is for
+ * @returns A TimerButton component that is either a spinner or a timer button.
+ */
+function TimerButtonCall({ task }: { task: ITeamTask }) {
+	const [loading, setLoading] = useState(false);
+	const {
+		disabled,
+		timerHanlder,
+		timerStatus,
+		activeTeamTask,
+		startTimer,
+		stopTimer,
+	} = useTimerView();
+
+	const { setActiveTask } = useTeamTasks();
+
+	const activeTaskStatus =
+		activeTeamTask?.id === task.id ? timerStatus : undefined;
+
+	const startTimerWithTask = useCallback(async () => {
+		if (timerStatus?.running) {
+			setLoading(true);
+			await stopTimer().finally(() => setLoading(false));
+		}
+
+		setActiveTask(task);
+		window.setTimeout(startTimer, 100);
+
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [timerStatus, setActiveTask, task, stopTimer, startTimer]);
+
+	return loading ? (
+		<SpinnerLoader size={30} />
+	) : (
+		<TimerButton
+			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
+			running={activeTaskStatus?.running}
+			disabled={activeTaskStatus ? disabled : false}
+			className="h-9 w-9"
+		/>
 	);
 }
 
@@ -184,13 +232,7 @@ function TaskInfo({
 								'text-sm text-ellipsis text-center cursor-default overflow-hidden w-full'
 							)}
 						>
-							<Tooltip
-								label={task?.title || ''}
-								placement="top"
-								enabled={(task?.title && task?.title.length > 60) || false}
-							>
-								{task?.title}
-							</Tooltip>
+							<TaskNameInfoDisplay task={task} />
 						</div>
 					</div>
 				</div>
@@ -199,6 +241,58 @@ function TaskInfo({
 			{/* Task status */}
 			{task && <TaskAllStatusTypes task={task} />}
 			{!task && <div className="text-center self-center py-1">--</div>}
+		</div>
+	);
+}
+
+function TaskCardMenu({ task }: { task: ITeamTask }) {
+	const { trans } = useTranslation();
+
+	return (
+		<div className="absolute right-2">
+			<Popover className="relative">
+				<Popover.Button className="flex items-center outline-none border-none">
+					<MoreIcon />
+				</Popover.Button>
+
+				<Transition
+					enter="transition duration-100 ease-out"
+					enterFrom="transform scale-95 opacity-0"
+					enterTo="transform scale-100 opacity-100"
+					leave="transition duration-75 ease-out"
+					leaveFrom="transform scale-100 opacity-100"
+					leaveTo="transform scale-95 opacity-0"
+					className="absolute z-10 right-0 min-w-[110px]"
+				>
+					<Popover.Panel>
+						{() => {
+							return (
+								<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+									<ul>
+										<li>
+											<ConfirmDropdown
+												className="right-[110%] top-0"
+												onConfirm={() => {
+													console.log('remove task...', task);
+												}}
+											>
+												<Text
+													className={clsxm(
+														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all',
+														'text-red-500'
+													)}
+												>
+													{trans.common.REMOVE}
+												</Text>
+											</ConfirmDropdown>
+										</li>
+									</ul>
+								</Card>
+							);
+						}}
+					</Popover.Panel>
+				</Transition>
+			</Popover>
 		</div>
 	);
 }

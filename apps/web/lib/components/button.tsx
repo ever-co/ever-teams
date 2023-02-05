@@ -8,6 +8,7 @@ type Props = {
 		| 'primary'
 		| 'outline'
 		| 'outline-dark'
+		| 'outline-danger'
 		| 'ghost'
 		| 'light'
 		| 'dark'
@@ -17,6 +18,19 @@ type Props = {
 } & PropsWithChildren &
 	React.ComponentPropsWithRef<'button'>;
 
+/**
+ * `export function Button({ children, className, variant = 'primary', loading, ...rest }: Props)`
+ *
+ * The above function is a React component that takes in the following props:
+ *
+ * - `children`: The content of the button.
+ * - `className`: A class name that can be used to override the default styles.
+ * - `variant`: The variant of the button. The default value is `primary`.
+ * - `loading`: A boolean value that determines whether the button is loading or not.
+ * - `...rest`: Any other props that are not listed above
+ * @param {Props}  - `children` - The content of the button.
+ * @returns A button with a spinner loader inside of it.
+ */
 export function Button({
 	children,
 	className,
@@ -50,6 +64,10 @@ export function Button({
 					],
 					variant === 'danger' && [
 						'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold',
+					],
+					variant === 'outline-danger' && [
+						'text-[#EB6961] border border-[#EB6961] font-medium',
+						'disabled:opacity-40',
 					],
 				],
 				className
