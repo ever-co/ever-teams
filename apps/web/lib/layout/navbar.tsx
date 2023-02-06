@@ -17,7 +17,7 @@ export function Navbar({
 		>
 			<Container>
 				<div className="w-full flex justify-between items-center min-h-[70px]">
-					<AppLogo className="scale-[0.7] origin-[0]" />
+					<AppLogo dash className="scale-[0.7] origin-[0]" />
 					<div className="flex space-x-5 items-center">
 						{showTimer && <MinTimerFrame />}
 						<TeamsDropDown />
