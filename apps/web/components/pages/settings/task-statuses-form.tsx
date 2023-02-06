@@ -112,9 +112,8 @@ const TaskStatusesForm = () => {
 								List of Statuses
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
-								{loading && <Spinner dark={false} />}
-								{!loading &&
-									taskStatus &&
+								{loading && !taskStatus?.length && <Spinner dark={false} />}
+								{taskStatus &&
 									taskStatus?.length &&
 									taskStatus.map((status) => (
 										<ListCard

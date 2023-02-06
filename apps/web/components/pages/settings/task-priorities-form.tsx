@@ -17,19 +17,33 @@ const TaskPrioritiesForm = () => {
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 
-	const { loading, taskPriorities } = useTaskPriorities();
+	const {
+		loading,
+		taskPriorities,
+		deleteTaskPriorities,
+		createTaskPriorities,
+	} = useTaskPriorities();
 
 	useEffect(() => {
-		setValue('teamName', '');
-		setValue('teamType', '');
-		setValue('teamLink', '');
-	}, [user]);
+		setValue('name', '');
+	}, [taskPriorities]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
 			console.log(values);
+			// TODO: Color, icon
+			createTaskPriorities({
+				name: values.name,
+				color: '#f5b8b8',
+				// description: '',
+				organizationId: user?.employee.organizationId,
+				tenantId: user?.tenantId,
+				// icon: '',
+				// projectId: '',
+			});
+			setCreateNew(false);
 		},
-		[user]
+		[taskPriorities]
 	);
 
 	return (
@@ -72,6 +86,7 @@ const TaskPrioritiesForm = () => {
 											placeholder="Create Priority"
 											className="mb-0"
 											wrapperClassName="mb-0"
+											{...register('name')}
 										/>
 
 										<LanguageDropDown />
@@ -82,9 +97,7 @@ const TaskPrioritiesForm = () => {
 										<Button
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-											}}
+											type="submit"
 										>
 											Create
 										</Button>
@@ -105,9 +118,8 @@ const TaskPrioritiesForm = () => {
 								List of Priorities
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
-								{loading && <Spinner dark={false} />}
-								{!loading &&
-									taskPriorities &&
+								{loading && !taskPriorities?.length && <Spinner dark={false} />}
+								{taskPriorities &&
 									taskPriorities?.length &&
 									taskPriorities.map((priority) => (
 										<ListCard
@@ -122,7 +134,7 @@ const TaskPrioritiesForm = () => {
 												console.log('Edit');
 											}}
 											onDelete={() => {
-												console.log('Delete');
+												deleteTaskPriorities(priority.id);
 											}}
 										/>
 									))}

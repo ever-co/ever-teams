@@ -1,8 +1,5 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import {
-	createPrioritiesRequest,
-	getTaskPrioritiesListRequest,
-} from '@app/services/server/requests/task-priorities';
+import { deleteTaskPrioritiesRequest } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -14,21 +11,16 @@ export default async function handler(
 
 	if (!user) return $res();
 
-	const par = {
-		tenantId,
-		organizationId,
-	};
+	const { id } = req.query;
 
 	switch (req.method) {
-		case 'GET':
-			return $res.json(await getTaskPrioritiesListRequest(par, access_token));
-		case 'POST':
+		case 'DELETE':
 			return $res.json(
-				await createPrioritiesRequest(
-					req.body,
-					access_token,
-					req.body?.tenantId
-				)
+				await deleteTaskPrioritiesRequest({
+					id,
+					bearer_token: access_token,
+					tenantId,
+				})
 			);
 	}
 }

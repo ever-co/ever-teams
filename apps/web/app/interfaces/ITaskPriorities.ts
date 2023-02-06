@@ -13,3 +13,13 @@ export interface ITaskPrioritiesItemList {
 	isSystem?: boolean;
 	projectId?: string;
 }
+
+export interface ITaskPrioritiesCreate {
+	name: string;
+	description?: string;
+	icon?: string;
+	color?: string;
+	projectId?: string;
+	organizationId?: string;
+	tenantId?: string | undefined | null;
+}
