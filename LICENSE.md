@@ -46,19 +46,21 @@ Licensor: Ever Co. LTD
 All third party components incorporated into the Ever Gauzy Teams are licensed under
 the original license provided by the owner of the applicable component.
 
+See more information about “Commons Clause” at <https://commonsclause.com>.
+
 WARNING: You are not allowed to use this code to host your own SaaS version of Ever Gauzy Teams❗
 
 You should have received a copy of the relevant GNU Licenses along with this program. If not, see <http://www.gnu.org/licenses>.
 
 We suggest to check a great overview about different licenses at <https://choosealicense.com/licenses>.  
-For example, for AGPL v3 (strongest copyleft license we use, together with “Commons Clause”) conditions can be summarized as following:
+For example, for AGPL v3 (strongest copyleft license) conditions can be summarized as following:
 
 -   making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license.
 -   Copyright and license notices must be preserved
 -   Contributors provide an express grant of patent rights.
 -   When a modified version is used to provide a service over a network, the complete source code of the modified version must be made available.
 
-Feel free to [Contact Us](https://github.com/ever-co/ever-gauzy-teams#contact-us) for an additional information about used open-source licenses!
+Feel free to [Contact Us](https://github.com/ever-co/ever-gauzy-teams#contact-us) for an additional information about used open-source licenses and “Commons Clause”!
 
 ### _Ever Gauzy Teams Platform Small Business_ License
 
