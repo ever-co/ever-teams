@@ -45,10 +45,10 @@ export function mapLanguageItems(languages: ILanguageItemList[]) {
 
 export function LanguageItem({
 	title,
-	count,
+	// count,
+	// color,
+	// disabled,
 	className,
-	color,
-	disabled,
 }: {
 	title?: string;
 	count?: number;

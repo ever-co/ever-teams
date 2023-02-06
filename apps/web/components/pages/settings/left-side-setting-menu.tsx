@@ -11,7 +11,7 @@ const LeftSideSettingMenu = () => {
     const [activePage, setActivePage] = useState('/settings/personal');
     useEffect(() => {
         setActivePage(router.route);
-      },[]);
+      },[router.route]);
     return (
         <>
             <div className='w-[320px] mt-[36px] mr-[56px]'>
