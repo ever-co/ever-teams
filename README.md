@@ -1,12 +1,12 @@
 # Ever Gauzy Teams
 
-Ever® Gauzy Teams™ - Open Work and Project Management Platform. 
+## ⭐️ What is it?
 
-You are welcome to check more information about the platform at our official website - https://gauzy.team.
+[Ever® Gauzy Teams™](https://gauzy.team) - Open Work and Project Management Platform. 
 
-Ever® Gauzy Teams™ Platform is build on top of our Busines Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform, which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at https://ever.co.
+Ever® Gauzy Teams™ Platform (https://gauzy.team) is build on top of our Busines Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (https://gauzy.co), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at https://ever.co.
 
-## Getting Starting
+## 🚀 Getting Starting
 
 Ever® Gauzy Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see https://github.com/ever-co/ever-gauzy (and also <https://gauzy.co>). Specifically you will be interested in the `apps/api` and `apps/server` folders of the mono-repo.
 
@@ -16,59 +16,53 @@ There are few ways to run Ever Gauzy Teams:
 
 2. Download and run Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see https://github.com/ever-co/ever-gauzy/tree/develop/apps/api. For getting starting instructions, it's best to check Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file. After you get API or Server running, make sure you set environment variable `GAUZY_API_SERVER_URL` (see <https://github.com/ever-co/ever-gauzy-teams/blob/develop/web/.env.sample> for example).
 
-## Content
+## 📄 Content
 
 - `/web` - NextJs based web app at <https://app.gauzy.team> (deployed from `main` branch)
 - `/website` - NextJs based public website at <https://gauzy.team> (deployed from `main` branch)
 - `/mobile` - ReactNative / Expo powered mobile apps
 - `/extensions` - Browser Extensions powered by https://github.com/PlasmoHQ/plasmo
 
-## License
+## 💌 Contact Us
 
-❗ This repository is PRIVATE, COPYRIGHTED & PROPRIETARY product by Ever Co. LTD. ❗  
-❗ *Do NOT share code and do NOT COPY portions of the code to other products!* ❗  
+- [Ever.co Website Contact Us page](https://ever.co/contacts)
+- [Slack Community](https://join.slack.com/t/gauzy/shared_invite/enQtNzc5MTA5MDUwODg2LTI0MGEwYTlmNWFlNzQzMzBlOWExNTk0NzAyY2IwYWYwMzZjMTliYjMwNDI3NTJmYmM4MDQ4NDliMDNiNDY1NWU)
+- [Discord Chat](https://discord.gg/hKQfn4j)
+- [Spectrum Community](https://spectrum.chat/gauzy)
+- [Gitter Chat](https://gitter.im/ever-co/gauzy)
+- [CodeMentor](https://www.codementor.io/evereq)
+- For business inquiries: <mailto:gauzy@ever.co>
+- Please report security vulnerabilities to <mailto:security@ever.co>
+- [Gauzy Platform @ Twitter](https://twitter.com/gauzyplatform)
+- [Gauzy Platform @ Facebook](https://www.facebook.com/gauzyplatform)
 
-We will most likely eventually release it Open-Source, but under custom license which sometimes called “Commons Clause”, see example below:
+## 🔐 Security
 
-```
+Ever Gauzy Teams Platform follows good security practices, but 100% security cannot be guaranteed in any software!
+Ever Gauzy Teams Platform is provided AS IS without any warranty. Use at your own risk!
+See more details in the [LICENSE.md](LICENSE.md).
 
-“Commons Clause” License Condition v1.0
+In a production setup, all client-side to server-side (backend, APIs) communications should be encrypted using HTTPS/WSS/SSL (REST APIs, GraphQL endpoint, Socket.io WebSockets, etc.).
 
-The Software is provided to you by the Licensor under the License,
-as defined below, subject to the following condition.
+If you discover any issue regarding security, please disclose the information responsibly by sending an email to <mailto:security@ever.co> or on [![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev) and not by creating a GitHub issue.
 
-Without limiting other conditions in the License, the grant of rights under 
-the License will not include, and the License does not grant to you,
-the right to Sell the Software.
+## 🛡️ License
 
-For purposes of the foregoing, “Sell” means practicing any or all of the rights granted to
-you under the License to provide to third parties, for a fee or other consideration 
-(including without limitation fees for hosting or consulting/ support services related
-to the Software), a product or service whose value derives, entirely or substantially,
-from the functionality of the Software. Any license notice or attribution required by the License
-must also include this Commons Clause License Condition notice.
+We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Gauzy Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details explained in our [Wiki](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
 
-Software: Ever Gauzy Teams
+This software is available under following licenses:
 
-License: GNU AFFERO GENERAL PUBLIC LICENSE v3.0
+- [Ever® Gauzy Teams™ Platform Community Edition](https://github.com/ever-co/ever-gauzy/blob/master/LICENSE.md#gauzy-teams-platform-community-edition-license)
+- [Ever® Gauzy Teams™ Platform Small Business](https://github.com/ever-co/ever-gauzy/blob/master/LICENSE.md#gauzy-teams-platform-small-business-license)
+- [Ever® Gauzy Teams™ Platform Enterprise](https://github.com/ever-co/ever-gauzy/blob/master/LICENSE.md#gauzy-teams-platform-enterprise-license)
 
-Licensor: Ever Co. LTD
+#### The default Ever® Gauzy Teams™ Platform license, without a valid Ever® Gauzy Teams™ Platform Enterprise or Ever® Gauzy Teams™ Platform Small Business License agreement, is the Ever® Gauzy Teams™ Platform Community Edition License.
 
-All third party components incorporated into the Ever Gauzy Teams are licensed under
-the original license provided by the owner of the applicable component.
+#### Please see [LICENSE](LICENSE.md) for more information on licenses.
 
-WARNING: You are not allowed to use this code to host your own SaaS version of Ever Gauzy Teams❗
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fever-co%2Fever-gauzy-teams.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fever-co%2Fever-gauzy-teams?ref=badge_large)
 
-```
-
-We can also use https://www.elastic.co/licensing/elastic-license OR https://www.mongodb.com/licensing/server-side-public-license.
-
-However, I am not sure yet because such licenses MAY allow people to use Gauzy Teams internally without requirement to purchase proprietary license from us. 
-I think there should be some special Clause for such license restrictions.
-
-TODO: check licensing!
-
-## Trademarks
+## ™️ Trademarks
 
 **Ever**® is a registered trademark of [Ever Co. LTD](https://ever.co).  
 **Ever® Demand™**, **Ever® Gauzy™**, **Ever® Gauzy Teams™** and **Ever® OpenSaaS™**  are all trademarks of [Ever Co. LTD](https://ever.co).
@@ -77,6 +71,24 @@ The trademarks may only be used with the written permission of Ever Co. LTD. and
 
 All other brand and product names are trademarks, registered trademarks or service marks of their respective holders.
 
-## Copyright
+## 🍺 Contribute
+
+-   Please give us :star: on Github, it **helps**!
+-   You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
+-   Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
+
+## 💪 Thanks to our Contributors
+
+See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/ever-gauzy-teams/blob/develop/.github/CONTRIBUTORS.md).  
+You can also view full list of our [contributors tracked by Github](https://github.com/ever-co/ever-gauzy-teams/graphs/contributors).
+
+<img src="https://contributors-img.web.app/image?repo=ever-co/ever-gauzy-teams" />
+
+## ©️ Copyright
 
 #### Copyright © 2022-present, Ever Co. LTD. All rights reserved.
+
+## 🔥 P.S.
+
+-   If you are running any business or doing freelance, check our new project [Ever Gauzy](https://github.com/ever-co/ever-gauzy) - Open Business Management Platform (ERP/CRM/HRM)
+-   [We are Hiring: remote TypeScript / NodeJS / NestJS / Angular & React developers](https://github.com/ever-co/jobs#available-positions)
