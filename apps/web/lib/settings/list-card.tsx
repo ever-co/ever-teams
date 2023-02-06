@@ -2,7 +2,7 @@ import { Edit2Icon, TrashIcon } from 'lib/components/svgs';
 import { Button, Text } from 'lib/components';
 import Image from 'next/image';
 
-const StatusesListCard = ({
+export const StatusesListCard = ({
 	statusIcon,
 	statusTitle,
 	bgColor,
@@ -37,4 +37,3 @@ const StatusesListCard = ({
 		</div>
 	);
 };
-export default StatusesListCard;

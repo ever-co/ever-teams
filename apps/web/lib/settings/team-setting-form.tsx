@@ -1,12 +1,11 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text, Toggler } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 
-const TeamSettingForm = () => {
+export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 
@@ -105,6 +104,3 @@ const TeamSettingForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TeamSettingForm, {
-	displayName: 'TeamSettingForm',
-});

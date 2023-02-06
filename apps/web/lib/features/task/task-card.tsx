@@ -35,6 +35,8 @@ export function TaskCard({
 	isAuthUser,
 	activeAuthTask,
 }: Props) {
+	const [loading, setLoading] = useState(false);
+
 	return (
 		<Card
 			shadow="bigger"
@@ -47,8 +49,6 @@ export function TaskCard({
 			<div className="absolute -left-0">
 				<DraggerIcon />
 			</div>
-
-			{task && <TaskCardMenu task={task} />}
 
 			{/* Task information */}
 			<TaskInfo task={task} className="w-80 px-4" />
@@ -76,11 +76,15 @@ export function TaskCard({
 			/>
 			<VerticalSeparator />
 
-			{/* Active Task Status Dropdown */}
+			{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 			<ActiveTaskStatusDropdown
 				task={task || null}
 				className="lg:min-w-[170px] mr-4"
+				onChangeLoading={(load) => setLoading(load)}
 			/>
+
+			{/* TaskCardMenu */}
+			{task && <TaskCardMenu task={task} loading={loading} />}
 		</Card>
 	);
 }
@@ -109,7 +113,10 @@ function TimerButtonCall({ task }: { task: ITeamTask }) {
 	const activeTaskStatus =
 		activeTeamTask?.id === task.id ? timerStatus : undefined;
 
+	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
+		if (task.status === 'Closed') return;
+
 		if (timerStatus?.running) {
 			setLoading(true);
 			await stopTimer().finally(() => setLoading(false));
@@ -127,7 +134,7 @@ function TimerButtonCall({ task }: { task: ITeamTask }) {
 		<TimerButton
 			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 			running={activeTaskStatus?.running}
-			disabled={activeTaskStatus ? disabled : false}
+			disabled={activeTaskStatus ? disabled : task.status === 'Closed'}
 			className="h-9 w-9"
 		/>
 	);
@@ -245,14 +252,24 @@ function TaskInfo({
 	);
 }
 
-function TaskCardMenu({ task }: { task: ITeamTask }) {
+/**
+ * It's a dropdown menu that allows the user to remove the task.
+ */
+function TaskCardMenu({
+	task,
+	loading,
+}: {
+	task: ITeamTask;
+	loading?: boolean;
+}) {
 	const { trans } = useTranslation();
 
 	return (
 		<div className="absolute right-2">
 			<Popover className="relative">
 				<Popover.Button className="flex items-center outline-none border-none">
-					<MoreIcon />
+					{!loading && <MoreIcon />}
+					{loading && <SpinnerLoader size={20} />}
 				</Popover.Button>
 
 				<Transition

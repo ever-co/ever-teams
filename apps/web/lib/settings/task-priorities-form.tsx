@@ -1,36 +1,36 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import ListCard from './list-card';
+import { useRecoilValue } from 'recoil';
+import { StatusesListCard } from './list-card';
 import { LanguageDropDown } from './language-dropdown';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTaskStatus } from '@app/hooks/features/useTaskStatus';
-import { Spinner } from '@components/ui/loaders/spinner';
-import { ITaskStatusItemList } from '@app/interfaces';
 
-const TaskStatusesForm = () => {
-	const [user] = useRecoilState(userState);
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { useTaskPriorities } from '@app/hooks/features/useTaskPriorities';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { ITaskPrioritiesItemList } from '@app/interfaces';
+
+export const TaskPrioritiesForm = () => {
+	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
-	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 
 	const {
 		loading,
-		taskStatus,
-		createTaskStatus,
-		deleteTaskStatus,
-		editTaskStatus,
-	} = useTaskStatus();
+		taskPriorities,
+		deleteTaskPriorities,
+		createTaskPriorities,
+		editTaskPriorities,
+	} = useTaskPriorities();
 
 	useEffect(() => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [taskStatus, edit, setValue]);
+	}, [edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -38,20 +38,13 @@ const TaskStatusesForm = () => {
 		} else {
 			setValue('name', '');
 		}
-	}, [
-		edit,
-		setValue,
-		createTaskStatus,
-		editTaskStatus,
-		user?.employee.organizationId,
-		user?.tenantId,
-	]);
+	}, [edit, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
 			// TODO: Color, icon
 			if (createNew) {
-				createTaskStatus({
+				createTaskPriorities({
 					name: values.name,
 					color: '#f5b8b8',
 					// description: '',
@@ -65,7 +58,7 @@ const TaskStatusesForm = () => {
 			}
 			if (edit && values.name !== edit.name) {
 				console.log(edit);
-				editTaskStatus(edit.id, {
+				editTaskPriorities(edit.id, {
 					...edit,
 					...values,
 					value: values.name,
@@ -74,7 +67,7 @@ const TaskStatusesForm = () => {
 				});
 			}
 		},
-		[taskStatus, edit, createNew]
+		[edit, createNew, createTaskPriorities, editTaskPriorities, user]
 	);
 
 	return (
@@ -87,14 +80,14 @@ const TaskStatusesForm = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[20%]">
-							Task Statuses
+							Task Priorities
 						</Text>
 
 						<div className="flex flex-col">
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
-									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] gap-0 h-[46px]"
+									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] h-[46px] gap-0"
 									onClick={() => {
 										setEdit(null);
 										setCreateNew(true);
@@ -103,20 +96,20 @@ const TaskStatusesForm = () => {
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									Create new Statuses
+									Create new Priorities
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2">
+									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2">
 										{createNew && 'New'}
-										{edit && 'Edit'} Statuses
+										{edit && 'Edit'} Priorities
 									</Text>
 									<div className="flex  w-full gap-x-5 items-center mt-3">
 										<InputField
 											type="text"
-											placeholder="Create Status"
+											placeholder="Create Priority"
 											className="mb-0"
 											wrapperClassName="mb-0"
 											{...register('name')}
@@ -149,26 +142,29 @@ const TaskStatusesForm = () => {
 							)}
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								List of Statuses
+								List of Priorities
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
-								{loading && !taskStatus?.length && <Spinner dark={false} />}
-								{taskStatus &&
-									taskStatus?.length &&
-									taskStatus.map((status) => (
-										<ListCard
+								{loading && !taskPriorities?.length && <Spinner dark={false} />}
+								{taskPriorities &&
+									taskPriorities?.length &&
+									taskPriorities.map((priority, index) => (
+										<StatusesListCard
 											statusTitle={
-												status?.name ? status?.name?.split('-').join(' ') : ''
+												priority?.name
+													? priority?.name?.split('-').join(' ')
+													: ''
 											}
-											bgColor={status?.color || ''}
-											statusIcon={status?.icon || ''}
+											bgColor={priority?.color || ''}
+											statusIcon={priority?.icon || ''}
 											onEdit={() => {
 												setCreateNew(false);
-												setEdit(status);
+												setEdit(priority);
 											}}
 											onDelete={() => {
-												deleteTaskStatus(status.id);
+												deleteTaskPriorities(priority.id);
 											}}
+											key={index}
 										/>
 									))}
 							</div>
@@ -179,6 +175,3 @@ const TaskStatusesForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TaskStatusesForm, {
-	displayName: 'TaskStatusesForm',
-});
