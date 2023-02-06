@@ -41,11 +41,10 @@ Software: Ever Gauzy Teams
 License: GNU AFFERO GENERAL PUBLIC LICENSE v3.0
 
 Licensor: Ever Co. LTD
+```
 
 All third party components incorporated into the Ever Gauzy Teams are licensed under
 the original license provided by the owner of the applicable component.
-
-```
 
 WARNING: You are not allowed to use this code to host your own SaaS version of Ever Gauzy Teams❗
 
