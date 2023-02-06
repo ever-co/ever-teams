@@ -30,7 +30,7 @@ const TaskStatusesForm = () => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [taskStatus, edit]);
+	}, [taskStatus, edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -38,7 +38,14 @@ const TaskStatusesForm = () => {
 		} else {
 			setValue('name', '');
 		}
-	}, [edit]);
+	}, [
+		edit,
+		setValue,
+		createTaskStatus,
+		editTaskStatus,
+		user?.employee.organizationId,
+		user?.tenantId,
+	]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {

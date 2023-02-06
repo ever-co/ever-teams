@@ -30,7 +30,7 @@ const TaskSizesForm = () => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [taskSizes, edit]);
+	}, [taskSizes, edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -38,7 +38,7 @@ const TaskSizesForm = () => {
 		} else {
 			setValue('name', '');
 		}
-	}, [edit]);
+	}, [edit, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -67,7 +67,15 @@ const TaskSizesForm = () => {
 				});
 			}
 		},
-		[taskSizes, edit, createNew]
+		[
+			taskSizes,
+			edit,
+			createNew,
+			createTaskSizes,
+			editTaskSizes,
+			user?.employee.organizationId,
+			user?.tenantId,
+		]
 	);
 
 	return (

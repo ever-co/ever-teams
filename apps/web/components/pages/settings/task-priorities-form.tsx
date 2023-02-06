@@ -31,7 +31,7 @@ const TaskPrioritiesForm = () => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [taskPriorities, edit]);
+	}, [taskPriorities, edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -39,7 +39,7 @@ const TaskPrioritiesForm = () => {
 		} else {
 			setValue('name', '');
 		}
-	}, [edit]);
+	}, [edit, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -68,7 +68,14 @@ const TaskPrioritiesForm = () => {
 				});
 			}
 		},
-		[taskPriorities, edit, createNew]
+		[
+			taskPriorities,
+			edit,
+			createNew,
+			createTaskPriorities,
+			editTaskPriorities,
+			user?.employee.organizationId,
+		]
 	);
 
 	return (
@@ -149,7 +156,7 @@ const TaskPrioritiesForm = () => {
 								{loading && !taskPriorities?.length && <Spinner dark={false} />}
 								{taskPriorities &&
 									taskPriorities?.length &&
-									taskPriorities.map((priority) => (
+									taskPriorities.map((priority, index) => (
 										<ListCard
 											statusTitle={
 												priority?.name
@@ -165,6 +172,7 @@ const TaskPrioritiesForm = () => {
 											onDelete={() => {
 												deleteTaskPriorities(priority.id);
 											}}
+											key={index}
 										/>
 									))}
 							</div>
