@@ -1,4 +1,9 @@
-# Ever Gauzy Teams
+# Ever Gauzy Teams Platform
+
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/ever-co/ever-gauzy-teams)
+[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/gauzy)
+[![Gitter](https://badges.gitter.im/JoinChat.svg)](https://gitter.im/ever-co/ever-gauzy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Get help on Codementor](https://cdn.codementor.io/badges/get_help_github.svg)](https://www.codementor.io/evereq?utm_source=github&utm_medium=button&utm_term=evereq&utm_campaign=github)
 
 ## ⭐️ What is it?
 
@@ -87,6 +92,20 @@ You can also view full list of our [contributors tracked by Github](https://gith
 ## ©️ Copyright
 
 #### Copyright © 2022-present, Ever Co. LTD. All rights reserved.
+
+---
+
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=ever-co.gauzy-teams-platform)
+[![huntr](https://cdn.huntr.dev/huntr_security_badge_mono.svg)](https://huntr.dev)
+[![Circle CI](https://circleci.com/gh/ever-co/ever-gauzy-teams.svg?style=svg)](https://circleci.com/gh/ever-co/ever-gauzy-teams)
+[![codecov](https://codecov.io/gh/ever-co/ever-gauzy-teams/branch/master/graph/badge.svg)](https://codecov.io/gh/ever-co/ever-gauzy-teams)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8c46f9eb9df64aa9859dea4d572059ac)](https://www.codacy.com/gh/ever-co/ever-gauzy-teams/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ever-co/ever-gauzy-teams&amp;utm_campaign=Badge_Grade)
+[![DeepScan grade](https://deepscan.io/api/teams/3293/projects/16703/branches/363423/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3293&pid=16703&bid=363423)
+[![Known Vulnerabilities](https://snyk.io/test/github/ever-co/ever-gauzy-teams/badge.svg)](https://snyk.io/test/github/ever-co/ever-gauzy-teams)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/ever-co/ever-gauzy-teams.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ever-co/ever-gauzy-teams/alerts/)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ever-co/ever-gauzy-teams.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ever-co/ever-gauzy-teams/context:javascript)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fever-co%2Fever-gauzy-teams.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fever-co%2Fever-gauzy-teams?ref=badge_shield)
+[![Crowdin](https://badges.crowdin.net/e/1d2b3405d65a56ec116d0984fd579cc9/localized.svg)](https://ever.crowdin.com/gauzy-teams)
 
 ## 🔥 P.S.
 
