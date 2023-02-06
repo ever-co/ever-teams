@@ -140,7 +140,10 @@ const PersonalSettingForm = () => {
                                     <Text className="mb-2 font-normal text-gray-400 text-md">
                                         Timezone
                                     </Text>
-                                    <TimezoneDropDown currentTimezone={currentTimezone} onChangeTimezone={(e:any) => setCurrentTimezone(e.data)} />
+                                    <TimezoneDropDown 
+                                    // currentTimezone={currentTimezone} 
+                                    // onChangeTimezone={(e:any) => setCurrentTimezone(e.data)}
+                                     />
                                 </div>
                                 <div className='mt-8'>
                                     <Button
