@@ -52,9 +52,9 @@ We support the open-source community. If you're building awesome non-profit/open
 
 This software is available under following licenses:
 
-- [Ever® Gauzy Teams™ Platform Community Edition](https://github.com/ever-co/ever-gauzy/blob/master/LICENSE.md#gauzy-teams-platform-community-edition-license)
-- [Ever® Gauzy Teams™ Platform Small Business](https://github.com/ever-co/ever-gauzy/blob/master/LICENSE.md#gauzy-teams-platform-small-business-license)
-- [Ever® Gauzy Teams™ Platform Enterprise](https://github.com/ever-co/ever-gauzy/blob/master/LICENSE.md#gauzy-teams-platform-enterprise-license)
+- [Ever® Gauzy Teams™ Platform Community Edition](https://github.com/ever-co/ever-gauzy-teams/blob/master/LICENSE.md##ever-gauzy-teams-platform-community-edition-license)
+- [Ever® Gauzy Teams™ Platform Small Business](https://github.com/ever-co/ever-gauzy-teams/blob/master/LICENSE.md#ever-gauzy-teams-platform-small-business-license)
+- [Ever® Gauzy Teams™ Platform Enterprise](https://github.com/ever-co/ever-gauzy-teams/blob/master/LICENSE.md#ever-gauzy-teams-platform-enterprise-license)
 
 #### The default Ever® Gauzy Teams™ Platform license, without a valid Ever® Gauzy Teams™ Platform Enterprise or Ever® Gauzy Teams™ Platform Small Business License agreement, is the Ever® Gauzy Teams™ Platform Community Edition License.
 
