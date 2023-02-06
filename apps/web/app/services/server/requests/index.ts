@@ -16,3 +16,6 @@ export * from './settings';
 
 //personal setting request export
 export * from './languages';
+export * from './taskStatus';
+export * from './task-priorities';
+export * from './task-sizes';

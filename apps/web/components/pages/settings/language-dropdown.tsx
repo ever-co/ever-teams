@@ -1,8 +1,7 @@
 import { useLanguageSettings } from '@app/hooks';
+import { useTaskStatus } from '@app/hooks/features/useTaskStatus';
 import { clsxm } from '@app/utils';
-import {
-	Dropdown,
-} from 'lib/components';
+import { Dropdown } from 'lib/components';
 import { mapLanguageItems, LanguageItem } from 'lib/features';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -30,17 +29,16 @@ export const LanguageDropDown = () => {
 	return (
 		<>
 			<Dropdown
-                className="md:w-[231px] z-auto"
-                buttonClassName={clsxm(
-					'py-0 font-medium',
+				className="md:w-[231px] z-auto"
+				buttonClassName={clsxm(
+					'py-0 font-medium H-[3.1REM]',
 					items.length === 0 && ['py-2']
 				)}
 				value={languageItem}
 				onChange={onChangeLanguage}
 				items={items}
 				loading={languagesFetching}
-			>
-			</Dropdown>
+			></Dropdown>
 		</>
 	);
 };
