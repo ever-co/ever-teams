@@ -58,6 +58,7 @@ const ko: Translations = {
     userNameFieldPlaceholder: "당신의 이름을 입력",
     tapContinue: "계속하다",
     tapJoin: "가입하다",
+    createTeam:"Create Team"
   },
   myWorkScreen: {
     name: "내 작품",

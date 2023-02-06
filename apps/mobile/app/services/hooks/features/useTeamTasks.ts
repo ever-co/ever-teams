@@ -151,16 +151,15 @@ export function useTeamTasks() {
 
 
     // Get the active task id and update active task data
-    // useEffect(() => {
-    //     console.log("UPDATE ACTIVE TASK")
-    //     const active_taskId = activeTaskId || '';
-    //     setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
-    // }, []);
+    useEffect(() => {
+        const active_taskId = activeTaskId || '';
+        setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
+    }, []);
 
 
-    // useEffect(() => {
-    //     loadTeamTasksData();
-    // }, [activeTeamId, createTaskRequest, updateTaskRequest])
+    useEffect(() => {
+        loadTeamTasksData();
+    }, [activeTeamId, createTaskRequest, updateTaskRequest])
 
     /**
  * Change active task

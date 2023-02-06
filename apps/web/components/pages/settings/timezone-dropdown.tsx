@@ -7,8 +7,8 @@ import { clsxm } from '@app/utils';
 import { ITimezoneItemList } from '@app/interfaces';
 
 export const TimezoneDropDown = (
-	currentTimezone: any,
-	onChangeTimezone: any
+	// currentTimezone: any,
+	// onChangeTimezone: any
 ) => {
 	const { activeTimezone, setActiveTimezone } = useTimezoneSettings();
 

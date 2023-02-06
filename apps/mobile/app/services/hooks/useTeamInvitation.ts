@@ -70,8 +70,6 @@ export function useTeamInvitations() {
         return data;
     }
 
-
-
     useEffect(() => {
         getTeamInvitations()
     }, [activeTeamId, teams, loading, user])

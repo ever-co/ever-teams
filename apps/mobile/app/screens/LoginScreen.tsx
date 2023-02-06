@@ -310,7 +310,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                     animation: true
                   })}
                 >
-                  <Text>{translate("loginScreen.tapContinue")}</Text>
+                  <Text>{translate("loginScreen.createTeam")}</Text>
                 </Button>
               </View>
             </Animatable.View>
@@ -350,7 +350,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   textStyle={styles.tapButtonText}
                   onPress={() => createNewTeam()}
                 >
-                  <Text>{translate("loginScreen.tapContinue")}</Text>
+                  <Text>{translate("loginScreen.tapJoin")}</Text>
                 </Button>
                 <ActivityIndicator style={styles.loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>
