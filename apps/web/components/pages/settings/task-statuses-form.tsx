@@ -74,7 +74,7 @@ const TaskStatusesForm = () => {
 				});
 			}
 		},
-		[taskStatus, edit, createNew]
+		[edit, createNew, editTaskStatus, user, createTaskStatus]
 	);
 
 	return (
@@ -157,6 +157,7 @@ const TaskStatusesForm = () => {
 									taskStatus?.length &&
 									taskStatus.map((status) => (
 										<ListCard
+											key={status.id}
 											statusTitle={
 												status?.name ? status?.name?.split('-').join(' ') : ''
 											}

@@ -4,7 +4,7 @@ import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import ListCard from './list-card';
 import { LanguageDropDown } from './language-dropdown';
 
@@ -14,7 +14,7 @@ import { Spinner } from '@components/ui/loaders/spinner';
 import { ITaskPrioritiesItemList } from '@app/interfaces';
 
 const TaskPrioritiesForm = () => {
-	const [user] = useRecoilState(userState);
+	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
@@ -31,7 +31,7 @@ const TaskPrioritiesForm = () => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [taskPriorities, edit, setValue]);
+	}, [edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -68,14 +68,7 @@ const TaskPrioritiesForm = () => {
 				});
 			}
 		},
-		[
-			taskPriorities,
-			edit,
-			createNew,
-			createTaskPriorities,
-			editTaskPriorities,
-			user?.employee.organizationId,
-		]
+		[edit, createNew, createTaskPriorities, editTaskPriorities, user]
 	);
 
 	return (

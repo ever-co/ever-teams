@@ -68,7 +68,6 @@ const TaskSizesForm = () => {
 			}
 		},
 		[
-			taskSizes,
 			edit,
 			createNew,
 			createTaskSizes,
@@ -158,6 +157,7 @@ const TaskSizesForm = () => {
 									taskSizes?.length &&
 									taskSizes.map((size) => (
 										<ListCard
+											key={size.id}
 											statusTitle={
 												size?.name ? size?.name?.split('-').join(' ') : ''
 											}

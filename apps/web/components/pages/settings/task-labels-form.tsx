@@ -19,12 +19,9 @@ const TaskLabelForm = () => {
 		setValue('teamLink', '');
 	}, [user, setValue]);
 
-	const onSubmit = useCallback(
-		async (values: any) => {
-			console.log(values);
-		},
-		[user]
-	);
+	const onSubmit = useCallback(async (values: any) => {
+		console.log(values);
+	}, []);
 
 	return (
 		<>
@@ -99,7 +96,7 @@ const TaskLabelForm = () => {
 								List of Labels
 							</Text>
 							{/* <div className="flex flex-wrap w-full gap-3">
-								
+
 							</div> */}
 						</div>
 					</div>
