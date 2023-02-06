@@ -2,7 +2,7 @@ import {
 	getActiveTaskIdCookie,
 	setActiveTaskIdCookie,
 } from '@app/helpers/cookies';
-import { ITeamTask } from '@app/interfaces';
+import { ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,
@@ -110,8 +110,9 @@ export function useTeamTasks() {
 	);
 
 	const handleStatusUpdate = useCallback(
-		(
-			status: ITeamTask['status'],
+		<T extends ITaskStatusField>(
+			status: ITaskStatusStack[T],
+			field: T,
 			task?: ITeamTask | null,
 			loader?: boolean
 		) => {
@@ -120,7 +121,7 @@ export function useTeamTasks() {
 
 				updateTask({
 					...task,
-					status: status,
+					[field]: status,
 				}).then(() => setTasksFetching(false));
 			}
 		},

@@ -79,28 +79,28 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setIsLoading(true)
 
     // Make a request to your server to get an authentication token.
-    const { response } = await login({ email: authEmail, code: authInviteCode })
+    const { response, } = await login({ email: authEmail, code: authInviteCode })
 
 
 
     // If successful, reset the fields and set the token.
     if (response.status == 200) {
 
-      const loginRes = response.data.loginResponse
-      const user = loginRes.user
-      const employee = user.employee;
+      const loginRes = response.data.authStoreData
+      const user = response.data.loginResponse.user
+      // const employee = user.employee;
       const team = response.data.team
 
-      setActiveTeamId(team.id)
+      setActiveTeamId(loginRes.teamId)
       setActiveTeam(team)
       setOrganizationId(team.organizationId)
       setUser(user)
       setTenantId(team.tenantId)
-      setEmployeeId(employee.id)
+      // setEmployeeId(employee.id)
 
       // Save Auth Token
-      setAuthToken(loginRes.token);
-      setRefreshToken(loginRes.refresh_token)
+      setAuthToken(loginRes.access_token);
+      setRefreshToken(loginRes.refresh_token.token)
       setIsLoading(false)
 
       // Reset all fields
@@ -310,7 +310,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                     animation: true
                   })}
                 >
-                  <Text>{translate("loginScreen.tapContinue")}</Text>
+                  <Text>{translate("loginScreen.createTeam")}</Text>
                 </Button>
               </View>
             </Animatable.View>
@@ -350,7 +350,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   textStyle={styles.tapButtonText}
                   onPress={() => createNewTeam()}
                 >
-                  <Text>{translate("loginScreen.tapContinue")}</Text>
+                  <Text>{translate("loginScreen.tapJoin")}</Text>
                 </Button>
                 <ActivityIndicator style={styles.loading} animating={isLoading} size={'small'} color={"#fff"} />
               </View>

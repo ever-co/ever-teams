@@ -17,6 +17,7 @@ import { observer } from "mobx-react-lite"
 import ManageTaskCard from "./components/ManageTaskCard"
 import TimerCard from "../../../components/TimerCard"
 import { useFirstLoad } from "../../../services/hooks/useFirstLoad"
+import { debounce } from 'lodash';
 import { useAppTheme } from "../../../app"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import FlashMessage, { showMessage } from "react-native-flash-message"
@@ -32,12 +33,14 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
   LogBox.ignoreAllLogs();
   const { colors, dark } = useAppTheme()
 
+
   return (
-    <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
+    <Screen preset="scroll" ScrollViewProps={{ bounces: false }} contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
       backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
       safeAreaEdges={["top"]}>
       <TouchableOpacity activeOpacity={1} onPress={() => {
-        setShowCombo(false)}}>
+        setShowCombo(false)
+      }}>
         <View>
           <CreateTeamModal
             onCreateTeam={createOrganizationTeam}
@@ -54,13 +57,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
             <View style={{ zIndex: 100 }}>
               <ManageTaskCard />
             </View>
-            <View style={{ zIndex: 99 }}>
+            <View style={{ zIndex: 99, }}>
               <TimerCard />
             </View>
           </View>
         </View>
       </TouchableOpacity>
-      <FlashMessage position="bottom" />
+      <FlashMessage style={{ position: "absolute", alignSelf: "center", top: 200 }} />
     </Screen>
   )
 })

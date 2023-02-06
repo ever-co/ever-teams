@@ -4,20 +4,22 @@ import { clsxm } from '@app/utils';
 import { Card, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
+import { useTranslation } from 'lib/i18n';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
 
 export function UserTeamCardHeader() {
+	const { trans } = useTranslation();
 	return (
 		<ul className="flex row font-normal justify-between mb-3 mt-16">
-			<li>Status</li>
-			<li>Name</li>
-			<li>Task</li>
-			<li>Worked on Task</li>
-			<li>Estimate</li>
-			<li>Total worked Today</li>
+			<li>{trans.common.STATUS}</li>
+			<li>{trans.common.NAME}</li>
+			<li>{trans.common.TASK}</li>
+			<li>{trans.common.WORKED_ON_TASK}</li>
+			<li>{trans.common.ESTIMATE}</li>
+			<li>{trans.common.TOTAL_WORKED_TODAY}</li>
 		</ul>
 	);
 }

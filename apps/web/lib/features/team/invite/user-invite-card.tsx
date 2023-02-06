@@ -10,10 +10,13 @@ import {
 } from 'lib/components';
 import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
+import { useTranslation } from 'lib/i18n';
 
 type Props = IClassName & { invitation: IInvitation };
 
 export function InvitedCard({ invitation, className }: Props) {
+	const { trans } = useTranslation();
+
 	return (
 		<Card
 			shadow="bigger"
@@ -46,12 +49,14 @@ export function InvitedCard({ invitation, className }: Props) {
 			<VerticalSeparator />
 
 			{/* Task information */}
-			<Text className="opacity-40 w-80 px-4 text-center">Task Tittle</Text>
+			<Text className="opacity-40 w-80 px-4 text-center">
+				{trans.common.TASK_TITTLE}
+			</Text>
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskTime */}
 			<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
-				<span>Today:</span>
+				<span>{trans.common.TODAY}:</span>
 				<Text>00h : 00m</Text>
 			</div>
 			<VerticalSeparator />
@@ -77,6 +82,8 @@ export function InviteUserTeamCard({
 	className,
 	onClick,
 }: IClassName & { onClick?: () => void }) {
+	const { trans } = useTranslation();
+
 	return (
 		<Card
 			shadow="bigger"
@@ -93,17 +100,19 @@ export function InviteUserTeamCard({
 			{/* Show user name, email and image */}
 			<div className="w-[330px] px-4 flex space-x-3">
 				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
-				<Button onClick={onClick}>Invite</Button>
+				<Button onClick={onClick}>{trans.common.INVITE}</Button>
 			</div>
 			<VerticalSeparator />
 
 			{/* Task information */}
-			<Text className="opacity-40 w-80 px-4 text-center">Task Tittle</Text>
+			<Text className="opacity-40 w-80 px-4 text-center">
+				{trans.common.TASK_TITTLE}
+			</Text>
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskTime */}
 			<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
-				<span>Today:</span>
+				<span>{trans.common.TODAY}:</span>
 				<Text>00h : 00m</Text>
 			</div>
 			<VerticalSeparator />

@@ -58,11 +58,13 @@ const Tab = ({
             style={isActiveTab ? [styles.activeSection, { backgroundColor: colors.background, borderColor: colors.secondary }] : [styles.inactiveSection]}
             onPress={() => toggleTab(item.id)}
         >
-            {item.id == 1 ?
-                <Ionicons name="person" size={24} color={isActiveTab ? colors.secondary : colors.tertiary} /> :
-                <FontAwesome5 name="users" size={24} color={isActiveTab ? colors.secondary : colors.tertiary} />
-            }
-            <Text style={[styles.text, isActiveTab ? { fontSize: 16, color: colors.secondary } : { color: colors.tertiary }]}>{item.title}</Text>
+            <View style={{flexDirection: "row", alignSelf: "center", justifyContent:"center", alignItems: "center" }}>
+                {item.id == 1 ?
+                    <Ionicons name="person" size={18} color={isActiveTab ? colors.secondary : colors.tertiary} /> :
+                    <FontAwesome5 name="users" size={18} color={isActiveTab ? colors.secondary : colors.tertiary} />
+                }
+                <Text style={[styles.text, isActiveTab ? { fontSize: 14, color: colors.secondary } : { color: colors.tertiary }]}>{item.title}</Text>
+            </View>
         </TouchableOpacity>
     )
 }
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
         width: 155
     },
     text: {
-        left: 10,
+        marginLeft:8,
         fontSize: 14,
         fontFamily: typography.primary.semiBold,
         color: "#3826A6"

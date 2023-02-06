@@ -5,11 +5,24 @@ import {
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 
+const registerDefaultValue = {
+	appName: 'Gauzy Teams',
+	appSignature: 'Ever Gauzy Team',
+	appLogo: 'https://app.gauzy.team/assets/gauzy-team.png',
+	appLink: 'https://gauzy.team/',
+	appEmailConfirmationUrl: 'https://app.gauzy.co/#/auth/confirm-email',
+};
+
 export function registerUserRequest(data: IRegisterDataRequest) {
+	const body = {
+		...data,
+		...registerDefaultValue,
+	};
+
 	return serverFetch<IUser>({
 		path: '/auth/register',
 		method: 'POST',
-		body: data,
+		body,
 	});
 }
 

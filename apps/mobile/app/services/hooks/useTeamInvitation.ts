@@ -56,7 +56,6 @@ export function useTeamInvitations() {
     }
 
     const getTeamInvitations = async () => {
-
         const { data } = await getTeamInvitationsRequest(
             {
                 tenantId,
@@ -66,19 +65,19 @@ export function useTeamInvitations() {
             },
             authToken
         );
-        setTeamInvitations(data)
+        const activeInvitations = data.items.filter((i) => i.status !== "ACCEPTED") || [];
+        setTeamInvitations(activeInvitations)
         return data;
     }
 
-
-
     useEffect(() => {
         getTeamInvitations()
-    }, [activeTeamId, loading, user])
+    }, [activeTeamId, teams, loading, user])
 
     return {
         inviterMember,
         loading,
-        teamInvitations
+        teamInvitations,
+        getTeamInvitations
     }
 }
