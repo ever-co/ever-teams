@@ -13,3 +13,13 @@ export interface ITaskSizesItemList {
 	isSystem?: boolean;
 	projectId?: string;
 }
+
+export interface ITaskSizesCreate {
+	name: string;
+	description?: string;
+	icon?: string;
+	color?: string;
+	projectId?: string;
+	organizationId?: string;
+	tenantId?: string | undefined | null;
+}

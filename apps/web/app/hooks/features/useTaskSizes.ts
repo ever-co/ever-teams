@@ -1,10 +1,15 @@
-import { getTaskSizesList } from '@app/services/client/api';
+import { ITaskSizesCreate } from '@app/interfaces';
+import {
+	createTaskSizesAPI,
+	deleteTaskSizesAPI,
+	getTaskSizesList,
+} from '@app/services/client/api';
 import { userState } from '@app/stores';
 import {
 	taskSizesFetchingState,
 	taskSizesListState,
 } from '@app/stores/task-sizes';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
@@ -13,6 +18,11 @@ export function useTaskSizes() {
 	const [user] = useRecoilState(userState);
 
 	const { loading, queryCall } = useQuery(getTaskSizesList);
+	const { loading: createTaskSizesLoading, queryCall: createQueryCall } =
+		useQuery(createTaskSizesAPI);
+	const { loading: deleteTaskSizesLoading, queryCall: deleteQueryCall } =
+		useQuery(deleteTaskSizesAPI);
+
 	const [taskSizes, setTaskSizes] = useRecoilState(taskSizesListState);
 	// const activeTaskStatus = useRecoilValue(activeTaskStatusState);
 	// const [, setActiveTaskStatusId] = useRecoilState(activeTaskStatusIdState);
@@ -25,13 +35,6 @@ export function useTaskSizes() {
 		setTaskSizesFetching(loading);
 	}, [loading, setTaskSizesFetching]);
 
-	// const loadTaskStatus = useCallback(() => {
-	// 	setActiveTaskStatusId(getActiveTaskStatusIdCookie());
-	// 	console.log
-	// 	if (user) {
-
-	// 	}
-	// }, [queryCall, setActiveTaskStatusId, setTaskStatuss, user]);
 	useEffect(() => {
 		queryCall(
 			user?.tenantId as string,
@@ -42,11 +45,60 @@ export function useTaskSizes() {
 		});
 	}, []);
 
+	const createTaskSizes = useCallback(
+		(data: ITaskSizesCreate) => {
+			if (user?.tenantId) {
+				return createQueryCall(data, user?.tenantId || '').then((res) => {
+					if (res?.data?.data && res?.data?.data?.name) {
+						queryCall(
+							user?.tenantId as string,
+							user?.employee?.organizationId as string
+						).then((res) => {
+							setTaskSizes(res?.data?.data?.items || []);
+							return res;
+						});
+					}
+
+					return res;
+				});
+			}
+		},
+
+		[createQueryCall, createTaskSizesLoading, deleteTaskSizesLoading]
+	);
+
+	const deleteTaskSizes = useCallback(
+		(id: string) => {
+			if (user?.tenantId) {
+				return deleteQueryCall(id, user?.tenantId || '').then((res) => {
+					queryCall(
+						user?.tenantId as string,
+						user?.employee?.organizationId as string
+					).then((res) => {
+						setTaskSizes(res?.data?.data?.items || []);
+						return res;
+					});
+					return res;
+				});
+			}
+		},
+		[
+			deleteQueryCall,
+			taskSizes.length,
+			createTaskSizesLoading,
+			deleteTaskSizesLoading,
+		]
+	);
+
 	return {
 		// loadTaskStatus,
 		loading,
 		taskSizes,
 		taskSizesFetching,
 		firstLoadTaskSizesData,
+		createTaskSizes,
+		deleteTaskSizes,
+		createTaskSizesLoading,
+		deleteTaskSizesLoading,
 	};
 }

@@ -16,19 +16,29 @@ const TaskSizesForm = () => {
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 
-	const { loading, taskSizes } = useTaskSizes();
+	const { loading, taskSizes, createTaskSizes, deleteTaskSizes } =
+		useTaskSizes();
 
 	useEffect(() => {
-		setValue('teamName', '');
-		setValue('teamType', '');
-		setValue('teamLink', '');
+		setValue('name', '');
 	}, [user]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
 			console.log(values);
+			// TODO: Color, icon
+			createTaskSizes({
+				name: values.name,
+				color: '#f5b8b8',
+				// description: '',
+				organizationId: user?.employee.organizationId,
+				tenantId: user?.tenantId,
+				// icon: '',
+				// projectId: '',
+			});
+			setCreateNew(false);
 		},
-		[user]
+		[taskSizes]
 	);
 
 	return (
@@ -71,6 +81,7 @@ const TaskSizesForm = () => {
 											placeholder="Create Size"
 											className="mb-0"
 											wrapperClassName="mb-0"
+											{...register('name')}
 										/>
 
 										<LanguageDropDown />
@@ -81,9 +92,7 @@ const TaskSizesForm = () => {
 										<Button
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-											}}
+											type="submit"
 										>
 											Create
 										</Button>
@@ -104,9 +113,8 @@ const TaskSizesForm = () => {
 								List of Sizes
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
-								{loading && <Spinner dark={false} />}
-								{!loading &&
-									taskSizes &&
+								{loading && !taskSizes && <Spinner dark={false} />}
+								{taskSizes &&
 									taskSizes?.length &&
 									taskSizes.map((size) => (
 										<ListCard
@@ -119,7 +127,7 @@ const TaskSizesForm = () => {
 												console.log('Edit');
 											}}
 											onDelete={() => {
-												console.log('Delete');
+												deleteTaskSizes(size.id);
 											}}
 										/>
 									))}
