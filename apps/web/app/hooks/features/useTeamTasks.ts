@@ -119,11 +119,16 @@ export function useTeamTasks() {
 			if (task && status !== task.status) {
 				loader && setTasksFetching(true);
 
-				updateTask({
+				return updateTask({
 					...task,
 					[field]: status,
-				}).then(() => setTasksFetching(false));
+				}).then((res) => {
+					setTasksFetching(false);
+					return res;
+				});
 			}
+
+			return Promise.resolve();
 		},
 		[updateTask]
 	);

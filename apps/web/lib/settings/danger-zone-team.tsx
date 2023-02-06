@@ -1,8 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, Text } from 'lib/components';
 
-const DangerZoneTeam = () => {
+export const DangerZoneTeam = () => {
 	return (
 		<>
 			<div className="flex flex-col justify-between items-center">
@@ -74,6 +73,3 @@ const DangerZoneTeam = () => {
 		</>
 	);
 };
-export default withAuthentication(DangerZoneTeam, {
-	displayName: 'DangerZoneTeam',
-});

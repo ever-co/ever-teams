@@ -1,6 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Avatar, Button } from 'lib/components';
-import { withAuthentication } from 'lib/app/authenticator';
 import { useCallback, useState } from 'react';
 import { useSettings } from '@app/hooks';
 import { useForm } from 'react-hook-form';
@@ -8,7 +7,8 @@ import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import axios from 'axios';
 import Image from 'next/image';
-const ProfileAvatar = () => {
+
+export const ProfileAvatar = () => {
 	const [user] = useRecoilState(userState);
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
@@ -103,6 +103,3 @@ const ProfileAvatar = () => {
 		</>
 	);
 };
-export default withAuthentication(ProfileAvatar, {
-	displayName: 'ProfileAvatar',
-});

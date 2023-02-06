@@ -1,5 +1,4 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,7 +7,7 @@ import { useRecoilState } from 'recoil';
 import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 
-const TaskLabelForm = () => {
+export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
 	const { setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
@@ -19,12 +18,9 @@ const TaskLabelForm = () => {
 		setValue('teamLink', '');
 	}, [user, setValue]);
 
-	const onSubmit = useCallback(
-		async (values: any) => {
-			console.log(values);
-		},
-		[user]
-	);
+	const onSubmit = useCallback(async (values: any) => {
+		console.log(values);
+	}, []);
 
 	return (
 		<>
@@ -99,7 +95,7 @@ const TaskLabelForm = () => {
 								List of Labels
 							</Text>
 							{/* <div className="flex flex-wrap w-full gap-3">
-								
+
 							</div> */}
 						</div>
 					</div>
@@ -108,6 +104,3 @@ const TaskLabelForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TaskLabelForm, {
-	displayName: 'TaskLabelForm',
-});

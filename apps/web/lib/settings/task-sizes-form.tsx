@@ -1,19 +1,18 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import ListCard from './list-card';
+import { useRecoilValue } from 'recoil';
+import { StatusesListCard } from './list-card';
 import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTaskSizes } from '@app/hooks/features/useTaskSizes';
 import { ITaskSizesItemList } from '@app/interfaces';
 
-const TaskSizesForm = () => {
-	const [user] = useRecoilState(userState);
+export const TaskSizesForm = () => {
+	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
@@ -68,7 +67,6 @@ const TaskSizesForm = () => {
 			}
 		},
 		[
-			taskSizes,
 			edit,
 			createNew,
 			createTaskSizes,
@@ -157,7 +155,8 @@ const TaskSizesForm = () => {
 								{taskSizes &&
 									taskSizes?.length &&
 									taskSizes.map((size) => (
-										<ListCard
+										<StatusesListCard
+											key={size.id}
 											statusTitle={
 												size?.name ? size?.name?.split('-').join(' ') : ''
 											}
@@ -180,6 +179,3 @@ const TaskSizesForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TaskSizesForm, {
-	displayName: 'TaskSizesForm',
-});

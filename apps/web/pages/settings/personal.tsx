@@ -1,10 +1,14 @@
 import { withAuthentication } from 'lib/app/authenticator';
 import { MainLayout } from 'lib/layout';
 import { Breadcrumb, Card, Container, Text } from 'lib/components';
-import LeftSideSettingMenu from '@components/pages/settings/left-side-setting-menu';
-import ProfileAvatar from '@components/pages/settings/profile-avatar';
-import PersonalSettingForm from '@components/pages/settings/personal-setting-form';
-import DangerZone from '@components/pages/settings/danger-zone-personal';
+import {
+	LeftSideSettingMenu,
+	ProfileAvatar,
+	PersonalSettingForm,
+	DangerZone,
+	// TaskLabelsForm
+} from 'lib/settings';
+
 import { useTranslation } from 'lib/i18n';
 
 const Personal = () => {
