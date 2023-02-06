@@ -15,6 +15,26 @@ export function createStatusRequest(
 	});
 }
 
+export function editTaskStatusRequest({
+	id,
+	datas,
+	bearer_token,
+	tenantId,
+}: {
+	id: string | any;
+	datas: ITaskStatusCreate;
+	bearer_token: string;
+	tenantId?: any;
+}) {
+	return serverFetch<ITaskStatusItemList>({
+		path: `/task-statuses/${id}`,
+		method: 'PUT',
+		body: datas,
+		bearer_token,
+		tenantId,
+	});
+}
+
 export function deleteTaskStatusRequest({
 	id,
 	bearer_token,

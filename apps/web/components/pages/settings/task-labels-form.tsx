@@ -5,28 +5,19 @@ import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import ListCard from './list-card';
 import { LanguageDropDown } from './language-dropdown';
-import {
-	ClockIcon,
-	CloseCircleIcon,
-	LoginIcon,
-	SearchStatusIcon,
-	TickCircleIcon,
-	TimerIcon,
-} from 'lib/components/svgs';
 import { PlusIcon } from '@heroicons/react/20/solid';
 
 const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
-	const { register, setValue, handleSubmit } = useForm();
+	const { setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 
 	useEffect(() => {
 		setValue('teamName', '');
 		setValue('teamType', '');
 		setValue('teamLink', '');
-	}, [user]);
+	}, [user, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -107,43 +98,9 @@ const TaskLabelForm = () => {
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-full mt-[32px]">
 								List of Labels
 							</Text>
-							<div className="flex flex-wrap w-full gap-3">
-								<ListCard
-									statusTitle="In Progress"
-									bgColor={'#ECE8FC'}
-									icon={<TimerIcon className="stroke-black" />}
-								/>
-								<ListCard
-									statusTitle="Completed"
-									bgColor={'#D4EFDF'}
-									icon={<TickCircleIcon className="stroke-black" />}
-								/>
-								<ListCard
-									statusTitle="Open"
-									bgColor={'#D6E4F9'}
-									icon={<LoginIcon />}
-								/>
-								<ListCard
-									statusTitle="Blocked"
-									bgColor={'#F5B8B8'}
-									icon={<CloseCircleIcon />}
-								/>
-								<ListCard
-									statusTitle="In Review"
-									bgColor={'#F3D8B0'}
-									icon={<SearchStatusIcon />}
-								/>
-								<ListCard
-									statusTitle="Backlog"
-									bgColor={'#F2F2F2'}
-									icon={<SearchStatusIcon />}
-								/>
-								<ListCard
-									statusTitle="Ready"
-									bgColor={'#F5F1CB'}
-									icon={<ClockIcon />}
-								/>
-							</div>
+							{/* <div className="flex flex-wrap w-full gap-3">
+								
+							</div> */}
 						</div>
 					</div>
 				</div>

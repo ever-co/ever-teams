@@ -7,7 +7,7 @@ import TeamSettingForm from '@components/pages/settings/team-setting-form';
 import TaskStatusesForm from '@components/pages/settings/task-statuses-form';
 import TaskPrioritiesForm from '@components/pages/settings/task-priorities-form';
 import TaskSizesForm from '@components/pages/settings/task-sizes-form';
-import TaskLabelsForm from '@components/pages/settings/task-labels-form';
+// import TaskLabelsForm from '@components/pages/settings/task-labels-form';
 import DangerZoneTeam from '@components/pages/settings/danger-zone-team';
 import { useTranslation } from 'lib/i18n';
 
@@ -60,12 +60,12 @@ const Team = () => {
 						>
 							<TaskSizesForm />
 						</Card>
-						<Card
+						{/* <Card
 							className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
 							shadow="bigger"
 						>
 							<TaskLabelsForm />
-						</Card>
+						</Card> */}
 						<Card
 							className="dark:bg-dark--theme p-[32px] mt-[36px]"
 							shadow="bigger"

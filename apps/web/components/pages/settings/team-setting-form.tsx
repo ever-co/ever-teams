@@ -14,14 +14,11 @@ const TeamSettingForm = () => {
 		setValue('teamName', '');
 		setValue('teamType', '');
 		setValue('teamLink', '');
-	}, [user]);
+	}, [user, setValue]);
 
-	const onSubmit = useCallback(
-		async (values: any) => {
-			console.log(values);
-		},
-		[user]
-	);
+	const onSubmit = useCallback(async (values: any) => {
+		console.log(values);
+	}, []);
 
 	return (
 		<>

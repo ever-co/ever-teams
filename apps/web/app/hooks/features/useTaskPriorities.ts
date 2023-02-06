@@ -3,6 +3,7 @@ import {
 	getTaskPrioritiesList,
 	deleteTaskPrioritiesAPI,
 	createTaskPrioritiesAPI,
+	editTaskPrioritiesAPI,
 } from '@app/services/client/api';
 import {
 	userState,
@@ -22,6 +23,8 @@ export function useTaskPriorities() {
 		useQuery(createTaskPrioritiesAPI);
 	const { loading: deleteTaskPrioritiesLoading, queryCall: deleteQueryCall } =
 		useQuery(deleteTaskPrioritiesAPI);
+	const { loading: editTaskPrioritiesLoading, queryCall: editQueryCall } =
+		useQuery(editTaskPrioritiesAPI);
 
 	const [taskPriorities, setTaskPriorities] = useRecoilState(
 		taskPrioritiesListState
@@ -91,6 +94,24 @@ export function useTaskPriorities() {
 		]
 	);
 
+	const editTaskPriorities = useCallback(
+		(id: string, data: ITaskPrioritiesCreate) => {
+			if (user?.tenantId) {
+				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+					queryCall(
+						user?.tenantId as string,
+						user?.employee?.organizationId as string
+					).then((res) => {
+						setTaskPriorities(res?.data?.data?.items || []);
+						return res;
+					});
+					return res;
+				});
+			}
+		},
+		[editTaskPrioritiesLoading]
+	);
+
 	return {
 		// loadTaskStatus,
 		loading,
@@ -101,5 +122,7 @@ export function useTaskPriorities() {
 		createTaskPrioritiesLoading,
 		deleteTaskPrioritiesLoading,
 		deleteTaskPriorities,
+		editTaskPriorities,
+		editTaskPrioritiesLoading,
 	};
 }

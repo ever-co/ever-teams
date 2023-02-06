@@ -15,6 +15,26 @@ export function createSizesRequest(
 	});
 }
 
+export function editTaskSizesRequest({
+	id,
+	datas,
+	bearer_token,
+	tenantId,
+}: {
+	id: string | any;
+	datas: ITaskSizesCreate;
+	bearer_token: string;
+	tenantId?: any;
+}) {
+	return serverFetch<ITaskSizesItemList>({
+		path: `/task-sizes/${id}`,
+		method: 'PUT',
+		body: datas,
+		bearer_token,
+		tenantId,
+	});
+}
+
 export function deleteTaskSizesRequest({
 	id,
 	bearer_token,

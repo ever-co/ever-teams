@@ -20,6 +20,22 @@ export function createTaskPrioritiesAPI(
 	);
 }
 
+export function editTaskPrioritiesAPI(
+	id: string,
+	data: ITaskPrioritiesCreate,
+	tenantId?: string
+) {
+	return api.put<CreateReponse<ITaskPrioritiesCreate>>(
+		`/task-priorities/${id}`,
+		data,
+		{
+			headers: {
+				'Tenant-Id': tenantId,
+			},
+		}
+	);
+}
+
 export function deleteTaskPrioritiesAPI(id: string, tenantId?: string) {
 	return api.delete<DeleteReponse>(`/task-priorities/${id}`);
 }

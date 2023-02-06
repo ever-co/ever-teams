@@ -3,6 +3,7 @@ import {
 	createTaskSizesAPI,
 	deleteTaskSizesAPI,
 	getTaskSizesList,
+	editTaskSizesAPI,
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
 import {
@@ -22,6 +23,8 @@ export function useTaskSizes() {
 		useQuery(createTaskSizesAPI);
 	const { loading: deleteTaskSizesLoading, queryCall: deleteQueryCall } =
 		useQuery(deleteTaskSizesAPI);
+	const { loading: editTaskSizesLoading, queryCall: editQueryCall } =
+		useQuery(editTaskSizesAPI);
 
 	const [taskSizes, setTaskSizes] = useRecoilState(taskSizesListState);
 	// const activeTaskStatus = useRecoilValue(activeTaskStatusState);
@@ -90,6 +93,24 @@ export function useTaskSizes() {
 		]
 	);
 
+	const editTaskSizes = useCallback(
+		(id: string, data: ITaskSizesCreate) => {
+			if (user?.tenantId) {
+				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+					queryCall(
+						user?.tenantId as string,
+						user?.employee?.organizationId as string
+					).then((res) => {
+						setTaskSizes(res?.data?.data?.items || []);
+						return res;
+					});
+					return res;
+				});
+			}
+		},
+		[editTaskSizesLoading]
+	);
+
 	return {
 		// loadTaskStatus,
 		loading,
@@ -100,5 +121,7 @@ export function useTaskSizes() {
 		deleteTaskSizes,
 		createTaskSizesLoading,
 		deleteTaskSizesLoading,
+		editTaskSizesLoading,
+		editTaskSizes,
 	};
 }
