@@ -20,3 +20,8 @@ export type DeleteReponse = {
   raw: string[];
   affected: number;
 };
+
+export type CreateReponse<T> = {
+  data: T;
+  response: any;
+};

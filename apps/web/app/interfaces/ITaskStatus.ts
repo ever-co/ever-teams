@@ -21,4 +21,5 @@ export interface ITaskStatusCreate {
 	color?: string;
 	projectId?: string;
 	organizationId?: string;
+	tenantId?: string | undefined | null;
 }

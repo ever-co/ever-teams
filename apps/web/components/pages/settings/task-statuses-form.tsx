@@ -16,29 +16,26 @@ const TaskStatusesForm = () => {
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 
-	const { loading, taskStatus, createTaskStatus } = useTaskStatus();
+	const { loading, taskStatus, createTaskStatus, deleteTaskStatus } =
+		useTaskStatus();
 
 	useEffect(() => {
-		setValue('teamName', '');
-		setValue('teamType', '');
-		setValue('teamLink', '');
-	}, [user]);
-
-	// TODO: Remove below code, just for testing
-	// useEffect(() => {
-	// 	createTaskStatus({
-	// 		name: 'Backlog',
-	// 		color: '#f5b8b8',
-	// 		description: 'New Backlog',
-	// 		organizationId: user?.employee.organizationId,
-	// 		icon: '',
-	// 		projectId: '',
-	// 	});
-	// }, []);
+		setValue('name', '');
+	}, [taskStatus]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			console.log(values);
+			// TODO: Color, icon
+			createTaskStatus({
+				name: values.name,
+				color: '#f5b8b8',
+				// description: '',
+				organizationId: user?.employee.organizationId,
+				tenantId: user?.tenantId,
+				// icon: '',
+				// projectId: '',
+			});
+			setCreateNew(false);
 		},
 		[user]
 	);
@@ -83,6 +80,7 @@ const TaskStatusesForm = () => {
 											placeholder="Create Status"
 											className="mb-0"
 											wrapperClassName="mb-0"
+											{...register('name')}
 										/>
 
 										<LanguageDropDown />
@@ -93,9 +91,7 @@ const TaskStatusesForm = () => {
 										<Button
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-											}}
+											type="submit"
 										>
 											Create
 										</Button>
@@ -131,7 +127,7 @@ const TaskStatusesForm = () => {
 												console.log('Edit');
 											}}
 											onDelete={() => {
-												console.log('Delete');
+												deleteTaskStatus(status.id);
 											}}
 										/>
 									))}

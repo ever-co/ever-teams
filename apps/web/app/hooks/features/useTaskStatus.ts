@@ -2,10 +2,10 @@ import { ITaskStatusCreate } from '@app/interfaces';
 import {
 	createTaskStatusAPI,
 	getTaskstatusList,
+	deleteTaskStatusAPI,
 } from '@app/services/client/api';
 import {
 	userState,
-	activeTaskStatusIdState,
 	taskStatusFetchingState,
 	taskStatusListState,
 } from '@app/stores';
@@ -20,9 +20,9 @@ export function useTaskStatus() {
 	const { loading, queryCall } = useQuery(getTaskstatusList);
 	const { loading: createTaskStatusLoading, queryCall: createQueryCall } =
 		useQuery(createTaskStatusAPI);
+	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } =
+		useQuery(deleteTaskStatusAPI);
 	const [taskStatus, setTaskStatus] = useRecoilState(taskStatusListState);
-	// const activeTaskStatus = useRecoilValue(activeTaskStatusState);
-	// const [, setActiveTaskStatusId] = useRecoilState(activeTaskStatusIdState);
 	const [taskStatusFetching, setTaskStatusFetching] = useRecoilState(
 		taskStatusFetchingState
 	);
@@ -32,13 +32,6 @@ export function useTaskStatus() {
 		setTaskStatusFetching(loading);
 	}, [loading, setTaskStatusFetching]);
 
-	// const loadTaskStatus = useCallback(() => {
-	// 	setActiveTaskStatusId(getActiveTaskStatusIdCookie());
-	// 	console.log
-	// 	if (user) {
-
-	// 	}
-	// }, [queryCall, setActiveTaskStatusId, setTaskStatuss, user]);
 	useEffect(() => {
 		queryCall(
 			user?.tenantId as string,
@@ -53,32 +46,55 @@ export function useTaskStatus() {
 		(data: ITaskStatusCreate) => {
 			if (user?.tenantId) {
 				return createQueryCall(data, user?.tenantId || '').then((res) => {
-					const dt = res.data?.items || [];
-					console.log('New Data', dt);
+					if (res?.data?.data && res?.data?.data?.name) {
+						queryCall(
+							user?.tenantId as string,
+							user?.employee?.organizationId as string
+						).then((res) => {
+							setTaskStatus(res?.data?.data?.items || []);
+							return res;
+						});
+					}
 
-					// setTeams(dt);
-					// const created = dt.find((t) => t.name === $name);
-					// if (created) {
-					// 	setActiveTeamIdCookie(created.id);
-					// 	setOrganizationIdCookie(created.organizationId);
-					// 	// This must be called at the end (Update store)
-					// 	setActiveTeamId(created.id);
-					// }
 					return res;
 				});
 			}
 		},
-		// [queryCall, setActiveTeamId, setTeams]
-		[createQueryCall]
+
+		[createQueryCall, createTaskStatusLoading, deleteTaskStatusLoading]
+	);
+
+	const deleteTaskStatus = useCallback(
+		(id: string) => {
+			if (user?.tenantId) {
+				return deleteQueryCall(id, user?.tenantId || '').then((res) => {
+					queryCall(
+						user?.tenantId as string,
+						user?.employee?.organizationId as string
+					).then((res) => {
+						setTaskStatus(res?.data?.data?.items || []);
+						return res;
+					});
+					return res;
+				});
+			}
+		},
+		[
+			deleteQueryCall,
+			taskStatus.length,
+			createTaskStatusLoading,
+			deleteTaskStatusLoading,
+		]
 	);
 
 	return {
-		// loadTaskStatus,
 		loading,
 		taskStatus,
 		taskStatusFetching,
 		firstLoadTaskStatusData,
 		createTaskStatus,
 		createTaskStatusLoading,
+		deleteTaskStatusLoading,
+		deleteTaskStatus,
 	};
 }
