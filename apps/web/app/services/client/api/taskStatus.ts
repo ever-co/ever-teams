@@ -16,6 +16,22 @@ export function createTaskStatusAPI(
 	});
 }
 
+export function editTaskStatusAPI(
+	id: string,
+	data: ITaskStatusCreate,
+	tenantId?: string
+) {
+	return api.put<CreateReponse<ITaskStatusCreate>>(
+		`/task-statuses/${id}`,
+		data,
+		{
+			headers: {
+				'Tenant-Id': tenantId,
+			},
+		}
+	);
+}
+
 export function deleteTaskStatusAPI(id: string, tenantId?: string) {
 	return api.delete<DeleteReponse>(`/task-statuses/${id}`);
 }

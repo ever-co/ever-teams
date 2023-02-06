@@ -13,6 +13,18 @@ export function createTaskSizesAPI(data: ITaskSizesCreate, tenantId?: string) {
 	});
 }
 
+export function editTaskSizesAPI(
+	id: string,
+	data: ITaskSizesCreate,
+	tenantId?: string
+) {
+	return api.put<CreateReponse<ITaskSizesCreate>>(`/task-sizes/${id}`, data, {
+		headers: {
+			'Tenant-Id': tenantId,
+		},
+	});
+}
+
 export function deleteTaskSizesAPI(id: string, tenantId?: string) {
 	return api.delete<DeleteReponse>(`/task-sizes/${id}`);
 }

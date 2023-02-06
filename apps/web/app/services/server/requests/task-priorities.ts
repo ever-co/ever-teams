@@ -18,6 +18,26 @@ export function createPrioritiesRequest(
 	});
 }
 
+export function editTaskPrioritiesRequest({
+	id,
+	datas,
+	bearer_token,
+	tenantId,
+}: {
+	id: string | any;
+	datas: ITaskPrioritiesCreate;
+	bearer_token: string;
+	tenantId?: any;
+}) {
+	return serverFetch<ITaskPrioritiesItemList>({
+		path: `/task-priorities/${id}`,
+		method: 'PUT',
+		body: datas,
+		bearer_token,
+		tenantId,
+	});
+}
+
 export function deleteTaskPrioritiesRequest({
 	id,
 	bearer_token,

@@ -10,35 +10,64 @@ import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTaskSizes } from '@app/hooks/features/useTaskSizes';
+import { ITaskSizesItemList } from '@app/interfaces';
 
 const TaskSizesForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
+	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
 
-	const { loading, taskSizes, createTaskSizes, deleteTaskSizes } =
-		useTaskSizes();
+	const {
+		loading,
+		taskSizes,
+		createTaskSizes,
+		deleteTaskSizes,
+		editTaskSizes,
+	} = useTaskSizes();
 
 	useEffect(() => {
-		setValue('name', '');
-	}, [user]);
+		if (!edit) {
+			setValue('name', '');
+		}
+	}, [taskSizes, edit]);
+
+	useEffect(() => {
+		if (edit) {
+			setValue('name', edit.name);
+		} else {
+			setValue('name', '');
+		}
+	}, [edit]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			console.log(values);
 			// TODO: Color, icon
-			createTaskSizes({
-				name: values.name,
-				color: '#f5b8b8',
-				// description: '',
-				organizationId: user?.employee.organizationId,
-				tenantId: user?.tenantId,
-				// icon: '',
-				// projectId: '',
-			});
-			setCreateNew(false);
+			if (createNew) {
+				createTaskSizes({
+					name: values.name,
+					color: '#f5b8b8',
+					// description: '',
+					organizationId: user?.employee.organizationId,
+					tenantId: user?.tenantId,
+					// icon: '',
+					// projectId: '',
+				})?.then(() => {
+					setCreateNew(false);
+				});
+			}
+			if (edit && values.name !== edit.name) {
+				console.log(edit);
+				editTaskSizes(edit.id, {
+					...edit,
+					...values,
+					value: values.name,
+				})?.then(() => {
+					setEdit(null);
+				});
+			}
 		},
-		[taskSizes]
+		[taskSizes, edit, createNew]
 	);
 
 	return (
@@ -55,11 +84,12 @@ const TaskSizesForm = () => {
 						</Text>
 
 						<div className="flex flex-col">
-							{!createNew && (
+							{!createNew && !edit && (
 								<Button
 									variant="outline"
 									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] h-[46px] gap-0"
 									onClick={() => {
+										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
@@ -70,10 +100,11 @@ const TaskSizesForm = () => {
 								</Button>
 							)}
 
-							{createNew && (
+							{(createNew || edit) && (
 								<>
 									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2">
-										New Sizes
+										{createNew && 'New'}
+										{edit && 'Edit'} Sizes
 									</Text>
 									<div className="flex  w-full gap-x-5 items-center mt-3">
 										<InputField
@@ -94,13 +125,14 @@ const TaskSizesForm = () => {
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											type="submit"
 										>
-											Create
+											{edit ? 'Save' : 'Create'}
 										</Button>
 										<Button
 											variant="grey"
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											onClick={() => {
 												setCreateNew(false);
+												setEdit(null);
 											}}
 										>
 											Cancel
@@ -119,12 +151,13 @@ const TaskSizesForm = () => {
 									taskSizes.map((size) => (
 										<ListCard
 											statusTitle={
-												size?.value ? size?.value?.split('-').join(' ') : ''
+												size?.name ? size?.name?.split('-').join(' ') : ''
 											}
 											bgColor={size?.color || ''}
 											statusIcon={size?.icon || ''}
 											onEdit={() => {
-												console.log('Edit');
+												setCreateNew(false);
+												setEdit(size);
 											}}
 											onDelete={() => {
 												deleteTaskSizes(size.id);

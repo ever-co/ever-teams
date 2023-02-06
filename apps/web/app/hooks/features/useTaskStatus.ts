@@ -3,6 +3,7 @@ import {
 	createTaskStatusAPI,
 	getTaskstatusList,
 	deleteTaskStatusAPI,
+	editTaskStatusAPI,
 } from '@app/services/client/api';
 import {
 	userState,
@@ -22,6 +23,9 @@ export function useTaskStatus() {
 		useQuery(createTaskStatusAPI);
 	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } =
 		useQuery(deleteTaskStatusAPI);
+	const { loading: editTaskStatusLoading, queryCall: editQueryCall } =
+		useQuery(editTaskStatusAPI);
+
 	const [taskStatus, setTaskStatus] = useRecoilState(taskStatusListState);
 	const [taskStatusFetching, setTaskStatusFetching] = useRecoilState(
 		taskStatusFetchingState
@@ -87,6 +91,24 @@ export function useTaskStatus() {
 		]
 	);
 
+	const editTaskStatus = useCallback(
+		(id: string, data: ITaskStatusCreate) => {
+			if (user?.tenantId) {
+				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
+					queryCall(
+						user?.tenantId as string,
+						user?.employee?.organizationId as string
+					).then((res) => {
+						setTaskStatus(res?.data?.data?.items || []);
+						return res;
+					});
+					return res;
+				});
+			}
+		},
+		[editTaskStatusLoading]
+	);
+
 	return {
 		loading,
 		taskStatus,
@@ -96,5 +118,7 @@ export function useTaskStatus() {
 		createTaskStatusLoading,
 		deleteTaskStatusLoading,
 		deleteTaskStatus,
+		editTaskStatusLoading,
+		editTaskStatus,
 	};
 }

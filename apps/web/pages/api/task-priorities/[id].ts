@@ -1,5 +1,8 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import { deleteTaskPrioritiesRequest } from '@app/services/server/requests';
+import {
+	deleteTaskPrioritiesRequest,
+	editTaskPrioritiesRequest,
+} from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -18,6 +21,15 @@ export default async function handler(
 			return $res.json(
 				await deleteTaskPrioritiesRequest({
 					id,
+					bearer_token: access_token,
+					tenantId,
+				})
+			);
+		case 'PUT':
+			return $res.json(
+				await editTaskPrioritiesRequest({
+					id,
+					datas: req.body,
 					bearer_token: access_token,
 					tenantId,
 				})
