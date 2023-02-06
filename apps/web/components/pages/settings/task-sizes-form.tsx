@@ -75,6 +75,8 @@ const TaskSizesForm = () => {
 			editTaskSizes,
 			user?.employee.organizationId,
 			user?.tenantId,
+			setCreateNew,
+			setEdit,
 		]
 	);
 
@@ -156,7 +158,7 @@ const TaskSizesForm = () => {
 								{loading && !taskSizes && <Spinner dark={false} />}
 								{taskSizes &&
 									taskSizes?.length &&
-									taskSizes.map((size) => (
+									taskSizes.map((size, index) => (
 										<ListCard
 											statusTitle={
 												size?.name ? size?.name?.split('-').join(' ') : ''
@@ -170,6 +172,7 @@ const TaskSizesForm = () => {
 											onDelete={() => {
 												deleteTaskSizes(size.id);
 											}}
+											key={index}
 										/>
 									))}
 							</div>

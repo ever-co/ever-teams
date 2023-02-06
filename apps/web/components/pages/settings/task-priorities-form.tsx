@@ -75,6 +75,9 @@ const TaskPrioritiesForm = () => {
 			createTaskPriorities,
 			editTaskPriorities,
 			user?.employee.organizationId,
+			user?.tenantId,
+			setCreateNew,
+			setEdit,
 		]
 	);
 

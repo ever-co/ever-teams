@@ -19,12 +19,9 @@ const TaskLabelForm = () => {
 		setValue('teamLink', '');
 	}, [user, setValue]);
 
-	const onSubmit = useCallback(
-		async (values: any) => {
-			console.log(values);
-		},
-		[user]
-	);
+	const onSubmit = useCallback(async (values: any) => {
+		console.log(values);
+	}, []);
 
 	return (
 		<>

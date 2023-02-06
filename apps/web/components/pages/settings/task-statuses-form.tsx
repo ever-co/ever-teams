@@ -74,7 +74,17 @@ const TaskStatusesForm = () => {
 				});
 			}
 		},
-		[taskStatus, edit, createNew]
+		[
+			taskStatus,
+			edit,
+			createNew,
+			createTaskStatus,
+			editTaskStatus,
+			user?.employee.organizationId,
+			user?.tenantId,
+			setCreateNew,
+			setEdit,
+		]
 	);
 
 	return (
@@ -155,7 +165,7 @@ const TaskStatusesForm = () => {
 								{loading && !taskStatus?.length && <Spinner dark={false} />}
 								{taskStatus &&
 									taskStatus?.length &&
-									taskStatus.map((status) => (
+									taskStatus.map((status, index) => (
 										<ListCard
 											statusTitle={
 												status?.name ? status?.name?.split('-').join(' ') : ''
@@ -169,6 +179,7 @@ const TaskStatusesForm = () => {
 											onDelete={() => {
 												deleteTaskStatus(status.id);
 											}}
+											key={index}
 										/>
 									))}
 							</div>
