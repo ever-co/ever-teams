@@ -6,6 +6,7 @@ import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
 import { MoreIcon } from 'lib/components/svgs';
 import { TaskInput } from 'lib/features';
+import { useTranslation } from 'lib/i18n';
 import { PropsWithChildren, useCallback } from 'react';
 
 type Props = IClassName & {
@@ -28,41 +29,43 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			memberInfo,
 		});
 
+	const { trans } = useTranslation();
+
 	const menu = [
 		{
-			name: 'Edit Task',
+			name: trans.common.EDIT_TASK,
 			closable: true,
 			onclick: () => {
 				edition.task && edition.setEditMode(true);
 			},
 		},
 		{
-			name: 'Estimate',
+			name: trans.common.ESTIMATE,
 			closable: true,
 			onclick: () => {
 				edition.task && edition.setEstimateEditMode(true);
 			},
 		},
 		{
-			name: 'Assign Task',
+			name: trans.common.ASSIGN_TASK,
 			active: memberInfo.isAuthTeamManager,
 			action: 'assign',
 			onClick: onAssignTask,
 		},
 		{
-			name: 'Unassign Task',
+			name: trans.common.UNASSIGN_TASK,
 			active: memberInfo.isAuthTeamManager,
 			action: 'unassign',
 			onClick: onUnAssignTask,
 		},
 		{
-			name: 'Make a Manager',
+			name: trans.common.MAKE_A_MANAGER,
 			active: memberInfo.isAuthTeamManager,
 			onClick: onMakeAManager,
 			closable: true,
 		},
 		{
-			name: 'Remove',
+			name: trans.common.REMOVE,
 			type: 'danger',
 			active: memberInfo.isAuthTeamManager,
 			action: 'remove',
@@ -136,6 +139,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 												{removeAction && (
 													<ConfirmDropdown
+														className="right-[110%] top-0"
 														onConfirm={() => {
 															item.onClick && item.onClick({ close });
 														}}
@@ -188,7 +192,7 @@ function AssignActionMenu({
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-0"
+				className="absolute z-10 right-[110%] top-0"
 			>
 				<Popover.Panel>
 					{({ close }) => {

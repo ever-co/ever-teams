@@ -91,7 +91,7 @@ export function MoonIcon({
 	);
 }
 
-export function MoonDarkIcon() {
+export function MoonDarkIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -99,6 +99,7 @@ export function MoonDarkIcon() {
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M16.1475 11.9475C16.0275 11.745 15.69 11.43 14.85 11.58C14.385 11.6625 13.9125 11.7 13.44 11.6775C11.6925 11.6025 10.11 10.8 9.00753 9.56253C8.03253 8.47503 7.43253 7.05753 7.42502 5.52753C7.42502 4.67253 7.59002 3.84753 7.92753 3.06753C8.25752 2.31003 8.02502 1.91253 7.86002 1.74753C7.68752 1.57503 7.28253 1.33503 6.48752 1.66503C3.42002 2.95503 1.52253 6.03003 1.74753 9.32253C1.97253 12.42 4.14753 15.0675 7.02752 16.065C7.71753 16.305 8.44503 16.4475 9.19503 16.4775C9.31503 16.485 9.43503 16.4925 9.55503 16.4925C12.0675 16.4925 14.4225 15.3075 15.9075 13.29C16.41 12.5925 16.275 12.15 16.1475 11.9475Z"
@@ -219,7 +220,7 @@ export function TrashIcon({ className }: IClassName) {
 
 // ============================= SunIcon ===========================//
 
-export function SunIcon() {
+export function SunIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -227,6 +228,7 @@ export function SunIcon() {
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M9 14.25C11.8995 14.25 14.25 11.8995 14.25 9C14.25 6.10051 11.8995 3.75 9 3.75C6.10051 3.75 3.75 6.10051 3.75 9C3.75 11.8995 6.10051 14.25 9 14.25Z"
@@ -240,7 +242,7 @@ export function SunIcon() {
 	);
 }
 
-export function SunDarkIcon() {
+export function SunDarkIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="18"
@@ -248,6 +250,7 @@ export function SunDarkIcon() {
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={className}
 		>
 			<path
 				d="M9 13.875C11.6924 13.875 13.875 11.6924 13.875 9C13.875 6.30761 11.6924 4.125 9 4.125C6.30761 4.125 4.125 6.30761 4.125 9C4.125 11.6924 6.30761 13.875 9 13.875Z"
@@ -1018,6 +1021,176 @@ export function Settings4Icon({ className }: IClassName) {
 			<path
 				d="M8.16667 12.2501C9.29425 12.2501 10.2083 11.336 10.2083 10.2084C10.2083 9.08083 9.29425 8.16675 8.16667 8.16675C7.03909 8.16675 6.125 9.08083 6.125 10.2084C6.125 11.336 7.03909 12.2501 8.16667 12.2501Z"
 				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Record Icon ============================= //
+
+export function RecordIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="14"
+			height="15"
+			viewBox="0 0 14 15"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-default dark:stroke-white', className)}
+		>
+			<path
+				d="M7 12.75C9.8995 12.75 12.25 10.3995 12.25 7.5C12.25 4.6005 9.8995 2.25 7 2.25C4.1005 2.25 1.75 4.6005 1.75 7.5C1.75 10.3995 4.1005 12.75 7 12.75Z"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Bug Report Icon ============================= //
+
+export function BugReportIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="12"
+			height="13"
+			viewBox="0 0 12 13"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('fill-white', className)}
+		>
+			<path d="M6 11C5.45833 11 4.95633 10.8667 4.494 10.6C4.03133 10.3333 3.66667 9.96667 3.4 9.5H2V8.5H3.05C3.025 8.33333 3.0105 8.16667 3.0065 8C3.00217 7.83333 3 7.66667 3 7.5H2V6.5H3C3 6.33333 3.00217 6.16667 3.0065 6C3.0105 5.83333 3.025 5.66667 3.05 5.5H2V4.5H3.4C3.51667 4.30833 3.648 4.12917 3.794 3.9625C3.93967 3.79583 4.10833 3.65 4.3 3.525L3.5 2.7L4.2 2L5.275 3.075C5.50833 3 5.74583 2.9625 5.9875 2.9625C6.22917 2.9625 6.46667 3 6.7 3.075L7.8 2L8.5 2.7L7.675 3.525C7.86667 3.65 8.03967 3.79367 8.194 3.956C8.348 4.11867 8.48333 4.3 8.6 4.5H10V5.5H8.95C8.975 5.66667 8.98967 5.83333 8.994 6C8.998 6.16667 9 6.33333 9 6.5H10V7.5H9C9 7.66667 8.998 7.83333 8.994 8C8.98967 8.16667 8.975 8.33333 8.95 8.5H10V9.5H8.6C8.33333 9.96667 7.96883 10.3333 7.5065 10.6C7.04383 10.8667 6.54167 11 6 11ZM6 10C6.55 10 7.02083 9.80417 7.4125 9.4125C7.80417 9.02083 8 8.55 8 8V6C8 5.45 7.80417 4.97917 7.4125 4.5875C7.02083 4.19583 6.55 4 6 4C5.45 4 4.97917 4.19583 4.5875 4.5875C4.19583 4.97917 4 5.45 4 6V8C4 8.55 4.19583 9.02083 4.5875 9.4125C4.97917 9.80417 5.45 10 6 10ZM5 8.5H7V7.5H5V8.5ZM5 6.5H7V5.5H5V6.5Z" />
+		</svg>
+	);
+}
+
+//  ============================= Task Square Icon ============================= //
+
+export function TaskSquareIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="10"
+			height="10"
+			viewBox="0 0 10 10"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-white', className)}
+		>
+			<path
+				d="M5.1543 3.7002H7.3418"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M2.6582 3.7002L2.9707 4.0127L3.9082 3.0752"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M5.1543 6.6167H7.3418"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M2.6582 6.6167L2.9707 6.9292L3.9082 5.9917"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M3.75016 9.16683H6.25016C8.3335 9.16683 9.16683 8.3335 9.16683 6.25016V3.75016C9.16683 1.66683 8.3335 0.833496 6.25016 0.833496H3.75016C1.66683 0.833496 0.833496 1.66683 0.833496 3.75016V6.25016C0.833496 8.3335 1.66683 9.16683 3.75016 9.16683Z"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Note Icon ============================= //
+
+export function NoteIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="10"
+			height="10"
+			viewBox="0 0 10 10"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-white', className)}
+		>
+			<path
+				d="M8.33317 3.43766V7.50016C8.33317 8.75016 7.58734 9.16683 6.6665 9.16683H3.33317C2.41234 9.16683 1.6665 8.75016 1.6665 7.50016V3.43766C1.6665 2.0835 2.41234 1.771 3.33317 1.771C3.33317 2.02933 3.43733 2.26266 3.60816 2.43349C3.77899 2.60433 4.01234 2.7085 4.27067 2.7085H5.729C6.24567 2.7085 6.6665 2.28766 6.6665 1.771C7.58734 1.771 8.33317 2.0835 8.33317 3.43766Z"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M6.66683 1.771C6.66683 2.28766 6.246 2.7085 5.72933 2.7085H4.271C4.01266 2.7085 3.77932 2.60433 3.60848 2.43349C3.43765 2.26266 3.3335 2.02933 3.3335 1.771C3.3335 1.25433 3.75433 0.833496 4.271 0.833496H5.72933C5.98766 0.833496 6.22101 0.937664 6.39184 1.1085C6.56267 1.27933 6.66683 1.51266 6.66683 1.771Z"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M3.3335 5.4165H5.00016"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M3.3335 7.0835H6.66683"
+				stroke="white"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+//  ============================= Category Icon ============================= //
+
+export function CategoryIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="10"
+			height="10"
+			viewBox="0 0 10 10"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-white', className)}
+		>
+			<path
+				d="M2.0835 4.16683H2.91683C3.75016 4.16683 4.16683 3.75016 4.16683 2.91683V2.0835C4.16683 1.25016 3.75016 0.833496 2.91683 0.833496H2.0835C1.25016 0.833496 0.833496 1.25016 0.833496 2.0835V2.91683C0.833496 3.75016 1.25016 4.16683 2.0835 4.16683Z"
+				stroke="white"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.0835 4.16683H7.91683C8.75016 4.16683 9.16683 3.75016 9.16683 2.91683V2.0835C9.16683 1.25016 8.75016 0.833496 7.91683 0.833496H7.0835C6.25016 0.833496 5.8335 1.25016 5.8335 2.0835V2.91683C5.8335 3.75016 6.25016 4.16683 7.0835 4.16683Z"
+				stroke="white"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M7.0835 9.16683H7.91683C8.75016 9.16683 9.16683 8.75016 9.16683 7.91683V7.0835C9.16683 6.25016 8.75016 5.8335 7.91683 5.8335H7.0835C6.25016 5.8335 5.8335 6.25016 5.8335 7.0835V7.91683C5.8335 8.75016 6.25016 9.16683 7.0835 9.16683Z"
+				stroke="white"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M2.0835 9.16683H2.91683C3.75016 9.16683 4.16683 8.75016 4.16683 7.91683V7.0835C4.16683 6.25016 3.75016 5.8335 2.91683 5.8335H2.0835C1.25016 5.8335 0.833496 6.25016 0.833496 7.0835V7.91683C0.833496 8.75016 1.25016 9.16683 2.0835 9.16683Z"
+				stroke="white"
 				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"

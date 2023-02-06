@@ -48,14 +48,17 @@ module.exports = {
 					lighter: '#1E2430',
 					DEFAULT: '#1A1C1E',
 				},
+
+				'regal-blue': '#6A71E7',
+				'regal-rose': '#E93CB9',
 			},
 			fontFamily: {
-				'PlusJakartaSans':['Plus-Jakarta-Sans-VariableFont_wght'],
-				'PlusJakartaSansRegular':['Plus-Jakarta-Sans-Regular'],
-				'PlusJakartaSansBold':['Plus-Jakarta-Sans-Bold'],
-				'PlusJakartaSansLight':['Plus-Jakarta-Sans-Light'],
-				'PlusJakartaSansMedium':['Plus-Jakarta-Sans-Medium'],
-				'PlusJakartaSansSemiBold':['Plus-Jakarta-Sans-SemiBold'],
+				PlusJakartaSans: ['Plus-Jakarta-Sans-VariableFont_wght'],
+				PlusJakartaSansRegular: ['Plus-Jakarta-Sans-Regular'],
+				PlusJakartaSansBold: ['Plus-Jakarta-Sans-Bold'],
+				PlusJakartaSansLight: ['Plus-Jakarta-Sans-Light'],
+				PlusJakartaSansMedium: ['Plus-Jakarta-Sans-Medium'],
+				PlusJakartaSansSemiBold: ['Plus-Jakarta-Sans-SemiBold'],
 			},
 			boxShadow: {
 				lgcard: '0px 50px 200px rgba(0, 0, 0, 0.1)',

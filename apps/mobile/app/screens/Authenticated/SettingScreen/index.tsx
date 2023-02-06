@@ -45,13 +45,13 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
     return (
         <>
             {languageModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
-            <Screen preset="scroll" contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
+            <Screen preset="scroll" ScrollViewProps={{bounces:false}} contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
                 <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} />
                 <View style={[$headerContainer, { backgroundColor: colors.background }]}>
                     <SettingHeader {..._props} />
                     <SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
                 </View>
-                <ScrollView>
+                <ScrollView bounces={false}>
                     {activeTab === 1 ?
                         // PERSONAL SECTION CONTENT STARTS HERE
                         <View style={[$contentContainer, { backgroundColor: colors.background2 }]}>

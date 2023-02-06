@@ -4,6 +4,7 @@ import { clsxm } from '@app/utils';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
+import { IClassName } from '@app/interfaces';
 
 export type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
@@ -123,7 +124,10 @@ export function ConfirmDropdown({
 	children,
 	onConfirm,
 	confirmText = 'Confirm',
-}: PropsWithChildren & { onConfirm?: () => void; confirmText?: string }) {
+	className,
+}: PropsWithChildren<
+	{ onConfirm?: () => void; confirmText?: string } & IClassName
+>) {
 	return (
 		<Popover className="relative">
 			<Popover.Button>{children}</Popover.Button>
@@ -135,7 +139,7 @@ export function ConfirmDropdown({
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-0"
+				className={clsxm('absolute z-10 right-0', className)}
 			>
 				<Popover.Panel>
 					<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">

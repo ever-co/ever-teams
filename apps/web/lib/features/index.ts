@@ -9,6 +9,9 @@ export * from './task/task-filters';
 export * from './task/task-all-status-type';
 export * from './task/task-progress-bar';
 export * from './task/task-times';
+export * from './task/task-issue';
+// displays
+export * from './task/task-displays';
 
 export * from './team/user-team-card';
 export * from './team-members';

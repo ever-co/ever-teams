@@ -1,6 +1,7 @@
 import { clsxm } from '@app/utils';
 import { Meta, Text } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import Image from 'next/legacy/image';
 import { PropsWithChildren } from 'react';
 import { Footer } from './footer';
@@ -8,6 +9,7 @@ import { Footer } from './footer';
 type Props = { title?: string; description?: string } & PropsWithChildren;
 
 export function AuthLayout({ children, title, description }: Props) {
+	const { trans, translations } = useTranslation('auth');
 	return (
 		<>
 			<Meta title={title} />
@@ -24,7 +26,7 @@ export function AuthLayout({ children, title, description }: Props) {
 						<div className="p-9 pt-4">
 							<AppLogo className="fill-white scale-75 mt-3 dark:fill-default" />
 							<Text className="text-xs ml-7 text-gray-300 dark:text-default">
-								Welcome to Gauzy teams
+								{trans.WELCOME_TEAMS}
 							</Text>
 						</div>
 
@@ -53,7 +55,7 @@ export function AuthLayout({ children, title, description }: Props) {
 											objectFit="fill"
 											width={2880}
 											height={2840}
-											alt="Guaze Teams"
+											alt={translations.TITLE}
 											className={
 												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
 											}
@@ -69,12 +71,11 @@ export function AuthLayout({ children, title, description }: Props) {
 							as="h3"
 							className="text-white xl:text-3xl 2xl:text-4xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
 						>
-							Follow your teams work progress in real-time!
+							{trans.COVER_TITLE}
 						</Text.Heading>
 
 						<Text className="text-gray-400 px-9 text-ellipsis text-sm">
-							Lorem ipsum dolor sit amet consectetur. Amet est risus etiam
-							vestibulum iaculis montes tellus. Tincidunt mattis
+							{trans.COVER_DESCRIPTION}
 						</Text>
 					</div>
 				</div>

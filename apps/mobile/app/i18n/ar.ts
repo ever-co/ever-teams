@@ -59,6 +59,7 @@ const ar: Translations = {
     userNameFieldPlaceholder: "أدخل أسمك",
     tapContinue: "يكمل",
     tapJoin: "ينضم",
+   createTeam:"Create Team"
   },
   myWorkScreen: {
     name: "عملى",

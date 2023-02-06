@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export function AppLogo({ className }: IClassName) {
 	return (
-		<Link href="/" target={'_self'}>
+		<Link href="https://gauzy.team" target="_self">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				version="1.1"

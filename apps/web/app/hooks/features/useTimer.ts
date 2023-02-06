@@ -1,4 +1,4 @@
-import { convertMsToTime } from '@app/helpers/date';
+import { convertMsToTime, secondsToTime } from '@app/helpers/date';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { ILocalTimerStatus, ITimerStatus } from '@app/interfaces/ITimer';
 import {
@@ -9,8 +9,6 @@ import {
 } from '@app/services/client/api/timer';
 import {
 	activeTaskStatisticsState,
-	activeTeamIdState,
-	activeTeamTaskState,
 	localTimerStatusState,
 	timeCounterIntervalState,
 	timeCounterState,
@@ -23,11 +21,21 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
+import { useTaskStatistics } from './useTaskStatistics';
+import { useTeamTasks } from './useTeamTasks';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-team';
 
 /**
- * Don't modify this function unless you know what you're doing
+ * ! Don't modify this function unless you know what you're doing
+ * "This function is used to update the local timer status and time counter."
+ *
+ * The function is used in the `Timer` component
+ * @param {ITimerStatus | null} timerStatus - ITimerStatus | null,
+ * @param {ITeamTask | null} activeTeamTask - ITeamTask | null - the current active task
+ * @param {boolean} firstLoad - boolean - this is a flag that indicates that the component is loaded
+ * for the first time.
+ * @returns An object with the following properties:
  */
 function useLocalTimeCounter(
 	timerStatus: ITimerStatus | null,
@@ -135,9 +143,12 @@ function useLocalTimeCounter(
 	};
 }
 
+/**
+ * It returns a bunch of data and functions related to the timer
+ */
 export function useTimer() {
-	const activeTeamTask = useRecoilValue(activeTeamTaskState);
-	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const { updateTask, activeTeamId, activeTeamTask } = useTeamTasks();
+
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
 
 	const [timerStatusFetching, setTimerStatusFetching] = useRecoilState(
@@ -156,6 +167,7 @@ export function useTimer() {
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
+	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'Closed';
@@ -210,10 +222,20 @@ export function useTimer() {
 			return;
 		});
 
+		/**
+		 *  Updating the task status to "In Progress" when the timer is started.
+		 */
+		if (activeTeamTaskRef.current) {
+			updateTask({
+				...activeTeamTaskRef.current,
+				status: 'In Progress',
+			});
+		}
+
 		promise.finally(() => setTimerStatusFetching(false));
 
 		return promise;
-	}, [taskId.current]);
+	}, [taskId.current, activeTeamTaskRef]);
 
 	// Stop timer
 	const stopTimer = useCallback(() => {
@@ -222,7 +244,7 @@ export function useTimer() {
 			runnedDateTime: 0,
 			running: false,
 		});
-		stopTimerQueryCall().then((res) => {
+		return stopTimerQueryCall().then((res) => {
 			res.data && setTimerStatus(res.data);
 		});
 	}, [taskId.current]);
@@ -291,5 +313,66 @@ export function useTimer() {
 		firstLoad,
 		toggleTimer,
 		timerSeconds,
+		activeTeamTask,
+	};
+}
+
+/**
+ * It returns an object with the current time, the current seconds, and the current timer status
+ * @returns A function that returns a value.
+ */
+export function useLiveTimerStatus() {
+	const seconds = useRecoilValue(timerSecondsState);
+
+	const timerStatus = useRecoilValue(timerStatusState);
+	const { h, m } = secondsToTime((timerStatus?.duration || 0) + seconds);
+
+	return {
+		time: { h, m },
+		seconds,
+		timerStatus,
+	};
+}
+
+/**
+ * It returns the timer's state and the function to start/stop the timer
+ */
+export function useTimerView() {
+	const {
+		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
+		timerStatus,
+		timerStatusFetching,
+		startTimer,
+		stopTimer,
+		canRunTimer,
+		timerSeconds,
+		activeTeamTask,
+	} = useTimer();
+
+	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
+
+	const timerHanlder = () => {
+		if (timerStatusFetching || !canRunTimer) return;
+		if (timerStatus?.running) {
+			stopTimer();
+		} else {
+			startTimer();
+		}
+	};
+
+	return {
+		hours,
+		minutes,
+		seconds,
+		ms_p,
+		activeTaskEstimation,
+		timerHanlder,
+		canRunTimer,
+		timerStatusFetching,
+		timerStatus,
+		activeTeamTask,
+		disabled: timerStatusFetching || !canRunTimer,
+		startTimer,
+		stopTimer,
 	};
 }

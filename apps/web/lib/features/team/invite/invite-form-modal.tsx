@@ -8,6 +8,7 @@ import {
 	Modal,
 	Text,
 } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import { useState } from 'react';
 
 export function InviteFormModal({
@@ -17,6 +18,7 @@ export function InviteFormModal({
 	open: boolean;
 	closeModal: () => void;
 }) {
+	const { trans, translations } = useTranslation('invite');
 	const { invateUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState({});
 
@@ -52,11 +54,11 @@ export function InviteFormModal({
 					<div className="flex flex-col justify-between items-center">
 						<div className="mb-7">
 							<Text.Heading as="h3" className="text-center mb-3">
-								Invite member to your team
+								{trans.HEADING_TITLE}
 							</Text.Heading>
 
 							<Text className="text-center text-gray-500 text-sm">
-								Send invitation to a team member by email
+								{trans.HEADING_DESCRIPTION}
 							</Text>
 						</div>
 
@@ -64,7 +66,7 @@ export function InviteFormModal({
 							<InputField
 								type="email"
 								name="email"
-								placeholder="Team member email address"
+								placeholder={translations.form.TEAM_MEMBER_EMAIL_PLACEHOLDER}
 								errors={errors}
 								setErrors={setErrors}
 								required
@@ -75,7 +77,7 @@ export function InviteFormModal({
 							<InputField
 								type="text"
 								name="name"
-								placeholder="Team member name"
+								placeholder={translations.form.TEAM_MEMBER_NAME_PLACEHOLDER}
 								errors={errors}
 								setErrors={setErrors}
 								required
@@ -90,7 +92,7 @@ export function InviteFormModal({
 								disabled={inviteLoading}
 								loading={inviteLoading}
 							>
-								Send Invitation
+								{trans.SEND_INVITE}
 							</Button>
 						</div>
 					</div>

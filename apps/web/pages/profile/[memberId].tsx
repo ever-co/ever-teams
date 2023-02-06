@@ -11,12 +11,16 @@ import {
 	UserProfileTask,
 	useTaskFilter,
 } from 'lib/features';
+import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
-	const hook = useTaskFilter();
+
+	const hook = useTaskFilter(profile);
+
+	const { trans } = useTranslation('profile');
 
 	return (
 		<MainLayout showTimer={!profile.isAuthUser}>
@@ -27,10 +31,7 @@ const Profile = () => {
 						<ArrowLeft />
 					</Link>
 
-					<Breadcrumb
-						paths={['Dashboard', 'Task Profile']}
-						className="text-sm"
-					/>
+					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 				</div>
 
 				{/* User Profil Detail */}
@@ -52,7 +53,7 @@ const Profile = () => {
 			</MainHeader>
 
 			<Container className="mb-10">
-				<UserProfileTask profile={profile} />
+				<UserProfileTask profile={profile} tabFiltered={hook} />
 			</Container>
 		</MainLayout>
 	);
