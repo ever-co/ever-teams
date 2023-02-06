@@ -48,8 +48,6 @@ If you discover any issue regarding security, please disclose the information re
 
 ## 🛡️ License
 
-We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Gauzy Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details explained in our [Wiki](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
-
 This software is available under following licenses:
 
 - [Ever® Gauzy Teams™ Platform Community Edition](https://github.com/ever-co/ever-gauzy-teams/blob/master/LICENSE.md##ever-gauzy-teams-platform-community-edition-license)
@@ -57,6 +55,8 @@ This software is available under following licenses:
 - [Ever® Gauzy Teams™ Platform Enterprise](https://github.com/ever-co/ever-gauzy-teams/blob/master/LICENSE.md#ever-gauzy-teams-platform-enterprise-license)
 
 #### The default Ever® Gauzy Teams™ Platform license, without a valid Ever® Gauzy Teams™ Platform Enterprise or Ever® Gauzy Teams™ Platform Small Business License agreement, is the Ever® Gauzy Teams™ Platform Community Edition License.
+
+We support the open-source community. If you're building awesome non-profit/open-source projects, we're happy to help and will provide (subject to [acceptance criteria](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects)) Ever Gauzy Teams Enterprise edition license and free hosting option! Feel free to contact us at <mailto:ever@ever.co> to make a request. More details explained in our [Wiki](https://github.com/ever-co/ever-gauzy/wiki/Free-license-and-hosting-for-Non-profit-and-Open-Source-projects).
 
 #### Please see [LICENSE](LICENSE.md) for more information on licenses.
 
