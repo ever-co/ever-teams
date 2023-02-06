@@ -1,14 +1,18 @@
 import { withAuthentication } from 'lib/app/authenticator';
 import { MainLayout } from 'lib/layout';
 import { Breadcrumb, Card, Container, Text } from 'lib/components';
-import LeftSideSettingMenu from '@components/pages/settings/left-side-setting-menu';
-import ProfileAvatar from '@components/pages/settings/profile-avatar';
-import TeamSettingForm from '@components/pages/settings/team-setting-form';
-import TaskStatusesForm from '@components/pages/settings/task-statuses-form';
-import TaskPrioritiesForm from '@components/pages/settings/task-priorities-form';
-import TaskSizesForm from '@components/pages/settings/task-sizes-form';
-// import TaskLabelsForm from '@components/pages/settings/task-labels-form';
-import DangerZoneTeam from '@components/pages/settings/danger-zone-team';
+
+import {
+	LeftSideSettingMenu,
+	ProfileAvatar,
+	TeamSettingForm,
+	TaskStatusesForm,
+	TaskPrioritiesForm,
+	TaskSizesForm,
+	DangerZoneTeam,
+	// TaskLabelsForm
+} from 'lib/settings';
+
 import { useTranslation } from 'lib/i18n';
 
 const Team = () => {

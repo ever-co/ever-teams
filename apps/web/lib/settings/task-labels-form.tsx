@@ -1,5 +1,4 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,7 +7,7 @@ import { useRecoilState } from 'recoil';
 import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 
-const TaskLabelForm = () => {
+export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
 	const { setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
@@ -105,6 +104,3 @@ const TaskLabelForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TaskLabelForm, {
-	displayName: 'TaskLabelForm',
-});

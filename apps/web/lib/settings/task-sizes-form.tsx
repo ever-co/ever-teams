@@ -1,37 +1,35 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilValue } from 'recoil';
-import ListCard from './list-card';
+import { StatusesListCard } from './list-card';
 import { LanguageDropDown } from './language-dropdown';
-
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTaskPriorities } from '@app/hooks/features/useTaskPriorities';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { ITaskPrioritiesItemList } from '@app/interfaces';
+import { useTaskSizes } from '@app/hooks/features/useTaskSizes';
+import { ITaskSizesItemList } from '@app/interfaces';
 
-const TaskPrioritiesForm = () => {
+export const TaskSizesForm = () => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
-	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
+	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
 
 	const {
 		loading,
-		taskPriorities,
-		deleteTaskPriorities,
-		createTaskPriorities,
-		editTaskPriorities,
-	} = useTaskPriorities();
+		taskSizes,
+		createTaskSizes,
+		deleteTaskSizes,
+		editTaskSizes,
+	} = useTaskSizes();
 
 	useEffect(() => {
 		if (!edit) {
 			setValue('name', '');
 		}
-	}, [edit, setValue]);
+	}, [taskSizes, edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
@@ -45,7 +43,7 @@ const TaskPrioritiesForm = () => {
 		async (values: any) => {
 			// TODO: Color, icon
 			if (createNew) {
-				createTaskPriorities({
+				createTaskSizes({
 					name: values.name,
 					color: '#f5b8b8',
 					// description: '',
@@ -59,7 +57,7 @@ const TaskPrioritiesForm = () => {
 			}
 			if (edit && values.name !== edit.name) {
 				console.log(edit);
-				editTaskPriorities(edit.id, {
+				editTaskSizes(edit.id, {
 					...edit,
 					...values,
 					value: values.name,
@@ -68,7 +66,14 @@ const TaskPrioritiesForm = () => {
 				});
 			}
 		},
-		[edit, createNew, createTaskPriorities, editTaskPriorities, user]
+		[
+			edit,
+			createNew,
+			createTaskSizes,
+			editTaskSizes,
+			user?.employee.organizationId,
+			user?.tenantId,
+		]
 	);
 
 	return (
@@ -81,7 +86,7 @@ const TaskPrioritiesForm = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[20%]">
-							Task Priorities
+							Task Sizes
 						</Text>
 
 						<div className="flex flex-col">
@@ -97,7 +102,7 @@ const TaskPrioritiesForm = () => {
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									Create new Priorities
+									Create new Sizes
 								</Button>
 							)}
 
@@ -105,12 +110,12 @@ const TaskPrioritiesForm = () => {
 								<>
 									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2">
 										{createNew && 'New'}
-										{edit && 'Edit'} Priorities
+										{edit && 'Edit'} Sizes
 									</Text>
 									<div className="flex  w-full gap-x-5 items-center mt-3">
 										<InputField
 											type="text"
-											placeholder="Create Priority"
+											placeholder="Create Size"
 											className="mb-0"
 											wrapperClassName="mb-0"
 											{...register('name')}
@@ -143,29 +148,27 @@ const TaskPrioritiesForm = () => {
 							)}
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								List of Priorities
+								List of Sizes
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
-								{loading && !taskPriorities?.length && <Spinner dark={false} />}
-								{taskPriorities &&
-									taskPriorities?.length &&
-									taskPriorities.map((priority, index) => (
-										<ListCard
+								{loading && !taskSizes && <Spinner dark={false} />}
+								{taskSizes &&
+									taskSizes?.length &&
+									taskSizes.map((size) => (
+										<StatusesListCard
+											key={size.id}
 											statusTitle={
-												priority?.name
-													? priority?.name?.split('-').join(' ')
-													: ''
+												size?.name ? size?.name?.split('-').join(' ') : ''
 											}
-											bgColor={priority?.color || ''}
-											statusIcon={priority?.icon || ''}
+											bgColor={size?.color || ''}
+											statusIcon={size?.icon || ''}
 											onEdit={() => {
 												setCreateNew(false);
-												setEdit(priority);
+												setEdit(size);
 											}}
 											onDelete={() => {
-												deleteTaskPriorities(priority.id);
+												deleteTaskSizes(size.id);
 											}}
-											key={index}
 										/>
 									))}
 							</div>
@@ -176,6 +179,3 @@ const TaskPrioritiesForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TaskPrioritiesForm, {
-	displayName: 'TaskPrioritiesForm',
-});

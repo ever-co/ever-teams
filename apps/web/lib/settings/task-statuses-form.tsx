@@ -1,18 +1,17 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { withAuthentication } from 'lib/app/authenticator';
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import ListCard from './list-card';
+import { StatusesListCard } from './list-card';
 import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskStatus } from '@app/hooks/features/useTaskStatus';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { ITaskStatusItemList } from '@app/interfaces';
 
-const TaskStatusesForm = () => {
+export const TaskStatusesForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
@@ -156,7 +155,7 @@ const TaskStatusesForm = () => {
 								{taskStatus &&
 									taskStatus?.length &&
 									taskStatus.map((status) => (
-										<ListCard
+										<StatusesListCard
 											key={status.id}
 											statusTitle={
 												status?.name ? status?.name?.split('-').join(' ') : ''
@@ -180,6 +179,3 @@ const TaskStatusesForm = () => {
 		</>
 	);
 };
-export default withAuthentication(TaskStatusesForm, {
-	displayName: 'TaskStatusesForm',
-});
