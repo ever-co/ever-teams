@@ -71,6 +71,8 @@ export const ProfileAvatar = () => {
 									<Image
 										src="/assets/svg/profile-edit.svg"
 										alt={'user avatar'}
+										width={'80'}
+										height={'80'}
 									/>
 								</span>
 							</div>
