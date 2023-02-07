@@ -33,7 +33,7 @@ const Personal = () => {
 							className="dark:bg-dark--theme p-[32px] mt-[36px]"
 							shadow="bigger"
 						>
-							<Text className="text-4xl font-medium">
+							<Text className="text-4xl font-medium mb-2">
 								{trans.HEADING_TITLE}
 							</Text>
 							<Text className="text-base font-normal text-gray-400">

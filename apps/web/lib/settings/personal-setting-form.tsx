@@ -54,7 +54,7 @@ export const PersonalSettingForm = () => {
 								<div className="flex items-center justify-between w-full gap-4">
 									<div>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
-											First Name
+											Full Name
 										</Text>
 										<InputField
 											type="text"
@@ -63,13 +63,10 @@ export const PersonalSettingForm = () => {
 												required: true,
 												maxLength: 80,
 											})}
-											className="md:w-[220px] m-0"
+											className="md:w-[220px] m-0 h-[54px]"
 										/>
 									</div>
-									<div className="">
-										<Text className="mb-2 font-normal text-gray-400 text-md">
-											Last Name
-										</Text>
+									<div className="mt-[2rem]">
 										<InputField
 											type="text"
 											placeholder="Last Name"
@@ -77,12 +74,17 @@ export const PersonalSettingForm = () => {
 												required: true,
 												maxLength: 80,
 											})}
-											className="md:w-[220px] m-0"
+											className="md:w-[220px] m-0  h-[54px]"
 										/>
 									</div>
 								</div>
-								<div className="mt-6">
-									<Button variant="grey">Edit</Button>
+								<div className="mt-5">
+									<Button
+										variant="grey"
+										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+									>
+										Edit
+									</Button>
 								</div>
 							</div>
 							<div className="flex items-center justify-between w-full gap-8 mt-8">
@@ -99,19 +101,24 @@ export const PersonalSettingForm = () => {
 												pattern:
 													/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 											})}
-											className="md:w-[220px]"
+											className="md:w-[220px] h-[54px]"
 										/>
 									</div>
 									<div className="mt-8">
 										<InputField
 											type="text"
 											placeholder="Phone Number"
-											className="md:w-[220px]"
+											className="md:w-[220px] h-[54px]"
 										/>
 									</div>
 								</div>
-								<div className="mt-6">
-									<Button type="submit">Save</Button>
+								<div className="mt-5">
+									<Button
+										type="submit"
+										className="min-w-[100px] h-[54px] rounded-[8px]  font-[600]"
+									>
+										Save
+									</Button>
 								</div>
 							</div>
 							<div className="flex items-center gap-6 mt-8">
@@ -152,6 +159,7 @@ export const PersonalSettingForm = () => {
 										onClick={() => {
 											handleDetectTimezone();
 										}}
+										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
 									>
 										Detect
 									</Button>

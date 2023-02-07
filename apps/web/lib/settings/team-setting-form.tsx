@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useCallback, useEffect } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
+import { Edit2Icon } from 'lib/components/svgs';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -39,6 +40,11 @@ export const TeamSettingForm = () => {
 										placeholder="Team Name"
 										{...register('teamName', { required: true, maxLength: 80 })}
 										className=""
+										trailingNode={
+											<Button variant="ghost" className="p-0 m-0 mr-[0.5rem] min-w-0">
+												<Edit2Icon />
+											</Button>
+										}
 									/>
 								</div>
 							</div>
@@ -46,7 +52,7 @@ export const TeamSettingForm = () => {
 								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
 									Team Type
 								</Text>
-								<div className="items-center justify-between w-1/4">
+								<div className="items-center justify-between w-1/4 ml-[-36px]">
 									<div>
 										<input
 											id="default-radio-1"
@@ -82,7 +88,7 @@ export const TeamSettingForm = () => {
 										<Button
 											type="submit"
 											variant="outline"
-											className="border rounded-[10px] h-[54px]"
+											className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
 										>
 											Copy Link
 										</Button>

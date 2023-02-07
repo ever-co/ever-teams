@@ -75,7 +75,7 @@ export const TaskLabelForm = () => {
 			>
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
-						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[20%]">
+						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px]">
 							Task Labels
 						</Text>
 
@@ -102,10 +102,10 @@ export const TaskLabelForm = () => {
 										{createNew && 'New'}
 										{edit && 'Edit'} Labels
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div className="flex w-full gap-x-5 items-center mt-3">
 										<InputField
 											type="text"
-											placeholder="Create Priority"
+											placeholder="Create Label"
 											className="mb-0"
 											wrapperClassName="mb-0"
 											{...register('name')}

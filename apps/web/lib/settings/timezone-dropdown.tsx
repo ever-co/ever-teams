@@ -35,7 +35,7 @@ export const TimezoneDropDown = () =>
 			<Dropdown
 				className="md:w-[469px]"
 				buttonClassName={clsxm(
-					'py-0 font-medium',
+					'py-0 font-medium h-[54px]',
 					items.length === 0 && ['py-2']
 				)}
 				value={timezoneItem}
