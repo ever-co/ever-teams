@@ -174,6 +174,7 @@ export function TaskInput({
 				}
 			}}
 			trailingNode={
+				/* Showing the spinner when the task is being updated. */
 				<div className="p-2 flex justify-center items-center h-full">
 					{task ? (
 						(updateLoading || inputLoader) && <SpinnerLoader size={25} />
