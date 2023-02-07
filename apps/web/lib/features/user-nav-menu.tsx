@@ -107,8 +107,10 @@ function UserNavMenu() {
 						</Link>
 					</li>
 					{/* Team menu */}
-					<li className="flex space-x-3 items-center font-normal mb-3">
-						<PeopleIcon className="w-5 h-5" /> <span>Team</span>
+					<li className="mb-3">
+						<Link href="/" className="flex space-x-3 items-center font-normal">
+							<PeopleIcon className="w-5 h-5" /> <span>Team</span>
+						</Link>
 					</li>
 					{/* Settings menu */}
 

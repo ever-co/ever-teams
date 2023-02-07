@@ -68,6 +68,7 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 						task={task}
 						initEditMode={true}
 						keepOpen={true}
+						showCombobox={false}
 						onTaskClick={(e) => {
 							console.log(e);
 						}}

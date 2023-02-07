@@ -41,6 +41,7 @@ type Props = {
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
+	showCombobox?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -63,6 +64,7 @@ export function TaskInput({
 	children,
 	createOnEnterClick,
 	showTaskNumber = false,
+	showCombobox = true,
 }: Props) {
 	const { trans } = useTranslation();
 	const datas = useTaskInput(task, initEditMode);
@@ -77,6 +79,7 @@ export function TaskInput({
 		tasksFetching,
 		updateLoading,
 		updatTaskTitleHandler,
+		setFilter,
 	} = datas;
 
 	const [taskName, setTaskName] = useState('');
@@ -137,6 +140,11 @@ export function TaskInput({
 			loadingRef.current = updateLoading;
 		}
 	}, [updateLoading, loadingRef, closeable_fcRef]);
+
+	/* Setting the filter to open when the edit mode is true. */
+	useEffect(() => {
+		editMode && setFilter('open');
+	}, [editMode]);
 
 	/*
 		If task is passed then we don't want to set the active task for the authenticated user.
@@ -211,7 +219,7 @@ export function TaskInput({
 			{children}
 
 			<Transition
-				show={editMode}
+				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
