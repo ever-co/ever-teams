@@ -10,7 +10,7 @@ import {
 	TaskPrioritiesForm,
 	TaskSizesForm,
 	DangerZoneTeam,
-	// TaskLabelsForm
+	TaskLabelForm
 } from 'lib/settings';
 
 import { useTranslation } from 'lib/i18n';
@@ -64,12 +64,12 @@ const Team = () => {
 						>
 							<TaskSizesForm />
 						</Card>
-						{/* <Card
+						<Card
 							className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
 							shadow="bigger"
 						>
-							<TaskLabelsForm />
-						</Card> */}
+							<TaskLabelForm />
+						</Card>
 						<Card
 							className="dark:bg-dark--theme p-[32px] mt-[36px]"
 							shadow="bigger"

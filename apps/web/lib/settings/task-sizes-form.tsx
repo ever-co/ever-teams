@@ -152,8 +152,7 @@ export const TaskSizesForm = () => {
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								{loading && !taskSizes && <Spinner dark={false} />}
-								{taskSizes &&
-									taskSizes?.length &&
+								{taskSizes && taskSizes?.length ? (
 									taskSizes.map((size) => (
 										<StatusesListCard
 											key={size.id}
@@ -170,7 +169,10 @@ export const TaskSizesForm = () => {
 												deleteTaskSizes(size.id);
 											}}
 										/>
-									))}
+									))
+								) : (
+									<></>
+								)}
 							</div>
 						</div>
 					</div>

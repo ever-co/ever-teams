@@ -152,8 +152,7 @@ export const TaskStatusesForm = () => {
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								{loading && !taskStatus?.length && <Spinner dark={false} />}
-								{taskStatus &&
-									taskStatus?.length &&
+								{taskStatus && taskStatus?.length ? (
 									taskStatus.map((status) => (
 										<StatusesListCard
 											key={status.id}
@@ -170,7 +169,10 @@ export const TaskStatusesForm = () => {
 												deleteTaskStatus(status.id);
 											}}
 										/>
-									))}
+									))
+								) : (
+									<></>
+								)}
 							</div>
 						</div>
 					</div>

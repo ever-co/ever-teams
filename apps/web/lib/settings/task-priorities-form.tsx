@@ -146,9 +146,8 @@ export const TaskPrioritiesForm = () => {
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								{loading && !taskPriorities?.length && <Spinner dark={false} />}
-								{taskPriorities &&
-									taskPriorities?.length &&
-									taskPriorities.map((priority, index) => (
+								{taskPriorities && taskPriorities?.length ? (
+									taskPriorities.map((priority) => (
 										<StatusesListCard
 											statusTitle={
 												priority?.name
@@ -164,9 +163,12 @@ export const TaskPrioritiesForm = () => {
 											onDelete={() => {
 												deleteTaskPriorities(priority.id);
 											}}
-											key={index}
+											key={priority.id}
 										/>
-									))}
+									))
+								) : (
+									<></>
+								)}
 							</div>
 						</div>
 					</div>

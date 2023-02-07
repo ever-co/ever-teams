@@ -6,21 +6,65 @@ import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
+import { ITaskLabelsItemList } from '@app/interfaces';
+import { useTaskLabels } from '@app/hooks/features/useTaskLabels';
+import { StatusesListCard } from './list-card';
+import { Spinner } from '@components/ui/loaders/spinner';
 
 export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
-	const { setValue, handleSubmit } = useForm();
+	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
+	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
+
+	const {
+		loading,
+		taskLabels,
+		deleteTaskLabels,
+		createTaskLabels,
+		editTaskLabels,
+	} = useTaskLabels();
 
 	useEffect(() => {
-		setValue('teamName', '');
-		setValue('teamType', '');
-		setValue('teamLink', '');
-	}, [user, setValue]);
+		if (!edit) {
+			setValue('name', '');
+		}
+	}, [edit, setValue]);
 
-	const onSubmit = useCallback(async (values: any) => {
-		console.log(values);
-	}, []);
+	useEffect(() => {
+		if (edit) {
+			setValue('name', edit.name);
+		} else {
+			setValue('name', '');
+		}
+	}, [edit, setValue]);
+
+	const onSubmit = useCallback(
+		async (values: any) => {
+			// TODO: Color, icon
+			if (createNew) {
+				createTaskLabels({
+					name: values.name,
+					color: '#f5b8b8',
+					// description: '',
+					organizationId: user?.employee.organizationId,
+					tenantId: user?.tenantId,
+					// icon: '',
+					// projectId: '',
+				})?.then(() => {
+					setCreateNew(false);
+				});
+			}
+			if (edit && values.name !== edit.name) {
+				editTaskLabels(edit.id, {
+					name: values.name,
+				})?.then(() => {
+					setEdit(null);
+				});
+			}
+		},
+		[edit, createNew, createTaskLabels, editTaskLabels, user]
+	);
 
 	return (
 		<>
@@ -32,36 +76,39 @@ export const TaskLabelForm = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[20%]">
-							Task Label
+							Task Labels
 						</Text>
 
 						<div className="flex flex-col">
-							{!createNew && (
+							{!createNew && !edit && (
 								<Button
 									variant="outline"
-									className="font-normal border-2 justify-start rounded-[10px] text-md w-[230px] h-[46px] gap-0"
+									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] h-[46px] gap-0"
 									onClick={() => {
+										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									Create new Label
+									Create new Labels
 								</Button>
 							)}
 
-							{createNew && (
+							{(createNew || edit) && (
 								<>
 									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2">
-										New Label
+										{createNew && 'New'}
+										{edit && 'Edit'} Labels
 									</Text>
 									<div className="flex  w-full gap-x-5 items-center mt-3">
 										<InputField
 											type="text"
-											placeholder="Create Label"
+											placeholder="Create Priority"
 											className="mb-0"
 											wrapperClassName="mb-0"
+											{...register('name')}
 										/>
 
 										<LanguageDropDown />
@@ -72,17 +119,16 @@ export const TaskLabelForm = () => {
 										<Button
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-											}}
+											type="submit"
 										>
-											Create
+											{edit ? 'Save' : 'Create'}
 										</Button>
 										<Button
 											variant="grey"
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											onClick={() => {
 												setCreateNew(false);
+												setEdit(null);
 											}}
 										>
 											Cancel
@@ -91,12 +137,33 @@ export const TaskLabelForm = () => {
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-full mt-[32px]">
+							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
 								List of Labels
 							</Text>
-							{/* <div className="flex flex-wrap w-full gap-3">
-
-							</div> */}
+							<div className="flex flex-wrap w-full gap-3">
+								{loading && !taskLabels?.length && <Spinner dark={false} />}
+								{taskLabels && taskLabels?.length ? (
+									taskLabels.map((label) => (
+										<StatusesListCard
+											statusTitle={
+												label?.name ? label?.name?.split('-').join(' ') : ''
+											}
+											bgColor={label?.color || ''}
+											statusIcon={label?.icon || ''}
+											onEdit={() => {
+												setCreateNew(false);
+												setEdit(label);
+											}}
+											onDelete={() => {
+												deleteTaskLabels(label.id);
+											}}
+											key={label.id}
+										/>
+									))
+								) : (
+									<></>
+								)}
+							</div>
 						</div>
 					</div>
 				</div>
