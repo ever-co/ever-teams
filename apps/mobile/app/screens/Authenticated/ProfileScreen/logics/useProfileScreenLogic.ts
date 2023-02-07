@@ -22,6 +22,7 @@ const useProfileScreenLogic = (
     } = useStores();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [showModal, setShowModal] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [allTasks, setAllTasks] = useState<ITeamTask[]>([])
     const [otherTasks, setOtherTasks] = useState<ITeamTask[]>([])
     const [showFilterPopup, setShowFilterPopup] = useState(false)
@@ -108,7 +109,7 @@ const useProfileScreenLogic = (
                 return filter.statuses.some((s) => s === t.status)
             })
             setAllTasks(dataFilteredByStatus)
-        }else{
+        } else {
             setAllTasks(teamTasks)
         }
     }, [filter])
@@ -128,7 +129,11 @@ const useProfileScreenLogic = (
         loadAssignAndUnassign();
     }, [allTasks, filter])
 
-
+    useEffect(() => {
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 2000)
+    }, [])
 
     return {
         handleAssignTask,
@@ -148,6 +153,7 @@ const useProfileScreenLogic = (
         activeTask,
         assignListRefresh,
         createAndAssign,
+        isLoading
     }
 }
 
