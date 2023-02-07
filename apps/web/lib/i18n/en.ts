@@ -35,6 +35,12 @@ export const en = {
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',
+		LOGOUT: 'Logout',
+		THEMES: 'Themes',
+		'3D_MODE': '3D Mode',
+		DARK_MODE: 'Dark Mode',
+		SETTINGS: 'Settings',
+		TEAM: 'Team',
 	},
 	pages: {
 		home: {

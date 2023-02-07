@@ -19,6 +19,7 @@ import {
 	PeopleIcon,
 	SettingsOutlineIcon,
 } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 
@@ -71,6 +72,7 @@ function MenuIndicator() {
 
 function UserNavMenu() {
 	const { user, logOut } = useAuthenticateUser();
+	const { trans } = useTranslation();
 
 	return (
 		<Card
@@ -103,13 +105,15 @@ function UserNavMenu() {
 							href={`/profile/${user?.id}`}
 							className="text-center flex space-x-3 items-center font-normal"
 						>
-							<BriefcaseIcon className="w-5 h-5" /> <span>Task</span>
+							<BriefcaseIcon className="w-5 h-5" />{' '}
+							<span>{trans.common.TASK}</span>
 						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex space-x-3 items-center font-normal">
-							<PeopleIcon className="w-5 h-5" /> <span>Team</span>
+							<PeopleIcon className="w-5 h-5" />{' '}
+							<span>{trans.common.TEAM}</span>
 						</Link>
 					</li>
 					{/* Settings menu */}
@@ -119,14 +123,16 @@ function UserNavMenu() {
 							href={'/settings/personal'}
 							className="flex space-x-3 items-center font-normal"
 						>
-							<SettingsOutlineIcon className="w-5 h-5" /> <span>Settings</span>
+							<SettingsOutlineIcon className="w-5 h-5" />{' '}
+							<span>{trans.common.SETTINGS}</span>
 						</Link>
 					</li>
 
 					{/* Darkmode menu */}
 					<li className="flex space-x-3 items-center justify-between font-normal mb-3">
 						<div className="flex-1 flex items-center space-x-3">
-							<MoonIcon className="w-5 h-5" /> <span>Dark Mode</span>
+							<MoonIcon className="w-5 h-5" />{' '}
+							<span>{trans.common.DARK_MODE}</span>
 						</div>
 						<ThemeToggler className="scale-75" />
 					</li>
@@ -134,7 +140,8 @@ function UserNavMenu() {
 					{/* 3D Mode menu */}
 					<li className="flex space-x-3 items-center font-normal mb-3">
 						<div className="flex-1 flex items-center space-x-3">
-							<BoxIcon className="w-5 h-5" /> <span>3D Mode</span>
+							<BoxIcon className="w-5 h-5" />{' '}
+							<span>{trans.common['3D_MODE']}</span>
 						</div>
 						<TreeModeToggler className="scale-75" />
 					</li>
@@ -142,7 +149,8 @@ function UserNavMenu() {
 					{/* Themes menu */}
 					<li className="flex space-x-3 items-center font-normal mb-3">
 						<div className="flex-1 flex space-x-3">
-							<DevicesIcon className="w-5 h-5" /> <span>Themes</span>
+							<DevicesIcon className="w-5 h-5" />{' '}
+							<span>{trans.common.THEMES}</span>
 						</div>
 						<ThemeDropdown />
 					</li>
@@ -156,7 +164,7 @@ function UserNavMenu() {
 							onClick={logOut}
 						>
 							<LogoutIcon className="w-5 h-5 text-red-500" />{' '}
-							<span>Logout</span>
+							<span>{trans.common.LOGOUT}</span>
 						</button>
 					</li>
 				</ul>
