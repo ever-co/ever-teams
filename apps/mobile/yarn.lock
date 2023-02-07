@@ -13200,6 +13200,11 @@ react-native-screens@3.15.0:
     react-freeze "^1.0.0"
     warn-once "^0.1.0"
 
+react-native-skeletons@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-skeletons/-/react-native-skeletons-1.1.0.tgz#1f0754864a2d88ac4f4bb2df51cbba95e3f7b773"
+  integrity sha512-KiAtYgn8FqonDhejFIS+Tj7t6k7L3DUrg9w0Zzxxzxpnj8fr52RjYqKpQeFlc277vRH7um4JacX8FLi48GIG9w==
+
 react-native-svg@12.3.0:
   version "12.3.0"
   resolved "https://registry.yarnpkg.com/react-native-svg/-/react-native-svg-12.3.0.tgz#40f657c5d1ee366df23f3ec8dae76fd276b86248"

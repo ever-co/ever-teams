@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { ITeamTask } from "../../../../services/interfaces/ITask";
 
-const useTimerScreenLogic=()=>{
+const useTimerScreenLogic = () => {
     const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
     const [showCombo, setShowCombo] = useState(false)
     const [taskInputText, setTaskInputText] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
-    const [showTaskStatus, setShowTaskStatus]=useState(false)
+    const [showTaskStatus, setShowTaskStatus] = useState(false)
+
 
     const { createNewTask, setActiveTeamTask } = useTeamTasks();
 
@@ -40,8 +41,9 @@ const useTimerScreenLogic=()=>{
         setTaskInputText(value.title)
         setShowCombo(false)
     }
-    
-    return{
+
+
+    return {
         showCreateTeamModal,
         setShowCreateTeamModal,
         handleActiveTask,
@@ -54,7 +56,7 @@ const useTimerScreenLogic=()=>{
         setShowCheckIcon,
         isLoading,
         setTaskInputText,
-        setShowTaskStatus, 
+        setShowTaskStatus,
         showTaskStatus
     }
 }
