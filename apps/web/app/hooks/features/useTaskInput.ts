@@ -92,6 +92,7 @@ export function useTaskInput(
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = (autoActiveTask = true) => {
+		console.log('autoActiveTask');
 		if (query.trim().length < 2 || inputTask?.title === query.trim()) return;
 
 		createTask(query.trim()).then((res) => {

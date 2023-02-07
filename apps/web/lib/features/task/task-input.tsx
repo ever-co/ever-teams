@@ -164,13 +164,15 @@ export function TaskInput({
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
 					!createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
 
-					/* Creating a new task when the enter key is pressed. */
+					onEnterKey && onEnterKey(taskName, inputTask);
+				}
+
+				/* Creating a new task when the enter key is pressed. */
+				if (e.key === 'Enter') {
 					createOnEnterClick &&
 						datas?.handleTaskCreation &&
 						datas.hasCreateForm &&
 						datas?.handleTaskCreation(autoActiveTask);
-
-					onEnterKey && onEnterKey(taskName, inputTask);
 				}
 			}}
 			trailingNode={
