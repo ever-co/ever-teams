@@ -193,7 +193,7 @@ export function TaskInput({
 				showTaskNumber &&
 				inputTask && (
 					<div className="pl-3 flex items-center space-x-2">
-						<ActiveTaskIssuesDropdown task={inputTask} />
+						<ActiveTaskIssuesDropdown key={inputTask.id} task={inputTask} />
 						<span className="text-gray-500 text-sm">
 							#{inputTask?.taskNumber}
 						</span>

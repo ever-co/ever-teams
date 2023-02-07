@@ -15,6 +15,12 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	}
 };
 
+/**
+ * It returns a bunch of variables and functions that are used to manage the task input
+ * @param [task] - The task to be edited. If not provided, the active task will be used.
+ * @param {boolean} [initEditMode] - boolean
+ * @returns An object with the following properties:
+ */
 export function useTaskInput(
 	task?: Nullable<ITeamTask>,
 	initEditMode?: boolean

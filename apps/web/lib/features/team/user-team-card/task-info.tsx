@@ -36,6 +36,9 @@ export function TaskInfo({ className, edition }: Props) {
 	);
 }
 
+/**
+ *  A component that is used to display the task name and also allow the user to edit the task name.
+ */
 function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;

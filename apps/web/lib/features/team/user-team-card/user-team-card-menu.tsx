@@ -56,18 +56,19 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			name: trans.common.UNASSIGN_TASK,
 			active: memberInfo.isAuthTeamManager,
 			action: 'unassign',
+			closable: true,
 			onClick: onUnAssignTask,
 		},
 		{
 			name: trans.common.MAKE_A_MANAGER,
-			active: memberInfo.isAuthTeamManager,
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
 			onClick: onMakeAManager,
 			closable: true,
 		},
 		{
 			name: trans.common.REMOVE,
 			type: 'danger',
-			active: memberInfo.isAuthTeamManager,
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
 			action: 'remove',
 			onClick: onRemoveMember,
 		},
@@ -113,8 +114,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 										);
 
 										// When true show combobox component (AssignActionMenu)
-										const assignAction =
-											item.action === 'assign' || item.action === 'unassign';
+										const assignAction = item.action === 'assign';
 
 										const removeAction = item.action === 'remove';
 

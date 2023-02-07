@@ -43,7 +43,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					<TaskStatusDropdown
 						defaultValue={task?.status}
 						onValueChange={handleChange}
-						className="w-full min-w-min"
+						className="w-full"
 					/>
 				</div>
 				{task && <TaskAvatars task={task} />}
