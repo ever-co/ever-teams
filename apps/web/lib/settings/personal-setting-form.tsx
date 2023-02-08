@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil';
 import { userTimezone } from '@app/helpers';
 import { useSettings } from '@app/hooks';
 import { useTheme } from 'next-themes';
+import { useTranslation } from 'lib/i18n';
 
 export const PersonalSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -16,6 +17,8 @@ export const PersonalSettingForm = () => {
 	const [currentTimezone, setCurrentTimezone] = useState('');
 	const { updateAvatar } = useSettings();
 	const { theme } = useTheme();
+
+	const { trans, translations } = useTranslation('settingsPersonal');
 
 	useEffect(() => {
 		setValue('firstName', user?.firstName);
@@ -54,7 +57,7 @@ export const PersonalSettingForm = () => {
 								<div className="flex items-center justify-between w-full gap-4">
 									<div>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
-											Full Name
+											{translations.common.FULL_NAME}
 										</Text>
 										<InputField
 											type="text"
@@ -83,7 +86,7 @@ export const PersonalSettingForm = () => {
 										variant="grey"
 										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
 									>
-										Edit
+										{translations.common.EDIT}
 									</Button>
 								</div>
 							</div>
@@ -91,7 +94,7 @@ export const PersonalSettingForm = () => {
 								<div className="flex items-center justify-between w-full gap-4">
 									<div>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
-											Contact
+											{translations.common.CONTACT}
 										</Text>
 										<InputField
 											type="email"
@@ -117,14 +120,14 @@ export const PersonalSettingForm = () => {
 										type="submit"
 										className="min-w-[100px] h-[54px] rounded-[8px]  font-[600]"
 									>
-										Save
+										{translations.common.SAVE}
 									</Button>
 								</div>
 							</div>
 							<div className="flex items-center gap-6 mt-8">
 								<div className="">
 									<Text className="mb-2 font-normal text-gray-400 text-md">
-										Theme
+										{translations.common.THEME}
 									</Text>
 									<ThemeToggler />
 								</div>
@@ -137,7 +140,7 @@ export const PersonalSettingForm = () => {
 							<div className="flex items-center justify-between w-full mt-8">
 								<div className="">
 									<Text className="mb-2 font-normal text-gray-400 text-md">
-										Language
+										{translations.common.LANGUAGE}
 									</Text>
 									<LanguageDropDown />
 								</div>
@@ -145,7 +148,7 @@ export const PersonalSettingForm = () => {
 							<div className="flex items-center justify-between w-full gap-5 mt-8">
 								<div className="">
 									<Text className="mb-2 font-normal text-gray-400 text-md">
-										Timezone
+										{translations.common.TIME_ZONE}
 									</Text>
 									<TimezoneDropDown
 									// currentTimezone={currentTimezone}
@@ -161,14 +164,14 @@ export const PersonalSettingForm = () => {
 										}}
 										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
 									>
-										Detect
+										{translations.common.DETECT}
 									</Button>
 								</div>
 							</div>
 							<div className="flex items-center justify-between w-full mt-8">
 								<div className="">
 									<Text className="mb-2 font-normal text-gray-400 text-md">
-										Work Schedule
+										{trans.WORK_SCHEDULE}
 									</Text>
 									<Text className="text-md font-normal">No</Text>
 								</div>

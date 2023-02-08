@@ -67,7 +67,7 @@ export function useTaskSizes() {
 			}
 		},
 
-		[createQueryCall, createTaskSizesLoading, deleteTaskSizesLoading]
+		[createQueryCall, createTaskSizesLoading, deleteTaskSizesLoading, user]
 	);
 
 	const deleteTaskSizes = useCallback(
@@ -90,6 +90,7 @@ export function useTaskSizes() {
 			taskSizes.length,
 			createTaskSizesLoading,
 			deleteTaskSizesLoading,
+			user,
 		]
 	);
 
@@ -108,7 +109,7 @@ export function useTaskSizes() {
 				});
 			}
 		},
-		[editTaskSizesLoading]
+		[editTaskSizesLoading, user]
 	);
 
 	return {

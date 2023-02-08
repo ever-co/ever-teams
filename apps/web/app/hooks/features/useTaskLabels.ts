@@ -26,9 +26,7 @@ export function useTaskLabels() {
 	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } =
 		useQuery(editTaskLabelsAPI);
 
-	const [taskLabels, setTaskLabels] = useRecoilState(
-		taskLabelsListState
-	);
+	const [taskLabels, setTaskLabels] = useRecoilState(taskLabelsListState);
 
 	const [taskLabelsFetching, setTaskLabelsFetching] = useRecoilState(
 		taskLabelsFetchingState
@@ -68,7 +66,7 @@ export function useTaskLabels() {
 			}
 		},
 
-		[createQueryCall, createTaskLabelsLoading, deleteTaskLabelsLoading]
+		[createQueryCall, createTaskLabelsLoading, deleteTaskLabelsLoading, user]
 	);
 
 	const deleteTaskLabels = useCallback(
@@ -91,6 +89,7 @@ export function useTaskLabels() {
 			taskLabels.length,
 			createTaskLabelsLoading,
 			deleteTaskLabelsLoading,
+			user,
 		]
 	);
 
@@ -109,7 +108,7 @@ export function useTaskLabels() {
 				});
 			}
 		},
-		[editTaskLabelsLoading]
+		[editTaskLabelsLoading, user]
 	);
 
 	return {

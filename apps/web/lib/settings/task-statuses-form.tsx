@@ -9,13 +9,16 @@ import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskStatus } from '@app/hooks/features/useTaskStatus';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { ITaskStatusItemList } from '@app/interfaces';
+import { IColor, ITaskStatusItemList } from '@app/interfaces';
+import { useTranslation } from 'lib/i18n';
+import { ColorDropdown } from './color-dropdown';
 
 export const TaskStatusesForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
+	const { trans } = useTranslation('settingsTeam');
 
 	const {
 		loading,
@@ -28,14 +31,17 @@ export const TaskStatusesForm = () => {
 	useEffect(() => {
 		if (!edit) {
 			setValue('name', '');
+			setValue('color', '');
 		}
 	}, [taskStatus, edit, setValue]);
 
 	useEffect(() => {
 		if (edit) {
 			setValue('name', edit.name);
+			setValue('color', edit.color);
 		} else {
 			setValue('name', '');
+			setValue('color', '');
 		}
 	}, [
 		edit,
@@ -48,11 +54,12 @@ export const TaskStatusesForm = () => {
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			// TODO: Color, icon
+			console.log(values, edit);
+			// TODO: icon
 			if (createNew) {
 				createTaskStatus({
 					name: values.name,
-					color: '#f5b8b8',
+					color: values.color,
 					// description: '',
 					organizationId: user?.employee.organizationId,
 					tenantId: user?.tenantId,
@@ -62,18 +69,24 @@ export const TaskStatusesForm = () => {
 					setCreateNew(false);
 				});
 			}
-			if (edit && values.name !== edit.name) {
-				console.log(edit);
+			if (edit && (values.name !== edit.name || values.color !== edit.color)) {
 				editTaskStatus(edit.id, {
-					...edit,
-					...values,
-					value: values.name,
+					name: values.name,
+					color: values.color,
 				})?.then(() => {
 					setEdit(null);
 				});
 			}
 		},
-		[edit, createNew, editTaskStatus, user, createTaskStatus]
+		[
+			edit,
+			edit?.name,
+			edit?.color,
+			createNew,
+			editTaskStatus,
+			user,
+			createTaskStatus,
+		]
 	);
 
 	return (
@@ -86,7 +99,7 @@ export const TaskStatusesForm = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px]">
-							Task Statuses
+							{trans.TASK_STATUSES}
 						</Text>
 
 						<div className="flex flex-col">
@@ -102,7 +115,7 @@ export const TaskStatusesForm = () => {
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									Create new Statuses
+									{trans.CREATE_NEW_STATUSES}
 								</Button>
 							)}
 
@@ -123,7 +136,14 @@ export const TaskStatusesForm = () => {
 
 										<LanguageDropDown />
 
-										<LanguageDropDown />
+										<ColorDropdown
+											setValue={setValue}
+											active={
+												edit
+													? ({ title: edit.color, color: edit.color } as IColor)
+													: null
+											}
+										/>
 									</div>
 									<div className="flex gap-x-4 mt-5">
 										<Button
@@ -148,7 +168,7 @@ export const TaskStatusesForm = () => {
 							)}
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								List of Statuses
+								{trans.LIST_OF_STATUSES}
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								{loading && !taskStatus?.length && <Spinner dark={false} />}

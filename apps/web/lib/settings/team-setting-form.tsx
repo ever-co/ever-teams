@@ -5,10 +5,13 @@ import { useCallback, useEffect } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { Edit2Icon } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
+import TimeTrackingToggle from 'lib/components/switch';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
+	const { trans, translations } = useTranslation('settingsTeam');
 
 	useEffect(() => {
 		setValue('teamName', '');
@@ -32,75 +35,80 @@ export const TeamSettingForm = () => {
 						<div className="">
 							<div className="flex w-full items-center justify-between gap-12">
 								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
-									Team Name
+									{trans.TEAM_NAME}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
 									<InputField
 										type="text"
-										placeholder="Team Name"
+										placeholder={trans.TEAM_NAME}
 										{...register('teamName', { required: true, maxLength: 80 })}
 										className=""
 										trailingNode={
-											<Button variant="ghost" className="p-0 m-0 mr-[0.5rem] min-w-0">
+											<Button
+												variant="ghost"
+												className="p-0 m-0 mr-[0.5rem] min-w-0"
+											>
 												<Edit2Icon />
 											</Button>
 										}
 									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12 mt-8">
+							<div className="flex w-full items-center  gap-12 mt-8">
 								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
-									Team Type
+									{trans.TEAM_TYPE}
 								</Text>
-								<div className="items-center justify-between w-1/4 ml-[-36px]">
-									<div>
-										<input
-											id="default-radio-1"
-											type="radio"
-											value=""
-											name="default-radio"
-											className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-										/>
-										<Text.Label>Public Team</Text.Label>
+								<div className="flex gap-x-[30px]">
+									<div className="items-center  w-full">
+										<div>
+											<input
+												checked
+												id="default-radio-1"
+												type="radio"
+												value=""
+												name="default-radio"
+												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+											/>
+											<Text.Label>Public Team</Text.Label>
+										</div>
+										<div>
+											<input
+												id="default-radio-2"
+												type="radio"
+												value=""
+												name="default-radio"
+												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+											/>
+											<Text.Label>Private Team</Text.Label>
+										</div>
 									</div>
-									<div>
-										<input
-											checked
-											id="default-radio-2"
-											type="radio"
-											value=""
-											name="default-radio"
-											className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-										/>
-										<Text.Label>Private Team</Text.Label>
-									</div>
-								</div>
-								<div className="flex gap-4 items-center">
-									<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
-										<InputField
-											type="text"
-											placeholder="https://teamA.gauzy.com"
-											className="mb-0 h-[54px]"
-											wrapperClassName="mb-0 h-[54px]"
-										/>
-									</div>
-									<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
-										<Button
-											type="submit"
-											variant="outline"
-											className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
-										>
-											Copy Link
-										</Button>
+									<div className="flex gap-4 items-center">
+										<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
+											<InputField
+												type="text"
+												placeholder="https://teamA.gauzy.com"
+												className="mb-0 h-[54px]"
+												wrapperClassName="mb-0 h-[54px]"
+											/>
+										</div>
+										<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
+											<Button
+												type="submit"
+												variant="outline"
+												className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
+											>
+												Copy Link
+											</Button>
+										</div>
 									</div>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12 mt-[2rem]">
+							<div className="flex w-full items-center justify-between gap-12">
 								<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
-									Time Tracking
+									{trans.TIME_TRACKING}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-									<Toggler />
+									<TimeTrackingToggle />
 								</div>
 							</div>
 						</div>

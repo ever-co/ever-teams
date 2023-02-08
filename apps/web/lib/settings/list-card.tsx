@@ -18,13 +18,15 @@ export const StatusesListCard = ({
 	isStatus?: boolean;
 }) => {
 	return (
-		<div className="border w-[49%] flex items-center p-1 rounded-xl justify-between">
+		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
 			<div
-				className={`rounded-xl ${isStatus ? "w-2/3" : "w-auto"} flex items-center p-3 gap-x-2 `}
+				className={`rounded-xl ${
+					isStatus ? 'w-2/3' : 'w-auto'
+				} flex items-center p-3 gap-x-2 `}
 				style={{ backgroundColor: bgColor }}
 			>
 				{statusIcon && <Image src={statusIcon} alt={statusTitle} />}
-				<Text className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize">
+				<Text className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize px-3">
 					{statusTitle}
 				</Text>
 			</div>
