@@ -6,7 +6,11 @@ import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import { userTimezone } from '@app/helpers';
+import {
+	getActiveTimezoneIdCookie,
+	setActiveTimezoneCookie,
+	userTimezone,
+} from '@app/helpers';
 import { useSettings } from '@app/hooks';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'lib/i18n';
@@ -24,6 +28,7 @@ export const PersonalSettingForm = () => {
 		setValue('firstName', user?.firstName);
 		setValue('lastName', user?.lastName);
 		setValue('email', user?.email);
+		setValue('timeZone', user?.timeZone);
 	}, [user, currentTimezone, setValue]);
 
 	const onSubmit = useCallback(
@@ -40,9 +45,29 @@ export const PersonalSettingForm = () => {
 		[updateAvatar, user]
 	);
 
-	const handleDetectTimezone = () => {
-		setCurrentTimezone(userTimezone());
-	};
+	useEffect(() => {
+		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
+		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
+	}, []);
+
+	const handleChangeTimezone = useCallback(
+		(newTimezone: string | undefined) => {
+			setActiveTimezoneCookie(newTimezone || userTimezone());
+			setCurrentTimezone(newTimezone || userTimezone());
+			setValue('timeZone', newTimezone || userTimezone());
+		},
+		[setActiveTimezoneCookie, setCurrentTimezone, setValue]
+	);
+
+	useEffect(() => {
+		if (user && user.timeZone !== currentTimezone) {
+			updateAvatar({
+				timeZone: currentTimezone,
+				id: user.id,
+			});
+		}
+	}, [user, updateAvatar, currentTimezone]);
+
 	return (
 		<>
 			<form
@@ -151,8 +176,10 @@ export const PersonalSettingForm = () => {
 										{translations.common.TIME_ZONE}
 									</Text>
 									<TimezoneDropDown
-									// currentTimezone={currentTimezone}
-									// onChangeTimezone={(e:any) => setCurrentTimezone(e.data)}
+										currentTimezone={currentTimezone}
+										onChangeTimezone={(t: string) => {
+											handleChangeTimezone(t);
+										}}
 									/>
 								</div>
 								<div className="mt-8">
@@ -160,7 +187,7 @@ export const PersonalSettingForm = () => {
 										variant="grey"
 										type="button"
 										onClick={() => {
-											handleDetectTimezone();
+											handleChangeTimezone(undefined);
 										}}
 										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
 									>

@@ -6,6 +6,7 @@ import {
   TOKEN_COOKIE_NAME,
   ACTIVE_TASK_COOKIE_NAME,
   ACTIVE_LANGUAGE_COOKIE_NAME,
+  ACTIVE_TIMEZONE_COOKIE_NAME,
 } from "@app/constants";
 import { IDecodedRefreshToken } from "@app/interfaces/IAuthentication";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
@@ -121,4 +122,12 @@ export function getActiveLanguageIdCookie(ctx?: NextCtx) {
 
 export function setActiveLanguageIdCookie(languageIds: string, ctx?: NextCtx) {
   return setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageIds, { ...(ctx || {}) });
+}
+
+// Timezone
+export function setActiveTimezoneCookie(timezone: string, ctx?: NextCtx) {
+  return setCookie(ACTIVE_TIMEZONE_COOKIE_NAME, timezone, { ...(ctx || {}) });
+}
+export function getActiveTimezoneIdCookie(ctx?: NextCtx) {
+  return getCookie(ACTIVE_TIMEZONE_COOKIE_NAME, { ...(ctx || {}) }) as string;
 }

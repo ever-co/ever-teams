@@ -160,7 +160,7 @@ export const TaskLabelForm = () => {
 							)}
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								{trans.CREATE_NEW_LABELS}
+								{trans.LIST_OF_LABELS}
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								{loading && !taskLabels?.length && <Spinner dark={false} />}

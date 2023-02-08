@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text, Toggler } from 'lib/components';
+import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect } from 'react';
 import { userState } from '@app/stores';
@@ -11,7 +11,7 @@ import TimeTrackingToggle from 'lib/components/switch';
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
-	const { trans, translations } = useTranslation('settingsTeam');
+	const { trans } = useTranslation('settingsTeam');
 
 	useEffect(() => {
 		setValue('teamName', '');
