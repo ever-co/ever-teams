@@ -11,6 +11,54 @@
 
 Ever® Gauzy Teams™ Platform (https://gauzy.team) is build on top of our Busines Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (https://gauzy.co), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at https://ever.co.
 
+## 🌼 Screenshots
+
+<details>
+<summary>Show / Hide Screenshots</summary>
+
+### Web
+![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/overview.png)
+
+### Mobile
+![mobile](https://docs.gauzy.co/docs/assets/gauzy-teams/mobile/overview.png)
+
+### Extension
+![extension](https://docs.gauzy.co/docs/assets/gauzy-teams/extension/overview.png)
+
+</details>
+
+## ✨ Features
+
+Below is a list of planned features:
+
+- Projects / Tasks Management
+- Time Management / Time Tracking / Activity Tracking
+- Organizations / Teams
+- Tags / Labels
+- Integrations (GitHub, GitLab, Bitbucket, JIRA, etc.)
+- Dark / Black / Light Themes
+
+## 🔗 Links
+
+- **<https://app.gauzy.team>** - Gauzy Teams Platform web application (not yet in production release)
+- **<https://gauzy.team>** - check more information about the Gauzy Teams platform at official website (WIP).
+- **<https://gauzy.co>** - check more information about the Gauzy platform at official website.
+- **<https://ever.co>** - get more information about our company products. 
+
+## 🧱 Technology Stack and Requirements
+
+- [TypeScript](https://www.typescriptlang.org) language
+- [NodeJs](https://nodejs.org) / [NestJs](https://github.com/nestjs/nest)
+- [Nx](https://nx.dev)
+- [React](https://reactjs.org)
+- [React Native](https://reactnative.dev)
+
+#### See also README.md and CREDITS.md files in relevant folders for lists of libraries and software included in the Platform, information about licenses and other details.
+
+## 📄 Documentation
+
+Please refer to our official [Platform Documentation](https://docs.gauzy.team) (WIP) and to our [Wiki](https://github.com/ever-co/ever-gauzy-team/wiki) (WIP).
+
 ## 🚀 Getting Starting
 
 Ever® Gauzy Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see https://github.com/ever-co/ever-gauzy (and also <https://gauzy.co>). Specifically you will be interested in the `apps/api` and `apps/server` folders of the mono-repo.

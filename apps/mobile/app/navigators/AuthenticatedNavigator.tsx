@@ -1,5 +1,5 @@
-import React from "react"
-import { Image, TextStyle, ViewStyle } from "react-native"
+import React, { useEffect, useState } from "react"
+import { Image, TextStyle, View, ViewStyle, Text } from "react-native"
 import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import { CompositeScreenProps } from "@react-navigation/native"
@@ -17,10 +17,11 @@ import {
 
 // HELPERS
 import { translate } from "../i18n"
-import {spacing, typography } from "../theme"
+import { spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
 import { AuthenticatedSettingScreen } from "../screens/Authenticated/SettingScreen";
 import { useAppTheme } from "../app";
+import { Skeleton } from "react-native-skeletons";
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
@@ -53,31 +54,53 @@ const Tab = createBottomTabNavigator<AuthenticatedTabParamList>()
 
 function TabNavigator() {
   const { bottom } = useSafeAreaInsets()
-  const {colors, dark}=useAppTheme();
+  const { colors, dark } = useAppTheme();
+  const [isLoading, setIsLoading] = useState(true)
 
+  useEffect(() => {
+    setTimeout(() => setIsLoading(false), 3000)
+  }, [])
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarStyle: [{backgroundColor:dark ?"#1E2025":colors.background}, { height: bottom + 60 }],
+        tabBarStyle: [{ backgroundColor: dark ? "#1E2025" : colors.background }, { height: bottom + 60 }],
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.tertiary,
         tabBarLabelStyle: $tabBarLabel,
         tabBarItemStyle: $tabBarItem,
+        ...isLoading ? {
+          tabBarButton: () => (
+            <View style={{ width: "100%", flexDirection: "row", justifyContent: "space-between", paddingVertical: 25 }}>
+              <View style={{ width: "30%", alignItems: "center" }}>
+                <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
+                <Skeleton height={8} width={63} borderRadius={30} />
+              </View>
+              <View style={{ width: "30%", alignItems: "center" }}>
+                <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
+                <Skeleton height={8} width={63} borderRadius={30} />
+              </View>
+              <View style={{ width: "30%", alignItems: "center" }}>
+                <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
+                <Skeleton height={8} width={63} borderRadius={30} />
+              </View>
+            </View>)
+        } : null
+
       }}
-      initialRouteName="Timer"
+      initialRouteName="Team"
     >
       <Tab.Screen
         name="Profile"
         component={AuthenticatedProfileScreen}
         options={{
           tabBarLabel: translate("tasksScreen.name"),
-          tabBarIcon: ({ focused }) => focused ? 
-          <Image source={!dark ? require("../../assets/icons/new/briefcase-active.png"): require("../../assets/icons/new/briefcase-active-dark.png")} /> 
-          : <Image source={require("../../assets/icons/new/briefcase.png")} />,
-          tabBarActiveTintColor:dark ? "#8C7AE4":"#3826A6"
+          tabBarIcon: ({ focused }) => focused ?
+            <Image source={!dark ? require("../../assets/icons/new/briefcase-active.png") : require("../../assets/icons/new/briefcase-active-dark.png")} />
+            : <Image source={require("../../assets/icons/new/briefcase.png")} />,
+          tabBarActiveTintColor: dark ? "#8C7AE4" : "#3826A6"
         }}
       />
 
@@ -86,10 +109,10 @@ function TabNavigator() {
         component={AuthenticatedTeamScreen}
         options={{
           tabBarLabel: translate("teamScreen.name"),
-          tabBarIcon: ({ focused }) => !focused  ? 
-          <Image source={require("../../assets/icons/new/people.png")} />
-          :<Image source={ !dark ?require("../../assets/icons/new/people-active.png") :require("../../assets/icons/new/people-active-dark.png")} />,
-          tabBarActiveTintColor:dark ? "#8C7AE4":"#3826A6"
+          tabBarIcon: ({ focused }) => !focused ?
+            <Image source={require("../../assets/icons/new/people.png")} />
+            : <Image source={!dark ? require("../../assets/icons/new/people-active.png") : require("../../assets/icons/new/people-active-dark.png")} />,
+          tabBarActiveTintColor: dark ? "#8C7AE4" : "#3826A6"
         }}
       />
 
@@ -98,8 +121,8 @@ function TabNavigator() {
         component={AuthenticatedTimerScreen}
         options={{
           tabBarLabel: translate("myWorkScreen.name"),
-          tabBarIcon: ({ focused }) => !dark ? <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} />:<Feather name="user" size={24} color={focused ? "#8C7AE4" : "#292D32"} />,
-          tabBarActiveTintColor:dark ? "#8C7AE4":"#3826A6"
+          tabBarIcon: ({ focused }) => !dark ? <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} /> : <Feather name="user" size={24} color={focused ? "#8C7AE4" : "#292D32"} />,
+          tabBarActiveTintColor: dark ? "#8C7AE4" : "#3826A6"
         }}
       />
     </Tab.Navigator>
