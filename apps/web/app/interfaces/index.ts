@@ -12,4 +12,6 @@ export * from './IUserData';
 export * from './ITaskStatus';
 export * from './ITaskPriorities';
 export * from './ITaskSizes';
+export * from './ITaskLabels';
+export * from './IColor';
 export * from './hooks';

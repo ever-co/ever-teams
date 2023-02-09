@@ -68,7 +68,12 @@ export function useTaskPriorities() {
 			}
 		},
 
-		[createQueryCall, createTaskPrioritiesLoading, deleteTaskPrioritiesLoading]
+		[
+			createQueryCall,
+			createTaskPrioritiesLoading,
+			deleteTaskPrioritiesLoading,
+			user,
+		]
 	);
 
 	const deleteTaskPriorities = useCallback(
@@ -91,6 +96,7 @@ export function useTaskPriorities() {
 			taskPriorities.length,
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
+			user,
 		]
 	);
 
@@ -109,7 +115,7 @@ export function useTaskPriorities() {
 				});
 			}
 		},
-		[editTaskPrioritiesLoading]
+		[editTaskPrioritiesLoading, user]
 	);
 
 	return {

@@ -8,3 +8,4 @@ export * from "./languages";
 export * from "./taskStatus";
 export * from "./task-priorities";
 export * from "./task-sizes";
+export * from "./task-labels";
