@@ -1,23 +1,25 @@
-import { ITimezoneItemList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
-export type TimezoneItem = DropdownItem<ITimezoneItemList>;
+export type TimezoneItem = DropdownItem<string>;
 
-export function mapTimezoneItems(timezones: ITimezoneItemList[]) {
+export function mapTimezoneItems(timezones: string[]) {
 	const items = timezones.map<TimezoneItem>((timezone, index) => {
 		return {
-			key: index + 1,
+			key: timezone,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
 					<TimezoneItem
-						title={timezone.title}
+						title={timezone.split('_').join(' ')}
 						count={timezone.length}
 						className={selected ? 'font-medium' : ''}
 					/>
 				</div>
 			),
 			selectedLabel: (
-				<TimezoneItem title={timezone.title} className="py-2 mb-0" />
+				<TimezoneItem
+					title={timezone.split('_').join(' ')}
+					className="py-2 mb-0"
+				/>
 			),
 			data: timezone,
 		};

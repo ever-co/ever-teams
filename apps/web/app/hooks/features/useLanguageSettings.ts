@@ -42,8 +42,8 @@ export function useLanguageSettings() {
 
 	const setActiveLanguage = useCallback(
 		(languageId: typeof languages[0]) => {
-			setActiveLanguageIdCookie(languageId.id);
-			setActiveLanguageId(languageId.id);
+			setActiveLanguageIdCookie(languageId.code);
+			setActiveLanguageId(languageId.code);
 		},
 		[setActiveLanguageId]
 	);
