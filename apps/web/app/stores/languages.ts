@@ -21,6 +21,6 @@ export const activeLanguageState = selector<ILanguageItemList | null>({
     get: ({ get }) => {
       const languages = get(languageListState);
       const activeId = get(activeLanguageIdState);
-      return languages.find((language) => language.id === activeId) || languages[0] || null;
+      return languages.find((language) => language.code === activeId) || languages[0] || null;
     },
   });

@@ -7,7 +7,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import {
+	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
+	setActiveLanguageIdCookie,
 	setActiveTimezoneCookie,
 	userTimezone,
 } from '@app/helpers';
@@ -19,6 +21,7 @@ export const PersonalSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const [currentTimezone, setCurrentTimezone] = useState('');
+	const [currentLanguage, setCurrentLanguage] = useState('');
 	const { updateAvatar } = useSettings();
 	const { theme } = useTheme();
 
@@ -29,7 +32,8 @@ export const PersonalSettingForm = () => {
 		setValue('lastName', user?.lastName);
 		setValue('email', user?.email);
 		setValue('timeZone', user?.timeZone);
-	}, [user, currentTimezone, setValue]);
+		setValue('preferredLanguage', user?.preferredLanguage);
+	}, [user, currentTimezone, currentLanguage, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -49,7 +53,6 @@ export const PersonalSettingForm = () => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
 		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
 	}, []);
-
 	const handleChangeTimezone = useCallback(
 		(newTimezone: string | undefined) => {
 			setActiveTimezoneCookie(newTimezone || userTimezone());
@@ -58,15 +61,49 @@ export const PersonalSettingForm = () => {
 		},
 		[setActiveTimezoneCookie, setCurrentTimezone, setValue]
 	);
-
 	useEffect(() => {
-		if (user && user.timeZone !== currentTimezone) {
+		if (
+			user &&
+			user?.timeZone &&
+			currentTimezone &&
+			user.timeZone !== currentTimezone
+		) {
 			updateAvatar({
 				timeZone: currentTimezone,
 				id: user.id,
 			});
 		}
-	}, [user, updateAvatar, currentTimezone]);
+	}, [user, user?.timeZone, updateAvatar, currentTimezone]);
+
+	useEffect(() => {
+		setCurrentLanguage(user?.preferredLanguage || getActiveLanguageIdCookie());
+		setValue(
+			'preferredLanguage',
+			user?.preferredLanguage || getActiveLanguageIdCookie()
+		);
+	}, []);
+	const handleChangeLanguage = useCallback(
+		(newLanguage: string) => {
+			console.log(newLanguage);
+			setActiveLanguageIdCookie(newLanguage);
+			setCurrentLanguage(newLanguage);
+			setValue('preferredLanguage', newLanguage);
+		},
+		[setActiveLanguageIdCookie, setCurrentLanguage, setValue]
+	);
+	useEffect(() => {
+		if (
+			user &&
+			user?.preferredLanguage &&
+			currentLanguage &&
+			user.preferredLanguage !== currentLanguage
+		) {
+			updateAvatar({
+				preferredLanguage: currentLanguage,
+				id: user.id,
+			});
+		}
+	}, [user, user?.preferredLanguage, updateAvatar, currentLanguage]);
 
 	return (
 		<>
@@ -167,7 +204,12 @@ export const PersonalSettingForm = () => {
 									<Text className="mb-2 font-normal text-gray-400 text-md">
 										{translations.common.LANGUAGE}
 									</Text>
-									<LanguageDropDown />
+									<LanguageDropDown
+										currentLanguage={currentLanguage}
+										onChangeLanguage={(t: string) => {
+											handleChangeLanguage(t);
+										}}
+									/>
 								</div>
 							</div>
 							<div className="flex items-center justify-between w-full gap-5 mt-8">

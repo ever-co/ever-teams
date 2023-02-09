@@ -9,7 +9,7 @@ export const TimezoneDropDown = ({
 	currentTimezone,
 	onChangeTimezone,
 }: {
-	currentTimezone: string;
+	currentTimezone: any;
 	onChangeTimezone: any;
 }) => {
 	const { activeTimezone, setActiveTimezone } = useTimezoneSettings();
@@ -28,10 +28,9 @@ export const TimezoneDropDown = ({
 		);
 	}, [activeTimezone, items, currentTimezone]);
 
-	const onChangeLanguage = useCallback(
+	const onChange = useCallback(
 		(item: TimezoneItem) => {
 			if (item.data) {
-				console.log('item.data', item.data);
 				onChangeTimezone(item.data);
 				setActiveTimezone(item.data);
 			}
@@ -47,7 +46,7 @@ export const TimezoneDropDown = ({
 				items.length === 0 && ['py-2']
 			)}
 			value={timezoneItem as any}
-			onChange={(e: any) => onChangeLanguage(e)}
+			onChange={(e: any) => onChange(e)}
 			items={items as any}
 		/>
 	);

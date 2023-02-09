@@ -4,7 +4,13 @@ import { Dropdown } from 'lib/components';
 import { mapLanguageItems, LanguageItem } from 'lib/features';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-export const LanguageDropDown = () => {
+export const LanguageDropDown = ({
+	currentLanguage,
+	onChangeLanguage,
+}: {
+	currentLanguage: string;
+	onChangeLanguage: any;
+}) => {
 	const { languages, activeLanguage, setActiveLanguage, languagesFetching } =
 		useLanguageSettings();
 
@@ -13,12 +19,17 @@ export const LanguageDropDown = () => {
 	const [languageItem, setLanguageItem] = useState<LanguageItem | null>(null);
 
 	useEffect(() => {
-		setLanguageItem(items.find((t) => t.key === activeLanguage?.id) || null);
-	}, [activeLanguage, items]);
+		setLanguageItem(
+			items.find(
+				(t) => t.key === activeLanguage?.code || t.key === currentLanguage
+			) || null
+		);
+	}, [activeLanguage, items, currentLanguage]);
 
-	const onChangeLanguage = useCallback(
+	const onChange = useCallback(
 		(item: LanguageItem) => {
 			if (item.data) {
+				onChangeLanguage(item.data.code);
 				setActiveLanguage(item.data);
 			}
 		},
@@ -34,7 +45,7 @@ export const LanguageDropDown = () => {
 					items.length === 0 && ['py-2']
 				)}
 				value={languageItem}
-				onChange={onChangeLanguage}
+				onChange={(e: any) => onChange(e)}
 				items={items}
 				loading={languagesFetching}
 			></Dropdown>

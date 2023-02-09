@@ -7,7 +7,7 @@ export type LanguageItem = DropdownItem<ILanguageItemList>;
 export function mapLanguageItems(languages: ILanguageItemList[]) {
 	const items = languages.map<LanguageItem>((language) => {
 		return {
-			key: language.id,
+			key: language.code,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
 					<LanguageItem
