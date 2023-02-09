@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { StatusesListCard } from './list-card';
-import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskStatus } from '@app/hooks/features/useTaskStatus';
 import { Spinner } from '@components/ui/loaders/spinner';
@@ -134,7 +133,14 @@ export const TaskStatusesForm = () => {
 											{...register('name')}
 										/>
 
-										<LanguageDropDown />
+										<ColorDropdown
+											setValue={setValue}
+											active={
+												edit
+													? ({ title: edit.color, color: edit.color } as IColor)
+													: null
+											}
+										/>
 
 										<ColorDropdown
 											setValue={setValue}

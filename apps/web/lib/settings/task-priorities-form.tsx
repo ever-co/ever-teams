@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilValue } from 'recoil';
 import { StatusesListCard } from './list-card';
-import { LanguageDropDown } from './language-dropdown';
 
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskPriorities } from '@app/hooks/features/useTaskPriorities';
@@ -127,7 +126,14 @@ export const TaskPrioritiesForm = () => {
 											{...register('name')}
 										/>
 
-										<LanguageDropDown />
+										<ColorDropdown
+											setValue={setValue}
+											active={
+												edit
+													? ({ title: edit.color, color: edit.color } as IColor)
+													: null
+											}
+										/>
 
 										<ColorDropdown
 											setValue={setValue}

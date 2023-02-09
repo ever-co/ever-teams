@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import { LanguageDropDown } from './language-dropdown';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { IColor, ITaskLabelsItemList } from '@app/interfaces';
 import { useTaskLabels } from '@app/hooks/features/useTaskLabels';
@@ -126,7 +125,14 @@ export const TaskLabelForm = () => {
 											{...register('name')}
 										/>
 
-										<LanguageDropDown />
+										<ColorDropdown
+											setValue={setValue}
+											active={
+												edit
+													? ({ title: edit.color, color: edit.color } as IColor)
+													: null
+											}
+										/>
 
 										<ColorDropdown
 											setValue={setValue}
