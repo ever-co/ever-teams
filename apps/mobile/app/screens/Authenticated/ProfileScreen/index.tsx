@@ -35,7 +35,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
     const { user } = useAuthenticateUser();
     const { tabIndex, userId } = _props.route.params || { tabIndex: 0, userId: user.id };
     const {
-      TimerStore: { localTimerStatus }
+      TimerStore: { localTimerStatus },
     } = useStores();
 
     const {
@@ -200,7 +200,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                   <View style={{ ...GS.mt2, }}>
                     <FlatList
                       data={unassignedTasks}
-                      renderItem={({ item, index }) => (
+                      renderItem={({ item, index }) =>
                         <View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
                           <ListCardItem
                             tabIndex={selectedTabIndex}
@@ -213,7 +213,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                             enableEstimate={false}
                           />
                         </View>
-                      )}
+                      }
                       extraData={assignListRefresh}
                       legacyImplementation={true}
                       showsVerticalScrollIndicator={false}
