@@ -51,6 +51,7 @@ export function useTeamInvitations() {
             },
             authToken
         )
+        console.log(JSON.stringify(data))
         setLoading(false)
         return response
     }
