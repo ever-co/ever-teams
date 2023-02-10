@@ -1,5 +1,7 @@
-import { IOrganizationTeamMember } from '@app/interfaces';
-import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
+import {
+	IOrganizationTeamList,
+	OT_Member,
+} from '@app/interfaces/IOrganizationTeam';
 import { atom, selector } from 'recoil';
 
 export const organizationTeamsState = atom<IOrganizationTeamList[]>({
@@ -26,7 +28,7 @@ export const activeTeamState = selector<IOrganizationTeamList | null>({
 	},
 });
 
-export const activeTeamManagersState = selector<IOrganizationTeamMember[]>({
+export const activeTeamManagersState = selector<OT_Member[]>({
 	key: 'activeTeamManagersState',
 	get: ({ get }) => {
 		const activeTeam = get(activeTeamState);

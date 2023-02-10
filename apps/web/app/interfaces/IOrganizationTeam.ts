@@ -48,7 +48,7 @@ export type IOrganizationTeamWithMStatus = Omit<
 
 type MS_Member = Omit<OT_Member, 'role' | 'employee'>;
 
-interface OT_Member {
+export interface OT_Member {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -72,19 +72,3 @@ interface OT_Role {
 	name: string;
 	isSystem: boolean;
 }
-
-// export interface IOrganizationTeamMember {
-// 	id: string;
-// 	createdAt: string;
-// 	updatedAt: string;
-// 	tenantId: any;
-// 	organizationId: any;
-// 	organizationTeamId: string;
-// 	employeeId: string;
-// 	roleId?: string;
-// 	role?: OT_Role;
-// 	employee: IEmployee;
-// 	lastWorkedTask?: any;
-// 	running?: boolean;
-// 	duration?: number;
-// }
