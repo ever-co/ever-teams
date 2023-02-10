@@ -26,6 +26,7 @@ export interface IUser {
 	createdAt: string;
 	updatedAt: string;
 	timeZone?: string;
+	name?: string | null | undefined;
 }
 
 interface Role {

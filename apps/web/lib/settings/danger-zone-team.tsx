@@ -1,13 +1,20 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useModal,
+	useOrganizationTeams,
+} from '@app/hooks';
 import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
 import { Button, Text } from 'lib/components';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { TransferTeamModal } from './transfer-team-modal';
 
 export const DangerZoneTeam = () => {
 	const { activeTeam, deleteOrganizationTeam } = useOrganizationTeams();
 	const { deleteOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const { user } = useAuthenticateUser();
+
+	const { isOpen, closeModal, openModal } = useModal();
 
 	const handleDisposeTeam = useCallback(() => {
 		if (activeTeam) {
@@ -25,6 +32,10 @@ export const DangerZoneTeam = () => {
 			}
 		}
 	}, [activeTeam, deleteOrganizationTeamEmployee, user]);
+
+	useEffect(()=>{}, [
+		
+	])
 
 	return (
 		<>
@@ -45,6 +56,7 @@ export const DangerZoneTeam = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
+									onClick={openModal}
 								>
 									Transfer
 								</Button>
@@ -100,6 +112,7 @@ export const DangerZoneTeam = () => {
 					</div>
 				</div>
 			</div>
+			<TransferTeamModal open={isOpen} closeModal={closeModal} />
 		</>
 	);
 };

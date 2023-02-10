@@ -13,11 +13,12 @@ import {
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
+	activeTeamManagersState,
 	activeTeamState,
 	organizationTeamsState,
 	teamsFetchingState,
 } from '@app/stores';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
@@ -68,6 +69,8 @@ export function useOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
 	const [teams, setTeams] = useRecoilState(organizationTeamsState);
 	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
+
 	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
@@ -131,6 +134,9 @@ export function useOrganizationTeams() {
 		}
 	}, [activeTeamId, firstLoad, setTeams]);
 
+	// Set All managers of current team
+	useEffect(() => {}, [activeTeam]);
+
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {
 			return editQueryCall(data).then((res) => {
@@ -165,5 +171,6 @@ export function useOrganizationTeams() {
 		editOrganizationTeamLoading,
 		deleteOrganizationTeam,
 		deleteOrganizationTeamLoading,
+		activeTeamManagers,
 	};
 }
