@@ -1,4 +1,5 @@
 import { IEmployee } from './IEmployee';
+import { ITeamTask } from './ITask';
 
 export interface IOrganizationTeamCreate {
 	name: string;
@@ -56,7 +57,7 @@ interface OT_Member {
 	roleId?: string;
 	role?: OT_Role;
 	employee: IEmployee;
-	lastWorkedTask?: any;
+	lastWorkedTask?: ITeamTask;
 	running?: boolean;
 	duration?: number;
 }

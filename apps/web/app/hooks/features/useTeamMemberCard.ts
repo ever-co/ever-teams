@@ -15,15 +15,18 @@ export function useTeamMemberCard(
 
 	const memberUser = member?.employee.user;
 	const isAuthUser = member?.employee.userId === authUSer?.id;
-
 	const { isTeamManager } = useIsMemberManager(memberUser);
-	const [memberTask, setMemberTask] = useState<ITeamTask | null>(null);
+	const [memberTask, setMemberTask] = useState<ITeamTask | null>(
+		member?.lastWorkedTask || null
+	);
 
 	useEffect(() => {
-		if (isAuthUser) {
-			setMemberTask(activeTeamTask);
+		if (authUSer && member) {
+			if (isAuthUser) {
+				setMemberTask(activeTeamTask);
+			}
 		}
-	}, [activeTeamTask, isAuthUser]);
+	}, [activeTeamTask, isAuthUser, authUSer, member]);
 
 	return {
 		isTeamManager,
