@@ -1,6 +1,7 @@
 export * from './auth';
 export * from './organization';
 export * from './organization-team';
+export * from './organization-team-employee';
 export * from './tenant';
 export * from './timer';
 export * from './tasks';

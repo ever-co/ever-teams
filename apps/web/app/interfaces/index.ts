@@ -4,6 +4,7 @@ export * from './IEmployee';
 export * from './IInvite';
 export * from './IOrganization';
 export * from './IOrganizationTeam';
+export * from './IOrganizationEmployeeTeam';
 export * from './ISmtp';
 export * from './ITask';
 export * from './ITenant';

@@ -1,5 +1,6 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
+	deleteOrganizationTeamRequest,
 	getOrganizationTeamRequest,
 	updateOrganizationTeamRequest,
 } from '@app/services/server/requests';
@@ -13,6 +14,7 @@ export default async function handler(
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
+	const { id } = req.query;
 	switch (req.method) {
 		case 'GET':
 			const { data: teamStatus } = await getOrganizationTeamRequest(
@@ -33,5 +35,16 @@ export default async function handler(
 			return $res.json(
 				await updateOrganizationTeamRequest(req.body, access_token)
 			);
+
+		case 'DELETE':
+			if (id) {
+				return $res.json(
+					await deleteOrganizationTeamRequest({
+						id: id as string,
+						bearer_token: access_token,
+						tenantId,
+					})
+				);
+			}
 	}
 }

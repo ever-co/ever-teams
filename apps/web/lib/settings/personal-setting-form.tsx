@@ -78,7 +78,6 @@ export const PersonalSettingForm = () => {
 	}, []);
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
-			console.log(newLanguage);
 			setActiveLanguageIdCookie(newLanguage);
 			setCurrentLanguage(newLanguage);
 			setValue('preferredLanguage', newLanguage);

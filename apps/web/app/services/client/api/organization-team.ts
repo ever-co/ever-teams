@@ -33,3 +33,9 @@ export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
 		data
 	);
 }
+
+export function deleteOrganizationTeamAPI(id: string) {
+	return api.delete<CreateReponse<IOrganizationTeam>>(
+		`/organization-team/${id}`
+	);
+}

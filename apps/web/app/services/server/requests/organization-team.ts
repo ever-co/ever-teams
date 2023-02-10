@@ -34,6 +34,23 @@ export function updateOrganizationTeamRequest(
 	});
 }
 
+export function deleteOrganizationTeamRequest({
+	id,
+	bearer_token,
+	tenantId,
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<IOrganizationTeamUpdate>({
+		path: `/organization-team/${id}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
+}
+
 export function getOrganizationTeamRequest(
 	id: string,
 	bearer_token: string,

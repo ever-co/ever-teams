@@ -1,7 +1,31 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
 import { Button, Text } from 'lib/components';
+import { useCallback } from 'react';
 
 export const DangerZoneTeam = () => {
+	const { activeTeam, deleteOrganizationTeam } = useOrganizationTeams();
+	const { deleteOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { user } = useAuthenticateUser();
+
+	const handleDisposeTeam = useCallback(() => {
+		if (activeTeam) {
+			deleteOrganizationTeam(activeTeam.id);
+		}
+	}, [activeTeam, deleteOrganizationTeam]);
+
+	const handleQuiteTeam = useCallback(() => {
+		if (activeTeam && user) {
+			const currentEmployeeDetails = activeTeam.members.find(
+				(member) => member.employeeId === user.employee.id
+			);
+			if (currentEmployeeDetails && currentEmployeeDetails.id) {
+				deleteOrganizationTeamEmployee(currentEmployeeDetails.id);
+			}
+		}
+	}, [activeTeam, deleteOrganizationTeamEmployee, user]);
+
 	return (
 		<>
 			<div className="flex flex-col justify-between items-center">
@@ -42,6 +66,9 @@ export const DangerZoneTeam = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
+									onClick={() => {
+										handleDisposeTeam();
+									}}
 								>
 									Dispose Team
 								</Button>
@@ -62,6 +89,9 @@ export const DangerZoneTeam = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
+									onClick={() => {
+										handleQuiteTeam();
+									}}
 								>
 									Quit
 								</Button>

@@ -6,6 +6,7 @@ import {
 import { IOrganizationTeamUpdate } from '@app/interfaces';
 import {
 	createOrganizationTeamAPI,
+	deleteOrganizationTeamAPI,
 	editOrganizationTeamAPI,
 	getOrganizationTeamAPI,
 	getOrganizationTeamsAPI,
@@ -89,6 +90,9 @@ export function useOrganizationTeams() {
 	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } =
 		useQuery(editOrganizationTeamAPI);
 
+	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } =
+		useQuery(deleteOrganizationTeamAPI);
+
 	const setActiveTeam = useCallback(
 		(teamId: typeof teams[0]) => {
 			setActiveTeamIdCookie(teamId.id);
@@ -137,6 +141,16 @@ export function useOrganizationTeams() {
 		[editOrganizationTeamLoading]
 	);
 
+	const deleteOrganizationTeam = useCallback(
+		(id: string) => {
+			return deleteQueryCall(id).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+		[deleteOrganizationTeamLoading]
+	);
+
 	return {
 		loadTeamsData,
 		loading,
@@ -149,5 +163,7 @@ export function useOrganizationTeams() {
 		firstLoadTeamsData,
 		editOrganizationTeam,
 		editOrganizationTeamLoading,
+		deleteOrganizationTeam,
+		deleteOrganizationTeamLoading,
 	};
 }
