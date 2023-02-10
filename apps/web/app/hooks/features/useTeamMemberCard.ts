@@ -1,17 +1,29 @@
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useOutsideClick } from '../useOutsideClick';
+import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { useOrganizationTeams } from './useOrganizationTeams';
 import { useIsMemberManager } from './useTeamMember';
 
+/**
+ * It returns a bunch of data about a team member, including whether or not the user is the team
+ * manager, whether or not the user is the authenticated user, and the last task the user worked on
+ * @param {IOrganizationTeamList['members'][number] | undefined} member -
+ * IOrganizationTeamList['members'][number] | undefined
+ */
 export function useTeamMemberCard(
 	member: IOrganizationTeamList['members'][number] | undefined
 ) {
 	const { user: authUSer, isTeamManager: isAuthTeamManager } =
 		useAuthenticateUser();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
+
+	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } =
+		useOrganizationTeams();
+	const activeTeamRef = useSyncRef(activeTeam);
 
 	const memberUser = member?.employee.user;
 	const isAuthUser = member?.employee.userId === authUSer?.id;
@@ -28,6 +40,18 @@ export function useTeamMemberCard(
 		}
 	}, [activeTeamTask, isAuthUser, authUSer, member]);
 
+	const makeMemberManager = useCallback(() => {
+		if (!activeTeamRef.current || !memberUser?.employee.id) return;
+		const team = activeTeamRef.current;
+
+		updateOrganizationTeam(activeTeamRef.current, {
+			managerIds: team.members
+				.filter((r) => r.role && r.role.name === 'MANAGER')
+				.map((r) => r.id)
+				.concat(memberUser?.employee.id),
+		});
+	}, [updateOrganizationTeam, memberUser, activeTeamRef]);
+
 	return {
 		isTeamManager,
 		memberUser,
@@ -35,6 +59,8 @@ export function useTeamMemberCard(
 		memberTask,
 		isAuthUser,
 		isAuthTeamManager,
+		makeMemberManager,
+		updateOTeamLoading,
 	};
 }
 

@@ -3,6 +3,7 @@ import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
+	IOrganizationTeamUpdate,
 	IOrganizationTeamWithMStatus,
 } from '@app/interfaces/IOrganizationTeam';
 import { serverFetch } from '../fetch';
@@ -19,8 +20,15 @@ export function createOrganizationTeamRequest(
 	});
 }
 
+/**
+ * It updates an organization team
+ * @param {IOrganizationTeamUpdate} datas - IOrganizationTeamUpdate - The data to be sent to the
+ * server.
+ * @param {string} bearer_token - The token that is used to authenticate the user.
+ * @returns IOrganizationTeam
+ */
 export function updateOrganizationTeamRequest(
-	datas: IOrganizationTeamCreate & { id: string },
+	datas: IOrganizationTeamUpdate,
 	bearer_token: string
 ) {
 	const { id, ...body } = datas;

@@ -3,12 +3,14 @@ import { ITeamTask } from './ITask';
 
 export interface IOrganizationTeamCreate {
 	name: string;
-	memberIds?: any[];
-	managerIds?: any[];
+	memberIds?: string[];
+	managerIds?: string[];
 	tags?: any[];
 	organizationId: string;
 	tenantId: string;
 }
+
+export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
 
 export interface IOrganizationTeam {
 	tenantId: string;
