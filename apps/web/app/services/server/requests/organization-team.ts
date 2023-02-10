@@ -3,6 +3,7 @@ import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
+	IOrganizationTeamUpdate,
 	IOrganizationTeamWithMStatus,
 } from '@app/interfaces/IOrganizationTeam';
 import { serverFetch } from '../fetch';
@@ -20,14 +21,15 @@ export function createOrganizationTeamRequest(
 }
 
 export function updateOrganizationTeamRequest(
-	datas: IOrganizationTeamCreate & { id: string },
+	datas: IOrganizationTeamUpdate & { id: string },
 	bearer_token: string
 ) {
-	const { id, ...body } = datas;
-	return serverFetch<IOrganizationTeam>({
+	const { id } = datas;
+
+	return serverFetch<IOrganizationTeamUpdate>({
 		path: `/organization-team/${id}`,
 		method: 'PUT',
-		body,
+		body: datas,
 		bearer_token,
 	});
 }

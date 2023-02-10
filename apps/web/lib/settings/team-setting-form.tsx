@@ -7,21 +7,33 @@ import { useRecoilState } from 'recoil';
 import { Edit2Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import TimeTrackingToggle from 'lib/components/switch';
+import { useOrganizationTeams } from '@app/hooks';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit } = useForm();
 	const { trans } = useTranslation('settingsTeam');
+	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
 
 	useEffect(() => {
-		setValue('teamName', '');
+		setValue('teamName', activeTeam?.name || '');
 		setValue('teamType', '');
 		setValue('teamLink', '');
-	}, [user, setValue]);
+	}, [user, setValue, activeTeam]);
 
-	const onSubmit = useCallback(async (values: any) => {
-		console.log(values);
-	}, []);
+	const onSubmit = useCallback(
+		async (values: any) => {
+			if (activeTeam) {
+				editOrganizationTeam({
+					id: activeTeam?.id,
+					name: values.teamName,
+					organizationId: activeTeam.organizationId,
+					tenantId: activeTeam.tenantId,
+				});
+			}
+		},
+		[editOrganizationTeam, activeTeam]
+	);
 
 	return (
 		<>
@@ -47,6 +59,7 @@ export const TeamSettingForm = () => {
 											<Button
 												variant="ghost"
 												className="p-0 m-0 mr-[0.5rem] min-w-0"
+												type="submit"
 											>
 												<Edit2Icon />
 											</Button>

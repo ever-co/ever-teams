@@ -3,8 +3,10 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie,
 } from '@app/helpers/cookies';
+import { IOrganizationTeamUpdate } from '@app/interfaces';
 import {
 	createOrganizationTeamAPI,
+	editOrganizationTeamAPI,
 	getOrganizationTeamAPI,
 	getOrganizationTeamsAPI,
 } from '@app/services/client/api';
@@ -84,6 +86,9 @@ export function useOrganizationTeams() {
 		});
 	}, [queryCall, setActiveTeamId, setTeams]);
 
+	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } =
+		useQuery(editOrganizationTeamAPI);
+
 	const setActiveTeam = useCallback(
 		(teamId: typeof teams[0]) => {
 			setActiveTeamIdCookie(teamId.id);
@@ -122,6 +127,16 @@ export function useOrganizationTeams() {
 		}
 	}, [activeTeamId, firstLoad, setTeams]);
 
+	const editOrganizationTeam = useCallback(
+		(data: IOrganizationTeamUpdate) => {
+			return editQueryCall(data).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+		[editOrganizationTeamLoading]
+	);
+
 	return {
 		loadTeamsData,
 		loading,
@@ -132,5 +147,7 @@ export function useOrganizationTeams() {
 		createOrganizationTeam,
 		createOTeamLoading,
 		firstLoadTeamsData,
+		editOrganizationTeam,
+		editOrganizationTeamLoading,
 	};
 }
