@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { generateToken } from "../../helpers/generate-token";
+import { useQueryClient } from "react-query"
 import { useStores } from "../../models";
 import { IInviteCreate } from "../interfaces/IInvite";
 import { acceptInviteRequest, getTeamInvitationsRequest, inviteByEmailsRequest, verifyInviteCodeRequest } from "../client/requests/invite";
 import { getEmployeeRoleRequest } from "../client/requests/roles";
+import useFetchTeamInvitations from "../client/queries/invitation/invitations";
 
 export function useTeamInvitations() {
+    const queryClient = useQueryClient()
     const { authenticationStore: {
         user,
         organizationId,
@@ -19,6 +22,7 @@ export function useTeamInvitations() {
         setEmployeeId
     },
         teamStore: { activeTeamId, activeTeam, teamInvitations, setTeamInvitations, teams } } = useStores();
+    const {isLoading, isFetching, isRefetching, data:invitations}=useFetchTeamInvitations({authToken,tenantId, organizationId, activeTeamId});
 
     const [loading, setLoading] = useState<boolean>(false);
     const members = activeTeam.members || [];
@@ -51,34 +55,20 @@ export function useTeamInvitations() {
             },
             authToken
         )
-        console.log(JSON.stringify(data))
+            queryClient.invalidateQueries("invitations")
         setLoading(false)
         return response
     }
 
-    const getTeamInvitations = async () => {
-        const { data } = await getTeamInvitationsRequest(
-            {
-                tenantId,
-                teamId: activeTeamId,
-                organizationId,
-                role: "EMPLOYEE",
-            },
-            authToken
-        );
-        const activeInvitations = data.items.filter((i) => i.status !== "ACCEPTED") || [];
-        setTeamInvitations(activeInvitations)
-        return data;
-    }
+
 
     useEffect(() => {
-        getTeamInvitations()
-    }, [activeTeamId, teams, loading, user])
+        setTeamInvitations(invitations||[])
+    }, [activeTeamId, teams, loading, user, isFetching, isRefetching])
 
     return {
         inviterMember,
         loading,
         teamInvitations,
-        getTeamInvitations
     }
 }
