@@ -29,7 +29,7 @@ export interface IOrganizationTeamMember {
 	title?: string;
 }
 
-export interface IRole {
+interface IRole {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
