@@ -36,33 +36,36 @@ import { useSyncRef } from '../useSyncRef';
 function useTeamsState() {
 	const [teams, setTeams] = useRecoilState(organizationTeamsState);
 
-	const setTeamsUpdate = useCallback((team: IOrganizationTeamWithMStatus) => {
-		const members = team?.members;
-		const id = team.id;
-		if (!members) return;
+	const setTeamsUpdate = useCallback(
+		(team: IOrganizationTeamWithMStatus) => {
+			const members = team?.members;
+			const id = team.id;
+			if (!members) return;
 
-		// Update active teams fields with from team Status API
-		setTeams((tms) => {
-			const idx_tm = tms.findIndex((t) => t.id === id);
-			if (idx_tm < 0) return tms;
-			const new_tms = [...tms];
-			new_tms[idx_tm] = { ...new_tms[idx_tm] };
-			const new_members = [...new_tms[idx_tm].members];
-			// merges status fields for a members
-			new_members.forEach((mem, i) => {
-				const new_mem = members.find((m) => m.id === mem.id);
-				if (!new_mem) return;
-				new_members[i] = {
-					...mem,
-					...new_mem,
-					id: mem.id,
-				};
+			// Update active teams fields with from team Status API
+			setTeams((tms) => {
+				const idx_tm = tms.findIndex((t) => t.id === id);
+				if (idx_tm < 0) return tms;
+				const new_tms = [...tms];
+				new_tms[idx_tm] = { ...new_tms[idx_tm] };
+				const new_members = [...new_tms[idx_tm].members];
+				// merges status fields for a members
+				new_members.forEach((mem, i) => {
+					const new_mem = members.find((m) => m.id === mem.id);
+					if (!new_mem) return;
+					new_members[i] = {
+						...mem,
+						...new_mem,
+						id: mem.id,
+					};
+				});
+				// Update members for a team
+				new_tms[idx_tm].members = new_members;
+				return new_tms;
 			});
-			// Update members for a team
-			new_tms[idx_tm].members = new_members;
-			return new_tms;
-		});
-	}, []);
+		},
+		[setTeams]
+	);
 
 	return {
 		teams,

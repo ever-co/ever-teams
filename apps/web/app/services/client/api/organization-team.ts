@@ -32,3 +32,7 @@ export function updateOrganizationTeamAPI(
 		data
 	);
 }
+
+export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
+	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
+}

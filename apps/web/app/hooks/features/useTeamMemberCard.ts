@@ -45,7 +45,6 @@ export function useTeamMemberCard(
 
 	const makeMemberManager = useCallback(() => {
 		const employeeId = member?.employee?.id;
-		console.log(employeeId);
 
 		if (!activeTeamRef.current || !employeeId) return;
 		const team = activeTeamRef.current;
@@ -58,6 +57,42 @@ export function useTeamMemberCard(
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
+	const unMakeMemberManager = useCallback(() => {
+		const employeeId = member?.employee?.id;
+
+		if (!activeTeamRef.current || !employeeId) return;
+		const team = activeTeamRef.current;
+
+		updateOrganizationTeam(activeTeamRef.current, {
+			managerIds: team.members
+				.filter((r) => r.role && r.role.name === 'MANAGER')
+				.filter((r) => r.employee.id !== employeeId)
+				.map((r) => r.employee.id),
+		});
+	}, [updateOrganizationTeam, member, activeTeamRef]);
+
+	/**
+	 * Remove member from team API call
+	 */
+	const removeMemberFromTeam = useCallback(() => {
+		const employeeId = member?.employee?.id;
+
+		if (!activeTeamRef.current || !employeeId) return;
+		const team = activeTeamRef.current;
+
+		updateOrganizationTeam(activeTeamRef.current, {
+			// remove from members
+			memberIds: team.members
+				.filter((r) => r.employee.id !== employeeId)
+				.map((r) => r.employee.id),
+			// remove from managers
+			managerIds: team.members
+				.filter((r) => r.role && r.role.name === 'MANAGER')
+				.filter((r) => r.employee.id !== employeeId)
+				.map((r) => r.employee.id),
+		});
+	}, [updateOrganizationTeam, member, activeTeamRef]);
+
 	return {
 		isTeamManager,
 		memberUser,
@@ -67,6 +102,8 @@ export function useTeamMemberCard(
 		isAuthTeamManager,
 		makeMemberManager,
 		updateOTeamLoading,
+		removeMemberFromTeam,
+		unMakeMemberManager,
 	};
 }
 

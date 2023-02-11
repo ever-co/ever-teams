@@ -23,14 +23,13 @@ export function UserTeamCardMenu(props: Props) {
 }
 
 function DropdownMenu({ edition, memberInfo }: Props) {
-	const { onAssignTask, onUnAssignTask, onMakeAManager, onRemoveMember } =
-		useDropdownAction({
-			edition,
-			memberInfo,
-		});
+	const { onAssignTask, onUnAssignTask, onRemoveMember } = useDropdownAction({
+		edition,
+		memberInfo,
+	});
 
 	const { trans } = useTranslation();
-	const loading = edition.loading;
+	const loading = edition.loading || memberInfo.updateOTeamLoading;
 
 	const menu = [
 		{
@@ -61,9 +60,14 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			onClick: onUnAssignTask,
 		},
 		{
-			name: trans.common.MAKE_A_MANAGER,
+			name: memberInfo.isTeamManager
+				? trans.common.UNMAKE_A_MANAGER
+				: trans.common.MAKE_A_MANAGER,
 			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
-			onClick: onMakeAManager,
+			// MAke or unmake member a manager
+			onClick: memberInfo.isTeamManager
+				? memberInfo.unMakeMemberManager
+				: memberInfo.makeMemberManager,
 			closable: true,
 		},
 		{
@@ -231,20 +235,16 @@ function useDropdownAction({
 		console.log('onUnAssignTask');
 	}, []);
 
-	const onMakeAManager = useCallback(() => {
-		console.log('onMakeAManager');
-
-		memberInfo.makeMemberManager();
-	}, []);
-
 	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
-		console.log('on remove', close);
+		console.log('onRemoveMember');
+
+		memberInfo.removeMemberFromTeam();
+		close && close();
 	}, []);
 
 	return {
 		onAssignTask,
 		onUnAssignTask,
-		onMakeAManager,
 		onRemoveMember,
 	};
 }

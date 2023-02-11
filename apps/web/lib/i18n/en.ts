@@ -7,6 +7,7 @@ export const en = {
 		ASSIGN_TASK: 'Assign Task',
 		UNASSIGN_TASK: 'Unassign Task',
 		MAKE_A_MANAGER: 'Make a Manager',
+		UNMAKE_A_MANAGER: 'Unmake a Manager',
 		REMOVE: 'Remove',
 		TODAY: 'Today',
 		TOTAL: 'Total',

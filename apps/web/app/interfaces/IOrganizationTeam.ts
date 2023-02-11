@@ -39,14 +39,7 @@ export interface IOrganizationTeamList {
 	members: OT_Member[];
 }
 
-export type IOrganizationTeamWithMStatus = Omit<
-	IOrganizationTeamList,
-	'members'
-> & {
-	members: MS_Member[];
-};
-
-type MS_Member = Omit<OT_Member, 'role' | 'employee'>;
+export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
 
 interface OT_Member {
 	id: string;

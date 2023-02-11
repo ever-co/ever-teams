@@ -21,16 +21,12 @@ export default async function handler(
 	}
 
 	const { data: teamStatus } = await getOrganizationTeamRequest(
-		teamId,
-		access_token,
-		tenantId,
 		{
 			organizationId,
-			'relations[0]': 'members',
-			source: 'BROWSER',
-			withLaskWorkedTask: 'true',
 			tenantId,
-		}
+			teamId: teamId,
+		},
+		access_token
 	);
 
 	return $res.json(teamStatus);
