@@ -1,8 +1,10 @@
 import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { IOrganizationTeamMember } from '@app/interfaces';
+import { activeTeamManagersState } from '@app/stores';
 import { BackButton, Button, Card, Modal, Text } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
 
 /**
@@ -16,7 +18,7 @@ export function TransferTeamModal({
 	closeModal: () => void;
 }) {
 	const { trans } = useTranslation();
-
+	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 	const { activeTeam, editOrganizationTeam, editOrganizationTeamLoading } =
 		useOrganizationTeams();
 	const { user } = useAuthenticateUser();
@@ -29,18 +31,14 @@ export function TransferTeamModal({
 			e.preventDefault();
 
 			if (activeTeam && selectedMember) {
-				console.log({
-					id: activeTeam.id,
-					managerIds: [selectedMember.id],
-					memberIds: activeTeam.members.map((member) => member.employeeId),
-					tenantId: activeTeam.tenantId,
-					organizationId: activeTeam.organizationId,
-					name: activeTeam.name,
-				});
-
 				editOrganizationTeam({
 					id: activeTeam.id,
-					managerIds: [selectedMember.id],
+					managerIds: [
+						...activeTeamManagers
+							.filter((manager) => manager.employee.userId !== user?.id)
+							.map((manager) => manager.employeeId),
+						selectedMember.id,
+					],
 					memberIds: activeTeam.members.map((member) => member.employeeId),
 					tenantId: activeTeam.tenantId,
 					organizationId: activeTeam.organizationId,
@@ -50,7 +48,7 @@ export function TransferTeamModal({
 					.catch((err) => {});
 			}
 		},
-		[activeTeam, selectedMember]
+		[activeTeam, selectedMember, user]
 	);
 
 	return (
@@ -69,7 +67,7 @@ export function TransferTeamModal({
 						<div className="w-full mt-5">
 							<TransferTeamDropdown
 								setSelectedMember={setSelectedMember}
-								members={activeTeam?.members
+								members={activeTeamManagers
 									.filter((member) => member.employee.userId !== user?.id)
 									.map((member) => ({
 										id: member.employeeId,
