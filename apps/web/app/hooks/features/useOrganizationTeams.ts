@@ -52,7 +52,11 @@ function useTeamsState() {
 			new_members.forEach((mem, i) => {
 				const new_mem = members.find((m) => m.id === mem.id);
 				if (!new_mem) return;
-				new_members[i] = { ...mem, ...new_mem };
+				new_members[i] = {
+					...mem,
+					...new_mem,
+					id: mem.id,
+				};
 			});
 			// Update members for a team
 			new_tms[idx_tm].members = new_members;
@@ -129,10 +133,10 @@ function useUpdateOrganizationTeam() {
 
 			const body: Partial<IOrganizationTeamUpdate> = {
 				id: team.id,
-				memberIds: members.map((t) => t.id),
+				memberIds: members.map((t) => t.employee.id),
 				managerIds: members
 					.filter((m) => m.role && m.role.name === 'MANAGER')
-					.map((t) => t.id),
+					.map((t) => t.employee.id),
 				name: team.name,
 				tenantId: team.tenantId,
 				organizationId: team.organizationId,

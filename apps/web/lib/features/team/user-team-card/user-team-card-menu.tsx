@@ -30,19 +30,20 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		});
 
 	const { trans } = useTranslation();
+	const loading = edition.loading;
 
 	const menu = [
 		{
 			name: trans.common.EDIT_TASK,
 			closable: true,
-			onclick: () => {
+			onClick: () => {
 				edition.task && edition.setEditMode(true);
 			},
 		},
 		{
 			name: trans.common.ESTIMATE,
 			closable: true,
-			onclick: () => {
+			onClick: () => {
 				edition.task && edition.setEstimateEditMode(true);
 			},
 		},
@@ -83,8 +84,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			])}
 		>
 			<Popover.Button className="flex items-center outline-none border-none">
-				{!edition.loading && <MoreIcon />}
-				{edition.loading && <SpinnerLoader size={20} />}
+				{!loading && <MoreIcon />}
+				{loading && <SpinnerLoader size={20} />}
 			</Popover.Button>
 
 			<Transition
@@ -153,7 +154,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 													<button
 														className="mb-2"
 														onClick={() => {
-															item.onclick && item.onclick();
+															item.onClick && item.onClick({});
 															item.closable && close();
 														}}
 													>
@@ -218,7 +219,10 @@ type IAssignCall = (params: {
 	closeCombobox2?: () => void;
 }) => void;
 
-function useDropdownAction({ edition }: Pick<Props, 'edition' | 'memberInfo'>) {
+function useDropdownAction({
+	edition,
+	memberInfo,
+}: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(() => {
 		console.log('onAssignTask', edition);
 	}, [edition]);
@@ -229,6 +233,8 @@ function useDropdownAction({ edition }: Pick<Props, 'edition' | 'memberInfo'>) {
 
 	const onMakeAManager = useCallback(() => {
 		console.log('onMakeAManager');
+
+		memberInfo.makeMemberManager();
 	}, []);
 
 	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {

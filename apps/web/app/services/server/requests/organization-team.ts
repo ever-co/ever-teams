@@ -17,6 +17,7 @@ export function createOrganizationTeamRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
+		tenantId: datas.tenantId,
 	});
 }
 
@@ -37,6 +38,7 @@ export function updateOrganizationTeamRequest(
 		method: 'PUT',
 		body,
 		bearer_token,
+		tenantId: datas.tenantId,
 	});
 }
 

@@ -23,9 +23,12 @@ export function useTeamMemberCard(
 
 	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } =
 		useOrganizationTeams();
+
 	const activeTeamRef = useSyncRef(activeTeam);
 
 	const memberUser = member?.employee.user;
+
+	// const memberUserRef = useSyncRef(memberUser);
 	const isAuthUser = member?.employee.userId === authUSer?.id;
 	const { isTeamManager } = useIsMemberManager(memberUser);
 	const [memberTask, setMemberTask] = useState<ITeamTask | null>(
@@ -41,16 +44,19 @@ export function useTeamMemberCard(
 	}, [activeTeamTask, isAuthUser, authUSer, member]);
 
 	const makeMemberManager = useCallback(() => {
-		if (!activeTeamRef.current || !memberUser?.employee.id) return;
+		const employeeId = member?.employee?.id;
+		console.log(employeeId);
+
+		if (!activeTeamRef.current || !employeeId) return;
 		const team = activeTeamRef.current;
 
 		updateOrganizationTeam(activeTeamRef.current, {
 			managerIds: team.members
 				.filter((r) => r.role && r.role.name === 'MANAGER')
-				.map((r) => r.id)
-				.concat(memberUser?.employee.id),
+				.map((r) => r.employee.id)
+				.concat(employeeId),
 		});
-	}, [updateOrganizationTeam, memberUser, activeTeamRef]);
+	}, [updateOrganizationTeam, member, activeTeamRef]);
 
 	return {
 		isTeamManager,
