@@ -84,8 +84,13 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 			onClick={(e) => e.stopPropagation()}
 		>
 			{members.slice(0, 2).map((member, i) => {
+				const user = member.user;
 				return (
-					<Link key={i} href={`/profile/${member.id}`}>
+					<Link
+						key={i}
+						title={`${user?.firstName} ${user?.lastName}`}
+						href={`/profile/${member.id}`}
+					>
 						<Avatar
 							shape="circle"
 							className="border"
