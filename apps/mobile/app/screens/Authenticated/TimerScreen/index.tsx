@@ -22,48 +22,63 @@ import { useAppTheme } from "../../../app"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import FlashMessage, { showMessage } from "react-native-flash-message"
 import useTimerScreenLogic from "./logics/useTimerScreenLogic"
+import { Skeleton } from "react-native-skeletons"
+import TimerScreenSkeleton from "./components/TimerScreenSkeleton"
 
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(function AuthenticatedTimerScreen(_props) {
   // HOOKS
   // const { firstLoadData, firstLoad } = useFirstLoad();
   const { createOrganizationTeam } = useOrganizationTeam();
-  const { showCreateTeamModal, setShowCreateTeamModal, setShowCombo } = useTimerScreenLogic();
+  const { showCreateTeamModal, setShowCreateTeamModal, setShowCombo, showCombo } = useTimerScreenLogic();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   LogBox.ignoreAllLogs();
   const { colors, dark } = useAppTheme()
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 2000)
+  }, [])
 
 
   return (
     <Screen preset="scroll" ScrollViewProps={{ bounces: false }} contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
       backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
       safeAreaEdges={["top"]}>
-      <TouchableOpacity activeOpacity={1} onPress={() => {
-        setShowCombo(false)
-      }}>
-        <View>
-          <CreateTeamModal
-            onCreateTeam={createOrganizationTeam}
-            visible={showCreateTeamModal}
-            onDismiss={() => setShowCreateTeamModal(false)}
-          />
-          <View style={{ zIndex: 1000 }}>
-            <HomeHeader props={_props} showTimer={false} />
-          </View>
-          <View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
-            <DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
-          </View>
-          <View style={[$timerSection, { backgroundColor: colors.background }]}>
-            <View style={{ zIndex: 100 }}>
-              <ManageTaskCard />
+      {isLoading ? (
+        <TimerScreenSkeleton showTaskDropdown={false} />
+      ) : (
+        <>
+          <TouchableOpacity activeOpacity={1} onPress={() => {
+            setShowCombo(false)
+          }}>
+            <View>
+              <CreateTeamModal
+                onCreateTeam={createOrganizationTeam}
+                visible={showCreateTeamModal}
+                onDismiss={() => setShowCreateTeamModal(false)}
+              />
+              <View style={{ zIndex: 1000 }}>
+                <HomeHeader props={_props} showTimer={false} />
+              </View>
+              <View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
+                <DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
+              </View>
+              <View style={[$timerSection, { backgroundColor: colors.background }]}>
+                <View style={{ zIndex: 100 }}>
+                  <ManageTaskCard />
+                </View>
+                <View style={{ zIndex: 99, }}>
+                  <TimerCard />
+                </View>
+              </View>
             </View>
-            <View style={{ zIndex: 99, }}>
-              <TimerCard />
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
-      <FlashMessage style={{ position: "absolute", alignSelf: "center", top: 200 }} />
+          </TouchableOpacity>
+          <FlashMessage style={{ position: "absolute", alignSelf: "center", top: 200 }} />
+        </>
+      )}
     </Screen>
   )
 })

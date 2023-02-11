@@ -6,7 +6,7 @@ import {
   ViewStyle,
   TouchableWithoutFeedback,
   TextStyle,
-  Text, Dimensions, FlatList
+  Text, Dimensions, FlatList, LogBox
 } from "react-native"
 
 // TYPES
@@ -35,6 +35,7 @@ import { translate } from "../../../i18n"
 import { useAppTheme } from "../../../app"
 import { useTeamInvitations } from "../../../services/hooks/useTeamInvitation"
 import useTeamScreenLogic from "./logics/useTeamScreenLogic"
+import TeamScreenSkeleton from "./components/TeamScreenSkeleton"
 
 
 const { width, height } = Dimensions.get("window");
@@ -42,9 +43,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
   function AuthenticatedTeamScreen(_props) {
 
     const { colors, dark } = useAppTheme();
+    LogBox.ignoreAllLogs();
     //Get authentificate data
     const {
-      teamStore:{
+      teamStore: {
         teamInvitations
       },
       TimerStore: {
@@ -59,7 +61,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
       showCreateTeamModal,
       showInviteModal,
       showMoreMenu,
-      setShowMoreMenu
+      setShowMoreMenu,
+      isLoading
     } = useTeamScreenLogic();
 
     const { navigation } = _props
@@ -80,60 +83,67 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
             visible={showCreateTeamModal}
             onDismiss={() => setShowCreateTeamModal(false)}
           />
-          <HomeHeader props={_props} showTimer={localTimerStatus.running} />
-          <View style={{ ...$wrapTeam, backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)", }}>
-            <View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
-              <DropDown resized={isTeamManager} onCreateTeam={() => setShowCreateTeamModal(true)} />
-            </View>
-            {isTeamManager ? (
-              <TouchableOpacity
-                style={[$inviteButton, { borderColor: colors.secondary }]}
-                onPress={() => setShowInviteModal(true)}
-              >
-                <Text style={[$inviteButtonText, { color: colors.secondary }]}>
-                  {translate("teamScreen.inviteButton")}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-          <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-            {/* Users activity list */}
-            <ScrollView
-              bounces={false}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-              style={[$cardContainer, { backgroundColor: dark ? "rgb(16,17,20)" : "#F7F7F8" }]}
-            >
-              <View >
-                {currentUser && (
-                  <ListCardItem
-                    member={currentUser as IUser}
-                    onPressIn={goToProfile}
-                    enableEstimate={false}
-                    index={7}
-                    userStatus={"online"}
-                  />
-                )}
 
-
-                {$otherMembers.map((member, index) => (
-                  <ListCardItem
-                    key={index}
-                    member={member as IUser}
-                    onPressIn={goToProfile}
-                    enableEstimate={false}
-                    index={9}
-                    userStatus={"pause"}
-                  />
-                ))}
-
-                {teamInvitations.map((invite, idx) => (
-                  <InviteCardItem key={idx} invite={invite} />
-                ))}
+          {isLoading ? (
+            <TeamScreenSkeleton />
+          ) : (
+            <>
+              <HomeHeader props={_props} showTimer={localTimerStatus.running} />
+              <View style={{ ...$wrapTeam, backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)", }}>
+                <View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
+                  <DropDown resized={isTeamManager} onCreateTeam={() => setShowCreateTeamModal(true)} />
+                </View>
+                {isTeamManager ? (
+                  <TouchableOpacity
+                    style={[$inviteButton, { borderColor: colors.secondary }]}
+                    onPress={() => setShowInviteModal(true)}
+                  >
+                    <Text style={[$inviteButtonText, { color: colors.secondary }]}>
+                      {translate("teamScreen.inviteButton")}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
-            </ScrollView>
-          </TouchableWithoutFeedback>
-          <FlashMessage position="bottom" />
+              <TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
+                {/* Users activity list */}
+                <ScrollView
+                  bounces={false}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
+                  style={[$cardContainer, { backgroundColor: dark ? "rgb(16,17,20)" : "#F7F7F8" }]}
+                >
+                  <View >
+                    {currentUser && (
+                      <ListCardItem
+                        member={currentUser as IUser}
+                        onPressIn={goToProfile}
+                        enableEstimate={false}
+                        index={7}
+                        userStatus={"online"}
+                      />
+                    )}
+
+
+                    {$otherMembers.map((member, index) => (
+                      <ListCardItem
+                        key={index}
+                        member={member as IUser}
+                        onPressIn={goToProfile}
+                        enableEstimate={false}
+                        index={9}
+                        userStatus={"pause"}
+                      />
+                    ))}
+
+                    {teamInvitations.map((invite, idx) => (
+                      <InviteCardItem key={idx} invite={invite} />
+                    ))}
+                  </View>
+                </ScrollView>
+              </TouchableWithoutFeedback>
+              <FlashMessage position="bottom" />
+            </>
+          )}
         </Screen>
       </>
     )

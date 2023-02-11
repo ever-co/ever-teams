@@ -55,7 +55,8 @@ const ManageTaskCard = observer(() => {
                     {
                         flexDirection: "row",
                         alignItems: "center",
-                        borderColor: colors.border
+                        borderColor: colors.border,
+                        backgroundColor:colors.background
                     },
                 ]}
             >

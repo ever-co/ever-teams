@@ -19,10 +19,10 @@ export const LeftSideSettingMenu = () => {
 					<Button
 						variant="outline"
 						className={`w-full border-t-0 border-r-0 border-b-0 rounded-none
-                font-normal justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
+                font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
                 ${
 									activePage === '/settings/personal'
-										? ' border-l-[5px] border-l-solid border-l-primary bg-primary/5'
+										? ' border-l-[5px] text-[#3826a6] border-l-solid border-l-primary bg-primary/5'
 										: 'border-l-0'
 								}`}
 					>
@@ -33,7 +33,7 @@ export const LeftSideSettingMenu = () => {
 					<Button
 						variant="outline"
 						className={`w-full border-t-0 border-r-0 border-b-0 rounded-none
-                    font-normal  justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
+                    font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
                     ${
 											activePage === '/settings/team'
 												? ' border-l-[5px] border-l-solid border-l-primary bg-primary/5'

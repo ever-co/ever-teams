@@ -41,6 +41,14 @@ export const en = {
 		DARK_MODE: 'Dark Mode',
 		SETTINGS: 'Settings',
 		TEAM: 'Team',
+		FULL_NAME: 'Full Name',
+		CONTACT: 'Contact',
+		THEME: 'Theme',
+		TIME_ZONE: 'Timezone',
+		EDIT: 'Edit',
+		SAVE: 'Save',
+		LANGUAGE: 'Language',
+		DETECT: 'Detect',
 	},
 	pages: {
 		home: {
@@ -87,9 +95,29 @@ export const en = {
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'Personal Settings',
+
+			WORK_SCHEDULE: 'Work Schedule',
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',
+			TEAM_NAME: 'Team Name',
+			TEAM_TYPE: 'Team Type',
+			TIME_TRACKING: 'Time Tracking',
+
+			TASK_STATUSES: 'Task Statuses',
+			TASK_PRIORITIES: 'Task Priorities',
+			TASK_SIZES: 'Task Sizes',
+			TASK_LABELS: 'Task Labels',
+
+			CREATE_NEW_STATUSES: 'Create new Statuses',
+			CREATE_NEW_PRIORITIES: 'Create new Priorities',
+			CREATE_NEW_SIZES: 'Create new Sizes',
+			CREATE_NEW_LABELS: 'Create new Labels',
+
+			LIST_OF_STATUSES: 'List of Statuses',
+			LIST_OF_PRIORITIES: 'List of Priorities',
+			LIST_OF_SIZES: 'List of Sizes',
+			LIST_OF_LABELS: 'List of Labels',
 		},
 
 		invite: {
