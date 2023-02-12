@@ -39,6 +39,8 @@ export function useTeamMemberCard(
 		if (authUSer && member) {
 			if (isAuthUser) {
 				setMemberTask(activeTeamTask);
+			} else if (member.lastWorkedTask) {
+				setMemberTask(member.lastWorkedTask);
 			}
 		}
 	}, [activeTeamTask, isAuthUser, authUSer, member]);

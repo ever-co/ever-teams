@@ -16,6 +16,7 @@ export function UnverifiedEmail() {
 			'unverified-message-closed',
 			getAccessTokenCookie()
 		);
+		// close message popup
 		setVefified(true);
 	}, [setVefified]);
 
