@@ -1,27 +1,33 @@
-import { authenticatedGuard } from "@app/services/server/guards/authenticated-guard";
-import { getOrganizationTeamRequest } from "@app/services/server/requests";
-import { NextApiRequest, NextApiResponse } from "next";
+import { IOrganizationTeamUpdate } from '@app/interfaces';
+import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
+import {
+	getOrganizationTeamRequest,
+	updateOrganizationTeamRequest,
+} from '@app/services/server/requests';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
+	req: NextApiRequest,
+	res: NextApiResponse
 ) {
-  const { $res, user, organizationId, access_token, tenantId, teamId } =
-    await authenticatedGuard(req, res);
-  if (!user) return $res();
+	const { $res, user, organizationId, access_token, tenantId, teamId } =
+		await authenticatedGuard(req, res);
+	if (!user) return $res();
 
-  const { data: teamStatus } = await getOrganizationTeamRequest(
-    teamId,
-    access_token,
-    tenantId,
-    {
-      organizationId,
-      "relations[0]": "members",
-      source: "BROWSER",
-      withLaskWorkedTask: "true",
-      tenantId,
-    }
-  );
+	/* Updating the team. */
+	if (req.method === 'PUT') {
+		const body = req.body as IOrganizationTeamUpdate;
+		await updateOrganizationTeamRequest(body, access_token);
+	}
 
-  return $res.json(teamStatus);
+	const { data: teamStatus } = await getOrganizationTeamRequest(
+		{
+			organizationId,
+			tenantId,
+			teamId: teamId,
+		},
+		access_token
+	);
+
+	return $res.json(teamStatus);
 }

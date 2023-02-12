@@ -1,23 +1,38 @@
-import { PaginationResponse } from "@app/interfaces/IDataResponse";
+import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import {
-  IOrganizationTeamList,
-  IOrganizationTeamWithMStatus,
-} from "@app/interfaces/IOrganizationTeam";
-import api from "../axios";
+	IOrganizationTeamList,
+	IOrganizationTeamWithMStatus,
+	IOrganizationTeamUpdate,
+} from '@app/interfaces';
+import api from '../axios';
 
 export function getOrganizationTeamsAPI() {
-  return api.get<PaginationResponse<IOrganizationTeamList>>(
-    "/organization-team"
-  );
+	return api.get<PaginationResponse<IOrganizationTeamList>>(
+		'/organization-team'
+	);
 }
 
 export function createOrganizationTeamAPI(name: string) {
-  return api.post<PaginationResponse<IOrganizationTeamList>>(
-    "/organization-team",
-    { name }
-  );
+	return api.post<PaginationResponse<IOrganizationTeamList>>(
+		'/organization-team',
+		{ name }
+	);
 }
 
 export function getOrganizationTeamAPI(teamId: string) {
-  return api.get<IOrganizationTeamWithMStatus>(`/organization-team/${teamId}`);
+	return api.get<IOrganizationTeamWithMStatus>(`/organization-team/${teamId}`);
+}
+
+export function updateOrganizationTeamAPI(
+	teamId: string,
+	data: Partial<IOrganizationTeamUpdate>
+) {
+	return api.put<IOrganizationTeamWithMStatus>(
+		`/organization-team/${teamId}`,
+		data
+	);
+}
+
+export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
+	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }

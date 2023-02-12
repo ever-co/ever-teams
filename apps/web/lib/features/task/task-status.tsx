@@ -521,7 +521,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 							leaveFrom="transform scale-100 opacity-100"
 							leaveTo="transform scale-95 opacity-0"
 							className={clsxm(
-								'absolute right-0 left-0 z-40',
+								'absolute right-0 left-0 z-40 min-w-min',
 								issueType === 'issue' && ['left-auto right-auto']
 							)}
 						>
