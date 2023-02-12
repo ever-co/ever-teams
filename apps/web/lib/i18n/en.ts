@@ -1,6 +1,9 @@
 export const en = {
 	TITLE: 'Gauzy Teams',
 	common: {
+		VERIFY: 'verify',
+		PLEASE: 'please',
+		YOUR_EMAIL: 'your email',
 		CONTINUE: 'Continue',
 		EDIT_TASK: 'Edit Task',
 		ESTIMATE: 'Estimate',
@@ -54,6 +57,7 @@ export const en = {
 	pages: {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
+			SENT_EMAIL_VERIFICATION: 'Code Vericiation has ben sent to your email',
 		},
 
 		profile: {

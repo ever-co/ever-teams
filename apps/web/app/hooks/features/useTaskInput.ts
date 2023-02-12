@@ -21,17 +21,22 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
  * @param {boolean} [initEditMode] - boolean
  * @returns An object with the following properties:
  */
-export function useTaskInput(
-	task?: Nullable<ITeamTask>,
-	initEditMode?: boolean
-) {
+export function useTaskInput({
+	task,
+	initEditMode,
+	tasks: customTasks,
+}: {
+	tasks?: ITeamTask[];
+	task?: Nullable<ITeamTask>;
+	initEditMode?: boolean;
+}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
 		null
 	);
 
 	const {
-		tasks,
+		tasks: teamTasks,
 		activeTeamTask,
 		setActiveTask,
 		createLoading,
@@ -40,6 +45,8 @@ export function useTaskInput(
 		createTask,
 		updateTask,
 	} = useTeamTasks();
+
+	const tasks = customTasks || teamTasks;
 
 	/**
 	 * If task has null value then consider it as value 😄

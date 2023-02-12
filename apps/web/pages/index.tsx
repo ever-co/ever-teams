@@ -5,6 +5,7 @@ import {
 	AuthUserTaskInput,
 	TeamMembers,
 	Timer,
+	UnverifiedEmail,
 	UserTeamCardHeader,
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
@@ -17,6 +18,9 @@ function MainPage() {
 		<MainLayout>
 			<MainHeader>
 				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+
+				<UnverifiedEmail />
+
 				<TaskTimerSection />
 
 				{/* Header user card list */}

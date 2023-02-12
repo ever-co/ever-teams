@@ -30,6 +30,7 @@ import { TaskItem } from './task-item';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
+	tasks?: ITeamTask[];
 	onTaskClick?: (task: ITeamTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -65,9 +66,15 @@ export function TaskInput({
 	createOnEnterClick,
 	showTaskNumber = false,
 	showCombobox = true,
+	tasks,
 }: Props) {
 	const { trans } = useTranslation();
-	const datas = useTaskInput(task, initEditMode);
+	const datas = useTaskInput({
+		task,
+		initEditMode,
+		tasks,
+	});
+
 	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 
