@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "react-query"
 import { useStores } from "../../../models";
+import useFetchAllTasks from "../../client/queries/task/tasks";
 import { createTaskRequest, deleteTaskRequest, getTeamTasksRequest, updateTaskRequest } from "../../client/requests/tasks";
 import { OT_Member } from "../../interfaces/IOrganizationTeam";
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
 
 
 export function useTeamTasks() {
+    const queryClient = useQueryClient()
     const { authenticationStore: { tenantId, organizationId, authToken, user },
         teamStore: { activeTeam, activeTeamId, setActiveTeam },
         TaskStore: { teamTasks, activeTask, fetchingTasks, setTeamTasks, setActiveTask, activeTaskId, setActiveTaskId, setFetchingTasks, setAssignedTasks, setUnassignedTasks }
@@ -13,6 +16,8 @@ export function useTeamTasks() {
 
     const [updateLoading, setUpdateLoading] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
+
+    const { isLoading, data: allTasks, isRefetching } = useFetchAllTasks({ tenantId, organizationId, authToken })
 
     // Create a new Task
     const createNewTask = useCallback(async (title: string) => {
@@ -38,9 +43,20 @@ export function useTeamTasks() {
             data: dataBody,
             bearer_token: authToken
         })
+        queryClient.invalidateQueries("tasks")
+        const { data: tasks } = await getTeamTasksRequest({
+            bearer_token: authToken,
+            tenantId,
+            organizationId,
+        });
+
+        const activeTeamTasks = getTasksByTeamState({ tasks: tasks.items, activeTeamId })
+
+        const createdTask = activeTeamTasks.find((t) => t.id === data?.id)
+
         setCreateLoading(false)
         return {
-            data,
+            data: createdTask,
             response
         }
     }, [activeTeamId])
@@ -49,7 +65,10 @@ export function useTeamTasks() {
     // Update a task
     const updateTask = async (task: ITeamTask, id: string) => {
         setUpdateLoading(true)
+
         const { data, response } = await updateTaskRequest({ data: task, id }, authToken);
+        queryClient.invalidateQueries("tasks");
+
         setUpdateLoading(false)
         return { data, response }
     }
@@ -73,26 +92,8 @@ export function useTeamTasks() {
         [setTeamTasks]
     );
 
-    // Load Team Tasks
-    const loadTeamTasksData =useCallback(async () => {
-        const { data } = await getTeamTasksRequest({
-            bearer_token: authToken,
-            tenantId: tenantId,
-            organizationId: organizationId,
-        });
-
-        const tasks = getTasksByTeamState({ tasks: data.items, activeTeamId })
-        setTeamTasks(tasks)
-
-        if (activeTaskId) {
-            setActiveTask(tasks.find((ts) => ts.id === activeTaskId) || null);
-        }
-
-        return tasks
-    },[])
-
     // Assign a task to a member
-    const onAssignTask =async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
+    const onAssignTask = async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
 
         const teamMembers: OT_Member[] = activeTeam?.members;
         const currentMember = teamMembers.find((m) => m.employee.user.id === memberId)
@@ -118,7 +119,7 @@ export function useTeamTasks() {
             ]
         }
         const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken);
-       
+        queryClient.invalidateQueries("tasks")
         return data;
     }
 
@@ -145,22 +146,26 @@ export function useTeamTasks() {
         }
 
         const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken);
-
+        queryClient.invalidateQueries("tasks")
         return data;
     }
 
 
-    // Get the active task id and update active task data
+    // // Get the active task id and update active task data
     useEffect(() => {
         const active_taskId = activeTaskId || '';
         setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null);
-    }, []);
+    }, [teamTasks]);
 
 
     useEffect(() => {
-        loadTeamTasksData();
-    }, [activeTeamId, createTaskRequest, updateTaskRequest])
-
+        const activeTeamTasks = getTasksByTeamState({ tasks: allTasks?.items, activeTeamId })
+        setTeamTasks(activeTeamTasks)
+        console.log("ASSIGN")
+        if (activeTaskId) {
+            setActiveTask(activeTeamTasks.find((ts) => ts.id === activeTaskId) || null);
+        }
+    }, [activeTeamId, allTasks?.total, isRefetching])
     /**
  * Change active task
  */
@@ -175,13 +180,13 @@ export function useTeamTasks() {
 
     return {
         createNewTask,
-        loadTeamTasksData,
         deleteTask,
         updateTask,
         activeTask,
         setActiveTeamTask,
         onUnassignedTask,
         onAssignTask,
+        isRefetching
     }
 }
 
