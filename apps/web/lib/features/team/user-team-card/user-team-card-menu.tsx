@@ -87,10 +87,12 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				edition.taskEditIgnoreElement.ignoreElementRef,
 			])}
 		>
-			<Popover.Button className="flex items-center outline-none border-none">
-				{!loading && <MoreIcon />}
-				{loading && <SpinnerLoader size={20} />}
-			</Popover.Button>
+			{!loading && (
+				<Popover.Button className="flex items-center outline-none border-none">
+					<MoreIcon />
+				</Popover.Button>
+			)}
+			{loading && <SpinnerLoader size={20} />}
 
 			<Transition
 				enter="transition duration-100 ease-out"

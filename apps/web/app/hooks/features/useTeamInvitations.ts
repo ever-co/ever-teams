@@ -1,6 +1,7 @@
 import {
 	getTeamInvitationsAPI,
 	inviteByEmailsAPI,
+	removeTeamInvitationsAPI,
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
@@ -29,8 +30,12 @@ export function useTeamInvitations() {
 
 	// Queries
 	const { queryCall, loading } = useQuery(getTeamInvitationsAPI);
+
 	const { queryCall: inviteQueryCall, loading: inviteLoading } =
 		useQuery(inviteByEmailsAPI);
+
+	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } =
+		useQuery(removeTeamInvitationsAPI);
 
 	const invateUser = useCallback((email: string, name: string) => {
 		return inviteQueryCall({ email, name }).then((res) => {
@@ -53,11 +58,19 @@ export function useTeamInvitations() {
 		}
 	}, [loading, firstLoad]);
 
+	const removeTeamInvitation = useCallback((invitationId: string) => {
+		removeInviteQueryCall(invitationId).then((res) => {
+			setTeamInvitations(res.data?.items || []);
+		});
+	}, []);
+
 	return {
 		teamInvitations,
 		firstLoadTeamInvitationsData,
 		fetchingInvitations,
 		inviteLoading,
 		invateUser,
+		removeTeamInvitation,
+		removeInviteLoading,
 	};
 }

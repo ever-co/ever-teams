@@ -12,6 +12,7 @@ export const en = {
 		MAKE_A_MANAGER: 'Make a Manager',
 		UNMAKE_A_MANAGER: 'Unmake a Manager',
 		REMOVE: 'Remove',
+		RESEND_INVITATION: 'Resend Invitation',
 		TODAY: 'Today',
 		TOTAL: 'Total',
 		ESTIMATED: 'Estimated',
