@@ -11,11 +11,11 @@ export function getTeamInvitationsAPI() {
 }
 
 export function removeTeamInvitationsAPI(invitationId: string) {
-	return api.get<PaginationResponse<IInvitation>>(`/invite/${invitationId}`);
+	return api.delete<PaginationResponse<IInvitation>>(`/invite/${invitationId}`);
 }
 
-export function resendTeamInvitationsAPI(invitationId: string) {
-	return api.post<PaginationResponse<IInvitation>>(`/invite/resend`, {
-		invitationId,
+export function resendTeamInvitationsAPI(inviteId: string) {
+	return api.post<any>(`/invite/resend`, {
+		inviteId,
 	});
 }

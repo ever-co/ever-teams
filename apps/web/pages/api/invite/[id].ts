@@ -15,7 +15,7 @@ export default async function handler(
 
 	const invitationId = req.query.id as string;
 
-	if (!req.query.id) {
+	if (!req.query.id || req.method !== 'DELETE') {
 		return $res.status(400).json({});
 	}
 

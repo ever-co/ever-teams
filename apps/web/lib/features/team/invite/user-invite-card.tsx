@@ -84,9 +84,14 @@ export function InvitedCard({ invitation, className }: Props) {
 
 export function RemoveUserInviteMenu({ invitation }: Props) {
 	const { trans } = useTranslation();
-	const { removeInviteLoading, removeTeamInvitation } = useTeamInvitations();
+	const {
+		removeInviteLoading,
+		removeTeamInvitation,
+		resendTeamInvitation,
+		resendInviteLoading,
+	} = useTeamInvitations();
 
-	const loading = removeInviteLoading;
+	const loading = removeInviteLoading || resendInviteLoading;
 
 	return (
 		<Popover className="relative">
@@ -112,9 +117,12 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
 								<ul>
 									<li>
-										<button className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all">
+										<Popover.Button
+											onClick={() => resendTeamInvitation(invitation.id)}
+											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
+										>
 											{trans.common.RESEND_INVITATION}
-										</button>
+										</Popover.Button>
 									</li>
 									<li>
 										<ConfirmDropdown
