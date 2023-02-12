@@ -53,7 +53,7 @@ export function useTeamTasks() {
         const activeTeamTasks = getTasksByTeamState({ tasks: tasks.items, activeTeamId })
 
         const createdTask = activeTeamTasks.find((t) => t.id === data?.id)
-
+        queryClient.invalidateQueries("tasks")
         setCreateLoading(false)
         return {
             data: createdTask,
@@ -104,8 +104,14 @@ export function useTeamTasks() {
             }
         }
 
+        const { data:tasks } = await getTeamTasksRequest({
+            bearer_token: authToken,
+            tenantId:tenantId,
+            organizationId: organizationId,
+        });
 
-        const task: ITeamTask = teamTasks.find((ts) => ts.id === taskId);
+        const activeTeamTasks = getTasksByTeamState({ tasks: tasks?.items, activeTeamId })
+        const task: ITeamTask = activeTeamTasks.find((ts) => ts.id === taskId);
         const members = task.members
 
         const editTask =
@@ -161,7 +167,6 @@ export function useTeamTasks() {
     useEffect(() => {
         const activeTeamTasks = getTasksByTeamState({ tasks: allTasks?.items, activeTeamId })
         setTeamTasks(activeTeamTasks)
-        console.log("ASSIGN")
         if (activeTaskId) {
             setActiveTask(activeTeamTasks.find((ts) => ts.id === activeTaskId) || null);
         }
