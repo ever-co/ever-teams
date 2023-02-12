@@ -29,7 +29,7 @@ export function useTaskInput({
 	tasks?: ITeamTask[];
 	task?: Nullable<ITeamTask>;
 	initEditMode?: boolean;
-}) {
+} = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
 	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
 		null
