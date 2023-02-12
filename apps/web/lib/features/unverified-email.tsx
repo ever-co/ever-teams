@@ -20,6 +20,13 @@ export function UnverifiedEmail() {
 	}, [setVefified]);
 
 	useEffect(() => {
+		const hasVerified = user ? !!user.employee.isVerified : true;
+
+		if (hasVerified) {
+			setVefified(true);
+			return;
+		}
+
 		const closed =
 			window.localStorage.getItem('unverified-message-closed') ===
 			getAccessTokenCookie();
@@ -29,7 +36,7 @@ export function UnverifiedEmail() {
 			return;
 		}
 
-		setVefified(user ? !!user.employee.isVerified : true);
+		setVefified(false);
 	}, [user]);
 
 	return !verified ? (
