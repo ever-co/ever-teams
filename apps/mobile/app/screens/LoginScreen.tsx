@@ -96,7 +96,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setOrganizationId(team.organizationId)
       setUser(user)
       setTenantId(team.tenantId)
-      // setEmployeeId(employee.id)
+      setEmployeeId(user.employee.id)
 
       // Save Auth Token
       setAuthToken(loginRes.access_token);
@@ -168,7 +168,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     setIsLoading(true)
     const { data, status, error } = await sendAuthCode(authEmail);
     setIsSubmitted(false);
-    setIsLoading(true)
+    setIsLoading(false)
   }, [authEmail])
 
 
@@ -329,8 +329,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                     screen: 2,
                     animation: true
                   })}>
-                  <Text 
-                  style={{...styles.resendText}}
+                  <Text
+                    style={{ ...styles.resendText }}
                   >{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
                 </TouchableOpacity>
               </View>
@@ -569,11 +569,11 @@ const styles = EStyleSheet.create({
     bottom: "20%",
     right: 140,
   },
-  screenTitle :{
+  screenTitle: {
     marginTop: "2rem",
     fontSize: "1.5rem",
-    textAlign:"center",
-    width:"100%",
+    textAlign: "center",
+    width: "100%",
     color: "#fff",
     fontFamily: typography.primary.bold,
     fontWeight: "700",
@@ -581,7 +581,7 @@ const styles = EStyleSheet.create({
   smalltext: {
     marginTop: "1rem",
     fontSize: '0.7rem',
-    width:"100%",
+    width: "100%",
     textAlign: "center",
     color: "#fff",
     fontFamily: typography.secondary.normal,

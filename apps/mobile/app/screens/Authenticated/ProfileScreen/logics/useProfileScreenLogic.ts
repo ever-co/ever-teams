@@ -37,8 +37,7 @@ const useProfileScreenLogic = (
     const currentUser = useMemo(() => member?.employee.user, [member])
 
 
-
-    const { onAssignTask, onUnassignedTask, createNewTask } = useTeamTasks();
+    const { onAssignTask, onUnassignedTask, createNewTask, isRefetching } = useTeamTasks();
 
 
 
@@ -127,7 +126,7 @@ const useProfileScreenLogic = (
 
         setOtherTasks(otherTasks)
         loadAssignAndUnassign();
-    }, [allTasks, filter])
+    }, [allTasks, filter, isRefetching])
 
     useEffect(() => {
         setTimeout(() => {

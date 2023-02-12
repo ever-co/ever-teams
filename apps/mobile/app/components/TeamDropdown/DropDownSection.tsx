@@ -31,7 +31,7 @@ const DropDownSection: FC<Props> = function DropDownSection({ teams, onCreateTea
   const { colors } = useAppTheme();
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background, shadowColor: "rgba(0, 0, 0, 0.12)" }]}>
-      <ScrollView bounces={false} style={{ maxHeight: 400, width: "100%" }}>
+      {/* <ScrollView bounces={false} style={{ maxHeight: 400, width: "100%" }}> */}
         <View style={styles.indDropDown}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Avatar.Text style={styles.teamImage} size={30} label={imgTitle("ALL")} labelStyle={styles.prefix} />
@@ -46,7 +46,7 @@ const DropDownSection: FC<Props> = function DropDownSection({ teams, onCreateTea
         {others.map((item, index) => (
           <DropItem key={index} team={item} resized={resized} changeTeam={changeTeam} isActiveTeam={false} />
         ))}
-      </ScrollView>
+      {/* </ScrollView> */}
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
         <View style={[styles.buttonStyle, { backgroundColor: colors.background }]}>
           <Ionicons name="add" size={24} color={colors.secondary} />
