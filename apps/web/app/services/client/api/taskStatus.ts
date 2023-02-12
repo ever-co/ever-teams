@@ -32,7 +32,7 @@ export function editTaskStatusAPI(
 	);
 }
 
-export function deleteTaskStatusAPI(id: string, tenantId?: string) {
+export function deleteTaskStatusAPI(id: string) {
 	return api.delete<DeleteReponse>(`/task-statuses/${id}`);
 }
 

@@ -1,7 +1,6 @@
-import { IUser } from '@app/interfaces/IUserData';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import { updateUserAvatarRequest } from '@app/services/server/requests';
-import { deleteUserRequest } from '@app/services/server/requests/user';
+
+import { resetUserRequest } from '@app/services/server/requests/user';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -14,23 +13,10 @@ export default async function handler(
 	);
 	if (!user) return $res();
 
-	const body = req.body as IUser;
 	switch (req.method) {
-		case 'PUT':
-			return $res.json(
-				await updateUserAvatarRequest(
-					{
-						data: body,
-						id: user.id as string,
-						tenantId,
-					},
-					access_token
-				)
-			);
 		case 'DELETE':
 			return $res.json(
-				await deleteUserRequest({
-					id: user.id,
+				await resetUserRequest({
 					bearer_token: access_token,
 					tenantId,
 				})

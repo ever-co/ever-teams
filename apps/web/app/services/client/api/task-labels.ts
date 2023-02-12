@@ -9,15 +9,11 @@ export function createTaskLabelsAPI(
 	data: ITaskLabelsCreate,
 	tenantId?: string
 ) {
-	return api.post<CreateReponse<ITaskLabelsCreate>>(
-		'/tags',
-		data,
-		{
-			headers: {
-				'Tenant-Id': tenantId,
-			},
-		}
-	);
+	return api.post<CreateReponse<ITaskLabelsCreate>>('/tags', data, {
+		headers: {
+			'Tenant-Id': tenantId,
+		},
+	});
 }
 
 export function editTaskLabelsAPI(
@@ -25,26 +21,17 @@ export function editTaskLabelsAPI(
 	data: ITaskLabelsCreate,
 	tenantId?: string
 ) {
-	return api.put<CreateReponse<ITaskLabelsCreate>>(
-		`/tags/${id}`,
-		data,
-		{
-			headers: {
-				'Tenant-Id': tenantId,
-			},
-		}
-	);
+	return api.put<CreateReponse<ITaskLabelsCreate>>(`/tags/${id}`, data, {
+		headers: {
+			'Tenant-Id': tenantId,
+		},
+	});
 }
 
-export function deleteTaskLabelsAPI(id: string, tenantId?: string) {
+export function deleteTaskLabelsAPI(id: string) {
 	return api.delete<DeleteReponse>(`/tags/${id}`);
 }
 
-export function getTaskLabelsList(
-	tenantId: string,
-	organizationId: string
-) {
-	return api.get(
-		`/tags?tenantId=${tenantId}&organizationId=${organizationId}`
-	);
+export function getTaskLabelsList(tenantId: string, organizationId: string) {
+	return api.get(`/tags?tenantId=${tenantId}&organizationId=${organizationId}`);
 }
