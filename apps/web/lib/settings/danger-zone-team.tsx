@@ -12,7 +12,8 @@ import { useRecoilValue } from 'recoil';
 import { TransferTeamModal } from './transfer-team-modal';
 
 export const DangerZoneTeam = () => {
-	const { activeTeam, deleteOrganizationTeam } = useOrganizationTeams();
+	const { activeTeam, deleteOrganizationTeam, editOrganizationTeam } =
+		useOrganizationTeams();
 	const { deleteOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
@@ -32,10 +33,11 @@ export const DangerZoneTeam = () => {
 			);
 
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
+				// Remove from Team API call
 				deleteOrganizationTeamEmployee(currentEmployeeDetails.id);
 			}
 		}
-	}, [activeTeam, deleteOrganizationTeamEmployee, user]);
+	}, [activeTeam, user, deleteOrganizationTeamEmployee, editOrganizationTeam]);
 
 	return (
 		<>

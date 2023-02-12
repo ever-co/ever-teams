@@ -67,7 +67,7 @@ export function TransferTeamModal({
 						<div className="w-full mt-5">
 							<TransferTeamDropdown
 								setSelectedMember={setSelectedMember}
-								members={activeTeamManagers
+								members={activeTeam?.members
 									.filter((member) => member.employee.userId !== user?.id)
 									.map((member) => ({
 										id: member.employeeId,
