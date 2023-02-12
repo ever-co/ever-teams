@@ -1,6 +1,8 @@
 import {
 	getTeamInvitationsAPI,
 	inviteByEmailsAPI,
+	removeTeamInvitationsAPI,
+	resendTeamInvitationsAPI,
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
@@ -29,8 +31,15 @@ export function useTeamInvitations() {
 
 	// Queries
 	const { queryCall, loading } = useQuery(getTeamInvitationsAPI);
+
 	const { queryCall: inviteQueryCall, loading: inviteLoading } =
 		useQuery(inviteByEmailsAPI);
+
+	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } =
+		useQuery(removeTeamInvitationsAPI);
+
+	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } =
+		useQuery(resendTeamInvitationsAPI);
 
 	const invateUser = useCallback((email: string, name: string) => {
 		return inviteQueryCall({ email, name }).then((res) => {
@@ -53,11 +62,25 @@ export function useTeamInvitations() {
 		}
 	}, [loading, firstLoad]);
 
+	const removeTeamInvitation = useCallback((invitationId: string) => {
+		removeInviteQueryCall(invitationId).then((res) => {
+			setTeamInvitations(res.data?.items || []);
+		});
+	}, []);
+
+	const resendTeamInvitation = useCallback((invitationId: string) => {
+		resendInviteQueryCall(invitationId);
+	}, []);
+
 	return {
 		teamInvitations,
 		firstLoadTeamInvitationsData,
 		fetchingInvitations,
 		inviteLoading,
 		invateUser,
+		removeTeamInvitation,
+		resendTeamInvitation,
+		removeInviteLoading,
+		resendInviteLoading,
 	};
 }

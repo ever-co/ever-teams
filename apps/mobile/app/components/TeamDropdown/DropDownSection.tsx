@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 
@@ -31,20 +31,22 @@ const DropDownSection: FC<Props> = function DropDownSection({ teams, onCreateTea
   const { colors } = useAppTheme();
   return (
     <View style={[styles.mainContainer, { backgroundColor: colors.background, shadowColor: "rgba(0, 0, 0, 0.12)" }]}>
-      <View style={styles.indDropDown}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Avatar.Text style={styles.teamImage} size={30} label={imgTitle("ALL")} labelStyle={styles.prefix} />
-          <Text style={{ color: colors.tertiary, paddingLeft: "5%", fontSize: 16, fontFamily: typography.primary.normal }}>{"ALL"}</Text>
+      {/* <ScrollView bounces={false} style={{ maxHeight: 400, width: "100%" }}> */}
+        <View style={styles.indDropDown}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Avatar.Text style={styles.teamImage} size={30} label={imgTitle("ALL")} labelStyle={styles.prefix} />
+            <Text style={{ color: colors.tertiary, paddingLeft: "5%", fontSize: 16, fontFamily: typography.primary.normal }}>{"ALL"}</Text>
+          </View>
+          <TouchableOpacity>
+            <Ionicons name="settings-outline" size={24} color={colors.primary} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity>
-          <Ionicons name="settings-outline" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
-      {activeTeamId && <DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
-      {others.map((item, index) => (
-        <DropItem key={index} team={item} resized={resized} changeTeam={changeTeam} isActiveTeam={false} />
-      ))}
 
+        {activeTeamId && <DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />}
+        {others.map((item, index) => (
+          <DropItem key={index} team={item} resized={resized} changeTeam={changeTeam} isActiveTeam={false} />
+        ))}
+      {/* </ScrollView> */}
       <TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
         <View style={[styles.buttonStyle, { backgroundColor: colors.background }]}>
           <Ionicons name="add" size={24} color={colors.secondary} />

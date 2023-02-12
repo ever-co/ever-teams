@@ -4,19 +4,19 @@ import { ITenant } from "../../../interfaces/ITenant";
 
 export function createStmpTenantRequest(bearer_token: string, tenantId) {
     const body = {
-        "fromAddress": "noreply@gauzy.co",
-        "host": "smtp.gmail.com",
-        "port": 587,
+        "fromAddress":"",
+        "host": "",
+        "port": 0,
         "secure": false,
-        "username": "sergedev1998@gmail.com",
-        "password": "mesplvbfvimtngvf"
+        "username": "",
+        "password": ""
     }
 
     return serverFetch<ITenant>({
         path: "/smtp",
         method: "POST",
         body,
-        tenantId,
+        tenantId, 
         bearer_token,
     });
 }

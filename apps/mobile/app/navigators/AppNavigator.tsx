@@ -14,6 +14,7 @@ import { observer } from "mobx-react-lite"
 import React from "react"
 import { useColorScheme } from "react-native"
 import Config from "../config"
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { useStores } from "../models" // @demo remove-current-line
 import {
   LoginScreen, // @demo remove-current-line
@@ -96,13 +97,15 @@ interface NavigationProps extends Partial<React.ComponentProps<typeof Navigation
 export const AppNavigator = observer(function AppNavigator(props: NavigationProps) {
 
   useBackButtonHandler((routeName) => exitRoutes.includes(routeName))
-
+  const queryClient = new QueryClient();
   return (
     <NavigationContainer
       ref={navigationRef}
       {...props}
     >
-      <AppStack />
+      <QueryClientProvider client={queryClient}>
+        <AppStack />
+      </QueryClientProvider>
     </NavigationContainer>
   )
 })

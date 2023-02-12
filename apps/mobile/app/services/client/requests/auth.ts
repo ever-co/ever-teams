@@ -5,11 +5,25 @@ import {
 import { IUser } from "../../interfaces/IUserData";
 import { serverFetch } from "../fetch";
 
+const registerDefaultValue = {
+  appName: 'Gauzy Teams',
+  appSignature: 'Ever Gauzy Team',
+  appLogo: 'https://app.gauzy.team/assets/gauzy-team.png',
+  appLink: 'https://gauzy.team/',
+  appEmailConfirmationUrl: 'https://app.gauzy.co/#/auth/confirm-email',
+};
+
 export const registerUserRequest = (data: IRegisterDataRequest) => {
+
+  const body = {
+    ...data,
+    ...registerDefaultValue,
+  };
+
   return serverFetch<IUser>({
     path: "/auth/register",
     method: "POST",
-    body: data,
+    body,
   });
 };
 
@@ -67,17 +81,17 @@ export const refreshTokenRequest = (refresh_token: string) => {
 };
 
 export function sendAuthCodeRequest(email: string) {
-	return serverFetch<{ status: number; message: string | 'ok' }>({
-		path: '/auth/send-code',
-		method: 'POST',
-		body: { email },
-	});
+  return serverFetch<{ status: number; message: string | 'ok' }>({
+    path: '/auth/send-code',
+    method: 'POST',
+    body: { email },
+  });
 }
 
 export function verifyAuthCodeRequest(email: string, code: number) {
-	return serverFetch<ILoginResponse>({
-		path: '/auth/verify-code',
-		method: 'POST',
-		body: { email, code },
-	});
+  return serverFetch<ILoginResponse>({
+    path: '/auth/verify-code',
+    method: 'POST',
+    body: { email, code },
+  });
 }

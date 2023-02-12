@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { showMessage } from "react-native-flash-message";
 import { useStores } from "../../models";
-import { ITeamsOut } from "../../models/team/team";
-import { getUserOrganizationsRequest } from "../client/requests/organization";
-import { createOrganizationTeamRequest, getAllOrganizationTeamRequest, updateOrganizationTeamRequest } from "../client/requests/organization-team";
-import { IUserOrganization } from "../interfaces/IOrganization";
+import useFetchUserOrganization from "../client/queries/organizationTeam/organization";
+import { createOrganizationTeamRequest, updateOrganizationTeamRequest } from "../client/requests/organization-team";
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
 import useAuthenticateUser from "./features/useAuthentificateUser";
 
 
 function useCreateOrganizationTeam() {
     const {
-        authenticationStore: { tenantId, organizationId, employeeId, authToken },
-        teamStore: { teams, setOrganizationTeams, activeTeamId, setActiveTeamId }
+        authenticationStore: { tenantId, organizationId, authToken, user, employeeId },
+        teamStore: { teams, setOrganizationTeams, setActiveTeamId, setActiveTeam }
     } = useStores();
 
     const [createTeamLoading, setCreateTeamLoading] = useState(false)
@@ -45,7 +43,7 @@ function useCreateOrganizationTeam() {
             },
             authToken
         );
-
+        setActiveTeamId(data.id)
         setCreateTeamLoading(false)
         return data
     },
@@ -59,7 +57,7 @@ function useCreateOrganizationTeam() {
 }
 
 export function useOrganizationTeam() {
-    const { teamStore: { activeTeamId, teams, setActiveTeam, setOrganizationTeams, activeTeam },
+    const { teamStore: { activeTeamId, teams, setActiveTeam, setOrganizationTeams, activeTeam, setActiveTeamId },
         authenticationStore: { user, tenantId, authToken } } = useStores();
     const { logOut } = useAuthenticateUser();
 
@@ -69,7 +67,9 @@ export function useOrganizationTeam() {
 
     const [isTeamManager, setIsTeamManager] = useState(false);
 
-    // const activeTeam = useMemo(() => teams.items.find((t) => t.id === activeTeamId), [activeTeamId])
+    const { data: organizationTeams, isLoading } = useFetchUserOrganization({
+        tenantId, authToken, userId: user?.id
+    })
 
     const members = activeTeam?.members || [];
 
@@ -88,70 +88,10 @@ export function useOrganizationTeam() {
                 const isUser = member.employee.userId === $u?.id;
                 return isUser && member.role && member.role.name === "MANAGER";
             });
-            setIsTeamManager(isM)
-            return false;
-        } else {
-            return false
+            setIsTeamManager(!!isM)
         }
-        return false
     }
 
-    // Load organization teams
-
-    const loadingTeams = useCallback(async () => {
-        setTeamsFetching(true)
-        const { data: organizations } = await getUserOrganizationsRequest(
-            { tenantId, userId: user?.id },
-            authToken
-        );
-
-        const organizationsItems = organizations.items;
-
-        const filteredOrganization = organizationsItems.reduce((acc, org) => {
-            if (!acc.find((o) => o.organizationId === org.organizationId)) {
-                acc.push(org);
-            }
-            return acc;
-        }, [] as IUserOrganization[]);
-
-
-        const call_teams = filteredOrganization.map((item) => {
-            return getAllOrganizationTeamRequest(
-                { tenantId, organizationId: item.organizationId },
-                authToken
-            );
-        });
-
-        const data: ITeamsOut = await Promise.all(call_teams).then((tms) => {
-            return tms.reduce(
-                (acc, { data }) => {
-                    acc.items.push(...data.items);
-                    acc.total += data.total;
-                    return acc;
-                },
-                { items: [] as IOrganizationTeamList[], total: 0 }
-            );
-        });
-
-        // If there no team, user will be logged out
-        if (data.total <= 0) {
-            logOut();
-            return
-        }
-
-        // UPDATE ACTIVE TEAM
-        const updateActiveTeam = data.items.find((t) => t.id === activeTeamId)
-        if (updateActiveTeam) {
-            setActiveTeam(updateActiveTeam)
-        } else {
-            setActiveTeam(data.items[0])
-        }
-
-        setOrganizationTeams(data);
-
-        setTeamsFetching(false)
-
-    }, [])
 
 
     const makeMemberAsManager = useCallback(async (employeeId: string) => {
@@ -180,7 +120,7 @@ export function useOrganizationTeam() {
             id: activeTeamId,
             bearer_token: authToken
         });
-        await loadingTeams();
+
 
         if (response.ok || response.status === 202) {
             showMessage({
@@ -227,7 +167,6 @@ export function useOrganizationTeam() {
             bearer_token: authToken
         });
 
-        await loadingTeams();
 
         if (response.ok || response.status === 202) {
             showMessage({
@@ -241,12 +180,30 @@ export function useOrganizationTeam() {
 
     // Load Teams
     useEffect(() => {
-        isManager();
-        loadingTeams()
-    }, [user, createTeamLoading, updateOrganizationTeamRequest])
+        if (!isLoading) {
+            // If there no team, user will be logged out
+            if (organizationTeams.total <= 0) {
+                logOut();
+                return
+            }
+
+            // UPDATE ACTIVE TEAM
+            const updateActiveTeam = organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams.items[0]
+            if (updateActiveTeam) {
+                setActiveTeam(updateActiveTeam)
+                setActiveTeamId(updateActiveTeam.id)
+            }
+            // console.log("Teams "+JSON.stringify(organizationTeams))
+
+            setOrganizationTeams(organizationTeams);
+            setTeamsFetching(false)
+        }
+        isManager()
+    }, [user, createTeamLoading, organizationTeams?.total, isLoading])
+
 
     return {
-        loadingTeams,
+        // loadingTeams,
         isTeamManager,
         members,
         activeTeam,
