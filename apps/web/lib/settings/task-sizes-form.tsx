@@ -70,15 +70,7 @@ export const TaskSizesForm = () => {
 				});
 			}
 		},
-		[
-			edit,
-			edit?.name,
-			edit?.color,
-			createNew,
-			editTaskSizes,
-			user,
-			createTaskSizes,
-		]
+		[edit, createNew, editTaskSizes, user, createTaskSizes]
 	);
 
 	return (

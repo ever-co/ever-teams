@@ -35,8 +35,6 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	value: Value,
 	onChange,
 	items,
-	loading,
-	buttonStyle,
 	optionsClassName,
 }: Props<T>) {
 	const [query, setQuery] = useState('');

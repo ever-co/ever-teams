@@ -43,12 +43,18 @@ export function TransferTeamModal({
 					tenantId: activeTeam.tenantId,
 					organizationId: activeTeam.organizationId,
 					name: activeTeam.name,
-				})
-					.then(closeModal)
-					.catch((err) => {});
+				}).then(closeModal);
+				// .catch((err) => {});
 			}
 		},
-		[activeTeam, selectedMember, user]
+		[
+			activeTeam,
+			selectedMember,
+			user,
+			activeTeamManagers,
+			closeModal,
+			editOrganizationTeam,
+		]
 	);
 
 	return (

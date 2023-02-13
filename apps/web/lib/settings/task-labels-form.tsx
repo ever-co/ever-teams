@@ -69,15 +69,7 @@ export const TaskLabelForm = () => {
 				});
 			}
 		},
-		[
-			edit,
-			edit?.name,
-			edit?.color,
-			createNew,
-			editTaskLabels,
-			user,
-			createTaskLabels,
-		]
+		[edit, createNew, editTaskLabels, user, createTaskLabels]
 	);
 
 	return (

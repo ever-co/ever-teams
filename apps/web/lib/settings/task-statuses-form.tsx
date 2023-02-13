@@ -77,15 +77,7 @@ export const TaskStatusesForm = () => {
 				});
 			}
 		},
-		[
-			edit,
-			edit?.name,
-			edit?.color,
-			createNew,
-			editTaskStatus,
-			user,
-			createTaskStatus,
-		]
+		[edit, createNew, editTaskStatus, user, createTaskStatus]
 	);
 
 	return (

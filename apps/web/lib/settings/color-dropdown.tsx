@@ -68,10 +68,7 @@ export const ColorDropdown = ({
 		},
 	]);
 
-	const items: any = useMemo(
-		() => mapColorItems(colors),
-		[colors, colors.length, active]
-	);
+	const items: any = useMemo(() => mapColorItems(colors), [colors]);
 
 	const [colorItem, setColorItem] = useState<ColorItem | null>();
 
@@ -87,16 +84,15 @@ export const ColorDropdown = ({
 
 	useEffect(() => {
 		if (active && colors.every((color) => color.color !== active.color)) {
-			console.log('ading');
 			setColors([...colors, active]);
 		}
-	}, [active, colors, colors.length, setColors, setColorItem]);
+	}, [colors, setColors, setColorItem]);
 
 	useEffect(() => {
 		if (active) {
 			setColorItem(items.find((item: any) => item.key === active?.color));
 		}
-	}, [active, colors, colors.length]);
+	}, [active, items]);
 
 	return (
 		<>

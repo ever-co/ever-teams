@@ -16,10 +16,7 @@ export const TransferTeamDropdown = ({
 	setSelectedMember: any;
 	selectedMember: IOrganizationTeamMember | undefined;
 }) => {
-	const items: any = useMemo(
-		() => mapTeamMemberItems(members),
-		[members, members.length, active]
-	);
+	const items: any = useMemo(() => mapTeamMemberItems(members), [members]);
 
 	const [memberItem, setMemberItem] = useState<TeamMemberItem | null>();
 
@@ -30,14 +27,21 @@ export const TransferTeamDropdown = ({
 				setSelectedMember(item.data);
 			}
 		},
-		[setMemberItem, active]
+		[setMemberItem, active, setSelectedMember]
 	);
 
 	useEffect(() => {
 		if (selectedMember) {
 			setMemberItem(items.find((item: any) => item.key === selectedMember.id));
 		}
-	}, [selectedMember, active, members, members?.length]);
+	}, [
+		selectedMember,
+		active,
+		members,
+		members?.length,
+		setSelectedMember,
+		items,
+	]);
 
 	return (
 		<>

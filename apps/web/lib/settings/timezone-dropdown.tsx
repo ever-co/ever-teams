@@ -35,7 +35,7 @@ export const TimezoneDropDown = ({
 				setActiveTimezone(item.data);
 			}
 		},
-		[setActiveTimezone]
+		[setActiveTimezone, onChangeTimezone]
 	);
 
 	return (
