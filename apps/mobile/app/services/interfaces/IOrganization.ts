@@ -82,4 +82,5 @@ export interface IOrganizationCreate {
   name: string;
   currency: string;
   tenantId: string;
+  invitesAllowed: boolean;
 }
