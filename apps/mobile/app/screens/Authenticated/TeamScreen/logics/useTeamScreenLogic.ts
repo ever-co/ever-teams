@@ -11,11 +11,12 @@ const useTeamScreenLogic = () => {
     const [memberName, setMemberName] = useState("")
     const [memberEmail, setMemberEmail] = useState("");
     const [errors, setErrors] = useState({
-        emailError: " ",
-        nameError: " "
+        emailError: "",
+        nameError: ""
     })
 
     const handleEmailInput = (email: string) => {
+       
         if (email.trim().length == 0 || !email.match(EMAIL_REGEX)) {
             setErrors({ ...errors, emailError: "Email is not valid" })
             return

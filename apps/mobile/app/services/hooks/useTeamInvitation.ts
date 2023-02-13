@@ -1,5 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { generateToken } from "../../helpers/generate-token";
+import {
+    INVITE_CALLBACK_URL
+} from "@env"
 import { useQueryClient } from "react-query"
 import { useStores } from "../../models";
 import { IInviteCreate } from "../interfaces/IInvite";
@@ -43,15 +46,18 @@ export function useTeamInvitations() {
                 startedWorkOn: new Date().toISOString(),
                 tenantId,
                 organizationId,
+                departmentIds:[],
+                organizationContactIds:[],
                 emailIds: [email],
                 roleId: employeeRole?.id || '',
                 invitationExpirationPeriod: 'Never',
                 inviteType: 'TEAM',
+                appliedDate:null,
                 invitedById: user.id,
                 teamIds: [activeTeamId],
-                projectIds: [activeTeamId],
+                projectIds: [],
                 fullName: name,
-                // ...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+                ...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
             },
             authToken
         )
