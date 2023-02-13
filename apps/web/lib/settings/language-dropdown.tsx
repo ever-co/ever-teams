@@ -33,7 +33,7 @@ export const LanguageDropDown = ({
 				setActiveLanguage(item.data);
 			}
 		},
-		[setActiveLanguage]
+		[setActiveLanguage, onChangeLanguage]
 	);
 
 	return (

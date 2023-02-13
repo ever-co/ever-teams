@@ -1,4 +1,7 @@
-import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
+import {
+	IOrganizationTeamList,
+	OT_Member,
+} from '@app/interfaces/IOrganizationTeam';
 import { atom, selector } from 'recoil';
 
 export const organizationTeamsState = atom<IOrganizationTeamList[]>({
@@ -22,5 +25,14 @@ export const activeTeamState = selector<IOrganizationTeamList | null>({
 		const teams = get(organizationTeamsState);
 		const activeId = get(activeTeamIdState);
 		return teams.find((team) => team.id === activeId) || teams[0] || null;
+	},
+});
+
+export const activeTeamManagersState = selector<OT_Member[]>({
+	key: 'activeTeamManagersState',
+	get: ({ get }) => {
+		const activeTeam = get(activeTeamState);
+		const members = activeTeam?.members;
+		return members?.filter((member) => member.role?.name === 'MANAGER') || [];
 	},
 });

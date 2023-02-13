@@ -1,6 +1,7 @@
-import { IOrganizationTeamUpdate } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
+
 import {
+	deleteOrganizationTeamRequest,
 	getOrganizationTeamRequest,
 	updateOrganizationTeamRequest,
 } from '@app/services/server/requests';
@@ -14,20 +15,36 @@ export default async function handler(
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
-	/* Updating the team. */
-	if (req.method === 'PUT') {
-		const body = req.body as IOrganizationTeamUpdate;
-		await updateOrganizationTeamRequest(body, access_token);
+	const getTeamStatus = async () => {
+		const { data: team } = await getOrganizationTeamRequest(
+			{
+				organizationId,
+				tenantId,
+				teamId: teamId,
+			},
+			access_token
+		);
+
+		return team;
+	};
+
+	const { id } = req.query;
+	switch (req.method) {
+		case 'GET':
+			return $res.json(await getTeamStatus());
+
+		case 'PUT':
+			await updateOrganizationTeamRequest(req.body, access_token);
+			return $res.json(await getTeamStatus());
+
+		case 'DELETE':
+			if (id) {
+				await deleteOrganizationTeamRequest({
+					id: id as string,
+					bearer_token: access_token,
+					tenantId,
+				});
+				return $res.json(await getTeamStatus());
+			}
 	}
-
-	const { data: teamStatus } = await getOrganizationTeamRequest(
-		{
-			organizationId,
-			tenantId,
-			teamId: teamId,
-		},
-		access_token
-	);
-
-	return $res.json(teamStatus);
 }

@@ -72,7 +72,7 @@ export function useTaskLabels() {
 	const deleteTaskLabels = useCallback(
 		(id: string) => {
 			if (user?.tenantId) {
-				return deleteQueryCall(id, user?.tenantId || '').then((res) => {
+				return deleteQueryCall(id).then((res) => {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string

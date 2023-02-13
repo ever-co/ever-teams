@@ -1,9 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import Link from 'next/link';
 import { Button, Text } from 'lib/components';
-import { UserGroupIcon, UserIcon } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
+import {
+	PeopleIcon,
+	PeopleIconFilled,
+	UserIcon,
+	UserIconFilled,
+} from 'lib/components/svgs';
 
 export const LeftSideSettingMenu = () => {
 	const router = useRouter();
@@ -20,13 +25,19 @@ export const LeftSideSettingMenu = () => {
 						variant="outline"
 						className={`w-full border-t-0 border-r-0 border-b-0 rounded-none
                 font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
+				border-l-[5px]
                 ${
 									activePage === '/settings/personal'
-										? ' border-l-[5px] text-[#3826a6] border-l-solid border-l-primary bg-primary/5'
-										: 'border-l-0'
+										? '  text-[#3826a6] border-l-solid border-l-primary bg-primary/5'
+										: ' border-l-transparent'
 								}`}
 					>
-						<UserIcon className="w-[16px] h-[16px]" /> Personal
+						{activePage === '/settings/personal' ? (
+							<UserIconFilled className="w-[24px] h-[24px] fill-primary strock-primary" />
+						) : (
+							<UserIcon className="w-[24px] h-[24px]" />
+						)}
+						Personal
 					</Button>
 				</Link>
 				<Link href="/settings/team">
@@ -34,13 +45,19 @@ export const LeftSideSettingMenu = () => {
 						variant="outline"
 						className={`w-full border-t-0 border-r-0 border-b-0 rounded-none
                     font-normal text-[#7e7991] justify-start text-sm pt-[24px] pb-[24px] pl-[24px]
+					border-l-[5px]
                     ${
 											activePage === '/settings/team'
-												? ' border-l-[5px] border-l-solid border-l-primary bg-primary/5'
-												: 'border-l-0'
+												? ' border-l-solid border-l-primary bg-primary/5 text-primary'
+												: ' border-l-transparent'
 										}`}
 					>
-						<UserGroupIcon className="w-[16px] h-[16px]" /> Team
+						{activePage === '/settings/team' ? (
+							<PeopleIconFilled className="w-[24px] h-[24px] fill-primary strock-primary" />
+						) : (
+							<PeopleIcon className="w-[24px] h-[24px]" />
+						)}
+						Team
 					</Button>
 				</Link>
 			</div>

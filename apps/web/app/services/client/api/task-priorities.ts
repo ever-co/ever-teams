@@ -36,7 +36,7 @@ export function editTaskPrioritiesAPI(
 	);
 }
 
-export function deleteTaskPrioritiesAPI(id: string, tenantId?: string) {
+export function deleteTaskPrioritiesAPI(id: string) {
 	return api.delete<DeleteReponse>(`/task-priorities/${id}`);
 }
 

@@ -3,6 +3,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie,
 } from '@app/helpers/cookies';
+
 import {
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
@@ -10,12 +11,15 @@ import {
 } from '@app/interfaces';
 import {
 	createOrganizationTeamAPI,
+	deleteOrganizationTeamAPI,
+	editOrganizationTeamAPI,
 	getOrganizationTeamAPI,
 	getOrganizationTeamsAPI,
 	updateOrganizationTeamAPI,
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
+	activeTeamManagersState,
 	activeTeamState,
 	organizationTeamsState,
 	teamsFetchingState,
@@ -166,6 +170,8 @@ export function useOrganizationTeams() {
 	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
 
 	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
+
 	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
@@ -189,6 +195,12 @@ export function useOrganizationTeams() {
 		});
 	}, [queryCall, setActiveTeamId, setTeams]);
 
+	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } =
+		useQuery(editOrganizationTeamAPI);
+
+	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } =
+		useQuery(deleteOrganizationTeamAPI);
+
 	const setActiveTeam = useCallback(
 		(teamId: typeof teams[0]) => {
 			setActiveTeamIdCookie(teamId.id);
@@ -207,6 +219,29 @@ export function useOrganizationTeams() {
 		}
 	}, [activeTeamId, firstLoad, setTeams]);
 
+	// Set All managers of current team
+	useEffect(() => {}, [activeTeam]);
+
+	const editOrganizationTeam = useCallback(
+		(data: IOrganizationTeamUpdate) => {
+			return editQueryCall(data).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+		[editOrganizationTeamLoading]
+	);
+
+	const deleteOrganizationTeam = useCallback(
+		(id: string) => {
+			return deleteQueryCall(id).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+		[deleteOrganizationTeamLoading]
+	);
+
 	return {
 		loadTeamsData,
 		loading,
@@ -217,6 +252,11 @@ export function useOrganizationTeams() {
 		createOrganizationTeam,
 		createOTeamLoading,
 		firstLoadTeamsData,
+		editOrganizationTeam,
+		editOrganizationTeamLoading,
+		deleteOrganizationTeam,
+		deleteOrganizationTeamLoading,
+		activeTeamManagers,
 		updateOrganizationTeam,
 		updateOTeamLoading,
 	};

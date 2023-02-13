@@ -3,7 +3,7 @@ import { DropdownItem } from 'lib/components';
 export type TimezoneItem = DropdownItem<string>;
 
 export function mapTimezoneItems(timezones: string[]) {
-	const items = timezones.map<TimezoneItem>((timezone, index) => {
+	const items = timezones.map<TimezoneItem>((timezone) => {
 		return {
 			key: timezone,
 			Label: ({ selected }) => (

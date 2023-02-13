@@ -1,8 +1,13 @@
-import { PaginationResponse } from '@app/interfaces/IDataResponse';
+import {
+	CreateReponse,
+	PaginationResponse,
+} from '@app/interfaces/IDataResponse';
+
 import {
 	IOrganizationTeamList,
 	IOrganizationTeamWithMStatus,
 	IOrganizationTeamUpdate,
+	IOrganizationTeam,
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -23,6 +28,11 @@ export function getOrganizationTeamAPI(teamId: string) {
 	return api.get<IOrganizationTeamWithMStatus>(`/organization-team/${teamId}`);
 }
 
+export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
+	return api.put<CreateReponse<IOrganizationTeam>>(
+		`/organization-team/${data.id}`
+	);
+}
 export function updateOrganizationTeamAPI(
 	teamId: string,
 	data: Partial<IOrganizationTeamUpdate>
@@ -33,6 +43,11 @@ export function updateOrganizationTeamAPI(
 	);
 }
 
+export function deleteOrganizationTeamAPI(id: string) {
+	return api.delete<CreateReponse<IOrganizationTeam>>(
+		`/organization-team/${id}`
+	);
+}
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }

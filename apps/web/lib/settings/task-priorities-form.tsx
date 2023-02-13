@@ -70,15 +70,7 @@ export const TaskPrioritiesForm = () => {
 				});
 			}
 		},
-		[
-			edit,
-			edit?.name,
-			edit?.color,
-			createNew,
-			editTaskPriorities,
-			user,
-			createTaskPriorities,
-		]
+		[edit, createNew, editTaskPriorities, user, createTaskPriorities]
 	);
 
 	return (

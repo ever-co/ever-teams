@@ -1,22 +1,22 @@
 {
-    "cSpell.words": [
-        "cloudinary",
-        "clsxm",
-        "dummyimage",
-        "headlessui",
-        "heroicons",
-        "plasmo",
-        "RECAPTCHA",
-        "svgs",
-        "tailwindcss",
-        "Vercel"
-    ],
-    "deepscan.enable": true,
-		"search.exclude": {
-			"**/node_modules": true,
-			"**/bower_components": true,
-			"**/*.code-search": true,
-			"**/web/components/**": true
-        },
-        "docwriter.style": "Auto-detect"
+	"cSpell.words": [
+		"cloudinary",
+		"clsxm",
+		"dummyimage",
+		"headlessui",
+		"heroicons",
+		"plasmo",
+		"RECAPTCHA",
+		"svgs",
+		"tailwindcss",
+		"Vercel"
+	],
+	"deepscan.enable": true,
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/bower_components": true,
+		"**/*.code-search": true,
+		"**/web/components/**": true
+	},
+	"docwriter.style": "Auto-detect"
 }

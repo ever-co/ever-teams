@@ -23,6 +23,7 @@ export * from './features/useTaskEstimation';
 export * from './features/useTeamMember';
 export * from './features/useTeamMemberCard';
 export * from './features/useUserProfilePage';
+export * from './features/useUser';
 
 //export user personal setting
 export * from './features/useSettings';
