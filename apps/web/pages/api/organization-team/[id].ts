@@ -15,33 +15,36 @@ export default async function handler(
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
+	const getTeamStatus = async () => {
+		const { data: team } = await getOrganizationTeamRequest(
+			{
+				organizationId,
+				tenantId,
+				teamId: teamId,
+			},
+			access_token
+		);
+
+		return team;
+	};
+
 	const { id } = req.query;
 	switch (req.method) {
 		case 'GET':
-			return $res.json(
-				await getOrganizationTeamRequest(
-					{
-						organizationId,
-						tenantId,
-						teamId: teamId,
-					},
-					access_token
-				)
-			);
+			return $res.json(await getTeamStatus());
+
 		case 'PUT':
-			return $res.json(
-				await updateOrganizationTeamRequest(req.body, access_token)
-			);
+			await updateOrganizationTeamRequest(req.body, access_token);
+			return $res.json(await getTeamStatus());
 
 		case 'DELETE':
 			if (id) {
-				return $res.json(
-					await deleteOrganizationTeamRequest({
-						id: id as string,
-						bearer_token: access_token,
-						tenantId,
-					})
-				);
+				await deleteOrganizationTeamRequest({
+					id: id as string,
+					bearer_token: access_token,
+					tenantId,
+				});
+				return $res.json(await getTeamStatus());
 			}
 	}
 }
