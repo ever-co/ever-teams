@@ -15,7 +15,7 @@ export const useUser = () => {
 	const deleteUser = useCallback(() => {
 		if (user) {
 			return deleteQueryCall(user.id).then((res) => {
-				// logOut();
+				logOut();
 				return res;
 			});
 		}
@@ -24,7 +24,7 @@ export const useUser = () => {
 	const resetUser = useCallback(() => {
 		if (user) {
 			return resetQueryCall().then((res) => {
-				// logOut();
+				logOut();
 				return res;
 			});
 		}
