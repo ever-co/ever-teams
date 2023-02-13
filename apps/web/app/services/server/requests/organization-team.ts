@@ -17,9 +17,17 @@ export function createOrganizationTeamRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
+		tenantId: datas.tenantId,
 	});
 }
 
+/**
+ * It updates an organization team
+ * @param {IOrganizationTeamUpdate} datas - IOrganizationTeamUpdate - The data to be sent to the
+ * server.
+ * @param {string} bearer_token - The token that is used to authenticate the user.
+ * @returns IOrganizationTeam
+ */
 export function updateOrganizationTeamRequest(
 	datas: IOrganizationTeamUpdate & { id: string },
 	bearer_token: string
@@ -52,14 +60,34 @@ export function deleteOrganizationTeamRequest({
 }
 
 export function getOrganizationTeamRequest(
-	id: string,
-	bearer_token: string,
-	tenantId: string,
-	params?: { [x: string]: string }
+	{
+		organizationId,
+		tenantId,
+		teamId,
+		relations = [
+			'members',
+			'members.role',
+			'members.employee',
+			'members.employee.user',
+			'createdBy',
+		],
+	}: TeamRequestParams & { teamId: string },
+	bearer_token: string
 ) {
+	const params = {
+		organizationId: organizationId,
+		tenantId: tenantId,
+		source: 'BROWSER',
+		withLaskWorkedTask: 'true',
+	} as { [x: string]: string };
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl;
+	});
+
 	const queries = new URLSearchParams(params || {});
 	return serverFetch<IOrganizationTeamWithMStatus>({
-		path: `/organization-team/${id}?${queries.toString()}`,
+		path: `/organization-team/${teamId}?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId,
@@ -81,6 +109,7 @@ export function getAllOrganizationTeamRequest(
 			'members.role',
 			'members.employee',
 			'members.employee.user',
+			'createdBy',
 		],
 	}: TeamRequestParams,
 	bearer_token: string
@@ -99,6 +128,23 @@ export function getAllOrganizationTeamRequest(
 	return serverFetch<PaginationResponse<IOrganizationTeamList>>({
 		path: `/organization-team?${query.toString()}`,
 		method: 'GET',
+		bearer_token,
+		tenantId,
+	});
+}
+
+export function removeEmployeeOrganizationTeamRequest({
+	employeeId,
+	bearer_token,
+	tenantId,
+}: {
+	employeeId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<boolean>({
+		path: `/organization-team-employee/${employeeId}`,
+		method: 'DELETE',
 		bearer_token,
 		tenantId,
 	});

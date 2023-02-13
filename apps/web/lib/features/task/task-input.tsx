@@ -30,6 +30,7 @@ import { TaskItem } from './task-item';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
+	tasks?: ITeamTask[];
 	onTaskClick?: (task: ITeamTask) => void;
 	initEditMode?: boolean;
 	onCloseCombobox?: () => void;
@@ -41,6 +42,7 @@ type Props = {
 	viewType?: 'input-trigger' | 'one-view';
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
+	showCombobox?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -63,9 +65,16 @@ export function TaskInput({
 	children,
 	createOnEnterClick,
 	showTaskNumber = false,
+	showCombobox = true,
+	tasks,
 }: Props) {
 	const { trans } = useTranslation();
-	const datas = useTaskInput(task, initEditMode);
+	const datas = useTaskInput({
+		task,
+		initEditMode,
+		tasks,
+	});
+
 	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(closeable_fc);
 
@@ -77,6 +86,7 @@ export function TaskInput({
 		tasksFetching,
 		updateLoading,
 		updatTaskTitleHandler,
+		setFilter,
 	} = datas;
 
 	const [taskName, setTaskName] = useState('');
@@ -138,6 +148,11 @@ export function TaskInput({
 		}
 	}, [updateLoading, loadingRef, closeable_fcRef]);
 
+	/* Setting the filter to open when the edit mode is true. */
+	useEffect(() => {
+		editMode && setFilter('open');
+	}, [editMode]);
+
 	/*
 		If task is passed then we don't want to set the active task for the authenticated user.
 		after task creation
@@ -156,16 +171,19 @@ export function TaskInput({
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
 					!createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
 
-					/* Creating a new task when the enter key is pressed. */
+					onEnterKey && onEnterKey(taskName, inputTask);
+				}
+
+				/* Creating a new task when the enter key is pressed. */
+				if (e.key === 'Enter') {
 					createOnEnterClick &&
 						datas?.handleTaskCreation &&
 						datas.hasCreateForm &&
 						datas?.handleTaskCreation(autoActiveTask);
-
-					onEnterKey && onEnterKey(taskName, inputTask);
 				}
 			}}
 			trailingNode={
+				/* Showing the spinner when the task is being updated. */
 				<div className="p-2 flex justify-center items-center h-full">
 					{task ? (
 						(updateLoading || inputLoader) && <SpinnerLoader size={25} />
@@ -182,7 +200,7 @@ export function TaskInput({
 				showTaskNumber &&
 				inputTask && (
 					<div className="pl-3 flex items-center space-x-2">
-						<ActiveTaskIssuesDropdown task={inputTask} />
+						<ActiveTaskIssuesDropdown key={inputTask.id} task={inputTask} />
 						<span className="text-gray-500 text-sm">
 							#{inputTask?.taskNumber}
 						</span>
@@ -211,7 +229,7 @@ export function TaskInput({
 			{children}
 
 			<Transition
-				show={editMode}
+				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"

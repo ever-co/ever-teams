@@ -1,24 +1,45 @@
-import React from "react";
+import React, { FC } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import { TouchableOpacity, Image, StyleSheet } from "react-native"
+import { Image, StyleSheet } from "react-native"
 import { useAppTheme } from "../../../../app"
 import { useStores } from "../../../../models";
 import { useTimer } from "../../../../services/hooks/useTimer";
 import { observer } from "mobx-react-lite";
+import { ITeamTask } from "../../../../services/interfaces/ITask";
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 interface Props {
     isActiveTask: boolean;
+    isAssignedTask: boolean;
+    task: ITeamTask
 }
 
-const TimerButton = observer(() => {
+const TimerButton: FC<Props> = observer(({ isActiveTask, isAssignedTask, task }) => {
     const { colors, dark } = useAppTheme();
-    const { TimerStore: { localTimerStatus } } = useStores();
+    const { TimerStore: { localTimerStatus }, TaskStore: { setActiveTask } } = useStores();
     const { startTimer, stopTimer } = useTimer();
+    const {setActiveTeamTask}=useTeamTasks()
+
+    const handleStartTimer = () => {
+        if (!localTimerStatus?.running) {
+            if (!isActiveTask) {
+                setActiveTeamTask(task)
+                startTimer();
+                return;
+            }
+            startTimer()
+            return;
+        }
+        stopTimer();
+
+    }
+
     if (!dark) {
         return (
             <TouchableOpacity
                 style={[styles.timerBtn, { backgroundColor: colors.background, borderColor: colors.border }]}
-                onPress={() => { localTimerStatus.running ? stopTimer() : startTimer() }}>
+                onPress={() => handleStartTimer()}>
                 <Image
                     resizeMode="contain"
                     style={[styles.timerIcon,]}
@@ -33,7 +54,7 @@ const TimerButton = observer(() => {
     return (
         <LinearGradient colors={["#E93CB9", "#6A71E7"]} style={[styles.timerBtn]}>
             <TouchableOpacity
-                onPress={() => { localTimerStatus.running ? stopTimer() : startTimer() }}>
+                onPress={() => handleStartTimer()}>
                 <Image
                     resizeMode="contain"
                     style={[styles.timerIcon,]}

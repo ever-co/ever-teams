@@ -1,9 +1,13 @@
+import { useTeamInvitations } from '@app/hooks';
 import { IClassName, IInvitation } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { Popover, Transition } from '@headlessui/react';
 import {
 	Avatar,
 	Button,
 	Card,
+	ConfirmDropdown,
+	SpinnerLoader,
 	Text,
 	TimeInputField,
 	VerticalSeparator,
@@ -24,10 +28,6 @@ export function InvitedCard({ invitation, className }: Props) {
 		>
 			<div className="absolute -left-0 opacity-40">
 				<DraggerIcon />
-			</div>
-
-			<div className="opacity-40 absolute right-2">
-				<MoreIcon />
 			</div>
 
 			{/* User info */}
@@ -74,7 +74,80 @@ export function InvitedCard({ invitation, className }: Props) {
 			<div className="opacity-40 text-center font-normal flex-1">
 				<Text>00h : 00m</Text>
 			</div>
+
+			<div className="absolute right-2">
+				<RemoveUserInviteMenu invitation={invitation} />
+			</div>
 		</Card>
+	);
+}
+
+export function RemoveUserInviteMenu({ invitation }: Props) {
+	const { trans } = useTranslation();
+	const {
+		removeInviteLoading,
+		removeTeamInvitation,
+		resendTeamInvitation,
+		resendInviteLoading,
+	} = useTeamInvitations();
+
+	const loading = removeInviteLoading || resendInviteLoading;
+
+	return (
+		<Popover className="relative">
+			{!loading && (
+				<Popover.Button className="outline-none">
+					<MoreIcon />
+				</Popover.Button>
+			)}
+			{loading && <SpinnerLoader size={20} />}
+
+			<Transition
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+				className="absolute z-10 right-0 min-w-[210px]"
+			>
+				<Popover.Panel>
+					{({ close }) => {
+						return (
+							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+								<ul>
+									<li>
+										<Popover.Button
+											onClick={() => resendTeamInvitation(invitation.id)}
+											className="font-normal whitespace-nowrap hover:font-semibold hover:transition-all"
+										>
+											{trans.common.RESEND_INVITATION}
+										</Popover.Button>
+									</li>
+									<li>
+										<ConfirmDropdown
+											className="right-[110%] top-0"
+											onConfirm={() => {
+												removeTeamInvitation(invitation.id);
+												close();
+											}}
+										>
+											<Text.Div
+												className={clsxm(
+													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all text-red-500'
+												)}
+											>
+												{trans.common.REMOVE}
+											</Text.Div>
+										</ConfirmDropdown>
+									</li>
+								</ul>
+							</Card>
+						);
+					}}
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
 

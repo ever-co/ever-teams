@@ -37,10 +37,10 @@ import TaskStatus from "./TaskStatus";
 import { useAppTheme } from "../../../../app";
 import LabelItem from "../../../../components/LabelItem";
 import { secondsToTime } from "../../../../helpers/date";
-import useProfileScreenLogic from "../logics/useProfileScreenLogic";
 import { limitTextCharaters } from "../../../../helpers/sub-text";
 import TimerButton from "./TimerButton";
 import { observer } from "mobx-react-lite";
+
 
 export type ListItemProps = {
   item: ITeamTask
@@ -89,7 +89,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
     canRunTimer,
   } = useTimer();
 
-  const { updateTask } = useTeamTasks();
+  const { updateTask, setActiveTeamTask } = useTeamTasks();
   const flatListRef = useRef<FlatList>(null);
   const [labelIndex, setLabelIndex] = useState(0);
   const [titleInput, setTitleInput] = useState("")
@@ -178,6 +178,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
     }
   }, [memberTask])
 
+  useEffect(() => {
+    setMemberTask(item)
+  }, [item])
+
+
   return (
     <TouchableNativeFeedback onPressIn={() => {
       setShowMenu(false)
@@ -188,7 +193,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
         <View style={styles.firstContainer}>
           <WorkedOnTask
             memberTask={memberTask}
-            isAuthUser={isAuthUser}
+            isAuthUser={true}
             title={"Total time"}
             containerStyle={{ flexDirection: "row", alignItems: "center" }}
             totalTimeText={{ color: colors.primary }}
@@ -223,7 +228,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
             <AnimatedCircularProgress
               size={48}
               width={5}
-              fill={progress}
+              fill={isActive ? progress : 0}
               tintColor="#27AE60"
               onAnimationComplete={() => { }}
               backgroundColor="#F0F0F0">
@@ -274,9 +279,9 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
           <View style={{ flexDirection: "row", width: "50%", alignItems: "center" }}>
             {isAuthUser ? (
               <>
-                {activeTask && activeTask.id === item.id ? (
+                {isActive ? (
                   <>
-                    <TimerButton />
+                    <TimerButton isActiveTask={isActive} isAssignedTask={isAnAssignedTask} task={item} />
                     <View style={{ justifyContent: "center", alignItems: "center", left: 10 }}>
                       <Text style={styles.timeHeading}>Today work</Text>
                       <Text style={[styles.timeNumber, { color: colors.primary }]}>{pad(hours)} h:{pad(minutes)} m</Text>
@@ -287,7 +292,10 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
                   <>
                     <TouchableOpacity
                       style={[styles.timerBtn, { backgroundColor: colors.background, borderColor: colors.border }]}
-                      onPress={() => { }}>
+                      onPress={() => {
+                        setActiveTeamTask(item)
+                        startTimer()
+                      }}>
                       <Image
                         resizeMode="contain"
                         style={[styles.timerIcon,]}
@@ -312,7 +320,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
                 ) : null}
                 <View style={{ left: 12, justifyContent: "center", alignItems: "center" }}>
                   <Text style={[styles.timeHeading, { color: colors.tertiary }]}>Assigned by</Text>
-                  <Text style={[styles.timeNumber, { color: colors.primary }]}>8 people</Text>
+                  <Text style={[styles.timeNumber, { color: colors.primary }]}>{memberTask?.members.length} people</Text>
                 </View>
               </>
             )}
@@ -331,6 +339,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
             />
           </View>
         </View>
+
         {showMenu && <SidePopUp setShowMenu={() => setShowMenu(false)} props={props} />}
       </View>
     </TouchableNativeFeedback >

@@ -127,7 +127,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                         </View>
                         {activeTask &&
                           <ListCardItem
-                            tabIndex={selectedTabIndex} isActive={true}
+                            tabIndex={selectedTabIndex} 
+                            isActive={true}
                             member={member}
                             index={1000}
                             item={activeTask as ITeamTask}

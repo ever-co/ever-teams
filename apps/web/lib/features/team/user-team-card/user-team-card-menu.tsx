@@ -23,26 +23,26 @@ export function UserTeamCardMenu(props: Props) {
 }
 
 function DropdownMenu({ edition, memberInfo }: Props) {
-	const { onAssignTask, onUnAssignTask, onMakeAManager, onRemoveMember } =
-		useDropdownAction({
-			edition,
-			memberInfo,
-		});
+	const { onAssignTask, onUnAssignTask, onRemoveMember } = useDropdownAction({
+		edition,
+		memberInfo,
+	});
 
 	const { trans } = useTranslation();
+	const loading = edition.loading || memberInfo.updateOTeamLoading;
 
 	const menu = [
 		{
 			name: trans.common.EDIT_TASK,
 			closable: true,
-			onclick: () => {
+			onClick: () => {
 				edition.task && edition.setEditMode(true);
 			},
 		},
 		{
 			name: trans.common.ESTIMATE,
 			closable: true,
-			onclick: () => {
+			onClick: () => {
 				edition.task && edition.setEstimateEditMode(true);
 			},
 		},
@@ -56,18 +56,24 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			name: trans.common.UNASSIGN_TASK,
 			active: memberInfo.isAuthTeamManager,
 			action: 'unassign',
+			closable: true,
 			onClick: onUnAssignTask,
 		},
 		{
-			name: trans.common.MAKE_A_MANAGER,
-			active: memberInfo.isAuthTeamManager,
-			onClick: onMakeAManager,
+			name: memberInfo.isTeamManager
+				? trans.common.UNMAKE_A_MANAGER
+				: trans.common.MAKE_A_MANAGER,
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
+			// MAke or unmake member a manager
+			onClick: memberInfo.isTeamManager
+				? memberInfo.unMakeMemberManager
+				: memberInfo.makeMemberManager,
 			closable: true,
 		},
 		{
 			name: trans.common.REMOVE,
 			type: 'danger',
-			active: memberInfo.isAuthTeamManager,
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
 			action: 'remove',
 			onClick: onRemoveMember,
 		},
@@ -81,10 +87,12 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				edition.taskEditIgnoreElement.ignoreElementRef,
 			])}
 		>
-			<Popover.Button className="flex items-center outline-none border-none">
-				{!edition.loading && <MoreIcon />}
-				{edition.loading && <SpinnerLoader size={20} />}
-			</Popover.Button>
+			{!loading && (
+				<Popover.Button className="flex items-center outline-none border-none">
+					<MoreIcon />
+				</Popover.Button>
+			)}
+			{loading && <SpinnerLoader size={20} />}
 
 			<Transition
 				enter="transition duration-100 ease-out"
@@ -113,8 +121,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 										);
 
 										// When true show combobox component (AssignActionMenu)
-										const assignAction =
-											item.action === 'assign' || item.action === 'unassign';
+										const assignAction = item.action === 'assign';
 
 										const removeAction = item.action === 'remove';
 
@@ -153,7 +160,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 													<button
 														className="mb-2"
 														onClick={() => {
-															item.onclick && item.onclick();
+															item.onClick && item.onClick({});
 															item.closable && close();
 														}}
 													>
@@ -218,7 +225,10 @@ type IAssignCall = (params: {
 	closeCombobox2?: () => void;
 }) => void;
 
-function useDropdownAction({ edition }: Pick<Props, 'edition' | 'memberInfo'>) {
+function useDropdownAction({
+	edition,
+	memberInfo,
+}: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(() => {
 		console.log('onAssignTask', edition);
 	}, [edition]);
@@ -227,18 +237,16 @@ function useDropdownAction({ edition }: Pick<Props, 'edition' | 'memberInfo'>) {
 		console.log('onUnAssignTask');
 	}, []);
 
-	const onMakeAManager = useCallback(() => {
-		console.log('onMakeAManager');
-	}, []);
-
 	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
-		console.log('on remove', close);
+		console.log('onRemoveMember');
+
+		memberInfo.removeMemberFromTeam();
+		close && close();
 	}, []);
 
 	return {
 		onAssignTask,
 		onUnAssignTask,
-		onMakeAManager,
 		onRemoveMember,
 	};
 }

@@ -182,7 +182,7 @@ const UserCardMenu = ({
 		isModalOpen,
 		closeModal,
 		closeableTask,
-	} = useTaskInput();
+	} = useTaskInput({});
 
 	const reversedTask = useMemo(() => {
 		return filteredTasks.slice().reverse();

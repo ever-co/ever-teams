@@ -2,9 +2,9 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
 
-export function AppLogo({ className }: IClassName) {
+export function AppLogo({ className, dash }: IClassName & { dash?: boolean }) {
 	return (
-		<Link href="https://gauzy.team" target="_self">
+		<Link href={dash ? '/' : 'https://gauzy.team'} target="_self">
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
 				version="1.1"

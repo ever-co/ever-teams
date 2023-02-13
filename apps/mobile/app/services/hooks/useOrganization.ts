@@ -9,7 +9,7 @@ import useAuthenticateUser from "./features/useAuthentificateUser";
 
 function useCreateOrganizationTeam() {
     const {
-        authenticationStore: { tenantId, organizationId, authToken, user },
+        authenticationStore: { tenantId, organizationId, authToken, user, employeeId },
         teamStore: { teams, setOrganizationTeams, setActiveTeamId, setActiveTeam }
     } = useStores();
 
@@ -39,7 +39,7 @@ function useCreateOrganizationTeam() {
                 name: $name,
                 tenantId,
                 organizationId,
-                managerIds: [user?.employee?.id],
+                managerIds: [employeeId],
             },
             authToken
         );
@@ -188,11 +188,12 @@ export function useOrganizationTeam() {
             }
 
             // UPDATE ACTIVE TEAM
-            const updateActiveTeam = organizationTeams.items.find((t) => t.id === activeTeamId) || organizationTeams.items[0]
+            const updateActiveTeam = organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams.items[0]
             if (updateActiveTeam) {
                 setActiveTeam(updateActiveTeam)
                 setActiveTeamId(updateActiveTeam.id)
             }
+            // console.log("Teams "+JSON.stringify(organizationTeams))
 
             setOrganizationTeams(organizationTeams);
             setTeamsFetching(false)

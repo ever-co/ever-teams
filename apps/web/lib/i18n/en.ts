@@ -1,13 +1,18 @@
 export const en = {
 	TITLE: 'Gauzy Teams',
 	common: {
+		VERIFY: 'verify',
+		PLEASE: 'please',
+		YOUR_EMAIL: 'your email',
 		CONTINUE: 'Continue',
 		EDIT_TASK: 'Edit Task',
 		ESTIMATE: 'Estimate',
 		ASSIGN_TASK: 'Assign Task',
 		UNASSIGN_TASK: 'Unassign Task',
 		MAKE_A_MANAGER: 'Make a Manager',
+		UNMAKE_A_MANAGER: 'Unmake a Manager',
 		REMOVE: 'Remove',
+		RESEND_INVITATION: 'Resend Invitation',
 		TODAY: 'Today',
 		TOTAL: 'Total',
 		ESTIMATED: 'Estimated',
@@ -35,6 +40,12 @@ export const en = {
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',
+		LOGOUT: 'Logout',
+		THEMES: 'Themes',
+		'3D_MODE': '3D Mode',
+		DARK_MODE: 'Dark Mode',
+		SETTINGS: 'Settings',
+		TEAM: 'Team',
 		FULL_NAME: 'Full Name',
 		CONTACT: 'Contact',
 		THEME: 'Theme',
@@ -49,6 +60,7 @@ export const en = {
 	pages: {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
+			SENT_EMAIL_VERIFICATION: 'Code Vericiation has ben sent to your email',
 		},
 
 		profile: {

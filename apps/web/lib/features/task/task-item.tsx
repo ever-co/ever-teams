@@ -2,7 +2,8 @@ import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
-import { CloseIcon } from 'lib/components/svgs';
+import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
+import Link from 'next/link';
 import { useCallback } from 'react';
 import { TaskStatusDropdown } from './task-status';
 
@@ -48,14 +49,26 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 				{task && <TaskAvatars task={task} />}
 
 				<div onClick={(e) => e.stopPropagation()}>
-					<ConfirmDropdown
-						onConfirm={() =>
-							handleChange(task?.status === 'Closed' ? 'Todo' : 'Closed')
-						}
-						confirmText={task?.status === 'Closed' ? 'Restore' : 'Confirm'}
-					>
-						{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
-					</ConfirmDropdown>
+					{task?.status !== 'Closed' && (
+						<ConfirmDropdown
+							onConfirm={() => handleChange('Closed')}
+							confirmText={'Confirm'}
+						>
+							{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
+						</ConfirmDropdown>
+					)}
+
+					{task?.status === 'Closed' && (
+						<>
+							{updateLoading ? (
+								<SpinnerLoader size={20} />
+							) : (
+								<button onClick={() => handleChange('Todo')}>
+									<RefreshIcon />
+								</button>
+							)}
+						</>
+					)}
 				</div>
 			</div>
 		</div>
@@ -66,18 +79,37 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 	const members = task.members;
 
 	return (
-		<div className="avatars flex -space-x-2">
-			{members.map((member) => {
+		<div
+			className="avatars flex -space-x-2"
+			onClick={(e) => e.stopPropagation()}
+		>
+			{members.slice(0, 2).map((member, i) => {
+				const user = member.user;
 				return (
-					<Avatar
-						key={member.id}
-						shape="circle"
-						className="border"
-						imageUrl={member?.user?.imageUrl}
-						size={30}
-					/>
+					<Link
+						key={i}
+						title={`${user?.firstName} ${user?.lastName}`}
+						href={`/profile/${member.id}`}
+					>
+						<Avatar
+							shape="circle"
+							className="border"
+							imageUrl={member?.user?.imageUrl}
+							size={25}
+						/>
+					</Link>
 				);
 			})}
+
+			{members.length > 2 && (
+				<Avatar
+					shape="circle"
+					className="border flex items-center justify-center"
+					size={25}
+				>
+					<span className="text-xs">+{members.length - 2}</span>
+				</Avatar>
+			)}
 		</div>
 	);
 }
