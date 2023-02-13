@@ -45,7 +45,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					return `${item?.data?.title || ''}`
 						.toLowerCase()
 						.includes(query.toLowerCase());
-			  });
+				});
 
 	return (
 		<div className={clsxm('relative', className)}>
