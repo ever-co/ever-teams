@@ -7,6 +7,7 @@ export * from './button';
 export * from './loader';
 export * from './meta';
 export * from './dropdown';
+export * from './auto-complete-dropdown';
 export * from './modal';
 export * from './avatar';
 export * from './toggler';

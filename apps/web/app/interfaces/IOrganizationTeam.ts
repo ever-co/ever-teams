@@ -41,7 +41,7 @@ export interface IOrganizationTeamList {
 
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
 
-interface OT_Member {
+export interface OT_Member {
 	id: string;
 	createdAt: string;
 	updatedAt: string;

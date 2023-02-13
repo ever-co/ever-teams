@@ -25,7 +25,7 @@ export function editTaskSizesAPI(
 	});
 }
 
-export function deleteTaskSizesAPI(id: string, tenantId?: string) {
+export function deleteTaskSizesAPI(id: string) {
 	return api.delete<DeleteReponse>(`/task-sizes/${id}`);
 }
 

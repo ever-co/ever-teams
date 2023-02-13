@@ -1,7 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { useUser } from '@app/hooks';
 import { Button, Text } from 'lib/components';
 
 export const DangerZone = () => {
+	const { deleteUser, deleteUserLoading, resetUser, resetUserLoading } =
+		useUser();
 	return (
 		<>
 			<div className="flex flex-col justify-between items-center">
@@ -22,6 +25,11 @@ export const DangerZone = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
+									disabled={resetUserLoading}
+									loading={resetUserLoading}
+									onClick={() => {
+										resetUser();
+									}}
 								>
 									Remove Everywhere
 								</Button>
@@ -42,6 +50,11 @@ export const DangerZone = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
+									disabled={deleteUserLoading}
+									loading={deleteUserLoading}
+									onClick={() => {
+										deleteUser();
+									}}
 								>
 									Delete This Account
 								</Button>

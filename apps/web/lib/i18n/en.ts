@@ -54,6 +54,8 @@ export const en = {
 		SAVE: 'Save',
 		LANGUAGE: 'Language',
 		DETECT: 'Detect',
+		TRANSFER: 'Transfer',
+		TRANSFER_TEAM: 'Transfer Team',
 	},
 	pages: {
 		home: {

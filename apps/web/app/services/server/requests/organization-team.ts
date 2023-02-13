@@ -29,15 +29,33 @@ export function createOrganizationTeamRequest(
  * @returns IOrganizationTeam
  */
 export function updateOrganizationTeamRequest(
-	datas: IOrganizationTeamUpdate,
+	datas: IOrganizationTeamUpdate & { id: string },
 	bearer_token: string
 ) {
-	return serverFetch<IOrganizationTeam>({
-		path: `/organization-team/${datas.id}`,
+	const { id } = datas;
+
+	return serverFetch<IOrganizationTeamUpdate>({
+		path: `/organization-team/${id}`,
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId: datas.tenantId,
+	});
+}
+
+export function deleteOrganizationTeamRequest({
+	id,
+	bearer_token,
+	tenantId,
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<IOrganizationTeamUpdate>({
+		path: `/organization-team/${id}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
 	});
 }
 
