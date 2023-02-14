@@ -43,6 +43,7 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
+	autoAssignTask?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -66,6 +67,7 @@ export function TaskInput({
 	createOnEnterClick,
 	showTaskNumber = false,
 	showCombobox = true,
+	autoAssignTask = true,
 	tasks,
 }: Props) {
 	const { trans } = useTranslation();
@@ -179,7 +181,7 @@ export function TaskInput({
 					createOnEnterClick &&
 						datas?.handleTaskCreation &&
 						datas.hasCreateForm &&
-						datas?.handleTaskCreation(autoActiveTask);
+						datas?.handleTaskCreation(autoActiveTask, autoAssignTask);
 				}
 			}}
 			trailingNode={
@@ -218,6 +220,7 @@ export function TaskInput({
 			}
 			autoActiveTask={autoActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
+			autoAssignTask={autoAssignTask}
 		/>
 	);
 
@@ -253,11 +256,13 @@ function TaskCard({
 	onItemClick,
 	autoActiveTask,
 	inputField,
+	autoAssignTask,
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
 	autoActiveTask?: boolean;
 	inputField?: JSX.Element;
+	autoAssignTask?: boolean;
 }) {
 	const { trans } = useTranslation();
 
@@ -281,7 +286,7 @@ function TaskCard({
 						/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 						datas?.handleTaskCreation &&
 						datas.hasCreateForm &&
-						datas?.handleTaskCreation(autoActiveTask)
+						datas?.handleTaskCreation(autoActiveTask, autoAssignTask)
 					}
 				>
 					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}

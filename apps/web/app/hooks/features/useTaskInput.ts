@@ -104,10 +104,10 @@ export function useTaskInput({
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
-	const handleTaskCreation = (autoActiveTask = true) => {
+	const handleTaskCreation = (autoActiveTask = true, autoAssignTask = true) => {
 		if (query.trim().length < 2 || inputTask?.title === query.trim()) return;
 
-		createTask(query.trim()).then((res) => {
+		createTask(query.trim(), !autoAssignTask ? [] : undefined).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
