@@ -1,4 +1,4 @@
-import { I_TMCardTaskEditHook } from '@app/hooks';
+import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import {
@@ -9,9 +9,10 @@ import {
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
+	memberInfo: I_TeamMemberCardHook;
 };
 
-export function TaskInfo({ className, edition }: Props) {
+export function TaskInfo({ className, memberInfo, edition }: Props) {
 	return (
 		<div
 			className={clsxm(
@@ -26,7 +27,9 @@ export function TaskInfo({ className, edition }: Props) {
 					edition.editMode ? ['mb-2'] : ['overflow-hidden']
 				)}
 			>
-				{edition.task && <TaskDetailAndEdition edition={edition} />}
+				{edition.task && (
+					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} />
+				)}
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
 
@@ -39,7 +42,7 @@ export function TaskInfo({ className, edition }: Props) {
 /**
  *  A component that is used to display the task name and also allow the user to edit the task name.
  */
-function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
+function TaskDetailAndEdition({ edition, memberInfo }: Props) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
 
@@ -56,7 +59,11 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 					'text-sm text-ellipsis text-center cursor-default overflow-hidden',
 					hasEditMode && ['hidden']
 				)}
-				onDoubleClick={() => task && edition.setEditMode(true)}
+				onDoubleClick={() =>
+					(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+					task &&
+					edition.setEditMode(true)
+				}
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
