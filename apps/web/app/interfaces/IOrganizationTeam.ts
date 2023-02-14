@@ -8,6 +8,7 @@ export interface IOrganizationTeamCreate {
 	tags?: any[];
 	organizationId: string;
 	tenantId: string;
+	public?: boolean;
 }
 
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
@@ -37,6 +38,7 @@ export interface IOrganizationTeamList {
 	updated?: boolean;
 	prefix: string;
 	members: OT_Member[];
+	public?: boolean;
 }
 
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;

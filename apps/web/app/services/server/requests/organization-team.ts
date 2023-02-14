@@ -39,6 +39,7 @@ export function updateOrganizationTeamRequest(
 		method: 'PUT',
 		body: datas,
 		bearer_token,
+		tenantId: datas.tenantId,
 	});
 }
 

@@ -11,13 +11,13 @@ import { useOrganizationTeams } from '@app/hooks';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
-	const { register, setValue, handleSubmit } = useForm();
+	const { register, setValue, handleSubmit, getValues } = useForm();
 	const { trans } = useTranslation('settingsTeam');
 	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
 
 	useEffect(() => {
 		setValue('teamName', activeTeam?.name || '');
-		setValue('teamType', '');
+		setValue('teamType', activeTeam?.public || false);
 		setValue('teamLink', '');
 	}, [user, setValue, activeTeam]);
 
@@ -29,6 +29,7 @@ export const TeamSettingForm = () => {
 					name: values.teamName,
 					organizationId: activeTeam.organizationId,
 					tenantId: activeTeam.tenantId,
+					public: values.teamType,
 				});
 			}
 		},
@@ -75,25 +76,39 @@ export const TeamSettingForm = () => {
 									<div className="items-center  w-full">
 										<div>
 											<input
-												checked
+												checked={activeTeam?.public}
 												id="default-radio-1"
 												type="radio"
-												value=""
-												name="default-radio"
+												value="true"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-												onChange={() => {
-													console.log('PUblic Team');
+												name="r"
+												onClick={() => {
+													setValue('teamType', true);
+													const latestFormData = getValues();
+													onSubmit({
+														...latestFormData,
+														teamType: true,
+													});
 												}}
 											/>
 											<Text.Label>Public Team</Text.Label>
 										</div>
 										<div>
 											<input
+												checked={!activeTeam?.public}
 												id="default-radio-2"
 												type="radio"
-												value=""
-												name="default-radio"
+												value="false"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+												name="r"
+												onClick={() => {
+													setValue('teamType', false);
+													const latestFormData = getValues();
+													onSubmit({
+														...latestFormData,
+														teamType: false,
+													});
+												}}
 											/>
 											<Text.Label>Private Team</Text.Label>
 										</div>
