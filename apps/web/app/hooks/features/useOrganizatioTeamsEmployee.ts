@@ -11,8 +11,23 @@ export function useOrganizationEmployeeTeams() {
 		queryCall: deleteQueryCall,
 	} = useQuery(deleteOrganizationEmployeeTeamAPI);
 	const deleteOrganizationTeamEmployee = useCallback(
-		(id: string) => {
-			return deleteQueryCall(id).then((res) => {
+		({
+			id,
+			employeeId,
+			organizationId,
+			tenantId,
+		}: {
+			id: string;
+			employeeId: string;
+			organizationId: string;
+			tenantId: string;
+		}) => {
+			return deleteQueryCall({
+				id,
+				employeeId,
+				organizationId,
+				tenantId,
+			}).then((res) => {
 				loadTeamsData();
 				return res;
 			});

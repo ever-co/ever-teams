@@ -29,6 +29,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -168,7 +169,7 @@ function useUpdateOrganizationTeam() {
 export function useOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
 	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
-
+	const { logOut } = useAuthenticateUser();
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
@@ -190,6 +191,10 @@ export function useOrganizationTeams() {
 	const loadTeamsData = useCallback(() => {
 		setActiveTeamId(getActiveTeamIdCookie());
 		return queryCall().then((res) => {
+			if (res.data?.items && res.data?.items?.length === 0) {
+				logOut();
+				return res;
+			}
 			setTeams(res.data?.items || []);
 			return res;
 		});

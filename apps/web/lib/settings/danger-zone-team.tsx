@@ -33,7 +33,12 @@ export const DangerZoneTeam = () => {
 
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				// Remove from Team API call
-				deleteOrganizationTeamEmployee(currentEmployeeDetails.id);
+				deleteOrganizationTeamEmployee({
+					id: currentEmployeeDetails.id,
+					employeeId: currentEmployeeDetails.employeeId,
+					organizationId: activeTeam.organizationId,
+					tenantId: activeTeam.tenantId,
+				});
 			}
 		}
 	}, [activeTeam, user, deleteOrganizationTeamEmployee]);
@@ -100,28 +105,30 @@ export const DangerZoneTeam = () => {
 							<></>
 						)}
 
-						<div className="flex w-full items-center justify-between gap-6 mt-5">
-							<div className="flex-auto w-64">
-								<Text className="text-xl  font-normal">Quit the Team</Text>
+						{isTeamManager && activeTeamManagers.length > 1 && (
+							<div className="flex w-full items-center justify-between gap-6 mt-5">
+								<div className="flex-auto w-64">
+									<Text className="text-xl  font-normal">Quit the Team</Text>
+								</div>
+								<div className="flex-auto w-64">
+									<Text className="text-md text-gray-400 font-normal">
+										You are about to quit the team
+									</Text>
+								</div>
+								<div className="flex-auto w-10">
+									<Button
+										variant="danger"
+										type="submit"
+										className="float-right w-full bg-[#DE5536]"
+										onClick={() => {
+											handleQuiteTeam();
+										}}
+									>
+										Quit
+									</Button>
+								</div>
 							</div>
-							<div className="flex-auto w-64">
-								<Text className="text-md text-gray-400 font-normal">
-									You are about to quit the team
-								</Text>
-							</div>
-							<div className="flex-auto w-10">
-								<Button
-									variant="danger"
-									type="submit"
-									className="float-right w-full bg-[#DE5536]"
-									onClick={() => {
-										handleQuiteTeam();
-									}}
-								>
-									Quit
-								</Button>
-							</div>
-						</div>
+						)}
 					</div>
 				</div>
 			</div>
