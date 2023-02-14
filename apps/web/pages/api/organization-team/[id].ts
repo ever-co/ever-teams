@@ -39,12 +39,14 @@ export default async function handler(
 
 		case 'DELETE':
 			if (id) {
-				await deleteOrganizationTeamRequest({
-					id: id as string,
-					bearer_token: access_token,
-					tenantId,
-				});
-				return $res.json(await getTeamStatus());
+				return $res.json(
+					await deleteOrganizationTeamRequest({
+						id: id as string,
+						bearer_token: access_token,
+						tenantId,
+						organizationId,
+					})
+				);
 			}
 	}
 }
