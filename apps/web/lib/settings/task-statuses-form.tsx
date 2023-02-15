@@ -53,7 +53,6 @@ export const TaskStatusesForm = () => {
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			console.log(values, edit);
 			// TODO: icon
 			if (createNew) {
 				createTaskStatus({

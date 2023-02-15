@@ -69,7 +69,8 @@ export function useTeamMemberCard(
 			managerIds: team.members
 				.filter((r) => r.role && r.role.name === 'MANAGER')
 				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id),
+				.map((r) => r.employee.id)
+				.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 

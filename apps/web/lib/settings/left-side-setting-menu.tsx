@@ -55,7 +55,7 @@ export const LeftSideSettingMenu = () => {
 						{activePage === '/settings/team' ? (
 							<PeopleIconFilled className="w-[24px] h-[24px] fill-primary strock-primary" />
 						) : (
-							<PeopleIcon className="w-[24px] h-[24px]" />
+							<PeopleIcon className="w-[24px] h-[24px] stroke-[#7E7991]" />
 						)}
 						Team
 					</Button>
