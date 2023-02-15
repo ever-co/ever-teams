@@ -105,7 +105,8 @@ export const DangerZoneTeam = () => {
 							<></>
 						)}
 
-						{isTeamManager && activeTeamManagers.length > 1 && (
+						{((isTeamManager && activeTeamManagers.length > 1) ||
+							!isTeamManager) && (
 							<div className="flex w-full items-center justify-between gap-6 mt-5">
 								<div className="flex-auto w-64">
 									<Text className="text-xl  font-normal">Quit the Team</Text>
