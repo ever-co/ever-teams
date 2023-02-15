@@ -141,10 +141,13 @@ function useUpdateOrganizationTeam() {
 
 			const body: Partial<IOrganizationTeamUpdate> = {
 				id: team.id,
-				memberIds: members.map((t) => t.employee.id),
+				memberIds: members
+					.map((t) => t.employee.id)
+					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				managerIds: members
 					.filter((m) => m.role && m.role.name === 'MANAGER')
-					.map((t) => t.employee.id),
+					.map((t) => t.employee.id)
+					.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				name: team.name,
 				tenantId: team.tenantId,
 				organizationId: team.organizationId,
