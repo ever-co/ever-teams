@@ -30,6 +30,7 @@ export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
 
+export const CHARACTER_LIMIT_TO_SHOW = 20;
 export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	fromAddress: SMTP_FROM_ADDRESS,
 	host: SMTP_HOST,

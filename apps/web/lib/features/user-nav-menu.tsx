@@ -1,3 +1,4 @@
+import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useAuthenticateUser } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
@@ -9,6 +10,7 @@ import {
 	Text,
 	ThemeToggler,
 	TreeModeToggler,
+	Tooltip,
 } from 'lib/components';
 import {
 	BoxIcon,
@@ -89,11 +91,34 @@ function UserNavMenu() {
 					/>
 				</Link>
 
-				<Link href={`/settings/personal`} className="text-center">
-					<Text.Heading as="h3">
-						{user?.firstName} {user?.lastName}
-					</Text.Heading>
-					<Text className="text-sm">{user?.email}</Text>
+				<Link href={`/settings/personal`} className="text-center  w-full">
+					<Tooltip
+						label={
+							`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''
+						}
+						enabled={
+							`${user?.firstName || ''} ${user?.lastName || ''}`.trim().length >
+							CHARACTER_LIMIT_TO_SHOW
+						}
+						placement="auto"
+					>
+						<Text.Heading
+							as="h3"
+							className="overflow-hidden text-ellipsis whitespace-nowrap"
+						>
+							{user?.firstName} {user?.lastName}
+						</Text.Heading>
+					</Tooltip>
+
+					<Tooltip
+						label={user?.email || ''}
+						enabled={`${user?.email}`.trim().length > CHARACTER_LIMIT_TO_SHOW}
+						placement="auto"
+					>
+						<Text className="text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+							{user?.email}
+						</Text>
+					</Tooltip>
 				</Link>
 
 				<Divider className="mt-6" />
@@ -112,7 +137,7 @@ function UserNavMenu() {
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex space-x-3 items-center font-normal">
-							<PeopleIcon className="w-5 h-5" />{' '}
+							<PeopleIcon className="w-5 h-5 stroke-default" />{' '}
 							<span>{trans.common.TEAM}</span>
 						</Link>
 					</li>

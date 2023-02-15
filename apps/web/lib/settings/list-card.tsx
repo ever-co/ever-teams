@@ -1,6 +1,7 @@
 import { Edit2Icon, TrashIcon } from 'lib/components/svgs';
-import { Button, Text } from 'lib/components';
+import { Button, Text, Tooltip } from 'lib/components';
 import Image from 'next/image';
+import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 
 export const StatusesListCard = ({
 	statusIcon,
@@ -21,14 +22,23 @@ export const StatusesListCard = ({
 		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
 			<div
 				className={`rounded-xl ${
-					isStatus ? 'w-2/3' : 'w-auto'
-				} flex items-center p-3 gap-x-2 `}
+					isStatus || statusTitle.length >= CHARACTER_LIMIT_TO_SHOW
+						? 'w-2/3'
+						: 'w-auto'
+				} flex items-center p-3 gap-x-2 overflow-hidden mr-1`}
 				style={{ backgroundColor: bgColor }}
 			>
 				{statusIcon && <Image src={statusIcon} alt={statusTitle} />}
-				<Text className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize px-3">
-					{statusTitle}
-				</Text>
+				<Tooltip
+					label={statusTitle}
+					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
+					placement="auto"
+					className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
+				>
+					<Text.Label className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize px-3 overflow-hidden text-ellipsis whitespace-nowrap w-full">
+						{statusTitle}
+					</Text.Label>
+				</Tooltip>
 			</div>
 			<div className="flex items-center gap-x-[12PX] mr-[4px]">
 				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={onEdit}>
