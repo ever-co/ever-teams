@@ -1,20 +1,21 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Button, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { Edit2Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import TimeTrackingToggle from 'lib/components/switch';
-import { useOrganizationTeams } from '@app/hooks';
+import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
 	const { trans } = useTranslation('settingsTeam');
 	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
-
+	const { isTeamManager } = useIsMemberManager(user);
+	const [copied, setCopied] = useState(false);
 	useEffect(() => {
 		setValue('teamName', activeTeam?.name || '');
 		setValue('teamType', activeTeam?.public || false);
@@ -35,6 +36,13 @@ export const TeamSettingForm = () => {
 		},
 		[editOrganizationTeam, activeTeam]
 	);
+
+	const getTeamLink = useCallback(() => {
+		if (typeof window !== 'undefined' && activeTeam) {
+			return `${window.location.origin}/${activeTeam.profile_link}`;
+		}
+		return '';
+	}, [activeTeam]);
 
 	return (
 		<>
@@ -117,9 +125,10 @@ export const TeamSettingForm = () => {
 										<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
 											<InputField
 												type="text"
-												placeholder="https://teamA.gauzy.com"
+												placeholder={getTeamLink()}
 												className="mb-0 h-[54px]"
 												wrapperClassName="mb-0 h-[54px]"
+												disabled={true}
 											/>
 										</div>
 										<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
@@ -127,21 +136,33 @@ export const TeamSettingForm = () => {
 												type="submit"
 												variant="outline"
 												className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
+												onClick={() => {
+													navigator.clipboard.writeText(getTeamLink());
+													setCopied(true);
+													setTimeout(() => {
+														setCopied(false);
+													}, 1000 * 10 /** 10 Seconds */);
+												}}
 											>
-												Copy Link
+												{!copied ? 'Copy Link' : 'Copied'}
 											</Button>
 										</div>
 									</div>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12">
-								<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
-									{trans.TIME_TRACKING}
-								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-									<TimeTrackingToggle />
+
+							{isTeamManager ? (
+								<div className="flex w-full items-center justify-between gap-12">
+									<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+										{trans.TIME_TRACKING}
+									</Text>
+									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+										<TimeTrackingToggle />
+									</div>
 								</div>
-							</div>
+							) : (
+								<></>
+							)}
 						</div>
 					</div>
 				</div>
