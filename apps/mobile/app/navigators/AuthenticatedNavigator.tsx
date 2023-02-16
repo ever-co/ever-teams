@@ -13,13 +13,14 @@ import {
   AuthenticatedProfileScreen,
   AuthenticatedTeamScreen,
   AuthenticatedTimerScreen,
+  AuthenticatedSettingScreen,
+  TaskStatusScreen
 } from "../screens"
 
 // HELPERS
 import { translate } from "../i18n"
 import { spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
-import { AuthenticatedSettingScreen } from "../screens/Authenticated/SettingScreen";
 import { useAppTheme } from "../app";
 import { Skeleton } from "react-native-skeletons";
 
@@ -32,6 +33,7 @@ export type AuthenticatedTabParamList = {
 export type AuthenticatedDrawerParamList = {
   Setting: undefined,
   AuthenticatedTab: undefined
+  TaskStatus:undefined
 }
 /**
  * Helper for automatically generating navigation prop types for each route.
@@ -139,6 +141,8 @@ export function AuthenticatedNavigator() {
         name="AuthenticatedTab" component={TabNavigator} />
       <drawer.Screen
         name="Setting" component={AuthenticatedSettingScreen} />
+         <drawer.Screen
+        name="TaskStatus" component={TaskStatusScreen} />
     </drawer.Navigator>
   )
 }

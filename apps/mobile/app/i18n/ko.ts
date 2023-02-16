@@ -148,6 +148,19 @@ const ko: Translations = {
       spanish:"스페인의",
       korean:"한국인",
       hebrew:"헤브라이 사람"
+    },
+    statusScreen:{
+      mainTitle:"Task Statuses",
+      listStatuses:"List of Statuses",
+      noActiveStatuses:"There are no active statuses",
+      createStatusButton:"Create new status",
+      createNewStatusText:"Create New Status",
+      statusNamePlaceholder:"Status Name",
+      statusIconPlaceholder:"Choose Icon",
+      statusColorPlaceholder:"Colors",
+      cancelButtonText:"Cancel",
+      createButtonText:"Create",
+      updateButtonText:"Update"
     }
   },
   hamburgerMenu:{

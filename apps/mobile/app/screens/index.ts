@@ -10,3 +10,6 @@ export * from "./ErrorScreen/ErrorBoundary"
 export * from "./Authenticated/TimerScreen"
 export * from "./Authenticated/TeamScreen"
 export * from "./Authenticated/ProfileScreen"
+export * from "./Authenticated/SettingScreen"
+export * from "./Authenticated/TaskStatusScreen"
+ 

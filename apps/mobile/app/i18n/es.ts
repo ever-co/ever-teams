@@ -136,6 +136,19 @@ const es = {
       },
       dangerZone: "Danger Zone",
       modalChangeLanguageTitle:"Change Language",
+      statusScreen:{
+        mainTitle:"Task Statuses",
+        listStatuses:"List of Statuses",
+        noActiveStatuses:"There are no active statuses",
+        createStatusButton:"Create new status",
+        createNewStatusText:"Create New Status",
+        statusNamePlaceholder:"Status Name",
+        statusIconPlaceholder:"Choose Icon",
+        statusColorPlaceholder:"Colors",
+        cancelButtonText:"Cancel",
+        createButtonText:"Create",
+        updateButtonText:"Update"
+      }
     },
     demoNavigator: {
       componentsTab: "Components",

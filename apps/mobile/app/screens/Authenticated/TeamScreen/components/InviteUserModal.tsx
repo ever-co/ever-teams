@@ -68,9 +68,10 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 
 
 
-  const handleSubmit = () => {
-
-    inviterMember({ email: memberEmail, name: memberName })
+  const handleSubmit = async () => {
+    await inviterMember({ email: memberEmail, name: memberName })
+    setMemberEmail("")
+    setMemberName("")
     onDismiss()
   }
 
@@ -79,8 +80,6 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
       emailError: null,
       nameError: null
     })
-    setMemberName("")
-    setMemberEmail("")
   }, [onDismiss])
 
   return (
@@ -116,7 +115,7 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
             <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
               <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6"}]} onPress={() => handleSubmit()}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
               <Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
             </TouchableOpacity>
           </View>
