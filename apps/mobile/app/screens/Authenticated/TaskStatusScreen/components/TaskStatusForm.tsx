@@ -1,4 +1,4 @@
-import React,{ useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native";
 import { useAppTheme } from "../../../../app";
 import { translate } from "../../../../i18n";
@@ -7,7 +7,7 @@ import { typography } from "../../../../theme";
 import ColorDropDown from "./ColorDropDown";
 import IconDropDown from "./IconDropdown";
 
- const TaskStatusForm = (
+const TaskStatusForm = (
     {
         isEdit,
         onDismiss,
@@ -42,6 +42,11 @@ import IconDropDown from "./IconDropdown";
 
 
     const handleSubmit = async () => {
+
+        if (statusName.trim().length <= 0 || statusColor.trim().length <= 0) {
+            return
+        }
+
         if (isEdit) {
             await onUpdateStatus(item?.id, {
                 icon: null,
@@ -55,6 +60,9 @@ import IconDropDown from "./IconDropdown";
                 name: statusName
             })
         }
+        setStatusColor(null)
+        setStatusName(null)
+        setStatusIcon(null)
         onDismiss()
     }
 
@@ -95,7 +103,7 @@ import IconDropDown from "./IconDropdown";
     )
 }
 
-const styles=StyleSheet.create({
+const styles = StyleSheet.create({
     statusNameInput: {
         width: "100%",
         height: 57,
