@@ -4,6 +4,9 @@ import { useFirstLoad, useSyncRef, useTeamTasks } from '..';
 import { useCallback, useEffect } from 'react';
 import { ITeamTask } from '@app/interfaces';
 
+/**
+ * Auto assign task to auth user when start tracking time
+ */
 export function useAutoAssignTask() {
 	const { firstLoad, firstLoadData } = useFirstLoad();
 
