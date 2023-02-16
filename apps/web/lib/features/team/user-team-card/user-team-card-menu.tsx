@@ -69,7 +69,10 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			onClick: memberInfo.isTeamManager
 				? memberInfo.unMakeMemberManager
 				: memberInfo.makeMemberManager,
-			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
+			active:
+				memberInfo.isAuthTeamManager &&
+				!memberInfo.isAuthUser &&
+				!memberInfo.isTeamCreator,
 			closable: true,
 		},
 		{

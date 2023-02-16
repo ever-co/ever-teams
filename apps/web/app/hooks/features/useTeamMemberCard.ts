@@ -36,7 +36,7 @@ export function useTeamMemberCard(
 
 	// const memberUserRef = useSyncRef(memberUser);
 	const isAuthUser = member?.employee.userId === authUSer?.id;
-	const { isTeamManager } = useIsMemberManager(memberUser);
+	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
 	const [memberTask, setMemberTask] = useState<ITeamTask | null>();
 
@@ -152,6 +152,7 @@ export function useTeamMemberCard(
 		updateOTeamLoading,
 		removeMemberFromTeam,
 		unMakeMemberManager,
+		isTeamCreator,
 	};
 }
 
