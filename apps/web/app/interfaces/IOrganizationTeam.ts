@@ -39,6 +39,7 @@ export interface IOrganizationTeamList {
 	prefix: string;
 	members: OT_Member[];
 	public?: boolean;
+	profile_link?: string;
 }
 
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
