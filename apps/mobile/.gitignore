@@ -83,3 +83,7 @@ web-build/
 
 # Configurations
 !env.js
+
+# local env files
+.env*
+!.env.template

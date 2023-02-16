@@ -5,6 +5,12 @@ const plugins = [
       legacy: true,
     },
   ],
+  ["module:react-native-dotenv", {
+    "envName": "APP_ENV",
+    "moduleName": "@env",
+    "path": ".env",
+    "allowUndefined": true,
+  }],
   ["@babel/plugin-proposal-optional-catch-binding"],
   "react-native-reanimated/plugin", // NOTE: this must be last in the plugins
 ]
@@ -32,7 +38,7 @@ try {
   isExpo =
     Constants.executionEnvironment === "standalone" ||
     Constants.executionEnvironment === "storeClient"
-} catch {}
+} catch { }
 
 const babelConfig = isExpo ? expoConfig : vanillaConfig
 

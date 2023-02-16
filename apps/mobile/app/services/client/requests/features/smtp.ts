@@ -1,22 +1,31 @@
 import { serverFetch } from "../../fetch";
-import { ITenant } from "../../../interfaces/ITenant";
+import {
+    SMTP_FROM_ADDRESS,
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_SECURE,
+    SMTP_USERNAME,
+    SMTP_PASSWORD
+} from "@env"
 
+import { I_SMTP, I_SMTPRequest } from "../../../interfaces/ISmtp";
 
-export function createStmpTenantRequest(bearer_token: string, tenantId) {
-    const body = {
-        "fromAddress":"",
-        "host": "",
-        "port": 0,
-        "secure": false,
-        "username": "",
-        "password": ""
-    }
+export const smtpConfiguration: () => I_SMTPRequest = () => ({
+    fromAddress: SMTP_FROM_ADDRESS || "",
+    host: SMTP_HOST || "",
+    port: parseInt(SMTP_PORT, 10) || 0,
+    secure: SMTP_SECURE === 'true' ? true : false,
+    username: SMTP_USERNAME || "",
+    password: SMTP_PASSWORD || "",
+}); 
 
-    return serverFetch<ITenant>({
+export function createSmtpTenantRequest(bearer_token: string, tenantId) {
+    const config = smtpConfiguration();
+    return serverFetch<I_SMTP>({
         path: "/smtp",
         method: "POST",
-        body,
-        tenantId, 
+        body: config,
         bearer_token,
+        tenantId
     });
 }
