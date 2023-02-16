@@ -146,6 +146,19 @@ const en = {
       spanish:"Spanish",
       korean:"Korean",
       hebrew:"Hebrew"
+    },
+    statusScreen:{
+      mainTitle:"Task Statuses",
+      listStatuses:"List of Statuses",
+      noActiveStatuses:"There are no active statuses",
+      createStatusButton:"Create new status",
+      createNewStatusText:"Create New Status",
+      statusNamePlaceholder:"Status Name",
+      statusIconPlaceholder:"Choose Icon",
+      statusColorPlaceholder:"Colors",
+      cancelButtonText:"Cancel",
+      createButtonText:"Create",
+      updateButtonText:"Update"
     }
   },
   hamburgerMenu:{
