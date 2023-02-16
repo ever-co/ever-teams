@@ -11,6 +11,7 @@ export interface IInviteCreate {
 	organizationId: string;
 	fullName: string;
 	callbackUrl?: string;
+	startedWorkOn: string;
 }
 
 export interface IInvitation {

@@ -46,6 +46,7 @@ export default async function handler(
 			...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
 			organizationId,
 			tenantId,
+			startedWorkOn: new Date().toISOString(),
 		},
 		access_token
 	);
