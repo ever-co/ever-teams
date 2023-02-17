@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text } from 'lib/components';
+import { Button, InputField, Text, Tooltip } from 'lib/components';
 import { useForm } from 'react-hook-form';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { Edit2Icon } from 'lib/components/svgs';
@@ -15,6 +15,7 @@ export const TeamSettingForm = () => {
 	const { trans } = useTranslation('settingsTeam');
 	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
+	const [copied, setCopied] = useState(false);
 	useEffect(() => {
 		setValue('teamName', activeTeam?.name || '');
 		setValue('teamType', activeTeam?.public || false);
@@ -35,6 +36,13 @@ export const TeamSettingForm = () => {
 		},
 		[editOrganizationTeam, activeTeam]
 	);
+
+	const getTeamLink = useCallback(() => {
+		if (typeof window !== 'undefined' && activeTeam) {
+			return `${window.location.origin}/team/${activeTeam.profile_link}`;
+		}
+		return '';
+	}, [activeTeam]);
 
 	return (
 		<>
@@ -82,7 +90,7 @@ export const TeamSettingForm = () => {
 												value="true"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
 												name="r"
-												onClick={() => {
+												onChange={() => {
 													setValue('teamType', true);
 													const latestFormData = getValues();
 													onSubmit({
@@ -101,7 +109,7 @@ export const TeamSettingForm = () => {
 												value="false"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
 												name="r"
-												onClick={() => {
+												onChange={() => {
 													setValue('teamType', false);
 													const latestFormData = getValues();
 													onSubmit({
@@ -115,20 +123,35 @@ export const TeamSettingForm = () => {
 									</div>
 									<div className="flex gap-4 items-center">
 										<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
-											<InputField
-												type="text"
-												placeholder="https://teamA.gauzy.com"
-												className="mb-0 h-[54px]"
-												wrapperClassName="mb-0 h-[54px]"
-											/>
+											<Tooltip
+												label={getTeamLink()}
+												placement="auto"
+												enabled
+												className="w-full"
+											>
+												<InputField
+													type="text"
+													placeholder={getTeamLink()}
+													className="mb-0 h-[54px]"
+													wrapperClassName="mb-0 h-[54px]"
+													disabled={true}
+												/>
+											</Tooltip>
 										</div>
 										<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
 											<Button
-												type="submit"
 												variant="outline"
 												className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
+												type='button'
+												onClick={() => {
+													navigator.clipboard.writeText(getTeamLink());
+													setCopied(true);
+													setTimeout(() => {
+														setCopied(false);
+													}, 1000 * 10 /** 10 Seconds */);
+												}}
 											>
-												Copy Link
+												{!copied ? 'Copy Link' : 'Copied'}
 											</Button>
 										</div>
 									</div>

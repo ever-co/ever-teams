@@ -59,7 +59,7 @@ export function getTaskLabelsListRequest<ITaskStatusItemList>(
 	const data = `{"relations":["organization"],"findInput":{"tenantId":"${tenantId}","organizationId":"${organizationId}"}}`;
 
 	return serverFetch({
-		path: `/tags?data=${encodeURI(data)}`,
+		path: `/tags?data=${encodeURI(data)}&where[tenantId]=${tenantId}&where[organizationId]=${organizationId}`,
 		method: 'GET',
 		bearer_token,
 	});

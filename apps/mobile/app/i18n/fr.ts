@@ -146,6 +146,19 @@ const fr = {
       spanish: "Espagnol",
       korean: "Coréen",
       hebrew: "Hébreu"
+    },
+    statusScreen:{
+      mainTitle:"Statuts des tâches",
+      listStatuses:"Liste des statuts",
+      noActiveStatuses:"Il n'y a pas de statuts actifs",
+      createStatusButton:"Créer un nouveau statut",
+      createNewStatusText:"Créer un nouveau statut",
+      statusNamePlaceholder:"Nom du statut",
+      statusIconPlaceholder:"Choisissez l'icône",
+      statusColorPlaceholder:"Couleurs",
+      cancelButtonText:"Annuler",
+      createButtonText:"Créer",
+      updateButtonText:"Modifier"
     }
   },
   hamburgerMenu:{

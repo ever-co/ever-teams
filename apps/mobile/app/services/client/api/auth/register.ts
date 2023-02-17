@@ -3,7 +3,7 @@ import { authFormValidate } from "../../../../helpers/validations";
 import { IRegisterDataAPI } from "../../../interfaces/IAuthentication";
 import { loginUserRequest, registerUserRequest } from "../../requests/auth";
 import { createEmployeeFromUser } from "../../requests/employee";
-import { createStmpTenantRequest } from "../../requests/features/smtp";
+import { createSmtpTenantRequest } from "../../requests/features/smtp";
 import { createOrganizationRequest, getUserOrganizationsRequest } from "../../requests/organization";
 import { createOrganizationTeamRequest, getAllOrganizationTeamRequest, getOrganizationTeamRequest } from "../../requests/organization-team";
 import { createTenantRequest } from "../../requests/tenant";
@@ -54,7 +54,7 @@ export async function register(params: IRegisterDataAPI) {
   const { data: tenant } = await createTenantRequest(params.team, auth_token);
 
   // Create STMP for the current Tenant
-  const { data } = await createStmpTenantRequest(
+  const { data } = await createSmtpTenantRequest(
     auth_token, tenant.id)
 
   // Create user organization
@@ -63,6 +63,7 @@ export async function register(params: IRegisterDataAPI) {
       currency: "USD",
       name: params.team,
       tenantId: tenant.id,
+      invitesAllowed: true,
     },
     auth_token
   );
@@ -98,6 +99,7 @@ export async function register(params: IRegisterDataAPI) {
     { tenantId: tenant.id, organizationId: organization.id },
     auth_token
   );
+  console.log("TENANT SMTP :" + JSON.stringify(data))
 
   // const team = teams.items[0];
 

@@ -42,6 +42,7 @@ export interface IOrganizationTeamList {
 	public?: boolean;
 	createdById: string;
 	createdBy: IUser;
+	profile_link?: string;
 }
 
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
