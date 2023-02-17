@@ -83,6 +83,12 @@ export const ColorDropdown = ({
 	);
 
 	useEffect(() => {
+		if (!colorItem) {
+			setColorItem(items[0]);
+		}
+	}, [colorItem, items]);
+
+	useEffect(() => {
 		if (active && colors.every((color) => color.color !== active.color)) {
 			setColors([...colors, active]);
 		}

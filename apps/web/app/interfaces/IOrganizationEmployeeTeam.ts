@@ -1,12 +1,13 @@
 import { IEmployee } from './IEmployee';
 
 export interface IOrganizationTeamEmployeeCreate {
-	name: string;
-	memberIds?: any[];
-	managerIds?: any[];
-	tags?: any[];
-	organizationId: string;
-	tenantId: string;
+	name?: string;
+	organizationId?: string;
+	organizationTeamId?: string;
+	tenantId?: string;
+	employeeId?: string;
+	roleId?: string;
+	isTrackingEnabled?: boolean;
 }
 export interface IOrganizationTeamEmployeeUpdate
 	extends IOrganizationTeamEmployeeCreate {

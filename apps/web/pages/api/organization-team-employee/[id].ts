@@ -1,5 +1,8 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import { deleteOrganizationTeamEmployeeRequest } from '@app/services/server/requests';
+import {
+	deleteOrganizationTeamEmployeeRequest,
+	updateOrganizationTeamEmployeeRequest,
+} from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -22,6 +25,18 @@ export default async function handler(
 						tenantId,
 						organizationId,
 						employeeId: employeeId as string,
+					})
+				);
+			}
+
+		case 'PUT':
+			if (id) {
+				return $res.json(
+					await updateOrganizationTeamEmployeeRequest({
+						id: id as string,
+						bearer_token: access_token,
+						tenantId,
+						body: req.body,
 					})
 				);
 			}

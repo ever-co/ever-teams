@@ -21,3 +21,24 @@ export function deleteOrganizationTeamEmployeeRequest({
 		tenantId,
 	});
 }
+
+export function updateOrganizationTeamEmployeeRequest({
+	id,
+	bearer_token,
+	tenantId,
+	body,
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+
+	body: IOrganizationTeamEmployeeUpdate;
+}) {
+	return serverFetch<IOrganizationTeamEmployeeUpdate>({
+		path: `/organization-team-employee/${id}`,
+		method: 'PUT',
+		bearer_token,
+		tenantId,
+		body,
+	});
+}
