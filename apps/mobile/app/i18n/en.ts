@@ -159,6 +159,19 @@ const en = {
       cancelButtonText:"Cancel",
       createButtonText:"Create",
       updateButtonText:"Update"
+    },
+    priorityScreen:{
+      mainTitle:"Task Priorities",
+      listPriorities:"List of Priorities",
+      noActivePriorities:"There are no active priorities",
+      createPriorityButton:"Create new priority",
+      createNewPriorityText:"Create New Priority",
+      priorityNamePlaceholder:"Priority Name",
+      priorityIconPlaceholder:"Choose Icon",
+      priorityColorPlaceholder:"Colors",
+      cancelButtonText:"Cancel",
+      createButtonText:"Create",
+      updateButtonText:"Update"
     }
   },
   hamburgerMenu:{

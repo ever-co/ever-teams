@@ -12,4 +12,5 @@ export * from "./Authenticated/TeamScreen"
 export * from "./Authenticated/ProfileScreen"
 export * from "./Authenticated/SettingScreen"
 export * from "./Authenticated/TaskStatusScreen"
+export * from "./Authenticated/TaskPrioritiesScreen"
  

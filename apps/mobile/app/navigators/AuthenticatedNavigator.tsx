@@ -14,7 +14,8 @@ import {
   AuthenticatedTeamScreen,
   AuthenticatedTimerScreen,
   AuthenticatedSettingScreen,
-  TaskStatusScreen
+  TaskStatusScreen,
+  TaskPriorityScreen
 } from "../screens"
 
 // HELPERS
@@ -33,7 +34,8 @@ export type AuthenticatedTabParamList = {
 export type AuthenticatedDrawerParamList = {
   Setting: undefined,
   AuthenticatedTab: undefined
-  TaskStatus:undefined
+  TaskStatus: undefined
+  TaskPriority: undefined
 }
 /**
  * Helper for automatically generating navigation prop types for each route.
@@ -141,8 +143,10 @@ export function AuthenticatedNavigator() {
         name="AuthenticatedTab" component={TabNavigator} />
       <drawer.Screen
         name="Setting" component={AuthenticatedSettingScreen} />
-         <drawer.Screen
+      <drawer.Screen
         name="TaskStatus" component={TaskStatusScreen} />
+      <drawer.Screen
+        name="TaskPriority" component={TaskPriorityScreen} />
     </drawer.Navigator>
   )
 }
