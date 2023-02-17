@@ -9,7 +9,7 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	const { $res, user, access_token, tenantId, organizationId } =
+	const { $res, user, access_token, tenantId, organizationId, teamId } =
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
@@ -25,6 +25,7 @@ export default async function handler(
 						tenantId,
 						organizationId,
 						employeeId: employeeId as string,
+						organizationTeamId: teamId,
 					})
 				);
 			}

@@ -27,6 +27,7 @@ export interface IUser {
 	updatedAt: string;
 	timeZone?: string;
 	name?: string | null | undefined;
+	phoneNumber: string | null;
 }
 
 interface Role {

@@ -33,6 +33,7 @@ export const PersonalSettingForm = () => {
 		setValue('email', user?.email);
 		setValue('timeZone', user?.timeZone);
 		setValue('preferredLanguage', user?.preferredLanguage);
+		setValue('phoneNumber', user?.phoneNumber);
 	}, [user, currentTimezone, currentLanguage, setValue]);
 
 	const onSubmit = useCallback(
@@ -42,6 +43,7 @@ export const PersonalSettingForm = () => {
 					firstName: values.firstName,
 					lastName: values.lastName,
 					email: values.email,
+					phoneNumber: values.phoneNumber,
 					id: user.id,
 				});
 			}
@@ -160,6 +162,10 @@ export const PersonalSettingForm = () => {
 										<InputField
 											type="text"
 											placeholder="Phone Number"
+											{...register('phoneNumber', {
+												required: true,
+												valueAsNumber: true,
+											})}
 											className="md:w-[220px] h-[54px]"
 										/>
 									</div>
