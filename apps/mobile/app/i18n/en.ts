@@ -172,6 +172,32 @@ const en = {
       cancelButtonText:"Cancel",
       createButtonText:"Create",
       updateButtonText:"Update"
+    },
+    labelScreen:{
+      mainTitle:"Task Labels",
+      listLabels:"List of Labels",
+      noActiveLabels:"There are no active labels",
+      createLabelButton:"Create new label",
+      createNewLabelText:"Create New Labels",
+      labelNamePlaceholder:"Labels Name",
+      labelIconPlaceholder:"Choose Icon",
+      labelColorPlaceholder:"Colors",
+      cancelButtonText:"Cancel",
+      createButtonText:"Create",
+      updateButtonText:"Update"
+    },
+    sizeScreen:{
+      mainTitle:"Task Sizes",
+      listSizes:"List of Sizes",
+      noActiveSizes:"There are no active sizes",
+      createSizeButton:"Create new size",
+      createNewSizeText:"Create New Sizes",
+      sizeNamePlaceholder:"Size Name",
+      sizeIconPlaceholder:"Choose Icon",
+      sizeColorPlaceholder:"Colors",
+      cancelButtonText:"Cancel",
+      createButtonText:"Create",
+      updateButtonText:"Update"
     }
   },
   hamburgerMenu:{
