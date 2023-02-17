@@ -242,7 +242,7 @@ function useDropdownAction({
 
 		memberInfo.removeMemberFromTeam();
 		close && close();
-	}, []);
+	}, [memberInfo]);
 
 	return {
 		onAssignTask,

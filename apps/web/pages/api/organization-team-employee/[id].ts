@@ -28,6 +28,7 @@ export default async function handler(
 					})
 				);
 			}
+			break;
 
 		case 'PUT':
 			if (id) {
@@ -40,5 +41,6 @@ export default async function handler(
 					})
 				);
 			}
+			break;
 	}
 }

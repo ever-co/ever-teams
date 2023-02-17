@@ -79,7 +79,7 @@ export const ColorDropdown = ({
 				setValue('color', item.data.color);
 			}
 		},
-		[setColorItem, setValue, active]
+		[setColorItem, setValue]
 	);
 
 	useEffect(() => {
@@ -92,7 +92,7 @@ export const ColorDropdown = ({
 		if (active && colors.every((color) => color.color !== active.color)) {
 			setColors([...colors, active]);
 		}
-	}, [colors, setColors, setColorItem]);
+	}, [colors, setColors, setColorItem, active]);
 
 	useEffect(() => {
 		if (active) {

@@ -52,13 +52,7 @@ export const PersonalSettingForm = () => {
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
 		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
-	}, [
-		setCurrentTimezone,
-		setValue,
-		user,
-		user?.timeZone,
-		getActiveTimezoneIdCookie,
-	]);
+	}, [setCurrentTimezone, setValue, user, user?.timeZone]);
 	const handleChangeTimezone = useCallback(
 		(newTimezone: string | undefined) => {
 			setActiveTimezoneCookie(newTimezone || userTimezone());
@@ -72,7 +66,7 @@ export const PersonalSettingForm = () => {
 				});
 			}
 		},
-		[setActiveTimezoneCookie, setCurrentTimezone, setValue, updateAvatar]
+		[setCurrentTimezone, setValue, updateAvatar, user]
 	);
 
 	useEffect(() => {
@@ -81,12 +75,7 @@ export const PersonalSettingForm = () => {
 			'preferredLanguage',
 			user?.preferredLanguage || getActiveLanguageIdCookie()
 		);
-	}, [
-		setCurrentLanguage,
-		user,
-		user?.preferredLanguage,
-		getActiveLanguageIdCookie,
-	]);
+	}, [setCurrentLanguage, user, user?.preferredLanguage, setValue]);
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
 			setActiveLanguageIdCookie(newLanguage);
@@ -100,13 +89,7 @@ export const PersonalSettingForm = () => {
 				});
 			}
 		},
-		[
-			user,
-			setActiveLanguageIdCookie,
-			setCurrentLanguage,
-			setValue,
-			updateAvatar,
-		]
+		[user, setCurrentLanguage, setValue, updateAvatar]
 	);
 
 	return (
