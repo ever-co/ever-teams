@@ -181,7 +181,7 @@ const ListCardItem: React.FC<Props> = (props) => {
         <Card
             style={{
                 ...$listCard,
-                ...GS.mb3,
+                ...GS.mt5,
                 paddingTop: 4,
                 backgroundColor: "#DCD6D6",
                 opacity: 0.38
