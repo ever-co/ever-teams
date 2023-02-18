@@ -38,12 +38,12 @@ export function Dropdown<T extends DropdownItem>({
 	optionsClassName,
 }: Props<T>) {
 	return (
-		<div className={clsxm('relative', className)}>
+		<div className={clsxm('rounded-xl', className)}>
 			<Listbox value={Value} onChange={onChange}>
 				<Listbox.Button
 					className={clsxm(
 						'input-border',
-						'w-full flex justify-between rounded-[10px] px-3 py-2 text-sm items-center',
+						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
 						'font-normal',
 						buttonClassName
 					)}
@@ -85,13 +85,13 @@ export function Dropdown<T extends DropdownItem>({
 					<Listbox.Options
 						className={clsxm(
 							'absolute mt-3 min-w-full max-h-64',
-							'overflow-hidden overflow-y-auto',
+							'overflow-hidden overflow-y-auto rounded-xl',
 							optionsClassName
 						)}
 					>
 						<Card
 							shadow="custom"
-							className="md:px-4 py-4 rounded-[12px]"
+							className="md:px-4 py-4 rounded-x"
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
 							{items.map((Item, index) => (

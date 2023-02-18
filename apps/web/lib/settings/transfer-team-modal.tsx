@@ -39,14 +39,13 @@ export function TransferTeamModal({
 							.map((manager) => manager.employeeId),
 						selectedMember.id,
 					],
-					memberIds: activeTeam.members
-						.filter((member) => member.employee.userId !== user?.id)
-						.map((member) => member.employeeId),
+					memberIds: activeTeam.members.map((member) => member.employeeId),
 					tenantId: activeTeam.tenantId,
 					organizationId: activeTeam.organizationId,
 					name: activeTeam.name,
-				}).then(closeModal);
-				// .catch((err) => {});
+				})
+					.then(closeModal)
+					.catch(closeModal);
 			}
 		},
 		[

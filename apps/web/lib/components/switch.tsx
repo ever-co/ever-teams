@@ -1,15 +1,38 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Switch } from '@headlessui/react';
 import { Text } from './typography';
+import { OT_Member } from '@app/interfaces';
+import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
+import { useOrganizationTeams } from '@app/hooks';
 
-export default function TimeTrackingToggle() {
-	const [enabled, setEnabled] = useState(true);
+export default function TimeTrackingToggle({
+	activeManager,
+}: {
+	activeManager: OT_Member | undefined;
+}) {
+	const [enabled, setEnabled] = useState(activeManager?.isTrackingEnabled);
+
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { activeTeam } = useOrganizationTeams();
+
+	const handleChange = useCallback(() => {
+		if (activeManager && activeTeam) {
+			updateOrganizationTeamEmployee(activeManager.id, {
+				organizationId: activeManager.organizationId,
+				organizationTeamId: activeTeam.id,
+				isTrackingEnabled: !enabled,
+			});
+		}
+		setEnabled(!enabled);
+	}, [updateOrganizationTeamEmployee, enabled, activeManager, activeTeam]);
 
 	return (
 		<div className="py-16 flex items-center gap-x-[10px]">
 			<Switch
 				checked={enabled}
-				onChange={setEnabled}
+				onChange={() => {
+					handleChange();
+				}}
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
           relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
 			>
