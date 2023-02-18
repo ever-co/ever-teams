@@ -50,7 +50,10 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		},
 		{
 			name: trans.common.ASSIGN_TASK,
-			active: memberInfo.isAuthTeamManager,
+			active:
+				memberInfo.isAuthTeamManager &&
+				memberInfo.memberUnassignTasks.length > 0,
+
 			action: 'assign',
 			onClick: onAssignTask,
 		},
@@ -222,7 +225,7 @@ function AssignActionMenu({
 						return (
 							<TaskInput
 								task={null}
-								tasks={memberInfo.unassignTasks}
+								tasks={memberInfo.memberUnassignTasks}
 								initEditMode={true}
 								keepOpen={true}
 								autoAssignTask={false}

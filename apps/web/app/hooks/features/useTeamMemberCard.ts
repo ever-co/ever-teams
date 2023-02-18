@@ -45,7 +45,8 @@ export function useTeamMemberCard(
 			if (isAuthUser) {
 				setMemberTask(activeTeamTask);
 			} else if (member.lastWorkedTask && !isAuthUser) {
-				setMemberTask(member.lastWorkedTask);
+				// member.lastWorkedTask;
+				// setMemberTask(member.lastWorkedTask);
 				// console.log(member.lastWorkedTask);
 			}
 		}
@@ -100,6 +101,7 @@ export function useTeamMemberCard(
 			memberIds: team.members
 				.filter((r) => r.employee.id !== employeeId)
 				.map((r) => r.employee.id),
+
 			// remove from managers
 			managerIds: team.members
 				.filter((r) => r.role && r.role.name === 'MANAGER')
@@ -111,7 +113,7 @@ export function useTeamMemberCard(
 	/**
 	 * Returns all tasks not assigned to the member
 	 */
-	const unassignTasks = useMemo(() => {
+	const memberUnassignTasks = useMemo(() => {
 		if (!memberUser) return [];
 
 		return tasks.filter((task) => {
@@ -141,7 +143,7 @@ export function useTeamMemberCard(
 
 	return {
 		assignTask,
-		unassignTasks,
+		memberUnassignTasks,
 		isTeamManager,
 		memberUser,
 		member,

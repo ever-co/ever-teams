@@ -2,7 +2,7 @@ import { I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, Text, Tooltip } from 'lib/components';
-import { MailIcon } from 'lib/components/svgs';
+// import { MailIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
@@ -46,7 +46,7 @@ export function UserInfo({ className, memberInfo }: Props) {
 					</Text.Heading>
 				</Tooltip>
 
-				<Tooltip
+				{/* <Tooltip
 					label={`${memberUser?.email || ''} `.trim()}
 					placement="auto"
 					enabled={
@@ -60,7 +60,7 @@ export function UserInfo({ className, memberInfo }: Props) {
 							{memberUser?.email}
 						</span>
 					</Text>
-				</Tooltip>
+				</Tooltip> */}
 			</div>
 		</Link>
 	);
