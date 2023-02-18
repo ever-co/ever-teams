@@ -56,17 +56,18 @@ const ManageTaskCard = observer(() => {
                         flexDirection: "row",
                         alignItems: "center",
                         borderColor: colors.border,
-                        backgroundColor:colors.background
+                        backgroundColor: colors.background
                     },
                 ]}
             >
                 <View style={styles.wrapBugIcon}>
-                <MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
+                    <MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
                 </View>
+                <Text style={styles.taskNumberStyle}>#{activeTask?.taskNumber}</Text>
                 <TextInput
                     selectionColor={colors.primary}
                     placeholderTextColor={colors.tertiary}
-                    style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary, width:showCheckIcon ? "85%":"90%" }]}
+                    style={[styles.textInput, { backgroundColor: colors.background, color: colors.primary, width: "80%"}]}
                     placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
                     value={taskInputText}
                     autoFocus={false}
@@ -80,7 +81,7 @@ const ManageTaskCard = observer(() => {
                         <Feather name="check" size={24} color="green" />
                     </TouchableOpacity>
                 )}
-                {isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
+                {isLoading ? <ActivityIndicator color={colors.primary} style={styles.loading} /> : null}
             </View>
 
             {showCombo ? <ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} /> :
@@ -165,7 +166,7 @@ const styles = StyleSheet.create({
         width: "80%",
         height: 43,
         paddingVertical: 13,
-        paddingHorizontal: 16,
+        paddingHorizontal: 6,
         backgroundColor: "#fff",
         borderRadius: 10,
         fontSize: 12,
@@ -190,12 +191,10 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 10,
         paddingVertical: 2,
-        paddingHorizontal:16
+        paddingHorizontal: 16
     },
     loading: {
-        position: 'absolute',
         right: 10,
-        top: 15
     },
     statusContainer: {
         paddingHorizontal: 9,
@@ -204,13 +203,19 @@ const styles = StyleSheet.create({
         height: 32,
         borderColor: "transparent",
     },
-    wrapBugIcon:{
-        backgroundColor:"#C24A4A",
-        borderRadius:3,
-        width:20,
-        height:20,
-        alignItems:"center",
-        justifyContent:"center"
+    taskNumberStyle: {
+        color: "#7B8089",
+        fontFamily: typography.primary.semiBold,
+        fontSize: 14,
+        marginLeft:5
+      },
+    wrapBugIcon: {
+        backgroundColor: "#C24A4A",
+        borderRadius: 3,
+        width: 20,
+        height: 20,
+        alignItems: "center",
+        justifyContent: "center"
     }
 
 })

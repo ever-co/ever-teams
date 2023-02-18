@@ -384,7 +384,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 />
                 <TouchableOpacity
                   onPress={() => getAuthCode()}>
-                  <Text style={styles.resendText}>{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
+                  <Text style={styles.resendText}>{translate("loginScreen.codeNotReceived")} <Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
                 </TouchableOpacity>
               </View>
               <View style={[styles.buttonsView]}>
