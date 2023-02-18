@@ -27,7 +27,7 @@ export const TransferTeamDropdown = ({
 				setSelectedMember(item.data);
 			}
 		},
-		[setMemberItem, active, setSelectedMember]
+		[setMemberItem, setSelectedMember]
 	);
 
 	useEffect(() => {

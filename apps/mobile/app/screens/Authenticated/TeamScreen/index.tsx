@@ -109,10 +109,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                 <ScrollView
                   bounces={false}
                   showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{ ...GS.py2, ...GS.px1 }}
-                  style={[$cardContainer, { backgroundColor: dark ? "rgb(16,17,20)" : "#F7F7F8" }]}
+                  contentContainerStyle={{ ...GS.px1 }}
+                  style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
                 >
-                  <View >
+                  <View>
                     {currentUser && (
                       <ListCardItem
                         member={currentUser as IUser}

@@ -8,7 +8,7 @@ import {
   FlatList,
 } from "react-native"
 import { Avatar, Text } from "react-native-paper"
-import { Ionicons, AntDesign, Entypo } from "@expo/vector-icons"
+import { Ionicons, AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 // COMPONENTS
@@ -152,9 +152,15 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
           </View>
         </View>
         <View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
-          <Text style={[styles.otherText, { color: colors.primary }]}>
-            {memberTask && limitTextCharaters({ text: memberTask && memberTask.title, numChars: 64 })}
-          </Text>
+          <View style={{ flexDirection: "row", width: "100%" }}>
+            <View style={styles.wrapBugIcon}>
+              <MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
+            </View>
+            {memberTask ?
+              <Text style={[styles.otherText, { color: colors.primary }]}>
+                <Text style={styles.taskNumberStyle}>#{memberTask?.taskNumber}</Text> {memberTask && limitTextCharaters({ text: memberTask && memberTask.title, numChars: 64 })}
+              </Text> : null}
+          </View>
           <View style={{ marginTop: 16, flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
 
             <FlatList
@@ -261,7 +267,7 @@ const ListCardItem: React.FC<Props> = (props) => {
     <Card
       style={{
         ...$listCard,
-        ...GS.mb3,
+        ...GS.mt5,
         paddingTop: 4,
         backgroundColor: getStatusImage(userStatus).color,
         zIndex: 999 - index
@@ -400,8 +406,7 @@ const styles = StyleSheet.create({
   otherText: {
     fontSize: 14,
     color: "#282048",
-    width: "100%",
-    lineHeight: 15,
+    width: "95%",
     fontStyle: "normal",
     fontFamily: typography.fonts.PlusJakartaSans.semiBold,
   },
@@ -437,7 +442,9 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   taskNumberStyle: {
-
+    color: "#7B8089",
+    fontFamily: typography.primary.semiBold,
+    fontSize: 14
   },
   wrapTotalTime: {
     position: "absolute",
@@ -475,7 +482,7 @@ const styles = StyleSheet.create({
   },
   wrapTaskTitle: {
     marginTop: 16,
-    width: "100%",
+    width: "98%",
     borderTopWidth: 1,
     paddingVertical: 16
   },
@@ -498,6 +505,15 @@ const styles = StyleSheet.create({
   progessText: {
     fontFamily: typography.primary.semiBold,
     fontSize: 10
+  },
+  wrapBugIcon: {
+    backgroundColor: "#C24A4A",
+    borderRadius: 3,
+    width: 20,
+    height: 20,
+    marginRight: 3,
+    alignItems: "center",
+    justifyContent: "center"
   }
 })
 

@@ -151,7 +151,7 @@ export function TaskInput({
 	/* Setting the filter to open when the edit mode is true. */
 	useEffect(() => {
 		editMode && setFilter('open');
-	}, [editMode]);
+	}, [editMode, setFilter]);
 
 	/*
 		If task is passed then we don't want to set the active task for the authenticated user.

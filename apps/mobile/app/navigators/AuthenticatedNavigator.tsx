@@ -15,6 +15,8 @@ import {
   AuthenticatedTimerScreen,
   AuthenticatedSettingScreen,
   TaskStatusScreen,
+  TaskLabelScreen,
+  TaskSizeScreen,
   TaskPriorityScreen
 } from "../screens"
 
@@ -34,6 +36,8 @@ export type AuthenticatedTabParamList = {
 export type AuthenticatedDrawerParamList = {
   Setting: undefined,
   AuthenticatedTab: undefined
+  TaskLabelScreen: undefined
+  TaskSizeScreen:undefined
   TaskStatus: undefined
   TaskPriority: undefined
 }
@@ -145,6 +149,10 @@ export function AuthenticatedNavigator() {
         name="Setting" component={AuthenticatedSettingScreen} />
       <drawer.Screen
         name="TaskStatus" component={TaskStatusScreen} />
+      <drawer.Screen
+        name="TaskLabelScreen" component={TaskLabelScreen} />
+         <drawer.Screen
+        name="TaskSizeScreen" component={TaskSizeScreen} />
       <drawer.Screen
         name="TaskPriority" component={TaskPriorityScreen} />
     </drawer.Navigator>
