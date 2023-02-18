@@ -67,6 +67,10 @@ export const en = {
 			BREADCRUMB: ['Dashboard', 'Task Profile'],
 		},
 
+		taskDetails: {
+			BREADCRUMB: ['Team', 'Task Details'],
+		},
+
 		auth: {
 			SEND_CODE: 'send code',
 			JOIN: 'Join',

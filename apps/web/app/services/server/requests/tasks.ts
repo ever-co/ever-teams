@@ -1,6 +1,7 @@
 import {
 	DeleteReponse,
 	PaginationResponse,
+	SingleTaskResponse,
 } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
@@ -51,6 +52,22 @@ export function deleteTaskRequest({
 		method: 'DELETE',
 		bearer_token,
 		tenantId,
+	});
+}
+
+export function getTaskRequest({
+	taskId,
+	tenantId,
+	bearer_token,
+}: {
+	tenantId: string;
+	taskId: string;
+	bearer_token: string;
+}) {
+	return serverFetch<SingleTaskResponse<ITeamTask>>({
+		path: `/tasks/${taskId}?tenantId=${tenantId}`,
+		method: 'GET',
+		bearer_token,
 	});
 }
 

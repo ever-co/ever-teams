@@ -31,18 +31,22 @@ import {
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
 		icon: <BugReportIcon />,
+		name: 'Bug',
 		bgColor: '#923535',
 	},
 	Task: {
 		icon: <TaskSquareIcon />,
+		name: 'Task',
 		bgColor: '#5483BA',
 	},
 	Story: {
 		icon: <NoteIcon />,
+		name: 'Story',
 		bgColor: '#66BB97',
 	},
 	Custom: {
 		icon: <CategoryIcon />,
+		name: 'Custom',
 		bgColor: '#8154BA',
 	},
 };
@@ -74,6 +78,7 @@ export function TaskIssuesDropdown({
 				value={item}
 				onChange={onChange}
 				issueType="issue"
+				showIssueLabels={true}
 			>
 				<Button
 					onClick={openModal}
@@ -109,6 +114,7 @@ export function ActiveTaskIssuesDropdown(props: IActiveTaskStatuses<'issue'>) {
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			issueType="issue"
+			showIssueLabels={props.showIssueLabels}
 		/>
 	);
 }

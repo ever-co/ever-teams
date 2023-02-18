@@ -1,10 +1,22 @@
+import clsx from 'clsx';
 import { Footer, Navbar } from '.';
 import { Container, Divider, Meta } from 'lib/components';
 import { PropsWithChildren } from 'react';
 
-type Props = PropsWithChildren<{ title?: string; showTimer?: boolean }>;
+type Props = PropsWithChildren<{
+	title?: string;
+	showTimer?: boolean;
+	navbarClassname?: string;
+	containerWrapperClassname?: string;
+}>;
 
-export function MainLayout({ children, title, showTimer }: Props) {
+export function MainLayout({
+	children,
+	title,
+	showTimer,
+	navbarClassname,
+	containerWrapperClassname,
+}: Props) {
 	return (
 		<>
 			<style jsx global>
@@ -16,9 +28,17 @@ export function MainLayout({ children, title, showTimer }: Props) {
 			</style>
 
 			<Meta title={title} />
-			<Navbar showTimer={showTimer} className="fixed z-[999]" />
+			<Navbar
+				showTimer={showTimer}
+				className={clsx('fixed z-[999]', navbarClassname)}
+			/>
 
-			<div className="w-full flex flex-col items-start justify-between h-screen min-h-[500px] pt-20">
+			<div
+				className={clsx(
+					'w-full flex flex-col items-start justify-between h-screen min-h-[500px] pt-20',
+					containerWrapperClassname
+				)}
+			>
 				<div className="flex-1 w-full">{children}</div>
 
 				<Container>

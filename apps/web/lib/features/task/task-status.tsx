@@ -431,9 +431,14 @@ export function TaskStatus({
 	className,
 	active = true,
 	issueType = 'status',
+	showIssueLabels,
 }: PropsWithChildren<
 	TStatusItem &
-		IClassName & { active?: boolean; issueType?: 'status' | 'issue' }
+		IClassName & {
+			active?: boolean;
+			issueType?: 'status' | 'issue';
+			showIssueLabels?: boolean;
+		}
 >) {
 	return (
 		<div
@@ -448,7 +453,9 @@ export function TaskStatus({
 			<div className="flex items-center space-x-3 whitespace-nowrap">
 				{active ? icon : <RecordIcon />}
 
-				{name && issueType !== 'issue' && <span>{name}</span>}
+				{name && (issueType !== 'issue' || showIssueLabels) && (
+					<span>{name}</span>
+				)}
 			</div>
 			{children}
 		</div>
@@ -466,6 +473,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 	defaultItem,
 	issueType = 'status',
 	children,
+	showIssueLabels,
 }: PropsWithChildren<{
 	value: T | undefined;
 	onChange?(value: string): void;
@@ -473,6 +481,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 	className?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
+	showIssueLabels?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -491,6 +500,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 							<TaskStatus
 								{...currentValue}
 								active={!!value}
+								showIssueLabels={showIssueLabels}
 								issueType={issueType}
 								className={clsxm(
 									'justify-between w-full capitalize',
