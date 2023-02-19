@@ -267,5 +267,6 @@ export function useOrganizationTeams() {
 		activeTeamManagers,
 		updateOrganizationTeam,
 		updateOTeamLoading,
+		setTeams,
 	};
 }

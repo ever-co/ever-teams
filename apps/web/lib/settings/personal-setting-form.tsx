@@ -33,6 +33,7 @@ export const PersonalSettingForm = () => {
 		setValue('email', user?.email);
 		setValue('timeZone', user?.timeZone);
 		setValue('preferredLanguage', user?.preferredLanguage);
+		setValue('phoneNumber', user?.phoneNumber);
 	}, [user, currentTimezone, currentLanguage, setValue]);
 
 	const onSubmit = useCallback(
@@ -42,6 +43,7 @@ export const PersonalSettingForm = () => {
 					firstName: values.firstName,
 					lastName: values.lastName,
 					email: values.email,
+					phoneNumber: values.phoneNumber,
 					id: user.id,
 				});
 			}
@@ -52,13 +54,7 @@ export const PersonalSettingForm = () => {
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
 		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
-	}, [
-		setCurrentTimezone,
-		setValue,
-		user,
-		user?.timeZone,
-		getActiveTimezoneIdCookie,
-	]);
+	}, [setCurrentTimezone, setValue, user, user?.timeZone]);
 	const handleChangeTimezone = useCallback(
 		(newTimezone: string | undefined) => {
 			setActiveTimezoneCookie(newTimezone || userTimezone());
@@ -72,7 +68,7 @@ export const PersonalSettingForm = () => {
 				});
 			}
 		},
-		[setActiveTimezoneCookie, setCurrentTimezone, setValue, updateAvatar]
+		[setCurrentTimezone, setValue, updateAvatar, user]
 	);
 
 	useEffect(() => {
@@ -81,12 +77,7 @@ export const PersonalSettingForm = () => {
 			'preferredLanguage',
 			user?.preferredLanguage || getActiveLanguageIdCookie()
 		);
-	}, [
-		setCurrentLanguage,
-		user,
-		user?.preferredLanguage,
-		getActiveLanguageIdCookie,
-	]);
+	}, [setCurrentLanguage, user, user?.preferredLanguage, setValue]);
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
 			setActiveLanguageIdCookie(newLanguage);
@@ -100,13 +91,7 @@ export const PersonalSettingForm = () => {
 				});
 			}
 		},
-		[
-			user,
-			setActiveLanguageIdCookie,
-			setCurrentLanguage,
-			setValue,
-			updateAvatar,
-		]
+		[user, setCurrentLanguage, setValue, updateAvatar]
 	);
 
 	return (
@@ -177,6 +162,10 @@ export const PersonalSettingForm = () => {
 										<InputField
 											type="text"
 											placeholder="Phone Number"
+											{...register('phoneNumber', {
+												required: true,
+												valueAsNumber: true,
+											})}
 											className="md:w-[220px] h-[54px]"
 										/>
 									</div>

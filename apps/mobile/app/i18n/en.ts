@@ -3,7 +3,7 @@ const en = {
     ok: "OK!",
     cancel: "Cancel",
     back: "Back",
-    save:"Save",
+    save: "Save",
     logOut: "Log Out", // @demo remove-current-line
   },
   welcomeScreen: {
@@ -45,8 +45,8 @@ const en = {
     step3Title: "Invitation code",
     confirmDetails: "Please check your email for confirm code",
     confirmDetails2: "Please enter the invitation code we sent to your Email",
-    sendCode: "send Code",
-    codeNotReceived: "Didn’t recieve code ?Re",
+    sendCode: "Resend Code",
+    codeNotReceived: "Didn’t recieve code ?",
     inviteStepLabel: "Provide your Email",
     emailFieldLabel: "Your Email",
     teamNameFieldLabel: "Team Name",
@@ -56,7 +56,7 @@ const en = {
     userNameFieldPlaceholder: "Enter your name",
     tapContinue: "Continue",
     tapJoin: "Join",
-    createTeam:"Create Team"
+    createTeam: "Create Team"
   },
   myWorkScreen: {
     name: "My Work",
@@ -79,7 +79,7 @@ const en = {
     inviteEmailFieldPlaceholder: "Input email address",
     inviteNameFieldPlaceholder: "Input team member name",
     sendButton: "Send",
-    createNewTeamButton:"Create new team"
+    createNewTeamButton: "Create new team"
   },
   tasksScreen: {
     name: "Tasks",
@@ -105,7 +105,7 @@ const en = {
       darkModeToLight: "Dark Mode to Light Mode",
       lightModeToDark: "Light Mode to Dark Mode",
       language: "Language",
-      changeAvatar:"Change Avatar",
+      changeAvatar: "Change Avatar",
       timeZone: "Time Zone",
       workSchedule: "Work Schedule",
       workScheduleHint: "Set your work schedule now",
@@ -124,7 +124,7 @@ const en = {
       taskPriorities: "Task Priorities",
       taskSizes: "Task Sizes",
       taskLabel: "Task Label",
-      changeLogo:"Change Logo",
+      changeLogo: "Change Logo",
       teamRole: "Manager Member & Role",
       workSchedule: "Work Schedule",
       workScheduleHint: "Set your work schedule now",
@@ -136,72 +136,77 @@ const en = {
       quitTeamHint: "You are about to quit the team",
     },
     dangerZone: "Danger Zone",
-    modalChangeLanguageTitle:"Change Language",
-    languages:{
-      english:"English ( United States )",
-      french:"French ( France )",
-      arabic:"Arabic",
-      russian:"Russian",
-      bulgarian:"Bulgarian",
-      spanish:"Spanish",
-      korean:"Korean",
-      hebrew:"Hebrew"
+    modalChangeLanguageTitle: "Change Language",
+    languages: {
+      english: "English ( United States )",
+      french: "French ( France )",
+      arabic: "Arabic",
+      russian: "Russian",
+      bulgarian: "Bulgarian",
+      spanish: "Spanish",
+      korean: "Korean",
+      hebrew: "Hebrew"
     },
-    statusScreen:{
-      mainTitle:"Task Statuses",
-      listStatuses:"List of Statuses",
-      noActiveStatuses:"There are no active statuses",
-      createStatusButton:"Create new status",
-      createNewStatusText:"Create New Status",
-      statusNamePlaceholder:"Status Name",
-      statusIconPlaceholder:"Choose Icon",
-      statusColorPlaceholder:"Colors",
-      cancelButtonText:"Cancel",
-      createButtonText:"Create",
-      updateButtonText:"Update"
+    statusScreen: {
+      mainTitle: "Task Statuses",
+      listStatuses: "List of Statuses",
+      noActiveStatuses: "There are no active statuses",
+      createStatusButton: "Create new status",
+      createNewStatusText: "Create New Status",
+      statusNamePlaceholder: "Status Name",
+      statusIconPlaceholder: "Choose Icon",
+      statusColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
     },
-    priorityScreen:{
-      mainTitle:"Task Priorities",
-      listPriorities:"List of Priorities",
-      noActivePriorities:"There are no active priorities",
-      createPriorityButton:"Create new priority",
-      createNewPriorityText:"Create New Priority",
-      priorityNamePlaceholder:"Priority Name",
-      priorityIconPlaceholder:"Choose Icon",
-      priorityColorPlaceholder:"Colors",
-      cancelButtonText:"Cancel",
-      createButtonText:"Create",
-      updateButtonText:"Update"
+    priorityScreen: {
+      mainTitle: "Task Priorities",
+      listPriorities: "List of Priorities",
+      noActivePriorities: "There are no active priorities",
+      createPriorityButton: "Create new priority",
+      createNewPriorityText: "Create New Priority",
+      priorityNamePlaceholder: "Priority Name",
+      priorityIconPlaceholder: "Choose Icon",
+      priorityColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
     },
-    labelScreen:{
-      mainTitle:"Task Labels",
-      listLabels:"List of Labels",
-      noActiveLabels:"There are no active labels",
-      createLabelButton:"Create new label",
-      createNewLabelText:"Create New Labels",
-      labelNamePlaceholder:"Labels Name",
-      labelIconPlaceholder:"Choose Icon",
-      labelColorPlaceholder:"Colors",
-      cancelButtonText:"Cancel",
-      createButtonText:"Create",
-      updateButtonText:"Update"
+    labelScreen: {
+      mainTitle: "Task Labels",
+      listLabels: "List of Labels",
+      noActiveLabels: "There are no active labels",
+      createLabelButton: "Create new label",
+      createNewLabelText: "Create New Labels",
+      labelNamePlaceholder: "Labels Name",
+      labelIconPlaceholder: "Choose Icon",
+      labelColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
     },
-    sizeScreen:{
-      mainTitle:"Task Sizes",
-      listSizes:"List of Sizes",
-      noActiveSizes:"There are no active sizes",
-      createSizeButton:"Create new size",
-      createNewSizeText:"Create New Sizes",
-      sizeNamePlaceholder:"Size Name",
-      sizeIconPlaceholder:"Choose Icon",
-      sizeColorPlaceholder:"Colors",
-      cancelButtonText:"Cancel",
-      createButtonText:"Create",
-      updateButtonText:"Update"
+    sizeScreen: {
+      mainTitle: "Task Sizes",
+      listSizes: "List of Sizes",
+      noActiveSizes: "There are no active sizes",
+      createSizeButton: "Create new size",
+      createNewSizeText: "Create New Sizes",
+      sizeNamePlaceholder: "Size Name",
+      sizeIconPlaceholder: "Choose Icon",
+      sizeColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    changeFullName: {
+      firstNamePlaceholder: "First Name",
+      lastNamePlaholder: "Last Name",
+      mainTitle:"Change Full Name"
     }
   },
-  hamburgerMenu:{
-    darkMode:"Dark Mode"
+  hamburgerMenu: {
+    darkMode: "Dark Mode"
   },
   demoNavigator: {
     componentsTab: "Components",

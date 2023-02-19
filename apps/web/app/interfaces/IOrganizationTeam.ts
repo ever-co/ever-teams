@@ -61,6 +61,7 @@ export interface OT_Member {
 	lastWorkedTask?: ITeamTask;
 	running?: boolean;
 	duration?: number;
+	isTrackingEnabled?: boolean;
 }
 
 interface OT_Role {

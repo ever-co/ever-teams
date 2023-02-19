@@ -14,23 +14,31 @@ export const TeamSettingForm = () => {
 	const { register, setValue, handleSubmit, getValues } = useForm();
 	const { trans } = useTranslation('settingsTeam');
 	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
-	const { isTeamManager } = useIsMemberManager(user);
+	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState(false);
 	useEffect(() => {
 		setValue('teamName', activeTeam?.name || '');
 		setValue('teamType', activeTeam?.public || false);
-		setValue('teamLink', '');
-	}, [user, setValue, activeTeam]);
+		setValue('timeTracking', activeManager?.isTrackingEnabled || false);
+	}, [user, setValue, activeTeam, activeManager]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
 			if (activeTeam) {
 				editOrganizationTeam({
+					...activeTeam,
 					id: activeTeam?.id,
 					name: values.teamName,
 					organizationId: activeTeam.organizationId,
 					tenantId: activeTeam.tenantId,
 					public: values.teamType,
+					memberIds: activeTeam.members
+						.map((t) => t.employee.id)
+						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
+					managerIds: activeTeam.members
+						.filter((m) => m.role && m.role.name === 'MANAGER')
+						.map((t) => t.employee.id)
+						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				});
 			}
 		},
@@ -39,10 +47,22 @@ export const TeamSettingForm = () => {
 
 	const getTeamLink = useCallback(() => {
 		if (typeof window !== 'undefined' && activeTeam) {
-			return `${window.location.origin}/team/${activeTeam.profile_link}`;
+			return `${window.location.origin}/team/${activeTeam.id}/${activeTeam.profile_link}`;
 		}
 		return '';
 	}, [activeTeam]);
+
+	const handleTeamType = useCallback(
+		(isPublic: boolean) => {
+			setValue('teamType', isPublic);
+			const latestFormData = getValues();
+			onSubmit({
+				...latestFormData,
+				teamType: isPublic,
+			});
+		},
+		[setValue, onSubmit, getValues]
+	);
 
 	return (
 		<>
@@ -91,12 +111,7 @@ export const TeamSettingForm = () => {
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
 												name="r"
 												onChange={() => {
-													setValue('teamType', true);
-													const latestFormData = getValues();
-													onSubmit({
-														...latestFormData,
-														teamType: true,
-													});
+													handleTeamType(true);
 												}}
 											/>
 											<Text.Label>Public Team</Text.Label>
@@ -110,12 +125,7 @@ export const TeamSettingForm = () => {
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
 												name="r"
 												onChange={() => {
-													setValue('teamType', false);
-													const latestFormData = getValues();
-													onSubmit({
-														...latestFormData,
-														teamType: false,
-													});
+													handleTeamType(false);
 												}}
 											/>
 											<Text.Label>Private Team</Text.Label>
@@ -142,7 +152,7 @@ export const TeamSettingForm = () => {
 											<Button
 												variant="outline"
 												className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
-												type='button'
+												type="button"
 												onClick={() => {
 													navigator.clipboard.writeText(getTeamLink());
 													setCopied(true);
@@ -164,7 +174,7 @@ export const TeamSettingForm = () => {
 										{trans.TIME_TRACKING}
 									</Text>
 									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-										<TimeTrackingToggle />
+										<TimeTrackingToggle activeManager={activeManager} />
 									</div>
 								</div>
 							) : (

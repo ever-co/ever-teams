@@ -11,7 +11,7 @@ import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export const config = {
-	matcher: ['/', '/auth/(.*)', '/profile/:path*'],
+	matcher: ['/', '/auth/(.*)', '/profile/:path*', '/team/:path*'],
 };
 
 export async function middleware(request: NextRequest) {

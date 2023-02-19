@@ -7,17 +7,40 @@ export function deleteOrganizationTeamEmployeeRequest({
 	tenantId,
 	organizationId,
 	employeeId,
+	organizationTeamId,
 }: {
 	id: string;
 	bearer_token: string;
 	tenantId: string;
 	organizationId: string;
 	employeeId: string;
+	organizationTeamId: string;
 }) {
 	return serverFetch<IOrganizationTeamEmployeeUpdate>({
-		path: `/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}`,
+		path: `/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
 		method: 'DELETE',
 		bearer_token,
 		tenantId,
+	});
+}
+
+export function updateOrganizationTeamEmployeeRequest({
+	id,
+	bearer_token,
+	tenantId,
+	body,
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+
+	body: IOrganizationTeamEmployeeUpdate;
+}) {
+	return serverFetch<IOrganizationTeamEmployeeUpdate>({
+		path: `/organization-team-employee/${id}`,
+		method: 'PUT',
+		bearer_token,
+		tenantId,
+		body,
 	});
 }

@@ -270,7 +270,7 @@ function useDropdownAction({
 	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
 		memberInfo.removeMemberFromTeam();
 		close && close();
-	}, []);
+	}, [memberInfo]);
 
 	return {
 		onAssignTask,

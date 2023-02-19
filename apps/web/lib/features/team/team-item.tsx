@@ -92,7 +92,15 @@ export function TeamItem({
 					'whitespace-nowrap text-ellipsis overflow-hidden'
 				)}
 			>
-				{title} {count ? `(${count})` : ''}
+				{title}
+			</span>
+			<span
+				className={clsxm('text-normal')}
+				style={{
+					marginLeft: 0,
+				}}
+			>
+				{count ? `(${count})` : ''}
 			</span>
 		</div>
 	);
