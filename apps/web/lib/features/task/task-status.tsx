@@ -53,6 +53,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		onChangeLoading?: (loading: boolean) => void;
 	} & {
 		task?: Nullable<ITeamTask>;
+		showIssueLabels?: boolean;
 	};
 
 export function useActiveTaskStatus<T extends ITaskStatusField>(

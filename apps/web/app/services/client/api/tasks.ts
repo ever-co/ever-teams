@@ -1,7 +1,6 @@
 import {
 	DeleteReponse,
 	PaginationResponse,
-	SingleTaskResponse,
 } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
@@ -9,10 +8,6 @@ import api from '../axios';
 
 export function getTeamTasksAPI() {
 	return api.get<PaginationResponse<ITeamTask>>('/tasks/team');
-}
-
-export function getTaskAPI(taskId: string) {
-	return api.get<SingleTaskResponse<ITeamTask>>(`/tasks/${taskId}`);
 }
 
 export function deleteTaskAPI(taskId: string) {

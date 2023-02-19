@@ -1,12 +1,9 @@
 import Image from 'next/image';
-import { ITeamTask } from '@app/interfaces';
-import TaskMainInfoDetailsBlock from './detailsSection/TaskMainInfoDetailsBlock';
+import TaskMainInfo from './detailsSection/blocks/TaskMainInfo';
 
-type Props = {
-	task: ITeamTask | null;
-};
 
-const TaskDetailsAside: React.FC<Props> = ({ task }) => {
+
+const TaskDetailsAside = () => {
 	return (
 		<>
 			<div className="flex justify-between h-[52px] px-[15px] items-center">
@@ -52,7 +49,7 @@ details-label px-[15px] flex justify-between"
 				</div>
 				<div className="flex items-center cursor-pointer">Make public</div>
 			</div>
-			<TaskMainInfoDetailsBlock task={task} />
+			<TaskMainInfo />
 		</>
 	);
 };

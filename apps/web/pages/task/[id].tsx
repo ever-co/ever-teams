@@ -2,33 +2,30 @@ import Image from 'next/image';
 import { useTranslation } from 'lib/i18n';
 import { Breadcrumb } from 'lib/components';
 import { MainLayout } from 'lib/layout';
-import { useUserProfilePage } from '@app/hooks';
+import { useTeamTasks, useUserProfilePage } from '@app/hooks';
+import { withAuthentication } from 'lib/app/authenticator';
+import TaskDetailsAside from '@components/pages/task/TaskDetailsAside';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import { withAuthentication } from 'lib/app/authenticator';
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { getTaskAPI } from '@app/services/client/api';
-import TaskDetailsAside from '@components/pages/task/TaskDetailsAside';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
-	const { trans } = useTranslation('taskDetails');
+	const { tasks } = useTeamTasks();
 	const [task, setTask] = useRecoilState(detailedTaskState);
+	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
 
-	// will be refactored later according to existing practices here.
 	useEffect(() => {
-		const fetchTask = async () => {
-			if (router.isReady) {
-				const id = router.query?.id ? (router.query?.id as string) : '';
-
-				const { data: task } = await getTaskAPI(id);
-				setTask(task.data);
-			}
-		};
-		fetchTask();
-	}, [router.isReady]);
+		if (router.isReady && router.query?.id && tasks.length > 0) {
+			const foundTask = tasks.find(
+				(x) => x.id === (router.query?.id as string)
+			);
+			console.log(foundTask);
+			foundTask && setTask(foundTask);
+		}
+	}, [tasks, router.isReady, router.query?.id, setTask]);
 
 	return (
 		<MainLayout
@@ -56,7 +53,7 @@ const TaskDetails = () => {
 						</div>
 					</section>
 					<div className="bg-white flex flex-col text-red-700 w-[400px] rounded-lg">
-						<TaskDetailsAside task={task} />
+						<TaskDetailsAside />
 					</div>
 				</section>
 			</div>

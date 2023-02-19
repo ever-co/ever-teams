@@ -1,10 +1,11 @@
 import {
 	DeleteReponse,
 	PaginationResponse,
-	SingleTaskResponse,
+	SingleDataResponse,
 } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
+import { IUser } from '@app/interfaces';
 
 export function getTeamTasksRequest({
 	tenantId,
@@ -55,17 +56,15 @@ export function deleteTaskRequest({
 	});
 }
 
-export function getTaskRequest({
-	taskId,
-	tenantId,
+export function getTaskCreator({
+	userId,
 	bearer_token,
 }: {
-	tenantId: string;
-	taskId: string;
+	userId: string;
 	bearer_token: string;
 }) {
-	return serverFetch<SingleTaskResponse<ITeamTask>>({
-		path: `/tasks/${taskId}?tenantId=${tenantId}`,
+	return serverFetch<SingleDataResponse<IUser>>({
+		path: `/user/${userId}`,
 		method: 'GET',
 		bearer_token,
 	});

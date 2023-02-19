@@ -26,6 +26,6 @@ export type CreateReponse<T> = {
 	response: any;
 };
 
-export type SingleTaskResponse<T> = {
+export type SingleDataResponse<T> = {
 	data: T;
 };
