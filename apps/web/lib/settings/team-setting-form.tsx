@@ -47,7 +47,7 @@ export const TeamSettingForm = () => {
 
 	const getTeamLink = useCallback(() => {
 		if (typeof window !== 'undefined' && activeTeam) {
-			return `${window.location.origin}/team/${activeTeam.organizationId}/${activeTeam.profile_link}`;
+			return `${window.location.origin}/team/${activeTeam.id}/${activeTeam.profile_link}`;
 		}
 		return '';
 	}, [activeTeam]);
