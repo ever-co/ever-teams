@@ -19,6 +19,7 @@ import Animated from "react-native-reanimated";
 import UpdateFullNameForm from "./components/UpdateFullNameForm";
 import { useSettings } from "../../../services/hooks/features/useSettings";
 import { ActivityIndicator } from "react-native-paper";
+import FlashMessage from "react-native-flash-message";
 
 
 
@@ -147,6 +148,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                             }} />
                     )}
                 />
+                <FlashMessage position={"bottom"}/>
             </Screen>
         </>
 

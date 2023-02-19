@@ -14,7 +14,7 @@ export function useSettings() {
 
     const updateUserIfo = useCallback(async (userBody: IUser) => {
         const { data } = await updateUserInfoRequest({
-            id: userData?.id,
+            id: userBody.id,
             data: userBody,
             tenantId
         }, authToken)

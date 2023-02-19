@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator } from "react-native";
 import { useAppTheme } from "../../../../app";
 import { translate } from "../../../../i18n";
 import { IUser } from "../../../../services/interfaces/IUserData";
 import { typography } from "../../../../theme";
 
-
+interface IValidation {
+    firstname: boolean;
+    lastName: boolean;
+}
 const UpdateFullNameForm = (
     {
         onDismiss,
@@ -21,6 +24,11 @@ const UpdateFullNameForm = (
     const { colors, dark } = useAppTheme();
     const [userFirstName, setUserFirstName] = useState("")
     const [userLastName, setUserLastName] = useState("")
+    const [isLoading, setIsLoading] = useState(false)
+    const [isValid, setIsvalid] = useState<IValidation>({
+        firstname: true,
+        lastName: true
+    })
 
     useEffect(() => {
         if (user) {
@@ -29,12 +37,64 @@ const UpdateFullNameForm = (
         }
     }, [user])
 
+    const onChangeFistName = (text: string) => {
+        if (text.trim().length > 2) {
+            setIsvalid({
+                ...isValid,
+                firstname: true
+            })
+        } else {
+            setIsvalid({
+                ...isValid,
+                firstname: false
+            })
+        }
+        setUserFirstName(text)
+    }
+
+    const onChaneLastName = (text: string) => {
+        if (text.trim().length > 2) {
+            setIsvalid({
+                ...isValid,
+                lastName: true
+            })
+        } else {
+            setIsvalid({
+                ...isValid,
+                lastName: false
+            })
+        }
+        setUserLastName(text)
+    }
+
     const handleSubmit = async () => {
+        if (userFirstName.trim().length < 3) {
+            setIsvalid({
+                ...isValid,
+                firstname: false
+            })
+            return
+        }
+
+        if (userLastName.trim().length < 3) {
+            setIsvalid({
+                ...isValid,
+                lastName: false
+            })
+            return
+        }
+
+        if (userFirstName.trim() === user?.firstName && userLastName.trim() === user?.lastName) {
+            return
+        }
+
+        setIsLoading(true)
         await onUpdateFullName({
             ...user,
             firstName: userFirstName,
             lastName: userLastName,
         })
+        setIsLoading(false)
         onDismiss()
     }
 
@@ -51,22 +111,41 @@ const UpdateFullNameForm = (
             <View style={{ flex: 3 }}>
                 <Text style={{ ...styles.formTitle, color: colors.primary }}>{translate("settingScreen.changeFullName.mainTitle")}</Text>
                 <TextInput
-                    style={{ ...styles.styleInput, color: colors.primary }}
+                    style={{
+                        ...styles.styleInput,
+                        color: colors.primary,
+                        borderColor: isValid.firstname ? "#DCE4E8" : "red"
+                    }}
                     placeholderTextColor={"#7B8089"}
                     placeholder={translate("settingScreen.changeFullName.firstNamePlaceholder")}
                     value={userFirstName}
+                    editable={!isLoading}
+                    autoComplete={"off"}
                     autoFocus={false}
                     autoCorrect={false}
-                    onChangeText={(text) => setUserFirstName(text)}
+                    autoCapitalize={"none"}
+                    onChangeText={(text) => onChangeFistName(text)}
                 />
+                {!isValid.firstname ?
+                    <Text style={{ fontFamily: typography.primary.medium, fontSize: 12, color: "red", marginTop: 5 }}>Provide a valid last name</Text> : null}
 
                 <TextInput
-                    style={{ ...styles.styleInput, color: colors.primary }}
+                    style={{
+                        ...styles.styleInput,
+                        color: colors.primary,
+                        borderColor: isValid.lastName ? "#DCE4E8" : "red"
+                    }}
                     placeholderTextColor={"#7B8089"}
                     placeholder={translate("settingScreen.changeFullName.lastNamePlaholder")}
                     value={userLastName}
-                    onChangeText={(text) => setUserLastName(text)}
+                    autoCorrect={false}
+                    autoComplete={"off"}
+                    editable={!isLoading}
+                    autoCapitalize={"none"}
+                    onChangeText={(text) => onChaneLastName(text)}
                 />
+                {!isValid.lastName ?
+                    <Text style={{ fontFamily: typography.primary.medium, fontSize: 12, color: "red", marginTop: 5 }}>Provide a valid last name</Text> : null}
             </View>
 
             <View style={styles.wrapButtons}>
@@ -74,8 +153,14 @@ const UpdateFullNameForm = (
                     <Text style={styles.cancelTxt}>{translate("common.cancel")}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={{ ...styles.createBtn, backgroundColor: dark ? "#6755C9" : "#3826A6" }}
+                    style={{
+                        ...styles.createBtn,
+                        backgroundColor: dark ? "#6755C9" : "#3826A6",
+                        opacity: isLoading ? 0.7 : 1
+                    }}
                     onPress={() => handleSubmit()}>
+                    {isLoading ?
+                        <ActivityIndicator style={{ position: "absolute", left: 10 }} size={"small"} color={"#fff"} /> : null}
                     <Text style={styles.createTxt}>{translate("common.save")}</Text>
                 </TouchableOpacity>
             </View>
@@ -124,6 +209,7 @@ const styles = StyleSheet.create({
     createBtn: {
         width: "48%",
         height: 57,
+        flexDirection: "row",
         backgroundColor: "#3826A6",
         borderRadius: 12,
         justifyContent: "center",
