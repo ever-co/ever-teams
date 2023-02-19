@@ -86,7 +86,7 @@ export type ITaskStatus =
 	| 'Closed'
 	| 'In Review';
 
-export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Custom';
+export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 
 export type ITaskStatusField =
 	| 'status'

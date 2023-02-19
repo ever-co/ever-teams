@@ -41,7 +41,7 @@ export const taskIssues: TStatus<ITaskIssue> = {
 		icon: <NoteIcon />,
 		bgColor: '#66BB97',
 	},
-	Custom: {
+	Epic: {
 		icon: <CategoryIcon />,
 		bgColor: '#8154BA',
 	},
@@ -109,6 +109,7 @@ export function ActiveTaskIssuesDropdown(props: IActiveTaskStatuses<'issue'>) {
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			issueType="issue"
+			enabled={item?.name !== 'Epic'}
 		/>
 	);
 }
