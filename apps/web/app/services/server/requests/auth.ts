@@ -1,3 +1,4 @@
+import { ISuccessResponse } from '@app/interfaces';
 import {
 	ILoginResponse,
 	IRegisterDataRequest,
@@ -92,5 +93,38 @@ export const refreshTokenRequest = (refresh_token: string) => {
 		body: {
 			refresh_token,
 		},
+	});
+};
+
+export const verifyUserEmailByCodeRequest = (data: {
+	bearer_token: string;
+	code: number;
+	email: string;
+	tenantId: string;
+}) => {
+	const { code, email, bearer_token, tenantId } = data;
+
+	return serverFetch<ISuccessResponse>({
+		path: '/auth/email/verify/code',
+		method: 'POST',
+		body: { code, email, tenantId },
+		tenantId: data.tenantId,
+		bearer_token,
+	});
+};
+
+export const resentVerifyUserLinkRequest = (data: {
+	bearer_token: string;
+	email: string;
+	tenantId: string;
+}) => {
+	const { email, bearer_token, tenantId } = data;
+
+	return serverFetch<ISuccessResponse>({
+		path: '/auth/email/verify/resend-link',
+		method: 'POST',
+		body: { email, tenantId },
+		tenantId: data.tenantId,
+		bearer_token,
 	});
 };
