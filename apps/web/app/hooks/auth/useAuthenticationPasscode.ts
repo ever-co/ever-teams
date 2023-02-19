@@ -8,9 +8,15 @@ import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
 
+type AuthCodeRef = {
+	focus: () => void;
+	clear: () => void;
+};
+
 export function useAuthenticationPasscode() {
 	const { query } = useRouter();
 	const loginFromQuery = useRef(false);
+	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 
 	const [formValues, setFormValues] = useState({ email: '', code: '' });
 
@@ -48,6 +54,8 @@ export function useAuthenticationPasscode() {
 				if (err.response?.status === 400) {
 					setErrors((err.response?.data as any)?.errors || {});
 				}
+
+				inputCodeRef.current?.clear();
 			});
 	};
 
@@ -108,5 +116,6 @@ export function useAuthenticationPasscode() {
 		loading,
 		formValues,
 		setFormValues,
+		inputCodeRef,
 	};
 }
