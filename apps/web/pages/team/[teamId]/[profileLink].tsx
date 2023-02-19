@@ -17,7 +17,7 @@ const Team = () => {
 		if (query && query?.teamId && query?.profileLink) {
 			loadPublicTeamData(query?.profileLink as string, query?.teamId as string);
 		}
-	}, [query, loadPublicTeamData]);
+	}, [query]);
 
 	return (
 		<MainLayout>
