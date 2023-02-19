@@ -252,8 +252,8 @@ export function TaskPropertiesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskStatusesDropdown<'property'>) {
-	const { item, items, onChange } = useStatusValue<'property'>(
+}: TTaskStatusesDropdown<'priority'>) {
+	const { item, items, onChange } = useStatusValue<'priority'>(
 		taskProperties,
 		defaultValue,
 		onValueChange
@@ -264,19 +264,19 @@ export function TaskPropertiesDropdown({
 			className={className}
 			items={items}
 			value={item}
-			defaultItem={!item ? 'property' : undefined}
+			defaultItem={!item ? 'priority' : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
 export function ActiveTaskPropertiesDropdown(
-	props: IActiveTaskStatuses<'property'>
+	props: IActiveTaskStatuses<'priority'>
 ) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
 		taskProperties,
-		'property'
+		'priority'
 	);
 
 	return (

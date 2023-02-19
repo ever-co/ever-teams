@@ -56,7 +56,7 @@ function TaskDetailAndEdition({ edition, memberInfo }: Props) {
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
-					'text-sm text-ellipsis text-center cursor-default overflow-hidden',
+					'text-sm text-ellipsis cursor-default overflow-hidden',
 					hasEditMode && ['hidden']
 				)}
 				onDoubleClick={() =>

@@ -236,7 +236,7 @@ function TaskInfo({
 					>
 						<div
 							className={clsxm(
-								'text-sm text-ellipsis text-center cursor-default overflow-hidden w-full'
+								'text-sm text-ellipsis cursor-default overflow-hidden w-full'
 							)}
 						>
 							<TaskNameInfoDisplay task={task} />
