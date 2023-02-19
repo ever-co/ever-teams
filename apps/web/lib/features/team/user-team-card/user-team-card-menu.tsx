@@ -50,19 +50,22 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		},
 		{
 			name: trans.common.ASSIGN_TASK,
-			active:
-				memberInfo.isAuthTeamManager &&
-				memberInfo.memberUnassignTasks.length > 0,
-
 			action: 'assign',
 			onClick: onAssignTask,
+
+			active:
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+				memberInfo.memberUnassignTasks.length > 0,
 		},
 		{
 			name: trans.common.UNASSIGN_TASK,
-			active: memberInfo.isAuthTeamManager,
 			action: 'unassign',
 			closable: true,
 			onClick: onUnAssignTask,
+
+			active:
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+				!!memberInfo.memberTask,
 		},
 		{
 			name: memberInfo.isTeamManager
@@ -264,13 +267,21 @@ function useDropdownAction({
 	);
 
 	const onUnAssignTask: IAssignCall = useCallback(() => {
-		console.log('onUnAssignTask');
-	}, []);
+		if (!memberInfo.memberTask) return;
+		edition.setLoading(true);
 
-	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
-		memberInfo.removeMemberFromTeam();
-		close && close();
-	}, [memberInfo]);
+		memberInfo
+			.unassignTask(memberInfo.memberTask)
+			.finally(() => edition.setLoading(false));
+	}, [memberInfo, edition]);
+
+	const onRemoveMember = useCallback(
+		({ close }: { close?: () => void }) => {
+			memberInfo.removeMemberFromTeam();
+			close && close();
+		},
+		[memberInfo]
+	);
 
 	return {
 		onAssignTask,
