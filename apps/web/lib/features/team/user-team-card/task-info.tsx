@@ -6,6 +6,7 @@ import {
 	TaskInput,
 	TaskNameInfoDisplay,
 } from 'lib/features';
+import { useRouter } from 'next/router';
 
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
@@ -42,6 +43,7 @@ export function TaskInfo({ className, edition }: Props) {
 function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
+	const router = useRouter();
 
 	edition.taskEditIgnoreElement.onOutsideClick(() => {
 		edition.setEditMode(false);
@@ -53,9 +55,10 @@ function TaskDetailAndEdition({ edition }: { edition: I_TMCardTaskEditHook }) {
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
-					'text-sm text-ellipsis text-center cursor-default overflow-hidden',
+					'text-sm text-ellipsis text-center cursor-default overflow-hidden cursor-pointer',
 					hasEditMode && ['hidden']
 				)}
+				onClick={() => task && router.push(`/task/${task?.id}`)}
 				onDoubleClick={() => task && edition.setEditMode(true)}
 			>
 				<TaskNameInfoDisplay task={task} />
