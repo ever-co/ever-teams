@@ -1,13 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: true,
-  images: {
-    domains: ["dummyimage.com","res.cloudinary.com", "localhost", "127.0.0.1"],
-  },
+	reactStrictMode: true,
+	swcMinify: true,
+	images: {
+		domains: [
+			'dummyimage.com',
+			'res.cloudinary.com',
+			'localhost',
+			'127.0.0.1',
+			'cdn-icons-png.flaticon.com', // Remove this domain once Backend Icons list are added
+		],
+	},
 	experimental: {
-		appDir: true
-	}
+		appDir: true,
+	},
 };
 
 module.exports = nextConfig;

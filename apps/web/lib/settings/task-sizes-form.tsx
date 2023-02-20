@@ -8,9 +8,10 @@ import { StatusesListCard } from './list-card';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTaskSizes } from '@app/hooks/features/useTaskSizes';
-import { IColor, ITaskSizesItemList } from '@app/interfaces';
+import { IColor, IIcon, ITaskSizesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
+import { IconDropdown } from './icon-dropdown';
 
 export const TaskSizesForm = () => {
 	const user = useRecoilValue(userState);
@@ -32,6 +33,7 @@ export const TaskSizesForm = () => {
 		if (!edit) {
 			setValue('name', '');
 			setValue('color', '');
+			setValue('icon', '');
 		}
 	}, [taskSizes, edit, setValue]);
 
@@ -39,15 +41,16 @@ export const TaskSizesForm = () => {
 		if (edit) {
 			setValue('name', edit.name);
 			setValue('color', edit.color);
+			setValue('icon', edit.icon);
 		} else {
 			setValue('name', '');
 			setValue('color', '');
+			setValue('icon', '');
 		}
 	}, [edit, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			// TODO: icon
 			if (createNew) {
 				createTaskSizes({
 					name: values.name,
@@ -55,16 +58,22 @@ export const TaskSizesForm = () => {
 					// description: '',
 					organizationId: user?.employee.organizationId,
 					tenantId: user?.tenantId,
-					// icon: '',
+					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
 					setCreateNew(false);
 				});
 			}
-			if (edit && (values.name !== edit.name || values.color !== edit.color)) {
+			if (
+				edit &&
+				(values.name !== edit.name ||
+					values.color !== edit.color ||
+					values.icon !== edit.icon)
+			) {
 				editTaskSizes(edit.id, {
 					name: values.name,
 					color: values.color,
+					icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
 				});
@@ -118,13 +127,9 @@ export const TaskSizesForm = () => {
 											{...register('name')}
 										/>
 
-										<ColorDropdown
+										<IconDropdown
 											setValue={setValue}
-											active={
-												edit
-													? ({ title: edit.color, color: edit.color } as IColor)
-													: null
-											}
+											active={edit ? ({ url: edit.icon } as IIcon) : null}
 										/>
 
 										<ColorDropdown
