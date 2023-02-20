@@ -1,25 +1,32 @@
+import clsx from 'clsx';
 import Image from 'next/image';
-import { Fragment } from 'react';
 
 type Props = {
 	profilePicSrc?: string;
-	names: string;
+	names?: string;
+	wrapperClassName?: string;
 };
 
-const ProfileInfo: React.FC<Props> = ({ profilePicSrc, names }) => {
+const ProfileInfo: React.FC<Props> = ({
+	profilePicSrc,
+	names,
+	wrapperClassName,
+}) => {
 	return (
-		<Fragment>
+		<div
+			className={clsx('flex flex-nowrap whitespace-nowrap', wrapperClassName)}
+		>
 			<Image
 				alt="profile"
 				src={profilePicSrc || ''}
 				width={20}
 				height={20}
-				className="rounded-full"
+				className="rounded-full mr-1"
 			/>
-			<div className="not-italic font-semibold text-[10px] leading-[140%] tracking-[-0.02em] text-[#282048]">
+			<div className="flex items-center not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048]">
 				{names}
 			</div>
-		</Fragment>
+		</div>
 	);
 };
 
