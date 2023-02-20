@@ -1,9 +1,12 @@
-import { useLanguageSettings } from '@app/hooks';
-import { useOrganizationTeams } from '@app/hooks/features/useOrganizationTeams';
-import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
-import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
-import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
-import { useTimer } from '@app/hooks/features/useTimer';
+import {
+	useLanguageSettings,
+	useOrganizationTeams,
+	useTaskStatistics,
+	useTeamInvitations,
+	useTeamTasks,
+	useTimer,
+	useAutoAssignTask,
+} from '@app/hooks';
 import { userState } from '@app/stores';
 import { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -22,6 +25,8 @@ function InitState() {
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
 
+	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
+
 	useEffect(() => {
 		//To be called once, at the top level component (e.g main.tsx);
 		firstLoadTeamsData();
@@ -30,6 +35,7 @@ function InitState() {
 		firstLoadTimerData();
 		firstLoadtasksStatisticsData();
 		firstLoadLanguagesData();
+		firstLoadAutoAssignTask();
 		// --------------
 
 		getTimerStatus();
@@ -45,6 +51,7 @@ function InitState() {
 		firstLoadtasksStatisticsData,
 		firstLoadLanguagesData,
 		loadLanguagesData,
+		firstLoadAutoAssignTask,
 	]);
 	return <></>;
 }

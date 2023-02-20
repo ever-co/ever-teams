@@ -31,6 +31,9 @@ export default async function handler(
 		bearer_token: access_token,
 	});
 
+	const date = new Date();
+	date.setDate(date.getDate() - 1);
+
 	await inviteByEmailsRequest(
 		{
 			emailIds: [body.email],
@@ -46,6 +49,7 @@ export default async function handler(
 			...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
 			organizationId,
 			tenantId,
+			startedWorkOn: date.toISOString(),
 		},
 		access_token
 	);

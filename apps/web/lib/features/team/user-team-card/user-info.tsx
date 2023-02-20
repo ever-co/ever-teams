@@ -2,10 +2,11 @@ import { I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, Text, Tooltip } from 'lib/components';
-import { MailIcon } from 'lib/components/svgs';
+// import { MailIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
+import { MailIcon } from 'lib/components/svgs';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -46,21 +47,23 @@ export function UserInfo({ className, memberInfo }: Props) {
 					</Text.Heading>
 				</Tooltip>
 
-				<Tooltip
-					label={`${memberUser?.email || ''} `.trim()}
-					placement="auto"
-					enabled={
-						`${memberUser?.email || ''} `.trim().length >
-						CHARACTER_LIMIT_TO_SHOW
-					}
-				>
-					<Text className="text-gray-400 flex items-center text-sm space-x-1">
-						<MailIcon />{' '}
-						<span className="overflow-hidden text-ellipsis whitespace-nowrap">
-							{memberUser?.email}
-						</span>
-					</Text>
-				</Tooltip>
+				{memberInfo.isAuthUser && (
+					<Tooltip
+						label={`${memberUser?.email || ''} `.trim()}
+						placement="auto"
+						enabled={
+							`${memberUser?.email || ''} `.trim().length >
+							CHARACTER_LIMIT_TO_SHOW
+						}
+					>
+						<Text className="text-gray-400 flex items-center text-sm space-x-1">
+							<MailIcon />{' '}
+							<span className="overflow-hidden text-ellipsis whitespace-nowrap">
+								{memberUser?.email}
+							</span>
+						</Text>
+					</Tooltip>
+				)}
 			</div>
 		</Link>
 	);
