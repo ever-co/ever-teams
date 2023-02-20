@@ -9,37 +9,14 @@ import { FieldValues, UseFormSetValue } from 'react-hook-form';
 export const IconDropdown = ({
 	setValue,
 	active,
+	iconList,
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IIcon | null;
+	iconList: IIcon[];
 }) => {
 	// TODO: Make this list dynamic once Backend Provide Icon list
-	const [icons, setIcons] = useState<IIcon[]>([
-		{
-			url: 'https://cdn-icons-png.flaticon.com/512/7256/7256602.png',
-			title: 'Work In Progress',
-		},
-		{
-			url: 'https://cdn-icons-png.flaticon.com/512/563/563480.png',
-			title: 'Timer',
-		},
-		{
-			url: 'https://cdn-icons-png.flaticon.com/512/5698/5698496.png',
-			title: 'Done',
-		},
-		{
-			url: 'https://cdn-icons-png.flaticon.com/512/2191/2191108.png',
-			title: 'In Review',
-		},
-		{
-			url: 'https://cdn-icons-png.flaticon.com/512/507/507210.png',
-			title: 'Blocked',
-		},
-		{
-			url: 'https://cdn-icons-png.flaticon.com/512/2623/2623008.png',
-			title: 'Done',
-		},
-	]);
+	const [icons, setIcons] = useState<IIcon[]>(iconList);
 
 	const items: any = useMemo(() => mapIconItems(icons), [icons]);
 

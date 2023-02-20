@@ -20,6 +20,33 @@ export const TaskStatusesForm = () => {
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
+	const iconList: IIcon[] = [
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/open.svg`,
+			title: 'Open',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/in-progress.svg`,
+			title: 'In Progress',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/ready.svg`,
+			title: 'Ready',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/in-review.svg`,
+			title: 'In Review',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/blocked.svg`,
+			title: 'Blocked',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/completed.svg`,
+			title: 'Completed',
+		},
+	];
+
 	const {
 		loading,
 		taskStatus,
@@ -136,6 +163,7 @@ export const TaskStatusesForm = () => {
 										<IconDropdown
 											setValue={setValue}
 											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											iconList={iconList}
 										/>
 
 										<ColorDropdown

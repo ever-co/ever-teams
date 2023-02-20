@@ -37,6 +37,7 @@ export const StatusesListCard = ({
 						decoding="async"
 						data-nimg="1"
 						loading="lazy"
+						className='min-h-[20px]'
 					/>
 				)}
 				<Tooltip
@@ -45,7 +46,7 @@ export const StatusesListCard = ({
 					placement="auto"
 					className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
 				>
-					<Text.Label className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize px-3 overflow-hidden text-ellipsis whitespace-nowrap w-full">
+					<Text.Label className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full">
 						{statusTitle}
 					</Text.Label>
 				</Tooltip>

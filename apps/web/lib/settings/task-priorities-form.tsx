@@ -21,6 +21,25 @@ export const TaskPrioritiesForm = () => {
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
+	const iconList: IIcon[] = [
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/urgent.svg`,
+			title: 'Urgent',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/high.svg`,
+			title: 'High',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/medium.svg`,
+			title: 'Medium',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/low.svg`,
+			title: 'Low',
+		},
+	];
+
 	const {
 		loading,
 		taskPriorities,
@@ -130,6 +149,7 @@ export const TaskPrioritiesForm = () => {
 										<IconDropdown
 											setValue={setValue}
 											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											iconList={iconList}
 										/>
 
 										<ColorDropdown

@@ -21,6 +21,29 @@ export const TaskSizesForm = () => {
 
 	const { trans } = useTranslation('settingsTeam');
 
+	const iconList: IIcon[] = [
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/x-large.svg`,
+			title: 'Open',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/large.svg`,
+			title: 'Large',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/medium.svg`,
+			title: 'Medium',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/small.svg`,
+			title: 'Small',
+		},
+		{
+			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/tiny.svg`,
+			title: 'Tiny',
+		},
+	];
+
 	const {
 		loading,
 		taskSizes,
@@ -130,6 +153,7 @@ export const TaskSizesForm = () => {
 										<IconDropdown
 											setValue={setValue}
 											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											iconList={iconList}
 										/>
 
 										<ColorDropdown
