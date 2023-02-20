@@ -9,9 +9,10 @@ import { StatusesListCard } from './list-card';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskPriorities } from '@app/hooks/features/useTaskPriorities';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { IColor, ITaskPrioritiesItemList } from '@app/interfaces';
+import { IColor, IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
+import { IconDropdown } from './icon-dropdown';
 
 export const TaskPrioritiesForm = () => {
 	const user = useRecoilValue(userState);
@@ -32,6 +33,7 @@ export const TaskPrioritiesForm = () => {
 		if (!edit) {
 			setValue('name', '');
 			setValue('color', '');
+			setValue('icon', '');
 		}
 	}, [edit, setValue]);
 
@@ -39,15 +41,16 @@ export const TaskPrioritiesForm = () => {
 		if (edit) {
 			setValue('name', edit.name);
 			setValue('color', edit.color);
+			setValue('icon', edit.icon);
 		} else {
 			setValue('name', '');
 			setValue('color', '');
+			setValue('icon', '');
 		}
 	}, [edit, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			// TODO: icon
 			if (createNew) {
 				createTaskPriorities({
 					name: values.name,
@@ -55,16 +58,22 @@ export const TaskPrioritiesForm = () => {
 					// description: '',
 					organizationId: user?.employee.organizationId,
 					tenantId: user?.tenantId,
-					// icon: '',
+					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
 					setCreateNew(false);
 				});
 			}
-			if (edit && (values.name !== edit.name || values.color !== edit.color)) {
+			if (
+				edit &&
+				(values.name !== edit.name ||
+					values.color !== edit.color ||
+					values.icon !== edit.icon)
+			) {
 				editTaskPriorities(edit.id, {
 					name: values.name,
 					color: values.color,
+					icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
 				});
@@ -118,13 +127,9 @@ export const TaskPrioritiesForm = () => {
 											{...register('name')}
 										/>
 
-										<ColorDropdown
+										<IconDropdown
 											setValue={setValue}
-											active={
-												edit
-													? ({ title: edit.color, color: edit.color } as IColor)
-													: null
-											}
+											active={edit ? ({ url: edit.icon } as IIcon) : null}
 										/>
 
 										<ColorDropdown
