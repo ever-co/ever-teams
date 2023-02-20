@@ -4,7 +4,7 @@ import { Breadcrumb } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { useTeamTasks, useUserProfilePage } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
-import TaskDetailsAside from '@components/pages/task/TaskDetailsAside';
+import TaskDetailsAside from '@components/pages/task/task-details-aside';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';

@@ -1,5 +1,6 @@
 import {
 	IClassName,
+	IEpicProperty,
 	ITaskLabel,
 	ITaskProperty,
 	ITaskSize,
@@ -7,6 +8,7 @@ import {
 	ITaskStatusField,
 	ITaskStatusStack,
 	ITeamTask,
+	IVersionProperty,
 	Nullable,
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -35,7 +37,7 @@ import { useCallbackRef, useTeamTasks } from '@app/hooks';
 
 export type TStatusItem = {
 	bgColor?: string;
-	icon: React.ReactNode;
+	icon?: React.ReactNode | undefined;
 	name?: string;
 };
 
@@ -44,6 +46,11 @@ export type TStatus<T extends string> = {
 };
 
 export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
+	defaultValue?: ITaskStatusStack[T];
+	onValueChange?: (v: ITaskStatusStack[T]) => void;
+};
+
+export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 	defaultValue?: ITaskStatusStack[T];
 	onValueChange?: (v: ITaskStatusStack[T]) => void;
 };
@@ -223,7 +230,78 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 	);
 }
 
-//! =============== Task properties ================= //
+//! =============== Task version ================= //
+
+export const versionProperties: TStatus<IVersionProperty> = {
+	'Version 1': {
+		icon: <LoginIcon />,
+		bgColor: '#ECE8FC',
+	},
+	'Version 2': {
+		icon: <LoginIcon />,
+		bgColor: '#ECE8FC',
+	},
+};
+
+/**
+ * Version dropdown that allows you to select a task property
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A dropdown with the version properties
+ */
+export function VersionPropertiesDropown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'version'>) {
+	const { item, items, onChange } = useStatusValue<'version'>(
+		versionProperties,
+		defaultValue,
+		onValueChange
+	);
+
+	console.log(items);
+
+	return (
+		<StatusDropdown
+			className={className}
+			items={items}
+			value={item}
+			defaultItem={!item ? 'version' : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Epic ================= //
+
+/**
+ * Version dropdown that allows you to select a task property
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A dropdown with the version properties
+ */
+export function EpicPropertiesDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+}: TTaskStatusesDropdown<'epic'>) {
+	const { item, items, onChange } = useStatusValue<'epic'>(
+		[],
+		defaultValue,
+		onValueChange
+	);
+
+	return (
+		<StatusDropdown
+			className={className}
+			items={items}
+			value={item}
+			defaultItem={!item ? 'epic' : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Status ================= //
 
 export const taskProperties: TStatus<ITaskProperty> = {
 	Medium: {
@@ -466,7 +544,7 @@ export function TaskStatus({
 /**
  * Fc Status drop down
  */
-export function StatusDropdown<T extends Required<TStatusItem>>({
+export function StatusDropdown<T extends TStatusItem>({
 	value,
 	onChange,
 	items,

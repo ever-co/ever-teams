@@ -1,7 +1,6 @@
 import Image from 'next/image';
-import TaskMainInfo from './detailsSection/blocks/TaskMainInfo';
-
-
+import TaskMainInfo from './details-section/blocks/task-main-info';
+import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
 
 const TaskDetailsAside = () => {
 	return (
@@ -50,6 +49,7 @@ details-label px-[15px] flex justify-between"
 				<div className="flex items-center cursor-pointer">Make public</div>
 			</div>
 			<TaskMainInfo />
+			<TaskSecondaryInfo />
 		</>
 	);
 };

@@ -4,7 +4,7 @@ import { RoundedButton } from 'lib/components';
 import { useEffect } from 'react';
 import {
 	taskLabels,
-	taskProperties,
+	versionProperties,
 	taskSizes,
 	taskStatus,
 	TaskStatus,
@@ -41,7 +41,7 @@ export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
 					/>
 
 					<TaskStatus
-						{...taskProperties[task?.property || 'Low']}
+						{...versionProperties[task?.property || 'Low']}
 						className="text-xs"
 						active={!!task?.property}
 						name={task?.property || 'Property'}

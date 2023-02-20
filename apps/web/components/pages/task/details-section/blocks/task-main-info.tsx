@@ -3,65 +3,14 @@ import clsx from 'clsx';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import Image from 'next/image';
 import { useRecoilState } from 'recoil';
-import ProfileInfo from '../components/ProfileInfo';
+import ProfileInfo from '../components/profile-info';
 import { Fragment } from 'react';
 import { formatDateTimeString } from '@app/helpers';
-
-type TaskLabelProps = {
-	iconSrc?: string;
-	label: string;
-};
-
-const TaskLabel: React.FC<TaskLabelProps> = ({ iconSrc, label }) => {
-	return (
-		<div className="flex">
-			{iconSrc ? (
-				<Image
-					src={iconSrc}
-					alt="issue type"
-					width={14}
-					height={14}
-					style={{ marginRight: '5px', height: '14px' }}
-				/>
-			) : (
-				<div
-					style={{ height: '14px', width: '14px', marginRight: '5px' }}
-				></div>
-			)}
-			<div className="details-label">{label}</div>
-		</div>
-	);
-};
-
-type TaskRowProps = {
-	labelPath?: string;
-	labelTitle: string;
-	children?: JSX.Element | JSX.Element[];
-	wrapperClassName?: string;
-};
-
-const TaskRow: React.FC<TaskRowProps> = ({
-	children,
-	labelPath,
-	labelTitle,
-	wrapperClassName,
-}) => {
-	return (
-		<div className={clsx('flex justify-between', wrapperClassName)}>
-			<div className="flex items-top w-[47%]">
-				<TaskLabel iconSrc={labelPath} label={labelTitle} />
-			</div>
-			<div className="w-[47%]">
-				<div className="flex">{children}</div>
-			</div>
-		</div>
-	);
-};
+import TaskRow from '../components/task-row';
 
 // ---- MAIN COMPONENT ----
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const [tasksFetching] = useRecoilState(tasksFetchingState);
 
 	return (
 		<section className="flex flex-col p-[15px]">
@@ -124,7 +73,11 @@ const TaskMainInfo = () => {
 					{formatDateTimeString(task?.createdAt)}
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle="Due date" wrapperClassName="mt-4">
+			<TaskRow
+				labelTitle="Due date"
+				wrapperClassName="mt-4"
+				alignWithIconLabel={true}
+			>
 				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048]">
 					{formatDateTimeString(task?.dueDate) || 'Not set'}
 				</div>

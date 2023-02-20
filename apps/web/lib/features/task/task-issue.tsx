@@ -23,7 +23,7 @@ import {
 	TaskStatus,
 	TStatus,
 	TStatusItem,
-	TTaskStatusesDropdown,
+	TTaskVersionsDropdown,
 	useActiveTaskStatus,
 	useStatusValue,
 } from './task-status';
@@ -61,7 +61,7 @@ export function TaskIssuesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskStatusesDropdown<'issue'>) {
+}: TTaskVersionsDropdown<'issue'>) {
 	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
 	const { item, items, onChange } = useStatusValue<'issue'>(
