@@ -51,7 +51,11 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			<VerticalSeparator />
 
 			{/* Task information */}
-			<TaskInfo edition={taskEdition} className="w-80 px-4" />
+			<TaskInfo
+				edition={taskEdition}
+				memberInfo={memberInfo}
+				className="w-80 px-4"
+			/>
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskTimes */}

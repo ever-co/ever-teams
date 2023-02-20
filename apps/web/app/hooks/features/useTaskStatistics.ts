@@ -39,8 +39,8 @@ export function useTaskStatistics(addSeconds = 0) {
 	/**
 	 * Get employee all tasks statistics  (API Call)
 	 */
-	const getAllTasksStatsData = useCallback(() => {
-		tasksTimesheetStatisticsAPI().then(({ data }) => {
+	const getAllTasksStatsData = useCallback((employeeId?: string) => {
+		tasksTimesheetStatisticsAPI(employeeId).then(({ data }) => {
 			setStatTasks({
 				all: data.global || [],
 				today: data.today || [],

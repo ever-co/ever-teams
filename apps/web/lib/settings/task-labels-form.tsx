@@ -5,12 +5,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { IColor, ITaskLabelsItemList } from '@app/interfaces';
+import { IColor, IIcon, ITaskLabelsItemList } from '@app/interfaces';
 import { useTaskLabels } from '@app/hooks/features/useTaskLabels';
 import { StatusesListCard } from './list-card';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
+import { IconDropdown } from './icon-dropdown';
 
 export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
@@ -31,6 +32,7 @@ export const TaskLabelForm = () => {
 		if (!edit) {
 			setValue('name', '');
 			setValue('color', '');
+			setValue('icon', '');
 		}
 	}, [edit, setValue]);
 
@@ -38,15 +40,16 @@ export const TaskLabelForm = () => {
 		if (edit) {
 			setValue('name', edit.name);
 			setValue('color', edit.color);
+			setValue('icon', edit.icon);
 		} else {
 			setValue('name', '');
 			setValue('color', '');
+			setValue('icon', '');
 		}
 	}, [edit, setValue]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
-			// TODO: icon
 			if (createNew) {
 				createTaskLabels({
 					name: values.name,
@@ -54,16 +57,22 @@ export const TaskLabelForm = () => {
 					// description: '',
 					organizationId: user?.employee.organizationId,
 					tenantId: user?.tenantId,
-					// icon: '',
+					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
 					setCreateNew(false);
 				});
 			}
-			if (edit && (values.name !== edit.name || values.color !== edit.color)) {
+			if (
+				edit &&
+				(values.name !== edit.name ||
+					values.color !== edit.color ||
+					values.icon !== edit.icon)
+			) {
 				editTaskLabels(edit.id, {
 					name: values.name,
 					color: values.color,
+					icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
 				});
@@ -117,13 +126,9 @@ export const TaskLabelForm = () => {
 											{...register('name')}
 										/>
 
-										<ColorDropdown
+										<IconDropdown
 											setValue={setValue}
-											active={
-												edit
-													? ({ title: edit.color, color: edit.color } as IColor)
-													: null
-											}
+											active={edit ? ({ url: edit.icon } as IIcon) : null}
 										/>
 
 										<ColorDropdown

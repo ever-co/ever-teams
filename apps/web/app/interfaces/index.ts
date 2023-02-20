@@ -16,3 +16,4 @@ export * from './ITaskSizes';
 export * from './ITaskLabels';
 export * from './IColor';
 export * from './hooks';
+export * from './IIcon';

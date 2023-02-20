@@ -239,7 +239,7 @@ function TaskInfo({
 					>
 						<div
 							className={clsxm(
-								'text-sm text-ellipsis text-center cursor-default overflow-hidden w-full cursor-pointer'
+								'text-sm text-ellipsis cursor-default overflow-hidden w-full cursor-pointer'
 							)}
 							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>

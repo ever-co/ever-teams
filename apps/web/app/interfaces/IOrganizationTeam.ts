@@ -1,5 +1,6 @@
 import { IEmployee } from './IEmployee';
 import { ITeamTask } from './ITask';
+import { IUser } from './IUserData';
 
 export interface IOrganizationTeamCreate {
 	name: string;
@@ -39,6 +40,8 @@ export interface IOrganizationTeamList {
 	prefix: string;
 	members: OT_Member[];
 	public?: boolean;
+	createdById: string;
+	createdBy: IUser;
 	profile_link?: string;
 }
 

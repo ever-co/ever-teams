@@ -8,7 +8,7 @@ import {
 	Text,
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 /**
  * Create team modal
@@ -22,8 +22,11 @@ export function CreateTeamModal({
 }) {
 	const { trans } = useTranslation();
 
-	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
+	const { createOTeamLoading, createOrganizationTeam, teams } =
+		useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
+
+	const [name, setName] = useState('');
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -31,12 +34,21 @@ export function CreateTeamModal({
 		const form = new FormData(e.currentTarget);
 		const name = form.get('name') || '';
 
-		createOrganizationTeam(name.toString())
+		createOrganizationTeam(name.toString().trim())
 			.then(closeModal)
 			.catch((err) => {
 				setError(err?.message);
 			});
 	};
+
+	const disabled = useMemo(() => {
+		return (
+			createOTeamLoading ||
+			teams.some((t) =>
+				t.name.trim().toLowerCase().includes(name.toLowerCase().trim())
+			)
+		);
+	}, [createOTeamLoading, name, teams]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
@@ -55,6 +67,8 @@ export function CreateTeamModal({
 							<InputField
 								name="name"
 								autoCustomFocus
+								value={name}
+								onChange={(e) => setName(e.target.value)}
 								placeholder={trans.form.TEAM_NAME_PLACEHOLDER}
 								errors={error ? { name: error } : undefined}
 								onKeyUp={() => setError(null)}
@@ -67,7 +81,7 @@ export function CreateTeamModal({
 
 							<Button
 								type="submit"
-								disabled={createOTeamLoading}
+								disabled={disabled}
 								loading={createOTeamLoading}
 							>
 								{trans.common.CREATE}

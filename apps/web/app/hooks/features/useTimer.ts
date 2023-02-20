@@ -225,7 +225,10 @@ export function useTimer() {
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
-		if (activeTeamTaskRef.current) {
+		if (
+			activeTeamTaskRef.current &&
+			activeTeamTaskRef.current.status !== 'In Progress'
+		) {
 			updateTask({
 				...activeTeamTaskRef.current,
 				status: 'In Progress',
@@ -267,37 +270,23 @@ export function useTimer() {
 	// If active task changes then stop the timer
 	useEffect(() => {
 		const taskId = activeTeamTask?.id;
-		if (
+		const canStop =
 			lastActiveTaskId.current !== null &&
 			taskId !== lastActiveTaskId.current &&
-			firstLoad &&
-			timerStatusRef.current?.running
-		) {
+			firstLoad;
+
+		if (canStop && timerStatusRef.current?.running) {
 			stopTimer();
 		}
+
+		// if (canStop && taskId) {
+		// 	toggleTimer(taskId);
+		// }
+
 		if (taskId) {
 			lastActiveTaskId.current = taskId;
 		}
 	}, [firstLoad, activeTeamTask?.id]);
-
-	// Automaticaly change timer status when active task changes
-	// ---------- (Actually it unessecary since start and stop function can modify the timer status)
-	/**
-		useEffect(() => {
-			const canToggle =
-				activeTeamTask &&
-				timerTaskId.current !== activeTeamTask.id &&
-				firstLoad &&
-				wasRunning;
-
-			if (canToggle) {
-				setTimerStatusFetching(true);
-				toggleTimer(activeTeamTask.id).finally(() => {
-					setTimerStatusFetching(false);
-				});
-			}
-		}, [activeTeamTask?.id, firstLoad, wasRunning]);
-	**/
 
 	return {
 		timeCounter,

@@ -1,4 +1,5 @@
 import { getRefreshTokenCookie } from '@app/helpers/cookies';
+import { ISuccessResponse } from '@app/interfaces';
 import {
 	ILoginResponse,
 	IRegisterDataAPI,
@@ -30,4 +31,12 @@ export const sendAuthCodeAPI = (email: string) => {
 
 export const getAuthenticatedUserDataAPI = () => {
 	return api.get<Pick<ILoginResponse, 'user'>>(`/user/me`);
+};
+
+export const verifyUserEmailByCodeAPI = (code: string) => {
+	return api.post<ISuccessResponse>(`/auth/verify/code`, { code });
+};
+
+export const resentVerifyUserLinkAPI = () => {
+	return api.post<ISuccessResponse>(`/auth/verify/resend-link`);
 };
