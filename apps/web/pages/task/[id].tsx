@@ -44,7 +44,7 @@ const TaskDetails = () => {
 				<div className="w-full pt-5 min-h-screen flex flex-col">
 					<section className="flex justify-between">
 						<section className="mr-5 max-w-[900px] w-full">
-							<TaskTitleBlock title={task?.title} />
+							<TaskTitleBlock />
 							<TaskDescriptionBlock />
 						</section>
 						<div className="bg-white flex flex-col text-red-700 w-[400px] rounded-lg">

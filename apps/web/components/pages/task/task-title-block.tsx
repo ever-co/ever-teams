@@ -1,43 +1,54 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import { detailedTaskState } from '@app/stores';
+import { useRecoilState } from 'recoil';
 
-interface ITitleBlockProps {
-	title?: string;
-}
-
-const TaskTitleBlock = (props: ITitleBlockProps) => {
+const TaskTitleBlock = () => {
+	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
 	const saveButton = useRef<HTMLButtonElement>(null);
 	const cancelButton = useRef<HTMLButtonElement>(null);
 	const editButton = useRef<HTMLButtonElement>(null);
 
+	//States
 	const [edit, setEdit] = useState<boolean>(false);
-	const [title, setTitle] = useState<string>(
-		props?.title ||
-			'Working on UI Design & making prototype for user testing tomorrow Bernard'
-	);
+	const [task] = useRecoilState(detailedTaskState);
+	const [title, setTitle] = useState<string>('');
+
+	//Hooks and functions
+	useEffect(() => {
+		task && setTitle(task?.title);
+	}, [task]);
+
+	useEffect(() => {
+		autoHeight();
+	}, [title]);
+
+	useEffect(() => {
+		titleDOM?.current?.focus();
+	}, [edit]);
 
 	const saveTitle = () => {
 		setEdit(false);
 	};
 
 	const cancelEdit = () => {
+		task && setTitle(task?.title);
 		setEdit(false);
-		setTitle(
-			props?.title ||
-				'Working on UI Design & making prototype for user testing tomorrow Bernard'
-		);
 	};
 
-	const enableEdit = () => {
-		setEdit(true);
-		titleDOM.current?.focus();
+	const autoHeight = () => {
+		titleDOM.current?.style.setProperty('height', 'auto');
+		titleDOM.current?.style.setProperty(
+			'height',
+			titleDOM.current.scrollHeight + 'px'
+		);
 	};
 
 	return (
 		<div className="flex mb-10 ">
 			<textarea
-				className="w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-3 items-start py-1 outline-1 rounded-md outline-primary-light"
+				className="w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-3 items-start px-2 outline-1 rounded-md outline-primary-light"
 				onChange={(event) => setTitle(event.target.value)}
 				value={title}
 				disabled={!edit}
@@ -69,7 +80,7 @@ const TaskTitleBlock = (props: ITitleBlockProps) => {
 				</div>
 			) : (
 				<div className="flex flex-col items-start">
-					<button ref={editButton} onClick={enableEdit}>
+					<button ref={editButton} onClick={() => setEdit(true)}>
 						<Image
 							src="/assets/svg/edit-header-pencil.svg"
 							alt="edit header"
