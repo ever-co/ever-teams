@@ -29,3 +29,8 @@ export type CreateReponse<T> = {
 export type SingleDataResponse<T> = {
 	data: T;
 };
+
+export interface ISuccessResponse {
+	status: number;
+	message: string;
+}

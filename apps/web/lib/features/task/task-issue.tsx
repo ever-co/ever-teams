@@ -23,7 +23,7 @@ import {
 	TaskStatus,
 	TStatus,
 	TStatusItem,
-	TTaskStatusesDropdown,
+	TTaskVersionsDropdown,
 	useActiveTaskStatus,
 	useStatusValue,
 } from './task-status';
@@ -44,7 +44,7 @@ export const taskIssues: TStatus<ITaskIssue> = {
 		name: 'Story',
 		bgColor: '#66BB97',
 	},
-	Custom: {
+	Epic: {
 		icon: <CategoryIcon />,
 		name: 'Custom',
 		bgColor: '#8154BA',
@@ -61,7 +61,7 @@ export function TaskIssuesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskStatusesDropdown<'issue'>) {
+}: TTaskVersionsDropdown<'issue'>) {
 	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
 	const { item, items, onChange } = useStatusValue<'issue'>(
@@ -114,6 +114,7 @@ export function ActiveTaskIssuesDropdown(props: IActiveTaskStatuses<'issue'>) {
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			issueType="issue"
+			enabled={item?.name !== 'Epic'}
 			showIssueLabels={props.showIssueLabels}
 		/>
 	);

@@ -94,7 +94,14 @@ export function TeamItem({
 			>
 				{title}
 			</span>
-			<span className={clsxm('text-normal')}>{count ? `(${count})` : ''}</span>
+			<span
+				className={clsxm('text-normal')}
+				style={{
+					marginLeft: 0,
+				}}
+			>
+				{count ? `(${count})` : ''}
+			</span>
 		</div>
 	);
 }

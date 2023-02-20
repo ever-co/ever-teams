@@ -17,7 +17,7 @@ const PictureSection: FC<Props> = ({ imageUrl, buttonLabel, onChange, onDelete }
     const { teamStore: { activeTeam } } = useStores();
     const { colors, dark } = useAppTheme();
     return (
-        <View style={[styles.container, { backgroundColor: colors.background2 }]}>
+        <View style={[styles.container, { backgroundColor: colors.background, opacity:0.9 }]}>
             {imageUrl.trim().length > 3 ?
                 <Avatar.Image size={70} source={{ uri: imageUrl }} />
                 :

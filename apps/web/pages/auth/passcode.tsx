@@ -20,6 +20,7 @@ export default function AuthPasscode() {
 		handleSubmit,
 		sendCodeLoading,
 		sendAuthCodeHandler,
+		inputCodeRef,
 	} = useAuthenticationPasscode();
 
 	const { trans, translations } = useTranslation('authPasscode');
@@ -60,6 +61,7 @@ export default function AuthPasscode() {
 							<AuthCodeInputField
 								allowedCharacters="numeric"
 								length={6}
+								ref={inputCodeRef}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"
 								defaultValue={formValues.code}

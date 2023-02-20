@@ -24,9 +24,11 @@ export function createTeamTaskAPI(
 	return api.post<PaginationResponse<ITeamTask>>('/tasks/team', body);
 }
 
-export function tasksTimesheetStatisticsAPI() {
+export function tasksTimesheetStatisticsAPI(employeeId?: string) {
 	return api.get<{ global: ITasksTimesheet[]; today: ITasksTimesheet[] }>(
-		`/timer/timesheet/statistics-tasks`
+		`/timer/timesheet/statistics-tasks${
+			employeeId ? '?employeeId=' + employeeId : ''
+		}`
 	);
 }
 

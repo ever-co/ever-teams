@@ -8,7 +8,7 @@ import { useTeamTasks } from './useTeamTasks';
 
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
-	const { activeTeamTask, tasks } = useTeamTasks();
+	const { activeTeamTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
 	const { getAllTasksStatsData } = useTaskStatistics();
@@ -23,27 +23,26 @@ export function useUserProfilePage() {
 	});
 
 	const isAuthUser = auth?.employee.userId === memberId;
-	const activeUserTeamTask = isAuthUser ? activeTeamTask : null;
 
-	const userProfile =
-		auth?.employee.userId === memberId ? auth : matchUser?.employee.user;
+	const activeUserTeamTask = isAuthUser
+		? activeTeamTask
+		: matchUser?.lastWorkedTask;
 
-	/* Get all task except the active one */
-	const otherTasks = activeUserTeamTask
-		? tasks.filter((t) => t.id !== activeUserTeamTask.id)
-		: tasks;
+	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
+
+	const employeeId = isAuthUser ? auth?.employee.id : matchUser?.employeeId;
 
 	/* Filtering the tasks */
 	const tasksFiltered = useAuthTeamTasks(userProfile);
 
 	useEffect(() => {
-		getAllTasksStatsData();
-	}, [getAllTasksStatsData]);
+		if (employeeId) {
+			getAllTasksStatsData(employeeId);
+		}
+	}, [getAllTasksStatsData, employeeId]);
 
 	return {
 		isAuthUser,
-		tasks,
-		otherTasks,
 		activeUserTeamTask,
 		userProfile,
 		tasksFiltered,

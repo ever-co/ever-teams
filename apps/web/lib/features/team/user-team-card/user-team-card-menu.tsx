@@ -38,6 +38,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			onClick: () => {
 				edition.task && edition.setEditMode(true);
 			},
+			active: memberInfo.isAuthTeamManager || memberInfo.isAuthUser,
 		},
 		{
 			name: trans.common.ESTIMATE,
@@ -45,36 +46,46 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			onClick: () => {
 				edition.task && edition.setEstimateEditMode(true);
 			},
+			active: memberInfo.isAuthTeamManager || memberInfo.isAuthUser,
 		},
 		{
 			name: trans.common.ASSIGN_TASK,
-			active: memberInfo.isAuthTeamManager,
 			action: 'assign',
 			onClick: onAssignTask,
+
+			active:
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+				memberInfo.memberUnassignTasks.length > 0,
 		},
 		{
 			name: trans.common.UNASSIGN_TASK,
-			active: memberInfo.isAuthTeamManager,
 			action: 'unassign',
 			closable: true,
 			onClick: onUnAssignTask,
+
+			active:
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+				!!memberInfo.memberTask,
 		},
 		{
 			name: memberInfo.isTeamManager
 				? trans.common.UNMAKE_A_MANAGER
 				: trans.common.MAKE_A_MANAGER,
-			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
 			// MAke or unmake member a manager
 			onClick: memberInfo.isTeamManager
 				? memberInfo.unMakeMemberManager
 				: memberInfo.makeMemberManager,
+			active:
+				memberInfo.isAuthTeamManager &&
+				!memberInfo.isAuthUser &&
+				!memberInfo.isTeamCreator,
 			closable: true,
 		},
 		{
 			name: trans.common.REMOVE,
 			type: 'danger',
-			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
 			action: 'remove',
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
 			onClick: onRemoveMember,
 		},
 	].filter((item) => item.active || item.active === undefined);
@@ -88,7 +99,13 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			])}
 		>
 			{!loading && (
-				<Popover.Button className="flex items-center outline-none border-none">
+				<Popover.Button
+					disabled={menu.length === 0}
+					className={clsxm(
+						'flex items-center outline-none border-none',
+						menu.length === 0 && ['opacity-50']
+					)}
+				>
 					<MoreIcon />
 				</Popover.Button>
 			)}
@@ -130,6 +147,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 												{assignAction && (
 													// Show only for item with combobox menu
 													<AssignActionMenu
+														memberInfo={memberInfo}
+														edition={edition}
 														onTaskClick={(task, closeCmbx) => {
 															// Can close all open combobox
 															item.onClick &&
@@ -183,9 +202,12 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 function AssignActionMenu({
 	children,
 	onTaskClick,
-}: PropsWithChildren<{
-	onTaskClick?: (task: ITeamTask, closeCombobox: () => void) => void;
-}>) {
+	memberInfo,
+}: PropsWithChildren<
+	{
+		onTaskClick?: (task: ITeamTask, closeCombobox: () => void) => void;
+	} & Props
+>) {
 	return (
 		<Popover className="relative">
 			<Popover.Button className="flex items-center mb-2 outline-none border-none">
@@ -206,8 +228,10 @@ function AssignActionMenu({
 						return (
 							<TaskInput
 								task={null}
+								tasks={memberInfo.memberUnassignTasks}
 								initEditMode={true}
 								keepOpen={true}
+								autoAssignTask={false}
 								viewType="one-view"
 								onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
 							/>
@@ -229,20 +253,35 @@ function useDropdownAction({
 	edition,
 	memberInfo,
 }: Pick<Props, 'edition' | 'memberInfo'>) {
-	const onAssignTask: IAssignCall = useCallback(() => {
-		console.log('onAssignTask', edition);
-	}, [edition]);
+	const onAssignTask: IAssignCall = useCallback(
+		({ task, closeCombobox1, closeCombobox2 }) => {
+			if (!task) return;
+
+			edition.setLoading(true);
+			memberInfo.assignTask(task).finally(() => edition.setLoading(false));
+
+			closeCombobox1 && closeCombobox1();
+			closeCombobox2 && closeCombobox2();
+		},
+		[edition, memberInfo]
+	);
 
 	const onUnAssignTask: IAssignCall = useCallback(() => {
-		console.log('onUnAssignTask');
-	}, []);
+		if (!memberInfo.memberTask) return;
+		edition.setLoading(true);
 
-	const onRemoveMember = useCallback(({ close }: { close?: () => void }) => {
-		console.log('onRemoveMember');
+		memberInfo
+			.unassignTask(memberInfo.memberTask)
+			.finally(() => edition.setLoading(false));
+	}, [memberInfo, edition]);
 
-		memberInfo.removeMemberFromTeam();
-		close && close();
-	}, [memberInfo]);
+	const onRemoveMember = useCallback(
+		({ close }: { close?: () => void }) => {
+			memberInfo.removeMemberFromTeam();
+			close && close();
+		},
+		[memberInfo]
+	);
 
 	return {
 		onAssignTask,

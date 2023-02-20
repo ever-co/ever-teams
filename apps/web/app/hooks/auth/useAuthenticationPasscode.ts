@@ -5,18 +5,20 @@ import {
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { useSyncRef } from '../useSyncRef';
+
+type AuthCodeRef = {
+	focus: () => void;
+	clear: () => void;
+};
 
 export function useAuthenticationPasscode() {
 	const { query } = useRouter();
-	const [formValues, setFormValues] = useState({
-		email: (query.email as string) || '',
-		code: (query.email as string) || '',
-	});
+	const loginFromQuery = useRef(false);
+	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 
-	const formValuesRef = useSyncRef(formValues);
+	const [formValues, setFormValues] = useState({ email: '', code: '' });
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
@@ -36,8 +38,14 @@ export function useAuthenticationPasscode() {
 	/**
 	 * Verify auth request
 	 */
-	const verifyPasscodeRequest = () => {
-		queryCall(formValues.email, formValues.code)
+	const verifyPasscodeRequest = ({
+		email,
+		code,
+	}: {
+		email: string;
+		code: string;
+	}) => {
+		queryCall(email, code)
 			.then((res) => {
 				console.log(res.data);
 				window.location.reload();
@@ -46,6 +54,8 @@ export function useAuthenticationPasscode() {
 				if (err.response?.status === 400) {
 					setErrors((err.response?.data as any)?.errors || {});
 				}
+
+				inputCodeRef.current?.clear();
 			});
 	};
 
@@ -64,23 +74,25 @@ export function useAuthenticationPasscode() {
 
 		infiniteLoading.current = true;
 
-		verifyPasscodeRequest();
+		verifyPasscodeRequest({
+			email: formValues.email,
+			code: formValues.code,
+		});
 	};
 
 	/**
 	 * Verifiy immediatly passcode if email and code were passed from url
 	 */
 	useEffect(() => {
-		const { email, code } = formValuesRef.current;
-		if (
-			email.trim().length &&
-			code.trim().length &&
-			query.email &&
-			query.code
-		) {
-			verifyPasscodeRequest();
+		if (query.email && query.code && !loginFromQuery.current) {
+			verifyPasscodeRequest({
+				email: query.email as string,
+				code: query.code as string,
+			});
+
+			loginFromQuery.current = true;
 		}
-	}, []);
+	}, [query]);
 
 	/**
 	 * send a fresh auth request handler
@@ -104,5 +116,6 @@ export function useAuthenticationPasscode() {
 		loading,
 		formValues,
 		setFormValues,
+		inputCodeRef,
 	};
 }

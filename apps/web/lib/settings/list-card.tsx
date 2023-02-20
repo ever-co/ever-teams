@@ -28,7 +28,17 @@ export const StatusesListCard = ({
 				} flex items-center p-3 gap-x-2 overflow-hidden mr-1`}
 				style={{ backgroundColor: bgColor }}
 			>
-				{statusIcon && <Image src={statusIcon} alt={statusTitle} />}
+				{statusIcon && (
+					<Image
+						src={statusIcon}
+						alt={statusTitle || ''}
+						width={20}
+						height={20}
+						decoding="async"
+						data-nimg="1"
+						loading="lazy"
+					/>
+				)}
 				<Tooltip
 					label={statusTitle}
 					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}

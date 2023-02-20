@@ -72,6 +72,10 @@ interface Creator {
 
 export type ITaskProperty = 'Medium' | 'High' | 'Low' | 'Urgent';
 
+export type IVersionProperty = 'Version 1' | 'Version 2';
+
+export type IEpicProperty = string;
+
 export type ITaskSize = 'Extra Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
 
 export type ITaskLabel = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
@@ -86,21 +90,25 @@ export type ITaskStatus =
 	| 'Closed'
 	| 'In Review';
 
-export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Custom';
+export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 
 export type ITaskStatusField =
 	| 'status'
 	| 'size'
-	| 'property'
+	| 'priority'
 	| 'label'
-	| 'issue';
+	| 'issue'
+	| 'version'
+	| 'epic';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
 	label: ITaskLabel;
-	property: ITaskProperty;
+	priority: ITaskProperty;
 	issue: ITaskIssue;
+	version: IVersionProperty;
+	epic: IEpicProperty;
 };
 
 export interface ICreateTask {

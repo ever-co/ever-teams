@@ -11,6 +11,7 @@ export default async function handler(
 	if (!user) return $res();
 
 	const activeTask = req.query.activeTask;
+	const employeeId = req.query.employeeId as string | undefined;
 
 	if (activeTask && !taskId) {
 		return $res.json({
@@ -23,7 +24,7 @@ export default async function handler(
 		{
 			tenantId,
 			organizationId,
-			'employeeIds[0]': user.employee.id,
+			'employeeIds[0]': employeeId || user.employee.id,
 			defaultRange: 'false',
 			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
 		},

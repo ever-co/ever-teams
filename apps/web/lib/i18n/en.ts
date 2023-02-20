@@ -3,6 +3,8 @@ export const en = {
 	common: {
 		VERIFY: 'verify',
 		PLEASE: 'please',
+		SECURITY_CODE: 'Security Code',
+		CONFIRM: 'Confirm',
 		YOUR_EMAIL: 'your email',
 		CONTINUE: 'Continue',
 		EDIT_TASK: 'Edit Task',

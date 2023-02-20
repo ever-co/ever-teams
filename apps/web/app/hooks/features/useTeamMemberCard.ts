@@ -1,12 +1,13 @@
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useOutsideClick } from '../useOutsideClick';
 import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useIsMemberManager } from './useTeamMember';
+import { useTeamTasks } from './useTeamTasks';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -17,8 +18,11 @@ import { useIsMemberManager } from './useTeamMember';
 export function useTeamMemberCard(
 	member: IOrganizationTeamList['members'][number] | undefined
 ) {
+	const { updateTask, tasks, setActiveTask } = useTeamTasks();
+
 	const { user: authUSer, isTeamManager: isAuthTeamManager } =
 		useAuthenticateUser();
+
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 
 	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } =
@@ -30,21 +34,25 @@ export function useTeamMemberCard(
 
 	// const memberUserRef = useSyncRef(memberUser);
 	const isAuthUser = member?.employee.userId === authUSer?.id;
-	const { isTeamManager } = useIsMemberManager(memberUser);
-	const [memberTask, setMemberTask] = useState<ITeamTask | null>(
-		member?.lastWorkedTask || null
-	);
+	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
+
+	const [memberTask, setMemberTask] = useState<ITeamTask | null>();
 
 	useEffect(() => {
 		if (authUSer && member) {
 			if (isAuthUser) {
 				setMemberTask(activeTeamTask);
-			} else if (member.lastWorkedTask) {
-				setMemberTask(member.lastWorkedTask);
+			} else if (member.lastWorkedTask && !isAuthUser) {
+				const ctask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+				const find = ctask?.members.some((m) => m.id === member.employee.id);
+				setMemberTask(find ? ctask : undefined);
 			}
 		}
-	}, [activeTeamTask, isAuthUser, authUSer, member]);
+	}, [activeTeamTask, isAuthUser, authUSer, member, tasks, setMemberTask]);
 
+	/**
+	 * Give the manager role to the member
+	 */
 	const makeMemberManager = useCallback(() => {
 		const employeeId = member?.employee?.id;
 
@@ -59,6 +67,9 @@ export function useTeamMemberCard(
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
+	/**
+	 * remove manager role to the member
+	 */
 	const unMakeMemberManager = useCallback(() => {
 		const employeeId = member?.employee?.id;
 
@@ -88,6 +99,7 @@ export function useTeamMemberCard(
 			memberIds: team.members
 				.filter((r) => r.employee.id !== employeeId)
 				.map((r) => r.employee.id),
+
 			// remove from managers
 			managerIds: team.members
 				.filter((r) => r.role && r.role.name === 'MANAGER')
@@ -96,7 +108,60 @@ export function useTeamMemberCard(
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
+	/**
+	 * Returns all tasks not assigned to the member
+	 */
+	const memberUnassignTasks = useMemo(() => {
+		if (!memberUser) return [];
+
+		return tasks.filter((task) => {
+			return !task.members.some((m) => m.userId === memberUser.id);
+		});
+	}, [tasks, memberUser]);
+
+	/**
+	 * Assign task to the member
+	 */
+	const assignTask = useCallback(
+		(task: ITeamTask) => {
+			if (!member?.employeeId) {
+				return Promise.resolve();
+			}
+
+			return updateTask({
+				...task,
+				members: [
+					...task.members,
+					(member?.employeeId ? { id: member?.employeeId } : {}) as any,
+				],
+			}).then(() => {
+				if (isAuthUser && !activeTeamTask) {
+					setActiveTask(task);
+				}
+			});
+		},
+		[updateTask, member, isAuthUser, setActiveTask, activeTeamTask]
+	);
+
+	const unassignTask = useCallback(
+		(task: ITeamTask) => {
+			if (!member?.employeeId) {
+				return Promise.resolve();
+			}
+
+			return updateTask({
+				...task,
+				members: task.members.filter((m) => m.id !== member.employeeId),
+			}).finally(() => {
+				isAuthUser && setActiveTask(null);
+			});
+		},
+		[updateTask, member, isAuthUser, setActiveTask]
+	);
+
 	return {
+		assignTask,
+		memberUnassignTasks,
 		isTeamManager,
 		memberUser,
 		member,
@@ -107,6 +172,8 @@ export function useTeamMemberCard(
 		updateOTeamLoading,
 		removeMemberFromTeam,
 		unMakeMemberManager,
+		isTeamCreator,
+		unassignTask,
 	};
 }
 
