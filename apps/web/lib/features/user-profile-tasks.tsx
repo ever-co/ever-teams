@@ -1,6 +1,7 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
+import { useMemo } from 'react';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 
@@ -19,10 +20,19 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	// Get current timer seconds
 	const { time } = useLiveTimerStatus();
 
-	const tasks =
-		tabFiltered.tab === 'worked'
-			? profile.otherTasks
-			: tabFiltered.tasksFiltered;
+	/**
+	 * When tab is worked, then filter it exclude the active task
+	 */
+	const tasks = useMemo(() => {
+		let tasks = tabFiltered.tasksFiltered;
+		if (tabFiltered.tab === 'worked' && profile.activeUserTeamTask) {
+			tasks = tasks.filter((ts) => {
+				return ts.id !== profile.activeUserTeamTask?.id;
+			});
+		}
+
+		return tasks;
+	}, [tabFiltered, profile]);
 
 	return (
 		<div className="mt-10">
@@ -59,7 +69,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 			{tabFiltered.tab === 'worked' && (
 				<div className="flex space-x-2 items-center my-6">
 					<Text className="font-normal">
-						{trans.common.LAST_24_HOURS} ({profile.otherTasks.length})
+						{trans.common.LAST_24_HOURS} ({tasks.length})
 					</Text>
 					<Divider className="flex-1" />
 				</div>
