@@ -69,6 +69,8 @@ export const en = {
 
 		taskDetails: {
 			BREADCRUMB: ['Team', 'Task Details'],
+			DESCRIPTION: 'Description',
+			ADD_DESCRIPTION: 'Add Description here',
 		},
 
 		auth: {
