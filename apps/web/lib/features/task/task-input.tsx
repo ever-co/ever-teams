@@ -43,6 +43,8 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
+	autoAssignTask?: boolean;
+	fullWidthCombobox?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -66,7 +68,9 @@ export function TaskInput({
 	createOnEnterClick,
 	showTaskNumber = false,
 	showCombobox = true,
+	autoAssignTask = true,
 	tasks,
+	fullWidthCombobox,
 }: Props) {
 	const { trans } = useTranslation();
 	const datas = useTaskInput({
@@ -179,7 +183,7 @@ export function TaskInput({
 					createOnEnterClick &&
 						datas?.handleTaskCreation &&
 						datas.hasCreateForm &&
-						datas?.handleTaskCreation(autoActiveTask);
+						datas?.handleTaskCreation(autoActiveTask, autoAssignTask);
 				}
 			}}
 			trailingNode={
@@ -218,6 +222,8 @@ export function TaskInput({
 			}
 			autoActiveTask={autoActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
+			autoAssignTask={autoAssignTask}
+			fullWidth={fullWidthCombobox}
 		/>
 	);
 
@@ -237,7 +243,13 @@ export function TaskInput({
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute -mt-3" ref={ignoreElementRef}>
+				<Popover.Panel
+					className={clsxm(
+						'absolute -mt-3',
+						fullWidthCombobox && ['w-full left-0 right-0']
+					)}
+					ref={ignoreElementRef}
+				>
 					{taskCard}
 				</Popover.Panel>
 			</Transition>
@@ -253,11 +265,15 @@ function TaskCard({
 	onItemClick,
 	autoActiveTask,
 	inputField,
+	autoAssignTask,
+	fullWidth,
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
 	autoActiveTask?: boolean;
 	inputField?: JSX.Element;
+	autoAssignTask?: boolean;
+	fullWidth?: boolean;
 }) {
 	const { trans } = useTranslation();
 
@@ -266,8 +282,9 @@ function TaskCard({
 			<Card
 				shadow="custom"
 				className={clsxm(
-					'rounded-lg md:px-4 md:py-4 w-[500px] max-h-96',
-					'overflow-auto shadow-xlcard'
+					'rounded-lg md:px-4 md:py-4 max-h-96',
+					'overflow-auto shadow-xlcard',
+					fullWidth ? ['w-full'] : ['w-[500px]']
 				)}
 			>
 				{inputField}
@@ -281,7 +298,7 @@ function TaskCard({
 						/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 						datas?.handleTaskCreation &&
 						datas.hasCreateForm &&
-						datas?.handleTaskCreation(autoActiveTask)
+						datas?.handleTaskCreation(autoActiveTask, autoAssignTask)
 					}
 				>
 					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}

@@ -34,9 +34,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const logOut = useCallback(() => {
 		removeAuthCookies();
 		window.clearInterval(intervalRt.current);
-		if (typeof window !== 'undefined') {
-			window.location.reload();
-		}
+		window.location.reload();
 	}, []);
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {

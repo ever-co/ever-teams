@@ -252,8 +252,8 @@ export function TaskPropertiesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskStatusesDropdown<'property'>) {
-	const { item, items, onChange } = useStatusValue<'property'>(
+}: TTaskStatusesDropdown<'priority'>) {
+	const { item, items, onChange } = useStatusValue<'priority'>(
 		taskProperties,
 		defaultValue,
 		onValueChange
@@ -264,19 +264,19 @@ export function TaskPropertiesDropdown({
 			className={className}
 			items={items}
 			value={item}
-			defaultItem={!item ? 'property' : undefined}
+			defaultItem={!item ? 'priority' : undefined}
 			onChange={onChange}
 		/>
 	);
 }
 
 export function ActiveTaskPropertiesDropdown(
-	props: IActiveTaskStatuses<'property'>
+	props: IActiveTaskStatuses<'priority'>
 ) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
 		taskProperties,
-		'property'
+		'priority'
 	);
 
 	return (
@@ -466,6 +466,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 	defaultItem,
 	issueType = 'status',
 	children,
+	enabled = true,
 }: PropsWithChildren<{
 	value: T | undefined;
 	onChange?(value: string): void;
@@ -473,6 +474,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 	className?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
+	enabled?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -513,7 +515,7 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 						</Listbox.Button>
 
 						<Transition
-							show={open}
+							show={open && enabled}
 							enter="transition duration-100 ease-out"
 							enterFrom="transform scale-95 opacity-0"
 							enterTo="transform scale-100 opacity-100"

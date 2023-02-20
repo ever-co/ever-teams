@@ -86,12 +86,12 @@ export type ITaskStatus =
 	| 'Closed'
 	| 'In Review';
 
-export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Custom';
+export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 
 export type ITaskStatusField =
 	| 'status'
 	| 'size'
-	| 'property'
+	| 'priority'
 	| 'label'
 	| 'issue';
 
@@ -99,7 +99,7 @@ export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
 	label: ITaskLabel;
-	property: ITaskProperty;
+	priority: ITaskProperty;
 	issue: ITaskIssue;
 };
 

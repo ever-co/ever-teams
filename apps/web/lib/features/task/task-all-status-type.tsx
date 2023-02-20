@@ -41,10 +41,10 @@ export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
 					/>
 
 					<TaskStatus
-						{...taskProperties[task?.property || 'Low']}
+						{...taskProperties[task?.priority || 'Low']}
 						className="text-xs"
-						active={!!task?.property}
-						name={task?.property || 'Property'}
+						active={!!task?.priority}
+						name={task?.priority || 'Priority'}
 					/>
 
 					<TaskStatus

@@ -43,7 +43,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'worked',
 			name: trans.common.WORKED,
 			description: trans.task.tabFilter.WORKED_DESCRIPTION,
-			count: profile.tasks.length,
+			count: profile.tasksFiltered.workedTasks.length,
 		},
 		{
 			tab: 'assigned',
