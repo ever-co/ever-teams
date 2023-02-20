@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { useTranslation } from 'lib/i18n';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
@@ -9,7 +8,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import DescriptionBlock from '@components/pages/task/description-block';
+import TaskDescriptionBlock from '@components/pages/task/task-description-block';
+import TaskTitleBlock from '@components/pages/task/task-title-block';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -44,21 +44,8 @@ const TaskDetails = () => {
 				<div className="w-full pt-5 min-h-screen flex flex-col">
 					<section className="flex justify-between">
 						<section className="mr-5 max-w-[900px] w-full">
-							<div className="flex mb-10 ">
-								<h1 className="text-black not-italic font-medium text-2xl mr-3 items-start">
-									{task?.title}
-								</h1>
-								<Image
-									src="/assets/svg/edit-header-pencil.svg"
-									alt="edit header"
-									width={32}
-									height={32}
-									style={{ height: '32px' }}
-								/>
-							</div>
-							<div>
-								<DescriptionBlock />
-							</div>
+							<TaskTitleBlock title={task?.title} />
+							<TaskDescriptionBlock />
 						</section>
 						<div className="bg-white flex flex-col text-red-700 w-[400px] rounded-lg">
 							<TaskDetailsAside />
