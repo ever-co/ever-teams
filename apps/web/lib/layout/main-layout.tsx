@@ -8,6 +8,7 @@ type Props = PropsWithChildren<{
 	showTimer?: boolean;
 	navbarClassname?: string;
 	containerWrapperClassname?: string;
+	isPublic?: boolean;
 }>;
 
 export function MainLayout({
@@ -16,6 +17,7 @@ export function MainLayout({
 	showTimer,
 	navbarClassname,
 	containerWrapperClassname,
+	isPublic,
 }: Props) {
 	return (
 		<>
@@ -28,10 +30,7 @@ export function MainLayout({
 			</style>
 
 			<Meta title={title} />
-			<Navbar
-				showTimer={showTimer}
-				className={clsx('fixed z-[999]', navbarClassname)}
-			/>
+			<Navbar showTimer={showTimer} className="fixed z-[999]" navbarClassname isPublic={isPublic || false}/>
 
 			<div
 				className={clsx(

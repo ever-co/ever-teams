@@ -58,6 +58,7 @@ export const en = {
 		DETECT: 'Detect',
 		TRANSFER: 'Transfer',
 		TRANSFER_TEAM: 'Transfer Team',
+		TEAM_MEMBERS: 'Team Members',
 	},
 	pages: {
 		home: {
