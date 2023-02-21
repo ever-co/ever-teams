@@ -31,6 +31,7 @@ const TaskSecondaryInfo = () => {
 				<TaskVersionDropdown
 					onValueChange={() => void 0}
 					className="lg:min-w-[170px]"
+					forDetails={true}
 				/>
 			</TaskRow>
 
@@ -38,6 +39,7 @@ const TaskSecondaryInfo = () => {
 				<TaskEpicDropdown
 					onValueChange={() => void 0}
 					className="lg:min-w-[170px]"
+					forDetails={true}
 				/>
 			</TaskRow>
 
@@ -46,6 +48,7 @@ const TaskSecondaryInfo = () => {
 					defaultValue={task?.status}
 					onValueChange={handleChange}
 					className="lg:min-w-[170px]"
+					forDetails={true}
 				/>
 			</TaskRow>
 
@@ -53,6 +56,7 @@ const TaskSecondaryInfo = () => {
 				<TaskLabelsDropdown
 					defaultValue={task?.label}
 					className="lg:min-w-[170px]"
+					forDetails={true}
 				/>
 			</TaskRow>
 
@@ -60,13 +64,15 @@ const TaskSecondaryInfo = () => {
 				<TaskSizesDropdown
 					defaultValue={task?.size}
 					className="lg:min-w-[170px]"
+					forDetails={true}
 				/>
 			</TaskRow>
 
 			<TaskRow labelTitle="Priority" wrapperClassName="mb-3">
 				<TaskPropertiesDropdown
-					defaultValue={task?.property}
+					defaultValue={task?.priority}
 					className="lg:min-w-[170px]"
+					forDetails={true}
 				/>
 			</TaskRow>
 			<hr className="text-[#F2F2F2] mt-[15px]" />

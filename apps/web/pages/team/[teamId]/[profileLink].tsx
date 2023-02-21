@@ -1,6 +1,7 @@
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { Breadcrumb, Container } from 'lib/components';
-import { TeamMembers, UserTeamCardHeader } from 'lib/features';
+import { PublicUserTeamCardHeader } from 'lib/features';
+import { PublicTeamMembers } from 'lib/features/team/public/team-members';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 
@@ -20,16 +21,16 @@ const Team = () => {
 	}, [query]);
 
 	return (
-		<MainLayout>
+		<MainLayout isPublic>
 			<MainHeader>
 				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 
 				{/* Header user card list */}
-				<UserTeamCardHeader />
+				<PublicUserTeamCardHeader />
 			</MainHeader>
 
 			<Container className="mb-10">
-				<TeamMembers />
+				<PublicTeamMembers />
 			</Container>
 		</MainLayout>
 	);

@@ -21,6 +21,30 @@ export const TaskSizesForm = () => {
 
 	const { trans } = useTranslation('settingsTeam');
 
+	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes`;
+	const iconList: IIcon[] = [
+		{
+			url: `${baseIconUrl}/x-large.svg`,
+			title: 'Open',
+		},
+		{
+			url: `${baseIconUrl}/large.svg`,
+			title: 'Large',
+		},
+		{
+			url: `${baseIconUrl}/medium.svg`,
+			title: 'Medium',
+		},
+		{
+			url: `${baseIconUrl}/small.svg`,
+			title: 'Small',
+		},
+		{
+			url: `${baseIconUrl}/tiny.svg`,
+			title: 'Tiny',
+		},
+	];
+
 	const {
 		loading,
 		taskSizes,
@@ -130,6 +154,7 @@ export const TaskSizesForm = () => {
 										<IconDropdown
 											setValue={setValue}
 											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											iconList={iconList}
 										/>
 
 										<ColorDropdown
