@@ -7,11 +7,11 @@ type Props = {
 	wrapperClassName?: string;
 };
 
-const ProfileInfo: React.FC<Props> = ({
+const ProfileInfo = ({
 	profilePicSrc,
 	names,
 	wrapperClassName,
-}) => {
+}: Props) => {
 	return (
 		<div
 			className={clsx('flex flex-nowrap whitespace-nowrap', wrapperClassName)}

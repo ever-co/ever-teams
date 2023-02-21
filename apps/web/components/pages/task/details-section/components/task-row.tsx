@@ -2,8 +2,9 @@ import clsx from 'clsx';
 import TaskLabel from './task-label';
 
 type TaskRowProps = {
-	labelPath?: string;
-	labelTitle: string;
+	labelIconPath?: string;
+	afterIconPath?: string;
+	labelTitle?: string;
 	children?: JSX.Element | JSX.Element[];
 	wrapperClassName?: string;
 	alignWithIconLabel?: boolean;
@@ -11,7 +12,8 @@ type TaskRowProps = {
 
 const TaskRow: React.FC<TaskRowProps> = ({
 	children,
-	labelPath,
+	labelIconPath,
+	afterIconPath,
 	labelTitle,
 	wrapperClassName,
 	alignWithIconLabel,
@@ -20,8 +22,9 @@ const TaskRow: React.FC<TaskRowProps> = ({
 		<div className={clsx('flex justify-between', wrapperClassName)}>
 			<div className="flex items-top w-[47%]">
 				<TaskLabel
-					iconSrc={labelPath}
-					label={labelTitle}
+					labelIconPath={labelIconPath}
+					labelTitle={labelTitle}
+					afterIconPath={afterIconPath}
 					alignWithIconLabel={alignWithIconLabel}
 				/>
 			</div>

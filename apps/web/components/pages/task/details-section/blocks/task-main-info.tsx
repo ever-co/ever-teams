@@ -15,7 +15,7 @@ const TaskMainInfo = () => {
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow
-				labelPath="/assets/svg/calendar-2.svg"
+				labelIconPath="/assets/svg/calendar-2.svg"
 				labelTitle="Type of issue"
 			>
 				<ActiveTaskIssuesDropdown
@@ -25,7 +25,7 @@ const TaskMainInfo = () => {
 				/>
 			</TaskRow>
 			<TaskRow
-				labelPath="/assets/svg/profile.svg"
+				labelIconPath="/assets/svg/profile.svg"
 				labelTitle="Creator"
 				wrapperClassName="mt-4"
 			>
@@ -39,7 +39,7 @@ const TaskMainInfo = () => {
 				)}
 			</TaskRow>
 			<TaskRow
-				labelPath="/assets/svg/people.svg"
+				labelIconPath="/assets/svg/people.svg"
 				labelTitle="Assignees"
 				wrapperClassName="mt-4"
 			>
@@ -65,7 +65,7 @@ const TaskMainInfo = () => {
 				</div>
 			</TaskRow>
 			<TaskRow
-				labelPath="/assets/svg/calendar-2.svg"
+				labelIconPath="/assets/svg/calendar-2.svg"
 				labelTitle="Start date"
 				wrapperClassName="mt-4"
 			>

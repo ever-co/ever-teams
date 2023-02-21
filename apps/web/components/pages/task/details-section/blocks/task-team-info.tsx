@@ -28,6 +28,7 @@ const TaskTeamInfo = () => {
 					onChange={() => void 0}
 				/>
 			</TaskRow>
+			<hr className="text-[#F2F2F2] mt-[15px]" />
 		</section>
 	);
 };
