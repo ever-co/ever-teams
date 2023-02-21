@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import TaskMainInfo from './details-section/blocks/task-main-info';
 import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
+import TaskTeamInfo from './details-section/blocks/task-team-info';
 
 const TaskDetailsAside = () => {
 	return (
@@ -50,6 +51,7 @@ details-label px-[15px] flex justify-between"
 			</div>
 			<TaskMainInfo />
 			<TaskSecondaryInfo />
+			<TaskTeamInfo />
 		</>
 	);
 };

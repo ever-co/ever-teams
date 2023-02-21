@@ -1,5 +1,6 @@
 import { IEmployee } from './IEmployee';
-import { IOrganizationTeamList } from './IOrganizationTeam';
+import { IOrganizationTeam, IOrganizationTeamList } from './IOrganizationTeam';
+import { ITeamProps } from './IUserData';
 
 export type ITeamTask = {
 	id: string;
@@ -99,7 +100,9 @@ export type ITaskStatusField =
 	| 'label'
 	| 'issue'
 	| 'version'
-	| 'epic';
+	| 'epic'
+	| 'project'
+	| 'team';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
@@ -109,6 +112,8 @@ export type ITaskStatusStack = {
 	issue: ITaskIssue;
 	version: IVersionProperty;
 	epic: IEpicProperty;
+	project: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
+	team: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
 };
 
 export interface ICreateTask {
