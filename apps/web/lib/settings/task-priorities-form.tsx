@@ -21,21 +21,22 @@ export const TaskPrioritiesForm = () => {
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
+	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities`;
 	const iconList: IIcon[] = [
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/urgent.svg`,
+			url: `${baseIconUrl}/urgent.svg`,
 			title: 'Urgent',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/high.svg`,
+			url: `${baseIconUrl}/high.svg`,
 			title: 'High',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/medium.svg`,
+			url: `${baseIconUrl}/medium.svg`,
 			title: 'Medium',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/low.svg`,
+			url: `${baseIconUrl}/low.svg`,
 			title: 'Low',
 		},
 	];

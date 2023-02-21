@@ -20,29 +20,30 @@ export const TaskStatusesForm = () => {
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
+	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses`;
 	const iconList: IIcon[] = [
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/open.svg`,
+			url: `${baseIconUrl}/open.svg`,
 			title: 'Open',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/in-progress.svg`,
+			url: `${baseIconUrl}/in-progress.svg`,
 			title: 'In Progress',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/ready.svg`,
+			url: `${baseIconUrl}/ready.svg`,
 			title: 'Ready',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/in-review.svg`,
+			url: `${baseIconUrl}/in-review.svg`,
 			title: 'In Review',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/blocked.svg`,
+			url: `${baseIconUrl}/blocked.svg`,
 			title: 'Blocked',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/completed.svg`,
+			url: `${baseIconUrl}/completed.svg`,
 			title: 'Completed',
 		},
 	];

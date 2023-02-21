@@ -33,19 +33,15 @@ export function mapIconItems(icons: IIcon[]) {
 			Label: () => (
 				<div className="flex justify-between">
 					<IconItem
-						title={'Icons'}
+						title={''}
 						className="w-full cursor-default"
-						url="https://cdn-icons-png.flaticon.com/512/0/14.png"
+						url=""
 						disabled
 					/>
 				</div>
 			),
 			selectedLabel: (
-				<IconItem
-					title={'Icons'}
-					url={'https://cdn-icons-png.flaticon.com/512/0/14.png'}
-					className="py-2 mb-0"
-				/>
+				<IconItem title={'Icons'} url={''} className="py-2 mb-0" />
 			),
 			data: { title: 'Icons', url: '' },
 		});
@@ -75,27 +71,26 @@ export function IconItem({
 			)}
 		>
 			<div>
-				<div
-					className={clsxm(
-						'w-[17px] h-[17px]',
-						'flex justify-center items-center',
-						'rounded-full text-xs text-default dark:text-white',
-						'shadow-md',
-						disabled && ['dark:text-default']
-					)}
-				>
-					<Image
-						src={
-							url || 'https://cdn-icons-png.flaticon.com/512/6208/6208007.png'
-						}
-						alt={title || ''}
-						width={20}
-						height={20}
-						decoding="async"
-						data-nimg="1"
-						loading="lazy"
-					/>
-				</div>
+				{url && (
+					<div
+						className={clsxm(
+							'w-[17px] h-[17px]',
+							'flex justify-center items-center',
+							'rounded-full text-xs text-default dark:text-white',
+							disabled && ['dark:text-default']
+						)}
+					>
+						<Image
+							src={url || ''}
+							alt={title || ''}
+							width={20}
+							height={20}
+							decoding="async"
+							data-nimg="1"
+							loading="lazy"
+						/>
+					</div>
+				)}
 			</div>
 			<span
 				className={clsxm(

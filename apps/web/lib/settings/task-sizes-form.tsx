@@ -21,25 +21,26 @@ export const TaskSizesForm = () => {
 
 	const { trans } = useTranslation('settingsTeam');
 
+	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes`;
 	const iconList: IIcon[] = [
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/x-large.svg`,
+			url: `${baseIconUrl}/x-large.svg`,
 			title: 'Open',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/large.svg`,
+			url: `${baseIconUrl}/large.svg`,
 			title: 'Large',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/medium.svg`,
+			url: `${baseIconUrl}/medium.svg`,
 			title: 'Medium',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/small.svg`,
+			url: `${baseIconUrl}/small.svg`,
 			title: 'Small',
 		},
 		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/tiny.svg`,
+			url: `${baseIconUrl}/tiny.svg`,
 			title: 'Tiny',
 		},
 	];
