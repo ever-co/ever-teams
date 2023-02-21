@@ -8,10 +8,12 @@ export function TaskProgressBar({
 	isAuthUser,
 	task,
 	activeAuthTask,
+	showPercents,
 }: {
 	isAuthUser: boolean | undefined;
 	task: Nullable<ITeamTask>;
 	activeAuthTask: boolean;
+	showPercents?: boolean;
 }) {
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskEstimation, getTaskStat, getEstimation } =
@@ -24,5 +26,11 @@ export function TaskProgressBar({
 		progress = getEstimation(taskTotalStat, task, 0);
 	}
 
-	return <ProgressBar width="100%" progress={`${progress}%`} />;
+	return (
+		<ProgressBar
+			width="100%"
+			progress={`${progress}%`}
+			showPercents={showPercents}
+		/>
+	);
 }

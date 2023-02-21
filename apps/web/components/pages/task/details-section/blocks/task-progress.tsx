@@ -17,8 +17,6 @@ const TaskProgress = () => {
 		if (task && task?.members) {
 			const profiles = Array.isArray(task?.members) ? [...task.members] : [];
 
-			console.log(profiles);
-
 			if (profiles) {
 				profiles.push(profiles[0]);
 				profiles.push(profiles[0]);
@@ -32,7 +30,12 @@ const TaskProgress = () => {
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle="Progress" wrapperClassName="mb-3">
-				<TaskProgressBar task={task} isAuthUser={true} activeAuthTask={true} />
+				<TaskProgressBar
+					task={task}
+					isAuthUser={true}
+					activeAuthTask={true}
+					showPercents={true}
+				/>
 			</TaskRow>
 			<TaskRow labelTitle="Total Time" wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048]">
