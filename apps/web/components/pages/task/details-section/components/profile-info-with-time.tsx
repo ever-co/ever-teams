@@ -1,6 +1,4 @@
-import { useRecoilState } from 'recoil';
 import ProfileInfo from './profile-info';
-import { detailedTaskState } from '@app/stores';
 
 type Props = {
 	profilePicSrc?: string;
