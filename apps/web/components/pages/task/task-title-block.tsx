@@ -56,7 +56,7 @@ const TaskTitleBlock = () => {
 	return (
 		<div className="flex mb-10  ">
 			<textarea
-				className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start p-2 outline-1 rounded-md outline-primary-light`}
+				className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start py-2 outline-1 rounded-md outline-primary-light`}
 				onChange={(event) => setTitle(event.target.value)}
 				value={title}
 				disabled={!edit}

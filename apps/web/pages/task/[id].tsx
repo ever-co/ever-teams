@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import TaskDescriptionBlock from '@components/pages/task/task-description-block';
+import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 
