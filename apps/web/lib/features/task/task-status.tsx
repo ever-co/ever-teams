@@ -1,8 +1,7 @@
 import {
 	IClassName,
-	IEpicProperty,
 	ITaskLabel,
-	ITaskProperty,
+	ITaskPriority,
 	ITaskSize,
 	ITaskStatus,
 	ITaskStatusField,
@@ -292,7 +291,7 @@ export function EpicPropertiesDropdown({
 	forDetails,
 }: TTaskStatusesDropdown<'epic'>) {
 	const { item, items, onChange } = useStatusValue<'epic'>(
-		[],
+		{},
 		defaultValue,
 		onValueChange
 	);
@@ -311,7 +310,7 @@ export function EpicPropertiesDropdown({
 
 //! =============== Task Status ================= //
 
-export const taskProperties: TStatus<ITaskProperty> = {
+export const taskPriorities: TStatus<ITaskPriority> = {
 	Medium: {
 		icon: <LoginIcon />,
 		bgColor: '#ECE8FC',
@@ -342,7 +341,7 @@ export function TaskPropertiesDropdown({
 	forDetails,
 }: TTaskStatusesDropdown<'priority'>) {
 	const { item, items, onChange } = useStatusValue<'priority'>(
-		taskProperties,
+		taskPriorities,
 		defaultValue,
 		onValueChange
 	);
@@ -364,7 +363,7 @@ export function ActiveTaskPropertiesDropdown(
 ) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskProperties,
+		taskPriorities,
 		'priority'
 	);
 

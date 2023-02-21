@@ -1,11 +1,7 @@
 import { StatusDropdown } from 'lib/features';
 import TaskRow from '../components/task-row';
-import { useRecoilState } from 'recoil';
-import { detailedTaskState } from '@app/stores';
 
 const TaskTeamInfo = () => {
-	const [task] = useRecoilState(detailedTaskState);
-
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle="Project" wrapperClassName="mb-3">

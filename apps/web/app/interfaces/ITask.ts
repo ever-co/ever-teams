@@ -1,6 +1,5 @@
 import { IEmployee } from './IEmployee';
-import { IOrganizationTeam, IOrganizationTeamList } from './IOrganizationTeam';
-import { ITeamProps } from './IUserData';
+import { IOrganizationTeamList } from './IOrganizationTeam';
 
 export type ITeamTask = {
 	id: string;
@@ -71,7 +70,7 @@ interface Creator {
 	employeeId: any;
 }
 
-export type ITaskProperty = 'Medium' | 'High' | 'Low' | 'Urgent';
+export type ITaskPriority = 'Medium' | 'High' | 'Low' | 'Urgent';
 
 export type IVersionProperty = 'Version 1' | 'Version 2';
 
@@ -108,7 +107,7 @@ export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
 	label: ITaskLabel;
-	priority: ITaskProperty;
+	priority: ITaskPriority;
 	issue: ITaskIssue;
 	version: IVersionProperty;
 	epic: IEpicProperty;

@@ -1,17 +1,3 @@
-const monthType =
-	'01' ||
-	'02' ||
-	'03' ||
-	'04' ||
-	'05' ||
-	'06' ||
-	'07' ||
-	'08' ||
-	'09' ||
-	'10' ||
-	'11' ||
-	'12';
-
 const months: { [key: string]: string } = {
 	'01': 'January',
 	'02': 'February',
@@ -68,9 +54,9 @@ export function secondsToTime(secs: number) {
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
 	let minutes = Math.floor(seconds / 60);
-	let hours = Math.floor(minutes / 60);
+	const hours = Math.floor(minutes / 60);
 
-	let ms = milliseconds % 1000;
+	const ms = milliseconds % 1000;
 	minutes = minutes % 60;
 	seconds = seconds % 60;
 

@@ -1,5 +1,4 @@
-import { detailedTaskState, tasksFetchingState } from '@app/stores';
-import clsx from 'clsx';
+import { detailedTaskState } from '@app/stores';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import Image from 'next/image';
 import { useRecoilState } from 'recoil';
