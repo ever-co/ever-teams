@@ -1,9 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
+import { useTeamTasks } from '@app/hooks';
 
 const TaskTitleBlock = () => {
+	const { updateTitle } = useTeamTasks();
+	// const { updateLoading } = useTeamTasks();
+
 	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
 	const saveButton = useRef<HTMLButtonElement>(null);
@@ -28,9 +32,13 @@ const TaskTitleBlock = () => {
 		titleDOM?.current?.focus();
 	}, [edit]);
 
-	const saveTitle = () => {
-		setEdit(false);
-	};
+	const saveTitle = useCallback(
+		(newTitle: string) => {
+			updateTitle(newTitle, task, true);
+			setEdit(false);
+		},
+		[task, updateTitle]
+	);
 
 	const cancelEdit = () => {
 		task && setTitle(task?.title);
@@ -46,7 +54,7 @@ const TaskTitleBlock = () => {
 	};
 
 	return (
-		<div className="flex mb-10 ">
+		<div className="flex mb-10  ">
 			<textarea
 				className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start p-2 outline-1 rounded-md outline-primary-light`}
 				onChange={(event) => setTitle(event.target.value)}
@@ -56,8 +64,8 @@ const TaskTitleBlock = () => {
 			></textarea>
 
 			{edit ? (
-				<div className="flex flex-col items-start">
-					<button ref={saveButton} onClick={saveTitle}>
+				<div className="flex flex-col items-start transition-all ">
+					<button ref={saveButton} onClick={() => saveTitle(title)}>
 						<Image
 							src="/assets/svg/tick.svg"
 							alt="edit header"
