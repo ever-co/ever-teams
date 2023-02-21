@@ -10,6 +10,7 @@ import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import TaskDescriptionBlock from '@components/pages/task/task-description-block';
 import TaskTitleBlock from '@components/pages/task/task-title-block';
+import { ArrowLeft } from 'lib/components/svgs';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -30,13 +31,19 @@ const TaskDetails = () => {
 
 	return (
 		<MainLayout
-			showTimer={!profile.isAuthUser}
-			navbarClassname="relative"
-			containerWrapperClassname="pt-0"
+		// showTimer={!profile.isAuthUser}
+		// navbarClassname="relative"
+		// containerWrapperClassname="pt-0"
 		>
-			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
+			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4 ">
 				<Container>
-					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+					<div className="flex space-x-5 items-center">
+						<button onClick={() => router.back()}>
+							<ArrowLeft />
+						</button>
+
+						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+					</div>
 				</Container>
 			</div>
 
