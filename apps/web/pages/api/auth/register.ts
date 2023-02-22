@@ -10,6 +10,7 @@ import {
 	createTenantSmtpRequest,
 	loginUserRequest,
 	registerUserRequest,
+	refreshTokenRequest,
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
@@ -74,7 +75,7 @@ export default async function handler(
 	});
 	// User Login, get the access token
 	const { data: loginRes } = await loginUserRequest(body.email, password);
-	const auth_token = loginRes.token;
+	let auth_token = loginRes.token;
 
 	// Create user tenant
 	const { data: tenant } = await createTenantRequest(body.team, auth_token);
@@ -118,6 +119,11 @@ export default async function handler(
 		auth_token
 	);
 
+	const { data: refreshTokenRes } = await refreshTokenRequest(
+		loginRes.refresh_token
+	);
+	auth_token = refreshTokenRes.token;
+
 	setAuthCookies(
 		{
 			access_token: auth_token,
@@ -128,7 +134,7 @@ export default async function handler(
 			teamId: team.id,
 			tenantId: tenant.id,
 			organizationId: organization.id,
-			languageId: 'en' // TODO: not sure what should be here
+			languageId: 'en', // TODO: not sure what should be here
 		},
 		req,
 		res

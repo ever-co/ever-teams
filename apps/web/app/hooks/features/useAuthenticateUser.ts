@@ -46,6 +46,9 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		};
 	}, []);
 
+	const refreshToken = useCallback(async () => {
+		await refreshTokenAPI();
+	}, []);
 	return {
 		user: $user.current,
 		setUser,
@@ -54,5 +57,6 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		refreshUserLoading,
 		logOut,
 		timeToTimeRefreshToken,
+		refreshToken,
 	};
 };

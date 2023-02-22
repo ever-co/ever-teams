@@ -15,7 +15,7 @@ import { ArrowLeft } from 'lib/components/svgs';
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const { tasks } = useTeamTasks();
-	const [task, setTask] = useRecoilState(detailedTaskState);
+	const [, setTask] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
 
@@ -31,9 +31,9 @@ const TaskDetails = () => {
 
 	return (
 		<MainLayout showTimer={!profile.isAuthUser}>
-			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
+			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<div className="flex space-x-5 items-center">
+					<div className="flex items-center space-x-5">
 						<button onClick={() => router.back()}>
 							<ArrowLeft />
 						</button>
@@ -44,7 +44,7 @@ const TaskDetails = () => {
 			</div>
 
 			<Container className="mb-10">
-				<div className="w-full pt-5 min-h-screen flex flex-col">
+				<div className="flex flex-col w-full min-h-screen pt-5">
 					<section className="flex justify-between">
 						<section className="mr-5 max-w-[900px] w-full">
 							<TaskTitleBlock />
