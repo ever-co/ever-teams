@@ -97,6 +97,12 @@ html.dark {
 	html.dark .tooltip-arrow {
 		--tooltipBackground: #8c7ae4 !important;
 	}
+
+	/* Details Aside Bar */
+
+	.details-label {
+		@apply not-italic font-medium text-[12px] leading-[140%] tracking-[-0.02em] text-[#A5A2B2];
+	}
 }
 
 @font-face {

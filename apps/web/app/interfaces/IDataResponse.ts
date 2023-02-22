@@ -26,6 +26,10 @@ export type CreateReponse<T> = {
 	response: any;
 };
 
+export type SingleDataResponse<T> = {
+	data: T;
+};
+
 export interface ISuccessResponse {
 	status: number;
 	message: string;
