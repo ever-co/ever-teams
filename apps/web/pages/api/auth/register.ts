@@ -119,7 +119,7 @@ export default async function handler(
 		auth_token
 	);
 
-	let { data: refreshTokenRes } = await refreshTokenRequest(
+	const { data: refreshTokenRes } = await refreshTokenRequest(
 		loginRes.refresh_token
 	);
 	auth_token = refreshTokenRes.token;
