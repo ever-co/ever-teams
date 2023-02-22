@@ -70,7 +70,7 @@ interface Creator {
 	employeeId: any;
 }
 
-export type ITaskProperty = 'Medium' | 'High' | 'Low' | 'Urgent';
+export type ITaskPriority = 'Medium' | 'High' | 'Low' | 'Urgent';
 
 export type IVersionProperty = 'Version 1' | 'Version 2';
 
@@ -99,16 +99,20 @@ export type ITaskStatusField =
 	| 'label'
 	| 'issue'
 	| 'version'
-	| 'epic';
+	| 'epic'
+	| 'project'
+	| 'team';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
 	size: ITaskSize;
 	label: ITaskLabel;
-	priority: ITaskProperty;
+	priority: ITaskPriority;
 	issue: ITaskIssue;
 	version: IVersionProperty;
 	epic: IEpicProperty;
+	project: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
+	team: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
 };
 
 export interface ICreateTask {

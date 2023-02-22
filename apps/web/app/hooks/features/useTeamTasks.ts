@@ -178,5 +178,6 @@ export function useTeamTasks() {
 		updateTitle,
 		handleStatusUpdate,
 		activeTeamId,
+		setAllTasks,
 	};
 }

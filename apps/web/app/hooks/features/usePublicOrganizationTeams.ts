@@ -2,10 +2,12 @@ import { getPublicOrganizationTeamsAPI } from '@app/services/client/api/public-o
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
+import { useTeamTasks } from './useTeamTasks';
 
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getPublicOrganizationTeamsAPI);
 	const { setTeams } = useOrganizationTeams();
+	const { setAllTasks } = useTeamTasks();
 
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {
@@ -16,6 +18,7 @@ export function usePublicOrganizationTeams() {
 				}
 
 				setTeams([res.data.data]);
+				setAllTasks(res?.data?.data?.tasks || []);
 				return res;
 			});
 		},

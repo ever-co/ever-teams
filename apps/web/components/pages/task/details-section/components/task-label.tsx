@@ -1,21 +1,23 @@
 import Image from 'next/image';
 
 type TaskLabelProps = {
-	iconSrc?: string;
-	label: string;
+	labelIconPath?: string;
+	afterIconPath?: string;
+	labelTitle?: string;
 	alignWithIconLabel?: boolean;
 };
 
 const TaskLabel: React.FC<TaskLabelProps> = ({
-	iconSrc,
-	label,
+	labelIconPath,
+	afterIconPath,
+	labelTitle,
 	alignWithIconLabel,
 }) => {
 	return (
 		<div className="flex">
-			{iconSrc ? (
+			{labelIconPath ? (
 				<Image
-					src={iconSrc}
+					src={labelIconPath}
 					alt="issue type"
 					width={14}
 					height={14}
@@ -26,7 +28,16 @@ const TaskLabel: React.FC<TaskLabelProps> = ({
 					<div style={{ height: '14px', width: '14px', marginRight: '5px' }} />
 				)
 			)}
-			<div className="details-label">{label}</div>
+			<div className="details-label">{labelTitle}</div>
+			{afterIconPath && (
+				<Image
+					src={afterIconPath}
+					alt="issue type"
+					width={14}
+					height={14}
+					style={{ marginLeft: '5px', height: '14px' }}
+				/>
+			)}
 		</div>
 	);
 };

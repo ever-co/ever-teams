@@ -1,10 +1,12 @@
 import Image from 'next/image';
 import TaskMainInfo from './details-section/blocks/task-main-info';
 import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
+import TaskProgress from './details-section/blocks/task-progress';
+import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
 
 const TaskDetailsAside = () => {
 	return (
-		<>
+		<section className="border border-solid border-[#00000014] rounded-md">
 			<div className="flex justify-between h-[52px] px-[15px] items-center">
 				<div className="not-italic font-semibold text-base leading-[140%] tracking-[-0.02em] text-[#282048]">
 					Details
@@ -50,7 +52,9 @@ details-label px-[15px] flex justify-between"
 			</div>
 			<TaskMainInfo />
 			<TaskSecondaryInfo />
-		</>
+			<TaskEstimationsInfo />
+			<TaskProgress />
+		</section>
 	);
 };
 

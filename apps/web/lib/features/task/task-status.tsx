@@ -1,8 +1,7 @@
 import {
 	IClassName,
-	IEpicProperty,
 	ITaskLabel,
-	ITaskProperty,
+	ITaskPriority,
 	ITaskSize,
 	ITaskStatus,
 	ITaskStatusField,
@@ -50,6 +49,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	defaultValue?: ITaskStatusStack[T];
 	onValueChange?: (v: ITaskStatusStack[T]) => void;
 	forDetails?: boolean;
+	dynamicValues?: any[];
 };
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -63,6 +63,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 	} & {
 		task?: Nullable<ITeamTask>;
 		showIssueLabels?: boolean;
+		forDetails?: boolean;
 	};
 
 export function useActiveTaskStatus<T extends ITaskStatusField>(
@@ -290,7 +291,7 @@ export function EpicPropertiesDropdown({
 	forDetails,
 }: TTaskStatusesDropdown<'epic'>) {
 	const { item, items, onChange } = useStatusValue<'epic'>(
-		[],
+		{},
 		defaultValue,
 		onValueChange
 	);
@@ -309,7 +310,7 @@ export function EpicPropertiesDropdown({
 
 //! =============== Task Status ================= //
 
-export const taskProperties: TStatus<ITaskProperty> = {
+export const taskPriorities: TStatus<ITaskPriority> = {
 	Medium: {
 		icon: <LoginIcon />,
 		bgColor: '#ECE8FC',
@@ -340,7 +341,7 @@ export function TaskPropertiesDropdown({
 	forDetails,
 }: TTaskStatusesDropdown<'priority'>) {
 	const { item, items, onChange } = useStatusValue<'priority'>(
-		taskProperties,
+		taskPriorities,
 		defaultValue,
 		onValueChange
 	);
@@ -362,7 +363,7 @@ export function ActiveTaskPropertiesDropdown(
 ) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskProperties,
+		taskPriorities,
 		'priority'
 	);
 
@@ -506,6 +507,46 @@ export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
 			className={props.className}
 			items={items}
 			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+export function ActiveTaskProjectDropdown(
+	props: IActiveTaskStatuses<'project'>
+) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskLabels,
+		'project'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			forDetails={props.forDetails}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskLabels,
+		'team'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			forDetails={props.forDetails}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 		/>

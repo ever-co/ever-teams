@@ -12,7 +12,7 @@ import {
 } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 
-export function TeamMembers() {
+export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, teamsFetching } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
@@ -41,7 +41,7 @@ export function TeamMembers() {
 				leaveTo="opacity-0"
 			>
 				<li className="mb-4">
-					<UserTeamCard member={currentUser} active />
+					<UserTeamCard member={currentUser} active publicTeam={publicTeam} />
 				</li>
 			</Transition>
 
@@ -59,7 +59,7 @@ export function TeamMembers() {
 						leaveTo="opacity-0"
 					>
 						<li className="mb-4">
-							<UserTeamCard member={member} />
+							<UserTeamCard member={member} publicTeam={publicTeam} />
 						</li>
 					</Transition>
 				);
