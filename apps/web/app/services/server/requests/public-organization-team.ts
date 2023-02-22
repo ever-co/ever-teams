@@ -10,6 +10,9 @@ export function getPublicOrganizationTeamRequest({
 		'members.employee',
 		'members.employee.user',
 		'createdBy',
+		'tasks',
+		'tasks.members',
+		'tasks.teams',
 	],
 }: {
 	profileLink: string;

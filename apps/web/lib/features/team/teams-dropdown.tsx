@@ -6,7 +6,7 @@ import { useModal, useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { CreateTeamModal } from './create-team-modal';
 
-export const TeamsDropDown = ({ isPublic }: { isPublic?: boolean }) => {
+export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { teams, activeTeam, setActiveTeam, teamsFetching } =
 		useOrganizationTeams();
 
@@ -43,7 +43,7 @@ export const TeamsDropDown = ({ isPublic }: { isPublic?: boolean }) => {
 				items={items}
 				loading={teamsFetching}
 			>
-				{!isPublic && (
+				{!publicTeam && (
 					<Button
 						className="w-full text-xs mt-3 dark:text-white dark:border-white"
 						variant="outline"
@@ -54,7 +54,7 @@ export const TeamsDropDown = ({ isPublic }: { isPublic?: boolean }) => {
 				)}
 			</Dropdown>
 
-			<CreateTeamModal open={isOpen} closeModal={closeModal} />
+			{!publicTeam && <CreateTeamModal open={isOpen} closeModal={closeModal} />}
 		</>
 	);
 };

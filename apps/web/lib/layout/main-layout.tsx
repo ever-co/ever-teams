@@ -5,12 +5,10 @@ import { PropsWithChildren } from 'react';
 type Props = PropsWithChildren<{
 	title?: string;
 	showTimer?: boolean;
-	navbarClassname?: string;
-	containerWrapperClassname?: string;
-	isPublic?: boolean;
+	publicTeam?: boolean;
 }>;
 
-export function MainLayout({ children, title, showTimer, isPublic }: Props) {
+export function MainLayout({ children, title, showTimer, publicTeam }: Props) {
 	return (
 		<>
 			<style jsx global>
@@ -25,7 +23,7 @@ export function MainLayout({ children, title, showTimer, isPublic }: Props) {
 			<Navbar
 				showTimer={showTimer}
 				className="fixed z-[999]"
-				isPublic={isPublic || false}
+				publicTeam={publicTeam || false}
 			/>
 
 			<div

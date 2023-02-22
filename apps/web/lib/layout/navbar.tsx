@@ -7,8 +7,8 @@ import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
 export function Navbar({
 	className,
 	showTimer,
-	isPublic,
-}: IClassName & { showTimer?: boolean; isPublic?: boolean }) {
+	publicTeam,
+}: IClassName & { showTimer?: boolean; publicTeam?: boolean }) {
 	return (
 		<nav
 			className={clsxm(
@@ -21,8 +21,8 @@ export function Navbar({
 					<AppLogo dash className="scale-[0.7] origin-[0]" />
 					<div className="flex space-x-5 items-center">
 						{showTimer && <MinTimerFrame />}
-						<TeamsDropDown isPublic={isPublic || false} />
-						{!isPublic && <UserNavAvatar />}
+						<TeamsDropDown publicTeam={publicTeam || false} />
+						{!publicTeam && <UserNavAvatar />}
 					</div>
 				</div>
 			</Container>

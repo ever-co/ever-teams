@@ -27,9 +27,16 @@ export function UserTeamCardHeader() {
 type IUserTeamCard = {
 	active?: boolean;
 	member?: IOrganizationTeamList['members'][number];
+	publicTeam?: boolean;
+	members?: IOrganizationTeamList['members'];
 } & IClassName;
 
-export function UserTeamCard({ className, active, member }: IUserTeamCard) {
+export function UserTeamCard({
+	className,
+	active,
+	member,
+	publicTeam = false,
+}: IUserTeamCard) {
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
@@ -47,7 +54,11 @@ export function UserTeamCard({ className, active, member }: IUserTeamCard) {
 			</div>
 
 			{/* Show user name, email and image */}
-			<UserInfo memberInfo={memberInfo} className="w-[330px]" />
+			<UserInfo
+				memberInfo={memberInfo}
+				className="w-[330px]"
+				publicTeam={publicTeam}
+			/>
 			<VerticalSeparator />
 
 			{/* Task information */}
