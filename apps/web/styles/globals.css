@@ -26,6 +26,10 @@ html.dark {
 		@apply text-default dark:text-white;
 	}
 
+	strong {
+		font-weight: 500;
+	}
+
 	.x-container {
 		@apply 2xl:max-w-[1320px] xl:max-w-[1140px];
 	}

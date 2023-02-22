@@ -110,6 +110,23 @@ export function useTeamTasks() {
 		[setAllTasks, updateQueryCall]
 	);
 
+	const updateTitle = useCallback(
+		(newTitle: string, task?: ITeamTask | null, loader?: boolean) => {
+			if (task && newTitle !== task.title) {
+				loader && setTasksFetching(true);
+				return updateTask({
+					...task,
+					title: newTitle,
+				}).then((res) => {
+					setTasksFetching(false);
+					return res;
+				});
+			}
+			return Promise.resolve();
+		},
+		[updateTask]
+	);
+
 	const handleStatusUpdate = useCallback(
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
@@ -158,6 +175,7 @@ export function useTeamTasks() {
 		setActiveTask,
 		activeTeamTask,
 		firstLoadTasksData,
+		updateTitle,
 		handleStatusUpdate,
 		activeTeamId,
 		setAllTasks,

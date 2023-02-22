@@ -8,8 +8,9 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import TaskDescriptionBlock from '@components/pages/task/task-description-block';
+import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/task-title-block';
+import { ArrowLeft } from 'lib/components/svgs';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -32,7 +33,13 @@ const TaskDetails = () => {
 		<MainLayout showTimer={!profile.isAuthUser}>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
-					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+					<div className="flex space-x-5 items-center">
+						<button onClick={() => router.back()}>
+							<ArrowLeft />
+						</button>
+
+						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+					</div>
 				</Container>
 			</div>
 
@@ -40,7 +47,7 @@ const TaskDetails = () => {
 				<div className="w-full pt-5 min-h-screen flex flex-col">
 					<section className="flex justify-between">
 						<section className="mr-5 max-w-[900px] w-full">
-							<TaskTitleBlock title={task?.title} />
+							<TaskTitleBlock />
 							<TaskDescriptionBlock />
 						</section>
 						<div className="bg-white flex flex-col text-red-700 w-[400px] rounded-lg">
