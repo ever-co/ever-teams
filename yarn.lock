@@ -15753,6 +15753,11 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.2.0.tgz"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
+react-loading-skeleton@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-loading-skeleton/-/react-loading-skeleton-3.1.1.tgz#50cc5302d2e48d6cd419973a5c981a76fe9a15f4"
+  integrity sha512-gQeNzzKXlevvquRDOhN5kas5VE7toTKrpmE9BpUdf0iip9c5ae0LcVbulh5ebO2CFl4RrYsyLuDtYGyrh1h1iA==
+
 react-popper-tooltip@^4.4.2:
   version "4.4.2"
   resolved "https://registry.npmjs.org/react-popper-tooltip/-/react-popper-tooltip-4.4.2.tgz"
