@@ -10,9 +10,10 @@ import { MailIcon } from 'lib/components/svgs';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
+	publicTeam?: boolean;
 } & IClassName;
 
-export function UserInfo({ className, memberInfo }: Props) {
+export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const { memberUser } = memberInfo;
 
 	return (
@@ -21,10 +22,12 @@ export function UserInfo({ className, memberInfo }: Props) {
 			className={clsxm('flex items-center space-x-4', className)}
 		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
-				<TimerStatus
-					status={'running'}
-					className="absolute border z-20 bottom-3 -right-1 -mb-3"
-				/>
+				{!publicTeam && (
+					<TimerStatus
+						status={'running'}
+						className="absolute border z-20 bottom-3 -right-1 -mb-3"
+					/>
+				)}
 			</Avatar>
 
 			<div className="w-64">

@@ -18,6 +18,11 @@ export const tasksFetchingState = atom<boolean>({
 	default: false,
 });
 
+export const detailedTaskState = atom<ITeamTask | null>({
+	key: 'detailedTaskState',
+	default: null,
+});
+
 export const tasksByTeamState = selector<ITeamTask[]>({
 	key: 'tasksByTeamState',
 	get: ({ get }) => {
