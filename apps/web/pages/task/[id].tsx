@@ -29,11 +29,7 @@ const TaskDetails = () => {
 	}, [tasks, router.isReady, router.query?.id, setTask]);
 
 	return (
-		<MainLayout
-			showTimer={!profile.isAuthUser}
-			navbarClassname="relative"
-			containerWrapperClassname="pt-0"
-		>
+		<MainLayout showTimer={!profile.isAuthUser}>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
 					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
