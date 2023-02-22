@@ -102,6 +102,15 @@ html.dark {
 		--tooltipBackground: #8c7ae4 !important;
 	}
 
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+
+	.scrollbar-hide {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
+
 	/* Details Aside Bar */
 
 	.details-label {

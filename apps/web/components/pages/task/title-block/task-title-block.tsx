@@ -59,7 +59,7 @@ const TaskTitleBlock = () => {
 			{title !== '' ? (
 				<>
 					<textarea
-						className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start p-2 outline-1 rounded-md outline-primary-light`}
+						className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start px-2 outline-1 rounded-md outline-0 border border-transparent focus:border-primary-light scrollbar-hide`}
 						onChange={(event) => setTitle(event.target.value)}
 						value={title}
 						disabled={!edit}
