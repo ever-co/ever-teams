@@ -6,6 +6,8 @@ import { AppState } from 'lib/app/init-state';
 import Head from 'next/head';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
+import { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
 	return (
@@ -30,8 +32,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 			</Head>
 			<RecoilRoot>
 				<ThemeProvider attribute="class">
-					<AppState />
-					<Component {...pageProps} />
+					<SkeletonTheme baseColor="#E6E6E8" highlightColor="#6B7280">
+						<AppState />
+						<Component {...pageProps} />
+					</SkeletonTheme>
 				</ThemeProvider>
 			</RecoilRoot>
 			<Analytics />
