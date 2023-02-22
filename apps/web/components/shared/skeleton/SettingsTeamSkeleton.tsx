@@ -2,8 +2,8 @@ import Skeleton from 'react-loading-skeleton';
 import { MainLayout } from 'lib/layout';
 import { Card, Container, Text, InputField } from 'lib/components';
 import LeftSideSettingMenuSkeleton from './LeftSideSettingMenuSkeleton';
-import StatusListCard from './StatusListCard';
 import DangerZoneSkeleton from './DangerZoneSkeleton';
+import StatusListCard from './StatusListCard';
 
 const SettingsTeamSkeleton = () => {
 	return (
