@@ -30,12 +30,8 @@ const TaskDetails = () => {
 	}, [tasks, router.isReady, router.query?.id, setTask]);
 
 	return (
-		<MainLayout
-		// showTimer={!profile.isAuthUser}
-		// navbarClassname="relative"
-		// containerWrapperClassname="pt-0"
-		>
-			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4 ">
+		<MainLayout showTimer={!profile.isAuthUser}>
+			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
 					<div className="flex space-x-5 items-center">
 						<button onClick={() => router.back()}>
