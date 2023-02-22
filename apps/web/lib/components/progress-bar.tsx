@@ -4,10 +4,12 @@ export function ProgressBar({
 	width,
 	progress,
 	className,
+	showPercents,
 }: {
 	width: number | string;
 	progress: number | string;
 	className?: string;
+	showPercents?: boolean;
 }) {
 	return (
 		<>
