@@ -90,6 +90,7 @@ function useCreateOrganizationTeam() {
 	const [teams, setTeams] = useRecoilState(organizationTeamsState);
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetRecoilState(activeTeamIdState);
+	const { refreshToken } = useAuthenticateUser();
 
 	const createOrganizationTeam = useCallback(
 		(name: string) => {
@@ -103,7 +104,7 @@ function useCreateOrganizationTeam() {
 				return Promise.reject(new Error('Invalid team name !'));
 			}
 
-			return queryCall($name).then((res) => {
+			return queryCall($name).then(async (res) => {
 				const dt = res.data?.items || [];
 				setTeams(dt);
 				const created = dt.find((t) => t.name === $name);
@@ -112,6 +113,12 @@ function useCreateOrganizationTeam() {
 					setOrganizationIdCookie(created.organizationId);
 					// This must be called at the end (Update store)
 					setActiveTeamId(created.id);
+
+					/**
+					 * DO NOT REMOVE
+					 * Refresh Token needed for the first time when new Organization is created, As in backend permissions are getting updated
+					 * */
+					await refreshToken();
 				}
 				return res;
 			});
@@ -172,7 +179,7 @@ function useUpdateOrganizationTeam() {
 export function useOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
 	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
-	const { logOut } = useAuthenticateUser();
+	const { logOut, user } = useAuthenticateUser();
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
@@ -194,14 +201,21 @@ export function useOrganizationTeams() {
 	const loadTeamsData = useCallback(() => {
 		setActiveTeamId(getActiveTeamIdCookie());
 		return queryCall().then((res) => {
-			if (res.data?.items && res.data?.items?.length === 0) {
+			if (
+				(res.data?.items && res.data?.items?.length === 0) ||
+				(res.data?.items &&
+					user &&
+					res.data.items.every((item) =>
+						item.members.every((member) => member.employee.userId !== user?.id)
+					))
+			) {
 				logOut();
 				return res;
 			}
 			setTeams(res.data?.items || []);
 			return res;
 		});
-	}, [queryCall, setActiveTeamId, setTeams]);
+	}, [queryCall, setActiveTeamId, setTeams, user]);
 
 	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } =
 		useQuery(editOrganizationTeamAPI);
