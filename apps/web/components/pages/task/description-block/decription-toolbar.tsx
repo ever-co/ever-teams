@@ -24,10 +24,6 @@ const DescriptionToolbar = () => {
 		editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
 	};
 
-	const save = () => {
-		console.log(JSON.stringify(editor.getEditorState()));
-	};
-
 	const updateToolbar = useCallback(() => {
 		const selection = $getSelection();
 		if ($isRangeSelection(selection)) {
@@ -73,7 +69,7 @@ const DescriptionToolbar = () => {
 				/>
 
 				<ToolButton iconSource="/assets/svg/link.svg" />
-				<ToolButton onSelect={save} iconSource="/assets/svg/tick-square.svg" />
+				<ToolButton iconSource="/assets/svg/tick-square.svg" />
 				<ToolButton iconSource="/assets/svg/more2.svg" />
 			</div>
 		</div>
