@@ -37,7 +37,6 @@ const TaskDetails = () => {
 						<button
 							onClick={() => {
 								router.back();
-								setTask(null);
 							}}
 						>
 							<ArrowLeft />
