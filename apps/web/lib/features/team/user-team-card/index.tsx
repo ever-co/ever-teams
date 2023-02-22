@@ -28,6 +28,7 @@ type IUserTeamCard = {
 	active?: boolean;
 	member?: IOrganizationTeamList['members'][number];
 	publicTeam?: boolean;
+	members?: IOrganizationTeamList['members'];
 } & IClassName;
 
 export function UserTeamCard({

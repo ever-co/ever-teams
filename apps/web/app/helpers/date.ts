@@ -1,3 +1,18 @@
+const months: { [key: string]: string } = {
+	'01': 'January',
+	'02': 'February',
+	'03': 'March',
+	'04': 'April',
+	'05': 'May',
+	'06': 'June',
+	'07': 'July',
+	'08': 'August',
+	'09': 'September',
+	'10': 'October',
+	'11': 'November',
+	'12': 'December',
+};
+
 export function changeTimezone(date: Date, ianatz?: string) {
 	const invdate = new Date(
 		date.toLocaleString('en-US', {
@@ -39,9 +54,9 @@ export function secondsToTime(secs: number) {
 export function convertMsToTime(milliseconds: number) {
 	let seconds = Math.floor(milliseconds / 1000);
 	let minutes = Math.floor(seconds / 60);
-	let hours = Math.floor(minutes / 60);
+	const hours = Math.floor(minutes / 60);
 
-	let ms = milliseconds % 1000;
+	const ms = milliseconds % 1000;
 	minutes = minutes % 60;
 	seconds = seconds % 60;
 
@@ -59,3 +74,21 @@ export function convertMsToTime(milliseconds: number) {
 		ms_p: Math.floor((ms * 100) / 1000),
 	};
 }
+
+export const formatDateTimeString = (dateTimeString?: string) => {
+	if (dateTimeString) {
+		const [date, time] = dateTimeString.split('T');
+
+		const [year, month, day] = date.split('-');
+		const monthParsed = months[month];
+		const formattedDate = `${day} ${monthParsed} ${year}`;
+		const timeString = time.split('.')[0];
+		const timeArray = timeString.split(':');
+		const amPm =  parseInt(timeArray[0]) >= 12 ? 'PM' : 'AM' 
+		const formattedTime = `${timeArray[0]}.${timeArray[1]} ${amPm}`;
+
+		return `${formattedDate}, ${formattedTime}`;
+	}
+
+	return '';
+};

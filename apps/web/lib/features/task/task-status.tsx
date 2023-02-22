@@ -1,12 +1,13 @@
 import {
 	IClassName,
 	ITaskLabel,
-	ITaskProperty,
+	ITaskPriority,
 	ITaskSize,
 	ITaskStatus,
 	ITaskStatusField,
 	ITaskStatusStack,
 	ITeamTask,
+	IVersionProperty,
 	Nullable,
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -32,10 +33,11 @@ import {
 	useState,
 } from 'react';
 import { useCallbackRef, useTeamTasks } from '@app/hooks';
+import clsx from 'clsx';
 
 export type TStatusItem = {
 	bgColor?: string;
-	icon: React.ReactNode;
+	icon?: React.ReactNode | undefined;
 	name?: string;
 };
 
@@ -46,6 +48,13 @@ export type TStatus<T extends string> = {
 export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	defaultValue?: ITaskStatusStack[T];
 	onValueChange?: (v: ITaskStatusStack[T]) => void;
+	forDetails?: boolean;
+	dynamicValues?: any[];
+};
+
+export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
+	defaultValue?: ITaskStatusStack[T];
+	onValueChange?: (v: ITaskStatusStack[T]) => void;
 };
 
 export type IActiveTaskStatuses<T extends ITaskStatusField> =
@@ -53,6 +62,8 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		onChangeLoading?: (loading: boolean) => void;
 	} & {
 		task?: Nullable<ITeamTask>;
+		showIssueLabels?: boolean;
+		forDetails?: boolean;
 	};
 
 export function useActiveTaskStatus<T extends ITaskStatusField>(
@@ -180,6 +191,7 @@ export function TaskStatusDropdown({
 	className,
 	defaultValue,
 	onValueChange,
+	forDetails,
 }: TTaskStatusesDropdown<'status'>) {
 	const { item, items, onChange } = useStatusValue<'status'>(
 		taskStatus,
@@ -189,6 +201,7 @@ export function TaskStatusDropdown({
 
 	return (
 		<StatusDropdown
+			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
@@ -222,9 +235,82 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 	);
 }
 
-//! =============== Task properties ================= //
+//! =============== Task version ================= //
 
-export const taskProperties: TStatus<ITaskProperty> = {
+export const versionProperties: TStatus<IVersionProperty> = {
+	'Version 1': {
+		icon: <LoginIcon />,
+		bgColor: '#ECE8FC',
+	},
+	'Version 2': {
+		icon: <LoginIcon />,
+		bgColor: '#ECE8FC',
+	},
+};
+
+/**
+ * Version dropdown that allows you to select a task property
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A dropdown with the version properties
+ */
+export function VersionPropertiesDropown({
+	className,
+	defaultValue,
+	onValueChange,
+	forDetails,
+}: TTaskStatusesDropdown<'version'>) {
+	const { item, items, onChange } = useStatusValue<'version'>(
+		versionProperties,
+		defaultValue,
+		onValueChange
+	);
+
+	return (
+		<StatusDropdown
+			forDetails={forDetails}
+			className={className}
+			items={items}
+			value={item}
+			defaultItem={!item ? 'version' : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Epic ================= //
+
+/**
+ * Version dropdown that allows you to select a task property
+ * @param {IClassName}  - IClassName - This is the interface that the component will accept.
+ * @returns A dropdown with the version properties
+ */
+export function EpicPropertiesDropdown({
+	className,
+	defaultValue,
+	onValueChange,
+	forDetails,
+}: TTaskStatusesDropdown<'epic'>) {
+	const { item, items, onChange } = useStatusValue<'epic'>(
+		{},
+		defaultValue,
+		onValueChange
+	);
+
+	return (
+		<StatusDropdown
+			forDetails={forDetails}
+			className={className}
+			items={items}
+			value={item}
+			defaultItem={!item ? 'epic' : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+//! =============== Task Status ================= //
+
+export const taskPriorities: TStatus<ITaskPriority> = {
 	Medium: {
 		icon: <LoginIcon />,
 		bgColor: '#ECE8FC',
@@ -252,15 +338,17 @@ export function TaskPropertiesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
+	forDetails,
 }: TTaskStatusesDropdown<'priority'>) {
 	const { item, items, onChange } = useStatusValue<'priority'>(
-		taskProperties,
+		taskPriorities,
 		defaultValue,
 		onValueChange
 	);
 
 	return (
 		<StatusDropdown
+			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
@@ -275,7 +363,7 @@ export function ActiveTaskPropertiesDropdown(
 ) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskProperties,
+		taskPriorities,
 		'priority'
 	);
 
@@ -324,6 +412,7 @@ export function TaskSizesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
+	forDetails,
 }: TTaskStatusesDropdown<'size'>) {
 	const { item, items, onChange } = useStatusValue<'size'>(
 		taskSizes,
@@ -333,6 +422,7 @@ export function TaskSizesDropdown({
 
 	return (
 		<StatusDropdown
+			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
@@ -385,6 +475,7 @@ export function TaskLabelsDropdown({
 	className,
 	defaultValue,
 	onValueChange,
+	forDetails,
 }: TTaskStatusesDropdown<'label'>) {
 	const { item, items, onChange } = useStatusValue<'label'>(
 		taskLabels,
@@ -394,6 +485,7 @@ export function TaskLabelsDropdown({
 
 	return (
 		<StatusDropdown
+			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
@@ -421,6 +513,46 @@ export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
 	);
 }
 
+export function ActiveTaskProjectDropdown(
+	props: IActiveTaskStatuses<'project'>
+) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskLabels,
+		'project'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			forDetails={props.forDetails}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
+export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskLabels,
+		'team'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			forDetails={props.forDetails}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+		/>
+	);
+}
+
 //! =============== FC Status drop down ================= //
 
 export function TaskStatus({
@@ -431,14 +563,22 @@ export function TaskStatus({
 	className,
 	active = true,
 	issueType = 'status',
+	showIssueLabels,
+	forDetails,
 }: PropsWithChildren<
 	TStatusItem &
-		IClassName & { active?: boolean; issueType?: 'status' | 'issue' }
+		IClassName & {
+			active?: boolean;
+			issueType?: 'status' | 'issue';
+			showIssueLabels?: boolean;
+			forDetails?: boolean;
+		}
 >) {
 	return (
 		<div
 			className={clsxm(
-				'py-2 px-4 rounded-xl flex items-center text-sm space-x-3',
+				'py-2 px-4 flex items-center text-sm space-x-3',
+				forDetails ? 'rounded-sm' : 'rounded-xl',
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				issueType === 'issue' && ['rounded-md px-2 text-white'],
 				className
@@ -448,7 +588,9 @@ export function TaskStatus({
 			<div className="flex items-center space-x-3 whitespace-nowrap">
 				{active ? icon : <RecordIcon />}
 
-				{name && issueType !== 'issue' && <span>{name}</span>}
+				{name && (issueType !== 'issue' || showIssueLabels) && (
+					<span>{name}</span>
+				)}
 			</div>
 			{children}
 		</div>
@@ -458,7 +600,7 @@ export function TaskStatus({
 /**
  * Fc Status drop down
  */
-export function StatusDropdown<T extends Required<TStatusItem>>({
+export function StatusDropdown<T extends TStatusItem>({
 	value,
 	onChange,
 	items,
@@ -466,6 +608,8 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 	defaultItem,
 	issueType = 'status',
 	children,
+	showIssueLabels,
+	forDetails,
 	enabled = true,
 }: PropsWithChildren<{
 	value: T | undefined;
@@ -474,6 +618,8 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 	className?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
+	forDetails?: boolean;
+	showIssueLabels?: boolean;
 	enabled?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
@@ -489,16 +635,21 @@ export function StatusDropdown<T extends Required<TStatusItem>>({
 			<Listbox value={value?.name || null} onChange={onChange}>
 				{({ open }) => (
 					<>
-						<Listbox.Button className="w-full">
+						<Listbox.Button className={clsx(!forDetails && 'w-full')}>
 							<TaskStatus
 								{...currentValue}
+								forDetails={forDetails}
 								active={!!value}
+								showIssueLabels={showIssueLabels}
 								issueType={issueType}
 								className={clsxm(
 									'justify-between w-full capitalize',
 									!value && [
-										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-									]
+										'text-dark dark:text-white dark:bg-dark--theme-light',
+									],
+									forDetails && !value
+										? 'bg-transparent border border-solid border-color-[#F2F2F2]'
+										: 'bg-[#F2F2F2]'
 								)}
 							>
 								{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}

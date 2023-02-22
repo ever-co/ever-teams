@@ -1,5 +1,6 @@
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
+import { getPublicState } from '@app/stores/public';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useOutsideClick } from '../useOutsideClick';
@@ -20,6 +21,8 @@ export function useTeamMemberCard(
 ) {
 	const { updateTask, tasks, setActiveTask } = useTeamTasks();
 
+	const publicTeam = useRecoilValue(getPublicState);
+	
 	const { user: authUSer, isTeamManager: isAuthTeamManager } =
 		useAuthenticateUser();
 
@@ -47,6 +50,12 @@ export function useTeamMemberCard(
 				const find = ctask?.members.some((m) => m.id === member.employee.id);
 				setMemberTask(find ? ctask : undefined);
 			}
+		} else if (member && publicTeam) {
+			const ctask = tasks.find((t) =>
+				t.members.some((m) => m.userId === member.employee.userId)
+			);
+			const find = ctask?.members.some((m) => m.id === member.employee.id);
+			setMemberTask(find ? ctask : undefined);
 		}
 	}, [activeTeamTask, isAuthUser, authUSer, member, tasks, setMemberTask]);
 

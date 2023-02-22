@@ -20,6 +20,7 @@ import { TaskEstimate } from './task-estimate';
 import { TaskProgressBar } from './task-progress-bar';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
+import { useRouter } from 'next/router';
 
 type Props = {
 	active?: boolean;
@@ -220,6 +221,8 @@ function TaskInfo({
 	className,
 	task,
 }: IClassName & { task?: Nullable<ITeamTask> }) {
+	const router = useRouter();
+
 	return (
 		<div
 			className={clsxm(
@@ -236,8 +239,9 @@ function TaskInfo({
 					>
 						<div
 							className={clsxm(
-								'text-sm text-ellipsis cursor-default overflow-hidden w-full'
+								'text-sm text-ellipsis cursor-default overflow-hidden w-full cursor-pointer'
 							)}
+							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>
 							<TaskNameInfoDisplay task={task} />
 						</div>
