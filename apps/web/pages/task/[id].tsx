@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
-import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
+import TaskTitleBlock from '@components/pages/task/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 
 const TaskDetails = () => {

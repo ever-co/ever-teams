@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
-import TitleLoader from './title-loader';
+import TitleLoader from './title-block/title-loader';
 
 const TaskTitleBlock = () => {
 	const { updateTitle } = useTeamTasks();
