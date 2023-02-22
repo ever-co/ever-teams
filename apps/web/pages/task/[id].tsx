@@ -18,6 +18,8 @@ const TaskDetails = () => {
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
 
+	console.log(tasks);
+
 	useEffect(() => {
 		if (router.isReady && router.query?.id && tasks.length > 0) {
 			const foundTask = tasks.find(
