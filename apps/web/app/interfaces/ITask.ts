@@ -24,6 +24,7 @@ export type ITeamTask = {
 	teams: SelectedTeam[];
 	creator: Creator;
 	taskNumber: string;
+	privacy: ITaskPrivacy;
 } & ITaskStatusStack;
 
 type SelectedTeam = Pick<
@@ -69,6 +70,8 @@ interface Creator {
 	name: string;
 	employeeId: any;
 }
+
+export type ITaskPrivacy = 'public' | 'private';
 
 export type ITaskPriority = 'Medium' | 'High' | 'Low' | 'Urgent';
 
@@ -127,6 +130,7 @@ export interface ICreateTask {
 	tags: { id: string }[];
 	teams: { id: string }[];
 	estimate: number;
+	privacy: ITaskPrivacy;
 	organizationId: string;
 	tenantId: string;
 }

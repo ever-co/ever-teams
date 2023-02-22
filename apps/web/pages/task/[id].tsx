@@ -23,7 +23,6 @@ const TaskDetails = () => {
 			const foundTask = tasks.find(
 				(x) => x.id === (router.query?.id as string)
 			);
-			console.log(foundTask);
 			foundTask && setTask(foundTask);
 		}
 	}, [tasks, router.isReady, router.query?.id, setTask]);

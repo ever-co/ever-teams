@@ -1,4 +1,5 @@
 import { getActiveTeamIdCookie } from '@app/helpers/cookies';
+import { ICreateTask } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	createTaskRequest,
@@ -37,6 +38,7 @@ export default async function handler(
 					},
 				],
 				tags: [],
+				privacy: 'private',
 				organizationId,
 				tenantId,
 				estimate: 0,
