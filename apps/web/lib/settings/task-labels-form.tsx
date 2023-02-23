@@ -12,6 +12,7 @@ import { Spinner } from '@components/ui/loaders/spinner';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
 import { IconDropdown } from './icon-dropdown';
+import { generateIconList } from './icon-items';
 
 export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
@@ -20,90 +21,32 @@ export const TaskLabelForm = () => {
 	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
+	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
+		'open',
+		'in-progress',
+		'ready',
+		'in-review',
+		'blocked',
+		'completed',
+	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
+		'x-large',
+		'large',
+		'medium',
+		'small',
+		'tiny',
+	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
+		'urgent',
+		'high',
+		'medium',
+		'low',
+	]);
+
 	const iconList: IIcon[] = [
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/urgent.svg`,
-			title: 'Urgent',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/high.svg`,
-			title: 'High',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/medium.svg`,
-			title: 'Medium',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities/low.svg`,
-			title: 'Low',
-		},
-
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/x-large.svg`,
-			title: 'Open',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/large.svg`,
-			title: 'Large',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/medium.svg`,
-			title: 'Medium',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/small.svg`,
-			title: 'Small',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/tiny.svg`,
-			title: 'Tiny',
-		},
-
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/x-large.svg`,
-			title: 'Open',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/large.svg`,
-			title: 'Large',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/medium.svg`,
-			title: 'Medium',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/small.svg`,
-			title: 'Small',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes/tiny.svg`,
-			title: 'Tiny',
-		},
-
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/open.svg`,
-			title: 'Open',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/in-progress.svg`,
-			title: 'In Progress',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/ready.svg`,
-			title: 'Ready',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/in-review.svg`,
-			title: 'In Review',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/blocked.svg`,
-			title: 'Blocked',
-		},
-		{
-			url: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses/completed.svg`,
-			title: 'Completed',
-		},
+		...taskStatusIconList,
+		...taskSizesIconList,
+		...taskPrioritiesIconList,
 	];
 
 	const {
@@ -214,7 +157,13 @@ export const TaskLabelForm = () => {
 
 										<IconDropdown
 											setValue={setValue}
-											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											active={
+												edit
+													? (iconList.find(
+															(icon) => icon.path === edit.icon
+													  ) as IIcon)
+													: null
+											}
 											iconList={iconList}
 										/>
 
@@ -261,7 +210,7 @@ export const TaskLabelForm = () => {
 												label?.name ? label?.name?.split('-').join(' ') : ''
 											}
 											bgColor={label?.color || ''}
-											statusIcon={label?.icon || ''}
+											statusIcon={label?.fullIconUrl || ''}
 											onEdit={() => {
 												setCreateNew(false);
 												setEdit(label);
