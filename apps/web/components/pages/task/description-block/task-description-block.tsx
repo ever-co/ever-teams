@@ -59,12 +59,11 @@ const TaskDescriptionBlock = () => {
 		}
 	}, [task]);
 
-	if (editorConfig)
-		return (
-			<div>
-				<div className="border-b-2  w-full">
-					<div className="py-5"></div>
-
+	return (
+		<div>
+			<div className="border-b-2  w-full">
+				<div className="py-5"></div>
+				{editorConfig ? (
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
 						<RichTextPlugin
@@ -85,8 +84,9 @@ const TaskDescriptionBlock = () => {
 							}}
 						/>
 					</LexicalComposer>
-				</div>
+				) : null}
 			</div>
-		);
+		</div>
+	);
 };
 export default TaskDescriptionBlock;
