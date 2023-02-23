@@ -21,6 +21,7 @@ import {
 	activeTeamIdState,
 	activeTeamManagersState,
 	activeTeamState,
+	isTeamMemberState,
 	organizationTeamsState,
 	teamsFetchingState,
 } from '@app/stores';
@@ -91,6 +92,7 @@ function useCreateOrganizationTeam() {
 	const teamsRef = useSyncRef(teams);
 	const setActiveTeamId = useSetRecoilState(activeTeamIdState);
 	const { refreshToken } = useAuthenticateUser();
+	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 
 	const createOrganizationTeam = useCallback(
 		(name: string) => {
@@ -113,6 +115,9 @@ function useCreateOrganizationTeam() {
 					setOrganizationIdCookie(created.organizationId);
 					// This must be called at the end (Update store)
 					setActiveTeamId(created.id);
+					if (!isTeamMember) {
+						setIsTeamMember(true);
+					}
 
 					/**
 					 * DO NOT REMOVE
@@ -179,13 +184,14 @@ function useUpdateOrganizationTeam() {
 export function useOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
 	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
-	const { logOut, user } = useAuthenticateUser();
+	const { user } = useAuthenticateUser();
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
 	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
+	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } =
@@ -201,16 +207,8 @@ export function useOrganizationTeams() {
 	const loadTeamsData = useCallback(() => {
 		setActiveTeamId(getActiveTeamIdCookie());
 		return queryCall().then((res) => {
-			if (
-				(res.data?.items && res.data?.items?.length === 0) ||
-				(res.data?.items &&
-					user &&
-					res.data.items.every((item) =>
-						item.members.every((member) => member.employee.userId !== user?.id)
-					))
-			) {
-				logOut();
-				return res;
+			if (res.data?.items && res.data?.items?.length === 0) {
+				setIsTeamMember(false);
 			}
 			setTeams(res.data?.items || []);
 			return res;
@@ -282,5 +280,6 @@ export function useOrganizationTeams() {
 		updateOrganizationTeam,
 		updateOTeamLoading,
 		setTeams,
+		isTeamMember,
 	};
 }
