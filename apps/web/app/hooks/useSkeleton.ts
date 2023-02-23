@@ -6,7 +6,7 @@ export function useSkeleton() {
 	useEffect(() => {
 		setTimeout(() => {
 			setShowSkeleton(true);
-		}, 2500);
+		}, 2000);
 		return setShowSkeleton(false);
 	}, []);
 

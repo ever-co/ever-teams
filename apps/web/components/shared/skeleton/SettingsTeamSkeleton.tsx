@@ -14,14 +14,14 @@ const SettingsTeamSkeleton = () => {
 						height={20}
 						width={180}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light"
+						className="dark:bg-[#272930]"
 					/>
 				</Container>
 			</div>
 			<Container className="mb-10">
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
-					<div className="flex flex-col w-full">
+					<div className="flex flex-col w-full dark:bg-[#191A1F]">
 						<Card
 							className="dark:bg-dark--theme p-[32px] mt-[36px]"
 							shadow="bigger"
@@ -30,14 +30,14 @@ const SettingsTeamSkeleton = () => {
 								<Skeleton
 									width={200}
 									borderRadius={20}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#272930]"
 								/>
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
 								<Skeleton
 									width={300}
 									borderRadius={20}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#272930]"
 								/>
 							</Text>
 							<div className="w-[98%] md:w-[930px]">
@@ -48,7 +48,7 @@ const SettingsTeamSkeleton = () => {
 												<Skeleton
 													width={200}
 													borderRadius={20}
-													className="dark:bg-dark--theme-light"
+													className="dark:bg-[#272930]"
 												/>
 
 												<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -60,24 +60,24 @@ const SettingsTeamSkeleton = () => {
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-dark--theme-light"
+														className="dark:bg-[#272930]"
 													/>
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-dark--theme-light mt-8"
+														className="dark:bg-[#272930] mt-8"
 													/>
 												</div>
 												<div className="flex flex-col">
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-dark--theme-light"
+														className="dark:bg-[#272930]"
 													/>
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-dark--theme-light mt-8"
+														className="dark:bg-[#272930] mt-8"
 													/>
 												</div>
 												<div className="flex gap-12">
@@ -92,7 +92,7 @@ const SettingsTeamSkeleton = () => {
 															width={105}
 															height={54}
 															borderRadius={8}
-															className="dark:bg-dark--theme-light"
+															className="dark:bg-[#272930]"
 														/>
 													</div>
 												</div>
@@ -101,7 +101,7 @@ const SettingsTeamSkeleton = () => {
 												<Skeleton
 													width={200}
 													borderRadius={20}
-													className="dark:bg-dark--theme-light"
+													className="dark:bg-[#272930]"
 												/>
 
 												<div className="flex flex-row flex-grow-0 items-center justify-between w-1/2">
@@ -117,7 +117,7 @@ const SettingsTeamSkeleton = () => {
 													<Skeleton
 														width={200}
 														borderRadius={20}
-														className="dark:bg-dark--theme-light"
+														className="dark:bg-[#272930]"
 													/>
 												</Text>
 												<div className="flex gap-3 mt-4">
@@ -159,24 +159,24 @@ const SettingsTeamSkeleton = () => {
 									<Skeleton
 										width={200}
 										borderRadius={20}
-										className="dark:bg-dark--theme-light"
+										className="dark:bg-[#272930]"
 									/>
 									<Skeleton
 										width={200}
 										borderRadius={20}
-										className="dark:bg-dark--theme-light"
+										className="dark:bg-[#272930]"
 									/>
 								</div>
 								<div className="flex justify-between items-center mt-20 ">
 									<Skeleton
 										width={200}
 										borderRadius={20}
-										className="dark:bg-dark--theme-light"
+										className="dark:bg-[#272930]"
 									/>
 									<Skeleton
 										width={200}
 										borderRadius={20}
-										className="dark:bg-dark--theme-light"
+										className="dark:bg-[#272930]"
 									/>
 								</div>
 							</div>
@@ -190,7 +190,7 @@ const SettingsTeamSkeleton = () => {
 									width={200}
 									borderRadius={20}
 									height={25}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#272930]"
 								/>
 							</Text>
 							<DangerZoneSkeleton />

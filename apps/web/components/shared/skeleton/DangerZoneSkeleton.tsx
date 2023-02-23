@@ -13,7 +13,7 @@ const DangerZoneSkeleton = () => {
 									width={200}
 									borderRadius={20}
 									height={25}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 								/>
 							</Text>
 						</div>
@@ -23,19 +23,19 @@ const DangerZoneSkeleton = () => {
 									width={400}
 									borderRadius={20}
 									height={15}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 								/>
 								<Skeleton
 									width={100}
 									borderRadius={20}
 									height={15}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 								/>
 							</Text>
 						</div>
 						<div className="flex-auto w-20">
 							<Skeleton
-								className="float-right dark:bg-dark--theme-light"
+								className="float-right dark:bg-[#353741]"
 								height={45}
 								borderRadius={8}
 							/>
@@ -45,7 +45,7 @@ const DangerZoneSkeleton = () => {
 						<div className="flex-auto">
 							<Text className="text-xl  font-normal">
 								<Skeleton
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 									width={200}
 									borderRadius={20}
 									height={25}
@@ -56,13 +56,13 @@ const DangerZoneSkeleton = () => {
 						<div className="flex-auto">
 							<Text className="text-md text-gray-400 font-normal">
 								<Skeleton
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 									width={400}
 									borderRadius={20}
 									height={15}
 								/>
 								<Skeleton
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 									width={100}
 									borderRadius={20}
 									height={15}
@@ -73,7 +73,7 @@ const DangerZoneSkeleton = () => {
 							<Skeleton
 								height={45}
 								borderRadius={8}
-								className="float-right dark:bg-dark--theme-light"
+								className="float-right dark:bg-[#353741]"
 							/>
 						</div>
 					</div>

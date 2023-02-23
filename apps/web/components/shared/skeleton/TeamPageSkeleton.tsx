@@ -12,69 +12,121 @@ const TeamPageSkeleton = () => {
 	return (
 		<MainLayout>
 			<MainHeader>
-				<Skeleton
-					height={20}
-					width={180}
-					borderRadius={10}
-					className="dark:bg-dark--theme-light"
-				/>
-				<div className="w-full flex flex-col">
+				<Container>
 					<Skeleton
-						height={50}
-						width={850}
-						borderRadius={25}
-						className="dark:bg-dark--theme-light mt-16"
+						height={20}
+						width={180}
+						borderRadius={10}
+						className="dark:bg-[#353741]"
 					/>
+					<div className="w-full flex flex-col p-4 rounded-2xl dark:bg-[#1F2126] mt-4">
+						<Skeleton
+							height={50}
+							width={850}
+							borderRadius={25}
+							className="dark:bg-[#353741] mt-8"
+						/>
 
-					<div className="flex items-center">
-						{' '}
-						<div className="flex-1 flex flex-col mr-10 lg:mt-0 mt-8">
-							<div className="flex flex-col lg:flex-row justify-between items-center space-x-3">
-								<div className="flex-1 flex items-center space-x-4 ">
-									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light" />
+						<div className="flex items-center">
+							{' '}
+							<div className="flex-1 flex flex-col mr-10 lg:mt-0 mt-8">
+								<div className="flex flex-col lg:flex-row justify-between items-center space-x-3">
+									<div className="flex-1 flex items-center space-x-4 ">
+										<Skeleton
+											height={25}
+											width={180}
+											borderRadius={15}
+											className="dark:bg-[#353741]"
+										/>
 
-									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light"/>
+										<Skeleton
+											height={25}
+											width={180}
+											borderRadius={15}
+											className="dark:bg-[#353741]"
+										/>
 
-									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light"/>
+										<Skeleton
+											height={25}
+											width={180}
+											borderRadius={15}
+											className="dark:bg-[#353741]"
+										/>
 
-									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light"/>
+										<Skeleton
+											height={25}
+											width={180}
+											borderRadius={15}
+											className="dark:bg-[#353741]"
+										/>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div style={{ marginTop: '-60px' }}>
-							<div className="pr-5">
-								<div className="w-full">
-									<Skeleton
-										height={140}
-										width={280}
-										borderRadius={10}
-										className="dark:bg-dark--theme-light"
-									/>
+							<div style={{ marginTop: '-60px' }}>
+								<div className="pr-5">
+									<div className="w-full">
+										<Skeleton
+											height={140}
+											width={280}
+											borderRadius={10}
+											className="dark:bg-[#353741]"
+										/>
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-				<ul className="flex row font-normal justify-between mb-3 mt-16">
-					<li>
-						<Skeleton width={80} height={20} borderRadius={25} />
-					</li>
-					<li>
-						<Skeleton width={80} height={20} borderRadius={25} />
-					</li>
-					<li>
-						<Skeleton width={80} height={20} borderRadius={25} />
-					</li>
-					<li>
-						<Skeleton width={80} height={20} borderRadius={25} />
-					</li>
-					<li>
-						<Skeleton width={80} height={20} borderRadius={25} />
-					</li>
-					<li>
-						<Skeleton width={80} height={20} borderRadius={25} />
-					</li>
-				</ul>
+					<ul className="flex row font-normal justify-between mb-3 mt-16">
+						<li>
+							<Skeleton
+								width={80}
+								height={20}
+								borderRadius={25}
+								className="dark:bg-[#353741]"
+							/>
+						</li>
+						<li>
+							<Skeleton
+								width={80}
+								height={20}
+								borderRadius={25}
+								className="dark:bg-[#353741]"
+							/>
+						</li>
+						<li>
+							<Skeleton
+								width={80}
+								height={20}
+								borderRadius={25}
+								className="dark:bg-[#353741]"
+							/>
+						</li>
+						<li>
+							<Skeleton
+								width={80}
+								height={20}
+								borderRadius={25}
+								className="dark:bg-[#353741]"
+							/>
+						</li>
+						<li>
+							<Skeleton
+								width={80}
+								height={20}
+								borderRadius={25}
+								className="dark:bg-[#353741]"
+							/>
+						</li>
+						<li>
+							<Skeleton
+								width={80}
+								height={20}
+								borderRadius={25}
+								className="dark:bg-[#353741]"
+							/>
+						</li>
+					</ul>
+				</Container>
 			</MainHeader>
 			<Container className="mb-10">
 				{TeamCards}
@@ -83,12 +135,12 @@ const TeamPageSkeleton = () => {
 						<DraggerIcon />
 					</div>
 					<div className="w-[330px] px-4 flex space-x-3 items-center">
-						<div className="opacity-40 w-8 h-8 bg-slate-400 rounded-full" />
+						<div className="opacity-40 w-8 h-8 bg-slate-400 dark:bg-[#353741] rounded-full" />
 						<Skeleton
 							height={20}
 							width={180}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 					</div>
 					<VerticalSeparator />
@@ -98,7 +150,7 @@ const TeamPageSkeleton = () => {
 							height={10}
 							width={120}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light mr-2"
+							className="dark:bg-[#353741] mr-2"
 						/>
 					</div>
 					<VerticalSeparator className="ml-2" />
@@ -108,13 +160,13 @@ const TeamPageSkeleton = () => {
 							height={20}
 							width={120}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 						<Skeleton
 							height={10}
 							width={160}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 					</div>
 					<VerticalSeparator />
@@ -124,13 +176,13 @@ const TeamPageSkeleton = () => {
 							height={20}
 							width={120}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 						<Skeleton
 							height={10}
 							width={160}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 					</div>
 					<VerticalSeparator />
@@ -140,13 +192,13 @@ const TeamPageSkeleton = () => {
 							height={20}
 							width={120}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 						<Skeleton
 							height={10}
 							width={160}
 							borderRadius={10}
-							className="dark:bg-dark--theme-light"
+							className="dark:bg-[#353741]"
 						/>
 					</div>
 				</Card>

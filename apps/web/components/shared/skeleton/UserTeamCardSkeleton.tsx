@@ -12,13 +12,13 @@ const UserTeamCardSkeleton = () => {
 				<DraggerIcon />
 			</div>
 			<div className="w-[330px] px-4 flex space-x-3 items-center">
-				<div className="opacity-40 w-8 h-8 bg-slate-400 rounded-full" />
-				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] rounded-full" />
+				<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-[#353741] rounded-full" />
 				<Skeleton
 					height={20}
 					width={180}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 			</div>
 			<VerticalSeparator />
@@ -29,13 +29,13 @@ const UserTeamCardSkeleton = () => {
 						height={10}
 						width={280}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light ml-2"
+						className="dark:bg-[#353741] ml-2"
 					/>
 					<Skeleton
 						height={10}
 						width={120}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light ml-2"
+						className="dark:bg-[#353741] ml-2"
 					/>
 				</div>
 				<div className="flex justify-around items-center">
@@ -43,19 +43,19 @@ const UserTeamCardSkeleton = () => {
 						height={15}
 						width={80}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light mr-2"
+						className="dark:bg-[#353741] mr-2"
 					/>
 					<Skeleton
 						height={15}
 						width={80}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light mr-2"
+						className="dark:bg-[#353741] mr-2"
 					/>
 					<Skeleton
 						height={15}
 						width={80}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light"
+						className="dark:bg-[#353741]"
 					/>
 				</div>
 			</div>
@@ -66,13 +66,13 @@ const UserTeamCardSkeleton = () => {
 					height={20}
 					width={120}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 				<Skeleton
 					height={10}
 					width={160}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 			</div>
 			<VerticalSeparator />
@@ -82,13 +82,13 @@ const UserTeamCardSkeleton = () => {
 					height={20}
 					width={120}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 				<Skeleton
 					height={10}
 					width={160}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 			</div>
 			<VerticalSeparator />
@@ -98,13 +98,13 @@ const UserTeamCardSkeleton = () => {
 					height={20}
 					width={120}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 				<Skeleton
 					height={10}
 					width={160}
 					borderRadius={10}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#353741]"
 				/>
 			</div>
 		</Card>
