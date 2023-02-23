@@ -7,14 +7,14 @@ const LeftSideSettingMenuSkeleton = () => {
 				width={150}
 				height={35}
 				borderRadius={20}
-				className="dark:bg-dark--theme-light"
+				className="dark:bg-[#272930]"
 			/>
 			<div className="mt-16">
 				<Skeleton
 					width={200}
 					height={25}
 					borderRadius={20}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#272930]"
 				/>
 			</div>
 			<div className="mt-3">
@@ -22,7 +22,7 @@ const LeftSideSettingMenuSkeleton = () => {
 					width={200}
 					height={25}
 					borderRadius={20}
-					className="dark:bg-dark--theme-light"
+					className="dark:bg-[#272930]"
 				/>
 			</div>
 		</div>

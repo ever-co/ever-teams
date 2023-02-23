@@ -13,31 +13,31 @@ const SettingsPersonlalSkeleton = () => {
 						height={20}
 						width={180}
 						borderRadius={10}
-						className="dark:bg-dark--theme-light"
+						className="dark:bg-[#272930]"
 					/>
 				</Container>
 			</div>
 
-			<Container className="mb-10">
+			<Container className="mb-10" >
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
-					<div className="flex flex-col w-full">
-						<Card
-							className="dark:bg-dark--theme p-[32px] mt-[5px]"
+					<div className="flex flex-col w-full dark:bg-[#191A1F]">
+					<Card
+							className="dark:bg-dark--theme p-[32px] mt-[36px]"
 							shadow="bigger"
 						>
 							<Text className="text-4xl font-medium mb-2">
 								<Skeleton
 									width={200}
 									borderRadius={20}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#272930]"
 								/>
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
 								<Skeleton
 									width={300}
 									borderRadius={20}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#272930]"
 								/>
 							</Text>
 							<div className="flex flex-col justify-between items-center">
@@ -49,7 +49,7 @@ const SettingsPersonlalSkeleton = () => {
 													circle={true}
 													width={80}
 													height={80}
-													className="relative mt-[32px] dark:bg-dark--theme-light"
+													className="relative mt-[32px] dark:bg-[#272930]"
 												/>
 											</div>
 										</div>
@@ -67,20 +67,20 @@ const SettingsPersonlalSkeleton = () => {
 															<Skeleton
 																width={100}
 																borderRadius={20}
-																className="dark:bg-dark--theme-light"
+																className="dark:bg-[#272930]"
 															/>
 														</Text>
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] m-0 h-[54px]"
+															className="md:w-[220px] m-0 h-[54px] dark:bg-[#272930] rounded-lg"
 														/>
 													</div>
 													<div className="mt-[2rem]">
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] m-0  h-[54px]"
+															className="md:w-[220px] m-0  h-[54px] dark:bg-[#272930] rounded-lg"
 														/>
 													</div>
 												</div>
@@ -89,7 +89,7 @@ const SettingsPersonlalSkeleton = () => {
 														width={150}
 														borderRadius={8}
 														height={54}
-														className="dark:bg-dark--theme-light"
+														className="dark:bg-[#272930]"
 													/>
 												</div>
 											</div>
@@ -100,20 +100,20 @@ const SettingsPersonlalSkeleton = () => {
 															<Skeleton
 																width={100}
 																borderRadius={20}
-																className="dark:bg-dark--theme-light"
+																className="dark:bg-[#272930]"
 															/>
 														</Text>
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] m-0  h-[54px]"
+															className="md:w-[220px] m-0  h-[54px] dark:bg-[#272930] rounded-lg"
 														/>
 													</div>
 													<div className="mt-8">
 														<InputField
 															type="text"
 															placeholder=""
-															className="md:w-[220px] h-[54px] "
+															className="md:w-[220px] h-[54px]  dark:bg-[#272930] rounded-lg"
 														/>
 													</div>
 												</div>
@@ -122,7 +122,7 @@ const SettingsPersonlalSkeleton = () => {
 														width={150}
 														borderRadius={8}
 														height={54}
-														className="dark:bg-dark--theme-light"
+														className="dark:bg-[#272930]"
 													/>
 												</div>
 											</div>
@@ -133,7 +133,7 @@ const SettingsPersonlalSkeleton = () => {
 															width={200}
 															borderRadius={20}
 															height={25}
-															className="dark:bg-dark--theme-light"
+															className="dark:bg-[#272930]"
 														/>
 													</Text>
 												</div>
@@ -145,7 +145,7 @@ const SettingsPersonlalSkeleton = () => {
 															width={300}
 															borderRadius={20}
 															height={35}
-															className="dark:bg-dark--theme-light"
+															className="dark:bg-[#272930]"
 														/>
 													</Text>
 												</div>
@@ -157,7 +157,7 @@ const SettingsPersonlalSkeleton = () => {
 															width={200}
 															borderRadius={20}
 															height={25}
-															className="dark:bg-dark--theme-light"
+															className="dark:bg-[#272930]"
 														/>
 													</Text>
 												</div>
@@ -165,7 +165,7 @@ const SettingsPersonlalSkeleton = () => {
 											<InputField
 												type="text"
 												placeholder=""
-												className="md:w-[220px] m-0  h-[54px] "
+												className="w-full m-0 h-[54px]  dark:bg-[#272930] rounded-lg"
 											/>
 
 											<div className="flex items-center justify-between w-full gap-5 mt-8">
@@ -175,7 +175,7 @@ const SettingsPersonlalSkeleton = () => {
 															width={200}
 															borderRadius={20}
 															height={25}
-															className="dark:bg-dark--theme-light"
+															className="dark:bg-[#272930]"
 														/>
 													</Text>
 												</div>
@@ -188,7 +188,7 @@ const SettingsPersonlalSkeleton = () => {
 															width={300}
 															borderRadius={20}
 															height={30}
-															className="dark:bg-dark--theme-light"
+															className="dark:bg-[#272930]"
 														/>
 													</Text>
 												</div>
@@ -199,7 +199,7 @@ const SettingsPersonlalSkeleton = () => {
 							</div>
 						</Card>
 						<Card
-							className="dark:bg-dark--theme p-[32px] mt-[36px]"
+							className="dark:bg-[#272930] p-[32px] mt-[36px]"
 							shadow="bigger"
 						>
 							<Text className="text-2xl text-[#EB6961] font-normal">
@@ -207,7 +207,7 @@ const SettingsPersonlalSkeleton = () => {
 									width={200}
 									borderRadius={20}
 									height={25}
-									className="dark:bg-dark--theme-light"
+									className="dark:bg-[#353741]"
 								/>
 							</Text>
 							<DangerZoneSkeleton />

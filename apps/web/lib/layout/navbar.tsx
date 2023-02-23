@@ -11,10 +11,10 @@ const HeaderSkeleton = () => {
 		<nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[999]">
 			<Container>
 				<div className="w-full flex justify-between items-center min-h-[70px]">
-					<Skeleton height={45} width={200} borderRadius={20} />
+					<Skeleton height={45} width={200} borderRadius={20} className="dark:bg-[#272930]"/>
 					<div className="flex space-x-5 items-center">
-						<Skeleton height={45} width={175} borderRadius={20} />
-						<Skeleton circle={true} height={45} width={45} />
+						<Skeleton height={45} width={175} borderRadius={20} className="dark:bg-[#272930]" />
+						<Skeleton circle={true} height={45} width={45} className="dark:bg-[#272930]" />
 					</div>
 				</div>
 			</Container>

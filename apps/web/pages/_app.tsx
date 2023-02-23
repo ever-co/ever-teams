@@ -32,7 +32,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 			</Head>
 			<RecoilRoot>
 				<ThemeProvider attribute="class">
-					<SkeletonTheme baseColor="#E6E6E8" highlightColor="#6B7280">
+					<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
 						<AppState />
 						<Component {...pageProps} />
 					</SkeletonTheme>
