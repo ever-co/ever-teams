@@ -12,6 +12,7 @@ import { IColor, IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
 import { IconDropdown } from './icon-dropdown';
+import { generateIconList } from './icon-items';
 
 export const TaskStatusesForm = () => {
 	const [user] = useRecoilState(userState);
@@ -20,33 +21,14 @@ export const TaskStatusesForm = () => {
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
-	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-statuses`;
-	const iconList: IIcon[] = [
-		{
-			url: `${baseIconUrl}/open.svg`,
-			title: 'Open',
-		},
-		{
-			url: `${baseIconUrl}/in-progress.svg`,
-			title: 'In Progress',
-		},
-		{
-			url: `${baseIconUrl}/ready.svg`,
-			title: 'Ready',
-		},
-		{
-			url: `${baseIconUrl}/in-review.svg`,
-			title: 'In Review',
-		},
-		{
-			url: `${baseIconUrl}/blocked.svg`,
-			title: 'Blocked',
-		},
-		{
-			url: `${baseIconUrl}/completed.svg`,
-			title: 'Completed',
-		},
-	];
+	const iconList: IIcon[] = generateIconList('task-statuses', [
+		'open',
+		'in-progress',
+		'ready',
+		'in-review',
+		'blocked',
+		'completed',
+	]);
 
 	const {
 		loading,
@@ -163,7 +145,13 @@ export const TaskStatusesForm = () => {
 
 										<IconDropdown
 											setValue={setValue}
-											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											active={
+												edit
+													? (iconList.find(
+															(icon) => icon.path === edit.icon
+													  ) as IIcon)
+													: null
+											}
 											iconList={iconList}
 										/>
 
@@ -211,7 +199,7 @@ export const TaskStatusesForm = () => {
 												status?.name ? status?.name?.split('-').join(' ') : ''
 											}
 											bgColor={status?.color || ''}
-											statusIcon={status?.icon || ''}
+											statusIcon={status?.fullIconUrl || ''}
 											onEdit={() => {
 												setCreateNew(false);
 												setEdit(status);
