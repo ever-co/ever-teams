@@ -26,7 +26,7 @@ export const IconDropdown = ({
 		(item: IconItem) => {
 			if (item.data) {
 				setIconItem(item);
-				setValue('icon', item.data.url);
+				setValue('icon', item.data.path);
 			}
 		},
 		[setIconItem, setValue]
@@ -39,14 +39,14 @@ export const IconDropdown = ({
 	}, [iconItem, items]);
 
 	useEffect(() => {
-		if (active && icons.every((icon) => icon.url !== active.url)) {
+		if (active && icons.every((icon) => icon.path !== active.path)) {
 			setIcons([...icons, active]);
 		}
 	}, [icons, setIcons, setIconItem, active]);
 
 	useEffect(() => {
 		if (active) {
-			setIconItem(items.find((item: any) => item.key === active?.url));
+			setIconItem(items.find((item: any) => item.key === active?.path));
 		}
 	}, [active, items]);
 
