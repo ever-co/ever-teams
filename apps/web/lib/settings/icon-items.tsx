@@ -8,20 +8,24 @@ export type IconItem = DropdownItem<IIcon>;
 export function mapIconItems(icons: IIcon[]) {
 	const items = icons.map((icon: IIcon) => {
 		return {
-			key: icon.url,
+			key: icon.path,
 			Label: ({ selected }: { selected: boolean }) => (
 				<div className="flex justify-between w-full">
 					<div className="max-w-[90%]">
 						<IconItem
-							title={icon.title}
+							title={icon.title?.split('-').join(' ')}
 							className={clsxm(selected && ['font-medium'])}
-							url={icon.url}
+							url={icon.fullUrl || ''}
 						/>
 					</div>
 				</div>
 			),
 			selectedLabel: (
-				<IconItem title={icon.title} url={icon.url} className="py-2 mb-0" />
+				<IconItem
+					title={icon.title}
+					url={icon.fullUrl || ''}
+					className="py-2 mb-0"
+				/>
 			),
 			data: icon,
 		};
@@ -43,7 +47,7 @@ export function mapIconItems(icons: IIcon[]) {
 			selectedLabel: (
 				<IconItem title={'Icons'} url={''} className="py-2 mb-0" />
 			),
-			data: { title: 'Icons', url: '' },
+			data: { title: 'Icons', fullUrl: '' },
 		});
 	}
 
@@ -95,11 +99,21 @@ export function IconItem({
 			<span
 				className={clsxm(
 					'text-normal',
-					'whitespace-nowrap text-ellipsis overflow-hidden'
+					'whitespace-nowrap text-ellipsis overflow-hidden capitalize'
 				)}
 			>
 				{title}
 			</span>
 		</div>
 	);
+}
+
+export function generateIconList(iconFor: string, icons: string[]) {
+	return icons.map((icon) => {
+		return {
+			fullUrl: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/${iconFor}/${icon}.svg`,
+			path: `ever-icons/${iconFor}/${icon}.svg`,
+			title: icon,
+		};
+	});
 }

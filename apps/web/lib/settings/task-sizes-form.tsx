@@ -12,6 +12,7 @@ import { IColor, IIcon, ITaskSizesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
 import { IconDropdown } from './icon-dropdown';
+import { generateIconList } from './icon-items';
 
 export const TaskSizesForm = () => {
 	const user = useRecoilValue(userState);
@@ -21,29 +22,13 @@ export const TaskSizesForm = () => {
 
 	const { trans } = useTranslation('settingsTeam');
 
-	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-sizes`;
-	const iconList: IIcon[] = [
-		{
-			url: `${baseIconUrl}/x-large.svg`,
-			title: 'Open',
-		},
-		{
-			url: `${baseIconUrl}/large.svg`,
-			title: 'Large',
-		},
-		{
-			url: `${baseIconUrl}/medium.svg`,
-			title: 'Medium',
-		},
-		{
-			url: `${baseIconUrl}/small.svg`,
-			title: 'Small',
-		},
-		{
-			url: `${baseIconUrl}/tiny.svg`,
-			title: 'Tiny',
-		},
-	];
+	const iconList: IIcon[] = generateIconList('task-sizes', [
+		'x-large',
+		'large',
+		'medium',
+		'small',
+		'tiny',
+	]);
 
 	const {
 		loading,
@@ -153,7 +138,13 @@ export const TaskSizesForm = () => {
 
 										<IconDropdown
 											setValue={setValue}
-											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											active={
+												edit
+													? (iconList.find(
+															(icon) => icon.path === edit.icon
+													  ) as IIcon)
+													: null
+											}
 											iconList={iconList}
 										/>
 
@@ -201,7 +192,7 @@ export const TaskSizesForm = () => {
 												size?.name ? size?.name?.split('-').join(' ') : ''
 											}
 											bgColor={size?.color || ''}
-											statusIcon={size?.icon || ''}
+											statusIcon={size?.fullIconUrl || ''}
 											onEdit={() => {
 												setCreateNew(false);
 												setEdit(size);

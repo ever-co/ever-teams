@@ -8,6 +8,7 @@ export interface ITaskStatusItemList {
 	value?: string;
 	description?: string;
 	icon?: string;
+	fullIconUrl?: string;
 	color?: string;
 	is_system?: boolean;
 	isSystem?: boolean;
