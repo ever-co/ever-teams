@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { View, ScrollView, Text, ViewStyle, TextStyle, Dimensions } from "react-native";
+import { View, ScrollView, Text, ViewStyle, TextStyle, Dimensions, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
 import { Screen } from "../../../components";
 import { useStores } from "../../../models";
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator";
@@ -16,12 +16,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAppTheme } from "../../../app";
 import { observer } from "mobx-react-lite";
 import Animated from "react-native-reanimated";
-import UpdateFullNameForm from "./components/UpdateFullNameForm";
 import { useSettings } from "../../../services/hooks/features/useSettings";
 import { ActivityIndicator } from "react-native-paper";
 import FlashMessage from "react-native-flash-message";
+import BottomSheetContent from "./components/BottomSheetContent";
 
-
+export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2";
 
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Setting">> = function AuthenticatedDrawerScreen(_props) {
     const { colors } = useAppTheme();
@@ -40,6 +40,8 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
     const [activeTab, setActiveTab] = useState(1)
     const [languageModal, setLanguageModal] = useState(false)
     const [showNamesPopup, setShowNamesPopup] = useState(false)
+    const [isOpen, setIsOpen] = useState(false)
+    const [showPopup, setShowPopup] = useState<IPopup>(null)
     const [lang, setLang] = useState<ISupportedLanguage>(supportedLanguages[2])
 
     const fall = new Animated.Value(1)
@@ -58,22 +60,60 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
         setShowNamesPopup(true)
         sheetRef.current.snapTo(0)
     }
+    const openBottomSheet = (name: IPopup) => {
+        switch (name) {
+            case "Avatar":
+                setShowPopup("Avatar")
+                setIsOpen(true)
+                sheetRef.current.snapTo(1)
+                return;
+            case "Avatar 2":
+                setShowPopup("Avatar")
+                setIsOpen(true)
+                sheetRef.current.snapTo(3)
+                return;
+            case "Names":
+                setShowPopup("Names")
+                setIsOpen(true)
+                sheetRef.current.snapTo(0)
+                return
+            case "Contact":
+                return;
+            case "Language":
+                return;
+            case "TimeZone":
+                return;
+            case "Schedule":
+                return;
+            default:
+                return;
+        }
+    }
+
     useEffect(() => {
         setLanguageLabel();
     }, [])
     return (
         <>
-            <Screen preset="scroll" ScrollViewProps={{ bounces: false }} contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
+            <Screen preset="fixed" contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
                 {/* <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} /> */}
-                <View style={{ flex: 1 , zIndex:100}}>
-                    {languageModal || showNamesPopup && <BlurView tint="dark" intensity={28} style={$blurContainer} />}
+                <View style={{ flex: 1, zIndex: 100 }}>
+                    {isOpen && <TouchableWithoutFeedback
+                        onPress={() => {
+                            setIsOpen(false)
+                            sheetRef.current.snapTo(2)
+                        }
+                        }>
+                        <BlurView tint="dark" intensity={15} style={$blurContainer} />
+                    </TouchableWithoutFeedback>
+                    }
                     <View style={[$headerContainer, { backgroundColor: colors.background }]}>
                         <SettingHeader {..._props} />
                         <SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
                     </View>
                     <View style={{ flex: 5 }}>
                         {isLoading ?
-                            <View style={{ flex:1, justifyContent: "center", alignItems: "center", width: "100%" }}>
+                            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", width: "100%" }}>
                                 <ActivityIndicator size={"small"} />
                             </View> :
                             <ScrollView bounces={false}>
@@ -84,12 +124,12 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                             imageUrl={user?.imageUrl}
                                             buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
                                             onDelete={() => { }}
-                                            onChange={() => { }}
+                                            onChange={() => openBottomSheet("Avatar")}
                                         />
-                                        <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => showFullNameForm()} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names")} />
                                         <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => { }} />
                                         <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
-                                        <SingleInfo onPress={() => setLanguageModal(true)} title={translate("settingScreen.personalSection.language")} value={"lang.locale"} />
+                                        <SingleInfo onPress={() => { }} title={translate("settingScreen.personalSection.language")} value={"lang.locale"} />
                                         <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={"Eastern Time Zone (UTC-05:00)"} onPress={() => { }} />
                                         <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} onPress={() => { }} />
 
@@ -128,27 +168,28 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                     // TEAM SECTION CONTENT ENDS HERE
                                 }
                             </ScrollView>
-                            }
+                        }
                     </View>
                 </View>
                 <BottomSheet
                     ref={sheetRef}
-                    snapPoints={[340, 0]}
+                    snapPoints={[340, 174, 0, 611]}
                     borderRadius={24}
                     initialSnap={1}
                     callbackNode={fall}
                     enabledGestureInteraction={true}
-                    renderContent={() => (
-                        <UpdateFullNameForm
-                            user={user}
-                            onUpdateFullName={updateUserIfo}
+                    renderContent={() =>
+                        <BottomSheetContent
+                            openedSheet={showPopup}
                             onDismiss={() => {
-                                setShowNamesPopup(false)
-                                sheetRef.current.snapTo(1)
-                            }} />
-                    )}
+                                setIsOpen(false)
+                                sheetRef.current.snapTo(2)
+                            }}
+                            openBottomSheet={openBottomSheet}
+                        />
+                    }
                 />
-                <FlashMessage position={"bottom"}/>
+                <FlashMessage position={"bottom"} />
             </Screen>
         </>
 

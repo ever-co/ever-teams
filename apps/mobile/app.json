@@ -16,7 +16,19 @@
       "fallbackToCacheTimeout": 0
     },
     "jsEngine": "hermes",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ]
+    ],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
       "package": "gauzy.team",
@@ -39,6 +51,11 @@
         "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
         "resizeMode": "cover",
         "backgroundColor": "#ffffff"
+      },
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
+        "NSPhotoLibraryUsageDescription":"",
+        "NSPhotoLibraryAddUsageDescription":""
       }
     },
     "web": {
