@@ -29,6 +29,17 @@ const TaskDescriptionBlock = () => {
 				onError(error: any) {
 					throw error;
 				},
+				theme: {
+					root: 'rounded h-full min-h-[200px] focus:outline-none',
+					link: 'cursor-pointer',
+					text: {
+						bold: 'font-semibold',
+						underline: 'underline',
+						italic: 'italic',
+						strikethrough: 'line-through',
+						underlineStrikethrough: 'underlined-line-through',
+					},
+				},
 				nodes: [
 					HeadingNode,
 					ListNode,
@@ -42,6 +53,7 @@ const TaskDescriptionBlock = () => {
 					AutoLinkNode,
 					LinkNode,
 				],
+
 				editorState: task.description !== '' ? task.description : undefined,
 			});
 		}
