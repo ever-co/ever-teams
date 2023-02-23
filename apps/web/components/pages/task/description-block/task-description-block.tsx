@@ -15,39 +15,48 @@ import { AutoLinkNode, LinkNode } from '@lexical/link';
 import DescriptionFooter from './decription-footer';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import { useState } from 'react';
-import DescriptionLoader from './description-loader';
+import { useEffect, useState } from 'react';
 
 const TaskDescriptionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const [task] = useRecoilState(detailedTaskState);
+	const [editorConfig, setEditorConfig] = useState<any>();
 
-	const editorConfig = {
-		namespace: 'MyEditor',
-		onError(error: any) {
-			throw error;
-		},
-		nodes: [
-			HeadingNode,
-			ListNode,
-			ListItemNode,
-			QuoteNode,
-			CodeNode,
-			CodeHighlightNode,
-			TableNode,
-			TableCellNode,
-			TableRowNode,
-			AutoLinkNode,
-			LinkNode,
-		],
-		editorState: task?.description ? task.description : undefined,
+	useEffect(() => {
+		if (task) {
+			setEditorConfig({
+				namespace: 'MyEditor',
+				onError(error: any) {
+					throw error;
+				},
+				nodes: [
+					HeadingNode,
+					ListNode,
+					ListItemNode,
+					QuoteNode,
+					CodeNode,
+					CodeHighlightNode,
+					TableNode,
+					TableCellNode,
+					TableRowNode,
+					AutoLinkNode,
+					LinkNode,
+				],
+				editorState: task.description !== '' ? task.description : undefined,
+			});
+		}
+	}, [task]);
+
+	const onChange = () => {
+		setIsUpdated(true);
 	};
 
-	return (
-		<div>
-			<div className="border-b-2  w-full">
-				<div className="py-5"></div>
-				{task?.description ? (
+	if (editorConfig)
+		return (
+			<div>
+				<div className="border-b-2  w-full">
+					<div className="py-5"></div>
+
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
 						<RichTextPlugin
@@ -57,7 +66,7 @@ const TaskDescriptionBlock = () => {
 							placeholder={null}
 							ErrorBoundary={LexicalErrorBoundary}
 						/>
-						<OnChangePlugin onChange={() => !isUpdated && setIsUpdated(true)} />
+						<OnChangePlugin onChange={onChange} />
 						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 						<HistoryPlugin />
 
@@ -68,11 +77,8 @@ const TaskDescriptionBlock = () => {
 							}}
 						/>
 					</LexicalComposer>
-				) : (
-					<DescriptionLoader />
-				)}
+				</div>
 			</div>
-		</div>
-	);
+		);
 };
 export default TaskDescriptionBlock;
