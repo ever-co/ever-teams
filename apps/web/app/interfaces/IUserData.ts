@@ -20,6 +20,7 @@ export interface IUser {
 	isActive: boolean;
 	roleId: string | null;
 	id: string;
+	isEmailVerified: boolean;
 	employee: IEmployee;
 	role: Role;
 	tenant: Tenant;

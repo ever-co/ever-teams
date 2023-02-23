@@ -34,7 +34,7 @@ export function UnverifiedEmail() {
 	}, [setVefified]);
 
 	useEffect(() => {
-		const hasVerified = user ? !!user.employee.isVerified : true;
+		const hasVerified = user ? user.isEmailVerified : true;
 
 		if (hasVerified) {
 			setVefified(true);
@@ -113,7 +113,7 @@ export function ConfirmUserModal({
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form
-				onClick={handleVerifyEmail}
+				onSubmit={handleVerifyEmail}
 				className="w-[98%] md:w-[530px]"
 				autoComplete="off"
 			>
