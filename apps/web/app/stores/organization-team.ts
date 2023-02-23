@@ -19,6 +19,11 @@ export const teamsFetchingState = atom<boolean>({
 	default: false,
 });
 
+export const isTeamMemberState = atom<boolean>({
+	key: 'isTeamMember',
+	default: true,
+});
+
 export const activeTeamState = selector<IOrganizationTeamList | null>({
 	key: 'activeTeamState',
 	get: ({ get }) => {
