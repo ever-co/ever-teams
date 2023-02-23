@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
-import TaskTitleBlock from '@components/pages/task/task-title-block';
+import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 
 const TaskDetails = () => {
@@ -34,7 +34,11 @@ const TaskDetails = () => {
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
 					<div className="flex items-center space-x-5">
-						<button onClick={() => router.back()}>
+						<button
+							onClick={() => {
+								router.back();
+							}}
+						>
 							<ArrowLeft />
 						</button>
 

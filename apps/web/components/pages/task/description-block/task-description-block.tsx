@@ -7,56 +7,84 @@ import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import DescriptionToolbar from './decription-toolbar';
 import { TRANSFORMERS } from '@lexical/markdown';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
+import DescriptionFooter from './decription-footer';
+import { detailedTaskState } from '@app/stores';
+import { useRecoilState } from 'recoil';
+import { useEffect, useState } from 'react';
 
-interface IDescriptionBlockProps {
-	initialValue?: string;
-}
+const TaskDescriptionBlock = () => {
+	const [isUpdated, setIsUpdated] = useState<boolean>(false);
+	const [task] = useRecoilState(detailedTaskState);
+	const [editorConfig, setEditorConfig] = useState<any>();
 
-const TaskDescriptionBlock = (props: IDescriptionBlockProps) => {
-	const editorConfig = {
-		namespace: 'MyEditor',
-		onError(error: any) {
-			throw error;
-		},
-		nodes: [
-			HeadingNode,
-			ListNode,
-			ListItemNode,
-			QuoteNode,
-			CodeNode,
-			CodeHighlightNode,
-			TableNode,
-			TableCellNode,
-			TableRowNode,
-			AutoLinkNode,
-			LinkNode,
-		],
-	};
+	useEffect(() => {
+		if (task) {
+			setEditorConfig({
+				namespace: 'MyEditor',
+				onError(error: any) {
+					throw error;
+				},
+				theme: {
+					root: 'rounded h-full min-h-[200px] focus:outline-none',
+					link: 'cursor-pointer',
+					text: {
+						bold: 'font-semibold',
+						underline: 'underline',
+						italic: 'italic',
+						strikethrough: 'line-through',
+						underlineStrikethrough: 'underlined-line-through',
+					},
+				},
+				nodes: [
+					HeadingNode,
+					ListNode,
+					ListItemNode,
+					QuoteNode,
+					CodeNode,
+					CodeHighlightNode,
+					TableNode,
+					TableCellNode,
+					TableRowNode,
+					AutoLinkNode,
+					LinkNode,
+				],
+
+				editorState: task.description !== '' ? task.description : undefined,
+			});
+		}
+	}, [task]);
 
 	return (
 		<div>
 			<div className="border-b-2  w-full">
 				<div className="py-5"></div>
-				<LexicalComposer initialConfig={editorConfig}>
-					<DescriptionToolbar />
-					<RichTextPlugin
-						contentEditable={
-							<ContentEditable className="editor-input outline-none py-2" />
-						}
-						placeholder={null}
-						ErrorBoundary={LexicalErrorBoundary}
-					/>
+				{editorConfig ? (
+					<LexicalComposer initialConfig={editorConfig}>
+						<DescriptionToolbar />
+						<RichTextPlugin
+							contentEditable={
+								<ContentEditable className="editor-input outline-none py-2" />
+							}
+							placeholder={null}
+							ErrorBoundary={LexicalErrorBoundary}
+						/>
+						<OnChangePlugin onChange={() => setIsUpdated(true)} />
+						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+						<HistoryPlugin />
 
-					<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-					<HistoryPlugin />
-				</LexicalComposer>
-				<div>
-					<label className="text-xs text-gray-300">Acceptance Criteria</label>
-				</div>
+						<DescriptionFooter
+							isUpdated={isUpdated}
+							setIsUpdated={() => {
+								setIsUpdated(false);
+							}}
+						/>
+					</LexicalComposer>
+				) : null}
 			</div>
 		</div>
 	);
