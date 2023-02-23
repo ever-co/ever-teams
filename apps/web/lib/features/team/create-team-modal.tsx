@@ -8,7 +8,7 @@ import {
 	Text,
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
-import { useMemo, useState } from 'react';
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
 /**
  * Create team modal
@@ -16,9 +16,11 @@ import { useMemo, useState } from 'react';
 export function CreateTeamModal({
 	open,
 	closeModal,
+	joinTeamModal,
 }: {
 	open: boolean;
 	closeModal: () => void;
+	joinTeamModal?: Dispatch<SetStateAction<boolean>>;
 }) {
 	const { trans } = useTranslation();
 
@@ -77,7 +79,21 @@ export function CreateTeamModal({
 						</div>
 
 						<div className="w-full flex justify-between mt-3 items-center">
-							<BackButton onClick={closeModal} />
+							{!joinTeamModal && <BackButton onClick={closeModal} />}
+
+							{joinTeamModal && (
+								<button
+									type="button"
+									className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
+									onClick={() => {
+										joinTeamModal(true);
+									}}
+								>
+									<span className="text-primary dark:text-primary-light">
+										{trans.pages.auth.JOIN_TEAM}
+									</span>
+								</button>
+							)}
 
 							<Button
 								type="submit"
