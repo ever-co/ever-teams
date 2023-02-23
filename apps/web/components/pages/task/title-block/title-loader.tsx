@@ -1,10 +1,10 @@
+import Skeleton from 'react-loading-skeleton';
 const TitleLoader = () => {
 	return (
-		<div className="animate-pulse flex space-x-4 w-full ">
-			<div className="flex-1 space-y-6 py-1">
-				<div>
-					<div className="h-16 bg-gray-200 dark:opacity-20 rounded"></div>
-				</div>
+		<div className="w-full flex justify-between items-start min-h-[70px]  ">
+			<Skeleton height={25} width={800} borderRadius={20} />
+			<div className="flex space-x-5 items-center">
+				<Skeleton circle={true} height={25} width={25} />
 			</div>
 		</div>
 	);

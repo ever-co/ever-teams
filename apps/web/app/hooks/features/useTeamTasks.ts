@@ -127,6 +127,23 @@ export function useTeamTasks() {
 		[updateTask]
 	);
 
+	const updateDescription = useCallback(
+		(newDescription: string, task?: ITeamTask | null, loader?: boolean) => {
+			if (task && newDescription !== task.description) {
+				loader && setTasksFetching(true);
+				return updateTask({
+					...task,
+					description: newDescription,
+				}).then((res) => {
+					setTasksFetching(false);
+					return res;
+				});
+			}
+			return Promise.resolve();
+		},
+		[updateTask]
+	);
+
 	const handleStatusUpdate = useCallback(
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
@@ -176,6 +193,7 @@ export function useTeamTasks() {
 		activeTeamTask,
 		firstLoadTasksData,
 		updateTitle,
+		updateDescription,
 		handleStatusUpdate,
 		activeTeamId,
 		setAllTasks,
