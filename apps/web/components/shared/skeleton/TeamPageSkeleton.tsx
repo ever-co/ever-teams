@@ -31,13 +31,13 @@ const TeamPageSkeleton = () => {
 						<div className="flex-1 flex flex-col mr-10 lg:mt-0 mt-8">
 							<div className="flex flex-col lg:flex-row justify-between items-center space-x-3">
 								<div className="flex-1 flex items-center space-x-4 ">
-									<Skeleton height={25} width={180} borderRadius={15} />
+									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light" />
 
-									<Skeleton height={25} width={180} borderRadius={15} />
+									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light"/>
 
-									<Skeleton height={25} width={180} borderRadius={15} />
+									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light"/>
 
-									<Skeleton height={25} width={180} borderRadius={15} />
+									<Skeleton height={25} width={180} borderRadius={15} className="dark:bg-dark--theme-light"/>
 								</div>
 							</div>
 						</div>

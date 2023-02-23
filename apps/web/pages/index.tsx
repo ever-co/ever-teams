@@ -19,7 +19,7 @@ function MainPage() {
 
 	return (
 		<>
-			{showSkeleton ? (
+			{!showSkeleton ? (
 				<TeamPageSkeleton />
 			) : (
 				<MainLayout>

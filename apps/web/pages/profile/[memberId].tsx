@@ -14,6 +14,8 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
+import TaskPageSkeleton from '@components/shared/skeleton/TaskPageSkeleton';
+import { useSkeleton } from '@app/hooks/useSkeleton';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
@@ -21,41 +23,48 @@ const Profile = () => {
 	const hook = useTaskFilter(profile);
 
 	const { trans } = useTranslation('profile');
+	const { showSkeleton } = useSkeleton();
 
 	return (
-		<MainLayout showTimer={!profile.isAuthUser}>
-			<MainHeader>
-				{/* Breadcrumb */}
-				<div className="flex space-x-5 items-center">
-					<Link href="/">
-						<ArrowLeft />
-					</Link>
+		<>
+			{!showSkeleton ? (
+				<TaskPageSkeleton />
+			) : (
+				<MainLayout showTimer={!profile.isAuthUser}>
+					<MainHeader>
+						{/* Breadcrumb */}
+						<div className="flex space-x-5 items-center">
+							<Link href="/">
+								<ArrowLeft />
+							</Link>
 
-					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
-				</div>
+							<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+						</div>
 
-				{/* User Profil Detail */}
-				<div className="flex justify-between items-center py-10">
-					<UserProfilDetail user={profile.userProfile} />
+						{/* User Profil Detail */}
+						<div className="flex justify-between items-center py-10">
+							<UserProfilDetail user={profile.userProfile} />
 
-					{profile.isAuthUser && (
-						<Timer
-							className={clsxm(
-								'p-5 rounded-lg shadow-xlcard',
-								'dark:border-[2px] dark:border-[#28292F] '
+							{profile.isAuthUser && (
+								<Timer
+									className={clsxm(
+										'p-5 rounded-lg shadow-xlcard',
+										'dark:border-[2px] dark:border-[#28292F] '
+									)}
+								/>
 							)}
-						/>
-					)}
-				</div>
+						</div>
 
-				{/* TaskFilter */}
-				<TaskFilter hook={hook} />
-			</MainHeader>
+						{/* TaskFilter */}
+						<TaskFilter hook={hook} />
+					</MainHeader>
 
-			<Container className="mb-10">
-				<UserProfileTask profile={profile} tabFiltered={hook} />
-			</Container>
-		</MainLayout>
+					<Container className="mb-10">
+						<UserProfileTask profile={profile} tabFiltered={hook} />
+					</Container>
+				</MainLayout>
+			)}
+		</>
 	);
 };
 
