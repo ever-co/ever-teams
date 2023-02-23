@@ -1,5 +1,5 @@
 import Skeleton from 'react-loading-skeleton';
-import { MainHeader, MainLayout } from 'lib/layout';
+import { MainLayout } from 'lib/layout';
 import { Container, Divider } from 'lib/components';
 import TaskCardSkeleton from './TaskCardSkeleton';
 

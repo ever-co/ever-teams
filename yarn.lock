@@ -12366,9 +12366,9 @@ levn@~0.3.0:
     type-check "~0.3.2"
 
 lexical@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/lexical/-/lexical-0.8.0.tgz#e794cdf34cfb744cb4b2002de42f8bf095d23351"
-  integrity sha512-1KL262KvbmjNp3Wd+wzEi8HdxUSDjyAFu1n0eR5+e2Sak/1VR2lTO/XCp5Zcyw3yNWFYo5+29DKfF+Ff1pLsSw==
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/lexical/-/lexical-0.8.1.tgz#7d84f6673c568f96060bb0e4b21b9b9c9e037eba"
+  integrity sha512-+dVoQZldtPCLyMgnvbgeYCmfIQilEHrZYGf6Fdpw4Ck0Xvg7IpvMpIKuMsXYsH1t2TlrTQ3qR6cDYvobuU7kMA==
 
 libnpmaccess@^4.0.2:
   version "4.0.3"
