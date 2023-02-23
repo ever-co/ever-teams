@@ -59,10 +59,6 @@ const TaskDescriptionBlock = () => {
 		}
 	}, [task]);
 
-	const onChange = () => {
-		setIsUpdated(true);
-	};
-
 	if (editorConfig)
 		return (
 			<div>
@@ -78,7 +74,7 @@ const TaskDescriptionBlock = () => {
 							placeholder={null}
 							ErrorBoundary={LexicalErrorBoundary}
 						/>
-						<OnChangePlugin onChange={onChange} />
+						<OnChangePlugin onChange={() => setIsUpdated(true)} />
 						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 						<HistoryPlugin />
 
