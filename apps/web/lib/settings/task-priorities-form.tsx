@@ -13,6 +13,7 @@ import { IColor, IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
 import { IconDropdown } from './icon-dropdown';
+import { generateIconList } from './icon-items';
 
 export const TaskPrioritiesForm = () => {
 	const user = useRecoilValue(userState);
@@ -21,25 +22,12 @@ export const TaskPrioritiesForm = () => {
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
-	const baseIconUrl = `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/task-priorities`;
-	const iconList: IIcon[] = [
-		{
-			url: `${baseIconUrl}/urgent.svg`,
-			title: 'Urgent',
-		},
-		{
-			url: `${baseIconUrl}/high.svg`,
-			title: 'High',
-		},
-		{
-			url: `${baseIconUrl}/medium.svg`,
-			title: 'Medium',
-		},
-		{
-			url: `${baseIconUrl}/low.svg`,
-			title: 'Low',
-		},
-	];
+	const iconList: IIcon[] = generateIconList('task-priorities', [
+		'urgent',
+		'high',
+		'medium',
+		'low',
+	]);
 
 	const {
 		loading,
@@ -149,7 +137,13 @@ export const TaskPrioritiesForm = () => {
 
 										<IconDropdown
 											setValue={setValue}
-											active={edit ? ({ url: edit.icon } as IIcon) : null}
+											active={
+												edit
+													? (iconList.find(
+															(icon) => icon.path === edit.icon
+													  ) as IIcon)
+													: null
+											}
 											iconList={iconList}
 										/>
 
@@ -198,7 +192,7 @@ export const TaskPrioritiesForm = () => {
 													: ''
 											}
 											bgColor={priority?.color || ''}
-											statusIcon={priority?.icon || ''}
+											statusIcon={priority?.fullIconUrl || ''}
 											onEdit={() => {
 												setCreateNew(false);
 												setEdit(priority);
