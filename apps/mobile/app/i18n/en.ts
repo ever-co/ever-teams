@@ -202,7 +202,14 @@ const en = {
     changeFullName: {
       firstNamePlaceholder: "First Name",
       lastNamePlaholder: "Last Name",
-      mainTitle:"Change Full Name"
+      mainTitle: "Change Full Name"
+    },
+    changeAvatar: {
+      recentPictures: "Recent Pictures",
+      recentFiles:"Recent files",
+      selectFromGalery: "Select from galery",
+      selectFromFiles: "Select from Files",
+      continueButton: "Continue"
     }
   },
   hamburgerMenu: {
