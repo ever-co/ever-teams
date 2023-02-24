@@ -147,18 +147,62 @@ const fr = {
       korean: "Coréen",
       hebrew: "Hébreu"
     },
-    statusScreen:{
-      mainTitle:"Statuts des tâches",
-      listStatuses:"Liste des statuts",
-      noActiveStatuses:"Il n'y a pas de statuts actifs",
-      createStatusButton:"Créer un nouveau statut",
-      createNewStatusText:"Créer un nouveau statut",
-      statusNamePlaceholder:"Nom du statut",
-      statusIconPlaceholder:"Choisissez l'icône",
-      statusColorPlaceholder:"Couleurs",
-      cancelButtonText:"Annuler",
-      createButtonText:"Créer",
-      updateButtonText:"Modifier"
+    statusScreen: {
+      mainTitle: "Task Statuses",
+      listStatuses: "List of Statuses",
+      noActiveStatuses: "There are no active statuses",
+      createStatusButton: "Create new status",
+      createNewStatusText: "Create New Status",
+      statusNamePlaceholder: "Status Name",
+      statusIconPlaceholder: "Choose Icon",
+      statusColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    priorityScreen: {
+      mainTitle: "Task Priorities",
+      listPriorities: "List of Priorities",
+      noActivePriorities: "There are no active priorities",
+      createPriorityButton: "Create new priority",
+      createNewPriorityText: "Create New Priority",
+      priorityNamePlaceholder: "Priority Name",
+      priorityIconPlaceholder: "Choose Icon",
+      priorityColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    labelScreen: {
+      mainTitle: "Task Labels",
+      listLabels: "List of Labels",
+      noActiveLabels: "There are no active labels",
+      createLabelButton: "Create new label",
+      createNewLabelText: "Create New Labels",
+      labelNamePlaceholder: "Labels Name",
+      labelIconPlaceholder: "Choose Icon",
+      labelColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    sizeScreen: {
+      mainTitle: "Task Sizes",
+      listSizes: "List of Sizes",
+      noActiveSizes: "There are no active sizes",
+      createSizeButton: "Create new size",
+      createNewSizeText: "Create New Sizes",
+      sizeNamePlaceholder: "Size Name",
+      sizeIconPlaceholder: "Choose Icon",
+      sizeColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    changeFullName: {
+      firstNamePlaceholder: "First Name",
+      lastNamePlaholder: "Last Name",
+      mainTitle:"Change Full Name"
     }
   },
   hamburgerMenu:{
