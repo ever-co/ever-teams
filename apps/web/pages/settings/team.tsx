@@ -16,6 +16,7 @@ import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkelet
 import { useSkeleton } from '@app/hooks/useSkeleton';
 
 import { useTranslation } from 'lib/i18n';
+import { NotificationSettings } from 'lib/settings/notification-setting';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
@@ -76,6 +77,12 @@ const Team = () => {
 									shadow="bigger"
 								>
 									<TaskLabelForm />
+								</Card>
+								<Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
+									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+										{trans.NOTIFICATION_HEADING_TITLE}
+									</Text>
+									<NotificationSettings />
 								</Card>
 								<Card
 									className="dark:bg-dark--theme p-[32px] mt-[36px]"
