@@ -61,8 +61,10 @@
     "expo-device": "~4.3.0",
     "expo-file-system": "~14.1.0",
     "expo-font": "~10.2.0",
+    "expo-image-picker": "~13.3.1",
     "expo-linear-gradient": "~11.4.0",
     "expo-localization": "13.1.0",
+    "expo-media-library": "~14.2.0",
     "expo-modules-core": "~0.11.10",
     "expo-splash-screen": "~0.16.1",
     "expo-status-bar": "~1.4.0",
@@ -149,8 +151,9 @@
     "webpack": "4"
   },
   "resolutions": {
-    "@types/react": "^17",
-    "@types/react-dom": "^17"
+    "@types/react": "18.0.0",
+    "@types/react-dom": "18.0.0",
+    "@types/react-native": "0.69.6"
   },
   "prettier": {
     "printWidth": 100,

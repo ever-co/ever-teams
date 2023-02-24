@@ -149,18 +149,62 @@ const ko: Translations = {
       korean:"한국인",
       hebrew:"헤브라이 사람"
     },
-    statusScreen:{
-      mainTitle:"Task Statuses",
-      listStatuses:"List of Statuses",
-      noActiveStatuses:"There are no active statuses",
-      createStatusButton:"Create new status",
-      createNewStatusText:"Create New Status",
-      statusNamePlaceholder:"Status Name",
-      statusIconPlaceholder:"Choose Icon",
-      statusColorPlaceholder:"Colors",
-      cancelButtonText:"Cancel",
-      createButtonText:"Create",
-      updateButtonText:"Update"
+    statusScreen: {
+      mainTitle: "Task Statuses",
+      listStatuses: "List of Statuses",
+      noActiveStatuses: "There are no active statuses",
+      createStatusButton: "Create new status",
+      createNewStatusText: "Create New Status",
+      statusNamePlaceholder: "Status Name",
+      statusIconPlaceholder: "Choose Icon",
+      statusColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    priorityScreen: {
+      mainTitle: "Task Priorities",
+      listPriorities: "List of Priorities",
+      noActivePriorities: "There are no active priorities",
+      createPriorityButton: "Create new priority",
+      createNewPriorityText: "Create New Priority",
+      priorityNamePlaceholder: "Priority Name",
+      priorityIconPlaceholder: "Choose Icon",
+      priorityColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    labelScreen: {
+      mainTitle: "Task Labels",
+      listLabels: "List of Labels",
+      noActiveLabels: "There are no active labels",
+      createLabelButton: "Create new label",
+      createNewLabelText: "Create New Labels",
+      labelNamePlaceholder: "Labels Name",
+      labelIconPlaceholder: "Choose Icon",
+      labelColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    sizeScreen: {
+      mainTitle: "Task Sizes",
+      listSizes: "List of Sizes",
+      noActiveSizes: "There are no active sizes",
+      createSizeButton: "Create new size",
+      createNewSizeText: "Create New Sizes",
+      sizeNamePlaceholder: "Size Name",
+      sizeIconPlaceholder: "Choose Icon",
+      sizeColorPlaceholder: "Colors",
+      cancelButtonText: "Cancel",
+      createButtonText: "Create",
+      updateButtonText: "Update"
+    },
+    changeFullName: {
+      firstNamePlaceholder: "First Name",
+      lastNamePlaholder: "Last Name",
+      mainTitle:"Change Full Name"
     }
   },
   hamburgerMenu:{

@@ -1,8 +1,14 @@
 import { useHasMounted } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
-import React, { PropsWithChildren, useEffect, useState } from 'react';
+import React, {
+	PropsWithChildren,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import {
 	BoxIcon,
 	MoonDarkIcon,
@@ -11,6 +17,7 @@ import {
 	SunDarkIcon,
 	SunIcon,
 } from './svgs';
+import { Text } from './typography';
 
 type Props = {
 	className?: string;
@@ -112,5 +119,43 @@ export function TreeModeToggler({ className }: IClassName) {
 			<StopIcon className="dark:stroke-white" />
 			<BoxIcon className="stroke-[#7E7991] dark:stroke-[#969CA6]" />
 		</Toggler>
+	);
+}
+
+export function CommonToggle({
+	enabledText = '',
+	disabledText = '',
+}: {
+	enabledText: string | undefined;
+	disabledText: string | undefined;
+}) {
+	const [enabled, setEnabled] = useState(true);
+
+	const handleChange = useCallback(() => {
+		setEnabled(!enabled);
+	}, [enabled]);
+
+	return (
+		<div className="py-4 flex items-center gap-x-[10px]">
+			<Switch
+				checked={enabled}
+				onChange={() => {
+					handleChange();
+				}}
+				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+			>
+				<span
+					aria-hidden="true"
+					className={`${
+						enabled ? 'translate-x-9 bg-[#3826A6]' : 'translate-x-1'
+					}
+            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+				/>
+			</Switch>
+			<Text className="text-gray-400 ">
+				{enabled ? enabledText : disabledText}
+			</Text>
+		</div>
 	);
 }

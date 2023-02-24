@@ -4,7 +4,7 @@ import { ITeamTask } from "../../interfaces/ITask";
 import { ITasksTimesheet } from "../../interfaces/ITimer";
 import { useFirstLoad } from "../useFirstLoad";
 import { useSyncRef } from "../useSyncRef";
-import debounce from "lodash"
+import debounce from "lodash/debounce"
 import { tasksStatistics } from "../../client/api/timer/tasksStatistics";
 
 export function useTaskStatistics(addSeconds = 0) {
@@ -83,6 +83,11 @@ export function useTaskStatistics(addSeconds = 0) {
         return data;
     }, [activeTask]);
 
+    const debounceLoadActiveTaskStat = useCallback(
+		debounce(getActiveTaskStatData, 100),
+		[]
+	);
+
     /**
      * Get statistics of the active tasks at the component load
      */
@@ -100,7 +105,7 @@ export function useTaskStatistics(addSeconds = 0) {
      */
     useEffect(() => {
         if (!firstLoad && initialLoad.current) {
-            debounce(getActiveTaskStatData(), 100)
+            debounceLoadActiveTaskStat()
         }
     }, [firstLoad, timerStatus, activeTeamTask?.id]);
 
