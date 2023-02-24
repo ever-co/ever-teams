@@ -135,6 +135,16 @@ export const en = {
 			LIST_OF_PRIORITIES: 'List of Priorities',
 			LIST_OF_SIZES: 'List of Sizes',
 			LIST_OF_LABELS: 'List of Labels',
+
+			GENERAL: 'General',
+			SOUND: 'Sound',
+			EMAIL: 'Email',
+			USERS: 'Users',
+			TASKS: 'Tasks',
+			SYSTEM: 'System',
+			SECURITY: 'Security',
+			INAPP: 'In App',
+			NOTIFICATION_HEADING_TITLE: 'Notification Settings',
 		},
 
 		invite: {
