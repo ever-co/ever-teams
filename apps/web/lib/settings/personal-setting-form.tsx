@@ -19,11 +19,13 @@ import { useTranslation } from 'lib/i18n';
 
 export const PersonalSettingForm = () => {
 	const [user] = useRecoilState(userState);
-	const { register, setValue, handleSubmit } = useForm();
+	const { register, setValue, getValues } = useForm();
 	const [currentTimezone, setCurrentTimezone] = useState('');
 	const [currentLanguage, setCurrentLanguage] = useState('');
 	const { updateAvatar } = useSettings();
 	const { theme } = useTheme();
+	const [editFullname, setEditFullname] = useState<boolean>(false);
+	const [editContacts, setEditContacts] = useState<boolean>(false);
 
 	const { trans, translations } = useTranslation('settingsPersonal');
 
@@ -36,20 +38,33 @@ export const PersonalSettingForm = () => {
 		setValue('phoneNumber', user?.phoneNumber);
 	}, [user, currentTimezone, currentLanguage, setValue]);
 
-	const onSubmit = useCallback(
-		async (values: any) => {
-			if (values && user) {
-				await updateAvatar({
-					firstName: values.firstName,
-					lastName: values.lastName,
-					email: values.email,
-					phoneNumber: values.phoneNumber,
-					id: user.id,
-				});
-			}
-		},
-		[updateAvatar, user]
-	);
+	const handleFullnameChange = useCallback(() => {
+		const values = getValues();
+		if (user) {
+			updateAvatar({
+				firstName: values.firstName,
+				lastName: values.lastName,
+
+				id: user.id,
+			}).then(() => {
+				setEditFullname(false);
+			});
+		}
+	}, [updateAvatar, user]);
+
+	const handleContactChange = useCallback(() => {
+		const values = getValues();
+		if (user) {
+			updateAvatar({
+				email: values.email,
+				phoneNumber: values.phoneNumber,
+
+				id: user.id,
+			}).then(() => {
+				setEditContacts(false);
+			});
+		}
+	}, [updateAvatar, user]);
 
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
@@ -98,8 +113,12 @@ export const PersonalSettingForm = () => {
 		<>
 			<form
 				className="w-[98%] md:w-[530px]"
-				onSubmit={handleSubmit(onSubmit)}
 				autoComplete="off"
+				onSubmit={(e) => {
+					e.preventDefault();
+					handleFullnameChange();
+					handleContactChange();
+				}}
 			>
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
@@ -117,7 +136,10 @@ export const PersonalSettingForm = () => {
 												required: true,
 												maxLength: 80,
 											})}
-											className="md:w-[220px] m-0 h-[54px]"
+											className={`md:w-[220px] m-0 h-[54px] ${
+												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
+											}`}
+											disabled={!editFullname}
 										/>
 									</div>
 									<div className="mt-[2rem]">
@@ -125,20 +147,40 @@ export const PersonalSettingForm = () => {
 											type="text"
 											placeholder="Last Name"
 											{...register('lastName', {
-												required: true,
 												maxLength: 80,
 											})}
-											className="md:w-[220px] m-0  h-[54px]"
+											className={`md:w-[220px] m-0 h-[54px] ${
+												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
+											}`}
+											disabled={!editFullname}
 										/>
 									</div>
 								</div>
 								<div className="mt-5">
-									<Button
-										variant="grey"
-										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
-									>
-										{translations.common.EDIT}
-									</Button>
+									{editFullname ? (
+										<Button
+											variant="primary"
+											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+											type="button"
+											onClick={(e) => {
+												e.preventDefault();
+												handleFullnameChange();
+											}}
+										>
+											{translations.common.SAVE}
+										</Button>
+									) : (
+										<Button
+											variant="grey"
+											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+											type="button"
+											onClick={() => {
+												setEditFullname(true);
+											}}
+										>
+											{translations.common.EDIT}
+										</Button>
+									)}
 								</div>
 							</div>
 							<div className="flex items-center justify-between w-full gap-8 mt-8">
@@ -155,7 +197,10 @@ export const PersonalSettingForm = () => {
 												pattern:
 													/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 											})}
-											className="md:w-[220px] h-[54px]"
+											className={`md:w-[220px] m-0 h-[54px] ${
+												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
+											}`}
+											disabled={!editContacts}
 										/>
 									</div>
 									<div className="mt-8">
@@ -163,20 +208,40 @@ export const PersonalSettingForm = () => {
 											type="text"
 											placeholder="Phone Number"
 											{...register('phoneNumber', {
-												required: true,
 												valueAsNumber: true,
 											})}
-											className="md:w-[220px] h-[54px]"
+											className={`md:w-[220px] m-0 h-[54px] ${
+												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
+											}`}
+											disabled={!editContacts}
 										/>
 									</div>
 								</div>
 								<div className="mt-5">
-									<Button
-										type="submit"
-										className="min-w-[100px] h-[54px] rounded-[8px]  font-[600]"
-									>
-										{translations.common.SAVE}
-									</Button>
+									{editContacts ? (
+										<Button
+											variant="primary"
+											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+											type="button"
+											onClick={(e) => {
+												e.preventDefault();
+												handleContactChange();
+											}}
+										>
+											{translations.common.SAVE}
+										</Button>
+									) : (
+										<Button
+											variant="grey"
+											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+											type="button"
+											onClick={() => {
+												setEditContacts(true);
+											}}
+										>
+											{translations.common.EDIT}
+										</Button>
+									)}
 								</div>
 							</div>
 							<div className="flex items-center gap-6 mt-8">
