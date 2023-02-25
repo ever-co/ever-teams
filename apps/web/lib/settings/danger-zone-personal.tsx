@@ -28,7 +28,7 @@ export const DangerZone = () => {
 									disabled={resetUserLoading}
 									loading={resetUserLoading}
 									onClick={() => {
-										resetUser();
+										// resetUser(); // TODO once API ready
 									}}
 								>
 									Remove Everywhere
