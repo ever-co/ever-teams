@@ -3,8 +3,7 @@ import { useUser } from '@app/hooks';
 import { Button, Text } from 'lib/components';
 
 export const DangerZone = () => {
-	const { deleteUser, deleteUserLoading, resetUser, resetUserLoading } =
-		useUser();
+	const { deleteUser, deleteUserLoading, resetUserLoading } = useUser();
 	return (
 		<>
 			<div className="flex flex-col justify-between items-center">
