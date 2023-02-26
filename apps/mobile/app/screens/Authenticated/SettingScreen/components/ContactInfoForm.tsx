@@ -123,6 +123,7 @@ const UpdateContactForm = (
                     value={userEmail}
                     editable={!isLoading}
                     autoComplete={"off"}
+                    keyboardType="email-address"
                     autoFocus={false}
                     autoCorrect={false}
                     autoCapitalize={"none"}
@@ -142,6 +143,7 @@ const UpdateContactForm = (
                     value={userPhoneNumber}
                     autoCorrect={false}
                     autoComplete={"off"}
+                    keyboardType="phone-pad"
                     editable={!isLoading}
                     autoCapitalize={"none"}
                     onChangeText={(text) => onChangePhoneNumber(text)}
