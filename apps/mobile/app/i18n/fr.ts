@@ -203,6 +203,13 @@ const fr = {
       firstNamePlaceholder: "First Name",
       lastNamePlaholder: "Last Name",
       mainTitle:"Change Full Name"
+    },
+    contact: {
+      mainTitle: "Change Your Contact",
+      emailPlaceholder: "Email Address",
+      phonePlaceholder: "Phone Number",
+      emailNotValid: "Please, provide a valid email",
+      phoneNotValid: "Please, provide a valid phone number"
     }
   },
   hamburgerMenu:{

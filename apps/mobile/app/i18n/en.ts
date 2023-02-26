@@ -206,10 +206,17 @@ const en = {
     },
     changeAvatar: {
       recentPictures: "Recent Pictures",
-      recentFiles:"Recent files",
+      recentFiles: "Recent files",
       selectFromGalery: "Select from galery",
       selectFromFiles: "Select from Files",
       continueButton: "Continue"
+    },
+    contact: {
+      mainTitle: "Change Your Contact",
+      emailPlaceholder: "Email Address",
+      phonePlaceholder: "Phone Number",
+      emailNotValid: "Please, provide a valid email",
+      phoneNotValid: "Please, provide a valid phone number"
     }
   },
   hamburgerMenu: {
