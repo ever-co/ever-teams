@@ -153,3 +153,20 @@ export function removeEmployeeOrganizationTeamRequest({
 		tenantId,
 	});
 }
+
+export function removeUserFromAllTeam({
+	userId,
+	bearer_token,
+	tenantId,
+}: {
+	userId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch({
+		path: `/organization-team/teams/${userId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
+}
