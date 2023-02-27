@@ -25,23 +25,6 @@ export function mapTimezoneItems(timezones: string[]) {
 		};
 	});
 
-	if (items.length > 0) {
-		items.unshift({
-			key: 0,
-			Label: () => (
-				<div className="flex justify-between">
-					<TimezoneItem
-						title={'All'}
-						className="w-full cursor-default"
-						color="#F5F5F5"
-						disabled
-					/>
-				</div>
-			),
-			disabled: true,
-		});
-	}
-
 	return items;
 }
 

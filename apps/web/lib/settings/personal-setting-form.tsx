@@ -78,7 +78,7 @@ export const PersonalSettingForm = () => {
 
 			if (user) {
 				updateAvatar({
-					timeZone: newTimezone,
+					timeZone: newTimezone || userTimezone(),
 					id: user.id,
 				});
 			}
