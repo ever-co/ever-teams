@@ -104,7 +104,7 @@ const es = {
         darkModeToLight: "Dark Mode to Light Mode",
         lightModeToDark: "Light Mode to Dark Mode",
         language: "Language",
-        changeAvatar:"Change Avatar",
+        changeAvatar: "Change Avatar",
         timeZone: "Time Zone",
         workSchedule: "Work Schedule",
         workScheduleHint: "Set your work schedule now",
@@ -123,7 +123,7 @@ const es = {
         taskPriorities: "Task Priorities",
         taskSizes: "Task Sizes",
         taskLabel: "Task Label",
-        changeLogo:"Change Logo",
+        changeLogo: "Change Logo",
         teamRole: "Manager Member & Role",
         workSchedule: "Work Schedule",
         workScheduleHint: "Set your work schedule now",
@@ -132,22 +132,90 @@ const es = {
         removeTeam: "Remove Team",
         removeTeamHint: "Team will be completely removed for the system and team members lost access",
         quitTeam: "Quit the team",
-        quitTeamHint: "You are about to quit the team"
+        quitTeamHint: "You are about to quit the team",
       },
       dangerZone: "Danger Zone",
-      modalChangeLanguageTitle:"Change Language",
-      statusScreen:{
-        mainTitle:"Task Statuses",
-        listStatuses:"List of Statuses",
-        noActiveStatuses:"There are no active statuses",
-        createStatusButton:"Create new status",
-        createNewStatusText:"Create New Status",
-        statusNamePlaceholder:"Status Name",
-        statusIconPlaceholder:"Choose Icon",
-        statusColorPlaceholder:"Colors",
-        cancelButtonText:"Cancel",
-        createButtonText:"Create",
-        updateButtonText:"Update"
+      modalChangeLanguageTitle: "Change Language",
+      languages: {
+        english: "English ( United States )",
+        french: "French ( France )",
+        arabic: "Arabic",
+        russian: "Russian",
+        bulgarian: "Bulgarian",
+        spanish: "Spanish",
+        korean: "Korean",
+        hebrew: "Hebrew"
+      },
+      statusScreen: {
+        mainTitle: "Task Statuses",
+        listStatuses: "List of Statuses",
+        noActiveStatuses: "There are no active statuses",
+        createStatusButton: "Create new status",
+        createNewStatusText: "Create New Status",
+        statusNamePlaceholder: "Status Name",
+        statusIconPlaceholder: "Choose Icon",
+        statusColorPlaceholder: "Colors",
+        cancelButtonText: "Cancel",
+        createButtonText: "Create",
+        updateButtonText: "Update"
+      },
+      priorityScreen: {
+        mainTitle: "Task Priorities",
+        listPriorities: "List of Priorities",
+        noActivePriorities: "There are no active priorities",
+        createPriorityButton: "Create new priority",
+        createNewPriorityText: "Create New Priority",
+        priorityNamePlaceholder: "Priority Name",
+        priorityIconPlaceholder: "Choose Icon",
+        priorityColorPlaceholder: "Colors",
+        cancelButtonText: "Cancel",
+        createButtonText: "Create",
+        updateButtonText: "Update"
+      },
+      labelScreen: {
+        mainTitle: "Task Labels",
+        listLabels: "List of Labels",
+        noActiveLabels: "There are no active labels",
+        createLabelButton: "Create new label",
+        createNewLabelText: "Create New Labels",
+        labelNamePlaceholder: "Labels Name",
+        labelIconPlaceholder: "Choose Icon",
+        labelColorPlaceholder: "Colors",
+        cancelButtonText: "Cancel",
+        createButtonText: "Create",
+        updateButtonText: "Update"
+      },
+      sizeScreen: {
+        mainTitle: "Task Sizes",
+        listSizes: "List of Sizes",
+        noActiveSizes: "There are no active sizes",
+        createSizeButton: "Create new size",
+        createNewSizeText: "Create New Sizes",
+        sizeNamePlaceholder: "Size Name",
+        sizeIconPlaceholder: "Choose Icon",
+        sizeColorPlaceholder: "Colors",
+        cancelButtonText: "Cancel",
+        createButtonText: "Create",
+        updateButtonText: "Update"
+      },
+      changeFullName: {
+        firstNamePlaceholder: "First Name",
+        lastNamePlaholder: "Last Name",
+        mainTitle: "Change Full Name"
+      },
+      changeAvatar: {
+        recentPictures: "Recent Pictures",
+        recentFiles: "Recent files",
+        selectFromGalery: "Select from galery",
+        selectFromFiles: "Select from Files",
+        continueButton: "Continue"
+      },
+      contact: {
+        mainTitle: "Change Your Contact",
+        emailPlaceholder: "Email Address",
+        phonePlaceholder: "Phone Number",
+        emailNotValid: "Please, provide a valid email",
+        phoneNotValid: "Please, provide a valid phone number"
       }
     },
     demoNavigator: {

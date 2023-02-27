@@ -13,6 +13,7 @@ export interface IUser {
   thirdPartyId: string | null;
   firstName: string | null;
   username: string | null;
+  phoneNumber: string | null;
   preferredLanguage: string;
   preferredComponentLayout: string;
   isActive: boolean;

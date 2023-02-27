@@ -3,6 +3,7 @@ import { View } from "react-native"
 import { IPopup } from "..";
 import { useSettings } from "../../../../services/hooks/features/useSettings";
 import ChangeUserAvatar from "./ChangeUserAvatar"
+import UpdateContactForm from "./ContactInfoForm";
 import UpdateFullNameForm from "./UpdateFullNameForm"
 interface IBottomProps {
     onDismiss: () => unknown;
@@ -11,14 +12,14 @@ interface IBottomProps {
 }
 
 const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, openedSheet }) => {
-    const { user, isLoading, updateUserIfo } = useSettings()
+    const { user, isLoading, updateUserInfo } = useSettings()
     return (
-        <View style={{ width: "100%"}}>
+        <View style={{ width: "100%" }}>
             <View>
                 {openedSheet === "Names" ?
                     <UpdateFullNameForm
                         user={user}
-                        onUpdateFullName={updateUserIfo}
+                        onUpdateFullName={updateUserInfo}
                         onDismiss={() => onDismiss()} /> : null
                 }
                 {openedSheet === "Avatar" ?
@@ -27,6 +28,13 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                         onDismiss={() => onDismiss()} />
                     : null
                 }
+                {openedSheet === "Contact" ?
+                    <UpdateContactForm
+                        user={user}
+                        onUpdateContactInfo={updateUserInfo}
+                        onDismiss={() => onDismiss()}
+                    /> : null}
+                
             </View>
         </View>
     )
