@@ -15,6 +15,7 @@ import {
 	editOrganizationTeamAPI,
 	getOrganizationTeamAPI,
 	getOrganizationTeamsAPI,
+	removeUserFromAllTeamAPI,
 	updateOrganizationTeamAPI,
 } from '@app/services/client/api';
 import {
@@ -221,6 +222,11 @@ export function useOrganizationTeams() {
 	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } =
 		useQuery(deleteOrganizationTeamAPI);
 
+	const {
+		loading: removeUserFromAllTeamLoading,
+		queryCall: removeUserFromAllTeamQueryCall,
+	} = useQuery(removeUserFromAllTeamAPI);
+
 	const setActiveTeam = useCallback(
 		(teamId: typeof teams[0]) => {
 			setActiveTeamIdCookie(teamId.id);
@@ -262,6 +268,16 @@ export function useOrganizationTeams() {
 		[deleteOrganizationTeamLoading]
 	);
 
+	const removeUserFromAllTeam = useCallback(
+		(userId: string) => {
+			return removeUserFromAllTeamQueryCall(userId).then((res) => {
+				loadTeamsData();
+				return res;
+			});
+		},
+		[removeUserFromAllTeamLoading]
+	);
+
 	return {
 		loadTeamsData,
 		loading,
@@ -281,5 +297,8 @@ export function useOrganizationTeams() {
 		updateOTeamLoading,
 		setTeams,
 		isTeamMember,
+		removeUserFromAllTeamLoading,
+		removeUserFromAllTeamQueryCall,
+		removeUserFromAllTeam,
 	};
 }
