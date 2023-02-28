@@ -6,13 +6,15 @@ import { typography } from "../../../../theme";
 import { Toggle } from "../../../../components/Toggle";
 import { translate } from "../../../../i18n";
 import { useAppTheme } from "../../../../app";
+import { limitTextCharaters } from "../../../../helpers/sub-text";
 
 interface Props {
     title: string;
     value: string;
     onPress?: () => unknown
+    onDetectTimezone?: () => unknown;
 }
-const SingleInfo: FC<Props> = ({ title, value, onPress }) => {
+const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
     const { colors, dark } = useAppTheme();
     const [isEnabled, setIsEnabled] = useState(true);
     const toggleSwitch = () => setIsEnabled(previousState => !previousState);
@@ -21,12 +23,13 @@ const SingleInfo: FC<Props> = ({ title, value, onPress }) => {
         <View style={styles.container}>
             <View style={styles.wrapperInfo}>
                 <Text style={[styles.infoTitle, { color: colors.primary }]}>{title}</Text>
-                <Text style={[styles.infoText, { color: colors.tertiary }]}>{value}</Text>
+                <Text style={[styles.infoText, { color: colors.tertiary }]}>{limitTextCharaters({ text: value, numChars: 77 })}</Text>
             </View>
-            {title === translate("settingScreen.personalSection.timeZone") &&
-                <TouchableOpacity style={[styles.detectWrapper, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]} >
-                    <Text style={[styles.infoTitle, { fontSize: 12, color: colors.primary }]}>Detect</Text>
+            {title === translate("settingScreen.personalSection.timeZone") ?
+                <TouchableOpacity style={[styles.detectWrapper, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]} onPress={() => onDetectTimezone()} >
+                    <Text style={[styles.infoTitle, { fontSize: 12, color: colors.primary }]}>{translate("settingScreen.personalSection.detect")}</Text>
                 </TouchableOpacity>
+                : null
             }
             {title === translate("settingScreen.teamSection.timeTracking") ? (
 
@@ -37,25 +40,22 @@ const SingleInfo: FC<Props> = ({ title, value, onPress }) => {
                     variant="switch"
                     value={isEnabled}
                 />
-            ) : (
-                <>
-                    {title !== translate("settingScreen.personalSection.themes") ?
-                        (
-                            <TouchableOpacity onPress={() => onPress()}>
-                                <AntDesign name="right" size={24} color="#938FA4" />
-                            </TouchableOpacity>
-                        )
-                        : (
-                            <TouchableOpacity style={styles.toggle} onPress={() => onPress()}>
-                                {dark ?
-                                    <Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} /> :
-                                    <Image source={require("../../../../../assets/icons/new/toogle-light.png")} />}
-                            </TouchableOpacity>
-                        )
-                    }
-                </>
-            )}
+            ) : null}
 
+            {title !== translate("settingScreen.personalSection.themes") ?
+                (
+                    <TouchableOpacity onPress={() => onPress()}>
+                        <AntDesign name="right" size={24} color="#938FA4" />
+                    </TouchableOpacity>
+                )
+                : (
+                    <TouchableOpacity style={styles.toggle} onPress={() => onPress()}>
+                        {dark ?
+                            <Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} /> :
+                            <Image source={require("../../../../../assets/icons/new/toogle-light.png")} />}
+                    </TouchableOpacity>
+                )
+            }
         </View>
     )
 }

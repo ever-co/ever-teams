@@ -16,6 +16,7 @@ export interface IUser {
   phoneNumber: string | null;
   preferredLanguage: string;
   preferredComponentLayout: string;
+  timeZone: string | null;
   isActive: boolean;
   roleId: string | null;
   id: string;

@@ -41,7 +41,12 @@ export function Navbar({
 	className,
 	showTimer,
 	publicTeam,
-}: IClassName & { showTimer?: boolean; publicTeam?: boolean }) {
+	notFound,
+}: IClassName & {
+	showTimer?: boolean;
+	publicTeam?: boolean;
+	notFound?: boolean;
+}) {
 	const { showSkeleton } = useSkeleton();
 	return (
 		<>
@@ -57,16 +62,18 @@ export function Navbar({
 					<Container>
 						<div className="w-full flex justify-between items-center min-h-[70px]">
 							<AppLogo dash className="scale-[0.7] origin-[0]" />
-							<div className="flex space-x-5 items-center">
-								{publicTeam && (
-									<Button className="pr-[2rem] pl-[2rem] rounded-lg">
-										Request to join
-									</Button>
-								)}
-								{showTimer && <MinTimerFrame />}
-								<TeamsDropDown publicTeam={publicTeam || false} />
-								{!publicTeam && <UserNavAvatar />}
-							</div>
+							{!notFound && (
+								<div className="flex space-x-5 items-center">
+									{publicTeam && (
+										<Button className="pr-[2rem] pl-[2rem] rounded-lg">
+											Request to join
+										</Button>
+									)}
+									{showTimer && <MinTimerFrame />}
+									<TeamsDropDown publicTeam={publicTeam || false} />
+									{!publicTeam && <UserNavAvatar />}
+								</div>
+							)}
 						</div>
 					</Container>
 				</nav>

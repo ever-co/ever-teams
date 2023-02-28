@@ -5,6 +5,7 @@ import { useSettings } from "../../../../services/hooks/features/useSettings";
 import ChangeUserAvatar from "./ChangeUserAvatar"
 import UpdateContactForm from "./ContactInfoForm";
 import UpdateFullNameForm from "./UpdateFullNameForm"
+
 interface IBottomProps {
     onDismiss: () => unknown;
     openBottomSheet?: (sheet: IPopup) => unknown;
