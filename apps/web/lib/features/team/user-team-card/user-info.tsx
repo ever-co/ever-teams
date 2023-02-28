@@ -49,7 +49,16 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						as="h3"
 						className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
 					>
-						{memberUser?.firstName} {memberUser?.lastName}
+						{publicTeam ? (
+							<span className="flex capitalize">
+								{`${memberUser?.firstName || ''} ${
+									memberUser?.lastName || ''
+								}`.slice(0, 1)}{' '}
+								<MailIcon className="mb-auto mt-auto ml-1" />
+							</span>
+						) : (
+							`${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`
+						)}
 					</Text.Heading>
 				</Tooltip>
 

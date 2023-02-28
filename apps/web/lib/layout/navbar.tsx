@@ -1,6 +1,6 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Container } from 'lib/components';
+import { Button, Container } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
 import Skeleton from 'react-loading-skeleton';
@@ -70,6 +70,11 @@ export function Navbar({
 								className="scale-[0.7] origin-[0] w-9/12 xs:w-full"
 							/>
 							<div className="flex space-x-5 items-center">
+								{publicTeam && (
+									<Button className="pr-[2rem] pl-[2rem] rounded-lg">
+										Request to join
+									</Button>
+								)}
 								{showTimer && <MinTimerFrame />}
 								<TeamsDropDown publicTeam={publicTeam || false} />
 								{!publicTeam && <UserNavAvatar />}
