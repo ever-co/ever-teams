@@ -220,7 +220,11 @@ const ar: Translations = {
       phonePlaceholder: "Phone Number",
       emailNotValid: "Please, provide a valid email",
       phoneNotValid: "Please, provide a valid phone number"
-    }
+    },
+    changeTimezone:{
+      mainTitle:"Change Time Zone",
+      selectTimezoneTitle:"Select Time Zone"
+    },
   },
   hamburgerMenu:{
     darkMode:"الوضع الداكن",
