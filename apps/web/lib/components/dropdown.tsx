@@ -24,6 +24,7 @@ type Props<T extends DropdownItem> = {
 	items: T[];
 	loading?: boolean;
 	buttonStyle?: React.CSSProperties;
+	publicTeam?: boolean;
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({
@@ -36,10 +37,11 @@ export function Dropdown<T extends DropdownItem>({
 	loading,
 	buttonStyle,
 	optionsClassName,
+	publicTeam,
 }: Props<T>) {
 	return (
 		<div className={clsxm('rounded-xl', className)}>
-			<Listbox value={Value} onChange={onChange}>
+			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
 				<Listbox.Button
 					className={clsxm(
 						'input-border',
@@ -64,13 +66,15 @@ export function Dropdown<T extends DropdownItem>({
 								className="w-full h-full"
 							/>
 						</div>
-					) : (
+					) : !publicTeam ? (
 						<ChevronDownIcon
 							className={clsxm(
 								'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
 							)}
 							aria-hidden="true"
 						/>
+					) : (
+						<></>
 					)}
 				</Listbox.Button>
 

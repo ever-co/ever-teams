@@ -1,9 +1,20 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useUser } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams, useUser } from '@app/hooks';
 import { Button, Text } from 'lib/components';
+import { useCallback } from 'react';
 
 export const DangerZone = () => {
-	const { deleteUser, deleteUserLoading, resetUserLoading } = useUser();
+	const { deleteUser, deleteUserLoading } = useUser();
+	const { user } = useAuthenticateUser();
+	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } =
+		useOrganizationTeams();
+
+	const handleRemoveUser = useCallback(() => {
+		if (user) {
+			removeUserFromAllTeam(user.id);
+		}
+	}, [user, removeUserFromAllTeam]);
+
 	return (
 		<>
 			<div className="flex flex-col justify-between items-center">
@@ -24,10 +35,10 @@ export const DangerZone = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
-									disabled={resetUserLoading}
-									loading={resetUserLoading}
+									disabled={removeUserFromAllTeamLoading}
+									loading={removeUserFromAllTeamLoading}
 									onClick={() => {
-										// resetUser(); // TODO once API ready
+										handleRemoveUser();
 									}}
 								>
 									Remove Everywhere

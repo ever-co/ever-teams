@@ -50,7 +50,7 @@ export const PersonalSettingForm = () => {
 				setEditFullname(false);
 			});
 		}
-	}, [updateAvatar, user]);
+	}, [updateAvatar, user, getValues]);
 
 	const handleContactChange = useCallback(() => {
 		const values = getValues();
@@ -64,7 +64,7 @@ export const PersonalSettingForm = () => {
 				setEditContacts(false);
 			});
 		}
-	}, [updateAvatar, user]);
+	}, [updateAvatar, user, getValues]);
 
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
@@ -78,7 +78,7 @@ export const PersonalSettingForm = () => {
 
 			if (user) {
 				updateAvatar({
-					timeZone: newTimezone,
+					timeZone: newTimezone || userTimezone(),
 					id: user.id,
 				});
 			}

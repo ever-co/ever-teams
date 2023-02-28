@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Switch } from '@headlessui/react';
 import { Text } from './typography';
 import { OT_Member } from '@app/interfaces';
@@ -25,6 +25,10 @@ export default function TimeTrackingToggle({
 		}
 		setEnabled(!enabled);
 	}, [updateOrganizationTeamEmployee, enabled, activeManager, activeTeam]);
+
+	useEffect(() => {
+		setEnabled(activeManager?.isTrackingEnabled);
+	}, [activeManager]);
 
 	return (
 		<div className="py-16 flex items-center gap-x-[10px]">

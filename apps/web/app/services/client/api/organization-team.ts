@@ -52,3 +52,7 @@ export function deleteOrganizationTeamAPI(id: string) {
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }
+
+export function removeUserFromAllTeamAPI(userId: string) {
+	return api.delete(`/organization-team/teams/${userId}`);
+}
