@@ -42,6 +42,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				onChange={onChangeActiveTeam}
 				items={items}
 				loading={teamsFetching}
+				publicTeam={publicTeam}
 			>
 				{!publicTeam && (
 					<Button
