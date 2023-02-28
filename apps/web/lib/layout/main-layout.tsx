@@ -6,9 +6,16 @@ type Props = PropsWithChildren<{
 	title?: string;
 	showTimer?: boolean;
 	publicTeam?: boolean;
+	notFound?: boolean;
 }>;
 
-export function MainLayout({ children, title, showTimer, publicTeam }: Props) {
+export function MainLayout({
+	children,
+	title,
+	showTimer,
+	publicTeam,
+	notFound,
+}: Props) {
 	return (
 		<>
 			<style jsx global>
@@ -24,6 +31,7 @@ export function MainLayout({ children, title, showTimer, publicTeam }: Props) {
 				showTimer={showTimer}
 				className="fixed z-[999]"
 				publicTeam={publicTeam || false}
+				notFound={notFound || false}
 			/>
 
 			<div

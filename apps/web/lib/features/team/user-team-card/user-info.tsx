@@ -22,12 +22,10 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			className={clsxm('flex items-center space-x-4', className)}
 		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
-				{!publicTeam && (
-					<TimerStatus
-						status={'running'}
-						className="absolute border z-20 bottom-3 -right-1 -mb-3"
-					/>
-				)}
+				<TimerStatus
+					status={'running'}
+					className="absolute border z-20 bottom-3 -right-1 -mb-3"
+				/>
 			</Avatar>
 
 			<div className="w-64">
@@ -51,7 +49,6 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 								{`${memberUser?.firstName || ''} ${
 									memberUser?.lastName || ''
 								}`.slice(0, 1)}{' '}
-								<MailIcon className="mb-auto mt-auto ml-1" />
 							</span>
 						) : (
 							`${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`
