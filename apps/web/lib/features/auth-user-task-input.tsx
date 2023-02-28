@@ -30,14 +30,14 @@ export function AuthUserTaskInput({ className }: IClassName) {
 					<TaskEstimate />
 				</div>
 
-				<div className="flex-1 flex justify-between space-x-3">
-					<ActiveTaskStatusDropdown className="lg:min-w-[170px]" />
+				<div className="flex-1 flex justify-between space-x-3 flex-wrap md:flex-nowrap">
+					<ActiveTaskStatusDropdown className="lg:min-w-[170px] mt-2" />
 
-					<ActiveTaskPropertiesDropdown className="lg:min-w-[170px]" />
+					<ActiveTaskPropertiesDropdown className="lg:min-w-[170px] mt-2" />
 
-					<ActiveTaskSizesDropdown className="lg:min-w-[170px]" />
+					<ActiveTaskSizesDropdown className="lg:min-w-[170px] mt-2" />
 
-					<ActiveTaskLabelsDropdown className="lg:min-w-[170px]" />
+					<ActiveTaskLabelsDropdown className="lg:min-w-[170px] mt-2" />
 				</div>
 			</div>
 		</div>

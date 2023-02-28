@@ -48,7 +48,7 @@ function TaskTimerSection() {
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row flex-col-reverse justify-between items-center mt-6',
+				'sm:w-full w-11/12 mx-auto flex 2xl:flex-row flex-col-reverse justify-between items-center mt-6',
 				'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>

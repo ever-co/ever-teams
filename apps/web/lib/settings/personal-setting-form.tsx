@@ -123,8 +123,8 @@ export const PersonalSettingForm = () => {
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">
-							<div className="flex items-center justify-between w-full gap-8">
-								<div className="flex items-center justify-between w-full gap-4">
+							<div className="flex items-center justify-between w-full gap-8 sm:flex-row flex-col">
+								<div className="flex items-center justify-between w-full gap-4 sm:flex-row flex-col">
 									<div>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
 											{translations.common.FULL_NAME}
@@ -183,8 +183,8 @@ export const PersonalSettingForm = () => {
 									)}
 								</div>
 							</div>
-							<div className="flex items-center justify-between w-full gap-8 mt-8">
-								<div className="flex items-center justify-between w-full gap-4">
+							<div className="flex items-center justify-between w-full gap-8 mt-8 sm:flex-row flex-col">
+								<div className="flex items-center justify-between w-full gap-4 sm:flex-row flex-col">
 									<div>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
 											{translations.common.CONTACT}

@@ -20,7 +20,7 @@ export const DangerZone = () => {
 			<div className="flex flex-col justify-between items-center">
 				<div className="w-full mt-5">
 					<div className="">
-						<div className="flex w-full items-center justify-between gap-6">
+						<div className="flex w-full items-center justify-between gap-6 sm:flex-row flex-col">
 							<div className="flex-auto w-64">
 								<Text className="text-xl  font-normal">Remove Account</Text>
 							</div>
@@ -45,7 +45,7 @@ export const DangerZone = () => {
 								</Button>
 							</div>
 						</div>
-						<div className="flex w-full items-center justify-between gap-6 mt-5">
+						<div className="flex w-full items-center justify-between gap-6 mt-5 sm:flex-row flex-col">
 							<div className="flex-auto w-64">
 								<Text className="text-xl  font-normal">Delete Account</Text>
 							</div>

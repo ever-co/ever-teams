@@ -7,12 +7,12 @@ import Skeleton from 'react-loading-skeleton';
 
 const UserTeamCardSkeleton = () => {
 	return (
-		<Card shadow="bigger" className="relative flex items-center py-4 my-6">
+		<Card shadow="bigger" className="relative flex items-center py-4 my-6 md:flex-row flex-col">
 			<div className="opacity-40 absolute -left-0">
 				<DraggerIcon />
 			</div>
-			<div className="w-[330px] px-4 flex space-x-3 items-center">
-				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] rounded-full" />
+			<div className="lg:w-[330px] w-[220px] px-4 flex space-x-3 items-center">
+				<div className="w-8 h-8 bg-[#F0F0F0] dark:bg-[#353741] rounded-full lg:flex hidden" />
 				<div className="w-10 h-10 bg-[#F0F0F0] dark:bg-[#353741] rounded-full" />
 				<Skeleton
 					height={20}
@@ -75,9 +75,9 @@ const UserTeamCardSkeleton = () => {
 					className="dark:bg-[#353741]"
 				/>
 			</div>
-			<VerticalSeparator />
+			<VerticalSeparator className="lg:flex hidden" />
 
-			<div className="flex space-y-2 items-center w-48 justify-center flex-col">
+			<div className="lg:flex hidden space-y-2 items-center w-48 justify-center flex-col">
 				<Skeleton
 					height={20}
 					width={120}
@@ -91,9 +91,9 @@ const UserTeamCardSkeleton = () => {
 					className="dark:bg-[#353741]"
 				/>
 			</div>
-			<VerticalSeparator />
+			<VerticalSeparator className="2xl:flex hidden"/>
 
-			<div className="flex space-y-2 items-center w-48 justify-center flex-col">
+			<div className="2xl:flex hidden space-y-2 items-center w-48 justify-center flex-col">
 				<Skeleton
 					height={20}
 					width={120}

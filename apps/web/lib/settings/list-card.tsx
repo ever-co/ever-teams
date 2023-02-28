@@ -19,7 +19,7 @@ export const StatusesListCard = ({
 	isStatus?: boolean;
 }) => {
 	return (
-		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
+		<div className="border xs:w-[21.4rem] w-72 flex items-center p-1 rounded-xl justify-between">
 			<div
 				className={`rounded-xl ${
 					isStatus || statusTitle.length >= CHARACTER_LIMIT_TO_SHOW

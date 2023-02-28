@@ -6,7 +6,7 @@ const StatusListCard = () => {
 		<>
 			<div className="w-full mt-20">
 				<div className="flex">
-					<div className="rounded-md m-h-64  flex gap-12">
+					<div className="rounded-md m-h-64 sm:flex-row flex-col flex gap-12">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
 							<Skeleton
 								width={200}
@@ -30,7 +30,7 @@ const StatusListCard = () => {
 									className="dark:bg-[#272930]"
 								/>
 							</Text>
-							<div className="flex gap-3 mt-4">
+							<div className="lg:flex hidden gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-80"
@@ -44,7 +44,7 @@ const StatusListCard = () => {
 									disabled={true}
 								/>
 							</div>
-							<div className="flex w-full gap-3 mt-4">
+							<div className="lg:flex hidden w-full gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-80"
@@ -64,7 +64,7 @@ const StatusListCard = () => {
 			</div>
 			<div className="w-full mt-20">
 				<div className="flex">
-					<div className="rounded-md m-h-64  flex gap-x-[2rem]">
+					<div className="rounded-md m-h-64 sm:flex-row flex-col flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
 							<Skeleton
 								width={200}
@@ -88,7 +88,7 @@ const StatusListCard = () => {
 									className="dark:bg-[#272930]"
 								/>
 							</Text>
-							<div className="flex w-full gap-3 mt-4">
+							<div className="lg:flex hidden w-full gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-80"
@@ -102,7 +102,7 @@ const StatusListCard = () => {
 									disabled={true}
 								/>
 							</div>
-							<div className="flex w-full gap-3 mt-4">
+							<div className="lg:flex hidden w-full gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-80"
@@ -116,7 +116,7 @@ const StatusListCard = () => {
 									disabled={true}
 								/>
 							</div>
-							<div className="flex w-1/2 gap-3 mt-4">
+							<div className="lg:flex hidden w-1/2 gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-40"
@@ -130,7 +130,7 @@ const StatusListCard = () => {
 			</div>
 			<div className="w-full mt-20">
 				<div className="flex">
-					<div className="rounded-md m-h-64  flex gap-x-[2rem]">
+					<div className="rounded-md m-h-64 sm:flex-row flex-col flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
 							<Skeleton
 								width={200}
@@ -154,7 +154,7 @@ const StatusListCard = () => {
 									className="dark:bg-[#272930]"
 								/>
 							</Text>
-							<div className="flex w-full gap-3 mt-4">
+							<div className="lg:flex hidden w-full gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-80"
@@ -168,7 +168,7 @@ const StatusListCard = () => {
 									disabled={true}
 								/>
 							</div>
-							<div className="flex w-full gap-3 mt-4">
+							<div className="lg:flex hidden w-full gap-3 mt-4">
 								<InputField
 									type="text"
 									className="mb-0 h-[54px] w-80"

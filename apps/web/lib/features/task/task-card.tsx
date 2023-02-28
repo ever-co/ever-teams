@@ -42,7 +42,7 @@ export function TaskCard({
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'relative flex items-center justify-between py-3',
+				'relative flex items-center justify-between py-3 flex-col lg:flex-row',
 				active && ['border-primary-light border-[2px]'],
 				className
 			)}

@@ -17,7 +17,7 @@ const DangerZoneSkeleton = () => {
 								/>
 							</Text>
 						</div>
-						<div className="flex-auto">
+						<div className="flex-auto md:flex hidden">
 							<Text className="text-md text-gray-400 font-normal">
 								<Skeleton
 									width={400}
@@ -42,7 +42,7 @@ const DangerZoneSkeleton = () => {
 						</div>
 					</div>
 					<div className="flex w-full items-center justify-between gap-6 mt-5">
-						<div className="flex-auto">
+						<div className="flex-auto md:flex hidden">
 							<Text className="text-xl  font-normal">
 								<Skeleton
 									className="dark:bg-[#353741]"
@@ -53,7 +53,7 @@ const DangerZoneSkeleton = () => {
 							</Text>
 						</div>
 
-						<div className="flex-auto">
+						<div className="flex-auto md:flex hidden">
 							<Text className="text-md text-gray-400 font-normal">
 								<Skeleton
 									className="dark:bg-[#353741]"

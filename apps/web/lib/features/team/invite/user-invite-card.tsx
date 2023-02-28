@@ -160,7 +160,7 @@ export function InviteUserTeamCard({
 	return (
 		<Card
 			shadow="bigger"
-			className={clsxm('relative flex items-center py-3', className)}
+			className={clsxm('relative flex items-center py-3 flex-col 2xl:flex-row', className)}
 		>
 			<div className="opacity-40 absolute -left-0">
 				<DraggerIcon />
@@ -171,8 +171,8 @@ export function InviteUserTeamCard({
 			</div>
 
 			{/* Show user name, email and image */}
-			<div className="w-[330px] px-4 flex space-x-3">
-				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
+			<div className="w-[330px] px-4 flex space-x-3 2xl:flex-row 2xl:justify-start flex-col justify-center items-center">
+				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full mb-2" />
 				<Button onClick={onClick}>{trans.common.INVITE}</Button>
 			</div>
 			<VerticalSeparator />

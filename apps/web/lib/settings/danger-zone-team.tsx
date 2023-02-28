@@ -49,7 +49,7 @@ export const DangerZoneTeam = () => {
 				<div className="w-full mt-5">
 					<div className="">
 						{/* Current User is the Manager of the Team and there are more that 1 Managers */}
-						<div className="flex w-full items-center justify-between gap-6">
+						<div className="flex w-full items-center justify-between gap-6 lg:flex-row flex-col">
 							<div className="flex-auto w-64">
 								<Text className="text-xl  font-normal">Transfer Ownership</Text>
 							</div>
@@ -72,7 +72,7 @@ export const DangerZoneTeam = () => {
 						</div>
 
 						{/* Current User is the Only Manager of the Team*/}
-						<div className="flex w-full items-center justify-between gap-6 mt-5">
+						<div className="flex w-full items-center justify-between gap-6 mt-5 lg:flex-row flex-col">
 							<div className="flex-auto w-64">
 								<Text className="text-xl  font-normal">Remove Team</Text>
 							</div>
@@ -97,7 +97,7 @@ export const DangerZoneTeam = () => {
 							</div>
 						</div>
 
-						<div className="flex w-full items-center justify-between gap-6 mt-5">
+						<div className="flex w-full items-center justify-between gap-6 mt-5 lg:flex-row flex-col">
 							<div className="flex-auto w-64">
 								<Text className="text-xl  font-normal">Quit the Team</Text>
 							</div>

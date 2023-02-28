@@ -26,9 +26,9 @@ const TaskCardSkeleton = () => {
 				/>
 			</div>
 
-			<VerticalSeparator className="ml-2" />
+			<VerticalSeparator className="ml-2 hidden sm:flex" />
 
-			<div className="flex space-y-2 items-center w-48 justify-center flex-col">
+			<div className="sm:flex hidden space-y-2 items-center w-48 justify-center flex-col">
 				<Skeleton
 					height={20}
 					width={120}
@@ -45,7 +45,7 @@ const TaskCardSkeleton = () => {
 
 			<VerticalSeparator />
 
-			<div className="flex space-y-2 items-center justify-center flex-col">
+			<div className="lg:flex hidden space-y-2 items-center justify-center flex-col">
 				<Skeleton
 					height={20}
 					width={80}
@@ -59,7 +59,7 @@ const TaskCardSkeleton = () => {
 					className="dark:bg-[#353741]"
 				/>
 			</div>
-			<div className="flex space-y-2 items-center w-48 justify-center flex-col">
+			<div className="xl:flex hidden space-y-2 items-center w-48 justify-center flex-col">
 				<Skeleton
 					height={20}
 					width={80}
@@ -79,14 +79,16 @@ const TaskCardSkeleton = () => {
 				borderRadius={50}
 				className="dark:bg-[#353741]"
 			/>
-			<VerticalSeparator />
+			<VerticalSeparator className='md:flex hidden'/>
 
-			<Skeleton
-				width={180}
-				height={40}
-				borderRadius={20}
-				className="dark:bg-[#353741]"
-			/>
+			<div className='md:flex hidden'>
+				<Skeleton
+					width={180}
+					height={40}
+					borderRadius={20}
+					className="dark:bg-[#353741]"
+				/>
+			</div>
 		</Card>
 	);
 };

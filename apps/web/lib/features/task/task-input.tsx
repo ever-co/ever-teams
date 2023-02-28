@@ -211,6 +211,7 @@ export function TaskInput({
 					</div>
 				)
 			}
+			wrapperClassName='sm:w-full mx-auto'
 		/>
 	);
 

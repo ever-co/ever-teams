@@ -74,11 +74,11 @@ export const TeamSettingForm = () => {
 				<div className="flex flex-col justify-between items-center">
 					<div className="w-full mt-5">
 						<div className="">
-							<div className="flex w-full items-center justify-between gap-12">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+							<div className="flex w-full items-center justify-between gap-12 lg:flex-row flex-col">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5 w-full sm:text-left text-center">
 									{trans.TEAM_NAME}
 								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+								<div className="flex flex-row flex-grow-0 items-center justify-between lg:w-4/5">
 									<InputField
 										type="text"
 										placeholder={trans.TEAM_NAME}
@@ -96,11 +96,11 @@ export const TeamSettingForm = () => {
 									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center  gap-12 mt-8">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+							<div className="flex w-full items-center  gap-12 mt-8 lg:flex-row flex-col">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5 w-full sm:text-left text-center">
 									{trans.TEAM_TYPE}
 								</Text>
-								<div className="flex gap-x-[30px]">
+								<div className="flex gap-x-[30px] lg:flex-row flex-col">
 									<div className="items-center  w-full">
 										<div>
 											<input
@@ -131,7 +131,7 @@ export const TeamSettingForm = () => {
 											<Text.Label>Private Team</Text.Label>
 										</div>
 									</div>
-									<div className="flex gap-4 items-center">
+									<div className="flex gap-4 items-center lg:flex-row flex-col">
 										<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
 											<Tooltip
 												label={getTeamLink()}

@@ -42,14 +42,14 @@ const Profile = () => {
 						</div>
 
 						{/* User Profil Detail */}
-						<div className="flex justify-between items-center py-10">
+						<div className="flex justify-between items-center py-10 md:flex-row flex-col">
 							<UserProfilDetail user={profile.userProfile} />
 
 							{profile.isAuthUser && (
 								<Timer
 									className={clsxm(
 										'p-5 rounded-lg shadow-xlcard',
-										'dark:border-[2px] dark:border-[#28292F] '
+										'dark:border-[2px] dark:border-[#28292F] mt-5 md:mt-0'
 									)}
 								/>
 							)}

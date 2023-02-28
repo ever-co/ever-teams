@@ -33,7 +33,7 @@ const Personal = () => {
 					</div>
 
 					<Container className="mb-10">
-						<div className="flex w-full">
+						<div className="flex w-full lg:flex-row flex-col">
 							<LeftSideSettingMenu />
 							<div className="flex flex-col w-full">
 								<Card

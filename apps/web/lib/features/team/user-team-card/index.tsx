@@ -13,13 +13,13 @@ import { UserTeamCardMenu } from './user-team-card-menu';
 export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
-		<ul className="flex row font-normal justify-between mb-3 mt-16">
-			<li>{trans.common.STATUS}</li>
-			<li>{trans.common.NAME}</li>
-			<li>{trans.common.TASK}</li>
-			<li>{trans.common.WORKED_ON_TASK}</li>
-			<li>{trans.common.ESTIMATE}</li>
-			<li>{trans.common.TOTAL_WORKED_TODAY}</li>
+		<ul className="flex row font-normal justify-between mb-3 mt-16 flex-wrap">
+			<li className='mr-2 sm:mr-0'>{trans.common.STATUS}</li>
+			<li className='mr-2 sm:mr-0'>{trans.common.NAME}</li>
+			<li className='mr-2 sm:mr-0'>{trans.common.TASK}</li>
+			<li className='mr-2 sm:mr-0'>{trans.common.WORKED_ON_TASK}</li>
+			<li className='mr-2 sm:mr-0'>{trans.common.ESTIMATE}</li>
+			<li className='mr-2 sm:mr-0'>{trans.common.TOTAL_WORKED_TODAY}</li>
 		</ul>
 	);
 }
@@ -44,7 +44,7 @@ export function UserTeamCard({
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'relative flex items-center py-3',
+				'relative flex items-center py-3 flex-col 2xl:flex-row',
 				active && ['border-primary-light border-[2px]'],
 				className
 			)}

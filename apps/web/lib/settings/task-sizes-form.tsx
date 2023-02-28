@@ -99,7 +99,7 @@ export const TaskSizesForm = () => {
 				autoComplete="off"
 			>
 				<div className="flex">
-					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
+					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem] flex-wrap">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px]">
 							{trans.TASK_SIZES}
 						</Text>

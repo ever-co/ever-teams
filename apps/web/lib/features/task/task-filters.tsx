@@ -96,7 +96,7 @@ export function TaskFilter({
 }: IClassName & { hook: I_TaskFilter }) {
 	return (
 		<>
-			<div className={clsxm('flex justify-between', className)}>
+			<div className={clsxm('flex md:flex-row justify-between flex-col items-center', className)}>
 				<TabsNav hook={hook} />
 				<InputFilters hook={hook} />
 			</div>
@@ -128,7 +128,7 @@ function InputFilters({ hook }: { hook: I_TaskFilter }) {
 	const { trans } = useTranslation();
 
 	return (
-		<div className="flex space-x-5 items-center">
+		<div className="flex space-x-5 items-center pt-5 md:pt-0">
 			<button
 				className={clsxm('outline-none')}
 				onClick={() => hook.toggleFilterType('search')}

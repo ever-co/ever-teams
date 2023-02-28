@@ -19,7 +19,10 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	return (
 		<Link
 			href={`/profile/${memberInfo.memberUser?.id}`}
-			className={clsxm('flex items-center space-x-4', className)}
+			className={clsxm(
+				'flex items-center space-x-4 flex-col 2xl:flex-row',
+				className
+			)}
 		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
 				{!publicTeam && (

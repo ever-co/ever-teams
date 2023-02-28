@@ -27,7 +27,7 @@ const TaskPageSkeleton = () => {
 								borderRadius={50}
 								className="dark:bg-[#272930] mt-16 mr-8"
 							/>
-							<div>
+							<div className='sm:flex flex-col hidden'>
 								<Skeleton
 									height={35}
 									width={200}
@@ -46,7 +46,7 @@ const TaskPageSkeleton = () => {
 						<div className="flex items-center mt-12">
 							<div className="flex-1 flex flex-col mr-10 lg:mt-0 ">
 								<div className="flex justify-between items-center space-x-3">
-									<div className="flex-1 flex items-center space-x-4 ">
+									<div className="flex-1 flex items-center space-x-4 sm:flex-row flex-col">
 										<Skeleton
 											height={30}
 											width={180}
@@ -74,7 +74,7 @@ const TaskPageSkeleton = () => {
 					</div>
 
 					<div className="pr-5">
-						<div className="w-full flex flex-col">
+						<div className="w-full xl:flex hidden flex-col">
 							<Skeleton
 								height={140}
 								width={420}
@@ -111,7 +111,7 @@ const TaskPageSkeleton = () => {
 							baseColor='#E8E8E8'
 						/>
 						<Divider className="flex-1" />
-						<div className="flex space-x-4 items-center">
+						<div className="xs:flex space-x-4 items-center hidden">
 							<Skeleton
 								width={200}
 								height={20}
@@ -133,7 +133,7 @@ const TaskPageSkeleton = () => {
 							baseColor='#E8E8E8'
 						/>
 						<Divider className="flex-1" />
-						<div className="flex space-x-4 items-center">
+						<div className="xs:flex space-x-4 items-center hidden">
 							<Skeleton
 								width={200}
 								height={20}
