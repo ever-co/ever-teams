@@ -210,6 +210,14 @@ const fr = {
       phonePlaceholder: "Phone Number",
       emailNotValid: "Please, provide a valid email",
       phoneNotValid: "Please, provide a valid phone number"
+    },
+    changeTimezone:{
+      mainTitle:"Changer le fuseau horaire",
+      selectTimezoneTitle:"Choisir le fuseau horaire"
+    },
+    changeLanguage:{
+      mainTitle:"Changer la langue",
+      selectLanguageTitle:"Choisir la langue"
     }
   },
   hamburgerMenu:{
