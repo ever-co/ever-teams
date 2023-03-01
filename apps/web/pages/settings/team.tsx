@@ -45,10 +45,10 @@ const Team = () => {
 									className="dark:bg-dark--theme p-[32px] mt-[36px]"
 									shadow="bigger"
 								>
-									<Text className="text-4xl font-medium mb-2">
+									<Text className="sm:text-4xl text-2xl sm:text-left text-center font-medium mb-2">
 										{trans.HEADING_TITLE}
 									</Text>
-									<Text className="text-base font-normal text-gray-400">
+									<Text className="text-base font-normal text-gray-400 sm:text-left text-center">
 										{translations.pages.settings.HEADING_DESCRIPTION}
 									</Text>
 									<ProfileAvatar />

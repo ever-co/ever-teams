@@ -14,12 +14,12 @@ export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
 		<ul className="flex row font-normal justify-between mb-3 mt-16 flex-wrap">
-			<li className='mr-2 sm:mr-0'>{trans.common.STATUS}</li>
-			<li className='mr-2 sm:mr-0'>{trans.common.NAME}</li>
-			<li className='mr-2 sm:mr-0'>{trans.common.TASK}</li>
-			<li className='mr-2 sm:mr-0'>{trans.common.WORKED_ON_TASK}</li>
-			<li className='mr-2 sm:mr-0'>{trans.common.ESTIMATE}</li>
-			<li className='mr-2 sm:mr-0'>{trans.common.TOTAL_WORKED_TODAY}</li>
+			<li className="mr-2 sm:mr-0">{trans.common.STATUS}</li>
+			<li className="mr-2 sm:mr-0">{trans.common.NAME}</li>
+			<li className="mr-2 sm:mr-0">{trans.common.TASK}</li>
+			<li className="mr-2 sm:mr-0">{trans.common.WORKED_ON_TASK}</li>
+			<li className="mr-2 sm:mr-0">{trans.common.ESTIMATE}</li>
+			<li className="mr-2 sm:mr-0">{trans.common.TOTAL_WORKED_TODAY}</li>
 		</ul>
 	);
 }
@@ -41,58 +41,113 @@ export function UserTeamCard({
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	return (
-		<Card
-			shadow="bigger"
-			className={clsxm(
-				'relative flex items-center py-3 flex-col 2xl:flex-row',
-				active && ['border-primary-light border-[2px]'],
-				className
-			)}
-		>
-			<div className="absolute -left-0">
-				<DraggerIcon />
-			</div>
+		<>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative lg:hidden flex flex-col items-center py-3',
+					active && ['border-primary-light border-[2px]'],
+					className
+				)}
+			>
+				<div className="absolute -left-0">
+					<DraggerIcon />
+				</div>
 
-			{/* Show user name, email and image */}
-			<UserInfo
-				memberInfo={memberInfo}
-				className="w-[330px]"
-				publicTeam={publicTeam}
-			/>
-			<VerticalSeparator />
+				{/* Show user name, email and image */}
+				<div className="flex items-center justify-between flex-col xs:flex-row">
+					<UserInfo
+						memberInfo={memberInfo}
+						className=''
+						publicTeam={publicTeam}
+					/>
+					<TaskTimes
+						activeAuthTask={true}
+						task={memberInfo.memberTask}
+						isAuthUser={memberInfo.isAuthUser}
+						className="px-4"
+					/>
+					<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+				</div>
 
-			{/* Task information */}
-			<TaskInfo
-				edition={taskEdition}
-				memberInfo={memberInfo}
-				className="w-80 px-4"
-			/>
-			<VerticalSeparator className="ml-2" />
+				<TaskInfo
+					edition={taskEdition}
+					memberInfo={memberInfo}
+					className="w-80 px-4 mx-auto"
+				/>
+				<div className='flex items-center justify-between'>
+					<TaskEstimateInfo
+						memberInfo={memberInfo}
+						edition={taskEdition}
+						activeAuthTask={true}
+						className="px-3 "
+					/>
+					<TodayWorkedTime
+						isAuthUser={memberInfo.isAuthUser}
+						className='px-4 mr-4'
+					/>
+					
+				</div>
+				
 
-			{/* TaskTimes */}
-			<TaskTimes
-				activeAuthTask={true}
-				task={memberInfo.memberTask}
-				isAuthUser={memberInfo.isAuthUser}
-				className="w-48 px-4"
-			/>
-			<VerticalSeparator />
+				
+			</Card>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative lg:flex items-center py-3 hidden',
+					active && ['border-primary-light border-[2px]'],
+					className
+				)}
+			>
+				<div className="absolute -left-0">
+					<DraggerIcon />
+				</div>
 
-			{/* TaskEstimateInfo */}
-			<TaskEstimateInfo
-				memberInfo={memberInfo}
-				edition={taskEdition}
-				activeAuthTask={true}
-				className="px-3 w-52"
-			/>
-			<VerticalSeparator />
+				{/* Show user name, email and image */}
+				<UserInfo
+					memberInfo={memberInfo}
+					className="w-[330px]"
+					publicTeam={publicTeam}
+				/>
+				<VerticalSeparator />
 
-			{/* TodayWorkedTime */}
-			<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="flex-1" />
+				{/* Task information */}
+				<TaskInfo
+					edition={taskEdition}
+					memberInfo={memberInfo}
+					className="w-80 px-4"
+				/>
+				<VerticalSeparator className="ml-2" />
 
-			{/* Card menu */}
-			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
-		</Card>
+				{/* TaskTimes */}
+				<TaskTimes
+					activeAuthTask={true}
+					task={memberInfo.memberTask}
+					isAuthUser={memberInfo.isAuthUser}
+					className="w-48 px-4"
+				/>
+				<VerticalSeparator />
+
+				{/* TaskEstimateInfo */}
+				<TaskEstimateInfo
+					memberInfo={memberInfo}
+					edition={taskEdition}
+					activeAuthTask={true}
+					className="px-3 w-52"
+				/>
+				<VerticalSeparator />
+
+				{/* TodayWorkedTime */}
+				<TodayWorkedTime
+					isAuthUser={memberInfo.isAuthUser}
+					className="flex-1"
+				/>
+
+				{/* Card menu */}
+				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+			</Card>
+		</>
 	);
 }
 

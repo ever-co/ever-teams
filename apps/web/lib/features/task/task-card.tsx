@@ -39,54 +39,88 @@ export function TaskCard({
 	const [loading, setLoading] = useState(false);
 
 	return (
-		<Card
-			shadow="bigger"
-			className={clsxm(
-				'relative flex items-center justify-between py-3 flex-col lg:flex-row',
-				active && ['border-primary-light border-[2px]'],
-				className
-			)}
-		>
-			<div className="absolute -left-0">
-				<DraggerIcon />
-			</div>
+		<>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative md:hidden flex items-center justify-between py-3 flex-col',
+					active && ['border-primary-light border-[2px]'],
+					className
+				)}
+			>
+				<div className="absolute -left-0">
+					<DraggerIcon />
+				</div>
 
-			{/* Task information */}
-			<TaskInfo task={task} className="w-80 px-4" />
-			<VerticalSeparator className="ml-2" />
-
-			{/* TaskEstimateInfo */}
-			<div className="flex space-x-2 items-center">
-				<TaskEstimateInfo
+				<TaskTimes
+					activeAuthTask={activeAuthTask}
 					task={task}
 					isAuthUser={isAuthUser}
-					activeAuthTask={activeAuthTask}
-					className="px-3 w-52"
+					className="px-4 self-start"
 				/>
-				{isAuthUser && task && <TimerButtonCall task={task} />}
-			</div>
+				<TaskInfo task={task} className="px-4 w-full" />
 
-			<VerticalSeparator />
+				<div className="flex items-center justify-between mt-4 flex-col xs:flex-row">
+					<TaskEstimateInfo
+						task={task}
+						isAuthUser={isAuthUser}
+						activeAuthTask={activeAuthTask}
+						className="px-3 w-52"
+					/>
+					{isAuthUser && task && <TimerButtonCall task={task} />}
+					<ActiveTaskStatusDropdown
+						task={task || null}
+						className="lg:min-w-[170px] mr-4 xs:mt-0 mt-4"
+						onChangeLoading={(load) => setLoading(load)}
+					/>
+				</div>
 
-			{/* TaskTimes */}
-			<TaskTimes
-				activeAuthTask={activeAuthTask}
-				task={task}
-				isAuthUser={isAuthUser}
-				className="w-48 px-4"
-			/>
-			<VerticalSeparator />
+				{task && <TaskCardMenu task={task} loading={loading} />}
+			</Card>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative md:flex hidden items-center justify-between py-3 flex-col md:flex-row',
+					active && ['border-primary-light border-[2px]'],
+					className
+				)}
+			>
+				<div className="absolute -left-0">
+					<DraggerIcon />
+				</div>
 
-			{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-			<ActiveTaskStatusDropdown
-				task={task || null}
-				className="lg:min-w-[170px] mr-4"
-				onChangeLoading={(load) => setLoading(load)}
-			/>
+				<TaskInfo task={task} className="md:w-80 px-4 w-full" />
+				<VerticalSeparator className="ml-2" />
 
-			{/* TaskCardMenu */}
-			{task && <TaskCardMenu task={task} loading={loading} />}
-		</Card>
+				<div className="flex space-x-2 items-center">
+					<TaskEstimateInfo
+						task={task}
+						isAuthUser={isAuthUser}
+						activeAuthTask={activeAuthTask}
+						className="px-3 w-52"
+					/>
+					{isAuthUser && task && <TimerButtonCall task={task} />}
+				</div>
+
+				<VerticalSeparator />
+
+				<TaskTimes
+					activeAuthTask={activeAuthTask}
+					task={task}
+					isAuthUser={isAuthUser}
+					className="w-48 px-4"
+				/>
+				<VerticalSeparator />
+
+				<ActiveTaskStatusDropdown
+					task={task || null}
+					className="lg:min-w-[170px] mr-4"
+					onChangeLoading={(load) => setLoading(load)}
+				/>
+
+				{task && <TaskCardMenu task={task} loading={loading} />}
+			</Card>
+		</>
 	);
 }
 
@@ -226,12 +260,12 @@ function TaskInfo({
 	return (
 		<div
 			className={clsxm(
-				'h-full flex flex-col items-start justify-center',
+				'h-full flex md:flex-col flex-row items-start justify-center',
 				className
 			)}
 		>
 			{/* task */}
-			{!task && <div className="text-center self-center py-1">--</div>}
+			{!task && <div className="text-center self-center py-1 px-2">--</div>}
 			{task && (
 				<div className="w-full h-[40px] overflow-hidden">
 					<div
