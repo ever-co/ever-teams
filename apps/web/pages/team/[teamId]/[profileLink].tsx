@@ -18,7 +18,14 @@ const Team = () => {
 
 	useEffect(() => {
 		if (query && query?.teamId && query?.profileLink) {
-			loadPublicTeamData(query?.profileLink as string, query?.teamId as string);
+			loadPublicTeamData(
+				query?.profileLink as string,
+				query?.teamId as string
+			).then((res) => {
+				if (res?.data?.data?.status === 404) {
+					router.replace('/404');
+				}
+			});
 			setPublic(true);
 		}
 	}, [query]);

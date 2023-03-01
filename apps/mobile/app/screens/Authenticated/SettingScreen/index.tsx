@@ -20,6 +20,9 @@ import { useSettings } from "../../../services/hooks/features/useSettings";
 import { ActivityIndicator } from "react-native-paper";
 import FlashMessage from "react-native-flash-message";
 import BottomSheetContent from "./components/BottomSheetContent";
+import TimezonePopup from "./components/TimezonePopup";
+import { useTimezoneModal } from "../../../services/hooks/useTimezoneModal";
+import UserTimezone from "./components/UserTimezone";
 
 export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2";
 
@@ -30,7 +33,8 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
         teamStore: { activeTeam }
     } = useStores();
 
-    const { user, isLoading, updateUserInfo } = useSettings()
+    const { user, isLoading, updateUserInfo, onDetectTimezone } = useSettings()
+    const { isModalOpen, closeModal, openModal, selectedTimezone, setSelectedTimezone } = useTimezoneModal();
     // Props
     const { navigation } = _props;
     // ref
@@ -39,7 +43,6 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
     // STATES
     const [activeTab, setActiveTab] = useState(1)
     const [languageModal, setLanguageModal] = useState(false)
-    const [showNamesPopup, setShowNamesPopup] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
     const [showPopup, setShowPopup] = useState<IPopup>(null)
     const [lang, setLang] = useState<ISupportedLanguage>(supportedLanguages[2])
@@ -56,38 +59,39 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
             setLang(language)
         }
     }
-    const showFullNameForm = () => {
-        setShowNamesPopup(true)
-        sheetRef.current.snapTo(0)
-    }
+
     const openBottomSheet = (name: IPopup) => {
         switch (name) {
             case "Avatar":
                 setShowPopup("Avatar")
                 setIsOpen(true)
                 sheetRef.current.snapTo(1)
-                return;
+                break;
             case "Avatar 2":
                 setShowPopup("Avatar")
                 setIsOpen(true)
                 sheetRef.current.snapTo(3)
-                return;
+                break;
             case "Names":
                 setShowPopup("Names")
                 setIsOpen(true)
                 sheetRef.current.snapTo(0)
-                return
+                break;
             case "Contact":
                 setShowPopup("Contact")
                 setIsOpen(true)
                 sheetRef.current.snapTo(0)
                 return;
+                break;
             case "Language":
-                return;
+                break;
             case "TimeZone":
-                return;
+                setShowPopup("TimeZone")
+                setIsOpen(true)
+                sheetRef.current.snapTo(4)
+                break;
             case "Schedule":
-                return;
+                break;
             default:
                 return;
         }
@@ -97,104 +101,127 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
         setLanguageLabel();
     }, [])
     return (
-        <Screen preset="fixed"
-            contentContainerStyle={[$container, { backgroundColor: colors.background }]}
-            safeAreaEdges={["top"]}>
-            {/* <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} /> */}
-            <View style={{ flex: 1, zIndex: 100 }}>
-                {isOpen && <TouchableWithoutFeedback
-                    onPress={() => {
-                        setIsOpen(false)
-                        sheetRef.current.snapTo(2)
-                    }
-                    }>
-                    <BlurView tint="dark" intensity={14} style={$blurContainer} />
-                </TouchableWithoutFeedback>
-                }
-                <View style={[$headerContainer, { backgroundColor: colors.background }]}>
-                    <SettingHeader {..._props} />
-                    <SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
-                </View>
-                <View style={{ flex: 5 }}>
-                    {isLoading ?
-                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", width: "100%" }}>
-                            <ActivityIndicator size={"small"} />
-                        </View> :
-                        <ScrollView bounces={false}>
-                            {activeTab === 1 ?
-                                // PERSONAL SECTION CONTENT STARTS HERE
-                                <View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
-                                    <PictureSection
-                                        imageUrl={user?.imageUrl}
-                                        buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
-                                        onDelete={() => { }}
-                                        onChange={() => openBottomSheet("Avatar")}
-                                    />
-                                    <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names")} />
-                                    <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => openBottomSheet("Contact")} />
-                                    <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
-                                    <SingleInfo onPress={() => { }} title={translate("settingScreen.personalSection.language")} value={"lang.locale"} />
-                                    <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={"Eastern Time Zone (UTC-05:00)"} onPress={() => { }} />
-                                    <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} onPress={() => { }} />
-
-                                    <View style={$dangerZoneContainer}>
-                                        <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
-                                        <SingleInfo title={translate("settingScreen.personalSection.removeAccount")} value={translate("settingScreen.personalSection.removeAccountHint")} onPress={() => { }} />
-                                        <SingleInfo title={translate("settingScreen.personalSection.deleteAccount")} value={translate("settingScreen.personalSection.deleteAccountHint")} onPress={() => { }} />
-                                    </View>
-                                </View>
-                                // PERSONAL SECTION CONTENT ENDS HERE
-                                :
-                                // TEAM SECTION CONTENT STARTS HERE
-                                <View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
-                                    <PictureSection
-                                        imageUrl={""}
-                                        buttonLabel={translate("settingScreen.teamSection.changeLogo")}
-                                        onDelete={() => { }}
-                                        onChange={() => { }}
-                                    />
-                                    <SingleInfo title={translate("settingScreen.teamSection.teamName")} value={activeTeam?.name} onPress={() => { }} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.timeTracking")} value={translate("settingScreen.teamSection.timeTrackingHint")} onPress={() => { }} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.taskStatuses")} value={"there are 4 active statuses"} onPress={() => navigation.navigate("TaskStatus")} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.taskPriorities")} value={"there are 4 active priorities"} onPress={() => navigation.navigate("TaskPriority")} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.taskSizes")} value={"there are 5 active sizes"} onPress={() => navigation.navigate("TaskSizeScreen")} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.taskLabel")} value={"there are 8 active label"} onPress={() => navigation.navigate("TaskLabelScreen")} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.teamRole")} value={"No"} />
-                                    <SingleInfo title={translate("settingScreen.teamSection.workSchedule")} value={translate("settingScreen.teamSection.workScheduleHint")} onPress={() => { }} />
-
-                                    <View style={$dangerZoneContainer}>
-                                        <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
-                                        <SingleInfo title={translate("settingScreen.teamSection.transferOwnership")} value={translate("settingScreen.teamSection.transferOwnership")} onPress={() => { }} />
-                                        <SingleInfo title={translate("settingScreen.teamSection.removeTeam")} value={translate("settingScreen.teamSection.removeTeamHint")} onPress={() => { }} />
-                                        <SingleInfo title={translate("settingScreen.teamSection.quitTeam")} value={translate("settingScreen.teamSection.quitTeamHint")} onPress={() => { }} />
-                                    </View>
-                                </View>
-                                // TEAM SECTION CONTENT ENDS HERE
-                            }
-                        </ScrollView>
-                    }
-                </View>
-            </View>
-            <BottomSheet
-                ref={sheetRef}
-                snapPoints={[340, 174, 0, 611]}
-                borderRadius={24}
-                initialSnap={1}
-                callbackNode={fall}
-                enabledGestureInteraction={false}
-                renderContent={() =>
-                    <BottomSheetContent
-                        openedSheet={showPopup}
-                        onDismiss={() => {
+        <>
+            <Screen preset="fixed" contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
+                {/* <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} /> */}
+                <TimezonePopup
+                    visible={isModalOpen}
+                    onDismiss={() => closeModal()}
+                    onTimezoneSelect={(e) => {
+                        setSelectedTimezone(e)
+                    }}
+                />
+                <View style={{ flex: 1, zIndex: 100 }}>
+                    {isOpen && <TouchableWithoutFeedback
+                        onPress={() => {
                             setIsOpen(false)
                             sheetRef.current.snapTo(2)
-                        }}
-                        openBottomSheet={openBottomSheet}
-                    />
-                }
-            />
-            <FlashMessage position={"bottom"} />
-        </Screen>
+                        }
+                        }>
+                        <BlurView tint="dark" intensity={15} style={$blurContainer} />
+                    </TouchableWithoutFeedback>
+                    }
+                    <View style={[$headerContainer, { backgroundColor: colors.background }]}>
+                        <SettingHeader {..._props} />
+                        <SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
+                    </View>
+                    <View style={{ flex: 5 }}>
+                        {isLoading ?
+                            <View style={{ flex: 1, justifyContent: "center", alignItems: "center", width: "100%" }}>
+                                <ActivityIndicator size={"small"} />
+                            </View> :
+                            <ScrollView bounces={false}>
+                                {activeTab === 1 ?
+                                    // PERSONAL SECTION CONTENT STARTS HERE
+                                    <View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
+                                        <PictureSection
+                                            imageUrl={user?.imageUrl}
+                                            buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
+                                            onDelete={() => { }}
+                                            onChange={() => openBottomSheet("Avatar")}
+                                        />
+                                        <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names")} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => { }} />
+                                        <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
+                                        <SingleInfo onPress={() => { }} title={translate("settingScreen.personalSection.language")} value={"lang.locale"} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={user?.timeZone} onDetectTimezone={() => onDetectTimezone(user)} onPress={() => openBottomSheet("TimeZone")} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} onPress={() => { }} />
+
+                                        <View style={$dangerZoneContainer}>
+                                            <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
+                                            <SingleInfo title={translate("settingScreen.personalSection.removeAccount")} value={translate("settingScreen.personalSection.removeAccountHint")} onPress={() => { }} />
+                                            <SingleInfo title={translate("settingScreen.personalSection.deleteAccount")} value={translate("settingScreen.personalSection.deleteAccountHint")} onPress={() => { }} />
+                                        </View>
+                                    </View>
+                                    // PERSONAL SECTION CONTENT ENDS HERE
+                                    :
+                                    // TEAM SECTION CONTENT STARTS HERE
+                                    <View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
+                                        <PictureSection
+                                            imageUrl={""}
+                                            buttonLabel={translate("settingScreen.teamSection.changeLogo")}
+                                            onDelete={() => { }}
+                                            onChange={() => { }}
+                                        />
+                                        <SingleInfo title={translate("settingScreen.teamSection.teamName")} value={activeTeam?.name} onPress={() => { }} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.timeTracking")} value={translate("settingScreen.teamSection.timeTrackingHint")} onPress={() => { }} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.taskStatuses")} value={"there are 4 active statuses"} onPress={() => navigation.navigate("TaskStatus")} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.taskPriorities")} value={"there are 4 active priorities"} onPress={() => navigation.navigate("TaskPriority")} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.taskSizes")} value={"there are 5 active sizes"} onPress={() => navigation.navigate("TaskSizeScreen")} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.taskLabel")} value={"there are 8 active label"} onPress={() => navigation.navigate("TaskLabelScreen")} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.teamRole")} value={"No"} />
+                                        <SingleInfo title={translate("settingScreen.teamSection.workSchedule")} value={translate("settingScreen.teamSection.workScheduleHint")} onPress={() => { }} />
+
+                                        <View style={$dangerZoneContainer}>
+                                            <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
+                                            <SingleInfo title={translate("settingScreen.teamSection.transferOwnership")} value={translate("settingScreen.teamSection.transferOwnership")} onPress={() => { }} />
+                                            <SingleInfo title={translate("settingScreen.teamSection.removeTeam")} value={translate("settingScreen.teamSection.removeTeamHint")} onPress={() => { }} />
+                                            <SingleInfo title={translate("settingScreen.teamSection.quitTeam")} value={translate("settingScreen.teamSection.quitTeamHint")} onPress={() => { }} />
+                                        </View>
+                                    </View>
+                                    // TEAM SECTION CONTENT ENDS HERE
+                                }
+                            </ScrollView>
+                        }
+                    </View>
+                </View>
+                <BottomSheet
+                    ref={sheetRef}
+                    snapPoints={[340, 174, 0, 611, 276]}
+                    borderRadius={24}
+                    initialSnap={1}
+                    callbackNode={fall}
+                    enabledGestureInteraction={true}
+                    renderContent={() =>
+                        <View>
+                            <BottomSheetContent
+                                openedSheet={showPopup}
+                                onDismiss={() => {
+                                    setIsOpen(false)
+                                    sheetRef.current.snapTo(2)
+                                }}
+                                openBottomSheet={openBottomSheet}
+                            />
+                            {showPopup === "TimeZone" ?
+                                <UserTimezone
+                                    onPress={() => openModal()}
+                                    user={user}
+                                    onUpdateTimezone={updateUserInfo}
+                                    onDismiss={() => {
+                                        setIsOpen(false)
+                                        sheetRef.current.snapTo(2)
+                                    }}
+                                    selectedTimezone={selectedTimezone}
+                                /> : null
+                            }
+                        </View>
+
+                    }
+                />
+                <FlashMessage position={"bottom"} />
+            </Screen>
+        </>
+
     )
 }
 

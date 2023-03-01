@@ -50,7 +50,12 @@ export function Navbar({
 	className,
 	showTimer,
 	publicTeam,
-}: IClassName & { showTimer?: boolean; publicTeam?: boolean }) {
+	notFound,
+}: IClassName & {
+	showTimer?: boolean;
+	publicTeam?: boolean;
+	notFound?: boolean;
+}) {
 	const { showSkeleton } = useSkeleton();
 	return (
 		<>
