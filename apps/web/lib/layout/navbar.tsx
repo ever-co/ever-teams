@@ -4,7 +4,7 @@ import { Button, Container } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
 import Skeleton from 'react-loading-skeleton';
-import { useSkeleton } from '@app/hooks/useSkeleton';
+import { useOrganizationTeams } from '@app/hooks';
 
 const HeaderSkeleton = () => {
 	return (
@@ -47,10 +47,10 @@ export function Navbar({
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
-	const { showSkeleton } = useSkeleton();
+	const { teamsFetching } = useOrganizationTeams();
 	return (
 		<>
-			{!showSkeleton ? (
+			{ teamsFetching ?  (
 				<HeaderSkeleton />
 			) : (
 				<nav

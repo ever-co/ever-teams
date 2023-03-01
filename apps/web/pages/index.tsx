@@ -10,16 +10,18 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useSkeleton } from '@app/hooks/useSkeleton';
 import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
+import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
-	const { showSkeleton } = useSkeleton();
+	const {activeTeam, teamsFetching} = useOrganizationTeams();
+	const {loading} = useTeamTasks();
+	
 
 	return (
 		<>
-			{!showSkeleton ? (
+			{activeTeam && teamsFetching ? (
 				<TeamPageSkeleton />
 			) : (
 				<MainLayout>
