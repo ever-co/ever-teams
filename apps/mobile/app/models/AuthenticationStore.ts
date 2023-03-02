@@ -1,5 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { ISupportedLanguage } from "../screens/Authenticated/SettingScreen/components/LanguageModal"
+import { ILanguageItemList } from "../services/interfaces/IUserData"
 
 export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
@@ -81,7 +81,7 @@ export const AuthenticationStoreModel = types
     setTenantId(value: string) {
       store.tenantId = value.replace(/ /g, "")
     },
-    setPreferredLanguage(locale: ISupportedLanguage) {
+    setPreferredLanguage(locale: ILanguageItemList) {
       store.preferredLanguage = locale
     },
     toggleTheme() {

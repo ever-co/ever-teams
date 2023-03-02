@@ -222,6 +222,10 @@ const en = {
       mainTitle:"Change Time Zone",
       selectTimezoneTitle:"Select Time Zone"
     },
+    changeLanguage:{
+      mainTitle:"Change Language",
+      selectLanguageTitle:"Select Languanges"
+    }
   },
   hamburgerMenu: {
     darkMode: "Dark Mode"
