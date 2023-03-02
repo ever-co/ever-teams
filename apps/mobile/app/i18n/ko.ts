@@ -5,7 +5,7 @@ const ko: Translations = {
     ok: "확인!",
     cancel: "취소",
     back: "뒤로",
-    save:"",
+    save: "",
     logOut: "로그아웃", // @demo remove-current-line
   },
   welcomeScreen: {
@@ -58,7 +58,7 @@ const ko: Translations = {
     userNameFieldPlaceholder: "당신의 이름을 입력",
     tapContinue: "계속하다",
     tapJoin: "가입하다",
-    createTeam:"Create Team"
+    createTeam: "Create Team"
   },
   myWorkScreen: {
     name: "내 작품",
@@ -81,7 +81,7 @@ const ko: Translations = {
     inviteEmailFieldPlaceholder: "이메일 주소 입력",
     inviteNameFieldPlaceholder: "팀원 이름 입력",
     sendButton: "보내다",
-    createNewTeamButton:"새 팀 만들기"
+    createNewTeamButton: "새 팀 만들기"
   },
   tasksScreen: {
     name: "작업",
@@ -219,10 +219,19 @@ const ko: Translations = {
       phonePlaceholder: "Phone Number",
       emailNotValid: "Please, provide a valid email",
       phoneNotValid: "Please, provide a valid phone number"
+    },
+    changeTimezone: {
+      mainTitle: "Change Time Zone",
+      selectTimezoneTitle: "Select Time Zone"
+    },
+    changeLanguage: {
+      mainTitle: "Change Language",
+      selectLanguageTitle: "Select Languanges"
     }
+
   },
-  hamburgerMenu:{
-    darkMode:"다크 모드",
+  hamburgerMenu: {
+    darkMode: "다크 모드",
   },
   demoNavigator: {
     componentsTab: "컴포넌트",

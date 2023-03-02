@@ -1,5 +1,6 @@
 import * as Localization from "expo-localization"
 import i18n from "i18n-js"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { I18nManager } from "react-native"
 
 // if English isn't your default language, move Translations to the appropriate language file.
@@ -7,7 +8,11 @@ import en, { Translations } from "./en"
 import ar from "./ar"
 import ko from "./ko"
 import fr from "./fr"
-import AsyncStorage from "@react-native-async-storage/async-storage"
+import he from "./he"
+import ru from "./ru"
+import es from "./es"
+import bg from "./bg"
+
 
 i18n.fallbacks = true
 /**
@@ -15,7 +20,7 @@ i18n.fallbacks = true
  * the language code is the suffixed with "-US". i.e. if a device is set to English ("en"),
  * if you change to another language and then return to English language code is now "en-US".
  */
-i18n.translations = { ar, en, "en-US": en, ko, fr }
+i18n.translations = { ar, en, "en-US": en, ko, fr, he, ru, es, bg }
 
 const setLanguage = async () => {
   const locale = await AsyncStorage.getItem("Language");

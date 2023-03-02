@@ -5,7 +5,7 @@ import { useStores } from "../../../models";
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator";
 import { typography } from "../../../theme";
 import BottomSheet from 'reanimated-bottom-sheet';
-import LanguageModal, { ISupportedLanguage, supportedLanguages } from "./components/LanguageModal";
+import LanguageModal from "./components/LanguageModal";
 import PictureSection from "./components/PictureSection";
 import SectionTab from "./components/SectionTab";
 import SettingHeader from "./components/SettingHeader";
@@ -23,6 +23,8 @@ import BottomSheetContent from "./components/BottomSheetContent";
 import TimezonePopup from "./components/TimezonePopup";
 import { useTimezoneModal } from "../../../services/hooks/useTimezoneModal";
 import UserTimezone from "./components/UserTimezone";
+import LanguageForm from "./components/LanguageForm";
+import { useLanguageModal } from "../../../services/hooks/useLanguageModal";
 
 export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2";
 
@@ -33,8 +35,9 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
         teamStore: { activeTeam }
     } = useStores();
 
-    const { user, isLoading, updateUserInfo, onDetectTimezone } = useSettings()
+    const { user, isLoading, updateUserInfo, onDetectTimezone, preferredLanguage } = useSettings()
     const { isModalOpen, closeModal, openModal, selectedTimezone, setSelectedTimezone } = useTimezoneModal();
+    const { isLanguageModalOpen, selectedLanguage, closeLanguageModal, setSelectedLanguage, openLanguageModal } = useLanguageModal();
     // Props
     const { navigation } = _props;
     // ref
@@ -42,23 +45,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 
     // STATES
     const [activeTab, setActiveTab] = useState(1)
-    const [languageModal, setLanguageModal] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
     const [showPopup, setShowPopup] = useState<IPopup>(null)
-    const [lang, setLang] = useState<ISupportedLanguage>(supportedLanguages[2])
 
     const fall = new Animated.Value(1)
 
-    const setLanguageLabel = async () => {
-        const localCode = await AsyncStorage.getItem("Language");
-        if (!localCode) {
-            const language = supportedLanguages.find((l) => l.localeCode === "en");
-            setLang(language)
-        } else {
-            const language = supportedLanguages.find((l) => l.localeCode === localCode);
-            setLang(language)
-        }
-    }
 
     const openBottomSheet = (name: IPopup) => {
         switch (name) {
@@ -81,9 +72,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                 setShowPopup("Contact")
                 setIsOpen(true)
                 sheetRef.current.snapTo(0)
-                return;
                 break;
             case "Language":
+                setShowPopup("Language")
+                setIsOpen(true)
+                sheetRef.current.snapTo(4)
                 break;
             case "TimeZone":
                 setShowPopup("TimeZone")
@@ -97,13 +90,17 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
         }
     }
 
-    useEffect(() => {
-        setLanguageLabel();
-    }, [])
     return (
         <>
             <Screen preset="fixed" contentContainerStyle={[$container, { backgroundColor: colors.background }]} safeAreaEdges={["top"]}>
-                {/* <LanguageModal visible={languageModal} currentLanguage={lang.locale} onDismiss={() => setLanguageModal(false)} /> */}
+                <LanguageModal
+                    visible={isLanguageModalOpen}
+                    preferredLanguage={preferredLanguage}
+                    onDismiss={() => closeLanguageModal()}
+                    onLanguageSelect={(e) => {
+                        setSelectedLanguage(e)
+                    }}
+                />
                 <TimezonePopup
                     visible={isModalOpen}
                     onDismiss={() => closeModal()}
@@ -141,9 +138,9 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                             onChange={() => openBottomSheet("Avatar")}
                                         />
                                         <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names")} />
-                                        <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => { }} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => openBottomSheet("Contact")} />
                                         <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
-                                        <SingleInfo onPress={() => { }} title={translate("settingScreen.personalSection.language")} value={"lang.locale"} />
+                                        <SingleInfo onPress={() => openBottomSheet("Language")} title={translate("settingScreen.personalSection.language")} value={preferredLanguage?.name} />
                                         <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={user?.timeZone} onDetectTimezone={() => onDetectTimezone(user)} onPress={() => openBottomSheet("TimeZone")} />
                                         <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} onPress={() => { }} />
 
@@ -214,6 +211,19 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                     selectedTimezone={selectedTimezone}
                                 /> : null
                             }
+
+                            {showPopup === "Language" ?
+                                <LanguageForm
+                                    onPress={() => openLanguageModal()}
+                                    user={user}
+                                    onUpdateTimezone={updateUserInfo}
+                                    onDismiss={() => {
+                                        setIsOpen(false)
+                                        sheetRef.current.snapTo(2)
+                                    }}
+                                    selectedLanguage={selectedLanguage}
+                                /> : null
+                            }
                         </View>
 
                     }
@@ -221,7 +231,6 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                 <FlashMessage position={"bottom"} />
             </Screen>
         </>
-
     )
 }
 
