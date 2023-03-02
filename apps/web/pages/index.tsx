@@ -10,8 +10,6 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
-import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
