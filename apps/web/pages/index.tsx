@@ -15,33 +15,24 @@ import { useOrganizationTeams, useTeamTasks } from '@app/hooks';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
-	const {activeTeam, teamsFetching} = useOrganizationTeams();
-	const {loading} = useTeamTasks();
-	
 
 	return (
-		<>
-			{activeTeam && teamsFetching ? (
-				<TeamPageSkeleton />
-			) : (
-				<MainLayout>
-					<MainHeader>
-						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+		<MainLayout>
+			<MainHeader>
+				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 
-						<UnverifiedEmail />
+				<UnverifiedEmail />
 
-						<TaskTimerSection />
+				<TaskTimerSection />
 
-						{/* Header user card list */}
-						<UserTeamCardHeader />
-					</MainHeader>
+				{/* Header user card list */}
+				<UserTeamCardHeader />
+			</MainHeader>
 
-					<Container className="mb-10">
-						<TeamMembers />
-					</Container>
-				</MainLayout>
-			)}
-		</>
+			<Container className="mb-10">
+				<TeamMembers />
+			</Container>
+		</MainLayout>
 	);
 }
 

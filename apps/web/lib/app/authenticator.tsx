@@ -10,6 +10,7 @@ import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
+import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 
 export function withAuthentication(
 	Component: NextPage<any, any>,
@@ -50,32 +51,38 @@ export function withAuthentication(
 
 		return (
 			<>
-				<Component {...props} />
-				<BackdropLoader
-					canCreatePortal={false}
-					title={trans.common.LOADING}
-					fadeIn={false}
-					show={!user || loading}
-				/>
-				{user && !isTeamMember && showCreateTeamModal && (
-					<CreateTeamModal
-						open={showCreateTeamModal}
-						closeModal={() => {
-							closeModalIfNewTeamCreated();
-						}}
-						joinTeamModal={() => {
-							setShowCreateTeamModal(false);
-							setShowJoinTeamModal(true);
-						}}
-					/>
-				)}
-				{user && !isTeamMember && showJoinTeamModal && (
-					<JoinTeamModal
-						open={showJoinTeamModal}
-						closeModal={() => {
-							closeModalIfNewTeamCreated();
-						}}
-					/>
+				{!user || loading ? (
+					<TeamPageSkeleton />
+				) : (
+					<>
+						<Component {...props} />
+						<BackdropLoader
+							canCreatePortal={false}
+							title={trans.common.LOADING}
+							fadeIn={false}
+							show={!user || loading}
+						/>
+						{user && !isTeamMember && showCreateTeamModal && (
+							<CreateTeamModal
+								open={showCreateTeamModal}
+								closeModal={() => {
+									closeModalIfNewTeamCreated();
+								}}
+								joinTeamModal={() => {
+									setShowCreateTeamModal(false);
+									setShowJoinTeamModal(true);
+								}}
+							/>
+						)}
+						{user && !isTeamMember && showJoinTeamModal && (
+							<JoinTeamModal
+								open={showJoinTeamModal}
+								closeModal={() => {
+									closeModalIfNewTeamCreated();
+								}}
+							/>
+						)}
+					</>
 				)}
 			</>
 		);

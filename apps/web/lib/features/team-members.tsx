@@ -11,6 +11,8 @@ import {
 	InviteUserTeamCard,
 } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
+import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
+import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
 
 export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -28,7 +30,12 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 		return m.employee.user?.id !== user?.id;
 	});
 
-	return (
+	return members.length === 0 ? (
+		<div className="">
+			<UserTeamCardSkeletonCard />
+			<InviteUserTeamCardSkeleton />
+		</div>
+	) : (
 		<ul className="mt-7">
 			{/* Current authenticated user members */}
 			<Transition

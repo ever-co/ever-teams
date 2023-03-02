@@ -47,10 +47,10 @@ export function Navbar({
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
-	const { teamsFetching } = useOrganizationTeams();
+	const { teamsFetching, teams } = useOrganizationTeams();
 	return (
 		<>
-			{ teamsFetching ?  (
+			{ teamsFetching || teams.length === 0 ?  (
 				<HeaderSkeleton />
 			) : (
 				<nav
