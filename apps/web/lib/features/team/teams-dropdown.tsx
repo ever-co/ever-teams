@@ -32,8 +32,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	return (
 		<>
 			<Dropdown
-				className="min-w-[230px] max-w-sm"
-				optionsClassName="min-w-[230px] max-w-sm"
+				className="min-w-[223px] max-w-sm"
+				optionsClassName="min-w-[223px] max-w-sm"
 				buttonClassName={clsxm(
 					'py-0 font-medium',
 					items.length === 0 && ['py-2']

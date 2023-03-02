@@ -6,10 +6,9 @@ export function getPublicOrganizationTeamRequest({
 	teamId,
 	relations = [
 		'members',
-		'members.role',
+		// 'members.role',
 		'members.employee',
 		'members.employee.user',
-		'createdBy',
 		'tasks',
 		'tasks.members',
 		'tasks.teams',
