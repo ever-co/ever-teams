@@ -12,10 +12,15 @@ import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useSkeleton } from '@app/hooks/useSkeleton';
 import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
+import { useOrganizationTeams } from '@app/hooks';
+import NoTeam from '@components/pages/main/no-team';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
 	const { showSkeleton } = useSkeleton();
+	const { teams } = useOrganizationTeams();
+	console.log(teams)
+	console.log(teams.length)
 
 	return (
 		<>
@@ -28,14 +33,14 @@ function MainPage() {
 
 						<UnverifiedEmail />
 
-						<TaskTimerSection />
+						{teams.length === 0 ? null : <TaskTimerSection />}
 
 						{/* Header user card list */}
 						<UserTeamCardHeader />
 					</MainHeader>
 
 					<Container className="mb-10">
-						<TeamMembers />
+						{teams.length === 0 ? <NoTeam /> : <TeamMembers /> }
 					</Container>
 				</MainLayout>
 			)}
