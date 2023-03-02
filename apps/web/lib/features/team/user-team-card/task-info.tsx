@@ -11,9 +11,15 @@ import { useRouter } from 'next/router';
 type Props = IClassName & {
 	edition: I_TMCardTaskEditHook;
 	memberInfo: I_TeamMemberCardHook;
+	publicTeam?: boolean;
 };
 
-export function TaskInfo({ className, memberInfo, edition }: Props) {
+export function TaskInfo({
+	className,
+	memberInfo,
+	edition,
+	publicTeam,
+}: Props) {
 	return (
 		<div
 			className={clsxm(
@@ -29,7 +35,11 @@ export function TaskInfo({ className, memberInfo, edition }: Props) {
 				)}
 			>
 				{edition.task && (
-					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} />
+					<TaskDetailAndEdition
+						memberInfo={memberInfo}
+						edition={edition}
+						publicTeam={publicTeam}
+					/>
 				)}
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
@@ -43,7 +53,7 @@ export function TaskInfo({ className, memberInfo, edition }: Props) {
 /**
  *  A component that is used to display the task name and also allow the user to edit the task name.
  */
-function TaskDetailAndEdition({ edition, memberInfo }: Props) {
+function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
 	const router = useRouter();
@@ -61,7 +71,11 @@ function TaskDetailAndEdition({ edition, memberInfo }: Props) {
 					'text-sm text-ellipsis cursor-default overflow-hidden cursor-pointer',
 					hasEditMode && ['hidden']
 				)}
-				onClick={() => task && router.push(`/task/${task?.id}`)}
+				onClick={
+					publicTeam
+						? () => null
+						: () => task && router.push(`/task/${task?.id}`)
+				}
 				onDoubleClick={() =>
 					(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
 					task &&
