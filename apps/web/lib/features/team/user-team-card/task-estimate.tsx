@@ -28,6 +28,7 @@ export function TaskEstimateInfo({
 					task={rest.edition.task}
 					isAuthUser={rest.memberInfo.isAuthUser}
 					activeAuthTask={activeAuthTask}
+					memberInfo={rest.memberInfo}
 				/>
 			</div>
 		</div>

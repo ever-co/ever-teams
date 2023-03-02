@@ -66,12 +66,14 @@ export function UserTeamCard({
 				edition={taskEdition}
 				memberInfo={memberInfo}
 				className="w-80 px-4"
+				publicTeam={publicTeam}
 			/>
 			<VerticalSeparator className="ml-2" />
 
 			{/* TaskTimes */}
 			<TaskTimes
 				activeAuthTask={true}
+				memberInfo={memberInfo}
 				task={memberInfo.memberTask}
 				isAuthUser={memberInfo.isAuthUser}
 				className="w-48 px-4"
@@ -88,7 +90,11 @@ export function UserTeamCard({
 			<VerticalSeparator />
 
 			{/* TodayWorkedTime */}
-			<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} className="flex-1" />
+			<TodayWorkedTime
+				isAuthUser={memberInfo.isAuthUser}
+				className="flex-1"
+				memberInfo={memberInfo}
+			/>
 
 			{/* Card menu */}
 			<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />

@@ -1,5 +1,6 @@
 import { IEmployee } from './IEmployee';
 import { ITeamTask } from './ITask';
+import { ITasksTimesheet } from './ITimer';
 import { IUser } from './IUserData';
 
 export interface IOrganizationTeamCreate {
@@ -62,6 +63,8 @@ export interface OT_Member {
 	running?: boolean;
 	duration?: number;
 	isTrackingEnabled?: boolean;
+	totalTodayTasks: ITasksTimesheet[];
+	totalWorkedTasks: ITasksTimesheet[];
 }
 
 interface OT_Role {

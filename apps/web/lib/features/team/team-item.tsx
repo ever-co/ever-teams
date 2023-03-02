@@ -24,7 +24,13 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 					<SettingsOutlineIcon className="cursor-pointer" />
 				</div>
 			),
-			selectedLabel: <TeamItem title={team.name} className="py-2 mb-0" />,
+			selectedLabel: (
+				<TeamItem
+					title={team.name}
+					count={team?.members?.length || 0}
+					className="py-2 mb-0"
+				/>
+			),
 			data: team,
 		};
 	});
