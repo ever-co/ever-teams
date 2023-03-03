@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { showMessage } from "react-native-flash-message";
 import { useStores } from "../../models";
 import useFetchUserOrganization from "../client/queries/organizationTeam/organization";
-import { createOrganizationTeamRequest, updateOrganizationTeamRequest } from "../client/requests/organization-team";
+import { createOrganizationTeamRequest, removeUserFromAllTeam, updateOrganizationTeamRequest } from "../client/requests/organization-team";
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
 import useAuthenticateUser from "./features/useAuthentificateUser";
 
@@ -177,6 +177,15 @@ export function useOrganizationTeam() {
         }
     }, [activeTeam, isTeamManager])
 
+    const removeUserFromAllTeams = useCallback(async (userId: string) => {
+        const { data } = await removeUserFromAllTeam({
+            userId,
+            bearer_token: authToken,
+            tenantId
+        })
+        return data
+    }, [])
+
 
     // Load Teams
     useEffect(() => {
@@ -193,7 +202,6 @@ export function useOrganizationTeam() {
                 setActiveTeam(updateActiveTeam)
                 setActiveTeamId(updateActiveTeam.id)
             }
-            // console.log("Teams "+JSON.stringify(organizationTeams))
 
             setOrganizationTeams(organizationTeams);
             setTeamsFetching(false)
@@ -203,7 +211,7 @@ export function useOrganizationTeam() {
 
 
     return {
-        // loadingTeams,
+        removeUserFromAllTeams,
         isTeamManager,
         members,
         activeTeam,

@@ -30,7 +30,9 @@ export function useSettings() {
             data: userBody,
             tenantId
         }, authToken)
+        
         queryClient.invalidateQueries("user")
+        console.log(JSON.stringify(data))
         return data
     }, [])
 
