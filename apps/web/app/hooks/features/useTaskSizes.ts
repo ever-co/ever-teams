@@ -5,18 +5,19 @@ import {
 	getTaskSizesList,
 	editTaskSizesAPI,
 } from '@app/services/client/api';
-import { userState } from '@app/stores';
+import { activeTeamState, userState } from '@app/stores';
 import {
 	taskSizesFetchingState,
 	taskSizesListState,
 } from '@app/stores/task-sizes';
 import { useCallback, useEffect } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 
 export function useTaskSizes() {
 	const [user] = useRecoilState(userState);
+	const activeTeam = useRecoilValue(activeTeamState);
 
 	const { loading, queryCall } = useQuery(getTaskSizesList);
 	const { loading: createTaskSizesLoading, queryCall: createQueryCall } =
@@ -41,21 +42,26 @@ export function useTaskSizes() {
 	useEffect(() => {
 		queryCall(
 			user?.tenantId as string,
-			user?.employee?.organizationId as string
+			user?.employee?.organizationId as string,
+			activeTeam?.id || null
 		).then((res) => {
 			setTaskSizes(res?.data?.data?.items || []);
 			return res;
 		});
-	}, []);
+	}, [activeTeam]);
 
 	const createTaskSizes = useCallback(
 		(data: ITaskSizesCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(data, user?.tenantId || '').then((res) => {
+				return createQueryCall(
+					{ ...data, organizationTeamId: activeTeam?.id },
+					user?.tenantId || ''
+				).then((res) => {
 					if (res?.data?.data && res?.data?.data?.name) {
 						queryCall(
 							user?.tenantId as string,
-							user?.employee?.organizationId as string
+							user?.employee?.organizationId as string,
+							activeTeam?.id || null
 						).then((res) => {
 							setTaskSizes(res?.data?.data?.items || []);
 							return res;
@@ -67,7 +73,13 @@ export function useTaskSizes() {
 			}
 		},
 
-		[createQueryCall, createTaskSizesLoading, deleteTaskSizesLoading, user]
+		[
+			createQueryCall,
+			createTaskSizesLoading,
+			deleteTaskSizesLoading,
+			user,
+			activeTeam,
+		]
 	);
 
 	const deleteTaskSizes = useCallback(
@@ -76,7 +88,8 @@ export function useTaskSizes() {
 				return deleteQueryCall(id).then((res) => {
 					queryCall(
 						user?.tenantId as string,
-						user?.employee?.organizationId as string
+						user?.employee?.organizationId as string,
+						activeTeam?.id || null
 					).then((res) => {
 						setTaskSizes(res?.data?.data?.items || []);
 						return res;
@@ -91,6 +104,7 @@ export function useTaskSizes() {
 			createTaskSizesLoading,
 			deleteTaskSizesLoading,
 			user,
+			activeTeam,
 		]
 	);
 
@@ -100,7 +114,8 @@ export function useTaskSizes() {
 				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
 					queryCall(
 						user?.tenantId as string,
-						user?.employee?.organizationId as string
+						user?.employee?.organizationId as string,
+						activeTeam?.id || null
 					).then((res) => {
 						setTaskSizes(res?.data?.data?.items || []);
 						return res;
@@ -109,7 +124,7 @@ export function useTaskSizes() {
 				});
 			}
 		},
-		[editTaskSizesLoading, user]
+		[editTaskSizesLoading, user, activeTeam]
 	);
 
 	return {

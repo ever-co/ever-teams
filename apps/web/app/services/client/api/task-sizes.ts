@@ -29,8 +29,12 @@ export function deleteTaskSizesAPI(id: string) {
 	return api.delete<DeleteReponse>(`/task-sizes/${id}`);
 }
 
-export function getTaskSizesList(tenantId: string, organizationId: string) {
+export function getTaskSizesList(
+	tenantId: string,
+	organizationId: string,
+	activeTeamId: string | null
+) {
 	return api.get(
-		`/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}`
+		`/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
 	);
 }
