@@ -32,7 +32,7 @@ export function useSettings() {
         }, authToken)
         
         queryClient.invalidateQueries("user")
-        console.log(JSON.stringify(data))
+
         return data
     }, [])
 

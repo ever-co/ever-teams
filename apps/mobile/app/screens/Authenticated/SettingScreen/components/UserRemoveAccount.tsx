@@ -16,20 +16,20 @@ const UserRemoveAccount = (
         userId: string;
         actionType: "Delete" | "Remove"
     }) => {
-    const { colors } = useAppTheme()
+    const { colors, dark } = useAppTheme()
     const { removeUserFromAllTeams } = useOrganizationTeam();
     const { deleteUser } = useUser();
 
     const onSubmit = useCallback(async () => {
         if (actionType === "Remove") {
             const data = await removeUserFromAllTeams(userId)
-            console.log(data)
-        } else {
-            const data = await deleteUser(userId)
-            console.log(data)
+            onDismiss()
+            return
         }
+
+        const data = await deleteUser(userId)
         onDismiss()
-    }, [])
+    }, [userId])
 
     return (
         <View
@@ -43,8 +43,8 @@ const UserRemoveAccount = (
                     </TouchableWithoutFeedback>
                 </View>
             </TouchableWithoutFeedback>
-            <View style={styles.mainContainer}>
-                <Text style={styles.title}>Are you sure ?</Text>
+            <View style={{ ...styles.mainContainer, backgroundColor: dark ? "#1E2025" : colors.background }}>
+                <Text style={{ ...styles.title, color: colors.primary }}>Are you sure ?</Text>
                 <Text style={styles.warningMessage}>{actionType === "Delete" ? translate("settingScreen.personalSection.deleteAccountHint") : translate("settingScreen.personalSection.removeAccountHint")}</Text>
                 <TouchableOpacity style={styles.button} onPress={() => onSubmit()}>
                     <Text style={styles.buttonText}>Remove Everywhere</Text>

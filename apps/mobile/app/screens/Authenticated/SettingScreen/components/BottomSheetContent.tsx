@@ -25,7 +25,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                 }
                 {openedSheet === "Avatar" ?
                     <ChangeUserAvatar
-                        onExtend={() => openBottomSheet("Avatar 2",2)}
+                        onExtend={() => openBottomSheet("Avatar",3)}
                         onDismiss={() => onDismiss()} />
                     : null
                 }

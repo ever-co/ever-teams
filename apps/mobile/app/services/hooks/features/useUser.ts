@@ -13,7 +13,8 @@ export function useUser() {
             bearer_token: authToken,
             tenantId
         })
-        if (response.ok && response.status === 200) {
+        console.log(JSON.stringify(response))
+        if (response.ok) {
             logOut()
         }
     }, [])
