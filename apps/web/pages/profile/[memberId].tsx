@@ -15,7 +15,6 @@ import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 import TaskPageSkeleton from '@components/shared/skeleton/TaskPageSkeleton';
-import { useSkeleton } from '@app/hooks/useSkeleton';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
@@ -23,11 +22,10 @@ const Profile = () => {
 	const hook = useTaskFilter(profile);
 
 	const { trans } = useTranslation('profile');
-	const { showSkeleton } = useSkeleton();
 
 	return (
 		<>
-			{!showSkeleton ? (
+			{!profile.isAuthUser ? (
 				<TaskPageSkeleton />
 			) : (
 				<MainLayout showTimer={!profile.isAuthUser}>
