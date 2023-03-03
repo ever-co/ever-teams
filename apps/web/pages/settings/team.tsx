@@ -13,18 +13,20 @@ import {
 	TaskLabelForm,
 } from 'lib/settings';
 import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkeleton';
-import { useSkeleton } from '@app/hooks/useSkeleton';
 
 import { useTranslation } from 'lib/i18n';
 import { NotificationSettings } from 'lib/settings/notification-setting';
+import { useRecoilState } from 'recoil';
+import { userState } from '@app/stores';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
-	const { showSkeleton } = useSkeleton();
+	const [user] = useRecoilState(userState);
+
 
 	return (
 		<>
-			{!showSkeleton ? (
+			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
 				<MainLayout>

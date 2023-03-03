@@ -10,36 +10,27 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useSkeleton } from '@app/hooks/useSkeleton';
-import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
-	const { showSkeleton } = useSkeleton();
 
 	return (
-		<>
-			{!showSkeleton ? (
-				<TeamPageSkeleton />
-			) : (
-				<MainLayout>
-					<MainHeader>
-						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+		<MainLayout>
+			<MainHeader>
+				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 
-						<UnverifiedEmail />
+				<UnverifiedEmail />
 
-						<TaskTimerSection />
+				<TaskTimerSection />
 
-						{/* Header user card list */}
-						<UserTeamCardHeader />
-					</MainHeader>
+				{/* Header user card list */}
+				<UserTeamCardHeader />
+			</MainHeader>
 
-					<Container className="mb-10">
-						<TeamMembers />
-					</Container>
-				</MainLayout>
-			)}
-		</>
+			<Container className="mb-10">
+				<TeamMembers />
+			</Container>
+		</MainLayout>
 	);
 }
 

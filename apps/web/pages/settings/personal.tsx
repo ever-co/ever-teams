@@ -11,15 +11,17 @@ import {
 
 import { useTranslation } from 'lib/i18n';
 import SettingsPersonlalSkeleton from '@components/shared/skeleton/SettingsPersonalSkeleton';
-import { useSkeleton } from '@app/hooks/useSkeleton';
+import { useRecoilState } from 'recoil';
+import { userState } from '@app/stores';
+
 
 const Personal = () => {
 	const { trans, translations } = useTranslation('settingsPersonal');
-	const { showSkeleton } = useSkeleton();
+	const [user] = useRecoilState(userState);
 
 	return (
 		<>
-			{!showSkeleton ? (
+			{!user ? (
 				<SettingsPersonlalSkeleton />
 			) : (
 				<MainLayout>
