@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { View, ScrollView, Text, ViewStyle, TextStyle, Dimensions, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import { View, ScrollView, Text, ViewStyle, TextStyle, Dimensions, TouchableWithoutFeedback } from "react-native";
 import { Screen } from "../../../components";
 import { useStores } from "../../../models";
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator";
@@ -12,7 +12,6 @@ import SettingHeader from "./components/SettingHeader";
 import SingleInfo from "./components/SingleInfo";
 import { BlurView } from "expo-blur";
 import { translate } from "../../../i18n";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useAppTheme } from "../../../app";
 import { observer } from "mobx-react-lite";
 import Animated from "react-native-reanimated";
@@ -25,8 +24,9 @@ import { useTimezoneModal } from "../../../services/hooks/useTimezoneModal";
 import UserTimezone from "./components/UserTimezone";
 import LanguageForm from "./components/LanguageForm";
 import { useLanguageModal } from "../../../services/hooks/useLanguageModal";
+import UserRemoveAccount from "./components/UserRemoveAccount";
 
-export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2";
+export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2" | "Delete Account" | "Remove Account";
 
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Setting">> = function AuthenticatedDrawerScreen(_props) {
     const { colors } = useAppTheme();
@@ -51,43 +51,10 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
     const fall = new Animated.Value(1)
 
 
-    const openBottomSheet = (name: IPopup) => {
-        switch (name) {
-            case "Avatar":
-                setShowPopup("Avatar")
-                setIsOpen(true)
-                sheetRef.current.snapTo(1)
-                break;
-            case "Avatar 2":
-                setShowPopup("Avatar")
-                setIsOpen(true)
-                sheetRef.current.snapTo(3)
-                break;
-            case "Names":
-                setShowPopup("Names")
-                setIsOpen(true)
-                sheetRef.current.snapTo(0)
-                break;
-            case "Contact":
-                setShowPopup("Contact")
-                setIsOpen(true)
-                sheetRef.current.snapTo(0)
-                break;
-            case "Language":
-                setShowPopup("Language")
-                setIsOpen(true)
-                sheetRef.current.snapTo(4)
-                break;
-            case "TimeZone":
-                setShowPopup("TimeZone")
-                setIsOpen(true)
-                sheetRef.current.snapTo(4)
-                break;
-            case "Schedule":
-                break;
-            default:
-                return;
-        }
+    const openBottomSheet = (name: IPopup, snapPoint: number) => {
+        setShowPopup(name)
+        setIsOpen(true)
+        sheetRef.current.snapTo(snapPoint)
     }
 
     return (
@@ -135,19 +102,19 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                             imageUrl={user?.imageUrl}
                                             buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
                                             onDelete={() => { }}
-                                            onChange={() => openBottomSheet("Avatar")}
+                                            onChange={() => openBottomSheet("Avatar", 1)}
                                         />
-                                        <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names")} />
-                                        <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => openBottomSheet("Contact")} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names", 0)} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => openBottomSheet("Contact", 0)} />
                                         <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
-                                        <SingleInfo onPress={() => openBottomSheet("Language")} title={translate("settingScreen.personalSection.language")} value={preferredLanguage?.name} />
-                                        <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={user?.timeZone} onDetectTimezone={() => onDetectTimezone(user)} onPress={() => openBottomSheet("TimeZone")} />
+                                        <SingleInfo onPress={() => openBottomSheet("Language", 4)} title={translate("settingScreen.personalSection.language")} value={preferredLanguage?.name} />
+                                        <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={user?.timeZone} onDetectTimezone={() => onDetectTimezone(user)} onPress={() => openBottomSheet("TimeZone", 4)} />
                                         <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} onPress={() => { }} />
 
                                         <View style={$dangerZoneContainer}>
                                             <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
-                                            <SingleInfo title={translate("settingScreen.personalSection.removeAccount")} value={translate("settingScreen.personalSection.removeAccountHint")} onPress={() => { }} />
-                                            <SingleInfo title={translate("settingScreen.personalSection.deleteAccount")} value={translate("settingScreen.personalSection.deleteAccountHint")} onPress={() => { }} />
+                                            <SingleInfo title={translate("settingScreen.personalSection.removeAccount")} value={translate("settingScreen.personalSection.removeAccountHint")} onPress={() => openBottomSheet("Remove Account", 5)} />
+                                            <SingleInfo title={translate("settingScreen.personalSection.deleteAccount")} value={translate("settingScreen.personalSection.deleteAccountHint")} onPress={() => openBottomSheet("Delete Account", 5)} />
                                         </View>
                                     </View>
                                     // PERSONAL SECTION CONTENT ENDS HERE
@@ -184,7 +151,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                 </View>
                 <BottomSheet
                     ref={sheetRef}
-                    snapPoints={[340, 174, 0, 611, 276]}
+                    snapPoints={[340, 174, 0, 611, 276, 335]}
                     borderRadius={24}
                     initialSnap={1}
                     callbackNode={fall}
@@ -224,8 +191,28 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                     selectedLanguage={selectedLanguage}
                                 /> : null
                             }
-                        </View>
+                            {showPopup === "Remove Account" ?
+                                <UserRemoveAccount
+                                    userId={user?.id}
+                                    actionType={"Remove"}
+                                    onDismiss={() => {
+                                        setIsOpen(false)
+                                        sheetRef.current.snapTo(2)
+                                    }}
+                                />
+                                : null}
 
+                            {showPopup === "Delete Account" ?
+                                <UserRemoveAccount
+                                    userId={user?.id}
+                                    actionType={"Delete"}
+                                    onDismiss={() => {
+                                        setIsOpen(false)
+                                        sheetRef.current.snapTo(2)
+                                    }}
+                                />
+                                : null}
+                        </View>
                     }
                 />
                 <FlashMessage position={"bottom"} />
@@ -269,6 +256,7 @@ const $contentContainer: ViewStyle = {
     flex: 1,
     paddingHorizontal: 20,
     paddingBottom: 40,
+    marginBottom: 20,
     backgroundColor: "#fff",
 }
 

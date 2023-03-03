@@ -83,3 +83,37 @@ export function getAllOrganizationTeamRequest(
     tenantId,
   });
 }
+
+export function removeEmployeeOrganizationTeamRequest({
+	employeeId,
+	bearer_token,
+	tenantId,
+}: {
+	employeeId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<boolean>({
+		path: `/organization-team-employee/${employeeId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
+}
+
+export function removeUserFromAllTeam({
+	userId,
+	bearer_token,
+	tenantId,
+}: {
+	userId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch({
+		path: `/organization-team/teams/${userId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
+}
