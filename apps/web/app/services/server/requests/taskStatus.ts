@@ -53,11 +53,19 @@ export function deleteTaskStatusRequest({
 }
 
 export function getTaskStatusListRequest<ITaskStatusItemList>(
-	{ organizationId, tenantId }: { tenantId: string; organizationId: string },
+	{
+		organizationId,
+		tenantId,
+		activeTeamId,
+	}: {
+		tenantId: string;
+		organizationId: string;
+		activeTeamId: string | null;
+	},
 	bearer_token: string
 ) {
 	return serverFetch({
-		path: `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}`,
+		path: `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
 		bearer_token,
 	});

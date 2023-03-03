@@ -131,7 +131,7 @@ export const TaskSizesForm = () => {
 										<InputField
 											type="text"
 											placeholder="Create Size"
-											className="mb-0"
+											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0"
 											{...register('name')}
 										/>

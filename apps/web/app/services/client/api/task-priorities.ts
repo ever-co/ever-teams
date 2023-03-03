@@ -42,9 +42,10 @@ export function deleteTaskPrioritiesAPI(id: string) {
 
 export function getTaskPrioritiesList(
 	tenantId: string,
-	organizationId: string
+	organizationId: string,
+	activeTeamId: string | null
 ) {
 	return api.get(
-		`/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}`
+		`/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
 	);
 }
