@@ -9,14 +9,16 @@ import {
 	userState,
 	taskPrioritiesListState,
 	taskPrioritiesFetchingState,
+	activeTeamState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 
 export function useTaskPriorities() {
 	const [user] = useRecoilState(userState);
+	const activeTeam = useRecoilValue(activeTeamState);
 
 	const { loading, queryCall } = useQuery(getTaskPrioritiesList);
 	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } =
@@ -42,21 +44,26 @@ export function useTaskPriorities() {
 	useEffect(() => {
 		queryCall(
 			user?.tenantId as string,
-			user?.employee?.organizationId as string
+			user?.employee?.organizationId as string,
+			activeTeam?.id || null
 		).then((res) => {
 			setTaskPriorities(res?.data?.data?.items || []);
 			return res;
 		});
-	}, []);
+	}, [activeTeam]);
 
 	const createTaskPriorities = useCallback(
 		(data: ITaskPrioritiesCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(data, user?.tenantId || '').then((res) => {
+				return createQueryCall(
+					{ ...data, organizationTeamId: activeTeam?.id },
+					user?.tenantId || ''
+				).then((res) => {
 					if (res?.data?.data && res?.data?.data?.name) {
 						queryCall(
 							user?.tenantId as string,
-							user?.employee?.organizationId as string
+							user?.employee?.organizationId as string,
+							activeTeam?.id || null
 						).then((res) => {
 							setTaskPriorities(res?.data?.data?.items || []);
 							return res;
@@ -73,6 +80,7 @@ export function useTaskPriorities() {
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
 			user,
+			activeTeam,
 		]
 	);
 
@@ -82,7 +90,8 @@ export function useTaskPriorities() {
 				return deleteQueryCall(id).then((res) => {
 					queryCall(
 						user?.tenantId as string,
-						user?.employee?.organizationId as string
+						user?.employee?.organizationId as string,
+						activeTeam?.id || null
 					).then((res) => {
 						setTaskPriorities(res?.data?.data?.items || []);
 						return res;
@@ -97,6 +106,7 @@ export function useTaskPriorities() {
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
 			user,
+			activeTeam,
 		]
 	);
 
@@ -106,7 +116,8 @@ export function useTaskPriorities() {
 				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
 					queryCall(
 						user?.tenantId as string,
-						user?.employee?.organizationId as string
+						user?.employee?.organizationId as string,
+						activeTeam?.id || null
 					).then((res) => {
 						setTaskPriorities(res?.data?.data?.items || []);
 						return res;
@@ -115,7 +126,7 @@ export function useTaskPriorities() {
 				});
 			}
 		},
-		[editTaskPrioritiesLoading, user]
+		[editTaskPrioritiesLoading, user, activeTeam]
 	);
 
 	return {

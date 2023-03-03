@@ -53,11 +53,15 @@ export function deleteTaskSizesRequest({
 }
 
 export function getTaskSizesListRequest<ITaskSizesItemList>(
-	{ organizationId, tenantId }: { tenantId: string; organizationId: string },
+	{
+		organizationId,
+		tenantId,
+		activeTeamId,
+	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
 	return serverFetch({
-		path: `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}`,
+		path: `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
 		bearer_token,
 	});
