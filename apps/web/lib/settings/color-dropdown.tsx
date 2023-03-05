@@ -15,18 +15,6 @@ export const ColorDropdown = ({
 }) => {
 	const [colors, setColors] = useState<IColor[]>([
 		{
-			color: '#FF0000',
-			title: '#FF0000',
-		},
-		{
-			color: '#00FF00',
-			title: '#00FF00',
-		},
-		{
-			color: '#0000FF',
-			title: '#0000FF',
-		},
-		{
 			color: '#ECE8FC',
 			title: '#ECE8FC',
 		},
