@@ -2,11 +2,16 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Dropdown } from 'lib/components';
 import { mapTeamItems, TeamItem } from './team-item';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { useModal, useOrganizationTeams } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useModal,
+	useOrganizationTeams,
+} from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { CreateTeamModal } from './create-team-modal';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
+	const { user } = useAuthenticateUser();
 	const { teams, activeTeam, setActiveTeam, teamsFetching } =
 		useOrganizationTeams();
 
@@ -55,7 +60,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				)}
 			</Dropdown>
 
-			{!publicTeam && <CreateTeamModal open={isOpen} closeModal={closeModal} />}
+			{!publicTeam && (
+				<CreateTeamModal
+					open={isOpen && !!user?.isEmailVerified}
+					closeModal={closeModal}
+				/>
+			)}
 		</>
 	);
 };
