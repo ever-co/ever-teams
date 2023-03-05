@@ -30,26 +30,6 @@ export function mapColorItems(colors: IColor[]) {
 		};
 	});
 
-	if (items.length > 0) {
-		items.unshift({
-			key: '#F5F5F5',
-			Label: () => (
-				<div className="flex justify-between">
-					<ColorItem
-						title={'Colors'}
-						className="w-full cursor-default"
-						color="#F5F5F5"
-						disabled
-					/>
-				</div>
-			),
-			selectedLabel: (
-				<ColorItem title={'Colors'} color={'#F5F5F5'} className="py-2 mb-0" />
-			),
-			data: { title: 'Colors', color: '#F5F5F5' },
-		});
-	}
-
 	return items;
 }
 
