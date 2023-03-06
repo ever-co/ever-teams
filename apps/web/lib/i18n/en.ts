@@ -59,6 +59,8 @@ export const en = {
 		TRANSFER: 'Transfer',
 		TRANSFER_TEAM: 'Transfer Team',
 		TEAM_MEMBERS: 'Team Members',
+		NO_TEAM: 'Create your own team or join existed',
+		NO_TEAM_SUB: 'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.'
 	},
 	pages: {
 		home: {

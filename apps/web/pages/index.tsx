@@ -10,9 +10,12 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
+import { useOrganizationTeams } from '@app/hooks';
+import NoTeam from '@components/pages/main/no-team';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
+	const { isTeamMember } = useOrganizationTeams();
 
 	return (
 		<MainLayout>
@@ -21,14 +24,14 @@ function MainPage() {
 
 				<UnverifiedEmail />
 
-				<TaskTimerSection />
+				{ isTeamMember ? <TaskTimerSection /> : null }
 
 				{/* Header user card list */}
 				<UserTeamCardHeader />
 			</MainHeader>
 
 			<Container className="mb-10">
-				<TeamMembers />
+				{isTeamMember  ? <TeamMembers /> : <NoTeam />} 
 			</Container>
 		</MainLayout>
 	);
