@@ -32,6 +32,12 @@ export function deleteTaskLabelsAPI(id: string) {
 	return api.delete<DeleteReponse>(`/tags/${id}`);
 }
 
-export function getTaskLabelsList(tenantId: string, organizationId: string) {
-	return api.get(`/tags?tenantId=${tenantId}&organizationId=${organizationId}`);
+export function getTaskLabelsList(
+	tenantId: string,
+	organizationId: string,
+	activeTeamId: string | null
+) {
+	return api.get(
+		`/tags?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
+	);
 }

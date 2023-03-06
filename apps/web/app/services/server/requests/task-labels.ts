@@ -53,13 +53,19 @@ export function deleteTaskLabelsRequest({
 }
 
 export function getTaskLabelsListRequest<ITaskStatusItemList>(
-	{ organizationId, tenantId }: { tenantId: string; organizationId: string },
+	{
+		organizationId,
+		tenantId,
+		activeTeamId,
+	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
-	const data = `{"relations":["organization"],"findInput":{"tenantId":"${tenantId}","organizationId":"${organizationId}"}}`;
+	const data = `{"relations":["organization"],"findInput":{"tenantId":"${tenantId}","organizationId":"${organizationId}", "organizationTeamId":"${activeTeamId}"}}`;
 
 	return serverFetch({
-		path: `/tags?data=${encodeURI(data)}&where[tenantId]=${tenantId}&where[organizationId]=${organizationId}`,
+		path: `/tags?data=${encodeURI(
+			data
+		)}&where[tenantId]=${tenantId}&where[organizationId]=${organizationId}&where[organizationTeamId]=${activeTeamId}`,
 		method: 'GET',
 		bearer_token,
 	});

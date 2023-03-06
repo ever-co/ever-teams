@@ -23,4 +23,5 @@ export interface ITaskLabelsCreate {
 	projectId?: string;
 	organizationId?: string;
 	tenantId?: string | undefined | null;
+	organizationTeamId?: string;
 }
