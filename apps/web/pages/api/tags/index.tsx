@@ -14,9 +14,12 @@ export default async function handler(
 
 	if (!user) return $res();
 
+	const { activeTeamId } = req.query;
+
 	const par = {
 		tenantId,
 		organizationId,
+		activeTeamId: (activeTeamId as string) || null,
 	};
 
 	switch (req.method) {
