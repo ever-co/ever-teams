@@ -32,7 +32,9 @@ export function Avatar({
 			style={{ width: size, height: size }}
 		>
 			{imageTitle && !imageUrl && (
-				<span className="uppercase font-normal text-lg">{imageTitle.at(0)}</span>
+				<span className="uppercase font-normal text-lg">
+					{(imageTitle || '')[0] || ''}
+				</span>
 			)}
 
 			{imageUrl && (

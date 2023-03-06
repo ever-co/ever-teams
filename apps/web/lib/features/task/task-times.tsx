@@ -33,7 +33,7 @@ export function TaskTimes({
 
 	// For public page
 	const { teams } = useOrganizationTeams();
-	const currentMember = teams[0].members.find(
+	const currentMember = teams[0]?.members.find(
 		(member) => member.id === memberInfo?.member?.id
 	);
 
