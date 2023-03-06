@@ -36,8 +36,12 @@ export function deleteTaskStatusAPI(id: string) {
 	return api.delete<DeleteReponse>(`/task-statuses/${id}`);
 }
 
-export function getTaskstatusList(tenantId: string, organizationId: string) {
+export function getTaskstatusList(
+	tenantId: string,
+	organizationId: string,
+	activeTeamId: string | null
+) {
 	return api.get(
-		`/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}`
+		`/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
 	);
 }

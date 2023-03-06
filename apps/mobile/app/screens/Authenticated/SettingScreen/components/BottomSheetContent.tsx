@@ -8,7 +8,7 @@ import UpdateFullNameForm from "./UpdateFullNameForm"
 
 interface IBottomProps {
     onDismiss: () => unknown;
-    openBottomSheet?: (sheet: IPopup) => unknown;
+    openBottomSheet?: (sheet: IPopup, snapPoint:number) => unknown;
     openedSheet: IPopup
 }
 
@@ -25,7 +25,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                 }
                 {openedSheet === "Avatar" ?
                     <ChangeUserAvatar
-                        onExtend={() => openBottomSheet("Avatar 2")}
+                        onExtend={() => openBottomSheet("Avatar",3)}
                         onDismiss={() => onDismiss()} />
                     : null
                 }

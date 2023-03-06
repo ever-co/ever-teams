@@ -56,11 +56,15 @@ export function deleteTaskPrioritiesRequest({
 }
 
 export function getTaskPrioritiesListRequest<ITaskStatusItemList>(
-	{ organizationId, tenantId }: { tenantId: string; organizationId: string },
+	{
+		organizationId,
+		tenantId,
+		activeTeamId,
+	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
 	return serverFetch({
-		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}`,
+		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
 		bearer_token,
 	});

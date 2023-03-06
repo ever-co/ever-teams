@@ -138,7 +138,7 @@ export const TaskStatusesForm = () => {
 										<InputField
 											type="text"
 											placeholder="Create Status"
-											className="mb-0"
+											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0"
 											{...register('name')}
 										/>
