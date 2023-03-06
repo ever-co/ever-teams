@@ -5,6 +5,8 @@ import { AppLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
 import Skeleton from 'react-loading-skeleton';
 import { useOrganizationTeams } from '@app/hooks';
+import { useRecoilState } from 'recoil';
+import { userState } from '@app/stores';
 
 const HeaderSkeleton = () => {
 	return (
@@ -47,10 +49,12 @@ export function Navbar({
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
-	const { teamsFetching, teams } = useOrganizationTeams();
+	const { isTeamMember } = useOrganizationTeams();
+	const [user] = useRecoilState(userState);
+
 	return (
 		<>
-			{ teamsFetching || teams.length === 0 ?  (
+			{ !user ? (
 				<HeaderSkeleton />
 			) : (
 				<nav
@@ -70,7 +74,10 @@ export function Navbar({
 										</Button>
 									)}
 									{showTimer && <MinTimerFrame />}
-									<TeamsDropDown publicTeam={publicTeam || false} />
+									{isTeamMember ? (
+										<TeamsDropDown publicTeam={publicTeam || false} />
+									) : null}
+
 									{!publicTeam && <UserNavAvatar />}
 								</div>
 							)}
