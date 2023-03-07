@@ -24,14 +24,14 @@ function MainPage() {
 
 				<UnverifiedEmail />
 
-				{ isTeamMember ? <TaskTimerSection /> : null }
+				{isTeamMember ? <TaskTimerSection /> : null}
 
 				{/* Header user card list */}
-				<UserTeamCardHeader />
+				{isTeamMember ? <UserTeamCardHeader /> : null}
 			</MainHeader>
 
 			<Container className="mb-10">
-				{isTeamMember  ? <TeamMembers /> : <NoTeam />} 
+				{isTeamMember ? <TeamMembers /> : <NoTeam />}
 			</Container>
 		</MainLayout>
 	);
