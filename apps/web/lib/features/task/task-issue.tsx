@@ -129,10 +129,13 @@ export function ActiveTaskIssuesDropdown(props: IActiveTaskStatuses<'issue'>) {
 export function TaskIssueStatus({
 	task,
 	className,
-}: { task: Nullable<ITeamTask> } & IClassName) {
+	showIssueLabels,
+}: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
 			{...taskIssues[task?.issue || 'Task']}
+			showIssueLabels={showIssueLabels}
+			issueType="issue"
 			className={clsxm('rounded-md px-2 text-white', className)}
 		/>
 	);
