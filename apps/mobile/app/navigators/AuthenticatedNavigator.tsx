@@ -26,6 +26,8 @@ import { spacing, typography } from "../theme"
 import HamburgerMenu from "../components/HamburgerMenu";
 import { useAppTheme } from "../app";
 import { Skeleton } from "react-native-skeletons";
+import { useStores } from "../models";
+import { observer } from "mobx-react-lite";
 
 export type AuthenticatedTabParamList = {
   Timer: undefined
@@ -37,7 +39,7 @@ export type AuthenticatedDrawerParamList = {
   Setting: undefined,
   AuthenticatedTab: undefined
   TaskLabelScreen: undefined
-  TaskSizeScreen:undefined
+  TaskSizeScreen: undefined
   TaskStatus: undefined
   TaskPriority: undefined
 }
@@ -60,9 +62,10 @@ export type AuthenticatedDrawerScreenProps<T extends keyof AuthenticatedDrawerPa
 
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>()
 
-function TabNavigator() {
+const TabNavigator = observer(function TabNavigator() {
   const { bottom } = useSafeAreaInsets()
   const { colors, dark } = useAppTheme();
+  const { teamStore: { isTrackingEnabled } } = useStores()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -81,7 +84,7 @@ function TabNavigator() {
         tabBarItemStyle: $tabBarItem,
         ...isLoading ? {
           tabBarButton: () => (
-            <View style={{ width: "100%", flexDirection: "row", justifyContent: "space-between", paddingVertical: 25 }}>
+            <View style={{ width: "100%", flexDirection: "row", justifyContent: isTrackingEnabled ? "space-between" : "space-around", paddingVertical: 25 }}>
               <View style={{ width: "30%", alignItems: "center" }}>
                 <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
                 <Skeleton height={8} width={63} borderRadius={30} />
@@ -90,10 +93,11 @@ function TabNavigator() {
                 <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
                 <Skeleton height={8} width={63} borderRadius={30} />
               </View>
-              <View style={{ width: "30%", alignItems: "center" }}>
-                <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
-                <Skeleton height={8} width={63} borderRadius={30} />
-              </View>
+              {isTrackingEnabled ?
+                <View style={{ width: "30%", alignItems: "center" }}>
+                  <Skeleton height={24} width={24} borderRadius={12} style={{ marginBottom: 13 }} />
+                  <Skeleton height={8} width={63} borderRadius={30} />
+                </View> : null}
             </View>)
         } : null
 
@@ -123,24 +127,24 @@ function TabNavigator() {
           tabBarActiveTintColor: dark ? "#8C7AE4" : "#3826A6"
         }}
       />
-
-      <Tab.Screen
-        name="Timer"
-        component={AuthenticatedTimerScreen}
-        options={{
-          tabBarLabel: translate("myWorkScreen.name"),
-          tabBarIcon: ({ focused }) => !dark ? <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} /> : <Feather name="user" size={24} color={focused ? "#8C7AE4" : "#292D32"} />,
-          tabBarActiveTintColor: dark ? "#8C7AE4" : "#3826A6"
-        }}
-      />
+      {isTrackingEnabled ?
+        <Tab.Screen
+          name="Timer"
+          component={AuthenticatedTimerScreen}
+          options={{
+            tabBarLabel: translate("myWorkScreen.name"),
+            tabBarIcon: ({ focused }) => !dark ? <Feather name="user" size={24} color={focused ? "#3826A6" : "#292D32"} /> : <Feather name="user" size={24} color={focused ? "#8C7AE4" : "#292D32"} />,
+            tabBarActiveTintColor: dark ? "#8C7AE4" : "#3826A6"
+          }}
+        /> : null}
     </Tab.Navigator>
   )
-}
+})
 
 const drawer = createDrawerNavigator<AuthenticatedDrawerParamList>();
 
 
-export function AuthenticatedNavigator() {
+export const AuthenticatedNavigator = observer(function AuthenticatedNavigator() {
   return (
     <drawer.Navigator drawerContent={props => <HamburgerMenu {...props} />} screenOptions={{ headerShown: false, drawerPosition: "right" }}>
       <drawer.Screen
@@ -151,13 +155,13 @@ export function AuthenticatedNavigator() {
         name="TaskStatus" component={TaskStatusScreen} />
       <drawer.Screen
         name="TaskLabelScreen" component={TaskLabelScreen} />
-         <drawer.Screen
+      <drawer.Screen
         name="TaskSizeScreen" component={TaskSizeScreen} />
       <drawer.Screen
         name="TaskPriority" component={TaskPriorityScreen} />
     </drawer.Navigator>
   )
-}
+})
 
 
 
