@@ -18,11 +18,21 @@ import {
 	CircleIcon,
 	ClockIcon,
 	CloseCircleIcon,
+	HighestIcon,
+	HighIcon,
+	LargeIcon,
 	LoginIcon,
+	LowestIcon,
+	LowIcon,
+	MediumIcon,
+	MediumSizeIcon,
 	RecordIcon,
 	SearchStatusIcon,
+	SmallSizeIcon,
 	TickCircleIcon,
 	TimerIcon,
+	TinySizeIcon,
+	XlargeIcon,
 } from 'lib/components/svgs';
 import {
 	Fragment,
@@ -39,6 +49,7 @@ export type TStatusItem = {
 	bgColor?: string;
 	icon?: React.ReactNode | undefined;
 	name?: string;
+	bordered?: boolean;
 };
 
 export type TStatus<T extends string> = {
@@ -311,21 +322,30 @@ export function EpicPropertiesDropdown({
 //! =============== Task Status ================= //
 
 export const taskPriorities: TStatus<ITaskPriority> = {
-	Medium: {
-		icon: <LoginIcon />,
-		bgColor: '#ECE8FC',
+	Highest: {
+		icon: <HighestIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 	High: {
-		icon: <LoginIcon />,
-		bgColor: '#B8D1F5',
+		icon: <HighIcon />,
+		bgColor: 'transparent',
+		bordered: true,
+	},
+	Medium: {
+		icon: <MediumIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 	Low: {
-		icon: <LoginIcon />,
-		bgColor: '#D4EFDF',
+		icon: <LowIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
-	Urgent: {
-		icon: <LoginIcon />,
-		bgColor: '#F5B8B8',
+	Lowest: {
+		icon: <LowestIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 };
 
@@ -381,25 +401,30 @@ export function ActiveTaskPropertiesDropdown(
 //! =============== Task Sizes ================= //
 
 export const taskSizes: TStatus<ITaskSize> = {
-	'Extra Large': {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#F5B8B8',
+	'X-Large': {
+		icon: <XlargeIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 	Large: {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#F3D8B0',
+		icon: <LargeIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 	Medium: {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#F5F1CB',
+		icon: <MediumSizeIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 	Small: {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#B8D1F5',
+		icon: <SmallSizeIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 	Tiny: {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#ECE8FC',
+		icon: <TinySizeIcon />,
+		bgColor: 'transparent',
+		bordered: true,
 	},
 };
 
@@ -565,6 +590,7 @@ export function TaskStatus({
 	issueType = 'status',
 	showIssueLabels,
 	forDetails,
+	bordered,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -579,8 +605,12 @@ export function TaskStatus({
 			className={clsxm(
 				'py-2 px-4 flex items-center text-sm space-x-3',
 				forDetails ? 'rounded-sm' : 'rounded-xl',
-				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+
 				issueType === 'issue' && ['rounded-md px-2 text-white'],
+				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+				bordered && ['input-border'],
+				bordered &&
+					backgroundColor === 'transparent' && ['text-dark dark:text-white'],
 				className
 			)}
 			style={{ backgroundColor: active ? backgroundColor : undefined }}
@@ -657,7 +687,9 @@ export function StatusDropdown<T extends TStatusItem>({
 									<ChevronDownIcon
 										className={clsxm(
 											'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-											!value && ['text-dark dark:text-white']
+											(!value || currentValue.bordered) && [
+												'text-dark dark:text-white',
+											]
 										)}
 										aria-hidden="true"
 									/>
