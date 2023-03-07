@@ -49,6 +49,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const refreshToken = useCallback(async () => {
 		await refreshTokenAPI();
 	}, []);
+
 	return {
 		user: $user.current,
 		setUser,

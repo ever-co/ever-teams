@@ -1,7 +1,7 @@
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useOutsideClick } from '../useOutsideClick';
 import { useSyncRef } from '../useSyncRef';
@@ -22,7 +22,7 @@ export function useTeamMemberCard(
 	const { updateTask, tasks, setActiveTask } = useTeamTasks();
 
 	const publicTeam = useRecoilValue(getPublicState);
-	
+
 	const { user: authUSer, isTeamManager: isAuthTeamManager } =
 		useAuthenticateUser();
 
@@ -39,25 +39,29 @@ export function useTeamMemberCard(
 	const isAuthUser = member?.employee.userId === authUSer?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
-	const [memberTask, setMemberTask] = useState<ITeamTask | null>();
+	const memberTaskRef = useRef<Nullable<ITeamTask>>(null);
 
-	useEffect(() => {
+	memberTaskRef.current = useMemo(() => {
 		if (authUSer && member) {
 			if (isAuthUser) {
-				setMemberTask(activeTeamTask);
+				return activeTeamTask;
 			} else if (member.lastWorkedTask && !isAuthUser) {
 				const ctask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
 				const find = ctask?.members.some((m) => m.id === member.employee.id);
-				setMemberTask(find ? ctask : undefined);
+
+				return find ? ctask : undefined;
 			}
 		} else if (member && publicTeam) {
 			const ctask = tasks.find((t) =>
 				t.members.some((m) => m.userId === member.employee.userId)
 			);
 			const find = ctask?.members.some((m) => m.id === member.employee.id);
-			setMemberTask(find ? ctask : undefined);
+
+			return find ? ctask : undefined;
 		}
-	}, [activeTeamTask, isAuthUser, authUSer, member, tasks, setMemberTask]);
+
+		return null;
+	}, [activeTeamTask, isAuthUser, authUSer, member, tasks, publicTeam]);
 
 	/**
 	 * Give the manager role to the member
@@ -174,7 +178,7 @@ export function useTeamMemberCard(
 		isTeamManager,
 		memberUser,
 		member,
-		memberTask,
+		memberTask: memberTaskRef.current,
 		isAuthUser,
 		isAuthTeamManager,
 		makeMemberManager,

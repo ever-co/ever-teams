@@ -114,6 +114,7 @@ export function getAllOrganizationTeamRequest(
 			'members.employee',
 			'members.employee.user',
 			'createdBy',
+			'createdBy.employee',
 		],
 	}: TeamRequestParams,
 	bearer_token: string
@@ -121,6 +122,8 @@ export function getAllOrganizationTeamRequest(
 	const params = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
+		source: 'BROWSER',
+		withLaskWorkedTask: 'true',
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {

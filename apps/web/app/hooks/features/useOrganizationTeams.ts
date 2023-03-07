@@ -45,30 +45,9 @@ function useTeamsState() {
 
 	const setTeamsUpdate = useCallback(
 		(team: IOrganizationTeamWithMStatus) => {
-			const members = team?.members;
-			const id = team.id;
-			if (!members) return;
-
 			// Update active teams fields with from team Status API
 			setTeams((tms) => {
-				const idx_tm = tms.findIndex((t) => t.id === id);
-				if (idx_tm < 0) return tms;
-				const new_tms = [...tms];
-				new_tms[idx_tm] = { ...new_tms[idx_tm] };
-				const new_members = [...new_tms[idx_tm].members];
-				// merges status fields for a members
-				new_members.forEach((mem, i) => {
-					const new_mem = members.find((m) => m.id === mem.id);
-					if (!new_mem) return;
-					new_members[i] = {
-						...mem,
-						...new_mem,
-						id: mem.id,
-					};
-				});
-				// Update members for a team
-				new_tms[idx_tm].members = new_members;
-				return new_tms;
+				return [...tms.filter((t) => t.id != team.id), team];
 			});
 		},
 		[setTeams]
@@ -189,6 +168,8 @@ export function useOrganizationTeams() {
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
+	const loadingTeamsRef = useSyncRef(loading);
+
 	const [activeTeamId, setActiveTeamId] = useRecoilState(activeTeamIdState);
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
@@ -201,21 +182,6 @@ export function useOrganizationTeams() {
 	const { updateOrganizationTeam, loading: updateOTeamLoading } =
 		useUpdateOrganizationTeam();
 
-	useEffect(() => {
-		setTeamsFetching(loading);
-	}, [loading, setTeamsFetching]);
-
-	const loadTeamsData = useCallback(() => {
-		setActiveTeamId(getActiveTeamIdCookie());
-		return queryCall().then((res) => {
-			if (res.data?.items && res.data?.items?.length === 0) {
-				setIsTeamMember(false);
-			}
-			setTeams(res.data?.items || []);
-			return res;
-		});
-	}, [queryCall, setActiveTeamId, setTeams, user]);
-
 	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } =
 		useQuery(editOrganizationTeamAPI);
 
@@ -227,6 +193,28 @@ export function useOrganizationTeams() {
 		queryCall: removeUserFromAllTeamQueryCall,
 	} = useQuery(removeUserFromAllTeamAPI);
 
+	useEffect(() => {
+		setTeamsFetching(loading);
+	}, [loading, setTeamsFetching]);
+
+	const loadTeamsData = useCallback(() => {
+		const teamid = getActiveTeamIdCookie();
+		setActiveTeamId(teamid);
+
+		return queryCall().then((res) => {
+			if (res.data?.items && res.data?.items?.length === 0) {
+				setIsTeamMember(false);
+			}
+			setTeams(res.data?.items || []);
+
+			teamid &&
+				getOrganizationTeamAPI(teamid).then((res) => {
+					setTeamsUpdate(res.data);
+				});
+			return res;
+		});
+	}, [queryCall, setActiveTeamId, setTeams, user]);
+
 	const setActiveTeam = useCallback(
 		(teamId: typeof teams[0]) => {
 			setActiveTeamIdCookie(teamId.id);
@@ -237,10 +225,13 @@ export function useOrganizationTeams() {
 		[setActiveTeamId]
 	);
 
+	/**
+	 * Get active team profile from api
+	 */
 	useEffect(() => {
 		if (activeTeamId && firstLoad) {
 			getOrganizationTeamAPI(activeTeamId).then((res) => {
-				setTeamsUpdate(res.data);
+				!loadingTeamsRef.current && setTeamsUpdate(res.data);
 			});
 		}
 	}, [activeTeamId, firstLoad, setTeams]);

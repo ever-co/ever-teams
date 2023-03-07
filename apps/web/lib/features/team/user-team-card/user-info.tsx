@@ -6,7 +6,6 @@ import { Avatar, Text, Tooltip } from 'lib/components';
 import { TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { MailIcon } from 'lib/components/svgs';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -56,7 +55,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					</Text.Heading>
 				</Tooltip>
 
-				{memberInfo.isAuthUser && (
+				{/* {memberInfo.isAuthUser && (
 					<Tooltip
 						label={`${memberUser?.email || ''} `.trim()}
 						placement="auto"
@@ -72,7 +71,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 							</span>
 						</Text>
 					</Tooltip>
-				)}
+				)} */}
 			</div>
 		</Link>
 	);
