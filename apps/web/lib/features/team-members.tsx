@@ -13,6 +13,7 @@ import {
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
+// import { useEffect } from 'react';
 
 export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -29,6 +30,10 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	const $members = members.filter((m) => {
 		return m.employee.user?.id !== user?.id;
 	});
+
+	// useEffect(() => {
+	// 	console.log(activeTeam);
+	// }, [activeTeam]);
 
 	return members.length === 0 ? (
 		<div className="">
