@@ -15,7 +15,7 @@ export const getTeamInvitationsState = selector<IInvitation[]>({
 		const members = activeTeam?.members || [];
 
 		return invitations.filter((invite) => {
-			return !members.find((me) => me.employee.user?.email === invite.email);
+			return !members.find((me) => me?.employee?.user?.email === invite?.email);
 		});
 	},
 });

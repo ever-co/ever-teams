@@ -70,13 +70,13 @@ interface Creator {
 	employeeId: any;
 }
 
-export type ITaskPriority = 'Medium' | 'High' | 'Low' | 'Urgent';
+export type ITaskPriority = 'Highest' | 'High' | 'Medium' | 'Low' | 'Lowest';
 
 export type IVersionProperty = 'Version 1' | 'Version 2';
 
 export type IEpicProperty = string;
 
-export type ITaskSize = 'Extra Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
+export type ITaskSize = 'X-Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
 
 export type ITaskLabel = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
 

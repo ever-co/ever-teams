@@ -293,7 +293,7 @@ function TaskCard({
 					variant="outline"
 					disabled={!datas.hasCreateForm || datas.createLoading}
 					loading={datas.createLoading}
-					className="font-normal text-sm rounded-xl"
+					className="font-normal text-sm rounded-xl min-w-[240px]"
 					onClick={() =>
 						/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 						datas?.handleTaskCreation &&

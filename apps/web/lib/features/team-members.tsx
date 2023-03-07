@@ -13,6 +13,7 @@ import {
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
+// import { useEffect } from 'react';
 
 export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	const { isTeamManager, user } = useAuthenticateUser();
@@ -79,21 +80,6 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 					</li>
 				))}
 
-			{/* Invite button */}
-			<Transition
-				show={isTeamManager}
-				enter="transition-opacity duration-75"
-				enterFrom="opacity-0"
-				enterTo="opacity-100"
-				leave="transition-opacity duration-150"
-				leaveFrom="opacity-100"
-				leaveTo="opacity-0"
-			>
-				<li className="mb-4">
-					<Invite />
-				</li>
-			</Transition>
-
 			{/* Loader skeleton */}
 			<Transition
 				show={$teamsFetching}
@@ -115,17 +101,36 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 					<InviteUserTeamSkeleton />
 				</li>
 			</Transition>
+
+			{/* Invite button */}
+			<Transition
+				show={isTeamManager}
+				enter="transition-opacity duration-75"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition-opacity duration-150"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
+				<li className="mb-4">
+					<Invite />
+				</li>
+			</Transition>
 		</ul>
 	);
 }
 
 function Invite() {
+	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 
 	return (
 		<>
 			<InviteUserTeamCard onClick={openModal} />
-			<InviteFormModal open={isOpen} closeModal={closeModal} />
+			<InviteFormModal
+				open={isOpen && !!user?.isEmailVerified}
+				closeModal={closeModal}
+			/>
 		</>
 	);
 }

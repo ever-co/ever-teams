@@ -1,7 +1,9 @@
 import {
 	getActiveTaskIdCookie,
+	getActiveUserTaskCookie,
 	setActiveTaskIdCookie,
-} from '@app/helpers/cookies';
+	setActiveUserTaskCookie,
+} from '@app/helpers';
 import { ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
 import {
 	createTeamTaskAPI,
@@ -9,7 +11,7 @@ import {
 	getTeamTasksAPI,
 	updateTaskAPI,
 } from '@app/services/client/api';
-import { activeTeamIdState } from '@app/stores';
+import { activeTeamIdState, userState } from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
@@ -20,11 +22,13 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import { useSyncRef } from '../useSyncRef';
 
 export function useTeamTasks() {
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
+	const authUser = useSyncRef(useRecoilValue(userState));
 
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 	const [activeTeamTask, setActiveTeamTask] =
@@ -58,6 +62,18 @@ export function useTeamTasks() {
 		}
 	}, [loading, firstLoad, setTasksFetching]);
 
+	const setActiveUserTaskCookieCb = useCallback(
+		(task: ITeamTask | null) => {
+			if (task?.id && authUser.current?.id) {
+				setActiveUserTaskCookie({
+					taskId: task?.id,
+					userId: authUser.current?.id,
+				});
+			}
+		},
+		[authUser.current]
+	);
+
 	// Reload tasks after active team changed
 	useEffect(() => {
 		if (activeTeamId && firstLoad) {
@@ -67,9 +83,16 @@ export function useTeamTasks() {
 
 	// Get the active task from cookie and put on global store
 	useEffect(() => {
-		const active_taskid = getActiveTaskIdCookie() || '';
-		setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
-	}, [setActiveTeamTask, tasks]);
+		if (firstLoad) {
+			const active_user_task = getActiveUserTaskCookie();
+			const active_taskid =
+				active_user_task?.userId === authUser.current?.id
+					? active_user_task?.taskId
+					: getActiveTaskIdCookie() || '';
+
+			setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
+		}
+	}, [setActiveTeamTask, tasks, firstLoad]);
 
 	// Queries calls
 	const deleteTask = useCallback(
@@ -172,9 +195,10 @@ export function useTeamTasks() {
 	 * Change active task
 	 */
 	const setActiveTask = useCallback(
-		(task: typeof tasks[0] | null) => {
+		(task: ITeamTask | null) => {
 			setActiveTaskIdCookie(task?.id || '');
 			setActiveTeamTask(task);
+			setActiveUserTaskCookieCb(task);
 		},
 		[setActiveTeamTask]
 	);

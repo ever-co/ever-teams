@@ -1,4 +1,4 @@
-import { useModal } from '@app/hooks';
+import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
@@ -45,6 +45,9 @@ export function useTaskInput({
 		createTask,
 		updateTask,
 	} = useTeamTasks();
+
+	const { user } = useAuthenticateUser();
+	const userRef = useSyncRef(user);
 
 	const tasks = customTasks || teamTasks;
 
@@ -105,7 +108,12 @@ export function useTaskInput({
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = (autoActiveTask = true, autoAssignTask = true) => {
-		if (query.trim().length < 2 || inputTask?.title === query.trim()) return;
+		if (
+			query.trim().length < 2 ||
+			inputTask?.title === query.trim() ||
+			!userRef.current?.isEmailVerified
+		)
+			return;
 
 		createTask(query.trim(), !autoAssignTask ? [] : undefined).then((res) => {
 			setQuery('');
@@ -117,6 +125,8 @@ export function useTaskInput({
 
 	const updatTaskTitleHandler = useCallback(
 		(itask: ITeamTask, title: string) => {
+			if (!userRef.current?.isEmailVerified) return;
+
 			return updateTask({
 				...itask,
 				title,

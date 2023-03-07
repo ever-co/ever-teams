@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import {
 	taskLabels,
 	taskSizes,
-	taskStatus,
 	TaskStatus,
 	taskPriorities,
 } from './task-status';
@@ -33,12 +32,12 @@ export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
 		<div className="relative w-full h-full flex flex-col justify-center">
 			<div ref={viewportRef} className="overflow-hidden w-full relative">
 				<div className="flex space-x-2 mt-2">
-					<TaskStatus
+					{/* <TaskStatus
 						{...taskStatus[task?.status || 'Closed']}
 						className="text-xs"
 						active={!!task?.status}
 						name={task?.status || 'Status'}
-					/>
+					/> */}
 
 					<TaskStatus
 						{...taskPriorities[task?.priority || 'Low']}

@@ -103,7 +103,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 					disabled={menu.length === 0}
 					className={clsxm(
 						'flex items-center outline-none border-none',
-						menu.length === 0 && ['opacity-50']
+						menu.length === 0 && ['opacity-50 hidden']
 					)}
 				>
 					<MoreIcon />
