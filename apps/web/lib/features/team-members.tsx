@@ -31,10 +31,6 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 		return m.employee.user?.id !== user?.id;
 	});
 
-	// useEffect(() => {
-	// 	console.log(activeTeam);
-	// }, [activeTeam]);
-
 	return members.length === 0 ? (
 		<div className="">
 			<UserTeamCardSkeletonCard />

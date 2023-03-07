@@ -7,6 +7,7 @@ import {
 	ACTIVE_TASK_COOKIE_NAME,
 	ACTIVE_LANGUAGE_COOKIE_NAME,
 	ACTIVE_TIMEZONE_COOKIE_NAME,
+	ACTIVE_USER_TASK_COOKIE_NAME,
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
@@ -113,6 +114,27 @@ export function getActiveTaskIdCookie(ctx?: NextCtx) {
 
 export function setActiveTaskIdCookie(taskId: string, ctx?: NextCtx) {
 	return setCookie(ACTIVE_TASK_COOKIE_NAME, taskId, { ...(ctx || {}) });
+}
+
+export function setActiveUserTaskCookie(
+	data: { taskId: string; userId: string },
+	ctx?: NextCtx
+) {
+	return setCookie(ACTIVE_USER_TASK_COOKIE_NAME, JSON.stringify(data), {
+		...(ctx || {}),
+	});
+}
+
+export function getActiveUserTaskCookie(ctx?: NextCtx) {
+	const data = getCookie(ACTIVE_USER_TASK_COOKIE_NAME, {
+		...(ctx || {}),
+	});
+
+	try {
+		return JSON.parse(data as string) as { taskId: string; userId: string };
+	} catch (_) {}
+
+	return null;
 }
 
 // Active language id
