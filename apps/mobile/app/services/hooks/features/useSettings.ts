@@ -70,6 +70,6 @@ export function useSettings() {
         updateUserInfo,
         onDetectTimezone,
         languageList,
-        preferredLanguage
+        preferredLanguage,
     }
 }

@@ -46,5 +46,5 @@ const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
     return data;
 };
 
-const useFetchUserOrganization = (IGetUserOrganizationParams) => useQuery(['teams', IGetUserOrganizationParams], () => fetchUserOrganization(IGetUserOrganizationParams), { refetchInterval: 1000 });
+const useFetchUserOrganization = (IGetUserOrganizationParams) => useQuery(['teams', IGetUserOrganizationParams], () => fetchUserOrganization(IGetUserOrganizationParams));
 export default useFetchUserOrganization;
