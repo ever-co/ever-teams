@@ -2,7 +2,7 @@ import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -48,6 +48,8 @@ export function useTaskInput({
 
 	const { user } = useAuthenticateUser();
 	const userRef = useSyncRef(user);
+
+	const taskIssue = useRef<null | string>(null);
 
 	const tasks = customTasks || teamTasks;
 
@@ -115,7 +117,13 @@ export function useTaskInput({
 		)
 			return;
 
-		createTask(query.trim(), !autoAssignTask ? [] : undefined).then((res) => {
+		createTask(
+			{
+				taskName: query.trim(),
+				issue: taskIssue.current || undefined,
+			},
+			!autoAssignTask ? [] : undefined
+		).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
@@ -165,6 +173,7 @@ export function useTaskInput({
 		setQuery,
 		filter,
 		updatTaskTitleHandler,
+		taskIssue,
 	};
 }
 

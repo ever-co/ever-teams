@@ -76,11 +76,6 @@ function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
 						? () => null
 						: () => task && router.push(`/task/${task?.id}`)
 				}
-				onDoubleClick={() =>
-					(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-					task &&
-					edition.setEditMode(true)
-				}
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
@@ -98,6 +93,9 @@ function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
 						showCombobox={false}
 						onTaskClick={(e) => {
 							console.log(e);
+						}}
+						onEnterKey={() => {
+							edition.setEditMode(false);
 						}}
 					/>
 				)}
