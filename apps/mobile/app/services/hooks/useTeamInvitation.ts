@@ -6,9 +6,10 @@ import {
 import { useQueryClient } from "react-query"
 import { useStores } from "../../models";
 import { IInviteCreate } from "../interfaces/IInvite";
-import { acceptInviteRequest, getTeamInvitationsRequest, inviteByEmailsRequest, verifyInviteCodeRequest } from "../client/requests/invite";
+import { acceptInviteRequest, getTeamInvitationsRequest, inviteByEmailsRequest, resendInvitationEmailRequest, verifyInviteCodeRequest } from "../client/requests/invite";
 import { getEmployeeRoleRequest } from "../client/requests/roles";
 import useFetchTeamInvitations from "../client/queries/invitation/invitations";
+import { getAllUsersRequest } from "../client/requests/user";
 
 export function useTeamInvitations() {
     const queryClient = useQueryClient()
@@ -25,7 +26,7 @@ export function useTeamInvitations() {
         setEmployeeId
     },
         teamStore: { activeTeamId, activeTeam, teamInvitations, setTeamInvitations, teams } } = useStores();
-    const {isLoading, isFetching, isRefetching, data:invitations}=useFetchTeamInvitations({authToken,tenantId, organizationId, activeTeamId});
+    const { isLoading, isFetching, isRefetching, data: invitations } = useFetchTeamInvitations({ authToken, tenantId, organizationId, activeTeamId });
 
     const [loading, setLoading] = useState<boolean>(false);
     const members = activeTeam.members || [];
@@ -46,13 +47,13 @@ export function useTeamInvitations() {
                 startedWorkOn: new Date().toISOString(),
                 tenantId,
                 organizationId,
-                departmentIds:[],
-                organizationContactIds:[],
+                departmentIds: [],
+                organizationContactIds: [],
                 emailIds: [email],
                 roleId: employeeRole?.id || '',
                 invitationExpirationPeriod: 'Never',
                 inviteType: 'TEAM',
-                appliedDate:null,
+                appliedDate: null,
                 invitedById: user.id,
                 teamIds: [activeTeamId],
                 projectIds: [],
@@ -61,20 +62,43 @@ export function useTeamInvitations() {
             },
             authToken
         )
-            queryClient.invalidateQueries("invitations")
+        queryClient.invalidateQueries("invitations")
         setLoading(false)
         return response
     }
 
+    const resendInvite = useCallback(async (inviteId: string) => {
+
+        const { data } = await resendInvitationEmailRequest(
+            {
+                tenantId,
+                inviteId: inviteId,
+                inviteType: 'TEAM',
+                organizationId,
+                ...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+            },
+            authToken
+        );
+
+    }, [])
+
+    const loadUsers = useCallback(async () => {
+        const { data, response } = await getAllUsersRequest({ tenantId }, authToken)
+    }, [])
+
+    useEffect(() => {
+        loadUsers()
+    }, [])
 
 
     useEffect(() => {
-        setTeamInvitations(invitations||[])
+        setTeamInvitations(invitations || [])
     }, [activeTeamId, teams, loading, user, isFetching, isRefetching])
 
     return {
         inviterMember,
         loading,
         teamInvitations,
+        resendInvite
     }
 }
