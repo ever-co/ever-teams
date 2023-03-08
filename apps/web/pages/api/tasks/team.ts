@@ -15,7 +15,11 @@ export default async function handler(
 	if (!user) return $res();
 
 	if (req.method === 'POST') {
-		const body = (req.body as { title?: string }) || {};
+		const body =
+			(req.body as {
+				title?: string;
+			}) || {};
+
 		const title = body.title?.trim() || '';
 		if (title.trim().length < 2) {
 			return res.status(400).json({ errors: { name: 'Invalid task name !' } });

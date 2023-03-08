@@ -2,7 +2,7 @@ import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -150,6 +150,10 @@ export function useTaskInput({
 	const openTaskCount = filteredTasks2.filter((f_task) => {
 		return f_task.status !== 'Closed';
 	}).length;
+
+	useEffect(() => {
+		taskIssue.current = null;
+	}, [hasCreateForm]);
 
 	return {
 		closedTaskCount,
