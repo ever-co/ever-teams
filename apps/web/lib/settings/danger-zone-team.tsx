@@ -118,7 +118,7 @@ export const DangerZoneTeam = () => {
 										!(
 											(isTeamManager && activeTeamManagers.length > 1) ||
 											(!isTeamManager &&
-												activeTeam?.members.some(
+												activeTeam?.members?.some(
 													(member) => member.employee.userId === user?.id
 												))
 										)

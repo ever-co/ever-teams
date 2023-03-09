@@ -75,8 +75,8 @@ export function TransferTeamModal({
 							<TransferTeamDropdown
 								setSelectedMember={setSelectedMember}
 								members={activeTeam?.members
-									.filter((member) => member.employee.userId !== user?.id)
-									.map((member) => ({
+									?.filter((member) => member.employee.userId !== user?.id)
+									?.map((member) => ({
 										id: member.employeeId,
 										name: member?.employee?.user?.name || '',
 										title: member?.employee?.user?.name || '',
