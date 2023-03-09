@@ -17,3 +17,5 @@ export * from './ITaskLabels';
 export * from './IColor';
 export * from './hooks';
 export * from './IIcon';
+export * from './IProof';
+export * from './IPeriod';
