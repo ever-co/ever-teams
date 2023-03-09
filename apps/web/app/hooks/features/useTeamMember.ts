@@ -12,7 +12,7 @@ export function useIsMemberManager(user: IUser | undefined | null) {
 	useEffect(() => {
 		if (activeTeam && user) {
 			// Team manager
-			const isM = activeTeam?.members.find((member) => {
+			const isM = activeTeam?.members?.find((member) => {
 				const isUser = member.employee.userId === user?.id;
 				return isUser && member.role && member.role.name === 'MANAGER';
 			});

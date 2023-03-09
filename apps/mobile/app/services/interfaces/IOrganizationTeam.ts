@@ -9,6 +9,12 @@ export interface IOrganizationTeamCreate {
   tenantId: string;
 }
 
+export interface IOrganizationTeamEmployeeUpdate {
+  organizationId: string,
+  organizationTeamId: string,
+  isTrackingEnabled: boolean
+}
+
 export interface IOrganizationTeam {
   tenantId: string;
   organizationId: string;
@@ -30,7 +36,7 @@ export interface IOrganizationTeamList {
   tenantId: string;
   organizationId: string;
   name: string;
-  managerIds:string[];
+  managerIds: string[];
   members: OT_Member[];
 }
 
@@ -42,6 +48,7 @@ export interface OT_Member {
   organizationId: any;
   organizationTeamId: string;
   employeeId: string;
+  isTrackingEnabled:boolean;
   roleId?: string;
   role?: OT_Role;
   employee: OT_Employee;

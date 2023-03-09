@@ -13,7 +13,8 @@ export const TeamStoreModel = types
         activeTeam: types.optional(types.frozen(), {}),
         activeTeamId: types.optional(types.string, ""),
         teamInvitations: types.optional(types.frozen(), { items: [], total: 0 }),
-        teamsFetching: types.optional(types.boolean, false)
+        teamsFetching: types.optional(types.boolean, false),
+        isTrackingEnabled:types.optional(types.boolean, false)
     })
     .views((store) => ({
 
@@ -26,7 +27,6 @@ export const TeamStoreModel = types
         },
         setActiveTeamId(id: string) {
             store.activeTeamId = id
-
         },
         setOrganizationTeams(teams: ITeamsOut) {
             store.teams = teams
@@ -37,11 +37,15 @@ export const TeamStoreModel = types
         setTeamsFetching(value: boolean) {
             store.teamsFetching = value
         },
+        setIsTrackingEnabled(value:boolean){
+            store.isTrackingEnabled=value
+        },
         clearStoredTeamData() {
             store.teams = { items: [], total: 0 },
-                store.activeTeam = {}
+            store.activeTeam = {}
             store.activeTeamId = "",
-                store.teamInvitations = { items: [], total: 0 }
+            store.teamInvitations = { items: [], total: 0 },
+            store.isTrackingEnabled=false
         }
     }))
 

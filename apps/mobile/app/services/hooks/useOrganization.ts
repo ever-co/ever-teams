@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { showMessage } from "react-native-flash-message";
+import { useQueryClient } from "react-query";
 import { useStores } from "../../models";
 import useFetchUserOrganization from "../client/queries/organizationTeam/organization";
 import { createOrganizationTeamRequest, removeUserFromAllTeam, updateOrganizationTeamRequest } from "../client/requests/organization-team";
+import { updateOrganizationTeamEmployeeRequest } from "../client/requests/organization-team-employee";
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
 import useAuthenticateUser from "./features/useAuthentificateUser";
 
@@ -57,25 +59,27 @@ function useCreateOrganizationTeam() {
 }
 
 export function useOrganizationTeam() {
-    const { teamStore: { activeTeamId, teams, setActiveTeam, setOrganizationTeams, activeTeam, setActiveTeamId },
-        authenticationStore: { user, tenantId, authToken } } = useStores();
+    const queryClient = useQueryClient();
+    const { teamStore: { activeTeamId, teams,setIsTrackingEnabled, setActiveTeam, setOrganizationTeams, activeTeam, setActiveTeamId },
+        authenticationStore: { user, tenantId, authToken, organizationId } } = useStores();
     const { logOut } = useAuthenticateUser();
 
-    const [teamsFetching, setTeamsFetching] = useState(false)
-
     const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam();
+    const [activeTeamState, setActiveTeamState] = useState<IOrganizationTeamList>(activeTeam)
 
-    const [isTeamManager, setIsTeamManager] = useState(false);
-
-    const { data: organizationTeams, isLoading } = useFetchUserOrganization({
+    const { data: organizationTeams, isLoading, isRefetching } = useFetchUserOrganization({
         tenantId, authToken, userId: user?.id
     })
 
-    const members = activeTeam?.members || [];
+    const [isTeamManager, setIsTeamManager] = useState(false);
+    const [teamsFetching, setTeamsFetching] = useState(false)
+
+    const members = activeTeamState?.members || [];
 
     const currentUser = members.find((m) => {
         return m.employee.userId === user?.id;
-    });
+    })
+
 
     const $otherMembers = members.filter((m) => {
         return m.employee.userId !== user?.id;
@@ -186,6 +190,20 @@ export function useOrganizationTeam() {
         return data
     }, [])
 
+    const toggleTimeTracking = useCallback(async (user: OT_Member, isEnabled:boolean) => {
+        const { data, response } = await updateOrganizationTeamEmployeeRequest({
+            id: user.id,
+            body: {
+                organizationId,
+                organizationTeamId: activeTeamId,
+                isTrackingEnabled: isEnabled
+            },
+            tenantId,
+            bearer_token: authToken
+        })
+        queryClient.invalidateQueries("teams")
+        return {data, response }
+    }, [])
 
     // Load Teams
     useEffect(() => {
@@ -199,7 +217,7 @@ export function useOrganizationTeam() {
             // UPDATE ACTIVE TEAM
             const updateActiveTeam = organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams.items[0]
             if (updateActiveTeam) {
-                setActiveTeam(updateActiveTeam)
+                setActiveTeamState(updateActiveTeam)
                 setActiveTeamId(updateActiveTeam.id)
             }
 
@@ -207,7 +225,8 @@ export function useOrganizationTeam() {
             setTeamsFetching(false)
         }
         isManager()
-    }, [user, createTeamLoading, organizationTeams?.total, isLoading])
+        setIsTrackingEnabled(currentUser?.isTrackingEnabled)
+    }, [user, createTeamLoading, organizationTeams?.total, isLoading, isRefetching])
 
 
     return {
@@ -221,6 +240,7 @@ export function useOrganizationTeam() {
         createTeamLoading,
         teamsFetching,
         makeMemberAsManager,
-        removeMember
+        removeMember,
+        toggleTimeTracking
     }
 }

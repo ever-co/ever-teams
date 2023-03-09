@@ -16,8 +16,6 @@ interface Props {
 }
 const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
     const { colors, dark } = useAppTheme();
-    const [isEnabled, setIsEnabled] = useState(true);
-    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
     return (
         <View style={styles.container}>
@@ -31,24 +29,14 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
                 </TouchableOpacity>
                 : null
             }
-            {title === translate("settingScreen.teamSection.timeTracking") ? (
 
-                <Toggle
-                    inputInnerStyle={{ backgroundColor: "#DBD3FA" }}
-                    inputDetailStyle={{ backgroundColor: "#3826A6" }}
-                    onPress={() => toggleSwitch()}
-                    variant="switch"
-                    value={isEnabled}
-                />
-            ) : null}
 
             {title !== translate("settingScreen.personalSection.themes") ?
                 (
                     <TouchableOpacity onPress={() => onPress()}>
                         <AntDesign name="right" size={24} color="#938FA4" />
                     </TouchableOpacity>
-                )
-                : (
+                ) : (
                     <TouchableOpacity style={styles.toggle} onPress={() => onPress()}>
                         {dark ?
                             <Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} /> :

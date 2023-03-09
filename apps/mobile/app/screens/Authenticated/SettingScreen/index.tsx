@@ -25,6 +25,8 @@ import UserTimezone from "./components/UserTimezone";
 import LanguageForm from "./components/LanguageForm";
 import { useLanguageModal } from "../../../services/hooks/useLanguageModal";
 import UserRemoveAccount from "./components/UserRemoveAccount";
+import SwithTimeTracking from "./components/SwitchTimeTracking";
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization";
 
 export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2" | "Delete Account" | "Remove Account";
 
@@ -35,7 +37,8 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
         teamStore: { activeTeam }
     } = useStores();
 
-    const { user, isLoading, updateUserInfo, onDetectTimezone, preferredLanguage } = useSettings()
+    const { user, isLoading, updateUserInfo, onDetectTimezone, preferredLanguage } = useSettings();
+    const { isTeamManager } = useOrganizationTeam();
     const { isModalOpen, closeModal, openModal, selectedTimezone, setSelectedTimezone } = useTimezoneModal();
     const { isLanguageModalOpen, selectedLanguage, closeLanguageModal, setSelectedLanguage, openLanguageModal } = useLanguageModal();
     // Props
@@ -128,7 +131,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                                             onChange={() => { }}
                                         />
                                         <SingleInfo title={translate("settingScreen.teamSection.teamName")} value={activeTeam?.name} onPress={() => { }} />
-                                        <SingleInfo title={translate("settingScreen.teamSection.timeTracking")} value={translate("settingScreen.teamSection.timeTrackingHint")} onPress={() => { }} />
+                                        {isTeamManager ? <SwithTimeTracking /> : null}
                                         <SingleInfo title={translate("settingScreen.teamSection.taskStatuses")} value={"there are 4 active statuses"} onPress={() => navigation.navigate("TaskStatus")} />
                                         <SingleInfo title={translate("settingScreen.teamSection.taskPriorities")} value={"there are 4 active priorities"} onPress={() => navigation.navigate("TaskPriority")} />
                                         <SingleInfo title={translate("settingScreen.teamSection.taskSizes")} value={"there are 5 active sizes"} onPress={() => navigation.navigate("TaskSizeScreen")} />

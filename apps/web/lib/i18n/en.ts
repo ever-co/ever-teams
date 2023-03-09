@@ -60,7 +60,8 @@ export const en = {
 		TRANSFER_TEAM: 'Transfer Team',
 		TEAM_MEMBERS: 'Team Members',
 		NO_TEAM: 'Create your own team or join existed',
-		NO_TEAM_SUB: 'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.'
+		NO_TEAM_SUB:
+			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
 	},
 	pages: {
 		home: {
@@ -147,6 +148,32 @@ export const en = {
 			SECURITY: 'Security',
 			INAPP: 'In App',
 			NOTIFICATION_HEADING_TITLE: 'Notification Settings',
+			ISSUE_HEADING_TITLE: 'Issue Settings',
+
+			TASK_PRIVACY: 'Task Privacy',
+			MULTIPLE_ASSIGNEES: 'Multiple Assignees',
+			MANUAL_TIME: 'Manual Time',
+			GROUP_ESTIMATION: 'Group Estimation',
+			ESTIMATION_IN_HOURS: 'Estimation in Hours',
+			ESTIMATION_IN_STORY_POINTS: 'Estimation in Story Points',
+			PROOF_OF_COMPLETION: 'Proof of Completion',
+			LINKED_ISSUES: 'Linked Issues',
+			COMMENTS: 'Comments',
+			HISTORY: 'History',
+			ACCEPTANCE_CRITERIA: 'Acceptance criteria',
+			DRAFT_ISSUES: 'Draft Issues',
+			AUTO_CLOSE_ISSUE: 'Auto-close issue',
+			AUTO_ARCHIVE_ISSUE: 'Auto-archive issue',
+			AUTO_STATUS: 'Auto-Status',
+			VERSIONS: 'Versions',
+			LIST_OF_VERSONS: 'List of Versions',
+			ISSUETYPE: 'Issue Types',
+			LIST_OF_ISSUES: 'List of Issues',
+			RELATED_ISSUE_TYPE: 'Related Issue Types',
+			LIST_OF_RELATED_TYPE: 'List of Related Types',
+			INITIAL: 'Initial',
+			IN_PROGRESS: 'In Progress',
+			FINAL: 'Final',
 		},
 
 		invite: {

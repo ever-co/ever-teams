@@ -15,14 +15,12 @@ import {
 import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkeleton';
 
 import { useTranslation } from 'lib/i18n';
-import { NotificationSettings } from 'lib/settings/notification-setting';
 import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
 	const [user] = useRecoilState(userState);
-
 
 	return (
 		<>
@@ -80,12 +78,24 @@ const Team = () => {
 								>
 									<TaskLabelForm />
 								</Card>
-								<Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
+
+								{/*
+								Note: DO NOT REMOVE 
+								Settings v2 	
+								*/}
+								{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
 									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
 										{trans.NOTIFICATION_HEADING_TITLE}
 									</Text>
 									<NotificationSettings />
-								</Card>
+								</Card> */}
+								{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
+									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+										{trans.ISSUE_HEADING_TITLE}
+									</Text>
+									<IssuesSettings />
+								</Card> */}
+
 								<Card
 									className="dark:bg-dark--theme p-[32px] mt-[36px]"
 									shadow="bigger"
