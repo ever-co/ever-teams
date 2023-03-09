@@ -39,6 +39,7 @@ export const en = {
 		WORKED: 'Worked',
 		ASSIGNED: 'Assigned',
 		UNASSIGNED: 'Unassigned',
+		TASK_DETAILS: 'Task Details',
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',
@@ -60,7 +61,8 @@ export const en = {
 		TRANSFER_TEAM: 'Transfer Team',
 		TEAM_MEMBERS: 'Team Members',
 		NO_TEAM: 'Create your own team or join existed',
-		NO_TEAM_SUB: 'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.'
+		NO_TEAM_SUB:
+			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
 	},
 	pages: {
 		home: {
