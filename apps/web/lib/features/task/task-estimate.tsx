@@ -65,6 +65,7 @@ export function TaskEstimate({
 				onFocus={handleFocus}
 				onBlur={handleBlur}
 				label="h"
+				dash={value['hours'] ? '' : '__'}
 			/>
 			<span>:</span>
 			<TimeInputField
@@ -78,6 +79,7 @@ export function TaskEstimate({
 				onBlur={handleBlurMinutes}
 				label="m"
 				loading={updateLoading}
+				dash={value['minutes'] ? '' : '__'}
 			/>
 		</div>
 	);
