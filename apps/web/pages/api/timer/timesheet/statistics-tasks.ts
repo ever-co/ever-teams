@@ -24,7 +24,7 @@ export default async function handler(
 		{
 			tenantId,
 			organizationId,
-			'employeeIds[0]': employeeId || user.employee.id,
+			employeeIds: [employeeId || user.employee.id],
 			defaultRange: 'false',
 			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
 		},
@@ -35,7 +35,7 @@ export default async function handler(
 		{
 			tenantId,
 			organizationId,
-			'employeeIds[0]': user.employee.id,
+			employeeIds: [user.employee.id],
 			defaultRange: 'true',
 			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
 			unitOfTime: 'day',
