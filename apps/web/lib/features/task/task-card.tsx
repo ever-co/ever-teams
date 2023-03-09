@@ -206,7 +206,7 @@ function TaskEstimateInput({ task }: { task?: Nullable<ITeamTask> }) {
 				<button ref={targetEl} onClick={() => task && setEditMode(true)}>
 					<EditIcon
 						className={clsxm(
-							'cursor-pointer',
+							'cursor-pointer w-4 h-4',
 							!task && ['opacity-40 cursor-default']
 						)}
 					/>

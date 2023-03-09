@@ -91,6 +91,8 @@ function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
 						initEditMode={true}
 						keepOpen={true}
 						showCombobox={false}
+						autoFocus={true}
+						autoInputSelectText={true}
 						onTaskClick={(e) => {
 							console.log(e);
 						}}

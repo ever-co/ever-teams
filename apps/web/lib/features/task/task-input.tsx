@@ -45,6 +45,8 @@ type Props = {
 	showCombobox?: boolean;
 	autoAssignTask?: boolean;
 	fullWidthCombobox?: boolean;
+	autoFocus?: boolean;
+	autoInputSelectText?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -71,6 +73,8 @@ export function TaskInput({
 	autoAssignTask = true,
 	tasks,
 	fullWidthCombobox,
+	autoFocus,
+	autoInputSelectText,
 }: Props) {
 	const { trans } = useTranslation();
 	const datas = useTaskInput({
@@ -167,10 +171,14 @@ export function TaskInput({
 	const inputField = (
 		<InputField
 			value={taskName}
-			onFocus={() => setEditMode(true)}
+			onFocus={(e) => {
+				setEditMode(true);
+				autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
+			}}
 			onChange={(event) => setTaskName(event.target.value)}
 			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
+			autoFocus={autoFocus}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
