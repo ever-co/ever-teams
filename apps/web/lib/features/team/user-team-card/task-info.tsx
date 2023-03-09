@@ -53,7 +53,7 @@ export function TaskInfo({
 /**
  *  A component that is used to display the task name and also allow the user to edit the task name.
  */
-function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
+function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
 	const router = useRouter();
