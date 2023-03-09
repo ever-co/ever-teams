@@ -25,7 +25,7 @@ import {
 	useEffect,
 	useState,
 } from 'react';
-import { ActiveTaskIssuesDropdown } from './task-issue';
+import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 
 type Props = {
@@ -45,6 +45,8 @@ type Props = {
 	showCombobox?: boolean;
 	autoAssignTask?: boolean;
 	fullWidthCombobox?: boolean;
+	autoFocus?: boolean;
+	autoInputSelectText?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -71,6 +73,8 @@ export function TaskInput({
 	autoAssignTask = true,
 	tasks,
 	fullWidthCombobox,
+	autoFocus,
+	autoInputSelectText,
 }: Props) {
 	const { trans } = useTranslation();
 	const datas = useTaskInput({
@@ -91,6 +95,7 @@ export function TaskInput({
 		updateLoading,
 		updatTaskTitleHandler,
 		setFilter,
+		taskIssue,
 	} = datas;
 
 	const [taskName, setTaskName] = useState('');
@@ -166,10 +171,14 @@ export function TaskInput({
 	const inputField = (
 		<InputField
 			value={taskName}
-			onFocus={() => setEditMode(true)}
+			onFocus={(e) => {
+				setEditMode(true);
+				autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
+			}}
 			onChange={(event) => setTaskName(event.target.value)}
 			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
+			autoFocus={autoFocus}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
@@ -203,11 +212,26 @@ export function TaskInput({
 			leadingNode={
 				showTaskNumber &&
 				inputTask && (
-					<div className="pl-3 flex items-center space-x-2">
-						<ActiveTaskIssuesDropdown key={inputTask.id} task={inputTask} />
-						<span className="text-gray-500 text-sm">
-							#{inputTask?.taskNumber}
-						</span>
+					<div
+						className="pl-3 flex items-center space-x-2"
+						ref={ignoreElementRef}
+					>
+						{!datas.hasCreateForm ? (
+							<ActiveTaskIssuesDropdown key={inputTask.id} task={inputTask} />
+						) : (
+							<TaskIssuesDropdown
+								showIssueLabels={false}
+								onValueChange={(v) => {
+									taskIssue.current = v;
+								}}
+							/>
+						)}
+
+						{!datas.hasCreateForm && (
+							<span className="text-gray-500 text-sm">
+								#{inputTask?.taskNumber}
+							</span>
+						)}
 					</div>
 				)
 			}

@@ -1391,10 +1391,10 @@ export function HighIcon({ className }: IClassName) {
 			<path
 				d="M13.28 10.0332L8.9333 5.68654C8.41997 5.1732 7.57997 5.1732 7.06664 5.68654L2.71997 10.0332"
 				stroke="#EE6C4D"
-				stroke-width="2"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="2"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -1433,10 +1433,10 @@ export function LowIcon({ className }: IClassName) {
 			<path
 				d="M13.28 5.9668L8.9333 10.3135C8.41997 10.8268 7.57997 10.8268 7.06664 10.3135L2.71997 5.9668"
 				stroke="#2F80ED"
-				stroke-width="2"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="2"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -1456,18 +1456,18 @@ export function LowestIcon({ className }: IClassName) {
 			<path
 				d="M13.28 5.96655L8.9333 10.3132C8.41997 10.8266 7.57997 10.8266 7.06664 10.3132L2.71997 5.96655"
 				stroke="#2F80ED"
-				stroke-width="2"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="2"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M13.28 13.9666L8.9333 18.3132C8.41997 18.8266 7.57997 18.8266 7.06664 18.3132L2.71997 13.9666"
 				stroke="#2F80ED"
-				stroke-width="2"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="2"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

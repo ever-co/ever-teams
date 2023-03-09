@@ -13,7 +13,7 @@ import {
 	SpinnerLoader,
 	Text,
 } from 'lib/components';
-import { CloseIcon } from 'lib/components/svgs';
+// import { CloseIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -24,14 +24,14 @@ export function UnverifiedEmail() {
 
 	const { openModal, isOpen, closeModal } = useModal();
 
-	const closeIt = useCallback(() => {
-		window.localStorage.setItem(
-			'unverified-message-closed',
-			getAccessTokenCookie()
-		);
-		// close message popup
-		setVefified(true);
-	}, [setVefified]);
+	// const closeIt = useCallback(() => {
+	// 	window.localStorage.setItem(
+	// 		'unverified-message-closed',
+	// 		getAccessTokenCookie()
+	// 	);
+	// 	// close message popup
+	// 	setVefified(true);
+	// }, [setVefified]);
 
 	useEffect(() => {
 		const hasVerified = user ? user.isEmailVerified : true;
@@ -73,9 +73,9 @@ export function UnverifiedEmail() {
 					{translations.common.YOUR_EMAIL}
 				</Text>
 
-				<button onClick={closeIt}>
+				{/* <button onClick={closeIt}>
 					<CloseIcon />
-				</button>
+				</button> */}
 			</Card>
 			<ConfirmUserModal open={isOpen} closeModal={closeModal} />
 		</>

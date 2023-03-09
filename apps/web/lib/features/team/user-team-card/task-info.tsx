@@ -53,7 +53,7 @@ export function TaskInfo({
 /**
  *  A component that is used to display the task name and also allow the user to edit the task name.
  */
-function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
+function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 	const task = edition.task;
 	const hasEditMode = edition.editMode && task;
 	const router = useRouter();
@@ -76,11 +76,6 @@ function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
 						? () => null
 						: () => task && router.push(`/task/${task?.id}`)
 				}
-				onDoubleClick={() =>
-					(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-					task &&
-					edition.setEditMode(true)
-				}
 			>
 				<TaskNameInfoDisplay task={task} />
 			</div>
@@ -96,8 +91,13 @@ function TaskDetailAndEdition({ edition, memberInfo, publicTeam }: Props) {
 						initEditMode={true}
 						keepOpen={true}
 						showCombobox={false}
+						autoFocus={true}
+						autoInputSelectText={true}
 						onTaskClick={(e) => {
 							console.log(e);
+						}}
+						onEnterKey={() => {
+							edition.setEditMode(false);
 						}}
 					/>
 				)}

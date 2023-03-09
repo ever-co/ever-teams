@@ -6,7 +6,7 @@ type TTasksTimesheetStatisticsParams = {
 	organizationId: string;
 	startDate?: string;
 	endDate?: string;
-	'employeeIds[0]': string;
+	employeeIds: string[];
 	defaultRange?: string;
 	'taskIds[0]'?: string;
 	unitOfTime?: 'day';
@@ -15,7 +15,15 @@ export function tasksTimesheetStatisticsRequest(
 	params: TTasksTimesheetStatisticsParams,
 	bearer_token: string
 ) {
-	const queries = new URLSearchParams(params);
+	const { employeeIds, ...rest } = params;
+
+	const queries = new URLSearchParams({
+		...rest,
+		...employeeIds.reduce((acc, v, i) => {
+			acc[`employeeIds[${i}]`] = v;
+			return acc;
+		}, {} as Record<string, any>),
+	});
 
 	return serverFetch<ITasksTimesheet[]>({
 		path: `/timesheet/statistics/tasks?${queries.toString()}`,

@@ -61,7 +61,8 @@ export function TaskIssuesDropdown({
 	className,
 	defaultValue,
 	onValueChange,
-}: TTaskVersionsDropdown<'issue'>) {
+	showIssueLabels = true,
+}: TTaskVersionsDropdown<'issue'> & { showIssueLabels?: boolean }) {
 	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
 	const { item, items, onChange } = useStatusValue<'issue'>(
@@ -78,11 +79,11 @@ export function TaskIssuesDropdown({
 				value={item}
 				onChange={onChange}
 				issueType="issue"
-				showIssueLabels={true}
+				showIssueLabels={showIssueLabels}
 			>
 				<Button
 					onClick={openModal}
-					className="min-w-[50px] text-xs px-1 py-2 gap-0 w-full"
+					className="min-w-[100px] text-xs px-1 py-2 gap-0 w-full"
 					variant="outline-danger"
 				>
 					<PlusIcon className="w-4 h-4" />
