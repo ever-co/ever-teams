@@ -398,6 +398,24 @@ export function ActiveTaskPropertiesDropdown(
 	);
 }
 
+export function TaskPriorityStatus({
+	task,
+	className,
+	showIssueLabels,
+}: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
+	return task?.priority ? (
+		<TaskStatus
+			{...taskPriorities[task?.priority]}
+			showIssueLabels={showIssueLabels}
+			issueType="issue"
+			className={clsxm('rounded-md px-2 text-white', className)}
+			bordered={false}
+		/>
+	) : (
+		<></>
+	);
+}
+
 //! =============== Task Sizes ================= //
 
 export const taskSizes: TStatus<ITaskSize> = {

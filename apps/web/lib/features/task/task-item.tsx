@@ -5,7 +5,8 @@ import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
 import Link from 'next/link';
 import { useCallback } from 'react';
-import { TaskStatusDropdown } from './task-status';
+import { TaskIssueStatus } from './task-issue';
+import { TaskPriorityStatus, TaskStatusDropdown } from './task-status';
 
 type Props = {
 	task?: ITeamTask;
@@ -35,7 +36,27 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					selected && ['font-medium text-primary dark:text-primary-light']
 				)}
 			>
-				<span className="opacity-50">#{task?.taskNumber}</span> {task?.title}
+				<div className="inline-flex mr-2 items-center">
+					<div className="mr-2">
+						<TaskIssueStatus
+							showIssueLabels={false}
+							className="px-1 py-1"
+							task={task}
+						/>
+					</div>
+					<div className="mr-2">
+						<span className="opacity-50">#{task?.taskNumber}</span>
+					</div>
+
+					<div>
+						<TaskPriorityStatus
+							showIssueLabels={false}
+							className="px-1 py-1"
+							task={task}
+						/>
+					</div>
+				</div>
+				{task?.title}
 			</div>
 
 			<div className="flex items-center space-x-3 pl-2">
