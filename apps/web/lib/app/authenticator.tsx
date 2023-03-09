@@ -28,7 +28,7 @@ export function withAuthentication(
 
 		useEffect(() => {
 			if (!isTeamMember) {
-				//setShowCreateTeamModal(true);
+				setShowCreateTeamModal(true);
 			} else {
 				setShowCreateTeamModal(false);
 				setShowJoinTeamModal(false);
