@@ -39,6 +39,7 @@ export const en = {
 		WORKED: 'Worked',
 		ASSIGNED: 'Assigned',
 		UNASSIGNED: 'Unassigned',
+		TASK_DETAILS: 'Task Details',
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',

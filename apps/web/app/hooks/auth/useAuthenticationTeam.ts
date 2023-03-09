@@ -18,7 +18,7 @@ const initialValues: IRegisterDataAPI = {
 	name: '',
 	email: '',
 	team: '',
-	recaptcha: '434343434',
+	recaptcha: '',
 };
 
 export function useAuthenticationTeam() {

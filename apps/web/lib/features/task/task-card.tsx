@@ -21,6 +21,7 @@ import { TaskProgressBar } from './task-progress-bar';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 type Props = {
 	active?: boolean;
@@ -206,7 +207,7 @@ function TaskEstimateInput({ task }: { task?: Nullable<ITeamTask> }) {
 				<button ref={targetEl} onClick={() => task && setEditMode(true)}>
 					<EditIcon
 						className={clsxm(
-							'cursor-pointer',
+							'cursor-pointer w-4 h-4',
 							!task && ['opacity-40 cursor-default']
 						)}
 					/>
@@ -290,6 +291,17 @@ function TaskCardMenu({
 							return (
 								<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
 									<ul>
+										<li className="mb-2">
+											<Link
+												href={`/task/${task.id}`}
+												className={clsxm(
+													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all'
+												)}
+											>
+												{trans.common.TASK_DETAILS}
+											</Link>
+										</li>
+
 										<li>
 											<ConfirmDropdown
 												className="right-[110%] top-0"
