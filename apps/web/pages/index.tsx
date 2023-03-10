@@ -10,12 +10,18 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
-	const { isTeamMember } = useOrganizationTeams();
+	const { isTeamMember, activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+	const isTrackingEnabled = activeTeam?.members.find(
+		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
+	)
+		? true
+		: false;
 
 	return (
 		<MainLayout>
@@ -24,7 +30,9 @@ function MainPage() {
 
 				<UnverifiedEmail />
 
-				{isTeamMember ? <TaskTimerSection /> : null}
+				{isTeamMember ? (
+					<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
+				) : null}
 
 				{/* Header user card list */}
 				{isTeamMember ? <UserTeamCardHeader /> : null}
@@ -37,7 +45,11 @@ function MainPage() {
 	);
 }
 
-function TaskTimerSection() {
+function TaskTimerSection({
+	isTrackingEnabled,
+}: {
+	isTrackingEnabled: boolean;
+}) {
 	return (
 		<Card
 			shadow="bigger"
@@ -50,7 +62,7 @@ function TaskTimerSection() {
 			<AuthUserTaskInput />
 
 			{/* Timer  */}
-			<Timer />
+			{isTrackingEnabled ? <Timer /> : null}
 		</Card>
 	);
 }
