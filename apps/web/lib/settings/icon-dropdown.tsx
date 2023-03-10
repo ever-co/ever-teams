@@ -53,9 +53,9 @@ export const IconDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-[150px] max-w-sm"
+				className="min-w-[80px] max-w-sm"
 				buttonClassName={clsxm(
-					'py-0 font-medium h-[54px] w-[150px]',
+					'py-0 font-medium h-[54px] w-[80px]',
 					icons.length === 0 && ['py-2']
 				)}
 				value={iconItem}

@@ -10,7 +10,7 @@ export function mapIconItems(icons: IIcon[]) {
 		return {
 			key: icon.path,
 			Label: ({ selected }: { selected: boolean }) => (
-				<div className="flex justify-between w-full">
+				<div className="flex justify-center w-full">
 					<div className="max-w-[90%]">
 						<IconItem
 							title={icon.title?.split('-').join(' ')}
@@ -96,14 +96,14 @@ export function IconItem({
 					</div>
 				)}
 			</div>
-			<span
+			{/* <span
 				className={clsxm(
 					'text-normal',
 					'whitespace-nowrap text-ellipsis overflow-hidden capitalize'
 				)}
 			>
 				{title}
-			</span>
+			</span> */}
 		</div>
 	);
 }
