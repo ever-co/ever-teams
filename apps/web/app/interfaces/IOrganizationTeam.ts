@@ -1,3 +1,4 @@
+import { ITimerStatus } from 'lib/features';
 import { IEmployee } from './IEmployee';
 import { ITeamTask } from './ITask';
 import { ITasksTimesheet } from './ITimer';
@@ -65,6 +66,7 @@ export interface OT_Member {
 	isTrackingEnabled?: boolean;
 	totalTodayTasks: ITasksTimesheet[];
 	totalWorkedTasks: ITasksTimesheet[];
+	timerStatus: ITimerStatus
 }
 
 interface OT_Role {
