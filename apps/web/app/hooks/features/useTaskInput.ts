@@ -110,12 +110,12 @@ export function useTaskInput({
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = (autoActiveTask = true, autoAssignTask = true) => {
-		// if (
-		// 	query.trim().length < 2 ||
-		// 	inputTask?.title === query.trim() ||
-		// 	!userRef.current?.isEmailVerified
-		// )
-		// 	return;
+		if (
+			query.trim().length < 2 ||
+			inputTask?.title === query.trim() ||
+			!userRef.current?.isEmailVerified
+		)
+			return;
 
 		createTask(
 			{
