@@ -13,7 +13,7 @@ type Props = {
 } & IClassName;
 
 export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
-	const { memberUser } = memberInfo;
+	const { memberUser, member } = memberInfo;
 
 	return (
 		<Link
@@ -21,10 +21,11 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			className={clsxm('flex items-center space-x-4', className)}
 		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
-				<TimerStatus
-					status={'running'}
+				{member?.timerStatus &&
+					<TimerStatus
+					status={member.timerStatus}
 					className="absolute border z-20 bottom-3 -right-1 -mb-3"
-				/>
+				/>}
 			</Avatar>
 
 			<div className="w-64">
