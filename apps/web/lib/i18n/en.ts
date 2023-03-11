@@ -63,6 +63,8 @@ export const en = {
 		NO_TEAM: 'Create your own team or join existed',
 		NO_TEAM_SUB:
 			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
+		CANCEL: 'Cancel',
+		DISCARD: 'Discard',
 	},
 	pages: {
 		home: {
@@ -116,8 +118,8 @@ export const en = {
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'Personal Settings',
-
 			WORK_SCHEDULE: 'Work Schedule',
+			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',

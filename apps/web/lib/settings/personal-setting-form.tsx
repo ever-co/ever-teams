@@ -16,17 +16,20 @@ import {
 import { useSettings } from '@app/hooks';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'lib/i18n';
+import { EmailResetModal } from './email-reset-modal';
 
 export const PersonalSettingForm = () => {
 	const [user] = useRecoilState(userState);
-	const { register, setValue, getValues } = useForm();
+	const { register, setValue, getValues, setFocus } = useForm();
 	const [currentTimezone, setCurrentTimezone] = useState('');
 	const [currentLanguage, setCurrentLanguage] = useState('');
 	const { updateAvatar } = useSettings();
 	const { theme } = useTheme();
 	const [editFullname, setEditFullname] = useState<boolean>(false);
 	const [editContacts, setEditContacts] = useState<boolean>(false);
-
+	const [showEmailResetModal, setShowEmailResetModal] =
+		useState<boolean>(false);
+	const [newEmail, setNewEmail] = useState<string>('');
 	const { trans, translations } = useTranslation('settingsPersonal');
 
 	useEffect(() => {
@@ -44,7 +47,6 @@ export const PersonalSettingForm = () => {
 			updateAvatar({
 				firstName: values.firstName,
 				lastName: values.lastName,
-
 				id: user.id,
 			}).then(() => {
 				setEditFullname(false);
@@ -54,11 +56,15 @@ export const PersonalSettingForm = () => {
 
 	const handleContactChange = useCallback(() => {
 		const values = getValues();
+
+		if (values.email !== user?.email) {
+			setNewEmail(values.email || '');
+			setShowEmailResetModal(true);
+		}
+
 		if (user) {
 			updateAvatar({
-				email: values.email,
 				phoneNumber: values.phoneNumber,
-
 				id: user.id,
 			}).then(() => {
 				setEditContacts(false);
@@ -237,6 +243,9 @@ export const PersonalSettingForm = () => {
 											type="button"
 											onClick={() => {
 												setEditContacts(true);
+												setTimeout(() => {
+													setFocus('email');
+												}, 10);
 											}}
 										>
 											{translations.common.EDIT}
@@ -307,6 +316,14 @@ export const PersonalSettingForm = () => {
 					</div>
 				</div>
 			</form>
+
+			<EmailResetModal
+				open={showEmailResetModal}
+				closeModal={() => {
+					setShowEmailResetModal(false);
+				}}
+				email={newEmail}
+			/>
 		</>
 	);
 };
