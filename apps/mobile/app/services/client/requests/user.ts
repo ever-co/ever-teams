@@ -51,7 +51,7 @@ export function getAllUsersRequest(
     { tenantId }: { tenantId: string },
     bearer_token: string
 ) {
-    return serverFetch<PaginationResponse<IUser[]>>({
+    return serverFetch<PaginationResponse<IUser>>({
         path: `/user`,
         method: "GET",
         bearer_token,

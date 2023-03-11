@@ -29,9 +29,6 @@ export function useTeamInvitations() {
     const { isLoading, isFetching, isRefetching, data: invitations } = useFetchTeamInvitations({ authToken, tenantId, organizationId, activeTeamId });
 
     const [loading, setLoading] = useState<boolean>(false);
-    const members = activeTeam.members || [];
-
-    const currentUser = members?.find((t) => t.employeeId === employeeId);
 
 
     const inviterMember = async ({ name, email }: { name: string, email: string }) => {
@@ -79,17 +76,7 @@ export function useTeamInvitations() {
             },
             authToken
         );
-
     }, [])
-
-    const loadUsers = useCallback(async () => {
-        const { data, response } = await getAllUsersRequest({ tenantId }, authToken)
-    }, [])
-
-    useEffect(() => {
-        loadUsers()
-    }, [])
-
 
     useEffect(() => {
         setTeamInvitations(invitations || [])

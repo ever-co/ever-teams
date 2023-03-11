@@ -65,7 +65,6 @@ export function useOrganizationTeam() {
     const { logOut } = useAuthenticateUser();
 
     const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam();
-    const [activeTeamState, setActiveTeamState] = useState<IOrganizationTeamList>(activeTeam)
 
     const { data: organizationTeams, isLoading, isRefetching } = useFetchUserOrganization({
         tenantId, authToken, userId: user?.id
@@ -74,7 +73,7 @@ export function useOrganizationTeam() {
     const [isTeamManager, setIsTeamManager] = useState(false);
     const [teamsFetching, setTeamsFetching] = useState(false)
 
-    const members = activeTeamState?.members || [];
+    const members:OT_Member[] = activeTeam?.members || [];
 
     const currentUser = members.find((m) => {
         return m.employee.userId === user?.id;
@@ -217,7 +216,7 @@ export function useOrganizationTeam() {
             // UPDATE ACTIVE TEAM
             const updateActiveTeam = organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams.items[0]
             if (updateActiveTeam) {
-                setActiveTeamState(updateActiveTeam)
+                setActiveTeam(updateActiveTeam)
                 setActiveTeamId(updateActiveTeam.id)
             }
 

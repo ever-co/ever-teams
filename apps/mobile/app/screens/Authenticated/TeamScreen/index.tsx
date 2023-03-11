@@ -131,7 +131,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                         onPressIn={goToProfile}
                         enableEstimate={false}
                         index={9}
-                        userStatus={"pause"}
+                        userStatus={"online"}
                       />
                     ))}
 
