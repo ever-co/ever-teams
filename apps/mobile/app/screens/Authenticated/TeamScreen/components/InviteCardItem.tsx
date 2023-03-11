@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     FlatList,
+    TouchableWithoutFeedback,
 } from "react-native"
 import { Avatar, Text } from "react-native-paper"
 import { Ionicons, Entypo, AntDesign } from "@expo/vector-icons"
@@ -23,10 +24,12 @@ import { useAppTheme } from "../../../../app"
 import LabelItem from "../../../../components/LabelItem"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import { imgTitle } from "../../../../helpers/img-title"
+import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
 
 
 export type ListItemProps = {
     invite: any,
+    onPressIn?:()=>unknown
 }
 
 const labels = [
@@ -37,7 +40,7 @@ const labels = [
 ];
 export interface Props extends ListItemProps { }
 
-export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) => {
+export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPressIn }) => {
     // HOOKS
     const { colors, dark } = useAppTheme();
 
@@ -70,11 +73,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) =>
 
     return (
 
-        <TouchableOpacity onPress={() => { }}>
-            <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, borderRadius: 10, opacity: 0.77 }]}>
+        <TouchableWithoutFeedback onPress={() => onPressIn()}>
+            <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: colors.background, borderRadius: 10 }]}>
                 <View style={styles.firstContainer}>
                     <View style={styles.wrapProfileImg}>
-                        <Avatar.Text size={40} label={imgTitle(invite.fullName)} />
+                        <Avatar.Text style={{opacity:0.2}} size={40} label={imgTitle(invite.fullName)} />
                         <Avatar.Image style={styles.statusIcon} size={20} source={require("../../../../../assets/icons/new/invite-status-icon.png")} />
                     </View>
                     <Text style={[styles.name, { color: colors.primary }]}>{invite.fullName}</Text>
@@ -97,7 +100,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) =>
                             data={labels}
                             initialScrollIndex={labelIndex}
                             renderItem={({ item, index, separators }) => (
-                                <View key={index} style={{ marginHorizontal: 2 }}>
+                                <View key={index} style={{ marginHorizontal: 2, opacity:0.2 }}>
                                     <LabelItem
                                         label={item.label}
                                         labelColor={item.color}
@@ -144,7 +147,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) =>
                                     width={5}
                                     fill={0}
                                     tintColor="#27AE60"
-                                    onAnimationComplete={() => console.log('onAnimationComplete')}
+                                    onAnimationComplete={() => {}}
                                     backgroundColor="#F0F0F0">
                                     {
                                         (fill) => (
@@ -160,7 +163,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) =>
                 </View>
 
             </View>
-        </TouchableOpacity >
+        </TouchableWithoutFeedback >
 
     )
 })
@@ -168,6 +171,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite }) =>
 const ListCardItem: React.FC<Props> = (props) => {
     const { colors } = useAppTheme();
     const { isTeamManager } = useOrganizationTeam();
+    const {resendInvite}=useTeamInvitations()
     // STATS
     const [showMenu, setShowMenu] = React.useState(false)
     const [estimateNow, setEstimateNow] = React.useState(false)
@@ -176,7 +180,7 @@ const ListCardItem: React.FC<Props> = (props) => {
         setEstimateNow(true)
         setShowMenu(false)
     }
-
+    const {invite }=props;
     return (
         <Card
             style={{
@@ -184,7 +188,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                 ...GS.mt5,
                 paddingTop: 4,
                 backgroundColor: "#DCD6D6",
-                opacity: 0.38
+                // opacity: 0.38
             }}
             HeadingComponent={
                 <View
@@ -195,15 +199,13 @@ const ListCardItem: React.FC<Props> = (props) => {
                         ...GS.pt5,
                         ...GS.pr3,
                         ...GS.zIndexFront,
-                        opacity: 0.47
+                        // opacity: 0.47
                     }}
                 >
                     <View
                         style={{
                             ...GS.positionRelative,
-                            backgroundColor: colors.background,
                             ...GS.zIndexFront,
-                            opacity: 0.47
                         }}
                     >
                         <View
@@ -215,7 +217,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                                 ...GS.r0,
                                 ...GS.roundedSm,
                                 ...GS.zIndexFront,
-                                opacity: 0.47,
+                                opacity: 1,
                                 width: 172,
                                 marginTop: -spacing.extraSmall,
                                 marginRight: 17,
@@ -225,16 +227,16 @@ const ListCardItem: React.FC<Props> = (props) => {
                             }}
                         >
                             <View style={{}}>
-                                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Edit Task</ListItem>
-                                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]} onPress={() => handleEstimate()}>Estimate</ListItem>
-                                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Assign Task</ListItem>
-                                <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Unassign Task</ListItem>
-                                {isTeamManager ? (
-                                    <>
-                                        <ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>Make a Manager</ListItem>
-                                        <ListItem textStyle={[styles.dropdownTxt, { color: "#DE5536" }]} style={{}}>Remove</ListItem>
-                                    </>
-                                ) : null}
+                                <ListItem 
+                                textStyle={[
+                                    styles.dropdownTxt,
+                                     { color: colors.primary }
+                                     ]}
+                                     onPress={()=>{
+                                        resendInvite(invite.id)
+                                        setShowMenu(!showMenu)
+                                    }}
+                                     >Resend</ListItem>
                             </View>
                         </View>
 
@@ -252,6 +254,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 
                 <ListItemContent
                     {...props}
+                    onPressIn={()=>setShowMenu(!showMenu)}
                 />
             }
         />
@@ -293,17 +296,20 @@ const styles = StyleSheet.create({
         color: "#282048",
         width: "100%",
         lineHeight: 15,
+        opacity:0.2,
         fontStyle: "normal",
         fontFamily: typography.fonts.PlusJakartaSans.semiBold,
     },
     timeNumber: {
         color: "#282048",
         fontSize: 14,
-        fontFamily: typography.fonts.PlusJakartaSans.semiBold
+        fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+        opacity:0.2
     },
     timeHeading: {
         color: "#7E7991",
         fontSize: 10,
+        opacity:0.2,
         fontFamily: typography.fonts.PlusJakartaSans.medium
     },
     firstContainer: {
@@ -314,6 +320,7 @@ const styles = StyleSheet.create({
         color: "#1B005D",
         fontSize: 12,
         left: 15,
+        opacity:0.2,
         fontFamily: typography.fonts.PlusJakartaSans.semiBold
     },
     estimate: {
@@ -342,10 +349,12 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         marginBottom: 9,
         color: "#7E7991",
+        opacity:0.2
     },
     totalTimeText: {
         fontSize: 12,
         color: "#282048",
+        opacity:0.2,
         fontFamily: typography.fonts.PlusJakartaSans.semiBold
     },
     wrapProfileImg: {
@@ -381,10 +390,12 @@ const styles = StyleSheet.create({
         shadowColor: "rgba(0,0,0,0.16)",
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 1,
-        shadowRadius: 15
+        shadowRadius: 15, 
+        opacity:0.2
     },
     progessText:{
         fontFamily:typography.primary.semiBold,
-        fontSize:12
+        fontSize:12,
+        opacity:0.2
       }
 })

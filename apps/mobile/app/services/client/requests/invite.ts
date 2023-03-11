@@ -125,3 +125,26 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
 		body: params,
 	});
 }
+
+/**
+ * Delete invite record
+ *
+ * @param param0
+ * @returns
+ */
+export function removeTeamInvitationsRequest({
+	invitationId,
+	bearer_token,
+	tenantId,
+}: {
+	invitationId: string;
+	bearer_token: string;
+	tenantId: string;
+}) {
+	return serverFetch<any>({
+		path: `/invite/${invitationId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
+}

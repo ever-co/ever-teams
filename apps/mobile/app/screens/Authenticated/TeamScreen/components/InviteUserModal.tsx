@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react"
-import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
+import { View, ViewStyle, Modal, Image, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity, FlatList } from "react-native"
 import { Text } from "react-native-paper"
 // COMPONENTS
 // STYLES
@@ -62,6 +62,8 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
     setMemberName,
     handleEmailInput,
     handleNameInput,
+    emailsSuggest,
+    setEmailSuggests,
     errors
   } = useTeamScreenLogic();
   const { colors } = useAppTheme();
@@ -80,21 +82,68 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
       emailError: null,
       nameError: null
     })
+    setMemberEmail("")
+    setMemberName("")
+    setEmailSuggests([])
   }, [onDismiss])
 
+  const renderEmailCompletions = (emails: string[]) => (
+    <View
+      style={{
+        position: "absolute",
+        bottom: 62,
+        width: "85%",
+        maxHeight: 200,
+        paddingVertical: 5,
+        borderRadius: 10,
+        backgroundColor: colors.background,
+        ...GS.shadow,
+        zIndex: 1000
+      }}
+    >
+      <FlatList
+        data={emails}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => handleEmailInput(item)}>
+            <View
+              style={{
+                width: "100%",
+                paddingVertical: 5,
+                paddingHorizontal: 16
+              }}
+            >
+              <Text style={{
+                color: colors.primary,
+                fontFamily: typography.primary.bold,
+                fontSize: 14
+              }}
+              >{memberEmail}<Text style={{ color: "#B1AEBC" }}>{item.replace(memberEmail, "")}</Text></Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        extraData={emailsSuggest}
+      />
+    </View>
+  )
+  const canSubmit = memberEmail.trim().length > 0 && memberName.trim().length > 0 && !errors.emailError && !errors.nameError
   return (
     <ModalPopUp visible={visible}>
       <View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
+
         <View style={{ width: "100%", marginBottom: 20 }}>
           <Text style={[styles.mainTitle, { color: colors.primary }]}>{translate("teamScreen.inviteModalTitle")}</Text>
           <Text style={styles.hint}>{translate("teamScreen.inviteModalHint")}</Text>
         </View>
         <View style={{ width: "100%" }}>
           <View>
+            {emailsSuggest.length > 0 && renderEmailCompletions(emailsSuggest)}
             <TextInput
               placeholderTextColor={colors.tertiary} style={[styles.textInput,
               { borderColor: colors.border, color: colors.primary }]}
               autoCapitalize={"none"}
+              keyboardType="email-address"
+              value={memberEmail}
               autoCorrect={false}
               placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")}
               onChangeText={(text) => handleEmailInput(text)}
@@ -115,13 +164,12 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
             <TouchableOpacity onPress={() => onDismiss()} style={[styles.button, { backgroundColor: "#E6E6E9" }]}>
               <Text style={[styles.buttonText, { color: "#1A1C1E" }]}>{translate("common.cancel")}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6" }]} onPress={() => handleSubmit()}>
+            <TouchableOpacity style={[styles.button, { backgroundColor: "#3826A6", opacity: !canSubmit ? 0.3 : 1 }]} onPress={() => canSubmit ? handleSubmit() : {}}>
               <Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-      {/* <ActivityIndicator color={colors.primary} style={styles.loading} /> */}
     </ModalPopUp>
   )
 }
@@ -154,16 +202,11 @@ const styles = StyleSheet.create({
   mainContainer: {
     width: "100%",
     alignItems: "center",
-    height: height / 2.2,
-    shadowColor: "#1B005D0D",
-    shadowOffset: { width: 10, height: 10 },
-    shadowRadius: 10,
+    height: 374,
     borderTopRightRadius: 24,
     borderTopLeftRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 30,
-    borderColor: "#1B005D0D",
-    borderWidth: 2,
   },
   theTextField: {
     borderWidth: 0,
@@ -172,11 +215,11 @@ const styles = StyleSheet.create({
   wrapButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 10
+    marginTop: 40
   },
   button: {
     width: width / 2.5,
-    height: height / 16,
+    height: 57,
     borderRadius: 11,
     padding: 10,
     justifyContent: "center",
