@@ -35,7 +35,7 @@ export function EmailResetModal({
 		setValue('email', email);
 	}, [email, setValue]);
 
-	const { user, setUser } = useAuthenticateUser();
+	const { updateUserFromAPI } = useAuthenticateUser();
 
 	const {
 		emailResetRequestLoading,
@@ -57,22 +57,16 @@ export function EmailResetModal({
 		});
 	}, [emailResetRequestQueryCall, getValues]);
 	const handleConfirm = useCallback(() => {
-		verifyChangeEmailRequestQueryCall(+code).then((data) => {
-			if (data?.data?.data?.status === 400) {
-				setMessage(data?.data?.data?.message);
-				return;
-			}
-
-			const newEmail = getValues().email;
-			if (user) {
-				setUser({
-					...user,
-					email: newEmail,
-				});
-			}
+		verifyChangeEmailRequestQueryCall(+code).then(() => {
+			updateUserFromAPI();
 			onCloseModal();
 		});
-	}, [code, user, getValues, setUser, verifyChangeEmailRequestQueryCall]);
+	}, [
+		code,
+		verifyChangeEmailRequestQueryCall,
+		updateUserFromAPI,
+		onCloseModal,
+	]);
 
 	return (
 		<Modal isOpen={open} closeModal={onCloseModal}>

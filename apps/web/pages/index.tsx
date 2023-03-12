@@ -17,7 +17,7 @@ function MainPage() {
 	const { trans } = useTranslation('home');
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
-	const isTrackingEnabled = activeTeam?.members.find(
+	const isTrackingEnabled = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
 	)
 		? true
