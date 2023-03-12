@@ -174,8 +174,6 @@ export function EmailResetModal({
 											</button>
 										)}
 									</div>
-
-									{/* {true && <SpinnerLoader size={22} className="self-center" />} */}
 								</div>
 							</div>
 							<div className="w-full flex justify-between mt-5 items-center">
