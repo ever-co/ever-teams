@@ -29,7 +29,7 @@ export function EmailResetModal({
 	const { register, setValue, getValues } = useForm();
 	const [code, setCode] = useState('');
 	const [step, setStep] = useState<ISteps>('EMAIL');
-	const [errorMessage, setErrorMessage] = useState<string>('');
+	const [message, setMessage] = useState<string>('');
 
 	useEffect(() => {
 		setValue('email', email);
@@ -45,25 +45,21 @@ export function EmailResetModal({
 	} = useEmailReset();
 
 	const onCloseModal = () => {
-		setErrorMessage('');
+		setMessage('');
 		setStep('EMAIL');
 		closeModal();
 	};
 	const handleContinue = useCallback(() => {
 		const newEmail = getValues().email;
-		emailResetRequestQueryCall(newEmail).then((data) => {
-			if (data?.data?.data?.status === 400) {
-				setErrorMessage(data?.data?.data?.message);
-				return;
-			}
-			setErrorMessage('');
+		emailResetRequestQueryCall(newEmail).then(() => {
+			setMessage(trans.pages.home.SENT_EMAIL_VERIFICATION);
 			setStep('CODE_VERIFICATION');
 		});
 	}, [emailResetRequestQueryCall, getValues]);
 	const handleConfirm = useCallback(() => {
 		verifyChangeEmailRequestQueryCall(+code).then((data) => {
 			if (data?.data?.data?.status === 400) {
-				setErrorMessage(data?.data?.data?.message);
+				setMessage(data?.data?.data?.message);
 				return;
 			}
 
@@ -76,13 +72,7 @@ export function EmailResetModal({
 			}
 			onCloseModal();
 		});
-	}, [
-		code,
-		user,
-		getValues,
-		setUser,
-		verifyChangeEmailRequestQueryCall,
-	]);
+	}, [code, user, getValues, setUser, verifyChangeEmailRequestQueryCall]);
 
 	return (
 		<Modal isOpen={open} closeModal={onCloseModal}>
@@ -108,9 +98,9 @@ export function EmailResetModal({
 									})}
 									className={`md:w-[220px] m-0 h-[54px]`}
 								/>
-								{errorMessage && (
+								{message && (
 									<Text.Error className="self-start justify-self-start">
-										{errorMessage}
+										{message}
 									</Text.Error>
 								)}
 							</div>
@@ -161,9 +151,9 @@ export function EmailResetModal({
 										setCode(code);
 									}}
 								/>
-								{errorMessage && (
+								{message && (
 									<Text.Error className="self-start justify-self-start">
-										{errorMessage}
+										{message}
 									</Text.Error>
 								)}
 							</div>

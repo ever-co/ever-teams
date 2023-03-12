@@ -69,7 +69,7 @@ export const en = {
 	pages: {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
-			SENT_EMAIL_VERIFICATION: 'Code Vericiation has ben sent to your email',
+			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
 		},
 
 		profile: {
