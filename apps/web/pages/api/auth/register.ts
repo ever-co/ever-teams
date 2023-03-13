@@ -71,6 +71,7 @@ export default async function handler(
 			firstName: names[0],
 			lastName: names[1] || '',
 			email: body.email,
+			timeZone: body.timezone as string,
 		},
 	});
 	// User Login, get the access token

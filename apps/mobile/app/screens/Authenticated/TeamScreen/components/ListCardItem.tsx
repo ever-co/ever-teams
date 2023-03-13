@@ -31,10 +31,11 @@ import { useAppTheme } from "../../../../app"
 import LabelItem from "../../../../components/LabelItem"
 import { secondsToTime } from "../../../../helpers/date";
 import { limitTextCharaters } from "../../../../helpers/sub-text";
+import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam";
 
 
 export type ListItemProps = {
-  member: IUser,
+  member: OT_Member,
   onPressIn?: ({ userId, tabIndex }: { userId: string, tabIndex: number }) => unknown
   enableEstimate: boolean,
   index: number,

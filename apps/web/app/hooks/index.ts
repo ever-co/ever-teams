@@ -25,6 +25,7 @@ export * from './features/useTeamMemberCard';
 export * from './features/useUserProfilePage';
 export * from './features/useUser';
 export * from './features/useAutoAssignTask';
+export * from './features/useEmailReset';
 
 //export user personal setting
 export * from './features/useSettings';

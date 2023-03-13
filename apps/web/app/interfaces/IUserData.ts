@@ -52,6 +52,13 @@ export interface ITokens {
 	token: string;
 }
 
+export interface IEmail {
+	email: string;
+}
+export interface ICode {
+	code: string;
+}
+
 export interface IUserData {
 	id?: string;
 	token: string;

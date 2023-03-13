@@ -13,3 +13,4 @@ export * from './task-labels-form';
 export * from './team-setting-form';
 export * from './timezone-dropdown';
 export * from './transfer-team-modal';
+export * from './email-reset-modal';

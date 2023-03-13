@@ -115,7 +115,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                   <View>
                     {currentUser && (
                       <ListCardItem
-                        member={currentUser as IUser}
+                        member={currentUser}
                         onPressIn={goToProfile}
                         enableEstimate={false}
                         index={7}
@@ -127,11 +127,11 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                     {$otherMembers.map((member, index) => (
                       <ListCardItem
                         key={index}
-                        member={member as IUser}
+                        member={member}
                         onPressIn={goToProfile}
                         enableEstimate={false}
                         index={9}
-                        userStatus={"pause"}
+                        userStatus={"online"}
                       />
                     ))}
 

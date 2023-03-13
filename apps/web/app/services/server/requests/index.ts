@@ -10,6 +10,8 @@ export * from './invite';
 export * from './timesheet';
 export * from './roles';
 export * from './smtp';
+export * from './user';
+export * from './email-reset';
 
 
 //personal setting request export

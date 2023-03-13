@@ -3,7 +3,7 @@ import { useStores } from "../../../models"
 import { timezone } from "expo-localization";
 import { useQueryClient } from "react-query";
 import useFetchAllLanguages from "../../client/queries/language";
-import useFetchCurrentUserData from "../../client/queries/user/user";
+import { useFetchCurrentUserData } from "../../client/queries/user/user";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import I18n from "i18n-js";
@@ -30,7 +30,7 @@ export function useSettings() {
             data: userBody,
             tenantId
         }, authToken)
-        
+
         queryClient.invalidateQueries("user")
 
         return data

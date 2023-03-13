@@ -1,3 +1,4 @@
+import { PaginationResponse } from "../../interfaces/IDataResponse";
 import { IUser } from "../../interfaces/IUserData";
 import { serverFetch } from "../fetch";
 
@@ -43,5 +44,17 @@ export function resetUserRequest({
         method: 'DELETE',
         bearer_token,
         tenantId,
+    });
+}
+
+export function getAllUsersRequest(
+    { tenantId }: { tenantId: string },
+    bearer_token: string
+) {
+    return serverFetch<PaginationResponse<IUser>>({
+        path: `/user`,
+        method: "GET",
+        bearer_token,
+        tenantId
     });
 }

@@ -63,11 +63,13 @@ export const en = {
 		NO_TEAM: 'Create your own team or join existed',
 		NO_TEAM_SUB:
 			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
+		CANCEL: 'Cancel',
+		DISCARD: 'Discard',
 	},
 	pages: {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
-			SENT_EMAIL_VERIFICATION: 'Code Vericiation has ben sent to your email',
+			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
 		},
 
 		profile: {
@@ -116,8 +118,10 @@ export const en = {
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'Personal Settings',
-
 			WORK_SCHEDULE: 'Work Schedule',
+			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
+			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
+			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?'
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',
@@ -175,6 +179,8 @@ export const en = {
 			INITIAL: 'Initial',
 			IN_PROGRESS: 'In Progress',
 			FINAL: 'Final',
+			DISPOSE_TEAM: 'You are about to Dispose team ?',
+			QUIT_TEAM: 'You are about to Quit team ?',
 		},
 
 		invite: {
