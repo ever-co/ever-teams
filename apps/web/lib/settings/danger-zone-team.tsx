@@ -4,44 +4,31 @@ import {
 	useModal,
 	useOrganizationTeams,
 } from '@app/hooks';
-import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from 'lib/components';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { TransferTeamModal } from './transfer-team-modal';
+import { RemoveModal } from './remove-modal';
+import { useTranslation } from 'lib/i18n';
 
 export const DangerZoneTeam = () => {
-	const { activeTeam, deleteOrganizationTeam } = useOrganizationTeams();
-	const { deleteOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { activeTeam } = useOrganizationTeams();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
+	const [isOpenDisposeModal, setIsOpenDisposeModal] = useState(false);
+	const [isOpenQuitModal, setIsOpenQuitModal] = useState(false);
 
 	const { isOpen, closeModal, openModal } = useModal();
+	const { trans } = useTranslation();
 
-	const handleDisposeTeam = useCallback(() => {
-		if (activeTeam) {
-			deleteOrganizationTeam(activeTeam.id);
-		}
-	}, [activeTeam, deleteOrganizationTeam]);
+	const openQuitModal = useCallback(() => {
+		setIsOpenQuitModal(true);
+	}, []);
 
-	const handleQuiteTeam = useCallback(() => {
-		if (activeTeam && user) {
-			const currentEmployeeDetails = activeTeam.members.find(
-				(member) => member.employeeId === user.employee.id
-			);
-
-			if (currentEmployeeDetails && currentEmployeeDetails.id) {
-				// Remove from Team API call
-				deleteOrganizationTeamEmployee({
-					id: currentEmployeeDetails.id,
-					employeeId: currentEmployeeDetails.employeeId,
-					organizationId: activeTeam.organizationId,
-					tenantId: activeTeam.tenantId,
-				});
-			}
-		}
-	}, [activeTeam, user, deleteOrganizationTeamEmployee]);
+	const openDisposeModal = useCallback(() => {
+		setIsOpenDisposeModal(true);
+	}, []);
 
 	return (
 		<>
@@ -88,7 +75,7 @@ export const DangerZoneTeam = () => {
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
 									onClick={() => {
-										handleDisposeTeam();
+										openDisposeModal();
 									}}
 									disabled={!(isTeamManager && activeTeamManagers.length === 1)}
 								>
@@ -112,7 +99,7 @@ export const DangerZoneTeam = () => {
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
 									onClick={() => {
-										handleQuiteTeam();
+										openQuitModal();
 									}}
 									disabled={
 										!(
@@ -134,6 +121,23 @@ export const DangerZoneTeam = () => {
 
 			{/* Transfer Team Modal */}
 			<TransferTeamModal open={isOpen} closeModal={closeModal} />
+
+			{/* Dispose Team Modal */}
+			<RemoveModal
+				open={isOpenDisposeModal}
+				close={() => setIsOpenDisposeModal(false)}
+				title={trans.pages.settingsTeam.DISPOSE_TEAM}
+				onDispose
+				team
+			/>
+
+			{/* Quit Team Modal */}
+			<RemoveModal
+				open={isOpenQuitModal}
+				close={() => setIsOpenQuitModal(false)}
+				title={trans.pages.settingsTeam.QUIT_TEAM}
+				team
+			/>
 		</>
 	);
 };

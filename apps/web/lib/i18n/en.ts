@@ -120,6 +120,8 @@ export const en = {
 			HEADING_TITLE: 'Personal Settings',
 			WORK_SCHEDULE: 'Work Schedule',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
+			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
+			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?'
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',
@@ -177,6 +179,8 @@ export const en = {
 			INITIAL: 'Initial',
 			IN_PROGRESS: 'In Progress',
 			FINAL: 'Final',
+			DISPOSE_TEAM: 'You are about to Dispose team ?',
+			QUIT_TEAM: 'You are about to Quit team ?',
 		},
 
 		invite: {
