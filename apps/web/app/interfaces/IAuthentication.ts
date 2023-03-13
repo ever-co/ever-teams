@@ -7,7 +7,7 @@ export interface ILoginResponse {
 }
 
 export interface IRegisterDataRequest {
-	user: Required<Pick<IUser, 'email' | 'firstName' | 'lastName'>>;
+	user: Required<Pick<IUser, 'email' | 'firstName' | 'lastName' | 'timeZone'>>;
 	password: string;
 	confirmPassword: string;
 	appEmailConfirmationUrl?: string;
