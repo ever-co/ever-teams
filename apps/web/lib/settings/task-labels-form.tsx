@@ -11,8 +11,8 @@ import { StatusesListCard } from './list-card';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
-import { IconDropdown } from './icon-dropdown';
 import { generateIconList } from './icon-items';
+import IconPopover from './icon-popover';
 
 export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
@@ -155,7 +155,8 @@ export const TaskLabelForm = () => {
 											{...register('name')}
 										/>
 
-										<IconDropdown
+										<IconPopover
+											iconList={iconList}
 											setValue={setValue}
 											active={
 												edit
@@ -164,7 +165,6 @@ export const TaskLabelForm = () => {
 													  ) as IIcon)
 													: null
 											}
-											iconList={iconList}
 										/>
 
 										<ColorDropdown
