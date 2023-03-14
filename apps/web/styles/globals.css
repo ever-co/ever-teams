@@ -114,6 +114,24 @@ html.dark {
 	}
 }
 
+/* input */
+.search-border {
+	height: 33px;
+}
+.search-border .input-border {
+	border-width: 0px !important;
+	height: 40px;
+}
+.search-border .input-border input {
+	height: 40px;
+}
+.search-border .input-border input::placeholder {
+	color: #7e7991;
+	font-size: 15px !important;
+	/* font-weight: 500; */
+	letter-spacing: 0.8px;
+}
+
 @font-face {
 	font-family: 'Plus-Jakarta-Sans-VariableFont_wght';
 	src: url('../public/assets/fonts/PlusJakartaSans-VariableFont_wght.ttf');

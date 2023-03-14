@@ -11,8 +11,8 @@ import { Spinner } from '@components/ui/loaders/spinner';
 import { IColor, IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
-import { IconDropdown } from './icon-dropdown';
 import { generateIconList } from './icon-items';
+import IconPopover from './icon-popover';
 
 export const TaskStatusesForm = () => {
 	const [user] = useRecoilState(userState);
@@ -21,7 +21,7 @@ export const TaskStatusesForm = () => {
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
-	const iconList: IIcon[] = generateIconList('task-statuses', [
+	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
 		'in-progress',
 		'ready',
@@ -29,6 +29,25 @@ export const TaskStatusesForm = () => {
 		'blocked',
 		'completed',
 	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
+		'x-large',
+		'large',
+		'medium',
+		'small',
+		'tiny',
+	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
+		'urgent',
+		'high',
+		'medium',
+		'low',
+	]);
+
+	const iconList: IIcon[] = [
+		...taskStatusIconList,
+		...taskSizesIconList,
+		...taskPrioritiesIconList,
+	];
 
 	const {
 		loading,
@@ -143,7 +162,8 @@ export const TaskStatusesForm = () => {
 											{...register('name')}
 										/>
 
-										<IconDropdown
+										<IconPopover
+											iconList={iconList}
 											setValue={setValue}
 											active={
 												edit
@@ -152,7 +172,6 @@ export const TaskStatusesForm = () => {
 													  ) as IIcon)
 													: null
 											}
-											iconList={iconList}
 										/>
 
 										<ColorDropdown
