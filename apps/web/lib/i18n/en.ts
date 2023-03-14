@@ -65,6 +65,10 @@ export const en = {
 			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
 		CANCEL: 'Cancel',
 		DISCARD: 'Discard',
+		EXISTING_MEMBER: 'Already a Member',
+		NEW_MEMBER: 'Become a Member',
+		BACK: 'Back',
+		JOIN_REQUEST: 'Request to join'
 	},
 	pages: {
 		home: {
