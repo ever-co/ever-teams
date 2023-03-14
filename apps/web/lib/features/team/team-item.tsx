@@ -1,7 +1,8 @@
+import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { DropdownItem } from 'lib/components';
+import { DropdownItem, Tooltip } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
 import stc from 'string-to-color';
 
@@ -12,24 +13,40 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 		return {
 			key: team.id,
 			Label: ({ selected }) => (
-				<div className="flex justify-between w-full">
-					<div className="max-w-[90%]">
-						<TeamItem
-							title={team.name}
-							count={team.members.length}
-							className={clsxm(selected && ['font-medium'])}
-						/>
-					</div>
+				<Tooltip
+					label={team.name || ''}
+					placement="auto"
+					enabled={
+						(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5
+					}
+				>
+					<div className="flex justify-between w-full">
+						<div className="max-w-[90%]">
+							<TeamItem
+								title={team.name}
+								count={team.members.length}
+								className={clsxm(selected && ['font-medium'])}
+							/>
+						</div>
 
-					<SettingsOutlineIcon className="cursor-pointer" />
-				</div>
+						<SettingsOutlineIcon className="cursor-pointer" />
+					</div>
+				</Tooltip>
 			),
 			selectedLabel: (
-				<TeamItem
-					title={team.name}
-					count={team?.members?.length || 0}
-					className="py-2 mb-0"
-				/>
+				<Tooltip
+					label={team.name || ''}
+					placement="auto"
+					enabled={
+						(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5
+					}
+				>
+					<TeamItem
+						title={team.name}
+						count={team?.members?.length || 0}
+						className="py-2 mb-0"
+					/>
+				</Tooltip>
 			),
 			data: team,
 		};
@@ -71,7 +88,6 @@ export function TeamItem({
 }) {
 	return (
 		<div
-			title={title}
 			className={clsxm(
 				'flex items-center justify-start space-x-2 text-sm',
 				'cursor-pointer mb-4 max-w-full',
