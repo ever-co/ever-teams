@@ -5,7 +5,7 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
 	Card,
-	ConfirmDropdown,
+	// ConfirmDropdown,
 	SpinnerLoader,
 	Text,
 	VerticalSeparator,
@@ -302,7 +302,7 @@ function TaskCardMenu({
 											</Link>
 										</li>
 
-										<li>
+										{/* <li>
 											<ConfirmDropdown
 												className="right-[110%] top-0"
 												onConfirm={() => {
@@ -318,7 +318,7 @@ function TaskCardMenu({
 													{trans.common.REMOVE}
 												</Text>
 											</ConfirmDropdown>
-										</li>
+										</li> */}
 									</ul>
 								</Card>
 							);
