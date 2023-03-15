@@ -11,6 +11,10 @@ import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
+import {
+	getNoTeamPopupShowCookie,
+	setNoTeamPopupShowCookie,
+} from '@app/helpers';
 
 export function withAuthentication(
 	Component: NextPage<any, any>,
@@ -20,6 +24,7 @@ export function withAuthentication(
 		const { trans } = useTranslation();
 		const [user, setUser] = useRecoilState(userState);
 		const { queryCall, loading } = useQuery(getAuthenticatedUserDataAPI);
+		const noTeamPopupShow = getNoTeamPopupShowCookie();
 
 		const { isTeamMember } = useOrganizationTeams();
 		const [showCreateTeamModal, setShowCreateTeamModal] =
@@ -27,7 +32,7 @@ export function withAuthentication(
 		const [showJoinTeamModal, setShowJoinTeamModal] = useState<boolean>(false);
 
 		useEffect(() => {
-			if (!isTeamMember) {
+			if (noTeamPopupShow) {
 				setShowCreateTeamModal(true);
 			} else {
 				setShowCreateTeamModal(false);
@@ -37,6 +42,7 @@ export function withAuthentication(
 		const closeModalIfNewTeamCreated = useCallback(() => {
 			setShowCreateTeamModal(false);
 			setShowJoinTeamModal(false);
+			setNoTeamPopupShowCookie(false);
 		}, [isTeamMember]);
 
 		useEffect(() => {
