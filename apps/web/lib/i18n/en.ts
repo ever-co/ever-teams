@@ -65,6 +65,10 @@ export const en = {
 			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
 		CANCEL: 'Cancel',
 		DISCARD: 'Discard',
+		EXISTING_MEMBER: 'Already a Member',
+		NEW_MEMBER: 'Become a Member',
+		BACK: 'Back',
+		JOIN_REQUEST: 'Request to join'
 	},
 	pages: {
 		home: {
@@ -95,11 +99,17 @@ export const en = {
 			COVER_TITLE: 'Follow your teams work progress in real-time!',
 			COVER_DESCRIPTION:
 				'Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis',
+			LOGIN: 'Login',
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
 			HEADING_DESCRIPTION:
 				'Please enter email and invitation code to join existing team.',
+		},
+		authLogin: {
+			HEADING_TITLE: 'Login to the Team',
+			HEADING_DESCRIPTION:
+				'Please enter email and invitation code to login.',
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
@@ -121,7 +131,7 @@ export const en = {
 			WORK_SCHEDULE: 'Work Schedule',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
 			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
-			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?'
+			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?',
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',

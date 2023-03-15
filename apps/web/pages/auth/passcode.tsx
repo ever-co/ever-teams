@@ -23,7 +23,7 @@ export default function AuthPasscode() {
 		inputCodeRef,
 	} = useAuthenticationPasscode();
 
-	const { trans, translations } = useTranslation('authPasscode');
+	const { trans, translations } = useTranslation('authLogin');
 
 	return (
 		<AuthLayout
@@ -38,7 +38,7 @@ export default function AuthPasscode() {
 				<Card className="w-full" shadow="bigger">
 					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center mb-10">
-							{translations.pages.auth.JOIN_TEAM}
+							{translations.pages.auth.LOGIN}
 						</Text.Heading>
 
 						{/* Email input */}
@@ -101,7 +101,7 @@ export default function AuthPasscode() {
 							</div>
 
 							<Button type="submit" loading={loading} disabled={loading}>
-								{translations.pages.auth.JOIN}
+								{translations.pages.auth.LOGIN}
 							</Button>
 						</div>
 					</div>

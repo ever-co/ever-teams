@@ -19,7 +19,7 @@ export function InviteFormModal({
 	closeModal: () => void;
 }) {
 	const { trans, translations } = useTranslation('invite');
-	const { invateUser, inviteLoading } = useTeamInvitations();
+	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState({});
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,7 +27,7 @@ export function InviteFormModal({
 
 		const form = new FormData(e.currentTarget);
 
-		invateUser(
+		inviteUser(
 			form.get('email')?.toString() || '',
 			form.get('name')?.toString() || ''
 		)
