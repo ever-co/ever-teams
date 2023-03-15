@@ -11,7 +11,7 @@ import {
 } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
@@ -38,32 +38,40 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const [tab, setTab] = useState<ITab>('worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
+	const [taskName, setTaskName] = useState('');
+
+	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
+		unassigned: profile.tasksGrouped.unassignedTasks,
+		assigned: profile.tasksGrouped.assignedTasks,
+		worked: profile.tasksGrouped.workedTasks,
+	};
+
+	const tasks = tasksFiltered[tab];
+
 	const tabs: ITabs[] = [
 		{
 			tab: 'worked',
 			name: trans.common.WORKED,
 			description: trans.task.tabFilter.WORKED_DESCRIPTION,
-			count: profile.tasksFiltered.workedTasks.length,
+			count: profile.tasksGrouped.workedTasks.length,
 		},
 		{
 			tab: 'assigned',
 			name: trans.common.ASSIGNED,
 			description: trans.task.tabFilter.ASSIGNED_DESCRIPTION,
-			count: profile.tasksFiltered.assignedTasks.length,
+			count: profile.tasksGrouped.assignedTasks.length,
 		},
 		{
 			tab: 'unassigned',
 			name: trans.common.UNASSIGNED,
 			description: trans.task.tabFilter.UNASSIGNED_DESCRIPTION,
-			count: profile.tasksFiltered.unassignedTasks.length,
+			count: profile.tasksGrouped.unassignedTasks.length,
 		},
 	];
 
-	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
-		unassigned: profile.tasksFiltered.unassignedTasks,
-		assigned: profile.tasksFiltered.assignedTasks,
-		worked: profile.tasksFiltered.workedTasks,
-	};
+	useEffect(() => {
+		setTaskName('');
+	}, [filterType]);
 
 	const toggleFilterType = useCallback(
 		(type: NonNullable<FilterType>) => {
@@ -74,13 +82,23 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[setFilterType]
 	);
 
+	const $tasks = useMemo(() => {
+		const n = taskName.trim().toLowerCase();
+
+		return tasks.filter((task) => {
+			return n ? task.title.toLowerCase().includes(n) : true;
+		});
+	}, [tasks, taskName]);
+
 	return {
 		tab,
 		setTab,
 		tabs,
 		filterType,
 		toggleFilterType,
-		tasksFiltered: tasksFiltered[tab],
+		tasksFiltered: $tasks,
+		taskName,
+		setTaskName,
 	};
 }
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -114,7 +132,9 @@ export function TaskFilter({
 			>
 				<Divider className="mt-4" />
 				{hook.filterType === 'status' && <TaskStatusFilter />}
-				{hook.filterType === 'search' && <TaskNameFilter />}
+				{hook.filterType === 'search' && (
+					<TaskNameFilter value={hook.taskName} setValue={hook.setTaskName} />
+				)}
 			</Transition>
 		</>
 	);
@@ -232,10 +252,20 @@ function TaskStatusFilter() {
 	);
 }
 
-function TaskNameFilter() {
+function TaskNameFilter({
+	value,
+	setValue,
+}: {
+	value: string;
+	setValue: (v: string) => void;
+}) {
 	return (
 		<div className="mt-3 w-1/2 ml-auto">
-			<InputField placeholder="Type something..." />
+			<InputField
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
+				placeholder="Type something..."
+			/>
 		</div>
 	);
 }

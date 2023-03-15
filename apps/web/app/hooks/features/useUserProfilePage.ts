@@ -33,7 +33,7 @@ export function useUserProfilePage() {
 	const employeeId = isAuthUser ? auth?.employee.id : matchUser?.employeeId;
 
 	/* Filtering the tasks */
-	const tasksFiltered = useAuthTeamTasks(userProfile);
+	const tasksGrouped = useAuthTeamTasks(userProfile);
 
 	useEffect(() => {
 		if (employeeId) {
@@ -45,7 +45,7 @@ export function useUserProfilePage() {
 		isAuthUser,
 		activeUserTeamTask,
 		userProfile,
-		tasksFiltered,
+		tasksGrouped,
 	};
 }
 
