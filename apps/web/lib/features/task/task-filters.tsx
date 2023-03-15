@@ -28,6 +28,9 @@ type ITabs = {
 };
 
 type FilterType = 'status' | 'search' | undefined;
+type IStatusType = 'status' | 'size' | 'priority' | 'label';
+type StatusFilter = { [x in IStatusType]: string };
+
 /**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
  * @param {I_UserProfilePage} hook - I_UserProfilePage - this is the hook that we're using in the
@@ -37,6 +40,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const { trans } = useTranslation();
 	const [tab, setTab] = useState<ITab>('worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
+
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>(
+		{} as StatusFilter
+	);
 
 	const [taskName, setTaskName] = useState('');
 
@@ -90,6 +97,26 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		});
 	}, [tasks, taskName]);
 
+	const onChangeStatusFilter = useCallback(
+		(type: IStatusType, value: string) => {
+			return setStatusFilter((state) => {
+				return {
+					...state,
+					[type]: value,
+				};
+			});
+		},
+		[setStatusFilter]
+	);
+
+	const onResetStatusFilter = useCallback(() => {
+		return setStatusFilter({} as StatusFilter);
+	}, [setStatusFilter]);
+
+	const applyStatusFilder = useCallback(() => {
+		console.log('----');
+	}, []);
+
 	return {
 		tab,
 		setTab,
@@ -99,6 +126,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		tasksFiltered: $tasks,
 		taskName,
 		setTaskName,
+		statusFilter,
+		onChangeStatusFilter,
+		onResetStatusFilter,
+		applyStatusFilder,
 	};
 }
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -131,7 +162,7 @@ export function TaskFilter({
 				leaveTo="opacity-0"
 			>
 				<Divider className="mt-4" />
-				{hook.filterType === 'status' && <TaskStatusFilter />}
+				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
 				{hook.filterType === 'search' && (
 					<TaskNameFilter value={hook.taskName} setValue={hook.setTaskName} />
 				)}
@@ -227,24 +258,50 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
  */
-function TaskStatusFilter() {
+function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
+	const [key, setKey] = useState(0);
 	const { trans } = useTranslation();
 
 	return (
 		<div className="mt-4 flex justify-between space-x-2 items-center">
 			<div className="flex-1 flex space-x-3">
-				<TaskStatusDropdown className="lg:min-w-[170px]" />
+				<TaskStatusDropdown
+					key={key + 1}
+					onValueChange={(v) => hook.onChangeStatusFilter('status', v)}
+					className="lg:min-w-[170px]"
+				/>
 
-				<TaskPropertiesDropdown className="lg:min-w-[170px]" />
+				<TaskPropertiesDropdown
+					key={key + 2}
+					onValueChange={(v) => hook.onChangeStatusFilter('priority', v)}
+					className="lg:min-w-[170px]"
+				/>
 
-				<TaskSizesDropdown className="lg:min-w-[170px]" />
+				<TaskSizesDropdown
+					key={key + 3}
+					onValueChange={(v) => hook.onChangeStatusFilter('size', v)}
+					className="lg:min-w-[170px]"
+				/>
 
-				<TaskLabelsDropdown className="lg:min-w-[170px]" />
+				<TaskLabelsDropdown
+					key={key + 4}
+					onValueChange={(v) => hook.onChangeStatusFilter('label', v)}
+					className="lg:min-w-[170px]"
+				/>
 			</div>
 
 			<div className="flex space-x-3">
-				<Button className="py-2 min-w-[100px]">{trans.common.APPLY}</Button>
-				<Button className="py-2 min-w-[100px]" variant="grey">
+				<Button className="py-2 min-w-[100px]" onClick={hook.applyStatusFilder}>
+					{trans.common.APPLY}
+				</Button>
+				<Button
+					className="py-2 min-w-[100px]"
+					variant="grey"
+					onClick={() => {
+						setKey((k) => k + 1);
+						hook.onResetStatusFilter();
+					}}
+				>
 					{trans.common.RESET}
 				</Button>
 			</div>
