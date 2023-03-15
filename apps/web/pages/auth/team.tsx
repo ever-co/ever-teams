@@ -94,7 +94,7 @@ function FillTeamNameForm({
 					variant="primary"
 					className="text-xs dark:text-gray-400 font-normal"
 				>
-					{trans.JOIN_EXISTING_TEAM}
+					{translations.pages.auth.LOGIN}
 				</Text.Link>
 
 				<Button type="submit">{translations.common.CONTINUE}</Button>
