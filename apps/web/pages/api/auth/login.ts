@@ -1,7 +1,10 @@
-import { setAuthCookies } from '@app/helpers/cookies';
+import { setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers/cookies';
 import { generateToken } from '@app/helpers/generate-token';
 import { authFormValidate } from '@app/helpers/validations';
-import { ILoginDataAPI, ILoginResponse as ILoginResponse } from '@app/interfaces/IAuthentication';
+import {
+	ILoginDataAPI,
+	ILoginResponse as ILoginResponse,
+} from '@app/interfaces/IAuthentication';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -54,7 +57,7 @@ export default async function handler(
 			body.email,
 			parseInt(body.code, 10)
 		);
-		
+
 		if (
 			!authReq.response.ok ||
 			(authReq.data as any).status === 404 ||
@@ -139,14 +142,15 @@ export default async function handler(
 
 	const team = teams.items[0];
 
-	// No need to check now if user is in any Team or not, as we are allowing to login and then user can Join/Create new Team 
-	// if (!team) {
-	// 	return res.status(400).json({
-	// 		errors: {
-	// 			email: "We couldn't find any teams associated to this account",
-	// 		},
-	// 	});
-	// }
+	if (!team) {
+		setNoTeamPopupShowCookie(true);
+		// No need to check now if user is in any Team or not, as we are allowing to login and then user can Join/Create new Team
+		// return res.status(400).json({
+		// 	errors: {
+		// 		email: "We couldn't find any teams associated to this account",
+		// 	},
+		// });
+	}
 
 	setAuthCookies(
 		{
@@ -157,7 +161,8 @@ export default async function handler(
 			teamId: team?.id,
 			tenantId,
 			organizationId: organization?.organizationId,
-			languageId: 'en' // TODO: not sure what should be here
+			languageId: 'en', // TODO: not sure what should be here
+			noTeamPopup: true,
 		},
 		req,
 		res

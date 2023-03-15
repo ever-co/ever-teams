@@ -44,11 +44,11 @@ export function EmailResetModal({
 		verifyChangeEmailRequestQueryCall,
 	} = useEmailReset();
 
-	const onCloseModal = () => {
+	const onCloseModal = useCallback(() => {
 		setMessage('');
 		setStep('EMAIL');
 		closeModal();
-	};
+	}, [setMessage, setStep, closeModal]);
 	const handleContinue = useCallback(() => {
 		const newEmail = getValues().email;
 		emailResetRequestQueryCall(newEmail).then(() => {
