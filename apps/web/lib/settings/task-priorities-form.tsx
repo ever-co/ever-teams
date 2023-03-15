@@ -12,8 +12,8 @@ import { Spinner } from '@components/ui/loaders/spinner';
 import { IColor, IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { ColorDropdown } from './color-dropdown';
-import { IconDropdown } from './icon-dropdown';
 import { generateIconList } from './icon-items';
+import IconPopover from './icon-popover';
 
 export const TaskPrioritiesForm = () => {
 	const user = useRecoilValue(userState);
@@ -22,12 +22,33 @@ export const TaskPrioritiesForm = () => {
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
-	const iconList: IIcon[] = generateIconList('task-priorities', [
+	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
+		'open',
+		'in-progress',
+		'ready',
+		'in-review',
+		'blocked',
+		'completed',
+	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
+		'x-large',
+		'large',
+		'medium',
+		'small',
+		'tiny',
+	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
 		'urgent',
 		'high',
 		'medium',
 		'low',
 	]);
+
+	const iconList: IIcon[] = [
+		...taskStatusIconList,
+		...taskSizesIconList,
+		...taskPrioritiesIconList,
+	];
 
 	const {
 		loading,
@@ -135,7 +156,8 @@ export const TaskPrioritiesForm = () => {
 											{...register('name')}
 										/>
 
-										<IconDropdown
+										<IconPopover
+											iconList={iconList}
 											setValue={setValue}
 											active={
 												edit
@@ -144,7 +166,6 @@ export const TaskPrioritiesForm = () => {
 													  ) as IIcon)
 													: null
 											}
-											iconList={iconList}
 										/>
 
 										<ColorDropdown

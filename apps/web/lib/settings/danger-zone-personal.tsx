@@ -1,19 +1,18 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useAuthenticateUser, useOrganizationTeams, useUser } from '@app/hooks';
+import { useModal } from '@app/hooks';
 import { Button, Text } from 'lib/components';
-import { useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useTranslation } from 'lib/i18n';
+import { RemoveModal } from './remove-modal';
 
 export const DangerZone = () => {
-	const { deleteUser, deleteUserLoading } = useUser();
-	const { user } = useAuthenticateUser();
-	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } =
-		useOrganizationTeams();
+	const { isOpen, closeModal, openModal } = useModal();
+	const [isOpenModal, setIsOpenModal] = useState(false);
+	const { trans } = useTranslation();
 
-	const handleRemoveUser = useCallback(() => {
-		if (user) {
-			removeUserFromAllTeam(user.id);
-		}
-	}, [user, removeUserFromAllTeam]);
+	const openRemoveModal = useCallback(() => {
+		setIsOpenModal(true);
+	}, []);
 
 	return (
 		<>
@@ -35,10 +34,8 @@ export const DangerZone = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
-									disabled={removeUserFromAllTeamLoading}
-									loading={removeUserFromAllTeamLoading}
 									onClick={() => {
-										handleRemoveUser();
+										openRemoveModal()
 									}}
 								>
 									Remove Everywhere
@@ -60,10 +57,8 @@ export const DangerZone = () => {
 									variant="danger"
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
-									disabled={deleteUserLoading}
-									loading={deleteUserLoading}
 									onClick={() => {
-										deleteUser();
+										openModal();
 									}}
 								>
 									Delete This Account
@@ -72,6 +67,19 @@ export const DangerZone = () => {
 						</div>
 					</div>
 				</div>
+				<RemoveModal
+					open={isOpen}
+					close={closeModal}
+					title={trans.pages.settingsPersonal.ABOUT_TO_DELETE_ACCOUNT}
+					onDelete
+					personal
+				/>
+				<RemoveModal
+					open={isOpenModal}
+					close={() => setIsOpenModal(false)}
+					title={trans.pages.settingsPersonal.ABOUT_TO_REMOVE_ACCOUNT}
+					personal
+				/>
 			</div>
 		</>
 	);

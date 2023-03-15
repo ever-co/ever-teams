@@ -95,11 +95,17 @@ export const en = {
 			COVER_TITLE: 'Follow your teams work progress in real-time!',
 			COVER_DESCRIPTION:
 				'Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis',
+			LOGIN: 'Login',
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
 			HEADING_DESCRIPTION:
 				'Please enter email and invitation code to join existing team.',
+		},
+		authLogin: {
+			HEADING_TITLE: 'Login to the Team',
+			HEADING_DESCRIPTION:
+				'Please enter email and invitation code to login.',
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
@@ -120,6 +126,8 @@ export const en = {
 			HEADING_TITLE: 'Personal Settings',
 			WORK_SCHEDULE: 'Work Schedule',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
+			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
+			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?',
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'Team Settings',
@@ -177,6 +185,8 @@ export const en = {
 			INITIAL: 'Initial',
 			IN_PROGRESS: 'In Progress',
 			FINAL: 'Final',
+			DISPOSE_TEAM: 'You are about to Dispose team ?',
+			QUIT_TEAM: 'You are about to Quit team ?',
 		},
 
 		invite: {
