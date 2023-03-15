@@ -13,7 +13,7 @@ const initalValues: IInvite = {
 };
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initalValues);
-	const { invateUser, inviteLoading } = useTeamInvitations();
+	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState({});
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +29,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		invateUser(formData.email, formData.name)
+		inviteUser(formData.email, formData.name)
 			.then(() => {
 				setFormData(initalValues);
 				closeModal();
