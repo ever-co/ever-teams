@@ -41,7 +41,7 @@ export function useTeamInvitations() {
 	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } =
 		useQuery(resendTeamInvitationsAPI);
 
-	const invateUser = useCallback((email: string, name: string) => {
+	const inviteUser = useCallback((email: string, name: string) => {
 		return inviteQueryCall({ email, name }).then((res) => {
 			setTeamInvitations(res.data?.items || []);
 			return res;
@@ -77,7 +77,7 @@ export function useTeamInvitations() {
 		firstLoadTeamInvitationsData,
 		fetchingInvitations,
 		inviteLoading,
-		invateUser,
+		inviteUser,
 		removeTeamInvitation,
 		resendTeamInvitation,
 		removeInviteLoading,

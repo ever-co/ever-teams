@@ -35,7 +35,7 @@ export const RequestToJoinModal = ({
 		sendAuthCodeHandler,
 		inputCodeRef,
 	} = useAuthenticationPasscode();
-	const { invateUser, inviteLoading } = useTeamInvitations();
+	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errorsOnJoin, setErrorsOnJoin] = useState({});
 
 	const handleClickMember = () => {
@@ -53,7 +53,7 @@ export const RequestToJoinModal = ({
 
 		const form = new FormData(e.currentTarget);
 
-		invateUser(
+		inviteUser(
 			form.get('email')?.toString() || '',
 			form.get('name')?.toString() || ''
 		)
