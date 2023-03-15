@@ -4,9 +4,10 @@ import { Button, Container } from 'lib/components';
 import { AppLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
 import Skeleton from 'react-loading-skeleton';
-import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams, useModal } from '@app/hooks';
 import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
+import { RequestToJoinModal } from '@components/layout/header/request-to-join-modal';
 
 const HeaderSkeleton = () => {
 	return (
@@ -51,10 +52,11 @@ export function Navbar({
 }) {
 	const { isTeamMember } = useOrganizationTeams();
 	const [user] = useRecoilState(userState);
+	const { isOpen, closeModal, openModal } = useModal();
 
 	return (
 		<>
-			{ !user ? (
+			{!user ? (
 				<HeaderSkeleton />
 			) : (
 				<nav
@@ -69,7 +71,10 @@ export function Navbar({
 							{!notFound && (
 								<div className="flex space-x-5 items-center">
 									{publicTeam && (
-										<Button className="pr-[2rem] pl-[2rem] rounded-lg">
+										<Button
+											className="pr-[2rem] pl-[2rem] rounded-lg"
+											onClick={openModal}
+										>
 											Request to join
 										</Button>
 									)}
@@ -83,6 +88,7 @@ export function Navbar({
 							)}
 						</div>
 					</Container>
+					<RequestToJoinModal open={isOpen} closeModal={closeModal} />
 				</nav>
 			)}
 		</>
