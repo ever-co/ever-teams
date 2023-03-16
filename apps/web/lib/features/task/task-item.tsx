@@ -111,7 +111,7 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 
 	return (
 		<div
-			className="avatars flex -space-x-2"
+			className="avatars flex -space-x-2 min-w-[59px] justify-center"
 			onClick={(e) => e.stopPropagation()}
 		>
 			{members.slice(0, 2).map((member, i) => {
