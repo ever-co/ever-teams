@@ -29,3 +29,8 @@ export interface ILoginDataAPI {
   email: string;
   code: string;
 }
+
+export interface ISuccessResponse {
+	status: number;
+	message: string;
+}

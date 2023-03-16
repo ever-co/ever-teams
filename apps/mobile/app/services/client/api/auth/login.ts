@@ -33,7 +33,11 @@ export async function login(params: ILoginDataAPI) {
     }).catch(() => void 0);
 
 
-    if (!inviteResponse.response.ok || (inviteResponse.data as any).response?.statusCode) {
+    if (
+        !inviteResponse ||
+        !inviteResponse.response.ok ||
+        (inviteResponse.data as any).response?.statusCode
+    ) {
 
         /**
          * If the invite code verification failed then try again with auth code
@@ -44,13 +48,17 @@ export async function login(params: ILoginDataAPI) {
         ).catch(() => void 0);
 
         if (
+            !authReq ||
             !authReq.response.ok ||
-            (authReq.data as any).statusCode === 404 ||
-            (authReq.data as any).statusCode === 400 ||
-            (authReq.data as any).statusCode === 401
+            (authReq.data as any).status === 404 ||
+            (authReq.data as any).status === 400 ||
+            (authReq.data as any).status === 401
         ) {
             return {
-                error: "Authentication code or email address invalid"
+                status: 400,
+                errors: {
+                    email: "Authentication code or email address invalid"
+                }
             }
 
         }
@@ -60,14 +68,14 @@ export async function login(params: ILoginDataAPI) {
          * If provided code is an invite code and
          * verified the accepte and register the related user
          */
-        
+
     } else {
 
         // generate a random password
         const password = "123456" || generateToken(8);
         const names = inviteResponse.data.fullName.split(" ");
 
-        const { data, response } = await acceptInviteRequest({
+        const acceptInviteRes = await acceptInviteRequest({
             user: {
                 firstName: names[0],
                 lastName: names[1] || "",
@@ -80,17 +88,23 @@ export async function login(params: ILoginDataAPI) {
         }).catch(() => void 0)
 
 
-        if (!response.ok || (response as any).status === 404) {
+        if (
+            !acceptInviteRes ||
+            !acceptInviteRes.response.ok ||
+            acceptInviteRes.response.status === 401 ||
+            acceptInviteRes.response.status === 400 ||
+            (acceptInviteRes.data as any).response?.statusCode
+        ) {
             return {
                 response: {
                     status: 400,
                     errors: {
-                        email: "We couldn't find account  associated to this email",
+                        email: "Authentication code or email address invalid",
                     },
                 }
             }
         }
-        loginResponse = data;
+        loginResponse = acceptInviteRes.data;
     }
 
 
@@ -149,7 +163,6 @@ export async function login(params: ILoginDataAPI) {
 
     return {
         response: {
-            status: 200,
             data: {
                 team,
                 loginResponse,
@@ -163,6 +176,7 @@ export async function login(params: ILoginDataAPI) {
                     organizationId: organization.organizationId,
                 }
             }
-        }
+        },
+        status: 200
     }
 }

@@ -5,6 +5,7 @@ export const AuthenticationStoreModel = types
   .model("AuthenticationStore")
   .props({
     authToken: types.maybe(types.string),
+    tempAuthToken: types.maybe(types.string),
     refreshToken: types.maybe(types.string),
     authEmail: types.optional(types.string, ""),
     authTeamName: types.optional(types.string, ""),
@@ -37,11 +38,6 @@ export const AuthenticationStoreModel = types
         })(),
         authUsername: (function () {
           if (store.authUsername.length === 0) return "This filed can't be blank"
-          return ""
-        })(),
-
-        authConfirmCode: (function () {
-          if (store.authConfirmCode.length === 0) return "This filed can't be blank"
           return ""
         })(),
       }
@@ -84,6 +80,9 @@ export const AuthenticationStoreModel = types
     setPreferredLanguage(locale: ILanguageItemList) {
       store.preferredLanguage = locale
     },
+    setTempAuthToken(value?: string) {
+      store.tempAuthToken = value
+    },
     toggleTheme() {
       store.isDarkMode = !store.isDarkMode
     },
@@ -99,6 +98,7 @@ export const AuthenticationStoreModel = types
       store.user = null
       store.employeeId = ""
       store.refreshToken = ""
+      store.tempAuthToken=""
     },
   }))
 
