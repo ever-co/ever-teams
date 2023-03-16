@@ -1,14 +1,13 @@
 import React, { FC, useCallback, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image, Switch } from "react-native"
-import { useStores } from "../../../../models";
-import { AntDesign } from "@expo/vector-icons"
-import { typography } from "../../../../theme";
-import { Toggle } from "../../../../components/Toggle";
-import { translate } from "../../../../i18n";
-import { useAppTheme } from "../../../../app";
-import { limitTextCharaters } from "../../../../helpers/sub-text";
-import { useOrganizationTeam } from "../../../../services/hooks/useOrganization";
+import { View, Text, StyleSheet, } from "react-native"
 import { observer } from "mobx-react-lite";
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization";
+import { useStores } from "../../../../models";
+import { translate } from "../../../../i18n";
+import { limitTextCharaters } from "../../../../helpers/sub-text";
+import { Toggle } from "../../../../components/Toggle";
+import { typography } from "../../../../theme";
+import { useAppTheme } from "../../../../app";
 
 interface Props {
 
