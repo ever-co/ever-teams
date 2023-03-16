@@ -1,7 +1,7 @@
 import { generateToken } from "../../../../helpers/generate-token";
 import { authFormValidate } from "../../../../helpers/validations";
 import { IRegisterDataAPI } from "../../../interfaces/IAuthentication";
-import { loginUserRequest, registerUserRequest } from "../../requests/auth";
+import { loginUserRequest, refreshTokenRequest, registerUserRequest } from "../../requests/auth";
 import { createEmployeeFromUser } from "../../requests/employee";
 import { createSmtpTenantRequest } from "../../requests/features/smtp";
 import { createOrganizationRequest, getUserOrganizationsRequest } from "../../requests/organization";
@@ -99,11 +99,12 @@ export async function register(params: IRegisterDataAPI) {
     { tenantId: tenant.id, organizationId: organization.id },
     auth_token
   );
-  console.log("TENANT SMTP :" + JSON.stringify(data))
 
-  // const team = teams.items[0];
 
   const createdTeam = teams.items.find((t) => t.id === team.id);
+  
+  const { data: refreshToken } = await refreshTokenRequest(loginRes.refresh_token)
+  loginRes.token = refreshToken.token
 
   return {
     response: {

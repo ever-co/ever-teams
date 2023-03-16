@@ -19,6 +19,7 @@ import { ActivityIndicator } from "react-native-paper";
 import { translate } from "../i18n";
 import sendAuthCode from "../services/client/api/auth/sendAuthCode";
 import { useAppTheme } from "../app";
+import { resentVerifyUserLinkRequest, verifyUserEmailByCodeRequest } from "../services/client/requests/auth";
 const pkg = require("../../package.json")
 
 interface LoginScreenProps extends AppStackScreenProps<"Login"> { }
@@ -29,6 +30,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const authTeamInput = useRef<TextInput>()
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [joinError, setJoinError] = useState(null)
+  const [verificationError, setVerificationError] = useState(null)
   const [screenstatus, setScreenStatus] = useState<{ screen: number; animation: boolean }>({
     screen: 1,
     animation: false,
@@ -50,7 +53,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       setAuthConfirmCode,
       setAuthInviteCode,
       validationErrors,
+      setTempAuthToken,
+      tempAuthToken,
       setOrganizationId,
+      tenantId,
       setUser,
       setTenantId,
       setEmployeeId,
@@ -70,6 +76,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
+  /**
+   * Join an existing team
+   */
   const joinTeam = async () => {
     setIsSubmitted(true)
 
@@ -78,108 +87,172 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     // if (Object.values(validationErrors).some((v) => !!v)) return
     setIsLoading(true)
 
-    // Make a request to your server to get an authentication token.
-    const { response, } = await login({ email: authEmail, code: authInviteCode })
+    await login({ email: authEmail, code: authInviteCode })
+      .then((res) => {
+        const { response, errors, status } = res
 
+        if (status === 200) {
 
+          const loginRes = response.data.authStoreData
+          const user = response.data.loginResponse.user
+          // const employee = user.employee;
+          const team = response.data.team
 
-    // If successful, reset the fields and set the token.
-    if (response.status == 200) {
+          setActiveTeamId(loginRes.teamId)
+          setActiveTeam(team)
+          setOrganizationId(team.organizationId)
+          setUser(user)
+          setTenantId(team.tenantId)
+          setEmployeeId(user.employee.id)
 
-      const loginRes = response.data.authStoreData
-      const user = response.data.loginResponse.user
-      // const employee = user.employee;
-      const team = response.data.team
+          // Save Auth Token
+          setAuthToken(loginRes.access_token);
+          setRefreshToken(loginRes.refresh_token.token)
+          setIsLoading(false)
 
-      setActiveTeamId(loginRes.teamId)
-      setActiveTeam(team)
-      setOrganizationId(team.organizationId)
-      setUser(user)
-      setTenantId(team.tenantId)
-      setEmployeeId(user.employee.id)
-
-      // Save Auth Token
-      setAuthToken(loginRes.access_token);
-      setRefreshToken(loginRes.refresh_token.token)
-      setIsLoading(false)
-
-      // Reset all fields
-      setIsSubmitted(false)
-      setAuthTeamName("")
-      setAuthEmail("")
-      setAuthInviteCode("")
-      setAuthUsername("")
-      setAuthConfirmCode("")
-      setAuthTeamName("")
-      setAuthEmail("")
-      setAuthUsername("")
-      setAuthInviteCode("")
-      setAuthConfirmCode("")
-    }
+          // Reset all fields
+          setIsSubmitted(false)
+          setAuthTeamName("")
+          setAuthEmail("")
+          setAuthInviteCode("")
+          setAuthUsername("")
+          setAuthConfirmCode("")
+          setAuthTeamName("")
+          setAuthEmail("")
+          setAuthUsername("")
+          setAuthInviteCode("")
+          setAuthConfirmCode("")
+        } else {
+          if (errors) {
+            setJoinError(errors.email)
+            setIsLoading(false)
+            setIsSubmitted(false)
+            return
+          }
+        }
+      })
+      .catch((e) => console.log(e))
   }
 
+  /**
+   * 
+   * Register or Create New Team
+   */
   const createNewTeam = async () => {
+
     setIsSubmitted(true)
     setAttemptsCount(attemptsCount + 1)
 
     if (Object.values(validationErrors).some((v) => !!v)) return
 
-
     setIsLoading(true)
     // Make a request to your server to get an authentication token.
-    const { response } = await register({
+    await register({
       team: authTeamName,
       name: authUsername,
       email: authEmail
-    });
+    }).then((res) => {
+      const { response } = res
 
-    // If successful, reset the fields and set the token.
-    if (response.status === 200) {
-      const data = response.data
+      // If successful, reset the fields and set the token.
+      if (response.status === 200) {
+        const data = response.data
 
-      const employee = data.employee;
-      const loginRes = data.loginRes;
-      const user = loginRes.user;
+        const employee = data.employee;
+        const loginRes = data.loginRes;
+        const user = loginRes.user;
 
-      setActiveTeamId(data.team.id)
-      setActiveTeam(data.team)
-      setOrganizationId(data.team.organizationId)
-      setUser(loginRes.user)
-      setTenantId(data.team.tenantId)
-      setEmployeeId(employee.id)
+        setActiveTeamId(data.team.id)
+        setActiveTeam(data.team)
+        setOrganizationId(data.team.organizationId)
+        setUser(loginRes.user)
+        setTenantId(data.team.tenantId)
+        setEmployeeId(employee.id)
 
-      firstLoadData();
-      // Save Auth Data
-      setAuthToken(loginRes.token);
-      setRefreshToken(loginRes.refresh_token)
+        firstLoadData();
+        // Save Auth Data
+        setTempAuthToken(loginRes.token)
+        setRefreshToken(loginRes.refresh_token)
+        setScreenStatus({
+          screen: 3,
+          animation: true
+        })
 
-      setIsLoading(false)
-      setIsSubmitted(false)
-      setAuthTeamName("")
-      setAuthEmail("")
-      setAuthInviteCode("")
-      setAuthUsername("")
-      setAuthConfirmCode("")
-    }
+        setIsLoading(false)
+        setIsSubmitted(false)
+      }
+    }).catch((e) => console.log(e))
   }
 
+  /**
+   * Generate authentication code for login
+   */
   const getAuthCode = useCallback(async () => {
     setIsSubmitted(true)
     setIsLoading(true)
-    const { data, status, error } = await sendAuthCode(authEmail);
+    await sendAuthCode(authEmail).then((res) => {
+      const { data, status, error } = res
+
+    }).catch((e) => console.log(e))
     setIsSubmitted(false);
     setIsLoading(false)
   }, [authEmail])
 
+  /**
+   * Verify User Email by Verification Code
+   */
+  const verifyEmailByCode = async () => {
+    setIsLoading(true)
+    await verifyUserEmailByCodeRequest({
+      bearer_token: tempAuthToken,
+      code: parseInt(authConfirmCode),
+      email: authEmail,
+      tenantId
+    }).then((res) => {
+      const { response, data } = res
+      if (data.status === 400) {
+        setVerificationError(data.message)
+        return
+      }
+
+      if (data.status === 200) {
+        setAuthToken(tempAuthToken)
+        setAuthTeamName("")
+        setAuthEmail("")
+        setAuthUsername("")
+        setAuthInviteCode("")
+        setAuthConfirmCode("")
+      }
+      setIsLoading(false)
+    }).catch((e) => {
+      setIsLoading(false)
+      console.log(e)
+    })
+  }
+
+  /**
+   * Resend Email Verification Code
+   */
+  const resendEmailVerificationCode=async()=>{
+    setIsLoading(true)
+    await resentVerifyUserLinkRequest({
+      bearer_token:tempAuthToken,
+      email:authEmail,
+      tenantId
+    })
+    setIsLoading(false)
+  }
 
   useEffect(() => {
     return () => {
-      // setIsSubmitted(false)
+      setIsSubmitted(false)
       setAuthTeamName("")
       setAuthEmail("")
       setAuthUsername("")
       setAuthInviteCode("")
       setAuthConfirmCode("")
+      setVerificationError(null)
+      setJoinError(null)
     }
   }, [])
 
@@ -303,15 +376,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   <Text style={[styles.backButtonText, { color: "#282048", fontSize: 14 }]}>{translate("common.back")}</Text>
                 </TouchableOpacity>
                 <Button
-                  style={[$tapButton, { width: width / 2.1 }]}
+                  style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
                   textStyle={styles.tapButtonText}
-                  onPress={() => setScreenStatus({
-                    screen: 3,
-                    animation: true
-                  })}
+                  onPress={() => createNewTeam()}
                 >
                   <Text>{translate("loginScreen.createTeam")}</Text>
                 </Button>
+                <ActivityIndicator style={[styles.loading,{marginRight:8}]} animating={isLoading} size={'small'} color={"#fff"} />
               </View>
             </Animatable.View>
             // END STEP 2 : ENTER YOUR NAME AND EMAIL 
@@ -324,11 +395,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   onChange={setAuthConfirmCode}
                   editable={!isLoading}
                 />
+                {verificationError ?
+                  <Text style={styles.verifyError}>{verificationError}</Text> : null}
                 <TouchableOpacity style={styles.resendWrapper}
-                  onPress={() => setScreenStatus({
-                    screen: 2,
-                    animation: true
-                  })}>
+                  onPress={() => resendEmailVerificationCode()}>
                   <Text
                     style={{ ...styles.resendText }}
                   >{translate("loginScreen.codeNotReceived")}-<Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
@@ -348,7 +418,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                 <Button
                   style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
                   textStyle={styles.tapButtonText}
-                  onPress={() => createNewTeam()}
+                  onPress={() => verifyEmailByCode()}
                 >
                   <Text>{translate("loginScreen.tapJoin")}</Text>
                 </Button>
@@ -382,6 +452,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
                   onChange={setAuthInviteCode}
                   editable={!isLoading}
                 />
+                {joinError ?
+                  <Text style={styles.verifyError}>{joinError}</Text>
+                  : null}
                 <TouchableOpacity
                   onPress={() => getAuthCode()}>
                   <Text style={styles.resendText}>{translate("loginScreen.codeNotReceived")} <Text style={{ color: colors.primary }}>{translate("loginScreen.sendCode")}</Text></Text>
@@ -555,7 +628,7 @@ const styles = EStyleSheet.create({
   resendText: {
     fontSize: "0.87rem",
     color: "#B1AEBC",
-    marginTop: "1.5rem",
+    marginTop: "1rem",
     fontFamily: typography.primary.medium
   },
   bottomSectionTxt: {
@@ -586,5 +659,9 @@ const styles = EStyleSheet.create({
     color: "#fff",
     fontFamily: typography.secondary.normal,
     fontWeight: "400",
+  },
+  verifyError: {
+    color: "red",
+    margin: 10,
   }
 })
