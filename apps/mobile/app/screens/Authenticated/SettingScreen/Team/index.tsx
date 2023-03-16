@@ -10,7 +10,7 @@ import { useOrganizationTeam } from '../../../../services/hooks/useOrganization'
 import SwithTimeTracking from '../components/SwitchTimeTracking';
 
 
-const TeamSettings = (props:any) => {
+const TeamSettings = (props: any) => {
     const { colors } = useAppTheme();
     const {
         teamStore: { activeTeam }
@@ -30,18 +30,52 @@ const TeamSettings = (props:any) => {
                 />
                 <SingleInfo title={translate("settingScreen.teamSection.teamName")} value={activeTeam?.name} onPress={() => { }} />
                 {isTeamManager ? <SwithTimeTracking /> : null}
-                <SingleInfo title={translate("settingScreen.teamSection.taskStatuses")} value={"there are 4 active statuses"} onPress={() => navigation.navigate("TaskStatus")} />
-                <SingleInfo title={translate("settingScreen.teamSection.taskPriorities")} value={"there are 4 active priorities"} onPress={() => navigation.navigate("TaskPriority")} />
-                <SingleInfo title={translate("settingScreen.teamSection.taskSizes")} value={"there are 5 active sizes"} onPress={() => navigation.navigate("TaskSizeScreen")} />
-                <SingleInfo title={translate("settingScreen.teamSection.taskLabel")} value={"there are 8 active label"} onPress={() => navigation.navigate("TaskLabelScreen")} />
-                <SingleInfo title={translate("settingScreen.teamSection.teamRole")} value={"No"} />
-                <SingleInfo title={translate("settingScreen.teamSection.workSchedule")} value={translate("settingScreen.teamSection.workScheduleHint")} onPress={() => { }} />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.taskStatuses")}
+                    value={"there are 4 active statuses"}
+                    onPress={() => navigation.navigate("TaskStatus")}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.taskPriorities")}
+                    value={"there are 4 active priorities"}
+                    onPress={() => navigation.navigate("TaskPriority")}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.taskSizes")}
+                    value={"there are 5 active sizes"}
+                    onPress={() => navigation.navigate("TaskSizeScreen")}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.taskLabel")}
+                    value={"there are 8 active label"}
+                    onPress={() => navigation.navigate("TaskLabelScreen")}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.teamRole")}
+                    value={"No"} />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.workSchedule")}
+                    value={translate("settingScreen.teamSection.workScheduleHint")}
+                    onPress={() => { }}
+                />
 
                 <View style={$dangerZoneContainer}>
                     <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
-                    <SingleInfo title={translate("settingScreen.teamSection.transferOwnership")} value={translate("settingScreen.teamSection.transferOwnership")} onPress={() => { }} />
-                    <SingleInfo title={translate("settingScreen.teamSection.removeTeam")} value={translate("settingScreen.teamSection.removeTeamHint")} onPress={() => { }} />
-                    <SingleInfo title={translate("settingScreen.teamSection.quitTeam")} value={translate("settingScreen.teamSection.quitTeamHint")} onPress={() => { }} />
+                    <SingleInfo
+                        title={translate("settingScreen.teamSection.transferOwnership")}
+                        value={translate("settingScreen.teamSection.transferOwnership")}
+                        onPress={() => { }}
+                    />
+                    <SingleInfo
+                        title={translate("settingScreen.teamSection.removeTeam")}
+                        value={translate("settingScreen.teamSection.removeTeamHint")}
+                        onPress={() => { }}
+                    />
+                    <SingleInfo
+                        title={translate("settingScreen.teamSection.quitTeam")}
+                        value={translate("settingScreen.teamSection.quitTeamHint")}
+                        onPress={() => { }}
+                    />
                 </View>
 
             </ScrollView>
