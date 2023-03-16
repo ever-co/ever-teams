@@ -46,7 +46,12 @@ export const TeamSettingForm = () => {
 	);
 
 	const getTeamLink = useCallback(() => {
-		if (typeof window !== 'undefined' && activeTeam) {
+		if (
+			typeof window !== 'undefined' &&
+			activeTeam &&
+			activeTeam.id &&
+			activeTeam.profile_link
+		) {
 			return `${window.location.origin}/team/${activeTeam.id}/${activeTeam.profile_link}`;
 		}
 		return '';
@@ -131,40 +136,42 @@ export const TeamSettingForm = () => {
 											<Text.Label>Private Team</Text.Label>
 										</div>
 									</div>
-									<div className="flex gap-4 items-center">
-										<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
-											<Tooltip
-												label={getTeamLink()}
-												placement="auto"
-												enabled
-												className="w-full"
-											>
-												<InputField
-													type="text"
-													placeholder={getTeamLink()}
-													className="mb-0 h-[54px]"
-													wrapperClassName="mb-0 h-[54px]"
-													disabled={true}
-												/>
-											</Tooltip>
+									{getTeamLink() && (
+										<div className="flex gap-4 items-center">
+											<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
+												<Tooltip
+													label={getTeamLink()}
+													placement="auto"
+													enabled
+													className="w-full"
+												>
+													<InputField
+														type="text"
+														placeholder={getTeamLink()}
+														className="mb-0 h-[54px]"
+														wrapperClassName="mb-0 h-[54px]"
+														disabled={true}
+													/>
+												</Tooltip>
+											</div>
+											<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
+												<Button
+													variant="outline"
+													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
+													type="button"
+													onClick={() => {
+														navigator.clipboard.writeText(getTeamLink());
+														setCopied(true);
+														setTimeout(() => {
+															setCopied(false);
+														}, 1000 * 10 /** 10 Seconds */);
+													}}
+												>
+													{!copied ? 'Copy Link' : 'Copied'}
+												</Button>
+											</div>
 										</div>
-										<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
-											<Button
-												variant="outline"
-												className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
-												type="button"
-												onClick={() => {
-													navigator.clipboard.writeText(getTeamLink());
-													setCopied(true);
-													setTimeout(() => {
-														setCopied(false);
-													}, 1000 * 10 /** 10 Seconds */);
-												}}
-											>
-												{!copied ? 'Copy Link' : 'Copied'}
-											</Button>
-										</div>
-									</div>
+									)}
 								</div>
 							</div>
 
