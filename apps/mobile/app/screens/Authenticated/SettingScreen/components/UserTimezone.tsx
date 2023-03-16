@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons"
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator } from "react-native";
-import { useAppTheme } from "../../../../app";
-import { translate } from "../../../../i18n";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import TimezonePopup from "./TimezonePopup";
 import { IUser } from "../../../../services/interfaces/IUserData";
-import { typography } from "../../../../theme";
+import { translate } from "../../../../i18n";
 import { limitTextCharaters } from "../../../../helpers/sub-text";
+import { typography } from "../../../../theme";
+import { useAppTheme } from "../../../../app";
 
 
 const UserTimezone = (
@@ -13,28 +14,25 @@ const UserTimezone = (
         onDismiss,
         user,
         onUpdateTimezone,
-        onPress,
-        selectedTimezone
     }
         :
         {
             onDismiss: () => unknown,
             user: IUser;
             onUpdateTimezone: (userBody: IUser) => unknown;
-            onPress: () => unknown
-            selectedTimezone: string
         }
 ) => {
     const { colors, dark } = useAppTheme();
     const [userTimeZone, setUserTimeZone] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [timezoneModal, setTimezoneModal]=useState(false)
 
 
     useEffect(() => {
-        if (selectedTimezone && selectedTimezone.trim().length !== 0) {
-            setUserTimeZone(selectedTimezone)
+        if (user) {
+            setUserTimeZone(user?.timeZone)
         }
-    }, [selectedTimezone])
+    }, [user])
 
     useEffect(() => {
         setUserTimeZone(user?.timeZone)
@@ -66,9 +64,16 @@ const UserTimezone = (
                 zIndex: 100
             }}
         >
+            <TimezonePopup
+                visible={timezoneModal}
+                onDismiss={() => setTimezoneModal(false)}
+                onTimezoneSelect={(e) => {
+                    setUserTimeZone(e)
+                }}
+            />
             <View style={{ flex: 2 }}>
                 <Text style={{ ...styles.formTitle, color: colors.primary }}>{translate("settingScreen.changeTimezone.mainTitle")}</Text>
-                <TouchableOpacity style={styles.field} onPress={() => onPress()}>
+                <TouchableOpacity style={styles.field} onPress={() =>setTimezoneModal(true) }>
                     <Text style={{ ...styles.text, color: colors.primary }}>{limitTextCharaters({ text: userTimeZone, numChars: 17 })}</Text>
                     <AntDesign name="down" size={20} color={colors.primary} />
                 </TouchableOpacity>

@@ -6,6 +6,7 @@ import { translate } from "../../../../i18n";
 import { IUser } from "../../../../services/interfaces/IUserData";
 import { typography } from "../../../../theme";
 
+
 interface IValidation {
     email: boolean;
     phone: boolean;
