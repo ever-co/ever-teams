@@ -38,6 +38,7 @@ export const en = {
 		LAST_24_HOURS: 'Last 24 Hours',
 		WORKED: 'Worked',
 		ASSIGNED: 'Assigned',
+		SELECT_STATUS: 'Select status',
 		UNASSIGNED: 'Unassigned',
 		TASK_DETAILS: 'Task Details',
 		FILTER: 'Filter',
@@ -68,7 +69,7 @@ export const en = {
 		EXISTING_MEMBER: 'Already a Member',
 		NEW_MEMBER: 'Become a Member',
 		BACK: 'Back',
-		JOIN_REQUEST: 'Request to join'
+		JOIN_REQUEST: 'Request to join',
 	},
 	pages: {
 		home: {
@@ -108,8 +109,7 @@ export const en = {
 		},
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
-			HEADING_DESCRIPTION:
-				'Please enter email and invitation code to login.',
+			HEADING_DESCRIPTION: 'Please enter email and invitation code to login.',
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',

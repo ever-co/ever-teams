@@ -3,10 +3,12 @@ import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { TaskIssueStatus } from './task-issue';
-import { TaskPriorityStatus, TaskStatusDropdown } from './task-status';
+import { TaskPriorityStatus } from './task-status';
+import { StatusModal } from './task-status-modal';
 
 type Props = {
 	task?: ITeamTask;
@@ -16,6 +18,7 @@ type Props = {
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
 	const { handleStatusUpdate, updateLoading } = useTeamTasks();
+	const { trans } = useTranslation();
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
@@ -61,10 +64,17 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 			<div className="flex items-center space-x-3 pl-2">
 				<div onClick={(e) => e.stopPropagation()}>
-					<TaskStatusDropdown
+					{/* <TaskStatusDropdown
 						defaultValue={task?.status}
 						onValueChange={handleChange}
 						className="w-full"
+					/> */}
+
+					<StatusModal
+						type="status"
+						title={trans.common.SELECT_STATUS}
+						defaultValue={task?.status}
+						onValueChange={handleChange}
 					/>
 				</div>
 				{task && <TaskAvatars task={task} />}
