@@ -1,7 +1,8 @@
-import React, { FC, useState } from "react"
+import React, { FC } from "react"
 import { View } from "react-native"
 import { IPopup } from "..";
 import { useSettings } from "../../../../services/hooks/features/useSettings";
+import ChangeTeamName from "./ChangeTeamName";
 import ChangeUserAvatar from "./ChangeUserAvatar"
 import UpdateContactForm from "./ContactInfoForm";
 import LanguageForm from "./LanguageForm";
@@ -52,7 +53,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                     <LanguageForm
                         user={user}
                         onUpdateTimezone={updateUserInfo}
-                        onDismiss={() =>onDismiss()}
+                        onDismiss={() => onDismiss()}
                     /> : null
                 }
 
@@ -71,6 +72,12 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                         onDismiss={() => onDismiss()}
                     />
                     : null}
+
+                {openedSheet === "Team Name" ?
+                    <ChangeTeamName
+                        onDismiss={() => onDismiss()}
+                    /> : null
+                }
             </View>
         </View>
     )

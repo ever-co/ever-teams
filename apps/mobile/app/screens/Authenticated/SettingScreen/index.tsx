@@ -17,7 +17,17 @@ import BottomSheetContent from "./components/BottomSheetContent";
 import PersonalSettings from "./Personal";
 import TeamSettings from "./Team";
 
-export type IPopup = "Names" | "Contact" | "Language" | "TimeZone" | "Schedule" | "Avatar" | "Avatar 2" | "Delete Account" | "Remove Account";
+export type IPopup =
+    "Names" |
+    "Team Name" |
+    "Contact" |
+    "Language" |
+    "TimeZone" |
+    "Schedule" |
+    "Avatar" |
+    "Avatar 2" |
+    "Delete Account" |
+    "Remove Account";
 
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Setting">> = function AuthenticatedDrawerScreen(_props) {
     const { colors } = useAppTheme();
@@ -74,7 +84,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                         : activeTab === 1 ?
                             <PersonalSettings onOpenBottomSheet={(sheet, snap) => openBottomSheet(sheet, snap)} />
                             :
-                            <TeamSettings {..._props} />
+                            <TeamSettings props={{..._props}} onOpenBottomSheet={openBottomSheet} />
                     }
                 </View>
             </View>
