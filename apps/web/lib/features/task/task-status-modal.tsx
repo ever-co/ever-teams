@@ -103,7 +103,7 @@ export function StatusModal<T extends ITaskStatusField>({
 									variant="outline-dark"
 									onClick={closeModal}
 								>
-									{trans.common.CANCEL}
+									{trans.common.DISCARD}
 								</Button>
 
 								<Button
