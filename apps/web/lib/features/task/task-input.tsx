@@ -23,6 +23,7 @@ import {
 	PropsWithChildren,
 	useCallback,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
@@ -300,6 +301,18 @@ function TaskCard({
 	fullWidth?: boolean;
 }) {
 	const { trans } = useTranslation();
+	const activeTaskEl = useRef<HTMLLIElement | null>(null);
+
+	useEffect(() => {
+		if (datas.editMode) {
+			window.setTimeout(() => {
+				activeTaskEl?.current?.scrollIntoView({
+					block: 'nearest',
+					inline: 'start',
+				});
+			}, 10);
+		}
+	}, [datas.editMode]);
 
 	return (
 		<>
@@ -372,11 +385,13 @@ function TaskCard({
 				<ul className="my-6">
 					{datas.filteredTasks?.map((task, i) => {
 						const last = (datas.filteredTasks?.length || 0) - 1 === i;
+						const active = datas.inputTask === task;
+
 						return (
-							<li key={task.id}>
+							<li key={task.id} ref={active ? activeTaskEl : undefined}>
 								<TaskItem
 									task={task}
-									selected={datas.inputTask === task}
+									selected={active}
 									onClick={onItemClick}
 									className="cursor-pointer"
 								/>
