@@ -51,7 +51,7 @@ export function StatusModal<T extends ITaskStatusField>({
 	useEffect(() => {
 		if (isOpen) {
 			window.setTimeout(() => {
-				console.log(checkedRef?.current?.scrollIntoView());
+				checkedRef?.current?.scrollIntoView();
 			}, 10);
 		}
 	}, [isOpen]);
