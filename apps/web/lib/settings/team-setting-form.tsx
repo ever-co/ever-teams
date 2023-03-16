@@ -1,5 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text, Tooltip } from 'lib/components';
+import {
+	Button,
+	InputField,
+	Text,
+	Tooltip,
+} from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
@@ -13,14 +18,17 @@ export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
 	const { trans } = useTranslation('settingsTeam');
-	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
+	const { activeTeam, editOrganizationTeam, loading, loadingTeam } =
+		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState(false);
 	useEffect(() => {
-		setValue('teamName', activeTeam?.name || '');
-		setValue('teamType', activeTeam?.public || false);
-		setValue('timeTracking', activeManager?.isTrackingEnabled || false);
-	}, [user, setValue, activeTeam, activeManager]);
+		if (activeTeam && !loading && !loadingTeam) {
+			setValue('teamName', activeTeam?.name || '');
+			setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
+			setValue('timeTracking', activeManager?.isTrackingEnabled || false);
+		}
+	}, [user, setValue, activeTeam, activeManager, loading, loadingTeam]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -31,7 +39,7 @@ export const TeamSettingForm = () => {
 					name: values.teamName,
 					organizationId: activeTeam.organizationId,
 					tenantId: activeTeam.tenantId,
-					public: values.teamType,
+					public: values.teamType === 'PUBLIC' ? true : false,
 					memberIds: activeTeam.members
 						.map((t) => t.employee.id)
 						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
@@ -57,17 +65,12 @@ export const TeamSettingForm = () => {
 		return '';
 	}, [activeTeam]);
 
-	const handleTeamType = useCallback(
-		(isPublic: boolean) => {
-			setValue('teamType', isPublic);
-			const latestFormData = getValues();
-			onSubmit({
-				...latestFormData,
-				teamType: isPublic,
-			});
-		},
-		[setValue, onSubmit, getValues]
-	);
+	const handleChange = useCallback(() => {
+		const latestFormData = getValues();
+		onSubmit({
+			...latestFormData,
+		});
+	}, [onSubmit, getValues]);
 
 	return (
 		<>
@@ -109,29 +112,29 @@ export const TeamSettingForm = () => {
 									<div className="items-center  w-full">
 										<div>
 											<input
-												checked={activeTeam?.public}
-												id="default-radio-1"
+												id="team-type-radio-public"
+												{...register('teamType', {
+													onChange: () => {
+														handleChange();
+													},
+												})}
 												type="radio"
-												value="true"
+												value="PUBLIC"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-												name="r"
-												onChange={() => {
-													handleTeamType(true);
-												}}
 											/>
 											<Text.Label>Public Team</Text.Label>
 										</div>
 										<div>
 											<input
-												checked={!activeTeam?.public}
-												id="default-radio-2"
+												id="team-type-radio-private"
+												{...register('teamType', {
+													onChange: () => {
+														handleChange();
+													},
+												})}
 												type="radio"
-												value="false"
+												value="PRIVATE"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-												name="r"
-												onChange={() => {
-													handleTeamType(false);
-												}}
 											/>
 											<Text.Label>Private Team</Text.Label>
 										</div>

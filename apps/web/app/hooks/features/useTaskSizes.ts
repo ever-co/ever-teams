@@ -5,7 +5,7 @@ import {
 	getTaskSizesList,
 	editTaskSizesAPI,
 } from '@app/services/client/api';
-import { activeTeamState, userState } from '@app/stores';
+import { activeTeamIdState, userState } from '@app/stores';
 import {
 	taskSizesFetchingState,
 	taskSizesListState,
@@ -17,7 +17,7 @@ import { useQuery } from '../useQuery';
 
 export function useTaskSizes() {
 	const [user] = useRecoilState(userState);
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskSizesList);
 	const { loading: createTaskSizesLoading, queryCall: createQueryCall } =
@@ -43,25 +43,25 @@ export function useTaskSizes() {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeam?.id || null
+			activeTeamId || null
 		).then((res) => {
 			setTaskSizes(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeam]);
+	}, [activeTeamId]);
 
 	const createTaskSizes = useCallback(
 		(data: ITaskSizesCreate) => {
 			if (user?.tenantId) {
 				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeam?.id },
+					{ ...data, organizationTeamId: activeTeamId },
 					user?.tenantId || ''
 				).then((res) => {
 					if (res?.data?.data && res?.data?.data?.name) {
 						queryCall(
 							user?.tenantId as string,
 							user?.employee?.organizationId as string,
-							activeTeam?.id || null
+							activeTeamId || null
 						).then((res) => {
 							setTaskSizes(res?.data?.data?.items || []);
 							return res;
@@ -78,7 +78,7 @@ export function useTaskSizes() {
 			createTaskSizesLoading,
 			deleteTaskSizesLoading,
 			user,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -89,7 +89,7 @@ export function useTaskSizes() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskSizes(res?.data?.data?.items || []);
 						return res;
@@ -104,7 +104,7 @@ export function useTaskSizes() {
 			createTaskSizesLoading,
 			deleteTaskSizesLoading,
 			user,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -115,7 +115,7 @@ export function useTaskSizes() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskSizes(res?.data?.data?.items || []);
 						return res;
@@ -124,7 +124,7 @@ export function useTaskSizes() {
 				});
 			}
 		},
-		[editTaskSizesLoading, user, activeTeam]
+		[editTaskSizesLoading, user, activeTeamId]
 	);
 
 	return {

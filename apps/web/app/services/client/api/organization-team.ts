@@ -29,7 +29,7 @@ export function getOrganizationTeamAPI(teamId: string) {
 }
 
 export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
-	return api.put<CreateReponse<IOrganizationTeam>>(
+	return api.put<IOrganizationTeamList>(
 		`/organization-team/${data.id}`,
 		data
 	);

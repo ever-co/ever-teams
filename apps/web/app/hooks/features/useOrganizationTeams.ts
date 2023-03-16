@@ -163,6 +163,9 @@ function useUpdateOrganizationTeam() {
  */
 export function useOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
+	const { loading: loadingTeam, queryCall: queryCallTeam } = useQuery(
+		getOrganizationTeamAPI
+	);
 	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
 	const { user } = useAuthenticateUser();
 	const activeTeam = useRecoilValue(activeTeamState);
@@ -208,7 +211,7 @@ export function useOrganizationTeams() {
 			setTeams(res.data?.items || []);
 
 			teamid &&
-				getOrganizationTeamAPI(teamid).then((res) => {
+				queryCallTeam(teamid).then((res) => {
 					setTeamsUpdate(res.data);
 				});
 			return res;
@@ -242,7 +245,7 @@ export function useOrganizationTeams() {
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {
 			return editQueryCall(data).then((res) => {
-				loadTeamsData();
+				setTeamsUpdate(res.data);
 				return res;
 			});
 		},
@@ -291,5 +294,6 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeamLoading,
 		removeUserFromAllTeamQueryCall,
 		removeUserFromAllTeam,
+		loadingTeam,
 	};
 }
