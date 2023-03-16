@@ -9,7 +9,7 @@ import {
 	userState,
 	taskPrioritiesListState,
 	taskPrioritiesFetchingState,
-	activeTeamState,
+	activeTeamIdState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -18,7 +18,7 @@ import { useQuery } from '../useQuery';
 
 export function useTaskPriorities() {
 	const [user] = useRecoilState(userState);
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskPrioritiesList);
 	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } =
@@ -45,25 +45,25 @@ export function useTaskPriorities() {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeam?.id || null
+			activeTeamId || null
 		).then((res) => {
 			setTaskPriorities(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeam]);
+	}, [activeTeamId]);
 
 	const createTaskPriorities = useCallback(
 		(data: ITaskPrioritiesCreate) => {
 			if (user?.tenantId) {
 				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeam?.id },
+					{ ...data, organizationTeamId: activeTeamId },
 					user?.tenantId || ''
 				).then((res) => {
 					if (res?.data?.data && res?.data?.data?.name) {
 						queryCall(
 							user?.tenantId as string,
 							user?.employee?.organizationId as string,
-							activeTeam?.id || null
+							activeTeamId || null
 						).then((res) => {
 							setTaskPriorities(res?.data?.data?.items || []);
 							return res;
@@ -80,7 +80,7 @@ export function useTaskPriorities() {
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
 			user,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -91,7 +91,7 @@ export function useTaskPriorities() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskPriorities(res?.data?.data?.items || []);
 						return res;
@@ -106,7 +106,7 @@ export function useTaskPriorities() {
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
 			user,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -117,7 +117,7 @@ export function useTaskPriorities() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskPriorities(res?.data?.data?.items || []);
 						return res;
@@ -126,7 +126,7 @@ export function useTaskPriorities() {
 				});
 			}
 		},
-		[editTaskPrioritiesLoading, user, activeTeam]
+		[editTaskPrioritiesLoading, user, activeTeamId]
 	);
 
 	return {
