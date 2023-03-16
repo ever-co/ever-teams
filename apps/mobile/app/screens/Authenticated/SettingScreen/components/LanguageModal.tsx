@@ -3,12 +3,12 @@ import { View, Text, ViewStyle, Modal, StyleSheet, Animated, Dimensions, Touchab
 import { AntDesign, FontAwesome } from "@expo/vector-icons"
 
 // COMPONENTS
-
-import { typography } from "../../../../theme"
-import { translate } from "../../../../i18n";
+import { ILanguageItemList } from "../../../../services/interfaces/IUserData";
 import { useAppTheme } from "../../../../app";
-import { useSettings } from "../../../../services/hooks/features/useSettings"
-import { ILanguageItemList } from "../../../../services/interfaces/IUserData"
+import { useSettings } from "../../../../services/hooks/features/useSettings";
+import { translate } from "../../../../i18n";
+import { typography } from "../../../../theme";
+
 
 
 export interface Props {
