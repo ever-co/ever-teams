@@ -10,20 +10,20 @@ import { useStores } from '../../../../models';
 import { IPopup } from '../../..';
 
 interface IPersonalProps {
-    onOpenBottomSheet:(sheet:IPopup, snapPoint:number)=>unknown
+    onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown
 }
 
-const PersonalSettings:FC<IPersonalProps> = ({onOpenBottomSheet}) => {
+const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
     const { colors } = useAppTheme();
     const {
         authenticationStore: { toggleTheme },
     } = useStores();
     const { user, preferredLanguage, onDetectTimezone } = useSettings()
-   
+
 
 
     const openBottomSheet = (name: IPopup, snapPoint: number) => {
-        onOpenBottomSheet(name,snapPoint)
+        onOpenBottomSheet(name, snapPoint)
     }
 
     return (
@@ -35,17 +35,48 @@ const PersonalSettings:FC<IPersonalProps> = ({onOpenBottomSheet}) => {
                     onDelete={() => { }}
                     onChange={() => openBottomSheet("Avatar", 1)}
                 />
-                <SingleInfo title={translate("settingScreen.personalSection.fullName")} value={user?.name} onPress={() => openBottomSheet("Names", 0)} />
-                <SingleInfo title={translate("settingScreen.personalSection.yourContact")} value={translate("settingScreen.personalSection.yourContactHint")} onPress={() => openBottomSheet("Contact", 0)} />
-                <SingleInfo onPress={() => toggleTheme()} title={translate("settingScreen.personalSection.themes")} value={translate("settingScreen.personalSection.lightModeToDark")} />
-                <SingleInfo onPress={() => openBottomSheet("Language", 4)} title={translate("settingScreen.personalSection.language")} value={preferredLanguage?.name} />
-                <SingleInfo title={translate("settingScreen.personalSection.timeZone")} value={user?.timeZone} onDetectTimezone={() => onDetectTimezone(user)} onPress={() => openBottomSheet("TimeZone", 4)} />
-                <SingleInfo title={translate("settingScreen.personalSection.workSchedule")} value={translate("settingScreen.personalSection.workScheduleHint")} onPress={() => { }} />
+                <SingleInfo
+                    title={translate("settingScreen.personalSection.fullName")}
+                    value={user?.name} onPress={() => openBottomSheet("Names", 0)}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.personalSection.yourContact")}
+                    value={translate("settingScreen.personalSection.yourContactHint")}
+                    onPress={() => openBottomSheet("Contact", 0)}
+                />
+                <SingleInfo
+                    onPress={() => toggleTheme()}
+                    title={translate("settingScreen.personalSection.themes")}
+                    value={translate("settingScreen.personalSection.lightModeToDark")}
+                />
+                <SingleInfo
+                    onPress={() => openBottomSheet("Language", 4)}
+                    title={translate("settingScreen.personalSection.language")}
+                    value={preferredLanguage?.name}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.personalSection.timeZone")}
+                    value={user?.timeZone} onDetectTimezone={() => onDetectTimezone(user)}
+                    onPress={() => openBottomSheet("TimeZone", 4)}
+                />
+                <SingleInfo
+                    title={translate("settingScreen.personalSection.workSchedule")}
+                    value={translate("settingScreen.personalSection.workScheduleHint")}
+                    onPress={() => { }}
+                />
 
                 <View style={$dangerZoneContainer}>
                     <Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
-                    <SingleInfo title={translate("settingScreen.personalSection.removeAccount")} value={translate("settingScreen.personalSection.removeAccountHint")} onPress={() => openBottomSheet("Remove Account", 5)} />
-                    <SingleInfo title={translate("settingScreen.personalSection.deleteAccount")} value={translate("settingScreen.personalSection.deleteAccountHint")} onPress={() => openBottomSheet("Delete Account", 5)} />
+                    <SingleInfo
+                        title={translate("settingScreen.personalSection.removeAccount")}
+                        value={translate("settingScreen.personalSection.removeAccountHint")}
+                        onPress={() => openBottomSheet("Remove Account", 5)}
+                    />
+                    <SingleInfo
+                        title={translate("settingScreen.personalSection.deleteAccount")}
+                        value={translate("settingScreen.personalSection.deleteAccountHint")}
+                        onPress={() => openBottomSheet("Delete Account", 5)}
+                    />
                 </View>
 
             </ScrollView>
