@@ -9,7 +9,7 @@ import {
 	userState,
 	taskStatusFetchingState,
 	taskStatusListState,
-	activeTeamState,
+	activeTeamIdState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -18,7 +18,7 @@ import { useQuery } from '../useQuery';
 
 export function useTaskStatus() {
 	const [user] = useRecoilState(userState);
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskstatusList);
 	const { loading: createTaskStatusLoading, queryCall: createQueryCall } =
@@ -42,25 +42,25 @@ export function useTaskStatus() {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeam?.id || null
+			activeTeamId || null
 		).then((res) => {
 			setTaskStatus(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeam]);
+	}, [activeTeamId]);
 
 	const createTaskStatus = useCallback(
 		(data: ITaskStatusCreate) => {
 			if (user?.tenantId) {
 				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeam?.id },
+					{ ...data, organizationTeamId: activeTeamId },
 					user?.tenantId || ''
 				).then((res) => {
 					if (res?.data?.data && res?.data?.data?.name) {
 						queryCall(
 							user?.tenantId as string,
 							user?.employee?.organizationId as string,
-							activeTeam?.id || null
+							activeTeamId || null
 						).then((res) => {
 							setTaskStatus(res?.data?.data?.items || []);
 							return res;
@@ -76,7 +76,7 @@ export function useTaskStatus() {
 			createQueryCall,
 			createTaskStatusLoading,
 			deleteTaskStatusLoading,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -87,7 +87,7 @@ export function useTaskStatus() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskStatus(res?.data?.data?.items || []);
 						return res;
@@ -102,7 +102,7 @@ export function useTaskStatus() {
 			createTaskStatusLoading,
 			deleteTaskStatusLoading,
 			user,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -115,7 +115,7 @@ export function useTaskStatus() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskStatus(res?.data?.data?.items || []);
 						return res;
@@ -124,7 +124,7 @@ export function useTaskStatus() {
 				});
 			}
 		},
-		[editTaskStatusLoading, user, activeTeam]
+		[editTaskStatusLoading, user, activeTeamId]
 	);
 
 	return {

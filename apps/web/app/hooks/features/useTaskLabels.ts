@@ -9,7 +9,7 @@ import {
 	userState,
 	taskLabelsListState,
 	taskLabelsFetchingState,
-	activeTeamState,
+	activeTeamIdState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -18,7 +18,7 @@ import { useQuery } from '../useQuery';
 
 export function useTaskLabels() {
 	const [user] = useRecoilState(userState);
-	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskLabelsList);
 	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } =
@@ -43,12 +43,12 @@ export function useTaskLabels() {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeam?.id || null
+			activeTeamId || null
 		).then((res) => {
 			setTaskLabels(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeam]);
+	}, [activeTeamId]);
 
 	const createTaskLabels = useCallback(
 		(data: ITaskLabelsCreate) => {
@@ -56,7 +56,7 @@ export function useTaskLabels() {
 				return createQueryCall(
 					{
 						...data,
-						organizationTeamId: activeTeam?.id,
+						organizationTeamId: activeTeamId as string,
 					},
 					user?.tenantId || ''
 				).then((res) => {
@@ -64,7 +64,7 @@ export function useTaskLabels() {
 						queryCall(
 							user?.tenantId as string,
 							user?.employee?.organizationId as string,
-							activeTeam?.id || null
+							activeTeamId || null
 						).then((res) => {
 							setTaskLabels(res?.data?.data?.items || []);
 							return res;
@@ -81,7 +81,7 @@ export function useTaskLabels() {
 			createTaskLabelsLoading,
 			deleteTaskLabelsLoading,
 			user,
-			activeTeam,
+			activeTeamId,
 		]
 	);
 
@@ -92,7 +92,7 @@ export function useTaskLabels() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskLabels(res?.data?.data?.items || []);
 						return res;
@@ -117,7 +117,7 @@ export function useTaskLabels() {
 					queryCall(
 						user?.tenantId as string,
 						user?.employee?.organizationId as string,
-						activeTeam?.id || null
+						activeTeamId || null
 					).then((res) => {
 						setTaskLabels(res?.data?.data?.items || []);
 						return res;

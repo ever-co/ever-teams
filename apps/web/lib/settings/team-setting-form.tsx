@@ -1,5 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text, Tooltip } from 'lib/components';
+import {
+	Button,
+	InputField,
+	Text,
+	Tooltip,
+} from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
@@ -13,14 +18,17 @@ export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
 	const { trans } = useTranslation('settingsTeam');
-	const { activeTeam, editOrganizationTeam } = useOrganizationTeams();
+	const { activeTeam, editOrganizationTeam, loading, loadingTeam } =
+		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState(false);
 	useEffect(() => {
-		setValue('teamName', activeTeam?.name || '');
-		setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
-		setValue('timeTracking', activeManager?.isTrackingEnabled || false);
-	}, [user, setValue, activeTeam, activeManager]);
+		if (activeTeam && !loading && !loadingTeam) {
+			setValue('teamName', activeTeam?.name || '');
+			setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
+			setValue('timeTracking', activeManager?.isTrackingEnabled || false);
+		}
+	}, [user, setValue, activeTeam, activeManager, loading, loadingTeam]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
