@@ -241,6 +241,12 @@ function InputFilters({ hook, profile }: Props) {
 				}}
 				tasks={hook.tasksGrouped.unassignedTasks}
 				buttonClassName="mb-0 h-full"
+				onTaskCreated={(_, close) => close()}
+				usersTaskCreatedAssignTo={
+					profile.member?.employeeId
+						? [{ id: profile.member?.employeeId }]
+						: undefined
+				}
 			>
 				<Button
 					loading={loading}

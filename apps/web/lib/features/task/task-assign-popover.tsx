@@ -9,10 +9,16 @@ export function TaskUnOrAssignPopover({
 	tasks,
 	onTaskClick,
 	buttonClassName,
+	onTaskCreated,
+	usersTaskCreatedAssignTo,
 }: PropsWithChildren<{
 	tasks?: ITeamTask[];
 	onTaskClick?: (task: ITeamTask, close: () => void) => void;
 	buttonClassName?: string;
+	onTaskCreated?: (task: ITeamTask | undefined, close: () => void) => void;
+	usersTaskCreatedAssignTo?: {
+		id: string;
+	}[];
 }>) {
 	return (
 		<Popover className="relative">
@@ -43,9 +49,14 @@ export function TaskUnOrAssignPopover({
 								tasks={tasks}
 								initEditMode={true}
 								keepOpen={true}
-								autoAssignTask={false}
+								autoAssignTaskAuth={false}
+								createOnEnterClick={true}
 								viewType="one-view"
 								onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
+								onTaskCreated={(task) =>
+									onTaskCreated && onTaskCreated(task, close)
+								}
+								usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
 							/>
 						);
 					}}
