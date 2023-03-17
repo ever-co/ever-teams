@@ -50,7 +50,7 @@ const Profile = () => {
 					</div>
 
 					{/* TaskFilter */}
-					<TaskFilter hook={hook} />
+					<TaskFilter profile={profile} hook={hook} />
 				</MainHeader>
 
 				<Container className="mb-10">

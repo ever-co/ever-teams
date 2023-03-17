@@ -12,6 +12,7 @@ import {
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { TaskUnOrAssignPopover } from './task-assign-popover';
 import {
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
@@ -154,6 +155,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		onChangeStatusFilter,
 		onResetStatusFilter,
 		applyStatusFilder,
+		tasksGrouped: profile.tasksGrouped,
 	};
 }
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -163,15 +165,14 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
  * @param  - IClassName & { hook: I_TaskFilter }
  * @returns A div with a className of 'flex justify-between' and a className of whatever is passed in.
  */
-export function TaskFilter({
-	className,
-	hook,
-}: IClassName & { hook: I_TaskFilter }) {
+
+type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
+export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
 		<>
 			<div className={clsxm('flex justify-between', className)}>
 				<TabsNav hook={hook} />
-				<InputFilters hook={hook} />
+				<InputFilters profile={profile} hook={hook} />
 			</div>
 
 			{/*  It's a transition component that is used to animate the transition of the TaskStatusFilter
@@ -199,8 +200,9 @@ export function TaskFilter({
  * It renders a search icon, a vertical separator, a filter button, and an assign task button
  * @returns A div with a button, a vertical separator, a button, and a button.
  */
-function InputFilters({ hook }: { hook: I_TaskFilter }) {
+function InputFilters({ hook, profile }: Props) {
 	const { trans } = useTranslation();
+	const [loading, setLoading] = useState(false);
 
 	return (
 		<div className="flex space-x-5 items-center">
@@ -231,9 +233,22 @@ function InputFilters({ hook }: { hook: I_TaskFilter }) {
 				<span>{trans.common.FILTER}</span>
 			</button>
 
-			<Button className="dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue">
-				{trans.common.ASSIGN_TASK}
-			</Button>
+			<TaskUnOrAssignPopover
+				onTaskClick={(task, close) => {
+					setLoading(true);
+					close();
+					profile.assignTask(task).finally(() => setLoading(false));
+				}}
+				tasks={hook.tasksGrouped.unassignedTasks}
+				buttonClassName="mb-0 h-full"
+			>
+				<Button
+					loading={loading}
+					className="dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full"
+				>
+					{trans.common.ASSIGN_TASK}
+				</Button>
+			</TaskUnOrAssignPopover>
 		</div>
 	);
 }
