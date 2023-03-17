@@ -38,12 +38,12 @@ export function withAuthentication(
 				setShowCreateTeamModal(false);
 				setShowJoinTeamModal(false);
 			}
-		}, [isTeamMember]);
+		}, [isTeamMember, noTeamPopupShow]);
 		const closeModalIfNewTeamCreated = useCallback(() => {
 			setShowCreateTeamModal(false);
 			setShowJoinTeamModal(false);
 			setNoTeamPopupShowCookie(false);
-		}, [isTeamMember]);
+		}, []);
 
 		useEffect(() => {
 			if (!user) {
