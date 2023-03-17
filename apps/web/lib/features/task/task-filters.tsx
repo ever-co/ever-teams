@@ -361,12 +361,14 @@ function TaskNameFilter({
 	value: string;
 	setValue: (v: string) => void;
 }) {
+	const { trans } = useTranslation();
 	return (
 		<div className="mt-3 w-1/2 ml-auto">
 			<InputField
 				value={value}
+				autoFocus={true}
 				onChange={(e) => setValue(e.target.value)}
-				placeholder="Type something..."
+				placeholder={trans.common.TYPE_SOMETHING + '...'}
 			/>
 		</div>
 	);

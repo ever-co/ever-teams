@@ -41,6 +41,7 @@ export const en = {
 		SELECT_STATUS: 'Select status',
 		UNASSIGNED: 'Unassigned',
 		TASK_DETAILS: 'Task Details',
+		TYPE_SOMETHING: 'Type something',
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',
