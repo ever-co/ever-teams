@@ -56,7 +56,7 @@ export function UserTeamCard({
 			{/* Show user name, email and image */}
 			<UserInfo
 				memberInfo={memberInfo}
-				className="w-[330px]"
+				className="lg:w-[330px] w-1/4"
 				publicTeam={publicTeam}
 			/>
 			<VerticalSeparator />
@@ -65,7 +65,7 @@ export function UserTeamCard({
 			<TaskInfo
 				edition={taskEdition}
 				memberInfo={memberInfo}
-				className="w-80 px-4"
+				className="lg:w-80 w-1/5 lg:px-4 px-2"
 				publicTeam={publicTeam}
 			/>
 			<VerticalSeparator className="ml-2" />
@@ -76,7 +76,7 @@ export function UserTeamCard({
 				memberInfo={memberInfo}
 				task={memberInfo.memberTask}
 				isAuthUser={memberInfo.isAuthUser}
-				className="w-48 px-4"
+				className="lg:w-48 w-1/5 lg:px-4 px-2"
 			/>
 			<VerticalSeparator />
 
@@ -85,14 +85,14 @@ export function UserTeamCard({
 				memberInfo={memberInfo}
 				edition={taskEdition}
 				activeAuthTask={true}
-				className="px-3 w-52"
+				className="lg:px-3 lg:w-52 w-1/5"
 			/>
 			<VerticalSeparator />
 
 			{/* TodayWorkedTime */}
 			<TodayWorkedTime
 				isAuthUser={memberInfo.isAuthUser}
-				className="flex-1"
+				className="flex-1 lg:text-base text-xs"
 				memberInfo={memberInfo}
 			/>
 

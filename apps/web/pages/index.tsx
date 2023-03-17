@@ -54,12 +54,12 @@ function TaskTimerSection({
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex lg:flex-row flex-col-reverse justify-between items-center mt-6',
+				'w-full flex md:flex-row flex-col-reverse justify-between items-center mt-6',
 				'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
 			{/* Task inputs */}
-			<AuthUserTaskInput />
+			<AuthUserTaskInput className='md:w-1/2'/>
 
 			{/* Timer  */}
 			{isTrackingEnabled ? <Timer /> : null}
