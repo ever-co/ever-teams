@@ -1,5 +1,5 @@
+import React, { FC } from 'react'
 import { ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native'
-import React from 'react'
 import { useAppTheme } from '../../../../app'
 import { typography } from '../../../../theme/typography';
 import SingleInfo from '../components/SingleInfo';
@@ -8,9 +8,14 @@ import PictureSection from '../components/PictureSection';
 import { useStores } from '../../../../models';
 import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
 import SwithTimeTracking from '../components/SwitchTimeTracking';
+import { IPopup } from '..';
+import { observer } from 'mobx-react-lite';
 
-
-const TeamSettings = (props: any) => {
+interface ITeamSettingProps {
+    props: any;
+    onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown;
+}
+const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet }) => {
     const { colors } = useAppTheme();
     const {
         teamStore: { activeTeam }
@@ -28,7 +33,11 @@ const TeamSettings = (props: any) => {
                     onDelete={() => { }}
                     onChange={() => { }}
                 />
-                <SingleInfo title={translate("settingScreen.teamSection.teamName")} value={activeTeam?.name} onPress={() => { }} />
+                <SingleInfo
+                    title={translate("settingScreen.teamSection.teamName")}
+                    value={activeTeam?.name}
+                    onPress={() => onOpenBottomSheet("Team Name", 4)}
+                />
                 {isTeamManager ? <SwithTimeTracking /> : null}
                 <SingleInfo
                     title={translate("settingScreen.teamSection.taskStatuses")}
@@ -82,7 +91,7 @@ const TeamSettings = (props: any) => {
         </View>
 
     )
-}
+})
 
 export default TeamSettings
 
