@@ -1,7 +1,6 @@
-import { CreateReponse, IOrganizationTeam } from '@app/interfaces';
-import { AxiosResponse } from 'axios';
 import { Button, Text, Modal, Card } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
+import { useState } from 'react';
 
 export const RemoveModal = ({
 	open,
@@ -13,12 +12,11 @@ export const RemoveModal = ({
 	open: boolean;
 	close: () => void;
 	title: string;
-	onAction: () =>
-		| Promise<AxiosResponse<CreateReponse<IOrganizationTeam>, any>>
-		| undefined;
+	onAction: () => any;
 	loading: boolean;
 }) => {
 	const { trans } = useTranslation();
+	const [notifyMessage, setNotifyMessage] = useState<string>('');
 
 	return (
 		<>
@@ -28,6 +26,13 @@ export const RemoveModal = ({
 						<Text.Heading as="h3" className="text-center gap-32 text-2xl">
 							{title}
 						</Text.Heading>
+
+						{notifyMessage && (
+							<Text.Error className="self-start justify-self-start mt-2">
+								{notifyMessage}
+							</Text.Error>
+						)}
+
 						<div className="w-full flex justify-between mt-10 items-center">
 							<Button
 								type="button"
@@ -46,13 +51,14 @@ export const RemoveModal = ({
 								disabled={loading}
 								loading={loading}
 								onClick={() => {
-									onAction()
-										?.then(() => {
-											// TODO
-										})
-										.finally(() => {
-											close();
-										});
+									onAction()?.then((res: any) => {
+										if (res?.data?.data?.status) {
+											setNotifyMessage(res?.data?.data?.message || '');
+											return;
+										}
+
+										close();
+									});
 								}}
 							>
 								{trans.common.CONFIRM}
