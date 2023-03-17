@@ -1,5 +1,7 @@
 import {
 	CreateReponse,
+	DeleteReponse,
+	ISuccessResponse,
 	PaginationResponse,
 } from '@app/interfaces/IDataResponse';
 
@@ -29,10 +31,7 @@ export function getOrganizationTeamAPI(teamId: string) {
 }
 
 export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
-	return api.put<IOrganizationTeamList>(
-		`/organization-team/${data.id}`,
-		data
-	);
+	return api.put<IOrganizationTeamList>(`/organization-team/${data.id}`, data);
 }
 export function updateOrganizationTeamAPI(
 	teamId: string,
@@ -54,5 +53,7 @@ export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {
-	return api.delete(`/organization-team/teams/${userId}`);
+	return api.delete<DeleteReponse | CreateReponse<ISuccessResponse>>(
+		`/organization-team/teams/${userId}`
+	);
 }
