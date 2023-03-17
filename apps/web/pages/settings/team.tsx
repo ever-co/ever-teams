@@ -30,7 +30,7 @@ const Team = () => {
 			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
-				<MainLayout>
+				<MainLayout className='items-start'>
 					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 						<Container>
 							<Breadcrumb
@@ -44,7 +44,7 @@ const Team = () => {
 						<div className="flex w-full">
 							<LeftSideSettingMenu />
 							{isTeamMember ? (
-								<div className="flex flex-col w-full">
+								<div className="flex flex-col w-full mr-[20px] lg:mr-0">
 									<Card
 										className="dark:bg-dark--theme p-[32px] mt-[36px]"
 										shadow="bigger"

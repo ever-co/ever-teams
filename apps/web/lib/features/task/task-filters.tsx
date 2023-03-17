@@ -205,7 +205,7 @@ function InputFilters({ hook, profile }: Props) {
 	const [loading, setLoading] = useState(false);
 
 	return (
-		<div className="flex space-x-5 items-center">
+		<div className="flex lg:space-x-5 space-x-2 items-center">
 			<button
 				className={clsxm('outline-none')}
 				onClick={() => hook.toggleFilterType('search')}

@@ -120,7 +120,7 @@ function TimeInfo({
 				<div
 					className={clsxm(
 						'flex space-x-2 items-center font-normal',
-						showDaily && ['text-sm']
+						showDaily && ['lg:text-sm']
 					)}
 				>
 					<span className="text-gray-500">{trans.common.TOTAL}:</span>

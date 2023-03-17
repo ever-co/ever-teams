@@ -65,11 +65,11 @@ export const DangerZoneTeam = () => {
 				<div className="w-full mt-5">
 					<div className="">
 						{/* Current User is the Manager of the Team and there are more that 1 Managers */}
-						<div className="flex w-full items-center justify-between gap-6">
-							<div className="flex-auto w-64">
-								<Text className="text-xl  font-normal">Transfer Ownership</Text>
+						<div className="flex w-full items-center justify-between md:gap-6">
+							<div className="flex-auto md:w-64">
+								<Text className="md:text-xl text-base font-normal">Transfer Ownership</Text>
 							</div>
-							<div className="flex-auto w-64">
+							<div className="flex-auto md:w-64 w-40">
 								<Text className="text-md text-gray-400 font-normal">
 									Transfer full ownership of team to another user
 								</Text>
@@ -89,10 +89,10 @@ export const DangerZoneTeam = () => {
 
 						{/* Current User is the Only Manager of the Team*/}
 						<div className="flex w-full items-center justify-between gap-6 mt-5">
-							<div className="flex-auto w-64">
-								<Text className="text-xl  font-normal">Remove Team</Text>
+							<div className="flex-auto md:w-64">
+								<Text className="md:text-xl text-base font-normal">Remove Team</Text>
 							</div>
-							<div className="flex-auto w-64">
+							<div className="flex-auto md:w-64 w-40">
 								<Text className="text-md text-gray-400 font-normal">
 									Team will be completely removed for the system and team
 									members lost access
@@ -115,10 +115,10 @@ export const DangerZoneTeam = () => {
 						</div>
 
 						<div className="flex w-full items-center justify-between gap-6 mt-5">
-							<div className="flex-auto w-64">
-								<Text className="text-xl  font-normal">Quit the Team</Text>
+							<div className="flex-auto md:w-64">
+								<Text className="md:text-xl text-base font-normal">Quit the Team</Text>
 							</div>
-							<div className="flex-auto w-64">
+							<div className="flex-auto md:w-64 w-40">
 								<Text className="text-md text-gray-400 font-normal">
 									You are about to quit the team
 								</Text>

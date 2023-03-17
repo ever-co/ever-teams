@@ -9,7 +9,7 @@ export function Footer({ className }: IClassName) {
 	return (
 		<footer
 			className={clsxm(
-				'flex flex-col md:flex-row justify-around items-center w-full py-6 px-3',
+				'flex flex-col xs:flex-row justify-around items-center w-full py-6 px-3',
 				className
 			)}
 		>
@@ -20,7 +20,7 @@ export function Footer({ className }: IClassName) {
 				{trans.layout.footer.RIGHTS_RESERVERD}
 			</p>
 
-			<div>
+			<div className=''>
 				<ThemeToggler />
 			</div>
 		</footer>
