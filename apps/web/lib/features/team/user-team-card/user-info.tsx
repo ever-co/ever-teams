@@ -18,7 +18,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
-			className={clsxm('flex items-center space-x-4', className)}
+			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
 				{member?.timerStatus &&
@@ -28,7 +28,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				/>}
 			</Avatar>
 
-			<div className="w-64">
+			<div className="lg:w-64 w-1/2">
 				<Tooltip
 					label={`${memberUser?.firstName || ''} ${
 						memberUser?.lastName || ''
@@ -42,7 +42,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text.Heading
 						as="h3"
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
+						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-sm lg:text-lg "
 					>
 						{publicTeam ? (
 							<span className="flex capitalize">

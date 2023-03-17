@@ -74,14 +74,14 @@ export function TaskCard({
 				activeAuthTask={activeAuthTask}
 				task={task}
 				isAuthUser={isAuthUser}
-				className="w-48 px-4"
+				className="w-48 lg:px-4"
 			/>
 			<VerticalSeparator />
 
 			{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 			<ActiveTaskStatusDropdown
 				task={task || null}
-				className="lg:min-w-[170px] mr-4"
+				className="lg:min-w-[170px] lg:mr-4 mx-auto"
 				onChangeLoading={(load) => setLoading(load)}
 			/>
 

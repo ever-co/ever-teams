@@ -68,7 +68,7 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 			<div
 				ref={edition.taskEditIgnoreElement.targetEl}
 				className={clsxm(
-					'text-sm text-ellipsis overflow-hidden cursor-pointer',
+					'text-xs lg:text-sm text-ellipsis overflow-hidden cursor-pointer',
 					hasEditMode && ['hidden']
 				)}
 				onClick={
