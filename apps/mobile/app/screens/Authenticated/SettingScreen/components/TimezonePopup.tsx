@@ -5,8 +5,9 @@ import { AntDesign, FontAwesome } from "@expo/vector-icons"
 
 // COMPONENTS
 
-import { typography } from "../../../../theme"
+
 import { translate } from "../../../../i18n";
+import { typography } from "../../../../theme";
 import { useAppTheme } from "../../../../app";
 
 

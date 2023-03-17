@@ -60,7 +60,7 @@ function useCreateOrganizationTeam() {
 
 export function useOrganizationTeam() {
     const queryClient = useQueryClient();
-    const { teamStore: { activeTeamId, teams,setIsTrackingEnabled, setActiveTeam, setOrganizationTeams, activeTeam, setActiveTeamId },
+    const { teamStore: { activeTeamId, teams, setIsTrackingEnabled, setActiveTeam, setOrganizationTeams, activeTeam, setActiveTeamId },
         authenticationStore: { user, tenantId, authToken, organizationId } } = useStores();
     const { logOut } = useAuthenticateUser();
 
@@ -73,7 +73,7 @@ export function useOrganizationTeam() {
     const [isTeamManager, setIsTeamManager] = useState(false);
     const [teamsFetching, setTeamsFetching] = useState(false)
 
-    const members:OT_Member[] = activeTeam?.members || [];
+    const members: OT_Member[] = activeTeam?.members || [];
 
     const currentUser = members.find((m) => {
         return m.employee.userId === user?.id;
@@ -180,6 +180,9 @@ export function useOrganizationTeam() {
         }
     }, [activeTeam, isTeamManager])
 
+    /**
+     * Remove user from all teams
+     */
     const removeUserFromAllTeams = useCallback(async (userId: string) => {
         const { data } = await removeUserFromAllTeam({
             userId,
@@ -189,7 +192,10 @@ export function useOrganizationTeam() {
         return data
     }, [])
 
-    const toggleTimeTracking = useCallback(async (user: OT_Member, isEnabled:boolean) => {
+    /**
+     * Enable or Disable user time tracking
+     */
+    const toggleTimeTracking = useCallback(async (user: OT_Member, isEnabled: boolean) => {
         const { data, response } = await updateOrganizationTeamEmployeeRequest({
             id: user.id,
             body: {
@@ -201,8 +207,34 @@ export function useOrganizationTeam() {
             bearer_token: authToken
         })
         queryClient.invalidateQueries("teams")
-        return {data, response }
+        return { data, response }
     }, [])
+
+    /**
+     * Update Organization Team
+     */
+    const onUpdateOrganizationTeam = useCallback(
+        async (
+            { id, data }:
+                { id: string, data: IOrganizationTeamList }
+        ) => {
+            await updateOrganizationTeamRequest({
+                id,
+                datas: data,
+                bearer_token: authToken
+            }).then((res) => {
+                const { data, response } = res;
+                if (response.ok || response.status === 202 || response.status === 200) {
+                    setActiveTeam({
+                        ...activeTeam,
+                        ...data
+                    })
+                    queryClient.invalidateQueries("teams")
+                }
+            }).catch((e) => console.log(e))
+
+        }, [])
+
 
     // Load Teams
     useEffect(() => {
@@ -240,6 +272,7 @@ export function useOrganizationTeam() {
         teamsFetching,
         makeMemberAsManager,
         removeMember,
-        toggleTimeTracking
+        toggleTimeTracking,
+        onUpdateOrganizationTeam
     }
 }

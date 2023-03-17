@@ -1,10 +1,11 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import React, { useCallback } from 'react'
-import { useAppTheme } from '../../../../app'
-import { typography } from '../../../../theme/typography'
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization'
-import { translate } from '../../../../i18n'
-import { useUser } from '../../../../services/hooks/features/useUser'
+import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { useUser } from '../../../../services/hooks/features/useUser';
+import { translate } from '../../../../i18n';
+import { typography } from '../../../../theme';
+import { useAppTheme } from '../../../../app';
+
 
 const UserRemoveAccount = (
     {

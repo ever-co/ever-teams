@@ -1,14 +1,19 @@
-import React, { FC, useState } from "react"
+import React, { FC } from "react"
 import { View } from "react-native"
 import { IPopup } from "..";
 import { useSettings } from "../../../../services/hooks/features/useSettings";
+import ChangeTeamName from "./ChangeTeamName";
 import ChangeUserAvatar from "./ChangeUserAvatar"
 import UpdateContactForm from "./ContactInfoForm";
-import UpdateFullNameForm from "./UpdateFullNameForm"
+import LanguageForm from "./LanguageForm";
+import UpdateFullNameForm from "./UpdateFullNameForm";
+import UserRemoveAccount from "./UserRemoveAccount";
+import UserTimezone from "./UserTimezone";
+
 
 interface IBottomProps {
     onDismiss: () => unknown;
-    openBottomSheet?: (sheet: IPopup, snapPoint:number) => unknown;
+    openBottomSheet?: (sheet: IPopup, snapPoint: number) => unknown;
     openedSheet: IPopup
 }
 
@@ -25,7 +30,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                 }
                 {openedSheet === "Avatar" ?
                     <ChangeUserAvatar
-                        onExtend={() => openBottomSheet("Avatar",3)}
+                        onExtend={() => openBottomSheet("Avatar", 3)}
                         onDismiss={() => onDismiss()} />
                     : null
                 }
@@ -35,7 +40,44 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
                         onUpdateContactInfo={updateUserInfo}
                         onDismiss={() => onDismiss()}
                     /> : null}
-                
+
+                {openedSheet === "TimeZone" ?
+                    <UserTimezone
+                        user={user}
+                        onUpdateTimezone={updateUserInfo}
+                        onDismiss={() => onDismiss()}
+                    /> : null
+                }
+
+                {openedSheet === "Language" ?
+                    <LanguageForm
+                        user={user}
+                        onUpdateTimezone={updateUserInfo}
+                        onDismiss={() => onDismiss()}
+                    /> : null
+                }
+
+                {openedSheet === "Remove Account" ?
+                    <UserRemoveAccount
+                        userId={user?.id}
+                        actionType={"Remove"}
+                        onDismiss={() => onDismiss()}
+                    />
+                    : null}
+
+                {openedSheet === "Delete Account" ?
+                    <UserRemoveAccount
+                        userId={user?.id}
+                        actionType={"Delete"}
+                        onDismiss={() => onDismiss()}
+                    />
+                    : null}
+
+                {openedSheet === "Team Name" ?
+                    <ChangeTeamName
+                        onDismiss={() => onDismiss()}
+                    /> : null
+                }
             </View>
         </View>
     )

@@ -134,6 +134,10 @@ const en = {
       removeTeamHint: "Team will be completely removed for the system and team members lost access",
       quitTeam: "Quit the team",
       quitTeamHint: "You are about to quit the team",
+      changeTeamName:{
+        mainTitle:"Change Team Name",
+        inputPlaceholder:"Team Name",
+      }
     },
     dangerZone: "Danger Zone",
     modalChangeLanguageTitle: "Change Language",
