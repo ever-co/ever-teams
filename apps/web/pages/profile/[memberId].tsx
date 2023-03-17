@@ -1,5 +1,5 @@
 import { useUserProfilePage } from '@app/hooks';
-import { IUser } from '@app/interfaces';
+import { OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
@@ -37,7 +37,7 @@ const Profile = () => {
 
 					{/* User Profil Detail */}
 					<div className="flex justify-between items-center py-10">
-						<UserProfilDetail user={profile.userProfile} />
+						<UserProfilDetail member={profile.member} />
 
 						{profile.isAuthUser && (
 							<Timer
@@ -61,12 +61,14 @@ const Profile = () => {
 	);
 };
 
-function UserProfilDetail({ user }: { user?: IUser }) {
+function UserProfilDetail({ member }: { member?: OT_Member }) {
+	const user = member?.employee.user;
+
 	return (
 		<div className="flex items-center space-x-4">
 			<Avatar size={80} imageUrl={user?.imageUrl}>
 				<TimerStatus
-					status={'running'}
+					status={member?.timerStatus || 'idle'}
 					className="absolute border z-20 bottom-3 right-[12%] -mb-3"
 				/>
 			</Avatar>

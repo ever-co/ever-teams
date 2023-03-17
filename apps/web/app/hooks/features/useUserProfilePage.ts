@@ -46,6 +46,7 @@ export function useUserProfilePage() {
 		activeUserTeamTask,
 		userProfile,
 		tasksGrouped,
+		member: matchUser,
 	};
 }
 

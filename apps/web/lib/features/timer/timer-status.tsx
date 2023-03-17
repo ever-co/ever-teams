@@ -1,8 +1,6 @@
-import { IClassName } from '@app/interfaces';
+import { IClassName, ITimerStatus } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { PauseIcon, StopCircleIcon, TimerPlayIcon } from 'lib/components/svgs';
-
-export type ITimerStatus = 'running' | 'idle' | 'pause';
 
 type Props = { status: ITimerStatus; showIcon?: boolean } & IClassName;
 
