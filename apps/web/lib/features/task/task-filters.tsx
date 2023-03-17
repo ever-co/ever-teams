@@ -233,6 +233,7 @@ function InputFilters({ hook, profile }: Props) {
 				<span>{trans.common.FILTER}</span>
 			</button>
 
+			{/* Assign task combobox */}
 			<TaskUnOrAssignPopover
 				onTaskClick={(task, close) => {
 					setLoading(true);
