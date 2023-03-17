@@ -1,18 +1,32 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useModal } from '@app/hooks';
+import {
+	useModal,
+	useAuthenticateUser,
+	useOrganizationTeams,
+	useUser,
+} from '@app/hooks';
 import { Button, Text } from 'lib/components';
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'lib/i18n';
 import { RemoveModal } from './remove-modal';
 
 export const DangerZone = () => {
-	const { isOpen, closeModal, openModal } = useModal();
-	const [isOpenModal, setIsOpenModal] = useState(false);
 	const { trans } = useTranslation();
+	const { isOpen, closeModal, openModal } = useModal();
+	const [removeModalType, setRemoveModalType] = useState<
+		'REMOVE' | 'DELETE' | null
+	>(null);
 
-	const openRemoveModal = useCallback(() => {
-		setIsOpenModal(true);
-	}, []);
+	const { deleteUser, deleteUserLoading } = useUser();
+	const { user } = useAuthenticateUser();
+	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } =
+		useOrganizationTeams();
+
+	const handleRemoveUser = useCallback(() => {
+		if (user) {
+			return removeUserFromAllTeam(user.id);
+		}
+	}, [user, removeUserFromAllTeam]);
 
 	return (
 		<>
@@ -35,7 +49,8 @@ export const DangerZone = () => {
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
 									onClick={() => {
-										openRemoveModal()
+										setRemoveModalType('REMOVE');
+										openModal();
 									}}
 								>
 									Remove Everywhere
@@ -58,6 +73,7 @@ export const DangerZone = () => {
 									type="submit"
 									className="float-right w-full bg-[#DE5536]"
 									onClick={() => {
+										setRemoveModalType('DELETE');
 										openModal();
 									}}
 								>
@@ -67,18 +83,19 @@ export const DangerZone = () => {
 						</div>
 					</div>
 				</div>
+
 				<RemoveModal
-					open={isOpen}
+					open={removeModalType && isOpen ? true : false}
 					close={closeModal}
-					title={trans.pages.settingsPersonal.ABOUT_TO_DELETE_ACCOUNT}
-					onDelete
-					personal
-				/>
-				<RemoveModal
-					open={isOpenModal}
-					close={() => setIsOpenModal(false)}
-					title={trans.pages.settingsPersonal.ABOUT_TO_REMOVE_ACCOUNT}
-					personal
+					title={
+						removeModalType === 'DELETE'
+							? trans.pages.settingsPersonal.ABOUT_TO_DELETE_ACCOUNT
+							: trans.pages.settingsPersonal.ABOUT_TO_REMOVE_ACCOUNT
+					}
+					onAction={
+						removeModalType === 'DELETE' ? deleteUser : handleRemoveUser
+					}
+					loading={deleteUserLoading || removeUserFromAllTeamLoading}
 				/>
 			</div>
 		</>
