@@ -201,14 +201,26 @@ export function useOrganizationTeams() {
 	}, [loading, setTeamsFetching]);
 
 	const loadTeamsData = useCallback(() => {
-		const teamid = getActiveTeamIdCookie();
+		let teamid = getActiveTeamIdCookie();
 		setActiveTeamId(teamid);
 
 		return queryCall().then((res) => {
 			if (res.data?.items && res.data?.items?.length === 0) {
 				setIsTeamMember(false);
 			}
-			setTeams(res.data?.items || []);
+			const latestTeams = res.data?.items || [];
+			setTeams(latestTeams);
+
+			// Handle case where user might Remove Account from all teams,
+			// In such case need to update active team with Latest list of Teams
+			if (
+				!latestTeams.find((team) => team.id === teamid) &&
+				latestTeams.length
+			) {
+				setActiveTeam(latestTeams[0]);
+			} else {
+				teamid = '';
+			}
 
 			teamid &&
 				queryCallTeam(teamid).then((res) => {
