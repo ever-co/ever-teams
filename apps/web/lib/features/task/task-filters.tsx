@@ -45,6 +45,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		{} as StatusFilter
 	);
 
+	const [appliedStatusFilter, setAppliedStatusFilter] = useState<StatusFilter>(
+		{} as StatusFilter
+	);
+
 	const [taskName, setTaskName] = useState('');
 
 	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
@@ -89,14 +93,6 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[setFilterType]
 	);
 
-	const $tasks = useMemo(() => {
-		const n = taskName.trim().toLowerCase();
-
-		return tasks.filter((task) => {
-			return n ? task.title.toLowerCase().includes(n) : true;
-		});
-	}, [tasks, taskName]);
-
 	const onChangeStatusFilter = useCallback(
 		(type: IStatusType, value: string) => {
 			return setStatusFilter((state) => {
@@ -109,13 +105,41 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[setStatusFilter]
 	);
 
+	// Reset status applied filter status when filter changed
+	useEffect(() => {
+		if (filterType !== 'status') {
+			setAppliedStatusFilter({} as StatusFilter);
+		}
+	}, [filterType]);
+
 	const onResetStatusFilter = useCallback(() => {
-		return setStatusFilter({} as StatusFilter);
+		setStatusFilter({} as StatusFilter);
+		setAppliedStatusFilter({} as StatusFilter);
 	}, [setStatusFilter]);
 
+	/**
+	 * Apply filter status filter
+	 */
 	const applyStatusFilder = useCallback(() => {
-		console.log('----');
-	}, []);
+		setAppliedStatusFilter(statusFilter);
+	}, [statusFilter]);
+
+	const $tasks = useMemo(() => {
+		const n = taskName.trim().toLowerCase();
+		const asf = appliedStatusFilter;
+
+		return tasks
+			.filter((task) => {
+				return n ? task.title.toLowerCase().includes(n) : true;
+			})
+			.filter((task) => {
+				const keys = Object.keys(asf) as IStatusType[];
+
+				return keys.every((k) => {
+					return task[k] === asf[k];
+				});
+			});
+	}, [tasks, taskName, appliedStatusFilter]);
 
 	return {
 		tab,
