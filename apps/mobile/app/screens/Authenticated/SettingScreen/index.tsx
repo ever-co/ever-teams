@@ -24,6 +24,7 @@ export type IPopup =
     "Language" |
     "TimeZone" |
     "Schedule" |
+    "Remove Team" |
     "Avatar" |
     "Avatar 2" |
     "Delete Account" |
@@ -84,7 +85,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                         : activeTab === 1 ?
                             <PersonalSettings onOpenBottomSheet={(sheet, snap) => openBottomSheet(sheet, snap)} />
                             :
-                            <TeamSettings props={{..._props}} onOpenBottomSheet={openBottomSheet} />
+                            <TeamSettings props={{ ..._props }} onOpenBottomSheet={openBottomSheet} />
                     }
                 </View>
             </View>
