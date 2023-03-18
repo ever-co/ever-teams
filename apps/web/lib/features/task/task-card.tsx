@@ -5,7 +5,7 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
 	Card,
-	ConfirmDropdown,
+	// ConfirmDropdown,
 	SpinnerLoader,
 	Text,
 	VerticalSeparator,
@@ -22,12 +22,14 @@ import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { TaskAvatars } from './task-item';
 
 type Props = {
 	active?: boolean;
 	task?: Nullable<ITeamTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
+	viewType?: 'default' | 'unassign';
 } & IClassName;
 
 export function TaskCard({
@@ -36,6 +38,7 @@ export function TaskCard({
 	task,
 	isAuthUser,
 	activeAuthTask,
+	viewType = 'default',
 }: Props) {
 	const [loading, setLoading] = useState(false);
 
@@ -56,26 +59,42 @@ export function TaskCard({
 			<TaskInfo task={task} className="w-80 px-4" />
 			<VerticalSeparator className="ml-2" />
 
-			{/* TaskEstimateInfo */}
-			<div className="flex space-x-2 items-center">
-				<TaskEstimateInfo
-					task={task}
-					isAuthUser={isAuthUser}
-					activeAuthTask={activeAuthTask}
-					className="px-3 w-52"
-				/>
-				{isAuthUser && task && <TimerButtonCall task={task} />}
-			</div>
+			{viewType === 'default' && (
+				<>
+					{/* TaskEstimateInfo */}
+					<div className="flex space-x-2 items-center">
+						<TaskEstimateInfo
+							task={task}
+							isAuthUser={isAuthUser}
+							activeAuthTask={activeAuthTask}
+							className="px-3 w-52"
+						/>
+						{isAuthUser && task && <TimerButtonCall task={task} />}
+					</div>
+					<VerticalSeparator />
+				</>
+			)}
 
-			<VerticalSeparator />
+			{viewType === 'unassign' && (
+				<>
+					<UsersTaskAssigned className="px-3 w-52" task={task} />
+					<VerticalSeparator />
+				</>
+			)}
 
 			{/* TaskTimes */}
-			<TaskTimes
-				activeAuthTask={activeAuthTask}
-				task={task}
-				isAuthUser={isAuthUser}
-				className="w-48 lg:px-4"
-			/>
+			<div className="flex items-center">
+				<TaskTimes
+					activeAuthTask={activeAuthTask}
+					task={task}
+					isAuthUser={isAuthUser}
+					className="w-48 lg:px-4"
+					showTotal={viewType !== 'unassign'}
+				/>
+				{isAuthUser && viewType === 'unassign' && task && (
+					<TimerButtonCall task={task} />
+				)}
+			</div>
 			<VerticalSeparator />
 
 			{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
@@ -88,6 +107,30 @@ export function TaskCard({
 			{/* TaskCardMenu */}
 			{task && <TaskCardMenu task={task} loading={loading} />}
 		</Card>
+	);
+}
+
+function UsersTaskAssigned({
+	task,
+	className,
+}: { task: Nullable<ITeamTask> } & IClassName) {
+	const { trans } = useTranslation();
+	const members = task?.members || [];
+
+	return (
+		<div className={clsxm('flex justify-center items-center', className)}>
+			<div className="flex flex-col justify-center">
+				<span className="mb-1 text-xs text-center">
+					{trans.common.ASSIGNED}
+				</span>
+				<span className="font-medium text-center text-sm">
+					{members.length > 0
+						? `${members.length} ${trans.common.PEOPLE}`
+						: trans.task.tabFilter.NO_TASK_USER_ASSIGNED}
+				</span>
+			</div>
+			{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
+		</div>
 	);
 }
 
@@ -302,7 +345,7 @@ function TaskCardMenu({
 											</Link>
 										</li>
 
-										<li>
+										{/* <li>
 											<ConfirmDropdown
 												className="right-[110%] top-0"
 												onConfirm={() => {
@@ -318,7 +361,7 @@ function TaskCardMenu({
 													{trans.common.REMOVE}
 												</Text>
 											</ConfirmDropdown>
-										</li>
+										</li> */}
 									</ul>
 								</Card>
 							);

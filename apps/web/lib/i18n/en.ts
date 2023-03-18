@@ -3,6 +3,7 @@ export const en = {
 	common: {
 		VERIFY: 'verify',
 		PLEASE: 'please',
+		PEOPLE: 'People',
 		SECURITY_CODE: 'Security Code',
 		CONFIRM: 'Confirm',
 		YOUR_EMAIL: 'your email',
@@ -38,8 +39,10 @@ export const en = {
 		LAST_24_HOURS: 'Last 24 Hours',
 		WORKED: 'Worked',
 		ASSIGNED: 'Assigned',
+		SELECT_STATUS: 'Select status',
 		UNASSIGNED: 'Unassigned',
 		TASK_DETAILS: 'Task Details',
+		TYPE_SOMETHING: 'Type something',
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',
@@ -211,6 +214,7 @@ export const en = {
 			ASSIGNED_DESCRIPTION: 'This tab shows all tasks that are assigned to you',
 			UNASSIGNED_DESCRIPTION:
 				'This tab shows all tasks that are not assigned to you',
+			NO_TASK_USER_ASSIGNED: 'No one assigned  to this Task',
 		},
 	},
 

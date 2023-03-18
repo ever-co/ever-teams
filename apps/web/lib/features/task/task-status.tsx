@@ -34,7 +34,7 @@ import {
 	TinySizeIcon,
 	XlargeIcon,
 } from 'lib/components/svgs';
-import {
+import React, {
 	Fragment,
 	PropsWithChildren,
 	useCallback,
@@ -659,6 +659,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	showIssueLabels,
 	forDetails,
 	enabled = true,
+	showButtonOnly,
 }: PropsWithChildren<{
 	value: T | undefined;
 	onChange?(value: string): void;
@@ -669,6 +670,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	forDetails?: boolean;
 	showIssueLabels?: boolean;
 	enabled?: boolean;
+	showButtonOnly?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -678,41 +680,41 @@ export function StatusDropdown<T extends TStatusItem>({
 
 	const currentValue = value || defaultValue;
 
-	return (
+	const button = (
+		<TaskStatus
+			{...currentValue}
+			forDetails={forDetails}
+			active={!!value}
+			showIssueLabels={showIssueLabels}
+			issueType={issueType}
+			className={clsxm(
+				'justify-between w-full capitalize',
+				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
+				forDetails && !value
+					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
+					: 'bg-[#F2F2F2]'
+			)}
+		>
+			{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
+			{issueType === 'status' && !showButtonOnly && (
+				<ChevronDownIcon
+					className={clsxm(
+						'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+						(!value || currentValue.bordered) && ['text-dark dark:text-white']
+					)}
+					aria-hidden="true"
+				/>
+			)}
+		</TaskStatus>
+	);
+
+	const dropdown = (
 		<div className={clsxm('relative', className)}>
 			<Listbox value={value?.name || null} onChange={onChange}>
 				{({ open }) => (
 					<>
 						<Listbox.Button className={clsx(!forDetails && 'w-full')}>
-							<TaskStatus
-								{...currentValue}
-								forDetails={forDetails}
-								active={!!value}
-								showIssueLabels={showIssueLabels}
-								issueType={issueType}
-								className={clsxm(
-									'justify-between w-full capitalize',
-									!value && [
-										'text-dark dark:text-white dark:bg-dark--theme-light',
-									],
-									forDetails && !value
-										? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-										: 'bg-[#F2F2F2]'
-								)}
-							>
-								{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
-								{issueType === 'status' && (
-									<ChevronDownIcon
-										className={clsxm(
-											'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-											(!value || currentValue.bordered) && [
-												'text-dark dark:text-white',
-											]
-										)}
-										aria-hidden="true"
-									/>
-								)}
-							</TaskStatus>
+							{button}
 						</Listbox.Button>
 
 						<Transition
@@ -758,4 +760,6 @@ export function StatusDropdown<T extends TStatusItem>({
 			</Listbox>
 		</div>
 	);
+
+	return showButtonOnly ? button : dropdown;
 }

@@ -23,6 +23,7 @@ import {
 	PropsWithChildren,
 	useCallback,
 	useEffect,
+	useRef,
 	useState,
 } from 'react';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
@@ -43,10 +44,12 @@ type Props = {
 	createOnEnterClick?: boolean;
 	showTaskNumber?: boolean;
 	showCombobox?: boolean;
-	autoAssignTask?: boolean;
+	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
+	usersTaskCreatedAssignTo?: { id: string }[];
+	onTaskCreated?: (task: ITeamTask | undefined) => void;
 } & PropsWithChildren;
 
 /**
@@ -55,36 +58,18 @@ type Props = {
  * @param param0
  * @returns
  */
-export function TaskInput({
-	task,
-	onTaskClick,
-	initEditMode,
-	onCloseCombobox,
-	onEnterKey,
-	inputLoader,
-	keepOpen,
-	loadingRef,
-	closeable_fc,
-	viewType = 'input-trigger',
-	children,
-	createOnEnterClick,
-	showTaskNumber = false,
-	showCombobox = true,
-	autoAssignTask = true,
-	tasks,
-	fullWidthCombobox,
-	autoFocus,
-	autoInputSelectText,
-}: Props) {
+
+export function TaskInput(props: Props) {
 	const { trans } = useTranslation();
+
 	const datas = useTaskInput({
-		task,
-		initEditMode,
-		tasks,
+		task: props.task,
+		initEditMode: props.initEditMode,
+		tasks: props.tasks,
 	});
 
-	const onCloseComboboxRef = useCallbackRef(onCloseCombobox);
-	const closeable_fcRef = useCallbackRef(closeable_fc);
+	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
+	const closeable_fcRef = useCallbackRef(props.closeable_fc);
 
 	const {
 		inputTask,
@@ -101,7 +86,7 @@ export function TaskInput({
 	const [taskName, setTaskName] = useState('');
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
-		() => !keepOpen && setEditMode(false)
+		() => !props.keepOpen && setEditMode(false)
 	);
 
 	useEffect(() => {
@@ -148,14 +133,14 @@ export function TaskInput({
 	 * Signle parent about updating and close event (that can trigger close component e.g)
 	 */
 	useEffect(() => {
-		if (loadingRef?.current && !updateLoading) {
+		if (props.loadingRef?.current && !updateLoading) {
 			closeable_fcRef.current && closeable_fcRef.current();
 		}
 
-		if (loadingRef) {
-			loadingRef.current = updateLoading;
+		if (props.loadingRef) {
+			props.loadingRef.current = updateLoading;
 		}
-	}, [updateLoading, loadingRef, closeable_fcRef]);
+	}, [updateLoading, props.loadingRef, closeable_fcRef]);
 
 	/* Setting the filter to open when the edit mode is true. */
 	useEffect(() => {
@@ -166,40 +151,54 @@ export function TaskInput({
 		If task is passed then we don't want to set the active task for the authenticated user.
 		after task creation
 	 */
-	const autoActiveTask = task !== undefined ? false : true;
+	const autoActiveTask = props.task !== undefined ? false : true;
+
+	const handleTaskCreation = useCallback(() => {
+		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
+		datas?.handleTaskCreation &&
+			datas.hasCreateForm &&
+			datas
+				?.handleTaskCreation({
+					autoActiveTask,
+					autoAssignTaskAuth: props.autoAssignTaskAuth,
+					assignToUsers: props.usersTaskCreatedAssignTo || [],
+				})
+				?.then(props.onTaskCreated)
+				.finally(() => {
+					props.viewType === 'one-view' && setTaskName('');
+				});
+	}, [datas, props, autoActiveTask]);
 
 	const inputField = (
 		<InputField
 			value={taskName}
 			onFocus={(e) => {
 				setEditMode(true);
-				autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
+				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
 			}}
 			onChange={(event) => setTaskName(event.target.value)}
 			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
-			autoFocus={autoFocus}
+			autoFocus={props.autoFocus}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
-					!createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
+					!props.createOnEnterClick &&
+						updateTaskNameHandler(inputTask, taskName);
 
-					onEnterKey && onEnterKey(taskName, inputTask);
+					props.onEnterKey && props.onEnterKey(taskName, inputTask);
 				}
 
 				/* Creating a new task when the enter key is pressed. */
 				if (e.key === 'Enter') {
-					createOnEnterClick &&
-						datas?.handleTaskCreation &&
-						datas.hasCreateForm &&
-						datas?.handleTaskCreation(autoActiveTask, autoAssignTask);
+					props.createOnEnterClick && handleTaskCreation();
 				}
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
 				<div className="p-2 flex justify-center items-center h-full">
-					{task ? (
-						(updateLoading || inputLoader) && <SpinnerLoader size={25} />
+					{props.task ? (
+						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
 						<>
 							{(tasksFetching || updateLoading) && <SpinnerLoader size={25} />}
@@ -207,10 +206,10 @@ export function TaskInput({
 					)}
 				</div>
 			}
-			className={clsxm(showTaskNumber && inputTask && ['pl-2'])}
+			className={clsxm(props.showTaskNumber && inputTask && ['pl-2'])}
 			/* Showing the task number. */
 			leadingNode={
-				showTaskNumber &&
+				props.showTaskNumber &&
 				inputTask && (
 					<div
 						className="pl-3 flex items-center space-x-2"
@@ -242,24 +241,25 @@ export function TaskInput({
 		<TaskCard
 			datas={datas}
 			onItemClick={
-				task !== undefined || onTaskClick ? onTaskClick : setAuthActiveTask
+				props.task !== undefined || props.onTaskClick
+					? props.onTaskClick
+					: setAuthActiveTask
 			}
-			autoActiveTask={autoActiveTask}
-			inputField={viewType === 'one-view' ? inputField : undefined}
-			autoAssignTask={autoAssignTask}
-			fullWidth={fullWidthCombobox}
+			inputField={props.viewType === 'one-view' ? inputField : undefined}
+			fullWidth={props.fullWidthCombobox}
+			handleTaskCreation={handleTaskCreation}
 		/>
 	);
 
-	return viewType === 'one-view' ? (
+	return props.viewType === 'one-view' ? (
 		taskCard
 	) : (
 		<Popover className="relative w-full z-30">
 			{inputField}
-			{children}
+			{props.children}
 
 			<Transition
-				show={editMode && showCombobox}
+				show={editMode && props.showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -270,7 +270,7 @@ export function TaskInput({
 				<Popover.Panel
 					className={clsxm(
 						'absolute -mt-3',
-						fullWidthCombobox && ['w-full left-0 right-0']
+						props.fullWidthCombobox && ['w-full left-0 right-0']
 					)}
 					ref={ignoreElementRef}
 				>
@@ -287,19 +287,29 @@ export function TaskInput({
 function TaskCard({
 	datas,
 	onItemClick,
-	autoActiveTask,
 	inputField,
-	autoAssignTask,
 	fullWidth,
+	handleTaskCreation,
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
-	autoActiveTask?: boolean;
 	inputField?: JSX.Element;
-	autoAssignTask?: boolean;
 	fullWidth?: boolean;
+	handleTaskCreation: () => void;
 }) {
 	const { trans } = useTranslation();
+	const activeTaskEl = useRef<HTMLLIElement | null>(null);
+
+	useEffect(() => {
+		if (datas.editMode) {
+			window.setTimeout(() => {
+				activeTaskEl?.current?.scrollIntoView({
+					block: 'nearest',
+					inline: 'start',
+				});
+			}, 10);
+		}
+	}, [datas.editMode]);
 
 	return (
 		<>
@@ -318,12 +328,7 @@ function TaskCard({
 					disabled={!datas.hasCreateForm || datas.createLoading}
 					loading={datas.createLoading}
 					className="font-normal text-sm rounded-xl min-w-[240px]"
-					onClick={() =>
-						/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
-						datas?.handleTaskCreation &&
-						datas.hasCreateForm &&
-						datas?.handleTaskCreation(autoActiveTask, autoAssignTask)
-					}
+					onClick={handleTaskCreation}
 				>
 					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
 					{trans.common.CREATE_TASK}
@@ -372,11 +377,13 @@ function TaskCard({
 				<ul className="my-6">
 					{datas.filteredTasks?.map((task, i) => {
 						const last = (datas.filteredTasks?.length || 0) - 1 === i;
+						const active = datas.inputTask === task;
+
 						return (
-							<li key={task.id}>
+							<li key={task.id} ref={active ? activeTaskEl : undefined}>
 								<TaskItem
 									task={task}
-									selected={datas.inputTask === task}
+									selected={active}
 									onClick={onItemClick}
 									className="cursor-pointer"
 								/>

@@ -5,9 +5,9 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
 import { MoreIcon } from 'lib/components/svgs';
-import { TaskInput } from 'lib/features';
+import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
 import { useTranslation } from 'lib/i18n';
-import { PropsWithChildren, useCallback } from 'react';
+import { useCallback } from 'react';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -146,9 +146,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 											<li key={i}>
 												{assignAction && (
 													// Show only for item with combobox menu
-													<AssignActionMenu
-														memberInfo={memberInfo}
-														edition={edition}
+													<TaskUnOrAssignPopover
+														tasks={memberInfo.memberUnassignTasks}
 														onTaskClick={(task, closeCmbx) => {
 															// Can close all open combobox
 															item.onClick &&
@@ -160,7 +159,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 														}}
 													>
 														{text}
-													</AssignActionMenu>
+													</TaskUnOrAssignPopover>
 												)}
 
 												{removeAction && (
@@ -191,50 +190,6 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 									})}
 								</ul>
 							</Card>
-						);
-					}}
-				</Popover.Panel>
-			</Transition>
-		</Popover>
-	);
-}
-
-function AssignActionMenu({
-	children,
-	onTaskClick,
-	memberInfo,
-}: PropsWithChildren<
-	{
-		onTaskClick?: (task: ITeamTask, closeCombobox: () => void) => void;
-	} & Props
->) {
-	return (
-		<Popover className="relative">
-			<Popover.Button className="flex items-center mb-2 outline-none border-none">
-				{children}
-			</Popover.Button>
-
-			<Transition
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-[110%] top-0"
-			>
-				<Popover.Panel>
-					{({ close }) => {
-						return (
-							<TaskInput
-								task={null}
-								tasks={memberInfo.memberUnassignTasks}
-								initEditMode={true}
-								keepOpen={true}
-								autoAssignTask={false}
-								viewType="one-view"
-								onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
-							/>
 						);
 					}}
 				</Popover.Panel>

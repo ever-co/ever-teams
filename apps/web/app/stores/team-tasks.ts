@@ -35,7 +35,7 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 					return tm.id === activeTeamId?.id;
 				});
 			})
-			.map((task) => ({ ...task, selectedTeam: activeTeamId || undefined }));
+			.map((task) => ({ ...task }));
 	},
 });
 
