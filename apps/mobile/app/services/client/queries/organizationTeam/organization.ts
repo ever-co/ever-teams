@@ -1,5 +1,5 @@
 import { useQuery } from "react-query"
-import { ITeamsOut } from "../../../../models/team/team";
+import { ITeamsOut } from "../../../../models/team/Team";
 import { IUserOrganization } from "../../../interfaces/IOrganization";
 import { IOrganizationTeamList } from "../../../interfaces/IOrganizationTeam";
 import { getUserOrganizationsRequest } from "../../requests/organization";
