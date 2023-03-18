@@ -147,6 +147,12 @@ export function TaskInput(props: Props) {
 		editMode && setFilter('open');
 	}, [editMode, setFilter]);
 
+	/*
+		If task is passed then we don't want to set the active task for the authenticated user.
+		after task creation
+	 */
+	const autoActiveTask = props.task !== undefined ? false : true;
+
 	const handleTaskCreation = useCallback(() => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas?.handleTaskCreation &&
@@ -161,13 +167,7 @@ export function TaskInput(props: Props) {
 				.finally(() => {
 					props.viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props]);
-
-	/*
-		If task is passed then we don't want to set the active task for the authenticated user.
-		after task creation
-	 */
-	const autoActiveTask = props.task !== undefined ? false : true;
+	}, [datas, props, autoActiveTask]);
 
 	const inputField = (
 		<InputField
