@@ -2,7 +2,6 @@ import {
   DeleteReponse,
   PaginationResponse,
 } from "../../interfaces/IDataResponse";
-import { IOrganizationTeamList } from "../../interfaces/IOrganizationTeam";
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
 import { serverFetch } from "../fetch";
 

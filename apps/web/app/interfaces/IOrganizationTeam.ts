@@ -65,10 +65,10 @@ export interface OT_Member {
 	isTrackingEnabled?: boolean;
 	totalTodayTasks: ITasksTimesheet[];
 	totalWorkedTasks: ITasksTimesheet[];
-	timerStatus: ITimerStatus;
+	timerStatus: ITimerStatusEnum;
 }
 
-export type ITimerStatus = 'running' | 'idle' | 'pause';
+export type ITimerStatusEnum = 'running' | 'idle' | 'pause';
 
 interface OT_Role {
 	id: string;

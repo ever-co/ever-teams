@@ -27,7 +27,7 @@ const Profile = () => {
 			<MainLayout showTimer={!profile.isAuthUser}>
 				<MainHeader>
 					{/* Breadcrumb */}
-					<div className="flex space-x-5 items-center">
+					<div className="flex items-center space-x-5">
 						<Link href="/">
 							<ArrowLeft />
 						</Link>
@@ -35,9 +35,9 @@ const Profile = () => {
 						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 					</div>
 
-					{/* User Profil Detail */}
-					<div className="flex justify-between items-center py-10">
-						<UserProfilDetail member={profile.member} />
+					{/* User Profile Detail */}
+					<div className="flex items-center justify-between py-10">
+						<UserProfileDetail member={profile.member} />
 
 						{profile.isAuthUser && (
 							<Timer
@@ -61,7 +61,7 @@ const Profile = () => {
 	);
 };
 
-function UserProfilDetail({ member }: { member?: OT_Member }) {
+function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = member?.employee.user;
 
 	return (

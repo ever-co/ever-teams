@@ -55,7 +55,7 @@ export function EmailResetModal({
 			setMessage(trans.pages.home.SENT_EMAIL_VERIFICATION);
 			setStep('CODE_VERIFICATION');
 		});
-	}, [emailResetRequestQueryCall, getValues]);
+	}, [emailResetRequestQueryCall, getValues, trans.pages.home.SENT_EMAIL_VERIFICATION]);
 	const handleConfirm = useCallback(() => {
 		verifyChangeEmailRequestQueryCall(+code).then(() => {
 			updateUserFromAPI();
@@ -77,8 +77,8 @@ export function EmailResetModal({
 			>
 				{step === 'EMAIL' && (
 					<Card className="w-full" shadow="custom">
-						<div className="flex flex-col justify-between items-center">
-							<Text.Heading as="h3" className="text-center  gap-32">
+						<div className="flex flex-col items-center justify-between">
+							<Text.Heading as="h3" className="gap-32 text-center">
 								{trans.pages.settingsPersonal.ABOUT_TO_CHANGE_EMAIL}
 							</Text.Heading>
 							<div className="w-full mt-5">
@@ -98,7 +98,7 @@ export function EmailResetModal({
 									</Text.Error>
 								)}
 							</div>
-							<div className="w-full flex justify-between mt-5 items-center">
+							<div className="flex items-center justify-between w-full mt-5">
 								<Button
 									type="button"
 									onClick={onCloseModal}
@@ -131,7 +131,7 @@ export function EmailResetModal({
 
 				{step === 'CODE_VERIFICATION' && (
 					<Card className="w-full" shadow="custom">
-						<div className="flex flex-col justify-between items-center">
+						<div className="flex flex-col items-center justify-between">
 							<Text.Heading as="h3" className="text-center">
 								{trans.common.SECURITY_CODE}
 							</Text.Heading>
@@ -151,14 +151,14 @@ export function EmailResetModal({
 									</Text.Error>
 								)}
 							</div>
-							<div className="w-full flex justify-between items-center mt-5">
+							<div className="flex items-center justify-between w-full mt-5">
 								<div className="flex flex-col items-start">
-									<div className="text-xs text-gray-500 dark:text-gray-400 font-normal">
+									<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 										{"Didn't recieve code ?"}
 										{!false && (
 											<button
 												type="button"
-												className="text-xs text-gray-500 dark:text-gray-400 font-normal"
+												className="text-xs font-normal text-gray-500 dark:text-gray-400"
 												onClick={handleContinue}
 											>
 												{'Re'}
@@ -170,7 +170,7 @@ export function EmailResetModal({
 									</div>
 								</div>
 							</div>
-							<div className="w-full flex justify-between mt-5 items-center">
+							<div className="flex items-center justify-between w-full mt-5">
 								<Button
 									type="button"
 									onClick={onCloseModal}

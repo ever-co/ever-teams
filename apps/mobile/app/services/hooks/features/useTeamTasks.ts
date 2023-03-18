@@ -9,15 +9,15 @@ import { ICreateTask, ITeamTask } from "../../interfaces/ITask";
 
 export function useTeamTasks() {
     const queryClient = useQueryClient()
-    const { authenticationStore: { tenantId, organizationId, authToken, user },
-        teamStore: { activeTeam, activeTeamId, setActiveTeam },
-        TaskStore: { teamTasks, activeTask, fetchingTasks, setTeamTasks, setActiveTask, activeTaskId, setActiveTaskId, setFetchingTasks, setAssignedTasks, setUnassignedTasks }
+    const { authenticationStore: { tenantId, organizationId, authToken },
+        teamStore: { activeTeam, activeTeamId },
+        TaskStore: { teamTasks, activeTask, setTeamTasks, setActiveTask, activeTaskId, setActiveTaskId, setFetchingTasks, setAssignedTasks, setUnassignedTasks }
     } = useStores();
 
-    const [updateLoading, setUpdateLoading] = useState(false);
-    const [createLoading, setCreateLoading] = useState(false);
+    const [, setUpdateLoading] = useState(false);
+    const [, setCreateLoading] = useState(false);
 
-    const { isLoading, data: allTasks, isRefetching } = useFetchAllTasks({ tenantId, organizationId, authToken })
+    const { data: allTasks, isRefetching } = useFetchAllTasks({ tenantId, organizationId, authToken })
 
     // Create a new Task
     const createNewTask = useCallback(async (title: string) => {
@@ -96,7 +96,7 @@ export function useTeamTasks() {
     const onAssignTask = async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
 
         const teamMembers: OT_Member[] = activeTeam?.members;
-        const currentMember = teamMembers.find((m) => m.employee.user.id === memberId)
+        const currentMember = teamMembers?.find((m) => m.employee.user.id === memberId)
 
         if (!currentMember) {
             return {
@@ -133,7 +133,7 @@ export function useTeamTasks() {
     // UNASSIGN A TASK
     const onUnassignedTask = async ({ taskId, memberId }: { taskId: string, memberId: string }) => {
         const teamMembers: OT_Member[] = activeTeam?.members;
-        const currentMember = teamMembers.find((m) => m.employee.user.id === memberId)
+        const currentMember = teamMembers?.find((m) => m.employee.user.id === memberId)
 
         if (!currentMember) {
             return {

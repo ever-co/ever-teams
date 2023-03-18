@@ -26,6 +26,10 @@ export default async function handler(
 		}
 		const activeTeam = getActiveTeamIdCookie({ req, res });
 
+		// TODO: I don't understand all logic around "title" above (where we get it from body) and next line and `...rest` etc.
+		// Please refactor to clean code!
+
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { title: _t, ...rest } = body;
 
 		await createTaskRequest({

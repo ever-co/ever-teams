@@ -143,7 +143,7 @@ export function useTaskInput({
 		});
 	};
 
-	const updatTaskTitleHandler = useCallback(
+	const updateTaskTitleHandler = useCallback(
 		(itask: ITeamTask, title: string) => {
 			if (!userRef.current?.isEmailVerified) return;
 
@@ -188,7 +188,7 @@ export function useTaskInput({
 		setActiveTask,
 		setQuery,
 		filter,
-		updatTaskTitleHandler,
+		updateTaskTitleHandler,
 		taskIssue,
 	};
 }

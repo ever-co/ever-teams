@@ -78,7 +78,7 @@ export function TaskInput(props: Props) {
 		setQuery,
 		tasksFetching,
 		updateLoading,
-		updatTaskTitleHandler,
+		updateTaskTitleHandler,
 		setFilter,
 		taskIssue,
 	} = datas;
@@ -123,10 +123,10 @@ export function TaskInput(props: Props) {
 	const updateTaskNameHandler = useCallback(
 		(task: ITeamTask, title: string) => {
 			if (task.title !== title) {
-				!updateLoading && updatTaskTitleHandler(task, title);
+				!updateLoading && updateTaskTitleHandler(task, title);
 			}
 		},
-		[updateLoading, updatTaskTitleHandler]
+		[updateLoading, updateTaskTitleHandler]
 	);
 
 	/**
@@ -155,10 +155,10 @@ export function TaskInput(props: Props) {
 
 	const handleTaskCreation = useCallback(() => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
-		datas?.handleTaskCreation &&
+		datas &&
+      datas.handleTaskCreation &&
 			datas.hasCreateForm &&
-			datas
-				?.handleTaskCreation({
+			datas.handleTaskCreation({
 					autoActiveTask,
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || [],
@@ -196,7 +196,7 @@ export function TaskInput(props: Props) {
 			}}
 			trailingNode={
 				/* Showing the spinner when the task is being updated. */
-				<div className="p-2 flex justify-center items-center h-full">
+				<div className="flex items-center justify-center h-full p-2">
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
@@ -212,7 +212,7 @@ export function TaskInput(props: Props) {
 				props.showTaskNumber &&
 				inputTask && (
 					<div
-						className="pl-3 flex items-center space-x-2"
+						className="flex items-center pl-3 space-x-2"
 						ref={ignoreElementRef}
 					>
 						{!datas.hasCreateForm ? (
@@ -227,8 +227,8 @@ export function TaskInput(props: Props) {
 						)}
 
 						{!datas.hasCreateForm && (
-							<span className="text-gray-500 text-sm">
-								#{inputTask?.taskNumber}
+							<span className="text-sm text-gray-500">
+								#{inputTask.taskNumber}
 							</span>
 						)}
 					</div>
@@ -254,7 +254,7 @@ export function TaskInput(props: Props) {
 	return props.viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover className="relative w-full z-30">
+		<Popover className="relative z-30 w-full">
 			{inputField}
 			{props.children}
 
@@ -335,9 +335,9 @@ function TaskCard({
 				</Button>
 
 				{/* Task filter buttons */}
-				<div className="mt-4 flex space-x-3">
+				<div className="flex mt-4 space-x-3">
 					<OutlineBadge
-						className="input-border text-xs py-2 cursor-pointer"
+						className="py-2 text-xs cursor-pointer input-border"
 						onClick={() => datas.setFilter && datas.setFilter('open')}
 					>
 						<div
@@ -355,7 +355,7 @@ function TaskCard({
 					</OutlineBadge>
 
 					<OutlineBadge
-						className="input-border text-xs py-2 cursor-pointer"
+						className="py-2 text-xs cursor-pointer input-border"
 						onClick={() => datas.setFilter && datas.setFilter('closed')}
 					>
 						<TickCircleIcon className="opacity-50" />
@@ -396,7 +396,7 @@ function TaskCard({
 			</Card>
 
 			{/* Just some spaces at the end */}
-			<div className="h-5 w-2 opacity-0">{'|'}</div>
+			<div className="w-2 h-5 opacity-0">{'|'}</div>
 		</>
 	);
 }
