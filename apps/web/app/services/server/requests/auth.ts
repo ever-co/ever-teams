@@ -12,13 +12,15 @@ const registerDefaultValue = {
 	appSignature: 'Ever Gauzy Team',
 	appLogo: 'https://app.gauzy.team/assets/gauzy-team.png',
 	appLink: 'https://gauzy.team/',
-	appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL,
+	// appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL,
 };
 
 export function registerUserRequest(data: IRegisterDataRequest) {
 	const body = {
 		...data,
 		...registerDefaultValue,
+		appEmailConfirmationUrl:
+			VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl,
 	};
 
 	return serverFetch<IUser>({
@@ -131,13 +133,16 @@ export const resentVerifyUserLinkRequest = (data: {
 	bearer_token: string;
 	email: string;
 	tenantId: string;
+	appEmailConfirmationUrl: string;
 }) => {
-	const { email, bearer_token, tenantId } = data;
+	const { email, bearer_token, tenantId, appEmailConfirmationUrl } = data;
 
 	const body = {
 		email,
 		tenantId,
 		...registerDefaultValue,
+		appEmailConfirmationUrl:
+			VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl,
 	};
 
 	return serverFetch<ISuccessResponse>({

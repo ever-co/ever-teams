@@ -15,7 +15,7 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
 import { recaptchaVerification } from '@app/services/server/recaptcha';
-import { RECAPTCHA_SECRET_KEY } from '@app/constants';
+import { RECAPTCHA_SECRET_KEY, VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -24,6 +24,8 @@ export default async function handler(
 	if (req.method !== 'POST') {
 		return res.status(405).json({});
 	}
+
+	const appEmailConfirmationUrl = `${req.headers.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 
 	const body = req.body as IRegisterDataAPI;
 
@@ -73,6 +75,7 @@ export default async function handler(
 			email: body.email,
 			timeZone: body.timezone as string,
 		},
+		appEmailConfirmationUrl,
 	});
 	// User Login, get the access token
 	const { data: loginRes } = await loginUserRequest(body.email, password);
