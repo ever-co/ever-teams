@@ -31,7 +31,7 @@ const DescriptionToolbar = () => {
 			setIsItalic(selection?.hasFormat('italic'));
 			setIsUnderline(selection?.hasFormat('underline'));
 		}
-	}, [editor]);
+	}, []);
 
 	useEffect(() => {
 		return mergeRegister(
@@ -44,9 +44,9 @@ const DescriptionToolbar = () => {
 	}, [editor, updateToolbar]);
 
 	return (
-		<div className=" w-full flex border-b-2 items-center">
-			<div className="flex w-full justify-between  ">
-				<h1 className="text-black dark:text-white font-medium text-m">
+		<div className="flex items-center w-full border-b-2 ">
+			<div className="flex justify-between w-full ">
+				<h1 className="font-medium text-black dark:text-white text-m">
 					{trans.DESCRIPTION}
 				</h1>
 			</div>
