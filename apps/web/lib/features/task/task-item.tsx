@@ -106,7 +106,13 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-function TaskAvatars({ task }: { task: ITeamTask }) {
+export function TaskAvatars({
+	task,
+	limit = 2,
+}: {
+	task: ITeamTask;
+	limit?: number;
+}) {
 	const members = task.members;
 
 	return (
@@ -114,7 +120,7 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 			className="avatars flex -space-x-2 min-w-[59px] justify-center"
 			onClick={(e) => e.stopPropagation()}
 		>
-			{members.slice(0, 2).map((member, i) => {
+			{members.slice(0, limit).map((member, i) => {
 				const user = member.user;
 				return (
 					<Link
@@ -132,13 +138,13 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 				);
 			})}
 
-			{members.length > 2 && (
+			{members.length > limit && (
 				<Avatar
 					shape="circle"
 					className="border flex items-center justify-center"
 					size={25}
 				>
-					<span className="text-xs">+{members.length - 2}</span>
+					<span className="text-xs">+{members.length - limit}</span>
 				</Avatar>
 			)}
 		</div>

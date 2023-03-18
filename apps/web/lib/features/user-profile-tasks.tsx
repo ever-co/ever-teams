@@ -81,8 +81,11 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						<li key={task.id} className="mb-8">
 							<TaskCard
 								task={task}
-								isAuthUser={profile.isAuthUser && tabFiltered.tab === 'worked'}
+								isAuthUser={profile.isAuthUser}
 								activeAuthTask={false}
+								viewType={
+									tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'
+								}
 							/>
 						</li>
 					);
