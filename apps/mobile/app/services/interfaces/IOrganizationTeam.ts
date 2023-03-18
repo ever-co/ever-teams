@@ -9,6 +9,8 @@ export interface IOrganizationTeamCreate {
   tenantId: string;
 }
 
+export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
+
 export interface IOrganizationTeamEmployeeUpdate {
   organizationId: string,
   organizationTeamId: string,
