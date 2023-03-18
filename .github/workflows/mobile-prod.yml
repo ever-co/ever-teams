@@ -1,0 +1,32 @@
+name: Mobile Build & Deploy PROD
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - 'apps/mobile/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'README.md'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: "yarn"
+
+      - name: Install Packages
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Build Mobile
+        run: |
+          yarn build:mobile
