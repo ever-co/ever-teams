@@ -71,7 +71,7 @@ function TaskEstimateInput({
 
 			<div
 				className={clsxm(
-					'flex space-x-2 items-center mb-2 font-normal text-sm',
+					'flex space-x-2 items-center mb-2 font-normal lg:text-sm text-xs',
 					hasEditMode && ['hidden']
 				)}
 			>
@@ -87,7 +87,7 @@ function TaskEstimateInput({
 					>
 						<EditIcon
 							className={clsxm(
-								'cursor-pointer h-4 w-4',
+								'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
 								!task && ['opacity-40 cursor-default']
 							)}
 						/>

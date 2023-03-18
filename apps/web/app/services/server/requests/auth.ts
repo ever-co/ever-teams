@@ -1,3 +1,4 @@
+import { VERIFY_EMAIL_CALLBACK_URL } from '@app/constants';
 import { ISuccessResponse } from '@app/interfaces';
 import {
 	ILoginResponse,
@@ -11,7 +12,7 @@ const registerDefaultValue = {
 	appSignature: 'Ever Gauzy Team',
 	appLogo: 'https://app.gauzy.team/assets/gauzy-team.png',
 	appLink: 'https://gauzy.team/',
-	appEmailConfirmationUrl: 'https://app.gauzy.co/#/auth/confirm-email',
+	appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL,
 };
 
 export function registerUserRequest(data: IRegisterDataRequest) {
@@ -113,6 +114,19 @@ export const verifyUserEmailByCodeRequest = (data: {
 	});
 };
 
+export const verifyUserEmailByTokenRequest = (data: {
+	token: string;
+	email: string;
+}) => {
+	const { token, email } = data;
+
+	return serverFetch<ISuccessResponse>({
+		path: '/auth/email/verify',
+		method: 'POST',
+		body: { token, email },
+	});
+};
+
 export const resentVerifyUserLinkRequest = (data: {
 	bearer_token: string;
 	email: string;
@@ -120,10 +134,16 @@ export const resentVerifyUserLinkRequest = (data: {
 }) => {
 	const { email, bearer_token, tenantId } = data;
 
+	const body = {
+		email,
+		tenantId,
+		...registerDefaultValue,
+	};
+
 	return serverFetch<ISuccessResponse>({
 		path: '/auth/email/verify/resend-link',
 		method: 'POST',
-		body: { email, tenantId },
+		body,
 		tenantId: data.tenantId,
 		bearer_token,
 	});

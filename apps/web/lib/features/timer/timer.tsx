@@ -25,7 +25,7 @@ export function Timer({ className }: IClassName) {
 		<div className={clsxm('flex flex-row', className)}>
 			<div className="border-r-[2px] dark:border-r-[#28292F] pr-5">
 				<div className="w-[186px]">
-					<Text.Heading as="h3" className="text-4xl tracking-wide font-normal">
+					<Text.Heading as="h3" className="lg:text-4xl text-2xl tracking-wide font-normal">
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 						<span className="text-sm">:{pad(ms_p)}</span>
 					</Text.Heading>

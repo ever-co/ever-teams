@@ -90,12 +90,12 @@ function TimeInfo({
 	return (
 		<>
 			<div className="flex space-x-2 items-center mb-2 font-normal">
-				<span className="text-gray-500">{trans.common.TODAY}:</span>
+				<span className="text-gray-500 lg:text-sm text-xs">{trans.common.TODAY}:</span>
 				<Text>
 					{daily.h}h : {daily.m}m
 				</Text>
 			</div>
-			<div className="flex space-x-2 items-center text-sm font-normal">
+			<div className="flex space-x-2 items-center lg:text-sm text-xs font-normal">
 				<span className="text-gray-500">{trans.common.TOTAL}:</span>
 				<Text>
 					{total.h}h : {total.m}m

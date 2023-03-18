@@ -19,7 +19,7 @@ export const LeftSideSettingMenu = () => {
 	return (
 		<>
 			<div className="w-[320px] mt-[36px] mr-[56px]">
-				<Text className="text-4xl font-normal mb-[40px]">Settings</Text>
+				<Text className="md:text-4xl text-2xl font-normal mb-[40px]">Settings</Text>
 				<Link href="/settings/personal">
 					<Button
 						variant="outline"

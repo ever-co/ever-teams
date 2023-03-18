@@ -4,7 +4,7 @@ import { Card, Container, Text, InputField } from 'lib/components';
 import LeftSideSettingMenuSkeleton from './LeftSideSettingMenuSkeleton';
 import DangerZoneSkeleton from './DangerZoneSkeleton';
 
-const SettingsPersonlalSkeleton = () => {
+const SettingsPersonalSkeleton = () => {
 	return (
 		<MainLayout>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
@@ -219,4 +219,4 @@ const SettingsPersonlalSkeleton = () => {
 	);
 };
 
-export default SettingsPersonlalSkeleton;
+export default SettingsPersonalSkeleton;

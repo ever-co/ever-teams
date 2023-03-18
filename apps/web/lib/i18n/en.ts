@@ -68,7 +68,7 @@ export const en = {
 		EXISTING_MEMBER: 'Already a Member',
 		NEW_MEMBER: 'Become a Member',
 		BACK: 'Back',
-		JOIN_REQUEST: 'Request to join'
+		JOIN_REQUEST: 'Request to join',
 	},
 	pages: {
 		home: {
@@ -108,14 +108,14 @@ export const en = {
 		},
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
-			HEADING_DESCRIPTION:
-				'Please enter email and invitation code to login.',
+			HEADING_DESCRIPTION: 'Please enter email and invitation code to login.',
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
 			HEADING_DESCRIPTION:
 				'Please enter your team details to create a new team.',
 			LOADING_TEXT: 'We are now creating your new workplace, hold on...',
+			VERIFY_EMAIL_LOADING_TEXT: 'We are verifying your email, hold on...',
 			INPUT_TEAM_NAME: 'Input your team name',
 			JOIN_EXISTING_TEAM: 'Joining existing team?',
 			CREATE_FIRST_TEAM: 'Create your first team',
