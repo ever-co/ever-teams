@@ -14,7 +14,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-		permissions:
+    permissions:
       pull-requests: write
 
     steps:
