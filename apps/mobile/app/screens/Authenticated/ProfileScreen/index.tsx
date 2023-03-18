@@ -1,14 +1,8 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC  } from "react"
 import { ScrollView, TextStyle, TouchableOpacity, View, ViewStyle, Dimensions, Text, FlatList, Image, LogBox } from "react-native"
 import FlashMessage from "react-native-flash-message"
-// TYPES
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
-// DATA
-
-// COMPONENTS
 import { Screen } from "../../../components"
-
-// STYLES
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { typography } from ".././../../theme"
 import HomeHeader from "../../../components/HomeHeader"
@@ -16,7 +10,7 @@ import ProfileHeader from "./components/ProfileHeader"
 import ListCardItem from "./components/ListCardItem"
 import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
-import AssingTaskFormModal from "./components/AssignTaskSection"
+import AssignTaskFormModal from "./components/AssignTaskSection"
 import { BlurView } from "expo-blur"
 import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
 import { translate } from "../../../i18n"
@@ -65,7 +59,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
       <>
         {showModal || showFilterPopup ? <BlurView tint="dark" intensity={18} style={$blurContainer} /> : null}
         <Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-          <AssingTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
+          <AssignTaskFormModal memberId={currentUser?.id} visible={showModal} onDismiss={() => setShowModal(false)} />
           <FilterPopup
             visible={showFilterPopup}
             onDismiss={() => setShowFilterPopup(false)}
@@ -76,7 +70,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
             <>
               <HomeHeader props={_props} showTimer={localTimerStatus.running} />
               <View style={{ paddingTop: 5 }}>
-                <ProfileHeader {...currentUser} />
+                <ProfileHeader phoneNumber={""} timeZone={""} employee={undefined} role={undefined} tenant={undefined} {...currentUser} />
               </View>
 
               <View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
@@ -127,7 +121,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
                         </View>
                         {activeTask &&
                           <ListCardItem
-                            tabIndex={selectedTabIndex} 
+                            tabIndex={selectedTabIndex}
                             isActive={true}
                             member={member}
                             index={1000}

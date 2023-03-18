@@ -10,6 +10,7 @@ interface IGetUserOrganizationParams {
     tenantId: string;
     userId: string;
 }
+
 const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
     const { data: organizations } = await getUserOrganizationsRequest(
         { tenantId: params.tenantId, userId: params.userId },
@@ -25,14 +26,15 @@ const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
     }, [] as IUserOrganization[]);
 
 
-    const call_teams = filteredOrganization?.map((item) => {
+    const callTeams = filteredOrganization?.map((item) => {
         return getAllOrganizationTeamRequest(
             { tenantId: params.tenantId, organizationId: item.organizationId },
             params.authToken
         );
     });
 
-    const data: ITeamsOut = await Promise.all(call_teams).then((tms) => {
+		if (callTeams) {
+    	const data: ITeamsOut = await Promise.all(callTeams).then((tms) => {
         return tms.reduce(
             (acc, { data }) => {
                 acc.items.push(...data.items);
@@ -41,9 +43,12 @@ const fetchUserOrganization = async (params: IGetUserOrganizationParams) => {
             },
             { items: [] as IOrganizationTeamList[], total: 0 }
         );
-    });
+    	});
 
-    return data;
+    	return data;
+		} else {
+			return null;
+		}
 };
 
 const useFetchUserOrganization = (IGetUserOrganizationParams) => useQuery(['teams', IGetUserOrganizationParams], () => fetchUserOrganization(IGetUserOrganizationParams));
