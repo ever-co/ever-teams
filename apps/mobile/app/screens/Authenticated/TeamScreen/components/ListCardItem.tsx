@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  TouchableWithoutFeedback,
 } from "react-native"
 import { Avatar, Text } from "react-native-paper"
 import { Ionicons, AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -133,7 +134,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
   }, [memberTask, enableEstimate])
 
   return (
-    <TouchableOpacity onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
+    <TouchableWithoutFeedback onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
       <View style={[{ ...GS.p3, ...GS.positionRelative, backgroundColor: dark ? "#1E2025" : colors.background }, { borderRadius: 14 }]}>
         <View style={styles.firstContainer}>
           <View style={styles.wrapProfileImg}>
@@ -244,7 +245,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   )
 })
 
@@ -287,7 +288,6 @@ const ListCardItem: React.FC<Props> = (props) => {
           <View
             style={{
               ...GS.positionRelative,
-              backgroundColor: colors.background,
               ...GS.zIndexFront
             }}
           >
@@ -298,11 +298,11 @@ const ListCardItem: React.FC<Props> = (props) => {
                 ...GS.noBorder,
                 ...GS.r0,
                 ...GS.zIndexFront,
-                ...GS.shadow,
-                shadowColor: "rgba(0, 0, 0, 0.2)",
+                ...GS.shadowLg,
+                shadowColor: "rgba(0, 0, 0, 0.52)",
                 borderRadius: 14,
                 width: 172,
-                marginTop: -spacing.extraSmall,
+                marginTop: 150,
                 marginRight: 17,
                 backgroundColor: colors.background,
                 minWidth: spacing.huge * 2,
@@ -377,13 +377,13 @@ const $listCard: ViewStyle = {
   ...GS.flex1,
   ...GS.p0,
   borderWidth: 0,
+  ...GS.shadowSm,
+  ...GS.roundedMd,
   minHeight: null,
-  borderRadius: 14,
   shadowOffset: { width: 0, height: 0 }
 }
 
 const $usersProfile: ImageStyle = {
-  // ...GS.roundedFull,
   width: spacing.huge - spacing.extraSmall,
   height: spacing.huge - spacing.extraSmall,
 }
