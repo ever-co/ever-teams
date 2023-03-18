@@ -24,6 +24,7 @@ export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
 export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL;
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
+export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
