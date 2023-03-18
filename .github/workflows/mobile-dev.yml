@@ -46,4 +46,4 @@ jobs:
           yarn build:mobile
 
       - name: Publish update
-        run: eas update --auto
+        run: cd apps/mobile && eas update --auto
