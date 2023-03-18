@@ -11,6 +11,7 @@ export * from './useCallbackRef';
 
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useAuthenticationPasscode';
+export * from './auth/useEmailVerifyToken';
 
 export * from './features/useAuthTeamTasks';
 export * from './features/useAuthenticateUser';

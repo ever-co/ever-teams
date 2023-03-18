@@ -118,6 +118,7 @@ export const en = {
 			HEADING_DESCRIPTION:
 				'Please enter your team details to create a new team.',
 			LOADING_TEXT: 'We are now creating your new workplace, hold on...',
+			VERIFY_EMAIL_LOADING_TEXT: 'We are verifying your email, hold on...',
 			INPUT_TEAM_NAME: 'Input your team name',
 			JOIN_EXISTING_TEAM: 'Joining existing team?',
 			CREATE_FIRST_TEAM: 'Create your first team',
