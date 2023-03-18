@@ -1,4 +1,4 @@
-import { INVITE_CALLBACK_URL } from '@app/constants';
+import { INVITE_CALLBACK_URL, INVITE_CALLBACK_PATH } from '@app/constants';
 import { validateForm } from '@app/helpers/validations';
 import { IInviteRequest } from '@app/interfaces/IInvite';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
@@ -16,6 +16,8 @@ export default async function handler(
 	const { $res, user, organizationId, access_token, teamId, tenantId } =
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
+
+	const callbackUrl = `${req.headers.origin}${INVITE_CALLBACK_PATH}`;
 
 	const body = req.body as IInviteRequest;
 
@@ -46,7 +48,7 @@ export default async function handler(
 			inviteType: 'TEAM',
 			appliedDate: null,
 			fullName: body.name,
-			...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+			callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
 			organizationId,
 			tenantId,
 			startedWorkOn: date.toISOString(),
