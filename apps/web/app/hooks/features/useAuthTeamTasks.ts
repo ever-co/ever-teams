@@ -10,14 +10,14 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 	const assignedTasks = useMemo(() => {
 		if (!user) return [];
 		return tasks.filter((task) => {
-			return task.selectedTeam?.members.some((m) => m.id === user.id);
+			return task?.members.some((m) => m.userId === user.id);
 		});
 	}, [tasks, user]);
 
 	const unassignedTasks = useMemo(() => {
 		if (!user) return [];
 		return tasks.filter((task) => {
-			return !task.selectedTeam?.members.some((m) => m.id === user.id);
+			return !task?.members.some((m) => m.userId === user.id);
 		});
 	}, [tasks, user]);
 

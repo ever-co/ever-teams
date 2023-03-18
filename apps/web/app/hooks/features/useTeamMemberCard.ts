@@ -46,18 +46,18 @@ export function useTeamMemberCard(
 			if (isAuthUser) {
 				return activeTeamTask;
 			} else if (member.lastWorkedTask && !isAuthUser) {
-				const ctask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
-				const find = ctask?.members.some((m) => m.id === member.employee.id);
+				const cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+				const find = cTask?.members.some((m) => m.id === member.employee.id);
 
-				return find ? ctask : undefined;
+				return find ? cTask : undefined;
 			}
 		} else if (member && publicTeam) {
-			const ctask = tasks.find((t) =>
+			const cTask = tasks.find((t) =>
 				t.members.some((m) => m.userId === member.employee.userId)
 			);
-			const find = ctask?.members.some((m) => m.id === member.employee.id);
+			const find = cTask?.members.some((m) => m.id === member.employee.id);
 
-			return find ? ctask : undefined;
+			return find ? cTask : undefined;
 		}
 
 		return null;

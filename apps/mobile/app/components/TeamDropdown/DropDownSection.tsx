@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 
@@ -11,7 +11,6 @@ import { useStores } from "../../models"
 import { translate } from "../../i18n"
 import { useAppTheme } from "../../app"
 import { Avatar } from "react-native-paper"
-import { useOrganizationTeam } from "../../services/hooks/useOrganization"
 import { observer } from "mobx-react-lite"
 import { limitTextCharaters } from "../../helpers/sub-text"
 

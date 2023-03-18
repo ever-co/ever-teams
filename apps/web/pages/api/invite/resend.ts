@@ -1,4 +1,4 @@
-import { INVITE_CALLBACK_URL } from '@app/constants';
+import { INVITE_CALLBACK_PATH, INVITE_CALLBACK_URL } from '@app/constants';
 import { validateForm } from '@app/helpers/validations';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import { resendInvitationEmailRequest } from '@app/services/server/requests';
@@ -11,6 +11,8 @@ export default async function handler(
 	const { $res, user, access_token, tenantId, organizationId } =
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
+
+	const callbackUrl = `${req.headers.origin}${INVITE_CALLBACK_PATH}`;
 
 	const body = req.body as { inviteId: string };
 
@@ -26,7 +28,7 @@ export default async function handler(
 			inviteId: body.inviteId,
 			inviteType: 'TEAM',
 			organizationId,
-			...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+			callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
 		},
 		access_token
 	);

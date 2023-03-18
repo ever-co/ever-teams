@@ -207,7 +207,7 @@ const UserCardMenu = ({
 									onChange={(event) => setQuery(event.target.value)}
 									onKeyDown={(event: any) => {
 										if (event.key === 'Enter') {
-											handleTaskCreation(false);
+											handleTaskCreation({ autoActiveTask: false });
 										}
 									}}
 									autoComplete="off"
@@ -235,7 +235,9 @@ const UserCardMenu = ({
 								<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
-											onClick={() => handleTaskCreation(false)}
+											onClick={() =>
+												handleTaskCreation({ autoActiveTask: false })
+											}
 											loading={createLoading}
 										/>
 									)}

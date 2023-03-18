@@ -17,6 +17,8 @@ type Props = {
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	memberInfo?: I_TeamMemberCardHook;
+	showDaily?: boolean;
+	showTotal?: boolean;
 } & IClassName;
 
 export function TaskTimes({
@@ -25,6 +27,8 @@ export function TaskTimes({
 	isAuthUser,
 	activeAuthTask,
 	memberInfo,
+	showDaily = true,
+	showTotal = true,
 }: Props) {
 	// Get current timer seconds
 	const seconds = useRecoilValue(timerSecondsState);
@@ -50,7 +54,12 @@ export function TaskTimes({
 
 		return (
 			<div className={clsxm(className)}>
-				<TimeInfo daily={{ h: dh, m: dm }} total={{ h, m }} />
+				<TimeInfo
+					showDaily={showDaily}
+					showTotal={showTotal}
+					daily={{ h: dh, m: dm }}
+					total={{ h, m }}
+				/>
 			</div>
 		);
 	}
@@ -74,7 +83,12 @@ export function TaskTimes({
 
 	return (
 		<div className={clsxm(className)}>
-			<TimeInfo daily={{ h: dh, m: dm }} total={{ h, m }} />
+			<TimeInfo
+				showDaily={showDaily}
+				showTotal={showTotal}
+				daily={{ h: dh, m: dm }}
+				total={{ h, m }}
+			/>
 		</div>
 	);
 }
@@ -82,25 +96,43 @@ export function TaskTimes({
 function TimeInfo({
 	daily,
 	total,
+	showDaily = true,
+	showTotal = true,
 }: {
 	daily: { h: number; m: number };
 	total: { h: number; m: number };
+	showDaily?: boolean;
+	showTotal?: boolean;
 }) {
 	const { trans } = useTranslation();
 	return (
 		<>
-			<div className="flex space-x-2 items-center mb-2 font-normal">
-				<span className="text-gray-500 lg:text-sm text-xs">{trans.common.TODAY}:</span>
-				<Text>
-					{daily.h}h : {daily.m}m
-				</Text>
-			</div>
-			<div className="flex space-x-2 items-center lg:text-sm text-xs font-normal">
-				<span className="text-gray-500">{trans.common.TOTAL}:</span>
-				<Text>
-					{total.h}h : {total.m}m
-				</Text>
-			</div>
+			{showDaily && (
+				<div className="flex space-x-2 items-center mb-2 font-normal">
+					<span className="text-gray-500 lg:text-sm">
+						{trans.common.TODAY}:
+					</span>
+					<Text>
+						{daily.h}h : {daily.m}m
+					</Text>
+				</div>
+			)}
+
+			{showTotal && (
+				<div
+					className={clsxm(
+						'flex space-x-2 items-center font-normal',
+						showDaily && ['text-sm']
+					)}
+				>
+					<span className="text-gray-500 lg:text-sm">
+						{trans.common.TOTAL}:
+					</span>
+					<Text>
+						{total.h}h : {total.m}m
+					</Text>
+				</div>
+			)}
 		</>
 	);
 }

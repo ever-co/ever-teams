@@ -1,10 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { boolean } from "yargs";
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam";
-import { getUserOrganizationsRequest } from "../../services/client/requests/organization";
-import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from "../../services/client/requests/organization-team";
-import { ICreateTeamParams, IGetTeamsParams, ITeamsOut } from "./team";
-import { IUserOrganization } from "../../services/interfaces/IOrganization";
+import { ITeamsOut } from "./team";
 
 export const TeamStoreModel = types
     .model("TeamStore")
@@ -16,7 +12,7 @@ export const TeamStoreModel = types
         teamsFetching: types.optional(types.boolean, false),
         isTrackingEnabled:types.optional(types.boolean, false)
     })
-    .views((store) => ({
+    .views(() => ({
 
     }))
     .actions((store) => ({

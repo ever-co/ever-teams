@@ -3,10 +3,12 @@ import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
 import { useCallback } from 'react';
 import { TaskIssueStatus } from './task-issue';
-import { TaskPriorityStatus, TaskStatusDropdown } from './task-status';
+import { TaskPriorityStatus } from './task-status';
+import { StatusModal } from './task-status-modal';
 
 type Props = {
 	task?: ITeamTask;
@@ -16,6 +18,7 @@ type Props = {
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
 	const { handleStatusUpdate, updateLoading } = useTeamTasks();
+	const { trans } = useTranslation();
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
@@ -61,10 +64,17 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 			<div className="flex items-center space-x-3 pl-2">
 				<div onClick={(e) => e.stopPropagation()}>
-					<TaskStatusDropdown
+					{/* <TaskStatusDropdown
 						defaultValue={task?.status}
 						onValueChange={handleChange}
 						className="w-full"
+					/> */}
+
+					<StatusModal
+						type="status"
+						title={trans.common.SELECT_STATUS}
+						defaultValue={task?.status}
+						onValueChange={handleChange}
 					/>
 				</div>
 				{task && <TaskAvatars task={task} />}
@@ -96,15 +106,21 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-function TaskAvatars({ task }: { task: ITeamTask }) {
+export function TaskAvatars({
+	task,
+	limit = 2,
+}: {
+	task: ITeamTask;
+	limit?: number;
+}) {
 	const members = task.members;
 
 	return (
 		<div
-			className="avatars flex -space-x-2"
+			className="avatars flex -space-x-2 min-w-[59px] justify-center"
 			onClick={(e) => e.stopPropagation()}
 		>
-			{members.slice(0, 2).map((member, i) => {
+			{members.slice(0, limit).map((member, i) => {
 				const user = member.user;
 				return (
 					<Link
@@ -122,13 +138,13 @@ function TaskAvatars({ task }: { task: ITeamTask }) {
 				);
 			})}
 
-			{members.length > 2 && (
+			{members.length > limit && (
 				<Avatar
 					shape="circle"
 					className="border flex items-center justify-center"
 					size={25}
 				>
-					<span className="text-xs">+{members.length - 2}</span>
+					<span className="text-xs">+{members.length - limit}</span>
 				</Avatar>
 			)}
 		</div>

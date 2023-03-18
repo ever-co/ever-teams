@@ -1,5 +1,5 @@
 
-import { IOrganizationTeam, IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
+import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 
 export interface IGetTeamsParams{
     tenantId:string;

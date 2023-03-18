@@ -1,5 +1,6 @@
+import { ITeamTask } from '@app/interfaces';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useAuthenticateUser } from './useAuthenticateUser';
 import { useAuthTeamTasks } from './useAuthTeamTasks';
 import { useOrganizationTeams } from './useOrganizationTeams';
@@ -8,7 +9,7 @@ import { useTeamTasks } from './useTeamTasks';
 
 export function useUserProfilePage() {
 	const { activeTeam } = useOrganizationTeams();
-	const { activeTeamTask } = useTeamTasks();
+	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
 	const { getAllTasksStatsData } = useTaskStatistics();
@@ -33,7 +34,7 @@ export function useUserProfilePage() {
 	const employeeId = isAuthUser ? auth?.employee.id : matchUser?.employeeId;
 
 	/* Filtering the tasks */
-	const tasksFiltered = useAuthTeamTasks(userProfile);
+	const tasksGrouped = useAuthTeamTasks(userProfile);
 
 	useEffect(() => {
 		if (employeeId) {
@@ -41,11 +42,30 @@ export function useUserProfilePage() {
 		}
 	}, [getAllTasksStatsData, employeeId]);
 
+	const assignTask = useCallback(
+		(task: ITeamTask) => {
+			if (!matchUser?.employeeId) {
+				return Promise.resolve();
+			}
+
+			return updateTask({
+				...task,
+				members: [
+					...task.members,
+					(matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any,
+				],
+			});
+		},
+		[updateTask, matchUser]
+	);
+
 	return {
 		isAuthUser,
 		activeUserTeamTask,
 		userProfile,
-		tasksFiltered,
+		tasksGrouped,
+		member: matchUser,
+		assignTask,
 	};
 }
 

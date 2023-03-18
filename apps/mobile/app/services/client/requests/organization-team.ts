@@ -3,6 +3,7 @@ import {
   IOrganizationTeam,
   IOrganizationTeamCreate,
   IOrganizationTeamList,
+  IOrganizationTeamUpdate,
 } from "../../interfaces/IOrganizationTeam";
 import { serverFetch } from "../fetch";
 
@@ -112,6 +113,25 @@ export function removeUserFromAllTeam({
 }) {
 	return serverFetch({
 		path: `/organization-team/teams/${userId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId,
+	});
+}
+
+export function deleteOrganizationTeamRequest({
+	id,
+	bearer_token,
+	tenantId,
+	organizationId,
+}: {
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+	organizationId: string;
+}) {
+	return serverFetch<IOrganizationTeamUpdate>({
+		path: `/organization-team/${id}?organizationId=${organizationId}`,
 		method: 'DELETE',
 		bearer_token,
 		tenantId,

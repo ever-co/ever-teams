@@ -11,7 +11,8 @@ import {
 } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { TaskUnOrAssignPopover } from './task-assign-popover';
 import {
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
@@ -28,6 +29,9 @@ type ITabs = {
 };
 
 type FilterType = 'status' | 'search' | undefined;
+type IStatusType = 'status' | 'size' | 'priority' | 'label';
+type StatusFilter = { [x in IStatusType]: string };
+
 /**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
  * @param {I_UserProfilePage} hook - I_UserProfilePage - this is the hook that we're using in the
@@ -38,32 +42,48 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const [tab, setTab] = useState<ITab>('worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>(
+		{} as StatusFilter
+	);
+
+	const [appliedStatusFilter, setAppliedStatusFilter] = useState<StatusFilter>(
+		{} as StatusFilter
+	);
+
+	const [taskName, setTaskName] = useState('');
+
+	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
+		unassigned: profile.tasksGrouped.unassignedTasks,
+		assigned: profile.tasksGrouped.assignedTasks,
+		worked: profile.tasksGrouped.workedTasks,
+	};
+
+	const tasks = tasksFiltered[tab];
+
 	const tabs: ITabs[] = [
 		{
 			tab: 'worked',
 			name: trans.common.WORKED,
 			description: trans.task.tabFilter.WORKED_DESCRIPTION,
-			count: profile.tasksFiltered.workedTasks.length,
+			count: profile.tasksGrouped.workedTasks.length,
 		},
 		{
 			tab: 'assigned',
 			name: trans.common.ASSIGNED,
 			description: trans.task.tabFilter.ASSIGNED_DESCRIPTION,
-			count: profile.tasksFiltered.assignedTasks.length,
+			count: profile.tasksGrouped.assignedTasks.length,
 		},
 		{
 			tab: 'unassigned',
 			name: trans.common.UNASSIGNED,
 			description: trans.task.tabFilter.UNASSIGNED_DESCRIPTION,
-			count: profile.tasksFiltered.unassignedTasks.length,
+			count: profile.tasksGrouped.unassignedTasks.length,
 		},
 	];
 
-	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
-		unassigned: profile.tasksFiltered.unassignedTasks,
-		assigned: profile.tasksFiltered.assignedTasks,
-		worked: profile.tasksFiltered.workedTasks,
-	};
+	useEffect(() => {
+		setTaskName('');
+	}, [filterType]);
 
 	const toggleFilterType = useCallback(
 		(type: NonNullable<FilterType>) => {
@@ -74,13 +94,68 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		[setFilterType]
 	);
 
+	const onChangeStatusFilter = useCallback(
+		(type: IStatusType, value: string) => {
+			return setStatusFilter((state) => {
+				return {
+					...state,
+					[type]: value,
+				};
+			});
+		},
+		[setStatusFilter]
+	);
+
+	// Reset status applied filter status when filter changed
+	useEffect(() => {
+		if (filterType !== 'status') {
+			setAppliedStatusFilter({} as StatusFilter);
+		}
+	}, [filterType]);
+
+	const onResetStatusFilter = useCallback(() => {
+		setStatusFilter({} as StatusFilter);
+		setAppliedStatusFilter({} as StatusFilter);
+	}, [setStatusFilter]);
+
+	/**
+	 * Apply filter status filter
+	 */
+	const applyStatusFilder = useCallback(() => {
+		setAppliedStatusFilter(statusFilter);
+	}, [statusFilter]);
+
+	const $tasks = useMemo(() => {
+		const n = taskName.trim().toLowerCase();
+		const asf = appliedStatusFilter;
+
+		return tasks
+			.filter((task) => {
+				return n ? task.title.toLowerCase().includes(n) : true;
+			})
+			.filter((task) => {
+				const keys = Object.keys(asf) as IStatusType[];
+
+				return keys.every((k) => {
+					return task[k] === asf[k];
+				});
+			});
+	}, [tasks, taskName, appliedStatusFilter]);
+
 	return {
 		tab,
 		setTab,
 		tabs,
 		filterType,
 		toggleFilterType,
-		tasksFiltered: tasksFiltered[tab],
+		tasksFiltered: $tasks,
+		taskName,
+		setTaskName,
+		statusFilter,
+		onChangeStatusFilter,
+		onResetStatusFilter,
+		applyStatusFilder,
+		tasksGrouped: profile.tasksGrouped,
 	};
 }
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
@@ -90,15 +165,14 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
  * @param  - IClassName & { hook: I_TaskFilter }
  * @returns A div with a className of 'flex justify-between' and a className of whatever is passed in.
  */
-export function TaskFilter({
-	className,
-	hook,
-}: IClassName & { hook: I_TaskFilter }) {
+
+type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
+export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
 		<>
 			<div className={clsxm('flex justify-between', className)}>
 				<TabsNav hook={hook} />
-				<InputFilters hook={hook} />
+				<InputFilters profile={profile} hook={hook} />
 			</div>
 
 			{/*  It's a transition component that is used to animate the transition of the TaskStatusFilter
@@ -113,8 +187,10 @@ export function TaskFilter({
 				leaveTo="opacity-0"
 			>
 				<Divider className="mt-4" />
-				{hook.filterType === 'status' && <TaskStatusFilter />}
-				{hook.filterType === 'search' && <TaskNameFilter />}
+				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
+				{hook.filterType === 'search' && (
+					<TaskNameFilter value={hook.taskName} setValue={hook.setTaskName} />
+				)}
 			</Transition>
 		</>
 	);
@@ -124,8 +200,9 @@ export function TaskFilter({
  * It renders a search icon, a vertical separator, a filter button, and an assign task button
  * @returns A div with a button, a vertical separator, a button, and a button.
  */
-function InputFilters({ hook }: { hook: I_TaskFilter }) {
+function InputFilters({ hook, profile }: Props) {
 	const { trans } = useTranslation();
+	const [loading, setLoading] = useState(false);
 
 	return (
 		<div className="flex lg:space-x-5 space-x-2 items-center">
@@ -156,9 +233,29 @@ function InputFilters({ hook }: { hook: I_TaskFilter }) {
 				<span>{trans.common.FILTER}</span>
 			</button>
 
-			<Button className="dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue">
-				{trans.common.ASSIGN_TASK}
-			</Button>
+			{/* Assign task combobox */}
+			<TaskUnOrAssignPopover
+				onTaskClick={(task, close) => {
+					setLoading(true);
+					close();
+					profile.assignTask(task).finally(() => setLoading(false));
+				}}
+				tasks={hook.tasksGrouped.unassignedTasks}
+				buttonClassName="mb-0 h-full"
+				onTaskCreated={(_, close) => close()}
+				usersTaskCreatedAssignTo={
+					profile.member?.employeeId
+						? [{ id: profile.member?.employeeId }]
+						: undefined
+				}
+			>
+				<Button
+					loading={loading}
+					className="dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full"
+				>
+					{trans.common.ASSIGN_TASK}
+				</Button>
+			</TaskUnOrAssignPopover>
 		</div>
 	);
 }
@@ -207,24 +304,50 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  * It renders a divider, a div with a flexbox layout, and filters buttons
  * @returns A React component
  */
-function TaskStatusFilter() {
+function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
+	const [key, setKey] = useState(0);
 	const { trans } = useTranslation();
 
 	return (
 		<div className="mt-4 flex justify-between space-x-2 items-center">
 			<div className="flex-1 flex space-x-3">
-				<TaskStatusDropdown className="lg:min-w-[170px]" />
+				<TaskStatusDropdown
+					key={key + 1}
+					onValueChange={(v) => hook.onChangeStatusFilter('status', v)}
+					className="lg:min-w-[170px]"
+				/>
 
-				<TaskPropertiesDropdown className="lg:min-w-[170px]" />
+				<TaskPropertiesDropdown
+					key={key + 2}
+					onValueChange={(v) => hook.onChangeStatusFilter('priority', v)}
+					className="lg:min-w-[170px]"
+				/>
 
-				<TaskSizesDropdown className="lg:min-w-[170px]" />
+				<TaskSizesDropdown
+					key={key + 3}
+					onValueChange={(v) => hook.onChangeStatusFilter('size', v)}
+					className="lg:min-w-[170px]"
+				/>
 
-				<TaskLabelsDropdown className="lg:min-w-[170px]" />
+				<TaskLabelsDropdown
+					key={key + 4}
+					onValueChange={(v) => hook.onChangeStatusFilter('label', v)}
+					className="lg:min-w-[170px]"
+				/>
 			</div>
 
 			<div className="flex space-x-3">
-				<Button className="py-2 min-w-[100px]">{trans.common.APPLY}</Button>
-				<Button className="py-2 min-w-[100px]" variant="grey">
+				<Button className="py-2 min-w-[100px]" onClick={hook.applyStatusFilder}>
+					{trans.common.APPLY}
+				</Button>
+				<Button
+					className="py-2 min-w-[100px]"
+					variant="grey"
+					onClick={() => {
+						setKey((k) => k + 1);
+						hook.onResetStatusFilter();
+					}}
+				>
 					{trans.common.RESET}
 				</Button>
 			</div>
@@ -232,10 +355,22 @@ function TaskStatusFilter() {
 	);
 }
 
-function TaskNameFilter() {
+function TaskNameFilter({
+	value,
+	setValue,
+}: {
+	value: string;
+	setValue: (v: string) => void;
+}) {
+	const { trans } = useTranslation();
 	return (
 		<div className="mt-3 w-1/2 ml-auto">
-			<InputField placeholder="Type something..." />
+			<InputField
+				value={value}
+				autoFocus={true}
+				onChange={(e) => setValue(e.target.value)}
+				placeholder={trans.common.TYPE_SOMETHING + '...'}
+			/>
 		</div>
 	);
 }
