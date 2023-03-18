@@ -37,6 +37,10 @@ export const verifyUserEmailByCodeAPI = (code: string) => {
 	return api.post<ISuccessResponse>(`/auth/verify/code`, { code });
 };
 
+export const verifyUserEmailByTokenAPI = (email: string, token: string) => {
+	return api.post<ISuccessResponse>(`/auth/verify/token`, { email, token });
+};
+
 export const resentVerifyUserLinkAPI = () => {
 	return api.post<ISuccessResponse>(`/auth/verify/resend-link`);
 };

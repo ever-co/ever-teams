@@ -11,6 +11,7 @@ export * from './useCallbackRef';
 
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useAuthenticationPasscode';
+export * from './auth/useEmailVerifyToken';
 
 export * from './features/useAuthTeamTasks';
 export * from './features/useAuthenticateUser';
@@ -26,6 +27,7 @@ export * from './features/useUserProfilePage';
 export * from './features/useUser';
 export * from './features/useAutoAssignTask';
 export * from './features/useEmailReset';
+export * from './features/useOrganizatioTeamsEmployee';
 
 //export user personal setting
 export * from './features/useSettings';

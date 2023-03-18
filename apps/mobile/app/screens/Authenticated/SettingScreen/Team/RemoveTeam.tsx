@@ -1,36 +1,33 @@
+import React from 'react'
 import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native'
-import React, { useCallback } from 'react'
 import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
-import { useUser } from '../../../../services/hooks/features/useUser';
 import { translate } from '../../../../i18n';
 import { typography } from '../../../../theme';
 import { useAppTheme } from '../../../../app';
+import { useStores } from '../../../../models';
+import { observer } from 'mobx-react-lite';
 
 
-const UserRemoveAccount = (
+const RemoveTeam = observer((
     {
         onDismiss,
-        userId,
-        actionType
     }: {
         onDismiss: () => unknown,
-        userId: string;
-        actionType: "Delete" | "Remove"
     }) => {
     const { colors, dark } = useAppTheme()
-    const { removeUserFromAllTeams } = useOrganizationTeam();
-    const { deleteUser } = useUser();
+    const { teamStore: { activeTeam } } = useStores()
+    const { onRemoveTeam, isTeamManager } = useOrganizationTeam();
 
-    const onSubmit = useCallback(async () => {
-        if (actionType === "Remove") {
-            const data = await removeUserFromAllTeams(userId)
-            onDismiss()
+
+    const onRemoveActiveTeam = async () => {
+
+        if (!isTeamManager) {
             return
         }
 
-        const data = await deleteUser(userId)
+        await onRemoveTeam(activeTeam.id)
         onDismiss()
-    }, [userId])
+    }
 
     return (
         <View
@@ -45,17 +42,17 @@ const UserRemoveAccount = (
                 </View>
             </TouchableWithoutFeedback>
             <View style={{ ...styles.mainContainer, backgroundColor: dark ? "#1E2025" : colors.background }}>
-                <Text style={{ ...styles.title, color: colors.primary }}>Are you sure ?</Text>
-                <Text style={styles.warningMessage}>{actionType === "Delete" ? translate("settingScreen.personalSection.deleteAccountHint") : translate("settingScreen.personalSection.removeAccountHint")}</Text>
-                <TouchableOpacity style={styles.button} onPress={() => onSubmit()}>
-                    <Text style={styles.buttonText}>Remove Everywhere</Text>
+                <Text style={{ ...styles.title, color: colors.primary }}>{translate("settingScreen.teamSection.areYouSure")}</Text>
+                <Text style={styles.warningMessage}>{translate("settingScreen.teamSection.removeTeamHint")}</Text>
+                <TouchableOpacity style={styles.button} onPress={() => onRemoveActiveTeam()}>
+                    <Text style={styles.buttonText}>{translate("settingScreen.teamSection.removeTeam")}</Text>
                 </TouchableOpacity>
             </View>
         </View>
     )
-}
+})
 
-export default UserRemoveAccount;
+export default RemoveTeam;
 
 const styles = StyleSheet.create({
     container: {

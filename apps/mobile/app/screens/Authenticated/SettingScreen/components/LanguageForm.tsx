@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { AntDesign } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { useAppTheme } from "../../../../app";
-import { translate } from "../../../../i18n";
-import { ILanguageItemList, IUser } from "../../../../services/interfaces/IUserData";
-import { typography } from "../../../../theme";
-import { limitTextCharaters } from "../../../../helpers/sub-text";
 import { useQueryClient } from "react-query";
+import LanguageModal from "./LanguageModal";
+import { ILanguageItemList, IUser } from "../../../../services/interfaces/IUserData";
 import { useSettings } from "../../../../services/hooks/features/useSettings";
+import { translate } from "../../../../i18n";
+import { limitTextCharaters } from "../../../../helpers/sub-text";
+import { typography } from "../../../../theme";
+import { useAppTheme } from "../../../../app";
 
 
 const LanguageForm = (
@@ -15,33 +16,25 @@ const LanguageForm = (
         onDismiss,
         user,
         onUpdateTimezone,
-        onPress,
-        selectedLanguage
     }
         :
         {
             onDismiss: () => unknown,
             user: IUser;
             onUpdateTimezone: (userBody: IUser) => unknown;
-            onPress: () => unknown
-            selectedLanguage: ILanguageItemList
         }
 ) => {
     const { colors, dark } = useAppTheme();
     const { preferredLanguage } = useSettings()
     const [userLanguage, setUserLanguage] = useState<ILanguageItemList>()
     const [isLoading, setIsLoading] = useState(false)
+    const [languageModal, setLanguageModal] = useState(false)
     const queryClient = useQueryClient();
 
     useEffect(() => {
-        setUserLanguage(selectedLanguage)
-    }, [selectedLanguage])
+        setUserLanguage(preferredLanguage)
+    }, [preferredLanguage])
 
-    useEffect(() => {
-        if (!selectedLanguage) {
-            setUserLanguage(preferredLanguage)
-        }
-    }, [user])
 
 
     const handleSubmit = async () => {
@@ -70,9 +63,17 @@ const LanguageForm = (
                 zIndex: 100
             }}
         >
+            <LanguageModal
+                visible={languageModal}
+                preferredLanguage={preferredLanguage}
+                onDismiss={() => setLanguageModal(false)}
+                onLanguageSelect={(e) => {
+                    setUserLanguage(e)
+                }}
+            />
             <View style={{ flex: 2 }}>
                 <Text style={{ ...styles.formTitle, color: colors.primary }}>{translate("settingScreen.changeLanguage.mainTitle")}</Text>
-                <TouchableOpacity style={styles.field} onPress={() => onPress()}>
+                <TouchableOpacity style={styles.field} onPress={() => setLanguageModal(true)}>
                     <Text style={{ ...styles.text, color: colors.primary }}>{limitTextCharaters({ text: userLanguage?.name, numChars: 17 })}</Text>
                     <AntDesign name="down" size={20} color={colors.primary} />
                 </TouchableOpacity>

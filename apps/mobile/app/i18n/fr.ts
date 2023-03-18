@@ -56,7 +56,7 @@ const fr = {
     userNameFieldPlaceholder: "Entrez votre nom",
     tapContinue: "Continuer",
     tapJoin: "Rejoindre",
-    createTeam:"Créer l'équipe"
+    createTeam: "Créer l'équipe"
   },
   myWorkScreen: {
     name: "Mon travail",
@@ -133,7 +133,12 @@ const fr = {
       removeTeam: "Supprimer l'équipe",
       removeTeamHint: "L'équipe sera complètement supprimée du système et les membres de l'équipe perdront l'accès",
       quitTeam: "Quitter l'équipe",
-      quitTeamHint: "Vous êtes sur le point de quitter l'équipe"
+      quitTeamHint: "Vous êtes sur le point de quitter l'équipe",
+      areYouSure: "Etes-vous sûr ?",
+      changeTeamName: {
+        mainTitle: "Change Team Name",
+        inputPlaceholder: "Team Name",
+      }
     },
     dangerZone: "Zone dangereuse",
     modalChangeLanguageTitle: "Changer de langue",
@@ -202,7 +207,7 @@ const fr = {
     changeFullName: {
       firstNamePlaceholder: "First Name",
       lastNamePlaholder: "Last Name",
-      mainTitle:"Change Full Name"
+      mainTitle: "Change Full Name"
     },
     contact: {
       mainTitle: "Change Your Contact",
@@ -211,17 +216,17 @@ const fr = {
       emailNotValid: "Please, provide a valid email",
       phoneNotValid: "Please, provide a valid phone number"
     },
-    changeTimezone:{
-      mainTitle:"Changer le fuseau horaire",
-      selectTimezoneTitle:"Choisir le fuseau horaire"
+    changeTimezone: {
+      mainTitle: "Changer le fuseau horaire",
+      selectTimezoneTitle: "Choisir le fuseau horaire"
     },
-    changeLanguage:{
-      mainTitle:"Changer la langue",
-      selectLanguageTitle:"Choisir la langue"
+    changeLanguage: {
+      mainTitle: "Changer la langue",
+      selectLanguageTitle: "Choisir la langue"
     }
   },
-  hamburgerMenu:{
-    darkMode:"Mode sombre",
+  hamburgerMenu: {
+    darkMode: "Mode sombre",
   },
   demoNavigator: {
     componentsTab: "Components",

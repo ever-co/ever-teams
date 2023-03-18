@@ -47,7 +47,6 @@ export function useAuthenticationPasscode() {
 	}) => {
 		queryCall(email, code)
 			.then((res) => {
-				console.log(res.data);
 				window.location.reload();
 			})
 			.catch((err: AxiosError) => {

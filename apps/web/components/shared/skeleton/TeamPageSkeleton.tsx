@@ -10,7 +10,7 @@ const TeamPageSkeleton = () => {
 	});
 
 	return (
-		<MainLayout>
+		<MainLayout className='items-start'>
 			<MainHeader>
 				<Container>
 					<Skeleton

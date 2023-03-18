@@ -10,7 +10,7 @@ import {
 } from 'lib/settings';
 
 import { useTranslation } from 'lib/i18n';
-import SettingsPersonlalSkeleton from '@components/shared/skeleton/SettingsPersonalSkeleton';
+import SettingsPersonalSkeleton from '@components/shared/skeleton/SettingsPersonalSkeleton';
 import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
 
@@ -22,9 +22,9 @@ const Personal = () => {
 	return (
 		<>
 			{!user ? (
-				<SettingsPersonlalSkeleton />
+				<SettingsPersonalSkeleton />
 			) : (
-				<MainLayout>
+				<MainLayout className='items-start'>
 					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 						<Container>
 							<Breadcrumb
@@ -37,7 +37,7 @@ const Personal = () => {
 					<Container className="mb-10">
 						<div className="flex w-full">
 							<LeftSideSettingMenu />
-							<div className="flex flex-col w-full">
+							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
 								<Card
 									className="dark:bg-dark--theme p-[32px] mt-[36px]"
 									shadow="bigger"
