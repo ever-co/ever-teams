@@ -45,7 +45,7 @@ jobs:
           yarn build:mobile
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --platform all --non-interactive
+        run: cd apps/mobile && eas build --platform android --non-interactive
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto
