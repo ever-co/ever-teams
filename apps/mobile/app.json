@@ -14,7 +14,8 @@
     },
     "owner": "everco",
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/9f38f768-16f6-4c47-b354-9745ebda1335"
     },
     "jsEngine": "hermes",
     "assetBundlePatterns": [
@@ -76,6 +77,7 @@
       "eas": {
         "projectId": "9f38f768-16f6-4c47-b354-9745ebda1335"
       }
-    }
+    },
+    "runtimeVersion": "1.0.0"
   }
 }

@@ -1,17 +1,21 @@
 {
   "build": {
     "development": {
-			"extends": "production",
+      "extends": "production",
       "developmentClient": true,
       "distribution": "internal",
-			"ios": {
+      "ios": {
         "simulator": true
-      }
+      },
+      "channel": "development"
     },
     "preview": {
-			"extends": "production",
-      "distribution": "internal"
+      "extends": "production",
+      "distribution": "internal",
+      "channel": "preview"
     },
-    "production": {}
+    "production": {
+      "channel": "production"
+    }
   }
 }
