@@ -41,7 +41,7 @@
       "splash": {
         "image": "./assets/images/splash.png",
         "resizeMode": "cover",
-        "backgroundColor": "ffffff"
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
