@@ -3,7 +3,7 @@
   "displayName": "Gauzy Teams",
   "expo": {
     "name": "Gauzy Teams",
-    "slug": "Gauzy Teams",
+    "slug": "ever-gauzy-teams-mobile-expo",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/gauzy-teams-logo.png",
@@ -12,7 +12,7 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-		"owner": "Ever Co. LTD",
+    "owner": "everco",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -41,7 +41,12 @@
         "image": "./assets/images/splash.png",
         "resizeMode": "cover",
         "backgroundColor": "ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
+      ]
     },
     "ios": {
       "icon": "./assets/images/app-icon-ios.png",
@@ -55,8 +60,8 @@
       },
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
-        "NSPhotoLibraryUsageDescription":"",
-        "NSPhotoLibraryAddUsageDescription":""
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
       }
     },
     "web": {
@@ -65,6 +70,11 @@
         "image": "./assets/images/splash-logo-web.png",
         "resizeMode": "contain",
         "backgroundColor": "#ffffff"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9f38f768-16f6-4c47-b354-9745ebda1335"
       }
     }
   }
