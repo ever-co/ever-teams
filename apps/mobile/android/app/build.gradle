@@ -81,7 +81,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
  */
 
 project.ext.react = [
-    enableHermes: true,  // clean and rebuild if changing
+   enableHermes: (findProperty('expo.jsEngine') ?: "jsc") == "hermes",  // clean and rebuild if changing
 ]
 
 // This method of including other gradle files is to support symlinks.
