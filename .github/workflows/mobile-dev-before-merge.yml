@@ -14,11 +14,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     permissions:
       pull-requests: write
+      contents: read
 
     steps:
-
       - name: Check for EXPO_TOKEN
         run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
@@ -32,7 +33,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
