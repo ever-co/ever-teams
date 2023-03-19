@@ -1,6 +1,6 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam";
-import { ITeamsOut } from "./team";
+import { ITeamsOut } from "./Team";
 
 export const TeamStoreModel = types
     .model("TeamStore")
@@ -37,11 +37,11 @@ export const TeamStoreModel = types
             store.isTrackingEnabled=value
         },
         clearStoredTeamData() {
-            store.teams = { items: [], total: 0 },
-            store.activeTeam = {}
-            store.activeTeamId = "",
-            store.teamInvitations = { items: [], total: 0 },
-            store.isTrackingEnabled=false
+            store.teams = { items: [], total: 0 };
+            store.activeTeam = {};
+            store.activeTeamId = "";
+            store.teamInvitations = { items: [], total: 0 };
+            store.isTrackingEnabled=false;
         }
     }))
 

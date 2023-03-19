@@ -1,13 +1,7 @@
 import React, { FC, useState } from "react"
 import { View, Text, ViewStyle, Modal, StyleSheet, TextInput, Animated, Dimensions, TouchableOpacity } from "react-native"
-
-
-// COMPONENTS
-
-// STYLES
-import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography } from "../../../../theme"
-
 import { ActivityIndicator } from "react-native-paper";
 import TaskLabel from "../../../../components/TaskLabel";
 import TaskPriorities from "../../../../components/TaskPriorities";
@@ -15,7 +9,6 @@ import TaskStatusDropdown from "../../TimerScreen/components/TaskStatusDropdown"
 import TaskSize from "../../../../components/TaskSize";
 import EstimateTime from "../../TimerScreen/components/EstimateTime";
 import { useStores } from "../../../../models";
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks";
 import { translate } from "../../../../i18n";
 import { useAppTheme } from "../../../../app";
 import useProfileScreenLogic from "../logics/useProfileScreenLogic";
@@ -60,10 +53,9 @@ const ModalPopUp = ({ visible, children }) => {
     )
 }
 
-const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDismiss, memberId }) {
+const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDismiss, memberId }) {
     const {
         authenticationStore: { user },
-        TaskStore: { fetchingTasks },
     } = useStores();
 
     const { createAndAssign } = useProfileScreenLogic({userId:memberId, activeTabIndex:1});
@@ -72,7 +64,7 @@ const AssingTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 
     const [taskInputText, setTaskInputText] = useState<string>("")
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
+    const [, setShowCheckIcon] = useState<boolean>(false)
 
 const {colors}=useAppTheme();
 
@@ -173,7 +165,7 @@ const {colors}=useAppTheme();
     )
 }
 
-export default AssingTaskFormModal
+export default AssignTaskFormModal
 
 const $container: ViewStyle = {
     ...GS.flex1,

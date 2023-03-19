@@ -26,7 +26,7 @@ export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL;
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
-export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email'
+export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
@@ -34,6 +34,12 @@ export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
+
+export const APP_NAME = process.env.APP_NAME || 'Gauzy Teams';
+export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Gauzy Team';
+export const APP_LOGO_URL =
+	process.env.APP_LOGO_URL || 'https://app.gauzy.team/assets/gauzy-team.png';
+export const APP_LINK = process.env.APP_LINK || 'https://gauzy.team/';
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 export const smtpConfiguration: () => I_SMTPRequest = () => ({

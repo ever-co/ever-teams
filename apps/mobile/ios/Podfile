@@ -26,8 +26,7 @@ target 'mobile' do
   use_react_native!(
     :path => config[:reactNativePath],
     :production => production,
-    # to disable hermes on iOS, change `true` to `flags[:hermes_enabled]` and then install pods
-    :hermes_enabled => true,
+    :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes',
     :fabric_enabled => flags[:fabric_enabled],
     :flipper_configuration => FlipperConfiguration.enabled(["Debug"], { 'Flipper' => '0.157.0' }),
     # An absolute path to your application root.

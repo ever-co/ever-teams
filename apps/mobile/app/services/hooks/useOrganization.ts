@@ -74,7 +74,7 @@ export function useOrganizationTeam() {
     const [isTeamManager, setIsTeamManager] = useState(false);
     const [teamsFetching, setTeamsFetching] = useState(false)
 
-    const members: OT_Member[] = activeTeam?.members || [];
+    const members = activeTeam?.members || [];
 
     const currentUser = members.find((m) => {
         return m.employee.userId === user?.id;
