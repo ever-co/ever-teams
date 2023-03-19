@@ -1,0 +1,13 @@
+{
+	"recommendations": [
+		"DeepScan.vscode-deepscan",
+		"ms-vscode.vscode-typescript-tslint-plugin",
+		"folke.vscode-monorepo-workspace",
+		"seatonjiang.gitmoji-vscode",
+		"dbaeumer.vscode-eslint",
+		"jondot.vscode-hygen",
+		"esbenp.prettier-vscode",
+		"firsttris.vscode-jest-runner",
+		"vscode-icons-team.vscode-icons"
+	]
+}

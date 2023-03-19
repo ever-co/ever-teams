@@ -12,6 +12,7 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
+		"owner": "Ever Co. LTD",
     "updates": {
       "fallbackToCacheTimeout": 0
     },

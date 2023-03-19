@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Check for EXPO_TOKEN
         run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
@@ -29,7 +28,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -44,6 +43,9 @@ jobs:
       - name: Build Mobile
         run: |
           yarn build:mobile
+
+      - name: Build on EAS
+        run: cd apps/mobile && eas build --platform all --non-interactive
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto

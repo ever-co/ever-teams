@@ -1,4 +1,22 @@
 {
+	"cSpell.userWords": [],
+	"cSpell.enabled": true,
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"npm.packageManager": "yarn",
+	"prettier.trailingComma": "none",
+	"prettier.singleQuote": true,
+	"editor.formatOnSave": true,
+	"eslint.format.enable": true,
+	"editor.tabSize": 4,
+	"files.insertFinalNewline": true,
+	"files.trimFinalNewlines": true,
+	"files.trimTrailingWhitespace": true,
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true
+	},
+	"vsicons.presets.angular": true,
+	"deepscan.enable": true,
 	"cSpell.words": [
 		"cloudinary",
 		"clsxm",
@@ -12,7 +30,14 @@
 		"Timesheet",
 		"Vercel"
 	],
-	"deepscan.enable": true,
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/node_modules": false,
+		"**/public/**/*.png": true,
+		"**/public/**/*.jpg": true,
+		"**/public/**/*.pdf": true
+	},
 	"search.exclude": {
 		"**/node_modules": true,
 		"**/bower_components": true,
