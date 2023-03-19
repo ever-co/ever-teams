@@ -1,4 +1,9 @@
-import { VERIFY_EMAIL_CALLBACK_URL } from '@app/constants';
+import {
+	VERIFY_EMAIL_CALLBACK_URL,
+	APP_NAME,
+	APP_SIGNATURE,
+	APP_LOGO_URL,
+} from '@app/constants';
 import { ISuccessResponse } from '@app/interfaces';
 import {
 	ILoginResponse,
@@ -8,11 +13,9 @@ import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 
 const registerDefaultValue = {
-	appName: 'Gauzy Teams',
-	appSignature: 'Ever Gauzy Team',
-	appLogo: 'https://app.gauzy.team/assets/gauzy-team.png',
-	appLink: 'https://gauzy.team/',
-	// appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL,
+	appName: APP_NAME,
+	appSignature: APP_SIGNATURE,
+	appLogo: APP_LOGO_URL,
 };
 
 export function registerUserRequest(data: IRegisterDataRequest) {
