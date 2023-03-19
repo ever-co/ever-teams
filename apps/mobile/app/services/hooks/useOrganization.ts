@@ -3,7 +3,7 @@ import { showMessage } from "react-native-flash-message";
 import { useQueryClient } from "react-query";
 import { useStores } from "../../models";
 import useFetchUserOrganization from "../client/queries/organizationTeam/organization";
-import { createOrganizationTeamRequest, removeUserFromAllTeam, updateOrganizationTeamRequest } from "../client/requests/organization-team";
+import { createOrganizationTeamRequest, deleteOrganizationTeamRequest, removeUserFromAllTeam, updateOrganizationTeamRequest } from "../client/requests/organization-team";
 import { updateOrganizationTeamEmployeeRequest } from "../client/requests/organization-team-employee";
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
 import useAuthenticateUser from "./features/useAuthentificateUser";
@@ -14,7 +14,7 @@ function useCreateOrganizationTeam() {
         authenticationStore: { tenantId, organizationId, authToken, user, employeeId },
         teamStore: { teams, setOrganizationTeams, setActiveTeamId, setActiveTeam }
     } = useStores();
-
+    const queryClient = useQueryClient();
     const [createTeamLoading, setCreateTeamLoading] = useState(false)
     const teamsRef = useRef(teams);
 
@@ -45,6 +45,7 @@ function useCreateOrganizationTeam() {
             },
             authToken
         );
+        queryClient.invalidateQueries("teams")
         setActiveTeamId(data.id)
         setCreateTeamLoading(false)
         return data
@@ -73,7 +74,7 @@ export function useOrganizationTeam() {
     const [isTeamManager, setIsTeamManager] = useState(false);
     const [teamsFetching, setTeamsFetching] = useState(false)
 
-    const members: OT_Member[] = activeTeam?.members || [];
+    const members = activeTeam?.members || [];
 
     const currentUser = members.find((m) => {
         return m.employee.userId === user?.id;
@@ -235,6 +236,24 @@ export function useOrganizationTeam() {
 
         }, [])
 
+    /**
+     * Remove the active team
+     */
+    const onRemoveTeam = useCallback(async (teamId: string) => {
+        await deleteOrganizationTeamRequest({
+            id: teamId,
+            bearer_token: authToken,
+            organizationId,
+            tenantId
+        }).then((res) => {
+            const { data, response } = res;
+            if (response.ok || response.status === 202 || response.status === 200) {
+                queryClient.invalidateQueries("teams")
+            }
+        }).catch((e) => console.log(e))
+
+    }, [])
+
 
     // Load Teams
     useEffect(() => {
@@ -273,6 +292,7 @@ export function useOrganizationTeam() {
         makeMemberAsManager,
         removeMember,
         toggleTimeTracking,
-        onUpdateOrganizationTeam
+        onUpdateOrganizationTeam,
+        onRemoveTeam
     }
 }

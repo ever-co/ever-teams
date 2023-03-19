@@ -4,7 +4,6 @@ import { Breadcrumb, Container } from 'lib/components';
 import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
@@ -17,10 +16,10 @@ const Team = () => {
 	const [publicTeam, setPublic] = useRecoilState(publicState);
 
 	useEffect(() => {
-		if (query && query?.teamId && query?.profileLink) {
+		if (query && query.teamId && query.profileLink) {
 			loadPublicTeamData(
-				query?.profileLink as string,
-				query?.teamId as string
+				query.profileLink as string,
+				query.teamId as string
 			).then((res) => {
 				if (res?.data?.data?.status === 404) {
 					router.replace('/404');
@@ -28,7 +27,7 @@ const Team = () => {
 			});
 			setPublic(true);
 		}
-	}, [query]);
+	}, [loadPublicTeamData, query, router, setPublic]);
 
 	return (
 		<MainLayout publicTeam={publicTeam}>

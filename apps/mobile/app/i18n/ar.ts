@@ -6,8 +6,8 @@ const ar: Translations = {
     cancel: "حذف",
     back: "خلف",
     logOut: "تسجيل خروج",
-    save:"حفظ"
-     // @demo remove-current-line
+    save: "حفظ"
+    // @demo remove-current-line
   },
   welcomeScreen: {
     postscript:
@@ -59,7 +59,7 @@ const ar: Translations = {
     userNameFieldPlaceholder: "أدخل أسمك",
     tapContinue: "يكمل",
     tapJoin: "ينضم",
-   createTeam:"Create Team"
+    createTeam: "Create Team"
   },
   myWorkScreen: {
     name: "عملى",
@@ -82,7 +82,7 @@ const ar: Translations = {
     inviteEmailFieldPlaceholder: "أدخل عنوان البريد الإلكتروني",
     inviteNameFieldPlaceholder: "أدخل اسم عضو الفريق",
     sendButton: "إرسال",
-    createNewTeamButton:"أنشئ فريقًا جديدًا"
+    createNewTeamButton: "أنشئ فريقًا جديدًا"
   },
   tasksScreen: {
     name: "مهام",
@@ -137,9 +137,10 @@ const ar: Translations = {
       removeTeamHint: "Team will be completely removed for the system and team members lost access",
       quitTeam: "Quit the team",
       quitTeamHint: "You are about to quit the team",
-      changeTeamName:{
-        mainTitle:"Change Team Name",
-        inputPlaceholder:"Team Name",
+      areYouSure: "Are you sure ?",
+      changeTeamName: {
+        mainTitle: "Change Team Name",
+        inputPlaceholder: "Team Name",
       }
     },
     dangerZone: "Danger Zone",
@@ -225,17 +226,17 @@ const ar: Translations = {
       emailNotValid: "Please, provide a valid email",
       phoneNotValid: "Please, provide a valid phone number"
     },
-    changeTimezone:{
-      mainTitle:"Change Time Zone",
-      selectTimezoneTitle:"Select Time Zone"
+    changeTimezone: {
+      mainTitle: "Change Time Zone",
+      selectTimezoneTitle: "Select Time Zone"
     },
-    changeLanguage:{
-      mainTitle:"Change Language",
-      selectLanguageTitle:"Select Languanges"
+    changeLanguage: {
+      mainTitle: "Change Language",
+      selectLanguageTitle: "Select Languanges"
     }
   },
-  hamburgerMenu:{
-    darkMode:"الوضع الداكن",
+  hamburgerMenu: {
+    darkMode: "الوضع الداكن",
   },
   demoNavigator: {
     componentsTab: "عناصر",

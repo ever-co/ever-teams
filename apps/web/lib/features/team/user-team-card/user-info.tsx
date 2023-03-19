@@ -14,6 +14,9 @@ type Props = {
 
 export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const { memberUser, member } = memberInfo;
+	const fullname = `${memberUser?.firstName || ''} ${
+		memberUser?.lastName || ''
+	}`;
 
 	return (
 		<Link
@@ -21,37 +24,28 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
 			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
-				{member?.timerStatus &&
+				{member?.timerStatus && (
 					<TimerStatus
-					status={member.timerStatus}
-					className="absolute border z-20 bottom-3 -right-1 -mb-3"
-				/>}
+						status={member.timerStatus}
+						className="absolute border z-20 bottom-3 -right-1 -mb-3"
+					/>
+				)}
 			</Avatar>
 
 			<div className="lg:w-64 w-1/2">
 				<Tooltip
-					label={`${memberUser?.firstName || ''} ${
-						memberUser?.lastName || ''
-					}`.trim()}
+					label={fullname.trim()}
 					placement="auto"
-					enabled={
-						`${memberUser?.firstName || ''} ${
-							memberUser?.lastName || ''
-						}`.trim().length > CHARACTER_LIMIT_TO_SHOW
-					}
+					enabled={fullname.trim().length > CHARACTER_LIMIT_TO_SHOW}
 				>
 					<Text.Heading
 						as="h3"
 						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-sm lg:text-lg "
 					>
 						{publicTeam ? (
-							<span className="flex capitalize">
-								{`${memberUser?.firstName || ''} ${
-									memberUser?.lastName || ''
-								}`.slice(0, 1)}{' '}
-							</span>
+							<span className="flex capitalize">{fullname.slice(0, 1)} </span>
 						) : (
-							`${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`
+							fullname
 						)}
 					</Text.Heading>
 				</Tooltip>

@@ -9,6 +9,7 @@
 		"RECAPTCHA",
 		"svgs",
 		"tailwindcss",
+		"Timesheet",
 		"Vercel"
 	],
 	"deepscan.enable": true,

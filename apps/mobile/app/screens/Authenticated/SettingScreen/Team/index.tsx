@@ -78,7 +78,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
                     <SingleInfo
                         title={translate("settingScreen.teamSection.removeTeam")}
                         value={translate("settingScreen.teamSection.removeTeamHint")}
-                        onPress={() => { }}
+                        onPress={() => onOpenBottomSheet("Remove Team", 5)}
                     />
                     <SingleInfo
                         title={translate("settingScreen.teamSection.quitTeam")}

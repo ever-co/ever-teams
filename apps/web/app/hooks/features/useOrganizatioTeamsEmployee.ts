@@ -42,7 +42,7 @@ export function useOrganizationEmployeeTeams() {
 				return res;
 			});
 		},
-		[deleteOrganizationEmployeeTeamLoading]
+		[deleteQueryCall, loadTeamsData]
 	);
 
 	const updateOrganizationTeamEmployee = useCallback(
@@ -52,7 +52,7 @@ export function useOrganizationEmployeeTeams() {
 				return res;
 			});
 		},
-		[updateOrganizationEmployeeTeamLoading]
+		[loadTeamsData, updateQueryCall]
 	);
 
 	return {

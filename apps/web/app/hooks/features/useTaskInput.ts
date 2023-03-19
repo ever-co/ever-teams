@@ -109,7 +109,17 @@ export function useTaskInput({
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
-	const handleTaskCreation = (autoActiveTask = true, autoAssignTask = true) => {
+	const handleTaskCreation = ({
+		autoActiveTask = true,
+		autoAssignTaskAuth = true,
+		assignToUsers = [],
+	}: {
+		autoActiveTask?: boolean;
+		autoAssignTaskAuth?: boolean;
+		assignToUsers?: {
+			id: string;
+		}[];
+	} = {}) => {
 		if (
 			query.trim().length < 2 ||
 			inputTask?.title === query.trim() ||
@@ -117,21 +127,23 @@ export function useTaskInput({
 		)
 			return;
 
-		createTask(
+		return createTask(
 			{
 				taskName: query.trim(),
 				issue: taskIssue.current || undefined,
 			},
-			!autoAssignTask ? [] : undefined
+			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
 			setQuery('');
 			const items = res.data?.items || [];
 			const created = items.find((t) => t.title === query.trim());
 			if (created && autoActiveTask) setActiveTask(created);
+
+			return created;
 		});
 	};
 
-	const updatTaskTitleHandler = useCallback(
+	const updateTaskTitleHandler = useCallback(
 		(itask: ITeamTask, title: string) => {
 			if (!userRef.current?.isEmailVerified) return;
 
@@ -176,7 +188,7 @@ export function useTaskInput({
 		setActiveTask,
 		setQuery,
 		filter,
-		updatTaskTitleHandler,
+		updateTaskTitleHandler,
 		taskIssue,
 	};
 }

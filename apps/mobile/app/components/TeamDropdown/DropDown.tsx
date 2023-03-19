@@ -1,15 +1,14 @@
 import { observer } from "mobx-react-lite"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native"
 import { Avatar } from 'react-native-paper';
 import { AntDesign } from "@expo/vector-icons"
 import { useAppTheme } from "../../app"
 import { imgTitle } from "../../helpers/img-title"
 import { useStores } from "../../models"
-import { IOrganizationTeamCreate, IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
+import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 import { typography } from "../../theme"
 import DropDownSection from "./DropDownSection"
-import { useOrganizationTeam } from "../../services/hooks/useOrganization";
 import { limitTextCharaters } from "../../helpers/sub-text";
 
 export interface Props {
@@ -27,8 +26,6 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
   const [expanded, setExpanded] = useState(true)
   const handlePress = () => setExpanded(!expanded)
   const [showDrop, setShowDrop] = useState(false)
-
-
 
   const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
     setActiveTeam(newActiveTeam)

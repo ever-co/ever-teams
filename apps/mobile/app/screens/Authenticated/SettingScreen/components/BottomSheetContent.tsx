@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import { View } from "react-native"
 import { IPopup } from "..";
 import { useSettings } from "../../../../services/hooks/features/useSettings";
+import RemoveTeam from "../Team/RemoveTeam";
 import ChangeTeamName from "./ChangeTeamName";
 import ChangeUserAvatar from "./ChangeUserAvatar"
 import UpdateContactForm from "./ContactInfoForm";
@@ -75,6 +76,12 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 
                 {openedSheet === "Team Name" ?
                     <ChangeTeamName
+                        onDismiss={() => onDismiss()}
+                    /> : null
+                }
+
+                {openedSheet === "Remove Team" ?
+                    <RemoveTeam
                         onDismiss={() => onDismiss()}
                     /> : null
                 }

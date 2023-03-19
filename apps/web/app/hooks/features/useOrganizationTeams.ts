@@ -3,7 +3,6 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie,
 } from '@app/helpers/cookies';
-
 import {
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
@@ -108,7 +107,7 @@ function useCreateOrganizationTeam() {
 				return res;
 			});
 		},
-		[queryCall, setActiveTeamId, setTeams]
+		[isTeamMember, queryCall, refreshToken, setActiveTeamId, setIsTeamMember, setTeams, teamsRef]
 	);
 
 	return {
@@ -167,7 +166,6 @@ export function useOrganizationTeams() {
 		getOrganizationTeamAPI
 	);
 	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
-	const { user } = useAuthenticateUser();
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
@@ -200,9 +198,19 @@ export function useOrganizationTeams() {
 		setTeamsFetching(loading);
 	}, [loading, setTeamsFetching]);
 
+	const setActiveTeam = useCallback(
+		(teamId: typeof teams[0]) => {
+			setActiveTeamIdCookie(teamId.id);
+			setOrganizationIdCookie(teamId.organizationId);
+			// This must be called at the end (Update store)
+			setActiveTeamId(teamId.id);
+		},
+		[setActiveTeamId]
+	);
+
 	const loadTeamsData = useCallback(() => {
-		let teamid = getActiveTeamIdCookie();
-		setActiveTeamId(teamid);
+		let teamId = getActiveTeamIdCookie();
+		setActiveTeamId(teamId);
 
 		return queryCall().then((res) => {
 			if (res.data?.items && res.data?.items?.length === 0) {
@@ -214,31 +222,22 @@ export function useOrganizationTeams() {
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
 			if (
-				!latestTeams.find((team) => team.id === teamid) &&
+				!latestTeams.find((team) => team.id === teamId) &&
 				latestTeams.length
 			) {
 				setActiveTeam(latestTeams[0]);
 			} else {
-				teamid = '';
+				teamId = '';
 			}
 
-			teamid &&
-				queryCallTeam(teamid).then((res) => {
+			teamId &&
+				queryCallTeam(teamId).then((res) => {
 					setTeamsUpdate(res.data);
 				});
 			return res;
 		});
-	}, [queryCall, setActiveTeamId, setTeams, user]);
+	}, [queryCall, queryCallTeam, setActiveTeam, setActiveTeamId, setIsTeamMember, setTeams, setTeamsUpdate]);
 
-	const setActiveTeam = useCallback(
-		(teamId: typeof teams[0]) => {
-			setActiveTeamIdCookie(teamId.id);
-			setOrganizationIdCookie(teamId.organizationId);
-			// This must be called at the end (Update store)
-			setActiveTeamId(teamId.id);
-		},
-		[setActiveTeamId]
-	);
 
 	/**
 	 * Get active team profile from api
@@ -249,9 +248,10 @@ export function useOrganizationTeams() {
 				!loadingTeamsRef.current && setTeamsUpdate(res.data);
 			});
 		}
-	}, [activeTeamId, firstLoad, setTeams]);
+	}, [activeTeamId, firstLoad, loadingTeamsRef, setTeams, setTeamsUpdate]);
 
 	// Set All managers of current team
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	useEffect(() => {}, [activeTeam]);
 
 	const editOrganizationTeam = useCallback(
@@ -261,7 +261,7 @@ export function useOrganizationTeams() {
 				return res;
 			});
 		},
-		[editOrganizationTeamLoading]
+		[editQueryCall, setTeamsUpdate]
 	);
 
 	const deleteOrganizationTeam = useCallback(
@@ -271,7 +271,7 @@ export function useOrganizationTeams() {
 				return res;
 			});
 		},
-		[deleteOrganizationTeamLoading]
+		[deleteQueryCall, loadTeamsData]
 	);
 
 	const removeUserFromAllTeam = useCallback(
@@ -281,7 +281,7 @@ export function useOrganizationTeams() {
 				return res;
 			});
 		},
-		[removeUserFromAllTeamLoading]
+		[loadTeamsData, removeUserFromAllTeamQueryCall]
 	);
 
 	return {
