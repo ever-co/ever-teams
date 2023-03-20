@@ -116,5 +116,6 @@ export function useAuthenticationPasscode() {
 		formValues,
 		setFormValues,
 		inputCodeRef,
+		setErrors,
 	};
 }

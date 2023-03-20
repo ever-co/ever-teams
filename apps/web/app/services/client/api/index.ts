@@ -11,3 +11,4 @@ export * from './task-priorities';
 export * from './task-sizes';
 export * from './task-labels';
 export * from './user';
+export * from './request-to-join-team';

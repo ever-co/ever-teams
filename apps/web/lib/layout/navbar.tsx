@@ -56,7 +56,7 @@ export function Navbar({
 
 	return (
 		<>
-			{!user ? (
+			{!user && !publicTeam ? (
 				<HeaderSkeleton />
 			) : (
 				<nav
