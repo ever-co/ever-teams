@@ -19,3 +19,4 @@ export * from './IIcon';
 export * from './IProof';
 export * from './IPeriod';
 export * from './IRequestToJoin';
+export * from './IPosition';

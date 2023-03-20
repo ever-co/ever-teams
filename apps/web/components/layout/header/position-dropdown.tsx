@@ -1,3 +1,4 @@
+import { IPosition } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Dropdown } from 'lib/components';
 import { mapPositionItems, PositionItem } from 'lib/features';
@@ -10,34 +11,48 @@ export const PositionDropDown = ({
 	currentPosition: string | null;
 	onChangePosition: any;
 }) => {
-	const positions = [
-		'UIUX Designer',
-		'Engineer',
-		'Front End Developer',
-		'Back End Developer',
-		'Data Analyst',
-		'CTO',
-	];
+	const positions: IPosition[] = useMemo(
+		() => [
+			{
+				title: 'UIUX Designer',
+			},
+			{
+				title: 'Data Analyst',
+			},
+			{
+				title: 'Engineer',
+			},
+			{
+				title: 'Front End Developer',
+			},
+			{
+				title: 'Back End Developer',
+			},
+			{
+				title: 'CTO',
+			},
+		],
+		[]
+	);
 
 	const items = useMemo(() => mapPositionItems(positions), [positions]);
 
-	const [positionItem, setPositionItem] = useState<PositionItem | null>(null);
+	const [positionItem, setPositionItem] = useState<PositionItem | null>();
 
 	useEffect(() => {
 		const item = items.find(
-			(t) => t.key === currentPosition || t.data === currentPosition
+			(t) => t.key === currentPosition || t.data.title === currentPosition
 		);
 
 		if (item && positionItem?.key !== item.key) {
 			setPositionItem(item);
 		}
-	}, [positions, items, currentPosition]);
+	}, [positions, items, currentPosition, positionItem]);
 
 	const onChange = useCallback(
 		(item: PositionItem) => {
-			console.log(item);
 			setPositionItem(item);
-			onChangePosition(item.data);
+			onChangePosition(item.data?.title);
 		},
 		[onChangePosition]
 	);
@@ -47,12 +62,14 @@ export const PositionDropDown = ({
 			<Dropdown
 				className="w-full"
 				buttonClassName={clsxm(
-					'py-0 font-medium h-[3.1rem] w-full',
+					`py-0 font-normal h-[3.1rem] w-full ${
+						!currentPosition ? 'text-gray-400' : ''
+					}`,
 					items.length === 0 && ['py-2']
 				)}
-				value={positionItem as any}
+				value={positionItem}
 				onChange={(e: any) => onChange(e)}
-				items={items as any}
+				items={items}
 			></Dropdown>
 		</>
 	);

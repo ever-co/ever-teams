@@ -1,21 +1,24 @@
+import { IPosition } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
 
-export type PositionItem = DropdownItem<string>;
+export type PositionItem = DropdownItem<IPosition>;
 
-export function mapPositionItems(positions: string[]) {
-	const items = positions.map<PositionItem>((position: string) => {
+export function mapPositionItems(positions: IPosition[]) {
+	const items = positions.map((position: IPosition) => {
 		return {
-			key: position,
+			key: position.title,
 			Label: ({ selected }: any) => (
 				<div className="flex justify-between">
 					<PositionItem
-						title={position}
+						title={position.title}
 						className={selected ? 'font-medium' : ''}
 					/>
 				</div>
 			),
-			selectedLabel: <PositionItem title={position} className="py-2 mb-0" />,
+			selectedLabel: (
+				<PositionItem title={position.title} className="py-2 mb-0" />
+			),
 			data: position,
 		};
 	});
@@ -26,7 +29,7 @@ export function mapPositionItems(positions: string[]) {
 			Label: () => (
 				<div className="flex justify-between">
 					<PositionItem
-						title={'Add Position'}
+						title={''}
 						className="w-full cursor-default disabled"
 						disabled
 					/>
@@ -39,7 +42,7 @@ export function mapPositionItems(positions: string[]) {
 					className="py-2 mb-0 disabled"
 				/>
 			),
-			data: '',
+			data: { title: 'Add Position' },
 		});
 	}
 
