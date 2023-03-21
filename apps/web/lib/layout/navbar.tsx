@@ -67,7 +67,7 @@ export function Navbar({
 				>
 					<Container>
 						<div className="w-full flex justify-between items-center min-h-[70px]">
-							<AppLogo dash className="scale-[0.7] origin-[0]" />
+							<AppLogo dash className="scale-[0.7] origin-[0] w-4/5 md:w-full" />
 							{!notFound && (
 								<div className="flex space-x-5 items-center">
 									{publicTeam && (
