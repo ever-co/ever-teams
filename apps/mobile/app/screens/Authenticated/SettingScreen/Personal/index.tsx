@@ -8,6 +8,7 @@ import PictureSection from '../components/PictureSection';
 import { useSettings } from '../../../../services/hooks/features/useSettings';
 import { useStores } from '../../../../models';
 import { IPopup } from '../../..';
+import FlashMessage from 'react-native-flash-message';
 
 interface IPersonalProps {
     onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown
@@ -80,6 +81,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
                 </View>
 
             </ScrollView>
+            <FlashMessage position={"bottom"} />
         </View>
 
     )
