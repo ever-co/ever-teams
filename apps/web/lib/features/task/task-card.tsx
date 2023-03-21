@@ -43,70 +43,133 @@ export function TaskCard({
 	const [loading, setLoading] = useState(false);
 
 	return (
-		<Card
-			shadow="bigger"
-			className={clsxm(
-				'relative flex items-center justify-between py-3',
-				active && ['border-primary-light border-[2px]'],
-				className
-			)}
-		>
-			<div className="absolute -left-0">
-				<DraggerIcon />
-			</div>
-
-			{/* Task information */}
-			<TaskInfo task={task} className="w-80 px-4" />
-			<VerticalSeparator className="ml-2" />
-
-			{viewType === 'default' && (
-				<>
-					{/* TaskEstimateInfo */}
-					<div className="flex space-x-2 items-center">
-						<TaskEstimateInfo
-							task={task}
-							isAuthUser={isAuthUser}
-							activeAuthTask={activeAuthTask}
-							className="px-3 w-52"
-						/>
-						{isAuthUser && task && <TimerButtonCall task={task} />}
-					</div>
-					<VerticalSeparator />
-				</>
-			)}
-
-			{viewType === 'unassign' && (
-				<>
-					<UsersTaskAssigned className="px-3 w-52" task={task} />
-					<VerticalSeparator />
-				</>
-			)}
-
-			{/* TaskTimes */}
-			<div className="flex items-center">
-				<TaskTimes
-					activeAuthTask={activeAuthTask}
-					task={task}
-					isAuthUser={isAuthUser}
-					className="w-48 lg:px-4"
-					showTotal={viewType !== 'unassign'}
-				/>
-				{isAuthUser && viewType === 'unassign' && task && (
-					<TimerButtonCall task={task} />
+		<>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative md:flex items-center justify-between py-3 hidden',
+					active && ['border-primary-light border-[2px]'],
+					className
 				)}
-			</div>
-			<VerticalSeparator />
+			>
+				<div className="absolute -left-0">
+					<DraggerIcon />
+				</div>
 
-			{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-			<ActiveTaskStatusDropdown
-				task={task || null}
-				className="lg:min-w-[170px] lg:mr-4 mx-auto"
-				onChangeLoading={(load) => setLoading(load)}
-			/>
+				{/* Task information */}
+				<TaskInfo task={task} className="lg:w-80 px-4 w-1/3" />
+				<VerticalSeparator className="ml-2" />
 
-			{/* TaskCardMenu */}
-			{task && <TaskCardMenu task={task} loading={loading} />}
-		</Card>
+				{viewType === 'default' && (
+					<>
+						{/* TaskEstimateInfo */}
+						<div className="flex space-x-2 items-center flex-col">
+							<TaskEstimateInfo
+								task={task}
+								isAuthUser={isAuthUser}
+								activeAuthTask={activeAuthTask}
+								className="lg:px-3 lg:w-52 "
+							/>
+							{isAuthUser && task && <TimerButtonCall task={task} />}
+						</div>
+						<VerticalSeparator />
+					</>
+				)}
+
+				{viewType === 'unassign' && (
+					<>
+						<UsersTaskAssigned className="lg:px-3 lg:w-52" task={task} />
+						<VerticalSeparator />
+					</>
+				)}
+
+				{/* TaskTimes */}
+				<div className="flex items-center">
+					<TaskTimes
+						activeAuthTask={activeAuthTask}
+						task={task}
+						isAuthUser={isAuthUser}
+						className="lg:w-48 lg:px-4 px-2"
+						showTotal={viewType !== 'unassign'}
+					/>
+					{isAuthUser && viewType === 'unassign' && task && (
+						<TimerButtonCall task={task} />
+					)}
+				</div>
+				<VerticalSeparator />
+
+				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
+				<ActiveTaskStatusDropdown
+					task={task || null}
+					className="lg:min-w-[170px] lg:mr-4 mx-auto"
+					onChangeLoading={(load) => setLoading(load)}
+				/>
+
+				{/* TaskCardMenu */}
+				{task && <TaskCardMenu task={task} loading={loading} />}
+			</Card>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative md:hidden flex items-center justify-between py-3 flex-col',
+					active && ['border-primary-light border-[2px]'],
+					className
+				)}
+			>
+				<div className="absolute -left-0">
+					<DraggerIcon />
+				</div>
+				{/* TaskTimes */}
+				<div className="flex self-start ml-2 mb-4">
+					<TaskTimes
+						activeAuthTask={activeAuthTask}
+						task={task}
+						isAuthUser={isAuthUser}
+						className="w-48 lg:px-4"
+						showTotal={viewType !== 'unassign'}
+					/>
+					{isAuthUser && viewType === 'unassign' && task && (
+						<TimerButtonCall task={task} />
+					)}
+				</div>
+
+				{/* Task information */}
+				<TaskInfo task={task} className="w-80 px-4 mb-4" />
+
+				{viewType === 'default' && (
+					<>
+						{/* TaskEstimateInfo */}
+						<div className="flex space-x-2 items-center">
+							<TaskEstimateInfo
+								task={task}
+								isAuthUser={isAuthUser}
+								activeAuthTask={activeAuthTask}
+								className="px-3 w-52"
+							/>
+						</div>
+					</>
+				)}
+
+				{viewType === 'unassign' && (
+					<>
+						<UsersTaskAssigned className="px-3 w-52" task={task} />
+					</>
+				)}
+				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
+
+				<div className="flex justify-between mt-4 space-x-5">
+					{isAuthUser && task && <TimerButtonCall task={task} />}{' '}
+					<ActiveTaskStatusDropdown
+						task={task || null}
+
+						onChangeLoading={(load) => setLoading(load)}
+					/>
+				</div>
+
+				{/* TaskCardMenu */}
+				{task && <TaskCardMenu task={task} loading={loading} />}
+			</Card>
+		</>
 	);
 }
 

@@ -36,7 +36,7 @@ const Profile = () => {
 					</div>
 
 					{/* User Profile Detail */}
-					<div className="flex items-center justify-between py-10">
+					<div className="flex items-center justify-between py-10 flex-col md:flex-row">
 						<UserProfileDetail member={profile.member} />
 
 						{profile.isAuthUser && (
@@ -65,7 +65,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = member?.employee.user;
 
 	return (
-		<div className="flex items-center space-x-4">
+		<div className="flex items-center space-x-4 mb-4 md:mb-0">
 			<Avatar size={80} imageUrl={user?.imageUrl}>
 				<TimerStatus
 					status={member?.timerStatus || 'idle'}
