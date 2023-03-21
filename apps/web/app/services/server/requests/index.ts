@@ -12,7 +12,7 @@ export * from './roles';
 export * from './smtp';
 export * from './user';
 export * from './email-reset';
-
+export * from './request-to-join-team';
 
 //personal setting request export
 export * from './settings';
