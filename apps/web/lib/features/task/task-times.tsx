@@ -109,10 +109,10 @@ function TimeInfo({
 		<>
 			{showDaily && (
 				<div className="flex space-x-2 items-center mb-2 font-normal">
-					<span className="text-gray-500 lg:text-sm">
+					<span className="text-gray-500 lg:text-sm text-xs">
 						{trans.common.TODAY}:
 					</span>
-					<Text>
+					<Text className='lg:text-sm text-xs'>
 						{daily.h}h : {daily.m}m
 					</Text>
 				</div>
@@ -125,10 +125,10 @@ function TimeInfo({
 						showDaily && ['text-sm']
 					)}
 				>
-					<span className="text-gray-500 lg:text-sm">
+					<span className="text-gray-500 lg:text-sm text-xs">
 						{trans.common.TOTAL}:
 					</span>
-					<Text>
+					<Text className='lg:text-sm text-xs'>
 						{total.h}h : {total.m}m
 					</Text>
 				</div>
