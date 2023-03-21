@@ -199,7 +199,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 		resendCodeRequestToJoinLoading,
 		validateRequestToJoinLoading,
 	} = useRequestToJoinTeam();
-	const [errorsOnJoin, setErrorsOnJoin] = useState('');
+	const [message, setMessage] = useState<string>('');
 
 	const handleSubmitRequest = useCallback(
 		(e: React.FormEvent<HTMLFormElement>) => {
@@ -219,13 +219,9 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 			};
 
 			if (joinButtonAction === 'JOIN') {
-				requestToJoinTeam(payload).then((data) => {
-					if (data.data.organizationTeamId) {
-						setJoinButtonAction('CONFIRM');
-						return;
-					}
-
-					setErrorsOnJoin('Error while sending join request.');
+				requestToJoinTeam(payload).then(() => {
+					setJoinButtonAction('CONFIRM');
+					setMessage(trans.pages.home.SENT_EMAIL_VERIFICATION);
 				});
 				setRequestToJoinPayload(payload);
 			} else {
@@ -239,7 +235,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 							closeModal();
 						}
 						setErrors({
-							code: 'Error while verifying code.',
+							code: trans.errors.ERROR_WHILE_VERIFY_CODE,
 						});
 					});
 				}
@@ -256,6 +252,8 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 			position,
 			closeModal,
 			setErrors,
+			trans.pages.home.SENT_EMAIL_VERIFICATION,
+			trans.errors.ERROR_WHILE_VERIFY_CODE,
 		]
 	);
 
@@ -298,9 +296,9 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 					onChangePosition={setPosition}
 				/>
 
-				{errorsOnJoin && (
+				{message && (
 					<Text.Error className="self-start justify-self-start">
-						{errorsOnJoin}
+						{message}
 					</Text.Error>
 				)}
 			</div>
