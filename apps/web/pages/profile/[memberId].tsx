@@ -36,7 +36,7 @@ const Profile = () => {
 					</div>
 
 					{/* User Profile Detail */}
-					<div className="flex items-center justify-between py-10 flex-col md:flex-row">
+					<div className="flex items-center justify-between py-10 xs:flex-row flex-col">
 						<UserProfileDetail member={profile.member} />
 
 						{profile.isAuthUser && (

@@ -170,11 +170,7 @@ type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
 		<>
-			<div className={clsxm('flex md:hidden flex-col items-center', className)}>
-				<InputFilters profile={profile} hook={hook} />
-				<TabsNav hook={hook} />
-			</div>
-			<div className={clsxm('md:flex justify-between hidden', className)}>
+			<div className={clsxm('flex justify-between xs:flex-row flex-col items-center', className)}>
 				<TabsNav hook={hook} />
 				<InputFilters profile={profile} hook={hook} />
 			</div>
@@ -209,7 +205,7 @@ function InputFilters({ hook, profile }: Props) {
 	const [loading, setLoading] = useState(false);
 
 	return (
-		<div className="flex lg:space-x-5 space-x-2 items-center">
+		<div className="flex lg:space-x-5 space-x-2 items-center mt-8 xs:mt-4">
 			<button
 				className={clsxm('outline-none')}
 				onClick={() => hook.toggleFilterType('search')}
@@ -271,11 +267,11 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 				return (
-					<Tooltip key={i} placement="top-start" label={item.description} >
+					<Tooltip key={i} placement="top-start" label={item.description}>
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								'md:text-lg text-sm text-gray-500 font-normal outline-none md:p-3 p-1 relative mt-4 md:mt-0',
+								'md:text-lg text-xs text-gray-500 font-normal outline-none p-1 md:p-3 relative mt-4 md:mt-0',
 								active && ['text-primary dark:text-primary-light']
 							)}
 						>
