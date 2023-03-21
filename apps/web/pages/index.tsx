@@ -3,6 +3,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
 import {
 	AuthUserTaskInput,
+	TeamInvitations,
 	TeamMembers,
 	Timer,
 	UnverifiedEmail,
@@ -29,6 +30,8 @@ function MainPage() {
 				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 
 				<UnverifiedEmail />
+
+				<TeamInvitations />
 
 				{isTeamMember ? (
 					<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
@@ -59,7 +62,7 @@ function TaskTimerSection({
 			)}
 		>
 			{/* Task inputs */}
-			<AuthUserTaskInput className='md:w-1/2'/>
+			<AuthUserTaskInput className="md:w-1/2" />
 
 			{/* Timer  */}
 			{isTrackingEnabled ? <Timer /> : null}

@@ -77,6 +77,7 @@ export const en = {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
 			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
+			INVITATIONS: "You've been invited to join",
 		},
 
 		profile: {
