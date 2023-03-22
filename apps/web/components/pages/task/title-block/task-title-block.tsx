@@ -55,7 +55,7 @@ const TaskTitleBlock = () => {
 	};
 
 	return (
-		<div className="flex mb-10  ">
+		<div className="flex md:mb-10  ">
 			{title !== '' ? (
 				<>
 					<textarea

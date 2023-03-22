@@ -71,7 +71,7 @@ export function MinTimerFrame({ className }: IClassName) {
 		<div
 			className={clsxm(
 				'input-border rounded-[10px] p-2',
-				'flex items-center space-x-4',
+				'flex items-center md:space-x-4 space-x-1',
 				className
 			)}
 		>
