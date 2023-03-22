@@ -23,29 +23,6 @@ export function mapPositionItems(positions: IPosition[]) {
 		};
 	});
 
-	if (items.length > 0) {
-		items.unshift({
-			key: '',
-			Label: () => (
-				<div className="flex justify-between">
-					<PositionItem
-						title={''}
-						className="w-full cursor-default disabled"
-						disabled
-					/>
-				</div>
-			),
-			selectedLabel: (
-				<PositionItem
-					title={'Add Position'}
-					disabled
-					className="py-2 mb-0 disabled"
-				/>
-			),
-			data: { title: 'Add Position' },
-		});
-	}
-
 	return items;
 }
 

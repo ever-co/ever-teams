@@ -26,6 +26,9 @@ type Props<T extends DropdownItem> = {
 	items: T[];
 	loading?: boolean;
 	buttonStyle?: React.CSSProperties;
+	placeholder?: string;
+	handleAddNew?: any;
+	disabled?: boolean;
 } & PropsWithChildren;
 
 export function AutoCompleteDropdown<T extends DropdownItem>({
@@ -36,26 +39,29 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	onChange,
 	items,
 	optionsClassName,
+	placeholder,
+	handleAddNew,
+	disabled = false,
 }: Props<T>) {
 	const [query, setQuery] = useState('');
 	const filteredItem =
 		query === ''
 			? items
 			: items.filter((item) => {
-					return `${item?.data?.title || ''}`
-						.toLowerCase()
-						.includes(query.toLowerCase());
-				});
+				return `${item?.data?.title || ''}`
+					.toLowerCase()
+					.includes(query.toLowerCase());
+			});
 
 	return (
 		<div className={clsxm('relative', className)}>
-			<Combobox value={Value} onChange={onChange}>
+			<Combobox value={Value} onChange={onChange} disabled={disabled}>
 				<Combobox.Input
-					placeholder="Please Enter member name"
+					placeholder={placeholder}
 					onChange={(event) => setQuery(event.target.value)}
 					className={clsxm(
 						'input-border',
-						'w-full flex justify-between rounded-[10px] px-3 py-2 text-sm items-center',
+						'w-full flex justify-between rounded-[10px] px-3 py-2 text-sm items-center bg-transparent',
 						'font-normal',
 						buttonClassName
 					)}
@@ -82,6 +88,21 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 							className="md:px-4 py-4 rounded-[12px]"
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
+							{/* This should only show when New item needs to be created */}
+							{query && handleAddNew && (
+								<Combobox.Option
+									key={'new'}
+									value={query}
+									onClick={() => {
+										handleAddNew(query);
+									}}
+									className="font-medium cursor-pointer mb-3"
+								>
+									<div className="flex justify-between">
+										{`Create new "${query}"`}
+									</div>
+								</Combobox.Option>
+							)}
 							{filteredItem.map((Item, index) => (
 								<Combobox.Option
 									key={Item.key ? Item.key : index}
