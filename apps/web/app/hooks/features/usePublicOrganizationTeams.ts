@@ -22,7 +22,7 @@ export function usePublicOrganizationTeams() {
 				return res;
 			});
 		},
-		[queryCall, loading, setTeams]
+		[queryCall, setTeams]
 	);
 
 	return {

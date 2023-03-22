@@ -240,6 +240,7 @@ export const en = {
 
 	errors: {
 		NETWORK_ISSUE: 'network issue, please try again later',
+		ERROR_WHILE_VERIFY_CODE: 'Error while verifying code.',
 	},
 };
 

@@ -170,7 +170,7 @@ type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
 		<>
-			<div className={clsxm('flex justify-between', className)}>
+			<div className={clsxm('flex justify-between xs:flex-row flex-col items-center', className)}>
 				<TabsNav hook={hook} />
 				<InputFilters profile={profile} hook={hook} />
 			</div>
@@ -205,7 +205,7 @@ function InputFilters({ hook, profile }: Props) {
 	const [loading, setLoading] = useState(false);
 
 	return (
-		<div className="flex lg:space-x-5 space-x-2 items-center">
+		<div className="flex lg:space-x-5 space-x-2 items-center mt-8 xs:mt-4">
 			<button
 				className={clsxm('outline-none')}
 				onClick={() => hook.toggleFilterType('search')}
@@ -263,7 +263,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex space-x-4">
+		<nav className="flex md:space-x-4 space-x-1 mt-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 				return (
@@ -271,7 +271,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								'text-lg text-gray-500 font-normal outline-none p-3 relative',
+								'md:text-lg text-xs text-gray-500 font-normal outline-none p-1 md:p-3 relative mt-4 md:mt-0',
 								active && ['text-primary dark:text-primary-light']
 							)}
 						>
@@ -309,34 +309,34 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const { trans } = useTranslation();
 
 	return (
-		<div className="mt-4 flex justify-between space-x-2 items-center">
-			<div className="flex-1 flex space-x-3">
+		<div className="mt-4 flex md:justify-between space-x-2 items-center  flex-col md:flex-row">
+			<div className="flex-1 flex space-x-3 flex-wrap justify-center md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
 					onValueChange={(v) => hook.onChangeStatusFilter('status', v)}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] mt-4 lg:mt-0"
 				/>
 
 				<TaskPropertiesDropdown
 					key={key + 2}
 					onValueChange={(v) => hook.onChangeStatusFilter('priority', v)}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] mt-4 lg:mt-0"
 				/>
 
 				<TaskSizesDropdown
 					key={key + 3}
 					onValueChange={(v) => hook.onChangeStatusFilter('size', v)}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] mt-4 lg:mt-0"
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
 					onValueChange={(v) => hook.onChangeStatusFilter('label', v)}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] mt-4 lg:mt-0"
 				/>
 			</div>
 
-			<div className="flex space-x-3">
+			<div className="flex space-x-3 mt-4 lg:mt-0">
 				<Button className="py-2 min-w-[100px]" onClick={hook.applyStatusFilder}>
 					{trans.common.APPLY}
 				</Button>

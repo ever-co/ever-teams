@@ -84,8 +84,8 @@ const Team = () => {
 									</Card>
 
 									{/*
-								Note: DO NOT REMOVE 
-								Settings v2 	
+								Note: DO NOT REMOVE
+								Settings v2
 								*/}
 									{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
 									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
