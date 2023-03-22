@@ -3,11 +3,13 @@ import {
 	inviteByEmailsAPI,
 	removeTeamInvitationsAPI,
 	resendTeamInvitationsAPI,
+	getMyInvitationsAPI,
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
 	getTeamInvitationsState,
+	myInvitationsState,
 	teamInvitationsState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
@@ -18,6 +20,9 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
+	const [myInvitationsList, setMyInvitationsList] =
+		useRecoilState(myInvitationsState);
+
 	const teamInvitations = useRecoilValue(getTeamInvitationsState);
 	const [fetchingInvitations, setFetchingInvitations] = useRecoilState(
 		fetchingTeamInvitationsState
@@ -40,6 +45,9 @@ export function useTeamInvitations() {
 
 	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } =
 		useQuery(resendTeamInvitationsAPI);
+
+	const { queryCall: myInvitationsQueryCall, loading: myInvitationsLoading } =
+		useQuery(getMyInvitationsAPI);
 
 	const inviteUser = useCallback((email: string, name: string) => {
 		return inviteQueryCall({ email, name }).then((res) => {
@@ -72,6 +80,13 @@ export function useTeamInvitations() {
 		resendInviteQueryCall(invitationId);
 	}, []);
 
+	const myInvitations = useCallback(() => {
+		myInvitationsQueryCall().then((res) => {
+			setMyInvitationsList(res.data.items);
+			return res.data;
+		});
+	}, [myInvitationsQueryCall]);
+
 	return {
 		teamInvitations,
 		firstLoadTeamInvitationsData,
@@ -82,5 +97,9 @@ export function useTeamInvitations() {
 		resendTeamInvitation,
 		removeInviteLoading,
 		resendInviteLoading,
+		myInvitationsQueryCall,
+		myInvitationsLoading,
+		myInvitations,
+		myInvitationsList,
 	};
 }

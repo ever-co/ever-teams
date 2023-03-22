@@ -149,3 +149,23 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
 		body: params,
 	});
 }
+
+
+/**
+ * Get my team invitations request
+ *
+ * @param param0
+ * @param bearer_token
+ * @returns
+ */
+export function getMyInvitationsRequest(
+	tenantId : string,
+	bearer_token: string
+) {
+	return serverFetch<PaginationResponse<IInvitation>>({
+		path: `/invite/me`,
+		method: 'GET',
+		bearer_token,
+		tenantId: tenantId,
+	});
+}
