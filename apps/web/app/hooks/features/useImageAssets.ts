@@ -26,7 +26,7 @@ export function useImageAssets() {
 					formData,
 					{
 						headers: {
-							'tenant-id': 'cf1977ed-40be-432e-a0af-79d7da5db23b',
+							'tenant-id': tenantId,
 							authorization: `Bearer ${bearer_token}`,
 						},
 					}
