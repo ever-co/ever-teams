@@ -40,7 +40,8 @@ export const RequestToJoinModal = ({
 						as="h3"
 						className={clsxm(
 							'text-center gap-32 pb-4 pr-5 hover:cursor-pointer',
-							currentTab === 'ALREADY_MEMBER' && 'border-primary border-b-2'
+							currentTab === 'ALREADY_MEMBER' &&
+								'border-primary dark:border-white border-b-2'
 						)}
 						onClick={() => {
 							setCurrentTab('ALREADY_MEMBER');
@@ -52,7 +53,8 @@ export const RequestToJoinModal = ({
 						as="h3"
 						className={clsxm(
 							'text-center gap-32 pb-4 pl-5 hover:cursor-pointer',
-							currentTab === 'BECOME_MEMBER' && 'border-primary border-b-2'
+							currentTab === 'BECOME_MEMBER' &&
+								'border-primary dark:border-white border-b-2'
 						)}
 						onClick={() => {
 							setCurrentTab('BECOME_MEMBER');
@@ -294,6 +296,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 				<PositionDropDown
 					currentPosition={position}
 					onChangePosition={setPosition}
+					disabled={joinButtonAction === 'CONFIRM'}
 				/>
 
 				{message && (

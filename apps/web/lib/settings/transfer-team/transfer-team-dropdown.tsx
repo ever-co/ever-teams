@@ -51,6 +51,7 @@ export const TransferTeamDropdown = ({
 				value={memberItem}
 				onChange={onChangeActiveTeam}
 				items={items}
+				placeholder={'Please Enter member name'}
 			></AutoCompleteDropdown>
 		</>
 	);
