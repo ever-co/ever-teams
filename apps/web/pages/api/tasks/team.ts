@@ -15,10 +15,7 @@ export default async function handler(
 	if (!user) return $res();
 
 	if (req.method === 'POST') {
-		const body =
-			(req.body as {
-				title?: string;
-			}) || {};
+		const body: Record<string, any> = req.body || {};
 
 		const title = body.title?.trim() || '';
 		if (title.trim().length < 2) {
@@ -26,16 +23,9 @@ export default async function handler(
 		}
 		const activeTeam = getActiveTeamIdCookie({ req, res });
 
-		// TODO: I don't understand all logic around "title" above (where we get it from body) and next line and `...rest` etc.
-		// Please refactor to clean code!
-
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { title: _t, ...rest } = body;
-
 		await createTaskRequest({
 			bearer_token: access_token,
 			data: {
-				title,
 				description: '',
 				status: 'Todo',
 				members: [{ id: user.employee.id }],
@@ -48,7 +38,8 @@ export default async function handler(
 				organizationId,
 				tenantId,
 				estimate: 0,
-				...rest,
+				...body,
+				title, // this must be called after ...body
 			},
 		});
 	}
