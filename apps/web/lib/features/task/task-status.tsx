@@ -471,7 +471,7 @@ export function TaskLabelsDropdown({
 	onValueChange,
 	forDetails,
 }: TTaskStatusesDropdown<'label'>) {
-	const taskLabelsValue = useTaskSizesValue();
+	const taskLabelsValue = useTaskLabelsValue();
 
 	const { item, items, onChange } = useStatusValue<'label'>(
 		taskLabelsValue,
@@ -492,7 +492,7 @@ export function TaskLabelsDropdown({
 }
 
 export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
-	const taskLabelsValue = useTaskSizesValue();
+	const taskLabelsValue = useTaskLabelsValue();
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
 		taskLabelsValue,
@@ -533,6 +533,8 @@ export function ActiveTaskProjectDropdown(
 	);
 }
 
+//! =============== Task Project ================= //
+
 export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
@@ -552,7 +554,7 @@ export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
 	);
 }
 
-//! =============== FC Status drop down ================= //
+//! =============== FC Status dropdown ================= //
 
 export function TaskStatus({
 	children,

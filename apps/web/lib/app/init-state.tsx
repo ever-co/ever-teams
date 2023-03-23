@@ -9,6 +9,7 @@ import {
 	useTaskStatus,
 	useTaskPriorities,
 	useTaskSizes,
+	useTaskLabels,
 } from '@app/hooks';
 import { userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -33,6 +34,7 @@ function InitState() {
 	const { firstLoadTaskStatusData } = useTaskStatus();
 	const { firstLoadTaskPrioritiesData } = useTaskPriorities();
 	const { firstLoadTaskSizesData } = useTaskSizes();
+	const { firstLoadTaskLabelsData } = useTaskLabels();
 
 	useEffect(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -47,6 +49,7 @@ function InitState() {
 		firstLoadTaskStatusData();
 		firstLoadTaskPrioritiesData();
 		firstLoadTaskSizesData();
+		firstLoadTaskLabelsData();
 		// --------------
 
 		getTimerStatus();
@@ -66,6 +69,7 @@ function InitState() {
 		firstLoadTaskStatusData,
 		firstLoadTaskPrioritiesData,
 		firstLoadTaskSizesData,
+		firstLoadTaskLabelsData,
 	]);
 	return <></>;
 }
