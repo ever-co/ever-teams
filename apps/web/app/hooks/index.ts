@@ -29,6 +29,7 @@ export * from './features/useAutoAssignTask';
 export * from './features/useEmailReset';
 export * from './features/useOrganizatioTeamsEmployee';
 export * from './features/useRequestToJoinTeam';
+export * from './features/useImageAssets';
 
 //export user personal setting
 export * from './features/useSettings';

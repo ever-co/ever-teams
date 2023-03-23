@@ -4,7 +4,7 @@ import { Breadcrumb, Card, Container, Text } from 'lib/components';
 
 import {
 	LeftSideSettingMenu,
-	ProfileAvatar,
+	TeamAvatar,
 	TeamSettingForm,
 	TaskStatusesForm,
 	TaskPrioritiesForm,
@@ -30,7 +30,7 @@ const Team = () => {
 			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
-				<MainLayout className='items-start'>
+				<MainLayout className="items-start">
 					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 						<Container>
 							<Breadcrumb
@@ -55,7 +55,7 @@ const Team = () => {
 										<Text className="text-base font-normal text-gray-400">
 											{translations.pages.settings.HEADING_DESCRIPTION}
 										</Text>
-										<ProfileAvatar />
+										<TeamAvatar />
 										<TeamSettingForm />
 									</Card>
 									<Card
