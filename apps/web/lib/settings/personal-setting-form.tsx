@@ -129,9 +129,9 @@ export const PersonalSettingForm = () => {
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">
-							<div className="flex items-center justify-between w-full gap-8">
-								<div className="flex items-center justify-between w-full gap-4">
-									<div>
+							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row">
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<div className='w-full'>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
 											{translations.common.FULL_NAME}
 										</Text>
@@ -148,7 +148,7 @@ export const PersonalSettingForm = () => {
 											disabled={!editFullname}
 										/>
 									</div>
-									<div className="mt-[2rem]">
+									<div className="mt-[2rem] w-full">
 										<InputField
 											type="text"
 											placeholder="Last Name"
@@ -189,9 +189,9 @@ export const PersonalSettingForm = () => {
 									)}
 								</div>
 							</div>
-							<div className="flex items-center justify-between w-full gap-8 mt-8">
-								<div className="flex items-center justify-between w-full gap-4">
-									<div>
+							<div className="flex items-center justify-between w-full sm:gap-8 mt-8 flex-col sm:flex-row">
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<div className='w-full'>
 										<Text className="mb-2 font-normal text-gray-400 text-md">
 											{translations.common.CONTACT}
 										</Text>
@@ -209,7 +209,7 @@ export const PersonalSettingForm = () => {
 											disabled={!editContacts}
 										/>
 									</div>
-									<div className="mt-8">
+									<div className="mt-8 w-full">
 										<InputField
 											type="text"
 											placeholder="Phone Number"
@@ -279,8 +279,8 @@ export const PersonalSettingForm = () => {
 									/>
 								</div>
 							</div>
-							<div className="flex items-center justify-between w-full gap-5 mt-8">
-								<div className="">
+							<div className="flex items-center sm:justify-between w-full gap-5 mt-8">
+								<div>
 									<Text className="mb-2 font-normal text-gray-400 text-md">
 										{translations.common.TIME_ZONE}
 									</Text>

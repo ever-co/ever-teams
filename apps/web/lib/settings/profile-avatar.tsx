@@ -56,7 +56,7 @@ export const ProfileAvatar = () => {
 			<div className="flex flex-col justify-between items-center">
 				<div className="w-full">
 					<div className="">
-						<div className="flex w-full items-center justify-between gap-8">
+						<div className="flex w-full items-center sm:justify-between justify-center gap-8">
 							<div className="relative">
 								<Avatar
 									size={80}
