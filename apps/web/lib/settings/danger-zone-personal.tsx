@@ -33,11 +33,11 @@ export const DangerZone = () => {
 			<div className="flex flex-col justify-between items-center">
 				<div className="w-full mt-5">
 					<div className="">
-						<div className="flex w-full items-center justify-between gap-6">
-							<div className="flex-auto w-64">
-								<Text className="text-xl  font-normal">Remove Account</Text>
+						<div className="flex w-full items-center justify-between gap-6 flex-col sm:flex-row">
+							<div className="flex-auto sm:w-64">
+								<Text className="text-xl font-normal">Remove Account</Text>
 							</div>
-							<div className="flex-auto w-64">
+							<div className="flex-auto sm:w-64">
 								<Text className="text-md text-gray-400 font-normal">
 									Account will be removed from all teams, except where you are
 									only the manager
@@ -57,12 +57,12 @@ export const DangerZone = () => {
 								</Button>
 							</div>
 						</div>
-						<div className="flex w-full items-center justify-between gap-6 mt-5">
+						<div className="flex w-full items-center justify-between gap-6 mt-5 flex-col sm:flex-row">
 							<div className="flex-auto w-64">
-								<Text className="text-xl  font-normal">Delete Account</Text>
+								<Text className="text-xl font-normal text-center sm:text-left">Delete Account</Text>
 							</div>
-							<div className="flex-auto w-64">
-								<Text className="text-md text-gray-400 font-normal">
+							<div className="flex-auto sm:w-64">
+								<Text className="text-md text-gray-400 font-normal text-center sm:text-left">
 									Your Account will be deleted permanently with removing from
 									all teams
 								</Text>
