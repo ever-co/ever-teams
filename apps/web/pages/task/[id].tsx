@@ -49,12 +49,12 @@ const TaskDetails = () => {
 
 			<Container className="mb-10">
 				<div className="flex flex-col w-full min-h-screen pt-5">
-					<section className="flex justify-between">
-						<section className="mr-5 max-w-[900px] w-full">
+					<section className="flex justify-between md:flex-row flex-col">
+						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 							<TaskDescriptionBlock />
 						</section>
-						<div className="bg-white flex flex-col text-red-700 w-[400px] rounded-lg">
+						<div className="bg-white flex flex-col text-red-700 md:w-[400px] rounded-lg">
 							<TaskDetailsAside />
 						</div>
 					</section>

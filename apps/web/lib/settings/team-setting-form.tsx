@@ -82,8 +82,8 @@ export const TeamSettingForm = () => {
 				<div className="flex flex-col justify-between items-center">
 					<div className="w-full mt-5">
 						<div className="">
-							<div className="flex w-full items-center justify-between gap-12">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+							<div className="flex w-full items-center justify-between sm:gap-12 flex-col sm:flex-row">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_NAME}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -104,12 +104,12 @@ export const TeamSettingForm = () => {
 									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center  gap-12 mt-8">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+							<div className="flex w-full items-center sm:gap-12 mt-8 flex-col sm:flex-row">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_TYPE}
 								</Text>
-								<div className="flex gap-x-[30px]">
-									<div className="items-center  w-full">
+								<div className="flex gap-x-[30px] flex-col sm:flex-row ">
+									<div className="items-center w-full flex justify-between sm:block">
 										<div>
 											<input
 												id="team-type-radio-public"
@@ -140,7 +140,7 @@ export const TeamSettingForm = () => {
 										</div>
 									</div>
 									{getTeamLink() && (
-										<div className="flex gap-4 items-center">
+										<div className="flex gap-4 items-center flex-col sm:flex-row">
 											<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
 												<Tooltip
 													label={getTeamLink()}
@@ -157,7 +157,7 @@ export const TeamSettingForm = () => {
 													/>
 												</Tooltip>
 											</div>
-											<div className="flex flex-row flex-grow-0 items-center justify-between w-1/5">
+											<div className="flex flex-row flex-grow-0 items-center justify-between sm:w-1/5">
 												<Button
 													variant="outline"
 													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
@@ -180,7 +180,7 @@ export const TeamSettingForm = () => {
 
 							{isTeamManager ? (
 								<div className="flex w-full items-center justify-between gap-12">
-									<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+									<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 sm:w-1/5">
 										{trans.TIME_TRACKING}
 									</Text>
 									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">

@@ -119,12 +119,12 @@ export const TaskSizesForm = () => {
 				autoComplete="off"
 			>
 				<div className="flex">
-					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem]">
-						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px]">
+					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
+						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px] text-center sm:text-left">
 							{trans.TASK_SIZES}
 						</Text>
 
-						<div className="flex flex-col">
+						<div className="flex flex-col items-center sm:items-start">
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
@@ -199,10 +199,10 @@ export const TaskSizesForm = () => {
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
+							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 								{trans.LIST_OF_SIZES}
 							</Text>
-							<div className="flex flex-wrap w-full gap-3">
+							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
 								{loading && !taskSizes && <Spinner dark={false} />}
 								{taskSizes && taskSizes?.length ? (
 									taskSizes.map((size) => (

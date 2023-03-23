@@ -107,7 +107,15 @@ function useCreateOrganizationTeam() {
 				return res;
 			});
 		},
-		[isTeamMember, queryCall, refreshToken, setActiveTeamId, setIsTeamMember, setTeams, teamsRef]
+		[
+			isTeamMember,
+			queryCall,
+			refreshToken,
+			setActiveTeamId,
+			setIsTeamMember,
+			setTeams,
+			teamsRef,
+		]
 	);
 
 	return {
@@ -236,8 +244,15 @@ export function useOrganizationTeams() {
 				});
 			return res;
 		});
-	}, [queryCall, queryCallTeam, setActiveTeam, setActiveTeamId, setIsTeamMember, setTeams, setTeamsUpdate]);
-
+	}, [
+		queryCall,
+		queryCallTeam,
+		setActiveTeam,
+		setActiveTeamId,
+		setIsTeamMember,
+		setTeams,
+		setTeamsUpdate,
+	]);
 
 	/**
 	 * Get active team profile from api
