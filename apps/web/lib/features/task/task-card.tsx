@@ -52,12 +52,38 @@ export function TaskCard({
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
 		useTaskStatistics(seconds);
 
-	const { h, m } = secondsToTime(
-		(activeTaskTotalStat?.duration || 0) + addSeconds
-	);
-	const { h: dh, m: dm } = secondsToTime(
-		(activeTaskDailyStat?.duration || 0) + addSeconds
-	);
+	const TotalWork = () => {
+		if (isAuthUser && activeAuthTask) {
+			const { h, m } = secondsToTime(
+				(activeTaskTotalStat?.duration || 0) + addSeconds
+			);
+			return (
+				<div className={clsxm('flex space-x-2 items-center font-normal')}>
+					<span className="text-gray-500 lg:text-sm">Total time:</span>
+					<Text>
+						{h}h : {m}m
+					</Text>
+				</div>
+			);
+		}
+	};
+
+	const TodayWork = () => {
+		if (isAuthUser && activeAuthTask) {
+			const { h: dh, m: dm } = secondsToTime(
+				(activeTaskDailyStat?.duration || 0) + addSeconds
+			);
+			return (
+				<div className={clsxm('flex flex-col items-start font-normal')}>
+					<span className="text-gray-500 text-xs">Today work</span>
+
+					<Text>
+						{dh}h : {dm}m
+					</Text>
+				</div>
+			);
+		}
+	};
 
 	return (
 		<div>
@@ -135,12 +161,8 @@ export function TaskCard({
 			>
 				{/* TaskTimes */}
 				<div className="flex justify-between ml-2 mb-4">
-					<div className={clsxm('flex space-x-2 items-center font-normal')}>
-						<span className="text-gray-500 lg:text-sm">Total time:</span>
-						<Text>
-							{h}h : {m}m
-						</Text>
-					</div>
+					{/*@ts-ignore*/}
+					<TotalWork />
 					{isAuthUser && viewType === 'unassign' && task && (
 						<TimerButtonCall task={task} />
 					)}
@@ -171,14 +193,9 @@ export function TaskCard({
 				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 				<div className="flex justify-between mt-8 mb-8 space-x-5">
 					<div className="flex space-x-4">
+						{/*@ts-ignore*/}
+						<TodayWork />
 						{isAuthUser && task && <TimerButtonCall task={task} />}
-						<div className={clsxm('flex flex-col items-start font-normal')}>
-							<span className="text-gray-500 text-xs">Today work</span>
-
-							<Text>
-								{dh}h : {dm}m
-							</Text>
-						</div>
 					</div>
 
 					<ActiveTaskStatusDropdown
