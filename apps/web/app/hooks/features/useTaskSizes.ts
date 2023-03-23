@@ -33,13 +33,17 @@ export function useTaskSizes() {
 	const [taskSizesFetching, setTaskSizesFetching] = useRecoilState(
 		taskSizesFetchingState
 	);
-	const { firstLoadData: firstLoadTaskSizesData } = useFirstLoad();
+	const { firstLoadData: firstLoadTaskSizesData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
-		setTaskSizesFetching(loading);
-	}, [loading, setTaskSizesFetching]);
+		if (firstLoad) {
+			setTaskSizesFetching(loading);
+		}
+	}, [loading, firstLoad, setTaskSizesFetching]);
 
 	useEffect(() => {
+		if (!firstLoad) return;
+
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
@@ -48,7 +52,7 @@ export function useTaskSizes() {
 			setTaskSizes(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeamId]);
+	}, [activeTeamId, firstLoad]);
 
 	const createTaskSizes = useCallback(
 		(data: ITaskSizesCreate) => {
@@ -129,7 +133,7 @@ export function useTaskSizes() {
 
 	return {
 		// loadTaskStatus,
-		loading,
+		loading: taskSizesFetching,
 		taskSizes,
 		taskSizesFetching,
 		firstLoadTaskSizesData,

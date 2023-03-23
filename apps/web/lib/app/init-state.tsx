@@ -6,6 +6,9 @@ import {
 	useTeamTasks,
 	useTimer,
 	useAutoAssignTask,
+	useTaskStatus,
+	useTaskPriorities,
+	useTaskSizes,
 } from '@app/hooks';
 import { userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -27,8 +30,12 @@ function InitState() {
 
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 
+	const { firstLoadTaskStatusData } = useTaskStatus();
+	const { firstLoadTaskPrioritiesData } = useTaskPriorities();
+	const { firstLoadTaskSizesData } = useTaskSizes();
+
 	useEffect(() => {
-		//To be called once, at the top level component (e.g main.tsx);
+		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
 		firstLoadTeamsData();
 		firstLoadTasksData();
 		firstLoadTeamInvitationsData();
@@ -36,6 +43,10 @@ function InitState() {
 		firstLoadtasksStatisticsData();
 		firstLoadLanguagesData();
 		firstLoadAutoAssignTask();
+
+		firstLoadTaskStatusData();
+		firstLoadTaskPrioritiesData();
+		firstLoadTaskSizesData();
 		// --------------
 
 		getTimerStatus();
@@ -52,6 +63,9 @@ function InitState() {
 		firstLoadLanguagesData,
 		loadLanguagesData,
 		firstLoadAutoAssignTask,
+		firstLoadTaskStatusData,
+		firstLoadTaskPrioritiesData,
+		firstLoadTaskSizesData,
 	]);
 	return <></>;
 }
