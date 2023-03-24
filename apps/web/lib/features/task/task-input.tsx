@@ -175,7 +175,7 @@ export function TaskInput(props: Props) {
 				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props, autoActiveTask]);
+	}, [datas, props, autoActiveTask, viewType]);
 
 	const inputField = (
 		<InputField

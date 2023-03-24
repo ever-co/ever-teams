@@ -82,6 +82,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 								layout="fill"
 								src={item.fullIconUrl}
 								className="w-full h-full"
+								alt={item.name}
 							/>
 						)}
 					</div>
@@ -95,7 +96,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 			}
 			return acc;
 		}, {} as TStatus<any>);
-	}, [data]);
+	}, [data, bordered]);
 }
 
 export function useActiveTaskStatus<T extends ITaskStatusField>(
