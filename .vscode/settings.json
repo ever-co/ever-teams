@@ -18,10 +18,12 @@
 	"vsicons.presets.angular": true,
 	"deepscan.enable": true,
 	"cSpell.words": [
+		"barcodes",
 		"cloudinary",
 		"clsxm",
 		"dummyimage",
 		"everco",
+		"exposdk",
 		"headlessui",
 		"heroicons",
 		"plasmo",
