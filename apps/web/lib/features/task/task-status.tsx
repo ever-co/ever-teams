@@ -580,7 +580,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				'py-2 px-4 flex items-center text-sm space-x-3',
+				'py-2 md:px-4 px-2 flex items-center text-sm space-x-3',
 				forDetails ? 'rounded-sm' : 'rounded-xl',
 
 				issueType === 'issue' && ['rounded-md px-2 text-white'],

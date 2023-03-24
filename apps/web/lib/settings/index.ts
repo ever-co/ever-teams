@@ -5,6 +5,7 @@ export * from './language-dropdown';
 export * from './list-card';
 export * from './personal-setting-form';
 export * from './profile-avatar';
+export * from './team-avatar';
 export * from './task-labels-form';
 export * from './task-priorities-form';
 export * from './task-sizes-form';

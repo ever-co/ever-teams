@@ -1,4 +1,5 @@
 import { IEmployee } from './IEmployee';
+import { IImageAssets } from './IImageAssets';
 import { ITeamTask } from './ITask';
 import { ITasksTimesheet } from './ITimer';
 import { IUser } from './IUserData';
@@ -11,6 +12,8 @@ export interface IOrganizationTeamCreate {
 	organizationId: string;
 	tenantId: string;
 	public?: boolean;
+	imageId?: string | null;
+	image?: IImageAssets | null;
 }
 
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };
@@ -28,6 +31,8 @@ export interface IOrganizationTeam {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
+	imageId?: string | null;
+	image?: IImageAssets | null;
 }
 
 export interface IOrganizationTeamList {
@@ -44,6 +49,8 @@ export interface IOrganizationTeamList {
 	createdById: string;
 	createdBy: IUser;
 	profile_link?: string;
+	imageId?: string | null;
+	image?: IImageAssets | null;
 }
 
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;

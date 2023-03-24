@@ -30,7 +30,7 @@ const TaskDescriptionBlock = () => {
 					throw error;
 				},
 				theme: {
-					root: 'rounded h-full min-h-[200px] focus:outline-none',
+					root: 'rounded h-full md:min-h-[200px] focus:outline-none',
 					link: 'cursor-pointer',
 					text: {
 						bold: 'font-semibold',

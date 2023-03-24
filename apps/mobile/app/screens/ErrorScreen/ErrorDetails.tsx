@@ -1,6 +1,7 @@
 import React, { ErrorInfo } from "react"
 import { ScrollView, TextStyle, View, ViewStyle } from "react-native"
 import { Button, Icon, Screen, Text } from "../../components"
+import { useStores } from "../../models"
 import { colors, spacing } from "../../theme"
 
 export interface ErrorDetailsProps {
@@ -10,6 +11,8 @@ export interface ErrorDetailsProps {
 }
 
 export function ErrorDetails(props: ErrorDetailsProps) {
+  const { authenticationStore: { setAuthToken } } = useStores()
+  // setAuthToken("")
   return (
     <Screen
       preset="fixed"
