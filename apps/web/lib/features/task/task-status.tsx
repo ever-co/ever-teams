@@ -1,10 +1,7 @@
 import {
 	IClassName,
-	ITaskLabel,
-	ITaskPriority,
-	ITaskSize,
-	ITaskStatus,
 	ITaskStatusField,
+	ITaskStatusItemList,
 	ITaskStatusStack,
 	ITeamTask,
 	IVersionProperty,
@@ -14,26 +11,7 @@ import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import {
-	CircleIcon,
-	ClockIcon,
-	CloseCircleIcon,
-	HighestIcon,
-	HighIcon,
-	LargeIcon,
-	LoginIcon,
-	LowestIcon,
-	LowIcon,
-	MediumIcon,
-	MediumSizeIcon,
-	RecordIcon,
-	SearchStatusIcon,
-	SmallSizeIcon,
-	TickCircleIcon,
-	TimerIcon,
-	TinySizeIcon,
-	XlargeIcon,
-} from 'lib/components/svgs';
+import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, {
 	Fragment,
 	PropsWithChildren,
@@ -42,13 +20,22 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import { useCallbackRef, useTeamTasks } from '@app/hooks';
+import {
+	useCallbackRef,
+	useTaskLabels,
+	useTaskPriorities,
+	useTaskSizes,
+	useTaskStatus,
+	useTeamTasks,
+} from '@app/hooks';
 import clsx from 'clsx';
+import Image from 'next/legacy/image';
 
 export type TStatusItem = {
 	bgColor?: string;
 	icon?: React.ReactNode | undefined;
 	name?: string;
+	value?: string;
 	bordered?: boolean;
 };
 
@@ -76,6 +63,41 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		showIssueLabels?: boolean;
 		forDetails?: boolean;
 	};
+
+export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
+	data: T[],
+	bordered = false
+): TStatus<any> {
+	return useMemo(() => {
+		return data.reduce((acc, item) => {
+			const value: TStatus<any>[string] = {
+				name: item.name?.split('-').join(' '),
+				value: item.value || item.name,
+				bgColor: item.color,
+				bordered,
+				icon: (
+					<div className="relative w-5 h-5">
+						{item.fullIconUrl && (
+							<Image
+								layout="fill"
+								src={item.fullIconUrl}
+								className="w-full h-full"
+								alt={item.name}
+							/>
+						)}
+					</div>
+				),
+			};
+
+			if (value.name) {
+				acc[value.name] = value;
+			} else if (value.value) {
+				acc[value.value] = value;
+			}
+			return acc;
+		}, {} as TStatus<any>);
+	}, [data, bordered]);
+}
 
 export function useActiveTaskStatus<T extends ITaskStatusField>(
 	props: IActiveTaskStatuses<T>,
@@ -117,6 +139,13 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		field,
 	};
 }
+
+/**
+ * It returns a set of items, the selected item, and a callback to change the selected item
+ * @param statusItems - This is the object that contains the status items.
+ * @param {ITaskStatusStack[T] | undefined}  - The current value of the status field.
+ * @param [onValueChange] - This is the callback function that will be called when the value changes.
+ */
 
 export function useStatusValue<T extends ITaskStatusField>(
 	statusItems: TStatus<ITaskStatusStack[T]>,
@@ -160,40 +189,10 @@ export function useStatusValue<T extends ITaskStatusField>(
 
 //! =============== Task Status ================= //
 
-export const taskStatus: TStatus<ITaskStatus> = {
-	Todo: {
-		icon: <LoginIcon />,
-		bgColor: '#D6E4F9',
-	},
-	'In Progress': {
-		icon: <TimerIcon />,
-		bgColor: '#ECE8FC',
-	},
-	'In Review': {
-		icon: <SearchStatusIcon />,
-		bgColor: ' #F3D8B0',
-	},
-	Ready: {
-		icon: <ClockIcon />,
-		bgColor: '#F5F1CB',
-	},
-	Completed: {
-		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#D4EFDF',
-	},
-	Blocked: {
-		icon: <CloseCircleIcon />,
-		bgColor: '#F5B8B8',
-	},
-	Backlog: {
-		icon: <CircleIcon />,
-		bgColor: '#F2F2F2',
-	},
-	Closed: {
-		icon: <TickCircleIcon className="stroke-[#acacac]" />,
-		bgColor: '#eaeaea',
-	},
-};
+export function useTaskStatusValue() {
+	const { taskStatus } = useTaskStatus();
+	return useMapToTaskStatusValues(taskStatus);
+}
 
 /**
  * Task status dropwdown
@@ -204,8 +203,10 @@ export function TaskStatusDropdown({
 	onValueChange,
 	forDetails,
 }: TTaskStatusesDropdown<'status'>) {
+	const taskStatusValues = useTaskStatusValue();
+
 	const { item, items, onChange } = useStatusValue<'status'>(
-		taskStatus,
+		taskStatusValues,
 		defaultValue,
 		onValueChange
 	);
@@ -229,9 +230,11 @@ export function TaskStatusDropdown({
  * @returns
  */
 export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
+	const taskStatusValues = useTaskStatusValue();
+
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskStatus,
+		taskStatusValues,
 		'status'
 	);
 
@@ -321,33 +324,10 @@ export function EpicPropertiesDropdown({
 
 //! =============== Task Status ================= //
 
-export const taskPriorities: TStatus<ITaskPriority> = {
-	Highest: {
-		icon: <HighestIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	High: {
-		icon: <HighIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Medium: {
-		icon: <MediumIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Low: {
-		icon: <LowIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Lowest: {
-		icon: <LowestIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-};
+export function useTaskPrioritiesValue() {
+	const { taskPriorities } = useTaskPriorities();
+	return useMapToTaskStatusValues(taskPriorities, false);
+}
 
 /**
  * Task dropdown that allows you to select a task property
@@ -360,8 +340,10 @@ export function TaskPropertiesDropdown({
 	onValueChange,
 	forDetails,
 }: TTaskStatusesDropdown<'priority'>) {
+	const taskPrioritiesValues = useTaskPrioritiesValue();
+
 	const { item, items, onChange } = useStatusValue<'priority'>(
-		taskPriorities,
+		taskPrioritiesValues,
 		defaultValue,
 		onValueChange
 	);
@@ -381,9 +363,11 @@ export function TaskPropertiesDropdown({
 export function ActiveTaskPropertiesDropdown(
 	props: IActiveTaskStatuses<'priority'>
 ) {
+	const taskPrioritiesValues = useTaskPrioritiesValue();
+
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskPriorities,
+		taskPrioritiesValues,
 		'priority'
 	);
 
@@ -403,9 +387,11 @@ export function TaskPriorityStatus({
 	className,
 	showIssueLabels,
 }: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
+	const taskPrioritiesValues = useTaskPrioritiesValue();
+
 	return task?.priority ? (
 		<TaskStatus
-			{...taskPriorities[task?.priority]}
+			{...taskPrioritiesValues[task?.priority]}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('rounded-md px-2 text-white', className)}
@@ -418,33 +404,10 @@ export function TaskPriorityStatus({
 
 //! =============== Task Sizes ================= //
 
-export const taskSizes: TStatus<ITaskSize> = {
-	'X-Large': {
-		icon: <XlargeIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Large: {
-		icon: <LargeIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Medium: {
-		icon: <MediumSizeIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Small: {
-		icon: <SmallSizeIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-	Tiny: {
-		icon: <TinySizeIcon />,
-		bgColor: 'transparent',
-		bordered: true,
-	},
-};
+export function useTaskSizesValue() {
+	const { taskSizes } = useTaskSizes();
+	return useMapToTaskStatusValues(taskSizes, false);
+}
 
 /**
  * Task dropdown that lets you select a task size
@@ -457,8 +420,10 @@ export function TaskSizesDropdown({
 	onValueChange,
 	forDetails,
 }: TTaskStatusesDropdown<'size'>) {
+	const taskSizesValue = useTaskSizesValue();
+
 	const { item, items, onChange } = useStatusValue<'size'>(
-		taskSizes,
+		taskSizesValue,
 		defaultValue,
 		onValueChange
 	);
@@ -476,9 +441,10 @@ export function TaskSizesDropdown({
 }
 
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
+	const taskSizesValue = useTaskSizesValue();
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskSizes,
+		taskSizesValue,
 		'size'
 	);
 
@@ -495,24 +461,10 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 
 //! =============== Task Label ================= //
 
-export const taskLabels: TStatus<ITaskLabel> = {
-	'UI/UX': {
-		icon: <ClockIcon />,
-		bgColor: '#c2b1c6',
-	},
-	Mobile: {
-		icon: <ClockIcon />,
-		bgColor: '#7c7ab7',
-	},
-	WEB: {
-		icon: <ClockIcon />,
-		bgColor: '#97b7c1',
-	},
-	Tablet: {
-		icon: <ClockIcon />,
-		bgColor: '#b0c8a8',
-	},
-};
+export function useTaskLabelsValue() {
+	const { taskLabels } = useTaskLabels();
+	return useMapToTaskStatusValues(taskLabels, false);
+}
 
 export function TaskLabelsDropdown({
 	className,
@@ -520,8 +472,10 @@ export function TaskLabelsDropdown({
 	onValueChange,
 	forDetails,
 }: TTaskStatusesDropdown<'label'>) {
+	const taskLabelsValue = useTaskLabelsValue();
+
 	const { item, items, onChange } = useStatusValue<'label'>(
-		taskLabels,
+		taskLabelsValue,
 		defaultValue,
 		onValueChange
 	);
@@ -539,9 +493,10 @@ export function TaskLabelsDropdown({
 }
 
 export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
+	const taskLabelsValue = useTaskLabelsValue();
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskLabels,
+		taskLabelsValue,
 		'label'
 	);
 
@@ -556,12 +511,14 @@ export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
 	);
 }
 
+//! =============== Task Project ================= //
+
 export function ActiveTaskProjectDropdown(
 	props: IActiveTaskStatuses<'project'>
 ) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskLabels,
+		{},
 		'project'
 	);
 
@@ -577,10 +534,12 @@ export function ActiveTaskProjectDropdown(
 	);
 }
 
+//! =============== Task Project ================= //
+
 export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
-		taskLabels,
+		{},
 		'team'
 	);
 
@@ -596,7 +555,7 @@ export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
 	);
 }
 
-//! =============== FC Status drop down ================= //
+//! =============== FC Status dropdown ================= //
 
 export function TaskStatus({
 	children,
@@ -637,7 +596,7 @@ export function TaskStatus({
 				{active ? icon : <RecordIcon />}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
-					<span>{name}</span>
+					<span className="capitalize">{name}</span>
 				)}
 			</div>
 			{children}

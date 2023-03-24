@@ -7,7 +7,7 @@ import { useRecoilValue } from 'recoil';
 import { StatusesListCard } from './list-card';
 
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTaskPriorities } from '@app/hooks/features/useTaskPriorities';
+import { useTaskPriorities } from '@app/hooks';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { IColor, IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';

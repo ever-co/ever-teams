@@ -7,13 +7,13 @@ import { taskIssues } from './task-issue';
 import {
 	TTaskStatusesDropdown,
 	TStatus,
-	taskStatus,
-	taskSizes,
-	taskLabels,
-	taskPriorities,
 	useStatusValue,
 	StatusDropdown,
 	TaskStatus,
+	useTaskStatusValue,
+	useTaskPrioritiesValue,
+	useTaskSizesValue,
+	useTaskLabelsValue,
 } from './task-status';
 
 export function StatusModal<T extends ITaskStatusField>({
@@ -30,11 +30,16 @@ export function StatusModal<T extends ITaskStatusField>({
 	const [value, setValue] = useState(defaultValue);
 	const checkedRef = useRef<HTMLDivElement | null>(null);
 
+	const taskStatusValues = useTaskStatusValue();
+	const taskPrioritiesValues = useTaskPrioritiesValue();
+	const taskSizesValue = useTaskSizesValue();
+	const taskLabels = useTaskLabelsValue();
+
 	const status: { [k in ITaskStatusField]: TStatus<any> } = {
-		status: taskStatus,
-		size: taskSizes,
+		status: taskStatusValues,
+		priority: taskPrioritiesValues,
+		size: taskSizesValue,
 		label: taskLabels,
-		priority: taskPriorities,
 		issue: taskIssues,
 		project: {},
 		epic: {},
@@ -107,7 +112,7 @@ export function StatusModal<T extends ITaskStatusField>({
 								</Button>
 
 								<Button
-									disabled={!item}
+									disabled={!value}
 									onClick={() => {
 										if (value) {
 											onChange(value);

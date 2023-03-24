@@ -126,7 +126,7 @@ function Invite() {
 
 	return (
 		<>
-			<InviteUserTeamCard onClick={openModal} />
+			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
 			<InviteFormModal
 				open={isOpen && !!user?.isEmailVerified}
 				closeModal={closeModal}
