@@ -125,7 +125,7 @@ export function TaskAvatars({
 				return (
 					<Link
 						key={i}
-						title={`${user?.firstName} ${user?.lastName}`}
+						title={`${user?.firstName || ''} ${user?.lastName || ''}`}
 						href={`/profile/${member.id}`}
 					>
 						<Avatar

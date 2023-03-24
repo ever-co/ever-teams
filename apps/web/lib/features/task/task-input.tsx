@@ -15,6 +15,7 @@ import {
 	InputField,
 	OutlineBadge,
 	SpinnerLoader,
+	Tooltip,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
@@ -330,16 +331,31 @@ function TaskCard({
 			>
 				{inputField}
 				{/* Create team button */}
-				<Button
-					variant="outline"
-					disabled={!datas.hasCreateForm || datas.createLoading}
-					loading={datas.createLoading}
-					className="font-normal text-sm rounded-xl min-w-[240px]"
-					onClick={handleTaskCreation}
-				>
-					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
-					{trans.common.CREATE_TASK}
-				</Button>
+				<div>
+					<Tooltip
+						enabled={!datas.user?.isEmailVerified}
+						label={trans.common.VERIFY_ACCOUNT_MSG}
+						placement="top-start"
+						className="inline-block"
+					>
+						<Button
+							variant="outline"
+							disabled={
+								!datas.hasCreateForm ||
+								datas.createLoading ||
+								!datas.user?.isEmailVerified
+							}
+							loading={datas.createLoading}
+							className="font-normal text-sm rounded-xl min-w-[240px] inline-flex"
+							onClick={handleTaskCreation}
+						>
+							{!datas.createLoading && (
+								<PlusIcon className="w-[16px] h-[16px]" />
+							)}{' '}
+							{trans.common.CREATE_TASK}
+						</Button>
+					</Tooltip>
+				</div>
 
 				{/* Task filter buttons */}
 				<div className="flex mt-4 space-x-3">
