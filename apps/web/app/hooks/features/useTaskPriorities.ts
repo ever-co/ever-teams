@@ -35,13 +35,18 @@ export function useTaskPriorities() {
 	const [taskPrioritiesFetching, setTaskPrioritiesFetching] = useRecoilState(
 		taskPrioritiesFetchingState
 	);
-	const { firstLoadData: firstLoadTaskPrioritiesData } = useFirstLoad();
+	const { firstLoadData: firstLoadTaskPrioritiesData, firstLoad } =
+		useFirstLoad();
 
 	useEffect(() => {
-		setTaskPrioritiesFetching(loading);
-	}, [loading, setTaskPrioritiesFetching]);
+		if (firstLoad) {
+			setTaskPrioritiesFetching(loading);
+		}
+	}, [loading, firstLoad, setTaskPrioritiesFetching]);
 
 	useEffect(() => {
+		if (!firstLoad) return;
+
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
@@ -50,7 +55,7 @@ export function useTaskPriorities() {
 			setTaskPriorities(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeamId]);
+	}, [activeTeamId, firstLoad]);
 
 	const createTaskPriorities = useCallback(
 		(data: ITaskPrioritiesCreate) => {
@@ -130,8 +135,7 @@ export function useTaskPriorities() {
 	);
 
 	return {
-		// loadTaskStatus,
-		loading,
+		loading: taskPrioritiesFetching,
 		taskPriorities,
 		taskPrioritiesFetching,
 		firstLoadTaskPrioritiesData,

@@ -6,7 +6,7 @@ import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { IColor, IIcon, ITaskLabelsItemList } from '@app/interfaces';
-import { useTaskLabels } from '@app/hooks/features/useTaskLabels';
+import { useTaskLabels } from '@app/hooks';
 import { StatusesListCard } from './list-card';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTranslation } from 'lib/i18n';
