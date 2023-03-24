@@ -39,7 +39,7 @@ export function TaskUnOrAssignPopover({
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-[110%] top-0"
+				className="absolute z-10 md:right-[110%] right-0 md:top-0 top-12"
 			>
 				<Popover.Panel>
 					{({ close }) => {

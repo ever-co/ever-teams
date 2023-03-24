@@ -13,6 +13,7 @@ import {
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
+import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
 // import { useEffect } from 'react';
 
 export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
@@ -33,8 +34,14 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 
 	return members.length === 0 ? (
 		<div className="">
-			<UserTeamCardSkeletonCard />
-			<InviteUserTeamCardSkeleton />
+			<div className="lg:block hidden">
+				<UserTeamCardSkeletonCard />
+				<InviteUserTeamCardSkeleton />
+			</div>
+			<div className="block lg:hidden">
+				<UserCard />
+				<UserCard />
+			</div>
 		</div>
 	) : (
 		<ul className="mt-7">
@@ -120,7 +127,7 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	);
 }
 
-function Invite() {
+function  Invite() {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 

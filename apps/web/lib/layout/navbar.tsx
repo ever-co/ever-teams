@@ -21,12 +21,15 @@ const HeaderSkeleton = () => {
 						className="dark:bg-[#272930]"
 					/>
 					<div className="flex space-x-5 items-center">
-						<Skeleton
-							height={45}
-							width={175}
-							borderRadius={20}
-							className="dark:bg-[#272930]"
-						/>
+						<div className='hidden sm:block'>
+							<Skeleton
+								height={45}
+								width={175}
+								borderRadius={20}
+								className="dark:bg-[#272930]"
+							/>
+						</div>
+
 						<Skeleton
 							circle={true}
 							height={45}
@@ -56,7 +59,7 @@ export function Navbar({
 
 	return (
 		<>
-			{!user && !publicTeam ? (
+			{!user && !notFound ? (
 				<HeaderSkeleton />
 			) : (
 				<nav
@@ -75,7 +78,7 @@ export function Navbar({
 								<div className="flex md:space-x-5 space-x-2 items-center">
 									{publicTeam && (
 										<Button
-											className="pr-[2rem] pl-[2rem] rounded-lg"
+											className="sm:pr-[2rem] sm:pl-[2rem] rounded-lg"
 											onClick={openModal}
 										>
 											Request to join

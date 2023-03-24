@@ -326,7 +326,7 @@ function TaskCard({
 				className={clsxm(
 					'rounded-lg md:px-4 md:py-4 max-h-96',
 					'overflow-auto shadow-xlcard',
-					fullWidth ? ['w-full'] : ['w-[500px]']
+					fullWidth ? ['w-full'] : ['md:w-[500px]']
 				)}
 			>
 				{inputField}
