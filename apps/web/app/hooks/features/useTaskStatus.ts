@@ -32,13 +32,17 @@ export function useTaskStatus() {
 	const [taskStatusFetching, setTaskStatusFetching] = useRecoilState(
 		taskStatusFetchingState
 	);
-	const { firstLoadData: firstLoadTaskStatusData } = useFirstLoad();
+	const { firstLoadData: firstLoadTaskStatusData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
-		setTaskStatusFetching(loading);
-	}, [loading, setTaskStatusFetching]);
+		if (firstLoad) {
+			setTaskStatusFetching(loading);
+		}
+	}, [loading, firstLoad, setTaskStatusFetching]);
 
 	useEffect(() => {
+		if (!firstLoad) return;
+
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
@@ -47,7 +51,7 @@ export function useTaskStatus() {
 			setTaskStatus(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeamId]);
+	}, [activeTeamId, firstLoad]);
 
 	const createTaskStatus = useCallback(
 		(data: ITaskStatusCreate) => {
@@ -128,7 +132,7 @@ export function useTaskStatus() {
 	);
 
 	return {
-		loading,
+		loading: taskStatusFetching,
 		taskStatus,
 		taskStatusFetching,
 		firstLoadTaskStatusData,

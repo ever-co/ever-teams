@@ -113,7 +113,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
                   style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
                 >
                   <View style={{
-                    marginBottom:30
+                    marginBottom: 30
                   }}>
                     {currentUser && (
                       <ListCardItem

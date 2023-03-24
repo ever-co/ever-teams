@@ -21,11 +21,11 @@ export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
 		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
-			<li>{trans.common.STATUS}</li>
-			<li>{trans.common.NAME}</li>
-			<li>{trans.common.TASK}</li>
-			<li>{trans.common.WORKED_ON_TASK}</li>
-			<li>{trans.common.ESTIMATE}</li>
+			<li className="pr-[50px]">{trans.common.STATUS}</li>
+			<li className="lg:w-[250px] w-1/4">{trans.common.NAME}</li>
+			<li className="lg:w-80 w-1/5">{trans.common.TASK}</li>
+			<li className="lg:w-48 w-1/5">{trans.common.WORKED_ON_TASK}</li>
+			<li className="lg:w-52 w-1/5">{trans.common.ESTIMATE}</li>
 			<li>{trans.common.TOTAL_WORKED_TODAY}</li>
 		</ul>
 	);
@@ -48,8 +48,7 @@ export function UserTeamCard({
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
 	const seconds = useRecoilValue(timerSecondsState);
-	const { activeTaskTotalStat, addSeconds } =
-		useTaskStatistics(seconds);
+	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
 	const TotalWork = () => {
 		if (memberInfo.isAuthUser) {
@@ -143,7 +142,7 @@ export function UserTeamCard({
 					<UserInfo
 						memberInfo={memberInfo}
 						publicTeam={publicTeam}
-						className='w-9/12'
+						className="w-9/12"
 					/>
 					{/*@ts-ignore*/}
 					<TotalWork />

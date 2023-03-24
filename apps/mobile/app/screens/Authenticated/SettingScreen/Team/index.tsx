@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import { ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native'
 import { useAppTheme } from '../../../../app'
 import { typography } from '../../../../theme/typography';
@@ -10,6 +10,7 @@ import { useOrganizationTeam } from '../../../../services/hooks/useOrganization'
 import SwithTimeTracking from '../components/SwitchTimeTracking';
 import { IPopup } from '..';
 import { observer } from 'mobx-react-lite';
+import FlashMessage from 'react-native-flash-message';
 
 interface ITeamSettingProps {
     props: any;
@@ -83,11 +84,12 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
                     <SingleInfo
                         title={translate("settingScreen.teamSection.quitTeam")}
                         value={translate("settingScreen.teamSection.quitTeamHint")}
-                        onPress={() => { }}
+                        onPress={() => onOpenBottomSheet("Quit Team", 5)}
                     />
                 </View>
 
             </ScrollView>
+            <FlashMessage position={"bottom"} />
         </View>
 
     )

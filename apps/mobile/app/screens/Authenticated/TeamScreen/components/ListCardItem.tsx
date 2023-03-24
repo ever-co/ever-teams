@@ -250,7 +250,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ member, enab
 
 const ListCardItem: React.FC<Props> = (props) => {
   const { colors } = useAppTheme();
-  const { isTeamManager, currentUser, makeMemberAsManager, removeMember } = useOrganizationTeam();
+  const { isTeamManager, currentUser, makeMemberAsManager, removeMemberFromTeam } = useOrganizationTeam();
 
   // STATS
   const [showMenu, setShowMenu] = React.useState(false)
@@ -337,7 +337,7 @@ const ListCardItem: React.FC<Props> = (props) => {
                       style={{}}
                       onPress={() => {
                         setShowMenu(false)
-                        removeMember(member.employee.id)
+                        removeMemberFromTeam(member.employee.id)
                       }}
                     >Remove</ListItem>
                   </>

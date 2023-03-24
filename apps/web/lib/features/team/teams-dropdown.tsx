@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown } from 'lib/components';
+import { Button, Dropdown, Tooltip } from 'lib/components';
 import { mapTeamItems, TeamItem } from './team-item';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import {
@@ -9,11 +9,14 @@ import {
 } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { CreateTeamModal } from './create-team-modal';
+import { useTranslation } from 'lib/i18n';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
 	const { teams, activeTeam, setActiveTeam, teamsFetching } =
 		useOrganizationTeams();
+
+	const { trans } = useTranslation();
 
 	const items = useMemo(() => mapTeamItems(teams), [teams]);
 
@@ -50,13 +53,21 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				publicTeam={publicTeam}
 			>
 				{!publicTeam && (
-					<Button
-						className="w-full text-xs mt-3 dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModal}
+					<Tooltip
+						enabled={!user?.isEmailVerified}
+						label={trans.common.VERIFY_ACCOUNT_MSG}
+						placement="top-start"
 					>
-						<PlusIcon className="w-[16px] h-[16px]" /> Create new teams
-					</Button>
+						<Button
+							className="w-full text-xs mt-3 dark:text-white dark:border-white"
+							variant="outline"
+							onClick={openModal}
+							disabled={!user?.isEmailVerified}
+						>
+							<PlusIcon className="w-[16px] h-[16px]" />
+							{trans.common.CREATE_NEW_TEAMS}
+						</Button>
+					</Tooltip>
 				)}
 			</Dropdown>
 

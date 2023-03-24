@@ -10,6 +10,7 @@ import {
 	SpinnerLoader,
 	Text,
 	TimeInputField,
+	Tooltip,
 	VerticalSeparator,
 } from 'lib/components';
 import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
@@ -154,7 +155,8 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 export function InviteUserTeamCard({
 	className,
 	onClick,
-}: IClassName & { onClick?: () => void }) {
+	active = true,
+}: IClassName & { onClick?: () => void; active?: boolean }) {
 	const { trans } = useTranslation();
 
 	return (
@@ -173,7 +175,17 @@ export function InviteUserTeamCard({
 			{/* Show user name, email and image */}
 			<div className="w-[330px] px-4 flex space-x-3">
 				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
-				<Button onClick={onClick}>{trans.common.INVITE}</Button>
+
+				<Tooltip
+					enabled={!active}
+					label={trans.common.VERIFY_ACCOUNT_MSG}
+					placement="top-start"
+					className="inline-block"
+				>
+					<Button disabled={!active} onClick={onClick}>
+						{trans.common.INVITE}
+					</Button>
+				</Tooltip>
 			</div>
 			<VerticalSeparator />
 

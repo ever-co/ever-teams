@@ -3,13 +3,17 @@ import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
 import { useEffect } from 'react';
 import {
-	taskLabels,
-	taskSizes,
 	TaskStatus,
-	taskPriorities,
+	useTaskLabelsValue,
+	useTaskPrioritiesValue,
+	useTaskSizesValue,
 } from './task-status';
 
 export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
+	const taskPriorities = useTaskPrioritiesValue();
+	const taskSizes = useTaskSizesValue();
+	const taskLabels = useTaskLabelsValue();
+
 	const {
 		viewportRef,
 		nextBtnEnabled,

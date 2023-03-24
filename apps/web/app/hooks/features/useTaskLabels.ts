@@ -33,13 +33,17 @@ export function useTaskLabels() {
 	const [taskLabelsFetching, setTaskLabelsFetching] = useRecoilState(
 		taskLabelsFetchingState
 	);
-	const { firstLoadData: firstLoadTaskLabelsData } = useFirstLoad();
+	const { firstLoadData: firstLoadTaskLabelsData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
-		setTaskLabelsFetching(loading);
-	}, [loading, setTaskLabelsFetching]);
+		if (firstLoad) {
+			setTaskLabelsFetching(loading);
+		}
+	}, [loading, firstLoad, setTaskLabelsFetching]);
 
 	useEffect(() => {
+		if (!firstLoad) return;
+
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
@@ -48,7 +52,7 @@ export function useTaskLabels() {
 			setTaskLabels(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeamId]);
+	}, [activeTeamId, firstLoad]);
 
 	const createTaskLabels = useCallback(
 		(data: ITaskLabelsCreate) => {
@@ -131,7 +135,7 @@ export function useTaskLabels() {
 
 	return {
 		// loadTaskStatus,
-		loading,
+		loading: taskLabelsFetching,
 		taskLabels,
 		taskLabelsFetching,
 		firstLoadTaskLabelsData,

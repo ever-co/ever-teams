@@ -190,6 +190,8 @@ export function useTaskInput({
 		filter,
 		updateTaskTitleHandler,
 		taskIssue,
+		user,
+		userRef,
 	};
 }
 

@@ -15,6 +15,7 @@ import {
 	InputField,
 	OutlineBadge,
 	SpinnerLoader,
+	Tooltip,
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
@@ -61,6 +62,12 @@ type Props = {
 
 export function TaskInput(props: Props) {
 	const { trans } = useTranslation();
+
+	const {
+		viewType = 'input-trigger',
+		showTaskNumber = false,
+		showCombobox = true,
+	} = props;
 
 	const datas = useTaskInput({
 		task: props.task,
@@ -156,18 +163,19 @@ export function TaskInput(props: Props) {
 	const handleTaskCreation = useCallback(() => {
 		/* Checking if the `handleTaskCreation` is available and if the `hasCreateForm` is true. */
 		datas &&
-      datas.handleTaskCreation &&
+			datas.handleTaskCreation &&
 			datas.hasCreateForm &&
-			datas.handleTaskCreation({
+			datas
+				.handleTaskCreation({
 					autoActiveTask,
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || [],
 				})
 				?.then(props.onTaskCreated)
 				.finally(() => {
-					props.viewType === 'one-view' && setTaskName('');
+					viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props, autoActiveTask]);
+	}, [datas, props, autoActiveTask, viewType]);
 
 	const inputField = (
 		<InputField
@@ -206,10 +214,10 @@ export function TaskInput(props: Props) {
 					)}
 				</div>
 			}
-			className={clsxm(props.showTaskNumber && inputTask && ['pl-2'])}
+			className={clsxm(showTaskNumber && inputTask && ['pl-2'])}
 			/* Showing the task number. */
 			leadingNode={
-				props.showTaskNumber &&
+				showTaskNumber &&
 				inputTask && (
 					<div
 						className="flex items-center pl-3 space-x-2"
@@ -245,13 +253,13 @@ export function TaskInput(props: Props) {
 					? props.onTaskClick
 					: setAuthActiveTask
 			}
-			inputField={props.viewType === 'one-view' ? inputField : undefined}
+			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
 			handleTaskCreation={handleTaskCreation}
 		/>
 	);
 
-	return props.viewType === 'one-view' ? (
+	return viewType === 'one-view' ? (
 		taskCard
 	) : (
 		<Popover className="relative z-30 w-full">
@@ -259,7 +267,7 @@ export function TaskInput(props: Props) {
 			{props.children}
 
 			<Transition
-				show={editMode && props.showCombobox}
+				show={editMode && showCombobox}
 				enter="transition duration-100 ease-out"
 				enterFrom="transform scale-95 opacity-0"
 				enterTo="transform scale-100 opacity-100"
@@ -323,16 +331,31 @@ function TaskCard({
 			>
 				{inputField}
 				{/* Create team button */}
-				<Button
-					variant="outline"
-					disabled={!datas.hasCreateForm || datas.createLoading}
-					loading={datas.createLoading}
-					className="font-normal text-sm rounded-xl min-w-[240px]"
-					onClick={handleTaskCreation}
-				>
-					{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}{' '}
-					{trans.common.CREATE_TASK}
-				</Button>
+				<div>
+					<Tooltip
+						enabled={!datas.user?.isEmailVerified}
+						label={trans.common.VERIFY_ACCOUNT_MSG}
+						placement="top-start"
+						className="inline-block"
+					>
+						<Button
+							variant="outline"
+							disabled={
+								!datas.hasCreateForm ||
+								datas.createLoading ||
+								!datas.user?.isEmailVerified
+							}
+							loading={datas.createLoading}
+							className="font-normal text-sm rounded-xl min-w-[240px] inline-flex"
+							onClick={handleTaskCreation}
+						>
+							{!datas.createLoading && (
+								<PlusIcon className="w-[16px] h-[16px]" />
+							)}{' '}
+							{trans.common.CREATE_TASK}
+						</Button>
+					</Tooltip>
+				</div>
 
 				{/* Task filter buttons */}
 				<div className="flex mt-4 space-x-3">
