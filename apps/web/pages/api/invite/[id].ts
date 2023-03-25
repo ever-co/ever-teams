@@ -1,8 +1,11 @@
+/* eslint-disable no-case-declarations */
+import { MyInvitationActionEnum } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTeamInvitationsRequest,
 	removeTeamInvitationsRequest,
 	getMyInvitationsRequest,
+	acceptRejectMyInvitationsRequest,
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -46,5 +49,18 @@ export default async function handler(
 			);
 
 			return $res.json(data);
+
+		case 'PUT':
+			if (!req.query.action) {
+				return $res.status(400).json({});
+			}
+			return $res.json(
+				await acceptRejectMyInvitationsRequest(
+					tenantId,
+					access_token,
+					invitationId,
+					req.query.action as MyInvitationActionEnum
+				)
+			);
 	}
 }

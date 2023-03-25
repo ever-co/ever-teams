@@ -3,7 +3,9 @@ import {
 	IInvitation,
 	IInviteRequest,
 	IMyInvitations,
-} from '@app/interfaces/IInvite';
+	MyInvitationActionEnum,
+	CreateReponse,
+} from '@app/interfaces';
 import api from '../axios';
 
 export function inviteByEmailsAPI(data: IInviteRequest) {
@@ -26,4 +28,13 @@ export function resendTeamInvitationsAPI(inviteId: string) {
 
 export function getMyInvitationsAPI() {
 	return api.get<PaginationResponse<IMyInvitations>>('/invite/me');
+}
+
+export function acceptRejectMyInvitationsAPI(
+	invitationId: string,
+	action: MyInvitationActionEnum
+) {
+	return api.put<CreateReponse<IInvitation>>(
+		`/invite/${invitationId}?action=${action}`
+	);
 }

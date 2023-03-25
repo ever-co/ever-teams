@@ -5,6 +5,7 @@ import {
 	IInviteCreate,
 	IInviteVerified,
 	IInviteVerifyCode,
+	MyInvitationActionEnum,
 } from '@app/interfaces/IInvite';
 import { serverFetch } from '../fetch';
 
@@ -150,7 +151,6 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
 	});
 }
 
-
 /**
  * Get my team invitations request
  *
@@ -159,12 +159,26 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
  * @returns
  */
 export function getMyInvitationsRequest(
-	tenantId : string,
+	tenantId: string,
 	bearer_token: string
 ) {
 	return serverFetch<PaginationResponse<IInvitation>>({
 		path: `/invite/me`,
 		method: 'GET',
+		bearer_token,
+		tenantId: tenantId,
+	});
+}
+
+export function acceptRejectMyInvitationsRequest(
+	tenantId: string,
+	bearer_token: string,
+	invitationId: string,
+	action: MyInvitationActionEnum
+) {
+	return serverFetch<PaginationResponse<IInvitation>>({
+		path: `/invite/${invitationId}/${action}`,
+		method: 'PUT',
 		bearer_token,
 		tenantId: tenantId,
 	});

@@ -58,3 +58,8 @@ export interface IMyInvitations extends Pick<IInvitation, 'id'> {
 		name: string;
 	}[];
 }
+
+export enum MyInvitationActionEnum {
+	ACCEPTED = 'ACCEPTED',
+	REJECTED = 'REJECTED',
+}
