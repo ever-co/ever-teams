@@ -1,15 +1,8 @@
-// This is the first file that ReactNative will run when it starts up.
-// If you use Expo (`yarn expo:start`), the entry point is ./App.js instead.
-// Both do essentially the same thing.
+import { registerRootComponent } from 'expo';
 
-import App from "./app/app.tsx"
-import React from "react"
-import { AppRegistry } from "react-native"
-import RNBootSplash from "react-native-bootsplash"
+import App from './App';
 
-function IgniteApp() {
-  return <App hideSplashScreen={RNBootSplash.hide} />
-}
-
-AppRegistry.registerComponent("mobile", () => IgniteApp)
-export default App
+// registerRootComponent calls AppRegistry.registerComponent('main', () => App);
+// It also ensures that whether you load the app in Expo Go or in a native build,
+// the environment is set up appropriately
+registerRootComponent(App);
