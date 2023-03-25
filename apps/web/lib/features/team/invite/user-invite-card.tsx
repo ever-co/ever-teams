@@ -10,6 +10,7 @@ import {
 	SpinnerLoader,
 	Text,
 	TimeInputField,
+	Tooltip,
 	VerticalSeparator,
 } from 'lib/components';
 import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
@@ -22,63 +23,120 @@ export function InvitedCard({ invitation, className }: Props) {
 	const { trans } = useTranslation();
 
 	return (
-		<Card
-			shadow="bigger"
-			className={clsxm('relative flex items-center py-3', className)}
-		>
-			<div className="absolute -left-0 opacity-40">
-				<DraggerIcon />
-			</div>
+		<div>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative sm:flex hidden items-center py-3',
+					className
+				)}
+			>
+				<div className="absolute -left-0 opacity-40">
+					<DraggerIcon />
+				</div>
 
-			{/* User info */}
-			<div className="flex items-center space-x-4 w-[330px] opacity-40">
-				<Avatar size={60} className="relative" imageTitle={invitation.fullName}>
-					<TimerStatus
-						status={'idle'}
-						className="absolute border z-20 bottom-3 -right-1 -mb-3"
-					/>
-				</Avatar>
+				{/* User info */}
+				<div className="flex items-center space-x-4 w-[330px] opacity-40">
+					<Avatar
+						size={60}
+						className="relative"
+						imageTitle={invitation.fullName}
+					>
+						<TimerStatus
+							status={'idle'}
+							className="absolute border z-20 bottom-3 -right-1 -mb-3"
+						/>
+					</Avatar>
 
-				<div className="w-64">
-					<Text.Heading as="h3">{invitation.fullName}</Text.Heading>
-					<Text className="text-gray-400 flex items-center text-sm space-x-1">
-						<MailIcon /> <span>{invitation.email}</span>
+					<div className="w-64">
+						<Text.Heading as="h3">{invitation.fullName}</Text.Heading>
+						<Text className="text-gray-400 flex items-center text-sm space-x-1">
+							<MailIcon /> <span>{invitation.email}</span>
+						</Text>
+					</div>
+				</div>
+				<VerticalSeparator />
+
+				{/* Task information */}
+				<Text className="opacity-40 w-80 px-4 text-center">
+					{trans.common.TASK_TITTLE}
+				</Text>
+				<VerticalSeparator className="ml-2" />
+
+				{/* TaskTime */}
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
+					<span>{trans.common.TODAY}:</span>
+					<Text>00h : 00m</Text>
+				</div>
+				<VerticalSeparator />
+
+				{/* TaskEstimateInfo */}
+				<div className="opacity-40 flex items-center justify-center space-x-1 w-52 relative">
+					<TimeInputField defaultValue="00" label="h" />
+					<span>:</span>
+					<TimeInputField defaultValue="00" label="m" />
+					<div className="absolute inset-0" />
+				</div>
+				<VerticalSeparator />
+
+				{/* Card menu */}
+				<div className="opacity-40 text-center font-normal flex-1">
+					<Text>00h : 00m</Text>
+				</div>
+
+				<div className="absolute right-2">
+					<RemoveUserInviteMenu invitation={invitation} />
+				</div>
+			</Card>
+			<Card
+				shadow="bigger"
+				className={clsxm('relative flex sm:hidden py-3 flex-col', className)}
+			>
+				<div className="flex mb-4 items-center">
+					<Avatar
+						size={60}
+						className="relative mr-2"
+						imageTitle={invitation.fullName}
+					>
+						<TimerStatus
+							status={'idle'}
+							className="absolute border z-20 bottom-3 -right-1 -mb-3"
+						/>
+					</Avatar>
+					<div className="">
+						<Text.Heading as="h3">{invitation.fullName}</Text.Heading>
+						<Text className="text-gray-400 flex items-center text-sm space-x-1">
+							<MailIcon /> <span>{invitation.email}</span>
+						</Text>
+					</div>
+				</div>
+				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
+					<Text className="opacity-40 w-80 px-4 ">
+						{trans.common.TASK_TITTLE}
 					</Text>
 				</div>
-			</div>
-			<VerticalSeparator />
-
-			{/* Task information */}
-			<Text className="opacity-40 w-80 px-4 text-center">
-				{trans.common.TASK_TITTLE}
-			</Text>
-			<VerticalSeparator className="ml-2" />
-
-			{/* TaskTime */}
-			<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
-				<span>{trans.common.TODAY}:</span>
-				<Text>00h : 00m</Text>
-			</div>
-			<VerticalSeparator />
-
-			{/* TaskEstimateInfo */}
-			<div className="opacity-40 flex items-center justify-center space-x-1 w-52 relative">
-				<TimeInputField defaultValue="00" label="h" />
-				<span>:</span>
-				<TimeInputField defaultValue="00" label="m" />
-				<div className="absolute inset-0" />
-			</div>
-			<VerticalSeparator />
-
-			{/* Card menu */}
-			<div className="opacity-40 text-center font-normal flex-1">
-				<Text>00h : 00m</Text>
-			</div>
-
-			<div className="absolute right-2">
-				<RemoveUserInviteMenu invitation={invitation} />
-			</div>
-		</Card>
+				<div className="flex justify-between  mt-4 mb-4 space-x-5">
+					<div className="flex flex-col">
+						<div className="opacity-40 flex items-center space-x-1 text-xs ml-1 mb-2">
+							<span>{trans.common.TODAY}:</span>
+							<Text>00h : 00m</Text>
+						</div>
+						<div className="opacity-40 flex items-center space-x-1 text-xs">
+							<TimeInputField defaultValue="00" label="h" />
+							<span>:</span>
+							<TimeInputField defaultValue="00" label="m" />
+							<div className="absolute " />
+						</div>
+					</div>
+					<div className="opacity-40 text-end text-xs flex-1">
+					<Text>00h : 00m</Text>
+				</div>
+				</div>
+				<div className="absolute right-2">
+					<RemoveUserInviteMenu invitation={invitation} />
+				</div>
+			</Card>
+		</div>
 	);
 }
 
@@ -154,55 +212,101 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 export function InviteUserTeamCard({
 	className,
 	onClick,
-}: IClassName & { onClick?: () => void }) {
+	active = true,
+}: IClassName & { onClick?: () => void; active?: boolean }) {
 	const { trans } = useTranslation();
 
 	return (
-		<Card
-			shadow="bigger"
-			className={clsxm('relative flex items-center py-3', className)}
-		>
-			<div className="opacity-40 absolute -left-0">
-				<DraggerIcon />
-			</div>
+		<div>
+			<Card
+				shadow="bigger"
+				className={clsxm(
+					'relative hidden sm:flex items-center py-3',
+					className
+				)}
+			>
+				<div className="opacity-40 absolute -left-0">
+					<DraggerIcon />
+				</div>
 
-			<div className="opacity-40 absolute right-2">
-				<MoreIcon />
-			</div>
+				<div className="opacity-40 absolute right-2">
+					<MoreIcon />
+				</div>
 
 			{/* Show user name, email and image */}
 			<div className="w-[330px] px-4 flex space-x-3">
 				<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
-				<Button onClick={onClick}>{trans.common.INVITE}</Button>
+
+				<Tooltip
+					enabled={!active}
+					label={trans.common.VERIFY_ACCOUNT_MSG}
+					placement="top-start"
+					className="inline-block"
+				>
+					<Button disabled={!active} onClick={onClick}>
+						{trans.common.INVITE}
+					</Button>
+				</Tooltip>
 			</div>
 			<VerticalSeparator />
 
-			{/* Task information */}
-			<Text className="opacity-40 w-80 px-4 text-center">
-				{trans.common.TASK_TITTLE}
-			</Text>
-			<VerticalSeparator className="ml-2" />
+				{/* Task information */}
+				<Text className="opacity-40 sm:w-80 px-4 text-center text-xs sm:text-sm">
+					{trans.common.TASK_TITTLE}
+				</Text>
+				<VerticalSeparator className="ml-2" />
 
-			{/* TaskTime */}
-			<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
-				<span>{trans.common.TODAY}:</span>
-				<Text>00h : 00m</Text>
-			</div>
-			<VerticalSeparator />
+				{/* TaskTime */}
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 sm:w-48 font-normal px-3  text-xs md:text-sm">
+					<span>{trans.common.TODAY}:</span>
+					<Text>00h : 00m</Text>
+				</div>
+				<VerticalSeparator />
 
-			{/* TaskEstimateInfo */}
-			<div className="opacity-40 flex items-center justify-center space-x-1 w-52 relative">
-				<TimeInputField defaultValue="00" label="h" />
-				<span>:</span>
-				<TimeInputField defaultValue="00" label="m" />
-				<div className="absolute inset-0" />
-			</div>
-			<VerticalSeparator />
+				{/* TaskEstimateInfo */}
+				<div className="opacity-40 flex items-center justify-center space-x-1 sm:w-52 relative text-xs md:text-sm">
+					<TimeInputField defaultValue="00" label="h" />
+					<span>:</span>
+					<TimeInputField defaultValue="00" label="m" />
+					<div className="absolute inset-0" />
+				</div>
+				<VerticalSeparator />
 
-			{/* Card menu */}
-			<div className="opacity-40 text-center font-normal flex-1">
-				<Text>00h : 00m</Text>
-			</div>
-		</Card>
+				{/* Card menu */}
+				<div className="opacity-40 text-center font-normal flex-1  text-xs md:text-sm">
+					<Text>00h : 00m</Text>
+				</div>
+			</Card>
+			<Card
+				shadow="bigger"
+				className={clsxm('relative sm:hidden flex flex-col py-3', className)}
+			>
+				<div className="opacity-40 absolute right-2">
+					<MoreIcon />
+				</div>
+				<div className="px-4 flex justify-between">
+					<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
+					<Button onClick={onClick}>{trans.common.INVITE}</Button>
+				</div>
+				<Text className="opacity-40  px-4 text-left mt-4">
+					{trans.common.TASK_TITTLE}
+				</Text>
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 mt-4 pt-4 w-full font-normal px-3 border-t text-xs">
+					<span>{trans.common.TODAY}:</span>
+					<Text>00h : 00m</Text>
+				</div>
+				<div className="flex items-center justify-between">
+					<div className="opacity-40 pl-3 flex items-center justify-center space-x-1 relative text-xs">
+						<TimeInputField defaultValue="00" label="h" />
+						<span>:</span>
+						<TimeInputField defaultValue="00" label="m" />
+						<div className="absolute inset-0" />
+					</div>
+					<div className="opacity-40 text-end font-normal flex-1 text-xs">
+						<Text>00h : 00m</Text>
+					</div>
+				</div>
+			</Card>
+		</div>
 	);
 }

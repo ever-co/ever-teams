@@ -2,7 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { DropdownItem, Tooltip } from 'lib/components';
+import { Avatar, DropdownItem, Tooltip } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
 import stc from 'string-to-color';
 
@@ -26,6 +26,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 								title={team.name}
 								count={team.members.length}
 								className={clsxm(selected && ['font-medium'])}
+								logo={team.image?.fullUrl || ''}
 							/>
 						</div>
 
@@ -45,6 +46,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 						title={team.name}
 						count={team?.members?.length || 0}
 						className="py-2 mb-0"
+						logo={team.image?.fullUrl || ''}
 					/>
 				</Tooltip>
 			),
@@ -79,12 +81,14 @@ export function TeamItem({
 	className,
 	color,
 	disabled,
+	logo,
 }: {
 	title?: string;
 	count?: number;
 	className?: string;
 	color?: string;
 	disabled?: boolean;
+	logo?: string;
 }) {
 	return (
 		<div
@@ -105,7 +109,18 @@ export function TeamItem({
 					)}
 					style={{ background: color || `${stc(title)}80` }}
 				>
-					{title ? imgTitle(title) : ''}
+					{logo ? (
+						<Avatar
+							size={27}
+							className="relative cursor-pointer"
+							imageUrl={logo}
+							alt="user avatar"
+						/>
+					) : title ? (
+						imgTitle(title)
+					) : (
+						''
+					)}
 				</div>
 			</div>
 			<span

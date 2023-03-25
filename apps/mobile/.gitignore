@@ -87,3 +87,5 @@ web-build/
 # local env files
 .env*
 !.env.template
+
+dist/

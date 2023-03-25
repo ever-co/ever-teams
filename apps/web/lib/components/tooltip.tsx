@@ -46,7 +46,7 @@ export function Tooltip({
 						leaveTo="transform scale-95 opacity-0"
 						ref={setTooltipRef}
 						{...getTooltipProps()}
-						className="tooltip-container"
+						className="tooltip-container w-1/3 md:w-fit"
 					>
 						{label}
 						<div {...getArrowProps()} className="tooltip-arrow" />

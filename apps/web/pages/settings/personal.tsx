@@ -35,7 +35,7 @@ const Personal = () => {
 					</div>
 
 					<Container className="mb-10">
-						<div className="flex w-full">
+						<div className="flex w-full sm:flex-row flex-col">
 							<LeftSideSettingMenu />
 							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
 								<Card
@@ -45,7 +45,7 @@ const Personal = () => {
 									<Text className="text-4xl font-medium mb-2">
 										{trans.HEADING_TITLE}
 									</Text>
-									<Text className="text-base font-normal text-gray-400">
+									<Text className="text-base font-normal text-gray-400 text-center sm:text-left">
 										{translations.pages.settings.HEADING_DESCRIPTION}
 									</Text>
 									<ProfileAvatar />
@@ -55,7 +55,7 @@ const Personal = () => {
 									className="dark:bg-dark--theme p-[32px] mt-[36px]"
 									shadow="bigger"
 								>
-									<Text className="text-2xl text-[#EB6961] font-normal">
+									<Text className="text-2xl text-[#EB6961] font-normal text-center sm:text-left">
 										{translations.pages.settings.DANDER_ZONE}
 									</Text>
 									<DangerZone />

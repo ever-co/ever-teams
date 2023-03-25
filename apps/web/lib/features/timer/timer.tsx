@@ -22,7 +22,7 @@ export function Timer({ className }: IClassName) {
 	} = useTimerView();
 
 	return (
-		<div className={clsxm('flex flex-row', className)}>
+		<div className={clsxm('flex flex-row mb-10 xl:mb-0', className)}>
 			<div className="border-r-[2px] dark:border-r-[#28292F] pr-5">
 				<div className="w-[186px]">
 					<Text.Heading as="h3" className="lg:text-4xl text-2xl tracking-wide font-normal">
@@ -71,7 +71,7 @@ export function MinTimerFrame({ className }: IClassName) {
 		<div
 			className={clsxm(
 				'input-border rounded-[10px] p-2',
-				'flex items-center space-x-4',
+				'flex items-center md:space-x-4 space-x-1',
 				className
 			)}
 		>

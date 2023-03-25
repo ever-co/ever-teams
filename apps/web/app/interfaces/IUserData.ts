@@ -1,4 +1,5 @@
 import { IEmployee } from './IEmployee';
+import { IImageAssets } from './IImageAssets';
 
 export interface ITeamProps {
 	email: string;
@@ -29,6 +30,8 @@ export interface IUser {
 	timeZone?: string;
 	name?: string | null | undefined;
 	phoneNumber: string | null;
+	imageId?: string | null;
+	image?: IImageAssets | null;
 }
 
 interface Role {

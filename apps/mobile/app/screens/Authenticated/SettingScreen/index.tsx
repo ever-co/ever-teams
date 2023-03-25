@@ -27,6 +27,7 @@ export type IPopup =
     "Remove Team" |
     "Avatar" |
     "Avatar 2" |
+    "Quit Team" |
     "Delete Account" |
     "Remove Account";
 
@@ -111,12 +112,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
                     </View>
                 }
             />
-            <FlashMessage position={"bottom"} />
         </Screen>
     )
 }
 
-const { height, width } = Dimensions.get("window");
+const { height } = Dimensions.get("window");
 
 const $container: ViewStyle = {
     flex: 1,

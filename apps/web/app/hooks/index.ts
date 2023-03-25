@@ -29,6 +29,7 @@ export * from './features/useAutoAssignTask';
 export * from './features/useEmailReset';
 export * from './features/useOrganizatioTeamsEmployee';
 export * from './features/useRequestToJoinTeam';
+export * from './features/useImageAssets';
 
 //export user personal setting
 export * from './features/useSettings';
@@ -38,3 +39,9 @@ export * from './features/useLanguageSettings';
 
 //export user timezone setting
 export * from './features/useTimezoneSettings';
+
+// task status
+export * from './features/useTaskStatus';
+export * from './features/useTaskPriorities';
+export * from './features/useTaskSizes';
+export * from './features/useTaskLabels';

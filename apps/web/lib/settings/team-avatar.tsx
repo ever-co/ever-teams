@@ -1,18 +1,22 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Avatar, Button } from 'lib/components';
 import { useCallback, useState } from 'react';
-import { useAuthenticateUser, useImageAssets, useSettings } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useImageAssets,
+	useOrganizationTeams,
+} from '@app/hooks';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { IImageAssets } from '@app/interfaces';
+import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
-import { imgTitle } from '@app/helpers';
 
-export const ProfileAvatar = () => {
+export const TeamAvatar = () => {
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
-	const { updateAvatar } = useSettings();
+	const { updateOrganizationTeam, activeTeam } = useOrganizationTeams();
 	const { createImageAssets } = useImageAssets();
 	const { user } = useAuthenticateUser();
 
@@ -25,30 +29,38 @@ export const ProfileAvatar = () => {
 	};
 	const onChangeAvatar = useCallback(
 		async (e: any) => {
-			if (e.target.files && user) {
+			if (e.target.files && activeTeam && user) {
 				createImageAssets(
 					e.target.files[0],
-					'profile_pictures_avatars',
+					'organization_teams_avatars',
 					user.tenantId as string,
 					user.employee.organizationId
 				)
 					.then((d: IImageAssets) => {
-						updateAvatar({ imageId: d.id, id: user.id });
+						updateOrganizationTeam(activeTeam, {
+							...activeTeam,
+							imageId: d.id,
+							image: d,
+						});
 					})
 					.finally(() => {
 						setAvatarBtn(false);
 					});
 			}
 		},
-		[updateAvatar, user, createImageAssets]
+		[updateOrganizationTeam, user, createImageAssets, activeTeam]
 	);
 
 	const onDeleteAvatar = useCallback(async () => {
-		if (user) {
-			await updateAvatar({ imageId: null, id: user.id });
+		if (user && activeTeam) {
+			updateOrganizationTeam(activeTeam, {
+				...activeTeam,
+				imageId: null,
+				image: null,
+			});
 			setAvatarBtn(false);
 		}
-	}, [updateAvatar, user]);
+	}, [updateOrganizationTeam, user, activeTeam]);
 
 	return (
 		<>
@@ -66,18 +78,18 @@ export const ProfileAvatar = () => {
 										'mt-8'
 									)}
 									style={{
-										backgroundColor: `${stc(user?.name || '')}80`,
+										backgroundColor: `${stc(activeTeam?.name || '')}80`,
 									}}
 								>
-									{user?.imageUrl ? (
+									{activeTeam?.image?.fullUrl ? (
 										<Avatar
 											size={80}
 											className="relative cursor-pointer"
-											imageUrl={user?.imageUrl}
-											alt="User Avatar"
+											imageUrl={activeTeam.image.fullUrl}
+											alt="Team Avatar"
 										/>
-									) : user?.name ? (
-										imgTitle(user?.name)
+									) : activeTeam?.name ? (
+										imgTitle(activeTeam?.name)
 									) : (
 										''
 									)}
@@ -98,8 +110,8 @@ export const ProfileAvatar = () => {
 							{avatarBtn ? (
 								<div className="flex w-full items-center gap-3">
 									<div className="mt-6">
-										<label className="flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-xl min-w-[140px] text-primary border-2 border-primary font-medium dark:text-primary-light dark:border-primary-light disabled:opacity-40 cursor-pointer">
-											<span>Change Avatar</span>
+										<label className="flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-xl min-w-[140px] text-primary border-2 border-primary font-medium dark:text-primary-light dark:border-primary-light disabled:opacity-40">
+											<span className="">Change Avatar</span>
 											<input
 												type="file"
 												{...register('imageUrl')}

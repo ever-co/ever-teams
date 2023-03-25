@@ -48,8 +48,3 @@ jobs:
       - name: Build Mobile
         run: |
           yarn build:mobile
-
-      - name: Create preview
-        uses: expo/expo-github-action/preview@v8
-        with:
-          command: eas update --auto

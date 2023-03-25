@@ -4,14 +4,14 @@ import { useQueryClient } from "react-query";
 import { useStores } from "../../models";
 import useFetchUserOrganization from "../client/queries/organizationTeam/organization";
 import { createOrganizationTeamRequest, deleteOrganizationTeamRequest, removeUserFromAllTeam, updateOrganizationTeamRequest } from "../client/requests/organization-team";
-import { updateOrganizationTeamEmployeeRequest } from "../client/requests/organization-team-employee";
+import { deleteOrganizationTeamEmployeeRequest, updateOrganizationTeamEmployeeRequest } from "../client/requests/organization-team-employee";
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam";
 import useAuthenticateUser from "./features/useAuthentificateUser";
 
 
 function useCreateOrganizationTeam() {
     const {
-        authenticationStore: { tenantId, organizationId, authToken, user, employeeId },
+        authenticationStore: { tenantId, organizationId, authToken, employeeId },
         teamStore: { teams, setOrganizationTeams, setActiveTeamId, setActiveTeam }
     } = useStores();
     const queryClient = useQueryClient();
@@ -136,7 +136,7 @@ export function useOrganizationTeam() {
     }, [activeTeamId, isManager])
 
 
-    const removeMember = useCallback(async (employeeId: string) => {
+    const removeMemberFromTeam = useCallback(async (employeeId: string) => {
 
         const member = members.find((m) => m.employeeId === employeeId)
         const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
@@ -144,41 +144,40 @@ export function useOrganizationTeam() {
         // Verify if member is manager And Check if he is the only manager in the active team
         if (member && member.role && managerIds.length < 2) {
             showMessage({
-                message: "Critical",
-                description: "You're the only manager you can't remove account",
-                type: "danger"
+                message: "Quit the team",
+                description: "You're the only manager you can't quit the team",
+                type: "warning"
             })
-
             return
         }
 
-        const newMembers = members.filter((m) => m.employeeId !== employeeId);
-        const index = managerIds.indexOf(employeeId);
-        if (index >= 0) {
-            managerIds.splice(index, 1)
-        }
-        const team: IOrganizationTeamList = {
-            ...activeTeam,
-            members: newMembers,
-            managerIds
-        }
+        await deleteOrganizationTeamEmployeeRequest({
+            employeeId,
+            bearer_token: authToken,
+            organizationId,
+            tenantId,
+            organizationTeamId: activeTeamId,
+            id: member.id
+        }).then((res) => {
+            const { response, data } = res
 
-        setActiveTeam(team)
+            if (
+                !response.ok ||
+                response.status === 401 ||
+                response.status === 402 ||
+                response.status === 403
+            ) {
+                showMessage({
+                    message: "QUIT THE TEAM",
+                    description: "Sorry, something went wrong !",
+                    type: "warning"
+                })
+            } else {
+                queryClient.invalidateQueries("teams")
+            }
+        })
+            .catch((e) => console.log(e))
 
-        const { data, response } = await updateOrganizationTeamRequest({
-            datas: team,
-            id: activeTeamId,
-            bearer_token: authToken
-        });
-
-
-        if (response.ok || response.status === 202) {
-            showMessage({
-                message: "Info",
-                description: "Member removed successfully ! ",
-                type: "success"
-            })
-        }
     }, [activeTeam, isTeamManager])
 
     /**
@@ -290,7 +289,7 @@ export function useOrganizationTeam() {
         createTeamLoading,
         teamsFetching,
         makeMemberAsManager,
-        removeMember,
+        removeMemberFromTeam,
         toggleTimeTracking,
         onUpdateOrganizationTeam,
         onRemoveTeam
