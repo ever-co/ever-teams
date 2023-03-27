@@ -24,6 +24,15 @@ export const isTeamMemberState = atom<boolean>({
 	default: true,
 });
 
+export const isOTRefreshingState = atom<boolean>({
+	key: 'isOTRefreshing',
+	default: false,
+});
+export const OTRefreshIntervalState = atom<number>({
+	key: 'OTRefreshInterval',
+	default: undefined,
+});
+
 export const activeTeamState = selector<IOrganizationTeamList | null>({
 	key: 'activeTeamState',
 	get: ({ get }) => {
