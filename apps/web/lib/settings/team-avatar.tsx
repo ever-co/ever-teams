@@ -13,7 +13,7 @@ import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
 
-export const TeamAvatar = () => {
+export const TeamAvatar = ({ disabled }: { disabled: boolean }) => {
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
 	const { updateOrganizationTeam, activeTeam } = useOrganizationTeams();
@@ -95,22 +95,24 @@ export const TeamAvatar = () => {
 									)}
 								</div>
 
-								<span
-									className="absolute top-[30px] right-[-4px] bg-[#282048] w-[27px] h-[27px] rounded-full flex justify-center items-center border-[3px] border-[#F7F7F8] cursor-pointer p-1"
-									onClick={() => changeAvatarState()}
-								>
-									<Image
-										src="/assets/svg/profile-edit.svg"
-										alt={'user avatar'}
-										width={'80'}
-										height={'80'}
-									/>
-								</span>
+								{!disabled && (
+									<span
+										className="absolute top-[30px] right-[-4px] bg-[#282048] w-[27px] h-[27px] rounded-full flex justify-center items-center border-[3px] border-[#F7F7F8] cursor-pointer p-1"
+										onClick={() => changeAvatarState()}
+									>
+										<Image
+											src="/assets/svg/profile-edit.svg"
+											alt={'user avatar'}
+											width={'80'}
+											height={'80'}
+										/>
+									</span>
+								)}
 							</div>
 							{avatarBtn ? (
 								<div className="flex w-full items-center gap-3">
 									<div className="mt-6">
-										<label className="flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-xl min-w-[140px] text-primary border-2 border-primary font-medium dark:text-primary-light dark:border-primary-light disabled:opacity-40">
+										<label className="flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-xl min-w-[140px] text-primary border-2 border-primary font-medium dark:text-primary-light dark:border-primary-light disabled:opacity-40 cursor-pointer">
 											<span className="">Change Avatar</span>
 											<input
 												type="file"

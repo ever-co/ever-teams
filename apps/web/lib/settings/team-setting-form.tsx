@@ -1,10 +1,4 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	Button,
-	InputField,
-	Text,
-	Tooltip,
-} from 'lib/components';
+import { Button, InputField, Text, Tooltip } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
@@ -91,16 +85,20 @@ export const TeamSettingForm = () => {
 										type="text"
 										placeholder={trans.TEAM_NAME}
 										{...register('teamName', { required: true, maxLength: 80 })}
-										className=""
+										className={`${
+											!isTeamManager ? 'disabled:bg-[#FCFCFC]' : ''
+										}`}
 										trailingNode={
 											<Button
 												variant="ghost"
 												className="p-0 m-0 mr-[0.5rem] min-w-0"
 												type="submit"
+												disabled={!isTeamManager}
 											>
 												<Edit2Icon />
 											</Button>
 										}
+										disabled={!isTeamManager}
 									/>
 								</div>
 							</div>
@@ -121,6 +119,7 @@ export const TeamSettingForm = () => {
 												type="radio"
 												value="PUBLIC"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+												disabled={!isTeamManager}
 											/>
 											<Text.Label>Public Team</Text.Label>
 										</div>
@@ -135,6 +134,7 @@ export const TeamSettingForm = () => {
 												type="radio"
 												value="PRIVATE"
 												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+												disabled={!isTeamManager}
 											/>
 											<Text.Label>Private Team</Text.Label>
 										</div>
