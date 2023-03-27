@@ -51,3 +51,15 @@ export interface IInviteVerified {
 	};
 	isExpired: boolean;
 }
+
+export interface IMyInvitations extends Pick<IInvitation, 'id'> {
+	teams: {
+		id: string;
+		name: string;
+	}[];
+}
+
+export enum MyInvitationActionEnum {
+	ACCEPTED = 'ACCEPTED',
+	REJECTED = 'REJECTED',
+}

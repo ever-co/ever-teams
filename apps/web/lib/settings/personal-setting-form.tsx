@@ -32,15 +32,6 @@ export const PersonalSettingForm = () => {
 	const [newEmail, setNewEmail] = useState<string>('');
 	const { trans, translations } = useTranslation('settingsPersonal');
 
-	useEffect(() => {
-		setValue('firstName', user?.firstName);
-		setValue('lastName', user?.lastName);
-		setValue('email', user?.email);
-		setValue('timeZone', user?.timeZone);
-		setValue('preferredLanguage', user?.preferredLanguage);
-		setValue('phoneNumber', user?.phoneNumber);
-	}, [user, currentTimezone, currentLanguage, setValue]);
-
 	const handleFullnameChange = useCallback(() => {
 		const values = getValues();
 		if (user) {
@@ -72,10 +63,6 @@ export const PersonalSettingForm = () => {
 		}
 	}, [updateAvatar, user, getValues]);
 
-	useEffect(() => {
-		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
-		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
-	}, [setCurrentTimezone, setValue, user, user?.timeZone]);
 	const handleChangeTimezone = useCallback(
 		(newTimezone: string | undefined) => {
 			setActiveTimezoneCookie(newTimezone || userTimezone());
@@ -91,6 +78,27 @@ export const PersonalSettingForm = () => {
 		},
 		[setCurrentTimezone, setValue, updateAvatar, user]
 	);
+
+	useEffect(() => {
+		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
+		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
+	}, [setCurrentTimezone, setValue, user, user?.timeZone]);
+	useEffect(() => {
+		setValue('firstName', user?.firstName);
+		setValue('lastName', user?.lastName);
+		setValue('email', user?.email);
+		setValue('timeZone', user?.timeZone);
+		setValue('preferredLanguage', user?.preferredLanguage);
+		setValue('phoneNumber', user?.phoneNumber);
+
+		/**
+		 * Set Default current timezone.
+		 * User can change it anytime if wants
+		 */
+		if (!user?.timeZone) {
+			handleChangeTimezone(undefined);
+		}
+	}, [user, currentTimezone, currentLanguage, setValue, handleChangeTimezone]);
 
 	useEffect(() => {
 		setCurrentLanguage(user?.preferredLanguage || getActiveLanguageIdCookie());
@@ -131,7 +139,7 @@ export const PersonalSettingForm = () => {
 						<div className="">
 							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row">
 								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
-									<div className='w-full'>
+									<div className="w-full">
 										<Text className="mb-2 font-normal text-gray-400 text-md">
 											{translations.common.FULL_NAME}
 										</Text>
@@ -191,7 +199,7 @@ export const PersonalSettingForm = () => {
 							</div>
 							<div className="flex items-center justify-between w-full sm:gap-8 mt-8 flex-col sm:flex-row">
 								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
-									<div className='w-full'>
+									<div className="w-full">
 										<Text className="mb-2 font-normal text-gray-400 text-md">
 											{translations.common.CONTACT}
 										</Text>

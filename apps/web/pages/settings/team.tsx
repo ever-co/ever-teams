@@ -17,13 +17,14 @@ import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkelet
 import { useTranslation } from 'lib/i18n';
 import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
-import { useOrganizationTeams } from '@app/hooks';
+import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
 	const [user] = useRecoilState(userState);
 	const { isTeamMember } = useOrganizationTeams();
+	const { isTeamManager } = useIsMemberManager(user);
 
 	return (
 		<>
@@ -55,7 +56,7 @@ const Team = () => {
 										<Text className="text-base font-normal text-gray-400 text-center sm:text-left">
 											{translations.pages.settings.HEADING_DESCRIPTION}
 										</Text>
-										<TeamAvatar />
+										<TeamAvatar disabled={!isTeamManager} />
 										<TeamSettingForm />
 									</Card>
 									<Card
