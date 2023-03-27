@@ -1,5 +1,11 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import { IInvitation, IInviteRequest } from '@app/interfaces/IInvite';
+import {
+	IInvitation,
+	IInviteRequest,
+	IMyInvitations,
+	MyInvitationActionEnum,
+	CreateReponse,
+} from '@app/interfaces';
 import api from '../axios';
 
 export function inviteByEmailsAPI(data: IInviteRequest) {
@@ -18,4 +24,17 @@ export function resendTeamInvitationsAPI(inviteId: string) {
 	return api.post<any>(`/invite/resend`, {
 		inviteId,
 	});
+}
+
+export function getMyInvitationsAPI() {
+	return api.get<PaginationResponse<IMyInvitations>>('/invite/me');
+}
+
+export function acceptRejectMyInvitationsAPI(
+	invitationId: string,
+	action: MyInvitationActionEnum
+) {
+	return api.put<CreateReponse<IInvitation>>(
+		`/invite/${invitationId}?action=${action}`
+	);
 }

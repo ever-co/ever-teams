@@ -79,6 +79,11 @@ export const en = {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
 			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
+			INVITATIONS: "You've been invited to join",
+			CONFIRM_ACCEPT_INVITATION:
+				'Are you sure you want to accept the invitation?',
+			CONFIRM_REJECT_INVITATION:
+				'Are you sure you want to reject the invitation?',
 		},
 
 		profile: {
@@ -202,6 +207,8 @@ export const en = {
 			HEADING_TITLE: 'Invite member to your team',
 			HEADING_DESCRIPTION: 'Send invitation to a team member by email',
 			SEND_INVITE: 'Send Invitation',
+			ERROR_WHILE_ACCEPTING_INVITATION: 'Error while accepting invitation',
+			ERROR_WHILE_REJECTING_INVITATION: 'Error while rejecting invitation',
 		},
 	},
 
