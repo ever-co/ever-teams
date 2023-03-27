@@ -59,7 +59,7 @@ function TaskTimerSection({
 			)}
 		>
 			{/* Task inputs */}
-			<AuthUserTaskInput className='w-4/5 md:w-1/2 xl:w-full'/>
+			<AuthUserTaskInput className="w-4/5 md:w-1/2 xl:w-full" />
 
 			{/* Timer  */}
 			{isTrackingEnabled ? <Timer /> : null}

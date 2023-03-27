@@ -30,6 +30,7 @@ export * from './features/useEmailReset';
 export * from './features/useOrganizatioTeamsEmployee';
 export * from './features/useRequestToJoinTeam';
 export * from './features/useImageAssets';
+export * from './features/useOTRefreshInterval';
 
 //export user personal setting
 export * from './features/useSettings';

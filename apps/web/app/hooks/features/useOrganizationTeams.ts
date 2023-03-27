@@ -31,6 +31,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import { useOTRefreshInterval } from './useOTRefreshInterval';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -207,11 +208,11 @@ export function useOrganizationTeams() {
 	}, [loading, setTeamsFetching]);
 
 	const setActiveTeam = useCallback(
-		(teamId: typeof teams[0]) => {
-			setActiveTeamIdCookie(teamId.id);
-			setOrganizationIdCookie(teamId.organizationId);
+		(team: typeof teams[0]) => {
+			setActiveTeamIdCookie(team.id);
+			setOrganizationIdCookie(team.organizationId);
 			// This must be called at the end (Update store)
-			setActiveTeamId(teamId.id);
+			setActiveTeamId(team.id);
 		},
 		[setActiveTeamId]
 	);
@@ -234,7 +235,7 @@ export function useOrganizationTeams() {
 				latestTeams.length
 			) {
 				setActiveTeam(latestTeams[0]);
-			} else {
+			} else if (!latestTeams.length) {
 				teamId = '';
 			}
 
@@ -298,6 +299,13 @@ export function useOrganizationTeams() {
 		},
 		[loadTeamsData, removeUserFromAllTeamQueryCall]
 	);
+
+	/**
+	 * Refresh Teams data every 5 seconds.
+	 *
+	 * So that if Team is deleted by manager it updates the UI accordingly
+	 */
+	useOTRefreshInterval(loadTeamsData, 5000);
 
 	return {
 		loadTeamsData,
