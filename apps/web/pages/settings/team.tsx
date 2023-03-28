@@ -112,7 +112,14 @@ const Team = () => {
 									</Card>
 								</div>
 							) : (
-								<NoTeam />
+								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
+									<Card
+										className="dark:bg-dark--theme p-[32px] mt-[36px]"
+										shadow="bigger"
+									>
+										<NoTeam className="xs:mt-0 mt-0 p-5" />
+									</Card>
+								</div>
 							)}
 						</div>
 					</Container>
