@@ -43,14 +43,20 @@ export function useTeamMemberCard(
 
 	memberTaskRef.current = useMemo(() => {
 		if (authUSer && member) {
-			if (isAuthUser) {
-				return activeTeamTask;
-			} else if (member.lastWorkedTask && !isAuthUser) {
-				const cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
-				const find = cTask?.members.some((m) => m.id === member.employee.id);
+			let cTask;
+			let find;
 
-				return find ? cTask : undefined;
+			if (member.lastWorkedTask) {
+				cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+				find = cTask?.members.some((m) => m.id === member.employee.id);
+			} else {
+				cTask = tasks.find((t) =>
+					t.members.some((m) => m.userId === member.employee.userId)
+				);
+				find = cTask?.members.some((m) => m.id === member.employee.id);
 			}
+
+			return find ? cTask : undefined;
 		} else if (member && publicTeam) {
 			const cTask = tasks.find((t) =>
 				t.members.some((m) => m.userId === member.employee.userId)
