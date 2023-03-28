@@ -134,6 +134,13 @@ function PasscodeScreen({
 							onChange={(code) => {
 								form.setFormValues((v) => ({ ...v, code }));
 							}}
+							hintType={
+								form.errors['code'] || form.errors['email']
+									? 'error'
+									: form.authenticated
+									? 'success'
+									: undefined
+							}
 						/>
 						{(form.errors['code'] || form.errors['email']) && (
 							<Text.Error className="self-start justify-self-start">
@@ -170,7 +177,10 @@ function PasscodeScreen({
 
 							<div>
 								<BackButton
-									onClick={() => form.authScreen.setScreen('email')}
+									onClick={() => {
+										form.authScreen.setScreen('email');
+										form.setErrors({});
+									}}
 								/>
 							</div>
 						</div>
