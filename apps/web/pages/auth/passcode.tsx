@@ -1,6 +1,9 @@
-import { useAuthenticationPasscode } from '@app/hooks';
+import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
+import { IClassName } from '@app/interfaces';
+import { clsxm } from '@app/utils';
 import {
 	AuthCodeInputField,
+	BackButton,
 	Button,
 	Card,
 	InputField,
@@ -9,104 +12,179 @@ import {
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
+import Link from 'next/link';
+import { FormEvent, useCallback } from 'react';
 
 export default function AuthPasscode() {
-	const {
-		loading,
-		formValues,
-		setFormValues,
-		errors,
-		handleChange,
-		handleSubmit,
-		sendCodeLoading,
-		sendAuthCodeHandler,
-		inputCodeRef,
-	} = useAuthenticationPasscode();
-
-	const { trans, translations } = useTranslation('authLogin');
+	const form = useAuthenticationPasscode();
+	const { trans } = useTranslation('authLogin');
 
 	return (
 		<AuthLayout
 			title={trans.HEADING_TITLE}
 			description={trans.HEADING_DESCRIPTION}
 		>
-			<form
-				className="w-[98%] md:w-[530px]"
-				onSubmit={handleSubmit}
-				autoComplete="off"
-			>
-				<Card className="w-full" shadow="bigger">
-					<div className="flex flex-col justify-between items-center">
-						<Text.Heading as="h3" className="text-center mb-10">
-							{translations.pages.auth.LOGIN}
-						</Text.Heading>
+			<div className="w-full md:w-[550px] overflow-x-hidden">
+				<div
+					className={clsxm(
+						'w-[200%] flex flex-row transition-[transform] duration-500',
+						form.authScreen.screen !== 'email' && ['-translate-x-[550px]']
+					)}
+				>
+					<EmailScreen form={form} className="w-1/2" />
+					<PasscodeScreen
+						form={form}
+						className={clsxm(
+							'w-1/2 transition-[visibility] ease-out duration-700',
+							form.authScreen.screen === 'email' && ['invisible']
+						)}
+					/>
+				</div>
+			</div>
+		</AuthLayout>
+	);
+}
 
-						{/* Email input */}
-						<InputField
-							type="email"
-							placeholder={translations.form.EMAIL_PLACEHOLDER}
-							name="email"
-							value={formValues.email}
-							onChange={handleChange}
-							errors={errors}
-							required
-						/>
+function EmailScreen({
+	form,
+	className,
+}: { form: TAuthenticationPasscode } & IClassName) {
+	const { trans } = useTranslation();
 
-						{/* Auth code input */}
-						<div className="w-full mt-5">
-							<Text className="text-xs text-gray-400 font-normal">
-								{translations.pages.auth.INPUT_INVITE_CODE}
-							</Text>
+	const handleSendCode = useCallback(
+		(e: FormEvent<HTMLFormElement>) => {
+			e.preventDefault();
 
-							<AuthCodeInputField
-								allowedCharacters="numeric"
-								length={6}
-								ref={inputCodeRef}
-								containerClassName="mt-[21px] w-full flex justify-between"
-								inputClassName="w-[40px] xs:w-[50px]"
-								defaultValue={formValues.code}
-								onChange={(code) => {
-									setFormValues((v) => ({ ...v, code }));
-								}}
-							/>
-							{errors['code'] && (
-								<Text.Error className="self-start justify-self-start">
-									{errors['code']}
-								</Text.Error>
-							)}
+			form.sendAuthCodeHandler().then(() => {
+				form.authScreen.setScreen('passcode');
+			});
+		},
+		[form]
+	);
+
+	return (
+		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
+			<Card className="w-full" shadow="custom">
+				<div className="flex flex-col justify-between items-center">
+					<Text.Heading as="h3" className="text-center mb-10">
+						{trans.pages.auth.ENTER_EMAIL}
+					</Text.Heading>
+
+					{/* Email input */}
+					<InputField
+						type="email"
+						placeholder={trans.form.EMAIL_PLACEHOLDER}
+						name="email"
+						value={form.formValues.email}
+						onChange={form.handleChange}
+						errors={form.errors}
+						required
+					/>
+
+					<div className="w-full flex justify-between mt-10">
+						{/* Send code */}
+						<div className="flex flex-col items-start">
+							<Link href="/auth/team">
+								<BackButton />
+							</Link>
 						</div>
 
-						<div className="w-full flex justify-between mt-10">
-							{/* Send code */}
-							<div className="flex flex-col items-start">
+						<Button
+							type="submit"
+							loading={form.sendCodeLoading}
+							disabled={form.sendCodeLoading}
+						>
+							{trans.common.CONTINUE}
+						</Button>
+					</div>
+				</div>
+			</Card>
+		</form>
+	);
+}
+
+function PasscodeScreen({
+	form,
+	className,
+}: { form: TAuthenticationPasscode } & IClassName) {
+	const { trans } = useTranslation();
+
+	return (
+		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
+			<Card className="w-full " shadow="custom">
+				<div className="flex flex-col justify-between items-center">
+					<Text.Heading as="h3" className="text-center mb-10">
+						{trans.pages.auth.LOGIN}
+					</Text.Heading>
+
+					{/* Auth code input */}
+					<div className="w-full mt-5">
+						<Text className="text-xs text-gray-400 font-normal">
+							{trans.pages.auth.INPUT_INVITE_CODE}
+						</Text>
+
+						<AuthCodeInputField
+							key={form.authScreen.screen}
+							allowedCharacters="numeric"
+							length={6}
+							ref={form.inputCodeRef}
+							containerClassName="mt-[21px] w-full flex justify-between"
+							inputClassName="w-[40px] xs:w-[50px]"
+							defaultValue={form.formValues.code}
+							onChange={(code) => {
+								form.setFormValues((v) => ({ ...v, code }));
+							}}
+						/>
+						{(form.errors['code'] || form.errors['email']) && (
+							<Text.Error className="self-start justify-self-start">
+								{form.errors['code'] || form.errors['email']}
+							</Text.Error>
+						)}
+					</div>
+
+					<div className="w-full flex justify-between mt-10">
+						{/* Send code */}
+
+						<div className="flex flex-col space-y-2">
+							<div className="flex flex-row items-start space-x-2">
 								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
-									{translations.pages.auth.UNRECEIVED_CODE}
+									{trans.pages.auth.UNRECEIVED_CODE}
 								</Text>
 
-								{!sendCodeLoading && (
+								{!form.sendCodeLoading && (
 									<button
 										type="button"
 										className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
-										onClick={sendAuthCodeHandler}
+										onClick={form.sendAuthCodeHandler}
 									>
 										{'Re'}
 										<span className="text-primary dark:text-primary-light">
-											{translations.pages.auth.SEND_CODE}
+											{trans.pages.auth.SEND_CODE}
 										</span>
 									</button>
 								)}
-								{sendCodeLoading && (
+								{form.sendCodeLoading && (
 									<SpinnerLoader size={22} className="self-center" />
 								)}
 							</div>
 
-							<Button type="submit" loading={loading} disabled={loading}>
-								{translations.pages.auth.LOGIN}
-							</Button>
+							<div>
+								<BackButton
+									onClick={() => form.authScreen.setScreen('email')}
+								/>
+							</div>
 						</div>
+
+						<Button
+							type="submit"
+							loading={form.loading}
+							disabled={form.loading}
+						>
+							{trans.pages.auth.LOGIN}
+						</Button>
 					</div>
-				</Card>
-			</form>
-		</AuthLayout>
+				</div>
+			</Card>
+		</form>
 	);
 }

@@ -17,6 +17,7 @@ export function useAuthenticationPasscode() {
 	const { query } = useRouter();
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
+	const [screen, setScreen] = useState<'email' | 'passcode'>('email');
 
 	const [formValues, setFormValues] = useState({ email: '', code: '' });
 
@@ -97,13 +98,16 @@ export function useAuthenticationPasscode() {
 	 * send a fresh auth request handler
 	 */
 	const sendAuthCodeHandler = useCallback(() => {
-		sendCodeQueryCall(formValues['email'])
-			.then(() => setErrors({}))
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
-			});
+		const promise = sendCodeQueryCall(formValues['email']);
+
+		promise.then(() => setErrors({}));
+		promise.catch((err: AxiosError) => {
+			if (err.response?.status === 400) {
+				setErrors((err.response?.data as any)?.errors || {});
+			}
+		});
+
+		return promise;
 	}, [formValues, sendCodeQueryCall]);
 
 	return {
@@ -117,5 +121,10 @@ export function useAuthenticationPasscode() {
 		setFormValues,
 		inputCodeRef,
 		setErrors,
+		authScreen: { screen, setScreen },
 	};
 }
+
+export type TAuthenticationPasscode = ReturnType<
+	typeof useAuthenticationPasscode
+>;
