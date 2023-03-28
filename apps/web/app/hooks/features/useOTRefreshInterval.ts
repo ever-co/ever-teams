@@ -2,7 +2,11 @@ import { OTRefreshIntervalState } from '@app/stores';
 import { useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 
-export function useOTRefreshInterval(callback: any, delay: number) {
+export function useOTRefreshInterval(
+	callback: any,
+	delay: number,
+	publicTeam: boolean = true
+) {
 	const [interval, setOTRefreshIntervalState] = useRecoilState(
 		OTRefreshIntervalState
 	);
@@ -16,6 +20,11 @@ export function useOTRefreshInterval(callback: any, delay: number) {
 
 	// Set up the interval.
 	useEffect(() => {
+		// Do not refresh
+		if (publicTeam) {
+			return;
+		}
+
 		function tick() {
 			savedCallback.current();
 		}
@@ -28,5 +37,5 @@ export function useOTRefreshInterval(callback: any, delay: number) {
 
 			return () => clearInterval(id);
 		}
-	}, [delay]);
+	}, [delay, publicTeam]);
 }

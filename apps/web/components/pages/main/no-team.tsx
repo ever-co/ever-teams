@@ -3,13 +3,22 @@ import noTeamImg from '../../../public/assets/svg/no-team.svg';
 import { Text, Button, Avatar } from 'lib/components';
 import { useModal } from '@app/hooks';
 import { CreateTeamModal } from 'lib/features';
+import { PropsWithChildren } from 'react';
+import { clsxm } from '@app/utils';
 
-const NoTeam = () => {
+type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
+const NoTeam = ({ className, ...rest }: Props) => {
 	const { trans } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
 
 	return (
-		<div className="flex justify-center items-center flex-col xs:mt-32 mt-8 mx-auto">
+		<div
+			className={clsxm(
+				'flex justify-center items-center flex-col xs:mt-32 mt-8 mx-auto',
+				className
+			)}
+			{...rest}
+		>
 			<Avatar size={70} imageUrl={noTeamImg} className="bg-transparent mb-4" />
 			<Text.Heading as="h3" className="text-2xl font-medium mb-4 text-center">
 				{trans.common.NO_TEAM}
