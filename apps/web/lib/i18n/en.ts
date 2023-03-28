@@ -110,6 +110,7 @@ export const en = {
 			COVER_DESCRIPTION:
 				'Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis',
 			LOGIN: 'Login',
+			ENTER_EMAIL: 'Enter Email',
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
