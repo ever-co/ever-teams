@@ -27,11 +27,11 @@ import {
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import isEqual from 'lodash/isEqual';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { useOTRefreshInterval } from './useOTRefreshInterval';
 
 /**
  * It updates the `teams` state with the `members` status from the `team` status API
@@ -226,7 +226,15 @@ export function useOrganizationTeams() {
 				setIsTeamMember(false);
 			}
 			const latestTeams = res.data?.items || [];
-			setTeams(latestTeams);
+
+			/**
+			 * Check deep equality,
+			 * No need to update state if all the Team details are same
+			 * (It prevents unnecessary re-rendering)
+			 */
+			if (!teamId && !isEqual(latestTeams, teams)) {
+				setTeams(latestTeams);
+			}
 
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
@@ -241,7 +249,22 @@ export function useOrganizationTeams() {
 
 			teamId &&
 				queryCallTeam(teamId).then((res) => {
-					setTeamsUpdate(res.data);
+					const newTeam = res.data;
+					const currentTeamIndex = latestTeams.findIndex(
+						(team) => team.id === teamId
+					);
+					if (currentTeamIndex >= 0) {
+						latestTeams[currentTeamIndex] = newTeam;
+					}
+
+					/**
+					 * Check deep equality,
+					 * No need to update state if all the Team details are same
+					 * (It prevents unnecessary re-rendering)
+					 */
+					if (!isEqual(latestTeams, teams)) {
+						setTeams(latestTeams);
+					}
 				});
 			return res;
 		});
@@ -253,6 +276,7 @@ export function useOrganizationTeams() {
 		setIsTeamMember,
 		setTeams,
 		setTeamsUpdate,
+		teams,
 	]);
 
 	/**
@@ -299,13 +323,6 @@ export function useOrganizationTeams() {
 		},
 		[loadTeamsData, removeUserFromAllTeamQueryCall]
 	);
-
-	/**
-	 * Refresh Teams data every 5 seconds.
-	 *
-	 * So that if Team is deleted by manager it updates the UI accordingly
-	 */
-	useOTRefreshInterval(loadTeamsData, 5000);
 
 	return {
 		loadTeamsData,
