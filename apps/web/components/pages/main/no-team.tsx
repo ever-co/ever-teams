@@ -7,7 +7,7 @@ import { PropsWithChildren } from 'react';
 import { clsxm } from '@app/utils';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;
-const NoTeam = ({ children, className, ...rest }: Props) => {
+const NoTeam = ({ className, ...rest }: Props) => {
 	const { trans } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
 
