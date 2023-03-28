@@ -19,6 +19,7 @@ export * from './team/create-team-modal';
 export * from './team/teams-dropdown';
 export * from './team/team-item';
 export * from './unverified-email';
+export * from './team/team-invitations';
 
 export * from './auth-user-task-input';
 export * from './user-nav-menu';
