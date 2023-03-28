@@ -10,8 +10,9 @@ import {
 	useTaskPriorities,
 	useTaskSizes,
 	useTaskLabels,
+	useOTRefreshInterval,
 } from '@app/hooks';
-import { userState } from '@app/stores';
+import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 
@@ -22,6 +23,7 @@ export function AppState() {
 }
 
 function InitState() {
+	const publicTeam = useRecoilValue(publicState);
 	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeams();
 	const { firstLoadTasksData } = useTeamTasks();
 	const { firstLoadTeamInvitationsData } = useTeamInvitations();
@@ -71,5 +73,12 @@ function InitState() {
 		firstLoadTaskSizesData,
 		firstLoadTaskLabelsData,
 	]);
+
+	/**
+	 * Refresh Teams data every 5 seconds.
+	 *
+	 * So that if Team is deleted by manager it updates the UI accordingly
+	 */
+	useOTRefreshInterval(loadTeamsData, 5000, publicTeam);
 	return <></>;
 }
