@@ -17,6 +17,8 @@ export function useAuthenticationPasscode() {
 	const { query } = useRouter();
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
+	const [screen, setScreen] = useState<'email' | 'passcode'>('email');
+	const [authenticated, setAuthenticated] = useState(false);
 
 	const [formValues, setFormValues] = useState({ email: '', code: '' });
 
@@ -48,6 +50,7 @@ export function useAuthenticationPasscode() {
 		queryCall(email, code)
 			.then((res) => {
 				window.location.reload();
+				setAuthenticated(true);
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
@@ -84,6 +87,8 @@ export function useAuthenticationPasscode() {
 	 */
 	useEffect(() => {
 		if (query.email && query.code && !loginFromQuery.current) {
+			setScreen('passcode');
+
 			verifyPasscodeRequest({
 				email: query.email as string,
 				code: query.code as string,
@@ -97,13 +102,16 @@ export function useAuthenticationPasscode() {
 	 * send a fresh auth request handler
 	 */
 	const sendAuthCodeHandler = useCallback(() => {
-		sendCodeQueryCall(formValues['email'])
-			.then(() => setErrors({}))
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
-			});
+		const promise = sendCodeQueryCall(formValues['email']);
+
+		promise.then(() => setErrors({}));
+		promise.catch((err: AxiosError) => {
+			if (err.response?.status === 400) {
+				setErrors((err.response?.data as any)?.errors || {});
+			}
+		});
+
+		return promise;
 	}, [formValues, sendCodeQueryCall]);
 
 	return {
@@ -117,5 +125,12 @@ export function useAuthenticationPasscode() {
 		setFormValues,
 		inputCodeRef,
 		setErrors,
+		authScreen: { screen, setScreen },
+		authenticated,
+		setAuthenticated,
 	};
 }
+
+export type TAuthenticationPasscode = ReturnType<
+	typeof useAuthenticationPasscode
+>;

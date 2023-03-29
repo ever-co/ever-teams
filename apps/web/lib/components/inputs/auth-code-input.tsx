@@ -1,3 +1,4 @@
+import { clsxm } from '@app/utils';
 import React, {
 	useRef,
 	useEffect,
@@ -20,6 +21,7 @@ export type AuthCodeProps = {
 	placeholder?: string;
 	onChange: (res: string) => void;
 	defaultValue?: string;
+	hintType?: 'success' | 'error' | 'warning' | undefined;
 };
 
 type InputMode = 'text' | 'numeric';
@@ -75,6 +77,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			placeholder,
 			onChange,
 			defaultValue,
+			hintType,
 		},
 		ref
 	) => {
@@ -194,6 +197,12 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			e.preventDefault();
 		};
 
+		const hintColor = {
+			success: '#4BB543',
+			error: '#FF9494',
+			warning: '#ffcc00',
+		} as const;
+
 		const inputs = [];
 		for (let i = 0; i < length; i++) {
 			const dvalue = validDefaultValue ? defaultValue?.charAt(i) : undefined;
@@ -213,7 +222,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 						inputsRef.current[i] = el;
 					}}
 					maxLength={1}
-					className={inputClassName}
+					className={clsxm('transition-[border-color]', inputClassName)}
 					autoComplete={i === 0 ? 'one-time-code' : 'off'}
 					aria-label={
 						ariaLabel
@@ -222,6 +231,11 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 					}
 					disabled={disabled}
 					placeholder={placeholder}
+					style={{
+						transitionDuration: hintType ? `${i + 10}90ms` : undefined,
+						transitionTimingFunction: hintType ? 'ease-in-out' : undefined,
+						borderColor: hintType ? hintColor[hintType] : undefined,
+					}}
 				/>
 			);
 		}
