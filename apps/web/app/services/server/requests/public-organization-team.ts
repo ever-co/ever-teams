@@ -18,7 +18,9 @@ export function getPublicOrganizationTeamRequest({
 	teamId: string;
 	relations?: string[];
 }) {
-	const params = {} as { [x: string]: string };
+	const params = {
+		withLaskWorkedTask: 'true',
+	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {
 		params[`relations[${i}]`] = rl;
