@@ -20,7 +20,7 @@ const ProfileInfoWithTime = ({
 				names={names}
 				wrapperClassName={profileInfoWrapperClassName}
 			/>
-			<div className="not-italic font-medium text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048]">
+			<div className="not-italic font-medium text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 				{time}
 			</div>
 		</div>

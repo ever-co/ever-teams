@@ -34,7 +34,7 @@ export const en = {
 		VERIFY_ACCOUNT_MSG: 'Please Verify your account before start using the app',
 		CREATE_NEW_TEAMS: 'Create new teams',
 		CREATE: 'Create',
-		CREARE_ISSUE: 'Create issue',
+		CREATE_ISSUE: 'Create issue',
 		NEW_ISSUE: 'New Issue',
 		LOADING: 'Loading',
 		TOTAL_TIME: 'Total time',

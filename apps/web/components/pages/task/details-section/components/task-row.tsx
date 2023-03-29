@@ -19,7 +19,7 @@ const TaskRow: React.FC<TaskRowProps> = ({
 	alignWithIconLabel,
 }) => {
 	return (
-		<div className={clsx('flex justify-between', wrapperClassName)}>
+		<div className={clsx('flex xl:justify-between', wrapperClassName)}>
 			<div className="flex items-top w-[47%]">
 				<TaskLabel
 					labelIconPath={labelIconPath}

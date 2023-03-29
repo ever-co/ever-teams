@@ -8,7 +8,7 @@ const TaskDetailsAside = () => {
 	return (
 		<section className="border border-solid border-[#00000014] rounded-md">
 			<div className="flex justify-between h-[52px] px-[15px] items-center">
-				<div className="not-italic font-semibold text-base leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-base leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					Details
 				</div>
 				<div className="flex">
@@ -21,24 +21,19 @@ const TaskDetailsAside = () => {
 					/>
 					<Image
 						src="/assets/svg/document-download.svg"
-						alt="printer"
+						alt="download"
 						width={16}
 						height={16}
 						className="mr-3"
 					/>
-					<Image
-						src="/assets/svg/more.svg"
-						alt="printer"
-						width={16}
-						height={16}
-					/>
+					<Image src="/assets/svg/more.svg" alt="more" width={16} height={16} />
 				</div>
 			</div>
 			<div
-				className="h-[38px] border-y border-solid border-color-[rgba(0,0,0,0.07)] bg-[#FBFAFA] 
+				className="h-[38px] border-y border-solid border-color-[rgba(0,0,0,0.07)] bg-[#FBFAFA] dark:bg-dark--theme
 details-label px-[15px] flex justify-between"
 			>
-				<div className="text-[#293241] flex items-center">
+				<div className="text-[#293241] dark:text-white flex items-center ">
 					<Image
 						src="/assets/svg/lock.svg"
 						alt="private task"
