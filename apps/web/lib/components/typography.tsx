@@ -80,7 +80,10 @@ Text.Error = forwardRef<
 	return (
 		<span
 			ref={ref}
-			className={clsxm('text-xs text-red-600 font-normal', className)}
+			className={clsxm(
+				'text-xs text-red-600 dark:text-[#FF9494] font-normal',
+				className
+			)}
 			{...rest}
 		>
 			{children}
@@ -159,7 +162,10 @@ Text.Label = forwardRef<
 >(({ children, className, ...rest }) => {
 	return (
 		<label
-			className={clsxm('ml-2 text-sm font-medium text-gray-900 dark:text-gray-300', className)}
+			className={clsxm(
+				'ml-2 text-sm font-medium text-gray-900 dark:text-gray-300',
+				className
+			)}
 			{...rest}
 		>
 			{children}
