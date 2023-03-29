@@ -38,12 +38,12 @@ const TaskProgress = () => {
 				/>
 			</TaskRow>
 			<TaskRow labelTitle="Total Time" wrapperClassName="mb-3">
-				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					2h : 12m
 				</div>
 			</TaskRow>
 			<TaskRow labelTitle="Time Today" wrapperClassName="mb-3">
-				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					1h : 10m
 				</div>
 			</TaskRow>
@@ -52,7 +52,7 @@ const TaskProgress = () => {
 					{({ open }) => (
 						<div className="flex flex-col w-full">
 							<Disclosure.Button className="flex justify-between items-center w-full">
-								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048]">
+								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 									9h : 11m
 								</div>
 								<ChevronUpIcon
@@ -78,7 +78,7 @@ const TaskProgress = () => {
 				</Disclosure>
 			</TaskRow>
 			<TaskRow labelTitle="Time Remains">
-				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					2h : 12m
 				</div>
 			</TaskRow>

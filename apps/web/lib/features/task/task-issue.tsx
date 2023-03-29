@@ -169,7 +169,7 @@ export function CreateTaskIssueModal({
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col justify-between items-center">
 						<Text.Heading as="h3" className="text-center">
-							{trans.common.CREARE_ISSUE}
+							{trans.common.CREATE_ISSUE}
 						</Text.Heading>
 
 						<div className="w-full mt-5">

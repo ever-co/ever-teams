@@ -13,7 +13,7 @@ const TaskEstimationsInfo = () => {
 				afterIconPath="/assets/svg/estimations.svg"
 				wrapperClassName="mb-3"
 			>
-				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					12h : 4m
 				</div>
 			</TaskRow>
