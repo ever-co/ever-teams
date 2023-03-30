@@ -68,7 +68,7 @@ const TaskMainInfo = () => {
 				labelTitle="Start date"
 				wrapperClassName="mt-4"
 			>
-				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{formatDateTimeString(task?.createdAt)}
 				</div>
 			</TaskRow>
@@ -77,11 +77,11 @@ const TaskMainInfo = () => {
 				wrapperClassName="mt-4"
 				alignWithIconLabel={true}
 			>
-				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048]">
+				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{formatDateTimeString(task?.dueDate) || 'Not set'}
 				</div>
 			</TaskRow>
-			<hr className="text-[#F2F2F2] mt-[15px]" />
+			<hr className="text-[#F2F2F2] mt-[15px] dark:text-white" />
 		</section>
 	);
 };

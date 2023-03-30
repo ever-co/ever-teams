@@ -30,7 +30,7 @@ const TaskDescriptionBlock = () => {
 					throw error;
 				},
 				theme: {
-					root: 'rounded h-full md:min-h-[200px] focus:outline-none',
+					root: 'rounded focus:outline-none',
 					link: 'cursor-pointer',
 					text: {
 						bold: 'font-semibold',
@@ -66,13 +66,19 @@ const TaskDescriptionBlock = () => {
 				{editorConfig ? (
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
-						<RichTextPlugin
-							contentEditable={
-								<ContentEditable className="editor-input outline-none py-2" />
-							}
-							placeholder={null}
-							ErrorBoundary={LexicalErrorBoundary}
-						/>
+						<div className="h-full md:min-h-[200px]">
+							<RichTextPlugin
+								contentEditable={
+									<ContentEditable className="editor-input outline-none py-2 " />
+								}
+								placeholder={
+									<p className="text-[#A5A2B2] text-sm ">
+										Write a complete description of your project...
+									</p>
+								}
+								ErrorBoundary={LexicalErrorBoundary}
+							/>
+						</div>
 						<OnChangePlugin onChange={() => setIsUpdated(true)} />
 						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 						<HistoryPlugin />
