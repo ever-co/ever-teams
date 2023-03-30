@@ -56,6 +56,8 @@ export const TaskSizesForm = () => {
 		createTaskSizes,
 		deleteTaskSizes,
 		editTaskSizes,
+		createTaskSizesLoading,
+		editTaskSizesLoading,
 	} = useTaskSizes();
 
 	useEffect(() => {
@@ -182,6 +184,8 @@ export const TaskSizesForm = () => {
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											type="submit"
+											disabled={createTaskSizesLoading || editTaskSizesLoading}
+											loading={createTaskSizesLoading || editTaskSizesLoading}
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>

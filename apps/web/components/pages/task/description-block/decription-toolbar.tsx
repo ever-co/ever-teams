@@ -1,9 +1,21 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { FORMAT_TEXT_COMMAND, $getSelection, $isRangeSelection } from 'lexical';
+import {
+	FORMAT_TEXT_COMMAND,
+	$getSelection,
+	$isRangeSelection,
+	COPY_COMMAND,
+} from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useState } from 'react';
 import ToolButton from './tool-button';
+import {
+	BoldIcon,
+	ItalicIcon,
+	UnderlineIcon,
+	MoreIcon2,
+	LinkIcon,
+} from 'lib/components/svgs';
 
 const DescriptionToolbar = () => {
 	const [editor] = useLexicalComposerContext();
@@ -22,6 +34,10 @@ const DescriptionToolbar = () => {
 
 	const toggleUnderline = () => {
 		editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+	};
+
+	const toggleCopy = () => {
+		editor.dispatchCommand(COPY_COMMAND, event as ClipboardEvent);
 	};
 
 	const updateToolbar = useCallback(() => {
@@ -54,23 +70,26 @@ const DescriptionToolbar = () => {
 				<ToolButton
 					activity={isBold}
 					onSelect={toggleBold}
-					iconSource="/assets/svg/ph_text-bolder-bold.svg"
+					icon={<BoldIcon className="fill-black dark:fill-white" />}
 				/>
 				<ToolButton
 					activity={isItalic}
 					onSelect={toggleItalic}
-					iconSource="/assets/svg/ri_italic.svg"
+					icon={<ItalicIcon className="fill-black dark:fill-white" />}
 				/>
 
 				<ToolButton
 					activity={isUnderline}
 					onSelect={toggleUnderline}
-					iconSource="/assets/svg/ri_font-size-2.svg"
+					icon={<UnderlineIcon className="fill-black dark:fill-white" />}
 				/>
 
-				<ToolButton iconSource="/assets/svg/link.svg" />
+				<ToolButton
+					onSelect={toggleCopy}
+					icon={<LinkIcon className="stroke-black dark:stroke-white" />}
+				/>
 				<ToolButton iconSource="/assets/svg/tick-square.svg" />
-				<ToolButton iconSource="/assets/svg/more2.svg" />
+				<ToolButton icon={<MoreIcon2 className="dark:fill-white" />} />
 			</div>
 		</div>
 	);

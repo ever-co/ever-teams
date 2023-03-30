@@ -21,7 +21,7 @@ const HeaderSkeleton = () => {
 						className="dark:bg-[#272930]"
 					/>
 					<div className="flex space-x-5 items-center">
-						<div className='hidden sm:block'>
+						<div className="hidden sm:block">
 							<Skeleton
 								height={45}
 								width={175}
@@ -59,7 +59,7 @@ export function Navbar({
 
 	return (
 		<>
-			{!user && !notFound ? (
+			{!user && !notFound && !publicTeam ? (
 				<HeaderSkeleton />
 			) : (
 				<nav

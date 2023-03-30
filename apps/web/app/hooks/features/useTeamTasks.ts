@@ -50,6 +50,14 @@ export function useTeamTasks() {
 
 	const loadTeamTasksData = useCallback(() => {
 		return queryCall().then((res) => {
+			const responseTasks = res.data?.items || [];
+			if (responseTasks && responseTasks.length) {
+				responseTasks.forEach((task) => {
+					if (task.tags && task.tags?.length) {
+						task.label = task.tags[0].name;
+					}
+				});
+			}
 			setAllTasks(res.data?.items || []);
 			return res;
 		});

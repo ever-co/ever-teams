@@ -54,17 +54,46 @@ const TaskTitleBlock = () => {
 		);
 	};
 
+	const copyTitle = () => {
+		navigator.clipboard.writeText(title);
+	};
+
 	return (
 		<div className="flex md:mb-10  ">
 			{title !== '' ? (
 				<>
-					<textarea
-						className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start px-2 outline-1 rounded-md outline-0 border border-transparent focus:border-primary-light scrollbar-hide`}
-						onChange={(event) => setTitle(event.target.value)}
-						value={title}
-						disabled={!edit}
-						ref={titleDOM}
-					></textarea>
+					<div className="w-full flex flex-wrap">
+						<textarea
+							className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start px-2 outline-1 rounded-md outline-0 border border-transparent focus:border-primary-light scrollbar-hide`}
+							onChange={(event) => setTitle(event.target.value)}
+							value={title}
+							disabled={!edit}
+							ref={titleDOM}
+						></textarea>
+						<div className="flex flex-col space-y-2">
+							<button
+								className="flex items-center text-[#B1AEBC] text-xs ml-2"
+								onClick={copyTitle}
+							>
+								<Image
+									src="/assets/svg/copy.svg"
+									alt="edit header"
+									width={18}
+									height={18}
+									style={{ height: '28px' }}
+									className="cursor-pointer mr-1"
+								/>
+								Copy Title
+							</button>
+							<div className="flex justify-between">
+								<div className="ml-2 bg-[#D6D6D6] rounded-md text-center w-20 h-9 mr-4 flex justify-center items-center ">
+									<span className="text-black font-medium text-xs ">
+										#{task?.taskNumber}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
 
 					{edit ? (
 						<div className="flex flex-col items-start transition-all ">

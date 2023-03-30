@@ -3,6 +3,7 @@ import { useTeamTasks } from '@app/hooks';
 import { useCallback } from 'react';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
+import Image from 'next/image';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -26,13 +27,9 @@ const DescriptionFooter = (props: IDFooterProps) => {
 	};
 
 	return (
-		<div className="flex justify-between items-center ">
-			<div>
-				<label className="text-xs text-gray-300">Acceptance Criteria</label>
-			</div>
-
-			{props.isUpdated ? (
-				<div>
+		<div>
+			{props.isUpdated && (
+				<div className='flex justify-end'>
 					<button
 						onClick={cancelEdit}
 						className="font-medium transition-all hover:font-semibold"
@@ -49,9 +46,22 @@ const DescriptionFooter = (props: IDFooterProps) => {
 						}
 					>
 						Save
-					</button>{' '}
+					</button>
 				</div>
-			) : null}
+			)}
+			<div className="flex justify-between items-center mt-4">
+				<div>
+					<label className="text-xs text-gray-300">Acceptance Criteria</label>
+				</div>
+				<Image
+					src="/assets/svg/arrow-up.svg"
+					alt="arrow"
+					width={18}
+					height={18}
+					style={{ height: '28px' }}
+					className="cursor-pointer mr-1"
+				/>
+			</div>
 		</div>
 	);
 };

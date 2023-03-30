@@ -23,7 +23,7 @@ const ProfileInfo = ({
 				height={20}
 				className="rounded-full mr-1"
 			/>
-			<div className="flex items-center not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048]">
+			<div className="flex items-center not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 				{names}
 			</div>
 		</div>

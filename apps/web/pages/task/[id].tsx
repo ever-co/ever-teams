@@ -1,5 +1,5 @@
 import { useTranslation } from 'lib/i18n';
-import { Breadcrumb, Container } from 'lib/components';
+import { Breadcrumb, Container, Button } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { useTeamTasks, useUserProfilePage } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -11,6 +11,9 @@ import { detailedTaskState } from '@app/stores';
 import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
+import IssueCard from '@components/pages/task/IssueCard';
+import CompletionBlock from '@components/pages/task/CompletionBlock';
+import ActivityBlock from '@components/pages/task/ActivityBlock';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -49,15 +52,34 @@ const TaskDetails = () => {
 
 			<Container className="mb-10">
 				<div className="flex flex-col w-full min-h-screen pt-5">
-					<section className="flex justify-between md:flex-row flex-col">
+					<section className="flex justify-between lg:flex-row flex-col lg:items-start">
 						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 							<TaskDescriptionBlock />
+							<IssueCard related={false} />
+							<IssueCard related={true} />
+							<CompletionBlock />
+							<ActivityBlock />
 						</section>
-						<div className="bg-white flex flex-col text-red-700 md:w-[400px] rounded-lg">
+						<div className="bg-white dark:bg-dark--theme flex flex-col text-red-700 lg:w-[400px] rounded-lg mt-4 lg:mt-0">
 							<TaskDetailsAside />
 						</div>
 					</section>
+				</div>
+				<div className="flex sm:justify-end justify-center mt-8">
+					<Button
+						variant="grey"
+						className="font-normal py-4 px-4 rounded-xl text-md mr-8"
+					>
+						Cancel
+					</Button>
+					<Button
+						variant="primary"
+						className="font-normal py-4 px-4 rounded-xl text-md"
+						type="submit"
+					>
+						Save
+					</Button>
 				</div>
 			</Container>
 		</MainLayout>
