@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { atom, selector } from 'recoil';
@@ -35,6 +36,7 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 					return tm.id === activeTeamId?.id;
 				});
 			})
+			.sort((a, b) => moment(b.createdAt).diff(a.createdAt))
 			.map((task) => ({ ...task }));
 	},
 });
