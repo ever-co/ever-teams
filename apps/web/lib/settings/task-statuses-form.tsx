@@ -55,6 +55,8 @@ export const TaskStatusesForm = () => {
 		createTaskStatus,
 		deleteTaskStatus,
 		editTaskStatus,
+		createTaskStatusLoading,
+		editTaskStatusLoading,
 	} = useTaskStatus();
 
 	useEffect(() => {
@@ -188,6 +190,10 @@ export const TaskStatusesForm = () => {
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											type="submit"
+											disabled={
+												createTaskStatusLoading || editTaskStatusLoading
+											}
+											loading={createTaskStatusLoading || editTaskStatusLoading}
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>

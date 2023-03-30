@@ -55,6 +55,8 @@ export const TaskLabelForm = () => {
 		deleteTaskLabels,
 		createTaskLabels,
 		editTaskLabels,
+		createTaskLabelsLoading,
+		editTaskLabelsLoading,
 	} = useTaskLabels();
 
 	useEffect(() => {
@@ -181,6 +183,10 @@ export const TaskLabelForm = () => {
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											type="submit"
+											disabled={
+												createTaskLabelsLoading || editTaskLabelsLoading
+											}
+											loading={createTaskLabelsLoading || editTaskLabelsLoading}
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
