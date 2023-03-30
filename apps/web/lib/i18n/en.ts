@@ -154,16 +154,19 @@ export const en = {
 			TASK_PRIORITIES: 'Task Priorities',
 			TASK_SIZES: 'Task Sizes',
 			TASK_LABELS: 'Task Labels',
+			ISSUE_TYPES: 'Issue Types',
 
 			CREATE_NEW_STATUSES: 'Create new Statuses',
 			CREATE_NEW_PRIORITIES: 'Create new Priorities',
 			CREATE_NEW_SIZES: 'Create new Sizes',
 			CREATE_NEW_LABELS: 'Create new Labels',
+			CREATE_NEW_ISSUE_TYPES: 'Create new Issues',
 
 			LIST_OF_STATUSES: 'List of Statuses',
 			LIST_OF_PRIORITIES: 'List of Priorities',
 			LIST_OF_SIZES: 'List of Sizes',
 			LIST_OF_LABELS: 'List of Labels',
+			LIST_OF_ISSUES_TYPE: 'List of Issues',
 
 			GENERAL: 'General',
 			SOUND: 'Sound',

@@ -11,6 +11,7 @@ export * from './task-priorities-form';
 export * from './task-sizes-form';
 export * from './task-statuses-form';
 export * from './task-labels-form';
+export * from './issue-types-form';
 export * from './team-setting-form';
 export * from './timezone-dropdown';
 export * from './transfer-team-modal';
