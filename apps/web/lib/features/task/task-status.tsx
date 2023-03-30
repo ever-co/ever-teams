@@ -6,6 +6,7 @@ import {
 	ITeamTask,
 	IVersionProperty,
 	Nullable,
+	Tag,
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
@@ -105,6 +106,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	field: T
 ) {
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
+	const { taskLabels } = useTaskLabels();
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 
@@ -120,9 +122,20 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	 */
 	function onItemChange(status: ITaskStatusStack[T]) {
 		props.onChangeLoading && props.onChangeLoading(true);
-		handleStatusUpdate(status, field, task, true).finally(() => {
-			props.onChangeLoading && props.onChangeLoading(false);
-		});
+		let updatedField: ITaskStatusField = field;
+		if (field === 'label' && task) {
+			const currentTag = taskLabels.find(
+				(label) => label.name === status
+			) as Tag;
+			updatedField = 'tags';
+			status = [currentTag];
+		}
+
+		handleStatusUpdate(status, updatedField || field, task, true).finally(
+			() => {
+				props.onChangeLoading && props.onChangeLoading(false);
+			}
+		);
 	}
 
 	const { item, items, onChange } = useStatusValue<T>(
@@ -492,7 +505,9 @@ export function TaskLabelsDropdown({
 	);
 }
 
-export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
+export function ActiveTaskLabelsDropdown(
+	props: IActiveTaskStatuses<'label' | 'tags'>
+) {
 	const taskLabelsValue = useTaskLabelsValue();
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,

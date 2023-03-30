@@ -24,6 +24,7 @@ export type ITeamTask = {
 	teams: SelectedTeam[];
 	creator: Creator;
 	taskNumber: string;
+	label?: string;
 } & ITaskStatusStack;
 
 type SelectedTeam = Pick<
@@ -37,7 +38,7 @@ type SelectedTeam = Pick<
 	| 'prefix'
 >;
 
-interface Tag {
+export interface Tag {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -101,7 +102,8 @@ export type ITaskStatusField =
 	| 'version'
 	| 'epic'
 	| 'project'
-	| 'team';
+	| 'team'
+	| 'tags';
 
 export type ITaskStatusStack = {
 	status: ITaskStatus;
@@ -113,6 +115,7 @@ export type ITaskStatusStack = {
 	epic: IEpicProperty;
 	project: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
 	team: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
+	tags: any; //TODO: these types are not strings, but rather array of objects for tags. To reimplement
 };
 
 export interface ICreateTask {
