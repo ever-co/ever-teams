@@ -45,6 +45,7 @@ export function StatusModal<T extends ITaskStatusField>({
 		epic: {},
 		team: {},
 		version: {},
+		tags: {},
 	};
 
 	const { item, items, onChange } = useStatusValue<T>(
