@@ -11,6 +11,7 @@ import {
 	useTaskSizes,
 	useTaskLabels,
 	useOTRefreshInterval,
+	useIssueType,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -37,6 +38,7 @@ function InitState() {
 	const { firstLoadTaskPrioritiesData } = useTaskPriorities();
 	const { firstLoadTaskSizesData } = useTaskSizes();
 	const { firstLoadTaskLabelsData } = useTaskLabels();
+	const { firstLoadIssueTypeData } = useIssueType();
 
 	useEffect(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -52,6 +54,7 @@ function InitState() {
 		firstLoadTaskPrioritiesData();
 		firstLoadTaskSizesData();
 		firstLoadTaskLabelsData();
+		firstLoadIssueTypeData();
 		// --------------
 
 		getTimerStatus();
