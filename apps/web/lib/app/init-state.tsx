@@ -75,6 +75,7 @@ function InitState() {
 		firstLoadTaskPrioritiesData,
 		firstLoadTaskSizesData,
 		firstLoadTaskLabelsData,
+		firstLoadIssueTypeData,
 	]);
 
 	/**
