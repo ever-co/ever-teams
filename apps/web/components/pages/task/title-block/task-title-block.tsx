@@ -58,85 +58,103 @@ const TaskTitleBlock = () => {
 		navigator.clipboard.writeText(title);
 	};
 
+	const copyTaskNumber = () => {
+		task && navigator.clipboard.writeText(task?.taskNumber);
+	}
+
 	return (
-		<div className="flex md:mb-10  ">
-			{title !== '' ? (
-				<>
-					<div className="w-full flex flex-wrap">
-						<textarea
-							className={`w-full bg-transparent resize-none h-auto text-black dark:text-white not-italic font-medium text-2xl mr-1 items-start px-2 outline-1 rounded-md outline-0 border border-transparent focus:border-primary-light scrollbar-hide`}
-							onChange={(event) => setTitle(event.target.value)}
-							value={title}
-							disabled={!edit}
-							ref={titleDOM}
-						></textarea>
-						<div className="flex flex-col space-y-2">
+		<>
+			<div className="flex mb-6 ">
+				{title !== '' ? (
+					<>
+						<div className="w-full flex flex-wrap">
+							<textarea
+								className={`w-4/5 bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md outline-0 border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
+								onChange={(event) => setTitle(event.target.value)}
+								value={title}
+								disabled={!edit}
+								ref={titleDOM}
+							></textarea>
 							<button
-								className="flex items-center text-[#B1AEBC] text-xs ml-2"
+								className="flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
 								onClick={copyTitle}
 							>
 								<Image
 									src="/assets/svg/copy.svg"
 									alt="edit header"
-									width={18}
-									height={18}
-									style={{ height: '28px' }}
+									width={17}
+									height={17}
+									style={{ height: '17px' }}
 									className="cursor-pointer mr-1"
 								/>
 								Copy Title
 							</button>
-							<div className="flex justify-between">
-								<div className="ml-2 bg-[#D6D6D6] rounded-md text-center w-20 h-9 mr-4 flex justify-center items-center ">
-									<span className="text-black font-medium text-xs ">
-										#{task?.taskNumber}
-									</span>
-								</div>
-							</div>
 						</div>
-					</div>
 
-					{edit ? (
-						<div className="flex flex-col items-start transition-all ">
-							<button ref={saveButton} onClick={() => saveTitle(title)}>
-								<Image
-									src="/assets/svg/tick.svg"
-									alt="edit header"
-									width={28}
-									height={28}
-									style={{ height: '28px' }}
-									className="cursor-pointer"
-								/>
-							</button>
-							<button ref={cancelButton} onClick={cancelEdit}>
-								<Image
-									src="/assets/svg/close.svg"
-									alt="edit header"
-									width={28}
-									height={28}
-									style={{ height: '28px' }}
-									className="cursor-pointer "
-								/>
-							</button>
-						</div>
-					) : (
-						<div className="flex flex-col items-start">
-							<button ref={editButton} onClick={() => setEdit(true)}>
-								<Image
-									src="/assets/svg/edit-header-pencil.svg"
-									alt="edit header"
-									width={28}
-									height={28}
-									style={{ height: '28px' }}
-									className="cursor-pointer"
-								/>
-							</button>
-						</div>
-					)}
-				</>
-			) : (
-				<TitleLoader />
-			)}
-		</div>
+						{edit ? (
+							<div className="flex flex-col items-start transition-all ">
+								<button ref={saveButton} onClick={() => saveTitle(title)}>
+									<Image
+										src="/assets/svg/tick.svg"
+										alt="edit header"
+										width={28}
+										height={28}
+										style={{ height: '28px' }}
+										className="cursor-pointer"
+									/>
+								</button>
+								<button ref={cancelButton} onClick={cancelEdit}>
+									<Image
+										src="/assets/svg/close.svg"
+										alt="edit header"
+										width={28}
+										height={28}
+										style={{ height: '28px' }}
+										className="cursor-pointer "
+									/>
+								</button>
+							</div>
+						) : (
+							<div className="flex flex-col items-start">
+								<button ref={editButton} onClick={() => setEdit(true)}>
+									<Image
+										src="/assets/svg/edit-header-pencil.svg"
+										alt="edit header"
+										width={28}
+										height={28}
+										style={{ height: '28px' }}
+										className="cursor-pointer"
+									/>
+								</button>
+							</div>
+						)}
+					</>
+				) : (
+					<TitleLoader />
+				)}
+			</div>
+			<div className="flex">
+				<div className="ml-2 bg-[#D6D6D6] rounded text-center w-12 h-6 mr-4 flex justify-center items-center ">
+					<span className="text-black font-medium text-xs ">
+						#{task?.taskNumber}
+					</span>
+				</div>
+			</div>
+			<button
+				className="flex items-center text-[#B1AEBC] text-xs ml-2 mt-1"
+				onClick={copyTaskNumber}
+			>
+				<Image
+					src="/assets/svg/copy.svg"
+					alt="edit header"
+					width={11}
+					height={11}
+					style={{ height: '11px' }}
+					className="cursor-pointer mr-1"
+				/>
+				Copy Number
+			</button>
+		</>
 	);
 };
 export default TaskTitleBlock;

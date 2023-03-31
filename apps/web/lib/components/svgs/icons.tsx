@@ -1646,15 +1646,15 @@ export function MoreIcon2({ className }: IClassName) {
 		>
 			<path
 				d="M4.16667 8.8335C3.25 8.8335 2.5 9.5835 2.5 10.5002C2.5 11.4168 3.25 12.1668 4.16667 12.1668C5.08333 12.1668 5.83333 11.4168 5.83333 10.5002C5.83333 9.5835 5.08333 8.8335 4.16667 8.8335Z"
-				stroke-width="1.2"
+				strokeWidth="1.2"
 			/>
 			<path
 				d="M15.8334 8.8335C14.9167 8.8335 14.1667 9.5835 14.1667 10.5002C14.1667 11.4168 14.9167 12.1668 15.8334 12.1668C16.7501 12.1668 17.5001 11.4168 17.5001 10.5002C17.5001 9.5835 16.7501 8.8335 15.8334 8.8335Z"
-				stroke-width="1.2"
+				strokeWidth="1.2"
 			/>
 			<path
 				d="M9.99992 8.8335C9.08325 8.8335 8.33325 9.5835 8.33325 10.5002C8.33325 11.4168 9.08325 12.1668 9.99992 12.1668C10.9166 12.1668 11.6666 11.4168 11.6666 10.5002C11.6666 9.5835 10.9166 8.8335 9.99992 8.8335Z"
-				stroke-width="1.2"
+				strokeWidth="1.2"
 			/>
 		</svg>
 	);
@@ -1672,21 +1672,21 @@ export function LinkIcon({ className }: IClassName) {
 		>
 			<path
 				d="M12.4917 15.0832H13.75C16.2667 15.0832 18.3334 13.0248 18.3334 10.4998C18.3334 7.98317 16.275 5.9165 13.75 5.9165H12.4917"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M7.50008 5.9165H6.25008C3.72508 5.9165 1.66675 7.97484 1.66675 10.4998C1.66675 13.0165 3.72508 15.0832 6.25008 15.0832H7.50008"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M6.66675 10.5H13.3334"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);

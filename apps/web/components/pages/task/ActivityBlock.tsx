@@ -8,6 +8,7 @@ const ActivityBlock = () => {
 	const [selectedAll, setSelectedAll] = useState<boolean>(true);
 	const [selectedComments, setSelectedComments] = useState<boolean>(false);
 	const [selectedHistory, setSelectedHistory] = useState<boolean>(false);
+	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 
 	const onAllSelect = () => {
 		setSelectedAll(true);
@@ -104,13 +105,29 @@ const ActivityBlock = () => {
 					<ChevronUpIcon className="h-5 w-5 text-[#292D32] cursor-pointer" />
 				</div>
 			</div>
-            <div className="mt-4">
-					<input
-						className="text-sm text-[#A5A2B2] w-full py-4 bg-[#F9F9F9] border rounded-md outline-0 px-2 dark:bg-dark--theme"
-						type="text"
-						placeholder="Add Comment here..."
-					/>
-				</div>
+			<div className="mt-4 h-32">
+				<input
+					className="text-sm text-[#A5A2B2] w-full py-4 bg-[#F9F9F9] border rounded-md outline-0 px-2 dark:bg-dark--theme"
+					type="text"
+					placeholder="Add Comment here..."
+					onClick={() => {
+						setIsUpdated(true);
+					}}
+				/>
+				{isUpdated && (
+					<div className="flex justify-end mt-2">
+						<button
+							onClick={() => setIsUpdated(false)}
+							className="font-medium transition-all hover:font-semibold"
+						>
+							Cancel
+						</button>
+						<button className="bg-green-500 text-white px-4 py-1 m-2 rounded font-medium hover:bg-green-600 transition-all">
+							Save
+						</button>
+					</div>
+				)}
+			</div>
 		</Card>
 	);
 };
