@@ -125,12 +125,13 @@ export function useTaskStatistics(addSeconds = 0) {
 	const getEstimation = (
 		timeSheet: Nullable<ITasksTimesheet>,
 		_task: Nullable<ITeamTask>,
-		addSeconds: number
+		addSeconds: number,
+		estimate: number = 0
 	) =>
 		Math.min(
 			Math.floor(
 				(((timeSheet?.duration || 0) + addSeconds) * 100) /
-					(_task?.estimate || 0)
+					(estimate || _task?.estimate || 0)
 			),
 			100
 		);
