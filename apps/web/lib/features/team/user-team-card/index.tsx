@@ -53,7 +53,14 @@ export function UserTeamCard({
 	const TotalWork = () => {
 		if (memberInfo.isAuthUser) {
 			const { h, m } = secondsToTime(
-				(activeTaskTotalStat?.duration || 0) + addSeconds
+				((member?.totalTodayTasks &&
+					member?.totalTodayTasks.reduce(
+						(previousValue, currentValue) =>
+							previousValue + currentValue.duration,
+						0
+					)) ||
+					activeTaskTotalStat?.duration ||
+					0) + addSeconds
 			);
 			return (
 				<div
