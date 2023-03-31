@@ -3,14 +3,11 @@ import {
 	I_TeamMemberCardHook,
 	useLiveTimerStatus,
 	useOrganizationTeams,
-	useTaskStatistics,
 } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
-import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
-import { useRecoilValue } from 'recoil';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -24,8 +21,6 @@ type Props = {
 export function TaskTimes({
 	className,
 	task,
-	isAuthUser,
-	activeAuthTask,
 	memberInfo,
 	showDaily = true,
 	showTotal = true,
