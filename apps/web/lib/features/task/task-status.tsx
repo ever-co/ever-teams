@@ -77,7 +77,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="relative w-5 h-5">
+					<div className="relative w-5 h-4">
 						{item.fullIconUrl && (
 							<Image
 								layout="fill"
@@ -581,7 +581,6 @@ export function TaskStatus({
 	active = true,
 	issueType = 'status',
 	showIssueLabels,
-	forDetails,
 	bordered,
 }: PropsWithChildren<
 	TStatusItem &
@@ -595,10 +594,8 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				'py-2 md:px-4 px-2 flex items-center text-sm space-x-3',
-				forDetails ? 'rounded-sm' : 'rounded-xl',
-
-				issueType === 'issue' && ['rounded-md px-2 text-white'],
+				'py-2 md:px-4 px-2 flex items-center text-sm space-x-3 rounded-xl',
+				issueType === 'issue' && ['px-2 text-white'],
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				bordered && ['input-border'],
 				bordered &&
