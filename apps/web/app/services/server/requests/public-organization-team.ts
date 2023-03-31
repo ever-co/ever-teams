@@ -1,4 +1,5 @@
 import { IOrganizationTeamWithMStatus } from '@app/interfaces';
+import moment from 'moment';
 import { serverFetch } from '../fetch';
 
 export function getPublicOrganizationTeamRequest({
@@ -20,6 +21,8 @@ export function getPublicOrganizationTeamRequest({
 }) {
 	const params = {
 		withLaskWorkedTask: 'true',
+		startDate: moment().startOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString(),
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {

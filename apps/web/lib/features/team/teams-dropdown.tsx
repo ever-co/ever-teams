@@ -13,8 +13,7 @@ import { useTranslation } from 'lib/i18n';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
-	const { teams, activeTeam, setActiveTeam, teamsFetching } =
-		useOrganizationTeams();
+	const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
 
 	const { trans } = useTranslation();
 
@@ -49,7 +48,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				value={teamItem}
 				onChange={onChangeActiveTeam}
 				items={items}
-				loading={teamsFetching}
+				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
 				publicTeam={publicTeam}
 			>
 				{!publicTeam && (

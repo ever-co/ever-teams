@@ -6,6 +6,7 @@ import {
 	IOrganizationTeamUpdate,
 	IOrganizationTeamWithMStatus,
 } from '@app/interfaces/IOrganizationTeam';
+import moment from 'moment';
 import { serverFetch } from '../fetch';
 
 export function createOrganizationTeamRequest(
@@ -83,6 +84,8 @@ export function getOrganizationTeamRequest(
 		tenantId: tenantId,
 		source: 'BROWSER',
 		withLaskWorkedTask: 'true',
+		startDate: moment().startOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString(),
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {

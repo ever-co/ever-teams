@@ -52,7 +52,9 @@ function TaskEstimateInput({
 	};
 	edition.estimateEditIgnoreElement.onOutsideClick(closeFn);
 
-	const { h, m } = secondsToTime(task?.estimate || 0);
+	const { h, m } = secondsToTime(
+		memberInfo.member?.lastWorkedTask?.estimate || task?.estimate || 0
+	);
 
 	return (
 		<>

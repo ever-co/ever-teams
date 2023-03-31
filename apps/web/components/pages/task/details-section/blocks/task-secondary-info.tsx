@@ -1,5 +1,5 @@
 import { useTeamTasks } from '@app/hooks';
-import { ITaskStatus } from '@app/interfaces';
+import { ITaskStatus, ITaskSize, ITaskPriority, IVersionProperty } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import {
 	EpicPropertiesDropdown as TaskEpicDropdown,
@@ -25,11 +25,32 @@ const TaskSecondaryInfo = () => {
 		[task, handleStatusUpdate]
 	);
 
+	const handleSizeChange = useCallback(
+		(status: ITaskSize) => {
+			handleStatusUpdate(status, 'size', task)
+		},
+		[task, handleStatusUpdate]
+	);
+
+	const handlePriorityChange = useCallback(
+		(status: ITaskPriority) => {
+			handleStatusUpdate(status, 'priority', task)
+		},
+		[task, handleStatusUpdate]
+	);
+
+	const handleVersionChange = useCallback(
+		(status: IVersionProperty) => {
+			handleStatusUpdate(status, 'version', task)
+		},
+		[task, handleStatusUpdate]
+	)
+
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle="Version" wrapperClassName="mb-3">
 				<TaskVersionDropdown
-					onValueChange={() => void 0}
+					onValueChange={handleVersionChange}
 					className="lg:min-w-[170px]"
 					forDetails={true}
 				/>
@@ -65,6 +86,7 @@ const TaskSecondaryInfo = () => {
 					defaultValue={task?.size}
 					className="lg:min-w-[170px]"
 					forDetails={true}
+					onValueChange={handleSizeChange}
 				/>
 			</TaskRow>
 
@@ -73,6 +95,7 @@ const TaskSecondaryInfo = () => {
 					defaultValue={task?.priority}
 					className="lg:min-w-[170px]"
 					forDetails={true}
+					onValueChange={handlePriorityChange}
 				/>
 			</TaskRow>
 			<hr className="text-[#F2F2F2] mt-[15px]" />

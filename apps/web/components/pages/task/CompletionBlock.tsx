@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Card } from 'lib/components';
 import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 
 const CompletionBlock = () => {
+	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	return (
 		<Card className="w-full mt-8" shadow="bigger">
 			<div className="flex justify-between">
@@ -94,14 +96,30 @@ const CompletionBlock = () => {
 				</div>
 			</div>
 			<hr />
-			<div className="my-4">
+			<div className="my-4 h-36">
 				<p className="text-[#A5A2B2] font-medium text-sm mb-4">Comment</p>
 				<div className="">
 					<input
 						className="text-sm text-[#A5A2B2] w-full py-4 bg-[#F9F9F9] border rounded-md outline-0 px-2 dark:bg-dark--theme"
 						type="text"
 						placeholder="Add Comment here..."
+						onClick={() => {
+							setIsUpdated(true);
+						}}
 					/>
+					{isUpdated && (
+						<div className="flex justify-end mt-2">
+							<button
+								onClick={() => setIsUpdated(false)}
+								className="font-medium transition-all hover:font-semibold"
+							>
+								Cancel
+							</button>
+							<button className="bg-green-500 text-white px-4 py-1 m-2 rounded font-medium hover:bg-green-600 transition-all">
+								Save
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</Card>
