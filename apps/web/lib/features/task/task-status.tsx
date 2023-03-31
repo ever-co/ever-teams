@@ -568,6 +568,7 @@ export function TaskStatus({
 	showIssueLabels,
 	forDetails,
 	bordered,
+	titleClassName,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -575,6 +576,7 @@ export function TaskStatus({
 			issueType?: 'status' | 'issue';
 			showIssueLabels?: boolean;
 			forDetails?: boolean;
+			titleClassName?: string;
 		}
 >) {
 	return (
@@ -592,11 +594,11 @@ export function TaskStatus({
 			)}
 			style={{ backgroundColor: active ? backgroundColor : undefined }}
 		>
-			<div className="flex items-center space-x-3 whitespace-nowrap">
+			<div className={clsxm('flex items-center space-x-3', titleClassName)}>
 				{active ? icon : <RecordIcon />}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
-					<span className="capitalize">{name}</span>
+					<div className="capitalize text-ellipsis">{name}</div>
 				)}
 			</div>
 			{children}
@@ -638,6 +640,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	};
 
 	const currentValue = value || defaultValue;
+	const hasBtnIcon = issueType === 'status' && !showButtonOnly;
 
 	const button = (
 		<TaskStatus
@@ -653,13 +656,19 @@ export function StatusDropdown<T extends TStatusItem>({
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
 					: 'bg-[#F2F2F2]'
 			)}
+			titleClassName={clsxm(
+				hasBtnIcon && [
+					'whitespace-nowrap text-ellipsis overflow-hidden max-w-[78%]',
+				]
+			)}
 		>
 			{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
 				<ChevronDownIcon
 					className={clsxm(
-						'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-						(!value || currentValue.bordered) && ['text-dark dark:text-white']
+						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
+						hasBtnIcon && ['whitespace-nowrap w-5 h-5']
 					)}
 					aria-hidden="true"
 				/>
@@ -672,7 +681,9 @@ export function StatusDropdown<T extends TStatusItem>({
 			<Listbox value={value?.name || null} onChange={onChange}>
 				{({ open }) => (
 					<>
-						<Listbox.Button className={clsx(!forDetails && 'w-full')}>
+						<Listbox.Button
+							className={clsx(!forDetails && 'w-full max-w-[170px]')}
+						>
 							{button}
 						</Listbox.Button>
 
