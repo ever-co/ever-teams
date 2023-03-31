@@ -56,6 +56,8 @@ export const TaskPrioritiesForm = () => {
 		deleteTaskPriorities,
 		createTaskPriorities,
 		editTaskPriorities,
+		createTaskPrioritiesLoading,
+		editTaskPrioritiesLoading,
 	} = useTaskPriorities();
 
 	useEffect(() => {
@@ -182,6 +184,12 @@ export const TaskPrioritiesForm = () => {
 											variant="primary"
 											className="font-normal py-4 px-4 rounded-xl text-md"
 											type="submit"
+											disabled={
+												createTaskPrioritiesLoading || editTaskPrioritiesLoading
+											}
+											loading={
+												createTaskPrioritiesLoading || editTaskPrioritiesLoading
+											}
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>

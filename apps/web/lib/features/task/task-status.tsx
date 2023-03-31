@@ -6,6 +6,7 @@ import {
 	ITeamTask,
 	IVersionProperty,
 	Nullable,
+	Tag,
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
@@ -76,7 +77,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="relative w-5 h-5">
+					<div className="relative w-5 h-4">
 						{item.fullIconUrl && (
 							<Image
 								layout="fill"
@@ -105,6 +106,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	field: T
 ) {
 	const { activeTeamTask, handleStatusUpdate } = useTeamTasks();
+	const { taskLabels } = useTaskLabels();
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
 
@@ -120,9 +122,20 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	 */
 	function onItemChange(status: ITaskStatusStack[T]) {
 		props.onChangeLoading && props.onChangeLoading(true);
-		handleStatusUpdate(status, field, task, true).finally(() => {
-			props.onChangeLoading && props.onChangeLoading(false);
-		});
+		let updatedField: ITaskStatusField = field;
+		if (field === 'label' && task) {
+			const currentTag = taskLabels.find(
+				(label) => label.name === status
+			) as Tag;
+			updatedField = 'tags';
+			status = [currentTag];
+		}
+
+		handleStatusUpdate(status, updatedField || field, task, true).finally(
+			() => {
+				props.onChangeLoading && props.onChangeLoading(false);
+			}
+		);
 	}
 
 	const { item, items, onChange } = useStatusValue<T>(
@@ -492,7 +505,9 @@ export function TaskLabelsDropdown({
 	);
 }
 
-export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label'>) {
+export function ActiveTaskLabelsDropdown(
+	props: IActiveTaskStatuses<'label' | 'tags'>
+) {
 	const taskLabelsValue = useTaskLabelsValue();
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
@@ -566,7 +581,6 @@ export function TaskStatus({
 	active = true,
 	issueType = 'status',
 	showIssueLabels,
-	forDetails,
 	bordered,
 	titleClassName,
 }: PropsWithChildren<
@@ -582,10 +596,8 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				'py-2 md:px-4 px-2 flex items-center text-sm space-x-3',
-				forDetails ? 'rounded-sm' : 'rounded-xl',
-
-				issueType === 'issue' && ['rounded-md px-2 text-white'],
+				'py-2 md:px-4 px-2 flex items-center text-sm space-x-3 rounded-xl',
+				issueType === 'issue' && ['px-2 text-white'],
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				bordered && ['input-border'],
 				bordered &&

@@ -11,6 +11,8 @@ import {
 	useTaskSizes,
 	useTaskLabels,
 	useOTRefreshInterval,
+	useIssueType,
+	useRefreshInterval,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -25,7 +27,7 @@ export function AppState() {
 function InitState() {
 	const publicTeam = useRecoilValue(publicState);
 	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeams();
-	const { firstLoadTasksData } = useTeamTasks();
+	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasks();
 	const { firstLoadTeamInvitationsData } = useTeamInvitations();
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
@@ -37,6 +39,7 @@ function InitState() {
 	const { firstLoadTaskPrioritiesData } = useTaskPriorities();
 	const { firstLoadTaskSizesData } = useTaskSizes();
 	const { firstLoadTaskLabelsData } = useTaskLabels();
+	const { firstLoadIssueTypeData } = useIssueType();
 
 	useEffect(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -52,6 +55,7 @@ function InitState() {
 		firstLoadTaskPrioritiesData();
 		firstLoadTaskSizesData();
 		firstLoadTaskLabelsData();
+		firstLoadIssueTypeData();
 		// --------------
 
 		getTimerStatus();
@@ -72,6 +76,7 @@ function InitState() {
 		firstLoadTaskPrioritiesData,
 		firstLoadTaskSizesData,
 		firstLoadTaskLabelsData,
+		firstLoadIssueTypeData,
 	]);
 
 	/**
@@ -80,5 +85,6 @@ function InitState() {
 	 * So that if Team is deleted by manager it updates the UI accordingly
 	 */
 	useOTRefreshInterval(loadTeamsData, 5000, publicTeam);
+	useRefreshInterval(loadTeamTasksData, 5000);
 	return <></>;
 }

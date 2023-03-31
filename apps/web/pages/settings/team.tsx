@@ -11,6 +11,7 @@ import {
 	TaskSizesForm,
 	DangerZoneTeam,
 	TaskLabelForm,
+	IssueTypesForm,
 } from 'lib/settings';
 import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkeleton';
 
@@ -59,6 +60,14 @@ const Team = () => {
 										<TeamAvatar disabled={!isTeamManager} />
 										<TeamSettingForm />
 									</Card>
+
+									<Card
+										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
+										shadow="bigger"
+									>
+										<IssueTypesForm />
+									</Card>
+
 									<Card
 										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
 										shadow="bigger"

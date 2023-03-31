@@ -21,3 +21,4 @@ export * from './IPeriod';
 export * from './IRequestToJoin';
 export * from './IPosition';
 export * from './IImageAssets';
+export * from './IIssueTypes';

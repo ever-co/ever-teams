@@ -31,6 +31,8 @@ export * from './features/useOrganizatioTeamsEmployee';
 export * from './features/useRequestToJoinTeam';
 export * from './features/useImageAssets';
 export * from './features/useOTRefreshInterval';
+export * from './features/useRefreshInterval';
+export * from './features/useIssueTypes';
 
 //export user personal setting
 export * from './features/useSettings';
