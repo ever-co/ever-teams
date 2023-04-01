@@ -1,9 +1,54 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
+orbs:
+    node: circleci/node@4.9.0
+    pulumi: pulumi/pulumi@2.0.0
+
+aliases:
+    - &install-node
+      name: Install Node with NPM using NVM
+      command: |
+          echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+          echo ' [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> $BASH_ENV
+          nvm install v16
+          nvm alias default v16
+          echo 'export NODE_OPTIONS=--max_old_space_size=7000' >> $BASH_ENV
+          echo 'export NG_CLI_ANALYTICS=false' >> $BASH_ENV
+          source $BASH_ENV
+          node --version
+    - &install-chrome
+      name: Install Chrome
+      command: |
+          sudo apt install -y libappindicator3-1
+          curl -L -o google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome.deb
+          sudo sed -i 's|HERE/chrome\"|HERE/chrome\" --disable-setuid-sandbox|g' /opt/google/chrome/google-chrome
+          rm google-chrome.deb
+    - &install-deps
+      name: Install Global Dependencies
+      command: |
+          sudo rm -rf /etc/apt/sources.list.d/heroku.list
+          sudo apt-get update
+          sudo apt install npm
+          sudo apt install build-essential
+          sudo npm install --quiet node-gyp@9.3.1 -g
+          sudo npm config set python /usr/bin/python
+    - &install-yarn
+      name: Install Latest Yarn
+      command: |
+          # remove default yarn
+          sudo rm -rf $(dirname $(which yarn))/yarn*
+          # download latest
+          rm -rf ~/.yarn
+          curl -o- -L https://yarnpkg.com/install.sh | bash
+          echo 'export PATH="${PATH}:${HOME}/.yarn/bin:${HOME}/.config/yarn/global/node_modules/.bin"' >> $BASH_ENV
+          source $BASH_ENV
+
+defaults: &defaults
+    # put here anything which is common between all jobs
+    # we define default work dir, however almost every job redefine it
+    working_directory: /tmp/workspace
+
 jobs:
   say-hello:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
