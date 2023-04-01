@@ -11,6 +11,8 @@
 
 Ever® Gauzy Teams™ Platform (https://app.gauzy.team) is build on top of our Busines Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (https://gauzy.co), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at https://ever.co.
 
+**NOTE: Platform currently is in active development stage / WIP, please use with caution!**
+
 ## 🌼 Screenshots
 
 <details>
