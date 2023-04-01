@@ -16,14 +16,21 @@ Ever® Gauzy Teams™ Platform (https://gauzy.team) is build on top of our Busin
 <details>
 <summary>Show / Hide Screenshots</summary>
 
-### Web
-![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/overview.png)
+### Web Platform
 
-### Mobile
+![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/overview.png)
+![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/web2.png)
+![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/web3.png)
+
+### Mobile Apps (iOS/Android)
+
 ![mobile](https://docs.gauzy.co/docs/assets/gauzy-teams/mobile/overview.png)
 
-### Extension
+### Browser Extension
+
 ![extension](https://docs.gauzy.co/docs/assets/gauzy-teams/extension/overview.png)
+
+Note: currently WIP, screenshot is just a temporary picture :)
 
 </details>
 
