@@ -7,9 +7,9 @@
 
 ## ⭐️ What is it?
 
-[Ever® Gauzy Teams™](https://gauzy.team) - Open Work and Project Management Platform. 
+[Ever® Gauzy Teams™](https://app.gauzy.team) - Open Work and Project Management Platform. 
 
-Ever® Gauzy Teams™ Platform (https://gauzy.team) is build on top of our Busines Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (https://gauzy.co), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at https://ever.co.
+Ever® Gauzy Teams™ Platform (https://app.gauzy.team) is build on top of our Busines Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (https://gauzy.co), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at https://ever.co.
 
 ## 🌼 Screenshots
 
