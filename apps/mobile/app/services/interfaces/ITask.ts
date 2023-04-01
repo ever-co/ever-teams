@@ -1,202 +1,130 @@
-import { IOrganizationTeam } from "./IOrganizationTeam";
-import { IUser} from "./IUserData";
+import { IEmployee } from "./IEmployee"
+import { IOrganizationTeamList } from "./IOrganizationTeam"
 
-export interface ITeamTask {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-  organizationId: string;
-  number: number;
-  title: string;
-  description: string;
-  status: ITaskStatus;
-  estimate: null | number;
-  dueDate: string;
-  projectId: string;
-  creatorId: string;
-  organizationSprintId: any;
-  project: Project;
-  tags: Tag[];
-  organizationSprint: any;
-  members: Member[];
-  teams: Pick<
-    IOrganizationTeam,
-    "id" | "createdAt" | "name" | "organizationId" | "tenantId" | "updatedAt"
-  >[];
-  creator: Creator;
-  taskNumber: string;
-}
+export type ITeamTask = {
+	id: string
+	createdAt: string
+	updatedAt: string
+	tenantId: string
+	organizationId: string
+	number: number
+	prefix: string
+	title: string
+	description: string
+	estimate: null | number
+	estimateDays?: number
+	estimateHours?: number
+	estimateMinutes?: number
+	dueDate: string
+	projectId: string
+	creatorId: string
+	members: IEmployee[]
+	selectedTeam?: IOrganizationTeamList
+	tags: Tag[]
+	teams: SelectedTeam[]
+	creator: Creator
+	taskNumber: string
+	label?: string
+} & ITaskStatusStack
 
-interface Member {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-  organizationId: string;
-  valueDate: any;
-  isActive: boolean;
-  short_description: any;
-  description: any;
-  startedWorkOn: string;
-  endWork: any;
-  payPeriod: string;
-  billRateValue: number;
-  billRateCurrency: string;
-  reWeeklyLimit: number;
-  offerDate: any;
-  acceptDate: any;
-  rejectDate: any;
-  employeeLevel: any;
-  anonymousBonus: any;
-  averageIncome: any;
-  averageBonus: any;
-  totalWorkHours: any;
-  averageExpenses: any;
-  show_anonymous_bonus: any;
-  show_average_bonus: any;
-  show_average_expenses: any;
-  show_average_income: any;
-  show_billrate: any;
-  show_payperiod: any;
-  show_start_work_on: any;
-  isJobSearchActive: any;
-  linkedInUrl: any;
-  facebookUrl: any;
-  instagramUrl: any;
-  twitterUrl: any;
-  githubUrl: any;
-  gitlabUrl: any;
-  upworkUrl: any;
-  stackoverflowUrl: any;
-  isVerified: any;
-  isVetted: any;
-  totalJobs: any;
-  jobSuccess: any;
-  profile_link: string;
-  isTrackingEnabled: boolean;
-  userId: string;
-  contactId: any;
-  organizationPositionId: any;
-  user: IUser;
-  fullName: string;
-}
+type SelectedTeam = Pick<
+	IOrganizationTeamList,
+	"id" | "createdAt" | "name" | "organizationId" | "tenantId" | "updatedAt" | "prefix"
+>
 
-interface Project {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-  organizationId: string;
-  name: string;
-  startDate: any;
-  endDate: any;
-  billing: any;
-  currency: any;
-  public: any;
-  owner: any;
-  taskListType: string;
-  code: any;
-  description: any;
-  color: any;
-  billable: any;
-  billingFlat: any;
-  openSource: any;
-  projectUrl: any;
-  openSourceProjectUrl: any;
-  budget: number;
-  budgetType: string;
-  membersCount: number;
-  imageUrl: string;
-  organizationContactId: string;
-}
-
-interface Tag {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-  organizationId: string;
-  name: string;
-  description: string;
-  color: string;
-  isSystem: boolean;
+export interface Tag {
+	id: string
+	createdAt: string
+	updatedAt: string
+	tenantId: string
+	organizationId: string
+	name: string
+	description: string
+	color: string
+	isSystem: boolean
 }
 
 interface Creator {
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  tenantId: string;
-  thirdPartyId: any;
-  firstName: string;
-  lastName: string;
-  email: string;
-  username: any;
-  hash: string;
-  refreshToken: any;
-  imageUrl: string;
-  preferredLanguage: string;
-  preferredComponentLayout: string;
-  isActive: boolean;
-  roleId: string;
-  name: string;
-  employeeId: any;
+	id: string
+	createdAt: string
+	updatedAt: string
+	tenantId: string
+	thirdPartyId: any
+	firstName: string
+	lastName: string
+	email: string
+	username: any
+	hash: string
+	refreshToken: any
+	imageUrl: string
+	preferredLanguage: string
+	preferredComponentLayout: string
+	isActive: boolean
+	roleId: string
+	name: string
+	employeeId: any
 }
+
+export type ITaskPriority = "Highest" | "High" | "Medium" | "Low" | "Lowest"
+
+export type IVersionProperty = "Version 1" | "Version 2"
+
+export type IEpicProperty = string
+
+export type ITaskSize = "X-Large" | "Large" | "Medium" | "Small" | "Tiny"
+
+export type ITaskLabel = "UI/UX" | "Mobile" | "WEB" | "Tablet"
 
 export type ITaskStatus =
-  | "Todo"
-  | "In Progress"
-  | "In Review"
-  | "For Testing"
-  | "Completed"
-  | "Closed"
-  | "Ready"
-  | "Blocked"
-  | "Backlog"
-  | "Open"
-  | "Unassigned";
+	| "Blocked"
+	| "Ready"
+	| "Backlog"
+	| "Todo"
+	| "In Progress"
+	| "Completed"
+	| "Closed"
+	| "In Review"
 
-  export type ITaskLabel=
-  | "UI/UX"
-  | "Mobile"
-  | "Web"
-  | "Tablet";
+export type ITaskIssue = "Bug" | "Task" | "Story" | "Epic"
 
-  export type ITaskSize=
-  | "Tiny"
-  | "Small"
-  | "Medium"
-  | "Large"
-  | "Extra Large"
-  | "Large";
+export type ITaskStatusField =
+	| "status"
+	| "size"
+	| "priority"
+	| "label"
+	| "issue"
+	| "version"
+	| "epic"
+	| "project"
+	| "team"
+	| "tags"
 
-  export type ITaskPriority=
-  | "Medium"
-  | "Low"
-  | "High"
-  | "Urgent";
-
-export interface ICreateTask {
-  title: string;
-  status: ITaskStatus;
-  members?: [];
-  estimateDays?: number;
-  estimateHours?: string;
-  estimateMinutes?: string;
-  dueDate?: string;
-  description: string;
-  tags: { id: string }[];
-  teams: { id: string }[];
-  estimate: number;
-  organizationId: string;
-  tenantId: string;
+export type ITaskStatusStack = {
+	status: ITaskStatus
+	size: ITaskSize
+	label: ITaskLabel
+	priority: ITaskPriority
+	issue: ITaskIssue
+	version: IVersionProperty
+	epic: IEpicProperty
+	project: string // TODO: these types are not strings, but rather objects for team and project. To reimplement
+	team: string // TODO: these types are not strings, but rather objects for team and project. To reimplement
+	tags: any // TODO: these types are not strings, but rather array of objects for tags. To reimplement
 }
 
-export interface IParamsStatistic {
-  bearer_token: string;
-  tenantId: string;
-  organizationId: string,
-  taskId: string;
-  activeTask?:boolean;
+export interface ICreateTask {
+	title: string
+	status: ITaskStatus
+	issue?: string
+	members?: { id: string; [x: string]: any }[]
+	estimateDays?: number
+	estimateHours?: string
+	estimateMinutes?: string
+	dueDate?: string
+	description: string
+	tags: { id: string }[]
+	teams: { id: string }[]
+	estimate: number
+	organizationId: string
+	tenantId: string
 }

@@ -1,58 +1,40 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useMemo, useState } from "react"
-import {
-	TouchableOpacity,
-	View,
-	Text,
-	StyleSheet,
-	ViewStyle,
-	TextStyle,
-	Dimensions,
-} from "react-native"
+import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useAppTheme } from "../app"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import { typography } from "../theme"
-import { useTaskLabels } from "../services/hooks/features/useTaskLabels"
-import { BadgedTaskLabel } from "./LabelIcon"
-import TaskLabelPopup from "./TaskLabelPopup"
-import { ITaskLabelItem } from "../services/interfaces/ITaskLabel"
+import { useTaskPriority } from "../services/hooks/features/useTaskPriority"
+import TaskPriorityPopup from "./TaskPriorityPopup"
+import { BadgedTaskPriority } from "./PriorityIcon"
 import { translate } from "../i18n"
 
-interface TaskLabelProps {
+interface TaskPriorityProps {
 	task: ITeamTask
 	containerStyle?: ViewStyle
-	labelTextSyle?: TextStyle
+	statusTextSyle?: TextStyle
 }
 
-const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
+const TaskPriority: FC<TaskPriorityProps> = observer(({ task, containerStyle }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
-	const { allTaskLabels } = useTaskLabels()
+	const { allTaskPriorities } = useTaskPriority()
 	const [openModal, setOpenModal] = useState(false)
 
-	const currentLabel = useMemo(
-		() => allTaskLabels.find((s) => s?.name === task?.tags[0]?.name),
-		[task?.tags[0], allTaskLabels],
+	const currentPriority = useMemo(
+		() => allTaskPriorities.find((s) => s.name === task?.priority),
+		[task?.priority, allTaskPriorities],
 	)
 
-	const onChangeLabel = async (text: ITaskLabelItem) => {
+	const onChangePriority = async (text) => {
 		if (task) {
-			let tags = []
-			const exist = task.tags.find((label) => label.id === text.id)
-
-			if (exist) {
-				tags = task.tags.filter((label) => label.id !== text.id)
-			} else {
-				tags = [...task.tags, text]
-			}
-
 			const taskEdit = {
 				...task,
-				tags,
+				priority: text,
 			}
 
 			await updateTask(taskEdit, task.id)
@@ -61,10 +43,10 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 
 	return (
 		<>
-			<TaskLabelPopup
-				labelNames={task?.tags}
+			<TaskPriorityPopup
+				priorityName={task?.priority}
 				visible={openModal}
-				setSelectedLabel={(e) => onChangeLabel(e)}
+				setSelectedPriority={(e) => onChangePriority(e.name)}
 				onDismiss={() => setOpenModal(false)}
 			/>
 			<TouchableOpacity onPress={() => setOpenModal(true)}>
@@ -72,14 +54,14 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 					style={{
 						...styles.container,
 						...containerStyle,
-						backgroundColor: currentLabel?.color,
+						backgroundColor: currentPriority?.color,
 					}}
 				>
-					{task && task.tags[0] ? (
-						<BadgedTaskLabel iconSize={14} TextSize={10} label={task.tags[0]} />
+					{task && task.priority ? (
+						<BadgedTaskPriority iconSize={14} TextSize={10} priority={task.priority} />
 					) : (
 						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate("settingScreen.labelScreen.labels")}
+							{translate("settingScreen.priorityScreen.priorities")}
 						</Text>
 					)}
 					<AntDesign name="down" size={14} color={colors.primary} />
@@ -88,19 +70,18 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 		</>
 	)
 })
-const { width } = Dimensions.get("window")
+
 const styles = StyleSheet.create({
 	container: {
 		alignItems: "center",
-		borderColor: "rgba(0, 0, 0, 0.13)",
+		borderColor: "rgba(0,0,0,0.16)",
 		borderRadius: 10,
 		borderWidth: 1,
 		flexDirection: "row",
-		height: 32,
 		justifyContent: "space-between",
-		paddingHorizontal: 12,
-		paddingVertical: 7,
-		width: width / 3,
+		minHeight: 30,
+		minWidth: 100,
+		paddingHorizontal: 8,
 	},
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
@@ -108,4 +89,4 @@ const styles = StyleSheet.create({
 	},
 })
 
-export default TaskLabel
+export default TaskPriority

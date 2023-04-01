@@ -3,57 +3,51 @@
 import React, { FC, useMemo, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
+import { ITaskStatus, ITeamTask } from "../services/interfaces/ITask"
+import { BadgedTaskStatus } from "./StatusIcon"
 import { observer } from "mobx-react-lite"
-import { ITeamTask } from "../services/interfaces/ITask"
-import { useAppTheme } from "../app"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
-import { useTaskSizes } from "../services/hooks/features/useTaskSizes"
-import { showMessage } from "react-native-flash-message"
-import { BadgedTaskSize } from "./SizeIcon"
+import { useAppTheme } from "../app"
+import TaskStatusPopup from "./TaskStatusPopup"
+import { useTaskStatus } from "../services/hooks/features/useTaskStatus"
 import { typography } from "../theme"
-import TaskSizePopup from "./TaskSizePopup"
 import { translate } from "../i18n"
 
-interface TaskSizeProps {
-	task: ITeamTask
+interface TaskStatusProps {
+	task?: ITeamTask
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
 }
 
-const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle }) => {
+const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
-	const { allTaskSizes } = useTaskSizes()
+	const { allStatuses } = useTaskStatus()
 	const [openModal, setOpenModal] = useState(false)
 
-	const currentSize = useMemo(
-		() => allTaskSizes.find((s) => s.name === task?.size),
-		[task?.size, allTaskSizes],
+	const currentStatus = useMemo(
+		() => allStatuses.find((s) => s.name === task?.status),
+		[task?.status, allStatuses],
 	)
 
-	const onChangeSize = async (text) => {
+	const onChangeStatus = async (text) => {
 		if (task) {
+			const value: ITaskStatus = text
 			const taskEdit = {
 				...task,
-				size: text,
+				status: value,
 			}
 
-			const { response } = await updateTask(taskEdit, task.id)
-			if (response.status !== 202) {
-				showMessage({
-					message: "Something went wrong",
-					type: "danger",
-				})
-			}
+			await updateTask(taskEdit, task.id)
 		}
 	}
 
 	return (
 		<>
-			<TaskSizePopup
-				sizeName={task?.size}
+			<TaskStatusPopup
+				statusName={task?.status}
 				visible={openModal}
-				setSelectedSize={(e) => onChangeSize(e.name)}
+				setSelectedStatus={(e) => onChangeStatus(e.name)}
 				onDismiss={() => setOpenModal(false)}
 			/>
 			<TouchableOpacity onPress={() => setOpenModal(true)}>
@@ -61,14 +55,14 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle }) => {
 					style={{
 						...styles.container,
 						...containerStyle,
-						backgroundColor: currentSize?.color,
+						backgroundColor: currentStatus?.color,
 					}}
 				>
-					{task && task.size ? (
-						<BadgedTaskSize iconSize={14} TextSize={10} status={task.size} />
+					{task && task.status ? (
+						<BadgedTaskStatus iconSize={14} TextSize={10} status={task.status} />
 					) : (
 						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate("settingScreen.sizeScreen.sizes")}
+							{translate("settingScreen.statusScreen.statuses")}
 						</Text>
 					)}
 					<AntDesign name="down" size={14} color={colors.primary} />
@@ -96,4 +90,4 @@ const styles = StyleSheet.create({
 	},
 })
 
-export default TaskSize
+export default TaskStatus

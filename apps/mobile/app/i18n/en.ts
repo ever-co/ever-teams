@@ -155,6 +155,7 @@ const en = {
 		},
 		statusScreen: {
 			mainTitle: "Task Statuses",
+			statuses: "Statuses",
 			listStatuses: "List of Statuses",
 			noActiveStatuses: "There are no active statuses",
 			createStatusButton: "Create new status",
@@ -168,6 +169,7 @@ const en = {
 		},
 		priorityScreen: {
 			mainTitle: "Task Priorities",
+			priorities: "priorities",
 			listPriorities: "List of Priorities",
 			noActivePriorities: "There are no active priorities",
 			createPriorityButton: "Create new priority",
@@ -182,6 +184,7 @@ const en = {
 		labelScreen: {
 			mainTitle: "Task Labels",
 			listLabels: "List of Labels",
+			labels: "Labels",
 			noActiveLabels: "There are no active labels",
 			createLabelButton: "Create new label",
 			createNewLabelText: "Create New Labels",
@@ -194,6 +197,7 @@ const en = {
 		},
 		sizeScreen: {
 			mainTitle: "Task Sizes",
+			sizes: "Sizes",
 			listSizes: "List of Sizes",
 			noActiveSizes: "There are no active sizes",
 			createSizeButton: "Create new size",
