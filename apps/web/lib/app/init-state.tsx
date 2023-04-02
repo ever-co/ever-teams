@@ -13,6 +13,7 @@ import {
 	useOTRefreshInterval,
 	useIssueType,
 	useRefreshInterval,
+	useCallbackRef,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -41,7 +42,7 @@ function InitState() {
 	const { firstLoadTaskLabelsData } = useTaskLabels();
 	const { firstLoadIssueTypeData } = useIssueType();
 
-	useEffect(() => {
+	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
 		firstLoadTeamsData();
 		firstLoadTasksData();
@@ -61,23 +62,7 @@ function InitState() {
 		getTimerStatus();
 		loadTeamsData();
 		loadLanguagesData();
-	}, [
-		firstLoadTasksData,
-		firstLoadTeamInvitationsData,
-		firstLoadTeamsData,
-		loadTeamsData,
-		getTimerStatus,
-		firstLoadTimerData,
-		firstLoadtasksStatisticsData,
-		firstLoadLanguagesData,
-		loadLanguagesData,
-		firstLoadAutoAssignTask,
-		firstLoadTaskStatusData,
-		firstLoadTaskPrioritiesData,
-		firstLoadTaskSizesData,
-		firstLoadTaskLabelsData,
-		firstLoadIssueTypeData,
-	]);
+	});
 
 	/**
 	 * Refresh Teams data every 5 seconds.
@@ -92,4 +77,12 @@ function InitState() {
 		true /* used as loadTeamTasksData deepCheck param */
 	);
 	return <></>;
+}
+
+function useOneTimeLoad(func: () => void) {
+	const funcRef = useCallbackRef(func);
+
+	useEffect(() => {
+		funcRef.current && funcRef.current();
+	}, [funcRef]);
 }
