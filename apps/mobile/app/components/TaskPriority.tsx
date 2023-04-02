@@ -14,7 +14,7 @@ import { BadgedTaskPriority } from "./PriorityIcon"
 import { translate } from "../i18n"
 
 interface TaskPriorityProps {
-	task: ITeamTask
+	task?: ITeamTask
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
 }

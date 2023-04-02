@@ -12,7 +12,7 @@ import {
 	FlatList,
 } from "react-native"
 import { Ionicons, AntDesign, Entypo } from "@expo/vector-icons"
-import { Card, Text, Avatar, Button } from "react-native-paper"
+import { Card, Text, Avatar, Button, ActivityIndicator } from "react-native-paper"
 import { LinearGradient } from "expo-linear-gradient"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 
@@ -25,7 +25,6 @@ import { spacing, typography } from "../../../../theme"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { useStores } from "../../../../models"
-import { ActivityIndicator } from "react-native-paper"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import { useTimer } from "../../../../services/hooks/useTimer"
@@ -176,7 +175,6 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 	const onNextPressed = () => {
 		if (labelIndex === labels.length - 2) {
-			return
 		} else {
 			setLabelIndex(labelIndex + 1)
 		}
@@ -371,7 +369,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 										>
 											<Image
 												resizeMode="contain"
-												style={[styles.timerIcon]}
+												style={styles.timerIcon}
 												source={
 													dark
 														? require("../../../../../assets/icons/new/play-dark.png")
@@ -397,7 +395,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 									>
 										<Image
 											resizeMode="contain"
-											style={[styles.timerIcon]}
+											style={styles.timerIcon}
 											source={require("../../../../../assets/icons/new/arrow-right.png")}
 										/>
 									</TouchableOpacity>
@@ -412,17 +410,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						)}
 					</View>
 					<View>
-						<TaskStatus
-							dropdownContainerStyle={{
-								top: -150,
-								width: 120,
-								maxHeight: 192,
-							}}
-							containerStyle={styles.statusContainer}
-							task={item}
-							showTaskStatus={showTaskStatus}
-							setShowTaskStatus={setShowTaskStatus}
-						/>
+						<TaskStatus containerStyle={styles.statusContainer} task={item} />
 					</View>
 				</View>
 
@@ -545,46 +533,46 @@ export default ListCardItem
 const styles = StyleSheet.create({
 	mainContainer: {
 		borderColor: "#1B005D",
-		borderWidth: 0.5,
 		borderRadius: 20,
+		borderWidth: 0.5,
 		justifyContent: "space-around",
 	},
 	times: {
+		alignItems: "center",
+		borderTopColor: "rgba(0, 0, 0, 0.06)",
+		borderTopWidth: 1,
 		flexDirection: "row",
 		justifyContent: "space-between",
-		alignItems: "center",
 		paddingTop: 14,
-		borderTopWidth: 1,
-		borderTopColor: "rgba(0, 0, 0, 0.06)",
 	},
 	otherText: {
-		fontSize: 14,
 		fontFamily: typography.primary.semiBold,
-		width: width / 1.7,
+		fontSize: 14,
 		lineHeight: 15,
+		width: width / 1.7,
 	},
 	titleEditMode: {
-		minWidth: 220,
-		height: 40,
-		borderWidth: 0.3,
-		width: 230,
 		borderRadius: 5,
+		borderWidth: 0.3,
+		height: 40,
+		minWidth: 220,
 		paddingHorizontal: 5,
+		width: 230,
 	},
 	timeNumber: {
 		color: "#282048",
-		fontSize: 14,
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 14,
 	},
 	dropdownTxt: {
 		color: "#282048",
-		fontSize: 14,
 		fontFamily: typography.primary.semiBold,
+		fontSize: 14,
 	},
 	timeHeading: {
 		color: "#7E7991",
-		fontSize: 10,
 		fontFamily: typography.fonts.PlusJakartaSans.medium,
+		fontSize: 10,
 	},
 	checkBtn: {
 		position: "absolute",
@@ -594,76 +582,76 @@ const styles = StyleSheet.create({
 	//   // New
 	totalTimeTitle: {
 		color: "#7E7991",
-		fontSize: 10,
 		fontFamily: typography.secondary.medium,
+		fontSize: 10,
 	},
 	totalTimeTxt: {
+		color: "#282048",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
-		color: "#282048",
 	},
 	timerIcon: {
-		width: 21,
 		height: 21,
+		width: 21,
 	},
 	timerBtn: {
-		width: 42,
-		height: 42,
-		borderRadius: 20,
-		justifyContent: "center",
 		alignItems: "center",
-		marginRight: 10,
-		borderWidth: 1,
 		borderColor: "rgba(0, 0, 0, 0.4)",
+		borderRadius: 20,
+		borderWidth: 1,
 		elevation: 10,
-		shadowOffset: { width: 5, height: 10 },
+		height: 42,
+		justifyContent: "center",
+		marginRight: 10,
 		shadowColor: "rgba(0,0,0,0.16)",
+		shadowOffset: { width: 5, height: 10 },
 		shadowOpacity: 1,
 		shadowRadius: 10,
+		width: 42,
 	},
 	scrollRight: {
-		width: 28,
-		height: 27,
+		alignItems: "center",
 		backgroundColor: "#fff",
 		borderRadius: 20,
-		position: "absolute",
-		padding: 5,
-		right: 0,
 		elevation: 10,
+		height: 27,
 		justifyContent: "center",
-		alignItems: "center",
+		padding: 5,
+		position: "absolute",
+		right: 0,
 		shadowColor: "rgba(0,0,0,0.16)",
 		shadowOffset: { width: 0, height: 5 },
 		shadowOpacity: 1,
 		shadowRadius: 15,
+		width: 28,
 	},
 	firstContainer: {
+		alignItems: "center",
 		flexDirection: "row",
 		justifyContent: "space-between",
-		alignItems: "center",
 		marginBottom: 10,
 	},
 	wrapperTask: {
-		height: 42,
 		flexDirection: "row",
+		height: 42,
 		justifyContent: "space-between",
 	},
 	labelFlatList: {
+		alignItems: "center",
 		flexDirection: "row",
 		justifyContent: "space-between",
-		alignItems: "center",
-		width: "74%",
 		marginTop: 16,
+		width: "74%",
 	},
 	progessText: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 10,
 	},
 	statusContainer: {
-		paddingHorizontal: 9,
 		alignItems: "center",
-		width: 120,
-		height: 33,
 		borderColor: "transparent",
+		height: 33,
+		paddingHorizontal: 9,
+		width: 120,
 	},
 })
