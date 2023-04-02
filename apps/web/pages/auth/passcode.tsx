@@ -24,7 +24,7 @@ export default function AuthPasscode() {
 			title={trans.HEADING_TITLE}
 			description={trans.HEADING_DESCRIPTION}
 		>
-			<div className="w-full md:w-[550px] overflow-x-hidden">
+			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 				<div
 					className={clsxm(
 						'w-[200%] flex flex-row transition-[transform] duration-500',
