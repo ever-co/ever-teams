@@ -1,61 +1,72 @@
-import React, { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react"
 import { useQueryClient } from "react-query"
 import { useStores } from "../../../models"
-import useFetchAllLabels from "../../client/queries/task/task-labels";
-import { createLabelRequest, deleteTaskLabelRequest, updateTaskLabelsRequest } from "../../client/requests/task-label";
-import { ITaskStatusCreate } from "../../interfaces/ITaskStatus";
+import useFetchAllLabels from "../../client/queries/task/task-labels"
+import {
+	createLabelRequest,
+	deleteTaskLabelRequest,
+	updateTaskLabelsRequest,
+} from "../../client/requests/task-label"
+import { ITaskLabelItem } from "../../interfaces/ITaskLabel"
+import { ITaskStatusCreate } from "../../interfaces/ITaskStatus"
 
 export function useTaskLabels() {
-    const queryClient = useQueryClient();
-    const {
-        authenticationStore: {
-            authToken,
-            tenantId,
-            organizationId
-        }
-    } = useStores();
+	const queryClient = useQueryClient()
+	const {
+		authenticationStore: { authToken, tenantId, organizationId },
+	} = useStores()
 
-    const { data: labels, isLoading } = useFetchAllLabels({ tenantId, organizationId, authToken })
+	const [allTaskLabels, setAllTaskLabels] = useState<ITaskLabelItem[]>([])
+	const {
+		data: labels,
+		isLoading,
+		isSuccess,
+		isRefetching,
+	} = useFetchAllLabels({ tenantId, organizationId, authToken })
 
-    // Delete the label
-    const deleteLabel = useCallback(async (id: string) => {
-        const { data, response } = await deleteTaskLabelRequest({
-            id,
-            tenantId,
-            bearer_token: authToken
-        })
-        queryClient.invalidateQueries("labels")
-        return data
-    }, [])
+	// Delete the label
+	const deleteLabel = useCallback(async (id: string) => {
+		await deleteTaskLabelRequest({
+			id,
+			tenantId,
+			bearer_token: authToken,
+		})
+		queryClient.invalidateQueries("labels")
+	}, [])
 
-    // Update the label
+	// Update the label
+	const updateLabel = useCallback(async (id: string, data: ITaskStatusCreate) => {
+		await updateTaskLabelsRequest({
+			id,
+			tenantId,
+			datas: data,
+			bearer_token: authToken,
+		})
+		queryClient.invalidateQueries("labels")
+	}, [])
 
-    const updateLabel = useCallback(async (id: string, data: ITaskStatusCreate) => {
-        const { data: updatedStatus } = await updateTaskLabelsRequest({
-            id,
-            tenantId,
-            datas: data,
-            bearer_token: authToken
-        })
-        queryClient.invalidateQueries("labels")
-    }, [])
+	// Create the label
+	const createLabel = useCallback(async (data: ITaskStatusCreate) => {
+		await createLabelRequest({
+			tenantId,
+			datas: { ...data, organizationId },
+			bearer_token: authToken,
+		})
+		queryClient.invalidateQueries("labels")
+	}, [])
 
-    // Create the label
+	useEffect(() => {
+		if (isSuccess) {
+			setAllTaskLabels(labels.items)
+		}
+	}, [isLoading, isRefetching])
 
-    const createLabel = useCallback(async (data: ITaskStatusCreate) => {
-        const { data: createdLabel } = await createLabelRequest({
-            tenantId,
-            datas: { ...data, organizationId: organizationId },
-            bearer_token: authToken
-        })
-        queryClient.invalidateQueries("labels")
-    }, [])
-
-    return {
-        labels,
-        isLoading,
-        deleteLabel,
-        updateLabel,
-        createLabel
-    }
+	return {
+		labels,
+		isLoading,
+		deleteLabel,
+		updateLabel,
+		createLabel,
+		allTaskLabels,
+	}
 }
