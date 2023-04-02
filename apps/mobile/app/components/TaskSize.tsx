@@ -15,7 +15,7 @@ import TaskSizePopup from "./TaskSizePopup"
 import { translate } from "../i18n"
 
 interface TaskSizeProps {
-	task: ITeamTask
+	task?: ITeamTask
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
 }

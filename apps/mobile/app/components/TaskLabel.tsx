@@ -23,7 +23,7 @@ import { ITaskLabelItem } from "../services/interfaces/ITaskLabel"
 import { translate } from "../i18n"
 
 interface TaskLabelProps {
-	task: ITeamTask
+	task?: ITeamTask
 	containerStyle?: ViewStyle
 	labelTextSyle?: TextStyle
 }
