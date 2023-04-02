@@ -44,7 +44,9 @@ export function TaskInfo({
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
 
-			{edition.task && <TaskAllStatusTypes task={edition.task} />}
+			{edition.task && (
+				<TaskAllStatusTypes showStatus={true} task={edition.task} />
+			)}
 			{!edition.task && <div className="text-center self-center">--</div>}
 		</div>
 	);

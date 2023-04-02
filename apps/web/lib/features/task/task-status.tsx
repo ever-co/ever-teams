@@ -608,7 +608,12 @@ export function TaskStatus({
 			)}
 			style={{ backgroundColor: active ? backgroundColor : undefined }}
 		>
-			<div className={clsxm('flex items-center space-x-2', titleClassName)}>
+			<div
+				className={clsxm(
+					'flex items-center space-x-2 whitespace-nowrap',
+					titleClassName
+				)}
+			>
 				{active ? icon : <RecordIcon />}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
