@@ -229,6 +229,14 @@ export function useOrganizationTeams() {
 			}
 			const latestTeams = res.data?.items || [];
 
+			const latestTeamsSorted = latestTeams
+				.slice()
+				.sort((a, b) => a.name.localeCompare(b.name));
+
+			const teamsRefSorted = teamsRef.current
+				.slice()
+				.sort((a, b) => a.name.localeCompare(b.name));
+
 			/**
 			 * Check deep equality,
 			 * No need to update state if all the Team details are same
@@ -236,7 +244,7 @@ export function useOrganizationTeams() {
 			 *
 			 * Use teamsRef to make we always get the lastest value
 			 */
-			if (!teamId && !isEqual(latestTeams, teamsRef.current)) {
+			if (!teamId && !isEqual(latestTeamsSorted, teamsRefSorted)) {
 				setTeams(latestTeams);
 			}
 
@@ -266,7 +274,7 @@ export function useOrganizationTeams() {
 					 * No need to update state if all the Team details are same
 					 * (It prevents unnecessary re-rendering)
 					 */
-					if (!isEqual(latestTeams, teamsRef.current)) {
+					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
 						setTeams(latestTeams);
 					}
 				});
