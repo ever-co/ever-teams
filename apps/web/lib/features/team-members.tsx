@@ -127,7 +127,7 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 	);
 }
 
-function  Invite() {
+function Invite() {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 

@@ -39,7 +39,13 @@ type StatusFilter = { [x in IStatusType]: string };
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
 	const { trans } = useTranslation();
-	const [tab, setTab] = useState<ITab>('worked');
+
+	const defaultValue =
+		typeof window !== 'undefined'
+			? (window.localStorage.getItem('task-tab') as ITab) || null
+			: 'worked';
+
+	const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>(
@@ -80,6 +86,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			count: profile.tasksGrouped.unassignedTasks.length,
 		},
 	];
+
+	useEffect(() => {
+		window.localStorage.setItem('task-tab', tab);
+	}, [tab]);
 
 	useEffect(() => {
 		setTaskName('');
@@ -170,7 +180,12 @@ type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
 		<>
-			<div className={clsxm('flex justify-between xs:flex-row flex-col items-center', className)}>
+			<div
+				className={clsxm(
+					'flex justify-between xs:flex-row flex-col items-center',
+					className
+				)}
+			>
 				<TabsNav hook={hook} />
 				<InputFilters profile={profile} hook={hook} />
 			</div>

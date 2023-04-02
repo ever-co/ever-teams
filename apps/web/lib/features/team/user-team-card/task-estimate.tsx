@@ -1,4 +1,4 @@
-import { secondsToTime } from '@app/helpers';
+import { mergeRefs, secondsToTime } from '@app/helpers';
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -84,7 +84,10 @@ function TaskEstimateInput({
 
 				{(memberInfo.isAuthUser || memberInfo.isAuthTeamManager) && (
 					<button
-						ref={edition.estimateEditIgnoreElement.targetEl}
+						ref={mergeRefs([
+							edition.estimateEditIgnoreElement.ignoreElementRef,
+							edition.estimateEditIgnoreElement.targetEl,
+						])}
 						onClick={() => task && edition.setEstimateEditMode(true)}
 					>
 						<EditIcon

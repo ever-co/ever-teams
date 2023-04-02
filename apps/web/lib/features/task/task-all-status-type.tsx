@@ -7,12 +7,20 @@ import {
 	useTaskLabelsValue,
 	useTaskPrioritiesValue,
 	useTaskSizesValue,
+	useTaskStatusValue,
 } from './task-status';
 
-export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
+export function TaskAllStatusTypes({
+	task,
+	showStatus = false,
+}: {
+	task?: Nullable<ITeamTask>;
+	showStatus?: boolean;
+}) {
 	const taskPriorities = useTaskPrioritiesValue();
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
+	const taskStatus = useTaskStatusValue();
 
 	const {
 		viewportRef,
@@ -36,12 +44,14 @@ export function TaskAllStatusTypes({ task }: { task?: Nullable<ITeamTask> }) {
 		<div className="relative w-full h-full flex flex-col justify-center">
 			<div ref={viewportRef} className="overflow-hidden w-full relative">
 				<div className="flex space-x-2 mt-2">
-					{/* <TaskStatus
-						{...taskStatus[task?.status || 'Closed']}
-						className="text-xs"
-						active={!!task?.status}
-						name={task?.status || 'Status'}
-					/> */}
+					{showStatus && (
+						<TaskStatus
+							{...taskStatus[task?.status || 'Todo']}
+							className="text-xs"
+							active={!!task?.status}
+							name={task?.status || 'Status'}
+						/>
+					)}
 
 					<TaskStatus
 						{...taskPriorities[task?.priority || 'Low']}

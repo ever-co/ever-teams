@@ -31,7 +31,7 @@ export function Breadcrumb({ paths, className }: Props) {
 									href={path.href}
 									className={clsxm(
 										i < paths.length - 1 || i === 0
-											? ['text-gray-500 mr-4']
+											? ['text-gray-500']
 											: ['text-default dark:text-white']
 									)}
 								>

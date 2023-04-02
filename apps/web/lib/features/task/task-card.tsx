@@ -52,38 +52,36 @@ export function TaskCard({
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
 		useTaskStatistics(seconds);
 
-	const TotalWork = () => {
-		if (isAuthUser && activeAuthTask) {
-			const { h, m } = secondsToTime(
-				(activeTaskTotalStat?.duration || 0) + addSeconds
-			);
-			return (
-				<div className={clsxm('flex space-x-2 items-center font-normal')}>
-					<span className="text-gray-500 lg:text-sm">Total time:</span>
-					<Text>
-						{h}h : {m}m
-					</Text>
-				</div>
-			);
-		}
-	};
+	const { h, m } = secondsToTime(
+		(activeTaskTotalStat?.duration || 0) + addSeconds
+	);
+	const totalWork =
+		isAuthUser && activeAuthTask ? (
+			<div className={clsxm('flex space-x-2 items-center font-normal')}>
+				<span className="text-gray-500 lg:text-sm">Total time:</span>
+				<Text>
+					{h}h : {m}m
+				</Text>
+			</div>
+		) : (
+			<></>
+		);
 
-	const TodayWork = () => {
-		if (isAuthUser && activeAuthTask) {
-			const { h: dh, m: dm } = secondsToTime(
-				(activeTaskDailyStat?.duration || 0) + addSeconds
-			);
-			return (
-				<div className={clsxm('flex flex-col items-start font-normal')}>
-					<span className="text-gray-500 text-xs">Today work</span>
-
-					<Text>
-						{dh}h : {dm}m
-					</Text>
-				</div>
-			);
-		}
-	};
+	// Daily work
+	const { h: dh, m: dm } = secondsToTime(
+		(activeTaskDailyStat?.duration || 0) + addSeconds
+	);
+	const todayWork =
+		isAuthUser && activeAuthTask ? (
+			<div className={clsxm('flex flex-col items-start font-normal')}>
+				<span className="text-gray-500 text-xs">Today work</span>
+				<Text>
+					{dh}h : {dm}m
+				</Text>
+			</div>
+		) : (
+			<></>
+		);
 
 	return (
 		<div>
@@ -100,7 +98,7 @@ export function TaskCard({
 				</div>
 
 				{/* Task information */}
-				<TaskInfo task={task} className="lg:w-80 px-4 w-1/3" />
+				<TaskInfo task={task} className=" px-4 " />
 				<VerticalSeparator className="ml-2" />
 
 				{viewType === 'default' && (
@@ -113,7 +111,6 @@ export function TaskCard({
 								activeAuthTask={activeAuthTask}
 								className="lg:px-3 lg:w-52 "
 							/>
-							{isAuthUser && task && <TimerButtonCall task={task} />}
 						</div>
 						<VerticalSeparator />
 					</>
@@ -135,22 +132,21 @@ export function TaskCard({
 						className="lg:w-48 lg:px-4 px-2"
 						showTotal={viewType !== 'unassign'}
 					/>
-					{isAuthUser && viewType === 'unassign' && task && (
-						<TimerButtonCall task={task} />
-					)}
+					{isAuthUser && task && <TimerButtonCall task={task} />}
 				</div>
 				<VerticalSeparator />
 
 				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 				<ActiveTaskStatusDropdown
-					task={task || null}
-					className="lg:min-w-[170px] lg:mr-4 mx-auto"
+					task={task}
 					onChangeLoading={(load) => setLoading(load)}
 				/>
 
 				{/* TaskCardMenu */}
 				{task && <TaskCardMenu task={task} loading={loading} />}
 			</Card>
+
+			{/* Small screen size */}
 			<Card
 				shadow="bigger"
 				className={clsxm(
@@ -159,20 +155,16 @@ export function TaskCard({
 					className
 				)}
 			>
-				{/* TaskTimes */}
 				<div className="flex justify-between ml-2 mb-4">
-					{/*@ts-ignore*/}
-					<TotalWork />
+					{totalWork}
 					{isAuthUser && viewType === 'unassign' && task && (
 						<TimerButtonCall task={task} />
 					)}
 				</div>
-				{/* Task information */}
 				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
 					<TaskInfo task={task} className="w-80 px-4 mb-4" />{' '}
 					{viewType === 'default' && (
 						<>
-							{/* TaskEstimateInfo */}
 							<div className="flex space-x-2 items-end">
 								<TaskEstimateInfo
 									task={task}
@@ -190,11 +182,9 @@ export function TaskCard({
 						<UsersTaskAssigned className="px-3 w-52" task={task} />
 					</>
 				)}
-				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 				<div className="flex justify-between mt-8 mb-8 space-x-5">
 					<div className="flex space-x-4">
-						{/*@ts-ignore*/}
-						<TodayWork />
+						{todayWork}
 						{isAuthUser && task && <TimerButtonCall task={task} />}
 					</div>
 
@@ -203,7 +193,7 @@ export function TaskCard({
 						onChangeLoading={(load) => setLoading(load)}
 					/>
 				</div>
-				{/* TaskCardMenu */}
+
 				{task && <TaskCardMenu task={task} loading={loading} />}
 			</Card>
 		</div>

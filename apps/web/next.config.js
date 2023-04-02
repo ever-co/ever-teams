@@ -10,6 +10,7 @@ const nextConfig = {
 			'127.0.0.1',
 			'cdn-icons-png.flaticon.com', // Remove this domain once Backend Icons list are added
 			'apistage.gauzy.co',
+			'gauzy.s3.wasabisys.com',
 		],
 	},
 	experimental: {

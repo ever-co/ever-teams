@@ -11,13 +11,14 @@ import {
 	getTeamTasksAPI,
 	updateTaskAPI,
 } from '@app/services/client/api';
-import { activeTeamIdState, userState } from '@app/stores';
+import { activeTeamState, userState } from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
 	tasksFetchingState,
 	teamTasksState,
 } from '@app/stores';
+import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -27,10 +28,14 @@ import { useSyncRef } from '../useSyncRef';
 export function useTeamTasks() {
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
+	const tasksRef = useSyncRef(tasks);
+
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 
-	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamRef = useSyncRef(activeTeam);
+
 	const [activeTeamTask, setActiveTeamTask] =
 		useRecoilState(activeTeamTaskState);
 
@@ -48,20 +53,47 @@ export function useTeamTasks() {
 	const { queryCall: updateQueryCall, loading: updateLoading } =
 		useQuery(updateTaskAPI);
 
-	const loadTeamTasksData = useCallback(() => {
-		return queryCall().then((res) => {
-			const responseTasks = res.data?.items || [];
-			if (responseTasks && responseTasks.length) {
-				responseTasks.forEach((task) => {
-					if (task.tags && task.tags?.length) {
-						task.label = task.tags[0].name;
+	const loadTeamTasksData = useCallback(
+		(deepCheck?: boolean) => {
+			return queryCall().then((res) => {
+				const responseTasks = res.data?.items || [];
+				if (responseTasks && responseTasks.length) {
+					responseTasks.forEach((task) => {
+						if (task.tags && task.tags?.length) {
+							task.label = task.tags[0].name;
+						}
+					});
+				}
+
+				/**
+				 * When deepCheck enabled,
+				 * then update the tasks store only when active-team tasks have an update
+				 */
+				if (deepCheck) {
+					const latestActiveTeamTasks = responseTasks
+						.filter((task) => {
+							return task.teams.some((tm) => {
+								return tm.id === activeTeamRef.current?.id;
+							});
+						})
+						.sort((a, b) => a.title.localeCompare(b.title));
+
+					const activeTeamTasks = tasksRef.current
+						.slice()
+						.sort((a, b) => a.title.localeCompare(b.title));
+
+					if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
+						setAllTasks(responseTasks);
 					}
-				});
-			}
-			setAllTasks(res.data?.items || []);
-			return res;
-		});
-	}, [queryCall, setAllTasks]);
+				} else {
+					setAllTasks(responseTasks);
+				}
+
+				return res;
+			});
+		},
+		[queryCall, setAllTasks]
+	);
 
 	// Global loading state
 	useEffect(() => {
@@ -84,10 +116,10 @@ export function useTeamTasks() {
 
 	// Reload tasks after active team changed
 	useEffect(() => {
-		if (activeTeamId && firstLoad) {
+		if (activeTeam?.id && firstLoad) {
 			loadTeamTasksData();
 		}
-	}, [activeTeamId, firstLoad, loadTeamTasksData]);
+	}, [activeTeam?.id, firstLoad, loadTeamTasksData]);
 
 	// Get the active task from cookie and put on global store
 	useEffect(() => {
@@ -231,7 +263,7 @@ export function useTeamTasks() {
 		updateTitle,
 		updateDescription,
 		handleStatusUpdate,
-		activeTeamId,
+		activeTeamId: activeTeam?.id,
 		setAllTasks,
 		loadTeamTasksData,
 	};

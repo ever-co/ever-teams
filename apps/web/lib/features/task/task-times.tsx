@@ -96,7 +96,7 @@ function TimeInfo({
 			{showTotal && (
 				<div
 					className={clsxm(
-						'flex space-x-2 items-center font-normal',
+						'flex space-x-4 items-center font-normal',
 						showDaily && ['text-sm']
 					)}
 				>
