@@ -32,7 +32,7 @@ export default function AuthTeam() {
 			title={trans.HEADING_TITLE}
 			description={trans.HEADING_DESCRIPTION}
 		>
-			<form onSubmit={handleSubmit} className="w-[98%] md:w-[530px]">
+			<form onSubmit={handleSubmit} className="w-[98%] md:w-[550px]">
 				<Card className="w-full" shadow="bigger">
 					{step === FIRST_STEP && (
 						<FillTeamNameForm

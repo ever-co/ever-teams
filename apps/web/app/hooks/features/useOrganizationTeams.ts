@@ -42,6 +42,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
  */
 function useTeamsState() {
 	const [teams, setTeams] = useRecoilState(organizationTeamsState);
+	const teamsRef = useSyncRef(teams);
 
 	const setTeamsUpdate = useCallback(
 		(team: IOrganizationTeamWithMStatus) => {
@@ -57,6 +58,7 @@ function useTeamsState() {
 		teams,
 		setTeams,
 		setTeamsUpdate,
+		teamsRef,
 	};
 }
 
@@ -174,7 +176,7 @@ export function useOrganizationTeams() {
 	const { loading: loadingTeam, queryCall: queryCallTeam } = useQuery(
 		getOrganizationTeamAPI
 	);
-	const { teams, setTeams, setTeamsUpdate } = useTeamsState();
+	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
@@ -227,12 +229,22 @@ export function useOrganizationTeams() {
 			}
 			const latestTeams = res.data?.items || [];
 
+			const latestTeamsSorted = latestTeams
+				.slice()
+				.sort((a, b) => a.name.localeCompare(b.name));
+
+			const teamsRefSorted = teamsRef.current
+				.slice()
+				.sort((a, b) => a.name.localeCompare(b.name));
+
 			/**
 			 * Check deep equality,
 			 * No need to update state if all the Team details are same
 			 * (It prevents unnecessary re-rendering)
+			 *
+			 * Use teamsRef to make we always get the lastest value
 			 */
-			if (!teamId && !isEqual(latestTeams, teams)) {
+			if (!teamId && !isEqual(latestTeamsSorted, teamsRefSorted)) {
 				setTeams(latestTeams);
 			}
 
@@ -262,7 +274,7 @@ export function useOrganizationTeams() {
 					 * No need to update state if all the Team details are same
 					 * (It prevents unnecessary re-rendering)
 					 */
-					if (!isEqual(latestTeams, teams)) {
+					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
 						setTeams(latestTeams);
 					}
 				});

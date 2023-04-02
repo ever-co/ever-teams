@@ -8,6 +8,7 @@ import { useOrganizationTeams, useModal } from '@app/hooks';
 import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
 import { RequestToJoinModal } from '@components/layout/header/request-to-join-modal';
+import { useTranslation } from 'lib/i18n';
 
 const HeaderSkeleton = () => {
 	return (
@@ -53,6 +54,7 @@ export function Navbar({
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
+	const { trans } = useTranslation();
 	const { isTeamMember } = useOrganizationTeams();
 	const [user] = useRecoilState(userState);
 	const { isOpen, closeModal, openModal } = useModal();
@@ -81,7 +83,7 @@ export function Navbar({
 											className="sm:pr-[2rem] sm:pl-[2rem] rounded-lg"
 											onClick={openModal}
 										>
-											Request to join
+											{trans.common.JOIN_REQUEST}
 										</Button>
 									)}
 									{showTimer && <MinTimerFrame />}

@@ -10,7 +10,7 @@ import {
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
-import { Card } from 'lib/components';
+import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, {
@@ -31,6 +31,7 @@ import {
 } from '@app/hooks';
 import clsx from 'clsx';
 import Image from 'next/legacy/image';
+import capitalize from 'lodash/capitalize';
 
 export type TStatusItem = {
 	bgColor?: string;
@@ -77,12 +78,13 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 				bgColor: item.color,
 				bordered,
 				icon: (
-					<div className="relative w-5 h-4">
+					<div className="relative flex items-center">
 						{item.fullIconUrl && (
 							<Image
-								layout="fill"
+								layout="fixed"
 								src={item.fullIconUrl}
-								className="w-full h-full"
+								height="20"
+								width="16"
 								alt={item.name}
 							/>
 						)}
@@ -582,6 +584,7 @@ export function TaskStatus({
 	issueType = 'status',
 	showIssueLabels,
 	bordered,
+	titleClassName,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -589,12 +592,13 @@ export function TaskStatus({
 			issueType?: 'status' | 'issue';
 			showIssueLabels?: boolean;
 			forDetails?: boolean;
+			titleClassName?: string;
 		}
 >) {
 	return (
 		<div
 			className={clsxm(
-				'py-2 md:px-4 px-2 flex items-center text-sm space-x-3 rounded-xl',
+				'py-2 md:px-4 px-2 flex items-center text-sm space-x-2 rounded-xl',
 				issueType === 'issue' && ['px-2 text-white'],
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				bordered && ['input-border'],
@@ -604,11 +608,16 @@ export function TaskStatus({
 			)}
 			style={{ backgroundColor: active ? backgroundColor : undefined }}
 		>
-			<div className="flex items-center space-x-3 whitespace-nowrap">
+			<div
+				className={clsxm(
+					'flex items-center space-x-2 whitespace-nowrap',
+					titleClassName
+				)}
+			>
 				{active ? icon : <RecordIcon />}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
-					<span className="capitalize">{name}</span>
+					<div className="capitalize text-ellipsis overflow-hidden">{name}</div>
 				)}
 			</div>
 			{children}
@@ -650,6 +659,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	};
 
 	const currentValue = value || defaultValue;
+	const hasBtnIcon = issueType === 'status' && !showButtonOnly;
 
 	const button = (
 		<TaskStatus
@@ -665,13 +675,17 @@ export function StatusDropdown<T extends TStatusItem>({
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
 					: 'bg-[#F2F2F2]'
 			)}
+			titleClassName={clsxm(
+				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
+			)}
 		>
-			{/* Checking if the issueType is status and if it is then it will render the chevron down icon.  */}
+			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
 				<ChevronDownIcon
 					className={clsxm(
-						'ml-2 h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-						(!value || currentValue.bordered) && ['text-dark dark:text-white']
+						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
+						hasBtnIcon && ['whitespace-nowrap w-5 h-5']
 					)}
 					aria-hidden="true"
 				/>
@@ -684,8 +698,15 @@ export function StatusDropdown<T extends TStatusItem>({
 			<Listbox value={value?.name || null} onChange={onChange}>
 				{({ open }) => (
 					<>
-						<Listbox.Button className={clsx(!forDetails && 'w-full')}>
-							{button}
+						<Listbox.Button
+							className={clsx(!forDetails && 'w-full max-w-[170px]')}
+						>
+							<Tooltip
+								enabled={hasBtnIcon && (value?.name || '').length > 10}
+								label={capitalize(value?.name) || ''}
+							>
+								{button}
+							</Tooltip>
 						</Listbox.Button>
 
 						<Transition
