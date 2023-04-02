@@ -42,27 +42,20 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 					<TimerScreenSkeleton showTaskDropdown={false} />
 				) : (
 					<>
-						<TouchableOpacity
-							activeOpacity={1}
-							onPress={() => {
-								setShowCombo(false)
-							}}
-						>
-							<View>
-								<CreateTeamModal
-									onCreateTeam={createOrganizationTeam}
-									visible={showCreateTeamModal}
-									onDismiss={() => setShowCreateTeamModal(false)}
-								/>
-								<View style={{ zIndex: 1000 }}>
-									<HomeHeader props={_props} showTimer={false} />
-								</View>
-								<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
-									<DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
-								</View>
-								<TimerTaskSection />
+						<View>
+							<CreateTeamModal
+								onCreateTeam={createOrganizationTeam}
+								visible={showCreateTeamModal}
+								onDismiss={() => setShowCreateTeamModal(false)}
+							/>
+							<View style={{ zIndex: 1000 }}>
+								<HomeHeader props={_props} showTimer={false} />
 							</View>
-						</TouchableOpacity>
+							<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
+								<DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
+							</View>
+							<TimerTaskSection />
+						</View>
 					</>
 				)}
 			</Screen>

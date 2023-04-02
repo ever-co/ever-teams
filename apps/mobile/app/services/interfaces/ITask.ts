@@ -128,3 +128,11 @@ export interface ICreateTask {
 	organizationId: string
 	tenantId: string
 }
+
+export interface IParamsStatistic {
+	taskId: string
+	bearer_token: string
+	organizationId: string
+	tenantId: string
+	activeTask: boolean
+}
