@@ -11,7 +11,7 @@ import {
 	getTeamTasksAPI,
 	updateTaskAPI,
 } from '@app/services/client/api';
-import { activeTeamIdState, userState } from '@app/stores';
+import { activeTeamState, userState } from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
@@ -33,8 +33,9 @@ export function useTeamTasks() {
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 
-	const activeTeamId = useRecoilValue(activeTeamIdState);
-	const activeTeamIdRef = useSyncRef(activeTeamId);
+	const activeTeam = useRecoilValue(activeTeamState);
+	const activeTeamRef = useSyncRef(activeTeam);
+
 	const [activeTeamTask, setActiveTeamTask] =
 		useRecoilState(activeTeamTaskState);
 
@@ -69,13 +70,19 @@ export function useTeamTasks() {
 				 * then update the tasks store only when active-team tasks have an update
 				 */
 				if (deepCheck) {
-					const activeTeamTasks = responseTasks.filter((task) => {
-						return task.teams.some((tm) => {
-							return tm.id === activeTeamIdRef.current;
-						});
-					});
+					const latestActiveTeamTasks = responseTasks
+						.filter((task) => {
+							return task.teams.some((tm) => {
+								return tm.id === activeTeamRef.current?.id;
+							});
+						})
+						.sort((a, b) => a.title.localeCompare(b.title));
 
-					if (!isEqual(tasksRef.current, activeTeamTasks)) {
+					const activeTeamTasks = tasksRef.current
+						.slice()
+						.sort((a, b) => a.title.localeCompare(b.title));
+
+					if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
 						setAllTasks(responseTasks);
 					}
 				} else {
@@ -109,10 +116,10 @@ export function useTeamTasks() {
 
 	// Reload tasks after active team changed
 	useEffect(() => {
-		if (activeTeamId && firstLoad) {
+		if (activeTeam?.id && firstLoad) {
 			loadTeamTasksData();
 		}
-	}, [activeTeamId, firstLoad, loadTeamTasksData]);
+	}, [activeTeam?.id, firstLoad, loadTeamTasksData]);
 
 	// Get the active task from cookie and put on global store
 	useEffect(() => {
@@ -256,7 +263,7 @@ export function useTeamTasks() {
 		updateTitle,
 		updateDescription,
 		handleStatusUpdate,
-		activeTeamId,
+		activeTeamId: activeTeam?.id,
 		setAllTasks,
 		loadTeamTasksData,
 	};
