@@ -85,6 +85,11 @@ function InitState() {
 	 * So that if Team is deleted by manager it updates the UI accordingly
 	 */
 	useOTRefreshInterval(loadTeamsData, 5000, publicTeam);
-	useRefreshInterval(loadTeamTasksData, 5000);
+	// Refresh tasks with a deep compare
+	useRefreshInterval(
+		loadTeamTasksData,
+		5000,
+		true /* used as loadTeamTasksData deepCheck param */
+	);
 	return <></>;
 }

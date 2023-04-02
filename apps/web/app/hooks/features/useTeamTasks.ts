@@ -18,6 +18,7 @@ import {
 	tasksFetchingState,
 	teamTasksState,
 } from '@app/stores';
+import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -27,10 +28,13 @@ import { useSyncRef } from '../useSyncRef';
 export function useTeamTasks() {
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
+	const tasksRef = useSyncRef(tasks);
+
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
 
 	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const activeTeamIdRef = useSyncRef(activeTeamId);
 	const [activeTeamTask, setActiveTeamTask] =
 		useRecoilState(activeTeamTaskState);
 
@@ -48,20 +52,41 @@ export function useTeamTasks() {
 	const { queryCall: updateQueryCall, loading: updateLoading } =
 		useQuery(updateTaskAPI);
 
-	const loadTeamTasksData = useCallback(() => {
-		return queryCall().then((res) => {
-			const responseTasks = res.data?.items || [];
-			if (responseTasks && responseTasks.length) {
-				responseTasks.forEach((task) => {
-					if (task.tags && task.tags?.length) {
-						task.label = task.tags[0].name;
+	const loadTeamTasksData = useCallback(
+		(deepCheck?: boolean) => {
+			return queryCall().then((res) => {
+				const responseTasks = res.data?.items || [];
+				if (responseTasks && responseTasks.length) {
+					responseTasks.forEach((task) => {
+						if (task.tags && task.tags?.length) {
+							task.label = task.tags[0].name;
+						}
+					});
+				}
+
+				/**
+				 * When deepCheck enabled,
+				 * then update the tasks store only when active-team tasks have an update
+				 */
+				if (deepCheck) {
+					const activeTeamTasks = responseTasks.filter((task) => {
+						return task.teams.some((tm) => {
+							return tm.id === activeTeamIdRef.current;
+						});
+					});
+
+					if (!isEqual(tasksRef.current, activeTeamTasks)) {
+						setAllTasks(responseTasks);
 					}
-				});
-			}
-			setAllTasks(res.data?.items || []);
-			return res;
-		});
-	}, [queryCall, setAllTasks]);
+				} else {
+					setAllTasks(responseTasks);
+				}
+
+				return res;
+			});
+		},
+		[queryCall, setAllTasks]
+	);
 
 	// Global loading state
 	useEffect(() => {

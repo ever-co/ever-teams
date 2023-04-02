@@ -1,6 +1,7 @@
 import { OTRefreshIntervalState } from '@app/stores';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
+import { useCallbackRef } from '../useCallbackRef';
 
 export function useOTRefreshInterval(
 	callback: any,
@@ -11,12 +12,8 @@ export function useOTRefreshInterval(
 		OTRefreshIntervalState
 	);
 
-	const savedCallback = useRef<any>();
-
 	// Remember the latest callback.
-	useEffect(() => {
-		savedCallback.current = callback;
-	}, [callback]);
+	const callbackRef = useCallbackRef(callback);
 
 	// Set up the interval.
 	useEffect(() => {
@@ -26,7 +23,7 @@ export function useOTRefreshInterval(
 		}
 
 		function tick() {
-			savedCallback.current();
+			callbackRef.current();
 		}
 
 		// If already set do not execute it again,
