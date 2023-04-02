@@ -13,7 +13,8 @@ import { useTranslation } from 'lib/i18n';
 import SettingsPersonalSkeleton from '@components/shared/skeleton/SettingsPersonalSkeleton';
 import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
-
+import Link from 'next/link';
+import { ArrowLeft } from 'lib/components/svgs';
 
 const Personal = () => {
 	const { trans, translations } = useTranslation('settingsPersonal');
@@ -24,13 +25,19 @@ const Personal = () => {
 			{!user ? (
 				<SettingsPersonalSkeleton />
 			) : (
-				<MainLayout className='items-start'>
+				<MainLayout className="items-start">
 					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 						<Container>
-							<Breadcrumb
-								paths={translations.pages.settings.BREADCRUMB}
-								className="text-sm"
-							/>
+							<div className="flex items-center space-x-5">
+								<Link href="/">
+									<ArrowLeft />
+								</Link>
+
+								<Breadcrumb
+									paths={translations.pages.settings.BREADCRUMB}
+									className="text-sm"
+								/>
+							</div>
 						</Container>
 					</div>
 

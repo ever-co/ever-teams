@@ -87,7 +87,7 @@ export const en = {
 		},
 
 		profile: {
-			BREADCRUMB: ['Dashboard', 'Task Profile'],
+			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Task Profile'],
 		},
 
 		taskDetails: {
@@ -133,7 +133,7 @@ export const en = {
 			CREATE_TEAM: 'Create team',
 		},
 		settings: {
-			BREADCRUMB: ['Dashboard', 'Settings'],
+			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Settings'],
 			DANDER_ZONE: 'Danger Zone',
 			HEADING_DESCRIPTION: 'Setting dan manage your personal dashboard here',
 		},

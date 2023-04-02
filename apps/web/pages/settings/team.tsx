@@ -20,6 +20,8 @@ import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
+import Link from 'next/link';
+import { ArrowLeft } from 'lib/components/svgs';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
@@ -35,10 +37,16 @@ const Team = () => {
 				<MainLayout className="items-start">
 					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 						<Container>
-							<Breadcrumb
-								paths={translations.pages.settings.BREADCRUMB}
-								className="text-sm"
-							/>
+							<div className="flex items-center space-x-5">
+								<Link href="/">
+									<ArrowLeft />
+								</Link>
+
+								<Breadcrumb
+									paths={translations.pages.settings.BREADCRUMB}
+									className="text-sm"
+								/>
+							</div>
 						</Container>
 					</div>
 
