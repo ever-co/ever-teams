@@ -10,9 +10,8 @@ import TaskDisplayBox from "./TaskDisplayBox"
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
-import { typography } from "../../../../theme"
+import { typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
-import { useAppTheme } from "../../../../app"
 
 export interface Props {
 	handleActiveTask: (value: ITeamTask) => unknown
