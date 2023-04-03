@@ -10,6 +10,7 @@ import {
 	deleteTaskAPI,
 	getTeamTasksAPI,
 	updateTaskAPI,
+	deleteEmployeeFromTasksAPI,
 } from '@app/services/client/api';
 import { activeTeamState, userState } from '@app/stores';
 import {
@@ -52,6 +53,11 @@ export function useTeamTasks() {
 
 	const { queryCall: updateQueryCall, loading: updateLoading } =
 		useQuery(updateTaskAPI);
+
+	const {
+		queryCall: deleteEmployeeFromTasksQueryCall,
+		loading: deleteEmployeeFromTasksLoading,
+	} = useQuery(deleteEmployeeFromTasksAPI);
 
 	const loadTeamTasksData = useCallback(
 		(deepCheck?: boolean) => {
@@ -247,6 +253,13 @@ export function useTeamTasks() {
 		[setActiveTeamTask]
 	);
 
+	const deleteEmployeeFromTasks = useCallback(
+		(employeeId: string, organizationTeamId: string) => {
+			deleteEmployeeFromTasksQueryCall(employeeId, organizationTeamId);
+		},
+		[deleteEmployeeFromTasksQueryCall]
+	);
+
 	return {
 		tasks,
 		loading,
@@ -266,5 +279,7 @@ export function useTeamTasks() {
 		activeTeamId: activeTeam?.id,
 		setAllTasks,
 		loadTeamTasksData,
+		deleteEmployeeFromTasks,
+		deleteEmployeeFromTasksLoading,
 	};
 }
