@@ -19,7 +19,7 @@ import ProfileImage from "./ProfileImage"
 import { translate } from "../i18n"
 import { observer } from "mobx-react-lite"
 
-const HamburgerMenu = observer((props) => {
+const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
 	const {
 		TaskStore: { resetTeamTasksData },
