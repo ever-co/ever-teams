@@ -113,11 +113,13 @@ export function useTeamInvitations() {
 				if (action === MyInvitationActionEnum.ACCEPTED) {
 					loadTeamsData();
 				}
-				removeMyInvitation(id);
+				setMyInvitationsList(
+					myInvitationsList.filter((invitation) => invitation.id !== id)
+				);
 				return res.data;
 			});
 		},
-		[acceptRejectMyInvitationsQueryCall]
+		[acceptRejectMyInvitationsQueryCall, myInvitationsList]
 	);
 
 	return {
