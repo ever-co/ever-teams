@@ -1,3 +1,4 @@
+import { DEFAULT_APP_PATH } from '@app/constants';
 import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';
 import {
@@ -34,7 +35,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 	const logOut = useCallback(() => {
 		removeAuthCookies();
 		window.clearInterval(intervalRt.current);
-		window.location.reload();
+		window.location.replace(DEFAULT_APP_PATH);
 	}, []);
 
 	const timeToTimeRefreshToken = useCallback((interval = 3000 * 60) => {
