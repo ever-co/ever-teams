@@ -6,9 +6,8 @@ import EStyleSheet from "react-native-extended-stylesheet"
 import { useStores } from "../models"
 import { observer } from "mobx-react-lite"
 import { pad } from "../helpers/number"
-import { typography } from "../theme"
+import { typography, useAppTheme } from "../theme"
 import { useTimer } from "../services/hooks/useTimer"
-import { useAppTheme } from "../app"
 import TimerButton from "./TimerButton"
 
 export interface Props {}

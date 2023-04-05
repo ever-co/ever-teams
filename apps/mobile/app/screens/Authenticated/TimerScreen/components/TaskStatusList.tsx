@@ -9,10 +9,9 @@ import { observer } from "mobx-react-lite"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { typography } from "../../../../theme"
+import { typography, useAppTheme } from "../../../../theme"
 import { BadgedTaskStatus } from "../../../../components/StatusIcon"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
-import { useAppTheme } from "../../../../app"
 import { showMessage } from "react-native-flash-message"
 import { useTaskStatus } from "../../../../services/hooks/features/useTaskStatus"
 
