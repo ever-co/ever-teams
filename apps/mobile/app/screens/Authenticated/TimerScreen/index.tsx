@@ -9,10 +9,10 @@ import DropDown from "../../../components/TeamDropdown/DropDown"
 import CreateTeamModal from "../../../components/CreateTeamModal"
 import { observer } from "mobx-react-lite"
 import TimerTaskSection from "./components/TimerTaskSection"
-import { useAppTheme } from "../../../app"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import useTimerScreenLogic from "./logics/useTimerScreenLogic"
 import TimerScreenSkeleton from "./components/TimerScreenSkeleton"
+import { useAppTheme } from "../../../theme"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(
 	function AuthenticatedTimerScreen(_props) {

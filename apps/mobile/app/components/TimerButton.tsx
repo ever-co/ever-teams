@@ -4,10 +4,10 @@ import React, { FC } from "react"
 import { View, StyleSheet, TouchableOpacity, Image, ViewStyle, ImageStyle } from "react-native"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
-import { useAppTheme } from "../app"
 import { useStores } from "../models"
 import { useTimer } from "../services/hooks/useTimer"
 import { ITeamTask } from "../services/interfaces/ITask"
+import { useAppTheme } from "../theme"
 
 type TimerButtonProps = {
 	task?: ITeamTask

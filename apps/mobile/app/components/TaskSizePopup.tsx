@@ -13,11 +13,10 @@ import {
 	TouchableWithoutFeedback,
 } from "react-native"
 import { Feather, AntDesign } from "@expo/vector-icons"
-import { spacing } from "../theme"
+import { spacing, useAppTheme } from "../theme"
 import { useTaskSizes } from "../services/hooks/features/useTaskSizes"
 import { ITaskSizeItem } from "../services/interfaces/ITaskSize"
 import { BadgedTaskSize } from "./SizeIcon"
-import { useAppTheme } from "../app"
 import { translate } from "../i18n"
 
 export interface Props {

@@ -5,12 +5,11 @@ import React, { FC, useMemo, useState } from "react"
 import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
 import { Entypo, EvilIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography } from "../../../../theme"
+import { colors, spacing, typography, useAppTheme } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
 import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import TaskStatus from "../../../../components/TaskStatus"
-import { useAppTheme } from "../../../../app"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 
 export interface Props {

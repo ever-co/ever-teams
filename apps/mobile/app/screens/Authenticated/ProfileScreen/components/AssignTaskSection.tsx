@@ -11,7 +11,7 @@ import {
 	TouchableOpacity,
 } from "react-native"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { spacing, typography } from "../../../../theme"
+import { spacing, typography, useAppTheme } from "../../../../theme"
 import { ActivityIndicator } from "react-native-paper"
 import TaskLabel from "../../../../components/TaskLabel"
 import TaskPriorities from "../../../../components/TaskPriority"
@@ -20,7 +20,6 @@ import TaskSize from "../../../../components/TaskSize"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { useStores } from "../../../../models"
 import { translate } from "../../../../i18n"
-import { useAppTheme } from "../../../../app"
 import useProfileScreenLogic from "../logics/useProfileScreenLogic"
 
 export interface Props {
@@ -55,7 +54,7 @@ const ModalPopUp = ({ visible, children }) => {
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<View style={$modalBackGround}>
-				<Animated.View style={[{ transform: [{ scale: scaleValue }] }]}>{children}</Animated.View>
+				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
 			</View>
 		</Modal>
 	)
@@ -214,7 +213,7 @@ const $modalBackGround: ViewStyle = {
 
 const $modalContainer: ViewStyle = {
 	width: "100%",
-	height: height,
+	height,
 	backgroundColor: "white",
 	paddingHorizontal: 30,
 	paddingVertical: 30,
@@ -224,52 +223,24 @@ const $modalContainer: ViewStyle = {
 }
 
 const styles = StyleSheet.create({
-	mainContainer: {
-		width: "100%",
-		alignItems: "center",
-		height: height / 2,
-		shadowColor: "#1B005D0D",
-		shadowOffset: { width: 10, height: 10 },
-		shadowRadius: 10,
-		backgroundColor: "#fff",
-		borderTopRightRadius: 24,
-		borderTopLeftRadius: 24,
-		paddingHorizontal: 20,
-		paddingVertical: 30,
-		borderColor: "#1B005D0D",
-		borderWidth: 2,
-	},
-	theTextField: {
-		borderWidth: 0,
-		width: "100%",
-	},
 	blueBottom: {
 		borderBottomWidth: 2,
 		borderColor: "#1B005D",
-		width: "100%",
 		marginBottom: 25,
-	},
-	wrapButtons: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginVertical: 10,
+		width: "100%",
 	},
 	button: {
-		width: width / 2.5,
-		height: height / 16,
-		borderRadius: 11,
-		padding: 10,
-		justifyContent: "center",
 		alignItems: "center",
-	},
-	mainTitle: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 24,
+		borderRadius: 11,
+		height: height / 16,
+		justifyContent: "center",
+		padding: 10,
+		width: width / 2.5,
 	},
 	buttonText: {
+		color: "#FFF",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
-		color: "#FFF",
 	},
 	crossIcon: {
 		position: "absolute",
@@ -281,25 +252,53 @@ const styles = StyleSheet.create({
 		right: 10,
 		top: 11,
 	},
+	mainContainer: {
+		alignItems: "center",
+		backgroundColor: "#fff",
+		borderColor: "#1B005D0D",
+		borderTopLeftRadius: 24,
+		borderTopRightRadius: 24,
+		borderWidth: 2,
+		height: height / 2,
+		paddingHorizontal: 20,
+		paddingVertical: 30,
+		shadowColor: "#1B005D0D",
+		shadowOffset: { width: 10, height: 10 },
+		shadowRadius: 10,
+		width: "100%",
+	},
+	mainTitle: {
+		fontFamily: typography.primary.semiBold,
+		fontSize: 24,
+	},
 	textInput: {
-		color: "rgba(40, 32, 72, 0.4)",
-		width: "90%",
-		height: 43,
-		paddingVertical: 13,
-		paddingHorizontal: 16,
 		backgroundColor: "#fff",
 		borderRadius: 10,
-		fontSize: 12,
+		color: "rgba(40, 32, 72, 0.4)",
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 12,
+		height: 43,
+		paddingHorizontal: 16,
+		paddingVertical: 13,
+		width: "90%",
+	},
+	theTextField: {
+		borderWidth: 0,
+		width: "100%",
+	},
+	wrapButtons: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginVertical: 10,
 	},
 
 	wrapInput: {
-		width: "100%",
-		height: 45,
 		backgroundColor: "#fff",
 		borderColor: "rgba(0, 0, 0, 0.1)",
-		borderWidth: 1,
 		borderRadius: 10,
+		borderWidth: 1,
+		height: 45,
 		paddingVertical: 2,
+		width: "100%",
 	},
 })

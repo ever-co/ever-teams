@@ -13,11 +13,10 @@ import {
 	TouchableWithoutFeedback,
 } from "react-native"
 import { Feather, AntDesign } from "@expo/vector-icons"
-import { spacing } from "../theme"
+import { spacing, useAppTheme } from "../theme"
 import { BadgedTaskPriority } from "./PriorityIcon"
 import { useTaskPriority } from "../services/hooks/features/useTaskPriority"
 import { ITaskPriorityItem } from "../services/interfaces/ITaskPriority"
-import { useAppTheme } from "../app"
 import { translate } from "../i18n"
 
 export interface Props {

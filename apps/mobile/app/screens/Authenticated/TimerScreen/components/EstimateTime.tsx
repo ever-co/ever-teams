@@ -3,10 +3,9 @@ import { View, StyleSheet, TextInput } from "react-native"
 import { Text, ActivityIndicator } from "react-native-paper"
 import { Feather } from "@expo/vector-icons"
 import { secondsToTime } from "../../../../helpers/date"
-import { typography } from "../../../../theme"
+import { typography, useAppTheme } from "../../../../theme"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
-import { useAppTheme } from "../../../../app"
 
 interface Props {
 	setEditEstimate?: (value: boolean) => unknown

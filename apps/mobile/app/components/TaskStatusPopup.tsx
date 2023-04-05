@@ -15,9 +15,8 @@ import {
 import { Feather, AntDesign } from "@expo/vector-icons"
 import { useTaskStatus } from "../services/hooks/features/useTaskStatus"
 import { ITaskStatusItem } from "../services/interfaces/ITaskStatus"
-import { spacing } from "../theme"
+import { spacing, useAppTheme } from "../theme"
 import { BadgedTaskStatus } from "./StatusIcon"
-import { useAppTheme } from "../app"
 import { translate } from "../i18n"
 
 export interface Props {
