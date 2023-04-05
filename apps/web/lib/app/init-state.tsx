@@ -76,6 +76,13 @@ function InitState() {
 		5000,
 		true /* used as loadTeamTasksData deepCheck param */
 	);
+
+	// Timer status
+	// useRefreshInterval(
+	// 	getTimerStatus,
+	// 	5000,
+	// 	true /* used as getTimerStatus deepCheck param */
+	// );
 	return <></>;
 }
 

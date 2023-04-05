@@ -88,7 +88,9 @@ function useLocalTimeCounter(
 
 			timerStatus &&
 				updateLocalTimerStatus({
-					runnedDateTime: localStatus?.runnedDateTime || 0,
+					runnedDateTime:
+						localStatus?.runnedDateTime ||
+						(timerStatus.running ? Date.now() : 0),
 					running: timerStatus.running,
 					lastTaskId: timerStatus.lastLog?.taskId || null,
 				});
@@ -176,10 +178,15 @@ export function useTimer() {
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
 		useLocalTimeCounter(timerStatus, activeTeamTask, firstLoad);
 
-	const getTimerStatus = useCallback(() => {
+	const getTimerStatus = useCallback((deepCheck?: boolean) => {
 		return queryCall().then((res) => {
 			if (res.data) {
-				setTimerStatus(res.data);
+				setTimerStatus((t) => {
+					if (deepCheck) {
+						return res.data.running !== t?.running ? res.data : t;
+					}
+					return res.data;
+				});
 			}
 			return res;
 		});

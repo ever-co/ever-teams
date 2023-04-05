@@ -66,7 +66,7 @@ function EmailScreen({
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
 			<Card className="w-full" shadow="custom">
 				<div className="flex flex-col justify-between items-center">
-					<Text.Heading as="h3" className="text-center mb-10">
+					<Text.Heading as="h3" className="text-center mb-7">
 						{trans.pages.auth.ENTER_EMAIL}
 					</Text.Heading>
 
@@ -81,7 +81,7 @@ function EmailScreen({
 						required
 					/>
 
-					<div className="w-full flex justify-between mt-10">
+					<div className="w-full flex justify-between mt-6">
 						{/* Send code */}
 						<div className="flex flex-col items-start">
 							<Link href="/auth/team">
@@ -111,7 +111,7 @@ function PasscodeScreen({
 
 	return (
 		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
-			<Card className="w-full " shadow="custom">
+			<Card className="w-full" shadow="custom">
 				<div className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="text-center mb-10">
 						{trans.pages.auth.LOGIN}
