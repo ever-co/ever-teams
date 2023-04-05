@@ -130,7 +130,7 @@ export function useTaskInput({
 		return createTask(
 			{
 				taskName: query.trim(),
-				issue: taskIssue.current || undefined,
+				issueType: taskIssue.current || undefined,
 			},
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {

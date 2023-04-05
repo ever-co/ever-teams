@@ -98,7 +98,7 @@ export type ITaskStatusField =
 	| 'size'
 	| 'priority'
 	| 'label'
-	| 'issue'
+	| 'issueType'
 	| 'version'
 	| 'epic'
 	| 'project'
@@ -110,7 +110,7 @@ export type ITaskStatusStack = {
 	size: ITaskSize;
 	label: ITaskLabel;
 	priority: ITaskPriority;
-	issue: ITaskIssue;
+	issueType: ITaskIssue;
 	version: IVersionProperty;
 	epic: IEpicProperty;
 	project: string; //TODO: these types are not strings, but rather objects for team and project. To reimplement
@@ -121,7 +121,7 @@ export type ITaskStatusStack = {
 export interface ICreateTask {
 	title: string;
 	status: ITaskStatus;
-	issue?: string;
+	issueType?: string;
 	members?: { id: string; [x: string]: any }[];
 	estimateDays?: number;
 	estimateHours?: string;

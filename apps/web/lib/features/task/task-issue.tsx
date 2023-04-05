@@ -62,10 +62,10 @@ export function TaskIssuesDropdown({
 	defaultValue,
 	onValueChange,
 	showIssueLabels = true,
-}: TTaskVersionsDropdown<'issue'> & { showIssueLabels?: boolean }) {
+}: TTaskVersionsDropdown<'issueType'> & { showIssueLabels?: boolean }) {
 	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
-	const { item, items, onChange } = useStatusValue<'issue'>(
+	const { item, items, onChange } = useStatusValue<'issueType'>(
 		taskIssues,
 		defaultValue,
 		onValueChange
@@ -100,11 +100,13 @@ export function TaskIssuesDropdown({
  * @param props - IActiveTaskStatuses<'issue'>
  * @returns A dropdown component that allows the user to select a status for the task.
  */
-export function ActiveTaskIssuesDropdown(props: IActiveTaskStatuses<'issue'>) {
+export function ActiveTaskIssuesDropdown(
+	props: IActiveTaskStatuses<'issueType'>
+) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
 		taskIssues,
-		'issue'
+		'issueType'
 	);
 
 	return (
@@ -134,7 +136,7 @@ export function TaskIssueStatus({
 }: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
-			{...taskIssues[task?.issue || 'Task']}
+			{...taskIssues[task?.issueType || 'Task']}
 			showIssueLabels={showIssueLabels}
 			issueType="issue"
 			className={clsxm('rounded-md px-2 text-white', className)}
