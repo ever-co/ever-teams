@@ -10,6 +10,7 @@ type Props = {
 	className?: string;
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
+	wrapperClassName?: string
 };
 
 export function TaskEstimate({
@@ -18,6 +19,7 @@ export function TaskEstimate({
 	className,
 	loadingRef,
 	closeable_fc,
+	wrapperClassName
 }: Props) {
 	const {
 		targetEl,
@@ -66,6 +68,7 @@ export function TaskEstimate({
 				onBlur={handleBlur}
 				label="h"
 				dash={value['hours'] ? '' : '__'}
+				wrapperClassName={wrapperClassName}
 			/>
 			<span>:</span>
 			<TimeInputField
@@ -80,6 +83,7 @@ export function TaskEstimate({
 				label="m"
 				loading={updateLoading}
 				dash={value['minutes'] ? '' : '__'}
+				wrapperClassName={wrapperClassName}
 			/>
 		</div>
 	);

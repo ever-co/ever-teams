@@ -1,5 +1,5 @@
 import { useTranslation } from 'lib/i18n';
-import { Breadcrumb, Container, Button } from 'lib/components';
+import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import { useTeamTasks, useUserProfilePage } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -61,12 +61,12 @@ const TaskDetails = () => {
 							<CompletionBlock />
 							<ActivityBlock />
 						</section>
-						<div className="bg-white dark:bg-dark--theme flex flex-col text-red-700 lg:w-[400px] rounded-lg mt-4 lg:mt-0">
+						<div className="bg-white dark:bg-dark--theme flex flex-col text-red-700 lg:w-[400px] rounded-xl mt-4 lg:mt-0">
 							<TaskDetailsAside />
 						</div>
 					</section>
 				</div>
-				<div className="flex sm:justify-end justify-center mt-8">
+				{/*<div className="flex sm:justify-end justify-center mt-8">
 					<Button
 						variant="grey"
 						className="font-normal py-4 px-4 rounded-xl text-md mr-8"
@@ -80,7 +80,7 @@ const TaskDetails = () => {
 					>
 						Save
 					</Button>
-				</div>
+						</div>*/}
 			</Container>
 		</MainLayout>
 	);

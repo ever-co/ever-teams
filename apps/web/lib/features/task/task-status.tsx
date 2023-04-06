@@ -598,7 +598,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				'py-2 md:px-4 px-2 flex items-center text-sm space-x-2 rounded-xl',
+				'py-2 md:px-4 px-2 flex items-center text-sm space-x-0 rounded-xl',
 				issueType === 'issue' && ['px-2 text-white'],
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				bordered && ['input-border'],
@@ -610,7 +610,7 @@ export function TaskStatus({
 		>
 			<div
 				className={clsxm(
-					'flex items-center space-x-2 whitespace-nowrap',
+					'flex items-center space-x-1 whitespace-nowrap',
 					titleClassName
 				)}
 			>

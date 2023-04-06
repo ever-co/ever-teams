@@ -20,7 +20,7 @@ const TaskRow: React.FC<TaskRowProps> = ({
 }) => {
 	return (
 		<div className={clsx('flex', wrapperClassName)}>
-			<div className="flex items-top w-[47%]">
+			<div className="flex items-top w-[40%]">
 				<TaskLabel
 					labelIconPath={labelIconPath}
 					labelTitle={labelTitle}
@@ -28,7 +28,7 @@ const TaskRow: React.FC<TaskRowProps> = ({
 					alignWithIconLabel={alignWithIconLabel}
 				/>
 			</div>
-			<div className="w-[47%]">
+			<div className="w-[56%]">
 				<div className="flex">{children}</div>
 			</div>
 		</div>
