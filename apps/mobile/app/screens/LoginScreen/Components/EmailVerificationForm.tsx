@@ -10,10 +10,9 @@ import { Feather } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { translate } from "../../../i18n"
 import { Button } from "../../../components"
-import { spacing, typography } from "../../../theme"
+import { spacing, typography, useAppTheme } from "../../../theme"
 import { useStores } from "../../../models"
 import { CodeInput } from "../../../components/CodeInput"
-import { useAppTheme } from "../../../app"
 
 interface Props {
 	isLoading: boolean

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native";
-import { useAppTheme } from "../../../../app";
 import { translate } from "../../../../i18n";
 import { ITaskStatusCreate, ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus";
-import { typography } from "../../../../theme";
+import { typography, useAppTheme } from "../../../../theme";
 import ColorDropDown from "./ColorDropDown";
 import IconDropDown from "./IconDropdown";
 
@@ -104,52 +103,52 @@ const TaskStatusForm = (
 }
 
 const styles = StyleSheet.create({
-    statusNameInput: {
-        width: "100%",
-        height: 57,
-        borderRadius: 12,
-        borderColor: "#DCE4E8",
-        borderWidth: 1,
-        paddingHorizontal: 18,
+    cancelBtn: {
         alignItems: "center",
-        marginTop: 16
+        backgroundColor: "#E6E6E9",
+        borderRadius: 12,
+        height: 57,
+        justifyContent: "center",
+        width: "48%"
+    },
+    cancelTxt: {
+        color: "#1A1C1E",
+        fontFamily: typography.primary.semiBold,
+        fontSize: 18,
+    },
+    createBtn: {
+        alignItems: "center",
+        backgroundColor: "#3826A6",
+        borderRadius: 12,
+        height: 57,
+        justifyContent: "center",
+        width: "48%"
+    },
+    createTxt: {
+        color: "#FFF",
+        fontFamily: typography.primary.semiBold,
+        fontSize: 18,
     },
     formTitle: {
-        fontSize: 24,
+        color: "#1A1C1E",
         fontFamily: typography.primary.semiBold,
-        color: "#1A1C1E"
+        fontSize: 24
+    },
+    statusNameInput: {
+        alignItems: "center",
+        borderColor: "#DCE4E8",
+        borderRadius: 12,
+        borderWidth: 1,
+        height: 57,
+        marginTop: 16,
+        paddingHorizontal: 18,
+        width: "100%"
     },
     wrapButtons: {
         flexDirection: "row",
-        width: "100%",
         justifyContent: "space-between",
-        marginTop: 40
-    },
-    cancelBtn: {
-        width: "48%",
-        height: 57,
-        backgroundColor: "#E6E6E9",
-        borderRadius: 12,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    cancelTxt: {
-        fontSize: 18,
-        fontFamily: typography.primary.semiBold,
-        color: "#1A1C1E",
-    },
-    createBtn: {
-        width: "48%",
-        height: 57,
-        backgroundColor: "#3826A6",
-        borderRadius: 12,
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    createTxt: {
-        fontSize: 18,
-        fontFamily: typography.primary.semiBold,
-        color: "#FFF",
+        marginTop: 40,
+        width: "100%"
     }
 })
 

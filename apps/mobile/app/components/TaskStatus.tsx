@@ -7,10 +7,9 @@ import { ITaskStatus, ITeamTask } from "../services/interfaces/ITask"
 import { BadgedTaskStatus } from "./StatusIcon"
 import { observer } from "mobx-react-lite"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
-import { useAppTheme } from "../app"
 import TaskStatusPopup from "./TaskStatusPopup"
 import { useTaskStatus } from "../services/hooks/features/useTaskStatus"
-import { typography } from "../theme"
+import { typography, useAppTheme } from "../theme"
 import { translate } from "../i18n"
 
 interface TaskStatusProps {

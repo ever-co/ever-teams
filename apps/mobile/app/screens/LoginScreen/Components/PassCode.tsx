@@ -9,10 +9,9 @@ import { ActivityIndicator } from "react-native-paper"
 
 import { translate } from "../../../i18n"
 import { Button, TextField } from "../../../components"
-import { spacing, typography } from "../../../theme"
+import { spacing, typography, useAppTheme } from "../../../theme"
 import { useStores } from "../../../models"
 import { CodeInput } from "../../../components/CodeInput"
-import { useAppTheme } from "../../../app"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 
 interface Props {

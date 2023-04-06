@@ -1,81 +1,87 @@
-import React, { FC, useCallback, useEffect, useState } from "react";
-import { View, Text, StyleSheet, } from "react-native"
-import { observer } from "mobx-react-lite";
-import { useOrganizationTeam } from "../../../../services/hooks/useOrganization";
-import { useStores } from "../../../../models";
-import { translate } from "../../../../i18n";
-import { limitTextCharaters } from "../../../../helpers/sub-text";
-import { Toggle } from "../../../../components/Toggle";
-import { typography } from "../../../../theme";
-import { useAppTheme } from "../../../../app";
+import React, { FC, useCallback, useEffect, useState } from "react"
+import { View, Text, StyleSheet } from "react-native"
+import { observer } from "mobx-react-lite"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import { useStores } from "../../../../models"
+import { translate } from "../../../../i18n"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { Toggle } from "../../../../components/Toggle"
+import { typography, useAppTheme } from "../../../../theme"
 
-interface Props {
-
-}
+interface Props {}
 const SwithTimeTracking: FC<Props> = observer(() => {
-    const { colors, dark } = useAppTheme();
-    const { currentUser, toggleTimeTracking } = useOrganizationTeam()
-    const { teamStore: { setIsTrackingEnabled, isTrackingEnabled } } = useStores()
-    const [isEnabled, setIsEnabled] = useState(currentUser.isTrackingEnabled);
+	const { colors, dark } = useAppTheme()
+	const { currentUser, toggleTimeTracking } = useOrganizationTeam()
+	const {
+		teamStore: { setIsTrackingEnabled, isTrackingEnabled },
+	} = useStores()
+	const [isEnabled, setIsEnabled] = useState(currentUser.isTrackingEnabled)
 
-    const toggleSwitch = useCallback(async () => {
-        const { response } = await toggleTimeTracking(currentUser, !isEnabled)
-        if (response.ok) {
-            setIsEnabled(prev => !prev)
-        }
-    }, [currentUser, isEnabled]);
+	const toggleSwitch = useCallback(async () => {
+		const { response } = await toggleTimeTracking(currentUser, !isEnabled)
+		if (response.ok) {
+			setIsEnabled((prev) => !prev)
+		}
+	}, [currentUser, isEnabled])
 
-    useEffect(() => {
-        setIsTrackingEnabled(currentUser?.isTrackingEnabled)
-    }, [currentUser])
-    return (
-        <View style={styles.container}>
-            <View style={styles.wrapperInfo}>
-                <Text style={[styles.infoTitle, { color: colors.primary }]}>{translate("settingScreen.teamSection.timeTracking")}</Text>
-                <Text style={[styles.infoText, { color: colors.tertiary }]}>{limitTextCharaters({ text: translate("settingScreen.teamSection.timeTrackingHint"), numChars: 77 })}</Text>
-            </View>
-            <Toggle
-                inputInnerStyle={{ backgroundColor: "#DBD3FA" }}
-                inputDetailStyle={{ backgroundColor: "#3826A6" }}
-                onPress={() => toggleSwitch()}
-                variant="switch"
-                value={isEnabled}
-            />
-        </View>
-    )
+	useEffect(() => {
+		setIsTrackingEnabled(currentUser?.isTrackingEnabled)
+	}, [currentUser])
+	return (
+		<View style={styles.container}>
+			<View style={styles.wrapperInfo}>
+				<Text style={[styles.infoTitle, { color: colors.primary }]}>
+					{translate("settingScreen.teamSection.timeTracking")}
+				</Text>
+				<Text style={[styles.infoText, { color: colors.tertiary }]}>
+					{limitTextCharaters({
+						text: translate("settingScreen.teamSection.timeTrackingHint"),
+						numChars: 77,
+					})}
+				</Text>
+			</View>
+			<Toggle
+				inputInnerStyle={{ backgroundColor: "#DBD3FA" }}
+				inputDetailStyle={{ backgroundColor: "#3826A6" }}
+				onPress={() => toggleSwitch()}
+				variant="switch"
+				value={isEnabled}
+			/>
+		</View>
+	)
 })
 
-export default SwithTimeTracking;
+export default SwithTimeTracking
 
 const styles = StyleSheet.create({
-    container: {
-        width: "100%",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginTop: 32
-    },
-    wrapperInfo: {
-        maxWidth: "90%"
-    },
-    infoTitle: {
-        fontSize: 16,
-        fontFamily: typography.primary.semiBold,
-    },
-    infoText: {
-        fontSize: 14,
-        fontFamily: typography.primary.medium,
-        color: "#938FA4",
-        marginTop: 10
-    },
-    detectWrapper: {
-        paddingVertical: 8,
-        paddingHorizontal: 13,
-        borderRadius: 8
-    },
-    toggle: {
-        top: -10,
-        height: 40,
-        right: -10
-    }
+	container: {
+		alignItems: "center",
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginTop: 32,
+		width: "100%",
+	},
+	detectWrapper: {
+		borderRadius: 8,
+		paddingHorizontal: 13,
+		paddingVertical: 8,
+	},
+	infoText: {
+		color: "#938FA4",
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		marginTop: 10,
+	},
+	infoTitle: {
+		fontFamily: typography.primary.semiBold,
+		fontSize: 16,
+	},
+	toggle: {
+		height: 40,
+		right: -10,
+		top: -10,
+	},
+	wrapperInfo: {
+		maxWidth: "90%",
+	},
 })
