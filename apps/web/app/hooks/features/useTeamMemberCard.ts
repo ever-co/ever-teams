@@ -19,7 +19,8 @@ import { useTeamTasks } from './useTeamTasks';
 export function useTeamMemberCard(
 	member: IOrganizationTeamList['members'][number] | undefined
 ) {
-	const { updateTask, tasks, setActiveTask } = useTeamTasks();
+	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks } =
+		useTeamTasks();
 
 	const publicTeam = useRecoilValue(getPublicState);
 
@@ -106,6 +107,7 @@ export function useTeamMemberCard(
 		if (!activeTeamRef.current || !employeeId) return;
 		const team = activeTeamRef.current;
 
+		deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
 		updateOrganizationTeam(activeTeamRef.current, {
 			// remove from members
 			memberIds: team.members
