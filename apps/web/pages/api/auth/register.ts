@@ -15,7 +15,10 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
 import { recaptchaVerification } from '@app/services/server/recaptcha';
-import { RECAPTCHA_SECRET_KEY, VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
+import {
+	RECAPTCHA_SECRET_KEY,
+	VERIFY_EMAIL_CALLBACK_PATH,
+} from '@app/constants';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -139,6 +142,7 @@ export default async function handler(
 			tenantId: tenant.id,
 			organizationId: organization.id,
 			languageId: 'en', // TODO: not sure what should be here
+			userId: user.id,
 		},
 		req,
 		res
