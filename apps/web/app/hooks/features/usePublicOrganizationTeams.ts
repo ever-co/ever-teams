@@ -1,13 +1,16 @@
 import { getPublicOrganizationTeamsAPI } from '@app/services/client/api/public-organization-team';
+import { publicactiveTeamState } from '@app/stores';
 import { useCallback } from 'react';
+import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useTeamTasks } from './useTeamTasks';
 
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getPublicOrganizationTeamsAPI);
-	const { setTeams } = useOrganizationTeams();
+	const { activeTeam, setTeams } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
+	const [publicTeam, setPublicTeam] = useRecoilState(publicactiveTeamState);
 
 	const loadPublicTeamData = useCallback(
 		(profileLink: string, teamId: string) => {
@@ -18,6 +21,7 @@ export function usePublicOrganizationTeams() {
 				}
 
 				setTeams([res.data.data]);
+				setPublicTeam(res.data.data);
 				setAllTasks(res?.data?.data?.tasks || []);
 				return res;
 			});
@@ -28,5 +32,7 @@ export function usePublicOrganizationTeams() {
 	return {
 		loadPublicTeamData,
 		loading,
+		activeTeam,
+		publicTeam,
 	};
 }

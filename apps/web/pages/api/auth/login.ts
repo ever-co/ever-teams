@@ -163,6 +163,7 @@ export default async function handler(
 			organizationId: organization?.organizationId,
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
+			userId,
 		},
 		req,
 		res

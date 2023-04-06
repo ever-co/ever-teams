@@ -1,3 +1,4 @@
+import { getActiveUserIdCookie } from '@app/helpers';
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
@@ -11,9 +12,22 @@ import { useRecoilState } from 'recoil';
 const Team = () => {
 	const router = useRouter();
 	const query = router.query;
-	const { loadPublicTeamData } = usePublicOrganizationTeams();
+	const { loadPublicTeamData, publicTeam: publicTeamData } =
+		usePublicOrganizationTeams();
 	const { trans } = useTranslation('home');
 	const [publicTeam, setPublic] = useRecoilState(publicState);
+
+	useEffect(() => {
+		const userId = getActiveUserIdCookie();
+
+		if (
+			userId &&
+			publicTeamData &&
+			publicTeamData.members.find((member) => member.employee.userId === userId)
+		) {
+			router.replace('/');
+		}
+	}, [publicTeamData, router]);
 
 	useEffect(() => {
 		if (query && query.teamId && query.profileLink) {
