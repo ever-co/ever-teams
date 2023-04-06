@@ -8,10 +8,54 @@ import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { IEmployee } from '@app/interfaces';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
+import {
+	useAuthenticateUser,
+	useOrganizationTeams,
+	useTeamMemberCard,
+	//useTaskStatistics,
+} from '@app/hooks';
+//import { secondsToTime } from '@app/helpers';
+//import { useRecoilValue } from 'recoil';
+//import { timerSecondsState } from '@app/stores';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const [dummyProfiles, setDummyProfiles] = useState<IEmployee[]>([]);
+	const { user } = useAuthenticateUser();
+	const { activeTeam } = useOrganizationTeams();
+	//const seconds = useRecoilValue(timerSecondsState);
+	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+
+	const members = activeTeam?.members || [];
+
+	const currentUser = members.find((m) => {
+		return m.employee.user?.id === user?.id;
+	});
+
+	const memberInfo = useTeamMemberCard(currentUser);
+
+	/*const TotalWork = () => {
+		if (memberInfo.isAuthUser) {
+			const { h, m } = secondsToTime(
+				//returns empty array
+				((currentUser?.totalTodayTasks &&
+					currentUser?.totalTodayTasks.reduce(
+						(previousValue, currentValue) =>
+							previousValue + currentValue.duration,
+						0
+					)) ||
+					activeTaskTotalStat?.duration ||
+					0) + addSeconds
+			);
+			return (
+
+					<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+						{h}h : {m}m
+					</div>
+
+			);
+		}
+	};*/
 
 	useEffect(() => {
 		if (task && task?.members) {
@@ -35,6 +79,7 @@ const TaskProgress = () => {
 					isAuthUser={true}
 					activeAuthTask={true}
 					showPercents={true}
+					memberInfo={memberInfo}
 				/>
 			</TaskRow>
 			<TaskRow labelTitle="Total Time" wrapperClassName="mb-3">

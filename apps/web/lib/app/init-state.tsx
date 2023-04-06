@@ -29,7 +29,7 @@ function InitState() {
 	const publicTeam = useRecoilValue(publicState);
 	const { loadTeamsData, firstLoadTeamsData } = useOrganizationTeams();
 	const { firstLoadTasksData, loadTeamTasksData } = useTeamTasks();
-	const { firstLoadTeamInvitationsData } = useTeamInvitations();
+	const { firstLoadTeamInvitationsData, myInvitations } = useTeamInvitations();
 	const { getTimerStatus, firstLoadTimerData } = useTimer();
 	const { firstLoadtasksStatisticsData } = useTaskStatistics();
 	const { loadLanguagesData, firstLoadLanguagesData } = useLanguageSettings();
@@ -83,6 +83,13 @@ function InitState() {
 	// 	5000,
 	// 	true /* used as getTimerStatus deepCheck param */
 	// );
+
+	useRefreshInterval(
+		myInvitations,
+		5000,
+		true /* used as loadTeamTasksData deepCheck param */
+	);
+
 	return <></>;
 }
 

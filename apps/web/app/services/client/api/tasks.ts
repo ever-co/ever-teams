@@ -37,3 +37,12 @@ export function activeTaskTimesheetStatisticsAPI() {
 		`/timer/timesheet/statistics-tasks?activeTask=true`
 	);
 }
+
+export function deleteEmployeeFromTasksAPI(
+	employeeId: string,
+	organizationTeamId: string
+) {
+	return api.delete<DeleteReponse>(
+		`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`
+	);
+}
