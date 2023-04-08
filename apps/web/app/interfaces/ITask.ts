@@ -89,7 +89,8 @@ export type ITaskStatus =
 	| 'In Progress'
 	| 'Completed'
 	| 'Closed'
-	| 'In Review';
+	| 'In Review'
+	| 'Open';
 
 export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 

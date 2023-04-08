@@ -27,7 +27,7 @@ export default async function handler(
 			bearer_token: access_token,
 			data: {
 				description: '',
-				status: 'Todo',
+				status: 'Open',
 				members: [{ id: user.employee.id }],
 				teams: [
 					{

@@ -65,11 +65,11 @@ export function TaskIssuesDropdown({
 }: TTaskVersionsDropdown<'issueType'> & { showIssueLabels?: boolean }) {
 	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
-	const { item, items, onChange } = useStatusValue<'issueType'>(
-		taskIssues,
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange } = useStatusValue<'issueType'>({
+		status: taskIssues,
+		value: defaultValue,
+		onValueChange,
+	});
 
 	return (
 		<>
