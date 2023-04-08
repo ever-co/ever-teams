@@ -42,6 +42,11 @@ export const activeTeamState = selector<IOrganizationTeamList | null>({
 	},
 });
 
+export const publicactiveTeamState = atom<IOrganizationTeamList | undefined>({
+	key: 'publicactiveTeamState',
+	default: undefined,
+});
+
 export const activeTeamManagersState = selector<OT_Member[]>({
 	key: 'activeTeamManagersState',
 	get: ({ get }) => {
