@@ -30,7 +30,7 @@ export const taskStatus: TStatus<ITaskStatus> = {
 		icon: <LoginIcon />,
 		bgColor: '#D6E4F9',
 	},
-	'In Progress': {
+	'in progress': {
 		icon: <TimerIcon />,
 		bgColor: '#ECE8FC',
 	},
@@ -58,6 +58,7 @@ export const taskStatus: TStatus<ITaskStatus> = {
 		icon: <TickCircleIcon className="stroke-[#acacac]" />,
 		bgColor: '#eaeaea',
 	},
+	Open: {},
 };
 
 export const taskPriorities: TStatus<ITaskPriority> = {

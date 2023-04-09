@@ -1,4 +1,4 @@
-import { secondsToTime } from '@app/helpers';
+import { mergeRefs, secondsToTime } from '@app/helpers';
 import {
 	useOutsideClick,
 	useTeamTasks,
@@ -339,7 +339,10 @@ export function TaskCard({
 						{h}h {m}m
 					</Text>
 
-					<button ref={targetEl} onClick={() => task && setEditMode(true)}>
+					<button
+						ref={mergeRefs([targetEl, ignoreElementRef])}
+						onClick={() => task && setEditMode(true)}
+					>
 						<EditIcon
 							className={clsxm(
 								'cursor-pointer w-4 h-4',

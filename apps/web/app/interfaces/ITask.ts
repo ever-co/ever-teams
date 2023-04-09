@@ -86,7 +86,7 @@ export type ITaskStatus =
 	| 'Ready'
 	| 'Backlog'
 	| 'Todo'
-	| 'In Progress'
+	| 'in progress'
 	| 'Completed'
 	| 'Closed'
 	| 'In Review'
