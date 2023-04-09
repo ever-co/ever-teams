@@ -82,15 +82,15 @@ export type ITaskSize = 'X-Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
 export type ITaskLabel = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
 
 export type ITaskStatus =
-	| 'Blocked'
-	| 'Ready'
-	| 'Backlog'
-	| 'Todo'
+	| 'blocked'
+	| 'ready'
+	| 'backlog'
+	| 'todo'
 	| 'in progress'
-	| 'Completed'
-	| 'Closed'
-	| 'In Review'
-	| 'Open';
+	| 'completed'
+	| 'closed'
+	| 'in review'
+	| 'open';
 
 export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 

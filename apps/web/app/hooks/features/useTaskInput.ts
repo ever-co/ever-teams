@@ -7,9 +7,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	switch (filters) {
 		case 'open':
-			return status !== 'Closed';
+			return status !== 'closed';
 		case 'closed':
-			return status === 'Closed';
+			return status === 'closed';
 		default:
 			return true;
 	}
@@ -73,7 +73,7 @@ export function useTaskInput({
 		async (concernedTask: ITeamTask) => {
 			return updateTask({
 				...concernedTask,
-				status: 'Todo',
+				status: 'open',
 			});
 		},
 		[updateTask]
@@ -156,11 +156,11 @@ export function useTaskInput({
 	);
 
 	const closedTaskCount = filteredTasks2.filter((f_task) => {
-		return f_task.status === 'Closed';
+		return f_task.status === 'closed';
 	}).length;
 
 	const openTaskCount = filteredTasks2.filter((f_task) => {
-		return f_task.status !== 'Closed';
+		return f_task.status !== 'closed';
 	}).length;
 
 	useEffect(() => {
