@@ -219,7 +219,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 
 			onValueChangeRef.current && onValueChangeRef.current(value, values);
 		},
-		[setValue, onValueChangeRef, setValues, setValue, multipleRef]
+		[setValue, onValueChangeRef, setValues, multipleRef]
 	);
 
 	return {

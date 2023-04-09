@@ -172,7 +172,7 @@ export function useTimer() {
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
-	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'Closed';
+	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'closed';
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
