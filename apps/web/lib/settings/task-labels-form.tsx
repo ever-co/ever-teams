@@ -1,22 +1,21 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text } from 'lib/components';
+import { Button, ColorPicker, InputField, Text } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { IColor, IIcon, ITaskLabelsItemList } from '@app/interfaces';
+import { IIcon, ITaskLabelsItemList } from '@app/interfaces';
 import { useTaskLabels } from '@app/hooks';
 import { StatusesListCard } from './list-card';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { useTranslation } from 'lib/i18n';
-import { ColorDropdown } from './color-dropdown';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 
 export const TaskLabelForm = () => {
 	const [user] = useRecoilState(userState);
-	const { register, setValue, handleSubmit } = useForm();
+	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
@@ -92,6 +91,7 @@ export const TaskLabelForm = () => {
 					// projectId: '',
 				})?.then(() => {
 					setCreateNew(false);
+					reset();
 				});
 			}
 			if (
@@ -109,7 +109,7 @@ export const TaskLabelForm = () => {
 				});
 			}
 		},
-		[edit, createNew, editTaskLabels, user, createTaskLabels]
+		[edit, createNew, editTaskLabels, user, reset, createTaskLabels]
 	);
 
 	return (
@@ -169,13 +169,9 @@ export const TaskLabelForm = () => {
 											}
 										/>
 
-										<ColorDropdown
-											setValue={setValue}
-											active={
-												edit
-													? ({ title: edit.color, color: edit.color } as IColor)
-													: null
-											}
+										<ColorPicker
+											defaultColor={edit ? edit.color : undefined}
+											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
 									<div className="flex gap-x-4 mt-5">
