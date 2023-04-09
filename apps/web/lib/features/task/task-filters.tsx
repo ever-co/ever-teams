@@ -30,7 +30,7 @@ type ITabs = {
 
 type FilterType = 'status' | 'search' | undefined;
 type IStatusType = 'status' | 'size' | 'priority' | 'label';
-type StatusFilter = { [x in IStatusType]: string };
+type StatusFilter = { [x in IStatusType]: string[] };
 
 /**
  * It returns an object with the current tab, a function to set the current tab, and an array of tabs
@@ -105,7 +105,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	);
 
 	const onChangeStatusFilter = useCallback(
-		(type: IStatusType, value: string) => {
+		(type: IStatusType, value: string[]) => {
 			return setStatusFilter((state) => {
 				return {
 					...state,
@@ -137,18 +137,20 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 
 	const $tasks = useMemo(() => {
 		const n = taskName.trim().toLowerCase();
-		const asf = appliedStatusFilter;
+		const statusFilters = appliedStatusFilter;
 
 		return tasks
 			.filter((task) => {
 				return n ? task.title.toLowerCase().includes(n) : true;
 			})
 			.filter((task) => {
-				const keys = Object.keys(asf) as IStatusType[];
+				const keys = Object.keys(statusFilters) as IStatusType[];
 
-				return keys.every((k) => {
-					return task[k] === asf[k];
-				});
+				return keys
+					.filter((k) => statusFilters[k].length > 0)
+					.every((k) => {
+						return statusFilters[k].includes(task[k]);
+					});
 			});
 	}, [tasks, taskName, appliedStatusFilter]);
 
@@ -328,26 +330,38 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 			<div className="flex-1 flex space-x-3 flex-wrap justify-center md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
-					onValueChange={(v) => hook.onChangeStatusFilter('status', v)}
+					onValueChange={(_, values) =>
+						hook.onChangeStatusFilter('status', values || [])
+					}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					multiple={true}
 				/>
 
 				<TaskPropertiesDropdown
 					key={key + 2}
-					onValueChange={(v) => hook.onChangeStatusFilter('priority', v)}
+					onValueChange={(_, values) =>
+						hook.onChangeStatusFilter('priority', values || [])
+					}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					multiple={true}
 				/>
 
 				<TaskSizesDropdown
 					key={key + 3}
-					onValueChange={(v) => hook.onChangeStatusFilter('size', v)}
+					onValueChange={(_, values) =>
+						hook.onChangeStatusFilter('size', values || [])
+					}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					multiple={true}
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
-					onValueChange={(v) => hook.onChangeStatusFilter('label', v)}
+					onValueChange={(_, values) =>
+						hook.onChangeStatusFilter('label', values || [])
+					}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
+					multiple={true}
 				/>
 			</div>
 

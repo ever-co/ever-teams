@@ -1,4 +1,4 @@
-import { secondsToTime } from '@app/helpers';
+import { mergeRefs, secondsToTime } from '@app/helpers';
 import {
 	useOutsideClick,
 	useTeamTasks,
@@ -249,7 +249,7 @@ export function TaskCard({
 
 		/* It's a function that is called when the timer button is clicked. */
 		const startTimerWithTask = useCallback(async () => {
-			if (task.status === 'Closed') return;
+			if (task.status === 'closed') return;
 
 			if (timerStatus?.running) {
 				setLoading(true);
@@ -268,7 +268,7 @@ export function TaskCard({
 			<TimerButton
 				onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 				running={activeTaskStatus?.running}
-				disabled={activeTaskStatus ? disabled : task.status === 'Closed'}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed'}
 				className="h-9 w-9"
 			/>
 		);
@@ -339,7 +339,10 @@ export function TaskCard({
 						{h}h {m}m
 					</Text>
 
-					<button ref={targetEl} onClick={() => task && setEditMode(true)}>
+					<button
+						ref={mergeRefs([targetEl, ignoreElementRef])}
+						onClick={() => task && setEditMode(true)}
+					>
 						<EditIcon
 							className={clsxm(
 								'cursor-pointer w-4 h-4',

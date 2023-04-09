@@ -44,9 +44,9 @@ export function TaskAllStatusTypes({
 		<div className="relative w-full h-full flex flex-col justify-center">
 			<div ref={viewportRef} className="overflow-hidden w-full relative">
 				<div className="flex space-x-2 mt-2">
-					{showStatus && (
+					{showStatus && task?.status && taskStatus[task?.status] && (
 						<TaskStatus
-							{...taskStatus[task?.status || 'Todo']}
+							{...taskStatus[task?.status]}
 							className="text-xs"
 							active={!!task?.status}
 							name={task?.status || 'Status'}

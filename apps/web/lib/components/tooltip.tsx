@@ -48,7 +48,7 @@ export function Tooltip({
 						{...getTooltipProps()}
 						className="tooltip-container w-1/3 md:w-fit"
 					>
-						{label}
+						<span className="text-sm">{label}</span>
 						<div {...getArrowProps()} className="tooltip-arrow" />
 					</Transition>
 				</>

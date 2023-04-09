@@ -88,7 +88,9 @@ function useLocalTimeCounter(
 
 			timerStatus &&
 				updateLocalTimerStatus({
-					runnedDateTime: localStatus?.runnedDateTime || 0,
+					runnedDateTime:
+						localStatus?.runnedDateTime ||
+						(timerStatus.running ? Date.now() : 0),
 					running: timerStatus.running,
 					lastTaskId: timerStatus.lastLog?.taskId || null,
 				});
@@ -170,16 +172,21 @@ export function useTimer() {
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
-	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'Closed';
+	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'closed';
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
 		useLocalTimeCounter(timerStatus, activeTeamTask, firstLoad);
 
-	const getTimerStatus = useCallback(() => {
+	const getTimerStatus = useCallback((deepCheck?: boolean) => {
 		return queryCall().then((res) => {
 			if (res.data) {
-				setTimerStatus(res.data);
+				setTimerStatus((t) => {
+					if (deepCheck) {
+						return res.data.running !== t?.running ? res.data : t;
+					}
+					return res.data;
+				});
 			}
 			return res;
 		});
@@ -227,11 +234,11 @@ export function useTimer() {
 		 */
 		if (
 			activeTeamTaskRef.current &&
-			activeTeamTaskRef.current.status !== 'In Progress'
+			activeTeamTaskRef.current.status !== 'in progress'
 		) {
 			updateTask({
 				...activeTeamTaskRef.current,
-				status: 'In Progress',
+				status: 'in progress',
 			});
 		}
 

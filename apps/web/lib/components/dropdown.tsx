@@ -25,6 +25,7 @@ type Props<T extends DropdownItem> = {
 	loading?: boolean;
 	buttonStyle?: React.CSSProperties;
 	publicTeam?: boolean;
+	closeOnChildrenClick?: boolean;
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({
@@ -38,6 +39,7 @@ export function Dropdown<T extends DropdownItem>({
 	buttonStyle,
 	optionsClassName,
 	publicTeam,
+	closeOnChildrenClick = true,
 }: Props<T>) {
 	return (
 		<div className={clsxm('rounded-xl', className)}>
@@ -115,7 +117,10 @@ export function Dropdown<T extends DropdownItem>({
 							))}
 
 							{/* Additional content */}
-							<Listbox.Button as="div">{children}</Listbox.Button>
+							{closeOnChildrenClick && (
+								<Listbox.Button as="div">{children}</Listbox.Button>
+							)}
+							{!closeOnChildrenClick && children}
 						</Card>
 					</Listbox.Options>
 				</Transition>

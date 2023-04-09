@@ -80,21 +80,21 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 				{task && <TaskAvatars task={task} />}
 
 				<div onClick={(e) => e.stopPropagation()}>
-					{task?.status !== 'Closed' && (
+					{task?.status !== 'closed' && (
 						<ConfirmDropdown
-							onConfirm={() => handleChange('Closed')}
+							onConfirm={() => handleChange('closed')}
 							confirmText={'Confirm'}
 						>
 							{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
 						</ConfirmDropdown>
 					)}
 
-					{task?.status === 'Closed' && (
+					{task?.status === 'closed' && (
 						<>
 							{updateLoading ? (
 								<SpinnerLoader size={20} />
 							) : (
-								<button onClick={() => handleChange('Todo')}>
+								<button onClick={() => handleChange('todo')}>
 									<RefreshIcon />
 								</button>
 							)}
