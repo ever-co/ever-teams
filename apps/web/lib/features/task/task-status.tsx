@@ -55,6 +55,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	forDetails?: boolean;
 	dynamicValues?: any[];
 	multiple?: boolean;
+	disabled?: boolean;
 };
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -292,6 +293,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -437,6 +439,7 @@ export function ActiveTaskPropertiesDropdown(
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -518,6 +521,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -576,6 +580,7 @@ export function ActiveTaskLabelsDropdown(
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -710,6 +715,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	showButtonOnly,
 	multiple,
 	values = [],
+	disabled,
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -723,6 +729,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	enabled?: boolean;
 	showButtonOnly?: boolean;
 	multiple?: boolean;
+	disabled?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -767,7 +774,11 @@ export function StatusDropdown<T extends TStatusItem>({
 
 	const dropdown = (
 		<div className={clsxm('relative', className)}>
-			<Listbox value={value?.name || null} onChange={onChange}>
+			<Listbox
+				value={value?.name || null}
+				onChange={onChange}
+				disabled={disabled}
+			>
 				{({ open }) => (
 					<>
 						<Listbox.Button
@@ -820,7 +831,12 @@ export function StatusDropdown<T extends TStatusItem>({
 									className="!px-2 py-2 shadow-xlcard dark:shadow-lgcard-white"
 								>
 									{items.map((item, i) => (
-										<Listbox.Option key={i} value={item.name} as={Fragment}>
+										<Listbox.Option
+											key={i}
+											value={item.name}
+											as={Fragment}
+											disabled={disabled}
+										>
 											<li className="mb-3 cursor-pointer">
 												<TaskStatus
 													{...item}
