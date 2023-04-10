@@ -1,4 +1,5 @@
 import { getActiveUserIdCookie } from '@app/helpers';
+import { useRefreshInterval } from '@app/hooks';
 import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganizationTeams';
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
@@ -6,7 +7,7 @@ import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 
 const Team = () => {
@@ -29,7 +30,7 @@ const Team = () => {
 		}
 	}, [publicTeamData, router]);
 
-	useEffect(() => {
+	const loadData = useCallback(() => {
 		if (query && query.teamId && query.profileLink) {
 			loadPublicTeamData(
 				query.profileLink as string,
@@ -42,6 +43,12 @@ const Team = () => {
 			setPublic(true);
 		}
 	}, [loadPublicTeamData, query, router, setPublic]);
+
+	useEffect(() => {
+		loadData();
+	}, [loadData]);
+
+	useRefreshInterval(loadData, 5000, true);
 
 	return (
 		<MainLayout publicTeam={publicTeam}>
