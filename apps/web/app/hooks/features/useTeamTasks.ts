@@ -158,12 +158,12 @@ export function useTeamTasks() {
 
 	const createTask = useCallback(
 		(
-			{ taskName, issue }: { taskName: string; issue?: string },
+			{ taskName, issueType }: { taskName: string; issueType?: string },
 			members?: { id: string }[]
 		) => {
 			return createQueryCall({
 				title: taskName,
-				issue,
+				issueType,
 				...(members ? { members } : {}),
 			}).then((res) => {
 				setAllTasks(res.data?.items || []);

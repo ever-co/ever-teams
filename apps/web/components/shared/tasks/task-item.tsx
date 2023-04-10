@@ -52,7 +52,7 @@ export function TaskItem({
 						</div>
 
 						<div onClick={(e) => e.stopPropagation()}>
-							{item.status === 'Closed' ? (
+							{item.status === 'closed' ? (
 								updateLoading ? (
 									<Spinner dark={false} />
 								) : (

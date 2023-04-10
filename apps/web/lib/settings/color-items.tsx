@@ -2,13 +2,13 @@ import { IColor } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
 
-export type ColorItem = DropdownItem<IColor>;
+export type IColorItem = DropdownItem<IColor>;
 
 export function mapColorItems(colors: IColor[]) {
-	const items = colors.map((color: IColor) => {
+	const items = colors.map<IColorItem>((color: IColor) => {
 		return {
 			key: color.color,
-			Label: ({ selected }: { selected: boolean }) => (
+			Label: ({ selected }) => (
 				<div className="flex justify-between w-full">
 					<div className="max-w-[90%]">
 						<ColorItem

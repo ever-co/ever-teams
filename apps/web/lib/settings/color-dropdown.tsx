@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dropdown } from 'lib/components';
-import { mapColorItems, ColorItem } from './color-items';
+import { mapColorItems, IColorItem } from './color-items';
 
 import { clsxm } from '@app/utils';
 import { IColor } from '@app/interfaces';
@@ -56,12 +56,12 @@ export const ColorDropdown = ({
 		},
 	]);
 
-	const items: any = useMemo(() => mapColorItems(colors), [colors]);
+	const items = useMemo(() => mapColorItems(colors), [colors]);
 
-	const [colorItem, setColorItem] = useState<ColorItem | null>();
+	const [colorItem, setColorItem] = useState<IColorItem | null>();
 
 	const onChangeActiveTeam = useCallback(
-		(item: ColorItem) => {
+		(item: IColorItem) => {
 			if (item.data) {
 				setColorItem(item);
 				setValue('color', item.data.color);
@@ -100,7 +100,7 @@ export const ColorDropdown = ({
 				value={colorItem}
 				onChange={onChangeActiveTeam}
 				items={items}
-			></Dropdown>
+			/>
 		</>
 	);
 };

@@ -40,7 +40,7 @@ export function StatusModal<T extends ITaskStatusField>({
 		priority: taskPrioritiesValues,
 		size: taskSizesValue,
 		label: taskLabels,
-		issue: taskIssues,
+		issueType: taskIssues,
 		project: {},
 		epic: {},
 		team: {},
@@ -48,11 +48,11 @@ export function StatusModal<T extends ITaskStatusField>({
 		tags: {},
 	};
 
-	const { item, items, onChange } = useStatusValue<T>(
-		status[type],
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange } = useStatusValue<T>({
+		status: status[type],
+		value: defaultValue,
+		onValueChange,
+	});
 
 	useEffect(() => {
 		if (isOpen) {

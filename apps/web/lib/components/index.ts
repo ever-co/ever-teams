@@ -17,6 +17,7 @@ export * from './progress-bar';
 export * from './badge';
 export * from './tooltip';
 export * from './separator';
+export * from './color-picker';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';

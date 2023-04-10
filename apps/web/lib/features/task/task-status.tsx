@@ -23,6 +23,7 @@ import React, {
 } from 'react';
 import {
 	useCallbackRef,
+	useSyncRef,
 	useTaskLabels,
 	useTaskPriorities,
 	useTaskSizes,
@@ -47,9 +48,14 @@ export type TStatus<T extends string> = {
 
 export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	defaultValue?: ITaskStatusStack[T];
-	onValueChange?: (v: ITaskStatusStack[T]) => void;
+	onValueChange?: (
+		v: ITaskStatusStack[T],
+		values?: ITaskStatusStack[T][]
+	) => void;
 	forDetails?: boolean;
 	dynamicValues?: any[];
+	multiple?: boolean;
+	disabled?: boolean;
 };
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -140,11 +146,11 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		);
 	}
 
-	const { item, items, onChange } = useStatusValue<T>(
-		status,
-		task ? task[field] : props.defaultValue || undefined,
-		onItemChange
-	);
+	const { item, items, onChange } = useStatusValue<T>({
+		status: status,
+		value: task ? task[field] : props.defaultValue || undefined,
+		onValueChange: onItemChange,
+	});
 
 	return {
 		item,
@@ -162,12 +168,22 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
  * @param [onValueChange] - This is the callback function that will be called when the value changes.
  */
 
-export function useStatusValue<T extends ITaskStatusField>(
-	statusItems: TStatus<ITaskStatusStack[T]>,
-	$value: ITaskStatusStack[T] | undefined,
-	onValueChange?: (v: ITaskStatusStack[T]) => void
-) {
+export function useStatusValue<T extends ITaskStatusField>({
+	value: $value,
+	status: statusItems,
+	onValueChange,
+	multiple,
+}: {
+	status: TStatus<ITaskStatusStack[T]>;
+	value: ITaskStatusStack[T] | undefined;
+	onValueChange?: (
+		v: ITaskStatusStack[T],
+		values?: ITaskStatusStack[T][]
+	) => void;
+	multiple?: boolean;
+}) {
 	const onValueChangeRef = useCallbackRef(onValueChange);
+	const multipleRef = useSyncRef(multiple);
 
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
@@ -180,6 +196,7 @@ export function useStatusValue<T extends ITaskStatusField>(
 	}, [statusItems]);
 
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
+	const [values, setValues] = useState<ITaskStatusStack[T][]>([]);
 
 	const item = items.find((r) => r.name === value);
 
@@ -189,16 +206,28 @@ export function useStatusValue<T extends ITaskStatusField>(
 
 	const onChange = useCallback(
 		(value: ITaskStatusStack[T]) => {
-			setValue(value);
-			onValueChangeRef.current && onValueChangeRef.current(value);
+			// Handle multiple select
+			let values: ITaskStatusStack[T][] = [];
+			if (multipleRef.current) {
+				setValues((arr) => {
+					const exists = arr.includes(value);
+					values = exists ? arr.filter((v) => v !== value) : [...arr, value];
+					return values;
+				});
+			} else {
+				setValue(value);
+			}
+
+			onValueChangeRef.current && onValueChangeRef.current(value, values);
 		},
-		[setValue, onValueChangeRef]
+		[setValue, onValueChangeRef, setValues, multipleRef]
 	);
 
 	return {
 		items,
-		item,
 		onChange,
+		item,
+		values,
 	};
 }
 
@@ -217,14 +246,16 @@ export function TaskStatusDropdown({
 	defaultValue,
 	onValueChange,
 	forDetails,
+	multiple,
 }: TTaskStatusesDropdown<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
-	const { item, items, onChange } = useStatusValue<'status'>(
-		taskStatusValues,
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange, values } = useStatusValue<'status'>({
+		status: taskStatusValues,
+		value: defaultValue,
+		onValueChange,
+		multiple,
+	});
 
 	return (
 		<StatusDropdown
@@ -234,6 +265,8 @@ export function TaskStatusDropdown({
 			value={item}
 			defaultItem={!item ? 'status' : undefined}
 			onChange={onChange}
+			multiple={multiple}
+			values={values}
 		/>
 	);
 }
@@ -260,6 +293,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -287,12 +321,14 @@ export function VersionPropertiesDropown({
 	defaultValue,
 	onValueChange,
 	forDetails,
+	multiple,
 }: TTaskStatusesDropdown<'version'>) {
-	const { item, items, onChange } = useStatusValue<'version'>(
-		versionProperties,
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange, values } = useStatusValue<'version'>({
+		status: versionProperties,
+		value: defaultValue,
+		onValueChange,
+		multiple,
+	});
 
 	return (
 		<StatusDropdown
@@ -302,6 +338,8 @@ export function VersionPropertiesDropown({
 			value={item}
 			defaultItem={!item ? 'version' : undefined}
 			onChange={onChange}
+			multiple={multiple}
+			values={values}
 		/>
 	);
 }
@@ -318,12 +356,14 @@ export function EpicPropertiesDropdown({
 	defaultValue,
 	onValueChange,
 	forDetails,
+	multiple,
 }: TTaskStatusesDropdown<'epic'>) {
-	const { item, items, onChange } = useStatusValue<'epic'>(
-		{},
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange, values } = useStatusValue<'epic'>({
+		status: {},
+		value: defaultValue,
+		onValueChange,
+		multiple,
+	});
 
 	return (
 		<StatusDropdown
@@ -333,6 +373,8 @@ export function EpicPropertiesDropdown({
 			value={item}
 			defaultItem={!item ? 'epic' : undefined}
 			onChange={onChange}
+			multiple={multiple}
+			values={values}
 		/>
 	);
 }
@@ -354,14 +396,16 @@ export function TaskPropertiesDropdown({
 	defaultValue,
 	onValueChange,
 	forDetails,
+	multiple,
 }: TTaskStatusesDropdown<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
-	const { item, items, onChange } = useStatusValue<'priority'>(
-		taskPrioritiesValues,
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange, values } = useStatusValue<'priority'>({
+		status: taskPrioritiesValues,
+		value: defaultValue,
+		onValueChange,
+		multiple,
+	});
 
 	return (
 		<StatusDropdown
@@ -371,6 +415,8 @@ export function TaskPropertiesDropdown({
 			value={item}
 			defaultItem={!item ? 'priority' : undefined}
 			onChange={onChange}
+			multiple={multiple}
+			values={values}
 		/>
 	);
 }
@@ -393,6 +439,7 @@ export function ActiveTaskPropertiesDropdown(
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -434,14 +481,16 @@ export function TaskSizesDropdown({
 	defaultValue,
 	onValueChange,
 	forDetails,
+	multiple,
 }: TTaskStatusesDropdown<'size'>) {
 	const taskSizesValue = useTaskSizesValue();
 
-	const { item, items, onChange } = useStatusValue<'size'>(
-		taskSizesValue,
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange, values } = useStatusValue<'size'>({
+		status: taskSizesValue,
+		value: defaultValue,
+		onValueChange,
+		multiple,
+	});
 
 	return (
 		<StatusDropdown
@@ -451,6 +500,8 @@ export function TaskSizesDropdown({
 			value={item}
 			defaultItem={!item ? 'size' : undefined}
 			onChange={onChange}
+			multiple={multiple}
+			values={values}
 		/>
 	);
 }
@@ -470,6 +521,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -486,14 +538,16 @@ export function TaskLabelsDropdown({
 	defaultValue,
 	onValueChange,
 	forDetails,
+	multiple,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
-	const { item, items, onChange } = useStatusValue<'label'>(
-		taskLabelsValue,
-		defaultValue,
-		onValueChange
-	);
+	const { item, items, onChange, values } = useStatusValue<'label'>({
+		status: taskLabelsValue,
+		value: defaultValue,
+		onValueChange,
+		multiple,
+	});
 
 	return (
 		<StatusDropdown
@@ -503,6 +557,8 @@ export function TaskLabelsDropdown({
 			value={item}
 			defaultItem={!item ? 'label' : undefined}
 			onChange={onChange}
+			multiple={multiple}
+			values={values}
 		/>
 	);
 }
@@ -524,6 +580,7 @@ export function ActiveTaskLabelsDropdown(
 			value={item}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
+			disabled={props.disabled}
 		/>
 	);
 }
@@ -585,6 +642,7 @@ export function TaskStatus({
 	showIssueLabels,
 	bordered,
 	titleClassName,
+	cheched = false,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -593,12 +651,13 @@ export function TaskStatus({
 			showIssueLabels?: boolean;
 			forDetails?: boolean;
 			titleClassName?: string;
+			cheched?: boolean;
 		}
 >) {
 	return (
 		<div
 			className={clsxm(
-				'py-2 md:px-4 px-2 flex items-center text-sm space-x-0 rounded-xl',
+				'py-2 md:px-4 px-2 flex items-center text-sm space-x-0 rounded-xl relative',
 				issueType === 'issue' && ['px-2 text-white'],
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				bordered && ['input-border'],
@@ -614,7 +673,21 @@ export function TaskStatus({
 					titleClassName
 				)}
 			>
-				{active ? icon : <RecordIcon />}
+				{cheched ? (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						width="20px"
+						height="20px"
+						className="fill-green-500"
+					>
+						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
+					</svg>
+				) : (
+					<>
+						<>{active ? icon : <RecordIcon />}</>
+					</>
+				)}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div className="capitalize text-ellipsis overflow-hidden">{name}</div>
@@ -640,8 +713,12 @@ export function StatusDropdown<T extends TStatusItem>({
 	forDetails,
 	enabled = true,
 	showButtonOnly,
+	multiple,
+	values = [],
+	disabled,
 }: PropsWithChildren<{
 	value: T | undefined;
+	values?: NonNullable<T['name']>[];
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
@@ -651,6 +728,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	showIssueLabels?: boolean;
 	enabled?: boolean;
 	showButtonOnly?: boolean;
+	multiple?: boolean;
+	disabled?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -695,18 +774,42 @@ export function StatusDropdown<T extends TStatusItem>({
 
 	const dropdown = (
 		<div className={clsxm('relative', className)}>
-			<Listbox value={value?.name || null} onChange={onChange}>
+			<Listbox
+				value={value?.name || null}
+				onChange={onChange}
+				disabled={disabled}
+			>
 				{({ open }) => (
 					<>
 						<Listbox.Button
 							className={clsx(!forDetails && 'w-full max-w-[170px]')}
 						>
-							<Tooltip
-								enabled={hasBtnIcon && (value?.name || '').length > 10}
-								label={capitalize(value?.name) || ''}
-							>
-								{button}
-							</Tooltip>
+							{!multiple ? (
+								<Tooltip
+									enabled={hasBtnIcon && (value?.name || '').length > 10}
+									label={capitalize(value?.name) || ''}
+								>
+									{button}
+								</Tooltip>
+							) : (
+								<TaskStatus
+									{...defaultValue}
+									active={false}
+									className={clsxm(
+										'justify-between w-full capitalize text-xs',
+										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light'
+									)}
+									name={
+										values.length > 0
+											? `Items (${values.length})`
+											: defaultValue.name
+									}
+								>
+									<ChevronDownIcon
+										className={clsxm('h-5 w-5 text-default dark:text-white')}
+									/>
+								</TaskStatus>
+							)}
 						</Listbox.Button>
 
 						<Transition
@@ -728,10 +831,18 @@ export function StatusDropdown<T extends TStatusItem>({
 									className="!px-2 py-2 shadow-xlcard dark:shadow-lgcard-white"
 								>
 									{items.map((item, i) => (
-										<Listbox.Option key={i} value={item.name} as={Fragment}>
+										<Listbox.Option
+											key={i}
+											value={item.name}
+											as={Fragment}
+											disabled={disabled}
+										>
 											<li className="mb-3 cursor-pointer">
 												<TaskStatus
 													{...item}
+													cheched={
+														item.name ? values.includes(item.name) : false
+													}
 													className={clsxm(
 														issueType === 'issue' && [
 															'rounded-md px-2 text-white',

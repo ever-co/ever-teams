@@ -26,38 +26,39 @@ import {
 import { TStatus } from './task-status';
 
 export const taskStatus: TStatus<ITaskStatus> = {
-	Todo: {
+	todo: {
 		icon: <LoginIcon />,
 		bgColor: '#D6E4F9',
 	},
-	'In Progress': {
+	'in progress': {
 		icon: <TimerIcon />,
 		bgColor: '#ECE8FC',
 	},
-	'In Review': {
+	'in review': {
 		icon: <SearchStatusIcon />,
 		bgColor: ' #F3D8B0',
 	},
-	Ready: {
+	ready: {
 		icon: <ClockIcon />,
 		bgColor: '#F5F1CB',
 	},
-	Completed: {
+	completed: {
 		icon: <TickCircleIcon className="stroke-[#292D32]" />,
 		bgColor: '#D4EFDF',
 	},
-	Blocked: {
+	blocked: {
 		icon: <CloseCircleIcon />,
 		bgColor: '#F5B8B8',
 	},
-	Backlog: {
+	backlog: {
 		icon: <CircleIcon />,
 		bgColor: '#F2F2F2',
 	},
-	Closed: {
+	closed: {
 		icon: <TickCircleIcon className="stroke-[#acacac]" />,
 		bgColor: '#eaeaea',
 	},
+	open: {},
 };
 
 export const taskPriorities: TStatus<ITaskPriority> = {
