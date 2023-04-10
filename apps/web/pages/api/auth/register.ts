@@ -122,6 +122,7 @@ export default async function handler(
 			tenantId: tenant.id,
 			organizationId: organization.id,
 			managerIds: [employee.id],
+			public: true, // By default team should be public
 		},
 		auth_token
 	);
