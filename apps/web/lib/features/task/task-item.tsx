@@ -131,7 +131,9 @@ export function TaskAvatars({
 						<Avatar
 							shape="circle"
 							className="border"
-							imageUrl={member?.user?.imageUrl}
+							imageUrl={
+								user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
+							}
 							size={25}
 						/>
 					</Link>

@@ -66,7 +66,12 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
-			<Avatar size={80} imageUrl={user?.imageUrl}>
+			<Avatar
+				size={80}
+				imageUrl={
+					user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
+				}
+			>
 				<TimerStatus
 					status={member?.timerStatus || 'idle'}
 					className="absolute border z-20 bottom-3 right-[12%] -mb-3"
