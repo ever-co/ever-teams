@@ -38,6 +38,6 @@ export function getTaskLabelsList(
 	activeTeamId: string | null
 ) {
 	return api.get(
-		`/tags/pagination?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
+		`/tags/level?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`
 	);
 }

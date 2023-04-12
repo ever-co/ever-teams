@@ -1,6 +1,8 @@
+import { avatarState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import Image from 'next/legacy/image';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useMemo } from 'react';
+import { useRecoilState } from 'recoil';
 
 type Props = {
 	className?: string;
@@ -20,27 +22,42 @@ export function Avatar({
 	alt,
 	imageTitle,
 }: Props) {
+	const [avatar, setAvatar] = useRecoilState(avatarState);
+
+	const imagePathName = imageUrl ? new URL(imageUrl || '').pathname : '';
+	const avatarPresent = Object.hasOwn(avatar, imagePathName);
+
+	const imgUrl = useMemo(() => {
+		if (avatarPresent) {
+			return avatar[imagePathName];
+		} else {
+			setAvatar({ ...avatar, [imagePathName]: imageUrl });
+			return imageUrl;
+		}
+		/* eslint-disable react-hooks/exhaustive-deps */
+	}, [imagePathName, avatarPresent]);
+
 	return (
 		<div
 			className={clsxm(
 				'bg-slate-400 relative',
 				shape === 'circle' && ['rounded-full'],
 				shape === 'square' && ['rounded-md'],
-				imageTitle && !imageUrl && ['flex justify-center items-center'],
+				imageTitle && !imgUrl && ['flex justify-center items-center'],
 				className
 			)}
 			style={{ width: size, height: size }}
 		>
-			{imageTitle && !imageUrl && (
+			{imageTitle && !imgUrl && (
 				<span className="uppercase font-normal text-lg">
 					{(imageTitle || '')[0] || ''}
 				</span>
 			)}
 
-			{imageUrl && (
+			{imgUrl && (
 				<Image
 					layout="fill"
-					src={imageUrl}
+					src={imgUrl}
 					className={clsxm(
 						'w-full h-full',
 						shape === 'circle' && ['rounded-full'],

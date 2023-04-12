@@ -81,11 +81,13 @@ export const TeamAvatar = ({ disabled }: { disabled: boolean }) => {
 										backgroundColor: `${stc(activeTeam?.name || '')}80`,
 									}}
 								>
-									{activeTeam?.image?.fullUrl ? (
+									{activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl ? (
 										<Avatar
 											size={80}
 											className="relative cursor-pointer"
-											imageUrl={activeTeam.image.fullUrl}
+											imageUrl={
+												activeTeam.image.thumbUrl || activeTeam.image.fullUrl
+											}
 											alt="Team Avatar"
 										/>
 									) : activeTeam?.name ? (

@@ -21,11 +21,11 @@ export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
 		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
-			<li className="pr-[50px]">{trans.common.STATUS}</li>
-			<li className="lg:w-[250px] w-1/4">{trans.common.NAME}</li>
-			<li className="lg:w-80 w-1/5">{trans.common.TASK}</li>
-			<li className="lg:w-48 w-1/5">{trans.common.WORKED_ON_TASK}</li>
-			<li className="lg:w-52 w-1/5">{trans.common.ESTIMATE}</li>
+			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
+			<li className="lg:w-[330px] w-1/4">{trans.common.NAME}</li>
+			<li className="lg:w-80 w-1/4">{trans.common.TASK}</li>
+			<li className="lg:w-48 w-1/4">{trans.common.WORKED_ON_TASK}</li>
+			<li className="lg:w-52 w-1/4">{trans.common.ESTIMATE}</li>
 			<li>{trans.common.TOTAL_WORKED_TODAY}</li>
 		</ul>
 	);

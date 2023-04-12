@@ -73,7 +73,11 @@ export const ProfileAvatar = () => {
 										<Avatar
 											size={80}
 											className="relative cursor-pointer"
-											imageUrl={user?.imageUrl}
+											imageUrl={
+												user?.image?.thumbUrl ||
+												user?.image?.fullUrl ||
+												user?.imageUrl
+											}
 											alt="User Avatar"
 										/>
 									) : user?.name ? (

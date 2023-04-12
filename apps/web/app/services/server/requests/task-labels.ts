@@ -56,16 +56,18 @@ export function getTaskLabelsListRequest<ITaskStatusItemList>(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId: organizationTeamId,
 	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
-	const data = `{"relations":["organization"],"findInput":{"tenantId":"${tenantId}","organizationId":"${organizationId}", "organizationTeamId":"${activeTeamId}"}}`;
+	const params = new URLSearchParams({
+		tenantId,
+		organizationId,
+		organizationTeamId: organizationTeamId || '',
+	});
 
 	return serverFetch({
-		path: `/tags/pagination?data=${encodeURI(
-			data
-		)}&where[tenantId]=${tenantId}&where[organizationId]=${organizationId}&where[organizationTeamId]=${activeTeamId}`,
+		path: `/tags/level?${params.toString()}`,
 		method: 'GET',
 		bearer_token,
 	});

@@ -10,7 +10,6 @@ import clsx from 'clsx';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	console.log(task)
 
 	return (
 		<section className="flex flex-col p-[15px]">

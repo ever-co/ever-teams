@@ -26,7 +26,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 								title={team.name}
 								count={team.members.length}
 								className={clsxm(selected && ['font-medium'])}
-								logo={team.image?.fullUrl || ''}
+								logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
 							/>
 						</div>
 
@@ -46,7 +46,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 						title={team.name}
 						count={team?.members?.length || 0}
 						className="py-2 mb-0"
-						logo={team.image?.fullUrl || ''}
+						logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
 					/>
 				</Tooltip>
 			),
