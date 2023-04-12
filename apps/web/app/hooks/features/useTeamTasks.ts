@@ -115,6 +115,11 @@ export function useTeamTasks() {
 					taskId: task?.id,
 					userId: authUser.current?.id,
 				});
+			} else {
+				setActiveUserTaskCookie({
+					taskId: '',
+					userId: '',
+				});
 			}
 		},
 		[authUser.current]
