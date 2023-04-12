@@ -75,6 +75,7 @@ export function getTeamInvitationsRequest(
 		'where[organizationId]': organizationId,
 		'where[role][name]': role,
 		'where[teams][id][0]': teamId,
+		'where[status]': 'INVITED',
 	});
 	return serverFetch<PaginationResponse<IInvitation>>({
 		path: `/invite?${query.toString()}`,
