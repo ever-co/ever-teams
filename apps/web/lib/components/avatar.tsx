@@ -23,7 +23,8 @@ export function Avatar({
 	imageTitle,
 }: Props) {
 	const [avatar, setAvatar] = useRecoilState(avatarState);
-	const imagePathName = new URL(imageUrl || '').pathname;
+
+	const imagePathName = imageUrl ? new URL(imageUrl || '').pathname : '';
 	const avatarPresent = Object.hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
@@ -33,6 +34,7 @@ export function Avatar({
 			setAvatar({ ...avatar, [imagePathName]: imageUrl });
 			return imageUrl;
 		}
+		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [imagePathName, avatarPresent]);
 
 	return (
