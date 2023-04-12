@@ -1,4 +1,5 @@
 export * from './user';
+export * from './avatar';
 export * from './organization-team';
 export * from './timer';
 export * from './invitations';

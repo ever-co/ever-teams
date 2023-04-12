@@ -23,7 +23,15 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
-			<Avatar size={60} imageUrl={memberUser?.imageUrl} className="relative">
+			<Avatar
+				size={60}
+				imageUrl={
+					memberUser?.image?.thumbUrl ||
+					memberUser?.image?.fullUrl ||
+					memberUser?.imageUrl
+				}
+				className="relative"
+			>
 				{member?.timerStatus && (
 					<TimerStatus
 						status={member.timerStatus}
