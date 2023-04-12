@@ -98,7 +98,7 @@ export function TaskCard({
 				</div>
 
 				{/* Task information */}
-				<TaskInfo task={task} className=" px-4 " />
+				<TaskInfo task={task} className="lg:w-[330px] w-1/4 px-4 " />
 				<VerticalSeparator className="ml-2" />
 
 				{viewType === 'default' && (
@@ -138,6 +138,7 @@ export function TaskCard({
 
 				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 				<ActiveTaskStatusDropdown
+					className="lg:w-44"
 					task={task}
 					onChangeLoading={(load) => setLoading(load)}
 				/>
