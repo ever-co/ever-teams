@@ -24,7 +24,8 @@ export function Avatar({
 }: Props) {
 	const [avatar, setAvatar] = useRecoilState(avatarState);
 
-	const imagePathName = imageUrl ? new URL(imageUrl || '').pathname : '';
+	const imagePathName =
+		imageUrl && typeof imageUrl === 'string' ? new URL(imageUrl).pathname : '';
 	const avatarPresent = Object.hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
