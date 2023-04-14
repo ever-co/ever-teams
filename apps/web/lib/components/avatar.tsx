@@ -1,5 +1,5 @@
 import { avatarState } from '@app/stores';
-import { clsxm } from '@app/utils';
+import { clsxm, isValidUrl } from '@app/utils';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, useMemo } from 'react';
 import { useRecoilState } from 'recoil';
@@ -25,7 +25,7 @@ export function Avatar({
 	const [avatar, setAvatar] = useRecoilState(avatarState);
 
 	const imagePathName =
-		imageUrl && typeof imageUrl === 'string' ? new URL(imageUrl).pathname : '';
+		imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
 	const avatarPresent = Object.hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
