@@ -30,7 +30,9 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	return (
 		<div
 			className={clsxm('flex justify-between items-center', className)}
-			onClick={() => onClick && task && onClick(task)}
+			onClick={() =>
+				onClick && task && task.status !== 'closed' && onClick(task)
+			}
 		>
 			<div
 				className={clsxm(

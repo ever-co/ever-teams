@@ -32,12 +32,10 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				}
 				className="relative"
 			>
-				{member?.timerStatus && (
-					<TimerStatus
-						status={member.timerStatus}
-						className="absolute border z-20 bottom-3 -right-1 -mb-3"
-					/>
-				)}
+				<TimerStatus
+					status={member?.timerStatus || 'idle'}
+					className="absolute border z-20 bottom-3 -right-1 -mb-3"
+				/>
 			</Avatar>
 
 			<div className="lg:w-64 w-1/2">
