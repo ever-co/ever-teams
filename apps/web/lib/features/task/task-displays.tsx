@@ -20,10 +20,12 @@ export function TaskNameInfoDisplay({ task }: { task: Nullable<ITeamTask> }) {
 								task={task}
 							/>
 						</div>
-						<span className="text-gray-500 mr-2">#{task.taskNumber}</span>
+						<span className="text-gray-500 mr-1 font-normal">
+							#{task.taskNumber}
+						</span>
 					</div>
 				)}
-				{task?.title}
+				<span className="font-normal">{task?.title}</span>
 			</span>
 		</Tooltip>
 	);
