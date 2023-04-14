@@ -1,3 +1,4 @@
+import { getActiveTaskIdCookie } from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
@@ -49,13 +50,18 @@ export function useTeamMemberCard(
 		if (!member) {
 			return null;
 		}
+		const active_task_id = getActiveTaskIdCookie();
 
-		if (member.lastWorkedTask) {
-			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+		if (member.lastWorkedTask && !active_task_id) {
+			cTask = tasks.find(
+				(t) => t.id === member.lastWorkedTask?.id && active_task_id === t.id
+			);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		} else {
-			cTask = tasks.find((t) =>
-				t.members.some((m) => m.userId === member.employee.userId)
+			cTask = tasks.find(
+				(t) =>
+					t.members.some((m) => m.userId === member.employee.userId) &&
+					active_task_id === t.id
 			);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		}

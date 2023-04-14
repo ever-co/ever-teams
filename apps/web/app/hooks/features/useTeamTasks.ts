@@ -232,6 +232,20 @@ export function useTeamTasks() {
 			if (task && status !== task.status) {
 				loader && setTasksFetching(true);
 
+				if (field === 'status' && status === 'closed') {
+					const active_user_task = getActiveUserTaskCookie();
+					if (active_user_task?.taskId === task.id) {
+						setActiveUserTaskCookie({
+							taskId: '',
+							userId: '',
+						});
+					}
+					const active_task_id = getActiveTaskIdCookie();
+					if (active_task_id === task.id) {
+						setActiveTaskIdCookie('');
+					}
+				}
+
 				return updateTask({
 					...task,
 					[field]: status,
