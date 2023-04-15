@@ -85,7 +85,7 @@ export const TaskLabelForm = () => {
 					name: values.name,
 					color: values.color,
 					// description: '',
-					organizationId: user?.employee.organizationId,
+					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
 					icon: values.icon,
 					// projectId: '',
