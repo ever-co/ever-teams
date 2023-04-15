@@ -9,8 +9,15 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	const { $res, user, tenantId, access_token, organizationId, taskId } =
-		await authenticatedGuard(req, res);
+	const {
+		$res,
+		user,
+		tenantId,
+		access_token,
+		organizationId,
+		taskId,
+		teamId: organizationTeamId,
+	} = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	await startTimerRequest(
@@ -21,6 +28,7 @@ export default async function handler(
 			logType: 'TRACKED',
 			source: 'BROWSER',
 			tags: [],
+			organizationTeamId,
 		},
 		access_token
 	);
