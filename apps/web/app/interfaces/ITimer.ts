@@ -54,6 +54,7 @@ export type ITimerParams = {
 	logType: 'TRACKED';
 	source: 'BROWSER';
 	tags: any[];
+	organizationTeamId?: string;
 };
 
 export type IToggleTimerParams = ITimerStatusParams & {

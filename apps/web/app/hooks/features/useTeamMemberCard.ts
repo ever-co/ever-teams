@@ -52,16 +52,18 @@ export function useTeamMemberCard(
 		}
 		const active_task_id = getActiveTaskIdCookie();
 
-		if (member.lastWorkedTask && !active_task_id) {
+		if (member.lastWorkedTask && (!active_task_id || publicTeam)) {
 			cTask = tasks.find(
-				(t) => t.id === member.lastWorkedTask?.id && active_task_id === t.id
+				(t) =>
+					t.id === member.lastWorkedTask?.id &&
+					(active_task_id === t.id || publicTeam)
 			);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		} else {
 			cTask = tasks.find(
 				(t) =>
 					t.members.some((m) => m.userId === member.employee.userId) &&
-					active_task_id === t.id
+					(active_task_id === t.id || publicTeam)
 			);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		}
