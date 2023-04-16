@@ -1,13 +1,6 @@
-import {
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextStyle,
-	TouchableWithoutFeedback,
-	View,
-	ViewStyle,
-} from "react-native"
-import React, { FC, useState } from "react"
+/* eslint-disable react-native/no-inline-styles */
+import { ScrollView, Text, TextStyle, View, ViewStyle } from "react-native"
+import React, { FC } from "react"
 import { typography } from "../../../../theme/typography"
 import SingleInfo from "../components/SingleInfo"
 import { translate } from "../../../../i18n"
@@ -41,7 +34,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 				showsVerticalScrollIndicator={false}
 			>
 				<PictureSection
-					imageUrl={user?.imageUrl}
+					imageUrl={user?.image?.fullUrl || user?.image?.thumbUrl || user?.imageUrl}
 					buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
 					onDelete={() => {}}
 					onChange={() => openBottomSheet("Avatar", 1)}

@@ -1,30 +1,35 @@
-import { useQuery } from "react-query";
-import { currentAuthenticatedUserRequest } from "../../requests/auth";
-import { getAllUsersRequest } from "../../requests/user";
+import { useQuery } from "react-query"
+import { currentAuthenticatedUserRequest } from "../../requests/auth"
+import { getAllUsersRequest } from "../../requests/user"
 
 interface IGetUserDataParams {
-    authToken: string;
+	authToken: string
 }
 const fetchCurrentUserData = async (params: IGetUserDataParams) => {
-    const { authToken } = params;
-    const { data } = await currentAuthenticatedUserRequest({
-        bearer_token: authToken
-    })
-    return data;
-};
+	const { authToken } = params
+	const { data } = await currentAuthenticatedUserRequest({
+		bearer_token: authToken,
+	})
+	return data
+}
 
-export const useFetchCurrentUserData = (IGetUserDataParams) => useQuery(['user', IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams));
+export const useFetchCurrentUserData = (IGetUserDataParams) =>
+	useQuery(["user", IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams))
 
 interface IGetOrganizationUsers {
-    authToken: string;
-    tenantId: string;
+	authToken: string
+	tenantId: string
 }
 const fetchOrganizationUsers = async (params: IGetOrganizationUsers) => {
-    const { authToken, tenantId } = params;
-    const { data } = await getAllUsersRequest({
-        tenantId
-    }, authToken)
-    return data;
-};
+	const { authToken, tenantId } = params
+	const { data } = await getAllUsersRequest(
+		{
+			tenantId,
+		},
+		authToken,
+	)
+	return data
+}
 
-export const useFetchOrganizationUsers = (IGetOrganizationUsers) => useQuery(['users', IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers));
+export const useFetchOrganizationUsers = (IGetOrganizationUsers) =>
+	useQuery(["users", IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers))
