@@ -1,10 +1,11 @@
 import React, { FC } from "react"
 import { Ionicons } from "@expo/vector-icons"
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native"
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { imgTitle } from "../../../../helpers/img-title"
 import { useStores } from "../../../../models"
 import { typography, useAppTheme } from "../../../../theme"
 import { Avatar } from "react-native-paper"
+import { observer } from "mobx-react-lite"
 
 interface Props {
 	imageUrl: string
@@ -12,7 +13,8 @@ interface Props {
 	onDelete: () => unknown
 	onChange: () => unknown
 }
-const PictureSection: FC<Props> = ({ imageUrl, buttonLabel, onChange, onDelete }) => {
+
+const PictureSection: FC<Props> = observer(({ imageUrl, buttonLabel, onChange, onDelete }) => {
 	const {
 		teamStore: { activeTeam },
 	} = useStores()
@@ -38,7 +40,7 @@ const PictureSection: FC<Props> = ({ imageUrl, buttonLabel, onChange, onDelete }
 			</TouchableOpacity>
 		</View>
 	)
-}
+})
 
 export default PictureSection
 

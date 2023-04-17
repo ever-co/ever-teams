@@ -142,5 +142,6 @@ export function useTaskStatus() {
 		deleteTaskStatus,
 		editTaskStatusLoading,
 		editTaskStatus,
+		setTaskStatus,
 	};
 }

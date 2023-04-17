@@ -1,9 +1,10 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import React, { useCallback, useEffect, useState } from "react"
 import {
 	View,
 	Text,
 	TouchableOpacity,
-	TextInput,
 	StyleSheet,
 	ActivityIndicator,
 	Image,
@@ -11,91 +12,86 @@ import {
 	TouchableHighlight,
 	Platform,
 } from "react-native"
-import { Feather, Ionicons, AntDesign } from "@expo/vector-icons"
+import { Ionicons, AntDesign } from "@expo/vector-icons"
 import { translate } from "../../../../i18n"
-import { IUser } from "../../../../services/interfaces/IUserData"
 import { typography, useAppTheme } from "../../../../theme"
 import * as MediaLibrary from "expo-media-library"
-import * as ImagePicker from "expo-image-picker"
+import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker"
 import { BlurView } from "expo-blur"
-import axios from "axios"
+import { useImageAssets } from "../../../../services/hooks/features/useImageAssets"
+import { IImageAssets } from "../../../../services/interfaces/IImageAssets"
+import { useSettings } from "../../../../services/hooks/features/useSettings"
+import mime from "mime"
 
-interface IValidation {
-	firstname: boolean
-	lastName: boolean
-}
 const ChangeUserAvatar = ({
 	onDismiss,
-	user,
-	onUpdateFullName,
 	onExtend,
 }: {
 	onDismiss: () => unknown
-	user?: IUser
-	onUpdateFullName?: (userBody: IUser) => unknown
 	onExtend: () => unknown
 }) => {
 	const { colors, dark } = useAppTheme()
+	const { createImageAssets, loading } = useImageAssets()
+	const { updateUserInfo, user } = useSettings()
 	const [isExtended, setIsExtending] = useState(false)
 	const [isFetching, setIsFetching] = useState(true)
-	const [isLoading, setIsLoading] = useState(false)
 	const [recentPictures, setRecentPictures] = useState<MediaLibrary.Asset[]>([])
 	const [selectedImage, setSelectedImage] = useState<MediaLibrary.Asset>(null)
 	const [permissionResponse, requestPermission] = MediaLibrary.usePermissions()
 
+	// Pick from recent pictures
 	const updateAvatar = useCallback(async () => {
-		if (Platform.OS === "ios") {
-			const info = await MediaLibrary.getAssetInfoAsync(selectedImage.id)
-			const uri_local = info.localUri
-			setSelectedImage({
-				...selectedImage,
-				uri: uri_local,
-			})
-			console.log("test image: ", info)
-		}
+		const info = await MediaLibrary.getAssetInfoAsync(selectedImage.id)
+		let uri = null
+		Platform.OS === "ios" ? (uri = info.localUri) : (uri = info.uri)
+		uploadAvatar(uri)
+	}, [selectedImage])
 
-		const formData = new FormData()
-		// const uri = Platform.OS === 'android' ? selectedImage.uri : selectedImage.uri.replace('ph://', '');
-		const type = selectedImage.mediaType
-		const name = selectedImage.filename
+	// Pick image from Gallery
+	const pickImageFromGalery = async () => {
+		const result = await launchImageLibraryAsync({
+			mediaTypes: MediaTypeOptions.All,
+			allowsEditing: true,
+			quality: 1,
+		})
+
+		if (result.canceled) {
+			onDismiss()
+			return
+		}
+		uploadAvatar(result.assets[0].uri)
+	}
+
+	const uploadAvatar = useCallback((imageUri: string) => {
+		const type = mime.getType(imageUri)
+		const name = imageUri.split("/").pop()
 		const image = {
-			uri: selectedImage.uri,
+			uri: imageUri,
 			type,
 			name,
 		}
-		const blob = new Blob([selectedImage.uri])
-		formData.append("file", selectedImage.uri)
-		formData.append("folder", "gauzy_team_user_profile")
-		formData.append("context", `photo=${selectedImage.filename}`)
-		formData.append("upload_preset", "ml_default")
-		setIsLoading(true)
-		console.log(formData)
 
-		// axios
-		//     .post('https://api.cloudinary.com/v1_1/dv6ezkfxg/upload', formData)
-		//     .then(async (res: any) => {
-		//         const imageUrl = res.data.secure_url;
-		//         // await updateAvatar({ imageUrl, id: user.id });
-		//         console.log("Upload response" + JSON.stringify(res))
-		//         setIsLoading(false)
-		//     })
-		//     .catch((e) => {
-		//         setIsLoading(false)
-		//         console.log(e);
-		//     });
-	}, [selectedImage])
+		createImageAssets(image, "profile_pictures_avatars")
+			.then((d: IImageAssets) => {
+				if (d?.id) {
+					updateUserInfo({
+						...user,
+						imageId: d.id,
+						image: d,
+					})
+				}
+			})
+			.finally(() => onDismiss())
+	}, [])
 
-	const pickImageFromGalery = () => {
-		// MediaLibrary.getAlbumsAsync()
-		ImagePicker.launchImageLibraryAsync().then((t) => console.log(t))
+	const checkPermission = () => {
+		if (!permissionResponse?.granted) {
+			requestPermission()
+		}
 	}
 
 	useEffect(() => {
-		if (!permissionResponse?.granted) {
-			requestPermission()
-			return
-		}
-
+		checkPermission()
 		MediaLibrary.getAssetsAsync({
 			mediaType: "photo",
 			sortBy: "creationTime",
@@ -109,9 +105,11 @@ const ChangeUserAvatar = ({
 		setIsExtending(false)
 		setSelectedImage(null)
 	}, [onDismiss])
+
 	const image = dark
 		? require("../../../../../assets/images/new/image-dark.png")
 		: require("../../../../../assets/images/new/image-light.png")
+
 	return (
 		<>
 			{!isExtended ? (
@@ -175,9 +173,9 @@ const ChangeUserAvatar = ({
 									bounces={false}
 									numColumns={2}
 									showsVerticalScrollIndicator={false}
-									keyExtractor={(item, index) => item.id}
+									keyExtractor={(item) => item.id}
 									columnWrapperStyle={{ justifyContent: "space-between" }}
-									renderItem={({ item, index }) => (
+									renderItem={({ item }) => (
 										<TouchableHighlight
 											style={{ width: "48%", marginBottom: 14 }}
 											onPress={() => setSelectedImage(item)}
@@ -231,10 +229,11 @@ const ChangeUserAvatar = ({
 							style={{
 								...styles.createBtn,
 								backgroundColor: dark ? "#6755C9" : "#3826A6",
+								opacity: loading ? 0.4 : 1,
 							}}
-							onPress={() => updateAvatar()}
+							onPress={() => (loading ? {} : updateAvatar())}
 						>
-							{isLoading ? (
+							{loading ? (
 								<ActivityIndicator
 									style={{ position: "absolute", left: 10 }}
 									size={"small"}
@@ -301,11 +300,6 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
 	},
-	formTitle: {
-		color: "#1A1C1E",
-		fontFamily: typography.primary.semiBold,
-		fontSize: 24,
-	},
 	image: {
 		flex: 0.2,
 		height: 188,
@@ -316,18 +310,6 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		marginTop: 16,
 		textAlign: "center",
-	},
-	styleInput: {
-		alignItems: "center",
-		borderColor: "#DCE4E8",
-		borderRadius: 12,
-		borderWidth: 1,
-		fontFamily: typography.primary.medium,
-		fontSize: 16,
-		height: 57,
-		marginTop: 16,
-		paddingHorizontal: 18,
-		width: "100%",
 	},
 	wrapButtons: {
 		flexDirection: "row",

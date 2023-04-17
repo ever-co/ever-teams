@@ -1,3 +1,4 @@
+import { INVITE_CALLBACK_PATH } from '@app/constants';
 import { authFormValidate } from '@app/helpers/validations';
 import { sendAuthCodeRequest } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -10,6 +11,8 @@ export default async function handler(
 		return res.status(405).json({ status: 'fail' });
 	}
 
+	const callbackUrl = `${req.headers.origin}${INVITE_CALLBACK_PATH}`;
+
 	const body = req.body as { email: string };
 
 	const { errors, valid: formValid } = authFormValidate(['email'], body as any);
@@ -18,7 +21,9 @@ export default async function handler(
 		return res.status(400).json({ errors });
 	}
 
-	const codeSendRes = await sendAuthCodeRequest(body.email).catch(() => void 0);
+	const codeSendRes = await sendAuthCodeRequest(body.email, callbackUrl).catch(
+		() => void 0
+	);
 
 	if (!codeSendRes) {
 		return res.status(400).json({

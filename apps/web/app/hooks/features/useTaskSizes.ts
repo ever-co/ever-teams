@@ -143,5 +143,6 @@ export function useTaskSizes() {
 		deleteTaskSizesLoading,
 		editTaskSizesLoading,
 		editTaskSizes,
+		setTaskSizes,
 	};
 }
