@@ -33,11 +33,11 @@ export function registerUserRequest(data: IRegisterDataRequest) {
 	});
 }
 
-export function sendAuthCodeRequest(email: string) {
+export function sendAuthCodeRequest(email: string, callbackUrl: string) {
 	return serverFetch<{ status: number; message: string | 'ok' }>({
 		path: '/auth/send-code',
 		method: 'POST',
-		body: { email },
+		body: { email, callbackUrl },
 	});
 }
 
