@@ -145,5 +145,6 @@ export function useTaskLabels() {
 		deleteTaskLabels,
 		editTaskLabels,
 		editTaskLabelsLoading,
+		setTaskLabels,
 	};
 }

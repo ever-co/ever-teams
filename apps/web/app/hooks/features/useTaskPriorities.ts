@@ -145,5 +145,6 @@ export function useTaskPriorities() {
 		deleteTaskPriorities,
 		editTaskPriorities,
 		editTaskPrioritiesLoading,
+		setTaskPriorities,
 	};
 }

@@ -13,6 +13,12 @@ export function getPublicOrganizationTeamRequest({
 		'tasks',
 		'tasks.members',
 		'tasks.teams',
+		'tasks.tags',
+		'statuses',
+		'priorities',
+		'sizes',
+		'labels',
+		'issueTypes',
 	],
 }: {
 	profileLink: string;
