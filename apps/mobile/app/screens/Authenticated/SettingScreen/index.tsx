@@ -1,6 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
-import { View, ViewStyle, Dimensions, TouchableWithoutFeedback } from "react-native"
-import FlashMessage from "react-native-flash-message"
+import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox } from "react-native"
 import Animated from "react-native-reanimated"
 import BottomSheet from "reanimated-bottom-sheet"
 import { BlurView } from "expo-blur"
@@ -33,6 +33,7 @@ export type IPopup =
 
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Setting">> =
 	function AuthenticatedDrawerScreen(_props) {
+		LogBox.ignoreAllLogs()
 		const { colors } = useAppTheme()
 		const { isLoading } = useSettings()
 
@@ -71,7 +72,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 								sheetRef.current.snapTo(2)
 							}}
 						>
-							<BlurView tint="dark" intensity={15} style={$blurContainer} />
+							<BlurView tint="dark" intensity={25} style={$blurContainer} />
 						</TouchableWithoutFeedback>
 					)}
 
