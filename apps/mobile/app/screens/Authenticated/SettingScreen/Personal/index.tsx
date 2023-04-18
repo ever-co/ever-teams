@@ -4,12 +4,12 @@ import React, { FC } from "react"
 import { typography } from "../../../../theme/typography"
 import SingleInfo from "../components/SingleInfo"
 import { translate } from "../../../../i18n"
-import PictureSection from "../components/PictureSection"
 import { useSettings } from "../../../../services/hooks/features/useSettings"
 import { useStores } from "../../../../models"
 import { IPopup } from "../../.."
 import FlashMessage from "react-native-flash-message"
 import { useAppTheme } from "../../../../theme"
+import UserAvatar from "./UserAvatar"
 
 interface IPersonalProps {
 	onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown
@@ -33,10 +33,8 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 				style={{ width: "90%", height: "100%" }}
 				showsVerticalScrollIndicator={false}
 			>
-				<PictureSection
-					imageUrl={user?.image?.fullUrl || user?.image?.thumbUrl || user?.imageUrl}
+				<UserAvatar
 					buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
-					onDelete={() => {}}
 					onChange={() => openBottomSheet("Avatar", 1)}
 				/>
 				<SingleInfo

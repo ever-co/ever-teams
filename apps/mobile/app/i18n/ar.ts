@@ -4,6 +4,7 @@ const ar: Translations = {
 	common: {
 		ok: "نعم",
 		cancel: "حذف",
+		loading: "Loading",
 		back: "خلف",
 		logOut: "تسجيل خروج",
 		save: "حفظ",

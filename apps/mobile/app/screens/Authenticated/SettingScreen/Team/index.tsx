@@ -1,9 +1,9 @@
-import React, { FC, useEffect } from "react"
-import { ScrollView, StyleSheet, Text, TextStyle, View, ViewStyle } from "react-native"
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC } from "react"
+import { ScrollView, Text, TextStyle, View, ViewStyle } from "react-native"
 import { typography } from "../../../../theme/typography"
 import SingleInfo from "../components/SingleInfo"
 import { translate } from "../../../../i18n"
-import PictureSection from "../components/PictureSection"
 import { useStores } from "../../../../models"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import SwithTimeTracking from "../components/SwitchTimeTracking"
@@ -11,6 +11,7 @@ import { IPopup } from ".."
 import { observer } from "mobx-react-lite"
 import FlashMessage from "react-native-flash-message"
 import { useAppTheme } from "../../../../theme"
+import TeamLogo from "./TeamLogo"
 
 interface ITeamSettingProps {
 	props: any
@@ -31,11 +32,9 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 				style={{ width: "90%", height: "100%" }}
 				showsVerticalScrollIndicator={false}
 			>
-				<PictureSection
-					imageUrl={""}
+				<TeamLogo
 					buttonLabel={translate("settingScreen.teamSection.changeLogo")}
-					onDelete={() => {}}
-					onChange={() => {}}
+					onChange={() => onOpenBottomSheet("Team Logo", 1)}
 				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.teamName")}
