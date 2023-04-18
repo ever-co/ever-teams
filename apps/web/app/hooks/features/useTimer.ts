@@ -6,6 +6,7 @@ import {
 	startTimerAPI,
 	stopTimerAPI,
 	toggleTimerAPI,
+	syncTimerAPI,
 } from '@app/services/client/api/timer';
 import {
 	activeTaskStatisticsState,
@@ -21,6 +22,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
+import { useRefreshInterval } from './useRefreshInterval';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 
@@ -165,6 +167,8 @@ export function useTimer() {
 	const { queryCall: startTimerQueryCall } = useQuery(startTimerAPI);
 	const { queryCall: stopTimerQueryCall, loading: stopTimerLoading } =
 		useQuery(stopTimerAPI);
+	const { queryCall: syncTimerQueryCall, loading: syncTimerLoading } =
+		useQuery(syncTimerAPI);
 
 	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
@@ -202,6 +206,12 @@ export function useTimer() {
 			return res;
 		});
 	}, []);
+
+	const syncTimer = useCallback(() => {
+		return syncTimerQueryCall().then((res) => {
+			return res;
+		});
+	}, [syncTimerQueryCall, timerStatus]);
 
 	// Loading states
 	useEffect(() => {
@@ -310,6 +320,8 @@ export function useTimer() {
 		toggleTimer,
 		timerSeconds,
 		activeTeamTask,
+		syncTimer,
+		syncTimerLoading,
 	};
 }
 
@@ -371,4 +383,18 @@ export function useTimerView() {
 		startTimer,
 		stopTimer,
 	};
+}
+
+export function useSyncTimer() {
+	const { syncTimer } = useTimer();
+	const timerStatus = useRecoilValue(timerStatusState);
+
+	useRefreshInterval(
+		timerStatus?.running
+			? syncTimer
+			: () => {
+					console.log('not running');
+			  },
+		5000
+	);
 }

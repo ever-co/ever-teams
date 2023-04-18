@@ -59,6 +59,9 @@ export function useTeamMemberCard(
 					(active_task_id === t.id || publicTeam)
 			);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
+		} else if (member.lastWorkedTask) {
+			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
+			find = cTask?.members.some((m) => m.id === member.employee.id);
 		} else {
 			cTask = tasks.find(
 				(t) =>

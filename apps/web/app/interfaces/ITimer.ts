@@ -57,6 +57,17 @@ export type ITimerParams = {
 	organizationTeamId?: string;
 };
 
+export type ITimerTimeslotParams = {
+	organizationId: string;
+	employeeId: string;
+	logType: 'TRACKED';
+	source: 'BROWSER';
+	tenantId: string;
+	duration?: number;
+	recordedAt?: Date | string;
+	startedAt?: Date | string;
+};
+
 export type IToggleTimerParams = ITimerStatusParams & {
 	logType?: 'TRACKED';
 	taskId: string;
