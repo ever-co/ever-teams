@@ -22,6 +22,7 @@ import { useImageAssets } from "../../../../services/hooks/features/useImageAsse
 import { IImageAssets } from "../../../../services/interfaces/IImageAssets"
 import { useSettings } from "../../../../services/hooks/features/useSettings"
 import mime from "mime"
+import LoadingModal from "../../../../components/LoadingModal"
 
 const ChangeUserAvatar = ({
 	onDismiss,
@@ -112,6 +113,7 @@ const ChangeUserAvatar = ({
 
 	return (
 		<>
+			<LoadingModal loading={loading} />
 			{!isExtended ? (
 				<View style={{ backgroundColor: dark ? "#1E2025" : "#F6F6F7", ...styles.avatarContainer1 }}>
 					<TouchableOpacity
