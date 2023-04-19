@@ -1,4 +1,6 @@
-import React, { FC } from "react"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC, useCallback } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { imgTitle } from "../../../../helpers/img-title"
@@ -6,25 +8,35 @@ import { useStores } from "../../../../models"
 import { typography, useAppTheme } from "../../../../theme"
 import { Avatar } from "react-native-paper"
 import { observer } from "mobx-react-lite"
+import { useSettings } from "../../../../services/hooks/features/useSettings"
 
 interface Props {
-	imageUrl: string
 	buttonLabel: string
-	onDelete: () => unknown
 	onChange: () => unknown
 }
 
-const PictureSection: FC<Props> = observer(({ imageUrl, buttonLabel, onChange, onDelete }) => {
+const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	const {
-		teamStore: { activeTeam },
+		authenticationStore: { user },
 	} = useStores()
+	const { updateUserInfo } = useSettings()
 	const { colors, dark } = useAppTheme()
+
+	const onDeleteAvatar = useCallback(async () => {
+		await updateUserInfo({
+			...user,
+			imageUrl: null,
+			imageId: null,
+			image: null,
+		})
+	}, [])
+	const imageUrl = user?.image?.fullUrl || user?.image?.thumbUrl || user?.imageUrl
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			{imageUrl.trim().length > 3 ? (
+			{imageUrl && imageUrl.trim().length > 3 ? (
 				<Avatar.Image size={70} source={{ uri: imageUrl }} />
 			) : (
-				<Avatar.Text size={70} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
+				<Avatar.Text size={70} label={imgTitle(user.name)} labelStyle={styles.prefix} />
 			)}
 			<TouchableOpacity
 				style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}
@@ -34,7 +46,7 @@ const PictureSection: FC<Props> = observer(({ imageUrl, buttonLabel, onChange, o
 			</TouchableOpacity>
 			<TouchableOpacity
 				style={[styles.deleteContainer, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}
-				onPress={() => onDelete()}
+				onPress={() => onDeleteAvatar()}
 			>
 				<Ionicons name="trash-outline" size={24} color={colors.primary} />
 			</TouchableOpacity>
@@ -42,7 +54,7 @@ const PictureSection: FC<Props> = observer(({ imageUrl, buttonLabel, onChange, o
 	)
 })
 
-export default PictureSection
+export default UserAvatar
 
 const styles = StyleSheet.create({
 	changeAvatarBtn: {

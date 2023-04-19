@@ -2,6 +2,7 @@ const en = {
 	common: {
 		ok: "OK!",
 		cancel: "Cancel",
+		loading: "Loading",
 		back: "Back",
 		save: "Save",
 		logOut: "Log Out", // @demo remove-current-line

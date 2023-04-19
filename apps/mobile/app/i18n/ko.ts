@@ -4,6 +4,7 @@ const ko: Translations = {
 	common: {
 		ok: "확인!",
 		cancel: "취소",
+		loading: "Loading",
 		back: "뒤로",
 		save: "",
 		logOut: "로그아웃", // @demo remove-current-line
