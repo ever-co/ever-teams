@@ -5,7 +5,6 @@ import {
 	ITimerParams,
 	ITimerTimeslotParams,
 } from '@app/interfaces/ITimer';
-import moment from 'moment';
 import { serverFetch } from '../fetch';
 
 export function getTimerStatusRequest(
