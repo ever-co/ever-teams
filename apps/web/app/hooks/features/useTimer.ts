@@ -170,13 +170,14 @@ export function useTimer() {
 	const { queryCall: syncTimerQueryCall, loading: syncTimerLoading } =
 		useQuery(syncTimerAPI);
 
-	// const wasRunning = timerStatus?.running || false;
+	const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
 	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'closed';
+	const syncTimerInterval = useRef<NodeJS.Timer | null>(null);
 
 	// Local time status
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
@@ -224,9 +225,19 @@ export function useTimer() {
 		setTimerStatusFetching(stopTimerLoading);
 	}, [stopTimerLoading]);
 
+	useEffect(() => {
+		if (wasRunning && !syncTimerInterval.current) {
+			syncTimerInterval.current = setInterval(syncTimer, 5000);
+		} else {
+			clearInterval(syncTimerInterval.current || 0);
+			syncTimerInterval.current = null;
+		}
+	}, [syncTimerInterval.current, wasRunning]);
+
 	// Start timer
 	const startTimer = useCallback(async () => {
 		if (!taskId.current) return;
+		syncTimerInterval.current = setInterval(syncTimer, 5000);
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current,
 			runnedDateTime: Date.now(),
@@ -264,10 +275,14 @@ export function useTimer() {
 			runnedDateTime: 0,
 			running: false,
 		});
+
+		if (syncTimerInterval.current) {
+			clearInterval(syncTimerInterval.current);
+		}
 		return stopTimerQueryCall().then((res) => {
 			res.data && setTimerStatus(res.data);
 		});
-	}, [taskId.current]);
+	}, [taskId.current, syncTimerInterval.current]);
 
 	// If active team changes then stop the timer
 	useEffect(() => {

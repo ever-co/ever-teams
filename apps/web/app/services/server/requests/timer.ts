@@ -70,7 +70,7 @@ export function syncTimeSlotRequest(
 	bearer_token: string
 ) {
 	return serverFetch<ITimer>({
-		path: '/timesheet/timer/toggle',
+		path: '/timesheet/time-slot',
 		method: 'POST',
 		body: params,
 		bearer_token,

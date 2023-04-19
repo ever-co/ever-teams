@@ -14,7 +14,6 @@ import {
 	useIssueType,
 	useRefreshInterval,
 	useCallbackRef,
-	useSyncTimer,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -64,7 +63,6 @@ function InitState() {
 		loadTeamsData();
 		loadLanguagesData();
 	});
-	useSyncTimer();
 
 	/**
 	 * Refresh Teams data every 5 seconds.
