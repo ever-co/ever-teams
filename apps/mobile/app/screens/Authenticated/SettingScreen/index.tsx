@@ -27,6 +27,7 @@ export type IPopup =
 	| "Remove Team"
 	| "Avatar"
 	| "Avatar 2"
+	| "Team Logo"
 	| "Quit Team"
 	| "Delete Account"
 	| "Remove Account"
