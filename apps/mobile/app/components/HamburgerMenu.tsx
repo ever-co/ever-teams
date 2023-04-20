@@ -1,58 +1,31 @@
-import React, { useState } from "react"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React from "react"
 import { View, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native"
-import {
-	AntDesign,
-	Feather,
-	FontAwesome5,
-	MaterialIcons,
-	SimpleLineIcons,
-	Ionicons,
-} from "@expo/vector-icons"
+import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons"
 import { Text } from "react-native-paper"
-import { DrawerContentScrollView, DrawerItem, useDrawerStatus } from "@react-navigation/drawer"
+import { DrawerContentScrollView, useDrawerStatus } from "@react-navigation/drawer"
 import { typography, useAppTheme } from "../theme"
 import { useStores } from "../models"
-import DropDownSection from "./TeamDropdown/DropDownSection"
 import DropDown from "./TeamDropdown/DropDown"
 import CreateTeamModal from "./CreateTeamModal"
 import ProfileImage from "./ProfileImage"
 import { translate } from "../i18n"
 import { observer } from "mobx-react-lite"
+import { useOrganizationTeam } from "../services/hooks/useOrganization"
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
 	const {
 		TaskStore: { resetTeamTasksData },
-		authenticationStore: {
-			user,
-			tenantId,
-			organizationId,
-			employeeId,
-			authToken,
-			logout,
-			toggleTheme,
-		},
-		teamStore: { teams, activeTeam, activeTeamId, setActiveTeam, clearStoredTeamData },
-		TaskStore: { teamTasks, activeTask, activeTaskId, setActiveTask },
+		authenticationStore: { user, logout, toggleTheme },
+		teamStore: { clearStoredTeamData },
 	} = useStores()
-
+	const { createOrganizationTeam } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 
 	const { navigation } = props
 	const isOpen = useDrawerStatus() === "open"
-
-	// Create New Team
-	const createNewTeam = async (text: string) => {
-		const responseTeams = {
-			tenantId,
-			organizationId,
-			access_token: authToken,
-			employeeId,
-			userId: user?.id,
-			teamName: text,
-		}
-		// createTeam(responseTeams)
-	}
 
 	const onLogout = () => {
 		resetTeamTasksData()
@@ -65,14 +38,14 @@ const HamburgerMenu = observer((props: any) => {
 			style={[styles.container, { backgroundColor: dark ? colors.background2 : colors.background }]}
 		>
 			<CreateTeamModal
-				onCreateTeam={createNewTeam}
+				onCreateTeam={createOrganizationTeam}
 				visible={showCreateTeamModal}
 				onDismiss={() => setShowCreateTeamModal(false)}
 			/>
 			<DrawerContentScrollView style={{ width: "100%" }} {...props}>
 				<View style={styles.profileSection}>
 					<View style={{ marginBottom: 40 }}>
-						<ProfileImage size={76} imageUrl={user?.imageUrl} />
+						<ProfileImage size={76} user={user} />
 					</View>
 					<Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>
 						{user?.name}
@@ -181,7 +154,7 @@ const HamburgerMenu = observer((props: any) => {
 	)
 })
 
-const { width, height } = Dimensions.get("window")
+const { width } = Dimensions.get("window")
 const styles = StyleSheet.create({
 	bottomSection: {
 		borderTopColor: "rgba(0, 0, 0, 0.16)",

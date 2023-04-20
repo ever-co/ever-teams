@@ -5,8 +5,8 @@ import { ITeamsOut } from "./Team"
 export const TeamStoreModel = types
 	.model("TeamStore")
 	.props({
-		teams: types.optional(types.frozen(), { items: [], total: 0 }),
-		activeTeam: types.optional(types.frozen(), {}),
+		teams: types.frozen<ITeamsOut>(),
+		activeTeam: types.frozen<IOrganizationTeamList>(),
 		activeTeamId: types.optional(types.string, ""),
 		teamInvitations: types.optional(types.frozen(), { items: [], total: 0 }),
 		teamsFetching: types.optional(types.boolean, false),
@@ -35,7 +35,7 @@ export const TeamStoreModel = types
 		},
 		clearStoredTeamData() {
 			store.teams = { items: [], total: 0 }
-			store.activeTeam = {}
+			store.activeTeam = null
 			store.activeTeamId = ""
 			store.teamInvitations = { items: [], total: 0 }
 			store.isTrackingEnabled = false

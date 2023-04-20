@@ -73,7 +73,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 				<Screen
 					contentContainerStyle={[$container, { backgroundColor: colors.background }]}
 					backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
-					statusBarStyle="light"
+					statusBarStyle={dark ? "light" : "dark"}
 					StatusBarProps={{ backgroundColor: "black" }}
 					safeAreaEdges={["top"]}
 				>

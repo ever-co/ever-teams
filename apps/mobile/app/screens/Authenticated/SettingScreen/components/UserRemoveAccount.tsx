@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import {
 	View,
 	Text,
@@ -27,12 +29,12 @@ const UserRemoveAccount = ({
 
 	const onSubmit = useCallback(async () => {
 		if (actionType === "Remove") {
-			const data = await removeUserFromAllTeams(userId)
+			await removeUserFromAllTeams(userId)
 			onDismiss()
 			return
 		}
 
-		const data = await deleteUser(userId)
+		await deleteUser(userId)
 		onDismiss()
 	}, [userId])
 
@@ -40,7 +42,7 @@ const UserRemoveAccount = ({
 		<View style={styles.container}>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={styles.transparentContainer}>
-					<TouchableWithoutFeedback onPress={() => {}}>
+					<TouchableWithoutFeedback>
 						<View style={{ ...styles.circleFrame, shadowColor: colors.border }}>
 							<Image source={require("../../../../../assets/images/new/user-remove.png")} />
 						</View>

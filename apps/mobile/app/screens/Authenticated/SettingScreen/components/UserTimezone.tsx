@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from "react"
 import { AntDesign } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native"

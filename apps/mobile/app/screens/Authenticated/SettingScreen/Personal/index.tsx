@@ -66,7 +66,6 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 				<SingleInfo
 					title={translate("settingScreen.personalSection.workSchedule")}
 					value={translate("settingScreen.personalSection.workScheduleHint")}
-					onPress={() => {}}
 				/>
 
 				<View style={$dangerZoneContainer}>

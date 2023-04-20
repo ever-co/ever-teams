@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { showMessage } from "react-native-flash-message"
 import { useQueryClient } from "react-query"
@@ -19,7 +20,7 @@ import useAuthenticateUser from "./features/useAuthentificateUser"
 function useCreateOrganizationTeam() {
 	const {
 		authenticationStore: { tenantId, organizationId, authToken, employeeId },
-		teamStore: { teams, setOrganizationTeams, setActiveTeamId, setActiveTeam },
+		teamStore: { teams, setOrganizationTeams, setActiveTeamId },
 	} = useStores()
 	const queryClient = useQueryClient()
 	const [createTeamLoading, setCreateTeamLoading] = useState(false)
@@ -33,7 +34,7 @@ function useCreateOrganizationTeam() {
 			const $name = name.trim()
 			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase())
 
-			if (exits || $name.length < 2) {
+			if (exits || $name.length < 3) {
 				return {
 					error: "Invalid team name",
 				}
@@ -65,11 +66,9 @@ function useCreateOrganizationTeam() {
 }
 
 export function useOrganizationTeam() {
-	const queryClient = useQueryClient()
 	const {
 		teamStore: {
 			activeTeamId,
-			teams,
 			setIsTrackingEnabled,
 			setActiveTeam,
 			setOrganizationTeams,
@@ -85,6 +84,8 @@ export function useOrganizationTeam() {
 	const {
 		data: organizationTeams,
 		isLoading,
+		isSuccess,
+		refetch,
 		isRefetching,
 	} = useFetchUserOrganization({
 		tenantId,
@@ -138,7 +139,7 @@ export function useOrganizationTeam() {
 				managerIds,
 			}
 
-			const { data, response } = await updateOrganizationTeamRequest({
+			const { response } = await updateOrganizationTeamRequest({
 				datas: team,
 				id: activeTeamId,
 				bearer_token: authToken,
@@ -152,7 +153,7 @@ export function useOrganizationTeam() {
 				})
 			}
 		},
-		[activeTeamId, isManager],
+		[activeTeamId],
 	)
 
 	const removeMemberFromTeam = useCallback(
@@ -161,7 +162,7 @@ export function useOrganizationTeam() {
 			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
 
 			// Verify if member is manager And Check if he is the only manager in the active team
-			if (member && member.role && managerIds.length < 2) {
+			if (member.role && managerIds.length < 2) {
 				showMessage({
 					message: "Quit the team",
 					description: "You're the only manager you can't quit the team",
@@ -179,7 +180,7 @@ export function useOrganizationTeam() {
 				id: member.id,
 			})
 				.then((res) => {
-					const { response, data } = res
+					const { response } = res
 
 					if (
 						!response.ok ||
@@ -193,7 +194,7 @@ export function useOrganizationTeam() {
 							type: "warning",
 						})
 					} else {
-						queryClient.invalidateQueries("teams")
+						refreshTeams()
 					}
 				})
 				.catch((e) => console.log(e))
@@ -205,12 +206,18 @@ export function useOrganizationTeam() {
 	 * Remove user from all teams
 	 */
 	const removeUserFromAllTeams = useCallback(async (userId: string) => {
-		const { data } = await removeUserFromAllTeam({
+		await removeUserFromAllTeam({
 			userId,
 			bearer_token: authToken,
 			tenantId,
 		})
-		return data
+			.then((res) => {
+				const { response } = res
+				if (response.ok || response.status === 202 || response.status === 200) {
+					refreshTeams()
+				}
+			})
+			.catch((e) => console.log(e))
 	}, [])
 
 	/**
@@ -228,7 +235,7 @@ export function useOrganizationTeam() {
 			tenantId,
 			bearer_token: authToken,
 		})
-		queryClient.invalidateQueries("teams")
+		refreshTeams()
 		return { data, response }
 	}, [])
 
@@ -243,13 +250,9 @@ export function useOrganizationTeam() {
 				bearer_token: authToken,
 			})
 				.then((res) => {
-					const { data, response } = res
+					const { response } = res
 					if (response.ok || response.status === 202 || response.status === 200) {
-						setActiveTeam({
-							...activeTeam,
-							...data,
-						})
-						queryClient.invalidateQueries("teams")
+						refreshTeams()
 					}
 				})
 				.catch((e) => console.log(e))
@@ -268,9 +271,22 @@ export function useOrganizationTeam() {
 			tenantId,
 		})
 			.then((res) => {
-				const { data, response } = res
+				const { response } = res
 				if (response.ok || response.status === 202 || response.status === 200) {
-					queryClient.invalidateQueries("teams")
+					refreshTeams()
+				}
+			})
+			.catch((e) => console.log(e))
+	}, [])
+
+	const refreshTeams = useCallback(() => {
+		refetch()
+			.then((res) => {
+				const { isSuccess, data } = res
+				if (isSuccess) {
+					const currentTeam = data.items.find((t) => t.id === activeTeamId)
+					setActiveTeam(currentTeam)
+					setOrganizationTeams(data)
 				}
 			})
 			.catch((e) => console.log(e))
@@ -278,16 +294,18 @@ export function useOrganizationTeam() {
 
 	// Load Teams
 	useEffect(() => {
-		if (!isLoading) {
+		if (isSuccess) {
 			// If there no team, user will be logged out
-			if (organizationTeams.total <= 0) {
+			if (organizationTeams?.total === 0) {
+				setActiveTeamId("")
+				setActiveTeam(null)
 				logOut()
 				return
 			}
 
 			// UPDATE ACTIVE TEAM
 			const updateActiveTeam =
-				organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams.items[0]
+				organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams?.items[0]
 			if (updateActiveTeam) {
 				setActiveTeam(updateActiveTeam)
 				setActiveTeamId(updateActiveTeam.id)

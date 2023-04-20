@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
 import {
 	ScrollView,
@@ -62,7 +64,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 			isLoading,
 		} = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex | 0 })
 
-		// const isAuthUser = currentUser.id === user.id;
+		const isAuthUser = currentUser.id === user.id
 
 		return (
 			<>
@@ -82,14 +84,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 						<>
 							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
 							<View style={{ paddingTop: 5 }}>
-								<ProfileHeader
-									phoneNumber={""}
-									timeZone={""}
-									employee={undefined}
-									role={undefined}
-									tenant={undefined}
-									{...currentUser}
-								/>
+								<ProfileHeader {...currentUser} />
 							</View>
 
 							<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
@@ -104,7 +99,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 									]}
 								>
 									<Text style={[$createTaskTitle, { color: colors.secondary }]}>
-										{true
+										{isAuthUser
 											? translate("tasksScreen.createTaskButton")
 											: translate("tasksScreen.assignTaskButton")}
 									</Text>
@@ -189,7 +184,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 													<ListCardItem
 														tabIndex={selectedTabIndex}
 														isActive={true}
-														member={member}
+														member={member.employee.user}
 														index={1000}
 														item={activeTask as ITeamTask}
 														enableEstimate={false}
@@ -224,7 +219,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 														<ListCardItem
 															tabIndex={selectedTabIndex}
 															isActive={false}
-															member={member}
+															member={member.employee.user}
 															index={index}
 															item={item as any}
 															enableEstimate={false}
@@ -247,7 +242,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 												<View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
 													<ListCardItem
 														tabIndex={selectedTabIndex}
-														member={member}
+														member={member.employee.user}
 														index={index}
 														isActive={false}
 														key={index.toString()}
@@ -277,7 +272,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 												<View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
 													<ListCardItem
 														tabIndex={selectedTabIndex}
-														member={member}
+														member={member.employee.user}
 														index={index}
 														isActive={false}
 														key={index.toString()}

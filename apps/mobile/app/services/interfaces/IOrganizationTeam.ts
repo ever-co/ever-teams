@@ -45,10 +45,12 @@ export interface IOrganizationTeamList {
 	updated?: boolean
 	prefix: string
 	members: OT_Member[]
+	managerIds?: string[]
 	public?: boolean
 	createdById: string
 	createdBy: IUser
 	profile_link?: string
+	logo: string | null
 	imageId?: string | null
 	image?: IImageAssets | null
 }

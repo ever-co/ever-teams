@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import {
 	View,
@@ -33,7 +35,7 @@ const RemoveTeam = observer(({ onDismiss }: { onDismiss: () => unknown }) => {
 		<View style={styles.container}>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={styles.transparentContainer}>
-					<TouchableWithoutFeedback onPress={() => {}}>
+					<TouchableWithoutFeedback>
 						<View style={{ ...styles.circleFrame, shadowColor: colors.border }}>
 							<Image source={require("../../../../../assets/images/new/user-remove.png")} />
 						</View>

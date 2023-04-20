@@ -1,7 +1,8 @@
+/* eslint-disable react-native/no-unused-styles */
+/* eslint-disable react-native/no-color-literals */
 import React from "react"
-import { View, StyleSheet, Image } from "react-native"
+import { View, StyleSheet } from "react-native"
 import { typography, useAppTheme } from "../../../../theme"
-import { Feather } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Text } from "../../../../components"
@@ -12,7 +13,7 @@ const ProfileHeader = (member: IUser) => {
 	const { colors } = useAppTheme()
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background }]}>
-			<ProfileImage imageUrl={member.imageUrl} />
+			<ProfileImage user={member} size={70} />
 			<View style={styles.containerInfo}>
 				<Text style={[styles.name, { color: colors.primary }]}>{member?.name}</Text>
 				<Text style={[styles.email, { color: colors.tertiary }]}>{member.email}</Text>
