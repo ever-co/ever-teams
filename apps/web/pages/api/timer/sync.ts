@@ -25,6 +25,7 @@ export default async function handler(
 			logType: 'TRACKED',
 			source: 'BROWSER',
 			employeeId: user.employee.id,
+			duration: 5,
 		},
 		access_token
 	);

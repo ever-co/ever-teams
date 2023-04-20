@@ -170,7 +170,7 @@ export function useTimer() {
 	const { queryCall: syncTimerQueryCall, loading: syncTimerLoading } =
 		useQuery(syncTimerAPI);
 
-	const wasRunning = timerStatus?.running || false;
+	// const wasRunning = timerStatus?.running || false;
 	const timerStatusRef = useSyncRef(timerStatus);
 	const taskId = useSyncRef(activeTeamTask?.id);
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
@@ -209,10 +209,13 @@ export function useTimer() {
 	}, []);
 
 	const syncTimer = useCallback(() => {
+		if (syncTimerLoading) {
+			return;
+		}
 		return syncTimerQueryCall().then((res) => {
 			return res;
 		});
-	}, [syncTimerQueryCall, timerStatus]);
+	}, [syncTimerQueryCall, timerStatus, syncTimerLoading]);
 
 	// Loading states
 	useEffect(() => {
@@ -225,19 +228,9 @@ export function useTimer() {
 		setTimerStatusFetching(stopTimerLoading);
 	}, [stopTimerLoading]);
 
-	useEffect(() => {
-		if (wasRunning && !syncTimerInterval.current) {
-			syncTimerInterval.current = setInterval(syncTimer, 5000);
-		} else {
-			clearInterval(syncTimerInterval.current || 0);
-			syncTimerInterval.current = null;
-		}
-	}, [syncTimerInterval.current, wasRunning]);
-
 	// Start timer
 	const startTimer = useCallback(async () => {
 		if (!taskId.current) return;
-		syncTimerInterval.current = setInterval(syncTimer, 5000);
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current,
 			runnedDateTime: Date.now(),
@@ -276,9 +269,6 @@ export function useTimer() {
 			running: false,
 		});
 
-		if (syncTimerInterval.current) {
-			clearInterval(syncTimerInterval.current);
-		}
 		return stopTimerQueryCall().then((res) => {
 			res.data && setTimerStatus(res.data);
 		});
@@ -408,7 +398,7 @@ export function useSyncTimer() {
 		timerStatus?.running
 			? syncTimer
 			: () => {
-					console.log('not running');
+					return;
 			  },
 		5000
 	);
