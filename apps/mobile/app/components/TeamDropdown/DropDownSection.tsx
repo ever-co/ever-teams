@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
@@ -20,14 +22,14 @@ export interface Props {
 	resized: boolean
 }
 
-const DropDownSection: FC<Props> = function DropDownSection({
+const DropDownSection: FC<Props> = observer(function DropDownSection({
 	teams,
 	onCreateTeam,
 	changeTeam,
 	resized,
 }) {
 	const {
-		teamStore: { activeTeamId, activeTeam, setActiveTeam },
+		teamStore: { activeTeamId, activeTeam },
 	} = useStores()
 
 	const others = teams.filter((t) => t.id !== activeTeamId)
@@ -40,7 +42,6 @@ const DropDownSection: FC<Props> = function DropDownSection({
 				{ backgroundColor: colors.background, shadowColor: "rgba(0, 0, 0, 0.12)" },
 			]}
 		>
-			{/* <ScrollView bounces={false} style={{ maxHeight: 400, width: "100%" }}> */}
 			<View style={styles.indDropDown}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					<Avatar.Text
@@ -77,7 +78,6 @@ const DropDownSection: FC<Props> = function DropDownSection({
 					isActiveTeam={false}
 				/>
 			))}
-			{/* </ScrollView> */}
 			<TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
 				<View style={[styles.buttonStyle, { backgroundColor: colors.background }]}>
 					<Ionicons name="add" size={24} color={colors.secondary} />
@@ -94,7 +94,7 @@ const DropDownSection: FC<Props> = function DropDownSection({
 			</TouchableOpacity>
 		</View>
 	)
-}
+})
 
 export interface IDropItem {
 	team: IOrganizationTeamList
@@ -116,12 +116,20 @@ const DropItem: FC<IDropItem> = observer(function DropItem({
 				style={{ flexDirection: "row", alignItems: "center" }}
 				onPress={() => changeTeam(team)}
 			>
-				<Avatar.Text
-					style={styles.teamImage}
-					size={30}
-					label={imgTitle(team.name)}
-					labelStyle={styles.prefix}
-				/>
+				{team.image?.thumbUrl || team.logo || team.image?.fullUrl ? (
+					<Avatar.Image
+						style={styles.teamImage}
+						size={30}
+						source={{ uri: team.image?.thumbUrl || team.logo || team.image?.fullUrl }}
+					/>
+				) : (
+					<Avatar.Text
+						style={styles.teamImage}
+						size={30}
+						label={imgTitle(team.name)}
+						labelStyle={styles.prefix}
+					/>
+				)}
 				<Text
 					style={{
 						color: colors.primary,

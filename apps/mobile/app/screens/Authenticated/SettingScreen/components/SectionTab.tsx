@@ -1,7 +1,8 @@
-import { observer } from "mobx-react-lite"
-import React, { useState } from "react"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React from "react"
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons"
-import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native"
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
 
@@ -61,6 +62,7 @@ const Tab = ({
 			onPress={() => toggleTab(item.id)}
 		>
 			<View
+				// eslint-disable-next-line react-native/no-inline-styles
 				style={{
 					flexDirection: "row",
 					alignSelf: "center",
@@ -68,7 +70,7 @@ const Tab = ({
 					alignItems: "center",
 				}}
 			>
-				{item.id == 1 ? (
+				{item.id === 1 ? (
 					<Ionicons
 						name="person"
 						size={18}

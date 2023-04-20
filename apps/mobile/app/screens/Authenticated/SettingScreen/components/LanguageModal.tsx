@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-unused-styles */
 import React, { FC, useEffect, useState } from "react"
 import {
 	View,
@@ -99,7 +101,7 @@ const LanguageModal: FC<Props> = function FilterPopup({
 						style={styles.listContainer}
 						bounces={false}
 						data={languageList}
-						keyExtractor={(item, index) => item.id.toString()}
+						keyExtractor={(item) => item.id.toString()}
 						initialNumToRender={7}
 						renderItem={({ item }) => (
 							<Pressable
@@ -194,11 +196,3 @@ const styles = StyleSheet.create({
 		zIndex: 100,
 	},
 })
-
-const $blurContainer: ViewStyle = {
-	height,
-	width: "100%",
-	position: "absolute",
-	top: 0,
-	zIndex: 100,
-}

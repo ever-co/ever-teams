@@ -26,11 +26,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 		<View style={{ width: "100%" }}>
 			<View>
 				{openedSheet === "Names" ? (
-					<UpdateFullNameForm
-						user={user}
-						onUpdateFullName={updateUserInfo}
-						onDismiss={() => onDismiss()}
-					/>
+					<UpdateFullNameForm onUpdateFullName={updateUserInfo} onDismiss={() => onDismiss()} />
 				) : null}
 				{openedSheet === "Avatar" ? (
 					<ChangeUserAvatar

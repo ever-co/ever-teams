@@ -16,6 +16,7 @@ import BottomSheetContent from "./components/BottomSheetContent"
 import PersonalSettings from "./Personal"
 import TeamSettings from "./Team"
 import { useAppTheme } from "../../../theme"
+import FlashMessage from "react-native-flash-message"
 
 export type IPopup =
 	| "Names"
@@ -117,6 +118,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 						</View>
 					)}
 				/>
+				<FlashMessage position="bottom" />
 			</Screen>
 		)
 	}
@@ -131,14 +133,6 @@ const $headerContainer: ViewStyle = {
 	padding: 20,
 	flex: 1,
 	paddingBottom: 32,
-	shadowColor: "rgba(0, 0, 0, 0.6)",
-	shadowOffset: {
-		width: 0,
-		height: 2,
-	},
-	shadowOpacity: 0.07,
-	shadowRadius: 1.0,
-	elevation: 1,
 	zIndex: 10,
 }
 

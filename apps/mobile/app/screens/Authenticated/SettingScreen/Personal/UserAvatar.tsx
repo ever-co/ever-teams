@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useCallback } from "react"
+import React, { FC, useCallback, useMemo } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { imgTitle } from "../../../../helpers/img-title"
@@ -30,10 +30,15 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 			image: null,
 		})
 	}, [])
-	const imageUrl = user?.image?.fullUrl || user?.image?.thumbUrl || user?.imageUrl
+
+	const imageUrl = useMemo(
+		() => user.image?.thumbUrl || user.image?.fullUrl || user.imageUrl,
+		[user.image?.thumb],
+	)
+
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			{imageUrl && imageUrl.trim().length > 3 ? (
+			{imageUrl ? (
 				<Avatar.Image size={70} source={{ uri: imageUrl }} />
 			) : (
 				<Avatar.Text size={70} label={imgTitle(user.name)} labelStyle={styles.prefix} />

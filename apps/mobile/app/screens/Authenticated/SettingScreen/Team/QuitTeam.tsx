@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import React from "react"
 import {
 	View,
@@ -16,7 +18,7 @@ import { useSettings } from "../../../../services/hooks/features/useSettings"
 const QuitTheTeam = observer(({ onDismiss }: { onDismiss: () => unknown }) => {
 	const { colors, dark } = useAppTheme()
 	const { user } = useSettings()
-	const { removeMemberFromTeam, isTeamManager } = useOrganizationTeam()
+	const { removeMemberFromTeam } = useOrganizationTeam()
 
 	const onQuitFromCurrentTeam = async () => {
 		await removeMemberFromTeam(user.employee.id)
@@ -27,7 +29,7 @@ const QuitTheTeam = observer(({ onDismiss }: { onDismiss: () => unknown }) => {
 		<View style={styles.container}>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={styles.transparentContainer}>
-					<TouchableWithoutFeedback onPress={() => {}}>
+					<TouchableWithoutFeedback>
 						<View style={{ ...styles.circleFrame, shadowColor: colors.border }}>
 							<Image source={require("../../../../../assets/images/new/user-remove.png")} />
 						</View>

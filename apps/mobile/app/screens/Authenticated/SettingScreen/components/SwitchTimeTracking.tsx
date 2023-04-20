@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useCallback, useEffect, useState } from "react"
 import { View, Text, StyleSheet } from "react-native"
 import { observer } from "mobx-react-lite"
@@ -10,10 +12,10 @@ import { typography, useAppTheme } from "../../../../theme"
 
 interface Props {}
 const SwithTimeTracking: FC<Props> = observer(() => {
-	const { colors, dark } = useAppTheme()
+	const { colors } = useAppTheme()
 	const { currentUser, toggleTimeTracking } = useOrganizationTeam()
 	const {
-		teamStore: { setIsTrackingEnabled, isTrackingEnabled },
+		teamStore: { setIsTrackingEnabled },
 	} = useStores()
 	const [isEnabled, setIsEnabled] = useState(currentUser.isTrackingEnabled)
 
@@ -26,6 +28,7 @@ const SwithTimeTracking: FC<Props> = observer(() => {
 
 	useEffect(() => {
 		setIsTrackingEnabled(currentUser?.isTrackingEnabled)
+		setIsEnabled(currentUser?.isTrackingEnabled)
 	}, [currentUser])
 	return (
 		<View style={styles.container}>
