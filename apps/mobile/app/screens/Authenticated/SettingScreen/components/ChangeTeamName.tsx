@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import { observer } from "mobx-react-lite"
 import React, { useEffect, useState } from "react"
 import {
@@ -11,7 +13,6 @@ import {
 import { translate } from "../../../../i18n"
 import { useStores } from "../../../../models"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
-import { IUser } from "../../../../services/interfaces/IUserData"
 import { typography, useAppTheme } from "../../../../theme"
 
 const ChangeTeamName = observer(({ onDismiss }: { onDismiss: () => unknown }) => {

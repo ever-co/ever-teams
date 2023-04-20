@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useCallback } from "react"
+import React, { FC, useCallback, useMemo } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { imgTitle } from "../../../../helpers/img-title"
@@ -33,11 +33,21 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 			},
 		})
 	}, [])
-	const imageUrl = activeTeam?.image?.fullUrl || activeTeam?.image?.thumbUrl || activeTeam.logo
+
+	const imageUrl = useMemo(
+		() => activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl || activeTeam.logo,
+		[activeTeam.image?.thumb],
+	)
+
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			{imageUrl && imageUrl.trim().length > 3 ? (
-				<Avatar.Image size={70} source={{ uri: imageUrl }} />
+			{imageUrl ? (
+				<Avatar.Image
+					size={70}
+					source={{
+						uri: imageUrl,
+					}}
+				/>
 			) : (
 				<Avatar.Text size={70} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
 			)}

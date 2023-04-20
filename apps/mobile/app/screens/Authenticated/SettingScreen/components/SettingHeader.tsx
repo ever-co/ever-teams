@@ -1,6 +1,6 @@
 import React from "react"
 import { AntDesign } from "@expo/vector-icons"
-import { View, StyleSheet, Text, TouchableOpacity, Image } from "react-native"
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
 

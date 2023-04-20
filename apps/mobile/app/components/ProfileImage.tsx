@@ -1,18 +1,32 @@
-import React, { FC } from "react"
-import { View, Image, StyleSheet } from "react-native"
+/* eslint-disable react-native/no-unused-styles */
+/* eslint-disable react-native/no-color-literals */
+import React, { FC, useMemo } from "react"
+import { View, StyleSheet } from "react-native"
 import { Avatar, Badge } from "react-native-paper"
+import { imgTitle } from "../helpers/img-title"
+import { IUser } from "../services/interfaces/IUserData"
 import { useAppTheme } from "../theme"
 
 interface Props {
-	imageUrl: string
+	user: IUser
 	size?: number
 }
-const ProfileImage: FC<Props> = ({ imageUrl, size }) => {
+const ProfileImage: FC<Props> = ({ user, size }) => {
 	const { colors } = useAppTheme()
+
+	const imageUrl = useMemo(
+		() => user.image?.thumbUrl || user.image?.fullUrl || user.imageUrl,
+		[user.image?.thumb],
+	)
+
 	return (
 		<View style={styles.container}>
 			<View>
-				<Avatar.Image size={70} source={{ uri: imageUrl }} />
+				{imageUrl ? (
+					<Avatar.Image size={size} source={{ uri: imageUrl }} />
+				) : (
+					<Avatar.Text label={imgTitle(user.name)} size={size} />
+				)}
 				<Badge size={25} style={[styles.onlineIcon, { borderColor: colors.background }]} />
 			</View>
 		</View>
