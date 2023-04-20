@@ -1,4 +1,8 @@
-import { getActiveTaskIdCookie } from '@app/helpers';
+import {
+	getActiveTaskIdCookie,
+	setActiveTaskIdCookie,
+	setActiveUserTaskCookie,
+} from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
@@ -25,7 +29,7 @@ export function useTeamMemberCard(
 
 	const publicTeam = useRecoilValue(getPublicState);
 
-	const { user: authUSer, isTeamManager: isAuthTeamManager } =
+	const { user: authUser, isTeamManager: isAuthTeamManager } =
 		useAuthenticateUser();
 
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
@@ -38,10 +42,23 @@ export function useTeamMemberCard(
 	const memberUser = member?.employee.user;
 
 	// const memberUserRef = useSyncRef(memberUser);
-	const isAuthUser = member?.employee.userId === authUSer?.id;
+	const isAuthUser = member?.employee.userId === authUser?.id;
 	const { isTeamManager, isTeamCreator } = useIsMemberManager(memberUser);
 
 	const memberTaskRef = useRef<Nullable<ITeamTask>>(null);
+
+	const setActiveUserTaskCookieCb = useCallback(
+		(task: ITeamTask | null) => {
+			if (task?.id && authUser?.id) {
+				setActiveUserTaskCookie({
+					taskId: task.id,
+					userId: authUser.id,
+				});
+				setActiveTaskIdCookie(task.id);
+			}
+		},
+		[authUser]
+	);
 
 	memberTaskRef.current = useMemo(() => {
 		let cTask;
@@ -52,24 +69,27 @@ export function useTeamMemberCard(
 		}
 		const active_task_id = getActiveTaskIdCookie();
 
-		if (member.lastWorkedTask && (!active_task_id || publicTeam)) {
-			cTask = tasks.find(
-				(t) =>
-					t.id === member.lastWorkedTask?.id &&
-					(active_task_id === t.id || publicTeam)
-			);
+		if (active_task_id && isAuthUser) {
+			cTask = tasks.find((t) => active_task_id === t.id || publicTeam);
+			find = cTask;
+		} else if (member.lastWorkedTask) {
+			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		} else {
-			cTask = tasks.find(
-				(t) =>
-					t.members.some((m) => m.userId === member.employee.userId) &&
-					(active_task_id === t.id || publicTeam)
+			cTask = tasks.find((t) =>
+				t.members.some((m) => m.userId === member.employee.userId)
 			);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		}
 
+		if (isAuthUser && member.lastWorkedTask && !active_task_id) {
+			setActiveUserTaskCookieCb(member.lastWorkedTask);
+		} else if (isAuthUser && find && cTask && !active_task_id) {
+			setActiveUserTaskCookieCb(cTask);
+		}
+
 		return find ? cTask : null;
-	}, [activeTeamTask, isAuthUser, authUSer, member, tasks, publicTeam]);
+	}, [activeTeamTask, isAuthUser, authUser, member, tasks, publicTeam]);
 
 	/**
 	 * Give the manager role to the member
