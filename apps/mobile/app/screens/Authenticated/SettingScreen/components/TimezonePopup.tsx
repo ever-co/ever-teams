@@ -1,3 +1,6 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-unused-styles */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { FC, useEffect, useState } from "react"
 import moment from "moment-timezone"
 import {
@@ -26,7 +29,7 @@ export interface Props {
 
 export interface IFilter {}
 
-const { width, height } = Dimensions.get("window")
+const { height } = Dimensions.get("window")
 const ModalPopUp = ({ visible, children, onDismiss }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
@@ -77,7 +80,7 @@ const TimezonePopup: FC<Props> = function FilterPopup({ visible, onDismiss, onTi
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
-			<TouchableWithoutFeedback onPress={() => {}}>
+			<TouchableWithoutFeedback>
 				<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 					<Text style={{ ...styles.mainTitle, color: colors.primary }}>
 						{translate("settingScreen.changeTimezone.selectTimezoneTitle")}
@@ -181,11 +184,3 @@ const styles = StyleSheet.create({
 		zIndex: 100,
 	},
 })
-
-const $blurContainer: ViewStyle = {
-	height,
-	width: "100%",
-	position: "absolute",
-	top: 0,
-	zIndex: 100,
-}

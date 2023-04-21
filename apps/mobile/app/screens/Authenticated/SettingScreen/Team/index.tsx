@@ -9,7 +9,6 @@ import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import SwithTimeTracking from "../components/SwitchTimeTracking"
 import { IPopup } from ".."
 import { observer } from "mobx-react-lite"
-import FlashMessage from "react-native-flash-message"
 import { useAppTheme } from "../../../../theme"
 import TeamLogo from "./TeamLogo"
 
@@ -66,7 +65,6 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 				<SingleInfo
 					title={translate("settingScreen.teamSection.workSchedule")}
 					value={translate("settingScreen.teamSection.workScheduleHint")}
-					onPress={() => {}}
 				/>
 
 				<View style={$dangerZoneContainer}>
@@ -74,7 +72,6 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					<SingleInfo
 						title={translate("settingScreen.teamSection.transferOwnership")}
 						value={translate("settingScreen.teamSection.transferOwnership")}
-						onPress={() => {}}
 					/>
 					<SingleInfo
 						title={translate("settingScreen.teamSection.removeTeam")}
@@ -88,7 +85,6 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					/>
 				</View>
 			</ScrollView>
-			<FlashMessage position={"bottom"} />
 		</View>
 	)
 })

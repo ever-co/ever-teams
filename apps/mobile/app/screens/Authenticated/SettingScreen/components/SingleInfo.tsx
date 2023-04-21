@@ -1,9 +1,9 @@
-import React, { FC, useState } from "react"
-import { View, Text, TouchableOpacity, StyleSheet, Image, Switch } from "react-native"
-import { useStores } from "../../../../models"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC } from "react"
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
-import { Toggle } from "../../../../components/Toggle"
 import { translate } from "../../../../i18n"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 
@@ -27,7 +27,7 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
 			{title === translate("settingScreen.personalSection.timeZone") ? (
 				<TouchableOpacity
 					style={[styles.detectWrapper, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}
-					onPress={() => onDetectTimezone()}
+					onPress={() => (onDetectTimezone ? onDetectTimezone() : {})}
 				>
 					<Text style={[styles.infoTitle, { fontSize: 12, color: colors.primary }]}>
 						{translate("settingScreen.personalSection.detect")}
@@ -36,11 +36,11 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
 			) : null}
 
 			{title !== translate("settingScreen.personalSection.themes") ? (
-				<TouchableOpacity onPress={() => onPress()}>
+				<TouchableOpacity onPress={() => (onPress ? onPress() : {})}>
 					<AntDesign name="right" size={24} color="#938FA4" />
 				</TouchableOpacity>
 			) : (
-				<TouchableOpacity style={styles.toggle} onPress={() => onPress()}>
+				<TouchableOpacity style={styles.toggle} onPress={() => (onPress ? onPress() : {})}>
 					{dark ? (
 						<Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} />
 					) : (

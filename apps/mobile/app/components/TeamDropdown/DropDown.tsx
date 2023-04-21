@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import { observer } from "mobx-react-lite"
 import React, { FC, useState } from "react"
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native"
@@ -22,8 +24,6 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
 		TaskStore: { setActiveTask, setActiveTaskId },
 	} = useStores()
 
-	const [expanded, setExpanded] = useState(true)
-	const handlePress = () => setExpanded(!expanded)
 	const [showDrop, setShowDrop] = useState(false)
 
 	const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
@@ -44,23 +44,36 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
 				onPress={() => setShowDrop(!showDrop)}
 			>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
-					<Avatar.Text
-						style={styles.teamImage}
-						size={40}
-						label={imgTitle(activeTeam.name)}
-						labelStyle={styles.prefix}
-					/>
+					{activeTeam.image?.thumbUrl || activeTeam.logo || activeTeam.image?.fullUrl ? (
+						<Avatar.Image
+							style={styles.teamImage}
+							size={40}
+							source={{
+								uri: activeTeam.image?.thumbUrl || activeTeam.logo || activeTeam.image?.fullUrl,
+							}}
+						/>
+					) : (
+						<Avatar.Text
+							style={styles.teamImage}
+							size={40}
+							label={imgTitle(activeTeam.name)}
+							labelStyle={styles.prefix}
+						/>
+					)}
+
 					<Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${limitTextCharaters({
 						text: activeTeam.name,
 						numChars: resized ? 9 : 30,
 					})} (${activeTeam.members.length})`}</Text>
 				</View>
+
 				{showDrop ? (
 					<AntDesign name="up" size={24} color={colors.primary} />
 				) : (
 					<AntDesign name="down" size={24} color={colors.primary} />
 				)}
 			</TouchableOpacity>
+
 			{showDrop && (
 				<DropDownSection
 					resized={resized}

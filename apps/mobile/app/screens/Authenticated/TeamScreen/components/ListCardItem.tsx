@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
 	View,
@@ -31,6 +33,7 @@ import LabelItem from "../../../../components/LabelItem"
 import { secondsToTime } from "../../../../helpers/date"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
+import { imgTitle } from "../../../../helpers/img-title"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -167,7 +170,20 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 				>
 					<View style={styles.firstContainer}>
 						<View style={styles.wrapProfileImg}>
-							<Avatar.Image size={40} source={{ uri: iuser.imageUrl }} />
+							{iuser.image?.thumbUrl || iuser.imageUrl || iuser.image?.fullUrl ? (
+								<Avatar.Image
+									style={styles.teamImage}
+									size={40}
+									source={{ uri: iuser.image?.thumbUrl || iuser.imageUrl || iuser.image?.fullUrl }}
+								/>
+							) : (
+								<Avatar.Text
+									style={styles.teamImage}
+									size={40}
+									label={imgTitle(iuser.name)}
+									labelStyle={styles.prefix}
+								/>
+							)}
 							<Avatar.Image
 								style={styles.statusIcon}
 								size={20}
@@ -526,6 +542,11 @@ const styles = StyleSheet.create({
 		fontStyle: "normal",
 		width: "95%",
 	},
+	prefix: {
+		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 14,
+		fontWeight: "600",
+	},
 	progessText: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 10,
@@ -555,6 +576,9 @@ const styles = StyleSheet.create({
 		color: "#7B8089",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
+	},
+	teamImage: {
+		backgroundColor: "#C1E0EA",
 	},
 	timeHeading: {
 		color: "#7E7991",
@@ -614,12 +638,12 @@ const styles = StyleSheet.create({
 
 const getStatusImage = (status: string) => {
 	let res: IUserStatus
-	if (status == "online") {
+	if (status === "online") {
 		res = {
 			icon: require("../../../../../assets/icons/new/play-small.png"),
 			color: "#88D1A5",
 		}
-	} else if (status == "pause") {
+	} else if (status === "pause") {
 		res = {
 			icon: require("../../../../../assets/icons/new/on-pause.png"),
 			color: "#EBC386",
