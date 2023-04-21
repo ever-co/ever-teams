@@ -61,3 +61,8 @@ export const activeTaskStatisticsState = atom<{
 		today: null,
 	},
 });
+
+export const allTaskStatisticsState = atom<ITasksTimesheet[]>({
+	key: 'allTaskStatisticsState',
+	default: [],
+});

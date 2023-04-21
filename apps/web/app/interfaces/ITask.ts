@@ -12,6 +12,7 @@ export type ITeamTask = {
 	title: string;
 	description: string;
 	estimate: null | number;
+	totalWorkedTime?: number;
 	estimateDays?: number;
 	estimateHours?: number;
 	estimateMinutes?: number;
