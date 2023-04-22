@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import { ScrollView, Text, TextStyle, View, ViewStyle } from "react-native"
 import { typography } from "../../../../theme/typography"
 import SingleInfo from "../components/SingleInfo"
@@ -11,6 +11,7 @@ import { IPopup } from ".."
 import { observer } from "mobx-react-lite"
 import { useAppTheme } from "../../../../theme"
 import TeamLogo from "./TeamLogo"
+import TransferOwnership from "./TransferOwnership"
 
 interface ITeamSettingProps {
 	props: any
@@ -22,10 +23,13 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 		teamStore: { activeTeam },
 	} = useStores()
 	const { isTeamManager } = useOrganizationTeam()
+
+	const [open, setOpen] = useState(false)
 	const { navigation } = props
 
 	return (
 		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
+			<TransferOwnership visible={open} onDismiss={() => setOpen(false)} />
 			<ScrollView
 				bounces={false}
 				style={{ width: "90%", height: "100%" }}
@@ -72,6 +76,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					<SingleInfo
 						title={translate("settingScreen.teamSection.transferOwnership")}
 						value={translate("settingScreen.teamSection.transferOwnership")}
+						onPress={() => setOpen(true)}
 					/>
 					<SingleInfo
 						title={translate("settingScreen.teamSection.removeTeam")}
