@@ -106,6 +106,8 @@ export function useOrganizationTeam() {
 		return m.employee.userId !== user?.id
 	})
 
+	const activeTeamManagers = activeTeam?.members.filter((m) => m.role?.name === "MANAGER") || []
+
 	const isManager = () => {
 		if (activeTeam) {
 			const $u = user
@@ -120,9 +122,9 @@ export function useOrganizationTeam() {
 	const makeMemberAsManager = useCallback(
 		async (employeeId: string) => {
 			// Check if user is already manager
-			const member: OT_Member = members.find((m) => m.employeeId === employeeId)
+			const member = members.find((m) => m.employeeId === employeeId)
 
-			if (member.role) {
+			if (member.role?.name === "MANAGER") {
 				showMessage({
 					message: "Info",
 					description: "User is already manager",
@@ -302,7 +304,6 @@ export function useOrganizationTeam() {
 				logOut()
 				return
 			}
-
 			// UPDATE ACTIVE TEAM
 			const updateActiveTeam =
 				organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams?.items[0]
@@ -310,13 +311,12 @@ export function useOrganizationTeam() {
 				setActiveTeam(updateActiveTeam)
 				setActiveTeamId(updateActiveTeam.id)
 			}
-
 			setOrganizationTeams(organizationTeams)
 			setTeamsFetching(false)
 		}
 		isManager()
 		setIsTrackingEnabled(currentUser?.isTrackingEnabled)
-	}, [user, createTeamLoading, organizationTeams?.total, isLoading, isRefetching])
+	}, [isRefetching, isLoading])
 
 	return {
 		removeUserFromAllTeams,
@@ -333,5 +333,6 @@ export function useOrganizationTeam() {
 		toggleTimeTracking,
 		onUpdateOrganizationTeam,
 		onRemoveTeam,
+		activeTeamManagers,
 	}
 }
