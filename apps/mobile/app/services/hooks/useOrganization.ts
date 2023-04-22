@@ -14,11 +14,7 @@ import {
 	deleteOrganizationTeamEmployeeRequest,
 	updateOrganizationTeamEmployeeRequest,
 } from "../client/requests/organization-team-employee"
-import {
-	IOrganizationTeamCreate,
-	IOrganizationTeamList,
-	OT_Member,
-} from "../interfaces/IOrganizationTeam"
+import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam"
 import useAuthenticateUser from "./features/useAuthentificateUser"
 
 function useCreateOrganizationTeam() {
@@ -249,7 +245,7 @@ export function useOrganizationTeam() {
 	 * Update Organization Team
 	 */
 	const onUpdateOrganizationTeam = useCallback(
-		async ({ id, data }: { id: string; data: IOrganizationTeamCreate }) => {
+		async ({ id, data }: { id: string; data: IOrganizationTeamList }) => {
 			await updateOrganizationTeamRequest({
 				id,
 				datas: data,
