@@ -244,6 +244,11 @@ const ar: Translations = {
 	hamburgerMenu: {
 		darkMode: "الوضع الداكن",
 	},
+	inviteModal: {
+		accept: "Accept",
+		reject: "Reject",
+		inviteHint: "You have been invited to join",
+	},
 	demoNavigator: {
 		componentsTab: "عناصر",
 		debugTab: "تصحيح",

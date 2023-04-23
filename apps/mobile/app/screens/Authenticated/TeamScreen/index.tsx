@@ -1,4 +1,6 @@
-import React, { FC, useEffect, useState } from "react"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC } from "react"
 import {
 	ScrollView,
 	View,
@@ -8,7 +10,6 @@ import {
 	TextStyle,
 	Text,
 	Dimensions,
-	FlatList,
 	LogBox,
 } from "react-native"
 
@@ -28,15 +29,15 @@ import DropDown from "../../../components/TeamDropdown/DropDown"
 import CreateTeamModal from "../../../components/CreateTeamModal"
 import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
-import { IUser } from "../../../services/interfaces/IUserData"
 import InviteCardItem from "./components/InviteCardItem"
-import FlashMessage, { showMessage } from "react-native-flash-message"
+import FlashMessage from "react-native-flash-message"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { translate } from "../../../i18n"
-import { useTeamInvitations } from "../../../services/hooks/useTeamInvitation"
 import useTeamScreenLogic from "./logics/useTeamScreenLogic"
 import TeamScreenSkeleton from "./components/TeamScreenSkeleton"
+import AcceptInviteModal from "./components/AcceptInviteModal"
+import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -56,10 +57,11 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 			setShowInviteModal,
 			showCreateTeamModal,
 			showInviteModal,
-			showMoreMenu,
 			setShowMoreMenu,
 			isLoading,
 		} = useTeamScreenLogic()
+		const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } =
+			useAcceptInviteModal()
 
 		const { navigation } = _props
 
@@ -77,17 +79,26 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 					StatusBarProps={{ backgroundColor: "black" }}
 					safeAreaEdges={["top"]}
 				>
-					<InviteUserModal visible={showInviteModal} onDismiss={() => setShowInviteModal(false)} />
-					<CreateTeamModal
-						onCreateTeam={createOrganizationTeam}
-						visible={showCreateTeamModal}
-						onDismiss={() => setShowCreateTeamModal(false)}
-					/>
-
 					{isLoading ? (
 						<TeamScreenSkeleton />
 					) : (
 						<>
+							<InviteUserModal
+								visible={showInviteModal}
+								onDismiss={() => setShowInviteModal(false)}
+							/>
+							<AcceptInviteModal
+								visible={openModal && activeInvitation !== null}
+								onDismiss={() => closeModal()}
+								invitation={activeInvitation}
+								onAcceptInvitation={onAcceptInvitation}
+								onRejectInvitation={onRejectInvitation}
+							/>
+							<CreateTeamModal
+								onCreateTeam={createOrganizationTeam}
+								visible={showCreateTeamModal}
+								onDismiss={() => setShowCreateTeamModal(false)}
+							/>
 							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
 							<View
 								style={{
@@ -146,9 +157,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 											/>
 										))}
 
-										{teamInvitations.map((invite, idx) => (
-											<InviteCardItem key={idx} invite={invite} />
-										))}
+										{teamInvitations &&
+											teamInvitations.map((invite, idx) => (
+												<InviteCardItem key={idx} invite={invite} />
+											))}
 									</View>
 								</ScrollView>
 							</TouchableWithoutFeedback>

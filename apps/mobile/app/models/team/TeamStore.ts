@@ -1,4 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
+import { IInvitation } from "../../services/interfaces/IInvite"
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
 import { ITeamsOut } from "./Team"
 
@@ -8,7 +9,7 @@ export const TeamStoreModel = types
 		teams: types.frozen<ITeamsOut>(),
 		activeTeam: types.frozen<IOrganizationTeamList>(),
 		activeTeamId: types.optional(types.string, ""),
-		teamInvitations: types.optional(types.frozen(), { items: [], total: 0 }),
+		teamInvitations: types.optional(types.frozen<IInvitation[]>(), []),
 		teamsFetching: types.optional(types.boolean, false),
 		isTrackingEnabled: types.optional(types.boolean, false),
 	})
@@ -37,7 +38,7 @@ export const TeamStoreModel = types
 			store.teams = { items: [], total: 0 }
 			store.activeTeam = null
 			store.activeTeamId = ""
-			store.teamInvitations = { items: [], total: 0 }
+			store.teamInvitations = null
 			store.isTrackingEnabled = false
 		},
 	}))

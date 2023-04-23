@@ -233,6 +233,11 @@ const fr = {
 	hamburgerMenu: {
 		darkMode: "Mode sombre",
 	},
+	inviteModal: {
+		accept: "Accept",
+		reject: "Reject",
+		inviteHint: "You have been invited to join",
+	},
 	demoNavigator: {
 		componentsTab: "Components",
 		debugTab: "Debug",
