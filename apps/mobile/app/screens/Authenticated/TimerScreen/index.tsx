@@ -1,5 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useEffect, useState } from "react"
-import { ViewStyle, View, TouchableOpacity, LogBox } from "react-native"
+import { ViewStyle, View, LogBox } from "react-native"
 
 // COMPONENTS
 import { Screen } from "../../../components"
@@ -13,6 +14,8 @@ import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import useTimerScreenLogic from "./logics/useTimerScreenLogic"
 import TimerScreenSkeleton from "./components/TimerScreenSkeleton"
 import { useAppTheme } from "../../../theme"
+import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
+import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(
 	function AuthenticatedTimerScreen(_props) {
@@ -23,6 +26,8 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
 		LogBox.ignoreAllLogs()
 		const { colors, dark } = useAppTheme()
+		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
+			useAcceptInviteModal()
 
 		useEffect(() => {
 			setTimeout(() => {
@@ -42,6 +47,13 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 					<TimerScreenSkeleton showTaskDropdown={false} />
 				) : (
 					<>
+						<AcceptInviteModal
+							visible={openModal}
+							onDismiss={() => closeModal()}
+							invitation={activeInvitation}
+							onAcceptInvitation={onAcceptInvitation}
+							onRejectInvitation={onRejectInvitation}
+						/>
 						<View>
 							<CreateTeamModal
 								onCreateTeam={createOrganizationTeam}

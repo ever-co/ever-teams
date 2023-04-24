@@ -254,6 +254,11 @@ const he = {
 			"Whether it's running a full project or getting teams up to speed with our hands-on training, Infinite Red can help with just about any React Native project.",
 		hireUsLink: "Send us a message",
 	},
+	inviteModal: {
+		accept: "Accept",
+		reject: "Reject",
+		inviteHint: "You have been invited to join",
+	},
 	demoShowroomScreen: {
 		jumpStart: "Components to jump start your project!",
 		lorem2Sentences:

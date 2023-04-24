@@ -25,25 +25,27 @@ import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
 import AssignTaskFormModal from "./components/AssignTaskSection"
 import { BlurView } from "expo-blur"
-import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
 import { translate } from "../../../i18n"
 import FilterPopup from "./components/FilterPopup"
 import useProfileScreenLogic from "./logics/useProfileScreenLogic"
 import ProfileTabs from "./components/ProfileTabs"
 import { ITeamTask } from "../../../services/interfaces/ITask"
 import ProfileScreenSkeleton from "./components/ProfileScreenSkeleton"
+import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
+import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
 	function AuthenticatedProfileScreen(_props) {
 		LogBox.ignoreAllLogs()
 		const { colors, dark } = useAppTheme()
-		const { user } = useAuthenticateUser()
-		const { tabIndex, userId } = _props.route.params || { tabIndex: 0, userId: user.id }
 		const {
 			TimerStore: { localTimerStatus },
+			authenticationStore: { user },
 		} = useStores()
-
+		const { tabIndex, userId } = _props.route.params || { tabIndex: 0, userId: user.id || "" }
+		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
+			useAcceptInviteModal()
 		const {
 			handleAssignTask,
 			handleUnassignTask,
@@ -62,9 +64,9 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 			activeTask,
 			assignListRefresh,
 			isLoading,
-		} = useProfileScreenLogic({ userId: userId || user.id, activeTabIndex: tabIndex | 0 })
+		} = useProfileScreenLogic({ userId: userId || user?.id, activeTabIndex: tabIndex | 0 })
 
-		const isAuthUser = currentUser.id === user.id
+		const isAuthUser = false
 
 		return (
 			<>
@@ -73,7 +75,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 				) : null}
 				<Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
 					<AssignTaskFormModal
-						memberId={currentUser?.id}
+						memberId={currentUser.id}
 						visible={showModal}
 						onDismiss={() => setShowModal(false)}
 					/>
@@ -82,6 +84,13 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 						<ProfileScreenSkeleton />
 					) : (
 						<>
+							<AcceptInviteModal
+								visible={openModal}
+								onDismiss={() => closeModal()}
+								invitation={activeInvitation}
+								onAcceptInvitation={onAcceptInvitation}
+								onRejectInvitation={onRejectInvitation}
+							/>
 							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
 							<View style={{ paddingTop: 5 }}>
 								<ProfileHeader {...currentUser} />

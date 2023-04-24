@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { showMessage } from "react-native-flash-message"
-import { useQueryClient } from "react-query"
 import { useStores } from "../../models"
 import useFetchUserOrganization from "../client/queries/organizationTeam/organization"
 import {
@@ -22,7 +21,7 @@ function useCreateOrganizationTeam() {
 		authenticationStore: { tenantId, organizationId, authToken, employeeId },
 		teamStore: { teams, setOrganizationTeams, setActiveTeamId },
 	} = useStores()
-	const queryClient = useQueryClient()
+
 	const [createTeamLoading, setCreateTeamLoading] = useState(false)
 	const teamsRef = useRef(teams)
 
@@ -51,7 +50,7 @@ function useCreateOrganizationTeam() {
 				},
 				authToken,
 			)
-			queryClient.invalidateQueries("teams")
+
 			setActiveTeamId(data.id)
 			setCreateTeamLoading(false)
 			return data

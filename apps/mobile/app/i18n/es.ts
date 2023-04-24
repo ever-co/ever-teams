@@ -225,6 +225,11 @@ const es = {
 			phoneNotValid: "Please, provide a valid phone number",
 		},
 	},
+	inviteModal: {
+		accept: "Accept",
+		reject: "Reject",
+		inviteHint: "You have been invited to join",
+	},
 	demoNavigator: {
 		componentsTab: "Components",
 		debugTab: "Debug",
