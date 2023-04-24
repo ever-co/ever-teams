@@ -4,6 +4,7 @@ import {
 	useTeamTasks,
 	useTimerView,
 	useTaskStatistics,
+	I_UserProfilePage,
 } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -37,6 +38,7 @@ type Props = {
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign';
+	profile?: I_UserProfilePage;
 } & IClassName;
 
 export function TaskCard({
@@ -46,6 +48,7 @@ export function TaskCard({
 	isAuthUser,
 	activeAuthTask,
 	viewType = 'default',
+	profile,
 }: Props) {
 	const [loading, setLoading] = useState(false);
 	const seconds = useRecoilValue(timerSecondsState);
@@ -131,6 +134,7 @@ export function TaskCard({
 						isAuthUser={isAuthUser}
 						className="lg:w-48 lg:px-4 px-2"
 						showTotal={viewType !== 'unassign'}
+						memberInfo={profile?.member}
 					/>
 					{isAuthUser && task && <TimerButtonCall task={task} />}
 				</div>
@@ -291,6 +295,11 @@ export function TaskCard({
 						activeAuthTask={activeAuthTask}
 						task={task}
 						isAuthUser={isAuthUser}
+						memberInfo={
+							{
+								member: profile?.member,
+							} as any
+						}
 					/>
 				</div>
 			</div>

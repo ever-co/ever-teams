@@ -33,7 +33,6 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 
 		return tasks;
 	}, [tabFiltered, profile]);
-
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' && (
@@ -63,9 +62,9 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					task={profile.activeUserTeamTask}
 					isAuthUser={profile.isAuthUser}
 					activeAuthTask={true}
+					profile={profile}
 				/>
 			)}
-
 			{tabFiltered.tab === 'worked' && (
 				<div className="flex space-x-2 items-center my-6">
 					<Text className="font-normal">
@@ -74,7 +73,6 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					<Divider className="flex-1" />
 				</div>
 			)}
-
 			<ul>
 				{tasks.map((task) => {
 					return (
@@ -86,6 +84,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 								viewType={
 									tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'
 								}
+								profile={profile}
 							/>
 						</li>
 					);
