@@ -1,8 +1,10 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-unused-styles */
+/* eslint-disable react-native/no-color-literals */
 import React, { useEffect, useRef, useState } from "react"
 import {
 	View,
 	ViewStyle,
-	ImageStyle,
 	TouchableOpacity,
 	StyleSheet,
 	FlatList,
@@ -12,10 +14,10 @@ import { Avatar, Text } from "react-native-paper"
 import { Ionicons, Entypo, AntDesign } from "@expo/vector-icons"
 
 // COMPONENTS
-import { Card, Icon, ListItem } from "../../../../components"
+import { Card, ListItem } from "../../../../components"
 
 // STYLES
-import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography, useAppTheme } from "../../../../theme"
 import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
@@ -78,8 +80,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 	}, [labelIndex])
 
 	const onNextPressed = () => {
-		if (labelIndex === labels.length - 2) {
-		} else {
+		if (labelIndex !== labels.length - 2) {
 			setLabelIndex(labelIndex + 1)
 		}
 	}
@@ -141,7 +142,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 						<FlatList
 							data={labels}
 							initialScrollIndex={labelIndex}
-							renderItem={({ item, index, separators }) => (
+							renderItem={({ item, index }) => (
 								<View key={index} style={{ marginHorizontal: 2, opacity: 0.2 }}>
 									<LabelItem
 										label={item.label}
@@ -206,20 +207,15 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 							</View>
 						</View>
 						<View style={{}}>
-							<TouchableOpacity onPress={() => {}}>
-								<AnimatedCircularProgress
-									size={48}
-									width={5}
-									fill={0}
-									tintColor="#27AE60"
-									onAnimationComplete={() => {}}
-									backgroundColor="#F0F0F0"
-								>
-									{(fill) => (
-										<Text style={{ ...styles.progessText, color: colors.primary }}>0 H</Text>
-									)}
-								</AnimatedCircularProgress>
-							</TouchableOpacity>
+							<AnimatedCircularProgress
+								size={48}
+								width={5}
+								fill={0}
+								tintColor="#27AE60"
+								backgroundColor="#F0F0F0"
+							>
+								{() => <Text style={{ ...styles.progessText, color: colors.primary }}>0 H</Text>}
+							</AnimatedCircularProgress>
 						</View>
 					</View>
 				</View>
@@ -234,12 +230,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 	const { resendInvite } = useTeamInvitations()
 	// STATS
 	const [showMenu, setShowMenu] = React.useState(false)
-	const [estimateNow, setEstimateNow] = React.useState(false)
 
-	const handleEstimate = () => {
-		setEstimateNow(true)
-		setShowMenu(false)
-	}
 	const { invite } = props
 	return (
 		<Card
@@ -248,7 +239,6 @@ const ListCardItem: React.FC<Props> = (props) => {
 				...GS.mt5,
 				paddingTop: 4,
 				backgroundColor: "#DCD6D6",
-				// opacity: 0.38
 			}}
 			HeadingComponent={
 				<View
@@ -259,7 +249,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 						...GS.pt5,
 						...GS.pr3,
 						...GS.zIndexFront,
-						// opacity: 0.47
+						...(!isTeamManager ? { display: "none" } : {}),
 					}}
 				>
 					<View
@@ -320,8 +310,7 @@ const $listCard: ViewStyle = {
 	...GS.flex1,
 	...GS.p0,
 	...GS.noBorder,
-	// ...GS.shadow,
-	shadowOffset: { width: 0, height: 15 },
+	...GS.shadowSm,
 	minHeight: null,
 	borderRadius: 14,
 }

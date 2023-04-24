@@ -393,7 +393,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								shadowColor: "rgba(0, 0, 0, 0.52)",
 								borderRadius: 14,
 								width: 172,
-								marginTop: 150,
+								marginTop: -5,
 								marginRight: 17,
 								backgroundColor: colors.background,
 								minWidth: spacing.huge * 2,

@@ -46,6 +46,7 @@ export interface IOrganizationTeamList {
 	prefix: string
 	members: OT_Member[]
 	managerIds?: string[]
+	memberIds?: string[]
 	public?: boolean
 	createdById: string
 	createdBy: IUser

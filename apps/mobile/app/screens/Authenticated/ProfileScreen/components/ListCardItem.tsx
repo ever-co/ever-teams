@@ -134,7 +134,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	})
 	const [showMenu, setShowMenu] = React.useState(false)
 	const [memberTask, setMemberTask] = useState<ITeamTask | null>(item)
-	const isAuthUser = member.employee.userId === user?.id
+	const isAuthUser = member.id === user?.id
 
 	useEffect(() => {
 		if (isAuthUser && isActive) {
@@ -498,7 +498,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 	}
 
 	const { index, member, isActive, item } = props
-	const iuser = member.employee.user
+	const iuser = member
 
 	return (
 		<Card
