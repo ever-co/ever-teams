@@ -186,6 +186,7 @@ export function useOrganizationTeams() {
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
+	const { updateUserFromAPI, refreshToken } = useAuthenticateUser();
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } =
@@ -330,6 +331,10 @@ export function useOrganizationTeams() {
 		(userId: string) => {
 			return removeUserFromAllTeamQueryCall(userId).then((res) => {
 				loadTeamsData();
+				refreshToken().then(() => {
+					updateUserFromAPI();
+				});
+
 				return res;
 			});
 		},
