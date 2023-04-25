@@ -241,6 +241,11 @@ const en = {
 	hamburgerMenu: {
 		darkMode: "Dark Mode",
 	},
+	inviteModal: {
+		accept: "Accept",
+		reject: "Reject",
+		inviteHint: "You have been invited to join",
+	},
 	demoNavigator: {
 		componentsTab: "Components",
 		debugTab: "Debug",

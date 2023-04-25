@@ -1,9 +1,12 @@
+/* eslint-disable camelcase */
+/* eslint-disable react-native/no-unused-styles */
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useEffect, useState } from "react"
 import {
 	View,
 	ViewStyle,
 	Modal,
-	Image,
 	StyleSheet,
 	TextInput,
 	Animated,
@@ -14,19 +17,18 @@ import {
 import { Text } from "react-native-paper"
 // COMPONENTS
 // STYLES
-import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography, useAppTheme } from "../../../../theme"
-import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
-import { showMessage } from "react-native-flash-message"
-import { EMAIL_REGEX } from "../../../../helpers/regex"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { colors, typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
-import useTeamScreenLogic from "../logics/useTeamScreenLogic"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
+import { useStores } from "../../../../models"
 
 export interface Props {
 	visible: boolean
 	onDismiss: () => unknown
 }
-const { width, height } = Dimensions.get("window")
+const { width } = Dimensions.get("window")
 
 const ModalPopUp = ({ visible, children }) => {
 	const [showModal, setShowModal] = React.useState(visible)
@@ -60,40 +62,57 @@ const ModalPopUp = ({ visible, children }) => {
 	)
 }
 
-const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
-	const { inviterMember, loading } = useTeamInvitations()
-	const {
-		memberEmail,
-		memberName,
-		setErrors,
-		setMemberEmail,
-		setMemberName,
-		handleEmailInput,
-		handleNameInput,
-		emailsSuggest,
-		setEmailSuggests,
-		errors,
-	} = useTeamScreenLogic()
+const TransferOwnership: FC<Props> = function TransferOwnership({ visible, onDismiss }) {
 	const { colors } = useAppTheme()
+	const {
+		authenticationStore: { user },
+		teamStore: { activeTeam },
+	} = useStores()
+	const { $otherMembers, onUpdateOrganizationTeam, activeTeamManagers } = useOrganizationTeam()
+	const [memberName, setMemberName] = useState("")
+	const [selectedMember, setSelectedMember] = useState<OT_Member>(null)
+	const [filteredMembers, setFilteredMembers] = useState<OT_Member[]>([])
 
 	const handleSubmit = async () => {
-		await inviterMember({ email: memberEmail, name: memberName })
-		setMemberEmail("")
-		setMemberName("")
-		onDismiss()
+		if (selectedMember && activeTeam) {
+			onUpdateOrganizationTeam({
+				id: activeTeam.id,
+				data: {
+					...activeTeam,
+					managerIds: [
+						...activeTeamManagers
+							.filter((m) => m.employee.userId !== user.id)
+							.map((manager) => manager.employeeId),
+						selectedMember.id,
+					],
+					memberIds: activeTeam.members.map((member) => member.employeeId),
+				},
+			})
+				.then(onDismiss)
+				.catch(onDismiss)
+		}
+	}
+
+	const filterMembers = () => {
+		if (memberName.length > 0) {
+			const newMembers = $otherMembers.filter((m) =>
+				m.employee.fullName.toLowerCase().startsWith(memberName.toLocaleLowerCase()),
+			)
+			setFilteredMembers(newMembers)
+		} else {
+			setFilteredMembers([])
+			setSelectedMember(null)
+		}
 	}
 
 	useEffect(() => {
-		setErrors({
-			emailError: null,
-			nameError: null,
-		})
-		setMemberEmail("")
-		setMemberName("")
-		setEmailSuggests([])
-	}, [])
+		filterMembers()
+		if (selectedMember && selectedMember.employee.fullName !== memberName) {
+			setSelectedMember(null)
+		}
+	}, [memberName])
 
-	const renderEmailCompletions = (emails: string[]) => (
+	const renderEmailCompletions = (filtmembers: OT_Member[]) => (
 		<View
 			style={{
 				position: "absolute",
@@ -108,10 +127,15 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 			}}
 		>
 			<FlatList
-				data={emails}
+				data={filtmembers}
 				keyExtractor={(item, index) => index.toString()}
 				renderItem={({ item }) => (
-					<TouchableOpacity onPress={() => handleEmailInput(item)}>
+					<TouchableOpacity
+						onPress={() => {
+							setMemberName(item.employee.fullName)
+							setSelectedMember(item)
+						}}
+					>
 						<View
 							style={{
 								width: "100%",
@@ -126,58 +150,46 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 									fontSize: 14,
 								}}
 							>
-								{memberEmail}
-								<Text style={{ color: "#B1AEBC" }}>{item.replace(memberEmail, "")}</Text>
+								{memberName}
+								<Text style={{ color: "#B1AEBC" }}>
+									{item.employee.fullName.toLowerCase().replace(memberName.toLowerCase(), "")}
+								</Text>
 							</Text>
 						</View>
 					</TouchableOpacity>
 				)}
-				extraData={emailsSuggest}
+				extraData={filteredMembers}
 			/>
 		</View>
 	)
-	const canSubmit =
-		memberEmail.trim().length > 0 &&
-		memberName.trim().length > 0 &&
-		!errors.emailError &&
-		!errors.nameError
+
+	const canSubmit = selectedMember && activeTeamManagers.length >= 2
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 				<View style={{ width: "100%", marginBottom: 20 }}>
 					<Text style={[styles.mainTitle, { color: colors.primary }]}>
-						{translate("teamScreen.inviteModalTitle")}
+						{translate("settingScreen.teamSection.transferOwnership")}
 					</Text>
-					<Text style={styles.hint}>{translate("teamScreen.inviteModalHint")}</Text>
+					<Text style={styles.hint}>
+						{translate("settingScreen.teamSection.transferOwnershipHint")}
+					</Text>
 				</View>
 				<View style={{ width: "100%" }}>
 					<View>
-						{emailsSuggest.length > 0 && renderEmailCompletions(emailsSuggest)}
+						{filteredMembers.length > 0 && !selectedMember
+							? renderEmailCompletions(filteredMembers)
+							: null}
 						<TextInput
 							placeholderTextColor={colors.tertiary}
+							autoCapitalize={"none"}
+							autoCorrect={false}
+							value={memberName}
 							style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
-							autoCapitalize={"none"}
-							keyboardType="email-address"
-							value={memberEmail}
-							autoCorrect={false}
-							placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")}
-							onChangeText={(text) => handleEmailInput(text)}
-						/>
-						<Text style={[styles.hint, { color: "red" }]}>{errors.emailError}</Text>
-					</View>
-					<View>
-						<TextInput
-							placeholderTextColor={colors.tertiary}
-							autoCapitalize={"none"}
-							autoCorrect={false}
-							style={[
-								styles.textInput,
-								{ marginTop: 16, borderColor: colors.border, color: colors.primary },
-							]}
 							placeholder={translate("teamScreen.inviteNameFieldPlaceholder")}
-							onChangeText={(text) => handleNameInput(text)}
+							onChangeText={(text) => setMemberName(text)}
 						/>
-						<Text style={[styles.hint, { color: "red" }]}>{errors.nameError}</Text>
+						<Text style={[styles.hint, { color: "red" }]}>{""}</Text>
 					</View>
 					<View style={styles.wrapButtons}>
 						<TouchableOpacity
@@ -201,27 +213,12 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 	)
 }
 
-export default InviteUserModal
+export default TransferOwnership
 
-const $container: ViewStyle = {
-	...GS.flex1,
-	paddingTop: spacing.extraLarge + spacing.large,
-	paddingHorizontal: spacing.large,
-}
 const $modalBackGround: ViewStyle = {
 	flex: 1,
 	backgroundColor: "rgba(0,0,0,0.5)",
 	justifyContent: "flex-end",
-}
-const $modalContainer: ViewStyle = {
-	width: "100%",
-	height,
-	backgroundColor: "white",
-	paddingHorizontal: 30,
-	paddingVertical: 30,
-	borderRadius: 30,
-	elevation: 20,
-	justifyContent: "center",
 }
 
 const styles = StyleSheet.create({
@@ -258,7 +255,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		borderTopLeftRadius: 24,
 		borderTopRightRadius: 24,
-		height: 374,
+		height: 260,
 		paddingHorizontal: 20,
 		paddingVertical: 30,
 		width: "100%",
@@ -284,6 +281,6 @@ const styles = StyleSheet.create({
 	wrapButtons: {
 		flexDirection: "row",
 		justifyContent: "space-between",
-		marginTop: 40,
+		marginTop: 20,
 	},
 })

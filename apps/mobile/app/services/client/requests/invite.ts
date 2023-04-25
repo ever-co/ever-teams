@@ -1,10 +1,13 @@
-import { PaginationResponse } from '../../interfaces/IDataResponse';
+/* eslint-disable camelcase */
+import { PaginationResponse } from "../../interfaces/IDataResponse"
 import {
 	IInvitation,
 	IInviteCreate,
 	IInviteVerifyCode,
-} from '../../interfaces/IInvite';
-import { serverFetch } from '../fetch';
+	IMyInvitation,
+	MyInvitationActionEnum,
+} from "../../interfaces/IInvite"
+import { serverFetch } from "../fetch"
 
 /**
  * Invite user using email request
@@ -13,25 +16,22 @@ import { serverFetch } from '../fetch';
  * @param bearer_token
  * @returns
  */
-export function inviteByEmailsRequest(
-	body: IInviteCreate,
-	bearer_token: string
-) {
+export function inviteByEmailsRequest(body: IInviteCreate, bearer_token: string) {
 	return serverFetch<PaginationResponse<IInvitation>>({
-		path: '/invite/emails',
-		method: 'POST',
+		path: "/invite/emails",
+		method: "POST",
 		body,
 		bearer_token,
 		tenantId: body.tenantId,
-	});
+	})
 }
 
 type ITeamInvitationsRequest = {
-	tenantId: string;
-	organizationId: string;
-	role: 'EMPLOYEE';
-	teamId: string;
-};
+	tenantId: string
+	organizationId: string
+	role: "EMPLOYEE"
+	teamId: string
+}
 
 /**
  * Get all team invitations request
@@ -42,29 +42,29 @@ type ITeamInvitationsRequest = {
  */
 export function getTeamInvitationsRequest(
 	{ teamId, tenantId, organizationId, role }: ITeamInvitationsRequest,
-	bearer_token: string
+	bearer_token: string,
 ) {
 	const query = new URLSearchParams({
-		'where[tenantId]': tenantId,
-		'where[organizationId]': organizationId,
-		'where[role][name]': role,
-		'where[teams][id][0]': teamId,
-	});
+		"where[tenantId]": tenantId,
+		"where[organizationId]": organizationId,
+		"where[role][name]": role,
+		"where[teams][id][0]": teamId,
+	})
 	return serverFetch<PaginationResponse<IInvitation>>({
 		path: `/invite?${query.toString()}`,
-		method: 'GET',
+		method: "GET",
 		bearer_token,
-		tenantId: tenantId,
-	});
+		tenantId,
+	})
 }
 
 type ResetInviteParams = {
-	inviteId: string;
-	inviteType: 'TEAM';
-	organizationId: string;
-	callbackUrl?: string;
-	tenantId: string;
-};
+	inviteId: string
+	inviteType: "TEAM"
+	organizationId: string
+	callbackUrl?: string
+	tenantId: string
+}
 
 /**
  *  Resend email invite request
@@ -73,17 +73,14 @@ type ResetInviteParams = {
  * @param bearer_token
  * @returns
  */
-export function resendInvitationEmailRequest(
-	params: ResetInviteParams,
-	bearer_token: string
-) {
+export function resendInvitationEmailRequest(params: ResetInviteParams, bearer_token: string) {
 	return serverFetch<PaginationResponse<IInvitation>>({
-		path: '/invite/resend',
-		method: 'POST',
+		path: "/invite/resend",
+		method: "POST",
 		body: params,
 		bearer_token,
 		tenantId: params.tenantId,
-	});
+	})
 }
 
 /**
@@ -94,22 +91,22 @@ export function resendInvitationEmailRequest(
  */
 export function verifyInviteCodeRequest(params: IInviteVerifyCode) {
 	return serverFetch<any>({
-		path: '/invite/validate-by-code',
-		method: 'POST',
+		path: "/invite/validate-by-code",
+		method: "POST",
 		body: params,
-	});
+	})
 }
 
 export interface AcceptInviteParams {
 	user: {
-		firstName: string;
-		lastName: string;
-		name:string;
-		email: string;
-	};
-	password: string;
-	code: number;
-	email: string;
+		firstName: string
+		lastName: string
+		name: string
+		email: string
+	}
+	password: string
+	code: number
+	email: string
 }
 
 /**
@@ -120,10 +117,10 @@ export interface AcceptInviteParams {
  */
 export function acceptInviteRequest(params: AcceptInviteParams) {
 	return serverFetch<any>({
-		path: '/invite/accept',
-		method: 'POST',
+		path: "/invite/accept",
+		method: "POST",
 		body: params,
-	});
+	})
 }
 
 /**
@@ -137,14 +134,44 @@ export function removeTeamInvitationsRequest({
 	bearer_token,
 	tenantId,
 }: {
-	invitationId: string;
-	bearer_token: string;
-	tenantId: string;
+	invitationId: string
+	bearer_token: string
+	tenantId: string
 }) {
 	return serverFetch<any>({
 		path: `/invite/${invitationId}`,
-		method: 'DELETE',
+		method: "DELETE",
 		bearer_token,
 		tenantId,
-	});
+	})
+}
+
+/**
+ * Get my team invitations request
+ *
+ * @param param0
+ * @param bearer_token
+ * @returns
+ */
+export function getMyInvitationsRequest(tenantId: string, bearer_token: string) {
+	return serverFetch<PaginationResponse<IMyInvitation>>({
+		path: `/invite/me`,
+		method: "GET",
+		bearer_token,
+		tenantId,
+	})
+}
+
+export function acceptRejectMyInvitationsRequest(
+	tenantId: string,
+	bearer_token: string,
+	invitationId: string,
+	action: MyInvitationActionEnum,
+) {
+	return serverFetch<PaginationResponse<IInvitation>>({
+		path: `/invite/${invitationId}/${action}`,
+		method: "PUT",
+		bearer_token,
+		tenantId,
+	})
 }

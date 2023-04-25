@@ -243,6 +243,11 @@ const ko: Translations = {
 	hamburgerMenu: {
 		darkMode: "다크 모드",
 	},
+	inviteModal: {
+		accept: "Accept",
+		reject: "Reject",
+		inviteHint: "You have been invited to join",
+	},
 	demoNavigator: {
 		componentsTab: "컴포넌트",
 		debugTab: "디버그",
