@@ -68,6 +68,12 @@ function InitState() {
 	useSyncTimer();
 
 	/**
+	 * Refresh Timer Running status,
+	 * This will sync timer in all the open tabs
+	 */
+	useRefreshInterval(getTimerStatus, 5000);
+
+	/**
 	 * Refresh Teams data every 5 seconds.
 	 *
 	 * So that if Team is deleted by manager it updates the UI accordingly
