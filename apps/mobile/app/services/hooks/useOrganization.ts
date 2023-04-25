@@ -14,7 +14,6 @@ import {
 	updateOrganizationTeamEmployeeRequest,
 } from "../client/requests/organization-team-employee"
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam"
-import useAuthenticateUser from "./features/useAuthentificateUser"
 
 function useCreateOrganizationTeam() {
 	const {
@@ -29,7 +28,7 @@ function useCreateOrganizationTeam() {
 
 	const createOrganizationTeam = useCallback(
 		async (name: string) => {
-			const teams = teamsRef.current.items
+			const teams = teamsRef.current?.items || []
 			const $name = name.trim()
 			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase())
 
@@ -76,7 +75,6 @@ export function useOrganizationTeam() {
 		},
 		authenticationStore: { user, tenantId, authToken, organizationId },
 	} = useStores()
-	const { logOut } = useAuthenticateUser()
 
 	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam()
 
@@ -105,7 +103,8 @@ export function useOrganizationTeam() {
 		return m.employee.userId !== user?.id
 	})
 
-	const activeTeamManagers = activeTeam?.members.filter((m) => m.role?.name === "MANAGER") || []
+	const activeTeamManagers =
+		(activeTeam && activeTeam.members?.filter((m) => m.role?.name === "MANAGER")) || []
 
 	const isManager = () => {
 		if (activeTeam) {
@@ -182,7 +181,7 @@ export function useOrganizationTeam() {
 			})
 				.then((res) => {
 					const { response } = res
-
+					console.log(JSON.stringify(res))
 					if (
 						!response.ok ||
 						response.status === 401 ||
@@ -300,7 +299,6 @@ export function useOrganizationTeam() {
 			if (organizationTeams?.total === 0) {
 				setActiveTeamId("")
 				setActiveTeam(null)
-				logOut()
 				return
 			}
 			// UPDATE ACTIVE TEAM

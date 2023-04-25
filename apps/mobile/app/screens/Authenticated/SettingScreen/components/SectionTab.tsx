@@ -1,100 +1,113 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React from "react"
+import React, { useEffect, useMemo } from "react"
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons"
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
+import { observer } from "mobx-react-lite"
+import { useStores } from "../../../../models"
 
 interface ISectionTab {
 	id: number
 	title: string
 }
 
-const SectionTab = ({
-	activeTabId,
-	toggleTab,
-}: {
-	activeTabId: number
-	toggleTab: (tab: number) => unknown
-}) => {
-	const sections: ISectionTab[] = [
-		{
-			id: 1,
-			title: translate("settingScreen.personalSection.name"),
-		},
-		{
-			id: 2,
-			title: translate("settingScreen.teamSection.name"),
-		},
-	]
+const SectionTab = observer(
+	({ activeTabId, toggleTab }: { activeTabId: number; toggleTab: (tab: number) => unknown }) => {
+		const {
+			teamStore: { isTeamsExist },
+		} = useStores()
+		const sections: ISectionTab[] = [
+			{
+				id: 1,
+				title: translate("settingScreen.personalSection.name"),
+			},
+			{
+				id: 2,
+				title: translate("settingScreen.teamSection.name"),
+			},
+		]
 
-	const { colors } = useAppTheme()
-	return (
-		<View style={[styles.contaniner, { backgroundColor: colors.background2 }]}>
-			{sections.map((tab, idx) => (
-				<Tab key={idx} isActiveTab={tab.id === activeTabId} item={tab} toggleTab={toggleTab} />
-			))}
-		</View>
-	)
-}
+		const { colors } = useAppTheme()
 
-const Tab = ({
-	item,
-	isActiveTab,
-	toggleTab,
-}: {
-	item: ISectionTab
-	isActiveTab: boolean
-	toggleTab: (tab: number) => unknown
-}) => {
-	const { colors } = useAppTheme()
-	return (
-		<TouchableOpacity
-			style={
-				isActiveTab
-					? [
-							styles.activeSection,
-							{ backgroundColor: colors.background, borderColor: colors.secondary },
-					  ]
-					: [styles.inactiveSection]
+		useEffect(() => {
+			if (!isTeamsExist) {
+				toggleTab(1)
 			}
-			onPress={() => toggleTab(item.id)}
-		>
-			<View
-				// eslint-disable-next-line react-native/no-inline-styles
-				style={{
-					flexDirection: "row",
-					alignSelf: "center",
-					justifyContent: "center",
-					alignItems: "center",
-				}}
-			>
-				{item.id === 1 ? (
-					<Ionicons
-						name="person"
-						size={18}
-						color={isActiveTab ? colors.secondary : colors.tertiary}
-					/>
-				) : (
-					<FontAwesome5
-						name="users"
-						size={18}
-						color={isActiveTab ? colors.secondary : colors.tertiary}
-					/>
-				)}
-				<Text
-					style={[
-						styles.text,
-						isActiveTab ? { fontSize: 14, color: colors.secondary } : { color: colors.tertiary },
-					]}
-				>
-					{item.title}
-				</Text>
+		}, [isTeamsExist])
+
+		return (
+			<View style={[styles.contaniner, { backgroundColor: colors.background2 }]}>
+				{sections.map((tab, idx) => (
+					<Tab key={idx} isActiveTab={tab.id === activeTabId} item={tab} toggleTab={toggleTab} />
+				))}
 			</View>
-		</TouchableOpacity>
-	)
-}
+		)
+	},
+)
+
+const Tab = observer(
+	({
+		item,
+		isActiveTab,
+		toggleTab,
+	}: {
+		item: ISectionTab
+		isActiveTab: boolean
+		toggleTab: (tab: number) => unknown
+	}) => {
+		const { colors } = useAppTheme()
+		const {
+			teamStore: { isTeamsExist },
+		} = useStores()
+		return (
+			<TouchableOpacity
+				style={
+					isActiveTab
+						? [
+								styles.activeSection,
+								{ backgroundColor: colors.background, borderColor: colors.secondary },
+						  ]
+						: [styles.inactiveSection]
+				}
+				onPress={() => (item.id === 2 && !isTeamsExist ? {} : toggleTab(item.id))}
+			>
+				<View
+					// eslint-disable-next-line react-native/no-inline-styles
+					style={{
+						flexDirection: "row",
+						alignSelf: "center",
+						justifyContent: "center",
+						alignItems: "center",
+					}}
+				>
+					{item.id === 1 ? (
+						<Ionicons
+							name="person"
+							size={18}
+							color={isActiveTab ? colors.secondary : colors.tertiary}
+						/>
+					) : (
+						<FontAwesome5
+							name="users"
+							size={18}
+							color={isActiveTab ? colors.secondary : colors.tertiary}
+						/>
+					)}
+					<Text
+						style={[
+							styles.text,
+							isActiveTab ? { fontSize: 14, color: colors.secondary } : { color: colors.tertiary },
+						]}
+					>
+						{item.title}
+					</Text>
+				</View>
+			</TouchableOpacity>
+		)
+	},
+)
 
 const styles = StyleSheet.create({
 	activeSection: {

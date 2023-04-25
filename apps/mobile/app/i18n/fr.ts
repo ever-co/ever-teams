@@ -170,6 +170,10 @@ const fr = {
 			createButtonText: "Create",
 			updateButtonText: "Update",
 		},
+		noTeamScreen: {
+			createYourTeam: "Create your own team or join existed",
+			hintMessage: "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.",
+		},
 		priorityScreen: {
 			mainTitle: "Task Priorities",
 			listPriorities: "List of Priorities",

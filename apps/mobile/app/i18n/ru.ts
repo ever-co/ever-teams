@@ -94,6 +94,10 @@ const ru = {
 		createButton: "Create",
 		assignButton: "Assign",
 	},
+	noTeamScreen: {
+		createYourTeam: "Create your own team or join existed",
+		hintMessage: "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.",
+	},
 	settingScreen: {
 		name: "Settings",
 		personalSection: {

@@ -98,6 +98,10 @@ const ar: Translations = {
 		createButton: "خلق",
 		assignButton: "تعيين",
 	},
+	noTeamScreen: {
+		createYourTeam: "Create your own team or join existed",
+		hintMessage: "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.",
+	},
 	settingScreen: {
 		name: "Settings",
 		personalSection: {

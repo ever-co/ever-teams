@@ -33,6 +33,9 @@ import { ITeamTask } from "../../../services/interfaces/ITask"
 import ProfileScreenSkeleton from "./components/ProfileScreenSkeleton"
 import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
 import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
+import NoTeam from "../../../components/NoTeam"
+import CreateTeamModal from "../../../components/CreateTeamModal"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
@@ -42,6 +45,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 		const {
 			TimerStore: { localTimerStatus },
 			authenticationStore: { user },
+			teamStore: { isTeamsExist },
 		} = useStores()
 		const { tabIndex, userId } = _props.route.params || { tabIndex: 0, userId: user.id || "" }
 		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
@@ -64,8 +68,10 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 			activeTask,
 			assignListRefresh,
 			isLoading,
+			showCreateTeamModal,
+			setShowCreateTeamModal,
 		} = useProfileScreenLogic({ userId: userId || user?.id, activeTabIndex: tabIndex | 0 })
-
+		const { createOrganizationTeam } = useOrganizationTeam()
 		const isAuthUser = false
 
 		return (
@@ -74,12 +80,6 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 					<BlurView tint="dark" intensity={18} style={$blurContainer} />
 				) : null}
 				<Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
-					<AssignTaskFormModal
-						memberId={currentUser.id}
-						visible={showModal}
-						onDismiss={() => setShowModal(false)}
-					/>
-					<FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
 					{isLoading ? (
 						<ProfileScreenSkeleton />
 					) : (
@@ -91,216 +91,235 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 								onAcceptInvitation={onAcceptInvitation}
 								onRejectInvitation={onRejectInvitation}
 							/>
-							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
-							<View style={{ paddingTop: 5 }}>
-								<ProfileHeader {...currentUser} />
-							</View>
-
-							<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
-								<TouchableOpacity
-									onPress={() => setShowModal(true)}
-									style={[
-										$assignStyle,
-										{
-											backgroundColor: colors.background,
-											borderColor: colors.secondary,
-										},
-									]}
-								>
-									<Text style={[$createTaskTitle, { color: colors.secondary }]}>
-										{isAuthUser
-											? translate("tasksScreen.createTaskButton")
-											: translate("tasksScreen.assignTaskButton")}
-									</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									style={{ ...$filterButton, borderColor: colors.border }}
-									onPress={() => setShowFilterPopup(true)}
-								>
-									{dark ? (
-										<Image source={require("../../../../assets/icons/new/setting-dark.png")} />
-									) : (
-										<Image source={require("../../../../assets/icons/new/setting-light.png")} />
-									)}
-									<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>
-										Filter
-									</Text>
-								</TouchableOpacity>
-							</View>
-
-							<ProfileTabs
-								onChangeTab={setSelectedTabIndex}
-								activeTab={selectedTabIndex}
-								countTasksByTab={countTasksByTab}
+							<CreateTeamModal
+								onCreateTeam={createOrganizationTeam}
+								visible={showCreateTeamModal}
+								onDismiss={() => setShowCreateTeamModal(false)}
 							/>
-							<View
-								style={{
-									flex: 1,
-									zIndex: 998,
-									paddingHorizontal: 20,
-									backgroundColor: dark ? "rgb(16,17,20)" : colors.background2,
-								}}
-							>
-								{/* START WORKED TAB CONTENT */}
-								{selectedTabIndex === 0 && (
-									<ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-										<View>
-											<View>
-												<View
-													style={{
-														flexDirection: "row",
-														justifyContent: "space-between",
-														marginVertical: 20,
-													}}
-												>
-													<Text style={[$textLabel, { color: colors.primary }]}>
-														{translate("tasksScreen.now")}
-													</Text>
-													<View
-														style={{
-															width: width / 1.8,
-															alignSelf: "center",
-															borderBottomWidth: 1,
-															borderBottomColor: colors.border,
-														}}
-													/>
-													<View style={{ flexDirection: "row" }}>
-														<Text
+							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
+							{isTeamsExist ? (
+								<View>
+									<AssignTaskFormModal
+										memberId={currentUser?.id}
+										visible={showModal}
+										onDismiss={() => setShowModal(false)}
+									/>
+									<FilterPopup
+										visible={showFilterPopup}
+										onDismiss={() => setShowFilterPopup(false)}
+									/>
+									<View style={{ paddingTop: 5 }}>
+										<ProfileHeader {...currentUser} />
+									</View>
+
+									<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
+										<TouchableOpacity
+											onPress={() => setShowModal(true)}
+											style={[
+												$assignStyle,
+												{
+													backgroundColor: colors.background,
+													borderColor: colors.secondary,
+												},
+											]}
+										>
+											<Text style={[$createTaskTitle, { color: colors.secondary }]}>
+												{isAuthUser
+													? translate("tasksScreen.createTaskButton")
+													: translate("tasksScreen.assignTaskButton")}
+											</Text>
+										</TouchableOpacity>
+										<TouchableOpacity
+											style={{ ...$filterButton, borderColor: colors.border }}
+											onPress={() => setShowFilterPopup(true)}
+										>
+											{dark ? (
+												<Image source={require("../../../../assets/icons/new/setting-dark.png")} />
+											) : (
+												<Image source={require("../../../../assets/icons/new/setting-light.png")} />
+											)}
+											<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>
+												Filter
+											</Text>
+										</TouchableOpacity>
+									</View>
+
+									<ProfileTabs
+										onChangeTab={setSelectedTabIndex}
+										activeTab={selectedTabIndex}
+										countTasksByTab={countTasksByTab}
+									/>
+									<View
+										style={{
+											flex: 1,
+											zIndex: 998,
+											paddingHorizontal: 20,
+											backgroundColor: dark ? "rgb(16,17,20)" : colors.background2,
+										}}
+									>
+										{/* START WORKED TAB CONTENT */}
+										{selectedTabIndex === 0 && (
+											<ScrollView bounces={false} showsVerticalScrollIndicator={false}>
+												<View>
+													<View>
+														<View
 															style={{
-																color: colors.primary,
-																fontSize: 12,
-																fontFamily: typography.secondary.medium,
+																flexDirection: "row",
+																justifyContent: "space-between",
+																marginVertical: 20,
 															}}
 														>
-															{translate("tasksScreen.totalTimeLabel")}:
-														</Text>
-														<Text
-															style={[
-																$textLabel,
-																{
-																	marginLeft: 5,
-																	color: colors.primary,
-																	fontFamily: typography.primary.semiBold,
-																	fontSize: 12,
-																},
-															]}
+															<Text style={[$textLabel, { color: colors.primary }]}>
+																{translate("tasksScreen.now")}
+															</Text>
+															<View
+																style={{
+																	width: width / 1.8,
+																	alignSelf: "center",
+																	borderBottomWidth: 1,
+																	borderBottomColor: colors.border,
+																}}
+															/>
+															<View style={{ flexDirection: "row" }}>
+																<Text
+																	style={{
+																		color: colors.primary,
+																		fontSize: 12,
+																		fontFamily: typography.secondary.medium,
+																	}}
+																>
+																	{translate("tasksScreen.totalTimeLabel")}:
+																</Text>
+																<Text
+																	style={[
+																		$textLabel,
+																		{
+																			marginLeft: 5,
+																			color: colors.primary,
+																			fontFamily: typography.primary.semiBold,
+																			fontSize: 12,
+																		},
+																	]}
+																>
+																	03:31
+																</Text>
+															</View>
+														</View>
+														{activeTask && (
+															<ListCardItem
+																tabIndex={selectedTabIndex}
+																isActive={true}
+																member={member.employee.user}
+																index={1000}
+																item={activeTask as ITeamTask}
+																enableEstimate={false}
+																handleEstimate={() => {}}
+																handleTaskTitle={() => {}}
+															/>
+														)}
+													</View>
+													<View>
+														<View
+															style={{
+																flexDirection: "row",
+																justifyContent: "space-between",
+																marginVertical: 20,
+															}}
 														>
-															03:31
-														</Text>
+															<Text style={[$textLabel, { color: colors.primary }]}>
+																{translate("tasksScreen.last24hours")} ({otherTasks.length})
+															</Text>
+															<View
+																style={{
+																	width: width / 1.5,
+																	alignSelf: "center",
+																	top: 3,
+																	borderBottomWidth: 1,
+																	borderBottomColor: colors.border,
+																}}
+															/>
+														</View>
+														{otherTasks.map((item, index) => (
+															<View key={index.toString()} style={{ ...GS.mb4 }}>
+																<ListCardItem
+																	tabIndex={selectedTabIndex}
+																	isActive={false}
+																	member={member.employee.user}
+																	index={index}
+																	item={item as any}
+																	enableEstimate={false}
+																/>
+															</View>
+														))}
 													</View>
 												</View>
-												{activeTask && (
-													<ListCardItem
-														tabIndex={selectedTabIndex}
-														isActive={true}
-														member={member.employee.user}
-														index={1000}
-														item={activeTask as ITeamTask}
-														enableEstimate={false}
-														handleEstimate={() => {}}
-														handleTaskTitle={() => {}}
-													/>
-												)}
+											</ScrollView>
+										)}
+										{/* END WORKED TAB CONTENT */}
+										{/* ------------------------------------------------------------ */}
+										{/* START ASSIGNED TAB CONTENT */}
+
+										{selectedTabIndex === 1 && (
+											<View style={{}}>
+												<FlatList
+													data={assignedTasks}
+													renderItem={({ item, index }) => (
+														<View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
+															<ListCardItem
+																tabIndex={selectedTabIndex}
+																member={member.employee.user}
+																index={index}
+																isActive={false}
+																key={index.toString()}
+																onUnassignTask={handleUnassignTask}
+																item={item as any}
+																enableEstimate={false}
+															/>
+														</View>
+													)}
+													extraData={assignListRefresh}
+													legacyImplementation={true}
+													showsVerticalScrollIndicator={false}
+													keyExtractor={(_, index) => index.toString()}
+												/>
 											</View>
-											<View>
-												<View
-													style={{
-														flexDirection: "row",
-														justifyContent: "space-between",
-														marginVertical: 20,
-													}}
-												>
-													<Text style={[$textLabel, { color: colors.primary }]}>
-														{translate("tasksScreen.last24hours")} ({otherTasks.length})
-													</Text>
-													<View
-														style={{
-															width: width / 1.5,
-															alignSelf: "center",
-															top: 3,
-															borderBottomWidth: 1,
-															borderBottomColor: colors.border,
-														}}
-													/>
-												</View>
-												{otherTasks.map((item, index) => (
-													<View key={index.toString()} style={{ ...GS.mb4 }}>
-														<ListCardItem
-															tabIndex={selectedTabIndex}
-															isActive={false}
-															member={member.employee.user}
-															index={index}
-															item={item as any}
-															enableEstimate={false}
-														/>
-													</View>
-												))}
+										)}
+
+										{/* END ASSIGNED TAB CONTENT */}
+										{/* ----------------------------------------------------------------------- */}
+
+										{/* START UNASSIGNED TAB CONTENT */}
+										{selectedTabIndex === 2 && (
+											<View style={{ ...GS.mt2 }}>
+												<FlatList
+													data={unassignedTasks}
+													renderItem={({ item, index }) => (
+														<View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
+															<ListCardItem
+																tabIndex={selectedTabIndex}
+																member={member.employee.user}
+																index={index}
+																isActive={false}
+																key={index.toString()}
+																onAssignTask={handleAssignTask}
+																item={item as any}
+																enableEstimate={false}
+															/>
+														</View>
+													)}
+													extraData={assignListRefresh}
+													legacyImplementation={true}
+													showsVerticalScrollIndicator={false}
+													keyExtractor={(_, index) => index.toString()}
+												/>
 											</View>
-										</View>
-									</ScrollView>
-								)}
-								{/* END WORKED TAB CONTENT */}
-								{/* ------------------------------------------------------------ */}
-								{/* START ASSIGNED TAB CONTENT */}
-
-								{selectedTabIndex === 1 && (
-									<View style={{}}>
-										<FlatList
-											data={assignedTasks}
-											renderItem={({ item, index }) => (
-												<View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
-													<ListCardItem
-														tabIndex={selectedTabIndex}
-														member={member.employee.user}
-														index={index}
-														isActive={false}
-														key={index.toString()}
-														onUnassignTask={handleUnassignTask}
-														item={item as any}
-														enableEstimate={false}
-													/>
-												</View>
-											)}
-											extraData={assignListRefresh}
-											legacyImplementation={true}
-											showsVerticalScrollIndicator={false}
-											keyExtractor={(_, index) => index.toString()}
-										/>
+										)}
+										{/* END UNASSIGNED TAB CONTENT */}
 									</View>
-								)}
-
-								{/* END ASSIGNED TAB CONTENT */}
-								{/* ----------------------------------------------------------------------- */}
-
-								{/* START UNASSIGNED TAB CONTENT */}
-								{selectedTabIndex === 2 && (
-									<View style={{ ...GS.mt2 }}>
-										<FlatList
-											data={unassignedTasks}
-											renderItem={({ item, index }) => (
-												<View key={index} style={{ ...GS.mb2, ...GS.mt2 }}>
-													<ListCardItem
-														tabIndex={selectedTabIndex}
-														member={member.employee.user}
-														index={index}
-														isActive={false}
-														key={index.toString()}
-														onAssignTask={handleAssignTask}
-														item={item as any}
-														enableEstimate={false}
-													/>
-												</View>
-											)}
-											extraData={assignListRefresh}
-											legacyImplementation={true}
-											showsVerticalScrollIndicator={false}
-											keyExtractor={(_, index) => index.toString()}
-										/>
-									</View>
-								)}
-								{/* END UNASSIGNED TAB CONTENT */}
-							</View>
-							<FlashMessage position={"bottom"} />
+								</View>
+							) : (
+								<NoTeam onPress={() => setShowCreateTeamModal(true)} />
+							)}
 						</>
 					)}
 				</Screen>
