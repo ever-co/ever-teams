@@ -78,11 +78,11 @@ export function useAuthenticationTeam() {
 					if (!noTeam) {
 						setActiveTeamId(team.id)
 						setActiveTeam(team)
-						setOrganizationId(team.organizationId)
-						setTenantId(team.tenantId)
 					}
 
 					// Save Auth Token
+					setTenantId(user.tenantId)
+					setOrganizationId(user.employee.organizationId)
 					setAuthToken(loginRes.access_token)
 					setRefreshToken(loginRes.refresh_token.token)
 					setIsLoading(false)

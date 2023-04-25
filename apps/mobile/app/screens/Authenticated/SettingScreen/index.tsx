@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox } from "react-native"
 import Animated from "react-native-reanimated"
 import BottomSheet from "reanimated-bottom-sheet"
@@ -17,6 +17,7 @@ import PersonalSettings from "./Personal"
 import TeamSettings from "./Team"
 import { useAppTheme } from "../../../theme"
 import FlashMessage from "react-native-flash-message"
+import { useStores } from "../../../models"
 
 export type IPopup =
 	| "Names"
@@ -38,6 +39,9 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 		LogBox.ignoreAllLogs()
 		const { colors } = useAppTheme()
 		const { isLoading } = useSettings()
+		const {
+			teamStore: { isTeamsExist },
+		} = useStores()
 
 		// ref
 		const sheetRef = React.useRef(null)
@@ -92,9 +96,9 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 							</View>
 						) : activeTab === 1 ? (
 							<PersonalSettings onOpenBottomSheet={(sheet, snap) => openBottomSheet(sheet, snap)} />
-						) : (
+						) : isTeamsExist ? (
 							<TeamSettings props={{ ..._props }} onOpenBottomSheet={openBottomSheet} />
-						)}
+						) : null}
 					</View>
 				</View>
 
