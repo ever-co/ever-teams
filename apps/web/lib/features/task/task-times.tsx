@@ -4,7 +4,7 @@ import {
 	useLiveTimerStatus,
 	useOrganizationTeams,
 } from '@app/hooks';
-import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
+import { IClassName, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
@@ -13,7 +13,7 @@ type Props = {
 	task: Nullable<ITeamTask>;
 	isAuthUser: boolean;
 	activeAuthTask: boolean;
-	memberInfo?: I_TeamMemberCardHook;
+	memberInfo?: I_TeamMemberCardHook | OT_Member | any;
 	showDaily?: boolean;
 	showTotal?: boolean;
 } & IClassName;
@@ -28,7 +28,7 @@ export function TaskTimes({
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = activeTeam?.members.find(
-		(member) => member.id === memberInfo?.member?.id
+		(member) => member.id === memberInfo?.member?.id || memberInfo?.id
 	);
 
 	const { h, m } = secondsToTime(
