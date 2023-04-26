@@ -1,4 +1,4 @@
-import { useUserProfilePage } from '@app/hooks';
+import { useOrganizationTeams, useUserProfilePage } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
@@ -17,6 +17,7 @@ import Link from 'next/link';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	const hook = useTaskFilter(profile);
 
@@ -24,7 +25,7 @@ const Profile = () => {
 
 	return (
 		<>
-			<MainLayout showTimer={!profile.isAuthUser}>
+			<MainLayout showTimer={!profile.isAuthUser && isTrackingEnabled}>
 				<MainHeader>
 					{/* Breadcrumb */}
 					<div className="flex items-center space-x-5">
@@ -39,7 +40,7 @@ const Profile = () => {
 					<div className="flex items-center justify-between py-10 xs:flex-row flex-col">
 						<UserProfileDetail member={profile.member} />
 
-						{profile.isAuthUser && (
+						{profile.isAuthUser && isTrackingEnabled && (
 							<Timer
 								className={clsxm(
 									'p-5 rounded-lg shadow-xlcard',

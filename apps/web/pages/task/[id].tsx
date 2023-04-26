@@ -2,7 +2,6 @@ import { useTranslation } from 'lib/i18n';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import {
-	useAuthenticateUser,
 	useOrganizationTeams,
 	useTeamTasks,
 	useUserProfilePage,
@@ -26,13 +25,7 @@ const TaskDetails = () => {
 	const [, setTask] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
-	const { user } = useAuthenticateUser();
-	const { activeTeam } = useOrganizationTeams();
-	const isTrackingEnabled = activeTeam?.members?.find(
-		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
-	)
-		? true
-		: false;
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	useEffect(() => {
 		if (router.isReady && router.query?.id && tasks.length > 0) {
