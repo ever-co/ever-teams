@@ -2,7 +2,6 @@ import { useTranslation } from 'lib/i18n';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import {
-	useAuthenticateUser,
 	useOrganizationTeams,
 	useTeamTasks,
 	useUserProfilePage,
