@@ -35,8 +35,8 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	}, [])
 
 	const imageUrl = useMemo(
-		() => activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl || activeTeam.logo,
-		[activeTeam.image?.thumb],
+		() => activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl || activeTeam?.logo,
+		[activeTeam?.image?.thumb],
 	)
 
 	return (
@@ -49,7 +49,7 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 					}}
 				/>
 			) : (
-				<Avatar.Text size={70} label={imgTitle(activeTeam.name)} labelStyle={styles.prefix} />
+				<Avatar.Text size={70} label={imgTitle(activeTeam?.name)} labelStyle={styles.prefix} />
 			)}
 			<TouchableOpacity
 				style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}

@@ -19,7 +19,7 @@ const HamburgerMenu = observer((props: any) => {
 	const {
 		TaskStore: { resetTeamTasksData },
 		authenticationStore: { user, logout, toggleTheme },
-		teamStore: { clearStoredTeamData },
+		teamStore: { clearStoredTeamData, isTeamsExist },
 	} = useStores()
 	const { createOrganizationTeam } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
@@ -61,15 +61,19 @@ const HamburgerMenu = observer((props: any) => {
 					>
 						{user?.email}
 					</Text>
-					<DropDown resized={true} onCreateTeam={() => setShowCreateTeamModal(true)} />
+					{isTeamsExist ? (
+						<DropDown resized={true} onCreateTeam={() => setShowCreateTeamModal(true)} />
+					) : null}
 				</View>
 				<View style={styles.navigationSection}>
-					<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
-						<Ionicons style={styles.icon} name="person" size={24} color={colors.primary} />
-						<Text style={[styles.screenLabel, { color: colors.primary }]}>
-							{translate("myWorkScreen.name")}
-						</Text>
-					</TouchableOpacity>
+					{isTeamsExist ? (
+						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
+							<Ionicons style={styles.icon} name="person" size={24} color={colors.primary} />
+							<Text style={[styles.screenLabel, { color: colors.primary }]}>
+								{translate("myWorkScreen.name")}
+							</Text>
+						</TouchableOpacity>
+					) : null}
 
 					<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Team")}>
 						<FontAwesome5 style={styles.icon} name="users" size={24} color={colors.primary} />
