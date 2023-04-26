@@ -37,10 +37,11 @@ function InitState() {
 
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 
-	const { firstLoadTaskStatusData } = useTaskStatus();
-	const { firstLoadTaskPrioritiesData } = useTaskPriorities();
-	const { firstLoadTaskSizesData } = useTaskSizes();
-	const { firstLoadTaskLabelsData } = useTaskLabels();
+	const { firstLoadTaskStatusData, loadTaskStatusData } = useTaskStatus();
+	const { firstLoadTaskPrioritiesData, loadTaskPriorities } =
+		useTaskPriorities();
+	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizes();
+	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabels();
 	const { firstLoadIssueTypeData } = useIssueType();
 
 	useOneTimeLoad(() => {
@@ -98,6 +99,11 @@ function InitState() {
 		5000,
 		true /* used as loadTeamTasksData deepCheck param */
 	);
+
+	useRefreshInterval(loadTaskStatusData, 5000, true);
+	useRefreshInterval(loadTaskPriorities, 5000, true);
+	useRefreshInterval(loadTaskSizes, 5000, true);
+	useRefreshInterval(loadTaskLabels, 5000, true);
 
 	return <></>;
 }
