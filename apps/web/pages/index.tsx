@@ -42,7 +42,11 @@ function MainPage() {
 			</MainHeader>
 
 			<Container className="mb-10">
-				{isTeamMember ? <TeamMembers /> : <NoTeam />}
+				{isTeamMember ? (
+					<TeamMembers isTrackingEnabled={isTrackingEnabled} />
+				) : (
+					<NoTeam />
+				)}
 			</Container>
 		</MainLayout>
 	);

@@ -16,7 +16,13 @@ import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCa
 import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
 // import { useEffect } from 'react';
 
-export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
+export function TeamMembers({
+	publicTeam = false,
+	isTrackingEnabled = true,
+}: {
+	publicTeam?: boolean;
+	isTrackingEnabled?: boolean;
+}) {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, teamsFetching } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
@@ -47,7 +53,7 @@ export function TeamMembers({ publicTeam = false }: { publicTeam?: boolean }) {
 		<ul className="mt-7">
 			{/* Current authenticated user members */}
 			<Transition
-				show={!!currentUser}
+				show={!!currentUser && isTrackingEnabled}
 				enter="transition-opacity duration-75"
 				enterFrom="opacity-0"
 				enterTo="opacity-100"
