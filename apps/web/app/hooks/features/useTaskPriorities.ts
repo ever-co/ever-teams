@@ -15,6 +15,7 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import isEqual from 'lodash/isEqual';
 
 export function useTaskPriorities() {
 	const [user] = useRecoilState(userState);
@@ -44,17 +45,24 @@ export function useTaskPriorities() {
 		}
 	}, [loading, firstLoad, setTaskPrioritiesFetching]);
 
-	useEffect(() => {
-		if (!firstLoad) return;
-
+	const loadTaskPriorities = useCallback(() => {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
 			activeTeamId || null
 		).then((res) => {
-			setTaskPriorities(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.data?.items || [], taskPriorities)) {
+				setTaskPriorities(res?.data?.data?.items || []);
+			}
+
 			return res;
 		});
+	}, [user, activeTeamId, setTaskPriorities]);
+
+	useEffect(() => {
+		if (!firstLoad) return;
+
+		loadTaskPriorities();
 	}, [activeTeamId, firstLoad]);
 
 	const createTaskPriorities = useCallback(
@@ -146,5 +154,6 @@ export function useTaskPriorities() {
 		editTaskPriorities,
 		editTaskPrioritiesLoading,
 		setTaskPriorities,
+		loadTaskPriorities,
 	};
 }
