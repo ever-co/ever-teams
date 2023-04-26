@@ -11,18 +11,12 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
-	const { isTeamMember, activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
-	const isTrackingEnabled = activeTeam?.members?.find(
-		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
-	)
-		? true
-		: false;
+	const { isTeamMember, isTrackingEnabled } = useOrganizationTeams();
 
 	return (
 		<MainLayout>
@@ -42,11 +36,7 @@ function MainPage() {
 			</MainHeader>
 
 			<Container className="mb-10">
-				{isTeamMember ? (
-					<TeamMembers isTrackingEnabled={isTrackingEnabled} />
-				) : (
-					<NoTeam />
-				)}
+				{isTeamMember ? <TeamMembers /> : <NoTeam />}
 			</Container>
 		</MainLayout>
 	);
