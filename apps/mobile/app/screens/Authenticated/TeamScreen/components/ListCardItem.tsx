@@ -355,7 +355,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 
 	const { index, userStatus, onPressIn, member } = props
 	const iuser = member.employee.user
-	const isAuthUser = member.employee.userId === currentUser.id
+	const isAuthUser = member.employee.userId === currentUser?.id
 	return (
 		<Card
 			style={{

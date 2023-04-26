@@ -22,7 +22,7 @@ export function TaskProgressBar({
 	memberInfo?: I_TeamMemberCardHook;
 }) {
 	const seconds = useRecoilValue(timerSecondsState);
-	const { getEstimation, addSeconds } = useTaskStatistics(
+	const { getEstimation /*, addSeconds*/ } = useTaskStatistics(
 		isAuthUser && activeAuthTask ? seconds : 0
 	);
 
@@ -35,7 +35,7 @@ export function TaskProgressBar({
 			? currentMember?.totalWorkedTasks.find((t) => t.id === task?.id) || null
 			: null,
 		task,
-		addSeconds || 0,
+		/*addSeconds || */ 0,
 		currentMember?.lastWorkedTask?.estimate || 0
 	);
 

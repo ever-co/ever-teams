@@ -38,6 +38,7 @@ import useTeamScreenLogic from "./logics/useTeamScreenLogic"
 import TeamScreenSkeleton from "./components/TeamScreenSkeleton"
 import AcceptInviteModal from "./components/AcceptInviteModal"
 import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
+import NoTeam from "../../../components/NoTeam"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -46,7 +47,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 		LogBox.ignoreAllLogs()
 		// Get authentificate data
 		const {
-			teamStore: { teamInvitations },
+			teamStore: { teamInvitations, isTeamsExist },
 			TimerStore: { localTimerStatus },
 		} = useStores()
 
@@ -75,7 +76,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 				<Screen
 					contentContainerStyle={[$container, { backgroundColor: colors.background }]}
 					backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
-					statusBarStyle={dark ? "light" : "dark"}
+					statusBarStyle={!dark ? "light" : "dark"}
 					StatusBarProps={{ backgroundColor: "black" }}
 					safeAreaEdges={["top"]}
 				>
@@ -100,70 +101,76 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 								onDismiss={() => setShowCreateTeamModal(false)}
 							/>
 							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
-							<View
-								style={{
-									...$wrapTeam,
-									backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)",
-								}}
-							>
-								<View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
-									<DropDown
-										resized={isTeamManager}
-										onCreateTeam={() => setShowCreateTeamModal(true)}
-									/>
-								</View>
-								{isTeamManager ? (
-									<TouchableOpacity
-										style={[$inviteButton, { borderColor: colors.secondary }]}
-										onPress={() => setShowInviteModal(true)}
-									>
-										<Text style={[$inviteButtonText, { color: colors.secondary }]}>
-											{translate("teamScreen.inviteButton")}
-										</Text>
-									</TouchableOpacity>
-								) : null}
-							</View>
-							<TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-								{/* Users activity list */}
-								<ScrollView
-									bounces={false}
-									showsVerticalScrollIndicator={false}
-									contentContainerStyle={{ ...GS.px1 }}
-									style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
-								>
+							{isTeamsExist ? (
+								<>
 									<View
 										style={{
-											marginBottom: 30,
+											...$wrapTeam,
+											backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)",
 										}}
 									>
-										{currentUser && (
-											<ListCardItem
-												member={currentUser}
-												onPressIn={goToProfile}
-												enableEstimate={false}
-												index={7}
-												userStatus={"online"}
+										<View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
+											<DropDown
+												resized={isTeamManager}
+												onCreateTeam={() => setShowCreateTeamModal(true)}
 											/>
-										)}
-
-										{$otherMembers.map((member, index) => (
-											<ListCardItem
-												key={index}
-												member={member}
-												onPressIn={goToProfile}
-												enableEstimate={false}
-												index={9}
-												userStatus={"online"}
-											/>
-										))}
-
-										{teamInvitations &&
-											teamInvitations.map((invite, idx) => (
-												<InviteCardItem key={idx} invite={invite} />
-											))}
+										</View>
+										{isTeamManager ? (
+											<TouchableOpacity
+												style={[$inviteButton, { borderColor: colors.secondary }]}
+												onPress={() => setShowInviteModal(true)}
+											>
+												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+													{translate("teamScreen.inviteButton")}
+												</Text>
+											</TouchableOpacity>
+										) : null}
 									</View>
-								</ScrollView>
-							</TouchableWithoutFeedback>
+									<TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
+										{/* Users activity list */}
+										<ScrollView
+											bounces={false}
+											showsVerticalScrollIndicator={false}
+											contentContainerStyle={{ ...GS.px1 }}
+											style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
+										>
+											<View
+												style={{
+													marginBottom: 30,
+												}}
+											>
+												{currentUser && (
+													<ListCardItem
+														member={currentUser}
+														onPressIn={goToProfile}
+														enableEstimate={false}
+														index={7}
+														userStatus={"online"}
+													/>
+												)}
+
+												{$otherMembers.map((member, index) => (
+													<ListCardItem
+														key={index}
+														member={member}
+														onPressIn={goToProfile}
+														enableEstimate={false}
+														index={9}
+														userStatus={"online"}
+													/>
+												))}
+
+												{teamInvitations &&
+													teamInvitations.map((invite, idx) => (
+														<InviteCardItem key={idx} invite={invite} />
+													))}
+											</View>
+										</ScrollView>
+									</TouchableWithoutFeedback>
+								</>
+							) : (
+								<NoTeam onPress={() => setShowCreateTeamModal(true)} />
+							)}
 							<FlashMessage position="bottom" />
 						</>
 					)}

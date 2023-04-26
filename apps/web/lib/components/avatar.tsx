@@ -3,6 +3,7 @@ import { clsxm, isValidUrl } from '@app/utils';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, useMemo } from 'react';
 import { useRecoilState } from 'recoil';
+import hasOwn from 'lodash/has';
 
 type Props = {
 	className?: string;
@@ -26,7 +27,7 @@ export function Avatar({
 
 	const imagePathName =
 		imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
-	const avatarPresent = Object.hasOwn(avatar, imagePathName);
+	const avatarPresent = hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
 		if (avatarPresent) {

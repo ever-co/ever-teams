@@ -97,6 +97,10 @@ const ko: Translations = {
 		createButton: "창조하다",
 		assignButton: "양수인",
 	},
+	noTeamScreen: {
+		createYourTeam: "Create your own team or join existed",
+		hintMessage: "Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.",
+	},
 	settingScreen: {
 		name: "Settings",
 		personalSection: {

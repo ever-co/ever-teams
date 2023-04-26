@@ -16,11 +16,16 @@ import TimerScreenSkeleton from "./components/TimerScreenSkeleton"
 import { useAppTheme } from "../../../theme"
 import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
 import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
+import NoTeam from "../../../components/NoTeam"
+import { useStores } from "../../../models"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(
 	function AuthenticatedTimerScreen(_props) {
 		// HOOKS
 		const { createOrganizationTeam } = useOrganizationTeam()
+		const {
+			teamStore: { isTeamsExist },
+		} = useStores()
 		const { showCreateTeamModal, setShowCreateTeamModal } = useTimerScreenLogic()
 		const [isLoading, setIsLoading] = useState<boolean>(true)
 
@@ -54,20 +59,27 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 							onAcceptInvitation={onAcceptInvitation}
 							onRejectInvitation={onRejectInvitation}
 						/>
-						<View>
-							<CreateTeamModal
-								onCreateTeam={createOrganizationTeam}
-								visible={showCreateTeamModal}
-								onDismiss={() => setShowCreateTeamModal(false)}
-							/>
-							<View style={{ zIndex: 1000 }}>
-								<HomeHeader props={_props} showTimer={false} />
-							</View>
-							<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
-								<DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
-							</View>
-							<TimerTaskSection />
+
+						<CreateTeamModal
+							onCreateTeam={createOrganizationTeam}
+							visible={showCreateTeamModal}
+							onDismiss={() => setShowCreateTeamModal(false)}
+						/>
+						<View style={{ zIndex: 1000 }}>
+							<HomeHeader props={_props} showTimer={false} />
 						</View>
+
+						{isTeamsExist ? (
+							<>
+								<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
+									<DropDown resized={false} onCreateTeam={() => setShowCreateTeamModal(true)} />
+								</View>
+
+								<TimerTaskSection />
+							</>
+						) : (
+							<NoTeam onPress={() => setShowCreateTeamModal(true)} />
+						)}
 					</>
 				)}
 			</Screen>

@@ -20,6 +20,8 @@ import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { useSyncRef } from '../useSyncRef';
 import { Nullable } from '@app/interfaces';
 import { useRefreshInterval } from './useRefreshInterval';
+import { useOrganizationTeams } from './useOrganizationTeams';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const [statActiveTask, setStatActiveTask] = useRecoilState(
@@ -33,6 +35,12 @@ export function useTaskStatistics(addSeconds = 0) {
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
 		useFirstLoad();
+
+	const { activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+	const currentMember = activeTeam?.members.find(
+		(member) => member.employeeId === user?.employee.id
+	);
 
 	// Refs
 	const initialLoad = useRef(false);
@@ -148,10 +156,20 @@ export function useTaskStatistics(addSeconds = 0) {
 			100
 		);
 
-	const activeTaskEstimation =
-		activeTeamTask && activeTeamTask.estimate
-			? getEstimation(statActiveTask.total, activeTeamTask, addSeconds)
-			: 0;
+	// const activeTaskEstimation =
+	// 	activeTeamTask && activeTeamTask.estimate
+	// 		? getEstimation(statActiveTask.total, activeTeamTask, addSeconds)
+	// 		: 0;
+	const activeTaskEstimation = getEstimation(
+		currentMember?.totalWorkedTasks
+			? currentMember?.totalWorkedTasks.find(
+					(t) => t.id === activeTeamTask?.id
+			  ) || null
+			: null,
+		activeTeamTask,
+		/*addSeconds || */ 0,
+		currentMember?.lastWorkedTask?.estimate || 0
+	);
 
 	const activeTaskDailyEstimation =
 		activeTeamTask && activeTeamTask.estimate
