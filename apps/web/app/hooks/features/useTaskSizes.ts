@@ -14,6 +14,7 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import isEqual from 'lodash/isEqual';
 
 export function useTaskSizes() {
 	const [user] = useRecoilState(userState);
@@ -41,17 +42,24 @@ export function useTaskSizes() {
 		}
 	}, [loading, firstLoad, setTaskSizesFetching]);
 
-	useEffect(() => {
-		if (!firstLoad) return;
-
+	const loadTaskSizes = useCallback(() => {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
 			activeTeamId || null
 		).then((res) => {
-			setTaskSizes(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.data?.items || [], taskSizes)) {
+				setTaskSizes(res?.data?.data?.items || []);
+			}
+
 			return res;
 		});
+	}, [user, activeTeamId, setTaskSizes]);
+
+	useEffect(() => {
+		if (!firstLoad) return;
+
+		loadTaskSizes();
 	}, [activeTeamId, firstLoad]);
 
 	const createTaskSizes = useCallback(
@@ -144,5 +152,6 @@ export function useTaskSizes() {
 		editTaskSizesLoading,
 		editTaskSizes,
 		setTaskSizes,
+		loadTaskSizes,
 	};
 }
