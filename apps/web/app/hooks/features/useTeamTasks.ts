@@ -12,7 +12,11 @@ import {
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
 } from '@app/services/client/api';
-import { activeTeamState, userState } from '@app/stores';
+import {
+	activeTeamState,
+	allTaskStatisticsState,
+	userState,
+} from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
@@ -29,6 +33,7 @@ import { useSyncRef } from '../useSyncRef';
 export function useTeamTasks() {
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
+	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
@@ -68,6 +73,11 @@ export function useTeamTasks() {
 						if (task.tags && task.tags?.length) {
 							task.label = task.tags[0].name;
 						}
+
+						const taskStatistics = allTaskStatistics.find(
+							(statistics) => statistics.id === task.id
+						);
+						task.totalWorkedTime = taskStatistics?.duration || 0;
 					});
 				}
 
@@ -98,7 +108,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[queryCall, setAllTasks]
+		[queryCall, setAllTasks, allTaskStatistics]
 	);
 
 	// Global loading state
@@ -229,7 +239,7 @@ export function useTeamTasks() {
 			task?: ITeamTask | null,
 			loader?: boolean
 		) => {
-			if (task && status !== task.status) {
+			if (task && status !== task[field]) {
 				loader && setTasksFetching(true);
 
 				if (field === 'status' && status === 'closed') {

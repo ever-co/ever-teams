@@ -1,11 +1,13 @@
 import { ITeamTask } from '@app/interfaces/ITask';
 import {
 	activeTaskTimesheetStatisticsAPI,
+	allTaskTimesheetStatisticsAPI,
 	tasksTimesheetStatisticsAPI,
 } from '@app/services/client/api';
 import {
 	activeTaskStatisticsState,
 	activeTeamTaskState,
+	allTaskStatisticsState,
 	tasksFetchingState,
 	tasksStatisticsState,
 	timerStatusState,
@@ -17,6 +19,7 @@ import debounce from 'lodash/debounce';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { useSyncRef } from '../useSyncRef';
 import { Nullable } from '@app/interfaces';
+import { useRefreshInterval } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useAuthenticateUser } from './useAuthenticateUser';
 
@@ -26,6 +29,9 @@ export function useTaskStatistics(addSeconds = 0) {
 	);
 	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
 	const setTasksFetching = useSetRecoilState(tasksFetchingState);
+	const [allTaskStatistics, setAllTaskStatistics] = useRecoilState(
+		allTaskStatisticsState
+	);
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
 		useFirstLoad();
@@ -47,12 +53,17 @@ export function useTaskStatistics(addSeconds = 0) {
 	/**
 	 * Get employee all tasks statistics  (API Call)
 	 */
-	const getAllTasksStatsData = useCallback((employeeId?: string) => {
+	const getTasksStatsData = useCallback((employeeId?: string) => {
 		tasksTimesheetStatisticsAPI(employeeId).then(({ data }) => {
 			setStatTasks({
 				all: data.global || [],
 				today: data.today || [],
 			});
+		});
+	}, []);
+	const getAllTasksStatsData = useCallback(() => {
+		allTaskTimesheetStatisticsAPI().then(({ data }) => {
+			setAllTaskStatistics(data);
 		});
 	}, []);
 
@@ -138,7 +149,8 @@ export function useTaskStatistics(addSeconds = 0) {
 	) =>
 		Math.min(
 			Math.floor(
-				(((timeSheet?.duration || 0) + addSeconds) * 100) /
+				(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) *
+					100) /
 					(estimate || _task?.estimate || 0)
 			),
 			100
@@ -167,6 +179,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	return {
 		firstLoadtasksStatisticsData,
 		getAllTasksStatsData,
+		getTasksStatsData,
 		getTaskStat,
 		activeTaskTotalStat: statActiveTask.total,
 		activeTaskDailyStat: statActiveTask.today,
@@ -175,5 +188,12 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTeamTask,
 		addSeconds,
 		getEstimation,
+		allTaskStatistics,
 	};
+}
+
+export function useAllTaskStatistics() {
+	const { getAllTasksStatsData } = useTaskStatistics();
+
+	useRefreshInterval(getAllTasksStatsData, 5000);
 }

@@ -38,6 +38,10 @@ export function activeTaskTimesheetStatisticsAPI() {
 	);
 }
 
+export function allTaskTimesheetStatisticsAPI() {
+	return api.get<ITasksTimesheet[]>(`/timer/timesheet/all-statistics-tasks`);
+}
+
 export function deleteEmployeeFromTasksAPI(
 	employeeId: string,
 	organizationTeamId: string

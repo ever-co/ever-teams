@@ -52,7 +52,7 @@ export function useTaskStatus() {
 			}
 			return res;
 		});
-	}, [user, activeTeamId, setTaskStatus]);
+	}, [user, activeTeamId, setTaskStatus, taskStatus]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
