@@ -54,7 +54,7 @@ export function useTaskLabels() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskLabels]);
+	}, [user, activeTeamId, setTaskLabels, taskLabels]);
 
 	useEffect(() => {
 		if (!firstLoad) return;

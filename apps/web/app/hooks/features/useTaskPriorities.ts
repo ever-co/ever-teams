@@ -57,7 +57,7 @@ export function useTaskPriorities() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskPriorities]);
+	}, [user, activeTeamId, setTaskPriorities, taskPriorities]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
