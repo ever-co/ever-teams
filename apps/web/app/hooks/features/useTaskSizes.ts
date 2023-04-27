@@ -54,7 +54,7 @@ export function useTaskSizes() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskSizes]);
+	}, [user, activeTeamId, setTaskSizes, taskSizes]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
