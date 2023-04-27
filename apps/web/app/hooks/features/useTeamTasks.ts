@@ -229,7 +229,7 @@ export function useTeamTasks() {
 			task?: ITeamTask | null,
 			loader?: boolean
 		) => {
-			if (task && status !== task.status) {
+			if (task && status !== task[field]) {
 				loader && setTasksFetching(true);
 
 				if (field === 'status' && status === 'closed') {
