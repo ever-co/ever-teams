@@ -25,7 +25,7 @@ const Profile = () => {
 	return (
 		<>
 			<MainLayout showTimer={!profile.isAuthUser}>
-				<MainHeader>
+				<MainHeader className={clsxm(hook.filterType && ['pb-0'])}>
 					{/* Breadcrumb */}
 					<div className="flex items-center space-x-5">
 						<Link href="/">
@@ -43,7 +43,7 @@ const Profile = () => {
 							<Timer
 								className={clsxm(
 									'p-5 rounded-lg shadow-xlcard',
-									'dark:border-[2px] dark:border-[#28292F] '
+									'dark:border-[2px] dark:border-[#28292F]'
 								)}
 							/>
 						)}
