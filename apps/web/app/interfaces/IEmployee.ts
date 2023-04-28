@@ -52,6 +52,7 @@ export interface IEmployee {
 	organizationPositionId: any;
 	user?: IUser;
 	fullName: string;
+	isOnline?: boolean;
 }
 
 export type ICreateEmployee = Pick<
