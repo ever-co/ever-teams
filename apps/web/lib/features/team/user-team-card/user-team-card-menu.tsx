@@ -85,7 +85,10 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			name: trans.common.REMOVE,
 			type: 'danger',
 			action: 'remove',
-			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser,
+			active:
+				memberInfo.isAuthTeamManager &&
+				!memberInfo.isAuthUser &&
+				!memberInfo.isTeamOwner,
 			onClick: onRemoveMember,
 		},
 	].filter((item) => item.active || item.active === undefined);
