@@ -1,4 +1,4 @@
-import { I_UserProfilePage } from '@app/hooks';
+import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -65,6 +65,19 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	};
 
 	const tasks = tasksFiltered[tab];
+
+	const outclickFilterCard = useOutsideClick<HTMLDivElement>(() => {
+		if (filterType === 'search' && taskName.trim().length === 0) {
+			setFilterType(undefined);
+		} else if (filterType === 'status') {
+			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some(
+				(skey) => {
+					return statusFilter[skey] && statusFilter[skey].length > 0;
+				}
+			);
+			!hasStatus && setFilterType(undefined);
+		}
+	});
 
 	const tabs: ITabs[] = [
 		{
@@ -168,8 +181,10 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		onResetStatusFilter,
 		applyStatusFilder,
 		tasksGrouped: profile.tasksGrouped,
+		outclickFilterCard,
 	};
 }
+
 export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 
 /**
@@ -181,7 +196,7 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
-		<>
+		<div className="relative">
 			<div
 				className={clsxm(
 					'flex justify-between xs:flex-row flex-col items-center',
@@ -196,20 +211,22 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 		component. */}
 			<Transition
 				show={hook.filterType !== undefined}
-				enter="transition-opacity duration-75"
+				enter="transition-opacity duration-[35ms]"
 				enterFrom="opacity-0"
 				enterTo="opacity-100"
-				leave="transition-opacity duration-75"
+				leave="transition-opacity duration-[35ms]"
 				leaveFrom="opacity-100"
 				leaveTo="opacity-0"
+				className="pb-3"
+				ref={hook.outclickFilterCard.targetEl}
 			>
-				<Divider className="mt-4" />
+				{hook.filterType !== undefined && <Divider className="mt-4" />}
 				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
 				{hook.filterType === 'search' && (
 					<TaskNameFilter value={hook.taskName} setValue={hook.setTaskName} />
 				)}
 			</Transition>
-		</>
+		</div>
 	);
 }
 
@@ -224,6 +241,7 @@ function InputFilters({ hook, profile }: Props) {
 	return (
 		<div className="flex lg:space-x-5 space-x-2 items-center mt-8 xs:mt-4">
 			<button
+				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm('outline-none')}
 				onClick={() => hook.toggleFilterType('search')}
 			>
@@ -240,6 +258,7 @@ function InputFilters({ hook, profile }: Props) {
 			<VerticalSeparator />
 
 			<button
+				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm(
 					'p-3 px-5 flex space-x-2 input-border rounded-xl items-center',
 					hook.filterType === 'status' && ['bg-gray-lighter']
@@ -399,6 +418,7 @@ function TaskNameFilter({
 				autoFocus={true}
 				onChange={(e) => setValue(e.target.value)}
 				placeholder={trans.common.TYPE_SOMETHING + '...'}
+				wrapperClassName="mb-0"
 			/>
 		</div>
 	);

@@ -79,6 +79,7 @@ function EmailScreen({
 						onChange={form.handleChange}
 						errors={form.errors}
 						required
+						autoComplete="off"
 					/>
 
 					<div className="w-full flex justify-between mt-6">

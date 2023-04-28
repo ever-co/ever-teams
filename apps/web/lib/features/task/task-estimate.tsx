@@ -10,7 +10,7 @@ type Props = {
 	className?: string;
 	loadingRef?: MutableRefObject<boolean>;
 	closeable_fc?: () => void;
-	wrapperClassName?: string
+	wrapperClassName?: string;
 };
 
 export function TaskEstimate({
@@ -19,7 +19,7 @@ export function TaskEstimate({
 	className,
 	loadingRef,
 	closeable_fc,
-	wrapperClassName
+	wrapperClassName,
 }: Props) {
 	const {
 		targetEl,

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useCallbackRef } from './useCallbackRef';
 
 type Func<T = any> = (el: T, nodeTarget: HTMLElement) => void;
 
@@ -6,14 +7,7 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 	const targetEl = useRef<T>(null);
 	const refs = useRef<Node[]>([]);
 
-	const onChangeRef = useRef(onClickOuSide);
-	if (onClickOuSide) {
-		onChangeRef.current = onClickOuSide;
-	}
-
-	const handleChange = useCallback((el: T, nodeTarget: HTMLElement) => {
-		onChangeRef.current && onChangeRef?.current(el, nodeTarget);
-	}, []);
+	const onClickOuSideRef = useCallbackRef(onClickOuSide);
 
 	useEffect(() => {
 		const onBodyClick = (ev: MouseEvent) => {
@@ -29,7 +23,8 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 			) {
 				return;
 			}
-			handleChange && handleChange(el, ev.target as HTMLElement);
+			onClickOuSideRef.current &&
+				onClickOuSideRef.current(el, ev.target as HTMLElement);
 		};
 
 		document.body.addEventListener('click', onBodyClick);
@@ -39,7 +34,7 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 	}, []);
 
 	const onOutsideClick = useCallback((func: Func) => {
-		onChangeRef.current = func;
+		onClickOuSideRef.current = func;
 	}, []);
 
 	const ignoreElementRef = useCallback((el: any) => {
