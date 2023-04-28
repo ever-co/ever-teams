@@ -15,7 +15,6 @@ export function Timer({ className }: IClassName) {
 		activeTaskEstimation,
 		ms_p,
 		canRunTimer,
-		timerStatusFetching,
 		timerHanlder,
 		timerStatus,
 		disabled,
@@ -48,7 +47,7 @@ export function Timer({ className }: IClassName) {
 					enabled={!canRunTimer}
 				>
 					<TimerButton
-						onClick={!timerStatusFetching ? timerHanlder : undefined}
+						onClick={timerHanlder}
 						running={timerStatus?.running}
 						disabled={disabled}
 					/>
@@ -64,10 +63,10 @@ export function MinTimerFrame({ className }: IClassName) {
 		minutes,
 		seconds,
 		ms_p,
-		canRunTimer,
-		timerStatusFetching,
+
 		timerHanlder,
 		timerStatus,
+		disabled,
 	} = useTimerView();
 
 	return (
@@ -87,9 +86,9 @@ export function MinTimerFrame({ className }: IClassName) {
 
 			<div className="ml-5 z-[50]">
 				<TimerButton
-					onClick={!timerStatusFetching ? timerHanlder : undefined}
+					onClick={timerHanlder}
 					running={timerStatus?.running}
-					disabled={timerStatusFetching || !canRunTimer}
+					disabled={disabled}
 					className="w-7 h-7"
 				/>
 			</div>
