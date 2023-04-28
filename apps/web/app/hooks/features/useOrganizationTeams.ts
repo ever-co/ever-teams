@@ -186,7 +186,12 @@ export function useOrganizationTeams() {
 	const [teamsFetching, setTeamsFetching] = useRecoilState(teamsFetchingState);
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
-	const { updateUserFromAPI, refreshToken } = useAuthenticateUser();
+	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
+	const isTrackingEnabled = activeTeam?.members?.find(
+		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
+	)
+		? true
+		: false;
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } =
@@ -364,5 +369,6 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeamQueryCall,
 		removeUserFromAllTeam,
 		loadingTeam,
+		isTrackingEnabled,
 	};
 }

@@ -15,6 +15,7 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import isEqual from 'lodash/isEqual';
 
 export function useTaskLabels() {
 	const [user] = useRecoilState(userState);
@@ -41,17 +42,24 @@ export function useTaskLabels() {
 		}
 	}, [loading, firstLoad, setTaskLabelsFetching]);
 
-	useEffect(() => {
-		if (!firstLoad) return;
-
+	const loadTaskLabels = useCallback(() => {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
 			activeTeamId || null
 		).then((res) => {
-			setTaskLabels(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.data?.items || [], taskLabels)) {
+				setTaskLabels(res?.data?.data?.items || []);
+			}
+
 			return res;
 		});
+	}, [user, activeTeamId, setTaskLabels, taskLabels]);
+
+	useEffect(() => {
+		if (!firstLoad) return;
+
+		loadTaskLabels();
 	}, [activeTeamId, firstLoad]);
 
 	const createTaskLabels = useCallback(
@@ -146,5 +154,6 @@ export function useTaskLabels() {
 		editTaskLabels,
 		editTaskLabelsLoading,
 		setTaskLabels,
+		loadTaskLabels,
 	};
 }

@@ -15,6 +15,7 @@ import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
+import isEqual from 'lodash/isEqual';
 
 export function useTaskStatus() {
 	const [user] = useRecoilState(userState);
@@ -40,17 +41,22 @@ export function useTaskStatus() {
 		}
 	}, [loading, firstLoad, setTaskStatusFetching]);
 
-	useEffect(() => {
-		if (!firstLoad) return;
-
+	const loadTaskStatusData = useCallback(() => {
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
 			activeTeamId || null
 		).then((res) => {
-			setTaskStatus(res?.data?.data?.items || []);
+			if (!isEqual(res?.data?.data?.items || [], taskStatus)) {
+				setTaskStatus(res?.data?.data?.items || []);
+			}
 			return res;
 		});
+	}, [user, activeTeamId, setTaskStatus, taskStatus]);
+
+	useEffect(() => {
+		if (!firstLoad) return;
+		loadTaskStatusData();
 	}, [activeTeamId, firstLoad]);
 
 	const createTaskStatus = useCallback(
@@ -143,5 +149,6 @@ export function useTaskStatus() {
 		editTaskStatusLoading,
 		editTaskStatus,
 		setTaskStatus,
+		loadTaskStatusData,
 	};
 }

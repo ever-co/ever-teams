@@ -4,7 +4,7 @@ import {
 	setActiveUserTaskCookie,
 } from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
-import { activeTeamTaskState } from '@app/stores';
+import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -14,6 +14,7 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 import { useOrganizationTeams } from './useOrganizationTeams';
 import { useIsMemberManager } from './useTeamMember';
 import { useTeamTasks } from './useTeamTasks';
+import cloneDeep from 'lodash/cloneDeep';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -28,6 +29,7 @@ export function useTeamMemberCard(
 		useTeamTasks();
 
 	const publicTeam = useRecoilValue(getPublicState);
+	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 
 	const { user: authUser, isTeamManager: isAuthTeamManager } =
 		useAuthenticateUser();
@@ -88,7 +90,16 @@ export function useTeamMemberCard(
 			setActiveUserTaskCookieCb(cTask);
 		}
 
-		return find ? cTask : null;
+		const responseTask = find ? cloneDeep(cTask) : null;
+
+		if (responseTask) {
+			const taskStatistics = allTaskStatistics.find(
+				(statistics) => statistics.id === responseTask.id
+			);
+			responseTask.totalWorkedTime = taskStatistics?.duration || 0;
+		}
+
+		return responseTask;
 	}, [activeTeamTask, isAuthUser, authUser, member, tasks, publicTeam]);
 
 	/**

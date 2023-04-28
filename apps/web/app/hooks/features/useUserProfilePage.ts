@@ -12,7 +12,7 @@ export function useUserProfilePage() {
 	const { activeTeamTask, updateTask } = useTeamTasks();
 
 	const { user: auth } = useAuthenticateUser();
-	const { getAllTasksStatsData } = useTaskStatistics();
+	const { getTasksStatsData } = useTaskStatistics();
 
 	const router = useRouter();
 	const { memberId } = router.query;
@@ -38,9 +38,9 @@ export function useUserProfilePage() {
 
 	useEffect(() => {
 		if (employeeId) {
-			getAllTasksStatsData(employeeId);
+			getTasksStatsData(employeeId);
 		}
-	}, [getAllTasksStatsData, employeeId]);
+	}, [getTasksStatsData, employeeId]);
 
 	const assignTask = useCallback(
 		(task: ITeamTask) => {

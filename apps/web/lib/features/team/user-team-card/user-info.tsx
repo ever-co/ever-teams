@@ -33,7 +33,15 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				className="relative"
 			>
 				<TimerStatus
-					status={member?.timerStatus || 'idle'}
+					status={
+						!member?.employee?.isActive && !publicTeam
+							? 'suspended'
+							: member?.employee?.isOnline && member?.timerStatus !== 'running'
+							? 'online'
+							: !member?.totalTodayTasks?.length
+							? 'idle'
+							: member?.timerStatus || 'idle'
+					}
 					className="absolute border z-20 bottom-3 -right-1 -mb-3"
 				/>
 			</Avatar>

@@ -12,7 +12,11 @@ import {
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
 } from '@app/services/client/api';
-import { activeTeamState, userState } from '@app/stores';
+import {
+	activeTeamState,
+	allTaskStatisticsState,
+	userState,
+} from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
@@ -29,6 +33,7 @@ import { useSyncRef } from '../useSyncRef';
 export function useTeamTasks() {
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
+	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
@@ -59,46 +64,51 @@ export function useTeamTasks() {
 		loading: deleteEmployeeFromTasksLoading,
 	} = useQuery(deleteEmployeeFromTasksAPI);
 
+	const deepCheckAndUpdateTasks = useCallback(
+		(responseTasks: ITeamTask[], deepCheck?: boolean) => {
+			if (responseTasks && responseTasks.length) {
+				responseTasks.forEach((task) => {
+					if (task.tags && task.tags?.length) {
+						task.label = task.tags[0].name;
+					}
+				});
+			}
+
+			/**
+			 * When deepCheck enabled,
+			 * then update the tasks store only when active-team tasks have an update
+			 */
+			if (deepCheck) {
+				const latestActiveTeamTasks = responseTasks
+					.filter((task) => {
+						return task.teams.some((tm) => {
+							return tm.id === activeTeamRef.current?.id;
+						});
+					})
+					.sort((a, b) => a.title.localeCompare(b.title));
+
+				const activeTeamTasks = tasksRef.current
+					.slice()
+					.sort((a, b) => a.title.localeCompare(b.title));
+
+				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
+					setAllTasks(responseTasks);
+				}
+			} else {
+				setAllTasks(responseTasks);
+			}
+		},
+		[setAllTasks]
+	);
+
 	const loadTeamTasksData = useCallback(
 		(deepCheck?: boolean) => {
 			return queryCall().then((res) => {
-				const responseTasks = res.data?.items || [];
-				if (responseTasks && responseTasks.length) {
-					responseTasks.forEach((task) => {
-						if (task.tags && task.tags?.length) {
-							task.label = task.tags[0].name;
-						}
-					});
-				}
-
-				/**
-				 * When deepCheck enabled,
-				 * then update the tasks store only when active-team tasks have an update
-				 */
-				if (deepCheck) {
-					const latestActiveTeamTasks = responseTasks
-						.filter((task) => {
-							return task.teams.some((tm) => {
-								return tm.id === activeTeamRef.current?.id;
-							});
-						})
-						.sort((a, b) => a.title.localeCompare(b.title));
-
-					const activeTeamTasks = tasksRef.current
-						.slice()
-						.sort((a, b) => a.title.localeCompare(b.title));
-
-					if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
-						setAllTasks(responseTasks);
-					}
-				} else {
-					setAllTasks(responseTasks);
-				}
-
+				deepCheckAndUpdateTasks(res?.data?.items || [], deepCheck);
 				return res;
 			});
 		},
-		[queryCall, setAllTasks]
+		[queryCall, setAllTasks, allTaskStatistics]
 	);
 
 	// Global loading state
@@ -171,7 +181,7 @@ export function useTeamTasks() {
 				issueType,
 				...(members ? { members } : {}),
 			}).then((res) => {
-				setAllTasks(res.data?.items || []);
+				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;
 			});
 		},
@@ -181,7 +191,7 @@ export function useTeamTasks() {
 	const updateTask = useCallback(
 		(task: Partial<ITeamTask> & { id: string }) => {
 			return updateQueryCall(task.id, task).then((res) => {
-				setAllTasks(res.data?.items || []);
+				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;
 			});
 		},
@@ -229,7 +239,7 @@ export function useTeamTasks() {
 			task?: ITeamTask | null,
 			loader?: boolean
 		) => {
-			if (task && status !== task.status) {
+			if (task && status !== task[field]) {
 				loader && setTasksFetching(true);
 
 				if (field === 'status' && status === 'closed') {
