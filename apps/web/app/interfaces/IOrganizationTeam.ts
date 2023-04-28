@@ -75,7 +75,12 @@ export interface OT_Member {
 	timerStatus: ITimerStatusEnum;
 }
 
-export type ITimerStatusEnum = 'running' | 'idle' | 'pause';
+export type ITimerStatusEnum =
+	| 'running'
+	| 'idle'
+	| 'pause'
+	| 'online'
+	| 'suspended';
 
 interface OT_Role {
 	id: string;
