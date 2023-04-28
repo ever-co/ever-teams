@@ -32,7 +32,11 @@ export default function AuthTeam() {
 			title={trans.HEADING_TITLE}
 			description={trans.HEADING_DESCRIPTION}
 		>
-			<form onSubmit={handleSubmit} className="w-[98%] md:w-[550px]">
+			<form
+				onSubmit={handleSubmit}
+				autoComplete="off"
+				className="w-[98%] md:w-[550px]"
+			>
 				<Card className="w-full" shadow="bigger">
 					{step === FIRST_STEP && (
 						<FillTeamNameForm
@@ -84,6 +88,7 @@ function FillTeamNameForm({
 				errors={errors}
 				onChange={handleOnChange}
 				placeholder={translations.form.TEAM_NAME_PLACEHOLDER}
+				autoComplete="off"
 				required
 			/>
 
@@ -136,6 +141,7 @@ function FillUserDataForm({
 					value={form.name}
 					errors={errors}
 					onChange={handleOnChange}
+					autoComplete="off"
 				/>
 				<InputField
 					type="email"
@@ -145,6 +151,7 @@ function FillUserDataForm({
 					value={form.email}
 					errors={errors}
 					onChange={handleOnChange}
+					autoComplete="off"
 				/>
 
 				<div className="w-full flex">
