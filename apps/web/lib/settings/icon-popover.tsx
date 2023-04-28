@@ -7,7 +7,6 @@ import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import Image from 'next/image';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { IconItem } from './icon-items';
-import { DocumentUploadIcon } from 'lib/components/svgs';
 
 const IconPopover = ({
 	setValue,
@@ -78,23 +77,23 @@ const IconPopover = ({
 										wrapperClassName="search-border bg-transparent dark:bg-[#E7E7EA]"
 										placeholder="Search Icon"
 										className="px-0 dark:bg-[#E7E7EA] rounded-none"
-										trailingNode={
-											<Tooltip
-												enabled={true}
-												placement="top"
-												label="Upload your own icon"
-												className="mr-5"
-											>
-												<div className="relative cursor-pointer">
-													<DocumentUploadIcon className="w-5 h-5" />
-													<input
-														type="file"
-														className="absolute inset-0 opacity-0"
-														accept="image/svg+xml"
-													/>
-												</div>
-											</Tooltip>
-										}
+										// trailingNode={
+										// 	<Tooltip
+										// 		enabled={true}
+										// 		placement="top"
+										// 		label="Upload your own icon"
+										// 		className="mr-5"
+										// 	>
+										// 		<div className="relative cursor-pointer">
+										// 			<DocumentUploadIcon className="w-5 h-5" />
+										// 			<input
+										// 				type="file"
+										// 				className="absolute inset-0 opacity-0"
+										// 				accept="image/svg+xml"
+										// 			/>
+										// 		</div>
+										// 	</Tooltip>
+										// }
 										onChange={(e) => {
 											setIconOption(
 												iconList.filter((icon) =>
