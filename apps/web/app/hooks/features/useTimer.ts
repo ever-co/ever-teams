@@ -360,6 +360,7 @@ export function useTimerView() {
 		canRunTimer,
 		timerSeconds,
 		activeTeamTask,
+		syncTimerLoading,
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
@@ -384,9 +385,10 @@ export function useTimerView() {
 		timerStatusFetching,
 		timerStatus,
 		activeTeamTask,
-		disabled: timerStatusFetching || !canRunTimer,
+		disabled: !canRunTimer,
 		startTimer,
 		stopTimer,
+		syncTimerLoading,
 	};
 }
 
