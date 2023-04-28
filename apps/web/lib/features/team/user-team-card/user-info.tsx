@@ -34,7 +34,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			>
 				<TimerStatus
 					status={
-						!member?.employee?.isActive
+						!member?.employee?.isActive && !publicTeam
 							? 'suspended'
 							: member?.employee?.isOnline && member?.timerStatus !== 'running'
 							? 'online'
