@@ -1,4 +1,5 @@
 import { clsxm } from '@app/utils';
+import { useTranslation } from 'lib/i18n';
 import { PropsWithChildren } from 'react';
 import { SpinnerLoader } from './loader';
 import { ArrowLeft } from './svgs';
@@ -115,6 +116,8 @@ export function BackButton({
 	onClick?: () => void;
 	className?: string;
 }) {
+	const { trans } = useTranslation();
+
 	return (
 		<button
 			type="button"
@@ -122,7 +125,7 @@ export function BackButton({
 			onClick={onClick}
 		>
 			<ArrowLeft className="mr-2" />
-			<span className="text-sm">Back</span>
+			<span className="text-sm">{trans.common.BACK}</span>
 		</button>
 	);
 }

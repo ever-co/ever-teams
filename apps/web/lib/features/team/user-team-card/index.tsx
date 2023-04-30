@@ -62,6 +62,7 @@ export function UserTeamCard({
 					activeTaskTotalStat?.duration ||
 					0) + addSeconds
 			);
+
 			return (
 				<div
 					className={clsxm(

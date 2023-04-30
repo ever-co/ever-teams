@@ -78,6 +78,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					return (
 						<li key={task.id} className="mb-8">
 							<TaskCard
+								key={task.id}
 								task={task}
 								isAuthUser={profile.isAuthUser}
 								activeAuthTask={false}
