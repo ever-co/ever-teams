@@ -1,12 +1,13 @@
 import { Button, InputField, Text, Tooltip } from 'lib/components';
 import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { Edit2Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import TimeTrackingToggle from 'lib/components/switch';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
+import isEqual from 'lodash/isEqual';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -16,11 +17,39 @@ export const TeamSettingForm = () => {
 		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState(false);
+
+	const formDetails = useRef<{
+		teamName: string;
+		teamType: 'PUBLIC' | 'PRIVATE';
+		timeTracking: boolean;
+	}>({
+		teamName: '',
+		teamType: 'PUBLIC',
+		timeTracking: false,
+	});
+
 	useEffect(() => {
 		if (activeTeam && !loading && !loadingTeam) {
-			setValue('teamName', activeTeam?.name || '');
-			setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
-			setValue('timeTracking', activeManager?.isTrackingEnabled || false);
+			/**
+			 * Check deep equality,
+			 * No need to update form values if all details are same from API, to avoid re-render
+			 */
+			if (
+				!isEqual(formDetails.current, {
+					teamName: activeTeam?.name || '',
+					teamType: activeTeam?.public ? 'PUBLIC' : 'PRIVATE',
+					timeTracking: activeManager?.isTrackingEnabled || false,
+				})
+			) {
+				setValue('teamName', activeTeam?.name || '');
+				setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
+				setValue('timeTracking', activeManager?.isTrackingEnabled || false);
+				formDetails.current = {
+					teamName: activeTeam?.name || '',
+					teamType: activeTeam?.public ? 'PUBLIC' : 'PRIVATE',
+					timeTracking: activeManager?.isTrackingEnabled || false,
+				};
+			}
 		}
 	}, [user, setValue, activeTeam, activeManager, loading, loadingTeam]);
 
