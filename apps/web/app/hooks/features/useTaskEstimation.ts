@@ -19,7 +19,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 			hours: h.toString(),
 			minutes: pad(m).toString(),
 		});
-	}, [$task]);
+	}, [$task?.estimate]);
 
 	const onChange = useCallback((c: keyof typeof value) => {
 		return (e: ChangeEvent<HTMLInputElement>) => {

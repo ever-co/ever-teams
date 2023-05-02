@@ -55,7 +55,7 @@ export function CreateTeamModal({
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<form
-				className="w-[98%] sm:w-[530px] w-[330px]"
+				className="sm:w-[530px] w-[330px]"
 				autoComplete="off"
 				onSubmit={handleSubmit}
 			>

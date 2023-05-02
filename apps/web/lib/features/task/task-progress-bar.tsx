@@ -36,7 +36,7 @@ export function TaskProgressBar({
 			: null,
 		task,
 		/*addSeconds || */ 0,
-		currentMember?.lastWorkedTask?.estimate || 0
+		task?.estimate || currentMember?.lastWorkedTask?.estimate || 0
 	);
 
 	return (
