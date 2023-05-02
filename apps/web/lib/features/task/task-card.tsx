@@ -5,6 +5,7 @@ import {
 	useTimerView,
 	useTaskStatistics,
 	I_UserProfilePage,
+	useOrganizationTeams,
 } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -54,6 +55,7 @@ export function TaskCard({
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
 		useTaskStatistics(seconds);
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	const { h, m } = secondsToTime(
 		(activeTaskTotalStat?.duration || 0) + addSeconds
@@ -136,7 +138,9 @@ export function TaskCard({
 						showTotal={viewType !== 'unassign'}
 						memberInfo={profile?.member}
 					/>
-					{isAuthUser && task && <TimerButtonCall task={task} />}
+					{isTrackingEnabled && isAuthUser && task && (
+						<TimerButtonCall task={task} />
+					)}
 				</div>
 				<VerticalSeparator />
 
@@ -162,9 +166,10 @@ export function TaskCard({
 			>
 				<div className="flex justify-between ml-2 mb-4">
 					{totalWork}
-					{isAuthUser && viewType === 'unassign' && task && (
-						<TimerButtonCall task={task} />
-					)}
+					{isTrackingEnabled &&
+						isAuthUser &&
+						viewType === 'unassign' &&
+						task && <TimerButtonCall task={task} />}
 				</div>
 				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
 					<TaskInfo task={task} className="w-80 px-4 mb-4" />{' '}
@@ -190,7 +195,9 @@ export function TaskCard({
 				<div className="flex justify-between mt-8 mb-8 space-x-5">
 					<div className="flex space-x-4">
 						{todayWork}
-						{isAuthUser && task && <TimerButtonCall task={task} />}
+						{isTrackingEnabled && isAuthUser && task && (
+							<TimerButtonCall task={task} />
+						)}
 					</div>
 
 					<ActiveTaskStatusDropdown
