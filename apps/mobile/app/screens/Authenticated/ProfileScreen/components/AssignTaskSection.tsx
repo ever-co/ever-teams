@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
 import {
 	View,
@@ -20,7 +22,6 @@ import TaskSize from "../../../../components/TaskSize"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { useStores } from "../../../../models"
 import { translate } from "../../../../i18n"
-import useProfileScreenLogic from "../logics/useProfileScreenLogic"
 
 export interface Props {
 	visible: boolean

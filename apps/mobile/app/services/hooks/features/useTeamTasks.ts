@@ -29,43 +29,40 @@ export function useTeamTasks() {
 	// Create a new Task
 	const createNewTask = useCallback(
 		async (title: string) => {
-			if (title.trim().length < 2)
-				return {
-					error: "Task title is valid",
+			if (title.trim().length > 2) {
+				const dataBody: ICreateTask = {
+					title,
+					status: "open",
+					description: "",
+					tags: [],
+					teams: [
+						{
+							id: activeTeamId,
+						},
+					],
+					estimate: 0,
+					organizationId,
+					tenantId,
 				}
 
-			const dataBody: ICreateTask = {
-				title,
-				status: "open",
-				description: "",
-				tags: [],
-				teams: [
-					{
-						id: activeTeamId,
-					},
-				],
-				estimate: 0,
-				organizationId,
-				tenantId,
-			}
-
-			await createTaskRequest({
-				data: dataBody,
-				bearer_token: authToken,
-			})
-				.then((response) => {
-					const { data: created } = response
-					refetch()
-						.then((res) => {
-							const { data } = res
-							const activeTeamTasks = getTasksByTeamState({ tasks: data, activeTeamId })
-							setTeamTasks(data)
-							const createdTask = activeTeamTasks.find((t) => t.id === created?.id)
-							setActiveTeamTask(createdTask)
-						})
-						.catch((e) => console.log(e))
+				await createTaskRequest({
+					data: dataBody,
+					bearer_token: authToken,
 				})
-				.catch((e) => console.log(e))
+					.then((response) => {
+						const { data: created } = response
+						refetch()
+							.then((res) => {
+								const { data } = res
+								const activeTeamTasks = getTasksByTeamState({ tasks: data, activeTeamId })
+								setTeamTasks(data)
+								const createdTask = activeTeamTasks.find((t) => t.id === created?.id)
+								setActiveTeamTask(createdTask)
+							})
+							.catch((e) => console.log(e))
+					})
+					.catch((e) => console.log(e))
+			}
 		},
 		[activeTeamId],
 	)

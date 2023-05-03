@@ -22,13 +22,13 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const allPriorities = useTaskPriorityValue()
 	const allLabels = useTaskLabelValue()
 
-	const status = allStatuses[task.status.split("-").join(" ") || "open"]
-	const size = allSizes[task.size || "Large"]
-	const priority = allPriorities[task.priority || "Low"]
+	const status = allStatuses[task?.status.split("-").join(" ")]
+	const size = allSizes[task?.size]
+	const priority = allPriorities[task?.priority]
 
-	const taskLabels = task.tags.map((t) => allLabels[t])
+	const taskLabels = task?.tags.map((t) => allLabels[t])
 
-	const labels = [status, size, priority, ...taskLabels]
+	const labels = [status, size, priority, ...(taskLabels || [])]
 
 	useEffect(() => {
 		flatListRef.current?.scrollToIndex({
