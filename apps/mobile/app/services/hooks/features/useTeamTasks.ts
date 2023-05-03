@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react"
-import { useQueryClient } from "react-query"
+/* eslint-disable camelcase */
+import { useCallback, useEffect } from "react"
 import { useStores } from "../../../models"
 import useFetchAllTasks from "../../client/queries/task/tasks"
 import {
@@ -12,27 +12,19 @@ import { OT_Member } from "../../interfaces/IOrganizationTeam"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
 
 export function useTeamTasks() {
-	const queryClient = useQueryClient()
 	const {
 		authenticationStore: { tenantId, organizationId, authToken },
 		teamStore: { activeTeam, activeTeamId },
-		TaskStore: {
-			teamTasks,
-			activeTask,
-			setTeamTasks,
-			setActiveTask,
-			activeTaskId,
-			setActiveTaskId,
-			setFetchingTasks,
-			setAssignedTasks,
-			setUnassignedTasks,
-		},
+		TaskStore: { teamTasks, setTeamTasks, setActiveTask, activeTaskId, setActiveTaskId },
 	} = useStores()
 
-	const [, setUpdateLoading] = useState(false)
-	const [, setCreateLoading] = useState(false)
-
-	const { data: allTasks, isRefetching } = useFetchAllTasks({ tenantId, organizationId, authToken })
+	const {
+		data: allTasks,
+		isRefetching,
+		isSuccess,
+		isLoading,
+		refetch,
+	} = useFetchAllTasks({ tenantId, organizationId, authToken, activeTeamId })
 
 	// Create a new Task
 	const createNewTask = useCallback(
@@ -42,10 +34,9 @@ export function useTeamTasks() {
 					error: "Task title is valid",
 				}
 
-			setCreateLoading(true)
 			const dataBody: ICreateTask = {
 				title,
-				status: "Todo",
+				status: "open",
 				description: "",
 				tags: [],
 				teams: [
@@ -57,38 +48,35 @@ export function useTeamTasks() {
 				organizationId,
 				tenantId,
 			}
-			const { data, response } = await createTaskRequest({
+
+			await createTaskRequest({
 				data: dataBody,
 				bearer_token: authToken,
 			})
-			queryClient.invalidateQueries("tasks")
-			const { data: tasks } = await getTeamTasksRequest({
-				bearer_token: authToken,
-				tenantId,
-				organizationId,
-			})
-
-			const activeTeamTasks = getTasksByTeamState({ tasks: tasks.items, activeTeamId })
-
-			const createdTask = activeTeamTasks.find((t) => t.id === data?.id)
-			queryClient.invalidateQueries("tasks")
-			setCreateLoading(false)
-			return {
-				data: createdTask,
-				response,
-			}
+				.then((response) => {
+					const { data: created } = response
+					refetch()
+						.then((res) => {
+							const { data } = res
+							const activeTeamTasks = getTasksByTeamState({ tasks: data, activeTeamId })
+							setTeamTasks(data)
+							const createdTask = activeTeamTasks.find((t) => t.id === created?.id)
+							setActiveTeamTask(createdTask)
+						})
+						.catch((e) => console.log(e))
+				})
+				.catch((e) => console.log(e))
 		},
 		[activeTeamId],
 	)
 
 	// Update a task
 	const updateTask = async (task: ITeamTask, id: string) => {
-		setUpdateLoading(true)
-
 		const { data, response } = await updateTaskRequest({ data: task, id }, authToken)
-		queryClient.invalidateQueries("tasks")
-
-		setUpdateLoading(false)
+		refetch().then((res) => {
+			const { data } = res
+			setActiveTeamTasks(data)
+		})
 		return { data, response }
 	}
 
@@ -145,7 +133,10 @@ export function useTeamTasks() {
 			],
 		}
 		const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken)
-		queryClient.invalidateQueries("tasks")
+		refetch().then((res) => {
+			const { data } = res
+			setActiveTeamTasks(data)
+		})
 		return data
 	}
 
@@ -170,7 +161,10 @@ export function useTeamTasks() {
 		}
 
 		const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken)
-		queryClient.invalidateQueries("tasks")
+		refetch().then((res) => {
+			const { data: tasks } = res
+			setActiveTeamTasks(tasks)
+		})
 		return data
 	}
 
@@ -181,12 +175,13 @@ export function useTeamTasks() {
 	}, [teamTasks])
 
 	useEffect(() => {
-		const activeTeamTasks = getTasksByTeamState({ tasks: allTasks?.items, activeTeamId })
-		setTeamTasks(activeTeamTasks)
-		if (activeTaskId) {
-			setActiveTask(activeTeamTasks.find((ts) => ts.id === activeTaskId) || null)
+		if (isSuccess) {
+			setTeamTasks(allTasks)
+			if (activeTaskId) {
+				setActiveTeamTask(allTasks.find((ts) => ts.id === activeTaskId) || null)
+			}
 		}
-	}, [activeTeamId, allTasks?.total, isRefetching])
+	}, [activeTeamId, allTasks, isRefetching, isLoading])
 	/**
 	 * Change active task
 	 */
@@ -195,14 +190,19 @@ export function useTeamTasks() {
 		setActiveTask(task)
 	}, [])
 
+	const setActiveTeamTasks = useCallback((tasks: ITeamTask[]) => {
+		const activeTeamTasks = getTasksByTeamState({ tasks, activeTeamId })
+		setTeamTasks(activeTeamTasks)
+	}, [])
+
 	return {
 		createNewTask,
 		deleteTask,
 		updateTask,
-		activeTask,
 		setActiveTeamTask,
 		onUnassignedTask,
 		onAssignTask,
+		teamTasks,
 		isRefetching,
 	}
 }

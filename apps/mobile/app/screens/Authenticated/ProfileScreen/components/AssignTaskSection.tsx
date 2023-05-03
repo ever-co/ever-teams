@@ -65,8 +65,6 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 		authenticationStore: { user },
 	} = useStores()
 
-	const { createAndAssign } = useProfileScreenLogic({ userId: memberId, activeTabIndex: 1 })
-
 	const isAuthUser = user?.id === memberId
 
 	const [taskInputText, setTaskInputText] = useState<string>("")
@@ -78,7 +76,7 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 	const onCreateNewTask = async () => {
 		setShowCheckIcon(false)
 		setIsLoading(true)
-		await createAndAssign(taskInputText)
+		// await createAndAssign(taskInputText)
 		setIsLoading(false)
 		setTaskInputText("")
 		onDismiss()

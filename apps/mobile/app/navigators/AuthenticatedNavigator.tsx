@@ -30,7 +30,7 @@ import { observer } from "mobx-react-lite"
 export type AuthenticatedTabParamList = {
 	Timer: undefined
 	Team: undefined
-	Profile: { userId: string; tabIndex: number }
+	Profile: { userId: string; activeTab: "worked" | "assigned" | "unassigned" }
 }
 
 export type AuthenticatedDrawerParamList = {

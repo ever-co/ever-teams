@@ -37,7 +37,13 @@ import { imgTitle } from "../../../../helpers/img-title"
 
 export type ListItemProps = {
 	member: OT_Member
-	onPressIn?: ({ userId, tabIndex }: { userId: string; tabIndex: number }) => unknown
+	onPressIn?: ({
+		userId,
+		tab,
+	}: {
+		userId: string
+		tab: "worked" | "assigned" | "unassigned"
+	}) => unknown
 	enableEstimate: boolean
 	index: number
 	userStatus: string
@@ -193,7 +199,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 						<Text style={[styles.name, { color: colors.primary }]}>{iuser.name}</Text>
 						{/* ENABLE ESTIMATE INPUTS */}
 						<View style={styles.wrapTotalTime}>
-							<WorkedOnTask
+							{/* <WorkedOnTask
 								memberTask={memberTask}
 								isAuthUser={isAuthUser}
 								title={translate("teamScreen.cardTotalTimeLabel")}
@@ -204,7 +210,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 									color: colors.primary,
 									fontFamily: typography.primary.semiBold,
 								}}
-							/>
+							/> */}
 						</View>
 					</View>
 					<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
@@ -413,7 +419,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
-										onPressIn({ userId: iuser?.id, tabIndex: 2 })
+										onPressIn({ userId: iuser?.id, tab: "unassigned" })
 										setShowMenu(!showMenu)
 									}}
 								>
@@ -422,7 +428,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
-										onPressIn({ userId: iuser?.id, tabIndex: 1 })
+										onPressIn({ userId: iuser?.id, tab: "assigned" })
 										setShowMenu(!showMenu)
 									}}
 								>

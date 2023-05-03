@@ -1,44 +1,39 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useStores } from "../../../models";
-import { IUser } from "../../interfaces/interfaces/IUserData";
-import { useTeamTasks } from "./useTeamTasks";
+import { useMemo } from "react"
+import { useStores } from "../../../models"
+import { IUser } from "../../interfaces/interfaces/IUserData"
+import { useTeamTasks } from "./useTeamTasks"
 
-export const useAuthTeamTasks=(user: IUser | undefined) =>{
-    const { TaskStore: { teamTasks, fetchingTasks, setTeamTasks, setAssignedTasks, setUnassignedTasks, unassignedTasks, assignedTasks },
-        teamStore: { activeTeam, setActiveTeam } } = useStores();
+export function useAuthTeamTasks(user: IUser | undefined) {
+	const {
+		TaskStore: { teamTasks, tasksStatisticsState },
+	} = useStores()
+	const { isRefetching } = useTeamTasks()
 
-    const loadAssignedTasks = useCallback(() => {
+	const statTasks = tasksStatisticsState
 
-        if (!user) return [];
-        const tasks = teamTasks.filter((task) => {
-            return task.members.some((m) => m.userId === user.id);
-        });
-        setAssignedTasks(tasks)
-        return tasks
-    }, []);
+	const assignedTasks = useMemo(() => {
+		if (!user) return []
+		return teamTasks.filter((task) => {
+			return task?.members.some((m) => m.userId === user.id)
+		})
+	}, [teamTasks, user, isRefetching])
 
-    const loadUnassignedTasks = useCallback(() => {
-        if (!user) return [];
-        const tasks = teamTasks.filter((task) => {
-            return !task.members.some((m) => m.userId === user.id);
-        });
+	const unassignedTasks = useMemo(() => {
+		if (!user) return []
+		return teamTasks.filter((task) => {
+			return !task?.members.some((m) => m.userId === user.id)
+		})
+	}, [teamTasks, user, isRefetching])
 
-        setUnassignedTasks(tasks)
-        return tasks
-    }, []);
+	const workedTasks = useMemo(() => {
+		return teamTasks.filter((tsk) => {
+			return statTasks.today.some((st) => st.id === tsk.id)
+		})
+	}, [statTasks, teamTasks, isRefetching])
 
-    useEffect(()=>{
-        loadAssignedTasks()
-        loadUnassignedTasks();
-    },[user, teamTasks, setTeamTasks])
-
-
-
-
-    return {
-        assignedTasks,
-        unassignedTasks,
-        loadAssignedTasks,
-        loadUnassignedTasks
-    };
+	return {
+		assignedTasks,
+		unassignedTasks,
+		workedTasks,
+	}
 }
