@@ -1,24 +1,23 @@
+/* eslint-disable camelcase */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import {
 	View,
 	ViewStyle,
-	ImageStyle,
 	TouchableOpacity,
 	StyleSheet,
-	FlatList,
 	TouchableWithoutFeedback,
 } from "react-native"
 import { Avatar, Text } from "react-native-paper"
-import { Ionicons, AntDesign, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Ionicons, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 
 // COMPONENTS
-import { Card, Icon, ListItem } from "../../../../components"
+import { Card, ListItem } from "../../../../components"
 
 // STYLES
-import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography, useAppTheme } from "../../../../theme"
 import { useStores } from "../../../../models"
 import { pad } from "../../../../helpers/number"
@@ -29,7 +28,7 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import WorkedOnTask from "../../../../components/WorkedOnTask"
 import { translate } from "../../../../i18n"
-import LabelItem from "../../../../components/LabelItem"
+import AllTaskStatuses from "../../../../components/AllTaskStatuses"
 import { secondsToTime } from "../../../../helpers/date"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
@@ -37,7 +36,13 @@ import { imgTitle } from "../../../../helpers/img-title"
 
 export type ListItemProps = {
 	member: OT_Member
-	onPressIn?: ({ userId, tabIndex }: { userId: string; tabIndex: number }) => unknown
+	onPressIn?: ({
+		userId,
+		tab,
+	}: {
+		userId: string
+		tab: "worked" | "assigned" | "unassigned"
+	}) => unknown
 	enableEstimate: boolean
 	index: number
 	userStatus: string
@@ -46,37 +51,6 @@ interface IUserStatus {
 	icon: any
 	color: string
 }
-
-const labels = [
-	{
-		id: 1,
-		label: "Low",
-		color: "#282048",
-		background: ["#93E6BE", "#55C0D8", "#D4EFDF"],
-		icon: require("../../../../../assets/icons/new/arrow-down.png"),
-	},
-	{
-		id: 2,
-		label: "Extra Large",
-		color: "#282048",
-		background: ["#F5B8B8", "#EF7070", "#F5B8B8"],
-		icon: require("../../../../../assets/icons/new/maximize-3.png"),
-	},
-	{
-		id: 3,
-		label: "UIUX",
-		color: "#9641AB",
-		background: ["#EAD9EE"],
-		icon: require("../../../../../assets/icons/new/devices.png"),
-	},
-	{
-		id: 4,
-		label: "Low",
-		color: "#282048",
-		background: ["#93E6BE", "#55C0D8", "#D4EFDF"],
-		icon: require("../../../../../assets/icons/new/arrow-down.png"),
-	},
-]
 
 export interface Props extends ListItemProps {}
 
@@ -90,12 +64,10 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 			authenticationStore: { user },
 		} = useStores()
 		const {
-			fomatedTimeCounter: { hours, minutes, seconds, ms_p },
+			fomatedTimeCounter: { hours, minutes },
 		} = useTimer()
 
 		const { colors, dark } = useAppTheme()
-		const { isTeamManager } = useOrganizationTeam()
-		const flatListRef = useRef<FlatList>(null)
 		const isAuthUser = member.employee.userId === user?.id
 		const [editEstimate, setEditEstimate] = useState(false)
 		const [estimatedTime, setEstimateTime] = useState({
@@ -104,7 +76,6 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 			seconds: 0,
 		})
 		const [memberTask, setMemberTask] = useState<ITeamTask | null>(null)
-		const [labelIndex, setLabelIndex] = useState(0)
 		const iuser = member.employee.user
 
 		useEffect(() => {
@@ -112,29 +83,6 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 				setMemberTask(activeTask)
 			}
 		}, [isAuthUser, activeTask, activeTeam])
-
-		useEffect(() => {
-			flatListRef.current?.scrollToIndex({
-				animated: true,
-				index: labelIndex,
-				viewPosition: 0,
-			})
-		}, [labelIndex])
-
-		const onNextPressed = () => {
-			if (labelIndex === labels.length - 2) {
-			} else {
-				setLabelIndex(labelIndex + 1)
-			}
-		}
-
-		const onPrevPressed = () => {
-			if (labelIndex === 0) {
-				return
-			}
-
-			setLabelIndex(labelIndex - 1)
-		}
 
 		const progress = useMemo(() => {
 			if (memberTask && memberTask.estimate > 0) {
@@ -157,7 +105,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 		}, [memberTask, enableEstimate])
 
 		return (
-			<TouchableWithoutFeedback onPress={() => onPressIn({ userId: iuser?.id, tabIndex: 0 })}>
+			<TouchableWithoutFeedback onPress={() => onPressIn({ userId: iuser?.id, tab: "worked" })}>
 				<View
 					style={[
 						{
@@ -220,53 +168,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 								</Text>
 							) : null}
 						</View>
-						<View
-							style={{
-								marginTop: 16,
-								flexDirection: "row",
-								justifyContent: "space-between",
-								alignItems: "center",
-								width: "100%",
-							}}
-						>
-							<FlatList
-								data={labels}
-								initialScrollIndex={labelIndex}
-								renderItem={({ item, index, separators }) => (
-									<View key={index} style={{ marginHorizontal: 2 }}>
-										<LabelItem
-											label={item.label}
-											labelColor={item.color}
-											background={item.background}
-											icon={item.icon}
-										/>
-									</View>
-								)}
-								horizontal={true}
-								showsHorizontalScrollIndicator={false}
-								ref={flatListRef}
-								keyExtractor={(_, index) => index.toString()}
-								style={{ marginRight: 10, overflow: "scroll" }}
-							/>
-							{labelIndex === labels.length - 3 ? null : (
-								<TouchableOpacity
-									activeOpacity={0.7}
-									style={[styles.scrollRight, { backgroundColor: colors.background }]}
-									onPress={() => onNextPressed()}
-								>
-									<AntDesign name="right" size={18} color={!dark ? "#938FA4" : colors.primary} />
-								</TouchableOpacity>
-							)}
-							{labelIndex !== 0 ? (
-								<TouchableOpacity
-									activeOpacity={0.7}
-									style={[styles.scrollRight, { left: 0, backgroundColor: colors.background }]}
-									onPress={() => onPrevPressed()}
-								>
-									<AntDesign name="left" size={18} color={!dark ? "#938FA4" : colors.primary} />
-								</TouchableOpacity>
-							) : null}
-						</View>
+						<AllTaskStatuses task={memberTask} />
 					</View>
 					<View style={[styles.times, { borderTopColor: colors.divider }]}>
 						<View
@@ -315,10 +217,9 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 											width={5}
 											fill={progress}
 											tintColor="#27AE60"
-											onAnimationComplete={() => {}}
 											backgroundColor="#F0F0F0"
 										>
-											{(fill) => (
+											{() => (
 												<Text style={{ ...styles.progessText, color: colors.primary }}>
 													{estimatedTime.hours > 0
 														? estimatedTime.hours + " H"
@@ -413,7 +314,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
-										onPressIn({ userId: iuser?.id, tabIndex: 2 })
+										onPressIn({ userId: iuser?.id, tab: "unassigned" })
 										setShowMenu(!showMenu)
 									}}
 								>
@@ -422,7 +323,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
-										onPressIn({ userId: iuser?.id, tabIndex: 1 })
+										onPressIn({ userId: iuser?.id, tab: "assigned" })
 										setShowMenu(!showMenu)
 									}}
 								>
@@ -493,11 +394,6 @@ const $listCard: ViewStyle = {
 	shadowOffset: { width: 0, height: 0 },
 }
 
-const $usersProfile: ImageStyle = {
-	width: spacing.huge - spacing.extraSmall,
-	height: spacing.huge - spacing.extraSmall,
-}
-
 const styles = StyleSheet.create({
 	dropdownTxt: {
 		color: "#282048",
@@ -521,14 +417,6 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		width: "95%",
 	},
-	mainContainer: {
-		borderColor: "#1B005D",
-		borderRadius: 20,
-		borderWidth: 0.5,
-		height: 180,
-		justifyContent: "space-around",
-		padding: 10,
-	},
 	name: {
 		color: "#1B005D",
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
@@ -551,22 +439,6 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 10,
 	},
-	scrollRight: {
-		alignItems: "center",
-		backgroundColor: "#fff",
-		borderRadius: 20,
-		elevation: 10,
-		height: 27,
-		justifyContent: "center",
-		padding: 5,
-		position: "absolute",
-		right: 0,
-		shadowColor: "rgba(0,0,0,0.16)",
-		shadowOffset: { width: 0, height: 5 },
-		shadowOpacity: 1,
-		shadowRadius: 15,
-		width: 28,
-	},
 	statusIcon: {
 		bottom: 0,
 		position: "absolute",
@@ -579,16 +451,6 @@ const styles = StyleSheet.create({
 	},
 	teamImage: {
 		backgroundColor: "#C1E0EA",
-	},
-	timeHeading: {
-		color: "#7E7991",
-		fontFamily: typography.fonts.PlusJakartaSans.medium,
-		fontSize: 10,
-	},
-	timeNumber: {
-		color: "#282048",
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
 	},
 	times: {
 		alignItems: "center",
