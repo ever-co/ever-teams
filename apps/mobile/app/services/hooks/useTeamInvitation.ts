@@ -65,7 +65,7 @@ export function useTeamInvitations() {
 				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
 			},
 			authToken,
-		)
+		).then((res) => console.log(res))
 	}, [])
 
 	useEffect(() => {

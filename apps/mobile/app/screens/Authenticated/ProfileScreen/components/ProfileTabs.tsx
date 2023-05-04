@@ -1,33 +1,25 @@
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
 import { View, ViewStyle } from "react-native"
-import { translate } from "../../../../i18n"
+import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useAppTheme } from "../../../../theme"
 import TaskTab from "./TaskTab"
 
 interface Props {
-	onChangeTab: (index: number) => unknown
-	activeTab: number
-	countTasksByTab: (index: number) => number
+	hook: ITaskFilter
 }
 
-const ProfileTabs: FC<Props> = observer(({ onChangeTab, activeTab, countTasksByTab }) => {
+const ProfileTabs: FC<Props> = observer(({ hook }) => {
 	const { colors } = useAppTheme()
-	const tabs = [
-		translate("tasksScreen.workedTab"),
-		translate("tasksScreen.assignedTab"),
-		translate("tasksScreen.unassignedTab"),
-	]
 	return (
 		<View style={{ ...$tabWrapper, backgroundColor: colors.background }}>
-			{tabs.map((item, idx) => (
+			{hook.tabs.map((item, idx) => (
 				<TaskTab
 					key={idx}
-					setSelectedTabIndex={onChangeTab}
-					tabIndex={idx}
-					selectedTabIndex={activeTab}
-					tabTitle={item}
-					countTasks={countTasksByTab(idx)}
+					setSelectedTab={() => hook.setTab(item.tab)}
+					isSelected={item.tab === hook.tab}
+					tabTitle={item.name}
+					countTasks={item.count}
 				/>
 			))}
 		</View>

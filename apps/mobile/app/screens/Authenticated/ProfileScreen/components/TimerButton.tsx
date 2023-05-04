@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-color-literals */
 import React, { FC } from "react"
 import { LinearGradient } from "expo-linear-gradient"
 import { Image, StyleSheet } from "react-native"
@@ -11,15 +12,13 @@ import { useAppTheme } from "../../../../theme"
 
 interface Props {
 	isActiveTask: boolean
-	isAssignedTask: boolean
 	task: ITeamTask
 }
 
-const TimerButton: FC<Props> = observer(({ isActiveTask, isAssignedTask, task }) => {
+const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 	const { colors, dark } = useAppTheme()
 	const {
 		TimerStore: { localTimerStatus },
-		TaskStore: { setActiveTask },
 	} = useStores()
 	const { startTimer, stopTimer } = useTimer()
 	const { setActiveTeamTask } = useTeamTasks()
@@ -50,7 +49,7 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, isAssignedTask, task })
 					resizeMode="contain"
 					style={styles.timerIcon}
 					source={
-						localTimerStatus.running
+						localTimerStatus.running && isActiveTask
 							? require("../../../../../assets/icons/new/stop-blue.png")
 							: require("../../../../../assets/icons/new/play.png")
 					}
@@ -66,7 +65,7 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, isAssignedTask, task })
 					resizeMode="contain"
 					style={styles.timerIcon}
 					source={
-						localTimerStatus.running
+						localTimerStatus.running && isActiveTask
 							? require("../../../../../assets/icons/new/stop.png")
 							: require("../../../../../assets/icons/new/play-dark.png")
 					}
