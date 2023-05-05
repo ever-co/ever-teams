@@ -14,8 +14,7 @@ const useTimerScreenLogic = () => {
 	const onCreateNewTask = async () => {
 		setShowCheckIcon(false)
 		setIsLoading(true)
-		const { data } = await createNewTask(taskInputText)
-		setActiveTeamTask(data)
+		await createNewTask(taskInputText)
 		setIsLoading(false)
 		setShowCombo(false)
 	}

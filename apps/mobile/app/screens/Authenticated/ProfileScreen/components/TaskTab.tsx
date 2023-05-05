@@ -4,54 +4,47 @@ import { TouchableOpacity, Text, View, StyleSheet, TextStyle, ViewStyle } from "
 import { typography, useAppTheme } from "../../../../theme"
 
 interface Props {
-	setSelectedTabIndex: (index: number) => unknown
-	tabIndex: number
-	selectedTabIndex: number
+	setSelectedTab: () => unknown
+	isSelected: boolean
 	tabTitle: string
 	countTasks: number
 }
-const TaskTab: FC<Props> = observer(
-	({ setSelectedTabIndex, tabIndex, selectedTabIndex, tabTitle, countTasks }) => {
-		const { colors, dark } = useAppTheme()
-		const isSelected = selectedTabIndex === tabIndex
-		return (
-			<TouchableOpacity
-				style={[
-					$container,
-					isSelected ? { ...$selectedTab, borderBottomColor: colors.primary } : $unselectedTab,
-				]}
-				activeOpacity={0.7}
-				onPress={() => setSelectedTabIndex(tabIndex)}
-			>
-				<Text style={[$tabText, { color: isSelected ? colors.primary : colors.tertiary }]}>
-					{tabTitle}
-				</Text>
-				{!dark ? (
-					<View
-						style={[
-							$wrapperCountTasks,
-							{ backgroundColor: isSelected ? colors.secondary : colors.background2 },
-						]}
-					>
-						<Text
-							style={[$countTasks, { color: isSelected ? colors.background : colors.tertiary }]}
-						>
-							{countTasks}
-						</Text>
-					</View>
-				) : (
-					<View
-						style={[$wrapperCountTasks, { backgroundColor: isSelected ? "#47484D" : "#24282F" }]}
-					>
-						<Text style={[$countTasks, { color: isSelected ? colors.primary : "#7E7991" }]}>
-							{countTasks}
-						</Text>
-					</View>
-				)}
-			</TouchableOpacity>
-		)
-	},
-)
+const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, countTasks }) => {
+	const { colors, dark } = useAppTheme()
+
+	return (
+		<TouchableOpacity
+			style={[
+				$container,
+				isSelected ? { ...$selectedTab, borderBottomColor: colors.primary } : $unselectedTab,
+			]}
+			activeOpacity={0.7}
+			onPress={() => setSelectedTab()}
+		>
+			<Text style={[$tabText, { color: isSelected ? colors.primary : colors.tertiary }]}>
+				{tabTitle}
+			</Text>
+			{!dark ? (
+				<View
+					style={[
+						$wrapperCountTasks,
+						{ backgroundColor: isSelected ? colors.secondary : colors.background2 },
+					]}
+				>
+					<Text style={[$countTasks, { color: isSelected ? colors.background : colors.tertiary }]}>
+						{countTasks}
+					</Text>
+				</View>
+			) : (
+				<View style={[$wrapperCountTasks, { backgroundColor: isSelected ? "#47484D" : "#24282F" }]}>
+					<Text style={[$countTasks, { color: isSelected ? colors.primary : "#7E7991" }]}>
+						{countTasks}
+					</Text>
+				</View>
+			)}
+		</TouchableOpacity>
+	)
+})
 
 export default TaskTab
 
