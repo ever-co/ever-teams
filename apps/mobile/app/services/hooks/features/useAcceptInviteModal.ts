@@ -45,7 +45,7 @@ export function useAcceptInviteModal() {
 
 	useEffect(() => {
 		if (isSuccess) {
-			const latestInvitations = data.items || []
+			const latestInvitations = data?.items || []
 
 			const latestInvitationsSorted = latestInvitations
 				.slice()

@@ -15,7 +15,7 @@ const LabelItem: FC<Props> = ({ label, background, icon }) => {
 		<View style={[styles.container, { backgroundColor: background }]}>
 			<View style={{ flexDirection: "row" }}>
 				{icon}
-				<Text style={[styles.labelTitle, { color: colors.primary }]}>{label}</Text>
+				<Text style={[styles.labelTitle, { color: "#282048" }]}>{label}</Text>
 			</View>
 		</View>
 	)

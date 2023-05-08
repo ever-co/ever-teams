@@ -4,6 +4,7 @@ import { useStores } from "../../../models"
 import useFetchAllTasks from "../../client/queries/task/tasks"
 import {
 	createTaskRequest,
+	deleteEmployeeFromTasksRequest,
 	deleteTaskRequest,
 	getTeamTasksRequest,
 	updateTaskRequest,
@@ -192,6 +193,18 @@ export function useTeamTasks() {
 		setTeamTasks(activeTeamTasks)
 	}, [])
 
+	const deleteEmployeeFromTasks = useCallback(
+		(employeeId: string, organizationTeamId: string) => {
+			deleteEmployeeFromTasksRequest({
+				tenantId,
+				employeeId,
+				organizationTeamId,
+				bearer_token: authToken,
+			})
+		},
+		[deleteEmployeeFromTasksRequest],
+	)
+
 	return {
 		createNewTask,
 		deleteTask,
@@ -199,6 +212,7 @@ export function useTeamTasks() {
 		setActiveTeamTask,
 		onUnassignedTask,
 		onAssignTask,
+		deleteEmployeeFromTasks,
 		teamTasks,
 		isRefetching,
 	}

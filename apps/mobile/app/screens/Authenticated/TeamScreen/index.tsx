@@ -148,10 +148,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												{currentUser && (
 													<ListCardItem
 														member={currentUser}
-														onPressIn={goToProfile}
-														enableEstimate={false}
-														index={7}
-														userStatus={"online"}
+														// onPressIn={goToProfile}
+														// enableEstimate={false}
+														// index={7}
+														// userStatus={"online"}
 													/>
 												)}
 
@@ -159,10 +159,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 													<ListCardItem
 														key={index}
 														member={member}
-														onPressIn={goToProfile}
-														enableEstimate={false}
-														index={9}
-														userStatus={"online"}
+														// onPressIn={goToProfile}
+														// enableEstimate={false}
+														// index={9}
+														// userStatus={"online"}
 													/>
 												))}
 

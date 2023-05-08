@@ -243,7 +243,7 @@ export function useOrganizationTeam() {
 	 * Update Organization Team
 	 */
 	const onUpdateOrganizationTeam = useCallback(
-		async ({ id, data }: { id: string; data: IOrganizationTeamList }) => {
+		async ({ id, data }: { id: string; data: Partial<IOrganizationTeamList> }) => {
 			await updateOrganizationTeamRequest({
 				id,
 				datas: data,
