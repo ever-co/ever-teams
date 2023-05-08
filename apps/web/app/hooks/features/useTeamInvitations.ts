@@ -19,7 +19,6 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useAuthenticateUser } from './useAuthenticateUser';
-import { useOrganizationTeams } from './useOrganizationTeams';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
@@ -35,8 +34,7 @@ export function useTeamInvitations() {
 	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } =
 		useFirstLoad();
 
-	const { isTeamManager } = useAuthenticateUser();
-	const { loadTeamsData } = useOrganizationTeams();
+	const { isTeamManager, refreshToken } = useAuthenticateUser();
 
 	// Queries
 	const { queryCall, loading } = useQuery(getTeamInvitationsAPI);
@@ -111,7 +109,9 @@ export function useTeamInvitations() {
 				}
 
 				if (action === MyInvitationActionEnum.ACCEPTED) {
-					loadTeamsData();
+					refreshToken().then(() => {
+						window.location.reload();
+					});
 				}
 				setMyInvitationsList(
 					myInvitationsList.filter((invitation) => invitation.id !== id)
