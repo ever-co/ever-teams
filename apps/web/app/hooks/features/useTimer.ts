@@ -25,6 +25,7 @@ import { useSyncRef } from '../useSyncRef';
 import { useRefreshInterval } from './useRefreshInterval';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
+import isEqual from 'lodash/isEqual';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-team';
 
@@ -183,30 +184,36 @@ export function useTimer() {
 	const { timeCounter, updateLocalTimerStatus, timerSeconds } =
 		useLocalTimeCounter(timerStatus, activeTeamTask, firstLoad);
 
-	const getTimerStatus = useCallback((deepCheck?: boolean) => {
-		return queryCall().then((res) => {
-			if (res.data) {
-				setTimerStatus((t) => {
-					if (deepCheck) {
-						return res.data.running !== t?.running ? res.data : t;
-					}
-					return res.data;
-				});
-			}
-			return res;
-		});
-	}, []);
+	const getTimerStatus = useCallback(
+		(deepCheck?: boolean) => {
+			return queryCall().then((res) => {
+				if (res.data && !isEqual(timerStatus, res.data)) {
+					setTimerStatus((t) => {
+						if (deepCheck) {
+							return res.data.running !== t?.running ? res.data : t;
+						}
+						return res.data;
+					});
+				}
+				return res;
+			});
+		},
+		[timerStatus]
+	);
 
-	const toggleTimer = useCallback((taskId: string, updateStore = true) => {
-		return toggleQueryCall({
-			taskId,
-		}).then((res) => {
-			if (updateStore && res.data) {
-				setTimerStatus(res.data);
-			}
-			return res;
-		});
-	}, []);
+	const toggleTimer = useCallback(
+		(taskId: string, updateStore = true) => {
+			return toggleQueryCall({
+				taskId,
+			}).then((res) => {
+				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
+					setTimerStatus(res.data);
+				}
+				return res;
+			});
+		},
+		[timerStatus]
+	);
 
 	const syncTimer = useCallback(() => {
 		if (syncTimerLoading) {
@@ -239,7 +246,7 @@ export function useTimer() {
 
 		setTimerStatusFetching(true);
 		const promise = startTimerQueryCall().then((res) => {
-			res.data && setTimerStatus(res.data);
+			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 			return;
 		});
 
@@ -259,7 +266,7 @@ export function useTimer() {
 		promise.finally(() => setTimerStatusFetching(false));
 
 		return promise;
-	}, [taskId.current, activeTeamTaskRef]);
+	}, [taskId.current, activeTeamTaskRef, timerStatus]);
 
 	// Stop timer
 	const stopTimer = useCallback(() => {
@@ -270,9 +277,9 @@ export function useTimer() {
 		});
 
 		return stopTimerQueryCall().then((res) => {
-			res.data && setTimerStatus(res.data);
+			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
-	}, [taskId.current, syncTimerInterval.current]);
+	}, [taskId.current, syncTimerInterval.current, timerStatus]);
 
 	// If active team changes then stop the timer
 	useEffect(() => {

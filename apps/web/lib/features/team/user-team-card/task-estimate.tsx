@@ -25,7 +25,7 @@ export function TaskEstimateInfo({
 				<TaskEstimateInput {...rest} />
 
 				<TaskProgressBar
-					task={rest.edition.task}
+					task={rest.edition.task || rest.memberInfo.memberTask}
 					isAuthUser={rest.memberInfo.isAuthUser}
 					activeAuthTask={activeAuthTask}
 					memberInfo={rest.memberInfo}
@@ -41,7 +41,7 @@ function TaskEstimateInput({
 }: Omit<Props, 'className' | 'activeAuthTask'>) {
 	const { trans } = useTranslation();
 	const loadingRef = useRef<boolean>(false);
-	const task = memberInfo.memberTask;
+	const task = edition.task || memberInfo.memberTask;
 
 	const hasEditMode = edition.estimateEditMode && task;
 

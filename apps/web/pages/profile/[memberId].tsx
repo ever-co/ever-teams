@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
@@ -23,10 +24,16 @@ const Profile = () => {
 
 	const { trans } = useTranslation('profile');
 
+	const profileIsAuthUser = useMemo(
+		() => profile.isAuthUser,
+		[profile.isAuthUser]
+	);
+	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
+
 	return (
 		<>
-			<MainLayout showTimer={!profile.isAuthUser && isTrackingEnabled}>
-				<MainHeader className={clsxm(hook.filterType && ['pb-0'])}>
+			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
+				<MainHeader className={clsxm(hookFilterType && ['pb-0'])}>
 					{/* Breadcrumb */}
 					<div className="flex items-center space-x-5">
 						<Link href="/">
@@ -40,7 +47,7 @@ const Profile = () => {
 					<div className="flex items-center justify-between py-10 xs:flex-row flex-col">
 						<UserProfileDetail member={profile.member} />
 
-						{profile.isAuthUser && isTrackingEnabled && (
+						{profileIsAuthUser && isTrackingEnabled && (
 							<Timer
 								className={clsxm(
 									'p-5 rounded-lg shadow-xlcard',
@@ -63,18 +70,20 @@ const Profile = () => {
 };
 
 function UserProfileDetail({ member }: { member?: OT_Member }) {
-	const user = member?.employee.user;
+	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
+	const imgUrl =
+		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
+	const timerStatus = useMemo(
+		() => member?.timerStatus || 'idle',
+		[member?.timerStatus]
+	);
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
-			<Avatar
-				size={80}
-				imageUrl={
-					user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
-				}
-			>
+			<Avatar size={80} imageUrl={imageUrl}>
 				<TimerStatus
-					status={member?.timerStatus || 'idle'}
+					status={timerStatus}
 					className="absolute border z-20 bottom-3 right-[12%] -mb-3"
 				/>
 			</Avatar>
