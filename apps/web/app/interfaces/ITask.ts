@@ -37,6 +37,8 @@ type SelectedTeam = Pick<
 	| 'tenantId'
 	| 'updatedAt'
 	| 'prefix'
+	| 'image'
+	| 'imageId'
 >;
 
 export interface Tag {

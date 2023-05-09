@@ -24,6 +24,7 @@ import {
 	PropsWithChildren,
 	useCallback,
 	useEffect,
+	useMemo,
 	useRef,
 	useState,
 } from 'react';
@@ -90,6 +91,11 @@ export function TaskInput(props: Props) {
 		taskIssue,
 	} = datas;
 
+	const inputTaskTitle = useMemo(
+		() => inputTask?.title || '',
+		[inputTask?.title]
+	);
+
 	const [taskName, setTaskName] = useState('');
 
 	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLInputElement>(
@@ -101,8 +107,8 @@ export function TaskInput(props: Props) {
 	}, [taskName, inputTask, setQuery]);
 
 	useEffect(() => {
-		setTaskName(inputTask?.title || '');
-	}, [editMode, inputTask]);
+		setTaskName(inputTaskTitle);
+	}, [editMode, inputTaskTitle]);
 
 	useEffect(() => {
 		/**
@@ -184,7 +190,9 @@ export function TaskInput(props: Props) {
 				setEditMode(true);
 				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
 			}}
-			onChange={(event) => setTaskName(event.target.value)}
+			onChange={(event) => {
+				setTaskName(event.target.value);
+			}}
 			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
 			autoFocus={props.autoFocus}
