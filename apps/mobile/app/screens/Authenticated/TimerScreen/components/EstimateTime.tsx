@@ -95,10 +95,9 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 			estimate: hours * 60 * 60 + minutes * 60, // time seconds
 		}
 
-		console.log("ESTIMATE")
 		setShowCheckIcon(false)
 		setIsLoading(true)
-		const response = await updateTask(task, task.id)
+		await updateTask(task, task.id)
 
 		setEditing({ editingHour: false, editingMinutes: false })
 		setIsLoading(false)

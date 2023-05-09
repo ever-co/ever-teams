@@ -66,8 +66,14 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 
 		const { navigation } = _props
 
-		function goToProfile({ userId, tabIndex }: { userId: string; tabIndex: number }) {
-			navigation.navigate("Profile", { userId, tabIndex })
+		function goToProfile({
+			userId,
+			tab,
+		}: {
+			userId: string
+			tab: "worked" | "assigned" | "unassigned"
+		}) {
+			navigation.navigate("Profile", { userId, activeTab: tab })
 		}
 
 		return (

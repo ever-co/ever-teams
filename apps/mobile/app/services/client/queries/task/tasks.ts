@@ -5,6 +5,7 @@ interface IGetAllTasksParams {
 	authToken: string
 	tenantId: string
 	organizationId: string
+	activeTeamId: string
 }
 const fetchAllTasks = async (params: IGetAllTasksParams) => {
 	const { data } = await getTeamTasksRequest({
@@ -12,11 +13,17 @@ const fetchAllTasks = async (params: IGetAllTasksParams) => {
 		tenantId: params.tenantId,
 		organizationId: params.organizationId,
 	})
-	return data
+
+	const tasks = data.items.filter((task) => {
+		return task.teams.some((tm) => {
+			return tm.id === params.activeTeamId
+		})
+	})
+	return tasks
 }
 
 const useFetchAllTasks = (IGetAllTasksParams) =>
 	useQuery(["tasks", IGetAllTasksParams], () => fetchAllTasks(IGetAllTasksParams), {
-		refetchInterval: 3000,
+		refetchInterval: 5000,
 	})
 export default useFetchAllTasks

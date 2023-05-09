@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
 import {
 	View,
@@ -20,7 +22,6 @@ import TaskSize from "../../../../components/TaskSize"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { useStores } from "../../../../models"
 import { translate } from "../../../../i18n"
-import useProfileScreenLogic from "../logics/useProfileScreenLogic"
 
 export interface Props {
 	visible: boolean
@@ -65,8 +66,6 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 		authenticationStore: { user },
 	} = useStores()
 
-	const { createAndAssign } = useProfileScreenLogic({ userId: memberId, activeTabIndex: 1 })
-
 	const isAuthUser = user?.id === memberId
 
 	const [taskInputText, setTaskInputText] = useState<string>("")
@@ -78,7 +77,7 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 	const onCreateNewTask = async () => {
 		setShowCheckIcon(false)
 		setIsLoading(true)
-		await createAndAssign(taskInputText)
+		// await createAndAssign(taskInputText)
 		setIsLoading(false)
 		setTaskInputText("")
 		onDismiss()
