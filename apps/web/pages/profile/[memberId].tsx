@@ -71,10 +71,9 @@ const Profile = () => {
 
 function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
-	const imageUrl = useMemo(
-		() => user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl,
-		[user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl]
-	);
+	const imgUrl =
+		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
 	const timerStatus = useMemo(
 		() => member?.timerStatus || 'idle',
 		[member?.timerStatus]

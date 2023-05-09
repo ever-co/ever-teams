@@ -1,11 +1,12 @@
-import { mergeRefs, secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@app/helpers';
 import {
-	useOutsideClick,
 	useTeamTasks,
 	useTimerView,
 	useTaskStatistics,
 	I_UserProfilePage,
 	useOrganizationTeams,
+	useTeamMemberCard,
+	useTMCardTaskEdit,
 } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -17,21 +18,20 @@ import {
 	Text,
 	VerticalSeparator,
 } from 'lib/components';
-import { DraggerIcon, EditIcon, MoreIcon } from 'lib/components/svgs';
+import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
 import { TaskNameInfoDisplay } from './task-displays';
-import { TaskEstimate } from './task-estimate';
-import { TaskProgressBar } from './task-progress-bar';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { TaskAvatars } from './task-item';
-import { useRecoilValue } from 'recoil';
+import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
+import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 
 type Props = {
 	active?: boolean;
@@ -40,6 +40,8 @@ type Props = {
 	activeAuthTask: boolean;
 	viewType?: 'default' | 'unassign';
 	profile?: I_UserProfilePage;
+	editTaskId?: string | null;
+	setEditTaskId?: SetterOrUpdater<string | null>;
 } & IClassName;
 
 export function TaskCard({
@@ -55,7 +57,11 @@ export function TaskCard({
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
 		useTaskStatistics(seconds);
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const members = activeTeam?.members || [];
+	const currentMember = members.find((m) => {
+		return m.employee.user?.id === profile?.userProfile?.id;
+	});
 
 	const { h, m } = secondsToTime(
 		(activeTaskTotalStat?.duration || 0) + addSeconds
@@ -88,6 +94,9 @@ export function TaskCard({
 			<></>
 		);
 
+	const memberInfo = useTeamMemberCard(currentMember || undefined);
+	const taskEdition = useTMCardTaskEdit(task);
+
 	return (
 		<div>
 			<Card
@@ -111,9 +120,9 @@ export function TaskCard({
 						{/* TaskEstimateInfo */}
 						<div className="flex space-x-2 items-center flex-col lg:flex-row">
 							<TaskEstimateInfo
-								task={task}
-								isAuthUser={isAuthUser}
-								activeAuthTask={activeAuthTask}
+								memberInfo={memberInfo}
+								edition={taskEdition}
+								activeAuthTask={true}
 								className="lg:px-3 lg:w-52 "
 							/>
 						</div>
@@ -177,9 +186,9 @@ export function TaskCard({
 						<>
 							<div className="flex space-x-2 items-end">
 								<TaskEstimateInfo
-									task={task}
-									isAuthUser={isAuthUser}
-									activeAuthTask={activeAuthTask}
+									memberInfo={memberInfo}
+									edition={taskEdition}
+									activeAuthTask={true}
 									className="px-3 w-52"
 								/>
 							</div>
@@ -287,90 +296,6 @@ export function TaskCard({
 	}
 
 	//* Task Estimate info *
-	function TaskEstimateInfo({
-		className,
-		task,
-		isAuthUser,
-		activeAuthTask,
-	}: Props) {
-		return (
-			<div className={className}>
-				<div className="flex items-center flex-col space-y-2">
-					<TaskEstimateInput task={task} />
-
-					<TaskProgressBar
-						activeAuthTask={activeAuthTask}
-						task={task}
-						isAuthUser={isAuthUser}
-						memberInfo={
-							{
-								member: profile?.member,
-							} as any
-						}
-					/>
-				</div>
-			</div>
-		);
-	}
-
-	function TaskEstimateInput({ task }: { task?: Nullable<ITeamTask> }) {
-		const loadingRef = useRef<boolean>(false);
-		const [editMode, setEditMode] = useState(false);
-
-		const hasEditMode = editMode && task;
-
-		const closeFn = () => {
-			setTimeout(() => {
-				!loadingRef.current && setEditMode(false);
-			}, 1);
-		};
-
-		const { targetEl, ignoreElementRef } =
-			useOutsideClick<HTMLButtonElement>(closeFn);
-
-		const { h, m } = secondsToTime(task?.estimate || 0);
-
-		return (
-			<>
-				<div
-					className={clsxm(!hasEditMode && ['hidden'])}
-					ref={ignoreElementRef}
-				>
-					{task && (
-						<TaskEstimate
-							_task={task}
-							loadingRef={loadingRef}
-							closeable_fc={closeFn}
-						/>
-					)}
-				</div>
-
-				<div
-					className={clsxm(
-						'flex space-x-2 items-center mb-2 font-normal text-sm',
-						hasEditMode && ['hidden']
-					)}
-				>
-					<span className="text-gray-500">Estimated:</span>
-					<Text>
-						{h}h {m}m
-					</Text>
-
-					<button
-						ref={mergeRefs([targetEl, ignoreElementRef])}
-						onClick={() => task && setEditMode(true)}
-					>
-						<EditIcon
-							className={clsxm(
-								'cursor-pointer w-4 h-4',
-								!task && ['opacity-40 cursor-default']
-							)}
-						/>
-					</button>
-				</div>
-			</>
-		);
-	}
 
 	//* Task Info FC *
 	function TaskInfo({
