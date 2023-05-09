@@ -18,53 +18,50 @@ type Props = {
 export function UserProfileTask({ profile, tabFiltered }: Props) {
 	const { trans } = useTranslation();
 	// Get current timer seconds
-	const { time } = useLiveTimerStatus();
+	const { time, timerStatus } = useLiveTimerStatus();
 
 	/**
 	 * When tab is worked, then filter it exclude the active task
 	 */
 	const tasks = useMemo(() => {
-		let tasks = tabFiltered.tasksFiltered;
-		if (tabFiltered.tab === 'worked' && profile.activeUserTeamTask) {
-			tasks = tasks.filter((ts) => {
-				return ts.id !== profile.activeUserTeamTask?.id;
-			});
-		}
-
-		return tasks;
-	}, [tabFiltered, profile]);
+		return tabFiltered.tasksFiltered;
+	}, [tabFiltered]);
 	return (
 		<div className="mt-10">
-			{tabFiltered.tab === 'worked' && (
-				/* Displaying the current time. */
-				<div className="flex space-x-2 items-center mb-3">
-					<Text className="font-normal">{trans.common.NOW}</Text>
-					<Divider className="flex-1" />
-					<div className="flex space-x-4 items-center">
-						<Text className="text-gray-500 text-xs font-normal">
-							{trans.common.TOTAL_TIME}:
-						</Text>
-
-						{profile.isAuthUser ? (
-							<Text className="font-normal">
-								{time.h}h : {time.m}m
+			{tabFiltered.tab === 'worked' &&
+				(profile.member?.timerStatus === 'running' ||
+					(profile.isAuthUser && timerStatus?.running)) && (
+					/* Displaying the current time. */
+					<div className="flex space-x-2 items-center mb-3">
+						<Text className="font-normal">{trans.common.NOW}</Text>
+						<Divider className="flex-1" />
+						<div className="flex space-x-4 items-center">
+							<Text className="text-gray-500 text-xs font-normal">
+								{trans.common.TOTAL_TIME}:
 							</Text>
-						) : (
-							<Text className="font-normal">00h : 00m</Text>
-						)}
-					</div>
-				</div>
-			)}
 
-			{tabFiltered.tab === 'worked' && (
-				<TaskCard
-					active
-					task={profile.activeUserTeamTask}
-					isAuthUser={profile.isAuthUser}
-					activeAuthTask={true}
-					profile={profile}
-				/>
-			)}
+							{profile.isAuthUser ? (
+								<Text className="font-normal">
+									{time.h}h : {time.m}m
+								</Text>
+							) : (
+								<Text className="font-normal">00h : 00m</Text>
+							)}
+						</div>
+					</div>
+				)}
+
+			{tabFiltered.tab === 'worked' &&
+				(profile.member?.timerStatus === 'running' ||
+					(profile.isAuthUser && timerStatus?.running)) && (
+					<TaskCard
+						active
+						task={profile.activeUserTeamTask}
+						isAuthUser={profile.isAuthUser}
+						activeAuthTask={true}
+						profile={profile}
+					/>
+				)}
 			{tabFiltered.tab === 'worked' && (
 				<div className="flex space-x-2 items-center my-6">
 					<Text className="font-normal">
