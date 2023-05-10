@@ -34,7 +34,7 @@ export const CodeInput: FC<IInput> = (props) => {
 				return setActive(active - 1)
 			}
 		} else {
-			if (!isNaN(nativeEvent.key)) {
+			if (!isNaN(parseInt(nativeEvent.key))) {
 				inputsRef.current[active + 1]?.focus()
 				return setActive(active + 1)
 			}
