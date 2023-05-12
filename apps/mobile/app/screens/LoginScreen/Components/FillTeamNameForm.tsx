@@ -50,7 +50,7 @@ const FillTeamNameForm: FC<Props> = observer(
 						<Text style={styles.joinExistedText}>{translate("loginScreen.joinExistTeam")}</Text>
 					</TouchableOpacity>
 					<Button
-						style={$tapButton}
+						style={{ ...$tapButton, opacity: authTeamName.length < 3 ? 0.5 : 1 }}
 						textStyle={styles.tapButtonText}
 						onPress={() =>
 							setScreenStatus({
@@ -58,6 +58,7 @@ const FillTeamNameForm: FC<Props> = observer(
 								animation: true,
 							})
 						}
+						disabled={authTeamName.length < 3}
 					>
 						<Text>{translate("loginScreen.tapContinue")}</Text>
 					</Button>
