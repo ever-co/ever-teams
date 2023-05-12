@@ -1,4 +1,4 @@
-import { ITeamTask } from '@app/interfaces/ITask';
+import { ITeamTask } from '@app/interfaces';
 import {
 	activeTaskTimesheetStatisticsAPI,
 	allTaskTimesheetStatisticsAPI,
@@ -12,7 +12,7 @@ import {
 	tasksStatisticsState,
 	timerStatusState,
 } from '@app/stores';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import debounce from 'lodash/debounce';
@@ -156,20 +156,25 @@ export function useTaskStatistics(addSeconds = 0) {
 			100
 		);
 
-	// const activeTaskEstimation =
-	// 	activeTeamTask && activeTeamTask.estimate
-	// 		? getEstimation(statActiveTask.total, activeTeamTask, addSeconds)
-	// 		: 0;
-	const activeTaskEstimation = getEstimation(
-		currentMember?.totalWorkedTasks
-			? currentMember?.totalWorkedTasks.find(
-					(t) => t.id === activeTeamTask?.id
-			  ) || null
-			: null,
-		activeTeamTask,
-		/*addSeconds || */ 0,
-		currentMember?.lastWorkedTask?.estimate || 0
-	);
+	const activeTaskEstimation = useMemo(() => {
+		let totalWorkedTasksTimer = 0;
+		activeTeam?.members?.forEach((member) => {
+			const totalWorkedTasks =
+				member?.totalWorkedTasks?.find(
+					(item) => item.id === activeTeamTask?.id
+				) || null;
+			if (totalWorkedTasks) {
+				totalWorkedTasksTimer += totalWorkedTasks.duration;
+			}
+		});
+
+		return getEstimation(
+			null,
+			activeTeamTask,
+			totalWorkedTasksTimer,
+			activeTeamTask?.estimate || 0
+		);
+	}, [activeTeam, activeTeamTask, currentMember]);
 
 	const activeTaskDailyEstimation =
 		activeTeamTask && activeTeamTask.estimate
