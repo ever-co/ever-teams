@@ -49,7 +49,7 @@ export function TaskProgressBar({
 	return (
 		<ProgressBar
 			width="100%"
-			progress={`${progress}%`}
+			progress={`${progress || 0}%`}
 			showPercents={showPercents}
 		/>
 	);
