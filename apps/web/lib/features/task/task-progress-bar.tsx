@@ -30,19 +30,26 @@ export function TaskProgressBar({
 	const currentMember = activeTeam?.members.find(
 		(member) => member.id === memberInfo?.member?.id
 	);
+	let totalWorkedTasksTimer = 0;
+	activeTeam?.members?.forEach((member) => {
+		const totalWorkedTasks =
+			member?.totalWorkedTasks?.find((item) => item.id === task?.id) || null;
+		if (totalWorkedTasks) {
+			totalWorkedTasksTimer += totalWorkedTasks.duration;
+		}
+	});
+
 	const progress = getEstimation(
-		currentMember?.totalWorkedTasks
-			? currentMember?.totalWorkedTasks.find((t) => t.id === task?.id) || null
-			: null,
+		null,
 		task,
-		/*addSeconds || */ 0,
+		/*addSeconds || */ totalWorkedTasksTimer || 0,
 		task?.estimate || currentMember?.lastWorkedTask?.estimate || 0
 	);
 
 	return (
 		<ProgressBar
 			width="100%"
-			progress={`${progress}%`}
+			progress={`${progress || 0}%`}
 			showPercents={showPercents}
 		/>
 	);

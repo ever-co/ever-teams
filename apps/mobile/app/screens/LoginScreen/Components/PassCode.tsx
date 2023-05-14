@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useRef } from "react"
+import React, { FC, useEffect, useRef, useState } from "react"
 import * as Animatable from "react-native-animatable"
 import EStyleSheet from "react-native-extended-stylesheet"
 import { View, Text, Dimensions, TextInput, ViewStyle, TouchableOpacity } from "react-native"
@@ -13,6 +13,7 @@ import { spacing, typography, useAppTheme } from "../../../theme"
 import { useStores } from "../../../models"
 import { CodeInput } from "../../../components/CodeInput"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
+import { EMAIL_REGEX } from "../../../helpers/regex"
 
 interface Props {
 	isLoading: boolean
@@ -23,49 +24,135 @@ interface Props {
 	getAuthCode: () => unknown
 	joinError: string
 }
-
+const { width } = Dimensions.get("window")
 const PassCode: FC<Props> = observer(
 	({ isLoading, errors, setScreenStatus, setWithTeam, joinTeam, getAuthCode, joinError }) => {
-		const authTeamInput = useRef<TextInput>()
 		const { colors } = useAppTheme()
 		const {
-			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode },
+			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode, authInviteCode },
 		} = useStores()
+
+		const authTeamInput = useRef<TextInput>()
+		const [step, setStep] = useState<"Email" | "Code">("Email")
+		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean }>({
+			step1: false,
+			step2: false,
+		})
+
+		const onNextStep = () => {
+			if (step === "Email") {
+				setStep("Code")
+				return
+			}
+
+			if (step === "Code") {
+				joinTeam()
+			}
+		}
+		const onPrevStep = () => {
+			if (step === "Email") {
+				setWithTeam(false)
+				setScreenStatus({
+					screen: 1,
+					animation: true,
+				})
+				return
+			}
+
+			if (step === "Code") {
+				setStep("Email")
+			}
+		}
+
+		const onChangeEmail = (text: string) => {
+			setAuthEmail(text)
+			if (EMAIL_REGEX.test(text)) {
+				setIsValid({
+					...isValid,
+					step1: true,
+				})
+			} else {
+				setIsValid({
+					...isValid,
+					step1: false,
+				})
+			}
+		}
+
+		const onChangeAuthCode = (text: string) => {
+			setAuthInviteCode(text)
+			if (text.length === 6) {
+				setIsValid({
+					...isValid,
+					step2: true,
+				})
+			} else {
+				setIsValid({
+					...isValid,
+					step2: false,
+				})
+			}
+		}
+
+		useEffect(() => {
+			if (step === "Email" && EMAIL_REGEX.test(authEmail)) {
+				setIsValid({
+					...isValid,
+					step1: true,
+				})
+			}
+
+			if (step === "Code" && authInviteCode.length === 6) {
+				setIsValid({
+					...isValid,
+					step2: true,
+				})
+			}
+		}, [step])
 
 		return (
 			<Animatable.View animation={"zoomIn"} delay={100} style={styles.form}>
-				<Text style={styles.text}>{translate("loginScreen.inviteStepLabel")}</Text>
-				<TextField
-					placeholder={translate("loginScreen.emailFieldPlaceholder")}
-					containerStyle={styles.textField}
-					placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
-					inputWrapperStyle={styles.inputStyleOverride}
-					ref={authTeamInput}
-					value={authEmail}
-					onChangeText={setAuthEmail}
-					autoCapitalize="none"
-					autoCorrect={false}
-					editable={!isLoading}
-					helper={errors?.authEmail}
-					status={errors?.authEmail ? "error" : undefined}
-					onSubmitEditing={() => authTeamInput.current?.focus()}
-				/>
-				<View style={{}}>
-					<Text style={styles.inputInviteTitle}>
-						{translate("loginScreen.inviteCodeFieldLabel")}
-					</Text>
-					<CodeInput onChange={setAuthInviteCode} editable={!isLoading} />
-					{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
-					<TouchableOpacity onPress={() => getAuthCode()}>
-						<Text style={styles.resendText}>
-							{translate("loginScreen.codeNotReceived")}
-							{translate("loginScreen.sendCode").substring(0, 2)}
-							<Text style={{ color: colors.primary }}>
-								{translate("loginScreen.sendCode").substring(2)}
-							</Text>
+				{step === "Email" ? (
+					<>
+						<Text style={styles.text}>{translate("loginScreen.inviteStepLabel")}</Text>
+						<TextField
+							placeholder={translate("loginScreen.emailFieldPlaceholder")}
+							containerStyle={styles.textField}
+							placeholderTextColor={"rgba(40, 32, 72, 0.4)"}
+							inputWrapperStyle={styles.inputStyleOverride}
+							ref={authTeamInput}
+							value={authEmail}
+							onChangeText={onChangeEmail}
+							autoCapitalize="none"
+							autoCorrect={false}
+							editable={!isLoading}
+							helper={errors?.authEmail}
+							status={errors?.authEmail ? "error" : undefined}
+							onSubmitEditing={() => authTeamInput.current?.focus()}
+						/>
+					</>
+				) : (
+					<View>
+						<Text style={{ ...styles.text, alignSelf: "center" }}>
+							{translate("loginScreen.inviteCodeFieldLabel")}
 						</Text>
-					</TouchableOpacity>
-				</View>
+						<CodeInput
+							onChange={onChangeAuthCode}
+							editable={!isLoading}
+							defaultValue={authInviteCode}
+						/>
+						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
+						<TouchableOpacity onPress={() => getAuthCode()}>
+							<Text style={styles.resendText}>
+								{translate("loginScreen.codeNotReceived")}
+								{translate("loginScreen.sendCode").substring(0, 2)}
+								<Text style={{ color: colors.primary }}>
+									{translate("loginScreen.sendCode").substring(2)}
+								</Text>
+							</Text>
+						</TouchableOpacity>
+					</View>
+				)}
 				<View style={styles.buttonsView}>
 					<TouchableOpacity
 						style={{
@@ -74,23 +161,33 @@ const PassCode: FC<Props> = observer(
 							alignItems: "center",
 							width: 65,
 						}}
-						onPress={() => {
-							setWithTeam(false)
-							setScreenStatus({
-								screen: 1,
-								animation: true,
-							})
-						}}
+						onPress={() => onPrevStep()}
 					>
 						<Feather name="arrow-left" size={24} color={"#3826A6"} />
 						<Text style={styles.backButtonText}>{translate("common.back")}</Text>
 					</TouchableOpacity>
 					<Button
-						style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
+						style={[
+							$tapButton,
+							{
+								width: width / 2.1,
+								opacity:
+									isLoading ||
+									(step === "Email" && !isValid.step1) ||
+									(step === "Code" && !isValid.step2)
+										? 0.5
+										: 1,
+							},
+						]}
 						textStyle={styles.tapButtonText}
-						onPress={() => joinTeam()}
+						onPress={() => onNextStep()}
+						disabled={(step === "Email" && !isValid.step1) || (step === "Code" && !isValid.step2)}
 					>
-						<Text>{translate("loginScreen.tapJoin")}</Text>
+						<Text>
+							{step === "Code"
+								? translate("loginScreen.tapJoin")
+								: translate("loginScreen.tapContinue")}
+						</Text>
 					</Button>
 					<ActivityIndicator
 						style={styles.loading}
@@ -105,8 +202,6 @@ const PassCode: FC<Props> = observer(
 )
 
 export default PassCode
-
-const { width } = Dimensions.get("window")
 
 const $tapButton: ViewStyle = {
 	marginTop: spacing.extraSmall,
@@ -181,7 +276,7 @@ const styles = EStyleSheet.create({
 	resendText: {
 		fontSize: "0.87rem",
 		color: "#B1AEBC",
-		marginTop: "1rem",
+		marginTop: "1.2rem",
 		fontFamily: typography.primary.medium,
 	},
 	loading: {
