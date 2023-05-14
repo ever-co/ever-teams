@@ -3,7 +3,7 @@
 /* eslint-disable react-native/sort-styles */
 import React, { FC, useMemo, useState } from "react"
 import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
-import { Entypo, EvilIcons } from "@expo/vector-icons"
+import { Entypo, EvilIcons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing, typography, useAppTheme } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
@@ -14,11 +14,10 @@ import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 
 export interface Props {
 	task: ITeamTask
-	index: number
 	handleActiveTask: (value: ITeamTask) => unknown
 }
 
-const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) => {
+const IndividualTask: FC<Props> = observer(({ task, handleActiveTask }) => {
 	const { colors } = useAppTheme()
 	const [showDel, setShowDel] = useState(false)
 	const { updateTask } = useTeamTasks()
@@ -46,12 +45,24 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
 	const assigneeImg2 = useMemo(() => task?.members[1]?.user?.imageUrl, [task])
 
 	return (
-		<TouchableOpacity
-			style={[styles.container, { zIndex: 1000 - index }]}
-			onPress={() => handleActiveTask(task)}
-		>
-			<View style={{ flexDirection: "row", width: "40%" }}>
-				{/* <Text style={{ color: "#9490A0", fontSize: 12 }}>{`#${task.taskNumber}`}</Text> */}
+		<TouchableOpacity style={styles.container} onPress={() => handleActiveTask(task)}>
+			<View
+				style={{
+					flexDirection: "row",
+					justifyContent: "space-between",
+					alignItems: "center",
+					width: "60%",
+				}}
+			>
+				<View style={styles.wrapTaskNumber}>
+					<View style={styles.wrapBugIcon}>
+						<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
+					</View>
+					<Text
+						style={{ color: "#9490A0", fontSize: 12, marginLeft: 5 }}
+					>{`#${task.taskNumber}`}</Text>
+				</View>
+
 				<Text style={[styles.taskTitle, { color: colors.primary }]} numberOfLines={2}>
 					{task.title}
 				</Text>
@@ -59,14 +70,14 @@ const IndividualTask: FC<Props> = observer(({ task, handleActiveTask, index }) =
 			<View
 				style={{
 					flexDirection: "row",
-					width: "60%",
+					width: "40%",
 					alignItems: "center",
 					zIndex: 1000,
 					justifyContent: "space-between",
 				}}
 			>
 				<View>
-					<TaskStatus task={task} containerStyle={styles.statusContainer} />
+					<TaskStatus iconsOnly={true} task={task} containerStyle={styles.statusContainer} />
 				</View>
 				<View
 					style={{
@@ -103,24 +114,36 @@ const styles = StyleSheet.create({
 		paddingVertical: 12,
 		zIndex: 1000,
 	},
+	wrapBugIcon: {
+		alignItems: "center",
+		backgroundColor: "#C24A4A",
+		borderRadius: 3,
+		height: 20,
+		justifyContent: "center",
+		marginRight: 3,
+		width: 20,
+	},
 	statusDisplay: {
 		flexDirection: "row",
 	},
 	taskTitle: {
 		color: "#282048",
 		fontSize: 10,
-		width: "77%",
+		width: "67%",
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 	},
 	statusContainer: {
 		paddingHorizontal: 7,
 		alignItems: "center",
 		marginRight: 6,
-		width: 113,
+		width: 50,
 		height: 27,
 		backgroundColor: "#ECE8FC",
 		borderColor: "transparent",
 		zIndex: 1000,
+	},
+	wrapTaskNumber: {
+		flexDirection: "row",
 	},
 })
 

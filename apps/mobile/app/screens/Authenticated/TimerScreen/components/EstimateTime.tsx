@@ -1,4 +1,6 @@
-import React, { FC, useCallback, useEffect, useState } from "react"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC, useCallback, useEffect, useRef, useState } from "react"
 import { View, StyleSheet, TextInput } from "react-native"
 import { Text, ActivityIndicator } from "react-native-paper"
 import { Feather } from "@expo/vector-icons"
@@ -17,6 +19,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 	const { colors } = useAppTheme()
 
 	// STATES
+	const textInputRef = useRef(null)
 	const [estimate, setEstimate] = useState({ hours: "", minutes: "" })
 	const [editing, setEditing] = useState({ editingHour: false, editingMinutes: false })
 	const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -29,6 +32,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 			minutes: m.toString(),
 		})
 		setShowCheckIcon(false)
+		textInputRef.current.blur()
 	}, [currentTask])
 
 	const onChangeHours = (value: string) => {
@@ -46,7 +50,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 				hours: parsedQty.toString(),
 			})
 		}
-		handleCheckIcon()
+		handleCheckIcon(value, estimate.minutes)
 	}
 
 	const onChangeMinutes = (value: string) => {
@@ -61,16 +65,16 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 		} else {
 			setEstimate({
 				...estimate,
-				minutes: parsedQty < 10 ? "0" + parsedQty.toString() : parsedQty.toString(),
+				minutes: parsedQty < 10 ? "0" + value : parsedQty.toString(),
 			})
 		}
-		handleCheckIcon()
+		handleCheckIcon(estimate.hours, value)
 	}
 
-	const handleCheckIcon = () => {
-		const intHour = Number.parseInt(estimate.hours)
-		const intMinutes = Number.parseInt(estimate.minutes)
-		if (estimate.hours !== "" && estimate.minutes !== "") {
+	const handleCheckIcon = (h: string, m: string) => {
+		const intHour = Number.parseInt(h)
+		const intMinutes = Number.parseInt(m)
+		if (estimate.hours !== "" || estimate.minutes !== "") {
 			const seconds = intHour * 60 * 60 + intMinutes * 60
 			setShowCheckIcon(seconds > 0)
 		}
@@ -78,7 +82,6 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 
 	const handleSubmit = useCallback(async () => {
 		if (!currentTask) return
-
 		const hours = +estimate.hours
 		const minutes = +estimate.minutes
 		if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
@@ -101,6 +104,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 
 		setEditing({ editingHour: false, editingMinutes: false })
 		setIsLoading(false)
+		textInputRef.current.blur()
 		if (setEditEstimate) setEditEstimate(false)
 	}, [currentTask, updateTask, estimate])
 
@@ -111,7 +115,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 		}
 
 		if (intValue < 10) {
-			return "0" + value
+			return "0" + intValue
 		} else {
 			return value
 		}
@@ -121,9 +125,10 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 		<View style={[styles.estimate, {}]}>
 			<View>
 				<TextInput
+					ref={textInputRef}
 					maxLength={2}
 					keyboardType={"numeric"}
-					value={!editing.editingHour && formatTwoDigit(estimate.hours)}
+					value={editing.editingHour ? undefined : formatTwoDigit(estimate.hours)}
 					onFocus={() => setEditing({ ...editing, editingHour: true })}
 					onEndEditing={() => setEditing({ ...editing, editingHour: false })}
 					onChangeText={(text) => onChangeHours(text)}
@@ -134,20 +139,22 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 					]}
 				/>
 				<View style={styles.wrapDash}>
-					<View style={styles.dash} />
-					<View style={styles.dash} />
+					<View style={{ ...styles.dash, backgroundColor: colors.primary }} />
+					<View style={{ ...styles.dash, backgroundColor: colors.primary }} />
 					<View />
 				</View>
 			</View>
 			<Text style={[styles.suffix, { color: colors.primary }]}> h</Text>
 			<Text style={{ margin: 2 }}>:</Text>
+
 			<View>
 				<TextInput
+					ref={textInputRef}
 					maxLength={2}
 					keyboardType={"numeric"}
 					onFocus={() => setEditing({ ...editing, editingMinutes: true })}
 					onEndEditing={() => setEditing({ ...editing, editingMinutes: false })}
-					value={!editing.editingMinutes && formatTwoDigit(estimate.minutes)}
+					value={editing.editingMinutes ? undefined : formatTwoDigit(estimate.minutes)}
 					onChangeText={(text) => onChangeMinutes(text)}
 					style={[
 						styles.estimateInput,
@@ -156,8 +163,8 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 					]}
 				/>
 				<View style={styles.wrapDash}>
-					<View style={styles.dash} />
-					<View style={styles.dash} />
+					<View style={{ ...styles.dash, backgroundColor: colors.primary }} />
+					<View style={{ ...styles.dash, backgroundColor: colors.primary }} />
 					<View />
 				</View>
 			</View>
@@ -179,10 +186,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 export default EstimateTime
 
 const styles = StyleSheet.create({
-	checkButton: {
-		margin: 2,
-	},
-	dash: { backgroundColor: "black", height: 1, width: 5 },
+	dash: { height: 1, width: 5 },
 	estimate: {
 		alignItems: "center",
 		borderRadius: 8,

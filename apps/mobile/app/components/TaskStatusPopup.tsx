@@ -15,15 +15,15 @@ import {
 import { Feather, AntDesign } from "@expo/vector-icons"
 import { useTaskStatus } from "../services/hooks/features/useTaskStatus"
 import { ITaskStatusItem } from "../services/interfaces/ITaskStatus"
-import { spacing, useAppTheme } from "../theme"
-import { BadgedTaskStatus } from "./StatusIcon"
+import { spacing, typography, useAppTheme } from "../theme"
 import { translate } from "../i18n"
+import { useTaskStatusValue } from "./StatusType"
 
 export interface Props {
 	visible: boolean
 	onDismiss: () => unknown
 	statusName: string
-	setSelectedStatus?: (status: ITaskStatusItem) => unknown
+	setSelectedStatus?: (status: string) => unknown
 }
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
@@ -68,7 +68,7 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 }) {
 	const { allStatuses } = useTaskStatus()
 	const { colors } = useAppTheme()
-	const onStatusSelected = (status: ITaskStatusItem) => {
+	const onStatusSelected = (status: string) => {
 		setSelectedStatus(status)
 		onDismiss()
 	}
@@ -102,17 +102,24 @@ export default TaskStatusPopup
 interface ItemProps {
 	currentStatusName: string
 	status: ITaskStatusItem
-	onStatusSelected: (status: ITaskStatusItem) => unknown
+	onStatusSelected: (status: string) => unknown
 }
 const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) => {
 	const { colors } = useAppTheme()
 	const selected = status.name === currentStatusName
+
+	const allStatuses = useTaskStatusValue()
+	const cStatus = allStatuses[status.name.split("-").join(" ")]
+
 	return (
-		<TouchableOpacity onPress={() => onStatusSelected(status)}>
+		<TouchableOpacity onPress={() => onStatusSelected(cStatus.name)}>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
-				<View style={{ ...styles.colorFrame, backgroundColor: status.color }}>
-					<BadgedTaskStatus iconSize={16} TextSize={14} status={status.name} />
-				</View>
+				{cStatus && (
+					<View style={{ ...styles.colorFrame, backgroundColor: status.color }}>
+						{cStatus.icon}
+						<Text style={styles.text}>{cStatus.name}</Text>
+					</View>
+				)}
 				<View>
 					{!selected ? (
 						<Feather name="circle" size={24} color={colors.divider} />
@@ -133,11 +140,14 @@ const $modalBackGround: ViewStyle = {
 
 const styles = StyleSheet.create({
 	colorFrame: {
+		alignItems: "center",
+		backgroundColor: "#D4EFDF",
 		borderRadius: 10,
-		height: 44,
-		justifyContent: "center",
-		paddingLeft: 16,
-		width: 180,
+		flexDirection: "row",
+		height: "100%",
+		paddingHorizontal: 16,
+		paddingVertical: 12,
+		width: "60%",
 	},
 	container: {
 		alignSelf: "center",
@@ -147,6 +157,11 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 6,
 		paddingVertical: 16,
 		width: "90%",
+	},
+	text: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		marginLeft: 13.5,
 	},
 	title: {
 		fontSize: spacing.medium - 2,

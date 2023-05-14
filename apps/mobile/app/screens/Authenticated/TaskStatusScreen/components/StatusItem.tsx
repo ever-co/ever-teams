@@ -1,8 +1,11 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { View, Text, StyleSheet } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
+import { useTaskStatusValue } from "../../../../components/StatusType"
 
 interface IStatusItem {
 	status: ITaskStatusItem
@@ -12,6 +15,9 @@ interface IStatusItem {
 
 const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
 	const { colors, dark } = useAppTheme()
+	const allStatuses = useTaskStatusValue()
+	const cStatus = allStatuses[status.name.split("-").join(" ")]
+
 	return (
 		<View
 			style={{
@@ -20,9 +26,9 @@ const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.statusContainer, backgroundColor: status.color }}>
-				<AntDesign name="pay-circle-o1" size={20} color="#000" />
-				<Text style={styles.text}>{status.name}</Text>
+			<View style={{ ...styles.statusContainer, backgroundColor: cStatus.bgColor }}>
+				{cStatus.icon}
+				<Text style={styles.text}>{cStatus.name}</Text>
 			</View>
 			<View style={styles.rightSection}>
 				<AntDesign size={16} name={"edit"} color={colors.primary} onPress={() => openForEdit()} />
