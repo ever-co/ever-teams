@@ -27,13 +27,13 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 		});
 	}, [tasks, user]);
 
-	const totalWorkedTasks =
-		currentMember?.totalWorkedTasks && currentMember?.totalWorkedTasks.length
-			? currentMember?.totalWorkedTasks.map((task) => task.id)
+	const totalTodayTasks =
+		currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
+			? currentMember?.totalTodayTasks.map((task) => task.id)
 			: [];
 	const workedTasks = useMemo(() => {
 		return tasks.filter((tsk) => {
-			return totalWorkedTasks.includes(tsk.id);
+			return totalTodayTasks.includes(tsk.id);
 		});
 	}, [statTasks, tasks]);
 
