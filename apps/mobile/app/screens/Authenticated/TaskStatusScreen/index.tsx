@@ -1,14 +1,7 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import {
-	View,
-	Text,
-	ViewStyle,
-	TouchableOpacity,
-	StyleSheet,
-	ScrollView,
-	TextInput,
-	Dimensions,
-} from "react-native"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC, useState } from "react"
+import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, ScrollView } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { Screen } from "../../../components"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -33,14 +26,13 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 		const sheetRef = React.useRef(null)
 
 		// variables
-		const snapPoints = useMemo(() => ["25%", "50%"], [])
 		const fall = new Animated.Value(1)
 		const openForEdit = (item: ITaskStatusItem) => {
 			setEditMode(true)
 			setItemToEdit(item)
 			sheetRef.current.snapTo(0)
 		}
-
+		// console.log("in-progress-again".replaceAll("-", " "))
 		return (
 			<Screen
 				preset="scroll"

@@ -1,33 +1,31 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo, useState } from "react"
+import React, { FC, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
 import { ITaskStatus, ITeamTask } from "../services/interfaces/ITask"
-import { BadgedTaskStatus } from "./StatusIcon"
 import { observer } from "mobx-react-lite"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import TaskStatusPopup from "./TaskStatusPopup"
-import { useTaskStatus } from "../services/hooks/features/useTaskStatus"
 import { typography, useAppTheme } from "../theme"
 import { translate } from "../i18n"
+import { useTaskStatusValue } from "./StatusType"
+import { limitTextCharaters } from "../helpers/sub-text"
 
 interface TaskStatusProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
+	iconsOnly?: boolean
 }
 
-const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle }) => {
+const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, iconsOnly }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
-	const { allStatuses } = useTaskStatus()
 	const [openModal, setOpenModal] = useState(false)
 
-	const currentStatus = useMemo(
-		() => allStatuses.find((s) => s.name === task?.status),
-		[task?.status, allStatuses],
-	)
+	const allStatuses = useTaskStatusValue()
+	const status = allStatuses[task?.status?.split("-").join(" ")]
 
 	const onChangeStatus = async (text) => {
 		if (task) {
@@ -46,7 +44,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle }) => {
 			<TaskStatusPopup
 				statusName={task?.status}
 				visible={openModal}
-				setSelectedStatus={(e) => onChangeStatus(e.name)}
+				setSelectedStatus={(e) => onChangeStatus(e)}
 				onDismiss={() => setOpenModal(false)}
 			/>
 			<TouchableOpacity onPress={() => setOpenModal(true)}>
@@ -54,15 +52,26 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle }) => {
 					style={{
 						...styles.container,
 						...containerStyle,
-						backgroundColor: currentStatus?.color,
+						backgroundColor: status?.bgColor,
 					}}
 				>
-					{task && task.status ? (
-						<BadgedTaskStatus iconSize={14} TextSize={10} status={task.status} />
+					{task && task.status && status ? (
+						<View style={styles.wrapStatus}>
+							{status.icon}
+							{iconsOnly ? null : (
+								<Text style={{ ...styles.text, marginLeft: 10 }}>
+									{limitTextCharaters({ text: status.name, numChars: 11 })}
+								</Text>
+							)}
+						</View>
 					) : (
-						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate("settingScreen.statusScreen.statuses")}
-						</Text>
+						<>
+							{!iconsOnly && (
+								<Text style={{ ...styles.text, color: colors.primary }}>
+									{translate("settingScreen.statusScreen.statuses")}
+								</Text>
+							)}
+						</>
 					)}
 					<AntDesign name="down" size={14} color={colors.primary} />
 				</View>
@@ -74,18 +83,20 @@ const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle }) => {
 const styles = StyleSheet.create({
 	container: {
 		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.16)",
 		borderRadius: 10,
-		borderWidth: 1,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		minHeight: 30,
-		minWidth: 100,
 		paddingHorizontal: 8,
 	},
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 10,
+	},
+	wrapStatus: {
+		alignItems: "center",
+		flexDirection: "row",
+		width: "70%",
 	},
 })
 

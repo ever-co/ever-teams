@@ -1,16 +1,16 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo, useState } from "react"
+import React, { FC, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import { typography, useAppTheme } from "../theme"
-import { useTaskPriority } from "../services/hooks/features/useTaskPriority"
 import TaskPriorityPopup from "./TaskPriorityPopup"
-import { BadgedTaskPriority } from "./PriorityIcon"
 import { translate } from "../i18n"
+import { useTaskPriorityValue } from "./StatusType"
+import { limitTextCharaters } from "../helpers/sub-text"
 
 interface TaskPriorityProps {
 	task?: ITeamTask
@@ -21,13 +21,10 @@ interface TaskPriorityProps {
 const TaskPriority: FC<TaskPriorityProps> = observer(({ task, containerStyle }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
-	const { allTaskPriorities } = useTaskPriority()
 	const [openModal, setOpenModal] = useState(false)
 
-	const currentPriority = useMemo(
-		() => allTaskPriorities.find((s) => s.name === task?.priority),
-		[task?.priority, allTaskPriorities],
-	)
+	const allTaskPriorities = useTaskPriorityValue()
+	const currentPriority = allTaskPriorities[task?.priority?.split("-").join(" ")]
 
 	const onChangePriority = async (text) => {
 		if (task) {
@@ -53,11 +50,16 @@ const TaskPriority: FC<TaskPriorityProps> = observer(({ task, containerStyle }) 
 					style={{
 						...styles.container,
 						...containerStyle,
-						backgroundColor: currentPriority?.color,
+						backgroundColor: currentPriority?.bgColor,
 					}}
 				>
-					{task && task.priority ? (
-						<BadgedTaskPriority iconSize={14} TextSize={10} priority={task.priority} />
+					{task && task.priority && currentPriority ? (
+						<View style={styles.wrapStatus}>
+							{currentPriority.icon}
+							<Text style={{ ...styles.text, marginLeft: 10 }}>
+								{limitTextCharaters({ text: currentPriority.name, numChars: 15 })}
+							</Text>
+						</View>
 					) : (
 						<Text style={{ ...styles.text, color: colors.primary }}>
 							{translate("settingScreen.priorityScreen.priorities")}
@@ -85,6 +87,11 @@ const styles = StyleSheet.create({
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 10,
+	},
+	wrapStatus: {
+		alignItems: "center",
+		flexDirection: "row",
+		width: "70%",
 	},
 })
 

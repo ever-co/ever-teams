@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useState } from "react"
 import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox } from "react-native"
 import Animated from "react-native-reanimated"
 import BottomSheet from "reanimated-bottom-sheet"

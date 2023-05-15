@@ -1,14 +1,13 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
-import { ViewStyle, View, Dimensions, LogBox } from "react-native"
+import { ViewStyle, LogBox } from "react-native"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
 import HomeHeader from "../../../components/HomeHeader"
 import ProfileHeader from "./components/ProfileHeader"
 import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
-import { useProfileScreenLogic } from "./logics/useProfileScreenLogic"
 import TaskFilter from "./components/TaskFilter"
 import { useTaskFilter } from "../../../services/hooks/features/useTaskFilters"
 import UserProfileTasks from "./components/UserProfileTasks"
@@ -18,6 +17,7 @@ import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
 import NoTeam from "../../../components/NoTeam"
 import CreateTeamModal from "../../../components/CreateTeamModal"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { useProfileScreenLogic } from "./logics/useProfileScreenLogic"
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> = observer(
 	function AuthenticatedProfileScreen(_props) {
@@ -25,11 +25,13 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 		const {
 			TimerStore: { localTimerStatus },
 			teamStore: { isTeamsExist },
+			authenticationStore: { user },
 		} = useStores()
-		const { activeTab, userId } = _props.route.params
+		const { activeTab, userId } = _props.route.params || { activeTab: "worked", userId: user.id }
+
 		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
 			useAcceptInviteModal()
-		const profile = useProfileScreenLogic({ userId, activeTab })
+		const profile = useProfileScreenLogic({ activeTab, userId })
 		const hook = useTaskFilter(profile)
 		const { createOrganizationTeam } = useOrganizationTeam()
 

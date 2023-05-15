@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useMemo, useState } from "react"
@@ -112,7 +113,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 
 				<ScrollView style={{ maxHeight: 350 }}>
 					{filterDataByStatus(query, teamTasks, filter).map((task, i) => (
-						<IndividualTask index={i} key={i} task={task} handleActiveTask={handleActiveTask} />
+						<IndividualTask key={i} task={task} handleActiveTask={handleActiveTask} />
 					))}
 				</ScrollView>
 			</View>

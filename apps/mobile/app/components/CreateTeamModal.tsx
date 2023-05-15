@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from "react"
 import {
 	View,
@@ -85,6 +87,7 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 						/>
 						<Text style={[styles.hint, { color: "red" }]}>{""}</Text>
 					</View>
+
 					<View style={styles.wrapButtons}>
 						<TouchableOpacity
 							onPress={() => onDismiss()}
@@ -95,7 +98,11 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[styles.button, { backgroundColor: "#3826A6" }]}
+							style={[
+								styles.button,
+								{ backgroundColor: "#3826A6", opacity: teamText.trim().length < 3 ? 0.5 : 1 },
+							]}
+							disabled={teamText.trim().length < 3}
 							onPress={() => handleSubmit()}
 						>
 							<Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
@@ -134,20 +141,10 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
 	},
-	crossIcon: {
-		position: "absolute",
-		right: 10,
-		top: 10,
-	},
 	hint: {
 		color: "#7E7991",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
-	},
-	loading: {
-		bottom: "12%",
-		left: "15%",
-		position: "absolute",
 	},
 	mainContainer: {
 		alignItems: "center",
@@ -176,10 +173,6 @@ const styles = StyleSheet.create({
 		fontWeight: "600",
 		height: 53,
 		paddingHorizontal: 13,
-		width: "100%",
-	},
-	theTextField: {
-		borderWidth: 0,
 		width: "100%",
 	},
 	wrapButtons: {

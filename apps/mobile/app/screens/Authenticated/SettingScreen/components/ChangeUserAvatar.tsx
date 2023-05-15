@@ -15,6 +15,7 @@ import {
 import { Ionicons, AntDesign } from "@expo/vector-icons"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
+import * as FileSystem from "expo-file-system"
 import * as MediaLibrary from "expo-media-library"
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker"
 import { BlurView } from "expo-blur"
@@ -23,6 +24,13 @@ import { IImageAssets } from "../../../../services/interfaces/IImageAssets"
 import { useSettings } from "../../../../services/hooks/features/useSettings"
 import mime from "mime"
 import LoadingModal from "../../../../components/LoadingModal"
+
+interface IFileInfo {
+	size: number
+	exists: boolean
+	uri: string
+	isDirectory: boolean
+}
 
 const ChangeUserAvatar = ({
 	onDismiss,
@@ -45,8 +53,19 @@ const ChangeUserAvatar = ({
 		const info = await MediaLibrary.getAssetInfoAsync(selectedImage.id)
 		let uri = null
 		Platform.OS === "ios" ? (uri = info.localUri) : (uri = info.uri)
+
 		uploadAvatar(uri)
 	}, [selectedImage])
+
+	const getFileInfo = async (fileURI: string) => {
+		const fileInfo = await FileSystem.getInfoAsync(fileURI)
+		return fileInfo as IFileInfo
+	}
+
+	const isLessThanTheMB = (fileSize: number, smallerThanSizeMB: number) => {
+		const isOk = fileSize / 1024 / 1024 < smallerThanSizeMB
+		return isOk
+	}
 
 	// Pick image from Gallery
 	const pickImageFromGalery = async () => {
@@ -63,7 +82,21 @@ const ChangeUserAvatar = ({
 		uploadAvatar(result.assets[0].uri)
 	}
 
-	const uploadAvatar = useCallback((imageUri: string) => {
+	const uploadAvatar = useCallback(async (imageUri: string) => {
+		const fileInfo = await getFileInfo(imageUri)
+
+		if (!fileInfo?.size) {
+			alert("Can't select this file as the size is unknown.")
+			return
+		}
+
+		const isLt2MB = isLessThanTheMB(fileInfo?.size, 2)
+
+		if (!isLt2MB) {
+			alert(`Image size must be smaller than 2MB!`)
+			return
+		}
+
 		const type = mime.getType(imageUri)
 		const name = imageUri.split("/").pop()
 		const image = {
