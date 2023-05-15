@@ -80,7 +80,7 @@ const fr = {
 		inviteModalHint: "Envoyer une invitation à un membre de l'équipe par e-mail",
 		inviteEmailFieldPlaceholder: "Saisir l'adresse e-mail",
 		inviteNameFieldPlaceholder: "Saisir le nom du membre de l'équipe",
-		sendButton: "Envoyer",
+		sendButton: "Créer",
 		createNewTeamButton: "Créer une nouvelle équipe",
 	},
 	tasksScreen: {

@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo, useState } from "react"
+import React, { FC, useState } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -15,11 +15,11 @@ import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import { typography, useAppTheme } from "../theme"
-import { useTaskLabels } from "../services/hooks/features/useTaskLabels"
-import { BadgedTaskLabel } from "./LabelIcon"
 import TaskLabelPopup from "./TaskLabelPopup"
 import { ITaskLabelItem } from "../services/interfaces/ITaskLabel"
 import { translate } from "../i18n"
+import { useTaskLabelValue } from "./StatusType"
+import { limitTextCharaters } from "../helpers/sub-text"
 
 interface TaskLabelProps {
 	task?: ITeamTask
@@ -30,13 +30,12 @@ interface TaskLabelProps {
 const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
-	const { allTaskLabels } = useTaskLabels()
 	const [openModal, setOpenModal] = useState(false)
 
-	const currentLabel = useMemo(
-		() => allTaskLabels.find((s) => s?.name === task?.tags[0]?.name),
-		[task?.tags[0], allTaskLabels],
-	)
+	const allTaskLabels = useTaskLabelValue()
+	const label = task?.tags[0] as ITaskLabelItem
+
+	const currentLabel = allTaskLabels[label?.name.split("-").join(" ")]
 
 	const onChangeLabel = async (text: ITaskLabelItem) => {
 		if (task) {
@@ -71,11 +70,16 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 					style={{
 						...styles.container,
 						...containerStyle,
-						backgroundColor: currentLabel?.color,
+						backgroundColor: currentLabel?.bgColor,
 					}}
 				>
-					{task && task.tags[0] ? (
-						<BadgedTaskLabel iconSize={14} TextSize={10} label={task.tags[0]} />
+					{task && task.tags[0] && currentLabel ? (
+						<View style={styles.wrapStatus}>
+							{currentLabel.icon}
+							<Text style={{ ...styles.text, marginLeft: 10 }}>
+								{limitTextCharaters({ text: currentLabel.name, numChars: 15 })}
+							</Text>
+						</View>
 					) : (
 						<Text style={{ ...styles.text, color: colors.primary }}>
 							{translate("settingScreen.labelScreen.labels")}
@@ -104,6 +108,11 @@ const styles = StyleSheet.create({
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 10,
+	},
+	wrapStatus: {
+		alignItems: "center",
+		flexDirection: "row",
+		width: "70%",
 	},
 })
 

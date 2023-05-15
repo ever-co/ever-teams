@@ -12,6 +12,10 @@ const useTimerScreenLogic = () => {
 	const { createNewTask, setActiveTeamTask } = useTeamTasks()
 
 	const onCreateNewTask = async () => {
+		if (taskInputText.trim().length === 0) {
+			alert("Task title can't be empty")
+			return
+		}
 		setShowCheckIcon(false)
 		setIsLoading(true)
 		await createNewTask(taskInputText)

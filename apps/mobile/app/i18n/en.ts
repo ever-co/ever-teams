@@ -79,7 +79,7 @@ const en = {
 		inviteModalHint: "Send a invitation to a team member by email",
 		inviteEmailFieldPlaceholder: "Input email address",
 		inviteNameFieldPlaceholder: "Input team member name",
-		sendButton: "Send",
+		sendButton: "Create",
 		createNewTeamButton: "Create new team",
 	},
 	tasksScreen: {

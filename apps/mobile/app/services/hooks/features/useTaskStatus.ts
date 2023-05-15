@@ -59,7 +59,9 @@ export function useTaskStatus() {
 
 	useEffect(() => {
 		if (isSuccess) {
-			setAllStatuses(statuses.items)
+			if (statuses) {
+				setAllStatuses(statuses.items)
+			}
 		}
 	}, [isLoading, isRefetching])
 
