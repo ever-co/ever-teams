@@ -1,9 +1,5 @@
 import { secondsToTime } from '@app/helpers';
-import {
-	I_TeamMemberCardHook,
-	useLiveTimerStatus,
-	useOrganizationTeams,
-} from '@app/hooks';
+import { I_TeamMemberCardHook, useOrganizationTeams } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
@@ -114,11 +110,9 @@ function TimeInfo({
 
 export function TodayWorkedTime({
 	className,
-	isAuthUser,
 	memberInfo,
 }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
-	const { time } = useLiveTimerStatus();
 	const { activeTeam } = useOrganizationTeams();
 
 	const currentMember = activeTeam?.members.find(
@@ -135,15 +129,9 @@ export function TodayWorkedTime({
 
 	return (
 		<div className={clsxm('text-center font-normal', className)}>
-			{isAuthUser ? (
-				<Text>
-					{time.h}h : {time.m}m
-				</Text>
-			) : (
-				<Text>
-					{h ? h : '00'}h : {m ? m : '00'} m
-				</Text>
-			)}
+			<Text>
+				{h ? h : '0'}h : {m ? m : '0'}m
+			</Text>
 		</div>
 	);
 }

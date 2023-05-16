@@ -69,7 +69,7 @@ export const ProfileAvatar = () => {
 										backgroundColor: `${stc(user?.name || '')}80`,
 									}}
 								>
-									{user?.imageUrl ? (
+									{user?.imageId ? (
 										<Avatar
 											size={80}
 											className="relative cursor-pointer"
