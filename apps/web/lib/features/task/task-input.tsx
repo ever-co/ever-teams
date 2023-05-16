@@ -223,6 +223,7 @@ export function TaskInput(props: Props) {
 				</div>
 			}
 			className={clsxm(showTaskNumber && inputTask && ['pl-2'])}
+			wrapperClassName={`rounded-lg`}
 			/* Showing the task number. */
 			leadingNode={
 				showTaskNumber &&
