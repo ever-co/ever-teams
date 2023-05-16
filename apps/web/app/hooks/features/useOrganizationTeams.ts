@@ -268,12 +268,6 @@ export function useOrganizationTeams() {
 			teamId &&
 				queryCallTeam(teamId).then((res) => {
 					const newTeam = res.data;
-					const currentTeamIndex = latestTeams.findIndex(
-						(team) => team.id === teamId
-					);
-					if (currentTeamIndex >= 0) {
-						latestTeams[currentTeamIndex] = newTeam;
-					}
 
 					/**
 					 * Check deep equality,
@@ -281,7 +275,10 @@ export function useOrganizationTeams() {
 					 * (It prevents unnecessary re-rendering)
 					 */
 					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
-						setTeams(latestTeams);
+						setTeams([
+							newTeam,
+							...latestTeams.filter((team) => team.id !== newTeam.id),
+						]);
 					}
 				});
 			return res;
