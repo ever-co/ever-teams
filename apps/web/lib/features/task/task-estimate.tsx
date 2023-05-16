@@ -65,7 +65,10 @@ export function TaskEstimate({
 				}}
 				disabled={task ? false : true}
 				onFocus={handleFocus}
-				onBlur={handleBlur}
+				onBlur={() => {
+					handleBlur();
+					handleSubmit();
+				}}
 				label="h"
 				dash={value['hours'] ? '' : '__'}
 				wrapperClassName={wrapperClassName}
@@ -79,7 +82,10 @@ export function TaskEstimate({
 				}}
 				disabled={task ? false : true}
 				onFocus={handleFocusMinutes}
-				onBlur={handleBlurMinutes}
+				onBlur={() => {
+					handleBlurMinutes();
+					handleSubmit();
+				}}
 				label="m"
 				loading={updateLoading}
 				dash={value['minutes'] ? '' : '__'}
