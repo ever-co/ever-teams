@@ -160,7 +160,7 @@ export const IssueTypesForm = () => {
 											type="text"
 											placeholder="Create New Issues"
 											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0"
+											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
 										/>
 
