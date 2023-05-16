@@ -128,6 +128,7 @@ export const TeamSettingForm = () => {
 											</Button>
 										}
 										disabled={!isTeamManager}
+										wrapperClassName={`rounded-lg`}
 									/>
 								</div>
 							</div>
@@ -181,7 +182,7 @@ export const TeamSettingForm = () => {
 														type="text"
 														placeholder={getTeamLink()}
 														className="mb-0 h-[54px]"
-														wrapperClassName="mb-0 h-[54px]"
+														wrapperClassName="mb-0 h-[54px] rounded-lg"
 														disabled={true}
 													/>
 												</Tooltip>

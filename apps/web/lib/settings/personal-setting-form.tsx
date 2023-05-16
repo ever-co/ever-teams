@@ -154,6 +154,7 @@ export const PersonalSettingForm = () => {
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editFullname}
+											wrapperClassName={`rounded-lg`}
 										/>
 									</div>
 									<div className="mt-[2rem] w-full">
@@ -167,6 +168,7 @@ export const PersonalSettingForm = () => {
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editFullname}
+											wrapperClassName={`rounded-lg`}
 										/>
 									</div>
 								</div>
@@ -215,6 +217,7 @@ export const PersonalSettingForm = () => {
 												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editContacts}
+											wrapperClassName={`rounded-lg`}
 										/>
 									</div>
 									<div className="mt-8 w-full">
@@ -228,6 +231,7 @@ export const PersonalSettingForm = () => {
 												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editContacts}
+											wrapperClassName={`rounded-lg`}
 										/>
 									</div>
 								</div>

@@ -154,7 +154,7 @@ export const TaskSizesForm = () => {
 											type="text"
 											placeholder="Create Size"
 											className="mb-0 min-w-[350px]"
-											wrapperClassName="mb-0"
+											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
 										/>
 
