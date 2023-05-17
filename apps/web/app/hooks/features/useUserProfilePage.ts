@@ -23,7 +23,7 @@ export function useUserProfilePage() {
 		return m.employee.userId === memberId;
 	});
 
-	const isAuthUser = auth?.employee.userId === memberId;
+	const isAuthUser = auth?.employee?.userId === memberId;
 
 	const activeUserTeamTask = isAuthUser
 		? activeTeamTask
