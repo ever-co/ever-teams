@@ -34,42 +34,39 @@ export default function AuthTeam() {
 			title={trans.HEADING_TITLE}
 			description={trans.HEADING_DESCRIPTION}
 		>
-			<form
-				onSubmit={handleSubmit}
-				autoComplete="off"
-				className="w-[98%] md:w-[550px] overflow-x-hidden"
-			>
-				<div
-					className={clsxm(
-						'w-[200%] flex flex-row transition-[transform] duration-500',
-						step !== FIRST_STEP && ['-translate-x-[550px]']
-					)}
-				>
-					<div className="w-1/2">
-						<FillTeamNameForm
-							errors={errors}
-							handleOnChange={handleOnChange}
-							form={formValues}
-						/>
-					</div>
-
+			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
+				<form onSubmit={handleSubmit} autoComplete="off">
 					<div
 						className={clsxm(
-							'w-1/2 transition-[visibility] ease-out duration-700',
-							step === FIRST_STEP && ['invisible']
+							'w-[200%] flex flex-row transition-[transform] duration-500',
+							step !== FIRST_STEP && ['-translate-x-[550px]']
 						)}
 					>
-						<FillUserDataForm
-							errors={errors}
-							handleOnChange={handleOnChange}
-							form={formValues}
-							onPreviousStep={() => setStep(FIRST_STEP)}
-							loading={loading}
-						/>
-					</div>
-				</div>
-			</form>
+						<div className="w-1/2">
+							<FillTeamNameForm
+								errors={errors}
+								handleOnChange={handleOnChange}
+								form={formValues}
+							/>
+						</div>
 
+						<div
+							className={clsxm(
+								'w-1/2 transition-[visibility] ease-out duration-700',
+								step === FIRST_STEP && ['invisible']
+							)}
+						>
+							<FillUserDataForm
+								errors={errors}
+								handleOnChange={handleOnChange}
+								form={formValues}
+								onPreviousStep={() => setStep(FIRST_STEP)}
+								loading={loading}
+							/>
+						</div>
+					</div>
+				</form>
+			</div>
 			<BackdropLoader show={loading} title={trans.LOADING_TEXT} />
 		</AuthLayout>
 	);
@@ -90,9 +87,9 @@ function FillTeamNameForm({
 	const { trans, translations } = useTranslation('authTeam');
 
 	return (
-		<Card className={clsxm('w-full', className)} shadow="bigger">
-			<div className="flex flex-col justify-between items-center min-h-[186px]">
-				<Text.Heading as="h3" className="text-center">
+		<Card className={clsxm('w-full', className)} shadow="custom">
+			<div className="flex flex-col justify-between items-center">
+				<Text.Heading as="h3" className="text-center mb-7">
 					{trans.INPUT_TEAM_NAME}
 				</Text.Heading>
 
@@ -106,7 +103,7 @@ function FillTeamNameForm({
 					required
 				/>
 
-				<div className="flex justify-between w-full items-center">
+				<div className="w-full flex justify-between mt-6 items-center">
 					<Text.Link
 						href="/auth/passcode"
 						underline
