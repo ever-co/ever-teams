@@ -28,7 +28,7 @@ export default async function handler(
 			data: {
 				description: '',
 				status: 'open',
-				members: [{ id: user.employee.id }],
+				members: user?.employee?.id ? [{ id: user.employee.id }] : [],
 				teams: [
 					{
 						id: activeTeam,
