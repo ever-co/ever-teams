@@ -8,7 +8,6 @@ import { pad } from "../../../../helpers/number"
 import { translate } from "../../../../i18n"
 import { I_TeamMemberCardHook } from "../../../../services/hooks/features/useTeamMemberCard"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
-import { useLiveTimerStatus } from "../../../../services/hooks/useTimer"
 import { typography } from "../../../../theme/typography"
 
 interface IProps {
@@ -18,7 +17,6 @@ interface IProps {
 
 export const TodayWorkedTime: FC<IProps> = observer(({ memberInfo, isAuthUser }) => {
 	// Get current timer seconds
-	const { time } = useLiveTimerStatus()
 	const { activeTeam } = useOrganizationTeam()
 
 	const currentMember = activeTeam?.members.find((member) => member.id === memberInfo?.member?.id)
@@ -35,15 +33,9 @@ export const TodayWorkedTime: FC<IProps> = observer(({ memberInfo, isAuthUser })
 	return (
 		<View style={styles.container}>
 			<Text style={styles.totalTimeTitle}>{translate("teamScreen.cardTodayWorkLabel")}</Text>
-			{isAuthUser ? (
-				<Text style={styles.totalTimeText}>
-					{pad(time.h)} h:{pad(time.m)} m
-				</Text>
-			) : (
-				<Text style={styles.totalTimeText}>
-					{pad(h)} h:{pad(m)} m
-				</Text>
-			)}
+			<Text style={styles.totalTimeText}>
+				{pad(h)} h:{pad(m)} m
+			</Text>
 		</View>
 	)
 })

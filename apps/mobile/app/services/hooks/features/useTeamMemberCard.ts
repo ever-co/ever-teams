@@ -108,6 +108,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		onUpdateOrganizationTeam({
 			id: activeTeamId,
 			data: {
+				...activeTeam,
 				managerIds: team.members
 					.filter((r) => r.role && r.role.name === "MANAGER")
 					.map((r) => r.employee.id)
@@ -128,6 +129,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		onUpdateOrganizationTeam({
 			id: activeTeamId,
 			data: {
+				...activeTeam,
 				managerIds: team.members
 					.filter((r) => r.role && r.role.name === "MANAGER")
 					.filter((r) => r.employee.id !== employeeId)
@@ -150,6 +152,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		onUpdateOrganizationTeam({
 			id: activeTeamId,
 			data: {
+				...activeTeam,
 				// remove from members
 				memberIds: team.members
 					.filter((r) => r.employee.id !== employeeId)

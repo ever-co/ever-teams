@@ -26,18 +26,18 @@ export const TimeProgressBar: FC<IProps> = observer(({ memberInfo, isAuthUser, o
 
 	const { getTaskStat } = useTaskStatistics()
 	const { taskTotalStat } = getTaskStat(memberInfo.memberTask)
-	const { h: estimatedHours } = secondsToTime(memberInfo.memberTask.estimate || 0)
+	const { h: estimatedHours } = secondsToTime(memberInfo.memberTask?.estimate || 0)
 
 	const [progress, setProgress] = useState(0)
 
 	const getProgress = () => {
 		if (!isAuthUser) {
-			setProgress((taskTotalStat?.duration * 100) / memberInfo.memberTask.estimate)
+			setProgress((taskTotalStat?.duration * 100) / memberInfo.memberTask?.estimate)
 		}
 		const counterInSeconds = timeCounterState / 1000
 		const sum = taskTotalStat?.duration + counterInSeconds
 
-		setProgress((sum * 100) / memberInfo.memberTask.estimate)
+		setProgress((sum * 100) / memberInfo.memberTask?.estimate)
 	}
 
 	useEffect(() => {

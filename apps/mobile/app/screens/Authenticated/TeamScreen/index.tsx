@@ -64,18 +64,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 		const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } =
 			useAcceptInviteModal()
 
-		const { navigation } = _props
-
-		function goToProfile({
-			userId,
-			tab,
-		}: {
-			userId: string
-			tab: "worked" | "assigned" | "unassigned"
-		}) {
-			navigation.navigate("Profile", { userId, activeTab: tab })
-		}
-
 		return (
 			<>
 				{showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
@@ -145,25 +133,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 													marginBottom: 30,
 												}}
 											>
-												{currentUser && (
-													<ListCardItem
-														member={currentUser}
-														// onPressIn={goToProfile}
-														// enableEstimate={false}
-														// index={7}
-														// userStatus={"online"}
-													/>
-												)}
+												{currentUser && <ListCardItem member={currentUser} />}
 
 												{$otherMembers.map((member, index) => (
-													<ListCardItem
-														key={index}
-														member={member}
-														// onPressIn={goToProfile}
-														// enableEstimate={false}
-														// index={9}
-														// userStatus={"online"}
-													/>
+													<ListCardItem key={index} member={member} />
 												))}
 
 												{teamInvitations &&

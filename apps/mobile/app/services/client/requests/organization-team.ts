@@ -27,7 +27,7 @@ export function updateOrganizationTeamRequest({
 	datas,
 	bearer_token,
 }: {
-	datas: IOrganizationTeamCreate
+	datas: IOrganizationTeamList | IOrganizationTeamCreate
 	id: string
 	bearer_token: string
 }) {

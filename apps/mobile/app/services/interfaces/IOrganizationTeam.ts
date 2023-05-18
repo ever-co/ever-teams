@@ -14,6 +14,7 @@ export interface IOrganizationTeamCreate {
 	public?: boolean
 	imageId?: string | null
 	image?: IImageAssets | null
+	logo?: string | null
 }
 
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string }

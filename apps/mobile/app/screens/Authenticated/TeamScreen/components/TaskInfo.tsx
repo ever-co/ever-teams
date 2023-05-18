@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { useCallback, useState } from "react"
@@ -10,20 +11,21 @@ import {
 	View,
 } from "react-native"
 import { MaterialCommunityIcons, Feather } from "@expo/vector-icons"
-import { ITeamTask } from "../../../../services/interfaces/interfaces/ITask"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { typography, useAppTheme } from "../../../../theme"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import { I_TeamMemberCardHook } from "../../../../services/hooks/features/useTeamMemberCard"
 
 const TaskInfo = ({
-	task,
+	memberInfo,
 	editMode,
 	setEditMode,
 }: {
-	task: ITeamTask
+	memberInfo: I_TeamMemberCardHook
 	editMode: boolean
 	setEditMode: (value: boolean) => unknown
 }) => {
+	const task = memberInfo.memberTask
 	const { colors } = useAppTheme()
 	const [taskTitle, setTaskTitle] = useState(task?.title || "")
 	const { updateTask, teamTasks } = useTeamTasks()

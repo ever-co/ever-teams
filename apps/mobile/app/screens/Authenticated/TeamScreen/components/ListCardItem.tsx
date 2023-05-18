@@ -93,7 +93,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 						<TaskInfo
 							editMode={taskEdition.editMode}
 							setEditMode={taskEdition.setEditMode}
-							task={memberInfo.memberTask}
+							memberInfo={memberInfo}
 						/>
 						<AllTaskStatuses task={memberInfo.memberTask} />
 					</View>
@@ -152,7 +152,10 @@ const ListCardItem: React.FC<Props> = (props) => {
 		taskEdition.setEditMode(false)
 		taskEdition.setEstimateEditMode(false)
 		setShowMenu(false)
-		navigation.navigate("Profile", { userId: memberInfo.memberUser.id, activeTab: "worked" })
+		navigation.navigate(
+			"Profile" as never,
+			{ userId: memberInfo.memberUser.id, activeTab: "worked" } as never,
+		)
 	}
 
 	return (
