@@ -82,7 +82,7 @@ function EmailScreen({
 						autoComplete="off"
 					/>
 
-					<div className="w-full flex justify-between mt-6">
+					<div className="w-full flex justify-between mt-6 items-center">
 						{/* Send code */}
 						<div className="flex flex-col items-start">
 							<Link href="/auth/team">
