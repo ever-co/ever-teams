@@ -39,7 +39,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 	const currentMember = activeTeam?.members?.find(
-		(member) => member.employeeId === user?.employee.id
+		(member) => member?.employeeId === user?.employee?.id
 	);
 
 	// Refs

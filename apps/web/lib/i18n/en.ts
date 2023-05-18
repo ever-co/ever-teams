@@ -28,7 +28,7 @@ export const en = {
 		NOW: 'Now',
 		CLOSED: 'Closed',
 		INVITE: 'Invite',
-		TASK_TITTLE: 'Task Tittle',
+		TASK_TITTLE: 'Task Title',
 		CREATE_TASK: 'Create new task',
 		CREATE_TEAM: 'Create new team',
 		VERIFY_ACCOUNT_MSG: 'Please Verify your account before start using the app',
