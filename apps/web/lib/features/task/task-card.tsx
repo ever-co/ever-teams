@@ -32,6 +32,7 @@ import { TaskAvatars } from './task-item';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { timerSecondsState } from '@app/stores';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
+import { TaskAssignButton } from './task-assign-button';
 
 type Props = {
 	active?: boolean;
@@ -149,6 +150,12 @@ export function TaskCard({
 					/>
 					{isTrackingEnabled && isAuthUser && task && (
 						<TimerButtonCall task={task} />
+					)}
+					{!isAuthUser && task && viewType === 'unassign' && (
+						<AssignTaskButtonCall
+							task={task}
+							assignTask={memberInfo.assignTask}
+						/>
 					)}
 				</div>
 				<VerticalSeparator />
@@ -289,6 +296,34 @@ export function TaskCard({
 			<TimerButton
 				onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 				running={activeTaskStatus?.running}
+				disabled={activeTaskStatus ? disabled : task.status === 'closed'}
+				className="h-9 w-9"
+			/>
+		);
+	}
+
+	function AssignTaskButtonCall({
+		task,
+		assignTask,
+	}: {
+		task: ITeamTask;
+		assignTask: (task: ITeamTask) => Promise<void>;
+	}) {
+		const {
+			disabled,
+
+			timerStatus,
+			activeTeamTask,
+		} = useTimerView();
+
+		const activeTaskStatus =
+			activeTeamTask?.id === task.id ? timerStatus : undefined;
+
+		return (
+			<TaskAssignButton
+				onClick={() => {
+					assignTask(task);
+				}}
 				disabled={activeTaskStatus ? disabled : task.status === 'closed'}
 				className="h-9 w-9"
 			/>

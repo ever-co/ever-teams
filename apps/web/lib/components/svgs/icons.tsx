@@ -476,6 +476,38 @@ export function ArrowLeft({ className }: IClassName) {
 	);
 }
 
+// ============================= ArrowRight ===========================//
+
+export function ArrowRight({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 26 27"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M16.835 6.91833L23.9166 14L16.835 21.0817"
+				stroke-width="3"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className="stroke-primary dark:stroke-white"
+			/>
+			<path
+				d="M4.08301 14H23.718"
+				stroke-width="3"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className="stroke-primary dark:stroke-white"
+			/>
+		</svg>
+	);
+}
+
 // ============================= StopIcon ===========================//
 
 export function StopIcon({ className }: IClassName) {
