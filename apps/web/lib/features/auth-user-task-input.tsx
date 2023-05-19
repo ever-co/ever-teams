@@ -1,3 +1,4 @@
+import { useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
@@ -15,6 +16,7 @@ import {
 export function AuthUserTaskInput({ className }: IClassName) {
 	const { trans } = useTranslation();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (
 		<div
@@ -24,6 +26,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				fullWidthCombobox={true}
 				createOnEnterClick={true}
 				showTaskNumber={true}
+				autoAssignTaskAuth={isTrackingEnabled}
 			/>
 
 			<div className="flex flex-col lg:flex-row justify-between lg:items-center space-x-3">
