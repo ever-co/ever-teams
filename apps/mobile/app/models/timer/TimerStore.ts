@@ -7,6 +7,7 @@ export const TimerStoreModel = types
 		timerStatus: types.frozen<ITimerStatus>(),
 		timerStatusFetchingState: types.optional(types.boolean, false),
 		timeCounterState: types.optional(types.number, 0),
+		timerSecondsState: types.optional(types.number, 0),
 		timeCounterInterval: types.optional(types.number, 0),
 		canRunTimer: types.optional(types.boolean, false),
 		localTimerStatus: types.optional(types.frozen(), { running: false }),
@@ -20,6 +21,9 @@ export const TimerStoreModel = types
 		},
 		setTimerCounterState(value: number) {
 			store.timeCounterState = value
+		},
+		setTimerSecondsState(value: number) {
+			store.timerSecondsState = value
 		},
 		setTimerCounterIntervalState(value: any) {
 			store.timeCounterInterval = value
