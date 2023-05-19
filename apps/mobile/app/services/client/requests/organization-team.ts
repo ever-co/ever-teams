@@ -1,10 +1,12 @@
 /* eslint-disable camelcase */
+import moment from "moment"
 import { PaginationResponse } from "../../interfaces/IDataResponse"
 import {
 	IOrganizationTeam,
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
+	IOrganizationTeamWithMStatus,
 } from "../../interfaces/IOrganizationTeam"
 import { serverFetch } from "../fetch"
 
@@ -25,7 +27,7 @@ export function updateOrganizationTeamRequest({
 	datas,
 	bearer_token,
 }: {
-	datas: IOrganizationTeamCreate
+	datas: IOrganizationTeamList | IOrganizationTeamCreate
 	id: string
 	bearer_token: string
 }) {
@@ -37,11 +39,41 @@ export function updateOrganizationTeamRequest({
 	})
 }
 
-export function getOrganizationTeamRequest(id: string, bearer_token: string) {
-	return serverFetch<IOrganizationTeamList>({
-		path: `/organization-team/${id}`,
+export function getOrganizationTeamRequest(
+	{
+		organizationId,
+		tenantId,
+		teamId,
+		relations = [
+			"members",
+			"members.role",
+			"members.employee",
+			"members.employee.user",
+			"createdBy",
+			"createdBy.employee",
+		],
+	}: TeamRequestParams & { teamId: string },
+	bearer_token: string,
+) {
+	const params = {
+		organizationId,
+		tenantId,
+		source: "BROWSER",
+		withLaskWorkedTask: "true",
+		startDate: moment().startOf("day").toISOString(),
+		endDate: moment().endOf("day").toISOString(),
+	} as { [x: string]: string }
+
+	relations.forEach((rl, i) => {
+		params[`relations[${i}]`] = rl
+	})
+
+	const queries = new URLSearchParams(params || {})
+	return serverFetch<IOrganizationTeamWithMStatus>({
+		path: `/organization-team/${teamId}?${queries.toString()}`,
 		method: "GET",
 		bearer_token,
+		tenantId,
 	})
 }
 
@@ -55,13 +87,22 @@ export function getAllOrganizationTeamRequest(
 	{
 		organizationId,
 		tenantId,
-		relations = ["members", "members.role", "members.employee", "members.employee.user"],
+		relations = [
+			"members",
+			"members.role",
+			"members.employee",
+			"members.employee.user",
+			"createdBy",
+			"createdBy.employee",
+		],
 	}: TeamRequestParams,
 	bearer_token: string,
 ) {
 	const params = {
 		"where[organizationId]": organizationId,
 		"where[tenantId]": tenantId,
+		source: "BROWSER",
+		withLaskWorkedTask: "true",
 	} as { [x: string]: string }
 
 	relations.forEach((rl, i) => {

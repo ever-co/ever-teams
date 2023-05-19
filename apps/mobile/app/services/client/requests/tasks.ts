@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import { DeleteReponse, PaginationResponse } from "../../interfaces/IDataResponse"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
 import { serverFetch } from "../fetch"
@@ -76,5 +77,24 @@ export function updateTaskRequest<ITeamTask>(
 		method: "PUT",
 		body: data,
 		bearer_token,
+	})
+}
+
+export function deleteEmployeeFromTasksRequest({
+	tenantId,
+	employeeId,
+	organizationTeamId,
+	bearer_token,
+}: {
+	tenantId: string
+	employeeId: string
+	organizationTeamId: string
+	bearer_token: string
+}) {
+	return serverFetch<DeleteReponse>({
+		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
+		method: "DELETE",
+		bearer_token,
+		tenantId,
 	})
 }

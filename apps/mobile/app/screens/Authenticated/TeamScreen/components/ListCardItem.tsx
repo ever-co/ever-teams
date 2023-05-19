@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo, useState } from "react"
+import React from "react"
 import {
 	View,
 	ViewStyle,
@@ -9,9 +9,7 @@ import {
 	StyleSheet,
 	TouchableWithoutFeedback,
 } from "react-native"
-import { Avatar, Text } from "react-native-paper"
-import { Ionicons, Entypo, MaterialCommunityIcons } from "@expo/vector-icons"
-import { AnimatedCircularProgress } from "react-native-circular-progress"
+import { Ionicons, Entypo } from "@expo/vector-icons"
 
 // COMPONENTS
 import { Card, ListItem } from "../../../../components"
@@ -19,93 +17,50 @@ import { Card, ListItem } from "../../../../components"
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography, useAppTheme } from "../../../../theme"
-import { useStores } from "../../../../models"
-import { pad } from "../../../../helpers/number"
-import { useTimer } from "../../../../services/hooks/useTimer"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import { observer } from "mobx-react-lite"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import WorkedOnTask from "../../../../components/WorkedOnTask"
 import { translate } from "../../../../i18n"
 import AllTaskStatuses from "../../../../components/AllTaskStatuses"
-import { secondsToTime } from "../../../../helpers/date"
-import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
-import { imgTitle } from "../../../../helpers/img-title"
+import {
+	I_TeamMemberCardHook,
+	I_TMCardTaskEditHook,
+	useTeamMemberCard,
+	useTMCardTaskEdit,
+} from "../../../../services/hooks/features/useTeamMemberCard"
+import UserHeaderCard from "./UserHeaderCard"
+import TaskInfo from "./TaskInfo"
+import { observer } from "mobx-react-lite"
+import { TodayWorkedTime } from "./TodayWork"
+import { TotalWork } from "./TotalWork"
+import { TimeProgressBar } from "./TimeProgressBar"
+import { useNavigation } from "@react-navigation/native"
 
 export type ListItemProps = {
 	member: OT_Member
-	onPressIn?: ({
-		userId,
-		tab,
-	}: {
-		userId: string
-		tab: "worked" | "assigned" | "unassigned"
-	}) => unknown
-	enableEstimate: boolean
-	index: number
-	userStatus: string
 }
+
 interface IUserStatus {
 	icon: any
 	color: string
 }
 
+interface IcontentProps {
+	memberInfo: I_TeamMemberCardHook
+	taskEdition: I_TMCardTaskEditHook
+	onPressIn?: () => unknown
+}
+
 export interface Props extends ListItemProps {}
 
-export const ListItemContent: React.FC<ListItemProps> = observer(
-	({ member, enableEstimate, onPressIn, userStatus }) => {
+export const ListItemContent: React.FC<IcontentProps> = observer(
+	({ memberInfo, taskEdition, onPressIn }) => {
 		// HOOKS
-		const {
-			teamStore: { activeTeam },
-			TaskStore: { activeTask },
-			TimerStore: { timeCounterState },
-			authenticationStore: { user },
-		} = useStores()
-		const {
-			fomatedTimeCounter: { hours, minutes },
-		} = useTimer()
-
 		const { colors, dark } = useAppTheme()
-		const isAuthUser = member.employee.userId === user?.id
-		const [editEstimate, setEditEstimate] = useState(false)
-		const [estimatedTime, setEstimateTime] = useState({
-			hours: 0,
-			minutes: 0,
-			seconds: 0,
-		})
-		const [memberTask, setMemberTask] = useState<ITeamTask | null>(null)
-		const iuser = member.employee.user
-
-		useEffect(() => {
-			if (isAuthUser) {
-				setMemberTask(activeTask)
-			}
-		}, [isAuthUser, activeTask, activeTeam])
-
-		const progress = useMemo(() => {
-			if (memberTask && memberTask.estimate > 0) {
-				const percent = timeCounterState / 100 / memberTask.estimate
-				return Math.floor(percent * 10)
-			}
-
-			return 0
-		}, [timeCounterState])
-
-		useEffect(() => {
-			if (memberTask) {
-				const { h, m, s } = secondsToTime(memberTask.estimate)
-				setEstimateTime({
-					hours: h,
-					minutes: m,
-					seconds: s,
-				})
-			}
-		}, [memberTask, enableEstimate])
-
+		// console.log(JSON.stringify(memberInfo.memberTask))
 		return (
-			<TouchableWithoutFeedback onPress={() => onPressIn({ userId: iuser?.id, tab: "worked" })}>
+			<TouchableWithoutFeedback onPress={() => onPressIn()}>
 				<View
 					style={[
 						{
@@ -117,33 +72,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 					]}
 				>
 					<View style={styles.firstContainer}>
-						<View style={styles.wrapProfileImg}>
-							{iuser.image?.thumbUrl || iuser.imageUrl || iuser.image?.fullUrl ? (
-								<Avatar.Image
-									style={styles.teamImage}
-									size={40}
-									source={{ uri: iuser.image?.thumbUrl || iuser.imageUrl || iuser.image?.fullUrl }}
-								/>
-							) : (
-								<Avatar.Text
-									style={styles.teamImage}
-									size={40}
-									label={imgTitle(iuser.name)}
-									labelStyle={styles.prefix}
-								/>
-							)}
-							<Avatar.Image
-								style={styles.statusIcon}
-								size={20}
-								source={getStatusImage(userStatus).icon}
-							/>
-						</View>
-						<Text style={[styles.name, { color: colors.primary }]}>{iuser.name}</Text>
-						{/* ENABLE ESTIMATE INPUTS */}
+						<UserHeaderCard user={memberInfo.memberUser} />
 						<View style={styles.wrapTotalTime}>
 							<WorkedOnTask
-								memberTask={memberTask}
-								isAuthUser={isAuthUser}
+								memberTask={memberInfo.memberTask}
+								isAuthUser={memberInfo.isAuthUser}
 								title={translate("teamScreen.cardTotalTimeLabel")}
 								containerStyle={{ alignItems: "center", justifyContent: "center" }}
 								totalTimeText={{
@@ -155,20 +88,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 							/>
 						</View>
 					</View>
+
 					<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
-						<View style={{ flexDirection: "row", width: "100%" }}>
-							<View style={styles.wrapBugIcon}>
-								<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
-							</View>
-							{memberTask ? (
-								<Text style={[styles.otherText, { color: colors.primary }]}>
-									<Text style={styles.taskNumberStyle}>#{memberTask?.taskNumber}</Text>{" "}
-									{memberTask &&
-										limitTextCharaters({ text: memberTask && memberTask.title, numChars: 64 })}
-								</Text>
-							) : null}
-						</View>
-						<AllTaskStatuses task={memberTask} />
+						<TaskInfo
+							editMode={taskEdition.editMode}
+							setEditMode={taskEdition.setEditMode}
+							memberInfo={memberInfo}
+						/>
+						<AllTaskStatuses task={memberInfo.memberTask} />
 					</View>
 					<View style={[styles.times, { borderTopColor: colors.divider }]}>
 						<View
@@ -181,56 +108,26 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 							}}
 						>
 							<View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
-								<Text style={styles.totalTimeTitle}>
-									{translate("teamScreen.cardTodayWorkLabel")}
-								</Text>
-								<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
-									{pad(hours)} h:{pad(minutes)} m
-								</Text>
+								<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
 							</View>
+
 							<View style={{ ...GS.alignCenter }}>
-								<WorkedOnTask
-									memberTask={memberTask}
-									isAuthUser={isAuthUser}
-									title={translate("teamScreen.cardTotalWorkLabel")}
-									containerStyle={{
-										alignItems: "center",
-										height: "80%",
-										justifyContent: "space-between",
-									}}
-									totalTimeText={{
-										fontSize: 14,
-										color: colors.primary,
-										fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-									}}
-								/>
+								<TotalWork isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
 							</View>
-							{memberTask && editEstimate ? (
+
+							{memberInfo.memberTask && taskEdition.estimateEditMode ? (
 								<View style={styles.estimate}>
-									<EstimateTime setEditEstimate={setEditEstimate} currentTask={memberTask} />
+									<EstimateTime
+										setEditEstimate={taskEdition.setEstimateEditMode}
+										currentTask={memberInfo.memberTask}
+									/>
 								</View>
 							) : (
-								<View style={{}}>
-									<TouchableOpacity onPress={() => setEditEstimate(true)}>
-										<AnimatedCircularProgress
-											size={48}
-											width={5}
-											fill={progress}
-											tintColor="#27AE60"
-											backgroundColor="#F0F0F0"
-										>
-											{() => (
-												<Text style={{ ...styles.progessText, color: colors.primary }}>
-													{estimatedTime.hours > 0
-														? estimatedTime.hours + " H"
-														: estimatedTime.minutes > 0
-														? estimatedTime.minutes + " Min"
-														: "0 H"}
-												</Text>
-											)}
-										</AnimatedCircularProgress>
-									</TouchableOpacity>
-								</View>
+								<TimeProgressBar
+									isAuthUser={memberInfo.isAuthUser}
+									memberInfo={memberInfo}
+									onPress={() => taskEdition.setEstimateEditMode(true)}
+								/>
 							)}
 						</View>
 					</View>
@@ -242,29 +139,32 @@ export const ListItemContent: React.FC<ListItemProps> = observer(
 
 const ListCardItem: React.FC<Props> = (props) => {
 	const { colors } = useAppTheme()
-	const { isTeamManager, currentUser, makeMemberAsManager, removeMemberFromTeam } =
-		useOrganizationTeam()
-
-	// STATS
+	// // STATS
 	const [showMenu, setShowMenu] = React.useState(false)
-	const [estimateNow, setEstimateNow] = React.useState(false)
+	const memberInfo = useTeamMemberCard(props.member)
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask)
 
-	const handleEstimate = () => {
-		setEstimateNow(true)
+	const { isTeamManager } = useOrganizationTeam()
+
+	const navigation = useNavigation()
+
+	const onPressIn = () => {
+		taskEdition.setEditMode(false)
+		taskEdition.setEstimateEditMode(false)
 		setShowMenu(false)
+		navigation.navigate(
+			"Profile" as never,
+			{ userId: memberInfo.memberUser.id, activeTab: "worked" } as never,
+		)
 	}
 
-	const { index, userStatus, onPressIn, member } = props
-	const iuser = member.employee.user
-	const isAuthUser = member.employee.userId === currentUser?.id
 	return (
 		<Card
 			style={{
 				...$listCard,
 				...GS.mt5,
 				paddingTop: 4,
-				backgroundColor: getStatusImage(userStatus).color,
-				zIndex: 999 - index,
+				backgroundColor: "#27AE60",
 			}}
 			HeadingComponent={
 				<View
@@ -302,53 +202,50 @@ const ListCardItem: React.FC<Props> = (props) => {
 							}}
 						>
 							<View style={{ marginVertical: 10 }}>
-								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
+								<ListItem
+									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+									onPress={() => {
+										taskEdition.setEditMode(true)
+										setShowMenu(false)
+									}}
+								>
 									Edit Task
 								</ListItem>
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => handleEstimate()}
+									onPress={() => {
+										taskEdition.setEstimateEditMode(true)
+										setShowMenu(false)
+									}}
 								>
 									Estimate
 								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										onPressIn({ userId: iuser?.id, tab: "unassigned" })
-										setShowMenu(!showMenu)
-									}}
-								>
+								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
 									Assign Task
 								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										onPressIn({ userId: iuser?.id, tab: "assigned" })
-										setShowMenu(!showMenu)
-									}}
-								>
+								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
 									Unassign Task
 								</ListItem>
 
 								{isTeamManager ? (
 									<>
-										{!isAuthUser && (
-											<ListItem
-												textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-												onPress={() => {
-													setShowMenu(false)
-													makeMemberAsManager(member.employee.id)
-												}}
-											>
-												Make a Manager
-											</ListItem>
-										)}
+										{/* {!isAuthUser && ( */}
+										<ListItem
+											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+											onPress={() => {
+												setShowMenu(false)
+												memberInfo.makeMemberManager()
+											}}
+										>
+											Make a Manager
+										</ListItem>
+										{/* )} */}
 										<ListItem
 											textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
 											style={{}}
 											onPress={() => {
 												setShowMenu(false)
-												removeMemberFromTeam(member.employee.id)
+												memberInfo.removeMemberFromTeam()
 											}}
 										>
 											Remove
@@ -369,14 +266,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 				</View>
 			}
 			ContentComponent={
-				<ListItemContent
-					{...props}
-					enableEstimate={estimateNow}
-					// onPressIn={() => {
-					//   props.onPressIn
-					//   setShowMenu(false)
-					// }}
-				/>
+				<ListItemContent taskEdition={taskEdition} memberInfo={memberInfo} onPressIn={onPressIn} />
 			}
 		/>
 	)
@@ -417,71 +307,12 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		width: "95%",
 	},
-	name: {
-		color: "#1B005D",
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 12,
-		left: 15,
-	},
-	otherText: {
-		color: "#282048",
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
-		fontStyle: "normal",
-		width: "95%",
-	},
-	prefix: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
-		fontWeight: "600",
-	},
-	progessText: {
-		fontFamily: typography.primary.semiBold,
-		fontSize: 10,
-	},
-	statusIcon: {
-		bottom: 0,
-		position: "absolute",
-		right: -4,
-	},
-	taskNumberStyle: {
-		color: "#7B8089",
-		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
-	},
-	teamImage: {
-		backgroundColor: "#C1E0EA",
-	},
 	times: {
 		alignItems: "center",
 		borderTopWidth: 1,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		paddingTop: 16,
-	},
-	totalTimeText: {
-		color: "#282048",
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 12,
-	},
-	totalTimeTitle: {
-		color: "#7E7991",
-		fontFamily: typography.fonts.PlusJakartaSans.medium,
-		fontSize: 10,
-		fontWeight: "500",
-		marginBottom: 9,
-	},
-	wrapBugIcon: {
-		alignItems: "center",
-		backgroundColor: "#C24A4A",
-		borderRadius: 3,
-		height: 20,
-		justifyContent: "center",
-		marginRight: 3,
-		width: 20,
-	},
-	wrapProfileImg: {
-		flexDirection: "row",
 	},
 	wrapTaskTitle: {
 		borderTopWidth: 1,
