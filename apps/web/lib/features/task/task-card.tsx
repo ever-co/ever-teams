@@ -7,6 +7,7 @@ import {
 	useOrganizationTeams,
 	useTeamMemberCard,
 	useTMCardTaskEdit,
+	I_TeamMemberCardHook,
 } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -168,7 +169,14 @@ export function TaskCard({
 				/>
 
 				{/* TaskCardMenu */}
-				{task && <TaskCardMenu task={task} loading={loading} />}
+				{task && memberInfo && currentMember && (
+					<TaskCardMenu
+						task={task}
+						loading={loading}
+						memberInfo={memberInfo}
+						viewType={viewType}
+					/>
+				)}
 			</Card>
 
 			{/* Small screen size */}
@@ -222,7 +230,14 @@ export function TaskCard({
 					/>
 				</div>
 
-				{task && <TaskCardMenu task={task} loading={loading} />}
+				{task && memberInfo && currentMember && (
+					<TaskCardMenu
+						task={task}
+						loading={loading}
+						memberInfo={memberInfo}
+						viewType={viewType}
+					/>
+				)}
 			</Card>
 		</div>
 	);
@@ -380,11 +395,22 @@ export function TaskCard({
 	function TaskCardMenu({
 		task,
 		loading,
+		memberInfo,
+		viewType,
 	}: {
 		task: ITeamTask;
 		loading?: boolean;
+		memberInfo?: I_TeamMemberCardHook;
+		viewType: 'default' | 'unassign';
 	}) {
 		const { trans } = useTranslation();
+		const handleAssignment = useCallback(() => {
+			if (viewType === 'unassign') {
+				memberInfo?.assignTask(task);
+			} else {
+				memberInfo?.unassignTask(task);
+			}
+		}, [memberInfo, task, viewType]);
 
 		return (
 			<div className="absolute right-2">
@@ -417,6 +443,18 @@ export function TaskCard({
 												>
 													{trans.common.TASK_DETAILS}
 												</Link>
+											</li>
+											<li className="mb-2">
+												<span
+													className={clsxm(
+														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all cursor-pointer'
+													)}
+													onClick={handleAssignment}
+												>
+													{viewType === 'unassign'
+														? trans.common.ASSIGN_TASK
+														: trans.common.UNASSIGN_TASK}
+												</span>
 											</li>
 
 											{/* <li>
