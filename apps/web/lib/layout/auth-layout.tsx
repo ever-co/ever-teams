@@ -95,7 +95,7 @@ export function AuthLayout({ children, title, description }: Props) {
 						)}
 
 						{description && (
-							<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px]">
+							<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px]  min-h-[10vh]">
 								{description}
 							</Text>
 						)}
