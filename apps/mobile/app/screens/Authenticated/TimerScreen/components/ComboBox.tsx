@@ -91,7 +91,6 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 						/>
 					</Pressable>
 					<Pressable
-						activeOpacity={0.7}
 						onPress={() => {
 							setOpenFilter(false)
 							setCloseFilter(true)

@@ -9,7 +9,7 @@ import {
 import { serverFetch } from "../fetch"
 
 export function getTimerStatusRequest(
-	{ source = "BROWSER", tenantId, organizationId }: ITimerStatusParams,
+	{ source = "MOBILE", tenantId, organizationId }: ITimerStatusParams,
 	bearer_token: string,
 ) {
 	const params = new URLSearchParams({ source, tenantId, organizationId })
@@ -42,7 +42,7 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 }
 
 export function toggleTimerRequest(
-	{ source = "BROWSER", logType = "TRACKED", taskId, tenantId, organizationId }: ITimerParams,
+	{ source = "MOBILE", logType = "TRACKED", taskId, tenantId, organizationId }: ITimerParams,
 	bearer_token: string,
 ) {
 	return serverFetch<ITimer>({
