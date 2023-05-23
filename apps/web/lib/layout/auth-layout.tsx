@@ -22,7 +22,7 @@ export function AuthLayout({ children, title, description }: Props) {
 				>
 					<div className="absolute w-10 -right-10 top-0 h-full  z-10 shadow-2xl shadow-black" />
 
-					<div className="overflow-hidden">
+					<div className="overflow-hidden h-[100vh]">
 						<div className="p-9 pt-4">
 							<AppLogo className="fill-white scale-75 mt-3 dark:fill-default" />
 							<Text className="text-xs ml-7 text-gray-300 dark:text-default">

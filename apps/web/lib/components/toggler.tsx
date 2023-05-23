@@ -1,14 +1,8 @@
-import { useHasMounted } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
-import React, {
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useState,
-} from 'react';
+import React, { PropsWithChildren, useCallback, useState } from 'react';
 import {
 	BoxIcon,
 	MoonDarkIcon,
@@ -37,11 +31,6 @@ export function Toggler({
 	secondBtnClassName,
 }: Props) {
 	const childrenArr = React.Children.toArray(children);
-	const { mounted } = useHasMounted();
-
-	if (!mounted) {
-		return <></>;
-	}
 
 	return (
 		<div
@@ -80,16 +69,6 @@ export function Toggler({
  */
 export function ThemeToggler({ className }: IClassName) {
 	const { setTheme } = useTheme();
-	const [mounted, setMounted] = useState(false);
-
-	// useEffect only runs on the client, so now we can safely show the UI
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	if (!mounted) {
-		return <></>;
-	}
 
 	return (
 		<Toggler
