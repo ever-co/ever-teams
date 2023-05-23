@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useMemo, useRef } from "react"
 import { useStores } from "../../../models"
 import { ITeamTask } from "../../interfaces/ITask"
 import { ITasksTimesheet } from "../../interfaces/ITimer"
@@ -7,22 +7,22 @@ import { useSyncRef } from "../useSyncRef"
 import debounce from "lodash/debounce"
 import { tasksStatistics } from "../../client/api/timer/tasksStatistics"
 import { useFetchAllTasksStats } from "../../client/queries/task/stats"
+import { Nullable } from "../../interfaces/hooks"
 
 export function useTaskStatistics(addSeconds = 0) {
 	const {
 		TaskStore: {
 			activeTask,
-			setActiveTask,
 			activeTaskId,
 			tasksStatisticsState,
 			setTasksStatisticsState,
 			statActiveTask,
 			setStatActiveTask,
-			fetchingTasks,
 			setFetchingTasks,
 		},
 		TimerStore: { timerStatus },
-		authenticationStore: { tenantId, authToken, organizationId },
+		authenticationStore: { tenantId, authToken, organizationId, user },
+		teamStore: { activeTeam },
 	} = useStores()
 
 	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad()
@@ -33,6 +33,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		organizationId,
 		activeTaskId,
 	})
+
+	const currentMember = activeTeam?.members?.find(
+		(member) => member?.employeeId === user?.employee?.id,
+	)
 
 	// Refs
 	const initialLoad = useRef(false)
@@ -85,7 +89,9 @@ export function useTaskStatistics(addSeconds = 0) {
 		return data
 	}, [activeTask])
 
-	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [])
+	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [
+		activeTaskId,
+	])
 
 	/**
 	 * Get statistics of the active tasks at the component load
@@ -119,19 +125,55 @@ export function useTaskStatistics(addSeconds = 0) {
 		}
 	}, [firstLoad, activeTeamTask?.id])
 
-	const getEstimation = (_task: ITasksTimesheet | null) =>
+	/**
+	 * Get task estimation in
+	 *
+	 * @param timeSheet
+	 * @param _task
+	 * @param addSeconds
+	 * @returns
+	 */
+	const getEstimation = (
+		timeSheet: Nullable<ITasksTimesheet>,
+		_task: Nullable<ITeamTask>,
+		addSeconds: number,
+		estimate?: number,
+	) =>
 		Math.min(
-			Math.floor((((_task?.duration || 0) + addSeconds) * 100) / (activeTeamTask?.estimate || 0)),
+			Math.floor(
+				(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
+					(estimate || _task?.estimate || 0),
+			),
 			100,
 		)
+
+	const activeTaskEstimation = useMemo(() => {
+		let totalWorkedTasksTimer = 0
+		activeTeam?.members?.forEach((member) => {
+			const totalWorkedTasks =
+				member?.totalWorkedTasks?.find((item) => item.id === activeTeamTask?.id) || null
+			if (totalWorkedTasks) {
+				totalWorkedTasksTimer += totalWorkedTasks.duration
+			}
+		})
+
+		return getEstimation(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0)
+	}, [activeTeam, activeTeamTask, currentMember])
+
+	const activeTaskDailyEstimation =
+		activeTeamTask && activeTeamTask.estimate
+			? getEstimation(statActiveTask.today, activeTeamTask, addSeconds)
+			: 0
 
 	return {
 		firstLoadtasksStatisticsData,
 		getTaskStat,
-		activeTaskEstimation:
-			activeTeamTask && activeTeamTask.estimate ? getEstimation(statActiveTask.total) : 0,
-		activeTaskDailyEstimation:
-			activeTeamTask && activeTeamTask.estimate ? getEstimation(statActiveTask.today) : 0,
+		activeTaskTotalStat: statActiveTask.total,
+		activeTaskDailyStat: statActiveTask.today,
+		activeTaskEstimation,
+		activeTaskDailyEstimation,
 		activeTeamTask,
+		addSeconds,
+		getEstimation,
 	}
 }

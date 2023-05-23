@@ -19,8 +19,6 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography, useAppTheme } from "../../../../theme"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
-import WorkedOnTask from "../../../../components/WorkedOnTask"
-import { translate } from "../../../../i18n"
 import AllTaskStatuses from "../../../../components/AllTaskStatuses"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import {
@@ -32,10 +30,10 @@ import {
 import UserHeaderCard from "./UserHeaderCard"
 import TaskInfo from "./TaskInfo"
 import { observer } from "mobx-react-lite"
-import { TodayWorkedTime } from "./TodayWork"
-import { TotalWork } from "./TotalWork"
+import { TodayWorkedTime } from "./TodayWorkTime"
 import { TimeProgressBar } from "./TimeProgressBar"
 import { useNavigation } from "@react-navigation/native"
+import { WorkedOnTask } from "./WorkedOnTask"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -58,7 +56,6 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 	({ memberInfo, taskEdition, onPressIn }) => {
 		// HOOKS
 		const { colors, dark } = useAppTheme()
-		// console.log(JSON.stringify(memberInfo.memberTask))
 		return (
 			<TouchableWithoutFeedback onPress={() => onPressIn()}>
 				<View
@@ -74,18 +71,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 					<View style={styles.firstContainer}>
 						<UserHeaderCard user={memberInfo.memberUser} />
 						<View style={styles.wrapTotalTime}>
-							<WorkedOnTask
-								memberTask={memberInfo.memberTask}
-								isAuthUser={memberInfo.isAuthUser}
-								title={translate("teamScreen.cardTotalTimeLabel")}
-								containerStyle={{ alignItems: "center", justifyContent: "center" }}
-								totalTimeText={{
-									marginTop: 5,
-									fontSize: 12,
-									color: colors.primary,
-									fontFamily: typography.primary.semiBold,
-								}}
-							/>
+							<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
 						</View>
 					</View>
 
@@ -107,12 +93,12 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 								width: "100%",
 							}}
 						>
-							<View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
-								<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
+							<View style={{ ...GS.alignCenter }}>
+								<WorkedOnTask period="Daily" memberInfo={memberInfo} />
 							</View>
 
 							<View style={{ ...GS.alignCenter }}>
-								<TotalWork isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
+								<WorkedOnTask period="Total" memberInfo={memberInfo} />
 							</View>
 
 							{memberInfo.memberTask && taskEdition.estimateEditMode ? (

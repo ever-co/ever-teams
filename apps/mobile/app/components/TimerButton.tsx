@@ -1,7 +1,9 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import { LinearGradient } from "expo-linear-gradient"
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
-import { View, StyleSheet, TouchableOpacity, Image, ViewStyle, ImageStyle } from "react-native"
+import { View, StyleSheet, Image, ViewStyle, ImageStyle, Pressable } from "react-native"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
@@ -20,36 +22,31 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 		TimerStore: { localTimerStatus },
 	} = useStores()
 	const { canRunTimer, startTimer, stopTimer } = useTimer()
-	const { colors, dark } = useAppTheme()
+	const { dark } = useAppTheme()
 
 	if (dark) {
 		return (
 			<View>
 				{!localTimerStatus.running ? (
 					<>
-						<TouchableOpacity
-							activeOpacity={canRunTimer ? 1 : 0.4}
+						<Pressable
 							style={[
 								styles.timerBtnInactive,
 								containerStyle,
 								{ backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 },
 							]}
-							onPress={() => {
-								canRunTimer ? startTimer() : {}
-							}}
+							disabled={!canRunTimer}
+							onPress={() => startTimer()}
 						>
 							<Image
 								resizeMode="contain"
 								style={[styles.timerIcon, iconStyle]}
 								source={require("../../assets/icons/new/play.png")}
 							/>
-						</TouchableOpacity>
+						</Pressable>
 					</>
 				) : (
-					<TouchableOpacity
-						onPress={() => stopTimer()}
-						style={[styles.timerBtnInactive, containerStyle]}
-					>
+					<Pressable onPress={() => stopTimer()} style={[styles.timerBtnInactive, containerStyle]}>
 						<LinearGradient
 							colors={["#E93CB9", "#6A71E7"]}
 							style={[styles.timerBtnInactive, containerStyle]}
@@ -60,7 +57,7 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 								source={require("../../assets/icons/new/stop.png")}
 							/>
 						</LinearGradient>
-					</TouchableOpacity>
+					</Pressable>
 				)}
 			</View>
 		)
@@ -70,35 +67,30 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 		<View>
 			{!localTimerStatus.running ? (
 				<>
-					<TouchableOpacity
-						activeOpacity={canRunTimer ? 1 : 0.4}
+					<Pressable
 						style={[
 							styles.timerBtnInactive,
 							containerStyle,
 							{ backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 },
 						]}
-						onPress={() => {
-							canRunTimer ? startTimer() : {}
-						}}
+						disabled={!canRunTimer}
+						onPress={() => (canRunTimer ? startTimer() : {})}
 					>
 						<Image
 							resizeMode="contain"
 							style={[styles.timerIcon, iconStyle]}
 							source={require("../../assets/icons/new/play.png")}
 						/>
-					</TouchableOpacity>
+					</Pressable>
 				</>
 			) : (
-				<TouchableOpacity
-					onPress={() => stopTimer()}
-					style={[styles.timerBtnInactive, containerStyle]}
-				>
+				<Pressable onPress={() => stopTimer()} style={[styles.timerBtnInactive, containerStyle]}>
 					<Image
 						resizeMode="contain"
 						style={[styles.timerIcon, iconStyle]}
 						source={require("../../assets/icons/new/stop.png")}
 					/>
-				</TouchableOpacity>
+				</Pressable>
 			)}
 		</View>
 	)
