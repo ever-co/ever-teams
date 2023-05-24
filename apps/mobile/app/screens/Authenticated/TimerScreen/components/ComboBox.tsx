@@ -3,7 +3,7 @@
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useMemo, useState } from "react"
 import { Text } from "react-native-paper"
-import { View, StyleSheet, Dimensions, TouchableWithoutFeedback } from "react-native"
+import { View, StyleSheet, Dimensions, TouchableWithoutFeedback, Pressable } from "react-native"
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
 import { Ionicons } from "@expo/vector-icons"
 import IndividualTask from "./IndividualTask"
@@ -60,7 +60,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 	return (
 		<TouchableWithoutFeedback onPress={() => {}}>
 			<View style={styles.mainContainer}>
-				<TouchableOpacity
+				<Pressable
 					onPress={() => onCreateTask()}
 					style={[
 						styles.createTaskBtn,
@@ -71,10 +71,9 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 					<Text style={[styles.createTaskTxt, { color: colors.secondary }]}>
 						{translate("myWorkScreen.tabCreateTask")}
 					</Text>
-				</TouchableOpacity>
+				</Pressable>
 				<View style={styles.filterSection}>
-					<TouchableOpacity
-						activeOpacity={0.7}
+					<Pressable
 						onPress={() => {
 							setOpenFilter(true)
 							setCloseFilter(false)
@@ -90,9 +89,8 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 							openTask
 							selected={openFilter}
 						/>
-					</TouchableOpacity>
-					<TouchableOpacity
-						activeOpacity={0.7}
+					</Pressable>
+					<Pressable
 						onPress={() => {
 							setOpenFilter(false)
 							setCloseFilter(true)
@@ -108,7 +106,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 							openTask={false}
 							selected={closeFilter}
 						/>
-					</TouchableOpacity>
+					</Pressable>
 				</View>
 
 				<ScrollView style={{ maxHeight: 350 }}>
