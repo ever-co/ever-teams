@@ -89,7 +89,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 
 		if (responseTask) {
 			const taskStatistics =
-				tasksStatisticsState.all.find((statistics) => statistics.id === responseTask.id) || []
+				tasksStatisticsState?.all.find((statistics) => statistics.id === responseTask.id) || []
 			responseTask.totalWorkedTime = taskStatistics?.duration || 0
 		}
 

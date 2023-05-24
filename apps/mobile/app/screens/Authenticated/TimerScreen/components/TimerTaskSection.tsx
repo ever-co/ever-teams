@@ -6,10 +6,10 @@ import {
 	StyleSheet,
 	TextInput,
 	Text,
-	TouchableOpacity,
 	ViewStyle,
 	TouchableWithoutFeedback,
 	Dimensions,
+	Pressable,
 } from "react-native"
 import { ActivityIndicator } from "react-native-paper"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
@@ -84,9 +84,9 @@ const TimerTaskSection = observer(() => {
 						onChangeText={(newText) => handleChangeText(newText)}
 					/>
 					{showCheckIcon && (
-						<TouchableOpacity onPress={() => onCreateNewTask()}>
+						<Pressable onPress={() => onCreateNewTask()}>
 							<Feather name="check" size={24} color="green" />
-						</TouchableOpacity>
+						</Pressable>
 					)}
 					{isLoading ? <ActivityIndicator color={colors.primary} style={styles.loading} /> : null}
 				</View>

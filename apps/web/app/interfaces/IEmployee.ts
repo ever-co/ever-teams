@@ -68,3 +68,20 @@ export interface IRole {
 	name: string;
 	isSystem: boolean;
 }
+
+export type IWorkingEmployee = Pick<
+	IEmployee,
+	| 'id'
+	| 'isActive'
+	| 'short_description'
+	| 'description'
+	| 'startedWorkOn'
+	| 'billRateValue'
+	| 'billRateCurrency'
+	| 'averageIncome'
+	| 'averageBonus'
+	| 'averageExpenses'
+	| 'isTrackingEnabled'
+	| 'user'
+	| 'fullName'
+>;
