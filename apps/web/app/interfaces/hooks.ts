@@ -112,3 +112,8 @@ export interface IClassName {
 }
 
 export type Nullable<T> = T | null | undefined;
+
+export interface IInviteEmail {
+	title: string;
+	name: string;
+}
