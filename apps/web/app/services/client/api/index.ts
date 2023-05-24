@@ -15,3 +15,4 @@ export * from './issue-type';
 
 export * from './user';
 export * from './request-to-join-team';
+export * from './employee';

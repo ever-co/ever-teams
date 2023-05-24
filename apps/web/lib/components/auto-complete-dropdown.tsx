@@ -1,12 +1,15 @@
 import React, {
 	Dispatch,
+	KeyboardEvent,
 	PropsWithChildren,
 	SetStateAction,
+	useCallback,
 	useState,
 } from 'react';
 import { Transition, Combobox } from '@headlessui/react';
 import { clsxm } from '@app/utils';
 import { Card } from './card';
+import { Text } from './typography';
 
 type DropdownItem<D = { [x: string]: any }> = {
 	key: React.Key;
@@ -29,6 +32,8 @@ type Props<T extends DropdownItem> = {
 	placeholder?: string;
 	handleAddNew?: any;
 	disabled?: boolean;
+	error?: string;
+	useHandleKeyUp?: boolean;
 } & PropsWithChildren;
 
 export function AutoCompleteDropdown<T extends DropdownItem>({
@@ -42,16 +47,28 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	placeholder,
 	handleAddNew,
 	disabled = false,
+	error = '',
+	useHandleKeyUp = false,
 }: Props<T>) {
 	const [query, setQuery] = useState('');
 	const filteredItem =
+		/* eslint-disable no-mixed-spaces-and-tabs */
 		query === ''
 			? items
 			: items.filter((item) => {
-				return `${item?.data?.title || ''}`
-					.toLowerCase()
-					.includes(query.toLowerCase());
-			});
+					return `${item?.data?.title || ''}`
+						.toLowerCase()
+						.includes(query.toLowerCase());
+			  });
+
+	const handleKeyUp = useCallback(
+		(event: KeyboardEvent<HTMLElement>) => {
+			if (event.key === 'Enter' && handleAddNew && useHandleKeyUp) {
+				handleAddNew(query);
+			}
+		},
+		[query, handleAddNew, useHandleKeyUp]
+	);
 
 	return (
 		<div className={clsxm('relative', className)}>
@@ -62,10 +79,12 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					className={clsxm(
 						'input-border',
 						'w-full flex justify-between rounded-[10px] px-3 py-2 text-sm items-center bg-transparent',
-						'font-normal',
+						'font-normal ',
 						buttonClassName
 					)}
 					displayValue={(item: T) => item?.data?.title}
+					autoFocus
+					onKeyUp={handleKeyUp}
 				/>
 
 				<Transition
@@ -98,9 +117,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 									}}
 									className="font-medium cursor-pointer mb-3"
 								>
-									<div className="flex justify-between">
-										{`Create new "${query}"`}
-									</div>
+									<div className="flex justify-between">{`${query}`}</div>
 								</Combobox.Option>
 							)}
 							{filteredItem.map((Item, index) => (
@@ -125,6 +142,11 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					</Combobox.Options>
 				</Transition>
 			</Combobox>
+			{error && (
+				<Text.Error className="self-start justify-self-start">
+					{error}
+				</Text.Error>
+			)}
 		</div>
 	);
 }
