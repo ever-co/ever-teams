@@ -56,6 +56,8 @@ const useFetchUserOrganization = (IGetUserOrganizationParams) =>
 		() => fetchUserOrganization(IGetUserOrganizationParams),
 		{
 			refetchInterval: 5000,
+			notifyOnChangeProps: ["data", "isSuccess"],
+			notifyOnChangePropsExclusions: ["isFetching"],
 		},
 	)
 export default useFetchUserOrganization

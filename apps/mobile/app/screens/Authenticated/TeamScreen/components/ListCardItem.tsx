@@ -39,11 +39,6 @@ export type ListItemProps = {
 	member: OT_Member
 }
 
-interface IUserStatus {
-	icon: any
-	color: string
-}
-
 interface IcontentProps {
 	memberInfo: I_TeamMemberCardHook
 	taskEdition: I_TMCardTaskEditHook
@@ -69,7 +64,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 					]}
 				>
 					<View style={styles.firstContainer}>
-						<UserHeaderCard user={memberInfo.memberUser} />
+						<UserHeaderCard user={memberInfo.memberUser} member={memberInfo.member} />
 						<View style={styles.wrapTotalTime}>
 							<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
 						</View>
@@ -150,7 +145,13 @@ const ListCardItem: React.FC<Props> = (props) => {
 				...$listCard,
 				...GS.mt5,
 				paddingTop: 4,
-				backgroundColor: "#27AE60",
+				backgroundColor: !props.member?.employee?.isActive
+					? "suspended"
+					: props.member?.employee?.isOnline || props.member?.timerStatus === "running"
+					? "#9FDAB7"
+					: !props.member?.totalTodayTasks?.length
+					? "#F1A2A2"
+					: "#EBC386",
 			}}
 			HeadingComponent={
 				<View
@@ -314,24 +315,3 @@ const styles = StyleSheet.create({
 		right: 0,
 	},
 })
-
-const getStatusImage = (status: string) => {
-	let res: IUserStatus
-	if (status === "online") {
-		res = {
-			icon: require("../../../../../assets/icons/new/play-small.png"),
-			color: "#88D1A5",
-		}
-	} else if (status === "pause") {
-		res = {
-			icon: require("../../../../../assets/icons/new/on-pause.png"),
-			color: "#EBC386",
-		}
-	} else {
-		res = {
-			icon: require("../../../../../assets/icons/new/away.png"),
-			color: "#F1A2A2",
-		}
-	}
-	return res
-}
