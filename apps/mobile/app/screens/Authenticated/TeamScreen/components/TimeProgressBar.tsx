@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { observer } from "mobx-react-lite"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useMemo } from "react"
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import { secondsToTime } from "../../../../helpers/date"
@@ -21,28 +21,21 @@ export const TimeProgressBar: FC<IProps> = observer(({ memberInfo, isAuthUser, o
 	const { colors } = useAppTheme()
 
 	const {
-		TimerStore: { timeCounterState },
+		TimerStore: { timerStatus },
+		TaskStore: { activeTask },
 	} = useStores()
 
-	const { getTaskStat } = useTaskStatistics()
+	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics()
 	const { taskTotalStat } = getTaskStat(memberInfo.memberTask)
-	const { h: estimatedHours } = secondsToTime(memberInfo.memberTask?.estimate || 0)
+	const { h, m } = secondsToTime(memberInfo.memberTask?.estimate || 0)
 
-	const [progress, setProgress] = useState(0)
-
-	const getProgress = () => {
+	const progress = useMemo(() => {
 		if (!isAuthUser) {
-			setProgress((taskTotalStat?.duration * 100) / memberInfo.memberTask?.estimate)
+			return (taskTotalStat?.duration * 100) / memberInfo.memberTask?.estimate
 		}
-		const counterInSeconds = timeCounterState / 1000
-		const sum = taskTotalStat?.duration + counterInSeconds
 
-		setProgress((sum * 100) / memberInfo.memberTask?.estimate)
-	}
-
-	useEffect(() => {
-		getProgress()
-	}, [timeCounterState, taskTotalStat?.duration])
+		return (activeTaskTotalStat?.duration * 100) / memberInfo.memberTask?.estimate || 0
+	}, [timerStatus, activeTask?.id, activeTaskTotalStat])
 
 	return (
 		<View style={{}}>
@@ -51,11 +44,14 @@ export const TimeProgressBar: FC<IProps> = observer(({ memberInfo, isAuthUser, o
 					size={48}
 					width={5}
 					fill={progress}
+					prefill={0}
 					tintColor="#27AE60"
 					backgroundColor="#F0F0F0"
 				>
 					{() => (
-						<Text style={{ ...styles.progessText, color: colors.primary }}>{estimatedHours}H</Text>
+						<Text style={{ ...styles.progessText, color: colors.primary }}>
+							{h !== 0 ? h + "h" : m !== 0 ? m + "m" : h + "h"}
+						</Text>
 					)}
 				</AnimatedCircularProgress>
 			</TouchableOpacity>

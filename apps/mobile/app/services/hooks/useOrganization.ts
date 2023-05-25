@@ -80,10 +80,8 @@ export function useOrganizationTeam() {
 
 	const {
 		data: organizationTeams,
-		isLoading,
 		isSuccess,
 		refetch,
-		isRefetching,
 	} = useFetchUserOrganization({
 		tenantId,
 		authToken,
@@ -313,7 +311,7 @@ export function useOrganizationTeam() {
 		}
 		isManager()
 		setIsTrackingEnabled(currentUser?.isTrackingEnabled)
-	}, [isRefetching, isLoading])
+	}, [organizationTeams, isSuccess])
 
 	return {
 		removeUserFromAllTeams,
