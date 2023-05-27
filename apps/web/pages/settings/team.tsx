@@ -22,6 +22,10 @@ import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import Link from 'next/link';
 import { ArrowLeft } from 'lib/components/svgs';
+import { NotificationSettings } from 'lib/settings/notification-setting';
+import { IssuesSettings } from 'lib/settings/issues-settings';
+import { InvitationSetting } from 'lib/settings/invitation-setting';
+import { MemberSetting } from 'lib/settings/member-setting';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
@@ -70,6 +74,25 @@ const Team = () => {
 									</Card>
 
 									<Card
+										className="dark:bg-dark--theme p-[32px] mt-[36px]"
+										shadow="bigger"
+									>
+										<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+											{trans.INVITATION_HEADING_TITLE}
+										</Text>
+										<InvitationSetting />
+									</Card>
+									<Card
+										className="dark:bg-dark--theme p-[32px] mt-[36px]"
+										shadow="bigger"
+									>
+										<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+											{trans.MEMBER_HEADING_TITLE}
+										</Text>
+										<MemberSetting />
+									</Card>
+
+									<Card
 										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
 										shadow="bigger"
 									>
@@ -101,22 +124,24 @@ const Team = () => {
 										<TaskLabelForm />
 									</Card>
 
-									{/*
-								Note: DO NOT REMOVE
-								Settings v2
-								*/}
-									{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
-									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
-										{trans.NOTIFICATION_HEADING_TITLE}
-									</Text>
-									<NotificationSettings />
-								</Card> */}
-									{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
-									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
-										{trans.ISSUE_HEADING_TITLE}
-									</Text>
-									<IssuesSettings />
-								</Card> */}
+									<Card
+										className="dark:bg-dark--theme mt-[36px]"
+										shadow="bigger"
+									>
+										<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+											{trans.NOTIFICATION_HEADING_TITLE}
+										</Text>
+										<NotificationSettings />
+									</Card>
+									<Card
+										className="dark:bg-dark--theme mt-[36px]"
+										shadow="bigger"
+									>
+										<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+											{trans.ISSUE_HEADING_TITLE}
+										</Text>
+										<IssuesSettings />
+									</Card>
 
 									<Card
 										className="dark:bg-dark--theme p-[32px] mt-[36px]"
