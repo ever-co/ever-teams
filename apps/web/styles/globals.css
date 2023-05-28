@@ -160,7 +160,3 @@ html.dark {
 	font-family: 'Plus-Jakarta-Sans-SemiBold';
 	src: url('../public/assets/fonts/PlusJakartaSans-SemiBold.ttf');
 }
-
-.react-colorful {
-	z-index: 100;
-}
