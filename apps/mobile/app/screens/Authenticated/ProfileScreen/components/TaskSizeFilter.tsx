@@ -1,152 +1,207 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC, useEffect, useState } from "react"
 import {
 	TouchableOpacity,
 	View,
 	Text,
 	StyleSheet,
 	ViewStyle,
-	TextStyle,
 	ScrollView,
 	Dimensions,
+	Animated,
+	Modal,
+	TouchableWithoutFeedback,
 } from "react-native"
-import { LinearGradient } from "expo-linear-gradient"
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons"
-import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
 import { typography, useAppTheme } from "../../../../theme"
-import { useStores } from "../../../../models"
-import { BadgedTaskSize } from "../../../../components/SizeIcon"
+import { useTaskSizeValue } from "../../../../components/StatusType"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useTaskSizes } from "../../../../services/hooks/features/useTaskSizes"
 import { ITaskSizeItem } from "../../../../services/interfaces/ITaskSize"
 
 interface TaskSizeFilterProps {
-	containerStyle?: ViewStyle
-	statusTextSyle?: TextStyle
-	dropdownContainerStyle?: ViewStyle
 	showSizePopup: boolean
 	setShowSizePopup: (value: boolean) => unknown
+	taskFilter: ITaskFilter
 }
 
-const { width, height } = Dimensions.get("window")
+const { height } = Dimensions.get("window")
 
-const TaskSizeFilter: FC<TaskSizeFilterProps> = observer(
-	({ containerStyle, dropdownContainerStyle, setShowSizePopup, showSizePopup }) => {
-		const {
-			TaskStore: { filter },
-		} = useStores()
-		const { colors, dark } = useAppTheme()
+const TaskStatusFilter: FC<TaskSizeFilterProps> = observer(
+	({ setShowSizePopup, showSizePopup, taskFilter }) => {
+		const { colors } = useAppTheme()
+		const [selectedSizes, setSelectedSizes] = useState<string[]>([])
 
-		const sizes = filter.sizes
-
-		if (dark) {
-			return (
-				<>
-					<TouchableOpacity onPress={() => setShowSizePopup(!showSizePopup)}>
-						<LinearGradient
-							colors={["#E6BF93", "#D87555"]}
-							end={{ y: 0.5, x: 1 }}
-							start={{ y: 1, x: 0 }}
-							style={{ ...styles.container, ...containerStyle, backgroundColor: "#F2F2F2" }}
-						>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<Text style={{ marginRight: 10 }}>Sizes</Text>
-								{sizes.length === 0 ? null : (
-									<FontAwesome name="circle" size={24} color="#3826A6" />
-								)}
-							</View>
-							<AntDesign name="down" size={14} color={colors.primary} />
-						</LinearGradient>
-					</TouchableOpacity>
-					{showSizePopup && <TaskSizeFilterDropDown dropdownContainer={dropdownContainerStyle} />}
-				</>
-			)
-		}
-
+		useEffect(() => {
+			taskFilter.onChangeStatusFilter("size", selectedSizes)
+			taskFilter.applyStatusFilter()
+		}, [selectedSizes])
 		return (
 			<>
 				<TouchableOpacity onPress={() => setShowSizePopup(!showSizePopup)}>
-					<View style={{ ...styles.container, ...containerStyle }}>
+					<View style={{ ...styles.container, borderColor: colors.divider }}>
 						<View style={{ flexDirection: "row", alignItems: "center" }}>
-							<Text style={{ marginRight: 10 }}>Sizes</Text>
-							{sizes.length === 0 ? null : <FontAwesome name="circle" size={24} color="#3826A6" />}
+							<Text style={{ marginRight: 10, color: colors.primary }}>Sizes</Text>
+							{selectedSizes.length === 0 ? null : (
+								<FontAwesome name="circle" size={24} color={colors.secondary} />
+							)}
 						</View>
 						<AntDesign name="down" size={14} color={colors.primary} />
 					</View>
 				</TouchableOpacity>
-				{showSizePopup && <TaskSizeFilterDropDown dropdownContainer={dropdownContainerStyle} />}
+				<TaskStatusFilterDropDown
+					visible={showSizePopup}
+					onDismiss={() => setShowSizePopup(false)}
+					selectedSizes={selectedSizes}
+					setSelectedSizes={setSelectedSizes}
+				/>
 			</>
 		)
 	},
 )
 
 interface DropDownProps {
-	dropdownContainer?: ViewStyle
+	visible: boolean
+	onDismiss: () => unknown
+	selectedSizes: string[]
+	setSelectedSizes: (s: string[]) => unknown
 }
 
-const TaskSizeFilterDropDown: FC<DropDownProps> = observer(({ dropdownContainer }) => {
-	const { colors, dark } = useAppTheme()
-	const { allTaskSizes } = useTaskSizes()
+const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
+	({ visible, onDismiss, setSelectedSizes, selectedSizes }) => {
+		const { colors, dark } = useAppTheme()
+		const { allTaskSizes } = useTaskSizes()
 
-	return (
-		<View
-			style={[
-				styles.dropdownContainer,
-				dropdownContainer,
-				{
-					backgroundColor: colors.background,
-					shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
-				},
-			]}
-		>
-			<View style={styles.secondContainer}>
-				<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Sizes</Text>
-				<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
-					{allTaskSizes.map((item, idx) => (
-						<DropDownItem size={item} key={idx} />
-					))}
-				</ScrollView>
-			</View>
-		</View>
-	)
-})
+		return (
+			<ModalPopUp visible={visible} onDismiss={onDismiss}>
+				<TouchableWithoutFeedback>
+					<View
+						style={[
+							styles.dropdownContainer,
+							{
+								backgroundColor: colors.background,
+								shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
+							},
+						]}
+					>
+						<View style={styles.secondContainer}>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
+								{allTaskSizes.map((item, idx) => (
+									<DropDownItem
+										selectedSizes={selectedSizes}
+										setSelectedSizes={setSelectedSizes}
+										size={item}
+										key={idx}
+									/>
+								))}
+							</ScrollView>
+						</View>
+					</View>
+				</TouchableWithoutFeedback>
+			</ModalPopUp>
+		)
+	},
+)
 
-const DropDownItem = observer(({ size }: { size: ITaskSizeItem }) => {
-	const {
-		TaskStore: { filter, setFilter },
-	} = useStores()
-	const sizes = filter.sizes
-	const exist = sizes.find((s) => s === size)
+const DropDownItem = observer(
+	({
+		size,
+		selectedSizes,
+		setSelectedSizes,
+	}: {
+		size: ITaskSizeItem
+		selectedSizes: string[]
+		setSelectedSizes: (s: string[]) => unknown
+	}) => {
+		const allTaskSizes = useTaskSizeValue()
+		const sizeItem = allTaskSizes[size.name.split("-").join(" ")]
+		const { dark } = useAppTheme()
 
-	const onSelectedStatus = () => {
-		if (exist) {
-			const newStatuses = sizes.filter((s) => s !== size)
-			setFilter({
-				...filter,
-				sizes: newStatuses,
-			})
+		const exist = selectedSizes.find((s) => s === sizeItem?.name)
+
+		const onSelectedSize = () => {
+			if (exist) {
+				const newStatuses = selectedSizes.filter((s) => s !== sizeItem.name)
+				setSelectedSizes([...newStatuses])
+			} else {
+				setSelectedSizes([...selectedSizes, sizeItem.name])
+			}
+		}
+
+		return (
+			<TouchableOpacity
+				style={{ ...styles.itemContainer, backgroundColor: dark && "#2E3138" }}
+				onPress={() => onSelectedSize()}
+			>
+				<View style={{ ...styles.dropdownItem, backgroundColor: sizeItem?.bgColor }}>
+					{sizeItem?.icon}
+					<Text style={styles.itemText}>
+						{limitTextCharaters({ text: sizeItem?.name, numChars: 17 })}
+					</Text>
+				</View>
+				{exist ? (
+					<AntDesign name="checkcircle" size={24} color="#27AE60" />
+				) : (
+					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
+				)}
+			</TouchableOpacity>
+		)
+	},
+)
+
+const ModalPopUp = ({ visible, children, onDismiss }) => {
+	const [showModal, setShowModal] = React.useState(visible)
+	const scaleValue = React.useRef(new Animated.Value(0)).current
+
+	React.useEffect(() => {
+		toggleModal()
+	}, [visible])
+	const toggleModal = () => {
+		if (visible) {
+			setShowModal(true)
+			Animated.spring(scaleValue, {
+				toValue: 1,
+				useNativeDriver: true,
+			}).start()
 		} else {
-			setFilter({
-				...filter,
-				sizes: [...sizes, size],
-			})
+			setTimeout(() => setShowModal(false), 200)
+			Animated.timing(scaleValue, {
+				toValue: 0,
+				duration: 300,
+				useNativeDriver: true,
+			}).start()
 		}
 	}
-
 	return (
-		<TouchableOpacity style={styles.itemContainer} onPress={() => onSelectedStatus()}>
-			<View style={styles.dropdownItem}>
-				<BadgedTaskSize TextSize={14} iconSize={14} status={size.name} />
-			</View>
-			{exist ? (
-				<AntDesign name="checkcircle" size={24} color="#27AE60" />
-			) : (
-				<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
-			)}
-		</TouchableOpacity>
+		<Modal animationType="fade" transparent visible={showModal}>
+			<TouchableWithoutFeedback onPress={() => onDismiss()}>
+				<View style={$modalBackGround}>
+					<Animated.View
+						style={{
+							transform: [{ scale: scaleValue }],
+							flex: 1,
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						{children}
+					</Animated.View>
+				</View>
+			</TouchableWithoutFeedback>
+		</Modal>
 	)
-})
+}
+
+const $modalBackGround: ViewStyle = {
+	flex: 1,
+	backgroundColor: "#000000AA",
+	justifyContent: "flex-end",
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -155,19 +210,20 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		borderWidth: 1,
 		flexDirection: "row",
+		height: 57,
 		justifyContent: "space-between",
 		minHeight: 30,
 		minWidth: 100,
-		paddingHorizontal: 8,
+		paddingHorizontal: 16,
+		paddingVertical: 10,
+		width: 176,
+		zIndex: 1000,
 	},
 	dropdownContainer: {
 		borderRadius: 20,
-		left: -(height / 67),
 		minHeight: height / 2.3,
-		minWidth: width - 18,
-		position: "absolute",
-		top: 47,
-		zIndex: 100,
+		width: "95%",
+		zIndex: 1001,
 		...GS.noBorder,
 		borderWidth: 1,
 		elevation: 10,
@@ -181,11 +237,7 @@ const styles = StyleSheet.create({
 		elevation: 10,
 		flexDirection: "row",
 		height: 44,
-		paddingHorizontal: 8,
-		shadowColor: "rgba(0,0,0,0.1)",
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 1,
-		shadowRadius: 1,
+		paddingHorizontal: 16,
 		width: "60%",
 	},
 	dropdownTitle: {
@@ -207,9 +259,14 @@ const styles = StyleSheet.create({
 		paddingRight: 18,
 		width: "100%",
 	},
+	itemText: {
+		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 14,
+		marginLeft: 10,
+	},
 	secondContainer: {
 		marginVertical: 16,
 	},
 })
 
-export default TaskSizeFilter
+export default TaskStatusFilter
