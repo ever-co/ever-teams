@@ -1,4 +1,4 @@
-import { Button, InputField, Text, Tooltip } from 'lib/components';
+import { Button, ColorPicker, InputField, Text, Tooltip } from 'lib/components';
 import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { userState } from '@app/stores';
@@ -8,6 +8,7 @@ import { useTranslation } from 'lib/i18n';
 import TimeTrackingToggle from 'lib/components/switch';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import isEqual from 'lodash/isEqual';
+import TeamSize from './team-size-popover';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -98,7 +99,7 @@ export const TeamSettingForm = () => {
 	return (
 		<>
 			<form
-				className="w-[98%] md:w-[930px]"
+				className="w-[98%] md:w-[930px] mt-8"
 				onSubmit={handleSubmit(onSubmit)}
 				autoComplete="off"
 			>
@@ -132,13 +133,44 @@ export const TeamSettingForm = () => {
 									/>
 								</div>
 							</div>
+							<div className="flex w-full items-center justify-between gap-12">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+									{trans.TEAM_COLOR}
+								</Text>
+								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+									<ColorPicker
+										defaultColor={undefined}
+										onChange={(color) => {
+											// TODO handle API
+											console.log(color);
+											// setValue('color', color)
+										}}
+									/>
+								</div>
+							</div>
+							<div className="flex w-full items-center justify-between gap-12">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+									{trans.EMOJI}
+								</Text>
+								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+									{/* TODO Emoji Picker */}-
+								</div>
+							</div>
+							<div className="flex w-full items-center justify-between gap-12">
+								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+									{trans.TEAM_SIZE}
+								</Text>
+								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+									<TeamSize />
+								</div>
+							</div>
 							<div className="flex w-full items-center sm:gap-12 mt-8 flex-col sm:flex-row">
 								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_TYPE}
 								</Text>
 								<div className="flex gap-x-[30px] flex-col sm:flex-row ">
 									<div className="items-center w-full flex justify-between sm:block">
-										<div>
+										<div className="mb-7">
 											<input
 												id="team-type-radio-public"
 												{...register('teamType', {
@@ -209,7 +241,7 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{isTeamManager ? (
-								<div className="flex w-full items-center justify-between gap-12">
+								<div className="flex w-full items-center justify-between gap-12 mt-8">
 									<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 sm:w-1/5">
 										{trans.TIME_TRACKING}
 									</Text>

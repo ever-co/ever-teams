@@ -1,8 +1,7 @@
-import { Button, InputField, Text } from 'lib/components';
+import { Button, InputField } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { FilterDropdown } from './filter-by-dropdown';
-import { MemberTable } from './member-table';
 import { SortDropdown } from './sort-by-dropdown';
 import { InvitationTable } from './invitation-table';
 

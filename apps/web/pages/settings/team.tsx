@@ -63,12 +63,12 @@ const Team = () => {
 										className="dark:bg-dark--theme p-[32px] mt-[36px]"
 										shadow="bigger"
 									>
-										<Text className="text-4xl font-medium mb-2 text-center sm:text-left">
+										<Text className="text-3xl font-medium mb-2 text-center sm:text-left">
 											{trans.HEADING_TITLE}
 										</Text>
-										<Text className="text-base font-normal text-gray-400 text-center sm:text-left">
+										{/* <Text className="text-base font-normal text-gray-400 text-center sm:text-left">
 											{translations.pages.settings.HEADING_DESCRIPTION}
-										</Text>
+										</Text> */}
 										<TeamAvatar disabled={!isTeamManager} />
 										<TeamSettingForm />
 									</Card>

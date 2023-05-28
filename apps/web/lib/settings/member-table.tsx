@@ -16,13 +16,13 @@ export const MemberTable = () => {
 								Name
 							</th>
 							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
-								Tittle
+								Title
 							</th>
 							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
 								Roles
 							</th>
 							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
-								oined / Left
+								Joined / Left
 							</th>
 							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
 								Status

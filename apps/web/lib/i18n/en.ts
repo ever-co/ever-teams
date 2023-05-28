@@ -145,7 +145,7 @@ export const en = {
 			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?',
 		},
 		settingsTeam: {
-			HEADING_TITLE: 'Team Settings',
+			HEADING_TITLE: 'General Settings',
 			MEMBER_HEADING_TITLE: 'Members',
 			TEAM_NAME: 'Team Name',
 			TEAM_TYPE: 'Team Type',
@@ -212,6 +212,9 @@ export const en = {
 			FINAL: 'Final',
 			DISPOSE_TEAM: 'You are about to Dispose team ?',
 			QUIT_TEAM: 'You are about to Quit team ?',
+			TEAM_COLOR: 'Team Color',
+			TEAM_SIZE: 'Time Size',
+			EMOJI: 'Emoji',
 		},
 
 		invite: {
