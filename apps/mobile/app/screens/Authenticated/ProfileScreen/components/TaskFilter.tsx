@@ -21,7 +21,11 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 				visible={showModal}
 				onDismiss={() => setShowModal(false)}
 			/>
-			<FilterPopup visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
+			<FilterPopup
+				hook={hook}
+				visible={showFilterPopup}
+				onDismiss={() => setShowFilterPopup(false)}
+			/>
 			<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
 				<TouchableOpacity
 					onPress={() => setShowModal(true)}
