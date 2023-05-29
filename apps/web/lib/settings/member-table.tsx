@@ -1,8 +1,15 @@
-import Avtar from 'assets/Ellipse.svg';
 import { MenuIcon } from 'lib/components/svgs';
-import Image from 'next/image';
 import { PaginationDropdown } from './page-dropdown';
+import { useOrganizationTeams } from '@app/hooks';
+import moment from 'moment';
+import { Avatar } from 'lib/components';
+import { imgTitle } from '@app/helpers';
+import { clsxm } from '@app/utils';
+import stc from 'string-to-color';
+
 export const MemberTable = () => {
+	const { activeTeam } = useOrganizationTeams();
+
 	return (
 		<div>
 			<div className="overflow-x-auto  sm:rounded-lg">
@@ -31,190 +38,81 @@ export const MemberTable = () => {
 						</tr>
 					</thead>
 					<tbody>
-						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
-							<th
-								scope="row"
-								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-							>
-								<Image
-									className="w-7 h-7 rounded-full"
-									src={Avtar}
-									alt="Jese image"
-									width={10}
-									height={10}
-								/>
-								<div className="pl-3">
-									<div className="text-sm font-semibold text-[#282048]">
-										Alexandro Bernard
+						{activeTeam?.members.map((member) => (
+							<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
+								<th
+									scope="row"
+									className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+								>
+									{/* <Image
+										className="w-7 h-7 rounded-full"
+										src={Avtar}
+										alt="Jese image"
+										width={10}
+										height={10}
+									/> */}
+									{member.employee.user?.imageId ? (
+										<Avatar
+											size={20}
+											className="relative cursor-pointer"
+											imageUrl={
+												member.employee.user?.image?.thumbUrl ||
+												member.employee.user?.image?.fullUrl ||
+												member.employee.user?.imageUrl
+											}
+											alt="User Avatar"
+										/>
+									) : member.employee.user?.name ? (
+										<div
+											className={clsxm(
+												'w-[20px] h-[20px]',
+												'flex justify-center items-center',
+												'rounded-full text-xs text-default dark:text-white',
+												'shadow-md font-normal'
+											)}
+											style={{
+												backgroundColor: `${stc(
+													member.employee.user?.name || ''
+												)}80`,
+											}}
+										>
+											{imgTitle(member.employee.user?.name)}
+										</div>
+									) : (
+										''
+									)}
+									<div className="pl-3">
+										<div className="text-sm font-semibold text-[#282048]">
+											{member.employee.fullName}
+										</div>
 									</div>
-								</div>
-							</th>
-							<td className="text-sm font-semibold py-4">UI/UX Designer</td>
-							<td className="text-sm font-semibold py-4">Manager ( Admin)</td>
-							<td className="text-sm font-semibold py-4">
-								12 Feb 2020 12:00 pm
-							</td>
-							<td className="text-sm font-semibold py-4">
-								<div className="flex items-center bg-[#D4EFDF] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-									Member
-								</div>
-							</td>
-							<td className="py-4 flex justify-center items-center w-[50px]">
-								<MenuIcon />
-							</td>
-						</tr>
-						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
-							<th
-								scope="row"
-								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-							>
-								<Image
-									className="w-7 h-7 rounded-full"
-									src={Avtar}
-									alt="Jese image"
-									width={10}
-									height={10}
-								/>
-								<div className="pl-3">
-									<div className="text-sm font-semibold">Ryan Reynold</div>
-								</div>
-							</th>
-							<td className="text-sm font-semibold py-4">Engineer</td>
-							<td className="text-sm font-semibold py-4">Manager</td>
-							<td className="text-sm font-semibold py-4">
-								12 Feb 2020 12:00 pm
-							</td>
-							<td className="text-sm font-semibold py-4">
-								<div className="flex items-center bg-[#F5F1CB] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-									Pending
-								</div>
-							</td>
-							<td className="py-4 flex justify-center items-center w-[50px]">
-								<MenuIcon />
-							</td>
-						</tr>
-						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
-							<th
-								scope="row"
-								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-							>
-								<Image
-									className="w-7 h-7 rounded-full"
-									src={Avtar}
-									alt="Jese image"
-									width={10}
-									height={10}
-								/>
-								<div className="pl-3">
-									<div className="text-sm font-semibold">Austin Brows</div>
-								</div>
-							</th>
-							<td className="text-sm font-semibold py-4">
-								Front End Developer
-							</td>
-							<td className="text-sm font-semibold py-4">Member</td>
-							<td className="text-sm font-semibold py-4">
-								12 Feb 2020 12:00 pm
-							</td>
-							<td className="text-sm font-semibold py-4">
-								<div className="flex items-center bg-[#F5F1CB] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-									Pending
-								</div>
-							</td>
-							<td className="py-4 flex justify-center items-center w-[50px]">
-								<MenuIcon />
-							</td>
-						</tr>
-						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
-							<th
-								scope="row"
-								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-							>
-								<Image
-									className="w-7 h-7 rounded-full"
-									src={Avtar}
-									alt="Jese image"
-									width={10}
-									height={10}
-								/>
-								<div className="pl-3">
-									<div className="text-sm font-semibold">Levi Rainer</div>
-								</div>
-							</th>
-							<td className="text-sm font-semibold py-4">Back End Developer</td>
-							<td className="text-sm font-semibold py-4">Member</td>
-							<td className="text-sm font-semibold py-4">
-								12 Feb 2020 12:00 pm
-							</td>
-							<td className="text-sm font-semibold py-4">
-								<div className="flex items-center bg-[#D4EFDF] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-									Member
-								</div>
-							</td>
-							<td className="py-4 flex justify-center items-center w-[50px]">
-								<MenuIcon />
-							</td>
-						</tr>
-						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
-							<th
-								scope="row"
-								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-							>
-								<Image
-									className="w-7 h-7 rounded-full"
-									src={Avtar}
-									alt="Jese image"
-									width={10}
-									height={10}
-								/>
-								<div className="pl-3">
-									<div className="text-sm font-semibold">Downy Jhonson</div>
-								</div>
-							</th>
-							<td className="text-sm font-semibold py-4">Data Analyst</td>
-							<td className="text-sm font-semibold py-4">Member</td>
-							<td className="text-sm font-semibold py-4">
-								12 Feb 2020 12:00 pm
-							</td>
-							<td className="text-sm font-semibold py-4">
-								<div className="flex items-center bg-[#ECE8FC] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-									Left
-								</div>
-							</td>
-							<td className="py-4 flex justify-center items-center w-[50px]">
-								<MenuIcon />
-							</td>
-						</tr>
-						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
-							<th
-								scope="row"
-								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-							>
-								<Image
-									className="w-7 h-7 rounded-full"
-									src={Avtar}
-									alt="Jese image"
-									width={10}
-									height={10}
-								/>
-								<div className="pl-3">
-									<div className="text-sm font-semibold">Dany the rock</div>
-								</div>
-							</th>
-							<td className="text-sm font-semibold py-4">CTO</td>
-							<td className="text-sm font-semibold py-4">Viewer</td>
-							<td className="text-sm font-semibold py-4">
-								12 Feb 2020 12:00 pm
-							</td>
-							<td className="text-sm font-semibold py-4">
-								<div className="flex items-center bg-[#F5B8B8] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-									Suspended
-								</div>
-							</td>
-							<td className="py-4 flex justify-center items-center w-[50px]">
-								<MenuIcon />
-							</td>
-						</tr>
+								</th>
+								<td className="text-sm font-semibold py-4">
+									{/* TODO Position */}-
+								</td>
+								<td className="text-sm font-semibold py-4">
+									<span className="capitalize">
+										{member.role?.name || 'Member'}
+									</span>
+
+									{/* Manager ( Admin) */}
+								</td>
+								<td className="text-sm font-semibold py-4">
+									{/* 12 Feb 2020 12:00 pm */}
+									{moment(member.employee.createdAt).format(
+										'DD MMM YYYY hh:mm a'
+									)}
+								</td>
+								<td className="text-sm font-semibold py-4">
+									<div className="flex items-center bg-[#D4EFDF] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
+										Member
+									</div>
+								</td>
+								<td className="py-4 flex justify-center items-center w-[50px]">
+									<MenuIcon />
+								</td>
+							</tr>
+						))}
 					</tbody>
 				</table>
 			</div>

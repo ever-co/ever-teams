@@ -29,7 +29,7 @@ export const EmojiPicker = () => {
 					>
 						<div className="cursor-pointer relative w-[100%] h-[48px] bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border">
 							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
-								<div>
+								<div className="font-medium">
 									{value.native} {value.name}
 								</div>
 							</div>

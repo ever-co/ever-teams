@@ -65,7 +65,7 @@ export const InvitationExpireDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-[150px] max-w-sm"
+				className="min-w-[150px] max-w-sm z-50"
 				buttonClassName={clsxm(
 					'py-0 font-medium h-[54px] w-[150px]',
 					expireList.length === 0 && ['py-2']

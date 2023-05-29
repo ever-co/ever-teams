@@ -134,7 +134,7 @@ export const TeamSettingForm = () => {
 									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12">
+							<div className="flex w-full items-center justify-between gap-12 z-50">
 								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
 									{trans.TEAM_COLOR}
 								</Text>
@@ -146,6 +146,7 @@ export const TeamSettingForm = () => {
 											console.log(color);
 											// setValue('color', color)
 										}}
+										fullWidthInput
 									/>
 								</div>
 							</div>

@@ -38,11 +38,9 @@ const TeamSize = () => {
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
 					>
-						<div className="cursor-pointer relative w-[100%] h-[48px] bg-[#FCFCFC] border rounded-[10px] border-[#0000001A] flex items-center justify-between">
-							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
-								<div className="text-[16px] text-[#282048] font-[600]">
-									{value}
-								</div>
+						<div className="cursor-pointer relative w-[100%] h-[48px] bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border">
+							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
+								<div className="text-[16px] font-medium">{value}</div>
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
 								<Edit2Icon />
@@ -71,11 +69,11 @@ const TeamSize = () => {
 											return (
 												<div
 													key={index}
-													className="flex gap-[10px]  items-center pl-[15px]"
+													className="flex gap-[10px] items-center pl-[15px]"
 													style={{ gap: 15 }}
 													onClick={() => onSelect(size.name)}
 												>
-													<div className="text-[16px] text-[#282048] font-[600]">
+													<div className="text-[16px]  font-[600]">
 														{size.name}
 													</div>
 												</div>
@@ -88,7 +86,7 @@ const TeamSize = () => {
 									<div className="flex items-center space-x-2 justify-end">
 										<Button
 											variant="primary"
-											className="font-normal rounded-xl text-md  min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
+											className="font-normal rounded-xl text-md min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
 											type="submit"
 											style={{ background: '#E6E6E9' }}
 											onClick={Close}
@@ -105,7 +103,7 @@ const TeamSize = () => {
 										</Button>
 									</div>
 								</div>
-							</div>{' '}
+							</div>
 						</Popover.Panel>
 					</Transition>
 				</>
