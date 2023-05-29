@@ -1,4 +1,7 @@
+import Image from 'next/image';
+import Avtar from 'assets/Ellipse.svg';
 import { PaginationDropdown } from './page-dropdown';
+
 export const InvitationTable = () => {
 	return (
 		<div>
@@ -30,7 +33,44 @@ export const InvitationTable = () => {
 							<th scope="col" className="capitalize py-3 text-[#B1AEBC]"></th>
 						</tr>
 					</thead>
-					<tbody></tbody>
+					<tbody>
+						<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
+							<th
+								scope="row"
+								className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+							>
+								<Image
+									className="w-7 h-7 rounded-full"
+									src={Avtar}
+									alt="Jese image"
+									width={10}
+									height={10}
+								/>
+								<div className="pl-3">
+									<div className="text-sm font-semibold text-[#282048] dark:text-white">
+										Alexandro Bernard
+									</div>
+								</div>
+							</th>
+							<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+								UI/UX Designer
+							</td>
+							<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
+								12/2/2020 12:00 pm
+							</td>
+							<td className="text-xs font-semibold py-4 text-[#282048] dark:text-white">
+								curriculum vitae.pdf
+							</td>
+							<td className="text-xs font-semibold py-4 text-[#1A79D0] dark:text-white">
+								http:// www.borde..
+							</td>
+							<td className="text-xs font-semibold py-4 ">
+								<div className="flex text-[#5D846D] items-center bg-[#D4EFDF] justify-center rounded-full pl-5 pr-5 pt-1 pb-1 ">
+									Accepted
+								</div>
+							</td>
+						</tr>
+					</tbody>
 				</table>
 			</div>
 			<nav
@@ -41,7 +81,7 @@ export const InvitationTable = () => {
 					<li>
 						<a
 							href="#"
-							className="block rounded-[8px] px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white mr-1"
+							className="block w-10 h-10 rounded-[8px] flex justify-center items-center ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white mr-1"
 						>
 							<span className="sr-only">Previous</span>
 							<svg
@@ -103,7 +143,7 @@ export const InvitationTable = () => {
 					<li>
 						<a
 							href="#"
-							className="block px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-[8px]"
+							className="block leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-[8px] w-10 h-10 flex items-center justify-center"
 						>
 							<span className="sr-only">Next</span>
 							<svg

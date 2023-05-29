@@ -54,9 +54,9 @@ export const FilterDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-[150px] max-w-sm"
+				className="min-w-[120px] max-w-sm bg-[#FCFCFC]"
 				buttonClassName={clsxm(
-					'py-0 font-medium h-[54px] w-[150px]',
+					'py-0 font-medium h-[45px] w-[120px] text-[#B1AEBC]',
 					filterList.length === 0 && ['py-2']
 				)}
 				value={filterItem}

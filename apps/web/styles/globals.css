@@ -160,3 +160,13 @@ html.dark {
 	font-family: 'Plus-Jakarta-Sans-SemiBold';
 	src: url('../public/assets/fonts/PlusJakartaSans-SemiBold.ttf');
 }
+
+.search-class {
+	height: 100%;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	background: #fcfcfc;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}

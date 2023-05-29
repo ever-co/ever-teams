@@ -15,32 +15,32 @@ export const MemberSetting = () => {
 				{trans.MEMBER_AND_ROLES}
 			</Text>
 			<div className="flex items-center justify-between w-full mt-8">
-				<div className="w-[25%]">
+				<div className="w-auto">
 					<InputField
 						type="text"
 						placeholder={trans.SEARCH_MEMBER}
-						className=" mb-0"
+						className="mb-0 bg-[#FCFCFC] h-11"
 						leadingNode={
 							<Button
 								variant="ghost"
-								className="p-0 m-0 ml-[0.9rem] min-w-0"
+								className="p-0 m-0 ml-[0.9rem] min-w-0 bg-[#FCFCFC]"
 								type="submit"
 							>
-								<SearchNormalIcon className="w-[1rem]" />
+								<SearchNormalIcon className="w-[1rem] bg-[#FCFCFC]" />
 							</Button>
 						}
 					/>
 				</div>
-				<div className="flex items-center justify-between w-[50%] gap-x-[2%]">
-					<FilterDropdown setValue={() => console.log('filter')} />
+				<div className="flex items-center justify-between w-auto gap-4">
 					<SortDropdown setValue={() => console.log('sort')} />
+					<FilterDropdown setValue={() => console.log('filter')} />
 
 					<Button
 						variant="primary"
 						className="font-normal rounded-xl text-md  "
 						type="submit"
 					>
-						+ Invite
+						{'+ Invite'}
 					</Button>
 				</div>
 			</div>

@@ -77,7 +77,7 @@ const Team = () => {
 										className="dark:bg-dark--theme p-[32px] mt-[36px]"
 										shadow="bigger"
 									>
-										<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+										<Text className="text-3xl font-medium mb-2 h-[4.5rem]">
 											{trans.INVITATION_HEADING_TITLE}
 										</Text>
 										<InvitationSetting />
@@ -86,7 +86,7 @@ const Team = () => {
 										className="dark:bg-dark--theme p-[32px] mt-[36px]"
 										shadow="bigger"
 									>
-										<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
+										<Text className="text-3xl font-medium mb-2 h-[4.5rem]">
 											{trans.MEMBER_HEADING_TITLE}
 										</Text>
 										<MemberSetting />

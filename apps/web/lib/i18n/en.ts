@@ -213,7 +213,7 @@ export const en = {
 			DISPOSE_TEAM: 'You are about to Dispose team ?',
 			QUIT_TEAM: 'You are about to Quit team ?',
 			TEAM_COLOR: 'Team Color',
-			TEAM_SIZE: 'Time Size',
+			TEAM_SIZE: 'Team Size',
 			EMOJI: 'Emoji',
 		},
 

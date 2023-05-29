@@ -9,6 +9,7 @@ import TimeTrackingToggle from 'lib/components/switch';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import isEqual from 'lodash/isEqual';
 import TeamSize from './team-size-popover';
+import { EmojiPicker } from 'lib/components/emoji-picker';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -153,10 +154,10 @@ export const TeamSettingForm = () => {
 									{trans.EMOJI}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-									{/* TODO Emoji Picker */}-
+									<EmojiPicker />
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12">
+							<div className="flex w-full items-center justify-between gap-12  mt-3">
 								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
 									{trans.TEAM_SIZE}
 								</Text>
@@ -170,7 +171,7 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="flex gap-x-[30px] flex-col sm:flex-row ">
 									<div className="items-center w-full flex justify-between sm:block">
-										<div className="mb-7">
+										<div>
 											<input
 												id="team-type-radio-public"
 												{...register('teamType', {
