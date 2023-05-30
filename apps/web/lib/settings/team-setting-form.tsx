@@ -155,7 +155,7 @@ export const TeamSettingForm = () => {
 									{trans.EMOJI}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-									<EmojiPicker />
+									<EmojiPicker emoji={'😀'} />
 								</div>
 							</div>
 							<div className="flex w-full items-center justify-between gap-12  mt-3">

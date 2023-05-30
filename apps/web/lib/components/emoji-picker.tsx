@@ -1,23 +1,26 @@
 import data from '@emoji-mart/data';
-import { useTheme } from 'next-themes';
 import Picker from '@emoji-mart/react';
+import { getEmojiDataFromNative } from 'emoji-mart';
+import { useTheme } from 'next-themes';
 import { Popover, Transition } from '@headlessui/react';
-import { Fragment, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Edit2Icon, TrashIcon } from './svgs';
+import { init } from 'emoji-mart';
 
-export const EmojiPicker = () => {
+// init has to be called on page load to load the emojis, otherwise it won't show it in Picker
+init({ data });
+
+export const EmojiPicker = ({ emoji }: { emoji: string }) => {
 	const { theme } = useTheme();
 
-	const [value, setValue] = useState({
-		id: 'grinning',
-		name: 'Grinning Face',
-		native: '😀',
-		unified: '1f600',
-		keywords: ['smile', 'happy', 'joy', ':D', 'grin'],
-		shortcodes: ':grinning:',
-		emoticons: [':D'],
-	});
+	const [value, setValue] = useState();
 	const buttonRef = useRef<any>();
+
+	useEffect(() => {
+		getEmojiDataFromNative(emoji).then((item) => {
+			setValue(item);
+		});
+	}, [emoji]);
 
 	return (
 		<Popover className="relative border-none no-underline w-full mt-3">
@@ -30,7 +33,7 @@ export const EmojiPicker = () => {
 						<div className="cursor-pointer relative w-[100%] h-[48px] bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border">
 							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
 								<div className="font-medium">
-									{value.native} {value.name}
+									{value?.native} {value?.name}
 								</div>
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
@@ -52,6 +55,8 @@ export const EmojiPicker = () => {
 							<Picker
 								data={data}
 								onEmojiSelect={(emoji: any) => {
+									console.log(emoji);
+
 									setValue(emoji);
 								}}
 								theme={theme}
