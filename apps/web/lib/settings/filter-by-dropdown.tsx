@@ -10,7 +10,6 @@ import {
 
 import { IFilter } from '@app/interfaces/IFilter';
 import { clsxm } from '@app/utils';
-import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { FilterItem, mapFilterItems } from './filter-items';
 
 export const FilterDropdown = ({

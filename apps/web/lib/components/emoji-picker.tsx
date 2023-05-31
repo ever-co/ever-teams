@@ -13,7 +13,7 @@ init({ data });
 export const EmojiPicker = ({ emoji }: { emoji: string }) => {
 	const { theme } = useTheme();
 
-	const [value, setValue] = useState();
+	const [value, setValue] = useState<any>();
 	const buttonRef = useRef<any>();
 
 	useEffect(() => {

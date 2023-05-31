@@ -47,8 +47,11 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 						</tr>
 					</thead>
 					<tbody>
-						{currentItems.map((member) => (
-							<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
+						{currentItems.map((member, index) => (
+							<tr
+								className="bg-white  dark:bg-gray-800 dark:border-gray-700 "
+								key={index}
+							>
 								<th
 									scope="row"
 									className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"

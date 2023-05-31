@@ -2,7 +2,7 @@ import { PaginationDropdown } from 'lib/settings/page-dropdown';
 import { Dispatch, SetStateAction } from 'react';
 import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
 
-type Props<T> = {
+type Props = {
 	total: number;
 	itemsPerPage?: number;
 	itemOffset: number;
@@ -10,14 +10,14 @@ type Props<T> = {
 	setItemsPerPage: Dispatch<SetStateAction<number>>;
 } & ReactPaginateProps;
 
-export function Paginate<T>({
+export function Paginate({
 	total,
 	itemsPerPage = 10,
 	onPageChange,
 	itemOffset,
 	endOffset,
 	setItemsPerPage,
-}: Props<T>) {
+}: Props) {
 	const pageCount: number = Math.ceil(total / itemsPerPage);
 
 	return (
