@@ -1,21 +1,17 @@
 import { Button, InputField, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import { FilterDropdown } from './filter-by-dropdown';
-import { SortDropdown } from './sort-by-dropdown';
 import MemberInfo from 'lib/components/memberInfoToggle';
 import { InvitationExpireDropdown } from './invitation-expire-dropdown';
 import { MemberTable } from './member-table';
 import { useOrganizationTeams } from '@app/hooks';
 import { ChangeEvent, useState } from 'react';
-import moment from 'moment';
 
 export const MemberSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const { activeTeam } = useOrganizationTeams();
 	const [filterString, setFilterString] = useState<string>('');
-	const [filterBy, setFilterBy] = useState<string | undefined>('Name');
 
 	return (
 		<div className="flex flex-col ">
@@ -43,8 +39,9 @@ export const MemberSetting = () => {
 					/>
 				</div>
 				<div className="flex items-center justify-between w-auto gap-4">
-					<SortDropdown setValue={() => console.log('sort')} />
-					<FilterDropdown setValue={setFilterBy} />
+					{/* TODO: Will imlement Sort/FIlter logic in future */}
+					{/* <SortDropdown setValue={() => console.log('sort')} />
+					<FilterDropdown setValue={setFilterBy} /> */}
 
 					<Button
 						variant="primary"
@@ -60,18 +57,7 @@ export const MemberSetting = () => {
 				<MemberTable
 					members={
 						activeTeam?.members.filter((member) =>
-							!filterString
-								? true
-								: filterBy === 'Name'
-								? member.employee.fullName.toLowerCase().includes(filterString)
-								: filterBy === 'Roles'
-								? member.role?.name.toLowerCase().includes(filterString)
-								: filterBy === 'Joined/Left'
-								? moment(member.employee.createdAt)
-										.format('DD MMM YYYY hh:mm a')
-										.toLowerCase()
-										.includes(filterString)
-								: member.employee.fullName.toLowerCase().includes(filterString)
+							member.employee.fullName.toLowerCase().includes(filterString)
 						) || []
 					}
 				/>

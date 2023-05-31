@@ -1,7 +1,6 @@
 import { Button, InputField } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import { FilterDropdown } from './filter-by-dropdown';
 import { InvitationTable } from './invitation-table';
 
 export const InvitationSetting = () => {
@@ -26,7 +25,8 @@ export const InvitationSetting = () => {
 					/>
 				</div>
 				<div className="flex items-center justify-between w-auto gap-4">
-					<FilterDropdown setValue={() => console.log('filter')} />
+					{/* TODO: Will imlement Sort/FIlter logic in future */}
+					{/* <FilterDropdown setValue={() => console.log('filter')} /> */}
 					<Button
 						variant="primary"
 						className="font-normal rounded-xl text-md  h-[45px] min-w-[120px]"

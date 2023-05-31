@@ -11,12 +11,13 @@ import {
 import { IFilter } from '@app/interfaces/IFilter';
 import { clsxm } from '@app/utils';
 import { FilterItem, mapFilterItems } from './filter-items';
+import { MemberSettingfilterByType } from '@app/interfaces/IMemberSetting';
 
 export const FilterDropdown = ({
 	setValue,
 	active,
 }: {
-	setValue: Dispatch<SetStateAction<string | undefined>>;
+	setValue: Dispatch<SetStateAction<MemberSettingfilterByType>>;
 	active?: IFilter | null;
 }) => {
 	const [filterList, setFilter] = useState<IFilter[]>([
@@ -45,7 +46,7 @@ export const FilterDropdown = ({
 		(item: FilterItem) => {
 			if (item.data) {
 				setFilterItem(item);
-				setValue(item.data.title);
+				setValue(item.data.title as MemberSettingfilterByType);
 			}
 		},
 		[setFilterItem, setValue]
