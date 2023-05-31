@@ -1,5 +1,12 @@
 import { Dropdown } from 'lib/components';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	Dispatch,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 
 import { IFilter } from '@app/interfaces/IFilter';
 import { clsxm } from '@app/utils';
@@ -10,12 +17,24 @@ export const FilterDropdown = ({
 	setValue,
 	active,
 }: {
-	setValue: UseFormSetValue<FieldValues>;
+	setValue: Dispatch<SetStateAction<string | undefined>>;
 	active?: IFilter | null;
 }) => {
 	const [filterList, setFilter] = useState<IFilter[]>([
 		{
-			title: 'name',
+			title: 'Name',
+		},
+		{
+			title: 'Title',
+		},
+		{
+			title: 'Roles',
+		},
+		{
+			title: 'Joined/Left',
+		},
+		{
+			title: 'Status',
 		},
 	]);
 
@@ -27,7 +46,7 @@ export const FilterDropdown = ({
 		(item: FilterItem) => {
 			if (item.data) {
 				setFilterItem(item);
-				setValue('filter', item.data.title);
+				setValue(item.data.title);
 			}
 		},
 		[setFilterItem, setValue]

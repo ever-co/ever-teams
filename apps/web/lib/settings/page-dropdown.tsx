@@ -1,30 +1,39 @@
 import { Dropdown } from 'lib/components';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	Dispatch,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 
 import { IPagination } from '@app/interfaces/IPagination';
 import { clsxm } from '@app/utils';
-import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { PaginationItems, mappaginationItems } from './page-items';
 
 export const PaginationDropdown = ({
 	setValue,
 	active,
 }: {
-	setValue: UseFormSetValue<FieldValues>;
+	setValue: Dispatch<SetStateAction<number>>;
 	active?: IPagination | null;
 }) => {
 	const [paginationList, setPagination] = useState<IPagination[]>([
 		{
-			title: 'Show 20',
+			title: '10',
 		},
 		{
-			title: 'Show 30',
+			title: '20',
 		},
 		{
-			title: 'Show 40',
+			title: '30',
 		},
 		{
-			title: 'Show 50',
+			title: '40',
+		},
+		{
+			title: '50',
 		},
 	]);
 
@@ -40,7 +49,7 @@ export const PaginationDropdown = ({
 		(item: PaginationItems) => {
 			if (item.data) {
 				setPaginationItem(item);
-				setValue('pagination', item.data.title);
+				setValue(+item.data.title);
 			}
 		},
 		[setPaginationItem, setValue]

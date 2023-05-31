@@ -23,21 +23,6 @@ export function mappaginationItems(PaginationList: IPagination[]) {
 		};
 	});
 
-	if (items.length > 0) {
-		items.unshift({
-			key: 0,
-			Label: () => (
-				<div className="flex justify-between">
-					<PaginationItems
-						title={'Show 10'}
-						className="w-full cursor-default"
-					/>
-				</div>
-			),
-			disabled: true,
-		});
-	}
-
 	return items;
 }
 
@@ -55,7 +40,7 @@ export function PaginationItems({
 				className
 			)}
 		>
-			<span className={clsxm('text-normal mb-0')}>{title}</span>
+			<span className={clsxm('text-normal mb-0')}>Show {title}</span>
 		</div>
 	);
 }
