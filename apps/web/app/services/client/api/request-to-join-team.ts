@@ -5,6 +5,7 @@ import {
 	ISuccessResponse,
 	IValidateRequestToJoin,
 	CreateReponse,
+	PaginationResponse,
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -26,4 +27,8 @@ export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
 		'/organization-team-join/resend-code',
 		data
 	);
+}
+
+export function getRequestToJoinAPI() {
+	return api.get<PaginationResponse<IRequestToJoin>>('/organization-team-join');
 }

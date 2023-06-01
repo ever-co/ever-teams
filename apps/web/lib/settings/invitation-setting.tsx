@@ -1,17 +1,30 @@
-import { useAuthenticateUser, useModal, useTeamInvitations } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useModal,
+	useRequestToJoinTeam,
+	useTeamInvitations,
+} from '@app/hooks';
 import { Button, InputField } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { useTranslation } from 'lib/i18n';
+import { useEffect } from 'react';
 import { InvitationTable } from './invitation-table';
 
 export const InvitationSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const { teamInvitations } = useTeamInvitations();
+	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
 
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
+
+	useEffect(() => {
+		getRequestToJoin();
+	}, []);
+
+	const invitations = [...teamInvitations, ...requestToJoin];
 
 	return (
 		<div className="flex flex-col ">
@@ -46,7 +59,7 @@ export const InvitationSetting = () => {
 			</div>
 
 			<div className="mt-7 mb-[4rem]">
-				<InvitationTable invitations={teamInvitations} />
+				<InvitationTable invitations={invitations} />
 			</div>
 
 			<InviteFormModal

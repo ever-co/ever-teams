@@ -1,15 +1,15 @@
-import Image from 'next/image';
-import Avtar from 'assets/Ellipse.svg';
-import { PaginationDropdown } from './page-dropdown';
-import { IInvitation } from '@app/interfaces';
+import { IInvitation, IRequestToJoin } from '@app/interfaces';
 import moment from 'moment';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { Paginate } from 'lib/components/pagination';
+import { clsxm } from '@app/utils';
+import stc from 'string-to-color';
+import { imgTitle } from '@app/helpers';
 
 export const InvitationTable = ({
 	invitations,
 }: {
-	invitations: IInvitation[];
+	invitations: (IInvitation | IRequestToJoin)[];
 }) => {
 	const {
 		total,
@@ -19,7 +19,7 @@ export const InvitationTable = ({
 		endOffset,
 		setItemsPerPage,
 		currentItems,
-	} = usePagination<IInvitation>(invitations);
+	} = usePagination<IInvitation | IRequestToJoin>(invitations);
 
 	return (
 		<div>
@@ -58,13 +58,19 @@ export const InvitationTable = ({
 									scope="row"
 									className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
 								>
-									<Image
-										className="w-7 h-7 rounded-full"
-										src={Avtar}
-										alt="Jese image"
-										width={10}
-										height={10}
-									/>
+									<div
+										className={clsxm(
+											'w-[20px] h-[20px]',
+											'flex justify-center items-center',
+											'rounded-full text-xs text-default dark:text-white',
+											'shadow-md font-normal'
+										)}
+										style={{
+											backgroundColor: `${stc(invitation.fullName || '')}80`,
+										}}
+									>
+										{imgTitle(invitation.fullName)}
+									</div>
 									<div className="pl-3">
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">
 											{invitation.fullName}
