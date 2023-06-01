@@ -29,7 +29,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								scope="col"
 								className="pl-5 py-3 text-md font-semibold capitalize text-[#B1AEBC]"
 							>
-								Name
+								Name & Email
 							</th>
 							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
 								Title

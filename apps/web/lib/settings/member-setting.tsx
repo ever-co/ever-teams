@@ -4,14 +4,27 @@ import { useTranslation } from 'lib/i18n';
 import MemberInfo from 'lib/components/memberInfoToggle';
 import { InvitationExpireDropdown } from './invitation-expire-dropdown';
 import { MemberTable } from './member-table';
-import { useOrganizationTeams } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useModal,
+	useOrganizationTeams,
+} from '@app/hooks';
 import { ChangeEvent, useState } from 'react';
+import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 
 export const MemberSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const { activeTeam } = useOrganizationTeams();
 	const [filterString, setFilterString] = useState<string>('');
+
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+
+	const members =
+		activeTeam?.members.filter((member) =>
+			member.employee.fullName.toLowerCase().includes(filterString)
+		) || [];
 
 	return (
 		<div className="flex flex-col ">
@@ -46,7 +59,7 @@ export const MemberSetting = () => {
 					<Button
 						variant="primary"
 						className="font-normal rounded-xl text-md  "
-						type="submit"
+						onClick={openModal}
 					>
 						{'+ Invite'}
 					</Button>
@@ -54,13 +67,7 @@ export const MemberSetting = () => {
 			</div>
 
 			<div className="mt-7 mb-[4rem]">
-				<MemberTable
-					members={
-						activeTeam?.members.filter((member) =>
-							member.employee.fullName.toLowerCase().includes(filterString)
-						) || []
-					}
-				/>
+				<MemberTable members={members} />
 			</div>
 			<div className="flex w-full items-center justify-between gap-12">
 				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
@@ -83,6 +90,11 @@ export const MemberSetting = () => {
 					{trans.WORK_SCHEDULE}
 				</Text>
 			</div>
+
+			<InviteFormModal
+				open={isOpen && !!user?.isEmailVerified}
+				closeModal={closeModal}
+			/>
 		</div>
 	);
 };

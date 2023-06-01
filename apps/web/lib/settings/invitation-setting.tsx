@@ -1,10 +1,18 @@
+import { useAuthenticateUser, useModal, useTeamInvitations } from '@app/hooks';
 import { Button, InputField } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
+import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { useTranslation } from 'lib/i18n';
 import { InvitationTable } from './invitation-table';
 
 export const InvitationSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
+
+	const { teamInvitations } = useTeamInvitations();
+
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+
 	return (
 		<div className="flex flex-col ">
 			<div className="flex items-center justify-between w-full mt-8">
@@ -30,7 +38,7 @@ export const InvitationSetting = () => {
 					<Button
 						variant="primary"
 						className="font-normal rounded-xl text-md  h-[45px] min-w-[120px]"
-						type="submit"
+						onClick={openModal}
 					>
 						{'+  Invite'}
 					</Button>
@@ -38,8 +46,13 @@ export const InvitationSetting = () => {
 			</div>
 
 			<div className="mt-7 mb-[4rem]">
-				<InvitationTable />
+				<InvitationTable invitations={teamInvitations} />
 			</div>
+
+			<InviteFormModal
+				open={isOpen && !!user?.isEmailVerified}
+				closeModal={closeModal}
+			/>
 		</div>
 	);
 };
