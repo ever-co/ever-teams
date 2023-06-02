@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import {
 	View,
 	StyleSheet,
@@ -13,7 +13,6 @@ import {
 } from "react-native"
 import { ActivityIndicator } from "react-native-paper"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { useStores } from "../../../../models"
 import ComboBox from "./ComboBox"
 import EstimateTime from "./EstimateTime"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -23,145 +22,166 @@ import TaskLabel from "../../../../components/TaskLabel"
 import { typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
 import TaskStatus from "../../../../components/TaskStatus"
-import useTimerScreenLogic from "../logics/useTimerScreenLogic"
 import TimerCard from "../../../../components/TimerCard"
 import TaskSize from "../../../../components/TaskSize"
+import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
 
-const TimerTaskSection = observer(() => {
-	const {
-		TaskStore: { activeTask },
-		teamStore: { activeTeam },
-	} = useStores()
+const TimerTaskSection = observer(
+	({ taskInput, outsideClick }: { taskInput: RTuseTaskInput; outsideClick: () => unknown }) => {
+		const { colors } = useAppTheme()
+		const {
+			setEditMode,
+			setQuery,
+			activeTask,
+			editMode,
+			isModalOpen,
+			hasCreateForm,
+			handleTaskCreation,
+			createLoading,
+		} = taskInput
 
-	const { colors } = useAppTheme()
-	const {
-		setShowCombo,
-		showCheckIcon,
-		showCombo,
-		handleActiveTask,
-		handleChangeText,
-		taskInputText,
-		isLoading,
-		onCreateNewTask,
-		setTaskInputText,
-	} = useTimerScreenLogic()
+		const [combxShow, setCombxShow] = useState<true | undefined>(undefined)
+		const inputRef = useRef<TextInput>(null)
 
-	useEffect(() => {
-		setTaskInputText(activeTask && activeTask.title)
-	}, [activeTeam])
+		const closeCombox = useCallback(() => {
+			setCombxShow(undefined)
+		}, [setCombxShow])
 
-	return (
-		<TouchableWithoutFeedback onPress={() => setShowCombo(false)}>
-			<View style={{ ...$timerSection, backgroundColor: colors.background }}>
-				<View
-					style={[
-						styles.wrapInput,
-						{
-							flexDirection: "row",
-							alignItems: "center",
-							borderColor: colors.border,
-							backgroundColor: colors.background,
-						},
-					]}
-				>
-					<View style={styles.wrapBugIcon}>
-						<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
-					</View>
-					<Text style={styles.taskNumberStyle}>#{activeTask?.taskNumber}</Text>
-					<TextInput
-						selectionColor={colors.primary}
-						placeholderTextColor={colors.tertiary}
+		useEffect(() => {
+			if (isModalOpen || editMode) {
+				setCombxShow(true)
+			} else {
+				closeCombox()
+			}
+		}, [isModalOpen, editMode])
+
+		useEffect(() => {
+			if (!editMode) {
+				inputRef.current.blur()
+			}
+		}, [editMode])
+
+		return (
+			<TouchableWithoutFeedback onPress={() => outsideClick()}>
+				<View style={{ ...$timerSection, backgroundColor: colors.background }}>
+					<View
 						style={[
-							styles.textInput,
-							{ backgroundColor: colors.background, color: colors.primary, width: "80%" },
-						]}
-						placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
-						value={taskInputText}
-						autoFocus={false}
-						autoCapitalize="none"
-						autoCorrect={false}
-						onFocus={() => setShowCombo(true)}
-						onChangeText={(newText) => handleChangeText(newText)}
-					/>
-					{showCheckIcon && (
-						<Pressable onPress={() => onCreateNewTask()}>
-							<Feather name="check" size={24} color="green" />
-						</Pressable>
-					)}
-					{isLoading ? <ActivityIndicator color={colors.primary} style={styles.loading} /> : null}
-				</View>
-
-				{showCombo ? (
-					<ComboBox onCreateNewTask={onCreateNewTask} handleActiveTask={handleActiveTask} />
-				) : (
-					<View>
-						<View
-							style={{
-								width: "100%",
+							styles.wrapInput,
+							{
 								flexDirection: "row",
-								marginVertical: 20,
-								justifyContent: "space-between",
 								alignItems: "center",
-							}}
-						>
-							<View style={{ flexDirection: "row", alignItems: "center", width: width / 2.7 }}>
-								<Text style={{ textAlign: "center", fontSize: 12, color: colors.tertiary }}>
-									{translate("myWorkScreen.estimateLabel")} :{" "}
-								</Text>
-								<EstimateTime currentTask={activeTask} />
+								borderColor: colors.border,
+								backgroundColor: colors.background,
+							},
+						]}
+					>
+						<View style={styles.wrapBugIcon}>
+							<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
+						</View>
+						<Text style={styles.taskNumberStyle}>
+							{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ""}
+						</Text>
+						<TextInput
+							ref={inputRef}
+							selectionColor={colors.primary}
+							placeholderTextColor={colors.tertiary}
+							style={[
+								styles.textInput,
+								{ backgroundColor: colors.background, color: colors.primary, width: "80%" },
+							]}
+							placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
+							defaultValue={activeTask ? activeTask.title : ""}
+							autoFocus={false}
+							autoCapitalize="none"
+							autoCorrect={false}
+							editable={true}
+							onFocus={() => setEditMode(true)}
+							onBlur={() => setEditMode(false)}
+							onChangeText={(newText) => setQuery(newText)}
+						/>
+						{hasCreateForm && editMode && !createLoading ? (
+							<Pressable onPress={() => handleTaskCreation()}>
+								<Feather name="check" size={24} color="green" />
+							</Pressable>
+						) : null}
+
+						{createLoading ? (
+							<ActivityIndicator color={colors.primary} style={styles.loading} />
+						) : null}
+					</View>
+
+					{combxShow ? (
+						<ComboBox closeCombo={closeCombox} tasksHandler={taskInput} />
+					) : (
+						<View>
+							<View
+								style={{
+									width: "100%",
+									flexDirection: "row",
+									marginVertical: 20,
+									justifyContent: "space-between",
+									alignItems: "center",
+								}}
+							>
+								<View style={{ flexDirection: "row", alignItems: "center", width: width / 2.7 }}>
+									<Text style={{ textAlign: "center", fontSize: 12, color: colors.tertiary }}>
+										{translate("myWorkScreen.estimateLabel")} :{" "}
+									</Text>
+									<EstimateTime currentTask={activeTask} />
+								</View>
+
+								<TaskSize
+									task={activeTask}
+									containerStyle={{
+										...styles.sizeContainer,
+										borderColor: colors.border,
+									}}
+								/>
 							</View>
 
-							<TaskSize
+							<View
+								style={{
+									flexDirection: "row",
+									width: "100%",
+									justifyContent: "space-between",
+									zIndex: 1000,
+								}}
+							>
+								<TaskStatus
+									task={activeTask}
+									containerStyle={{
+										...styles.sizeContainer,
+										borderColor: colors.border,
+									}}
+								/>
+
+								<TaskPriorities
+									task={activeTask}
+									containerStyle={{
+										...styles.sizeContainer,
+										borderColor: colors.border,
+									}}
+								/>
+							</View>
+
+							<TaskLabel
 								task={activeTask}
 								containerStyle={{
 									...styles.sizeContainer,
+									width: "100%",
 									borderColor: colors.border,
+									marginVertical: 20,
 								}}
 							/>
+
+							<TimerCard />
 						</View>
-
-						<View
-							style={{
-								flexDirection: "row",
-								width: "100%",
-								justifyContent: "space-between",
-								zIndex: 1000,
-							}}
-						>
-							<TaskStatus
-								task={activeTask}
-								containerStyle={{
-									...styles.sizeContainer,
-									borderColor: colors.border,
-								}}
-							/>
-
-							<TaskPriorities
-								task={activeTask}
-								containerStyle={{
-									...styles.sizeContainer,
-									borderColor: colors.border,
-								}}
-							/>
-						</View>
-
-						<TaskLabel
-							task={activeTask}
-							containerStyle={{
-								...styles.sizeContainer,
-								width: "100%",
-								borderColor: colors.border,
-								marginVertical: 20,
-							}}
-						/>
-
-						<TimerCard />
-					</View>
-				)}
-			</View>
-		</TouchableWithoutFeedback>
-	)
-})
+					)}
+				</View>
+			</TouchableWithoutFeedback>
+		)
+	},
+)
 export default TimerTaskSection
 
 const width = Dimensions.get("window").width

@@ -1,67 +1,32 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC, useMemo, useState } from "react"
+import React, { FC } from "react"
 import { Text } from "react-native-paper"
 import { View, StyleSheet, Dimensions, TouchableWithoutFeedback, Pressable } from "react-native"
-import { ScrollView, TouchableOpacity } from "react-native-gesture-handler"
+import { ScrollView } from "react-native-gesture-handler"
 import { Ionicons } from "@expo/vector-icons"
-import IndividualTask from "./IndividualTask"
 import TaskDisplayBox from "./TaskDisplayBox"
-import { ITaskStatus, ITeamTask } from "../../../../services/interfaces/ITask"
-import { useStores } from "../../../../models"
 import { observer } from "mobx-react-lite"
 import { typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
+import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
+import IndividualTask from "./IndividualTask"
 
 export interface Props {
-	handleActiveTask: (value: ITeamTask) => unknown
-	onCreateNewTask: () => unknown
+	tasksHandler: RTuseTaskInput
+	closeCombo: () => unknown
 }
 const { height } = Dimensions.get("window")
-export const h_filter = (status: ITaskStatus, filters: "closed" | "open") => {
-	switch (filters) {
-		case "open":
-			return status !== "Closed"
-		case "closed":
-			return status === "Closed"
-		default:
-			return true
-	}
-}
 
-const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handleActiveTask }) {
+const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeCombo }) {
 	const { colors } = useAppTheme()
 
-	const {
-		TaskStore: { teamTasks, filterDataByStatus },
-	} = useStores()
-	const [query, setQuery] = useState("")
-	const [filter, setFilter] = useState<"open" | "closed">("open")
-	const [openFilter, setOpenFilter] = useState(true)
-	const [closeFilter, setCloseFilter] = useState(false)
-
-	const filteredTasks2 = useMemo(() => {
-		return query.trim() === ""
-			? teamTasks
-			: teamTasks.filter((task) =>
-					task.title
-						.trim()
-						.toLowerCase()
-						.replace(/\s+/g, "")
-						.startsWith(query.toLowerCase().replace(/\s+/g, "")),
-			  )
-	}, [query, teamTasks])
-
-	const onCreateTask = () => {
-		onCreateNewTask()
-	}
-
 	return (
-		<TouchableWithoutFeedback onPress={() => {}}>
+		<TouchableWithoutFeedback>
 			<View style={styles.mainContainer}>
 				<Pressable
-					onPress={() => onCreateTask()}
+					onPress={() => tasksHandler.handleTaskCreation()}
 					style={[
 						styles.createTaskBtn,
 						{ backgroundColor: colors.background, borderColor: colors.secondary },
@@ -73,45 +38,30 @@ const ComboBox: FC<Props> = observer(function ComboBox({ onCreateNewTask, handle
 					</Text>
 				</Pressable>
 				<View style={styles.filterSection}>
-					<Pressable
-						onPress={() => {
-							setOpenFilter(true)
-							setCloseFilter(false)
-							setFilter("open")
-						}}
-					>
+					<Pressable onPress={() => tasksHandler.setFilter("open")}>
 						<TaskDisplayBox
-							count={
-								filteredTasks2.filter((filterTask) => {
-									return filterTask.status !== "Closed"
-								}).length
-							}
-							openTask
-							selected={openFilter}
+							count={tasksHandler.openTaskCount}
+							openTask={true}
+							selected={tasksHandler.filter === "open"}
 						/>
 					</Pressable>
-					<Pressable
-						onPress={() => {
-							setOpenFilter(false)
-							setCloseFilter(true)
-							setFilter("closed")
-						}}
-					>
+					<Pressable onPress={() => tasksHandler.setFilter("closed")}>
 						<TaskDisplayBox
-							count={
-								filteredTasks2.filter((filterTask) => {
-									return filterTask.status === "Closed"
-								}).length
-							}
+							count={tasksHandler.closedTaskCount}
 							openTask={false}
-							selected={closeFilter}
+							selected={tasksHandler.filter === "closed"}
 						/>
 					</Pressable>
 				</View>
-
 				<ScrollView style={{ maxHeight: 350 }}>
-					{filterDataByStatus(query, teamTasks, filter).map((task, i) => (
-						<IndividualTask key={i} task={task} handleActiveTask={handleActiveTask} />
+					{tasksHandler.filteredTasks.map((task, i) => (
+						<IndividualTask
+							key={i}
+							onReopenTask={() => tasksHandler.handleReopenTask(task)}
+							task={task}
+							handleActiveTask={tasksHandler.setActiveTeamTask}
+							closeCombo={closeCombo}
+						/>
 					))}
 				</ScrollView>
 			</View>

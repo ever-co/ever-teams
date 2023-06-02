@@ -33,26 +33,23 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 	const [openModal, setOpenModal] = useState(false)
 
 	const allTaskLabels = useTaskLabelValue()
-	const label = task?.tags[0] as ITaskLabelItem
+	const label = task && task.tags?.length > 1 ? (task?.tags[0] as ITaskLabelItem) : null
 
 	const currentLabel = allTaskLabels[label?.name.split("-").join(" ")]
 
 	const onChangeLabel = async (text: ITaskLabelItem) => {
 		if (task) {
 			let tags = []
-			const exist = task.tags.find((label) => label.id === text.id)
-
+			const exist = task?.tags.find((label) => label.id === text.id)
 			if (exist) {
 				tags = task.tags.filter((label) => label.id !== text.id)
 			} else {
 				tags = [...task.tags, text]
 			}
-
 			const taskEdit = {
 				...task,
 				tags,
 			}
-
 			await updateTask(taskEdit, task.id)
 		}
 	}
@@ -73,7 +70,7 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 						backgroundColor: currentLabel?.bgColor,
 					}}
 				>
-					{task && task.tags[0] && currentLabel ? (
+					{currentLabel ? (
 						<View style={styles.wrapStatus}>
 							{currentLabel.icon}
 							<Text style={{ ...styles.text, marginLeft: 10 }}>

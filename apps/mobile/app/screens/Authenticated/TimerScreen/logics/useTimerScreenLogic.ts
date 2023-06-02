@@ -1,60 +1,31 @@
-import React, { useState } from "react"
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
+import React, { useEffect, useState } from "react"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 
 const useTimerScreenLogic = () => {
+	const { members } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 	const [showCombo, setShowCombo] = useState(false)
 	const [taskInputText, setTaskInputText] = useState<string>("")
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [showCheckIcon, setShowCheckIcon] = useState<boolean>(false)
+	const [isTeamModalOpen, setIsTeamModalOpen] = useState<boolean>(false)
 
-	const { createNewTask, setActiveTeamTask } = useTeamTasks()
-
-	const onCreateNewTask = async () => {
-		if (taskInputText.trim().length === 0) {
-			alert("Task title can't be empty")
-			return
+	useEffect(() => {
+		if (members.length === 0) {
+			setIsLoading(true)
 		}
-		setShowCheckIcon(false)
-		setIsLoading(true)
-		await createNewTask(taskInputText)
-		setIsLoading(false)
-		setShowCombo(false)
-	}
-
-	const handleChangeText = (value: string) => {
-		setTaskInputText(value)
-		if (value.trim().length > 0) {
-			setShowCombo(true)
-			setShowCheckIcon(false)
-		} else {
-			setShowCombo(false)
-		}
-
-		if (value.trim().length >= 3) {
-			setShowCheckIcon(true)
-		}
-	}
-
-	const handleActiveTask = (value: ITeamTask) => {
-		setActiveTeamTask(value)
-		setShowCheckIcon(false)
-		setTaskInputText(value.title)
-		setShowCombo(false)
-	}
+	}, [members])
 
 	return {
 		showCreateTeamModal,
 		setShowCreateTeamModal,
-		handleActiveTask,
-		handleChangeText,
-		onCreateNewTask,
 		showCombo,
 		taskInputText,
 		showCheckIcon,
 		setShowCombo,
 		setShowCheckIcon,
+		isTeamModalOpen,
+		setIsTeamModalOpen,
 		isLoading,
 		setTaskInputText,
 	}
