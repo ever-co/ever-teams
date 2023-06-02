@@ -22,3 +22,4 @@ export * from './IRequestToJoin';
 export * from './IPosition';
 export * from './IImageAssets';
 export * from './IIssueTypes';
+export * from './IChoose';

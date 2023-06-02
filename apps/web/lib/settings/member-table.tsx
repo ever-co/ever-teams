@@ -1,12 +1,13 @@
-import { MenuIcon } from 'lib/components/svgs';
 import moment from 'moment';
-import { Avatar } from 'lib/components';
+import { Avatar, Text } from 'lib/components';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
 import { OT_Member } from '@app/interfaces';
 import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
+import { MemberTableStatus } from './member-table-status';
+import { TableActionPopover } from './table-action-popover';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -22,39 +23,54 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	return (
 		<div>
 			<div className="overflow-x-auto  sm:rounded-lg">
-				<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
 							<th
 								scope="col"
-								className="pl-5 py-3 text-md font-semibold capitalize text-[#B1AEBC]"
+								className="pl-0 py-3 text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-56"
 							>
-								Name & Email
+								Name
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
-								Title
+							<th
+								scope="col"
+								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-40"
+							>
+								Position
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white  w-44"
+							>
 								Roles
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-48"
+							>
 								Joined / Left
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-32"
+							>
 								Status
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]"></th>
+							<th
+								scope="col"
+								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-3"
+							></th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody className="dark:bg-dark--theme">
 						{currentItems.map((member, index) => (
 							<tr
-								className="bg-white  dark:bg-gray-800 dark:border-gray-700 "
+								className="bg-white  dark:bg-dark--theme dark:border-gray-700"
 								key={index}
 							>
 								<th
 									scope="row"
-									className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center pl-0 py-4 text-gray-900 whitespace-nowrap dark:text-white"
 								>
 									{member.employee.user?.imageId ? (
 										<Avatar
@@ -86,35 +102,37 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									) : (
 										''
 									)}
-									<div className="pl-3">
-										<div className="text-sm font-semibold text-[#282048]">
+									<div className="pl-3 flex flex-col gap-1">
+										<div className="text-sm font-semibold text-[#282048] dark:text-white">
 											{member.employee.fullName}
 										</div>
+										<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal">
+											{member.employee.user?.email || ''}
+										</Text>
 									</div>
 								</th>
-								<td className="text-sm font-semibold py-4">
+								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									{/* TODO Position */}-
 								</td>
-								<td className="text-sm font-semibold py-4">
+								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									<span className="capitalize">
 										{member.role?.name || 'Member'}
 									</span>
 
 									{/* Manager ( Admin) */}
 								</td>
-								<td className="text-sm font-semibold py-4">
+								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									{/* 12 Feb 2020 12:00 pm */}
 									{moment(member.employee.createdAt).format(
 										'DD MMM YYYY hh:mm a'
 									)}
 								</td>
 								<td className="text-sm font-semibold py-4">
-									<div className="flex items-center bg-[#D4EFDF] justify-center rounded-full pl-[16px] pr-[16px] pt-[5px] pb-[5px]">
-										Member
-									</div>
+									{/* TODO dynamic */}
+									<MemberTableStatus status="Member" />
 								</td>
-								<td className="py-4 flex justify-center items-center w-[50px]">
-									<MenuIcon />
+								<td className="flex justify-center items-center py-5 absolute">
+									<TableActionPopover />
 								</td>
 							</tr>
 						))}

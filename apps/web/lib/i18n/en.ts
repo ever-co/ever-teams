@@ -166,9 +166,13 @@ export const en = {
 			CREATE_NEW_ISSUE_TYPES: 'Create new Issues',
 
 			HIDE_PERSONAL_MEMBERS_INFOTMATION: 'Hide Personal Members Information',
+			POSITION_CUSTOM: 'Positions custom',
 			INVITATION_EXPIRATION: 'Invitation Expiration',
+			NOTIFY_IF: 'Notify if',
+			TEAM_REQUEST: 'Team Request',
 			WORK_SCHEDULE: 'Work schedule',
 			MEMBER_AND_ROLES: 'Members & Roles',
+
 			LIST_OF_STATUSES: 'List of Statuses',
 			LIST_OF_PRIORITIES: 'List of Priorities',
 			LIST_OF_SIZES: 'List of Sizes',
@@ -215,6 +219,7 @@ export const en = {
 			TEAM_COLOR: 'Team Color',
 			TEAM_SIZE: 'Team Size',
 			EMOJI: 'Emoji',
+			ISSUES_HEADING_TITLE: 'Issues Settings',
 		},
 
 		invite: {

@@ -10,7 +10,7 @@ export default function MemberInfo() {
 	}, [enabled]);
 
 	return (
-		<div className="py-16 flex items-center gap-x-[10px]">
+		<div className=" flex items-center gap-x-[10px]">
 			<Switch
 				checked={enabled}
 				onChange={() => {
@@ -28,7 +28,7 @@ export default function MemberInfo() {
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 ">
+			<Text className="text-gray-400 dark:text-white">
 				{enabled ? 'Activated' : 'Deactivated'}
 			</Text>
 		</div>
