@@ -11,14 +11,15 @@ import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 
 const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilter }) => {
 	const { colors, dark } = useAppTheme()
-	const { isAuthUser, userProfile } = profile
+	const { isAuthUser } = profile
 	const [showFilterPopup, setShowFilterPopup] = useState(false)
 	const [showModal, setShowModal] = useState(false)
 	return (
 		<View>
 			<AssignTaskFormModal
-				memberId={userProfile?.id}
 				visible={showModal}
+				createNewTask={profile.onCreateNewTask}
+				isAuthUser={isAuthUser}
 				onDismiss={() => setShowModal(false)}
 			/>
 			<FilterPopup

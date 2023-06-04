@@ -12,8 +12,9 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 interface Props {
 	setEditEstimate?: (value: boolean) => unknown
 	currentTask: ITeamTask
+	setEstimateTime?: (value: number) => unknown
 }
-const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
+const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime }) => {
 	// Hooks
 	const { updateTask } = useTeamTasks()
 	const { colors } = useAppTheme()
@@ -81,31 +82,35 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 	}
 
 	const handleSubmit = useCallback(async () => {
-		if (!currentTask) return
 		const hours = +estimate.hours
 		const minutes = +estimate.minutes
-		if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
-			return
-		}
-
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(currentTask.estimate || 0)
-
-		if (hours === estimateHours && minutes === estimateMinutes) {
-			return
-		}
-		const task = {
-			...currentTask,
-			estimate: hours * 60 * 60 + minutes * 60, // time seconds
-		}
-
 		setShowCheckIcon(false)
-		setIsLoading(true)
-		await updateTask(task, task.id)
+		if (currentTask) {
+			if (isNaN(hours) || isNaN(minutes) || (hours === 0 && minutes === 0)) {
+				return
+			}
 
-		setEditing({ editingHour: false, editingMinutes: false })
-		setIsLoading(false)
-		textInputRef.current.blur()
-		if (setEditEstimate) setEditEstimate(false)
+			const { h: estimateHours, m: estimateMinutes } = secondsToTime(currentTask.estimate || 0)
+
+			if (hours === estimateHours && minutes === estimateMinutes) {
+				return
+			}
+			const task = {
+				...currentTask,
+				estimate: hours * 60 * 60 + minutes * 60, // time seconds
+			}
+
+			setIsLoading(true)
+			await updateTask(task, task.id)
+			setIsLoading(false)
+
+			setEditing({ editingHour: false, editingMinutes: false })
+
+			textInputRef.current.blur()
+			if (setEditEstimate) setEditEstimate(false)
+		} else {
+			setEstimateTime(hours * 60 * 60 + minutes * 60)
+		}
 	}, [currentTask, updateTask, estimate])
 
 	const formatTwoDigit = (value: string) => {
@@ -144,7 +149,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 					<View />
 				</View>
 			</View>
-			<Text style={[styles.suffix, { color: colors.primary }]}> h</Text>
+			<Text style={[styles.suffix, { color: colors.primary }]}>{" h"}</Text>
 			<Text style={{ margin: 2 }}>:</Text>
 
 			<View>
@@ -168,7 +173,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask }) => {
 					<View />
 				</View>
 			</View>
-			<Text style={[styles.suffix, { color: colors.primary }]}> m</Text>
+			<Text style={[styles.suffix, { color: colors.primary }]}>{" m"}</Text>
 			{showCheckIcon && (
 				<Feather
 					style={styles.thickIconStyle}

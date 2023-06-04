@@ -29,7 +29,7 @@ interface TaskSizeFilterProps {
 	taskFilter: ITaskFilter
 }
 
-const { height } = Dimensions.get("window")
+const { height, width } = Dimensions.get("window")
 
 const TaskStatusFilter: FC<TaskSizeFilterProps> = observer(
 	({ setShowSizePopup, showSizePopup, taskFilter }) => {
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
 		minWidth: 100,
 		paddingHorizontal: 16,
 		paddingVertical: 10,
-		width: 176,
+		width: width / 2.4,
 		zIndex: 1000,
 	},
 	dropdownContainer: {

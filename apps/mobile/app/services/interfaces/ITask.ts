@@ -116,6 +116,8 @@ export type ITaskStatusStack = {
 export interface ICreateTask {
 	title: string
 	status: string
+	priority?: string
+	size?: string
 	issueType?: string
 	members?: { id: string; [x: string]: any }[]
 	estimateDays?: number

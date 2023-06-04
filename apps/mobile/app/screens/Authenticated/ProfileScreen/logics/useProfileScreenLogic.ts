@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useStores } from "../../../../models"
 import { useAuthTeamTasks } from "../../../../services/hooks/features/useAuthTeamTasks"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
+import { createTaskRequest } from "../../../../services/client/requests/tasks"
 
 export const useProfileScreenLogic = ({
 	activeTab,
@@ -13,7 +14,7 @@ export const useProfileScreenLogic = ({
 }) => {
 	const {
 		TaskStore: { activeTask },
-		authenticationStore: { user },
+		authenticationStore: { user, authToken, tenantId, organizationId },
 		teamStore: { activeTeam },
 	} = useStores()
 	const { updateTask, isRefetching } = useTeamTasks()
@@ -84,6 +85,22 @@ export const useProfileScreenLogic = ({
 		[updateTask, matchUser],
 	)
 
+	const onCreateNewTask = useCallback(
+		async (task: ICreateTask) => {
+			return await createTaskRequest({
+				data: {
+					...task,
+					organizationId,
+					tenantId,
+					teams: [{ id: activeTeam?.id }],
+					members: [{ id: employeeId }],
+				},
+				bearer_token: authToken,
+			})
+		},
+		[authToken],
+	)
+
 	useEffect(() => {
 		setTimeout(() => setIsLoading(false), 2000)
 	}, [])
@@ -98,6 +115,7 @@ export const useProfileScreenLogic = ({
 		assignTask,
 		unassignTask,
 		activeTab,
+		onCreateNewTask,
 		isLoading,
 	}
 }
