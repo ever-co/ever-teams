@@ -1,7 +1,14 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React from "react"
-import { View, StyleSheet, Image, TouchableOpacity, Dimensions } from "react-native"
+import React, { useEffect } from "react"
+import {
+	View,
+	StyleSheet,
+	Image,
+	TouchableOpacity,
+	Dimensions,
+	TouchableWithoutFeedback,
+} from "react-native"
 import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons"
 import { Text } from "react-native-paper"
 import { DrawerContentScrollView, useDrawerStatus } from "@react-navigation/drawer"
@@ -23,6 +30,7 @@ const HamburgerMenu = observer((props: any) => {
 	} = useStores()
 	const { createOrganizationTeam } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false)
 
 	const { navigation } = props
 	const isOpen = useDrawerStatus() === "open"
@@ -33,128 +41,147 @@ const HamburgerMenu = observer((props: any) => {
 		logout()
 	}
 
+	useEffect(() => {
+		setIsTeamModalOpen(false)
+	}, [isOpen])
+
 	return (
-		<View
-			style={[styles.container, { backgroundColor: dark ? colors.background2 : colors.background }]}
-		>
-			<CreateTeamModal
-				onCreateTeam={createOrganizationTeam}
-				visible={showCreateTeamModal}
-				onDismiss={() => setShowCreateTeamModal(false)}
-			/>
-			<DrawerContentScrollView style={{ width: "100%" }} {...props}>
-				<View style={styles.profileSection}>
-					<View style={{ marginBottom: 40 }}>
-						<ProfileImage size={76} user={user} />
-					</View>
-					<Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>
-						{user?.name}
-					</Text>
-					<Text
-						style={{
-							color: colors.tertiary,
-							fontSize: 14,
-							marginBottom: 20,
-							fontFamily: typography.secondary.medium,
-							marginTop: 4,
-						}}
-					>
-						{user?.email}
-					</Text>
-					{isTeamsExist ? (
-						<DropDown resized={true} onCreateTeam={() => setShowCreateTeamModal(true)} />
-					) : null}
-				</View>
-				<View style={styles.navigationSection}>
-					{isTeamsExist ? (
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
-							<Ionicons style={styles.icon} name="person" size={24} color={colors.primary} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate("myWorkScreen.name")}
-							</Text>
-						</TouchableOpacity>
-					) : null}
-
-					<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Team")}>
-						<FontAwesome5 style={styles.icon} name="users" size={24} color={colors.primary} />
-						<Text style={[styles.screenLabel, { color: colors.primary }]}>
-							{translate("teamScreen.name")}
-						</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={styles.item}
-						onPress={() => navigation.navigate("Profile", { userId: user?.id, tabIndex: 0 })}
-					>
-						<Ionicons
-							style={styles.icon}
-							name="ios-briefcase-outline"
-							size={24}
-							color={colors.primary}
-						/>
-						<Text style={[styles.screenLabel, { color: colors.primary }]}>
-							{translate("tasksScreen.name")}
-						</Text>
-					</TouchableOpacity>
-					<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Setting")}>
-						<Feather style={styles.icon} name="settings" size={24} color={colors.primary} />
-						<Text style={[styles.screenLabel, { color: colors.primary }]}>
-							{translate("settingScreen.name")}
-						</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={styles.screenItem}
-						onPress={() => {
-							toggleTheme()
-							navigation.closeDrawer()
-						}}
-					>
-						<View style={{ flexDirection: "row" }}>
-							<Ionicons style={styles.icon} name="moon-outline" size={24} color={colors.primary} />
-							<Text style={[styles.screenLabel, { color: colors.primary }]}>
-								{translate("hamburgerMenu.darkMode")}
-							</Text>
+		<TouchableWithoutFeedback onPress={() => setIsTeamModalOpen(false)}>
+			<View
+				style={[
+					styles.container,
+					{ backgroundColor: dark ? colors.background2 : colors.background },
+				]}
+			>
+				<CreateTeamModal
+					onCreateTeam={createOrganizationTeam}
+					visible={showCreateTeamModal}
+					onDismiss={() => setShowCreateTeamModal(false)}
+				/>
+				<DrawerContentScrollView style={{ width: "100%" }} {...props}>
+					<View style={styles.profileSection}>
+						<View style={{ marginBottom: 40 }}>
+							<ProfileImage size={76} user={user} />
 						</View>
-						{dark ? (
-							<Image style={{}} source={require("../../assets/icons/new/toogle-dark.png")} />
-						) : (
-							<Image
-								style={{ top: 8, height: 50 }}
-								source={require("../../assets/icons/new/toogle-light.png")}
-							/>
-						)}
-					</TouchableOpacity>
-				</View>
-			</DrawerContentScrollView>
-
-			<View style={styles.bottomSection}>
-				<TouchableOpacity
-					style={{ flexDirection: "row", justifyContent: "space-between" }}
-					onPress={() => onLogout()}
-				>
-					<View style={{ flexDirection: "row", alignItems: "center" }}>
-						<Image source={require("../../assets/icons/new/logout.png")} />
+						<Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>
+							{user?.name}
+						</Text>
 						<Text
 							style={{
-								marginLeft: 10,
-								color: "#DE437B",
-								fontFamily: typography.primary.semiBold,
-								fontSize: 16,
+								color: colors.tertiary,
+								fontSize: 14,
+								marginBottom: 20,
+								fontFamily: typography.secondary.medium,
+								marginTop: 4,
 							}}
 						>
-							{translate("common.logOut")}
+							{user?.email}
 						</Text>
+						{isTeamsExist ? (
+							<DropDown
+								isOpen={isTeamModalOpen}
+								setIsOpen={setIsTeamModalOpen}
+								resized={true}
+								onCreateTeam={() => setShowCreateTeamModal(true)}
+							/>
+						) : null}
 					</View>
-				</TouchableOpacity>
+					<View style={styles.navigationSection}>
+						{isTeamsExist ? (
+							<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
+								<Ionicons style={styles.icon} name="person" size={24} color={colors.primary} />
+								<Text style={[styles.screenLabel, { color: colors.primary }]}>
+									{translate("myWorkScreen.name")}
+								</Text>
+							</TouchableOpacity>
+						) : null}
+
+						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Team")}>
+							<FontAwesome5 style={styles.icon} name="users" size={24} color={colors.primary} />
+							<Text style={[styles.screenLabel, { color: colors.primary }]}>
+								{translate("teamScreen.name")}
+							</Text>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.item}
+							onPress={() => navigation.navigate("Profile", { userId: user?.id, tabIndex: 0 })}
+						>
+							<Ionicons
+								style={styles.icon}
+								name="ios-briefcase-outline"
+								size={24}
+								color={colors.primary}
+							/>
+							<Text style={[styles.screenLabel, { color: colors.primary }]}>
+								{translate("tasksScreen.name")}
+							</Text>
+						</TouchableOpacity>
+						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Setting")}>
+							<Feather style={styles.icon} name="settings" size={24} color={colors.primary} />
+							<Text style={[styles.screenLabel, { color: colors.primary }]}>
+								{translate("settingScreen.name")}
+							</Text>
+						</TouchableOpacity>
+						<TouchableOpacity
+							style={styles.screenItem}
+							onPress={() => {
+								toggleTheme()
+								navigation.closeDrawer()
+							}}
+						>
+							<View style={{ flexDirection: "row" }}>
+								<Ionicons
+									style={styles.icon}
+									name="moon-outline"
+									size={24}
+									color={colors.primary}
+								/>
+								<Text style={[styles.screenLabel, { color: colors.primary }]}>
+									{translate("hamburgerMenu.darkMode")}
+								</Text>
+							</View>
+							{dark ? (
+								<Image style={{}} source={require("../../assets/icons/new/toogle-dark.png")} />
+							) : (
+								<Image
+									style={{ top: 8, height: 50 }}
+									source={require("../../assets/icons/new/toogle-light.png")}
+								/>
+							)}
+						</TouchableOpacity>
+					</View>
+				</DrawerContentScrollView>
+
+				<View style={styles.bottomSection}>
+					<TouchableOpacity
+						style={{ flexDirection: "row", justifyContent: "space-between" }}
+						onPress={() => onLogout()}
+					>
+						<View style={{ flexDirection: "row", alignItems: "center" }}>
+							<Image source={require("../../assets/icons/new/logout.png")} />
+							<Text
+								style={{
+									marginLeft: 10,
+									color: "#DE437B",
+									fontFamily: typography.primary.semiBold,
+									fontSize: 16,
+								}}
+							>
+								{translate("common.logOut")}
+							</Text>
+						</View>
+					</TouchableOpacity>
+				</View>
+				{isOpen ? (
+					<TouchableOpacity
+						style={[styles.close, { backgroundColor: colors.background }]}
+						onPress={() => navigation.closeDrawer()}
+					>
+						<Text style={{ color: colors.primary }}>X</Text>
+					</TouchableOpacity>
+				) : null}
 			</View>
-			{isOpen ? (
-				<TouchableOpacity
-					style={[styles.close, { backgroundColor: colors.background }]}
-					onPress={() => navigation.closeDrawer()}
-				>
-					<Text style={{ color: colors.primary }}>X</Text>
-				</TouchableOpacity>
-			) : null}
-		</View>
+		</TouchableWithoutFeedback>
 	)
 })
 
