@@ -2,7 +2,6 @@ import { Button, InputField, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import MemberInfo from 'lib/components/memberInfoToggle';
-import { InvitationExpireDropdown } from './invitation-expire-dropdown';
 import { MemberTable } from './member-table';
 import {
 	useAuthenticateUser,
