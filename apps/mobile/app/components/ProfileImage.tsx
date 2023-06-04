@@ -23,9 +23,17 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 		<View style={styles.container}>
 			<View>
 				{imageUrl ? (
-					<Avatar.Image size={size} source={{ uri: imageUrl }} />
+					<Avatar.Image
+						size={size - 6}
+						style={{ ...styles.profileImage, width: size, height: size }}
+						source={{ uri: imageUrl }}
+					/>
 				) : (
-					<Avatar.Text label={imgTitle(user.name)} size={size} />
+					<Avatar.Text
+						label={imgTitle(user.name)}
+						size={size - 6}
+						style={{ ...styles.profileImage, width: size, height: size }}
+					/>
 				)}
 				<Badge size={25} style={[styles.onlineIcon, { borderColor: colors.background }]} />
 			</View>
@@ -50,7 +58,5 @@ const styles = StyleSheet.create({
 		borderColor: "#86DAA9",
 		borderRadius: 200,
 		borderWidth: 3,
-		height: 56,
-		width: 56,
 	},
 })

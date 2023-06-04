@@ -1,8 +1,8 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
-import { AntDesign } from "@expo/vector-icons"
+import { TouchableOpacity, View, Text, StyleSheet, ViewStyle } from "react-native"
+import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
@@ -15,62 +15,74 @@ import { limitTextCharaters } from "../helpers/sub-text"
 interface TaskPriorityProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
-	statusTextSyle?: TextStyle
+	priority?: string
+	setPriority?: (priority: string) => unknown
 }
 
-const TaskPriority: FC<TaskPriorityProps> = observer(({ task, containerStyle }) => {
-	const { colors } = useAppTheme()
-	const { updateTask } = useTeamTasks()
-	const [openModal, setOpenModal] = useState(false)
+const TaskPriority: FC<TaskPriorityProps> = observer(
+	({ task, containerStyle, priority, setPriority }) => {
+		const { colors } = useAppTheme()
+		const { updateTask } = useTeamTasks()
+		const [openModal, setOpenModal] = useState(false)
 
-	const allTaskPriorities = useTaskPriorityValue()
-	const currentPriority = allTaskPriorities[task?.priority?.split("-").join(" ")]
+		const allTaskPriorities = useTaskPriorityValue()
+		const currentPriority =
+			allTaskPriorities[
+				task ? task?.priority?.split("-").join(" ") : priority?.split("-").join(" ")
+			]
 
-	const onChangePriority = async (text) => {
-		if (task) {
-			const taskEdit = {
-				...task,
-				priority: text,
+		const onChangePriority = async (text) => {
+			if (task) {
+				const taskEdit = {
+					...task,
+					priority: text,
+				}
+
+				await updateTask(taskEdit, task.id)
+			} else {
+				setPriority(text)
 			}
-
-			await updateTask(taskEdit, task.id)
 		}
-	}
 
-	return (
-		<>
-			<TaskPriorityPopup
-				priorityName={task?.priority}
-				visible={openModal}
-				setSelectedPriority={(e) => onChangePriority(e.name)}
-				onDismiss={() => setOpenModal(false)}
-			/>
-			<TouchableOpacity onPress={() => setOpenModal(true)}>
-				<View
-					style={{
-						...styles.container,
-						...containerStyle,
-						backgroundColor: currentPriority?.bgColor,
-					}}
-				>
-					{task && task.priority && currentPriority ? (
-						<View style={styles.wrapStatus}>
-							{currentPriority.icon}
-							<Text style={{ ...styles.text, marginLeft: 10 }}>
-								{limitTextCharaters({ text: currentPriority.name, numChars: 15 })}
-							</Text>
-						</View>
-					) : (
-						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate("settingScreen.priorityScreen.priorities")}
-						</Text>
-					)}
-					<AntDesign name="down" size={14} color={colors.primary} />
-				</View>
-			</TouchableOpacity>
-		</>
-	)
-})
+		return (
+			<>
+				<TaskPriorityPopup
+					priorityName={task?.priority}
+					visible={openModal}
+					setSelectedPriority={(e) => onChangePriority(e.name)}
+					onDismiss={() => setOpenModal(false)}
+				/>
+				<TouchableOpacity onPress={() => setOpenModal(true)}>
+					<View
+						style={{
+							...styles.container,
+							...containerStyle,
+							borderColor: colors.border,
+							backgroundColor: currentPriority?.bgColor,
+						}}
+					>
+						{(task?.priority || priority) && currentPriority ? (
+							<View style={styles.wrapStatus}>
+								{currentPriority.icon}
+								<Text style={{ ...styles.text, marginLeft: 10 }}>
+									{limitTextCharaters({ text: currentPriority.name, numChars: 15 })}
+								</Text>
+							</View>
+						) : (
+							<View style={styles.wrapStatus}>
+								<Entypo name="circle" size={12} color={colors.primary} />
+								<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}>
+									{translate("settingScreen.priorityScreen.priorities")}
+								</Text>
+							</View>
+						)}
+						<AntDesign name="down" size={14} color={colors.primary} />
+					</View>
+				</TouchableOpacity>
+			</>
+		)
+	},
+)
 
 const styles = StyleSheet.create({
 	container: {

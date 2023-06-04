@@ -1,16 +1,8 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
-import {
-	TouchableOpacity,
-	View,
-	Text,
-	StyleSheet,
-	ViewStyle,
-	TextStyle,
-	Dimensions,
-} from "react-native"
-import { AntDesign } from "@expo/vector-icons"
+import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, Dimensions } from "react-native"
+import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
@@ -24,10 +16,11 @@ import { limitTextCharaters } from "../helpers/sub-text"
 interface TaskLabelProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
-	labelTextSyle?: TextStyle
+	labels?: string
+	setLabels?: (label: string) => unknown
 }
 
-const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
+const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle, labels, setLabels }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
 	const [openModal, setOpenModal] = useState(false)
@@ -35,7 +28,8 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 	const allTaskLabels = useTaskLabelValue()
 	const label = task && task.tags?.length > 1 ? (task?.tags[0] as ITaskLabelItem) : null
 
-	const currentLabel = allTaskLabels[label?.name.split("-").join(" ")]
+	const currentLabel =
+		allTaskLabels[task ? label?.name.split("-").join(" ") : labels?.split("-").join(" ")]
 
 	const onChangeLabel = async (text: ITaskLabelItem) => {
 		if (task) {
@@ -51,6 +45,8 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 				tags,
 			}
 			await updateTask(taskEdit, task.id)
+		} else {
+			setLabels(text.name?.split("-").join(" "))
 		}
 	}
 
@@ -67,6 +63,7 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 					style={{
 						...styles.container,
 						...containerStyle,
+						borderColor: colors.border,
 						backgroundColor: currentLabel?.bgColor,
 					}}
 				>
@@ -78,9 +75,13 @@ const TaskLabel: FC<TaskLabelProps> = observer(({ task, containerStyle }) => {
 							</Text>
 						</View>
 					) : (
-						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate("settingScreen.labelScreen.labels")}
-						</Text>
+						<View style={styles.wrapStatus}>
+							<Entypo name="circle" size={12} color={colors.primary} />
+							<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}></Text>
+							<Text style={{ ...styles.text, color: colors.primary }}>
+								{translate("settingScreen.labelScreen.labels")}
+							</Text>
+						</View>
 					)}
 					<AntDesign name="down" size={14} color={colors.primary} />
 				</View>
