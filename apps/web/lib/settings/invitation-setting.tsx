@@ -4,15 +4,24 @@ import {
 	useRequestToJoinTeam,
 	useTeamInvitations,
 } from '@app/hooks';
-import { Button, InputField } from 'lib/components';
-import { SearchNormalIcon } from 'lib/components/svgs';
+import { SettingIcon } from '@components/ui/svgs/setting-icon';
+import { Button, Divider, InputField, Text } from 'lib/components';
+import {
+	SearchNormalIcon,
+	SettingSimpleGearIcon,
+	SettingsOutlineIcon,
+} from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { useTranslation } from 'lib/i18n';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { InvitationTable } from './invitation-table';
+import MemberInfo from 'lib/components/memberInfoToggle';
+import { NotifyDropdown } from './notify-dropdown';
+import { DayDropdown } from './day-dropdown';
 
 export const InvitationSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
+	const [copied, setCopied] = useState(false);
 
 	const { teamInvitations } = useTeamInvitations();
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
@@ -58,8 +67,76 @@ export const InvitationSetting = () => {
 				</div>
 			</div>
 
-			<div className="mt-7 mb-[4rem]">
+			<div className="mt-7 mb-8">
 				<InvitationTable invitations={invitations} />
+			</div>
+
+			<Divider className="mb-9" />
+
+			<div className="flex flex-col gap-8">
+				<div className="flex items-center gap-16">
+					<div className="flex items-start gap-1">
+						<Text className="flex-none font-normal text-[#7E7991] dark:text-white flex-grow-0 text-lg md-2">
+							{trans.INVITATION_EXPIRATION}
+						</Text>
+						<SettingSimpleGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
+					</div>
+					<div className="flex items-center ">
+						<div className="flex gap-4 items-center flex-col sm:flex-row w-[29.7rem]">
+							<div className="flex flex-row mb-0">
+								<InputField
+									type="text"
+									placeholder="https//:teamsA.gauzy.com"
+									className="mb-0 h-14 w-[14.6rem] text-[ rgba(40, 32, 72, 0.4)] dark:text-white text-sm  font-normal"
+									wrapperClassName="mb-0 h-14 rounded-lg text-[rgba(40, 32, 72, 0.4)] dark:text-white text-base font-medium"
+									disabled={true}
+								/>
+							</div>
+							<div className="flex flex-row ">
+								<Button
+									variant="outline"
+									className="border-2 rounded-xl h-14 w-28 min-w-max font-semibold text-base p-0"
+									type="button"
+									onClick={() => {
+										setCopied(true);
+										setTimeout(() => {
+											setCopied(false);
+										}, 1000 * 10 /** 10 Seconds */);
+									}}
+								>
+									{!copied ? 'Copy Link' : 'Copied'}
+								</Button>
+							</div>
+						</div>
+						<div>
+							<DayDropdown setValue={() => console.log('')} />
+						</div>
+					</div>
+				</div>
+				<div className="flex items-center ">
+					<div className="flex items-start gap-1 w-[16.5rem]">
+						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
+							{trans.NOTIFY_IF}
+						</Text>
+					</div>
+					<div className="flex items-center ">
+						<div className="flex gap-10 items-center flex-col sm:flex-row w-[29.7rem]">
+							<div className="flex flex-row mb-0">
+								<NotifyDropdown setValue={() => console.log('')} />
+							</div>
+							<Text className="font-semibold text-base">Once At</Text>
+						</div>
+						<div>
+							<DayDropdown setValue={() => console.log('')} />
+						</div>
+					</div>
+				</div>
+				<div className="flex items-start gap-20 ">
+					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
+						{trans.TEAM_REQUEST}
+					</Text>
+					<MemberInfo />
+				</div>
 			</div>
 
 			<InviteFormModal

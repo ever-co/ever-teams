@@ -23,3 +23,5 @@ export * from './IPosition';
 export * from './IImageAssets';
 export * from './IIssueTypes';
 export * from './IChoose';
+export * from './IDay';
+export * from './INotify';

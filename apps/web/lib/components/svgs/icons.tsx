@@ -1819,9 +1819,35 @@ export const MenuIcon = ({ className }: IClassName) => (
 	<svg width={24} height={24} fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path
 			d="M5 10.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2ZM19 10.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2ZM12 10.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Z"
-			// stroke="#292D32"
 			className={className}
 			strokeWidth={1.5}
+		/>
+	</svg>
+);
+
+export const SettingSimpleGearIcon = ({ className }: IClassName) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="19"
+		height="20"
+		viewBox="0 0 19 20"
+		fill="none"
+	>
+		<path
+			d="M2.375 7.71208V12.28C2.375 13.9583 2.375 13.9583 3.95833 15.0271L8.3125 17.5446C8.96958 17.9246 10.0383 17.9246 10.6875 17.5446L15.0417 15.0271C16.625 13.9583 16.625 13.9583 16.625 12.2879V7.71208C16.625 6.04166 16.625 6.04166 15.0417 4.97291L10.6875 2.45541C10.0383 2.07541 8.96958 2.07541 8.3125 2.45541L3.95833 4.97291C2.375 6.04166 2.375 6.04166 2.375 7.71208Z"
+			// stroke="#B1AEBC"
+			className={className}
+			strokeWidth={1.5}
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		/>
+		<path
+			d="M9.5 12.375C10.8117 12.375 11.875 11.3117 11.875 10C11.875 8.68832 10.8117 7.625 9.5 7.625C8.18832 7.625 7.125 8.68832 7.125 10C7.125 11.3117 8.18832 12.375 9.5 12.375Z"
+			className={className}
+			// stroke="#B1AEBC"
+			strokeWidth={1.5}
+			stroke-linecap="round"
+			stroke-linejoin="round"
 		/>
 	</svg>
 );
