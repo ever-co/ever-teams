@@ -108,7 +108,7 @@ export const TeamSettingForm = () => {
 					<div className="w-full mt-5">
 						<div className="">
 							<div className="flex w-full items-center justify-between sm:gap-12 flex-col sm:flex-row">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5">
+								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_NAME}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -135,7 +135,7 @@ export const TeamSettingForm = () => {
 								</div>
 							</div>
 							<div className="flex w-full items-center justify-between gap-12 z-50">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
 									{trans.TEAM_COLOR}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -151,7 +151,7 @@ export const TeamSettingForm = () => {
 								</div>
 							</div>
 							<div className="flex w-full items-center justify-between gap-12">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
 									{trans.EMOJI}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -159,7 +159,7 @@ export const TeamSettingForm = () => {
 								</div>
 							</div>
 							<div className="flex w-full items-center justify-between gap-12  mt-3">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 w-1/5">
+								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
 									{trans.TEAM_SIZE}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -167,7 +167,7 @@ export const TeamSettingForm = () => {
 								</div>
 							</div>
 							<div className="flex w-full items-center sm:gap-12 mt-8 flex-col sm:flex-row">
-								<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2 sm:w-1/5">
+								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_TYPE}
 								</Text>
 								<div className="flex gap-x-[30px] flex-col sm:flex-row ">
@@ -244,7 +244,7 @@ export const TeamSettingForm = () => {
 
 							{isTeamManager ? (
 								<div className="flex w-full items-center justify-between gap-12 mt-8">
-									<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 sm:w-1/5">
+									<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 sm:w-1/5">
 										{trans.TIME_TRACKING}
 									</Text>
 									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">

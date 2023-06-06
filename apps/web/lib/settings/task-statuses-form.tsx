@@ -127,8 +127,8 @@ export const TaskStatusesForm = () => {
 				autoComplete="off"
 			>
 				<div className="flex">
-					<div className="rounded-md m-h-64 p-[32px]  pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px] text-center sm:text-left">
+					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
+						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
 							{trans.TASK_STATUSES}
 						</Text>
 
@@ -151,7 +151,7 @@ export const TaskStatusesForm = () => {
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2">
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
 										{createNew && 'New'}
 										{edit && 'Edit'} Statuses
 									</Text>
@@ -207,7 +207,7 @@ export const TaskStatusesForm = () => {
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 								{trans.LIST_OF_STATUSES}
 							</Text>
 							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">

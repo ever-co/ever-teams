@@ -1,5 +1,6 @@
 import { Disclosure } from '@headlessui/react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { Divider } from './divider';
 import { Text } from './typography';
 interface isProps {
 	title: string;
@@ -18,7 +19,7 @@ export const Accordian = ({
 			<div
 				className={`rounded-2xl p-2 ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
 			>
-				<Disclosure>
+				<Disclosure defaultOpen>
 					{({ open }) => (
 						<>
 							<Disclosure.Button className="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium  hover:bg-white items-center pt-[0.15rem] pb-0 h-[3.81rem] bg-light--theme-light dark:bg-dark--theme-light">
@@ -38,7 +39,7 @@ export const Accordian = ({
 							</Disclosure.Button>
 
 							<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500 ">
-								<div className="bg-[#0000001A] w-full h-[1px]"></div>
+								<Divider />
 								{children}
 							</Disclosure.Panel>
 						</>

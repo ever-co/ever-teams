@@ -28,7 +28,7 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col ">
-			<Text className="flex-none flex-grow-0 text-xl text-gray-400 font-normal mb-2 w-1/5">
+			<Text className="flex-none flex-grow-0 text-xl text-gray-400 font-normal mb-2 w-1/5 mt-8">
 				{trans.MEMBER_AND_ROLES}
 			</Text>
 			<div className="flex items-center justify-between w-full mt-8">
@@ -50,19 +50,6 @@ export const MemberSetting = () => {
 							setFilterString(e.target.value);
 						}}
 					/>
-				</div>
-				<div className="flex items-center justify-between w-auto gap-4">
-					{/* TODO: Will imlement Sort/FIlter logic in future */}
-					{/* <SortDropdown setValue={() => console.log('sort')} />
-					<FilterDropdown setValue={setFilterBy} /> */}
-
-					<Button
-						variant="primary"
-						className="font-normal rounded-xl text-md  "
-						onClick={openModal}
-					>
-						{'+ Invite'}
-					</Button>
 				</div>
 			</div>
 

@@ -15,7 +15,7 @@ export const IssuesSettings = () => {
 	return (
 		<div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.TASK_PRIVACY}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -23,7 +23,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.MULTIPLE_ASSIGNEES}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -31,7 +31,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.MANUAL_TIME}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -39,7 +39,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.GROUP_ESTIMATION}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -47,7 +47,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.ESTIMATION_IN_HOURS}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -55,7 +55,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.ESTIMATION_IN_STORY_POINTS}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -63,14 +63,14 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.PROOF_OF_COMPLETION}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center  w-4/5">
 					<div className="w-[30%]">
 						<CommonToggle enabledText="Activated" disabledText="Deactivated" />
 					</div>
-					<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-[14%]">
+					<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-[14%]">
 						In
 					</Text>
 					<ProofDropdown setValue={() => console.log('proof')} />
@@ -78,7 +78,7 @@ export const IssuesSettings = () => {
 			</div>
 
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.LINKED_ISSUES}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -86,7 +86,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.COMMENTS}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -94,7 +94,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.HISTORY}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -102,7 +102,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.ACCEPTANCE_CRITERIA}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -110,7 +110,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.DRAFT_ISSUES}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
@@ -118,7 +118,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.AUTO_CLOSE_ISSUE}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center  gap-5 w-4/5">
@@ -127,7 +127,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.AUTO_ARCHIVE_ISSUE}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center  gap-5 w-4/5">
@@ -136,7 +136,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			<div className="flex w-full items-center justify-between gap-[2rem]">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
+				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.AUTO_STATUS}
 				</Text>
 				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">

@@ -57,7 +57,7 @@ const Team = () => {
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
 									<Accordian
 										title={trans.HEADING_TITLE}
-										className="dark:bg-dark--theme p-4 mt-[36px]"
+										className="dark:bg-dark--theme p-4 mt-8"
 									>
 										<div className="flex flex-col gap-7">
 											<TeamAvatar disabled={!isTeamManager} />

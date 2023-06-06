@@ -48,7 +48,7 @@ const Personal = () => {
 							<div className="flex flex-col w-full mr-[20px] lg:mr-0">
 								<Accordian
 									title={trans.HEADING_TITLE}
-									className="dark:bg-dark--theme p-4 mt-[36px]"
+									className="dark:bg-dark--theme p-4 mt-8"
 								>
 									{/* <Text className="text-base font-normal text-gray-400 text-center sm:text-left">
 										{translations.pages.settings.HEADING_DESCRIPTION}
@@ -58,14 +58,14 @@ const Personal = () => {
 								</Accordian>
 								<Accordian
 									title={translations.pages.settings.DANDER_ZONE}
-									className="dark:bg-dark--theme p-4 mt-[36px]"
+									className="dark:bg-dark--theme p-4 mt-4"
 									isDanger={true}
 								>
 									<DangerZone />
 								</Accordian>
 								{/*
 								<Card
-									className="dark:bg-dark--theme p-[32px] mt-[36px]"
+									className="dark:bg-dark--theme p-[32px] mt-4"
 									shadow="bigger"
 								>
 									<Text className="text-4xl font-medium mb-2">
@@ -78,7 +78,7 @@ const Personal = () => {
 									<PersonalSettingForm />
 								</Card>
 								<Card
-									className="dark:bg-dark--theme p-[32px] mt-[36px]"
+									className="dark:bg-dark--theme p-[32px] mt-4"
 									shadow="bigger"
 								>
 									<Text className="text-2xl text-[#EB6961] font-normal text-center sm:text-left">
