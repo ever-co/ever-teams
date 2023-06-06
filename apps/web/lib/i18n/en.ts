@@ -138,7 +138,7 @@ export const en = {
 			HEADING_DESCRIPTION: 'Setting dan manage your personal dashboard here',
 		},
 		settingsPersonal: {
-			HEADING_TITLE: 'Personal Settings',
+			HEADING_TITLE: 'General Settings',
 			WORK_SCHEDULE: 'Work Schedule',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
 			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
