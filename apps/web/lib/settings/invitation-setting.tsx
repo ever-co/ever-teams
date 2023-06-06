@@ -4,16 +4,11 @@ import {
 	useRequestToJoinTeam,
 	useTeamInvitations,
 } from '@app/hooks';
-import { SettingIcon } from '@components/ui/svgs/setting-icon';
 import { Button, Divider, InputField, Text } from 'lib/components';
-import {
-	SearchNormalIcon,
-	SettingSimpleGearIcon,
-	SettingsOutlineIcon,
-} from 'lib/components/svgs';
+import { SearchNormalIcon, SettingSimpleGearIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { useTranslation } from 'lib/i18n';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { InvitationTable } from './invitation-table';
 import MemberInfo from 'lib/components/memberInfoToggle';
 import { NotifyDropdown } from './notify-dropdown';
@@ -29,11 +24,15 @@ export const InvitationSetting = () => {
 	const { user } = useAuthenticateUser();
 	const { openModal, isOpen, closeModal } = useModal();
 
+	const [filterString, setFilterString] = useState<string>('');
+
 	useEffect(() => {
 		getRequestToJoin();
 	}, []);
 
-	const invitations = [...teamInvitations, ...requestToJoin];
+	const invitations = [...teamInvitations, ...requestToJoin].filter(
+		(invitation) => invitation.fullName.toLowerCase().includes(filterString)
+	);
 
 	return (
 		<div className="flex flex-col ">
@@ -52,6 +51,9 @@ export const InvitationSetting = () => {
 								<SearchNormalIcon className="w-[1rem] bg-[#FCFCFC]" />
 							</Button>
 						}
+						onChange={(e: ChangeEvent<HTMLInputElement>) => {
+							setFilterString(e.target.value);
+						}}
 					/>
 				</div>
 				<div className="flex items-center justify-between w-auto gap-4">

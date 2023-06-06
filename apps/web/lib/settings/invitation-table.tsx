@@ -29,26 +29,44 @@ export const InvitationTable = ({
 						<tr>
 							<th
 								scope="col"
-								className="pl-5 py-3 text-md font-semibold capitalize text-[#B1AEBC]"
+								className="pl-5 py-3 text-sm font-normal capitalize text-[#B1AEBC]"
 							>
 								Name & Email
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								Position
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								Date & Time Request
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								CV / Attachement
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								Link
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]">
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
+							>
 								Status
 							</th>
-							<th scope="col" className="capitalize py-3 text-[#B1AEBC]"></th>
+							<th
+								scope="col"
+								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
+							></th>
 						</tr>
 					</thead>
 					<tbody>

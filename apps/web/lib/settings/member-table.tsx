@@ -28,37 +28,37 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 						<tr>
 							<th
 								scope="col"
-								className="pl-0 py-3 text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-56"
+								className="pl-0 py-3 text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-56"
 							>
 								Name
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-40"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-40"
 							>
 								Position
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white  w-44"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white  w-44"
 							>
 								Roles
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-48"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-48"
 							>
 								Joined / Left
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-32"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-32"
 							>
 								Status
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-medium capitalize text-[#B1AEBC] dark:text-white w-3"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-3"
 							></th>
 						</tr>
 					</thead>
