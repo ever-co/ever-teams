@@ -121,7 +121,7 @@ export const TaskPrioritiesForm = () => {
 				autoComplete="off"
 			>
 				<div className="flex">
-					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
+					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px] text-center sm:text-left">
 							{trans.TASK_PRIORITIES}
 						</Text>
