@@ -13,7 +13,7 @@ import { RelatedIssueTypeForm } from './related-issue-type-form';
 export const IssuesSettings = () => {
 	const { trans } = useTranslation('settingsTeam');
 	return (
-		<div>
+		<div id="issues-settings">
 			<div className="flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.TASK_PRIVACY}
@@ -150,19 +150,34 @@ export const IssuesSettings = () => {
 			<div className="flex w-full items-center justify-between gap-[2rem]">
 				<IssueTypeForm />
 			</div>
-			<div className="flex w-full items-center justify-between gap-[2rem]">
+			<div
+				id="statuses"
+				className="flex w-full items-center justify-between gap-[2rem]"
+			>
 				<TaskStatusesForm />
 			</div>
-			<div className="flex w-full items-center justify-between gap-[2rem]">
+			<div
+				id="priorities"
+				className="flex w-full items-center justify-between gap-[2rem]"
+			>
 				<TaskPrioritiesForm />
 			</div>
-			<div className="flex w-full items-center justify-between gap-[2rem]">
+			<div
+				id="sizes"
+				className="flex w-full items-center justify-between gap-[2rem]"
+			>
 				<TaskSizesForm />
 			</div>
-			<div className="flex w-full items-center justify-between gap-[2rem]">
+			<div
+				id="labels"
+				className="flex w-full items-center justify-between gap-[2rem]"
+			>
 				<TaskLabelForm />
 			</div>
-			<div className="flex w-full items-center justify-between gap-[2rem]">
+			<div
+				id="related-issue-types"
+				className="flex w-full items-center justify-between gap-[2rem]"
+			>
 				<RelatedIssueTypeForm />
 			</div>
 		</div>

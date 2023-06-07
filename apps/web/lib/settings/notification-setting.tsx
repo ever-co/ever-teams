@@ -5,7 +5,7 @@ export const NotificationSettings = () => {
 	const { trans } = useTranslation('settingsTeam');
 
 	return (
-		<div>
+		<div id="notifications">
 			<div>
 				<Text className="flex-none flex-grow-0 text-lg md-2 w-1/5 font-medium mt-8 text-[#282048] dark:text-white">
 					{trans.SOUND}

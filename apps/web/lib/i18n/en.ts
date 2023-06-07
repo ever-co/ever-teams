@@ -140,6 +140,7 @@ export const en = {
 		settingsPersonal: {
 			HEADING_TITLE: 'General Settings',
 			WORK_SCHEDULE: 'Work Schedule',
+			SUBSCRIPTION: 'Subscription',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
 			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
 			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?',

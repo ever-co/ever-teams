@@ -44,7 +44,6 @@ const TeamSize = () => {
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
 								<Edit2Icon />
-								<TrashIcon />
 							</div>
 						</div>
 					</Popover.Button>

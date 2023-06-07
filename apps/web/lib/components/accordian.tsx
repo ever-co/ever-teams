@@ -15,7 +15,7 @@ export const Accordian = ({
 	isDanger,
 }: isProps) => {
 	return (
-		<div className="w-full ">
+		<div className="w-full">
 			<div
 				className={`rounded-2xl p-2 ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
 			>

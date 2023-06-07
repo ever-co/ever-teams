@@ -126,7 +126,7 @@ export const PersonalSettingForm = () => {
 	return (
 		<>
 			<form
-				className="w-[98%] md:w-[530px]"
+				className="w-[96%]"
 				autoComplete="off"
 				onSubmit={(e) => {
 					e.preventDefault();
@@ -134,15 +134,18 @@ export const PersonalSettingForm = () => {
 					handleContactChange();
 				}}
 			>
-				<div className="flex flex-col items-center justify-between">
+				<div
+					id="general"
+					className="flex flex-col items-center justify-between"
+				>
 					<div className="w-full mt-5">
 						<div className="">
 							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row">
 								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
-									<div className="w-full">
-										<Text className="mb-2 font-normal text-gray-400 text-md">
-											{translations.common.FULL_NAME}
-										</Text>
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+										{translations.common.FULL_NAME}
+									</Text>
+									<div className="flex w-full justify-start">
 										<InputField
 											type="text"
 											placeholder="First Name"
@@ -150,61 +153,59 @@ export const PersonalSettingForm = () => {
 												required: true,
 												maxLength: 80,
 											})}
-											className={`md:w-[220px] m-0 h-[54px] ${
+											className={`w-full m-0 h-[54px] ${
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editFullname}
-											wrapperClassName={`rounded-lg`}
+											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
 										/>
-									</div>
-									<div className="mt-[2rem] w-full">
 										<InputField
 											type="text"
 											placeholder="Last Name"
 											{...register('lastName', {
 												maxLength: 80,
 											})}
-											className={`md:w-[220px] m-0 h-[54px] ${
+											className={`w-full m-0 h-[54px] ${
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editFullname}
-											wrapperClassName={`rounded-lg`}
+											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
 										/>
+
+										{editFullname ? (
+											<Button
+												variant="primary"
+												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												type="button"
+												onClick={(e) => {
+													e.preventDefault();
+													handleFullnameChange();
+												}}
+											>
+												{translations.common.SAVE}
+											</Button>
+										) : (
+											<Button
+												variant="grey"
+												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												type="button"
+												onClick={() => {
+													setEditFullname(true);
+												}}
+											>
+												{translations.common.EDIT}
+											</Button>
+										)}
 									</div>
 								</div>
-								<div className="mt-5">
-									{editFullname ? (
-										<Button
-											variant="primary"
-											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
-											type="button"
-											onClick={(e) => {
-												e.preventDefault();
-												handleFullnameChange();
-											}}
-										>
-											{translations.common.SAVE}
-										</Button>
-									) : (
-										<Button
-											variant="grey"
-											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
-											type="button"
-											onClick={() => {
-												setEditFullname(true);
-											}}
-										>
-											{translations.common.EDIT}
-										</Button>
-									)}
-								</div>
 							</div>
-							<div className="flex items-center justify-between w-full sm:gap-8 mt-8 flex-col sm:flex-row">
+
+							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
 								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
-									<div className="w-full">
-										<Text className="mb-2 font-normal text-gray-400 text-md">
-											{translations.common.CONTACT}
-										</Text>
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+										{translations.common.CONTACT}
+									</Text>
+									<div className="flex w-full justify-start">
 										<InputField
 											type="email"
 											placeholder="Email Address"
@@ -213,115 +214,136 @@ export const PersonalSettingForm = () => {
 												pattern:
 													/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
 											})}
-											className={`md:w-[220px] m-0 h-[54px] ${
+											className={`w-full m-0 h-[54px] ${
 												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editContacts}
-											wrapperClassName={`rounded-lg`}
+											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
 										/>
-									</div>
-									<div className="mt-8 w-full">
 										<InputField
 											type="text"
 											placeholder="Phone Number"
 											{...register('phoneNumber', {
 												valueAsNumber: true,
 											})}
-											className={`md:w-[220px] m-0 h-[54px] ${
+											className={`w-full m-0 h-[54px] ${
 												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
 											}`}
 											disabled={!editContacts}
-											wrapperClassName={`rounded-lg`}
+											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
+										/>
+										{editContacts ? (
+											<Button
+												variant="primary"
+												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												type="button"
+												onClick={(e) => {
+													e.preventDefault();
+													handleContactChange();
+												}}
+											>
+												{translations.common.SAVE}
+											</Button>
+										) : (
+											<Button
+												variant="grey"
+												className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
+												type="button"
+												onClick={() => {
+													setEditContacts(true);
+													setTimeout(() => {
+														setFocus('email');
+													}, 10);
+												}}
+											>
+												{translations.common.EDIT}
+											</Button>
+										)}
+									</div>
+								</div>
+							</div>
+
+							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+										{translations.common.THEME}
+									</Text>
+									<div className="flex w-full">
+										<ThemeToggler />
+										<Text className="text-sm font-normal text-gray-400 flex items-center ml-5">
+											{theme === 'light' ? 'Light' : 'Dark'} Mode
+										</Text>
+									</div>
+								</div>
+							</div>
+
+							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+										{translations.common.LANGUAGE}
+									</Text>
+									<div className="flex w-full">
+										<LanguageDropDown
+											currentLanguage={currentLanguage}
+											onChangeLanguage={(t: string) => {
+												handleChangeLanguage(t);
+											}}
 										/>
 									</div>
 								</div>
-								<div className="mt-5">
-									{editContacts ? (
-										<Button
-											variant="primary"
-											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
-											type="button"
-											onClick={(e) => {
-												e.preventDefault();
-												handleContactChange();
-											}}
-										>
-											{translations.common.SAVE}
-										</Button>
-									) : (
-										<Button
-											variant="grey"
-											className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
-											type="button"
-											onClick={() => {
-												setEditContacts(true);
-												setTimeout(() => {
-													setFocus('email');
-												}, 10);
-											}}
-										>
-											{translations.common.EDIT}
-										</Button>
-									)}
-								</div>
 							</div>
-							<div className="flex items-center gap-6 mt-8">
-								<div className="">
-									<Text className="mb-2 font-normal text-gray-400 text-md">
-										{translations.common.THEME}
-									</Text>
-									<ThemeToggler />
-								</div>
-								<div className="mt-8">
-									<Text className="text-sm font-normal text-gray-400">
-										{theme === 'light' ? 'Light' : 'Dark'} Mode
-									</Text>
-								</div>
-							</div>
-							<div className="flex items-center justify-between w-full mt-8">
-								<div className="">
-									<Text className="mb-2 font-normal text-gray-400 text-md">
-										{translations.common.LANGUAGE}
-									</Text>
-									<LanguageDropDown
-										currentLanguage={currentLanguage}
-										onChangeLanguage={(t: string) => {
-											handleChangeLanguage(t);
-										}}
-									/>
-								</div>
-							</div>
-							<div className="flex items-center sm:justify-between w-full gap-5 mt-8">
-								<div>
-									<Text className="mb-2 font-normal text-gray-400 text-md">
+
+							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{translations.common.TIME_ZONE}
 									</Text>
-									<TimezoneDropDown
-										currentTimezone={currentTimezone}
-										onChangeTimezone={(t: string) => {
-											handleChangeTimezone(t);
-										}}
-									/>
-								</div>
-								<div className="mt-8">
-									<Button
-										variant="grey"
-										type="button"
-										onClick={() => {
-											handleChangeTimezone(undefined);
-										}}
-										className="min-w-[100px] h-[54px] rounded-[8px] font-[600]"
-									>
-										{translations.common.DETECT}
-									</Button>
+									<div className="flex w-full">
+										<TimezoneDropDown
+											currentTimezone={currentTimezone}
+											onChangeTimezone={(t: string) => {
+												handleChangeTimezone(t);
+											}}
+										/>
+										<Button
+											variant="grey"
+											type="button"
+											onClick={() => {
+												handleChangeTimezone(undefined);
+											}}
+											className="min-w-[100px] h-[54px] rounded-[8px] font-[600] ml-5"
+										>
+											{translations.common.DETECT}
+										</Button>
+									</div>
 								</div>
 							</div>
-							<div className="flex items-center justify-between w-full mt-8">
-								<div className="">
-									<Text className="mb-2 font-normal text-gray-400 text-md">
+
+							<div
+								id="work-schedule"
+								className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8"
+							>
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
 										{trans.WORK_SCHEDULE}
 									</Text>
-									<Text className="text-md font-normal">No</Text>
+									<div className="flex w-full">
+										<Text className="text-lg font-normal">No</Text>
+									</div>
+								</div>
+							</div>
+
+							<div
+								id="subscription"
+								className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8"
+							>
+								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
+										{trans.SUBSCRIPTION}
+									</Text>
+									<div className="flex w-full">
+										<Text className="text-lg font-normal">Basic</Text>
+									</div>
 								</div>
 							</div>
 						</div>

@@ -22,18 +22,22 @@ export const LeftSideSettingMenu = () => {
 		{
 			title: 'General',
 			color: '#7E7991',
+			href: '#general',
 		},
 		{
 			title: 'Work Schedule',
 			color: '#7E7991',
+			href: '#work-schedule',
 		},
 		{
 			title: 'Subscription',
 			color: '#7E7991',
+			href: '#subscription',
 		},
 		{
 			title: 'Danger Zone',
 			color: '#DE5536',
+			href: '#danger-zone',
 		},
 	];
 
@@ -41,50 +45,62 @@ export const LeftSideSettingMenu = () => {
 		{
 			title: 'General Settings',
 			color: '#7E7991',
+			href: '#general-settings',
 		},
 		{
 			title: 'Invitations',
 			color: '#7E7991',
+			href: '#invitations',
 		},
 		{
 			title: 'Member',
 			color: '#7E7991',
+			href: '#member',
 		},
 		{
 			title: 'Issues Settings',
 			color: '#7E7991',
+			href: '#issues-settings',
 		},
 		{
 			title: 'Statuses',
 			color: '#7E7991',
+			href: '#statuses',
 		},
 		{
 			title: 'Priorities',
 			color: '#7E7991',
+			href: '#priorities',
 		},
 		{
 			title: 'Sizes',
 			color: '#7E7991',
+			href: '#sizes',
 		},
 		{
 			title: 'Labels',
 			color: '#7E7991',
+			href: '#labels',
 		},
 		{
 			title: 'Related Issue Types',
 			color: '#7E7991',
+			href: '#related-issue-types',
 		},
 		{
 			title: 'Notifications',
 			color: '#7E7991',
+			href: '#notifications',
 		},
 		{
 			title: 'Integrations',
 			color: '#7E7991',
+			href: '#integrations',
 		},
 		{
 			title: 'Danger Zones',
 			color: '#DE5536',
+			href: '#danger-zones',
 		},
 	];
 	return (
@@ -125,7 +141,7 @@ export const LeftSideSettingMenu = () => {
 						<div className="flex flex-col">
 							{PersonalAccordianData?.map((ad, index) => {
 								return (
-									<Link href="/settings/personal">
+									<Link href={`/settings/personal${ad.href}`}>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -168,7 +184,7 @@ export const LeftSideSettingMenu = () => {
 						<div className="flex flex-col">
 							{TeamAccordianData?.map((ad, index) => {
 								return (
-									<Link href="/settings/team">
+									<Link href={`/settings/team${ad.href}`}>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}

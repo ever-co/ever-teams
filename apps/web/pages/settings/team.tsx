@@ -59,7 +59,7 @@ const Team = () => {
 										title={trans.HEADING_TITLE}
 										className="dark:bg-dark--theme p-4 mt-8"
 									>
-										<div className="flex flex-col gap-7">
+										<div id="general-settings" className="flex flex-col">
 											<TeamAvatar disabled={!isTeamManager} />
 											<TeamSettingForm />
 										</div>
