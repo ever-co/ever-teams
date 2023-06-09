@@ -1,7 +1,6 @@
 import { Button, InputField, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import MemberInfo from 'lib/components/memberInfoToggle';
 import { MemberTable } from './member-table';
 import {
 	useAuthenticateUser,
@@ -10,7 +9,6 @@ import {
 } from '@app/hooks';
 import { ChangeEvent, useState } from 'react';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
-import { ChooseDropdown } from './choose-dropdown';
 
 export const MemberSetting = () => {
 	const { trans } = useTranslation('settingsTeam');

@@ -4,19 +4,15 @@ import {
 	useRequestToJoinTeam,
 	useTeamInvitations,
 } from '@app/hooks';
-import { Button, Divider, InputField, Text } from 'lib/components';
-import { SearchNormalIcon, SettingSimpleGearIcon } from 'lib/components/svgs';
+import { Button, InputField } from 'lib/components';
+import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { useTranslation } from 'lib/i18n';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { InvitationTable } from './invitation-table';
-import MemberInfo from 'lib/components/memberInfoToggle';
-import { NotifyDropdown } from './notify-dropdown';
-import { DayDropdown } from './day-dropdown';
 
 export const InvitationSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
-	const [copied, setCopied] = useState(false);
 
 	const { teamInvitations } = useTeamInvitations();
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();

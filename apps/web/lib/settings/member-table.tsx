@@ -7,7 +7,6 @@ import { OT_Member } from '@app/interfaces';
 import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
-import { TableActionPopover } from './table-action-popover';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
