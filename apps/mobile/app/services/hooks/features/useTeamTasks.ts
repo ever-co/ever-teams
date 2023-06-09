@@ -1,82 +1,101 @@
 /* eslint-disable camelcase */
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../models"
 import useFetchAllTasks from "../../client/queries/task/tasks"
 import {
 	createTaskRequest,
 	deleteEmployeeFromTasksRequest,
 	deleteTaskRequest,
-	getTeamTasksRequest,
 	updateTaskRequest,
 } from "../../client/requests/tasks"
-import { OT_Member } from "../../interfaces/IOrganizationTeam"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
+import { useSyncRef } from "../useSyncRef"
+import { useFirstLoad } from "../useFirstLoad"
+import isEqual from "lodash/isEqual"
 
 export function useTeamTasks() {
 	const {
-		authenticationStore: { tenantId, organizationId, authToken },
+		authenticationStore: { tenantId, organizationId, authToken, user },
 		teamStore: { activeTeam, activeTeamId },
-		TaskStore: { teamTasks, setTeamTasks, setActiveTask, activeTaskId, setActiveTaskId },
+		TaskStore: {
+			teamTasks,
+			setTeamTasks,
+			setActiveTask,
+			activeTaskId,
+			setActiveTaskId,
+			activeTask,
+		},
 	} = useStores()
 
+	const tasksRef = useSyncRef(teamTasks)
+	const [tasksFetching, setTasksFetching] = useState(false)
+	const [createLoading, setCreateLoading] = useState(false)
+	const activeTeamRef = useSyncRef(activeTeam)
+
+	const { firstLoad, firstLoadData: firstLoadTaskData } = useFirstLoad()
+
+	// Query Hook
 	const {
 		data: allTasks,
-		isRefetching,
 		isSuccess,
-		isLoading,
+		isFetching,
+		isRefetching,
 		refetch,
 	} = useFetchAllTasks({ tenantId, organizationId, authToken, activeTeamId })
 
-	// Create a new Task
-	const createNewTask = useCallback(
-		async (title: string) => {
-			if (title.trim().length > 2) {
-				const dataBody: ICreateTask = {
-					title,
-					status: "open",
-					description: "",
-					tags: [],
-					teams: [
-						{
-							id: activeTeamId,
-						},
-					],
-					estimate: 0,
-					organizationId,
-					tenantId,
-				}
-
-				await createTaskRequest({
-					data: dataBody,
-					bearer_token: authToken,
+	const deepCheckAndUpdateTasks = useCallback(
+		(responseTasks: ITeamTask[], deepCheck?: boolean) => {
+			if (responseTasks && responseTasks.length) {
+				responseTasks.forEach((task) => {
+					if (task.tags && task.tags?.length) {
+						task.label = task.tags[0].name
+					}
 				})
-					.then((response) => {
-						const { data: created } = response
-						refetch()
-							.then((res) => {
-								const { data } = res
-								const activeTeamTasks = getTasksByTeamState({ tasks: data, activeTeamId })
-								setTeamTasks(data)
-								const createdTask = activeTeamTasks.find((t) => t.id === created?.id)
-								setActiveTeamTask(createdTask)
-							})
-							.catch((e) => console.log(e))
+			}
+
+			/**
+			 * When deepCheck enabled,
+			 * then update the tasks store only when active-team tasks have an update
+			 */
+			if (deepCheck) {
+				const latestActiveTeamTasks = responseTasks
+					.filter((task) => {
+						return task.teams.some((tm) => {
+							return tm.id === activeTeamRef.current?.id
+						})
 					})
-					.catch((e) => console.log(e))
+					.sort((a, b) => a.title.localeCompare(b.title))
+
+				const activeTeamTasks = tasksRef.current
+					.slice()
+					.sort((a, b) => a.title.localeCompare(b.title))
+
+				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
+					setTeamTasks(responseTasks)
+				}
+				const freshActiveTask = responseTasks.find((t) => t.id === activeTaskId)
+				if (freshActiveTask && !isEqual(freshActiveTask, activeTask)) {
+					setActiveTeamTask(freshActiveTask)
+				}
+			} else {
+				setTeamTasks(responseTasks)
 			}
 		},
-		[activeTeamId],
+		[setTeamTasks],
 	)
 
-	// Update a task
-	const updateTask = async (task: ITeamTask, id: string) => {
-		const { data, response } = await updateTaskRequest({ data: task, id }, authToken)
+	useEffect(() => {
+		if (isSuccess) {
+			deepCheckAndUpdateTasks(allTasks || [], true)
+		}
+	}, [allTasks, isSuccess, isRefetching])
+
+	// Reload tasks after active team changed
+	useEffect(() => {
 		refetch().then((res) => {
-			const { data } = res
-			setActiveTeamTasks(data)
+			deepCheckAndUpdateTasks(res?.data || [], true)
 		})
-		return { data, response }
-	}
+	}, [activeTeamId, firstLoad])
 
 	// Delete a Task
 	const deleteTask = useCallback(
@@ -100,98 +119,114 @@ export function useTeamTasks() {
 		[setTeamTasks],
 	)
 
-	// Assign a task to a member
-	const onAssignTask = async ({ taskId, memberId }: { taskId: string; memberId: string }) => {
-		const teamMembers: OT_Member[] = activeTeam?.members
-		const currentMember = teamMembers?.find((m) => m.employee.user.id === memberId)
-
-		if (!currentMember) {
-			return {
-				error: "This user is not part of this team",
+	const createNewTask = useCallback(
+		async (
+			{ taskName, issueType }: { taskName: string; issueType?: string },
+			members?: { id: string }[],
+		) => {
+			if (taskName.trim().length > 2) {
+				const dataBody: ICreateTask = {
+					title: taskName,
+					status: "open",
+					issueType,
+					description: "",
+					members: user?.employee?.id ? [{ id: user.employee.id }] : [],
+					tags: [],
+					teams: [
+						{
+							id: activeTeamId,
+						},
+					],
+					estimate: 0,
+					organizationId,
+					tenantId,
+					...(members ? { members } : {}),
+				}
+				setCreateLoading(true)
+				try {
+					const response = await createTaskRequest({
+						data: dataBody,
+						bearer_token: authToken,
+					})
+					const { data: created } = response
+					refetch()
+						.then((res) => {
+							const { data: data_1 } = res
+							setTeamTasks(data_1)
+							const createdTask = data_1.find((t) => t.id === created?.id)
+							setActiveTeamTask(createdTask)
+						})
+						.catch((e) => console.log(e))
+				} catch (e_1) {
+					return console.log(e_1)
+				}
+				setCreateLoading(false)
 			}
+		},
+		[activeTeamId],
+	)
+
+	// Global loading state
+	useEffect(() => {
+		if (firstLoad) {
+			setTasksFetching(isFetching)
 		}
+	}, [isFetching, firstLoad])
 
-		const { data: tasks } = await getTeamTasksRequest({
-			bearer_token: authToken,
-			tenantId,
-			organizationId,
-		})
+	// Update a task
+	const updateTask = async (task: ITeamTask, id: string) => {
+		const { data, response } = await updateTaskRequest({ data: task, id }, authToken)
+		refetch()
+		return { data, response }
+	}
 
-		const activeTeamTasks = getTasksByTeamState({ tasks: tasks?.items, activeTeamId })
-		const task: ITeamTask = activeTeamTasks.find((ts) => ts.id === taskId)
-		const members = task.members
-
-		const editTask = {
-			...task,
-			members: [
-				...members,
+	const updateTitle = useCallback((newTitle: string, task?: ITeamTask | null, loader?: boolean) => {
+		if (task && newTitle !== task.title) {
+			loader && setTasksFetching(true)
+			return updateTask(
 				{
-					id: currentMember.employeeId,
+					...task,
+					title: newTitle,
 				},
-			],
+				task.id,
+			).then((res) => {
+				setTasksFetching(false)
+				return res
+			})
 		}
-		const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken)
-		refetch().then((res) => {
-			const { data } = res
-			setActiveTeamTasks(data)
-		})
-		return data
-	}
+		return Promise.resolve()
+	}, [])
 
-	// UNASSIGN A TASK
-	const onUnassignedTask = async ({ taskId, memberId }: { taskId: string; memberId: string }) => {
-		const teamMembers: OT_Member[] = activeTeam?.members
-		const currentMember = teamMembers?.find((m) => m.employee.user.id === memberId)
-
-		if (!currentMember) {
-			return {
-				error: "This member is not in this team",
+	const updateDescription = useCallback(
+		(newDescription: string, task?: ITeamTask | null, loader?: boolean) => {
+			if (task && newDescription !== task.description) {
+				loader && setTasksFetching(true)
+				return updateTask(
+					{
+						...task,
+						description: newDescription,
+					},
+					task.id,
+				).then((res) => {
+					setTasksFetching(false)
+					return res
+				})
 			}
-		}
+			return Promise.resolve()
+		},
+		[],
+	)
 
-		const task: ITeamTask = teamTasks.find((ts) => ts.id === taskId)
-
-		const members = task.members.filter((m) => m.userId !== memberId)
-
-		const editTask = {
-			...task,
-			members,
-		}
-
-		const { data } = await updateTaskRequest({ data: editTask, id: taskId }, authToken)
-		refetch().then((res) => {
-			const { data: tasks } = res
-			setActiveTeamTasks(tasks)
-		})
-		return data
-	}
-
-	// // Get the active task id and update active task data
-	useEffect(() => {
-		const active_taskId = activeTaskId || ""
-		setActiveTask(teamTasks.find((ts) => ts.id === active_taskId) || null)
-	}, [teamTasks])
-
-	useEffect(() => {
-		if (isSuccess) {
-			setTeamTasks(allTasks)
-			if (activeTaskId) {
-				setActiveTeamTask(allTasks.find((ts) => ts.id === activeTaskId) || null)
-			}
-		}
-	}, [activeTeamId, allTasks, isRefetching, isLoading])
 	/**
 	 * Change active task
 	 */
-	const setActiveTeamTask = useCallback((task: (typeof teamTasks)[0] | null) => {
-		setActiveTaskId(task?.id || "")
-		setActiveTask(task)
-	}, [])
-
-	const setActiveTeamTasks = useCallback((tasks: ITeamTask[]) => {
-		const activeTeamTasks = getTasksByTeamState({ tasks, activeTeamId })
-		setTeamTasks(activeTeamTasks)
-	}, [])
+	const setActiveTeamTask = useCallback(
+		(task: ITeamTask | null) => {
+			setActiveTask(task)
+			setActiveTaskId(task?.id || "")
+		},
+		[setActiveTask],
+	)
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {
@@ -210,26 +245,15 @@ export function useTeamTasks() {
 		deleteTask,
 		updateTask,
 		setActiveTeamTask,
-		onUnassignedTask,
-		onAssignTask,
+		updateDescription,
+		updateTitle,
+		createLoading,
+		tasksFetching,
 		deleteEmployeeFromTasks,
 		teamTasks,
+		activeTask,
+		activeTaskId,
 		isRefetching,
+		firstLoadTaskData,
 	}
-}
-
-interface IFilterTask {
-	tasks: ITeamTask[]
-	activeTeamId: string
-}
-
-export const getTasksByTeamState = (params: IFilterTask) => {
-	if (!params.tasks) return []
-	const data = params.tasks.filter((task) => {
-		return task.teams.some((tm) => {
-			return tm.id === params.activeTeamId
-		})
-	})
-
-	return data
 }

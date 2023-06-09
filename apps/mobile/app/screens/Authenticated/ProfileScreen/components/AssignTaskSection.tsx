@@ -12,20 +12,22 @@ import {
 	Dimensions,
 	TouchableOpacity,
 } from "react-native"
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { spacing, typography, useAppTheme } from "../../../../theme"
+import { typography, useAppTheme } from "../../../../theme"
 import { ActivityIndicator } from "react-native-paper"
+import { QueryClient } from "react-query"
 import TaskLabel from "../../../../components/TaskLabel"
 import TaskPriorities from "../../../../components/TaskPriority"
-import TaskStatusDropdown from "../../TimerScreen/components/TaskStatusDropdown"
 import TaskSize from "../../../../components/TaskSize"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import { useStores } from "../../../../models"
 import { translate } from "../../../../i18n"
+import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
+import TaskStatus from "../../../../components/TaskStatus"
+import Version from "../../../../components/Version"
 
 export interface Props {
 	visible: boolean
-	memberId: string
+	isAuthUser: boolean
+	createNewTask: (task: ICreateTask) => Promise<{ data: ITeamTask; response: Response }>
 	onDismiss: () => unknown
 }
 const { width, height } = Dimensions.get("window")
@@ -61,36 +63,37 @@ const ModalPopUp = ({ visible, children }) => {
 	)
 }
 
-const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDismiss, memberId }) {
-	const {
-		authenticationStore: { user },
-	} = useStores()
-
-	const isAuthUser = user?.id === memberId
-
+const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
+	visible,
+	onDismiss,
+	createNewTask,
+	isAuthUser,
+}) {
+	const queryClient = new QueryClient()
 	const [taskInputText, setTaskInputText] = useState<string>("")
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const [, setShowCheckIcon] = useState<boolean>(false)
+	const [newTask, setNewTask] = useState<ICreateTask>(null)
 
 	const { colors } = useAppTheme()
 
 	const onCreateNewTask = async () => {
-		setShowCheckIcon(false)
-		setIsLoading(true)
-		// await createAndAssign(taskInputText)
-		setIsLoading(false)
-		setTaskInputText("")
-		onDismiss()
+		if (taskInputText.trim().length >= 3) {
+			setIsLoading(true)
+			await createNewTask({
+				...newTask,
+				title: taskInputText,
+				estimate: newTask?.estimate || 0,
+				status: newTask?.status || "open",
+			}).then(() => queryClient.cancelQueries("tasks"))
+			setIsLoading(false)
+			setNewTask(null)
+			setTaskInputText("")
+			onDismiss()
+		}
 	}
 
 	const handleChangeText = (value: string) => {
 		setTaskInputText(value)
-		if (value.trim().length > 0) {
-			setShowCheckIcon(false)
-		}
-		if (value.trim().length >= 3) {
-			setShowCheckIcon(true)
-		}
 	}
 
 	return (
@@ -124,7 +127,6 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 									styles.textInput,
 									{ color: colors.primary, backgroundColor: colors.background },
 								]}
-								defaultValue={""}
 								autoCorrect={false}
 								autoCapitalize={"none"}
 								placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
@@ -144,13 +146,38 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 									alignItems: "center",
 								}}
 							>
-								<View style={{ flexDirection: "row", alignItems: "center" }}>
+								<View
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+									}}
+								>
 									<Text style={{ textAlign: "center", fontSize: 12, color: "#7E7991" }}>
 										{translate("myWorkScreen.estimateLabel")}:{" "}
 									</Text>
-									<EstimateTime currentTask={undefined} />
+									<EstimateTime
+										setEstimateTime={(e) =>
+											setNewTask({
+												...newTask,
+												estimate: e,
+											})
+										}
+										currentTask={undefined}
+									/>
 								</View>
-								<TaskSize />
+								<TaskStatus
+									status={newTask?.status}
+									setStatus={(e) =>
+										setNewTask({
+											...newTask,
+											status: e,
+										})
+									}
+									containerStyle={{
+										width: width / 2.1,
+										height: 32,
+									}}
+								/>
 							</View>
 							<View
 								style={{
@@ -160,19 +187,47 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 									zIndex: 1000,
 								}}
 							>
-								<View style={{ width: 136, height: 32 }}>
-									<TaskStatusDropdown task={undefined} />
-								</View>
-								<TaskPriorities />
+								<TaskSize
+									size={newTask?.size}
+									setSize={(e) =>
+										setNewTask({
+											...newTask,
+											size: e,
+										})
+									}
+									containerStyle={{ width: width / 3.3 }}
+								/>
+								<TaskPriorities
+									priority={newTask?.priority}
+									setPriority={(e) =>
+										setNewTask({
+											...newTask,
+											priority: e,
+										})
+									}
+									containerStyle={{ width: width / 3.3 }}
+								/>
+								<Version
+									containerStyle={{
+										width: width / 5,
+									}}
+								/>
 							</View>
 							<View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
-								<TaskLabel />
+								<TaskLabel
+									// labels={newTask?.tags[0].id}
+									// setLabels={(e) => console.log(e)}
+									containerStyle={{ width: "100%" }}
+								/>
 							</View>
 						</View>
 					</View>
 					<View style={styles.wrapButtons}>
 						<TouchableOpacity
-							onPress={() => onDismiss()}
+							onPress={() => {
+								setNewTask(null)
+								onDismiss()
+							}}
 							style={[styles.button, { backgroundColor: "#E6E6E9" }]}
 						>
 							<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>
@@ -198,36 +253,13 @@ const AssignTaskFormModal: FC<Props> = function InviteUserModal({ visible, onDis
 
 export default AssignTaskFormModal
 
-const $container: ViewStyle = {
-	...GS.flex1,
-	paddingTop: spacing.extraLarge + spacing.large,
-	paddingHorizontal: spacing.large,
-}
 const $modalBackGround: ViewStyle = {
 	flex: 1,
 	backgroundColor: "#000000AA",
-
 	justifyContent: "flex-end",
 }
 
-const $modalContainer: ViewStyle = {
-	width: "100%",
-	height,
-	backgroundColor: "white",
-	paddingHorizontal: 30,
-	paddingVertical: 30,
-	borderRadius: 30,
-	elevation: 20,
-	justifyContent: "center",
-}
-
 const styles = StyleSheet.create({
-	blueBottom: {
-		borderBottomWidth: 2,
-		borderColor: "#1B005D",
-		marginBottom: 25,
-		width: "100%",
-	},
 	button: {
 		alignItems: "center",
 		borderRadius: 11,
@@ -241,11 +273,6 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
 	},
-	crossIcon: {
-		position: "absolute",
-		right: 10,
-		top: 10,
-	},
 	loading: {
 		position: "absolute",
 		right: 10,
@@ -258,7 +285,6 @@ const styles = StyleSheet.create({
 		borderTopLeftRadius: 24,
 		borderTopRightRadius: 24,
 		borderWidth: 2,
-		height: height / 2,
 		paddingHorizontal: 20,
 		paddingVertical: 30,
 		shadowColor: "#1B005D0D",
@@ -280,10 +306,6 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		paddingVertical: 13,
 		width: "90%",
-	},
-	theTextField: {
-		borderWidth: 0,
-		width: "100%",
 	},
 	wrapButtons: {
 		flexDirection: "row",

@@ -99,7 +99,7 @@ export function useTaskFilter(profile: IUserProfile) {
 	/**
 	 * Apply filter status filter
 	 */
-	const applyStatusFilder = useCallback(() => {
+	const applyStatusFilter = useCallback(() => {
 		setAppliedStatusFilter(statusFilter)
 	}, [statusFilter])
 
@@ -134,7 +134,7 @@ export function useTaskFilter(profile: IUserProfile) {
 		statusFilter,
 		onChangeStatusFilter,
 		onResetStatusFilter,
-		applyStatusFilder,
+		applyStatusFilter,
 		tasksGrouped: profile.tasksGrouped,
 	}
 }

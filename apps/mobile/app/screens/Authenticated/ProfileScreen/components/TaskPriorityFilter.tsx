@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC, useEffect, useState } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -9,148 +9,200 @@ import {
 	ViewStyle,
 	ScrollView,
 	Dimensions,
+	Animated,
+	Modal,
+	TouchableWithoutFeedback,
 } from "react-native"
-import { LinearGradient } from "expo-linear-gradient"
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons"
-import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
 import { typography, useAppTheme } from "../../../../theme"
-import { useStores } from "../../../../models"
-import { BadgedTaskPriority } from "../../../../components/PriorityIcon"
+import { useTaskPriorityValue } from "../../../../components/StatusType"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useTaskPriority } from "../../../../services/hooks/features/useTaskPriority"
 import { ITaskPriorityItem } from "../../../../services/interfaces/ITaskPriority"
 
 interface TaskPriorityFilterProps {
-	containerStyle?: ViewStyle
-	dropdownContainerStyle?: ViewStyle
 	showPriorityPopup: boolean
 	setShowPriorityPopup: (value: boolean) => unknown
+	taskFilter: ITaskFilter
 }
 
-const { width, height } = Dimensions.get("window")
+const { height, width } = Dimensions.get("window")
 
 const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
-	({ containerStyle, dropdownContainerStyle, setShowPriorityPopup, showPriorityPopup }) => {
-		const {
-			TaskStore: { filter },
-		} = useStores()
-		const { colors, dark } = useAppTheme()
+	({ setShowPriorityPopup, showPriorityPopup, taskFilter }) => {
+		const { colors } = useAppTheme()
+		const [selectedPriorities, setSelectedPriorities] = useState<string[]>([])
 
-		const priorities = filter.priorities
-
-		if (dark) {
-			return (
-				<>
-					<TouchableOpacity onPress={() => setShowPriorityPopup(!showPriorityPopup)}>
-						<LinearGradient
-							colors={["#E6BF93", "#D87555"]}
-							end={{ y: 0.5, x: 1 }}
-							start={{ y: 1, x: 0 }}
-							style={{ ...styles.container, ...containerStyle, backgroundColor: "#F2F2F2" }}
-						>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<Text style={{ marginRight: 10 }}>Priorities</Text>
-								{priorities.length === 0 ? null : (
-									<FontAwesome name="circle" size={24} color="#3826A6" />
-								)}
-							</View>
-							<AntDesign name="down" size={14} color={colors.primary} />
-						</LinearGradient>
-					</TouchableOpacity>
-					{showPriorityPopup && (
-						<TaskPriorityFilterDropDown dropdownContainer={dropdownContainerStyle} />
-					)}
-				</>
-			)
-		}
+		useEffect(() => {
+			taskFilter.onChangeStatusFilter("priority", selectedPriorities)
+			taskFilter.applyStatusFilter()
+		}, [selectedPriorities])
 
 		return (
 			<>
 				<TouchableOpacity onPress={() => setShowPriorityPopup(!showPriorityPopup)}>
-					<View style={{ ...styles.container, ...containerStyle }}>
+					<View style={{ ...styles.container, borderColor: colors.divider }}>
 						<View style={{ flexDirection: "row", alignItems: "center" }}>
-							<Text style={{ marginRight: 10 }}>Priorities</Text>
-							{priorities.length === 0 ? null : (
-								<FontAwesome name="circle" size={24} color="#3826A6" />
+							<Text style={{ marginRight: 10, color: colors.primary }}>Priorities</Text>
+							{selectedPriorities.length === 0 ? null : (
+								<FontAwesome name="circle" size={24} color={colors.secondary} />
 							)}
 						</View>
 						<AntDesign name="down" size={14} color={colors.primary} />
 					</View>
 				</TouchableOpacity>
-				{showPriorityPopup && (
-					<TaskPriorityFilterDropDown dropdownContainer={dropdownContainerStyle} />
-				)}
+				<TaskStatusFilterDropDown
+					visible={showPriorityPopup}
+					onDismiss={() => setShowPriorityPopup(false)}
+					selectedPriorities={selectedPriorities}
+					setSelectedPriorities={setSelectedPriorities}
+				/>
 			</>
 		)
 	},
 )
 
 interface DropDownProps {
-	dropdownContainer?: ViewStyle
+	visible: boolean
+	onDismiss: () => unknown
+	selectedPriorities: string[]
+	setSelectedPriorities: (s: string[]) => unknown
 }
 
-const TaskPriorityFilterDropDown: FC<DropDownProps> = observer(({ dropdownContainer }) => {
-	const { colors, dark } = useAppTheme()
-	const { allTaskPriorities } = useTaskPriority()
+const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
+	({ visible, onDismiss, setSelectedPriorities, selectedPriorities }) => {
+		const { colors, dark } = useAppTheme()
+		const { allTaskPriorities } = useTaskPriority()
 
-	return (
-		<View
-			style={[
-				styles.dropdownContainer,
-				dropdownContainer,
-				{
-					backgroundColor: colors.background,
-					shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
-				},
-			]}
-		>
-			<View style={styles.secondContainer}>
-				<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Priorities</Text>
-				<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
-					{allTaskPriorities.map((item, idx) => (
-						<DropDownItem priority={item} key={idx} />
-					))}
-				</ScrollView>
-			</View>
-		</View>
-	)
-})
+		return (
+			<ModalPopUp visible={visible} onDismiss={onDismiss}>
+				<TouchableWithoutFeedback>
+					<View
+						style={[
+							styles.dropdownContainer,
+							{
+								backgroundColor: colors.background,
+								shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
+							},
+						]}
+					>
+						<View style={styles.secondContainer}>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
+								{allTaskPriorities.map((item, idx) => (
+									<DropDownItem
+										selectedPriorities={selectedPriorities}
+										setSelectedPriorities={setSelectedPriorities}
+										priority={item}
+										key={idx}
+									/>
+								))}
+							</ScrollView>
+						</View>
+					</View>
+				</TouchableWithoutFeedback>
+			</ModalPopUp>
+		)
+	},
+)
 
-const DropDownItem = observer(({ priority }: { priority: ITaskPriorityItem }) => {
-	const {
-		TaskStore: { filter, setFilter },
-	} = useStores()
-	const priorities = filter.priorities
-	const exist = priorities.find((s) => s === priority)
+const DropDownItem = observer(
+	({
+		priority,
+		selectedPriorities,
+		setSelectedPriorities,
+	}: {
+		priority: ITaskPriorityItem
+		selectedPriorities: string[]
+		setSelectedPriorities: (s: string[]) => unknown
+	}) => {
+		const allPriorities = useTaskPriorityValue()
+		const priorityItem = allPriorities[priority.name.split("-").join(" ")]
+		const { dark } = useAppTheme()
 
-	const onSelectedStatus = () => {
-		if (exist) {
-			const newStatuses = priorities.filter((s) => s !== priority)
-			setFilter({
-				...filter,
-				priorities: newStatuses,
-			})
+		const exist = selectedPriorities.find((s) => s === priorityItem?.name)
+
+		const onSelectedPriority = () => {
+			if (exist) {
+				const newStatuses = selectedPriorities.filter((s) => s !== priorityItem?.name)
+				setSelectedPriorities([...newStatuses])
+			} else {
+				setSelectedPriorities([...selectedPriorities, priorityItem?.name])
+			}
+		}
+
+		return (
+			<TouchableOpacity
+				style={{ ...styles.itemContainer, backgroundColor: dark && "#2E3138" }}
+				onPress={() => onSelectedPriority()}
+			>
+				<View style={{ ...styles.dropdownItem, backgroundColor: priorityItem?.bgColor }}>
+					{priorityItem?.icon}
+					<Text style={styles.itemText}>
+						{limitTextCharaters({ text: priorityItem?.name, numChars: 17 })}
+					</Text>
+				</View>
+				{exist ? (
+					<AntDesign name="checkcircle" size={24} color="#27AE60" />
+				) : (
+					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
+				)}
+			</TouchableOpacity>
+		)
+	},
+)
+
+const ModalPopUp = ({ visible, children, onDismiss }) => {
+	const [showModal, setShowModal] = React.useState(visible)
+	const scaleValue = React.useRef(new Animated.Value(0)).current
+
+	React.useEffect(() => {
+		toggleModal()
+	}, [visible])
+	const toggleModal = () => {
+		if (visible) {
+			setShowModal(true)
+			Animated.spring(scaleValue, {
+				toValue: 1,
+				useNativeDriver: true,
+			}).start()
 		} else {
-			setFilter({
-				...filter,
-				priorities: [...priorities, priority],
-			})
+			setTimeout(() => setShowModal(false), 200)
+			Animated.timing(scaleValue, {
+				toValue: 0,
+				duration: 300,
+				useNativeDriver: true,
+			}).start()
 		}
 	}
-
 	return (
-		<TouchableOpacity style={styles.itemContainer} onPress={() => onSelectedStatus()}>
-			<View style={styles.dropdownItem}>
-				<BadgedTaskPriority TextSize={14} iconSize={14} priority={priority.name} />
-			</View>
-			{exist ? (
-				<AntDesign name="checkcircle" size={24} color="#27AE60" />
-			) : (
-				<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
-			)}
-		</TouchableOpacity>
+		<Modal animationType="fade" transparent visible={showModal}>
+			<TouchableWithoutFeedback onPress={() => onDismiss()}>
+				<View style={$modalBackGround}>
+					<Animated.View
+						style={{
+							transform: [{ scale: scaleValue }],
+							flex: 1,
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						{children}
+					</Animated.View>
+				</View>
+			</TouchableWithoutFeedback>
+		</Modal>
 	)
-})
+}
+
+const $modalBackGround: ViewStyle = {
+	flex: 1,
+	backgroundColor: "#000000AA",
+	justifyContent: "flex-end",
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -159,19 +211,20 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		borderWidth: 1,
 		flexDirection: "row",
+		height: 57,
 		justifyContent: "space-between",
 		minHeight: 30,
 		minWidth: 100,
-		paddingHorizontal: 8,
+		paddingHorizontal: 16,
+		paddingVertical: 10,
+		width: width / 2.4,
+		zIndex: 1000,
 	},
 	dropdownContainer: {
 		borderRadius: 20,
-		left: -(height / 67),
 		minHeight: height / 2.3,
-		minWidth: width - 18,
-		position: "absolute",
-		top: 47,
-		zIndex: 100,
+		width: "95%",
+		zIndex: 1001,
 		...GS.noBorder,
 		borderWidth: 1,
 		elevation: 10,
@@ -185,11 +238,7 @@ const styles = StyleSheet.create({
 		elevation: 10,
 		flexDirection: "row",
 		height: 44,
-		paddingHorizontal: 8,
-		shadowColor: "rgba(0,0,0,0.1)",
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 1,
-		shadowRadius: 1,
+		paddingHorizontal: 16,
 		width: "60%",
 	},
 	dropdownTitle: {
@@ -210,6 +259,11 @@ const styles = StyleSheet.create({
 		paddingLeft: 6,
 		paddingRight: 18,
 		width: "100%",
+	},
+	itemText: {
+		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 14,
+		marginLeft: 10,
 	},
 	secondContainer: {
 		marginVertical: 16,

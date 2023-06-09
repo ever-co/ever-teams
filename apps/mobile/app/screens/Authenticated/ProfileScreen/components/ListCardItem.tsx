@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from "react"
+import React, { FC, useMemo, useState } from "react"
 import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from "react-native"
 import { Ionicons, Entypo } from "@expo/vector-icons"
 import { Card, Text } from "react-native-paper"
@@ -22,6 +22,8 @@ import AllTaskStatuses from "../../../../components/AllTaskStatuses"
 import WorkedOnTaskHours from "../../../../components/WorkedDayHours"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { secondsToTime } from "../../../../helpers/date"
+import { useTaskStatistics } from "../../../../services/hooks/features/useTaskStatics"
+import { useStores } from "../../../../models"
 
 export type ListItemProps = {
 	active?: boolean
@@ -37,12 +39,25 @@ export interface Props extends ListItemProps {}
 
 export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	const { colors } = useAppTheme()
+	const {
+		TimerStore: { timerStatus },
+	} = useStores()
 
 	const [editTitle, setEditTitle] = useState(false)
 	const [enableEstimate, setEnableEstimate] = useState(false)
 	const [showMenu, setShowMenu] = React.useState(false)
 
-	const { h } = secondsToTime(props.task.estimate || 0)
+	const { h, m } = secondsToTime(props.task.estimate || 0)
+	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics()
+	const { taskTotalStat } = getTaskStat(props.task)
+
+	const progress = useMemo(() => {
+		if (!props.isAuthUser) {
+			return (taskTotalStat?.duration * 100) / props.task?.estimate
+		}
+
+		return (activeTaskTotalStat?.duration * 100) / props.task?.estimate || 0
+	}, [timerStatus, props.activeAuthTask, activeTaskTotalStat])
 
 	return (
 		<TouchableNativeFeedback
@@ -86,11 +101,15 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 								<AnimatedCircularProgress
 									size={56}
 									width={7}
-									fill={50}
+									fill={progress}
 									tintColor="#27AE60"
 									backgroundColor="#F0F0F0"
 								>
-									{() => <Text style={{ ...styles.progessText, color: colors.primary }}>{h}H</Text>}
+									{() => (
+										<Text style={{ ...styles.progessText, color: colors.primary }}>
+											{h !== 0 ? h + "h" : m !== 0 ? m + "m" : h + "h"}
+										</Text>
+									)}
 								</AnimatedCircularProgress>
 							</TouchableOpacity>
 						) : (
@@ -301,10 +320,11 @@ const styles = StyleSheet.create({
 		height: 42,
 		justifyContent: "center",
 		marginRight: 10,
-		shadowColor: "rgba(0,0,0,0.16)",
-		shadowOffset: { width: 5, height: 10 },
-		shadowOpacity: 1,
-		shadowRadius: 10,
+		// shadowColor: "rgba(0,0,0,0.16)",
+		// shadowOffset: { width: 5, height: 10 },
+		// shadowOpacity: 1,
+		// shadowRadius: 10,
+		...GS.shadowSm,
 		width: 42,
 	},
 	timerIcon: {
@@ -329,5 +349,6 @@ const styles = StyleSheet.create({
 		height: 42,
 		justifyContent: "space-between",
 		paddingRight: 10,
+		width: "100%",
 	},
 })

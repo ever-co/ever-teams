@@ -6,7 +6,6 @@ import {
 	View,
 	TouchableOpacity,
 	ViewStyle,
-	TouchableWithoutFeedback,
 	TextStyle,
 	Text,
 	Dimensions,
@@ -60,6 +59,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 			showInviteModal,
 			setShowMoreMenu,
 			isLoading,
+			isTeamModalOpen,
+			setIsTeamModalOpen,
 		} = useTeamScreenLogic()
 		const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } =
 			useAcceptInviteModal()
@@ -105,6 +106,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 									>
 										<View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
 											<DropDown
+												isOpen={isTeamModalOpen}
+												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
 											/>
@@ -120,32 +123,31 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 											</TouchableOpacity>
 										) : null}
 									</View>
-									<TouchableWithoutFeedback onPressIn={() => setShowMoreMenu(false)}>
-										{/* Users activity list */}
-										<ScrollView
-											bounces={false}
-											showsVerticalScrollIndicator={false}
-											contentContainerStyle={{ ...GS.px1 }}
-											style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
+
+									{/* Users activity list */}
+									<ScrollView
+										bounces={false}
+										showsVerticalScrollIndicator={false}
+										contentContainerStyle={{ ...GS.px1 }}
+										style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
+									>
+										<View
+											style={{
+												marginBottom: 30,
+											}}
 										>
-											<View
-												style={{
-													marginBottom: 30,
-												}}
-											>
-												{currentUser && <ListCardItem member={currentUser} />}
+											{currentUser && <ListCardItem member={currentUser} />}
 
-												{$otherMembers.map((member, index) => (
-													<ListCardItem key={index} member={member} />
+											{$otherMembers.map((member, index) => (
+												<ListCardItem key={index} member={member} />
+											))}
+
+											{teamInvitations &&
+												teamInvitations.map((invite, idx) => (
+													<InviteCardItem key={idx} invite={invite} />
 												))}
-
-												{teamInvitations &&
-													teamInvitations.map((invite, idx) => (
-														<InviteCardItem key={idx} invite={invite} />
-													))}
-											</View>
-										</ScrollView>
-									</TouchableWithoutFeedback>
+										</View>
+									</ScrollView>
 								</>
 							) : (
 								<NoTeam onPress={() => setShowCreateTeamModal(true)} />

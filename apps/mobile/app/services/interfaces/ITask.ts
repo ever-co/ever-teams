@@ -101,13 +101,13 @@ export type ITaskStatusField =
 	| "tags"
 
 export type ITaskStatusStack = {
-	status: ITaskStatus
-	size: ITaskSize
-	label: ITaskLabel
-	priority: ITaskPriority
-	issue: ITaskIssue
-	version: IVersionProperty
-	epic: IEpicProperty
+	status: string
+	size: string
+	label: string
+	priority: string
+	issue: string
+	version: string
+	epic: string
 	project: string // TODO: these types are not strings, but rather objects for team and project. To reimplement
 	team: string // TODO: these types are not strings, but rather objects for team and project. To reimplement
 	tags: any // TODO: these types are not strings, but rather array of objects for tags. To reimplement
@@ -116,7 +116,9 @@ export type ITaskStatusStack = {
 export interface ICreateTask {
 	title: string
 	status: string
-	issue?: string
+	priority?: string
+	size?: string
+	issueType?: string
 	members?: { id: string; [x: string]: any }[]
 	estimateDays?: number
 	estimateHours?: string
