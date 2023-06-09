@@ -3,12 +3,17 @@ import {
 	requestToJoinAPI,
 	validateRequestToJoinAPI,
 	resendCodeRequestToJoinAPI,
+	getRequestToJoinAPI,
 } from '@app/services/client/api';
+import { requestToJoinState } from '@app/stores/request-to-join';
 import { useCallback } from 'react';
+import { useRecoilState } from 'recoil';
 
 import { useQuery } from '../useQuery';
 
 export const useRequestToJoinTeam = () => {
+	const [requestToJoin, setRequestToJoin] = useRecoilState(requestToJoinState);
+
 	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } =
 		useQuery(requestToJoinAPI);
 	const {
@@ -19,6 +24,17 @@ export const useRequestToJoinTeam = () => {
 		loading: resendCodeRequestToJoinLoading,
 		queryCall: resendCodeRequestToJoinQueryCall,
 	} = useQuery(resendCodeRequestToJoinAPI);
+
+	const {
+		loading: getRequestToJoinLoading,
+		queryCall: getRequestToJoinQueryCall,
+	} = useQuery(getRequestToJoinAPI);
+
+	const getRequestToJoin = useCallback(() => {
+		return getRequestToJoinQueryCall().then((res) => {
+			setRequestToJoin(res.data.items);
+		});
+	}, []);
 
 	const requestToJoinTeam = useCallback(
 		(data: IRequestToJoinCreate) => {
@@ -55,5 +71,8 @@ export const useRequestToJoinTeam = () => {
 		requestToJoinTeam,
 		validateRequestToJoinTeam,
 		resendCodeRequestToJoinTeam,
+		getRequestToJoin,
+		getRequestToJoinLoading,
+		requestToJoin,
 	};
 };
