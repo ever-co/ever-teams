@@ -28,7 +28,7 @@ export const InvitationSetting = () => {
 
 	useEffect(() => {
 		getRequestToJoin();
-	}, []);
+	}, [getRequestToJoin]);
 
 	const invitations = [...teamInvitations, ...requestToJoin].filter(
 		(invitation) => invitation.fullName.toLowerCase().includes(filterString)
@@ -73,8 +73,8 @@ export const InvitationSetting = () => {
 				<InvitationTable invitations={invitations} />
 			</div>
 
-			<Divider className="mb-9" />
-
+			{/* TODO Dynamic */}
+			{/* <Divider className="mb-9" />
 			<div className="flex flex-col gap-8">
 				<div className="flex items-center gap-16">
 					<div className="flex items-start gap-1">
@@ -103,7 +103,7 @@ export const InvitationSetting = () => {
 										setCopied(true);
 										setTimeout(() => {
 											setCopied(false);
-										}, 1000 * 10 /** 10 Seconds */);
+										}, 1000 * 10);
 									}}
 								>
 									{!copied ? 'Copy Link' : 'Copied'}
@@ -139,7 +139,7 @@ export const InvitationSetting = () => {
 					</Text>
 					<MemberInfo />
 				</div>
-			</div>
+			</div> */}
 
 			<InviteFormModal
 				open={isOpen && !!user?.isEmailVerified}

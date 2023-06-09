@@ -34,6 +34,7 @@ export function updateOrganizationTeamRequest(
 	bearer_token: string
 ) {
 	const { id } = datas;
+	console.log('datas', datas);
 
 	return serverFetch<IOrganizationTeamUpdate>({
 		path: `/organization-team/${id}`,

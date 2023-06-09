@@ -51,7 +51,7 @@ export const TableActionPopover = () => {
 							</div>
 						</Popover.Panel>
 					</Transition>
-					<Popover.Button className="outline-none mb-[15px] w-full">
+					<Popover.Button className="outline-none w-full mt-2">
 						<MenuIcon className="stroke-[#292D32] dark:stroke-white" />
 					</Popover.Button>
 				</>

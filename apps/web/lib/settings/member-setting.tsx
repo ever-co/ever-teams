@@ -19,7 +19,7 @@ export const MemberSetting = () => {
 	const [filterString, setFilterString] = useState<string>('');
 
 	const { user } = useAuthenticateUser();
-	const { openModal, isOpen, closeModal } = useModal();
+	const { isOpen, closeModal } = useModal();
 
 	const members =
 		activeTeam?.members.filter((member) =>
@@ -56,7 +56,9 @@ export const MemberSetting = () => {
 			<div className="mt-7 mb-8">
 				<MemberTable members={members} />
 			</div>
-			<div className="mb-9 bg-[#E8E7EB] w-full h-[1px]"></div>
+
+			{/* TODO Dynamic */}
+			{/* <div className="mb-9 bg-[#E8E7EB] w-full h-[1px]"></div>
 			<div className="flex flex-col gap-8">
 				<div className="flex gap-12">
 					<div className="flex w-[26.5rem] items-center justify-between gap-[8.1rem]">
@@ -69,14 +71,6 @@ export const MemberSetting = () => {
 					</div>
 					<ChooseDropdown setValue={() => console.log('')} />
 				</div>
-				{/* <div className="flex w-full items-center justify-between gap-12">
-				<Text className="flex-none font-normal text-gray-400 flex-grow-0 text-md md-2 w-1/5">
-					{trans.INVITATION_EXPIRATION}
-				</Text>
-				<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-					<InvitationExpireDropdown setValue={() => console.log('sort')} />
-				</div>
-			</div> */}
 				<div className="flex w-full items-center justify-between gap-12">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/4 dark:text-white">
 						{trans.HIDE_PERSONAL_MEMBERS_INFOTMATION}
@@ -90,7 +84,7 @@ export const MemberSetting = () => {
 						{trans.WORK_SCHEDULE}
 					</Text>
 				</div>
-			</div>
+			</div> */}
 
 			<InviteFormModal
 				open={isOpen && !!user?.isEmailVerified}

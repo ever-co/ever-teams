@@ -17,7 +17,7 @@ import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import Link from 'next/link';
 import { ArrowLeft } from 'lib/components/svgs';
-import { NotificationSettings } from 'lib/settings/notification-setting';
+// import { NotificationSettings } from 'lib/settings/notification-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { MemberSetting } from 'lib/settings/member-setting';
@@ -55,6 +55,7 @@ const Team = () => {
 							<LeftSideSettingMenu />
 							{isTeamMember ? (
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
+									{/* General Settings */}
 									<Accordian
 										title={trans.HEADING_TITLE}
 										className="dark:bg-dark--theme p-4 mt-8"
@@ -64,30 +65,49 @@ const Team = () => {
 											<TeamSettingForm />
 										</div>
 									</Accordian>
-									<Accordian
-										title={trans.INVITATION_HEADING_TITLE}
-										className="dark:bg-dark--theme p-4 mt-4"
-									>
-										<InvitationSetting />
-									</Accordian>
-									<Accordian
-										title={trans.MEMBER_HEADING_TITLE}
-										className="dark:bg-dark--theme p-4 mt-4"
-									>
-										<MemberSetting />
-									</Accordian>
+
+									{/* Invitations */}
+									{isTeamManager ? (
+										<Accordian
+											title={trans.INVITATION_HEADING_TITLE}
+											className="dark:bg-dark--theme p-4 mt-4"
+										>
+											<InvitationSetting />
+										</Accordian>
+									) : (
+										''
+									)}
+
+									{/* Members */}
+									{isTeamManager ? (
+										<Accordian
+											title={trans.MEMBER_HEADING_TITLE}
+											className="dark:bg-dark--theme p-4 mt-4"
+										>
+											<MemberSetting />
+										</Accordian>
+									) : (
+										<></>
+									)}
+
+									{/* Issues Settings */}
 									<Accordian
 										title={trans.ISSUES_HEADING_TITLE}
 										className="dark:bg-dark--theme p-4 mt-4"
 									>
 										<IssuesSettings />
 									</Accordian>
-									<Accordian
+
+									{/* TODO */}
+									{/* Notification Settings */}
+									{/* <Accordian
 										title={trans.NOTIFICATION_HEADING_TITLE}
 										className="dark:bg-dark--theme p-4 mt-4"
 									>
 										<NotificationSettings />
-									</Accordian>
+									</Accordian> */}
+
+									{/* Danger Zone */}
 									<Accordian
 										title={translations.pages.settings.DANDER_ZONE}
 										className="dark:bg-dark--theme p-4 mt-4"

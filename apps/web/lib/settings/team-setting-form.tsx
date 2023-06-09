@@ -10,6 +10,7 @@ import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import isEqual from 'lodash/isEqual';
 import TeamSize from './team-size-popover';
 import { EmojiPicker } from 'lib/components/emoji-picker';
+import debounce from 'lodash/debounce';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -24,10 +25,16 @@ export const TeamSettingForm = () => {
 		teamName: string;
 		teamType: 'PUBLIC' | 'PRIVATE';
 		timeTracking: boolean;
+		color?: string | null;
+		emoji?: string | null;
+		teamSize?: string | null;
 	}>({
 		teamName: '',
 		teamType: 'PUBLIC',
 		timeTracking: false,
+		color: null,
+		emoji: null,
+		teamSize: null,
 	});
 
 	useEffect(() => {
@@ -41,15 +48,26 @@ export const TeamSettingForm = () => {
 					teamName: activeTeam?.name || '',
 					teamType: activeTeam?.public ? 'PUBLIC' : 'PRIVATE',
 					timeTracking: activeManager?.isTrackingEnabled || false,
+					color: activeTeam.color,
+					emoji: activeTeam.emoji,
+					teamSize: activeTeam.teamSize,
 				})
 			) {
 				setValue('teamName', activeTeam?.name || '');
 				setValue('teamType', activeTeam?.public ? 'PUBLIC' : 'PRIVATE');
 				setValue('timeTracking', activeManager?.isTrackingEnabled || false);
+
+				setValue('color', activeTeam?.color || null);
+				setValue('emoji', activeTeam?.emoji || null);
+				setValue('teamSize', activeTeam?.teamSize || null);
+
 				formDetails.current = {
 					teamName: activeTeam?.name || '',
 					teamType: activeTeam?.public ? 'PUBLIC' : 'PRIVATE',
 					timeTracking: activeManager?.isTrackingEnabled || false,
+					color: activeTeam?.color,
+					emoji: activeTeam?.emoji,
+					teamSize: activeTeam?.teamSize,
 				};
 			}
 		}
@@ -65,6 +83,9 @@ export const TeamSettingForm = () => {
 					organizationId: activeTeam.organizationId,
 					tenantId: activeTeam.tenantId,
 					public: values.teamType === 'PUBLIC' ? true : false,
+					color: values.color,
+					emoji: values.emoji,
+					teamSize: values.teamSize,
 					memberIds: activeTeam.members
 						.map((t) => t.employee.id)
 						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
@@ -97,6 +118,12 @@ export const TeamSettingForm = () => {
 		});
 	}, [onSubmit, getValues]);
 
+	/* eslint-disable react-hooks/exhaustive-deps */
+	const debounceHandleColorChange = useCallback(debounce(handleChange, 1000), [
+		handleChange,
+		debounce,
+	]);
+
 	return (
 		<>
 			<form
@@ -107,6 +134,7 @@ export const TeamSettingForm = () => {
 				<div className="flex flex-col justify-between items-center">
 					<div className="w-full mt-5">
 						<div className="">
+							{/* Team Name */}
 							<div className="flex w-full items-center justify-between sm:gap-12 flex-col sm:flex-row">
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_NAME}
@@ -134,38 +162,62 @@ export const TeamSettingForm = () => {
 									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12 z-50">
+
+							{/* Team Color */}
+							<div className=" flex w-full items-center justify-between gap-12 z-50">
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
 									{trans.TEAM_COLOR}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
 									<ColorPicker
-										defaultColor={undefined}
-										onChange={(color) => {
-											// TODO handle API
-											console.log(color);
-											// setValue('color', color)
+										defaultColor={activeTeam?.color}
+										onChange={(color: any | null) => {
+											setValue('color', color);
+											debounceHandleColorChange();
 										}}
+										isTeamManager={isTeamManager}
 										fullWidthInput
 									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12">
+
+							{/* Emoji */}
+							<div className=" flex w-full items-center justify-between gap-12">
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
 									{trans.EMOJI}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-									<EmojiPicker emoji={'😀'} />
+									<EmojiPicker
+										onChange={(emoji: string) => {
+											setValue('emoji', emoji);
+											handleChange();
+										}}
+										emoji={activeTeam?.emoji || null}
+										isTeamManager={isTeamManager}
+									/>
 								</div>
 							</div>
-							<div className="flex w-full items-center justify-between gap-12  mt-3">
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
-									{trans.TEAM_SIZE}
-								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
-									<TeamSize />
+
+							{/* Team Size */}
+							{
+								<div className=" flex w-full items-center justify-between gap-12 mt-3">
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
+										{trans.TEAM_SIZE}
+									</Text>
+									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+										<TeamSize
+											defaultValue={activeTeam?.teamSize || ''}
+											onChange={(teamSize: string) => {
+												setValue('teamSize', teamSize);
+												handleChange();
+											}}
+											isTeamManager={isTeamManager}
+										/>
+									</div>
 								</div>
-							</div>
+							}
+
+							{/* Team Type */}
 							<div className="flex w-full items-center sm:gap-12 mt-8 flex-col sm:flex-row">
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_TYPE}
@@ -242,6 +294,7 @@ export const TeamSettingForm = () => {
 								</div>
 							</div>
 
+							{/* Time Tracking */}
 							{isTeamManager ? (
 								<div className="flex w-full items-center justify-between gap-12 mt-8">
 									<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 sm:w-1/5">

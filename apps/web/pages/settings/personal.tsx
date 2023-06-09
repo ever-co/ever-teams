@@ -1,6 +1,6 @@
 import { withAuthentication } from 'lib/app/authenticator';
 import { MainLayout } from 'lib/layout';
-import { Breadcrumb, Card, Container, Text } from 'lib/components';
+import { Breadcrumb, Container } from 'lib/components';
 import {
 	LeftSideSettingMenu,
 	ProfileAvatar,

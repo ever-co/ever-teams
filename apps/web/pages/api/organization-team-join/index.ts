@@ -12,9 +12,11 @@ export default async function handler(
 ) {
 	switch (req.method) {
 		case 'GET':
+			/* eslint-disable no-case-declarations */
 			const { access_token, tenantId, organizationId } =
 				await authenticatedGuard(req, res);
 
+			/* eslint-disable no-case-declarations */
 			const requestToJoinData = await getRequestToJoinRequest({
 				bearer_token: access_token,
 				tenantId,
@@ -22,6 +24,7 @@ export default async function handler(
 			});
 			return res.json(requestToJoinData.data);
 		case 'POST':
+			/* eslint-disable no-case-declarations */
 			const body = req.body as IRequestToJoinCreate;
 			return res.json(await requestToJoinRequest(body));
 	}

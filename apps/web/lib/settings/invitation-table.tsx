@@ -70,8 +70,11 @@ export const InvitationTable = ({
 						</tr>
 					</thead>
 					<tbody>
-						{currentItems.map((invitation) => (
-							<tr className="bg-white  dark:bg-gray-800 dark:border-gray-700 ">
+						{currentItems.map((invitation, index) => (
+							<tr
+								className="bg-white  dark:bg-gray-800 dark:border-gray-700 "
+								key={index}
+							>
 								<th
 									scope="row"
 									className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"

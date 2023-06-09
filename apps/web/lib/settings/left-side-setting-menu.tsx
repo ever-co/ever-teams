@@ -10,10 +10,17 @@ import {
 	UserIconFilled,
 } from 'lib/components/svgs';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
+import { useIsMemberManager } from '@app/hooks';
+import { userState } from '@app/stores';
+import { useRecoilState } from 'recoil';
 
 export const LeftSideSettingMenu = () => {
 	const router = useRouter();
-	const [activePage, setActivePage] = useState('/settings/personal');
+	const [activePage, setActivePage] = useState('');
+
+	const [user] = useRecoilState(userState);
+	const { isTeamManager } = useIsMemberManager(user);
+
 	useEffect(() => {
 		setActivePage(router.route);
 	}, [router.route]);
@@ -46,56 +53,67 @@ export const LeftSideSettingMenu = () => {
 			title: 'General Settings',
 			color: '#7E7991',
 			href: '#general-settings',
+			managerOnly: false,
 		},
 		{
 			title: 'Invitations',
 			color: '#7E7991',
 			href: '#invitations',
+			managerOnly: true,
 		},
 		{
 			title: 'Member',
 			color: '#7E7991',
 			href: '#member',
+			managerOnly: true,
 		},
 		{
 			title: 'Issues Settings',
 			color: '#7E7991',
 			href: '#issues-settings',
+			managerOnly: false,
 		},
 		{
 			title: 'Statuses',
 			color: '#7E7991',
 			href: '#statuses',
+			managerOnly: false,
 		},
 		{
 			title: 'Priorities',
 			color: '#7E7991',
 			href: '#priorities',
+			managerOnly: false,
 		},
 		{
 			title: 'Sizes',
 			color: '#7E7991',
 			href: '#sizes',
+			managerOnly: false,
 		},
 		{
 			title: 'Labels',
 			color: '#7E7991',
 			href: '#labels',
+			managerOnly: false,
 		},
 		{
 			title: 'Related Issue Types',
 			color: '#7E7991',
 			href: '#related-issue-types',
+			managerOnly: true,
 		},
 		{
 			title: 'Notifications',
 			color: '#7E7991',
 			href: '#notifications',
+			managerOnly: true,
 		},
 		{
 			title: 'Integrations',
 			color: '#7E7991',
 			href: '#integrations',
+			managerOnly: true,
 		},
 		{
 			title: 'Danger Zones',
@@ -141,7 +159,7 @@ export const LeftSideSettingMenu = () => {
 						<div className="flex flex-col">
 							{PersonalAccordianData?.map((ad, index) => {
 								return (
-									<Link href={`/settings/personal${ad.href}`}>
+									<Link href={`/settings/personal${ad.href}`} key={index}>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -182,9 +200,11 @@ export const LeftSideSettingMenu = () => {
 						`}
 					>
 						<div className="flex flex-col">
-							{TeamAccordianData?.map((ad, index) => {
+							{TeamAccordianData.filter(
+								(ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager
+							).map((ad, index) => {
 								return (
-									<Link href={`/settings/team${ad.href}`}>
+									<Link href={`/settings/team${ad.href}`} key={index}>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}

@@ -36,7 +36,7 @@ export const ChooseDropdown = ({
 				setValue('Choose', item.data.title);
 			}
 		},
-		[setChoose, setChooseItem, setValue]
+		[setChooseItem, setValue]
 	);
 
 	useEffect(() => {

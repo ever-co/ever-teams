@@ -1,7 +1,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { Button } from 'lib/components';
-import { Edit2Icon, TrashIcon } from 'lib/components/svgs';
-import { Fragment, useRef, useState } from 'react';
+import { Edit2Icon } from 'lib/components/svgs';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 const sizeOption = [
 	{
@@ -20,8 +20,16 @@ const sizeOption = [
 		name: '100+',
 	},
 ];
-const TeamSize = () => {
-	const [value, setValue] = useState('21-100');
+const TeamSize = ({
+	defaultValue,
+	onChange,
+	isTeamManager,
+}: {
+	defaultValue: string;
+	onChange: (teamSize: string) => void;
+	isTeamManager: boolean;
+}) => {
+	const [value, setValue] = useState(defaultValue || 'Only me');
 	const buttonRef = useRef<any>();
 	const onSelect = (value: any) => {
 		setValue(value);
@@ -30,6 +38,16 @@ const TeamSize = () => {
 		setValue('');
 		buttonRef.current?.click();
 	};
+
+	const handleSave = useCallback(() => {
+		onChange(value);
+		buttonRef.current?.click();
+	}, [value, onChange]);
+
+	useEffect(() => {
+		setValue(defaultValue);
+	}, [defaultValue]);
+
 	return (
 		<Popover className="relative border-none no-underline w-full">
 			{() => (
@@ -37,8 +55,15 @@ const TeamSize = () => {
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
+						disabled={!isTeamManager}
 					>
-						<div className="cursor-pointer relative w-[100%] h-[48px] bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border">
+						<div
+							className={`${
+								isTeamManager ? 'cursor-pointer ' : ''
+							} relative w-[100%] h-[48px] ${
+								!isTeamManager ? 'bg-[#FCFCFC]' : ''
+							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+						>
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<div className="text-[16px] font-medium">{value}</div>
 							</div>
@@ -96,7 +121,7 @@ const TeamSize = () => {
 											variant="primary"
 											className="font-normal rounded-xl text-sm min-w-[90px] h-[48px]"
 											type="submit"
-											onClick={() => buttonRef.current?.click()}
+											onClick={handleSave}
 										>
 											Save
 										</Button>

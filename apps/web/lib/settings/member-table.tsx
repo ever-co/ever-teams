@@ -129,10 +129,18 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								</td>
 								<td className="text-sm font-semibold py-4">
 									{/* TODO dynamic */}
-									<MemberTableStatus status="Member" />
+									<MemberTableStatus
+										status={
+											member.employee.isActive
+												? 'Member'
+												: !member.employee.isActive
+												? 'Suspended'
+												: 'Left'
+										}
+									/>
 								</td>
-								<td className="flex py-4 justify-center items-center">
-									<TableActionPopover />
+								<td className="flex py-4 justify-center items-center absolute">
+									{/* <TableActionPopover /> */}
 								</td>
 							</tr>
 						))}
