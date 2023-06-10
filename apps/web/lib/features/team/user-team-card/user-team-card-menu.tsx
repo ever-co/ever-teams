@@ -207,7 +207,7 @@ type IAssignCall = (params: {
 	closeCombobox2?: () => void;
 }) => void;
 
-function useDropdownAction({
+export function useDropdownAction({
 	edition,
 	memberInfo,
 }: Pick<Props, 'edition' | 'memberInfo'>) {

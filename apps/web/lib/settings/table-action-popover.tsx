@@ -1,14 +1,35 @@
 import { Popover, Transition } from '@headlessui/react';
 import { MenuIcon } from 'lib/components/svgs';
 import { Fragment } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
+import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
+import {
+	useAuthenticateUser,
+	useTeamMemberCard,
+	useTMCardTaskEdit,
+} from '@app/hooks';
+import { OT_Member } from '@app/interfaces';
 
-export const TableActionPopover = () => {
-	const [isOpen, setIsOpen] = useState(false);
+type Props = {
+	member: OT_Member;
+};
 
-	const handleClick = () => {
-		setIsOpen(!isOpen);
-	};
+export const TableActionPopover = ({ member }: Props) => {
+	// const [isOpen, setIsOpen] = useState(false);
+
+	const { user } = useAuthenticateUser();
+	const memberInfo = useTeamMemberCard(member);
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+	const { onRemoveMember } = useDropdownAction({
+		edition: taskEdition,
+		memberInfo,
+	});
+
+	const isCurrentUser = user?.employee.id === memberInfo.member?.employeeId;
+
+	// const handleClick = () => {
+	// 	setIsOpen(!isOpen);
+	// };
 	return (
 		<Popover className="relative border-none no-underline w-full">
 			{() => (
@@ -23,29 +44,50 @@ export const TableActionPopover = () => {
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel
-							className="z-10 absolute right-0  bg-white  dark:bg-[#202023] rounded-2xl w-[7.5rem] h-36 flex flex-col pl-5 pr-5 pt-2 pb-2"
+							className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl w-[7.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2"
 							style={{ boxShadow: ' rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
-							<div
+							{/* TODO Dynamic */}
+							{/* Edit */}
+							{/* <div
 								className="flex items-center h-8 w-auto  hover:cursor-pointer"
 								onClick={handleClick}
 							>
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									Edit
 								</span>
-							</div>
-							<div className="flex items-center h-8 w-auto  hover:cursor-pointer">
+							</div> */}
+
+							{/* TODO Dynamic */}
+							{/* Change Role */}
+							{/* <div className="flex items-center h-8 w-auto  hover:cursor-pointer">
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									Change Role
 								</span>
-							</div>
-							<div className="flex items-center h-8 w-auto  hover:cursor-pointer">
+							</div> */}
+
+							{/* TODO Dynamic */}
+							{/* Permission */}
+							{/* <div className="flex items-center h-8 w-auto  hover:cursor-pointer">
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									Permission
 								</span>
-							</div>
-							<div className="flex items-center h-8 w-auto  hover:cursor-pointer">
-								<span className="text-[#E27474] text-xs font-semibold">
+							</div> */}
+
+							{/* Delete */}
+							<div
+								className={`flex items-center h-8 w-auto ${
+									!isCurrentUser ? 'hover:cursor-pointer' : ''
+								}`}
+								onClick={
+									isCurrentUser ? () => undefined : () => onRemoveMember({})
+								}
+							>
+								<span
+									className={`${
+										!isCurrentUser ? 'text-[#E27474]' : ''
+									} text-xs font-semibold`}
+								>
 									Delete
 								</span>
 							</div>

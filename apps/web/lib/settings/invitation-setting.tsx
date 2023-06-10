@@ -37,14 +37,14 @@ export const InvitationSetting = () => {
 					<InputField
 						type="text"
 						placeholder={trans.SEARCH_MEMBER}
-						className="mb-0 bg-[#FCFCFC] h-11"
+						className="mb-0 h-11"
 						leadingNode={
 							<Button
 								variant="ghost"
-								className="p-0 m-0 ml-[0.9rem] min-w-0 bg-[#FCFCFC]"
+								className="p-0 m-0 ml-[0.9rem] min-w-0"
 								type="submit"
 							>
-								<SearchNormalIcon className="w-[1rem] bg-[#FCFCFC]" />
+								<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
 							</Button>
 						}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {

@@ -69,10 +69,10 @@ export const InvitationTable = ({
 							></th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody className="dark:bg-dark--theme-light">
 						{currentItems.map((invitation, index) => (
 							<tr
-								className="bg-white  dark:bg-gray-800 dark:border-gray-700 "
+								className="bg-white dark:bg-dark--theme-light dark:border-gray-700"
 								key={index}
 							>
 								<th

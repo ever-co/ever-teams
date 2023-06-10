@@ -7,6 +7,7 @@ import { OT_Member } from '@app/interfaces';
 import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
+import { TableActionPopover } from './table-action-popover';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -61,10 +62,10 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							></th>
 						</tr>
 					</thead>
-					<tbody className="dark:bg-dark--theme">
+					<tbody className="dark:bg-dark--theme-light">
 						{currentItems.map((member, index) => (
 							<tr
-								className="bg-white  dark:bg-dark--theme dark:border-gray-700"
+								className="bg-white dark:bg-dark--theme-light dark:border-gray-700"
 								key={index}
 							>
 								<th
@@ -139,7 +140,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									/>
 								</td>
 								<td className="flex py-4 justify-center items-center absolute">
-									{/* <TableActionPopover /> */}
+									{<TableActionPopover member={member} />}
 								</td>
 							</tr>
 						))}
