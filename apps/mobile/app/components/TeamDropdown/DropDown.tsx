@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import { observer } from "mobx-react-lite"
-import React, { FC, useState } from "react"
+import React, { FC } from "react"
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native"
 import { Avatar } from "react-native-paper"
 import { AntDesign } from "@expo/vector-icons"
@@ -15,22 +15,27 @@ import { limitTextCharaters } from "../../helpers/sub-text"
 export interface Props {
 	onCreateTeam: () => unknown
 	resized: boolean
+	isOpen: boolean
+	setIsOpen: (value: boolean) => unknown
 }
 
-const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, resized }) {
+const DropDown: FC<Props> = observer(function CreateTeamModal({
+	onCreateTeam,
+	resized,
+	setIsOpen,
+	isOpen,
+}) {
 	const { colors } = useAppTheme()
 	const {
 		teamStore: { teams, setActiveTeam, activeTeam },
 		TaskStore: { setActiveTask, setActiveTaskId },
 	} = useStores()
 
-	const [showDrop, setShowDrop] = useState(false)
-
 	const changeActiveTeam = (newActiveTeam: IOrganizationTeamList) => {
 		setActiveTeam(newActiveTeam)
-		setShowDrop(!showDrop)
 		setActiveTask(null)
 		setActiveTaskId("")
+		setIsOpen(false)
 	}
 
 	return (
@@ -41,7 +46,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
 					{ backgroundColor: colors.background, borderColor: colors.border },
 				]}
 				activeOpacity={0.7}
-				onPress={() => setShowDrop(!showDrop)}
+				onPress={() => setIsOpen(!isOpen)}
 			>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					{activeTeam.image?.thumbUrl || activeTeam.logo || activeTeam.image?.fullUrl ? (
@@ -67,14 +72,14 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({ onCreateTeam, re
 					})} (${activeTeam.members.length})`}</Text>
 				</View>
 
-				{showDrop ? (
+				{isOpen ? (
 					<AntDesign name="up" size={24} color={colors.primary} />
 				) : (
 					<AntDesign name="down" size={24} color={colors.primary} />
 				)}
 			</TouchableOpacity>
 
-			{showDrop && (
+			{isOpen && (
 				<DropDownSection
 					resized={resized}
 					changeTeam={changeActiveTeam}

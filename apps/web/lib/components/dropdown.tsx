@@ -92,7 +92,8 @@ export function Dropdown<T extends DropdownItem>({
 						className={clsxm(
 							'absolute mt-3 min-w-full max-h-64',
 							'overflow-hidden overflow-y-auto rounded-xl',
-							optionsClassName
+							optionsClassName,
+							'shadow-2xl'
 						)}
 					>
 						<Card

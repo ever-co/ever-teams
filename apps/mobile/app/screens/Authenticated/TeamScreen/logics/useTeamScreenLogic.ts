@@ -9,6 +9,7 @@ const useTeamScreenLogic = () => {
 	const [showInviteModal, setShowInviteModal] = React.useState(false)
 	const [emailsSuggest, setEmailSuggests] = useState<string[]>([])
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
+	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState(false)
 	const [isLoading, setIsLoading] = useState(true)
 
 	const { allUsers } = useUser()
@@ -64,8 +65,10 @@ const useTeamScreenLogic = () => {
 	}
 
 	useEffect(() => {
-		setTimeout(() => setIsLoading(false), 3000)
-	}, [])
+		if (members.length > 0) {
+			setIsLoading(false)
+		}
+	}, [members])
 
 	return {
 		showInviteModal,
@@ -85,6 +88,8 @@ const useTeamScreenLogic = () => {
 		isLoading,
 		emailsSuggest,
 		setEmailSuggests,
+		setIsTeamModalOpen,
+		isTeamModalOpen,
 	}
 }
 

@@ -128,7 +128,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 
 			{content.tab === "assigned" && (
 				<View style={{ ...GS.mt4 }}>
-					{content.tasksGrouped.assignedTasks.map((task, index) => (
+					{content.tasksFiltered.map((task, index) => (
 						<View key={index.toString()} style={{ ...GS.mb4 }}>
 							<ListCardItem
 								task={task}
@@ -144,7 +144,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 
 			{content.tab === "unassigned" && (
 				<View style={{ ...GS.mt4 }}>
-					{content.tasksGrouped.unassignedTasks.map((task, index) => (
+					{content.tasksFiltered.map((task, index) => (
 						<View key={index.toString()} style={{ ...GS.mb4 }}>
 							<ListCardItem
 								task={task}

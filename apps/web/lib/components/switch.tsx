@@ -31,7 +31,7 @@ export default function TimeTrackingToggle({
 	}, [activeManager]);
 
 	return (
-		<div className="py-16 flex items-center gap-x-[10px]">
+		<div className="flex items-center gap-x-[10px]">
 			<Switch
 				checked={enabled}
 				onChange={() => {

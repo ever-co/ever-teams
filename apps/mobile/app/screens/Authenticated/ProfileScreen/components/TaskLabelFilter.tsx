@@ -1,153 +1,207 @@
-/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC } from "react"
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC, useEffect, useState } from "react"
 import {
 	TouchableOpacity,
 	View,
 	Text,
 	StyleSheet,
 	ViewStyle,
-	TextStyle,
 	ScrollView,
 	Dimensions,
+	Animated,
+	Modal,
+	TouchableWithoutFeedback,
 } from "react-native"
-import { LinearGradient } from "expo-linear-gradient"
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons"
-
-import { GLOBAL_STYLE as GS, CONSTANT_COLOR as CC } from "../../../../../assets/ts/styles"
-import { ITaskLabel } from "../../../../services/interfaces/ITask"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
 import { typography, useAppTheme } from "../../../../theme"
-import { useStores } from "../../../../models"
-import { BadgedTaskLabel } from "../../../../components/LabelIcon"
+import { useTaskLabelValue } from "../../../../components/StatusType"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useTaskLabels } from "../../../../services/hooks/features/useTaskLabels"
+import { ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
 
 interface TaskLabelFilterProps {
-	containerStyle?: ViewStyle
-	dropdownContainerStyle?: ViewStyle
 	showLabelPopup: boolean
 	setShowLabelPopup: (value: boolean) => unknown
+	taskFilter: ITaskFilter
 }
 
-const { width, height } = Dimensions.get("window")
+const { height, width } = Dimensions.get("window")
 
-const TaskLabelFilter: FC<TaskLabelFilterProps> = observer(
-	({ containerStyle, dropdownContainerStyle, setShowLabelPopup, showLabelPopup }) => {
-		const {
-			TaskStore: { filter },
-		} = useStores()
-		const { colors, dark } = useAppTheme()
-		const labels = filter.labels
+const TaskStatusFilter: FC<TaskLabelFilterProps> = observer(
+	({ setShowLabelPopup, showLabelPopup, taskFilter }) => {
+		const { colors } = useAppTheme()
+		const [selectedLabels, setSelectedLabels] = useState<string[]>([])
 
-		if (dark) {
-			return (
-				<>
-					<TouchableOpacity onPress={() => setShowLabelPopup(!showLabelPopup)}>
-						<LinearGradient
-							colors={["#E6BF93", "#D87555"]}
-							end={{ y: 0.5, x: 1 }}
-							start={{ y: 1, x: 0 }}
-							style={{ ...styles.container, ...containerStyle, backgroundColor: "#F2F2F2" }}
-						>
-							<View style={{ flexDirection: "row", alignItems: "center" }}>
-								<Text style={{ marginRight: 10 }}>Label</Text>
-								{labels.length === 0 ? null : (
-									<FontAwesome name="circle" size={24} color="#3826A6" />
-								)}
-							</View>
-							<AntDesign name="down" size={14} color={colors.primary} />
-						</LinearGradient>
-					</TouchableOpacity>
-					{showLabelPopup && <TaskLabelFilterDropDown dropdownContainer={dropdownContainerStyle} />}
-				</>
-			)
-		}
-
+		useEffect(() => {
+			taskFilter.onChangeStatusFilter("label", selectedLabels)
+			taskFilter.applyStatusFilter()
+		}, [selectedLabels])
 		return (
 			<>
 				<TouchableOpacity onPress={() => setShowLabelPopup(!showLabelPopup)}>
-					<View style={{ ...styles.container, ...containerStyle }}>
+					<View style={{ ...styles.container, borderColor: colors.divider }}>
 						<View style={{ flexDirection: "row", alignItems: "center" }}>
-							<Text style={{ marginRight: 10 }}>Label</Text>
-							{labels.length === 0 ? null : <FontAwesome name="circle" size={24} color="#3826A6" />}
+							<Text style={{ marginRight: 10, color: colors.primary }}>Labels</Text>
+							{selectedLabels.length === 0 ? null : (
+								<FontAwesome name="circle" size={24} color={colors.secondary} />
+							)}
 						</View>
 						<AntDesign name="down" size={14} color={colors.primary} />
 					</View>
 				</TouchableOpacity>
-				{showLabelPopup && <TaskLabelFilterDropDown dropdownContainer={dropdownContainerStyle} />}
+				<TaskStatusFilterDropDown
+					visible={showLabelPopup}
+					onDismiss={() => setShowLabelPopup(false)}
+					selectedLabels={selectedLabels}
+					setSelectedLabels={setSelectedLabels}
+				/>
 			</>
 		)
 	},
 )
 
 interface DropDownProps {
-	dropdownContainer?: ViewStyle
-	onChangeStatus?: (status: string) => unknown
+	visible: boolean
+	onDismiss: () => unknown
+	selectedLabels: string[]
+	setSelectedLabels: (s: string[]) => unknown
 }
 
-const TaskLabelFilterDropDown: FC<DropDownProps> = observer(({ dropdownContainer }) => {
-	const { colors, dark } = useAppTheme()
-	const labels: ITaskLabel[] = ["UI/UX", "Mobile", "WEB", "Tablet"]
+const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
+	({ visible, onDismiss, setSelectedLabels, selectedLabels }) => {
+		const { colors, dark } = useAppTheme()
+		const { allTaskLabels } = useTaskLabels()
 
-	return (
-		<View
-			style={[
-				styles.dropdownContainer,
-				dropdownContainer,
-				{
-					backgroundColor: colors.background,
-					shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
-				},
-			]}
-		>
-			<View style={styles.secondContainer}>
-				<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Labels</Text>
-				<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
-					{labels.map((item, idx) => (
-						<DropDownItem label={item} key={idx} />
-					))}
-				</ScrollView>
-			</View>
-		</View>
-	)
-})
+		return (
+			<ModalPopUp visible={visible} onDismiss={onDismiss}>
+				<TouchableWithoutFeedback>
+					<View
+						style={[
+							styles.dropdownContainer,
+							{
+								backgroundColor: colors.background,
+								shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
+							},
+						]}
+					>
+						<View style={styles.secondContainer}>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
+								{allTaskLabels.map((item, idx) => (
+									<DropDownItem
+										selectedLabels={selectedLabels}
+										setSelectedLabels={setSelectedLabels}
+										label={item}
+										key={idx}
+									/>
+								))}
+							</ScrollView>
+						</View>
+					</View>
+				</TouchableWithoutFeedback>
+			</ModalPopUp>
+		)
+	},
+)
 
-const DropDownItem = observer(({ label }: { label: ITaskLabel }) => {
-	const {
-		TaskStore: { filter, setFilter },
-	} = useStores()
-	const { allTaskLabels } = useTaskLabels()
-	const labels = filter.labels
-	const exist = labels.find((s) => s === label)
+const DropDownItem = observer(
+	({
+		label,
+		selectedLabels,
+		setSelectedLabels,
+	}: {
+		label: ITaskLabelItem
+		selectedLabels: string[]
+		setSelectedLabels: (s: string[]) => unknown
+	}) => {
+		const allLabels = useTaskLabelValue()
+		const labelItem = allLabels[label.name.split("-").join(" ")]
+		const { dark } = useAppTheme()
 
-	const onSelectedLabel = () => {
-		if (exist) {
-			const newStatuses = labels.filter((s) => s !== label)
-			setFilter({
-				...filter,
-				labels: newStatuses,
-			})
+		const exist = selectedLabels.find((s) => s === labelItem?.name)
+
+		const onSelectedStatus = () => {
+			if (exist) {
+				const newStatuses = selectedLabels.filter((s) => s !== labelItem.name)
+				setSelectedLabels([...newStatuses])
+			} else {
+				setSelectedLabels([...selectedLabels, labelItem.name])
+			}
+		}
+
+		return (
+			<TouchableOpacity
+				style={{ ...styles.itemContainer, backgroundColor: dark && "#2E3138" }}
+				onPress={() => onSelectedStatus()}
+			>
+				<View style={{ ...styles.dropdownItem, backgroundColor: labelItem?.bgColor }}>
+					{labelItem?.icon}
+					<Text style={styles.itemText}>
+						{limitTextCharaters({ text: labelItem?.name, numChars: 17 })}
+					</Text>
+				</View>
+				{exist ? (
+					<AntDesign name="checkcircle" size={24} color="#27AE60" />
+				) : (
+					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
+				)}
+			</TouchableOpacity>
+		)
+	},
+)
+
+const ModalPopUp = ({ visible, children, onDismiss }) => {
+	const [showModal, setShowModal] = React.useState(visible)
+	const scaleValue = React.useRef(new Animated.Value(0)).current
+
+	React.useEffect(() => {
+		toggleModal()
+	}, [visible])
+	const toggleModal = () => {
+		if (visible) {
+			setShowModal(true)
+			Animated.spring(scaleValue, {
+				toValue: 1,
+				useNativeDriver: true,
+			}).start()
 		} else {
-			setFilter({
-				...filter,
-				labels: [...labels, label],
-			})
+			setTimeout(() => setShowModal(false), 200)
+			Animated.timing(scaleValue, {
+				toValue: 0,
+				duration: 300,
+				useNativeDriver: true,
+			}).start()
 		}
 	}
-	const currentLabel = allTaskLabels.find((l) => l.name === label)
 	return (
-		<TouchableOpacity style={styles.itemContainer} onPress={() => onSelectedLabel()}>
-			<View style={styles.dropdownItem}>
-				<BadgedTaskLabel TextSize={14} iconSize={14} label={currentLabel} />
-			</View>
-			{exist ? (
-				<AntDesign name="checkcircle" size={24} color="#27AE60" />
-			) : (
-				<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
-			)}
-		</TouchableOpacity>
+		<Modal animationType="fade" transparent visible={showModal}>
+			<TouchableWithoutFeedback onPress={() => onDismiss()}>
+				<View style={$modalBackGround}>
+					<Animated.View
+						style={{
+							transform: [{ scale: scaleValue }],
+							flex: 1,
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						{children}
+					</Animated.View>
+				</View>
+			</TouchableWithoutFeedback>
+		</Modal>
 	)
-})
+}
+
+const $modalBackGround: ViewStyle = {
+	flex: 1,
+	backgroundColor: "#000000AA",
+	justifyContent: "flex-end",
+}
 
 const styles = StyleSheet.create({
 	container: {
@@ -156,19 +210,20 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		borderWidth: 1,
 		flexDirection: "row",
+		height: 57,
 		justifyContent: "space-between",
 		minHeight: 30,
 		minWidth: 100,
-		paddingHorizontal: 8,
+		paddingHorizontal: 16,
+		paddingVertical: 10,
+		width: width / 2.4,
+		zIndex: 1000,
 	},
 	dropdownContainer: {
 		borderRadius: 20,
-		left: -(height / 67),
 		minHeight: height / 2.3,
-		minWidth: width - 18,
-		position: "absolute",
-		top: 47,
-		zIndex: 100,
+		width: "95%",
+		zIndex: 1001,
 		...GS.noBorder,
 		borderWidth: 1,
 		elevation: 10,
@@ -182,11 +237,7 @@ const styles = StyleSheet.create({
 		elevation: 10,
 		flexDirection: "row",
 		height: 44,
-		paddingHorizontal: 8,
-		shadowColor: "rgba(0,0,0,0.1)",
-		shadowOffset: { width: 0, height: 1 },
-		shadowOpacity: 1,
-		shadowRadius: 1,
+		paddingHorizontal: 16,
 		width: "60%",
 	},
 	dropdownTitle: {
@@ -208,9 +259,14 @@ const styles = StyleSheet.create({
 		paddingRight: 18,
 		width: "100%",
 	},
+	itemText: {
+		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+		fontSize: 14,
+		marginLeft: 10,
+	},
 	secondContainer: {
 		marginVertical: 16,
 	},
 })
 
-export default TaskLabelFilter
+export default TaskStatusFilter

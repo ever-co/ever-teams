@@ -17,6 +17,7 @@ export interface IUser {
 	firstName: string | null
 	username: string | null
 	phoneNumber: string | null
+	isEmailVerified: boolean
 	preferredLanguage: string
 	preferredComponentLayout: string
 	timeZone: string | null

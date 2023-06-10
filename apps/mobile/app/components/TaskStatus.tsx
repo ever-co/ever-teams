@@ -17,68 +17,76 @@ interface TaskStatusProps {
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
 	iconsOnly?: boolean
+	status?: string
+	setStatus?: (status: string) => unknown
 }
 
-const TaskStatus: FC<TaskStatusProps> = observer(({ task, containerStyle, iconsOnly }) => {
-	const { colors } = useAppTheme()
-	const { updateTask } = useTeamTasks()
-	const [openModal, setOpenModal] = useState(false)
+const TaskStatus: FC<TaskStatusProps> = observer(
+	({ task, containerStyle, status, setStatus, iconsOnly }) => {
+		const { colors, dark } = useAppTheme()
+		const { updateTask } = useTeamTasks()
+		const [openModal, setOpenModal] = useState(false)
 
-	const allStatuses = useTaskStatusValue()
-	const status = allStatuses[task?.status?.split("-").join(" ")]
+		const allStatuses = useTaskStatusValue()
+		const statusItem =
+			allStatuses[task ? task?.status?.split("-").join(" ") : status?.split("-").join(" ")]
 
-	const onChangeStatus = async (text) => {
-		if (task) {
-			const value: ITaskStatus = text
-			const taskEdit = {
-				...task,
-				status: value,
+		const onChangeStatus = async (text) => {
+			if (task) {
+				const value: ITaskStatus = text
+				const taskEdit = {
+					...task,
+					status: value,
+				}
+
+				await updateTask(taskEdit, task.id)
+			} else {
+				setStatus(text)
 			}
-
-			await updateTask(taskEdit, task.id)
 		}
-	}
 
-	return (
-		<>
-			<TaskStatusPopup
-				statusName={task?.status}
-				visible={openModal}
-				setSelectedStatus={(e) => onChangeStatus(e)}
-				onDismiss={() => setOpenModal(false)}
-			/>
-			<TouchableOpacity onPress={() => setOpenModal(true)}>
-				<View
-					style={{
-						...styles.container,
-						...containerStyle,
-						backgroundColor: status?.bgColor,
-					}}
-				>
-					{task && task.status && status ? (
-						<View style={styles.wrapStatus}>
-							{status.icon}
-							{iconsOnly ? null : (
-								<Text style={{ ...styles.text, marginLeft: 10 }}>
-									{limitTextCharaters({ text: status.name, numChars: 11 })}
-								</Text>
-							)}
-						</View>
-					) : (
-						<>
-							{!iconsOnly && (
-								<Text style={{ ...styles.text, color: colors.primary }}>
-									{translate("settingScreen.statusScreen.statuses")}
-								</Text>
-							)}
-						</>
-					)}
-					<AntDesign name="down" size={14} color={colors.primary} />
-				</View>
-			</TouchableOpacity>
-		</>
-	)
-})
+		return (
+			<>
+				<TaskStatusPopup
+					statusName={task?.status}
+					visible={openModal}
+					setSelectedStatus={(e) => onChangeStatus(e)}
+					onDismiss={() => setOpenModal(false)}
+				/>
+				<TouchableOpacity onPress={() => setOpenModal(true)}>
+					<View
+						style={[
+							{
+								...styles.container,
+								...containerStyle,
+								backgroundColor: !dark ? "#F2F2F2" : colors.background,
+								borderColor: colors.border,
+								borderWidth: 1,
+							},
+							statusItem ? { backgroundColor: statusItem?.bgColor } : null,
+						]}
+					>
+						{statusItem ? (
+							<View style={styles.wrapStatus}>
+								{statusItem.icon}
+								{iconsOnly ? null : (
+									<Text style={{ ...styles.text, marginLeft: 10 }}>
+										{limitTextCharaters({ text: statusItem.name, numChars: 11 })}
+									</Text>
+								)}
+							</View>
+						) : (
+							<Text style={{ ...styles.text, color: colors.primary }}>
+								{translate("settingScreen.statusScreen.statuses")}
+							</Text>
+						)}
+						<AntDesign name="down" size={14} color={colors.primary} />
+					</View>
+				</TouchableOpacity>
+			</>
+		)
+	},
+)
 
 const styles = StyleSheet.create({
 	container: {

@@ -6,6 +6,9 @@ import { IUser } from './IUserData';
 
 export interface IOrganizationTeamCreate {
 	name: string;
+	color?: string;
+	emoji?: string;
+	teamSize?: string;
 	memberIds?: string[];
 	managerIds?: string[];
 	tags?: any[];
@@ -42,6 +45,9 @@ export interface IOrganizationTeamList {
 	tenantId: string;
 	organizationId: string;
 	name: string;
+	color?: string;
+	emoji?: string;
+	teamSize?: string;
 	updated?: boolean;
 	prefix: string;
 	members: OT_Member[];

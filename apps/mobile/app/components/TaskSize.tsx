@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
-import { AntDesign } from "@expo/vector-icons"
+import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
@@ -17,16 +17,18 @@ interface TaskSizeProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
+	size?: string
+	setSize?: (size: string) => unknown
 }
 
-const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle }) => {
+const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, size }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
-	// const { allTaskSizes } = useTaskSizes()
 	const [openModal, setOpenModal] = useState(false)
 
 	const allTaskSizes = useTaskSizeValue()
-	const currentSize = allTaskSizes[task?.size?.split("-").join(" ")]
+	const currentSize =
+		allTaskSizes[task ? task?.size?.split("-").join(" ") : size?.split("-").join(" ")]
 
 	const onChangeSize = async (text) => {
 		if (task) {
@@ -42,13 +44,15 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle }) => {
 					type: "danger",
 				})
 			}
+		} else {
+			setSize(text)
 		}
 	}
 
 	return (
 		<>
 			<TaskSizePopup
-				sizeName={task?.size}
+				sizeName={task ? task?.size : size}
 				visible={openModal}
 				setSelectedSize={(e) => onChangeSize(e.name)}
 				onDismiss={() => setOpenModal(false)}
@@ -58,10 +62,11 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle }) => {
 					style={{
 						...styles.container,
 						...containerStyle,
+						borderColor: colors.border,
 						backgroundColor: currentSize?.bgColor,
 					}}
 				>
-					{task && task.size && currentSize ? (
+					{(task?.size || size) && currentSize ? (
 						<View style={styles.wrapStatus}>
 							{currentSize.icon}
 							<Text style={{ ...styles.text, marginLeft: 10 }}>
@@ -69,9 +74,12 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle }) => {
 							</Text>
 						</View>
 					) : (
-						<Text style={{ ...styles.text, color: colors.primary }}>
-							{translate("settingScreen.sizeScreen.sizes")}
-						</Text>
+						<View style={styles.wrapStatus}>
+							<Entypo name="circle" size={12} color={colors.primary} />
+							<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}>
+								{translate("settingScreen.sizeScreen.sizes")}
+							</Text>
+						</View>
 					)}
 					<AntDesign name="down" size={14} color={colors.primary} />
 				</View>

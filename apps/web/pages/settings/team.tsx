@@ -1,17 +1,12 @@
 import { withAuthentication } from 'lib/app/authenticator';
 import { MainLayout } from 'lib/layout';
-import { Breadcrumb, Card, Container, Text } from 'lib/components';
+import { Breadcrumb, Card, Container } from 'lib/components';
 
 import {
 	LeftSideSettingMenu,
 	TeamAvatar,
 	TeamSettingForm,
-	TaskStatusesForm,
-	TaskPrioritiesForm,
-	TaskSizesForm,
 	DangerZoneTeam,
-	TaskLabelForm,
-	IssueTypesForm,
 } from 'lib/settings';
 import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkeleton';
 
@@ -22,6 +17,11 @@ import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import Link from 'next/link';
 import { ArrowLeft } from 'lib/components/svgs';
+// import { NotificationSettings } from 'lib/settings/notification-setting';
+import { IssuesSettings } from 'lib/settings/issues-settings';
+import { InvitationSetting } from 'lib/settings/invitation-setting';
+import { MemberSetting } from 'lib/settings/member-setting';
+import { Accordian } from 'lib/components/accordian';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
@@ -55,78 +55,66 @@ const Team = () => {
 							<LeftSideSettingMenu />
 							{isTeamMember ? (
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
-									<Card
-										className="dark:bg-dark--theme p-[32px] mt-[36px]"
-										shadow="bigger"
+									{/* General Settings */}
+									<Accordian
+										title={trans.HEADING_TITLE}
+										className="dark:bg-dark--theme p-4 mt-8"
 									>
-										<Text className="text-4xl font-medium mb-2 text-center sm:text-left">
-											{trans.HEADING_TITLE}
-										</Text>
-										<Text className="text-base font-normal text-gray-400 text-center sm:text-left">
-											{translations.pages.settings.HEADING_DESCRIPTION}
-										</Text>
-										<TeamAvatar disabled={!isTeamManager} />
-										<TeamSettingForm />
-									</Card>
+										<div id="general-settings" className="flex flex-col">
+											<TeamAvatar disabled={!isTeamManager} />
+											<TeamSettingForm />
+										</div>
+									</Accordian>
 
-									<Card
-										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
-										shadow="bigger"
-									>
-										<IssueTypesForm />
-									</Card>
+									{/* Invitations */}
+									{isTeamManager ? (
+										<Accordian
+											title={trans.INVITATION_HEADING_TITLE}
+											className="dark:bg-dark--theme p-4 mt-4"
+										>
+											<InvitationSetting />
+										</Accordian>
+									) : (
+										''
+									)}
 
-									<Card
-										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
-										shadow="bigger"
-									>
-										<TaskStatusesForm />
-									</Card>
-									<Card
-										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
-										shadow="bigger"
-									>
-										<TaskPrioritiesForm />
-									</Card>
-									<Card
-										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
-										shadow="bigger"
-									>
-										<TaskSizesForm />
-									</Card>
-									<Card
-										className="dark:bg-dark--theme mt-[36px]  px-0 py-0 md:px-0"
-										shadow="bigger"
-									>
-										<TaskLabelForm />
-									</Card>
+									{/* Members */}
+									{isTeamManager ? (
+										<Accordian
+											title={trans.MEMBER_HEADING_TITLE}
+											className="dark:bg-dark--theme p-4 mt-4"
+										>
+											<MemberSetting />
+										</Accordian>
+									) : (
+										<></>
+									)}
 
-									{/*
-								Note: DO NOT REMOVE
-								Settings v2
-								*/}
-									{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
-									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
-										{trans.NOTIFICATION_HEADING_TITLE}
-									</Text>
-									<NotificationSettings />
-								</Card> */}
-									{/* <Card className="dark:bg-dark--theme mt-[36px]" shadow="bigger">
-									<Text className="text-4xl font-medium mb-2 h-[4.5rem]">
-										{trans.ISSUE_HEADING_TITLE}
-									</Text>
-									<IssuesSettings />
-								</Card> */}
-
-									<Card
-										className="dark:bg-dark--theme p-[32px] mt-[36px]"
-										shadow="bigger"
+									{/* Issues Settings */}
+									<Accordian
+										title={trans.ISSUES_HEADING_TITLE}
+										className="dark:bg-dark--theme p-4 mt-4"
 									>
-										<Text className="text-2xl text-[#EB6961] font-normal text-center sm:text-left">
-											{translations.pages.settings.DANDER_ZONE}
-										</Text>
+										<IssuesSettings />
+									</Accordian>
+
+									{/* TODO */}
+									{/* Notification Settings */}
+									{/* <Accordian
+										title={trans.NOTIFICATION_HEADING_TITLE}
+										className="dark:bg-dark--theme p-4 mt-4"
+									>
+										<NotificationSettings />
+									</Accordian> */}
+
+									{/* Danger Zone */}
+									<Accordian
+										title={translations.pages.settings.DANDER_ZONE}
+										className="dark:bg-dark--theme p-4 mt-4"
+										isDanger={true}
+									>
 										<DangerZoneTeam />
-									</Card>
+									</Accordian>
 								</div>
 							) : (
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">

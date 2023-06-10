@@ -28,19 +28,23 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 
 	const taskLabels = task?.tags.map((t) => allLabels[t])
 
-	const labels = [status, size, priority, ...(taskLabels || [])]
+	const labels = [size && status, size && size, priority && priority, ...(taskLabels || [])].filter(
+		(t) => t !== null && t !== undefined,
+	)
 
 	useEffect(() => {
-		flatListRef.current?.scrollToIndex({
-			animated: true,
-			index: labelIndex,
-			viewPosition: 0,
-		})
+		if (labels.length > 0) {
+			flatListRef.current?.scrollToIndex({
+				animated: true,
+				index: labelIndex,
+				viewPosition: 0,
+			})
+		}
 	}, [labelIndex])
 
 	const onNextPressed = () => {
 		if (labelIndex !== labels.length - 2) {
-			setLabelIndex(labelIndex + 1)
+			setLabelIndex(labelIndex + 1 === labels.length ? +labelIndex : labelIndex + 1)
 		}
 	}
 
@@ -67,7 +71,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 				keyExtractor={(_, index) => index.toString()}
 				style={{ marginRight: 10, overflow: "scroll" }}
 			/>
-			{labelIndex === labels.length - 2 ? null : (
+			{labelIndex === labels.length - 2 || labels.length < 3 ? null : (
 				<TouchableOpacity
 					activeOpacity={0.7}
 					style={[styles.scrollRight, { backgroundColor: colors.background }]}

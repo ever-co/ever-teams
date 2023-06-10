@@ -55,7 +55,7 @@ const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
 					autoCorrect={false}
 					autoComplete={"off"}
 					onChangeText={(text) => setTaskTitle(text)}
-					style={styles.titleInput}
+					style={{ ...styles.titleInput, color: colors.primary, borderColor: colors.border }}
 				/>
 				{!taskTitleChanged && !loading && (
 					<TouchableOpacity onPress={() => onChangeTitle(taskTitle)}>
@@ -88,11 +88,10 @@ const styles = StyleSheet.create({
 	container: {},
 	titleContainer: {
 		flexDirection: "row",
-		width: 300,
+		width: "100%",
 	},
 	titleInput: {
-		borderColor: "blue",
-		borderRadius: 10,
+		borderRadius: 8,
 		borderWidth: 1,
 		height: 40,
 		padding: 8,

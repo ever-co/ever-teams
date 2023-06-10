@@ -51,3 +51,32 @@ export function resendCodeRequestToJoinRequest(body: IRequestToJoinCreate) {
 		body,
 	});
 }
+
+/**
+ * GET Request to Join Team request
+ *
+ * @param body
+ * @returns
+ */
+export function getRequestToJoinRequest({
+	bearer_token,
+	tenantId,
+	organizationId,
+}: {
+	bearer_token: string | undefined;
+	tenantId: string | undefined;
+	organizationId: string | undefined;
+}) {
+	const params = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId,
+	} as { [x: string]: string };
+	const query = new URLSearchParams(params);
+
+	return serverFetch<PaginationResponse<IRequestToJoin>>({
+		path: `/organization-team-join?${query.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId,
+	});
+}
