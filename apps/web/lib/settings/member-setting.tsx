@@ -20,8 +20,10 @@ export const MemberSetting = () => {
 	const { isOpen, closeModal } = useModal();
 
 	const members =
-		activeTeam?.members.filter((member) =>
-			member.employee.fullName.toLowerCase().includes(filterString)
+		activeTeam?.members.filter(
+			(member) =>
+				member.employee.fullName.toLowerCase().includes(filterString) ||
+				member.employee.user?.email.toLowerCase().includes(filterString)
 		) || [];
 
 	return (
@@ -45,7 +47,9 @@ export const MemberSetting = () => {
 							</Button>
 						}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(e.target.value);
+							setFilterString(
+								e.target.value ? e.target.value.toLowerCase() : ''
+							);
 						}}
 					/>
 				</div>

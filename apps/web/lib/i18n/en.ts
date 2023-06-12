@@ -136,6 +136,7 @@ export const en = {
 			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Settings'],
 			DANDER_ZONE: 'Danger Zone',
 			HEADING_DESCRIPTION: 'Setting dan manage your personal dashboard here',
+			ARE_YOU_SURE_TO_DELETE_USER: 'Are you sure you want to delete this user?',
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'General Settings',
