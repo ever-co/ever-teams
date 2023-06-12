@@ -27,7 +27,9 @@ export const InvitationSetting = () => {
 	}, [getRequestToJoin]);
 
 	const invitations = [...teamInvitations, ...requestToJoin].filter(
-		(invitation) => invitation.fullName.toLowerCase().includes(filterString)
+		(invitation) =>
+			invitation.fullName.toLowerCase().includes(filterString) ||
+			invitation.email.toLowerCase().includes(filterString)
 	);
 
 	return (
@@ -48,7 +50,9 @@ export const InvitationSetting = () => {
 							</Button>
 						}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(e.target.value);
+							setFilterString(
+								e.target.value ? e.target.value.toLowerCase() : ''
+							);
 						}}
 					/>
 				</div>

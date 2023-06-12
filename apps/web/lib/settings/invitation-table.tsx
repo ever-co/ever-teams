@@ -5,6 +5,7 @@ import { Paginate } from 'lib/components/pagination';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
+import { Text } from 'lib/components';
 
 export const InvitationTable = ({
 	invitations,
@@ -77,7 +78,7 @@ export const InvitationTable = ({
 							>
 								<th
 									scope="row"
-									className="flex items-center pl-5 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center pl-0 py-4 text-gray-900 whitespace-nowrap dark:text-white"
 								>
 									<div
 										className={clsxm(
@@ -92,10 +93,13 @@ export const InvitationTable = ({
 									>
 										{imgTitle(invitation.fullName)}
 									</div>
-									<div className="pl-3">
+									<div className="pl-3 flex flex-col gap-1">
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">
 											{invitation.fullName}
 										</div>
+										<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal">
+											{invitation.email || ''}
+										</Text>
 									</div>
 								</th>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
