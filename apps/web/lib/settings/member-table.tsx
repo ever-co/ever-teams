@@ -8,6 +8,7 @@ import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
+import { useOrganizationTeams } from '@app/hooks';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -19,6 +20,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		setItemsPerPage,
 		currentItems,
 	} = usePagination<OT_Member>(members);
+	const { activeTeam } = useOrganizationTeams();
 
 	return (
 		<div>
@@ -116,10 +118,12 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									<span className="capitalize">
-										{member.role?.name || 'Member'}
+										{member.role?.name?.toLowerCase() || 'member'}
+										{member.role?.name?.toLowerCase() === 'manager' &&
+										activeTeam?.createdById === member.employee.userId
+											? ' (Admin)'
+											: ''}
 									</span>
-
-									{/* Manager ( Admin) */}
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									{/* 12 Feb 2020 12:00 pm */}
@@ -140,7 +144,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									/>
 								</td>
 								<td className="flex py-4 justify-center items-center absolute">
-									{<TableActionPopover member={member} />}
+									<TableActionPopover member={member} />
 								</td>
 							</tr>
 						))}

@@ -5,10 +5,13 @@ import React from 'react';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
 import {
 	useAuthenticateUser,
+	useModal,
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
+import { ConfirmationModal } from './confirmation-modal';
+import { useTranslation } from 'lib/i18n';
 
 type Props = {
 	member: OT_Member;
@@ -17,6 +20,7 @@ type Props = {
 export const TableActionPopover = ({ member }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 
+	const { trans } = useTranslation();
 	const { user } = useAuthenticateUser();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -24,6 +28,8 @@ export const TableActionPopover = ({ member }: Props) => {
 		edition: taskEdition,
 		memberInfo,
 	});
+
+	const { isOpen, openModal, closeModal } = useModal();
 
 	const isCurrentUser = user?.employee.id === memberInfo.member?.employeeId;
 
@@ -79,9 +85,7 @@ export const TableActionPopover = ({ member }: Props) => {
 								className={`flex items-center h-8 w-auto ${
 									!isCurrentUser ? 'hover:cursor-pointer' : ''
 								}`}
-								onClick={
-									isCurrentUser ? () => undefined : () => onRemoveMember({})
-								}
+								onClick={isCurrentUser ? () => undefined : () => openModal()}
 							>
 								<span
 									className={`${
@@ -96,6 +100,15 @@ export const TableActionPopover = ({ member }: Props) => {
 					<Popover.Button className="outline-none w-full mt-2">
 						<MenuIcon className="stroke-[#292D32] dark:stroke-white" />
 					</Popover.Button>
+					<ConfirmationModal
+						open={isOpen}
+						close={closeModal}
+						title={trans.pages.settings.ARE_YOU_SURE_TO_DELETE_USER}
+						loading={false}
+						onAction={
+							isCurrentUser ? () => undefined : () => onRemoveMember({})
+						}
+					/>
 				</>
 			)}
 		</Popover>
