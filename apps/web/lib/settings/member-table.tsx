@@ -3,12 +3,11 @@ import { Avatar, Text } from 'lib/components';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member, RoleNameEnum, OT_Role } from '@app/interfaces';
 import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
-import { useOrganizationTeams } from '@app/hooks';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -20,7 +19,6 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		setItemsPerPage,
 		currentItems,
 	} = usePagination<OT_Member>(members);
-	const { activeTeam } = useOrganizationTeams();
 
 	return (
 		<div>
@@ -42,7 +40,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white  w-44"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-44"
 							>
 								Roles
 							</th>
@@ -60,7 +58,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-3"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-6"
 							></th>
 						</tr>
 					</thead>
@@ -118,11 +116,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									<span className="capitalize">
-										{member.role?.name?.toLowerCase() || 'member'}
-										{member.role?.name?.toLowerCase() === 'manager' &&
-										activeTeam?.createdById === member.employee.userId
-											? ' (Admin)'
-											: ''}
+										{getRoleString(member.role)}
 									</span>
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
@@ -163,4 +157,28 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			/>
 		</div>
 	);
+};
+
+const getRoleString = (role: OT_Role | undefined) => {
+	if (!role) {
+		return 'member';
+	}
+
+	let roleString = '';
+	switch (role.name) {
+		case RoleNameEnum.SUPER_ADMIN:
+			roleString = 'Manager (Admin)';
+			break;
+		case RoleNameEnum.MANAGER:
+			roleString = 'Manager';
+			break;
+		case RoleNameEnum.VIEWER:
+			roleString = 'Viewer';
+			break;
+		default:
+			roleString = 'Member';
+			break;
+	}
+
+	return roleString;
 };

@@ -1,6 +1,7 @@
 import {
 	IOrganizationTeamList,
 	OT_Member,
+	RoleNameEnum,
 } from '@app/interfaces/IOrganizationTeam';
 import { atom, selector } from 'recoil';
 
@@ -52,6 +53,13 @@ export const activeTeamManagersState = selector<OT_Member[]>({
 	get: ({ get }) => {
 		const activeTeam = get(activeTeamState);
 		const members = activeTeam?.members;
-		return members?.filter((member) => member.role?.name === 'MANAGER') || [];
+		return (
+			members?.filter(
+				(member) =>
+					member?.role?.name === RoleNameEnum.MANAGER ||
+					member?.role?.name === RoleNameEnum.SUPER_ADMIN ||
+					member?.role?.name === RoleNameEnum.ADMIN
+			) || []
+		);
 	},
 });
