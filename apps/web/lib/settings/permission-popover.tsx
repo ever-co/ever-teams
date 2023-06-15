@@ -108,7 +108,7 @@ export const PermissionModal = () => {
 						<Divider />
 						<div className="h-[90%] overflow-y-scroll">
 							{currentItems.map((member) => (
-								<div className="flex flex-row pt-5 pb-5">
+								<div className="flex flex-row pt-5 pb-5" key={member.id}>
 									<div className="w-[30%] text-sm flex items-center">
 										{member.employee.user?.imageId ? (
 											<Avatar

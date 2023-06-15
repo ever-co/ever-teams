@@ -5,32 +5,29 @@ import { PlusIcon } from '@heroicons/react/24/solid';
 import { clsxm } from '@app/utils';
 import { useTranslation } from 'lib/i18n';
 
-export const PermissionDropDown = ({
-	publicTeam,
-}: {
-	publicTeam?: boolean;
-}) => {
-	const permissions = [
-		{
-			name: 'Viewer',
-		},
-		{
-			name: 'Member',
-		},
-		{
-			name: 'Manager',
-		},
-		{
-			name: 'Manager (Admin)',
-		},
-	];
+export const PermissionDropDown = () => {
+	const permissions = useMemo(
+		() => [
+			{
+				name: 'Viewer',
+			},
+			{
+				name: 'Member',
+			},
+			{
+				name: 'Manager',
+			},
+			{
+				name: 'Manager (Admin)',
+			},
+		],
+		[]
+	);
 
 	const { trans } = useTranslation();
 
 	const items = useMemo(() => mapPermissionItems(permissions), [permissions]);
-	const [permissionsItem, setPermissionsItem] = useState<PermissonItem | null>(
-		items[0]
-	);
+	const [permissionsItem] = useState<PermissonItem | null>(items[0]);
 
 	return (
 		<>

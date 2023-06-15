@@ -12,7 +12,6 @@ import {
 import { OT_Member } from '@app/interfaces';
 import { ConfirmationModal } from './confirmation-modal';
 import { useTranslation } from 'lib/i18n';
-import { PermissionModal } from './permission-popover';
 
 type Props = {
 	member: OT_Member;
@@ -72,7 +71,7 @@ export const TableActionPopover = ({ member }: Props) => {
 									Change Role
 								</span>
 							</div> */}
-							{/* <RolePopover /> */}
+							<RolePopover />
 
 							{/* TODO Dynamic */}
 							{/* Permission */}
@@ -155,10 +154,11 @@ const RolePopover = () => (
 				</div>
 			</Popover.Panel>
 		</Transition>
-		<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
+		{/* TODO */}
+		{/* <Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
 			<span className="text-[#282048] text-xs font-semibold dark:text-white">
 				Change Role
 			</span>
-		</Popover.Button>
+		</Popover.Button> */}
 	</Popover>
 );

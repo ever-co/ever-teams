@@ -43,7 +43,7 @@ export const ConfirmationModal = ({
 								disabled={loading}
 								loading={loading}
 								onClick={() => {
-									onAction()?.then((res: any) => {
+									onAction()?.then(() => {
 										close();
 									});
 								}}
