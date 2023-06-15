@@ -72,7 +72,7 @@ export const TableActionPopover = ({ member }: Props) => {
 									Change Role
 								</span>
 							</div> */}
-							<RolePopover />
+							{/* <RolePopover /> */}
 
 							{/* TODO Dynamic */}
 							{/* Permission */}
@@ -81,7 +81,7 @@ export const TableActionPopover = ({ member }: Props) => {
 									Permission
 								</span>
 							</div> */}
-							<PermissionModal />
+							{/* <PermissionModal /> */}
 
 							{/* Delete */}
 							<div

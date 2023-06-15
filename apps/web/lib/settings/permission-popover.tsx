@@ -1,7 +1,8 @@
 import { imgTitle } from '@app/helpers';
-import { useModal, useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { OT_Member } from '@app/interfaces';
+import { isPermissionModalOpenState } from '@app/stores/permission';
 import { clsxm } from '@app/utils';
 import {
 	Button,
@@ -18,12 +19,16 @@ import { SearchNormalIcon } from 'lib/components/svgs';
 import { PermissionDropDown } from 'lib/features/permission/permission-dropdown';
 import { useTranslation } from 'lib/i18n';
 import moment from 'moment';
+import { useRecoilState } from 'recoil';
 import stc from 'string-to-color';
 
 export const PermissionModal = () => {
 	const { trans } = useTranslation();
-	const { isOpen, openModal, closeModal } = useModal();
 	const { activeTeam } = useOrganizationTeams();
+
+	const [isPermissionModalOpen, setIsPermissionModalOpen] = useRecoilState(
+		isPermissionModalOpenState
+	);
 
 	const {
 		total,
@@ -38,14 +43,22 @@ export const PermissionModal = () => {
 	return (
 		<>
 			<Button
-				className="flex items-center h-8 w-auto hover:cursor-pointer outline-none"
-				onClick={openModal}
+				className="flex items-center h-8 w-auto hover:cursor-pointer outline-none justify-start p-0"
+				onClick={() => {
+					setIsPermissionModalOpen(true);
+				}}
+				variant="ghost"
 			>
 				<span className="text-[#282048] text-xs font-semibold dark:text-white">
 					Permission
 				</span>
 			</Button>
-			<Modal isOpen={isOpen} closeModal={closeModal}>
+			<Modal
+				isOpen={isPermissionModalOpen}
+				closeModal={() => {
+					setIsPermissionModalOpen(false);
+				}}
+			>
 				<Card
 					className="w-[90vw] h-[90vh] min-w-fit flex flex-row gap-8"
 					shadow="custom"
