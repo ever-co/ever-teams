@@ -12,6 +12,7 @@ import {
 import { OT_Member } from '@app/interfaces';
 import { ConfirmationModal } from './confirmation-modal';
 import { useTranslation } from 'lib/i18n';
+import { PermissionModal } from './permission-popover';
 
 type Props = {
 	member: OT_Member;
@@ -80,6 +81,7 @@ export const TableActionPopover = ({ member }: Props) => {
 									Permission
 								</span>
 							</div> */}
+							<PermissionModal />
 
 							{/* Delete */}
 							<div

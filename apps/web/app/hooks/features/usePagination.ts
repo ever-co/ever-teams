@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-export function usePagination<T>(items: T[]) {
+export function usePagination<T>(items: T[], defaultItemsPerPage: number = 10) {
 	const [itemOffset, setItemOffset] = useState(0);
-	const [itemsPerPage, setItemsPerPage] = useState(10);
+	const [itemsPerPage, setItemsPerPage] = useState(defaultItemsPerPage);
 
 	const total = items.length;
 
