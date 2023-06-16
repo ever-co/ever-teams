@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Avatar, Text } from 'lib/components';
+import { Avatar, InputField, Text } from 'lib/components';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
@@ -8,6 +8,11 @@ import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
+import { useSettings } from '@app/hooks';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { organizationTeamsState, activeTeamIdState } from '@app/stores';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -19,6 +24,61 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		setItemsPerPage,
 		currentItems,
 	} = usePagination<OT_Member>(members);
+	const { updateAvatar } = useSettings();
+
+	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const [organizationTeams, setOrganizationTeams] = useRecoilState(
+		organizationTeamsState
+	);
+	const [editMember, setEditMember] = useState<OT_Member | null>(null);
+	const handleEdit = (member: OT_Member) => {
+		setEditMember(member);
+	};
+
+	const handelNameChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
+			const name = event.target.value || '';
+			if (name === editMember?.employee.fullName) {
+				return;
+			}
+
+			const names = name.split(' ');
+			const tempMember: OT_Member | null = cloneDeep(editMember);
+			if (tempMember && tempMember.employee.user) {
+				tempMember.employee.fullName = name;
+				tempMember.employee.user.firstName = names[0] || '';
+				tempMember.employee.user.lastName = names[1] || '';
+				setEditMember(tempMember);
+			}
+		},
+		[editMember]
+	);
+	const handleEditMemberSave = useCallback(() => {
+		if (editMember) {
+			updateAvatar({
+				firstName: editMember?.employee?.user?.firstName || '',
+				lastName: editMember?.employee?.user?.lastName || '',
+				id: editMember.employee.userId,
+			}).then(() => {
+				const teamIndex = organizationTeams.findIndex(
+					(team) => team.id === activeTeamId
+				);
+				const tempOrganizationTeams = cloneDeep(organizationTeams);
+				const memberIndex = tempOrganizationTeams[teamIndex].members.findIndex(
+					(member) => member.id === editMember.id
+				);
+
+				tempOrganizationTeams[teamIndex].members[memberIndex] = editMember;
+				setOrganizationTeams(tempOrganizationTeams);
+				setEditMember(null);
+			});
+		}
+	}, [editMember, organizationTeams, activeTeamId]);
+	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
+		if (event.key === 'Enter') {
+			handleEditMemberSave();
+		}
+	};
 
 	return (
 		<div>
@@ -103,9 +163,23 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 										''
 									)}
 									<div className="pl-3 flex flex-col gap-1">
-										<div className="text-sm font-semibold text-[#282048] dark:text-white">
-											{member.employee.fullName}
-										</div>
+										{editMember && editMember.id === member.id ? (
+											<InputField
+												type="text"
+												placeholder={'Enter Name'}
+												className="mb-0 h-5 border-none pl-0 py-0 rounded-none border-b-1"
+												noWrapper
+												autoFocus
+												defaultValue={member.employee.fullName}
+												onBlur={handleEditMemberSave}
+												onChange={handelNameChange}
+												onKeyUp={handleOnKeyUp}
+											/>
+										) : (
+											<div className="text-sm font-semibold text-[#282048] dark:text-white">
+												{member.employee.fullName}
+											</div>
+										)}
 										<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal">
 											{member.employee.user?.email || ''}
 										</Text>
@@ -138,7 +212,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									/>
 								</td>
 								<td className="flex py-4 justify-center items-center absolute">
-									<TableActionPopover member={member} />
+									<TableActionPopover member={member} handleEdit={handleEdit} />
 								</td>
 							</tr>
 						))}

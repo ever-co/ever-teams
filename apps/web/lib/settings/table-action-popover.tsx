@@ -15,9 +15,10 @@ import { useTranslation } from 'lib/i18n';
 
 type Props = {
 	member: OT_Member;
+	handleEdit: (member: OT_Member) => void;
 };
 
-export const TableActionPopover = ({ member }: Props) => {
+export const TableActionPopover = ({ member, handleEdit }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 
 	const { trans } = useTranslation();
@@ -55,14 +56,16 @@ export const TableActionPopover = ({ member }: Props) => {
 						>
 							{/* TODO Dynamic */}
 							{/* Edit */}
-							{/* <div
+							<div
 								className="flex items-center h-8 w-auto  hover:cursor-pointer"
-								onClick={handleClick}
+								onClick={() => {
+									handleEdit(member);
+								}}
 							>
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									Edit
 								</span>
-							</div> */}
+							</div>
 
 							{/* TODO Dynamic */}
 							{/* Change Role */}
