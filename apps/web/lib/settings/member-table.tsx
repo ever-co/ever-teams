@@ -73,7 +73,13 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 				setEditMember(null);
 			});
 		}
-	}, [editMember, organizationTeams, activeTeamId]);
+	}, [
+		editMember,
+		organizationTeams,
+		activeTeamId,
+		setOrganizationTeams,
+		updateAvatar,
+	]);
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleEditMemberSave();

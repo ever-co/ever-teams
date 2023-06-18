@@ -76,6 +76,7 @@ export const en = {
 		BACK: 'Back',
 		JOIN_REQUEST: 'Request to join',
 		PERMISSION: 'Permission',
+		SEARCH: 'Search',
 	},
 	pages: {
 		home: {
@@ -236,13 +237,15 @@ export const en = {
 			ROLES_POSITIONS_CHANGE: 'Roles/Positions change',
 			VIEW_DETAILS: 'View Details',
 		},
-
 		invite: {
 			HEADING_TITLE: 'Invite member to your team',
 			HEADING_DESCRIPTION: 'Send invitation to a team member by email',
 			SEND_INVITE: 'Send Invitation',
 			ERROR_WHILE_ACCEPTING_INVITATION: 'Error while accepting invitation',
 			ERROR_WHILE_REJECTING_INVITATION: 'Error while rejecting invitation',
+		},
+		permissions: {
+			SELECT_ROLES: 'Select Roles',
 		},
 	},
 

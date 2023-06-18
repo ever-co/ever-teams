@@ -12,6 +12,7 @@ import {
 import { OT_Member } from '@app/interfaces';
 import { ConfirmationModal } from './confirmation-modal';
 import { useTranslation } from 'lib/i18n';
+import Link from 'next/link';
 
 type Props = {
 	member: OT_Member;
@@ -78,11 +79,13 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 
 							{/* TODO Dynamic */}
 							{/* Permission */}
-							{/* <div className="flex items-center h-8 w-auto  hover:cursor-pointer">
-								<span className="text-[#282048] text-xs font-semibold dark:text-white">
-									Permission
-								</span>
-							</div> */}
+							<div className="flex items-center h-8 w-auto  hover:cursor-pointer">
+								<Link href={'/permissions'}>
+									<span className="text-[#282048] text-xs font-semibold dark:text-white">
+										Permission
+									</span>
+								</Link>
+							</div>
 							{/* <PermissionModal /> */}
 
 							{/* Delete */}

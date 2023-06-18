@@ -508,6 +508,30 @@ export function ArrowRight({ className }: IClassName) {
 	);
 }
 
+// ============================= ArrowDown ===========================//
+
+export function ArrowDown({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="14"
+			height="14"
+			viewBox="0 0 14 14"
+			fill="none"
+			className={className}
+		>
+			<path
+				d="M11.6209 9.27917L7.81753 5.47584C7.36836 5.02667 6.63336 5.02667 6.18419 5.47584L2.38086 9.27917"
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className="stroke-[#B1AEBC]"
+			/>
+		</svg>
+	);
+}
+
 // ============================= StopIcon ===========================//
 
 export function StopIcon({ className }: IClassName) {

@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
-import { Button, Dropdown } from 'lib/components';
-import { mapPermissionItems, PermissonItem } from './permission-item';
-import { PlusIcon } from '@heroicons/react/24/solid';
+import { useMemo } from 'react';
+import { Card, InputField } from 'lib/components';
+import { PermissonItem } from './permission-item';
 import { clsxm } from '@app/utils';
 import { useTranslation } from 'lib/i18n';
+import { Popover, Transition } from '@headlessui/react';
+import { ArrowDown, Edit2Icon, TrashIcon } from 'lib/components/svgs';
 
 export const PermissionDropDown = () => {
 	const permissions = useMemo(
@@ -26,31 +27,60 @@ export const PermissionDropDown = () => {
 
 	const { trans } = useTranslation();
 
-	const items = useMemo(() => mapPermissionItems(permissions), [permissions]);
-	const [permissionsItem] = useState<PermissonItem | null>(items[0]);
-
 	return (
 		<>
-			<Dropdown
-				className="md:w-[223px]"
-				optionsClassName="md:w-[223px]"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-11'
-					// items.length === 0 && ['py-2']
-				)}
-				value={permissionsItem}
-				items={items}
-				closeOnChildrenClick={false}
-				// loading={teamsFetching} // TODO: Enable loading in future when we implement better data fetching library like TanStack
-			>
-				<Button
-					className="w-full text-base dark:text-white dark:border-white rounded-xl"
-					variant="outline"
+			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
+				<Popover.Button className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
+					{trans.pages.permissions.SELECT_ROLES}
+					<ArrowDown />
+				</Popover.Button>
+
+				<Transition
+					enter="transition duration-100 ease-out"
+					enterFrom="transform scale-95 opacity-0"
+					enterTo="transform scale-100 opacity-100"
+					leave="transition duration-75 ease-out"
+					leaveFrom="transform scale-100 opacity-100"
+					leaveTo="transform scale-95 opacity-0"
 				>
-					<PlusIcon className="w-[20px] h-[20px]" />
-					{trans.common.CREATE_ROLE}
-				</Button>
-			</Dropdown>
+					<Popover.Panel className="absolute z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light w-full">
+						<Card
+							shadow="custom"
+							className="md:px-4 py-4 rounded-x md:min-w-[14.125rem]"
+							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
+						>
+							{/* Search */}
+							<div className="flex items-center justify-between w-full">
+								<InputField
+									type="text"
+									placeholder={trans.common.SEARCH}
+									className="mb-0 h-11"
+									wrapperClassName={'mb-0'}
+								/>
+							</div>
+
+							{permissions.map((permission) => (
+								<div
+									className="flex justify-between w-full py-3"
+									key={permission.name}
+								>
+									<div className="max-w-[90%]">
+										<PermissonItem
+											title={permission.name}
+											className={clsxm(['font-medium'])}
+										/>
+									</div>
+
+									<div className="flex justify-end w-full gap-1">
+										<Edit2Icon className="cursor-pointer" />
+										<TrashIcon className="cursor-pointer" />
+									</div>
+								</div>
+							))}
+						</Card>
+					</Popover.Panel>
+				</Transition>
+			</Popover>
 		</>
 	);
 };
