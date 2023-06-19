@@ -223,12 +223,15 @@ function ThemeDropdown() {
 		},
 	];
 
+	const selectedThemeText = themes.find((item) => item.theme === theme)?.text;
+
 	return (
 		<Popover className="relative z-30">
-			<Popover.Button>
+			<Popover.Button className="flex items-center">
+				<p className="text-sm">{selectedThemeText}</p>
 				<ChevronDownIcon
 					className={clsxm(
-						'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+						'ml-1 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
 					)}
 					aria-hidden="true"
 				/>
