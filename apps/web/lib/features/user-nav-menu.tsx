@@ -1,7 +1,7 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useAuthenticateUser } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Listbox, Popover, Transition } from '@headlessui/react';
+import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import {
 	Avatar,
