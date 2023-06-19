@@ -24,6 +24,9 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
+import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
+import ThemesPopup from 'lib/components/themes-popup';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -205,12 +208,20 @@ function UserNavMenu() {
 function ThemeDropdown() {
 	const { theme, setTheme } = useTheme();
 
-	const themes = {
-		dark: 'Gauzy Dark',
-		light: 'Gauzy light',
-	};
-
-	const selected = themes[theme as keyof typeof themes];
+	const themes = [
+		{
+			theme: 'light',
+			text: 'Gauzy Light 2D',
+			image: gauzyLight,
+			enabled: theme === 'light',
+		},
+		{
+			theme: 'dark',
+			text: 'Gauzy Dark 2D',
+			image: gauzyDark,
+			enabled: theme === 'dark',
+		},
+	];
 
 	return (
 		<Popover className="relative">
@@ -230,9 +241,21 @@ function ThemeDropdown() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute z-10 max-w-sm w-[370px] right-[-25px] top-[-50px]">
-					<Card shadow="custom" className="flex flex-col">
-						This is a Panel
+				<Popover.Panel className="absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
+					<Card
+						shadow="bigger"
+						className="flex flex-col !px-5 !py-3 !overflow-auto gap-4"
+					>
+						{themes.map((item, index) => (
+							<ThemesPopup
+								key={index}
+								theme={item.theme}
+								text={item.text}
+								image={item.image}
+								enabled={item.enabled}
+								setTheme={setTheme}
+							/>
+						))}
 					</Card>
 				</Popover.Panel>
 			</Transition>
