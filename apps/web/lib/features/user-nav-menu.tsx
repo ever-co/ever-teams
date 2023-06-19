@@ -224,7 +224,7 @@ function ThemeDropdown() {
 	];
 
 	return (
-		<Popover className="relative">
+		<Popover className="relative z-30">
 			<Popover.Button>
 				<ChevronDownIcon
 					className={clsxm(

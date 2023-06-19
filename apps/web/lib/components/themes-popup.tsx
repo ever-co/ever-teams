@@ -30,10 +30,10 @@ const ThemesPopup = ({
 					checked={enabled}
 					onChange={() => setTheme(theme)}
 					className={`${
-						enabled ? 'bg-primary' : 'bg-gray-300'
+						enabled ? 'bg-primary dark:bg-primary-light' : 'bg-gray-300'
 					} relative inline-flex h-4 w-7 items-center rounded-full`}
 				>
-					<span className="sr-only">Enable notifications</span>
+					<span className="sr-only">Set Theme</span>
 					<span
 						className={`${
 							enabled ? 'translate-x-3' : 'translate-x-1'
