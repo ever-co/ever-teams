@@ -78,14 +78,15 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 							<RolePopover />
 
 							{/* TODO Dynamic */}
+							{/* Need to integrate with API */}
 							{/* Permission */}
-							<div className="flex items-center h-8 w-auto  hover:cursor-pointer">
+							{/* <div className="flex items-center h-8 w-auto  hover:cursor-pointer">
 								<Link href={'/permissions'}>
 									<span className="text-[#282048] text-xs font-semibold dark:text-white">
 										Permission
 									</span>
 								</Link>
-							</div>
+							</div> */}
 							{/* <PermissionModal /> */}
 
 							{/* Delete */}
