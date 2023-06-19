@@ -109,6 +109,7 @@ export interface IDrowDownData {
 
 export interface IClassName {
 	className?: string;
+	type?: 'VERTICAL' | 'HORIZONTAL';
 }
 
 export type Nullable<T> = T | null | undefined;

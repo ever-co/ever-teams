@@ -88,11 +88,19 @@ export type ITimerStatusEnum =
 	| 'online'
 	| 'suspended';
 
-interface OT_Role {
+export interface OT_Role {
 	id: string;
 	createdAt: string;
 	updatedAt: string;
 	tenantId: string;
 	name: string;
 	isSystem: boolean;
+}
+
+export enum RoleNameEnum {
+	SUPER_ADMIN = 'SUPER_ADMIN',
+	ADMIN = 'ADMIN',
+	MANAGER = 'MANAGER',
+	VIEWER = 'VIEWER',
+	MEMBER = 'MEMBER',
 }

@@ -1,4 +1,4 @@
-import { IUser, OT_Member } from '@app/interfaces';
+import { IUser, OT_Member, RoleNameEnum } from '@app/interfaces';
 import { activeTeamState } from '@app/stores';
 import { useEffect, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -14,7 +14,14 @@ export function useIsMemberManager(user: IUser | undefined | null) {
 			// Team manager
 			const isM = activeTeam?.members?.find((member) => {
 				const isUser = member.employee.userId === user?.id;
-				return isUser && member.role && member.role.name === 'MANAGER';
+
+				return (
+					isUser &&
+					member.role &&
+					(member.role.name === RoleNameEnum.MANAGER ||
+						member.role.name === RoleNameEnum.SUPER_ADMIN ||
+						member.role.name === RoleNameEnum.ADMIN)
+				);
 			});
 			setActiveManager(isM);
 			setTeamManager(!!isM);

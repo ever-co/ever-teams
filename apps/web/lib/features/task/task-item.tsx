@@ -73,7 +73,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					/> */}
 
 					<StatusModal
-						type="status"
+						type={'status' as any}
 						title={trans.common.SELECT_STATUS}
 						defaultValue={task?.status}
 						onValueChange={handleChange}
