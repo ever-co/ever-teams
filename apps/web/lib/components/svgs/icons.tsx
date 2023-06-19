@@ -988,6 +988,23 @@ export function CloseIcon({ className }: IClassName) {
 	);
 }
 
+//  ============================= Check Icon ============================= //
+
+export const CheckIcon = ({ className }: IClassName) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width={17}
+		height={19}
+		fill="none"
+		viewBox="0 0 14 15"
+	>
+		<path
+			className={clsxm('fill-[#fff]', className)}
+			d="M5.571 11 2.246 7.675l.831-.831 2.494 2.493 5.352-5.352.831.832L5.571 11Z"
+		/>
+	</svg>
+);
+
 //  ============================= Mail Icon ============================= //
 
 export function MailIcon({ className }: IClassName) {
