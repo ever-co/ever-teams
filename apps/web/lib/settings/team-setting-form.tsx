@@ -11,6 +11,7 @@ import isEqual from 'lodash/isEqual';
 import TeamSize from './team-size-popover';
 import { EmojiPicker } from 'lib/components/emoji-picker';
 import debounce from 'lodash/debounce';
+import { RoleNameEnum } from '@app/interfaces';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -90,7 +91,13 @@ export const TeamSettingForm = () => {
 						.map((t) => t.employee.id)
 						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 					managerIds: activeTeam.members
-						.filter((m) => m.role && m.role.name === 'MANAGER')
+						.filter(
+							(m) =>
+								m.role &&
+								(m.role.name === RoleNameEnum.MANAGER ||
+									m.role.name === RoleNameEnum.SUPER_ADMIN ||
+									m.role.name === RoleNameEnum.ADMIN)
+						)
 						.map((t) => t.employee.id)
 						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
 				});
