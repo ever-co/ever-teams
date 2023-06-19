@@ -12,7 +12,6 @@ import {
 import { OT_Member } from '@app/interfaces';
 import { ConfirmationModal } from './confirmation-modal';
 import { useTranslation } from 'lib/i18n';
-import Link from 'next/link';
 
 type Props = {
 	member: OT_Member;
