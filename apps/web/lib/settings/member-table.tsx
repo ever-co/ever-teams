@@ -182,7 +182,12 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 												onKeyUp={handleOnKeyUp}
 											/>
 										) : (
-											<div className="text-sm font-semibold text-[#282048] dark:text-white">
+											<div
+												className="text-sm font-semibold text-[#282048] dark:text-white"
+												onDoubleClick={() => {
+													handleEdit(member);
+												}}
+											>
 												{member.employee.fullName}
 											</div>
 										)}

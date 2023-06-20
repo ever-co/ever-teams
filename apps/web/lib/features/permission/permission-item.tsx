@@ -96,7 +96,7 @@ export function PermissonItem({
 			<span
 				className={clsxm(
 					'text-normal',
-					'whitespace-nowrap text-ellipsis overflow-hidden',
+					'whitespace-nowrap text-ellipsis overflow-hidden capitalize',
 					disabled && ['dark:text-default']
 				)}
 			>

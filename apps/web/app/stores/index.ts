@@ -14,4 +14,6 @@ export * from './task-sizes';
 export * from './task-labels';
 export * from './issue-type';
 
+export * from './roles';
+export * from './request-to-join';
 export * from './public';

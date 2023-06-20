@@ -5,7 +5,7 @@ import {
 	resendCodeRequestToJoinAPI,
 	getRequestToJoinAPI,
 } from '@app/services/client/api';
-import { requestToJoinState } from '@app/stores/request-to-join';
+import { requestToJoinState } from '@app/stores';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 
