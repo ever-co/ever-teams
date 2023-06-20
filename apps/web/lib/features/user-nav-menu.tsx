@@ -27,6 +27,7 @@ import Link from 'next/link';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import ThemesPopup from 'lib/components/themes-popup';
+import { StaticImageData } from 'next/image';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -208,7 +209,14 @@ function UserNavMenu() {
 function ThemeDropdown() {
 	const { theme, setTheme } = useTheme();
 
-	const themes = [
+	interface ThemeInterface {
+		theme: string;
+		text: string;
+		image: StaticImageData;
+		enabled: boolean;
+	}
+
+	const themes: ThemeInterface[] = [
 		{
 			theme: 'light',
 			text: 'Gauzy Light 2D',
@@ -223,7 +231,9 @@ function ThemeDropdown() {
 		},
 	];
 
-	const selectedThemeText = themes.find((item) => item.theme === theme)?.text;
+	const selectedThemeText = themes.find(
+		(item: ThemeInterface): boolean => item.theme === theme
+	)?.text;
 
 	return (
 		<Popover className="relative z-30">
@@ -251,7 +261,7 @@ function ThemeDropdown() {
 						shadow="bigger"
 						className="flex flex-col !px-5 !py-3 !overflow-auto xs:h-56 3xl:h-auto gap-4"
 					>
-						{themes.map((item, index) => (
+						{themes.map((item: ThemeInterface, index: number) => (
 							<ThemesPopup
 								currentTheme={theme}
 								key={index}
