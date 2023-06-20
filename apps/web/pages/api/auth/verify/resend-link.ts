@@ -11,7 +11,7 @@ export default async function handler(
 		return res.status(405).json({ status: 'fail' });
 	}
 
-	const appEmailConfirmationUrl = `${req.headers.origin}${VERIFY_EMAIL_CALLBACK_PATH}`
+	const appEmailConfirmationUrl = `${req.headers.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 
 	const { $res, user, access_token, tenantId } = await authenticatedGuard(
 		req,
@@ -24,7 +24,7 @@ export default async function handler(
 		bearer_token: access_token,
 		tenantId,
 		email: user.email,
-		appEmailConfirmationUrl
+		appEmailConfirmationUrl,
 	});
 
 	$res.json(data);
