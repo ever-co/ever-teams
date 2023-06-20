@@ -6,18 +6,22 @@ import type { StaticImageData } from 'next/image';
 
 interface IThemesPopup {
 	theme: string;
+	currentTheme: string | undefined;
 	text: string;
 	image: StaticImageData;
 	enabled: boolean;
+	index: number;
 	setTheme: (theme: string) => void;
 }
 
 const ThemesPopup = ({
 	theme,
+	currentTheme,
 	text,
 	image,
 	enabled,
 	setTheme,
+	index,
 }: IThemesPopup) => {
 	return (
 		<div
@@ -42,7 +46,19 @@ const ThemesPopup = ({
 				</Switch>
 			</div>
 			<div className="flex justify-center">
-				<Image src={image} alt="theme" width={290} className="rounded-t-xl" />
+				<Image
+					src={image}
+					alt="theme"
+					width={290}
+					className="rounded-t-xl"
+					style={
+						currentTheme === 'light' && index === 0
+							? { boxShadow: '5px 0px 20px rgba(0,0,0,0.15)' }
+							: currentTheme === 'light' && index > 0
+							? { boxShadow: '7px 0px 20px rgba(0,0,0,0.5)' }
+							: {}
+					}
+				/>
 			</div>
 		</div>
 	);

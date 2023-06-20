@@ -251,7 +251,9 @@ function ThemeDropdown() {
 					>
 						{themes.map((item, index) => (
 							<ThemesPopup
+								currentTheme={theme}
 								key={index}
+								index={index}
 								theme={item.theme}
 								text={item.text}
 								image={item.image}
