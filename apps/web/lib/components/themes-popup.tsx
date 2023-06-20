@@ -29,7 +29,7 @@ const ThemesPopup = ({
 			className="bg-light--theme-dark dark:bg-dark--theme-light font-normal text-sm rounded-lg"
 		>
 			<div className="flex justify-between my-4 px-6">
-				<h3>{text}</h3>
+				<h3 className="font-medium">{text}</h3>
 				<Switch
 					checked={enabled}
 					onChange={() => setTheme(theme)}
@@ -45,7 +45,7 @@ const ThemesPopup = ({
 					/>
 				</Switch>
 			</div>
-			<div className="flex justify-center">
+			<div className="flex justify-center overflow-hidden">
 				<Image
 					src={image}
 					alt="theme"
@@ -53,9 +53,9 @@ const ThemesPopup = ({
 					className="rounded-t-xl"
 					style={
 						currentTheme === 'light' && index === 0
-							? { boxShadow: '5px 0px 20px rgba(0,0,0,0.15)' }
+							? { boxShadow: '5px 20px 25px rgba(0,0,0,0.18)' }
 							: currentTheme === 'light' && index > 0
-							? { boxShadow: '7px 0px 20px rgba(0,0,0,0.5)' }
+							? { boxShadow: '7px 20px 25px rgba(0,0,0,0.5)' }
 							: {}
 					}
 				/>

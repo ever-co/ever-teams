@@ -228,7 +228,7 @@ function ThemeDropdown() {
 	return (
 		<Popover className="relative z-30">
 			<Popover.Button className="flex items-center">
-				<p className="text-sm text-[#7E7991]">
+				<p className="text-sm text-neutral">
 					{selectedThemeText?.replace('2D', '')}
 				</p>
 				<ChevronDownIcon
