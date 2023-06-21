@@ -53,9 +53,9 @@ const ThemesPopup = ({
 					className=""
 					style={
 						currentTheme === 'light' && index === 0
-							? { boxShadow: '5px 20px 25px rgba(0,0,0,0.18)' }
+							? { boxShadow: '5px 20px 26px rgba(0,0,0,0.18)' }
 							: currentTheme === 'light' && index > 0
-							? { boxShadow: '7px 20px 25px rgba(0,0,0,0.5)' }
+							? { boxShadow: '7px 20px 26px rgba(0,0,0,0.5)' }
 							: {}
 					}
 				/>
