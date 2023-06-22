@@ -27,7 +27,7 @@ import Link from 'next/link';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import ThemesPopup from 'lib/components/themes-popup';
-import { StaticImageData } from 'next/image';
+import { ThemeInterface } from '@app/interfaces/ITheme';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -208,13 +208,6 @@ function UserNavMenu() {
 
 function ThemeDropdown() {
 	const { theme, setTheme } = useTheme();
-
-	interface ThemeInterface {
-		theme: string;
-		text: string;
-		image: StaticImageData;
-		enabled: boolean;
-	}
 
 	const themes: ThemeInterface[] = [
 		{
