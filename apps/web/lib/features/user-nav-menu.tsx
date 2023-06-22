@@ -1,7 +1,7 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useAuthenticateUser } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { Listbox, Popover, Transition } from '@headlessui/react';
+import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import {
 	Avatar,
@@ -24,6 +24,10 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
+import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
+import ThemesPopup from 'lib/components/themes-popup';
+import { ThemeInterface } from '@app/interfaces';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -205,39 +209,106 @@ function UserNavMenu() {
 function ThemeDropdown() {
 	const { theme, setTheme } = useTheme();
 
-	const themes = {
-		dark: 'Gauzy Dark',
-		light: 'Gauzy light',
-	};
+	const themes: ThemeInterface[] = [
+		{
+			theme: 'light',
+			text: 'Gauzy Light 2D',
+			image: gauzyLight,
+			enabled: theme === 'light',
+		},
+		{
+			theme: 'dark',
+			text: 'Gauzy Dark 2D',
+			image: gauzyDark,
+			enabled: theme === 'dark',
+		},
+	];
 
-	const selected = themes[theme as keyof typeof themes];
+	const selectedThemeText = themes.find(
+		(item: ThemeInterface): boolean => item.theme === theme
+	)?.text;
 
 	return (
-		<div className="relative">
-			<Listbox value={selected} onChange={setTheme as any}>
-				<Listbox.Button className="flex text-sm items-center text-gray-500 dark:text-gray-300">
-					{selected}{' '}
-					<ChevronDownIcon
-						className={clsxm(
-							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
-						)}
-						aria-hidden="true"
-					/>
-				</Listbox.Button>
-				<Listbox.Options className={'absolute inset-0 flex flex-col mt-6'}>
-					<Card className="!p-0" shadow="custom">
-						{Object.keys(themes).map((key) => (
-							<Listbox.Option
-								key={key}
-								value={key}
-								className="text-sm text-gray-600 dark:text-white cursor-pointer"
-							>
-								{themes[key as keyof typeof themes]}
-							</Listbox.Option>
+		<Popover className="relative z-30">
+			<Popover.Button className="flex items-center">
+				<p className="text-sm text-neutral">
+					{selectedThemeText?.replace('2D', '')}
+				</p>
+				<ChevronDownIcon
+					className={clsxm(
+						'ml-1 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+					)}
+					aria-hidden="true"
+				/>
+			</Popover.Button>
+			<Transition
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+			>
+				<Popover.Panel className="theme-popup-scrollbar absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
+					<Card
+						shadow="bigger"
+						className="flex flex-col !px-5 !py-3 !overflow-auto h-[15.5rem] 3xl:h-auto gap-4"
+					>
+						{themes.map((item: ThemeInterface, index: number) => (
+							<ThemesPopup
+								currentTheme={theme}
+								key={index}
+								index={index}
+								theme={item.theme}
+								text={item.text}
+								image={item.image}
+								enabled={item.enabled}
+								setTheme={setTheme}
+							/>
 						))}
 					</Card>
-				</Listbox.Options>
-			</Listbox>
-		</div>
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
+
+// function ThemeDropdown() {
+// 	const { theme, setTheme } = useTheme();
+
+// 	const themes = {
+// 		dark: 'Gauzy Dark',
+// 		light: 'Gauzy light',
+// 	};
+
+// 	const selected = themes[theme as keyof typeof themes];
+
+// 	return (
+// 		<div className="relative">
+// 			<Listbox value={selected} onChange={setTheme as any}>
+// 				<Listbox.Button className="flex text-sm items-center text-gray-500 dark:text-gray-300">
+// 					{selected}{' '}
+// 					<ChevronDownIcon
+// 						className={clsxm(
+// 							'ml-2 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
+// 						)}
+// 						aria-hidden="true"
+// 					/>
+// 				</Listbox.Button>
+// 				<Listbox.Options className={'absolute inset-0 flex flex-col mt-6'}>
+// 					<Card className="!p-0" shadow="custom">
+// 						{Object.keys(themes).map((key) => (
+// 							<Listbox.Option
+// 								key={key}
+// 								value={key}
+// 								className="text-sm text-gray-600 dark:text-white cursor-pointer"
+// 							>
+// 								{themes[key as keyof typeof themes]}
+// 							</Listbox.Option>
+// 						))}
+// 					</Card>
+// 				</Listbox.Options>
+// 			</Listbox>
+// 		</div>
+// 	);
+// }
