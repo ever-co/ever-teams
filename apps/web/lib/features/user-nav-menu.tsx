@@ -27,7 +27,7 @@ import Link from 'next/link';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import ThemesPopup from 'lib/components/themes-popup';
-import { ThemeInterface } from '@app/interfaces/ITheme';
+import { ThemeInterface } from '@app/interfaces';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
