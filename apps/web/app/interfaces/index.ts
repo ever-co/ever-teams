@@ -25,3 +25,4 @@ export * from './IIssueTypes';
 export * from './IChoose';
 export * from './IDay';
 export * from './INotify';
+export * from './ITheme';

@@ -61,12 +61,12 @@ export type ICreateEmployee = Pick<
 >;
 
 export interface IRole {
-	id: string;
-	createdAt: string;
-	updatedAt: string;
-	tenantId: string;
+	id?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	tenantId?: string;
 	name: string;
-	isSystem: boolean;
+	isSystem?: boolean;
 }
 
 export type IWorkingEmployee = Pick<

@@ -6,6 +6,7 @@ import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
 import { Text } from 'lib/components';
+import { InvitationTableStatus } from './invitation-table-status';
 
 export const InvitationTable = ({
 	invitations,
@@ -116,9 +117,7 @@ export const InvitationTable = ({
 									{/* http:// www.borde.. */}-
 								</td>
 								<td className="text-xs font-semibold py-4 ">
-									<div className="flex text-[#5D846D] items-center bg-[#D4EFDF] justify-center rounded-full pl-5 pr-5 pt-1 pb-1 ">
-										{invitation.status}
-									</div>
+									<InvitationTableStatus status={invitation.status} />
 								</td>
 							</tr>
 						))}

@@ -33,6 +33,7 @@ export const en = {
 		CREATE_TEAM: 'Create new team',
 		VERIFY_ACCOUNT_MSG: 'Please Verify your account before start using the app',
 		CREATE_NEW_TEAMS: 'Create new teams',
+		CREATE_ROLE: 'Create Role',
 		CREATE: 'Create',
 		CREATE_ISSUE: 'Create issue',
 		NEW_ISSUE: 'New Issue',
@@ -74,6 +75,8 @@ export const en = {
 		NEW_MEMBER: 'Become a Member',
 		BACK: 'Back',
 		JOIN_REQUEST: 'Request to join',
+		PERMISSION: 'Permission',
+		SEARCH: 'Search',
 	},
 	pages: {
 		home: {
@@ -222,14 +225,27 @@ export const en = {
 			TEAM_SIZE: 'Team Size',
 			EMOJI: 'Emoji',
 			ISSUES_HEADING_TITLE: 'Issues Settings',
-		},
 
+			TRACK_TIME: 'Track Time',
+			ESTIMATE_ISSUE: 'Estimate issue',
+			EPICS_CREATE_CLOSE: 'Epics Create/Close',
+			ISSUE_CREATE_CLOSE: 'Issue Create/Close',
+			ISSUE_ASSIGN_UNASSIGN: 'Issue Assign/Unassign',
+			INVITE_MEMBERS: 'Invite members',
+			REMOVE_MEMBERS: 'Remove members',
+			HANDLE_REQUESTS: 'Handle requests',
+			ROLES_POSITIONS_CHANGE: 'Roles/Positions change',
+			VIEW_DETAILS: 'View Details',
+		},
 		invite: {
 			HEADING_TITLE: 'Invite member to your team',
 			HEADING_DESCRIPTION: 'Send invitation to a team member by email',
 			SEND_INVITE: 'Send Invitation',
 			ERROR_WHILE_ACCEPTING_INVITATION: 'Error while accepting invitation',
 			ERROR_WHILE_REJECTING_INVITATION: 'Error while rejecting invitation',
+		},
+		permissions: {
+			SELECT_ROLES: 'Select Roles',
 		},
 	},
 

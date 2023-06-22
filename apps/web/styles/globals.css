@@ -170,3 +170,7 @@ html.dark {
 	border-top-left-radius: 10px;
 	border-bottom-left-radius: 10px;
 }
+
+.theme-popup-scrollbar ::-webkit-scrollbar {
+	display: none;
+}

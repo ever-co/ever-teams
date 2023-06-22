@@ -1,14 +1,18 @@
 import moment from 'moment';
-import { Avatar, Text } from 'lib/components';
+import { Avatar, InputField, Text } from 'lib/components';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
-import { OT_Member } from '@app/interfaces';
+import { OT_Member, RoleNameEnum, OT_Role } from '@app/interfaces';
 import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
-import { useOrganizationTeams } from '@app/hooks';
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
+import cloneDeep from 'lodash/cloneDeep';
+import { useSettings } from '@app/hooks';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { organizationTeamsState, activeTeamIdState } from '@app/stores';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -20,7 +24,67 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		setItemsPerPage,
 		currentItems,
 	} = usePagination<OT_Member>(members);
-	const { activeTeam } = useOrganizationTeams();
+	const { updateAvatar } = useSettings();
+
+	const activeTeamId = useRecoilValue(activeTeamIdState);
+	const [organizationTeams, setOrganizationTeams] = useRecoilState(
+		organizationTeamsState
+	);
+	const [editMember, setEditMember] = useState<OT_Member | null>(null);
+	const handleEdit = (member: OT_Member) => {
+		setEditMember(member);
+	};
+
+	const handelNameChange = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
+			const name = event.target.value || '';
+			if (name === editMember?.employee.fullName) {
+				return;
+			}
+
+			const names = name.split(' ');
+			const tempMember: OT_Member | null = cloneDeep(editMember);
+			if (tempMember && tempMember.employee.user) {
+				tempMember.employee.fullName = name;
+				tempMember.employee.user.firstName = names[0] || '';
+				tempMember.employee.user.lastName = names[1] || '';
+				setEditMember(tempMember);
+			}
+		},
+		[editMember]
+	);
+	const handleEditMemberSave = useCallback(() => {
+		if (editMember) {
+			updateAvatar({
+				firstName: editMember?.employee?.user?.firstName || '',
+				lastName: editMember?.employee?.user?.lastName || '',
+				id: editMember.employee.userId,
+			}).then(() => {
+				const teamIndex = organizationTeams.findIndex(
+					(team) => team.id === activeTeamId
+				);
+				const tempOrganizationTeams = cloneDeep(organizationTeams);
+				const memberIndex = tempOrganizationTeams[teamIndex].members.findIndex(
+					(member) => member.id === editMember.id
+				);
+
+				tempOrganizationTeams[teamIndex].members[memberIndex] = editMember;
+				setOrganizationTeams(tempOrganizationTeams);
+				setEditMember(null);
+			});
+		}
+	}, [
+		editMember,
+		organizationTeams,
+		activeTeamId,
+		setOrganizationTeams,
+		updateAvatar,
+	]);
+	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
+		if (event.key === 'Enter') {
+			handleEditMemberSave();
+		}
+	};
 
 	return (
 		<div>
@@ -42,7 +106,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white  w-44"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-44"
 							>
 								Roles
 							</th>
@@ -60,7 +124,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 							</th>
 							<th
 								scope="col"
-								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-3"
+								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-6"
 							></th>
 						</tr>
 					</thead>
@@ -105,9 +169,28 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 										''
 									)}
 									<div className="pl-3 flex flex-col gap-1">
-										<div className="text-sm font-semibold text-[#282048] dark:text-white">
-											{member.employee.fullName}
-										</div>
+										{editMember && editMember.id === member.id ? (
+											<InputField
+												type="text"
+												placeholder={'Enter Name'}
+												className="mb-0 h-5 border-none pl-0 py-0 rounded-none border-b-1"
+												noWrapper
+												autoFocus
+												defaultValue={member.employee.fullName}
+												onBlur={handleEditMemberSave}
+												onChange={handelNameChange}
+												onKeyUp={handleOnKeyUp}
+											/>
+										) : (
+											<div
+												className="text-sm font-semibold text-[#282048] dark:text-white"
+												onDoubleClick={() => {
+													handleEdit(member);
+												}}
+											>
+												{member.employee.fullName}
+											</div>
+										)}
 										<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal">
 											{member.employee.user?.email || ''}
 										</Text>
@@ -118,11 +201,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									<span className="capitalize">
-										{member.role?.name?.toLowerCase() || 'member'}
-										{member.role?.name?.toLowerCase() === 'manager' &&
-										activeTeam?.createdById === member.employee.userId
-											? ' (Admin)'
-											: ''}
+										{getRoleString(member.role)}
 									</span>
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
@@ -144,7 +223,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									/>
 								</td>
 								<td className="flex py-4 justify-center items-center absolute">
-									<TableActionPopover member={member} />
+									<TableActionPopover member={member} handleEdit={handleEdit} />
 								</td>
 							</tr>
 						))}
@@ -163,4 +242,28 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			/>
 		</div>
 	);
+};
+
+const getRoleString = (role: OT_Role | undefined) => {
+	if (!role) {
+		return 'member';
+	}
+
+	let roleString = '';
+	switch (role.name) {
+		case RoleNameEnum.SUPER_ADMIN:
+			roleString = 'Manager (Admin)';
+			break;
+		case RoleNameEnum.MANAGER:
+			roleString = 'Manager';
+			break;
+		case RoleNameEnum.VIEWER:
+			roleString = 'Viewer';
+			break;
+		default:
+			roleString = 'Member';
+			break;
+	}
+
+	return roleString;
 };
