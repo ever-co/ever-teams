@@ -26,7 +26,7 @@ const ThemesPopup = ({
 	return (
 		<div
 			onClick={() => setTheme(theme)}
-			className="bg-light--theme-dark dark:bg-dark--theme-light font-normal text-sm rounded-lg"
+			className="bg-light--theme dark:bg-dark--theme-light font-normal text-sm rounded-lg"
 		>
 			<div className="flex justify-between my-4 px-4">
 				<h3 className="font-medium">{text}</h3>

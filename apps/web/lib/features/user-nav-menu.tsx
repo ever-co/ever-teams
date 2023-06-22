@@ -259,7 +259,7 @@ function ThemeDropdown() {
 				<Popover.Panel className="theme-popup-scrollbar absolute z-10 max-w-sm w-[360px] right-[-25px] rounded-xl top-[-50px] shadow-xl p-0">
 					<Card
 						shadow="bigger"
-						className="flex flex-col !px-5 !py-3 !overflow-auto h-[14.5rem] 3xl:h-auto gap-4"
+						className="flex flex-col !px-5 !py-3 !overflow-auto h-[15.5rem] 3xl:h-auto gap-4"
 					>
 						{themes.map((item: ThemeInterface, index: number) => (
 							<ThemesPopup
