@@ -156,6 +156,7 @@ export const en = {
 			TEAM_TYPE: 'Team Type',
 			TIME_TRACKING: 'Time Tracking',
 
+			ADD_NEW_MEMBER: 'Add new member',
 			SEARCH_MEMBER: 'Search Member',
 			TASK_STATUSES: 'Task Statuses',
 			TASK_PRIORITIES: 'Task Priorities',

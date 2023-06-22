@@ -84,11 +84,27 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 		const formattedDate = `${day} ${monthParsed} ${year}`;
 		const timeString = time.split('.')[0];
 		const timeArray = timeString.split(':');
-		const amPm =  parseInt(timeArray[0]) >= 12 ? 'PM' : 'AM' 
+		const amPm = parseInt(timeArray[0]) >= 12 ? 'PM' : 'AM';
 		const formattedTime = `${timeArray[0]}.${timeArray[1]} ${amPm}`;
 
 		return `${formattedDate}, ${formattedTime}`;
 	}
 
 	return '';
+};
+
+export const calculateRemainingTime = (
+	dateTimeString?: string
+): number | undefined => {
+	if (!dateTimeString) {
+		return undefined;
+	}
+
+	const dueTo = new Date(dateTimeString);
+	const todaysDate = new Date();
+
+	const remainingTime = dueTo.getTime() - todaysDate.getTime();
+	const daysRemaining = Math.round(remainingTime / (24 * 60 * 60 * 1000));
+
+	return daysRemaining;
 };
