@@ -1,5 +1,10 @@
 import { useTeamTasks } from '@app/hooks';
-import { ITaskStatus, ITaskSize, ITaskPriority, IVersionProperty } from '@app/interfaces';
+import {
+	ITaskStatus,
+	ITaskSize,
+	ITaskPriority,
+	IVersionProperty,
+} from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
 import {
 	EpicPropertiesDropdown as TaskEpicDropdown,
@@ -27,31 +32,31 @@ const TaskSecondaryInfo = () => {
 
 	const handleSizeChange = useCallback(
 		(status: ITaskSize) => {
-			handleStatusUpdate(status, 'size', task)
+			handleStatusUpdate(status, 'size', task);
 		},
 		[task, handleStatusUpdate]
 	);
 
 	const handlePriorityChange = useCallback(
 		(status: ITaskPriority) => {
-			handleStatusUpdate(status, 'priority', task)
+			handleStatusUpdate(status, 'priority', task);
 		},
 		[task, handleStatusUpdate]
 	);
 
 	const handleVersionChange = useCallback(
 		(status: IVersionProperty) => {
-			handleStatusUpdate(status, 'version', task)
+			handleStatusUpdate(status, 'version', task);
 		},
 		[task, handleStatusUpdate]
-	)
+	);
 
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle="Version" wrapperClassName="mb-3">
 				<TaskVersionDropdown
 					onValueChange={handleVersionChange}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
 				/>
 			</TaskRow>
@@ -59,7 +64,7 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle="Epic" wrapperClassName="mb-3">
 				<TaskEpicDropdown
 					onValueChange={() => void 0}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
 				/>
 			</TaskRow>
@@ -68,7 +73,7 @@ const TaskSecondaryInfo = () => {
 				<TaskStatusDropdown
 					defaultValue={task?.status}
 					onValueChange={handleChange}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
 				/>
 			</TaskRow>
@@ -76,25 +81,27 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle="Label" wrapperClassName="mb-3">
 				<TaskLabelsDropdown
 					defaultValue={task?.label}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Size" wrapperClassName="mb-3">
+			<TaskRow labelTitle="Size" wrapperClassName="mb-3 text-black">
 				<TaskSizesDropdown
 					defaultValue={task?.size}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
+					largerWidth={true}
 					onValueChange={handleSizeChange}
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Priority" wrapperClassName="mb-3">
+			<TaskRow labelTitle="Priority" wrapperClassName="mb-3 text-black">
 				<TaskPropertiesDropdown
 					defaultValue={task?.priority}
-					className="lg:min-w-[170px]"
+					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
+					largerWidth={true}
 					onValueChange={handlePriorityChange}
 				/>
 			</TaskRow>
