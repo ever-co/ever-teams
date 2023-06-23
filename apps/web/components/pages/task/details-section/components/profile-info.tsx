@@ -1,3 +1,4 @@
+import { auto } from '@popperjs/core';
 import clsx from 'clsx';
 import Image from 'next/image';
 
@@ -29,8 +30,9 @@ const ProfileInfo = ({
 				<Image
 					alt="profile"
 					src={profilePicSrc || ''}
-					layout="fill"
-					objectFit="cover"
+					width={profilePicSize || 24}
+					height={profilePicSize || 24}
+					style={{ objectFit: 'cover', width: '100%', height: '100%' }}
 					className="rounded-full"
 				/>
 			</div>
