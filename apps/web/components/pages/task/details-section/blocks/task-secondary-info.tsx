@@ -58,6 +58,7 @@ const TaskSecondaryInfo = () => {
 					onValueChange={handleVersionChange}
 					className="lg:min-w-[170px] text-black font-[500]"
 					forDetails={true}
+					defaultValue={task?.version}
 				/>
 			</TaskRow>
 

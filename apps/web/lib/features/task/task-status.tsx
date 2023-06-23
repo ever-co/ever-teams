@@ -12,7 +12,7 @@ import { clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { LoginIcon, RecordIcon } from 'lib/components/svgs';
+// import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, {
 	Fragment,
 	PropsWithChildren,
@@ -343,7 +343,6 @@ export function VersionPropertiesDropown({
 			onChange={onChange}
 			multiple={multiple}
 			values={values}
-			issueType="status"
 			showButtonOnly
 			showIcon={false}
 		/>
