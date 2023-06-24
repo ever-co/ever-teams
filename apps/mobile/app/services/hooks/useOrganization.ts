@@ -115,6 +115,10 @@ export function useOrganizationTeam() {
 		}
 	}
 
+	const isTrackingEnabled = useMemo(() => currentUser?.isTrackingEnabled, [currentUser])
+
+	const isTeamExist = useMemo(() => organizationTeams?.total > 0, [organizationTeams])
+
 	const makeMemberAsManager = useCallback(
 		async (employeeId: string) => {
 			// Check if user is already manager
@@ -153,7 +157,7 @@ export function useOrganizationTeam() {
 		},
 		[activeTeamId],
 	)
-
+	// console.log(currentUser)
 	const removeMemberFromTeam = useCallback(
 		async (employeeId: string) => {
 			const member = members.find((m) => m.employeeId === employeeId)
@@ -282,7 +286,7 @@ export function useOrganizationTeam() {
 			.then((res) => {
 				const { isSuccess, data } = res
 				if (isSuccess) {
-					const currentTeam = data.items.find((t) => t.id === activeTeamId)
+					const currentTeam = data?.items.find((t) => t.id === activeTeamId)
 					setActiveTeam(currentTeam)
 					setOrganizationTeams(data)
 				}
@@ -306,6 +310,7 @@ export function useOrganizationTeam() {
 				setActiveTeam(updateActiveTeam)
 				setActiveTeamId(updateActiveTeam.id)
 			}
+			// console.log(organizationTeams)
 			setOrganizationTeams(organizationTeams)
 			setTeamsFetching(false)
 		}
@@ -329,5 +334,7 @@ export function useOrganizationTeam() {
 		onUpdateOrganizationTeam,
 		onRemoveTeam,
 		activeTeamManagers,
+		isTrackingEnabled,
+		isTeamExist,
 	}
 }

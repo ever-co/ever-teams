@@ -8,8 +8,9 @@ import { typography, useAppTheme } from "../../../../theme"
 import { Text } from "../../../../components"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import ProfileImage from "../../../../components/ProfileImage"
+import { observer } from "mobx-react-lite"
 
-const ProfileHeader = (member: IUser) => {
+const ProfileHeader = observer((member: IUser) => {
 	const { colors, dark } = useAppTheme()
 	return (
 		<View
@@ -25,7 +26,7 @@ const ProfileHeader = (member: IUser) => {
 			</View>
 		</View>
 	)
-}
+})
 
 const styles = StyleSheet.create({
 	container: {

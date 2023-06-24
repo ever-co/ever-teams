@@ -16,7 +16,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 
 	const imageUrl = useMemo(
 		() => user.image?.thumbUrl || user.image?.fullUrl || user.imageUrl,
-		[user.image?.thumb],
+		[user.image?.thumb, user],
 	)
 
 	return (
