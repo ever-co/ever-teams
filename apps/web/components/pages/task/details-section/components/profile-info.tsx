@@ -1,4 +1,4 @@
-import { auto } from '@popperjs/core';
+// import { auto } from '@popperjs/core';
 import clsx from 'clsx';
 import Image from 'next/image';
 
