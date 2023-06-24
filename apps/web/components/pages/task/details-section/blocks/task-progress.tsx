@@ -92,7 +92,7 @@ const TaskProgress = () => {
 					1h : 10m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle="Total Group time" wrapperClassName="mb-3">
+			<TaskRow labelTitle="Total Group Time" wrapperClassName="mb-3">
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full">

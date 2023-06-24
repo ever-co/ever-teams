@@ -14,7 +14,15 @@ const TaskLabel: React.FC<TaskLabelProps> = ({
 	alignWithIconLabel,
 }) => {
 	return (
-		<div className="flex">
+		<div
+			className={`flex ${
+				labelTitle === 'Assignees' ||
+				labelTitle === 'Estimations' ||
+				labelTitle === 'Total Group Time'
+					? 'h-6'
+					: ''
+			} items-center `}
+		>
 			{labelIconPath ? (
 				<Image
 					src={labelIconPath}
@@ -43,3 +51,5 @@ const TaskLabel: React.FC<TaskLabelProps> = ({
 };
 
 export default TaskLabel;
+
+// ${labelTitle !== 'Assignees' && 'items-center'}
