@@ -5,6 +5,7 @@ import {
 	PaginationResponse,
 	ISuccessResponse,
 	IValidateRequestToJoin,
+	IRequestToJoinActionEnum,
 } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
@@ -78,5 +79,30 @@ export function getRequestToJoinRequest({
 		method: 'GET',
 		bearer_token,
 		tenantId,
+	});
+}
+
+/**
+ * Accept/Reject Request to Join Team request
+ *
+ * @param body
+ * @returns
+ */
+export function acceptRejectRequestToJoinRequest({
+	bearer_token,
+	tenantId,
+	id,
+	action,
+}: {
+	bearer_token: string | undefined;
+	tenantId: string | undefined;
+	id: string;
+	action: IRequestToJoinActionEnum;
+}) {
+	return serverFetch<IDataResponse<ISuccessResponse>>({
+		path: `/organization-team-join/${id}/${action}`,
+		method: 'PUT',
+		tenantId,
+		bearer_token,
 	});
 }

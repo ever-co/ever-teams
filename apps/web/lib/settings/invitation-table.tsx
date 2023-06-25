@@ -1,4 +1,8 @@
-import { IInvitation, IRequestToJoin } from '@app/interfaces';
+import {
+	IInvitation,
+	IRequestToJoin,
+	IRequestToJoinActionEnum,
+} from '@app/interfaces';
 import moment from 'moment';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { Paginate } from 'lib/components/pagination';
@@ -7,6 +11,7 @@ import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
 import { Text } from 'lib/components';
 import { InvitationTableStatus } from './invitation-table-status';
+import { useRequestToJoinTeam } from '@app/hooks';
 
 export const InvitationTable = ({
 	invitations,
@@ -22,6 +27,8 @@ export const InvitationTable = ({
 		setItemsPerPage,
 		currentItems,
 	} = usePagination<IInvitation | IRequestToJoin>(invitations);
+
+	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
 
 	return (
 		<div>
@@ -117,7 +124,21 @@ export const InvitationTable = ({
 									{/* http:// www.borde.. */}-
 								</td>
 								<td className="text-xs font-semibold py-4 ">
-									<InvitationTableStatus status={invitation.status} />
+									<InvitationTableStatus
+										status={invitation.status}
+										acceptJoinRequest={() => {
+											acceptRejectRequestToJoin(
+												invitation.id,
+												IRequestToJoinActionEnum.ACCEPTED
+											);
+										}}
+										rejectJoinRequest={() => {
+											acceptRejectRequestToJoin(
+												invitation.id,
+												IRequestToJoinActionEnum.REJECTED
+											);
+										}}
+									/>
 								</td>
 							</tr>
 						))}
