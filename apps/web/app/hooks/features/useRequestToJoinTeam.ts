@@ -1,9 +1,14 @@
-import { IRequestToJoinCreate, IValidateRequestToJoin } from '@app/interfaces';
+import {
+	IRequestToJoinActionEnum,
+	IRequestToJoinCreate,
+	IValidateRequestToJoin,
+} from '@app/interfaces';
 import {
 	requestToJoinAPI,
 	validateRequestToJoinAPI,
 	resendCodeRequestToJoinAPI,
 	getRequestToJoinAPI,
+	acceptRejectRequestToJoinAPI,
 } from '@app/services/client/api';
 import { requestToJoinState } from '@app/stores';
 import { useCallback } from 'react';
@@ -29,6 +34,11 @@ export const useRequestToJoinTeam = () => {
 		loading: getRequestToJoinLoading,
 		queryCall: getRequestToJoinQueryCall,
 	} = useQuery(getRequestToJoinAPI);
+
+	const {
+		loading: acceptRejectRequestToJoinLoading,
+		queryCall: acceptRejectRequestToJoinQueryCall,
+	} = useQuery(acceptRejectRequestToJoinAPI);
 
 	const getRequestToJoin = useCallback(() => {
 		return getRequestToJoinQueryCall().then((res) => {
@@ -61,6 +71,15 @@ export const useRequestToJoinTeam = () => {
 		[resendCodeRequestToJoinQueryCall]
 	);
 
+	const acceptRejectRequestToJoin = useCallback(
+		(id: string, action: IRequestToJoinActionEnum) => {
+			acceptRejectRequestToJoinQueryCall(id, action).then((res) => {
+				getRequestToJoin();
+			});
+		},
+		[acceptRejectRequestToJoinQueryCall]
+	);
+
 	return {
 		requestToJoinLoading,
 		requestToJoinQueryCall,
@@ -74,5 +93,7 @@ export const useRequestToJoinTeam = () => {
 		getRequestToJoin,
 		getRequestToJoinLoading,
 		requestToJoin,
+		acceptRejectRequestToJoin,
+		acceptRejectRequestToJoinLoading,
 	};
 };

@@ -2,9 +2,15 @@ import { CheckIcon, CloseIcon } from 'lib/components/svgs';
 import React from 'react';
 interface isProps {
 	status: string | undefined;
+	acceptJoinRequest: () => void;
+	rejectJoinRequest: () => void;
 }
 
-export const InvitationTableStatus = ({ status }: isProps) => {
+export const InvitationTableStatus = ({
+	status,
+	acceptJoinRequest,
+	rejectJoinRequest,
+}: isProps) => {
 	const RenderStatus = (status: string | undefined) => {
 		switch (status) {
 			case 'ACCEPTED':
@@ -39,17 +45,13 @@ export const InvitationTableStatus = ({ status }: isProps) => {
 						</div>
 						<div
 							className="bg-[#27AE60] dark:bg-[#27AE60] w-10 h-7 rounded-lg  flex items-center justify-center cursor-pointer"
-							onClick={() => {
-								console.log('Accepted called');
-							}}
+							onClick={acceptJoinRequest}
 						>
 							<CheckIcon />
 						</div>
 						<div
 							className="bg-[#EE6C4D] w-10 h-7 rounded-lg flex items-center justify-center cursor-pointer"
-							onClick={() => {
-								console.log('Rejected called');
-							}}
+							onClick={rejectJoinRequest}
 						>
 							<CloseIcon className="stroke-white" />
 						</div>

@@ -27,7 +27,7 @@ export const MemberSetting = () => {
 		) || [];
 
 	return (
-		<div id="member" className="flex flex-col ">
+		<div id="member" className="flex flex-col">
 			<Text className="flex-none flex-grow-0 text-xl text-gray-400 font-normal mb-2 w-1/5 mt-8">
 				{trans.MEMBER_AND_ROLES}
 			</Text>
