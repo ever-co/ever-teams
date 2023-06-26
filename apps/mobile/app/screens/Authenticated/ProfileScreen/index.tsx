@@ -25,9 +25,10 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 		const {
 			TimerStore: { localTimerStatus },
 			teamStore: { isTeamsExist },
-			authenticationStore: { user },
 		} = useStores()
-		const { activeTab, userId } = _props.route.params || { activeTab: "worked", userId: user.id }
+
+
+		const { activeTab, userId } = _props.route.params || {activeTab:"worked"}
 
 		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
 			useAcceptInviteModal()
@@ -53,7 +54,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 						<HomeHeader props={_props} showTimer={localTimerStatus.running} />
 						{isTeamsExist ? (
 							<>
-								<ProfileHeader {...profile.member.employee.user} />
+								<ProfileHeader {...profile.member?.employee.user} />
 								<TaskFilter profile={profile} hook={hook} />
 								<UserProfileTasks profile={profile} content={hook} />
 							</>

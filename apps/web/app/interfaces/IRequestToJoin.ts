@@ -17,3 +17,8 @@ export interface IRequestToJoin extends IRequestToJoinCreate {
 	updatedAt: string;
 	status: string;
 }
+
+export enum IRequestToJoinActionEnum {
+	ACCEPTED = 'ACCEPTED',
+	REJECTED = 'REJECTED',
+}

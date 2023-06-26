@@ -6,6 +6,7 @@ import {
 	IValidateRequestToJoin,
 	CreateReponse,
 	PaginationResponse,
+	IRequestToJoinActionEnum,
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -31,4 +32,13 @@ export function resendCodeRequestToJoinAPI(data: IRequestToJoinCreate) {
 
 export function getRequestToJoinAPI() {
 	return api.get<PaginationResponse<IRequestToJoin>>('/organization-team-join');
+}
+
+export function acceptRejectRequestToJoinAPI(
+	id: string,
+	action: IRequestToJoinActionEnum
+) {
+	return api.put<PaginationResponse<IRequestToJoin>>(
+		`/organization-team-join/${id}/${action}`
+	);
 }

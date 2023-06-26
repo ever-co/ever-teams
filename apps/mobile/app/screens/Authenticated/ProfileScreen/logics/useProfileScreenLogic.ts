@@ -23,12 +23,20 @@ export const useProfileScreenLogic = ({
 	const [isLoading, setIsLoading] = useState(true)
 
 	const members = activeTeam?.members || []
+	const currentUserId = userId || user?.id
 
-	const matchUser = members.find((m) => {
-		return m.employee.userId === userId
-	})
+	const matchUser = useMemo(
+		() =>
+			members.find((m) => {
+				return m.employee.userId === userId
+			}) ||
+			members.find((m) => {
+				return m.employee.userId === user?.id
+			}),
+		[activeTeam, currentUserId],
+	)
 
-	const isAuthUser = user?.employee.userId === userId
+	const isAuthUser = user?.employee.userId === currentUserId
 
 	const activeUserTeamTask = useMemo(
 		() => (isAuthUser ? activeTask : matchUser?.lastWorkedTask),
