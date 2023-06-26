@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const months: { [key: string]: string } = {
 	'01': 'January',
 	'02': 'February',
@@ -93,18 +95,18 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 	return '';
 };
 
-export const calculateRemainingTime = (
+export const calculateRemainingDays = (
 	dateTimeString?: string
 ): number | undefined => {
 	if (!dateTimeString) {
 		return undefined;
 	}
 
-	const dueTo = new Date(dateTimeString);
-	const todaysDate = new Date();
+	const dueTo = moment(dateTimeString);
+	const todaysDate = moment();
 
-	const remainingTime = dueTo.getTime() - todaysDate.getTime();
-	const daysRemaining = Math.round(remainingTime / (24 * 60 * 60 * 1000));
+	const duration = moment.duration(dueTo.diff(todaysDate));
+	const daysRemaining = Math.floor(duration.asDays());
 
 	return daysRemaining;
 };

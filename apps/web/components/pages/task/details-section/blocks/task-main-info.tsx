@@ -4,7 +4,7 @@ import { ActiveTaskIssuesDropdown } from 'lib/features';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
 import { Fragment } from 'react';
-import { formatDateTimeString, calculateRemainingTime } from '@app/helpers';
+import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 
@@ -96,7 +96,7 @@ const TaskMainInfo = () => {
 					alignWithIconLabel={true}
 				>
 					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{calculateRemainingTime(task?.dueDate)}
+						{calculateRemainingDays(task?.dueDate)}
 					</div>
 				</TaskRow>
 			)}
