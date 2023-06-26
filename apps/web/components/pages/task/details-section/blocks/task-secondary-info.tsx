@@ -56,17 +56,19 @@ const TaskSecondaryInfo = () => {
 			<TaskRow labelTitle="Version" wrapperClassName="mb-3">
 				<TaskVersionDropdown
 					onValueChange={handleVersionChange}
-					className="lg:min-w-[170px] text-black font-[500]"
+					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					defaultValue={task?.version}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 
 			<TaskRow labelTitle="Epic" wrapperClassName="mb-3">
 				<TaskEpicDropdown
 					onValueChange={() => void 0}
-					className="lg:min-w-[170px] text-black font-[500]"
+					className="lg:min-w-[170px] text-black"
 					forDetails={true}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 
@@ -74,36 +76,40 @@ const TaskSecondaryInfo = () => {
 				<TaskStatusDropdown
 					defaultValue={task?.status}
 					onValueChange={handleChange}
-					className="lg:min-w-[170px] text-black font-[500]"
+					className="lg:min-w-[170px] text-black"
 					forDetails={true}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 
 			<TaskRow labelTitle="Label" wrapperClassName="mb-3">
 				<TaskLabelsDropdown
 					defaultValue={task?.label}
-					className="lg:min-w-[170px] text-black font-[500]"
+					className="lg:min-w-[170px] text-black"
 					forDetails={true}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 
 			<TaskRow labelTitle="Size" wrapperClassName="mb-3 text-black">
 				<TaskSizesDropdown
 					defaultValue={task?.size}
-					className="lg:min-w-[170px] text-black font-[500]"
+					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					largerWidth={true}
 					onValueChange={handleSizeChange}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 
 			<TaskRow labelTitle="Priority" wrapperClassName="mb-3 text-black">
 				<TaskPropertiesDropdown
 					defaultValue={task?.priority}
-					className="lg:min-w-[170px] text-black font-[500]"
+					className="lg:min-w-[170px] text-black "
 					forDetails={true}
 					largerWidth={true}
 					onValueChange={handlePriorityChange}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 			<hr className="text-[#F2F2F2] mt-[15px]" />

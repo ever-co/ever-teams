@@ -58,6 +58,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	multiple?: boolean;
 	disabled?: boolean;
 	largerWidth?: boolean;
+	sidebarUI?: boolean;
 };
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -249,6 +250,7 @@ export function TaskStatusDropdown({
 	onValueChange,
 	forDetails,
 	multiple,
+	sidebarUI = false,
 }: TTaskStatusesDropdown<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
@@ -261,6 +263,7 @@ export function TaskStatusDropdown({
 
 	return (
 		<StatusDropdown
+			sidebarUI={sidebarUI}
 			showIcon={false}
 			forDetails={forDetails}
 			className={className}
@@ -325,6 +328,7 @@ export function VersionPropertiesDropown({
 	onValueChange,
 	forDetails,
 	multiple,
+	sidebarUI = false,
 }: TTaskStatusesDropdown<'version'>) {
 	const { item, items, onChange, values } = useStatusValue<'version'>({
 		status: versionProperties,
@@ -335,6 +339,7 @@ export function VersionPropertiesDropown({
 
 	return (
 		<StatusDropdown
+			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
@@ -345,6 +350,7 @@ export function VersionPropertiesDropown({
 			values={values}
 			showButtonOnly
 			showIcon={false}
+			bordered={true}
 		/>
 	);
 }
@@ -362,6 +368,7 @@ export function EpicPropertiesDropdown({
 	onValueChange,
 	forDetails,
 	multiple,
+	sidebarUI = false,
 }: TTaskStatusesDropdown<'epic'>) {
 	const { item, items, onChange, values } = useStatusValue<'epic'>({
 		status: {},
@@ -372,6 +379,7 @@ export function EpicPropertiesDropdown({
 
 	return (
 		<StatusDropdown
+			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
@@ -404,6 +412,7 @@ export function TaskPropertiesDropdown({
 	forDetails,
 	multiple,
 	largerWidth,
+	sidebarUI = false,
 }: TTaskStatusesDropdown<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
@@ -416,6 +425,7 @@ export function TaskPropertiesDropdown({
 
 	return (
 		<StatusDropdown
+			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
@@ -491,6 +501,7 @@ export function TaskSizesDropdown({
 	forDetails,
 	multiple,
 	largerWidth,
+	sidebarUI = false,
 }: TTaskStatusesDropdown<'size'>) {
 	const taskSizesValue = useTaskSizesValue();
 
@@ -503,6 +514,7 @@ export function TaskSizesDropdown({
 
 	return (
 		<StatusDropdown
+			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
@@ -549,6 +561,7 @@ export function TaskLabelsDropdown({
 	onValueChange,
 	forDetails,
 	multiple,
+	sidebarUI = false,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -561,6 +574,7 @@ export function TaskLabelsDropdown({
 
 	return (
 		<StatusDropdown
+			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
@@ -655,6 +669,7 @@ export function TaskStatus({
 	titleClassName,
 	cheched = false,
 	showIcon = true,
+	sidebarUI = false,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -664,12 +679,17 @@ export function TaskStatus({
 			forDetails?: boolean;
 			titleClassName?: string;
 			cheched?: boolean;
+			sidebarUI?: boolean;
 		}
 >) {
 	return (
 		<div
 			className={clsxm(
-				'py-2 md:px-3 px-2 flex items-center text-sm font-[500] text-dark space-x-3 relative',
+				`py-2 md:px-3 px-2 flex items-center text-sm ${
+					sidebarUI
+						? 'text-dark space-x-3 rounded-[4px] font-[500]'
+						: 'space-x-0 rounded-xl'
+				} relative`,
 				issueType === 'issue' && ['px-2 text-white'],
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
 				bordered && ['input-border'],
@@ -679,7 +699,6 @@ export function TaskStatus({
 			)}
 			style={{
 				backgroundColor: active ? backgroundColor : undefined,
-				borderRadius: '4px',
 			}}
 		>
 			<div
@@ -733,6 +752,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	disabled,
 	showIcon = true,
 	largerWidth = false,
+	bordered = false,
+	sidebarUI = false,
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -749,6 +770,8 @@ export function StatusDropdown<T extends TStatusItem>({
 	disabled?: boolean;
 	showIcon?: boolean;
 	largerWidth?: boolean;
+	bordered?: boolean;
+	sidebarUI?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -762,14 +785,15 @@ export function StatusDropdown<T extends TStatusItem>({
 	const button = (
 		<TaskStatus
 			{...currentValue}
-			bordered
+			bordered={bordered}
 			forDetails={forDetails}
 			showIcon={showIcon}
 			active={!!value}
 			showIssueLabels={showIssueLabels}
 			issueType={issueType}
+			sidebarUI={sidebarUI}
 			className={clsxm(
-				'justify-between capitalize text-xs',
+				`justify-between capitalize ${sidebarUI ? 'text-xs' : ''} `,
 				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
 				forDetails && !value
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
@@ -818,7 +842,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									{...defaultValue}
 									active={false}
 									className={clsxm(
-										'justify-between w-full capitalize text-xs',
+										'justify-between w-full capitalize',
 										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light'
 									)}
 									name={
@@ -861,6 +885,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										>
 											<li className="mb-3 cursor-pointer">
 												<TaskStatus
+													showIcon={showIcon}
 													{...item}
 													cheched={
 														item.name ? values.includes(item.name) : false
@@ -868,7 +893,8 @@ export function StatusDropdown<T extends TStatusItem>({
 													className={clsxm(
 														issueType === 'issue' && [
 															'rounded-md px-2 text-white',
-														]
+														],
+														`${sidebarUI ? 'rounded-[4px]' : ''}`
 													)}
 												/>
 											</li>
