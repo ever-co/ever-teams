@@ -65,7 +65,7 @@ const TaskMainInfo = () => {
 							style={{ height: '20px', cursor: 'pointer', fill: 'white' }}
 						/> */}
 						<span className="text-lg mr-1 leading-none">+</span>
-						<p className="font-semibold text-[10px] leading-none">
+						<p className="font-semibold text-[0.625rem] leading-none">
 							{trans.ADD_NEW_MEMBER}
 						</p>
 					</div>
@@ -76,7 +76,7 @@ const TaskMainInfo = () => {
 				labelTitle="Start Date"
 				wrapperClassName="mt-5"
 			>
-				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{formatDateTimeString(task?.createdAt)}
 				</div>
 			</TaskRow>
@@ -85,7 +85,7 @@ const TaskMainInfo = () => {
 				wrapperClassName="mt-3"
 				alignWithIconLabel={true}
 			>
-				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{formatDateTimeString(task?.dueDate) || 'Not set'}
 				</div>
 			</TaskRow>
@@ -95,7 +95,7 @@ const TaskMainInfo = () => {
 					wrapperClassName="mt-3"
 					alignWithIconLabel={true}
 				>
-					<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 						{calculateRemainingTime(task?.dueDate)}
 					</div>
 				</TaskRow>

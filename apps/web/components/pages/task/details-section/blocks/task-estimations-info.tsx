@@ -46,14 +46,14 @@ const TaskEstimationsInfo = () => {
 										time={
 											<TaskEstimate
 												_task={task}
-												className="not-italic font-medium text-xs text-xs tracking-[-0.02em] !text-[#938FA3] dark:text-white mt-4"
+												className="not-italic font-medium text-xs tracking-[-0.02em] !text-[#938FA3] dark:text-white mt-4"
 												wrapperClassName="w-4"
 											/>
 										}
 									/>
 								))}
 								<div className="mt-4">
-									<button className="flex items-center text-[10px] leading-[140%] border py-1.5 rounded-xl px-2 text-[#292D32] font-semibold dark:text-white">
+									<button className="flex items-center text-[0.625rem] leading-[140%] border py-1.5 rounded-xl px-2 text-[#292D32] font-semibold dark:text-white">
 										<AddIcon className="dark:stroke-white" />
 										Add new member
 									</button>
