@@ -73,6 +73,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		task?: Nullable<ITeamTask>;
 		showIssueLabels?: boolean;
 		forDetails?: boolean;
+		sidebarUI?: boolean;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(

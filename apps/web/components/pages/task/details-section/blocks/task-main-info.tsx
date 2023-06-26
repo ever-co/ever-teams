@@ -23,6 +23,7 @@ const TaskMainInfo = () => {
 					key={task?.id}
 					task={task}
 					showIssueLabels={true}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 			<TaskRow
