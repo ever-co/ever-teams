@@ -11,13 +11,13 @@ import { useTranslation } from 'lib/i18n';
 // ---- MAIN COMPONENT ----
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const { trans } = useTranslation('settingsTeam');
+	const { trans, translations } = useTranslation('settingsTeam');
 
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow
 				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle="Type of issue"
+				labelTitle={translations.pages.taskDetails.TYPE_OF_ISSUE}
 			>
 				<ActiveTaskIssuesDropdown
 					key={task?.id}
@@ -27,7 +27,7 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow
 				labelIconPath="/assets/svg/profile.svg"
-				labelTitle="Creator"
+				labelTitle={translations.pages.taskDetails.CREATOR}
 				wrapperClassName="mt-5"
 			>
 				{task?.creator && (
@@ -41,7 +41,7 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow
 				labelIconPath="/assets/svg/people.svg"
-				labelTitle="Assignees"
+				labelTitle={translations.pages.taskDetails.ASSIGNEES}
 				wrapperClassName="mt-5"
 			>
 				<div className="flex flex-col gap-3">
@@ -73,7 +73,7 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow
 				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle="Start Date"
+				labelTitle={translations.pages.taskDetails.START_DATE}
 				wrapperClassName="mt-5"
 			>
 				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
@@ -81,7 +81,7 @@ const TaskMainInfo = () => {
 				</div>
 			</TaskRow>
 			<TaskRow
-				labelTitle="Due Date"
+				labelTitle={translations.pages.taskDetails.DUE_DATE}
 				wrapperClassName="mt-3"
 				alignWithIconLabel={true}
 			>
@@ -91,7 +91,7 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			{task?.dueDate && (
 				<TaskRow
-					labelTitle="Days Remaining"
+					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
 					wrapperClassName="mt-3"
 					alignWithIconLabel={true}
 				>

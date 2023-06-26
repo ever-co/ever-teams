@@ -7,14 +7,17 @@ import { AddIcon } from 'lib/components/svgs';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { Disclosure } from '@headlessui/react';
 import clsx from 'clsx';
+import { useTranslation } from 'lib/i18n';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 
+	const { trans } = useTranslation('taskDetails');
+
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow
-				labelTitle="Estimations"
+				labelTitle={trans.ESTIMATIONS}
 				afterIconPath="/assets/svg/estimations.svg"
 				wrapperClassName="mb-3"
 			>

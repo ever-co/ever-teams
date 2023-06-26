@@ -17,9 +17,11 @@ import {
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import TaskRow from '../components/task-row';
+import { useTranslation } from 'lib/i18n';
 
 const TaskSecondaryInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
+	const { trans } = useTranslation('taskDetails');
 
 	const { handleStatusUpdate } = useTeamTasks();
 
@@ -53,7 +55,7 @@ const TaskSecondaryInfo = () => {
 
 	return (
 		<section className="flex flex-col p-[15px]">
-			<TaskRow labelTitle="Version" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.VERSION} wrapperClassName="mb-3">
 				<TaskVersionDropdown
 					onValueChange={handleVersionChange}
 					className="lg:min-w-[170px] text-black"
@@ -63,7 +65,7 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Epic" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.EPIC} wrapperClassName="mb-3">
 				<TaskEpicDropdown
 					onValueChange={() => void 0}
 					className="lg:min-w-[170px] text-black"
@@ -72,7 +74,7 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Status" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.STATUS} wrapperClassName="mb-3">
 				<TaskStatusDropdown
 					defaultValue={task?.status}
 					onValueChange={handleChange}
@@ -82,7 +84,7 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Label" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.LABEL} wrapperClassName="mb-3">
 				<TaskLabelsDropdown
 					defaultValue={task?.label}
 					className="lg:min-w-[170px] text-black"
@@ -91,7 +93,7 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Size" wrapperClassName="mb-3 text-black">
+			<TaskRow labelTitle={trans.SIZE} wrapperClassName="mb-3 text-black">
 				<TaskSizesDropdown
 					defaultValue={task?.size}
 					className="lg:min-w-[170px] text-black"
@@ -102,7 +104,7 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
-			<TaskRow labelTitle="Priority" wrapperClassName="mb-3 text-black">
+			<TaskRow labelTitle={trans.PRIORITY} wrapperClassName="mb-3 text-black">
 				<TaskPropertiesDropdown
 					defaultValue={task?.priority}
 					className="lg:min-w-[170px] text-black "
