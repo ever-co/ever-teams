@@ -100,9 +100,9 @@ export function TaskIssuesDropdown({
  * @param props - IActiveTaskStatuses<'issue'>
  * @returns A dropdown component that allows the user to select a status for the task.
  */
-export function ActiveTaskIssuesDropdown(
-	props: IActiveTaskStatuses<'issueType'>
-) {
+export function ActiveTaskIssuesDropdown({
+	...props
+}: IActiveTaskStatuses<'issueType'>) {
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
 		taskIssues,
@@ -111,6 +111,7 @@ export function ActiveTaskIssuesDropdown(
 
 	return (
 		<StatusDropdown
+			sidebarUI={props.sidebarUI}
 			className={props.className}
 			items={items}
 			value={item || (taskIssues['Task'] as Required<TStatusItem>)}

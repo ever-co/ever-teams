@@ -14,6 +14,7 @@ import {
 	useTeamMemberCard,
 	//useTaskStatistics,
 } from '@app/hooks';
+import { useTranslation } from 'lib/i18n';
 //import { secondsToTime } from '@app/helpers';
 //import { useRecoilValue } from 'recoil';
 //import { timerSecondsState } from '@app/stores';
@@ -23,6 +24,8 @@ const TaskProgress = () => {
 	const [dummyProfiles, setDummyProfiles] = useState<IEmployee[]>([]);
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
+	const { trans } = useTranslation('taskDetails');
+
 	//const seconds = useRecoilValue(timerSecondsState);
 	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
@@ -73,7 +76,7 @@ const TaskProgress = () => {
 
 	return (
 		<section className="flex flex-col p-[15px]">
-			<TaskRow labelTitle="Progress" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.PROGRESS} wrapperClassName="mb-3">
 				<TaskProgressBar
 					task={task}
 					isAuthUser={true}
@@ -82,17 +85,17 @@ const TaskProgress = () => {
 					memberInfo={memberInfo}
 				/>
 			</TaskRow>
-			<TaskRow labelTitle="Total Time" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.TOTAL_TIME} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					2h : 12m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle="Time Today" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.TIME_TODAY} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					1h : 10m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle="Total Group time" wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME} wrapperClassName="mb-3">
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full">
@@ -122,7 +125,7 @@ const TaskProgress = () => {
 					)}
 				</Disclosure>
 			</TaskRow>
-			<TaskRow labelTitle="Time Remains">
+			<TaskRow labelTitle={trans.TIME_REMAINING}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					2h : 12m
 				</div>
