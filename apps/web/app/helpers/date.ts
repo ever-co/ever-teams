@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const months: { [key: string]: string } = {
 	'01': 'January',
 	'02': 'February',
@@ -84,11 +86,27 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 		const formattedDate = `${day} ${monthParsed} ${year}`;
 		const timeString = time.split('.')[0];
 		const timeArray = timeString.split(':');
-		const amPm =  parseInt(timeArray[0]) >= 12 ? 'PM' : 'AM' 
+		const amPm = parseInt(timeArray[0]) >= 12 ? 'PM' : 'AM';
 		const formattedTime = `${timeArray[0]}.${timeArray[1]} ${amPm}`;
 
 		return `${formattedDate}, ${formattedTime}`;
 	}
 
 	return '';
+};
+
+export const calculateRemainingDays = (
+	dateTimeString?: string
+): number | undefined => {
+	if (!dateTimeString) {
+		return undefined;
+	}
+
+	const dueTo = moment(dateTimeString);
+	const todaysDate = moment();
+
+	const duration = moment.duration(dueTo.diff(todaysDate));
+	const daysRemaining = Math.floor(duration.asDays());
+
+	return daysRemaining;
 };
