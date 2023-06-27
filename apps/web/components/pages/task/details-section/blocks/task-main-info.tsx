@@ -1,32 +1,35 @@
 import { detailedTaskState } from '@app/stores';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
 import { Fragment } from 'react';
-import { formatDateTimeString } from '@app/helpers';
+import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
+import { useTranslation } from 'lib/i18n';
 
 // ---- MAIN COMPONENT ----
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
+	const { trans, translations } = useTranslation('settingsTeam');
 
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow
 				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle="Type of issue"
+				labelTitle={translations.pages.taskDetails.TYPE_OF_ISSUE}
 			>
 				<ActiveTaskIssuesDropdown
 					key={task?.id}
 					task={task}
 					showIssueLabels={true}
+					sidebarUI={true}
 				/>
 			</TaskRow>
 			<TaskRow
 				labelIconPath="/assets/svg/profile.svg"
-				labelTitle="Creator"
-				wrapperClassName="mt-4"
+				labelTitle={translations.pages.taskDetails.CREATOR}
+				wrapperClassName="mt-5"
 			>
 				{task?.creator && (
 					<ProfileInfo
@@ -39,10 +42,10 @@ const TaskMainInfo = () => {
 			</TaskRow>
 			<TaskRow
 				labelIconPath="/assets/svg/people.svg"
-				labelTitle="Assignees"
-				wrapperClassName="mt-4"
+				labelTitle={translations.pages.taskDetails.ASSIGNEES}
+				wrapperClassName="mt-5"
 			>
-				<div className="flex flex-wrap">
+				<div className="flex flex-col gap-3">
 					{task?.members?.map((member: any) => (
 						<Fragment key={member.id}>
 							<ProfileInfo
@@ -54,33 +57,51 @@ const TaskMainInfo = () => {
 							/>
 						</Fragment>
 					))}
-					<Image
-						src={'/assets/svg/add-new-assignee.svg'}
-						alt="add new assignee"
-						width={20}
-						height={20}
-						style={{ height: '20px', marginLeft: '10px', cursor: 'pointer' }}
-					/>
+					<div className="flex items-center text-black dark:text-white border-2 border-gray-200 rounded-full px-1 py-[2px] cursor-pointer">
+						{/* <Image
+							src={'/assets/svg/add-new-assignee.svg'}
+							alt="add new assignee"
+							width={20}
+							height={20}
+							style={{ height: '20px', cursor: 'pointer', fill: 'white' }}
+						/> */}
+						<span className="text-lg mr-1 leading-none">+</span>
+						<p className="font-semibold text-[0.625rem] leading-none">
+							{trans.ADD_NEW_MEMBER}
+						</p>
+					</div>
 				</div>
 			</TaskRow>
 			<TaskRow
 				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle="Start date"
-				wrapperClassName="mt-4"
+				labelTitle={translations.pages.taskDetails.START_DATE}
+				wrapperClassName="mt-5"
 			>
-				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{formatDateTimeString(task?.createdAt)}
 				</div>
 			</TaskRow>
 			<TaskRow
-				labelTitle="Due date"
-				wrapperClassName="mt-4"
+				labelTitle={translations.pages.taskDetails.DUE_DATE}
+				wrapperClassName="mt-3"
 				alignWithIconLabel={true}
 			>
-				<div className="not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{formatDateTimeString(task?.dueDate) || 'Not set'}
 				</div>
 			</TaskRow>
+			{task?.dueDate && (
+				<TaskRow
+					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
+					wrapperClassName="mt-3"
+					alignWithIconLabel={true}
+				>
+					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+						{calculateRemainingDays(task?.dueDate)}
+					</div>
+				</TaskRow>
+			)}
+
 			<hr className="text-[#F2F2F2] mt-[15px] dark:text-white" />
 		</section>
 	);
