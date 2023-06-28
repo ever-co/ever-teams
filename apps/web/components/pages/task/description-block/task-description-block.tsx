@@ -32,6 +32,11 @@ const TaskDescriptionBlock = () => {
 				theme: {
 					root: 'rounded focus:outline-none',
 					link: 'cursor-pointer',
+					heading: {
+						h1: 'text-xl font-[500]',
+						h2: 'text-lg font-[400]',
+					},
+					paragraph: 'text-[1rem]',
 					text: {
 						bold: 'font-semibold',
 						underline: 'underline',
@@ -61,7 +66,7 @@ const TaskDescriptionBlock = () => {
 
 	return (
 		<div>
-			<div className="border-b-2  w-full">
+			<div className="border-b-2 w-full">
 				<div className="py-5"></div>
 				{editorConfig ? (
 					<LexicalComposer initialConfig={editorConfig}>

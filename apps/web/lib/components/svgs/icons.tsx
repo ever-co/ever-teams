@@ -1796,6 +1796,43 @@ export function AlignJustifyIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function HeaderOneIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			className={clsxm(className)}
+		>
+			<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm71.77539,44.94727a7.99755,7.99755,0,0,0-8.21191.3955l-24,15.99317a8.00008,8.00008,0,1,0,8.873,13.31445L212,122.94434V200a8,8,0,0,0,16,0V108A7.99932,7.99932,0,0,0,223.77539,100.94727Z"></path>
+		</svg>
+	);
+}
+export function HeaderTwoIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			className={clsxm(className)}
+		>
+			<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm88,135.99414H207.99707l34.30566-45.77734c.07911-.1045.1543-.21094.22754-.31934A32.00406,32.00406,0,1,0,186.51758,115.542a8,8,0,1,0,14.73633,6.23242A16.00416,16.00416,0,1,1,229.37012,136.794l-43.67285,58.27539A8.00367,8.00367,0,0,0,191.999,208.001c.10547,0,.21192-.00293.31836-.00684H240a8,8,0,0,0,0-16Z"></path>
+		</svg>
+	);
+}
+
+export function NormalTextIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			className={clsxm(className)}
+		>
+			<path d="M215.99414,55.99512v32a8,8,0,1,1-16,0v-24h-64v128h24a8,8,0,0,1,0,16h-64a8,8,0,0,1,0-16h24v-128h-64v24a8,8,0,0,1-16,0v-32a8.00008,8.00008,0,0,1,8-8h160A8.00008,8.00008,0,0,1,215.99414,55.99512Z"></path>
+		</svg>
+	);
+}
 
 export function CopyIcon({ className }: IClassName) {
 	return (

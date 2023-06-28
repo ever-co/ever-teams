@@ -5,7 +5,10 @@ import {
 	$isRangeSelection,
 	COPY_COMMAND,
 	FORMAT_ELEMENT_COMMAND,
+	$createParagraphNode,
 } from 'lexical';
+import { $wrapNodes } from '@lexical/selection';
+import { $createHeadingNode } from '@lexical/rich-text';
 import { mergeRegister } from '@lexical/utils';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useState } from 'react';
@@ -22,6 +25,9 @@ import {
 	AlignCenterIcon,
 	AlignJustifyIcon,
 	CopyIcon,
+	HeaderOneIcon,
+	HeaderTwoIcon,
+	NormalTextIcon,
 } from 'lib/components/svgs';
 
 const DescriptionToolbar = () => {
@@ -51,17 +57,39 @@ const DescriptionToolbar = () => {
 	const toggleStrikeThrough = () => {
 		editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
 	};
+
 	const toggleAlignRight = () => {
 		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
 	};
+
 	const toggleAlignLeft = () => {
 		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
 	};
+
 	const toggleAlignCenter = () => {
 		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
 	};
+
 	const toggleAlignJustify = () => {
 		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
+	};
+
+	const HeadingPlugin = (tag: 'h1' | 'h2'): void => {
+		editor.update(() => {
+			const selection = $getSelection();
+			if ($isRangeSelection(selection)) {
+				$wrapNodes(selection, () => $createHeadingNode(tag));
+			}
+		});
+	};
+
+	const ParagraphPlugin = (): void => {
+		editor.update(() => {
+			const selection = $getSelection();
+			if ($isRangeSelection(selection)) {
+				$wrapNodes(selection, () => $createParagraphNode());
+			}
+		});
 	};
 
 	const updateToolbar = useCallback(() => {
@@ -93,6 +121,18 @@ const DescriptionToolbar = () => {
 			</div>
 			<div className="flex">
 				<ToolButton
+					onSelect={() => HeadingPlugin('h1')}
+					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={() => HeadingPlugin('h2')}
+					icon={<HeaderTwoIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={ParagraphPlugin}
+					icon={<NormalTextIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
 					activity={isBold}
 					onSelect={toggleBold}
 					icon={<BoldIcon className="fill-black dark:fill-white" />}
@@ -114,10 +154,6 @@ const DescriptionToolbar = () => {
 					icon={<StrikethroughIcon className="fill-black dark:fill-white" />}
 				/>
 				<ToolButton
-					onSelect={toggleAlignRight}
-					icon={<AlignRightIcon className="fill-black dark:fill-white" />}
-				/>
-				<ToolButton
 					onSelect={toggleAlignLeft}
 					icon={<AlignLeftIcon className="fill-black dark:fill-white" />}
 				/>
@@ -126,8 +162,17 @@ const DescriptionToolbar = () => {
 					icon={<AlignCenterIcon className="fill-black dark:fill-white" />}
 				/>
 				<ToolButton
+					onSelect={toggleAlignRight}
+					icon={<AlignRightIcon className="fill-black dark:fill-white" />}
+				/>
+
+				<ToolButton
 					onSelect={toggleAlignJustify}
 					icon={<AlignJustifyIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={toggleAlignCenter}
+					icon={<LinkIcon className="fill-black dark:fill-white" />}
 				/>
 
 				<ToolButton
