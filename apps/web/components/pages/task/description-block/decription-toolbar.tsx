@@ -172,14 +172,14 @@ const DescriptionToolbar = () => {
 				/>
 				<ToolButton
 					onSelect={toggleAlignCenter}
-					icon={<LinkIcon className="fill-black dark:fill-white" />}
+					icon={<LinkIcon className=" dark:fill-white" />}
 				/>
 
 				<ToolButton
 					onSelect={toggleCopy}
-					icon={<CopyIcon className="stroke-black dark:stroke-white" />}
+					icon={<CopyIcon className="fill-black dark:fill-white" />}
 				/>
-				{/* <ToolButton iconSource="/assets/svg/tick-square.svg" /> */}
+				<ToolButton iconSource="/assets/svg/tick-square.svg" />
 				<ToolButton icon={<MoreIcon2 className="dark:fill-white" />} />
 			</div>
 		</div>
