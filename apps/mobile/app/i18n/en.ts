@@ -3,6 +3,8 @@ const en = {
 		ok: "OK!",
 		cancel: "Cancel",
 		loading: "Loading",
+		edit: "Edit",
+		confirm: "Confirm",
 		back: "Back",
 		save: "Save",
 		logOut: "Log Out", // @demo remove-current-line

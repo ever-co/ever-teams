@@ -13,6 +13,9 @@ import { EMAIL_REGEX, PHONE_REGEX } from "../../../../helpers/regex"
 import { translate } from "../../../../i18n"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import { typography, useAppTheme } from "../../../../theme"
+import { useUser } from "../../../../services/hooks/features/useUser"
+import { IPopup } from ".."
+import ConfirmEmailPopup from "./ConfirmEmailPopup"
 
 interface IValidation {
 	email: boolean
@@ -22,15 +25,21 @@ const UpdateContactForm = ({
 	onDismiss,
 	user,
 	onUpdateContactInfo,
+	onChangeSnap,
 }: {
 	onDismiss: () => unknown
 	user: IUser
 	onUpdateContactInfo: (userBody: IUser) => unknown
+	onChangeSnap: (sheet: IPopup, snap: number) => unknown
 }) => {
 	const { colors, dark } = useAppTheme()
+	const { allUsers, changeUserEmail } = useUser()
 	const [userEmail, setUserEmail] = useState("")
 	const [userPhoneNumber, setUserPhoneNumber] = useState("")
 	const [isLoading, setIsLoading] = useState(false)
+	const [editMode, setEditMode] = useState(false)
+	const [showConfirmPopup, setShowConfirmPopup] = useState<boolean>(false)
+	const [emailChanged, setEmailChanged] = useState(false)
 	const [isValid, setIsvalid] = useState<IValidation>({
 		email: true,
 		phone: true,
@@ -81,28 +90,129 @@ const UpdateContactForm = ({
 				email: false,
 			})
 			return
-		}
+		} else {
+			const emailExist = allUsers?.find((u) => u.email === userEmail && u.email !== user?.email)
 
-		if (!userPhoneNumber.trim().match(PHONE_REGEX)) {
+			if (userEmail !== user?.email && !emailExist) {
+				setEmailChanged(true)
+				onChangeSnap("Contact", 4)
+			}
+		}
+		if (!userPhoneNumber?.trim().match(PHONE_REGEX)) {
 			setIsvalid({
 				...isValid,
 				phone: false,
 			})
 			return
 		}
-
-		if (userEmail.trim() === user?.email && userPhoneNumber.trim() === user?.phoneNumber) {
-			return
+		if (userEmail.trim() === user?.email && userPhoneNumber?.trim() === user?.phoneNumber) {
+			console.log("The same")
 		}
 
-		setIsLoading(true)
-		await onUpdateContactInfo({
-			...user,
-			email: userEmail,
-			phoneNumber: userPhoneNumber,
-		})
-		setIsLoading(false)
-		onDismiss()
+		// 	setIsLoading(true)
+		// 	await onUpdateContactInfo({
+		// 		...user,
+		// 		email: userEmail,
+		// 		phoneNumber: userPhoneNumber,
+		// 	})
+		// 	setIsLoading(false)
+		// 	onDismiss()
+	}
+
+	const onSaveNewEmail = () => {
+		if (userEmail.match(EMAIL_REGEX) && userEmail !== user.email) {
+			changeUserEmail(userEmail)
+				.then(() => {
+					setShowConfirmPopup(true)
+					onDismiss()
+					setEmailChanged(false)
+					setEditMode(false)
+				})
+				.catch((e) => console.log(JSON.stringify(e)))
+		}
+	}
+
+	const onChangeEmailCancelled = () => {
+		setEmailChanged(false)
+		onChangeSnap("Contact", 0)
+	}
+
+	if (emailChanged) {
+		return (
+			<View
+				style={{
+					backgroundColor: dark ? "#1E2025" : colors.background,
+					paddingHorizontal: 25,
+					paddingTop: 26,
+					paddingBottom: 40,
+					height: 276,
+				}}
+			>
+				<ConfirmEmailPopup
+					newEmail={userEmail}
+					visible={showConfirmPopup}
+					onDismiss={() => setShowConfirmPopup(false)}
+				/>
+				<View style={{ flex: 3 }}>
+					<Text style={{ ...styles.formTitle, color: colors.primary }}>
+						{translate("settingScreen.contact.mainTitle")}
+					</Text>
+					<TextInput
+						style={{
+							...styles.styleInput,
+							color: colors.primary,
+							borderColor: isValid.email ? "#DCE4E8" : "red",
+							backgroundColor: !editMode ? colors.secondary2 : null,
+						}}
+						placeholderTextColor={"#7B8089"}
+						placeholder={translate("settingScreen.contact.emailPlaceholder")}
+						value={userEmail}
+						editable={!isLoading}
+						autoComplete={"off"}
+						keyboardType="email-address"
+						autoFocus={false}
+						autoCorrect={false}
+						autoCapitalize={"none"}
+						onChangeText={(text) => onChangeEmail(text)}
+					/>
+					{!isValid.email ? (
+						<Text
+							style={{
+								fontFamily: typography.primary.medium,
+								fontSize: 12,
+								color: "red",
+								marginTop: 5,
+							}}
+						>
+							{translate("settingScreen.contact.emailNotValid")}
+						</Text>
+					) : null}
+				</View>
+
+				<View style={styles.wrapButtons}>
+					<TouchableOpacity style={styles.cancelBtn} onPress={() => onChangeEmailCancelled()}>
+						<Text style={styles.cancelTxt}>{translate("common.cancel")}</Text>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={{
+							...styles.createBtn,
+							backgroundColor: dark ? "#6755C9" : "#3826A6",
+							opacity: isLoading ? 0.7 : 1,
+						}}
+						onPress={() => onSaveNewEmail()}
+					>
+						{isLoading ? (
+							<ActivityIndicator
+								style={{ position: "absolute", left: 10 }}
+								size={"small"}
+								color={"#fff"}
+							/>
+						) : null}
+						<Text style={styles.createTxt}>{translate("common.save")}</Text>
+					</TouchableOpacity>
+				</View>
+			</View>
+		)
 	}
 
 	return (
@@ -124,11 +234,12 @@ const UpdateContactForm = ({
 						...styles.styleInput,
 						color: colors.primary,
 						borderColor: isValid.email ? "#DCE4E8" : "red",
+						backgroundColor: !editMode ? colors.secondary2 : null,
 					}}
 					placeholderTextColor={"#7B8089"}
 					placeholder={translate("settingScreen.contact.emailPlaceholder")}
 					value={userEmail}
-					editable={!isLoading}
+					editable={editMode}
 					autoComplete={"off"}
 					keyboardType="email-address"
 					autoFocus={false}
@@ -154,6 +265,7 @@ const UpdateContactForm = ({
 						...styles.styleInput,
 						color: colors.primary,
 						borderColor: isValid.phone ? "#DCE4E8" : "red",
+						backgroundColor: !editMode ? colors.secondary2 : null,
 					}}
 					placeholderTextColor={"#7B8089"}
 					placeholder={translate("settingScreen.contact.phonePlaceholder")}
@@ -161,7 +273,7 @@ const UpdateContactForm = ({
 					autoCorrect={false}
 					autoComplete={"off"}
 					keyboardType="phone-pad"
-					editable={!isLoading}
+					editable={editMode}
 					autoCapitalize={"none"}
 					onChangeText={(text) => onChangePhoneNumber(text)}
 				/>
@@ -189,7 +301,7 @@ const UpdateContactForm = ({
 						backgroundColor: dark ? "#6755C9" : "#3826A6",
 						opacity: isLoading ? 0.7 : 1,
 					}}
-					onPress={() => handleSubmit()}
+					onPress={() => (editMode ? handleSubmit() : setEditMode(true))}
 				>
 					{isLoading ? (
 						<ActivityIndicator
@@ -198,7 +310,9 @@ const UpdateContactForm = ({
 							color={"#fff"}
 						/>
 					) : null}
-					<Text style={styles.createTxt}>{translate("common.save")}</Text>
+					<Text style={styles.createTxt}>
+						{editMode ? translate("common.save") : translate("common.edit")}
+					</Text>
 				</TouchableOpacity>
 			</View>
 		</View>
