@@ -4,6 +4,7 @@ import {
 	$getSelection,
 	$isRangeSelection,
 	COPY_COMMAND,
+	FORMAT_ELEMENT_COMMAND,
 } from 'lexical';
 import { mergeRegister } from '@lexical/utils';
 import { useTranslation } from 'lib/i18n';
@@ -13,8 +14,14 @@ import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
+	StrikethroughIcon,
 	MoreIcon2,
 	LinkIcon,
+	AlignRightIcon,
+	AlignLeftIcon,
+	AlignCenterIcon,
+	AlignJustifyIcon,
+	CopyIcon,
 } from 'lib/components/svgs';
 
 const DescriptionToolbar = () => {
@@ -23,6 +30,7 @@ const DescriptionToolbar = () => {
 	const [isBold, setIsBold] = useState(false);
 	const [isItalic, setIsItalic] = useState(false);
 	const [isUnderline, setIsUnderline] = useState(false);
+	const [isStrikeThrough, setIsStrikeThrough] = useState(false);
 
 	const toggleBold = () => {
 		editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
@@ -40,12 +48,29 @@ const DescriptionToolbar = () => {
 		editor.dispatchCommand(COPY_COMMAND, event as ClipboardEvent);
 	};
 
+	const toggleStrikeThrough = () => {
+		editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
+	};
+	const toggleAlignRight = () => {
+		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'right');
+	};
+	const toggleAlignLeft = () => {
+		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'left');
+	};
+	const toggleAlignCenter = () => {
+		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'center');
+	};
+	const toggleAlignJustify = () => {
+		editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, 'justify');
+	};
+
 	const updateToolbar = useCallback(() => {
 		const selection = $getSelection();
 		if ($isRangeSelection(selection)) {
 			setIsBold(selection?.hasFormat('bold'));
 			setIsItalic(selection?.hasFormat('italic'));
 			setIsUnderline(selection?.hasFormat('underline'));
+			setIsStrikeThrough(selection?.hasFormat('strikethrough'));
 		}
 	}, []);
 
@@ -83,12 +108,33 @@ const DescriptionToolbar = () => {
 					onSelect={toggleUnderline}
 					icon={<UnderlineIcon className="fill-black dark:fill-white" />}
 				/>
+				<ToolButton
+					activity={isStrikeThrough}
+					onSelect={toggleStrikeThrough}
+					icon={<StrikethroughIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={toggleAlignRight}
+					icon={<AlignRightIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={toggleAlignLeft}
+					icon={<AlignLeftIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={toggleAlignCenter}
+					icon={<AlignCenterIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={toggleAlignJustify}
+					icon={<AlignJustifyIcon className="fill-black dark:fill-white" />}
+				/>
 
 				<ToolButton
 					onSelect={toggleCopy}
-					icon={<LinkIcon className="stroke-black dark:stroke-white" />}
+					icon={<CopyIcon className="stroke-black dark:stroke-white" />}
 				/>
-				<ToolButton iconSource="/assets/svg/tick-square.svg" />
+				{/* <ToolButton iconSource="/assets/svg/tick-square.svg" /> */}
 				<ToolButton icon={<MoreIcon2 className="dark:fill-white" />} />
 			</div>
 		</div>

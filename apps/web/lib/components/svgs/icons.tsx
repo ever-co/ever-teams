@@ -1730,6 +1730,85 @@ export function UnderlineIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function StrikethroughIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="23"
+			height="23"
+			fill="currentColor"
+			viewBox="0 0 16 16"
+			className={clsxm(className)}
+		>
+			<path d="M6.333 5.686c0 .31.083.581.27.814H5.166a2.776 2.776 0 0 1-.099-.76c0-1.627 1.436-2.768 3.48-2.768 1.969 0 3.39 1.175 3.445 2.85h-1.23c-.11-1.08-.964-1.743-2.25-1.743-1.23 0-2.18.602-2.18 1.607zm2.194 7.478c-2.153 0-3.589-1.107-3.705-2.81h1.23c.144 1.06 1.129 1.703 2.544 1.703 1.34 0 2.31-.705 2.31-1.675 0-.827-.547-1.374-1.914-1.675L8.046 8.5H1v-1h14v1h-3.504c.468.437.675.994.675 1.697 0 1.826-1.436 2.967-3.644 2.967z"></path>
+		</svg>
+	);
+}
+
+export function AlignRightIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			className={clsxm(className)}
+		>
+			<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm182,34H88a6,6,0,0,0,0,12H216a6,6,0,0,0,0-12Zm0,40H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm0,40H88.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Z"></path>
+		</svg>
+	);
+}
+
+export function AlignLeftIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			className={clsxm(className)}
+		>
+			<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm6,46H168a6,6,0,0,0,0-12H40a6,6,0,0,0,0,12Zm176,28H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm-48,40H40.00586a6,6,0,1,0,0,12H168a6,6,0,0,0,0-12Z"></path>
+		</svg>
+	);
+}
+
+export function AlignCenterIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			enable-background="new 0 0 24 24"
+			viewBox="0 0 24 24"
+			className={clsxm(className)}
+		>
+			<path d="M6.5,10C6.223877,10,6,10.223877,6,10.5S6.223877,11,6.5,11h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,10,17.5,10H6.5z M2.5,7h19C21.776123,7,22,6.776123,22,6.5S21.776123,6,21.5,6h-19C2.223877,6,2,6.223877,2,6.5S2.223877,7,2.5,7z M17.5,18h-11C6.223877,18,6,18.223877,6,18.5S6.223877,19,6.5,19h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,18,17.5,18z M21.5,14h-19C2.223877,14,2,14.223877,2,14.5S2.223877,15,2.5,15h19c0.276123,0,0.5-0.223877,0.5-0.5S21.776123,14,21.5,14z"></path>
+		</svg>
+	);
+}
+
+export function AlignJustifyIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			className={clsxm(className)}
+		>
+			<path d="M36,68a4.0002,4.0002,0,0,1,4-4H216a4,4,0,0,1,0,8H40A4.0002,4.0002,0,0,1,36,68Zm180,36H40a4,4,0,0,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Z"></path>
+		</svg>
+	);
+}
+
+export function CopyIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 255.99316 255.99316"
+			className={clsxm(className)}
+		>
+			<path d="M219.99268,39.99414v144.001a4,4,0,0,1-8,0V43.99414H71.98584a4,4,0,0,1,0-8H215.99268A4.0002,4.0002,0,0,1,219.99268,39.99414Zm-32,32.001v144a4.0002,4.0002,0,0,1-4,4H39.98584a4.0002,4.0002,0,0,1-4-4v-144a4.0002,4.0002,0,0,1,4-4H183.99268A4.0002,4.0002,0,0,1,187.99268,71.99512Zm-8,4H43.98584v136H179.99268Z"></path>
+		</svg>
+	);
+}
 
 export function MoreIcon2({ className }: IClassName) {
 	return (
