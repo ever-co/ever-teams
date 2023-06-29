@@ -68,16 +68,11 @@ export const VersionForm = () => {
 					reset();
 				});
 			}
-			if (
-				edit &&
-				(values.name !== edit.name ||
-					values.color !== edit.color ||
-					values.icon !== edit.icon)
-			) {
+			if (edit && values.name !== edit.name) {
 				editTaskVersion(edit.id, {
 					name: values.name,
-					color: values.color,
-					icon: values.icon,
+					// color: values.color,
+					// icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
 				});
