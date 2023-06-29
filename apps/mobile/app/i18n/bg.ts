@@ -5,6 +5,9 @@ const bg = {
 		back: "Back",
 		loading: "Loading",
 		save: "Save",
+		edit: "Edit",
+		confirm: "Confirm",
+		discard: "Discard",
 		logOut: "Log Out", // @demo remove-current-line
 	},
 	welcomeScreen: {

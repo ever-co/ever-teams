@@ -90,43 +90,50 @@ const UpdateContactForm = ({
 				email: false,
 			})
 			return
-		} else {
-			const emailExist = allUsers?.find((u) => u.email === userEmail && u.email !== user?.email)
-
-			if (userEmail !== user?.email && !emailExist) {
-				setEmailChanged(true)
-				onChangeSnap("Contact", 4)
-			}
 		}
-		if (!userPhoneNumber?.trim().match(PHONE_REGEX)) {
+
+		if (userPhoneNumber?.trim().length > 0 && !userPhoneNumber?.trim().match(PHONE_REGEX)) {
 			setIsvalid({
 				...isValid,
 				phone: false,
 			})
 			return
+		} else {
+			if (userEmail === user?.email) {
+				setIsLoading(true)
+				await onUpdateContactInfo({
+					...user,
+					phoneNumber: userPhoneNumber,
+				})
+				setIsLoading(false)
+				onDismiss()
+			}
 		}
-		if (userEmail.trim() === user?.email && userPhoneNumber?.trim() === user?.phoneNumber) {
-			console.log("The same")
+		const emailExist = allUsers?.find((u) => u.email === userEmail && u.email !== user?.email)
+
+		if (userEmail !== user?.email && !emailExist) {
+			setEmailChanged(true)
+			onChangeSnap("Contact", 4)
 		}
 
-		// 	setIsLoading(true)
-		// 	await onUpdateContactInfo({
-		// 		...user,
-		// 		email: userEmail,
-		// 		phoneNumber: userPhoneNumber,
-		// 	})
-		// 	setIsLoading(false)
-		// 	onDismiss()
+		if (userEmail.trim() === user?.email && userPhoneNumber?.trim() === user?.phoneNumber) {
+			onDismiss()
+		}
 	}
 
-	const onSaveNewEmail = () => {
+	const onSaveNewEmail = async () => {
 		if (userEmail.match(EMAIL_REGEX) && userEmail !== user.email) {
-			changeUserEmail(userEmail)
+			if (userPhoneNumber !== user?.phoneNumber) {
+				await onUpdateContactInfo({
+					...user,
+					phoneNumber: userPhoneNumber,
+				})
+			}
+
+			await changeUserEmail(userEmail)
 				.then(() => {
 					setShowConfirmPopup(true)
 					onDismiss()
-					setEmailChanged(false)
-					setEditMode(false)
 				})
 				.catch((e) => console.log(JSON.stringify(e)))
 		}
@@ -135,6 +142,12 @@ const UpdateContactForm = ({
 	const onChangeEmailCancelled = () => {
 		setEmailChanged(false)
 		onChangeSnap("Contact", 0)
+	}
+
+	const onDismissPopup = () => {
+		setShowConfirmPopup(false)
+		setEditMode(false)
+		setEmailChanged(false)
 	}
 
 	if (emailChanged) {
@@ -151,11 +164,11 @@ const UpdateContactForm = ({
 				<ConfirmEmailPopup
 					newEmail={userEmail}
 					visible={showConfirmPopup}
-					onDismiss={() => setShowConfirmPopup(false)}
+					onDismiss={() => onDismissPopup()}
 				/>
 				<View style={{ flex: 3 }}>
 					<Text style={{ ...styles.formTitle, color: colors.primary }}>
-						{translate("settingScreen.contact.mainTitle")}
+						{"Change to new email?"}
 					</Text>
 					<TextInput
 						style={{
@@ -292,7 +305,14 @@ const UpdateContactForm = ({
 			</View>
 
 			<View style={styles.wrapButtons}>
-				<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
+				<TouchableOpacity
+					style={styles.cancelBtn}
+					onPress={() => {
+						setEditMode(false)
+						setEmailChanged(false)
+						onDismiss()
+					}}
+				>
 					<Text style={styles.cancelTxt}>{translate("common.cancel")}</Text>
 				</TouchableOpacity>
 				<TouchableOpacity

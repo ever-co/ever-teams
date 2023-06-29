@@ -11,7 +11,7 @@ import {
 	TouchableWithoutFeedback,
 	TouchableOpacity,
 } from "react-native"
-import { typography, useAppTheme } from "../../../../theme"
+import { colors, typography, useAppTheme } from "../../../../theme"
 import { CodeInput } from "../../../../components/CodeInput"
 import { Button } from "../../../../components"
 import { translate } from "../../../../i18n"
@@ -61,47 +61,62 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 	const { colors, dark } = useAppTheme()
 	const { resendVerifyCode, verifyChangeEmail } = useUser()
 	const [confirmCode, setConfirmCode] = useState("")
-	const [error, setError] = useState("")
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState(null)
 
 	const onVerifyEmail = useCallback(() => {
 		if (parseInt(confirmCode) && confirmCode.length === 6) {
-			verifyChangeEmail(confirmCode)
-				.then((e) => {
-					const { response } = e
-					if (response.ok && response.status === 202) {
-						onDismiss()
-					} else {
-						setError("Invalid code")
-					}
-				})
-				.catch((e) => console.log(e))
+			setLoading(true)
+			verifyChangeEmail(confirmCode).then((e) => {
+				const { response } = e
+				if (response.ok && response.status === 202) {
+					onDismiss()
+				} else {
+					setError("Invalid code")
+				}
+			})
+			setLoading(false)
 		}
-	}, [])
+	}, [confirmCode])
 
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={{ ...styles.container, backgroundColor: colors.background }}>
 				<Text style={{ ...styles.title, color: colors.primary }}>Security Code</Text>
 				<CodeInput onChange={setConfirmCode} editable={true} />
+				{error && <Text style={styles.errorText}>Invalid confirm code</Text>}
 				<Text style={{ ...styles.text, marginTop: 10 }}>Security code was sent on new email</Text>
 				<View style={styles.wrapResendText}>
-					<Text style={styles.text}>{translate("loginScreen.codeNotReceived")}</Text>
+					<Text style={styles.text}>
+						{translate("loginScreen.codeNotReceived") + " "}
+						{translate("loginScreen.sendCode").substring(0, 2)}
+					</Text>
 					<TouchableOpacity onPress={() => resendVerifyCode(newEmail)}>
-						<Text>{translate("loginScreen.sendCode")}</Text>
+						<Text style={{ color: colors.secondary }}>
+							{translate("loginScreen.sendCode").substring(2)}
+						</Text>
 					</TouchableOpacity>
 				</View>
 
 				<View style={styles.wrapButtons}>
-					<Button style={styles.btnStyle} onPress={() => onDismiss()}>
+					<Button
+						style={{ ...styles.btnStyle, backgroundColor: dark ? "#3D4756" : colors.background }}
+						onPress={() => onDismiss()}
+					>
 						<Text style={{ ...styles.btnTxt, color: colors.primary }}>
-							{translate("common.cancel")}
+							{translate("common.discard")}
 						</Text>
 					</Button>
+
 					<Button
-						style={{ ...styles.btnStyle, backgroundColor: dark ? "#6755C9" : "#3826A6" }}
+						style={{
+							...styles.btnStyle,
+							backgroundColor: dark ? "#6755C9" : "#3826A6",
+							opacity: loading ? 0.4 : 1,
+						}}
 						onPress={() => onVerifyEmail()}
 					>
-						<Text style={{ ...styles.btnTxt, color: colors.background }}>Confirm</Text>
+						<Text style={{ ...styles.btnTxt, color: "#fff" }}>{translate("common.confirm")}</Text>
 					</Button>
 				</View>
 			</View>
@@ -134,6 +149,10 @@ const styles = StyleSheet.create({
 		height: 306,
 		padding: 24,
 		width: "90%",
+	},
+	errorText: {
+		color: colors.error,
+		fontSize: 12,
 	},
 	text: {
 		color: "#B1AEBC",
