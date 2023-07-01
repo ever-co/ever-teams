@@ -15,6 +15,7 @@ import {
 	useRefreshInterval,
 	useCallbackRef,
 	useSyncTimer,
+	useTaskRelatedIssueType,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -43,6 +44,8 @@ function InitState() {
 	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizes();
 	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabels();
 	const { firstLoadIssueTypeData } = useIssueType();
+	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } =
+		useTaskRelatedIssueType();
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -59,6 +62,7 @@ function InitState() {
 		firstLoadTaskSizesData();
 		firstLoadTaskLabelsData();
 		firstLoadIssueTypeData();
+		firstLoadTaskRelatedIssueTypeData();
 		// --------------
 
 		getTimerStatus();
@@ -104,6 +108,7 @@ function InitState() {
 	useRefreshInterval(loadTaskPriorities, 5000, true);
 	useRefreshInterval(loadTaskSizes, 5000, true);
 	useRefreshInterval(loadTaskLabels, 5000, true);
+	useRefreshInterval(loadTaskRelatedIssueTypeData, 5000, true);
 
 	return <></>;
 }
