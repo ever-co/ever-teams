@@ -32,7 +32,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 			<TransferOwnership visible={open} onDismiss={() => setOpen(false)} />
 			<ScrollView
 				bounces={false}
-				style={{ width: "90%", height: "100%" }}
+				style={{ width: "100%", height: "100%" }}
 				showsVerticalScrollIndicator={false}
 			>
 				<TeamLogo
@@ -98,7 +98,6 @@ export default TeamSettings
 
 const $contentContainer: ViewStyle = {
 	width: "100%",
-	flex: 1,
 	alignItems: "center",
 }
 

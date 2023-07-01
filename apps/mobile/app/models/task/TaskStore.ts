@@ -6,7 +6,7 @@ export const TaskStoreModel = types
 	.model("TaskStore")
 	.props({
 		teamTasks: types.array(types.frozen<ITeamTask>()),
-		activeTask: types.optional(types.frozen(), { status: "Todo" }),
+		activeTask: types.frozen<ITeamTask>(),
 		activeTaskId: types.optional(types.string, ""),
 		assignedTasks: types.array(types.frozen<ITeamTask>()),
 		unassignedTasks: types.array(types.frozen<ITeamTask>()),
@@ -52,7 +52,7 @@ export const TaskStoreModel = types
 			store.fetchingTasks = value
 		},
 		resetTeamTasksData() {
-			store.activeTask = {}
+			store.activeTask = null
 			store.activeTaskId = ""
 			store.teamTasks.clear()
 		},

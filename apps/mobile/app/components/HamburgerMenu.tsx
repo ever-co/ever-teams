@@ -26,9 +26,9 @@ const HamburgerMenu = observer((props: any) => {
 	const {
 		TaskStore: { resetTeamTasksData },
 		authenticationStore: { user, logout, toggleTheme },
-		teamStore: { clearStoredTeamData, isTeamsExist },
+		teamStore: { clearStoredTeamData },
 	} = useStores()
-	const { createOrganizationTeam } = useOrganizationTeam()
+	const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false)
 
@@ -77,7 +77,7 @@ const HamburgerMenu = observer((props: any) => {
 						>
 							{user?.email}
 						</Text>
-						{isTeamsExist ? (
+						{activeTeam ? (
 							<DropDown
 								isOpen={isTeamModalOpen}
 								setIsOpen={setIsTeamModalOpen}
@@ -87,7 +87,7 @@ const HamburgerMenu = observer((props: any) => {
 						) : null}
 					</View>
 					<View style={styles.navigationSection}>
-						{isTeamsExist ? (
+						{activeTeam ? (
 							<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
 								<Ionicons style={styles.icon} name="person" size={24} color={colors.primary} />
 								<Text style={[styles.screenLabel, { color: colors.primary }]}>

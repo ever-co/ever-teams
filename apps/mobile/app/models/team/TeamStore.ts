@@ -13,15 +13,6 @@ export const TeamStoreModel = types
 		teamsFetching: types.optional(types.boolean, false),
 		isTrackingEnabled: types.optional(types.boolean, false),
 	})
-	.views((store) => ({
-		get isTeamsExist() {
-			if (store.teams && store.teams.total > 0 && store.activeTeam !== null) {
-				return true
-			} else {
-				return false
-			}
-		},
-	}))
 	.actions((store) => ({
 		setActiveTeam(team: IOrganizationTeamList) {
 			store.activeTeam = team
