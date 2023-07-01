@@ -157,8 +157,8 @@ export const IssuesSettings = () => {
 					<CommonToggle enabledText="Period" disabledText="Deactivated" />
 				</div>
 			</div>
-			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+
+			<div className="flex w-full items-center justify-between gap-[2rem]">
 				<VersionForm />
 			</div>
 			{/* TODO */}
@@ -190,10 +190,9 @@ export const IssuesSettings = () => {
 			>
 				<TaskLabelForm />
 			</div>
-			{/* TODO */}
 			<div
 				id="related-issue-types"
-				className="hidden flex w-full items-center justify-between gap-[2rem]"
+				className="flex w-full items-center justify-between gap-[2rem]"
 			>
 				<RelatedIssueTypeForm />
 			</div>

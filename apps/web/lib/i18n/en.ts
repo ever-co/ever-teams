@@ -181,9 +181,11 @@ export const en = {
 			TASK_SIZES: 'Task Sizes',
 			TASK_LABELS: 'Task Labels',
 			ISSUE_TYPES: 'Issue Types',
+			RELATED_TYPE: 'Related Type',
 
 			INVITATION_HEADING_TITLE: 'Invitations',
 			CREATE_NEW_STATUSES: 'Create new Statuses',
+			CREATE_NEW_VERSION: 'Create new Version',
 			CREATE_NEW_PRIORITIES: 'Create new Priorities',
 			CREATE_NEW_SIZES: 'Create new Sizes',
 			CREATE_NEW_LABELS: 'Create new Labels',

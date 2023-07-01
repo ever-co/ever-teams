@@ -45,6 +45,8 @@ export * from './features/useTimezoneSettings';
 
 // task status
 export * from './features/useTaskStatus';
+export * from './features/useTaskVersion';
 export * from './features/useTaskPriorities';
 export * from './features/useTaskSizes';
 export * from './features/useTaskLabels';
+export * from './features/useTaskRelatedIssueType';

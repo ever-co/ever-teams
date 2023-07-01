@@ -45,6 +45,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 						user={user}
 						onUpdateContactInfo={updateUserInfo}
 						onDismiss={() => onDismiss()}
+						onChangeSnap={openBottomSheet}
 					/>
 				) : null}
 

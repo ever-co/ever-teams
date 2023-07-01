@@ -9,10 +9,12 @@ export * from './languages';
 export * from './timezones';
 
 export * from './task-status';
+export * from './task-version';
 export * from './task-priorities';
 export * from './task-sizes';
 export * from './task-labels';
 export * from './issue-type';
+export * from './task-related-issue-type';
 
 export * from './roles';
 export * from './request-to-join';
