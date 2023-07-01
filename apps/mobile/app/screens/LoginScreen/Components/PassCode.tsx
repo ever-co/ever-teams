@@ -39,9 +39,14 @@ const PassCode: FC<Props> = observer(
 			step2: false,
 		})
 
-		const onNextStep = () => {
+		const onNextStep = async () => {
 			if (step === "Email") {
-				setStep("Code")
+				getAuthCode()
+				setTimeout(() => {
+					if (!isLoading) {
+						setStep("Code")
+					}
+				}, 1000)
 				return
 			}
 
