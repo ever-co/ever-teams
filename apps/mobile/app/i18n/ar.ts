@@ -8,6 +8,9 @@ const ar: Translations = {
 		back: "خلف",
 		logOut: "تسجيل خروج",
 		save: "حفظ",
+		edit: "Edit",
+		confirm: "Confirm",
+		discard: "Discard",
 		// @demo remove-current-line
 	},
 	welcomeScreen: {

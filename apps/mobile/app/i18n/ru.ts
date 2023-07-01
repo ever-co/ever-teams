@@ -5,6 +5,9 @@ const ru = {
 		loading: "Loading",
 		back: "Back",
 		save: "Save",
+		edit: "Edit",
+		confirm: "Confirm",
+		discard: "Discard",
 		logOut: "Log Out", // @demo remove-current-line
 	},
 	welcomeScreen: {

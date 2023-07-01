@@ -8,7 +8,7 @@ import {
 	NativeSyntheticEvent,
 	TextInputKeyPressEventData,
 } from "react-native"
-import { colors, typography } from "../theme"
+import { colors, typography, useAppTheme } from "../theme"
 
 interface IInput {
 	onChange: (code: string) => void
@@ -19,7 +19,7 @@ interface IInput {
 
 export const CodeInput: FC<IInput> = (props) => {
 	const { onChange, editable, length = 6, defaultValue } = props
-
+	const { colors } = useAppTheme()
 	const inputsRef = useRef<TextInput[] | null[]>([])
 	const [active, setActive] = useState<number>(0)
 	const [inviteCode, setInviteCode] = useState([])
@@ -62,7 +62,8 @@ export const CodeInput: FC<IInput> = (props) => {
 				keyboardType="numeric"
 				style={[
 					styles.inputStyle,
-					editable ? { borderColor: active === i ? colors.primary : "rgba(0, 0, 0, 0.1)" } : null,
+					{ backgroundColor: colors.background, color: colors.primary },
+					editable ? { borderColor: active === i ? colors.primary : colors.border } : null,
 				]}
 				onKeyPress={onKeyPress}
 				autoFocus={active === i}
@@ -75,14 +76,6 @@ export const CodeInput: FC<IInput> = (props) => {
 		)
 	}
 	return <View style={styles.container}>{inputs}</View>
-}
-
-type InputProps = {
-	onKeyPress: () => unknown
-	onFocus: () => unknown
-	active: number
-	inputsRef: any
-	index: number
 }
 
 const styles = StyleSheet.create({
