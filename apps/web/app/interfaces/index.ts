@@ -14,6 +14,7 @@ export * from './ITaskVersion';
 export * from './ITaskPriorities';
 export * from './ITaskSizes';
 export * from './ITaskLabels';
+export * from './ITaskRelatedIssueType';
 export * from './IColor';
 export * from './hooks';
 export * from './IIcon';

@@ -181,6 +181,7 @@ export const en = {
 			TASK_SIZES: 'Task Sizes',
 			TASK_LABELS: 'Task Labels',
 			ISSUE_TYPES: 'Issue Types',
+			RELATED_TYPE: 'Related Type',
 
 			INVITATION_HEADING_TITLE: 'Invitations',
 			CREATE_NEW_STATUSES: 'Create new Statuses',
