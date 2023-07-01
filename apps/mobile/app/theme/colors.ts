@@ -62,6 +62,7 @@ export const customDarkTheme = {
 		background2: "rgb(16,17,20)",
 		divider: "rgba(255, 255, 255, 0.16)",
 		border: "rgba(255, 255, 255, 0.13)",
+		secondary2: "#1E2025",
 	},
 }
 
@@ -78,6 +79,7 @@ export const customLightTheme = {
 		background2: "#F2F2F2",
 		divider: "rgba(0, 0, 0, 0.06)",
 		border: "rgba(0, 0, 0, 0.13)",
+		secondary2: "#EDF1F3",
 	},
 }
 export type AppTheme = typeof customDarkTheme

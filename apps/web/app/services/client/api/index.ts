@@ -8,6 +8,7 @@ export * from './email-reset';
 export * from './languages';
 
 export * from './taskStatus';
+export * from './task-version';
 export * from './task-priorities';
 export * from './task-sizes';
 export * from './task-labels';

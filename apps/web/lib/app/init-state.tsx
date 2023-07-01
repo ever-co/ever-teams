@@ -16,6 +16,7 @@ import {
 	useCallbackRef,
 	useSyncTimer,
 	useTaskRelatedIssueType,
+	useTaskVersion,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect } from 'react';
@@ -39,6 +40,7 @@ function InitState() {
 	const { firstLoadData: firstLoadAutoAssignTask } = useAutoAssignTask();
 
 	const { firstLoadTaskStatusData, loadTaskStatusData } = useTaskStatus();
+	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersion();
 	const { firstLoadTaskPrioritiesData, loadTaskPriorities } =
 		useTaskPriorities();
 	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizes();
@@ -58,6 +60,7 @@ function InitState() {
 		firstLoadAutoAssignTask();
 
 		firstLoadTaskStatusData();
+		firstLoadTaskVersionData();
 		firstLoadTaskPrioritiesData();
 		firstLoadTaskSizesData();
 		firstLoadTaskLabelsData();
@@ -109,6 +112,7 @@ function InitState() {
 	useRefreshInterval(loadTaskSizes, 5000, true);
 	useRefreshInterval(loadTaskLabels, 5000, true);
 	useRefreshInterval(loadTaskRelatedIssueTypeData, 5000, true);
+	useRefreshInterval(loadTaskVersionData, 5000, true);
 
 	return <></>;
 }

@@ -6,6 +6,9 @@ const fr = {
 		back: "Retour",
 		save: "Sauvegarder",
 		logOut: "Se déconnecter", // @demo remove-current-line
+		edit: "Edit",
+		confirm: "Confirm",
+		discard: "Discard",
 	},
 	welcomeScreen: {
 		postscript:

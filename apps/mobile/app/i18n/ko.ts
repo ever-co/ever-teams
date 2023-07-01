@@ -7,7 +7,10 @@ const ko: Translations = {
 		loading: "Loading",
 		back: "뒤로",
 		save: "",
-		logOut: "로그아웃", // @demo remove-current-line
+		logOut: "로그아웃",
+		edit: "Edit",
+		confirm: "Confirm",
+		discard: "Discard",
 	},
 	welcomeScreen: {
 		postscript:
