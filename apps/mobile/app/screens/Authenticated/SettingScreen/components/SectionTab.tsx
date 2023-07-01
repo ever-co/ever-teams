@@ -1,12 +1,12 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect } from "react"
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons"
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
 import { observer } from "mobx-react-lite"
-import { useStores } from "../../../../models"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 
 interface ISectionTab {
 	id: number
@@ -15,9 +15,7 @@ interface ISectionTab {
 
 const SectionTab = observer(
 	({ activeTabId, toggleTab }: { activeTabId: number; toggleTab: (tab: number) => unknown }) => {
-		const {
-			teamStore: { isTeamsExist },
-		} = useStores()
+		const { activeTeam } = useOrganizationTeam()
 		const sections: ISectionTab[] = [
 			{
 				id: 1,
@@ -32,10 +30,10 @@ const SectionTab = observer(
 		const { colors } = useAppTheme()
 
 		useEffect(() => {
-			if (!isTeamsExist) {
+			if (!activeTeam) {
 				toggleTab(1)
 			}
-		}, [isTeamsExist])
+		}, [activeTeam])
 
 		return (
 			<View style={[styles.contaniner, { backgroundColor: colors.background2 }]}>
@@ -58,9 +56,7 @@ const Tab = observer(
 		toggleTab: (tab: number) => unknown
 	}) => {
 		const { colors } = useAppTheme()
-		const {
-			teamStore: { isTeamsExist },
-		} = useStores()
+		const { activeTeam } = useOrganizationTeam()
 		return (
 			<TouchableOpacity
 				style={
@@ -71,7 +67,7 @@ const Tab = observer(
 						  ]
 						: [styles.inactiveSection]
 				}
-				onPress={() => (item.id === 2 && !isTeamsExist ? {} : toggleTab(item.id))}
+				onPress={() => (item.id === 2 && !activeTeam ? {} : toggleTab(item.id))}
 			>
 				<View
 					// eslint-disable-next-line react-native/no-inline-styles

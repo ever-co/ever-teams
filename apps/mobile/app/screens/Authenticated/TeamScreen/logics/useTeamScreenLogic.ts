@@ -65,9 +65,9 @@ const useTeamScreenLogic = () => {
 	}
 
 	useEffect(() => {
-		if (members.length > 0) {
-			setIsLoading(false)
-		}
+		// if (members.length > 0) {
+		setIsLoading(false)
+		// }
 	}, [members])
 
 	return {

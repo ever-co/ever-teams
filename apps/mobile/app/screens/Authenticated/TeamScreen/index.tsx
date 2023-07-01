@@ -29,7 +29,6 @@ import CreateTeamModal from "../../../components/CreateTeamModal"
 import { useStores } from "../../../models"
 import { observer } from "mobx-react-lite"
 import InviteCardItem from "./components/InviteCardItem"
-import FlashMessage from "react-native-flash-message"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { translate } from "../../../i18n"
@@ -46,11 +45,11 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 		LogBox.ignoreAllLogs()
 		// Get authentificate data
 		const {
-			teamStore: { teamInvitations, isTeamsExist },
+			teamStore: { teamInvitations },
 			TimerStore: { localTimerStatus },
 		} = useStores()
 
-		const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser } =
+		const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser, activeTeam } =
 			useOrganizationTeam()
 		const {
 			setShowCreateTeamModal,
@@ -96,7 +95,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 								onDismiss={() => setShowCreateTeamModal(false)}
 							/>
 							<HomeHeader props={_props} showTimer={localTimerStatus.running} />
-							{isTeamsExist ? (
+							{activeTeam ? (
 								<>
 									<View
 										style={{
@@ -152,7 +151,6 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 							) : (
 								<NoTeam onPress={() => setShowCreateTeamModal(true)} />
 							)}
-							<FlashMessage position="bottom" />
 						</>
 					)}
 				</Screen>
@@ -170,7 +168,6 @@ const $cardContainer: ViewStyle = {
 	paddingHorizontal: spacing.medium,
 }
 const $blurContainer: ViewStyle = {
-	// flex: 1,
 	height,
 	width: "100%",
 	position: "absolute",

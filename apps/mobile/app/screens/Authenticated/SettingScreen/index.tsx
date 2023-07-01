@@ -8,6 +8,7 @@ import { ActivityIndicator } from "react-native-paper"
 
 // COMPONENTS
 import { Screen } from "../../../components"
+import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import SectionTab from "./components/SectionTab"
 import SettingHeader from "./components/SettingHeader"
@@ -16,8 +17,7 @@ import BottomSheetContent from "./components/BottomSheetContent"
 import PersonalSettings from "./Personal"
 import TeamSettings from "./Team"
 import { useAppTheme } from "../../../theme"
-import FlashMessage from "react-native-flash-message"
-import { useStores } from "../../../models"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 
 export type IPopup =
 	| "Names"
@@ -39,9 +39,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 		LogBox.ignoreAllLogs()
 		const { colors } = useAppTheme()
 		const { isLoading } = useSettings()
-		const {
-			teamStore: { isTeamsExist },
-		} = useStores()
+		const { activeTeam } = useOrganizationTeam()
 
 		// ref
 		const sheetRef = React.useRef(null)
@@ -61,16 +59,10 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 
 		return (
 			<Screen
-				preset="fixed"
 				contentContainerStyle={[$container, { backgroundColor: colors.background }]}
 				safeAreaEdges={["top"]}
 			>
-				<View
-					style={{
-						flex: 1,
-						zIndex: 100,
-					}}
-				>
+				<View style={{ flex: 1 }}>
 					{isOpen && (
 						<TouchableWithoutFeedback
 							onPress={() => {
@@ -81,13 +73,13 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 							<BlurView tint="dark" intensity={25} style={$blurContainer} />
 						</TouchableWithoutFeedback>
 					)}
-
-					<View style={[$headerContainer, { backgroundColor: colors.background }]}>
-						<SettingHeader {..._props} />
-						<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
+					<View style={{ flex: 0.95 }}>
+						<View style={[$headerContainer, { backgroundColor: colors.background }]}>
+							<SettingHeader {..._props} />
+							<SectionTab activeTabId={activeTab} toggleTab={setActiveTab} />
+						</View>
 					</View>
-
-					<View style={{ flex: 5 }}>
+					<View style={{ flex: 4, paddingHorizontal: 20 }}>
 						{isLoading ? (
 							<View
 								style={{ flex: 1, justifyContent: "center", alignItems: "center", width: "100%" }}
@@ -96,12 +88,11 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 							</View>
 						) : activeTab === 1 ? (
 							<PersonalSettings onOpenBottomSheet={(sheet, snap) => openBottomSheet(sheet, snap)} />
-						) : isTeamsExist ? (
+						) : activeTeam ? (
 							<TeamSettings props={{ ..._props }} onOpenBottomSheet={openBottomSheet} />
 						) : null}
 					</View>
 				</View>
-
 				<BottomSheet
 					ref={sheetRef}
 					snapPoints={[340, 174, 0, 611, 276, 335]}
@@ -122,7 +113,6 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 						</View>
 					)}
 				/>
-				<FlashMessage position="bottom" />
 			</Screen>
 		)
 	}
@@ -130,18 +120,18 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 const { height } = Dimensions.get("window")
 
 const $container: ViewStyle = {
-	flex: 1,
+	...GS.flex1,
 }
 
 const $headerContainer: ViewStyle = {
 	padding: 20,
-	flex: 1,
+	// flex: 1,
 	paddingBottom: 32,
 	zIndex: 10,
 }
 
 const $blurContainer: ViewStyle = {
-	flex: 1,
+	// flex: 1,
 	height,
 	width: "100%",
 	position: "absolute",
