@@ -32,8 +32,8 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	}, [])
 
 	const imageUrl = useMemo(
-		() => user.image?.thumbUrl || user.image?.fullUrl || user.imageUrl,
-		[user.image?.thumb],
+		() => user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl,
+		[user?.image?.thumb],
 	)
 
 	return (

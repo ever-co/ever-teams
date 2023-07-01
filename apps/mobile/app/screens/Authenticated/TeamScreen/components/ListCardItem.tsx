@@ -76,7 +76,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 							setEditMode={taskEdition.setEditMode}
 							memberInfo={memberInfo}
 						/>
-						<AllTaskStatuses task={memberInfo.memberTask} />
+						{memberInfo.memberTask ? <AllTaskStatuses task={memberInfo.memberTask} /> : null}
 					</View>
 					<View style={[styles.times, { borderTopColor: colors.divider }]}>
 						<View

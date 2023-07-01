@@ -18,15 +18,11 @@ import { useAcceptInviteModal } from "../../../services/hooks/features/useAccept
 import { useTaskInput } from "../../../services/hooks/features/useTaskInput"
 import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
 import NoTeam from "../../../components/NoTeam"
-import { useStores } from "../../../models"
 
 export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(
 	function AuthenticatedTimerScreen(_props) {
 		// HOOKS
-		const { createOrganizationTeam } = useOrganizationTeam()
-		const {
-			teamStore: { isTeamsExist },
-		} = useStores()
+		const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
 		const { showCreateTeamModal, setShowCreateTeamModal, isTeamModalOpen, setIsTeamModalOpen } =
 			useTimerScreenLogic()
 		const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -79,7 +75,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 									<HomeHeader props={_props} showTimer={false} />
 								</View>
 
-								{isTeamsExist ? (
+								{activeTeam ? (
 									<>
 										<View style={{ padding: 20, zIndex: 999, backgroundColor: colors.background }}>
 											<DropDown

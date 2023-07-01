@@ -30,7 +30,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
 			<ScrollView
 				bounces={false}
-				style={{ width: "90%", height: "100%" }}
+				style={{ width: "100%", height: "100%" }}
 				showsVerticalScrollIndicator={false}
 			>
 				<UserAvatar
@@ -91,7 +91,6 @@ export default PersonalSettings
 
 const $contentContainer: ViewStyle = {
 	width: "100%",
-	flex: 1,
 	alignItems: "center",
 }
 

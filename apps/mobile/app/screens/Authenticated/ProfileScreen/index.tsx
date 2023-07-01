@@ -24,17 +24,15 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 		LogBox.ignoreAllLogs()
 		const {
 			TimerStore: { localTimerStatus },
-			teamStore: { isTeamsExist },
 		} = useStores()
 
-
-		const { activeTab, userId } = _props.route.params || {activeTab:"worked"}
+		const { activeTab, userId } = _props.route.params || { activeTab: "worked" }
 
 		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
 			useAcceptInviteModal()
 		const profile = useProfileScreenLogic({ activeTab, userId })
 		const hook = useTaskFilter(profile)
-		const { createOrganizationTeam } = useOrganizationTeam()
+		const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
 
 		const [showCreateTeamModal, setShowCreateTeamModal] = useState(false)
 
@@ -52,7 +50,7 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 							onRejectInvitation={onRejectInvitation}
 						/>
 						<HomeHeader props={_props} showTimer={localTimerStatus.running} />
-						{isTeamsExist ? (
+						{activeTeam ? (
 							<>
 								<ProfileHeader {...profile.member?.employee.user} />
 								<TaskFilter profile={profile} hook={hook} />
