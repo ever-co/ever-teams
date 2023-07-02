@@ -13,11 +13,11 @@ import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
 import { observer } from "mobx-react-lite"
-import { useSettings } from "../../../../services/hooks/features/useSettings"
+import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
 
 const QuitTheTeam = observer(({ onDismiss }: { onDismiss: () => unknown }) => {
 	const { colors, dark } = useAppTheme()
-	const { user } = useSettings()
+	const { user } = useAuthenticateUser()
 	const { removeMemberFromTeam } = useOrganizationTeam()
 
 	const onQuitFromCurrentTeam = async () => {

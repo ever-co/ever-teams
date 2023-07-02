@@ -26,10 +26,9 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 		const [openModal, setOpenModal] = useState(false)
 
 		const allTaskPriorities = useTaskPriorityValue()
-		const currentPriority =
-			allTaskPriorities[
-				task ? task?.priority?.split("-").join(" ") : priority?.split("-").join(" ")
-			]
+		const currentPriority = task
+			? allTaskPriorities[task.priority?.split("-").join(" ") || priority.split("-").join(" ")]
+			: null
 
 		const onChangePriority = async (text) => {
 			if (task) {

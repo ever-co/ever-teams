@@ -3,7 +3,6 @@ import { useStores } from "../../../models"
 import { timezone } from "expo-localization"
 import { useQueryClient } from "react-query"
 import useFetchAllLanguages from "../../client/queries/language"
-import { useFetchCurrentUserData } from "../../client/queries/user/user"
 
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import I18n from "i18n-js"
@@ -13,14 +12,9 @@ import { ILanguageItemList, IUser } from "../../interfaces/IUserData"
 export function useSettings() {
 	const queryClient = useQueryClient()
 	const {
-		authenticationStore: { tenantId, authToken, setUser },
+		authenticationStore: { user, tenantId, authToken },
 	} = useStores()
-	const {
-		isLoading,
-		isRefetching,
-		isSuccess,
-		data: userData,
-	} = useFetchCurrentUserData({ authToken })
+
 	const { isLoading: languagesFetching, data: languages } = useFetchAllLanguages({
 		authToken,
 		tenantId,
@@ -31,9 +25,9 @@ export function useSettings() {
 	const preferredLanguage = useMemo(
 		() =>
 			languages?.items.find(
-				(l: ILanguageItemList) => l?.code === userData?.preferredLanguage,
+				(l: ILanguageItemList) => l?.code === user?.preferredLanguage,
 			) as ILanguageItemList,
-		[languages, userData],
+		[languages, user],
 	)
 
 	const updateUserInfo = useCallback(async (userBody: IUser) => {
@@ -49,13 +43,13 @@ export function useSettings() {
 		return data
 	}, [])
 
-	const onDetectTimezone = useCallback(async (userBody: IUser) => {
+	const onDetectTimezone = useCallback(async () => {
 		if (timezone) {
 			await updateUserInfoRequest(
 				{
-					id: userBody.id,
+					id: user.id,
 					data: {
-						...userBody,
+						...(user as IUser),
 						timeZone: timezone,
 					},
 					tenantId,
@@ -80,14 +74,8 @@ export function useSettings() {
 		}
 	}, [preferredLanguage])
 
-	useEffect(() => {
-		if (isSuccess) {
-			setUser(userData)
-		}
-	}, [isLoading, isRefetching])
 	return {
-		user: userData,
-		isLoading,
+		isLoading: !user,
 		updateUserInfo,
 		onDetectTimezone,
 		languageList,

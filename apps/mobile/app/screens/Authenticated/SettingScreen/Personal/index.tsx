@@ -10,6 +10,7 @@ import { IPopup } from "../../.."
 import FlashMessage from "react-native-flash-message"
 import { useAppTheme } from "../../../../theme"
 import UserAvatar from "./UserAvatar"
+import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
 
 interface IPersonalProps {
 	onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown
@@ -20,8 +21,8 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 	const {
 		authenticationStore: { toggleTheme },
 	} = useStores()
-	const { user, preferredLanguage, onDetectTimezone } = useSettings()
-
+	const { preferredLanguage, onDetectTimezone } = useSettings()
+	const { user } = useAuthenticateUser()
 	const openBottomSheet = (name: IPopup, snapPoint: number) => {
 		onOpenBottomSheet(name, snapPoint)
 	}
@@ -60,7 +61,7 @@ const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
 				<SingleInfo
 					title={translate("settingScreen.personalSection.timeZone")}
 					value={user?.timeZone}
-					onDetectTimezone={() => onDetectTimezone(user)}
+					onDetectTimezone={() => onDetectTimezone()}
 					onPress={() => openBottomSheet("TimeZone", 4)}
 				/>
 				<SingleInfo

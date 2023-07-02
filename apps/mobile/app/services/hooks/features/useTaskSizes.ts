@@ -58,7 +58,7 @@ export function useTaskSizes() {
 	useEffect(() => {
 		if (isSuccess) {
 			if (sizes) {
-				setAllTaskSizes(sizes.items)
+				setAllTaskSizes(sizes.items || [])
 			}
 		}
 	}, [isRefetching, isLoading])
