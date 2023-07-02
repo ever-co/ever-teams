@@ -14,6 +14,7 @@ import {
 	updateOrganizationTeamEmployeeRequest,
 } from "../client/requests/organization-team-employee"
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam"
+import useAuthenticateUser from "./features/useAuthentificateUser"
 
 function useCreateOrganizationTeam() {
 	const {
@@ -73,9 +74,9 @@ export function useOrganizationTeam() {
 			activeTeam,
 			setActiveTeamId,
 		},
-		authenticationStore: { user, tenantId, authToken, organizationId },
+		authenticationStore: { tenantId, authToken, organizationId },
 	} = useStores()
-
+	const { user } = useAuthenticateUser()
 	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam()
 
 	const {
@@ -102,8 +103,7 @@ export function useOrganizationTeam() {
 		return m.employee.userId !== user?.id
 	})
 
-	const activeTeamManagers =
-		(activeTeam && activeTeam.members?.filter((m) => m.role?.name === "MANAGER")) || []
+	const activeTeamManagers = members?.filter((m) => m.role?.name === "MANAGER")
 
 	const isManager = () => {
 		if (activeTeam) {
@@ -156,7 +156,7 @@ export function useOrganizationTeam() {
 		},
 		[activeTeamId],
 	)
-	// console.log(currentUser)
+
 	const removeMemberFromTeam = useCallback(
 		async (employeeId: string) => {
 			const member = members.find((m) => m.employeeId === employeeId)
@@ -202,7 +202,7 @@ export function useOrganizationTeam() {
 		},
 		[activeTeam, isTeamManager],
 	)
-
+	// console.log(JSON.stringify(user))
 	/**
 	 * Remove user from all teams
 	 */
@@ -319,7 +319,7 @@ export function useOrganizationTeam() {
 	useEffect(() => {
 		if (isSuccess) {
 			// If there no team, user will be logged out
-			if (organizationTeams?.total === 0) {
+			if (organizationTeams?.total === 0 || !organizationTeams) {
 				setActiveTeamId("")
 				setActiveTeam(null)
 				return

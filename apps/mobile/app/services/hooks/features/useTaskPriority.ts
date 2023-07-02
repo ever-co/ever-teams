@@ -64,7 +64,7 @@ export const useTaskPriority = () => {
 	useEffect(() => {
 		if (isSuccess) {
 			if (priorities) {
-				setAllTaskPriorities(priorities.items)
+				setAllTaskPriorities(priorities.items || [])
 			}
 		}
 	}, [isLoading, isRefetching])

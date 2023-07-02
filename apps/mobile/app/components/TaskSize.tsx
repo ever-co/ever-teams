@@ -27,8 +27,9 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 	const [openModal, setOpenModal] = useState(false)
 
 	const allTaskSizes = useTaskSizeValue()
-	const currentSize =
-		allTaskSizes[task ? task?.size?.split("-").join(" ") : size?.split("-").join(" ")]
+	const currentSize = task
+		? allTaskSizes[task.size?.split("-").join(" ") || size.split("-").join(" ")]
+		: null
 
 	const onChangeSize = async (text) => {
 		if (task) {
