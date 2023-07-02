@@ -1,17 +1,19 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
-import { View, Image, StyleSheet, TouchableOpacity, Dimensions } from "react-native"
+import { View, Image, StyleSheet, TouchableOpacity } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import HeaderTimer from "./HeaderTimer"
 import { useAppTheme } from "../theme"
+import { useOrganizationTeam } from "../services/hooks/useOrganization"
 
 interface Props {
 	showTimer: boolean
 	props: any
 }
 
-const { width } = Dimensions.get("window")
 const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 	const { colors, dark } = useAppTheme()
+	const { activeTeam } = useOrganizationTeam()
 	return (
 		<View
 			style={[
@@ -38,7 +40,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 						resizeMode="contain"
 					/>
 				)}
-				{showTimer && (
+				{showTimer && activeTeam && (
 					<View style={{ width: 126 }}>
 						<HeaderTimer />
 					</View>
@@ -60,13 +62,6 @@ const styles = StyleSheet.create({
 		elevation: 1,
 		paddingHorizontal: 25,
 		paddingVertical: 20,
-		shadowColor: "rgba(0, 0, 0, 0.7)",
-		shadowOffset: {
-			width: 1,
-			height: 3,
-		},
-		shadowOpacity: 0.07,
-		shadowRadius: 1.0,
 	},
 	secondContainer: {
 		alignItems: "center",

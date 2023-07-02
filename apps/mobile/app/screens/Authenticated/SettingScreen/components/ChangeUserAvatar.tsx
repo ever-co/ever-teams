@@ -24,6 +24,8 @@ import { IImageAssets } from "../../../../services/interfaces/IImageAssets"
 import { useSettings } from "../../../../services/hooks/features/useSettings"
 import mime from "mime"
 import LoadingModal from "../../../../components/LoadingModal"
+import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
+import { IUser } from "../../../../services/interfaces/IUserData"
 
 interface IFileInfo {
 	size: number
@@ -41,7 +43,8 @@ const ChangeUserAvatar = ({
 }) => {
 	const { colors, dark } = useAppTheme()
 	const { createImageAssets, loading } = useImageAssets()
-	const { updateUserInfo, user } = useSettings()
+	const { updateUserInfo } = useSettings()
+	const { user } = useAuthenticateUser()
 	const [isExtended, setIsExtending] = useState(false)
 	const [isFetching, setIsFetching] = useState(true)
 	const [recentPictures, setRecentPictures] = useState<MediaLibrary.Asset[]>([])
@@ -109,7 +112,7 @@ const ChangeUserAvatar = ({
 			.then((d: IImageAssets) => {
 				if (d?.id) {
 					updateUserInfo({
-						...user,
+						...(user as IUser),
 						imageId: d.id,
 						image: d,
 					})
