@@ -14,7 +14,9 @@ const fetchCurrentUserData = async (params: IGetUserDataParams) => {
 }
 
 export const useFetchCurrentUserData = (IGetUserDataParams) =>
-	useQuery(["user", IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams))
+	useQuery(["user", IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams), {
+		refetchInterval: 5000,
+	})
 
 interface IGetOrganizationUsers {
 	authToken: string
@@ -32,4 +34,6 @@ const fetchOrganizationUsers = async (params: IGetOrganizationUsers) => {
 }
 
 export const useFetchOrganizationUsers = (IGetOrganizationUsers) =>
-	useQuery(["users", IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers))
+	useQuery(["users", IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers), {
+		refetchInterval: 5000,
+	})

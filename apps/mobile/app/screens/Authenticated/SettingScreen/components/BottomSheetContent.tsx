@@ -13,6 +13,8 @@ import LanguageForm from "./LanguageForm"
 import UpdateFullNameForm from "./UpdateFullNameForm"
 import UserRemoveAccount from "./UserRemoveAccount"
 import UserTimezone from "./UserTimezone"
+import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
+import { IUser } from "../../../../services/interfaces/IUserData"
 
 interface IBottomProps {
 	onDismiss: () => unknown
@@ -21,7 +23,8 @@ interface IBottomProps {
 }
 
 const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, openedSheet }) => {
-	const { user, updateUserInfo } = useSettings()
+	const { updateUserInfo } = useSettings()
+	const { user } = useAuthenticateUser()
 	return (
 		<View style={{ width: "100%" }}>
 			<View>
@@ -42,15 +45,16 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 				) : null}
 				{openedSheet === "Contact" ? (
 					<UpdateContactForm
-						user={user}
+						user={user as IUser}
 						onUpdateContactInfo={updateUserInfo}
 						onDismiss={() => onDismiss()}
+						onChangeSnap={openBottomSheet}
 					/>
 				) : null}
 
 				{openedSheet === "TimeZone" ? (
 					<UserTimezone
-						user={user}
+						user={user as IUser}
 						onUpdateTimezone={updateUserInfo}
 						onDismiss={() => onDismiss()}
 					/>
@@ -58,7 +62,7 @@ const BottomSheetContent: FC<IBottomProps> = ({ onDismiss, openBottomSheet, open
 
 				{openedSheet === "Language" ? (
 					<LanguageForm
-						user={user}
+						user={user as IUser}
 						onUpdateTimezone={updateUserInfo}
 						onDismiss={() => onDismiss()}
 					/>

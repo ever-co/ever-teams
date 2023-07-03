@@ -14,6 +14,7 @@ import { StatusBar, StatusBarProps } from "expo-status-bar"
 import { Edge, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useScrollToTop } from "@react-navigation/native"
 import { useAppTheme } from "../theme"
+import FlashMessage from "react-native-flash-message"
 
 interface BaseScreenProps {
 	/**
@@ -226,6 +227,7 @@ export function Screen(props: ScreenProps) {
 					<ScreenWithScrolling {...props} />
 				)}
 			</KeyboardAvoidingView>
+			<FlashMessage position="top" />
 		</View>
 	)
 }

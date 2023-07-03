@@ -58,7 +58,7 @@ export function useTaskLabels() {
 	useEffect(() => {
 		if (isSuccess) {
 			if (labels) {
-				setAllTaskLabels(labels.items)
+				setAllTaskLabels(labels.items || [])
 			}
 		}
 	}, [isLoading, isRefetching])

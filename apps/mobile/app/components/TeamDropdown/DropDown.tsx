@@ -49,7 +49,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 				onPress={() => setIsOpen(!isOpen)}
 			>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
-					{activeTeam.image?.thumbUrl || activeTeam.logo || activeTeam.image?.fullUrl ? (
+					{activeTeam?.image?.thumbUrl || activeTeam.logo || activeTeam?.image?.fullUrl ? (
 						<Avatar.Image
 							style={styles.teamImage}
 							size={40}

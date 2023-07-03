@@ -14,6 +14,7 @@ import {
 	updateOrganizationTeamEmployeeRequest,
 } from "../client/requests/organization-team-employee"
 import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam"
+import useAuthenticateUser from "./features/useAuthentificateUser"
 
 function useCreateOrganizationTeam() {
 	const {
@@ -73,15 +74,16 @@ export function useOrganizationTeam() {
 			activeTeam,
 			setActiveTeamId,
 		},
-		authenticationStore: { user, tenantId, authToken, organizationId },
+		authenticationStore: { tenantId, authToken, organizationId },
 	} = useStores()
-
+	const { user } = useAuthenticateUser()
 	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam()
 
 	const {
 		data: organizationTeams,
 		isSuccess,
 		refetch,
+		isRefetching,
 	} = useFetchUserOrganization({
 		tenantId,
 		authToken,
@@ -101,8 +103,7 @@ export function useOrganizationTeam() {
 		return m.employee.userId !== user?.id
 	})
 
-	const activeTeamManagers =
-		(activeTeam && activeTeam.members?.filter((m) => m.role?.name === "MANAGER")) || []
+	const activeTeamManagers = members?.filter((m) => m.role?.name === "MANAGER")
 
 	const isManager = () => {
 		if (activeTeam) {
@@ -116,8 +117,6 @@ export function useOrganizationTeam() {
 	}
 
 	const isTrackingEnabled = useMemo(() => currentUser?.isTrackingEnabled, [currentUser])
-
-	const isTeamExist = useMemo(() => organizationTeams?.total > 0, [organizationTeams])
 
 	const makeMemberAsManager = useCallback(
 		async (employeeId: string) => {
@@ -157,7 +156,7 @@ export function useOrganizationTeam() {
 		},
 		[activeTeamId],
 	)
-	// console.log(currentUser)
+
 	const removeMemberFromTeam = useCallback(
 		async (employeeId: string) => {
 			const member = members.find((m) => m.employeeId === employeeId)
@@ -203,24 +202,46 @@ export function useOrganizationTeam() {
 		},
 		[activeTeam, isTeamManager],
 	)
-
+	// console.log(JSON.stringify(user))
 	/**
 	 * Remove user from all teams
 	 */
-	const removeUserFromAllTeams = useCallback(async (userId: string) => {
-		await removeUserFromAllTeam({
-			userId,
-			bearer_token: authToken,
-			tenantId,
-		})
-			.then((res) => {
-				const { response } = res
-				if (response.ok || response.status === 202 || response.status === 200) {
-					refreshTeams()
-				}
+	const removeUserFromAllTeams = useCallback(
+		async (userId: string) => {
+			const member = members.find((m) => m.employee?.userId === userId)
+			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
+			// Verify if member is manager And Check if he is the only manager in the active team
+
+			if (member.role && managerIds.length < 2) {
+				showMessage({
+					message: "REMOVE FROM ALL TEAMS",
+					description: "You are not able to removed account where you are only the manager!",
+					type: "warning",
+				})
+				return
+			}
+
+			await removeUserFromAllTeam({
+				userId,
+				bearer_token: authToken,
+				tenantId,
 			})
-			.catch((e) => console.log(e))
-	}, [])
+				.then((res) => {
+					const { response } = res
+					if (response.ok || response.status === 200) {
+						refreshTeams()
+					} else {
+						showMessage({
+							message: "REMOVE FROM ALL TEAMS",
+							description: "You are not able to removed account where you are only the manager!",
+							type: "warning",
+						})
+					}
+				})
+				.catch((e) => console.log(e))
+		},
+		[removeUserFromAllTeam],
+	)
 
 	/**
 	 * Enable or Disable user time tracking
@@ -298,7 +319,7 @@ export function useOrganizationTeam() {
 	useEffect(() => {
 		if (isSuccess) {
 			// If there no team, user will be logged out
-			if (organizationTeams?.total === 0) {
+			if (organizationTeams?.total === 0 || !organizationTeams) {
 				setActiveTeamId("")
 				setActiveTeam(null)
 				return
@@ -310,13 +331,12 @@ export function useOrganizationTeam() {
 				setActiveTeam(updateActiveTeam)
 				setActiveTeamId(updateActiveTeam.id)
 			}
-			// console.log(organizationTeams)
 			setOrganizationTeams(organizationTeams)
 			setTeamsFetching(false)
 		}
 		isManager()
 		setIsTrackingEnabled(currentUser?.isTrackingEnabled)
-	}, [organizationTeams, isSuccess])
+	}, [organizationTeams, isSuccess, isRefetching])
 
 	return {
 		removeUserFromAllTeams,
@@ -335,6 +355,5 @@ export function useOrganizationTeam() {
 		onRemoveTeam,
 		activeTeamManagers,
 		isTrackingEnabled,
-		isTeamExist,
 	}
 }
