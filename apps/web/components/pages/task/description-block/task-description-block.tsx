@@ -36,6 +36,14 @@ const TaskDescriptionBlock = () => {
 						h1: 'text-xl font-[500]',
 						h2: 'text-lg font-[400]',
 					},
+					list: {
+						nested: {
+							listitem: 'list-circle',
+						},
+						ol: 'ml-4',
+						ul: 'ml-4',
+						listitem: 'm-4',
+					},
 					paragraph: 'text-[1rem]',
 					text: {
 						bold: 'font-semibold',

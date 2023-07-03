@@ -6,7 +6,16 @@ import {
 	COPY_COMMAND,
 	FORMAT_ELEMENT_COMMAND,
 	$createParagraphNode,
+	COMMAND_PRIORITY_LOW,
 } from 'lexical';
+import {
+	INSERT_ORDERED_LIST_COMMAND,
+	INSERT_UNORDERED_LIST_COMMAND,
+	$createListNode,
+	$createListItemNode,
+	insertList,
+} from '@lexical/list';
+
 import { $wrapNodes } from '@lexical/selection';
 import { $createHeadingNode } from '@lexical/rich-text';
 import { mergeRegister } from '@lexical/utils';
@@ -91,6 +100,27 @@ const DescriptionToolbar = () => {
 			}
 		});
 	};
+	const ListPlugin = (): void => {
+		editor.update(() => {
+			const selection = $getSelection();
+			if ($isRangeSelection(selection)) {
+				$wrapNodes(selection, () => $createListNode('bullet'));
+			}
+		});
+	};
+
+	editor.registerCommand(
+		INSERT_UNORDERED_LIST_COMMAND,
+		() => {
+			insertList(editor, 'bullet');
+			return true;
+		},
+		COMMAND_PRIORITY_LOW
+	);
+
+	function onButtonClick() {
+		editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+	}
 
 	const updateToolbar = useCallback(() => {
 		const selection = $getSelection();
@@ -120,6 +150,10 @@ const DescriptionToolbar = () => {
 				</h1>
 			</div>
 			<div className="flex">
+				{/* <ToolButton
+					onSelect={ListPlugin}
+					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
+				/> */}
 				<ToolButton
 					onSelect={() => HeadingPlugin('h1')}
 					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
