@@ -62,6 +62,7 @@ const TaskSecondaryInfo = () => {
 					forDetails={true}
 					defaultValue={task?.version}
 					sidebarUI={true}
+					whiteBg
 				/>
 			</TaskRow>
 
