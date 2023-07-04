@@ -711,7 +711,7 @@ export function TaskStatus({
 				bordered && ['input-border'],
 				bordered &&
 					backgroundColor === 'transparent' && ['text-dark dark:text-white'],
-				whiteBg && '!bg-white text-dark',
+				whiteBg && '!bg-white text-dark border',
 				className
 			)}
 			style={{
@@ -907,6 +907,7 @@ export function StatusDropdown<T extends TStatusItem>({
 										>
 											<li className="mb-3 cursor-pointer">
 												<TaskStatus
+													whiteBg={whiteBg}
 													showIcon={showIcon}
 													{...item}
 													cheched={
