@@ -61,10 +61,10 @@ const TaskDetails = () => {
 						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 							<TaskDescriptionBlock />
-							<IssueCard related={false} />
-							<IssueCard related={true} />
-							<CompletionBlock />
-							<ActivityBlock />
+							{/* <IssueCard related={false} /> */}
+							{/* <IssueCard related={true} /> */}
+							{/* <CompletionBlock /> */}
+							{/* <ActivityBlock /> */}
 						</section>
 						<div className="bg-white dark:bg-dark--theme flex flex-col text-red-700 lg:w-[400px] rounded-xl mt-4 lg:mt-0">
 							<TaskDetailsAside />
