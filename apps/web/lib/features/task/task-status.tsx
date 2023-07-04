@@ -28,6 +28,7 @@ import {
 	useTaskPriorities,
 	useTaskSizes,
 	useTaskStatus,
+	useTaskVersion,
 	useTeamTasks,
 } from '@app/hooks';
 import clsx from 'clsx';
@@ -318,6 +319,12 @@ export const versionProperties: TStatus<IVersionProperty> = {
 	},
 };
 
+export function useTaskVersionsValue() {
+	const { taskVersion } = useTaskVersion();
+
+	return useMapToTaskStatusValues(taskVersion, false);
+}
+
 /**
  * Version dropdown that allows you to select a task property
  * @param {IClassName}  - IClassName - This is the interface that the component will accept.
@@ -331,8 +338,11 @@ export function VersionPropertiesDropown({
 	multiple,
 	sidebarUI = false,
 }: TTaskStatusesDropdown<'version'>) {
+	const taskVersionsValue = useTaskVersionsValue();
+	console.log(taskVersionsValue);
+
 	const { item, items, onChange, values } = useStatusValue<'version'>({
-		status: versionProperties,
+		status: taskVersionsValue,
 		value: defaultValue,
 		onValueChange,
 		multiple,
