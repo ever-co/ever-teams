@@ -60,7 +60,6 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
 	disabled?: boolean;
 	largerWidth?: boolean;
 	sidebarUI?: boolean;
-	whiteBg?: boolean;
 };
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -338,7 +337,6 @@ export function VersionPropertiesDropown({
 	forDetails,
 	multiple,
 	sidebarUI = false,
-	whiteBg = false,
 }: TTaskStatusesDropdown<'version'>) {
 	const taskVersionsValue = useTaskVersionsValue();
 	console.log(taskVersionsValue);
@@ -352,7 +350,6 @@ export function VersionPropertiesDropown({
 
 	return (
 		<StatusDropdown
-			whiteBg={whiteBg}
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
@@ -684,7 +681,6 @@ export function TaskStatus({
 	cheched = false,
 	showIcon = true,
 	sidebarUI = false,
-	whiteBg = false,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -695,7 +691,6 @@ export function TaskStatus({
 			titleClassName?: string;
 			cheched?: boolean;
 			sidebarUI?: boolean;
-			whiteBg?: boolean;
 		}
 >) {
 	return (
@@ -711,7 +706,6 @@ export function TaskStatus({
 				bordered && ['input-border'],
 				bordered &&
 					backgroundColor === 'transparent' && ['text-dark dark:text-white'],
-				whiteBg && '!bg-white text-dark border',
 				className
 			)}
 			style={{
@@ -771,7 +765,6 @@ export function StatusDropdown<T extends TStatusItem>({
 	largerWidth = false,
 	bordered = false,
 	sidebarUI = false,
-	whiteBg = false,
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -790,7 +783,6 @@ export function StatusDropdown<T extends TStatusItem>({
 	largerWidth?: boolean;
 	bordered?: boolean;
 	sidebarUI?: boolean;
-	whiteBg?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -804,7 +796,6 @@ export function StatusDropdown<T extends TStatusItem>({
 	const button = (
 		<TaskStatus
 			{...currentValue}
-			whiteBg={whiteBg}
 			bordered={bordered}
 			forDetails={forDetails}
 			showIcon={showIcon}
@@ -905,9 +896,8 @@ export function StatusDropdown<T extends TStatusItem>({
 											as={Fragment}
 											disabled={disabled}
 										>
-											<li className="mb-3 cursor-pointer">
+											<li className="mb-3 cursor-pointer ">
 												<TaskStatus
-													whiteBg={whiteBg}
 													showIcon={showIcon}
 													{...item}
 													cheched={
@@ -917,7 +907,8 @@ export function StatusDropdown<T extends TStatusItem>({
 														issueType === 'issue' && [
 															'rounded-md px-2 text-white',
 														],
-														`${sidebarUI ? 'rounded-[4px]' : ''}`
+														`${sidebarUI ? 'rounded-[4px]' : ''}`,
+														`${bordered ? 'input-border' : ''}`
 													)}
 												/>
 											</li>
