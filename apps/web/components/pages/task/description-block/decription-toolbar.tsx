@@ -150,10 +150,10 @@ const DescriptionToolbar = () => {
 				</h1>
 			</div>
 			<div className="flex">
-				{/* <ToolButton
+				<ToolButton
 					onSelect={ListPlugin}
 					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
-				/> */}
+				/>
 				<ToolButton
 					onSelect={() => HeadingPlugin('h1')}
 					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}

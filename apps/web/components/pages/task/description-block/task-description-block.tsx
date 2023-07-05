@@ -2,6 +2,7 @@ import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
+import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
 import DescriptionToolbar from './decription-toolbar';
@@ -44,7 +45,7 @@ const TaskDescriptionBlock = () => {
 						ul: 'ml-4',
 						listitem: 'm-4',
 					},
-					paragraph: 'text-[1rem]',
+					// paragraph: '',
 					text: {
 						bold: 'font-semibold',
 						underline: 'underline',
@@ -80,6 +81,7 @@ const TaskDescriptionBlock = () => {
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
 						<div className="h-full md:min-h-[200px]">
+							<ListPlugin />
 							<RichTextPlugin
 								contentEditable={
 									<ContentEditable className="editor-input outline-none py-2 " />
