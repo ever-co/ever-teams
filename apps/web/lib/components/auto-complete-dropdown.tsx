@@ -51,15 +51,15 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	useHandleKeyUp = false,
 }: Props<T>) {
 	const [query, setQuery] = useState('');
-	const filteredItem =
-		/* eslint-disable no-mixed-spaces-and-tabs */
-		query === ''
-			? items
-			: items.filter((item) => {
-					return `${item?.data?.title || ''}`
-						.toLowerCase()
-						.includes(query.toLowerCase());
-			  });
+	let filteredItem = items;
+
+	if (query !== '') {
+		filteredItem = items.filter((item) => {
+			return `${item?.data?.title || ''}`
+				.toLowerCase()
+				.includes(query.toLowerCase());
+		});
+	}
 
 	const handleKeyUp = useCallback(
 		(event: KeyboardEvent<HTMLElement>) => {
