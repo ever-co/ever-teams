@@ -82,29 +82,33 @@ export function useTaskInput({
 	const [query, setQuery] = useState('');
 
 	const filteredTasks = useMemo(() => {
-		return query.trim() === ''
-			? tasks.filter((task) => h_filter(task.status, filter))
-			: tasks.filter(
-					(task) =>
-						task.title
-							.trim()
-							.toLowerCase()
-							.replace(/\s+/g, '')
-							.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
-						h_filter(task.status, filter)
-			  );
+		if (query.trim() === '') {
+			return tasks.filter((task) => h_filter(task.status, filter));
+		}
+
+		return tasks.filter(
+			(task) =>
+				task.title
+					.trim()
+					.toLowerCase()
+					.replace(/\s+/g, '')
+					.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
+				h_filter(task.status, filter)
+		);
 	}, [query, tasks, filter]);
 
 	const filteredTasks2 = useMemo(() => {
-		return query.trim() === ''
-			? tasks
-			: tasks.filter((task) => {
-					return task.title
-						.trim()
-						.toLowerCase()
-						.replace(/\s+/g, '')
-						.startsWith(query.toLowerCase().replace(/\s+/g, ''));
-			  });
+		if (query.trim() === '') {
+			return tasks;
+		}
+
+		return tasks.filter((task) => {
+			return task.title
+				.trim()
+				.toLowerCase()
+				.replace(/\s+/g, '')
+				.startsWith(query.toLowerCase().replace(/\s+/g, ''));
+		});
 	}, [query, tasks]);
 
 	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
@@ -152,7 +156,7 @@ export function useTaskInput({
 				title,
 			});
 		},
-		[]
+		[updateTask, userRef]
 	);
 
 	const closedTaskCount = filteredTasks2.filter((f_task) => {

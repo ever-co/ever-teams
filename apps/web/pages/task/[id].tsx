@@ -15,9 +15,9 @@ import { detailedTaskState } from '@app/stores';
 import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
-import IssueCard from '@components/pages/task/IssueCard';
-import CompletionBlock from '@components/pages/task/CompletionBlock';
-import ActivityBlock from '@components/pages/task/ActivityBlock';
+// import IssueCard from '@components/pages/task/IssueCard';
+// import CompletionBlock from '@components/pages/task/CompletionBlock';
+// import ActivityBlock from '@components/pages/task/ActivityBlock';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -61,10 +61,10 @@ const TaskDetails = () => {
 						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 							<TaskDescriptionBlock />
-							<IssueCard related={false} />
-							<IssueCard related={true} />
-							<CompletionBlock />
-							<ActivityBlock />
+							{/* <IssueCard related={false} /> */}
+							{/* <IssueCard related={true} /> */}
+							{/* <CompletionBlock /> */}
+							{/* <ActivityBlock /> */}
 						</section>
 						<div className="bg-white dark:bg-dark--theme flex flex-col text-red-700 lg:w-[400px] rounded-xl mt-4 lg:mt-0">
 							<TaskDetailsAside />
