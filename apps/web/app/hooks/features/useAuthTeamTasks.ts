@@ -31,6 +31,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 		currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
 			? currentMember?.totalTodayTasks.map((task) => task.id)
 			: [];
+
 	const workedTasks = useMemo(() => {
 		return tasks.filter((tsk) => {
 			return totalTodayTasks.includes(tsk.id);

@@ -403,12 +403,5 @@ export function useSyncTimer() {
 	const { syncTimer } = useTimer();
 	const timerStatus = useRecoilValue(timerStatusState);
 
-	useRefreshInterval(
-		timerStatus?.running
-			? syncTimer
-			: () => {
-					return;
-			  },
-		5000
-	);
+	useRefreshInterval(timerStatus?.running ? syncTimer : () => void 0, 5000);
 }

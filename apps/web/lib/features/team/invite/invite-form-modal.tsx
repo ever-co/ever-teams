@@ -117,7 +117,7 @@ export function InviteFormModal({
 								error={
 									(isNotEmpty(errors) &&
 										Object.keys(errors).includes('email') &&
-										errors?.email) ||
+										errors.email) ||
 									''
 								}
 								handleAddNew={handleAddNew}

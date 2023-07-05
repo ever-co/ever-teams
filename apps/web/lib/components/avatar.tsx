@@ -52,7 +52,7 @@ export function Avatar({
 		>
 			{imageTitle && !imgUrl && (
 				<span className="uppercase font-normal text-lg">
-					{(imageTitle || '')[0] || ''}
+					{imageTitle[0] || ''}
 				</span>
 			)}
 
