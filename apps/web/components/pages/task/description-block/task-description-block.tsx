@@ -16,6 +16,7 @@ import DescriptionFooter from './decription-footer';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
+import { clsxm } from '@app/utils';
 
 const TaskDescriptionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
@@ -60,38 +61,48 @@ const TaskDescriptionBlock = () => {
 	}, [task]);
 
 	return (
-		<div>
-			<div className="border-b-2  w-full">
-				<div className="py-5"></div>
-				{editorConfig ? (
-					<LexicalComposer initialConfig={editorConfig}>
-						<DescriptionToolbar />
-						<div className="h-full md:min-h-[200px]">
-							<RichTextPlugin
-								contentEditable={
-									<ContentEditable className="editor-input outline-none py-2 " />
-								}
-								placeholder={
-									<p className="text-[#A5A2B2] text-sm ">
-										Write a complete description of your project...
-									</p>
-								}
-								ErrorBoundary={LexicalErrorBoundary}
-							/>
-						</div>
-						<OnChangePlugin onChange={() => setIsUpdated(true)} />
-						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-						<HistoryPlugin />
-
-						<DescriptionFooter
-							isUpdated={isUpdated}
-							setIsUpdated={() => {
-								setIsUpdated(false);
-							}}
+		<div className="border-b-2  w-full">
+			<div className="py-5"></div>
+			{editorConfig ? (
+				<LexicalComposer initialConfig={editorConfig}>
+					<DescriptionToolbar />
+					<div className={clsxm('editor-container', 'relative')}>
+						<RichTextPlugin
+							contentEditable={
+								<ContentEditable
+									className={clsxm(
+										'editor-input outline-none',
+										'relative resize-none',
+										'min-h-[150px] z-10 mt-4'
+									)}
+								/>
+							}
+							placeholder={
+								<div
+									className={clsxm(
+										'editor-placeholder text-[#A5A2B2]',
+										'text-sm absolute top-0 pt-1 z-0',
+										'text-ellipsis overflow-hidden'
+									)}
+								>
+									Write a complete description of your project...
+								</div>
+							}
+							ErrorBoundary={LexicalErrorBoundary}
 						/>
-					</LexicalComposer>
-				) : null}
-			</div>
+					</div>
+					<OnChangePlugin onChange={() => setIsUpdated(true)} />
+					<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+					<HistoryPlugin />
+
+					<DescriptionFooter
+						isUpdated={isUpdated}
+						setIsUpdated={() => {
+							setIsUpdated(false);
+						}}
+					/>
+				</LexicalComposer>
+			) : null}
 		</div>
 	);
 };

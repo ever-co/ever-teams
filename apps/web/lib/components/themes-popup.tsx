@@ -1,7 +1,7 @@
 import { Switch } from '@headlessui/react';
 import React from 'react';
 import Image from 'next/image';
-import { ThemesPopup } from '@app/interfaces';
+import { ThemesPopup as IThemesPopup } from '@app/interfaces';
 
 const ThemesPopup = ({
 	theme,
@@ -11,7 +11,7 @@ const ThemesPopup = ({
 	enabled,
 	setTheme,
 	index,
-}: ThemesPopup) => {
+}: IThemesPopup) => {
 	return (
 		<div
 			onClick={() => setTheme(theme)}

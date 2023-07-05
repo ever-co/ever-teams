@@ -11,6 +11,7 @@ import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
 import { clsxm } from '@app/utils';
 import { IInviteEmail } from '@app/interfaces';
+import { useSyncRef } from '@app/hooks';
 
 export const InviteEmailDropdown = ({
 	emails,
@@ -25,9 +26,10 @@ export const InviteEmailDropdown = ({
 	error: string;
 	handleAddNew: (email: string) => void;
 }) => {
-	const items: any = useMemo(() => mapTeamMemberItems(emails), [emails]);
+	const items = useMemo(() => mapTeamMemberItems(emails), [emails]);
+	const $items = useSyncRef(items);
 
-	const [emailItem, setEmailItem] = useState<InviteEmailItem | null>();
+	const [emailItem, setEmailItem] = useState<InviteEmailItem | null>(null);
 
 	const onChangeActive = useCallback(
 		(item: InviteEmailItem) => {
@@ -41,9 +43,12 @@ export const InviteEmailDropdown = ({
 
 	useEffect(() => {
 		if (selectedEmail) {
-			setEmailItem(items.find((item: any) => item.key === selectedEmail.title));
+			setEmailItem(
+				$items.current.find((item: any) => item.key === selectedEmail.title) ||
+					null
+			);
 		}
-	}, [selectedEmail, emails, emails?.length, setSelectedEmail, items]);
+	}, [selectedEmail]);
 
 	return (
 		<>
@@ -59,7 +64,7 @@ export const InviteEmailDropdown = ({
 				error={error}
 				handleAddNew={handleAddNew}
 				useHandleKeyUp={true}
-			></AutoCompleteDropdown>
+			/>
 		</>
 	);
 };

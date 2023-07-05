@@ -5,10 +5,10 @@ import { DropdownItem } from 'lib/components';
 export type InviteEmailItem = DropdownItem<IInviteEmail>;
 
 export function mapTeamMemberItems(members: IInviteEmail[]) {
-	const items = members.map((member: IInviteEmail) => {
+	const items: InviteEmailItem[] = members.map((member: IInviteEmail) => {
 		return {
 			key: member.title,
-			Label: ({ selected }: { selected: boolean }) => (
+			Label: ({ selected }) => (
 				<div className="flex justify-between w-full">
 					<div className="max-w-[90%]">
 						<TeamMemberItem
