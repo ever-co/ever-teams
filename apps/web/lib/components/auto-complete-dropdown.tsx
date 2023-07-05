@@ -124,7 +124,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 								<Combobox.Option
 									key={Item.key ? Item.key : index}
 									value={Item}
-									disabled={Item?.disabled}
+									disabled={Item.disabled}
 								>
 									{({ active, selected }) => {
 										return Item.Label ? (

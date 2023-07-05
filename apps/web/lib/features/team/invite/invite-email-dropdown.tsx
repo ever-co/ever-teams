@@ -25,7 +25,7 @@ export const InviteEmailDropdown = ({
 	error: string;
 	handleAddNew: (email: string) => void;
 }) => {
-	const items: any = useMemo(() => mapTeamMemberItems(emails), [emails]);
+	const items = useMemo(() => mapTeamMemberItems(emails), [emails]);
 
 	const [emailItem, setEmailItem] = useState<InviteEmailItem | null>();
 
@@ -59,7 +59,7 @@ export const InviteEmailDropdown = ({
 				error={error}
 				handleAddNew={handleAddNew}
 				useHandleKeyUp={true}
-			></AutoCompleteDropdown>
+			/>
 		</>
 	);
 };
