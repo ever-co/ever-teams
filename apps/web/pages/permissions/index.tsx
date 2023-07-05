@@ -1,7 +1,11 @@
 import { imgTitle } from '@app/helpers';
-import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
+import {
+	useIsMemberManager,
+	useOrganizationTeams,
+	useRolePermissions,
+} from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
-import { OT_Member } from '@app/interfaces';
+import { IRole, OT_Member } from '@app/interfaces';
 import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import NotFound from '@components/pages/404';
@@ -23,7 +27,7 @@ import { useTranslation } from 'lib/i18n';
 
 import { MainLayout } from 'lib/layout';
 import moment from 'moment';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useRecoilState } from 'recoil';
 import stc from 'string-to-color';
@@ -31,17 +35,33 @@ import stc from 'string-to-color';
 const Permissions = () => {
 	const { trans } = useTranslation();
 	const { activeTeam, activeTeamManagers } = useOrganizationTeams();
+	const { rolePermissionsFormated, getRolePermissions, updateRolePermission } =
+		useRolePermissions();
+
+	const [selectedRole, setSelectedRole] = useState<IRole | null>(null);
 
 	const [user] = useRecoilState(userState);
 	const { isTeamManager } = useIsMemberManager(user);
 	const [filterString, setFilterString] = useState<string>('');
 
-	const members =
-		activeTeam?.members.filter(
-			(member) =>
-				member.employee.fullName.toLowerCase().includes(filterString) ||
-				member.employee.user?.email.toLowerCase().includes(filterString)
-		) || [];
+	const members = useMemo(
+		() =>
+			activeTeam?.members.filter(
+				(member) =>
+					(member.employee.fullName.toLowerCase().includes(filterString) ||
+						member.employee.user?.email.toLowerCase().includes(filterString)) &&
+					(selectedRole
+						? member.roleId === selectedRole?.id ||
+						  (member.roleId === null &&
+								selectedRole.name.toLowerCase() === 'employee')
+						: true)
+			) || [],
+		[activeTeam?.members, selectedRole?.id, filterString]
+	);
+
+	useEffect(() => {
+		selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
+	}, [selectedRole]);
 
 	const {
 		total,
@@ -52,6 +72,20 @@ const Permissions = () => {
 		setItemsPerPage,
 		currentItems,
 	} = usePagination<OT_Member>(members || [], 10);
+
+	const handleToggleRolePermission = useCallback(
+		(name: string) => {
+			const permission = rolePermissionsFormated[name];
+
+			updateRolePermission({
+				...permission,
+				enabled: !permission.enabled,
+			}).then(() => {
+				selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
+			});
+		},
+		[rolePermissionsFormated, selectedRole]
+	);
 
 	if (activeTeamManagers && activeTeamManagers.length && !isTeamManager) {
 		return (
@@ -96,8 +130,21 @@ const Permissions = () => {
 									}}
 								/>
 							</div>
-							<div className="w-auto">
-								<PermissionDropDown />
+							<div className="flex gap-2 w-auto">
+								{selectedRole && (
+									<Button
+										className="rounded-xl"
+										onClick={() => {
+											setSelectedRole(null);
+										}}
+									>
+										Reset
+									</Button>
+								)}
+								<PermissionDropDown
+									selectedRole={selectedRole}
+									setSelectedRole={setSelectedRole}
+								/>
 							</div>
 						</div>
 
@@ -160,7 +207,7 @@ const Permissions = () => {
 										{member.employee.user?.email || ''}
 									</div>
 									<div className="w-[15%] text-sm flex items-center">
-										{member.role?.name || ''}
+										{member.roleId ? member.role?.name : 'EMPLOYEE'}
 									</div>
 									<div className="w-[25%] text-sm flex items-center pl-9">
 										{moment(member.employee.createdAt).format(
@@ -193,24 +240,40 @@ const Permissions = () => {
 						<div className="overflow-y-scroll">
 							<div className="flex w-full items-center justify-between gap-[2rem]">
 								<Text className="flex-none text-gray-400 flex-grow-0 text-base font-normal md-2 w-1/2">
-									Task Time
-								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-full">
-									<CommonToggle
-										enabledText="Activated"
-										disabledText="Deactivated"
-									/>
-								</div>
-							</div>
-							<div className="flex w-full items-center justify-between gap-[2rem]">
-								<Text className="flex-none text-gray-400 flex-grow-0 text-base font-normal md-2 w-1/2">
-									Estimate issue
 									{trans.pages.settingsTeam.TRACK_TIME}
 								</Text>
 								<div className="flex flex-row flex-grow-0 items-center justify-between w-full">
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											rolePermissionsFormated?.['TIME_TRACKER']?.enabled ||
+											false
+										}
+										onChange={() => {
+											handleToggleRolePermission('TIME_TRACKER');
+										}}
+									/>
+								</div>
+							</div>
+							<div className="flex w-full items-center justify-between gap-[2rem]">
+								<Text className="flex-none text-gray-400 flex-grow-0 text-base font-normal md-2 w-1/2">
+									Estimate issue
+								</Text>
+								<div className="flex flex-row flex-grow-0 items-center justify-between w-full">
+									<CommonToggle
+										enabledText="Activated"
+										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
+												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -222,6 +285,16 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
+												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -233,6 +306,16 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
+												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -244,6 +327,16 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
+												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
+												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -255,6 +348,13 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_INVITE_VIEW']?.enabled &&
+												rolePermissionsFormated?.['ORG_INVITE_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -266,6 +366,16 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_EMPLOYEES_VIEW']
+												?.enabled &&
+												rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']
+													?.enabled &&
+												rolePermissionsFormated?.['CHANGE_SELECTED_EMPLOYEE']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -277,6 +387,14 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_VIEW']
+												?.enabled &&
+												rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -288,6 +406,14 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											(rolePermissionsFormated?.['ORG_EMPLOYEES_VIEW']
+												?.enabled &&
+												rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']
+													?.enabled) ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>
@@ -299,6 +425,11 @@ const Permissions = () => {
 									<CommonToggle
 										enabledText="Activated"
 										disabledText="Deactivated"
+										enabled={
+											rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled ||
+											false
+										}
+										onChange={() => {}}
 									/>
 								</div>
 							</div>

@@ -104,23 +104,19 @@ export function TreeModeToggler({ className }: IClassName) {
 export function CommonToggle({
 	enabledText = '',
 	disabledText = '',
+	enabled = false,
+	onChange,
 }: {
 	enabledText: string | undefined;
 	disabledText: string | undefined;
+	enabled: boolean;
+	onChange: () => void;
 }) {
-	const [enabled, setEnabled] = useState(true);
-
-	const handleChange = useCallback(() => {
-		setEnabled(!enabled);
-	}, [enabled]);
-
 	return (
 		<div className="py-4 flex items-center gap-x-[10px]">
 			<Switch
 				checked={enabled}
-				onChange={() => {
-					handleChange();
-				}}
+				onChange={onChange}
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
           relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
 			>
