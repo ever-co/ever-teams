@@ -34,18 +34,15 @@ const TaskDescriptionBlock = () => {
 					root: 'rounded focus:outline-none',
 					link: 'cursor-pointer',
 					heading: {
-						h1: 'text-xl font-[500]',
+						h1: 'text-xl leading-3 font-[500]',
 						h2: 'text-lg font-[400]',
 					},
-					list: {
-						nested: {
-							listitem: 'list-circle',
-						},
-						ol: 'ml-4',
-						ul: 'ml-4',
-						listitem: 'm-4',
-					},
-					// paragraph: '',
+					// list: {
+					// 	nested: {
+					// 		listitem: 'list-circle',
+					// 	},
+					// },
+					paragraph: 'leading-5',
 					text: {
 						bold: 'font-semibold',
 						underline: 'underline',
@@ -76,11 +73,11 @@ const TaskDescriptionBlock = () => {
 	return (
 		<div>
 			<div className="border-b-2 w-full">
-				<div className="py-5"></div>
+				<div className="py-5 leading"></div>
 				{editorConfig ? (
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
-						<div className="h-full md:min-h-[200px]">
+						<div className="h-full md:min-h-[200px] prose">
 							<ListPlugin />
 							<RichTextPlugin
 								contentEditable={
