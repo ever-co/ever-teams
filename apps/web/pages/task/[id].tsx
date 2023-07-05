@@ -15,9 +15,9 @@ import { detailedTaskState } from '@app/stores';
 import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
-import IssueCard from '@components/pages/task/IssueCard';
-import CompletionBlock from '@components/pages/task/CompletionBlock';
-import ActivityBlock from '@components/pages/task/ActivityBlock';
+// import IssueCard from '@components/pages/task/IssueCard';
+// import CompletionBlock from '@components/pages/task/CompletionBlock';
+// import ActivityBlock from '@components/pages/task/ActivityBlock';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
