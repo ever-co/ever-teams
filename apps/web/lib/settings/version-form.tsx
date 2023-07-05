@@ -57,7 +57,7 @@ export const VersionForm = () => {
 			if (createNew) {
 				createTaskVersion({
 					name: values.name,
-					// color: values.color,
+					color: '#FFFFFF',
 					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
