@@ -35,14 +35,15 @@ const TaskDescriptionBlock = () => {
 					root: 'rounded focus:outline-none',
 					link: 'cursor-pointer',
 					heading: {
-						h1: 'text-xl leading-3 font-[500]',
+						h1: 'text-xl font-[500]',
 						h2: 'text-lg font-[400]',
 					},
-					// list: {
-					// 	nested: {
-					// 		listitem: 'list-circle',
-					// 	},
-					// },
+					list: {
+						nested: {
+							listitem: 'leading-5',
+						},
+						ul: 'leading-5',
+					},
 					paragraph: 'leading-5',
 					text: {
 						bold: 'font-semibold',
@@ -78,10 +79,23 @@ const TaskDescriptionBlock = () => {
 				{editorConfig ? (
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
-						<div className="h-full md:min-h-[200px]">
+						<ListPlugin />
+						<div
+							className={clsxm(
+								'editor-container',
+								'relative',
+								'prose dark:prose-invert  leading-normal'
+							)}
+						>
 							<RichTextPlugin
 								contentEditable={
-									<ContentEditable className="editor-input outline-none py-2 " />
+									<ContentEditable
+										className={clsxm(
+											'editor-input outline-none',
+											'relative resize-none',
+											'min-h-[150px] z-10 mt-4'
+										)}
+									/>
 								}
 								placeholder={
 									<p className="text-[#A5A2B2] text-sm ">
@@ -95,14 +109,15 @@ const TaskDescriptionBlock = () => {
 						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 						<HistoryPlugin />
 
-					<DescriptionFooter
-						isUpdated={isUpdated}
-						setIsUpdated={() => {
-							setIsUpdated(false);
-						}}
-					/>
-				</LexicalComposer>
-			) : null}
+						<DescriptionFooter
+							isUpdated={isUpdated}
+							setIsUpdated={() => {
+								setIsUpdated(false);
+							}}
+						/>
+					</LexicalComposer>
+				) : null}
+			</div>
 		</div>
 	);
 };

@@ -12,7 +12,7 @@ import {
 	INSERT_ORDERED_LIST_COMMAND,
 	INSERT_UNORDERED_LIST_COMMAND,
 	$createListNode,
-	$createListItemNode,
+	REMOVE_LIST_COMMAND,
 	insertList,
 } from '@lexical/list';
 
@@ -46,6 +46,8 @@ const DescriptionToolbar = () => {
 	const [isItalic, setIsItalic] = useState(false);
 	const [isUnderline, setIsUnderline] = useState(false);
 	const [isStrikeThrough, setIsStrikeThrough] = useState(false);
+	const [isUnorderedList, setUnorderedList] = useState(false);
+	const [isOrderedList, setOrderedList] = useState(false);
 
 	const toggleBold = () => {
 		editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
@@ -100,26 +102,42 @@ const DescriptionToolbar = () => {
 			}
 		});
 	};
-	const ListPlugin = (): void => {
-		editor.update(() => {
-			const selection = $getSelection();
-			if ($isRangeSelection(selection)) {
-				$wrapNodes(selection, () => $createListNode('bullet'));
-			}
-		});
-	};
+	// const ListPlugin = (): void => {
+	// 	editor.update(() => {
+	// 		const selection = $getSelection();
+	// 		if ($isRangeSelection(selection)) {
+	// 			$wrapNodes(selection, () => $createListNode('bullet'));
+	// 		}
+	// 	});
+	// };
 
-	editor.registerCommand(
-		INSERT_UNORDERED_LIST_COMMAND,
-		() => {
-			insertList(editor, 'bullet');
-			return true;
-		},
-		COMMAND_PRIORITY_LOW
-	);
+	// editor.registerCommand(
+	// 	INSERT_UNORDERED_LIST_COMMAND,
+	// 	() => {
+	// 		insertList(editor, 'bullet');
+	// 		return true;
+	// 	},
+	// 	COMMAND_PRIORITY_LOW
+	// );
 
-	function onButtonClick() {
-		editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+	function unorderedList() {
+		if (!isUnorderedList) {
+			editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+			setUnorderedList(true);
+		} else {
+			editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+			setUnorderedList(false);
+		}
+	}
+
+	function orderedList() {
+		if (!isOrderedList) {
+			editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+			setOrderedList(true);
+		} else {
+			editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
+			setOrderedList(false);
+		}
 	}
 
 	const updateToolbar = useCallback(() => {
@@ -151,7 +169,11 @@ const DescriptionToolbar = () => {
 			</div>
 			<div className="flex">
 				<ToolButton
-					onSelect={ListPlugin}
+					onSelect={unorderedList}
+					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
+				/>
+				<ToolButton
+					onSelect={orderedList}
 					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
 				/>
 				<ToolButton
