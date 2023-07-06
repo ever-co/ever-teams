@@ -490,18 +490,18 @@ export function ArrowRight({ className }: IClassName) {
 		>
 			<path
 				d="M16.835 6.91833L23.9166 14L16.835 21.0817"
-				stroke-width="3"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="3"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className="stroke-primary dark:stroke-white"
 			/>
 			<path
 				d="M4.08301 14H23.718"
-				stroke-width="3"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="3"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className="stroke-primary dark:stroke-white"
 			/>
 		</svg>
@@ -522,10 +522,10 @@ export function ArrowDown({ className }: IClassName) {
 		>
 			<path
 				d="M11.6209 9.27917L7.81753 5.47584C7.36836 5.02667 6.63336 5.02667 6.18419 5.47584L2.38086 9.27917"
-				stroke-width="1.5"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className="stroke-[#B1AEBC]"
 			/>
 		</svg>
@@ -2011,16 +2011,16 @@ export const SettingSimpleGearIcon = ({ className }: IClassName) => (
 			// stroke="#B1AEBC"
 			className={className}
 			strokeWidth={1.5}
-			stroke-linecap="round"
-			stroke-linejoin="round"
+			strokeLinecap="round"
+			strokeLinejoin="round"
 		/>
 		<path
 			d="M9.5 12.375C10.8117 12.375 11.875 11.3117 11.875 10C11.875 8.68832 10.8117 7.625 9.5 7.625C8.18832 7.625 7.125 8.68832 7.125 10C7.125 11.3117 8.18832 12.375 9.5 12.375Z"
 			className={className}
 			// stroke="#B1AEBC"
 			strokeWidth={1.5}
-			stroke-linecap="round"
-			stroke-linejoin="round"
+			strokeLinecap="round"
+			strokeLinejoin="round"
 		/>
 	</svg>
 );

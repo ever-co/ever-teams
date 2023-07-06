@@ -17,6 +17,7 @@ import DescriptionFooter from './decription-footer';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { useEffect, useState } from 'react';
+import { clsxm } from '@app/utils';
 
 const TaskDescriptionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
@@ -72,13 +73,12 @@ const TaskDescriptionBlock = () => {
 
 	return (
 		<div>
-			<div className="border-b-2 w-full">
-				<div className="py-5 leading"></div>
+			<div className="border-b-2  w-full">
+				<div className="py-5"></div>
 				{editorConfig ? (
 					<LexicalComposer initialConfig={editorConfig}>
 						<DescriptionToolbar />
-						<div className="h-full md:min-h-[200px] prose">
-							<ListPlugin />
+						<div className="h-full md:min-h-[200px]">
 							<RichTextPlugin
 								contentEditable={
 									<ContentEditable className="editor-input outline-none py-2 " />
@@ -95,15 +95,14 @@ const TaskDescriptionBlock = () => {
 						<MarkdownShortcutPlugin transformers={TRANSFORMERS} />
 						<HistoryPlugin />
 
-						<DescriptionFooter
-							isUpdated={isUpdated}
-							setIsUpdated={() => {
-								setIsUpdated(false);
-							}}
-						/>
-					</LexicalComposer>
-				) : null}
-			</div>
+					<DescriptionFooter
+						isUpdated={isUpdated}
+						setIsUpdated={() => {
+							setIsUpdated(false);
+						}}
+					/>
+				</LexicalComposer>
+			) : null}
 		</div>
 	);
 };

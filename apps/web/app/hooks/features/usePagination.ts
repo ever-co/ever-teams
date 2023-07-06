@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
-export function usePagination<T>(items: T[], defaultItemsPerPage: number = 10) {
+export function usePagination<T>(items: T[], defaultItemsPerPage = 10) {
 	const [itemOffset, setItemOffset] = useState(0);
 	const [itemsPerPage, setItemsPerPage] = useState(defaultItemsPerPage);
 
 	const total = items.length;
 
 	const endOffset = itemOffset + itemsPerPage;
-	const currentItems = items?.slice(itemOffset, endOffset);
+	const currentItems = items.slice(itemOffset, endOffset);
 
 	const onPageChange = (selectedItem: { selected: number }) => {
 		const newOffset = (selectedItem.selected * itemsPerPage) % total;

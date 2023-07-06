@@ -6,7 +6,7 @@ import { useCallbackRef } from '../useCallbackRef';
 export function useOTRefreshInterval(
 	callback: any,
 	delay: number,
-	publicTeam: boolean = true
+	publicTeam = true
 ) {
 	const [interval, setOTRefreshIntervalState] = useRecoilState(
 		OTRefreshIntervalState
@@ -29,7 +29,7 @@ export function useOTRefreshInterval(
 		// If already set do not execute it again,
 		// to avoid multiple setInterval calls, multiple API call.
 		if (delay !== null && !interval) {
-			let id = setInterval(tick, delay);
+			const id = setInterval(tick, delay);
 			setOTRefreshIntervalState(id as any);
 
 			return () => clearInterval(id);

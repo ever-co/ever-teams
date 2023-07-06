@@ -33,7 +33,7 @@ export function usePublicOrganizationTeams() {
 				setTeams([res.data.data]);
 				setPublicTeam(res.data.data);
 
-				let responseTasks = (res?.data?.data?.tasks as ITeamTask[]) || [];
+				let responseTasks = (res.data?.data?.tasks as ITeamTask[]) || [];
 				if (responseTasks && responseTasks.length) {
 					responseTasks = responseTasks.map((task) => {
 						const clone = cloneDeep(task);
@@ -46,10 +46,13 @@ export function usePublicOrganizationTeams() {
 				}
 				setAllTasks(responseTasks);
 
-				setTaskStatus(res?.data?.data?.statuses || []);
-				setTaskSizes(res?.data?.data?.sizes || []);
-				setTaskPriorities(res?.data?.data?.priorities || []);
-				setTaskLabels(res?.data?.data?.labels || []);
+				if (res.data) {
+					setTaskStatus(res.data.data?.statuses || []);
+					setTaskSizes(res.data.data?.sizes || []);
+					setTaskPriorities(res.data.data?.priorities || []);
+					setTaskLabels(res.data.data?.labels || []);
+				}
+
 				return res;
 			});
 		},
