@@ -266,14 +266,14 @@ const ManageMembersPopover = (
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel
-							className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl w-[9.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 mt-10 mr-10"
+							className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl min-w-[9.5rem] flex flex-col pl-4 pr-4 pt-2 pb-2 mt-10 mr-10"
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
 							{({ close }) => (
 								<div className="">
 									{assignedTaskMembers.slice(1).map((member, index) => (
 										<div
-											className="flex items-center justify-between h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
+											className="flex items-center justify-between gap-1 h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 border-b mt-1"
 											onClick={() => {
 												setMember(member);
 												setMemberToRemove(true);
@@ -293,7 +293,7 @@ const ManageMembersPopover = (
 									))}
 									{unassignedMembers.map((member, index) => (
 										<div
-											className="flex items-center justify-between h-8 w-auto hover:cursor-pointer"
+											className="flex items-center justify-between h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 border-b mt-1"
 											onClick={() => {
 												setMember(member);
 												setMemberToAdd(true);
