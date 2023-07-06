@@ -285,9 +285,7 @@ const ManageMembersPopover = (
 												profilePicSrc={member?.employee?.user?.imageUrl}
 												names={member.employee.fullName}
 											/>
-											{/* <p className="text-[#282048] text-xs font-semibold dark:text-white ">
-												{member.employee.fullName}
-											</p> */}
+
 											<TrashIcon />
 										</div>
 									))}
@@ -305,9 +303,6 @@ const ManageMembersPopover = (
 												profilePicSrc={member?.employee?.user?.imageUrl}
 												names={member.employee.fullName}
 											/>
-											{/* <span className="text-[#282048] text-xs font-semibold dark:text-white ">
-												{member.employee.fullName}
-											</span> */}
 										</div>
 									))}
 								</div>
@@ -323,8 +318,6 @@ const ManageMembersPopover = (
 									width={24}
 									height={24}
 									style={{ fill: 'white' }}
-
-									// style={{ height: '24px', cursor: 'pointer' }}
 								/>
 								<p className="font-semibold text-[0.625rem] leading-none">
 									{trans.ADD_NEW_MEMBER}
