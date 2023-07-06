@@ -253,6 +253,7 @@ const Permissions = () => {
 										onChange={() => {
 											handleToggleRolePermission('TIME_TRACKER');
 										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -266,14 +267,14 @@ const Permissions = () => {
 										disabledText="Deactivated"
 										enabled={
 											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
-												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
-													?.enabled) ||
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -287,14 +288,14 @@ const Permissions = () => {
 										disabledText="Deactivated"
 										enabled={
 											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
-												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
-													?.enabled) ||
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -308,14 +309,14 @@ const Permissions = () => {
 										disabledText="Deactivated"
 										enabled={
 											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
-												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
-													?.enabled) ||
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -329,14 +330,14 @@ const Permissions = () => {
 										disabledText="Deactivated"
 										enabled={
 											(rolePermissionsFormated?.['ORG_TASK_ADD']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled &&
-												rolePermissionsFormated?.['ORG_TASK_DELETE']?.enabled &&
-												rolePermissionsFormated?.['ORG_CANDIDATES_TASK_EDIT']
-													?.enabled) ||
+												rolePermissionsFormated?.['ORG_TASK_EDIT']?.enabled) ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_ADD');
+											handleToggleRolePermission('ORG_TASK_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -349,12 +350,13 @@ const Permissions = () => {
 										enabledText="Activated"
 										disabledText="Deactivated"
 										enabled={
-											(rolePermissionsFormated?.['ORG_INVITE_VIEW']?.enabled &&
-												rolePermissionsFormated?.['ORG_INVITE_EDIT']
-													?.enabled) ||
+											rolePermissionsFormated?.['ORG_INVITE_EDIT']?.enabled ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_INVITE_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -367,15 +369,17 @@ const Permissions = () => {
 										enabledText="Activated"
 										disabledText="Deactivated"
 										enabled={
-											(rolePermissionsFormated?.['ORG_EMPLOYEES_VIEW']
+											(rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']
 												?.enabled &&
-												rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']
-													?.enabled &&
 												rolePermissionsFormated?.['CHANGE_SELECTED_EMPLOYEE']
 													?.enabled) ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
+											handleToggleRolePermission('CHANGE_SELECTED_EMPLOYEE');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -388,13 +392,13 @@ const Permissions = () => {
 										enabledText="Activated"
 										disabledText="Deactivated"
 										enabled={
-											(rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_VIEW']
-												?.enabled &&
-												rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_EDIT']
-													?.enabled) ||
-											false
+											rolePermissionsFormated?.['ORG_TEAM_JOIN_REQUEST_EDIT']
+												?.enabled || false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TEAM_JOIN_REQUEST_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -407,13 +411,13 @@ const Permissions = () => {
 										enabledText="Activated"
 										disabledText="Deactivated"
 										enabled={
-											(rolePermissionsFormated?.['ORG_EMPLOYEES_VIEW']
-												?.enabled &&
-												rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']
-													?.enabled) ||
-											false
+											rolePermissionsFormated?.['ORG_EMPLOYEES_EDIT']
+												?.enabled || false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_EMPLOYEES_EDIT');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>
@@ -429,7 +433,10 @@ const Permissions = () => {
 											rolePermissionsFormated?.['ORG_TASK_VIEW']?.enabled ||
 											false
 										}
-										onChange={() => {}}
+										onChange={() => {
+											handleToggleRolePermission('ORG_TASK_VIEW');
+										}}
+										disabled={selectedRole ? false : true}
 									/>
 								</div>
 							</div>

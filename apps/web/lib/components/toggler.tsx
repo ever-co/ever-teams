@@ -105,16 +105,19 @@ export function CommonToggle({
 	enabledText = '',
 	disabledText = '',
 	enabled = false,
+	disabled = false,
 	onChange,
 }: {
 	enabledText: string | undefined;
 	disabledText: string | undefined;
 	enabled: boolean;
+	disabled?: boolean;
 	onChange: () => void;
 }) {
 	return (
 		<div className="py-4 flex items-center gap-x-[10px]">
 			<Switch
+				disabled={disabled}
 				checked={enabled}
 				onChange={onChange}
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
