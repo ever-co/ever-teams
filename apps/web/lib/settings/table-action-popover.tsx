@@ -86,7 +86,6 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 									</span>
 								</Link>
 							</div> */}
-							{/* <PermissionModal /> */}
 
 							{/* Delete */}
 							<div

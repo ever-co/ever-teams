@@ -48,7 +48,7 @@ export const InviteEmailDropdown = ({
 					null
 			);
 		}
-	}, [selectedEmail]);
+	}, [selectedEmail, $items]);
 
 	return (
 		<>

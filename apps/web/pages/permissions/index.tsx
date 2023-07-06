@@ -51,17 +51,19 @@ const Permissions = () => {
 					(member.employee.fullName.toLowerCase().includes(filterString) ||
 						member.employee.user?.email.toLowerCase().includes(filterString)) &&
 					(selectedRole
-						? member.roleId === selectedRole?.id ||
+						? /* eslint-disable react-hooks/exhaustive-deps, no-mixed-spaces-and-tabs */
+
+						  member.roleId === selectedRole?.id ||
 						  (member.roleId === null &&
 								selectedRole.name.toLowerCase() === 'employee')
 						: true)
 			) || [],
-		[activeTeam?.members, selectedRole?.id, filterString]
+		[activeTeam, selectedRole, filterString]
 	);
 
 	useEffect(() => {
 		selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
-	}, [selectedRole]);
+	}, [selectedRole, getRolePermissions]);
 
 	const {
 		total,
@@ -84,7 +86,12 @@ const Permissions = () => {
 				selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
 			});
 		},
-		[rolePermissionsFormated, selectedRole]
+		[
+			rolePermissionsFormated,
+			selectedRole,
+			getRolePermissions,
+			updateRolePermission,
+		]
 	);
 
 	if (activeTeamManagers && activeTeamManagers.length && !isTeamManager) {

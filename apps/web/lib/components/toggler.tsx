@@ -2,7 +2,7 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
-import React, { PropsWithChildren, useCallback, useState } from 'react';
+import React, { PropsWithChildren } from 'react';
 import {
 	BoxIcon,
 	MoonDarkIcon,
@@ -106,13 +106,15 @@ export function CommonToggle({
 	disabledText = '',
 	enabled = false,
 	disabled = false,
-	onChange,
+	onChange = () => {
+		return;
+	},
 }: {
 	enabledText: string | undefined;
 	disabledText: string | undefined;
-	enabled: boolean;
+	enabled?: boolean;
 	disabled?: boolean;
-	onChange: () => void;
+	onChange?: () => void;
 }) {
 	return (
 		<div className="py-4 flex items-center gap-x-[10px]">
