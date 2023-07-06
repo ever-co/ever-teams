@@ -77,8 +77,8 @@ module.exports = {
 						// Add margin top and bottom for all HTML tags
 						'h1, h2, h3, h4, h5, h6, p,span, em, strong, ul, ol, dl, blockquote, figure, pre':
 							{
-								marginTop: '0.65rem',
-								marginBottom: '0.65rem',
+								marginTop: '0.55rem',
+								marginBottom: '0.55rem',
 							},
 					},
 				},

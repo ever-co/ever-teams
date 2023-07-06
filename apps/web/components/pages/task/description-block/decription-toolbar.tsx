@@ -37,6 +37,8 @@ import {
 	HeaderOneIcon,
 	HeaderTwoIcon,
 	NormalTextIcon,
+	UnorderedListIcon,
+	OrderedListIcon,
 } from 'lib/components/svgs';
 
 const DescriptionToolbar = () => {
@@ -170,11 +172,11 @@ const DescriptionToolbar = () => {
 			<div className="flex">
 				<ToolButton
 					onSelect={unorderedList}
-					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
+					icon={<UnorderedListIcon className="fill-black dark:fill-white" />}
 				/>
 				<ToolButton
 					onSelect={orderedList}
-					icon={<HeaderOneIcon className="fill-black dark:fill-white" />}
+					icon={<OrderedListIcon className="fill-black dark:fill-white" />}
 				/>
 				<ToolButton
 					onSelect={() => HeadingPlugin('h1')}
