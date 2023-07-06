@@ -12,11 +12,12 @@ import { IIcon, ITaskStatusItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
+import { clsxm } from '@app/utils';
 
-export const TaskStatusesForm = () => {
+export const TaskStatusesForm = ({ formOnly = false } = {}) => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
-	const [createNew, setCreateNew] = useState(false);
+	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
@@ -97,7 +98,7 @@ export const TaskStatusesForm = () => {
 					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
-					setCreateNew(false);
+					!formOnly && setCreateNew(false);
 					reset();
 				});
 			}
@@ -116,7 +117,7 @@ export const TaskStatusesForm = () => {
 				});
 			}
 		},
-		[edit, createNew, editTaskStatus, user, reset, createTaskStatus]
+		[edit, createNew, formOnly, editTaskStatus, user, reset, createTaskStatus]
 	);
 
 	return (
@@ -128,9 +129,11 @@ export const TaskStatusesForm = () => {
 			>
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-							{trans.TASK_STATUSES}
-						</Text>
+						{!formOnly && (
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+								{trans.TASK_STATUSES}
+							</Text>
+						)}
 
 						<div className="flex flex-col items-center sm:items-start">
 							{!createNew && !edit && (
@@ -155,7 +158,12 @@ export const TaskStatusesForm = () => {
 										{createNew && 'New'}
 										{edit && 'Edit'} Statuses
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div
+										className={clsxm(
+											'flex w-full gap-x-5 items-center mt-3',
+											formOnly && ['flex-wrap space-y-2']
+										)}
+									>
 										<InputField
 											type="text"
 											placeholder="Create Status"
@@ -193,48 +201,54 @@ export const TaskStatusesForm = () => {
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
-										<Button
-											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-												setEdit(null);
-											}}
-										>
-											Cancel
-										</Button>
+										{!formOnly && (
+											<Button
+												variant="grey"
+												className="font-normal py-4 px-4 rounded-xl text-md"
+												onClick={() => {
+													setCreateNew(false);
+													setEdit(null);
+												}}
+											>
+												Cancel
+											</Button>
+										)}
 									</div>
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{trans.LIST_OF_STATUSES}
-							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-								{loading && !taskStatus?.length && <Spinner dark={false} />}
-								{taskStatus && taskStatus?.length ? (
-									taskStatus.map((status) => (
-										<StatusesListCard
-											key={status.id}
-											statusTitle={
-												status?.name ? status?.name?.split('-').join(' ') : ''
-											}
-											bgColor={status?.color || ''}
-											statusIcon={status?.fullIconUrl || ''}
-											onEdit={() => {
-												setCreateNew(false);
-												setEdit(status);
-											}}
-											onDelete={() => {
-												deleteTaskStatus(status.id);
-											}}
-											isStatus={true}
-										/>
-									))
-								) : (
-									<></>
-								)}
-							</div>
+							{!formOnly && (
+								<>
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+										{trans.LIST_OF_STATUSES}
+									</Text>
+									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+										{loading && !taskStatus?.length && <Spinner dark={false} />}
+										{taskStatus && taskStatus?.length ? (
+											taskStatus.map((status) => (
+												<StatusesListCard
+													key={status.id}
+													statusTitle={
+														status.name ? status.name?.split('-').join(' ') : ''
+													}
+													bgColor={status.color || ''}
+													statusIcon={status.fullIconUrl || ''}
+													onEdit={() => {
+														setCreateNew(false);
+														setEdit(status);
+													}}
+													onDelete={() => {
+														deleteTaskStatus(status.id);
+													}}
+													isStatus={true}
+												/>
+											))
+										) : (
+											<></>
+										)}
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

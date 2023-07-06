@@ -12,11 +12,12 @@ import { IIcon, ITaskSizesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
+import { clsxm } from '@app/utils';
 
-export const TaskSizesForm = () => {
+export const TaskSizesForm = ({ formOnly = false } = {}) => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
-	const [createNew, setCreateNew] = useState(false);
+	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
 
 	const { trans } = useTranslation('settingsTeam');
@@ -91,7 +92,7 @@ export const TaskSizesForm = () => {
 					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
-					setCreateNew(false);
+					!formOnly && setCreateNew(false);
 					reset();
 				});
 			}
@@ -110,7 +111,7 @@ export const TaskSizesForm = () => {
 				});
 			}
 		},
-		[edit, createNew, editTaskSizes, user, reset, createTaskSizes]
+		[edit, createNew, formOnly, editTaskSizes, user, reset, createTaskSizes]
 	);
 
 	return (
@@ -122,9 +123,11 @@ export const TaskSizesForm = () => {
 			>
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-							{trans.TASK_SIZES}
-						</Text>
+						{!formOnly && (
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+								{trans.TASK_SIZES}
+							</Text>
+						)}
 
 						<div className="flex flex-col items-center sm:items-start">
 							{!createNew && !edit && (
@@ -149,7 +152,12 @@ export const TaskSizesForm = () => {
 										{createNew && 'New'}
 										{edit && 'Edit'} Sizes
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div
+										className={clsxm(
+											'flex w-full gap-x-5 items-center mt-3',
+											formOnly && ['flex-wrap space-y-2']
+										)}
+									>
 										<InputField
 											type="text"
 											placeholder="Create Size"
@@ -185,47 +193,54 @@ export const TaskSizesForm = () => {
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
-										<Button
-											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-												setEdit(null);
-											}}
-										>
-											Cancel
-										</Button>
+
+										{!formOnly && (
+											<Button
+												variant="grey"
+												className="font-normal py-4 px-4 rounded-xl text-md"
+												onClick={() => {
+													setCreateNew(false);
+													setEdit(null);
+												}}
+											>
+												Cancel
+											</Button>
+										)}
 									</div>
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{trans.LIST_OF_SIZES}
-							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-								{loading && !taskSizes && <Spinner dark={false} />}
-								{taskSizes && taskSizes?.length ? (
-									taskSizes.map((size) => (
-										<StatusesListCard
-											key={size.id}
-											statusTitle={
-												size?.name ? size?.name?.split('-').join(' ') : ''
-											}
-											bgColor={size?.color || ''}
-											statusIcon={size?.fullIconUrl || ''}
-											onEdit={() => {
-												setCreateNew(false);
-												setEdit(size);
-											}}
-											onDelete={() => {
-												deleteTaskSizes(size.id);
-											}}
-										/>
-									))
-								) : (
-									<></>
-								)}
-							</div>
+							{!formOnly && (
+								<>
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+										{trans.LIST_OF_SIZES}
+									</Text>
+									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+										{loading && !taskSizes && <Spinner dark={false} />}
+										{taskSizes && taskSizes?.length ? (
+											taskSizes.map((size) => (
+												<StatusesListCard
+													key={size.id}
+													statusTitle={
+														size.name ? size.name?.split('-').join(' ') : ''
+													}
+													bgColor={size.color || ''}
+													statusIcon={size.fullIconUrl || ''}
+													onEdit={() => {
+														setCreateNew(false);
+														setEdit(size);
+													}}
+													onDelete={() => {
+														deleteTaskSizes(size.id);
+													}}
+												/>
+											))
+										) : (
+											<></>
+										)}
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

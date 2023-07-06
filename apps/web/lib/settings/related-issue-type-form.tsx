@@ -12,12 +12,12 @@ import { useTaskRelatedIssueType } from '@app/hooks';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { ITaskRelatedIssueTypeItemList } from '@app/interfaces';
 
-export const RelatedIssueTypeForm = () => {
+export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
-	const [createNew, setCreateNew] = useState(false);
+	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskRelatedIssueTypeItemList | null>(null);
 
 	const {
@@ -63,7 +63,7 @@ export const RelatedIssueTypeForm = () => {
 					// icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
-					setCreateNew(false);
+					!formOnly && setCreateNew(false);
 					reset();
 				});
 			}
@@ -79,6 +79,7 @@ export const RelatedIssueTypeForm = () => {
 		},
 		[
 			edit,
+			formOnly,
 			createNew,
 			editTaskRelatedIssueType,
 			user,
@@ -148,52 +149,59 @@ export const RelatedIssueTypeForm = () => {
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
-										<Button
-											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-												setEdit(null);
-											}}
-										>
-											Cancel
-										</Button>
+
+										{!formOnly && (
+											<Button
+												variant="grey"
+												className="font-normal py-4 px-4 rounded-xl text-md"
+												onClick={() => {
+													setCreateNew(false);
+													setEdit(null);
+												}}
+											>
+												Cancel
+											</Button>
+										)}
 									</div>
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
-								{trans.LIST_OF_RELATED_TYPE}
-							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-								{loading && !taskRelatedIssueType?.length && (
-									<Spinner dark={false} />
-								)}
-								{taskRelatedIssueType && taskRelatedIssueType?.length ? (
-									taskRelatedIssueType.map((relatedIssueType) => (
-										<StatusesListCard
-											key={relatedIssueType.id}
-											statusTitle={
-												relatedIssueType?.name
-													? relatedIssueType?.name?.split('-').join(' ')
-													: ''
-											}
-											bgColor={''}
-											statusIcon={''}
-											onEdit={() => {
-												setCreateNew(false);
-												setEdit(relatedIssueType);
-											}}
-											onDelete={() => {
-												deleteTaskRelatedIssueType(relatedIssueType.id);
-											}}
-											isStatus={true}
-										/>
-									))
-								) : (
-									<></>
-								)}
-							</div>
+							{!formOnly && (
+								<>
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
+										{trans.LIST_OF_RELATED_TYPE}
+									</Text>
+									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+										{loading && !taskRelatedIssueType?.length && (
+											<Spinner dark={false} />
+										)}
+										{taskRelatedIssueType && taskRelatedIssueType?.length ? (
+											taskRelatedIssueType.map((relatedIssueType) => (
+												<StatusesListCard
+													key={relatedIssueType.id}
+													statusTitle={
+														relatedIssueType.name
+															? relatedIssueType.name?.split('-').join(' ')
+															: ''
+													}
+													bgColor={''}
+													statusIcon={''}
+													onEdit={() => {
+														setCreateNew(false);
+														setEdit(relatedIssueType);
+													}}
+													onDelete={() => {
+														deleteTaskRelatedIssueType(relatedIssueType.id);
+													}}
+													isStatus={true}
+												/>
+											))
+										) : (
+											<></>
+										)}
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>
