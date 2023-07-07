@@ -12,11 +12,12 @@ import { Spinner } from '@components/ui/loaders/spinner';
 import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
+import { clsxm } from '@app/utils';
 
-export const TaskLabelForm = () => {
+export const TaskLabelForm = ({ formOnly = false } = {}) => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
-	const [createNew, setCreateNew] = useState(false);
+	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
@@ -90,7 +91,7 @@ export const TaskLabelForm = () => {
 					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
-					setCreateNew(false);
+					!formOnly && setCreateNew(false);
 					reset();
 				});
 			}
@@ -109,7 +110,7 @@ export const TaskLabelForm = () => {
 				});
 			}
 		},
-		[edit, createNew, editTaskLabels, user, reset, createTaskLabels]
+		[edit, createNew, formOnly, editTaskLabels, user, reset, createTaskLabels]
 	);
 
 	return (
@@ -121,9 +122,11 @@ export const TaskLabelForm = () => {
 			>
 				<div className="flex justify-center sm:justify-start">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-							{trans.TASK_LABELS}
-						</Text>
+						{!formOnly && (
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+								{trans.TASK_LABELS}
+							</Text>
+						)}
 
 						<div className="flex flex-col items-center sm:items-start">
 							{!createNew && !edit && (
@@ -148,7 +151,12 @@ export const TaskLabelForm = () => {
 										{createNew && 'New'}
 										{edit && 'Edit'} Labels
 									</Text>
-									<div className="flex w-full gap-x-5 items-center mt-3">
+									<div
+										className={clsxm(
+											'flex w-full gap-x-5 items-center mt-3',
+											formOnly && ['flex-wrap space-y-2']
+										)}
+									>
 										<InputField
 											type="text"
 											placeholder="Create Label"
@@ -186,47 +194,54 @@ export const TaskLabelForm = () => {
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
-										<Button
-											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-												setEdit(null);
-											}}
-										>
-											Cancel
-										</Button>
+
+										{!formOnly && (
+											<Button
+												variant="grey"
+												className="font-normal py-4 px-4 rounded-xl text-md"
+												onClick={() => {
+													setCreateNew(false);
+													setEdit(null);
+												}}
+											>
+												Cancel
+											</Button>
+										)}
 									</div>
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{trans.LIST_OF_LABELS}
-							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-								{loading && !taskLabels?.length && <Spinner dark={false} />}
-								{taskLabels && taskLabels?.length ? (
-									taskLabels.map((label) => (
-										<StatusesListCard
-											statusTitle={
-												label?.name ? label?.name?.split('-').join(' ') : ''
-											}
-											bgColor={label?.color || ''}
-											statusIcon={label?.fullIconUrl || ''}
-											onEdit={() => {
-												setCreateNew(false);
-												setEdit(label);
-											}}
-											onDelete={() => {
-												deleteTaskLabels(label.id);
-											}}
-											key={label.id}
-										/>
-									))
-								) : (
-									<></>
-								)}
-							</div>
+							{!formOnly && (
+								<>
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+										{trans.LIST_OF_LABELS}
+									</Text>
+									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+										{loading && !taskLabels?.length && <Spinner dark={false} />}
+										{taskLabels && taskLabels?.length ? (
+											taskLabels.map((label) => (
+												<StatusesListCard
+													statusTitle={
+														label.name ? label.name?.split('-').join(' ') : ''
+													}
+													bgColor={label.color || ''}
+													statusIcon={label.fullIconUrl || ''}
+													onEdit={() => {
+														setCreateNew(false);
+														setEdit(label);
+													}}
+													onDelete={() => {
+														deleteTaskLabels(label.id);
+													}}
+													key={label.id}
+												/>
+											))
+										) : (
+											<></>
+										)}
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>
