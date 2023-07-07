@@ -1797,6 +1797,7 @@ export function AddIcon({ className }: IClassName) {
 			viewBox="0 0 14 14"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-[#282048]', className)}
 		>
 			<path
 				d="M3.5 7H10.5"
@@ -1809,6 +1810,33 @@ export function AddIcon({ className }: IClassName) {
 				className={clsxm('stroke-[#292D32]', className)}
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+export function PlusIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 20 20"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm(className)}
+		>
+			<path
+				d="M6.5 10H13.5"
+				stroke="#292D32"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={clsxm(className)}
+			/>
+			<path
+				d="M10 13.5V6.5"
+				stroke="#292D32"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={clsxm(className)}
 			/>
 		</svg>
 	);
