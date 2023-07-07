@@ -16,7 +16,7 @@ import {
 export function AuthUserTaskInput({ className }: IClassName) {
 	const { trans } = useTranslation();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
-	// const { isTrackingEnabled } = useOrganizationTeams(); //<-- In case we want the assignment to task be dynamically
+	// const { isTrackingEnabled } = useOrganizationTeams(); //<-- In case we want the assignment of member to task be dynamically
 
 	return (
 		<div
