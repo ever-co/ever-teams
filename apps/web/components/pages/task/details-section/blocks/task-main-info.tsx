@@ -177,7 +177,7 @@ const ManageMembersPopover = (
 						>
 							{({ close }) => (
 								<div className="">
-									{assignedTaskMembers.slice(1).map((member, index) => (
+									{assignedTaskMembers.map((member, index) => (
 										<div
 											className="flex items-center justify-between gap-1 h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 mt-1"
 											onClick={() => {
