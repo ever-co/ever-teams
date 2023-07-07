@@ -197,7 +197,7 @@ const ManageMembersPopover = (
 									))}
 									{unassignedMembers.map((member, index) => (
 										<div
-											className="flex items-center justify-between h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 border-b mt-1"
+											className="flex items-center justify-between h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 mt-1"
 											onClick={() => {
 												setMember(member);
 												setMemberToAdd(true);
