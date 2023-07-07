@@ -1,4 +1,8 @@
-import { ITimerStatus, IToggleTimerParams } from '@app/interfaces/ITimer';
+import {
+	ITimerStatus,
+	IToggleTimerParams,
+	TimerSource,
+} from '@app/interfaces/ITimer';
 import api from '../axios';
 
 export function getTimerStatusAPI() {
@@ -13,10 +17,14 @@ export function startTimerAPI() {
 	return api.post<ITimerStatus>('/timer/start');
 }
 
-export function stopTimerAPI() {
-	return api.post<ITimerStatus>('/timer/stop');
+export function stopTimerAPI(source: TimerSource) {
+	return api.post<ITimerStatus>('/timer/stop', {
+		source,
+	});
 }
 
-export function syncTimerAPI() {
-	return api.post<ITimerStatus>('/timer/sync');
+export function syncTimerAPI(source: TimerSource) {
+	return api.post<ITimerStatus>('/timer/sync', {
+		source,
+	});
 }

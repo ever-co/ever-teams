@@ -18,12 +18,13 @@ export default async function handler(
 		return;
 	}
 
+	const { source } = req.body;
 	await syncTimeSlotRequest(
 		{
 			tenantId,
 			organizationId,
 			logType: 'TRACKED',
-			source: 'BROWSER',
+			source,
 			employeeId: user.employee.id,
 			duration: 5,
 		},
@@ -31,7 +32,7 @@ export default async function handler(
 	);
 
 	const { data: timerStatus } = await getTimerStatusRequest(
-		{ tenantId, organizationId, source: 'BROWSER' },
+		{ tenantId, organizationId },
 		access_token
 	);
 
