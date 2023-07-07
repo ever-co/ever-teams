@@ -1,6 +1,5 @@
 import { detailedTaskState } from '@app/stores';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import Image from 'next/image';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
 import { Fragment, useEffect, useMemo, useState } from 'react';
@@ -11,31 +10,12 @@ import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
+// import { PlusIcon } from 'lib/components/svgs';
 
 // ---- MAIN COMPONENT ----
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
-
-	// const unassignedMembers = useMemo(
-	// 	() =>
-	// 		activeTeam?.members.filter(
-	// 			(member) =>
-	// 				!task?.members
-	// 					.map((item) => item.userId)
-	// 					.includes(member.employee.userId)
-	// 		),
-	// 	[activeTeam?.members, task?.members]
-	// );
-	// const assignedTaskMembers = useMemo(
-	// 	() =>
-	// 		activeTeam?.members.filter((member) =>
-	// 			task?.members
-	// 				.map((item) => item.userId)
-	// 				.includes(member.employee.userId)
-	// 		),
-	// 	[activeTeam?.members, task?.members]
-	// );
 	const { translations } = useTranslation('settingsTeam');
 
 	return (
@@ -83,7 +63,6 @@ const TaskMainInfo = () => {
 						</Fragment>
 					))}
 
-					{/* {AssignMemberPopover(unassignedMembers || [], task)} */}
 					{ManageMembersPopover(activeTeam?.members || [], task)}
 				</div>
 			</TaskRow>
@@ -121,79 +100,6 @@ const TaskMainInfo = () => {
 		</section>
 	);
 };
-
-// const AssignMemberPopover = (
-// 	memberList: OT_Member[],
-// 	task: ITeamTask | null
-// ) => {
-// 	const { trans } = useTranslation('settingsTeam');
-// 	const [member, setMember] = useState<OT_Member>();
-// 	const memberInfo = useTeamMemberCard(member);
-// 	useEffect(() => {
-// 		if (task && member) {
-// 			memberInfo
-// 				.assignTask(task)
-// 				.then(() => {
-// 					setMember(undefined);
-// 				})
-// 				.catch(() => {
-// 					setMember(undefined);
-// 				});
-// 		}
-// 	}, [task, member, memberInfo]);
-
-// 	return (
-// 		<Popover className="relative border-none no-underline w-full">
-// 			{task && memberList.length ? (
-// 				<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
-// 					<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
-// 						<Image
-// 							src={'/assets/svg/add-new-assignee.svg'}
-// 							alt="add new assignee"
-// 							width={24}
-// 							height={24}
-
-// 							// style={{ height: '24px', cursor: 'pointer' }}
-// 						/>
-// 						<p className="font-semibold text-[0.625rem] leading-none">
-// 							{trans.ADD_NEW_MEMBER}
-// 						</p>
-// 					</div>
-// 				</Popover.Button>
-// 			) : (
-// 				<></>
-// 			)}
-// 			<Transition
-// 				as={Fragment}
-// 				enter="transition ease-out duration-200"
-// 				enterFrom="opacity-0 translate-y-1"
-// 				enterTo="opacity-100 translate-y-0"
-// 				leave="transition ease-in duration-150"
-// 				leaveFrom="opacity-100 translate-y-0"
-// 				leaveTo="opacity-0 translate-y-1"
-// 			>
-// 				<Popover.Panel
-// 					className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl w-[9.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 mt-10 mr-10"
-// 					style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
-// 				>
-// 					{memberList.map((member, index) => (
-// 						<div
-// 							className="flex items-center h-8 w-auto hover:cursor-pointer"
-// 							onClick={() => {
-// 								setMember(member);
-// 							}}
-// 							key={index}
-// 						>
-// 							<span className="text-[#282048] text-xs font-semibold dark:text-white">
-// 								{member.employee.fullName}
-// 							</span>
-// 						</div>
-// 					))}
-// 				</Popover.Panel>
-// 			</Transition>
-// 		</Popover>
-// 	);
-// };
 
 const ManageMembersPopover = (
 	memberList: OT_Member[],
@@ -273,7 +179,7 @@ const ManageMembersPopover = (
 								<div className="">
 									{assignedTaskMembers.slice(1).map((member, index) => (
 										<div
-											className="flex items-center justify-between gap-1 h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 border-b mt-1"
+											className="flex items-center justify-between gap-1 h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 mt-1"
 											onClick={() => {
 												setMember(member);
 												setMemberToRemove(true);
@@ -312,15 +218,9 @@ const ManageMembersPopover = (
 					{task && memberList.length > 1 ? (
 						<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
 							<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
-								<Image
-									src={'/assets/svg/add-new-assignee.svg'}
-									alt="add new assignee"
-									width={24}
-									height={24}
-									style={{ fill: 'white' }}
-								/>
-								<p className="font-semibold text-[0.625rem] leading-none">
-									{trans.ADD_NEW_MEMBER}
+								{/* <PlusIcon className=" dark:stroke-white" /> */}
+								<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
+									{trans.MANAGE_ASSIGNEES}
 								</p>
 							</div>
 						</Popover.Button>
