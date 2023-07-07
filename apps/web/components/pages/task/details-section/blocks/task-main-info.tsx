@@ -59,7 +59,6 @@ const TaskMainInfo = () => {
 					))}
 
 					{ManageMembersPopover(activeTeam?.members || [], task)}
-					{ManageMembersPopover(activeTeam?.members || [], task)}
 				</div>
 			</TaskRow>
 			<TaskRow
@@ -98,7 +97,6 @@ const TaskMainInfo = () => {
 };
 
 const ManageMembersPopover = (
-const ManageMembersPopover = (
 	memberList: OT_Member[],
 	task: ITeamTask | null
 ) => {
@@ -107,31 +105,7 @@ const ManageMembersPopover = (
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
 
-	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
-	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
-
 	const memberInfo = useTeamMemberCard(member);
-
-	const unassignedMembers = useMemo(
-		() =>
-			memberList.filter(
-				(member) =>
-					!task?.members
-						.map((item) => item.userId)
-						.includes(member.employee.userId)
-			),
-		[memberList, task?.members]
-	);
-	const assignedTaskMembers = useMemo(
-		() =>
-			memberList.filter((member) =>
-				task?.members
-					.map((item) => item.userId)
-					.includes(member.employee.userId)
-			),
-		[memberList, task?.members]
-	);
-
 
 	const unassignedMembers = useMemo(
 		() =>
@@ -166,32 +140,17 @@ const ManageMembersPopover = (
 					setMemberToRemove(false);
 				});
 		} else if (task && member && memberToAdd) {
-		if (task && member && memberToRemove) {
-			memberInfo
-				.unassignTask(task)
-				.then(() => {
-					setMember(undefined);
-					setMemberToRemove(false);
-				})
-				.catch(() => {
-					setMember(undefined);
-					setMemberToRemove(false);
-				});
-		} else if (task && member && memberToAdd) {
 			memberInfo
 				.assignTask(task)
 				.then(() => {
 					setMember(undefined);
-					setMemberToRemove(false);
-					setMemberToRemove(false);
+					setMemberToAdd(false);
 				})
 				.catch(() => {
 					setMember(undefined);
-					setMemberToRemove(false);
-					setMemberToRemove(false);
+					setMemberToAdd(false);
 				});
 		}
-	}, [task, member, memberInfo, memberToAdd, memberToRemove]);
 	}, [task, member, memberInfo, memberToAdd, memberToRemove]);
 
 	return (
@@ -254,7 +213,6 @@ const ManageMembersPopover = (
 					{task && memberList.length > 1 ? (
 						<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
 							<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
-								{/* <PlusIcon className=" dark:stroke-white" /> */}
 								<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
 									{trans.MANAGE_ASSIGNEES}
 								</p>
