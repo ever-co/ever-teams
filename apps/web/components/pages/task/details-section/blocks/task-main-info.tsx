@@ -10,9 +10,7 @@ import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
-// import { PlusIcon } from 'lib/components/svgs';
 
-// ---- MAIN COMPONENT ----
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
@@ -56,13 +54,11 @@ const TaskMainInfo = () => {
 							<ProfileInfo
 								names={member.fullName}
 								profilePicSrc={member.user?.imageUrl}
-								// wrapperClassName={
-								// 	task?.members?.length > 1 ? 'mb-3' : undefined
-								// }
 							/>
 						</Fragment>
 					))}
 
+					{ManageMembersPopover(activeTeam?.members || [], task)}
 					{ManageMembersPopover(activeTeam?.members || [], task)}
 				</div>
 			</TaskRow>
@@ -102,6 +98,7 @@ const TaskMainInfo = () => {
 };
 
 const ManageMembersPopover = (
+const ManageMembersPopover = (
 	memberList: OT_Member[],
 	task: ITeamTask | null
 ) => {
@@ -110,7 +107,31 @@ const ManageMembersPopover = (
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
 
+	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
+	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
+
 	const memberInfo = useTeamMemberCard(member);
+
+	const unassignedMembers = useMemo(
+		() =>
+			memberList.filter(
+				(member) =>
+					!task?.members
+						.map((item) => item.userId)
+						.includes(member.employee.userId)
+			),
+		[memberList, task?.members]
+	);
+	const assignedTaskMembers = useMemo(
+		() =>
+			memberList.filter((member) =>
+				task?.members
+					.map((item) => item.userId)
+					.includes(member.employee.userId)
+			),
+		[memberList, task?.members]
+	);
+
 
 	const unassignedMembers = useMemo(
 		() =>
@@ -145,8 +166,9 @@ const ManageMembersPopover = (
 					setMemberToRemove(false);
 				});
 		} else if (task && member && memberToAdd) {
+		if (task && member && memberToRemove) {
 			memberInfo
-				.assignTask(task)
+				.unassignTask(task)
 				.then(() => {
 					setMember(undefined);
 					setMemberToRemove(false);
@@ -155,7 +177,21 @@ const ManageMembersPopover = (
 					setMember(undefined);
 					setMemberToRemove(false);
 				});
+		} else if (task && member && memberToAdd) {
+			memberInfo
+				.assignTask(task)
+				.then(() => {
+					setMember(undefined);
+					setMemberToRemove(false);
+					setMemberToRemove(false);
+				})
+				.catch(() => {
+					setMember(undefined);
+					setMemberToRemove(false);
+					setMemberToRemove(false);
+				});
 		}
+	}, [task, member, memberInfo, memberToAdd, memberToRemove]);
 	}, [task, member, memberInfo, memberToAdd, memberToRemove]);
 
 	return (

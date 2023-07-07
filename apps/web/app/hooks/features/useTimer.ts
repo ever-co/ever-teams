@@ -1,6 +1,10 @@
 import { convertMsToTime, secondsToTime } from '@app/helpers/date';
 import { ITeamTask } from '@app/interfaces/ITask';
-import { ILocalTimerStatus, ITimerStatus } from '@app/interfaces/ITimer';
+import {
+	ILocalTimerStatus,
+	ITimerStatus,
+	TimerSource,
+} from '@app/interfaces/ITimer';
 import {
 	getTimerStatusAPI,
 	startTimerAPI,
@@ -219,7 +223,9 @@ export function useTimer() {
 		if (syncTimerLoading) {
 			return;
 		}
-		return syncTimerQueryCall().then((res) => {
+		return syncTimerQueryCall(
+			timerStatus?.lastLog?.source || TimerSource.BROWSER
+		).then((res) => {
 			return res;
 		});
 	}, [syncTimerQueryCall, timerStatus, syncTimerLoading]);
@@ -276,7 +282,9 @@ export function useTimer() {
 			running: false,
 		});
 
-		return stopTimerQueryCall().then((res) => {
+		return stopTimerQueryCall(
+			timerStatus?.lastLog?.source || TimerSource.BROWSER
+		).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});
 	}, [taskId.current, syncTimerInterval.current, timerStatus]);
