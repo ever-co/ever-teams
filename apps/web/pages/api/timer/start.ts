@@ -1,3 +1,4 @@
+import { TimerSource } from '@app/interfaces/ITimer';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTimerStatusRequest,
@@ -26,7 +27,7 @@ export default async function handler(
 			organizationId,
 			taskId,
 			logType: 'TRACKED',
-			source: 'BROWSER',
+			source: TimerSource.BROWSER,
 			tags: [],
 			organizationTeamId,
 		},
@@ -34,7 +35,7 @@ export default async function handler(
 	);
 
 	const { data: timerStatus } = await getTimerStatusRequest(
-		{ tenantId, organizationId, source: 'BROWSER' },
+		{ tenantId, organizationId },
 		access_token
 	);
 

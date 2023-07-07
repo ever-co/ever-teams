@@ -17,5 +17,6 @@ export * from './issue-type';
 export * from './task-related-issue-type';
 
 export * from './roles';
+export * from './role-permissions';
 export * from './request-to-join';
 export * from './public';

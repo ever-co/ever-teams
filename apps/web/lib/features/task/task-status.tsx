@@ -48,19 +48,20 @@ export type TStatus<T extends string> = {
 	[k in T]: TStatusItem;
 };
 
-export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName & {
-	defaultValue?: ITaskStatusStack[T];
-	onValueChange?: (
-		v: ITaskStatusStack[T],
-		values?: ITaskStatusStack[T][]
-	) => void;
-	forDetails?: boolean;
-	dynamicValues?: any[];
-	multiple?: boolean;
-	disabled?: boolean;
-	largerWidth?: boolean;
-	sidebarUI?: boolean;
-};
+export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
+	PropsWithChildren<{
+		defaultValue?: ITaskStatusStack[T];
+		onValueChange?: (
+			v: ITaskStatusStack[T],
+			values?: ITaskStatusStack[T][]
+		) => void;
+		forDetails?: boolean;
+		dynamicValues?: any[];
+		multiple?: boolean;
+		disabled?: boolean;
+		largerWidth?: boolean;
+		sidebarUI?: boolean;
+	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 	defaultValue?: ITaskStatusStack[T];
@@ -253,6 +254,7 @@ export function TaskStatusDropdown({
 	forDetails,
 	multiple,
 	sidebarUI = false,
+	children,
 }: TTaskStatusesDropdown<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
@@ -275,7 +277,9 @@ export function TaskStatusDropdown({
 			onChange={onChange}
 			multiple={multiple}
 			values={values}
-		/>
+		>
+			{children}
+		</StatusDropdown>
 	);
 }
 
@@ -337,9 +341,10 @@ export function VersionPropertiesDropown({
 	forDetails,
 	multiple,
 	sidebarUI = false,
+	children,
 }: TTaskStatusesDropdown<'version'>) {
 	const taskVersionsValue = useTaskVersionsValue();
-	console.log(taskVersionsValue);
+	// console.log(taskVersionsValue);
 
 	const { item, items, onChange, values } = useStatusValue<'version'>({
 		status: taskVersionsValue,
@@ -362,7 +367,9 @@ export function VersionPropertiesDropown({
 			showButtonOnly
 			showIcon={false}
 			bordered={true}
-		/>
+		>
+			{children}
+		</StatusDropdown>
 	);
 }
 
@@ -380,6 +387,7 @@ export function EpicPropertiesDropdown({
 	forDetails,
 	multiple,
 	sidebarUI = false,
+	children,
 }: TTaskStatusesDropdown<'epic'>) {
 	const { item, items, onChange, values } = useStatusValue<'epic'>({
 		status: {},
@@ -400,7 +408,9 @@ export function EpicPropertiesDropdown({
 			multiple={multiple}
 			values={values}
 			showButtonOnly
-		/>
+		>
+			{children}
+		</StatusDropdown>
 	);
 }
 
@@ -424,6 +434,7 @@ export function TaskPropertiesDropdown({
 	multiple,
 	largerWidth,
 	sidebarUI = false,
+	children,
 }: TTaskStatusesDropdown<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
@@ -446,7 +457,9 @@ export function TaskPropertiesDropdown({
 			multiple={multiple}
 			values={values}
 			largerWidth={largerWidth}
-		/>
+		>
+			{children}
+		</StatusDropdown>
 	);
 }
 
@@ -513,6 +526,7 @@ export function TaskSizesDropdown({
 	multiple,
 	largerWidth,
 	sidebarUI = false,
+	children,
 }: TTaskStatusesDropdown<'size'>) {
 	const taskSizesValue = useTaskSizesValue();
 
@@ -535,7 +549,9 @@ export function TaskSizesDropdown({
 			multiple={multiple}
 			values={values}
 			largerWidth={largerWidth}
-		/>
+		>
+			{children}
+		</StatusDropdown>
 	);
 }
 
@@ -573,6 +589,7 @@ export function TaskLabelsDropdown({
 	forDetails,
 	multiple,
 	sidebarUI = false,
+	children,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -595,7 +612,9 @@ export function TaskLabelsDropdown({
 			multiple={multiple}
 			values={values}
 			showButtonOnly
-		/>
+		>
+			{children}
+		</StatusDropdown>
 	);
 }
 
