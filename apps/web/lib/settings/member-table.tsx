@@ -3,7 +3,7 @@ import { Avatar, InputField, Text } from 'lib/components';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
-import { OT_Member, RoleNameEnum, OT_Role } from '@app/interfaces';
+import { OT_Member, OT_Role } from '@app/interfaces';
 import { Paginate } from 'lib/components/pagination';
 import { usePagination } from '@app/hooks/features/usePagination';
 import { MemberTableStatus } from './member-table-status';
@@ -245,25 +245,5 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 };
 
 const getRoleString = (role: OT_Role | undefined) => {
-	if (!role) {
-		return 'member';
-	}
-
-	let roleString = '';
-	switch (role.name) {
-		case RoleNameEnum.SUPER_ADMIN:
-			roleString = 'Manager (Admin)';
-			break;
-		case RoleNameEnum.MANAGER:
-			roleString = 'Manager';
-			break;
-		case RoleNameEnum.VIEWER:
-			roleString = 'Viewer';
-			break;
-		default:
-			roleString = 'Member';
-			break;
-	}
-
-	return roleString;
+	return role?.name || 'MEMBER';
 };
