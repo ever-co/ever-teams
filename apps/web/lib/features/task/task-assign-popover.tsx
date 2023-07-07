@@ -56,7 +56,7 @@ export function TaskUnOrAssignPopover({
 								onTaskCreated={(task) =>
 									onTaskCreated && onTaskCreated(task, close)
 								}
-								usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
+								usersTaskCreatedAssignTo={[]}
 							/>
 						);
 					}}

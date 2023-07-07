@@ -1,4 +1,4 @@
-import { useOrganizationTeams } from '@app/hooks';
+// import { useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
@@ -16,7 +16,7 @@ import {
 export function AuthUserTaskInput({ className }: IClassName) {
 	const { trans } = useTranslation();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
-	const { isTrackingEnabled } = useOrganizationTeams();
+	// const { isTrackingEnabled } = useOrganizationTeams(); //<-- In case we want the assignment to task be dynamically
 
 	return (
 		<div
@@ -26,7 +26,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				fullWidthCombobox={true}
 				createOnEnterClick={true}
 				showTaskNumber={true}
-				autoAssignTaskAuth={isTrackingEnabled}
+				autoAssignTaskAuth={false}
 			/>
 
 			<div className="flex flex-col lg:flex-row justify-between lg:items-center space-x-3">
