@@ -10,9 +10,7 @@ import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
-// import { PlusIcon } from 'lib/components/svgs';
 
-// ---- MAIN COMPONENT ----
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
@@ -55,10 +53,7 @@ const TaskMainInfo = () => {
 						<Fragment key={member.id}>
 							<ProfileInfo
 								names={member.fullName}
-								profilePicSrc={member.user?.imageUrl}
-								// wrapperClassName={
-								// 	task?.members?.length > 1 ? 'mb-3' : undefined
-								// }
+								profilePicSrc={member.user?.imageUrl}							
 							/>
 						</Fragment>
 					))}
@@ -218,7 +213,6 @@ const ManageMembersPopover = (
 					{task && memberList.length > 1 ? (
 						<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
 							<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
-								{/* <PlusIcon className=" dark:stroke-white" /> */}
 								<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
 									{trans.MANAGE_ASSIGNEES}
 								</p>
