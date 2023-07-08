@@ -50,9 +50,12 @@ export function Timer({ className }: IClassName) {
 				<div className="w-[0.625rem]">
 					{timerStatus && timerStatus.running && (
 						<Tooltip
-							label={`The time tracker is already running in the ${
+							label={`The time tracker is already running in the ${(
 								timerStatus?.lastLog?.source || TimerSource.BROWSER
-							}`}
+							)
+								.split('_')
+								.join(' ')
+								.toLowerCase()}`}
 							placement="bottom-start"
 						>
 							<TimerRunningSourceIcon
