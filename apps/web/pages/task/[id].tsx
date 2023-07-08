@@ -22,7 +22,7 @@ import { ArrowLeft } from 'lib/components/svgs';
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const { tasks } = useTeamTasks();
-	const [, setTask] = useRecoilState(detailedTaskState);
+	const [task, setTask] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
 	const { isTrackingEnabled } = useOrganizationTeams();

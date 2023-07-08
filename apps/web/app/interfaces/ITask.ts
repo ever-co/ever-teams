@@ -17,6 +17,7 @@ export type ITeamTask = {
 	estimateHours?: number;
 	estimateMinutes?: number;
 	dueDate: string;
+	startDate: string;
 	projectId: string;
 	creatorId: string;
 	members: IEmployee[];
