@@ -12,11 +12,12 @@ import {
 	ActiveTaskSizesDropdown,
 	ActiveTaskStatusDropdown,
 } from './task/task-status';
+import { useOrganizationTeams } from '@app/hooks';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const { trans } = useTranslation();
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
-	// const { isTrackingEnabled } = useOrganizationTeams(); //<-- In case we want the assignment of member to task be dynamically
+	const { isTrackingEnabled } = useOrganizationTeams();
 
 	return (
 		<div
@@ -26,7 +27,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				fullWidthCombobox={true}
 				createOnEnterClick={true}
 				showTaskNumber={true}
-				autoAssignTaskAuth={false}
+				autoAssignTaskAuth={isTrackingEnabled}
 			/>
 
 			<div className="flex flex-col lg:flex-row justify-between lg:items-center space-x-3">

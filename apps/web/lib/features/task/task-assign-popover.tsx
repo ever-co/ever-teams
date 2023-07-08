@@ -10,8 +10,8 @@ export function TaskUnOrAssignPopover({
 	onTaskClick,
 	buttonClassName,
 	onTaskCreated,
-}: // usersTaskCreatedAssignTo,
-PropsWithChildren<{
+	usersTaskCreatedAssignTo,
+}: PropsWithChildren<{
 	tasks?: ITeamTask[];
 	onTaskClick?: (task: ITeamTask, close: () => void) => void;
 	buttonClassName?: string;
@@ -56,7 +56,7 @@ PropsWithChildren<{
 								onTaskCreated={(task) =>
 									onTaskCreated && onTaskCreated(task, close)
 								}
-								usersTaskCreatedAssignTo={[]}
+								usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
 							/>
 						);
 					}}
