@@ -14,7 +14,12 @@ import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { clsxm } from '@app/utils';
 
-export const TaskLabelForm = ({ formOnly = false } = {}) => {
+type StatusForm = {
+	formOnly?: boolean;
+	onCreated?: () => void;
+};
+
+export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
@@ -92,6 +97,8 @@ export const TaskLabelForm = ({ formOnly = false } = {}) => {
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
+
+					onCreated && onCreated();
 					reset();
 				});
 			}
@@ -110,7 +117,16 @@ export const TaskLabelForm = ({ formOnly = false } = {}) => {
 				});
 			}
 		},
-		[edit, createNew, formOnly, editTaskLabels, user, reset, createTaskLabels]
+		[
+			edit,
+			createNew,
+			formOnly,
+			onCreated,
+			editTaskLabels,
+			user,
+			reset,
+			createTaskLabels,
+		]
 	);
 
 	return (

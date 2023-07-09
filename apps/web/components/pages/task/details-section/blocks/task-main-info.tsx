@@ -2,14 +2,21 @@ import { detailedTaskState } from '@app/stores';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { useOrganizationTeams, useTeamMemberCard } from '@app/hooks';
+import { forwardRef, Fragment, useEffect, useMemo, useState } from 'react';
+import {
+	useOrganizationTeams,
+	useSyncRef,
+	useTeamMemberCard,
+	useTeamTasks,
+} from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
+import { clsxm } from '@app/utils';
+import DatePicker from 'react-datepicker';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -61,32 +68,17 @@ const TaskMainInfo = () => {
 					{ManageMembersPopover(activeTeam?.members || [], task)}
 				</div>
 			</TaskRow>
-			<TaskRow
-				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle={translations.pages.taskDetails.START_DATE}
-				wrapperClassName="mt-5"
-			>
-				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					{formatDateTimeString(task?.createdAt)}
-				</div>
-			</TaskRow>
-			<TaskRow
-				labelTitle={translations.pages.taskDetails.DUE_DATE}
-				wrapperClassName="mt-3"
-				alignWithIconLabel={true}
-			>
-				<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					{formatDateTimeString(task?.dueDate) || 'Not set'}
-				</div>
-			</TaskRow>
-			{task?.dueDate && (
+
+			<DueDates />
+
+			{task?.dueDate && task.startDate && (
 				<TaskRow
 					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
 					wrapperClassName="mt-3"
 					alignWithIconLabel={true}
 				>
 					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{calculateRemainingDays(task?.dueDate)}
+						{calculateRemainingDays(task.startDate, task.dueDate)}
 					</div>
 				</TaskRow>
 			)}
@@ -95,6 +87,96 @@ const TaskMainInfo = () => {
 		</section>
 	);
 };
+
+const DateCustomInput = forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+	(props, ref) => {
+		return <div {...props} ref={ref} />;
+	}
+);
+
+DateCustomInput.displayName = 'DateCustomInput';
+
+function DueDates() {
+	const { updateTask } = useTeamTasks();
+	const [task] = useRecoilState(detailedTaskState);
+	const { translations } = useTranslation('settingsTeam');
+	const [startDate, setStartDate] = useState<Date | null>(null);
+	const [dueDate, setDueDate] = useState<Date | null>(null);
+
+	const $startDate = useSyncRef(
+		startDate || (task?.startDate ? new Date(task.startDate) : null)
+	);
+
+	const $dueDate = useSyncRef(
+		dueDate || (task?.dueDate ? new Date(task.dueDate) : null)
+	);
+
+	return (
+		<>
+			<TaskRow
+				labelIconPath="/assets/svg/calendar-2.svg"
+				labelTitle={translations.pages.taskDetails.START_DATE}
+				wrapperClassName="mt-5"
+			>
+				<DatePicker
+					selected={$startDate.current}
+					onChange={(date) => {
+						if (date && (!$dueDate.current || date < $dueDate.current)) {
+							setStartDate(date);
+
+							if (task) {
+								updateTask({ ...task, startDate: date?.toISOString() });
+							}
+						}
+					}}
+					// disabled={!!task?.startDate}
+					customInput={
+						<DateCustomInput
+							className={clsxm(
+								'not-italic cursor-pointer font-semibold text-[0.75rem]',
+								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
+							)}
+						>
+							{formatDateTimeString(
+								startDate?.toISOString() || task?.startDate
+							) || 'Set Due date'}
+						</DateCustomInput>
+					}
+				/>
+			</TaskRow>
+
+			<TaskRow
+				labelTitle={translations.pages.taskDetails.DUE_DATE}
+				wrapperClassName="mt-3"
+				alignWithIconLabel={true}
+			>
+				<DatePicker
+					selected={$dueDate.current}
+					onChange={(date) => {
+						if ($startDate.current && date && date > $startDate.current) {
+							setDueDate(date);
+							if (task) {
+								updateTask({ ...task, dueDate: date?.toISOString() });
+							}
+						}
+					}}
+					// disabled={!!task?.dueDate}
+					customInput={
+						<DateCustomInput
+							className={clsxm(
+								'not-italic cursor-pointer font-semibold text-[0.75rem]',
+								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
+							)}
+						>
+							{formatDateTimeString(dueDate?.toISOString() || task?.dueDate) ||
+								'Set Due date'}
+						</DateCustomInput>
+					}
+				/>
+			</TaskRow>
+		</>
+	);
+}
 
 const ManageMembersPopover = (
 	memberList: OT_Member[],

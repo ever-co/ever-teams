@@ -14,7 +14,12 @@ import { ITaskVersionItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { clsxm } from '@app/utils';
 
-export const VersionForm = ({ formOnly = false } = {}) => {
+type StatusForm = {
+	formOnly?: boolean;
+	onCreated?: () => void;
+};
+
+export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const [user] = useRecoilState(userState);
@@ -66,6 +71,8 @@ export const VersionForm = ({ formOnly = false } = {}) => {
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
+
+					onCreated && onCreated();
 					reset();
 				});
 			}
@@ -79,7 +86,16 @@ export const VersionForm = ({ formOnly = false } = {}) => {
 				});
 			}
 		},
-		[edit, createNew, formOnly, editTaskVersion, user, reset, createTaskVersion]
+		[
+			edit,
+			createNew,
+			formOnly,
+			onCreated,
+			editTaskVersion,
+			user,
+			reset,
+			createTaskVersion,
+		]
 	);
 
 	return (

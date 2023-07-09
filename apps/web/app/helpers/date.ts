@@ -83,7 +83,8 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 
 		const [year, month, day] = date.split('-');
 		const monthParsed = months[month];
-		const formattedDate = `${day} ${monthParsed} ${year}`;
+		const formattedDate = `${+day + 1} ${monthParsed} ${year}`;
+
 		const timeString = time.split('.')[0];
 		const timeArray = timeString.split(':');
 		const amPm = parseInt(timeArray[0]) >= 12 ? 'PM' : 'AM';
@@ -96,14 +97,15 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 };
 
 export const calculateRemainingDays = (
-	dateTimeString?: string
+	startDate: string,
+	endDate: string
 ): number | undefined => {
-	if (!dateTimeString) {
+	if (!endDate || !startDate) {
 		return undefined;
 	}
 
-	const dueTo = moment(dateTimeString);
-	const todaysDate = moment();
+	const todaysDate = moment(startDate);
+	const dueTo = moment(endDate);
 
 	const duration = moment.duration(dueTo.diff(todaysDate));
 	const daysRemaining = Math.floor(duration.asDays());

@@ -14,7 +14,12 @@ import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { clsxm } from '@app/utils';
 
-export const TaskSizesForm = ({ formOnly = false } = {}) => {
+type StatusForm = {
+	formOnly?: boolean;
+	onCreated?: () => void;
+};
+
+export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
@@ -93,6 +98,8 @@ export const TaskSizesForm = ({ formOnly = false } = {}) => {
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
+
+					onCreated && onCreated();
 					reset();
 				});
 			}
@@ -111,7 +118,16 @@ export const TaskSizesForm = ({ formOnly = false } = {}) => {
 				});
 			}
 		},
-		[edit, createNew, formOnly, editTaskSizes, user, reset, createTaskSizes]
+		[
+			edit,
+			createNew,
+			formOnly,
+			editTaskSizes,
+			onCreated,
+			user,
+			reset,
+			createTaskSizes,
+		]
 	);
 
 	return (

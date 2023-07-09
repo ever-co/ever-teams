@@ -1,4 +1,7 @@
 import '../styles/globals.css';
+import 'react-loading-skeleton/dist/skeleton.css';
+import 'react-datepicker/dist/react-datepicker.css';
+
 import type { AppProps } from 'next/app';
 import { ThemeProvider } from 'next-themes';
 import { RecoilRoot } from 'recoil';
@@ -7,7 +10,6 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
 	return (
