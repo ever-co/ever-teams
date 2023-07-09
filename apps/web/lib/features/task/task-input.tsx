@@ -366,7 +366,7 @@ function TaskCard({
 					</Tooltip>
 				</div>
 
-				{/* Task filter buttons */}
+				{/* Task filter buttons  */}
 				<div className="flex mt-4 space-x-3">
 					<OutlineBadge
 						className="py-2 text-xs cursor-pointer input-border"

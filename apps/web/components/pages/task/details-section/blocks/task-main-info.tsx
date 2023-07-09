@@ -53,7 +53,7 @@ const TaskMainInfo = () => {
 						<Fragment key={member.id}>
 							<ProfileInfo
 								names={member.fullName}
-								profilePicSrc={member.user?.imageUrl}							
+								profilePicSrc={member.user?.imageUrl}
 							/>
 						</Fragment>
 					))}
@@ -144,11 +144,11 @@ const ManageMembersPopover = (
 				.assignTask(task)
 				.then(() => {
 					setMember(undefined);
-					setMemberToRemove(false);
+					setMemberToAdd(false);
 				})
 				.catch(() => {
 					setMember(undefined);
-					setMemberToRemove(false);
+					setMemberToAdd(false);
 				});
 		}
 	}, [task, member, memberInfo, memberToAdd, memberToRemove]);
@@ -172,7 +172,7 @@ const ManageMembersPopover = (
 						>
 							{({ close }) => (
 								<div className="">
-									{assignedTaskMembers.slice(1).map((member, index) => (
+									{assignedTaskMembers.map((member, index) => (
 										<div
 											className="flex items-center justify-between gap-1 h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 mt-1"
 											onClick={() => {
