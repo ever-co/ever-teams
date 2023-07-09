@@ -15,7 +15,15 @@ import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { clsxm } from '@app/utils';
 
-export const TaskPrioritiesForm = ({ formOnly = false } = {}) => {
+type StatusForm = {
+	formOnly?: boolean;
+	onCreated?: () => void;
+};
+
+export const TaskPrioritiesForm = ({
+	formOnly = false,
+	onCreated,
+}: StatusForm) => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
@@ -93,6 +101,8 @@ export const TaskPrioritiesForm = ({ formOnly = false } = {}) => {
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
+
+					onCreated && onCreated();
 					reset();
 				});
 			}
@@ -116,6 +126,7 @@ export const TaskPrioritiesForm = ({ formOnly = false } = {}) => {
 			createNew,
 			formOnly,
 			editTaskPriorities,
+			onCreated,
 			user,
 			reset,
 			createTaskPriorities,

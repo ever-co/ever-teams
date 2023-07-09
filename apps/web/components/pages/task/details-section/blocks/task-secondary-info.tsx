@@ -181,11 +181,21 @@ const TaskSecondaryInfo = () => {
 
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
-					{formTarget === 'status' && <TaskStatusesForm formOnly={true} />}
-					{formTarget === 'priority' && <TaskPrioritiesForm formOnly={true} />}
-					{formTarget === 'size' && <TaskSizesForm formOnly={true} />}
-					{formTarget === 'label' && <TaskLabelForm formOnly={true} />}
-					{formTarget === 'version' && <VersionForm formOnly={true} />}
+					{formTarget === 'status' && (
+						<TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />
+					)}
+					{formTarget === 'priority' && (
+						<TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />
+					)}
+					{formTarget === 'size' && (
+						<TaskSizesForm onCreated={modal.closeModal} formOnly={true} />
+					)}
+					{formTarget === 'label' && (
+						<TaskLabelForm onCreated={modal.closeModal} formOnly={true} />
+					)}
+					{formTarget === 'version' && (
+						<VersionForm onCreated={modal.closeModal} formOnly={true} />
+					)}
 				</Card>
 			</Modal>
 		</section>

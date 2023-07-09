@@ -112,10 +112,10 @@ const TaskProgress = () => {
 							</Disclosure.Button>
 							<Disclosure.Panel>
 								{dummyProfiles?.map((profile) => (
-									<div key={profile.id} className="mt-2.5">
+									<div key={profile?.id} className="mt-2.5">
 										<ProfileInfoWithTime
-											profilePicSrc={profile.user?.imageUrl}
-											names={profile.fullName}
+											profilePicSrc={profile?.user?.imageUrl}
+											names={profile?.fullName}
 											time=" 3h : 4m"
 										/>
 									</div>
