@@ -34,7 +34,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const { trans } = useTranslation('taskDetails');
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
-			<p className="flex-1 text-lg font-[500]">{trans.DESCRIPTION}</p>
+			<p className="flex-1 text-lg font-[500] dark:text-white">
+				{trans.DESCRIPTION}
+			</p>
 			<MarkButton
 				format="bold"
 				icon={BoldIcon}

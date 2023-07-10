@@ -1,7 +1,7 @@
 import Toolbar from './editor-toolbar';
 import { TextEditorService } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
@@ -33,16 +33,29 @@ IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 	const [task] = useRecoilState(detailedTaskState);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
+	const [key, setKey] = useState(0); // Add key state
 
-	const initialValue = useMemo(
-		() => (task ? JSON.parse(task.description) : []),
-		[task]
-	);
+	const initialValue = useMemo(() => {
+		if (task && task.description) {
+			return JSON.parse(task?.description);
+		} else {
+			return [{ type: 'paragraph', children: [{ text: '' }] }];
+		}
+	}, [task]);
+
+	useEffect(() => {
+		if (key < 6) {
+			setKey((prev) => prev + 1);
+		}
+	}, [initialValue, key]);
+
+	console.log('key:', key);
 
 	return (
-		<div className="flex flex-col prose">
+		<div className="flex flex-col prose placeholder:mt-11">
 			{task && (
 				<Slate
+					key={key}
 					editor={editor}
 					value={initialValue}
 					onChange={() => setIsUpdated(true)}
@@ -56,11 +69,13 @@ IRichTextProps) => {
 
 					<Editable
 						className={`${
-							readonly ? '' : 'textarea resize-y block w-full bg-transparent '
+							readonly
+								? ''
+								: 'textarea resize-y block w-full bg-transparent dark:text-white'
 						}`}
 						renderElement={renderElement}
 						renderLeaf={renderLeaf}
-						placeholder="..."
+						placeholder="Write a complete description of your project..."
 						spellCheck
 						autoFocus
 						readOnly={readonly}
