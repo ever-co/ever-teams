@@ -3,7 +3,7 @@ import { useTranslation } from 'lib/i18n';
 import { ProofDropdown } from './proof-dropdown';
 import { PeriodDropdown } from './period-dropdown';
 import { VersionForm } from './version-form';
-import { IssueTypeForm } from './issue-type-form';
+// import { IssueTypeForm } from './issue-type-form';
 import { TaskStatusesForm } from './task-statuses-form';
 import { TaskPrioritiesForm } from './task-priorities-form';
 import { TaskSizesForm } from './task-sizes-form';
@@ -162,9 +162,9 @@ export const IssuesSettings = () => {
 				<VersionForm />
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			{/* <div className="hidden flex w-full items-center justify-between gap-[2rem]">
 				<IssueTypeForm />
-			</div>
+			</div> */}
 
 			<div
 				id="statuses"

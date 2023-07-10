@@ -12,13 +12,19 @@ import { Spinner } from '@components/ui/loaders/spinner';
 import { ITaskVersionItemList } from '@app/interfaces';
 
 import { useTranslation } from 'lib/i18n';
+import { clsxm } from '@app/utils';
 
-export const VersionForm = () => {
+type StatusForm = {
+	formOnly?: boolean;
+	onCreated?: () => void;
+};
+
+export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
-	const [createNew, setCreateNew] = useState(false);
+	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskVersionItemList | null>(null);
 
 	const {
@@ -64,7 +70,9 @@ export const VersionForm = () => {
 					// icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
-					setCreateNew(false);
+					!formOnly && setCreateNew(false);
+
+					onCreated && onCreated();
 					reset();
 				});
 			}
@@ -78,7 +86,16 @@ export const VersionForm = () => {
 				});
 			}
 		},
-		[edit, createNew, editTaskVersion, user, reset, createTaskVersion]
+		[
+			edit,
+			createNew,
+			formOnly,
+			onCreated,
+			editTaskVersion,
+			user,
+			reset,
+			createTaskVersion,
+		]
 	);
 
 	return (
@@ -90,9 +107,11 @@ export const VersionForm = () => {
 			>
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-							{trans.VERSIONS}
-						</Text>
+						{!formOnly && (
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
+								{trans.VERSIONS}
+							</Text>
+						)}
 
 						<div className="flex flex-col items-center sm:items-start">
 							{!createNew && !edit && (
@@ -117,7 +136,12 @@ export const VersionForm = () => {
 										{createNew && 'New'}
 										{edit && 'Edit'} Version
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div
+										className={clsxm(
+											'flex w-full gap-x-5 items-center mt-3',
+											formOnly && ['flex-wrap space-y-2']
+										)}
+									>
 										<InputField
 											type="text"
 											placeholder="Create Status"
@@ -140,48 +164,59 @@ export const VersionForm = () => {
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
-										<Button
-											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-												setEdit(null);
-											}}
-										>
-											Cancel
-										</Button>
+
+										{!formOnly && (
+											<Button
+												variant="grey"
+												className="font-normal py-4 px-4 rounded-xl text-md"
+												onClick={() => {
+													setCreateNew(false);
+													setEdit(null);
+												}}
+											>
+												Cancel
+											</Button>
+										)}
 									</div>
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{trans.LIST_OF_VERSONS}
-							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-								{loading && !taskVersion?.length && <Spinner dark={false} />}
-								{taskVersion && taskVersion?.length ? (
-									taskVersion.map((version) => (
-										<StatusesListCard
-											key={version.id}
-											statusTitle={
-												version?.name ? version?.name?.split('-').join(' ') : ''
-											}
-											bgColor={''}
-											statusIcon={''}
-											onEdit={() => {
-												setCreateNew(false);
-												setEdit(version);
-											}}
-											onDelete={() => {
-												deleteTaskVersion(version.id);
-											}}
-											isStatus={true}
-										/>
-									))
-								) : (
-									<></>
-								)}
-							</div>
+							{!formOnly && (
+								<>
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+										{trans.LIST_OF_VERSONS}
+									</Text>
+									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+										{loading && !taskVersion?.length && (
+											<Spinner dark={false} />
+										)}
+										{taskVersion && taskVersion?.length ? (
+											taskVersion.map((version) => (
+												<StatusesListCard
+													key={version.id}
+													statusTitle={
+														version.name
+															? version.name?.split('-').join(' ')
+															: ''
+													}
+													bgColor={''}
+													statusIcon={''}
+													onEdit={() => {
+														setCreateNew(false);
+														setEdit(version);
+													}}
+													onDelete={() => {
+														deleteTaskVersion(version.id);
+													}}
+													isStatus={true}
+												/>
+											))
+										) : (
+											<></>
+										)}
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

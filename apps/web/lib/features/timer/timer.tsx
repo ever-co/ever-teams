@@ -5,6 +5,15 @@ import { IClassName } from '@app/interfaces';
 import { TimerButton } from './timer-button';
 import { useTranslation } from 'lib/i18n';
 import { useTimerView } from '@app/hooks';
+import { TimerSource } from '@app/interfaces/ITimer';
+
+import {
+	DevicePhoneMobileIcon,
+	GlobeAltIcon,
+	ComputerDesktopIcon,
+	ArrowUturnUpIcon,
+	LifebuoyIcon,
+} from '@heroicons/react/24/outline';
 
 export function Timer({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -22,11 +31,11 @@ export function Timer({ className }: IClassName) {
 
 	return (
 		<div className={clsxm('flex flex-row mb-10 xl:mb-0', className)}>
-			<div className="border-r-[2px] dark:border-r-[#28292F] pr-5">
-				<div className="w-[186px]">
+			<div className="flex justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
+				<div className="w-[11rem]">
 					<Text.Heading
 						as="h3"
-						className="lg:text-4xl text-2xl tracking-wide font-normal"
+						className=" lg:text-4xl text-2xl tracking-wide font-normal"
 					>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 						<span className="text-sm">:{pad(ms_p)}</span>
@@ -37,6 +46,23 @@ export function Timer({ className }: IClassName) {
 						className="mt-2"
 						progress={`${activeTaskEstimation}%`}
 					/>
+				</div>
+				<div className="w-[0.625rem]">
+					{timerStatus && timerStatus.running && (
+						<Tooltip
+							label={`The time tracker is already running in the ${(
+								timerStatus?.lastLog?.source || TimerSource.BROWSER
+							)
+								.split('_')
+								.join(' ')
+								.toLowerCase()}`}
+							placement="bottom-start"
+						>
+							<TimerRunningSourceIcon
+								source={timerStatus?.lastLog?.source || TimerSource.BROWSER}
+							/>
+						</Tooltip>
+					)}
 				</div>
 			</div>
 
@@ -82,6 +108,12 @@ export function MinTimerFrame({ className }: IClassName) {
 				<span className="text-sm">:{pad(ms_p)}</span>
 			</Text>
 
+			{timerStatus && timerStatus.running && (
+				<TimerRunningSourceIcon
+					source={timerStatus?.lastLog?.source || TimerSource.BROWSER}
+				/>
+			)}
+
 			<VerticalSeparator />
 
 			<div className="ml-5 z-[50]">
@@ -94,4 +126,24 @@ export function MinTimerFrame({ className }: IClassName) {
 			</div>
 		</div>
 	);
+}
+
+export function TimerRunningSourceIcon({ source }: { source: TimerSource }) {
+	switch (source) {
+		case TimerSource.MOBILE:
+			return <DevicePhoneMobileIcon className="w-5 h-5" />;
+		/** Uncomment this if we want to show BROWSER's status too */
+		// case TimerSource.BROWSER:
+		// return <GlobeAltIcon className="w-5 h-5" />;
+		case TimerSource.BROWSER_EXTENSION:
+			return <GlobeAltIcon className="w-5 h-5" />;
+		case TimerSource.DESKTOP:
+			return <ComputerDesktopIcon className="w-5 h-5" />;
+		case TimerSource.UPWORK:
+			return <ArrowUturnUpIcon className="w-5 h-5" />;
+		case TimerSource.HUBSTAFF:
+			return <LifebuoyIcon className="w-5 h-5" />;
+		default:
+			return <></>;
+	}
 }

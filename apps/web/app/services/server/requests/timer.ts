@@ -4,14 +4,15 @@ import {
 	ITimerStatus,
 	ITimerParams,
 	ITimerTimeslotParams,
+	TimerSource,
 } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 
 export function getTimerStatusRequest(
-	{ source = 'BROWSER', tenantId, organizationId }: ITimerStatusParams,
+	{ tenantId, organizationId }: ITimerStatusParams,
 	bearer_token: string
 ) {
-	const params = new URLSearchParams({ source, tenantId, organizationId });
+	const params = new URLSearchParams({ tenantId, organizationId });
 	return serverFetch<ITimerStatus>({
 		path: `/timesheet/timer/status?${params.toString()}`,
 		method: 'GET',
@@ -42,7 +43,7 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 
 export function toggleTimerRequest(
 	{
-		source = 'BROWSER',
+		source = TimerSource.BROWSER,
 		logType = 'TRACKED',
 		taskId,
 		tenantId,

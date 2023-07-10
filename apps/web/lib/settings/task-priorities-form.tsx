@@ -13,11 +13,20 @@ import { IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
+import { clsxm } from '@app/utils';
 
-export const TaskPrioritiesForm = () => {
+type StatusForm = {
+	formOnly?: boolean;
+	onCreated?: () => void;
+};
+
+export const TaskPrioritiesForm = ({
+	formOnly = false,
+	onCreated,
+}: StatusForm) => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
-	const [createNew, setCreateNew] = useState(false);
+	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
 
@@ -91,7 +100,9 @@ export const TaskPrioritiesForm = () => {
 					icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
-					setCreateNew(false);
+					!formOnly && setCreateNew(false);
+
+					onCreated && onCreated();
 					reset();
 				});
 			}
@@ -110,7 +121,16 @@ export const TaskPrioritiesForm = () => {
 				});
 			}
 		},
-		[edit, createNew, editTaskPriorities, user, reset, createTaskPriorities]
+		[
+			edit,
+			createNew,
+			formOnly,
+			editTaskPriorities,
+			onCreated,
+			user,
+			reset,
+			createTaskPriorities,
+		]
 	);
 
 	return (
@@ -122,9 +142,11 @@ export const TaskPrioritiesForm = () => {
 			>
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
-						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-							{trans.TASK_PRIORITIES}
-						</Text>
+						{!formOnly && (
+							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
+								{trans.TASK_PRIORITIES}
+							</Text>
+						)}
 
 						<div className="flex flex-col items-center sm:items-start">
 							{!createNew && !edit && (
@@ -149,7 +171,12 @@ export const TaskPrioritiesForm = () => {
 										{createNew && 'New'}
 										{edit && 'Edit'} Priorities
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div
+										className={clsxm(
+											'flex w-full gap-x-5 items-center mt-3',
+											formOnly && ['flex-wrap space-y-2']
+										)}
+									>
 										<InputField
 											type="text"
 											placeholder="Create Priority"
@@ -189,49 +216,58 @@ export const TaskPrioritiesForm = () => {
 										>
 											{edit ? 'Save' : 'Create'}
 										</Button>
-										<Button
-											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
-											onClick={() => {
-												setCreateNew(false);
-												setEdit(null);
-											}}
-										>
-											Cancel
-										</Button>
+
+										{!formOnly && (
+											<Button
+												variant="grey"
+												className="font-normal py-4 px-4 rounded-xl text-md"
+												onClick={() => {
+													setCreateNew(false);
+													setEdit(null);
+												}}
+											>
+												Cancel
+											</Button>
+										)}
 									</div>
 								</>
 							)}
 
-							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{trans.LIST_OF_PRIORITIES}
-							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-								{loading && !taskPriorities?.length && <Spinner dark={false} />}
-								{taskPriorities && taskPriorities?.length ? (
-									taskPriorities.map((priority) => (
-										<StatusesListCard
-											statusTitle={
-												priority?.name
-													? priority?.name?.split('-').join(' ')
-													: ''
-											}
-											bgColor={priority?.color || ''}
-											statusIcon={priority?.fullIconUrl || ''}
-											onEdit={() => {
-												setCreateNew(false);
-												setEdit(priority);
-											}}
-											onDelete={() => {
-												deleteTaskPriorities(priority.id);
-											}}
-											key={priority.id}
-										/>
-									))
-								) : (
-									<></>
-								)}
-							</div>
+							{!formOnly && (
+								<>
+									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
+										{trans.LIST_OF_PRIORITIES}
+									</Text>
+									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+										{loading && !taskPriorities?.length && (
+											<Spinner dark={false} />
+										)}
+										{taskPriorities && taskPriorities?.length ? (
+											taskPriorities.map((priority) => (
+												<StatusesListCard
+													statusTitle={
+														priority.name
+															? priority.name?.split('-').join(' ')
+															: ''
+													}
+													bgColor={priority.color || ''}
+													statusIcon={priority.fullIconUrl || ''}
+													onEdit={() => {
+														setCreateNew(false);
+														setEdit(priority);
+													}}
+													onDelete={() => {
+														deleteTaskPriorities(priority.id);
+													}}
+													key={priority.id}
+												/>
+											))
+										) : (
+											<></>
+										)}
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

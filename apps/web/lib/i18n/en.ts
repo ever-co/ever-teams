@@ -175,6 +175,7 @@ export const en = {
 			TIME_TRACKING: 'Time Tracking',
 
 			ADD_NEW_MEMBER: 'Add new member',
+			MANAGE_ASSIGNEES: 'Manage Assignees',
 			SEARCH_MEMBER: 'Search Member',
 			TASK_STATUSES: 'Task Statuses',
 			TASK_PRIORITIES: 'Task Priorities',

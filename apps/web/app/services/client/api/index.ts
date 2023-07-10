@@ -19,3 +19,4 @@ export * from './user';
 export * from './request-to-join-team';
 export * from './employee';
 export * from './roles';
+export * from './role-permissions';

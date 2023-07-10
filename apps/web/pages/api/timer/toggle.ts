@@ -19,9 +19,10 @@ export default async function handler(
 		return;
 	}
 
+	const { source } = req.body;
 	await toggleTimerRequest(
 		{
-			source: 'BROWSER',
+			source,
 			logType: 'TRACKED',
 			tenantId,
 			taskId,
@@ -37,14 +38,14 @@ export default async function handler(
 			organizationId,
 			taskId,
 			logType: 'TRACKED',
-			source: 'BROWSER',
+			source,
 			tags: [],
 		},
 		access_token
 	);
 
 	const { data: timerStatus } = await getTimerStatusRequest(
-		{ tenantId, organizationId, source: 'BROWSER' },
+		{ tenantId, organizationId },
 		access_token
 	);
 
