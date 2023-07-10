@@ -339,7 +339,6 @@ export function VersionPropertiesDropown({
 	sidebarUI = false,
 }: TTaskStatusesDropdown<'version'>) {
 	const taskVersionsValue = useTaskVersionsValue();
-	console.log(taskVersionsValue);
 
 	const { item, items, onChange, values } = useStatusValue<'version'>({
 		status: taskVersionsValue,

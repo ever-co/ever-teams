@@ -6,14 +6,11 @@ import {
 	COPY_COMMAND,
 	FORMAT_ELEMENT_COMMAND,
 	$createParagraphNode,
-	COMMAND_PRIORITY_LOW,
 } from 'lexical';
 import {
 	INSERT_ORDERED_LIST_COMMAND,
 	INSERT_UNORDERED_LIST_COMMAND,
-	$createListNode,
 	REMOVE_LIST_COMMAND,
-	insertList,
 } from '@lexical/list';
 
 import { $wrapNodes } from '@lexical/selection';

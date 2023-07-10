@@ -48,6 +48,7 @@
 		"react-popper-tooltip": "^4.4.2",
 		"recoil": "^0.7.7",
 		"slate": "^0.90.0",
+		"slate-history": "^0.93.0",
 		"slate-react": "^0.91.0",
 		"string-to-color": "^2.2.2",
 		"tailwind-merge": "^1.8.1",
