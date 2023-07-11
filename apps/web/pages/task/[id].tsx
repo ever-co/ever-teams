@@ -97,7 +97,7 @@ const TaskDetails = () => {
 };
 
 function IssueModal({ task }: { task: ITeamTask | null }) {
-	const { handleStatusUpdate, updateLoading } = useTeamTasks();
+	const { handleStatusUpdate } = useTeamTasks();
 	const { trans } = useTranslation();
 	const modal = useModal();
 
