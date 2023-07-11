@@ -43,6 +43,7 @@ export const en = {
 		WORKED: 'Worked',
 		ASSIGNED: 'Assigned',
 		SELECT_STATUS: 'Select status',
+		SELECT_ISSUE: 'Select Issue',
 		UNASSIGNED: 'Unassigned',
 		TASK_DETAILS: 'Task Details',
 		TYPE_SOMETHING: 'Type something',

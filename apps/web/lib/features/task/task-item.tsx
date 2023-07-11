@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { useCallback } from 'react';
 import { TaskIssueStatus } from './task-issue';
 import { TaskPriorityStatus } from './task-status';
-import { StatusModal } from './task-status-modal';
+import { TaskStatusModal } from './task-status-modal';
 
 type Props = {
 	task?: ITeamTask;
@@ -72,8 +72,8 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 						className="w-full"
 					/> */}
 
-					<StatusModal
-						type={'status' as any}
+					<TaskStatusModal
+						types={'status'}
 						title={trans.common.SELECT_STATUS}
 						defaultValue={task?.status}
 						onValueChange={handleChange}

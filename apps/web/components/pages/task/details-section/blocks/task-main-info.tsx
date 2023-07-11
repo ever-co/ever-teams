@@ -199,6 +199,7 @@ const ManageMembersPopover = (
 			),
 		[memberList, task?.members]
 	);
+
 	const assignedTaskMembers = useMemo(
 		() =>
 			memberList.filter((member) =>
