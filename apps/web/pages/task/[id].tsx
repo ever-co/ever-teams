@@ -101,6 +101,8 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 	const { trans } = useTranslation();
 	const modal = useModal();
 
+	const { openModal } = modal;
+
 	const handleChange = useCallback(
 		(status: any) => {
 			handleStatusUpdate(status, 'issueType', task);
@@ -114,9 +116,9 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 			task?.updatedAt &&
 			task?.createdAt === task?.updatedAt
 		) {
-			modal.openModal();
+			openModal();
 		}
-	}, [task?.updatedAt]);
+	}, [task?.updatedAt, task?.createdAt, openModal]);
 
 	return (
 		<TaskStatusModal
