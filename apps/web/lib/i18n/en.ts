@@ -187,10 +187,14 @@ export const en = {
 
 			INVITATION_HEADING_TITLE: 'Invitations',
 			CREATE_NEW_STATUSES: 'Create new Statuses',
+			CREATE_NEW_STATUS: 'Create new Status',
 			CREATE_NEW_VERSION: 'Create new Version',
 			CREATE_NEW_PRIORITIES: 'Create new Priorities',
+			CREATE_NEW_PRIORITY: 'Create new Priority',
 			CREATE_NEW_SIZES: 'Create new Sizes',
+			CREATE_NEW_SIZE: 'Create new Size',
 			CREATE_NEW_LABELS: 'Create new Labels',
+			CREATE_NEW_LABEL: 'Create new Label',
 			CREATE_NEW_ISSUE_TYPES: 'Create new Issues',
 
 			HIDE_PERSONAL_MEMBERS_INFOTMATION: 'Hide Personal Members Information',

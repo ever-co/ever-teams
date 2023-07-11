@@ -157,7 +157,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									{trans.CREATE_NEW_LABELS}
+									{trans.CREATE_NEW_LABEL}
 								</Button>
 							)}
 
@@ -175,7 +175,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									>
 										<InputField
 											type="text"
-											placeholder="Create Label"
+											placeholder={trans.CREATE_NEW_LABEL}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
