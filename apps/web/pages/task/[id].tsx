@@ -13,12 +13,14 @@ import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
+// import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 import IssueCard from '@components/pages/task/IssueCard';
 import { ITeamTask } from '@app/interfaces';
 import { TaskStatusModal } from 'lib/features';
+import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
+// import IssueCard from '@components/pages/task/IssueCard';
 // import CompletionBlock from '@components/pages/task/CompletionBlock';
 // import ActivityBlock from '@components/pages/task/ActivityBlock';
 
@@ -63,9 +65,12 @@ const TaskDetails = () => {
 					<section className="flex justify-between lg:flex-row flex-col lg:items-start">
 						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
-							<TaskDescriptionBlock />
+							{/* <TaskDescriptionBlock /> */}
 							<IssueCard related={false} />
 							<IssueCard related={true} />
+							<RichTextEditor />
+							{/* <IssueCard related={false} /> */}
+							{/* <IssueCard related={true} /> */}
 							{/* <CompletionBlock /> */}
 							{/* <ActivityBlock /> */}
 						</section>

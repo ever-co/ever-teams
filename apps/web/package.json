@@ -49,12 +49,14 @@
 		"react-popper-tooltip": "^4.4.2",
 		"recoil": "^0.7.7",
 		"slate": "^0.90.0",
+		"slate-history": "^0.93.0",
 		"slate-react": "^0.91.0",
 		"string-to-color": "^2.2.2",
 		"tailwind-merge": "^1.8.1",
 		"tailwindcss": "^3.1.8"
 	},
 	"devDependencies": {
+		"@tailwindcss/typography": "^0.5.9",
 		"@types/cookie": "^0.5.1",
 		"@types/js-cookie": "^3.0.2",
 		"@types/node": "18.8.4",

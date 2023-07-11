@@ -69,7 +69,21 @@ module.exports = {
 				darker:
 					'-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)',
 			},
+
+			typography: {
+				DEFAULT: {
+					css: {
+						maxWidth: '100ch',
+						// Add margin top and bottom for all HTML tags if needed
+						'h1, h2, h3, h4, h5, h6, p, span, em, strong, ul, ol, dl, blockquote, figure, pre':
+							{
+								// marginTop: '0.55rem',
+								// marginBottom: '0.55rem',
+							},
+					},
+				},
+			},
 		},
 	},
-	plugins: [],
+	plugins: [require('@tailwindcss/typography')],
 };

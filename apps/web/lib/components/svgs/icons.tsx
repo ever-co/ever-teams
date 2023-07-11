@@ -1690,7 +1690,7 @@ export function BoldIcon({ className }: IClassName) {
 			viewBox="0 0 21 21"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm(className)}
+			className={clsxm(className, 'fill-black dark:fill-white')}
 		>
 			<path d="M14.1692 9.44531C14.621 8.89629 14.9074 8.23014 14.995 7.52454C15.0826 6.81895 14.9678 6.10298 14.664 5.46015C14.3602 4.81731 13.8799 4.27409 13.2791 3.89384C12.6783 3.51359 11.9818 3.31197 11.2708 3.3125H5.33325C5.08461 3.3125 4.84615 3.41127 4.67034 3.58709C4.49452 3.7629 4.39575 4.00136 4.39575 4.25V16.125C4.39575 16.3736 4.49452 16.6121 4.67034 16.7879C4.84615 16.9637 5.08461 17.0625 5.33325 17.0625H12.2083C13.1084 17.0612 13.9826 16.761 14.6937 16.209C15.4047 15.657 15.9123 14.8845 16.1367 14.0128C16.3611 13.1411 16.2896 12.2195 15.9335 11.3928C15.5774 10.5661 14.9568 9.88109 14.1692 9.44531ZM6.27075 5.1875H11.2708C11.768 5.1875 12.2449 5.38505 12.5966 5.73668C12.9482 6.08831 13.1458 6.56522 13.1458 7.0625C13.1458 7.55978 12.9482 8.0367 12.5966 8.38833C12.2449 8.73996 11.768 8.9375 11.2708 8.9375H6.27075V5.1875ZM12.2083 15.1875H6.27075V10.8125H12.2083C12.7884 10.8125 13.3448 11.043 13.755 11.4532C14.1653 11.8634 14.3958 12.4198 14.3958 13C14.3958 13.5802 14.1653 14.1366 13.755 14.5468C13.3448 14.957 12.7884 15.1875 12.2083 15.1875Z" />
 		</svg>
@@ -1704,7 +1704,7 @@ export function ItalicIcon({ className }: IClassName) {
 			height="21"
 			viewBox="0 0 21 21"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm(className)}
+			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M12.8337 17.1673H6.16699V15.5007H8.60616L10.3695 5.50065H7.83366V3.83398H14.5003V5.50065H12.0612L10.2978 15.5007H12.8337V17.1673Z" />
 		</svg>
@@ -1720,13 +1720,180 @@ export function UnderlineIcon({ className }: IClassName) {
 			width="20"
 			height="20"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm(className)}
+			className={clsxm(className, 'dark:fill-white')}
 		>
 			<defs id="defs325" />
 			<path
 				d="m 6.7427148,3.40681 v 7.19425 c 0,0.844767 0.1785202,1.547345 0.5342587,2.107734 0.5290465,0.844766 1.419044,1.267747 2.6725981,1.267747 1.5024414,0 2.5240484,-0.456438 3.0648224,-1.370505 0.290584,-0.497062 0.436529,-1.164989 0.436529,-2.004976 V 3.40681 h 1.799541 v 6.5370776 c 0,1.4314414 -0.21631,2.5331034 -0.650232,3.3037874 -0.79748,1.405155 -2.299921,2.107733 -4.508625,2.107733 -2.2087055,0 -3.7085403,-0.702578 -4.4982011,-2.107733 C 5.1594833,12.476991 4.943174,11.375329 4.943174,9.9438876 V 3.40681 Z M 2.9885677,17.745127 H 17.322348 v 1.194861 H 2.9885677 Z"
 				id="path319"
 			/>
+		</svg>
+	);
+}
+export function StrikethroughIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="23"
+			height="23"
+			fill="currentColor"
+			viewBox="0 0 16 16"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M6.333 5.686c0 .31.083.581.27.814H5.166a2.776 2.776 0 0 1-.099-.76c0-1.627 1.436-2.768 3.48-2.768 1.969 0 3.39 1.175 3.445 2.85h-1.23c-.11-1.08-.964-1.743-2.25-1.743-1.23 0-2.18.602-2.18 1.607zm2.194 7.478c-2.153 0-3.589-1.107-3.705-2.81h1.23c.144 1.06 1.129 1.703 2.544 1.703 1.34 0 2.31-.705 2.31-1.675 0-.827-.547-1.374-1.914-1.675L8.046 8.5H1v-1h14v1h-3.504c.468.437.675.994.675 1.697 0 1.826-1.436 2.967-3.644 2.967z"></path>
+		</svg>
+	);
+}
+
+export function AlignRightIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="27"
+			height="27"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm182,34H88a6,6,0,0,0,0,12H216a6,6,0,0,0,0-12Zm0,40H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm0,40H88.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Z"></path>
+		</svg>
+	);
+}
+
+export function AlignLeftIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="27"
+			height="27"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm6,46H168a6,6,0,0,0,0-12H40a6,6,0,0,0,0,12Zm176,28H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm-48,40H40.00586a6,6,0,1,0,0,12H168a6,6,0,0,0,0-12Z"></path>
+		</svg>
+	);
+}
+
+export function AlignCenterIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			enable-background="new 0 0 24 24"
+			viewBox="0 0 24 24"
+			width="27"
+			height="27"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M6.5,10C6.223877,10,6,10.223877,6,10.5S6.223877,11,6.5,11h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,10,17.5,10H6.5z M2.5,7h19C21.776123,7,22,6.776123,22,6.5S21.776123,6,21.5,6h-19C2.223877,6,2,6.223877,2,6.5S2.223877,7,2.5,7z M17.5,18h-11C6.223877,18,6,18.223877,6,18.5S6.223877,19,6.5,19h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,18,17.5,18z M21.5,14h-19C2.223877,14,2,14.223877,2,14.5S2.223877,15,2.5,15h19c0.276123,0,0.5-0.223877,0.5-0.5S21.776123,14,21.5,14z"></path>
+		</svg>
+	);
+}
+
+export function AlignJustifyIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="27"
+			height="27"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M36,68a4.0002,4.0002,0,0,1,4-4H216a4,4,0,0,1,0,8H40A4.0002,4.0002,0,0,1,36,68Zm180,36H40a4,4,0,0,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Z"></path>
+		</svg>
+	);
+}
+export function HeaderOneIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="23"
+			height="23"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm71.77539,44.94727a7.99755,7.99755,0,0,0-8.21191.3955l-24,15.99317a8.00008,8.00008,0,1,0,8.873,13.31445L212,122.94434V200a8,8,0,0,0,16,0V108A7.99932,7.99932,0,0,0,223.77539,100.94727Z"></path>
+		</svg>
+	);
+}
+export function HeaderTwoIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="23"
+			height="23"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm88,135.99414H207.99707l34.30566-45.77734c.07911-.1045.1543-.21094.22754-.31934A32.00406,32.00406,0,1,0,186.51758,115.542a8,8,0,1,0,14.73633,6.23242A16.00416,16.00416,0,1,1,229.37012,136.794l-43.67285,58.27539A8.00367,8.00367,0,0,0,191.999,208.001c.10547,0,.21192-.00293.31836-.00684H240a8,8,0,0,0,0-16Z"></path>
+		</svg>
+	);
+}
+
+export function NormalTextIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="20"
+			height="20"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M215.99414,55.99512v32a8,8,0,1,1-16,0v-24h-64v128h24a8,8,0,0,1,0,16h-64a8,8,0,0,1,0-16h24v-128h-64v24a8,8,0,0,1-16,0v-32a8.00008,8.00008,0,0,1,8-8h160A8.00008,8.00008,0,0,1,215.99414,55.99512Z"></path>
+		</svg>
+	);
+}
+
+export function CopyIcon({ className }: IClassName) {
+	return (
+		<svg
+			id="Flat"
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 255.99316 255.99316"
+			width="20"
+			height="20"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M216,33.99316H88a6.0003,6.0003,0,0,0-6,6v42.001H39.999a6.0003,6.0003,0,0,0-6,6v128a6.0003,6.0003,0,0,0,6,6h128a6.00029,6.00029,0,0,0,6-6v-42.001H216a6.00029,6.00029,0,0,0,6-6v-128A6.0003,6.0003,0,0,0,216,33.99316Zm-54.001,176.001h-116v-116h116ZM210,161.99316H173.999v-73.999a6.00029,6.00029,0,0,0-6-6H94v-36.001H210Z"></path>
+		</svg>
+	);
+}
+export function UnorderedListIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="23"
+			height="23"
+			fill="currentColor"
+			viewBox="0 0 16 16"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path
+				fill-rule="evenodd"
+				d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
+			/>
+		</svg>
+	);
+}
+export function OrderedListIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="23"
+			height="23"
+			fill="currentColor"
+			className={clsxm(className, 'dark:fill-white')}
+			viewBox="0 0 16 16"
+		>
+			<path
+				fill-rule="evenodd"
+				d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5z"
+			/>
+			<path d="M1.713 11.865v-.474H2c.217 0 .363-.137.363-.317 0-.185-.158-.31-.361-.31-.223 0-.367.152-.373.31h-.59c.016-.467.373-.787.986-.787.588-.002.954.291.957.703a.595.595 0 0 1-.492.594v.033a.615.615 0 0 1 .569.631c.003.533-.502.8-1.051.8-.656 0-1-.37-1.008-.794h.582c.008.178.186.306.422.309.254 0 .424-.145.422-.35-.002-.195-.155-.348-.414-.348h-.3zm-.004-4.699h-.604v-.035c0-.408.295-.844.958-.844.583 0 .96.326.96.756 0 .389-.257.617-.476.848l-.537.572v.03h1.054V9H1.143v-.395l.957-.99c.138-.142.293-.304.293-.508 0-.18-.147-.32-.342-.32a.33.33 0 0 0-.342.338v.041zM2.564 5h-.635V2.924h-.031l-.598.42v-.567l.629-.443h.635V5z" />{' '}
 		</svg>
 	);
 }
@@ -1739,7 +1906,7 @@ export function MoreIcon2({ className }: IClassName) {
 			viewBox="0 0 20 21"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#282048]', className)}
+			className={clsxm('stroke-[#282048]', className, 'dark:fill-white')}
 		>
 			<path
 				d="M4.16667 8.8335C3.25 8.8335 2.5 9.5835 2.5 10.5002C2.5 11.4168 3.25 12.1668 4.16667 12.1668C5.08333 12.1668 5.83333 11.4168 5.83333 10.5002C5.83333 9.5835 5.08333 8.8335 4.16667 8.8335Z"
@@ -1760,12 +1927,12 @@ export function MoreIcon2({ className }: IClassName) {
 export function LinkIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="20"
-			height="21"
+			width="27"
+			height="27"
 			viewBox="0 0 20 21"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#282048]', className)}
+			className={clsxm('stroke-[#282048]', className, 'dark:fill-white')}
 		>
 			<path
 				d="M12.4917 15.0832H13.75C16.2667 15.0832 18.3334 13.0248 18.3334 10.4998C18.3334 7.98317 16.275 5.9165 13.75 5.9165H12.4917"
@@ -1785,6 +1952,36 @@ export function LinkIcon({ className }: IClassName) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
+		</svg>
+	);
+}
+export function CodeBlockIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="26"
+			height="26"
+			fill="currentColor"
+			viewBox="0 0 16 16"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path d="M5.854 4.854a.5.5 0 1 0-.708-.708l-3.5 3.5a.5.5 0 0 0 0 .708l3.5 3.5a.5.5 0 0 0 .708-.708L2.707 8l3.147-3.146zm4.292 0a.5.5 0 0 1 .708-.708l3.5 3.5a.5.5 0 0 1 0 .708l-3.5 3.5a.5.5 0 0 1-.708-.708L13.293 8l-3.147-3.146z" />{' '}
+		</svg>
+	);
+}
+
+export function QuoteBlockIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="26"
+			height="26"
+			fill="currentColor"
+			viewBox="0 0 16 16"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			{' '}
+			<path d="M2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11zm5 3a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1h-6zm0 3a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1h-6zm-5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11zm.79-5.373c.112-.078.26-.17.444-.275L3.524 6c-.122.074-.272.17-.452.287-.18.117-.35.26-.51.428a2.425 2.425 0 0 0-.398.562c-.11.207-.164.438-.164.692 0 .36.072.65.217.873.144.219.385.328.72.328.215 0 .383-.07.504-.211a.697.697 0 0 0 .188-.463c0-.23-.07-.404-.211-.521-.137-.121-.326-.182-.568-.182h-.282c.024-.203.065-.37.123-.498a1.38 1.38 0 0 1 .252-.37 1.94 1.94 0 0 1 .346-.298zm2.167 0c.113-.078.262-.17.445-.275L5.692 6c-.122.074-.272.17-.452.287-.18.117-.35.26-.51.428a2.425 2.425 0 0 0-.398.562c-.11.207-.164.438-.164.692 0 .36.072.65.217.873.144.219.385.328.72.328.215 0 .383-.07.504-.211a.697.697 0 0 0 .188-.463c0-.23-.07-.404-.211-.521-.137-.121-.326-.182-.568-.182h-.282a1.75 1.75 0 0 1 .118-.492c.058-.13.144-.254.257-.375a1.94 1.94 0 0 1 .346-.3z" />{' '}
 		</svg>
 	);
 }
