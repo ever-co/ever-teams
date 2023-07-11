@@ -11,7 +11,7 @@ import {
 } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
-import { formatDateTimeString, calculateRemainingDays } from '@app/helpers';
+import { formatDateString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
@@ -78,7 +78,7 @@ const TaskMainInfo = () => {
 					alignWithIconLabel={true}
 				>
 					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{calculateRemainingDays(task.startDate, task.dueDate)}
+						{calculateRemainingDays(new Date().toISOString(), task.dueDate)}
 					</div>
 				</TaskRow>
 			)}
@@ -137,9 +137,8 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{formatDateTimeString(
-								startDate?.toISOString() || task?.startDate
-							) || 'Set Due date'}
+							{formatDateString(startDate?.toISOString() || task?.startDate) ||
+								'Set Due date'}
 						</DateCustomInput>
 					}
 				/>
@@ -153,7 +152,14 @@ function DueDates() {
 				<DatePicker
 					selected={$dueDate.current}
 					onChange={(date) => {
-						if ($startDate.current && date && date > $startDate.current) {
+						const cdate = new Date();
+
+						if (
+							$startDate.current &&
+							date &&
+							date > $startDate.current &&
+							date > cdate
+						) {
 							setDueDate(date);
 							if (task) {
 								updateTask({ ...task, dueDate: date?.toISOString() });
@@ -168,7 +174,7 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{formatDateTimeString(dueDate?.toISOString() || task?.dueDate) ||
+							{formatDateString(dueDate?.toISOString() || task?.dueDate) ||
 								'Set Due date'}
 						</DateCustomInput>
 					}

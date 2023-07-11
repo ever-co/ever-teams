@@ -96,6 +96,20 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 	return '';
 };
 
+export const formatDateString = (dateTimeString?: string) => {
+	if (dateTimeString) {
+		const [date] = dateTimeString.split('T');
+
+		const [year, month, day] = date.split('-');
+		const monthParsed = months[month];
+		const formattedDate = `${+day + 1} ${monthParsed} ${year}`;
+
+		return `${formattedDate}`;
+	}
+
+	return '';
+};
+
 export const calculateRemainingDays = (
 	startDate: string,
 	endDate: string
