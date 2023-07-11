@@ -99,12 +99,6 @@ IRichTextProps) => {
 	);
 };
 
-// // className={`${
-//             readonly
-//               ? ""
-//               : "textarea resize-y block w-full border h-32 border-gray-300 rounded-md shadow-sm bg-gray-50 text-sm focus:border-blue-500 focus:ring-blue-500 transition duration-150 ease-in-out"
-//           }`}
-
 const isBlockActive = (editor: any, format: string, blockType = 'type') => {
 	const { selection } = editor;
 	if (!selection) return false;

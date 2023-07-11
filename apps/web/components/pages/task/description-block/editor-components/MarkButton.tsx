@@ -13,14 +13,13 @@ const MarkButton = ({ format, icon: Icon, isMarkActive }: IMarkButtonProps) => {
 
 	return (
 		<button
+			className="my-1"
 			style={{
 				cursor: 'pointer',
 				background: isMarkActive(editor, format) ? '#ddd' : 'transparent',
 				border: 'none',
 				borderRadius: '5px',
-				// padding: '6px',
 				transition: '0.3s',
-				color: '#333',
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',

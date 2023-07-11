@@ -20,6 +20,7 @@ const BlockButton = ({
 
 	return (
 		<button
+			className="my-1"
 			style={{
 				background: isBlockActive(
 					editor,
@@ -33,6 +34,7 @@ const BlockButton = ({
 				display: 'flex',
 				alignItems: 'center',
 				justifyContent: 'center',
+				transition: '0.3s',
 			}}
 			onMouseDown={(event) => {
 				event.preventDefault();
