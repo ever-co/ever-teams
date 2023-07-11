@@ -1,4 +1,4 @@
-import ToolButton from '@components/pages/task/description-block/tool-button';
+// import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { Card } from 'lib/components';
 import Image from 'next/image';
@@ -28,8 +28,8 @@ const IssueCard = ({ related }: { related: boolean }) => {
 				)}
 
 				<div className="flex items-center">
-					<ToolButton iconSource="/assets/svg/add.svg" />
-					<ToolButton iconSource="/assets/svg/more.svg" />
+					{/* <ToolButton iconSource="/assets/svg/add.svg" />
+					<ToolButton iconSource="/assets/svg/more.svg" /> */}
 					<Image
 						src="/assets/svg/line-up.svg"
 						alt="line"

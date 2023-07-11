@@ -65,12 +65,10 @@ const TaskDetails = () => {
 					<section className="flex justify-between lg:flex-row flex-col lg:items-start">
 						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
+							<RichTextEditor />
 							{/* <TaskDescriptionBlock /> */}
 							<IssueCard related={false} />
 							<IssueCard related={true} />
-							<RichTextEditor />
-							{/* <IssueCard related={false} /> */}
-							{/* <IssueCard related={true} /> */}
 							{/* <CompletionBlock /> */}
 							{/* <ActivityBlock /> */}
 						</section>
