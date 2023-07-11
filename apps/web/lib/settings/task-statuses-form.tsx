@@ -167,7 +167,7 @@ export const TaskStatusesForm = ({
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									{trans.CREATE_NEW_STATUSES}
+									{trans.CREATE_NEW_STATUS}
 								</Button>
 							)}
 
@@ -185,7 +185,7 @@ export const TaskStatusesForm = ({
 									>
 										<InputField
 											type="text"
-											placeholder="Create Status"
+											placeholder={trans.CREATE_NEW_STATUS}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}

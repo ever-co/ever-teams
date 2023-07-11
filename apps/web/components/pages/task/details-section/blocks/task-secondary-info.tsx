@@ -181,6 +181,9 @@ const TaskSecondaryInfo = () => {
 
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
+					{formTarget === 'version' && (
+						<VersionForm onCreated={modal.closeModal} formOnly={true} />
+					)}
 					{formTarget === 'status' && (
 						<TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />
 					)}
@@ -192,9 +195,6 @@ const TaskSecondaryInfo = () => {
 					)}
 					{formTarget === 'label' && (
 						<TaskLabelForm onCreated={modal.closeModal} formOnly={true} />
-					)}
-					{formTarget === 'version' && (
-						<VersionForm onCreated={modal.closeModal} formOnly={true} />
 					)}
 				</Card>
 			</Modal>
