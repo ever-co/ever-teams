@@ -79,7 +79,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 						</div>
 						<div className="flex justify-between items-center">
 							{related && (
-								<select className='border rounded-md px-4 py-2 '>
+								<select className="border rounded-md px-4 py-2 ">
 									<option value="">Select</option>
 								</select>
 							)}

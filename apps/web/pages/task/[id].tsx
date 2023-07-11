@@ -2,19 +2,23 @@ import { useTranslation } from 'lib/i18n';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import {
+	useModal,
 	useOrganizationTeams,
 	useTeamTasks,
 	useUserProfilePage,
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import TaskDetailsAside from '@components/pages/task/task-details-aside';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 // import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
+import IssueCard from '@components/pages/task/IssueCard';
+import { ITeamTask } from '@app/interfaces';
+import { TaskStatusModal } from 'lib/features';
 import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
 // import IssueCard from '@components/pages/task/IssueCard';
 // import CompletionBlock from '@components/pages/task/CompletionBlock';
@@ -23,7 +27,7 @@ import RichTextEditor from '@components/pages/task/description-block/task-descri
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
 	const { tasks } = useTeamTasks();
-	const [, setTask] = useRecoilState(detailedTaskState);
+	const [task, setTask] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
 	const { isTrackingEnabled } = useOrganizationTeams();
@@ -62,6 +66,8 @@ const TaskDetails = () => {
 						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 							{/* <TaskDescriptionBlock /> */}
+							<IssueCard related={false} />
+							<IssueCard related={true} />
 							<RichTextEditor />
 							{/* <IssueCard related={false} /> */}
 							{/* <IssueCard related={true} /> */}
@@ -73,6 +79,8 @@ const TaskDetails = () => {
 						</div>
 					</section>
 				</div>
+
+				<IssueModal task={task} />
 				{/*<div className="flex sm:justify-end justify-center mt-8">
 					<Button
 						variant="grey"
@@ -92,5 +100,43 @@ const TaskDetails = () => {
 		</MainLayout>
 	);
 };
+
+function IssueModal({ task }: { task: ITeamTask | null }) {
+	const { handleStatusUpdate } = useTeamTasks();
+	const { trans } = useTranslation();
+	const modal = useModal();
+
+	const { openModal } = modal;
+
+	const handleChange = useCallback(
+		(status: any) => {
+			handleStatusUpdate(status, 'issueType', task);
+		},
+		[task, handleStatusUpdate]
+	);
+
+	useEffect(() => {
+		if (
+			task?.createdAt &&
+			task?.updatedAt &&
+			task?.createdAt === task?.updatedAt
+		) {
+			openModal();
+		}
+	}, [task?.updatedAt, task?.createdAt, openModal]);
+
+	return (
+		<TaskStatusModal
+			key={task?.id}
+			modal={modal}
+			types="issueType"
+			title={trans.common.SELECT_ISSUE}
+			defaultValue={task?.issueType}
+			onValueChange={handleChange}
+		>
+			<></>
+		</TaskStatusModal>
+	);
+}
 
 export default withAuthentication(TaskDetails, { displayName: 'TaskDetails' });

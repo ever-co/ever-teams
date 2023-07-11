@@ -1,4 +1,4 @@
-import { useModal } from '@app/hooks';
+import { IHookModal, useModal } from '@app/hooks';
 import { ITaskStatusField } from '@app/interfaces';
 import { Modal, Card, Text, Button } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
@@ -16,16 +16,21 @@ import {
 	useTaskLabelsValue,
 } from './task-status';
 
-export function StatusModal<T extends ITaskStatusField>({
-	type,
+export function TaskStatusModal<T extends ITaskStatusField>({
+	types,
 	onValueChange,
 	defaultValue,
 	title,
+	children,
+	modal,
 }: {
-	type: T;
+	types: T;
 	title: string;
+	modal?: IHookModal;
 } & TTaskStatusesDropdown<T>) {
-	const { isOpen, closeModal, openModal } = useModal();
+	const imodal = useModal();
+	const { isOpen, closeModal, openModal } = modal || imodal;
+
 	const { trans } = useTranslation();
 	const [value, setValue] = useState(defaultValue);
 	const checkedRef = useRef<HTMLDivElement | null>(null);
@@ -49,7 +54,7 @@ export function StatusModal<T extends ITaskStatusField>({
 	};
 
 	const { item, items, onChange } = useStatusValue<T>({
-		status: status[type],
+		status: status[types],
 		value: defaultValue,
 		onValueChange,
 	});
@@ -64,9 +69,13 @@ export function StatusModal<T extends ITaskStatusField>({
 
 	return (
 		<>
-			<button onClick={openModal}>
-				<StatusDropdown showButtonOnly={true} items={items} value={item} />
-			</button>
+			{children ? (
+				children
+			) : (
+				<button onClick={openModal}>
+					<StatusDropdown showButtonOnly={true} items={items} value={item} />
+				</button>
+			)}
 
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<div className="w-[98%] md:w-[530px]">
