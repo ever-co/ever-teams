@@ -4,6 +4,7 @@ import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
 import TitleLoader from './title-loader';
+import { ActiveTaskIssuesDropdown } from 'lib/features';
 
 const TaskTitleBlock = () => {
 	const { updateTitle } = useTeamTasks();
@@ -60,7 +61,7 @@ const TaskTitleBlock = () => {
 
 	const copyTaskNumber = () => {
 		task && navigator.clipboard.writeText(task?.taskNumber);
-	}
+	};
 
 	return (
 		<>
@@ -75,20 +76,22 @@ const TaskTitleBlock = () => {
 								disabled={!edit}
 								ref={titleDOM}
 							></textarea>
-							<button
-								className="flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
-								onClick={copyTitle}
-							>
-								<Image
-									src="/assets/svg/copy.svg"
-									alt="edit header"
-									width={17}
-									height={17}
-									style={{ height: '17px' }}
-									className="cursor-pointer mr-1"
-								/>
-								Copy Title
-							</button>
+							{!edit && (
+								<button
+									className="flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
+									onClick={copyTitle}
+								>
+									<Image
+										src="/assets/svg/copy.svg"
+										alt="edit header"
+										width={17}
+										height={17}
+										style={{ height: '17px' }}
+										className="cursor-pointer mr-1"
+									/>
+									Copy Title
+								</button>
+							)}
 						</div>
 
 						{edit ? (
@@ -133,15 +136,40 @@ const TaskTitleBlock = () => {
 					<TitleLoader />
 				)}
 			</div>
-			<div className="flex">
-				<div className="ml-2 bg-[#D6D6D6] rounded text-center w-12 h-6 mr-4 flex justify-center items-center ">
-					<span className="text-black font-medium text-xs ">
-						#{task?.taskNumber}
+			<div className="flex items-center">
+				{/* Task number */}
+				<div className="ml-2 bg-[#D6D6D6] rounded text-center min-w-48 h-6 mr-2 flex justify-center items-center py-4 px-2">
+					<span className="text-black font-medium text-xs">
+						#{task?.taskNumber}32423
 					</span>
+				</div>
+				{/* Type of Issue */}
+				<ActiveTaskIssuesDropdown
+					key={task?.id}
+					task={task}
+					showIssueLabels={true}
+					sidebarUI={true}
+				/>
+				{/* Creator Name */}
+				<div className="ml-2 bg-[#E4ECF5] rounded text-center min-w-48 h-6 mr-2 flex justify-center items-center py-4 px-2">
+					<span className="text-[#538ed2] font-medium text-xs">
+						{task?.creator?.name}
+					</span>
+				</div>
+				{/* Parent Issue Name */}
+				<div className=" bg-[#E4ECF5] rounded text-center min-w-48 h-6 mr-2 flex justify-center items-center py-4 px-2">
+					<span className="text-[#60c554] font-medium text-xs">
+						#123 Parent Issue
+					</span>
+				</div>
+				<div className=" bg-transparent rounded text-center min-w-48 h-6 mr-2 flex justify-center items-center py-4 px-2 border border-1 border-[#f07258] cursor-pointer box-border">
+					<p className="text-[#f07258] font-medium text-xs">
+						<span className="mr-1">+</span> New Issue
+					</p>
 				</div>
 			</div>
 			<button
-				className="flex items-center text-[#B1AEBC] text-xs ml-2 mt-1"
+				className="flex items-center text-[#B1AEBC] text-[0.625rem] ml-2 mt-1"
 				onClick={copyTaskNumber}
 			>
 				<Image

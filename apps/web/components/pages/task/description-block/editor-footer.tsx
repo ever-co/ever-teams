@@ -1,35 +1,36 @@
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import React from 'react';
 import { useTeamTasks } from '@app/hooks';
 import { useCallback } from 'react';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import Image from 'next/image';
+import { useSlate } from 'slate-react';
 
 interface IDFooterProps {
 	isUpdated: boolean;
 	setIsUpdated: () => void;
 }
 
-const DescriptionFooter = (props: IDFooterProps) => {
-	const [editor] = useLexicalComposerContext();
+const EditorFooter = ({ isUpdated, setIsUpdated }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
+	const editor = useSlate();
+	const editorValue = editor.children;
 
 	const saveDescription = useCallback(
-		(newTitle: string) => {
-			updateDescription(newTitle, task, true);
+		(newDescription: string) => {
+			updateDescription(newDescription, task, true);
 		},
 		[task, updateDescription]
 	);
 
 	const cancelEdit = () => {
-		props.setIsUpdated();
+		setIsUpdated();
 	};
-
 	return (
 		<div>
-			{props.isUpdated && (
-				<div className='flex justify-end'>
+			{isUpdated && (
+				<div className="flex justify-end mb-0">
 					<button
 						onClick={cancelEdit}
 						className="font-medium transition-all hover:font-semibold"
@@ -38,18 +39,18 @@ const DescriptionFooter = (props: IDFooterProps) => {
 					</button>
 					<button
 						onClick={() => {
-							saveDescription(JSON.stringify(editor.getEditorState()));
-							props.setIsUpdated();
+							saveDescription(JSON.stringify(editorValue));
+							setIsUpdated();
 						}}
 						className={
-							'bg-green-500 text-white px-4 py-1 m-2 rounded font-medium hover:bg-green-600 transition-all'
+							'bg-green-500 text-white px-4 py-1 m-2 mb-0 rounded font-medium hover:bg-green-600 transition-all'
 						}
 					>
 						Save
 					</button>
 				</div>
 			)}
-			<div className="flex justify-between items-center mt-4">
+			<div className="flex justify-between items-end mt-0 border-b-2">
 				<div>
 					<label className="text-xs text-gray-300">Acceptance Criteria</label>
 				</div>
@@ -59,10 +60,11 @@ const DescriptionFooter = (props: IDFooterProps) => {
 					width={18}
 					height={18}
 					style={{ height: '28px' }}
-					className="cursor-pointer mr-1"
+					className="cursor-pointer mr-1 mb-0"
 				/>
 			</div>
 		</div>
 	);
 };
-export default DescriptionFooter;
+
+export default EditorFooter;
