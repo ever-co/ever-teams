@@ -78,3 +78,8 @@ export class TextEditorService {
 		return nodes.map((n) => Node.string(n)).join('\n');
 	}
 }
+
+export const isHtml = (value: string): boolean => {
+	const htmlRegex = /<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/i;
+	return htmlRegex.test(value);
+};

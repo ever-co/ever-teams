@@ -8,6 +8,8 @@ import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
+import { htmlToSlate } from 'slate-serializers';
+import { isHtml } from './editor-components/TextEditorService';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -33,10 +35,15 @@ IRichTextProps) => {
 	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 	const [task] = useRecoilState(detailedTaskState);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-	const [key, setKey] = useState(0); // Add key state
+	const [key, setKey] = useState(0); // Add key state, we need it as it re-renders the editor
 
 	const initialValue = useMemo(() => {
+		let value;
 		if (task && task.description) {
+			if (isHtml(task.description)) {
+				value = htmlToSlate(task.description);
+				return value;
+			}
 			return JSON.parse(task?.description);
 		} else {
 			return [{ type: 'paragraph', children: [{ text: '' }] }];
@@ -48,8 +55,6 @@ IRichTextProps) => {
 			setKey((prev) => prev + 1);
 		}
 	}, [initialValue, key]);
-
-	console.log('key:', key);
 
 	return (
 		<div className="flex flex-col prose placeholder:mt-11">

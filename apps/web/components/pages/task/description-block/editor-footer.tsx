@@ -5,6 +5,7 @@ import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import Image from 'next/image';
 import { useSlate } from 'slate-react';
+import { slateToHtml } from 'slate-serializers';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -39,7 +40,7 @@ const EditorFooter = ({ isUpdated, setIsUpdated }: IDFooterProps) => {
 					</button>
 					<button
 						onClick={() => {
-							saveDescription(JSON.stringify(editorValue));
+							saveDescription(slateToHtml(editorValue));
 							setIsUpdated();
 						}}
 						className={
