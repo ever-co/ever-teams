@@ -30,7 +30,7 @@ const EditorFooter = ({ isUpdated, setIsUpdated }: IDFooterProps) => {
 	return (
 		<div>
 			{isUpdated && (
-				<div className="flex justify-end">
+				<div className="flex justify-end mb-0">
 					<button
 						onClick={cancelEdit}
 						className="font-medium transition-all hover:font-semibold"
@@ -43,14 +43,14 @@ const EditorFooter = ({ isUpdated, setIsUpdated }: IDFooterProps) => {
 							setIsUpdated();
 						}}
 						className={
-							'bg-green-500 text-white px-4 py-1 m-2 rounded font-medium hover:bg-green-600 transition-all'
+							'bg-green-500 text-white px-4 py-1 m-2 mb-0 rounded font-medium hover:bg-green-600 transition-all'
 						}
 					>
 						Save
 					</button>
 				</div>
 			)}
-			<div className="flex justify-between items-end mt-4 border-b-2">
+			<div className="flex justify-between items-end mt-0 border-b-2">
 				<div>
 					<label className="text-xs text-gray-300">Acceptance Criteria</label>
 				</div>
