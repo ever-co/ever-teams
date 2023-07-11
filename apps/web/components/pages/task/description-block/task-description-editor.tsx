@@ -8,7 +8,7 @@ import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import { htmlToSlate } from 'slate-serializers';
+import { htmlToSlate, htmlToSlateConfig } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
 
 const HOTKEYS: { [key: string]: string } = {
@@ -37,7 +37,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		let value;
 		if (task && task.description) {
 			if (isHtml(task.description)) {
-				value = htmlToSlate(task.description);
+				value = htmlToSlate(task.description, htmlToSlateConfig);
 				return value;
 			}
 			return JSON.parse(task?.description);
@@ -70,13 +70,12 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						className={`${
 							readonly
 								? ''
-								: 'textarea resize-y block w-full bg-transparent dark:text-white'
+								: 'textarea resize-y block w-full bg-transparent dark:text-white h-64 overflow-y-scroll scrollbar-hide'
 						}`}
 						renderElement={renderElement}
 						renderLeaf={renderLeaf}
 						placeholder="Write a complete description of your project..."
 						spellCheck
-						autoFocus
 						readOnly={readonly}
 						onKeyDown={(event) => {
 							for (const hotkey in HOTKEYS) {
@@ -186,7 +185,7 @@ const Leaf = ({ attributes, children, leaf }: any) => {
 		children = <u>{children}</u>;
 	}
 
-	return <span {...attributes}>{children}</span>;
+	return <p {...attributes}>{children}</p>;
 };
 
 export default RichTextEditor;
