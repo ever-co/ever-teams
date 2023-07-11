@@ -53,7 +53,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	}, [initialValue, key]);
 
 	return (
-		<div className="flex flex-col prose dark:prose-invert placeholder:mt-11">
+		<div className="flex flex-col prose dark:prose-invert">
 			{task && (
 				<Slate
 					key={key}
