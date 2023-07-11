@@ -59,7 +59,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				isMarkActive={isMarkActive as (editor: any, format: string) => boolean}
 			/>
 			<BlockButton
-				format="heading-one"
+				format="h1"
 				icon={HeaderOneIcon}
 				isBlockActive={
 					isBlockActive as (
@@ -70,7 +70,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
-				format="heading-two"
+				format="h2"
 				icon={HeaderTwoIcon}
 				isBlockActive={
 					isBlockActive as (
@@ -81,7 +81,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
-				format="block-quote"
+				format="blockquote"
 				icon={QuoteBlockIcon}
 				isBlockActive={
 					isBlockActive as (
@@ -92,7 +92,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
-				format="numbered-list"
+				format="ol"
 				icon={OrderedListIcon}
 				isBlockActive={
 					isBlockActive as (
@@ -103,7 +103,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
-				format="bulleted-list"
+				format="ul"
 				icon={UnorderedListIcon}
 				isBlockActive={
 					isBlockActive as (

@@ -9,7 +9,7 @@ interface IMarkButtonProps {
 }
 
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
-const LIST_TYPES = ['numbered-list', 'bulleted-list'];
+const LIST_TYPES = ['ol', 'ul'];
 
 const BlockButton = ({
 	format,
