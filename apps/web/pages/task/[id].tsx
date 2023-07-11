@@ -17,7 +17,7 @@ import TaskDescriptionBlock from '@components/pages/task/description-block/task-
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 import IssueCard from '@components/pages/task/IssueCard';
-import { ITaskStatus, ITeamTask } from '@app/interfaces';
+import { ITeamTask } from '@app/interfaces';
 import { TaskStatusModal } from 'lib/features';
 // import CompletionBlock from '@components/pages/task/CompletionBlock';
 // import ActivityBlock from '@components/pages/task/ActivityBlock';
