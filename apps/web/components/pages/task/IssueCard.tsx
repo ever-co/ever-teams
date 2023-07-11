@@ -64,7 +64,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 									{issue.issueNum} - set your Child issues
 								</h5>
 							)}
-							<div className="ml-2 bg-[#E9E9EC] rounded-md text-center w-24 h-9 mr-4 flex justify-center items-center ">
+							<div className="ml-2 bg-[#E9E9EC] rounded-md text-center w-24 h-9 mr-4 flex justify-center items-center">
 								<span className="text-black font-medium text-xs flex items-center px-2 sm:px-0">
 									<Image
 										src="/assets/svg/category.svg"
@@ -79,7 +79,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 						</div>
 						<div className="flex justify-between items-center">
 							{related && (
-								<select className="border rounded-md px-4 py-2 ">
+								<select className="border rounded-md px-4 py-2">
 									<option value="">Select</option>
 								</select>
 							)}
