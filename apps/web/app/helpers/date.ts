@@ -98,13 +98,7 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 
 export const formatDateString = (dateTimeString?: string) => {
 	if (dateTimeString) {
-		const [date] = dateTimeString.split('T');
-
-		const [year, month, day] = date.split('-');
-		const monthParsed = months[month];
-		const formattedDate = `${+day + 1} ${monthParsed} ${year}`;
-
-		return `${formattedDate}`;
+		return moment(dateTimeString).format('DD MMM YYYY');
 	}
 
 	return '';
@@ -118,11 +112,5 @@ export const calculateRemainingDays = (
 		return undefined;
 	}
 
-	const todaysDate = moment(startDate);
-	const dueTo = moment(endDate);
-
-	const duration = moment.duration(dueTo.diff(todaysDate));
-	const daysRemaining = Math.floor(duration.asDays());
-
-	return daysRemaining;
+	return moment(endDate).diff(startDate, 'days');
 };
