@@ -158,7 +158,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									{trans.CREATE_NEW_SIZES}
+									{trans.CREATE_NEW_SIZE}
 								</Button>
 							)}
 
@@ -176,7 +176,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									>
 										<InputField
 											type="text"
-											placeholder="Create Size"
+											placeholder={trans.CREATE_NEW_SIZE}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}

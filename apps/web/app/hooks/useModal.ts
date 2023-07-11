@@ -16,3 +16,5 @@ export function useModal() {
 		openModal,
 	};
 }
+
+export type IHookModal = ReturnType<typeof useModal>;

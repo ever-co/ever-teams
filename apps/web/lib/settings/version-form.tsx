@@ -113,7 +113,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 							</Text>
 						)}
 
-						<div className="flex flex-col items-center sm:items-start">
+						<div className="flex flex-col items-center sm:items-start w-full">
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
@@ -144,7 +144,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									>
 										<InputField
 											type="text"
-											placeholder="Create Status"
+											placeholder={trans.CREATE_NEW_VERSION}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}

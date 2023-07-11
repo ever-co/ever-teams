@@ -57,7 +57,7 @@ IRichTextProps) => {
 	}, [initialValue, key]);
 
 	return (
-		<div className="flex flex-col prose placeholder:mt-11">
+		<div className="flex flex-col prose dark:prose-invert placeholder:mt-11">
 			{task && (
 				<Slate
 					key={key}

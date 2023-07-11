@@ -96,6 +96,14 @@ export const formatDateTimeString = (dateTimeString?: string) => {
 	return '';
 };
 
+export const formatDateString = (dateTimeString?: string) => {
+	if (dateTimeString) {
+		return moment(dateTimeString).format('DD MMM YYYY');
+	}
+
+	return '';
+};
+
 export const calculateRemainingDays = (
 	startDate: string,
 	endDate: string
@@ -104,11 +112,5 @@ export const calculateRemainingDays = (
 		return undefined;
 	}
 
-	const todaysDate = moment(startDate);
-	const dueTo = moment(endDate);
-
-	const duration = moment.duration(dueTo.diff(todaysDate));
-	const daysRemaining = Math.floor(duration.asDays());
-
-	return daysRemaining;
+	return moment(endDate).diff(startDate, 'days');
 };
