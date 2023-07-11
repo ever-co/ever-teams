@@ -113,7 +113,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 							</Text>
 						)}
 
-						<div className="flex flex-col items-center sm:items-start">
+						<div className="flex flex-col items-center sm:items-start w-full">
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
