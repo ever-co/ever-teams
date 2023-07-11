@@ -44,8 +44,6 @@ IRichTextProps) => {
 	}, [task]);
 
 	useEffect(() => {
-		console.log('key:', key);
-
 		if (key < 6) {
 			setKey((prev) => prev + 1);
 		}
