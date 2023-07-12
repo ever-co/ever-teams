@@ -67,6 +67,11 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} />
 
 					<Editable
+						renderPlaceholder={({ children, attributes }) => (
+							<div {...attributes}>
+								<p className="mt-0 p-0">{children}</p>
+							</div>
+						)}
 						className={`${
 							readonly
 								? ''
