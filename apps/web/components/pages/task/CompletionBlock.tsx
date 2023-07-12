@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card } from 'lib/components';
-import ToolButton from '@components/pages/task/description-block/tool-button';
+// import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import Image from 'next/image';
 
@@ -22,8 +22,8 @@ const CompletionBlock = () => {
 						/>{' '}
 						Link
 					</button>
-					<ToolButton iconSource="/assets/svg/attach.svg" />
-					<ToolButton iconSource="/assets/svg/more.svg" />
+					{/* <ToolButton iconSource="/assets/svg/attach.svg" />
+					<ToolButton iconSource="/assets/svg/more.svg" /> */}
 					<Image
 						src="/assets/svg/line-up.svg"
 						alt="line"

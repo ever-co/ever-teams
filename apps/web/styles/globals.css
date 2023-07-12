@@ -174,3 +174,24 @@ html.dark {
 .theme-popup-scrollbar ::-webkit-scrollbar {
 	display: none;
 }
+
+/* React Date picker */
+.react-datepicker {
+	@apply !bg-white dark:!bg-dark-high;
+}
+
+.react-datepicker__header {
+	@apply !bg-white dark:!bg-dark-high;
+}
+
+.react-datepicker__current-month {
+	@apply !text-default dark:!text-white;
+}
+
+.react-datepicker__day-name {
+	@apply !text-default dark:!text-white;
+}
+
+.react-datepicker__day {
+	@apply !text-default dark:!text-white;
+}
