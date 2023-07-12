@@ -1,5 +1,8 @@
 import Toolbar from './editor-toolbar';
-import { TextEditorService } from './editor-components/TextEditorService';
+import {
+	TextEditorService,
+	withHtml,
+} from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement } from 'slate';
@@ -27,7 +30,10 @@ interface IRichTextProps {
 const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
-	const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+	const editor = useMemo(
+		() => withHtml(withHistory(withReact(createEditor()))),
+		[]
+	);
 	const [task] = useRecoilState(detailedTaskState);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const [key, setKey] = useState(0); // Add key state, we need it as it re-renders the editor
@@ -134,6 +140,12 @@ const Element = ({ attributes, children, element }: any) => {
 					{children}
 				</blockquote>
 			);
+		case 'code':
+			return (
+				<pre>
+					<code {...attributes}>{children}</code>
+				</pre>
+			);
 		case 'ul':
 			return (
 				<ul style={style} {...attributes}>
@@ -190,7 +202,7 @@ const Leaf = ({ attributes, children, leaf }: any) => {
 		children = <u>{children}</u>;
 	}
 
-	return <p {...attributes}>{children}</p>;
+	return <span {...attributes}>{children}</span>;
 };
 
 export default RichTextEditor;
