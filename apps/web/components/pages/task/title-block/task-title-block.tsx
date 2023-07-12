@@ -140,7 +140,7 @@ const TaskTitleBlock = () => {
 				{/* Task number */}
 				<div className="ml-2 bg-[#D6D6D6] rounded text-center min-w-48 h-6 mr-2 flex justify-center items-center py-4 px-2">
 					<span className="text-black font-medium text-xs">
-						#{task?.taskNumber}32423
+						#{task?.taskNumber}
 					</span>
 				</div>
 				{/* Type of Issue */}

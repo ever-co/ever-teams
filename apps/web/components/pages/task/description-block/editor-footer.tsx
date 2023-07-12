@@ -4,18 +4,32 @@ import { useCallback } from 'react';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import Image from 'next/image';
-import { useSlate } from 'slate-react';
+import { slateToHtml, SlateToDomConfig } from 'slate-serializers';
+import {
+	ELEMENT_NAME_TAG_MAP,
+	MARK_ELEMENT_TAG_MAP,
+} from './editor-components/TextEditorService';
+
+const config: SlateToDomConfig = {
+	elementStyleMap: { align: 'textAlign' },
+	markMap: MARK_ELEMENT_TAG_MAP,
+	elementMap: ELEMENT_NAME_TAG_MAP,
+	elementTransforms: {},
+};
 
 interface IDFooterProps {
 	isUpdated: boolean;
 	setIsUpdated: () => void;
+	editorValue?: any;
 }
 
-const EditorFooter = ({ isUpdated, setIsUpdated }: IDFooterProps) => {
+const EditorFooter = ({
+	isUpdated,
+	setIsUpdated,
+	editorValue,
+}: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
-	const editor = useSlate();
-	const editorValue = editor.children;
 
 	const saveDescription = useCallback(
 		(newDescription: string) => {
@@ -39,11 +53,11 @@ const EditorFooter = ({ isUpdated, setIsUpdated }: IDFooterProps) => {
 					</button>
 					<button
 						onClick={() => {
-							saveDescription(JSON.stringify(editorValue));
+							saveDescription(slateToHtml(editorValue, config));
 							setIsUpdated();
 						}}
 						className={
-							'bg-green-500 text-white px-4 py-1 m-2 mb-0 rounded font-medium hover:bg-green-600 transition-all'
+							'bg-green-500 text-white px-4 py-1 m-2 rounded font-medium hover:bg-green-600 transition-all'
 						}
 					>
 						Save
