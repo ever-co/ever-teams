@@ -6,3 +6,4 @@ export * from './merge-refs';
 export * from './number';
 export * from './regex';
 export * from './validations';
+export * from './colors';
