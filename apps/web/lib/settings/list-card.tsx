@@ -2,51 +2,84 @@ import { Edit2Icon, TrashIcon } from 'lib/components/svgs';
 import { Button, Text, Tooltip } from 'lib/components';
 import Image from 'next/image';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
+import { IClassName } from '@app/interfaces';
+import { clsxm } from '@app/utils';
+
+function getTextColor(bgColor: string) {
+	if (!bgColor) return '#000';
+
+	const color = bgColor.charAt(0) === '#' ? bgColor.substring(1, 7) : bgColor;
+	const r = parseInt(color.substring(0, 2), 16); // hexToR
+	const g = parseInt(color.substring(2, 4), 16); // hexToG
+	const b = parseInt(color.substring(4, 6), 16); // hexToB
+	const uicolors = [r / 255, g / 255, b / 255];
+	const c = uicolors.map((col) => {
+		if (col <= 0.03928) {
+			return col / 12.92;
+		}
+		return Math.pow((col + 0.055) / 1.055, 2.4);
+	});
+	const L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+	return L > 0.179 ? '#000' : '#cdd1d8';
+}
 
 export const StatusesListCard = ({
 	statusIcon,
-	statusTitle,
+	statusTitle = '',
 	bgColor,
 	onEdit,
 	onDelete,
 	isStatus,
-}: {
+}: IClassName<{
 	statusIcon: string;
 	statusTitle: string;
 	bgColor: string;
 	onEdit: any;
 	onDelete: any;
 	isStatus?: boolean;
-}) => {
+}>) => {
+	const textColor = getTextColor(bgColor);
+
 	return (
 		<div className="border w-[21.4rem] flex items-center p-1 rounded-xl justify-between">
 			<div
-				className={`rounded-xl ${
+				className={clsxm(
+					'rounded-xl',
 					isStatus || statusTitle.length >= CHARACTER_LIMIT_TO_SHOW
 						? 'w-2/3'
-						: 'w-auto'
-				} flex items-center p-3 gap-x-2 overflow-hidden mr-1`}
-				style={{ backgroundColor: bgColor }}
+						: 'w-auto',
+					'flex items-center p-3 gap-x-2 overflow-hidden mr-1'
+				)}
+				style={{ backgroundColor: bgColor === '' ? undefined : bgColor }}
 			>
 				{statusIcon && (
 					<Image
 						src={statusIcon}
-						alt={statusTitle || ''}
+						alt={statusTitle}
 						width={20}
 						height={20}
 						decoding="async"
 						data-nimg="1"
 						loading="lazy"
-						className='min-h-[20px]'
+						className="min-h-[20px]"
 					/>
 				)}
 				<Tooltip
 					label={statusTitle}
 					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
 					placement="auto"
-					className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
+					className={clsxm(
+						'overflow-hidden text-ellipsis whitespace-nowrap w-full'
+					)}
 				>
-					<Text.Label className="flex-none flex-grow-0 text-md font-normal dark:text-black capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full">
+					<Text.Label
+						className={clsxm(
+							'flex-none flex-grow-0 font-normal',
+							'capitalize overflow-hidden text-ellipsis whitespace-nowrap w-full',
+							bgColor === '' && ['dark:text-[#cdd1d8]']
+						)}
+						style={{ color: bgColor === '' ? undefined : textColor }}
+					>
 						{statusTitle}
 					</Text.Label>
 				</Tooltip>
