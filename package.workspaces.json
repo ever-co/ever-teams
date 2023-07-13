@@ -1,12 +1,8 @@
 {
-	"name": "ever-gauzy-teams",
+	"name": "ever-teams",
 	"version": "0.1.0",
-	"repository": "https://github.com/ever-co/ever-gauzy-teams.git",
+	"repository": "https://github.com/ever-co/ever-teams.git",
 	"private": true,
 	"resolutions": {},
-	"workspaces": [
-		"packages/*",
-		"apps/*",
-		"libs/*"
-	]
+	"workspaces": ["packages/*", "apps/*", "libs/*"]
 }

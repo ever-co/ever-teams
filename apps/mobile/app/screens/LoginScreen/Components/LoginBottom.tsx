@@ -8,7 +8,7 @@ const LoginBottom = () => {
 	return (
 		<View style={styles.bottomSection}>
 			<Text style={styles.bottomSectionTxt}>
-				© 2022-Present, Gauzy Teams by Ever Co. LTD. All rights reserved.
+				© 2022-Present, Ever Teams by Ever Co. LTD. All rights reserved.
 			</Text>
 			<TouchableOpacity style={{ flex: 1 }}>
 				<Image

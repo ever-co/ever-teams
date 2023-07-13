@@ -130,7 +130,8 @@ export default async function handler(
 	if (!organization) {
 		return res.status(400).json({
 			errors: {
-				email: 'Your account is not yet ready to be used on the gauzy team',
+				email:
+					'Your account is not yet ready to be used on the Ever Teams Platform',
 			},
 		});
 	}
