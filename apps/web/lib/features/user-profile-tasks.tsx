@@ -9,6 +9,7 @@ type Props = {
 	tabFiltered: I_TaskFilter;
 	profile: I_UserProfilePage;
 };
+
 /**
  * It renders a list of tasks, with the first task being the active task, and the rest being the last
  * 24 hours of tasks
@@ -21,11 +22,12 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	const { time, timerStatus } = useLiveTimerStatus();
 
 	/**
-	 * When tab is worked, then filter it exclude the active task
+	 * When tab is worked, then filter exclude the active task
 	 */
 	const tasks = useMemo(() => {
 		return tabFiltered.tasksFiltered;
 	}, [tabFiltered]);
+
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' &&
@@ -62,6 +64,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						profile={profile}
 					/>
 				)}
+
 			{tabFiltered.tab === 'worked' && (
 				<div className="flex space-x-2 items-center my-6">
 					<Text className="font-normal">
@@ -70,6 +73,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					<Divider className="flex-1" />
 				</div>
 			)}
+
 			<ul>
 				{tasks.map((task) => {
 					return (

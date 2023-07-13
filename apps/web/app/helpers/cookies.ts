@@ -161,7 +161,9 @@ export function getActiveUserTaskCookie(ctx?: NextCtx) {
 
 	try {
 		return JSON.parse(data as string) as { taskId: string; userId: string };
-	} catch (_) {}
+	} catch (_) {
+		/* empty */
+	}
 
 	return null;
 }
