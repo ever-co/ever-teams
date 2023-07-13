@@ -5,7 +5,7 @@ import { Card } from 'lib/components';
 import { PlusIcon } from '@heroicons/react/20/solid';
 // import bugIcon from '../../../public/assets/svg/bug.svg';
 // import ideaIcon from '../../../public/assets/svg/idea.svg';
-import { TaskStatusDropdown } from 'lib/features';
+import { TaskIssueStatus, TaskStatusDropdown } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import { useLinkedTasks } from '@app/hooks';
@@ -28,8 +28,8 @@ const IssueCard = ({ related }: { related: boolean }) => {
 					{/* <ToolButton iconSource="/assets/svg/add.svg" />
 					<ToolButton iconSource="/assets/svg/more.svg" /> */}
 
-					<PlusIcon className="h-5 w-5 dark:text-[#292D32] cursor-pointer" />
-					<ChevronUpIcon className="h-5 w-5 dark:text-[#292D32] cursor-pointer" />
+					<PlusIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
+					<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
 				</div>
 			</div>
 			<hr />
@@ -46,7 +46,13 @@ const IssueCard = ({ related }: { related: boolean }) => {
 function RelatedTask({ task }: { task: ITeamTask }) {
 	return (
 		<Card shadow="custom" className="flex justify-between">
-			<div></div>
+			<div className="ml-2">
+				<TaskIssueStatus
+					showIssueLabels={false}
+					className="px-1 py-1 rounded-full"
+					task={task}
+				/>
+			</div>
 			<div>{task.taskNumber}</div>
 			<div>{task.title}</div>
 
