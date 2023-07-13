@@ -128,7 +128,7 @@ export async function login(params: ILoginDataAPI) {
 			response: {
 				status: 400,
 				errors: {
-					email: "Your account is not yet ready to be used on the gauzy team",
+					email: "Your account is not yet ready to be used on the Ever Teams Platform",
 				},
 			},
 		}

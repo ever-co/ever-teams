@@ -107,10 +107,10 @@ export interface IDrowDownData {
 	color: string;
 }
 
-export interface IClassName {
+export type IClassName<T = object> = {
 	className?: string;
 	type?: 'VERTICAL' | 'HORIZONTAL';
-}
+} & T;
 
 export type Nullable<T> = T | null | undefined;
 

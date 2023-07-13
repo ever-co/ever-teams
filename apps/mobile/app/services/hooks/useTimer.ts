@@ -13,7 +13,7 @@ import { useTeamTasks } from "./features/useTeamTasks"
 import useFetchTimerStatus from "../client/queries/timer/timer"
 import { useTaskStatistics } from "./features/useTaskStatics"
 
-const LOCAL_TIMER_STORAGE_KEY = "local-timer-gauzy-teams"
+const LOCAL_TIMER_STORAGE_KEY = "local-timer-ever-teams"
 
 /**
  * Don't modify this function unless you know what you're doing

@@ -1,5 +1,5 @@
 {
-	"name": "@gauzy-teams/web",
+	"name": "@ever-teams/web",
 	"version": "0.1.0",
 	"license": "UNLICENSED",
 	"author": {
@@ -50,6 +50,7 @@
 		"recoil": "^0.7.7",
 		"slate": "^0.90.0",
 		"slate-history": "^0.93.0",
+		"slate-hyperscript": "^0.77.0",
 		"slate-react": "^0.91.0",
 		"slate-serializers": "^0.4.0",
 		"string-to-color": "^2.2.2",

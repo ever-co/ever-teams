@@ -34,6 +34,7 @@ import {
 import clsx from 'clsx';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
+// import { getTextColor } from '@app/helpers';
 
 export type TStatusItem = {
 	bgColor?: string;
@@ -712,19 +713,26 @@ export function TaskStatus({
 			sidebarUI?: boolean;
 		}
 >) {
+	// const textColor = getTextColor(backgroundColor || '');
+
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm ${
-					sidebarUI
-						? 'text-dark space-x-3 rounded-[4px] font-[500]'
-						: 'space-x-0 rounded-xl'
-				} relative`,
+				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
+
+				sidebarUI
+					? 'text-dark space-x-3 rounded-[4px] font-[500]'
+					: 'space-x-0 rounded-xl',
+
 				issueType === 'issue' && ['px-2 text-white'],
+
 				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+
 				bordered && ['input-border'],
+
 				bordered &&
 					backgroundColor === 'transparent' && ['text-dark dark:text-white'],
+
 				className
 			)}
 			style={{

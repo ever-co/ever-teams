@@ -1,4 +1,4 @@
-package gauzy.team;
+package ever.team;
 
 import android.app.Application;
 import android.content.res.Configuration;

@@ -1,5 +1,5 @@
 export const en = {
-	TITLE: 'Gauzy Teams',
+	TITLE: 'Ever Teams',
 	common: {
 		VERIFY: 'verify',
 		PLEASE: 'please',
@@ -126,7 +126,7 @@ export const en = {
 			INPUT_INVITE_CODE: 'Input invitation code.',
 			INPUT_INVITE_CODE_DESC:
 				'Enter the invitation code we sent to your email.',
-			WELCOME_TEAMS: 'Welcome to Gauzy teams',
+			WELCOME_TEAMS: 'Welcome to Ever Teams',
 
 			COVER_TITLE: 'Follow your teams work progress in real-time!',
 			COVER_DESCRIPTION:
