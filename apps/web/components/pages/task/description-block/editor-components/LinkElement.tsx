@@ -8,6 +8,8 @@ const LinkElement = ({ attributes, element, children }: any) => {
 	const selected = useSelected();
 	const focused = useFocused();
 
+	const href = `https://${element.href.replace('https://', '')}`;
+
 	return (
 		<div className="element-link inline relative">
 			<a {...attributes} href={element.href}>
@@ -19,7 +21,7 @@ const LinkElement = ({ attributes, element, children }: any) => {
 					contentEditable="false"
 				>
 					<a
-						href={element.href}
+						href={href}
 						rel="noreferrer"
 						target="_blank"
 						className="flex items-center gap-1 pr-2 border-r border-gray-300"
