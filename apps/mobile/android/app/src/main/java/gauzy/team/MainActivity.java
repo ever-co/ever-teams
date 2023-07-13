@@ -1,4 +1,4 @@
-package gauzy.team;
+package ever.team;
 
 import android.os.Build;
 import android.os.Bundle;

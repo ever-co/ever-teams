@@ -1,209 +1,209 @@
 {
-  "name": "ever-gauzy-teams",
-  "homepage": "https://gauzy.team",
-  "license": "UNLICENSED",
-  "author": {
-    "name": "Ever Co. LTD",
-    "email": "ever@ever.co",
-    "url": "https://ever.co"
-  },
-  "version": "0.1.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ever-co/ever-gauzy-teams.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ever-co/ever-gauzy-teams/issues"
-  },
-  "private": true,
-  "scripts": {
-    "prepare:husky": "npx husky install .husky",
-    "ng": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
-    "ng:prod": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
-    "ng:ci": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=7000 yarn nx",
-    "config": "yarn ts-node ./.scripts/configure.ts",
-    "config:dev": "yarn run config -- --environment=dev",
-    "config:prod": "yarn run config -- --environment=prod",
-    "start": "yarn build && yarn concurrently --raw --kill-others \"yarn start:api\" \"yarn start:web\"",
-    "start:prod": "yarn build && yarn concurrently --raw --kill-others \"yarn start:api:prod\" \"yarn start:web:prod\"",
-    "start:web": "yarn run postinstall.web && yarn run config:dev && yarn ng serve web --open",
-    "start:web:forever": "yarn run config:dev && forever start ng serve web --disable-host-check --host 0.0.0.0",
-    "start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:web && yarn ts-node ./apps/gauzy/src/pm2bootstrap.ts",
-    "start:web:prod": "yarn run config:prod && yarn ng serve web --configuration production --disable-host-check --host 0.0.0.0 --prod",
-    "start:website": "yarn run postinstall.web && yarn run config:dev && yarn ng serve website --open",
-    "start:website:forever": "yarn run config:dev && forever start ng serve website --disable-host-check --host 0.0.0.0",
-    "start:website:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:website && yarn ts-node ./apps/gauzy/src/pm2bootstrap.ts",
-    "start:website:prod": "yarn run config:prod && yarn ng serve website --configuration production --disable-host-check --host 0.0.0.0 --prod",
-    "start:api": "yarn ng serve api",
-    "start:api:prod": "yarn ng:prod serve api --host 0.0.0.0 -c=production --prod",
-    "start:api:ci": "yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci serve api -c=production --prod",
-    "start:api:forever": "forever start ng serve api --host 0.0.0.0",
-    "start:api:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn run build:api && yarn ts-node -r tsconfig-paths/register --project apps/api/tsconfig.app.json ./apps/api/src/pm2bootstrap.ts",
-    "bootstrap": "yarn install && yarn lerna bootstrap",
-    "prebuild": "rimraf dist coverage",
-    "build": "yarn build:web && yarn build:website && yarn build:mobile && yarn build:extensions",
-    "build:api": "yarn ng build api",
-    "build:api:prod": "yarn ng:prod build api -c=production --prod",
-    "build:api:prod:ci": "yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci build api -c=production --prod",
-    "build:web": "cd apps/web && yarn run build",
-    "build:website": "cd apps/website && yarn run build",
-    "build:mobile": "cd apps/mobile && yarn install && yarn run build",
-    "build:extensions": "cd apps/extensions && yarn install && yarn run build",
-    "commit": "git-cz",
-    "commit:lint": "commitlint -E HUSKY_GIT_PARAMS",
-    "semantic-release": "semantic-release",
-    "test": "yarn run postinstall.web && yarn run config:dev && yarn ng test",
-    "lint": "lerna run lint",
-    "lint-fix": "cd apps/web && eslint . --fix",
-    "lint-fix:scss": "cd apps/web && stylelint **/*.{scss,css} --fix",
-    "e2e": "yarn run postinstall.web && yarn run config:dev && yarn ng e2e --browser chrome",
-    "e2e:ci": "yarn run postinstall.web && yarn run config:prod && yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci e2e -c=production --prod --headless",
-    "prettier": "cd apps/web && prettier --write **/*.{js,jsx,ts,tsx,scss,css} --config ./.prettierrc",
-    "postinstall": "lerna bootstrap",
-    "precommit": "yarn lint-fix && yarn lint-fix:scss && yarn prettier",
-    "affected:apps": "yarn nx affected:apps",
-    "affected:libs": "yarn nx affected:libs",
-    "affected:build": "yarn nx affected:build",
-    "affected:e2e": "yarn nx affected:e2e",
-    "affected:test": "yarn nx affected:test",
-    "affected:lint": "yarn nx affected:lint",
-    "affected:dep-graph": "yarn nx affected:dep-graph",
-    "affected": "yarn nx affected",
-    "format": "yarn nx format:write",
-    "format:write": "yarn nx format:write",
-    "format:web:write": "cd apps/website && yarn nx format:write",
-    "format:web:check": "cd apps/website && yarn nx format:check",
-    "format:check": "nx format:check",
-    "update": "yarn ng update @nrwl/workspace",
-    "update:check": "yarn ng update",
-    "workspace-schematic": "yarn nx workspace-schematic",
-    "workspace-generator": "nx workspace-generator",
-    "dep-graph": "nx dep-graph",
-    "help": "nx help",
-    "doc:build": "compodoc -p tsconfig.json -d dist/docs",
-    "doc:serve": "compodoc -s -d dist/docs",
-    "doc:build-serve": "compodoc -p tsconfig.json -d docs -s",
-    "postinstall.electron": "yarn electron-builder install-app-deps && yarn node tools/electron/postinstall",
-    "postinstall.web": "yarn node tools/web/postinstall"
-  },
-  "config": {
-    "commitizen": {
-      "path": "cz-conventional-changelog"
-    }
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "pretty-quick --no-verify --staged"
-    }
-  },
-  "lint-staged": {},
-  "release": {
-    "verifyConditions": [
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      "@semantic-release/git",
-      "@semantic-release/github"
-    ],
-    "prepare": [
-      "@semantic-release/changelog",
-      "@semantic-release/npm",
-      "@semantic-release/git"
-    ],
-    "publish": [
-      "@semantic-release/github"
-    ],
-    "generateNotes": {
-      "preset": "react"
-    },
-    "npmPublish": false
-  },
-  "workspaces": {
-    "packages": [
-      "apps/web",
-      "apps/website",
-      "apps/api",
-      "packages/*",
-      "libs/*",
-      "tools"
-    ],
-    "nohoist": []
-  },
-  "resolutions": {},
-  "dependencies": {
-    "@lexical/react": "^0.8.0",
-    "dotenv": "^16.0.3",
-    "lexical": "^0.8.0",
-    "yargs": "^17.5.0"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^17.3.0",
-    "@commitlint/config-conventional": "^17.3.0",
-    "@commitlint/config-lerna-scopes": "^17.2.1",
-    "@commitlint/travis-cli": "^17.3.0",
-    "@compodoc/compodoc": "^1.1.19",
-    "@cucumber/cucumber": "^8.9.0",
-    "@cucumber/cucumber-expressions": "^16.0.1",
-    "@cucumber/gherkin": "^25.0.2",
-    "@cypress/browserify-preprocessor": "^3.0.2",
-    "@next/eslint-plugin-next": "^13.0.5",
-    "@nrwl/cli": "^15.2.1",
-    "@nrwl/cypress": "^15.2.1",
-    "@nrwl/detox": "^15.2.1",
-    "@nrwl/eslint-plugin-nx": "^15.2.1",
-    "@nrwl/jest": "^15.2.1",
-    "@nrwl/linter": "^15.2.1",
-    "@nrwl/nest": "^15.2.1",
-    "@nrwl/next": "^15.2.1",
-    "@nrwl/node": "^15.2.1",
-    "@nrwl/react": "^15.2.1",
-    "@nrwl/tao": "^15.2.1",
-    "@nrwl/web": "^15.2.1",
-    "@nrwl/workspace": "^15.2.1",
-    "@semantic-release/changelog": "^5.0.1",
-    "@semantic-release/git": "^9.0.0",
-    "@semantic-release/github": "^7.2.1",
-    "@semantic-release/npm": "^7.1.1",
-    "@types/detox": "^18.1.0",
-    "@types/node": "^18.11.9",
-    "@types/yargs": "^15.0.9",
-    "@typescript-eslint/eslint-plugin": "^5.44.0",
-    "@typescript-eslint/parser": "^5.44.0",
-    "cloc": "^2.10.0",
-    "commitizen": "^4.2.5",
-    "concurrently": "^7.6.0",
-    "conventional-changelog": "^3.1.25",
-    "conventional-changelog-cli": "^2.2.2",
-    "cross-env": "^7.0.3",
-    "cypress": "^11.2.0",
-    "cypress-file-upload": "^5.0.8",
-    "cz-conventional-changelog": "^3.3.0",
-    "detox": "^20.0.3",
-    "envalid": "^6.0.2",
-    "eslint": "^8.28.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-cypress": "^2.12.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.31.8",
-    "husky": "^8.0.2",
-    "lerna": "^6.0.3",
-    "lerna-changelog": "^2.2.0",
-    "lint-staged": "^10.4.0",
-    "prettier": "^2.8.0",
-    "prettier-eslint-cli": "^7.1.0",
-    "pretty-quick": "^3.1.0",
-    "rimraf": "^3.0.2",
-    "semantic-release": "^19.0.5",
-    "ts-node": "^10.9.1"
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "yarn": ">=1.13.0"
-  },
-  "snyk": true
+	"name": "ever-teams",
+	"homepage": "https://ever.team",
+	"license": "UNLICENSED",
+	"author": {
+		"name": "Ever Co. LTD",
+		"email": "ever@ever.co",
+		"url": "https://ever.co"
+	},
+	"version": "0.1.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ever-co/ever-teams.git"
+	},
+	"bugs": {
+		"url": "https://github.com/ever-co/ever-teams/issues"
+	},
+	"private": true,
+	"scripts": {
+		"prepare:husky": "npx husky install .husky",
+		"ng": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
+		"ng:prod": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=8192 yarn nx",
+		"ng:ci": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=7000 yarn nx",
+		"config": "yarn ts-node ./.scripts/configure.ts",
+		"config:dev": "yarn run config -- --environment=dev",
+		"config:prod": "yarn run config -- --environment=prod",
+		"start": "yarn build && yarn concurrently --raw --kill-others \"yarn start:api\" \"yarn start:web\"",
+		"start:prod": "yarn build && yarn concurrently --raw --kill-others \"yarn start:api:prod\" \"yarn start:web:prod\"",
+		"start:web": "yarn run postinstall.web && yarn run config:dev && yarn ng serve web --open",
+		"start:web:forever": "yarn run config:dev && forever start ng serve web --disable-host-check --host 0.0.0.0",
+		"start:web:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:web && yarn ts-node ./apps/gauzy/src/pm2bootstrap.ts",
+		"start:web:prod": "yarn run config:prod && yarn ng serve web --configuration production --disable-host-check --host 0.0.0.0 --prod",
+		"start:website": "yarn run postinstall.web && yarn run config:dev && yarn ng serve website --open",
+		"start:website:forever": "yarn run config:dev && forever start ng serve website --disable-host-check --host 0.0.0.0",
+		"start:website:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn build:website && yarn ts-node ./apps/gauzy/src/pm2bootstrap.ts",
+		"start:website:prod": "yarn run config:prod && yarn ng serve website --configuration production --disable-host-check --host 0.0.0.0 --prod",
+		"start:api": "yarn ng serve api",
+		"start:api:prod": "yarn ng:prod serve api --host 0.0.0.0 -c=production --prod",
+		"start:api:ci": "yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci serve api -c=production --prod",
+		"start:api:forever": "forever start ng serve api --host 0.0.0.0",
+		"start:api:pm2": "cross-env NODE_ENV=development NODE_OPTIONS=--max_old_space_size=4096 yarn run build:api && yarn ts-node -r tsconfig-paths/register --project apps/api/tsconfig.app.json ./apps/api/src/pm2bootstrap.ts",
+		"bootstrap": "yarn install && yarn lerna bootstrap",
+		"prebuild": "rimraf dist coverage",
+		"build": "yarn build:web && yarn build:website && yarn build:mobile && yarn build:extensions",
+		"build:api": "yarn ng build api",
+		"build:api:prod": "yarn ng:prod build api -c=production --prod",
+		"build:api:prod:ci": "yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci build api -c=production --prod",
+		"build:web": "cd apps/web && yarn run build",
+		"build:website": "cd apps/website && yarn run build",
+		"build:mobile": "cd apps/mobile && yarn install && yarn run build",
+		"build:extensions": "cd apps/extensions && yarn install && yarn run build",
+		"commit": "git-cz",
+		"commit:lint": "commitlint -E HUSKY_GIT_PARAMS",
+		"semantic-release": "semantic-release",
+		"test": "yarn run postinstall.web && yarn run config:dev && yarn ng test",
+		"lint": "lerna run lint",
+		"lint-fix": "cd apps/web && eslint . --fix",
+		"lint-fix:scss": "cd apps/web && stylelint **/*.{scss,css} --fix",
+		"e2e": "yarn run postinstall.web && yarn run config:dev && yarn ng e2e --browser chrome",
+		"e2e:ci": "yarn run postinstall.web && yarn run config:prod && yarn --frozen-lockfile --cache-folder ~/.cache/yarn ng:ci e2e -c=production --prod --headless",
+		"prettier": "cd apps/web && prettier --write **/*.{js,jsx,ts,tsx,scss,css} --config ./.prettierrc",
+		"postinstall": "lerna bootstrap",
+		"precommit": "yarn lint-fix && yarn lint-fix:scss && yarn prettier",
+		"affected:apps": "yarn nx affected:apps",
+		"affected:libs": "yarn nx affected:libs",
+		"affected:build": "yarn nx affected:build",
+		"affected:e2e": "yarn nx affected:e2e",
+		"affected:test": "yarn nx affected:test",
+		"affected:lint": "yarn nx affected:lint",
+		"affected:dep-graph": "yarn nx affected:dep-graph",
+		"affected": "yarn nx affected",
+		"format": "yarn nx format:write",
+		"format:write": "yarn nx format:write",
+		"format:web:write": "cd apps/website && yarn nx format:write",
+		"format:web:check": "cd apps/website && yarn nx format:check",
+		"format:check": "nx format:check",
+		"update": "yarn ng update @nrwl/workspace",
+		"update:check": "yarn ng update",
+		"workspace-schematic": "yarn nx workspace-schematic",
+		"workspace-generator": "nx workspace-generator",
+		"dep-graph": "nx dep-graph",
+		"help": "nx help",
+		"doc:build": "compodoc -p tsconfig.json -d dist/docs",
+		"doc:serve": "compodoc -s -d dist/docs",
+		"doc:build-serve": "compodoc -p tsconfig.json -d docs -s",
+		"postinstall.electron": "yarn electron-builder install-app-deps && yarn node tools/electron/postinstall",
+		"postinstall.web": "yarn node tools/web/postinstall"
+	},
+	"config": {
+		"commitizen": {
+			"path": "cz-conventional-changelog"
+		}
+	},
+	"commitlint": {
+		"extends": [
+			"@commitlint/config-conventional"
+		]
+	},
+	"husky": {
+		"hooks": {
+			"commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+			"pre-commit": "pretty-quick --no-verify --staged"
+		}
+	},
+	"lint-staged": {},
+	"release": {
+		"verifyConditions": [
+			"@semantic-release/changelog",
+			"@semantic-release/npm",
+			"@semantic-release/git",
+			"@semantic-release/github"
+		],
+		"prepare": [
+			"@semantic-release/changelog",
+			"@semantic-release/npm",
+			"@semantic-release/git"
+		],
+		"publish": [
+			"@semantic-release/github"
+		],
+		"generateNotes": {
+			"preset": "react"
+		},
+		"npmPublish": false
+	},
+	"workspaces": {
+		"packages": [
+			"apps/web",
+			"apps/website",
+			"apps/api",
+			"packages/*",
+			"libs/*",
+			"tools"
+		],
+		"nohoist": []
+	},
+	"resolutions": {},
+	"dependencies": {
+		"@lexical/react": "^0.8.0",
+		"dotenv": "^16.0.3",
+		"lexical": "^0.8.0",
+		"yargs": "^17.5.0"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^17.3.0",
+		"@commitlint/config-conventional": "^17.3.0",
+		"@commitlint/config-lerna-scopes": "^17.2.1",
+		"@commitlint/travis-cli": "^17.3.0",
+		"@compodoc/compodoc": "^1.1.19",
+		"@cucumber/cucumber": "^8.9.0",
+		"@cucumber/cucumber-expressions": "^16.0.1",
+		"@cucumber/gherkin": "^25.0.2",
+		"@cypress/browserify-preprocessor": "^3.0.2",
+		"@next/eslint-plugin-next": "^13.0.5",
+		"@nrwl/cli": "^15.2.1",
+		"@nrwl/cypress": "^15.2.1",
+		"@nrwl/detox": "^15.2.1",
+		"@nrwl/eslint-plugin-nx": "^15.2.1",
+		"@nrwl/jest": "^15.2.1",
+		"@nrwl/linter": "^15.2.1",
+		"@nrwl/nest": "^15.2.1",
+		"@nrwl/next": "^15.2.1",
+		"@nrwl/node": "^15.2.1",
+		"@nrwl/react": "^15.2.1",
+		"@nrwl/tao": "^15.2.1",
+		"@nrwl/web": "^15.2.1",
+		"@nrwl/workspace": "^15.2.1",
+		"@semantic-release/changelog": "^5.0.1",
+		"@semantic-release/git": "^9.0.0",
+		"@semantic-release/github": "^7.2.1",
+		"@semantic-release/npm": "^7.1.1",
+		"@types/detox": "^18.1.0",
+		"@types/node": "^18.11.9",
+		"@types/yargs": "^15.0.9",
+		"@typescript-eslint/eslint-plugin": "^5.44.0",
+		"@typescript-eslint/parser": "^5.44.0",
+		"cloc": "^2.10.0",
+		"commitizen": "^4.2.5",
+		"concurrently": "^7.6.0",
+		"conventional-changelog": "^3.1.25",
+		"conventional-changelog-cli": "^2.2.2",
+		"cross-env": "^7.0.3",
+		"cypress": "^11.2.0",
+		"cypress-file-upload": "^5.0.8",
+		"cz-conventional-changelog": "^3.3.0",
+		"detox": "^20.0.3",
+		"envalid": "^6.0.2",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-cypress": "^2.12.1",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-react": "^7.31.8",
+		"husky": "^8.0.2",
+		"lerna": "^6.0.3",
+		"lerna-changelog": "^2.2.0",
+		"lint-staged": "^10.4.0",
+		"prettier": "^2.8.0",
+		"prettier-eslint-cli": "^7.1.0",
+		"pretty-quick": "^3.1.0",
+		"rimraf": "^3.0.2",
+		"semantic-release": "^19.0.5",
+		"ts-node": "^10.9.1"
+	},
+	"engines": {
+		"node": ">=16.0.0",
+		"yarn": ">=1.13.0"
+	},
+	"snyk": true
 }

@@ -8,10 +8,10 @@ import { IUser } from "../../interfaces/IUserData"
 import { serverFetch } from "../fetch"
 
 const registerDefaultValue = {
-	appName: "Gauzy Teams",
-	appSignature: "Ever Gauzy Team",
-	appLogo: "https://app.gauzy.team/assets/gauzy-team.png",
-	appLink: "https://gauzy.team/",
+	appName: "Ever Teams",
+	appSignature: "Ever Team",
+	appLogo: "https://app.ever.team/assets/gauzy-team.png",
+	appLink: "https://ever.team/",
 	appEmailConfirmationUrl: "https://app.gauzy.co/#/auth/confirm-email",
 }
 

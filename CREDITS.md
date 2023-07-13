@@ -2,7 +2,7 @@
 
 ## Components, Libraries, Frameworks, Packages
 
-Gauzy Teams applications use Open Source components and 3rd party libraries, which are licensed under their own respective Open-Source licenses.
+Ever Teams applications use Open Source components and 3rd party libraries, which are licensed under their own respective Open-Source licenses.
 You can find the links to source code of their open source projects along with license information below.
 We acknowledge and are grateful to these developers for their contributions to open source.
 
@@ -11,7 +11,7 @@ We acknowledge and are grateful to these developers for their contributions to o
 
 ## Fonts
 
-- https://fonts.google.com/specimen/Crimson+Text ([OFL web license](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web))
+- <https://fonts.google.com/specimen/Crimson+Text> ([OFL web license](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL_web))
 - TODO: add more
 
 ## Sounds

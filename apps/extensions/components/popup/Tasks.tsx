@@ -8,7 +8,6 @@ import {
   MessageTypesFromBackgroundEnum,
   MessageTypesToBackgroundEnum
 } from "~typescript/enums/MessageTypesEnum"
-import { TimerStateEnum } from "~typescript/enums/TimerStateEnum"
 import type { IPostMessage } from "~typescript/interfaces/PostMessage"
 import type { ITimerUpdate } from "~typescript/interfaces/TimerUpdate"
 import type { ITask } from "~typescript/types/Tasks"
@@ -18,7 +17,7 @@ import TasksEstimatedInputs from "./TasksEstimatedInputs"
 const fakeTasks: ITask[] = [
   {
     id: 1,
-    title: "Build a chrome extension for Gauzy Teams",
+    title: "Build a chrome extension for Ever Teams",
     estimated: "12:00"
   },
   { id: 2, title: "Fix bug #2", estimated: "00:25" }
@@ -106,9 +105,9 @@ const Tasks: React.FC<Props> = ({ port }) => {
     activeTaskEstimate === "00:00" || activeTaskEstimate === ""
 
   return (
-    <div className="bg-zinc-100 rounded p-2">
+    <div className="p-2 rounded bg-zinc-100">
       <div className="flex flex-col mb-2">
-        <div className="flex items-center border-b-2 pb-2 mb-2">
+        <div className="flex items-center pb-2 mb-2 border-b-2">
           <span className="w-24">All Tasks:</span>
           <div className="relative">
             <AppDropdown
@@ -129,7 +128,7 @@ const Tasks: React.FC<Props> = ({ port }) => {
           <input
             type="text"
             className={roundInput}
-            placeholder="ex. Gauzy Teams Extension"
+            placeholder="ex. Ever Teams Extension"
             value={activeTaskTitle}
             onChange={onActiveTaskChange}
           />
