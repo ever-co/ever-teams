@@ -3,7 +3,7 @@
 	"displayName": "Ever Teams",
 	"expo": {
 		"name": "Ever Teams",
-		"slug": "ever-teams-mobile-expo",
+		"slug": "ever-gauzy-teams-mobile-expo",
 		"version": "0.1.0",
 		"orientation": "portrait",
 		"icon": "./assets/images/gauzy-teams-logo.png",
