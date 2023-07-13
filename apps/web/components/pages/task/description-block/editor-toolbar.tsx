@@ -1,6 +1,7 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
 import React from 'react';
+import { insertLink } from './editor-components/TextEditorService';
 
 import {
 	BoldIcon,
@@ -24,6 +25,7 @@ import {
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import Image from 'next/image';
+import { useSlateStatic } from 'slate-react';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -32,6 +34,13 @@ interface IToolbarProps {
 
 const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const { trans } = useTranslation('taskDetails');
+	const editor = useSlateStatic();
+
+	const handleInsertLink = () => {
+		const url = prompt('Enter a URL');
+
+		insertLink(editor, url);
+	};
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1">
@@ -157,7 +166,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
-			<LinkIcon />
+			<button onClick={handleInsertLink}>
+				<LinkIcon />
+			</button>
 			<Image
 				src="/assets/svg/tick-square.svg"
 				alt="check-button"

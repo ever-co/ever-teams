@@ -13,6 +13,7 @@ import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import { htmlToSlate, htmlToSlateConfig } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
+import LinkElement from './editor-components/LinkElement';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -175,6 +176,12 @@ const Element = ({ attributes, children, element }: any) => {
 				<ol style={style} {...attributes}>
 					{children}
 				</ol>
+			);
+		case 'link':
+			return (
+				<LinkElement {...attributes} element={element}>
+					{children}
+				</LinkElement>
 			);
 		default:
 			return (
