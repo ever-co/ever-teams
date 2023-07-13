@@ -1962,28 +1962,84 @@ export function ExternalLinkIcon({ className }: IClassName) {
 			viewBox="0 0 24 24"
 			width="21"
 			height="21"
-			className={clsxm('stroke-[#282048]', className, 'dark:fill-white')}
+			className={clsxm(className)}
 		>
-			<path d="M18,10.82a1,1,0,0,0-1,1V19a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V8A1,1,0,0,1,5,7h7.18a1,1,0,0,0,0-2H5A3,3,0,0,0,2,8V19a3,3,0,0,0,3,3H16a3,3,0,0,0,3-3V11.82A1,1,0,0,0,18,10.82Zm3.92-8.2a1,1,0,0,0-.54-.54A1,1,0,0,0,21,2H15a1,1,0,0,0,0,2h3.59L8.29,14.29a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L20,5.41V9a1,1,0,0,0,2,0V3A1,1,0,0,0,21.92,2.62Z" />
+			<g>
+				<path fill="none" d="M0 0h24v24H0z" />{' '}
+				<path d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z" />{' '}
+			</g>
 		</svg>
 	);
 }
 export function UnlinkIcon({ className }: IClassName) {
 	return (
 		<svg
-			height="21"
-			viewBox="0 0 21 21"
-			width="21"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#282048]', className, 'dark:fill-white')}
+			viewBox="0 0 256 256"
+			width="21"
+			height="21"
+			className={clsxm(className, 'dark:fill-white')}
 		>
-			<path
-				d="m5.5 8.5c-.39387503 0-.0547637 0-1 0-2.209139 0-4-1.790861-4-4s1.790861-4 4-4h1m4 0h1c2.209139 0 4 1.790861 4 4s-1.790861 4-4 4c-.88888889 0-.55555556 0-1 0"
+			<rect width="256" height="256" fill="none" />
+			<line
+				x1="96"
+				y1="68"
+				x2="96"
+				y2="48"
 				fill="none"
-				stroke="currentColor"
+				stroke="#000"
 				stroke-linecap="round"
 				stroke-linejoin="round"
-				transform="translate(3 6)"
+				stroke-width="24"
+			/>
+			<line
+				x1="160"
+				y1="208"
+				x2="160"
+				y2="188"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<line
+				x1="68"
+				y1="96"
+				x2="48"
+				y2="96"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<line
+				x1="208"
+				y1="160"
+				x2="188"
+				y2="160"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<path
+				d="M67,132.4l-7.3,7.3a40,40,0,0,0,56.6,56.6l7.3-7.3"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<path
+				d="M189,123.6l7.3-7.3a40,40,0,0,0-56.6-56.6L132.4,67"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
 			/>
 		</svg>
 	);
