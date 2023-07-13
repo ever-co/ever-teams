@@ -2,20 +2,27 @@ import { useSelected, useFocused, useSlateStatic } from 'slate-react';
 import { ExternalLinkIcon, UnlinkIcon } from 'lib/components/svgs';
 
 import { removeLink } from '../editor-components/TextEditorService';
+import { useState } from 'react';
 
 const LinkElement = ({ attributes, element, children }: any) => {
 	const editor = useSlateStatic();
 	const selected = useSelected();
 	const focused = useFocused();
 
-	const href = `https://${element.href.replace('https://', '')}`;
+	const [visible, setVisible] = useState(true);
+
+	const handleVisibility = (): void => {
+		setVisible((prev) => !prev);
+	};
+
+	const href = `https://${element?.href?.replace('https://', '')}`;
 
 	return (
 		<div className="element-link inline relative">
-			<a {...attributes} href={element.href}>
+			<a {...attributes} href={element.href} onMouseDown={handleVisibility}>
 				{children}
 			</a>
-			{selected && focused && (
+			{selected && focused && visible && (
 				<div
 					className="absolute left-0 flex items-center bg-white p-2 gap-3 rounded-md border border-gray-300"
 					contentEditable="false"

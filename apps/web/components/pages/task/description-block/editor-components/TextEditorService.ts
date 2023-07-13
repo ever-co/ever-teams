@@ -170,6 +170,11 @@ export const deserialize = (el: any): any => {
 		const attrs = TEXT_TAGS[nodeName](el);
 		return children.map((child) => jsx('text', attrs, child));
 	}
+	// if (nodeName === 'A') {
+	// 	const href = el.getAttribute('href');
+	// 	const text = el.textContent;
+	// 	return jsx('element', { type: 'link', href }, children);
+	// }
 
 	return children;
 };

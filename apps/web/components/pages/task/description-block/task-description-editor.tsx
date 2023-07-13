@@ -11,9 +11,10 @@ import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import { htmlToSlate, htmlToSlateConfig } from 'slate-serializers';
+import { htmlToSlate } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
 import LinkElement from './editor-components/LinkElement';
+import { configHtmlToSlate } from './editor-components/configHtmlToSLate';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -44,7 +45,9 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		let value;
 		if (task && task.description) {
 			if (isHtml(task.description)) {
-				value = htmlToSlate(task.description, htmlToSlateConfig);
+				value = htmlToSlate(task.description, configHtmlToSlate);
+				console.log(value);
+
 				return value;
 			}
 			return JSON.parse(task?.description);
@@ -52,6 +55,8 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 			return [{ type: 'paragraph', children: [{ text: '' }] }];
 		}
 	}, [task]);
+
+	// console.log(task?.description);
 
 	useEffect(() => {
 		if (key < 6) {

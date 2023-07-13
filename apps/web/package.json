@@ -28,6 +28,7 @@
 		"clsx": "^1.2.1",
 		"cookie": "^0.5.0",
 		"cookies-next": "^2.1.1",
+		"domhandler": "^5.0.3",
 		"embla-carousel-react": "^7.0.5",
 		"emoji-mart": "^5.5.2",
 		"js-cookie": "^3.0.1",

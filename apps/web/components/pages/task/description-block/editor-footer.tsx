@@ -9,12 +9,31 @@ import {
 	ELEMENT_NAME_TAG_MAP,
 	MARK_ELEMENT_TAG_MAP,
 } from './editor-components/TextEditorService';
+import { Element } from 'domhandler';
 
 const config: SlateToDomConfig = {
 	elementStyleMap: { align: 'textAlign' },
 	markMap: MARK_ELEMENT_TAG_MAP,
 	elementMap: ELEMENT_NAME_TAG_MAP,
-	elementTransforms: {},
+	elementTransforms: {
+		link: ({ node, children = [] }) => {
+			const attrs: any = {};
+			if (node.linkType) {
+				attrs['data-link-type'] = node.linkType;
+			}
+			if (node.newTab) {
+				attrs.target = '_blank';
+			}
+			return new Element(
+				'a',
+				{
+					href: node.href,
+					...attrs,
+				},
+				children
+			);
+		},
+	},
 };
 
 interface IDFooterProps {
@@ -30,6 +49,8 @@ const EditorFooter = ({
 }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
+
+	// console.log(slateToHtml(editorValue, config));
 
 	const saveDescription = useCallback(
 		(newDescription: string) => {
