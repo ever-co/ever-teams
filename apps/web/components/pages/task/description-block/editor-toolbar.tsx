@@ -89,6 +89,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 
 		insertLink(editor, link);
 		setShowLinkPopup(false);
+		setLink('');
 	};
 
 	return (
