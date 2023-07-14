@@ -79,16 +79,17 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} />
 
 					<Editable
-						renderPlaceholder={({ children, attributes }) => (
-							<div {...attributes}>
-								<div className="mt-0 p-0">{children}</div>
-							</div>
-						)}
 						className={`${
 							readonly
 								? ''
 								: 'textarea resize-y block w-full bg-transparent dark:text-white h-64 overflow-y-scroll scrollbar-hide'
 						}`}
+						id="editor-container"
+						renderPlaceholder={({ children, attributes }) => (
+							<div {...attributes}>
+								<div className="mt-0 p-0">{children}</div>
+							</div>
+						)}
 						renderElement={renderElement}
 						renderLeaf={renderLeaf}
 						placeholder="Write a complete description of your project..."
