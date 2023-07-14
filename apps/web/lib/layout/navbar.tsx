@@ -1,7 +1,7 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Container } from 'lib/components';
-import { AppLogo } from 'lib/components/svgs';
+import { EverTeamsLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
 import Skeleton from 'react-loading-skeleton';
 import { useOrganizationTeams, useModal } from '@app/hooks';
@@ -72,10 +72,7 @@ export function Navbar({
 				>
 					<Container>
 						<div className="w-full flex justify-between items-center min-h-[70px]">
-							<AppLogo
-								dash
-								className="scale-[0.7] origin-[0] w-4/5 md:w-full"
-							/>
+							<EverTeamsLogo dash className=" w-4/5 md:w-full" />
 							{!notFound && (
 								<div className="flex md:space-x-5 space-x-2 items-center">
 									{publicTeam && (
