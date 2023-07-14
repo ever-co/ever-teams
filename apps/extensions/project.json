@@ -1,8 +1,7 @@
 {
-    "root": "apps/extensions",
-    "sourceRoot": "apps/extensions",
-    "projectType": "application",
-    "targets": {
-    }
-  }
-  
+  "name": "extensions",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/extensions",
+  "projectType": "application",
+  "targets": {}
+}
