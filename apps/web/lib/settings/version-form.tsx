@@ -208,6 +208,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 													onDelete={() => {
 														deleteTaskVersion(version.id);
 													}}
+													className="dark:text-gray-100"
 													isStatus={true}
 												/>
 											))

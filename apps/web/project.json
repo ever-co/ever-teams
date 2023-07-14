@@ -1,57 +1,57 @@
 {
-  "root": "apps/web",
-  "sourceRoot": "apps/web",
-  "projectType": "application",
-  "targets": {
-    "build": {
-      "executor": "@nrwl/next:build",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "root": "apps/web",
-        "outputPath": "dist/apps/web"
-      },
-      "configurations": {
-        "production": {}
-      }
-    },
-    "serve": {
-      "executor": "@nrwl/next:server",
-      "options": {
-        "buildTarget": "web:build",
-        "dev": true,
-        "port": 3000,
-        "hostname": "localhost"
-      },
-      "configurations": {
-        "production": {
-          "buildTarget": "web:build:production",
-          "dev": false,
-          "hostname": "app.gauzy.team"
-        }
-      }
-    },
-    "export": {
-      "executor": "@nrwl/next:export",
-      "options": {
-        "buildTarget": "web:build:production"
-      }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/web"],
-      "options": {
-        "jestConfig": "apps/web/jest.config.js",
-        "passWithNoTests": true
-      }
-    },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["apps/web/**/*.{ts,tsx,js,jsx}"]
-      }
-    }
-  },
-  "tags": []
+	"root": "apps/web",
+	"sourceRoot": "apps/web",
+	"projectType": "application",
+	"targets": {
+		"build": {
+			"executor": "@nrwl/next:build",
+			"outputs": ["{options.outputPath}"],
+			"defaultConfiguration": "production",
+			"options": {
+				"root": "apps/web",
+				"outputPath": "dist/apps/web"
+			},
+			"configurations": {
+				"production": {}
+			}
+		},
+		"serve": {
+			"executor": "@nrwl/next:server",
+			"options": {
+				"buildTarget": "web:build",
+				"dev": true,
+				"port": 3000,
+				"hostname": "localhost"
+			},
+			"configurations": {
+				"production": {
+					"buildTarget": "web:build:production",
+					"dev": false,
+					"hostname": "app.ever.team"
+				}
+			}
+		},
+		"export": {
+			"executor": "@nrwl/next:export",
+			"options": {
+				"buildTarget": "web:build:production"
+			}
+		},
+		"test": {
+			"executor": "@nrwl/jest:jest",
+			"outputs": ["coverage/apps/web"],
+			"options": {
+				"jestConfig": "apps/web/jest.config.js",
+				"passWithNoTests": true
+			}
+		},
+		"lint": {
+			"executor": "@nrwl/linter:eslint",
+			"outputs": ["{options.outputFile}"],
+			"options": {
+				"lintFilePatterns": ["apps/web/**/*.{ts,tsx,js,jsx}"]
+			}
+		}
+	},
+	"tags": []
 }

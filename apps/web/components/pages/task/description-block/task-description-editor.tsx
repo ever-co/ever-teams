@@ -81,7 +81,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					<Editable
 						renderPlaceholder={({ children, attributes }) => (
 							<div {...attributes}>
-								<p className="mt-0 p-0">{children}</p>
+								<div className="mt-0 p-0">{children}</div>
 							</div>
 						)}
 						className={`${

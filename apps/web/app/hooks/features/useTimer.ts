@@ -31,7 +31,7 @@ import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 import isEqual from 'lodash/isEqual';
 
-const LOCAL_TIMER_STORAGE_KEY = 'local-timer-gauzy-team';
+const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
 /**
  * ! Don't modify this function unless you know what you're doing

@@ -1,83 +1,81 @@
 {
-  "name": "gauzy-teams",
-  "displayName": "Gauzy Teams",
-  "expo": {
-    "name": "Gauzy Teams",
-    "slug": "ever-gauzy-teams-mobile-expo",
-    "version": "0.1.0",
-    "orientation": "portrait",
-    "icon": "./assets/images/gauzy-teams-logo.png",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
-    },
-    "owner": "everco",
-    "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/9f38f768-16f6-4c47-b354-9745ebda1335"
-    },
-    "jsEngine": "hermes",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "plugins": [
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
-          "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
-          "isAccessMediaLocationEnabled": true
-        }
-      ]
-    ],
-    "android": {
-      "icon": "./assets/images/app-icon-android-legacy.png",
-      "package": "gauzy.team",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
-        "backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
-      },
-      "splash": {
-        "image": "./assets/images/splash.png",
-        "resizeMode": "cover",
-        "backgroundColor": "#ffffff"
-      },
-      "permissions": [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_MEDIA_LOCATION"
-      ]
-    },
-    "ios": {
-      "icon": "./assets/images/app-icon-ios.png",
-      "supportsTablet": true,
-      "bundleIdentifier": "gauzy.team",
-      "splash": {
-        "image": "./assets/images/splash.png",
-        "tabletImage": "./assets/images/splash-logo-ios-tablet.png",
-        "resizeMode": "cover",
-        "backgroundColor": "#ffffff"
-      },
-      "infoPlist": {
-        "NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
-        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
-        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
-      }
-    },
-    "web": {
-      "favicon": "./assets/images/app-icon-web-favicon.png",
-      "splash": {
-        "image": "./assets/images/splash-logo-web.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#ffffff"
-      }
-    },
-    "extra": {
-      "eas": {
-        "projectId": "9f38f768-16f6-4c47-b354-9745ebda1335"
-      }
-    },
-    "runtimeVersion":"exposdk:48.0.0"
-  }
+	"name": "ever-teams",
+	"displayName": "Ever Teams",
+	"expo": {
+		"name": "Ever Teams",
+		"slug": "ever-gauzy-teams-mobile-expo",
+		"version": "0.1.0",
+		"orientation": "portrait",
+		"icon": "./assets/images/gauzy-teams-logo.png",
+		"splash": {
+			"image": "./assets/images/splash.png",
+			"resizeMode": "cover",
+			"backgroundColor": "#ffffff"
+		},
+		"owner": "everco",
+		"updates": {
+			"fallbackToCacheTimeout": 0,
+			"url": "https://u.expo.dev/9f38f768-16f6-4c47-b354-9745ebda1335"
+		},
+		"jsEngine": "hermes",
+		"assetBundlePatterns": ["**/*"],
+		"plugins": [
+			[
+				"expo-media-library",
+				{
+					"photosPermission": "Allow $(PRODUCT_NAME) to access your photos.",
+					"savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
+					"isAccessMediaLocationEnabled": true
+				}
+			]
+		],
+		"android": {
+			"icon": "./assets/images/app-icon-android-legacy.png",
+			"package": "ever.team",
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
+				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
+			},
+			"splash": {
+				"image": "./assets/images/splash.png",
+				"resizeMode": "cover",
+				"backgroundColor": "#ffffff"
+			},
+			"permissions": [
+				"android.permission.READ_EXTERNAL_STORAGE",
+				"android.permission.WRITE_EXTERNAL_STORAGE",
+				"android.permission.ACCESS_MEDIA_LOCATION"
+			]
+		},
+		"ios": {
+			"icon": "./assets/images/app-icon-ios.png",
+			"supportsTablet": true,
+			"bundleIdentifier": "ever.team",
+			"splash": {
+				"image": "./assets/images/splash.png",
+				"tabletImage": "./assets/images/splash-logo-ios-tablet.png",
+				"resizeMode": "cover",
+				"backgroundColor": "#ffffff"
+			},
+			"infoPlist": {
+				"NSCameraUsageDescription": "This app uses the camera to scan barcodes on event tickets.",
+				"NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos.",
+				"NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos."
+			}
+		},
+		"web": {
+			"favicon": "./assets/images/app-icon-web-favicon.png",
+			"splash": {
+				"image": "./assets/images/splash-logo-web.png",
+				"resizeMode": "contain",
+				"backgroundColor": "#ffffff"
+			}
+		},
+		"extra": {
+			"eas": {
+				"projectId": "9f38f768-16f6-4c47-b354-9745ebda1335"
+			}
+		},
+		"runtimeVersion": "exposdk:48.0.0"
+	}
 }

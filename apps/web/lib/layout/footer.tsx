@@ -15,7 +15,7 @@ export function Footer({ className }: IClassName) {
 		>
 			<p className="text-neutral text-xs font-normal leading-4 -tracking-[-0.02em] text-center md:mb-2 mb-7">
 				© 2022-Present,{' '}
-				<Text.Link href="https://gauzy.team">{trans.TITLE}</Text.Link> by{' '}
+				<Text.Link href="https://ever.team">{trans.TITLE}</Text.Link> by{' '}
 				<Text.Link href="https://ever.co/">Ever Co</Text.Link>.{' '}
 				{trans.layout.footer.RIGHTS_RESERVERD}
 			</p>

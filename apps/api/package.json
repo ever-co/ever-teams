@@ -1,15 +1,15 @@
 {
-	"name": "@gauzy-teams/api",
+	"name": "@ever-teams/api",
 	"version": "0.1.0",
-	"description": "Gauzy Teams API",
+	"description": "Ever Teams API",
 	"license": "UNLICENSED",
-	"homepage": "https://gauzy.team",
+	"homepage": "https://ever.team",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ever-co/ever-gauzy-teams.git"
+		"url": "https://github.com/ever-co/ever-teams.git"
 	},
 	"bugs": {
-		"url": "https://github.com/ever-co/ever-gauzy-teams/issues"
+		"url": "https://github.com/ever-co/ever-teams/issues"
 	},
 	"private": true,
 	"author": {
@@ -43,7 +43,7 @@
 		"@nestjs/common": "^9.2.0",
 		"@nestjs/core": "^9.2.0",
 		"@nestjs/apollo": "^10.0.19",
-		"@nestjs/axios": "^0.1.0",		
+		"@nestjs/axios": "^0.1.0",
 		"@nestjs/cqrs": "^9.0.1",
 		"@nestjs/graphql": "^10.0.21",
 		"@nestjs/jwt": "^9.0.0",

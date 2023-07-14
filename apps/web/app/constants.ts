@@ -36,11 +36,11 @@ export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
 
-export const APP_NAME = process.env.APP_NAME || 'Gauzy Teams';
-export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Gauzy Team';
+export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
+export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
 export const APP_LOGO_URL =
-	process.env.APP_LOGO_URL || 'https://app.gauzy.team/assets/gauzy-team.png';
-export const APP_LINK = process.env.APP_LINK || 'https://gauzy.team/';
+	process.env.APP_LOGO_URL || 'https://app.ever.team/assets/gauzy-team.png';
+export const APP_LINK = process.env.APP_LINK || 'https://ever.team/';
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
 export const smtpConfiguration: () => I_SMTPRequest = () => ({

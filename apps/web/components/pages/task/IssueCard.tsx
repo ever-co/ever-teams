@@ -1,23 +1,24 @@
 // import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import { Card } from 'lib/components';
-import Image from 'next/image';
-import bugIcon from '../../../public/assets/svg/bug.svg';
-import ideaIcon from '../../../public/assets/svg/idea.svg';
-import { TaskStatusDropdown } from 'lib/features';
+import { Card, Modal, Text } from 'lib/components';
 
-const data = [
-	{
-		taskType: bugIcon,
-		issueNum: '#3245',
-	},
-	{
-		taskType: ideaIcon,
-		issueNum: '#3245',
-	},
-];
+// import Image from 'next/image';
+import { PlusIcon } from '@heroicons/react/20/solid';
+// import bugIcon from '../../../public/assets/svg/bug.svg';
+// import ideaIcon from '../../../public/assets/svg/idea.svg';
+import { TaskIssueStatus, TaskStatusDropdown } from 'lib/features';
+import { useRecoilValue } from 'recoil';
+import { detailedTaskState } from '@app/stores';
+import { IHookModal, useLinkedTasks, useModal } from '@app/hooks';
+import { ITeamTask } from '@app/interfaces';
+import { useTranslation } from 'lib/i18n';
 
 const IssueCard = ({ related }: { related: boolean }) => {
+	const modal = useModal();
+
+	const task = useRecoilValue(detailedTaskState);
+	const { tasks } = useLinkedTasks(task);
+
 	return (
 		<Card className="w-full mt-8" shadow="bigger">
 			<div className="flex justify-between">
@@ -30,69 +31,62 @@ const IssueCard = ({ related }: { related: boolean }) => {
 				<div className="flex items-center">
 					{/* <ToolButton iconSource="/assets/svg/add.svg" />
 					<ToolButton iconSource="/assets/svg/more.svg" /> */}
-					<Image
-						src="/assets/svg/line-up.svg"
-						alt="line"
-						width={18}
-						height={18}
-						style={{ height: '18px' }}
+
+					<PlusIcon
+						onClick={modal.openModal}
+						className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer"
 					/>
-					<ChevronUpIcon className="h-5 w-5 text-[#292D32] cursor-pointer" />
+
+					<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
 				</div>
 			</div>
 			<hr />
+
 			<div className="flex flex-col">
-				{data.map((issue, idx) => (
-					<div
-						key={idx}
-						className="flex justify-between items-center flex-wrap"
-					>
-						<div className="flex items-center my-4">
-							<Image
-								src={issue.taskType}
-								alt="type"
-								width={20}
-								height={20}
-								style={{ height: '20px' }}
-							/>
-							{related ? (
-								<h5 className="ml-2 text-[#BAB8C4] font-medium">
-									{issue.issueNum} - set your Related issues
-								</h5>
-							) : (
-								<h5 className="ml-2 text-[#BAB8C4] font-medium">
-									{issue.issueNum} - set your Child issues
-								</h5>
-							)}
-							<div className="ml-2 bg-[#E9E9EC] rounded-md text-center w-24 h-9 mr-4 flex justify-center items-center">
-								<span className="text-black font-medium text-xs flex items-center px-2 sm:px-0">
-									<Image
-										src="/assets/svg/category.svg"
-										alt="type"
-										width={10}
-										height={10}
-										style={{ height: '10px', marginRight: '5px' }}
-									/>
-									User Profile
-								</span>
-							</div>
-						</div>
-						<div className="flex justify-between items-center">
-							{related && (
-								<select className="border rounded-md px-4 py-2">
-									<option value="">Select</option>
-								</select>
-							)}
-							<TaskStatusDropdown
-								className="lg:min-w-[170px] !ml-4"
-								forDetails={true}
-							/>
-						</div>
-					</div>
-				))}
+				{tasks.map((task) => {
+					return <RelatedTask key={task.id} task={task} />;
+				})}
 			</div>
+
+			<CreateTask modal={modal} />
 		</Card>
 	);
 };
+
+function CreateTask({ modal }: { modal: IHookModal }) {
+	const { trans } = useTranslation();
+
+	return (
+		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
+			<div className="w-[98%] md:w-[530px]">
+				<Card className="w-full" shadow="custom">
+					<div className="flex flex-col justify-between items-center w-full">
+						<Text.Heading as="h3" className="text-center mb-2">
+							{trans.common.CREATE_TASK}
+						</Text.Heading>
+					</div>
+				</Card>
+			</div>
+		</Modal>
+	);
+}
+
+function RelatedTask({ task }: { task: ITeamTask }) {
+	return (
+		<Card shadow="custom" className="flex justify-between">
+			<div className="ml-2">
+				<TaskIssueStatus
+					showIssueLabels={false}
+					className="px-1 py-1 rounded-full"
+					task={task}
+				/>
+			</div>
+			<div>{task.taskNumber}</div>
+			<div>{task.title}</div>
+
+			<TaskStatusDropdown defaultValue={task.status} />
+		</Card>
+	);
+}
 
 export default IssueCard;

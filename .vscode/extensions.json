@@ -1,7 +1,6 @@
 {
 	"recommendations": [
-		"DeepScan.vscode-deepscan",
-		"ms-vscode.vscode-typescript-tslint-plugin",
+		"deepscan.vscode-deepscan",
 		"folke.vscode-monorepo-workspace",
 		"seatonjiang.gitmoji-vscode",
 		"dbaeumer.vscode-eslint",
