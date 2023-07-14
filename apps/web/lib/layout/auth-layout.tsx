@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
 import { Meta, Text } from 'lib/components';
-import { AppLogo } from 'lib/components/svgs';
+import { EverTeamsLogo } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import Image from 'next/legacy/image';
 import { PropsWithChildren } from 'react';
@@ -24,7 +24,8 @@ export function AuthLayout({ children, title, description }: Props) {
 
 					<div className="overflow-hidden h-[100vh]">
 						<div className="p-9 pt-4">
-							<AppLogo className="fill-white scale-75 mt-3 dark:fill-default" />
+							<EverTeamsLogo color="white-black" className="mt-3 ml-7 mb-1" />
+							{/* <AppLogo className="fill-white scale-75 mt-3 dark:fill-default" /> */}
 							<Text className="text-xs ml-7 text-gray-300 dark:text-default">
 								{trans.WELCOME_TEAMS}
 							</Text>
