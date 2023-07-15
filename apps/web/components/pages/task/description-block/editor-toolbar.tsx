@@ -232,7 +232,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					<ExternalLinkIcon />
 					<input
 						type="text"
-						className="outline-none   text-[#5000B9] dark:text-primary-light"
+						className="outline-none   text-[#5000B9] dark:text-primary-light border-r border-gray-300 pr-2"
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
 					/>

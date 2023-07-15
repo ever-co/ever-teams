@@ -44,21 +44,24 @@ const LinkElement = ({ attributes, element, children }: any) => {
 			</a>
 			{selected && focused && visible && (
 				<div
-					className="absolute left-0 flex items-center bg-white p-2 gap-1 rounded-md border border-gray-300"
+					className="absolute left-0 flex items-center max-w-xs bg-white p-2 gap-1 rounded-md border border-gray-300 z-10 "
 					contentEditable="false"
 				>
-					<a
-						href={href}
-						rel="noreferrer"
-						target="_blank"
-						className="flex items-center gap-1 pr-2 border-r border-gray-300 text-[#5000B9] dark:text-primary-light"
-					>
-						<ExternalLinkIcon />
-						{element.href}
-					</a>
+					<div className="flex items-center pr-2  border-r border-gray-300">
+						<ExternalLinkIcon className="mr-1" />
+						<a
+							href={href}
+							rel="noreferrer"
+							target="_blank"
+							className=" text-[#5000B9] dark:text-primary-light truncate max-w-[240px] overflow-hidden whitespace-nowrap mr-0"
+							style={{ textOverflow: 'ellipsis' }}
+						>
+							{element.href}
+						</a>
+					</div>
 					<button
 						onClick={() => removeLink(editor)}
-						className="border-none bg-transparent hover:cursor-pointer ml-0"
+						className="border-none bg-transparent hover:cursor-pointer ml-0 "
 					>
 						<UnlinkIcon />
 					</button>
