@@ -1,55 +1,64 @@
 {
-	"npmScope": "ever-teams",
-	"affected": {
-		"defaultBase": "master"
-	},
-	"cli": {
-		"defaultCollection": "@nrwl/next"
-	},
-	"implicitDependencies": {
-		"package.json": {
-			"dependencies": "*",
-			"devDependencies": "*"
-		},
-		".eslintrc.json": "*"
-	},
-	"tasksRunnerOptions": {
-		"default": {
-			"runner": "@nrwl/workspace/tasks-runners/default",
-			"options": {
-				"cacheableOperations": ["build", "lint", "test", "e2e"]
-			}
-		}
-	},
-	"targetDependencies": {
-		"build": [
-			{
-				"target": "build",
-				"projects": "dependencies"
-			}
-		]
-	},
-	"generators": {
-		"@nrwl/react": {
-			"application": {
-				"style": "styled-components",
-				"linter": "eslint",
-				"babel": true
-			},
-			"component": {
-				"style": "styled-components"
-			},
-			"library": {
-				"style": "styled-components",
-				"linter": "eslint"
-			}
-		},
-		"@nrwl/next": {
-			"application": {
-				"style": "styled-components",
-				"linter": "eslint"
-			}
-		}
-	},
-	"defaultProject": "web"
+  "npmScope": "ever-teams",
+  "affected": {
+    "defaultBase": "master"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "@nrwl/workspace/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ]
+      }
+    }
+  },
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "style": "styled-components",
+        "linter": "eslint",
+        "babel": true
+      },
+      "component": {
+        "style": "styled-components"
+      },
+      "library": {
+        "style": "styled-components",
+        "linter": "eslint"
+      }
+    },
+    "@nrwl/next": {
+      "application": {
+        "style": "styled-components",
+        "linter": "eslint"
+      }
+    }
+  },
+  "defaultProject": "web",
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ]
+    }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "sharedGlobals": [],
+    "production": [
+      "default"
+    ]
+  }
 }
