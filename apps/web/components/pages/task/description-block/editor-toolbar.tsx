@@ -26,7 +26,7 @@ import {
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import Image from 'next/image';
-import { useFocused, useSlateStatic } from 'slate-react';
+import { useSlateStatic } from 'slate-react';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -232,7 +232,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					<ExternalLinkIcon />
 					<input
 						type="text"
-						className="outline-none   text-[#5000B9] dark:text-primary-light border-r border-gray-300 pr-2"
+						className="outline-none font-[500] text-[#5000B9] dark:text-primary-light border-r border-gray-300 pr-2"
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
 					/>
