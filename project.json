@@ -1,4 +1,6 @@
 {
+	"name": ".",
+	"$schema": "node_modules/nx/schemas/project-schema.json",
 	"projects": {
 		"web-e2e": {
 			"tags": [],
@@ -6,8 +8,8 @@
 		},
 		"web": {
 			"tags": []
-		},        
-        "website-e2e": {
+		},
+		"website-e2e": {
 			"tags": [],
 			"implicitDependencies": ["web"]
 		},
@@ -20,7 +22,7 @@
 		"mobile": {
 			"tags": []
 		},
-        "extensions": {
+		"extensions": {
 			"tags": []
 		},
 		"desktop": {
