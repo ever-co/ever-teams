@@ -43,6 +43,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		top: 0,
 	});
 	const popupRef = useRef<any>(null);
+	const inputRef = useRef<any>(null);
 
 	const handleLinkIconClick = () => {
 		const selection = editor.selection;
@@ -66,6 +67,12 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		}
 		setShowLinkPopup(true);
 	};
+
+	useEffect(() => {
+		if (showLinkPopup) {
+			inputRef.current.focus();
+		}
+	}, [showLinkPopup]);
 
 	useEffect(() => {
 		const onClickOutsideOfPopup = (event: MouseEvent) => {
@@ -243,6 +250,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						className="outline-none font-[500] text-[#5000B9] dark:text-primary-light border-r border-gray-300 pr-2"
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
+						ref={inputRef}
 					/>
 					<button
 						className="border-none bg-transparent hover:cursor-pointer ml-0"
