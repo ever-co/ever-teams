@@ -9,9 +9,20 @@
 
 [Ever® Teams™](https://app.ever.team) - Open Work and Project Management Platform.
 
-Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Business Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (<https://gauzy.co>), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at <https://ever.co>.
+![web](https://docs.gauzy.co/docs/assets/gauzy-teams/web/overview.png)
 
 **NOTE: Platform currently is in active development stage / WIP, please use with caution!**
+
+## ✨ Features
+
+Below is a list of planned features:
+
+- Projects / Tasks Management
+- Time Management / Time Tracking / Activity Tracking
+- Organizations / Teams
+- Tags / Labels
+- Integrations (GitHub, GitLab, Bitbucket, JIRA, etc.)
+- Dark / Black / Light Themes
 
 ## 🌼 Screenshots
 
@@ -36,23 +47,16 @@ Note: currently WIP, the screenshot is just a temporary picture :)
 
 </details>
 
-## ✨ Features
-
-Below is a list of planned features:
-
-- Projects / Tasks Management
-- Time Management / Time Tracking / Activity Tracking
-- Organizations / Teams
-- Tags / Labels
-- Integrations (GitHub, GitLab, Bitbucket, JIRA, etc.)
-- Dark / Black / Light Themes
-
 ## 🔗 Links
 
 - **<https://app.ever.team>** - Ever Teams Platform web application (not yet in production release)
 - **<https://ever.team>** - check more information about the Ever Teams platform at the official website (WIP).
 - **<https://gauzy.co>** - check more information about the Ever Gauzy Platform at the official website.
 - **<https://ever.co>** - get more information about our company products.
+
+## ⚡️ Our Open Platforms
+
+Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Business Management Platform (ERP/CRM/HRM) - Ever® Gauzy™ Platform (<https://gauzy.co>), which itself is a part of our larger Open Platform for On-Demand and Sharing Economies - Ever®. You can get more information about all our products at <https://ever.co>.
 
 ## 🧱 Technology Stack and Requirements
 
