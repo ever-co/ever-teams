@@ -27,6 +27,7 @@ import {
 import { useTranslation } from 'lib/i18n';
 import Image from 'next/image';
 import { useSlateStatic } from 'slate-react';
+import { Node, Element } from 'slate';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -92,18 +93,38 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	}, [showLinkPopup]);
 
 	const handleInsertLink = () => {
-		// const url = prompt('Enter a URL');
-
 		insertLink(editor, link);
 		setShowLinkPopup(false);
 		setLink('');
 	};
 
-	const handleInsertLinkOnEnter = (e: React.KeyboardEvent) => {
+	const handleInsertLinkOnEnter = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === 'Enter') {
 			e.preventDefault();
 			handleInsertLink();
 		}
+	};
+
+	const handleCopyTwo = (editor: any) => {
+		const serializedText = (nodes: Node[]) => {
+			return nodes
+				.map((node) => {
+					if (
+						Element.isElement(node) &&
+						//@ts-ignore
+						(node.type === 'ul' || node.type === 'ol')
+					) {
+						return node.children
+							.map((child) => `\n${Node.string(child)}\n`)
+							.join('');
+					}
+					return Node.string(node);
+				})
+				.join('\n');
+		};
+
+		const plainText = serializedText(editor.children);
+		window.navigator.clipboard.writeText(plainText);
 	};
 
 	return (
@@ -267,7 +288,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				height={20}
 				className="m-0"
 			/>
-			<CopyIcon />
+			<button onClick={() => handleCopyTwo(editor)}>
+				<CopyIcon />
+			</button>
 			<MoreIcon2 />
 		</div>
 	);

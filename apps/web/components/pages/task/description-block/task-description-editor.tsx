@@ -46,7 +46,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		if (task && task.description) {
 			if (isHtml(task.description)) {
 				value = htmlToSlate(task.description, configHtmlToSlate);
-				console.log(value);
+				// console.log(value);
 
 				return value;
 			}
