@@ -122,6 +122,9 @@ export const en = {
 			TIME_TODAY: 'Time Today',
 			TOTAL_GROUP_TIME: 'Total Group Time',
 			TIME_REMAINING: 'Time Remaining',
+			CREATED: 'Created',
+			UPDATED: 'Updated',
+			RESOLVED: 'Resolved',
 		},
 
 		auth: {

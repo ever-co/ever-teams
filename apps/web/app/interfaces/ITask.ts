@@ -19,6 +19,7 @@ export type ITeamTask = {
 	dueDate: string;
 	startDate: string;
 	projectId: string;
+	resolvedAt?: string;
 	creatorId: string;
 	members: IEmployee[];
 	selectedTeam?: IOrganizationTeamList;
