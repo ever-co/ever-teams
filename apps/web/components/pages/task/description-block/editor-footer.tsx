@@ -4,18 +4,8 @@ import { useCallback } from 'react';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import Image from 'next/image';
-import { slateToHtml, SlateToDomConfig } from 'slate-serializers';
-import {
-	ELEMENT_NAME_TAG_MAP,
-	MARK_ELEMENT_TAG_MAP,
-} from './editor-components/TextEditorService';
-
-const config: SlateToDomConfig = {
-	elementStyleMap: { align: 'textAlign' },
-	markMap: MARK_ELEMENT_TAG_MAP,
-	elementMap: ELEMENT_NAME_TAG_MAP,
-	elementTransforms: {},
-};
+import { slateToHtml } from 'slate-serializers';
+import { configSlateToHtml } from './editor-components/serializerConfigurations';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -30,6 +20,8 @@ const EditorFooter = ({
 }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
+
+	// console.log(slateToHtml(editorValue, config));
 
 	const saveDescription = useCallback(
 		(newDescription: string) => {
@@ -53,7 +45,7 @@ const EditorFooter = ({
 					</button>
 					<button
 						onClick={() => {
-							saveDescription(slateToHtml(editorValue, config));
+							saveDescription(slateToHtml(editorValue, configSlateToHtml));
 							setIsUpdated();
 						}}
 						className={

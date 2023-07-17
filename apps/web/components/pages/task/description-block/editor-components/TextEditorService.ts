@@ -1,4 +1,11 @@
-import { Editor, BaseEditor, Transforms, Element as SlateElement } from 'slate';
+import {
+	Editor,
+	BaseEditor,
+	Transforms,
+	Element as SlateElement,
+	Path,
+	Range,
+} from 'slate';
 import { ReactEditor } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
 
@@ -66,29 +73,6 @@ export class TextEditorService {
 export const isHtml = (value: string): boolean => {
 	const htmlRegex = /<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/i;
 	return htmlRegex.test(value);
-};
-
-export const ELEMENT_NAME_TAG_MAP = {
-	p: 'p',
-	paragraph: 'p',
-	h1: 'h1',
-	h2: 'h2',
-	h3: 'h3',
-	h4: 'h4',
-	h5: 'h5',
-	h6: 'h6',
-	ul: 'ul',
-	ol: 'ol',
-	li: 'li',
-	blockquote: 'blockquote',
-};
-
-export const MARK_ELEMENT_TAG_MAP = {
-	strikethrough: ['s'],
-	bold: ['strong'],
-	underline: ['u'],
-	italic: ['i'],
-	code: ['pre', 'code'],
 };
 
 interface ElementAttributes {
@@ -163,6 +147,11 @@ export const deserialize = (el: any): any => {
 		const attrs = TEXT_TAGS[nodeName](el);
 		return children.map((child) => jsx('text', attrs, child));
 	}
+	// if (nodeName === 'A') {
+	// 	const href = el.getAttribute('href');
+	// 	const text = el.textContent;
+	// 	return jsx('element', { type: 'link', href }, children);
+	// }
 
 	return children;
 };
@@ -192,4 +181,70 @@ export const withHtml = (editor: ReactEditor): ReactEditor => {
 	};
 
 	return editor;
+};
+
+const createParagraphNode = (children = [{ text: '' }]) => ({
+	type: 'paragraph',
+	children,
+});
+
+export const createLinkNode = (href: string, text: string) => ({
+	type: 'link',
+	href,
+	children: [{ text }],
+});
+
+export const insertLink = (editor: any, url: string | null) => {
+	if (!url) return;
+
+	const { selection } = editor;
+	const link = createLinkNode(url, 'New Link');
+
+	ReactEditor.focus(editor);
+	//@ts-nocheck //add !!selection if not working
+	if (selection) {
+		const [parentNode, parentPath] = Editor.parent(
+			editor,
+			selection.focus?.path
+		);
+
+		// Remove the Link node if we're inserting a new link node inside of another
+		// link.
+		//@ts-ignore
+		if (parentNode.type === 'link') {
+			removeLink(editor);
+		}
+
+		if (editor.isVoid(parentNode)) {
+			// Insert the new link after the void node
+			//@ts-ignore
+			Transforms.insertNodes(editor, createParagraphNode([link]), {
+				at: Path.next(parentPath),
+				select: true,
+			});
+		} else if (Range.isCollapsed(selection)) {
+			// Insert the new link in our last known locatio
+			Transforms.insertNodes(editor, link, { select: true });
+		} else {
+			// Wrap the currently selected range of text into a Link
+			Transforms.wrapNodes(editor, link, { split: true });
+			Transforms.collapse(editor, { edge: 'end' });
+		}
+	} else {
+		// Insert the new link node at the bottom of the Editor when selection
+		// is falsey
+		//@ts-ignore
+		Transforms.insertNodes(editor, createParagraphNode([link]));
+	}
+};
+
+export const removeLink = (editor: BaseEditor, opts = {}) => {
+	Transforms.unwrapNodes(editor, {
+		...opts,
+		match: (n) =>
+			!Editor.isEditor(n) &&
+			SlateElement.isElement(n as SlateElement) &&
+			//@ts-ignore
+			n.type === 'link',
+	});
 };

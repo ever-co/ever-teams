@@ -1955,6 +1955,96 @@ export function LinkIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function ExternalLinkIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 24 24"
+			width="21"
+			height="21"
+			className={clsxm(className)}
+		>
+			<g>
+				<path fill="none" d="M0 0h24v24H0z" />{' '}
+				<path d="M10 6v2H5v11h11v-5h2v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6zm11-3v8h-2V6.413l-7.793 7.794-1.414-1.414L17.585 5H13V3h8z" />{' '}
+			</g>
+		</svg>
+	);
+}
+export function UnlinkIcon({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			viewBox="0 0 256 256"
+			width="21"
+			height="21"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<rect width="256" height="256" fill="none" />
+			<line
+				x1="96"
+				y1="68"
+				x2="96"
+				y2="48"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<line
+				x1="160"
+				y1="208"
+				x2="160"
+				y2="188"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<line
+				x1="68"
+				y1="96"
+				x2="48"
+				y2="96"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<line
+				x1="208"
+				y1="160"
+				x2="188"
+				y2="160"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<path
+				d="M67,132.4l-7.3,7.3a40,40,0,0,0,56.6,56.6l7.3-7.3"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+			<path
+				d="M189,123.6l7.3-7.3a40,40,0,0,0-56.6-56.6L132.4,67"
+				fill="none"
+				stroke="#000"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				stroke-width="24"
+			/>
+		</svg>
+	);
+}
+
 export function CodeBlockIcon({ className }: IClassName) {
 	return (
 		<svg
