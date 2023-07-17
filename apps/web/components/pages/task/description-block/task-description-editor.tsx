@@ -46,7 +46,6 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		if (task && task.description) {
 			if (isHtml(task.description)) {
 				value = htmlToSlate(task.description, configHtmlToSlate);
-				console.log(value);
 
 				return value;
 			}
@@ -55,8 +54,6 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 			return [{ type: 'paragraph', children: [{ text: '' }] }];
 		}
 	}, [task]);
-
-	// console.log(task?.description);
 
 	useEffect(() => {
 		if (key < 6) {

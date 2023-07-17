@@ -5,10 +5,9 @@ import { useTranslation } from 'lib/i18n';
 
 const TaskProperties = ({ task }: { task: ITeamTask | null }) => {
 	const { trans } = useTranslation('taskDetails');
-	console.log(task);
 
 	return (
-		<div className="flex flex-col gap-3 text-xs text-[#A5A2B2] bg-light--theme dark:bg-dark--theme pl-1 mt-4 font-[500]">
+		<div className="flex flex-col gap-3 text-xs text-[#A5A2B2]  bg-light--theme dark:bg-dark--theme pl-1 mt-4 font-[500]">
 			{task?.createdAt && (
 				<p>
 					{trans.CREATED}
