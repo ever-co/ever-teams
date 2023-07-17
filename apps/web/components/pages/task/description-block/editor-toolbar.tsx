@@ -105,7 +105,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		}
 	};
 
-	const handleCopyTwo = (editor: any) => {
+	const handleCopy = (editor: any) => {
 		const serializedText = (nodes: Node[]) => {
 			return nodes
 				.map((node) => {
@@ -288,7 +288,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				height={20}
 				className="m-0"
 			/>
-			<button onClick={() => handleCopyTwo(editor)}>
+			<button onClick={() => handleCopy(editor)}>
 				<CopyIcon />
 			</button>
 			<MoreIcon2 />
