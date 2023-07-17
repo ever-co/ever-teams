@@ -1,5 +1,6 @@
 import { getAttributeValue } from 'domutils';
-import { HtmlToSlateConfig } from 'slate-serializers';
+import { HtmlToSlateConfig, SlateToDomConfig } from 'slate-serializers';
+import { Element } from 'domhandler';
 
 export const configHtmlToSlate: HtmlToSlateConfig = {
 	elementStyleMap: {
@@ -38,4 +39,52 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 		html.replace(/<pre[^>]*>/g, '<code>').replace(/<\/pre>/g, '</code>'),
 	filterWhitespaceNodes: true,
 	convertBrToLineBreak: true,
+};
+
+const ELEMENT_NAME_TAG_MAP = {
+	p: 'p',
+	paragraph: 'p',
+	h1: 'h1',
+	h2: 'h2',
+	h3: 'h3',
+	h4: 'h4',
+	h5: 'h5',
+	h6: 'h6',
+	ul: 'ul',
+	ol: 'ol',
+	li: 'li',
+	blockquote: 'blockquote',
+};
+
+const MARK_ELEMENT_TAG_MAP = {
+	strikethrough: ['s'],
+	bold: ['strong'],
+	underline: ['u'],
+	italic: ['i'],
+	code: ['pre', 'code'],
+};
+
+export const configSlateToHtml: SlateToDomConfig = {
+	elementStyleMap: { align: 'textAlign' },
+	markMap: MARK_ELEMENT_TAG_MAP,
+	elementMap: ELEMENT_NAME_TAG_MAP,
+	elementTransforms: {
+		link: ({ node, children = [] }) => {
+			const attrs: any = {};
+			if (node.linkType) {
+				attrs['data-link-type'] = node.linkType;
+			}
+			if (node.newTab) {
+				attrs.target = '_blank';
+			}
+			return new Element(
+				'a',
+				{
+					href: node.href,
+					...attrs,
+				},
+				children
+			);
+		},
+	},
 };

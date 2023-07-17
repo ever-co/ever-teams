@@ -4,37 +4,8 @@ import { useCallback } from 'react';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import Image from 'next/image';
-import { slateToHtml, SlateToDomConfig } from 'slate-serializers';
-import {
-	ELEMENT_NAME_TAG_MAP,
-	MARK_ELEMENT_TAG_MAP,
-} from './editor-components/TextEditorService';
-import { Element } from 'domhandler';
-
-const config: SlateToDomConfig = {
-	elementStyleMap: { align: 'textAlign' },
-	markMap: MARK_ELEMENT_TAG_MAP,
-	elementMap: ELEMENT_NAME_TAG_MAP,
-	elementTransforms: {
-		link: ({ node, children = [] }) => {
-			const attrs: any = {};
-			if (node.linkType) {
-				attrs['data-link-type'] = node.linkType;
-			}
-			if (node.newTab) {
-				attrs.target = '_blank';
-			}
-			return new Element(
-				'a',
-				{
-					href: node.href,
-					...attrs,
-				},
-				children
-			);
-		},
-	},
-};
+import { slateToHtml } from 'slate-serializers';
+import { configSlateToHtml } from './editor-components/serializerConfigurations';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -74,7 +45,7 @@ const EditorFooter = ({
 					</button>
 					<button
 						onClick={() => {
-							saveDescription(slateToHtml(editorValue, config));
+							saveDescription(slateToHtml(editorValue, configSlateToHtml));
 							setIsUpdated();
 						}}
 						className={

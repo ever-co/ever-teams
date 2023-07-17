@@ -75,29 +75,6 @@ export const isHtml = (value: string): boolean => {
 	return htmlRegex.test(value);
 };
 
-export const ELEMENT_NAME_TAG_MAP = {
-	p: 'p',
-	paragraph: 'p',
-	h1: 'h1',
-	h2: 'h2',
-	h3: 'h3',
-	h4: 'h4',
-	h5: 'h5',
-	h6: 'h6',
-	ul: 'ul',
-	ol: 'ol',
-	li: 'li',
-	blockquote: 'blockquote',
-};
-
-export const MARK_ELEMENT_TAG_MAP = {
-	strikethrough: ['s'],
-	bold: ['strong'],
-	underline: ['u'],
-	italic: ['i'],
-	code: ['pre', 'code'],
-};
-
 interface ElementAttributes {
 	[key: string]: string | null;
 }
@@ -205,15 +182,6 @@ export const withHtml = (editor: ReactEditor): ReactEditor => {
 
 	return editor;
 };
-
-// export const withLinks = (editor: ReactEditor): ReactEditor => {
-// 	const { isInline } = editor;
-
-// 	editor.isInline = (element: any) =>
-// 		element.type === 'link' ? true : isInline(element);
-
-// 	return editor;
-// };
 
 const createParagraphNode = (children = [{ text: '' }]) => ({
 	type: 'paragraph',

@@ -14,7 +14,7 @@ import { detailedTaskState } from '@app/stores';
 import { htmlToSlate } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
 import LinkElement from './editor-components/LinkElement';
-import { configHtmlToSlate } from './editor-components/configHtmlToSLate';
+import { configHtmlToSlate } from './editor-components/serializerConfigurations';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
