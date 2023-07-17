@@ -3,6 +3,7 @@ export const en = {
 	common: {
 		VERIFY: 'verify',
 		PLEASE: 'please',
+		HERE: 'here',
 		PEOPLE: 'People',
 		SECURITY_CODE: 'Security Code',
 		CONFIRM: 'Confirm',
@@ -83,6 +84,11 @@ export const en = {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
 			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
+			SENT_EMAIL_VERIFICATION_YOU_NEED_TO: 'You need to ',
+			SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS:
+				' your email address. The verification code should already be send to your email, but feel free to click ',
+			SENT_EMAIL_VERIFICATION_RESEND:
+				' to resend the code, if you did not received it.',
 			INVITATIONS: "You've been invited to join",
 			CONFIRM_ACCEPT_INVITATION:
 				'Are you sure you want to accept the invitation?',
