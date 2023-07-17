@@ -83,6 +83,7 @@ export const en = {
 	pages: {
 		home: {
 			BREADCRUMB: ['Dashboard', 'Team Page'],
+			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
 			SENT_EMAIL_VERIFICATION_YOU_NEED_TO: 'You need to ',
 			SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS:
 				' your email address. The verification code should already be send to your email, but feel free to click ',
