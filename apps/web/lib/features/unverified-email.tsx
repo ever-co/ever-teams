@@ -22,6 +22,9 @@ export function UnverifiedEmail() {
 	const { trans, translations } = useTranslation('home');
 	const [verified, setVefified] = useState(true);
 
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } =
+		useQuery(resentVerifyUserLinkAPI);
+
 	const { openModal, isOpen, closeModal } = useModal();
 
 	// const closeIt = useCallback(() => {
@@ -63,14 +66,29 @@ export function UnverifiedEmail() {
 				)}
 			>
 				<Text>
-					{trans.SENT_EMAIL_VERIFICATION}. {translations.common.PLEASE}{' '}
+					{trans.SENT_EMAIL_VERIFICATION_YOU_NEED_TO}
 					<span
 						className="text-primary dark:text-primary-light cursor-pointer"
 						onClick={openModal}
 					>
 						{translations.common.VERIFY}
-					</span>{' '}
-					{translations.common.YOUR_EMAIL}
+					</span>
+					{trans.SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS}
+
+					{resendLinkLoading && (
+						<SpinnerLoader size={18} className="self-center" />
+					)}
+
+					{!resendLinkLoading && (
+						<button
+							type="button"
+							className="text-primary dark:text-primary-light cursor-pointer"
+							onClick={resendLinkQueryCall}
+						>
+							{translations.common.HERE}
+						</button>
+					)}
+					{trans.SENT_EMAIL_VERIFICATION_RESEND}
 				</Text>
 
 				{/* <button onClick={closeIt}>
