@@ -92,6 +92,13 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		setLink('');
 	};
 
+	const handleInsertLinkOnEnter = (e: React.KeyboardEvent) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			handleInsertLink();
+		}
+	};
+
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1">
@@ -222,6 +229,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			</button>
 			{showLinkPopup && (
 				<div
+					onKeyDown={handleInsertLinkOnEnter}
 					ref={popupRef}
 					className="absolute flex items-center bg-white p-2 gap-1 rounded-md border border-gray-300 z-10"
 					style={{
