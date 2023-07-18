@@ -7,7 +7,6 @@ import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
-	// StrikethroughIcon,
 	MoreIcon2,
 	LinkIcon,
 	AlignRightIcon,
@@ -17,7 +16,6 @@ import {
 	CopyIcon,
 	HeaderOneIcon,
 	HeaderTwoIcon,
-	// NormalTextIcon,
 	UnorderedListIcon,
 	OrderedListIcon,
 	CodeBlockIcon,
@@ -26,7 +24,6 @@ import {
 	CheckBoxIcon,
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-// import Image from 'next/image';
 import { useSlateStatic } from 'slate-react';
 import { Node, Element } from 'slate';
 
