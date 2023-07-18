@@ -1862,6 +1862,44 @@ export function CopyIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function CheckBoxIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="18"
+			height="17"
+			viewBox="0 0 18 17"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path
+				d="M12.4917 0.166748H5.50841C2.47508 0.166748 0.666748 1.97508 0.666748 5.00841V11.9834C0.666748 15.0251 2.47508 16.8334 5.50841 16.8334H12.4834C15.5167 16.8334 17.3251 15.0251 17.3251 11.9917V5.00841C17.3334 1.97508 15.5251 0.166748 12.4917 0.166748ZM12.9834 6.58342L8.25841 11.3084C8.14175 11.4251 7.98341 11.4917 7.81675 11.4917C7.65008 11.4917 7.49175 11.4251 7.37508 11.3084L5.01675 8.95008C4.77508 8.70842 4.77508 8.30841 5.01675 8.06675C5.25841 7.82508 5.65841 7.82508 5.90008 8.06675L7.81675 9.98341L12.1001 5.70008C12.3417 5.45842 12.7417 5.45842 12.9834 5.70008C13.2251 5.94175 13.2251 6.33342 12.9834 6.58342Z"
+				fill="#34AC6B"
+			/>
+		</svg>
+	);
+}
+export function UncheckedBoxIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="20"
+			height="20"
+			viewBox="0 0 15 16"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path
+				d="M5.8125 13.625H9.1875C12 13.625 13.125 12.5 13.125 9.6875V6.3125C13.125 3.5 12 2.375 9.1875 2.375H5.8125C3 2.375 1.875 3.5 1.875 6.3125V9.6875C1.875 12.5 3 13.625 5.8125 13.625Z"
+				stroke="#292D32"
+				stroke-opacity="0.4"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	);
+}
 export function UnorderedListIcon({ className }: IClassName) {
 	return (
 		<svg

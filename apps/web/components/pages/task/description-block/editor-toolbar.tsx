@@ -7,7 +7,6 @@ import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
-	// StrikethroughIcon,
 	MoreIcon2,
 	LinkIcon,
 	AlignRightIcon,
@@ -17,15 +16,14 @@ import {
 	CopyIcon,
 	HeaderOneIcon,
 	HeaderTwoIcon,
-	// NormalTextIcon,
 	UnorderedListIcon,
 	OrderedListIcon,
 	CodeBlockIcon,
 	QuoteBlockIcon,
 	ExternalLinkIcon,
+	CheckBoxIcon,
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import Image from 'next/image';
 import { useSlateStatic } from 'slate-react';
 import { Node, Element } from 'slate';
 
@@ -252,6 +250,17 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+			<BlockButton
+				format="checklist"
+				icon={CheckBoxIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
 			<button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
 			</button>
@@ -281,13 +290,6 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</button>
 				</div>
 			)}
-			<Image
-				src="/assets/svg/tick-square.svg"
-				alt="check-button"
-				width={20}
-				height={20}
-				className="m-0"
-			/>
 			<button onClick={() => handleCopy(editor)}>
 				<CopyIcon />
 			</button>
