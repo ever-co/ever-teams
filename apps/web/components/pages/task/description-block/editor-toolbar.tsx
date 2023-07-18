@@ -233,7 +233,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
-				format="check-list-item"
+				format="checklist"
 				icon={CheckBoxIcon}
 				isBlockActive={
 					isBlockActive as (

@@ -20,8 +20,9 @@ const EditorFooter = ({
 }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
+	// console.log(editorValue);
 
-	// console.log(slateToHtml(editorValue, config));
+	// console.log(slateToHtml(editorValue, configSlateToHtml));
 
 	const saveDescription = useCallback(
 		(newDescription: string) => {

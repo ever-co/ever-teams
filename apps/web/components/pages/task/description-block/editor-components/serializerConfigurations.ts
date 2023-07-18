@@ -6,6 +6,7 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 	elementStyleMap: {
 		align: 'textAlign',
 	},
+
 	elementTags: {
 		a: (el) => ({
 			type: 'link',
@@ -24,6 +25,22 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 		ol: () => ({ type: 'ol' }),
 		p: () => ({ type: 'p' }),
 		ul: () => ({ type: 'ul' }),
+		//@ts-ignore
+		div: (el) => {
+			if (el && el.attribs.class === 'checklist-container') {
+				const checkbox = el.firstChild as Element;
+				const textNode = el.lastChild as Element;
+				return {
+					type: 'checklist',
+					checked: checkbox && checkbox.attribs.checked === 'true',
+					children: [
+						//@ts-ignore
+						{ text: textNode && textNode.firstChild.data },
+					],
+				};
+			}
+			return undefined;
+		},
 	},
 	textTags: {
 		code: () => ({ code: true }),
@@ -85,6 +102,25 @@ export const configSlateToHtml: SlateToDomConfig = {
 				},
 				children
 			);
+		},
+		checklist: ({ node, children = [] }) => {
+			const containerAttrs = {
+				class: 'checklist-container',
+			};
+
+			const inputAttrs = {
+				type: 'checkbox',
+				checked: node.checked ? 'true' : 'false',
+			};
+
+			const textNode = new Element('span', {}, children);
+			const inputNode = new Element('input', inputAttrs);
+			const containerNode = new Element('div', containerAttrs, [
+				inputNode,
+				textNode,
+			]);
+
+			return containerNode;
 		},
 	},
 };

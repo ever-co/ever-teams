@@ -48,7 +48,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		if (task && task.description) {
 			if (isHtml(task.description)) {
 				value = htmlToSlate(task.description, configHtmlToSlate);
-				console.log(value);
+				// console.log(value);
 
 				return value;
 			}
@@ -191,7 +191,7 @@ const Element = ({ attributes, children, element }: any) => {
 					{children}
 				</LinkElement>
 			);
-		case 'check-list-item':
+		case 'checklist':
 			return (
 				<CheckListElement {...attributes} element={element}>
 					{children}
