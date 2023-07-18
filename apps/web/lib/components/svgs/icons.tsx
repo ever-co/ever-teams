@@ -1879,6 +1879,27 @@ export function CheckBoxIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function UncheckedBoxIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="20"
+			height="20"
+			viewBox="0 0 15 16"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm(className, 'dark:fill-white')}
+		>
+			<path
+				d="M5.8125 13.625H9.1875C12 13.625 13.125 12.5 13.125 9.6875V6.3125C13.125 3.5 12 2.375 9.1875 2.375H5.8125C3 2.375 1.875 3.5 1.875 6.3125V9.6875C1.875 12.5 3 13.625 5.8125 13.625Z"
+				stroke="#292D32"
+				stroke-opacity="0.4"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	);
+}
 export function UnorderedListIcon({ className }: IClassName) {
 	return (
 		<svg
