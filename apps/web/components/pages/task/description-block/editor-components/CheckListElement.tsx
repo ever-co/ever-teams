@@ -6,8 +6,11 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 	const readOnly = useReadOnly();
 	const { checked } = element;
 	return (
-		<div {...attributes} className="flex flex-row items-center">
-			<span contentEditable={false} className="mr-3">
+		<div
+			{...attributes}
+			className="flex flex-row items-center my-[-0.7rem] py-0 "
+		>
+			<span contentEditable={false} className="mr-3 my-0 py-0">
 				<input
 					type="checkbox"
 					checked={checked}
@@ -20,13 +23,12 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 						};
 						Transforms.setNodes(editor, newProperties, { at: path });
 					}}
-					className="checked:bg-red-300 after:bg-red-300"
 				/>
 			</span>
 			<span
 				contentEditable={!readOnly}
 				suppressContentEditableWarning
-				className={`flex-1 ${
+				className={`flex-1 mb-3 ${
 					checked ? 'opacity-60 line-through' : 'opacity-100'
 				}`}
 			>
