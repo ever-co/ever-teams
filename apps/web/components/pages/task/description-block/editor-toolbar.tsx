@@ -231,6 +231,17 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+			<BlockButton
+				format="check-list-item"
+				icon={AlignJustifyIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
 			<button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
 			</button>

@@ -2,6 +2,7 @@ import Toolbar from './editor-toolbar';
 import {
 	TextEditorService,
 	withHtml,
+	withChecklists,
 } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -15,6 +16,7 @@ import { htmlToSlate } from 'slate-serializers';
 import { isHtml } from './editor-components/TextEditorService';
 import LinkElement from './editor-components/LinkElement';
 import { configHtmlToSlate } from './editor-components/serializerConfigurations';
+import CheckListElement from './editor-components/CheckListElement';
 
 const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
@@ -33,7 +35,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
 	const editor = useMemo(
-		() => withHtml(withHistory(withReact(createEditor()))),
+		() => withChecklists(withHtml(withHistory(withReact(createEditor())))),
 		[]
 	);
 	const [task] = useRecoilState(detailedTaskState);
@@ -188,6 +190,12 @@ const Element = ({ attributes, children, element }: any) => {
 				<LinkElement {...attributes} element={element}>
 					{children}
 				</LinkElement>
+			);
+		case 'check-list-item':
+			return (
+				<CheckListElement {...attributes} element={element}>
+					{children}
+				</CheckListElement>
 			);
 		default:
 			return (
