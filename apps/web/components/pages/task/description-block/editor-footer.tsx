@@ -21,8 +21,6 @@ const EditorFooter = ({
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
 
-	// console.log(slateToHtml(editorValue, config));
-
 	const saveDescription = useCallback(
 		(newDescription: string) => {
 			updateDescription(newDescription, task, true);
