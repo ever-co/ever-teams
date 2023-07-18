@@ -16,7 +16,7 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 	};
 	return (
 		<div {...attributes} className="flex flex-row items-center my-[-0.7rem]">
-			<span contentEditable={false} className="mr-4 relative">
+			<span contentEditable={false} className="mr-[1.2rem] relative">
 				<input
 					type="checkbox"
 					checked={checked}
