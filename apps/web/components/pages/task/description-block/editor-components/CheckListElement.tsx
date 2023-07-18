@@ -6,11 +6,8 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 	const readOnly = useReadOnly();
 	const { checked } = element;
 	return (
-		<div
-			{...attributes}
-			className="flex flex-row items-center my-[-0.7rem] py-0 "
-		>
-			<span contentEditable={false} className="mr-3 my-0 py-0">
+		<div {...attributes} className="flex flex-row items-center my-[-0.7rem]">
+			<span contentEditable={false} className="mr-3">
 				<input
 					type="checkbox"
 					checked={checked}
