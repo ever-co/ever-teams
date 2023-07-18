@@ -47,6 +47,8 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 			if (isHtml(task.description)) {
 				value = htmlToSlate(task.description, configHtmlToSlate);
 
+
+
 				return value;
 			}
 			return JSON.parse(task?.description);
