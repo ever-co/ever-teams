@@ -7,7 +7,6 @@ import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
-	// StrikethroughIcon,
 	MoreIcon2,
 	LinkIcon,
 	AlignRightIcon,
@@ -17,16 +16,16 @@ import {
 	CopyIcon,
 	HeaderOneIcon,
 	HeaderTwoIcon,
-	// NormalTextIcon,
 	UnorderedListIcon,
 	OrderedListIcon,
 	CodeBlockIcon,
 	QuoteBlockIcon,
 	ExternalLinkIcon,
+	CheckBoxIcon,
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import Image from 'next/image';
 import { useSlateStatic } from 'slate-react';
+import { Node, Element } from 'slate';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -92,18 +91,38 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	}, [showLinkPopup]);
 
 	const handleInsertLink = () => {
-		// const url = prompt('Enter a URL');
-
 		insertLink(editor, link);
 		setShowLinkPopup(false);
 		setLink('');
 	};
 
-	const handleInsertLinkOnEnter = (e: React.KeyboardEvent) => {
+	const handleInsertLinkOnEnter = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === 'Enter') {
 			e.preventDefault();
 			handleInsertLink();
 		}
+	};
+
+	const handleCopy = (editor: any) => {
+		const serializedText = (nodes: Node[]) => {
+			return nodes
+				.map((node) => {
+					if (
+						Element.isElement(node) &&
+						//@ts-ignore
+						(node.type === 'ul' || node.type === 'ol')
+					) {
+						return node.children
+							.map((child) => `\n${Node.string(child)}\n`)
+							.join('');
+					}
+					return Node.string(node);
+				})
+				.join('\n');
+		};
+
+		const plainText = serializedText(editor.children);
+		window.navigator.clipboard.writeText(plainText);
 	};
 
 	return (
@@ -231,6 +250,17 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+			<BlockButton
+				format="checklist"
+				icon={CheckBoxIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
 			<button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
 			</button>
@@ -260,14 +290,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</button>
 				</div>
 			)}
-			<Image
-				src="/assets/svg/tick-square.svg"
-				alt="check-button"
-				width={20}
-				height={20}
-				className="m-0"
-			/>
-			<CopyIcon />
+			<button onClick={() => handleCopy(editor)}>
+				<CopyIcon />
+			</button>
 			<MoreIcon2 />
 		</div>
 	);

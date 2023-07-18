@@ -5,6 +5,7 @@ import {
 	Element as SlateElement,
 	Path,
 	Range,
+	Point,
 } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
@@ -247,4 +248,47 @@ export const removeLink = (editor: BaseEditor, opts = {}) => {
 			//@ts-ignore
 			n.type === 'link',
 	});
+};
+
+export const withChecklists = (editor: any) => {
+	const { deleteBackward } = editor;
+
+	editor.deleteBackward = (...args: any) => {
+		const { selection } = editor;
+
+		if (selection && Range.isCollapsed(selection)) {
+			//@ts-ignore
+			const [match] = Editor.nodes(editor, {
+				match: (n) =>
+					!Editor.isEditor(n) &&
+					SlateElement.isElement(n) &&
+					//@ts-ignore
+					n.type === 'checklist',
+			});
+
+			if (match) {
+				const [, path] = match;
+				const start = Editor.start(editor, path);
+
+				if (Point.equals(selection.anchor, start)) {
+					const newProperties: Partial<SlateElement> = {
+						//@ts-ignore
+						type: 'paragraph',
+					};
+					Transforms.setNodes(editor, newProperties, {
+						match: (n) =>
+							!Editor.isEditor(n) &&
+							SlateElement.isElement(n) &&
+							//@ts-ignore
+							n.type === 'checklist',
+					});
+					return;
+				}
+			}
+		}
+
+		deleteBackward(...args);
+	};
+
+	return editor;
 };
