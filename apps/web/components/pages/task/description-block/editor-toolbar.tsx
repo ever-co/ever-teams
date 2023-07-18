@@ -23,9 +23,10 @@ import {
 	CodeBlockIcon,
 	QuoteBlockIcon,
 	ExternalLinkIcon,
+	CheckBoxIcon,
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useSlateStatic } from 'slate-react';
 
 interface IToolbarProps {
@@ -233,7 +234,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			/>
 			<BlockButton
 				format="check-list-item"
-				icon={AlignJustifyIcon}
+				icon={CheckBoxIcon}
 				isBlockActive={
 					isBlockActive as (
 						editor: any,
@@ -271,13 +272,13 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</button>
 				</div>
 			)}
-			<Image
+			{/* <Image
 				src="/assets/svg/tick-square.svg"
 				alt="check-button"
 				width={20}
 				height={20}
 				className="m-0"
-			/>
+			/> */}
 			<CopyIcon />
 			<MoreIcon2 />
 		</div>
