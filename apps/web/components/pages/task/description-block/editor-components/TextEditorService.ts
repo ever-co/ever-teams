@@ -280,7 +280,7 @@ export const withChecklists = (editor: any) => {
 							!Editor.isEditor(n) &&
 							SlateElement.isElement(n) &&
 							//@ts-ignore
-							n.type === 'check-list-item',
+							n.type === 'checklist',
 					});
 					return;
 				}
