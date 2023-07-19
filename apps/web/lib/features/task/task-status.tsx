@@ -256,6 +256,7 @@ export function TaskStatusDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
+	largerWidth,
 }: TTaskStatusesDropdown<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
@@ -278,6 +279,7 @@ export function TaskStatusDropdown({
 			onChange={onChange}
 			multiple={multiple}
 			values={values}
+			largerWidth={largerWidth}
 		>
 			{children}
 		</StatusDropdown>
@@ -307,7 +309,12 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			disabled={props.disabled}
-		/>
+			sidebarUI={props.sidebarUI}
+			forDetails={props.forDetails}
+			largerWidth={props.largerWidth}
+		>
+			{props.children}
+		</StatusDropdown>
 	);
 }
 
@@ -370,6 +377,34 @@ export function VersionPropertiesDropown({
 			bordered={true}
 		>
 			{children}
+		</StatusDropdown>
+	);
+}
+
+export function ActiveTaskVersionDropdown(
+	props: IActiveTaskStatuses<'version'>
+) {
+	const taskVersionValues = useTaskVersionsValue();
+
+	const { item, items, onChange, field } = useActiveTaskStatus(
+		props,
+		taskVersionValues,
+		'version'
+	);
+
+	return (
+		<StatusDropdown
+			className={props.className}
+			items={items}
+			value={item}
+			defaultItem={!item ? field : undefined}
+			onChange={onChange}
+			disabled={props.disabled}
+			sidebarUI={props.sidebarUI}
+			forDetails={props.forDetails}
+			largerWidth={props.largerWidth}
+		>
+			{props.children}
 		</StatusDropdown>
 	);
 }
@@ -483,7 +518,12 @@ export function ActiveTaskPropertiesDropdown(
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			disabled={props.disabled}
-		/>
+			sidebarUI={props.sidebarUI}
+			forDetails={props.forDetails}
+			largerWidth={props.largerWidth}
+		>
+			{props.children}
+		</StatusDropdown>
 	);
 }
 
@@ -572,7 +612,12 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			disabled={props.disabled}
-		/>
+			sidebarUI={props.sidebarUI}
+			forDetails={props.forDetails}
+			largerWidth={props.largerWidth}
+		>
+			{props.children}
+		</StatusDropdown>
 	);
 }
 
@@ -637,7 +682,12 @@ export function ActiveTaskLabelsDropdown(
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			disabled={props.disabled}
-		/>
+			sidebarUI={props.sidebarUI}
+			forDetails={props.forDetails}
+			largerWidth={props.largerWidth}
+		>
+			{props.children}
+		</StatusDropdown>
 	);
 }
 

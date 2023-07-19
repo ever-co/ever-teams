@@ -1,3 +1,4 @@
+import { DISABLE_AUTO_REFRESH } from '@app/constants';
 import {
 	useLanguageSettings,
 	useOrganizationTeams,
@@ -19,7 +20,7 @@ import {
 	useTaskVersion,
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 
 export function AppState() {
@@ -73,48 +74,56 @@ function InitState() {
 		loadLanguagesData();
 	});
 
-	useSyncTimer();
+	const AutoRefresher = useMemo(() => {
+		const Component = () => {
+			useSyncTimer();
 
-	/**
-	 * Refresh Timer Running status,
-	 * This will sync timer in all the open tabs
-	 */
-	useRefreshInterval(getTimerStatus, 5000);
+			/**
+			 * Refresh Timer Running status,
+			 * This will sync timer in all the open tabs
+			 */
+			useRefreshInterval(getTimerStatus, 5000);
 
-	/**
-	 * Refresh Teams data every 5 seconds.
-	 *
-	 * So that if Team is deleted by manager it updates the UI accordingly
-	 */
-	useOTRefreshInterval(loadTeamsData, 5000, publicTeam);
-	// Refresh tasks with a deep compare
-	useRefreshInterval(
-		loadTeamTasksData,
-		5000,
-		true /* used as loadTeamTasksData deepCheck param */
-	);
+			/**
+			 * Refresh Teams data every 5 seconds.
+			 *
+			 * So that if Team is deleted by manager it updates the UI accordingly
+			 */
+			useOTRefreshInterval(loadTeamsData, 5000, publicTeam);
+			// Refresh tasks with a deep compare
+			useRefreshInterval(
+				loadTeamTasksData,
+				5000,
+				true /* used as loadTeamTasksData deepCheck param */
+			);
 
-	// Timer status
-	// useRefreshInterval(
-	// 	getTimerStatus,
-	// 	5000,
-	// 	true /* used as getTimerStatus deepCheck param */
-	// );
+			// Timer status
+			// useRefreshInterval(
+			// 	getTimerStatus,
+			// 	5000,
+			// 	true /* used as getTimerStatus deepCheck param */
+			// );
 
-	useRefreshInterval(
-		myInvitations,
-		5000,
-		true /* used as loadTeamTasksData deepCheck param */
-	);
+			useRefreshInterval(
+				myInvitations,
+				5000,
+				true /* used as loadTeamTasksData deepCheck param */
+			);
 
-	useRefreshInterval(loadTaskStatusData, 5000, true);
-	useRefreshInterval(loadTaskPriorities, 5000, true);
-	useRefreshInterval(loadTaskSizes, 5000, true);
-	useRefreshInterval(loadTaskLabels, 5000, true);
-	useRefreshInterval(loadTaskRelatedIssueTypeData, 5000, true);
-	useRefreshInterval(loadTaskVersionData, 5000, true);
+			useRefreshInterval(loadTaskStatusData, 5000, true);
+			useRefreshInterval(loadTaskPriorities, 5000, true);
+			useRefreshInterval(loadTaskSizes, 5000, true);
+			useRefreshInterval(loadTaskLabels, 5000, true);
+			useRefreshInterval(loadTaskRelatedIssueTypeData, 5000, true);
+			useRefreshInterval(loadTaskVersionData, 5000, true);
 
-	return <></>;
+			return <></>;
+		};
+		return Component;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	return DISABLE_AUTO_REFRESH !== true ? <AutoRefresher /> : <></>;
 }
 
 function useOneTimeLoad(func: () => void) {
