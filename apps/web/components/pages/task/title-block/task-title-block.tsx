@@ -70,7 +70,7 @@ const TaskTitleBlock = () => {
 					<>
 						<div className="w-full flex flex-wrap">
 							<textarea
-								className={`w-4/5 bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md outline-0 border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
+								className={`w-4/5 bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
 								onChange={(event) => setTitle(event.target.value)}
 								value={title}
 								disabled={!edit}

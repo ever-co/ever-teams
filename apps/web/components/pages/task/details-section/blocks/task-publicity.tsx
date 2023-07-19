@@ -23,13 +23,14 @@ details-label px-4 flex justify-between"
 		>
 			{task?.public ? (
 				<>
-					<div className="text-[#293241] dark:text-white flex items-center ">
+					<div className="text-[#293241] dark:text-white flex items-center">
 						<Image
-							src="/assets/svg/lock.svg"
+							src="/assets/svg/public.svg"
 							alt="private task"
 							width={14}
 							height={14}
 							style={{ height: '14px', marginRight: '5px' }}
+							className="mb-1"
 						/>
 						<div>This task is Public</div>
 					</div>
@@ -49,6 +50,7 @@ details-label px-4 flex justify-between"
 							width={14}
 							height={14}
 							style={{ height: '14px', marginRight: '5px' }}
+							className="mb-1"
 						/>
 						<div>This task is Private</div>
 					</div>
