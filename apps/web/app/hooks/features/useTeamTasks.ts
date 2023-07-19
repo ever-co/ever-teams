@@ -232,6 +232,23 @@ export function useTeamTasks() {
 		[updateTask]
 	);
 
+	const updatePublicity = useCallback(
+		(publicity: boolean, task?: ITeamTask | null, loader?: boolean) => {
+			if (task && publicity !== task.public) {
+				loader && setTasksFetching(true);
+				return updateTask({
+					...task,
+					public: publicity,
+				}).then((res) => {
+					setTasksFetching(false);
+					return res;
+				});
+			}
+			return Promise.resolve();
+		},
+		[updateTask]
+	);
+
 	const handleStatusUpdate = useCallback(
 		<T extends ITaskStatusField>(
 			status: ITaskStatusStack[T],
@@ -304,6 +321,7 @@ export function useTeamTasks() {
 		firstLoadTasksData,
 		updateTitle,
 		updateDescription,
+		updatePublicity,
 		handleStatusUpdate,
 		activeTeamId: activeTeam?.id,
 		setAllTasks,
