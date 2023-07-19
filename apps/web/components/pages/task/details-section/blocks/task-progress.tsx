@@ -15,7 +15,7 @@ import {
 	//useTaskStatistics,
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
-//import { secondsToTime } from '@app/helpers';
+import { secondsToTime } from '@app/helpers';
 //import { useRecoilValue } from 'recoil';
 //import { timerSecondsState } from '@app/stores';
 
@@ -26,6 +26,8 @@ const TaskProgress = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const { trans } = useTranslation('taskDetails');
 
+	const [userTotalTime, setUserTotalTime] = useState({ hours: 0, minutes: 0 });
+
 	//const seconds = useRecoilValue(timerSecondsState);
 	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
@@ -34,8 +36,10 @@ const TaskProgress = () => {
 	const currentUser = members.find((m) => {
 		return m.employee.user?.id === user?.id;
 	});
+	console.log(currentUser);
 
 	const memberInfo = useTeamMemberCard(currentUser);
+	// console.log(memberInfo.member?.duration);
 
 	/*const TotalWork = () => {
 		if (memberInfo.isAuthUser) {
@@ -59,6 +63,21 @@ const TaskProgress = () => {
 			);
 		}
 	};*/
+
+	console.log('task:', task?.id);
+
+	useEffect(() => {
+		const userTotalTimeOnTask = () => {
+			const totalOnTaskInSeconds =
+				currentUser?.totalWorkedTasks.find((object) => object.id === task?.id)
+					?.duration || 0;
+
+			const { h, m } = secondsToTime(totalOnTaskInSeconds);
+
+			setUserTotalTime({ hours: h, minutes: m });
+		};
+		userTotalTimeOnTask();
+	}, [currentUser?.totalWorkedTasks, task?.id]);
 
 	useEffect(() => {
 		if (task && task?.members) {
@@ -87,7 +106,7 @@ const TaskProgress = () => {
 			</TaskRow>
 			<TaskRow labelTitle={trans.TOTAL_TIME} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					2h : 12m
+					{userTotalTime.hours}h : {userTotalTime?.minutes}m
 				</div>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TIME_TODAY} wrapperClassName="mb-3">
