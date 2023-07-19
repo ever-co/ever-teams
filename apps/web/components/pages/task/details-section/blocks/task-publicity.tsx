@@ -7,7 +7,6 @@ import { useTeamTasks } from '@app/hooks';
 const TaskPublicity = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updatePublicity } = useTeamTasks();
-	console.log(task);
 
 	const handlePublicity = useCallback(
 		(value: boolean) => {
