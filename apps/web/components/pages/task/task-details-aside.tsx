@@ -3,6 +3,7 @@ import TaskMainInfo from './details-section/blocks/task-main-info';
 import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
 import TaskProgress from './details-section/blocks/task-progress';
 import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
+import TaskPublicity from './details-section/blocks/task-publicity';
 
 const TaskDetailsAside = () => {
 	return (
@@ -29,22 +30,7 @@ const TaskDetailsAside = () => {
 					<Image src="/assets/svg/more.svg" alt="more" width={16} height={16} />
 				</div>
 			</div>
-			<div
-				className="h-[38px] border-y border-solid border-color-[rgba(0,0,0,0.07)] bg-[#FBFAFA] dark:bg-dark--theme
-details-label px-4 flex justify-between"
-			>
-				<div className="text-[#293241] dark:text-white flex items-center ">
-					<Image
-						src="/assets/svg/lock.svg"
-						alt="private task"
-						width={14}
-						height={14}
-						style={{ height: '14px', marginRight: '5px' }}
-					/>
-					<div>This task is Private</div>
-				</div>
-				<div className="flex items-center cursor-pointer">Make a public</div>
-			</div>
+			<TaskPublicity />
 			<TaskMainInfo />
 			<TaskSecondaryInfo />
 			<TaskEstimationsInfo />
