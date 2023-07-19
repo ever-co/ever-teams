@@ -37,6 +37,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const editor = useSlateStatic();
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');
+	const [copied, setCopied] = useState(false);
 	const [linkPopupPosition, setLinkPopupPosition] = useState({
 		left: 0,
 		top: 0,
@@ -123,6 +124,12 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 
 		const plainText = serializedText(editor.children);
 		window.navigator.clipboard.writeText(plainText);
+	};
+	const copyPopupHandler = (): void => {
+		setCopied(true);
+		setTimeout(() => {
+			setCopied(false);
+		}, 1000);
 	};
 
 	return (
@@ -290,8 +297,19 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</button>
 				</div>
 			)}
-			<button onClick={() => handleCopy(editor)}>
+			<button
+				onClick={() => {
+					handleCopy(editor), copyPopupHandler();
+				}}
+				className={`${!copied && 'active:transform active:scale-95'} relative`}
+				disabled={copied}
+			>
 				<CopyIcon />
+				{copied && (
+					<div className="absolute bg-gray-400 rounded-lg dark:bg-gray-600 text-white text-xs p-2 top-[-45px] animate-pulse">
+						Copied!
+					</div>
+				)}
 			</button>
 			<MoreIcon2 />
 		</div>
