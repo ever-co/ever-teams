@@ -27,6 +27,10 @@ const TaskProgress = () => {
 	const { trans } = useTranslation('taskDetails');
 
 	const [userTotalTime, setUserTotalTime] = useState({ hours: 0, minutes: 0 });
+	const [userTotalTimeToday, setUserTotalTimeToday] = useState({
+		hours: 0,
+		minutes: 0,
+	});
 
 	//const seconds = useRecoilValue(timerSecondsState);
 	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -80,6 +84,19 @@ const TaskProgress = () => {
 	}, [currentUser?.totalWorkedTasks, task?.id]);
 
 	useEffect(() => {
+		const userTotalTimeOnTaskToday = () => {
+			const totalOnTaskInSeconds =
+				currentUser?.totalTodayTasks.find((object) => object.id === task?.id)
+					?.duration || 0;
+
+			const { h, m } = secondsToTime(totalOnTaskInSeconds);
+
+			setUserTotalTimeToday({ hours: h, minutes: m });
+		};
+		userTotalTimeOnTaskToday();
+	}, [currentUser?.totalTodayTasks, task?.id]);
+
+	useEffect(() => {
 		if (task && task?.members) {
 			const profiles = Array.isArray(task?.members) ? [...task.members] : [];
 
@@ -111,7 +128,7 @@ const TaskProgress = () => {
 			</TaskRow>
 			<TaskRow labelTitle={trans.TIME_TODAY} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					1h : 10m
+					{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
 				</div>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME} wrapperClassName="mb-3">
