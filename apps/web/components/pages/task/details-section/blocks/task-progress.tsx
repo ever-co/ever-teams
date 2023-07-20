@@ -15,6 +15,13 @@ import {
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
+import { OT_Member } from '@app/interfaces';
+import { ITasksTimesheet } from '@app/interfaces/ITimer';
+
+interface ITime {
+	hours: number;
+	minutes: number;
+}
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -22,32 +29,35 @@ const TaskProgress = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const { trans } = useTranslation('taskDetails');
 
-	const [userTotalTime, setUserTotalTime] = useState({ hours: 0, minutes: 0 });
-	const [userTotalTimeToday, setUserTotalTimeToday] = useState({
+	const [userTotalTime, setUserTotalTime] = useState<ITime>({
 		hours: 0,
 		minutes: 0,
 	});
-	const [timeRemaining, setTimeRemaining] = useState({
+	const [userTotalTimeToday, setUserTotalTimeToday] = useState<ITime>({
 		hours: 0,
 		minutes: 0,
 	});
-	const [groupTotalTime, setGroupTotalTime] = useState({
+	const [timeRemaining, setTimeRemaining] = useState<ITime>({
 		hours: 0,
 		minutes: 0,
 	});
-	const [numMembersToShow, setNumMembersToShow] = useState(5);
+	const [groupTotalTime, setGroupTotalTime] = useState<ITime>({
+		hours: 0,
+		minutes: 0,
+	});
+	const [numMembersToShow, setNumMembersToShow] = useState<number>(5);
 
 	const members = activeTeam?.members || [];
 
-	const currentUser = members.find((m) => {
+	const currentUser: OT_Member | undefined = members.find((m) => {
 		return m.employee.user?.id === user?.id;
 	});
 
 	const memberInfo = useTeamMemberCard(currentUser);
 
 	useEffect(() => {
-		const userTotalTimeOnTask = () => {
-			const totalOnTaskInSeconds =
+		const userTotalTimeOnTask = (): void => {
+			const totalOnTaskInSeconds: number =
 				currentUser?.totalWorkedTasks.find((object) => object.id === task?.id)
 					?.duration || 0;
 
@@ -59,8 +69,8 @@ const TaskProgress = () => {
 	}, [currentUser?.totalWorkedTasks, task?.id]);
 
 	useEffect(() => {
-		const userTotalTimeOnTaskToday = () => {
-			const totalOnTaskInSeconds =
+		const userTotalTimeOnTaskToday = (): void => {
+			const totalOnTaskInSeconds: number =
 				currentUser?.totalTodayTasks.find((object) => object.id === task?.id)
 					?.duration || 0;
 
@@ -72,21 +82,22 @@ const TaskProgress = () => {
 	}, [currentUser?.totalTodayTasks, task?.id]);
 
 	useEffect(() => {
-		const matchingMembers = activeTeam?.members.filter((member) =>
-			task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
+			(member) =>
+				task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
 		console.log('matchingMembers:', matchingMembers);
 
-		const usersTaskArray = matchingMembers
+		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
 			.filter((taskObj) => taskObj.id === task?.id);
 
-		const usersTotalTimeInSeconds = usersTaskArray?.reduce(
+		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
 			(totalDuration, item) => totalDuration + item.duration,
 			0
 		);
 
-		const usersTotalTime =
+		const usersTotalTime: number =
 			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
 				? 0
 				: usersTotalTimeInSeconds;
@@ -95,7 +106,7 @@ const TaskProgress = () => {
 		const { h: hoursTotal, m: minutesTotal } = timeObj;
 		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal });
 
-		const remainingTime =
+		const remainingTime: number =
 			task?.estimate === null ||
 			task?.estimate === 0 ||
 			task?.estimate === undefined ||
@@ -189,8 +200,9 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: any) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
-	const matchingMembers = activeTeam?.members.filter((member) =>
-		task?.members.some((taskMember) => taskMember.id === member.employeeId)
+	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
+		(member) =>
+			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
 	const findUserTotalWorked = (user: any, id: any) => {
