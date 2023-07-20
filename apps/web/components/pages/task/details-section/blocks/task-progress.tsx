@@ -5,7 +5,7 @@ import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
 import { useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { IEmployee } from '@app/interfaces';
+// import { IEmployee } from '@app/interfaces';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import {
@@ -21,7 +21,7 @@ import { secondsToTime } from '@app/helpers';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const [dummyProfiles, setDummyProfiles] = useState<IEmployee[]>([]);
+	// const [dummyProfiles, setDummyProfiles] = useState<IEmployee[]>([]);
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
 	const { trans } = useTranslation('taskDetails');
@@ -78,7 +78,7 @@ const TaskProgress = () => {
 		}
 	};*/
 
-	// console.log('task:', task?.id);
+	// console.log('task:', task);
 
 	useEffect(() => {
 		const userTotalTimeOnTask = () => {
@@ -110,12 +110,20 @@ const TaskProgress = () => {
 		const matchingMembers = activeTeam?.members.filter((member) =>
 			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
-		// console.log('matchingMembers:', matchingMembers);
-		const usersTotalTimeInSeconds = matchingMembers
+		console.log('matchingMembers:', matchingMembers);
+
+		const usersTaskArray = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
-			.filter((taskObj) => taskObj.id === task?.id)
-			.reduce((totalDuration, item) => totalDuration + item.duration, 0);
-		console.log('all duration:', usersTotalTimeInSeconds);
+			.filter((taskObj) => taskObj.id === task?.id);
+
+		// console.log(usersTaskArray);
+
+		const usersTotalTimeInSeconds = usersTaskArray?.reduce(
+			(totalDuration, item) => totalDuration + item.duration,
+			0
+		);
+
+		// console.log('all duration:', usersTotalTimeInSeconds);
 
 		const usersTotalTime =
 			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
@@ -137,19 +145,19 @@ const TaskProgress = () => {
 		setTimeRemaining({ hours: h, minutes: m });
 	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
 
-	useEffect(() => {
-		if (task && task?.members) {
-			const profiles = Array.isArray(task?.members) ? [...task.members] : [];
+	// useEffect(() => {
+	// 	if (task && task?.members) {
+	// 		const profiles = Array.isArray(task?.members) ? [...task.members] : [];
 
-			if (profiles) {
-				profiles.push(profiles[0]);
-				profiles.push(profiles[0]);
-				profiles.push(profiles[0]);
-			}
+	// 		if (profiles) {
+	// 			profiles.push(profiles[0]);
+	// 			profiles.push(profiles[0]);
+	// 			profiles.push(profiles[0]);
+	// 		}
 
-			setDummyProfiles(profiles);
-		}
-	}, [task]);
+	// 		setDummyProfiles(profiles);
+	// 	}
+	// }, [task]);
 
 	return (
 		<section className="flex flex-col p-[15px]">
@@ -188,15 +196,7 @@ const TaskProgress = () => {
 								/>
 							</Disclosure.Button>
 							<Disclosure.Panel>
-								{dummyProfiles?.map((profile) => (
-									<div key={profile?.id} className="mt-2.5">
-										<ProfileInfoWithTime
-											profilePicSrc={profile?.user?.imageUrl}
-											names={profile?.fullName}
-											time=" 3h : 4m"
-										/>
-									</div>
-								))}
+								<IndividualMembersTotalTime />
 							</Disclosure.Panel>
 						</div>
 					)}
@@ -212,3 +212,41 @@ const TaskProgress = () => {
 };
 
 export default TaskProgress;
+
+const IndividualMembersTotalTime = () => {
+	const [task] = useRecoilState(detailedTaskState);
+	const { activeTeam } = useOrganizationTeams();
+
+	const matchingMembers = activeTeam?.members.filter((member) =>
+		task?.members.some((taskMember) => taskMember.id === member.employeeId)
+	);
+
+	const findUserTotalWorked = (user: any, id: any) => {
+		return user.totalWorkedTasks.find((task: any) => task.id === id)?.duration;
+	};
+
+	return (
+		<>
+			{matchingMembers?.map((member) => {
+				const taskDurationInSeconds = findUserTotalWorked(member, task?.id)
+					? findUserTotalWorked(member, task?.id)
+					: 0;
+
+				const { h, m } = secondsToTime(taskDurationInSeconds);
+
+				const time = `${h}h : ${m}m`;
+
+				return (
+					<div key={member.id} className="mt-2.5">
+						<ProfileInfoWithTime
+							key={member.id}
+							profilePicSrc={member?.employee.user?.imageUrl}
+							names={member.employee?.fullName}
+							time={time}
+						/>
+					</div>
+				);
+			})}
+		</>
+	);
+};
