@@ -35,6 +35,10 @@ const TaskProgress = () => {
 		hours: 0,
 		minutes: 0,
 	});
+	const [groupTotalTime, setGroupTotalTime] = useState({
+		hours: 0,
+		minutes: 0,
+	});
 
 	//const seconds = useRecoilValue(timerSecondsState);
 	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -107,18 +111,28 @@ const TaskProgress = () => {
 			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
 		// console.log('matchingMembers:', matchingMembers);
-		const usersTotalTime = matchingMembers
+		const usersTotalTimeInSeconds = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
 			.filter((taskObj) => taskObj.id === task?.id)
 			.reduce((totalDuration, item) => totalDuration + item.duration, 0);
-		console.log('all duration:', usersTotalTime);
+		console.log('all duration:', usersTotalTimeInSeconds);
+
+		const usersTotalTime =
+			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
+				? 0
+				: usersTotalTimeInSeconds;
+
+		const timeObj = secondsToTime(usersTotalTime);
+		const { h: hoursTotal, m: minutesTotal } = timeObj;
+		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal });
 
 		const remainingTime =
 			task?.estimate === null ||
 			task?.estimate === undefined ||
-			usersTotalTime === undefined
+			usersTotalTimeInSeconds === undefined
 				? 0
-				: task?.estimate - usersTotalTime;
+				: task?.estimate - usersTotalTimeInSeconds;
+
 		const { h, m } = secondsToTime(remainingTime);
 		setTimeRemaining({ hours: h, minutes: m });
 	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
@@ -164,7 +178,7 @@ const TaskProgress = () => {
 						<div className="flex flex-col w-full">
 							<Disclosure.Button className="flex justify-between items-center w-full">
 								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-									9h : 11m
+									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 								</div>
 								<ChevronUpIcon
 									className={clsx(
