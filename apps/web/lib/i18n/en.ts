@@ -31,6 +31,7 @@ export const en = {
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Title',
 		CREATE_TASK: 'Create new task',
+		LINK_TASK: 'Link task',
 		CREATE_TEAM: 'Create new team',
 		VERIFY_ACCOUNT_MSG: 'Please Verify your account before start using the app',
 		CREATE_NEW_TEAMS: 'Create new teams',

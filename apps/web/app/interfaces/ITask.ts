@@ -25,6 +25,7 @@ export type ITeamTask = {
 	selectedTeam?: IOrganizationTeamList;
 	tags: Tag[];
 	teams: SelectedTeam[];
+	linkedIssues?: Omit<ITeamTask, 'linkedIssues'>[];
 	creator: Creator;
 	taskNumber: string;
 	label?: string;
@@ -139,4 +140,11 @@ export interface ICreateTask {
 	estimate: number;
 	organizationId: string;
 	tenantId: string;
+}
+
+export interface ITaskLinkedIssue {
+	organizationId: string;
+	taskToId: string;
+	taskFromId: string;
+	action: number;
 }

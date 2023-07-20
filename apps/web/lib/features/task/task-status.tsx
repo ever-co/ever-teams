@@ -915,7 +915,11 @@ export function StatusDropdown<T extends TStatusItem>({
 				{({ open }) => (
 					<>
 						<Listbox.Button
-							className={clsx(!forDetails && 'w-full max-w-[170px]')}
+							as="div"
+							className={clsx(
+								!forDetails && 'w-full max-w-[170px]',
+								'cursor-pointer'
+							)}
 							style={{
 								width: largerWidth ? '160px' : '',
 							}}

@@ -48,6 +48,7 @@ type Props = {
 	showCombobox?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
+	placeholder?: string;
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
@@ -193,7 +194,7 @@ export function TaskInput(props: Props) {
 			onChange={(event) => {
 				setTaskName(event.target.value);
 			}}
-			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
+			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
 			autoFocus={props.autoFocus}
 			onKeyUp={(e) => {

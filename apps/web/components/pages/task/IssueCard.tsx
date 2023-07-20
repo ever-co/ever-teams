@@ -1,17 +1,18 @@
 // import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import { Card, Modal, Text } from 'lib/components';
+import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 
 // import Image from 'next/image';
 import { PlusIcon } from '@heroicons/react/20/solid';
 // import bugIcon from '../../../public/assets/svg/bug.svg';
 // import ideaIcon from '../../../public/assets/svg/idea.svg';
-import { TaskIssueStatus, TaskStatusDropdown } from 'lib/features';
+import { TaskInput, TaskIssueStatus, TaskStatusDropdown } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import { IHookModal, useLinkedTasks, useModal } from '@app/hooks';
+import { IHookModal, useLinkedTasks, useModal, useTeamTasks } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
+import { useCallback, useState } from 'react';
 
 const IssueCard = ({ related }: { related: boolean }) => {
 	const modal = useModal();
@@ -48,23 +49,57 @@ const IssueCard = ({ related }: { related: boolean }) => {
 				})}
 			</div>
 
-			<CreateTask modal={modal} />
+			{task && <CreateLinkedTask task={task} modal={modal} />}
 		</Card>
 	);
 };
 
-function CreateTask({ modal }: { modal: IHookModal }) {
+function CreateLinkedTask({
+	modal,
+	task,
+}: {
+	modal: IHookModal;
+	task: ITeamTask;
+}) {
 	const { trans } = useTranslation();
+	const { tasks } = useTeamTasks();
+	const [loading, setLoading] = useState(false);
+
+	const onTaskSelect = useCallback((task: ITeamTask | undefined) => {
+		setLoading(true);
+		console.log(task);
+	}, []);
+
+	const linkedTasks = task.linkedIssues?.map((t) => t.id) || [];
+	const unlinkedTasks = tasks.filter((t) => !linkedTasks.includes(t.id));
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-			<div className="w-[98%] md:w-[530px]">
+			<div className="w-[98%] md:w-[668px] relative">
+				{loading && (
+					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
+						<SpinnerLoader />
+					</div>
+				)}
 				<Card className="w-full" shadow="custom">
 					<div className="flex flex-col justify-between items-center w-full">
 						<Text.Heading as="h3" className="text-center mb-2">
-							{trans.common.CREATE_TASK}
+							{trans.common.LINK_TASK}
 						</Text.Heading>
 					</div>
+
+					{/* Task  */}
+					<TaskInput
+						viewType="one-view"
+						fullWidthCombobox={true}
+						task={null}
+						autoAssignTaskAuth={false}
+						showTaskNumber={true}
+						createOnEnterClick={false}
+						tasks={unlinkedTasks}
+						onTaskClick={onTaskSelect}
+						onTaskCreated={onTaskSelect}
+					/>
 				</Card>
 			</div>
 		</Modal>
