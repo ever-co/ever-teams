@@ -5,7 +5,6 @@ import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
 import { useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-// import { IEmployee } from '@app/interfaces';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import {
@@ -16,12 +15,9 @@ import {
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
-//import { useRecoilValue } from 'recoil';
-//import { timerSecondsState } from '@app/stores';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	// const [dummyProfiles, setDummyProfiles] = useState<IEmployee[]>([]);
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
 	const { trans } = useTranslation('taskDetails');
@@ -41,20 +37,13 @@ const TaskProgress = () => {
 	});
 	const [numMembersToShow, setNumMembersToShow] = useState(5);
 
-	//const seconds = useRecoilValue(timerSecondsState);
-	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
-
 	const members = activeTeam?.members || [];
 
 	const currentUser = members.find((m) => {
 		return m.employee.user?.id === user?.id;
 	});
-	// console.log(currentUser);
-
-	// console.log('active:', activeTeam?.members);
 
 	const memberInfo = useTeamMemberCard(currentUser);
-	// console.log(memberInfo.member?.duration);
 
 	useEffect(() => {
 		const userTotalTimeOnTask = () => {
@@ -92,14 +81,10 @@ const TaskProgress = () => {
 			?.flatMap((obj) => obj.totalWorkedTasks)
 			.filter((taskObj) => taskObj.id === task?.id);
 
-		// console.log(usersTaskArray);
-
 		const usersTotalTimeInSeconds = usersTaskArray?.reduce(
 			(totalDuration, item) => totalDuration + item.duration,
 			0
 		);
-
-		// console.log('all duration:', usersTotalTimeInSeconds);
 
 		const usersTotalTime =
 			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
@@ -146,20 +131,25 @@ const TaskProgress = () => {
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full">
-							<Disclosure.Button className="flex justify-between items-center w-full">
-								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
-								</div>
-								{task?.members !== undefined && task?.members.length >= 1 && (
+							{task?.members !== undefined && task?.members.length > 1 ? (
+								<Disclosure.Button className="flex justify-between items-center w-full">
+									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
+									</div>
+
 									<ChevronUpIcon
 										className={clsx(
 											open ? 'rotate-180 transform' : '',
 											'h-5 w-5 text-[#292D32]'
 										)}
 									/>
-								)}
-							</Disclosure.Button>
-							{task?.members !== undefined && task?.members.length >= 1 && (
+								</Disclosure.Button>
+							) : (
+								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
+								</div>
+							)}
+							{task?.members !== undefined && task?.members.length > 1 && (
 								<Disclosure.Panel>
 									<IndividualMembersTotalTime
 										numMembersToShow={numMembersToShow}
