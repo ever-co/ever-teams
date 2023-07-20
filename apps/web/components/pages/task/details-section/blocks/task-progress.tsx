@@ -31,6 +31,10 @@ const TaskProgress = () => {
 		hours: 0,
 		minutes: 0,
 	});
+	const [timeRemaining, setTimeRemaining] = useState({
+		hours: 0,
+		minutes: 0,
+	});
 
 	//const seconds = useRecoilValue(timerSecondsState);
 	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -40,7 +44,9 @@ const TaskProgress = () => {
 	const currentUser = members.find((m) => {
 		return m.employee.user?.id === user?.id;
 	});
-	console.log(currentUser);
+	// console.log(currentUser);
+
+	// console.log('active:', activeTeam?.members);
 
 	const memberInfo = useTeamMemberCard(currentUser);
 	// console.log(memberInfo.member?.duration);
@@ -68,7 +74,7 @@ const TaskProgress = () => {
 		}
 	};*/
 
-	console.log('task:', task?.id);
+	// console.log('task:', task?.id);
 
 	useEffect(() => {
 		const userTotalTimeOnTask = () => {
@@ -95,6 +101,27 @@ const TaskProgress = () => {
 		};
 		userTotalTimeOnTaskToday();
 	}, [currentUser?.totalTodayTasks, task?.id]);
+
+	useEffect(() => {
+		const matchingMembers = activeTeam?.members.filter((member) =>
+			task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		);
+		// console.log('matchingMembers:', matchingMembers);
+		const usersTotalTime = matchingMembers
+			?.flatMap((obj) => obj.totalWorkedTasks)
+			.filter((taskObj) => taskObj.id === task?.id)
+			.reduce((totalDuration, item) => totalDuration + item.duration, 0);
+		console.log('all duration:', usersTotalTime);
+
+		const remainingTime =
+			task?.estimate === null ||
+			task?.estimate === undefined ||
+			usersTotalTime === undefined
+				? 0
+				: task?.estimate - usersTotalTime;
+		const { h, m } = secondsToTime(remainingTime);
+		setTimeRemaining({ hours: h, minutes: m });
+	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
 
 	useEffect(() => {
 		if (task && task?.members) {
@@ -163,7 +190,7 @@ const TaskProgress = () => {
 			</TaskRow>
 			<TaskRow labelTitle={trans.TIME_REMAINING}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					2h : 12m
+					{timeRemaining.hours}h : {timeRemaining.minutes}m
 				</div>
 			</TaskRow>
 		</section>
