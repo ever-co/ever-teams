@@ -152,7 +152,7 @@ const TaskProgress = () => {
 									<ChevronUpIcon
 										className={clsx(
 											open ? 'rotate-180 transform' : '',
-											'h-5 w-5 text-[#292D32]'
+											'h-5 w-5 text-[#292D32] dark:text-white'
 										)}
 									/>
 								</Disclosure.Button>
