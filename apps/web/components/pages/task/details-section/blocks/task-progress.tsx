@@ -39,6 +39,7 @@ const TaskProgress = () => {
 		hours: 0,
 		minutes: 0,
 	});
+	const [numMembersToShow, setNumMembersToShow] = useState(5);
 
 	//const seconds = useRecoilValue(timerSecondsState);
 	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -54,31 +55,6 @@ const TaskProgress = () => {
 
 	const memberInfo = useTeamMemberCard(currentUser);
 	// console.log(memberInfo.member?.duration);
-
-	/*const TotalWork = () => {
-		if (memberInfo.isAuthUser) {
-			const { h, m } = secondsToTime(
-				//returns empty array
-				((currentUser?.totalTodayTasks &&
-					currentUser?.totalTodayTasks.reduce(
-						(previousValue, currentValue) =>
-							previousValue + currentValue.duration,
-						0
-					)) ||
-					activeTaskTotalStat?.duration ||
-					0) + addSeconds
-			);
-			return (
-
-					<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{h}h : {m}m
-					</div>
-
-			);
-		}
-	};*/
-
-	// console.log('task:', task);
 
 	useEffect(() => {
 		const userTotalTimeOnTask = () => {
@@ -145,20 +121,6 @@ const TaskProgress = () => {
 		setTimeRemaining({ hours: h, minutes: m });
 	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
 
-	// useEffect(() => {
-	// 	if (task && task?.members) {
-	// 		const profiles = Array.isArray(task?.members) ? [...task.members] : [];
-
-	// 		if (profiles) {
-	// 			profiles.push(profiles[0]);
-	// 			profiles.push(profiles[0]);
-	// 			profiles.push(profiles[0]);
-	// 		}
-
-	// 		setDummyProfiles(profiles);
-	// 	}
-	// }, [task]);
-
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle={trans.PROGRESS} wrapperClassName="mb-3">
@@ -188,16 +150,35 @@ const TaskProgress = () => {
 								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 								</div>
-								<ChevronUpIcon
-									className={clsx(
-										open ? 'rotate-180 transform' : '',
-										'h-5 w-5 text-[#292D32]'
-									)}
-								/>
+								{task?.members !== undefined && task?.members.length >= 1 && (
+									<ChevronUpIcon
+										className={clsx(
+											open ? 'rotate-180 transform' : '',
+											'h-5 w-5 text-[#292D32]'
+										)}
+									/>
+								)}
 							</Disclosure.Button>
-							<Disclosure.Panel>
-								<IndividualMembersTotalTime />
-							</Disclosure.Panel>
+							{task?.members !== undefined && task?.members.length >= 1 && (
+								<Disclosure.Panel>
+									<IndividualMembersTotalTime
+										numMembersToShow={numMembersToShow}
+									/>
+									{task?.members?.length !== undefined &&
+										task?.members?.length - 1 >= numMembersToShow && (
+											<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
+												<button
+													onClick={() =>
+														setNumMembersToShow((prev) => prev + 5)
+													}
+													className="text-xs"
+												>
+													Show More
+												</button>
+											</div>
+										)}
+								</Disclosure.Panel>
+							)}
 						</div>
 					)}
 				</Disclosure>
@@ -213,7 +194,7 @@ const TaskProgress = () => {
 
 export default TaskProgress;
 
-const IndividualMembersTotalTime = () => {
+const IndividualMembersTotalTime = ({ numMembersToShow }: any) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
@@ -227,7 +208,7 @@ const IndividualMembersTotalTime = () => {
 
 	return (
 		<>
-			{matchingMembers?.map((member) => {
+			{matchingMembers?.slice(0, numMembersToShow)?.map((member) => {
 				const taskDurationInSeconds = findUserTotalWorked(member, task?.id)
 					? findUserTotalWorked(member, task?.id)
 					: 0;
