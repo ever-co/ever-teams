@@ -97,6 +97,7 @@ const TaskProgress = () => {
 
 		const remainingTime =
 			task?.estimate === null ||
+			task?.estimate === 0 ||
 			task?.estimate === undefined ||
 			usersTotalTimeInSeconds === undefined
 				? 0
