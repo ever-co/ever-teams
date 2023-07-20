@@ -10,7 +10,7 @@ import clsx from 'clsx';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
-	useTeamMemberCard,
+	// useTeamMemberCard,
 	//useTaskStatistics,
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
@@ -53,7 +53,7 @@ const TaskProgress = () => {
 		return m.employee.user?.id === user?.id;
 	});
 
-	const memberInfo = useTeamMemberCard(currentUser);
+	// const memberInfo = useTeamMemberCard(currentUser);
 
 	useEffect(() => {
 		const userTotalTimeOnTask = (): void => {
@@ -126,7 +126,7 @@ const TaskProgress = () => {
 					isAuthUser={true}
 					activeAuthTask={true}
 					showPercents={true}
-					memberInfo={memberInfo}
+					// memberInfo={memberInfo}
 				/>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TOTAL_TIME} wrapperClassName="mb-3">
