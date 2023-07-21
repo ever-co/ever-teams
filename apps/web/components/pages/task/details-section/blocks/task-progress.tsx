@@ -116,6 +116,9 @@ const TaskProgress = () => {
 
 		const { h, m } = secondsToTime(remainingTime);
 		setTimeRemaining({ hours: h, minutes: m });
+		if (remainingTime <= 0) {
+			setTimeRemaining({ hours: 0, minutes: 0 });
+		}
 	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
 
 	return (
