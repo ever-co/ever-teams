@@ -146,7 +146,7 @@ const TaskProgress = () => {
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full">
-							{task?.members !== undefined && task?.members.length > 1 ? (
+							{task?.members && task?.members.length > 1 ? (
 								<Disclosure.Button className="flex justify-between items-center w-full">
 									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
@@ -164,12 +164,12 @@ const TaskProgress = () => {
 									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 								</div>
 							)}
-							{task?.members !== undefined && task?.members.length > 1 && (
+							{task?.members && task?.members.length && (
 								<Disclosure.Panel>
 									<IndividualMembersTotalTime
 										numMembersToShow={numMembersToShow}
 									/>
-									{task?.members?.length !== undefined &&
+									{task?.members?.length &&
 										task?.members?.length - 1 >= numMembersToShow && (
 											<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
 												<button
