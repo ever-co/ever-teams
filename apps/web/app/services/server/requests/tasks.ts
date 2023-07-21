@@ -19,6 +19,7 @@ export function getTeamTasksRequest({
 		'creator',
 		'linkedIssues',
 		'linkedIssues.taskTo',
+		'linkedIssues.taskFrom',
 	],
 }: {
 	tenantId: string;

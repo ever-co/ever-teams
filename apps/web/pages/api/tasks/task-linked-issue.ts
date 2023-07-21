@@ -21,5 +21,5 @@ export default async function handler(
 
 	const response = await createTaskLinkedIsssue(body, access_token, tenantId);
 
-	return response.data;
+	$res.json(response.data);
 }

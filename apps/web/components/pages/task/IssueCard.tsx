@@ -9,16 +9,26 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { TaskInput, TaskIssueStatus, TaskStatusDropdown } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-import { IHookModal, useLinkedTasks, useModal, useTeamTasks } from '@app/hooks';
-import { ITeamTask } from '@app/interfaces';
+import { IHookModal, useModal, useQuery, useTeamTasks } from '@app/hooks';
+import { ITeamTask, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
 
 const IssueCard = ({ related }: { related: boolean }) => {
 	const modal = useModal();
-
 	const task = useRecoilValue(detailedTaskState);
-	const { tasks } = useLinkedTasks(task);
+	const { tasks } = useTeamTasks();
+
+	const linkedTasks = useMemo(() => {
+		return (
+			task?.linkedIssues
+				?.map<ITeamTask>((t) => {
+					return tasks.find((ts) => ts.id === t.taskFrom.id) || t.taskFrom;
+				})
+				.filter(Boolean) || []
+		);
+	}, [task, tasks]);
 
 	return (
 		<Card className="w-full mt-8" shadow="bigger">
@@ -44,7 +54,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 			<hr />
 
 			<div className="flex flex-col">
-				{tasks.map((task) => {
+				{linkedTasks.map((task) => {
 					return <RelatedTask key={task.id} task={task} />;
 				})}
 			</div>
@@ -62,16 +72,36 @@ function CreateLinkedTask({
 	task: ITeamTask;
 }) {
 	const { trans } = useTranslation();
-	const { tasks } = useTeamTasks();
+	const { tasks, loadTeamTasksData } = useTeamTasks();
+	const { queryCall } = useQuery(createTaskLinkedIsssueAPI);
 	const [loading, setLoading] = useState(false);
 
-	const onTaskSelect = useCallback((task: ITeamTask | undefined) => {
-		setLoading(true);
-		console.log(task);
-	}, []);
+	const onTaskSelect = useCallback(
+		async (childTask: ITeamTask | undefined) => {
+			if (!childTask) return;
+			setLoading(true);
+			const parentTask = task;
 
-	const linkedTasks = task.linkedIssues?.map((t) => t.id) || [];
-	const unlinkedTasks = tasks.filter((t) => !linkedTasks.includes(t.id));
+			await queryCall({
+				taskFromId: childTask?.id,
+				taskToId: parentTask.id,
+
+				organizationId: task.organizationId,
+				action: TaskRelatedIssuesRelationEnum.RELATES_TO,
+			}).catch(console.error);
+
+			loadTeamTasksData(false).finally(() => {
+				setLoading(false);
+				modal.closeModal();
+			});
+		},
+		[task, queryCall, loadTeamTasksData, modal]
+	);
+
+	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom.id) || [];
+	const unlinkedTasks = tasks
+		.filter((t) => !linkedTasks.includes(t.id))
+		.filter((t) => t.id != task.id);
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>

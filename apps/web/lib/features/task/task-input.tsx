@@ -79,6 +79,19 @@ export function TaskInput(props: Props) {
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
+	const $onTaskClick = useCallbackRef(props.onTaskClick);
+	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
+
+	const onTaskCreated = useCallback(
+		(task: ITeamTask | undefined) =>
+			$onTaskCreated.current && $onTaskCreated.current(task),
+		[$onTaskCreated]
+	);
+
+	const onTaskClick = useCallback(
+		(task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
+		[$onTaskClick]
+	);
 
 	const {
 		inputTask,
@@ -178,11 +191,11 @@ export function TaskInput(props: Props) {
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || [],
 				})
-				?.then(props.onTaskCreated)
+				?.then(onTaskCreated)
 				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props, autoActiveTask, viewType]);
+	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
 	const inputField = (
 		<InputField
@@ -260,7 +273,7 @@ export function TaskInput(props: Props) {
 			datas={datas}
 			onItemClick={
 				props.task !== undefined || props.onTaskClick
-					? props.onTaskClick
+					? onTaskClick
 					: setAuthActiveTask
 			}
 			inputField={viewType === 'one-view' ? inputField : undefined}

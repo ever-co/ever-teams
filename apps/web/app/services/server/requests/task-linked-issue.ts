@@ -1,4 +1,4 @@
-import { ITaskLinkedIssue } from '@app/interfaces';
+import { ITaskLinkedIssue, ITaskLinkedIssueResponse } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
 export function createTaskLinkedIsssue(
@@ -6,7 +6,7 @@ export function createTaskLinkedIsssue(
 	bearer_token: string,
 	tenantId?: string
 ) {
-	return serverFetch<any>({
+	return serverFetch<ITaskLinkedIssueResponse>({
 		path: '/task-linked-issue',
 		method: 'POST',
 		body: data,

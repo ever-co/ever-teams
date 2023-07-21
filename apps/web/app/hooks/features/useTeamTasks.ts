@@ -98,7 +98,7 @@ export function useTeamTasks() {
 				setAllTasks(responseTasks);
 			}
 		},
-		[setAllTasks]
+		[activeTeamRef, setAllTasks, tasksRef]
 	);
 
 	const loadTeamTasksData = useCallback(
@@ -108,7 +108,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[queryCall, setAllTasks, allTaskStatistics]
+		[queryCall, deepCheckAndUpdateTasks]
 	);
 
 	// Global loading state
