@@ -15,8 +15,7 @@ import {
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
-import { OT_Member } from '@app/interfaces';
-import { ITasksTimesheet, ITime } from '@app/interfaces';
+import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
