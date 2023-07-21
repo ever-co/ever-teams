@@ -3,76 +3,118 @@ import { TaskProgressBar } from 'lib/features';
 import { useRecoilState } from 'recoil';
 import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { IEmployee } from '@app/interfaces';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
-	useTeamMemberCard,
+	// useTeamMemberCard,
 	//useTaskStatistics,
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
-//import { secondsToTime } from '@app/helpers';
-//import { useRecoilValue } from 'recoil';
-//import { timerSecondsState } from '@app/stores';
+import { secondsToTime } from '@app/helpers';
+import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const [dummyProfiles, setDummyProfiles] = useState<IEmployee[]>([]);
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
 	const { trans } = useTranslation('taskDetails');
 
-	//const seconds = useRecoilValue(timerSecondsState);
-	//const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
+	const [userTotalTime, setUserTotalTime] = useState<ITime>({
+		hours: 0,
+		minutes: 0,
+	});
+	const [userTotalTimeToday, setUserTotalTimeToday] = useState<ITime>({
+		hours: 0,
+		minutes: 0,
+	});
+	const [timeRemaining, setTimeRemaining] = useState<ITime>({
+		hours: 0,
+		minutes: 0,
+	});
+	const [groupTotalTime, setGroupTotalTime] = useState<ITime>({
+		hours: 0,
+		minutes: 0,
+	});
+	const [numMembersToShow, setNumMembersToShow] = useState<number>(5);
 
 	const members = activeTeam?.members || [];
 
-	const currentUser = members.find((m) => {
+	const currentUser: OT_Member | undefined = members.find((m) => {
 		return m.employee.user?.id === user?.id;
 	});
 
-	const memberInfo = useTeamMemberCard(currentUser);
+	// const memberInfo = useTeamMemberCard(currentUser);
 
-	/*const TotalWork = () => {
-		if (memberInfo.isAuthUser) {
-			const { h, m } = secondsToTime(
-				//returns empty array
-				((currentUser?.totalTodayTasks &&
-					currentUser?.totalTodayTasks.reduce(
-						(previousValue, currentValue) =>
-							previousValue + currentValue.duration,
-						0
-					)) ||
-					activeTaskTotalStat?.duration ||
-					0) + addSeconds
-			);
-			return (
+	const userTotalTimeOnTask = useCallback((): void => {
+		const totalOnTaskInSeconds: number =
+			currentUser?.totalWorkedTasks.find((object) => object.id === task?.id)
+				?.duration || 0;
 
-					<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{h}h : {m}m
-					</div>
+		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
-			);
-		}
-	};*/
+		setUserTotalTime({ hours: h, minutes: m });
+	}, [currentUser?.totalWorkedTasks, task?.id]);
 
 	useEffect(() => {
-		if (task && task?.members) {
-			const profiles = Array.isArray(task?.members) ? [...task.members] : [];
+		userTotalTimeOnTask();
+	}, [userTotalTimeOnTask]);
 
-			if (profiles) {
-				profiles.push(profiles[0]);
-				profiles.push(profiles[0]);
-				profiles.push(profiles[0]);
-			}
+	const userTotalTimeOnTaskToday = useCallback((): void => {
+		const totalOnTaskInSeconds: number =
+			currentUser?.totalTodayTasks.find((object) => object.id === task?.id)
+				?.duration || 0;
 
-			setDummyProfiles(profiles);
+		const { h, m } = secondsToTime(totalOnTaskInSeconds);
+
+		setUserTotalTimeToday({ hours: h, minutes: m });
+	}, [currentUser?.totalTodayTasks, task?.id]);
+
+	useEffect(() => {
+		userTotalTimeOnTaskToday();
+	}, [userTotalTimeOnTaskToday]);
+
+	useEffect(() => {
+		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
+			(member) =>
+				task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		);
+
+		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
+			?.flatMap((obj) => obj.totalWorkedTasks)
+			.filter((taskObj) => taskObj.id === task?.id);
+
+		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
+			(totalDuration, item) => totalDuration + item.duration,
+			0
+		);
+
+		const usersTotalTime: number =
+			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
+				? 0
+				: usersTotalTimeInSeconds;
+
+		const timeObj = secondsToTime(usersTotalTime);
+		const { h: hoursTotal, m: minutesTotal } = timeObj;
+		setGroupTotalTime({ hours: hoursTotal, minutes: minutesTotal });
+
+		const remainingTime: number =
+			task?.estimate === null ||
+			task?.estimate === 0 ||
+			task?.estimate === undefined ||
+			usersTotalTimeInSeconds === undefined
+				? 0
+				: task?.estimate - usersTotalTimeInSeconds;
+
+		const { h, m } = secondsToTime(remainingTime);
+		setTimeRemaining({ hours: h, minutes: m });
+		if (remainingTime <= 0) {
+			setTimeRemaining({ hours: 0, minutes: 0 });
 		}
-	}, [task]);
+	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
 
 	return (
 		<section className="flex flex-col p-[15px]">
@@ -82,52 +124,68 @@ const TaskProgress = () => {
 					isAuthUser={true}
 					activeAuthTask={true}
 					showPercents={true}
-					memberInfo={memberInfo}
+					// memberInfo={memberInfo}
 				/>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TOTAL_TIME} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					2h : 12m
+					{userTotalTime.hours}h : {userTotalTime.minutes}m
 				</div>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TIME_TODAY} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					1h : 10m
+					{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
 				</div>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME} wrapperClassName="mb-3">
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full">
-							<Disclosure.Button className="flex justify-between items-center w-full">
-								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-									9h : 11m
-								</div>
-								<ChevronUpIcon
-									className={clsx(
-										open ? 'rotate-180 transform' : '',
-										'h-5 w-5 text-[#292D32]'
-									)}
-								/>
-							</Disclosure.Button>
-							<Disclosure.Panel>
-								{dummyProfiles?.map((profile) => (
-									<div key={profile?.id} className="mt-2.5">
-										<ProfileInfoWithTime
-											profilePicSrc={profile?.user?.imageUrl}
-											names={profile?.fullName}
-											time=" 3h : 4m"
-										/>
+							{task?.members && task?.members.length > 1 ? (
+								<Disclosure.Button className="flex justify-between items-center w-full">
+									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 									</div>
-								))}
-							</Disclosure.Panel>
+
+									<ChevronUpIcon
+										className={clsx(
+											open ? 'rotate-180 transform' : '',
+											'h-5 w-5 text-[#292D32] dark:text-white'
+										)}
+									/>
+								</Disclosure.Button>
+							) : (
+								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
+								</div>
+							)}
+							{task?.members && task?.members.length > 0 && (
+								<Disclosure.Panel>
+									<IndividualMembersTotalTime
+										numMembersToShow={numMembersToShow}
+									/>
+									{task?.members?.length > 0 &&
+										task?.members?.length - 1 >= numMembersToShow && (
+											<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
+												<button
+													onClick={() =>
+														setNumMembersToShow((prev) => prev + 5)
+													}
+													className="text-xs"
+												>
+													Show More
+												</button>
+											</div>
+										)}
+								</Disclosure.Panel>
+							)}
 						</div>
 					)}
 				</Disclosure>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TIME_REMAINING}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					2h : 12m
+					{timeRemaining.hours}h : {timeRemaining.minutes}m
 				</div>
 			</TaskRow>
 		</section>
@@ -135,3 +193,46 @@ const TaskProgress = () => {
 };
 
 export default TaskProgress;
+
+const IndividualMembersTotalTime = ({
+	numMembersToShow,
+}: {
+	numMembersToShow: number;
+}) => {
+	const [task] = useRecoilState(detailedTaskState);
+	const { activeTeam } = useOrganizationTeams();
+
+	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
+		(member) =>
+			task?.members.some((taskMember) => taskMember.id === member.employeeId)
+	);
+
+	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
+		return (
+			user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0
+		);
+	};
+
+	return (
+		<>
+			{matchingMembers?.slice(0, numMembersToShow)?.map((member) => {
+				const taskDurationInSeconds = findUserTotalWorked(member, task?.id);
+
+				const { h, m } = secondsToTime(taskDurationInSeconds);
+
+				const time = `${h}h : ${m}m`;
+
+				return (
+					<div key={member.id} className="mt-2.5">
+						<ProfileInfoWithTime
+							key={member.id}
+							profilePicSrc={member.employee.user?.imageUrl}
+							names={member.employee.fullName}
+							time={time}
+						/>
+					</div>
+				);
+			})}
+		</>
+	);
+};
