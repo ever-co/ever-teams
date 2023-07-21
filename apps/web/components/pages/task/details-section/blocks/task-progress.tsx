@@ -192,7 +192,11 @@ const TaskProgress = () => {
 
 export default TaskProgress;
 
-const IndividualMembersTotalTime = ({ numMembersToShow }: any) => {
+const IndividualMembersTotalTime = ({
+	numMembersToShow,
+}: {
+	numMembersToShow: number;
+}) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
@@ -201,7 +205,7 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: any) => {
 			task?.members.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
-	const findUserTotalWorked = (user: any, id: any) => {
+	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
 		return (
 			user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0
 		);
