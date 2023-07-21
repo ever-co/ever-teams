@@ -16,12 +16,7 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
 import { OT_Member } from '@app/interfaces';
-import { ITasksTimesheet } from '@app/interfaces/ITimer';
-
-interface ITime {
-	hours: number;
-	minutes: number;
-}
+import { ITasksTimesheet, ITime } from '@app/interfaces';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -86,7 +81,6 @@ const TaskProgress = () => {
 			(member) =>
 				task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
-		console.log('matchingMembers:', matchingMembers);
 
 		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
