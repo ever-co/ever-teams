@@ -29,3 +29,4 @@ export * from './IDay';
 export * from './INotify';
 export * from './ITheme';
 export * from './IRolePermissions';
+export * from './ITimer';
