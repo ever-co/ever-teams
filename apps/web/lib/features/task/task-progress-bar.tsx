@@ -13,8 +13,8 @@ export function TaskProgressBar({
 	task,
 	activeAuthTask,
 	showPercents,
-	memberInfo,
-}: {
+}: // memberInfo,
+{
 	isAuthUser: boolean | undefined;
 	task: Nullable<ITeamTask>;
 	activeAuthTask: boolean;
@@ -27,9 +27,10 @@ export function TaskProgressBar({
 	);
 
 	const { activeTeam } = useOrganizationTeams();
-	const currentMember = activeTeam?.members.find(
-		(member) => member.id === memberInfo?.member?.id
-	);
+	//removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
+	// const currentMember = activeTeam?.members.find(
+	// 	(member) => member.id === memberInfo?.member?.id
+	// );
 	let totalWorkedTasksTimer = 0;
 	activeTeam?.members?.forEach((member) => {
 		const totalWorkedTasks =
@@ -43,7 +44,7 @@ export function TaskProgressBar({
 		null,
 		task,
 		/*addSeconds || */ totalWorkedTasksTimer || 0,
-		task?.estimate || currentMember?.lastWorkedTask?.estimate || 0
+		task?.estimate || 0 //<-- task?.estimate || currentMember?.lastWorkedTask?.estimate || 0 - removed as when certain task's timer was active it was affecting the timers with no estimations. Was taking user's previous task's estimation
 	);
 
 	return (

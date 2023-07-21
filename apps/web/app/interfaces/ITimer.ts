@@ -90,3 +90,8 @@ export interface ITasksTimesheet {
 	duration: number;
 	durationPercentage: number;
 }
+
+export interface ITime {
+	hours: number;
+	minutes: number;
+}
