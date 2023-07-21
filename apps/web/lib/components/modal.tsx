@@ -1,4 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
+import Image from 'next/image';
 import { Fragment, PropsWithChildren, useRef } from 'react';
 
 type Props = {
@@ -40,12 +41,22 @@ export function Modal({
 					ref={refDiv}
 					className="absolute inset-0 flex items-center justify-center p-4"
 				>
-					<Dialog.Panel className={className}>
+					<Dialog.Panel className={`${className} relative`}>
 						{title && <Dialog.Title>{title}</Dialog.Title>}
 						{description && (
 							<Dialog.Description>{description}</Dialog.Description>
 						)}
-
+						<div
+							onClick={() => closeModal()}
+							className="absolute right-1 top-1 cursor-pointer z-50"
+						>
+							<Image
+								src={'/assets/svg/close.svg'}
+								alt="close"
+								width={28}
+								height={28}
+							/>
+						</div>
 						{children}
 					</Dialog.Panel>
 				</div>
