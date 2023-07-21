@@ -3,7 +3,7 @@ import { TaskProgressBar } from 'lib/features';
 import { useRecoilState } from 'recoil';
 import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
@@ -62,18 +62,19 @@ const TaskProgress = () => {
 		userTotalTimeOnTask();
 	}, [currentUser?.totalWorkedTasks, task?.id]);
 
-	useEffect(() => {
-		const userTotalTimeOnTaskToday = (): void => {
-			const totalOnTaskInSeconds: number =
-				currentUser?.totalTodayTasks.find((object) => object.id === task?.id)
-					?.duration || 0;
+	const userTotalTimeOnTaskToday = useCallback((): void => {
+		const totalOnTaskInSeconds: number =
+			currentUser?.totalTodayTasks.find((object) => object.id === task?.id)
+				?.duration || 0;
 
-			const { h, m } = secondsToTime(totalOnTaskInSeconds);
+		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
-			setUserTotalTimeToday({ hours: h, minutes: m });
-		};
-		userTotalTimeOnTaskToday();
+		setUserTotalTimeToday({ hours: h, minutes: m });
 	}, [currentUser?.totalTodayTasks, task?.id]);
+
+	useEffect(() => {
+		userTotalTimeOnTaskToday();
+	}, [userTotalTimeOnTaskToday]);
 
 	useEffect(() => {
 		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
