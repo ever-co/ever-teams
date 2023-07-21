@@ -14,7 +14,7 @@ export default async function handler(
 	if (!user) return $res();
 
 	if (req.method !== 'POST') {
-		return res.status(405).json({ status: 'fail' });
+		return res.status(405).json({ status: 'failed' });
 	}
 
 	const body = req.body as ITaskLinkedIssue;
