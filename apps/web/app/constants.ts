@@ -6,6 +6,8 @@ export const DEFAULT_MAIN_PATH = '/';
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^\/$/,
 	/^(\/profile(\/)?)(.*)$/,
+	/^(\/settings(\/)?)(.*)$/,
+	/^(\/task(\/)?)(.*)$/,
 ];
 
 export const TOKEN_COOKIE_NAME = 'auth-token';

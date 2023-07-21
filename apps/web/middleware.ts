@@ -44,12 +44,12 @@ export async function middleware(request: NextRequest) {
 	if ((protected_path && !refresh_token) || (protected_path && !access_token)) {
 		deny_redirect();
 		// Next condition, if all tokens are presents
-	} else if (protected_path) {
+	} else if (protected_path && access_token) {
 		const res = await currentAuthenticatedUserRequest({
-			bearer_token: access_token!,
+			bearer_token: access_token,
 		}).catch(console.error);
 
-		if (!res || res.response.status !== 200) {
+		if (!res || !res.response.ok) {
 			deny_redirect();
 		} else {
 			response.headers.set('x-user', JSON.stringify(res.data));

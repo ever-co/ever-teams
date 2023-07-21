@@ -1,7 +1,7 @@
 import { avatarState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';
 import Image from 'next/legacy/image';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useEffect, useMemo } from 'react';
 import { useRecoilState } from 'recoil';
 import hasOwn from 'lodash/has';
 
@@ -27,17 +27,21 @@ export function Avatar({
 
 	const imagePathName =
 		imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
+
 	const avatarPresent = hasOwn(avatar, imagePathName);
 
 	const imgUrl = useMemo(() => {
 		if (avatarPresent) {
 			return avatar[imagePathName];
 		} else {
-			setAvatar({ ...avatar, [imagePathName]: imageUrl });
 			return imageUrl;
 		}
 		/* eslint-disable react-hooks/exhaustive-deps */
 	}, [imagePathName, avatarPresent]);
+
+	useEffect(() => {
+		setAvatar((avatar: any) => ({ ...avatar, [imagePathName]: imageUrl }));
+	}, [imageUrl, imagePathName]);
 
 	return (
 		<div
