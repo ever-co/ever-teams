@@ -127,7 +127,7 @@ const TaskProgress = () => {
 			</TaskRow>
 			<TaskRow labelTitle={trans.TOTAL_TIME} wrapperClassName="mb-3">
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					{userTotalTime.hours}h : {userTotalTime?.minutes}m
+					{userTotalTime.hours}h : {userTotalTime.minutes}m
 				</div>
 			</TaskRow>
 			<TaskRow labelTitle={trans.TIME_TODAY} wrapperClassName="mb-3">
@@ -157,12 +157,12 @@ const TaskProgress = () => {
 									{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 								</div>
 							)}
-							{task?.members && task?.members.length && (
+							{task?.members && task?.members.length > 0 && (
 								<Disclosure.Panel>
 									<IndividualMembersTotalTime
 										numMembersToShow={numMembersToShow}
 									/>
-									{task?.members?.length &&
+									{task?.members?.length > 0 &&
 										task?.members?.length - 1 >= numMembersToShow && (
 											<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
 												<button
@@ -202,15 +202,15 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: any) => {
 	);
 
 	const findUserTotalWorked = (user: any, id: any) => {
-		return user.totalWorkedTasks.find((task: any) => task.id === id)?.duration;
+		return (
+			user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0
+		);
 	};
 
 	return (
 		<>
 			{matchingMembers?.slice(0, numMembersToShow)?.map((member) => {
-				const taskDurationInSeconds = findUserTotalWorked(member, task?.id)
-					? findUserTotalWorked(member, task?.id)
-					: 0;
+				const taskDurationInSeconds = findUserTotalWorked(member, task?.id);
 
 				const { h, m } = secondsToTime(taskDurationInSeconds);
 
@@ -220,8 +220,8 @@ const IndividualMembersTotalTime = ({ numMembersToShow }: any) => {
 					<div key={member.id} className="mt-2.5">
 						<ProfileInfoWithTime
 							key={member.id}
-							profilePicSrc={member?.employee.user?.imageUrl}
-							names={member.employee?.fullName}
+							profilePicSrc={member.employee.user?.imageUrl}
+							names={member.employee.fullName}
 							time={time}
 						/>
 					</div>
