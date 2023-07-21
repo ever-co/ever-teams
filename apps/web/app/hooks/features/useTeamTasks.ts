@@ -12,11 +12,7 @@ import {
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
 } from '@app/services/client/api';
-import {
-	activeTeamState,
-	allTaskStatisticsState,
-	userState,
-} from '@app/stores';
+import { activeTeamState, userState } from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
@@ -33,7 +29,7 @@ import { useSyncRef } from '../useSyncRef';
 export function useTeamTasks() {
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
-	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
+	// const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
