@@ -49,18 +49,19 @@ const TaskProgress = () => {
 
 	// const memberInfo = useTeamMemberCard(currentUser);
 
-	useEffect(() => {
-		const userTotalTimeOnTask = (): void => {
-			const totalOnTaskInSeconds: number =
-				currentUser?.totalWorkedTasks.find((object) => object.id === task?.id)
-					?.duration || 0;
+	const userTotalTimeOnTask = useCallback((): void => {
+		const totalOnTaskInSeconds: number =
+			currentUser?.totalWorkedTasks.find((object) => object.id === task?.id)
+				?.duration || 0;
 
-			const { h, m } = secondsToTime(totalOnTaskInSeconds);
+		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
-			setUserTotalTime({ hours: h, minutes: m });
-		};
-		userTotalTimeOnTask();
+		setUserTotalTime({ hours: h, minutes: m });
 	}, [currentUser?.totalWorkedTasks, task?.id]);
+
+	useEffect(() => {
+		userTotalTimeOnTask();
+	}, [userTotalTimeOnTask]);
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
