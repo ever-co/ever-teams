@@ -6,6 +6,8 @@ export const DEFAULT_MAIN_PATH = '/';
 export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^\/$/,
 	/^(\/profile(\/)?)(.*)$/,
+	/^(\/settings(\/)?)(.*)$/,
+	/^(\/task(\/)?)(.*)$/,
 ];
 
 export const TOKEN_COOKIE_NAME = 'auth-token';
@@ -35,6 +37,8 @@ export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
+export const DISABLE_AUTO_REFRESH =
+	process.env.NEXT_PUBLIC_DISABLE_AUTO_REFRESH === 'true';
 
 export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
 export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';

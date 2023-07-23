@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Text } from 'lib/components';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
 	PeopleIcon,
 	PeopleIconFilled,
@@ -13,6 +13,104 @@ import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { useIsMemberManager } from '@app/hooks';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
+import { scrollToElement } from '@app/utils';
+
+const PersonalAccordianData = [
+	{
+		title: 'General',
+		color: '#7E7991',
+		href: '#general',
+	},
+	// {
+	// 	title: 'Work Schedule',
+	// 	color: '#7E7991',
+	// 	href: '#work-schedule',
+	// },
+	// {
+	// 	title: 'Subscription',
+	// 	color: '#7E7991',
+	// 	href: '#subscription',
+	// },
+	{
+		title: 'Danger Zone',
+		color: '#DE5536',
+		href: '#danger-zone',
+	},
+];
+
+const TeamAccordianData = [
+	{
+		title: 'General Settings',
+		color: '#7E7991',
+		href: '#general-settings',
+		managerOnly: false,
+	},
+	{
+		title: 'Invitations',
+		color: '#7E7991',
+		href: '#invitations',
+		managerOnly: true,
+	},
+	{
+		title: 'Member',
+		color: '#7E7991',
+		href: '#member',
+		managerOnly: true,
+	},
+	{
+		title: 'Issues Settings',
+		color: '#7E7991',
+		href: '#issues-settings',
+		managerOnly: false,
+	},
+	{
+		title: 'Statuses',
+		color: '#7E7991',
+		href: '#statuses',
+		managerOnly: false,
+	},
+	{
+		title: 'Priorities',
+		color: '#7E7991',
+		href: '#priorities',
+		managerOnly: false,
+	},
+	{
+		title: 'Sizes',
+		color: '#7E7991',
+		href: '#sizes',
+		managerOnly: false,
+	},
+	{
+		title: 'Labels',
+		color: '#7E7991',
+		href: '#labels',
+		managerOnly: false,
+	},
+	{
+		title: 'Related Issue Types',
+		color: '#7E7991',
+		href: '#related-issue-types',
+		managerOnly: true,
+	},
+	// {
+	// 	title: 'Notifications',
+	// 	color: '#7E7991',
+	// 	href: '#notifications',
+	// 	managerOnly: true,
+	// },
+	// {
+	// 	title: 'Integrations',
+	// 	color: '#7E7991',
+	// 	href: '#integrations',
+	// 	managerOnly: true,
+	// },
+	{
+		title: 'Danger Zones',
+		color: '#DE5536',
+		href: '#danger-zones',
+	},
+];
 
 export const LeftSideSettingMenu = () => {
 	const router = useRouter();
@@ -25,102 +123,40 @@ export const LeftSideSettingMenu = () => {
 		setActivePage(router.route);
 	}, [router.route]);
 
-	const PersonalAccordianData = [
-		{
-			title: 'General',
-			color: '#7E7991',
-			href: '#general',
-		},
-		{
-			title: 'Work Schedule',
-			color: '#7E7991',
-			href: '#work-schedule',
-		},
-		{
-			title: 'Subscription',
-			color: '#7E7991',
-			href: '#subscription',
-		},
-		{
-			title: 'Danger Zone',
-			color: '#DE5536',
-			href: '#danger-zone',
-		},
-	];
+	useEffect(() => {
+		const url = new URL(window.location.origin + router.asPath);
+		window.setTimeout(() => {
+			if (!url.hash) return;
 
-	const TeamAccordianData = [
-		{
-			title: 'General Settings',
-			color: '#7E7991',
-			href: '#general-settings',
-			managerOnly: false,
+			const targetElement = document.querySelector(url.hash);
+			if (targetElement) {
+				const rect = targetElement.getBoundingClientRect();
+				scrollToElement(rect, 100);
+			}
+		}, 100);
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [router.pathname]);
+
+	const onLinkClick = useCallback(
+		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+			// if(router.pathname )
+			const url = new URL(e.currentTarget.href);
+			if (url.pathname !== router.pathname) {
+				return;
+			}
+			e.stopPropagation();
+
+			const targetElement = document.querySelector(url.hash);
+			if (targetElement) {
+				e.preventDefault();
+				const rect = targetElement.getBoundingClientRect();
+				scrollToElement(rect, 100);
+			}
 		},
-		{
-			title: 'Invitations',
-			color: '#7E7991',
-			href: '#invitations',
-			managerOnly: true,
-		},
-		{
-			title: 'Member',
-			color: '#7E7991',
-			href: '#member',
-			managerOnly: true,
-		},
-		{
-			title: 'Issues Settings',
-			color: '#7E7991',
-			href: '#issues-settings',
-			managerOnly: false,
-		},
-		{
-			title: 'Statuses',
-			color: '#7E7991',
-			href: '#statuses',
-			managerOnly: false,
-		},
-		{
-			title: 'Priorities',
-			color: '#7E7991',
-			href: '#priorities',
-			managerOnly: false,
-		},
-		{
-			title: 'Sizes',
-			color: '#7E7991',
-			href: '#sizes',
-			managerOnly: false,
-		},
-		{
-			title: 'Labels',
-			color: '#7E7991',
-			href: '#labels',
-			managerOnly: false,
-		},
-		{
-			title: 'Related Issue Types',
-			color: '#7E7991',
-			href: '#related-issue-types',
-			managerOnly: true,
-		},
-		{
-			title: 'Notifications',
-			color: '#7E7991',
-			href: '#notifications',
-			managerOnly: true,
-		},
-		{
-			title: 'Integrations',
-			color: '#7E7991',
-			href: '#integrations',
-			managerOnly: true,
-		},
-		{
-			title: 'Danger Zones',
-			color: '#DE5536',
-			href: '#danger-zones',
-		},
-	];
+		[router]
+	);
+
 	return (
 		<>
 			<div className="sm:w-[320px] mt-[36px] sm:mr-[56px] mx-auto">
@@ -157,9 +193,13 @@ export const LeftSideSettingMenu = () => {
                 `}
 					>
 						<div className="flex flex-col">
-							{PersonalAccordianData?.map((ad, index) => {
+							{PersonalAccordianData.map((ad, index) => {
 								return (
-									<Link href={`/settings/personal${ad.href}`} key={index}>
+									<Link
+										onClick={onLinkClick}
+										href={`/settings/personal${ad.href}`}
+										key={index}
+									>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -204,7 +244,11 @@ export const LeftSideSettingMenu = () => {
 								(ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager
 							).map((ad, index) => {
 								return (
-									<Link href={`/settings/team${ad.href}`} key={index}>
+									<Link
+										onClick={onLinkClick}
+										href={`/settings/team${ad.href}`}
+										key={index}
+									>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}

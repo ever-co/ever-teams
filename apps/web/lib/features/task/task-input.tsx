@@ -48,6 +48,7 @@ type Props = {
 	showCombobox?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
+	placeholder?: string;
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
@@ -78,6 +79,19 @@ export function TaskInput(props: Props) {
 
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
+	const $onTaskClick = useCallbackRef(props.onTaskClick);
+	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
+
+	const onTaskCreated = useCallback(
+		(task: ITeamTask | undefined) =>
+			$onTaskCreated.current && $onTaskCreated.current(task),
+		[$onTaskCreated]
+	);
+
+	const onTaskClick = useCallback(
+		(task: ITeamTask) => $onTaskClick.current && $onTaskClick.current(task),
+		[$onTaskClick]
+	);
 
 	const {
 		inputTask,
@@ -177,11 +191,11 @@ export function TaskInput(props: Props) {
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
 					assignToUsers: props.usersTaskCreatedAssignTo || [],
 				})
-				?.then(props.onTaskCreated)
+				?.then(onTaskCreated)
 				.finally(() => {
 					viewType === 'one-view' && setTaskName('');
 				});
-	}, [datas, props, autoActiveTask, viewType]);
+	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
 	const inputField = (
 		<InputField
@@ -193,7 +207,7 @@ export function TaskInput(props: Props) {
 			onChange={(event) => {
 				setTaskName(event.target.value);
 			}}
-			placeholder={trans.form.TASK_INPUT_PLACEHOLDER}
+			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
 			ref={targetEl}
 			autoFocus={props.autoFocus}
 			onKeyUp={(e) => {
@@ -259,7 +273,7 @@ export function TaskInput(props: Props) {
 			datas={datas}
 			onItemClick={
 				props.task !== undefined || props.onTaskClick
-					? props.onTaskClick
+					? onTaskClick
 					: setAuthActiveTask
 			}
 			inputField={viewType === 'one-view' ? inputField : undefined}

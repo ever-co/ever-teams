@@ -33,7 +33,7 @@ export const InvitationSetting = () => {
 	);
 
 	return (
-		<div id="invitations" className="flex flex-col ">
+		<div className="flex flex-col">
 			<div className="flex items-center justify-between w-full mt-8">
 				<div className="w-auto">
 					<InputField

@@ -13,9 +13,9 @@ import { RelatedIssueTypeForm } from './related-issue-type-form';
 export const IssuesSettings = () => {
 	const { trans } = useTranslation('settingsTeam');
 	return (
-		<div id="issues-settings">
+		<div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.TASK_PRIVACY}
 				</Text>
@@ -24,7 +24,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.MULTIPLE_ASSIGNEES}
 				</Text>
@@ -33,7 +33,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.MANUAL_TIME}
 				</Text>
@@ -42,7 +42,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.GROUP_ESTIMATION}
 				</Text>
@@ -51,7 +51,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.ESTIMATION_IN_HOURS}
 				</Text>
@@ -60,7 +60,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.ESTIMATION_IN_STORY_POINTS}
 				</Text>
@@ -69,7 +69,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.PROOF_OF_COMPLETION}
 				</Text>
@@ -84,7 +84,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.LINKED_ISSUES}
 				</Text>
@@ -93,7 +93,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.COMMENTS}
 				</Text>
@@ -102,7 +102,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.HISTORY}
 				</Text>
@@ -111,7 +111,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.ACCEPTANCE_CRITERIA}
 				</Text>
@@ -120,7 +120,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.DRAFT_ISSUES}
 				</Text>
@@ -129,7 +129,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.AUTO_CLOSE_ISSUE}
 				</Text>
@@ -139,7 +139,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.AUTO_ARCHIVE_ISSUE}
 				</Text>
@@ -149,7 +149,7 @@ export const IssuesSettings = () => {
 				</div>
 			</div>
 			{/* TODO */}
-			<div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			<div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 w-1/5">
 					{trans.AUTO_STATUS}
 				</Text>
@@ -162,7 +162,7 @@ export const IssuesSettings = () => {
 				<VersionForm />
 			</div>
 			{/* TODO */}
-			{/* <div className="hidden flex w-full items-center justify-between gap-[2rem]">
+			{/* <div className="hidden _flex w-full items-center justify-between gap-[2rem]">
 				<IssueTypeForm />
 			</div> */}
 
