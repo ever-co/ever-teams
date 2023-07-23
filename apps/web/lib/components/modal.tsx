@@ -19,7 +19,6 @@ export function Modal({
 	title,
 	description,
 	className,
-	alignCloseIcon,
 }: Props) {
 	const refDiv = useRef(null);
 
@@ -46,7 +45,7 @@ export function Modal({
 				>
 					<Dialog.Panel
 						className={clsxm(
-							'w-full flex justify-center items-center flex-col space-y-1 relative',
+							'flex justify-center items-center flex-col space-y-1 relative',
 							className
 						)}
 					>
@@ -56,11 +55,7 @@ export function Modal({
 						)}
 						<div
 							onClick={closeModal}
-							className={`absolute ${
-								alignCloseIcon
-									? 'right-[14px] top-2 md:right-3 md:top-3'
-									: 'right-2 top-2 md:right-3 md:top-3'
-							}  cursor-pointer z-50`}
+							className="absolute right-3 top-3 cursor-pointer z-50"
 						>
 							<Image
 								src={'/assets/svg/close.svg'}

@@ -91,7 +91,7 @@ export function InviteFormModal({
 	);
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
+		<Modal isOpen={open} closeModal={closeModal}>
 			<form
 				className="w-[98%] md:w-[530px] relative"
 				autoComplete="off"
