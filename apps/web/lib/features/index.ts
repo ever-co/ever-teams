@@ -11,6 +11,7 @@ export * from './task/task-progress-bar';
 export * from './task/task-times';
 export * from './task/task-issue';
 export * from './task/task-status-modal';
+export * from './task/task-linked-issue';
 // displays
 export * from './task/task-displays';
 

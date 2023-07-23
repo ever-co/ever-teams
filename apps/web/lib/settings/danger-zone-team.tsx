@@ -61,10 +61,7 @@ export const DangerZoneTeam = () => {
 
 	return (
 		<>
-			<div
-				id="danger-zones"
-				className="flex flex-col justify-between items-center"
-			>
+			<div className="flex flex-col justify-between items-center">
 				<div className="w-full mt-5">
 					<div className="">
 						{/* Current User is the Manager of the Team and there are more that 1 Managers */}

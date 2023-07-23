@@ -49,6 +49,7 @@ const Personal = () => {
 								<Accordian
 									title={trans.HEADING_TITLE}
 									className="dark:bg-dark--theme p-4 mt-8"
+									id="general"
 								>
 									{/* <Text className="text-base font-normal text-gray-400 text-center sm:text-left">
 										{translations.pages.settings.HEADING_DESCRIPTION}
@@ -60,6 +61,7 @@ const Personal = () => {
 									title={translations.pages.settings.DANDER_ZONE}
 									className="dark:bg-dark--theme p-4 mt-4"
 									isDanger={true}
+									id="danger-zone"
 								>
 									<DangerZone />
 								</Accordian>

@@ -10,7 +10,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = activeTeam?.members.find(
-		(member) => member.employee.userId === user?.id
+		(member) => member.employee?.userId === user?.id
 	);
 
 	const assignedTasks = useMemo(() => {
