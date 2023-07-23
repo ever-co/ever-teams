@@ -6,7 +6,7 @@ import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { PlusIcon } from '@heroicons/react/20/solid';
 // import bugIcon from '../../../public/assets/svg/bug.svg';
 // import ideaIcon from '../../../public/assets/svg/idea.svg';
-import { TaskInput, TaskIssueStatus, TaskStatusDropdown } from 'lib/features';
+import { TaskInput, TaskLinkedIssue } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import { IHookModal, useModal, useQuery, useTeamTasks } from '@app/hooks';
@@ -55,7 +55,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 
 			<div className="flex flex-col">
 				{linkedTasks.map((task) => {
-					return <RelatedTask key={task.id} task={task} />;
+					return <TaskLinkedIssue key={task.id} task={task} />;
 				})}
 			</div>
 
@@ -133,24 +133,6 @@ function CreateLinkedTask({
 				</Card>
 			</div>
 		</Modal>
-	);
-}
-
-function RelatedTask({ task }: { task: ITeamTask }) {
-	return (
-		<Card shadow="custom" className="flex justify-between">
-			<div className="ml-2">
-				<TaskIssueStatus
-					showIssueLabels={false}
-					className="px-1 py-1 rounded-full"
-					task={task}
-				/>
-			</div>
-			<div>{task.taskNumber}</div>
-			<div>{task.title}</div>
-
-			<TaskStatusDropdown defaultValue={task.status} />
-		</Card>
 	);
 }
 
