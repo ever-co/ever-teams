@@ -21,7 +21,7 @@ PODS:
   - EXMediaLibrary (15.2.3):
     - ExpoModulesCore
     - React-Core
-  - Expo (48.0.9):
+  - Expo (48.0.20):
     - ExpoModulesCore
   - ExpoBlur (12.2.2):
     - ExpoModulesCore
@@ -668,7 +668,7 @@ SPEC CHECKSUMS:
   EXJSONUtils: 48b1e764ac35160e6f54d21ab60d7d9501f3e473
   EXManifests: 500666d48e8dd7ca5a482c9e729e4a7a6c34081b
   EXMediaLibrary: 587cd8aad27a6fc8d7c38b950bc75bc1845a7480
-  Expo: 863488a600a4565698a79577117c70b170054d08
+  Expo: b7d2843b0a0027d0ce76121a63085764355a16ed
   ExpoBlur: fac3c6318fdf409dd5740afd3313b2bd52a35bac
   ExpoDevice: e0bebf68f978b3d353377ce42e73c20c0a070215
   ExpoImagePicker: 270dea232b3a072d981dd564e2cafc63a864edb1
@@ -724,6 +724,6 @@ SPEC CHECKSUMS:
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   Yoga: 065f0b74dba4832d6e328238de46eb72c5de9556
 
-PODFILE CHECKSUM: 3b35c72b749b61fbf59479bf07c13fa9d63dbdc8
+PODFILE CHECKSUM: 6bf1d7935e75126336b434ed3a7a2480c7a38286
 
 COCOAPODS: 1.12.1
