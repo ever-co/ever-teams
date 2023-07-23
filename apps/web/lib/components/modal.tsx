@@ -55,6 +55,7 @@ export function Modal({
 								alt="close"
 								width={28}
 								height={28}
+								className="w-6 md:w-7"
 							/>
 						</div>
 						{children}
