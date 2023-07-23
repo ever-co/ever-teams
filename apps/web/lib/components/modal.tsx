@@ -48,7 +48,7 @@ export function Modal({
 						)}
 						<div
 							onClick={() => closeModal()}
-							className="absolute right-1 top-1 cursor-pointer z-50"
+							className="absolute right-3 top-3 cursor-pointer z-50"
 						>
 							<Image
 								src={'/assets/svg/close.svg'}
