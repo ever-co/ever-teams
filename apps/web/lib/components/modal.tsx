@@ -46,11 +46,10 @@ export function Modal({
 				>
 					<Dialog.Panel
 						className={clsxm(
-							'w-full flex justify-center items-center flex-col space-y-1',
+							'w-full flex justify-center items-center flex-col space-y-1 relative',
 							className
 						)}
 					>
-					<Dialog.Panel className={`${className} relative`}>
 						{title && <Dialog.Title>{title}</Dialog.Title>}
 						{description && (
 							<Dialog.Description>{description}</Dialog.Description>
