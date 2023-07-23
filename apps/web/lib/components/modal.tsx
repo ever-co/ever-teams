@@ -8,6 +8,7 @@ type Props = {
 	isOpen: boolean;
 	closeModal: () => void;
 	className?: string;
+	alignCloseIcon?: boolean;
 } & PropsWithChildren;
 
 export function Modal({
@@ -17,6 +18,7 @@ export function Modal({
 	title,
 	description,
 	className,
+	alignCloseIcon,
 }: Props) {
 	const refDiv = useRef(null);
 
@@ -47,8 +49,12 @@ export function Modal({
 							<Dialog.Description>{description}</Dialog.Description>
 						)}
 						<div
-							onClick={() => closeModal()}
-							className="absolute right-3 top-3 cursor-pointer z-50"
+							onClick={closeModal}
+							className={`absolute ${
+								alignCloseIcon
+									? 'right-[14px] top-2 md:right-3 md:top-3'
+									: 'right-2 top-2 md:right-3 md:top-3'
+							}  cursor-pointer z-50`}
 						>
 							<Image
 								src={'/assets/svg/close.svg'}

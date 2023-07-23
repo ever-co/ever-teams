@@ -77,7 +77,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 				</button>
 			)}
 
-			<Modal isOpen={isOpen} closeModal={closeModal}>
+			<Modal isOpen={isOpen} closeModal={closeModal} alignCloseIcon>
 				<div className="w-[98%] md:w-[530px]">
 					<Card className="w-full" shadow="custom">
 						<div className="flex flex-col justify-between items-center w-full">
