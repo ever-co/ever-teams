@@ -42,7 +42,7 @@ const TaskEstimationsInfo = () => {
 								{task?.members.map((member) => (
 									<ProfileInfoWithTime
 										key={member.id}
-										profilePicSrc={member?.user?.imageUrl}
+										profilePicSrc={member.user?.imageUrl}
 										names={member.fullName}
 										profileInfoWrapperClassName="mt-4"
 										//@ts-ignore

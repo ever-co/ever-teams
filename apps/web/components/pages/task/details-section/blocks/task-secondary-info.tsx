@@ -1,18 +1,12 @@
-import { useModal, useTeamTasks } from '@app/hooks';
-import {
-	ITaskStatus,
-	ITaskSize,
-	ITaskPriority,
-	IVersionProperty,
-} from '@app/interfaces';
+import { useModal } from '@app/hooks';
 import { detailedTaskState } from '@app/stores';
 import {
+	ActiveTaskLabelsDropdown,
+	ActiveTaskPropertiesDropdown,
+	ActiveTaskSizesDropdown,
+	ActiveTaskStatusDropdown,
+	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
-	TaskLabelsDropdown,
-	TaskPropertiesDropdown,
-	TaskSizesDropdown,
-	TaskStatusDropdown,
-	VersionPropertiesDropown as TaskVersionDropdown,
 } from 'lib/features';
 import { useCallback, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -36,36 +30,6 @@ const TaskSecondaryInfo = () => {
 	const modal = useModal();
 	const [formTarget, setFormTarget] = useState<StatusType | null>(null);
 
-	const { handleStatusUpdate } = useTeamTasks();
-
-	const handleChange = useCallback(
-		(status: ITaskStatus) => {
-			handleStatusUpdate(status, 'status', task);
-		},
-		[task, handleStatusUpdate]
-	);
-
-	const handleSizeChange = useCallback(
-		(status: ITaskSize) => {
-			handleStatusUpdate(status, 'size', task);
-		},
-		[task, handleStatusUpdate]
-	);
-
-	const handlePriorityChange = useCallback(
-		(status: ITaskPriority) => {
-			handleStatusUpdate(status, 'priority', task);
-		},
-		[task, handleStatusUpdate]
-	);
-
-	const handleVersionChange = useCallback(
-		(status: IVersionProperty) => {
-			handleStatusUpdate(status, 'version', task);
-		},
-		[task, handleStatusUpdate]
-	);
-
 	const openModalEditionHandle = useCallback(
 		(type: StatusType) => {
 			return () => {
@@ -79,11 +43,10 @@ const TaskSecondaryInfo = () => {
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow labelTitle={trans.VERSION} wrapperClassName="mb-3">
-				<TaskVersionDropdown
-					onValueChange={handleVersionChange}
+				<ActiveTaskVersionDropdown
+					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
-					defaultValue={task?.version}
 					sidebarUI={true}
 				>
 					<Button
@@ -93,7 +56,7 @@ const TaskSecondaryInfo = () => {
 					>
 						<PlusIcon className="w-[16px] h-[16px]" />
 					</Button>
-				</TaskVersionDropdown>
+				</ActiveTaskVersionDropdown>
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.EPIC} wrapperClassName="mb-3">
@@ -106,9 +69,8 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.STATUS} wrapperClassName="mb-3">
-				<TaskStatusDropdown
-					defaultValue={task?.status}
-					onValueChange={handleChange}
+				<ActiveTaskStatusDropdown
+					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
@@ -120,12 +82,12 @@ const TaskSecondaryInfo = () => {
 					>
 						<PlusIcon className="w-[16px] h-[16px]" />
 					</Button>
-				</TaskStatusDropdown>
+				</ActiveTaskStatusDropdown>
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.LABEL} wrapperClassName="mb-3">
-				<TaskLabelsDropdown
-					defaultValue={task?.label}
+				<ActiveTaskLabelsDropdown
+					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
@@ -137,16 +99,15 @@ const TaskSecondaryInfo = () => {
 					>
 						<PlusIcon className="w-[16px] h-[16px]" />
 					</Button>
-				</TaskLabelsDropdown>
+				</ActiveTaskLabelsDropdown>
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.SIZE} wrapperClassName="mb-3 text-black">
-				<TaskSizesDropdown
-					defaultValue={task?.size}
+				<ActiveTaskSizesDropdown
+					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					largerWidth={true}
-					onValueChange={handleSizeChange}
 					sidebarUI={true}
 				>
 					<Button
@@ -156,16 +117,15 @@ const TaskSecondaryInfo = () => {
 					>
 						<PlusIcon className="w-[16px] h-[16px]" />
 					</Button>
-				</TaskSizesDropdown>
+				</ActiveTaskSizesDropdown>
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.PRIORITY} wrapperClassName="mb-3 text-black">
-				<TaskPropertiesDropdown
-					defaultValue={task?.priority}
+				<ActiveTaskPropertiesDropdown
+					task={task}
 					className="lg:min-w-[170px] text-black "
 					forDetails={true}
 					largerWidth={true}
-					onValueChange={handlePriorityChange}
 					sidebarUI={true}
 				>
 					<Button
@@ -175,7 +135,7 @@ const TaskSecondaryInfo = () => {
 					>
 						<PlusIcon className="w-[16px] h-[16px]" />
 					</Button>
-				</TaskPropertiesDropdown>
+				</ActiveTaskPropertiesDropdown>
 			</TaskRow>
 			<hr className="text-[#F2F2F2] mt-[15px]" />
 

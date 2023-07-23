@@ -59,8 +59,9 @@ const Team = () => {
 									<Accordian
 										title={trans.HEADING_TITLE}
 										className="dark:bg-dark--theme p-4 mt-8"
+										id="general-settings"
 									>
-										<div id="general-settings" className="flex flex-col">
+										<div className="flex flex-col">
 											<TeamAvatar disabled={!isTeamManager} />
 											<TeamSettingForm />
 										</div>
@@ -71,6 +72,7 @@ const Team = () => {
 										<Accordian
 											title={trans.INVITATION_HEADING_TITLE}
 											className="dark:bg-dark--theme p-4 mt-4"
+											id="invitations"
 										>
 											<InvitationSetting />
 										</Accordian>
@@ -83,6 +85,7 @@ const Team = () => {
 										<Accordian
 											title={trans.MEMBER_HEADING_TITLE}
 											className="dark:bg-dark--theme p-4 mt-4"
+											id="member"
 										>
 											<MemberSetting />
 										</Accordian>
@@ -94,6 +97,7 @@ const Team = () => {
 									<Accordian
 										title={trans.ISSUES_HEADING_TITLE}
 										className="dark:bg-dark--theme p-4 mt-4"
+										id="issues-settings"
 									>
 										<IssuesSettings />
 									</Accordian>
@@ -112,6 +116,7 @@ const Team = () => {
 										title={translations.pages.settings.DANDER_ZONE}
 										className="dark:bg-dark--theme p-4 mt-4"
 										isDanger={true}
+										id="danger-zones"
 									>
 										<DangerZoneTeam />
 									</Accordian>

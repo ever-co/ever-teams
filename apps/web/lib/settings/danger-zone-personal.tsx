@@ -30,10 +30,7 @@ export const DangerZone = () => {
 
 	return (
 		<>
-			<div
-				id="danger-zone"
-				className="flex flex-col justify-between items-center"
-			>
+			<div className="flex flex-col justify-between items-center">
 				<div className="w-full mt-5">
 					<div className="">
 						<div className="flex w-full items-center justify-between gap-6 flex-col sm:flex-row">

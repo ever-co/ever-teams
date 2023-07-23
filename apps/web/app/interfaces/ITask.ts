@@ -26,6 +26,18 @@ export type ITeamTask = {
 	selectedTeam?: IOrganizationTeamList;
 	tags: Tag[];
 	teams: SelectedTeam[];
+	linkedIssues?: {
+		id: string;
+		createdAt: string;
+		updatedAt: string;
+		tenantId: string;
+		organizationId: string;
+		action: number;
+		taskFromId: string;
+		taskToId: string;
+		taskTo: Omit<ITeamTask, 'linkedIssues'>;
+		taskFrom: Omit<ITeamTask, 'linkedIssues'>;
+	}[];
 	creator: Creator;
 	taskNumber: string;
 	label?: string;
@@ -140,4 +152,33 @@ export interface ICreateTask {
 	estimate: number;
 	organizationId: string;
 	tenantId: string;
+}
+
+export interface ITaskLinkedIssue {
+	organizationId: string;
+	taskToId: string;
+	taskFromId: string;
+	action: number;
+}
+
+export interface ITaskLinkedIssueResponse {
+	tenantId: string;
+	organizationId: string;
+	action: number;
+	taskFromId: string;
+	taskToId: string;
+	tenant: { id: string };
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export enum TaskRelatedIssuesRelationEnum {
+	IS_BLOCKED_BY = 1,
+	BLOCKS = 2,
+	IS_CLONED_BY = 3,
+	CLONES = 4,
+	IS_DUPLICATED_BY = 5,
+	DUPLICATES = 6,
+	RELATES_TO = 7,
 }

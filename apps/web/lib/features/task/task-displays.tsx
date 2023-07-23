@@ -2,7 +2,11 @@ import { ITeamTask, Nullable } from '@app/interfaces';
 import { Tooltip } from 'lib/components';
 import { TaskIssueStatus } from './task-issue';
 
-export function TaskNameInfoDisplay({ task }: { task: Nullable<ITeamTask> }) {
+type Props = {
+	task: Nullable<ITeamTask>;
+};
+
+export function TaskNameInfoDisplay({ task }: Props) {
 	return (
 		<Tooltip
 			label={task?.title || ''}
@@ -16,7 +20,7 @@ export function TaskNameInfoDisplay({ task }: { task: Nullable<ITeamTask> }) {
 						<div className="mr-1">
 							<TaskIssueStatus
 								showIssueLabels={false}
-								className="px-1 py-1"
+								className="px-1 py-1 rounded-full"
 								task={task}
 							/>
 						</div>

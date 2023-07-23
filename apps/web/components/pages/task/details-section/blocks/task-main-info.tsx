@@ -23,6 +23,10 @@ const TaskMainInfo = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const { translations } = useTranslation('settingsTeam');
 
+	const remainingDays = task
+		? calculateRemainingDays(new Date().toISOString(), task.dueDate)
+		: undefined;
+
 	return (
 		<section className="flex flex-col p-[15px]">
 			<TaskRow
@@ -78,7 +82,9 @@ const TaskMainInfo = () => {
 					alignWithIconLabel={true}
 				>
 					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{calculateRemainingDays(new Date().toISOString(), task.dueDate)}
+						{remainingDays !== undefined && remainingDays < 0
+							? 0
+							: remainingDays}
 					</div>
 				</TaskRow>
 			)}
@@ -197,11 +203,12 @@ const ManageMembersPopover = (
 
 	const unassignedMembers = useMemo(
 		() =>
-			memberList.filter(
-				(member) =>
-					!task?.members
-						.map((item) => item.userId)
-						.includes(member.employee.userId)
+			memberList.filter((member) =>
+				member.employee
+					? !task?.members
+							.map((item) => item.userId)
+							.includes(member.employee.userId)
+					: false
 			),
 		[memberList, task?.members]
 	);
@@ -209,9 +216,11 @@ const ManageMembersPopover = (
 	const assignedTaskMembers = useMemo(
 		() =>
 			memberList.filter((member) =>
-				task?.members
-					.map((item) => item.userId)
-					.includes(member.employee.userId)
+				member.employee
+					? task?.members
+							.map((item) => item.userId)
+							.includes(member.employee?.userId)
+					: false
 			),
 		[memberList, task?.members]
 	);
@@ -272,8 +281,8 @@ const ManageMembersPopover = (
 											key={index}
 										>
 											<ProfileInfo
-												profilePicSrc={member?.employee?.user?.imageUrl}
-												names={member.employee.fullName}
+												profilePicSrc={member.employee?.user?.imageUrl}
+												names={member.employee?.fullName}
 											/>
 
 											<TrashIcon />
@@ -290,8 +299,8 @@ const ManageMembersPopover = (
 											key={index}
 										>
 											<ProfileInfo
-												profilePicSrc={member?.employee?.user?.imageUrl}
-												names={member.employee.fullName}
+												profilePicSrc={member.employee?.user?.imageUrl}
+												names={member.employee?.fullName}
 											/>
 										</div>
 									))}

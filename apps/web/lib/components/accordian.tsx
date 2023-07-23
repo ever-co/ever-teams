@@ -7,15 +7,17 @@ interface isProps {
 	children: React.ReactNode;
 	className: string;
 	isDanger?: boolean;
+	id?: string;
 }
 export const Accordian = ({
 	children,
 	title,
 	className,
 	isDanger,
+	id,
 }: isProps) => {
 	return (
-		<div className="w-full">
+		<div className="w-full" id={id}>
 			<div
 				className={`rounded-2xl p-2 ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] bg-light--theme-light dark:bg-dark--theme-light`}
 			>

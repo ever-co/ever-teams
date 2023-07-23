@@ -1,3 +1,4 @@
+import { clsxm } from '@app/utils';
 import { Dialog, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { Fragment, PropsWithChildren, useRef } from 'react';
@@ -37,12 +38,18 @@ export function Modal({
 				initialFocus={refDiv}
 				onClose={closeModal}
 				as="div"
-				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[9999]"
+				className="fixed inset-0 backdrop-brightness-90 backdrop-blur-sm z-[9999] w-full h-full"
 			>
 				<div
 					ref={refDiv}
-					className="absolute inset-0 flex items-center justify-center p-4"
+					className="absolute inset-0 flex items-center justify-center p-4 w-full"
 				>
+					<Dialog.Panel
+						className={clsxm(
+							'w-full flex justify-center items-center flex-col space-y-1',
+							className
+						)}
+					>
 					<Dialog.Panel className={`${className} relative`}>
 						{title && <Dialog.Title>{title}</Dialog.Title>}
 						{description && (
