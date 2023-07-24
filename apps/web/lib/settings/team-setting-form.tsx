@@ -13,6 +13,13 @@ import { EmojiPicker } from 'lib/components/emoji-picker';
 import debounce from 'lodash/debounce';
 import { RoleNameEnum } from '@app/interfaces';
 
+interface disableState {
+	teamNameDisabled: boolean;
+	teamColorDisabled: boolean;
+	teamEmojiDisabled: boolean;
+	teamSizeDisabled: boolean;
+}
+
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
@@ -21,6 +28,28 @@ export const TeamSettingForm = () => {
 		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState(false);
+	const [disabled, setDisabled] = useState<disableState>({
+		teamNameDisabled: true,
+		teamColorDisabled: true,
+		teamEmojiDisabled: true,
+		teamSizeDisabled: true,
+	});
+
+	const handleDisable = (elToDisable: keyof disableState) => {
+		if (!isTeamManager) {
+			setDisabled({
+				teamNameDisabled: false,
+				teamColorDisabled: false,
+				teamEmojiDisabled: false,
+				teamSizeDisabled: false,
+			});
+		} else {
+			setDisabled((prev) => ({
+				...prev,
+				[elToDisable]: !prev[elToDisable],
+			}));
+		}
+	};
 
 	const formDetails = useRef<{
 		teamName: string;
@@ -152,7 +181,7 @@ export const TeamSettingForm = () => {
 										placeholder={trans.TEAM_NAME}
 										{...register('teamName', { required: true, maxLength: 80 })}
 										className={`${
-											!isTeamManager ? 'disabled:bg-[#FCFCFC]' : ''
+											disabled.teamNameDisabled ? 'disabled:bg-[#FCFCFC]' : ''
 										}`}
 										trailingNode={
 											<Button
@@ -160,11 +189,12 @@ export const TeamSettingForm = () => {
 												className="p-0 m-0 mr-[0.5rem] min-w-0"
 												type="submit"
 												disabled={!isTeamManager}
+												onClick={() => handleDisable('teamNameDisabled')}
 											>
 												<Edit2Icon />
 											</Button>
 										}
-										disabled={!isTeamManager}
+										disabled={disabled.teamNameDisabled}
 										wrapperClassName={`rounded-lg`}
 									/>
 								</div>

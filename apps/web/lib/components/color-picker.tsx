@@ -16,10 +16,14 @@ export const ColorPicker = ({
 	onChange?: (color?: string | null) => void;
 	fullWidthInput?: boolean;
 	isTeamManager?: boolean;
+	disabled?: boolean;
 }) => {
 	const [color, setColor] = useState(defaultColor || null);
 	const onChangeRef = useCallbackRef(onChange);
 	const buttonRef = useRef<any>();
+	const editIconRef = useRef<any>();
+	const panelRef = useRef<any>();
+	const [disabled, setDisabled] = useState(true);
 
 	useEffect(() => {
 		if (defaultColor) {
@@ -33,6 +37,33 @@ export const ColorPicker = ({
 		}
 	}, [color, onChangeRef]);
 
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				editIconRef.current &&
+				!editIconRef.current.contains(event.target) &&
+				panelRef.current &&
+				!panelRef.current.contains(event.target)
+			) {
+				setDisabled(true);
+			}
+		};
+
+		const handleKeyPress = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setDisabled(true);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener('keydown', handleKeyPress);
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleKeyPress);
+		};
+	}, []);
+
 	return fullWidthInput ? (
 		<Popover className="relative border-none no-underline w-full mt-3">
 			{() => (
@@ -40,13 +71,11 @@ export const ColorPicker = ({
 					<Popover.Button
 						className={'outline-none mb-[15px] w-full'}
 						ref={buttonRef}
-						disabled={!isTeamManager && fullWidthInput}
+						disabled={disabled && fullWidthInput}
 					>
 						<div
-							className={`${
-								isTeamManager ? 'cursor-pointer' : ''
-							} relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
-								!isTeamManager ? 'bg-[#FCFCFC]' : ''
+							className={` relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
+								disabled ? 'bg-[#FCFCFC]' : ''
 							} bg-light--theme-light dark:bg-dark--theme-light`}
 						>
 							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
@@ -59,13 +88,27 @@ export const ColorPicker = ({
 								<div className="uppercase font-medium ">{color || ''}</div>
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
-								<Edit2Icon />
+								<button
+									disabled={!isTeamManager}
+									ref={editIconRef}
+									className={`outline-none ${
+										!isTeamManager && 'pointer-events-none'
+									}`}
+									onClick={() => {
+										setDisabled(!disabled);
+									}}
+								>
+									<Edit2Icon className="cursor-pointer" />
+								</button>
 
 								<span
 									onClick={() => {
 										setColor(null);
 										onChange && onChange(null);
 									}}
+									className={`outline-none ${
+										!isTeamManager ? 'pointer-events-none' : 'cursor-pointer'
+									}`}
 								>
 									<TrashIcon />
 								</span>
@@ -80,8 +123,12 @@ export const ColorPicker = ({
 						leave="transition ease-in duration-150"
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
+						show={!disabled}
 					>
-						<Popover.Panel className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow">
+						<Popover.Panel
+							ref={panelRef}
+							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow"
+						>
 							<HexColorPicker color={color || undefined} onChange={setColor} />
 						</Popover.Panel>
 					</Transition>
