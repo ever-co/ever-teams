@@ -124,7 +124,7 @@ const TeamSize = ({
 								<div className="bg-[#EDEEF2] h-[1px] w-full mt-[10px]"></div>
 								<div className="mt-[10px]">
 									<div className="flex flex-col gap-y-[15px] hover:cursor-pointer">
-										{sizeOption?.map((size, index) => {
+										{sizeOption.map((size, index) => {
 											return (
 												<div
 													key={index}
