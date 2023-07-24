@@ -19,6 +19,7 @@ export function Modal({
 	title,
 	description,
 	className,
+	alignCloseIcon,
 }: Props) {
 	const refDiv = useRef(null);
 
@@ -55,7 +56,9 @@ export function Modal({
 						)}
 						<div
 							onClick={closeModal}
-							className="absolute right-3 top-3 cursor-pointer z-50"
+							className={`absolute ${
+								alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
+							}  md:right-3 md:top-[15.5px] cursor-pointer z-50`}
 						>
 							<Image
 								src={'/assets/svg/close.svg'}
