@@ -20,9 +20,9 @@ export const ColorPicker = ({
 }) => {
 	const [color, setColor] = useState(defaultColor || null);
 	const onChangeRef = useCallbackRef(onChange);
-	const buttonRef = useRef<any>();
-	const panelRef = useRef<any>();
-	const [disabled, setDisabled] = useState(true);
+	const buttonRef = useRef<HTMLButtonElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
+	const [disabled, setDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
 		if (defaultColor) {
@@ -38,7 +38,10 @@ export const ColorPicker = ({
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (panelRef.current && !panelRef.current.contains(event.target)) {
+			if (
+				panelRef.current &&
+				!panelRef.current.contains(event.target as Node)
+			) {
 				setDisabled(true);
 			}
 		};

@@ -22,10 +22,9 @@ export const EmojiPicker = ({
 	const { theme } = useTheme();
 
 	const [value, setValue] = useState<any>();
-	const buttonRef = useRef<any>();
-	const editIconRef = useRef<any>();
-	const panelRef = useRef<any>();
-	const [disabled, setDisabled] = useState(true);
+	const buttonRef = useRef<HTMLButtonElement>(null);
+	const panelRef = useRef<HTMLDivElement>(null);
+	const [disabled, setDisabled] = useState<boolean>(true);
 
 	useEffect(() => {
 		getEmojiDataFromNative(emoji).then((item) => {
@@ -36,10 +35,8 @@ export const EmojiPicker = ({
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
-				editIconRef.current &&
-				!editIconRef.current.contains(event.target) &&
 				panelRef.current &&
-				!panelRef.current.contains(event.target)
+				!panelRef.current.contains(event.target as Node)
 			) {
 				setDisabled(true);
 			}
@@ -82,7 +79,6 @@ export const EmojiPicker = ({
 							<div className="flex mr-[0.5rem] gap-3">
 								<button
 									disabled={!isTeamManager}
-									ref={editIconRef}
 									className={`outline-none ${
 										!isTeamManager && 'pointer-events-none'
 									}`}

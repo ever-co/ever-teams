@@ -20,7 +20,7 @@ export const TeamSettingForm = () => {
 	const { activeTeam, editOrganizationTeam, loading, loadingTeam } =
 		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
-	const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);
 	const inputWrapperRef = useRef<HTMLDivElement>(null);
 
