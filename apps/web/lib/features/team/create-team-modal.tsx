@@ -53,7 +53,7 @@ export function CreateTeamModal({
 	}, [createOTeamLoading, name, teams]);
 
 	return (
-		<Modal isOpen={open} closeModal={closeModal}>
+		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
 			<form
 				className="sm:w-[530px] w-[330px]"
 				autoComplete="off"

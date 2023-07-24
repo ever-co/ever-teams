@@ -1,5 +1,6 @@
 import { clsxm } from '@app/utils';
 import { Dialog, Transition } from '@headlessui/react';
+import Image from 'next/image';
 import { Fragment, PropsWithChildren, useRef } from 'react';
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 	isOpen: boolean;
 	closeModal: () => void;
 	className?: string;
+	alignCloseIcon?: boolean;
 } & PropsWithChildren;
 
 export function Modal({
@@ -17,6 +19,7 @@ export function Modal({
 	title,
 	description,
 	className,
+	alignCloseIcon,
 }: Props) {
 	const refDiv = useRef(null);
 
@@ -43,7 +46,7 @@ export function Modal({
 				>
 					<Dialog.Panel
 						className={clsxm(
-							'w-full flex justify-center items-center flex-col space-y-1',
+							'flex justify-center items-center flex-col space-y-1 relative',
 							className
 						)}
 					>
@@ -51,7 +54,20 @@ export function Modal({
 						{description && (
 							<Dialog.Description>{description}</Dialog.Description>
 						)}
-
+						<div
+							onClick={closeModal}
+							className={`absolute ${
+								alignCloseIcon ? 'right-2 top-3' : 'right-3 top-3'
+							}  md:right-2 md:top-3 cursor-pointer z-50`}
+						>
+							<Image
+								src={'/assets/svg/close.svg'}
+								alt="close"
+								width={28}
+								height={28}
+								className="w-6 md:w-7"
+							/>
+						</div>
 						{children}
 					</Dialog.Panel>
 				</div>
