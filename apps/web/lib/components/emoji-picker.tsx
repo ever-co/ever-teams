@@ -23,12 +23,42 @@ export const EmojiPicker = ({
 
 	const [value, setValue] = useState<any>();
 	const buttonRef = useRef<any>();
+	const editIconRef = useRef<any>();
+	const panelRef = useRef<any>();
+	const [disabled, setDisabled] = useState(true);
 
 	useEffect(() => {
 		getEmojiDataFromNative(emoji).then((item) => {
 			setValue(item);
 		});
 	}, [emoji]);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				editIconRef.current &&
+				!editIconRef.current.contains(event.target) &&
+				panelRef.current &&
+				!panelRef.current.contains(event.target)
+			) {
+				setDisabled(true);
+			}
+		};
+
+		const handleKeyPress = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setDisabled(true);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener('keydown', handleKeyPress);
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleKeyPress);
+		};
+	}, []);
 
 	return (
 		<Popover className="relative border-none no-underline w-full mt-3">
@@ -37,13 +67,11 @@ export const EmojiPicker = ({
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
-						disabled={!isTeamManager}
+						disabled={disabled}
 					>
 						<div
-							className={`${
-								isTeamManager ? 'cursor-pointer' : ''
-							} relative w-[100%] h-[48px] ${
-								!isTeamManager ? 'bg-[#FCFCFC]' : ''
+							className={` relative w-[100%] h-[48px] ${
+								disabled ? 'bg-[#FCFCFC]' : ''
 							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
@@ -52,8 +80,29 @@ export const EmojiPicker = ({
 								</div>
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
-								<Edit2Icon />
-								<TrashIcon />
+								<button
+									disabled={!isTeamManager}
+									ref={editIconRef}
+									className={`outline-none ${
+										!isTeamManager && 'pointer-events-none'
+									}`}
+									onClick={() => {
+										setDisabled(!disabled);
+									}}
+								>
+									<Edit2Icon className="cursor-pointer" />
+								</button>
+								<button
+									onClick={() => {
+										setValue(null);
+										onChange('');
+									}}
+									className={`outline-none ${
+										!isTeamManager && 'pointer-events-none'
+									}`}
+								>
+									<TrashIcon />
+								</button>
 							</div>
 						</div>
 					</Popover.Button>
@@ -65,13 +114,18 @@ export const EmojiPicker = ({
 						leave="transition ease-in duration-150"
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
+						show={!disabled}
 					>
-						<Popover.Panel className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow ">
+						<Popover.Panel
+							ref={panelRef}
+							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow "
+						>
 							<Picker
 								data={data}
 								onEmojiSelect={(emoji: any) => {
 									setValue(emoji);
 									onChange(emoji.native);
+									setDisabled(true);
 								}}
 								theme={theme}
 								skinTonePosition={'none'}

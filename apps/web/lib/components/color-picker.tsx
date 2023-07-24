@@ -21,7 +21,6 @@ export const ColorPicker = ({
 	const [color, setColor] = useState(defaultColor || null);
 	const onChangeRef = useCallbackRef(onChange);
 	const buttonRef = useRef<any>();
-	const editIconRef = useRef<any>();
 	const panelRef = useRef<any>();
 	const [disabled, setDisabled] = useState(true);
 
@@ -39,12 +38,7 @@ export const ColorPicker = ({
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				editIconRef.current &&
-				!editIconRef.current.contains(event.target) &&
-				panelRef.current &&
-				!panelRef.current.contains(event.target)
-			) {
+			if (panelRef.current && !panelRef.current.contains(event.target)) {
 				setDisabled(true);
 			}
 		};
@@ -90,7 +84,6 @@ export const ColorPicker = ({
 							<div className="flex mr-[0.5rem] gap-3">
 								<button
 									disabled={!isTeamManager}
-									ref={editIconRef}
 									className={`outline-none ${
 										!isTeamManager && 'pointer-events-none'
 									}`}
