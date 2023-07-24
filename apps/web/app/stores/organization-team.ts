@@ -42,6 +42,10 @@ export const activeTeamState = selector<IOrganizationTeamList | null>({
 		return teams.find((team) => team.id === activeId) || teams[0] || null;
 	},
 });
+export const memberActiveTaskIdState = atom<string | null>({
+	key: 'memberActiveTaskIdState',
+	default: null,
+});
 
 export const publicactiveTeamState = atom<IOrganizationTeamList | undefined>({
 	key: 'publicactiveTeamState',

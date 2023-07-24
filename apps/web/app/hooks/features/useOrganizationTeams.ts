@@ -22,6 +22,7 @@ import {
 	activeTeamManagersState,
 	activeTeamState,
 	isTeamMemberState,
+	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamsFetchingState,
 } from '@app/stores';
@@ -178,6 +179,7 @@ export function useOrganizationTeams() {
 	);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useRecoilValue(activeTeamState);
+
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
 	const loadingTeamsRef = useSyncRef(loading);
@@ -187,11 +189,21 @@ export function useOrganizationTeams() {
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
+	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
+
+	const currentUser = activeTeam?.members?.find(
+		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
+	);
+	const memberActiveTaskId = currentUser?.activeTaskId || null;
 	const isTrackingEnabled = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
 	)
 		? true
 		: false;
+
+	useEffect(() => {
+		setMemberActiveTaskId(memberActiveTaskId);
+	}, [setMemberActiveTaskId, memberActiveTaskId]);
 
 	// Updaters
 	const { createOrganizationTeam, loading: createOTeamLoading } =
@@ -367,5 +379,6 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeam,
 		loadingTeam,
 		isTrackingEnabled,
+		memberActiveTaskId,
 	};
 }
