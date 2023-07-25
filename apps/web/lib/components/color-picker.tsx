@@ -69,6 +69,7 @@ export const ColorPicker = ({
 						className={'outline-none mb-[15px] w-full'}
 						ref={buttonRef}
 						disabled={disabled && fullWidthInput}
+						onClick={() => setDisabled(true)}
 					>
 						<div
 							className={` relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${

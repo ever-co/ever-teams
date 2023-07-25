@@ -84,6 +84,7 @@ const TeamSize = ({
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
 						disabled={disabled}
+						onClick={() => setDisabled(true)}
 					>
 						<div
 							className={`relative w-[100%] h-[48px] ${
