@@ -158,14 +158,9 @@ function DueDates() {
 				<DatePicker
 					selected={$dueDate.current}
 					onChange={(date) => {
-						const cdate = new Date();
+						// const cdate = new Date();
 
-						if (
-							$startDate.current &&
-							date &&
-							date > $startDate.current &&
-							date > cdate
-						) {
+						if ($startDate.current && date && date >= $startDate.current) {
 							setDueDate(date);
 							if (task) {
 								updateTask({ ...task, dueDate: date?.toISOString() });
