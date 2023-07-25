@@ -61,9 +61,9 @@ html.dark {
 		--ring: 215 20.2% 65.1%;
 
 		--radius: 0.5rem;
-	  }
+	}
 
-	  .dark {
+	.dark {
 		--background: 222.2 84% 4.9%;
 		--foreground: 210 40% 98%;
 
@@ -92,7 +92,7 @@ html.dark {
 		--destructive-foreground: 0 85.7% 97.3%;
 
 		--ring: 217.2 32.6% 17.5%;
-	  }
+	}
 }
 
 @layer components {
@@ -258,4 +258,8 @@ html.dark {
 
 .react-datepicker__day {
 	@apply !text-default dark:!text-white;
+}
+
+.prose {
+	max-width: unset !important;
 }
