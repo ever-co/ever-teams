@@ -48,7 +48,7 @@ const TaskMainInfo = () => {
 				{task?.creator && (
 					<ProfileInfo
 						profilePicSrc={task?.creator?.imageUrl}
-						names={`${task?.creator?.firstName} ${
+						names={`${task?.creator?.firstName || ''} ${
 							task?.creator?.lastName || ''
 						}`}
 					/>

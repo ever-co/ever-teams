@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import { Edit2Icon } from 'lib/components/svgs';
+import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import TimeTrackingToggle from 'lib/components/switch';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
@@ -20,7 +20,9 @@ export const TeamSettingForm = () => {
 	const { activeTeam, editOrganizationTeam, loading, loadingTeam } =
 		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
-	const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState<boolean>(false);
+	const [disabled, setDisabled] = useState<boolean>(true);
+	const inputWrapperRef = useRef<HTMLDivElement>(null);
 
 	const formDetails = useRef<{
 		teamName: string;
@@ -106,6 +108,31 @@ export const TeamSettingForm = () => {
 		[editOrganizationTeam, activeTeam]
 	);
 
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				inputWrapperRef.current &&
+				!inputWrapperRef.current.contains(event.target as Node)
+			) {
+				setDisabled(true);
+			}
+		};
+
+		const handleKeyPress = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				setDisabled(true);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener('keydown', handleKeyPress);
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleKeyPress);
+		};
+	}, []);
+
 	const getTeamLink = useCallback(() => {
 		if (
 			typeof window !== 'undefined' &&
@@ -146,25 +173,39 @@ export const TeamSettingForm = () => {
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_NAME}
 								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+								<div
+									ref={inputWrapperRef}
+									className="flex flex-row flex-grow-0 items-center justify-between w-4/5"
+								>
 									<InputField
+										autoCustomFocus={!disabled}
 										type="text"
 										placeholder={trans.TEAM_NAME}
 										{...register('teamName', { required: true, maxLength: 80 })}
-										className={`${
-											!isTeamManager ? 'disabled:bg-[#FCFCFC]' : ''
-										}`}
+										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
-											<Button
-												variant="ghost"
-												className="p-0 m-0 mr-[0.5rem] min-w-0"
-												type="submit"
-												disabled={!isTeamManager}
-											>
-												<Edit2Icon />
-											</Button>
+											disabled ? (
+												<Button
+													variant="ghost"
+													className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
+													disabled={!isTeamManager}
+													onClick={() => setDisabled(false)}
+												>
+													<Edit2Icon />
+												</Button>
+											) : (
+												<Button
+													variant="ghost"
+													className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
+													type="submit"
+													disabled={!isTeamManager}
+													onClick={() => setDisabled(true)}
+												>
+													<TickSquareIcon />
+												</Button>
+											)
 										}
-										disabled={!isTeamManager}
+										disabled={disabled}
 										wrapperClassName={`rounded-lg`}
 									/>
 								</div>
