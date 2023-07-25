@@ -18,6 +18,8 @@ import { TrashIcon } from 'lib/components/svgs';
 import { clsxm } from '@app/utils';
 import DatePicker from 'react-datepicker';
 
+import { DatePicker as NewDatePicker } from '../../../../ui/DatePicker';
+
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
@@ -155,7 +157,7 @@ function DueDates() {
 				wrapperClassName="mt-3"
 				alignWithIconLabel={true}
 			>
-				<DatePicker
+				{/* <DatePicker
 					selected={$dueDate.current}
 					onChange={(date) => {
 						const cdate = new Date();
@@ -184,6 +186,42 @@ function DueDates() {
 								'Set Due date'}
 						</DateCustomInput>
 					}
+				/> */}
+
+				<NewDatePicker
+					// Button Props
+					buttonVariant={'link'}
+					buttonClassName={'p-0 decoration-transparent'}
+					// Calenar Props
+					customInput={
+						<div
+							className={clsxm(
+								'not-italic cursor-pointer font-semibold text-[0.75rem]',
+								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
+							)}
+						>
+							{formatDateString(dueDate?.toISOString() || task?.dueDate) ||
+								'Set Due date'}
+						</div>
+					}
+					selected={
+						$dueDate.current ? (new Date($dueDate.current) as Date) : undefined
+					}
+					onSelect={(date) => {
+						const cdate = new Date();
+						if (
+							$startDate.current &&
+							date &&
+							date > $startDate.current &&
+							date > cdate
+						) {
+							setDueDate(date);
+							if (task) {
+								updateTask({ ...task, dueDate: date?.toISOString() });
+							}
+						}
+					}}
+					mode={'single'}
 				/>
 			</TaskRow>
 		</>
