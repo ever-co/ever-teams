@@ -164,37 +164,6 @@ function DueDates() {
 				wrapperClassName="mt-3"
 				alignWithIconLabel={true}
 			>
-				{/* <DatePicker
-					selected={$dueDate.current}
-					onChange={(date) => {
-						const cdate = new Date();
-
-						if (
-							$startDate.current &&
-							date &&
-							date > $startDate.current &&
-							date > cdate
-						) {
-							setDueDate(date);
-							if (task) {
-								updateTask({ ...task, dueDate: date?.toISOString() });
-							}
-						}
-					}}
-					// disabled={!!task?.dueDate}
-					customInput={
-						<DateCustomInput
-							className={clsxm(
-								'not-italic cursor-pointer font-semibold text-[0.75rem]',
-								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
-							)}
-						>
-							{formatDateString(dueDate?.toISOString() || task?.dueDate) ||
-								'Set Due date'}
-						</DateCustomInput>
-					}
-				/> */}
-
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
