@@ -16,9 +16,8 @@ import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
 import { clsxm } from '@app/utils';
-import DatePicker from 'react-datepicker';
 
-import { DatePicker as NewDatePicker } from '../../../../ui/DatePicker';
+import { DatePicker } from '../../../../ui/DatePicker';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -127,8 +126,27 @@ function DueDates() {
 				wrapperClassName="mt-5"
 			>
 				<DatePicker
-					selected={$startDate.current}
-					onChange={(date) => {
+					// Button Props
+					buttonVariant={'link'}
+					buttonClassName={'p-0 decoration-transparent'}
+					// Calenar Props
+					customInput={
+						<div
+							className={clsxm(
+								'not-italic cursor-pointer font-semibold text-[0.75rem]',
+								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
+							)}
+						>
+							{formatDateString(startDate?.toISOString() || task?.startDate) ||
+								'Set Start Date'}
+						</div>
+					}
+					selected={
+						$startDate.current
+							? (new Date($startDate.current) as Date)
+							: undefined
+					}
+					onSelect={(date) => {
 						if (date && (!$dueDate.current || date < $dueDate.current)) {
 							setStartDate(date);
 
@@ -137,18 +155,7 @@ function DueDates() {
 							}
 						}
 					}}
-					// disabled={!!task?.startDate}
-					customInput={
-						<DateCustomInput
-							className={clsxm(
-								'not-italic cursor-pointer font-semibold text-[0.75rem]',
-								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
-							)}
-						>
-							{formatDateString(startDate?.toISOString() || task?.startDate) ||
-								'Set Due date'}
-						</DateCustomInput>
-					}
+					mode={'single'}
 				/>
 			</TaskRow>
 
@@ -188,7 +195,7 @@ function DueDates() {
 					}
 				/> */}
 
-				<NewDatePicker
+				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
 					buttonClassName={'p-0 decoration-transparent'}
@@ -201,7 +208,7 @@ function DueDates() {
 							)}
 						>
 							{formatDateString(dueDate?.toISOString() || task?.dueDate) ||
-								'Set Due date'}
+								'Set Due Date'}
 						</div>
 					}
 					selected={
