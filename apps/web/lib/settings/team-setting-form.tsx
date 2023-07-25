@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { userState } from '@app/stores';
 import { useRecoilState } from 'recoil';
-import { Edit2Icon } from 'lib/components/svgs';
+import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import TimeTrackingToggle from 'lib/components/switch';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
@@ -184,15 +184,26 @@ export const TeamSettingForm = () => {
 										{...register('teamName', { required: true, maxLength: 80 })}
 										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
-											<Button
-												variant="ghost"
-												className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
-												type="submit"
-												disabled={!isTeamManager}
-												onClick={() => setDisabled(!disabled)}
-											>
-												<Edit2Icon />
-											</Button>
+											disabled ? (
+												<Button
+													variant="ghost"
+													className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
+													disabled={!isTeamManager}
+													onClick={() => setDisabled(false)}
+												>
+													<Edit2Icon />
+												</Button>
+											) : (
+												<Button
+													variant="ghost"
+													className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
+													type="submit"
+													disabled={!isTeamManager}
+													onClick={() => setDisabled(true)}
+												>
+													<TickSquareIcon />
+												</Button>
+											)
 										}
 										disabled={disabled}
 										wrapperClassName={`rounded-lg`}
