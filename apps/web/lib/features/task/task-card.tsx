@@ -433,12 +433,13 @@ export function TaskCard({
 							{() => {
 								return (
 									<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
-										<ul>
+										<ul className="min-w-[124px]">
 											<li className="mb-2">
 												<Link
 													href={`/task/${task.id}`}
 													className={clsxm(
-														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all'
+														'font-normal whitespace-nowrap transition-all',
+														'hover:font-semibold hover:transition-all'
 													)}
 												>
 													{trans.common.TASK_DETAILS}
@@ -447,7 +448,8 @@ export function TaskCard({
 											<li className="mb-2">
 												<span
 													className={clsxm(
-														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all cursor-pointer'
+														'font-normal whitespace-nowrap transition-all',
+														'hover:font-semibold hover:transition-all cursor-pointer'
 													)}
 													onClick={handleAssignment}
 												>
