@@ -2,7 +2,9 @@ import { useAuthenticateUser, useModal, useSyncRef } from '@app/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { Nullable } from '@app/interfaces';
 import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
+import { memberActiveTaskIdState } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
 
 export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 	switch (filters) {
@@ -53,10 +55,16 @@ export function useTaskInput({
 
 	const tasks = customTasks || teamTasks;
 
+	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
+	const memberActiveTask = useMemo(() => {
+		return tasks.find((item) => item.id === memberActiveTaskId) || null;
+	}, [memberActiveTaskId, tasks]);
+
 	/**
 	 * If task has null value then consider it as value 😄
 	 */
-	const inputTask = task !== undefined ? task : activeTeamTask;
+	const inputTask =
+		memberActiveTask || (task !== undefined ? task : activeTeamTask);
 
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
 	const [editMode, setEditMode] = useState(initEditMode || false);
