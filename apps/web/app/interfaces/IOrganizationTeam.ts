@@ -79,6 +79,7 @@ export interface OT_Member {
 	totalTodayTasks: ITasksTimesheet[];
 	totalWorkedTasks: ITasksTimesheet[];
 	timerStatus: ITimerStatusEnum;
+	activeTaskId?: string;
 }
 
 export type ITimerStatusEnum =
