@@ -10,7 +10,13 @@ import {
 	I_TeamMemberCardHook,
 	useOrganizationEmployeeTeams,
 } from '@app/hooks';
-import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IClassName,
+	IOrganizationTeamList,
+	ITeamTask,
+	Nullable,
+	OT_Member,
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
@@ -47,21 +53,22 @@ type Props = {
 	setEditTaskId?: SetterOrUpdater<string | null>;
 } & IClassName;
 
-export function TaskCard({
-	active,
-	className,
-	task,
-	isAuthUser,
-	activeAuthTask,
-	viewType = 'default',
-	profile,
-}: Props) {
+export function TaskCard(props: Props) {
+	const {
+		active,
+		className,
+		task,
+		isAuthUser,
+		activeAuthTask,
+		viewType = 'default',
+		profile,
+	} = props;
+
 	const [loading, setLoading] = useState(false);
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
 		useTaskStatistics(seconds);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
 		return m.employee.user?.id === profile?.userProfile?.id;
@@ -102,7 +109,7 @@ export function TaskCard({
 	const taskEdition = useTMCardTaskEdit(task);
 
 	return (
-		<div>
+		<>
 			<Card
 				shadow="bigger"
 				className={clsxm(
@@ -152,7 +159,11 @@ export function TaskCard({
 						memberInfo={profile?.member}
 					/>
 					{isTrackingEnabled && isAuthUser && task && (
-						<TimerButtonCall task={task} />
+						<TimerButtonCall
+							activeTeam={activeTeam}
+							currentMember={currentMember}
+							task={task}
+						/>
 					)}
 					{!isAuthUser && task && viewType === 'unassign' && (
 						<AssignTaskButtonCall
@@ -195,7 +206,13 @@ export function TaskCard({
 					{isTrackingEnabled &&
 						isAuthUser &&
 						viewType === 'unassign' &&
-						task && <TimerButtonCall task={task} />}
+						task && (
+							<TimerButtonCall
+								activeTeam={activeTeam}
+								currentMember={currentMember}
+								task={task}
+							/>
+						)}
 				</div>
 				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
 					<TaskInfo task={task} className="w-80 px-4 mb-4" />{' '}
@@ -222,7 +239,11 @@ export function TaskCard({
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
-							<TimerButtonCall task={task} />
+							<TimerButtonCall
+								activeTeam={activeTeam}
+								currentMember={currentMember}
+								task={task}
+							/>
 						)}
 					</div>
 
@@ -241,263 +262,280 @@ export function TaskCard({
 					/>
 				)}
 			</Card>
+		</>
+	);
+}
+
+function UsersTaskAssigned({
+	task,
+	className,
+}: { task: Nullable<ITeamTask> } & IClassName) {
+	const { trans } = useTranslation();
+	const members = task?.members || [];
+
+	return (
+		<div className={clsxm('flex justify-center items-center', className)}>
+			<div className="flex flex-col justify-center">
+				<span className="mb-1 text-xs text-center">
+					{trans.common.ASSIGNED}
+				</span>
+				<span className="font-medium text-center text-sm">
+					{members.length > 0
+						? `${members.length} ${trans.common.PEOPLE}`
+						: trans.task.tabFilter.NO_TASK_USER_ASSIGNED}
+				</span>
+			</div>
+			{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
 		</div>
 	);
+}
 
-	function UsersTaskAssigned({
-		task,
-		className,
-	}: { task: Nullable<ITeamTask> } & IClassName) {
-		const { trans } = useTranslation();
-		const members = task?.members || [];
+/**
+ * "If the task is the active task, then use the timer handler, otherwise start the timer with the
+ * task."
+ *
+ * The function is a bit more complicated than that, but that's the gist of it
+ * @param  - `task` - the task that the timer button is for
+ * @returns A TimerButton component that is either a spinner or a timer button.
+ */
+function TimerButtonCall({
+	task,
+	currentMember,
+	activeTeam,
+}: {
+	task: ITeamTask;
+	currentMember: OT_Member | undefined;
+	activeTeam: IOrganizationTeamList | null;
+}) {
+	const [loading, setLoading] = useState(false);
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const {
+		disabled,
+		timerHanlder,
+		timerStatus,
+		activeTeamTask,
+		startTimer,
+		stopTimer,
+	} = useTimerView();
 
-		return (
-			<div className={clsxm('flex justify-center items-center', className)}>
-				<div className="flex flex-col justify-center">
-					<span className="mb-1 text-xs text-center">
-						{trans.common.ASSIGNED}
-					</span>
-					<span className="font-medium text-center text-sm">
-						{members.length > 0
-							? `${members.length} ${trans.common.PEOPLE}`
-							: trans.task.tabFilter.NO_TASK_USER_ASSIGNED}
-					</span>
-				</div>
-				{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
-			</div>
+	const { setActiveTask } = useTeamTasks();
+
+	const activeTaskStatus =
+		activeTeamTask?.id === task.id ? timerStatus : undefined;
+
+	/* It's a function that is called when the timer button is clicked. */
+	const startTimerWithTask = useCallback(async () => {
+		if (task.status === 'closed') return;
+
+		if (timerStatus?.running) {
+			setLoading(true);
+			await stopTimer().finally(() => setLoading(false));
+		}
+
+		setActiveTask(task);
+
+		// Update Current user's active task to sync across multiple devices
+		const currentEmployeeDetails = activeTeam?.members.find(
+			(member) => member.id === currentMember?.id
 		);
-	}
+		if (currentEmployeeDetails && currentEmployeeDetails.id) {
+			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+				organizationId: task.organizationId,
+				activeTaskId: task.id,
+				organizationTeamId: activeTeam?.id,
+				tenantId: activeTeam?.tenantId,
+			});
+		}
 
-	/**
-	 * "If the task is the active task, then use the timer handler, otherwise start the timer with the
-	 * task."
-	 *
-	 * The function is a bit more complicated than that, but that's the gist of it
-	 * @param  - `task` - the task that the timer button is for
-	 * @returns A TimerButton component that is either a spinner or a timer button.
-	 */
-	function TimerButtonCall({ task }: { task: ITeamTask }) {
-		const [loading, setLoading] = useState(false);
-		const {
-			disabled,
-			timerHanlder,
-			timerStatus,
-			activeTeamTask,
-			startTimer,
-			stopTimer,
-		} = useTimerView();
+		window.setTimeout(startTimer, 100);
 
-		const { setActiveTask } = useTeamTasks();
-
-		const activeTaskStatus =
-			activeTeamTask?.id === task.id ? timerStatus : undefined;
-
-		/* It's a function that is called when the timer button is clicked. */
-		const startTimerWithTask = useCallback(async () => {
-			if (task.status === 'closed') return;
-
-			if (timerStatus?.running) {
-				setLoading(true);
-				await stopTimer().finally(() => setLoading(false));
-			}
-
-			setActiveTask(task);
-
-			// Update Current user's active task to sync across multiple devices
-			const currentEmployeeDetails = activeTeam?.members.find(
-				(member) => member.id === currentMember?.id
-			);
-			if (currentEmployeeDetails && currentEmployeeDetails.id) {
-				updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
-					organizationId: task.organizationId,
-					activeTaskId: task.id,
-					organizationTeamId: activeTeam?.id,
-					tenantId: activeTeam?.tenantId,
-				});
-			}
-
-			window.setTimeout(startTimer, 100);
-
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		}, [timerStatus, setActiveTask, task, stopTimer, startTimer]);
-
-		return loading ? (
-			<SpinnerLoader size={30} />
-		) : (
-			<TimerButton
-				onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
-				running={activeTaskStatus?.running}
-				disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-				className="h-9 w-9"
-			/>
-		);
-	}
-
-	function AssignTaskButtonCall({
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [
 		task,
-		assignTask,
-	}: {
-		task: ITeamTask;
-		assignTask: (task: ITeamTask) => Promise<void>;
-	}) {
-		const {
-			disabled,
+		timerStatus?.running,
+		setActiveTask,
+		activeTeam,
+		startTimer,
+		stopTimer,
+		currentMember?.id,
+		updateOrganizationTeamEmployee,
+	]);
 
-			timerStatus,
-			activeTeamTask,
-		} = useTimerView();
+	return loading ? (
+		<SpinnerLoader size={30} />
+	) : (
+		<TimerButton
+			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
+			running={activeTaskStatus?.running}
+			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
+			className="h-9 w-9"
+		/>
+	);
+}
 
-		const activeTaskStatus =
-			activeTeamTask?.id === task.id ? timerStatus : undefined;
+function AssignTaskButtonCall({
+	task,
+	assignTask,
+}: {
+	task: ITeamTask;
+	assignTask: (task: ITeamTask) => Promise<void>;
+}) {
+	const {
+		disabled,
 
-		return (
-			<TaskAssignButton
-				onClick={() => {
-					assignTask(task);
-				}}
-				disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-				className="h-9 w-9"
-			/>
-		);
-	}
+		timerStatus,
+		activeTeamTask,
+	} = useTimerView();
 
-	//* Task Estimate info *
+	const activeTaskStatus =
+		activeTeamTask?.id === task.id ? timerStatus : undefined;
 
-	//* Task Info FC *
-	function TaskInfo({
-		className,
-		task,
-	}: IClassName & { task?: Nullable<ITeamTask> }) {
-		const router = useRouter();
+	return (
+		<TaskAssignButton
+			onClick={() => {
+				assignTask(task);
+			}}
+			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
+			className="h-9 w-9"
+		/>
+	);
+}
 
-		return (
-			<div
-				className={clsxm(
-					'h-full flex flex-col items-start justify-center',
-					className
-				)}
-			>
-				{/* task */}
-				{!task && <div className="text-center self-center py-1">--</div>}
-				{task && (
-					<div className="w-full h-[40px] overflow-hidden">
+//* Task Estimate info *
+
+//* Task Info FC *
+function TaskInfo({
+	className,
+	task,
+}: IClassName & { task?: Nullable<ITeamTask> }) {
+	const router = useRouter();
+
+	return (
+		<div
+			className={clsxm(
+				'h-full flex flex-col items-start justify-center',
+				className
+			)}
+		>
+			{/* task */}
+			{!task && <div className="text-center self-center py-1">--</div>}
+			{task && (
+				<div className="w-full h-[40px] overflow-hidden">
+					<div
+						className={clsxm('h-full flex flex-col items-start justify-center')}
+					>
 						<div
 							className={clsxm(
-								'h-full flex flex-col items-start justify-center'
+								'text-sm text-ellipsis overflow-hidden w-full cursor-pointer'
 							)}
+							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>
-							<div
-								className={clsxm(
-									'text-sm text-ellipsis overflow-hidden w-full cursor-pointer'
-								)}
-								onClick={() => task && router.push(`/task/${task?.id}`)}
-							>
-								<TaskNameInfoDisplay task={task} />
-							</div>
+							<TaskNameInfoDisplay task={task} />
 						</div>
 					</div>
-				)}
+				</div>
+			)}
 
-				{/* Task status */}
-				{task && <TaskAllStatusTypes task={task} />}
-				{!task && <div className="text-center self-center py-1">--</div>}
-			</div>
-		);
-	}
+			{/* Task status */}
+			{task && <TaskAllStatusTypes task={task} />}
+			{!task && <div className="text-center self-center py-1">--</div>}
+		</div>
+	);
+}
+/**
+ * It's a dropdown menu that allows the user to remove the task.
+ */
+function TaskCardMenu({
+	task,
+	loading,
+	memberInfo,
+	viewType,
+}: {
+	task: ITeamTask;
+	loading?: boolean;
+	memberInfo?: I_TeamMemberCardHook;
+	viewType: 'default' | 'unassign';
+}) {
+	const { trans } = useTranslation();
+	const handleAssignment = useCallback(() => {
+		if (viewType === 'unassign') {
+			memberInfo?.assignTask(task);
+		} else {
+			memberInfo?.unassignTask(task);
+		}
+	}, [memberInfo, task, viewType]);
 
-	/**
-	 * It's a dropdown menu that allows the user to remove the task.
-	 */
-	function TaskCardMenu({
-		task,
-		loading,
-		memberInfo,
-		viewType,
-	}: {
-		task: ITeamTask;
-		loading?: boolean;
-		memberInfo?: I_TeamMemberCardHook;
-		viewType: 'default' | 'unassign';
-	}) {
-		const { trans } = useTranslation();
-		const handleAssignment = useCallback(() => {
-			if (viewType === 'unassign') {
-				memberInfo?.assignTask(task);
-			} else {
-				memberInfo?.unassignTask(task);
-			}
-		}, [memberInfo, task, viewType]);
+	return (
+		<div className="absolute right-2">
+			<Popover className="relative">
+				<Popover.Button className="flex items-center outline-none border-none">
+					{!loading && <MoreIcon />}
+					{loading && <SpinnerLoader size={20} />}
+				</Popover.Button>
 
-		return (
-			<div className="absolute right-2">
-				<Popover className="relative">
-					<Popover.Button className="flex items-center outline-none border-none">
-						{!loading && <MoreIcon />}
-						{loading && <SpinnerLoader size={20} />}
-					</Popover.Button>
-
-					<Transition
-						enter="transition duration-100 ease-out"
-						enterFrom="transform scale-95 opacity-0"
-						enterTo="transform scale-100 opacity-100"
-						leave="transition duration-75 ease-out"
-						leaveFrom="transform scale-100 opacity-100"
-						leaveTo="transform scale-95 opacity-0"
-						className="absolute z-10 right-0 min-w-[110px]"
-					>
-						<Popover.Panel>
-							{() => {
-								return (
-									<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
-										<ul>
-											<li className="mb-2">
-												<Link
-													href={`/task/${task.id}`}
-													className={clsxm(
-														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all'
-													)}
-												>
-													{trans.common.TASK_DETAILS}
-												</Link>
-											</li>
-											<li className="mb-2">
-												<span
-													className={clsxm(
-														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all cursor-pointer'
-													)}
-													onClick={handleAssignment}
-												>
-													{viewType === 'unassign'
-														? trans.common.ASSIGN_TASK
-														: trans.common.UNASSIGN_TASK}
-												</span>
-											</li>
-
-											{/* <li>
-											<ConfirmDropdown
-												className="right-[110%] top-0"
-												onConfirm={() => {
-													console.log('remove task...', task);
-												}}
+				<Transition
+					enter="transition duration-100 ease-out"
+					enterFrom="transform scale-95 opacity-0"
+					enterTo="transform scale-100 opacity-100"
+					leave="transition duration-75 ease-out"
+					leaveFrom="transform scale-100 opacity-100"
+					leaveTo="transform scale-95 opacity-0"
+					className="absolute z-10 right-0 min-w-[110px]"
+				>
+					<Popover.Panel>
+						{() => {
+							return (
+								<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+									<ul className="min-w-[124px]">
+										<li className="mb-2">
+											<Link
+												href={`/task/${task.id}`}
+												className={clsxm(
+													'font-normal whitespace-nowrap transition-all',
+													'hover:font-semibold hover:transition-all'
+												)}
 											>
-												<Text
-													className={clsxm(
-														'font-normal whitespace-nowrap hover:font-semibold hover:transition-all',
-														'text-red-500'
-													)}
-												>
-													{trans.common.REMOVE}
-												</Text>
-											</ConfirmDropdown>
-										</li> */}
-										</ul>
-									</Card>
-								);
-							}}
-						</Popover.Panel>
-					</Transition>
-				</Popover>
-			</div>
-		);
-	}
+												{trans.common.TASK_DETAILS}
+											</Link>
+										</li>
+										<li className="mb-2">
+											<span
+												className={clsxm(
+													'font-normal whitespace-nowrap transition-all',
+													'hover:font-semibold hover:transition-all cursor-pointer'
+												)}
+												onClick={handleAssignment}
+											>
+												{viewType === 'unassign'
+													? trans.common.ASSIGN_TASK
+													: trans.common.UNASSIGN_TASK}
+											</span>
+										</li>
+
+										{/* <li>
+										<ConfirmDropdown
+											className="right-[110%] top-0"
+											onConfirm={() => {
+												console.log('remove task...', task);
+											}}
+										>
+											<Text
+												className={clsxm(
+													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all',
+													'text-red-500'
+												)}
+											>
+												{trans.common.REMOVE}
+											</Text>
+										</ConfirmDropdown>
+									</li> */}
+									</ul>
+								</Card>
+							);
+						}}
+					</Popover.Panel>
+				</Transition>
+			</Popover>
+		</div>
+	);
 }

@@ -58,33 +58,32 @@ export function UserTeamCard({
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
-	const TotalWork = () => {
-		if (memberInfo.isAuthUser) {
-			const { h, m } = secondsToTime(
-				((member?.totalTodayTasks &&
-					member?.totalTodayTasks.reduce(
-						(previousValue, currentValue) =>
-							previousValue + currentValue.duration,
-						0
-					)) ||
-					activeTaskTotalStat?.duration ||
-					0) + addSeconds
-			);
+	let totalWork = <></>;
+	if (memberInfo.isAuthUser) {
+		const { h, m } = secondsToTime(
+			((member?.totalTodayTasks &&
+				member?.totalTodayTasks.reduce(
+					(previousValue, currentValue) =>
+						previousValue + currentValue.duration,
+					0
+				)) ||
+				activeTaskTotalStat?.duration ||
+				0) + addSeconds
+		);
 
-			return (
-				<div
-					className={clsxm(
-						'flex space-x-2 items-center font-normal flex-col mr-4'
-					)}
-				>
-					<span className="text-gray-500 text-xs">Total time:</span>
-					<Text className="text-xs">
-						{h}h : {m}m
-					</Text>
-				</div>
-			);
-		}
-	};
+		totalWork = (
+			<div
+				className={clsxm(
+					'flex space-x-2 items-center font-normal flex-col mr-4'
+				)}
+			>
+				<span className="text-gray-500 text-xs">Total time:</span>
+				<Text className="text-xs">
+					{h}h : {m}m
+				</Text>
+			</div>
+		);
+	}
 
 	return (
 		<div>
@@ -161,7 +160,7 @@ export function UserTeamCard({
 						className="w-9/12"
 					/>
 					{/*@ts-ignore*/}
-					<TotalWork />
+					{totalWork}
 				</div>
 
 				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
