@@ -1,6 +1,9 @@
 import {
 	RTuseTaskInput,
+	useAuthenticateUser,
 	useCallbackRef,
+	useOrganizationEmployeeTeams,
+	useOrganizationTeams,
 	useOutsideClick,
 	useTaskInput,
 } from '@app/hooks';
@@ -77,6 +80,10 @@ export function TaskInput(props: Props) {
 		tasks: props.tasks,
 	});
 
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { activeTeam } = useOrganizationTeams();
+	const { user } = useAuthenticateUser();
+
 	const onCloseComboboxRef = useCallbackRef(props.onCloseCombobox);
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
 	const $onTaskClick = useCallbackRef(props.onTaskClick);
@@ -138,10 +145,23 @@ export function TaskInput(props: Props) {
 		(task: ITeamTask) => {
 			if (datas.setActiveTask) {
 				datas.setActiveTask(task);
+
+				// Update Current user's active task to sync across multiple devices
+				const currentEmployeeDetails = activeTeam?.members.find(
+					(member) => member.employeeId === user?.employee.id
+				);
+				if (currentEmployeeDetails && currentEmployeeDetails.id) {
+					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+						organizationId: task.organizationId,
+						activeTaskId: task.id,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId,
+					});
+				}
 			}
 			setEditMode(false);
 		},
-		[datas, setEditMode]
+		[datas, setEditMode, activeTeam, user, updateOrganizationTeamEmployee]
 	);
 
 	/**

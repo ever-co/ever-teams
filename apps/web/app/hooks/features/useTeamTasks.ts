@@ -25,8 +25,11 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import { useSyncRef } from '../useSyncRef';
+import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 
 export function useTeamTasks() {
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
 	// const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
@@ -291,8 +294,30 @@ export function useTeamTasks() {
 			setActiveTaskIdCookie(task?.id || '');
 			setActiveTeamTask(task);
 			setActiveUserTaskCookieCb(task);
+
+			if (task) {
+				// Update Current user's active task to sync across multiple devices
+				const currentEmployeeDetails = activeTeam?.members.find(
+					(member) => member.employeeId === authUser.current?.employee.id
+				);
+
+				if (currentEmployeeDetails && currentEmployeeDetails.id) {
+					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+						organizationId: task.organizationId,
+						activeTaskId: task.id,
+						organizationTeamId: activeTeam?.id,
+						tenantId: activeTeam?.tenantId,
+					});
+				}
+			}
 		},
-		[setActiveTeamTask]
+		[
+			setActiveTeamTask,
+			setActiveUserTaskCookieCb,
+			updateOrganizationTeamEmployee,
+			activeTeam,
+			authUser,
+		]
 	);
 
 	const deleteEmployeeFromTasks = useCallback(
@@ -319,6 +344,7 @@ export function useTeamTasks() {
 		updateDescription,
 		updatePublicity,
 		handleStatusUpdate,
+		activeTeam,
 		activeTeamId: activeTeam?.id,
 		setAllTasks,
 		loadTeamTasksData,

@@ -192,7 +192,7 @@ export function useOrganizationTeams() {
 	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
 
 	const currentUser = activeTeam?.members?.find(
-		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
+		(member) => member.employee.userId === user?.id
 	);
 	const memberActiveTaskId = currentUser?.activeTaskId || null;
 	const isTrackingEnabled = activeTeam?.members?.find(
