@@ -76,6 +76,10 @@ export const isHtml = (value: string): boolean => {
 	return htmlRegex.test(value);
 };
 
+export const isValidSlateObject = (value: any): boolean => {
+	return Editor.isEditor(value);
+};
+
 interface ElementAttributes {
 	[key: string]: string | null;
 }
