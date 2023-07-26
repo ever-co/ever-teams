@@ -22,15 +22,17 @@ export function UserTeamCardHeader() {
 	return (
 		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
-			<li className="lg:w-[363px] text-center w-1/4">{trans.common.NAME}</li>
-			<li className="lg:w-[325px] text-center w-1/4">{trans.common.TASK}</li>
-			<li className="lg:w-48 text-center w-1/4">
+			<li className="2xl:w-[363px] text-center w-[28.6%]">
+				{trans.common.NAME}
+			</li>
+			<li className="2xl:w-[325px] text-center w-[21%]">{trans.common.TASK}</li>
+			<li className="2xl:w-48 text-center w-[21%]">
 				{trans.common.WORKED_ON_TASK}
 			</li>
-			<li className="lg:w-[211px] text-center w-1/4">
+			<li className="2xl:w-[211px] text-center w-[20.5%]">
 				{trans.common.ESTIMATE}
 			</li>
-			<li className="lg:w-[188px] text-center">
+			<li className="2xl:w-[188px] text-center w-1/6">
 				{trans.common.TOTAL_WORKED_TODAY}
 			</li>
 		</ul>
@@ -101,7 +103,7 @@ export function UserTeamCard({
 				{/* Show user name, email and image */}
 				<UserInfo
 					memberInfo={memberInfo}
-					className="lg:w-[330px] w-1/4"
+					className="2xl:w-[330px] w-1/4"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator />
@@ -110,7 +112,7 @@ export function UserTeamCard({
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="lg:w-80 w-1/5 lg:px-4 px-2"
+					className="2xl:w-80 w-1/5 lg:px-4 px-2"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
@@ -121,7 +123,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="lg:w-48 w-1/5 lg:px-4 px-2"
+					className="2xl:w-48 w-1/5 lg:px-4 px-2"
 				/>
 				<VerticalSeparator />
 
@@ -130,7 +132,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					edition={taskEdition}
 					activeAuthTask={true}
-					className="lg:px-3 lg:w-52 w-1/5"
+					className="lg:px-3 2xl:w-52 w-1/5"
 				/>
 				<VerticalSeparator />
 
