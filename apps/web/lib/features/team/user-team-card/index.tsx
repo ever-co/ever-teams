@@ -22,17 +22,19 @@ export function UserTeamCardHeader() {
 	return (
 		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
-			<li className="2xl:w-[363px] text-center w-[28.6%]">
+			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{trans.common.NAME}
 			</li>
-			<li className="2xl:w-[325px] text-center w-[21%]">{trans.common.TASK}</li>
+			<li className="2xl:w-[20.313rem] text-center w-[21%]">
+				{trans.common.TASK}
+			</li>
 			<li className="2xl:w-48 text-center w-[21%]">
 				{trans.common.WORKED_ON_TASK}
 			</li>
-			<li className="2xl:w-[211px] text-center w-[20.5%]">
+			<li className="2xl:w-[13.188rem] text-center w-[20.5%]">
 				{trans.common.ESTIMATE}
 			</li>
-			<li className="2xl:w-[188px] text-center w-1/6">
+			<li className="2xl:w-[11.75rem] text-center w-1/6">
 				{trans.common.TOTAL_WORKED_TODAY}
 			</li>
 		</ul>
@@ -102,7 +104,7 @@ export function UserTeamCard({
 				{/* Show user name, email and image */}
 				<UserInfo
 					memberInfo={memberInfo}
-					className="2xl:w-[330px] w-1/4"
+					className="2xl:w-[20.625rem] w-1/4"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator />
