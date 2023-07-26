@@ -30,6 +30,8 @@ import { useRefreshInterval } from './useRefreshInterval';
 import { useTaskStatistics } from './useTaskStatistics';
 import { useTeamTasks } from './useTeamTasks';
 import isEqual from 'lodash/isEqual';
+import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
+import { useAuthenticateUser } from './useAuthenticateUser';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -156,7 +158,10 @@ function useLocalTimeCounter(
  * It returns a bunch of data and functions related to the timer
  */
 export function useTimer() {
-	const { updateTask, activeTeamId, activeTeamTask } = useTeamTasks();
+	const { updateTask, activeTeamId, activeTeam, activeTeamTask } =
+		useTeamTasks();
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { user } = useAuthenticateUser();
 
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
 
@@ -269,10 +274,38 @@ export function useTimer() {
 			});
 		}
 
+		if (activeTeamTaskRef.current) {
+			// Update Current user's active task to sync across multiple devices
+			const currentEmployeeDetails = activeTeam?.members.find(
+				(member) => member.employeeId === user?.employee.id
+			);
+			if (currentEmployeeDetails && currentEmployeeDetails.id) {
+				updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+					organizationId: activeTeamTaskRef.current.organizationId,
+					activeTaskId: activeTeamTaskRef.current.id,
+					organizationTeamId: activeTeam?.id,
+					tenantId: activeTeam?.tenantId,
+				});
+			}
+		}
+
 		promise.finally(() => setTimerStatusFetching(false));
 
 		return promise;
-	}, [taskId.current, activeTeamTaskRef, timerStatus]);
+	}, [
+		taskId.current,
+		activeTeamTaskRef,
+		timerStatus,
+		updateOrganizationTeamEmployee,
+		user,
+		activeTeam,
+		setTimerStatus,
+		setTimerStatusFetching,
+		startTimerQueryCall,
+		taskId,
+		updateLocalTimerStatus,
+		updateTask,
+	]);
 
 	// Stop timer
 	const stopTimer = useCallback(() => {

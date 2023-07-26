@@ -8,8 +8,15 @@ import {
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 	I_TeamMemberCardHook,
+	useOrganizationEmployeeTeams,
 } from '@app/hooks';
-import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IClassName,
+	IOrganizationTeamList,
+	ITeamTask,
+	Nullable,
+	OT_Member,
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
@@ -152,7 +159,11 @@ export function TaskCard(props: Props) {
 						memberInfo={profile?.member}
 					/>
 					{isTrackingEnabled && isAuthUser && task && (
-						<TimerButtonCall task={task} />
+						<TimerButtonCall
+							activeTeam={activeTeam}
+							currentMember={currentMember}
+							task={task}
+						/>
 					)}
 					{!isAuthUser && task && viewType === 'unassign' && (
 						<AssignTaskButtonCall
@@ -195,7 +206,13 @@ export function TaskCard(props: Props) {
 					{isTrackingEnabled &&
 						isAuthUser &&
 						viewType === 'unassign' &&
-						task && <TimerButtonCall task={task} />}
+						task && (
+							<TimerButtonCall
+								activeTeam={activeTeam}
+								currentMember={currentMember}
+								task={task}
+							/>
+						)}
 				</div>
 				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
 					<TaskInfo task={task} className="w-80 px-4 mb-4" />{' '}
@@ -222,7 +239,11 @@ export function TaskCard(props: Props) {
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
-							<TimerButtonCall task={task} />
+							<TimerButtonCall
+								activeTeam={activeTeam}
+								currentMember={currentMember}
+								task={task}
+							/>
 						)}
 					</div>
 
@@ -277,8 +298,17 @@ function UsersTaskAssigned({
  * @param  - `task` - the task that the timer button is for
  * @returns A TimerButton component that is either a spinner or a timer button.
  */
-function TimerButtonCall({ task }: { task: ITeamTask }) {
+function TimerButtonCall({
+	task,
+	currentMember,
+	activeTeam,
+}: {
+	task: ITeamTask;
+	currentMember: OT_Member | undefined;
+	activeTeam: IOrganizationTeamList | null;
+}) {
 	const [loading, setLoading] = useState(false);
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const {
 		disabled,
 		timerHanlder,
@@ -303,10 +333,33 @@ function TimerButtonCall({ task }: { task: ITeamTask }) {
 		}
 
 		setActiveTask(task);
+
+		// Update Current user's active task to sync across multiple devices
+		const currentEmployeeDetails = activeTeam?.members.find(
+			(member) => member.id === currentMember?.id
+		);
+		if (currentEmployeeDetails && currentEmployeeDetails.id) {
+			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+				organizationId: task.organizationId,
+				activeTaskId: task.id,
+				organizationTeamId: activeTeam?.id,
+				tenantId: activeTeam?.tenantId,
+			});
+		}
+
 		window.setTimeout(startTimer, 100);
 
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [timerStatus, setActiveTask, task, stopTimer, startTimer]);
+	}, [
+		task,
+		timerStatus?.running,
+		setActiveTask,
+		activeTeam,
+		startTimer,
+		stopTimer,
+		currentMember?.id,
+		updateOrganizationTeamEmployee,
+	]);
 
 	return loading ? (
 		<SpinnerLoader size={30} />
