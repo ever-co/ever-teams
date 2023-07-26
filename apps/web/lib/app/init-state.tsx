@@ -75,6 +75,7 @@ function InitState() {
 	});
 
 	const AutoRefresher = useMemo(() => {
+		// eslint-disable-next-line react/no-unstable-nested-components
 		const Component = () => {
 			useSyncTimer();
 
