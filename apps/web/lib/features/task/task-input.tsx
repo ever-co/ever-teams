@@ -53,6 +53,7 @@ type Props = {
 	autoInputSelectText?: boolean;
 	usersTaskCreatedAssignTo?: { id: string }[];
 	onTaskCreated?: (task: ITeamTask | undefined) => void;
+	cardWithoutShadow?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -279,6 +280,7 @@ export function TaskInput(props: Props) {
 			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
 			handleTaskCreation={handleTaskCreation}
+			cardWithoutShadow={props.cardWithoutShadow}
 		/>
 	);
 
@@ -321,12 +323,14 @@ function TaskCard({
 	inputField,
 	fullWidth,
 	handleTaskCreation,
+	cardWithoutShadow,
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
 	handleTaskCreation: () => void;
+	cardWithoutShadow?: boolean;
 }) {
 	const { trans } = useTranslation();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
@@ -348,7 +352,8 @@ function TaskCard({
 				shadow="custom"
 				className={clsxm(
 					'rounded-lg md:px-4 md:py-4 max-h-96',
-					'overflow-auto shadow-xlcard',
+					'overflow-auto',
+					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]']
 				)}
 			>

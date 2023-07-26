@@ -137,6 +137,7 @@ function CreateLinkedTask({
 						tasks={unlinkedTasks}
 						onTaskClick={onTaskSelect}
 						onTaskCreated={onTaskSelect}
+						cardWithoutShadow={true}
 					/>
 				</Card>
 			</div>
