@@ -22,11 +22,17 @@ export function UserTeamCardHeader() {
 	return (
 		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
-			<li className="lg:w-[330px] w-1/4">{trans.common.NAME}</li>
-			<li className="lg:w-80 w-1/4">{trans.common.TASK}</li>
-			<li className="lg:w-48 w-1/4">{trans.common.WORKED_ON_TASK}</li>
-			<li className="lg:w-52 w-1/4">{trans.common.ESTIMATE}</li>
-			<li>{trans.common.TOTAL_WORKED_TODAY}</li>
+			<li className="lg:w-[363px] text-center w-1/4">{trans.common.NAME}</li>
+			<li className="lg:w-[325px] text-center w-1/4">{trans.common.TASK}</li>
+			<li className="lg:w-48 text-center w-1/4">
+				{trans.common.WORKED_ON_TASK}
+			</li>
+			<li className="lg:w-[211px] text-center w-1/4">
+				{trans.common.ESTIMATE}
+			</li>
+			<li className="lg:w-[188px] text-center">
+				{trans.common.TOTAL_WORKED_TODAY}
+			</li>
 		</ul>
 	);
 }
