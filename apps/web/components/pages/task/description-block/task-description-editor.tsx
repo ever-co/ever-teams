@@ -3,10 +3,16 @@ import {
 	TextEditorService,
 	withHtml,
 	withChecklists,
+	isValidSlateObject,
 } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Editor, createEditor, Element as SlateElement } from 'slate';
+import {
+	Editor,
+	createEditor,
+	Element as SlateElement,
+	Descendant,
+} from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
@@ -43,20 +49,29 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const [key, setKey] = useState(0); // Add key state, we need it as it re-renders the editor
 	const [editorValue, setEditorValue] = useState<any>();
 
-	const initialValue = useMemo(() => {
+	const initialValue = useMemo((): Descendant[] => {
 		let value;
 		if (task && task.description) {
 			if (isHtml(task.description)) {
+				// when value is an HTML
 				value = htmlToSlate(task.description, configHtmlToSlate);
-
-
-
-				return value;
+			} else if (isValidSlateObject(task.description)) {
+				//when value is Slate Object
+				value = JSON.parse(task.description) as Descendant[];
+			} else {
+				// Default case when the task.description is plain text
+				value = [
+					{
+						//@ts-ignore
+						type: 'paragraph',
+						children: [{ text: task.description as string }],
+					},
+				];
 			}
-			return JSON.parse(task?.description);
 		} else {
-			return [{ type: 'paragraph', children: [{ text: '' }] }];
+			value = [{ type: 'paragraph', children: [{ text: '' }] }];
 		}
+		return value;
 	}, [task]);
 
 	useEffect(() => {
