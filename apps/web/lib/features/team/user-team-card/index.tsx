@@ -22,11 +22,21 @@ export function UserTeamCardHeader() {
 	return (
 		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
-			<li className="lg:w-[330px] w-1/4">{trans.common.NAME}</li>
-			<li className="lg:w-80 w-1/4">{trans.common.TASK}</li>
-			<li className="lg:w-48 w-1/4">{trans.common.WORKED_ON_TASK}</li>
-			<li className="lg:w-52 w-1/4">{trans.common.ESTIMATE}</li>
-			<li>{trans.common.TOTAL_WORKED_TODAY}</li>
+			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
+				{trans.common.NAME}
+			</li>
+			<li className="2xl:w-[20.313rem] text-center w-[21%]">
+				{trans.common.TASK}
+			</li>
+			<li className="2xl:w-48 text-center w-[21%]">
+				{trans.common.WORKED_ON_TASK}
+			</li>
+			<li className="2xl:w-[13.188rem] text-center w-[20.5%]">
+				{trans.common.ESTIMATE}
+			</li>
+			<li className="2xl:w-[11.75rem] text-center w-1/6">
+				{trans.common.TOTAL_WORKED_TODAY}
+			</li>
 		</ul>
 	);
 }
@@ -50,33 +60,32 @@ export function UserTeamCard({
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
-	const TotalWork = () => {
-		if (memberInfo.isAuthUser) {
-			const { h, m } = secondsToTime(
-				((member?.totalTodayTasks &&
-					member?.totalTodayTasks.reduce(
-						(previousValue, currentValue) =>
-							previousValue + currentValue.duration,
-						0
-					)) ||
-					activeTaskTotalStat?.duration ||
-					0) + addSeconds
-			);
+	let totalWork = <></>;
+	if (memberInfo.isAuthUser) {
+		const { h, m } = secondsToTime(
+			((member?.totalTodayTasks &&
+				member?.totalTodayTasks.reduce(
+					(previousValue, currentValue) =>
+						previousValue + currentValue.duration,
+					0
+				)) ||
+				activeTaskTotalStat?.duration ||
+				0) + addSeconds
+		);
 
-			return (
-				<div
-					className={clsxm(
-						'flex space-x-2 items-center font-normal flex-col mr-4'
-					)}
-				>
-					<span className="text-gray-500 text-xs">Total time:</span>
-					<Text className="text-xs">
-						{h}h : {m}m
-					</Text>
-				</div>
-			);
-		}
-	};
+		totalWork = (
+			<div
+				className={clsxm(
+					'flex space-x-2 items-center font-normal flex-col mr-4'
+				)}
+			>
+				<span className="text-gray-500 text-xs">Total time:</span>
+				<Text className="text-xs">
+					{h}h : {m}m
+				</Text>
+			</div>
+		);
+	}
 
 	return (
 		<div>
@@ -95,7 +104,7 @@ export function UserTeamCard({
 				{/* Show user name, email and image */}
 				<UserInfo
 					memberInfo={memberInfo}
-					className="lg:w-[330px] w-1/4"
+					className="2xl:w-[20.625rem] w-1/4"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator />
@@ -104,7 +113,7 @@ export function UserTeamCard({
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="lg:w-80 w-1/5 lg:px-4 px-2"
+					className="2xl:w-80 w-1/5 lg:px-4 px-2"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
@@ -115,7 +124,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="lg:w-48 w-1/5 lg:px-4 px-2"
+					className="2xl:w-48 w-1/5 lg:px-4 px-2"
 				/>
 				<VerticalSeparator />
 
@@ -124,7 +133,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					edition={taskEdition}
 					activeAuthTask={true}
-					className="lg:px-3 lg:w-52 w-1/5"
+					className="lg:px-3 2xl:w-52 w-1/5"
 				/>
 				<VerticalSeparator />
 
@@ -153,7 +162,7 @@ export function UserTeamCard({
 						className="w-9/12"
 					/>
 					{/*@ts-ignore*/}
-					<TotalWork />
+					{totalWork}
 				</div>
 
 				<div className="flex justify-between items-start pb-4 border-b flex-wrap">

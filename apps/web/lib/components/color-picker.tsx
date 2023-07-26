@@ -138,6 +138,7 @@ export const ColorPicker = ({
 			buttonClassName={clsxm(`py-0 font-medium h-[54px] w-[150px]`)}
 			value={{
 				key: color || '',
+				// eslint-disable-next-line react/no-unstable-nested-components
 				Label: () => (
 					<div className="flex items-center space-x-2">
 						<span

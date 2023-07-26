@@ -146,7 +146,7 @@ function DueDates() {
 							? (new Date($startDate.current) as Date)
 							: undefined
 					}
-					onSelect={(date) => {
+					onSelect={(date: any) => {
 						if (date && (!$dueDate.current || date < $dueDate.current)) {
 							setStartDate(date);
 
@@ -183,14 +183,10 @@ function DueDates() {
 					selected={
 						$dueDate.current ? (new Date($dueDate.current) as Date) : undefined
 					}
-					onSelect={(date) => {
-						const cdate = new Date();
-						if (
-							$startDate.current &&
-							date &&
-							date > $startDate.current &&
-							date > cdate
-						) {
+					onSelect={(date: any) => {
+						// const cdate = new Date();
+
+						if ($startDate.current && date && date >= $startDate.current) {
 							setDueDate(date);
 							if (task) {
 								updateTask({ ...task, dueDate: date?.toISOString() });
