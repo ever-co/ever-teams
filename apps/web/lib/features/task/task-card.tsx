@@ -8,6 +8,7 @@ import {
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 	I_TeamMemberCardHook,
+	useOrganizationEmployeeTeams,
 } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -60,6 +61,7 @@ export function TaskCard({
 	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
 		useTaskStatistics(seconds);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
 		return m.employee.user?.id === profile?.userProfile?.id;
@@ -300,6 +302,20 @@ export function TaskCard({
 			}
 
 			setActiveTask(task);
+
+			// Update Current user's active task to sync across multiple devices
+			const currentEmployeeDetails = activeTeam?.members.find(
+				(member) => member.id === currentMember?.id
+			);
+			if (currentEmployeeDetails && currentEmployeeDetails.id) {
+				updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+					organizationId: task.organizationId,
+					activeTaskId: task.id,
+					organizationTeamId: activeTeam?.id,
+					tenantId: activeTeam?.tenantId,
+				});
+			}
+
 			window.setTimeout(startTimer, 100);
 
 			window.scrollTo({ top: 0, behavior: 'smooth' });
