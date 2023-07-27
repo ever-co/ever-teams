@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
 import { TextEditorService } from './TextEditorService';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSlate } from 'slate-react';
 
 interface IMarkButtonProps {
@@ -21,16 +21,25 @@ const BlockButton = ({
 }: IMarkButtonProps) => {
 	const editor = useSlate();
 
+	const isBlockActiveMemo = useMemo(() => {
+		return (
+			isBlockActive &&
+			((format: string) => {
+				return isBlockActive(
+					editor,
+					format,
+					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+				);
+			})
+		);
+	}, [editor, isBlockActive]);
+
 	return (
 		<button
 			className={clsxm(
 				className,
 				'my-1 rounded-md transition duration-300 p-[2px]',
-				isBlockActive(
-					editor,
-					format,
-					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-				)
+				isBlockActiveMemo(format)
 					? 'dark:bg-[#6a6a6a] bg-[#ddd]'
 					: 'bg-transparent'
 			)}

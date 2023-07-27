@@ -1,6 +1,6 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
 	insertLink,
 	TextEditorService,
@@ -152,6 +152,19 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			document.removeEventListener('click', onClickOutsideOfDropdown);
 		};
 	}, []);
+
+	const isBlockActiveMemo = useMemo(() => {
+		return (
+			isBlockActive &&
+			((format: string) => {
+				return isBlockActive(
+					editor,
+					format,
+					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+				);
+			})
+		);
+	}, [editor, isBlockActive]);
 
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
@@ -306,16 +319,10 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 							<button
 								key={option.format}
 								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-sm transition duration-300 ${
-									isBlockActive &&
-									isBlockActive(
-										editor,
-										option.format,
-										TEXT_ALIGN_TYPES.includes(option.format) ? 'align' : 'type'
-									)
+									isBlockActiveMemo && isBlockActiveMemo(option.format)
 										? 'dark:bg-[#6a6a6a] bg-[#ddd]'
 										: 'bg-transparent'
 								} `}
-								// onClick={() => handleChange(option.format)}
 								onMouseDown={(event) => {
 									event.preventDefault();
 									TextEditorService.toggleBlock(
@@ -328,21 +335,6 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 									);
 									setShowDropdown(false);
 								}}
-								// style={{
-								// 	background: isBlockActive(
-								// 		editor,
-								// 		option.format,
-								// 		TEXT_ALIGN_TYPES.includes(option.format) ? 'align' : 'type'
-								// 	)
-								// 		? '#6a6a6a'
-								// 		: 'transparent',
-								// 	borderRadius: '2px',
-								// 	padding: '2px',
-								// 	// display: 'flex',
-								// 	// alignItems: 'center',
-								// 	// justifyContent: 'center',
-								// 	transition: '0.3s',
-								// }}
 							>
 								<BlockButton
 									format={option.format}
