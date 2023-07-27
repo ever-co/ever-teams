@@ -34,7 +34,7 @@ const TaskEstimationsInfo = () => {
 								<ChevronUpIcon
 									className={clsx(
 										open ? 'rotate-180 transform' : '',
-										'h-5 w-5 text-[#292D32] dark:text-white'
+										'h-5 w-5 text-[#A5A2B2]'
 									)}
 								/>
 							</Disclosure.Button>
