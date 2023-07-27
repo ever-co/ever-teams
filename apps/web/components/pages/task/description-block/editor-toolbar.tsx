@@ -1,7 +1,10 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
 import React, { useEffect, useRef, useState } from 'react';
-import { insertLink } from './editor-components/TextEditorService';
+import {
+	insertLink,
+	TextEditorService,
+} from './editor-components/TextEditorService';
 
 import {
 	BoldIcon,
@@ -25,7 +28,7 @@ import {
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
-import { Node, Element } from 'slate';
+import { Node, Element, Transforms, Editor } from 'slate';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -42,6 +45,8 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		left: 0,
 		top: 0,
 	});
+	const [showDropdown, setShowDropdown] = useState(false);
+	const blockButtonRef = useRef<any>(null);
 	const popupRef = useRef<any>(null);
 	const inputRef = useRef<any>(null);
 
@@ -132,9 +137,68 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		}, 1000);
 	};
 
+	// const handleChange = (format: any) => {
+	// 	setShowDropdown(false); // Close the dropdown when an option is selected
+
+	// 	// Trigger a click event on the BlockButton
+	// 	if (blockButtonRef.current) {
+	// 		blockButtonRef.current.click();
+	// 	}
+
+	// 	// Apply the block format or text alignment to the editor using the isBlockActive function.
+	// 	if (format) {
+	// 		// Check if the format is for text alignment
+	// 		const isTextAlignment = ['left', 'center', 'right', 'justify'].includes(
+	// 			format
+	// 		);
+
+	// 		if (isTextAlignment) {
+	// 			// Get the current selection
+	// 			const selection = editor.selection;
+
+	// 			if (selection) {
+	// 				// Check if the selected nodes are blocks
+	// 				const selectedBlocks = Array.from(
+	// 					Editor.nodes(editor, {
+	// 						at: selection,
+	// 						match: (n) => Editor.isBlock(editor, n),
+	// 					})
+	// 				);
+
+	// 				if (selectedBlocks.length > 0) {
+	// 					// If any of the selected blocks have the same alignment, remove the alignment
+	// 					const hasSameAlignment = selectedBlocks.every(
+	// 						([node]) => node.type === format
+	// 					);
+	// 					if (hasSameAlignment) {
+	// 						Transforms.unsetNodes(editor, 'align');
+	// 					} else {
+	// 						// Apply the alignment to all selected blocks
+	// 						Transforms.setNodes(editor, { align: format });
+	// 					}
+	// 				} else {
+	// 					// No blocks selected, so apply the alignment to the editor as a whole
+	// 					Transforms.setNodes(editor, { align: format });
+	// 				}
+	// 			}
+	// 		} else {
+	// 			// If the format is not for text alignment, handle it as before for other block formats
+	// 			const isActive = isBlockActive(editor, format);
+	// 			if (isActive) {
+	// 				Transforms.unwrapNodes(editor, {
+	// 					match: (n: any) => n.type === format,
+	// 					split: true,
+	// 				});
+	// 			} else {
+	// 				Transforms.setNodes(editor, { type: format });
+	// 			}
+	// 		}
+	// 	}
+	// };
+
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
-			<p className="flex-1 text-lg font-[500] dark:text-white my-1">
+			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{trans.DESCRIPTION}
 			</p>
 			<MarkButton
@@ -158,6 +222,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				icon={CodeBlockIcon}
 				isMarkActive={isMarkActive as (editor: any, format: string) => boolean}
 			/>
+
 			<BlockButton
 				format="h1"
 				icon={HeaderOneIcon}
@@ -213,7 +278,49 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+			<div className="relative md:hidden">
+				<button
+					className="flex items-center gap-2 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded focus:outline-none"
+					onClick={() => setShowDropdown((prev) => !prev)}
+				>
+					<span>Select</span>
+				</button>
+				{showDropdown && (
+					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow">
+						{blockOptions.map((option) => (
+							<button
+								key={option.format}
+								className="flex items-center gap-1 px-2 py-1 w-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+								// onClick={() => handleChange(option.format)}
+								onMouseDown={(event) => {
+									event.preventDefault();
+									TextEditorService.toggleBlock(
+										editor,
+										option.format,
+										//@ts-ignore
+										isBlockActive,
+										LIST_TYPES,
+										TEXT_ALIGN_TYPES
+									);
+									setShowDropdown(false);
+								}}
+							>
+								<BlockButton
+									format={option.format}
+									icon={option.icon}
+									isBlockActive={
+										isBlockActive as (editor: any, format: string) => boolean
+									}
+								/>
+								<span className="text-sm">{option.label}</span>
+							</button>
+						))}
+					</div>
+				)}
+			</div>
 			<BlockButton
+				visibleOnLargeScreenOnly
+				className="hidden md:block"
 				format="left"
 				icon={AlignLeftIcon}
 				isBlockActive={
@@ -225,6 +332,8 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				visibleOnLargeScreenOnly
+				className="hidden md:block"
 				format="center"
 				icon={AlignCenterIcon}
 				isBlockActive={
@@ -236,6 +345,8 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				visibleOnLargeScreenOnly
+				className="hidden md:block"
 				format="right"
 				icon={AlignRightIcon}
 				isBlockActive={
@@ -247,6 +358,8 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				visibleOnLargeScreenOnly
+				className="hidden md:block"
 				format="justify"
 				icon={AlignJustifyIcon}
 				isBlockActive={
@@ -311,8 +424,20 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</div>
 				)}
 			</button>
-			<MoreIcon2 />
+			{/* <MoreIcon2 /> */}
 		</div>
 	);
 };
 export default Toolbar;
+
+const blockOptions = [
+	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
+	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
+	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
+	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
+	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
+	{ format: 'justify', icon: AlignJustifyIcon, label: 'Justify' },
+];
+
+const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
+const LIST_TYPES = ['ol', 'ul'];
