@@ -1,6 +1,12 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+	useEffect,
+	useRef,
+	useState,
+	useMemo,
+	useCallback,
+} from 'react';
 import {
 	insertLink,
 	TextEditorService,
@@ -30,6 +36,7 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
 import { Node, Element } from 'slate';
+import { Button } from 'lib/components';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -138,20 +145,20 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		}, 1000);
 	};
 
-	useEffect(() => {
-		const onClickOutsideOfDropdown = (event: MouseEvent) => {
-			const target = event.target as HTMLElement;
-			if (dropdownRef.current && !dropdownRef.current.contains(target)) {
-				setShowDropdown(false);
-			}
-		};
+	const onClickOutsideOfDropdown = useCallback((event: MouseEvent) => {
+		const target = event.target as HTMLElement;
+		if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+			setShowDropdown(false);
+		}
+	}, []);
 
+	useEffect(() => {
 		document.addEventListener('click', onClickOutsideOfDropdown);
 
 		return () => {
 			document.removeEventListener('click', onClickOutsideOfDropdown);
 		};
-	}, []);
+	}, [onClickOutsideOfDropdown]);
 
 	const isBlockActiveMemo = useMemo(() => {
 		return (
@@ -302,17 +309,16 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
-			<div className="relative md:hidden">
-				<button
-					ref={dropdownRef}
-					className={`flex items-center px-2 py-[2px] bg-transparent dark:bg-dark--theme rounded-md focus:outline-none`}
+			<div className="relative md:hidden" ref={dropdownRef}>
+				<Button
+					className={`flex items-center text-md px-2 min-w-[3.125rem] py-[2px] bg-transparent dark:bg-dark--theme rounded-md focus:outline-none`}
 					onClick={() => setShowDropdown((prev) => !prev)}
 				>
 					<span className="flex items-center my-0 gap-1 text-black dark:text-white">
 						More
 						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
 					</span>
-				</button>
+				</Button>
 				{showDropdown && (
 					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-dark--theme-light border border-gray-300 dark:border-gray-700 rounded shadow">
 						{blockOptions.map((option) => (
