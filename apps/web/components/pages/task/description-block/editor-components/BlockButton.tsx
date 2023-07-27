@@ -8,7 +8,6 @@ interface IMarkButtonProps {
 	icon: React.ComponentType;
 	isBlockActive: (editor: any, format: any, blockType?: string) => boolean;
 	className?: string;
-	visibleOnLargeScreenOnly?: boolean;
 }
 
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
@@ -19,7 +18,6 @@ const BlockButton = ({
 	icon: Icon,
 	isBlockActive,
 	className,
-	visibleOnLargeScreenOnly = false,
 }: IMarkButtonProps) => {
 	const editor = useSlate();
 
@@ -27,24 +25,15 @@ const BlockButton = ({
 		<button
 			className={clsxm(
 				className,
-				'my-1',
-				visibleOnLargeScreenOnly ? 'hidden md:block' : ''
-			)}
-			style={{
-				background: isBlockActive(
+				'my-1 rounded-md transition duration-300 p-[2px]',
+				isBlockActive(
 					editor,
 					format,
 					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
 				)
-					? '#ddd'
-					: 'transparent',
-				borderRadius: '5px',
-				padding: '2px',
-				// display: 'flex',
-				// alignItems: 'center',
-				// justifyContent: 'center',
-				transition: '0.3s',
-			}}
+					? 'dark:bg-[#6a6a6a] bg-[#ddd]'
+					: 'bg-transparent'
+			)}
 			onMouseDown={(event) => {
 				event.preventDefault();
 				TextEditorService.toggleBlock(

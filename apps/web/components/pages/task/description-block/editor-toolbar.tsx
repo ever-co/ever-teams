@@ -10,7 +10,7 @@ import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
-	MoreIcon2,
+	// MoreIcon2,
 	LinkIcon,
 	AlignRightIcon,
 	AlignLeftIcon,
@@ -29,7 +29,7 @@ import {
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
-import { Node, Element, Transforms, Editor } from 'slate';
+import { Node, Element } from 'slate';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -47,9 +47,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		top: 0,
 	});
 	const [showDropdown, setShowDropdown] = useState(false);
-	const blockButtonRef = useRef<any>(null);
 	const popupRef = useRef<any>(null);
 	const inputRef = useRef<any>(null);
+	const dropdownRef = useRef<any>(null);
 
 	const handleLinkIconClick = () => {
 		const selection = editor.selection;
@@ -138,64 +138,20 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		}, 1000);
 	};
 
-	// const handleChange = (format: any) => {
-	// 	setShowDropdown(false); // Close the dropdown when an option is selected
+	useEffect(() => {
+		const onClickOutsideOfDropdown = (event: MouseEvent) => {
+			const target = event.target as HTMLElement;
+			if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+				setShowDropdown(false);
+			}
+		};
 
-	// 	// Trigger a click event on the BlockButton
-	// 	if (blockButtonRef.current) {
-	// 		blockButtonRef.current.click();
-	// 	}
+		document.addEventListener('click', onClickOutsideOfDropdown);
 
-	// 	// Apply the block format or text alignment to the editor using the isBlockActive function.
-	// 	if (format) {
-	// 		// Check if the format is for text alignment
-	// 		const isTextAlignment = ['left', 'center', 'right', 'justify'].includes(
-	// 			format
-	// 		);
-
-	// 		if (isTextAlignment) {
-	// 			// Get the current selection
-	// 			const selection = editor.selection;
-
-	// 			if (selection) {
-	// 				// Check if the selected nodes are blocks
-	// 				const selectedBlocks = Array.from(
-	// 					Editor.nodes(editor, {
-	// 						at: selection,
-	// 						match: (n) => Editor.isBlock(editor, n),
-	// 					})
-	// 				);
-
-	// 				if (selectedBlocks.length > 0) {
-	// 					// If any of the selected blocks have the same alignment, remove the alignment
-	// 					const hasSameAlignment = selectedBlocks.every(
-	// 						([node]) => node.type === format
-	// 					);
-	// 					if (hasSameAlignment) {
-	// 						Transforms.unsetNodes(editor, 'align');
-	// 					} else {
-	// 						// Apply the alignment to all selected blocks
-	// 						Transforms.setNodes(editor, { align: format });
-	// 					}
-	// 				} else {
-	// 					// No blocks selected, so apply the alignment to the editor as a whole
-	// 					Transforms.setNodes(editor, { align: format });
-	// 				}
-	// 			}
-	// 		} else {
-	// 			// If the format is not for text alignment, handle it as before for other block formats
-	// 			const isActive = isBlockActive(editor, format);
-	// 			if (isActive) {
-	// 				Transforms.unwrapNodes(editor, {
-	// 					match: (n: any) => n.type === format,
-	// 					split: true,
-	// 				});
-	// 			} else {
-	// 				Transforms.setNodes(editor, { type: format });
-	// 			}
-	// 		}
-	// 	}
-	// };
+		return () => {
+			document.removeEventListener('click', onClickOutsideOfDropdown);
+		};
+	}, []);
 
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
@@ -335,20 +291,30 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			/>
 			<div className="relative md:hidden">
 				<button
-					className="flex items-center gap-2 px-2 py-1 bg-transparent dark:bg-gray-800 rounded focus:outline-none"
+					ref={dropdownRef}
+					className={`flex items-center px-2 py-[2px] bg-transparent dark:bg-dark--theme rounded-md focus:outline-none`}
 					onClick={() => setShowDropdown((prev) => !prev)}
 				>
-					<span className="flex items-center gap-1">
+					<span className="flex items-center my-0 gap-1 text-black dark:text-white">
 						More
 						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
 					</span>
 				</button>
 				{showDropdown && (
-					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow">
+					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-dark--theme-light border border-gray-300 dark:border-gray-700 rounded shadow">
 						{blockOptions.map((option) => (
 							<button
 								key={option.format}
-								className="flex items-center gap-1 px-2 py-1 w-full hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-sm transition duration-300 ${
+									isBlockActive &&
+									isBlockActive(
+										editor,
+										option.format,
+										TEXT_ALIGN_TYPES.includes(option.format) ? 'align' : 'type'
+									)
+										? 'dark:bg-[#6a6a6a] bg-[#ddd]'
+										: 'bg-transparent'
+								} `}
 								// onClick={() => handleChange(option.format)}
 								onMouseDown={(event) => {
 									event.preventDefault();
@@ -362,6 +328,21 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 									);
 									setShowDropdown(false);
 								}}
+								// style={{
+								// 	background: isBlockActive(
+								// 		editor,
+								// 		option.format,
+								// 		TEXT_ALIGN_TYPES.includes(option.format) ? 'align' : 'type'
+								// 	)
+								// 		? '#6a6a6a'
+								// 		: 'transparent',
+								// 	borderRadius: '2px',
+								// 	padding: '2px',
+								// 	// display: 'flex',
+								// 	// alignItems: 'center',
+								// 	// justifyContent: 'center',
+								// 	transition: '0.3s',
+								// }}
 							>
 								<BlockButton
 									format={option.format}

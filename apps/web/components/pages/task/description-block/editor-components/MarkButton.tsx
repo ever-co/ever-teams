@@ -20,9 +20,10 @@ const MarkButton = ({ format, icon: Icon, isMarkActive }: IMarkButtonProps) => {
 				border: 'none',
 				borderRadius: '5px',
 				transition: '0.3s',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
+				padding: '2px',
+				// display: 'flex',
+				// alignItems: 'center',
+				// justifyContent: 'center',
 			}}
 			onMouseDown={(event) => {
 				event.preventDefault();
