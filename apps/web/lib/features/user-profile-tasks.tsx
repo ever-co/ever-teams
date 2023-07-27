@@ -1,7 +1,6 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
-import { useMemo } from 'react';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 
@@ -24,9 +23,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	/**
 	 * When tab is worked, then filter exclude the active task
 	 */
-	const tasks = useMemo(() => {
-		return tabFiltered.tasksFiltered;
-	}, [tabFiltered]);
+	const tasks = tabFiltered.tasksFiltered;
 
 	return (
 		<div className="mt-10">
@@ -79,7 +76,6 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 					return (
 						<li key={task.id} className="mb-8">
 							<TaskCard
-								key={task.id}
 								task={task}
 								isAuthUser={profile.isAuthUser}
 								activeAuthTask={false}

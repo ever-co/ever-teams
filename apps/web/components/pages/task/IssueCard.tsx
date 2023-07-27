@@ -1,5 +1,5 @@
 // import ToolButton from '@components/pages/task/description-block/tool-button';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 
 // import Image from 'next/image';
@@ -14,11 +14,13 @@ import { ITeamTask, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
+import { clsxm } from '@app/utils';
 
 const IssueCard = ({ related }: { related: boolean }) => {
 	const modal = useModal();
 	const task = useRecoilValue(detailedTaskState);
 	const { tasks } = useTeamTasks();
+	const [hidden, setHidden] = useState(false);
 
 	const linkedTasks = useMemo(() => {
 		return (
@@ -48,12 +50,18 @@ const IssueCard = ({ related }: { related: boolean }) => {
 						className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer"
 					/>
 
-					<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
+					<button onClick={() => setHidden((e) => !e)}>
+						{hidden ? (
+							<ChevronDownIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
+						) : (
+							<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
+						)}
+					</button>
 				</div>
 			</div>
 			<hr />
 
-			<div className="flex flex-col">
+			<div className={clsxm('flex flex-col', hidden && ['hidden'])}>
 				{linkedTasks.map((task) => {
 					return <TaskLinkedIssue key={task.id} task={task} />;
 				})}
@@ -129,6 +137,7 @@ function CreateLinkedTask({
 						tasks={unlinkedTasks}
 						onTaskClick={onTaskSelect}
 						onTaskCreated={onTaskSelect}
+						cardWithoutShadow={true}
 					/>
 				</Card>
 			</div>
