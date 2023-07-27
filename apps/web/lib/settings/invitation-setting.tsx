@@ -4,7 +4,7 @@ import {
 	useRequestToJoinTeam,
 	useTeamInvitations,
 } from '@app/hooks';
-import { Button, InputField } from 'lib/components';
+import { Button, InputField, NoData } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
 import { useTranslation } from 'lib/i18n';
@@ -54,6 +54,7 @@ export const InvitationSetting = () => {
 								e.target.value ? e.target.value.toLowerCase() : ''
 							);
 						}}
+						disabled={invitations.length === 0}
 					/>
 				</div>
 				<div className="flex items-center justify-between w-auto gap-4">
@@ -68,10 +69,13 @@ export const InvitationSetting = () => {
 					</Button>
 				</div>
 			</div>
-
-			<div className="mt-7 mb-8">
-				<InvitationTable invitations={invitations} />
-			</div>
+			{invitations.length > 0 ? (
+				<div className="mt-7 mb-8">
+					<InvitationTable invitations={invitations} />
+				</div>
+			) : (
+				<NoData text={trans.NO_INVITATIONS} />
+			)}
 
 			{/* TODO Dynamic */}
 			{/* <Divider className="mb-9" />

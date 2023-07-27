@@ -1,4 +1,4 @@
-import { Button, InputField, Text } from 'lib/components';
+import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { MemberTable } from './member-table';
@@ -28,36 +28,41 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<Text className="flex-none flex-grow-0 text-xl text-gray-400 font-normal mb-2 w-1/5 mt-8">
-				{trans.MEMBER_AND_ROLES}
-			</Text>
-			<div className="flex items-center justify-between w-full mt-8">
-				<div className="w-auto">
-					<InputField
-						type="text"
-						placeholder={trans.SEARCH_MEMBER}
-						className="mb-0 h-11"
-						leadingNode={
-							<Button
-								variant="ghost"
-								className="p-0 m-0 ml-[0.9rem] min-w-0"
-								type="submit"
-							>
-								<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
-							</Button>
-						}
-						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(
-								e.target.value ? e.target.value.toLowerCase() : ''
-							);
-						}}
-					/>
-				</div>
-			</div>
-
-			<div className="mt-7 mb-8">
-				<MemberTable members={members} />
-			</div>
+			{members.length > 0 ? (
+				<>
+					<Text className="flex-none flex-grow-0 text-xl text-gray-400 font-normal mb-2 w-1/5 mt-8">
+						{trans.MEMBER_AND_ROLES}
+					</Text>
+					<div className="flex items-center justify-between w-full mt-8">
+						<div className="w-auto">
+							<InputField
+								type="text"
+								placeholder={trans.SEARCH_MEMBER}
+								className="mb-0 h-11"
+								leadingNode={
+									<Button
+										variant="ghost"
+										className="p-0 m-0 ml-[0.9rem] min-w-0"
+										type="submit"
+									>
+										<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
+									</Button>
+								}
+								onChange={(e: ChangeEvent<HTMLInputElement>) => {
+									setFilterString(
+										e.target.value ? e.target.value.toLowerCase() : ''
+									);
+								}}
+							/>
+						</div>
+					</div>
+					<div className="mt-7 mb-8">
+						<MemberTable members={members} />
+					</div>
+				</>
+			) : (
+				<NoData text={trans.NO_MEMBERS} />
+			)}
 
 			{/* TODO Dynamic */}
 			{/* <div className="mb-9 bg-[#E8E7EB] w-full h-[1px]"></div>
