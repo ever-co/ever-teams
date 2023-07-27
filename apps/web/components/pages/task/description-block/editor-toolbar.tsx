@@ -25,6 +25,7 @@ import {
 	QuoteBlockIcon,
 	ExternalLinkIcon,
 	CheckBoxIcon,
+	ArrowDown,
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
@@ -201,6 +202,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{trans.DESCRIPTION}
 			</p>
+
 			<MarkButton
 				format="bold"
 				icon={BoldIcon}
@@ -224,6 +226,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			/>
 
 			<BlockButton
+				className="hidden md:block"
 				format="h1"
 				icon={HeaderOneIcon}
 				isBlockActive={
@@ -235,6 +238,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="h2"
 				icon={HeaderTwoIcon}
 				isBlockActive={
@@ -257,6 +261,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="ol"
 				icon={OrderedListIcon}
 				isBlockActive={
@@ -268,6 +273,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="ul"
 				icon={UnorderedListIcon}
 				isBlockActive={
@@ -278,12 +284,64 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+
+			<BlockButton
+				className="hidden md:block"
+				format="left"
+				icon={AlignLeftIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
+			<BlockButton
+				className="hidden md:block"
+				format="center"
+				icon={AlignCenterIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
+			<BlockButton
+				className="hidden md:block"
+				format="right"
+				icon={AlignRightIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
+			<BlockButton
+				className="hidden md:block"
+				format="justify"
+				icon={AlignJustifyIcon}
+				isBlockActive={
+					isBlockActive as (
+						editor: any,
+						format: any,
+						blockType?: string | undefined
+					) => boolean
+				}
+			/>
 			<div className="relative md:hidden">
 				<button
-					className="flex items-center gap-2 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded focus:outline-none"
+					className="flex items-center gap-2 px-2 py-1 bg-transparent dark:bg-gray-800 rounded focus:outline-none"
 					onClick={() => setShowDropdown((prev) => !prev)}
 				>
-					<span>Select</span>
+					<span className="flex items-center gap-1">
+						More
+						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
+					</span>
 				</button>
 				{showDropdown && (
 					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded shadow">
@@ -318,58 +376,6 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</div>
 				)}
 			</div>
-			<BlockButton
-				visibleOnLargeScreenOnly
-				className="hidden md:block"
-				format="left"
-				icon={AlignLeftIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
-			/>
-			<BlockButton
-				visibleOnLargeScreenOnly
-				className="hidden md:block"
-				format="center"
-				icon={AlignCenterIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
-			/>
-			<BlockButton
-				visibleOnLargeScreenOnly
-				className="hidden md:block"
-				format="right"
-				icon={AlignRightIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
-			/>
-			<BlockButton
-				visibleOnLargeScreenOnly
-				className="hidden md:block"
-				format="justify"
-				icon={AlignJustifyIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
-			/>
 			<BlockButton
 				format="checklist"
 				icon={CheckBoxIcon}
@@ -433,6 +439,8 @@ export default Toolbar;
 const blockOptions = [
 	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
 	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
+	{ format: 'ol', icon: OrderedListIcon, label: 'Ordered List' },
+	{ format: 'ul', icon: UnorderedListIcon, label: 'Unordered List' },
 	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
 	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
 	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
