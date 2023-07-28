@@ -28,23 +28,42 @@ import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import ThemesPopup from 'lib/components/themes-popup';
 import { ThemeInterface } from '@app/interfaces';
+import stc from 'string-to-color';
+import { isURL } from 'class-validator';
+import { imgTitle } from '@app/helpers';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
+	const imageUrl =
+		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 
 	return (
 		<Popover className="relative">
 			<Popover.Button className="outline-none">
-				{/* TODO-AVATAR-FIX */}
-				<Avatar
-					size={35}
-					className="relative cursor-pointer"
-					imageUrl={
+				<div
+					className={clsxm(
+						'w-[35px] h-[35px]',
+						'flex justify-center items-center',
+						'rounded-full text-xs text-default dark:text-white',
+						'shadow-md text-lg font-normal'
+					)}
+					style={{
+						backgroundColor: `${stc(user?.firstName || '')}80`,
+					}}
+				>
+					{imageUrl && isURL(imageUrl) ? (
+						<Avatar
+							size={80}
+							className="relative cursor-pointer"
+							imageUrl={imageUrl}
+							alt="Team Avatar"
+						/>
+					) : user?.firstName ? (
+						imgTitle(user?.firstName).charAt(0)
+					) : (
 						''
-						// user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
-					}
-					alt={user?.firstName || undefined}
-				/>
+					)}
+				</div>
 			</Popover.Button>
 
 			<Transition
@@ -83,6 +102,8 @@ function MenuIndicator() {
 function UserNavMenu() {
 	const { user, logOut } = useAuthenticateUser();
 	const { trans } = useTranslation();
+	const imageUrl =
+		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 
 	return (
 		<Card
@@ -91,14 +112,39 @@ function UserNavMenu() {
 		>
 			<div className="flex flex-col justify-center items-center">
 				<Link href={`/settings/personal`}>
-					<Avatar
+					<div
+						className={clsxm(
+							'w-[72px] h-[72px]',
+							'flex justify-center items-center',
+							'rounded-full text-xs text-default dark:text-white',
+							'shadow-md text-4xl font-normal relative cursor-pointer mb-5'
+						)}
+						style={{
+							backgroundColor: `${stc(user?.firstName || '')}80`,
+						}}
+					>
+						{imageUrl && isURL(imageUrl) ? (
+							<Avatar
+								size={80}
+								className="relative cursor-pointer"
+								imageUrl={imageUrl}
+								alt="Team Avatar"
+							/>
+						) : user?.firstName ? (
+							imgTitle(user?.firstName).charAt(0)
+						) : (
+							''
+						)}
+					</div>
+
+					{/* <Avatar
 						size={72}
 						className="relative cursor-pointer mb-5"
 						imageUrl={
 							user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
 						}
 						alt={user?.firstName || undefined}
-					/>
+					/> */}
 				</Link>
 
 				<Link href={`/settings/personal`} className="text-center  w-full">

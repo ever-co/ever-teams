@@ -31,7 +31,7 @@ export function useUserProfilePage() {
 
 	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
 
-	const employeeId = isAuthUser ? auth?.employee.id : matchUser?.employeeId;
+	const employeeId = isAuthUser ? auth?.employee?.id : matchUser?.employeeId;
 
 	/* Filtering the tasks */
 	const tasksGrouped = useAuthTeamTasks(userProfile);

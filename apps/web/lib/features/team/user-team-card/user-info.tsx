@@ -39,11 +39,11 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
-			{/* TODO-AVATAR-FIX */}
 			<Avatar
 				size={60}
 				imageUrl={isURL(imageUrl) ? imageUrl : ''}
 				className="relative"
+				imageTitle={fullname[0]}
 			>
 				<TimerStatus
 					status={
