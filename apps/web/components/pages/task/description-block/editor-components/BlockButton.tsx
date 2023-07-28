@@ -1,11 +1,13 @@
+import { clsxm } from '@app/utils';
 import { TextEditorService } from './TextEditorService';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSlate } from 'slate-react';
 
 interface IMarkButtonProps {
 	format: string;
 	icon: React.ComponentType;
 	isBlockActive: (editor: any, format: any, blockType?: string) => boolean;
+	className?: string;
 }
 
 const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
@@ -15,27 +17,32 @@ const BlockButton = ({
 	format,
 	icon: Icon,
 	isBlockActive,
+	className,
 }: IMarkButtonProps) => {
 	const editor = useSlate();
 
-	return (
-		<button
-			className="my-1"
-			style={{
-				background: isBlockActive(
+	const isBlockActiveMemo = useMemo(() => {
+		return (
+			isBlockActive &&
+			((format: string) => {
+				return isBlockActive(
 					editor,
 					format,
 					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-				)
-					? '#ddd'
-					: 'transparent',
-				borderRadius: '5px',
-				padding: '2px',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				transition: '0.3s',
-			}}
+				);
+			})
+		);
+	}, [editor, isBlockActive]);
+
+	return (
+		<button
+			className={clsxm(
+				className,
+				'my-1 rounded-md transition duration-300 p-[2px]',
+				isBlockActiveMemo(format)
+					? 'dark:bg-[#6a6a6a] bg-[#ddd]'
+					: 'bg-transparent'
+			)}
 			onMouseDown={(event) => {
 				event.preventDefault();
 				TextEditorService.toggleBlock(

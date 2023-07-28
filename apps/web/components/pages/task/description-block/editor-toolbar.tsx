@@ -1,13 +1,22 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
-import React, { useEffect, useRef, useState } from 'react';
-import { insertLink } from './editor-components/TextEditorService';
+import React, {
+	useEffect,
+	useRef,
+	useState,
+	useMemo,
+	useCallback,
+} from 'react';
+import {
+	insertLink,
+	TextEditorService,
+} from './editor-components/TextEditorService';
 
 import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
-	MoreIcon2,
+	// MoreIcon2,
 	LinkIcon,
 	AlignRightIcon,
 	AlignLeftIcon,
@@ -22,10 +31,12 @@ import {
 	QuoteBlockIcon,
 	ExternalLinkIcon,
 	CheckBoxIcon,
+	ArrowDown,
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
 import { Node, Element } from 'slate';
+import { Button } from 'lib/components';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -42,8 +53,10 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		left: 0,
 		top: 0,
 	});
+	const [showDropdown, setShowDropdown] = useState(false);
 	const popupRef = useRef<any>(null);
 	const inputRef = useRef<any>(null);
+	const dropdownRef = useRef<any>(null);
 
 	const handleLinkIconClick = () => {
 		const selection = editor.selection;
@@ -132,11 +145,40 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		}, 1000);
 	};
 
+	const onClickOutsideOfDropdown = useCallback((event: MouseEvent) => {
+		const target = event.target as HTMLElement;
+		if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+			setShowDropdown(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		document.addEventListener('click', onClickOutsideOfDropdown);
+
+		return () => {
+			document.removeEventListener('click', onClickOutsideOfDropdown);
+		};
+	}, [onClickOutsideOfDropdown]);
+
+	const isBlockActiveMemo = useMemo(() => {
+		return (
+			isBlockActive &&
+			((format: string) => {
+				return isBlockActive(
+					editor,
+					format,
+					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+				);
+			})
+		);
+	}, [editor, isBlockActive]);
+
 	return (
 		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2">
-			<p className="flex-1 text-lg font-[500] dark:text-white my-1">
+			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{trans.DESCRIPTION}
 			</p>
+
 			<MarkButton
 				format="bold"
 				icon={BoldIcon}
@@ -158,7 +200,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				icon={CodeBlockIcon}
 				isMarkActive={isMarkActive as (editor: any, format: string) => boolean}
 			/>
+
 			<BlockButton
+				className="hidden md:block"
 				format="h1"
 				icon={HeaderOneIcon}
 				isBlockActive={
@@ -170,6 +214,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="h2"
 				icon={HeaderTwoIcon}
 				isBlockActive={
@@ -192,6 +237,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="ol"
 				icon={OrderedListIcon}
 				isBlockActive={
@@ -203,6 +249,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="ul"
 				icon={UnorderedListIcon}
 				isBlockActive={
@@ -213,7 +260,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+
 			<BlockButton
+				className="hidden md:block"
 				format="left"
 				icon={AlignLeftIcon}
 				isBlockActive={
@@ -225,6 +274,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="center"
 				icon={AlignCenterIcon}
 				isBlockActive={
@@ -236,6 +286,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="right"
 				icon={AlignRightIcon}
 				isBlockActive={
@@ -247,6 +298,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				}
 			/>
 			<BlockButton
+				className="hidden md:block"
 				format="justify"
 				icon={AlignJustifyIcon}
 				isBlockActive={
@@ -257,6 +309,52 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
+			<div className="relative md:hidden" ref={dropdownRef}>
+				<Button
+					className={`flex items-center text-md px-2 min-w-[3.125rem] py-[2px] bg-transparent dark:bg-dark--theme rounded-md focus:outline-none`}
+					onClick={() => setShowDropdown((prev) => !prev)}
+				>
+					<span className="flex items-center my-0 gap-1 text-black dark:text-white">
+						More
+						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
+					</span>
+				</Button>
+				{showDropdown && (
+					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-dark--theme-light border border-gray-300 dark:border-gray-700 rounded shadow">
+						{blockOptions.map((option) => (
+							<button
+								key={option.format}
+								className={`flex items-center gap-1 px-2 py-1 w-full focus:outline-none rounded-sm transition duration-300 ${
+									isBlockActiveMemo && isBlockActiveMemo(option.format)
+										? 'dark:bg-[#6a6a6a] bg-[#ddd]'
+										: 'bg-transparent'
+								} `}
+								onMouseDown={(event) => {
+									event.preventDefault();
+									TextEditorService.toggleBlock(
+										editor,
+										option.format,
+										//@ts-ignore
+										isBlockActive,
+										LIST_TYPES,
+										TEXT_ALIGN_TYPES
+									);
+									setShowDropdown(false);
+								}}
+							>
+								<BlockButton
+									format={option.format}
+									icon={option.icon}
+									isBlockActive={
+										isBlockActive as (editor: any, format: string) => boolean
+									}
+								/>
+								<span className="text-sm">{option.label}</span>
+							</button>
+						))}
+					</div>
+				)}
+			</div>
 			<BlockButton
 				format="checklist"
 				icon={CheckBoxIcon}
@@ -311,8 +409,22 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					</div>
 				)}
 			</button>
-			<MoreIcon2 />
+			{/* <MoreIcon2 /> */}
 		</div>
 	);
 };
 export default Toolbar;
+
+const blockOptions = [
+	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
+	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
+	{ format: 'ol', icon: OrderedListIcon, label: 'Ordered List' },
+	{ format: 'ul', icon: UnorderedListIcon, label: 'Unordered List' },
+	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
+	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
+	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
+	{ format: 'justify', icon: AlignJustifyIcon, label: 'Justify' },
+];
+
+const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
+const LIST_TYPES = ['ol', 'ul'];
