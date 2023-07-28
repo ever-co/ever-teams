@@ -54,7 +54,6 @@ export const InvitationSetting = () => {
 								e.target.value ? e.target.value.toLowerCase() : ''
 							);
 						}}
-						disabled={invitations.length === 0}
 					/>
 				</div>
 				<div className="flex items-center justify-between w-auto gap-4">
