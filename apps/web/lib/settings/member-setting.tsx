@@ -1,4 +1,4 @@
-import { Button, InputField, Text } from 'lib/components';
+import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { MemberTable } from './member-table';
@@ -55,9 +55,13 @@ export const MemberSetting = () => {
 				</div>
 			</div>
 
-			<div className="mt-7 mb-8">
-				<MemberTable members={members} />
-			</div>
+			{members.length > 0 ? (
+				<div className="mt-7 mb-8">
+					<MemberTable members={members} />
+				</div>
+			) : (
+				<NoData text={trans.NO_MEMBERS} />
+			)}
 
 			{/* TODO Dynamic */}
 			{/* <div className="mb-9 bg-[#E8E7EB] w-full h-[1px]"></div>
