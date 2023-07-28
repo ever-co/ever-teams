@@ -18,6 +18,8 @@ export * from './badge';
 export * from './tooltip';
 export * from './separator';
 export * from './color-picker';
+export * from './no-data';
+export * from './pagination';
 
 export * from './inputs/input';
 export * from './inputs/auth-code-input';

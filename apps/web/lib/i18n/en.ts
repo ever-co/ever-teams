@@ -273,6 +273,9 @@ export const en = {
 			HANDLE_REQUESTS: 'Handle requests',
 			ROLES_POSITIONS_CHANGE: 'Roles/Positions change',
 			VIEW_DETAILS: 'View Details',
+
+			NO_INVITATIONS: 'There are no Invitations at the moment!',
+			NO_MEMBERS: 'There are no Members at the moment!',
 		},
 		invite: {
 			HEADING_TITLE: 'Invite member to your team',
