@@ -35,7 +35,7 @@ const Profile = () => {
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
 				<MainHeader className={clsxm(hookFilterType && ['pb-0'])}>
 					{/* Breadcrumb */}
-					<div className="flex items-center space-x-5">
+					<div className="flex items-center space-x-3">
 						<Link href="/">
 							<ArrowLeft />
 						</Link>

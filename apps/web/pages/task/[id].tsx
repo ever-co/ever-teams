@@ -47,7 +47,7 @@ const TaskDetails = () => {
 		<MainLayout showTimer={!profile.isAuthUser && isTrackingEnabled}>
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<div className="flex items-center space-x-5">
+					<div className="flex items-center space-x-3">
 						<button
 							onClick={() => {
 								router.back();
