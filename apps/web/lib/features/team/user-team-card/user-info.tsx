@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -6,6 +7,8 @@ import { Avatar, Text, Tooltip } from 'lib/components';
 import { TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
+import { isURL } from 'class-validator';
+import { useMemo } from 'react';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -18,18 +21,28 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 		memberUser?.lastName || ''
 	}`;
 
+	const imageUrl = useMemo(() => {
+		return (
+			memberUser?.image?.thumbUrl ||
+			memberUser?.image?.fullUrl ||
+			memberUser?.imageUrl ||
+			''
+		);
+	}, [
+		memberUser?.image?.thumbUrl,
+		memberUser?.image?.fullUrl,
+		memberUser?.imageUrl,
+	]);
+
 	return (
 		<Link
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
+			{/* TODO-AVATAR-FIX */}
 			<Avatar
 				size={60}
-				imageUrl={
-					memberUser?.image?.thumbUrl ||
-					memberUser?.image?.fullUrl ||
-					memberUser?.imageUrl
-				}
+				imageUrl={isURL(imageUrl) ? imageUrl : ''}
 				className="relative"
 			>
 				<TimerStatus

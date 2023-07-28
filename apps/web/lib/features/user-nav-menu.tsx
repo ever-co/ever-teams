@@ -35,11 +35,13 @@ export function UserNavAvatar() {
 	return (
 		<Popover className="relative">
 			<Popover.Button className="outline-none">
+				{/* TODO-AVATAR-FIX */}
 				<Avatar
 					size={35}
 					className="relative cursor-pointer"
 					imageUrl={
-						user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
+						''
+						// user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
 					}
 					alt={user?.firstName || undefined}
 				/>
