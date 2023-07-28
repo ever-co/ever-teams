@@ -265,5 +265,5 @@ html.dark {
 }
 
 .textAreaOutline:focus {
-	@apply ring-0 border-transparent outline-gray-200 dark:outline-none dark:border-2 dark:border-[#464242];
+	@apply ring-0 outline-gray-200 dark:outline-none dark:border-2 dark:border-[#464242];
 }
