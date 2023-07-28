@@ -96,6 +96,22 @@ module.exports = {
 					foreground: 'hsl(var(--card-foreground))',
 				},
 			},
+			fontFamily: {
+				PlusJakartaSans: ['Plus-Jakarta-Sans-VariableFont_wght'],
+				PlusJakartaSansRegular: ['Plus-Jakarta-Sans-Regular'],
+				PlusJakartaSansBold: ['Plus-Jakarta-Sans-Bold'],
+				PlusJakartaSansLight: ['Plus-Jakarta-Sans-Light'],
+				PlusJakartaSansMedium: ['Plus-Jakarta-Sans-Medium'],
+				PlusJakartaSansSemiBold: ['Plus-Jakarta-Sans-SemiBold'],
+			},
+			boxShadow: {
+				lgcard: '0px 50px 200px rgba(0, 0, 0, 0.1)',
+				xlcard: '0px 16px 79px rgba(0, 0, 0, 0.12)',
+				'lgcard-white': '0px 50px 200px rgba(255, 255, 255, 0.1)',
+				'xlcard-white': '0px 16px 79px rgba(255, 255, 255, 0.12)',
+				darker:
+					'-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)',
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
