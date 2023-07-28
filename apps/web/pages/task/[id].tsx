@@ -64,7 +64,7 @@ const TaskDetails = () => {
 			<Container className="mb-10">
 				<div className="flex flex-col w-full min-h-screen pt-5">
 					<section className="flex justify-between lg:flex-row flex-col lg:items-start">
-						<section className="mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
+						<section className=" md:mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 							<RichTextEditor />
 							{/* <TaskDescriptionBlock /> */}
