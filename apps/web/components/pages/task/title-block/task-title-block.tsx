@@ -21,6 +21,8 @@ const TaskTitleBlock = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
+	const maxChars = 255;
+
 	//Hooks and functions
 	useEffect(() => {
 		task && setTitle(task?.title);
@@ -73,10 +75,14 @@ const TaskTitleBlock = () => {
 								className={`w-full ${
 									edit && 'textAreaOutline'
 								} bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
-								onChange={(event) => setTitle(event.target.value)}
+								onChange={(event) => {
+									const newValue = event.target.value.slice(0, maxChars);
+									setTitle(newValue);
+								}}
 								value={title}
 								disabled={!edit}
 								ref={titleDOM}
+								maxLength={maxChars}
 							></textarea>
 							{!edit && (
 								<button
