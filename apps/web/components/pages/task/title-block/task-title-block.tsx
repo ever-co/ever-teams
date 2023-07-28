@@ -68,9 +68,11 @@ const TaskTitleBlock = () => {
 			<div className="flex mb-6 ">
 				{title !== '' ? (
 					<>
-						<div className="w-full flex flex-wrap">
+						<div className="w-full flex flex-wrap relative">
 							<textarea
-								className={`w-4/5 bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
+								className={`w-full ${
+									edit && 'textAreaOutline'
+								} bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
 								onChange={(event) => setTitle(event.target.value)}
 								value={title}
 								disabled={!edit}
@@ -78,7 +80,7 @@ const TaskTitleBlock = () => {
 							></textarea>
 							{!edit && (
 								<button
-									className="flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
+									className="absolute bottom-[-15px] right-0 flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
 									onClick={copyTitle}
 								>
 									<Image
@@ -95,7 +97,7 @@ const TaskTitleBlock = () => {
 						</div>
 
 						{edit ? (
-							<div className="flex flex-col items-start transition-all ">
+							<div className="flex flex-col items-start transition-all ml-1">
 								<button ref={saveButton} onClick={() => saveTitle(title)}>
 									<Image
 										src="/assets/svg/tick.svg"
