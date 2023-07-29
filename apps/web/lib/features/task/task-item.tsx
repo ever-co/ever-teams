@@ -1,11 +1,15 @@
+import { imgTitle } from '@app/helpers';
 import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { isURL } from 'class-validator';
+import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
 import { useCallback } from 'react';
+import stc from 'string-to-color';
 import { TaskIssueStatus } from './task-issue';
 import { TaskPriorityStatus } from './task-status';
 import { TaskStatusModal } from './task-status-modal';
@@ -124,20 +128,36 @@ export function TaskAvatars({
 		>
 			{members.slice(0, limit).map((member, i) => {
 				const user = member.user;
+				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
+				const userImageUrl =
+					user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';
+				const size = 30;
+
 				return (
-					<Link
-						key={i}
-						title={`${user?.firstName || ''} ${user?.lastName || ''}`}
-						href={`/profile/${member.id}`}
-					>
-						<Avatar
-							shape="circle"
-							className="border"
-							imageUrl={
-								user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
-							}
-							size={25}
-						/>
+					<Link key={i} title={userName} href={`/profile/${member.id}`}>
+						<div
+							className={clsx(
+								`w-[${size}px] h-[${size}px]`,
+								'flex justify-center items-center',
+								'rounded-full text-xs text-default dark:text-white',
+								'shadow-md text-md font-normal'
+							)}
+							style={{
+								backgroundColor: `${stc(userName)}80`,
+							}}
+						>
+							{userImageUrl && isURL(userImageUrl) ? (
+								<Avatar
+									size={size}
+									className="relative cursor-pointer"
+									imageUrl={userImageUrl}
+									alt={userName}
+									imageTitle={userName.charAt(0)}
+								/>
+							) : (
+								imgTitle(userName).charAt(0)
+							)}
+						</div>
 					</Link>
 				);
 			})}
