@@ -9,6 +9,8 @@ import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { isURL } from 'class-validator';
 import { useMemo } from 'react';
+import stc from 'string-to-color';
+import { imgTitle } from '@app/helpers';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -39,25 +41,42 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			href={publicTeam ? '#' : `/profile/${memberInfo.memberUser?.id}`}
 			className={clsxm('flex items-center lg:space-x-4 space-x-2', className)}
 		>
-			<Avatar
-				size={60}
-				imageUrl={isURL(imageUrl) ? imageUrl : ''}
-				className="relative"
-				imageTitle={fullname[0]}
+			<div
+				className={clsxm(
+					'w-[60px] h-[60px]',
+					'flex justify-center items-center',
+					'rounded-full text-xs text-default dark:text-white',
+					'shadow-md text-2xl font-normal'
+				)}
+				style={{
+					backgroundColor: `${stc(fullname)}80`,
+				}}
 			>
-				<TimerStatus
-					status={
-						!member?.employee?.isActive && !publicTeam
-							? 'suspended'
-							: member?.employee?.isOnline && member?.timerStatus !== 'running'
-							? 'online'
-							: !member?.totalTodayTasks?.length
-							? 'idle'
-							: member?.timerStatus || 'idle'
-					}
-					className="absolute border z-20 bottom-3 -right-1 -mb-3"
-				/>
-			</Avatar>
+				{imageUrl && isURL(imageUrl) ? (
+					<Avatar
+						size={60}
+						className="relative cursor-pointer"
+						imageUrl={imageUrl}
+						alt="Team Avatar"
+					>
+						<TimerStatus
+							status={
+								!member?.employee?.isActive && !publicTeam
+									? 'suspended'
+									: member?.employee?.isOnline &&
+									  member?.timerStatus !== 'running'
+									? 'online'
+									: !member?.totalTodayTasks?.length
+									? 'idle'
+									: member?.timerStatus || 'idle'
+							}
+							className="absolute border z-20 bottom-3 -right-1 -mb-3"
+						/>
+					</Avatar>
+				) : (
+					imgTitle(fullname).charAt(0)
+				)}
+			</div>
 
 			<div className="lg:w-64 w-1/2">
 				<Tooltip
