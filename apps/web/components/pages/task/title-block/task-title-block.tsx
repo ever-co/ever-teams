@@ -1,14 +1,17 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { detailedTaskState } from '@app/stores';
 import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
 import TitleLoader from './title-loader';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
+import { useToast } from '@components/ui/use-toast';
+import { useTranslation } from 'lib/i18n';
 
 const TaskTitleBlock = () => {
 	const { updateTitle } = useTeamTasks();
-	// const { updateLoading } = useTeamTasks();
+	const { toast } = useToast();
+	const { trans } = useTranslation('taskDetails');
 
 	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
@@ -36,10 +39,19 @@ const TaskTitleBlock = () => {
 
 	const saveTitle = useCallback(
 		(newTitle: string) => {
+			if (newTitle.length > 255) {
+				toast({
+					variant: 'destructive',
+					title: trans.TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE,
+					description: trans.TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION,
+				});
+				return;
+			}
+
 			updateTitle(newTitle, task, true);
 			setEdit(false);
 		},
-		[task, updateTitle]
+		[task, updateTitle, toast, trans]
 	);
 
 	const cancelEdit = () => {
@@ -63,6 +75,10 @@ const TaskTitleBlock = () => {
 		task && navigator.clipboard.writeText(task?.taskNumber);
 	};
 
+	const handleTaskTitleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+		setTitle(event.target.value);
+	};
+
 	return (
 		<>
 			<div className="flex mb-6 ">
@@ -71,7 +87,7 @@ const TaskTitleBlock = () => {
 						<div className="w-full flex flex-wrap">
 							<textarea
 								className={`w-4/5 bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border border-transparent focus:border-primary-light scrollbar-hide md:!leading-[47px]`}
-								onChange={(event) => setTitle(event.target.value)}
+								onChange={handleTaskTitleChange}
 								value={title}
 								disabled={!edit}
 								ref={titleDOM}
