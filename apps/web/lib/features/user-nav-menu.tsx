@@ -55,7 +55,7 @@ export function UserNavAvatar() {
 				>
 					{imageUrl && isURL(imageUrl) ? (
 						<Avatar
-							size={80}
+							size={35}
 							className="relative cursor-pointer"
 							imageUrl={imageUrl}
 							alt="Team Avatar"
@@ -129,7 +129,7 @@ function UserNavMenu() {
 					>
 						{imageUrl && isURL(imageUrl) ? (
 							<Avatar
-								size={80}
+								size={72}
 								className="relative cursor-pointer"
 								imageUrl={imageUrl}
 								alt="Team Avatar"
@@ -140,15 +140,6 @@ function UserNavMenu() {
 							''
 						)}
 					</div>
-
-					{/* <Avatar
-						size={72}
-						className="relative cursor-pointer mb-5"
-						imageUrl={
-							user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl
-						}
-						alt={user?.firstName || undefined}
-					/> */}
 				</Link>
 
 				<Link href={`/settings/personal`} className="text-center  w-full">
