@@ -127,13 +127,20 @@ function DueDates() {
 
 	const handleResetDate = useCallback(
 		(date: 'startDate' | 'dueDate') => {
-			setStartDate(null);
-			$startDate.current = null;
+			if (date === 'startDate') {
+				setStartDate(null);
+				$startDate.current = null;
+			}
+			if (date === 'dueDate') {
+				setDueDate(null);
+				$dueDate.current = null;
+			}
+
 			if (task) {
 				updateTask({ ...task, [date]: null });
 			}
 		},
-		[$startDate, task, updateTask]
+		[$startDate, $dueDate, task, updateTask]
 	);
 
 	return (
@@ -178,14 +185,18 @@ function DueDates() {
 					}}
 					mode={'single'}
 				/>
-				<span
-					className="w-20 text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
-					onClick={() => {
-						handleResetDate('startDate');
-					}}
-				>
-					<TrashIcon className="w-[14px] h-[14px]" />
-				</span>
+				{task?.startDate ? (
+					<span
+						className="text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
+						onClick={() => {
+							handleResetDate('startDate');
+						}}
+					>
+						<TrashIcon className="w-[14px] h-[14px]" />
+					</span>
+				) : (
+					<></>
+				)}
 			</TaskRow>
 
 			<TaskRow
@@ -205,8 +216,11 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{formatDateString(dueDate?.toISOString() || task?.dueDate) ||
-								'Set Due Date'}
+							{dueDate
+								? formatDateString(dueDate.toISOString())
+								: task?.dueDate
+								? formatDateString(task?.dueDate)
+								: 'Set Due Date'}
 						</div>
 					}
 					selected={
@@ -224,14 +238,18 @@ function DueDates() {
 					}}
 					mode={'single'}
 				/>
-				<span
-					className="w-20 text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
-					onClick={() => {
-						handleResetDate('dueDate');
-					}}
-				>
-					<TrashIcon className="w-[14px] h-[14px]" />
-				</span>
+				{task?.dueDate ? (
+					<span
+						className="text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
+						onClick={() => {
+							handleResetDate('dueDate');
+						}}
+					>
+						<TrashIcon className="w-[14px] h-[14px]" />
+					</span>
+				) : (
+					<></>
+				)}
 			</TaskRow>
 		</>
 	);
