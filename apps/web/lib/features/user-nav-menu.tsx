@@ -36,6 +36,8 @@ export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
 	const imageUrl =
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const name =
+		user?.name || user?.firstName || user?.lastName || user?.username;
 
 	return (
 		<Popover className="relative">
@@ -48,7 +50,7 @@ export function UserNavAvatar() {
 						'shadow-md text-lg font-normal'
 					)}
 					style={{
-						backgroundColor: `${stc(user?.firstName || '')}80`,
+						backgroundColor: `${stc(name || '')}80`,
 					}}
 				>
 					{imageUrl && isURL(imageUrl) ? (
@@ -58,8 +60,8 @@ export function UserNavAvatar() {
 							imageUrl={imageUrl}
 							alt="Team Avatar"
 						/>
-					) : user?.firstName ? (
-						imgTitle(user?.firstName).charAt(0)
+					) : name ? (
+						imgTitle(name).charAt(0)
 					) : (
 						''
 					)}
@@ -104,6 +106,8 @@ function UserNavMenu() {
 	const { trans } = useTranslation();
 	const imageUrl =
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const name =
+		user?.name || user?.firstName || user?.lastName || user?.username;
 
 	return (
 		<Card
@@ -120,7 +124,7 @@ function UserNavMenu() {
 							'shadow-md text-4xl font-normal relative cursor-pointer mb-5'
 						)}
 						style={{
-							backgroundColor: `${stc(user?.firstName || '')}80`,
+							backgroundColor: `${stc(name || '')}80`,
 						}}
 					>
 						{imageUrl && isURL(imageUrl) ? (
@@ -130,8 +134,8 @@ function UserNavMenu() {
 								imageUrl={imageUrl}
 								alt="Team Avatar"
 							/>
-						) : user?.firstName ? (
-							imgTitle(user?.firstName).charAt(0)
+						) : name ? (
+							imgTitle(name).charAt(0)
 						) : (
 							''
 						)}
