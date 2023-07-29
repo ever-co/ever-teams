@@ -298,7 +298,7 @@ export function useTeamTasks() {
 			if (task) {
 				// Update Current user's active task to sync across multiple devices
 				const currentEmployeeDetails = activeTeam?.members.find(
-					(member) => member.employeeId === authUser.current?.employee.id
+					(member) => member.employeeId === authUser.current?.employee?.id
 				);
 
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {

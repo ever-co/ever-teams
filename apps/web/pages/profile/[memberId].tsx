@@ -1,6 +1,9 @@
+import { imgTitle } from '@app/helpers';
 import { useOrganizationTeams, useUserProfilePage } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { isURL } from 'class-validator';
+import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
@@ -15,6 +18,7 @@ import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import stc from 'string-to-color';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
@@ -71,6 +75,7 @@ const Profile = () => {
 
 function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
+	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
 	const imgUrl =
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
@@ -78,15 +83,38 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		() => member?.timerStatus || 'idle',
 		[member?.timerStatus]
 	);
+	const size = 80;
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
-			<Avatar size={80} imageUrl={imageUrl}>
-				<TimerStatus
-					status={timerStatus}
-					className="absolute border z-20 bottom-3 right-[12%] -mb-3"
-				/>
-			</Avatar>
+			<div
+				className={clsx(
+					`w-[${size}px] h-[${size}px]`,
+					'flex justify-center items-center',
+					'rounded-full text-xs text-default dark:text-white',
+					'shadow-md text-4xl font-normal'
+				)}
+				style={{
+					backgroundColor: `${stc(userName)}80`,
+				}}
+			>
+				{imageUrl && isURL(imageUrl) ? (
+					<Avatar
+						size={size}
+						className="relative cursor-pointer"
+						imageUrl={imageUrl}
+						alt={userName}
+						imageTitle={userName.charAt(0)}
+					>
+						<TimerStatus
+							status={timerStatus}
+							className="absolute border z-20 bottom-3 right-[12%] -mb-3"
+						/>
+					</Avatar>
+				) : (
+					imgTitle(userName).charAt(0)
+				)}
+			</div>
 
 			<div>
 				<Text.Heading as="h3" className="text-2xl">

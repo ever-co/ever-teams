@@ -318,17 +318,14 @@ const ManageMembersPopover = (
 							)}
 						</Popover.Panel>
 					</Transition>
-					{task && memberList.length > 1 ? (
-						<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
-							<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
-								<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
-									{trans.MANAGE_ASSIGNEES}
-								</p>
-							</div>
-						</Popover.Button>
-					) : (
-						<></>
-					)}
+
+					<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
+						<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
+							<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
+								{trans.MANAGE_ASSIGNEES}
+							</p>
+						</div>
+					</Popover.Button>
 				</Popover>
 			) : (
 				<></>
