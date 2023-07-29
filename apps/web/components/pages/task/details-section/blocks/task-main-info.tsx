@@ -24,7 +24,7 @@ import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
 import { clsxm } from '@app/utils';
 
-import { DatePicker } from '../../../../ui/DatePicker';
+import { DatePicker } from 'components/ui/DatePicker';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -174,8 +174,8 @@ function DueDates() {
 							? (new Date($startDate.current) as Date)
 							: undefined
 					}
-					onSelect={(date: any) => {
-						if (date && (!$dueDate.current || date < $dueDate.current)) {
+					onSelect={(date) => {
+						if (date && (!$dueDate.current || date <= $dueDate.current)) {
 							setStartDate(date);
 
 							if (task) {
@@ -226,10 +226,13 @@ function DueDates() {
 					selected={
 						$dueDate.current ? (new Date($dueDate.current) as Date) : undefined
 					}
-					onSelect={(date: any) => {
+					onSelect={(date) => {
 						// const cdate = new Date();
 
-						if ($startDate.current && date && date >= $startDate.current) {
+						if (
+							(!$startDate.current && date) ||
+							($startDate.current && date && date >= $startDate.current)
+						) {
 							setDueDate(date);
 							if (task) {
 								updateTask({ ...task, dueDate: date?.toISOString() });
