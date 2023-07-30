@@ -263,3 +263,7 @@ html.dark {
 .prose {
 	max-width: unset !important;
 }
+
+.textAreaOutline:focus {
+	@apply ring-0 outline-gray-200 dark:outline-none dark:border-2 dark:border-[#464242];
+}
