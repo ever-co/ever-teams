@@ -126,6 +126,9 @@ export const en = {
 			CREATED: 'Created',
 			UPDATED: 'Updated',
 			RESOLVED: 'Resolved',
+
+			TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE: `We couldn't update Task Title.`,
+			TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION: `Task Title can't exceed 255 characters.`,
 		},
 
 		auth: {

@@ -2,13 +2,14 @@ import { Footer, Navbar } from '.';
 import { Container, Divider, Meta } from 'lib/components';
 import { PropsWithChildren } from 'react';
 import { clsxm } from '@app/utils';
+import { Toaster } from '@components/ui/toaster';
 
 type Props = PropsWithChildren<{
 	title?: string;
 	showTimer?: boolean;
 	publicTeam?: boolean;
 	notFound?: boolean;
-	className?: string
+	className?: string;
 }>;
 
 export function MainLayout({
@@ -17,7 +18,7 @@ export function MainLayout({
 	showTimer,
 	publicTeam,
 	notFound,
-	className
+	className,
 }: Props) {
 	return (
 		<>
@@ -38,9 +39,10 @@ export function MainLayout({
 			/>
 
 			<div
-				className={
-					clsxm('w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px] pt-20', className)
-				}
+				className={clsxm(
+					'w-full flex flex-col lg:items-start justify-between h-screen min-h-[500px] pt-20',
+					className
+				)}
 			>
 				<div className="lg:flex-1 lg:w-full">{children}</div>
 
@@ -49,6 +51,7 @@ export function MainLayout({
 					<Footer className="justify-between px-0" />
 				</Container>
 			</div>
+			<Toaster />
 		</>
 	);
 }
