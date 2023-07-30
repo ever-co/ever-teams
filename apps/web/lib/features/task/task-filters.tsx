@@ -287,7 +287,10 @@ function InputFilters({ hook, profile }: Props) {
 			>
 				<Button
 					loading={loading}
-					className="dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full"
+					className={clsxm(
+						'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full',
+						'min-h-[49px]'
+					)}
 				>
 					{trans.common.ASSIGN_TASK}
 				</Button>
