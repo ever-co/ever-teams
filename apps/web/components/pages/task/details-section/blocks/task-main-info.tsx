@@ -2,7 +2,14 @@ import { detailedTaskState } from '@app/stores';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
-import { forwardRef, Fragment, useEffect, useMemo, useState } from 'react';
+import {
+	forwardRef,
+	Fragment,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {
 	useOrganizationTeams,
 	useSyncRef,
@@ -18,6 +25,7 @@ import { TrashIcon } from 'lib/components/svgs';
 import { clsxm } from '@app/utils';
 
 import { DatePicker } from '../../../../ui/DatePicker';
+import Link from 'next/link';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -47,12 +55,19 @@ const TaskMainInfo = () => {
 				wrapperClassName="mt-5"
 			>
 				{task?.creator && (
-					<ProfileInfo
-						profilePicSrc={task?.creator?.imageUrl}
-						names={`${task?.creator?.firstName || ''} ${
+					<Link
+						title={`${task?.creator?.firstName || ''} ${
 							task?.creator?.lastName || ''
 						}`}
-					/>
+						href={`/profile/${task.creatorId}`}
+					>
+						<ProfileInfo
+							profilePicSrc={task?.creator?.imageUrl}
+							names={`${task?.creator?.firstName || ''} ${
+								task?.creator?.lastName || ''
+							}`}
+						/>
+					</Link>
 				)}
 			</TaskRow>
 			<TaskRow
@@ -62,12 +77,16 @@ const TaskMainInfo = () => {
 			>
 				<div className="flex flex-col gap-3">
 					{task?.members?.map((member: any) => (
-						<Fragment key={member.id}>
+						<Link
+							key={member.id}
+							title={member.fullName}
+							href={`/profile/${member.userId}`}
+						>
 							<ProfileInfo
 								names={member.fullName}
 								profilePicSrc={member.user?.imageUrl}
 							/>
-						</Fragment>
+						</Link>
 					))}
 
 					{ManageMembersPopover(activeTeam?.members || [], task)}
@@ -118,6 +137,24 @@ function DueDates() {
 		dueDate || (task?.dueDate ? new Date(task.dueDate) : null)
 	);
 
+	const handleResetDate = useCallback(
+		(date: 'startDate' | 'dueDate') => {
+			if (date === 'startDate') {
+				setStartDate(null);
+				$startDate.current = null;
+			}
+			if (date === 'dueDate') {
+				setDueDate(null);
+				$dueDate.current = null;
+			}
+
+			if (task) {
+				updateTask({ ...task, [date]: null });
+			}
+		},
+		[$startDate, $dueDate, task, updateTask]
+	);
+
 	return (
 		<>
 			<TaskRow
@@ -137,8 +174,11 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{formatDateString(startDate?.toISOString() || task?.startDate) ||
-								'Set Start Date'}
+							{startDate
+								? formatDateString(startDate.toISOString())
+								: task?.startDate
+								? formatDateString(task?.startDate)
+								: 'Set Start Date'}
 						</div>
 					}
 					selected={
@@ -157,6 +197,18 @@ function DueDates() {
 					}}
 					mode={'single'}
 				/>
+				{task?.startDate ? (
+					<span
+						className="text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
+						onClick={() => {
+							handleResetDate('startDate');
+						}}
+					>
+						<TrashIcon className="w-[14px] h-[14px]" />
+					</span>
+				) : (
+					<></>
+				)}
 			</TaskRow>
 
 			<TaskRow
@@ -176,8 +228,11 @@ function DueDates() {
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
-							{formatDateString(dueDate?.toISOString() || task?.dueDate) ||
-								'Set Due Date'}
+							{dueDate
+								? formatDateString(dueDate.toISOString())
+								: task?.dueDate
+								? formatDateString(task?.dueDate)
+								: 'Set Due Date'}
 						</div>
 					}
 					selected={
@@ -195,6 +250,18 @@ function DueDates() {
 					}}
 					mode={'single'}
 				/>
+				{task?.dueDate ? (
+					<span
+						className="text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
+						onClick={() => {
+							handleResetDate('dueDate');
+						}}
+					>
+						<TrashIcon className="w-[14px] h-[14px]" />
+					</span>
+				) : (
+					<></>
+				)}
 			</TaskRow>
 		</>
 	);
