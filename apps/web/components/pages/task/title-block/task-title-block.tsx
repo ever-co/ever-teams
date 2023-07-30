@@ -5,6 +5,7 @@ import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
 import TitleLoader from './title-loader';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
+import { Tooltip } from 'lib/components';
 
 const TaskTitleBlock = () => {
 	const { updateTitle } = useTeamTasks();
@@ -18,6 +19,7 @@ const TaskTitleBlock = () => {
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
+	const [copied, setCopied] = useState<boolean>(false);
 	const [task] = useRecoilState(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
@@ -57,6 +59,8 @@ const TaskTitleBlock = () => {
 
 	const copyTitle = () => {
 		navigator.clipboard.writeText(title);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 1500);
 	};
 
 	const copyTaskNumber = () => {
@@ -76,26 +80,10 @@ const TaskTitleBlock = () => {
 								disabled={!edit}
 								ref={titleDOM}
 							></textarea>
-							{!edit && (
-								<button
-									className="flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
-									onClick={copyTitle}
-								>
-									<Image
-										src="/assets/svg/copy.svg"
-										alt="edit header"
-										width={17}
-										height={17}
-										style={{ height: '17px' }}
-										className="cursor-pointer mr-1"
-									/>
-									Copy Title
-								</button>
-							)}
 						</div>
 
 						{edit ? (
-							<div className="flex flex-col items-start transition-all ">
+							<div className="flex flex-col items-start transition-all">
 								<button ref={saveButton} onClick={() => saveTitle(title)}>
 									<Image
 										src="/assets/svg/tick.svg"
@@ -118,7 +106,7 @@ const TaskTitleBlock = () => {
 								</button>
 							</div>
 						) : (
-							<div className="flex flex-col items-start">
+							<div className="flex flex-col items-center space-y-2">
 								<button ref={editButton} onClick={() => setEdit(true)}>
 									<Image
 										src="/assets/svg/edit-header-pencil.svg"
@@ -128,6 +116,19 @@ const TaskTitleBlock = () => {
 										style={{ height: '28px' }}
 										className="cursor-pointer"
 									/>
+								</button>
+
+								<button className="text-[#B1AEBC]" onClick={copyTitle}>
+									<Tooltip label={copied ? 'Copied' : 'Copy Title'} enabled>
+										<Image
+											src="/assets/svg/copy.svg"
+											alt="edit header"
+											width={17}
+											height={17}
+											style={{ height: '17px' }}
+											className="cursor-pointer mr-1"
+										/>
+									</Tooltip>
 								</button>
 							</div>
 						)}
