@@ -806,9 +806,7 @@ export function TaskStatus({
 						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
 					</svg>
 				) : (
-					<>
-						<>{showIcon && active && icon}</>
-					</>
+					<>{showIcon && active && icon}</>
 				)}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
@@ -977,7 +975,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											as={Fragment}
 											disabled={disabled}
 										>
-											<li className="mb-3 cursor-pointer ">
+											<li className="mb-3 cursor-pointer outline-none">
 												<TaskStatus
 													showIcon={showIcon}
 													{...item}
