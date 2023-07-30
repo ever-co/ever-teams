@@ -261,7 +261,8 @@ function InputFilters({ hook, profile }: Props) {
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm(
 					'p-3 px-5 flex space-x-2 input-border rounded-xl items-center',
-					hook.filterType === 'status' && ['bg-gray-lighter']
+					hook.filterType === 'status' && ['bg-gray-lighter'],
+					'min-h-[49px]'
 				)}
 				onClick={() => hook.toggleFilterType('status')}
 			>
