@@ -25,6 +25,7 @@ import { TrashIcon } from 'lib/components/svgs';
 import { clsxm } from '@app/utils';
 
 import { DatePicker } from '../../../../ui/DatePicker';
+import Link from 'next/link';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -54,12 +55,19 @@ const TaskMainInfo = () => {
 				wrapperClassName="mt-5"
 			>
 				{task?.creator && (
-					<ProfileInfo
-						profilePicSrc={task?.creator?.imageUrl}
-						names={`${task?.creator?.firstName || ''} ${
+					<Link
+						title={`${task?.creator?.firstName || ''} ${
 							task?.creator?.lastName || ''
 						}`}
-					/>
+						href={`/profile/${task.creatorId}`}
+					>
+						<ProfileInfo
+							profilePicSrc={task?.creator?.imageUrl}
+							names={`${task?.creator?.firstName || ''} ${
+								task?.creator?.lastName || ''
+							}`}
+						/>
+					</Link>
 				)}
 			</TaskRow>
 			<TaskRow
@@ -69,12 +77,16 @@ const TaskMainInfo = () => {
 			>
 				<div className="flex flex-col gap-3">
 					{task?.members?.map((member: any) => (
-						<Fragment key={member.id}>
+						<Link
+							key={member.id}
+							title={member.fullName}
+							href={`/profile/${member.userId}`}
+						>
 							<ProfileInfo
 								names={member.fullName}
 								profilePicSrc={member.user?.imageUrl}
 							/>
-						</Fragment>
+						</Link>
 					))}
 
 					{ManageMembersPopover(activeTeam?.members || [], task)}
