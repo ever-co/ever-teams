@@ -2,6 +2,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { isURL } from 'class-validator';
 import { Avatar, DropdownItem, Tooltip } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
 import stc from 'string-to-color';
@@ -44,7 +45,7 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 				>
 					<TeamItem
 						title={team.name}
-						count={team?.members?.length || 0}
+						count={team.members?.length || 0}
 						className="py-2 mb-0"
 						logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
 					/>
@@ -109,7 +110,7 @@ export function TeamItem({
 					)}
 					style={{ background: color || `${stc(title)}80` }}
 				>
-					{logo ? (
+					{logo && isURL(logo) ? (
 						<Avatar
 							size={27}
 							className="relative cursor-pointer"
