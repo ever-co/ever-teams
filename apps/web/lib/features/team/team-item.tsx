@@ -1,8 +1,7 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
 import { IOrganizationTeamList } from '@app/interfaces';
-import { clsxm } from '@app/utils';
-import { isURL } from 'class-validator';
+import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, DropdownItem, Tooltip } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
 import stc from 'string-to-color';
@@ -110,7 +109,7 @@ export function TeamItem({
 					)}
 					style={{ background: color || `${stc(title)}80` }}
 				>
-					{logo && isURL(logo) ? (
+					{logo && isValidUrl(logo) ? (
 						<Avatar
 							size={27}
 							className="relative cursor-pointer"
