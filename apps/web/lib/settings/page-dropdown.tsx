@@ -79,14 +79,15 @@ export const PaginationDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-[150px] max-w-sm"
+				className="min-w-[150px] max-w-sm z-10"
 				buttonClassName={clsxm(
-					'py-0 font-medium h-[45px] w-[145px]',
+					'py-0 font-medium h-[45px] w-[145px] z-10 outline-none',
 					paginationList.length === 0 && ['py-2']
 				)}
 				value={paginationItem}
 				onChange={onChangeActiveTeam}
 				items={items}
+				optionsClassName={'outline-none'}
 			></Dropdown>
 		</>
 	);
