@@ -5,6 +5,7 @@ import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
 import TitleLoader from './title-loader';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
+import { Tooltip } from 'lib/components';
 import { useToast } from '@components/ui/use-toast';
 import { useTranslation } from 'lib/i18n';
 
@@ -21,6 +22,7 @@ const TaskTitleBlock = () => {
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
+	const [copied, setCopied] = useState<boolean>(false);
 	const [task] = useRecoilState(detailedTaskState);
 	const [title, setTitle] = useState<string>('');
 
@@ -69,6 +71,8 @@ const TaskTitleBlock = () => {
 
 	const copyTitle = () => {
 		navigator.clipboard.writeText(title);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 1500);
 	};
 
 	const copyTaskNumber = () => {
@@ -88,32 +92,16 @@ const TaskTitleBlock = () => {
 							<textarea
 								className={`w-full ${
 									edit && 'textAreaOutline'
-								} bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border-2 border-transparent scrollbar-hide md:!leading-[47px]`}
+								} bg-transparent resize-none text-black dark:text-white not-italic font-medium text-2xl items-start pl-2 outline-1 rounded-md border-2 border-transparent scrollbar-hide`}
 								onChange={handleTaskTitleChange}
 								value={title}
 								disabled={!edit}
 								ref={titleDOM}
 							></textarea>
-							{!edit && (
-								<button
-									className="absolute bottom-[-15px] right-0 flex items-center text-[#B1AEBC] text-xs xl:-ml-8 md:mt-14 mt-0"
-									onClick={copyTitle}
-								>
-									<Image
-										src="/assets/svg/copy.svg"
-										alt="edit header"
-										width={17}
-										height={17}
-										style={{ height: '17px' }}
-										className="cursor-pointer mr-1"
-									/>
-									Copy Title
-								</button>
-							)}
 						</div>
 
 						{edit ? (
-							<div className="flex flex-col items-start transition-all ml-1">
+							<div className="flex flex-col items-start transition-all">
 								<button ref={saveButton} onClick={() => saveTitle(title)}>
 									<Image
 										src="/assets/svg/tick.svg"
@@ -136,7 +124,7 @@ const TaskTitleBlock = () => {
 								</button>
 							</div>
 						) : (
-							<div className="flex flex-col items-start">
+							<div className="flex flex-col items-center space-y-2">
 								<button ref={editButton} onClick={() => setEdit(true)}>
 									<Image
 										src="/assets/svg/edit-header-pencil.svg"
@@ -146,6 +134,19 @@ const TaskTitleBlock = () => {
 										style={{ height: '28px' }}
 										className="cursor-pointer"
 									/>
+								</button>
+
+								<button className="text-[#B1AEBC]" onClick={copyTitle}>
+									<Tooltip label={copied ? 'Copied' : 'Copy Title'} enabled>
+										<Image
+											src="/assets/svg/copy.svg"
+											alt="edit header"
+											width={17}
+											height={17}
+											style={{ height: '17px' }}
+											className="cursor-pointer mr-1"
+										/>
+									</Tooltip>
 								</button>
 							</div>
 						)}

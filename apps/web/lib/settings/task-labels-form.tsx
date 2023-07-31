@@ -148,15 +148,14 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
-									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] h-[46px] gap-0"
+									className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] h-[46px] gap-2"
 									onClick={() => {
 										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
-									<span className="mr-[11px]">
-										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									</span>
+									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
+
 									{trans.CREATE_NEW_LABEL}
 								</Button>
 							)}
@@ -227,7 +226,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								</>
 							)}
 
-							{!formOnly && (
+							{!formOnly && taskLabels?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{trans.LIST_OF_LABELS}

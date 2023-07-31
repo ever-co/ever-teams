@@ -61,7 +61,12 @@ const IssueCard = ({ related }: { related: boolean }) => {
 			</div>
 			<hr />
 
-			<div className={clsxm('flex flex-col', hidden && ['hidden'])}>
+			<div
+				className={clsxm(
+					'flex flex-col max-h-80 overflow-y-auto',
+					hidden && ['hidden']
+				)}
+			>
 				{linkedTasks.map((task) => {
 					return <TaskLinkedIssue key={task.id} task={task} />;
 				})}

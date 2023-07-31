@@ -1,13 +1,12 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
-import { clsxm } from '@app/utils';
+import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, Text, Tooltip } from 'lib/components';
 // import { MailIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { isURL } from 'class-validator';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
@@ -52,7 +51,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					backgroundColor: `${stc(fullname)}80`,
 				}}
 			>
-				{imageUrl && isURL(imageUrl) ? (
+				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
 						size={60}
 						className="relative cursor-pointer"

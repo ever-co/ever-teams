@@ -3,6 +3,7 @@ import Image from 'next/image';
 import React, { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
+import { clsxm } from '@app/utils';
 
 const TaskPublicity = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -17,8 +18,11 @@ const TaskPublicity = () => {
 
 	return (
 		<div
-			className="h-[38px] border-y border-solid border-color-[rgba(0,0,0,0.07)] bg-[#FBFAFA] dark:bg-dark--theme
-details-label px-4 flex justify-between"
+			className={clsxm(
+				'h-[38px] border-y border-solid border-color-[rgba(0,0,0,0.07)]',
+				'bg-[#FBFAFA] dark:bg-dark--theme-light',
+				'details-label px-4 flex justify-between'
+			)}
 		>
 			{task?.public ? (
 				<>

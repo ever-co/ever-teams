@@ -959,11 +959,11 @@ export function StatusDropdown<T extends TStatusItem>({
 							leaveFrom="transform scale-100 opacity-100"
 							leaveTo="transform scale-95 opacity-0"
 							className={clsxm(
-								'absolute right-0 left-0 z-40 min-w-min',
+								'absolute right-0 left-0 z-40 min-w-min outline-none',
 								issueType === 'issue' && ['left-auto right-auto']
 							)}
 						>
-							<Listbox.Options className={'outline-none'}>
+							<Listbox.Options className="outline-none border-none">
 								<Card
 									shadow="bigger"
 									className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white"

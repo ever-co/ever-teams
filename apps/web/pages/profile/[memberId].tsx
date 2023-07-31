@@ -1,8 +1,7 @@
 import { imgTitle } from '@app/helpers';
 import { useOrganizationTeams, useUserProfilePage } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
-import { clsxm } from '@app/utils';
-import { isURL } from 'class-validator';
+import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
@@ -37,9 +36,9 @@ const Profile = () => {
 	return (
 		<>
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader className={clsxm(hookFilterType && ['pb-0'])}>
+				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2')}>
 					{/* Breadcrumb */}
-					<div className="flex items-center space-x-5">
+					<div className="flex items-center space-x-3">
 						<Link href="/">
 							<ArrowLeft />
 						</Link>
@@ -98,7 +97,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 					backgroundColor: `${stc(userName)}80`,
 				}}
 			>
-				{imageUrl && isURL(imageUrl) ? (
+				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
 						size={size}
 						className="relative cursor-pointer"
