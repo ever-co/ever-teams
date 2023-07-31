@@ -37,7 +37,7 @@ const Team = () => {
 				<MainLayout className="items-start">
 					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 						<Container>
-							<div className="flex items-center space-x-5">
+							<div className="flex items-center space-x-3">
 								<Link href="/">
 									<ArrowLeft />
 								</Link>

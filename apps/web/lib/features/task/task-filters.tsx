@@ -261,7 +261,8 @@ function InputFilters({ hook, profile }: Props) {
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm(
 					'p-3 px-5 flex space-x-2 input-border rounded-xl items-center',
-					hook.filterType === 'status' && ['bg-gray-lighter']
+					hook.filterType === 'status' && ['bg-gray-lighter'],
+					'min-h-[49px]'
 				)}
 				onClick={() => hook.toggleFilterType('status')}
 			>
@@ -287,7 +288,10 @@ function InputFilters({ hook, profile }: Props) {
 			>
 				<Button
 					loading={loading}
-					className="dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full"
+					className={clsxm(
+						'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full',
+						'min-h-[49px]'
+					)}
 				>
 					{trans.common.ASSIGN_TASK}
 				</Button>

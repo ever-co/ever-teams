@@ -24,7 +24,8 @@ import { useTranslation } from 'lib/i18n';
 import { TrashIcon } from 'lib/components/svgs';
 import { clsxm } from '@app/utils';
 
-import { DatePicker } from '../../../../ui/DatePicker';
+import { DatePicker } from 'components/ui/DatePicker';
+import Link from 'next/link';
 
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -54,12 +55,19 @@ const TaskMainInfo = () => {
 				wrapperClassName="mt-5"
 			>
 				{task?.creator && (
-					<ProfileInfo
-						profilePicSrc={task?.creator?.imageUrl}
-						names={`${task?.creator?.firstName || ''} ${
+					<Link
+						title={`${task?.creator?.firstName || ''} ${
 							task?.creator?.lastName || ''
 						}`}
-					/>
+						href={`/profile/${task.creatorId}`}
+					>
+						<ProfileInfo
+							profilePicSrc={task?.creator?.imageUrl}
+							names={`${task?.creator?.firstName || ''} ${
+								task?.creator?.lastName || ''
+							}`}
+						/>
+					</Link>
 				)}
 			</TaskRow>
 			<TaskRow
@@ -69,12 +77,16 @@ const TaskMainInfo = () => {
 			>
 				<div className="flex flex-col gap-3">
 					{task?.members?.map((member: any) => (
-						<Fragment key={member.id}>
+						<Link
+							key={member.id}
+							title={member.fullName}
+							href={`/profile/${member.userId}`}
+						>
 							<ProfileInfo
 								names={member.fullName}
 								profilePicSrc={member.user?.imageUrl}
 							/>
-						</Fragment>
+						</Link>
 					))}
 
 					{ManageMembersPopover(activeTeam?.members || [], task)}
@@ -174,8 +186,8 @@ function DueDates() {
 							? (new Date($startDate.current) as Date)
 							: undefined
 					}
-					onSelect={(date: any) => {
-						if (date && (!$dueDate.current || date < $dueDate.current)) {
+					onSelect={(date) => {
+						if (date && (!$dueDate.current || date <= $dueDate.current)) {
 							setStartDate(date);
 
 							if (task) {
@@ -226,10 +238,13 @@ function DueDates() {
 					selected={
 						$dueDate.current ? (new Date($dueDate.current) as Date) : undefined
 					}
-					onSelect={(date: any) => {
+					onSelect={(date) => {
 						// const cdate = new Date();
 
-						if ($startDate.current && date && date >= $startDate.current) {
+						if (
+							(!$startDate.current && date) ||
+							($startDate.current && date && date >= $startDate.current)
+						) {
 							setDueDate(date);
 							if (task) {
 								updateTask({ ...task, dueDate: date?.toISOString() });

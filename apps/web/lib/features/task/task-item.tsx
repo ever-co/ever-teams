@@ -134,7 +134,7 @@ export function TaskAvatars({
 				const size = 30;
 
 				return (
-					<Link key={i} title={userName} href={`/profile/${member.id}`}>
+					<Link key={i} title={userName} href={`/profile/${member.userId}`}>
 						<div
 							className={clsx(
 								`w-[${size}px] h-[${size}px]`,
