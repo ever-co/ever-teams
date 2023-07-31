@@ -92,7 +92,7 @@ const TaskTitleBlock = () => {
 							<textarea
 								className={`w-full ${
 									edit && 'textAreaOutline'
-								} bg-transparent resize-none text-black dark:text-white not-italic font-medium md:text-4xl text-2xl items-start pl-2 outline-1 rounded-md border-2 border-transparent scrollbar-hide md:!leading-[47px]`}
+								} bg-transparent resize-none text-black dark:text-white not-italic font-medium text-2xl items-start pl-2 outline-1 rounded-md border-2 border-transparent scrollbar-hide`}
 								onChange={handleTaskTitleChange}
 								value={title}
 								disabled={!edit}
