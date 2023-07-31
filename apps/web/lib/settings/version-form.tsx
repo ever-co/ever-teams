@@ -117,15 +117,13 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
-									className="font-normal justify-start border-2 rounded-[10px] text-md w-[230px] gap-0 h-[46px]"
+									className="font-normal justify-center border-2 rounded-[10px] text-md w-[230px] gap-2 h-[46px]"
 									onClick={() => {
 										setEdit(null);
 										setCreateNew(true);
 									}}
 								>
-									<span className="mr-[11px]">
-										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									</span>
+									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									{trans.CREATE_NEW_VERSION}
 								</Button>
 							)}
@@ -181,7 +179,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								</>
 							)}
 
-							{!formOnly && (
+							{!formOnly && taskVersion?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
 										{trans.LIST_OF_VERSONS}
