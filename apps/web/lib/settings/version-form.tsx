@@ -168,7 +168,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="font-normal py-4 px-4 rounded-xl text-md dark:bg-light--theme-dark"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
