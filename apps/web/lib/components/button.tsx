@@ -61,7 +61,7 @@ export function Button({
 					variant === 'grey' && [
 						'disabled:opacity-40',
 						'bg-light--theme-dark',
-						'dark:bg-[#1D222A]',
+						'dark:bg-light--theme-dark',
 					],
 					variant === 'danger' && [
 						'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold',

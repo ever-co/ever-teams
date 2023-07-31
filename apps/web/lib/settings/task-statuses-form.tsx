@@ -223,7 +223,7 @@ export const TaskStatusesForm = ({
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md dark:bg-light--theme-dark"
+												className="font-normal py-4 px-4 rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
