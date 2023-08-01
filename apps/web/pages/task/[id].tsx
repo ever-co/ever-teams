@@ -47,7 +47,7 @@ const TaskDetails = () => {
 		<MainLayout showTimer={!profile.isAuthUser && isTrackingEnabled}>
 			<div className="pt-16 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<div className="flex items-center space-x-5">
+					<div className="flex items-center space-x-3">
 						<button
 							onClick={() => {
 								router.back();
@@ -74,7 +74,7 @@ const TaskDetails = () => {
 							{/* <ActivityBlock /> */}
 						</section>
 						<div className="flex flex-col lg:w-[400px] mt-4 lg:mt-0">
-							<div className="bg-white dark:bg-dark--theme flex flex-col text-red-700 rounded-xl ">
+							<div className="bg-white dark:bg-dark--theme-light flex flex-col text-red-700 rounded-xl ">
 								<TaskDetailsAside />
 							</div>
 							<TaskProperties task={task} />

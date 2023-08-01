@@ -21,7 +21,7 @@ export const SidebarAccordian = ({
 			<div
 				className={`rounded-2xl bg-[transparent]  ${className} shadow-[0px 14px 34px rgba(0, 0, 0, 0.05)] dark:bg-dark--theme `}
 			>
-				<Disclosure>
+				<Disclosure defaultOpen>
 					{({ open }) => (
 						<>
 							<Disclosure.Button

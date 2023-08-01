@@ -4,7 +4,6 @@ import {
 	ITaskStatusItemList,
 	ITaskStatusStack,
 	ITeamTask,
-	IVersionProperty,
 	Nullable,
 	Tag,
 } from '@app/interfaces';
@@ -105,10 +104,10 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 				),
 			};
 
-			if (value.name) {
-				acc[value.name] = value;
-			} else if (value.value) {
+			if (value.value) {
 				acc[value.value] = value;
+			} else if (value.name) {
+				acc[value.name] = value;
 			}
 			return acc;
 		}, {} as TStatus<any>);
@@ -197,7 +196,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 			const value = statusItems[key as ITaskStatusStack[T]];
 			return {
 				...value,
-				name: key,
+				name: key.split('-').join(' '),
 			} as Required<TStatusItem>;
 		});
 	}, [statusItems]);
@@ -205,8 +204,10 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 	const [values, setValues] = useState<ITaskStatusStack[T][]>([]);
 
-	const item = items.find((r) => r.name === value);
-
+	const item: TStatusItem | undefined = useMemo(
+		() => items.find((r) => r.value === value),
+		[items, value]
+	);
 	useEffect(() => {
 		setValue($value);
 	}, [$value]);
@@ -318,19 +319,6 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 	);
 }
 
-//! =============== Task version ================= //
-
-export const versionProperties: TStatus<IVersionProperty> = {
-	'Version 1': {
-		// icon: <LoginIcon />,
-		bgColor: '#FFFFFF',
-	},
-	'Version 2': {
-		// icon: <LoginIcon />,
-		bgColor: '#FFFFFF',
-	},
-};
-
 export function useTaskVersionsValue() {
 	const { taskVersion } = useTaskVersion();
 
@@ -352,7 +340,6 @@ export function VersionPropertiesDropown({
 	children,
 }: TTaskStatusesDropdown<'version'>) {
 	const taskVersionsValue = useTaskVersionsValue();
-	// console.log(taskVersionsValue);
 
 	const { item, items, onChange, values } = useStatusValue<'version'>({
 		status: taskVersionsValue,
@@ -906,7 +893,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	const dropdown = (
 		<div className={clsxm('relative', className)}>
 			<Listbox
-				value={value?.name || null}
+				value={value?.value || (multiple ? [] : null)}
 				onChange={onChange}
 				disabled={disabled}
 			>
@@ -959,11 +946,11 @@ export function StatusDropdown<T extends TStatusItem>({
 							leaveFrom="transform scale-100 opacity-100"
 							leaveTo="transform scale-95 opacity-0"
 							className={clsxm(
-								'absolute right-0 left-0 z-40 min-w-min',
+								'absolute right-0 left-0 z-40 min-w-min outline-none',
 								issueType === 'issue' && ['left-auto right-auto']
 							)}
 						>
-							<Listbox.Options className={'outline-none'}>
+							<Listbox.Options className="outline-none border-none">
 								<Card
 									shadow="bigger"
 									className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white"
@@ -971,7 +958,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									{items.map((item, i) => (
 										<Listbox.Option
 											key={i}
-											value={item.name}
+											value={item.value}
 											as={Fragment}
 											disabled={disabled}
 										>
@@ -980,7 +967,7 @@ export function StatusDropdown<T extends TStatusItem>({
 													showIcon={showIcon}
 													{...item}
 													cheched={
-														item.name ? values.includes(item.name) : false
+														item.value ? values.includes(item.value) : false
 													}
 													className={clsxm(
 														issueType === 'issue' && [

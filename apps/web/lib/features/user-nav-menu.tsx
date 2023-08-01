@@ -1,6 +1,6 @@
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useAuthenticateUser } from '@app/hooks';
-import { clsxm } from '@app/utils';
+import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import {
@@ -29,7 +29,6 @@ import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import ThemesPopup from 'lib/components/themes-popup';
 import { ThemeInterface } from '@app/interfaces';
 import stc from 'string-to-color';
-import { isURL } from 'class-validator';
 import { imgTitle } from '@app/helpers';
 
 export function UserNavAvatar() {
@@ -53,7 +52,7 @@ export function UserNavAvatar() {
 						backgroundColor: `${stc(name || '')}80`,
 					}}
 				>
-					{imageUrl && isURL(imageUrl) ? (
+					{imageUrl && isValidUrl(imageUrl) ? (
 						<Avatar
 							size={35}
 							className="relative cursor-pointer"
@@ -127,7 +126,7 @@ function UserNavMenu() {
 							backgroundColor: `${stc(name || '')}80`,
 						}}
 					>
-						{imageUrl && isURL(imageUrl) ? (
+						{imageUrl && isValidUrl(imageUrl) ? (
 							<Avatar
 								size={72}
 								className="relative cursor-pointer"

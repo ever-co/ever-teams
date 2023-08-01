@@ -1,8 +1,7 @@
 import { imgTitle } from '@app/helpers';
 import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
-import { clsxm } from '@app/utils';
-import { isURL } from 'class-validator';
+import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
@@ -146,7 +145,7 @@ export function TaskAvatars({
 								backgroundColor: `${stc(userName)}80`,
 							}}
 						>
-							{userImageUrl && isURL(userImageUrl) ? (
+							{userImageUrl && isValidUrl(userImageUrl) ? (
 								<Avatar
 									size={size}
 									className="relative cursor-pointer"
