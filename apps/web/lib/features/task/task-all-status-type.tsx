@@ -49,7 +49,7 @@ export function TaskAllStatusTypes({
 							{...taskStatus[task?.status]}
 							className="text-xs"
 							active={!!task?.status}
-							name={task?.status.split('-').join(' ') || 'Status'}
+							name={task?.status?.split('-').join(' ') || 'Status'}
 						/>
 					)}
 
@@ -57,21 +57,21 @@ export function TaskAllStatusTypes({
 						{...taskPriorities[task?.priority || 'Low']}
 						className="text-xs"
 						active={!!task?.priority}
-						name={task?.priority.split('-').join(' ') || 'Priority'}
+						name={task?.priority?.split('-').join(' ') || 'Priority'}
 					/>
 
 					<TaskStatus
 						{...taskSizes[task?.size || 'Medium']}
 						className="text-xs"
 						active={!!task?.size}
-						name={task?.size.split('-').join(' ') || 'Size'}
+						name={task?.size?.split('-').join(' ') || 'Size'}
 					/>
 
 					<TaskStatus
 						{...taskLabels[task?.label || 'WEB']}
 						className="text-xs"
 						active={!!task?.label}
-						name={task?.label.split('-').join(' ') || 'Label'}
+						name={task?.label?.split('-').join(' ') || 'Label'}
 					/>
 				</div>
 			</div>
