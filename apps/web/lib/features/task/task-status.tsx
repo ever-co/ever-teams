@@ -4,7 +4,6 @@ import {
 	ITaskStatusItemList,
 	ITaskStatusStack,
 	ITeamTask,
-	IVersionProperty,
 	Nullable,
 	Tag,
 } from '@app/interfaces';
