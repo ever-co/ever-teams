@@ -41,6 +41,7 @@ export type ITeamTask = {
 	creator: Creator;
 	taskNumber: string;
 	label?: string;
+	parentId?: string;
 } & ITaskStatusStack;
 
 type SelectedTeam = Pick<

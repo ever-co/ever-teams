@@ -1,18 +1,21 @@
 import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
-import { detailedTaskState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { useTeamTasks } from '@app/hooks';
+import { detailedTaskState, teamTasksState } from '@app/stores';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { useModal, useTeamTasks } from '@app/hooks';
 import TitleLoader from './title-loader';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import { Tooltip } from 'lib/components';
+import { Button, Tooltip } from 'lib/components';
 import { useToast } from '@components/ui/use-toast';
 import { useTranslation } from 'lib/i18n';
+import CreateParentTask from '../ParentTask';
 
 const TaskTitleBlock = () => {
+	const modal = useModal();
 	const { updateTitle } = useTeamTasks();
 	const { toast } = useToast();
 	const { trans } = useTranslation('taskDetails');
+	const { trans: translation } = useTranslation();
 
 	//DOM elements
 	const titleDOM = useRef<HTMLTextAreaElement>(null);
@@ -24,6 +27,7 @@ const TaskTitleBlock = () => {
 	const [edit, setEdit] = useState<boolean>(false);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [task] = useRecoilState(detailedTaskState);
+	const tasks = useRecoilValue(teamTasksState);
 	const [title, setTitle] = useState<string>('');
 
 	//Hooks and functions
@@ -181,10 +185,19 @@ const TaskTitleBlock = () => {
 						#123 Parent Issue
 					</span>
 				</div>
-				<div className=" bg-transparent rounded text-center min-w-48 h-6 mr-2 flex justify-center items-center py-4 px-2 border border-1 border-[#f07258] cursor-pointer box-border">
-					<p className="text-[#f07258] font-medium text-xs">
+				<div className=" bg-transparent rounded text-center min-w-48 flex justify-center items-center cursor-pointer box-border">
+					{/* <p className="text-[#f07258] font-medium text-xs">
 						<span className="mr-1">+</span> New Issue
-					</p>
+					</p> */}
+					<Button
+						variant="outline-danger"
+						className="text-[#f07258] font-medium text-xs py-2 px-0 min-w-[100px]"
+						onClick={modal.openModal}
+					>
+						+ {translation.common.ADD_PARENT}
+					</Button>
+
+					{task && <CreateParentTask modal={modal} task={task} />}
 				</div>
 			</div>
 			<button

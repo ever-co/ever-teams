@@ -79,6 +79,7 @@ export const en = {
 		JOIN_REQUEST: 'Request to join',
 		PERMISSION: 'Permission',
 		SEARCH: 'Search',
+		ADD_PARENT: 'Add Parent',
 	},
 	pages: {
 		home: {
