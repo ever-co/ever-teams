@@ -16,8 +16,11 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
+import { useCallbackRef } from '../useCallbackRef';
 
-export function useTaskVersion() {
+export function useTaskVersion(
+	onVersionCreated?: (version: ITaskVersionCreate) => void
+) {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
@@ -30,6 +33,8 @@ export function useTaskVersion() {
 		useQuery(editTaskVersionAPI);
 
 	const [taskVersion, setTaskVersion] = useRecoilState(taskVersionListState);
+	const $onVersionCreated = useCallbackRef(onVersionCreated);
+
 	const [taskVersionFetching, setTaskVersionFetching] = useRecoilState(
 		taskVersionFetchingState
 	);
@@ -67,6 +72,9 @@ export function useTaskVersion() {
 					user?.tenantId || ''
 				).then((res) => {
 					if (res?.data?.data && res?.data?.data?.name) {
+						$onVersionCreated.current &&
+							$onVersionCreated.current(res?.data?.data);
+
 						queryCall(
 							user?.tenantId as string,
 							user?.employee?.organizationId as string,
@@ -83,6 +91,7 @@ export function useTaskVersion() {
 		},
 
 		[
+			$onVersionCreated,
 			createQueryCall,
 			createTaskVersionLoading,
 			deleteTaskVersionLoading,

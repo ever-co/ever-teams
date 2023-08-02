@@ -765,7 +765,7 @@ export function TickSquareIcon({ className }: IClassName) {
 			<path
 				d="M12.4917 0.166748H5.50841C2.47508 0.166748 0.666748 1.97508 0.666748 5.00841V11.9834C0.666748 15.0251 2.47508 16.8334 5.50841 16.8334H12.4834C15.5167 16.8334 17.3251 15.0251 17.3251 11.9917V5.00841C17.3334 1.97508 15.5251 0.166748 12.4917 0.166748ZM12.9834 6.58342L8.25841 11.3084C8.14175 11.4251 7.98341 11.4917 7.81675 11.4917C7.65008 11.4917 7.49175 11.4251 7.37508 11.3084L5.01675 8.95008C4.77508 8.70842 4.77508 8.30841 5.01675 8.06675C5.25841 7.82508 5.65841 7.82508 5.90008 8.06675L7.81675 9.98341L12.1001 5.70008C12.3417 5.45842 12.7417 5.45842 12.9834 5.70008C13.2251 5.94175 13.2251 6.33342 12.9834 6.58342Z"
 				stroke="#34AC6B"
-				stroke-width="1.3"
+				strokeWidth="1.3"
 				fill="transparent"
 			/>
 		</svg>
@@ -1913,9 +1913,9 @@ export function UncheckedBoxIcon({ className }: IClassName) {
 				d="M5.8125 13.625H9.1875C12 13.625 13.125 12.5 13.125 9.6875V6.3125C13.125 3.5 12 2.375 9.1875 2.375H5.8125C3 2.375 1.875 3.5 1.875 6.3125V9.6875C1.875 12.5 3 13.625 5.8125 13.625Z"
 				stroke="#292D32"
 				stroke-opacity="0.4"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -2046,9 +2046,9 @@ export function UnlinkIcon({ className }: IClassName) {
 				y2="48"
 				fill="none"
 				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="24"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="24"
 			/>
 			<line
 				x1="160"
@@ -2057,9 +2057,9 @@ export function UnlinkIcon({ className }: IClassName) {
 				y2="188"
 				fill="none"
 				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="24"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="24"
 			/>
 			<line
 				x1="68"
@@ -2068,9 +2068,9 @@ export function UnlinkIcon({ className }: IClassName) {
 				y2="96"
 				fill="none"
 				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="24"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="24"
 			/>
 			<line
 				x1="208"
@@ -2079,25 +2079,25 @@ export function UnlinkIcon({ className }: IClassName) {
 				y2="160"
 				fill="none"
 				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="24"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="24"
 			/>
 			<path
 				d="M67,132.4l-7.3,7.3a40,40,0,0,0,56.6,56.6l7.3-7.3"
 				fill="none"
 				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="24"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="24"
 			/>
 			<path
 				d="M189,123.6l7.3-7.3a40,40,0,0,0-56.6-56.6L132.4,67"
 				fill="none"
 				stroke="#000"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				stroke-width="24"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				strokeWidth="24"
 			/>
 		</svg>
 	);
@@ -2172,15 +2172,15 @@ export function PlusIcon({ className }: IClassName) {
 			<path
 				d="M6.5 10H13.5"
 				stroke="#292D32"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={clsxm(className)}
 			/>
 			<path
 				d="M10 13.5V6.5"
 				stroke="#292D32"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={clsxm(className)}
 			/>
 		</svg>
@@ -2307,25 +2307,25 @@ export function LockIcon({ className }: IClassName) {
 			<path
 				d="M3 5V4C3 2.345 3.5 1 6 1C8.5 1 9 2.345 9 4V5"
 				// stroke="#293241"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
 				d="M6 9.25C6.69036 9.25 7.25 8.69036 7.25 8C7.25 7.30964 6.69036 6.75 6 6.75C5.30964 6.75 4.75 7.30964 4.75 8C4.75 8.69036 5.30964 9.25 6 9.25Z"
 				// stroke="#293241"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
 				d="M8.5 11H3.5C1.5 11 1 10.5 1 8.5V7.5C1 5.5 1.5 5 3.5 5H8.5C10.5 5 11 5.5 11 7.5V8.5C11 10.5 10.5 11 8.5 11Z"
 				// stroke="#293241"
-				stroke-width="1.2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 		</svg>
@@ -2345,41 +2345,41 @@ export function GlobIcon({ className }: IClassName) {
 			<path
 				d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
 				// stroke="#292D32"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
 				d="M8.0001 3H9.0001C7.0501 8.84 7.0501 15.16 9.0001 21H8.0001"
 				// stroke="#292D32"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
 				d="M15 3C16.95 8.84 16.95 15.16 15 21"
 				// stroke="#292D32"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
 				d="M3 16V15C8.84 16.95 15.16 16.95 21 15V16"
 				// stroke="#292D32"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
 				d="M3 8.99998C8.84 7.04998 15.16 7.04998 21 8.99998"
 				// stroke="#292D32"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 		</svg>
