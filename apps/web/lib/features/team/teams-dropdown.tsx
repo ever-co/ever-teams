@@ -64,7 +64,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							disabled={!user?.isEmailVerified}
 						>
 							<PlusIcon className="w-[16px] h-[16px]" />
-							{trans.common.CREATE_NEW_TEAMS}
+							{trans.common.CREATE_TEAM}
 						</Button>
 					</Tooltip>
 				)}
