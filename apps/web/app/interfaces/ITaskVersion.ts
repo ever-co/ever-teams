@@ -24,4 +24,5 @@ export interface ITaskVersionCreate {
 	organizationId?: string;
 	tenantId?: string | undefined | null;
 	organizationTeamId?: string | undefined | null;
+	value?: string;
 }
