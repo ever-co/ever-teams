@@ -1,5 +1,5 @@
-import { useModal } from '@app/hooks';
-import { detailedTaskState } from '@app/stores';
+import { useModal, useSyncRef, useTeamTasks } from '@app/hooks';
+import { detailedTaskState, taskVersionListState } from '@app/stores';
 import {
 	ActiveTaskLabelsDropdown,
 	ActiveTaskPropertiesDropdown,
@@ -9,7 +9,7 @@ import {
 	EpicPropertiesDropdown as TaskEpicDropdown,
 } from 'lib/features';
 import { useCallback, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
 import { Button, Card, Modal } from 'lib/components';
@@ -21,12 +21,19 @@ import {
 	TaskStatusesForm,
 } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
+import { ITaskVersionCreate } from '@app/interfaces';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
 const TaskSecondaryInfo = () => {
-	const [task] = useRecoilState(detailedTaskState);
+	const task = useRecoilValue(detailedTaskState);
+	const taskVersion = useRecoilValue(taskVersionListState);
+	const $taskVersion = useSyncRef(taskVersion);
+
+	const { handleStatusUpdate } = useTeamTasks();
+
 	const { trans } = useTranslation('taskDetails');
+
 	const modal = useModal();
 	const [formTarget, setFormTarget] = useState<StatusType | null>(null);
 
@@ -38,6 +45,15 @@ const TaskSecondaryInfo = () => {
 			};
 		},
 		[modal]
+	);
+
+	const onVersionCreated = useCallback(
+		(version: ITaskVersionCreate) => {
+			if ($taskVersion.current.length === 0) {
+				handleStatusUpdate(version.value || version.name, 'version', task);
+			}
+		},
+		[$taskVersion, task, handleStatusUpdate]
 	);
 
 	return (
@@ -142,7 +158,11 @@ const TaskSecondaryInfo = () => {
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
 					{formTarget === 'version' && (
-						<VersionForm onCreated={modal.closeModal} formOnly={true} />
+						<VersionForm
+							onVersionCreated={onVersionCreated}
+							onCreated={modal.closeModal}
+							formOnly={true}
+						/>
 					)}
 					{formTarget === 'status' && (
 						<TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />

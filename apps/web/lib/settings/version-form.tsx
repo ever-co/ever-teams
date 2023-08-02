@@ -9,7 +9,7 @@ import { useRecoilState } from 'recoil';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskVersion } from '@app/hooks';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { ITaskVersionItemList } from '@app/interfaces';
+import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
 
 import { useTranslation } from 'lib/i18n';
 import { clsxm } from '@app/utils';
@@ -17,9 +17,14 @@ import { clsxm } from '@app/utils';
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
+	onVersionCreated?: (version: ITaskVersionCreate) => void;
 };
 
-export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
+export const VersionForm = ({
+	formOnly = false,
+	onCreated,
+	onVersionCreated,
+}: StatusForm) => {
 	const { trans } = useTranslation('settingsTeam');
 
 	const [user] = useRecoilState(userState);
@@ -35,7 +40,7 @@ export const VersionForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		editTaskVersion,
 		createTaskVersionLoading,
 		editTaskVersionLoading,
-	} = useTaskVersion();
+	} = useTaskVersion(onVersionCreated);
 
 	useEffect(() => {
 		if (!edit) {

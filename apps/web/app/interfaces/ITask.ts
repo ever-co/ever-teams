@@ -91,7 +91,7 @@ interface Creator {
 
 export type ITaskPriority = 'Highest' | 'High' | 'Medium' | 'Low' | 'Lowest';
 
-export type IVersionProperty = 'Version 1' | 'Version 2';
+export type IVersionProperty = string;
 
 export type IEpicProperty = string;
 
