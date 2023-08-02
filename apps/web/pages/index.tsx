@@ -13,7 +13,7 @@ import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
-import { HomeIcon } from 'lib/components/svgs';
+import { PeopleIcon } from 'lib/components/svgs';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -23,7 +23,7 @@ function MainPage() {
 		<MainLayout>
 			<MainHeader>
 				<div className="flex items-center space-x-3">
-					<HomeIcon className="dark:stroke-white stroke-dark h-5 w-5" />
+					<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-5 w-5" />
 					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 				</div>
 
