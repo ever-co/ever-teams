@@ -23,7 +23,7 @@ function MainPage() {
 		<MainLayout>
 			<MainHeader>
 				<div className="flex items-center space-x-3">
-					<PeopleIcon className="dark:stroke-white stroke-dark h-5 w-5" />
+					<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-5 w-5" />
 					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 				</div>
 
