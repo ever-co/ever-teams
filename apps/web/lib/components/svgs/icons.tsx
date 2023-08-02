@@ -79,11 +79,12 @@ export function MoonIcon({
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#7E7991]', className)}
+			stroke="currentColor"
+			className={clsxm('', className)}
 		>
 			<path
 				d="M1.52232 9.31521C1.79232 13.1777 5.06982 16.3202 8.99232 16.4927C11.7598 16.6127 14.2348 15.3227 15.7198 13.2902C16.3348 12.4577 16.0048 11.9027 14.9773 12.0902C14.4748 12.1802 13.9573 12.2177 13.4173 12.1952C9.74982 12.0452 6.74982 8.97772 6.73482 5.35522C6.72732 4.38022 6.92982 3.45772 7.29732 2.61772C7.70232 1.68771 7.21482 1.24522 6.27732 1.64272C3.30732 2.89522 1.27482 5.88771 1.52232 9.31521Z"
-				strokeWidth="1.5"
+				strokeWidth="1"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -123,42 +124,42 @@ export function PeopleIcon({ className }: IClassName) {
 		>
 			<path
 				d="M18.0001 7.16C17.9401 7.15 17.8701 7.15 17.8101 7.16C16.4301 7.11 15.3301 5.98 15.3301 4.58C15.3301 3.15 16.4801 2 17.9101 2C19.3401 2 20.4901 3.16 20.4901 4.58C20.4801 5.98 19.3801 7.11 18.0001 7.16Z"
-				className="dark:stroke-white"
+				className={className}
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
 			<path
 				d="M16.9704 14.4402C18.3404 14.6702 19.8504 14.4302 20.9104 13.7202C22.3204 12.7802 22.3204 11.2402 20.9104 10.3002C19.8404 9.59016 18.3104 9.35016 16.9404 9.59016"
-				className="dark:stroke-white"
+				className={className}
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
 			<path
 				d="M5.97047 7.16C6.03047 7.15 6.10047 7.15 6.16047 7.16C7.54047 7.11 8.64047 5.98 8.64047 4.58C8.64047 3.15 7.49047 2 6.06047 2C4.63047 2 3.48047 3.16 3.48047 4.58C3.49047 5.98 4.59047 7.11 5.97047 7.16Z"
-				className="dark:stroke-white"
+				className={className}
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
 			<path
 				d="M7.00043 14.4402C5.63043 14.6702 4.12043 14.4302 3.06043 13.7202C1.65043 12.7802 1.65043 11.2402 3.06043 10.3002C4.13043 9.59016 5.66043 9.35016 7.03043 9.59016"
-				className="dark:stroke-white"
+				className={className}
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
 			<path
 				d="M12.0001 14.6302C11.9401 14.6202 11.8701 14.6202 11.8101 14.6302C10.4301 14.5802 9.33008 13.4502 9.33008 12.0502C9.33008 10.6202 10.4801 9.47021 11.9101 9.47021C13.3401 9.47021 14.4901 10.6302 14.4901 12.0502C14.4801 13.4502 13.3801 14.5902 12.0001 14.6302Z"
-				className="dark:stroke-white"
+				className={className}
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
 			<path
 				d="M9.08973 17.7804C7.67973 18.7204 7.67973 20.2603 9.08973 21.2003C10.6897 22.2703 13.3097 22.2703 14.9097 21.2003C16.3197 20.2603 16.3197 18.7204 14.9097 17.7804C13.3197 16.7204 10.6897 16.7204 9.08973 17.7804Z"
-				className="dark:stroke-white"
+				className={className}
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
@@ -2288,6 +2289,98 @@ export function HomeIcon({ className }: IClassName) {
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+export function LockIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="12"
+			height="12"
+			viewBox="0 0 12 12"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M3 5V4C3 2.345 3.5 1 6 1C8.5 1 9 2.345 9 4V5"
+				// stroke="#293241"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M6 9.25C6.69036 9.25 7.25 8.69036 7.25 8C7.25 7.30964 6.69036 6.75 6 6.75C5.30964 6.75 4.75 7.30964 4.75 8C4.75 8.69036 5.30964 9.25 6 9.25Z"
+				// stroke="#293241"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M8.5 11H3.5C1.5 11 1 10.5 1 8.5V7.5C1 5.5 1.5 5 3.5 5H8.5C10.5 5 11 5.5 11 7.5V8.5C11 10.5 10.5 11 8.5 11Z"
+				// stroke="#293241"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
+
+export function GlobIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M8.0001 3H9.0001C7.0501 8.84 7.0501 15.16 9.0001 21H8.0001"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M15 3C16.95 8.84 16.95 15.16 15 21"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M3 16V15C8.84 16.95 15.16 16.95 21 15V16"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M3 8.99998C8.84 7.04998 15.16 7.04998 21 8.99998"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
 			/>
 		</svg>
 	);

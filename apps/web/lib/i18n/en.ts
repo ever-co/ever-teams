@@ -32,9 +32,8 @@ export const en = {
 		TASK_TITTLE: 'Task Title',
 		CREATE_TASK: 'Create new task',
 		LINK_TASK: 'Link task',
-		CREATE_TEAM: 'Create new team',
+		CREATE_TEAM: 'Create New Team',
 		VERIFY_ACCOUNT_MSG: 'Please Verify your account before start using the app',
-		CREATE_NEW_TEAMS: 'Create new teams',
 		CREATE_ROLE: 'Create Role',
 		CREATE: 'Create',
 		CREATE_ISSUE: 'Create issue',
@@ -98,7 +97,7 @@ export const en = {
 		},
 
 		profile: {
-			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Task Profile'],
+			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Member Tasks'],
 		},
 
 		taskDetails: {

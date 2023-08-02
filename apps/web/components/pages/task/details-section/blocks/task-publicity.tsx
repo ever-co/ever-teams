@@ -1,9 +1,9 @@
 import { detailedTaskState } from '@app/stores';
-import Image from 'next/image';
 import React, { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
 import { clsxm } from '@app/utils';
+import { GlobIcon, LockIcon } from 'lib/components/svgs';
 
 const TaskPublicity = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -27,14 +27,15 @@ const TaskPublicity = () => {
 			{task?.public ? (
 				<>
 					<div className="text-[#293241] dark:text-white flex items-center">
-						<Image
+						{/* <Image
 							src="/assets/svg/public.svg"
 							alt="private task"
 							width={14}
 							height={14}
 							style={{ height: '14px', marginRight: '5px' }}
 							className="mb-1"
-						/>
+						/> */}
+						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] mr-2 w-4" />
 						<div>This task is Public</div>
 					</div>
 					<div
@@ -47,14 +48,15 @@ const TaskPublicity = () => {
 			) : (
 				<>
 					<div className="text-[#293241] dark:text-white flex items-center ">
-						<Image
+						{/* <Image
 							src="/assets/svg/lock.svg"
 							alt="private task"
 							width={14}
 							height={14}
 							style={{ height: '14px', marginRight: '5px' }}
 							className="mb-1"
-						/>
+						/> */}
+						<LockIcon className="stroke-black dark:stroke-[#a6a2b2] mr-2 w-4" />
 						<div>This task is Private</div>
 					</div>
 					<div

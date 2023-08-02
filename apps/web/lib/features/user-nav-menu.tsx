@@ -187,7 +187,7 @@ function UserNavMenu() {
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex space-x-3 items-center font-normal">
-							<PeopleIcon className="w-5 h-5 stroke-default" />{' '}
+							<PeopleIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
 							<span>{trans.common.TEAM}</span>
 						</Link>
 					</li>
