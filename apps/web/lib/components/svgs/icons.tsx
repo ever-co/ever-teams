@@ -79,11 +79,12 @@ export function MoonIcon({
 			viewBox="0 0 18 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#7E7991]', className)}
+			stroke="currentColor"
+			className={clsxm('', className)}
 		>
 			<path
 				d="M1.52232 9.31521C1.79232 13.1777 5.06982 16.3202 8.99232 16.4927C11.7598 16.6127 14.2348 15.3227 15.7198 13.2902C16.3348 12.4577 16.0048 11.9027 14.9773 12.0902C14.4748 12.1802 13.9573 12.2177 13.4173 12.1952C9.74982 12.0452 6.74982 8.97772 6.73482 5.35522C6.72732 4.38022 6.92982 3.45772 7.29732 2.61772C7.70232 1.68771 7.21482 1.24522 6.27732 1.64272C3.30732 2.89522 1.27482 5.88771 1.52232 9.31521Z"
-				strokeWidth="1.5"
+				strokeWidth="1"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -2288,6 +2289,98 @@ export function HomeIcon({ className }: IClassName) {
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+
+export function LockIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="12"
+			height="12"
+			viewBox="0 0 12 12"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M3 5V4C3 2.345 3.5 1 6 1C8.5 1 9 2.345 9 4V5"
+				// stroke="#293241"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M6 9.25C6.69036 9.25 7.25 8.69036 7.25 8C7.25 7.30964 6.69036 6.75 6 6.75C5.30964 6.75 4.75 7.30964 4.75 8C4.75 8.69036 5.30964 9.25 6 9.25Z"
+				// stroke="#293241"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M8.5 11H3.5C1.5 11 1 10.5 1 8.5V7.5C1 5.5 1.5 5 3.5 5H8.5C10.5 5 11 5.5 11 7.5V8.5C11 10.5 10.5 11 8.5 11Z"
+				// stroke="#293241"
+				stroke-width="1.2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
+
+export function GlobIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M8.0001 3H9.0001C7.0501 8.84 7.0501 15.16 9.0001 21H8.0001"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M15 3C16.95 8.84 16.95 15.16 15 21"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M3 16V15C8.84 16.95 15.16 16.95 21 15V16"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
+			/>
+			<path
+				d="M3 8.99998C8.84 7.04998 15.16 7.04998 21 8.99998"
+				// stroke="#292D32"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				className={className}
 			/>
 		</svg>
 	);
