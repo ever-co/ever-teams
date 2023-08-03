@@ -142,6 +142,7 @@ function PasscodeScreen({
 									? 'success'
 									: undefined
 							}
+							autoFocus={form.authScreen.screen === 'passcode'}
 						/>
 						{(form.errors['code'] || form.errors['email']) && (
 							<Text.Error className="self-start justify-self-start">
