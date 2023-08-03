@@ -119,7 +119,9 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 
 		useEffect(() => {
 			if (autoFocus) {
-				inputsRef.current[0].focus();
+				setTimeout(() => {
+					inputsRef.current[0].focus();
+				}, 100);
 			}
 		}, [autoFocus]);
 
