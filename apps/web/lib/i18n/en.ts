@@ -80,6 +80,7 @@ export const en = {
 		PERMISSION: 'Permission',
 		SEARCH: 'Search',
 		ADD_PARENT: 'Add Parent',
+		CHANGE_PARENT: 'Change Parent',
 	},
 	pages: {
 		home: {

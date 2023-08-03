@@ -1,10 +1,10 @@
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { TaskInput } from 'lib/features';
-import { IHookModal, useQuery, useTeamTasks } from '@app/hooks';
+import { IHookModal, useTeamTasks } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useState } from 'react';
-import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
+import cloneDeep from 'lodash/cloneDeep';
 
 function CreateParentTask({
 	modal,
@@ -21,9 +21,14 @@ function CreateParentTask({
 	const onTaskSelect = useCallback(
 		async (parentTask: ITeamTask | undefined) => {
 			if (!parentTask) return;
+			const childTask = cloneDeep(task);
 			setLoading(true);
 
-			await updateTask({ ...task, parentId: parentTask.id });
+			await updateTask({
+				...childTask,
+				parentId: parentTask.id,
+				parent: parentTask,
+			});
 
 			loadTeamTasksData(false).finally(() => {
 				setLoading(false);
