@@ -51,7 +51,7 @@ export function DatePicker({
 					{customInput}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0" align="start">
+			<PopoverContent className="w-auto p-0 border-none" align="start">
 				<Calendar selected={selected as any} initialFocus {...props} />
 			</PopoverContent>
 		</Popover>
