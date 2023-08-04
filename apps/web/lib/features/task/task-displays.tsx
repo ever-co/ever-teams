@@ -14,7 +14,6 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 			label={task?.title || ''}
 			placement="top"
 			enabled={(task?.title && task?.title.length > 60) || false}
-			className="inline-block"
 		>
 			<span className="flex">
 				{task && (

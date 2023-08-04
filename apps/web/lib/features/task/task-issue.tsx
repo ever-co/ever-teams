@@ -103,6 +103,7 @@ export function TaskIssuesDropdown({
 export function ActiveTaskIssuesDropdown({
 	...props
 }: IActiveTaskStatuses<'issueType'>) {
+	const { trans } = useTranslation('taskDetails');
 	const { item, items, onChange, field } = useActiveTaskStatus(
 		props,
 		taskIssues,
@@ -121,10 +122,10 @@ export function ActiveTaskIssuesDropdown({
 			enabled={item?.name !== 'Epic' && !props.task?.parentId}
 			showIssueLabels={props.showIssueLabels}
 			disabledReason={
-				item?.name !== 'Epic'
-					? 'Epic not preset Epic not preset Epic not preset'
-					: !props.task?.parentId
-					? 'Already parent'
+				item?.name === 'Epic'
+					? trans.TASK_IS_ALREADY_EPIC
+					: props.task?.parentId
+					? trans.TASK_HAS_PARENT
 					: ''
 			}
 		/>
