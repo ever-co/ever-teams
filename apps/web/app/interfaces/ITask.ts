@@ -43,6 +43,7 @@ export type ITeamTask = {
 	label?: string;
 	parentId?: string;
 	parent?: ITeamTask;
+	issueType?: string;
 } & ITaskStatusStack;
 
 type SelectedTeam = Pick<

@@ -131,7 +131,7 @@ export function useTeamTasks() {
 				});
 			}
 		},
-		[authUser.current]
+		[authUser]
 	);
 
 	// Reload tasks after active team changed
@@ -152,7 +152,7 @@ export function useTeamTasks() {
 
 			setActiveTeamTask(tasks.find((ts) => ts.id === active_taskid) || null);
 		}
-	}, [setActiveTeamTask, tasks, firstLoad]);
+	}, [setActiveTeamTask, tasks, firstLoad, authUser]);
 
 	// Queries calls
 	const deleteTask = useCallback(
@@ -184,7 +184,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[createQueryCall, setAllTasks]
+		[createQueryCall, deepCheckAndUpdateTasks]
 	);
 
 	const updateTask = useCallback(
@@ -194,7 +194,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[setAllTasks, updateQueryCall]
+		[updateQueryCall, deepCheckAndUpdateTasks]
 	);
 
 	const updateTitle = useCallback(
@@ -211,7 +211,7 @@ export function useTeamTasks() {
 			}
 			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setTasksFetching]
 	);
 
 	const updateDescription = useCallback(
@@ -228,7 +228,7 @@ export function useTeamTasks() {
 			}
 			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setTasksFetching]
 	);
 
 	const updatePublicity = useCallback(
@@ -245,7 +245,7 @@ export function useTeamTasks() {
 			}
 			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setTasksFetching]
 	);
 
 	const handleStatusUpdate = useCallback(
@@ -283,7 +283,7 @@ export function useTeamTasks() {
 
 			return Promise.resolve();
 		},
-		[updateTask]
+		[updateTask, setTasksFetching]
 	);
 
 	/**
