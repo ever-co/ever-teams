@@ -118,8 +118,15 @@ export function ActiveTaskIssuesDropdown({
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			issueType="issue"
-			enabled={item?.name !== 'Epic'}
+			enabled={item?.name !== 'Epic' && !props.task?.parentId}
 			showIssueLabels={props.showIssueLabels}
+			disabledReason={
+				item?.name !== 'Epic'
+					? 'Epic not preset Epic not preset Epic not preset'
+					: !props.task?.parentId
+					? 'Already parent'
+					: ''
+			}
 		/>
 	);
 }

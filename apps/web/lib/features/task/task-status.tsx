@@ -831,6 +831,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	largerWidth = false,
 	bordered = false,
 	sidebarUI = false,
+	disabledReason = '',
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -849,6 +850,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	largerWidth?: boolean;
 	bordered?: boolean;
 	sidebarUI?: boolean;
+	disabledReason?: string;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -860,38 +862,42 @@ export function StatusDropdown<T extends TStatusItem>({
 	const hasBtnIcon = issueType === 'status' && !showButtonOnly;
 
 	const button = (
-		<TaskStatus
-			{...currentValue}
-			bordered={bordered}
-			forDetails={forDetails}
-			showIcon={showIcon}
-			active={!!value}
-			showIssueLabels={showIssueLabels}
-			issueType={issueType}
-			sidebarUI={sidebarUI}
-			className={clsxm(
-				`justify-between capitalize ${sidebarUI ? 'text-xs' : ''} `,
-				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
-				forDetails && !value
-					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-					: 'bg-[#F2F2F2] '
-			)}
-			titleClassName={clsxm(
-				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
-			)}
-		>
-			{/* If the issueType equal to status thee render the chevron down icon.  */}
-			{issueType === 'status' && !showButtonOnly && (
-				<ChevronDownIcon
-					className={clsxm(
-						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
-						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
-						hasBtnIcon && ['whitespace-nowrap w-5 h-5']
-					)}
-					aria-hidden="true"
-				/>
-			)}
-		</TaskStatus>
+		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
+			<TaskStatus
+				{...currentValue}
+				bordered={bordered}
+				forDetails={forDetails}
+				showIcon={showIcon}
+				active={!!value}
+				showIssueLabels={showIssueLabels}
+				issueType={issueType}
+				sidebarUI={sidebarUI}
+				className={clsxm(
+					`justify-between capitalize ${sidebarUI ? 'text-xs' : ''} `,
+					!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
+					forDetails && !value
+						? 'bg-transparent border border-solid border-color-[#F2F2F2]'
+						: 'bg-[#F2F2F2] '
+				)}
+				titleClassName={clsxm(
+					hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
+				)}
+			>
+				{/* If the issueType equal to status thee render the chevron down icon.  */}
+				{issueType === 'status' && !showButtonOnly && (
+					<ChevronDownIcon
+						className={clsxm(
+							'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
+							(!value || currentValue.bordered) && [
+								'text-dark dark:text-white',
+							],
+							hasBtnIcon && ['whitespace-nowrap w-5 h-5']
+						)}
+						aria-hidden="true"
+					/>
+				)}
+			</TaskStatus>
+		</Tooltip>
 	);
 
 	const dropdown = (
