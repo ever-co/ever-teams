@@ -267,3 +267,26 @@ html.dark {
 .textAreaOutline:focus {
 	@apply ring-0 outline-gray-200 dark:outline-none dark:border-2 dark:border-[#464242];
 }
+
+@keyframes zoom-in-out {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.2);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.2);
+	}
+}
