@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { convertMsToTime, secondsToTime } from '@app/helpers/date';
 import { ITeamTask } from '@app/interfaces/ITask';
 import {
@@ -32,6 +33,7 @@ import { useTeamTasks } from './useTeamTasks';
 import isEqual from 'lodash/isEqual';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 import { useAuthenticateUser } from './useAuthenticateUser';
+import moment from 'moment';
 
 const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-team';
 
@@ -95,11 +97,17 @@ function useLocalTimeCounter(
 			const localStatus = getLocalCounterStatus();
 			localStatus && setLocalTimerStatus(localStatus);
 
+			const timerStatusDate = timerStatus?.lastLog?.createdAt
+				? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 -
+				  timerStatus?.lastLog?.duration
+				: 0;
+
 			timerStatus &&
 				updateLocalTimerStatus({
 					runnedDateTime:
+						(timerStatus.running ? timerStatusDate || Date.now() : 0) ||
 						localStatus?.runnedDateTime ||
-						(timerStatus.running ? Date.now() : 0),
+						0,
 					running: timerStatus.running,
 					lastTaskId: timerStatus.lastLog?.taskId || null,
 				});
