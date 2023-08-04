@@ -116,6 +116,7 @@ export const en = {
 			EPIC: 'Epic',
 			STATUS: 'Status',
 			LABEL: 'Label',
+			LABELS: 'Labels',
 			SIZE: 'Size',
 			PRIORITY: 'Priority',
 			ESTIMATIONS: 'Estimations',

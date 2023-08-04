@@ -101,12 +101,13 @@ const TaskSecondaryInfo = () => {
 				</ActiveTaskStatusDropdown>
 			</TaskRow>
 
-			<TaskRow labelTitle={trans.LABEL} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.LABELS} wrapperClassName="mb-3">
 				<ActiveTaskLabelsDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
+					multiple
 				>
 					<Button
 						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
