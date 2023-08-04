@@ -35,7 +35,13 @@ export function Timer({ className }: IClassName) {
 				<div className="w-[11rem]">
 					<Text.Heading
 						as="h3"
-						className=" lg:text-4xl text-2xl tracking-wide font-normal"
+						className={`lg:text-4xl text-2xl tracking-wide font-normal ${
+							timerStatus?.running &&
+							timerStatus?.lastLog?.source &&
+							timerStatus?.lastLog?.source !== TimerSource.BROWSER
+								? 'text-[#888] dark:text-[#888]'
+								: ''
+						} `}
 					>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 						<span className="text-sm">:{pad(ms_p)}</span>
@@ -131,18 +137,24 @@ export function MinTimerFrame({ className }: IClassName) {
 export function TimerRunningSourceIcon({ source }: { source: TimerSource }) {
 	switch (source) {
 		case TimerSource.MOBILE:
-			return <DevicePhoneMobileIcon className="w-5 h-5" />;
+			return (
+				<DevicePhoneMobileIcon className="w-4 h-4 animate-pulse" color="#888" />
+			);
 		/** Uncomment this if we want to show BROWSER's status too */
 		// case TimerSource.BROWSER:
-		// return <GlobeAltIcon className="w-5 h-5" />;
+		// return <GlobeAltIcon className="w-4 h-4" />;
 		case TimerSource.BROWSER_EXTENSION:
-			return <GlobeAltIcon className="w-5 h-5" />;
+			return <GlobeAltIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		case TimerSource.DESKTOP:
-			return <ComputerDesktopIcon className="w-5 h-5" />;
+			return (
+				<ComputerDesktopIcon className="w-4 h-4 animate-pulse" color="#888" />
+			);
 		case TimerSource.UPWORK:
-			return <ArrowUturnUpIcon className="w-5 h-5" />;
+			return (
+				<ArrowUturnUpIcon className="w-4 h-4 animate-pulse" color="#888" />
+			);
 		case TimerSource.HUBSTAFF:
-			return <LifebuoyIcon className="w-5 h-5" />;
+			return <LifebuoyIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		default:
 			return <></>;
 	}
