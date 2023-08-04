@@ -194,6 +194,10 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const items = useMemo(() => {
 		return Object.keys(statusItems).map((key) => {
 			const value = statusItems[key as ITaskStatusStack[T]];
+
+			if (!value.value) {
+				value.value = key;
+			}
 			return {
 				...value,
 				name: key.split('-').join(' '),
@@ -893,7 +897,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	const dropdown = (
 		<div className={clsxm('relative', className)}>
 			<Listbox
-				value={value?.value || (multiple ? [] : null)}
+				value={value?.value || value?.name || (multiple ? [] : null)}
 				onChange={onChange}
 				disabled={disabled}
 			>
@@ -958,7 +962,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									{items.map((item, i) => (
 										<Listbox.Option
 											key={i}
-											value={item.value}
+											value={item.value || item.name}
 											as={Fragment}
 											disabled={disabled}
 										>
