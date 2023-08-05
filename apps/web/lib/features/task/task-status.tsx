@@ -76,6 +76,8 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		showIssueLabels?: boolean;
 		forDetails?: boolean;
 		sidebarUI?: boolean;
+
+		forParentChildRelationship?: boolean;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(

@@ -1,5 +1,11 @@
 import { useModal } from '@app/hooks';
-import { IClassName, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
+import {
+	IClassName,
+	IssueType,
+	ITaskIssue,
+	ITeamTask,
+	Nullable,
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import {
@@ -110,24 +116,53 @@ export function ActiveTaskIssuesDropdown({
 		'issueType'
 	);
 
+	const validTransitions: Record<IssueType, TStatusItem[]> = {
+		[IssueType.EPIC]: [],
+		[IssueType.STORY]: items.filter((it) =>
+			[IssueType.TASK, IssueType.BUG].includes(it.value as IssueType)
+		),
+
+		[IssueType.TASK]: items.filter((it) =>
+			[IssueType.STORY, IssueType.BUG].includes(it.value as IssueType)
+		),
+
+		[IssueType.BUG]: items.filter((it) =>
+			[IssueType.STORY, IssueType.TASK].includes(it.value as IssueType)
+		),
+	};
+	let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
+
+	if (props.task && props.task?.issueType && props.task.parent) {
+		updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+
+		// If parent task is already Story then user can not assign current task as a Story
+		if (props.task.parent.issueType === 'Story') {
+			updatedItemsBasedOnTaskIssueType =
+				updatedItemsBasedOnTaskIssueType.filter((it) => it.value !== 'Story');
+		}
+	} else if (props.task && props.task?.issueType) {
+		updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
+	} else {
+		// Default show types in Dropdown
+		updatedItemsBasedOnTaskIssueType = items;
+	}
+
 	return (
 		<StatusDropdown
 			sidebarUI={props.sidebarUI}
 			className={props.className}
-			items={items}
+			items={
+				props.forParentChildRelationship
+					? updatedItemsBasedOnTaskIssueType
+					: items
+			}
 			value={item || (taskIssues['Task'] as Required<TStatusItem>)}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			issueType="issue"
-			enabled={item?.name !== 'Epic' && !props.task?.parentId}
+			enabled={item?.name !== 'Epic'}
 			showIssueLabels={props.showIssueLabels}
-			disabledReason={
-				item?.name === 'Epic'
-					? trans.TASK_IS_ALREADY_EPIC
-					: props.task?.parentId
-					? trans.TASK_HAS_PARENT
-					: ''
-			}
+			disabledReason={item?.name === 'Epic' ? trans.TASK_IS_ALREADY_EPIC : ''}
 		/>
 	);
 }
