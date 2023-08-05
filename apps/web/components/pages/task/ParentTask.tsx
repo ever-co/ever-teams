@@ -59,7 +59,7 @@ function CreateParentTask({
 					<TaskInput
 						viewType="one-view"
 						fullWidthCombobox={true}
-						task={null}
+						task={task}
 						autoAssignTaskAuth={false}
 						showTaskNumber={true}
 						createOnEnterClick={false}
@@ -67,6 +67,7 @@ function CreateParentTask({
 						onTaskClick={onTaskSelect}
 						onTaskCreated={onTaskSelect}
 						cardWithoutShadow={true}
+						forParentChildRelationship={true}
 					/>
 				</Card>
 			</div>
