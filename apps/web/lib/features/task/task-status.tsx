@@ -676,6 +676,7 @@ export function ActiveTaskLabelsDropdown(
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			multiple={props.multiple}
 		>
 			{props.children}
 		</StatusDropdown>

@@ -107,7 +107,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					multiple
+					// multiple={true}
 				>
 					<Button
 						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"

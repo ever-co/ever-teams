@@ -83,22 +83,27 @@ export function AuthLayout({ children, title, description }: Props) {
 				{/* Content side */}
 				<div
 					className={clsxm(
-						'w-full lg:w-1/2 scale-100 lg:scale-90 xl:scale-100 h-screen min-h-[500px]',
+						'w-full lg:w-1/2 h-screen min-h-[500px]',
 						'flex flex-col items-center justify-between ml-auto'
 					)}
 				>
-					<div className="w-11/12 md:w-1/2 mt-20 lg:mt-23 flex flex-col items-center">
-						{title && (
-							<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
-								{title}
-							</Text.Heading>
-						)}
+					<div className="mt-20 lg:mt-23 flex flex-col items-center">
+						<div className="w-11/12 md:w-1/2">
+							{title && (
+								<Text.Heading
+									as="h1"
+									className="mb-3 text-center min-w-[400px]"
+								>
+									{title}
+								</Text.Heading>
+							)}
 
-						{description && (
-							<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px]  min-h-[10vh]">
-								{description}
-							</Text>
-						)}
+							{description && (
+								<Text className="text-sm md:text-lg text-gray-400 text-center mb-[56px] min-w-[400px] min-h-[10vh]">
+									{description}
+								</Text>
+							)}
+						</div>
 
 						{children}
 					</div>
