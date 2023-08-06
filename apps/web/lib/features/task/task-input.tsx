@@ -57,6 +57,8 @@ type Props = {
 	usersTaskCreatedAssignTo?: { id: string }[];
 	onTaskCreated?: (task: ITeamTask | undefined) => void;
 	cardWithoutShadow?: boolean;
+
+	forParentChildRelationship?: boolean;
 } & PropsWithChildren;
 
 /**
@@ -218,6 +220,17 @@ export function TaskInput(props: Props) {
 				});
 	}, [datas, props, autoActiveTask, onTaskCreated, viewType]);
 
+	let updatedTaskList: ITeamTask[] = [];
+	if (props.forParentChildRelationship) {
+		if (props.task?.issueType === 'Story') {
+			updatedTaskList = datas.filteredTasks.filter(
+				(item) => item.issueType === 'Epic'
+			);
+		} else {
+			updatedTaskList = datas.filteredTasks;
+		}
+	}
+
 	const inputField = (
 		<InputField
 			value={taskName}
@@ -268,7 +281,11 @@ export function TaskInput(props: Props) {
 						ref={ignoreElementRef}
 					>
 						{!datas.hasCreateForm ? (
-							<ActiveTaskIssuesDropdown key={inputTask.id} task={inputTask} />
+							<ActiveTaskIssuesDropdown
+								key={inputTask.id}
+								task={inputTask}
+								forParentChildRelationship={true}
+							/>
 						) : (
 							<TaskIssuesDropdown
 								showIssueLabels={false}
@@ -301,6 +318,8 @@ export function TaskInput(props: Props) {
 			fullWidth={props.fullWidthCombobox}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
+			updatedTaskList={updatedTaskList}
+			forParentChildRelationship={props.forParentChildRelationship}
 		/>
 	);
 
@@ -344,6 +363,8 @@ function TaskCard({
 	fullWidth,
 	handleTaskCreation,
 	cardWithoutShadow,
+	forParentChildRelationship,
+	updatedTaskList,
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
@@ -351,6 +372,8 @@ function TaskCard({
 	fullWidth?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
+	forParentChildRelationship?: boolean;
+	updatedTaskList?: ITeamTask[];
 }) {
 	const { trans } = useTranslation();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
@@ -446,23 +469,42 @@ function TaskCard({
 
 				{/* Task list */}
 				<ul className="my-6">
-					{datas.filteredTasks?.map((task, i) => {
-						const last = (datas.filteredTasks?.length || 0) - 1 === i;
-						const active = datas.inputTask === task;
+					{forParentChildRelationship &&
+						updatedTaskList?.map((task, i) => {
+							const last = (datas.filteredTasks?.length || 0) - 1 === i;
+							const active = datas.inputTask === task;
 
-						return (
-							<li key={task.id} ref={active ? activeTaskEl : undefined}>
-								<TaskItem
-									task={task}
-									selected={active}
-									onClick={onItemClick}
-									className="cursor-pointer"
-								/>
+							return (
+								<li key={task.id} ref={active ? activeTaskEl : undefined}>
+									<TaskItem
+										task={task}
+										selected={active}
+										onClick={onItemClick}
+										className="cursor-pointer"
+									/>
 
-								{!last && <Divider className="my-5" />}
-							</li>
-						);
-					})}
+									{!last && <Divider className="my-5" />}
+								</li>
+							);
+						})}
+					{!forParentChildRelationship &&
+						datas.filteredTasks?.map((task, i) => {
+							const last = (datas.filteredTasks?.length || 0) - 1 === i;
+							const active = datas.inputTask === task;
+
+							return (
+								<li key={task.id} ref={active ? activeTaskEl : undefined}>
+									<TaskItem
+										task={task}
+										selected={active}
+										onClick={onItemClick}
+										className="cursor-pointer"
+									/>
+
+									{!last && <Divider className="my-5" />}
+								</li>
+							);
+						})}
 				</ul>
 			</Card>
 

@@ -56,7 +56,7 @@ function TaskTimerSection({
 			shadow="bigger"
 			className={clsxm(
 				'w-full flex md:flex-row flex-col-reverse justify-between items-center mt-6',
-				'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]'
+				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>
 			{/* Task inputs */}

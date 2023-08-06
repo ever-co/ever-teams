@@ -66,13 +66,13 @@ export function Navbar({
 			) : (
 				<nav
 					className={clsxm(
-						'bg-white dark:bg-dark-high w-full nav-items--shadow',
+						'bg-white dark:bg-dark-high w-full nav-items--shadow dark:border-b-[0.125rem] dark:border-b-[#26272C]',
 						className
 					)}
 				>
 					<Container>
 						<div className="w-full flex justify-between items-center min-h-[70px]">
-							<EverTeamsLogo dash className=" w-4/5 md:w-full" />
+							<EverTeamsLogo dash className="w-4/5 md:w-full" />
 							{!notFound && (
 								<div className="flex md:space-x-5 space-x-2 items-center">
 									{publicTeam && (

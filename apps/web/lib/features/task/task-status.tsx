@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	IClassName,
 	ITaskStatusField,
@@ -76,6 +77,8 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		showIssueLabels?: boolean;
 		forDetails?: boolean;
 		sidebarUI?: boolean;
+
+		forParentChildRelationship?: boolean;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
@@ -759,7 +762,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
+				`py-2 md:px-3 px-2 flex items-center text-sm relative `,
 
 				sidebarUI
 					? 'text-dark space-x-3 rounded-[4px] font-[500]'
@@ -767,7 +770,11 @@ export function TaskStatus({
 
 				issueType === 'issue' && ['px-2 text-white'],
 
-				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+				active
+					? ['dark:text-default']
+					: [
+							'bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]',
+					  ],
 
 				bordered && ['input-border'],
 
@@ -831,6 +838,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	largerWidth = false,
 	bordered = false,
 	sidebarUI = false,
+	disabledReason = '',
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -849,6 +857,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	largerWidth?: boolean;
 	bordered?: boolean;
 	sidebarUI?: boolean;
+	disabledReason?: string;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -895,105 +904,107 @@ export function StatusDropdown<T extends TStatusItem>({
 	);
 
 	const dropdown = (
-		<div className={clsxm('relative', className)}>
-			<Listbox
-				value={value?.value || value?.name || (multiple ? [] : null)}
-				onChange={onChange}
-				disabled={disabled}
-			>
-				{({ open }) => (
-					<>
-						<Listbox.Button
-							as="div"
-							className={clsx(
-								!forDetails && 'w-full max-w-[170px]',
-								'cursor-pointer outline-none'
-							)}
-							style={{
-								width: largerWidth ? '160px' : '',
-							}}
-						>
-							{!multiple ? (
-								<Tooltip
-									enabled={hasBtnIcon && (value?.name || '').length > 10}
-									label={capitalize(value?.name) || ''}
-								>
-									{button}
-								</Tooltip>
-							) : (
-								<TaskStatus
-									{...defaultValue}
-									active={false}
-									className={clsxm(
-										'justify-between w-full capitalize',
-										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light'
-									)}
-									name={
-										values.length > 0
-											? `Items (${values.length})`
-											: defaultValue.name
-									}
-								>
-									<ChevronDownIcon
-										className={clsxm('h-5 w-5 text-default dark:text-white')}
-									/>
-								</TaskStatus>
-							)}
-						</Listbox.Button>
+		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
+			<div className={clsxm('relative', className)}>
+				<Listbox
+					value={value?.value || value?.name || (multiple ? [] : null)}
+					onChange={onChange}
+					disabled={disabled}
+				>
+					{({ open }) => (
+						<>
+							<Listbox.Button
+								as="div"
+								className={clsx(
+									!forDetails && 'w-full max-w-[170px]',
+									'cursor-pointer outline-none'
+								)}
+								style={{
+									width: largerWidth ? '160px' : '',
+								}}
+							>
+								{!multiple ? (
+									<Tooltip
+										enabled={hasBtnIcon && (value?.name || '').length > 10}
+										label={capitalize(value?.name) || ''}
+									>
+										{button}
+									</Tooltip>
+								) : (
+									<TaskStatus
+										{...defaultValue}
+										active={false}
+										className={clsxm(
+											'justify-between w-full capitalize',
+											'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light'
+										)}
+										name={
+											values.length > 0
+												? `Items (${values.length})`
+												: defaultValue.name
+										}
+									>
+										<ChevronDownIcon
+											className={clsxm('h-5 w-5 text-default dark:text-white')}
+										/>
+									</TaskStatus>
+								)}
+							</Listbox.Button>
 
-						<Transition
-							show={open && enabled}
-							enter="transition duration-100 ease-out"
-							enterFrom="transform scale-95 opacity-0"
-							enterTo="transform scale-100 opacity-100"
-							leave="transition duration-75 ease-out"
-							leaveFrom="transform scale-100 opacity-100"
-							leaveTo="transform scale-95 opacity-0"
-							className={clsxm(
-								'absolute right-0 left-0 z-40 min-w-min outline-none',
-								issueType === 'issue' && ['left-auto right-auto']
-							)}
-						>
-							<Listbox.Options className="outline-none border-none">
-								<Card
-									shadow="bigger"
-									className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white"
-								>
-									{items.map((item, i) => (
-										<Listbox.Option
-											key={i}
-											value={item.value || item.name}
-											as={Fragment}
-											disabled={disabled}
-										>
-											<li className="mb-3 cursor-pointer outline-none">
-												<TaskStatus
-													showIcon={showIcon}
-													{...item}
-													cheched={
-														item.value ? values.includes(item.value) : false
-													}
-													className={clsxm(
-														issueType === 'issue' && [
-															'rounded-md px-2 text-white',
-														],
-														`${sidebarUI ? 'rounded-[4px]' : ''}`,
-														`${bordered ? 'input-border' : ''}`
-													)}
-												/>
-											</li>
-										</Listbox.Option>
-									))}
-									{children && (
-										<Listbox.Button as="div">{children}</Listbox.Button>
-									)}
-								</Card>
-							</Listbox.Options>
-						</Transition>
-					</>
-				)}
-			</Listbox>
-		</div>
+							<Transition
+								show={open && enabled}
+								enter="transition duration-100 ease-out"
+								enterFrom="transform scale-95 opacity-0"
+								enterTo="transform scale-100 opacity-100"
+								leave="transition duration-75 ease-out"
+								leaveFrom="transform scale-100 opacity-100"
+								leaveTo="transform scale-95 opacity-0"
+								className={clsxm(
+									'absolute right-0 left-0 z-40 min-w-min outline-none',
+									issueType === 'issue' && ['left-auto right-auto']
+								)}
+							>
+								<Listbox.Options className="outline-none">
+									<Card
+										shadow="bigger"
+										className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white"
+									>
+										{items.map((item, i) => (
+											<Listbox.Option
+												key={i}
+												value={item.value || item.name}
+												as={Fragment}
+												disabled={disabled}
+											>
+												<li className="mb-3 cursor-pointer outline-none">
+													<TaskStatus
+														showIcon={showIcon}
+														{...item}
+														cheched={
+															item.value ? values.includes(item.value) : false
+														}
+														className={clsxm(
+															issueType === 'issue' && [
+																'rounded-md px-2 text-white',
+															],
+															`${sidebarUI ? 'rounded-[4px]' : ''}`,
+															`${bordered ? 'input-border' : ''}`
+														)}
+													/>
+												</li>
+											</Listbox.Option>
+										))}
+										{children && (
+											<Listbox.Button as="div">{children}</Listbox.Button>
+										)}
+									</Card>
+								</Listbox.Options>
+							</Transition>
+						</>
+					)}
+				</Listbox>
+			</div>
+		</Tooltip>
 	);
 
 	// return showButtonOnly ? button : dropdown; // To disable dropdown when showButton is true

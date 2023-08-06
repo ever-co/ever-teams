@@ -176,6 +176,7 @@ const TaskTitleBlock = () => {
 					task={task}
 					showIssueLabels={true}
 					sidebarUI={true}
+					forParentChildRelationship={true}
 				/>
 				{/* Creator Name */}
 				{task?.creator && (
@@ -243,7 +244,7 @@ const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
 	const modal = useModal();
 	const { trans: translation } = useTranslation();
 
-	return task ? (
+	return task && task.issueType !== 'Epic' ? (
 		<div className=" bg-transparent rounded text-center min-w-48 flex justify-center items-center cursor-pointer box-border">
 			<Button
 				variant="outline-danger"

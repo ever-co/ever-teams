@@ -20,7 +20,7 @@ import { timerSecondsState } from '@app/stores';
 export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
-		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
+		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{trans.common.NAME}
@@ -92,13 +92,16 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex items-center py-3 hidden',
-					active && ['border-primary-light border-[2px]'],
+					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025]',
+					active
+						? ['border-primary-light border-[0.1875rem]']
+						: ['dark:border dark:border-[#FFFFFF14]'],
+
 					className
 				)}
 			>
 				<div className="absolute -left-0">
-					<DraggerIcon />
+					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
 				{/* Show user name, email and image */}
