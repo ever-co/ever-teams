@@ -945,9 +945,14 @@ export function StatusDropdown<T extends TStatusItem>({
 									<TaskStatus
 										{...defaultValue}
 										active={false}
+										forDetails={forDetails}
+										sidebarUI={sidebarUI}
 										className={clsxm(
 											'justify-between w-full capitalize',
-											'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light'
+											sidebarUI && ['text-xs'],
+											'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+											forDetails &&
+												'bg-transparent border border-solid border-color-[#F2F2F2]'
 										)}
 										name={
 											values.length > 0
