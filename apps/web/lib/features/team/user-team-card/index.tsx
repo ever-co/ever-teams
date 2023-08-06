@@ -127,7 +127,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 w-1/5 lg:px-4 px-2"
+					className="2xl:w-48 w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 				/>
 				<VerticalSeparator />
 
