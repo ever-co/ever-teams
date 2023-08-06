@@ -20,7 +20,7 @@ import { timerSecondsState } from '@app/stores';
 export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
-		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden">
+		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{trans.common.NAME}

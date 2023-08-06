@@ -74,7 +74,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				name={name}
 				ref={mergeRefs([ref, inputRef])}
 				className={clsxm(
-					'bg-light--theme-light dark:bg-dark--theme-light',
+					'bg-light--theme-light dark:bg-[#1B1D22]',
 					noWrapper && ['input-border'],
 					'py-2 px-4 rounded-[10px]',
 					'text-sm outline-none ',
@@ -158,7 +158,7 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 							className
 						)}
 					/>
-					<span className="absolute bottom-0 left-0 w-full text-center -z-10">
+					<span className="absolute bottom-0 left-0 w-full text-center -z-10 dark:text-[#7E7991]">
 						{dash}
 					</span>
 				</div>
