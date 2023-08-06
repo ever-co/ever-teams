@@ -1,4 +1,4 @@
-import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
+import { useModal, useSyncRef, useTeamTasks } from '@app/hooks';
 import { detailedTaskState, taskVersionListState } from '@app/stores';
 import {
 	ActiveTaskPropertiesDropdown,
@@ -6,7 +6,7 @@ import {
 	ActiveTaskStatusDropdown,
 	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
-	TaskLabelsDropdown,
+	TaskLabels,
 } from 'lib/features';
 import { useCallback, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -15,7 +15,6 @@ import { useTranslation } from 'lib/i18n';
 import { Button, Card, Modal } from 'lib/components';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import {
-	TaskLabelForm,
 	TaskPrioritiesForm,
 	TaskSizesForm,
 	TaskStatusesForm,
@@ -121,7 +120,11 @@ const TaskSecondaryInfo = () => {
 					</Button>
 				</ActiveTaskLabelsDropdown> */}
 
-				<LabelsDropDown openModalEditionHandle={openModalEditionHandle} />
+				<TaskLabels
+					task={task}
+					className="lg:min-w-[170px] text-black mt-4 lg:mt-0"
+					forDetails={true}
+				/>
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.SIZE} wrapperClassName="mb-3 text-black">
@@ -179,56 +182,10 @@ const TaskSecondaryInfo = () => {
 					{formTarget === 'size' && (
 						<TaskSizesForm onCreated={modal.closeModal} formOnly={true} />
 					)}
-					{formTarget === 'label' && (
-						<TaskLabelForm onCreated={modal.closeModal} formOnly={true} />
-					)}
 				</Card>
 			</Modal>
 		</section>
 	);
 };
-
-function LabelsDropDown(props: {
-	openModalEditionHandle: (type: StatusType) => () => void;
-}) {
-	const task = useRecoilValue(detailedTaskState);
-	const { updateTask } = useTeamTasks();
-	const { taskLabels } = useTaskLabels();
-
-	function onValuesChange(_: any, values: string[] | undefined) {
-		if (!task) return;
-
-		updateTask({
-			...task,
-			tags: taskLabels.filter((tag) =>
-				tag.name ? values?.includes(tag.name) : false
-			),
-		});
-	}
-
-	const tags = (task?.tags as typeof taskLabels | undefined)?.map(
-		(tag) => tag.name || ''
-	);
-
-	return (
-		<TaskLabelsDropdown
-			onValueChange={onValuesChange}
-			className="lg:min-w-[170px] text-black mt-4 lg:mt-0"
-			placeholder="Labels"
-			defaultValues={tags || []}
-			multiple={true}
-			forDetails={true}
-			sidebarUI={true}
-		>
-			<Button
-				className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
-				variant="outline"
-				onClick={props.openModalEditionHandle('label')}
-			>
-				<PlusIcon className="w-[16px] h-[16px]" />
-			</Button>
-		</TaskLabelsDropdown>
-	);
-}
 
 export default TaskSecondaryInfo;
