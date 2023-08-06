@@ -55,11 +55,6 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						disabled={!activeTeamTask}
 					/>
 
-					{/* <ActiveTaskLabelsDropdown
-						className="lg:min-w-[170px]"
-						disabled={!activeTeamTask}
-					/> */}
-
 					<TaskLabels
 						task={activeTeamTask}
 						className="lg:min-w-[170px]"

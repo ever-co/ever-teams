@@ -101,25 +101,6 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.LABELS} wrapperClassName="mb-3">
-				{/* <ActiveTaskLabelsDropdown
-					task={task}
-					className="lg:min-w-[170px] text-black"
-					forDetails={true}
-					sidebarUI={true}
-					multiple={true}
-					onValueChange={(_, values) => {
-						console.log(values);
-					}}
-				>
-					<Button
-						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('label')}
-					>
-						<PlusIcon className="w-[16px] h-[16px]" />
-					</Button>
-				</ActiveTaskLabelsDropdown> */}
-
 				<TaskLabels
 					task={task}
 					className="lg:min-w-[170px] text-black mt-4 lg:mt-0"
