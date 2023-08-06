@@ -109,7 +109,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 						menu.length === 0 && ['opacity-50 hidden']
 					)}
 				>
-					<MoreIcon />
+					<MoreIcon className="dark:stroke-[#B1AEBC]" />
 				</Popover.Button>
 			)}
 			{loading && <SpinnerLoader size={20} />}
@@ -126,13 +126,16 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				<Popover.Panel>
 					{({ close }) => {
 						return (
-							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+							<Card
+								shadow="custom"
+								className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+							>
 								<ul>
 									{menu.map((item, i) => {
 										const text = (
 											<Text
 												className={clsxm(
-													'font-normal whitespace-nowrap hover:font-semibold hover:transition-all',
+													'font-normal whitespace-nowrap text-sm hover:font-semibold hover:transition-all',
 													item.type === 'danger' && ['text-red-500']
 												)}
 											>
