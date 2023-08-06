@@ -109,7 +109,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 						menu.length === 0 && ['opacity-50 hidden']
 					)}
 				>
-					<MoreIcon className="stroke-[#B1AEBC]" />
+					<MoreIcon className="dark:stroke-[#B1AEBC]" />
 				</Popover.Button>
 			)}
 			{loading && <SpinnerLoader size={20} />}
