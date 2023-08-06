@@ -21,7 +21,7 @@ export function TaskEstimateInfo({
 }: Props) {
 	return (
 		<div className={className}>
-			<div className="flex items-center flex-col space-y-2">
+			<div className="flex items-center flex-col gap-y-[2rem] justify-center">
 				<TaskEstimateInput {...rest} />
 
 				<TaskProgressBar
@@ -71,7 +71,7 @@ function TaskEstimateInput({
 
 			<div
 				className={clsxm(
-					'flex space-x-2 items-center mb-2 font-normal lg:text-sm text-xs',
+					'flex space-x-2 items-center font-normal lg:text-sm text-xs',
 					hasEditMode && ['hidden']
 				)}
 			>
