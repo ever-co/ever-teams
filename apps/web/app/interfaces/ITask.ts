@@ -115,6 +115,13 @@ export type ITaskStatus =
 
 export type ITaskIssue = 'Bug' | 'Task' | 'Story' | 'Epic';
 
+export enum IssueType {
+	EPIC = 'Epic',
+	STORY = 'Story',
+	TASK = 'Task',
+	BUG = 'Bug',
+}
+
 export type ITaskStatusField =
 	| 'status'
 	| 'size'

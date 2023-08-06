@@ -131,6 +131,10 @@ export const en = {
 
 			TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE: `We couldn't update Task Title.`,
 			TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION: `Task Title can't exceed 255 characters.`,
+
+			TASK_IS_ALREADY_EPIC: 'Epic Task Type can not be changed.',
+			TASK_HAS_PARENT:
+				'Task Type can not be changed as Task has already Parent.',
 		},
 
 		auth: {
