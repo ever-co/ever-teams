@@ -100,7 +100,7 @@ export type IEpicProperty = string;
 
 export type ITaskSize = 'X-Large' | 'Large' | 'Medium' | 'Small' | 'Tiny';
 
-export type ITaskLabel = 'UI/UX' | 'Mobile' | 'WEB' | 'Tablet';
+export type ITaskLabel = string;
 
 export type ITaskStatus =
 	| 'blocked'

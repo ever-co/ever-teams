@@ -61,6 +61,8 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		disabled?: boolean;
 		largerWidth?: boolean;
 		sidebarUI?: boolean;
+		placeholder?: string;
+		defaultValues?: ITaskStatusStack[T][];
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -156,6 +158,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		status: status,
 		value: task ? task[field] : props.defaultValue || undefined,
 		onValueChange: onItemChange,
+		defaultValues: props.defaultValues,
 	});
 
 	return {
@@ -179,9 +182,11 @@ export function useStatusValue<T extends ITaskStatusField>({
 	status: statusItems,
 	onValueChange,
 	multiple,
+	defaultValues = [],
 }: {
 	status: TStatus<ITaskStatusStack[T]>;
 	value: ITaskStatusStack[T] | undefined;
+	defaultValues?: ITaskStatusStack[T][];
 	onValueChange?: (
 		v: ITaskStatusStack[T],
 		values?: ITaskStatusStack[T][]
@@ -206,15 +211,21 @@ export function useStatusValue<T extends ITaskStatusField>({
 	}, [statusItems]);
 
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
-	const [values, setValues] = useState<ITaskStatusStack[T][]>([]);
+	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
 
 	const item: TStatusItem | undefined = useMemo(
 		() => items.find((r) => r.value === value),
 		[items, value]
 	);
+
 	useEffect(() => {
 		setValue($value);
 	}, [$value]);
+
+	useEffect(() => {
+		setValues(defaultValues);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [defaultValues.length]);
 
 	const onChange = useCallback(
 		(value: ITaskStatusStack[T]) => {
@@ -627,6 +638,8 @@ export function TaskLabelsDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
+	placeholder = 'Label',
+	defaultValues,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -635,6 +648,7 @@ export function TaskLabelsDropdown({
 		value: defaultValue,
 		onValueChange,
 		multiple,
+		defaultValues,
 	});
 
 	return (
@@ -644,7 +658,7 @@ export function TaskLabelsDropdown({
 			className={className}
 			items={items}
 			value={item}
-			defaultItem={!item ? 'label' : undefined}
+			defaultItem={!item ? (placeholder as any) : undefined}
 			onChange={onChange}
 			multiple={multiple}
 			values={values}
@@ -793,7 +807,7 @@ export function TaskStatus({
 						viewBox="0 0 24 24"
 						width="20px"
 						height="20px"
-						className="fill-green-500"
+						className="fill-dark dark:fill-white"
 					>
 						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
 					</svg>
@@ -871,7 +885,8 @@ export function StatusDropdown<T extends TStatusItem>({
 			issueType={issueType}
 			sidebarUI={sidebarUI}
 			className={clsxm(
-				`justify-between capitalize ${sidebarUI ? 'text-xs' : ''} `,
+				`justify-between capitalize`,
+				sidebarUI && ['text-xs'],
 				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
 				forDetails && !value
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
@@ -911,7 +926,7 @@ export function StatusDropdown<T extends TStatusItem>({
 								'cursor-pointer outline-none'
 							)}
 							style={{
-								width: largerWidth ? '160px' : '',
+								width: largerWidth ? '160px' : undefined,
 							}}
 						>
 							{!multiple ? (
@@ -925,9 +940,14 @@ export function StatusDropdown<T extends TStatusItem>({
 								<TaskStatus
 									{...defaultValue}
 									active={false}
+									forDetails={forDetails}
+									sidebarUI={sidebarUI}
 									className={clsxm(
 										'justify-between w-full capitalize',
-										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light'
+										sidebarUI && ['text-xs'],
+										'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+										forDetails &&
+											'bg-transparent border border-solid border-color-[#F2F2F2]'
 									)}
 									name={
 										values.length > 0
