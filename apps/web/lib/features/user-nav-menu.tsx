@@ -43,7 +43,7 @@ export function UserNavAvatar() {
 			<Popover.Button className="outline-none">
 				<div
 					className={clsxm(
-						'w-[35px] h-[35px]',
+						'w-[3rem] h-[3rem]',
 						'flex justify-center items-center',
 						'rounded-full text-xs text-default dark:text-white',
 						'shadow-md text-lg font-normal'
@@ -54,8 +54,8 @@ export function UserNavAvatar() {
 				>
 					{imageUrl && isValidUrl(imageUrl) ? (
 						<Avatar
-							size={35}
-							className="relative cursor-pointer"
+							size={48}
+							className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
 							imageUrl={imageUrl}
 							alt="Team Avatar"
 						/>

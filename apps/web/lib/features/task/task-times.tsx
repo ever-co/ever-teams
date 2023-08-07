@@ -79,7 +79,7 @@ function TimeInfo({
 	return (
 		<>
 			{showDaily && (
-				<div className="flex space-x-2 items-center mb-2 font-normal">
+				<div className="flex space-x-2 items-center font-normal">
 					<span className="text-gray-500 lg:text-sm text-xs">
 						{trans.common.TODAY}:
 					</span>

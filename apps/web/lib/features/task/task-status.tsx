@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	IClassName,
 	ITaskStatusField,
@@ -777,7 +778,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
+				`py-2 md:px-3 px-2 flex items-center text-sm relative `,
 
 				sidebarUI
 					? 'text-dark space-x-3 rounded-[4px] font-[500]'
@@ -785,7 +786,11 @@ export function TaskStatus({
 
 				issueType === 'issue' && ['px-2 text-white'],
 
-				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700'],
+				active
+					? ['dark:text-default']
+					: [
+							'bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]',
+					  ],
 
 				bordered && ['input-border'],
 
@@ -981,7 +986,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									issueType === 'issue' && ['left-auto right-auto']
 								)}
 							>
-								<Listbox.Options className="outline-none border-none">
+								<Listbox.Options className="outline-none">
 									<Card
 										shadow="bigger"
 										className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white"

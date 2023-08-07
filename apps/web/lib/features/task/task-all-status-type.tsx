@@ -57,25 +57,29 @@ export function TaskAllStatusTypes({
 					{showStatus && task?.status && taskStatus[task?.status] && (
 						<TaskStatus
 							{...taskStatus[task?.status]}
-							className="text-xs"
+							className="text-xs p-1"
 							active={!!task?.status}
 							name={task?.status?.split('-').join(' ') || 'Status'}
 						/>
 					)}
 
-					<TaskStatus
-						{...taskPriorities[task?.priority || 'Low']}
-						className="text-xs"
-						active={!!task?.priority}
-						name={task?.priority?.split('-').join(' ') || 'Priority'}
-					/>
+					{task?.priority && (
+						<TaskStatus
+							{...taskPriorities[task?.priority || 'Low']}
+							className="text-xs"
+							active={!!task?.priority}
+							name={task?.priority?.split('-').join(' ') || 'Priority'}
+						/>
+					)}
 
-					<TaskStatus
-						{...taskSizes[task?.size || 'Medium']}
-						className="text-xs"
-						active={!!task?.size}
-						name={task?.size?.split('-').join(' ') || 'Size'}
-					/>
+					{task?.size && (
+						<TaskStatus
+							{...taskSizes[task?.size || 'Medium']}
+							className="text-xs"
+							active={!!task?.size}
+							name={task?.size?.split('-').join(' ') || 'Size'}
+						/>
+					)}
 
 					{tags.map((tag) => {
 						return (
@@ -88,13 +92,6 @@ export function TaskAllStatusTypes({
 							/>
 						);
 					})}
-
-					<TaskStatus
-						{...taskLabels[task?.label || 'WEB']}
-						className="text-xs"
-						active={!!task?.label}
-						name={task?.label?.split('-').join(' ') || 'Label'}
-					/>
 				</div>
 			</div>
 

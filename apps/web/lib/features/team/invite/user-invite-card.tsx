@@ -32,7 +32,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				)}
 			>
 				<div className="absolute -left-0 opacity-40">
-					<DraggerIcon />
+					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
 				{/* User info */}
@@ -222,12 +222,13 @@ export function InviteUserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative hidden sm:flex items-center py-3',
+					'relative hidden sm:flex items-center py-3 min-h-[6.875rem] dark:bg-[#1E2025]',
+					'dark:border dark:border-[#FFFFFF14]',
 					className
 				)}
 			>
 				<div className="opacity-40 absolute -left-0">
-					<DraggerIcon />
+					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
 				<div className="opacity-40 absolute right-2">
@@ -260,17 +261,16 @@ export function InviteUserTeamCard({
 				{/* TaskTime */}
 				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 sm:w-48 font-normal px-3  text-xs md:text-sm">
 					<span>{trans.common.TODAY}:</span>
-					<Text>0h : 0m</Text>
+					<Text>00h : 00m</Text>
 				</div>
 				<VerticalSeparator />
 
 				{/* TaskEstimateInfo */}
 				<div className="opacity-40 flex items-center justify-center space-x-1 sm:w-52 relative text-xs md:text-sm">
-					{/* <TimeInputField defaultValue="00" label="h" />
+					<TimeInputField defaultValue="00" label="h" />
 					<span>:</span>
 					<TimeInputField defaultValue="00" label="m" />
-					<div className="absolute inset-0" /> */}
-					<Text>0h : 0m</Text>
+					<div className="absolute inset-0" />
 				</div>
 				<VerticalSeparator />
 

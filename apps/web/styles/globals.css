@@ -129,7 +129,8 @@ html.dark {
 
 	/* ------------------- Input ----------------------- */
 	.input-border {
-		@apply border-[#00000021] dark:border-[#ffffff33] border-solid border;
+		@apply border-[#00000021] dark:border-[#34353D] border-solid border;
+		@apply dark:bg-[#1B1D22];
 	}
 
 	/* Shadow */
