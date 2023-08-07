@@ -2018,9 +2018,9 @@ export function ExternalLinkIcon({ className }: IClassName) {
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 24 24"
-			width="21"
-			height="21"
-			className={clsxm(className)}
+			width="18"
+			height="18"
+			className={clsxm(className, 'dark:fill-white')}
 		>
 			<g>
 				<path fill="none" d="M0 0h24v24H0z" />{' '}
@@ -2034,18 +2034,16 @@ export function UnlinkIcon({ className }: IClassName) {
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
-			width="21"
-			height="21"
-			className={clsxm(className, 'dark:fill-white')}
+			width="18"
+			height="18"
+			className={clsxm(className, 'stroke-black dark:stroke-white')}
 		>
-			<rect width="256" height="256" fill="none" />
 			<line
 				x1="96"
 				y1="68"
 				x2="96"
 				y2="48"
 				fill="none"
-				stroke="#000"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth="24"
@@ -2056,7 +2054,6 @@ export function UnlinkIcon({ className }: IClassName) {
 				x2="160"
 				y2="188"
 				fill="none"
-				stroke="#000"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth="24"
@@ -2067,7 +2064,6 @@ export function UnlinkIcon({ className }: IClassName) {
 				x2="48"
 				y2="96"
 				fill="none"
-				stroke="#000"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth="24"
@@ -2078,7 +2074,6 @@ export function UnlinkIcon({ className }: IClassName) {
 				x2="188"
 				y2="160"
 				fill="none"
-				stroke="#000"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth="24"
@@ -2086,7 +2081,6 @@ export function UnlinkIcon({ className }: IClassName) {
 			<path
 				d="M67,132.4l-7.3,7.3a40,40,0,0,0,56.6,56.6l7.3-7.3"
 				fill="none"
-				stroke="#000"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth="24"
@@ -2094,7 +2088,6 @@ export function UnlinkIcon({ className }: IClassName) {
 			<path
 				d="M189,123.6l7.3-7.3a40,40,0,0,0-56.6-56.6L132.4,67"
 				fill="none"
-				stroke="#000"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth="24"

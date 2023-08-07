@@ -373,7 +373,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				<div
 					onKeyDown={handleInsertLinkOnEnter}
 					ref={popupRef}
-					className="absolute flex items-center bg-white p-2 gap-1 rounded-md border border-gray-300 z-10"
+					className="absolute flex items-center bg-white dark:bg-dark--theme-light p-2 gap-1 rounded-md border border-gray-300 dark:border-[#7B8089] z-10"
 					style={{
 						left: linkPopupPosition.left,
 						top: linkPopupPosition.top + 3,
@@ -382,7 +382,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					<ExternalLinkIcon />
 					<input
 						type="text"
-						className="outline-none font-[500] text-[#5000B9] dark:text-primary-light border-r border-gray-300 pr-2"
+						className="outline-none font-[500] text-xs text-[#5000B9] dark:text-primary-light border-r dark:bg-dark--theme-light pr-2"
 						onChange={(e) => setLink(e.target.value)}
 						value={link}
 						ref={inputRef}
