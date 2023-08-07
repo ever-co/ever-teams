@@ -1,12 +1,12 @@
 import { useModal, useSyncRef, useTeamTasks } from '@app/hooks';
 import { detailedTaskState, taskVersionListState } from '@app/stores';
 import {
-	ActiveTaskLabelsDropdown,
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
 	ActiveTaskStatusDropdown,
 	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
+	TaskLabels,
 } from 'lib/features';
 import { useCallback, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -15,7 +15,6 @@ import { useTranslation } from 'lib/i18n';
 import { Button, Card, Modal } from 'lib/components';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import {
-	TaskLabelForm,
 	TaskPrioritiesForm,
 	TaskSizesForm,
 	TaskStatusesForm,
@@ -101,21 +100,12 @@ const TaskSecondaryInfo = () => {
 				</ActiveTaskStatusDropdown>
 			</TaskRow>
 
-			<TaskRow labelTitle={trans.LABEL} wrapperClassName="mb-3">
-				<ActiveTaskLabelsDropdown
+			<TaskRow labelTitle={trans.LABELS} wrapperClassName="mb-3">
+				<TaskLabels
 					task={task}
-					className="lg:min-w-[170px] text-black"
+					className="lg:min-w-[170px] text-black mt-4 lg:mt-0"
 					forDetails={true}
-					sidebarUI={true}
-				>
-					<Button
-						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
-						variant="outline"
-						onClick={openModalEditionHandle('label')}
-					>
-						<PlusIcon className="w-[16px] h-[16px]" />
-					</Button>
-				</ActiveTaskLabelsDropdown>
+				/>
 			</TaskRow>
 
 			<TaskRow labelTitle={trans.SIZE} wrapperClassName="mb-3 text-black">
@@ -172,9 +162,6 @@ const TaskSecondaryInfo = () => {
 					)}
 					{formTarget === 'size' && (
 						<TaskSizesForm onCreated={modal.closeModal} formOnly={true} />
-					)}
-					{formTarget === 'label' && (
-						<TaskLabelForm onCreated={modal.closeModal} formOnly={true} />
 					)}
 				</Card>
 			</Modal>

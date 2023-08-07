@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { PropsWithChildren } from 'react';
 import TaskLabel from './task-label';
 
 type TaskRowProps = {
@@ -10,14 +11,14 @@ type TaskRowProps = {
 	alignWithIconLabel?: boolean;
 };
 
-const TaskRow: React.FC<TaskRowProps> = ({
+const TaskRow = ({
 	children,
 	labelIconPath,
 	afterIconPath,
 	labelTitle,
 	wrapperClassName,
 	alignWithIconLabel,
-}) => {
+}: PropsWithChildren<TaskRowProps>) => {
 	return (
 		<div className={clsx('flex', wrapperClassName)}>
 			<div className="flex items-top w-[40%]">
