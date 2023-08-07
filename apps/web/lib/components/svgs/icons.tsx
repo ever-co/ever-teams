@@ -1990,7 +1990,7 @@ export function LinkIcon({ className }: IClassName) {
 			viewBox="0 0 20 21"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#282048]', className, 'dark:fill-white')}
+			className={clsxm('stroke-[#282048]', className, 'dark:stroke-white')}
 		>
 			<path
 				d="M12.4917 15.0832H13.75C16.2667 15.0832 18.3334 13.0248 18.3334 10.4998C18.3334 7.98317 16.275 5.9165 13.75 5.9165H12.4917"

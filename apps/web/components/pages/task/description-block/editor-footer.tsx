@@ -57,9 +57,9 @@ const EditorFooter = ({
 					</Button>
 				</div>
 			)}
-			<div className="flex justify-between items-end mt-0 border-b-2">
+			<div className="flex justify-between items-end mt-0 border-b-2 dark:border-[#7B8089]">
 				<div>
-					<label className="text-xs text-gray-300">Acceptance Criteria</label>
+					<label className="text-xs text-[##7B8089]">Acceptance Criteria</label>
 				</div>
 				<Image
 					src="/assets/svg/arrow-up.svg"
