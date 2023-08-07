@@ -36,6 +36,7 @@ import capitalize from 'lodash/capitalize';
 // import { getTextColor } from '@app/helpers';
 
 export type TStatusItem = {
+	id?: string;
 	bgColor?: string;
 	icon?: React.ReactNode | undefined;
 	name?: string;

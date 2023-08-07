@@ -44,7 +44,7 @@ export type ITeamTask = {
 	parentId?: string;
 	parent?: ITeamTask;
 	issueType?: string;
-} & ITaskStatusStack;
+} & Omit<ITaskStatusStack, 'tags'>;
 
 type SelectedTeam = Pick<
 	IOrganizationTeamList,
@@ -66,6 +66,7 @@ export interface Tag {
 	tenantId: string;
 	organizationId: string;
 	name: string;
+	value?: string;
 	description: string;
 	color: string;
 	isSystem: boolean;

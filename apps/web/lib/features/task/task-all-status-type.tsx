@@ -1,7 +1,7 @@
 import { useCustomEmblaCarousel, useSyncRef } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { RoundedButton } from 'lib/components';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
 	TaskStatus,
 	useTaskLabelsValue,
@@ -40,6 +40,16 @@ export function TaskAllStatusTypes({
 		emblaApiRef.current?.reInit();
 	}, [task, emblaApiRef]);
 
+	const tags = useMemo(() => {
+		return (
+			task?.tags
+				.map((tag) => {
+					return taskLabels[tag.name];
+				})
+				.filter(Boolean) || []
+		);
+	}, [taskLabels, task?.tags]);
+
 	return (
 		<div className="relative w-full h-full flex flex-col justify-center">
 			<div ref={viewportRef} className="overflow-hidden w-full relative">
@@ -66,6 +76,18 @@ export function TaskAllStatusTypes({
 						active={!!task?.size}
 						name={task?.size?.split('-').join(' ') || 'Size'}
 					/>
+
+					{tags.map((tag) => {
+						return (
+							<TaskStatus
+								key={tag.id}
+								{...tag}
+								className="text-xs"
+								active={true}
+								name={tag.name?.split('-').join(' ')}
+							/>
+						);
+					})}
 
 					<TaskStatus
 						{...taskLabels[task?.label || 'WEB']}
