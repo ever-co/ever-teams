@@ -36,11 +36,13 @@ const Profile = () => {
 	return (
 		<>
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2')}>
+				<MainHeader
+					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}
+				>
 					{/* Breadcrumb */}
 					<div className="flex items-center space-x-3">
 						<Link href="/">
-							<ArrowLeft />
+							<ArrowLeft className="h-5 w-5" />
 						</Link>
 
 						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
@@ -53,8 +55,9 @@ const Profile = () => {
 						{profileIsAuthUser && isTrackingEnabled && (
 							<Timer
 								className={clsxm(
-									'p-5 rounded-lg shadow-xlcard',
-									'dark:border-[2px] dark:border-[#28292F]'
+									'p-5 rounded-2xl shadow-xlcard',
+									'dark:border-[0.125rem] dark:border-[#28292F]',
+									'dark:bg-[#1B1D22]'
 								)}
 							/>
 						)}
@@ -82,7 +85,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		() => member?.timerStatus || 'idle',
 		[member?.timerStatus]
 	);
-	const size = 80;
+	const size = 100;
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -100,14 +103,14 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
 						size={size}
-						className="relative cursor-pointer"
+						className="relative dark:border-[0.375rem] dark:border-[#26272C]"
 						imageUrl={imageUrl}
 						alt={userName}
 						imageTitle={userName.charAt(0)}
 					>
 						<TimerStatus
 							status={timerStatus}
-							className="absolute border z-20 bottom-3 right-[12%] -mb-3"
+							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
 						/>
 					</Avatar>
 				) : (
@@ -115,11 +118,11 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 				)}
 			</div>
 
-			<div>
-				<Text.Heading as="h3" className="text-2xl">
+			<div className="flex flex-col gap-3.5">
+				<Text.Heading as="h3" className="text-4xl">
 					{user?.firstName} {user?.lastName}
 				</Text.Heading>
-				<Text className="text-xs text-gray-500">{user?.email}</Text>
+				<Text className="text-lg text-gray-500">{user?.email}</Text>
 			</div>
 		</div>
 	);

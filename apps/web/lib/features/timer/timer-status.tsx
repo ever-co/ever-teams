@@ -13,7 +13,7 @@ export function TimerStatus({ status, className, showIcon = true }: Props) {
 	return (
 		<div
 			className={clsxm(
-				'flex items-center justify-center w-5 h-5 rounded-full ',
+				'flex items-center justify-center rounded-full',
 				status === 'running' && ['bg-green-300'],
 				status === 'online' && ['bg-green-300'],
 				status === 'pause' && ['bg-[#EFCF9E]'],
@@ -23,22 +23,22 @@ export function TimerStatus({ status, className, showIcon = true }: Props) {
 			)}
 		>
 			{status === 'running' && showIcon && (
-				<TimerPlayIcon className="w-3 h-3 fill-green-700" />
+				<TimerPlayIcon className="w-5 h-5 p-1 fill-green-700" />
 			)}
 			{status === 'pause' && showIcon && (
-				<PauseIcon className="w-3 h-3 fill-[#B87B1E]" />
+				<PauseIcon className="w-5 h-5 p-1 fill-[#B87B1E]" />
 			)}
 
 			{status === 'idle' && showIcon && (
-				<StopCircleIcon className="w-3 h-3 fill-[#E65B5B]" />
+				<StopCircleIcon className="w-5 h-5 p-1 fill-[#E65B5B]" />
 			)}
 
 			{status === 'online' && showIcon && (
-				<UserOnlineIcon className="w-3 h-3 fill-green-700" />
+				<UserOnlineIcon className="w-5 h-5 p-1 fill-green-700" />
 			)}
 
 			{status === 'suspended' && showIcon && (
-				<StopCircleIcon className="w-3 h-3 fill-white" />
+				<StopCircleIcon className="w-5 h-5 p-1 fill-white" />
 			)}
 		</div>
 	);

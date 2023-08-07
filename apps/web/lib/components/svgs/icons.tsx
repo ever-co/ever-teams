@@ -724,6 +724,43 @@ export function LogoutIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function LogoutIcon2({ className }: IClassName) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			className={clsxm(className)}
+		>
+			<path
+				d="M17.4414 14.62L20.0014 12.06L17.4414 9.5"
+				className={clsxm(className)}
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M9.76172 12.0601H19.9317"
+				className={clsxm(className)}
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M11.7617 20C7.34172 20 3.76172 17 3.76172 12C3.76172 7 7.34172 4 11.7617 4"
+				className={clsxm(className)}
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	);
+}
 
 //  ============================= Tick Circle Icon ============================= //
 
