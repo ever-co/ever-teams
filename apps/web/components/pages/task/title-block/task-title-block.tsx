@@ -94,7 +94,7 @@ const TaskTitleBlock = () => {
 	return (
 		<>
 			<div className="flex mb-6">
-				{title !== '' ? (
+				{task !== null ? (
 					<>
 						<div className="w-full flex flex-wrap relative">
 							<textarea
