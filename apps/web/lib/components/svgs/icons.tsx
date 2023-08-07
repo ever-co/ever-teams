@@ -1737,8 +1737,8 @@ export function UnderlineIcon({ className }: IClassName) {
 			viewBox="0 0 20 20"
 			version="1.1"
 			id="svg321"
-			width="21"
-			height="21"
+			width="20"
+			height="20"
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm(className, 'dark:fill-white')}
 		>
