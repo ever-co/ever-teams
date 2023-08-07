@@ -36,8 +36,10 @@ const TaskTitleBlock = () => {
 
 	//Hooks and functions
 	useEffect(() => {
-		task && setTitle(task?.title);
-	}, [task]);
+		if (!edit) {
+			task && setTitle(task?.title);
+		}
+	}, [task, edit]);
 
 	useEffect(() => {
 		autoTextAreaHeight();
