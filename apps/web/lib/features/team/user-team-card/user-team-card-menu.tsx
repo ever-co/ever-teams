@@ -121,14 +121,14 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				leave="transition duration-75 ease-out"
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 right-0 min-w-[210px]"
+				className="absolute z-10 -right-5 min-w-[13.125rem]"
 			>
 				<Popover.Panel>
 					{({ close }) => {
 						return (
 							<Card
 								shadow="custom"
-								className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+								className="shadow-xlcard !py-3 !px-4 dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] w-[10.75rem]"
 							>
 								<ul>
 									{menu.map((item, i) => {

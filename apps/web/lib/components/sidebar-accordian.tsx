@@ -25,10 +25,10 @@ export const SidebarAccordian = ({
 					{({ open }) => (
 						<>
 							<Disclosure.Button
-								className={`flex w-full justify-between rounded-lg  px-4 py-2 text-left  font-medium   items-center dark:bg-dark--theme ${wrapperClassName} pt-[0.15rem] pb-0 `}
+								className={`flex w-full justify-between rounded-lg px-4 py-2 text-left font-medium items-center ${wrapperClassName} pt-[0.15rem] pb-0`}
 							>
 								<Text
-									className={`text-base  dark:text-white  text-center sm:text-left flex items-center gap-2 ${textClassName}`}
+									className={`text-base dark:text-white  text-center sm:text-left flex items-center gap-2 ${textClassName}`}
 								>
 									{title}
 								</Text>

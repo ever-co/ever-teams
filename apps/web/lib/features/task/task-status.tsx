@@ -34,7 +34,6 @@ import {
 import clsx from 'clsx';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
-// import { getTextColor } from '@app/helpers';
 
 export type TStatusItem = {
 	id?: string;
@@ -773,8 +772,6 @@ export function TaskStatus({
 			sidebarUI?: boolean;
 		}
 >) {
-	// const textColor = getTextColor(backgroundColor || '');
-
 	return (
 		<div
 			className={clsxm(

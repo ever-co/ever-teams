@@ -51,7 +51,7 @@ export const en = {
 		FILTER: 'Filter',
 		APPLY: 'Apply',
 		RESET: 'Reset',
-		LOGOUT: 'Logout',
+		LOGOUT: 'Log Out',
 		THEMES: 'Themes',
 		'3D_MODE': '3D Mode',
 		DARK_MODE: 'Dark Mode',

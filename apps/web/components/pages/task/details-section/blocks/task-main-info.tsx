@@ -109,7 +109,7 @@ const TaskMainInfo = () => {
 				</TaskRow>
 			)}
 
-			<hr className="text-[#F2F2F2] mt-[15px] dark:text-white" />
+			<hr className="mt-[15px]  dark:border-[#7B8089]" />
 		</section>
 	);
 };
