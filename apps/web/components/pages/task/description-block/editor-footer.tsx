@@ -59,11 +59,13 @@ const EditorFooter = ({
 					variant="grey"
 					onClick={cancelEdit}
 					className=" dark:bg-gray-500 font-medium min-w-[5rem] w-[3rem] text-sm px-6 py-2 m-1 rounded-lg transition-all"
+					disabled={!isUpdated}
 				>
 					Cancel
 				</Button>
 				<Button
 					variant="primary"
+					disabled={!isUpdated}
 					onClick={() => {
 						saveDescription(slateToHtml(editorValue, configSlateToHtml));
 						setIsUpdated();
