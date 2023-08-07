@@ -40,7 +40,7 @@ const BlockButton = ({
 				className,
 				'my-1 rounded-md transition duration-300 p-[2px]',
 				isBlockActiveMemo(format)
-					? 'dark:bg-[#6a6a6a] bg-[#ddd]'
+					? 'dark:bg-[#47484D] bg-[#ddd]'
 					: 'bg-transparent'
 			)}
 			onMouseDown={(event) => {
