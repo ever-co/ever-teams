@@ -10,6 +10,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
+import { MailIcon } from 'lib/components/svgs';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -42,7 +43,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 		>
 			<div
 				className={clsxm(
-					'w-[60px] h-[60px]',
+					'w-[50px] h-[50px]',
 					'flex justify-center items-center',
 					'rounded-full text-xs text-default dark:text-white',
 					'shadow-md text-2xl font-normal'
@@ -53,7 +54,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
-						size={60}
+						size={50}
 						className="relative cursor-pointer"
 						imageUrl={imageUrl}
 						alt="Team Avatar"
@@ -77,7 +78,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				)}
 			</div>
 
-			<div className="lg:w-64 w-1/2">
+			<div className="lg:w-64 w-1/2 flex flex-col gap-1.5">
 				<Tooltip
 					label={fullname.trim()}
 					placement="auto"
@@ -85,7 +86,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text.Heading
 						as="h3"
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-sm lg:text-lg "
+						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg "
 					>
 						{publicTeam ? (
 							<span className="flex capitalize">{fullname.slice(0, 1)} </span>
@@ -95,23 +96,21 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					</Text.Heading>
 				</Tooltip>
 
-				{/* {memberInfo.isAuthUser && (
-					<Tooltip
-						label={`${memberUser?.email || ''} `.trim()}
-						placement="auto"
-						enabled={
-							`${memberUser?.email || ''} `.trim().length >
-							CHARACTER_LIMIT_TO_SHOW
-						}
-					>
-						<Text className="text-gray-400 flex items-center text-sm space-x-1">
-							<MailIcon />{' '}
-							<span className="overflow-hidden text-ellipsis whitespace-nowrap">
-								{memberUser?.email}
-							</span>
-						</Text>
-					</Tooltip>
-				)} */}
+				<Tooltip
+					label={`${memberUser?.email || ''} `.trim()}
+					placement="auto"
+					enabled={
+						`${memberUser?.email || ''} `.trim().length >
+						CHARACTER_LIMIT_TO_SHOW
+					}
+				>
+					<Text className="text-gray-400 flex items-center text-sm space-x-1">
+						<MailIcon />{' '}
+						<span className="overflow-hidden text-ellipsis whitespace-nowrap">
+							{memberUser?.email}
+						</span>
+					</Text>
+				</Tooltip>
 			</div>
 		</Link>
 	);

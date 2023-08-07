@@ -113,7 +113,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative md:flex items-center justify-between py-3 hidden min-h-[6.875rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
+					'relative md:flex items-center justify-between py-3 hidden min-h-[8.75rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
 					active && ['border-primary-light dark:bg-[#1E2025] '],
 					className
 				)}
