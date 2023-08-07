@@ -22,7 +22,7 @@ export function TaskLabels({ task, className, forDetails }: Props) {
 			...task,
 			tags: taskLabels.filter((tag) =>
 				tag.name ? values?.includes(tag.name) : false
-			),
+			) as any,
 		});
 	}
 
