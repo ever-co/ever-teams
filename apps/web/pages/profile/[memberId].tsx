@@ -103,7 +103,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
 						size={size}
-						className="relative cursor-pointer dark:border-[0.375rem] dark:border-[#26272C]"
+						className="relative dark:border-[0.375rem] dark:border-[#26272C]"
 						imageUrl={imageUrl}
 						alt={userName}
 						imageTitle={userName.charAt(0)}
