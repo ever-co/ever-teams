@@ -13,6 +13,7 @@ import {
 	ActiveTaskStatusDropdown,
 } from './task/task-status';
 import { useOrganizationTeams } from '@app/hooks';
+import { TaskLabels } from './task/task-labels';
 
 export function AuthUserTaskInput({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -54,9 +55,10 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						disabled={!activeTeamTask}
 					/>
 
-					<ActiveTaskLabelsDropdown
+					<TaskLabels
+						task={activeTeamTask}
 						className="lg:min-w-[170px]"
-						disabled={!activeTeamTask}
+						forDetails={false}
 					/>
 				</div>
 				<div className="grid justify-items-center md:hidden">
