@@ -1705,8 +1705,8 @@ export function TinySizeIcon({ className }: IClassName) {
 export function BoldIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			viewBox="0 0 21 21"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
@@ -1720,8 +1720,8 @@ export function BoldIcon({ className }: IClassName) {
 export function ItalicIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			viewBox="0 0 21 21"
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm(className, 'dark:fill-white')}
@@ -1737,8 +1737,8 @@ export function UnderlineIcon({ className }: IClassName) {
 			viewBox="0 0 20 20"
 			version="1.1"
 			id="svg321"
-			width="23"
-			height="23"
+			width="21"
+			height="21"
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm(className, 'dark:fill-white')}
 		>
@@ -1771,8 +1771,8 @@ export function AlignRightIcon({ className }: IClassName) {
 			id="Flat"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm182,34H88a6,6,0,0,0,0,12H216a6,6,0,0,0,0-12Zm0,40H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm0,40H88.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Z"></path>
@@ -1786,8 +1786,8 @@ export function AlignLeftIcon({ className }: IClassName) {
 			id="Flat"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M34,68a6.00029,6.00029,0,0,1,6-6H216a6,6,0,0,1,0,12H40A6.00029,6.00029,0,0,1,34,68Zm6,46H168a6,6,0,0,0,0-12H40a6,6,0,0,0,0,12Zm176,28H40.00586a6,6,0,1,0,0,12H216a6,6,0,0,0,0-12Zm-48,40H40.00586a6,6,0,1,0,0,12H168a6,6,0,0,0,0-12Z"></path>
@@ -1801,8 +1801,8 @@ export function AlignCenterIcon({ className }: IClassName) {
 			xmlns="http://www.w3.org/2000/svg"
 			enableBackground="new 0 0 24 24"
 			viewBox="0 0 24 24"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M6.5,10C6.223877,10,6,10.223877,6,10.5S6.223877,11,6.5,11h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,10,17.5,10H6.5z M2.5,7h19C21.776123,7,22,6.776123,22,6.5S21.776123,6,21.5,6h-19C2.223877,6,2,6.223877,2,6.5S2.223877,7,2.5,7z M17.5,18h-11C6.223877,18,6,18.223877,6,18.5S6.223877,19,6.5,19h11c0.276123,0,0.5-0.223877,0.5-0.5S17.776123,18,17.5,18z M21.5,14h-19C2.223877,14,2,14.223877,2,14.5S2.223877,15,2.5,15h19c0.276123,0,0.5-0.223877,0.5-0.5S21.776123,14,21.5,14z"></path>
@@ -1816,8 +1816,8 @@ export function AlignJustifyIcon({ className }: IClassName) {
 			id="Flat"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M36,68a4.0002,4.0002,0,0,1,4-4H216a4,4,0,0,1,0,8H40A4.0002,4.0002,0,0,1,36,68Zm180,36H40a4,4,0,0,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Zm0,40H40.00586a4,4,0,1,0,0,8H216a4,4,0,0,0,0-8Z"></path>
@@ -1830,8 +1830,8 @@ export function HeaderOneIcon({ className }: IClassName) {
 			id="Flat"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm71.77539,44.94727a7.99755,7.99755,0,0,0-8.21191.3955l-24,15.99317a8.00008,8.00008,0,1,0,8.873,13.31445L212,122.94434V200a8,8,0,0,0,16,0V108A7.99932,7.99932,0,0,0,223.77539,100.94727Z"></path>
@@ -1844,8 +1844,8 @@ export function HeaderTwoIcon({ className }: IClassName) {
 			id="Flat"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 256 256"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			className={clsxm(className, 'dark:fill-white')}
 		>
 			<path d="M152,56V176a8,8,0,0,1-16,0V124H48v52a8,8,0,0,1-16,0V56a8,8,0,0,1,16,0v52h88V56a8,8,0,0,1,16,0Zm88,135.99414H207.99707l34.30566-45.77734c.07911-.1045.1543-.21094.22754-.31934A32.00406,32.00406,0,1,0,186.51758,115.542a8,8,0,1,0,14.73633,6.23242A16.00416,16.00416,0,1,1,229.37012,136.794l-43.67285,58.27539A8.00367,8.00367,0,0,0,191.999,208.001c.10547,0,.21192-.00293.31836-.00684H240a8,8,0,0,0,0-16Z"></path>
@@ -1885,7 +1885,7 @@ export function CopyIcon({ className }: IClassName) {
 export function CheckBoxIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="18"
+			width="17"
 			height="17"
 			viewBox="0 0 18 17"
 			fill="none"
@@ -1924,8 +1924,8 @@ export function UnorderedListIcon({ className }: IClassName) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			fill="currentColor"
 			viewBox="0 0 16 16"
 			className={clsxm(className, 'dark:fill-white')}
@@ -1941,8 +1941,8 @@ export function OrderedListIcon({ className }: IClassName) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			fill="currentColor"
 			className={clsxm(className, 'dark:fill-white')}
 			viewBox="0 0 16 16"
@@ -1985,8 +1985,8 @@ export function MoreIcon2({ className }: IClassName) {
 export function LinkIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="25"
-			height="25"
+			width="20"
+			height="20"
 			viewBox="0 0 20 21"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
@@ -2107,8 +2107,8 @@ export function CodeBlockIcon({ className }: IClassName) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			width="23"
-			height="23"
+			width="20"
+			height="20"
 			fill="currentColor"
 			viewBox="0 0 16 16"
 			className={clsxm(className, 'dark:fill-white')}
@@ -2122,8 +2122,8 @@ export function QuoteBlockIcon({ className }: IClassName) {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			width="25"
-			height="25"
+			width="20"
+			height="20"
 			fill="currentColor"
 			viewBox="0 0 16 16"
 			className={clsxm(className, 'dark:fill-white')}
