@@ -311,7 +311,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 						<button
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
-								'md:text-lg text-xs text-gray-500 font-normal outline-none p-1 md:p-3 relative mt-4 md:mt-0',
+								'md:text-lg text-xs text-gray-500 font-normal outline-none py-[1.5rem] px-[2.5rem] relative mt-4 md:mt-0 min-w-[10.625rem]',
 								active && ['text-primary dark:text-white']
 							)}
 						>
@@ -328,7 +328,7 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 								<div
 									className={clsxm(
 										'bg-primary dark:bg-white',
-										'h-[0.1875rem] absolute -bottom-4 left-0 right-0 w-full'
+										'h-[0.1875rem] absolute -bottom-3 left-0 right-0 w-full'
 									)}
 								/>
 							)}
@@ -389,11 +389,14 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 			</div>
 
 			<div className="flex space-x-3 mt-4 lg:mt-0">
-				<Button className="py-2 min-w-[100px]" onClick={hook.applyStatusFilder}>
+				<Button
+					className="py-2 min-w-[6.25rem] rounded-lg"
+					onClick={hook.applyStatusFilder}
+				>
 					{trans.common.APPLY}
 				</Button>
 				<Button
-					className="py-2 min-w-[100px]"
+					className="py-2 min-w-[6.25rem] rounded-lg"
 					variant="grey"
 					onClick={() => {
 						setKey((k) => k + 1);
