@@ -36,11 +36,13 @@ const Profile = () => {
 	return (
 		<>
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2')}>
+				<MainHeader
+					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}
+				>
 					{/* Breadcrumb */}
 					<div className="flex items-center space-x-3">
 						<Link href="/">
-							<ArrowLeft />
+							<ArrowLeft className="h-5 w-5" />
 						</Link>
 
 						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
