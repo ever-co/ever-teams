@@ -59,7 +59,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 					</button>
 				</div>
 			</div>
-			<hr />
+			<hr className="dark:border-[#7B8089]" />
 
 			<div
 				className={clsxm(
