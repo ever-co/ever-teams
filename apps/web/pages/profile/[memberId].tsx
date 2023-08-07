@@ -53,8 +53,9 @@ const Profile = () => {
 						{profileIsAuthUser && isTrackingEnabled && (
 							<Timer
 								className={clsxm(
-									'p-5 rounded-lg shadow-xlcard',
-									'dark:border-[2px] dark:border-[#28292F]'
+									'p-5 rounded-2xl shadow-xlcard',
+									'dark:border-[0.125rem] dark:border-[#28292F]',
+									'dark:bg-[#1B1D22]'
 								)}
 							/>
 						)}

@@ -260,9 +260,9 @@ function InputFilters({ hook, profile }: Props) {
 			<button
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm(
-					'p-3 px-5 flex space-x-2 input-border rounded-xl items-center',
+					'p-3 px-5 flex space-x-2 input-border rounded-xl items-center text-sm',
 					hook.filterType === 'status' && ['bg-gray-lighter'],
-					'min-h-[49px]'
+					'h-[2.75rem]'
 				)}
 				onClick={() => hook.toggleFilterType('status')}
 			>
@@ -289,8 +289,8 @@ function InputFilters({ hook, profile }: Props) {
 				<Button
 					loading={loading}
 					className={clsxm(
-						'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full',
-						'min-h-[49px]'
+						'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base',
+						'min-w-[11.25rem] h-[2.75rem]'
 					)}
 				>
 					{trans.common.ASSIGN_TASK}
@@ -312,14 +312,14 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 							onClick={() => hook.setTab(item.tab)}
 							className={clsxm(
 								'md:text-lg text-xs text-gray-500 font-normal outline-none p-1 md:p-3 relative mt-4 md:mt-0',
-								active && ['text-primary dark:text-primary-light']
+								active && ['text-primary dark:text-white']
 							)}
 						>
 							{item.name}{' '}
 							<span
 								className={clsxm(
 									'bg-gray-lighter p-1 px-2 text-xs rounded-md',
-									active && ['bg-primary dark:bg-primary-light text-white']
+									active && ['bg-primary dark:bg-[#47484D] text-white']
 								)}
 							>
 								{item.count}
@@ -327,8 +327,8 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
 							{active && (
 								<div
 									className={clsxm(
-										'bg-primary dark:bg-primary-light',
-										'h-[2px] absolute -bottom-4 left-0 right-0 w-full'
+										'bg-primary dark:bg-white',
+										'h-[0.1875rem] absolute -bottom-4 left-0 right-0 w-full'
 									)}
 								/>
 							)}

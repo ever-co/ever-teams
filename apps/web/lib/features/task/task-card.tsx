@@ -113,8 +113,8 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative md:flex items-center justify-between py-3 hidden',
-					active && ['border-primary-light border-[2px]'],
+					'relative md:flex items-center justify-between py-3 hidden min-h-[6.875rem]',
+					active && ['border-primary-light border-[0.125rem]'],
 					className
 				)}
 			>
@@ -469,7 +469,7 @@ function TaskCardMenu({
 		<div className="absolute right-2">
 			<Popover className="relative">
 				<Popover.Button className="flex items-center outline-none border-none">
-					{!loading && <MoreIcon />}
+					{!loading && <MoreIcon className="dark:stroke-[#B1AEBC]" />}
 					{loading && <SpinnerLoader size={20} />}
 				</Popover.Button>
 
