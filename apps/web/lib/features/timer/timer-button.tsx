@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button } from 'lib/components';
@@ -21,7 +22,9 @@ export function TimerButton({ onClick, running, disabled, className }: Props) {
 				'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-lgcard-white',
 				disabled && ['opacity-70 cursor-default'],
 				running
-					? ['dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue']
+					? [
+							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue border-none',
+					  ]
 					: ['dark:bg-dark-lighter'],
 
 				className

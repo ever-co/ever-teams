@@ -83,7 +83,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		() => member?.timerStatus || 'idle',
 		[member?.timerStatus]
 	);
-	const size = 80;
+	const size = 100;
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -116,11 +116,11 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 				)}
 			</div>
 
-			<div>
-				<Text.Heading as="h3" className="text-2xl">
+			<div className="flex flex-col gap-3.5">
+				<Text.Heading as="h3" className="text-4xl">
 					{user?.firstName} {user?.lastName}
 				</Text.Heading>
-				<Text className="text-xs text-gray-500">{user?.email}</Text>
+				<Text className="text-lg text-gray-500">{user?.email}</Text>
 			</div>
 		</div>
 	);

@@ -91,7 +91,8 @@ function TaskEstimateInput({
 						<EditIcon
 							className={clsxm(
 								'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
-								!task && ['opacity-40 cursor-default']
+								!task && ['opacity-40 cursor-default'],
+								'dark:stroke-[#B1AEBC]'
 							)}
 						/>
 					</button>

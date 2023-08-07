@@ -113,8 +113,8 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative md:flex items-center justify-between py-3 hidden min-h-[6.875rem]',
-					active && ['border-primary-light border-[0.125rem]'],
+					'relative md:flex items-center justify-between py-3 hidden min-h-[6.875rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
+					active && ['border-primary-light dark:bg-[#1E2025] '],
 					className
 				)}
 			>
@@ -154,7 +154,7 @@ export function TaskCard(props: Props) {
 						activeAuthTask={activeAuthTask}
 						task={task}
 						isAuthUser={isAuthUser}
-						className="lg:w-48 lg:px-4 px-2"
+						className="lg:w-48 lg:px-4 px-2 flex flex-col gap-5"
 						showTotal={viewType !== 'unassign'}
 						memberInfo={profile?.member}
 					/>
@@ -368,7 +368,7 @@ function TimerButtonCall({
 			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 			running={activeTaskStatus?.running}
 			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className="h-9 w-9"
+			className="h-14 w-14"
 		/>
 	);
 }
