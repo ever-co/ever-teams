@@ -153,7 +153,7 @@ const TaskSecondaryInfo = () => {
 					</Button>
 				</ActiveTaskPropertiesDropdown>
 			</TaskRow>
-			<hr className="text-[#F2F2F2] mt-[15px]" />
+			<hr className="mt-[15px]  dark:border-[#7B8089]" />
 
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
