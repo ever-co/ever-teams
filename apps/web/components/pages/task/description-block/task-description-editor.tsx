@@ -6,7 +6,13 @@ import {
 	isValidSlateObject,
 } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import {
 	Editor,
 	createEditor,
@@ -48,6 +54,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const [key, setKey] = useState(0); // Add key state, we need it as it re-renders the editor
 	const [editorValue, setEditorValue] = useState<any>();
+	const editorRef = useRef<HTMLDivElement>(null);
 
 	const initialValue = useMemo((): Descendant[] => {
 		let value;
@@ -81,7 +88,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	}, [initialValue, key]);
 
 	return (
-		<div className="flex flex-col prose dark:prose-invert">
+		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
 			{task && (
 				<Slate
 					key={key}
@@ -125,6 +132,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						isUpdated={isUpdated}
 						setIsUpdated={() => setIsUpdated(false)}
 						editorValue={editorValue}
+						editorRef={editorRef}
 					/>
 				</Slate>
 			)}

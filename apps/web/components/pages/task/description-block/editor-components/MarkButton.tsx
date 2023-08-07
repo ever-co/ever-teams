@@ -1,3 +1,4 @@
+import { clsxm } from '@app/utils';
 import { TextEditorService } from './TextEditorService';
 import React from 'react';
 import { useSlate } from 'slate-react';
@@ -13,18 +14,12 @@ const MarkButton = ({ format, icon: Icon, isMarkActive }: IMarkButtonProps) => {
 
 	return (
 		<button
-			className="my-1"
-			style={{
-				cursor: 'pointer',
-				background: isMarkActive(editor, format) ? '#ddd' : 'transparent',
-				border: 'none',
-				borderRadius: '5px',
-				transition: '0.3s',
-				padding: '2px',
-				// display: 'flex',
-				// alignItems: 'center',
-				// justifyContent: 'center',
-			}}
+			className={clsxm(
+				'my-1 rounded-md transition duration-300 p-[2px]',
+				isMarkActive(editor, format)
+					? 'dark:bg-[#47484D] bg-[#ddd]'
+					: 'bg-transparent'
+			)}
 			onMouseDown={(event) => {
 				event.preventDefault();
 				TextEditorService.toggleMark(editor, format, isMarkActive);

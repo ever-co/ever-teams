@@ -21,27 +21,30 @@ function MainPage() {
 
 	return (
 		<MainLayout>
-			<MainHeader>
+			<MainHeader className="pb-1">
 				<div className="flex items-center space-x-3">
 					<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-5 w-5" />
 					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
 				</div>
 
 				<UnverifiedEmail />
-
 				<TeamInvitations />
-
-				{isTeamMember ? (
-					<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
-				) : null}
-
-				{/* Header user card list */}
-				{isTeamMember ? <UserTeamCardHeader /> : null}
 			</MainHeader>
 
-			<Container className="mb-10">
-				{isTeamMember ? <TeamMembers /> : <NoTeam />}
-			</Container>
+			<div className="sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5">
+				<Container>
+					{isTeamMember ? (
+						<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
+					) : null}
+					{/* Header user card list */}
+					{isTeamMember ? <UserTeamCardHeader /> : null}
+				</Container>
+
+				{/* Divider */}
+				<div className="h-0.5 bg-[#FFFFFF14]"></div>
+			</div>
+
+			<Container>{isTeamMember ? <TeamMembers /> : <NoTeam />}</Container>
 		</MainLayout>
 	);
 }
@@ -55,7 +58,7 @@ function TaskTimerSection({
 		<Card
 			shadow="bigger"
 			className={clsxm(
-				'w-full flex md:flex-row flex-col-reverse justify-between items-center mt-6',
+				'w-full flex md:flex-row flex-col-reverse justify-between items-center py-4',
 				'border-[#00000008]  border-[0.125rem] dark:border-[#26272C] dark:shadow-lg dark:bg-[#1B1D22]'
 			)}
 		>

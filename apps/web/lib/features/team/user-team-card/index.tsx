@@ -20,7 +20,7 @@ import { timerSecondsState } from '@app/stores';
 export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
-		<ul className="sm:flex row font-normal justify-between mb-3 mt-16 hidden dark:text-[#7B8089]">
+		<ul className="sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{trans.common.NAME}
@@ -92,7 +92,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025]',
+					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[8.75rem]',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border dark:border-[#FFFFFF14]'],
@@ -127,7 +127,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 w-1/5 lg:px-4 px-2"
+					className="2xl:w-48 w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 				/>
 				<VerticalSeparator />
 

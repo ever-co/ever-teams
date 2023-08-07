@@ -39,7 +39,7 @@ export default function AuthTeam() {
 					<div
 						className={clsxm(
 							'w-[200%] flex flex-row transition-[transform] duration-500',
-							step !== FIRST_STEP && ['-translate-x-[550px]']
+							step !== FIRST_STEP && ['-translate-x-[50%]']
 						)}
 					>
 						<div className="w-1/2">

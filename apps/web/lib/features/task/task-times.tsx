@@ -79,11 +79,9 @@ function TimeInfo({
 	return (
 		<>
 			{showDaily && (
-				<div className="flex space-x-2 items-center mb-2 font-normal">
-					<span className="text-gray-500 lg:text-sm text-xs">
-						{trans.common.TODAY}:
-					</span>
-					<Text className="lg:text-sm text-xs">
+				<div className="flex space-x-2 items-center font-normal text-base">
+					<span className="text-[#7B8089]">{trans.common.TODAY}:</span>
+					<Text>
 						{daily.h}h : {daily.m}m
 					</Text>
 				</div>
@@ -92,14 +90,12 @@ function TimeInfo({
 			{showTotal && (
 				<div
 					className={clsxm(
-						'flex space-x-4 items-center font-normal',
-						showDaily && ['text-sm']
+						'flex space-x-4 items-center font-normal text-sm'
+						// showDaily && ['text-sm']
 					)}
 				>
-					<span className="text-gray-500 lg:text-sm text-xs">
-						{trans.common.TOTAL}:
-					</span>
-					<Text className="lg:text-sm text-xs">
+					<span className="text-[#7B8089]">{trans.common.TOTAL}:</span>
+					<Text>
 						{total.h}h : {total.m}m
 					</Text>
 				</div>
