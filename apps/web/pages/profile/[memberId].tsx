@@ -101,14 +101,14 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 				{imageUrl && isValidUrl(imageUrl) ? (
 					<Avatar
 						size={size}
-						className="relative cursor-pointer"
+						className="relative cursor-pointer dark:border-[0.375rem] dark:border-[#26272C]"
 						imageUrl={imageUrl}
 						alt={userName}
 						imageTitle={userName.charAt(0)}
 					>
 						<TimerStatus
 							status={timerStatus}
-							className="absolute border z-20 bottom-3 right-[12%] -mb-3"
+							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
 						/>
 					</Avatar>
 				) : (
