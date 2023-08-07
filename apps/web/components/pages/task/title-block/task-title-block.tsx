@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { ITeamTask } from '@app/interfaces';
 
 const TaskTitleBlock = () => {
-	const { updateTitle } = useTeamTasks();
+	const { updateTitle, updateLoading } = useTeamTasks();
 	const { toast } = useToast();
 	const { trans } = useTranslation('taskDetails');
 
@@ -37,9 +37,9 @@ const TaskTitleBlock = () => {
 	//Hooks and functions
 	useEffect(() => {
 		if (!edit) {
-			task && setTitle(task?.title);
+			task && !updateLoading && setTitle(task?.title);
 		}
-	}, [task, edit]);
+	}, [task, edit, updateLoading]);
 
 	useEffect(() => {
 		autoTextAreaHeight();
