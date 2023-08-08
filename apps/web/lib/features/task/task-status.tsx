@@ -34,6 +34,7 @@ import {
 import clsx from 'clsx';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
+import { CircleIcon } from 'lib/components/svgs';
 
 export type TStatusItem = {
 	id?: string;
@@ -874,7 +875,11 @@ export function StatusDropdown<T extends TStatusItem>({
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
-		icon: <span></span>,
+		icon: (
+			<span className="mr-2">
+				<CircleIcon />
+			</span>
+		),
 		name: defaultItem,
 	};
 
@@ -887,7 +892,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			bordered={bordered}
 			forDetails={forDetails}
 			showIcon={showIcon}
-			active={!!value}
+			active={true}
 			showIssueLabels={showIssueLabels}
 			issueType={issueType}
 			sidebarUI={sidebarUI}
@@ -947,7 +952,7 @@ export function StatusDropdown<T extends TStatusItem>({
 								) : (
 									<TaskStatus
 										{...defaultValue}
-										active={false}
+										active={true}
 										forDetails={forDetails}
 										sidebarUI={sidebarUI}
 										className={clsxm(
