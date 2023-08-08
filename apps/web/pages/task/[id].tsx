@@ -47,13 +47,13 @@ const TaskDetails = () => {
 		<MainLayout showTimer={!profile.isAuthUser && isTrackingEnabled}>
 			<div className="pt-20 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
-					<div className="flex items-center space-x-3">
+					<div className="flex items-center gap-8">
 						<span
 							onClick={() => {
 								router.back();
 							}}
 						>
-							<ArrowLeft className="h-5 w-5" />
+							<ArrowLeft className="h-6 w-6" />
 						</span>
 
 						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
