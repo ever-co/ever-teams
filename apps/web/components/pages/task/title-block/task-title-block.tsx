@@ -16,6 +16,7 @@ import { useTranslation } from 'lib/i18n';
 import CreateParentTask from '../ParentTask';
 import Link from 'next/link';
 import { ITeamTask } from '@app/interfaces';
+import { CloseAlternateIcon, CloseIcon, TickIcon } from 'lib/components/svgs';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -111,26 +112,20 @@ const TaskTitleBlock = () => {
 						</div>
 
 						{edit ? (
-							<div className="flex flex-col items-start transition-all">
-								<button ref={saveButton} onClick={() => saveTitle(title)}>
-									<Image
-										src="/assets/svg/tick.svg"
-										alt="edit header"
-										width={28}
-										height={28}
-										style={{ height: '28px' }}
-										className="cursor-pointer"
-									/>
+							<div className="flex flex-col items-start transition-all gap-1">
+								<button
+									ref={saveButton}
+									onClick={() => saveTitle(title)}
+									className="border-2 dark:border-[#464242] rounded-md"
+								>
+									<TickIcon />
 								</button>
-								<button ref={cancelButton} onClick={cancelEdit}>
-									<Image
-										src="/assets/svg/close.svg"
-										alt="edit header"
-										width={28}
-										height={28}
-										style={{ height: '28px' }}
-										className="cursor-pointer "
-									/>
+								<button
+									ref={cancelButton}
+									onClick={cancelEdit}
+									className="border-2 dark:border-[#464242] rounded-md"
+								>
+									<CloseAlternateIcon />
 								</button>
 							</div>
 						) : (
