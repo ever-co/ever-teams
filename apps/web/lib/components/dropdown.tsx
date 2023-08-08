@@ -98,7 +98,7 @@ export function Dropdown<T extends DropdownItem>({
 					>
 						<Card
 							shadow="custom"
-							className="md:px-4 py-4 rounded-x"
+							className="md:px-4 py-4 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
 							{items.map((Item, index) => (
