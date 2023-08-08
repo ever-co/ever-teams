@@ -1000,8 +1000,8 @@ export function CloseCircleIcon({ className }: IClassName) {
 export function CircleIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="17"
-			height="18"
+			width="15"
+			height="15"
 			viewBox="0 0 17 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
