@@ -67,7 +67,10 @@ function TaskEstimateInput({
 							loadingRef={loadingRef}
 							closeable_fc={closeFn}
 						/>
-						<button className={`ml-2 ${loadingRef.current && 'hidden'}`}>
+						<button
+							className={`ml-2 ${loadingRef.current && 'hidden'}`}
+							onClick={() => task && edition.setEstimateEditMode(false)}
+						>
 							<TickSaveIcon className="w-5" />
 						</button>
 					</>
