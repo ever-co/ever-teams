@@ -46,7 +46,7 @@ export function TaskLabels({ task, className, forDetails }: Props) {
 					variant="outline"
 					onClick={modal.openModal}
 				>
-					<PlusIcon className="w-[16px] h-[16px] stroke-dark dark:stroke-white" />
+					<PlusIcon className="w-4 h-4] stroke-dark dark:stroke-white" />
 				</Button>
 			</TaskLabelsDropdown>
 

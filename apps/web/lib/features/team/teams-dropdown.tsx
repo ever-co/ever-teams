@@ -58,12 +58,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 						placement="top-start"
 					>
 						<Button
-							className="w-full text-xs mt-3 dark:text-white"
+							className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
 							variant="outline"
 							onClick={openModal}
 							disabled={!user?.isEmailVerified}
 						>
-							<PlusIcon className="w-[16px] h-[16px]" />
+							<PlusIcon className="w-4 h-4" />
 							{trans.common.CREATE_TEAM}
 						</Button>
 					</Tooltip>
