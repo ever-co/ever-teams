@@ -82,7 +82,7 @@ const TaskDetails = () => {
 					</section>
 				</div>
 
-				<IssueModal task={task} />
+				{/* <IssueModal task={task} /> */}
 				{/*<div className="flex sm:justify-end justify-center mt-8">
 					<Button
 						variant="grey"
