@@ -34,12 +34,12 @@ const Team = () => {
 			{!user ? (
 				<SettingsTeamSkeleton />
 			) : (
-				<MainLayout className="items-start">
-					<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
+				<MainLayout className="items-start pb-1">
+					<div className="bg-white dark:bg-dark--theme pt-12 pb-4">
 						<Container>
-							<div className="flex items-center space-x-3">
+							<div className="flex items-center gap-8">
 								<Link href="/">
-									<ArrowLeft />
+									<ArrowLeft className="w-6 h-6" />
 								</Link>
 
 								<Breadcrumb

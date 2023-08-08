@@ -533,6 +533,28 @@ export function ArrowDown({ className }: IClassName) {
 	);
 }
 
+export function SimpleArrowRight({ className }: IClassName) {
+	return (
+		<svg
+			width="16"
+			height="16"
+			viewBox="0 0 16 16"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M5.94 13.2802L10.2867 8.93355C10.8 8.42021 10.8 7.58021 10.2867 7.06688L5.94 2.72021"
+				// stroke="#B1AEBC"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
 // ============================= StopIcon ===========================//
 
 export function StopIcon({ className }: IClassName) {
@@ -1000,12 +1022,12 @@ export function CloseCircleIcon({ className }: IClassName) {
 export function CircleIcon({ className }: IClassName) {
 	return (
 		<svg
-			width="17"
-			height="18"
+			width="15"
+			height="15"
 			viewBox="0 0 17 18"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			className={clsxm('stroke-[#292D32]', className)}
+			className={clsxm('stroke-[#292D32] dark:stroke-white', className)}
 		>
 			<path
 				d="M8.5 16.5C12.625 16.5 16 13.125 16 9C16 4.875 12.625 1.5 8.5 1.5C4.375 1.5 1 4.875 1 9C1 13.125 4.375 16.5 8.5 16.5Z"

@@ -39,10 +39,10 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	return (
 		<>
 			<Dropdown
-				className="md:w-[223px] outline-none "
+				className="md:w-[223px] outline-none"
 				optionsClassName="md:w-[223px] outline-none"
 				buttonClassName={clsxm(
-					'py-0 font-medium outline-none dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+					'py-0 font-medium outline-none h-[3.125rem] dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
 					items.length === 0 && ['py-2']
 				)}
 				value={teamItem}
@@ -58,12 +58,12 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 						placement="top-start"
 					>
 						<Button
-							className="w-full text-xs mt-3 dark:text-white"
+							className="w-full text-xs mt-3 dark:text-white rounded-xl border-[0.0938rem]"
 							variant="outline"
 							onClick={openModal}
 							disabled={!user?.isEmailVerified}
 						>
-							<PlusIcon className="w-[16px] h-[16px]" />
+							<PlusIcon className="w-4 h-4" />
 							{trans.common.CREATE_TEAM}
 						</Button>
 					</Tooltip>

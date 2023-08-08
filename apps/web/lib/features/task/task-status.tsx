@@ -34,6 +34,7 @@ import {
 import clsx from 'clsx';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
+import { CircleIcon } from 'lib/components/svgs';
 
 export type TStatusItem = {
 	id?: string;
@@ -874,7 +875,11 @@ export function StatusDropdown<T extends TStatusItem>({
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
-		icon: <span></span>,
+		icon: (
+			<span className="mr-2">
+				<CircleIcon />
+			</span>
+		),
 		name: defaultItem,
 	};
 
@@ -887,7 +892,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			bordered={bordered}
 			forDetails={forDetails}
 			showIcon={showIcon}
-			active={!!value}
+			active={true}
 			showIssueLabels={showIssueLabels}
 			issueType={issueType}
 			sidebarUI={sidebarUI}
@@ -897,7 +902,8 @@ export function StatusDropdown<T extends TStatusItem>({
 				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
 				forDetails && !value
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-					: 'bg-[#F2F2F2] '
+					: 'bg-[#F2F2F2] ',
+				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]'
 			)}
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
@@ -947,7 +953,7 @@ export function StatusDropdown<T extends TStatusItem>({
 								) : (
 									<TaskStatus
 										{...defaultValue}
-										active={false}
+										active={true}
 										forDetails={forDetails}
 										sidebarUI={sidebarUI}
 										className={clsxm(
@@ -986,7 +992,7 @@ export function StatusDropdown<T extends TStatusItem>({
 								<Listbox.Options className="outline-none">
 									<Card
 										shadow="bigger"
-										className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white"
+										className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 									>
 										{items.map((item, i) => (
 											<Listbox.Option
