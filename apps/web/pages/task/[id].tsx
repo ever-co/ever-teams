@@ -2,28 +2,21 @@ import { useTranslation } from 'lib/i18n';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import {
-	useModal,
 	useOrganizationTeams,
 	useTeamTasks,
 	useUserProfilePage,
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import TaskDetailsAside from '@components/pages/task/task-details-aside';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-// import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 import IssueCard from '@components/pages/task/IssueCard';
-import { ITeamTask } from '@app/interfaces';
-import { TaskStatusModal } from 'lib/features';
 import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
 import TaskProperties from '@components/pages/task/TaskProperties';
-// import IssueCard from '@components/pages/task/IssueCard';
-// import CompletionBlock from '@components/pages/task/CompletionBlock';
-// import ActivityBlock from '@components/pages/task/ActivityBlock';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -83,26 +76,12 @@ const TaskDetails = () => {
 				</div>
 
 				{/* <IssueModal task={task} /> */}
-				{/*<div className="flex sm:justify-end justify-center mt-8">
-					<Button
-						variant="grey"
-						className="font-normal py-4 px-4 rounded-xl text-md mr-8"
-					>
-						Cancel
-					</Button>
-					<Button
-						variant="primary"
-						className="font-normal py-4 px-4 rounded-xl text-md"
-						type="submit"
-					>
-						Save
-					</Button>
-						</div>*/}
 			</Container>
 		</MainLayout>
 	);
 };
 
+/**
 function IssueModal({ task }: { task: ITeamTask | null }) {
 	const { handleStatusUpdate } = useTeamTasks();
 	const { trans } = useTranslation();
@@ -140,5 +119,6 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 		</TaskStatusModal>
 	);
 }
+ */
 
 export default withAuthentication(TaskDetails, { displayName: 'TaskDetails' });
