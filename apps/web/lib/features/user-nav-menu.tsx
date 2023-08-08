@@ -16,7 +16,7 @@ import {
 	BoxIcon,
 	BriefcaseIcon,
 	DevicesIcon,
-	LogoutIcon,
+	LogoutIcon2,
 	MoonIcon,
 	PeopleIcon,
 	SettingsOutlineIcon,
@@ -111,7 +111,7 @@ function UserNavMenu() {
 	return (
 		<Card
 			shadow="custom"
-			className="w-[308px] p-5 flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard"
+			className="w-[308px] flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard dark:bg-[#1B1D22] border-[0.125rem] border-transparent dark:border-[#26272C]"
 		>
 			<div className="flex flex-col justify-center items-center">
 				<Link href={`/settings/personal`}>
@@ -165,7 +165,7 @@ function UserNavMenu() {
 						enabled={`${user?.email}`.trim().length > CHARACTER_LIMIT_TO_SHOW}
 						placement="auto"
 					>
-						<Text className="text-sm overflow-hidden text-ellipsis whitespace-nowrap">
+						<Text className="text-sm overflow-hidden text-ellipsis whitespace-nowrap text-[#7E7991]">
 							{user?.email}
 						</Text>
 					</Tooltip>
@@ -235,10 +235,10 @@ function UserNavMenu() {
 					{/* Logout menu */}
 					<li>
 						<button
-							className="flex space-x-3 items-center font-normal mb-3"
+							className="flex space-x-3 items-center font-normal mb-3 text-[#DE437B]"
 							onClick={logOut}
 						>
-							<LogoutIcon className="w-5 h-5 text-red-500" />{' '}
+							<LogoutIcon2 className="w-5 h-5 stroke-[#DE437B]" />{' '}
 							<span>{trans.common.LOGOUT}</span>
 						</button>
 					</li>

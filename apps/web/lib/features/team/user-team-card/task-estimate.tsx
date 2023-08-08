@@ -21,7 +21,7 @@ export function TaskEstimateInfo({
 }: Props) {
 	return (
 		<div className={className}>
-			<div className="flex items-center flex-col space-y-2">
+			<div className="flex items-center flex-col gap-y-[2rem] justify-center">
 				<TaskEstimateInput {...rest} />
 
 				<TaskProgressBar
@@ -71,7 +71,7 @@ function TaskEstimateInput({
 
 			<div
 				className={clsxm(
-					'flex space-x-2 items-center mb-2 font-normal lg:text-sm text-xs',
+					'flex space-x-2 items-center font-normal lg:text-sm text-xs',
 					hasEditMode && ['hidden']
 				)}
 			>
@@ -91,7 +91,8 @@ function TaskEstimateInput({
 						<EditIcon
 							className={clsxm(
 								'cursor-pointer lg:h-4 lg:w-4 w-2 h-2',
-								!task && ['opacity-40 cursor-default']
+								!task && ['opacity-40 cursor-default'],
+								'dark:stroke-[#B1AEBC]'
 							)}
 						/>
 					</button>

@@ -31,7 +31,7 @@ export function Timer({ className }: IClassName) {
 
 	return (
 		<div className={clsxm('flex flex-row mb-10 xl:mb-0', className)}>
-			<div className="flex justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
+			<div className="flex flex-col items-center justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
 				<div className="w-[11rem]">
 					<Text.Heading
 						as="h3"

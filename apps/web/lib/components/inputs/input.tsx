@@ -158,7 +158,7 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 							className
 						)}
 					/>
-					<span className="absolute bottom-0 left-0 w-full text-center -z-10 dark:text-[#7E7991]">
+					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">
 						{dash}
 					</span>
 				</div>

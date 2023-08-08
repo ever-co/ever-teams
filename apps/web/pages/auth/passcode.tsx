@@ -28,14 +28,14 @@ export default function AuthPasscode() {
 				<div
 					className={clsxm(
 						'w-[200%] flex flex-row transition-[transform] duration-500',
-						form.authScreen.screen !== 'email' && ['-translate-x-[550px]']
+						form.authScreen.screen !== 'email' && ['-translate-x-[50%]']
 					)}
 				>
-					<EmailScreen form={form} className="w-1/2" />
+					<EmailScreen form={form} className="w-[50%]" />
 					<PasscodeScreen
 						form={form}
 						className={clsxm(
-							'w-1/2 transition-[visibility] ease-out duration-700',
+							'w-[50%] transition-[visibility] ease-out duration-700',
 							form.authScreen.screen === 'email' && ['invisible']
 						)}
 					/>

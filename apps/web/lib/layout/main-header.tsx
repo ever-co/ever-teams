@@ -1,6 +1,6 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Container, Divider } from 'lib/components';
+import { Container } from 'lib/components';
 import { PropsWithChildren } from 'react';
 
 export function MainHeader({
@@ -11,13 +11,13 @@ export function MainHeader({
 		<>
 			<div
 				className={clsxm(
-					'bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4',
+					'bg-white dark:bg-dark--theme pt-20 -mt-8 pb-4',
 					className
 				)}
 			>
 				<Container>{children}</Container>
 			</div>
-			<Divider />
+			{/* <Divider /> */}
 		</>
 	);
 }
