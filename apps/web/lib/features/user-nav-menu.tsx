@@ -39,7 +39,7 @@ export function UserNavAvatar() {
 		user?.name || user?.firstName || user?.lastName || user?.username;
 
 	return (
-		<Popover className="relative">
+		<Popover className="relative flex items-center">
 			<Popover.Button className="outline-none">
 				<div
 					className={clsxm(
