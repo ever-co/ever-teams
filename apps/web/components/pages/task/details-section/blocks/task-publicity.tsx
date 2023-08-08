@@ -26,42 +26,26 @@ const TaskPublicity = () => {
 		>
 			{task?.public ? (
 				<>
-					<div className="text-[#293241] dark:text-white flex items-center">
-						{/* <Image
-							src="/assets/svg/public.svg"
-							alt="private task"
-							width={14}
-							height={14}
-							style={{ height: '14px', marginRight: '5px' }}
-							className="mb-1"
-						/> */}
-						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] mr-2 w-4" />
-						<div>This task is Public</div>
+					<div className="text-[#293241] dark:text-white flex items-center gap-2">
+						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] w-3" />
+						<p className="text-[0.625rem]">This task is Public</p>
 					</div>
 					<div
 						onClick={() => handlePublicity(false)}
-						className="flex items-center cursor-pointer"
+						className="flex items-center cursor-pointer text-[0.625rem] text-[#A5A2B2]"
 					>
 						Make a private
 					</div>
 				</>
 			) : (
 				<>
-					<div className="text-[#293241] dark:text-white flex items-center ">
-						{/* <Image
-							src="/assets/svg/lock.svg"
-							alt="private task"
-							width={14}
-							height={14}
-							style={{ height: '14px', marginRight: '5px' }}
-							className="mb-1"
-						/> */}
-						<LockIcon className="stroke-black dark:stroke-[#a6a2b2] mr-2 w-4" />
-						<div>This task is Private</div>
+					<div className="text-[#293241] dark:text-white flex items-center gap-2">
+						<LockIcon className="stroke-black dark:stroke-[#a6a2b2] w-3" />
+						<p className="text-[0.625rem]">This task is Private</p>
 					</div>
 					<div
 						onClick={() => handlePublicity(true)}
-						className="flex items-center cursor-pointer"
+						className="flex items-center cursor-pointer text-[0.625rem] text-[#A5A2B2]"
 					>
 						Make a public
 					</div>
