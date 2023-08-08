@@ -40,9 +40,9 @@ const Profile = () => {
 					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}
 				>
 					{/* Breadcrumb */}
-					<div className="flex items-center space-x-3">
+					<div className="flex items-center gap-8">
 						<Link href="/">
-							<ArrowLeft className="h-5 w-5" />
+							<ArrowLeft className="h-6 w-6" />
 						</Link>
 
 						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
