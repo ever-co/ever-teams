@@ -95,7 +95,7 @@ const TaskTitleBlock = () => {
 
 	return (
 		<>
-			<div className="flex mb-6">
+			<div className="flex mb-6 gap-1">
 				{task ? (
 					<>
 						<div className="w-full flex flex-wrap relative">
