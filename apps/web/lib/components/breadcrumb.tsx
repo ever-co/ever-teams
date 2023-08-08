@@ -1,5 +1,6 @@
 import { clsxm } from '@app/utils';
 import Link from 'next/link';
+import React from 'react';
 import { SimpleArrowRight } from './svgs';
 
 type Props = {
@@ -13,7 +14,7 @@ export function Breadcrumb({ paths, className }: Props) {
 			<ol className="flex flex-row gap-2.5 items-center">
 				{paths.map((path, i) => {
 					return (
-						<>
+						<React.Fragment key={i}>
 							{i !== 0 && (
 								<li key={i + 'arrow-right'} className="font-normal">
 									<SimpleArrowRight className="w-4 h-4 stroke-[#B1AEBC]" />
@@ -45,7 +46,7 @@ export function Breadcrumb({ paths, className }: Props) {
 									</Link>
 								)}
 							</li>
-						</>
+						</React.Fragment>
 					);
 				})}
 			</ol>
