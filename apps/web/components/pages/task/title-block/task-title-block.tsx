@@ -16,7 +16,7 @@ import { useTranslation } from 'lib/i18n';
 import CreateParentTask from '../ParentTask';
 import Link from 'next/link';
 import { ITeamTask } from '@app/interfaces';
-import { CloseAlternateIcon, CloseIcon, TickIcon } from 'lib/components/svgs';
+import { CloseAlternateIcon, TickIcon } from 'lib/components/svgs';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -112,7 +112,7 @@ const TaskTitleBlock = () => {
 						</div>
 
 						{edit ? (
-							<div className="flex flex-col items-start transition-all gap-1">
+							<div className="flex flex-col items-start transition-all gap-[5px]">
 								<button
 									ref={saveButton}
 									onClick={() => saveTitle(title)}
