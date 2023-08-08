@@ -3,7 +3,7 @@ import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
-import { EditIcon } from 'lib/components/svgs';
+import { EditIcon, TickSaveIcon } from 'lib/components/svgs';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { useRef } from 'react';
@@ -57,15 +57,20 @@ function TaskEstimateInput({
 	return (
 		<>
 			<div
-				className={clsxm(!hasEditMode && ['hidden'])}
+				className={clsxm(!hasEditMode ? ['hidden'] : 'flex items-center')}
 				ref={edition.estimateEditIgnoreElement.ignoreElementRef}
 			>
 				{task && (
-					<TaskEstimate
-						_task={task}
-						loadingRef={loadingRef}
-						closeable_fc={closeFn}
-					/>
+					<>
+						<TaskEstimate
+							_task={task}
+							loadingRef={loadingRef}
+							closeable_fc={closeFn}
+						/>
+						<button className={`ml-2 ${loadingRef.current && 'hidden'}`}>
+							<TickSaveIcon className="w-5" />
+						</button>
+					</>
 				)}
 			</div>
 
