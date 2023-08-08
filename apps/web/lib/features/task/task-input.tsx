@@ -394,7 +394,7 @@ function TaskCard({
 			<Card
 				shadow="custom"
 				className={clsxm(
-					'rounded-lg md:px-4 md:py-4 max-h-96',
+					'rounded-xl md:px-4 md:py-4 max-h-96',
 					'overflow-auto',
 					!cardWithoutShadow && ['shadow-xlcard'],
 					fullWidth ? ['w-full'] : ['md:w-[500px]']

@@ -121,50 +121,51 @@ const TeamSize = ({
 							ref={panelRef}
 							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow "
 						>
-							<div className="bg-white shadow dark:bg-[#202023] rounded-[10px] text-[14px] font-light p-[16px]">
-								<div className="text-[18px] text-[#7E7991] font-[500]">
+							<div className="bg-white shadow rounded-xl text-[14px] font-light p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
+								<div className="text-lg text-[#7E7991] dark:text-white font-[500]">
 									Select Team Size
 								</div>
-								<div className="bg-[#EDEEF2] h-[1px] w-full mt-[10px]"></div>
-								<div className="mt-[10px]">
-									<div className="flex flex-col gap-y-[15px] hover:cursor-pointer">
-										{sizeOption.map((size, index) => {
-											return (
-												<div
-													key={index}
-													className="flex gap-[10px] items-center pl-[15px]"
-													style={{ gap: 15 }}
-													onClick={() => onSelect(size.name)}
-												>
-													<div className="text-[16px]  font-[600]">
-														{size.name}
-													</div>
+								{/* Divider */}
+								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
+
+								<div className="flex flex-col gap-3 hover:cursor-pointer">
+									{sizeOption.map((size, index) => {
+										return (
+											<div
+												key={index}
+												className="flex gap-3 items-center "
+												style={{ gap: 15 }}
+												onClick={() => onSelect(size.name)}
+											>
+												<div className="text-base font-[600] text-[#282048] dark:text-white">
+													{size.name}
 												</div>
-											);
-										})}
-									</div>
+											</div>
+										);
+									})}
 								</div>
-								<div className="bg-[#EDEEF2] mt-[10px] h-[1px] w-full"></div>
-								<div className="mt-[10px] pt-[5px]">
-									<div className="flex items-center space-x-2 justify-end">
-										<Button
-											variant="primary"
-											className="font-normal rounded-xl text-md min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
-											type="submit"
-											style={{ background: '#E6E6E9' }}
-											onClick={() => setDisabled(true)}
-										>
-											Cancel
-										</Button>
-										<Button
-											variant="primary"
-											className="font-normal rounded-xl text-sm min-w-[90px] h-[48px]"
-											type="submit"
-											onClick={handleSave}
-										>
-											Save
-										</Button>
-									</div>
+
+								{/* Divider */}
+								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
+
+								<div className="flex items-center space-x-2 justify-end">
+									<Button
+										variant="primary"
+										className="font-normal rounded-xl text-md min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
+										type="submit"
+										style={{ background: '#E6E6E9' }}
+										onClick={() => setDisabled(true)}
+									>
+										Cancel
+									</Button>
+									<Button
+										variant="primary"
+										className="font-normal rounded-xl text-sm min-w-[90px] h-[48px]"
+										type="submit"
+										onClick={handleSave}
+									>
+										Save
+									</Button>
 								</div>
 							</div>
 						</Popover.Panel>
