@@ -2,13 +2,7 @@ import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
-import {
-	Button,
-	Divider,
-	InputField,
-	Tooltip,
-	VerticalSeparator,
-} from 'lib/components';
+import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
