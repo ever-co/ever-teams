@@ -174,7 +174,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	}, [editor, isBlockActive]);
 
 	return (
-		<div className="flex flex-row justify-end items-center mb-3 mt-8 gap-1 border-b-2 dark:border-[#7B8089] ">
+		<div className="flex flex-row justify-end items-center mt-8 gap-1">
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
 				{trans.DESCRIPTION}
 			</p>
