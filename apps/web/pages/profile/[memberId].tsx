@@ -66,6 +66,8 @@ const Profile = () => {
 					{/* TaskFilter */}
 					<TaskFilter profile={profile} hook={hook} />
 				</MainHeader>
+				{/* Divider */}
+				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 
 				<Container className="mb-10">
 					<UserProfileTask profile={profile} tabFiltered={hook} />
