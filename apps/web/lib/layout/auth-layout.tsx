@@ -87,8 +87,8 @@ export function AuthLayout({ children, title, description }: Props) {
 						'flex flex-col items-center justify-between ml-auto'
 					)}
 				>
-					<div className="mt-20 lg:mt-23 flex flex-col items-center">
-						<div className="w-11/12 md:w-1/2">
+					<div className="mt-20 lg:mt-23 flex flex-col justify-center items-center w-full">
+						<div className="w-11/12">
 							{title && (
 								<Text.Heading
 									as="h1"
