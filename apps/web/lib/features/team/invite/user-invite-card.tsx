@@ -27,7 +27,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex hidden items-center py-3',
+					'relative sm:flex hidden items-center py-3 min-h-[7rem]',
 					className
 				)}
 			>
@@ -36,42 +36,58 @@ export function InvitedCard({ invitation, className }: Props) {
 				</div>
 
 				{/* User info */}
-				<div className="flex items-center space-x-4 w-[330px] opacity-40">
-					<Avatar
-						size={60}
-						className="relative"
-						imageTitle={invitation.fullName}
+				<div className="flex items-center space-x-4 2xl:w-[20.625rem] w-1/4 opacity-40">
+					<div
+						className="'w-[50px] h-[50px]',
+					'flex justify-center items-center',
+					'rounded-full text-2xl text-default dark:text-white',
+					'shadow-md font-normal'"
 					>
-						<TimerStatus
-							status={'idle'}
-							className="absolute border z-20 bottom-3 -right-1 -mb-3"
-						/>
-					</Avatar>
+						{' '}
+						<Avatar
+							size={50}
+							className="relative"
+							imageTitle={invitation.fullName}
+						>
+							<TimerStatus
+								status={'idle'}
+								className="absolute border z-20 bottom-3 -right-1 -mb-3"
+							/>
+						</Avatar>
+					</div>
 
-					<div className="w-64">
-						<Text.Heading as="h3">{invitation.fullName}</Text.Heading>
+					<div className="lg:w-64 w-1/2">
+						<Text.Heading
+							className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[17ch] 2xl:max-w-full"
+							as="h3"
+						>
+							{invitation.fullName}
+						</Text.Heading>
 						<Text className="text-gray-400 flex items-center text-sm space-x-1">
-							<MailIcon /> <span>{invitation.email}</span>
+							<MailIcon />{' '}
+							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
+								{invitation.email}
+							</span>
 						</Text>
 					</div>
 				</div>
 				<VerticalSeparator />
 
 				{/* Task information */}
-				<Text className="opacity-40 w-80 px-4 text-center">
+				<Text className="opacity-40 2xl:w-80 w-1/5 px-4 text-center">
 					{trans.common.TASK_TITTLE}
 				</Text>
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 w-48 font-normal px-3">
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 w-1/5 font-normal px-3">
 					<span>{trans.common.TODAY}:</span>
 					<Text>0h : 0m</Text>
 				</div>
 				<VerticalSeparator />
 
 				{/* TaskEstimateInfo */}
-				<div className="opacity-40 flex items-center justify-center space-x-1 w-52 relative">
+				<div className="opacity-40 flex items-center justify-center space-x-1 2xl:w-52 w-1/5 relative">
 					{/* <TimeInputField defaultValue="00" label="h" />
 					<span>:</span>
 					<TimeInputField defaultValue="00" label="m" />
@@ -95,7 +111,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			>
 				<div className="flex mb-4 items-center">
 					<Avatar
-						size={60}
+						size={50}
 						className="relative mr-2"
 						imageTitle={invitation.fullName}
 					>
@@ -105,9 +121,17 @@ export function InvitedCard({ invitation, className }: Props) {
 						/>
 					</Avatar>
 					<div className="">
-						<Text.Heading as="h3">{invitation.fullName}</Text.Heading>
+						<Text.Heading
+							as="h3"
+							className="overflow-hidden text-ellipsis whitespace-nowrap"
+						>
+							{invitation.fullName}
+						</Text.Heading>
 						<Text className="text-gray-400 flex items-center text-sm space-x-1">
-							<MailIcon /> <span>{invitation.email}</span>
+							<MailIcon />{' '}
+							<span className="overflow-hidden text-ellipsis whitespace-nowrap">
+								{invitation.email}
+							</span>
 						</Text>
 					</div>
 				</div>
