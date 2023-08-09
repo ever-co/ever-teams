@@ -222,7 +222,7 @@ export function InviteUserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative hidden sm:flex items-center py-3 min-h-[8.75rem] dark:bg-[#1E2025]',
+					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025]',
 					'dark:border dark:border-[#FFFFFF14]',
 					className
 				)}
