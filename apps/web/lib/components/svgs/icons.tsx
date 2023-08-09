@@ -855,6 +855,25 @@ export function TickSquareIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function TickIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="26"
+			height="26"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm(className, 'dark:stroke-gray-500 stroke-gray-700')}
+		>
+			<path
+				d="M7.75 11.9999L10.58 14.8299L16.25 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	);
+}
 
 //  ============================= Timer Icon ============================= //
 
@@ -1087,6 +1106,31 @@ export function CloseIcon({ className }: IClassName) {
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+export function CloseAlternateIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="26"
+			height="26"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('dark:stroke-gray-500 stroke-gray-700', className)}
+		>
+			<path
+				d="M9.16992 14.8299L14.8299 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M14.8299 14.8299L9.16992 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
 			/>
 		</svg>
 	);
