@@ -63,7 +63,7 @@ const TaskDetails = () => {
 						<section className="md:mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 
-							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 flex flex-col gap-8">
+							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8">
 								<RichTextEditor />
 								{/* <TaskDescriptionBlock /> */}
 								<IssueCard related={false} />

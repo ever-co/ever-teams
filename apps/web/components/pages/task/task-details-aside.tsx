@@ -6,7 +6,7 @@ import TaskPublicity from './details-section/blocks/task-publicity';
 
 const TaskDetailsAside = () => {
 	return (
-		<section className="border border-solid border-[#00000014] rounded-xl">
+		<section className="border border-solid border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme rounded-xl">
 			<div className="flex justify-between h-[52px] px-[15px] items-center">
 				<div className="not-italic font-semibold text-base leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					Details
