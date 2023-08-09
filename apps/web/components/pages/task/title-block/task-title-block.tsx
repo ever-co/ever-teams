@@ -28,6 +28,7 @@ const TaskTitleBlock = () => {
 	const saveButton = useRef<HTMLButtonElement>(null);
 	const cancelButton = useRef<HTMLButtonElement>(null);
 	const editButton = useRef<HTMLButtonElement>(null);
+	const titleContainerRef = useRef<HTMLDivElement>(null);
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
@@ -67,6 +68,24 @@ const TaskTitleBlock = () => {
 		[task, updateTitle, toast, trans]
 	);
 
+	useEffect(() => {
+		const handleOutsideClick = (event: MouseEvent) => {
+			if (
+				edit &&
+				titleContainerRef.current &&
+				!titleContainerRef.current.contains(event.target as Node)
+			) {
+				saveTitle(title);
+			}
+		};
+
+		document.addEventListener('mousedown', handleOutsideClick);
+
+		return () => {
+			document.removeEventListener('mousedown', handleOutsideClick);
+		};
+	}, [edit, saveTitle, title]);
+
 	const cancelEdit = () => {
 		task && setTitle(task?.title);
 		setEdit(false);
@@ -96,7 +115,7 @@ const TaskTitleBlock = () => {
 
 	return (
 		<>
-			<div className="flex mb-6 gap-1">
+			<div className="flex mb-6 gap-1" ref={titleContainerRef}>
 				{task ? (
 					<>
 						<div className="w-full flex flex-wrap relative">
