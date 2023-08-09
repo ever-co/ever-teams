@@ -759,26 +759,26 @@ export function LogoutIcon2({ className }: IClassName) {
 			<path
 				d="M17.4414 14.62L20.0014 12.06L17.4414 9.5"
 				className={clsxm(className)}
-				stroke-width="1.5"
+				strokeWidth="1.5"
 				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M9.76172 12.0601H19.9317"
 				className={clsxm(className)}
-				stroke-width="1.5"
+				strokeWidth="1.5"
 				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M11.7617 20C7.34172 20 3.76172 17 3.76172 12C3.76172 7 7.34172 4 11.7617 4"
 				className={clsxm(className)}
-				stroke-width="1.5"
+				strokeWidth="1.5"
 				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -823,15 +823,15 @@ export function TickSaveIcon({ className }: IClassName) {
 		>
 			<path
 				d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M7.75 11.9999L10.58 14.8299L16.25 9.16992"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -867,9 +867,9 @@ export function TickIcon({ className }: IClassName) {
 		>
 			<path
 				d="M7.75 11.9999L10.58 14.8299L16.25 9.16992"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
@@ -1122,15 +1122,15 @@ export function CloseAlternateIcon({ className }: IClassName) {
 		>
 			<path
 				d="M9.16992 14.8299L14.8299 9.16992"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 			<path
 				d="M14.8299 14.8299L9.16992 9.16992"
-				stroke-width="1.5"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			/>
 		</svg>
 	);
