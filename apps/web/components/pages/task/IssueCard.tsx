@@ -28,7 +28,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 
 	return (
 		<Card
-			className="w-full mt-8 pt-0 px-4 pb-4 md:pt-0 md:px-4 md:pb-4"
+			className="w-full mt-8 pt-0 px-4 pb-4 md:pt-0 md:px-4 md:pb-4 dark:bg-[#1E2025]"
 			shadow="bigger"
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
@@ -65,7 +65,13 @@ const IssueCard = ({ related }: { related: boolean }) => {
 					)}
 				>
 					{linkedTasks.map((task) => {
-						return <TaskLinkedIssue key={task.id} task={task} />;
+						return (
+							<TaskLinkedIssue
+								key={task.id}
+								task={task}
+								className="dark:bg-[#1E2025]"
+							/>
+						);
 					})}
 				</div>
 			)}
