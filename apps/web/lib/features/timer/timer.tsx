@@ -104,7 +104,7 @@ export function MinTimerFrame({ className }: IClassName) {
 	return (
 		<div
 			className={clsxm(
-				'input-border rounded-[10px] p-2',
+				'input-border rounded-[10px] p-2 h-[3.125rem] dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
 				'flex items-center md:space-x-4 space-x-1',
 				className
 			)}
@@ -122,7 +122,7 @@ export function MinTimerFrame({ className }: IClassName) {
 
 			<VerticalSeparator />
 
-			<div className="ml-5 z-[50]">
+			<div className="z-[50]">
 				<TimerButton
 					onClick={timerHanlder}
 					running={timerStatus?.running}

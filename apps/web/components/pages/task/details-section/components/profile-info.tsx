@@ -1,6 +1,6 @@
 // import { auto } from '@popperjs/core';
 import { imgTitle } from '@app/helpers';
-import { isURL } from 'class-validator';
+import { isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { Avatar } from 'lib/components';
 import stc from 'string-to-color';
@@ -35,7 +35,7 @@ const ProfileInfo = ({
 					backgroundColor: `${stc(names)}80`,
 				}}
 			>
-				{profilePicSrc && isURL(profilePicSrc) ? (
+				{profilePicSrc && isValidUrl(profilePicSrc) ? (
 					<Avatar
 						size={size}
 						className="relative cursor-pointer"

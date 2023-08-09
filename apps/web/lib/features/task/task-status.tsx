@@ -83,6 +83,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		sidebarUI?: boolean;
 
 		forParentChildRelationship?: boolean;
+		taskStatusClassName?: string;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
@@ -783,7 +784,7 @@ export function TaskStatus({
 				`py-2 md:px-3 px-2 flex items-center text-sm relative `,
 
 				sidebarUI
-					? 'text-dark space-x-3 rounded-[4px] font-[500]'
+					? 'text-dark space-x-3 rounded-md font-[500]'
 					: 'space-x-0 rounded-xl',
 
 				issueType === 'issue' && ['px-2 text-white'],
@@ -844,6 +845,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onChange,
 	items,
 	className,
+	taskStatusClassName,
 	defaultItem,
 	issueType = 'status',
 	children,
@@ -865,6 +867,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
+	taskStatusClassName?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
 	forDetails?: boolean;
@@ -909,7 +912,8 @@ export function StatusDropdown<T extends TStatusItem>({
 				forDetails && !value
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
 					: 'bg-[#F2F2F2] ',
-				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]'
+				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
+				taskStatusClassName
 			)}
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
@@ -967,7 +971,7 @@ export function StatusDropdown<T extends TStatusItem>({
 											sidebarUI && ['text-xs'],
 											'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 											forDetails &&
-												'bg-transparent border border-solid border-color-[#F2F2F2]'
+												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
 										)}
 										name={
 											values.length > 0
