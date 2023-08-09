@@ -23,14 +23,14 @@ export function TaskInfo({
 	return (
 		<div
 			className={clsxm(
-				'h-full flex flex-col items-start justify-center',
+				'h-full flex flex-col items-start justify-between gap-[1.0625rem]',
 				className
 			)}
 		>
 			{/* task */}
 			<div
 				className={clsxm(
-					'w-full h-[40px]',
+					'w-full h-10',
 					edition.editMode ? ['mb-2'] : ['overflow-hidden']
 				)}
 			>
