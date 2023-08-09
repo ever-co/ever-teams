@@ -100,6 +100,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					}}
 				>
 					<Toolbar isMarkActive={isMarkActive} isBlockActive={isBlockActive} />
+					<div className="h-[0.0625rem] bg-[#0000001A] dark:bg-[#FFFFFF29]"></div>
 
 					<Editable
 						className={`${

@@ -2,28 +2,21 @@ import { useTranslation } from 'lib/i18n';
 import { Breadcrumb, Container } from 'lib/components';
 import { MainLayout } from 'lib/layout';
 import {
-	useModal,
 	useOrganizationTeams,
 	useTeamTasks,
 	useUserProfilePage,
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import TaskDetailsAside from '@components/pages/task/task-details-aside';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
-// import TaskDescriptionBlock from '@components/pages/task/description-block/task-description-block';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 import IssueCard from '@components/pages/task/IssueCard';
-import { ITeamTask } from '@app/interfaces';
-import { TaskStatusModal } from 'lib/features';
 import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
 import TaskProperties from '@components/pages/task/TaskProperties';
-// import IssueCard from '@components/pages/task/IssueCard';
-// import CompletionBlock from '@components/pages/task/CompletionBlock';
-// import ActivityBlock from '@components/pages/task/ActivityBlock';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -44,7 +37,10 @@ const TaskDetails = () => {
 	}, [tasks, router.isReady, router.query?.id, setTask]);
 
 	return (
-		<MainLayout showTimer={!profile.isAuthUser && isTrackingEnabled}>
+		<MainLayout
+			showTimer={!profile.isAuthUser && isTrackingEnabled}
+			childrenClassName="bg-white dark:bg-dark--theme"
+		>
 			<div className="pt-20 pb-4 -mt-8 bg-white dark:bg-dark--theme">
 				<Container>
 					<div className="flex items-center gap-8">
@@ -64,14 +60,17 @@ const TaskDetails = () => {
 			<Container className="mb-10">
 				<div className="flex flex-col w-full min-h-screen pt-5">
 					<section className="flex justify-between lg:flex-row flex-col lg:items-start">
-						<section className=" md:mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
+						<section className="md:mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
-							<RichTextEditor />
-							{/* <TaskDescriptionBlock /> */}
-							<IssueCard related={false} />
-							{/* <IssueCard related={true} /> */}
-							{/* <CompletionBlock /> */}
-							{/* <ActivityBlock /> */}
+
+							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8">
+								<RichTextEditor />
+								{/* <TaskDescriptionBlock /> */}
+								<IssueCard related={false} />
+								{/* <IssueCard related={true} /> */}
+								{/* <CompletionBlock /> */}
+								{/* <ActivityBlock /> */}
+							</div>
 						</section>
 						<div className="flex flex-col lg:w-[400px] mt-4 lg:mt-0">
 							<div className="bg-white dark:bg-dark--theme-light flex flex-col text-red-700 rounded-xl ">
@@ -82,27 +81,13 @@ const TaskDetails = () => {
 					</section>
 				</div>
 
-				<IssueModal task={task} />
-				{/*<div className="flex sm:justify-end justify-center mt-8">
-					<Button
-						variant="grey"
-						className="font-normal py-4 px-4 rounded-xl text-md mr-8"
-					>
-						Cancel
-					</Button>
-					<Button
-						variant="primary"
-						className="font-normal py-4 px-4 rounded-xl text-md"
-						type="submit"
-					>
-						Save
-					</Button>
-						</div>*/}
+				{/* <IssueModal task={task} /> */}
 			</Container>
 		</MainLayout>
 	);
 };
 
+/**
 function IssueModal({ task }: { task: ITeamTask | null }) {
 	const { handleStatusUpdate } = useTeamTasks();
 	const { trans } = useTranslation();
@@ -140,5 +125,6 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 		</TaskStatusModal>
 	);
 }
+ */
 
 export default withAuthentication(TaskDetails, { displayName: 'TaskDetails' });

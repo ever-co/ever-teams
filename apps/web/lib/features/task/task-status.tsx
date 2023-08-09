@@ -84,6 +84,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		sidebarUI?: boolean;
 
 		forParentChildRelationship?: boolean;
+		taskStatusClassName?: string;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
@@ -784,7 +785,7 @@ export function TaskStatus({
 				`py-2 md:px-3 px-2 flex items-center text-sm relative `,
 
 				sidebarUI
-					? 'text-dark space-x-3 rounded-[4px] font-[500]'
+					? 'text-dark space-x-3 rounded-md font-[500]'
 					: 'space-x-0 rounded-xl',
 
 				issueType === 'issue' && ['px-2 text-white'],
@@ -845,6 +846,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onChange,
 	items,
 	className,
+	taskStatusClassName,
 	defaultItem,
 	issueType = 'status',
 	children,
@@ -867,6 +869,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
+	taskStatusClassName?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
 	forDetails?: boolean;
@@ -895,15 +898,6 @@ export function StatusDropdown<T extends TStatusItem>({
 	const currentValue = value || defaultValue;
 	const hasBtnIcon = issueType === 'status' && !showButtonOnly;
 
-	const classNameButton = clsxm(
-		`justify-between capitalize`,
-		sidebarUI && ['text-xs'],
-		!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
-		forDetails && !value
-			? 'bg-transparent border border-solid border-color-[#F2F2F2]'
-			: 'bg-[#F2F2F2] ',
-		'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]'
-	);
 	const button = (
 		<TaskStatus
 			{...currentValue}
@@ -914,7 +908,16 @@ export function StatusDropdown<T extends TStatusItem>({
 			showIssueLabels={showIssueLabels}
 			issueType={issueType}
 			sidebarUI={sidebarUI}
-			className={classNameButton}
+			className={clsxm(
+				`justify-between capitalize`,
+				sidebarUI && ['text-xs'],
+				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
+				forDetails && !value
+					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
+					: 'bg-[#F2F2F2] ',
+				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
+				taskStatusClassName
+			)}
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
 			)}
@@ -941,53 +944,50 @@ export function StatusDropdown<T extends TStatusItem>({
 					onChange={onChange}
 					disabled={disabled}
 				>
-					{({ open, value: current_value }) => {
-						return (
-							<>
-								<Listbox.Button
-									as="div"
-									className={clsx(
-										!forDetails && 'w-full max-w-[170px]',
-										'cursor-pointer outline-none'
-									)}
-									style={{
-										width: largerWidth ? '160px' : '',
-									}}
-								>
-									{!multiple ? (
-										<Tooltip
-											enabled={hasBtnIcon && (value?.name || '').length > 10}
-											label={capitalize(value?.name) || ''}
-										>
-											{button}
-										</Tooltip>
-									) : (
-										<TaskStatus
-											{...defaultValue}
-											active={true}
-											forDetails={forDetails}
-											sidebarUI={sidebarUI}
-											className={clsxm(
-												'justify-between w-full capitalize',
-												sidebarUI && ['text-xs'],
-												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-												forDetails &&
-													'bg-transparent border border-solid border-color-[#F2F2F2]'
-											)}
-											name={
-												values.length > 0
-													? `Items (${values.length})`
-													: defaultValue.name
-											}
-										>
-											<ChevronDownIcon
-												className={clsxm(
-													'h-5 w-5 text-default dark:text-white'
-												)}
-											/>
-										</TaskStatus>
-									)}
-								</Listbox.Button>
+					{({ open }) => (
+						<>
+							<Listbox.Button
+								as="div"
+								className={clsx(
+									!forDetails && 'w-full max-w-[170px]',
+									'cursor-pointer outline-none'
+								)}
+								style={{
+									width: largerWidth ? '160px' : '',
+								}}
+							>
+								{!multiple ? (
+									<Tooltip
+										enabled={hasBtnIcon && (value?.name || '').length > 10}
+										label={capitalize(value?.name) || ''}
+									>
+										{button}
+									</Tooltip>
+								) : (
+									<TaskStatus
+										{...defaultValue}
+										active={true}
+										forDetails={forDetails}
+										sidebarUI={sidebarUI}
+										className={clsxm(
+											'justify-between w-full capitalize',
+											sidebarUI && ['text-xs'],
+											'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+											forDetails &&
+												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
+										)}
+										name={
+											values.length > 0
+												? `Items (${values.length})`
+												: defaultValue.name
+										}
+									>
+										<ChevronDownIcon
+											className={clsxm('h-5 w-5 text-default dark:text-white')}
+										/>
+									</TaskStatus>
+								)}
+							</Listbox.Button>
 
 								<Transition
 									show={open && enabled}

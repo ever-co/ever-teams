@@ -2,13 +2,7 @@ import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
-import {
-	Button,
-	Divider,
-	InputField,
-	Tooltip,
-	VerticalSeparator,
-} from 'lib/components';
+import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -211,16 +205,16 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 		component. */}
 			<Transition
 				show={hook.filterType !== undefined}
-				enter="transition-opacity duration-[35ms]"
-				enterFrom="opacity-0"
-				enterTo="opacity-100"
-				leave="transition-opacity duration-[35ms]"
-				leaveFrom="opacity-100"
-				leaveTo="opacity-0"
-				className="pb-3"
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0 ease-out"
+				// className="pb-3"
 				ref={hook.outclickFilterCard.targetEl}
 			>
-				{hook.filterType !== undefined && <Divider className="mt-4" />}
+				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
 				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
 				{hook.filterType === 'search' && (
 					<TaskNameFilter value={hook.taskName} setValue={hook.setTaskName} />
