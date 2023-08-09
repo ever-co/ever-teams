@@ -86,7 +86,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text.Heading
 						as="h3"
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg "
+						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg"
 					>
 						{publicTeam ? (
 							<span className="flex capitalize">{fullname.slice(0, 1)} </span>
@@ -106,7 +106,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text className="text-gray-400 flex items-center text-sm space-x-1">
 						<MailIcon />{' '}
-						<span className="overflow-hidden text-ellipsis whitespace-nowrap">
+						<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
 							{memberUser?.email}
 						</span>
 					</Text>
