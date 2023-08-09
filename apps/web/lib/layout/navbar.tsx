@@ -74,12 +74,9 @@ export function Navbar({
 						<div className="w-full flex justify-between items-center min-h-[90px]">
 							<EverTeamsLogo dash className="w-4/5 md:w-full" />
 							{!notFound && (
-								<div className="flex md:space-x-5 space-x-2 items-center">
+								<div className="flex items-center gap-10">
 									{publicTeam && (
-										<Button
-											className="sm:pr-[2rem] sm:pl-[2rem] rounded-lg"
-											onClick={openModal}
-										>
+										<Button className="rounded-lg" onClick={openModal}>
 											{trans.common.JOIN_REQUEST}
 										</Button>
 									)}

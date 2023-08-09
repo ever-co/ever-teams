@@ -57,6 +57,7 @@ const TaskSecondaryInfo = () => {
 
 	return (
 		<section className="flex flex-col p-[15px]">
+			{/* Version */}
 			<TaskRow labelTitle={trans.VERSION} wrapperClassName="mb-3">
 				<ActiveTaskVersionDropdown
 					task={task}
@@ -69,11 +70,12 @@ const TaskSecondaryInfo = () => {
 						variant="outline"
 						onClick={openModalEditionHandle('version')}
 					>
-						<PlusIcon className="w-[16px] h-[16px]" />
+						<PlusIcon className="w-4 h-4" />
 					</Button>
 				</ActiveTaskVersionDropdown>
 			</TaskRow>
 
+			{/* Epic */}
 			<TaskRow labelTitle={trans.EPIC} wrapperClassName="mb-3">
 				<TaskEpicDropdown
 					onValueChange={() => void 0}
@@ -83,6 +85,7 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
+			{/* Task Status */}
 			<TaskRow labelTitle={trans.STATUS} wrapperClassName="mb-3">
 				<ActiveTaskStatusDropdown
 					task={task}
@@ -95,11 +98,12 @@ const TaskSecondaryInfo = () => {
 						variant="outline"
 						onClick={openModalEditionHandle('status')}
 					>
-						<PlusIcon className="w-[16px] h-[16px]" />
+						<PlusIcon className="w-4 h-4" />
 					</Button>
 				</ActiveTaskStatusDropdown>
 			</TaskRow>
 
+			{/* Task Labels */}
 			<TaskRow labelTitle={trans.LABELS} wrapperClassName="mb-3">
 				<TaskLabels
 					task={task}
@@ -108,12 +112,12 @@ const TaskSecondaryInfo = () => {
 				/>
 			</TaskRow>
 
+			{/* Task Size */}
 			<TaskRow labelTitle={trans.SIZE} wrapperClassName="mb-3 text-black">
 				<ActiveTaskSizesDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
-					largerWidth={true}
 					sidebarUI={true}
 				>
 					<Button
@@ -121,17 +125,17 @@ const TaskSecondaryInfo = () => {
 						variant="outline"
 						onClick={openModalEditionHandle('size')}
 					>
-						<PlusIcon className="w-[16px] h-[16px]" />
+						<PlusIcon className="w-4 h-4" />
 					</Button>
 				</ActiveTaskSizesDropdown>
 			</TaskRow>
 
+			{/* Task Properties */}
 			<TaskRow labelTitle={trans.PRIORITY} wrapperClassName="mb-3 text-black">
 				<ActiveTaskPropertiesDropdown
 					task={task}
-					className="lg:min-w-[170px] text-black "
+					className="lg:min-w-[170px] text-black rounded-xl"
 					forDetails={true}
-					largerWidth={true}
 					sidebarUI={true}
 				>
 					<Button
@@ -139,7 +143,7 @@ const TaskSecondaryInfo = () => {
 						variant="outline"
 						onClick={openModalEditionHandle('priority')}
 					>
-						<PlusIcon className="w-[16px] h-[16px]" />
+						<PlusIcon className="w-4 h-4" />
 					</Button>
 				</ActiveTaskPropertiesDropdown>
 			</TaskRow>

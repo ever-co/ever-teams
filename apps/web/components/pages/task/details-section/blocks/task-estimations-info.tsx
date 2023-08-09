@@ -18,7 +18,9 @@ const TaskEstimationsInfo = () => {
 		<section className="flex flex-col p-[15px]">
 			<TaskRow
 				labelTitle={trans.ESTIMATIONS}
-				afterIconPath="/assets/svg/estimations.svg"
+				// TODO
+				// Commented icon temporary, will be enable it in future once dynamic implementation done
+				// afterIconPath="/assets/svg/estimations.svg"
 				wrapperClassName="mb-3"
 			>
 				<Disclosure>

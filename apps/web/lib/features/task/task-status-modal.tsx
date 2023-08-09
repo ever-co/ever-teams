@@ -78,14 +78,14 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 			)}
 
 			<Modal isOpen={isOpen} closeModal={closeModal}>
-				<div className="w-[98%] md:w-[530px]">
+				<div className="w-[98%] md:w-[33rem]">
 					<Card className="w-full" shadow="custom">
 						<div className="flex flex-col justify-between items-center w-full">
 							<Text.Heading as="h3" className="text-center mb-2">
 								{title}
 							</Text.Heading>
 
-							<div className="max-h-96 overflow-y-auto min-h-[120px] w-full">
+							<div className="max-h-96 overflow-y-auto min-h-[7.5rem] w-full">
 								<ul>
 									{items.map((item, i) => {
 										const active = value === item.name;
@@ -112,11 +112,12 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 								</ul>
 							</div>
 
-							<div className="flex justify-between w-full mt-2">
+							<div className="flex justify-end w-full gap-2 h-10">
 								<Button
 									disabled={!value}
 									variant="outline-dark"
 									onClick={closeModal}
+									className="rounded-xl"
 								>
 									{trans.common.CANCEL}
 								</Button>
@@ -129,6 +130,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 											closeModal();
 										}
 									}}
+									className="rounded-xl"
 								>
 									{trans.common.CONFIRM}
 								</Button>

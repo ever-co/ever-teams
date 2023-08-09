@@ -10,6 +10,7 @@ type Props = PropsWithChildren<{
 	publicTeam?: boolean;
 	notFound?: boolean;
 	className?: string;
+	childrenClassName?: string;
 }>;
 
 export function MainLayout({
@@ -19,6 +20,7 @@ export function MainLayout({
 	publicTeam,
 	notFound,
 	className,
+	childrenClassName,
 }: Props) {
 	return (
 		<>
@@ -44,7 +46,9 @@ export function MainLayout({
 					className
 				)}
 			>
-				<div className="lg:flex-1 lg:w-full">{children}</div>
+				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>
+					{children}
+				</div>
 
 				<Container>
 					<Divider />
