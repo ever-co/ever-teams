@@ -1,11 +1,4 @@
-// import ToolButton from '@components/pages/task/description-block/tool-button';
-import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
-
-// import Image from 'next/image';
-import { PlusIcon } from '@heroicons/react/20/solid';
-// import bugIcon from '../../../public/assets/svg/bug.svg';
-// import ideaIcon from '../../../public/assets/svg/idea.svg';
 import { TaskInput, TaskLinkedIssue } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
@@ -15,6 +8,7 @@ import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lib/components/svgs';
 
 const IssueCard = ({ related }: { related: boolean }) => {
 	const modal = useModal();
@@ -33,44 +27,48 @@ const IssueCard = ({ related }: { related: boolean }) => {
 	}, [task, tasks]);
 
 	return (
-		<Card className="w-full mt-8" shadow="bigger">
-			<div className="flex justify-between">
+		<Card
+			className="w-full mt-8 pt-0 px-4 pb-4 md:pt-0 md:px-4 md:pb-4"
+			shadow="bigger"
+		>
+			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
 				{related ? (
-					<h4 className="text-lg font-semibold pb-2">Related Issues</h4>
+					<p className="text-base font-semibold">Related Issues</p>
 				) : (
-					<h4 className="text-lg font-semibold pb-2">Child Issues</h4>
+					<p className="text-base font-semibold">Child Issues</p>
 				)}
 
-				<div className="flex items-center">
-					{/* <ToolButton iconSource="/assets/svg/add.svg" />
-					<ToolButton iconSource="/assets/svg/more.svg" /> */}
-
-					<PlusIcon
-						onClick={modal.openModal}
-						className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer"
-					/>
+				<div className="flex items-center justify-end gap-2.5">
+					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
+						<span onClick={modal.openModal}>
+							<PlusIcon className="h-7 w-7 stroke-[#B1AEBC] dark:stroke-white cursor-pointer" />
+						</span>
+					</div>
 
 					<button onClick={() => setHidden((e) => !e)}>
 						{hidden ? (
-							<ChevronDownIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
+							<ChevronDownIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
 						) : (
-							<ChevronUpIcon className="h-5 w-5 text-[#292D32] dark:text-white cursor-pointer" />
+							<ChevronUpIcon className="h-4 w-4 stroke-[#293241] dark:stroke-white cursor-pointer" />
 						)}
 					</button>
 				</div>
 			</div>
-			<hr className="dark:border-[#7B8089]" />
 
-			<div
-				className={clsxm(
-					'flex flex-col max-h-80 overflow-y-auto',
-					hidden && ['hidden']
-				)}
-			>
-				{linkedTasks.map((task) => {
-					return <TaskLinkedIssue key={task.id} task={task} />;
-				})}
-			</div>
+			{/* {linkedTasks.length > 0 && <hr className="dark:border-[#7B8089]" />} */}
+
+			{linkedTasks.length > 0 && (
+				<div
+					className={clsxm(
+						'flex flex-col max-h-80 overflow-y-auto',
+						hidden && ['hidden']
+					)}
+				>
+					{linkedTasks.map((task) => {
+						return <TaskLinkedIssue key={task.id} task={task} />;
+					})}
+				</div>
+			)}
 
 			{task && <CreateLinkedTask task={task} modal={modal} />}
 		</Card>
