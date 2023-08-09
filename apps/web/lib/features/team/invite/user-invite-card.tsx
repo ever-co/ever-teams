@@ -237,7 +237,7 @@ export function InviteUserTeamCard({
 
 				{/* Show user name, email and image */}
 				<div className="2xl:w-[20.625rem] w-1/4 px-4 flex space-x-3">
-					<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
+					<div className="opacity-40 w-10 h-10 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-slate-400 rounded-full" />
 
 					<Tooltip
 						enabled={!active}
@@ -245,7 +245,11 @@ export function InviteUserTeamCard({
 						placement="top-start"
 						className="inline-block"
 					>
-						<Button disabled={!active} onClick={onClick}>
+						<Button
+							className="min-w-[3.125rem] md:min-w-[5.625rem] lg:min-w-[8.75rem] sm:py-2 sm:px-3 md:py-3 md:px-4"
+							disabled={!active}
+							onClick={onClick}
+						>
 							{trans.common.INVITE}
 						</Button>
 					</Tooltip>
