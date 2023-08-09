@@ -164,8 +164,8 @@ function PasscodeScreen({
 						{/* Send code */}
 
 						<div className="flex flex-col space-y-2">
-							<div className="flex flex-row items-start space-x-2">
-								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
+							<div className="flex flex-row items-center space-x-2 mb-1">
+								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal">
 									{trans.pages.auth.UNRECEIVED_CODE}
 								</Text>
 
@@ -182,7 +182,7 @@ function PasscodeScreen({
 									</button>
 								)}
 								{form.sendCodeLoading && (
-									<SpinnerLoader size={22} className="self-center" />
+									<SpinnerLoader size={15} className="self-center" />
 								)}
 							</div>
 
