@@ -40,6 +40,7 @@ export type TStatusItem = {
 	id?: string;
 	bgColor?: string;
 	icon?: React.ReactNode | undefined;
+	realName?: string;
 	name?: string;
 	value?: string;
 	bordered?: boolean;
@@ -93,6 +94,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {
 				name: item.name?.split('-').join(' '),
+				realName: item.name,
 				value: item.value || item.name,
 				bgColor: item.color,
 				bordered,
@@ -762,6 +764,7 @@ export function TaskStatus({
 	cheched = false,
 	showIcon = true,
 	sidebarUI = false,
+	realName,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -772,6 +775,7 @@ export function TaskStatus({
 			titleClassName?: string;
 			cheched?: boolean;
 			sidebarUI?: boolean;
+			value?: string;
 		}
 >) {
 	return (
@@ -823,7 +827,9 @@ export function TaskStatus({
 				)}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
-					<div className="capitalize text-ellipsis overflow-hidden">{name}</div>
+					<div className="capitalize text-ellipsis overflow-hidden">
+						{realName || name}
+					</div>
 				)}
 			</div>
 			{children}
@@ -998,31 +1004,33 @@ export function StatusDropdown<T extends TStatusItem>({
 										shadow="bigger"
 										className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 									>
-										{items.map((item, i) => (
-											<Listbox.Option
-												key={i}
-												value={item.value || item.name}
-												as={Fragment}
-												disabled={disabled}
-											>
-												<li className="mb-3 cursor-pointer outline-none">
-													<TaskStatus
-														showIcon={showIcon}
-														{...item}
-														cheched={
-															item.value ? values.includes(item.value) : false
-														}
-														className={clsxm(
-															issueType === 'issue' && [
-																'rounded-md px-2 text-white',
-															],
-															`${sidebarUI ? 'rounded-[4px]' : ''}`,
-															`${bordered ? 'input-border' : ''}`
-														)}
-													/>
-												</li>
-											</Listbox.Option>
-										))}
+										{items.map((item, i) => {
+											return (
+												<Listbox.Option
+													key={i}
+													value={item.value || item.name}
+													as={Fragment}
+													disabled={disabled}
+												>
+													<li className="mb-3 cursor-pointer outline-none">
+														<TaskStatus
+															showIcon={showIcon}
+															{...item}
+															cheched={
+																item.value ? values.includes(item.value) : false
+															}
+															className={clsxm(
+																issueType === 'issue' && [
+																	'rounded-md px-2 text-white',
+																],
+																`${sidebarUI ? 'rounded-[4px]' : ''}`,
+																`${bordered ? 'input-border' : ''}`
+															)}
+														/>
+													</li>
+												</Listbox.Option>
+											);
+										})}
 										{children && (
 											<Listbox.Button as="div">{children}</Listbox.Button>
 										)}

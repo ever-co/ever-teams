@@ -27,16 +27,25 @@ export default function AuthPasscode() {
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 				<div
 					className={clsxm(
-						'w-[200%] flex flex-row transition-[transform] duration-500',
-						form.authScreen.screen !== 'email' && ['-translate-x-[50%]']
+						// 'w-[200%]',
+						'flex flex-row transition-[transform] duration-500'
+						// form.authScreen.screen !== 'email' && ['-translate-x-[50%]']
 					)}
 				>
-					<EmailScreen form={form} className="w-[50%]" />
+					<EmailScreen
+						form={form}
+						className={clsxm(
+							form.authScreen.screen !== 'email' && ['hidden'],
+							'w-full'
+							// 'w-[50%]'
+						)}
+					/>
 					<PasscodeScreen
 						form={form}
 						className={clsxm(
-							'w-[50%] transition-[visibility] ease-out duration-700',
-							form.authScreen.screen === 'email' && ['invisible']
+							'w-full',
+							// 'w-[50%] transition-[visibility] ease-out duration-700',
+							form.authScreen.screen === 'email' && ['hidden']
 						)}
 					/>
 				</div>

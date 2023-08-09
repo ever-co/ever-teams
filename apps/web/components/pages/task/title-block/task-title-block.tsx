@@ -16,7 +16,11 @@ import { useTranslation } from 'lib/i18n';
 import CreateParentTask from '../ParentTask';
 import Link from 'next/link';
 import { ITeamTask } from '@app/interfaces';
-import { CopyIconRounded } from 'lib/components/svgs';
+import {
+	CloseAlternateIcon,
+	TickIcon,
+	CopyIconRounded,
+} from 'lib/components/svgs';
 
 const TaskTitleBlock = () => {
 	const { updateTitle, updateLoading } = useTeamTasks();
@@ -28,6 +32,7 @@ const TaskTitleBlock = () => {
 	const saveButton = useRef<HTMLButtonElement>(null);
 	const cancelButton = useRef<HTMLButtonElement>(null);
 	const editButton = useRef<HTMLButtonElement>(null);
+	const titleContainerRef = useRef<HTMLDivElement>(null);
 
 	//States
 	const [edit, setEdit] = useState<boolean>(false);
@@ -67,6 +72,24 @@ const TaskTitleBlock = () => {
 		[task, updateTitle, toast, trans]
 	);
 
+	useEffect(() => {
+		const handleOutsideClick = (event: MouseEvent) => {
+			if (
+				edit &&
+				titleContainerRef.current &&
+				!titleContainerRef.current.contains(event.target as Node)
+			) {
+				saveTitle(title);
+			}
+		};
+
+		document.addEventListener('mousedown', handleOutsideClick);
+
+		return () => {
+			document.removeEventListener('mousedown', handleOutsideClick);
+		};
+	}, [edit, saveTitle, title]);
+
 	const cancelEdit = () => {
 		task && setTitle(task?.title);
 		setEdit(false);
@@ -97,7 +120,7 @@ const TaskTitleBlock = () => {
 	return (
 		<div className="flex flex-col gap-[1.1875rem]">
 			{task ? (
-				<div className="flex">
+				<div className="flex gap-1">
 					<textarea
 						className={`w-full ${
 							edit && 'textAreaOutline'
@@ -109,30 +132,24 @@ const TaskTitleBlock = () => {
 					></textarea>
 
 					{edit ? (
-						<div className="flex flex-col items-start transition-all">
-							<button ref={saveButton} onClick={() => saveTitle(title)}>
-								<Image
-									src="/assets/svg/tick.svg"
-									alt="edit header"
-									width={28}
-									height={28}
-									style={{ height: '28px' }}
-									className="cursor-pointer"
-								/>
+						<div className="flex flex-col justify-start gap-1 transition-all">
+							<button
+								ref={saveButton}
+								onClick={() => saveTitle(title)}
+								className="border-2 dark:border-[#464242] rounded-md"
+							>
+								<TickIcon />
 							</button>
-							<button ref={cancelButton} onClick={cancelEdit}>
-								<Image
-									src="/assets/svg/close.svg"
-									alt="edit header"
-									width={28}
-									height={28}
-									style={{ height: '28px' }}
-									className="cursor-pointer "
-								/>
+							<button
+								ref={cancelButton}
+								onClick={cancelEdit}
+								className="border-2 dark:border-[#464242] rounded-md"
+							>
+								<CloseAlternateIcon />
 							</button>
 						</div>
 					) : (
-						<div className="flex flex-col items-center space-y-2">
+						<div className="flex flex-col justify-start gap-1">
 							<button ref={editButton} onClick={() => setEdit(true)}>
 								<Image
 									src="/assets/svg/edit-header-pencil.svg"
