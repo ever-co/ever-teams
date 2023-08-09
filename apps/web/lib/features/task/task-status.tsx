@@ -82,6 +82,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 		sidebarUI?: boolean;
 
 		forParentChildRelationship?: boolean;
+		taskStatusClassName?: string;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
@@ -838,6 +839,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onChange,
 	items,
 	className,
+	taskStatusClassName,
 	defaultItem,
 	issueType = 'status',
 	children,
@@ -859,6 +861,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	onChange?(value: string): void;
 	items: T[];
 	className?: string;
+	taskStatusClassName?: string;
 	defaultItem?: ITaskStatusField;
 	issueType?: 'status' | 'issue';
 	forDetails?: boolean;
@@ -903,7 +906,8 @@ export function StatusDropdown<T extends TStatusItem>({
 				forDetails && !value
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
 					: 'bg-[#F2F2F2] ',
-				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]'
+				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
+				taskStatusClassName
 			)}
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']

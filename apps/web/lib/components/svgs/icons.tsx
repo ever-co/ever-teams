@@ -1941,6 +1941,32 @@ export function CopyIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function CopyIconRounded({ className }: IClassName) {
+	return (
+		<svg
+			width="10"
+			height="10"
+			viewBox="0 0 10 10"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M6.66683 5.37492V7.12492C6.66683 8.58325 6.0835 9.16659 4.62516 9.16659H2.87516C1.41683 9.16659 0.833496 8.58325 0.833496 7.12492V5.37492C0.833496 3.91659 1.41683 3.33325 2.87516 3.33325H4.62516C6.0835 3.33325 6.66683 3.91659 6.66683 5.37492Z"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+			<path
+				d="M9.16683 2.87492V4.62492C9.16683 6.08325 8.5835 6.66659 7.12516 6.66659H6.66683V5.37492C6.66683 3.91659 6.0835 3.33325 4.62516 3.33325H3.3335V2.87492C3.3335 1.41659 3.91683 0.833252 5.37516 0.833252H7.12516C8.5835 0.833252 9.16683 1.41659 9.16683 2.87492Z"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
+
 export function CheckBoxIcon({ className }: IClassName) {
 	return (
 		<svg

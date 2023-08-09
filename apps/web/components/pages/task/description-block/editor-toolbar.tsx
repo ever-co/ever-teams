@@ -16,13 +16,12 @@ import {
 	BoldIcon,
 	ItalicIcon,
 	UnderlineIcon,
-	// MoreIcon2,
 	LinkIcon,
 	AlignRightIcon,
 	AlignLeftIcon,
 	AlignCenterIcon,
 	AlignJustifyIcon,
-	CopyIcon,
+	CopyIconRounded,
 	HeaderOneIcon,
 	HeaderTwoIcon,
 	UnorderedListIcon,
@@ -402,7 +401,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				className={`${!copied && 'active:transform active:scale-95'} relative`}
 				disabled={copied}
 			>
-				<CopyIcon />
+				<CopyIconRounded className="w-4 h-4 stroke-[#282048] dark:stroke-white" />
 				{copied && (
 					<div className="absolute bg-gray-400 rounded-lg dark:bg-gray-600 text-white text-xs p-2 top-[-45px] animate-pulse">
 						Copied!

@@ -47,6 +47,7 @@ const TaskMainInfo = () => {
 					task={task}
 					showIssueLabels={true}
 					sidebarUI={true}
+					taskStatusClassName="rounded-[0.1875rem] border-none"
 				/>
 			</TaskRow>
 			<TaskRow
