@@ -113,7 +113,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative md:flex items-center justify-between py-3 hidden min-h-[8.75rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
+					'relative md:flex items-center justify-between py-3 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
 					active && ['border-primary-light dark:bg-[#1E2025] '],
 					className
 				)}
@@ -413,16 +413,16 @@ function TaskInfo({
 	return (
 		<div
 			className={clsxm(
-				'h-full flex flex-col items-start justify-center',
+				'h-full flex flex-col items-start justify-between gap-[1.0625rem]',
 				className
 			)}
 		>
 			{/* task */}
 			{!task && <div className="text-center self-center py-1">--</div>}
 			{task && (
-				<div className="w-full h-[40px] overflow-hidden">
+				<div className="w-full h-10 overflow-hidden">
 					<div
-						className={clsxm('h-full flex flex-col items-start justify-center')}
+						className={clsxm('h-full flex flex-col items-start justify-start')}
 					>
 						<div
 							className={clsxm(

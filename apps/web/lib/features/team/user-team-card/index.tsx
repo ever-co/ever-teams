@@ -92,7 +92,7 @@ export function UserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[8.75rem]',
+					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[7rem]',
 					active
 						? ['border-primary-light border-[0.1875rem]']
 						: ['dark:border dark:border-[#FFFFFF14]'],
