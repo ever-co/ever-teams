@@ -74,7 +74,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				name={name}
 				ref={mergeRefs([ref, inputRef])}
 				className={clsxm(
-					'bg-light--theme-light dark:bg-[#1B1D22]',
+					'bg-light--theme-light dark:bg-dark--theme-light',
 					noWrapper && ['input-border'],
 					'py-2 px-4 rounded-[10px]',
 					'text-sm outline-none ',
