@@ -811,6 +811,31 @@ export function TickCircleIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function TickSaveIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('stroke-green-600 dark:stroke-green-400', className)}
+		>
+			<path
+				d="M12 22C17.5 22 22 17.5 22 12C22 6.5 17.5 2 12 2C6.5 2 2 6.5 2 12C2 17.5 6.5 22 12 22Z"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M7.75 11.9999L10.58 14.8299L16.25 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+		</svg>
+	);
+}
 export function TickSquareIcon({ className }: IClassName) {
 	return (
 		<svg
@@ -826,6 +851,25 @@ export function TickSquareIcon({ className }: IClassName) {
 				stroke="#34AC6B"
 				strokeWidth="1.3"
 				fill="transparent"
+			/>
+		</svg>
+	);
+}
+export function TickIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="26"
+			height="26"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm(className, 'dark:stroke-gray-500 stroke-gray-700')}
+		>
+			<path
+				d="M7.75 11.9999L10.58 14.8299L16.25 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
 			/>
 		</svg>
 	);
@@ -1062,6 +1106,31 @@ export function CloseIcon({ className }: IClassName) {
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+			/>
+		</svg>
+	);
+}
+export function CloseAlternateIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="26"
+			height="26"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={clsxm('dark:stroke-gray-500 stroke-gray-700', className)}
+		>
+			<path
+				d="M9.16992 14.8299L14.8299 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			/>
+			<path
+				d="M14.8299 14.8299L9.16992 9.16992"
+				stroke-width="1.5"
+				stroke-linecap="round"
+				stroke-linejoin="round"
 			/>
 		</svg>
 	);
@@ -1941,6 +2010,32 @@ export function CopyIcon({ className }: IClassName) {
 		</svg>
 	);
 }
+export function CopyIconRounded({ className }: IClassName) {
+	return (
+		<svg
+			width="10"
+			height="10"
+			viewBox="0 0 10 10"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M6.66683 5.37492V7.12492C6.66683 8.58325 6.0835 9.16659 4.62516 9.16659H2.87516C1.41683 9.16659 0.833496 8.58325 0.833496 7.12492V5.37492C0.833496 3.91659 1.41683 3.33325 2.87516 3.33325H4.62516C6.0835 3.33325 6.66683 3.91659 6.66683 5.37492Z"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+			<path
+				d="M9.16683 2.87492V4.62492C9.16683 6.08325 8.5835 6.66659 7.12516 6.66659H6.66683V5.37492C6.66683 3.91659 6.0835 3.33325 4.62516 3.33325H3.3335V2.87492C3.3335 1.41659 3.91683 0.833252 5.37516 0.833252H7.12516C8.5835 0.833252 9.16683 1.41659 9.16683 2.87492Z"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
+
 export function CheckBoxIcon({ className }: IClassName) {
 	return (
 		<svg
@@ -2432,6 +2527,50 @@ export function GlobIcon({ className }: IClassName) {
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
+
+export function ChevronUpIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M19.92 15.05L13.4 8.53001C12.63 7.76001 11.37 7.76001 10.6 8.53001L4.07996 15.05"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+		</svg>
+	);
+}
+
+export function ChevronDownIcon({ className }: IClassName) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path
+				d="M19.92 8.94995L13.4 15.47C12.63 16.24 11.37 16.24 10.6 15.47L4.07996 8.94995"
+				stroke-width="1.5"
+				stroke-miterlimit="10"
+				stroke-linecap="round"
+				stroke-linejoin="round"
 				className={className}
 			/>
 		</svg>

@@ -270,7 +270,10 @@ export function TaskInput(props: Props) {
 					)}
 				</div>
 			}
-			className={clsxm(showTaskNumber && inputTask && ['pl-2'])}
+			className={clsxm(
+				showTaskNumber && inputTask && ['pl-2'],
+				' dark:bg-[#1B1D22]'
+			)}
 			wrapperClassName={`rounded-lg`}
 			/* Showing the task number. */
 			leadingNode={

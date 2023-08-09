@@ -78,19 +78,17 @@ const EditorFooter = ({
 				</Button>
 			</div>
 
-			<div className="flex justify-between items-end mt-0 border-b-2 dark:border-[#7B8089]">
-				<div>
-					<label className="text-xs dark:text-[#7B8089] text-gray-300">
-						Acceptance Criteria
-					</label>
-				</div>
+			<div className="max-h-[2.1875rem] flex justify-between items-center border-b-[0.0625rem] py-[0.5625rem] px-[0.9375rem] border-b-[#0000001A] dark:border-b-[#FFFFFF29]">
+				<label className="text-xs dark:text-[#7B8089] text-gray-300">
+					Acceptance Criteria
+				</label>
 				<Image
 					src="/assets/svg/arrow-up.svg"
 					alt="arrow"
-					width={18}
-					height={18}
-					style={{ height: '28px' }}
-					className="cursor-pointer mr-1 mb-0 mt-2"
+					width={14}
+					height={14}
+					style={{ height: '14px' }}
+					className="cursor-pointer"
 				/>
 			</div>
 		</div>

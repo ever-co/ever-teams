@@ -163,6 +163,7 @@ export function ActiveTaskIssuesDropdown({
 			enabled={item?.name !== 'Epic'}
 			showIssueLabels={props.showIssueLabels}
 			disabledReason={item?.name === 'Epic' ? trans.TASK_IS_ALREADY_EPIC : ''}
+			taskStatusClassName={props.taskStatusClassName}
 		/>
 	);
 }
