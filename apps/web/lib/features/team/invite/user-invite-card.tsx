@@ -236,7 +236,7 @@ export function InviteUserTeamCard({
 				</div>
 
 				{/* Show user name, email and image */}
-				<div className="w-[330px] px-4 flex space-x-3">
+				<div className="2xl:w-[20.625rem] w-1/4 px-4 flex space-x-3">
 					<div className="opacity-40 w-10 h-10 bg-slate-400 rounded-full" />
 
 					<Tooltip
@@ -253,20 +253,20 @@ export function InviteUserTeamCard({
 				<VerticalSeparator />
 
 				{/* Task information */}
-				<Text className="opacity-40 sm:w-80 px-4 text-center text-xs sm:text-sm">
+				<Text className="opacity-40 2xl:w-80 w-1/5 px-4 text-center text-xs sm:text-sm">
 					{trans.common.TASK_TITTLE}
 				</Text>
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 sm:w-48 font-normal px-3  text-xs md:text-sm">
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 w-1/5 font-normal px-3  text-xs md:text-sm">
 					<span>{trans.common.TODAY}:</span>
 					<Text>00h : 00m</Text>
 				</div>
 				<VerticalSeparator />
 
 				{/* TaskEstimateInfo */}
-				<div className="opacity-40 flex items-center justify-center space-x-1 sm:w-52 relative text-xs md:text-sm">
+				<div className="opacity-40 flex items-center justify-center space-x-1 2xl:w-52 w-1/5 relative text-xs md:text-sm">
 					<TimeInputField defaultValue="00" label="h" />
 					<span>:</span>
 					<TimeInputField defaultValue="00" label="m" />
