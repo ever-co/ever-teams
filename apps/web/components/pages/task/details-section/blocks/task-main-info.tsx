@@ -47,6 +47,7 @@ const TaskMainInfo = () => {
 					task={task}
 					showIssueLabels={true}
 					sidebarUI={true}
+					taskStatusClassName="rounded-[0.1875rem] border-none"
 				/>
 			</TaskRow>
 			<TaskRow
@@ -345,7 +346,7 @@ const ManageMembersPopover = (
 						leaveTo="opacity-0 translate-y-1"
 					>
 						<Popover.Panel
-							className="z-10 absolute right-0 bg-white dark:bg-[#202023] rounded-2xl min-w-[9.5rem] flex flex-col pl-4 pr-4 pt-2 pb-2 mt-10 mr-10"
+							className="z-10 absolute right-0 bg-white rounded-2xl min-w-[9.5rem] flex flex-col pl-4 pr-4 pt-2 pb-2 mt-10 mr-10  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
 							{({ close }) => (
