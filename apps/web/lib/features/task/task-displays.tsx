@@ -9,13 +9,15 @@ type Props = {
 };
 
 export function TaskNameInfoDisplay({ task, className }: Props) {
+	console.log(task);
+
 	return (
 		<Tooltip
 			label={task?.title || ''}
 			placement="top"
 			enabled={(task?.title && task?.title.length > 60) || false}
 		>
-			<span className="flex">
+			<span className="flex items-center">
 				{task && (
 					// Show task issue and task number
 					<div>
@@ -23,7 +25,13 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 							<div className="mr-1">
 								<TaskIssueStatus
 									showIssueLabels={false}
-									className={clsxm('px-1 py-1 rounded-full h-auto', className)}
+									className={clsxm(
+										' rounded-sm h-auto',
+										task.issueType === 'Bug'
+											? '!px-[5.3px] py-[4.6px]'
+											: '!px-[6px] py-[6px]',
+										className
+									)}
 									task={task}
 								/>
 							</div>
