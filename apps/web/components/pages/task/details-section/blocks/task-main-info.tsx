@@ -43,7 +43,7 @@ const TaskMainInfo = () => {
 					task={task}
 					showIssueLabels={true}
 					sidebarUI={true}
-					taskStatusClassName="rounded-[0.1875rem] border-none"
+					taskStatusClassName="rounded-[0.1875rem] border-none h-5 text-[0.5rem]"
 				/>
 			</TaskRow>
 			<TaskRow
@@ -152,7 +152,7 @@ function DueDates() {
 					customInput={
 						<div
 							className={clsxm(
-								'not-italic cursor-pointer font-semibold text-[0.75rem]',
+								'not-italic cursor-pointer font-semibold text-[0.625rem]',
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
@@ -205,7 +205,7 @@ function DueDates() {
 					customInput={
 						<div
 							className={clsxm(
-								'not-italic cursor-pointer font-semibold text-[0.75rem]',
+								'not-italic cursor-pointer font-semibold text-[0.625rem]',
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
@@ -253,7 +253,7 @@ function DueDates() {
 					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
 					alignWithIconLabel={true}
 				>
-					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+					<div className="not-italic font-semibold text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 						{remainingDays !== undefined && remainingDays < 0
 							? 0
 							: remainingDays}

@@ -66,6 +66,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		sidebarUI?: boolean;
 		placeholder?: string;
 		defaultValues?: ITaskStatusStack[T][];
+		taskStatusClassName?: string;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -335,6 +336,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -419,6 +421,7 @@ export function ActiveTaskVersionDropdown(
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
 			isVersion
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -440,6 +443,7 @@ export function EpicPropertiesDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
+	taskStatusClassName,
 }: TTaskStatusesDropdown<'epic'>) {
 	const { item, items, onChange, values } = useStatusValue<'epic'>({
 		status: {},
@@ -460,6 +464,7 @@ export function EpicPropertiesDropdown({
 			multiple={multiple}
 			values={values}
 			showButtonOnly
+			taskStatusClassName={taskStatusClassName}
 		>
 			{children}
 		</StatusDropdown>
@@ -537,6 +542,7 @@ export function ActiveTaskPropertiesDropdown(
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -631,6 +637,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -654,6 +661,7 @@ export function TaskLabelsDropdown({
 	children,
 	placeholder = 'Label',
 	defaultValues,
+	taskStatusClassName,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -677,6 +685,7 @@ export function TaskLabelsDropdown({
 			multiple={multiple}
 			values={values}
 			showButtonOnly
+			taskStatusClassName={taskStatusClassName}
 		>
 			{children}
 		</StatusDropdown>
@@ -983,7 +992,8 @@ export function StatusDropdown<T extends TStatusItem>({
 											sidebarUI && ['text-xs'],
 											'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 											forDetails &&
-												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
+												'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+											taskStatusClassName
 										)}
 										name={
 											values.length > 0
