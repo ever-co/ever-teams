@@ -48,7 +48,13 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					<div className="mr-2">
 						<TaskIssueStatus
 							showIssueLabels={false}
-							className="px-1 py-1"
+							className={clsxm(
+								' rounded-sm h-auto',
+								task?.issueType === 'Bug'
+									? '!px-[0.3312rem] py-[0.2875rem]'
+									: '!px-[0.375rem] py-[0.375rem]',
+								className
+							)}
 							task={task}
 						/>
 					</div>
