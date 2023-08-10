@@ -56,17 +56,18 @@ const TaskSecondaryInfo = () => {
 	);
 
 	return (
-		<section className="flex flex-col p-[15px]">
+		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			{/* Version */}
-			<TaskRow labelTitle={trans.VERSION} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.VERSION}>
 				<ActiveTaskVersionDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
 				>
 					<Button
-						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
+						className="w-full py-1 px-2 text-[0.625rem] mt-3 dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('version')}
 					>
@@ -76,25 +77,27 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Epic */}
-			<TaskRow labelTitle={trans.EPIC} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.EPIC}>
 				<TaskEpicDropdown
 					onValueChange={() => void 0}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
 				/>
 			</TaskRow>
 
 			{/* Task Status */}
-			<TaskRow labelTitle={trans.STATUS} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.STATUS}>
 				<ActiveTaskStatusDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
 				>
 					<Button
-						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
+						className="w-full py-1 px-2 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('status')}
 					>
@@ -104,24 +107,26 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Task Labels */}
-			<TaskRow labelTitle={trans.LABELS} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.LABELS}>
 				<TaskLabels
 					task={task}
-					className="lg:min-w-[170px] text-black mt-4 lg:mt-0"
+					className="lg:min-w-[170px] text-black lg:mt-0"
 					forDetails={true}
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
 				/>
 			</TaskRow>
 
 			{/* Task Size */}
-			<TaskRow labelTitle={trans.SIZE} wrapperClassName="mb-3 text-black">
+			<TaskRow labelTitle={trans.SIZE} wrapperClassName="text-black">
 				<ActiveTaskSizesDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
 				>
 					<Button
-						className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
+						className="w-full py-1 px-2 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('size')}
 					>
@@ -131,15 +136,16 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Task Properties */}
-			<TaskRow labelTitle={trans.PRIORITY} wrapperClassName="mb-3 text-black">
+			<TaskRow labelTitle={trans.PRIORITY} wrapperClassName="text-black">
 				<ActiveTaskPropertiesDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black rounded-xl"
 					forDetails={true}
 					sidebarUI={true}
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
 				>
 					<Button
-						className="w-full text-xs py-1 px-2 mt-3 dark:text-white dark:border-white"
+						className="w-full text-xs py-1 px-2 dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('priority')}
 					>
@@ -147,7 +153,6 @@ const TaskSecondaryInfo = () => {
 					</Button>
 				</ActiveTaskPropertiesDropdown>
 			</TaskRow>
-			<hr className="mt-[15px]  dark:border-[#7B8089]" />
 
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<Card className="sm:w-[530px] w-[330px]" shadow="custom">

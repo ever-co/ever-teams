@@ -7,29 +7,24 @@ const TaskProperties = ({ task }: { task: ITeamTask | null }) => {
 	const { trans } = useTranslation('taskDetails');
 
 	return (
-		<div className="flex flex-col gap-3 text-xs text-[#A5A2B2] pl-4 mt-4 font-[500]">
+		<div className="flex flex-col gap-2 text-[0.625rem] text-[#A5A2B2] pl-4 mt-4 font-[600]">
 			{task?.createdAt && (
 				<p>
 					{trans.CREATED}
-					<span className="ml-1">
-						{moment(task?.createdAt).format('DD MMMM YYYY, hh:mm A')}
-					</span>
+					{moment(task?.createdAt).format(' DD MMMM YYYY, hh:mm A')}
 				</p>
 			)}
 			{task?.updatedAt && (
 				<p>
 					{trans.UPDATED}
-					<span className="ml-1">
-						{moment(task?.updatedAt).format('DD MMMM YYYY, hh:mm A')}
-					</span>
+					{moment(task?.updatedAt).format(' DD MMMM YYYY, hh:mm A')}
 				</p>
 			)}
 			{task?.resolvedAt && (
 				<p>
 					{trans.RESOLVED}
-					<span className="ml-1">
-						{moment(task?.resolvedAt).format('DD MMMM YYYY, hh:mm A')}
-					</span>
+
+					{moment(task?.resolvedAt).format(' DD MMMM YYYY, hh:mm A')}
 				</p>
 			)}
 		</div>
