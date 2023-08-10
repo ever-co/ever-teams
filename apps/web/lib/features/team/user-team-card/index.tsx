@@ -88,7 +88,7 @@ export function UserTeamCard({
 	}
 
 	return (
-		<div>
+		<div className={`${!active && 'border-2 border-transparent'}`}>
 			<Card
 				shadow="bigger"
 				className={clsxm(
