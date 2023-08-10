@@ -20,7 +20,7 @@ import {
 	SpinnerLoader,
 	Tooltip,
 } from 'lib/components';
-import { TickCircleIcon } from 'lib/components/svgs';
+import { CircleIcon, TickCircleIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import {
 	MutableRefObject,
@@ -33,6 +33,7 @@ import {
 } from 'react';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
+import { TStatusItem } from './task-status';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -296,6 +297,7 @@ export function TaskInput(props: Props) {
 							/>
 						) : (
 							<TaskIssuesDropdown
+								taskStatusClassName="!px-1 py-1 rounded-sm"
 								showIssueLabels={false}
 								onValueChange={(v) => {
 									taskIssue.current = v;

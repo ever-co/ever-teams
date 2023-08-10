@@ -906,7 +906,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
 		icon: (
-			<span className="mr-2">
+			<span>
 				<CircleIcon />
 			</span>
 		),
