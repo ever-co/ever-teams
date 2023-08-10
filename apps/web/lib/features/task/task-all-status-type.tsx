@@ -84,10 +84,10 @@ export function TaskAllStatusTypes({
 						/>
 					)}
 
-					{tags.map((tag) => {
+					{tags.map((tag, i) => {
 						return (
 							<TaskStatus
-								key={tag.id}
+								key={i}
 								{...tag}
 								className="rounded-[0.625rem]"
 								active={true}
