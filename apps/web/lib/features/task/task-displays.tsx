@@ -17,7 +17,7 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 			placement="top"
 			enabled={(task?.title && task?.title.length > 60) || false}
 		>
-			<span className="flex items-center">
+			<span className="flex">
 				{task && (
 					// Show task issue and task number
 					<div>
@@ -41,7 +41,7 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 						</div>
 					</div>
 				)}
-				<span className="font-normal">{task?.title}</span>
+				<span className="font-normal mt-[0.0625rem]">{task?.title}</span>
 			</span>
 		</Tooltip>
 	);
