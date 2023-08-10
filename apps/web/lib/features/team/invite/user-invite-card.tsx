@@ -27,7 +27,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative sm:flex hidden items-center py-3 min-h-[7rem]',
+					'relative sm:flex hidden items-center py-3 min-h-[7rem] border-[0.1875rem] border-transparent',
 					className
 				)}
 			>
@@ -80,7 +80,7 @@ export function InvitedCard({ invitation, className }: Props) {
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 w-1/5 font-normal px-3">
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 w-1/5 font-normal lg:px-4 px-2">
 					<span>{trans.common.TODAY}:</span>
 					<Text>0h : 0m</Text>
 				</div>
@@ -107,7 +107,7 @@ export function InvitedCard({ invitation, className }: Props) {
 			</Card>
 			<Card
 				shadow="bigger"
-				className={clsxm('relative flex sm:hidden py-3 flex-col', className)}
+				className={clsxm('relative flex sm:hidden py-3 flex-col ', className)}
 			>
 				<div className="flex mb-4 items-center">
 					<Avatar
@@ -246,7 +246,7 @@ export function InviteUserTeamCard({
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025]',
+					'relative hidden sm:flex items-center py-3 min-h-[7rem] dark:bg-[#1E2025] border-[0.1875rem] border-transparent',
 					'dark:border dark:border-[#FFFFFF14]',
 					className
 				)}
@@ -287,7 +287,7 @@ export function InviteUserTeamCard({
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 w-1/5 font-normal px-3  text-xs md:text-sm">
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 w-1/5 font-normal lg:px-4 px-2 text-xs md:text-sm">
 					<span>{trans.common.TODAY}:</span>
 					<Text>00h : 00m</Text>
 				</div>

@@ -95,7 +95,7 @@ export function UserTeamCard({
 					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[7rem]',
 					active
 						? ['border-primary-light border-[0.1875rem]']
-						: ['dark:border dark:border-[#FFFFFF14]'],
+						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
 
 					className
 				)}
