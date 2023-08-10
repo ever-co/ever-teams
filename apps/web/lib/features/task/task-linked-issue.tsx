@@ -21,7 +21,14 @@ export function TaskLinkedIssue({
 			)}
 		>
 			<Link href={`/task/${task.id}`}>
-				<TaskNameInfoDisplay task={task} className="px-1 py-1 md:px-1" />
+				<TaskNameInfoDisplay
+					task={task}
+					className={`${
+						task.issueType === 'Bug'
+							? '!px-[5.3px] py-[4.6px]'
+							: 'px-[6px] py-[6px] md:px-[6px]'
+					}  rounded-full`}
+				/>
 			</Link>
 
 			<ActiveTaskStatusDropdown task={task} defaultValue={task.status} />

@@ -9,8 +9,6 @@ type Props = {
 };
 
 export function TaskNameInfoDisplay({ task, className }: Props) {
-	console.log(task);
-
 	return (
 		<Tooltip
 			label={task?.title || ''}
@@ -25,13 +23,7 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 							<div className="mr-1">
 								<TaskIssueStatus
 									showIssueLabels={false}
-									className={clsxm(
-										' rounded-sm h-auto',
-										task.issueType === 'Bug'
-											? '!px-[0.3312rem] py-[0.2875rem]'
-											: '!px-[0.375rem] py-[0.375rem]',
-										className
-									)}
+									className={clsxm(className)}
 									task={task}
 								/>
 							</div>
@@ -41,7 +33,7 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 						</div>
 					</div>
 				)}
-				<span className="font-normal mt-[0.0625rem]">{task?.title}</span>
+				<span className="font-normal">{task?.title}</span>
 			</span>
 		</Tooltip>
 	);
