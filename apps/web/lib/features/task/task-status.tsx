@@ -401,6 +401,12 @@ export function ActiveTaskVersionDropdown(
 		'version'
 	);
 
+	// Manually removing color to show it properly
+	// As in version it will be always white color
+	items.forEach((it) => {
+		it.bgColor = 'transparent';
+	});
+
 	return (
 		<StatusDropdown
 			className={props.className}
@@ -412,6 +418,7 @@ export function ActiveTaskVersionDropdown(
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			isVersion
 		>
 			{props.children}
 		</StatusDropdown>
@@ -861,6 +868,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	bordered = false,
 	sidebarUI = false,
 	disabledReason = '',
+	isVersion = false,
 }: PropsWithChildren<{
 	value: T | undefined;
 	values?: NonNullable<T['name']>[];
@@ -881,6 +889,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	bordered?: boolean;
 	sidebarUI?: boolean;
 	disabledReason?: string;
+	isVersion?: boolean;
 }>) {
 	const defaultValue: TStatusItem = {
 		bgColor: undefined,
@@ -909,11 +918,13 @@ export function StatusDropdown<T extends TStatusItem>({
 				`justify-between capitalize`,
 				sidebarUI && ['text-xs'],
 				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
-				forDetails && !value
+				isVersion || (forDetails && !value)
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
-				taskStatusClassName
+				taskStatusClassName,
+
+				isVersion && 'dark:text-white'
 			)}
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
@@ -925,7 +936,8 @@ export function StatusDropdown<T extends TStatusItem>({
 					className={clsxm(
 						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
 						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
-						hasBtnIcon && ['whitespace-nowrap w-5 h-5']
+						hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
+						isVersion && 'dark:text-white'
 					)}
 					aria-hidden="true"
 				/>
@@ -1024,7 +1036,8 @@ export function StatusDropdown<T extends TStatusItem>({
 																	'rounded-md px-2 text-white',
 																],
 																`${sidebarUI ? 'rounded-[4px]' : ''}`,
-																`${bordered ? 'input-border' : ''}`
+																`${bordered ? 'input-border' : ''}`,
+																isVersion && 'dark:text-white'
 															)}
 														/>
 													</li>
