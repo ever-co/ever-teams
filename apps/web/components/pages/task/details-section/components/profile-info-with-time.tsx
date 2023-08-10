@@ -17,7 +17,7 @@ const ProfileInfoWithTime = ({
 		<div className="flex justify-between items-center w-full">
 			<ProfileInfo
 				profilePicSrc={profilePicSrc}
-				names={names}
+				names={names?.slice(0, 10) + '...'}
 				wrapperClassName={profileInfoWrapperClassName}
 			/>
 			<div className="not-italic font-medium text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">

@@ -5,17 +5,12 @@ import TaskRow from '../components/task-row';
 import { Disclosure } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import clsx from 'clsx';
-import {
-	useAuthenticateUser,
-	useOrganizationTeams,
-	// useTeamMemberCard,
-	//useTaskStatistics,
-} from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
+import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import Link from 'next/link';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -117,8 +112,8 @@ const TaskProgress = () => {
 	}, [activeTeam?.members, task?.members, task?.id, task?.estimate]);
 
 	return (
-		<section className="flex flex-col p-[15px]">
-			<TaskRow labelTitle={trans.PROGRESS} wrapperClassName="mb-3">
+		<section className="flex flex-col gap-4 p-[0.9375rem]">
+			<TaskRow labelTitle={trans.PROGRESS}>
 				<TaskProgressBar
 					task={task}
 					isAuthUser={true}
@@ -127,17 +122,17 @@ const TaskProgress = () => {
 					// memberInfo={memberInfo}
 				/>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TOTAL_TIME} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.TOTAL_TIME}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{userTotalTime.hours}h : {userTotalTime.minutes}m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TIME_TODAY} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.TIME_TODAY}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME} wrapperClassName="mb-3">
+			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME}>
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full">
@@ -147,12 +142,11 @@ const TaskProgress = () => {
 										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 									</div>
 
-									<ChevronUpIcon
-										className={clsx(
-											open ? 'rotate-180 transform' : '',
-											'h-5 w-5 text-[#A5A2B2]'
-										)}
-									/>
+									{!open ? (
+										<ChevronUpIcon className="stroke-[#292D32] dark:stroke-white w-4 h-4" />
+									) : (
+										<ChevronDownIcon className="stroke-[#292D32] dark:stroke-white w-4 h-4" />
+									)}
 								</Disclosure.Button>
 							) : (
 								<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
@@ -223,13 +217,19 @@ const IndividualMembersTotalTime = ({
 				const time = `${h}h : ${m}m`;
 
 				return (
-					<div key={member.id} className="mt-2.5">
-						<ProfileInfoWithTime
+					<div key={member.id} className="mt-2">
+						<Link
+							href={`/profile/${member.employee.userId}`}
+							target="_blank"
 							key={member.id}
-							profilePicSrc={member.employee.user?.imageUrl}
-							names={member.employee.fullName}
-							time={time}
-						/>
+						>
+							<ProfileInfoWithTime
+								key={member.id}
+								profilePicSrc={member.employee.user?.imageUrl}
+								names={member.employee.fullName}
+								time={time}
+							/>
+						</Link>
 					</div>
 				);
 			})}

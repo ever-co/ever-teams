@@ -32,12 +32,8 @@ const TaskMainInfo = () => {
 	const { activeTeam } = useOrganizationTeams();
 	const { translations } = useTranslation('settingsTeam');
 
-	const remainingDays = task
-		? calculateRemainingDays(new Date().toISOString(), task.dueDate)
-		: undefined;
-
 	return (
-		<section className="flex flex-col p-[15px]">
+		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			<TaskRow
 				labelIconPath="/assets/svg/calendar-2.svg"
 				labelTitle={translations.pages.taskDetails.TYPE_OF_ISSUE}
@@ -53,7 +49,6 @@ const TaskMainInfo = () => {
 			<TaskRow
 				labelIconPath="/assets/svg/profile.svg"
 				labelTitle={translations.pages.taskDetails.CREATOR}
-				wrapperClassName="mt-5"
 			>
 				{task?.creator && (
 					<Link
@@ -74,7 +69,6 @@ const TaskMainInfo = () => {
 			<TaskRow
 				labelIconPath="/assets/svg/people.svg"
 				labelTitle={translations.pages.taskDetails.ASSIGNEES}
-				wrapperClassName="mt-5"
 			>
 				<div className="flex flex-col gap-3">
 					{task?.members?.map((member: any) => (
@@ -95,22 +89,6 @@ const TaskMainInfo = () => {
 			</TaskRow>
 
 			<DueDates />
-
-			{task?.dueDate && task.startDate && (
-				<TaskRow
-					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
-					wrapperClassName="mt-3"
-					alignWithIconLabel={true}
-				>
-					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{remainingDays !== undefined && remainingDays < 0
-							? 0
-							: remainingDays}
-					</div>
-				</TaskRow>
-			)}
-
-			<hr className="mt-[15px]  dark:border-[#7B8089]" />
 		</section>
 	);
 };
@@ -138,6 +116,10 @@ function DueDates() {
 		dueDate || (task?.dueDate ? new Date(task.dueDate) : null)
 	);
 
+	const remainingDays = task
+		? calculateRemainingDays(new Date().toISOString(), task.dueDate)
+		: undefined;
+
 	const handleResetDate = useCallback(
 		(date: 'startDate' | 'dueDate') => {
 			if (date === 'startDate') {
@@ -157,16 +139,15 @@ function DueDates() {
 	);
 
 	return (
-		<>
+		<div className="flex flex-col gap-[0.4375rem]">
 			<TaskRow
 				labelIconPath="/assets/svg/calendar-2.svg"
 				labelTitle={translations.pages.taskDetails.START_DATE}
-				wrapperClassName="mt-5"
 			>
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
-					buttonClassName={'p-0 decoration-transparent'}
+					buttonClassName={'p-0 decoration-transparent h-[0.875rem]'}
 					// Calenar Props
 					customInput={
 						<div
@@ -214,13 +195,12 @@ function DueDates() {
 
 			<TaskRow
 				labelTitle={translations.pages.taskDetails.DUE_DATE}
-				wrapperClassName="mt-3"
 				alignWithIconLabel={true}
 			>
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
-					buttonClassName={'p-0 decoration-transparent'}
+					buttonClassName={'p-0 decoration-transparent h-[0.875rem]'}
 					// Calenar Props
 					customInput={
 						<div
@@ -267,7 +247,20 @@ function DueDates() {
 					<></>
 				)}
 			</TaskRow>
-		</>
+
+			{task?.dueDate && task.startDate && (
+				<TaskRow
+					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
+					alignWithIconLabel={true}
+				>
+					<div className="not-italic font-semibold text-[0.75rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
+						{remainingDays !== undefined && remainingDays < 0
+							? 0
+							: remainingDays}
+					</div>
+				</TaskRow>
+			)}
+		</div>
 	);
 }
 
