@@ -28,8 +28,8 @@ export function TaskNameInfoDisplay({ task, className }: Props) {
 									className={clsxm(
 										' rounded-sm h-auto',
 										task.issueType === 'Bug'
-											? '!px-[5.3px] py-[4.6px]'
-											: '!px-[6px] py-[6px]',
+											? '!px-[0.3312rem] py-[0.2875rem]'
+											: '!px-[0.375rem] py-[0.375rem]',
 										className
 									)}
 									task={task}
