@@ -23,7 +23,7 @@ export function TaskLinkedIssue({
 			<Link href={`/task/${task.id}`}>
 				<TaskNameInfoDisplay
 					task={task}
-					className="px-1 md:px-1"
+					className="px-1 md:px-1 flex mr-2.5"
 					taskTitleClassName="font-semibold text-xs flex items-center"
 					taskNumberClassName="font-semibold text-xs text-[#BAB8C4]"
 				/>
