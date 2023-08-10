@@ -118,7 +118,7 @@ const TaskTitleBlock = () => {
 	};
 
 	return (
-		<div className="flex flex-col gap-[1.1875rem]">
+		<div className="flex flex-col gap-[1.1875rem]" ref={titleContainerRef}>
 			{task ? (
 				<div className="flex gap-1">
 					<textarea
