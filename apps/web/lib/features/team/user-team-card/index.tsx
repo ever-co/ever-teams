@@ -88,14 +88,14 @@ export function UserTeamCard({
 	}
 
 	return (
-		<div>
+		<div className={`${!active && 'border-2 border-transparent'}`}>
 			<Card
 				shadow="bigger"
 				className={clsxm(
 					'relative sm:flex items-center py-3 hidden dark:bg-[#1E2025] min-h-[7rem]',
 					active
 						? ['border-primary-light border-[0.1875rem]']
-						: ['dark:border dark:border-[#FFFFFF14]'],
+						: ['dark:border border border-transparent dark:border-[#FFFFFF14]'],
 
 					className
 				)}

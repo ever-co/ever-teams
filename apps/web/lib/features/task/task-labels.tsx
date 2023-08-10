@@ -9,8 +9,14 @@ type Props = {
 	task: Nullable<ITeamTask>;
 	className?: string;
 	forDetails: boolean;
+	taskStatusClassName?: string;
 };
-export function TaskLabels({ task, className, forDetails }: Props) {
+export function TaskLabels({
+	task,
+	className,
+	forDetails,
+	taskStatusClassName,
+}: Props) {
 	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const modal = useModal();
@@ -40,6 +46,7 @@ export function TaskLabels({ task, className, forDetails }: Props) {
 				multiple={true}
 				forDetails={forDetails}
 				sidebarUI={forDetails}
+				taskStatusClassName={taskStatusClassName}
 			>
 				<Button
 					className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"

@@ -60,10 +60,10 @@ const TaskDetails = () => {
 			<Container className="mb-10">
 				<div className="flex flex-col w-full min-h-screen pt-5">
 					<section className="flex justify-between lg:flex-row flex-col lg:items-start">
-						<section className="md:mr-5 max-w-[900px] xl:w-full mb-4 md:mb-0">
+						<section className="md:mr-5 max-w-[57rem] xl:w-full mb-4 md:mb-0">
 							<TaskTitleBlock />
 
-							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8">
+							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8 rounded-sm">
 								<RichTextEditor />
 								{/* <TaskDescriptionBlock /> */}
 								<IssueCard related={false} />
@@ -72,7 +72,7 @@ const TaskDetails = () => {
 								{/* <ActivityBlock /> */}
 							</div>
 						</section>
-						<div className="flex flex-col lg:w-[400px] mt-4 lg:mt-0">
+						<div className="flex flex-col mt-4 lg:mt-0">
 							<div className="bg-white dark:bg-dark--theme-light flex flex-col text-red-700 rounded-xl ">
 								<TaskDetailsAside />
 							</div>
