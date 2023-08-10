@@ -19,7 +19,7 @@ const TaskPublicity = () => {
 	return (
 		<div
 			className={clsxm(
-				'h-[38px] border-y border-solid border-color-[rgba(0,0,0,0.07)] dark:border-[#7B8089] ',
+				'h-[2.375rem] border-y border-solid border-color-[rgba(0,0,0,0.07)] dark:border-[#26272C] ',
 				'bg-[#FBFAFA] dark:bg-dark--theme-light',
 				'details-label px-4 flex justify-between'
 			)}

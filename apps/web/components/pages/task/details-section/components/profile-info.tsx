@@ -18,7 +18,7 @@ const ProfileInfo = ({
 	wrapperClassName,
 	profilePicSize,
 }: Props) => {
-	const size = profilePicSize || 24;
+	const size = profilePicSize || 20;
 
 	return (
 		<div
@@ -48,7 +48,7 @@ const ProfileInfo = ({
 				)}
 			</div>
 
-			<div className="flex items-center not-italic font-semibold text-[12px] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white ml-1">
+			<div className="flex items-center not-italic font-semibold text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white ml-1">
 				{names}
 			</div>
 		</div>

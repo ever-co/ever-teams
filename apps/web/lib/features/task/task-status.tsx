@@ -67,6 +67,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		sidebarUI?: boolean;
 		placeholder?: string;
 		defaultValues?: ITaskStatusStack[T][];
+		taskStatusClassName?: string;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -336,6 +337,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -402,6 +404,12 @@ export function ActiveTaskVersionDropdown(
 		'version'
 	);
 
+	// Manually removing color to show it properly
+	// As in version it will be always white color
+	items.forEach((it) => {
+		it.bgColor = 'transparent';
+	});
+
 	return (
 		<StatusDropdown
 			className={props.className}
@@ -413,6 +421,8 @@ export function ActiveTaskVersionDropdown(
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			isVersion
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -434,6 +444,7 @@ export function EpicPropertiesDropdown({
 	multiple,
 	sidebarUI = false,
 	children,
+	taskStatusClassName,
 }: TTaskStatusesDropdown<'epic'>) {
 	const { item, items, onChange, values } = useStatusValue<'epic'>({
 		status: {},
@@ -454,6 +465,7 @@ export function EpicPropertiesDropdown({
 			multiple={multiple}
 			values={values}
 			showButtonOnly
+			taskStatusClassName={taskStatusClassName}
 		>
 			{children}
 		</StatusDropdown>
@@ -531,6 +543,7 @@ export function ActiveTaskPropertiesDropdown(
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -625,6 +638,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
+			taskStatusClassName={props.taskStatusClassName}
 		>
 			{props.children}
 		</StatusDropdown>
@@ -648,6 +662,7 @@ export function TaskLabelsDropdown({
 	children,
 	placeholder = 'Label',
 	defaultValues,
+	taskStatusClassName,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -671,6 +686,7 @@ export function TaskLabelsDropdown({
 			multiple={multiple}
 			values={values}
 			showButtonOnly
+			taskStatusClassName={taskStatusClassName}
 		>
 			{children}
 		</StatusDropdown>
@@ -862,6 +878,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	bordered = false,
 	sidebarUI = false,
 	disabledReason = '',
+	isVersion = false,
 	onRemoveSelected,
 }: PropsWithChildren<{
 	value: T | undefined;
@@ -883,6 +900,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	bordered?: boolean;
 	sidebarUI?: boolean;
 	disabledReason?: string;
+	isVersion?: boolean;
 	onRemoveSelected?: () => null;
 }>) {
 	const defaultValue: TStatusItem = {
@@ -912,11 +930,13 @@ export function StatusDropdown<T extends TStatusItem>({
 				`justify-between capitalize`,
 				sidebarUI && ['text-xs'],
 				!value && ['text-dark dark:text-white dark:bg-dark--theme-light'],
-				forDetails && !value
+				isVersion || (forDetails && !value)
 					? 'bg-transparent border border-solid border-color-[#F2F2F2]'
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
-				taskStatusClassName
+				taskStatusClassName,
+
+				isVersion && 'dark:text-white'
 			)}
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
@@ -928,7 +948,8 @@ export function StatusDropdown<T extends TStatusItem>({
 					className={clsxm(
 						'h-5 w-5 text-default transition duration-150 ease-in-out group-hover:text-opacity-80',
 						(!value || currentValue.bordered) && ['text-dark dark:text-white'],
-						hasBtnIcon && ['whitespace-nowrap w-5 h-5']
+						hasBtnIcon && ['whitespace-nowrap w-5 h-5'],
+						isVersion && 'dark:text-white'
 					)}
 					aria-hidden="true"
 				/>
@@ -975,7 +996,8 @@ export function StatusDropdown<T extends TStatusItem>({
 												sidebarUI && ['text-xs'],
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
-													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
+													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+												taskStatusClassName
 											)}
 											name={
 												values.length > 0
@@ -1033,7 +1055,8 @@ export function StatusDropdown<T extends TStatusItem>({
 																		'rounded-md px-2 text-white',
 																	],
 																	`${sidebarUI ? 'rounded-[4px]' : ''}`,
-																	`${bordered ? 'input-border' : ''}`
+																	`${bordered ? 'input-border' : ''}`,
+																	isVersion && 'dark:text-white'
 																)}
 															/>
 

@@ -175,7 +175,7 @@ html.dark {
 	/* Details Aside Bar */
 
 	.details-label {
-		@apply not-italic font-medium text-[12px] leading-[140%] tracking-[-0.02em] text-[#A5A2B2];
+		@apply not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#A5A2B2];
 	}
 }
 
