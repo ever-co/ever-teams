@@ -28,7 +28,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 
 	return (
 		<Card
-			className="w-full pt-0 px-4 pb-4 md:pt-0 md:px-4 md:pb-4 dark:bg-[#1E2025]"
+			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-[#1E2025] flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
@@ -60,7 +60,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 			{linkedTasks.length > 0 && (
 				<div
 					className={clsxm(
-						'flex flex-col max-h-80 overflow-y-auto',
+						'flex flex-col max-h-80 overflow-y-auto gap-3',
 						hidden && ['hidden']
 					)}
 				>
@@ -69,7 +69,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 							<TaskLinkedIssue
 								key={task.id}
 								task={task}
-								className="dark:bg-[#1E2025]"
+								className="dark:bg-[#1E2025] py-0"
 							/>
 						);
 					})}
