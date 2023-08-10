@@ -104,7 +104,7 @@ export const en = {
 
 		taskDetails: {
 			BREADCRUMB: ['Team', 'Task Details'],
-			DESCRIPTION: 'Description',
+			DESCRIPTION: 'Descriptions',
 			ADD_DESCRIPTION: 'Add Description here',
 			TYPE_OF_ISSUE: 'Type of Issue',
 			CREATOR: 'Creator',
