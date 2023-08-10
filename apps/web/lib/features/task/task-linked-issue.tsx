@@ -21,10 +21,20 @@ export function TaskLinkedIssue({
 			)}
 		>
 			<Link href={`/task/${task.id}`}>
-				<TaskNameInfoDisplay task={task} className="px-1 py-1 md:px-1" />
+				<TaskNameInfoDisplay
+					task={task}
+					className="px-1 md:px-1"
+					taskTitleClassName="font-semibold text-xs flex items-center"
+					taskNumberClassName="font-semibold text-xs text-[#BAB8C4]"
+				/>
 			</Link>
 
-			<ActiveTaskStatusDropdown task={task} defaultValue={task.status} />
+			<ActiveTaskStatusDropdown
+				task={task}
+				defaultValue={task.status}
+				taskStatusClassName="w-[5.25rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
+				showIcon={false}
+			/>
 		</Card>
 	);
 }
