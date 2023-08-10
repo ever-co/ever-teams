@@ -20,7 +20,7 @@ import {
 	SpinnerLoader,
 	Tooltip,
 } from 'lib/components';
-import { CircleIcon, TickCircleIcon } from 'lib/components/svgs';
+import { TickCircleIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import {
 	MutableRefObject,
@@ -33,7 +33,6 @@ import {
 } from 'react';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
-import { TStatusItem } from './task-status';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
