@@ -25,8 +25,8 @@ export function TaskLinkedIssue({
 					task={task}
 					className={`${
 						task.issueType === 'Bug'
-							? '!px-[5.3px] py-[4.6px]'
-							: 'px-[6px] py-[6px] md:px-[6px]'
+							? '!px-[0.3312rem] py-[0.2875rem]'
+							: '!px-[0.375rem] py-[0.375rem]'
 					}  rounded-full`}
 				/>
 			</Link>

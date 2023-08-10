@@ -79,7 +79,15 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 						: () => task && router.push(`/task/${task?.id}`)
 				}
 			>
-				<TaskNameInfoDisplay task={task} />
+				<TaskNameInfoDisplay
+					task={task}
+					className={`${
+						task?.issueType === 'Bug'
+							? '!px-[0.3312rem] py-[0.2875rem]'
+							: '!px-[0.375rem] py-[0.375rem]'
+					}`}
+					titleClassName="mt-[0.0625rem]"
+				/>
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
