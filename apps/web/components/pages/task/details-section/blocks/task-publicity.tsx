@@ -1,20 +1,35 @@
 import { detailedTaskState } from '@app/stores';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { useTeamTasks } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { GlobIcon, LockIcon } from 'lib/components/svgs';
+import { debounce } from 'lodash';
 
 const TaskPublicity = () => {
 	const [task] = useRecoilState(detailedTaskState);
+	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined>(
+		task?.public
+	);
 	const { updatePublicity } = useTeamTasks();
+	console.log('task?.public:', task?.public);
 
 	const handlePublicity = useCallback(
 		(value: boolean) => {
-			updatePublicity(value, task, true);
+			setIsTaskPublic(value);
+			const debounceUpdatePublicity = debounce((value) => {
+				updatePublicity(value, task, true);
+			}, 500);
+			debounceUpdatePublicity(value);
 		},
 		[task, updatePublicity]
 	);
+
+	useEffect(() => {
+		if (task?.public !== undefined) {
+			setIsTaskPublic(task.public);
+		}
+	}, [task?.public]);
 
 	return (
 		<div
@@ -24,7 +39,7 @@ const TaskPublicity = () => {
 				'details-label px-4 flex justify-between'
 			)}
 		>
-			{task?.public ? (
+			{isTaskPublic ? (
 				<>
 					<div className="text-[#293241] dark:text-white flex items-center gap-2">
 						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] w-3" />
