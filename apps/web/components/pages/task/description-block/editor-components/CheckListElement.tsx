@@ -33,11 +33,11 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 					className="scale-110 opacity-0"
 				/>
 				{checked ? (
-					<button onClick={toggleCheck} className="absolute z-10 top-1 left-0">
+					<button onClick={toggleCheck} className="absolute z-10 top-0 left-0">
 						<CheckBoxIcon />
 					</button>
 				) : (
-					<button onClick={toggleCheck} className="absolute z-10 top-1 left-0">
+					<button onClick={toggleCheck} className="absolute z-10 top-0 left-0">
 						<UncheckedBoxIcon />
 					</button>
 				)}
