@@ -136,10 +136,13 @@ module.exports = {
 					css: {
 						maxWidth: '100ch',
 						// Add margin top and bottom for all HTML tags if needed
-						'h2, h3, h4, h5, h6, p, span, em, strong, ul, ol, dl, blockquote, code, figure, pre':
+						'h2, h3, h4, h5, h6, p, span, em, ul, ol, dl, blockquote, code, figure, pre':
 							{
-								marginTop: '0.55rem',
-								marginBottom: '0.55rem',
+								marginTop: '0.5rem',
+								marginBottom: '0.5rem',
+								lineHeight: '20px',
+								fontSize: '16px',
+								wordSpacing: '1px',
 							},
 						h1: {
 							fontSize: '1.5rem',
