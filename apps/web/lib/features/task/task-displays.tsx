@@ -8,6 +8,7 @@ type Props = {
 	className?: string;
 	taskTitleClassName?: string;
 	taskNumberClassName?: string;
+	dash?: boolean;
 };
 
 export function TaskNameInfoDisplay({
@@ -15,6 +16,7 @@ export function TaskNameInfoDisplay({
 	className,
 	taskTitleClassName,
 	taskNumberClassName,
+	dash = false,
 }: Props) {
 	return (
 		<Tooltip
@@ -40,7 +42,7 @@ export function TaskNameInfoDisplay({
 									taskNumberClassName
 								)}
 							>
-								#{task.taskNumber} -
+								#{task.taskNumber} {dash && '-'}
 							</span>
 						</div>
 					</div>

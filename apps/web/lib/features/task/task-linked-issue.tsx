@@ -23,6 +23,7 @@ export function TaskLinkedIssue({
 			<Link href={`/task/${task.id}`}>
 				<TaskNameInfoDisplay
 					task={task}
+					dash
 					className={`${
 						task.issueType === 'Bug'
 							? '!px-[0.3312rem] py-[0.2875rem]'

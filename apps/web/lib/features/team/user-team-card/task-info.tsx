@@ -85,8 +85,8 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 						task?.issueType === 'Bug'
 							? '!px-[0.3312rem] py-[0.2875rem]'
 							: '!px-[0.375rem] py-[0.375rem]'
-					}`}
-					titleClassName="mt-[0.0625rem]"
+					} rounded-sm`}
+					taskTitleClassName="mt-[0.0625rem]"
 				/>
 			</div>
 
