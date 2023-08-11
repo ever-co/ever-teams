@@ -86,6 +86,7 @@ export type IActiveTaskStatuses<T extends ITaskStatusField> =
 
 		forParentChildRelationship?: boolean;
 		taskStatusClassName?: string;
+		showIcon?: boolean;
 	};
 
 export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
@@ -338,6 +339,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			forDetails={props.forDetails}
 			largerWidth={props.largerWidth}
 			taskStatusClassName={props.taskStatusClassName}
+			showIcon={props.showIcon}
 		>
 			{props.children}
 		</StatusDropdown>

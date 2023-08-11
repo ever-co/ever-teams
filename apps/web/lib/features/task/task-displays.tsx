@@ -6,13 +6,15 @@ import { TaskIssueStatus } from './task-issue';
 type Props = {
 	task: Nullable<ITeamTask>;
 	className?: string;
-	titleClassName?: string;
+	taskTitleClassName?: string;
+	taskNumberClassName?: string;
 };
 
 export function TaskNameInfoDisplay({
 	task,
 	className,
-	titleClassName,
+	taskTitleClassName,
+	taskNumberClassName,
 }: Props) {
 	return (
 		<Tooltip
@@ -32,13 +34,18 @@ export function TaskNameInfoDisplay({
 									task={task}
 								/>
 							</div>
-							<span className="text-gray-500 mr-1 font-normal">
-								#{task.taskNumber}
+							<span
+								className={clsxm(
+									'text-gray-500 mr-1 font-normal',
+									taskNumberClassName
+								)}
+							>
+								#{task.taskNumber} -
 							</span>
 						</div>
 					</div>
 				)}
-				<span className={clsxm(titleClassName, 'font-normal')}>
+				<span className={clsxm('font-normal', taskTitleClassName)}>
 					{task?.title}
 				</span>
 			</span>
