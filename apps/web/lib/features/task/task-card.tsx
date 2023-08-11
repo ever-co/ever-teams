@@ -113,7 +113,7 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'relative md:flex items-center justify-between py-3 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
+					'md:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
 					active && ['border-primary-light dark:bg-[#1E2025] '],
 					className
 				)}
@@ -123,7 +123,7 @@ export function TaskCard(props: Props) {
 				</div>
 
 				{/* Task information */}
-				<TaskInfo task={task} className="lg:w-[330px] w-1/4 px-4 " />
+				<TaskInfo task={task} className="lg:w-[330px] w-1/4 px-4" />
 				<VerticalSeparator className="ml-2" />
 
 				{viewType === 'default' && (
@@ -176,7 +176,6 @@ export function TaskCard(props: Props) {
 
 				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 				<ActiveTaskStatusDropdown
-					className="lg:w-44"
 					task={task}
 					onChangeLoading={(load) => setLoading(load)}
 				/>
@@ -466,53 +465,52 @@ function TaskCardMenu({
 	}, [memberInfo, task, viewType]);
 
 	return (
-		<div className="absolute right-2">
-			<Popover className="relative">
-				<Popover.Button className="flex items-center outline-none border-none">
-					{!loading && <MoreIcon className="dark:stroke-[#B1AEBC]" />}
-					{loading && <SpinnerLoader size={20} />}
-				</Popover.Button>
+		<Popover>
+			<Popover.Button className="flex items-center outline-none border-none">
+				{!loading && <MoreIcon className="dark:stroke-[#B1AEBC]" />}
+				{loading && <SpinnerLoader size={20} />}
+			</Popover.Button>
 
-				<Transition
-					enter="transition duration-100 ease-out"
-					enterFrom="transform scale-95 opacity-0"
-					enterTo="transform scale-100 opacity-100"
-					leave="transition duration-75 ease-out"
-					leaveFrom="transform scale-100 opacity-100"
-					leaveTo="transform scale-95 opacity-0"
-					className="absolute z-10 right-0 min-w-[110px]"
-				>
-					<Popover.Panel>
-						{() => {
-							return (
-								<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
-									<ul className="min-w-[124px]">
-										<li className="mb-2">
-											<Link
-												href={`/task/${task.id}`}
-												className={clsxm(
-													'font-normal whitespace-nowrap transition-all',
-													'hover:font-semibold hover:transition-all'
-												)}
-											>
-												{trans.common.TASK_DETAILS}
-											</Link>
-										</li>
-										<li className="mb-2">
-											<span
-												className={clsxm(
-													'font-normal whitespace-nowrap transition-all',
-													'hover:font-semibold hover:transition-all cursor-pointer'
-												)}
-												onClick={handleAssignment}
-											>
-												{viewType === 'unassign'
-													? trans.common.ASSIGN_TASK
-													: trans.common.UNASSIGN_TASK}
-											</span>
-										</li>
+			<Transition
+				enter="transition duration-100 ease-out"
+				enterFrom="transform scale-95 opacity-0"
+				enterTo="transform scale-100 opacity-100"
+				leave="transition duration-75 ease-out"
+				leaveFrom="transform scale-100 opacity-100"
+				leaveTo="transform scale-95 opacity-0"
+				className="absolute z-10 right-0 min-w-[110px]"
+			>
+				<Popover.Panel>
+					{() => {
+						return (
+							<Card shadow="custom" className="shadow-xlcard !py-3 !px-4">
+								<ul className="min-w-[124px]">
+									<li className="mb-2">
+										<Link
+											href={`/task/${task.id}`}
+											className={clsxm(
+												'font-normal whitespace-nowrap transition-all',
+												'hover:font-semibold hover:transition-all'
+											)}
+										>
+											{trans.common.TASK_DETAILS}
+										</Link>
+									</li>
+									<li className="mb-2">
+										<span
+											className={clsxm(
+												'font-normal whitespace-nowrap transition-all',
+												'hover:font-semibold hover:transition-all cursor-pointer'
+											)}
+											onClick={handleAssignment}
+										>
+											{viewType === 'unassign'
+												? trans.common.ASSIGN_TASK
+												: trans.common.UNASSIGN_TASK}
+										</span>
+									</li>
 
-										{/* <li>
+									{/* <li>
 										<ConfirmDropdown
 											className="right-[110%] top-0"
 											onConfirm={() => {
@@ -529,13 +527,12 @@ function TaskCardMenu({
 											</Text>
 										</ConfirmDropdown>
 									</li> */}
-									</ul>
-								</Card>
-							);
-						}}
-					</Popover.Panel>
-				</Transition>
-			</Popover>
-		</div>
+								</ul>
+							</Card>
+						);
+					}}
+				</Popover.Panel>
+			</Transition>
+		</Popover>
 	);
 }
