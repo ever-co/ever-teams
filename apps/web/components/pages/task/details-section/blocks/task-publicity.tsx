@@ -12,7 +12,6 @@ const TaskPublicity = () => {
 		task?.public
 	);
 	const { updatePublicity } = useTeamTasks();
-	console.log('task?.public:', task?.public);
 
 	const handlePublicity = useCallback(
 		(value: boolean) => {
@@ -26,9 +25,7 @@ const TaskPublicity = () => {
 	);
 
 	useEffect(() => {
-		if (task?.public !== undefined) {
-			setIsTaskPublic(task.public);
-		}
+		setIsTaskPublic(task?.public);
 	}, [task?.public]);
 
 	return (
