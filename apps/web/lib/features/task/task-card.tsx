@@ -181,6 +181,7 @@ export function TaskCard(props: Props) {
 					<ActiveTaskStatusDropdown
 						task={task}
 						onChangeLoading={(load) => setLoading(load)}
+						className="min-w-[10.625rem]"
 					/>
 
 					{/* TaskCardMenu */}
