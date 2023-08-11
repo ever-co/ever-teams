@@ -114,7 +114,8 @@ export function TaskCard(props: Props) {
 				shadow="bigger"
 				className={clsxm(
 					'md:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
-					active && ['border-primary-light dark:bg-[#1E2025] '],
+					active && ['border-primary-light dark:bg-[#1E2025]'],
+					'gap-5',
 					className
 				)}
 			>
@@ -122,39 +123,38 @@ export function TaskCard(props: Props) {
 					<DraggerIcon />
 				</div>
 
-				{/* Task information */}
-				<TaskInfo task={task} className="lg:w-[330px] w-1/4 px-4" />
-				<VerticalSeparator className="ml-2" />
-
+				<div className="w-[35%] flex flex-row justify-between">
+					{/* Task information */}
+					<TaskInfo task={task} className="px-4" />
+				</div>
+				<VerticalSeparator />
 				{viewType === 'default' && (
 					<>
 						{/* TaskEstimateInfo */}
-						<div className="flex space-x-2 items-center flex-col lg:flex-row">
+						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
 							<TaskEstimateInfo
 								memberInfo={memberInfo}
 								edition={taskEdition}
 								activeAuthTask={true}
-								className="lg:px-3 lg:w-52 "
 							/>
 						</div>
-						<VerticalSeparator />
 					</>
 				)}
 
 				{viewType === 'unassign' && (
-					<>
-						<UsersTaskAssigned className="lg:px-3 lg:w-52" task={task} />
-						<VerticalSeparator />
-					</>
+					<div className="w-[20%] flex justify-center">
+						<UsersTaskAssigned task={task} />
+					</div>
 				)}
+				<VerticalSeparator />
 
 				{/* TaskTimes */}
-				<div className="flex items-center">
+				<div className="flex items-center justify-between gap-[1.125rem] w-[25%] px-5">
 					<TaskTimes
 						activeAuthTask={activeAuthTask}
 						task={task}
 						isAuthUser={isAuthUser}
-						className="lg:w-48 lg:px-4 px-2 flex flex-col gap-5"
+						className="flex flex-col gap-2"
 						showTotal={viewType !== 'unassign'}
 						memberInfo={profile?.member}
 					/>
@@ -163,32 +163,36 @@ export function TaskCard(props: Props) {
 							activeTeam={activeTeam}
 							currentMember={currentMember}
 							task={task}
+							className="w-11 h-11"
 						/>
 					)}
 					{!isAuthUser && task && viewType === 'unassign' && (
 						<AssignTaskButtonCall
 							task={task}
 							assignTask={memberInfo.assignTask}
+							className="w-11 h-11 border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]"
 						/>
 					)}
 				</div>
 				<VerticalSeparator />
 
-				{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
-				<ActiveTaskStatusDropdown
-					task={task}
-					onChangeLoading={(load) => setLoading(load)}
-				/>
-
-				{/* TaskCardMenu */}
-				{task && memberInfo && currentMember && (
-					<TaskCardMenu
+				<div className="flex flex-row justify-between w-[25%]">
+					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
+					<ActiveTaskStatusDropdown
 						task={task}
-						loading={loading}
-						memberInfo={memberInfo}
-						viewType={viewType}
+						onChangeLoading={(load) => setLoading(load)}
 					/>
-				)}
+
+					{/* TaskCardMenu */}
+					{task && memberInfo && currentMember && (
+						<TaskCardMenu
+							task={task}
+							loading={loading}
+							memberInfo={memberInfo}
+							viewType={viewType}
+						/>
+					)}
+				</div>
 			</Card>
 
 			{/* Small screen size */}
@@ -275,9 +279,11 @@ function UsersTaskAssigned({
 	return (
 		<div className={clsxm('flex justify-center items-center', className)}>
 			<div className="flex flex-col justify-center">
-				<span className="mb-1 text-xs text-center">
-					{trans.common.ASSIGNED}
-				</span>
+				{members.length > 0 && (
+					<span className="mb-1 text-xs text-center">
+						{trans.common.ASSIGNED}
+					</span>
+				)}
 				<span className="font-medium text-center text-sm">
 					{members.length > 0
 						? `${members.length} ${trans.common.PEOPLE}`
@@ -301,10 +307,12 @@ function TimerButtonCall({
 	task,
 	currentMember,
 	activeTeam,
+	className,
 }: {
 	task: ITeamTask;
 	currentMember: OT_Member | undefined;
 	activeTeam: IOrganizationTeamList | null;
+	className?: string;
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
@@ -367,7 +375,7 @@ function TimerButtonCall({
 			onClick={activeTaskStatus ? timerHanlder : startTimerWithTask}
 			running={activeTaskStatus?.running}
 			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className="h-14 w-14"
+			className={clsxm('h-14 w-14', className)}
 		/>
 	);
 }
@@ -375,9 +383,11 @@ function TimerButtonCall({
 function AssignTaskButtonCall({
 	task,
 	assignTask,
+	className,
 }: {
 	task: ITeamTask;
 	assignTask: (task: ITeamTask) => Promise<void>;
+	className?: string;
 }) {
 	const {
 		disabled,
@@ -395,7 +405,7 @@ function AssignTaskButtonCall({
 				assignTask(task);
 			}}
 			disabled={activeTaskStatus ? disabled : task.status === 'closed'}
-			className="h-9 w-9"
+			className={clsxm('h-9 w-9', className)}
 		/>
 	);
 }
