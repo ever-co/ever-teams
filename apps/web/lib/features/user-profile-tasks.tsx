@@ -71,10 +71,10 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			<ul>
+			<ul className="flex flex-col gap-6">
 				{tasks.map((task) => {
 					return (
-						<li key={task.id} className="mb-8">
+						<li key={task.id}>
 							<TaskCard
 								task={task}
 								isAuthUser={profile.isAuthUser}
