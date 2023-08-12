@@ -10,7 +10,6 @@ import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
-import Link from 'next/link';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -218,18 +217,13 @@ const IndividualMembersTotalTime = ({
 
 				return (
 					<div key={member.id} className="mt-2">
-						<Link
-							href={`/profile/${member.employee.userId}`}
-							target="_blank"
+						<ProfileInfoWithTime
 							key={member.id}
-						>
-							<ProfileInfoWithTime
-								key={member.id}
-								profilePicSrc={member.employee.user?.imageUrl}
-								names={member.employee.fullName}
-								time={time}
-							/>
-						</Link>
+							profilePicSrc={member.employee.user?.imageUrl}
+							names={member.employee.fullName}
+							time={time}
+							userId={member.employee.userId}
+						/>
 					</div>
 				);
 			})}
