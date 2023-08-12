@@ -96,21 +96,23 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					</Text.Heading>
 				</Tooltip>
 
-				<Tooltip
-					label={`${memberUser?.email || ''} `.trim()}
-					placement="auto"
-					enabled={
-						`${memberUser?.email || ''} `.trim().length >
-						CHARACTER_LIMIT_TO_SHOW
-					}
-				>
-					<Text className="text-gray-400 flex items-center text-sm space-x-1">
-						<MailIcon />{' '}
-						<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
-							{memberUser?.email}
-						</span>
-					</Text>
-				</Tooltip>
+				{!publicTeam && (
+					<Tooltip
+						label={`${memberUser?.email || ''} `.trim()}
+						placement="auto"
+						enabled={
+							`${memberUser?.email || ''} `.trim().length >
+							CHARACTER_LIMIT_TO_SHOW
+						}
+					>
+						<Text className="text-gray-400 flex items-center text-sm space-x-1">
+							<MailIcon />{' '}
+							<span className="overflow-hidden text-ellipsis whitespace-nowrap lg:max-w-[15ch] xl:max-w-[20ch] 2xl:max-w-full">
+								{memberUser?.email}
+							</span>
+						</Text>
+					</Tooltip>
+				)}
 			</div>
 		</Link>
 	);
