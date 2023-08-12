@@ -3,15 +3,15 @@ import TaskRow from '../components/task-row';
 import { detailedTaskState } from '@app/stores';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { TaskEstimate } from 'lib/features';
-import { AddIcon, ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
 import { Disclosure } from '@headlessui/react';
 import { useTranslation } from 'lib/i18n';
-import Link from 'next/link';
+import { useAuthenticateUser } from '@app/hooks';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
-
 	const { trans } = useTranslation('taskDetails');
+	const { user } = useAuthenticateUser();
 
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
@@ -23,7 +23,7 @@ const TaskEstimationsInfo = () => {
 			>
 				<Disclosure>
 					{({ open }) => (
-						<div className="flex flex-col w-full">
+						<div className="flex flex-col w-full mt-[0.125rem]">
 							<Disclosure.Button className="flex justify-between items-center w-full">
 								<TaskEstimate
 									_task={task}
@@ -39,16 +39,14 @@ const TaskEstimationsInfo = () => {
 							</Disclosure.Button>
 							<Disclosure.Panel>
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
-									{task?.members.map((member) => (
-										<Link
-											href={`/profile/${member.userId}`}
-											target="_blank"
-											key={member.id}
-										>
+									{task?.members.map((member) =>
+										// TODO
+										// Enable other users estimations in v2
+										member.userId === user?.id ? (
 											<ProfileInfoWithTime
+												key={member.id}
 												profilePicSrc={member.user?.imageUrl}
 												names={member.fullName}
-												// profileInfoWrapperClassName="w-5"
 												//@ts-ignore
 												time={
 													<TaskEstimate
@@ -58,13 +56,19 @@ const TaskEstimationsInfo = () => {
 													/>
 												}
 											/>
-										</Link>
-									))}
+										) : (
+											<></>
+										)
+									)}
 								</div>
-								<button className="flex items-center text-[0.5rem] leading-[140%] border px-2.5 py-1 rounded-xl text-[#292D32] font-semibold dark:text-white gap-1 mt-2">
+								{/*
+								TODO
+								Enable it in v2
+								*/}
+								{/* <button className="flex items-center text-[0.5rem] leading-[140%] border px-2.5 py-1 rounded-xl text-[#292D32] font-semibold dark:text-white gap-1 mt-2">
 									<AddIcon className="dark:stroke-white" />
 									Add new member
-								</button>
+								</button> */}
 							</Disclosure.Panel>
 						</div>
 					)}
