@@ -10,7 +10,6 @@ import { useTranslation } from 'lib/i18n';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
-import Link from 'next/link';
 
 const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
@@ -135,7 +134,7 @@ const TaskProgress = () => {
 			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME}>
 				<Disclosure>
 					{({ open }) => (
-						<div className="flex flex-col w-full">
+						<div className="flex flex-col w-full mt-[0.1875rem]">
 							{task?.members && task?.members.length > 1 ? (
 								<Disclosure.Button className="flex justify-between items-center w-full">
 									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
@@ -218,18 +217,13 @@ const IndividualMembersTotalTime = ({
 
 				return (
 					<div key={member.id} className="mt-2">
-						<Link
-							href={`/profile/${member.employee.userId}`}
-							target="_blank"
+						<ProfileInfoWithTime
 							key={member.id}
-						>
-							<ProfileInfoWithTime
-								key={member.id}
-								profilePicSrc={member.employee.user?.imageUrl}
-								names={member.employee.fullName}
-								time={time}
-							/>
-						</Link>
+							profilePicSrc={member.employee.user?.imageUrl}
+							names={member.employee.fullName}
+							time={time}
+							userId={member.employee.userId}
+						/>
 					</div>
 				);
 			})}

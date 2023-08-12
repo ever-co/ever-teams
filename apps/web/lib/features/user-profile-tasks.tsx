@@ -59,6 +59,12 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 						isAuthUser={profile.isAuthUser}
 						activeAuthTask={true}
 						profile={profile}
+						taskBadgeClassName={`	${
+							profile.activeUserTeamTask?.issueType === 'Bug'
+								? '!px-[0.3312rem] py-[0.2875rem]'
+								: '!px-[0.375rem] py-[0.375rem]'
+						} rounded-sm`}
+						taskTitleClassName="mt-[0.0625rem]"
 					/>
 				)}
 
@@ -71,10 +77,10 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				</div>
 			)}
 
-			<ul>
+			<ul className="flex flex-col gap-6">
 				{tasks.map((task) => {
 					return (
-						<li key={task.id} className="mb-8">
+						<li key={task.id}>
 							<TaskCard
 								task={task}
 								isAuthUser={profile.isAuthUser}
@@ -83,6 +89,12 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 									tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'
 								}
 								profile={profile}
+								taskBadgeClassName={`	${
+									task.issueType === 'Bug'
+										? '!px-[0.3312rem] py-[0.2875rem]'
+										: '!px-[0.375rem] py-[0.375rem]'
+								} rounded-sm`}
+								taskTitleClassName="mt-[0.0625rem]"
 							/>
 						</li>
 					);
