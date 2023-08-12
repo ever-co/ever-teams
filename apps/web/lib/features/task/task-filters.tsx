@@ -190,7 +190,7 @@ export type I_TaskFilter = ReturnType<typeof useTaskFilter>;
 type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
-		<div className="relative">
+		<div className="relative z-10">
 			<div
 				className={clsxm(
 					'flex justify-between xs:flex-row flex-col items-center',
