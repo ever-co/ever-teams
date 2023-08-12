@@ -1070,7 +1070,7 @@ export function StatusDropdown<T extends TStatusItem>({
 																		onRemoveSelected && onRemoveSelected();
 																		onChange && onChange(null as any);
 																	}}
-																	className="absolute top-2 right-2 h-4 w-4 bg-transparent"
+																	className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
 																>
 																	<XMarkIcon
 																		className="text-dark"

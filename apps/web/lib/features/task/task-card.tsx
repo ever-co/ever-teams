@@ -185,7 +185,7 @@ export function TaskCard(props: Props) {
 				</div>
 				<VerticalSeparator />
 
-				<div className="flex flex-row justify-between w-[25%]">
+				<div className="flex flex-row justify-between items-center w-[25%]">
 					{/* Active Task Status Dropdown (It's a dropdown that allows the user to change the status of the task.)*/}
 					<ActiveTaskStatusDropdown
 						task={task}
