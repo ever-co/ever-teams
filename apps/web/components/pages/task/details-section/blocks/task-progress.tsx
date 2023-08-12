@@ -134,7 +134,7 @@ const TaskProgress = () => {
 			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME}>
 				<Disclosure>
 					{({ open }) => (
-						<div className="flex flex-col w-full">
+						<div className="flex flex-col w-full mt-[0.1875rem]">
 							{task?.members && task?.members.length > 1 ? (
 								<Disclosure.Button className="flex justify-between items-center w-full">
 									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">

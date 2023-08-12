@@ -23,7 +23,7 @@ const TaskEstimationsInfo = () => {
 			>
 				<Disclosure>
 					{({ open }) => (
-						<div className="flex flex-col w-full">
+						<div className="flex flex-col w-full mt-[0.125rem]">
 							<Disclosure.Button className="flex justify-between items-center w-full">
 								<TaskEstimate
 									_task={task}
