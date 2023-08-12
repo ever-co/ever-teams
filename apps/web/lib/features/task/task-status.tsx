@@ -1032,7 +1032,7 @@ export function StatusDropdown<T extends TStatusItem>({
 									<Listbox.Options className="outline-none">
 										<Card
 											shadow="bigger"
-											className="!px-1 py-2 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+											className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
 										>
 											{items.map((item, i) => {
 												const item_value = item.value || item.name;
@@ -1043,7 +1043,7 @@ export function StatusDropdown<T extends TStatusItem>({
 														as={Fragment}
 														disabled={disabled}
 													>
-														<li className="mb-3 cursor-pointer outline-none relative">
+														<li className="cursor-pointer outline-none relative">
 															<TaskStatus
 																showIcon={showIcon}
 																{...item}

@@ -44,6 +44,7 @@ const TaskMainInfo = () => {
 					showIssueLabels={true}
 					sidebarUI={true}
 					taskStatusClassName="rounded-[0.1875rem] border-none h-5 text-[0.5rem]"
+					forParentChildRelationship={true}
 				/>
 			</TaskRow>
 			<TaskRow
