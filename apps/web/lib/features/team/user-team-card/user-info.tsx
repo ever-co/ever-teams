@@ -70,7 +70,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 									? 'idle'
 									: member?.timerStatus || 'idle'
 							}
-							className="w-[1.5rem] h-[1.5rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+							className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
 						/>
 					</Avatar>
 				) : (
