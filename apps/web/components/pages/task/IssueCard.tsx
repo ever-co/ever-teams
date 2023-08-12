@@ -60,7 +60,7 @@ const IssueCard = ({ related }: { related: boolean }) => {
 			{linkedTasks.length > 0 && (
 				<div
 					className={clsxm(
-						'flex flex-col max-h-80 overflow-y-auto gap-3',
+						'flex flex-col max-h-80 gap-3',
 						hidden && ['hidden']
 					)}
 				>
