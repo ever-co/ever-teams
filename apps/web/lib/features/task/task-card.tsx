@@ -51,6 +51,8 @@ type Props = {
 	profile?: I_UserProfilePage;
 	editTaskId?: string | null;
 	setEditTaskId?: SetterOrUpdater<string | null>;
+	taskBadgeClassName?: string;
+	taskTitleClassName?: string;
 } & IClassName;
 
 export function TaskCard(props: Props) {
@@ -62,6 +64,8 @@ export function TaskCard(props: Props) {
 		activeAuthTask,
 		viewType = 'default',
 		profile,
+		taskBadgeClassName,
+		taskTitleClassName,
 	} = props;
 
 	const [loading, setLoading] = useState(false);
@@ -123,7 +127,12 @@ export function TaskCard(props: Props) {
 				</div>
 
 				{/* Task information */}
-				<TaskInfo task={task} className="lg:w-[330px] w-1/4 px-4 " />
+				<TaskInfo
+					task={task}
+					className="lg:w-[330px] w-1/4 px-4 "
+					taskBadgeClassName={clsxm(taskBadgeClassName)}
+					taskTitleClassName={clsxm(taskTitleClassName)}
+				/>
 				<VerticalSeparator className="ml-2" />
 
 				{viewType === 'default' && (
@@ -407,7 +416,13 @@ function AssignTaskButtonCall({
 function TaskInfo({
 	className,
 	task,
-}: IClassName & { task?: Nullable<ITeamTask> }) {
+	taskBadgeClassName,
+	taskTitleClassName,
+}: IClassName & {
+	task?: Nullable<ITeamTask>;
+	taskBadgeClassName?: string;
+	taskTitleClassName?: string;
+}) {
 	const router = useRouter();
 
 	return (
@@ -430,7 +445,11 @@ function TaskInfo({
 							)}
 							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>
-							<TaskNameInfoDisplay task={task} />
+							<TaskNameInfoDisplay
+								task={task}
+								className={clsxm(taskBadgeClassName)}
+								taskTitleClassName={clsxm(taskTitleClassName)}
+							/>
 						</div>
 					</div>
 				</div>
