@@ -45,6 +45,7 @@ const TaskDetails = () => {
 				<Container>
 					<div className="flex items-center gap-8">
 						<span
+							className="cursor-pointer"
 							onClick={() => {
 								router.back();
 							}}

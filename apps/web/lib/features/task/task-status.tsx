@@ -800,7 +800,7 @@ export function TaskStatus({
 	return (
 		<div
 			className={clsxm(
-				`py-2 md:px-3 px-2 flex items-center text-sm relative `,
+				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
 
 				sidebarUI
 					? 'text-dark space-x-3 rounded-md font-[500]'
