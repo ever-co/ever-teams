@@ -78,8 +78,9 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					onChange={(event) => setQuery(event.target.value)}
 					className={clsxm(
 						'input-border',
-						'w-full flex justify-between rounded-[10px] px-3 py-2 text-sm items-center bg-transparent',
-						'font-normal ',
+						'w-full flex justify-between rounded-[0.625rem] px-3 py-2 text-sm items-center bg-transparent',
+						'bg-light--theme-light dark:bg-dark--theme-light outline-none',
+						'font-normal',
 						buttonClassName
 					)}
 					displayValue={(item: T) => item?.data?.title}
