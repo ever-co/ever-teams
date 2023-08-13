@@ -1062,24 +1062,26 @@ export function StatusDropdown<T extends TStatusItem>({
 																)}
 															/>
 
-															{open && current_value === item_value && (
-																<Listbox.Button
-																	as="button"
-																	onClick={(e: any) => {
-																		e.stopPropagation();
-																		onRemoveSelected && onRemoveSelected();
-																		onChange && onChange(null as any);
-																	}}
-																	className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-																>
-																	<XMarkIcon
-																		className="text-dark"
-																		height={16}
-																		width={16}
-																		aria-hidden="true"
-																	/>
-																</Listbox.Button>
-															)}
+															{open &&
+																current_value === item_value &&
+																issueType !== 'issue' && (
+																	<Listbox.Button
+																		as="button"
+																		onClick={(e: any) => {
+																			e.stopPropagation();
+																			onRemoveSelected && onRemoveSelected();
+																			onChange && onChange(null as any);
+																		}}
+																		className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+																	>
+																		<XMarkIcon
+																			className="text-dark"
+																			height={16}
+																			width={16}
+																			aria-hidden="true"
+																		/>
+																	</Listbox.Button>
+																)}
 														</li>
 													</Listbox.Option>
 												);
