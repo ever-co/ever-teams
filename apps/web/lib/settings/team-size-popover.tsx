@@ -76,6 +76,12 @@ const TeamSize = ({
 		};
 	}, []);
 
+	const handleClose = useCallback(() => {
+		onChange(defaultValue);
+		setValue(defaultValue);
+		setDisabled(true);
+	}, [defaultValue, onChange]);
+
 	return (
 		<Popover className="relative border-none no-underline w-full">
 			{() => (
@@ -92,7 +98,7 @@ const TeamSize = ({
 							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
-								<div className="text-[16px] font-medium">{value}</div>
+								<div className="text-white">{value}</div>
 							</div>
 							<button
 								className={`flex mr-[0.5rem] gap-3 outline-none ${
@@ -122,7 +128,7 @@ const TeamSize = ({
 							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow "
 						>
 							<div className="bg-white shadow rounded-xl text-[14px] font-light p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
-								<div className="text-lg text-[#7E7991] dark:text-white font-[500]">
+								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
 									Select Team Size
 								</div>
 								{/* Divider */}
@@ -154,7 +160,7 @@ const TeamSize = ({
 										className="font-normal rounded-xl text-md min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
 										type="submit"
 										style={{ background: '#E6E6E9' }}
-										onClick={() => setDisabled(true)}
+										onClick={handleClose}
 									>
 										Cancel
 									</Button>

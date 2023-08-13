@@ -937,7 +937,6 @@ export function StatusDropdown<T extends TStatusItem>({
 					: 'bg-[#F2F2F2] ',
 				'dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]',
 				taskStatusClassName,
-
 				isVersion && 'dark:text-white'
 			)}
 			titleClassName={clsxm(

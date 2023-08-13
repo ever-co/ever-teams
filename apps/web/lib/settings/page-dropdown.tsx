@@ -79,9 +79,9 @@ export const PaginationDropdown = ({
 	return (
 		<>
 			<Dropdown
-				className="min-w-[150px] max-w-sm z-10"
+				className="min-w-[150px] max-w-sm z-10 dark:bg-dark--theme-light"
 				buttonClassName={clsxm(
-					'py-0 font-medium h-[45px] w-[145px] z-10 outline-none',
+					'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light',
 					paginationList.length === 0 && ['py-2']
 				)}
 				value={paginationItem}
