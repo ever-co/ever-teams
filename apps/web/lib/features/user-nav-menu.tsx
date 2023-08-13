@@ -9,11 +9,9 @@ import {
 	Divider,
 	Text,
 	ThemeToggler,
-	TreeModeToggler,
 	Tooltip,
 } from 'lib/components';
 import {
-	BoxIcon,
 	BriefcaseIcon,
 	DevicesIcon,
 	LogoutIcon2,
