@@ -43,7 +43,8 @@ export const TimezoneDropDown = ({
 			className="md:w-[469px]"
 			buttonClassName={clsxm(
 				'py-0 font-medium h-[54px]',
-				items.length === 0 && ['py-2']
+				items.length === 0 && ['py-2'],
+				'bg-light--theme-light dark:bg-dark--theme-light'
 			)}
 			value={timezoneItem as any}
 			onChange={(e: any) => onChange(e)}

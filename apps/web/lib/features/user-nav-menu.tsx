@@ -213,13 +213,16 @@ function UserNavMenu() {
 					</li>
 
 					{/* 3D Mode menu */}
-					<li className="flex space-x-3 items-center font-normal mb-3">
+					{/* TODO
+					- Uncomment it when we have 3D mode ready
+					*/}
+					{/* <li className="flex space-x-3 items-center font-normal mb-3">
 						<div className="flex-1 flex items-center space-x-3">
 							<BoxIcon className="w-5 h-5" />{' '}
 							<span>{trans.common['3D_MODE']}</span>
 						</div>
 						<TreeModeToggler className="scale-75" />
-					</li>
+					</li> */}
 
 					{/* Themes menu */}
 					<li className="flex space-x-3 items-center font-normal mb-3">

@@ -41,7 +41,7 @@ export const LanguageDropDown = ({
 			<Dropdown
 				className="md:w-[469px]"
 				buttonClassName={clsxm(
-					'py-0 font-medium h-[54px]',
+					'py-0 font-medium h-[54px] bg-light--theme-light dark:bg-dark--theme-light',
 					items.length === 0 && ['py-2']
 				)}
 				value={languageItem}
