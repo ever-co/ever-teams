@@ -95,7 +95,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 				<InputField
 					type="email"
 					placeholder="Yourmail@mail.com"
-					className={`md:w-[220px] m-0 h-[54px]`}
+					className={`m-0 h-[54px]`}
 					name="email"
 					value={formValues.email}
 					onChange={handleChange}

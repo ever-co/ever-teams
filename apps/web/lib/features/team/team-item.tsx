@@ -4,6 +4,7 @@ import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, DropdownItem, Tooltip } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
+import Link from 'next/link';
 import stc from 'string-to-color';
 
 export type TeamItem = DropdownItem<IOrganizationTeamList>;
@@ -30,7 +31,9 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 							/>
 						</div>
 
-						<SettingsOutlineIcon className="cursor-pointer" />
+						<Link href={'/settings/team'}>
+							<SettingsOutlineIcon className="cursor-pointer" />
+						</Link>
 					</div>
 				</Tooltip>
 			),

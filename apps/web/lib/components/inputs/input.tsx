@@ -74,7 +74,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 				name={name}
 				ref={mergeRefs([ref, inputRef])}
 				className={clsxm(
-					'bg-light--theme-light dark:bg-dark--theme-light',
+					'bg-light--theme-light dark:bg-dark--theme-light dark:text-white',
 					noWrapper && ['input-border'],
 					'py-2 px-4 rounded-[10px]',
 					'text-sm outline-none ',
@@ -96,7 +96,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					wrapperClassName
 				)}
 			>
-				<div className="input-border rounded-[10px] flex justify-between h-auto">
+				<div className="input-border rounded-[10px] flex justify-between h-auto bg-light--theme-light dark:bg-transparent">
 					{leadingNode && (
 						<div className="flex items-center">{leadingNode}</div>
 					)}
