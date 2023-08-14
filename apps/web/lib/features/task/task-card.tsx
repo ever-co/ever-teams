@@ -131,7 +131,7 @@ export function TaskCard(props: Props) {
 					{/* Task information */}
 					<TaskInfo
 						task={task}
-						className="px-4"
+						className="px-4 2xl:w-96 md:w-80"
 						taskBadgeClassName={clsxm(taskBadgeClassName)}
 						taskTitleClassName={clsxm(taskTitleClassName)}
 					/>

@@ -77,15 +77,17 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Epic */}
-			<TaskRow labelTitle={trans.EPIC}>
-				<TaskEpicDropdown
-					onValueChange={() => void 0}
-					className="lg:min-w-[170px] text-black"
-					forDetails={true}
-					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
-				/>
-			</TaskRow>
+			{task && task.issueType !== 'Epic' && (
+				<TaskRow labelTitle={trans.EPIC}>
+					<TaskEpicDropdown
+						onValueChange={() => void 0}
+						className="lg:min-w-[170px] text-black"
+						forDetails={true}
+						sidebarUI={true}
+						taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+					/>
+				</TaskRow>
+			)}
 
 			{/* Task Status */}
 			<TaskRow labelTitle={trans.STATUS}>

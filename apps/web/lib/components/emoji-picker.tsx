@@ -73,7 +73,7 @@ export const EmojiPicker = ({
 							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px]  items-center pl-[15px]">
-								<div className="font-medium">
+								<div className="dark:text-white">
 									{value?.native} {value?.name}
 								</div>
 							</div>

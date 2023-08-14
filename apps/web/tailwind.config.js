@@ -45,7 +45,7 @@ module.exports = {
 					dark: '#E7E7EA',
 				},
 				'dark--theme': {
-					light: '#25272D',
+					light: '#1E2025',
 					DEFAULT: 'var(--tw-color-dark--theme)',
 				},
 				primary: {

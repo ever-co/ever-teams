@@ -83,7 +83,7 @@ export const ColorPicker = ({
 										backgroundColor: color || undefined,
 									}}
 								></div>
-								<div className="uppercase font-medium ">{color || ''}</div>
+								<div className="uppercase dark:text-white">{color || ''}</div>
 							</div>
 							<div className="flex mr-[0.5rem] gap-3">
 								<button
