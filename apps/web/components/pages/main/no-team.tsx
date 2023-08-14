@@ -24,7 +24,7 @@ const NoTeam = ({ className, ...rest }: Props) => {
 				{trans.common.NO_TEAM}
 			</Text.Heading>
 			<div className="xs:w-5/12 mx-auto text-center w-full">
-				<p className="text-default font-medium opacity-40 ">
+				<p className="text-default font-medium opacity-40 dark:text-light--theme-dark">
 					{trans.common.NO_TEAM_SUB}
 				</p>
 			</div>

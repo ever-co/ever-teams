@@ -14,18 +14,7 @@ import { useTranslation } from 'lib/i18n';
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
 	const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
-
 	const { trans } = useTranslation();
-
-	const items = useMemo(() => mapTeamItems(teams), [teams]);
-
-	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
-
-	const { isOpen, closeModal, openModal } = useModal();
-
-	useEffect(() => {
-		setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
-	}, [activeTeam, items]);
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
@@ -35,6 +24,19 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		},
 		[setActiveTeam]
 	);
+
+	const items: TeamItem[] = useMemo(
+		() => mapTeamItems(teams, onChangeActiveTeam),
+		[teams, onChangeActiveTeam]
+	);
+
+	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
+
+	const { isOpen, closeModal, openModal } = useModal();
+
+	useEffect(() => {
+		setTeamItem(items.find((t) => t.key === activeTeam?.id) || null);
+	}, [activeTeam, items]);
 
 	return (
 		<>
