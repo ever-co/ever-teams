@@ -9,7 +9,10 @@ import stc from 'string-to-color';
 
 export type TeamItem = DropdownItem<IOrganizationTeamList>;
 
-export function mapTeamItems(teams: IOrganizationTeamList[]) {
+export function mapTeamItems(
+	teams: IOrganizationTeamList[],
+	onChangeActiveTeam: (item: TeamItem) => void
+) {
 	const items = teams.map<TeamItem>((team) => {
 		return {
 			key: team.id,
@@ -31,7 +34,14 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 							/>
 						</div>
 
-						<Link href={'/settings/team'}>
+						<Link
+							onClick={() => {
+								onChangeActiveTeam({
+									data: team,
+								} as TeamItem);
+							}}
+							href="/settings/team"
+						>
 							<SettingsOutlineIcon className="cursor-pointer" />
 						</Link>
 					</div>
@@ -57,23 +67,22 @@ export function mapTeamItems(teams: IOrganizationTeamList[]) {
 		};
 	});
 
-	if (items.length > 0) {
-		items.unshift({
-			key: 0,
-			Label: () => (
-				<div className="flex justify-between">
-					<TeamItem
-						title={'All'}
-						className="w-full cursor-default"
-						color="#F5F5F5"
-						disabled
-					/>
-					<SettingsOutlineIcon className="opacity-70" />
-				</div>
-			),
-			disabled: true,
-		});
-	}
+	// if (items.length > 0) {
+	// 	items.unshift({
+	// 		key: 0,
+	// 		Label: () => (
+	// 			<div className="flex justify-between">
+	// 				<TeamItem
+	// 					title={'All'}
+	// 					className="w-full cursor-default"
+	// 					color="#F5F5F5"
+	// 					disabled
+	// 				/>
+	// 			</div>
+	// 		),
+	// 		disabled: true,
+	// 	});
+	// }
 
 	return items;
 }

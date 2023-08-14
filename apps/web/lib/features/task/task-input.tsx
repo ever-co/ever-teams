@@ -288,11 +288,14 @@ export function TaskInput(props: Props) {
 								key={inputTask.id}
 								task={inputTask}
 								forParentChildRelationship={true}
-								taskStatusClassName={`${
-									inputTask.issueType === 'Bug'
-										? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-										: '!px-[0.375rem] py-[0.375rem] rounded-sm'
-								} `}
+								taskStatusClassName={clsxm(
+									`${
+										inputTask.issueType === 'Bug'
+											? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
+											: '!px-[0.375rem] py-[0.375rem] rounded-sm'
+									} `,
+									'border-none'
+								)}
 							/>
 						) : (
 							<TaskIssuesDropdown

@@ -34,7 +34,7 @@ export function UserNavAvatar() {
 	const imageUrl =
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name =
-		user?.name || user?.firstName || user?.lastName || user?.username;
+		user?.name || user?.firstName || user?.lastName || user?.username || '';
 
 	return (
 		<Popover className="relative flex items-center">
@@ -56,6 +56,7 @@ export function UserNavAvatar() {
 							className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
 							imageUrl={imageUrl}
 							alt="Team Avatar"
+							imageTitle={name}
 						/>
 					) : name ? (
 						imgTitle(name).charAt(0)

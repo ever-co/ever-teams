@@ -73,7 +73,7 @@ function EmailScreen({
 
 	return (
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
-			<Card className="w-full" shadow="custom">
+			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="text-center mb-7">
 						{trans.pages.auth.ENTER_EMAIL}
@@ -89,6 +89,8 @@ function EmailScreen({
 						errors={form.errors}
 						required
 						autoComplete="off"
+						wrapperClassName="dark:bg-[#25272D]"
+						className="dark:bg-[#25272D]"
 					/>
 
 					<div className="w-full flex justify-between mt-6 items-center">
@@ -121,7 +123,7 @@ function PasscodeScreen({
 
 	return (
 		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
-			<Card className="w-full" shadow="custom">
+			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="text-center mb-10">
 						{trans.pages.auth.LOGIN}
@@ -138,8 +140,8 @@ function PasscodeScreen({
 							allowedCharacters="numeric"
 							length={6}
 							ref={form.inputCodeRef}
-							containerClassName="mt-[21px] w-full flex justify-between"
-							inputClassName="w-[40px] xs:w-[50px]"
+							containerClassName="mt-[21px] w-full flex justify-between dark:bg-[#25272D]"
+							inputClassName="w-[40px] xs:w-[50px] dark:bg-[#25272D]"
 							defaultValue={form.formValues.code}
 							onChange={(code) => {
 								form.setFormValues((v) => ({ ...v, code }));
