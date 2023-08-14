@@ -249,7 +249,7 @@ function DueDates() {
 				)}
 			</TaskRow>
 
-			{task?.dueDate && (
+			{task?.dueDate && task.startDate && (
 				<TaskRow
 					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
 					alignWithIconLabel={true}
