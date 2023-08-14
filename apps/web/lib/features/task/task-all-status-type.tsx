@@ -102,7 +102,7 @@ export function TaskAllStatusTypes({
 			{nextBtnEnabled && (
 				<RoundedButton
 					onClick={scrollNext}
-					className={'absolute w-6 h-6 -right-3 -mb-2'}
+					className={'absolute w-6 h-6 -right-3'}
 				>
 					{'>'}
 				</RoundedButton>
@@ -111,7 +111,7 @@ export function TaskAllStatusTypes({
 			{prevBtnEnabled && (
 				<RoundedButton
 					onClick={scrollPrev}
-					className={'absolute w-6 h-6 -left-3  -mb-2'}
+					className={'absolute w-6 h-6 -left-3'}
 				>
 					{'<'}
 				</RoundedButton>

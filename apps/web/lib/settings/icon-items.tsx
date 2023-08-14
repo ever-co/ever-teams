@@ -85,7 +85,7 @@ export function IconItem({
 						)}
 					>
 						<Image
-							src={url || ''}
+							src={url}
 							alt={title || ''}
 							width={20}
 							height={20}
