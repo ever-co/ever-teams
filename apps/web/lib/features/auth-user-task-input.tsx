@@ -7,7 +7,6 @@ import { useRecoilValue } from 'recoil';
 import { TaskEstimate } from './task/task-estimate';
 import { TaskInput } from './task/task-input';
 import {
-	ActiveTaskLabelsDropdown,
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
 	ActiveTaskStatusDropdown,
@@ -59,6 +58,7 @@ export function AuthUserTaskInput({ className }: IClassName) {
 						task={activeTeamTask}
 						className="lg:min-w-[170px]"
 						forDetails={false}
+						taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
 					/>
 				</div>
 				<div className="grid justify-items-center md:hidden">
@@ -77,9 +77,10 @@ export function AuthUserTaskInput({ className }: IClassName) {
 							className="w-32 mr-2"
 							disabled={!activeTeamTask}
 						/>
-						<ActiveTaskLabelsDropdown
-							className="w-32"
-							disabled={!activeTeamTask}
+						<TaskLabels
+							task={activeTeamTask}
+							className="lg:min-w-[170px]"
+							forDetails={false}
 						/>
 					</div>
 				</div>
