@@ -87,7 +87,10 @@ function FillTeamNameForm({
 	const { trans, translations } = useTranslation('authTeam');
 
 	return (
-		<Card className={clsxm('w-full', className)} shadow="custom">
+		<Card
+			className={clsxm('w-full dark:bg-[#25272D]', className)}
+			shadow="custom"
+		>
 			<div className="flex flex-col justify-between items-center">
 				<Text.Heading as="h3" className="text-center mb-7">
 					{trans.INPUT_TEAM_NAME}
@@ -100,6 +103,8 @@ function FillTeamNameForm({
 					onChange={handleOnChange}
 					placeholder={translations.form.TEAM_NAME_PLACEHOLDER}
 					autoComplete="off"
+					wrapperClassName="dark:bg-[#25272D]"
+					className="dark:bg-[#25272D]"
 					required
 				/>
 
@@ -142,7 +147,10 @@ function FillUserDataForm({
 	const [feedback, setFeedback] = useState<string>('');
 
 	return (
-		<Card className={clsxm('w-full', className)} shadow="bigger">
+		<Card
+			className={clsxm('w-full dark:bg-[#25272D]', className)}
+			shadow="bigger"
+		>
 			<div className="flex flex-col justify-between items-center h-full">
 				<Text.Heading as="h3" className="text-center mb-10">
 					{trans.CREATE_FIRST_TEAM}
@@ -156,11 +164,14 @@ function FillUserDataForm({
 						errors={errors}
 						onChange={handleOnChange}
 						autoComplete="off"
+						wrapperClassName="dark:bg-[#25272D]"
+						className="dark:bg-[#25272D]"
 					/>
 					<InputField
 						type="email"
 						placeholder={translations.form.EMAIL_PLACEHOLDER}
-						wrapperClassName="mb-5"
+						className="dark:bg-[#25272D]"
+						wrapperClassName="mb-5 dark:bg-[#25272D]"
 						name="email"
 						value={form.email}
 						errors={errors}
