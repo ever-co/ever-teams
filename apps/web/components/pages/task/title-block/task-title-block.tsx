@@ -72,6 +72,13 @@ const TaskTitleBlock = () => {
 		[task, updateTitle, toast, trans]
 	);
 
+	const saveOnEnter = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+		if (event.key === 'Enter' && edit) {
+			saveTitle(title);
+			setEdit(false);
+		}
+	};
+
 	useEffect(() => {
 		const handleOutsideClick = (event: MouseEvent) => {
 			if (
@@ -124,8 +131,9 @@ const TaskTitleBlock = () => {
 					<textarea
 						className={`w-full ${
 							edit && 'textAreaOutline'
-						} bg-transparent resize-none text-black dark:text-white not-italic font-medium text-2xl items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide`}
+						} bg-transparent p-1 resize-none text-black dark:text-white not-italic font-medium text-2xl items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide`}
 						onChange={handleTaskTitleChange}
+						onKeyDown={saveOnEnter}
 						value={title}
 						disabled={!edit}
 						ref={titleDOM}
