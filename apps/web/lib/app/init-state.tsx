@@ -75,6 +75,8 @@ function InitState() {
 	});
 
 	const AutoRefresher = useMemo(() => {
+		const sixty_two_seconds = 1000 * 62;
+
 		// eslint-disable-next-line react/no-unstable-nested-components
 		const Component = () => {
 			useSyncTimer();
@@ -111,12 +113,12 @@ function InitState() {
 				true /* used as loadTeamTasksData deepCheck param */
 			);
 
-			useRefreshInterval(loadTaskStatusData, 5000, true);
-			useRefreshInterval(loadTaskPriorities, 5000, true);
-			useRefreshInterval(loadTaskSizes, 5000, true);
-			useRefreshInterval(loadTaskLabels, 5000, true);
-			useRefreshInterval(loadTaskRelatedIssueTypeData, 5000, true);
-			useRefreshInterval(loadTaskVersionData, 5000, true);
+			useRefreshInterval(loadTaskStatusData, sixty_two_seconds, true);
+			useRefreshInterval(loadTaskPriorities, sixty_two_seconds, true);
+			useRefreshInterval(loadTaskSizes, sixty_two_seconds, true);
+			useRefreshInterval(loadTaskLabels, sixty_two_seconds, true);
+			useRefreshInterval(loadTaskRelatedIssueTypeData, sixty_two_seconds, true);
+			useRefreshInterval(loadTaskVersionData, sixty_two_seconds, true);
 
 			return <></>;
 		};

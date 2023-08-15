@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTimerStatusRequest,
@@ -18,10 +19,15 @@ export default async function handler(
 		{
 			tenantId,
 			organizationId,
-			taskId,
 			logType: 'TRACKED',
 			source: source,
 			tags: [],
+			// Task id is optional in case timer is already started in another source
+			...(taskId
+				? {
+						taskId,
+				  }
+				: {}),
 		},
 		access_token
 	);

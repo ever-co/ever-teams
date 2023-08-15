@@ -31,7 +31,7 @@ export function Timer({ className }: IClassName) {
 
 	return (
 		<div className={clsxm('flex flex-row mb-12 2xl:mb-0', className)}>
-			<div className="flex flex-col items-center justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
+			<div className="flex items-start justify-between border-r-[2px] dark:border-r-[#28292F] pr-5">
 				<div className="w-[11rem]">
 					<Text.Heading
 						as="h3"
@@ -76,12 +76,18 @@ export function Timer({ className }: IClassName) {
 				<Tooltip
 					label={trans.timer.START_TIMER}
 					placement="top-start"
-					enabled={!canRunTimer}
+					// If timer is running at some other source and user may or may not have selected the task
+					enabled={
+						!canRunTimer && timerStatus?.lastLog?.source === TimerSource.BROWSER
+					}
 				>
 					<TimerButton
 						onClick={timerHanlder}
 						running={timerStatus?.running}
-						disabled={disabled}
+						disabled={
+							// If timer is running at some other source and user may or may not have selected the task
+							disabled && timerStatus?.lastLog?.source === TimerSource.BROWSER
+						}
 					/>
 				</Tooltip>
 			</div>
