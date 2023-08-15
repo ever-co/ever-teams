@@ -194,7 +194,10 @@ export function useTimer() {
 	const activeTeamTaskRef = useSyncRef(activeTeamTask);
 	const lastActiveTeamId = useRef<string | null>(null);
 	const lastActiveTaskId = useRef<string | null>(null);
-	const canRunTimer = !!activeTeamTask && activeTeamTask.status !== 'closed';
+	const canRunTimer =
+		(!!activeTeamTask && activeTeamTask.status !== 'closed') ||
+		// If timer is running at some other source and user may or may not have selected the task
+		timerStatusRef.current?.lastLog?.source !== TimerSource.BROWSER;
 	const syncTimerInterval = useRef<NodeJS.Timer | null>(null);
 
 	// Local time status
