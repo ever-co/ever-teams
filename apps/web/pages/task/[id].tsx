@@ -68,6 +68,9 @@ const TaskDetails = () => {
 								<RichTextEditor />
 								{/* <TaskDescriptionBlock /> */}
 								<IssueCard related={false} />
+
+								<IssueCard related={true} />
+
 								{/* <IssueCard related={true} /> */}
 								{/* <CompletionBlock /> */}
 								{/* <ActivityBlock /> */}

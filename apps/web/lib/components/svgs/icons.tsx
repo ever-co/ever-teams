@@ -2570,7 +2570,7 @@ export function ChevronDownIcon({ className }: IClassName) {
 				stroke-width="1.5"
 				stroke-miterlimit="10"
 				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 		</svg>
