@@ -16,6 +16,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
+import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function useTaskStatus() {
 	const [user] = useRecoilState(userState);
@@ -42,17 +43,18 @@ export function useTaskStatus() {
 	}, [loading, firstLoad, setTaskStatusFetching]);
 
 	const loadTaskStatusData = useCallback(() => {
+		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeamId || null
+			activeTeamId || teamId || null
 		).then((res) => {
 			if (!isEqual(res?.data?.data?.items || [], taskStatus)) {
 				setTaskStatus(res?.data?.data?.items || []);
 			}
 			return res;
 		});
-	}, [user, activeTeamId, setTaskStatus, taskStatus]);
+	}, [user, activeTeamId, setTaskStatus, taskStatus, queryCall]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
