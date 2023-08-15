@@ -91,6 +91,7 @@ export function TaskInput(props: Props) {
 	const closeable_fcRef = useCallbackRef(props.closeable_fc);
 	const $onTaskClick = useCallbackRef(props.onTaskClick);
 	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
+	const inputRef = useRef<HTMLDivElement>(null);
 
 	const onTaskCreated = useCallback(
 		(task: ITeamTask | undefined) =>
@@ -231,6 +232,25 @@ export function TaskInput(props: Props) {
 		}
 	}
 
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				inputRef.current &&
+				!inputRef.current.contains(event.target as Node)
+			) {
+				inputTask && updateTaskNameHandler(inputTask, taskName);
+			}
+		};
+
+		// Attach the event listener
+		document.addEventListener('mousedown', handleClickOutside);
+
+		// Clean up the event listener on component unmount
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, [inputTask, taskName, updateTaskNameHandler]);
+
 	const inputField = (
 		<InputField
 			value={taskName}
@@ -252,7 +272,6 @@ export function TaskInput(props: Props) {
 
 					props.onEnterKey && props.onEnterKey(taskName, inputTask);
 				}
-
 				/* Creating a new task when the enter key is pressed. */
 				if (e.key === 'Enter') {
 					props.createOnEnterClick && handleTaskCreation();
@@ -338,7 +357,7 @@ export function TaskInput(props: Props) {
 	return viewType === 'one-view' ? (
 		taskCard
 	) : (
-		<Popover className="relative z-30 w-full">
+		<Popover className="relative z-30 w-full" ref={inputRef}>
 			{inputField}
 			{props.children}
 
