@@ -13,6 +13,7 @@ import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { clsxm } from '@app/utils';
+import { useRefetchData } from '@app/hooks';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -66,6 +67,7 @@ export const TaskStatusesForm = ({
 		createTaskStatusLoading,
 		editTaskStatusLoading,
 	} = useTaskStatus();
+	const { refetch } = useRefetchData();
 
 	useEffect(() => {
 		if (!edit) {
@@ -109,6 +111,7 @@ export const TaskStatusesForm = ({
 					!formOnly && setCreateNew(false);
 
 					onCreated && onCreated();
+					refetch();
 					reset();
 				});
 			}
@@ -124,6 +127,7 @@ export const TaskStatusesForm = ({
 					icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
+					refetch();
 				});
 			}
 		},
@@ -136,6 +140,7 @@ export const TaskStatusesForm = ({
 			user,
 			reset,
 			createTaskStatus,
+			refetch,
 		]
 	);
 

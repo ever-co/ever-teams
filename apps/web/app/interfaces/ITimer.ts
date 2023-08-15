@@ -59,7 +59,7 @@ export type ITimerStatusParams = {
 export type ITimerParams = {
 	organizationId: string;
 	tenantId: string;
-	taskId: string;
+	taskId?: string;
 	logType: 'TRACKED';
 	source: TimerSource;
 	tags: any[];

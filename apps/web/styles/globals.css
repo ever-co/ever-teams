@@ -147,11 +147,11 @@ html.dark {
 	.tooltip-container,
 	.tooltip-arrow {
 		--tooltipBackground: #282048 !important;
-		@apply !text-white;
+		@apply !text-white !text-xs;
 	}
 
 	.tooltip-container {
-		@apply !border-none !px-2 !py-3;
+		@apply !border-none !p-1;
 	}
 
 	.tooltip-arrow {

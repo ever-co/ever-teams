@@ -17,6 +17,7 @@ import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
 import { useCallbackRef } from '../useCallbackRef';
+import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function useTaskVersion(
 	onVersionCreated?: (version: ITaskVersionCreate) => void
@@ -47,10 +48,11 @@ export function useTaskVersion(
 	}, [loading, firstLoad, setTaskVersionFetching]);
 
 	const loadTaskVersionData = useCallback(() => {
+		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeamId || null
+			activeTeamId || teamId || null
 		).then((res) => {
 			if (!isEqual(res?.data?.data?.items || [], taskVersion)) {
 				setTaskVersion(res?.data?.data?.items || []);
@@ -71,20 +73,6 @@ export function useTaskVersion(
 					{ ...data, organizationTeamId: activeTeamId },
 					user?.tenantId || ''
 				).then((res) => {
-					if (res?.data?.data && res?.data?.data?.name) {
-						$onVersionCreated.current &&
-							$onVersionCreated.current(res?.data?.data);
-
-						queryCall(
-							user?.tenantId as string,
-							user?.employee?.organizationId as string,
-							activeTeamId || null
-						).then((res) => {
-							setTaskVersion(res?.data?.data?.items || []);
-							return res;
-						});
-					}
-
 					return res;
 				});
 			}

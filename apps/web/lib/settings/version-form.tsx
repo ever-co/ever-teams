@@ -13,6 +13,7 @@ import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
 
 import { useTranslation } from 'lib/i18n';
 import { clsxm } from '@app/utils';
+import { useRefetchData } from '@app/hooks';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -41,6 +42,7 @@ export const VersionForm = ({
 		createTaskVersionLoading,
 		editTaskVersionLoading,
 	} = useTaskVersion(onVersionCreated);
+	const { refetch } = useRefetchData();
 
 	useEffect(() => {
 		if (!edit) {
@@ -78,6 +80,7 @@ export const VersionForm = ({
 					!formOnly && setCreateNew(false);
 
 					onCreated && onCreated();
+					refetch();
 					reset();
 				});
 			}
@@ -87,6 +90,7 @@ export const VersionForm = ({
 					// color: values.color,
 					// icon: values.icon,
 				})?.then(() => {
+					refetch();
 					setEdit(null);
 				});
 			}
@@ -100,6 +104,7 @@ export const VersionForm = ({
 			user,
 			reset,
 			createTaskVersion,
+			refetch,
 		]
 	);
 

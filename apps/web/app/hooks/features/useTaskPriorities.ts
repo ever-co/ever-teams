@@ -16,6 +16,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
 import { useQuery } from '../useQuery';
 import isEqual from 'lodash/isEqual';
+import { getActiveTeamIdCookie } from '@app/helpers';
 
 export function useTaskPriorities() {
 	const [user] = useRecoilState(userState);
@@ -46,10 +47,11 @@ export function useTaskPriorities() {
 	}, [loading, firstLoad, setTaskPrioritiesFetching]);
 
 	const loadTaskPriorities = useCallback(() => {
+		const teamId = getActiveTeamIdCookie();
 		queryCall(
 			user?.tenantId as string,
 			user?.employee?.organizationId as string,
-			activeTeamId || null
+			activeTeamId || teamId || null
 		).then((res) => {
 			if (!isEqual(res?.data?.data?.items || [], taskPriorities)) {
 				setTaskPriorities(res?.data?.data?.items || []);
@@ -72,17 +74,6 @@ export function useTaskPriorities() {
 					{ ...data, organizationTeamId: activeTeamId },
 					user?.tenantId || ''
 				).then((res) => {
-					if (res?.data?.data && res?.data?.data?.name) {
-						queryCall(
-							user?.tenantId as string,
-							user?.employee?.organizationId as string,
-							activeTeamId || null
-						).then((res) => {
-							setTaskPriorities(res?.data?.data?.items || []);
-							return res;
-						});
-					}
-
 					return res;
 				});
 			}

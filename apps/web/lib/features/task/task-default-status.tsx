@@ -30,7 +30,7 @@ export const taskStatus: TStatus<ITaskStatus> = {
 		icon: <LoginIcon />,
 		bgColor: '#D6E4F9',
 	},
-	'in progress': {
+	'in-progress': {
 		icon: <TimerIcon />,
 		bgColor: '#ECE8FC',
 	},
