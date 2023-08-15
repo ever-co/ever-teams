@@ -117,14 +117,14 @@ export function TaskCard(props: Props) {
 			<Card
 				shadow="bigger"
 				className={clsxm(
-					'md:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D]',
+					'md:flex items-center justify-between py-3 px-4 md:px-4 hidden min-h-[7rem] dark:bg-[#101217] border-[0.125rem] dark:border-[#FFFFFF0D] relative',
 					active && ['border-primary-light dark:bg-[#1E2025]'],
 					'gap-5',
 					className
 				)}
 			>
 				<div className="absolute -left-0">
-					<DraggerIcon />
+					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
 				<div className="w-[35%] flex flex-row justify-between">

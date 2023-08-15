@@ -236,9 +236,11 @@ export function TaskInput(props: Props) {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				inputRef.current &&
-				!inputRef.current.contains(event.target as Node)
+				!inputRef.current.contains(event.target as Node) &&
+				editMode
 			) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
+				console.log('func active');
 			}
 		};
 
