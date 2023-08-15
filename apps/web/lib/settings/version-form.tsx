@@ -104,6 +104,7 @@ export const VersionForm = ({
 			user,
 			reset,
 			createTaskVersion,
+			refetch,
 		]
 	);
 

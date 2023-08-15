@@ -140,6 +140,7 @@ export const TaskStatusesForm = ({
 			user,
 			reset,
 			createTaskStatus,
+			refetch,
 		]
 	);
 

@@ -131,6 +131,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			user,
 			reset,
 			createTaskSizes,
+			refetch,
 		]
 	);
 

@@ -90,6 +90,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 			user,
 			reset,
 			createTaskRelatedIssueType,
+			refetch,
 		]
 	);
 

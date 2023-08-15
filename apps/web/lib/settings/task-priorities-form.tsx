@@ -134,6 +134,7 @@ export const TaskPrioritiesForm = ({
 			user,
 			reset,
 			createTaskPriorities,
+			refetch,
 		]
 	);
 
