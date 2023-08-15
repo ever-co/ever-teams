@@ -10,7 +10,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
-import { MailIcon } from 'lib/components/svgs';
+import { MailIcon, UserManagerIcon } from 'lib/components/svgs';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -86,12 +86,28 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				>
 					<Text.Heading
 						as="h3"
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg"
+						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg flex gap-2"
 					>
 						{publicTeam ? (
 							<span className="flex capitalize">{fullname.slice(0, 1)} </span>
 						) : (
 							fullname
+						)}
+
+						{(member?.role?.name === 'MANAGER' ||
+							member?.role?.name === 'SUPER_ADMIN' ||
+							member?.role?.name === 'ADMIN') && (
+							<Tooltip
+								label={'Manager'}
+								placement="auto"
+								enabled={
+									member?.role?.name === 'MANAGER' ||
+									member?.role?.name === 'SUPER_ADMIN' ||
+									member?.role?.name === 'ADMIN'
+								}
+							>
+								<UserManagerIcon className="w-4" />
+							</Tooltip>
 						)}
 					</Text.Heading>
 				</Tooltip>
