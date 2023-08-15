@@ -108,7 +108,7 @@ export type ITaskStatus =
 	| 'ready'
 	| 'backlog'
 	| 'todo'
-	| 'in progress'
+	| 'in-progress'
 	| 'completed'
 	| 'closed'
 	| 'in review'

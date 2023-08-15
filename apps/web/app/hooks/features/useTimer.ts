@@ -274,11 +274,11 @@ export function useTimer() {
 		 */
 		if (
 			activeTeamTaskRef.current &&
-			activeTeamTaskRef.current.status !== 'in progress'
+			activeTeamTaskRef.current.status !== 'in-progress'
 		) {
 			updateTask({
 				...activeTeamTaskRef.current,
-				status: 'in progress',
+				status: 'in-progress',
 			});
 		}
 
