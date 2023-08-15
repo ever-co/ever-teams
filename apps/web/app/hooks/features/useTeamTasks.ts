@@ -12,7 +12,11 @@ import {
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
 } from '@app/services/client/api';
-import { activeTeamState, userState } from '@app/stores';
+import {
+	activeTeamState,
+	memberActiveTaskIdState,
+	userState,
+} from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
@@ -37,6 +41,7 @@ export function useTeamTasks() {
 
 	const [tasksFetching, setTasksFetching] = useRecoilState(tasksFetchingState);
 	const authUser = useSyncRef(useRecoilValue(userState));
+	const memberActiveTaskId = useRecoilValue(memberActiveTaskIdState);
 
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
@@ -326,6 +331,15 @@ export function useTeamTasks() {
 		},
 		[deleteEmployeeFromTasksQueryCall]
 	);
+
+	useEffect(() => {
+		const memberActiveTask = tasks.find(
+			(item) => item.id === memberActiveTaskId
+		);
+		if (memberActiveTask) {
+			setActiveTeamTask(memberActiveTask);
+		}
+	}, [activeTeam, tasks, memberActiveTaskId, setActiveTeamTask]);
 
 	return {
 		tasks,
