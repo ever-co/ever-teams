@@ -98,7 +98,7 @@ const TeamSize = ({
 							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
-								<div className="text-white">{value}</div>
+								<div className="dark:text-white">{defaultValue}</div>
 							</div>
 							<button
 								className={`flex mr-[0.5rem] gap-3 outline-none ${
@@ -134,16 +134,23 @@ const TeamSize = ({
 								{/* Divider */}
 								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
 
-								<div className="flex flex-col gap-3 hover:cursor-pointer">
+								<div className="flex flex-col  hover:cursor-pointer">
 									{sizeOption.map((size, index) => {
 										return (
 											<div
 												key={index}
-												className="flex gap-3 items-center "
+												className={`flex gap-3 items-center rounded-sm p-2 ${
+													size.name === value &&
+													'bg-primary dark:bg-primary-light'
+												}`}
 												style={{ gap: 15 }}
 												onClick={() => onSelect(size.name)}
 											>
-												<div className="text-base font-[600] text-[#282048] dark:text-white">
+												<div
+													className={`text-base font-[600] text-[#282048] dark:text-white ${
+														size.name === value && '!text-white'
+													}`}
+												>
 													{size.name}
 												</div>
 											</div>
