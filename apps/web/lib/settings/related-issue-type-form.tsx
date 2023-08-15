@@ -11,6 +11,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskRelatedIssueType } from '@app/hooks';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { ITaskRelatedIssueTypeItemList } from '@app/interfaces';
+import { useRefetchData } from '@app/hooks';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 	const { trans } = useTranslation('settingsTeam');
@@ -29,6 +30,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 		createTaskRelatedIssueTypeLoading,
 		editTaskRelatedIssueTypeLoading,
 	} = useTaskRelatedIssueType();
+	const { refetch } = useRefetchData();
 
 	useEffect(() => {
 		if (!edit) {
@@ -64,6 +66,8 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
+
+					refetch();
 					reset();
 				});
 			}
@@ -74,6 +78,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 					// icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
+					refetch();
 				});
 			}
 		},

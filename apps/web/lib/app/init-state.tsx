@@ -76,6 +76,7 @@ function InitState() {
 
 	const AutoRefresher = useMemo(() => {
 		const sixty_two_seconds = 1000 * 62;
+		const five_seconds = 1000 * 5;
 
 		// eslint-disable-next-line react/no-unstable-nested-components
 		const Component = () => {
@@ -85,18 +86,18 @@ function InitState() {
 			 * Refresh Timer Running status,
 			 * This will sync timer in all the open tabs
 			 */
-			useRefreshInterval(getTimerStatus, 5000);
+			useRefreshInterval(getTimerStatus, five_seconds);
 
 			/**
 			 * Refresh Teams data every 5 seconds.
 			 *
 			 * So that if Team is deleted by manager it updates the UI accordingly
 			 */
-			useOTRefreshInterval(loadTeamsData, 5000, publicTeam);
+			useOTRefreshInterval(loadTeamsData, five_seconds, publicTeam);
 			// Refresh tasks with a deep compare
 			useRefreshInterval(
 				loadTeamTasksData,
-				5000,
+				five_seconds,
 				true /* used as loadTeamTasksData deepCheck param */
 			);
 
@@ -109,7 +110,7 @@ function InitState() {
 
 			useRefreshInterval(
 				myInvitations,
-				5000,
+				five_seconds,
 				true /* used as loadTeamTasksData deepCheck param */
 			);
 
