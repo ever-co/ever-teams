@@ -14,6 +14,7 @@ import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { clsxm } from '@app/utils';
+import { useRefetchData } from '@app/hooks';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -67,6 +68,7 @@ export const TaskPrioritiesForm = ({
 		createTaskPrioritiesLoading,
 		editTaskPrioritiesLoading,
 	} = useTaskPriorities();
+	const { refetch } = useRefetchData();
 
 	useEffect(() => {
 		if (!edit) {
@@ -103,6 +105,7 @@ export const TaskPrioritiesForm = ({
 					!formOnly && setCreateNew(false);
 
 					onCreated && onCreated();
+					refetch();
 					reset();
 				});
 			}
@@ -118,6 +121,7 @@ export const TaskPrioritiesForm = ({
 					icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
+					refetch();
 				});
 			}
 		},
@@ -130,6 +134,7 @@ export const TaskPrioritiesForm = ({
 			user,
 			reset,
 			createTaskPriorities,
+			refetch,
 		]
 	);
 

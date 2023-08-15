@@ -13,6 +13,7 @@ import { useTranslation } from 'lib/i18n';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 import { clsxm } from '@app/utils';
+import { useRefetchData } from '@app/hooks';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -64,6 +65,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		createTaskSizesLoading,
 		editTaskSizesLoading,
 	} = useTaskSizes();
+	const { refetch } = useRefetchData();
 
 	useEffect(() => {
 		if (!edit) {
@@ -100,6 +102,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 					!formOnly && setCreateNew(false);
 
 					onCreated && onCreated();
+					refetch();
 					reset();
 				});
 			}
@@ -115,6 +118,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 					icon: values.icon,
 				})?.then(() => {
 					setEdit(null);
+					refetch();
 				});
 			}
 		},
@@ -127,6 +131,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			user,
 			reset,
 			createTaskSizes,
+			refetch,
 		]
 	);
 
