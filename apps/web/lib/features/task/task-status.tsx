@@ -31,7 +31,6 @@ import {
 	useTaskVersion,
 	useTeamTasks,
 } from '@app/hooks';
-import clsx from 'clsx';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
 import { CircleIcon } from 'lib/components/svgs';
@@ -971,7 +970,7 @@ export function StatusDropdown<T extends TStatusItem>({
 							<>
 								<Listbox.Button
 									as="div"
-									className={clsx(
+									className={clsxm(
 										!forDetails && 'w-full max-w-[170px]',
 										'cursor-pointer outline-none'
 									)}

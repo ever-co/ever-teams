@@ -183,7 +183,7 @@ function CreateLinkedTask({
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-			<div className="w-[98%] md:w-[41rem] relative">
+			<div className="w-[98%] md:w-[42rem] relative">
 				{loading && (
 					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
 						<SpinnerLoader />
@@ -227,11 +227,10 @@ function mapToActionType(items: ActionType[] = []) {
 					<button
 						className={clsxm(
 							'whitespace-nowrap mb-2 w-full',
-							'flex justify-start flex-col'
+							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C]'
 						)}
 					>
 						<span className="pb-1">{item.name}</span>
-						<hr className="h-[1px] text-red-400 w-full" />
 					</button>
 				);
 			},
