@@ -38,7 +38,7 @@ export function Timer({ className }: IClassName) {
 						className={`lg:text-4xl text-2xl tracking-wide font-normal ${
 							timerStatus?.running &&
 							timerStatus?.lastLog?.source &&
-							timerStatus?.lastLog?.source !== TimerSource.BROWSER
+							timerStatus?.lastLog?.source !== TimerSource.TEAMS
 								? 'text-[#888] dark:text-[#888]'
 								: ''
 						} `}
@@ -57,7 +57,7 @@ export function Timer({ className }: IClassName) {
 					{timerStatus && timerStatus.running && (
 						<Tooltip
 							label={`The time tracker is already running in the ${(
-								timerStatus?.lastLog?.source || TimerSource.BROWSER
+								timerStatus?.lastLog?.source || TimerSource.TEAMS
 							)
 								.split('_')
 								.join(' ')
@@ -65,7 +65,7 @@ export function Timer({ className }: IClassName) {
 							placement="bottom-start"
 						>
 							<TimerRunningSourceIcon
-								source={timerStatus?.lastLog?.source || TimerSource.BROWSER}
+								source={timerStatus?.lastLog?.source || TimerSource.TEAMS}
 							/>
 						</Tooltip>
 					)}
@@ -78,7 +78,7 @@ export function Timer({ className }: IClassName) {
 					placement="top-start"
 					// If timer is running at some other source and user may or may not have selected the task
 					enabled={
-						!canRunTimer && timerStatus?.lastLog?.source === TimerSource.BROWSER
+						!canRunTimer && timerStatus?.lastLog?.source === TimerSource.TEAMS
 					}
 				>
 					<TimerButton
@@ -86,7 +86,7 @@ export function Timer({ className }: IClassName) {
 						running={timerStatus?.running}
 						disabled={
 							// If timer is running at some other source and user may or may not have selected the task
-							disabled && timerStatus?.lastLog?.source === TimerSource.BROWSER
+							disabled && timerStatus?.lastLog?.source === TimerSource.TEAMS
 						}
 					/>
 				</Tooltip>
@@ -122,7 +122,7 @@ export function MinTimerFrame({ className }: IClassName) {
 
 			{timerStatus && timerStatus.running && (
 				<TimerRunningSourceIcon
-					source={timerStatus?.lastLog?.source || TimerSource.BROWSER}
+					source={timerStatus?.lastLog?.source || TimerSource.TEAMS}
 				/>
 			)}
 
@@ -146,9 +146,8 @@ export function TimerRunningSourceIcon({ source }: { source: TimerSource }) {
 			return (
 				<DevicePhoneMobileIcon className="w-4 h-4 animate-pulse" color="#888" />
 			);
-		/** Uncomment this if we want to show BROWSER's status too */
-		// case TimerSource.BROWSER:
-		// return <GlobeAltIcon className="w-4 h-4" />;
+		case TimerSource.BROWSER:
+			return <GlobeAltIcon className="w-4 h-4 animate-pulse" />;
 		case TimerSource.BROWSER_EXTENSION:
 			return <GlobeAltIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		case TimerSource.DESKTOP:
