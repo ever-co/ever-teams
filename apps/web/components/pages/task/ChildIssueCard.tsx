@@ -142,7 +142,7 @@ function CreateChildTask({
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-			<div className="w-[98%] md:w-[668px] relative">
+			<div className="w-[98%] md:w-[41rem]  relative">
 				{loading && (
 					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
 						<SpinnerLoader />
