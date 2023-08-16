@@ -36,6 +36,8 @@ import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
 import { CircleIcon } from 'lib/components/svgs';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { readableColor } from 'polished';
+import { useTheme } from 'next-themes';
 
 export type TStatusItem = {
 	id?: string;
@@ -797,6 +799,11 @@ export function TaskStatus({
 			value?: string;
 		}
 >) {
+	const { theme } = useTheme();
+	const readableColorHex = readableColor(
+		backgroundColor || (theme === 'light' ? '#FFF' : '#000')
+	);
+
 	return (
 		<div
 			className={clsxm(
@@ -837,7 +844,7 @@ export function TaskStatus({
 						viewBox="0 0 24 24"
 						width="20px"
 						height="20px"
-						className="fill-dark dark:fill-white"
+						className={`fill-[${readableColorHex}]`}
 					>
 						<path d="M9 19.4L3.3 13.7 4.7 12.3 9 16.6 20.3 5.3 21.7 6.7z" />
 					</svg>
@@ -846,7 +853,12 @@ export function TaskStatus({
 				)}
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
-					<div className="capitalize text-ellipsis overflow-hidden">
+					<div
+						className={`capitalize text-ellipsis overflow-hidden]`}
+						style={{
+							color: readableColorHex,
+						}}
+					>
 						{realName || name}
 					</div>
 				)}
