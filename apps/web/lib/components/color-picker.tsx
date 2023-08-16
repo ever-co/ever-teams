@@ -135,7 +135,9 @@ export const ColorPicker = ({
 	) : (
 		<Dropdown
 			className={`min-w-[150px] max-w-sm z-50`}
-			buttonClassName={clsxm(`py-0 font-medium h-[54px] w-[150px]`)}
+			buttonClassName={clsxm(
+				`py-0 font-medium h-[54px] w-[150px] dark:bg-dark--theme-light`
+			)}
 			value={{
 				key: color || '',
 				// eslint-disable-next-line react/no-unstable-nested-components
@@ -143,9 +145,9 @@ export const ColorPicker = ({
 					<div className="flex items-center space-x-2">
 						<span
 							className="w-5 h-5 rounded-full block"
-							style={{ backgroundColor: color || undefined }}
+							style={{ backgroundColor: color || '#000' }}
 						/>
-						<span>{color}</span>
+						<span className="font-normal">{color || 'Color'}</span>
 					</div>
 				),
 			}}
