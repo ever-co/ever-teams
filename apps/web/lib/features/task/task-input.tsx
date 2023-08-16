@@ -236,9 +236,11 @@ export function TaskInput(props: Props) {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
 				inputRef.current &&
-				!inputRef.current.contains(event.target as Node)
+				!inputRef.current.contains(event.target as Node) &&
+				editMode
 			) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
+				console.log('func active');
 			}
 		};
 
@@ -291,7 +293,8 @@ export function TaskInput(props: Props) {
 			}
 			className={clsxm(
 				showTaskNumber && inputTask && ['pl-2'],
-				'dark:bg-[#1B1D22]'
+				'dark:bg-[#1B1D22]',
+				props.initEditMode && 'h-10'
 			)}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			/* Showing the task number. */

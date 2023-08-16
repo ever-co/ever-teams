@@ -31,7 +31,7 @@ export function TaskInfo({
 			<div
 				className={clsxm(
 					'w-full h-10',
-					edition.editMode ? ['mb-2'] : ['overflow-hidden']
+					edition.editMode ? [''] : ['overflow-hidden']
 				)}
 			>
 				{edition.task && (

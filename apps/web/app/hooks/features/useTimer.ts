@@ -341,7 +341,11 @@ export function useTimer() {
 			firstLoad &&
 			timerStatusRef.current?.running
 		) {
-			stopTimer();
+			// If timer is started at some other source keep the timer running...
+			// If timer is started in the browser Stop the timer on Team Change
+			if (timerStatusRef.current.lastLog?.source === 'BROWSER') {
+				stopTimer();
+			}
 		}
 		if (activeTeamId) {
 			lastActiveTeamId.current = activeTeamId;
@@ -357,12 +361,12 @@ export function useTimer() {
 			firstLoad;
 
 		if (canStop && timerStatusRef.current?.running) {
-			stopTimer();
+			// If timer is started at some other source keep the timer running...
+			// If timer is started in the browser Stop the timer on Task Change
+			if (timerStatusRef.current.lastLog?.source === 'BROWSER') {
+				stopTimer();
+			}
 		}
-
-		// if (canStop && taskId) {
-		// 	toggleTimer(taskId);
-		// }
 
 		if (taskId) {
 			lastActiveTaskId.current = taskId;
