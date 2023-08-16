@@ -17,6 +17,7 @@ import { ArrowLeft } from 'lib/components/svgs';
 import { RelatedIssueCard } from '@components/pages/task/IssueCard';
 import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
 import TaskProperties from '@components/pages/task/TaskProperties';
+import { ChildIssueCard } from '@components/pages/task/ChildIssueCard';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -67,6 +68,7 @@ const TaskDetails = () => {
 							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8 rounded-sm">
 								<RichTextEditor />
 								{/* <TaskDescriptionBlock /> */}
+								<ChildIssueCard />
 								<RelatedIssueCard />
 
 								{/* <IssueCard related={true} /> */}

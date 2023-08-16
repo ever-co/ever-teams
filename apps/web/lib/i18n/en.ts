@@ -32,6 +32,7 @@ export const en = {
 		TASK_TITTLE: 'Task Title',
 		CREATE_TASK: 'Create new task',
 		LINK_TASK: 'Link task',
+		CHILD_ISSUE_TASK: 'Child Issue task',
 		CREATE_TEAM: 'Create New Team',
 		VERIFY_ACCOUNT_MSG: 'Please Verify your account before start using the app',
 		CREATE_ROLE: 'Create Role',

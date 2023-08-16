@@ -38,6 +38,7 @@ export type ITeamTask = {
 		taskTo: Omit<ITeamTask, 'linkedIssues'>;
 		taskFrom: Omit<ITeamTask, 'linkedIssues'>;
 	}[];
+	children?: Omit<ITeamTask, 'children'>[];
 	creator: Creator;
 	taskNumber: string;
 	label?: string;
