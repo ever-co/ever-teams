@@ -10,8 +10,10 @@ import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lib/components/svgs';
 
-const IssueCard = ({ related }: { related: boolean }) => {
+export const RelatedIssueCard = () => {
+	const { trans } = useTranslation();
 	const modal = useModal();
+
 	const task = useRecoilValue(detailedTaskState);
 	const { tasks } = useTeamTasks();
 	const [hidden, setHidden] = useState(false);
@@ -26,17 +28,30 @@ const IssueCard = ({ related }: { related: boolean }) => {
 		);
 	}, [task, tasks]);
 
+	const ActionsTypes = {
+		[TaskRelatedIssuesRelationEnum.BLOCKS]: trans.common.BLOCKS,
+		[TaskRelatedIssuesRelationEnum.CLONES]: trans.common.CLONES,
+		[TaskRelatedIssuesRelationEnum.DUPLICATES]: trans.common.DUPLICATES,
+		[TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY]: trans.common.IS_BLOCKED_BY,
+		[TaskRelatedIssuesRelationEnum.IS_CLONED_BY]: trans.common.IS_CLONED_BY,
+		[TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY]:
+			trans.common.IS_DUPLICATED_BY,
+		[TaskRelatedIssuesRelationEnum.RELATES_TO]: trans.common.RELATES_TO,
+	};
+
 	return (
 		<Card
 			className="w-full pt-0 px-4 md:pt-0 md:px-4 dark:bg-[#25272D] flex flex-col gap-[1.125rem] border border-[#00000014] dark:border-[#26272C]"
 			shadow="bigger"
 		>
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
-				{related ? (
-					<p className="text-base font-semibold">Related Issues</p>
+				<p className="text-base font-semibold">{trans.common.RELATED_ISSUES}</p>
+
+				{/* {related ? (
+
 				) : (
-					<p className="text-base font-semibold">Child Issues</p>
-				)}
+					<p className="text-base font-semibold">{trans.common.CHILD_ISSUES}</p>
+				)} */}
 
 				<div className="flex items-center justify-end gap-2.5">
 					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
@@ -153,5 +168,3 @@ function CreateLinkedTask({
 		</Modal>
 	);
 }
-
-export default IssueCard;

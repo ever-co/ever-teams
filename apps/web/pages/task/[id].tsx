@@ -14,7 +14,7 @@ import { useRecoilState } from 'recoil';
 import { detailedTaskState } from '@app/stores';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
-import IssueCard from '@components/pages/task/IssueCard';
+import { RelatedIssueCard } from '@components/pages/task/IssueCard';
 import RichTextEditor from '@components/pages/task/description-block/task-description-editor';
 import TaskProperties from '@components/pages/task/TaskProperties';
 
@@ -67,11 +67,10 @@ const TaskDetails = () => {
 							<div className="bg-[#F9F9F9] dark:bg-dark--theme-light p-6 pt-0 flex flex-col gap-8 rounded-sm">
 								<RichTextEditor />
 								{/* <TaskDescriptionBlock /> */}
-								<IssueCard related={false} />
-
-								<IssueCard related={true} />
+								<RelatedIssueCard />
 
 								{/* <IssueCard related={true} /> */}
+
 								{/* <CompletionBlock /> */}
 								{/* <ActivityBlock /> */}
 							</div>

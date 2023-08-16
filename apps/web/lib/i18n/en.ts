@@ -80,7 +80,16 @@ export const en = {
 		PERMISSION: 'Permission',
 		SEARCH: 'Search',
 		ADD_PARENT: 'Add Parent',
+		BLOCKS: 'Blocks',
+		CLONES: 'Clones',
+		DUPLICATES: 'Duplicates',
+		IS_BLOCKED_BY: 'Is Blocked By',
+		IS_CLONED_BY: 'Is Cloned By',
+		IS_DUPLICATED_BY: 'Is Duplicated By',
+		RELATES_TO: 'Relates To',
 		CHANGE_PARENT: 'Change Parent',
+		RELATED_ISSUES: 'Related Issues',
+		CHILD_ISSUES: 'Child Issues',
 	},
 	pages: {
 		home: {
