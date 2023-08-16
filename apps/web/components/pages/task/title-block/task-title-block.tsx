@@ -131,7 +131,7 @@ const TaskTitleBlock = () => {
 					<textarea
 						className={`w-full ${
 							edit && 'textAreaOutline'
-						} bg-transparent p-1 resize-none text-black dark:text-white not-italic font-medium text-2xl items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide`}
+						} bg-transparent  resize-none text-black dark:text-white not-italic font-medium text-2xl items-start outline-1 rounded-[0.1875rem] border-2 border-transparent scrollbar-hide`}
 						onChange={handleTaskTitleChange}
 						onKeyDown={saveOnEnter}
 						value={title}
@@ -207,7 +207,7 @@ const TaskTitleBlock = () => {
 							taskStatusClassName="h-5 text-[0.5rem] rounded-[0.1875rem] border-none"
 						/>
 					</div>
-					{task?.issueType !== 'Epic' && (
+					{task?.issueType !== 'Epic' && task && (
 						<div className="w-[0.0625rem] h-5 bg-[#DBDBDB]"></div>
 					)}
 
