@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { TaskInput, TaskLinkedIssue } from 'lib/features';
 import { useRecoilValue } from 'recoil';
@@ -116,9 +117,21 @@ function CreateLinkedTask({
 	);
 
 	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom.id) || [];
-	const unlinkedTasks = tasks
-		.filter((t) => !linkedTasks.includes(t.id))
-		.filter((t) => t.id != task.id);
+	const unlinkedTasks = tasks.filter(
+		(t) =>
+			// Remove current task
+			t.id !== task.id &&
+			!linkedTasks.includes(t.id) &&
+			// If current task is Epic then filter Epics from the list
+			(task.issueType === 'Epic'
+				? t.issueType !== 'Epic'
+				: task.issueType === 'Story'
+				? // If current task is Story then filter Epics and Stories from the list
+				  t.issueType !== 'Epic' && t.issueType !== 'Story'
+				: t.issueType === 'Bug' ||
+				  t.issueType === 'Task' ||
+				  t.issueType === null)
+	);
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
