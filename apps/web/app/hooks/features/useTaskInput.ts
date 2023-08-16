@@ -63,8 +63,11 @@ export function useTaskInput({
 	/**
 	 * If task has null value then consider it as value 😄
 	 */
-	const inputTask =
-		memberActiveTask || (task !== undefined ? task : activeTeamTask);
+	const inputTask = initEditMode
+		? task !== undefined
+			? task
+			: activeTeamTask
+		: memberActiveTask || (task !== undefined ? task : activeTeamTask);
 
 	const [filter, setFilter] = useState<'closed' | 'open'>('open');
 	const [editMode, setEditMode] = useState(initEditMode || false);

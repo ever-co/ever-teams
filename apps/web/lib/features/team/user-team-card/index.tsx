@@ -172,7 +172,7 @@ export function UserTeamCard({
 					<TaskInfo
 						edition={taskEdition}
 						memberInfo={memberInfo}
-						className=" px-4"
+						className="px-4"
 						publicTeam={publicTeam}
 					/>
 				</div>
