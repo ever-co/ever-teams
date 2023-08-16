@@ -112,13 +112,31 @@ function CreateChildTask({
 		[task, updateTask, loadTeamTasksData, modal]
 	);
 
+	const isTaskEpic = task.issueType === 'Epic';
+	const isTaskStory = task.issueType === 'Story';
 	const childTasks = task.children?.map((t) => t.id) || [];
 
-	const unchildTasks = tasks.filter((t) => {
+	const unchildTasks = tasks.filter((childTask) => {
+		const hasChild = () => {
+			if (isTaskEpic) {
+				return childTask.issueType !== 'Epic';
+			} else if (isTaskStory) {
+				return (
+					childTask.issueType !== 'Epic' && childTask.issueType !== 'Story'
+				);
+			} else {
+				return (
+					childTask.issueType === 'Bug' ||
+					childTask.issueType === 'Task' ||
+					childTask.issueType === null
+				);
+			}
+		};
+
 		return (
-			t.id !== task.id &&
-			!childTasks.includes(t.id) &&
-			!['Epic', 'Story'].includes(t.issueType)
+			childTask.id !== task.id &&
+			!childTasks.includes(childTask.id) &&
+			hasChild()
 		);
 	});
 

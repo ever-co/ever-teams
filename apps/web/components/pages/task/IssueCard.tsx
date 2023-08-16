@@ -152,12 +152,31 @@ function CreateLinkedTask({
 		[task, queryCall, loadTeamTasksData, modal, $actionType]
 	);
 
+	const isTaskEpic = task.issueType === 'Epic';
+	const isTaskStory = task.issueType === 'Story';
 	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom.id) || [];
-	const unlinkedTasks = tasks.filter((t) => {
+
+	const unlinkedTasks = tasks.filter((childTask) => {
+		const hasChild = () => {
+			if (isTaskEpic) {
+				return childTask.issueType !== 'Epic';
+			} else if (isTaskStory) {
+				return (
+					childTask.issueType !== 'Epic' && childTask.issueType !== 'Story'
+				);
+			} else {
+				return (
+					childTask.issueType === 'Bug' ||
+					childTask.issueType === 'Task' ||
+					childTask.issueType === null
+				);
+			}
+		};
+
 		return (
-			t.id !== task.id &&
-			!linkedTasks.includes(t.id) &&
-			!['Epic', 'Story'].includes(t.issueType)
+			childTask.id !== task.id &&
+			!linkedTasks.includes(childTask.id) &&
+			hasChild()
 		);
 	});
 
