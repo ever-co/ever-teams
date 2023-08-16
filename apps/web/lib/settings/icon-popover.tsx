@@ -40,7 +40,7 @@ const IconPopover = ({
 			{() => (
 				<>
 					<Popover.Button className="outline-none w-full" ref={buttonRef}>
-						<div className="cursor-pointer relative w-[100%] h-[54px] border rounded-xl flex items-center justify-between">
+						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-[#34353D] rounded-xl flex items-center justify-between">
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<IconItem
 									title={

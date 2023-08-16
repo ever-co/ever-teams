@@ -291,7 +291,8 @@ export function TaskInput(props: Props) {
 			}
 			className={clsxm(
 				showTaskNumber && inputTask && ['pl-2'],
-				'dark:bg-[#1B1D22]'
+				'dark:bg-[#1B1D22]',
+				props.initEditMode && 'h-10'
 			)}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			/* Showing the task number. */
