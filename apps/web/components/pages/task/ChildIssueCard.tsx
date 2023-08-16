@@ -18,15 +18,15 @@ export const ChildIssueCard = () => {
 	const [hidden, setHidden] = useState(false);
 
 	const childTasks = useMemo(() => {
-		console.log(task?.children);
+		const children = task?.children?.reduce((acc, item) => {
+			const $item = tasks.find((ts) => ts.id === item.id) || item;
+			if ($item) {
+				acc.push($item);
+			}
+			return acc;
+		}, [] as ITeamTask[]);
 
-		return (
-			task?.children
-				?.map((t) => {
-					return tasks.find((ts) => ts.id === t.id) || t;
-				})
-				.filter(Boolean) || []
-		);
+		return children || [];
 	}, [task, tasks]);
 
 	return (

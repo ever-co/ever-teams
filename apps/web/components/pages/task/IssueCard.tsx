@@ -35,17 +35,18 @@ export const RelatedIssueCard = () => {
 	const { actionType, actionTypeItems, onChange } = useActionType();
 
 	const linkedTasks = useMemo(() => {
-		const issues =
-			task?.linkedIssues
-				?.filter((t) => {
-					return t.action == actionType?.data?.value;
-				})
-				.map<ITeamTask>((t) => {
-					return tasks.find((ts) => ts.id === t.taskFrom.id) || t.taskFrom;
-				})
-				.filter(Boolean) || [];
+		const issues = task?.linkedIssues?.reduce((acc, item) => {
+			const $item =
+				tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
 
-		return issues;
+			if ($item && item.action === actionType?.data?.value) {
+				acc.push($item);
+			}
+
+			return acc;
+		}, [] as ITeamTask[]);
+
+		return issues || [];
 	}, [task, tasks, actionType]);
 
 	return (
