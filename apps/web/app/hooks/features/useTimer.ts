@@ -197,7 +197,7 @@ export function useTimer() {
 	const canRunTimer =
 		(!!activeTeamTask && activeTeamTask.status !== 'closed') ||
 		// If timer is running at some other source and user may or may not have selected the task
-		timerStatusRef.current?.lastLog?.source !== TimerSource.BROWSER;
+		timerStatusRef.current?.lastLog?.source !== TimerSource.TEAMS;
 	const syncTimerInterval = useRef<NodeJS.Timer | null>(null);
 
 	// Local time status
@@ -240,7 +240,7 @@ export function useTimer() {
 			return;
 		}
 		return syncTimerQueryCall(
-			timerStatus?.lastLog?.source || TimerSource.BROWSER
+			timerStatus?.lastLog?.source || TimerSource.TEAMS
 		).then((res) => {
 			return res;
 		});
@@ -327,7 +327,7 @@ export function useTimer() {
 		});
 
 		return stopTimerQueryCall(
-			timerStatus?.lastLog?.source || TimerSource.BROWSER
+			timerStatus?.lastLog?.source || TimerSource.TEAMS
 		).then((res) => {
 			res.data && !isEqual(timerStatus, res.data) && setTimerStatus(res.data);
 		});

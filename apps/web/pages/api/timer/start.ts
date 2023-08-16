@@ -27,7 +27,7 @@ export default async function handler(
 			organizationId,
 			taskId,
 			logType: 'TRACKED',
-			source: TimerSource.BROWSER,
+			source: TimerSource.TEAMS,
 			tags: [],
 			organizationTeamId,
 		},

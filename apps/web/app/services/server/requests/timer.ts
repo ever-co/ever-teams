@@ -43,7 +43,7 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 
 export function toggleTimerRequest(
 	{
-		source = TimerSource.BROWSER,
+		source = TimerSource.TEAMS,
 		logType = 'TRACKED',
 		taskId,
 		tenantId,
