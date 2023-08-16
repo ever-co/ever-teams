@@ -6,7 +6,7 @@ import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { IClassName } from '@app/interfaces';
 
-export type DropdownItem<D = { [x: string]: any }> = {
+export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
 	selectedLabel?: React.ReactNode;

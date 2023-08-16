@@ -1,4 +1,11 @@
-import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
+import {
+	Card,
+	Dropdown,
+	DropdownItem,
+	Modal,
+	SpinnerLoader,
+	Text,
+} from 'lib/components';
 import { TaskInput, TaskLinkedIssue } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
@@ -10,6 +17,101 @@ import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lib/components/svgs';
 
+type ActionType = { name: string; value: TaskRelatedIssuesRelationEnum };
+export type ActionTypeItem = DropdownItem<ActionType>;
+
+function mapToActionType(items: ActionType[] = []) {
+	return items.map<ActionTypeItem>((item) => {
+		return {
+			key: item.value,
+			Label: () => {
+				return (
+					<button
+						className={clsxm(
+							'whitespace-nowrap mb-2 w-full',
+							'flex justify-start flex-col'
+						)}
+					>
+						<span className="pb-1">{item.name}</span>
+						<hr className="h-[1px] text-red-400 w-full" />
+					</button>
+				);
+			},
+			selectedLabel: <span className="flex">{item.name}</span>,
+			data: item,
+		};
+	});
+}
+
+function useActionType() {
+	const { trans } = useTranslation();
+
+	const actionsTypes = useMemo(
+		() => [
+			{
+				name: trans.common.BLOCKS,
+				value: TaskRelatedIssuesRelationEnum.BLOCKS,
+			},
+			{
+				name: trans.common.CLONES,
+				value: TaskRelatedIssuesRelationEnum.CLONES,
+			},
+			{
+				name: trans.common.DUPLICATES,
+				value: TaskRelatedIssuesRelationEnum.DUPLICATES,
+			},
+			{
+				name: trans.common.IS_BLOCKED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY,
+			},
+			{
+				name: trans.common.IS_CLONED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY,
+			},
+			{
+				name: trans.common.IS_DUPLICATED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY,
+			},
+			{
+				name: trans.common.RELATES_TO,
+				value: TaskRelatedIssuesRelationEnum.RELATES_TO,
+			},
+		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
+	);
+
+	const actionTypeItems = useMemo(
+		() => mapToActionType(actionsTypes),
+		[actionsTypes]
+	);
+
+	const relatedToItem = useMemo(
+		() =>
+			actionTypeItems.find(
+				(t) => t.key === TaskRelatedIssuesRelationEnum.RELATES_TO
+			),
+		[actionTypeItems]
+	);
+
+	const [actionType, setActionType] = useState<ActionTypeItem | null>(
+		relatedToItem || null
+	);
+
+	const onChange = useCallback(
+		(item: ActionTypeItem) => {
+			setActionType(item);
+		},
+		[setActionType]
+	);
+
+	return {
+		actionTypeItems,
+		actionType,
+		onChange,
+	};
+}
+
 export const RelatedIssueCard = () => {
 	const { trans } = useTranslation();
 	const modal = useModal();
@@ -17,6 +119,8 @@ export const RelatedIssueCard = () => {
 	const task = useRecoilValue(detailedTaskState);
 	const { tasks } = useTeamTasks();
 	const [hidden, setHidden] = useState(false);
+
+	const { actionType, actionTypeItems, onChange } = useActionType();
 
 	const linkedTasks = useMemo(() => {
 		return (
@@ -26,18 +130,7 @@ export const RelatedIssueCard = () => {
 				})
 				.filter(Boolean) || []
 		);
-	}, [task, tasks]);
-
-	const ActionsTypes = {
-		[TaskRelatedIssuesRelationEnum.BLOCKS]: trans.common.BLOCKS,
-		[TaskRelatedIssuesRelationEnum.CLONES]: trans.common.CLONES,
-		[TaskRelatedIssuesRelationEnum.DUPLICATES]: trans.common.DUPLICATES,
-		[TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY]: trans.common.IS_BLOCKED_BY,
-		[TaskRelatedIssuesRelationEnum.IS_CLONED_BY]: trans.common.IS_CLONED_BY,
-		[TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY]:
-			trans.common.IS_DUPLICATED_BY,
-		[TaskRelatedIssuesRelationEnum.RELATES_TO]: trans.common.RELATES_TO,
-	};
+	}, [task, tasks, actionType]);
 
 	return (
 		<Card
@@ -47,11 +140,7 @@ export const RelatedIssueCard = () => {
 			<div className="flex justify-between items-center gap-5 py-2 border-b border-b-[#00000014] dark:border-b-[#7B8089]">
 				<p className="text-base font-semibold">{trans.common.RELATED_ISSUES}</p>
 
-				{/* {related ? (
-
-				) : (
-					<p className="text-base font-semibold">{trans.common.CHILD_ISSUES}</p>
-				)} */}
+				{/* <p className="text-base font-semibold">{trans.common.CHILD_ISSUES}</p>*/}
 
 				<div className="flex items-center justify-end gap-2.5">
 					<div className="border-r border-r-[#0000001A] flex items-center gap-2.5">
@@ -59,6 +148,17 @@ export const RelatedIssueCard = () => {
 							<PlusIcon className="h-7 w-7 stroke-[#B1AEBC] dark:stroke-white cursor-pointer" />
 						</span>
 					</div>
+
+					<Dropdown
+						className="min-w-[150px] max-w-sm z-10 dark:bg-dark--theme-light"
+						// buttonClassName={clsxm(
+						// 	'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light'
+						// )}
+						value={actionType}
+						onChange={onChange}
+						items={actionTypeItems}
+						// optionsClassName={'outline-none'}
+					/>
 
 					<button onClick={() => setHidden((e) => !e)}>
 						{hidden ? (
