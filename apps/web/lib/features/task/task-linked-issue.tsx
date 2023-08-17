@@ -24,11 +24,12 @@ export function TaskLinkedIssue({
 				<TaskNameInfoDisplay
 					task={task}
 					dash
-					className={`${
+					className={clsxm(
 						task.issueType === 'Bug'
 							? '!px-[0.3312rem] py-[0.2875rem]'
-							: '!px-[0.375rem] py-[0.375rem]'
-					}  rounded-full`}
+							: '!px-[0.375rem] py-[0.375rem]',
+						'rounded-full'
+					)}
 					// className="px-1 md:px-1 flex mr-2.5"
 					taskTitleClassName="font-semibold text-xs flex items-center"
 					taskNumberClassName="font-semibold text-xs text-[#BAB8C4]"
@@ -38,7 +39,7 @@ export function TaskLinkedIssue({
 			<ActiveTaskStatusDropdown
 				task={task}
 				defaultValue={task.status}
-				taskStatusClassName="w-[5.25rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
+				taskStatusClassName="min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
 				showIcon={false}
 			/>
 		</Card>
