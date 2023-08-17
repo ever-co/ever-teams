@@ -760,7 +760,7 @@ export function LogoutIcon2({ className }: IClassName) {
 				d="M17.4414 14.62L20.0014 12.06L17.4414 9.5"
 				className={clsxm(className)}
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -768,7 +768,7 @@ export function LogoutIcon2({ className }: IClassName) {
 				d="M9.76172 12.0601H19.9317"
 				className={clsxm(className)}
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -776,7 +776,7 @@ export function LogoutIcon2({ className }: IClassName) {
 				d="M11.7617 20C7.34172 20 3.76172 17 3.76172 12C3.76172 7 7.34172 4 11.7617 4"
 				className={clsxm(className)}
 				strokeWidth="1.5"
-				stroke-miterlimit="10"
+				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
@@ -2567,10 +2567,10 @@ export function ChevronDownIcon({ className }: IClassName) {
 		>
 			<path
 				d="M19.92 8.94995L13.4 15.47C12.63 16.24 11.37 16.24 10.6 15.47L4.07996 8.94995"
-				stroke-width="1.5"
-				stroke-miterlimit="10"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeWidth="1.5"
+				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 				className={className}
 			/>
 		</svg>

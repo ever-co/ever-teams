@@ -113,7 +113,7 @@ function FillTeamNameForm({
 						href="/auth/passcode"
 						underline
 						variant="primary"
-						className="text-xs dark:text-gray-400 font-normal"
+						className="font-normal"
 					>
 						{translations.pages.auth.LOGIN}
 					</Text.Link>

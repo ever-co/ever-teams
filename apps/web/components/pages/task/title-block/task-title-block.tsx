@@ -207,7 +207,7 @@ const TaskTitleBlock = () => {
 							taskStatusClassName="h-5 text-[0.5rem] rounded-[0.1875rem] border-none"
 						/>
 					</div>
-					{task?.issueType !== 'Epic' && (
+					{task?.issueType !== 'Epic' && task && (
 						<div className="w-[0.0625rem] h-5 bg-[#DBDBDB]"></div>
 					)}
 
