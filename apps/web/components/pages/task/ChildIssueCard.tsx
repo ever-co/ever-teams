@@ -18,15 +18,15 @@ export const ChildIssueCard = () => {
 	const [hidden, setHidden] = useState(false);
 
 	const childTasks = useMemo(() => {
-		console.log(task?.children);
+		const children = task?.children?.reduce((acc, item) => {
+			const $item = tasks.find((ts) => ts.id === item.id) || item;
+			if ($item) {
+				acc.push($item);
+			}
+			return acc;
+		}, [] as ITeamTask[]);
 
-		return (
-			task?.children
-				?.map((t) => {
-					return tasks.find((ts) => ts.id === t.id) || t;
-				})
-				.filter(Boolean) || []
-		);
+		return children || [];
 	}, [task, tasks]);
 
 	return (
@@ -112,19 +112,37 @@ function CreateChildTask({
 		[task, updateTask, loadTeamTasksData, modal]
 	);
 
+	const isTaskEpic = task.issueType === 'Epic';
+	const isTaskStory = task.issueType === 'Story';
 	const childTasks = task.children?.map((t) => t.id) || [];
 
-	const unchildTasks = tasks.filter((t) => {
+	const unchildTasks = tasks.filter((childTask) => {
+		const hasChild = () => {
+			if (isTaskEpic) {
+				return childTask.issueType !== 'Epic';
+			} else if (isTaskStory) {
+				return (
+					childTask.issueType !== 'Epic' && childTask.issueType !== 'Story'
+				);
+			} else {
+				return (
+					childTask.issueType === 'Bug' ||
+					childTask.issueType === 'Task' ||
+					childTask.issueType === null
+				);
+			}
+		};
+
 		return (
-			t.id !== task.id &&
-			!childTasks.includes(t.id) &&
-			!['Epic', 'Story'].includes(t.issueType)
+			childTask.id !== task.id &&
+			!childTasks.includes(childTask.id) &&
+			hasChild()
 		);
 	});
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-			<div className="w-[98%] md:w-[668px] relative">
+			<div className="w-[98%] md:w-[42rem]  relative">
 				{loading && (
 					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
 						<SpinnerLoader />

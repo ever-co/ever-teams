@@ -35,17 +35,18 @@ export const RelatedIssueCard = () => {
 	const { actionType, actionTypeItems, onChange } = useActionType();
 
 	const linkedTasks = useMemo(() => {
-		const issues =
-			task?.linkedIssues
-				?.filter((t) => {
-					return t.action == actionType?.data?.value;
-				})
-				.map<ITeamTask>((t) => {
-					return tasks.find((ts) => ts.id === t.taskFrom.id) || t.taskFrom;
-				})
-				.filter(Boolean) || [];
+		const issues = task?.linkedIssues?.reduce((acc, item) => {
+			const $item =
+				tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
 
-		return issues;
+			if ($item && item.action === actionType?.data?.value) {
+				acc.push($item);
+			}
+
+			return acc;
+		}, [] as ITeamTask[]);
+
+		return issues || [];
 	}, [task, tasks, actionType]);
 
 	return (
@@ -152,18 +153,37 @@ function CreateLinkedTask({
 		[task, queryCall, loadTeamTasksData, modal, $actionType]
 	);
 
+	const isTaskEpic = task.issueType === 'Epic';
+	const isTaskStory = task.issueType === 'Story';
 	const linkedTasks = task.linkedIssues?.map((t) => t.taskFrom.id) || [];
-	const unlinkedTasks = tasks.filter((t) => {
+
+	const unlinkedTasks = tasks.filter((childTask) => {
+		const hasChild = () => {
+			if (isTaskEpic) {
+				return childTask.issueType !== 'Epic';
+			} else if (isTaskStory) {
+				return (
+					childTask.issueType !== 'Epic' && childTask.issueType !== 'Story'
+				);
+			} else {
+				return (
+					childTask.issueType === 'Bug' ||
+					childTask.issueType === 'Task' ||
+					childTask.issueType === null
+				);
+			}
+		};
+
 		return (
-			t.id !== task.id &&
-			!linkedTasks.includes(t.id) &&
-			!['Epic', 'Story'].includes(t.issueType)
+			childTask.id !== task.id &&
+			!linkedTasks.includes(childTask.id) &&
+			hasChild()
 		);
 	});
 
 	return (
 		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
-			<div className="w-[98%] md:w-[668px] relative">
+			<div className="w-[98%] md:w-[42rem] relative">
 				{loading && (
 					<div className="absolute inset-0 bg-black/30 z-10 flex justify-center items-center">
 						<SpinnerLoader />
@@ -207,11 +227,10 @@ function mapToActionType(items: ActionType[] = []) {
 					<button
 						className={clsxm(
 							'whitespace-nowrap mb-2 w-full',
-							'flex justify-start flex-col'
+							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C]'
 						)}
 					>
 						<span className="pb-1">{item.name}</span>
-						<hr className="h-[1px] text-red-400 w-full" />
 					</button>
 				);
 			},
