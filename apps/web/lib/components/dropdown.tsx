@@ -6,7 +6,7 @@ import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { IClassName } from '@app/interfaces';
 
-export type DropdownItem<D = { [x: string]: any }> = {
+export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
 	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element;
 	selectedLabel?: React.ReactNode;
@@ -48,7 +48,7 @@ export function Dropdown<T extends DropdownItem>({
 					className={clsxm(
 						'input-border',
 						'w-full flex justify-between rounded-xl px-3 py-2 text-sm items-center',
-						'font-normal',
+						'font-normal outline-none',
 						buttonClassName
 					)}
 					style={buttonStyle}
@@ -91,7 +91,7 @@ export function Dropdown<T extends DropdownItem>({
 					<Listbox.Options
 						className={clsxm(
 							'absolute mt-3 min-w-full max-h-64',
-							'overflow-hidden overflow-y-auto rounded-xl',
+							'overflow-hidden overflow-y-auto rounded-xl outline-none',
 							optionsClassName,
 							'shadow-2xl'
 						)}
@@ -105,7 +105,7 @@ export function Dropdown<T extends DropdownItem>({
 								<Listbox.Option
 									key={Item.key ? Item.key : index}
 									value={Item}
-									disabled={Item?.disabled}
+									disabled={!!Item.disabled}
 								>
 									{({ active, selected }) => {
 										return Item.Label ? (
