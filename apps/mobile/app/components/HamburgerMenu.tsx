@@ -20,6 +20,8 @@ import ProfileImage from "./ProfileImage"
 import { translate } from "../i18n"
 import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../services/hooks/useOrganization"
+import { SvgXml } from "react-native-svg"
+import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from "./svgs/icons"
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
@@ -122,13 +124,7 @@ const HamburgerMenu = observer((props: any) => {
 								{translate("settingScreen.name")}
 							</Text>
 						</TouchableOpacity>
-						<TouchableOpacity
-							style={styles.screenItem}
-							onPress={() => {
-								toggleTheme()
-								navigation.closeDrawer()
-							}}
-						>
+						<TouchableOpacity style={styles.screenItem}>
 							<View style={{ flexDirection: "row" }}>
 								<Ionicons
 									style={styles.icon}
@@ -140,14 +136,29 @@ const HamburgerMenu = observer((props: any) => {
 									{translate("hamburgerMenu.darkMode")}
 								</Text>
 							</View>
-							{dark ? (
-								<Image style={{}} source={require("../../assets/icons/new/toogle-dark.png")} />
-							) : (
-								<Image
-									style={{ top: 8, height: 50 }}
-									source={require("../../assets/icons/new/toogle-light.png")}
-								/>
-							)}
+							<TouchableOpacity
+								onPress={toggleTheme}
+								style={[
+									styles.toggle,
+									dark ? { backgroundColor: "#1D222A" } : { backgroundColor: "#E7E7EA" },
+								]}
+							>
+								{dark ? (
+									<View style={styles.iconsContainer}>
+										<SvgXml xml={sunDarkLarge} />
+										<SvgXml xml={moonDarkLarge} />
+									</View>
+								) : (
+									<View style={styles.iconsContainer}>
+										<View style={[styles.iconWrapper, { backgroundColor: "white" }]}>
+											<SvgXml xml={sunLightLarge} />
+										</View>
+										<View style={[styles.iconWrapper, { backgroundColor: "transparent" }]}>
+											<SvgXml xml={moonLightLarge} />
+										</View>
+									</View>
+								)}
+							</TouchableOpacity>
 						</TouchableOpacity>
 					</View>
 				</DrawerContentScrollView>
@@ -214,6 +225,18 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	icon: { width: 30 },
+	iconWrapper: { borderRadius: 60, padding: 7 },
+	iconsContainer: {
+		alignItems: "center",
+		backgroundColor: "transparent",
+		display: "flex",
+		flexDirection: "row",
+		height: "100%",
+		justifyContent: "space-between",
+		paddingLeft: 4,
+		paddingRight: 4,
+		width: "100%",
+	},
 	item: {
 		alignItems: "center",
 		flexDirection: "row",
@@ -247,16 +270,21 @@ const styles = StyleSheet.create({
 		paddingBottom: 10,
 		zIndex: 10,
 	},
+
 	screenItem: {
 		alignItems: "center",
 		flexDirection: "row",
 		justifyContent: "space-between",
-		marginTop: -10,
 	},
 	screenLabel: {
 		fontFamily: typography.secondary.medium,
 		fontSize: 16,
 		left: 15,
+	},
+	toggle: {
+		borderRadius: 60,
+		height: 40,
+		width: 86,
 	},
 	userProfileName: {
 		fontFamily: typography.primary.semiBold,
