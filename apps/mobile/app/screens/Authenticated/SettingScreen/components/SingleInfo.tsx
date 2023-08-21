@@ -40,11 +40,14 @@ const SingleInfo: FC<Props> = ({ title, value, onPress, onDetectTimezone }) => {
 					<AntDesign name="right" size={24} color="#938FA4" />
 				</TouchableOpacity>
 			) : (
-				<TouchableOpacity style={styles.toggle} onPress={() => (onPress ? onPress() : {})}>
+				<TouchableOpacity
+					style={dark ? styles.toggleDark : styles.toggleLight}
+					onPress={() => (onPress ? onPress() : {})}
+				>
 					{dark ? (
-						<Image style={{}} source={require("../../../../../assets/icons/new/toogle-dark.png")} />
+						<Image style={{}} source={require("../../../../../assets/icons/new/toggle-dark.png")} />
 					) : (
-						<Image source={require("../../../../../assets/icons/new/toogle-light.png")} />
+						<Image source={require("../../../../../assets/icons/new/toggle-light.png")} />
 					)}
 				</TouchableOpacity>
 			)}
@@ -76,11 +79,17 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 16,
 	},
-	toggle: {
+	toggleDark: {
+		height: 40,
+		right: 0,
+		top: 3,
+	},
+	toggleLight: {
 		height: 40,
 		right: -10,
 		top: -10,
 	},
+
 	wrapperInfo: {
 		maxWidth: "90%",
 	},
