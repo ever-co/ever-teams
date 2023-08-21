@@ -9,6 +9,8 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	Dimensions,
+	KeyboardAvoidingView,
+	Platform,
 } from "react-native"
 
 // COMPONENTS
@@ -51,11 +53,14 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal transparent visible={showModal}>
-			<View style={$modalBackGround}>
+			<KeyboardAvoidingView
+				style={$modalBackGround}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+			>
 				<Animated.View style={[$modalContainer, { transform: [{ scale: scaleValue }] }]}>
 					{children}
 				</Animated.View>
-			</View>
+			</KeyboardAvoidingView>
 		</Modal>
 	)
 }
@@ -145,6 +150,9 @@ const styles = StyleSheet.create({
 		color: "#7E7991",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
+	},
+	keyboardAvoidingContainer: {
+		flex: 1,
 	},
 	mainContainer: {
 		alignItems: "center",

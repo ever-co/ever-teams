@@ -11,6 +11,8 @@ import {
 	Animated,
 	Dimensions,
 	TouchableOpacity,
+	KeyboardAvoidingView,
+	Platform,
 } from "react-native"
 import { typography, useAppTheme } from "../../../../theme"
 import { ActivityIndicator } from "react-native-paper"
@@ -56,9 +58,12 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
-			<View style={$modalBackGround}>
+			<KeyboardAvoidingView
+				style={$modalBackGround}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+			>
 				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
-			</View>
+			</KeyboardAvoidingView>
 		</Modal>
 	)
 }
