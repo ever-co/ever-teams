@@ -26,18 +26,7 @@ export type ITeamTask = {
 	selectedTeam?: IOrganizationTeamList;
 	tags: Tag[];
 	teams: SelectedTeam[];
-	linkedIssues?: {
-		id: string;
-		createdAt: string;
-		updatedAt: string;
-		tenantId: string;
-		organizationId: string;
-		action: number;
-		taskFromId: string;
-		taskToId: string;
-		taskTo: Omit<ITeamTask, 'linkedIssues'>;
-		taskFrom: Omit<ITeamTask, 'linkedIssues'>;
-	}[];
+	linkedIssues?: LinkedTaskIssue[];
 	children?: Omit<ITeamTask, 'children'>[];
 	creator: Creator;
 	taskNumber: string;
@@ -59,6 +48,19 @@ type SelectedTeam = Pick<
 	| 'image'
 	| 'imageId'
 >;
+
+export type LinkedTaskIssue = {
+	id: string;
+	createdAt: string;
+	updatedAt: string;
+	tenantId: string;
+	organizationId: string;
+	action: number;
+	taskFromId: string;
+	taskToId: string;
+	taskTo: Omit<ITeamTask, 'linkedIssues'>;
+	taskFrom: Omit<ITeamTask, 'linkedIssues'>;
+};
 
 export interface Tag {
 	id: string;

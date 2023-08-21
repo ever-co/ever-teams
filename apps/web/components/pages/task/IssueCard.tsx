@@ -1,23 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	Card,
-	Dropdown,
-	DropdownItem,
-	Modal,
-	SpinnerLoader,
-	Text,
-} from 'lib/components';
+import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { TaskInput, TaskLinkedIssue } from 'lib/features';
 import { useRecoilValue } from 'recoil';
 import { detailedTaskState } from '@app/stores';
+import { IHookModal, useModal, useQuery, useTeamTasks } from '@app/hooks';
 import {
-	IHookModal,
-	useModal,
-	useQuery,
-	useSyncRef,
-	useTeamTasks,
-} from '@app/hooks';
-import { ITeamTask, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
+	ITeamTask,
+	LinkedTaskIssue,
+	TaskRelatedIssuesRelationEnum,
+} from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import { createTaskLinkedIsssueAPI } from '@app/services/client/api';
@@ -32,22 +23,25 @@ export const RelatedIssueCard = () => {
 	const { tasks } = useTeamTasks();
 	const [hidden, setHidden] = useState(false);
 
-	const { actionType, actionTypeItems, onChange } = useActionType();
+	// const { actionType, actionTypeItems, onChange } = useActionType();
 
 	const linkedTasks = useMemo(() => {
 		const issues = task?.linkedIssues?.reduce((acc, item) => {
 			const $item =
 				tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
 
-			if ($item && item.action === actionType?.data?.value) {
-				acc.push($item);
+			if ($item /*&& item.action === actionType?.data?.value*/) {
+				acc.push({
+					issue: item,
+					task: $item,
+				});
 			}
 
 			return acc;
-		}, [] as ITeamTask[]);
+		}, [] as { issue: LinkedTaskIssue; task: ITeamTask }[]);
 
 		return issues || [];
-	}, [task, tasks, actionType]);
+	}, [task, tasks]);
 
 	return (
 		<Card
@@ -66,7 +60,7 @@ export const RelatedIssueCard = () => {
 						</span>
 					</div>
 
-					<Dropdown
+					{/* <Dropdown
 						className="min-w-[150px] max-w-sm z-10 dark:bg-dark--theme-light"
 						// buttonClassName={clsxm(
 						// 	'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light'
@@ -75,7 +69,7 @@ export const RelatedIssueCard = () => {
 						onChange={onChange}
 						items={actionTypeItems}
 						// optionsClassName={'outline-none'}
-					/>
+					/> */}
 
 					<button onClick={() => setHidden((e) => !e)}>
 						{hidden ? (
@@ -96,11 +90,13 @@ export const RelatedIssueCard = () => {
 						hidden && ['hidden']
 					)}
 				>
-					{linkedTasks.map((task) => {
+					{linkedTasks.map(({ task, issue }) => {
 						return (
 							<TaskLinkedIssue
 								key={task.id}
 								task={task}
+								issue={issue}
+								relatedTaskDropdown={true}
 								className="dark:bg-[#25272D] py-0"
 							/>
 						);
@@ -108,9 +104,7 @@ export const RelatedIssueCard = () => {
 				</div>
 			)}
 
-			{task && actionType && (
-				<CreateLinkedTask actionType={actionType} task={task} modal={modal} />
-			)}
+			{task && <CreateLinkedTask task={task} modal={modal} />}
 		</Card>
 	);
 };
@@ -118,14 +112,11 @@ export const RelatedIssueCard = () => {
 function CreateLinkedTask({
 	modal,
 	task,
-	actionType,
 }: {
 	modal: IHookModal;
 	task: ITeamTask;
-	actionType: ActionTypeItem;
 }) {
 	const { trans } = useTranslation();
-	const $actionType = useSyncRef(actionType);
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
 	const { queryCall } = useQuery(createTaskLinkedIsssueAPI);
@@ -133,7 +124,7 @@ function CreateLinkedTask({
 
 	const onTaskSelect = useCallback(
 		async (childTask: ITeamTask | undefined) => {
-			if (!childTask || !$actionType.current.data) return;
+			if (!childTask) return;
 			setLoading(true);
 			const parentTask = task;
 
@@ -142,7 +133,7 @@ function CreateLinkedTask({
 				taskToId: parentTask.id,
 
 				organizationId: task.organizationId,
-				action: $actionType.current.data.value,
+				action: TaskRelatedIssuesRelationEnum.RELATES_TO,
 			}).catch(console.error);
 
 			loadTeamTasksData(false).finally(() => {
@@ -150,7 +141,7 @@ function CreateLinkedTask({
 				modal.closeModal();
 			});
 		},
-		[task, queryCall, loadTeamTasksData, modal, $actionType]
+		[task, queryCall, loadTeamTasksData, modal]
 	);
 
 	const isTaskEpic = task.issueType === 'Epic';
@@ -213,98 +204,4 @@ function CreateLinkedTask({
 			</div>
 		</Modal>
 	);
-}
-
-type ActionType = { name: string; value: TaskRelatedIssuesRelationEnum };
-type ActionTypeItem = DropdownItem<ActionType>;
-
-function mapToActionType(items: ActionType[] = []) {
-	return items.map<ActionTypeItem>((item) => {
-		return {
-			key: item.value,
-			Label: () => {
-				return (
-					<button
-						className={clsxm(
-							'whitespace-nowrap mb-2 w-full',
-							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C]'
-						)}
-					>
-						<span className="pb-1">{item.name}</span>
-					</button>
-				);
-			},
-			selectedLabel: <span className="flex">{item.name}</span>,
-			data: item,
-		};
-	});
-}
-
-function useActionType() {
-	const { trans } = useTranslation();
-
-	const actionsTypes = useMemo(
-		() => [
-			{
-				name: trans.common.BLOCKS,
-				value: TaskRelatedIssuesRelationEnum.BLOCKS,
-			},
-			{
-				name: trans.common.CLONES,
-				value: TaskRelatedIssuesRelationEnum.CLONES,
-			},
-			{
-				name: trans.common.DUPLICATES,
-				value: TaskRelatedIssuesRelationEnum.DUPLICATES,
-			},
-			{
-				name: trans.common.IS_BLOCKED_BY,
-				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY,
-			},
-			{
-				name: trans.common.IS_CLONED_BY,
-				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY,
-			},
-			{
-				name: trans.common.IS_DUPLICATED_BY,
-				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY,
-			},
-			{
-				name: trans.common.RELATES_TO,
-				value: TaskRelatedIssuesRelationEnum.RELATES_TO,
-			},
-		],
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[]
-	);
-
-	const actionTypeItems = useMemo(
-		() => mapToActionType(actionsTypes),
-		[actionsTypes]
-	);
-
-	const relatedToItem = useMemo(
-		() =>
-			actionTypeItems.find(
-				(t) => t.key === TaskRelatedIssuesRelationEnum.RELATES_TO
-			),
-		[actionTypeItems]
-	);
-
-	const [actionType, setActionType] = useState<ActionTypeItem | null>(
-		relatedToItem || null
-	);
-
-	const onChange = useCallback(
-		(item: ActionTypeItem) => {
-			setActionType(item);
-		},
-		[setActionType]
-	);
-
-	return {
-		actionTypeItems,
-		actionType,
-		onChange,
-	};
 }

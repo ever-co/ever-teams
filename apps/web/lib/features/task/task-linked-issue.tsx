@@ -1,17 +1,31 @@
-import { ITeamTask } from '@app/interfaces';
+import {
+	ITeamTask,
+	LinkedTaskIssue,
+	TaskRelatedIssuesRelationEnum,
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card } from 'lib/components';
+import { Card, Dropdown, DropdownItem } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
+import { useCallback, useMemo, useState } from 'react';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 
 export function TaskLinkedIssue({
 	task,
 	className,
+	relatedTaskDropdown,
+	issue,
 }: {
 	task: ITeamTask;
 	className?: string;
+	relatedTaskDropdown?: boolean;
+	issue?: LinkedTaskIssue;
 }) {
+	const { actionType, actionTypeItems, onChange } = useActionType(
+		issue?.action || TaskRelatedIssuesRelationEnum.RELATES_TO
+	);
+
 	return (
 		<Card
 			shadow="custom"
@@ -36,12 +50,121 @@ export function TaskLinkedIssue({
 				/>
 			</Link>
 
-			<ActiveTaskStatusDropdown
-				task={task}
-				defaultValue={task.status}
-				taskStatusClassName="min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
-				showIcon={false}
-			/>
+			<div className="flex items-center">
+				{relatedTaskDropdown && issue && (
+					<Dropdown
+						className={clsxm(
+							'min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]',
+							'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+							'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
+						)}
+						buttonClassName={clsxm(
+							'border-none dark:border-none bg-none dark:bg-none rounded-none px-0 py-0'
+						)}
+						value={actionType}
+						onChange={onChange}
+						items={actionTypeItems}
+					/>
+				)}
+
+				<ActiveTaskStatusDropdown
+					task={task}
+					defaultValue={task.status}
+					taskStatusClassName="min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
+					showIcon={false}
+				/>
+			</div>
 		</Card>
 	);
+}
+
+type ActionType = { name: string; value: TaskRelatedIssuesRelationEnum };
+type ActionTypeItem = DropdownItem<ActionType>;
+
+function mapToActionType(items: ActionType[] = []) {
+	return items.map<ActionTypeItem>((item) => {
+		return {
+			key: item.value,
+			Label: () => {
+				return (
+					<button
+						className={clsxm(
+							'whitespace-nowrap mb-2 w-full',
+							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C]'
+						)}
+					>
+						<span className="pb-1 text-[0.5rem]">{item.name}</span>
+					</button>
+				);
+			},
+			selectedLabel: <span className="flex text-[0.5rem]">{item.name}</span>,
+			data: item,
+		};
+	});
+}
+
+function useActionType(defaultValue: TaskRelatedIssuesRelationEnum) {
+	const { trans } = useTranslation();
+
+	const actionsTypes = useMemo(
+		() => [
+			{
+				name: trans.common.BLOCKS,
+				value: TaskRelatedIssuesRelationEnum.BLOCKS,
+			},
+			{
+				name: trans.common.CLONES,
+				value: TaskRelatedIssuesRelationEnum.CLONES,
+			},
+			{
+				name: trans.common.DUPLICATES,
+				value: TaskRelatedIssuesRelationEnum.DUPLICATES,
+			},
+			{
+				name: trans.common.IS_BLOCKED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY,
+			},
+			{
+				name: trans.common.IS_CLONED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY,
+			},
+			{
+				name: trans.common.IS_DUPLICATED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY,
+			},
+			{
+				name: trans.common.RELATES_TO,
+				value: TaskRelatedIssuesRelationEnum.RELATES_TO,
+			},
+		],
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
+	);
+
+	const actionTypeItems = useMemo(
+		() => mapToActionType(actionsTypes),
+		[actionsTypes]
+	);
+
+	const relatedToItem = useMemo(
+		() => actionTypeItems.find((t) => t.key === defaultValue),
+		[actionTypeItems, defaultValue]
+	);
+
+	const [actionType, setActionType] = useState<ActionTypeItem | null>(
+		relatedToItem || null
+	);
+
+	const onChange = useCallback(
+		(item: ActionTypeItem) => {
+			setActionType(item);
+		},
+		[setActionType]
+	);
+
+	return {
+		actionTypeItems,
+		actionType,
+		onChange,
+	};
 }
