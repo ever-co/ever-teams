@@ -1,8 +1,10 @@
+import { useQuery } from '@app/hooks';
 import {
 	ITeamTask,
 	LinkedTaskIssue,
 	TaskRelatedIssuesRelationEnum,
 } from '@app/interfaces';
+import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { Card, Dropdown, DropdownItem } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
@@ -111,6 +113,8 @@ function useActionType(
 ) {
 	const { trans } = useTranslation();
 
+	const { queryCall } = useQuery(updateTaskLinkedIssueAPI);
+
 	const actionsTypes = useMemo(
 		() => [
 			{
@@ -162,12 +166,17 @@ function useActionType(
 
 	const onChange = useCallback(
 		(item: ActionTypeItem) => {
-			if (!issue) {
+			if (!issue || !item.data?.value) {
 				return;
 			}
 			setActionType(item);
+
+			queryCall({
+				...issue,
+				action: item.data?.value,
+			});
 		},
-		[setActionType, issue]
+		[setActionType, issue, queryCall]
 	);
 
 	return {
