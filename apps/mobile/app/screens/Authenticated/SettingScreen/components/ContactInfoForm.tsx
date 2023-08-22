@@ -53,7 +53,7 @@ const UpdateContactForm = ({
 			}
 		}
 		setIsvalid({ email: true, phone: true })
-	}, [user, onDismiss])
+	}, [user, onDismiss, editMode])
 
 	const onChangeEmail = (text: string) => {
 		if (text.trim().match(EMAIL_REGEX)) {
