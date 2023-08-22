@@ -26,6 +26,7 @@ type Props<T extends DropdownItem> = {
 	buttonStyle?: React.CSSProperties;
 	publicTeam?: boolean;
 	closeOnChildrenClick?: boolean;
+	cardClassName?: string;
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({
@@ -87,18 +88,20 @@ export function Dropdown<T extends DropdownItem>({
 					leave="transition duration-75 ease-out"
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
+					className={clsxm('absolute z-40')}
 				>
 					<Listbox.Options
 						className={clsxm(
-							'absolute mt-3 min-w-full max-h-64',
+							'shadow-2xl outline-none min-w-full mt-3 max-h-64',
 							'overflow-hidden overflow-y-auto rounded-xl outline-none',
-							optionsClassName,
-							'shadow-2xl'
+							optionsClassName
 						)}
 					>
 						<Card
 							shadow="custom"
-							className="md:px-4 py-4 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]"
+							className={clsxm(
+								'md:px-4 py-4 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]'
+							)}
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
 							{items.map((Item, index) => (

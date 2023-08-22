@@ -23,7 +23,8 @@ export function TaskLinkedIssue({
 	issue?: LinkedTaskIssue;
 }) {
 	const { actionType, actionTypeItems, onChange } = useActionType(
-		issue?.action || TaskRelatedIssuesRelationEnum.RELATES_TO
+		issue?.action || TaskRelatedIssuesRelationEnum.RELATES_TO,
+		issue
 	);
 
 	return (
@@ -50,29 +51,30 @@ export function TaskLinkedIssue({
 				/>
 			</Link>
 
-			<div className="flex items-center">
+			<div className="flex items-center space-x-3">
 				{relatedTaskDropdown && issue && (
 					<Dropdown
-						className={clsxm(
-							'min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]',
-							'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+						buttonClassName={clsxm(
+							'px-2 py-0 rounded-[0.1875rem]',
 							'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
 						)}
-						buttonClassName={clsxm(
-							'border-none dark:border-none bg-none dark:bg-none rounded-none px-0 py-0'
-						)}
+						optionsClassName={clsxm('mt-0')}
 						value={actionType}
 						onChange={onChange}
 						items={actionTypeItems}
 					/>
 				)}
 
-				<ActiveTaskStatusDropdown
-					task={task}
-					defaultValue={task.status}
-					taskStatusClassName="min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
-					showIcon={false}
-				/>
+				<div className="min-w-[10rem] flex justify-end">
+					<div className="inline-block">
+						<ActiveTaskStatusDropdown
+							task={task}
+							defaultValue={task.status}
+							taskStatusClassName="min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
+							showIcon={false}
+						/>
+					</div>
+				</div>
 			</div>
 		</Card>
 	);
@@ -93,7 +95,7 @@ function mapToActionType(items: ActionType[] = []) {
 							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C]'
 						)}
 					>
-						<span className="pb-1 text-[0.5rem]">{item.name}</span>
+						<span className="pb-1">{item.name}</span>
 					</button>
 				);
 			},
@@ -103,7 +105,10 @@ function mapToActionType(items: ActionType[] = []) {
 	});
 }
 
-function useActionType(defaultValue: TaskRelatedIssuesRelationEnum) {
+function useActionType(
+	defaultValue: TaskRelatedIssuesRelationEnum,
+	issue: LinkedTaskIssue | undefined
+) {
 	const { trans } = useTranslation();
 
 	const actionsTypes = useMemo(
@@ -157,9 +162,12 @@ function useActionType(defaultValue: TaskRelatedIssuesRelationEnum) {
 
 	const onChange = useCallback(
 		(item: ActionTypeItem) => {
+			if (!issue) {
+				return;
+			}
 			setActionType(item);
 		},
-		[setActionType]
+		[setActionType, issue]
 	);
 
 	return {
