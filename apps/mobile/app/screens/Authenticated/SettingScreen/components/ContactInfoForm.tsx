@@ -47,8 +47,10 @@ const UpdateContactForm = ({
 
 	useEffect(() => {
 		if (user) {
-			setUserEmail(user?.email)
-			setUserPhoneNumber(user?.phoneNumber)
+			if (!editMode) {
+				setUserEmail(user?.email)
+				setUserPhoneNumber(user?.phoneNumber)
+			}
 		}
 		setIsvalid({ email: true, phone: true })
 	}, [user, onDismiss])
