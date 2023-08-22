@@ -9,13 +9,15 @@ import {
 	StyleSheet,
 	ActivityIndicator,
 } from "react-native"
-import { EMAIL_REGEX, PHONE_REGEX } from "../../../../helpers/regex"
+import { PHONE_REGEX } from "../../../../helpers/regex"
 import { translate } from "../../../../i18n"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import { typography, useAppTheme } from "../../../../theme"
 import { useUser } from "../../../../services/hooks/features/useUser"
 import { IPopup } from ".."
 import ConfirmEmailPopup from "./ConfirmEmailPopup"
+import { debounce } from "lodash"
+import emailValidator from "email-validator"
 
 interface IValidation {
 	email: boolean
@@ -55,38 +57,30 @@ const UpdateContactForm = ({
 		setIsvalid({ email: true, phone: true })
 	}, [user, onDismiss, editMode])
 
+	console.log(isValid)
+
+	const debouncedUpdateIsValid = debounce(
+		(field: keyof IValidation, value: string, validatorFn: (value: string) => boolean) => {
+			setIsvalid((prevState) => ({
+				...prevState,
+				[field]: validatorFn(value),
+			}))
+		},
+		500,
+	)
+
 	const onChangeEmail = (text: string) => {
-		if (text.trim().match(EMAIL_REGEX)) {
-			setIsvalid({
-				...isValid,
-				email: true,
-			})
-		} else {
-			setIsvalid({
-				...isValid,
-				email: false,
-			})
-		}
 		setUserEmail(text)
+		debouncedUpdateIsValid("email", text, emailValidator.validate) // Use email-validator's validate function
 	}
 
 	const onChangePhoneNumber = (text: string) => {
-		if (text.trim().match(PHONE_REGEX)) {
-			setIsvalid({
-				...isValid,
-				phone: true,
-			})
-		} else {
-			setIsvalid({
-				...isValid,
-				phone: false,
-			})
-		}
 		setUserPhoneNumber(text)
+		debouncedUpdateIsValid("phone", text, (value) => value.trim().match(PHONE_REGEX) !== null)
 	}
 
 	const handleSubmit = async () => {
-		if (!userEmail.trim().match(EMAIL_REGEX)) {
+		if (!emailValidator.validate(userEmail)) {
 			setIsvalid({
 				...isValid,
 				email: false,
@@ -124,7 +118,7 @@ const UpdateContactForm = ({
 	}
 
 	const onSaveNewEmail = async () => {
-		if (userEmail.match(EMAIL_REGEX) && userEmail !== user.email) {
+		if (emailValidator.validate(userEmail) && userEmail !== user?.email) {
 			if (userPhoneNumber !== user?.phoneNumber) {
 				await onUpdateContactInfo({
 					...user,

@@ -54,6 +54,7 @@
 		"apisauce": "3.0.0",
 		"axios": "^1.3.4",
 		"date-fns": "^2.29.2",
+		"email-validator": "^2.0.4",
 		"expo": "~48.0.9",
 		"expo-application": "~5.1.1",
 		"expo-blur": "~12.2.2",
