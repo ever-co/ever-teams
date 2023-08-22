@@ -10,6 +10,8 @@ import {
 	Dimensions,
 	TouchableOpacity,
 	FlatList,
+	KeyboardAvoidingView,
+	Platform,
 } from "react-native"
 import { Text } from "react-native-paper"
 // COMPONENTS
@@ -53,9 +55,12 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal transparent visible={showModal}>
-			<View style={$modalBackGround}>
+			<KeyboardAvoidingView
+				style={$modalBackGround}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
+			>
 				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
-			</View>
+			</KeyboardAvoidingView>
 		</Modal>
 	)
 }
