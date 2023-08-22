@@ -216,17 +216,17 @@ const ListCardItem: React.FC<Props> = (props) => {
 
 								{isTeamManager ? (
 									<>
-										{/* {!isAuthUser && ( */}
-										<ListItem
-											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-											onPress={() => {
-												setShowMenu(false)
-												memberInfo.makeMemberManager()
-											}}
-										>
-											Make a Manager
-										</ListItem>
-										{/* )} */}
+										{!memberInfo.isAuthUser && (
+											<ListItem
+												textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+												onPress={() => {
+													setShowMenu(false)
+													memberInfo.makeMemberManager()
+												}}
+											>
+												Make a Manager
+											</ListItem>
+										)}
 										<ListItem
 											textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
 											style={{}}
