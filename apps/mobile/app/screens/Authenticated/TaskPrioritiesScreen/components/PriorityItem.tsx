@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { ITaskPriorityItem } from "../../../../services/interfaces/ITaskPriority"
+import { formatName } from "../../../../helpers/name-format"
 
 interface IPriorityItem {
 	priority: ITaskPriorityItem
@@ -12,6 +13,7 @@ interface IPriorityItem {
 
 const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEdit }) => {
 	const { colors, dark } = useAppTheme()
+
 	return (
 		<View
 			style={{
@@ -22,7 +24,7 @@ const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEd
 		>
 			<View style={{ ...styles.statusContainer, backgroundColor: priority.color }}>
 				<AntDesign name="pay-circle-o1" size={20} color="#000" />
-				<Text style={styles.text}>{priority.name}</Text>
+				<Text style={styles.text}>{formatName(priority.name)}</Text>
 			</View>
 			<View style={styles.rightSection}>
 				<AntDesign size={16} name={"edit"} color={colors.primary} onPress={() => openForEdit()} />

@@ -5,7 +5,8 @@ import { View, Text, StyleSheet } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
-import { useTaskStatusValue } from "../../../../components/StatusType"
+import { formatName } from "../../../../helpers/name-format"
+// import { useTaskStatusValue } from "../../../../components/StatusType"
 
 interface IStatusItem {
 	status: ITaskStatusItem
@@ -15,8 +16,8 @@ interface IStatusItem {
 
 const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
 	const { colors, dark } = useAppTheme()
-	const allStatuses = useTaskStatusValue()
-	const cStatus = allStatuses[status.name.split("-").join(" ")]
+	// const allStatuses = useTaskStatusValue()
+	// const cStatus = allStatuses[status.name.split("-").join(" ")]
 
 	return (
 		<View
@@ -26,9 +27,9 @@ const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.statusContainer, backgroundColor: cStatus.bgColor }}>
-				{cStatus.icon}
-				<Text style={styles.text}>{cStatus.name}</Text>
+			<View style={{ ...styles.statusContainer, backgroundColor: status.color }}>
+				<AntDesign name="pay-circle-o1" size={20} color="#000" />
+				<Text style={styles.text}>{formatName(status.name)}</Text>
 			</View>
 			<View style={styles.rightSection}>
 				<AntDesign size={16} name={"edit"} color={colors.primary} onPress={() => openForEdit()} />
