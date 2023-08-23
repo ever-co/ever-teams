@@ -233,8 +233,8 @@ const en = {
 			mainTitle: "Change Your Contact",
 			emailPlaceholder: "Email Address",
 			phonePlaceholder: "Phone Number",
-			emailNotValid: "Please provide a valid email",
-			phoneNotValid: "Please provide a valid phone number",
+			emailNotValid: "Please provide a valid Email",
+			phoneNotValid: "Please provide a valid Phone Number",
 		},
 		changeTimezone: {
 			mainTitle: "Change Time Zone",
