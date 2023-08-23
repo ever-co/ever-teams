@@ -249,7 +249,7 @@ export const PersonalSettingForm = () => {
 											/>
 											{!isValid.email && (
 												<p className="absolute -bottom-5  text-red-500 text-xs">
-													Please provide a valid Email
+													{translations.pages.settingsPersonal.emailNotValid}
 												</p>
 											)}
 										</div>
@@ -270,7 +270,7 @@ export const PersonalSettingForm = () => {
 											/>
 											{!isValid.phone && (
 												<p className="absolute -bottom-5  text-red-500 text-xs">
-													Please provide a valid Phone Number
+													{translations.pages.settingsPersonal.phoneNotValid}
 												</p>
 											)}
 										</div>
