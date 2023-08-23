@@ -110,6 +110,11 @@ const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) =>
 
 	const allStatuses = useTaskStatusValue()
 	const cStatus = allStatuses[status.name.split("-").join(" ")]
+	const formattedName = cStatus?.name
+		.replace("-", " ")
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ")
 
 	return (
 		<TouchableOpacity onPress={() => onStatusSelected(cStatus.name)}>
@@ -117,7 +122,7 @@ const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) =>
 				{cStatus && (
 					<View style={{ ...styles.colorFrame, backgroundColor: status.color }}>
 						{cStatus.icon}
-						<Text style={styles.text}>{cStatus.name}</Text>
+						<Text style={styles.text}>{formattedName}</Text>
 					</View>
 				)}
 				<View>
