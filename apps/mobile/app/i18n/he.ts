@@ -175,6 +175,7 @@ const he = {
 		},
 		priorityScreen: {
 			mainTitle: "Task Priorities",
+			priorities: "Priorities",
 			listPriorities: "List of Priorities",
 			noActivePriorities: "There are no active priorities",
 			createPriorityButton: "Create new priority",

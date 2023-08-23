@@ -179,7 +179,7 @@ const ko: Translations = {
 		},
 		priorityScreen: {
 			mainTitle: "Task Priorities",
-			priorities: "priorities",
+			priorities: "Priorities",
 			listPriorities: "List of Priorities",
 			noActivePriorities: "There are no active priorities",
 			createPriorityButton: "Create new priority",
