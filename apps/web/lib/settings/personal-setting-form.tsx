@@ -9,6 +9,7 @@ import { useRecoilState } from 'recoil';
 import {
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
+	PHONE_REGEX,
 	setActiveLanguageIdCookie,
 	setActiveTimezoneCookie,
 	userTimezone,
@@ -17,6 +18,12 @@ import { useSettings } from '@app/hooks';
 import { useTheme } from 'next-themes';
 import { useTranslation } from 'lib/i18n';
 import { EmailResetModal } from './email-reset-modal';
+import validator from 'validator';
+
+interface IValidation {
+	email: boolean;
+	phone: boolean;
+}
 
 export const PersonalSettingForm = () => {
 	const [user] = useRecoilState(userState);
@@ -30,6 +37,10 @@ export const PersonalSettingForm = () => {
 	const [showEmailResetModal, setShowEmailResetModal] =
 		useState<boolean>(false);
 	const [newEmail, setNewEmail] = useState<string>('');
+	const [isValid, setIsValid] = useState<IValidation>({
+		email: true,
+		phone: true,
+	});
 	const { trans, translations } = useTranslation('settingsPersonal');
 
 	const handleFullnameChange = useCallback(() => {
@@ -45,15 +56,28 @@ export const PersonalSettingForm = () => {
 		}
 	}, [updateAvatar, user, getValues]);
 
+	const checkEmailValidity = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const email = e.target.value;
+		setIsValid({ ...isValid, email: validator.isEmail(email) });
+	};
+
+	const checkPhoneValidity = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const phone = e.target.value;
+
+		phone
+			? setIsValid({ ...isValid, phone: phone.match(PHONE_REGEX) !== null })
+			: setIsValid({ ...isValid, phone: true });
+	};
+
 	const handleContactChange = useCallback(() => {
 		const values = getValues();
 
-		if (values.email !== user?.email) {
+		if (values.email !== user?.email && isValid.email && isValid.phone) {
 			setNewEmail(values.email || '');
 			setShowEmailResetModal(true);
 		}
 
-		if (user) {
+		if (user && isValid.phone && isValid.email) {
 			updateAvatar({
 				phoneNumber: values.phoneNumber,
 				id: user.id,
@@ -61,7 +85,7 @@ export const PersonalSettingForm = () => {
 				setEditContacts(false);
 			});
 		}
-	}, [updateAvatar, user, getValues]);
+	}, [updateAvatar, user, getValues, isValid.email, isValid.phone]);
 
 	const handleChangeTimezone = useCallback(
 		(newTimezone: string | undefined) => {
@@ -206,32 +230,51 @@ export const PersonalSettingForm = () => {
 										{translations.common.CONTACT}
 									</Text>
 									<div className="flex w-full justify-start">
-										<InputField
-											type="email"
-											placeholder="Email Address"
-											{...register('email', {
-												required: true,
-												pattern:
-													/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-											})}
-											className={`w-full m-0 h-[54px] ${
-												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
-											}`}
-											disabled={!editContacts}
-											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
-										/>
-										<InputField
-											type="text"
-											placeholder="Phone Number"
-											{...register('phoneNumber', {
-												valueAsNumber: true,
-											})}
-											className={`w-full m-0 h-[54px] ${
-												!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
-											}`}
-											disabled={!editContacts}
-											wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
-										/>
+										<div className="relative">
+											<InputField
+												type="email"
+												placeholder="Email Address"
+												{...register('email', {
+													required: true,
+													pattern:
+														/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+												})}
+												className={`w-full m-0 h-[54px]  ${
+													!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
+												}`}
+												onChange={checkEmailValidity}
+												disabled={!editContacts}
+												notValidBorder={!isValid.email}
+												wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5 `}
+											/>
+											{!isValid.email && (
+												<p className="absolute -bottom-5  text-red-500 text-xs">
+													Please provide a valid Email
+												</p>
+											)}
+										</div>
+										<div className="relative">
+											<InputField
+												type="text"
+												placeholder="Phone Number"
+												{...register('phoneNumber', {
+													valueAsNumber: true,
+												})}
+												className={`w-full m-0 h-[54px] ${
+													!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
+												}`}
+												onChange={checkPhoneValidity}
+												disabled={!editContacts}
+												notValidBorder={!isValid.phone}
+												wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
+											/>
+											{!isValid.phone && (
+												<p className="absolute -bottom-5  text-red-500 text-xs">
+													Please provide a valid Phone Number
+												</p>
+											)}
+										</div>
+
 										{editContacts ? (
 											<Button
 												variant="primary"
