@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, ReactNode } from "react"
 import { View, StyleSheet, Text } from "react-native"
-import { typography, useAppTheme } from "../theme"
+import { typography } from "../theme"
 
 interface Props {
 	label: string
@@ -10,12 +10,13 @@ interface Props {
 	icon: ReactNode | undefined
 }
 const LabelItem: FC<Props> = ({ label, background, icon }) => {
-	const { colors } = useAppTheme()
+	const words = label.split(" ")
+	const formattedLabel = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
 	return (
 		<View style={[styles.container, { backgroundColor: background }]}>
 			<View style={{ flexDirection: "row" }}>
 				{icon}
-				<Text style={[styles.labelTitle, { color: "#282048" }]}>{label}</Text>
+				<Text style={[styles.labelTitle, { color: "#282048" }]}>{formattedLabel}</Text>
 			</View>
 		</View>
 	)
