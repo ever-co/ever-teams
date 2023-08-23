@@ -60,6 +60,7 @@ export const en = {
 		TEAM: 'Team',
 		FULL_NAME: 'Full Name',
 		CONTACT: 'Contact',
+
 		THEME: 'Theme',
 		TIME_ZONE: 'Timezone',
 		EDIT: 'Edit',
@@ -191,6 +192,8 @@ export const en = {
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'General Settings',
+			emailNotValid: 'Please provide a valid Email',
+			phoneNotValid: 'Please provide a valid Phone Number',
 			WORK_SCHEDULE: 'Work Schedule',
 			SUBSCRIPTION: 'Subscription',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
