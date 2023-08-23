@@ -17,7 +17,7 @@ import { useUser } from "../../../../services/hooks/features/useUser"
 import { IPopup } from ".."
 import ConfirmEmailPopup from "./ConfirmEmailPopup"
 import { debounce } from "lodash"
-import emailValidator from "email-validator"
+import validator from "validator"
 
 interface IValidation {
 	email: boolean
@@ -57,8 +57,6 @@ const UpdateContactForm = ({
 		setIsvalid({ email: true, phone: true })
 	}, [user, onDismiss, editMode])
 
-	console.log(isValid)
-
 	const debouncedUpdateIsValid = debounce(
 		(field: keyof IValidation, value: string, validatorFn: (value: string) => boolean) => {
 			setIsvalid((prevState) => ({
@@ -71,7 +69,7 @@ const UpdateContactForm = ({
 
 	const onChangeEmail = (text: string) => {
 		setUserEmail(text)
-		debouncedUpdateIsValid("email", text, emailValidator.validate) // Use email-validator's validate function
+		debouncedUpdateIsValid("email", text, validator.isEmail) // Use email-validator's validate function
 	}
 
 	const onChangePhoneNumber = (text: string) => {
@@ -80,7 +78,7 @@ const UpdateContactForm = ({
 	}
 
 	const handleSubmit = async () => {
-		if (!emailValidator.validate(userEmail)) {
+		if (!validator.isEmail(userEmail)) {
 			setIsvalid({
 				...isValid,
 				email: false,
@@ -118,7 +116,7 @@ const UpdateContactForm = ({
 	}
 
 	const onSaveNewEmail = async () => {
-		if (emailValidator.validate(userEmail) && userEmail !== user?.email) {
+		if (validator.isEmail(userEmail) && userEmail !== user?.email) {
 			if (userPhoneNumber !== user?.phoneNumber) {
 				await onUpdateContactInfo({
 					...user,
