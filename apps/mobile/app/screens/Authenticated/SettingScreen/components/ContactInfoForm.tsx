@@ -16,7 +16,6 @@ import { typography, useAppTheme } from "../../../../theme"
 import { useUser } from "../../../../services/hooks/features/useUser"
 import { IPopup } from ".."
 import ConfirmEmailPopup from "./ConfirmEmailPopup"
-import { debounce } from "lodash"
 import validator from "validator"
 
 interface IValidation {
@@ -57,15 +56,16 @@ const UpdateContactForm = ({
 		setIsvalid({ email: true, phone: true })
 	}, [user, onDismiss, editMode])
 
-	const debouncedUpdateIsValid = debounce(
-		(field: keyof IValidation, value: string, validatorFn: (value: string) => boolean) => {
-			setIsvalid((prevState) => ({
-				...prevState,
-				[field]: validatorFn(value),
-			}))
-		},
-		500,
-	)
+	const debouncedUpdateIsValid = (
+		field: keyof IValidation,
+		value: string,
+		validatorFn: (value: string) => boolean,
+	) => {
+		setIsvalid((prevState) => ({
+			...prevState,
+			[field]: validatorFn(value),
+		}))
+	}
 
 	const onChangeEmail = (text: string) => {
 		setUserEmail(text)
