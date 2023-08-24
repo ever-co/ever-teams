@@ -10,14 +10,12 @@ interface Props {
 	icon: ReactNode | undefined
 }
 const LabelItem: FC<Props> = ({ label, background, icon }) => {
-	const words = label.split(" ")
-	const formattedLabel = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
 	return (
 		<View style={[styles.container, { backgroundColor: background }]}>
 			<View style={{ flexDirection: "row" }}>
 				{icon}
 				<Text style={[styles.labelTitle, { color: "#282048" }]} numberOfLines={1}>
-					{formattedLabel}
+					{label}
 				</Text>
 			</View>
 		</View>
@@ -39,6 +37,7 @@ const styles = StyleSheet.create({
 		fontSize: 10,
 		fontWeight: "600",
 		marginLeft: 5,
+		textTransform: "capitalize",
 	},
 })
 

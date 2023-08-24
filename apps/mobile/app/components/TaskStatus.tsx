@@ -32,11 +32,6 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 			? allStatuses[task?.status?.split("-").join(" ") || status?.split("-").join(" ")]
 			: null
 
-		const name = statusItem?.name
-			.split(" ")
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(" ")
-
 		const onChangeStatus = async (text) => {
 			if (task) {
 				const value: ITaskStatus = text
@@ -77,7 +72,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								{statusItem.icon}
 								{iconsOnly ? null : (
 									<Text numberOfLines={1} style={{ ...styles.text, marginLeft: 11 }}>
-										{limitTextCharaters({ text: name, numChars: 11 })}
+										{limitTextCharaters({ text: statusItem?.name, numChars: 11 })}
 									</Text>
 								)}
 							</View>
@@ -106,6 +101,7 @@ const styles = StyleSheet.create({
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 10,
+		textTransform: "capitalize",
 	},
 	wrapStatus: {
 		alignItems: "center",
