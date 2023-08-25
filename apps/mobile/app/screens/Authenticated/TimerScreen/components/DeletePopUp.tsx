@@ -3,10 +3,11 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native"
 
 type IDeletePopUp = {
 	onCloseTask: any
-	setShowDel: any
+	setShowDel: (val: boolean) => undefined
+	setEditMode: (val: boolean) => undefined
 }
 
-const DeletePopUp = ({ onCloseTask, setShowDel }: IDeletePopUp) => {
+const DeletePopUp = ({ onCloseTask, setShowDel, setEditMode }: IDeletePopUp) => {
 	return (
 		<TouchableOpacity activeOpacity={0.7} style={styles.container}>
 			<TouchableOpacity
@@ -14,6 +15,7 @@ const DeletePopUp = ({ onCloseTask, setShowDel }: IDeletePopUp) => {
 				onPress={() => {
 					onCloseTask()
 					setShowDel(false)
+					setEditMode(false)
 				}}
 			>
 				<Text style={{ fontWeight: "bold", color: "#1B005D", fontSize: 10 }}>Confirm</Text>

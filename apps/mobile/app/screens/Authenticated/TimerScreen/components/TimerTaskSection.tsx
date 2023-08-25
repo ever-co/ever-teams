@@ -100,7 +100,12 @@ const TimerTaskSection = observer(
 							onChangeText={(newText) => setQuery(newText)}
 						/>
 						{hasCreateForm && editMode && !createLoading ? (
-							<Pressable onPress={() => handleTaskCreation()}>
+							<Pressable
+								onPress={() => {
+									handleTaskCreation()
+									setEditMode(false)
+								}}
+							>
 								<Feather name="check" size={24} color="green" />
 							</Pressable>
 						) : null}

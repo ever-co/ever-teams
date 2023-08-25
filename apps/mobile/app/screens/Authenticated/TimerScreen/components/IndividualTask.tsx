@@ -107,7 +107,13 @@ const IndividualTask: FC<Props> = observer(
 								<Entypo name="cross" size={15} color="#8F97A1" />
 							</View>
 						)}
-						{showDel && <DeletePopUp onCloseTask={onCloseTask} setShowDel={setShowDel} />}
+						{showDel && (
+							<DeletePopUp
+								onCloseTask={onCloseTask}
+								setEditMode={setEditMode}
+								setShowDel={setShowDel}
+							/>
+						)}
 					</View>
 				</View>
 			</TouchableOpacity>
