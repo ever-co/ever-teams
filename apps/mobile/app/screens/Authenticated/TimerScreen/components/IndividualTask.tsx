@@ -16,7 +16,7 @@ export interface Props {
 	handleActiveTask: (value: ITeamTask) => unknown
 	closeCombo?: () => unknown
 	onReopenTask: () => unknown
-	setEditMode: (val: boolean) => unknown
+	setEditMode: (val: boolean) => void
 }
 
 const IndividualTask: FC<Props> = observer(

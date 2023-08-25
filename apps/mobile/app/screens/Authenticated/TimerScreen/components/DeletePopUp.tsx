@@ -3,8 +3,8 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native"
 
 type IDeletePopUp = {
 	onCloseTask: any
-	setShowDel: (val: boolean) => undefined
-	setEditMode: (val: boolean) => undefined
+	setShowDel: (val: boolean) => void
+	setEditMode: (val: boolean) => void
 }
 
 const DeletePopUp = ({ onCloseTask, setShowDel, setEditMode }: IDeletePopUp) => {

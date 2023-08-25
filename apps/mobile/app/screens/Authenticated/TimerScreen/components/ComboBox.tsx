@@ -16,7 +16,7 @@ import IndividualTask from "./IndividualTask"
 export interface Props {
 	tasksHandler: RTuseTaskInput
 	closeCombo: () => unknown
-	setEditMode: () => unknown
+	setEditMode: (val: boolean) => void
 }
 const { height } = Dimensions.get("window")
 
