@@ -240,7 +240,7 @@ export function TaskInput(props: Props) {
 				editMode
 			) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
-				console.log('func active');
+				// console.log('func active');
 			}
 		};
 

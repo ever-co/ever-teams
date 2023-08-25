@@ -45,7 +45,6 @@ const TaskEstimationsInfo = () => {
 										// Enable other users estimations in v2
 										return (
 											<React.Fragment key={member.id}>
-												member.userId === user?.id ? (
 												<ProfileInfoWithTime
 													key={member.id}
 													profilePicSrc={member.user?.imageUrl}
@@ -59,7 +58,6 @@ const TaskEstimationsInfo = () => {
 														/>
 													}
 												/>
-												) : (<></>) )
 											</React.Fragment>
 										);
 									})}
