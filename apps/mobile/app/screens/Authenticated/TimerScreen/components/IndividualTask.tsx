@@ -43,11 +43,11 @@ const IndividualTask: FC<Props> = observer(
 			<TouchableOpacity
 				style={styles.container}
 				onPress={() => {
-					handleActiveTask(task)
 					closeCombo()
 				}}
 			>
 				<View
+					onTouchStart={() => handleActiveTask(task)} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
 						justifyContent: "space-between",
@@ -69,6 +69,7 @@ const IndividualTask: FC<Props> = observer(
 					</Text>
 				</View>
 				<View
+					onTouchStart={() => handleActiveTask(task)} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
 						width: "40%",

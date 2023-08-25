@@ -117,7 +117,7 @@ const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) =>
 				{cStatus && (
 					<View style={{ ...styles.colorFrame, backgroundColor: status.color }}>
 						{cStatus.icon}
-						<Text style={styles.text}>{cStatus.name}</Text>
+						<Text style={styles.text}>{cStatus?.name}</Text>
 					</View>
 				)}
 				<View>
@@ -162,6 +162,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.medium,
 		fontSize: 14,
 		marginLeft: 13.5,
+		textTransform: "capitalize",
 	},
 	title: {
 		fontSize: spacing.medium - 2,

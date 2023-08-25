@@ -27,7 +27,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 
 		const allTaskPriorities = useTaskPriorityValue()
 		const currentPriority = task
-			? allTaskPriorities[task.priority?.split("-").join(" ") || priority.split("-").join(" ")]
+			? allTaskPriorities[task?.priority?.split("-").join(" ") || priority?.split("-").join(" ")]
 			: null
 
 		const onChangePriority = async (text) => {

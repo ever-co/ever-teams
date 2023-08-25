@@ -26,7 +26,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const size = allSizes[task?.size]
 	const priority = allPriorities[task?.priority]
 
-	const taskLabels = task?.tags.map((t) => allLabels[t])
+	const taskLabels = task?.tags.map((tag) => allLabels[tag.name])
 
 	const labels = [size && status, size && size, priority && priority, ...(taskLabels || [])].filter(
 		(t) => t !== null && t !== undefined,
