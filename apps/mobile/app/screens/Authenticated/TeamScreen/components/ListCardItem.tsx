@@ -210,7 +210,13 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
 									Assign Task
 								</ListItem>
-								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
+								<ListItem
+									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+									onPress={() => {
+										memberInfo.unassignTask(taskEdition.task)
+										setShowMenu(false)
+									}}
+								>
 									Unassign Task
 								</ListItem>
 
