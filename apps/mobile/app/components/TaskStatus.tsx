@@ -71,8 +71,8 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 							<View style={styles.wrapStatus}>
 								{statusItem.icon}
 								{iconsOnly ? null : (
-									<Text style={{ ...styles.text, marginLeft: 10 }}>
-										{limitTextCharaters({ text: statusItem.name, numChars: 11 })}
+									<Text numberOfLines={1} style={{ ...styles.text, marginLeft: 11 }}>
+										{limitTextCharaters({ text: statusItem?.name, numChars: 11 })}
 									</Text>
 								)}
 							</View>
@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 10,
+		textTransform: "capitalize",
 	},
 	wrapStatus: {
 		alignItems: "center",
