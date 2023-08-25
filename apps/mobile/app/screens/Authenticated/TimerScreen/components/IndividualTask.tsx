@@ -16,10 +16,11 @@ export interface Props {
 	handleActiveTask: (value: ITeamTask) => unknown
 	closeCombo?: () => unknown
 	onReopenTask: () => unknown
+	setEditMode: (val: boolean) => unknown
 }
 
 const IndividualTask: FC<Props> = observer(
-	({ task, handleActiveTask, closeCombo, onReopenTask }) => {
+	({ task, handleActiveTask, closeCombo, onReopenTask, setEditMode }) => {
 		const { colors } = useAppTheme()
 		const [showDel, setShowDel] = useState(false)
 		const { updateTask } = useTeamTasks()
@@ -44,10 +45,14 @@ const IndividualTask: FC<Props> = observer(
 				style={styles.container}
 				onPress={() => {
 					closeCombo()
+					setEditMode(false)
 				}}
 			>
 				<View
-					onTouchStart={() => handleActiveTask(task)} // added it here because doesn't work when assigned to the parent
+					onTouchStart={() => {
+						handleActiveTask(task)
+						setEditMode(false)
+					}} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
 						justifyContent: "space-between",
@@ -98,7 +103,9 @@ const IndividualTask: FC<Props> = observer(
 						{task.status === "closed" ? (
 							<EvilIcons name="refresh" size={24} color="#8F97A1" onPress={() => onReopenTask()} />
 						) : (
-							<Entypo name="cross" size={15} color="#8F97A1" onPress={() => setShowDel(!showDel)} />
+							<View onTouchStart={() => setShowDel(true)}>
+								<Entypo name="cross" size={15} color="#8F97A1" />
+							</View>
 						)}
 						{showDel && <DeletePopUp onCloseTask={onCloseTask} setShowDel={setShowDel} />}
 					</View>
