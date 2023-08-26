@@ -1,5 +1,6 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
-import { useOrganizationTeams, useUserProfilePage } from '@app/hooks';
+import { useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
@@ -15,6 +16,7 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
+import moment from 'moment';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
@@ -83,11 +85,8 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const imgUrl =
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
-	const timerStatus = useMemo(
-		() => member?.timerStatus || 'idle',
-		[member?.timerStatus]
-	);
 	const size = 100;
+	const { timerStatus } = useTimer();
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -111,7 +110,25 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 						imageTitle={userName.charAt(0)}
 					>
 						<TimerStatus
-							status={timerStatus}
+							status={
+								!timerStatus?.running &&
+								timerStatus?.lastLog &&
+								timerStatus?.lastLog?.startedAt &&
+								moment().diff(
+									moment(timerStatus?.lastLog?.startedAt),
+									'hours'
+								) < 24 &&
+								timerStatus?.lastLog?.source !== 'TEAMS'
+									? 'pause'
+									: !member?.employee?.isActive
+									? 'suspended'
+									: member?.employee?.isOnline &&
+									  member?.timerStatus !== 'running'
+									? 'online'
+									: !member?.totalTodayTasks?.length
+									? 'idle'
+									: member?.timerStatus || 'idle'
+							}
 							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
 						/>
 					</Avatar>
