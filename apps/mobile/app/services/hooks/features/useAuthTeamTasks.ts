@@ -13,21 +13,21 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 
 	const assignedTasks = useMemo(() => {
 		if (!user) return []
-		return teamTasks.filter((task) => {
+		return teamTasks?.filter((task) => {
 			return task?.members.some((m) => m.userId === user.id)
 		})
 	}, [teamTasks, user, isRefetching])
 
 	const unassignedTasks = useMemo(() => {
 		if (!user) return []
-		return teamTasks.filter((task) => {
+		return teamTasks?.filter((task) => {
 			return !task?.members.some((m) => m.userId === user.id)
 		})
 	}, [teamTasks, user, isRefetching])
 
 	const workedTasks = useMemo(() => {
-		return teamTasks.filter((tsk) => {
-			return statTasks.today.some((st) => st.id === tsk.id)
+		return teamTasks?.filter((tsk) => {
+			return statTasks?.today.some((st) => st.id === tsk.id)
 		})
 	}, [statTasks, teamTasks, isRefetching])
 
