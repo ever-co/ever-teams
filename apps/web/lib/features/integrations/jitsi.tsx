@@ -1,13 +1,14 @@
-import { useAuthenticateUser } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 
 export default function CallPage() {
+	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
 	return (
 		<JitsiMeeting
 			domain={process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si'}
-			roomName="JitsiTestCallEverTech"
+			roomName={activeTeam?.name || 'EverTeam'}
 			configOverwrite={{
 				startWithAudioMuted: true,
 				disableModeratorIndicator: true,

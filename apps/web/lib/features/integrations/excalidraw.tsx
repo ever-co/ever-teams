@@ -1,9 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Excalidraw, LiveCollaborationTrigger } from '@excalidraw/excalidraw';
+import {
+	Excalidraw,
+	LiveCollaborationTrigger,
+	THEME,
+} from '@excalidraw/excalidraw';
 import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types';
 import { useAuthenticateUser } from '@app/hooks';
+import { useTheme } from 'next-themes';
 
 export default function ExcalidrawComponent() {
+	const { theme } = useTheme();
 	const { user } = useAuthenticateUser();
 	const [excalidrawAPI, setExcalidrawAPI] =
 		useState<ExcalidrawAPIRefValue | null>(null);
@@ -28,6 +34,7 @@ export default function ExcalidrawComponent() {
 			<div style={{ height: '100vh' }}>
 				<Excalidraw
 					ref={(api) => setExcalidrawAPI(api)}
+					theme={theme || THEME.LIGHT}
 					renderTopRightUI={() => (
 						<LiveCollaborationTrigger
 							isCollaborating={true}
