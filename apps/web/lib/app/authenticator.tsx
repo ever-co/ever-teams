@@ -91,6 +91,7 @@ export function withAuthentication(
 			</>
 		);
 	};
+
 	AppComponent.displayName = displayName;
 
 	return AppComponent;

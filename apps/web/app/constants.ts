@@ -8,6 +8,7 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^(\/profile(\/)?)(.*)$/,
 	/^(\/settings(\/)?)(.*)$/,
 	/^(\/task(\/)?)(.*)$/,
+	/^(\/call(\/)?)(.*)$/,
 ];
 
 export const TOKEN_COOKIE_NAME = 'auth-token';
