@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
 import { withAuthentication } from 'lib/app/authenticator';
+import { Meta } from 'lib/components';
 
 const Jitsi = dynamic(() => import('lib/features/integrations/jitsi'), {
 	ssr: false,
@@ -7,9 +8,10 @@ const Jitsi = dynamic(() => import('lib/features/integrations/jitsi'), {
 
 function CallPage() {
 	return (
-		<div className="">
+		<>
+			<Meta title="Call" />
 			<Jitsi />
-		</div>
+		</>
 	);
 }
 

@@ -1,4 +1,5 @@
 import { withAuthentication } from 'lib/app/authenticator';
+import { Meta } from 'lib/components';
 import dynamic from 'next/dynamic';
 import React from 'react';
 
@@ -10,7 +11,12 @@ const Excalidraw = dynamic(
 );
 
 function WhiteboardPage() {
-	return <Excalidraw />;
+	return (
+		<>
+			<Meta title="Whiteboard" />
+			<Excalidraw />
+		</>
+	);
 }
 
 export default withAuthentication(WhiteboardPage, {

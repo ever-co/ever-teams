@@ -18,6 +18,7 @@ export const config = {
 		'/settings/(.*)',
 		'/task(.*)',
 		'/call(.*)',
+		'/whiteboard(.*)',
 	],
 };
 
