@@ -13,8 +13,10 @@ const Excalidraw = dynamic(
 function WhiteboardPage() {
 	return (
 		<>
-			<Meta title="Whiteboard" />
-			<Excalidraw />
+			<div className="relative">
+				<Meta title="Whiteboard" />
+				<Excalidraw />
+			</div>
 		</>
 	);
 }

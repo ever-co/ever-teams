@@ -5,10 +5,15 @@ export default function CallPage() {
 	const { activeTeam } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
+	const roomName = activeTeam?.name
+		.toLowerCase()
+		.replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase())
+		.replaceAll(' ', '');
+
 	return (
 		<JitsiMeeting
 			domain={process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si'}
-			roomName={activeTeam?.name || 'EverTeam'}
+			roomName={'EverTeam' + roomName}
 			configOverwrite={{
 				startWithAudioMuted: true,
 				disableModeratorIndicator: true,

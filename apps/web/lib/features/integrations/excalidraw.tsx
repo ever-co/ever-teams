@@ -7,6 +7,7 @@ import {
 import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types';
 import { useAuthenticateUser } from '@app/hooks';
 import { useTheme } from 'next-themes';
+import { EverTeamsLogo } from 'lib/components/svgs';
 
 export default function ExcalidrawComponent() {
 	const { theme } = useTheme();
@@ -45,6 +46,12 @@ export default function ExcalidrawComponent() {
 					)}
 				/>
 			</div>
+
+			{excalidrawAPI?.ready && (
+				<div className="absolute z-50 top-5 left-14 scale-75">
+					<EverTeamsLogo />
+				</div>
+			)}
 		</>
 	);
 }
