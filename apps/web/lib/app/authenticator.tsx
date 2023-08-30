@@ -16,10 +16,18 @@ import {
 	setNoTeamPopupShowCookie,
 } from '@app/helpers';
 
+type Params = {
+	displayName: string;
+	pageTitle?: string;
+	showPageSkeleton?: boolean;
+};
+
 export function withAuthentication(
 	Component: NextPage<any, any>,
-	{ displayName }: { displayName: string; pageTitle?: string }
+	params: Params
 ) {
+	const { showPageSkeleton = true } = params;
+
 	const AppComponent = (props: any) => {
 		// const { trans } = useTranslation();
 		const [user, setUser] = useRecoilState(userState);
@@ -55,7 +63,7 @@ export function withAuthentication(
 
 		return (
 			<>
-				{!user || loading ? (
+				{(!user || loading) && showPageSkeleton ? (
 					<TeamPageSkeleton />
 				) : (
 					<>
@@ -92,7 +100,7 @@ export function withAuthentication(
 		);
 	};
 
-	AppComponent.displayName = displayName;
+	AppComponent.displayName = params.displayName;
 
 	return AppComponent;
 }

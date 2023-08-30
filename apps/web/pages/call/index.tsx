@@ -1,9 +1,10 @@
 import dynamic from 'next/dynamic';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Meta } from 'lib/components';
+import { BackdropLoader, Meta } from 'lib/components';
 
 const Jitsi = dynamic(() => import('lib/features/integrations/jitsi'), {
 	ssr: false,
+	loading: () => <BackdropLoader show />,
 });
 
 function CallPage() {
@@ -15,4 +16,7 @@ function CallPage() {
 	);
 }
 
-export default withAuthentication(CallPage, { displayName: 'CallPage' });
+export default withAuthentication(CallPage, {
+	displayName: 'CallPage',
+	showPageSkeleton: false,
+});

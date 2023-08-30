@@ -71,13 +71,19 @@ export function BackdropLoader({
 		>
 			<div>
 				<Card
-					className="w-[98%] md:min-w-[130px] flex items-center"
+					className="w-[98%] md:min-w-[130px] flex items-center justify-center"
 					shadow="custom"
 				>
-					<div className="w-[31px] h-[31px] mr-4">
-						<SpinnerLoader className="mr-1" />
+					<div className="flex space-x-4">
+						<div className="w-[31px] h-[31px]">
+							<SpinnerLoader className="mr-1" />
+						</div>
+						{title && (
+							<div className="text-xs whitespace-nowrap text-ellipsis">
+								{title}
+							</div>
+						)}
 					</div>
-					<div className="text-xs whitespace-nowrap text-ellipsis">{title}</div>
 				</Card>
 			</div>
 		</div>

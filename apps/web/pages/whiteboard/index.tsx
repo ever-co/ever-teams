@@ -1,12 +1,12 @@
 import { withAuthentication } from 'lib/app/authenticator';
-import { Meta } from 'lib/components';
+import { BackdropLoader, Meta } from 'lib/components';
 import dynamic from 'next/dynamic';
-import React from 'react';
 
 const Excalidraw = dynamic(
 	() => import('lib/features/integrations/excalidraw'),
 	{
 		ssr: false,
+		loading: () => <BackdropLoader show />,
 	}
 );
 
@@ -23,4 +23,5 @@ function WhiteboardPage() {
 
 export default withAuthentication(WhiteboardPage, {
 	displayName: 'WhiteboardPage',
+	showPageSkeleton: false,
 });
