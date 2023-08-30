@@ -123,7 +123,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 	},
 )
 
-const UnassignedTasksList = ({ memberInfo }: any) => {
+const UnassignedTasksList = observer(({ memberInfo, setShowUnassignedList }: any) => {
 	const { colors, dark } = useAppTheme()
 
 	return (
@@ -148,7 +148,10 @@ const UnassignedTasksList = ({ memberInfo }: any) => {
 					if (task?.status !== "closed") {
 						return (
 							<TouchableOpacity
-								onPress={() => memberInfo?.assignTask(task)}
+								onPress={() => {
+									memberInfo?.assignTask(task)
+									setShowUnassignedList(false)
+								}}
 								key={index}
 								style={[
 									styles.unassignedTaskContainer,
@@ -233,7 +236,7 @@ const UnassignedTasksList = ({ memberInfo }: any) => {
 			</ScrollView>
 		</View>
 	)
-}
+})
 
 const ListCardItem: React.FC<Props> = (props) => {
 	const { colors } = useAppTheme()
@@ -400,7 +403,10 @@ const ListCardItem: React.FC<Props> = (props) => {
 							onPressIn={onPressIn}
 						/>
 					) : (
-						<UnassignedTasksList memberInfo={memberInfo} />
+						<UnassignedTasksList
+							memberInfo={memberInfo}
+							setShowUnassignedList={setShowUnassignedList}
+						/>
 					)}
 				</>
 			}
