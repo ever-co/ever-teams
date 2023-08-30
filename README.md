@@ -49,6 +49,10 @@ Note: Currently WIP, the screenshot is just a temporary picture :)
 
 </details>
 
+## 📊 Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/7dc568c25f12884ca41e421ad2ae0b6dc1e576b1.svg "Repobeats analytics image")
+
 ## 🔗 Links
 
 - **<https://app.ever.team>** - Ever Teams Platform web application (not yet in production release)
