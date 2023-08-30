@@ -99,7 +99,8 @@
 		"reactotron-mst": "3.1.4",
 		"reactotron-react-js": "^3.3.7",
 		"reactotron-react-native": "5.0.3",
-		"reanimated-bottom-sheet": "^1.0.0-alpha.22"
+		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
+		"validator": "^13.11.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.20.0",

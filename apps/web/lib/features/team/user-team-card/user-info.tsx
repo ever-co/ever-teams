@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_TeamMemberCardHook } from '@app/hooks';
+import { I_TeamMemberCardHook, useTimer } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, Text, Tooltip } from 'lib/components';
@@ -11,6 +11,7 @@ import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
 import { MailIcon, UserManagerIcon } from 'lib/components/svgs';
+import moment from 'moment';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -35,6 +36,8 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 		memberUser?.image?.fullUrl,
 		memberUser?.imageUrl,
 	]);
+
+	const { timerStatus } = useTimer();
 
 	return (
 		<Link
@@ -61,7 +64,16 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					>
 						<TimerStatus
 							status={
-								!member?.employee?.isActive && !publicTeam
+								!timerStatus?.running &&
+								timerStatus?.lastLog &&
+								timerStatus?.lastLog?.startedAt &&
+								moment().diff(
+									moment(timerStatus?.lastLog?.startedAt),
+									'hours'
+								) < 24 &&
+								timerStatus?.lastLog?.source !== 'TEAMS'
+									? 'pause'
+									: !member?.employee?.isActive && !publicTeam
 									? 'suspended'
 									: member?.employee?.isOnline &&
 									  member?.timerStatus !== 'running'

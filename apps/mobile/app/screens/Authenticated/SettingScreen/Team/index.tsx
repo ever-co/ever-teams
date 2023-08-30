@@ -12,6 +12,10 @@ import { observer } from "mobx-react-lite"
 import { useAppTheme } from "../../../../theme"
 import TeamLogo from "./TeamLogo"
 import TransferOwnership from "./TransferOwnership"
+import { useTaskStatus } from "../../../../services/hooks/features/useTaskStatus"
+import { useTaskPriority } from "../../../../services/hooks/features/useTaskPriority"
+import { useTaskSizes } from "../../../../services/hooks/features/useTaskSizes"
+import { useTaskLabels } from "../../../../services/hooks/features/useTaskLabels"
 
 interface ITeamSettingProps {
 	props: any
@@ -26,6 +30,11 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 
 	const [open, setOpen] = useState(false)
 	const { navigation } = props
+
+	const { statuses } = useTaskStatus()
+	const { priorities } = useTaskPriority()
+	const { sizes } = useTaskSizes()
+	const { labels } = useTaskLabels()
 
 	return (
 		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
@@ -47,22 +56,24 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 				{isTeamManager ? <SwithTimeTracking /> : null}
 				<SingleInfo
 					title={translate("settingScreen.teamSection.taskStatuses")}
-					value={"there are 4 active statuses"}
+					value={`There are ${statuses?.total} active statuses`}
 					onPress={() => navigation.navigate("TaskStatus")}
 				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.taskPriorities")}
-					value={"there are 4 active priorities"}
+					value={`There are ${priorities?.total} active priorities`}
 					onPress={() => navigation.navigate("TaskPriority")}
 				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.taskSizes")}
-					value={"there are 5 active sizes"}
+					value={`There are ${sizes?.total} active sizes`}
 					onPress={() => navigation.navigate("TaskSizeScreen")}
 				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.taskLabel")}
-					value={"there are 8 active label"}
+					value={`There ${labels?.total < 2 ? "is" : "are"} ${labels?.total} active ${
+						labels?.total === 1 ? "label" : "labels"
+					}`}
 					onPress={() => navigation.navigate("TaskLabelScreen")}
 				/>
 				<SingleInfo title={translate("settingScreen.teamSection.teamRole")} value={"No"} />

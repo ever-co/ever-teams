@@ -6,12 +6,13 @@ import { TaskEstimate } from 'lib/features';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
 import { Disclosure } from '@headlessui/react';
 import { useTranslation } from 'lib/i18n';
-import { useAuthenticateUser } from '@app/hooks';
+// import { useAuthenticateUser } from '@app/hooks';
+import React from 'react';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
-	const { user } = useAuthenticateUser();
+	// const { user } = useAuthenticateUser();
 
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
@@ -39,27 +40,27 @@ const TaskEstimationsInfo = () => {
 							</Disclosure.Button>
 							<Disclosure.Panel>
 								<div className="flex flex-col gap-[0.5625rem] mt-2">
-									{task?.members.map((member) =>
+									{task?.members.map((member) => {
 										// TODO
 										// Enable other users estimations in v2
-										member.userId === user?.id ? (
-											<ProfileInfoWithTime
-												key={member.id}
-												profilePicSrc={member.user?.imageUrl}
-												names={member.fullName}
-												//@ts-ignore
-												time={
-													<TaskEstimate
-														_task={task}
-														className="not-italic font-medium text-[0.625rem] !text-[#938FA3] dark:text-white"
-														wrapperClassName="w-4"
-													/>
-												}
-											/>
-										) : (
-											<></>
-										)
-									)}
+										return (
+											<React.Fragment key={member.id}>
+												<ProfileInfoWithTime
+													key={member.id}
+													profilePicSrc={member.user?.imageUrl}
+													names={member.fullName}
+													//@ts-ignore
+													time={
+														<TaskEstimate
+															_task={task}
+															className="not-italic font-medium text-[0.625rem] !text-[#938FA3] dark:text-white"
+															wrapperClassName="w-4"
+														/>
+													}
+												/>
+											</React.Fragment>
+										);
+									})}
 								</div>
 								{/*
 								TODO

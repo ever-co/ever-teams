@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, ReactNode } from "react"
 import { View, StyleSheet, Text } from "react-native"
-import { typography, useAppTheme } from "../theme"
+import { typography } from "../theme"
 
 interface Props {
 	label: string
@@ -10,12 +10,13 @@ interface Props {
 	icon: ReactNode | undefined
 }
 const LabelItem: FC<Props> = ({ label, background, icon }) => {
-	const { colors } = useAppTheme()
 	return (
 		<View style={[styles.container, { backgroundColor: background }]}>
 			<View style={{ flexDirection: "row" }}>
 				{icon}
-				<Text style={[styles.labelTitle, { color: "#282048" }]}>{label}</Text>
+				<Text style={[styles.labelTitle, { color: "#282048" }]} numberOfLines={1}>
+					{label}
+				</Text>
 			</View>
 		</View>
 	)
@@ -36,6 +37,7 @@ const styles = StyleSheet.create({
 		fontSize: 10,
 		fontWeight: "600",
 		marginLeft: 5,
+		textTransform: "capitalize",
 	},
 })
 

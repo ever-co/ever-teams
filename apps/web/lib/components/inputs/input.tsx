@@ -21,6 +21,7 @@ type Props = {
 	trailingNode?: ReactNode;
 	leadingNode?: ReactNode;
 	autoCustomFocus?: boolean;
+	notValidBorder?: boolean;
 } & React.ComponentPropsWithRef<'input'>;
 
 export const InputField = forwardRef<HTMLInputElement, Props>(
@@ -36,6 +37,7 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 			trailingNode,
 			leadingNode,
 			autoCustomFocus,
+			notValidBorder,
 			...res
 		},
 		ref
@@ -96,7 +98,11 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 					wrapperClassName
 				)}
 			>
-				<div className="input-border rounded-[10px] flex justify-between h-auto bg-light--theme-light dark:bg-transparent">
+				<div
+					className={`${
+						notValidBorder ? 'border border-red-500' : 'input-border'
+					} rounded-[10px] flex justify-between h-auto bg-light--theme-light dark:bg-transparent`}
+				>
 					{leadingNode && (
 						<div className="flex items-center">{leadingNode}</div>
 					)}

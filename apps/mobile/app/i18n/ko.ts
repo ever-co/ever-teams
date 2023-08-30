@@ -179,7 +179,7 @@ const ko: Translations = {
 		},
 		priorityScreen: {
 			mainTitle: "Task Priorities",
-			priorities: "priorities",
+			priorities: "Priorities",
 			listPriorities: "List of Priorities",
 			noActivePriorities: "There are no active priorities",
 			createPriorityButton: "Create new priority",
@@ -235,8 +235,8 @@ const ko: Translations = {
 			mainTitle: "Change Your Contact",
 			emailPlaceholder: "Email Address",
 			phonePlaceholder: "Phone Number",
-			emailNotValid: "Please, provide a valid email",
-			phoneNotValid: "Please, provide a valid phone number",
+			emailNotValid: "Please provide a valid Email",
+			phoneNotValid: "Please provide a valid Phone Number",
 		},
 		changeTimezone: {
 			mainTitle: "Change Time Zone",

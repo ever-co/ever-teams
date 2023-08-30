@@ -210,23 +210,29 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
 									Assign Task
 								</ListItem>
-								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
+								<ListItem
+									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+									onPress={() => {
+										memberInfo.unassignTask(taskEdition.task)
+										setShowMenu(false)
+									}}
+								>
 									Unassign Task
 								</ListItem>
 
 								{isTeamManager ? (
 									<>
-										{/* {!isAuthUser && ( */}
-										<ListItem
-											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-											onPress={() => {
-												setShowMenu(false)
-												memberInfo.makeMemberManager()
-											}}
-										>
-											Make a Manager
-										</ListItem>
-										{/* )} */}
+										{!memberInfo.isAuthUser && (
+											<ListItem
+												textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+												onPress={() => {
+													setShowMenu(false)
+													memberInfo.makeMemberManager()
+												}}
+											>
+												Make a Manager
+											</ListItem>
+										)}
 										<ListItem
 											textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
 											style={{}}

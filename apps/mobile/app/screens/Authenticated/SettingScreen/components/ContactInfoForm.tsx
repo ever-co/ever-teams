@@ -9,13 +9,14 @@ import {
 	StyleSheet,
 	ActivityIndicator,
 } from "react-native"
-import { EMAIL_REGEX, PHONE_REGEX } from "../../../../helpers/regex"
+import { PHONE_REGEX } from "../../../../helpers/regex"
 import { translate } from "../../../../i18n"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import { typography, useAppTheme } from "../../../../theme"
 import { useUser } from "../../../../services/hooks/features/useUser"
 import { IPopup } from ".."
 import ConfirmEmailPopup from "./ConfirmEmailPopup"
+import validator from "validator"
 
 interface IValidation {
 	email: boolean
@@ -47,44 +48,37 @@ const UpdateContactForm = ({
 
 	useEffect(() => {
 		if (user) {
-			setUserEmail(user?.email)
-			setUserPhoneNumber(user?.phoneNumber)
+			if (!editMode) {
+				setUserEmail(user?.email)
+				setUserPhoneNumber(user?.phoneNumber)
+			}
 		}
 		setIsvalid({ email: true, phone: true })
-	}, [user, onDismiss])
+	}, [user, onDismiss, editMode])
+
+	const debouncedUpdateIsValid = (
+		field: keyof IValidation,
+		value: string,
+		validatorFn: (value: string) => boolean,
+	) => {
+		setIsvalid((prevState) => ({
+			...prevState,
+			[field]: validatorFn(value),
+		}))
+	}
 
 	const onChangeEmail = (text: string) => {
-		if (text.trim().match(EMAIL_REGEX)) {
-			setIsvalid({
-				...isValid,
-				email: true,
-			})
-		} else {
-			setIsvalid({
-				...isValid,
-				email: false,
-			})
-		}
 		setUserEmail(text)
+		debouncedUpdateIsValid("email", text, validator.isEmail) // Use email-validator's validate function
 	}
 
 	const onChangePhoneNumber = (text: string) => {
-		if (text.trim().match(PHONE_REGEX)) {
-			setIsvalid({
-				...isValid,
-				phone: true,
-			})
-		} else {
-			setIsvalid({
-				...isValid,
-				phone: false,
-			})
-		}
 		setUserPhoneNumber(text)
+		debouncedUpdateIsValid("phone", text, (value) => value.trim().match(PHONE_REGEX) !== null)
 	}
 
 	const handleSubmit = async () => {
-		if (!userEmail.trim().match(EMAIL_REGEX)) {
+		if (!validator.isEmail(userEmail)) {
 			setIsvalid({
 				...isValid,
 				email: false,
@@ -122,7 +116,7 @@ const UpdateContactForm = ({
 	}
 
 	const onSaveNewEmail = async () => {
-		if (userEmail.match(EMAIL_REGEX) && userEmail !== user.email) {
+		if (validator.isEmail(userEmail) && userEmail !== user?.email) {
 			if (userPhoneNumber !== user?.phoneNumber) {
 				await onUpdateContactInfo({
 					...user,

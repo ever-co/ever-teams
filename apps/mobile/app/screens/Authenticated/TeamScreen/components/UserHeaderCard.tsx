@@ -89,7 +89,9 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 						: member?.timerStatus || "idle"
 				}
 			/>
-			<Text style={[styles.name, { color: colors.primary }]}>{user.name}</Text>
+			<Text style={[styles.name, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
+				{user.name}
+			</Text>
 		</View>
 	)
 }
@@ -102,6 +104,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 12,
 		left: 15,
+		maxWidth: "70%",
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
