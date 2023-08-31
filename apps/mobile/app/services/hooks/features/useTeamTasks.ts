@@ -73,10 +73,12 @@ export function useTeamTasks() {
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
 					setTeamTasks(responseTasks)
 				}
-				const freshActiveTask = responseTasks.find((t) => t.id === activeTaskId)
-				if (freshActiveTask && !isEqual(freshActiveTask, activeTask)) {
-					setActiveTeamTask(freshActiveTask)
-				}
+				// Causing extra fetching of active task constantly and inability to change the active task, commented for now
+				// const freshActiveTask = responseTasks.find((t) => t.id === activeTaskId)
+				// if (freshActiveTask && !isEqual(freshActiveTask, activeTask)) {
+				// 	setActiveTeamTask(freshActiveTask)
+				// 	console.log("deep check's WORK:", freshActiveTask)
+				// }
 			} else {
 				setTeamTasks(responseTasks)
 			}
