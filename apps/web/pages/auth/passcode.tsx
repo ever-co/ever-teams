@@ -12,8 +12,10 @@ import {
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
+import { Avatar } from 'lib/components';
 import Link from 'next/link';
-import { FormEvent, useCallback } from 'react';
+import { FormEvent, useCallback, useState } from 'react';
+import { CircleIcon, TickCircleIcon } from 'lib/components/svgs';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -48,6 +50,14 @@ export default function AuthPasscode() {
 							form.authScreen.screen === 'email' && ['hidden']
 						)}
 					/>
+
+					{/* <WorkSpaceScreen
+						form={form}
+						className={clsxm(
+							'w-full',
+							form.authScreen.screen === 'email' && ['hidden']
+						)}
+					/> */}
 				</div>
 			</div>
 		</AuthLayout>
@@ -204,6 +214,113 @@ function PasscodeScreen({
 							disabled={form.loading}
 						>
 							{trans.pages.auth.LOGIN}
+						</Button>
+					</div>
+				</div>
+			</Card>
+		</form>
+	);
+}
+
+function WorkSpaceScreen({
+	form,
+	className,
+}: { form: TAuthenticationPasscode } & IClassName) {
+	const { trans } = useTranslation();
+
+	const [selectedWorkspace, setSelectedWorkspace] = useState('');
+
+	return (
+		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
+			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
+				<div className="flex flex-col justify-between items-center gap-8 p-8">
+					<Text.Heading as="h3" className="text-center">
+						{trans.pages.auth.SELECT_WORKSPACE}
+					</Text.Heading>
+
+					<div className="flex flex-col w-full gap-4 max-h-[271px] overflow-scroll scrollbar-hide">
+						<div
+							className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+								selectedWorkspace === 'Workspace 1'
+									? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
+									: ''
+							} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] hover:cursor-pointer rounded-[10px]`}
+							onClick={() => {
+								setSelectedWorkspace('Workspace 1');
+							}}
+						>
+							<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[17px]">
+								<div className="flex justify-between">
+									<span>Workspace 1</span>
+									<span>
+										<TickCircleIcon className="w-6 h-6 stroke-[#FFF] fill-[#27AE60]" />
+										{/* <CircleIcon className="w-6 h-6" /> */}
+									</span>
+								</div>
+								<div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div>
+								<div className="flex flex-col gap-4 px-5 py-1.5">
+									<div className="flex items-center gap-4 min-h-[46px]">
+										<Avatar imageTitle="A" size={34} />
+										Team A
+									</div>
+									<div className="flex items-center gap-4 min-h-[46px]">
+										<Avatar imageTitle="B" size={34} />
+										Team B
+									</div>
+								</div>
+							</div>
+						</div>
+						<div
+							className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+								selectedWorkspace === 'Workspace 2'
+									? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
+									: ''
+							} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] hover:cursor-pointer rounded-[10px]`}
+							onClick={() => {
+								setSelectedWorkspace('Workspace 2');
+							}}
+						>
+							<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[17px]">
+								<div className="flex justify-between">
+									<span>Workspace 2</span>
+									<span>
+										{/* <TickCircleIcon className="w-6 h-6 stroke-[#FFF] fill-[#27AE60]" /> */}
+										<CircleIcon className="w-6 h-6" />
+									</span>
+								</div>
+								<div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div>
+								<div className="flex flex-col gap-4 px-5 py-1.5">
+									<div className="flex items-center gap-4 min-h-[46px]">
+										<Avatar imageTitle="A" size={34} />
+										Team A
+									</div>
+									<div className="flex items-center gap-4 min-h-[46px]">
+										<Avatar imageTitle="B" size={34} />
+										Team B
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div className="w-full flex justify-between">
+						<div className="flex flex-col space-y-2">
+							<div>
+								<BackButton
+									onClick={() => {
+										form.authScreen.setScreen('email');
+										form.setErrors({});
+									}}
+								/>
+							</div>
+						</div>
+
+						<Button
+							type="submit"
+							loading={form.loading}
+							disabled={form.loading}
+						>
+							{trans.common.CONTINUE}
 						</Button>
 					</div>
 				</div>
