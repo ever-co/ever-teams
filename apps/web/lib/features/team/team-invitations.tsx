@@ -9,6 +9,7 @@ import {
 import { useModal, useTeamInvitations } from '@app/hooks';
 import { useCallback, useEffect, useState } from 'react';
 import { MyInvitationActionEnum } from '@app/interfaces';
+import cloneDeep from 'lodash/cloneDeep';
 
 export function TeamInvitations() {
 	const { trans } = useTranslation('home');
@@ -22,6 +23,19 @@ export function TeamInvitations() {
 	const { isOpen, closeModal, openModal } = useModal();
 	const [action, setAction] = useState<MyInvitationActionEnum>();
 	const [actionInvitationId, setActionInvitationId] = useState<string>();
+
+	const [removedInvitations, setRemovedInvitations] = useState<string[]>([]);
+
+	useEffect(() => {
+		const sessionRemovedInvitations =
+			sessionStorage.getItem('removedInvitations');
+		if (sessionRemovedInvitations) {
+			const removedInvitations = JSON.parse(
+				sessionRemovedInvitations
+			) as string[];
+			setRemovedInvitations(removedInvitations);
+		}
+	}, []);
 
 	useEffect(() => {
 		myInvitations();
@@ -41,54 +55,77 @@ export function TeamInvitations() {
 		openModal();
 	};
 
+	const handleCloseInvitation = useCallback(
+		(invitationId: string) => {
+			removeMyInvitation(invitationId);
+
+			const clonedRemovedInvitations = cloneDeep(removedInvitations);
+			clonedRemovedInvitations.push(invitationId);
+			sessionStorage.setItem(
+				'removedInvitations',
+				JSON.stringify(clonedRemovedInvitations)
+			);
+			setRemovedInvitations(clonedRemovedInvitations);
+		},
+		[removeMyInvitation, removedInvitations]
+	);
+
 	return (
 		<div className="mt-6">
-			{myInvitationsList.map((invitation, index) => (
-				<Card
-					shadow="bigger"
-					className={clsxm(
-						'w-full mt-2 flex justify-between',
-						'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]',
-						'pt-2 pb-2'
-					)}
-					key={index}
-				>
-					<Text className="mt-auto mb-auto">
-						{trans.INVITATIONS}{' '}
-						<span className="font-semibold">{invitation.teams[0].name}</span>
-					</Text>
-
-					<div className="flex flex-row gap-3 justify-items-end ml-auto mr-5">
-						<Button
-							className="rounded-xl pt-2 pb-2"
-							onClick={() => {
-								handleOpenModal(invitation.id, MyInvitationActionEnum.ACCEPTED);
-							}}
-						>
-							<TickCircleIcon className="stroke-white" />
-							Accept
-						</Button>
-						<Button
-							className="rounded-xl text-primary dark:text-white pt-2 pb-2"
-							variant="outline-dark"
-							onClick={() => {
-								handleOpenModal(invitation.id, MyInvitationActionEnum.REJECTED);
-							}}
-						>
-							<CloseCircleIcon className="stroke-primary dark:stroke-white" />
-							Reject
-						</Button>
-					</div>
-
-					<button
-						onClick={() => {
-							removeMyInvitation(invitation.id);
-						}}
+			{myInvitationsList
+				.filter((invitation) => !removedInvitations.includes(invitation.id))
+				.map((invitation, index) => (
+					<Card
+						shadow="bigger"
+						className={clsxm(
+							'w-full mt-2 flex justify-between',
+							'border dark:border-[#28292F] dark:shadow-lg dark:bg-[#1B1D22]',
+							'pt-2 pb-2'
+						)}
+						key={index}
 					>
-						<CloseIcon />
-					</button>
-				</Card>
-			))}
+						<Text className="mt-auto mb-auto">
+							{trans.INVITATIONS}{' '}
+							<span className="font-semibold">{invitation.teams[0].name}</span>
+						</Text>
+
+						<div className="flex flex-row gap-3 justify-items-end ml-auto mr-5">
+							<Button
+								className="rounded-xl pt-2 pb-2"
+								onClick={() => {
+									handleOpenModal(
+										invitation.id,
+										MyInvitationActionEnum.ACCEPTED
+									);
+								}}
+							>
+								<TickCircleIcon className="stroke-white" />
+								Accept
+							</Button>
+							<Button
+								className="rounded-xl text-primary dark:text-white pt-2 pb-2"
+								variant="outline-dark"
+								onClick={() => {
+									handleOpenModal(
+										invitation.id,
+										MyInvitationActionEnum.REJECTED
+									);
+								}}
+							>
+								<CloseCircleIcon className="stroke-primary dark:stroke-white" />
+								Reject
+							</Button>
+						</div>
+
+						<button
+							onClick={() => {
+								handleCloseInvitation(invitation.id);
+							}}
+						>
+							<CloseIcon />
+						</button>
+					</Card>
+				))}
 
 			<ConfirmModal
 				open={isOpen}

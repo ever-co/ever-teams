@@ -164,7 +164,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
 										{createNew && 'New'}
-										{edit && 'Edit'} Labels
+										{edit && 'Edit'} Label
 									</Text>
 									<div
 										className={clsxm(
