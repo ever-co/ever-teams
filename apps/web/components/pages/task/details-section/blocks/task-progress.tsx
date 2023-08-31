@@ -45,7 +45,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalWorkedTasks.find((object) => object.id === task?.id)
+			currentUser?.totalWorkedTasks?.find((object) => object.id === task?.id)
 				?.duration || 0;
 
 		const { h, m } = secondsToTime(totalOnTaskInSeconds);
@@ -59,7 +59,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalTodayTasks.find((object) => object.id === task?.id)
+			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)
 				?.duration || 0;
 
 		const { h, m } = secondsToTime(totalOnTaskInSeconds);
@@ -79,7 +79,7 @@ const TaskProgress = () => {
 
 		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
 			?.flatMap((obj) => obj.totalWorkedTasks)
-			.filter((taskObj) => taskObj.id === task?.id);
+			.filter((taskObj) => taskObj?.id === task?.id);
 
 		const usersTotalTimeInSeconds: number | undefined = usersTaskArray?.reduce(
 			(totalDuration, item) => totalDuration + item.duration,
