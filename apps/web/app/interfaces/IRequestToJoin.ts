@@ -8,7 +8,7 @@ export interface IRequestToJoinCreate {
 
 export interface IValidateRequestToJoin
 	extends Pick<IRequestToJoinCreate, 'email' | 'organizationTeamId'> {
-	code: number;
+	code: string;
 }
 
 export interface IRequestToJoin extends IRequestToJoinCreate {
