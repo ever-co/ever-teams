@@ -1,9 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
-import { View, Text, Dimensions, Image } from "react-native"
+import { View, Text, Dimensions } from "react-native"
 import { translate } from "../../../i18n"
 import React, { FC } from "react"
 import EStyleSheet from "react-native-extended-stylesheet"
 import { typography } from "../../../theme"
+import { SvgXml } from "react-native-svg"
+import { everTeamsLogoDarkTheme } from "../../../components/svgs/icons"
 
 interface Props {
 	withTeam: boolean
@@ -12,7 +14,7 @@ interface Props {
 const LoginHeader: FC<Props> = ({ withTeam, screenStatus }) => {
 	return (
 		<>
-			<Image source={require("../../../../assets/images/new/gauzy-teams-white.png")} />
+			<SvgXml xml={everTeamsLogoDarkTheme} />
 			{withTeam ? (
 				<View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
 					<Text style={styles.screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
