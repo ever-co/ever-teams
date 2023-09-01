@@ -65,7 +65,7 @@ export function JoinTeamModal({
 							</Text>
 
 							<AuthCodeInputField
-								allowedCharacters="numeric"
+								allowedCharacters="alphanumeric"
 								length={6}
 								ref={inputCodeRef}
 								containerClassName="mt-[21px] w-full flex justify-between"

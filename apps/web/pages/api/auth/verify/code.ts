@@ -29,7 +29,7 @@ export default async function handler(
 	const { data } = await verifyUserEmailByCodeRequest({
 		bearer_token: access_token,
 		tenantId,
-		code: parseInt(body.code, 10),
+		code: body.code,
 		email: user.email,
 	});
 

@@ -111,7 +111,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 								{trans.pages.auth.INPUT_INVITE_CODE}
 							</p>
 							<AuthCodeInputField
-								allowedCharacters="numeric"
+								allowedCharacters="alphanumeric"
 								length={6}
 								ref={inputCodeRef}
 								containerClassName="mt-[21px] w-full flex justify-between"
