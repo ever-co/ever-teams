@@ -435,7 +435,7 @@ export function ActiveTaskVersionDropdown(
 //! =============== Task Epic ================= //
 
 /**
- * Version dropdown that allows you to select a task property
+ * Epic dropdown that allows you to select a task property
  * @param {IClassName}  - IClassName - This is the interface that the component will accept.
  * @returns A dropdown with the version properties
  */
@@ -449,8 +449,22 @@ export function EpicPropertiesDropdown({
 	children,
 	taskStatusClassName,
 }: TTaskStatusesDropdown<'epic'>) {
+	const { tasks } = useTeamTasks();
+	const status = useMemo(() => {
+		const temp: any = {};
+		tasks.forEach((task) => {
+			if (task.issueType === 'Epic') {
+				temp[task.title] = {
+					id: task.id,
+					name: task.title,
+					value: task.id,
+				};
+			}
+		});
+		return temp;
+	}, [tasks]);
 	const { item, items, onChange, values } = useStatusValue<'epic'>({
-		status: {},
+		status,
 		value: defaultValue,
 		onValueChange,
 		multiple,
@@ -833,7 +847,7 @@ export function TaskStatus({
 		>
 			<div
 				className={clsxm(
-					'flex items-center space-x-1 whitespace-nowrap',
+					'flex items-center space-x-1 whitespace-nowrap text-ellipsis overflow-hidden',
 					titleClassName
 				)}
 			>
