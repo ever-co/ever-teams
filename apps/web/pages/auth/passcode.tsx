@@ -137,7 +137,7 @@ function PasscodeScreen({
 
 						<AuthCodeInputField
 							key={form.authScreen.screen}
-							allowedCharacters="numeric"
+							allowedCharacters="alphanumeric"
 							length={6}
 							ref={form.inputCodeRef}
 							containerClassName="mt-[21px] w-full flex justify-between dark:bg-[#25272D]"

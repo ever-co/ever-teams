@@ -15,10 +15,12 @@
 
 ## ✨ Features
 
-Below is a list of planned features:
+Below is a list of the most important planned features:
 
-- Projects / Tasks Management
+- Work / Workforce Management
 - Time Management / Time Tracking / Activity Tracking
+- Productivity Tracking & Metrics
+- Projects / Tasks & Issues Management
 - Organizations / Teams
 - Tags / Labels
 - Integrations (GitHub, GitLab, Bitbucket, JIRA, etc.)
@@ -43,16 +45,20 @@ Below is a list of planned features:
 
 ![extension](https://docs.gauzy.co/docs/assets/gauzy-teams/extension/overview.png)
 
-Note: currently WIP, the screenshot is just a temporary picture :)
+Note: Currently WIP, the screenshot is just a temporary picture :)
 
 </details>
+
+## 📊 Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/7dc568c25f12884ca41e421ad2ae0b6dc1e576b1.svg "Repobeats analytics image")
 
 ## 🔗 Links
 
 - **<https://app.ever.team>** - Ever Teams Platform web application (not yet in production release)
-- **<https://ever.team>** - check more information about the Ever Teams platform at the official website (WIP).
-- **<https://gauzy.co>** - check more information about the Ever Gauzy Platform at the official website.
-- **<https://ever.co>** - get more information about our company products.
+- **<https://ever.team>** - Check more information about the Ever Teams platform at the official website (WIP).
+- **<https://gauzy.co>** - Check more information about the Ever Gauzy Platform at the official website.
+- **<https://ever.co>** - Get more information about our company products.
 
 ## ⚡️ Our Open Platforms
 

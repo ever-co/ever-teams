@@ -25,7 +25,7 @@ export function verifyChangemailRequest({
 }: {
 	bearer_token: string | any;
 	tenantId?: string;
-	code: string | number;
+	code: string;
 }) {
 	return serverFetch<any>({
 		path: `/email-reset/verify-change-email`,

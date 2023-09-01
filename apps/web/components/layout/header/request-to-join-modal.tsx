@@ -111,7 +111,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 								{trans.pages.auth.INPUT_INVITE_CODE}
 							</p>
 							<AuthCodeInputField
-								allowedCharacters="numeric"
+								allowedCharacters="alphanumeric"
 								length={6}
 								ref={inputCodeRef}
 								containerClassName="mt-[21px] w-full flex justify-between"
@@ -231,7 +231,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 					validateRequestToJoinTeam({
 						email: requestToJoinPayload.email,
 						organizationTeamId: requestToJoinPayload.organizationTeamId,
-						code: +formValues.code,
+						code: formValues.code,
 					}).then((res) => {
 						if (res.data.email && res.data.organizationTeamId) {
 							closeModal();
@@ -315,7 +315,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 									{trans.pages.auth.INPUT_INVITE_CODE}
 								</p>
 								<AuthCodeInputField
-									allowedCharacters="numeric"
+									allowedCharacters="alphanumeric"
 									length={6}
 									ref={inputCodeRef}
 									containerClassName="mt-[21px] w-full flex justify-between"

@@ -9,7 +9,7 @@ export function emailResetRequestAPI(email: string) {
 		}
 	);
 }
-export function verifyChangeEmailRequestAPI(code: string | number) {
+export function verifyChangeEmailRequestAPI(code: string) {
 	return api.post<CreateReponse<ISuccessResponse>>(
 		`/email-reset/verify-change-email`,
 		{ code }

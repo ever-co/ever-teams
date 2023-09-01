@@ -62,8 +62,8 @@ export function useTaskStatistics(addSeconds = 0) {
 		(task: ITeamTask | null) => {
 			const stats = statTasksRef.current
 			return {
-				taskTotalStat: (stats && stats.all.find((t) => t.id === task?.id)) || [],
-				taskDailyStat: (stats && stats.today.find((t) => t.id === task?.id)) || [],
+				taskTotalStat: (stats && stats?.all.find((t) => t.id === task?.id)) || [],
+				taskDailyStat: (stats && stats?.today.find((t) => t.id === task?.id)) || [],
 			}
 		},
 		[statTasksRef, data],
@@ -83,8 +83,8 @@ export function useTaskStatistics(addSeconds = 0) {
 		})
 
 		setStatActiveTask({
-			total: data.global ? data.global[0] || null : null,
-			today: data.today ? data.today[0] || null : null,
+			total: data?.global ? data?.global[0] || null : null,
+			today: data?.today ? data?.today[0] || null : null,
 		})
 		return data
 	}, [activeTask])
