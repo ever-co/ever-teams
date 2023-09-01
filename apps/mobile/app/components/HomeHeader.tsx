@@ -29,21 +29,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 					{ backgroundColor: dark ? colors.background2 : colors.background },
 				]}
 			>
-				{dark ? (
-					// <Image
-					// 	style={styles.logo}
-					// 	source={require("../../assets/images/new/gauzy-teams-white.png")}
-					// 	resizeMode="contain"
-					// />
-					<SvgXml xml={everTeamsLogoDarkTheme} />
-				) : (
-					// <Image
-					// 	style={styles.logo}
-					// 	source={require("../../assets/images/new/gauzy-teams.png")}
-					// 	resizeMode="contain"
-					// />
-					<SvgXml xml={everTeamsLogoLightTheme} />
-				)}
+				{dark ? <SvgXml xml={everTeamsLogoDarkTheme} /> : <SvgXml xml={everTeamsLogoLightTheme} />}
 				{showTimer && activeTeam && (
 					<View style={{ width: 126 }}>
 						<HeaderTimer />
@@ -58,10 +44,6 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 }
 
 const styles = StyleSheet.create({
-	// logo: {
-	// 	height: 15,
-	// 	width: 120,
-	// },
 	mainContainer: {
 		elevation: 1,
 		paddingHorizontal: 25,
