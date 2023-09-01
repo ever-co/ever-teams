@@ -53,10 +53,7 @@ export default async function handler(
 		!inviteReq.response.ok ||
 		(inviteReq.data as any).response?.statusCode
 	) {
-		const authReq = await verifyAuthCodeRequest(
-			body.email,
-			parseInt(body.code, 10)
-		);
+		const authReq = await verifyAuthCodeRequest(body.email, body.code);
 
 		if (
 			!authReq.response.ok ||
