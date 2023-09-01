@@ -20,7 +20,7 @@ export default function AuthPasscode() {
 						{/* Auth code input */}
 						<div className="w-full mt-5">
 							<AuthCodeInputField
-								allowedCharacters="numeric"
+								allowedCharacters="alphanumeric"
 								length={6}
 								containerClassName="mt-[21px] w-full flex justify-between"
 								inputClassName="w-[40px] xs:w-[50px]"

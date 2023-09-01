@@ -39,7 +39,7 @@ export type IInviteRequest = {
 
 export type IInviteVerifyCode = {
 	email: string;
-	code: number;
+	code: string;
 };
 
 export interface IInviteVerified {
