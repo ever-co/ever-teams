@@ -63,12 +63,12 @@ export const everTeamsLogoLightTheme = `<svg
 						transform="translate(292.794 3681.039)"
 						fill="#3E1DAD"
 
-						fontSize="20"
+						fontSize="21"
 						fontWeight="300"
 						fontStyle="italic"
 						letterSpacing="-0.035em"
 					>
-						<tspan x="-34" y="0">
+						<tspan x="-35" y="0">
 							teams
 						</tspan>
 					</text>
@@ -108,12 +108,12 @@ export const everTeamsLogoDarkTheme = `<svg
 						className="g-gauzy-text"
 						transform="translate(292.794 3681.039)"
 						fill="#FFFFFF"
-						fontSize="20"
+						fontSize="21"
 						fontWeight="300"
 						fontStyle="italic"
 						letterSpacing="-0.035em"
 					>
-						<tspan x="-34" y="0">
+						<tspan x="-35" y="0">
 							teams
 						</tspan>
 					</text>

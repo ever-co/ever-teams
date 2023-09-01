@@ -8,7 +8,7 @@
 		"orientation": "portrait",
 		"icon": "./assets/images/gauzy-teams-logo.png",
 		"splash": {
-			"image": "./assets/images/splash.png",
+			"image": "./assets/images/splash-ever-teams.png",
 			"resizeMode": "cover",
 			"backgroundColor": "#ffffff"
 		},
@@ -37,7 +37,7 @@
 				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
 			},
 			"splash": {
-				"image": "./assets/images/splash.png",
+				"image": "./assets/images/splash-ever-teams.png",
 				"resizeMode": "cover",
 				"backgroundColor": "#ffffff"
 			},
@@ -52,7 +52,7 @@
 			"supportsTablet": true,
 			"bundleIdentifier": "ever.team",
 			"splash": {
-				"image": "./assets/images/splash.png",
+				"image": "./assets/images/splash-ever-teams.png",
 				"tabletImage": "./assets/images/splash-logo-ios-tablet.png",
 				"resizeMode": "cover",
 				"backgroundColor": "#ffffff"
