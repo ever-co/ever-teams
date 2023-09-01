@@ -21,21 +21,20 @@ import stc from 'string-to-color';
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
 	const { trans } = useTranslation('authLogin');
-	const translation = useTranslation();
 
 	return (
 		<AuthLayout
-			title={trans.HEADING_TITLE}
+			title={
+				form.authScreen.screen === 'workspace'
+					? trans.WORKSPACE
+					: trans.HEADING_TITLE
+			}
 			description={
 				form.authScreen.screen === 'workspace' ? (
 					<>
-						<span>
-							{translation.trans.pages.authLogin.HEADING_WORKSPACE_LINE1}
-						</span>
+						<span>{trans.HEADING_WORKSPACE_LINE1}</span>
 						<br />
-						<span>
-							{translation.trans.pages.authLogin.HEADING_WORKSPACE_LINE2}
-						</span>
+						<span>{trans.HEADING_WORKSPACE_LINE2}</span>
 					</>
 				) : (
 					trans.HEADING_DESCRIPTION

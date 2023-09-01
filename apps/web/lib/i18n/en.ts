@@ -174,6 +174,7 @@ export const en = {
 			HEADING_TITLE: 'Login to the Team',
 			HEADING_DESCRIPTION: 'Please enter email and invitation code to login.',
 
+			WORKSPACE: 'Workspace',
 			HEADING_WORKSPACE_LINE1: 'The email associated with multiple workspaces,',
 			HEADING_WORKSPACE_LINE2: 'please select one to continue',
 		},

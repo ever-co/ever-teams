@@ -150,6 +150,11 @@ export default async function handler(
 		// });
 	}
 
+	// TODO
+	// Multi Tenant Changes
+	// Update team?.id, tenantId, organizationId based on selected workspace/team
+	// May be need to store additional details too, array of tenant,
+	// which in future can be used to easily switch between multiple tenants
 	setAuthCookies(
 		{
 			access_token: loginResponse.token,
