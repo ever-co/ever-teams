@@ -21,38 +21,41 @@ import stc from 'string-to-color';
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
 	const { trans } = useTranslation('authLogin');
+	const translation = useTranslation();
 
 	return (
 		<AuthLayout
 			title={trans.HEADING_TITLE}
-			description={trans.HEADING_DESCRIPTION}
+			description={
+				form.authScreen.screen === 'workspace' ? (
+					<>
+						<span>
+							{translation.trans.pages.authLogin.HEADING_WORKSPACE_LINE1}
+						</span>
+						<br />
+						<span>
+							{translation.trans.pages.authLogin.HEADING_WORKSPACE_LINE2}
+						</span>
+					</>
+				) : (
+					trans.HEADING_DESCRIPTION
+				)
+			}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 				<div
 					className={clsxm('flex flex-row transition-[transform] duration-500')}
 				>
-					<EmailScreen
-						form={form}
-						className={clsxm(
-							form.authScreen.screen !== 'email' && ['hidden'],
-							'w-full'
-						)}
-					/>
-					<PasscodeScreen
-						form={form}
-						className={clsxm(
-							'w-full',
-							form.authScreen.screen !== 'passcode' && ['hidden']
-						)}
-					/>
+					{form.authScreen.screen === 'email' && (
+						<EmailScreen form={form} className={clsxm('w-full')} />
+					)}
+					{form.authScreen.screen === 'passcode' && (
+						<PasscodeScreen form={form} className={clsxm('w-full')} />
+					)}
 
-					<WorkSpaceScreen
-						form={form}
-						className={clsxm(
-							'w-full',
-							form.authScreen.screen !== 'workspace' && ['hidden']
-						)}
-					/>
+					{form.authScreen.screen === 'workspace' && (
+						<WorkSpaceScreen form={form} className={clsxm('w-full')} />
+					)}
 				</div>
 			</div>
 		</AuthLayout>
@@ -261,9 +264,13 @@ function WorkSpaceScreen({
 	];
 
 	return (
-		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
-			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col justify-between items-center gap-8 p-8">
+		<form
+			className={clsxm(className, 'flex justify-center w-full')}
+			onSubmit={form.handleSubmit}
+			autoComplete="off"
+		>
+			<Card className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
+				<div className="flex flex-col justify-between items-center gap-8">
 					<Text.Heading as="h3" className="text-center">
 						{trans.pages.auth.SELECT_WORKSPACE}
 					</Text.Heading>
@@ -276,7 +283,7 @@ function WorkSpaceScreen({
 									selectedWorkspace === worksace.id
 										? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
 										: ''
-								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-lg`}
+								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 							>
 								<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 									<div className="flex justify-between">
