@@ -29,7 +29,7 @@ const TaskSecondaryInfo = () => {
 	const task = useRecoilValue(detailedTaskState);
 	const taskVersion = useRecoilValue(taskVersionListState);
 	const $taskVersion = useSyncRef(taskVersion);
-	const { loadTeamTasksData, updateTask } = useTeamTasks();
+	const { updateTask } = useTeamTasks();
 
 	const { handleStatusUpdate } = useTeamTasks();
 
@@ -64,8 +64,8 @@ const TaskSecondaryInfo = () => {
 
 			await updateTask({
 				...childTask,
-				parentId: parentTask.id,
-				parent: parentTask,
+				parentId: parentTask.id ? parentTask.id : null,
+				parent: parentTask.id ? parentTask : null,
 			} as any);
 		},
 		[task, updateTask]
