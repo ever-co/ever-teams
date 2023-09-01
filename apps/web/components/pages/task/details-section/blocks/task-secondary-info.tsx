@@ -20,7 +20,8 @@ import {
 	TaskStatusesForm,
 } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
-import { ITaskVersionCreate } from '@app/interfaces';
+import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
+import { cloneDeep } from 'lodash';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -28,6 +29,7 @@ const TaskSecondaryInfo = () => {
 	const task = useRecoilValue(detailedTaskState);
 	const taskVersion = useRecoilValue(taskVersionListState);
 	const $taskVersion = useSyncRef(taskVersion);
+	const { updateTask } = useTeamTasks();
 
 	const { handleStatusUpdate } = useTeamTasks();
 
@@ -55,6 +57,20 @@ const TaskSecondaryInfo = () => {
 		[$taskVersion, task, handleStatusUpdate]
 	);
 
+	const onTaskSelect = useCallback(
+		async (parentTask: ITeamTask | undefined) => {
+			if (!parentTask) return;
+			const childTask = cloneDeep(task);
+
+			await updateTask({
+				...childTask,
+				parentId: parentTask.id ? parentTask.id : null,
+				parent: parentTask.id ? parentTask : null,
+			} as any);
+		},
+		[task, updateTask]
+	);
+
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			{/* Version */}
@@ -77,14 +93,19 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Epic */}
-			{task && task.issueType !== 'Epic' && (
+			{task && task.issueType === 'Story' && (
 				<TaskRow labelTitle={trans.EPIC}>
 					<TaskEpicDropdown
-						onValueChange={() => void 0}
+						onValueChange={(d) => {
+							onTaskSelect({
+								id: d,
+							} as ITeamTask);
+						}}
 						className="lg:min-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
 						taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+						defaultValue={task.parentId || ''}
 					/>
 				</TaskRow>
 			)}
