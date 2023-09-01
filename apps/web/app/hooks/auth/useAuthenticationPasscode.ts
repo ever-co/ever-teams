@@ -17,7 +17,9 @@ export function useAuthenticationPasscode() {
 	const { query } = useRouter();
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
-	const [screen, setScreen] = useState<'email' | 'passcode'>('email');
+	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(
+		'email'
+	);
 	const [authenticated, setAuthenticated] = useState(false);
 
 	const [formValues, setFormValues] = useState({ email: '', code: '' });

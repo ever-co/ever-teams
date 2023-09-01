@@ -15,7 +15,8 @@ import { AuthLayout } from 'lib/layout';
 import { Avatar } from 'lib/components';
 import Link from 'next/link';
 import { FormEvent, useCallback, useState } from 'react';
-import { CircleIcon, TickCircleIcon } from 'lib/components/svgs';
+import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
+import stc from 'string-to-color';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -28,36 +29,30 @@ export default function AuthPasscode() {
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 				<div
-					className={clsxm(
-						// 'w-[200%]',
-						'flex flex-row transition-[transform] duration-500'
-						// form.authScreen.screen !== 'email' && ['-translate-x-[50%]']
-					)}
+					className={clsxm('flex flex-row transition-[transform] duration-500')}
 				>
 					<EmailScreen
 						form={form}
 						className={clsxm(
 							form.authScreen.screen !== 'email' && ['hidden'],
 							'w-full'
-							// 'w-[50%]'
 						)}
 					/>
 					<PasscodeScreen
 						form={form}
 						className={clsxm(
 							'w-full',
-							// 'w-[50%] transition-[visibility] ease-out duration-700',
-							form.authScreen.screen === 'email' && ['hidden']
+							form.authScreen.screen !== 'passcode' && ['hidden']
 						)}
 					/>
 
-					{/* <WorkSpaceScreen
+					<WorkSpaceScreen
 						form={form}
 						className={clsxm(
 							'w-full',
-							form.authScreen.screen === 'email' && ['hidden']
+							form.authScreen.screen !== 'workspace' && ['hidden']
 						)}
-					/> */}
+					/>
 				</div>
 			</div>
 		</AuthLayout>
@@ -174,7 +169,6 @@ function PasscodeScreen({
 
 					<div className="w-full flex justify-between mt-10">
 						{/* Send code */}
-
 						<div className="flex flex-col space-y-2">
 							<div className="flex flex-row items-center space-x-2 mb-1">
 								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal">
@@ -229,6 +223,42 @@ function WorkSpaceScreen({
 	const { trans } = useTranslation();
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState('');
+	const [selectedTeam, setSelectedTeam] = useState('');
+
+	const worksaces = [
+		{
+			id: '1',
+			name: 'Workspace 1',
+			teams: [
+				{
+					id: '1',
+					name: 'Team A',
+					membersCount: 2,
+				},
+				{
+					id: '2',
+					name: 'Team B',
+					membersCount: 4,
+				},
+			],
+		},
+		{
+			id: '2',
+			name: 'Workspace 2',
+			teams: [
+				{
+					id: '3',
+					name: 'Team A',
+					membersCount: 2,
+				},
+				{
+					id: '4',
+					name: 'Team B',
+					membersCount: 4,
+				},
+			],
+		},
+	];
 
 	return (
 		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
@@ -238,69 +268,76 @@ function WorkSpaceScreen({
 						{trans.pages.auth.SELECT_WORKSPACE}
 					</Text.Heading>
 
-					<div className="flex flex-col w-full gap-4 max-h-[271px] overflow-scroll scrollbar-hide">
-						<div
-							className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-								selectedWorkspace === 'Workspace 1'
-									? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
-									: ''
-							} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] hover:cursor-pointer rounded-[10px]`}
-							onClick={() => {
-								setSelectedWorkspace('Workspace 1');
-							}}
-						>
-							<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[17px]">
-								<div className="flex justify-between">
-									<span>Workspace 1</span>
-									<span>
-										<TickCircleIcon className="w-6 h-6 stroke-[#FFF] fill-[#27AE60]" />
-										{/* <CircleIcon className="w-6 h-6" /> */}
-									</span>
-								</div>
-								<div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div>
-								<div className="flex flex-col gap-4 px-5 py-1.5">
-									<div className="flex items-center gap-4 min-h-[46px]">
-										<Avatar imageTitle="A" size={34} />
-										Team A
+					<div className="flex flex-col w-full gap-4 max-h-[16.9375rem] overflow-scroll scrollbar-hide">
+						{worksaces.map((worksace) => (
+							<div
+								key={worksace.id}
+								className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
+									selectedWorkspace === worksace.id
+										? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
+										: ''
+								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-lg`}
+							>
+								<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
+									<div className="flex justify-between">
+										<span>{worksace.name}</span>
+										<span
+											className="hover:cursor-pointer"
+											onClick={() => {
+												setSelectedWorkspace(worksace.id);
+												if (
+													selectedTeam &&
+													!worksace.teams
+														.map((team) => team.id)
+														.includes(selectedTeam)
+												) {
+													setSelectedTeam(worksace.teams[0].id);
+												}
+											}}
+										>
+											{selectedWorkspace === worksace.id ? (
+												<TickCircleIconV2 className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
+											) : (
+												<CircleIcon className="w-6 h-6" />
+											)}
+										</span>
 									</div>
-									<div className="flex items-center gap-4 min-h-[46px]">
-										<Avatar imageTitle="B" size={34} />
-										Team B
+									<div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div>
+									<div className="flex flex-col gap-4 px-5 py-1.5">
+										{worksace.teams.map((team) => (
+											<div
+												key={`${worksace.id}-${team.id}`}
+												className="flex items-center justify-between gap-4 min-h-[2.875rem]"
+											>
+												<span className="flex items-center gap-4 justify-between">
+													<Avatar
+														imageTitle={team.name}
+														size={34}
+														backgroundColor={`${stc(team.name)}80`}
+													/>
+													{team.name}({team.membersCount})
+												</span>
+												<span
+													className="hover:cursor-pointer"
+													onClick={() => {
+														setSelectedTeam(team.id);
+														if (selectedWorkspace !== worksace.id) {
+															setSelectedWorkspace(worksace.id);
+														}
+													}}
+												>
+													{selectedTeam === team.id ? (
+														<TickCircleIconV2 className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
+													) : (
+														<CircleIcon className="w-5 h-5" />
+													)}
+												</span>
+											</div>
+										))}
 									</div>
 								</div>
 							</div>
-						</div>
-						<div
-							className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-								selectedWorkspace === 'Workspace 2'
-									? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
-									: ''
-							} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] hover:cursor-pointer rounded-[10px]`}
-							onClick={() => {
-								setSelectedWorkspace('Workspace 2');
-							}}
-						>
-							<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[17px]">
-								<div className="flex justify-between">
-									<span>Workspace 2</span>
-									<span>
-										{/* <TickCircleIcon className="w-6 h-6 stroke-[#FFF] fill-[#27AE60]" /> */}
-										<CircleIcon className="w-6 h-6" />
-									</span>
-								</div>
-								<div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div>
-								<div className="flex flex-col gap-4 px-5 py-1.5">
-									<div className="flex items-center gap-4 min-h-[46px]">
-										<Avatar imageTitle="A" size={34} />
-										Team A
-									</div>
-									<div className="flex items-center gap-4 min-h-[46px]">
-										<Avatar imageTitle="B" size={34} />
-										Team B
-									</div>
-								</div>
-							</div>
-						</div>
+						))}
 					</div>
 
 					<div className="w-full flex justify-between">
