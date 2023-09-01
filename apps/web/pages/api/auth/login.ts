@@ -42,7 +42,7 @@ export default async function handler(
 	 */
 	const inviteReq = await verifyInviteCodeRequest({
 		email: body.email,
-		code: parseInt(body.code, 10),
+		code: body.code,
 	}).catch(() => void 0);
 
 	/**
