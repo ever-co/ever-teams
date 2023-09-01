@@ -30,10 +30,10 @@
 			]
 		],
 		"android": {
-			"icon": "./assets/images/app-icon-android-legacy.png",
+			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
 			"package": "ever.team",
 			"adaptiveIcon": {
-				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground.png",
+				"foregroundImage": "./assets/images/app-icon-android-adaptive-foreground-ever.png",
 				"backgroundImage": "./assets/images/app-icon-android-adaptive-background.png"
 			},
 			"splash": {
@@ -48,12 +48,12 @@
 			]
 		},
 		"ios": {
-			"icon": "./assets/images/app-icon-ios.png",
+			"icon": "./assets/images/app-icon-ios-ever-teams.png",
 			"supportsTablet": true,
 			"bundleIdentifier": "ever.team",
 			"splash": {
 				"image": "./assets/images/splash-ever-teams.png",
-				"tabletImage": "./assets/images/splash-logo-ios-tablet.png",
+				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",
 				"resizeMode": "cover",
 				"backgroundColor": "#ffffff"
 			},
@@ -66,7 +66,7 @@
 		"web": {
 			"favicon": "./assets/images/app-icon-web-favicon.png",
 			"splash": {
-				"image": "./assets/images/splash-logo-web.png",
+				"image": "./assets/images/splash-logo-web-ever-teams.png",
 				"resizeMode": "contain",
 				"backgroundColor": "#ffffff"
 			}
