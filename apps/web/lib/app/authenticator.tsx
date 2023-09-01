@@ -2,10 +2,8 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
-// import { BackdropLoader } from 'lib/components';
 import { CreateTeamModal } from 'lib/features';
 import { JoinTeamModal } from 'lib/features/team/join-team-modal';
-// import { useTranslation } from 'lib/i18n';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
@@ -68,12 +66,6 @@ export function withAuthentication(
 				) : (
 					<>
 						<Component {...props} />
-						{/* <BackdropLoader
-							canCreatePortal={false}
-							title={trans.common.LOADING}
-							fadeIn={false}
-							show={loading}
-						/> */}
 						{user && !isTeamMember && showCreateTeamModal && (
 							<CreateTeamModal
 								open={showCreateTeamModal}
