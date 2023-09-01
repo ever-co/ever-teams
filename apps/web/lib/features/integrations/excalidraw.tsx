@@ -1,44 +1,60 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	Excalidraw,
 	LiveCollaborationTrigger,
 	THEME,
 } from '@excalidraw/excalidraw';
 import { ExcalidrawAPIRefValue } from '@excalidraw/excalidraw/types/types';
-import { useAuthenticateUser } from '@app/hooks';
+// import { useAuthenticateUser } from '@app/hooks';
 import { useTheme } from 'next-themes';
 import { EverTeamsLogo } from 'lib/components/svgs';
+import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+import debounce from 'lodash/debounce';
 
 export default function ExcalidrawComponent() {
 	const { theme } = useTheme();
-	const { user } = useAuthenticateUser();
+	const loaded = useRef(false);
+	// const { user } = useAuthenticateUser();
 	const [excalidrawAPI, setExcalidrawAPI] =
 		useState<ExcalidrawAPIRefValue | null>(null);
 
-	const collaborators = useRef(new Map());
-
 	useEffect(() => {
-		if (!excalidrawAPI || !excalidrawAPI.ready || !user) {
+		if (!excalidrawAPI || !excalidrawAPI.ready) {
 			return;
 		}
 
-		collaborators.current.set(user.id, {
-			username: user.name,
-			avatarUrl: user.imageUrl,
-		});
+		if (!loaded.current) {
+			const elements = JSON.parse(
+				window.localStorage.getItem('whiteboard-elements') || '[]'
+			);
 
-		excalidrawAPI.updateScene({ collaborators: collaborators.current });
-	}, [user, excalidrawAPI]);
+			console.log(elements);
+
+			// excalidrawAPI.sc({ elements });
+
+			loaded.current = true;
+		}
+	}, [excalidrawAPI]);
+
+	const saveChanges = useCallback((elements: readonly ExcalidrawElement[]) => {
+		if (!loaded.current) return;
+
+		// window.localStorage.setItem(
+		// 	'whiteboard-elements',
+		// 	JSON.stringify(elements)
+		// );
+	}, []);
 
 	return (
 		<>
 			<div style={{ height: '100vh' }}>
 				<Excalidraw
 					ref={(api) => setExcalidrawAPI(api)}
+					onChange={debounce(saveChanges, 500)}
 					theme={theme || THEME.LIGHT}
 					renderTopRightUI={() => (
 						<LiveCollaborationTrigger
-							isCollaborating={true}
+							isCollaborating={false}
 							onSelect={() => {
 								console.log('You clicked on collab button');
 							}}
@@ -49,7 +65,7 @@ export default function ExcalidrawComponent() {
 
 			{excalidrawAPI?.ready && (
 				<div className="absolute z-50 top-5 left-14 scale-75">
-					<EverTeamsLogo />
+					<EverTeamsLogo dash />
 				</div>
 			)}
 		</>
