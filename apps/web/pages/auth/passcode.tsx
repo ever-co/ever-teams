@@ -130,7 +130,11 @@ function PasscodeScreen({
 	const { trans } = useTranslation();
 
 	return (
-		<form className={className} onSubmit={form.handleSubmit} autoComplete="off">
+		<form
+			className={className}
+			onSubmit={form.handleCodeSubmit}
+			autoComplete="off"
+		>
 			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
 				<div className="flex flex-col justify-between items-center">
 					<Text.Heading as="h3" className="text-center mb-10">

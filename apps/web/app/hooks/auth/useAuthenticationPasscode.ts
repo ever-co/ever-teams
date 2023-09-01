@@ -51,8 +51,13 @@ export function useAuthenticationPasscode() {
 	}) => {
 		queryCall(email, code)
 			.then((res) => {
-				window.location.reload();
-				setAuthenticated(true);
+				// window.location.reload();
+				// setAuthenticated(true);
+
+				// TODO
+				// Update state with tenant details
+				// Remove window reload
+				setScreen('workspace');
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
@@ -61,6 +66,27 @@ export function useAuthenticationPasscode() {
 
 				inputCodeRef.current?.clear();
 			});
+	};
+
+	const handleCodeSubmit = (e: any) => {
+		e.preventDefault();
+		setErrors({});
+		const { errors, valid } = authFormValidate(
+			['email', 'code'],
+			formValues as any
+		);
+
+		if (!valid) {
+			setErrors(errors);
+			return;
+		}
+
+		infiniteLoading.current = true;
+
+		verifyPasscodeRequest({
+			email: formValues.email,
+			code: formValues.code,
+		});
 	};
 
 	const handleSubmit = (e: any) => {
@@ -130,6 +156,7 @@ export function useAuthenticationPasscode() {
 		authScreen: { screen, setScreen },
 		authenticated,
 		setAuthenticated,
+		handleCodeSubmit,
 	};
 }
 
