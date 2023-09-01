@@ -168,17 +168,6 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 	}, [onUpdateOrganizationTeam, member, activeTeamRef])
 
 	/**
-	 * Returns all tasks not assigned to the member
-	 */
-	const memberUnassignTasks = useMemo(() => {
-		if (!memberUser) return []
-
-		return tasks.filter((task) => {
-			return !task.members.some((m) => m.userId === memberUser.id)
-		})
-	}, [tasks, memberUser])
-
-	/**
 	 * Assign task to the member
 	 */
 	const assignTask = useCallback(
@@ -201,6 +190,17 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		},
 		[updateTask, member, isAuthUser, setActiveTeamTask, activeTeamTask],
 	)
+
+	/**
+	 * Returns all tasks not assigned to the member
+	 */
+	const memberUnassignTasks = useMemo(() => {
+		if (!memberUser) return []
+
+		return tasks.filter((task) => {
+			return !task.members.some((m) => m.userId === memberUser.id)
+		})
+	}, [tasks, memberUser, assignTask])
 
 	const unassignTask = useCallback(
 		(task: ITeamTask) => {

@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React from "react"
+import React, { useState } from "react"
 import {
 	View,
 	ViewStyle,
@@ -34,6 +34,7 @@ import { TodayWorkedTime } from "./TodayWorkTime"
 import { TimeProgressBar } from "./TimeProgressBar"
 import { useNavigation } from "@react-navigation/native"
 import { WorkedOnTask } from "./WorkedOnTask"
+import UnassignedTasksList from "./UnassignedTaskList"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -124,6 +125,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 	const [showMenu, setShowMenu] = React.useState(false)
 	const memberInfo = useTeamMemberCard(props.member)
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask)
+	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false)
 
 	const { isTeamManager } = useOrganizationTeam()
 
@@ -207,7 +209,13 @@ const ListCardItem: React.FC<Props> = (props) => {
 								>
 									Estimate
 								</ListItem>
-								<ListItem textStyle={[styles.dropdownTxt, { color: colors.primary }]}>
+								<ListItem
+									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+									onPress={() => {
+										setShowUnassignedList(true)
+										setShowMenu(false)
+									}}
+								>
 									Assign Task
 								</ListItem>
 								<ListItem
@@ -247,19 +255,41 @@ const ListCardItem: React.FC<Props> = (props) => {
 								) : null}
 							</View>
 						</View>
-
-						<TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-							{!showMenu ? (
-								<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
-							) : (
-								<Entypo name="cross" size={24} color={colors.primary} />
-							)}
-						</TouchableOpacity>
+						{showUnassignedList ? (
+							<TouchableOpacity
+								onPress={() => {
+									setShowUnassignedList(false)
+								}}
+							>
+								<Ionicons name="chevron-back" size={24} color={colors.primary} />
+							</TouchableOpacity>
+						) : (
+							<TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
+								{!showMenu ? (
+									<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+								) : (
+									<Entypo name="cross" size={24} color={colors.primary} />
+								)}
+							</TouchableOpacity>
+						)}
 					</View>
 				</View>
 			}
 			ContentComponent={
-				<ListItemContent taskEdition={taskEdition} memberInfo={memberInfo} onPressIn={onPressIn} />
+				<>
+					{!showUnassignedList ? (
+						<ListItemContent
+							taskEdition={taskEdition}
+							memberInfo={memberInfo}
+							onPressIn={onPressIn}
+						/>
+					) : (
+						<UnassignedTasksList
+							memberInfo={memberInfo}
+							setShowUnassignedList={setShowUnassignedList}
+						/>
+					)}
+				</>
 			}
 		/>
 	)
@@ -300,6 +330,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		width: "95%",
 	},
+
 	times: {
 		alignItems: "center",
 		borderTopWidth: 1,
@@ -307,6 +338,7 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		paddingTop: 16,
 	},
+
 	wrapTaskTitle: {
 		borderTopWidth: 1,
 		marginTop: 16,

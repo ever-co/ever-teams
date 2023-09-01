@@ -17,7 +17,7 @@ const SwithTimeTracking: FC<Props> = observer(() => {
 	const {
 		teamStore: { setIsTrackingEnabled },
 	} = useStores()
-	const [isEnabled, setIsEnabled] = useState(currentUser.isTrackingEnabled)
+	const [isEnabled, setIsEnabled] = useState(currentUser?.isTrackingEnabled)
 
 	const toggleSwitch = useCallback(async () => {
 		const { response } = await toggleTimeTracking(currentUser, !isEnabled)
