@@ -77,30 +77,32 @@ export const EmojiPicker = ({
 									{value?.native} {value?.name}
 								</div>
 							</div>
-							<div className="flex mr-[0.5rem] gap-3">
-								<button
-									disabled={!isTeamManager}
-									className={`outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-									onClick={() => {
-										setDisabled(!disabled);
-									}}
-								>
-									<Edit2Icon className="cursor-pointer" />
-								</button>
-								<button
-									onClick={() => {
-										setValue(null);
-										onChange('');
-									}}
-									className={`outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-								>
-									<TrashIcon />
-								</button>
-							</div>
+							{isTeamManager && (
+								<div className="flex mr-[0.5rem] gap-3">
+									<button
+										disabled={!isTeamManager}
+										className={`outline-none ${
+											!isTeamManager && 'pointer-events-none'
+										}`}
+										onClick={() => {
+											setDisabled(!disabled);
+										}}
+									>
+										<Edit2Icon className="cursor-pointer" />
+									</button>
+									<button
+										onClick={() => {
+											setValue(null);
+											onChange('');
+										}}
+										className={`outline-none ${
+											!isTeamManager && 'pointer-events-none'
+										}`}
+									>
+										<TrashIcon />
+									</button>
+								</div>
+							)}
 						</div>
 					</Popover.Button>
 					<Transition

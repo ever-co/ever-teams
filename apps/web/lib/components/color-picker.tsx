@@ -85,31 +85,33 @@ export const ColorPicker = ({
 								></div>
 								<div className="uppercase dark:text-white">{color || ''}</div>
 							</div>
-							<div className="flex mr-[0.5rem] gap-3">
-								<button
-									disabled={!isTeamManager}
-									className={`outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-									onClick={() => {
-										setDisabled(!disabled);
-									}}
-								>
-									<Edit2Icon className="cursor-pointer" />
-								</button>
+							{isTeamManager && (
+								<div className="flex mr-[0.5rem] gap-3">
+									<button
+										disabled={!isTeamManager}
+										className={`outline-none ${
+											!isTeamManager && 'pointer-events-none'
+										}`}
+										onClick={() => {
+											setDisabled(!disabled);
+										}}
+									>
+										<Edit2Icon className="cursor-pointer" />
+									</button>
 
-								<span
-									onClick={() => {
-										setColor(null);
-										onChange && onChange(null);
-									}}
-									className={`outline-none ${
-										!isTeamManager ? 'pointer-events-none' : 'cursor-pointer'
-									}`}
-								>
-									<TrashIcon />
-								</span>
-							</div>
+									<span
+										onClick={() => {
+											setColor(null);
+											onChange && onChange(null);
+										}}
+										className={`outline-none ${
+											!isTeamManager ? 'pointer-events-none' : 'cursor-pointer'
+										}`}
+									>
+										<TrashIcon />
+									</span>
+								</div>
+							)}
 						</div>
 					</Popover.Button>
 					<Transition
