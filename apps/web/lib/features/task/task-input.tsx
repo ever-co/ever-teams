@@ -109,7 +109,6 @@ export function TaskInput(props: Props) {
 		editMode,
 		setEditMode,
 		setQuery,
-		tasksFetching,
 		updateLoading,
 		updateTaskTitleHandler,
 		setFilter,
@@ -285,9 +284,7 @@ export function TaskInput(props: Props) {
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
-						<>
-							{(tasksFetching || updateLoading) && <SpinnerLoader size={25} />}
-						</>
+						<>{updateLoading && <SpinnerLoader size={25} />}</>
 					)}
 				</div>
 			}
