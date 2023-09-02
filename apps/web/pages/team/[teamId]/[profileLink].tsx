@@ -13,8 +13,11 @@ import { useRecoilState } from 'recoil';
 const Team = () => {
 	const router = useRouter();
 	const query = router.query;
-	const { loadPublicTeamData, publicTeam: publicTeamData } =
-		usePublicOrganizationTeams();
+	const {
+		loadPublicTeamData,
+		loadPublicTeamMiscData,
+		publicTeam: publicTeamData,
+	} = usePublicOrganizationTeams();
 	const { trans } = useTranslation('home');
 	const [publicTeam, setPublic] = useRecoilState(publicState);
 
@@ -43,12 +46,24 @@ const Team = () => {
 			setPublic(true);
 		}
 	}, [loadPublicTeamData, query, router, setPublic]);
+	const loadMicsData = useCallback(() => {
+		if (query && query.teamId && query.profileLink) {
+			loadPublicTeamMiscData(
+				query.profileLink as string,
+				query.teamId as string
+			);
+		}
+	}, [loadPublicTeamMiscData, query]);
 
 	useEffect(() => {
 		loadData();
 	}, [loadData]);
+	useEffect(() => {
+		loadMicsData();
+	}, [loadMicsData]);
 
-	useRefreshInterval(loadData, 5000, true);
+	useRefreshInterval(loadData, 10 * 1000, true);
+	useRefreshInterval(loadMicsData, 30 * 1000, true);
 
 	return (
 		<MainLayout publicTeam={publicTeam}>
