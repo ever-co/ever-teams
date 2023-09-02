@@ -109,7 +109,6 @@ export function TaskInput(props: Props) {
 		editMode,
 		setEditMode,
 		setQuery,
-		tasksFetching,
 		updateLoading,
 		updateTaskTitleHandler,
 		setFilter,
