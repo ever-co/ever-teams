@@ -1,7 +1,7 @@
 import NotFound from '@components/pages/404';
 import { MainLayout } from 'lib/layout';
 
-function NotFoundPage() {
+const NotFoundPage = () => {
 	return (
 		<MainLayout notFound={true}>
 			<NotFound />
