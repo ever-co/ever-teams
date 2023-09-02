@@ -16,11 +16,13 @@ docker-compose*.yml
 Jenkinsfile
 
 node_modules
-apps/api/node_modules
+
+apps/mobile/node_modules
 apps/desktop/node_modules
-apps/desktop-timer/node_modules
-apps/gauzy/node_modules
-apps/gauzy-e2e/node_modules
+apps/extensions/node_modules
+apps/website/node_modules
+apps/web/node_modules
+
 packages/**/node_modules
 packages/plugins/**/node_modules
 
