@@ -184,25 +184,29 @@ export const TeamSettingForm = () => {
 										{...register('teamName', { required: true, maxLength: 80 })}
 										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
-											disabled ? (
-												<Button
-													variant="ghost"
-													className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none "
-													disabled={!isTeamManager}
-													onClick={() => setDisabled(false)}
-												>
-													<Edit2Icon />
-												</Button>
+											isTeamManager ? (
+												disabled ? (
+													<Button
+														variant="ghost"
+														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none "
+														disabled={!isTeamManager}
+														onClick={() => setDisabled(false)}
+													>
+														<Edit2Icon />
+													</Button>
+												) : (
+													<Button
+														variant="ghost"
+														className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
+														type="submit"
+														disabled={!isTeamManager}
+														onClick={() => setDisabled(true)}
+													>
+														<TickSquareIcon />
+													</Button>
+												)
 											) : (
-												<Button
-													variant="ghost"
-													className="p-0 m-0 mr-[0.8rem] mb-[0.2rem] min-w-0 outline-none"
-													type="submit"
-													disabled={!isTeamManager}
-													onClick={() => setDisabled(true)}
-												>
-													<TickSquareIcon />
-												</Button>
+												<></>
 											)
 										}
 										disabled={disabled}
@@ -271,38 +275,40 @@ export const TeamSettingForm = () => {
 									{trans.TEAM_TYPE}
 								</Text>
 								<div className="flex gap-x-[30px] flex-col sm:flex-row ">
-									<div className="items-center w-full flex justify-between sm:block">
-										<div>
-											<input
-												id="team-type-radio-public"
-												{...register('teamType', {
-													onChange: () => {
-														handleChange();
-													},
-												})}
-												type="radio"
-												value="PUBLIC"
-												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-												disabled={!isTeamManager}
-											/>
-											<Text.Label>Public Team</Text.Label>
+									{isTeamManager && (
+										<div className="items-center w-full flex justify-between sm:block">
+											<div>
+												<input
+													id="team-type-radio-public"
+													{...register('teamType', {
+														onChange: () => {
+															handleChange();
+														},
+													})}
+													type="radio"
+													value="PUBLIC"
+													className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+													disabled={!isTeamManager}
+												/>
+												<Text.Label>Public Team</Text.Label>
+											</div>
+											<div>
+												<input
+													id="team-type-radio-private"
+													{...register('teamType', {
+														onChange: () => {
+															handleChange();
+														},
+													})}
+													type="radio"
+													value="PRIVATE"
+													className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+													disabled={!isTeamManager}
+												/>
+												<Text.Label>Private Team</Text.Label>
+											</div>
 										</div>
-										<div>
-											<input
-												id="team-type-radio-private"
-												{...register('teamType', {
-													onChange: () => {
-														handleChange();
-													},
-												})}
-												type="radio"
-												value="PRIVATE"
-												className="w-4 h-4 text-[#3826A6] bg-gray-100 border-gray-300 focus:ring-[#3826A6] dark:focus:ring-[#3826A6] dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-												disabled={!isTeamManager}
-											/>
-											<Text.Label>Private Team</Text.Label>
-										</div>
-									</div>
+									)}
 									{getTeamLink() && (
 										<div className="flex gap-4 items-center flex-col sm:flex-row">
 											<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
