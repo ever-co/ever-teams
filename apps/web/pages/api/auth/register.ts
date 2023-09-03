@@ -11,6 +11,7 @@ import {
 	loginUserRequest,
 	registerUserRequest,
 	refreshTokenRequest,
+	createOrganizationProjectRequest,
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
@@ -104,6 +105,16 @@ export default async function handler(
 		auth_token
 	);
 
+	// Create project
+	const { data: project } = await createOrganizationProjectRequest(
+		{
+			name: body.team,
+			tenantId: tenant.id,
+			organizationId: organization.id,
+		},
+		auth_token
+	);
+
 	// Create employee
 	const { data: employee } = await createEmployeeFromUser(
 		{
@@ -122,7 +133,8 @@ export default async function handler(
 			tenantId: tenant.id,
 			organizationId: organization.id,
 			managerIds: [employee.id],
-			public: true, // By default team should be public
+			public: true, // By default team should be public,
+			projects: [project],
 		},
 		auth_token
 	);

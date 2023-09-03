@@ -75,6 +75,7 @@ export function getOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
+			'projects',
 		],
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string
@@ -118,6 +119,7 @@ export function getAllOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
+			'projects',
 		],
 	}: TeamRequestParams,
 	bearer_token: string
