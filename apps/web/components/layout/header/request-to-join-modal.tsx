@@ -35,13 +35,13 @@ export const RequestToJoinModal = ({
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
 			<Card className="w-[98%] md:w-[480px]" shadow="custom">
-				<div className="flex justify-between items-center border-b">
+				<div className="flex justify-between items-center border-b dark:border-b-[#FFFFFF29]">
 					<Text.Heading
 						as="h3"
 						className={clsxm(
 							'text-center gap-32 pb-4 pr-5 hover:cursor-pointer',
 							currentTab === 'ALREADY_MEMBER' &&
-								'border-primary dark:border-white border-b-2'
+								'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
 						)}
 						onClick={() => {
 							setCurrentTab('ALREADY_MEMBER');
@@ -54,7 +54,7 @@ export const RequestToJoinModal = ({
 						className={clsxm(
 							'text-center gap-32 pb-4 pl-5 hover:cursor-pointer',
 							currentTab === 'BECOME_MEMBER' &&
-								'border-primary dark:border-white border-b-2'
+								'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
 						)}
 						onClick={() => {
 							setCurrentTab('BECOME_MEMBER');
