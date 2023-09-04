@@ -119,7 +119,7 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 	},
 )
 
-const ListCardItem: React.FC<Props> = (props) => {
+const ListCardItem: React.FC<Props> = observer((props) => {
 	const { colors } = useAppTheme()
 	// // STATS
 	const [showMenu, setShowMenu] = React.useState(false)
@@ -293,7 +293,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 			}
 		/>
 	)
-}
+})
 
 export default ListCardItem
 

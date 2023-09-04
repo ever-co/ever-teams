@@ -12,6 +12,7 @@ import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
 import { useSyncRef } from "../useSyncRef"
 import { useFirstLoad } from "../useFirstLoad"
 import isEqual from "lodash/isEqual"
+import { useOrganizationTeam } from "../useOrganization"
 
 export function useTeamTasks() {
 	const {
@@ -26,6 +27,8 @@ export function useTeamTasks() {
 			activeTask,
 		},
 	} = useStores()
+
+	const { updateOrganizationTeamEmployeeActiveTask, currentUser } = useOrganizationTeam()
 
 	const tasksRef = useSyncRef(teamTasks)
 	const [tasksFetching, setTasksFetching] = useState(false)
@@ -223,12 +226,21 @@ export function useTeamTasks() {
 	 * Change active task
 	 */
 	const setActiveTeamTask = useCallback(
-		(task: ITeamTask | null) => {
-			setActiveTask(task)
-			setActiveTaskId(task?.id || "")
+		async (task: ITeamTask | null) => {
+			if (isSuccess) {
+				await updateOrganizationTeamEmployeeActiveTask(currentUser, task?.id)
+
+				const synchedActiveTask = allTasks?.find((task) => task.id === currentUser.activeTaskId)
+				setActiveTask(synchedActiveTask)
+				setActiveTaskId(synchedActiveTask?.id || "")
+			}
 		},
-		[setActiveTask],
+		[setActiveTask, allTasks],
 	)
+
+	useEffect(() => {
+		setActiveTeamTask(currentUser.activeTaskId)
+	}, [setActiveTeamTask, currentUser.activeTaskId])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {

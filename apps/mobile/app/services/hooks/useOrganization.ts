@@ -263,6 +263,31 @@ export function useOrganizationTeam() {
 	}, [])
 
 	/**
+	 * Update Organization Team Employee
+	 */
+
+	const updateOrganizationTeamEmployeeActiveTask = useCallback(
+		async (user: OT_Member, activeTaskId: string) => {
+			const { data, response } = await updateOrganizationTeamEmployeeRequest({
+				id: user.id,
+				body: {
+					id: user.id,
+					organizationId,
+					organizationTeamId: activeTeamId,
+					activeTaskId,
+				},
+				tenantId,
+				bearer_token: authToken,
+			})
+
+			refreshTeams()
+
+			return { data, response }
+		},
+		[],
+	)
+
+	/**
 	 * Update Organization Team
 	 */
 	const onUpdateOrganizationTeam = useCallback(
@@ -351,6 +376,7 @@ export function useOrganizationTeam() {
 		makeMemberAsManager,
 		removeMemberFromTeam,
 		toggleTimeTracking,
+		updateOrganizationTeamEmployeeActiveTask,
 		onUpdateOrganizationTeam,
 		onRemoveTeam,
 		activeTeamManagers,
