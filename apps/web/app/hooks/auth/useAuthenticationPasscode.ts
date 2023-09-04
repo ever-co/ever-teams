@@ -1,7 +1,11 @@
 import { authFormValidate } from '@app/helpers/validations';
+import { ISigninEmailConfirmWorkspaces } from '@app/interfaces';
 import {
 	sendAuthCodeAPI,
+	signInEmailAPI,
+	signInEmailConfirmAPI,
 	signInWithEmailAndCodeAPI,
+	signInWorkspaceAPI,
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
@@ -20,6 +24,9 @@ export function useAuthenticationPasscode() {
 	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(
 		'email'
 	);
+	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>(
+		[]
+	);
 	const [authenticated, setAuthenticated] = useState(false);
 
 	const [formValues, setFormValues] = useState({ email: '', code: '' });
@@ -29,6 +36,17 @@ export function useAuthenticationPasscode() {
 	// Queries
 	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } =
 		useQuery(sendAuthCodeAPI);
+
+	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } =
+		useQuery(signInEmailAPI);
+	const {
+		queryCall: signInEmailConfirmQueryCall,
+		loading: signInEmailConfirmLoading,
+	} = useQuery(signInEmailConfirmAPI);
+	const {
+		queryCall: signInWorkspaceQueryCall,
+		loading: signInWorkspaceLoading,
+	} = useQuery(signInWorkspaceAPI);
 
 	const { queryCall, loading, infiniteLoading } = useQuery(
 		signInWithEmailAndCodeAPI
@@ -49,15 +67,39 @@ export function useAuthenticationPasscode() {
 		email: string;
 		code: string;
 	}) => {
-		queryCall(email, code)
+		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
+				console.log('<res>', res);
 				// window.location.reload();
 				// setAuthenticated(true);
 
 				// TODO
 				// Update state with tenant details
 				// Remove window reload
+				if (res.data?.workspaces && res.data.workspaces.length) {
+					setWorkspaces(res.data.workspaces);
+				}
 				setScreen('workspace');
+			})
+			.catch((err: AxiosError) => {
+				if (err.response?.status === 400) {
+					setErrors((err.response?.data as any)?.errors || {});
+				}
+
+				inputCodeRef.current?.clear();
+			});
+	};
+	const signInToWorkspaceRequest = ({
+		email,
+		token,
+	}: {
+		email: string;
+		token: string;
+	}) => {
+		signInWorkspaceQueryCall(email, token)
+			.then((res) => {
+				window.location.reload();
+				setAuthenticated(true);
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
@@ -89,7 +131,7 @@ export function useAuthenticationPasscode() {
 		});
 	};
 
-	const handleSubmit = (e: any) => {
+	const handleSubmit = (e: any, token: string) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(
@@ -104,9 +146,9 @@ export function useAuthenticationPasscode() {
 
 		infiniteLoading.current = true;
 
-		verifyPasscodeRequest({
+		signInToWorkspaceRequest({
 			email: formValues.email,
-			code: formValues.code,
+			token,
 		});
 	};
 
@@ -128,9 +170,10 @@ export function useAuthenticationPasscode() {
 
 	/**
 	 * send a fresh auth request handler
+	 * STEP1
 	 */
 	const sendAuthCodeHandler = useCallback(() => {
-		const promise = sendCodeQueryCall(formValues['email']);
+		const promise = signInEmailQueryCall(formValues['email']);
 
 		promise.then(() => setErrors({}));
 		promise.catch((err: AxiosError) => {
@@ -140,7 +183,7 @@ export function useAuthenticationPasscode() {
 		});
 
 		return promise;
-	}, [formValues, sendCodeQueryCall]);
+	}, [formValues, signInEmailQueryCall]);
 
 	return {
 		sendAuthCodeHandler,
@@ -157,6 +200,11 @@ export function useAuthenticationPasscode() {
 		authenticated,
 		setAuthenticated,
 		handleCodeSubmit,
+		signInEmailQueryCall,
+		signInEmailLoading,
+		signInEmailConfirmQueryCall,
+		signInEmailConfirmLoading,
+		workspaces,
 	};
 }
 

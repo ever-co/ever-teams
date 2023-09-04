@@ -34,3 +34,18 @@ export interface ILoginDataAPI {
 	email: string;
 	code: string;
 }
+
+export interface ISigninEmailConfirmWorkspaces {
+	token: string;
+	user: {
+		email: string;
+		imageUrl: string;
+		name: string;
+		tenant: { name: string; logo: string };
+	};
+}
+export interface ISigninEmailConfirmResponse {
+	confirmed_email: string;
+	show_popup: boolean;
+	workspaces: ISigninEmailConfirmWorkspaces[];
+}

@@ -14,7 +14,7 @@ import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
 import { Avatar } from 'lib/components';
 import Link from 'next/link';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, FormEventHandler, useCallback, useState } from 'react';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import stc from 'string-to-color';
 
@@ -228,48 +228,22 @@ function WorkSpaceScreen({
 }: { form: TAuthenticationPasscode } & IClassName) {
 	const { trans } = useTranslation();
 
-	const [selectedWorkspace, setSelectedWorkspace] = useState('');
-	const [selectedTeam, setSelectedTeam] = useState('');
+	const [selectedWorkspace, setSelectedWorkspace] = useState<number>();
+	// const [selectedTeam, setSelectedTeam] = useState('');
 
-	const worksaces = [
-		{
-			id: '1',
-			name: 'Workspace 1',
-			teams: [
-				{
-					id: '1',
-					name: 'Team A',
-					membersCount: 2,
-				},
-				{
-					id: '2',
-					name: 'Team B',
-					membersCount: 4,
-				},
-			],
+	const signInToWorkspace = useCallback(
+		(e: any) => {
+			if (typeof selectedWorkspace !== 'undefined') {
+				form.handleSubmit(e, form.workspaces[selectedWorkspace].token);
+			}
 		},
-		{
-			id: '2',
-			name: 'Workspace 2',
-			teams: [
-				{
-					id: '3',
-					name: 'Team A',
-					membersCount: 2,
-				},
-				{
-					id: '4',
-					name: 'Team B',
-					membersCount: 4,
-				},
-			],
-		},
-	];
+		[selectedWorkspace, form]
+	);
 
 	return (
 		<form
 			className={clsxm(className, 'flex justify-center w-full')}
-			onSubmit={form.handleSubmit}
+			onSubmit={signInToWorkspace}
 			autoComplete="off"
 		>
 			<Card className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
@@ -279,44 +253,44 @@ function WorkSpaceScreen({
 					</Text.Heading>
 
 					<div className="flex flex-col w-full gap-4 max-h-[16.9375rem] overflow-scroll scrollbar-hide">
-						{worksaces.map((worksace) => (
+						{form.workspaces.map((worksace, index) => (
 							<div
-								key={worksace.id}
+								key={index}
 								className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-									selectedWorkspace === worksace.id
+									selectedWorkspace === index
 										? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
 										: ''
 								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 							>
 								<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
 									<div className="flex justify-between">
-										<span>{worksace.name}</span>
+										<span>{worksace.user.tenant.name}</span>
 										<span
 											className="hover:cursor-pointer"
 											onClick={() => {
-												setSelectedWorkspace(worksace.id);
-												if (
-													selectedTeam &&
-													!worksace.teams
-														.map((team) => team.id)
-														.includes(selectedTeam)
-												) {
-													setSelectedTeam(worksace.teams[0].id);
-												}
+												setSelectedWorkspace(index);
+												// if (
+												// 	selectedTeam &&
+												// 	!worksace.teams
+												// 		.map((team) => team.id)
+												// 		.includes(selectedTeam)
+												// ) {
+												// 	setSelectedTeam(worksace.teams[0].id);
+												// }
 											}}
 										>
-											{selectedWorkspace === worksace.id ? (
+											{selectedWorkspace === index ? (
 												<TickCircleIconV2 className="w-6 h-6 stroke-[#27AE60] fill-[#27AE60]" />
 											) : (
 												<CircleIcon className="w-6 h-6" />
 											)}
 										</span>
 									</div>
-									<div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div>
-									<div className="flex flex-col gap-4 px-5 py-1.5">
+									{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
+									{/* <div className="flex flex-col gap-4 px-5 py-1.5">
 										{worksace.teams.map((team) => (
 											<div
-												key={`${worksace.id}-${team.id}`}
+												key={`${index}-${team.id}`}
 												className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 											>
 												<span className="flex items-center gap-4 justify-between">
@@ -331,8 +305,8 @@ function WorkSpaceScreen({
 													className="hover:cursor-pointer"
 													onClick={() => {
 														setSelectedTeam(team.id);
-														if (selectedWorkspace !== worksace.id) {
-															setSelectedWorkspace(worksace.id);
+														if (selectedWorkspace !== index) {
+															setSelectedWorkspace(index);
 														}
 													}}
 												>
@@ -344,7 +318,7 @@ function WorkSpaceScreen({
 												</span>
 											</div>
 										))}
-									</div>
+									</div> */}
 								</div>
 							</div>
 						))}
@@ -365,7 +339,7 @@ function WorkSpaceScreen({
 						<Button
 							type="submit"
 							loading={form.loading}
-							disabled={form.loading}
+							disabled={form.loading || !selectedWorkspace}
 						>
 							{trans.common.CONTINUE}
 						</Button>
