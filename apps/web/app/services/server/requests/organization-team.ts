@@ -8,11 +8,23 @@ import {
 } from '@app/interfaces/IOrganizationTeam';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
+import { createOrganizationProjectRequest } from './project';
 
-export function createOrganizationTeamRequest(
+export async function createOrganizationTeamRequest(
 	datas: IOrganizationTeamCreate,
 	bearer_token: string
 ) {
+	// Create project
+	const { data: project } = await createOrganizationProjectRequest(
+		{
+			name: datas.name,
+			tenantId: datas.tenantId,
+			organizationId: datas.organizationId,
+		},
+		bearer_token
+	);
+	datas.projects = [project];
+
 	return serverFetch<IOrganizationTeam>({
 		path: '/organization-team',
 		method: 'POST',
