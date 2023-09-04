@@ -12,6 +12,7 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^(\/whiteboard(\/)?)(.*)$/,
 ];
 
+// Cookies
 export const TOKEN_COOKIE_NAME = 'auth-token';
 export const REFRESH_TOKEN_COOKIE_NAME = 'auth-refresh-token';
 export const ACTIVE_TEAM_COOKIE_NAME = 'auth-active-team';
@@ -24,6 +25,7 @@ export const ACTIVE_LANGUAGE_COOKIE_NAME = 'auth-active-language';
 export const ACTIVE_TIMEZONE_COOKIE_NAME = 'auth-timezone';
 export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 
+// Recaptcha
 export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
@@ -57,3 +59,10 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	username: SMTP_USERNAME,
 	password: SMTP_PASSWORD,
 });
+
+// JITSI Constants
+export const JITSI_DOMAIN =
+	process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si';
+export const JITSI_JWT_APP_ID = process.env.JITSI_JWT_APP_ID;
+export const JITSI_JWT_APP_SECRET = process.env.JITSI_JWT_APP_SECRET;
+export const JITSI_JWT_TOKEN_COOKIE_NAME = 'jitsi-jwt-session';

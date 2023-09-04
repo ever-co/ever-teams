@@ -1,9 +1,11 @@
-import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
+import { JITSI_DOMAIN } from '@app/constants';
+import { useOrganizationTeams } from '@app/hooks';
 import { JitsiMeeting } from '@jitsi/react-sdk';
+import { useRouter } from 'next/router';
 
-export default function CallPage() {
+export default function CallPage({ jwt }: { jwt: string }) {
 	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
+	const router = useRouter();
 
 	const roomName = activeTeam?.name
 		.toLowerCase()
@@ -12,23 +14,23 @@ export default function CallPage() {
 
 	return (
 		<JitsiMeeting
-			domain={process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si'}
+			domain={JITSI_DOMAIN}
 			roomName={'EverTeam' + roomName}
 			configOverwrite={{
 				startWithAudioMuted: true,
-				disableModeratorIndicator: true,
-				startScreenSharing: true,
+				startWithVideoMuted: true,
+				disableModeratorIndicator: false,
+				startScreenSharing: false,
 				enableEmailInStats: false,
-				// autojoin: true,
 			}}
 			interfaceConfigOverwrite={{
-				DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+				DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
 			}}
-			userInfo={{
-				displayName: user?.name || '',
-				email: user?.email || '',
-			}}
+			jwt={jwt}
 			onApiReady={(externalApi) => {
+				externalApi.addListener('readyToClose', () => {
+					router.push('/');
+				});
 				// here you can attach custom event listeners to the Jitsi Meet External API
 				// you can also store it locally to execute commands
 			}}
