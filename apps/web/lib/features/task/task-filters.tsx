@@ -419,7 +419,7 @@ function TaskNameFilter({
 				autoFocus={true}
 				onChange={(e) => setValue(e.target.value)}
 				placeholder={trans.common.TYPE_SOMETHING + '...'}
-				wrapperClassName="mb-0 dark:bg-dark-high"
+				wrapperClassName="mb-0 dark:bg-transparent"
 			/>
 		</div>
 	);

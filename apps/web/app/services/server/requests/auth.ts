@@ -41,7 +41,7 @@ export function sendAuthCodeRequest(email: string, callbackUrl: string) {
 	});
 }
 
-export function verifyAuthCodeRequest(email: string, code: number) {
+export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/verify-code',
 		method: 'POST',
@@ -104,7 +104,7 @@ export const refreshTokenRequest = (refresh_token: string) => {
 
 export const verifyUserEmailByCodeRequest = (data: {
 	bearer_token: string;
-	code: number;
+	code: string;
 	email: string;
 	tenantId: string;
 }) => {

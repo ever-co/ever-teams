@@ -1,10 +1,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
-import { View, Image, StyleSheet, TouchableOpacity } from "react-native"
+import { View, StyleSheet, TouchableOpacity } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import HeaderTimer from "./HeaderTimer"
 import { useAppTheme } from "../theme"
 import { useOrganizationTeam } from "../services/hooks/useOrganization"
+import { SvgXml } from "react-native-svg"
+import { everTeamsLogoDarkTheme, everTeamsLogoLightTheme } from "./svgs/icons"
 
 interface Props {
 	showTimer: boolean
@@ -27,19 +29,7 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 					{ backgroundColor: dark ? colors.background2 : colors.background },
 				]}
 			>
-				{dark ? (
-					<Image
-						style={styles.logo}
-						source={require("../../assets/images/new/gauzy-teams-white.png")}
-						resizeMode="contain"
-					/>
-				) : (
-					<Image
-						style={styles.logo}
-						source={require("../../assets/images/new/gauzy-teams.png")}
-						resizeMode="contain"
-					/>
-				)}
+				{dark ? <SvgXml xml={everTeamsLogoDarkTheme} /> : <SvgXml xml={everTeamsLogoLightTheme} />}
 				{showTimer && activeTeam && (
 					<View style={{ width: 126 }}>
 						<HeaderTimer />
@@ -54,10 +44,6 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 }
 
 const styles = StyleSheet.create({
-	logo: {
-		height: 15,
-		width: 120,
-	},
 	mainContainer: {
 		elevation: 1,
 		paddingHorizontal: 25,

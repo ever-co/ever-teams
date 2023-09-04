@@ -5,7 +5,7 @@
 	"projectType": "application",
 	"targets": {
 		"build": {
-			"executor": "@nrwl/next:build",
+			"executor": "@nx/next:build",
 			"outputs": ["{options.outputPath}"],
 			"defaultConfiguration": "production",
 			"options": {
@@ -17,7 +17,7 @@
 			}
 		},
 		"serve": {
-			"executor": "@nrwl/next:server",
+			"executor": "@nx/next:server",
 			"options": {
 				"buildTarget": "web:build",
 				"dev": true,
@@ -33,13 +33,13 @@
 			}
 		},
 		"export": {
-			"executor": "@nrwl/next:export",
+			"executor": "@nx/next:export",
 			"options": {
 				"buildTarget": "web:build:production"
 			}
 		},
 		"test": {
-			"executor": "@nrwl/jest:jest",
+			"executor": "@nx/jest:jest",
 			"outputs": ["{workspaceRoot}/coverage/apps/web"],
 			"options": {
 				"jestConfig": "apps/web/jest.config.js",
@@ -47,7 +47,7 @@
 			}
 		},
 		"lint": {
-			"executor": "@nrwl/linter:eslint",
+			"executor": "@nx/linter:eslint",
 			"outputs": ["{options.outputFile}"],
 			"options": {
 				"lintFilePatterns": ["apps/web/**/*.{ts,tsx,js,jsx}"]
