@@ -70,6 +70,7 @@ export interface OT_Member {
 	roleId?: string
 	role?: OT_Role
 	employee: IEmployee
+	activeTaskId?: string
 	lastWorkedTask?: ITeamTask
 	running?: boolean
 	duration?: number
