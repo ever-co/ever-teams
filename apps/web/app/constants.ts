@@ -8,7 +8,7 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^(\/profile(\/)?)(.*)$/,
 	/^(\/settings(\/)?)(.*)$/,
 	/^(\/task(\/)?)(.*)$/,
-	/^(\/call(\/)?)(.*)$/,
+	/^(\/meet(\/)?)(.*)$/,
 	/^(\/whiteboard(\/)?)(.*)$/,
 ];
 
