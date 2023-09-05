@@ -1,4 +1,6 @@
-module.exports = (config) => {
+const { composePlugins, withNx } = require('@nx/webpack');
+
+module.exports = composePlugins(withNx(), (config, { options, context }) => {
 	config.externals = {
 		'amqp-connection-manager': 'amqp-connection-manager',
 		amqplib: 'amqplib',
@@ -45,8 +47,8 @@ module.exports = (config) => {
 		sqlite3: 'commonjs sqlite3',
 		sharp: 'commonjs sharp',
 		ioredis: 'ioredis',
-		debug: 'debug'
+		debug: 'debug',
 	};
 
 	return config;
-};
+});

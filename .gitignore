@@ -69,5 +69,3 @@ Thumbs.db
 /apps/**/.cache
 /packages/**/.cache
 /packages/**/dist
-
-/apps/api/*.tsbuildinfo

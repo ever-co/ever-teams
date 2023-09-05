@@ -1,64 +1,67 @@
 {
-  "npmScope": "ever-teams",
-  "affected": {
-    "defaultBase": "master"
-  },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e"
-        ]
-      }
-    }
-  },
-  "generators": {
-    "@nrwl/react": {
-      "application": {
-        "style": "styled-components",
-        "linter": "eslint",
-        "babel": true
-      },
-      "component": {
-        "style": "styled-components"
-      },
-      "library": {
-        "style": "styled-components",
-        "linter": "eslint"
-      }
-    },
-    "@nrwl/next": {
-      "application": {
-        "style": "styled-components",
-        "linter": "eslint"
-      }
-    }
-  },
-  "defaultProject": "web",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "targetDefaults": {
-    "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ]
-    }
-  },
-  "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
-    "sharedGlobals": [],
-    "production": [
-      "default"
-    ]
-  }
+	"$schema": "./node_modules/nx/schemas/nx-schema.json",
+	"affected": {
+		"defaultBase": "master"
+	},
+	"tasksRunnerOptions": {
+		"default": {
+			"runner": "nx-cloud",
+			"options": {
+				"cacheableOperations": ["build", "lint", "test", "e2e"],
+				"accessToken": "OGJkNTc3NTQtMmY0OC00NDBjLThlNTgtYTA4M2RkZTYzNDEzfHJlYWQtd3JpdGU="
+			}
+		}
+	},
+	"generators": {
+		"@nx/react": {
+			"application": {
+				"style": "styled-components",
+				"linter": "eslint",
+				"babel": true
+			},
+			"component": {
+				"style": "styled-components"
+			},
+			"library": {
+				"style": "styled-components",
+				"linter": "eslint"
+			}
+		},
+		"@nx/next": {
+			"application": {
+				"style": "styled-components",
+				"linter": "eslint"
+			}
+		}
+	},
+	"defaultProject": "web",
+	"targetDefaults": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"]
+		},
+		"test": {
+			"inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
+		},
+		"lint": {
+			"inputs": [
+				"default",
+				"{workspaceRoot}/.eslintrc.json",
+				"{workspaceRoot}/.eslintignore"
+			]
+		}
+	},
+	"namedInputs": {
+		"default": ["{projectRoot}/**/*", "sharedGlobals"],
+		"production": [
+			"default",
+			"!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+			"!{projectRoot}/tsconfig.spec.json",
+			"!{projectRoot}/jest.config.[jt]s",
+			"!{projectRoot}/src/test-setup.[jt]s",
+			"!{projectRoot}/test-setup.[jt]s",
+			"!{projectRoot}/.eslintrc.json"
+		],
+		"sharedGlobals": []
+	}
 }
