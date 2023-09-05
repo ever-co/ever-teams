@@ -43,6 +43,14 @@ export interface ISigninEmailConfirmWorkspaces {
 		name: string;
 		tenant: { name: string; logo: string };
 	};
+	current_teams: {
+		team_id: string;
+		team_name: string;
+		team_logo: string;
+		team_member_count: string;
+		profile_link: string;
+		prefix: string | null;
+	}[];
 }
 export interface ISigninEmailConfirmResponse {
 	confirmed_email: string;

@@ -48,10 +48,15 @@ export const signInEmailConfirmAPI = (email: string, code: string) => {
 		code,
 	});
 };
-export const signInWorkspaceAPI = (email: string, token: string) => {
+export const signInWorkspaceAPI = (
+	email: string,
+	token: string,
+	selectedTeam: string
+) => {
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 		email,
 		token,
+		teamId: selectedTeam,
 	});
 };
 

@@ -55,7 +55,7 @@ export const signInEmailConfirmRequest = (data: {
 	const { code, email } = data;
 
 	return serverFetch<ISuccessResponse>({
-		path: '/auth/signin.email/confirm',
+		path: '/auth/signin.email/confirm?includeTeams=true',
 		method: 'POST',
 		body: { code, email },
 	});

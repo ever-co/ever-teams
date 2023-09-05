@@ -3,6 +3,7 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import {
 	AuthCodeInputField,
+	Avatar,
 	BackButton,
 	Button,
 	Card,
@@ -15,6 +16,7 @@ import { AuthLayout } from 'lib/layout';
 import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
+import stc from 'string-to-color';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -227,15 +229,19 @@ function WorkSpaceScreen({
 	const { trans } = useTranslation();
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
-	// const [selectedTeam, setSelectedTeam] = useState('');
+	const [selectedTeam, setSelectedTeam] = useState('');
 
 	const signInToWorkspace = useCallback(
 		(e: any) => {
 			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token);
+				form.handleWorkspaceSubmit(
+					e,
+					form.workspaces[selectedWorkspace].token,
+					selectedTeam
+				);
 			}
 		},
-		[selectedWorkspace, form]
+		[selectedWorkspace, selectedTeam, form]
 	);
 
 	useEffect(() => {
@@ -275,14 +281,14 @@ function WorkSpaceScreen({
 											className="hover:cursor-pointer"
 											onClick={() => {
 												setSelectedWorkspace(index);
-												// if (
-												// 	selectedTeam &&
-												// 	!worksace.teams
-												// 		.map((team) => team.id)
-												// 		.includes(selectedTeam)
-												// ) {
-												// 	setSelectedTeam(worksace.teams[0].id);
-												// }
+												if (
+													selectedTeam &&
+													!worksace.current_teams
+														.map((team) => team.team_id)
+														.includes(selectedTeam)
+												) {
+													setSelectedTeam(worksace.current_teams[0].team_id);
+												}
 											}}
 										>
 											{selectedWorkspace === index ? (
@@ -293,30 +299,30 @@ function WorkSpaceScreen({
 										</span>
 									</div>
 									{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
-									{/* <div className="flex flex-col gap-4 px-5 py-1.5">
-										{worksace.teams.map((team) => (
+									<div className="flex flex-col gap-4 px-5 py-1.5">
+										{worksace.current_teams.map((team) => (
 											<div
-												key={`${index}-${team.id}`}
+												key={`${index}-${team.team_id}`}
 												className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 											>
 												<span className="flex items-center gap-4 justify-between">
 													<Avatar
-														imageTitle={team.name}
+														imageTitle={team.team_name}
 														size={34}
-														backgroundColor={`${stc(team.name)}80`}
+														backgroundColor={`${stc(team.team_name)}80`}
 													/>
-													{team.name}({team.membersCount})
+													{team.team_name}({team.team_member_count})
 												</span>
 												<span
 													className="hover:cursor-pointer"
 													onClick={() => {
-														setSelectedTeam(team.id);
+														setSelectedTeam(team.team_id);
 														if (selectedWorkspace !== index) {
 															setSelectedWorkspace(index);
 														}
 													}}
 												>
-													{selectedTeam === team.id ? (
+													{selectedTeam === team.team_id ? (
 														<TickCircleIconV2 className="w-5 h-5 stroke-[#27AE60] fill-[#27AE60]" />
 													) : (
 														<CircleIcon className="w-5 h-5" />
@@ -324,7 +330,7 @@ function WorkSpaceScreen({
 												</span>
 											</div>
 										))}
-									</div> */}
+									</div>
 								</div>
 							</div>
 						))}
@@ -345,7 +351,7 @@ function WorkSpaceScreen({
 						<Button
 							type="submit"
 							loading={form.signInWorkspaceLoading}
-							disabled={form.signInWorkspaceLoading}
+							disabled={form.signInWorkspaceLoading || !selectedTeam}
 							id="continue-to-workspace"
 						>
 							{trans.common.CONTINUE}

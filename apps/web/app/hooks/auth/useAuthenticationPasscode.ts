@@ -92,12 +92,14 @@ export function useAuthenticationPasscode() {
 	const signInToWorkspaceRequest = ({
 		email,
 		token,
+		selectedTeam,
 	}: {
 		email: string;
 		token: string;
+		selectedTeam: string;
 	}) => {
-		signInWorkspaceQueryCall(email, token)
-			.then((res) => {
+		signInWorkspaceQueryCall(email, token, selectedTeam)
+			.then(() => {
 				window.location.reload();
 				setAuthenticated(true);
 			})
@@ -152,7 +154,11 @@ export function useAuthenticationPasscode() {
 		});
 	};
 
-	const handleWorkspaceSubmit = (e: any, token: string) => {
+	const handleWorkspaceSubmit = (
+		e: any,
+		token: string,
+		selectedTeam: string
+	) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(['email'], formValues as any);
@@ -167,6 +173,7 @@ export function useAuthenticationPasscode() {
 		signInToWorkspaceRequest({
 			email: formValues.email,
 			token,
+			selectedTeam,
 		});
 	};
 
