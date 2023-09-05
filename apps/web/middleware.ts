@@ -17,7 +17,7 @@ export const config = {
 		'/profile/:path*',
 		'/settings/(.*)',
 		'/task(.*)',
-		'/call(.*)',
+		'/meet(.*)',
 		'/whiteboard(.*)',
 	],
 };
