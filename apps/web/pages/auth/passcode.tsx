@@ -14,7 +14,15 @@ import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
 import { Avatar } from 'lib/components';
 import Link from 'next/link';
-import { FormEvent, FormEventHandler, useCallback, useState } from 'react';
+import {
+	FormEvent,
+	FormEventHandler,
+	RefObject,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import stc from 'string-to-color';
 
@@ -227,8 +235,9 @@ function WorkSpaceScreen({
 	className,
 }: { form: TAuthenticationPasscode } & IClassName) {
 	const { trans } = useTranslation();
+	const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-	const [selectedWorkspace, setSelectedWorkspace] = useState<number>();
+	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	// const [selectedTeam, setSelectedTeam] = useState('');
 
 	const signInToWorkspace = useCallback(
@@ -239,6 +248,14 @@ function WorkSpaceScreen({
 		},
 		[selectedWorkspace, form]
 	);
+
+	useEffect(() => {
+		if (form.workspaces.length === 1 && buttonRef.current) {
+			console.log('test');
+
+			buttonRef.current.click();
+		}
+	}, [form.workspaces, buttonRef.current]);
 
 	return (
 		<form
@@ -339,7 +356,8 @@ function WorkSpaceScreen({
 						<Button
 							type="submit"
 							loading={form.loading}
-							disabled={form.loading || !selectedWorkspace}
+							disabled={form.loading}
+							ref={buttonRef}
 						>
 							{trans.common.CONTINUE}
 						</Button>
