@@ -12,19 +12,9 @@ import {
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
-import { Avatar } from 'lib/components';
 import Link from 'next/link';
-import {
-	FormEvent,
-	FormEventHandler,
-	RefObject,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
-import stc from 'string-to-color';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -235,7 +225,6 @@ function WorkSpaceScreen({
 	className,
 }: { form: TAuthenticationPasscode } & IClassName) {
 	const { trans } = useTranslation();
-	const buttonRef = useRef<HTMLButtonElement | null>(null);
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	// const [selectedTeam, setSelectedTeam] = useState('');
@@ -243,19 +232,19 @@ function WorkSpaceScreen({
 	const signInToWorkspace = useCallback(
 		(e: any) => {
 			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleSubmit(e, form.workspaces[selectedWorkspace].token);
+				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token);
 			}
 		},
 		[selectedWorkspace, form]
 	);
 
 	useEffect(() => {
-		if (form.workspaces.length === 1 && buttonRef.current) {
-			console.log('test');
-
-			buttonRef.current.click();
+		if (form.workspaces.length === 1) {
+			setTimeout(() => {
+				document.getElementById('continue-to-workspace')?.click();
+			}, 100);
 		}
-	}, [form.workspaces, buttonRef.current]);
+	}, [form.workspaces]);
 
 	return (
 		<form
@@ -355,9 +344,9 @@ function WorkSpaceScreen({
 
 						<Button
 							type="submit"
-							loading={form.loading}
-							disabled={form.loading}
-							ref={buttonRef}
+							loading={form.signInWorkspaceLoading}
+							disabled={form.signInWorkspaceLoading}
+							id="continue-to-workspace"
 						>
 							{trans.common.CONTINUE}
 						</Button>

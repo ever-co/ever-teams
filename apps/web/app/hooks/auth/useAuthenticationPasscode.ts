@@ -131,13 +131,31 @@ export function useAuthenticationPasscode() {
 		});
 	};
 
-	const handleSubmit = (e: any, token: string) => {
+	const handleSubmit = (e: any) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(
 			['email', 'code'],
 			formValues as any
 		);
+
+		if (!valid) {
+			setErrors(errors);
+			return;
+		}
+
+		infiniteLoading.current = true;
+
+		verifyPasscodeRequest({
+			email: formValues.email,
+			code: formValues.code,
+		});
+	};
+
+	const handleWorkspaceSubmit = (e: any, token: string) => {
+		e.preventDefault();
+		setErrors({});
+		const { errors, valid } = authFormValidate(['email'], formValues as any);
 
 		if (!valid) {
 			setErrors(errors);
@@ -205,6 +223,10 @@ export function useAuthenticationPasscode() {
 		signInEmailConfirmQueryCall,
 		signInEmailConfirmLoading,
 		workspaces,
+		sendCodeQueryCall,
+		signInWorkspaceLoading,
+		queryCall,
+		handleWorkspaceSubmit,
 	};
 }
 
