@@ -166,7 +166,7 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 
 <p>
 	<a href="https://vercel.com/?utm_source=ever-co&utm_campaign=oss">
-  	 <img src="https://github.com/ever-co/ever-teams/assets/118497/754ed762-6aa3-4763-ba62-255b4c550019">
+  	  <img src="https://raw.githubusercontent.com/abumalick/powered-by-vercel/master/powered-by-vercel.svg">
 	</a>
 </p>
 
