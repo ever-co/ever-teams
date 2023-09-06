@@ -3,10 +3,13 @@ import { Meta, Text } from 'lib/components';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import Image from 'next/legacy/image';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { Footer } from './footer';
 
-type Props = { title?: string; description?: string } & PropsWithChildren;
+type Props = {
+	title?: string;
+	description?: string | ReactNode;
+} & PropsWithChildren;
 
 export function AuthLayout({ children, title, description }: Props) {
 	const { trans, translations } = useTranslation('auth');
