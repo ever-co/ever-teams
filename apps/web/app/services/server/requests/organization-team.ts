@@ -8,11 +8,23 @@ import {
 } from '@app/interfaces/IOrganizationTeam';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
+import { createOrganizationProjectRequest } from './project';
 
-export function createOrganizationTeamRequest(
+export async function createOrganizationTeamRequest(
 	datas: IOrganizationTeamCreate,
 	bearer_token: string
 ) {
+	// Create project
+	const { data: project } = await createOrganizationProjectRequest(
+		{
+			name: datas.name,
+			tenantId: datas.tenantId,
+			organizationId: datas.organizationId,
+		},
+		bearer_token
+	);
+	datas.projects = [project];
+
 	return serverFetch<IOrganizationTeam>({
 		path: '/organization-team',
 		method: 'POST',
@@ -75,6 +87,7 @@ export function getOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
+			'projects',
 		],
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string
@@ -118,6 +131,7 @@ export function getAllOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
+			'projects',
 		],
 	}: TeamRequestParams,
 	bearer_token: string

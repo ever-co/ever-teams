@@ -30,3 +30,4 @@ export * from './INotify';
 export * from './ITheme';
 export * from './IRolePermissions';
 export * from './ITimer';
+export * from './IProject';
