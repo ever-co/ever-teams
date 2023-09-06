@@ -227,20 +227,56 @@ export function useTeamTasks() {
 	 */
 	const setActiveTeamTask = useCallback(
 		async (task: ITeamTask | null) => {
-			if (isSuccess) {
-				await updateOrganizationTeamEmployeeActiveTask(currentUser, task?.id)
+			const { response } = await updateOrganizationTeamEmployeeActiveTask(currentUser, task?.id)
 
-				const synchedActiveTask = allTasks?.find((task) => task.id === currentUser.activeTaskId)
+			const synchedActiveTask = allTasks?.find((task) => task.id === currentUser.activeTaskId)
+			if (response.ok) {
 				setActiveTask(synchedActiveTask)
 				setActiveTaskId(synchedActiveTask?.id || "")
+				refetch()
 			}
 		},
-		[setActiveTask, allTasks],
+		[
+			setActiveTask,
+			updateOrganizationTeamEmployeeActiveTask,
+			allTasks,
+			activeTeamId,
+			organizationId,
+		],
 	)
 
+	const [refreshKey, setRefreshKey] = useState<number>(0)
 	useEffect(() => {
-		setActiveTeamTask(currentUser.activeTaskId)
-	}, [setActiveTeamTask, currentUser.activeTaskId])
+		// Create a timer to refresh the component every 5 seconds (adjust as needed)
+		const timer = setInterval(() => {
+			// Increment the refreshKey to force a re-render
+			setRefreshKey(refreshKey + 1)
+		}, 5000) // Refresh every 5 seconds
+		const synchedActiveTask =
+			allTasks && currentUser
+				? allTasks?.find((task) => task.id === currentUser.activeTaskId)
+				: null
+		setActiveTask(synchedActiveTask)
+		setActiveTaskId(synchedActiveTask?.id || "")
+		// Clean up the timer when the component unmounts
+		return () => clearInterval(timer)
+	}, [firstLoad, tasksFetching, organizationId, refreshKey])
+
+	// useEffect(() => {
+	// 	// Create a timer to refresh the component every 5 seconds (adjust as needed)
+	// 	const timer = setInterval(() => {
+	// 		// Increment the refreshKey to force a re-render
+	// 		setRefreshKey(refreshKey + 1)
+	// 	}, 5000) // Refresh every 5 seconds
+	// 	const synchedActiveTask =
+	// 		allTasks && currentUser
+	// 			? allTasks?.find((task) => task.id === currentUser.activeTaskId)
+	// 			: null
+	// 	setActiveTask(synchedActiveTask)
+	// 	setActiveTaskId(synchedActiveTask?.id || "")
+	// 	// Clean up the timer when the component unmounts
+	// 	return () => clearInterval(timer)
+	// }, [refreshKey])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {
