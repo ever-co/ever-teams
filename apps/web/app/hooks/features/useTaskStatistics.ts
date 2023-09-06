@@ -145,7 +145,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		timeSheet: Nullable<ITasksTimesheet>,
 		_task: Nullable<ITeamTask>,
 		addSeconds: number,
-		estimate: number = 0
+		estimate = 0
 	) =>
 		Math.min(
 			Math.floor(
