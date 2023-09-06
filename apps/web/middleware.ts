@@ -7,6 +7,7 @@ import {
 } from '@app/constants';
 import { cookiesKeys } from '@app/helpers/cookies';
 import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
+import { range } from 'lodash';
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -25,7 +26,33 @@ export const config = {
 export async function middleware(request: NextRequest) {
 	// Setting cookies on the response
 	let response = NextResponse.next();
-	const access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim();
+
+	let access_token = null;
+
+	const totalChunksCookie = request.cookies
+		.get(`${TOKEN_COOKIE_NAME}_totalChunks`)
+		?.value.trim();
+	if (!totalChunksCookie) {
+		access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim() || '';
+	} else if (totalChunksCookie) {
+		const totalChunks = parseInt(totalChunksCookie);
+		const chunks = range(totalChunks).map((index) => {
+			const chunkCookie = request.cookies
+				.get(`${TOKEN_COOKIE_NAME}${index}`)
+				?.value.trim();
+
+			if (!chunkCookie) {
+				return null; // Chunk cookie not found.
+			}
+
+			return chunkCookie;
+		});
+
+		// Concatenate and return the large string.
+		access_token = chunks.join('');
+	}
+
+	// request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim();
 	const refresh_token = request.cookies
 		.get(REFRESH_TOKEN_COOKIE_NAME)
 		?.value.trim();
