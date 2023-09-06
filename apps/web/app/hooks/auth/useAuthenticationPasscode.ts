@@ -60,7 +60,7 @@ export function useAuthenticationPasscode() {
 	/**
 	 * Verify auth request
 	 */
-	const verifyPasscodeRequest = ({
+	const verifySignInEmailConfirmRequest = ({
 		email,
 		code,
 	}: {
@@ -69,17 +69,30 @@ export function useAuthenticationPasscode() {
 	}) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
-				console.log('<res>', res);
-				// window.location.reload();
-				// setAuthenticated(true);
-
-				// TODO
-				// Update state with tenant details
-				// Remove window reload
 				if (res.data?.workspaces && res.data.workspaces.length) {
 					setWorkspaces(res.data.workspaces);
 				}
 				setScreen('workspace');
+			})
+			.catch((err: AxiosError) => {
+				if (err.response?.status === 400) {
+					setErrors((err.response?.data as any)?.errors || {});
+				}
+
+				inputCodeRef.current?.clear();
+			});
+	};
+	const verifyPasscodeRequest = ({
+		email,
+		code,
+	}: {
+		email: string;
+		code: string;
+	}) => {
+		queryCall(email, code)
+			.then(() => {
+				window.location.reload();
+				setAuthenticated(true);
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
@@ -127,7 +140,7 @@ export function useAuthenticationPasscode() {
 
 		infiniteLoading.current = true;
 
-		verifyPasscodeRequest({
+		verifySignInEmailConfirmRequest({
 			email: formValues.email,
 			code: formValues.code,
 		});
