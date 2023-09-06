@@ -14,6 +14,7 @@ import {
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+import { chunk, range } from 'lodash';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 type DataParams = {
@@ -32,6 +33,40 @@ type DataParams = {
 };
 
 type NextCtx = { req: NextApiRequest; res: NextApiResponse };
+
+export const setLargeStringInCookies = (
+	largeString: string,
+	req: NextApiRequest,
+	res: NextApiResponse
+) => {
+	const chunkSize = 4096;
+	const chunks = chunk(Array.from(largeString), chunkSize);
+
+	chunks.forEach((chunk, index) => {
+		setCookie(`${TOKEN_COOKIE_NAME}${index}`, chunk, { res, req });
+	});
+	setCookie(`${TOKEN_COOKIE_NAME}_totalChunks`, chunks.length, { res, req });
+};
+export const getLargeStringFromCookies = () => {
+	const totalChunksCookie = getTotalChunksTokenCookie();
+	if (!totalChunksCookie) {
+		return null; // Total chunks cookie not found.
+	}
+
+	const totalChunks = parseInt(totalChunksCookie);
+
+	const chunks = range(totalChunks).map((index) => {
+		const chunkCookie = getCookie(`${TOKEN_COOKIE_NAME}${index}`);
+		if (!chunkCookie) {
+			return null; // Chunk cookie not found.
+		}
+
+		return chunkCookie;
+	});
+
+	// Concatenate and return the large string.
+	return chunks.join('');
+};
 
 export function setAuthCookies(
 	datas: DataParams,
@@ -53,13 +88,20 @@ export function setAuthCookies(
 	// const expires = addHours(6, changeTimezone(new Date(), timezone));
 
 	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, { res, req });
-	setCookie(TOKEN_COOKIE_NAME, access_token, { res, req });
 	setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, { res, req });
 	setCookie(TENANT_ID_COOKIE_NAME, tenantId, { res, req });
 	setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, { res, req });
 	setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageId, { res, req });
 	setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, noTeamPopup, { res, req });
 	setCookie(ACTIVE_USER_ID_COOKIE_NAME, userId, { res, req });
+
+	// Handle Large Access Token
+	// Cookie can support upto 4096 characters only!
+	if (TOKEN_COOKIE_NAME.length <= 4096) {
+		setCookie(TOKEN_COOKIE_NAME, access_token, { res, req });
+	} else {
+		setLargeStringInCookies(access_token, req, res);
+	}
 }
 
 export function cookiesKeys() {
@@ -83,7 +125,18 @@ export function removeAuthCookies() {
 
 // Access Token
 export function getAccessTokenCookie(ctx?: NextCtx) {
+	const totalChunksCookie = getTotalChunksTokenCookie();
+	if (totalChunksCookie) {
+		return getLargeStringFromCookies(); // Total chunks cookie not found.
+	}
+
 	return getCookie(TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
+}
+// Access Token
+export function getTotalChunksTokenCookie(ctx?: NextCtx) {
+	return getCookie(`${TOKEN_COOKIE_NAME}_totalChunks`, {
+		...(ctx || {}),
+	}) as string;
 }
 
 // Refresh Token

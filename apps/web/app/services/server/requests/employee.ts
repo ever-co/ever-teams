@@ -20,13 +20,13 @@ export function getOrganizationEmployees(
 	organizationId: string
 ) {
 	const params = {
-		data: JSON.stringify({
-			findInput: { organizationId, withUser: true },
-		}),
+		'where[tenantId]': tenantId,
+		'where[organizationId]': organizationId,
+		'relations[0]': 'user',
 	};
 	const query = new URLSearchParams(params);
 	return serverFetch<IEmployee>({
-		path: `/employee/working?${query.toString()}`,
+		path: `/employee/pagination?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId,
