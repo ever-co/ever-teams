@@ -15,6 +15,7 @@ export * from './user';
 export * from './email-reset';
 export * from './request-to-join-team';
 export * from './task-linked-issue';
+export * from './project';
 
 //personal setting request export
 export * from './settings';

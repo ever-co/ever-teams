@@ -10,6 +10,7 @@ import {
 	ACTIVE_USER_TASK_COOKIE_NAME,
 	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 	ACTIVE_USER_ID_COOKIE_NAME,
+	JITSI_JWT_TOKEN_COOKIE_NAME,
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
@@ -185,4 +186,12 @@ export function setActiveTimezoneCookie(timezone: string, ctx?: NextCtx) {
 }
 export function getActiveTimezoneIdCookie(ctx?: NextCtx) {
 	return getCookie(ACTIVE_TIMEZONE_COOKIE_NAME, { ...(ctx || {}) }) as string;
+}
+
+// Jitsi
+export function setJitsiJwtSessionCookie(token: string, ctx?: NextCtx) {
+	return setCookie(JITSI_JWT_TOKEN_COOKIE_NAME, token, { ...(ctx || {}) });
+}
+export function getJitsiJwtSessionCookie(ctx?: NextCtx) {
+	return getCookie(JITSI_JWT_TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
 }

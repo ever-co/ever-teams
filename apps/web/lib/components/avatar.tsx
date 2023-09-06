@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { avatarState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';
 import Image from 'next/legacy/image';
@@ -12,6 +13,7 @@ type Props = {
 	shape?: 'circle' | 'square';
 	alt?: string;
 	imageTitle?: string;
+	backgroundColor?: string;
 } & PropsWithChildren;
 
 export function Avatar({
@@ -22,6 +24,7 @@ export function Avatar({
 	children,
 	alt,
 	imageTitle,
+	backgroundColor,
 }: Props) {
 	const [avatar, setAvatar] = useRecoilState(avatarState);
 
@@ -52,7 +55,15 @@ export function Avatar({
 				imageTitle && !imgUrl && ['flex justify-center items-center'],
 				className
 			)}
-			style={{ width: size, height: size }}
+			style={{
+				width: size,
+				height: size,
+				...(backgroundColor
+					? {
+							backgroundColor,
+					  }
+					: {}),
+			}}
 		>
 			{imageTitle && !imgUrl && (
 				<span className="uppercase font-normal text-lg">

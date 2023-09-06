@@ -250,7 +250,7 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, updateTaskNameHandler]);
+	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
 
 	const inputField = (
 		<InputField
