@@ -156,6 +156,20 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 
 <img src="https://contributors-img.web.app/image?repo=ever-co/ever-teams" />
 
+## ❤️ Powered By
+
+<p>
+  <a href="https://www.digitalocean.com/?utm_medium=opensource&utm_source=ever-co">
+    <img src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg" width="201px">
+  </a>
+</p>
+
+<p>
+	<a href="https://vercel.com/?utm_source=ever-co&utm_campaign=oss">
+  	 <img src="https://github.com/ever-co/ever-teams/assets/118497/754ed762-6aa3-4763-ba62-255b4c550019">
+	</a>
+</p>
+
 ## ©️ Copyright
 
 #### Copyright © 2022-present, Ever Co. LTD. All rights reserved
