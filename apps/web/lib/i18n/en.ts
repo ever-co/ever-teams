@@ -162,6 +162,7 @@ export const en = {
 			COVER_DESCRIPTION:
 				'Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis',
 			LOGIN: 'Login',
+			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
 		},
 		authPasscode: {
@@ -172,6 +173,10 @@ export const en = {
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
 			HEADING_DESCRIPTION: 'Please enter email and invitation code to login.',
+
+			WORKSPACE: 'Workspace',
+			HEADING_WORKSPACE_LINE1: 'The email associated with multiple workspaces,',
+			HEADING_WORKSPACE_LINE2: 'please select one to continue',
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
