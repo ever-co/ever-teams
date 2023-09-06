@@ -76,7 +76,10 @@ const Team = () => {
 				<UserTeamCardHeader />
 			</MainHeader>
 
-			<Container className="mb-10">
+			{/* Divider */}
+			<div className="h-0.5 bg-[#FFFFFF14]"></div>
+
+			<Container>
 				<TeamMembers publicTeam={publicTeam} />
 			</Container>
 		</MainLayout>
