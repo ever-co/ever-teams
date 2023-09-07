@@ -7,7 +7,7 @@ import {
 } from '@app/constants';
 import { cookiesKeys } from '@app/helpers/cookies';
 import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
-import { range } from 'lodash';
+import { range } from 'lib/utils';
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 

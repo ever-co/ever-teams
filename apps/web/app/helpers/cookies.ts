@@ -14,7 +14,7 @@ import {
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from 'cookies-next';
-import { chunk, range } from 'lodash';
+import { chunk, range } from 'lib/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 type DataParams = {
@@ -41,7 +41,7 @@ export const setLargeStringInCookies = (
 	res: NextApiResponse
 ) => {
 	const chunkSize = 4000;
-	const chunks = chunk(largeString, chunkSize);
+	const chunks = chunk<string>(Array.from(largeString), chunkSize);
 
 	chunks.forEach((chunk, index) => {
 		const cookieValue = chunk.join('');
