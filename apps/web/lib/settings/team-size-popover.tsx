@@ -34,6 +34,10 @@ const TeamSize = ({
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
 
+	const toggleDisabled = useCallback(() => {
+		setDisabled(!disabled);
+	}, [disabled]);
+
 	const onSelect = (value: any) => {
 		setValue(value);
 	};
@@ -89,8 +93,8 @@ const TeamSize = ({
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
-						disabled={disabled}
-						onClick={() => setDisabled(true)}
+						// disabled={disabled}
+						onClick={toggleDisabled}
 					>
 						<div
 							className={`relative w-[100%] h-[48px] ${
