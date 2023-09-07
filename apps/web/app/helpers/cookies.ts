@@ -51,8 +51,11 @@ export const setLargeStringInCookies = (
 	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, { res, req });
 };
 
-export const getLargeStringFromCookies = (COOKIE_NAME: string) => {
-	const totalChunksCookie = getTotalChunksCookie(COOKIE_NAME);
+export const getLargeStringFromCookies = (
+	COOKIE_NAME: string,
+	ctx?: NextCtx
+) => {
+	const totalChunksCookie = getTotalChunksCookie(COOKIE_NAME, ctx);
 	if (!totalChunksCookie) {
 		return null; // Total chunks cookie not found.
 	}
@@ -60,7 +63,7 @@ export const getLargeStringFromCookies = (COOKIE_NAME: string) => {
 	const totalChunks = parseInt(totalChunksCookie);
 
 	const chunks = range(totalChunks).map((index) => {
-		const chunkCookie = getCookie(`${COOKIE_NAME}${index}`);
+		const chunkCookie = getCookie(`${COOKIE_NAME}${index}`, ctx);
 		if (!chunkCookie) {
 			return null; // Chunk cookie not found.
 		}
@@ -125,13 +128,21 @@ export function cookiesKeys() {
 
 export function removeAuthCookies() {
 	cookiesKeys().forEach((key) => deleteCookie(key));
+
+	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);
+	if (totalChunksCookie) {
+		const totalChunks = parseInt(totalChunksCookie);
+		range(totalChunks).map((index) => {
+			deleteCookie(`${TOKEN_COOKIE_NAME}${index}`);
+		});
+	}
 }
 
 // Access Token
 export function getAccessTokenCookie(ctx?: NextCtx) {
-	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME);
+	const totalChunksCookie = getTotalChunksCookie(TOKEN_COOKIE_NAME, ctx);
 	if (totalChunksCookie) {
-		return getLargeStringFromCookies(TOKEN_COOKIE_NAME); // Total chunks cookie not found.
+		return getLargeStringFromCookies(TOKEN_COOKIE_NAME, ctx); // Total chunks cookie not found.
 	}
 
 	return getCookie(TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
