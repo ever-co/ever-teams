@@ -44,9 +44,9 @@ export default function TimeTrackingToggle({
 				<span
 					aria-hidden="true"
 					className={`${
-						enabled ? 'translate-x-9 bg-[#3826A6]' : 'translate-x-1'
+						enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'
 					}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
 			<Text className="text-gray-400 ">
