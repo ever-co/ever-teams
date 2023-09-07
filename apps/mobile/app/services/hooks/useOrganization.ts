@@ -267,7 +267,7 @@ export function useOrganizationTeam() {
 	 */
 
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
-		async (user: OT_Member, activeTaskId: string) => {
+		async (user: OT_Member, activeTaskId: string, activeTeamId: string) => {
 			const { data, response } = await updateOrganizationTeamEmployeeRequest({
 				id: user.id,
 				body: {
@@ -279,8 +279,6 @@ export function useOrganizationTeam() {
 				tenantId,
 				bearer_token: authToken,
 			})
-
-			refreshTeams()
 
 			return { data, response }
 		},

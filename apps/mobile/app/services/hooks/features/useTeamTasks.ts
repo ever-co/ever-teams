@@ -31,8 +31,9 @@ export function useTeamTasks() {
 	const { updateOrganizationTeamEmployeeActiveTask, currentUser } = useOrganizationTeam()
 
 	const tasksRef = useSyncRef(teamTasks)
-	const [tasksFetching, setTasksFetching] = useState(false)
-	const [createLoading, setCreateLoading] = useState(false)
+	const [tasksFetching, setTasksFetching] = useState<boolean>(false)
+	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState<boolean>(false)
+	const [createLoading, setCreateLoading] = useState<boolean>(false)
 	const activeTeamRef = useSyncRef(activeTeam)
 
 	const { firstLoad, firstLoadData: firstLoadTaskData } = useFirstLoad()
@@ -227,56 +228,40 @@ export function useTeamTasks() {
 	 */
 	const setActiveTeamTask = useCallback(
 		async (task: ITeamTask | null) => {
-			const { response } = await updateOrganizationTeamEmployeeActiveTask(currentUser, task?.id)
-
-			const synchedActiveTask = allTasks?.find((task) => task.id === currentUser.activeTaskId)
-			if (response.ok) {
-				setActiveTask(synchedActiveTask)
-				setActiveTaskId(synchedActiveTask?.id || "")
-				refetch()
+			try {
+				setIsUpdatingActiveTask(true)
+				const { response } = await updateOrganizationTeamEmployeeActiveTask(
+					currentUser,
+					task?.id,
+					activeTeamId,
+				)
+				if (response.ok) {
+					const synchedActiveTask = allTasks?.find((task) => task.id === currentUser.activeTaskId)
+					setActiveTask(synchedActiveTask)
+					setActiveTaskId(synchedActiveTask?.id || "")
+				}
+			} catch (error) {
+				console.log(error)
+			} finally {
+				setIsUpdatingActiveTask(false)
 			}
 		},
-		[
-			setActiveTask,
-			updateOrganizationTeamEmployeeActiveTask,
-			allTasks,
-			activeTeamId,
-			organizationId,
-		],
+		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId],
 	)
 
-	const [refreshKey, setRefreshKey] = useState<number>(0)
 	useEffect(() => {
-		// Create a timer to refresh the component every 5 seconds (adjust as needed)
-		const timer = setInterval(() => {
-			// Increment the refreshKey to force a re-render
-			setRefreshKey(refreshKey + 1)
-		}, 5000) // Refresh every 5 seconds
-		const synchedActiveTask =
-			allTasks && currentUser
-				? allTasks?.find((task) => task.id === currentUser.activeTaskId)
-				: null
-		setActiveTask(synchedActiveTask)
-		setActiveTaskId(synchedActiveTask?.id || "")
-		// Clean up the timer when the component unmounts
-		return () => clearInterval(timer)
-	}, [firstLoad, tasksFetching, organizationId, refreshKey])
-
-	// useEffect(() => {
-	// 	// Create a timer to refresh the component every 5 seconds (adjust as needed)
-	// 	const timer = setInterval(() => {
-	// 		// Increment the refreshKey to force a re-render
-	// 		setRefreshKey(refreshKey + 1)
-	// 	}, 5000) // Refresh every 5 seconds
-	// 	const synchedActiveTask =
-	// 		allTasks && currentUser
-	// 			? allTasks?.find((task) => task.id === currentUser.activeTaskId)
-	// 			: null
-	// 	setActiveTask(synchedActiveTask)
-	// 	setActiveTaskId(synchedActiveTask?.id || "")
-	// 	// Clean up the timer when the component unmounts
-	// 	return () => clearInterval(timer)
-	// }, [refreshKey])
+		if (!isUpdatingActiveTask) {
+			const synchedActiveTask =
+				allTasks && currentUser
+					? allTasks?.find((task) => task.id === currentUser.activeTaskId)
+					: null
+			setActiveTask(synchedActiveTask)
+			setActiveTaskId(synchedActiveTask?.id || "")
+		} else {
+			setActiveTask("")
+			setActiveTaskId("")
+		}
+	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {
