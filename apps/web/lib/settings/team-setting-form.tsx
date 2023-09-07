@@ -188,7 +188,7 @@ export const TeamSettingForm = () => {
 												disabled ? (
 													<Button
 														variant="ghost"
-														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none "
+														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
 														disabled={!isTeamManager}
 														onClick={() => setDisabled(false)}
 													>
