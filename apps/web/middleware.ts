@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
 		cookiesKeys().forEach((key) => {
 			response.cookies.set(key, '');
 		});
-		response.cookies.set(`${TOKEN_COOKIE_NAME}_totalChunks`, '0');
+		response.cookies.delete(`${TOKEN_COOKIE_NAME}_totalChunks`);
 	};
 
 	const protected_path = PROTECTED_APP_URL_PATHS.some((v) => {
