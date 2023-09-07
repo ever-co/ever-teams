@@ -15,8 +15,11 @@ import { useTheme } from 'next-themes';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import debounce from 'lodash/debounce';
+import { Card, Modal } from 'lib/components';
+import { IHookModal, useModal } from '@app/hooks';
 
 export default function ExcalidrawComponent() {
+	const modal = useModal();
 	const { theme } = useTheme();
 	const { saveChanges, setExcalidrawAPI, excalidrawAPI } = useWhiteboard();
 
@@ -30,9 +33,8 @@ export default function ExcalidrawComponent() {
 					renderTopRightUI={() => (
 						<LiveCollaborationTrigger
 							isCollaborating={false}
-							onSelect={() => {
-								console.log('You clicked on collab button');
-							}}
+							type="button"
+							onSelect={modal.openModal}
 						/>
 					)}
 				/>
@@ -43,7 +45,17 @@ export default function ExcalidrawComponent() {
 					<EverTeamsLogo dash />
 				</div>
 			)}
+
+			<SaveListModal modal={modal} />
 		</>
+	);
+}
+
+function SaveListModal({ modal }: { modal: IHookModal }) {
+	return (
+		<Modal isOpen={modal.isOpen} closeModal={modal.closeModal} alignCloseIcon>
+			<Card className="w-full min-w-[600px]" shadow="custom"></Card>
+		</Modal>
 	);
 }
 
