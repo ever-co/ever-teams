@@ -110,8 +110,8 @@ function EmailScreen({
 
 						<Button
 							type="submit"
-							loading={form.sendCodeLoading}
-							disabled={form.sendCodeLoading}
+							loading={form.signInEmailLoading}
+							disabled={form.signInEmailLoading}
 						>
 							{trans.common.CONTINUE}
 						</Button>
@@ -210,8 +210,8 @@ function PasscodeScreen({
 
 						<Button
 							type="submit"
-							loading={form.loading}
-							disabled={form.loading}
+							loading={form.signInEmailConfirmLoading}
+							disabled={form.signInEmailConfirmLoading}
 						>
 							{trans.pages.auth.LOGIN}
 						</Button>
@@ -311,7 +311,12 @@ function WorkSpaceScreen({
 														size={34}
 														backgroundColor={`${stc(team.team_name)}80`}
 													/>
-													{team.team_name}({team.team_member_count})
+													<div className="flex justify-between">
+														<span className="max-w-[14rem] whitespace-nowrap text-ellipsis overflow-hidden">
+															{team.team_name}
+														</span>
+														<span>({team.team_member_count})</span>
+													</div>
 												</span>
 												<span
 													className="hover:cursor-pointer"
