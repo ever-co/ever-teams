@@ -136,6 +136,7 @@ export function removeAuthCookies() {
 			deleteCookie(`${TOKEN_COOKIE_NAME}${index}`);
 		});
 	}
+	deleteCookie(`${TOKEN_COOKIE_NAME}_totalChunks`);
 }
 
 // Access Token
