@@ -45,7 +45,7 @@ export function TimezoneItem({
 				className
 			)}
 		>
-			<span className={clsxm('text-normal')}>{title}</span>
+			<span className={clsxm('text-normal dark:text-white')}>{title}</span>
 		</div>
 	);
 }

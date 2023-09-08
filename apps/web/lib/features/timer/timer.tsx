@@ -121,9 +121,19 @@ export function MinTimerFrame({ className }: IClassName) {
 			</Text>
 
 			{timerStatus && timerStatus.running && (
-				<TimerRunningSourceIcon
-					source={timerStatus?.lastLog?.source || TimerSource.TEAMS}
-				/>
+				<Tooltip
+					label={`The time tracker is already running in the ${(
+						timerStatus?.lastLog?.source || TimerSource.TEAMS
+					)
+						.split('_')
+						.join(' ')
+						.toLowerCase()}`}
+					placement="bottom-start"
+				>
+					<TimerRunningSourceIcon
+						source={timerStatus?.lastLog?.source || TimerSource.TEAMS}
+					/>
+				</Tooltip>
 			)}
 
 			<VerticalSeparator />

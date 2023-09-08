@@ -341,7 +341,7 @@ function WorkSpaceScreen({
 						))}
 					</div>
 
-					<div className="w-full flex justify-between">
+					<div className="w-full flex justify-between items-center">
 						<div className="flex flex-col space-y-2">
 							<div>
 								<BackButton
