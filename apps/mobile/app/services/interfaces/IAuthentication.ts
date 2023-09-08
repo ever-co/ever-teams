@@ -1,36 +1,143 @@
-import { ITeamProps, IUser } from "./IUserData";
+import { ITeamProps, IUser } from "./IUserData"
+
+export interface IEmailAndCodeConfirmResponse {
+	workspaces: IWorkspace[]
+	confirmed_email: string
+	show_popup: boolean
+	total_workspaces: number
+}
+
+interface IWorkspace {
+	user: IUserMultiTenant
+	token: string
+}
+
+interface IUserMultiTenant {
+	email: string
+	name: string
+	imageUrl: string
+	tenant: ITenant
+}
+
+interface ITenant {
+	id: string
+	name: string
+	logo: string
+}
+
+export interface ISigninWorspaceResponse {
+	user: IUser
+	token: string
+	refresh_token: string
+}
 
 export interface ILoginResponse {
-  user: IUser;
-  token: string;
-  refresh_token: string;
+	user: IUser
+	token: string
+	refresh_token: string
 }
 
 export interface IRegisterDataRequest {
-  user: Required<Pick<IUser, "email" | "firstName" | "lastName">>;
-  password: string;
-  confirmPassword: string;
+	user: Required<Pick<IUser, "email" | "firstName" | "lastName">>
+	password: string
+	confirmPassword: string
 }
 
 export interface IDecodedRefreshToken {
-  id: string;
-  email: string;
-  tenantId: any;
-  role: any;
-  iat: number;
-  exp: number;
+	id: string
+	email: string
+	tenantId: any
+	role: any
+	iat: number
+	exp: number
 }
 
 export type IRegisterDataAPI = ITeamProps & {
-  timezone?: string;
-} & { [x: string]: string };
+	timezone?: string
+} & { [x: string]: string }
 
 export interface ILoginDataAPI {
-  email: string;
-  code: string;
+	email: string
+	code: string
 }
 
 export interface ISuccessResponse {
-	status: number;
-	message: string;
+	status: number
+	message: string
+}
+
+const object = {
+	user: {
+		id: "eeaf5d54-a9c3-4e3c-afb1-aa1b36d4ba40",
+		createdAt: "2023-06-16T06:57:19.276Z",
+		updatedAt: "2023-09-08T08:46:09.347Z",
+		tenantId: "190f56d2-c7cb-41b7-98d9-2eff3c88d4f8",
+		thirdPartyId: null,
+		firstName: null,
+		lastName: "Desperados2",
+		email: "mumun.ali888@gmail.com",
+		phoneNumber: null,
+		username: null,
+		timeZone: "Europe/Sofia",
+		imageUrl:
+			"https://gauzy.s3.wasabisys.com/uploads/profile_pictures_avatars/190f56d2-c7cb-41b7-98d9-2eff3c88d4f8/file-1687175909-59.jpeg?AWSAccessKeyId=UVBB5WNIENQZZJQWSWOU&Expires=1694166484&Signature=olXxwCjwl3TaIUaXvt3qnfTf5tM%3D",
+		preferredLanguage: "en",
+		preferredComponentLayout: "TABLE",
+		isActive: true,
+		roleId: "7b3bc781-a7ed-4070-b3ce-4b25c50a102f",
+		imageId: "2a3d9049-6093-495e-b00f-25876e94401e",
+		employee: {
+			id: "b1ebeb36-0639-4735-90ba-6a626d505261",
+			createdAt: "2023-06-16T06:57:25.992Z",
+			updatedAt: "2023-08-15T14:44:00.322Z",
+			tenantId: "190f56d2-c7cb-41b7-98d9-2eff3c88d4f8",
+			organizationId: "1be160d5-0e2e-43d4-958f-022c0c586c78",
+			isActive: true,
+			startedWorkOn: "2023-06-16T06:57:25.665Z",
+			totalWorkHours: 15,
+			profile_link: "desperados2-null",
+			isTrackingEnabled: true,
+			isOnline: false,
+			isAway: false,
+			isTrackingTime: false,
+			allowScreenshotCapture: true,
+			userId: "eeaf5d54-a9c3-4e3c-afb1-aa1b36d4ba40",
+			isDeleted: false,
+		},
+		role: {
+			id: "7b3bc781-a7ed-4070-b3ce-4b25c50a102f",
+			createdAt: "2023-06-16T06:57:21.738Z",
+			updatedAt: "2023-06-16T06:57:21.738Z",
+			tenantId: "190f56d2-c7cb-41b7-98d9-2eff3c88d4f8",
+			name: "SUPER_ADMIN",
+			isSystem: true,
+		},
+		image: {
+			id: "2a3d9049-6093-495e-b00f-25876e94401e",
+			createdAt: "2023-06-19T11:58:33.782Z",
+			updatedAt: "2023-06-19T11:58:33.782Z",
+			tenantId: "190f56d2-c7cb-41b7-98d9-2eff3c88d4f8",
+			organizationId: "1be160d5-0e2e-43d4-958f-022c0c586c78",
+			name: "beach-photo.jpeg",
+			url: "uploads/profile_pictures_avatars/190f56d2-c7cb-41b7-98d9-2eff3c88d4f8/file-1687175909-59.jpeg",
+			thumb:
+				"uploads/profile_pictures_avatars/190f56d2-c7cb-41b7-98d9-2eff3c88d4f8/thumb-beach-photo.jpeg",
+			width: 0,
+			height: 0,
+			size: 63989,
+			isFeatured: false,
+			deletedAt: null,
+			fullUrl:
+				"https://gauzy.s3.wasabisys.com/uploads/profile_pictures_avatars/190f56d2-c7cb-41b7-98d9-2eff3c88d4f8/file-1687175909-59.jpeg?AWSAccessKeyId=UVBB5WNIENQZZJQWSWOU&Expires=1694166484&Signature=olXxwCjwl3TaIUaXvt3qnfTf5tM%3D",
+			thumbUrl:
+				"https://gauzy.s3.wasabisys.com/uploads/profile_pictures_avatars/190f56d2-c7cb-41b7-98d9-2eff3c88d4f8/thumb-beach-photo.jpeg?AWSAccessKeyId=UVBB5WNIENQZZJQWSWOU&Expires=1694166484&Signature=8TE8CwqS3XbcQ3bOSJnecqRchg8%3D",
+		},
+		name: "Desperados2",
+		employeeId: "b1ebeb36-0639-4735-90ba-6a626d505261",
+		isEmailVerified: true,
+	},
+	token:
+		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlYWY1ZDU0LWE5YzMtNGUzYy1hZmIxLWFhMWIzNmQ0YmE0MCIsInRlbmFudElkIjoiMTkwZjU2ZDItYzdjYi00MWI3LTk4ZDktMmVmZjNjODhkNGY4IiwiZW1wbG95ZWVJZCI6ImIxZWJlYjM2LTA2MzktNDczNS05MGJhLTZhNjI2ZDUwNTI2MSIsInJvbGUiOiJTVVBFUl9BRE1JTiIsInBlcm1pc3Npb25zIjpbIkFETUlOX0RBU0hCT0FSRF9WSUVXIiwiVEVBTV9EQVNIQk9BUkQiLCJQUk9KRUNUX01BTkFHRU1FTlRfREFTSEJPQVJEIiwiVElNRV9UUkFDS0lOR19EQVNIQk9BUkQiLCJBQ0NPVU5USU5HX0RBU0hCT0FSRCIsIkhVTUFOX1JFU09VUkNFX0RBU0hCT0FSRCIsIk9SR19QQVlNRU5UX1ZJRVciLCJPUkdfUEFZTUVOVF9BRERfRURJVCIsIk9SR19JTkNPTUVTX1ZJRVciLCJPUkdfSU5DT01FU19FRElUIiwiT1JHX0VYUEVOU0VTX1ZJRVciLCJPUkdfRVhQRU5TRVNfRURJVCIsIlBST0ZJTEVfRURJVCIsIkVNUExPWUVFX0VYUEVOU0VTX1ZJRVciLCJFTVBMT1lFRV9FWFBFTlNFU19FRElUIiwiT1JHX1BST1BPU0FMU19WSUVXIiwiT1JHX1BST1BPU0FMU19FRElUIiwiT1JHX1BST1BPU0FMX1RFTVBMQVRFU19WSUVXIiwiT1JHX1BST1BPU0FMX1RFTVBMQVRFU19FRElUIiwiT1JHX1RBU0tfQUREIiwiT1JHX1RBU0tfVklFVyIsIk9SR19UQVNLX0VESVQiLCJPUkdfVEFTS19ERUxFVEUiLCJPUkdfVElNRV9PRkZfVklFVyIsIk9SR19FTVBMT1lFRVNfVklFVyIsIk9SR19FTVBMT1lFRVNfRURJVCIsIk9SR19DQU5ESURBVEVTX1ZJRVciLCJPUkdfQ0FORElEQVRFU19FRElUIiwiT1JHX0NBTkRJREFURVNfSU5URVJWSUVXX0VESVQiLCJPUkdfQ0FORElEQVRFU19JTlRFUlZJRVdfVklFVyIsIk9SR19DQU5ESURBVEVTX0RPQ1VNRU5UU19WSUVXIiwiT1JHX0NBTkRJREFURVNfVEFTS19FRElUIiwiT1JHX0NBTkRJREFURVNfRkVFREJBQ0tfRURJVCIsIk9SR19JTlZFTlRPUllfUFJPRFVDVF9FRElUIiwiT1JHX0lOVkVOVE9SWV9WSUVXIiwiT1JHX1RBR1NfQUREIiwiT1JHX1RBR1NfVklFVyIsIk9SR19UQUdTX0VESVQiLCJPUkdfVEFHU19ERUxFVEUiLCJPUkdfVVNFUlNfVklFVyIsIk9SR19VU0VSU19FRElUIiwiT1JHX0lOVklURV9WSUVXIiwiT1JHX0lOVklURV9FRElUIiwiQUxMX09SR19WSUVXIiwiQUxMX09SR19FRElUIiwiUE9MSUNZX1ZJRVciLCJQT0xJQ1lfRURJVCIsIlRJTUVfT0ZGX0VESVQiLCJSRVFVRVNUX0FQUFJPVkFMX1ZJRVciLCJSRVFVRVNUX0FQUFJPVkFMX0VESVQiLCJBUFBST1ZBTFNfUE9MSUNZX1ZJRVciLCJBUFBST1ZBTFNfUE9MSUNZX0VESVQiLCJDSEFOR0VfU0VMRUNURURfRU1QTE9ZRUUiLCJDSEFOR0VfU0VMRUNURURfQ0FORElEQVRFIiwiQ0hBTkdFX1NFTEVDVEVEX09SR0FOSVpBVElPTiIsIkNIQU5HRV9ST0xFU19QRVJNSVNTSU9OUyIsIkFDQ0VTU19QUklWQVRFX1BST0pFQ1RTIiwiVElNRVNIRUVUX0VESVRfVElNRSIsIlNVUEVSX0FETUlOX0VESVQiLCJQVUJMSUNfUEFHRV9FRElUIiwiSU5WT0lDRVNfVklFVyIsIklOVk9JQ0VTX0VESVQiLCJFU1RJTUFURVNfVklFVyIsIkVTVElNQVRFU19FRElUIiwiT1JHX0NBTkRJREFURVNfSU5URVJWSUVXRVJTX0VESVQiLCJPUkdfQ0FORElEQVRFU19JTlRFUlZJRVdFUlNfVklFVyIsIlZJRVdfQUxMX0VNQUlMUyIsIlZJRVdfQUxMX0VNQUlMX1RFTVBMQVRFUyIsIk9SR19IRUxQX0NFTlRFUl9FRElUIiwiVklFV19TQUxFU19QSVBFTElORVMiLCJFRElUX1NBTEVTX1BJUEVMSU5FUyIsIkNBTl9BUFBST1ZFX1RJTUVTSEVFVCIsIk9SR19TUFJJTlRfVklFVyIsIk9SR19TUFJJTlRfRURJVCIsIk9SR19DT05UQUNUX0VESVQiLCJPUkdfQ09OVEFDVF9WSUVXIiwiT1JHX1BST0pFQ1RfQUREIiwiT1JHX1BST0pFQ1RfVklFVyIsIk9SR19QUk9KRUNUX0VESVQiLCJPUkdfUFJPSkVDVF9ERUxFVEUiLCJPUkdfVEVBTV9BREQiLCJPUkdfVEVBTV9WSUVXIiwiT1JHX1RFQU1fRURJVCIsIk9SR19URUFNX0RFTEVURSIsIk9SR19URUFNX0pPSU5fUkVRVUVTVF9WSUVXIiwiT1JHX1RFQU1fSk9JTl9SRVFVRVNUX0VESVQiLCJPUkdfQ09OVFJBQ1RfRURJVCIsIkVWRU5UX1RZUEVTX1ZJRVciLCJUSU1FX1RSQUNLRVIiLCJURU5BTlRfQUREX0VYSVNUSU5HX1VTRVIiLCJJTlRFR1JBVElPTl9WSUVXIiwiRklMRV9TVE9SQUdFX1ZJRVciLCJQQVlNRU5UX0dBVEVXQVlfVklFVyIsIlNNU19HQVRFV0FZX1ZJRVciLCJDVVNUT01fU01UUF9WSUVXIiwiSU1QT1JUX0VYUE9SVF9WSUVXIiwiTUlHUkFURV9HQVVaWV9DTE9VRCIsIk9SR19KT0JfRU1QTE9ZRUVfVklFVyIsIk9SR19KT0JfTUFUQ0hJTkdfVklFVyIsIklOVkVOVE9SWV9HQUxMRVJZX0FERCIsIklOVkVOVE9SWV9HQUxMRVJZX1ZJRVciLCJJTlZFTlRPUllfR0FMTEVSWV9FRElUIiwiSU5WRU5UT1JZX0dBTExFUllfREVMRVRFIiwiTUVESUFfR0FMTEVSWV9BREQiLCJNRURJQV9HQUxMRVJZX1ZJRVciLCJNRURJQV9HQUxMRVJZX0VESVQiLCJNRURJQV9HQUxMRVJZX0RFTEVURSIsIk9SR19FUVVJUE1FTlRfVklFVyIsIk9SR19FUVVJUE1FTlRfRURJVCIsIk9SR19FUVVJUE1FTlRfU0hBUklOR19WSUVXIiwiT1JHX0VRVUlQTUVOVF9TSEFSSU5HX0VESVQiLCJFUVVJUE1FTlRfTUFLRV9SRVFVRVNUIiwiRVFVSVBNRU5UX0FQUFJPVkVfUkVRVUVTVCIsIk9SR19QUk9EVUNUX1RZUEVTX1ZJRVciLCJPUkdfUFJPRFVDVF9UWVBFU19FRElUIiwiT1JHX1BST0RVQ1RfQ0FURUdPUklFU19WSUVXIiwiT1JHX1BST0RVQ1RfQ0FURUdPUklFU19FRElUIiwiVklFV19BTExfQUNDT1VOVElOR19URU1QTEFURVMiLCJBQ0NFU1NfREVMRVRFX0FDQ09VTlQiLCJBQ0NFU1NfREVMRVRFX0FMTF9EQVRBIiwiVEVOQU5UX1NFVFRJTkciLCJBTExPV19ERUxFVEVfVElNRSIsIkFMTE9XX01PRElGWV9USU1FIiwiQUxMT1dfTUFOVUFMX1RJTUUiLCJERUxFVEVfU0NSRUVOU0hPVFMiXSwiaWF0IjoxNjk0MTYyODg0fQ.7MFp2-osW3MsBAR4X4eDbhluLyGOXjHIroslyfCz1fM",
+	refresh_token:
+		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVlYWY1ZDU0LWE5YzMtNGUzYy1hZmIxLWFhMWIzNmQ0YmE0MCIsImVtYWlsIjoibXVtdW4uYWxpODg4QGdtYWlsLmNvbSIsInRlbmFudElkIjoiMTkwZjU2ZDItYzdjYi00MWI3LTk4ZDktMmVmZjNjODhkNGY4Iiwicm9sZSI6IlNVUEVSX0FETUlOIiwiaWF0IjoxNjk0MTYyODg0LCJleHAiOjE2OTQyNDkyODR9.yJCNAXMKFA4_69Zz4xCpv28IjyHO7F9OiueR-fceesM",
 }

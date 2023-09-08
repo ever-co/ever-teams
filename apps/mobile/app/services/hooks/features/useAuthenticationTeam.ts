@@ -6,6 +6,7 @@ import { register } from "../../client/api/auth/register"
 import sendAuthCode from "../../client/api/auth/sendAuthCode"
 import {
 	resentVerifyUserLinkRequest,
+	verifyAuthCodeRequest,
 	verifyUserEmailByCodeRequest,
 } from "../../client/requests/auth"
 import { useFirstLoad } from "../useFirstLoad"
@@ -182,6 +183,16 @@ export function useAuthenticationTeam() {
 	/**
 	 * Verify User Email by Verification Code
 	 */
+
+	const verifyEmailAndCode = async () => {
+		setIsLoading(true)
+		console.log("email:", authEmail)
+		console.log("code:", authInviteCode)
+
+		await verifyAuthCodeRequest(authEmail, authInviteCode).then((response) => console.log(response))
+		setIsLoading(false)
+	}
+
 	const verifyEmailByCode = async () => {
 		setIsLoading(true)
 		await verifyUserEmailByCodeRequest({
@@ -246,6 +257,7 @@ export function useAuthenticationTeam() {
 		createNewTeam,
 		verificationError,
 		verifyEmailByCode,
+		verifyEmailAndCode,
 		getAuthCode,
 		errors,
 		isLoading,

@@ -23,17 +23,27 @@ interface Props {
 	joinTeam: () => unknown
 	getAuthCode: () => unknown
 	joinError: string
+	verifyEmailAndCode: () => unknown
 }
 const { width } = Dimensions.get("window")
 const PassCode: FC<Props> = observer(
-	({ isLoading, errors, setScreenStatus, setWithTeam, joinTeam, getAuthCode, joinError }) => {
+	({
+		isLoading,
+		errors,
+		setScreenStatus,
+		setWithTeam,
+		joinTeam,
+		getAuthCode,
+		joinError,
+		verifyEmailAndCode,
+	}) => {
 		const { colors } = useAppTheme()
 		const {
 			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode, authInviteCode },
 		} = useStores()
 
 		const authTeamInput = useRef<TextInput>()
-		const [step, setStep] = useState<"Email" | "Code">("Email")
+		const [step, setStep] = useState<"Email" | "Code" | "Tenant">("Email")
 		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean }>({
 			step1: false,
 			step2: false,
@@ -51,6 +61,14 @@ const PassCode: FC<Props> = observer(
 			}
 
 			if (step === "Code") {
+				verifyEmailAndCode()
+				setTimeout(() => {
+					if (!isLoading) {
+						setStep("Tenant")
+					}
+				}, 1000)
+			}
+			if (step === "Tenant") {
 				joinTeam()
 			}
 		}
@@ -66,6 +84,9 @@ const PassCode: FC<Props> = observer(
 
 			if (step === "Code") {
 				setStep("Email")
+			}
+			if (step === "Tenant") {
+				setStep("Code")
 			}
 		}
 
@@ -136,7 +157,7 @@ const PassCode: FC<Props> = observer(
 							onSubmitEditing={() => authTeamInput.current?.focus()}
 						/>
 					</>
-				) : (
+				) : step === "Code" ? (
 					<View>
 						<Text style={{ ...styles.text, alignSelf: "center" }}>
 							{translate("loginScreen.inviteCodeFieldLabel")}
@@ -156,6 +177,10 @@ const PassCode: FC<Props> = observer(
 								</Text>
 							</Text>
 						</TouchableOpacity>
+					</View>
+				) : (
+					<View>
+						<Text>This is Tenant</Text>
 					</View>
 				)}
 				<View style={styles.buttonsView}>
