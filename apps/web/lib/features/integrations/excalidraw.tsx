@@ -35,7 +35,7 @@ export default function ExcalidrawComponent() {
 
 			{excalidrawAPI?.ready && (
 				<div className="absolute z-50 top-5 left-14 scale-75">
-					<EverTeamsLogo dash />
+					<EverTeamsLogo color={THEME ? 'auto' : 'dark'} dash />
 				</div>
 			)}
 
