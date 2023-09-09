@@ -46,6 +46,8 @@ export function useAuthenticationTeam() {
 			setTenantId,
 			setEmployeeId,
 			setRefreshToken,
+			setUserWorkspaces,
+			userWorkspaces,
 		},
 		teamStore: { setActiveTeam, setActiveTeamId },
 	} = useStores()
@@ -189,7 +191,14 @@ export function useAuthenticationTeam() {
 		console.log("email:", authEmail)
 		console.log("code:", authInviteCode)
 
-		await verifyAuthCodeRequest(authEmail, authInviteCode).then((response) => console.log(response))
+		try {
+			const response = await verifyAuthCodeRequest(authEmail, authInviteCode)
+			setUserWorkspaces(response.data)
+			console.log("userWorkspaces:", userWorkspaces)
+		} catch (error) {
+			console.error("Error:", error)
+		}
+
 		setIsLoading(false)
 	}
 

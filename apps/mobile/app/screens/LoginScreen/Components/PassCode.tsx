@@ -14,6 +14,8 @@ import { useStores } from "../../../models"
 import { CodeInput } from "../../../components/CodeInput"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { EMAIL_REGEX } from "../../../helpers/regex"
+import UserTenants from "./UserTenants"
+import { ScrollView } from "react-native-gesture-handler"
 
 interface Props {
 	isLoading: boolean
@@ -39,7 +41,14 @@ const PassCode: FC<Props> = observer(
 	}) => {
 		const { colors } = useAppTheme()
 		const {
-			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode, authInviteCode },
+			authenticationStore: {
+				authEmail,
+				setAuthEmail,
+				setAuthInviteCode,
+				authInviteCode,
+				userWorkspaces,
+			},
+			teamStore: { activeTeamId, setActiveTeamId },
 		} = useStores()
 
 		const authTeamInput = useRef<TextInput>()
@@ -48,6 +57,7 @@ const PassCode: FC<Props> = observer(
 			step1: false,
 			step2: false,
 		})
+		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0)
 
 		const onNextStep = async () => {
 			if (step === "Email") {
@@ -67,6 +77,7 @@ const PassCode: FC<Props> = observer(
 						setStep("Tenant")
 					}
 				}, 1000)
+				setAuthInviteCode("")
 			}
 			if (step === "Tenant") {
 				joinTeam()
@@ -179,8 +190,23 @@ const PassCode: FC<Props> = observer(
 						</TouchableOpacity>
 					</View>
 				) : (
-					<View>
-						<Text>This is Tenant</Text>
+					<View style={styles.tenantsContainer}>
+						<Text style={{ ...styles.text, alignSelf: "center" }}>
+							{translate("loginScreen.selectWorkspaceFieldLabel")}
+						</Text>
+						<ScrollView>
+							{userWorkspaces?.workspaces?.map((workspace, i) => (
+								<UserTenants
+									key={i}
+									index={i}
+									data={workspace}
+									activeTeamId={activeTeamId}
+									setActiveTeamId={setActiveTeamId}
+									selectedWorkspace={selectedWorkspace}
+									setSelectedWorkspace={setSelectedWorkspace}
+								/>
+							))}
+						</ScrollView>
 					</View>
 				)}
 				<View style={styles.buttonsView}>
@@ -241,6 +267,10 @@ const $tapButton: ViewStyle = {
 }
 
 const styles = EStyleSheet.create({
+	tenantsContainer: {
+		width: "100%",
+		height: 220,
+	},
 	form: {
 		position: "absolute",
 		display: "flex",

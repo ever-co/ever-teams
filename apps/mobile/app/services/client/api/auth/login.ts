@@ -37,9 +37,7 @@ export async function login(params: ILoginDataAPI) {
 		/**
 		 * If the invite code verification failed then try again with auth code
 		 */
-		const authReq = await verifyAuthCodeRequest(params.email, parseInt(params.code, 10)).catch(
-			() => void 0,
-		)
+		const authReq = await verifyAuthCodeRequest(params.email, params.code).catch(() => void 0)
 
 		if (
 			!authReq ||

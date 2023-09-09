@@ -94,7 +94,7 @@ export function sendAuthCodeRequest(email: string) {
 // auth/signin.email/confirm Gives response with tenantId's
 export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<IEmailAndCodeConfirmResponse>({
-		path: "/auth/signin.email/confirm",
+		path: "/auth/signin.email/confirm?includeTeams=true",
 		method: "POST",
 		body: { email, code },
 	})
