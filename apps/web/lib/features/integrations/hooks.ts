@@ -21,10 +21,6 @@ export const useWhiteboard = () => {
 			window.localStorage.getItem('whiteboard-elements') || '[]'
 		);
 
-		const appstate = JSON.parse(
-			window.localStorage.getItem('whiteboard-appstate') || '{}'
-		) as AppState;
-
 		const files = JSON.parse(
 			window.localStorage.getItem('whiteboard-files') || '[]'
 		);
@@ -33,11 +29,8 @@ export const useWhiteboard = () => {
 			api.addFiles(Object.values(files));
 			api.updateScene({
 				elements: elements,
-				appState: {
-					scrollX: appstate.scrollX || 0,
-					scrollY: appstate.scrollY || 0,
-				},
 			});
+			api.scrollToContent();
 
 			loaded.current = true;
 		});
@@ -46,15 +39,10 @@ export const useWhiteboard = () => {
 	const saveChanges = useCallback(
 		(
 			elements: readonly ExcalidrawElement[],
-			appState: AppState,
+			_: AppState,
 			files: BinaryFiles
 		) => {
 			if (!loaded.current) return;
-
-			window.localStorage.setItem(
-				'whiteboard-appstate',
-				JSON.stringify(appState)
-			);
 
 			window.localStorage.setItem(
 				'whiteboard-elements',
