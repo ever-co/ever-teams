@@ -136,8 +136,8 @@ export const grayCircleIcon = `<svg
 		</svg>`
 
 export const greenCircleTickIcon = `<svg
-			width="20"
-			height="21"
+			width="23"
+			height="23"
 			viewBox="0 0 20 21"
   fill="#27AE60"
 			xmlns="http://www.w3.org/2000/svg"

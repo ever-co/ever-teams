@@ -1,11 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-unused-styles */
 import React, { FC } from "react"
 import { View, Text, StyleSheet, Image } from "react-native"
 import { IWorkspace } from "../../../services/interfaces/IAuthentication"
 import { SvgXml } from "react-native-svg"
 import { grayCircleIcon, greenCircleTickIcon } from "../../../components/svgs/icons"
 
+interface IValid {
+	step1: boolean
+	step2: boolean
+	step3: boolean
+}
 interface IUserTenants {
 	data: IWorkspace
 	index: number
@@ -13,6 +19,8 @@ interface IUserTenants {
 	setActiveTeamId: (teamId: string) => void
 	selectedWorkspace: number
 	setSelectedWorkspace: React.Dispatch<React.SetStateAction<number>>
+	isValid: IValid
+	setIsValid: React.Dispatch<React.SetStateAction<IValid>>
 }
 
 const UserTenants: FC<IUserTenants> = ({
@@ -22,25 +30,19 @@ const UserTenants: FC<IUserTenants> = ({
 	setActiveTeamId,
 	setSelectedWorkspace,
 	selectedWorkspace,
+	isValid,
+	setIsValid,
 }) => {
 	return (
 		<View style={styles.tenantContainer}>
-			<View
-				style={{
-					display: "flex",
-					flexDirection: "row",
-					justifyContent: "space-between",
-					alignItems: "center",
-					marginBottom: 10,
-				}}
-			>
+			<View style={styles.tenantNameContainer}>
 				<Text style={{ fontSize: 17 }}>{data.user.tenant.name}</Text>
 				<View
 					onTouchStart={() => {
 						setSelectedWorkspace(index)
-						activeTeamId &&
-							selectedWorkspace !== index &&
-							setActiveTeamId(data.current_teams[0].team_id)
+						selectedWorkspace !== index && setActiveTeamId(data.current_teams[0].team_id)
+						data.current_teams.filter((team) => team.team_id === activeTeamId) &&
+							setIsValid({ ...isValid, step3: true })
 					}}
 				>
 					{selectedWorkspace === index ? (
@@ -52,35 +54,21 @@ const UserTenants: FC<IUserTenants> = ({
 			</View>
 			<View style={{ paddingHorizontal: 10, width: "95%", gap: 5 }}>
 				{data.current_teams.map((team, i) => (
-					<View
-						key={i}
-						style={{
-							display: "flex",
-							flexDirection: "row",
-							justifyContent: "space-between",
-							alignItems: "center",
-							marginVertical: 5,
-						}}
-					>
-						<View
-							style={{
-								display: "flex",
-								flexDirection: "row",
-								justifyContent: "space-between",
-								alignItems: "center",
-								gap: 10,
-							}}
-						>
+					<View key={i} style={styles.teamsContainer}>
+						<View style={styles.teamInfoContainer}>
 							<Image
 								source={{ uri: team.team_logo }}
 								style={{ width: 25, height: 25, borderRadius: 100 }}
 							/>
-							<Text style={{ fontSize: 18 }}>{team.team_name}</Text>
+							<Text style={{ fontSize: 18 }}>
+								{team.team_name}({team.team_member_count})
+							</Text>
 						</View>
 						<View
 							onTouchStart={() => {
 								setActiveTeamId(team.team_id)
 								setSelectedWorkspace(index)
+								setIsValid({ ...isValid, step3: true })
 							}}
 						>
 							{activeTeamId === team.team_id ? (
@@ -99,11 +87,32 @@ const UserTenants: FC<IUserTenants> = ({
 export default UserTenants
 
 const styles = StyleSheet.create({
+	teamInfoContainer: {
+		alignItems: "center",
+		display: "flex",
+		flexDirection: "row",
+		gap: 10,
+		justifyContent: "space-between",
+	},
+	teamsContainer: {
+		alignItems: "center",
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginVertical: 5,
+	},
 	tenantContainer: {
 		backgroundColor: "#FCFCFC",
 		borderRadius: 16,
 		marginVertical: 10,
 		padding: 12,
 		width: "100%",
+	},
+	tenantNameContainer: {
+		alignItems: "center",
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginBottom: 10,
 	},
 })

@@ -188,13 +188,19 @@ export function useAuthenticationTeam() {
 
 	const verifyEmailAndCode = async () => {
 		setIsLoading(true)
-		console.log("email:", authEmail)
-		console.log("code:", authInviteCode)
+		setUserWorkspaces(null)
+		// console.log("email:", authEmail)
+		// console.log("code:", authInviteCode)
 
 		try {
 			const response = await verifyAuthCodeRequest(authEmail, authInviteCode)
-			setUserWorkspaces(response.data)
-			console.log("userWorkspaces:", userWorkspaces)
+			if (response.response.status === 201) {
+				setUserWorkspaces(response.data)
+			}
+			if (response.response.status === 401) {
+				setJoinError("Invalid email address or code")
+			}
+			// console.log("userWorkspaces:", userWorkspaces)
 		} catch (error) {
 			console.error("Error:", error)
 		}

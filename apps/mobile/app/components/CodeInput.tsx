@@ -35,6 +35,12 @@ export const CodeInput: FC<IInput> = (props) => {
 			}
 		} else {
 			if (nativeEvent.key.match(/^[0-9a-zA-Z]*$/)) {
+				if (!inviteCode[active + 1]) {
+					const updatedCode = [...inviteCode]
+					updatedCode[active + 1] = nativeEvent.key
+					setInviteCode(updatedCode)
+					onChange(updatedCode.join(""))
+				}
 				inputsRef.current[active + 1]?.focus()
 				return setActive(active + 1)
 			}

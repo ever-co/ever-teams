@@ -53,9 +53,10 @@ const PassCode: FC<Props> = observer(
 
 		const authTeamInput = useRef<TextInput>()
 		const [step, setStep] = useState<"Email" | "Code" | "Tenant">("Email")
-		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean }>({
+		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean; step3: boolean }>({
 			step1: false,
 			step2: false,
+			step3: false,
 		})
 		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0)
 
@@ -73,11 +74,12 @@ const PassCode: FC<Props> = observer(
 			if (step === "Code") {
 				verifyEmailAndCode()
 				setTimeout(() => {
-					if (!isLoading) {
+					if (!isLoading && userWorkspaces.workspaces) {
+						setAuthInviteCode("")
+						setActiveTeamId("")
 						setStep("Tenant")
 					}
 				}, 1000)
-				setAuthInviteCode("")
 			}
 			if (step === "Tenant") {
 				joinTeam()
@@ -98,6 +100,7 @@ const PassCode: FC<Props> = observer(
 			}
 			if (step === "Tenant") {
 				setStep("Code")
+				setActiveTeamId("")
 			}
 		}
 
@@ -204,6 +207,8 @@ const PassCode: FC<Props> = observer(
 									setActiveTeamId={setActiveTeamId}
 									selectedWorkspace={selectedWorkspace}
 									setSelectedWorkspace={setSelectedWorkspace}
+									isValid={isValid}
+									setIsValid={setIsValid}
 								/>
 							))}
 						</ScrollView>
@@ -230,17 +235,22 @@ const PassCode: FC<Props> = observer(
 								opacity:
 									isLoading ||
 									(step === "Email" && !isValid.step1) ||
-									(step === "Code" && !isValid.step2)
+									(step === "Code" && !isValid.step2) ||
+									(step === "Tenant" && !isValid.step3)
 										? 0.5
 										: 1,
 							},
 						]}
 						textStyle={styles.tapButtonText}
 						onPress={() => onNextStep()}
-						disabled={(step === "Email" && !isValid.step1) || (step === "Code" && !isValid.step2)}
+						disabled={
+							(step === "Email" && !isValid.step1) ||
+							(step === "Code" && !isValid.step2) ||
+							(step === "Tenant" && !isValid.step3)
+						}
 					>
 						<Text>
-							{step === "Code"
+							{step === "Tenant"
 								? translate("loginScreen.tapJoin")
 								: translate("loginScreen.tapContinue")}
 						</Text>
