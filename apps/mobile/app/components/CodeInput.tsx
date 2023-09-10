@@ -35,14 +35,14 @@ export const CodeInput: FC<IInput> = (props) => {
 			}
 		} else {
 			if (nativeEvent.key.match(/^[0-9a-zA-Z]*$/)) {
-				if (!inviteCode[active + 1]) {
+				if (active < length - 1) {
 					const updatedCode = [...inviteCode]
-					updatedCode[active + 1] = nativeEvent.key
+					updatedCode[active] = nativeEvent.key
 					setInviteCode(updatedCode)
 					onChange(updatedCode.join(""))
+					inputsRef.current[active + 1]?.focus()
+					return setActive(active + 1)
 				}
-				inputsRef.current[active + 1]?.focus()
-				return setActive(active + 1)
 			}
 		}
 		return null
@@ -51,10 +51,10 @@ export const CodeInput: FC<IInput> = (props) => {
 	const onChangeCode = (inputCode: string, inputIndex: number) => {
 		if (inputCode.match(/^[0-9a-zA-Z]*$/)) {
 			// Allow alphanumeric characters
-			const codes = inviteCode
+			const codes = [...inviteCode]
 			codes[inputIndex] = inputCode
 			setInviteCode(codes)
-			onChange(inviteCode.join("")) // Call the onChange prop with the updated code
+			onChange(codes.join("")) // Call the onChange prop with the updated code
 		}
 	}
 
