@@ -11,6 +11,7 @@ import {
 } from "../../client/requests/auth"
 import { useFirstLoad } from "../useFirstLoad"
 import { signIn } from "../../client/api/auth/signin"
+import { VerificationResponse } from "../../interfaces/IAuthentication"
 
 export function useAuthenticationTeam() {
 	const authTeamInput = useRef<TextInput>()
@@ -47,7 +48,6 @@ export function useAuthenticationTeam() {
 			setTenantId,
 			setEmployeeId,
 			setRefreshToken,
-			setUserWorkspaces,
 		},
 		teamStore: { setActiveTeam, setActiveTeamId },
 	} = useStores()
@@ -227,25 +227,31 @@ export function useAuthenticationTeam() {
 	 * Verify User Email by Verification Code
 	 */
 
-	const verifyEmailAndCode = async () => {
+	const verifyEmailAndCode = async (): Promise<VerificationResponse> => {
 		setIsLoading(true)
-		setUserWorkspaces(null)
-		// console.log("email:", authEmail)
-		// console.log("code:", authInviteCode)
+		setJoinError("")
 
 		try {
 			const response = await verifyAuthCodeRequest(authEmail, authInviteCode)
-			if (response.response.status === 201) {
-				setUserWorkspaces(response.data)
-			}
-			if (response.response.status === 401) {
-				setJoinError("Authentication code or email address invalid")
+
+			setIsLoading(false)
+
+			return {
+				success: response.response.status === 201,
+				data: response.data,
+				error:
+					response.response.status === 401 ? "Authentication code or email address invalid" : null,
 			}
 		} catch (error) {
 			console.error("Error:", error)
-		}
+			setIsLoading(false)
 
-		setIsLoading(false)
+			return {
+				success: false,
+				data: null,
+				error: "An error occurred while verifying email and code.",
+			}
+		}
 	}
 
 	const verifyEmailByCode = async () => {

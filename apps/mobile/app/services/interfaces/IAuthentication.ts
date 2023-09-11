@@ -1,5 +1,11 @@
 import { ITeamProps, IUser } from "./IUserData"
 
+export interface VerificationResponse {
+	success?: boolean
+	data?: IEmailAndCodeConfirmResponse | null
+	error?: string | null
+}
+
 export interface IEmailAndCodeConfirmResponse {
 	workspaces: IWorkspace[]
 	confirmed_email: string

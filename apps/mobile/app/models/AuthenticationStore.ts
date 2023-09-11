@@ -1,6 +1,5 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
 import { ILanguageItemList, IUser } from "../services/interfaces/IUserData"
-import { IEmailAndCodeConfirmResponse } from "../services/interfaces/IAuthentication"
 
 export const AuthenticationStoreModel = types
 	.model("AuthenticationStore")
@@ -19,7 +18,6 @@ export const AuthenticationStoreModel = types
 		employeeId: types.optional(types.string, ""),
 		preferredLanguage: types.optional(types.frozen(), null),
 		isDarkMode: types.optional(types.boolean, false),
-		userWorkspaces: types.optional(types.frozen<IEmailAndCodeConfirmResponse>(), null),
 	})
 	.views((store) => ({
 		get isAuthenticated() {
@@ -84,9 +82,6 @@ export const AuthenticationStoreModel = types
 		},
 		setTempAuthToken(value?: string) {
 			store.tempAuthToken = value
-		},
-		setUserWorkspaces(workspaces: IEmailAndCodeConfirmResponse) {
-			store.userWorkspaces = workspaces
 		},
 		toggleTheme() {
 			store.isDarkMode = !store.isDarkMode

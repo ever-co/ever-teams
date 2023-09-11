@@ -16,6 +16,7 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { EMAIL_REGEX } from "../../../helpers/regex"
 import UserTenants from "./UserTenants"
 import { ScrollView } from "react-native-gesture-handler"
+import { IWorkspace, VerificationResponse } from "../../../services/interfaces/IAuthentication"
 
 interface Props {
 	isLoading: boolean
@@ -48,7 +49,6 @@ const PassCode: FC<Props> = observer(
 				setAuthEmail,
 				setAuthInviteCode,
 				authInviteCode,
-				userWorkspaces,
 				setTempAuthToken,
 			},
 			teamStore: { activeTeamId, setActiveTeamId },
@@ -62,6 +62,7 @@ const PassCode: FC<Props> = observer(
 			step3: false,
 		})
 		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0)
+		const [workspaceData, setWorkspaceData] = useState(null)
 
 		const onNextStep = async () => {
 			if (step === "Email") {
@@ -75,9 +76,11 @@ const PassCode: FC<Props> = observer(
 			}
 
 			if (step === "Code") {
-				verifyEmailAndCode()
+				const response: VerificationResponse = await verifyEmailAndCode()
+
 				setTimeout(() => {
-					if (!isLoading && userWorkspaces?.workspaces) {
+					if (!isLoading && response.data.workspaces) {
+						setWorkspaceData(response.data.workspaces)
 						setAuthInviteCode("")
 						setActiveTeamId("")
 						setStep("Tenant")
@@ -202,7 +205,7 @@ const PassCode: FC<Props> = observer(
 							{translate("loginScreen.selectWorkspaceFieldLabel")}
 						</Text>
 						<ScrollView>
-							{userWorkspaces?.workspaces?.map((workspace, i) => (
+							{workspaceData?.map((workspace: IWorkspace, i: number) => (
 								<UserTenants
 									key={i}
 									index={i}
