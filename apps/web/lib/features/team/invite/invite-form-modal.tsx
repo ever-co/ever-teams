@@ -109,7 +109,7 @@ export function InviteFormModal({
 							</Text>
 						</div>
 
-						<div className="w-full">
+						<div className="w-full flex flex-col gap-3">
 							<InviteEmailDropdown
 								emails={currentOrgEmails}
 								setSelectedEmail={setSelectedEmail}
@@ -122,9 +122,7 @@ export function InviteFormModal({
 								}
 								handleAddNew={handleAddNew}
 							/>
-						</div>
 
-						<div className="w-full mt-1">
 							<InputField
 								type="text"
 								name="name"
