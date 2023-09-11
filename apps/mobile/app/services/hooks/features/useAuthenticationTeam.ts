@@ -241,7 +241,6 @@ export function useAuthenticationTeam() {
 			if (response.response.status === 401) {
 				setJoinError("Authentication code or email address invalid")
 			}
-			// console.log("userWorkspaces:", userWorkspaces)
 		} catch (error) {
 			console.error("Error:", error)
 		}

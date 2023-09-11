@@ -77,7 +77,7 @@ const PassCode: FC<Props> = observer(
 			if (step === "Code") {
 				verifyEmailAndCode()
 				setTimeout(() => {
-					if (!isLoading && userWorkspaces.workspaces) {
+					if (!isLoading && userWorkspaces?.workspaces) {
 						setAuthInviteCode("")
 						setActiveTeamId("")
 						setStep("Tenant")
