@@ -93,10 +93,8 @@ export function useAuthenticationPasscode() {
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
 				.then(() => {
-					// window.location.reload();
-					// setAuthenticated(true);
-
-					console.log('this is it...');
+					window.location.reload();
+					setAuthenticated(true);
 				})
 				.catch((err: AxiosError) => {
 					if (err.response?.status === 400) {
