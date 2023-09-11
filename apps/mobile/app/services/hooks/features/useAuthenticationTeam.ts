@@ -56,67 +56,6 @@ export function useAuthenticationTeam() {
 
 	const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
-	/**
-	 * Join an existing team
-	 */
-	const joinTeam = async () => {
-		setIsSubmitted(true)
-		setAttemptsCount(attemptsCount + 1)
-
-		setIsLoading(true)
-
-		await login({ email: authEmail, code: authInviteCode })
-			.then((res) => {
-				const { response, errors, status } = res
-
-				if (status === 200) {
-					const loginRes = response.data.authStoreData
-					const user = response.data.loginResponse.user
-					const noTeam = response.data.noTeam
-					setUser(user)
-					setEmployeeId(user.employee.id)
-					const team = response.data.team
-
-					// Check if team is not null
-					if (!noTeam) {
-						setActiveTeamId(team.id)
-						setActiveTeam(team)
-					}
-
-					// Save Auth Token
-					setTenantId(user.tenantId)
-					setOrganizationId(user.employee.organizationId)
-					setAuthToken(loginRes.access_token)
-					setRefreshToken(loginRes.refresh_token.token)
-					setIsLoading(false)
-
-					// Reset all fields
-					setIsSubmitted(false)
-					setAuthTeamName("")
-					setAuthEmail("")
-					setAuthInviteCode("")
-					setAuthUsername("")
-					setAuthConfirmCode("")
-					setAuthTeamName("")
-					setAuthEmail("")
-					setAuthUsername("")
-					setAuthInviteCode("")
-					setAuthConfirmCode("")
-				} else {
-					if (errors) {
-						setJoinError(errors.email)
-						setIsLoading(false)
-						setIsSubmitted(false)
-					}
-				}
-			})
-			.catch((e) => {
-				setIsLoading(false)
-				setIsSubmitted(false)
-				console.log(e)
-			})
-	}
-
 	const signInWorkspace = async () => {
 		try {
 			setIsSubmitted(true)
@@ -227,29 +166,71 @@ export function useAuthenticationTeam() {
 	 * Verify User Email by Verification Code
 	 */
 
-	const verifyEmailAndCode = async (): Promise<VerificationResponse> => {
+	const verifyEmailAndCodeOrAcceptInvite = async (): Promise<VerificationResponse> => {
 		setIsLoading(true)
 		setJoinError("")
 
 		try {
+			await login({ email: authEmail, code: authInviteCode }).then((res) => {
+				const { response, errors, status } = res
+
+				if (status === 200) {
+					const loginRes = response.data.authStoreData
+					const user = response.data.loginResponse.user
+					const noTeam = response.data.noTeam
+					setUser(user)
+					setEmployeeId(user.employee.id)
+					const team = response.data.team
+
+					// Check if team is not null
+					if (!noTeam) {
+						setActiveTeamId(team.id)
+						setActiveTeam(team)
+					}
+
+					// Save Auth Token
+					setTenantId(user.tenantId)
+					setOrganizationId(user.employee.organizationId)
+					setAuthToken(loginRes.access_token)
+					setRefreshToken(loginRes.refresh_token.token)
+					setIsLoading(false)
+
+					// Reset all fields
+					setIsSubmitted(false)
+					setAuthTeamName("")
+					setAuthEmail("")
+					setAuthInviteCode("")
+					setAuthUsername("")
+					setAuthConfirmCode("")
+					setAuthTeamName("")
+					setAuthEmail("")
+					setAuthUsername("")
+					setAuthInviteCode("")
+					setAuthConfirmCode("")
+				} else {
+					if (errors) {
+						setJoinError(errors.email)
+						setIsLoading(false)
+						setIsSubmitted(false)
+					}
+				}
+			})
+
+			return {
+				success: false,
+				data: null,
+			}
+		} catch (error) {
 			const response = await verifyAuthCodeRequest(authEmail, authInviteCode)
 
 			setIsLoading(false)
 
 			return {
+				response: response.response.status,
 				success: response.response.status === 201,
 				data: response.data,
 				error:
 					response.response.status === 401 ? "Authentication code or email address invalid" : null,
-			}
-		} catch (error) {
-			console.error("Error:", error)
-			setIsLoading(false)
-
-			return {
-				success: false,
-				data: null,
-				error: "An error occurred while verifying email and code.",
 			}
 		}
 	}
@@ -314,11 +295,11 @@ export function useAuthenticationTeam() {
 	return {
 		resendEmailVerificationCode,
 		joinError,
-		joinTeam,
+		// joinTeam,
 		createNewTeam,
 		verificationError,
 		verifyEmailByCode,
-		verifyEmailAndCode,
+		verifyEmailAndCodeOrAcceptInvite,
 		getAuthCode,
 		errors,
 		isLoading,

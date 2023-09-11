@@ -1,6 +1,7 @@
 import { ITeamProps, IUser } from "./IUserData"
 
 export interface VerificationResponse {
+	response?: number
 	success?: boolean
 	data?: IEmailAndCodeConfirmResponse | null
 	error?: string | null

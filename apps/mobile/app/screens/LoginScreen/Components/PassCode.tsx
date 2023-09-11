@@ -23,10 +23,9 @@ interface Props {
 	errors: any
 	setWithTeam: (value: boolean) => unknown
 	setScreenStatus: (value: { screen: number; animation: boolean }) => unknown
-	joinTeam: () => unknown
 	getAuthCode: () => unknown
 	joinError: string
-	verifyEmailAndCode: () => unknown
+	verifyEmailAndCodeOrAcceptInvite: () => unknown
 	signInWorkspace: () => unknown
 }
 const { width } = Dimensions.get("window")
@@ -36,10 +35,10 @@ const PassCode: FC<Props> = observer(
 		errors,
 		setScreenStatus,
 		setWithTeam,
-		// joinTeam,
+
 		getAuthCode,
 		joinError,
-		verifyEmailAndCode,
+		verifyEmailAndCodeOrAcceptInvite,
 		signInWorkspace,
 	}) => {
 		const { colors } = useAppTheme()
@@ -76,10 +75,10 @@ const PassCode: FC<Props> = observer(
 			}
 
 			if (step === "Code") {
-				const response: VerificationResponse = await verifyEmailAndCode()
+				const response: VerificationResponse = await verifyEmailAndCodeOrAcceptInvite()
 
 				setTimeout(() => {
-					if (!isLoading && response.data.workspaces) {
+					if (!isLoading && response.data?.workspaces) {
 						setWorkspaceData(response.data.workspaces)
 						setAuthInviteCode("")
 						setActiveTeamId("")

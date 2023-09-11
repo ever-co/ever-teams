@@ -26,7 +26,7 @@ export async function login(params: ILoginDataAPI) {
 	 */
 	const inviteResponse = await verifyInviteCodeRequest({
 		email: params.email,
-		code: parseInt(params.code),
+		code: params.code,
 	}).catch(() => void 0)
 
 	if (
@@ -73,7 +73,7 @@ export async function login(params: ILoginDataAPI) {
 				email,
 			},
 			password,
-			code: parseInt(params.code),
+			code: params.code,
 			email: params.email,
 		}).catch(() => void 0)
 
@@ -140,14 +140,14 @@ export async function login(params: ILoginDataAPI) {
 	const team = teams.items[0]
 	const noTeam = !team
 
-	if (!team) {
-		// No need to check now if user is in any Team or not, as we are allowing to login and then user can Join/Create new Team
-		// return res.status(400).json({
-		// 	errors: {
-		// 		email: "We couldn't find any teams associated to this account",
-		// 	},
-		// });
-	}
+	// if (!team) {
+	// 	// No need to check now if user is in any Team or not, as we are allowing to login and then user can Join/Create new Team
+	// 	// return res.status(400).json({
+	// 	// 	errors: {
+	// 	// 		email: "We couldn't find any teams associated to this account",
+	// 	// 	},
+	// 	// });
+	// }
 
 	return {
 		response: {
