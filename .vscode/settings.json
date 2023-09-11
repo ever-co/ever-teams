@@ -19,6 +19,7 @@
 	"deepscan.enable": true,
 	"cSpell.words": [
 		"barcodes",
+		"cacheable",
 		"cloudinary",
 		"clsxm",
 		"dummyimage",

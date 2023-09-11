@@ -1,6 +1,10 @@
 import { ITeamTask } from '@app/interfaces';
-import { getPublicOrganizationTeamsAPI } from '@app/services/client/api/public-organization-team';
+import {
+	getPublicOrganizationTeamsAPI,
+	getPublicOrganizationTeamsMiscDataAPI,
+} from '@app/services/client/api/public-organization-team';
 import { publicactiveTeamState } from '@app/stores';
+import isEqual from 'lodash/isEqual';
 import cloneDeep from 'lodash/cloneDeep';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
@@ -14,7 +18,10 @@ import { useTeamTasks } from './useTeamTasks';
 
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getPublicOrganizationTeamsAPI);
-	const { activeTeam, setTeams } = useOrganizationTeams();
+	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(
+		getPublicOrganizationTeamsMiscDataAPI
+	);
+	const { activeTeam, teams, setTeams } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
 	const { setTaskStatus } = useTaskStatus();
 	const { setTaskSizes } = useTaskSizes();
@@ -30,8 +37,34 @@ export function usePublicOrganizationTeams() {
 					return res;
 				}
 
-				setTeams([res.data.data]);
-				setPublicTeam(res.data.data);
+				const updatedTeams = cloneDeep(teams);
+				if (updatedTeams.length) {
+					const newData = [
+						{
+							...updatedTeams[0],
+							...res.data.data,
+						},
+					];
+
+					if (!isEqual(newData, updatedTeams)) {
+						setTeams([
+							{
+								...updatedTeams[0],
+								...res.data.data,
+							},
+						]);
+					}
+				} else {
+					setTeams([res.data.data]);
+				}
+
+				const newPublicTeamData = {
+					...publicTeam,
+					...res.data.data,
+				};
+				if (!isEqual(newPublicTeamData, publicTeam)) {
+					setPublicTeam(newPublicTeamData);
+				}
 
 				let responseTasks = (res.data?.data?.tasks as ITeamTask[]) || [];
 				if (responseTasks && responseTasks.length) {
@@ -46,6 +79,20 @@ export function usePublicOrganizationTeams() {
 				}
 				setAllTasks(responseTasks);
 
+				return res;
+			});
+		},
+		[queryCall, setTeams, setAllTasks, setPublicTeam, teams, publicTeam]
+	);
+
+	const loadPublicTeamMiscData = useCallback(
+		(profileLink: string, teamId: string) => {
+			return queryCallMiscData(profileLink, teamId).then((res) => {
+				if (res.data?.data?.status === 404) {
+					setTeams([]);
+					return res;
+				}
+
 				if (res.data) {
 					setTaskStatus(res.data.data?.statuses || []);
 					setTaskSizes(res.data.data?.sizes || []);
@@ -56,12 +103,21 @@ export function usePublicOrganizationTeams() {
 				return res;
 			});
 		},
-		[queryCall, setTeams]
+		[
+			queryCallMiscData,
+			setTaskLabels,
+			setTaskPriorities,
+			setTaskSizes,
+			setTaskStatus,
+			setTeams,
+		]
 	);
 
 	return {
 		loadPublicTeamData,
+		loadPublicTeamMiscData,
 		loading,
+		loadingMiscData,
 		activeTeam,
 		publicTeam,
 	};

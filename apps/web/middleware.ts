@@ -7,6 +7,7 @@ import {
 } from '@app/constants';
 import { cookiesKeys } from '@app/helpers/cookies';
 import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
+import { range } from 'lib/utils';
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
@@ -16,14 +17,42 @@ export const config = {
 		'/auth/(.*)',
 		'/profile/:path*',
 		'/settings/(.*)',
-		'/task/(.*)',
+		'/task(.*)',
+		'/meet(.*)',
+		'/whiteboard(.*)',
 	],
 };
 
 export async function middleware(request: NextRequest) {
 	// Setting cookies on the response
 	let response = NextResponse.next();
-	const access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim();
+
+	let access_token = null;
+
+	const totalChunksCookie = request.cookies
+		.get(`${TOKEN_COOKIE_NAME}_totalChunks`)
+		?.value.trim();
+	if (!totalChunksCookie) {
+		access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim() || '';
+	} else if (totalChunksCookie) {
+		const totalChunks = parseInt(totalChunksCookie);
+		const chunks = range(totalChunks).map((index) => {
+			const chunkCookie = request.cookies
+				.get(`${TOKEN_COOKIE_NAME}${index}`)
+				?.value.trim();
+
+			if (!chunkCookie) {
+				return null; // Chunk cookie not found.
+			}
+
+			return chunkCookie;
+		});
+
+		// Concatenate and return the large string.
+		access_token = chunks.join('');
+	}
+
+	// request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim();
 	const refresh_token = request.cookies
 		.get(REFRESH_TOKEN_COOKIE_NAME)
 		?.value.trim();
@@ -35,6 +64,7 @@ export async function middleware(request: NextRequest) {
 		cookiesKeys().forEach((key) => {
 			response.cookies.set(key, '');
 		});
+		response.cookies.delete(`${TOKEN_COOKIE_NAME}_totalChunks`);
 	};
 
 	const protected_path = PROTECTED_APP_URL_PATHS.some((v) => {
@@ -47,7 +77,9 @@ export async function middleware(request: NextRequest) {
 	} else if (protected_path && access_token) {
 		const res = await currentAuthenticatedUserRequest({
 			bearer_token: access_token,
-		}).catch(console.error);
+		}).catch(() => {
+			deny_redirect();
+		});
 
 		if (!res || !res.response.ok) {
 			deny_redirect();

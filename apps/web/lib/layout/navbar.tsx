@@ -9,6 +9,8 @@ import { useRecoilState } from 'recoil';
 import { userState } from '@app/stores';
 import { RequestToJoinModal } from '@components/layout/header/request-to-join-modal';
 import { useTranslation } from 'lib/i18n';
+import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 
 const HeaderSkeleton = () => {
 	return (
@@ -59,6 +61,13 @@ export function Navbar({
 	const [user] = useRecoilState(userState);
 	const { isOpen, closeModal, openModal } = useModal();
 
+	const router = useRouter();
+
+	const isTeamDropdownAllowed = useMemo(() => {
+		const notAllowedList = ['/task/[id]', '/profile/[memberId]'];
+		return !notAllowedList.includes(router.route);
+	}, [router.route]);
+
 	return (
 		<>
 			{!user && !notFound && !publicTeam ? (
@@ -81,7 +90,7 @@ export function Navbar({
 										</Button>
 									)}
 									{showTimer && <MinTimerFrame />}
-									{isTeamMember ? (
+									{isTeamMember && isTeamDropdownAllowed ? (
 										<TeamsDropDown publicTeam={publicTeam || false} />
 									) : null}
 

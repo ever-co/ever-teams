@@ -3,7 +3,7 @@ import Picker from '@emoji-mart/react';
 import { getEmojiDataFromNative } from 'emoji-mart';
 import { useTheme } from 'next-themes';
 import { Popover, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { Edit2Icon, TrashIcon } from './svgs';
 import { init } from 'emoji-mart';
 
@@ -25,6 +25,10 @@ export const EmojiPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
+
+	const toggleDisabled = useCallback(() => {
+		setDisabled(!disabled);
+	}, [disabled]);
 
 	useEffect(() => {
 		getEmojiDataFromNative(emoji).then((item) => {
@@ -64,8 +68,8 @@ export const EmojiPicker = ({
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
-						disabled={disabled}
-						onClick={() => setDisabled(true)}
+						// disabled={disabled}
+						onClick={toggleDisabled}
 					>
 						<div
 							className={` relative w-[100%] h-[48px] ${
@@ -77,30 +81,32 @@ export const EmojiPicker = ({
 									{value?.native} {value?.name}
 								</div>
 							</div>
-							<div className="flex mr-[0.5rem] gap-3">
-								<button
-									disabled={!isTeamManager}
-									className={`outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-									onClick={() => {
-										setDisabled(!disabled);
-									}}
-								>
-									<Edit2Icon className="cursor-pointer" />
-								</button>
-								<button
-									onClick={() => {
-										setValue(null);
-										onChange('');
-									}}
-									className={`outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-								>
-									<TrashIcon />
-								</button>
-							</div>
+							{isTeamManager && (
+								<div className="flex mr-[0.5rem] gap-3">
+									<button
+										disabled={!isTeamManager}
+										className={`outline-none ${
+											!isTeamManager && 'pointer-events-none'
+										}`}
+										onClick={() => {
+											setDisabled(!disabled);
+										}}
+									>
+										<Edit2Icon className="cursor-pointer" />
+									</button>
+									<button
+										onClick={() => {
+											setValue(null);
+											onChange('');
+										}}
+										className={`outline-none ${
+											!isTeamManager && 'pointer-events-none'
+										}`}
+									>
+										<TrashIcon />
+									</button>
+								</div>
+							)}
 						</div>
 					</Popover.Button>
 					<Transition

@@ -60,6 +60,7 @@ export const en = {
 		TEAM: 'Team',
 		FULL_NAME: 'Full Name',
 		CONTACT: 'Contact',
+
 		THEME: 'Theme',
 		TIME_ZONE: 'Timezone',
 		EDIT: 'Edit',
@@ -161,6 +162,7 @@ export const en = {
 			COVER_DESCRIPTION:
 				'Lorem ipsum dolor sit amet consectetur. Amet est risus etiam vestibulum iaculis montes tellus. Tincidunt mattis',
 			LOGIN: 'Login',
+			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
 		},
 		authPasscode: {
@@ -171,6 +173,10 @@ export const en = {
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
 			HEADING_DESCRIPTION: 'Please enter email and invitation code to login.',
+
+			WORKSPACE: 'Workspace',
+			HEADING_WORKSPACE_LINE1: 'The email associated with multiple workspaces,',
+			HEADING_WORKSPACE_LINE2: 'please select one to continue',
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
@@ -191,6 +197,8 @@ export const en = {
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'General Settings',
+			emailNotValid: 'Please provide a valid Email',
+			phoneNotValid: 'Please provide a valid Phone Number',
 			WORK_SCHEDULE: 'Work Schedule',
 			SUBSCRIPTION: 'Subscription',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',

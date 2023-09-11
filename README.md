@@ -15,10 +15,12 @@
 
 ## ✨ Features
 
-Below is a list of planned features:
+Below is a list of the most important planned features:
 
-- Projects / Tasks Management
+- Work / Workforce Management
 - Time Management / Time Tracking / Activity Tracking
+- Productivity Tracking & Metrics
+- Projects / Tasks & Issues Management
 - Organizations / Teams
 - Tags / Labels
 - Integrations (GitHub, GitLab, Bitbucket, JIRA, etc.)
@@ -43,16 +45,20 @@ Below is a list of planned features:
 
 ![extension](https://docs.gauzy.co/docs/assets/gauzy-teams/extension/overview.png)
 
-Note: currently WIP, the screenshot is just a temporary picture :)
+Note: Currently WIP, the screenshot is just a temporary picture :)
 
 </details>
+
+## 📊 Activity
+
+![Alt](https://repobeats.axiom.co/api/embed/7dc568c25f12884ca41e421ad2ae0b6dc1e576b1.svg "Repobeats analytics image")
 
 ## 🔗 Links
 
 - **<https://app.ever.team>** - Ever Teams Platform web application (not yet in production release)
-- **<https://ever.team>** - check more information about the Ever Teams platform at the official website (WIP).
-- **<https://gauzy.co>** - check more information about the Ever Gauzy Platform at the official website.
-- **<https://ever.co>** - get more information about our company products.
+- **<https://ever.team>** - Check more information about the Ever Teams platform at the official website (WIP).
+- **<https://gauzy.co>** - Check more information about the Ever Gauzy Platform at the official website.
+- **<https://ever.co>** - Get more information about our company products.
 
 ## ⚡️ Our Open Platforms
 
@@ -149,6 +155,20 @@ See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/ever-t
 You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/ever-teams/graphs/contributors).
 
 <img src="https://contributors-img.web.app/image?repo=ever-co/ever-teams" />
+
+## ❤️ Powered By
+
+<p>
+  <a href="https://www.digitalocean.com/?utm_medium=opensource&utm_source=ever-co">
+    <img src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg" width="201px">
+  </a>
+</p>
+
+<p>
+	<a href="https://vercel.com/?utm_source=ever-co&utm_campaign=oss">
+  	  <img src="https://raw.githubusercontent.com/abumalick/powered-by-vercel/master/powered-by-vercel.svg">
+	</a>
+</p>
 
 ## ©️ Copyright
 

@@ -15,8 +15,8 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 	const { colors } = useAppTheme()
 
 	const imageUrl = useMemo(
-		() => user.image?.thumbUrl || user.image?.fullUrl || user.imageUrl,
-		[user.image?.thumb, user],
+		() => user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl,
+		[user?.image?.thumb, user],
 	)
 
 	return (
@@ -26,11 +26,13 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 					<Avatar.Image
 						size={size - 6}
 						style={{ ...styles.profileImage, width: size, height: size }}
-						source={{ uri: imageUrl }}
+						source={{
+							uri: imageUrl,
+						}}
 					/>
 				) : (
 					<Avatar.Text
-						label={imgTitle(user.name)}
+						label={imgTitle(user?.name)}
 						size={size - 6}
 						style={{ ...styles.profileImage, width: size, height: size }}
 					/>

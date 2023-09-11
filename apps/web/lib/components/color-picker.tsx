@@ -1,7 +1,7 @@
 import { useCallbackRef } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
-import { useState, useEffect, Fragment, useRef } from 'react';
+import { useState, useEffect, Fragment, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Dropdown } from './dropdown';
 import { Edit2Icon, TrashIcon } from './svgs';
@@ -23,6 +23,10 @@ export const ColorPicker = ({
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
+
+	const toggleDisabled = useCallback(() => {
+		setDisabled(!disabled);
+	}, [disabled]);
 
 	useEffect(() => {
 		if (defaultColor) {
@@ -68,8 +72,8 @@ export const ColorPicker = ({
 					<Popover.Button
 						className={'outline-none mb-[15px] w-full'}
 						ref={buttonRef}
-						disabled={disabled && fullWidthInput}
-						onClick={() => setDisabled(true)}
+						// disabled={disabled && fullWidthInput}
+						onClick={toggleDisabled}
 					>
 						<div
 							className={` relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
@@ -85,31 +89,33 @@ export const ColorPicker = ({
 								></div>
 								<div className="uppercase dark:text-white">{color || ''}</div>
 							</div>
-							<div className="flex mr-[0.5rem] gap-3">
-								<button
-									disabled={!isTeamManager}
-									className={`outline-none ${
-										!isTeamManager && 'pointer-events-none'
-									}`}
-									onClick={() => {
-										setDisabled(!disabled);
-									}}
-								>
-									<Edit2Icon className="cursor-pointer" />
-								</button>
+							{isTeamManager && (
+								<div className="flex mr-[0.5rem] gap-3">
+									<button
+										disabled={!isTeamManager}
+										className={`outline-none ${
+											!isTeamManager && 'pointer-events-none'
+										} z-50`}
+										onClick={() => {
+											setDisabled(!disabled);
+										}}
+									>
+										<Edit2Icon className="cursor-pointer" />
+									</button>
 
-								<span
-									onClick={() => {
-										setColor(null);
-										onChange && onChange(null);
-									}}
-									className={`outline-none ${
-										!isTeamManager ? 'pointer-events-none' : 'cursor-pointer'
-									}`}
-								>
-									<TrashIcon />
-								</span>
-							</div>
+									<span
+										onClick={() => {
+											setColor(null);
+											onChange && onChange(null);
+										}}
+										className={`outline-none ${
+											!isTeamManager ? 'pointer-events-none' : 'cursor-pointer'
+										}`}
+									>
+										<TrashIcon />
+									</span>
+								</div>
+							)}
 						</div>
 					</Popover.Button>
 					<Transition

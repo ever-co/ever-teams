@@ -41,7 +41,34 @@ export function sendAuthCodeRequest(email: string, callbackUrl: string) {
 	});
 }
 
-export function verifyAuthCodeRequest(email: string, code: number) {
+export function signInEmailRequest(email: string, callbackUrl: string) {
+	return serverFetch<{ status: number; message: string | 'ok' }>({
+		path: '/auth/signin.email',
+		method: 'POST',
+		body: { email, callbackUrl },
+	});
+}
+export const signInEmailConfirmRequest = (data: {
+	code: string;
+	email: string;
+}) => {
+	const { code, email } = data;
+
+	return serverFetch<ISuccessResponse>({
+		path: '/auth/signin.email/confirm?includeTeams=true',
+		method: 'POST',
+		body: { code, email },
+	});
+};
+export function signInWorkspaceRequest(email: string, token: string) {
+	return serverFetch<ILoginResponse>({
+		path: '/auth/signin.workspace',
+		method: 'POST',
+		body: { email, token },
+	});
+}
+
+export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/verify-code',
 		method: 'POST',
@@ -104,7 +131,7 @@ export const refreshTokenRequest = (refresh_token: string) => {
 
 export const verifyUserEmailByCodeRequest = (data: {
 	bearer_token: string;
-	code: number;
+	code: string;
 	email: string;
 	tenantId: string;
 }) => {

@@ -55,9 +55,13 @@ export function EmailResetModal({
 			setMessage(trans.pages.home.SENT_EMAIL_VERIFICATION);
 			setStep('CODE_VERIFICATION');
 		});
-	}, [emailResetRequestQueryCall, getValues, trans.pages.home.SENT_EMAIL_VERIFICATION]);
+	}, [
+		emailResetRequestQueryCall,
+		getValues,
+		trans.pages.home.SENT_EMAIL_VERIFICATION,
+	]);
 	const handleConfirm = useCallback(() => {
-		verifyChangeEmailRequestQueryCall(+code).then(() => {
+		verifyChangeEmailRequestQueryCall(code).then(() => {
 			updateUserFromAPI();
 			onCloseModal();
 		});
@@ -137,7 +141,7 @@ export function EmailResetModal({
 							</Text.Heading>
 							<div className="w-full mt-5">
 								<AuthCodeInputField
-									allowedCharacters="numeric"
+									allowedCharacters="alphanumeric"
 									length={6}
 									containerClassName="mt-[21px] w-full flex justify-between"
 									inputClassName="w-[40px] xs:w-[50px]"

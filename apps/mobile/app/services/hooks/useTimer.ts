@@ -156,12 +156,15 @@ export function useTimer() {
 		firstLoad,
 	)
 
-	const { isSuccess, data: timerStatusData } = useFetchTimerStatus({
-		authToken,
-		tenantId,
-		organizationId,
-		employeeId: user?.employee?.id,
-	})
+	const { isSuccess, data: timerStatusData } = useFetchTimerStatus(
+		{
+			authToken,
+			tenantId,
+			organizationId,
+			employeeId: user?.employee?.id,
+		},
+		timerStatus.running,
+	)
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(

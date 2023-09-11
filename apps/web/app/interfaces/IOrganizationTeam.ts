@@ -1,5 +1,6 @@
 import { IEmployee } from './IEmployee';
 import { IImageAssets } from './IImageAssets';
+import { IProject } from './IProject';
 import { ITeamTask } from './ITask';
 import { ITasksTimesheet } from './ITimer';
 import { IUser } from './IUserData';
@@ -17,6 +18,7 @@ export interface IOrganizationTeamCreate {
 	public?: boolean;
 	imageId?: string | null;
 	image?: IImageAssets | null;
+	projects?: IProject[];
 }
 
 export type IOrganizationTeamUpdate = IOrganizationTeamCreate & { id: string };

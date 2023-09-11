@@ -34,6 +34,10 @@ const TeamSize = ({
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [disabled, setDisabled] = useState<boolean>(true);
 
+	const toggleDisabled = useCallback(() => {
+		setDisabled(!disabled);
+	}, [disabled]);
+
 	const onSelect = (value: any) => {
 		setValue(value);
 	};
@@ -89,8 +93,8 @@ const TeamSize = ({
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
-						disabled={disabled}
-						onClick={() => setDisabled(true)}
+						// disabled={disabled}
+						onClick={toggleDisabled}
 					>
 						<div
 							className={`relative w-[100%] h-[48px] ${
@@ -100,17 +104,19 @@ const TeamSize = ({
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<div className="dark:text-white">{defaultValue}</div>
 							</div>
-							<button
-								className={`flex mr-[0.5rem] gap-3 outline-none ${
-									!isTeamManager && 'pointer-events-none'
-								}`}
-								disabled={!isTeamManager}
-								onClick={() => {
-									setDisabled(!disabled);
-								}}
-							>
-								<Edit2Icon />
-							</button>
+							{isTeamManager && (
+								<button
+									className={`flex mr-[0.5rem] gap-3 outline-none ${
+										!isTeamManager && 'pointer-events-none'
+									}`}
+									disabled={!isTeamManager}
+									onClick={() => {
+										setDisabled(!disabled);
+									}}
+								>
+									<Edit2Icon />
+								</button>
+							)}
 						</div>
 					</Popover.Button>
 					<Transition

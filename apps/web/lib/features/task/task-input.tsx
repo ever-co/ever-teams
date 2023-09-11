@@ -109,7 +109,6 @@ export function TaskInput(props: Props) {
 		editMode,
 		setEditMode,
 		setQuery,
-		tasksFetching,
 		updateLoading,
 		updateTaskTitleHandler,
 		setFilter,
@@ -240,7 +239,7 @@ export function TaskInput(props: Props) {
 				editMode
 			) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
-				console.log('func active');
+				// console.log('func active');
 			}
 		};
 
@@ -251,7 +250,7 @@ export function TaskInput(props: Props) {
 		return () => {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
-	}, [inputTask, taskName, updateTaskNameHandler]);
+	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
 
 	const inputField = (
 		<InputField
@@ -285,9 +284,7 @@ export function TaskInput(props: Props) {
 					{props.task ? (
 						(updateLoading || props.inputLoader) && <SpinnerLoader size={25} />
 					) : (
-						<>
-							{(tasksFetching || updateLoading) && <SpinnerLoader size={25} />}
-						</>
+						<>{updateLoading && <SpinnerLoader size={25} />}</>
 					)}
 				</div>
 			}

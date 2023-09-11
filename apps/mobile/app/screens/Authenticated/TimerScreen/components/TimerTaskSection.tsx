@@ -40,18 +40,18 @@ const TimerTaskSection = observer(
 			createLoading,
 		} = taskInput
 
-		const [combxShow, setCombxShow] = useState<true | undefined>(undefined)
+		const [combxShow, setCombxShow] = useState<boolean>(false)
 		const inputRef = useRef<TextInput>(null)
 
 		const closeCombox = useCallback(() => {
-			setCombxShow(undefined)
+			setCombxShow(false)
 		}, [setCombxShow])
 
 		useEffect(() => {
 			if (isModalOpen || editMode) {
 				setCombxShow(true)
 			} else {
-				closeCombox()
+				setCombxShow(false)
 			}
 		}, [isModalOpen, editMode])
 
@@ -96,11 +96,16 @@ const TimerTaskSection = observer(
 							autoCorrect={false}
 							editable={true}
 							onFocus={() => setEditMode(true)}
-							onBlur={() => setEditMode(false)}
+							// onBlur={() => setEditMode(false)}
 							onChangeText={(newText) => setQuery(newText)}
 						/>
 						{hasCreateForm && editMode && !createLoading ? (
-							<Pressable onPress={() => handleTaskCreation()}>
+							<Pressable
+								onPress={() => {
+									handleTaskCreation()
+									setEditMode(false)
+								}}
+							>
 								<Feather name="check" size={24} color="green" />
 							</Pressable>
 						) : null}
@@ -111,7 +116,7 @@ const TimerTaskSection = observer(
 					</View>
 
 					{combxShow ? (
-						<ComboBox closeCombo={closeCombox} tasksHandler={taskInput} />
+						<ComboBox closeCombo={closeCombox} setEditMode={setEditMode} tasksHandler={taskInput} />
 					) : (
 						<View>
 							<View

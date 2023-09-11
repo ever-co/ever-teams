@@ -16,10 +16,11 @@ import IndividualTask from "./IndividualTask"
 export interface Props {
 	tasksHandler: RTuseTaskInput
 	closeCombo: () => unknown
+	setEditMode: (val: boolean) => void
 }
 const { height } = Dimensions.get("window")
 
-const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeCombo }) {
+const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeCombo, setEditMode }) {
 	const { colors } = useAppTheme()
 
 	return (
@@ -53,7 +54,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeComb
 						/>
 					</Pressable>
 				</View>
-				<ScrollView style={{ maxHeight: 350 }}>
+				<ScrollView style={{ maxHeight: 450, paddingBottom: 9 }}>
 					{tasksHandler.filteredTasks.map((task, i) => (
 						<IndividualTask
 							key={i}
@@ -61,6 +62,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeComb
 							task={task}
 							handleActiveTask={tasksHandler.setActiveTeamTask}
 							closeCombo={closeCombo}
+							setEditMode={setEditMode}
 						/>
 					))}
 				</ScrollView>
