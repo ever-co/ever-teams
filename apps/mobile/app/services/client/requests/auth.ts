@@ -3,7 +3,7 @@ import {
 	IEmailAndCodeConfirmResponse,
 	IRegisterDataRequest,
 	ISuccessResponse,
-	ISigninWorspaceResponse,
+	ISignInResponse,
 	ILoginResponse,
 } from "../../interfaces/IAuthentication"
 import { IUser } from "../../interfaces/IUserData"
@@ -103,8 +103,8 @@ export function verifyAuthCodeRequest(email: string, code: string) {
 // auth/signin.workspace  Need the email and the token from auth/signin.email/confirm
 
 export const signInWorkspaceRequest = (email: string, token: string) => {
-	return serverFetch<ISigninWorspaceResponse>({
-		path: "auth/signin.workspace",
+	return serverFetch<ISignInResponse>({
+		path: "/auth/signin.workspace",
 		method: "POST",
 		body: { email, token },
 	})

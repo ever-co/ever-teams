@@ -26,6 +26,7 @@ interface Props {
 	getAuthCode: () => unknown
 	joinError: string
 	verifyEmailAndCode: () => unknown
+	signInWorkspace: () => unknown
 }
 const { width } = Dimensions.get("window")
 const PassCode: FC<Props> = observer(
@@ -34,10 +35,11 @@ const PassCode: FC<Props> = observer(
 		errors,
 		setScreenStatus,
 		setWithTeam,
-		joinTeam,
+		// joinTeam,
 		getAuthCode,
 		joinError,
 		verifyEmailAndCode,
+		signInWorkspace,
 	}) => {
 		const { colors } = useAppTheme()
 		const {
@@ -47,6 +49,7 @@ const PassCode: FC<Props> = observer(
 				setAuthInviteCode,
 				authInviteCode,
 				userWorkspaces,
+				setTempAuthToken,
 			},
 			teamStore: { activeTeamId, setActiveTeamId },
 		} = useStores()
@@ -82,7 +85,8 @@ const PassCode: FC<Props> = observer(
 				}, 1000)
 			}
 			if (step === "Tenant") {
-				joinTeam()
+				// joinTeam()
+				signInWorkspace()
 			}
 		}
 		const onPrevStep = () => {
@@ -209,6 +213,7 @@ const PassCode: FC<Props> = observer(
 									setSelectedWorkspace={setSelectedWorkspace}
 									isValid={isValid}
 									setIsValid={setIsValid}
+									setTempAuthToken={setTempAuthToken}
 								/>
 							))}
 						</ScrollView>

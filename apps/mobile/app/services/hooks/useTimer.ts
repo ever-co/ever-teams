@@ -163,7 +163,7 @@ export function useTimer() {
 			organizationId,
 			employeeId: user?.employee?.id,
 		},
-		timerStatus.running,
+		timerStatus?.running,
 	)
 
 	const toggleTimer = useCallback(async (taskId: string) => {

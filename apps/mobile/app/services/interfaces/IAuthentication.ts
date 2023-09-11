@@ -39,6 +39,78 @@ export interface ISigninWorspaceResponse {
 	refresh_token: string
 }
 
+interface User {
+	id: string
+	createdAt: string
+	updatedAt: string
+	tenantId: string
+	thirdPartyId: string | null
+	firstName: string | null
+	lastName: string
+	email: string
+	phoneNumber: string | null
+	username: string | null
+	timeZone: string
+	imageUrl: string
+	preferredLanguage: string
+	preferredComponentLayout: string
+	isActive: boolean
+	roleId: string
+	imageId: string
+	employee: {
+		id: string
+		createdAt: string
+		updatedAt: string
+		tenantId: string
+		organizationId: string
+		isActive: boolean
+		startedWorkOn: string
+		totalWorkHours: number
+		profile_link: string
+		isTrackingEnabled: boolean
+		isOnline: boolean
+		isAway: boolean
+		isTrackingTime: boolean
+		allowScreenshotCapture: boolean
+		userId: string
+		isDeleted: boolean
+	}
+	role: {
+		id: string
+		createdAt: string
+		updatedAt: string
+		tenantId: string
+		name: string
+		isSystem: boolean
+	}
+	image: {
+		id: string
+		createdAt: string
+		updatedAt: string
+		tenantId: string
+		organizationId: string
+		name: string
+		url: string
+		thumb: string
+		width: number
+		height: number
+		size: number
+		isFeatured: boolean
+		deletedAt: string | null
+		fullUrl: string
+		thumbUrl: string
+	}
+	name: string
+	employeeId: string
+	isEmailVerified: boolean
+}
+
+export interface ISignInResponse {
+	user: User
+	token: string
+	refresh_token: string
+}
+
 export interface ILoginResponse {
 	user: IUser
 	token: string
@@ -67,6 +139,10 @@ export type IRegisterDataAPI = ITeamProps & {
 export interface ILoginDataAPI {
 	email: string
 	code: string
+}
+export interface ISignInDataAPI {
+	email: string
+	token: string
 }
 
 export interface ISuccessResponse {

@@ -21,6 +21,7 @@ interface IUserTenants {
 	setSelectedWorkspace: React.Dispatch<React.SetStateAction<number>>
 	isValid: IValid
 	setIsValid: React.Dispatch<React.SetStateAction<IValid>>
+	setTempAuthToken: (token: string) => void
 }
 
 const UserTenants: FC<IUserTenants> = ({
@@ -32,6 +33,7 @@ const UserTenants: FC<IUserTenants> = ({
 	selectedWorkspace,
 	isValid,
 	setIsValid,
+	setTempAuthToken,
 }) => {
 	return (
 		<View style={styles.tenantContainer}>
@@ -43,6 +45,7 @@ const UserTenants: FC<IUserTenants> = ({
 						selectedWorkspace !== index && setActiveTeamId(data.current_teams[0].team_id)
 						data.current_teams.filter((team) => team.team_id === activeTeamId) &&
 							setIsValid({ ...isValid, step3: true })
+						setTempAuthToken(data.token)
 					}}
 				>
 					{selectedWorkspace === index ? (
@@ -69,6 +72,7 @@ const UserTenants: FC<IUserTenants> = ({
 								setActiveTeamId(team.team_id)
 								setSelectedWorkspace(index)
 								setIsValid({ ...isValid, step3: true })
+								setTempAuthToken(data.token)
 							}}
 						>
 							{activeTeamId === team.team_id ? (

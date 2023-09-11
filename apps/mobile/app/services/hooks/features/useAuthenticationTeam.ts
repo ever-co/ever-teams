@@ -10,6 +10,7 @@ import {
 	verifyUserEmailByCodeRequest,
 } from "../../client/requests/auth"
 import { useFirstLoad } from "../useFirstLoad"
+import { signIn } from "../../client/api/auth/signin"
 
 export function useAuthenticationTeam() {
 	const authTeamInput = useRef<TextInput>()
@@ -47,7 +48,6 @@ export function useAuthenticationTeam() {
 			setEmployeeId,
 			setRefreshToken,
 			setUserWorkspaces,
-			userWorkspaces,
 		},
 		teamStore: { setActiveTeam, setActiveTeamId },
 	} = useStores()
@@ -115,6 +115,47 @@ export function useAuthenticationTeam() {
 				setIsSubmitted(false)
 				console.log(e)
 			})
+	}
+
+	const signInWorkspace = async () => {
+		try {
+			setIsSubmitted(true)
+			setAttemptsCount(attemptsCount + 1)
+
+			setIsLoading(true)
+
+			const { response } = await signIn({ email: authEmail, token: tempAuthToken })
+
+			if (response) {
+				// Save Auth Token
+				setTenantId(response.data.authStoreData.tenantId)
+				setOrganizationId(response.data.authStoreData.organizationId)
+				setAuthToken(response.data.authStoreData.access_token)
+				setRefreshToken(response.data.authStoreData.refresh_token)
+
+				// Reset all fields
+				setIsSubmitted(false)
+				setAuthTeamName("")
+				setAuthEmail("")
+				setAuthInviteCode("")
+				setAuthUsername("")
+				setAuthConfirmCode("")
+				setAuthTeamName("")
+				setAuthEmail("")
+				setAuthUsername("")
+				setAuthInviteCode("")
+				setAuthConfirmCode("")
+
+				if (response.errors) {
+					setJoinError(response.errors.email)
+				}
+			}
+		} catch (error) {
+			setIsSubmitted(false)
+			console.log(error)
+		} finally {
+			setIsLoading(false)
+		}
 	}
 
 	/**
@@ -198,7 +239,7 @@ export function useAuthenticationTeam() {
 				setUserWorkspaces(response.data)
 			}
 			if (response.response.status === 401) {
-				setJoinError("Invalid email address or code")
+				setJoinError("Authentication code or email address invalid")
 			}
 			// console.log("userWorkspaces:", userWorkspaces)
 		} catch (error) {
@@ -281,5 +322,6 @@ export function useAuthenticationTeam() {
 		screenstatus,
 		setScreenStatus,
 		authTeamInput,
+		signInWorkspace,
 	}
 }
