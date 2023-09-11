@@ -77,7 +77,9 @@ export async function middleware(request: NextRequest) {
 	} else if (protected_path && access_token) {
 		const res = await currentAuthenticatedUserRequest({
 			bearer_token: access_token,
-		}).catch(console.error);
+		}).catch(() => {
+			deny_redirect();
+		});
 
 		if (!res || !res.response.ok) {
 			deny_redirect();

@@ -7,6 +7,11 @@ type IGetTimerStatusParams = ITimerTimeslotParams & { authToken: string }
 const fetchTimerStatus = async (params: IGetTimerStatusParams) => {
 	const { tenantId, organizationId, logType, authToken, employeeId } = params
 
+	const { data } = await getTimerStatusRequest(
+		{ source: "MOBILE", tenantId, organizationId },
+		authToken,
+	)
+
 	await syncTimeSlotRequest(
 		{
 			tenantId,
@@ -19,16 +24,12 @@ const fetchTimerStatus = async (params: IGetTimerStatusParams) => {
 		authToken,
 	)
 
-	const { data } = await getTimerStatusRequest(
-		{ source: "MOBILE", tenantId, organizationId },
-		authToken,
-	)
-
 	return data
 }
 
-const useFetchTimerStatus = (IGetTimerStatusParams) =>
+const useFetchTimerStatus = (IGetTimerStatusParams, isTimerRunning: boolean) =>
 	useQuery(["status-timer", IGetTimerStatusParams], () => fetchTimerStatus(IGetTimerStatusParams), {
+		enabled: isTimerRunning,
 		refetchInterval: 5000,
 		notifyOnChangeProps: ["data"], // Re-render only when data changes
 		notifyOnChangePropsExclusions: ["isFetching"],

@@ -188,7 +188,7 @@ export const TeamSettingForm = () => {
 												disabled ? (
 													<Button
 														variant="ghost"
-														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none "
+														className="p-0 m-0 mr-[0.5rem] min-w-0 outline-none"
 														disabled={!isTeamManager}
 														onClick={() => setDisabled(false)}
 													>
@@ -274,7 +274,7 @@ export const TeamSettingForm = () => {
 								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
 									{trans.TEAM_TYPE}
 								</Text>
-								<div className="flex gap-x-[30px] flex-col sm:flex-row ">
+								<div className="flex gap-x-[30px] flex-col sm:flex-row items-center">
 									{isTeamManager && (
 										<div className="items-center w-full flex justify-between sm:block">
 											<div>
