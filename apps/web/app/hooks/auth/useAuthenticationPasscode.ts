@@ -60,48 +60,54 @@ export function useAuthenticationPasscode() {
 	/**
 	 * Verify auth request
 	 */
-	const verifySignInEmailConfirmRequest = ({
+	const verifySignInEmailConfirmRequest = async ({
 		email,
 		code,
 	}: {
 		email: string;
 		code: string;
 	}) => {
-		signInEmailConfirmQueryCall(email, code)
-			.then((res) => {
-				if (res.data?.workspaces && res.data.workspaces.length) {
-					setWorkspaces(res.data.workspaces);
-				}
-				setScreen('workspace');
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
+		try {
+			// Trying to accept the invite
+			await queryCall(email, code);
+			window.location.reload();
+			setAuthenticated(true);
+		} catch (error) {
+			signInEmailConfirmQueryCall(email, code)
+				.then((res) => {
+					if (res.data?.workspaces && res.data.workspaces.length) {
+						setWorkspaces(res.data.workspaces);
+					}
+					setScreen('workspace');
+				})
+				.catch((err: AxiosError) => {
+					if (err.response?.status === 400) {
+						setErrors((err.response?.data as any)?.errors || {});
+					}
 
-				inputCodeRef.current?.clear();
-			});
+					inputCodeRef.current?.clear();
+				});
+		}
 	};
-	const verifyPasscodeRequest = ({
-		email,
-		code,
-	}: {
-		email: string;
-		code: string;
-	}) => {
-		queryCall(email, code)
-			.then(() => {
-				window.location.reload();
-				setAuthenticated(true);
-			})
-			.catch((err: AxiosError) => {
-				if (err.response?.status === 400) {
-					setErrors((err.response?.data as any)?.errors || {});
-				}
+	const verifyPasscodeRequest = useCallback(
+		({ email, code }: { email: string; code: string }) => {
+			queryCall(email, code)
+				.then(() => {
+					// window.location.reload();
+					// setAuthenticated(true);
 
-				inputCodeRef.current?.clear();
-			});
-	};
+					console.log('this is it...');
+				})
+				.catch((err: AxiosError) => {
+					if (err.response?.status === 400) {
+						setErrors((err.response?.data as any)?.errors || {});
+					}
+
+					inputCodeRef.current?.clear();
+				});
+		},
+		[queryCall]
+	);
 	const signInToWorkspaceRequest = ({
 		email,
 		token,
@@ -204,7 +210,7 @@ export function useAuthenticationPasscode() {
 
 			loginFromQuery.current = true;
 		}
-	}, [query]);
+	}, [query, verifyPasscodeRequest]);
 
 	/**
 	 * send a fresh auth request handler

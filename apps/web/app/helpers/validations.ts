@@ -1,7 +1,8 @@
 import { smtpConfiguration } from '@app/constants';
 import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 import { I_SMTPRequest } from '@app/interfaces/ISmtp';
-import { EMAIL_REGEX, PHONE_REGEX, URL_REGEX } from './regex';
+import { PHONE_REGEX, URL_REGEX } from './regex';
+import { isEmail } from 'class-validator';
 
 type Err = { [x in keyof IRegisterDataAPI]: string | undefined };
 
@@ -15,7 +16,7 @@ export const authFormValidate = (
 	keys.forEach((key) => {
 		switch (key) {
 			case 'email':
-				if (!EMAIL_REGEX.test(values['email'])) {
+				if (!isEmail(values['email'])) {
 					err['email'] = 'Please provide a properly formatted email address';
 				}
 				break;
@@ -61,7 +62,7 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 		data[key] = typeof value === 'string' ? (value.trim() as any) : value;
 		switch (key) {
 			case 'email':
-				if (value && !EMAIL_REGEX.test(value)) {
+				if (value && !isEmail(value)) {
 					errors[key] = 'Please provide a valid email address';
 				}
 				break;
