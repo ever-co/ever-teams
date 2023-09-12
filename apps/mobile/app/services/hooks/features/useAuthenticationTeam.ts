@@ -40,7 +40,6 @@ export function useAuthenticationTeam() {
 			setAuthConfirmCode,
 			setAuthInviteCode,
 			validationErrors,
-			setTempAuthToken,
 			tempAuthToken,
 			setOrganizationId,
 			tenantId,
@@ -133,7 +132,8 @@ export function useAuthenticationTeam() {
 
 					firstLoadData()
 					// Save Auth Data
-					setTempAuthToken(loginRes.token)
+					// setTempAuthToken(loginRes.token)
+					setAuthToken(loginRes.token)
 					setRefreshToken(loginRes.refresh_token)
 					setScreenStatus({
 						screen: 3,
