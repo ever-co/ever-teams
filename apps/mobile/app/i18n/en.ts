@@ -55,6 +55,7 @@ const en = {
 		emailFieldLabel: "Your Email",
 		teamNameFieldLabel: "Team Name",
 		inviteCodeFieldLabel: "Security Code",
+		selectWorkspaceFieldLabel: "Select Workspace",
 		emailFieldPlaceholder: "Enter your email address",
 		teamNameFieldPlaceholder: "Please Enter your team name",
 		userNameFieldPlaceholder: "Enter your name",

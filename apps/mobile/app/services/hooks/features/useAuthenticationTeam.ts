@@ -6,9 +6,12 @@ import { register } from "../../client/api/auth/register"
 import sendAuthCode from "../../client/api/auth/sendAuthCode"
 import {
 	resentVerifyUserLinkRequest,
+	verifyAuthCodeRequest,
 	verifyUserEmailByCodeRequest,
 } from "../../client/requests/auth"
 import { useFirstLoad } from "../useFirstLoad"
+import { signIn } from "../../client/api/auth/signin"
+import { VerificationResponse } from "../../interfaces/IAuthentication"
 
 export function useAuthenticationTeam() {
 	const authTeamInput = useRef<TextInput>()
@@ -37,7 +40,6 @@ export function useAuthenticationTeam() {
 			setAuthConfirmCode,
 			setAuthInviteCode,
 			validationErrors,
-			setTempAuthToken,
 			tempAuthToken,
 			setOrganizationId,
 			tenantId,
@@ -53,17 +55,123 @@ export function useAuthenticationTeam() {
 
 	const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
+	const signInWorkspace = async () => {
+		try {
+			setIsSubmitted(true)
+			setAttemptsCount(attemptsCount + 1)
+
+			setIsLoading(true)
+
+			const { response } = await signIn({ email: authEmail, token: tempAuthToken })
+
+			if (response) {
+				// Save Auth Token
+				setTenantId(response.data.authStoreData.tenantId)
+				setOrganizationId(response.data.authStoreData.organizationId)
+				setAuthToken(response.data.authStoreData.access_token)
+				setRefreshToken(response.data.authStoreData.refresh_token)
+
+				// Reset all fields
+				setIsSubmitted(false)
+				setAuthTeamName("")
+				setAuthEmail("")
+				setAuthInviteCode("")
+				setAuthUsername("")
+				setAuthConfirmCode("")
+				setAuthTeamName("")
+				setAuthEmail("")
+				setAuthUsername("")
+				setAuthInviteCode("")
+				setAuthConfirmCode("")
+
+				if (response.errors) {
+					setJoinError(response.errors.email)
+				}
+			}
+		} catch (error) {
+			setIsSubmitted(false)
+			console.log(error)
+		} finally {
+			setIsLoading(false)
+		}
+	}
+
 	/**
-	 * Join an existing team
+	 *
+	 * Register or Create New Team
 	 */
-	const joinTeam = async () => {
+	const createNewTeam = async () => {
 		setIsSubmitted(true)
 		setAttemptsCount(attemptsCount + 1)
 
-		setIsLoading(true)
+		if (Object.values(validationErrors).some((v) => !!v)) return
 
-		await login({ email: authEmail, code: authInviteCode })
+		setIsLoading(true)
+		// Make a request to your server to get an authentication token.
+		await register({
+			team: authTeamName,
+			name: authUsername,
+			email: authEmail,
+		})
 			.then((res) => {
+				const { response } = res
+
+				// If successful, reset the fields and set the token.
+				if (response.status === 200) {
+					const data = response.data
+
+					const employee = data.employee
+					const loginRes = data.loginRes
+
+					setActiveTeamId(data.team.id)
+					setActiveTeam(data.team)
+					setOrganizationId(data.team.organizationId)
+					setUser(loginRes.user)
+					setTenantId(data.team.tenantId)
+					setEmployeeId(employee.id)
+
+					firstLoadData()
+					// Save Auth Data
+					// setTempAuthToken(loginRes.token)
+					setAuthToken(loginRes.token)
+					setRefreshToken(loginRes.refresh_token)
+					setScreenStatus({
+						screen: 3,
+						animation: true,
+					})
+
+					setIsLoading(false)
+					setIsSubmitted(false)
+				}
+			})
+			.catch((e) => {
+				setIsLoading(false)
+				setIsSubmitted(false)
+				console.log(e)
+			})
+	}
+
+	/**
+	 * Generate authentication code for login
+	 */
+	const getAuthCode = useCallback(async () => {
+		setIsSubmitted(true)
+		setIsLoading(true)
+		await sendAuthCode(authEmail).catch((e) => console.log(e))
+		setIsSubmitted(false)
+		setIsLoading(false)
+	}, [authEmail])
+
+	/**
+	 * Verify User Email by Verification Code
+	 */
+
+	const verifyEmailAndCodeOrAcceptInvite = async (): Promise<VerificationResponse> => {
+		setIsLoading(true)
+		setJoinError("")
+
+		try {
+			await login({ email: authEmail, code: authInviteCode }).then((res) => {
 				const { response, errors, status } = res
 
 				if (status === 200) {
@@ -107,81 +215,26 @@ export function useAuthenticationTeam() {
 					}
 				}
 			})
-			.catch((e) => {
-				setIsLoading(false)
-				setIsSubmitted(false)
-				console.log(e)
-			})
+
+			return {
+				success: false,
+				data: null,
+			}
+		} catch (error) {
+			const response = await verifyAuthCodeRequest(authEmail, authInviteCode)
+
+			setIsLoading(false)
+
+			return {
+				response: response.response.status,
+				success: response.response.status === 201,
+				data: response.data,
+				error:
+					response.response.status === 401 ? "Authentication code or email address invalid" : null,
+			}
+		}
 	}
 
-	/**
-	 *
-	 * Register or Create New Team
-	 */
-	const createNewTeam = async () => {
-		setIsSubmitted(true)
-		setAttemptsCount(attemptsCount + 1)
-
-		if (Object.values(validationErrors).some((v) => !!v)) return
-
-		setIsLoading(true)
-		// Make a request to your server to get an authentication token.
-		await register({
-			team: authTeamName,
-			name: authUsername,
-			email: authEmail,
-		})
-			.then((res) => {
-				const { response } = res
-
-				// If successful, reset the fields and set the token.
-				if (response.status === 200) {
-					const data = response.data
-
-					const employee = data.employee
-					const loginRes = data.loginRes
-
-					setActiveTeamId(data.team.id)
-					setActiveTeam(data.team)
-					setOrganizationId(data.team.organizationId)
-					setUser(loginRes.user)
-					setTenantId(data.team.tenantId)
-					setEmployeeId(employee.id)
-
-					firstLoadData()
-					// Save Auth Data
-					setTempAuthToken(loginRes.token)
-					setRefreshToken(loginRes.refresh_token)
-					setScreenStatus({
-						screen: 3,
-						animation: true,
-					})
-
-					setIsLoading(false)
-					setIsSubmitted(false)
-				}
-			})
-			.catch((e) => {
-				setIsLoading(false)
-				setIsSubmitted(false)
-				console.log(e)
-			})
-	}
-
-	/**
-	 * Generate authentication code for login
-	 */
-	const getAuthCode = useCallback(async () => {
-		setIsSubmitted(true)
-		setIsLoading(true)
-		await sendAuthCode(authEmail).catch((e) => console.log(e))
-		setIsSubmitted(false)
-		setIsLoading(false)
-	}, [authEmail])
-
-	/**
-	 * Verify User Email by Verification Code
-	 */
 	const verifyEmailByCode = async () => {
 		setIsLoading(true)
 		await verifyUserEmailByCodeRequest({
@@ -242,10 +295,11 @@ export function useAuthenticationTeam() {
 	return {
 		resendEmailVerificationCode,
 		joinError,
-		joinTeam,
+		// joinTeam,
 		createNewTeam,
 		verificationError,
 		verifyEmailByCode,
+		verifyEmailAndCodeOrAcceptInvite,
 		getAuthCode,
 		errors,
 		isLoading,
@@ -254,5 +308,6 @@ export function useAuthenticationTeam() {
 		screenstatus,
 		setScreenStatus,
 		authTeamInput,
+		signInWorkspace,
 	}
 }

@@ -83,14 +83,14 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 		setFormValues,
 		errors,
 		handleChange,
-		handleSubmit,
+		handleCodeSubmit,
 		sendCodeLoading,
 		sendAuthCodeHandler,
 		inputCodeRef,
 	} = useAuthenticationPasscode();
 
 	return (
-		<form autoComplete="off" onSubmit={handleSubmit}>
+		<form autoComplete="off" onSubmit={handleCodeSubmit}>
 			<div className="w-full mt-8">
 				<InputField
 					type="email"

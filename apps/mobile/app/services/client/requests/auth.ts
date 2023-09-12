@@ -1,8 +1,10 @@
 /* eslint-disable camelcase */
 import {
-	ILoginResponse,
+	IEmailAndCodeConfirmResponse,
 	IRegisterDataRequest,
 	ISuccessResponse,
+	ISignInResponse,
+	ILoginResponse,
 } from "../../interfaces/IAuthentication"
 import { IUser } from "../../interfaces/IUserData"
 import { serverFetch } from "../fetch"
@@ -80,20 +82,31 @@ export const refreshTokenRequest = (refresh_token: string) => {
 		},
 	})
 }
-
+// auth/signin.email
 export function sendAuthCodeRequest(email: string) {
 	return serverFetch<{ status: number; message: string | "ok" }>({
-		path: "/auth/send-code",
+		path: "/auth/signin.email",
 		method: "POST",
 		body: { email },
 	})
 }
 
-export function verifyAuthCodeRequest(email: string, code: number) {
-	return serverFetch<ILoginResponse>({
-		path: "/auth/verify-code",
+// auth/signin.email/confirm Gives response with tenantId's
+export function verifyAuthCodeRequest(email: string, code: string) {
+	return serverFetch<IEmailAndCodeConfirmResponse>({
+		path: "/auth/signin.email/confirm?includeTeams=true",
 		method: "POST",
 		body: { email, code },
+	})
+}
+
+// auth/signin.workspace  Need the email and the token from auth/signin.email/confirm
+
+export const signInWorkspaceRequest = (email: string, token: string) => {
+	return serverFetch<ISignInResponse>({
+		path: "/auth/signin.workspace",
+		method: "POST",
+		body: { email, token },
 	})
 }
 

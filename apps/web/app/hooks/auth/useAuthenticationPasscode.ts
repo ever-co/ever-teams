@@ -18,7 +18,8 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
-	const { query } = useRouter();
+	const { query, pathname } = useRouter();
+
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(
@@ -67,28 +68,42 @@ export function useAuthenticationPasscode() {
 		email: string;
 		code: string;
 	}) => {
-		try {
-			// Trying to accept the invite
-			await queryCall(email, code);
-			window.location.reload();
-			setAuthenticated(true);
-		} catch (error) {
-			signInEmailConfirmQueryCall(email, code)
-				.then((res) => {
-					if (res.data?.workspaces && res.data.workspaces.length) {
-						setWorkspaces(res.data.workspaces);
-					}
-					setScreen('workspace');
-				})
-				.catch((err: AxiosError) => {
-					if (err.response?.status === 400) {
-						setErrors((err.response?.data as any)?.errors || {});
-					}
+		signInEmailConfirmQueryCall(email, code)
+			.then((res) => {
+				if (res.data?.workspaces && res.data.workspaces.length) {
+					setWorkspaces(res.data.workspaces);
+				}
 
-					inputCodeRef.current?.clear();
-				});
-		}
+				// If user tries to login from public Team Page as an Already a Member
+				// Redirect to the current team automatically
+				if (
+					pathname === '/team/[teamId]/[profileLink]' &&
+					res.data.workspaces.length
+				) {
+					if (query.teamId) {
+						const currentWorkspace = res.data.workspaces.find((workspace) =>
+							workspace.current_teams
+								.map((item) => item.team_id)
+								.includes(query.teamId as string)
+						);
+
+						signInToWorkspaceRequest({
+							email: email,
+							token: currentWorkspace?.token as string,
+							selectedTeam: query.teamId as string,
+						});
+					}
+				}
+
+				setScreen('workspace');
+			})
+			.catch((err: AxiosError) => {
+				if (err.response?.status === 400) {
+					setErrors((err.response?.data as any)?.errors || {});
+				}
+			});
 	};
+
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
@@ -129,7 +144,7 @@ export function useAuthenticationPasscode() {
 			});
 	};
 
-	const handleCodeSubmit = (e: any) => {
+	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(

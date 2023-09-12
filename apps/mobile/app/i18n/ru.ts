@@ -55,6 +55,7 @@ const ru = {
 		emailFieldLabel: "Your Email",
 		teamNameFieldLabel: "Team Name",
 		inviteCodeFieldLabel: "Input invitation code",
+		selectWorkspaceFieldLabel: "Select Workspace",
 		emailFieldPlaceholder: "Enter your email address",
 		teamNameFieldPlaceholder: "Please Enter your team name",
 		userNameFieldPlaceholder: "Enter your name",
