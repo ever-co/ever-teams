@@ -8,6 +8,7 @@ import {
 	signInWorkspaceAPI,
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
+import { useTranslation } from 'lib/i18n';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
@@ -19,6 +20,8 @@ type AuthCodeRef = {
 
 export function useAuthenticationPasscode() {
 	const { query } = useRouter();
+	const translation = useTranslation();
+
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
 	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(
@@ -67,27 +70,27 @@ export function useAuthenticationPasscode() {
 		email: string;
 		code: string;
 	}) => {
-		try {
-			// Trying to accept the invite
-			await queryCall(email, code);
-			window.location.reload();
-			setAuthenticated(true);
-		} catch (error) {
-			signInEmailConfirmQueryCall(email, code)
-				.then((res) => {
-					if (res.data?.workspaces && res.data.workspaces.length) {
-						setWorkspaces(res.data.workspaces);
-					}
-					setScreen('workspace');
-				})
-				.catch((err: AxiosError) => {
-					if (err.response?.status === 400) {
-						setErrors((err.response?.data as any)?.errors || {});
-					}
+		signInEmailConfirmQueryCall(email, code)
+			.then((res) => {
+				if (res.data?.workspaces && res.data.workspaces.length) {
+					setWorkspaces(res.data.workspaces);
+				}
 
-					inputCodeRef.current?.clear();
-				});
-		}
+				if (res.data.workspaces && res.data.workspaces.length) {
+					setScreen('workspace');
+				} else {
+					setErrors({
+						code: translation.trans.pages.auth.WORKSPACES_NOT_FOUND,
+					});
+				}
+			})
+			.catch((err: AxiosError) => {
+				if (err.response?.status === 400) {
+					setErrors((err.response?.data as any)?.errors || {});
+				}
+
+				inputCodeRef.current?.clear();
+			});
 	};
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
