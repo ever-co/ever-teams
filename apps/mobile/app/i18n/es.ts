@@ -96,6 +96,8 @@ const es = {
 		assignTaskButton: "Assign Task",
 		createButton: "Create",
 		assignButton: "Assign",
+		resendInvitation: "Resend Invitation",
+		remove: "Remove",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

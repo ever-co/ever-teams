@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from "react"
 import { INVITE_CALLBACK_URL } from "@env"
 import isEqual from "lodash/isEqual"
 import { useStores } from "../../models"
-import { inviteByEmailsRequest, resendInvitationEmailRequest } from "../client/requests/invite"
+import {
+	inviteByEmailsRequest,
+	removeTeamInvitationsRequest,
+	resendInvitationEmailRequest,
+} from "../client/requests/invite"
 import { getEmployeeRoleRequest } from "../client/requests/roles"
 import { useFetchTeamInvitations } from "../client/queries/invitation/invitations"
 import { useSyncRef } from "./useSyncRef"
@@ -68,6 +72,14 @@ export function useTeamInvitations() {
 		).then((res) => console.log(res))
 	}, [])
 
+	const removeSentInvitation = useCallback(async (inviteId: string) => {
+		await removeTeamInvitationsRequest({
+			invitationId: inviteId,
+			bearer_token: authToken,
+			tenantId,
+		}).catch((err) => console.log(err))
+	}, [])
+
 	useEffect(() => {
 		if (isSuccess) {
 			const latestTeamInvitations = invitations || []
@@ -98,5 +110,6 @@ export function useTeamInvitations() {
 		loading,
 		teamInvitations,
 		resendInvite,
+		removeSentInvitation,
 	}
 }

@@ -100,6 +100,8 @@ const ar: Translations = {
 		assignTaskButton: "تعيين مهمة",
 		createButton: "خلق",
 		assignButton: "تعيين",
+		resendInvitation: "اعادة ارسال الدعوة",
+		remove: "يزيل",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

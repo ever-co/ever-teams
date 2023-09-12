@@ -122,11 +122,12 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 const ListCardItem: React.FC<Props> = (props) => {
 	const { colors } = useAppTheme()
 	const { isTeamManager } = useOrganizationTeam()
-	const { resendInvite } = useTeamInvitations()
+	const { resendInvite, removeSentInvitation } = useTeamInvitations()
 	// STATS
 	const [showMenu, setShowMenu] = React.useState(false)
 
 	const { invite } = props
+
 	return (
 		<Card
 			style={{
@@ -179,7 +180,16 @@ const ListCardItem: React.FC<Props> = (props) => {
 										setShowMenu(!showMenu)
 									}}
 								>
-									Resend
+									{translate("tasksScreen.resendInvitation")}
+								</ListItem>
+								<ListItem
+									textStyle={[styles.dropdownTxt, { color: "#ef4444" }]}
+									onPress={() => {
+										removeSentInvitation(invite.id)
+										setShowMenu(!showMenu)
+									}}
+								>
+									{translate("tasksScreen.remove")}
 								</ListItem>
 							</View>
 						</View>
@@ -216,6 +226,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
 	},
+
 	firstContainer: {
 		alignItems: "center",
 		flexDirection: "row",
