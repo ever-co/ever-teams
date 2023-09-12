@@ -8,6 +8,7 @@ export interface IOrganizationTeamEmployeeCreate {
 	employeeId?: string
 	roleId?: string
 	isTrackingEnabled?: boolean
+	activeTaskId?: string
 }
 export interface IOrganizationTeamEmployeeUpdate extends IOrganizationTeamEmployeeCreate {
 	id: string

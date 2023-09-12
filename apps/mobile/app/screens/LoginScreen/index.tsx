@@ -33,8 +33,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 		verifyEmailByCode,
 		resendEmailVerificationCode,
 		joinError,
-		joinTeam,
+		signInWorkspace,
 		getAuthCode,
+		verifyEmailAndCodeOrAcceptInvite,
 	} = useAuthenticationTeam()
 
 	return (
@@ -76,8 +77,9 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 				) : (
 					<PassCode
 						joinError={joinError}
-						joinTeam={joinTeam}
+						signInWorkspace={signInWorkspace}
 						getAuthCode={getAuthCode}
+						verifyEmailAndCodeOrAcceptInvite={verifyEmailAndCodeOrAcceptInvite}
 						setScreenStatus={setScreenStatus}
 						errors={errors}
 						setWithTeam={setWithTeam}
