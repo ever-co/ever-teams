@@ -119,3 +119,31 @@ export const everTeamsLogoDarkTheme = `<svg
 					</text>
 				</g>
 			</svg>`
+
+export const grayCircleIcon = `<svg
+			width="23"
+			height="23"
+			viewBox="0 0 17 18"
+            stroke="#D3D3D3"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<path
+				d="M8.5 16.5C12.625 16.5 16 13.125 16 9C16 4.875 12.625 1.5 8.5 1.5C4.375 1.5 1 4.875 1 9C1 13.125 4.375 16.5 8.5 16.5Z"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+		</svg>`
+
+export const greenCircleTickIcon = `<svg
+			width="23"
+			height="23"
+			viewBox="0 0 20 21"
+  fill="#27AE60"
+			xmlns="http://www.w3.org/2000/svg"
+
+		>
+			<path
+				d="M10 0.5C4.49 0.5 0 4.99 0 10.5C0 16.01 4.49 20.5 10 20.5C15.51 20.5 20 16.01 20 10.5C20 4.99 15.51 0.5 10 0.5ZM14.78 8.2L9.11 13.87C8.97 14.01 8.78 14.09 8.58 14.09C8.38 14.09 8.19 14.01 8.05 13.87L5.22 11.04C4.93 10.75 4.93 10.27 5.22 9.98C5.51 9.69 5.99 9.69 6.28 9.98L8.58 12.28L13.72 7.14C14.01 6.85 14.49 6.85 14.78 7.14C15.07 7.43 15.07 7.9 14.78 8.2Z"
+			/>
+		</svg>`

@@ -57,6 +57,7 @@ const ko: Translations = {
 		emailFieldLabel: "귀하의 이메일",
 		teamNameFieldLabel: "팀 이름",
 		inviteCodeFieldLabel: "초대 코드 입력",
+		selectWorkspaceFieldLabel: "작업공간 선택",
 		emailFieldPlaceholder: "이메일 주소를 입력하세요",
 		teamNameFieldPlaceholder: "팀 이름을 입력하세요",
 		userNameFieldPlaceholder: "당신의 이름을 입력",

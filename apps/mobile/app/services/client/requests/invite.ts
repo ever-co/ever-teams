@@ -105,7 +105,7 @@ export interface AcceptInviteParams {
 		email: string
 	}
 	password: string
-	code: number
+	code: string
 	email: string
 }
 
