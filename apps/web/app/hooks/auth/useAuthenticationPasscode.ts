@@ -8,7 +8,6 @@ import {
 	signInWorkspaceAPI,
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
-import { useTranslation } from 'lib/i18n';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
@@ -19,8 +18,7 @@ type AuthCodeRef = {
 };
 
 export function useAuthenticationPasscode() {
-	const { query } = useRouter();
-	const translation = useTranslation();
+	const { query, pathname } = useRouter();
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
@@ -76,22 +74,36 @@ export function useAuthenticationPasscode() {
 					setWorkspaces(res.data.workspaces);
 				}
 
-				if (res.data.workspaces && res.data.workspaces.length) {
-					setScreen('workspace');
-				} else {
-					setErrors({
-						code: translation.trans.pages.auth.WORKSPACES_NOT_FOUND,
-					});
+				// If user tries to login from public Team Page as an Already a Member
+				// Redirect to the current team automatically
+				if (
+					pathname === '/team/[teamId]/[profileLink]' &&
+					res.data.workspaces.length
+				) {
+					if (query.teamId) {
+						const currentWorkspace = res.data.workspaces.find((workspace) =>
+							workspace.current_teams
+								.map((item) => item.team_id)
+								.includes(query.teamId as string)
+						);
+
+						signInToWorkspaceRequest({
+							email: email,
+							token: currentWorkspace?.token as string,
+							selectedTeam: query.teamId as string,
+						});
+					}
 				}
+
+				setScreen('workspace');
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
 					setErrors((err.response?.data as any)?.errors || {});
 				}
-
-				inputCodeRef.current?.clear();
 			});
 	};
+
 	const verifyPasscodeRequest = useCallback(
 		({ email, code }: { email: string; code: string }) => {
 			queryCall(email, code)
@@ -132,7 +144,7 @@ export function useAuthenticationPasscode() {
 			});
 	};
 
-	const handleCodeSubmit = (e: any) => {
+	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(
