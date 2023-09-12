@@ -14,30 +14,54 @@ import { useStores } from "../../../models"
 import { CodeInput } from "../../../components/CodeInput"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { EMAIL_REGEX } from "../../../helpers/regex"
+import UserTenants from "./UserTenants"
+import { ScrollView } from "react-native-gesture-handler"
+import { IWorkspace, VerificationResponse } from "../../../services/interfaces/IAuthentication"
 
 interface Props {
 	isLoading: boolean
 	errors: any
 	setWithTeam: (value: boolean) => unknown
 	setScreenStatus: (value: { screen: number; animation: boolean }) => unknown
-	joinTeam: () => unknown
 	getAuthCode: () => unknown
 	joinError: string
+	verifyEmailAndCodeOrAcceptInvite: () => unknown
+	signInWorkspace: () => unknown
 }
 const { width } = Dimensions.get("window")
 const PassCode: FC<Props> = observer(
-	({ isLoading, errors, setScreenStatus, setWithTeam, joinTeam, getAuthCode, joinError }) => {
+	({
+		isLoading,
+		errors,
+		setScreenStatus,
+		setWithTeam,
+
+		getAuthCode,
+		joinError,
+		verifyEmailAndCodeOrAcceptInvite,
+		signInWorkspace,
+	}) => {
 		const { colors } = useAppTheme()
 		const {
-			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode, authInviteCode },
+			authenticationStore: {
+				authEmail,
+				setAuthEmail,
+				setAuthInviteCode,
+				authInviteCode,
+				setTempAuthToken,
+			},
+			teamStore: { activeTeamId, setActiveTeamId },
 		} = useStores()
 
 		const authTeamInput = useRef<TextInput>()
-		const [step, setStep] = useState<"Email" | "Code">("Email")
-		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean }>({
+		const [step, setStep] = useState<"Email" | "Code" | "Tenant">("Email")
+		const [isValid, setIsValid] = useState<{ step1: boolean; step2: boolean; step3: boolean }>({
 			step1: false,
 			step2: false,
+			step3: false,
 		})
+		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0)
+		const [workspaceData, setWorkspaceData] = useState(null)
 
 		const onNextStep = async () => {
 			if (step === "Email") {
@@ -51,7 +75,20 @@ const PassCode: FC<Props> = observer(
 			}
 
 			if (step === "Code") {
-				joinTeam()
+				const response: VerificationResponse = await verifyEmailAndCodeOrAcceptInvite()
+
+				setTimeout(() => {
+					if (!isLoading && response.data?.workspaces) {
+						setWorkspaceData(response.data.workspaces)
+						setAuthInviteCode("")
+						setActiveTeamId("")
+						setStep("Tenant")
+					}
+				}, 1000)
+			}
+			if (step === "Tenant") {
+				// joinTeam()
+				signInWorkspace()
 			}
 		}
 		const onPrevStep = () => {
@@ -66,6 +103,10 @@ const PassCode: FC<Props> = observer(
 
 			if (step === "Code") {
 				setStep("Email")
+			}
+			if (step === "Tenant") {
+				setStep("Code")
+				setActiveTeamId("")
 			}
 		}
 
@@ -136,7 +177,7 @@ const PassCode: FC<Props> = observer(
 							onSubmitEditing={() => authTeamInput.current?.focus()}
 						/>
 					</>
-				) : (
+				) : step === "Code" ? (
 					<View>
 						<Text style={{ ...styles.text, alignSelf: "center" }}>
 							{translate("loginScreen.inviteCodeFieldLabel")}
@@ -156,6 +197,28 @@ const PassCode: FC<Props> = observer(
 								</Text>
 							</Text>
 						</TouchableOpacity>
+					</View>
+				) : (
+					<View style={styles.tenantsContainer}>
+						<Text style={{ ...styles.text, alignSelf: "center" }}>
+							{translate("loginScreen.selectWorkspaceFieldLabel")}
+						</Text>
+						<ScrollView>
+							{workspaceData?.map((workspace: IWorkspace, i: number) => (
+								<UserTenants
+									key={i}
+									index={i}
+									data={workspace}
+									activeTeamId={activeTeamId}
+									setActiveTeamId={setActiveTeamId}
+									selectedWorkspace={selectedWorkspace}
+									setSelectedWorkspace={setSelectedWorkspace}
+									isValid={isValid}
+									setIsValid={setIsValid}
+									setTempAuthToken={setTempAuthToken}
+								/>
+							))}
+						</ScrollView>
 					</View>
 				)}
 				<View style={styles.buttonsView}>
@@ -179,20 +242,21 @@ const PassCode: FC<Props> = observer(
 								opacity:
 									isLoading ||
 									(step === "Email" && !isValid.step1) ||
-									(step === "Code" && !isValid.step2)
+									(step === "Code" && !isValid.step2) ||
+									(step === "Tenant" && !isValid.step3)
 										? 0.5
 										: 1,
 							},
 						]}
 						textStyle={styles.tapButtonText}
 						onPress={() => onNextStep()}
-						disabled={(step === "Email" && !isValid.step1) || (step === "Code" && !isValid.step2)}
+						disabled={
+							(step === "Email" && !isValid.step1) ||
+							(step === "Code" && !isValid.step2) ||
+							(step === "Tenant" && !isValid.step3)
+						}
 					>
-						<Text>
-							{step === "Code"
-								? translate("loginScreen.tapJoin")
-								: translate("loginScreen.tapContinue")}
-						</Text>
+						<Text>{translate("loginScreen.tapContinue")}</Text>
 					</Button>
 					<ActivityIndicator
 						style={styles.loading}
@@ -216,6 +280,10 @@ const $tapButton: ViewStyle = {
 }
 
 const styles = EStyleSheet.create({
+	tenantsContainer: {
+		width: "100%",
+		height: 220,
+	},
 	form: {
 		position: "absolute",
 		display: "flex",

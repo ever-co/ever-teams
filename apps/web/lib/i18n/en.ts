@@ -164,6 +164,7 @@ export const en = {
 			LOGIN: 'Login',
 			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
+			WORKSPACES_NOT_FOUND: 'Workspaces Not Found',
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
