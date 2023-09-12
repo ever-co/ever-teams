@@ -107,7 +107,9 @@ const styles = StyleSheet.create({
 	},
 	tenantContainer: {
 		backgroundColor: "#FCFCFC",
-		borderRadius: 16,
+		borderColor: "#0000001A",
+		borderRadius: 12,
+		borderWidth: 1,
 		marginVertical: 10,
 		padding: 12,
 		width: "100%",

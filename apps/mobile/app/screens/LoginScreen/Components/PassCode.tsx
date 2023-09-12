@@ -256,11 +256,7 @@ const PassCode: FC<Props> = observer(
 							(step === "Tenant" && !isValid.step3)
 						}
 					>
-						<Text>
-							{step === "Tenant"
-								? translate("loginScreen.tapJoin")
-								: translate("loginScreen.tapContinue")}
-						</Text>
+						<Text>{translate("loginScreen.tapContinue")}</Text>
 					</Button>
 					<ActivityIndicator
 						style={styles.loading}
