@@ -99,6 +99,8 @@ const fr = {
 		assignTaskButton: "Attribuer une tâche",
 		createButton: "Créer",
 		assignButton: "Attribuer",
+		resendInvitation: "Renvoyer l'invitation",
+		remove: "Supprimer",
 	},
 	settingScreen: {
 		name: "Réglages",
