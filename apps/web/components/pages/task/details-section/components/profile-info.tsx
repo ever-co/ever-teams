@@ -26,7 +26,7 @@ const ProfileInfo = ({
 		>
 			<div
 				className={clsx(
-					`w-[${size}px] h-[${size}px] 3xl:w-[24px] 3xl:h-[24px]`,
+					`w-[${size}px] h-[${size}px]`,
 					'flex justify-center items-center',
 					'rounded-full text-xs text-default dark:text-white',
 					'shadow-md text-md font-normal'
