@@ -69,7 +69,7 @@ export function useTeamInvitations() {
 				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
 			},
 			authToken,
-		).then((res) => console.log(res))
+		)
 	}, [])
 
 	const removeSentInvitation = useCallback(async (inviteId: string) => {
@@ -77,7 +77,7 @@ export function useTeamInvitations() {
 			invitationId: inviteId,
 			bearer_token: authToken,
 			tenantId,
-		}).catch((err) => console.log(err))
+		})
 	}, [])
 
 	useEffect(() => {
