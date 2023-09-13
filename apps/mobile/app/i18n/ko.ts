@@ -100,6 +100,8 @@ const ko: Translations = {
 		assignTaskButton: "작업 할당",
 		createButton: "창조하다",
 		assignButton: "양수인",
+		resendInvitation: "초대장 다시 보내기",
+		remove: "제거",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",
