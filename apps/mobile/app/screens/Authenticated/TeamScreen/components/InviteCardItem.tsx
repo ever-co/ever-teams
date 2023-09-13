@@ -125,8 +125,17 @@ const ListCardItem: React.FC<Props> = (props) => {
 	const { resendInvite, removeSentInvitation } = useTeamInvitations()
 	// STATS
 	const [showMenu, setShowMenu] = React.useState(false)
+	const [showConfirm, setShowConfirm] = React.useState(false)
+	const [showCard, setShowCard] = React.useState(true)
 
 	const { invite } = props
+
+	const handleRemoveInvitation = (inviteId: string) => {
+		removeSentInvitation(inviteId)
+		setShowConfirm(false)
+		setShowMenu(false)
+		setShowCard(false)
+	}
 
 	return (
 		<Card
@@ -135,6 +144,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 				...GS.mt5,
 				paddingTop: 4,
 				backgroundColor: "#DCD6D6",
+				display: showCard ? "flex" : "none",
 			}}
 			HeadingComponent={
 				<View
@@ -185,8 +195,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: "#ef4444" }]}
 									onPress={() => {
-										removeSentInvitation(invite.id)
-										setShowMenu(!showMenu)
+										setShowConfirm(!showConfirm)
 									}}
 								>
 									{translate("tasksScreen.remove")}
@@ -194,7 +203,12 @@ const ListCardItem: React.FC<Props> = (props) => {
 							</View>
 						</View>
 
-						<TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
+						<TouchableOpacity
+							onPress={() => {
+								setShowMenu(!showMenu)
+								setShowConfirm(false)
+							}}
+						>
 							{!showMenu ? (
 								<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
 							) : (
@@ -204,7 +218,21 @@ const ListCardItem: React.FC<Props> = (props) => {
 					</View>
 				</View>
 			}
-			ContentComponent={<ListItemContent {...props} onPressIn={() => setShowMenu(!showMenu)} />}
+			ContentComponent={
+				<>
+					<ListItemContent {...props} onPressIn={() => setShowMenu(!showMenu)} />
+					{showConfirm && (
+						<View style={[styles.confirmContainer, { backgroundColor: colors.background }]}>
+							<TouchableOpacity onPress={() => handleRemoveInvitation(invite.id)}>
+								<Text style={[styles.confirmText, { color: colors.secondary }]}>Confirm</Text>
+							</TouchableOpacity>
+							<TouchableOpacity onPress={() => setShowConfirm(false)}>
+								<Text>Cancel</Text>
+							</TouchableOpacity>
+						</View>
+					)}
+				</>
+			}
 		/>
 	)
 }
@@ -221,6 +249,23 @@ const $listCard: ViewStyle = {
 }
 
 const styles = StyleSheet.create({
+	confirmContainer: {
+		borderRadius: 5,
+		elevation: 5,
+		padding: 10,
+		position: "absolute",
+		right: 207,
+		shadowColor: "#2979FF",
+		shadowOffset: { width: 1, height: 1.5 },
+		shadowOpacity: 0.5,
+		shadowRadius: 5,
+		top: 60,
+	},
+	confirmText: {
+		fontSize: 16,
+		fontWeight: "bold",
+		marginBottom: 5,
+	},
 	dropdownTxt: {
 		color: "#282048",
 		fontFamily: typography.primary.semiBold,
