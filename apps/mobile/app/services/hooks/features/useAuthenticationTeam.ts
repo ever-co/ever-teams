@@ -47,6 +47,7 @@ export function useAuthenticationTeam() {
 			setTenantId,
 			setEmployeeId,
 			setRefreshToken,
+			authToken,
 		},
 		teamStore: { setActiveTeam, setActiveTeamId },
 	} = useStores()
@@ -239,7 +240,7 @@ export function useAuthenticationTeam() {
 		setIsLoading(true)
 		await verifyUserEmailByCodeRequest({
 			bearer_token: tempAuthToken,
-			code: parseInt(authConfirmCode),
+			code: authConfirmCode,
 			email: authEmail,
 			tenantId,
 		})

@@ -38,6 +38,7 @@ import AcceptInviteModal from "./components/AcceptInviteModal"
 import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
 import NoTeam from "../../../components/NoTeam"
 import VerifyAccountModal from "./components/VerifyAccount"
+import { useAuthenticationTeam } from "../../../services/hooks/features/useAuthenticationTeam"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -65,6 +66,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 		const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } =
 			useAcceptInviteModal()
 		const [showVerifyAccountModal, setShowVerifyAccountModal] = useState(false)
+
+		const { resendAccountVerificationCode } = useAuthenticationTeam()
 
 		return (
 			<>
@@ -115,7 +118,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
-												isAccountVerified={currentUser.employee.isVerified}
+												isAccountVerified={currentUser?.employee.isVerified}
 											/>
 										</View>
 										{isTeamManager && currentUser.employee.isVerified ? (
@@ -130,7 +133,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 										) : isTeamManager && !currentUser.employee.isVerified ? (
 											<TouchableOpacity
 												style={[$inviteButton, { borderColor: colors.secondary }]}
-												onPress={() => setShowVerifyAccountModal(true)}
+												onPress={() => {
+													setShowVerifyAccountModal(true)
+													resendAccountVerificationCode(currentUser.employee.user.email)
+												}}
 											>
 												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
 													{translate("accountVerificationModal.verify")}
