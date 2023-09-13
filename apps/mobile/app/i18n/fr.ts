@@ -242,9 +242,12 @@ const fr = {
 		darkMode: "Mode sombre",
 	},
 	inviteModal: {
-		accept: "Accept",
-		reject: "Reject",
-		inviteHint: "You have been invited to join",
+		accept: "Accepter",
+		reject: "Rejeter",
+		inviteHint: "Vous avez été invité à rejoindre",
+	},
+	accountVerificationModal: {
+		verify: "Vérifier",
 	},
 	demoNavigator: {
 		componentsTab: "Components",

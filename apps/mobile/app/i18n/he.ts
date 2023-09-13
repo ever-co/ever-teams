@@ -268,6 +268,9 @@ const he = {
 		reject: "Reject",
 		inviteHint: "You have been invited to join",
 	},
+	accountVerificationModal: {
+		verify: "Verify",
+	},
 	demoShowroomScreen: {
 		jumpStart: "Components to jump start your project!",
 		lorem2Sentences:

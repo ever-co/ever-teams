@@ -252,9 +252,12 @@ const ko: Translations = {
 		darkMode: "다크 모드",
 	},
 	inviteModal: {
-		accept: "Accept",
-		reject: "Reject",
-		inviteHint: "You have been invited to join",
+		accept: "수용하다",
+		reject: "거부하다",
+		inviteHint: "귀하는 가입 초대를 받았습니다.",
+	},
+	accountVerificationModal: {
+		verify: "확인하다",
 	},
 	demoNavigator: {
 		componentsTab: "컴포넌트",

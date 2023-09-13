@@ -254,6 +254,9 @@ const en = {
 		reject: "Reject",
 		inviteHint: "You have been invited to join",
 	},
+	accountVerificationModal: {
+		verify: "Verify",
+	},
 	demoNavigator: {
 		componentsTab: "Components",
 		debugTab: "Debug",

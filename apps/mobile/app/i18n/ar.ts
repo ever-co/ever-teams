@@ -253,9 +253,12 @@ const ar: Translations = {
 		darkMode: "الوضع الداكن",
 	},
 	inviteModal: {
-		accept: "Accept",
-		reject: "Reject",
-		inviteHint: "You have been invited to join",
+		accept: "يقبل",
+		reject: "يرفض",
+		inviteHint: "لقد تمت دعوتك للانضمام",
+	},
+	accountVerificationModal: {
+		verify: "يؤكد",
 	},
 	demoNavigator: {
 		componentsTab: "عناصر",
