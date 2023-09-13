@@ -298,6 +298,7 @@ function WorkSpaceScreen({
 											)}
 										</span>
 									</div>
+									<span className="bg-[#E5E5E5] w-full h-[1px]"></span>
 									{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
 									<div className="flex flex-col gap-4 px-5 py-1.5">
 										{worksace.current_teams.map((team) => (

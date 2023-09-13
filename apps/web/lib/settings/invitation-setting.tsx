@@ -28,8 +28,8 @@ export const InvitationSetting = () => {
 
 	const invitations = [...teamInvitations, ...requestToJoin].filter(
 		(invitation) =>
-			invitation.fullName.toLowerCase().includes(filterString) ||
-			invitation.email.toLowerCase().includes(filterString)
+			invitation?.fullName?.toLowerCase()?.includes(filterString) ||
+			invitation?.email?.toLowerCase()?.includes(filterString)
 	);
 
 	return (
