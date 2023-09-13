@@ -23,11 +23,15 @@ import stc from 'string-to-color';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
 	const hook = useTaskFilter(profile);
 
 	const { trans } = useTranslation('profile');
+	const breadcrumb = [
+		{ title: activeTeam?.name || '', href: '/' },
+		...trans.BREADCRUMB,
+	];
 
 	const profileIsAuthUser = useMemo(
 		() => profile.isAuthUser,
@@ -47,7 +51,7 @@ const Profile = () => {
 							<ArrowLeft className="h-6 w-6" />
 						</Link>
 
-						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 
 					{/* User Profile Detail */}

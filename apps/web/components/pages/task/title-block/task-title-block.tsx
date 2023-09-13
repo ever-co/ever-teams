@@ -192,7 +192,7 @@ const TaskTitleBlock = () => {
 				<div className="flex flex-row justify-start items-center gap-2 h-5">
 					<div className="flex flex-row gap-[0.3125rem]">
 						{/* Task number */}
-						<div className="bg-[#D6D6D6] rounded-[0.1875rem] text-center min-w-48 flex justify-center items-center h-5 py-[0.0625rem] px-2.5">
+						<div className="bg-[#D6D6D6] rounded-[0.1875rem] text-center min-w-48 flex justify-center items-center h-5 py-[0.0625rem] px-2.5 3xl:h-6">
 							<span className="text-[#293241] font-medium text-xs">
 								#{task?.taskNumber}
 							</span>
@@ -204,7 +204,7 @@ const TaskTitleBlock = () => {
 							showIssueLabels={true}
 							sidebarUI={true}
 							forParentChildRelationship={true}
-							taskStatusClassName="h-5 text-[0.5rem] rounded-[0.1875rem] border-none"
+							taskStatusClassName="h-5 3xl:h-6 text-[0.5rem] 3xl:text-xs rounded-[0.1875rem] border-none"
 						/>
 					</div>
 					{task?.issueType !== 'Epic' && task && (
@@ -227,7 +227,7 @@ const TaskTitleBlock = () => {
 				</div>
 
 				<button
-					className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem]"
+					className="flex gap-1 items-center text-[#B1AEBC] text-[0.5rem] 3xl:text-xs 3xl:py-2"
 					onClick={copyTaskNumber}
 				>
 					<CopyIconRounded className="stroke-[#B1AEBC]" />
@@ -247,9 +247,9 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 				<Link
 					href={`/task/${task.parentId}`}
 					target="_blank"
-					className="bg-[#C24A4A1A] rounded-[0.1875rem] text-center h-5 flex justify-center items-center py-[0.25rem] px-2.5"
+					className="bg-[#C24A4A1A] rounded-[0.1875rem] text-center h-5 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5"
 				>
-					<span className="text-[#C24A4A] font-medium text-[0.5rem] max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap">
+					<span className="text-[#C24A4A] font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap">
 						<span className="text-[#C24A4A80]">{`#${task.parent.taskNumber}`}</span>
 						{` - ${task.parent.title}`}
 					</span>
@@ -275,10 +275,10 @@ const ParentTaskInput = ({ task }: { task: ITeamTask | null }) => {
 	const { trans: translation } = useTranslation();
 
 	return task && task.issueType !== 'Epic' ? (
-		<div className="bg-transparent rounded text-center min-w-48 flex justify-center items-center cursor-pointer box-border h-5">
+		<div className="bg-transparent rounded text-center min-w-48 flex justify-center items-center cursor-pointer box-border h-5 3xl:h-6">
 			<Button
 				variant="outline-danger"
-				className="text-[#f07258] font-medium text-[0.5rem] py-[0.25rem] px-2.5 min-w-[4.75rem] outline-none h-5 rounded-[0.1875rem]"
+				className="text-[#f07258] font-medium text-[0.5rem] 3xl:text-xs py-[0.25rem] px-2.5 min-w-[4.75rem] outline-none h-5 3xl:h-6 rounded-[0.1875rem]"
 				onClick={modal.openModal}
 			>
 				{task.parentId

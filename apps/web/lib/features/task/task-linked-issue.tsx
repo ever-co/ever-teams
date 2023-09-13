@@ -48,7 +48,7 @@ export function TaskLinkedIssue({
 						'rounded-full'
 					)}
 					// className="px-1 md:px-1 flex mr-2.5"
-					taskTitleClassName="font-semibold text-xs flex items-center"
+					taskTitleClassName="font-semibold text-xs 3xl:text-sm flex items-center"
 					taskNumberClassName="font-semibold text-xs text-[#BAB8C4]"
 				/>
 			</Link>
@@ -56,11 +56,10 @@ export function TaskLinkedIssue({
 			<div className="flex items-center space-x-3">
 				{relatedTaskDropdown && issue && (
 					<Dropdown
-						buttonClassName={clsxm(
-							'px-2 py-0 rounded-[0.1875rem]',
-							'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
-						)}
-						optionsClassName={clsxm('mt-0')}
+						buttonClassName={
+							'px-2 py-0 rounded-[0.1875rem] bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]'
+						}
+						optionsClassName={'mt-0 3xl:text-xs'}
 						value={actionType}
 						onChange={onChange}
 						items={actionTypeItems}
@@ -72,7 +71,7 @@ export function TaskLinkedIssue({
 						<ActiveTaskStatusDropdown
 							task={task}
 							defaultValue={task.status}
-							taskStatusClassName="min-w-[6rem] h-5 text-[0.5rem] font-semibold rounded-[0.1875rem]"
+							taskStatusClassName="min-w-[6rem] 3xl:min-w-[7rem] h-5 3xl:h-6 text-[0.5rem] 3xl:text-xs font-semibold rounded-[0.1875rem]"
 							showIcon={false}
 						/>
 					</div>
@@ -94,14 +93,16 @@ function mapToActionType(items: ActionType[] = []) {
 					<button
 						className={clsxm(
 							'whitespace-nowrap mb-2 w-full',
-							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C]'
+							'flex justify-start flex-col border-b border-[#00000014] dark:border-[#26272C] 3xl:text-sm'
 						)}
 					>
 						<span className="pb-1">{item.name}</span>
 					</button>
 				);
 			},
-			selectedLabel: <span className="flex text-[0.5rem]">{item.name}</span>,
+			selectedLabel: (
+				<span className="flex text-[0.5rem] 3xl:text-xs">{item.name}</span>
+			),
 			data: item,
 		};
 	});

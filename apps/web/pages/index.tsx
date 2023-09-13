@@ -17,14 +17,16 @@ import { PeopleIcon } from 'lib/components/svgs';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
-	const { isTeamMember, isTrackingEnabled } = useOrganizationTeams();
+	const { isTeamMember, isTrackingEnabled, activeTeam } =
+		useOrganizationTeams();
+	const breadcrumb = [...trans.BREADCRUMB, activeTeam?.name || ''];
 
 	return (
 		<MainLayout>
 			<MainHeader className="pb-1">
 				<div className="flex items-center gap-8">
 					<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
-					<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+					<Breadcrumb paths={breadcrumb} className="text-sm" />
 				</div>
 
 				<UnverifiedEmail />
