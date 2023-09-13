@@ -38,7 +38,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			onClick: () => {
 				edition.task && edition.setEditMode(true);
 			},
-			active: memberInfo.isAuthTeamManager || memberInfo.isAuthUser,
+			active:
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task,
 		},
 		{
 			name: trans.common.ESTIMATE,
@@ -46,7 +47,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			onClick: () => {
 				edition.task && edition.setEstimateEditMode(true);
 			},
-			active: memberInfo.isAuthTeamManager || memberInfo.isAuthUser,
+			active:
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task,
 		},
 		{
 			name: trans.common.ASSIGN_TASK,
