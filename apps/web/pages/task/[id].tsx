@@ -25,7 +25,12 @@ const TaskDetails = () => {
 	const [task, setTask] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+
+	const breadcrumb = [
+		{ title: activeTeam?.name || '', href: '/' },
+		...trans.BREADCRUMB,
+	];
 
 	useEffect(() => {
 		if (router.isReady && router.query?.id && tasks.length > 0) {
@@ -54,7 +59,7 @@ const TaskDetails = () => {
 							<ArrowLeft className="h-6 w-6" />
 						</span>
 
-						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 				</Container>
 			</div>

@@ -27,7 +27,7 @@ html.dark {
 	}
 
 	.x-container {
-		@apply 2xl:max-w-[1320px] xl:max-w-[1140px];
+		@apply 2xl:max-w-[1520px] xl:max-w-[1140px];
 	}
 
 	:root {
