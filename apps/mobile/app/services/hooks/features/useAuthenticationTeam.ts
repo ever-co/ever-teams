@@ -47,7 +47,6 @@ export function useAuthenticationTeam() {
 			setTenantId,
 			setEmployeeId,
 			setRefreshToken,
-			authToken,
 		},
 		teamStore: { setActiveTeam, setActiveTeamId },
 	} = useStores()
