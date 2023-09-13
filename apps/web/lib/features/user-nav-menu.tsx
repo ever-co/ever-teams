@@ -180,14 +180,14 @@ function UserNavMenu() {
 							className="text-center flex space-x-3 items-center font-normal"
 						>
 							<BriefcaseIcon className="w-5 h-5" />{' '}
-							<span>{trans.common.TASK}</span>
+							<span>{trans.common.MY_TASKS}</span>
 						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex space-x-3 items-center font-normal">
 							<PeopleIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
-							<span>{trans.common.TEAM}</span>
+							<span>{trans.common.MY_TEAM}</span>
 						</Link>
 					</li>
 					{/* Settings menu */}

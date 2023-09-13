@@ -39,12 +39,14 @@ const TaskPublicity = () => {
 			{isTaskPublic ? (
 				<>
 					<div className="text-[#293241] dark:text-white flex items-center gap-2">
-						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] w-3" />
-						<p className="text-[0.625rem]">This task is Public</p>
+						<GlobIcon className="stroke-black dark:stroke-[#a6a2b2] w-3 3xl:w-4" />
+						<p className="text-[0.625rem] 3xl:text-[0.700rem]">
+							This task is Public
+						</p>
 					</div>
 					<div
 						onClick={() => handlePublicity(false)}
-						className="flex items-center cursor-pointer text-[0.625rem] text-[#A5A2B2]"
+						className="flex items-center cursor-pointer text-[0.625rem] 3xl:text-[0.700rem] text-[#A5A2B2]"
 					>
 						Make a private
 					</div>
