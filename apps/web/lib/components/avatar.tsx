@@ -56,8 +56,10 @@ export function Avatar({
 				className
 			)}
 			style={{
-				width: size,
-				height: size,
+				// width: size,
+				// height: size,
+				width: '100%',
+				height: '100%',
 				...(backgroundColor
 					? {
 							backgroundColor,

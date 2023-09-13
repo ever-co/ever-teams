@@ -27,7 +27,7 @@ html.dark {
 	}
 
 	.x-container {
-		@apply 2xl:max-w-[1520px] xl:max-w-[1140px];
+		@apply 3xl:max-w-[1540px] 2xl:max-w-[1320px] xl:max-w-[1140px];
 	}
 
 	:root {
@@ -175,7 +175,7 @@ html.dark {
 	/* Details Aside Bar */
 
 	.details-label {
-		@apply not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#A5A2B2];
+		@apply not-italic font-medium text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#A5A2B2] 2xl:text-xs;
 	}
 }
 
