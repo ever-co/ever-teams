@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useState } from "react"
 import {
 	View,
 	ViewStyle,
@@ -12,11 +12,11 @@ import {
 	KeyboardAvoidingView,
 	Platform,
 } from "react-native"
-import { Text } from "react-native-paper"
+import { ActivityIndicator, Text } from "react-native-paper"
 // COMPONENTS
 // STYLES
-import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography, useAppTheme } from "../../../../theme"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { colors, typography, useAppTheme } from "../../../../theme"
 // import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
 import { translate } from "../../../../i18n"
 import { CodeInput } from "../../../../components/CodeInput"
@@ -28,8 +28,10 @@ export interface Props {
 	onDismiss: () => unknown
 	isLoading: boolean
 	verifyEmailByCode: (email: string, code: string) => void
+	resendAccountVerificationCode: () => void
+	userEmail: string
 }
-const { width, height } = Dimensions.get("window")
+const { width } = Dimensions.get("window")
 
 const ModalPopUp = ({ visible, children }) => {
 	const [showModal, setShowModal] = React.useState(visible)
@@ -71,6 +73,8 @@ const VerifyAccountModal: FC<Props> = function InviteUserModal({
 	onDismiss,
 	isLoading,
 	verifyEmailByCode,
+	resendAccountVerificationCode,
+	userEmail,
 }) {
 	// const { inviterMember, loading } = useTeamInvitations()
 	// const {
@@ -92,12 +96,7 @@ const VerifyAccountModal: FC<Props> = function InviteUserModal({
 
 	const onChangeVerificationCode = (code: string) => {
 		setVerificationCode(code)
-		console.log(verificationCode)
 	}
-
-	useEffect(() => {
-		console.log(verificationCode)
-	}, [verificationCode])
 
 	return (
 		<ModalPopUp visible={visible}>
@@ -115,7 +114,11 @@ const VerifyAccountModal: FC<Props> = function InviteUserModal({
 					/>
 					<View style={{ marginTop: 10, marginLeft: 4 }}>
 						<Text style={styles.hint}>Didn't receive code?</Text>
-						<Text style={[styles.hint, { color: dark ? "#8C7AE4" : "#3826A6" }]}>Resend code</Text>
+						<TouchableOpacity onPress={resendAccountVerificationCode}>
+							<Text style={[styles.hint, { color: dark ? "#8C7AE4" : "#3826A6" }]}>
+								Resend code
+							</Text>
+						</TouchableOpacity>
 					</View>
 				</View>
 
@@ -135,12 +138,22 @@ const VerifyAccountModal: FC<Props> = function InviteUserModal({
 						<TouchableOpacity
 							style={[
 								styles.button,
-								{ backgroundColor: "#3826A6", opacity: notVerified ? 0.5 : 1 },
+								{ backgroundColor: "#3826A6", opacity: notVerified || isLoading ? 0.5 : 1 },
 							]}
-							disabled={notVerified}
+							disabled={notVerified || isLoading}
+							onPress={() => {
+								verifyEmailByCode(userEmail, verificationCode)
+								onDismiss()
+							}}
 						>
 							<Text style={styles.buttonText}>{translate("accountVerificationModal.verify")}</Text>
 						</TouchableOpacity>
+						<ActivityIndicator
+							style={[styles.loading, { marginRight: 8 }]}
+							animating={isLoading}
+							size={"small"}
+							color={"#fff"}
+						/>
 					</View>
 				</View>
 			</View>
@@ -180,12 +193,11 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
 	},
-
-	// loading: {
-	// 	bottom: "12%",
-	// 	left: "15%",
-	// 	position: "absolute",
-	// },
+	loading: {
+		bottom: "27%",
+		position: "absolute",
+		right: "31%",
+	},
 	mainContainer: {
 		alignItems: "center",
 		borderTopLeftRadius: 24,

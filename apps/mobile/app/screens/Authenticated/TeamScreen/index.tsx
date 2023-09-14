@@ -96,6 +96,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 								onDismiss={() => setShowVerifyAccountModal(false)}
 								isLoading={isLoadingEmailVerification}
 								verifyEmailByCode={verifyEmailByCode}
+								userEmail={currentUser?.employee.user.email}
+								resendAccountVerificationCode={() =>
+									resendAccountVerificationCode(currentUser.employee.user.email)
+								}
 							/>
 							<AcceptInviteModal
 								visible={openModal && activeInvitation !== null}
@@ -124,10 +128,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
-												isAccountVerified={currentUser?.employee.isVerified}
+												isAccountVerified={currentUser?.employee.user.isEmailVerified}
 											/>
 										</View>
-										{isTeamManager && currentUser.employee.isVerified ? (
+										{isTeamManager && currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
 												style={[$inviteButton, { borderColor: colors.secondary }]}
 												onPress={() => setShowInviteModal(true)}
@@ -136,7 +140,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 													{translate("teamScreen.inviteButton")}
 												</Text>
 											</TouchableOpacity>
-										) : isTeamManager && !currentUser.employee.isVerified ? (
+										) : isTeamManager && !currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
 												style={[$inviteButton, { borderColor: colors.secondary }]}
 												onPress={() => {
