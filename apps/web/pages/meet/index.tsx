@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
-import { useQuery } from '@app/hooks';
+import { useOrganizationTeams, useQuery } from '@app/hooks';
 import { getJitsiJwtAuthTokenAPI } from '@app/services/client/api';
 import { useEffect, useState } from 'react';
 
@@ -23,12 +23,18 @@ function useJitsiJwtToken() {
 }
 
 function CallPage() {
+	const { activeTeam } = useOrganizationTeams();
 	const { token } = useJitsiJwtToken();
+
+	const roomName = activeTeam?.name
+		.toLowerCase()
+		.replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase())
+		.replaceAll(' ', '');
 
 	return (
 		<>
 			<Meta title="Call" />
-			{token && <Jitsi jwt={token} />}
+			{token && roomName && <Jitsi jwt={token} roomName={roomName} />}
 		</>
 	);
 }

@@ -2,10 +2,11 @@ import {
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 	useTaskStatistics,
+	useCollaborative,
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card, VerticalSeparator, Text } from 'lib/components';
+import { Card, VerticalSeparator, Text, InputField } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
@@ -57,6 +58,10 @@ export function UserTeamCard({
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
+	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(
+		memberInfo.memberUser
+	);
+
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 
@@ -87,8 +92,26 @@ export function UserTeamCard({
 		);
 	}
 
+	const menu = (
+		<>
+			{(!collaborativeSelect || active) && (
+				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+			)}
+
+			{collaborativeSelect && !active && (
+				<InputField
+					type="checkbox"
+					checked={user_selected()}
+					className="border-none w-4 h-4 mr-1 accent-primary-light"
+					noWrapper={true}
+					onChange={onUserSelect}
+				/>
+			)}
+		</>
+	);
+
 	return (
-		<div className={`${!active && 'border-2 border-transparent'}`}>
+		<div className={clsxm(!active && 'border-2 border-transparent')}>
 			<Card
 				shadow="bigger"
 				className={clsxm(
@@ -148,7 +171,7 @@ export function UserTeamCard({
 				/>
 
 				{/* Card menu */}
-				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+				<div className="absolute right-2">{menu}</div>
 			</Card>
 			<Card
 				shadow="bigger"
@@ -193,7 +216,9 @@ export function UserTeamCard({
 						activeAuthTask={true}
 					/>
 				</div>
-				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+
+				{/* Card menu */}
+				<div className="absolute right-2">{menu}</div>
 			</Card>
 		</div>
 	);

@@ -11,9 +11,11 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useOrganizationTeams } from '@app/hooks';
+import { useCollaborative, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
-import { PeopleIcon } from 'lib/components/svgs';
+import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
+import { useRouter } from 'next/router';
+import { useCallback } from 'react';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -24,9 +26,13 @@ function MainPage() {
 	return (
 		<MainLayout>
 			<MainHeader className="pb-1">
-				<div className="flex items-center gap-8">
-					<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
-					<Breadcrumb paths={breadcrumb} className="text-sm" />
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-8">
+						<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
+					</div>
+
+					<Collaborative />
 				</div>
 
 				<UnverifiedEmail />
@@ -48,6 +54,62 @@ function MainPage() {
 
 			<Container>{isTeamMember ? <TeamMembers /> : <NoTeam />}</Container>
 		</MainLayout>
+	);
+}
+
+function Collaborative() {
+	const {
+		collaborativeSelect,
+		setCollaborativeSelect,
+		setCollaborativeMembers,
+		getMeetRoomName,
+	} = useCollaborative();
+	const { trans } = useTranslation();
+	const url = useRouter();
+
+	const onMeetClick = useCallback(() => {
+		const url_encoded = getMeetRoomName();
+		url_encoded
+			? url.push(`/meet?room=${btoa(url_encoded)}`)
+			: url.push('/meet');
+	}, [getMeetRoomName, url]);
+
+	return (
+		<div className="pr-2">
+			{!collaborativeSelect && (
+				<button
+					onClick={() => setCollaborativeSelect(true)}
+					className="text-sm input-border px-1 rounded-sm py-1"
+				>
+					{trans.common.COLLABORATIVE}
+				</button>
+			)}
+
+			{collaborativeSelect && (
+				<div className="flex space-x-2">
+					<button
+						onClick={onMeetClick}
+						className="text-sm input-border px-1 rounded-sm py-1"
+					>
+						{trans.common.MEET}
+					</button>
+
+					<button className="text-sm input-border px-1 rounded-sm py-1">
+						{trans.common.BOARD}
+					</button>
+
+					<button
+						onClick={() => {
+							setCollaborativeSelect(false);
+							setCollaborativeMembers([]);
+						}}
+						className="text-sm input-border px-1 rounded-sm py-1"
+					>
+						<CloseIcon />
+					</button>
+				</div>
+			)}
+		</div>
 	);
 }
 

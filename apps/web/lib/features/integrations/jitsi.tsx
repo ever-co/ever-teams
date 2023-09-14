@@ -1,16 +1,15 @@
 import { JITSI_DOMAIN } from '@app/constants';
-import { useOrganizationTeams } from '@app/hooks';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useRouter } from 'next/router';
 
-export default function CallPage({ jwt }: { jwt: string }) {
-	const { activeTeam } = useOrganizationTeams();
+export default function CallPage({
+	jwt,
+	roomName,
+}: {
+	jwt: string;
+	roomName: string;
+}) {
 	const router = useRouter();
-
-	const roomName = activeTeam?.name
-		.toLowerCase()
-		.replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase())
-		.replaceAll(' ', '');
 
 	return (
 		<JitsiMeeting
