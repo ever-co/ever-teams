@@ -58,12 +58,13 @@ const ar: Translations = {
 		emailFieldLabel: "بريدك الالكتروني",
 		teamNameFieldLabel: "اسم الفريق",
 		inviteCodeFieldLabel: "أدخل رمز الدعوة",
+		selectWorkspaceFieldLabel: "حدد مساحة العمل",
 		emailFieldPlaceholder: "أدخل عنوان بريدك الالكتروني",
 		teamNameFieldPlaceholder: "الرجاء إدخال اسم فريقك",
 		userNameFieldPlaceholder: "أدخل أسمك",
 		tapContinue: "يكمل",
 		tapJoin: "ينضم",
-		createTeam: "Create Team",
+		createTeam: "إنشاء فريق",
 	},
 	myWorkScreen: {
 		name: "عملى",
@@ -100,6 +101,8 @@ const ar: Translations = {
 		assignTaskButton: "تعيين مهمة",
 		createButton: "خلق",
 		assignButton: "تعيين",
+		resendInvitation: "اعادة ارسال الدعوة",
+		remove: "يزيل",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

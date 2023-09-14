@@ -56,6 +56,7 @@ const fr = {
 		emailFieldLabel: "Votre e-mail",
 		teamNameFieldLabel: "Nom de l'équipe",
 		inviteCodeFieldLabel: "Saisir le code d'invitation",
+		selectWorkspaceFieldLabel: "Sélectionnez un espace de travail",
 		emailFieldPlaceholder: "Entrez votre adresse email",
 		teamNameFieldPlaceholder: "Veuillez saisir le nom de votre équipe",
 		userNameFieldPlaceholder: "Entrez votre nom",
@@ -98,6 +99,8 @@ const fr = {
 		assignTaskButton: "Attribuer une tâche",
 		createButton: "Créer",
 		assignButton: "Attribuer",
+		resendInvitation: "Renvoyer l'invitation",
+		remove: "Supprimer",
 	},
 	settingScreen: {
 		name: "Réglages",

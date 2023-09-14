@@ -23,6 +23,7 @@ export const en = {
 		STATUS: 'Status',
 		NAME: 'Name',
 		TASK: 'Task',
+		MY_TASKS: 'My Tasks',
 		WORKED_ON_TASK: 'Worked on Task',
 		TOTAL_WORKED_TODAY: 'Total worked Today',
 		OPEN: 'Open',
@@ -58,6 +59,7 @@ export const en = {
 		DARK_MODE: 'Dark Mode',
 		SETTINGS: 'Settings',
 		TEAM: 'Team',
+		MY_TEAM: 'My Team',
 		FULL_NAME: 'Full Name',
 		CONTACT: 'Contact',
 
@@ -95,7 +97,7 @@ export const en = {
 	},
 	pages: {
 		home: {
-			BREADCRUMB: ['Dashboard', 'Team Page'],
+			BREADCRUMB: ['Dashboard'],
 			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
 			SENT_EMAIL_VERIFICATION_YOU_NEED_TO: 'You need to ',
 			SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS:
@@ -110,11 +112,11 @@ export const en = {
 		},
 
 		profile: {
-			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Member Tasks'],
+			BREADCRUMB: ['Member Tasks'],
 		},
 
 		taskDetails: {
-			BREADCRUMB: ['Team', 'Task Details'],
+			BREADCRUMB: ['Task Details'],
 			DESCRIPTION: 'Descriptions',
 			ADD_DESCRIPTION: 'Add Description here',
 			TYPE_OF_ISSUE: 'Type of Issue',
@@ -164,6 +166,7 @@ export const en = {
 			LOGIN: 'Login',
 			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
+			WORKSPACES_NOT_FOUND: 'Workspaces Not Found',
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',

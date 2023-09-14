@@ -34,20 +34,27 @@ export const CodeInput: FC<IInput> = (props) => {
 				return setActive(active - 1)
 			}
 		} else {
-			if (!isNaN(parseInt(nativeEvent.key))) {
-				inputsRef.current[active + 1]?.focus()
-				return setActive(active + 1)
+			if (nativeEvent.key.match(/^[0-9a-zA-Z]*$/)) {
+				if (active < length - 1) {
+					const updatedCode = [...inviteCode]
+					updatedCode[active] = nativeEvent.key
+					setInviteCode(updatedCode)
+					onChange(updatedCode.join(""))
+					inputsRef.current[active + 1]?.focus()
+					return setActive(active + 1)
+				}
 			}
 		}
 		return null
 	}
 
-	const onChangeCode = (inputCode, inputIndex) => {
-		if (!isNaN(inputCode)) {
-			const codes = inviteCode
+	const onChangeCode = (inputCode: string, inputIndex: number) => {
+		if (inputCode.match(/^[0-9a-zA-Z]*$/)) {
+			// Allow alphanumeric characters
+			const codes = [...inviteCode]
 			codes[inputIndex] = inputCode
 			setInviteCode(codes)
-			onChange(codes.join(""))
+			onChange(codes.join("")) // Call the onChange prop with the updated code
 		}
 	}
 
@@ -59,7 +66,7 @@ export const CodeInput: FC<IInput> = (props) => {
 				maxLength={1}
 				value={dvalue}
 				defaultValue={dvalue}
-				keyboardType="numeric"
+				keyboardType="default"
 				style={[
 					styles.inputStyle,
 					{ backgroundColor: colors.background, color: colors.primary },
@@ -71,7 +78,7 @@ export const CodeInput: FC<IInput> = (props) => {
 				ref={(r) => {
 					inputsRef.current[i] = r
 				}}
-				onChangeText={(num) => onChangeCode(num, i)}
+				onChangeText={(char) => onChangeCode(char, i)}
 			/>,
 		)
 	}

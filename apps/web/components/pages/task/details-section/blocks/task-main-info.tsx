@@ -43,7 +43,7 @@ const TaskMainInfo = () => {
 					task={task}
 					showIssueLabels={true}
 					sidebarUI={true}
-					taskStatusClassName="rounded-[0.1875rem] border-none h-5 text-[0.5rem]"
+					taskStatusClassName="rounded-[0.1875rem] border-none h-5 text-[0.5rem] 3xl:text-xs"
 					forParentChildRelationship={true}
 				/>
 			</TaskRow>
@@ -153,7 +153,7 @@ function DueDates() {
 					customInput={
 						<div
 							className={clsxm(
-								'not-italic cursor-pointer font-semibold text-[0.625rem]',
+								'not-italic cursor-pointer font-semibold text-[0.625rem] 3xl:text-xs',
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>
@@ -206,7 +206,7 @@ function DueDates() {
 					customInput={
 						<div
 							className={clsxm(
-								'not-italic cursor-pointer font-semibold text-[0.625rem]',
+								'not-italic cursor-pointer font-semibold text-[0.625rem] 3xl:text-xs',
 								'leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white'
 							)}
 						>

@@ -7,7 +7,7 @@ const TaskProperties = ({ task }: { task: ITeamTask | null }) => {
 	const { trans } = useTranslation('taskDetails');
 
 	return (
-		<div className="flex flex-col gap-2 text-[0.625rem] text-[#A5A2B2] pl-4 mt-4 font-[600]">
+		<div className="flex flex-col gap-2 text-[0.625rem] 3xl:text-[0.700rem] text-[#A5A2B2] pl-4 mt-4 font-[600]">
 			{task?.createdAt && (
 				<p>
 					{trans.CREATED}

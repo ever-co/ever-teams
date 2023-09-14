@@ -53,7 +53,7 @@ const TaskEstimationsInfo = () => {
 													time={
 														<TaskEstimate
 															_task={task}
-															className="not-italic font-medium text-[0.625rem] !text-[#938FA3] dark:text-white"
+															className="not-italic font-medium text-[0.625rem] 3xl:text-xs !text-[#938FA3] dark:text-white"
 															wrapperClassName="w-4"
 														/>
 													}

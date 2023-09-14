@@ -55,6 +55,7 @@ const en = {
 		emailFieldLabel: "Your Email",
 		teamNameFieldLabel: "Team Name",
 		inviteCodeFieldLabel: "Security Code",
+		selectWorkspaceFieldLabel: "Select Workspace",
 		emailFieldPlaceholder: "Enter your email address",
 		teamNameFieldPlaceholder: "Please Enter your team name",
 		userNameFieldPlaceholder: "Enter your name",
@@ -97,6 +98,8 @@ const en = {
 		assignTaskButton: "Assign Task",
 		createButton: "Create",
 		assignButton: "Assign",
+		resendInvitation: "Resend Invitation",
+		remove: "Remove",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

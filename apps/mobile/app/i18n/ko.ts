@@ -57,6 +57,7 @@ const ko: Translations = {
 		emailFieldLabel: "귀하의 이메일",
 		teamNameFieldLabel: "팀 이름",
 		inviteCodeFieldLabel: "초대 코드 입력",
+		selectWorkspaceFieldLabel: "작업공간 선택",
 		emailFieldPlaceholder: "이메일 주소를 입력하세요",
 		teamNameFieldPlaceholder: "팀 이름을 입력하세요",
 		userNameFieldPlaceholder: "당신의 이름을 입력",
@@ -99,6 +100,8 @@ const ko: Translations = {
 		assignTaskButton: "작업 할당",
 		createButton: "창조하다",
 		assignButton: "양수인",
+		resendInvitation: "초대장 다시 보내기",
+		remove: "제거",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",
