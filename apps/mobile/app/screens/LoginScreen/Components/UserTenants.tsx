@@ -55,6 +55,7 @@ const UserTenants: FC<IUserTenants> = ({
 					)}
 				</View>
 			</View>
+			<View style={{ backgroundColor: "#E5E5E5", height: 1, width: "100%" }} />
 			<View style={{ paddingHorizontal: 10, width: "95%", gap: 5 }}>
 				{data.current_teams.map((team, i) => (
 					<View key={i} style={styles.teamsContainer}>
@@ -104,13 +105,15 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		marginVertical: 5,
+		paddingBottom: 10,
+		paddingTop: 17,
 	},
 	tenantContainer: {
 		backgroundColor: "#FCFCFC",
 		borderColor: "#0000001A",
 		borderRadius: 12,
 		borderWidth: 1,
-		marginVertical: 10,
+		marginVertical: 8,
 		padding: 12,
 		width: "100%",
 	},
@@ -119,6 +122,7 @@ const styles = StyleSheet.create({
 		display: "flex",
 		flexDirection: "row",
 		justifyContent: "space-between",
-		marginBottom: 10,
+		marginBottom: 22,
+		marginTop: 10,
 	},
 })
