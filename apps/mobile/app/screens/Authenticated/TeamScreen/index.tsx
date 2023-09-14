@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import {
 	ScrollView,
 	View,
@@ -37,6 +37,8 @@ import TeamScreenSkeleton from "./components/TeamScreenSkeleton"
 import AcceptInviteModal from "./components/AcceptInviteModal"
 import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
 import NoTeam from "../../../components/NoTeam"
+import VerifyAccountModal from "./components/VerifyAccount"
+import { useVerifyEmail } from "../../../services/hooks/features/useVerifyEmail"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
@@ -56,13 +58,20 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 			setShowInviteModal,
 			showCreateTeamModal,
 			showInviteModal,
-			setShowMoreMenu,
+			// setShowMoreMenu,
 			isLoading,
 			isTeamModalOpen,
 			setIsTeamModalOpen,
 		} = useTeamScreenLogic()
 		const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } =
 			useAcceptInviteModal()
+		const [showVerifyAccountModal, setShowVerifyAccountModal] = useState(false)
+
+		const {
+			resendAccountVerificationCode,
+			isLoading: isLoadingEmailVerification,
+			verifyEmailByCode,
+		} = useVerifyEmail()
 
 		return (
 			<>
@@ -81,6 +90,16 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 							<InviteUserModal
 								visible={showInviteModal}
 								onDismiss={() => setShowInviteModal(false)}
+							/>
+							<VerifyAccountModal
+								visible={showVerifyAccountModal}
+								onDismiss={() => setShowVerifyAccountModal(false)}
+								isLoading={isLoadingEmailVerification}
+								verifyEmailByCode={verifyEmailByCode}
+								userEmail={currentUser?.employee.user.email}
+								resendAccountVerificationCode={() =>
+									resendAccountVerificationCode(currentUser.employee.user.email)
+								}
 							/>
 							<AcceptInviteModal
 								visible={openModal && activeInvitation !== null}
@@ -109,15 +128,28 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
+												isAccountVerified={currentUser?.employee.user.isEmailVerified}
 											/>
 										</View>
-										{isTeamManager ? (
+										{isTeamManager && currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
 												style={[$inviteButton, { borderColor: colors.secondary }]}
 												onPress={() => setShowInviteModal(true)}
 											>
 												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
 													{translate("teamScreen.inviteButton")}
+												</Text>
+											</TouchableOpacity>
+										) : isTeamManager && !currentUser.employee.user.isEmailVerified ? (
+											<TouchableOpacity
+												style={[$inviteButton, { borderColor: colors.secondary }]}
+												onPress={() => {
+													setShowVerifyAccountModal(true)
+													resendAccountVerificationCode(currentUser.employee.user.email)
+												}}
+											>
+												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+													{translate("accountVerificationModal.verify")}
 												</Text>
 											</TouchableOpacity>
 										) : null}

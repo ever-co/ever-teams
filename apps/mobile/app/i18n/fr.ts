@@ -39,9 +39,11 @@ const fr = {
 		name: "Connexion",
 		enterDetails: "Créer une nouvelle équipe",
 		enterDetails2: "Rejoignez l'équipe existante",
+		enterDetails3: "Espace de travail",
 		hintDetails: "Veuillez entrer les détails pour créer une nouvelle équipe.",
 		hintDetails2:
 			"Veuillez entrer l'e-mail et le code d'invitation pour rejoindre l'équipe existante.",
+		hintDetails3: "L'email associé aux prochains espaces de travail",
 		joinTeam: "Rejoindre une équipe",
 		joinExistTeam: "Rejoindre une équipe existante ?",
 		joinTeamHint: "Entrez le code d'invitation que nous vous avons envoyé par e-mail",
@@ -244,9 +246,12 @@ const fr = {
 		darkMode: "Mode sombre",
 	},
 	inviteModal: {
-		accept: "Accept",
-		reject: "Reject",
-		inviteHint: "You have been invited to join",
+		accept: "Accepter",
+		reject: "Rejeter",
+		inviteHint: "Vous avez été invité à rejoindre",
+	},
+	accountVerificationModal: {
+		verify: "Vérifier",
 	},
 	demoNavigator: {
 		componentsTab: "Components",

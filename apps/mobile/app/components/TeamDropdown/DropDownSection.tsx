@@ -20,6 +20,7 @@ export interface Props {
 	changeTeam: (value: IOrganizationTeamList) => any
 	onCreateTeam: () => unknown
 	resized: boolean
+	isAccountVerified: boolean
 }
 
 const DropDownSection: FC<Props> = observer(function DropDownSection({
@@ -27,6 +28,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 	onCreateTeam,
 	changeTeam,
 	resized,
+	isAccountVerified,
 }) {
 	const {
 		teamStore: { activeTeamId, activeTeam },
@@ -78,7 +80,11 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 					isActiveTeam={false}
 				/>
 			))}
-			<TouchableOpacity style={{ width: "90%" }} onPress={() => onCreateTeam()}>
+			<TouchableOpacity
+				style={{ width: "90%", opacity: isAccountVerified ? 1 : 0.5 }}
+				onPress={() => onCreateTeam()}
+				disabled={!isAccountVerified}
+			>
 				<View style={[styles.buttonStyle, { backgroundColor: colors.background }]}>
 					<Ionicons name="add" size={24} color={colors.secondary} />
 					<Text

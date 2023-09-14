@@ -17,6 +17,7 @@ export interface Props {
 	resized: boolean
 	isOpen: boolean
 	setIsOpen: (value: boolean) => unknown
+	isAccountVerified: boolean
 }
 
 const DropDown: FC<Props> = observer(function CreateTeamModal({
@@ -24,6 +25,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 	resized,
 	setIsOpen,
 	isOpen,
+	isAccountVerified,
 }) {
 	const { colors } = useAppTheme()
 	const {
@@ -49,7 +51,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 				onPress={() => setIsOpen(!isOpen)}
 			>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
-					{activeTeam?.image?.thumbUrl || activeTeam.logo || activeTeam?.image?.fullUrl ? (
+					{activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl ? (
 						<Avatar.Image
 							style={styles.teamImage}
 							size={40}
@@ -61,15 +63,15 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 						<Avatar.Text
 							style={styles.teamImage}
 							size={40}
-							label={imgTitle(activeTeam.name)}
+							label={imgTitle(activeTeam?.name)}
 							labelStyle={styles.prefix}
 						/>
 					)}
 
 					<Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${limitTextCharaters({
-						text: activeTeam.name,
+						text: activeTeam?.name,
 						numChars: resized ? 9 : 30,
-					})} (${activeTeam.members.length})`}</Text>
+					})} (${activeTeam?.members.length})`}</Text>
 				</View>
 
 				{isOpen ? (
@@ -85,6 +87,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 					changeTeam={changeActiveTeam}
 					teams={teams.items}
 					onCreateTeam={onCreateTeam}
+					isAccountVerified={isAccountVerified}
 				/>
 			)}
 		</View>

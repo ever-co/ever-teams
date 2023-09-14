@@ -41,8 +41,10 @@ const ko: Translations = {
 		name: "로그인",
 		enterDetails: "새 팀 만들기",
 		enterDetails2: "기존 팀에 합류",
+		enterDetails3: "작업공간",
 		hintDetails: "새 팀을 만들려면 팀 세부 정보를 입력하십시오.",
 		hintDetails2: "기존 팀에 가입하려면 이메일과 초대 코드를 입력하세요.",
+		hintDetails3: "다음 작업공간과 연결된 이메일",
 		joinTeam: "팀에 합류",
 		joinExistTeam: "기존 팀에 합류하시겠습니까?",
 		joinTeamHint: "이메일로 보내드린 초대 코드를 입력하세요.",
@@ -254,9 +256,12 @@ const ko: Translations = {
 		darkMode: "다크 모드",
 	},
 	inviteModal: {
-		accept: "Accept",
-		reject: "Reject",
-		inviteHint: "You have been invited to join",
+		accept: "수용하다",
+		reject: "거부하다",
+		inviteHint: "귀하는 가입 초대를 받았습니다.",
+	},
+	accountVerificationModal: {
+		verify: "확인하다",
 	},
 	demoNavigator: {
 		componentsTab: "컴포넌트",
