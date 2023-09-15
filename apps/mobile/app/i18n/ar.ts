@@ -43,7 +43,9 @@ const ar: Translations = {
 		enterDetails: "إنشاء فريق جديد",
 		enterDetails2: "انضم إلى الفريق الحالي",
 		hintDetails: "الرجاء إدخال تفاصيل فريقك لإنشاء فريق جديد.",
+		enterDetails3: "مساحة العمل",
 		hintDetails2: "الرجاء إدخال البريد الإلكتروني ورمز الدعوة للانضمام إلى الفريق الحالي.",
+		hintDetails3: "البريد الإلكتروني المرتبط بمساحات العمل التالية",
 		joinTeam: "انضم إلى الفريق",
 		joinExistTeam: "الانضمام إلى الفريق الحالي؟",
 		joinTeamHint: "أدخل رمز الدعوة الذي أرسلناه إلى بريدك الإلكتروني",
@@ -102,6 +104,10 @@ const ar: Translations = {
 		createButton: "خلق",
 		assignButton: "تعيين",
 		resendInvitation: "اعادة ارسال الدعوة",
+		editTaskLabel: "تحرير المهمة",
+		unassignTaskLabel: "إلغاء تعيين المهمة",
+		unMakeManager: "إلغاء إنشاء مدير",
+		makeManager: "جعل مديرا",
 		remove: "يزيل",
 	},
 	noTeamScreen: {
@@ -255,9 +261,12 @@ const ar: Translations = {
 		darkMode: "الوضع الداكن",
 	},
 	inviteModal: {
-		accept: "Accept",
-		reject: "Reject",
-		inviteHint: "You have been invited to join",
+		accept: "يقبل",
+		reject: "يرفض",
+		inviteHint: "لقد تمت دعوتك للانضمام",
+	},
+	accountVerificationModal: {
+		verify: "يؤكد",
 	},
 	demoNavigator: {
 		componentsTab: "عناصر",

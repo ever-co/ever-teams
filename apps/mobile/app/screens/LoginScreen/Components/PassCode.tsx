@@ -27,6 +27,7 @@ interface Props {
 	joinError: string
 	verifyEmailAndCodeOrAcceptInvite: () => unknown
 	signInWorkspace: () => unknown
+	setIsWorkspaceScreen: React.Dispatch<React.SetStateAction<boolean>>
 }
 const { width } = Dimensions.get("window")
 const PassCode: FC<Props> = observer(
@@ -35,11 +36,11 @@ const PassCode: FC<Props> = observer(
 		errors,
 		setScreenStatus,
 		setWithTeam,
-
 		getAuthCode,
 		joinError,
 		verifyEmailAndCodeOrAcceptInvite,
 		signInWorkspace,
+		setIsWorkspaceScreen,
 	}) => {
 		const { colors } = useAppTheme()
 		const {
@@ -146,6 +147,7 @@ const PassCode: FC<Props> = observer(
 					...isValid,
 					step1: true,
 				})
+				setIsWorkspaceScreen(false)
 			}
 
 			if (step === "Code" && authInviteCode.length === 6) {
@@ -153,6 +155,10 @@ const PassCode: FC<Props> = observer(
 					...isValid,
 					step2: true,
 				})
+				setIsWorkspaceScreen(false)
+			}
+			if (step === "Tenant") {
+				setIsWorkspaceScreen(true)
 			}
 		}, [step])
 
@@ -282,7 +288,9 @@ const $tapButton: ViewStyle = {
 const styles = EStyleSheet.create({
 	tenantsContainer: {
 		width: "100%",
-		height: 220,
+		// height: 220,
+		minHeight: 202,
+		maxHeight: 400,
 	},
 	form: {
 		position: "absolute",

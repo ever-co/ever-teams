@@ -14,6 +14,7 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 	const { isAuthUser } = profile
 	const [showFilterPopup, setShowFilterPopup] = useState(false)
 	const [showModal, setShowModal] = useState(false)
+
 	return (
 		<View>
 			<AssignTaskFormModal
@@ -29,12 +30,14 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 			/>
 			<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
 				<TouchableOpacity
+					disabled={!profile.userProfile.isEmailVerified}
 					onPress={() => setShowModal(true)}
 					style={[
 						$assignStyle,
 						{
 							backgroundColor: colors.background,
 							borderColor: colors.secondary,
+							opacity: profile.userProfile.isEmailVerified ? 1 : 0.5,
 						},
 					]}
 				>
