@@ -83,7 +83,7 @@ const TaskDetails = () => {
 							</div>
 						</section>
 						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem]">
-							<div className="bg-white dark:bg-dark--theme-light flex flex-col text-red-700 rounded-xl">
+							<div className="bg-white dark:bg-dark--theme-light flex flex-col rounded-xl">
 								<TaskDetailsAside />
 							</div>
 							<TaskProperties task={task} />

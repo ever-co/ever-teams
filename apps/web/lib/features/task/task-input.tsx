@@ -536,6 +536,15 @@ function TaskCard({
 								</li>
 							);
 						})}
+
+					{(forParentChildRelationship &&
+						updatedTaskList &&
+						updatedTaskList.length === 0) ||
+						(!forParentChildRelationship &&
+							datas?.filteredTasks &&
+							datas.filteredTasks.length === 0 && (
+								<div className="text-center">{trans.common.NO_TASKS}</div>
+							))}
 				</ul>
 			</Card>
 
