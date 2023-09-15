@@ -96,6 +96,7 @@ export const en = {
 		RELATED_ISSUES: 'Related Issues',
 		CHILD_ISSUES: 'Child Issues',
 		REOPEN: 'Reopen',
+		NO_TASKS: 'No Tasks',
 	},
 	pages: {
 		home: {
