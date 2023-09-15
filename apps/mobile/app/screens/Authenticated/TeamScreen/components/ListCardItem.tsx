@@ -127,8 +127,6 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask)
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false)
 
-	const { isTeamManager } = useOrganizationTeam()
-
 	const navigation = useNavigation()
 
 	const onPressIn = () => {
@@ -191,68 +189,93 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 							}}
 						>
 							<View style={{ marginVertical: 10 }}>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										taskEdition.setEditMode(true)
-										setShowMenu(false)
-									}}
-								>
-									Edit Task
-								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										taskEdition.setEstimateEditMode(true)
-										setShowMenu(false)
-									}}
-								>
-									Estimate
-								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										setShowUnassignedList(true)
-										setShowMenu(false)
-									}}
-								>
-									Assign Task
-								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										memberInfo.unassignTask(taskEdition.task)
-										setShowMenu(false)
-									}}
-								>
-									Unassign Task
-								</ListItem>
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+										onPress={() => {
+											taskEdition.setEditMode(true)
+											setShowMenu(false)
+										}}
+									>
+										Edit Task
+									</ListItem>
+								)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+										onPress={() => {
+											taskEdition.setEstimateEditMode(true)
+											setShowMenu(false)
+										}}
+									>
+										Estimate
+									</ListItem>
+								)}
 
-								{isTeamManager ? (
-									<>
-										{!memberInfo.isAuthUser && (
-											<ListItem
-												textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-												onPress={() => {
-													setShowMenu(false)
-													memberInfo.makeMemberManager()
-												}}
-											>
-												Make a Manager
-											</ListItem>
-										)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+									memberInfo.memberUnassignTasks.length > 0 && (
 										<ListItem
-											textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
-											style={{}}
+											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 											onPress={() => {
+												setShowUnassignedList(true)
 												setShowMenu(false)
-												memberInfo.removeMemberFromTeam()
 											}}
 										>
-											Remove
+											Assign Task
 										</ListItem>
-									</>
-								) : null}
+									)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+									!!memberInfo.memberTask && (
+										<ListItem
+											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+											onPress={() => {
+												memberInfo.unassignTask(taskEdition.task)
+												setShowMenu(false)
+											}}
+										>
+											Unassign Task
+										</ListItem>
+									)}
+
+								{memberInfo.isAuthTeamManager &&
+									!memberInfo.isAuthUser &&
+									!memberInfo.isTeamCreator && (
+										<>
+											{memberInfo.isTeamManager ? (
+												<ListItem
+													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+													onPress={() => {
+														setShowMenu(false)
+														memberInfo.unMakeMemberManager()
+													}}
+												>
+													Unmake a Manager
+												</ListItem>
+											) : (
+												<ListItem
+													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+													onPress={() => {
+														setShowMenu(false)
+														memberInfo.makeMemberManager()
+													}}
+												>
+													Make a Manager
+												</ListItem>
+											)}
+										</>
+									)}
+								{!memberInfo.isTeamOwner && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
+										style={{}}
+										onPress={() => {
+											setShowMenu(false)
+											memberInfo.removeMemberFromTeam()
+										}}
+									>
+										Remove
+									</ListItem>
+								)}
 							</View>
 						</View>
 						{showUnassignedList ? (
