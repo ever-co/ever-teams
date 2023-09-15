@@ -799,6 +799,7 @@ export function TaskStatus({
 	showIcon = true,
 	sidebarUI = false,
 	realName,
+	isVersion,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -810,6 +811,7 @@ export function TaskStatus({
 			cheched?: boolean;
 			sidebarUI?: boolean;
 			value?: string;
+			isVersion?: boolean;
 		}
 >) {
 	const { theme } = useTheme();
@@ -868,9 +870,13 @@ export function TaskStatus({
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
 						className={`capitalize text-ellipsis overflow-hidden]`}
-						style={{
-							color: readableColorHex,
-						}}
+						style={
+							isVersion
+								? {
+										color: readableColorHex,
+								  }
+								: {}
+						}
 					>
 						{realName || name}
 					</div>
@@ -967,6 +973,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
 			)}
+			isVersion={isVersion}
 		>
 			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
