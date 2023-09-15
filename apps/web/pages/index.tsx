@@ -16,6 +16,7 @@ import NoTeam from '@components/pages/main/no-team';
 import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
+import { EXCALIDRAW_APP_DOMAIN } from '@app/constants';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -63,7 +64,9 @@ function Collaborative() {
 		setCollaborativeSelect,
 		setCollaborativeMembers,
 		getMeetRoomName,
+		collaborativeMembers,
 	} = useCollaborative();
+
 	const { trans } = useTranslation();
 	const url = useRouter();
 
@@ -73,6 +76,15 @@ function Collaborative() {
 			? url.push(`/meet?room=${btoa(url_encoded)}`)
 			: url.push('/meet');
 	}, [getMeetRoomName, url]);
+
+	const onBoardClick = useCallback(() => {
+		if (collaborativeMembers.length > 0 && EXCALIDRAW_APP_DOMAIN) {
+			window.open(EXCALIDRAW_APP_DOMAIN, '_blank', 'noreferrer');
+			return;
+		}
+
+		url.push('/board');
+	}, [collaborativeMembers]);
 
 	return (
 		<div className="pr-2">
@@ -94,7 +106,10 @@ function Collaborative() {
 						{trans.common.MEET}
 					</button>
 
-					<button className="text-sm input-border px-1 rounded-sm py-1">
+					<button
+						onClick={onBoardClick}
+						className="text-sm input-border px-1 rounded-sm py-1"
+					>
 						{trans.common.BOARD}
 					</button>
 

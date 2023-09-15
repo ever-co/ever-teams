@@ -9,7 +9,7 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^(\/settings(\/)?)(.*)$/,
 	/^(\/task(\/)?)(.*)$/,
 	/^(\/meet(\/)?)(.*)$/,
-	/^(\/whiteboard(\/)?)(.*)$/,
+	/^(\/board(\/)?)(.*)$/,
 ];
 
 // Cookies
@@ -66,3 +66,9 @@ export const JITSI_DOMAIN =
 export const JITSI_JWT_APP_ID = process.env.JITSI_JWT_APP_ID;
 export const JITSI_JWT_APP_SECRET = process.env.JITSI_JWT_APP_SECRET;
 export const JITSI_JWT_TOKEN_COOKIE_NAME = 'jitsi-jwt-session';
+
+// EXCALIDRAW board
+export const EXCALIDRAW_APP_DOMAIN = process.env.EXCALIDRAW_APP_DOMAIN;
+
+export const EXCALIDRAW_BACKEND_POST_URL =
+	process.env.EXCALIDRAW_BACKEND_POST_URL;

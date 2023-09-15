@@ -102,7 +102,10 @@ export function UserTeamCard({
 				<InputField
 					type="checkbox"
 					checked={user_selected()}
-					className="border-none w-4 h-4 mr-1 accent-primary-light"
+					className={clsxm(
+						'border-none w-4 h-4 mr-1 accent-primary-light',
+						'border-2 border-primary-light'
+					)}
 					noWrapper={true}
 					onChange={onUserSelect}
 				/>
