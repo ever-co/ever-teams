@@ -26,7 +26,7 @@ export const TaskPrioritiesForm = ({
 	onCreated,
 }: StatusForm) => {
 	const user = useRecoilValue(userState);
-	const { register, setValue, handleSubmit, reset } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
@@ -71,16 +71,16 @@ export const TaskPrioritiesForm = ({
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
-		if (!edit) {
+		if (!edit && !getValues().name) {
 			setValue('name', '');
 			setValue('color', '');
 			setValue('icon', '');
 		}
-	}, [edit, setValue]);
+	}, [edit, setValue, getValues]);
 
 	useEffect(() => {
 		if (edit) {
-			setValue('name', edit.name);
+			setValue('name', edit.name?.split('-').join(' '));
 			setValue('color', edit.color);
 			setValue('icon', edit.icon);
 		} else {
