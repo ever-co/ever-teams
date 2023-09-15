@@ -29,6 +29,7 @@ export const en = {
 		OPEN: 'Open',
 		NOW: 'Now',
 		CLOSED: 'Closed',
+		CLOSE: 'Close',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Title',
 		CREATE_TASK: 'Create new task',
