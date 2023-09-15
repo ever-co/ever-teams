@@ -34,6 +34,7 @@ import { TimeProgressBar } from "./TimeProgressBar"
 import { useNavigation } from "@react-navigation/native"
 import { WorkedOnTask } from "./WorkedOnTask"
 import UnassignedTasksList from "./UnassignedTaskList"
+import { translate } from "../../../../i18n"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -199,7 +200,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 											props.setOpenMenuIndex(null)
 										}}
 									>
-										Edit Task
+										{translate("tasksScreen.editTaskLabel")}
 									</ListItem>
 								)}
 								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
@@ -210,7 +211,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 											props.setOpenMenuIndex(null)
 										}}
 									>
-										Estimate
+										{translate("myWorkScreen.estimateLabel")}
 									</ListItem>
 								)}
 
@@ -223,7 +224,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 												props.setOpenMenuIndex(null)
 											}}
 										>
-											Assign Task
+											{translate("tasksScreen.assignTaskButton")}
 										</ListItem>
 									)}
 								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
@@ -235,7 +236,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 												props.setOpenMenuIndex(null)
 											}}
 										>
-											Unassign Task
+											{translate("tasksScreen.unassignTaskLabel")}
 										</ListItem>
 									)}
 
@@ -251,7 +252,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 														memberInfo.unMakeMemberManager()
 													}}
 												>
-													Unmake a Manager
+													{translate("tasksScreen.unMakeManager")}
 												</ListItem>
 											) : (
 												<ListItem
@@ -261,7 +262,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 														memberInfo.makeMemberManager()
 													}}
 												>
-													Make a Manager
+													{translate("tasksScreen.makeManager")}
 												</ListItem>
 											)}
 										</>
@@ -275,7 +276,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 											memberInfo.removeMemberFromTeam()
 										}}
 									>
-										Remove
+										{translate("tasksScreen.remove")}
 									</ListItem>
 								)}
 							</View>

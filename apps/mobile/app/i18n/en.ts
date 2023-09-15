@@ -101,6 +101,10 @@ const en = {
 		createButton: "Create",
 		assignButton: "Assign",
 		resendInvitation: "Resend Invitation",
+		editTaskLabel: "Edit Task",
+		unassignTaskLabel: "Unassign Task",
+		unMakeManager: "Unmake a Manager",
+		makeManager: "Make a Manager",
 		remove: "Remove",
 	},
 	noTeamScreen: {
