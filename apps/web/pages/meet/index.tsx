@@ -3,7 +3,8 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import { useOrganizationTeams, useQuery } from '@app/hooks';
 import { getJitsiJwtAuthTokenAPI } from '@app/services/client/api';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 
 const Jitsi = dynamic(() => import('lib/features/integrations/jitsi'), {
 	ssr: false,
@@ -23,18 +24,29 @@ function useJitsiJwtToken() {
 }
 
 function CallPage() {
+	const router = useRouter();
 	const { activeTeam } = useOrganizationTeams();
 	const { token } = useJitsiJwtToken();
 
-	const roomName = activeTeam?.name
-		.toLowerCase()
-		.replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase())
-		.replaceAll(' ', '');
+	const room = router.query.room as string | undefined;
+
+	const roomName = useMemo(() => {
+		const name = room
+			? atob(room)
+			: activeTeam?.name
+					.toLowerCase()
+					.replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase())
+					.replaceAll(' ', '');
+
+		return name;
+	}, [activeTeam?.name, room]);
 
 	return (
 		<>
 			<Meta title="Call" />
-			{token && roomName && <Jitsi jwt={token} roomName={roomName} />}
+			{token && roomName && (
+				<Jitsi jwt={token} roomName={encodeURIComponent(roomName)} />
+			)}
 		</>
 	);
 }

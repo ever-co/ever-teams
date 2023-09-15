@@ -45,7 +45,7 @@ export function useCollaborative(user?: IUser) {
 
 		const member =
 			members.length > 0
-				? ': ' + (authName ? authName + ', ' : '') + members.join(', ')
+				? ' - ' + (authName ? authName + ', ' : '') + members.join(', ')
 				: '';
 
 		return teamName + member;

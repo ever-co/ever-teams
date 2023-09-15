@@ -14,7 +14,7 @@ export default function CallPage({
 	return (
 		<JitsiMeeting
 			domain={JITSI_DOMAIN}
-			roomName={'EverTeam' + roomName}
+			roomName={roomName}
 			configOverwrite={{
 				startWithAudioMuted: true,
 				startWithVideoMuted: true,
