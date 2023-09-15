@@ -29,7 +29,11 @@ export type ListItemProps = {
 	onPressIn?: () => unknown
 }
 
-export interface Props extends ListItemProps {}
+export interface Props extends ListItemProps {
+	index: number
+	openMenuIndex: number | null
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
+}
 
 export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPressIn }) => {
 	// HOOKS
@@ -124,7 +128,6 @@ const ListCardItem: React.FC<Props> = (props) => {
 	const { isTeamManager } = useOrganizationTeam()
 	const { resendInvite, removeSentInvitation } = useTeamInvitations()
 	// STATS
-	const [showMenu, setShowMenu] = React.useState(false)
 	const [showConfirm, setShowConfirm] = React.useState(false)
 	const [showCard, setShowCard] = React.useState(true)
 
@@ -133,7 +136,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 	const handleRemoveInvitation = (inviteId: string) => {
 		removeSentInvitation(inviteId)
 		setShowConfirm(false)
-		setShowMenu(false)
+		props.setOpenMenuIndex(null)
 		setShowCard(false)
 	}
 
@@ -179,7 +182,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								marginRight: 17,
 								backgroundColor: colors.background,
 								minWidth: spacing.huge * 2,
-								...(!showMenu ? { display: "none" } : {}),
+								...(props.index !== props.openMenuIndex ? { display: "none" } : {}),
 							}}
 						>
 							<View style={{}}>
@@ -187,7 +190,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
 										resendInvite(invite.id)
-										setShowMenu(!showMenu)
+										props.setOpenMenuIndex(null)
 									}}
 								>
 									{translate("tasksScreen.resendInvitation")}
@@ -205,11 +208,11 @@ const ListCardItem: React.FC<Props> = (props) => {
 
 						<TouchableOpacity
 							onPress={() => {
-								setShowMenu(!showMenu)
+								props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
 								setShowConfirm(false)
 							}}
 						>
-							{!showMenu ? (
+							{props.openMenuIndex !== props.index ? (
 								<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
 							) : (
 								<Entypo name="cross" size={24} color={colors.primary} />
@@ -220,7 +223,12 @@ const ListCardItem: React.FC<Props> = (props) => {
 			}
 			ContentComponent={
 				<>
-					<ListItemContent {...props} onPressIn={() => setShowMenu(!showMenu)} />
+					<ListItemContent
+						{...props}
+						onPressIn={() =>
+							props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
+						}
+					/>
 					{showConfirm && (
 						<View style={[styles.confirmContainer, { backgroundColor: colors.background }]}>
 							<TouchableOpacity onPress={() => handleRemoveInvitation(invite.id)}>
