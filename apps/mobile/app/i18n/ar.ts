@@ -104,6 +104,10 @@ const ar: Translations = {
 		createButton: "خلق",
 		assignButton: "تعيين",
 		resendInvitation: "اعادة ارسال الدعوة",
+		editTaskLabel: "تحرير المهمة",
+		unassignTaskLabel: "إلغاء تعيين المهمة",
+		unMakeManager: "إلغاء إنشاء مدير",
+		makeManager: "جعل مديرا",
 		remove: "يزيل",
 	},
 	noTeamScreen: {

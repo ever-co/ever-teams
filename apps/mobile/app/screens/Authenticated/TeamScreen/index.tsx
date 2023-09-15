@@ -73,6 +73,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 			verifyEmailByCode,
 		} = useVerifyEmail()
 
+		const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null)
+
 		return (
 			<>
 				{showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
@@ -167,15 +169,34 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												marginBottom: 30,
 											}}
 										>
-											{currentUser && <ListCardItem member={currentUser} />}
+											{currentUser && (
+												<ListCardItem
+													member={currentUser}
+													index={0}
+													openMenuIndex={openMenuIndex}
+													setOpenMenuIndex={setOpenMenuIndex}
+												/>
+											)}
 
 											{$otherMembers.map((member, index) => (
-												<ListCardItem key={index} member={member} />
+												<ListCardItem
+													key={index}
+													member={member}
+													index={index + 1}
+													openMenuIndex={openMenuIndex}
+													setOpenMenuIndex={setOpenMenuIndex}
+												/>
 											))}
 
 											{teamInvitations &&
 												teamInvitations.map((invite, idx) => (
-													<InviteCardItem key={idx} invite={invite} />
+													<InviteCardItem
+														key={idx}
+														invite={invite}
+														index={idx + $otherMembers.length + 1}
+														openMenuIndex={openMenuIndex}
+														setOpenMenuIndex={setOpenMenuIndex}
+													/>
 												))}
 										</View>
 									</ScrollView>

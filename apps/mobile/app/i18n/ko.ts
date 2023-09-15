@@ -103,6 +103,10 @@ const ko: Translations = {
 		createButton: "창조하다",
 		assignButton: "양수인",
 		resendInvitation: "초대장 다시 보내기",
+		editTaskLabel: "작업 편집",
+		unassignTaskLabel: "작업 할당 해제",
+		unMakeManager: "관리자 만들기 취소",
+		makeManager: "관리자 만들기",
 		remove: "제거",
 	},
 	noTeamScreen: {

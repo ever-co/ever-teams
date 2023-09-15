@@ -102,6 +102,10 @@ const fr = {
 		createButton: "Créer",
 		assignButton: "Attribuer",
 		resendInvitation: "Renvoyer l'invitation",
+		editTaskLabel: "Modifier la tâche",
+		unassignTaskLabel: "Annuler l'attribution d'une tâche",
+		unMakeManager: "Défaire un manager",
+		makeManager: "Créer un gestionnaire",
 		remove: "Supprimer",
 	},
 	settingScreen: {
