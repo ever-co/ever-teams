@@ -10,15 +10,25 @@ import { everTeamsLogoDarkTheme } from "../../../components/svgs/icons"
 interface Props {
 	withTeam: boolean
 	screenStatus: { screen: number; animation: boolean }
+	workspaceScreen: boolean
 }
-const LoginHeader: FC<Props> = ({ withTeam, screenStatus }) => {
+const LoginHeader: FC<Props> = ({ withTeam, screenStatus, workspaceScreen }) => {
 	return (
 		<>
 			<SvgXml xml={everTeamsLogoDarkTheme} />
 			{withTeam ? (
 				<View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
-					<Text style={styles.screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
-					<Text style={styles.smalltext}>{translate("loginScreen.hintDetails2")}</Text>
+					{workspaceScreen ? (
+						<View style={{ justifyContent: "center", alignItems: "center" }}>
+							<Text style={styles.screenTitle}>{translate("loginScreen.enterDetails3")}</Text>
+							<Text style={styles.smalltext}>{translate("loginScreen.hintDetails3")}</Text>
+						</View>
+					) : (
+						<View style={{ justifyContent: "center", alignItems: "center" }}>
+							<Text style={styles.screenTitle}>{translate("loginScreen.enterDetails2")}</Text>
+							<Text style={styles.smalltext}>{translate("loginScreen.hintDetails2")}</Text>
+						</View>
+					)}
 				</View>
 			) : screenStatus.screen !== 3 ? (
 				<View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>

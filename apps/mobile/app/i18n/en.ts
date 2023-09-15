@@ -39,8 +39,10 @@ const en = {
 		name: "Login",
 		enterDetails: "Create New Team",
 		enterDetails2: "Login",
+		enterDetails3: "Workspace",
 		hintDetails: "Please enter your team details to create a new team.",
 		hintDetails2: "Please enter email and invitation code to join existing team.",
+		hintDetails3: "The email associated with the next workspaces",
 		joinTeam: "Join Team",
 		joinExistTeam: "Login",
 		joinTeamHint: "Enter the invitation code we sent to your email",
@@ -98,6 +100,12 @@ const en = {
 		assignTaskButton: "Assign Task",
 		createButton: "Create",
 		assignButton: "Assign",
+		resendInvitation: "Resend Invitation",
+		editTaskLabel: "Edit Task",
+		unassignTaskLabel: "Unassign Task",
+		unMakeManager: "Unmake a Manager",
+		makeManager: "Make a Manager",
+		remove: "Remove",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",
@@ -253,6 +261,9 @@ const en = {
 		accept: "Accept",
 		reject: "Reject",
 		inviteHint: "You have been invited to join",
+	},
+	accountVerificationModal: {
+		verify: "Verify",
 	},
 	demoNavigator: {
 		componentsTab: "Components",

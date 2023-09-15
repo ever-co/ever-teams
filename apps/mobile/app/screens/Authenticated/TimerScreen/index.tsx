@@ -83,6 +83,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 												setIsOpen={setIsTeamModalOpen}
 												resized={false}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
+												isAccountVerified={taskInput.user.isEmailVerified}
 											/>
 										</View>
 

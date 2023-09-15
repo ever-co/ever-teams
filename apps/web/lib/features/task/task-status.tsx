@@ -799,6 +799,7 @@ export function TaskStatus({
 	showIcon = true,
 	sidebarUI = false,
 	realName,
+	isVersion,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -810,6 +811,7 @@ export function TaskStatus({
 			cheched?: boolean;
 			sidebarUI?: boolean;
 			value?: string;
+			isVersion?: boolean;
 		}
 >) {
 	const { theme } = useTheme();
@@ -822,9 +824,7 @@ export function TaskStatus({
 			className={clsxm(
 				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
 
-				sidebarUI
-					? 'text-dark space-x-3 rounded-md font-[500]'
-					: 'space-x-0 rounded-xl',
+				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
 				issueType === 'issue' && ['px-2 text-white'],
 
@@ -867,10 +867,14 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`capitalize text-ellipsis overflow-hidden]`}
-						style={{
-							color: readableColorHex,
-						}}
+						className={`capitalize text-ellipsis overflow-hidden`}
+						style={
+							isVersion
+								? {
+										color: readableColorHex,
+								  }
+								: {}
+						}
 					>
 						{realName || name}
 					</div>
@@ -967,6 +971,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
 			)}
+			isVersion={isVersion}
 		>
 			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
@@ -1027,7 +1032,9 @@ export function StatusDropdown<T extends TStatusItem>({
 											)}
 											name={
 												values.length > 0
-													? `Items (${values.length})`
+													? `Item${values.length === 1 ? '' : 's'} (${
+															values.length
+													  })`
 													: defaultValue.name
 											}
 										>

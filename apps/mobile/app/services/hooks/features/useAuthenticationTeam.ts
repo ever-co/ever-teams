@@ -239,7 +239,7 @@ export function useAuthenticationTeam() {
 		setIsLoading(true)
 		await verifyUserEmailByCodeRequest({
 			bearer_token: tempAuthToken,
-			code: parseInt(authConfirmCode),
+			code: authConfirmCode,
 			email: authEmail,
 			tenantId,
 		})
