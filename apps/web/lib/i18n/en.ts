@@ -95,6 +95,7 @@ export const en = {
 		CHANGE_PARENT: 'Change Parent',
 		RELATED_ISSUES: 'Related Issues',
 		CHILD_ISSUES: 'Child Issues',
+		REOPEN: 'Reopen',
 	},
 	pages: {
 		home: {
