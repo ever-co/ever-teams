@@ -71,7 +71,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 					reset();
 				});
 			}
-			if (edit && values.name !== edit.name) {
+			if (edit && values.name !== edit.name?.split('-').join(' ')) {
 				editTaskRelatedIssueType(edit.id, {
 					name: values.name,
 					// color: values.color,

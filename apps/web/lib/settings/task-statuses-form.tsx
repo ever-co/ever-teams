@@ -117,7 +117,7 @@ export const TaskStatusesForm = ({
 			}
 			if (
 				edit &&
-				(values.name !== edit.name ||
+				(values.name !== edit.name?.split('-').join(' ') ||
 					values.color !== edit.color ||
 					values.icon !== edit.icon)
 			) {
