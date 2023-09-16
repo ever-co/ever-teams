@@ -4,6 +4,8 @@ import { Button, Card, Modal } from 'lib/components';
 import { PlusIcon } from 'lib/components/svgs';
 import { TaskLabelForm } from 'lib/settings';
 import { TaskLabelsDropdown } from './task-status';
+import { debounce } from 'lodash';
+import { useCallback } from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -21,16 +23,25 @@ export function TaskLabels({
 	const { taskLabels } = useTaskLabels();
 	const modal = useModal();
 
-	function onValuesChange(_: any, values: string[] | undefined) {
-		if (!task) return;
+	const onValuesChange = useCallback(
+		(_: any, values: string[] | undefined) => {
+			const debounceOnValuesChange = debounce(
+				(_: any, values: string[] | undefined) => {
+					if (!task) return;
 
-		updateTask({
-			...task,
-			tags: taskLabels.filter((tag) =>
-				tag.name ? values?.includes(tag.name) : false
-			) as any,
-		});
-	}
+					updateTask({
+						...task,
+						tags: taskLabels.filter((tag) =>
+							tag.name ? values?.includes(tag.name) : false
+						) as any,
+					});
+				},
+				2000
+			);
+			debounceOnValuesChange(_, values);
+		},
+		[task, taskLabels, updateTask]
+	);
 
 	const tags = (task?.tags as typeof taskLabels | undefined)?.map(
 		(tag) => tag.name || ''
