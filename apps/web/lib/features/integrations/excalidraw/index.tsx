@@ -1,4 +1,8 @@
-import { Excalidraw, THEME } from '@excalidraw/excalidraw';
+import {
+	Excalidraw,
+	LiveCollaborationTrigger,
+	THEME,
+} from '@excalidraw/excalidraw';
 
 import { useTheme } from 'next-themes';
 import { EverTeamsLogo } from 'lib/components/svgs';
@@ -7,7 +11,8 @@ import { useWhiteboard } from './hooks';
 
 export default function ExcalidrawComponent() {
 	const { theme } = useTheme();
-	const { saveChanges, setExcalidrawAPI, excalidrawAPI } = useWhiteboard();
+	const { saveChanges, setExcalidrawAPI, excalidrawAPI, onLiveCollaboration } =
+		useWhiteboard();
 
 	return (
 		<>
@@ -16,7 +21,12 @@ export default function ExcalidrawComponent() {
 					ref={(api) => setExcalidrawAPI(api)}
 					onChange={debounce(saveChanges, 500)}
 					theme={theme || THEME.LIGHT}
-					renderTopRightUI={() => <></>}
+					renderTopRightUI={() => (
+						<LiveCollaborationTrigger
+							isCollaborating={false}
+							onSelect={onLiveCollaboration}
+						/>
+					)}
 				/>
 			</div>
 

@@ -54,5 +54,11 @@ export const useWhiteboard = () => {
 		[]
 	);
 
-	return { setExcalidrawAPI, excalidrawAPI, saveChanges };
+	const onLiveCollaboration = useCallback(() => {
+		if (excalidrawAPI?.ready) {
+			console.log(excalidrawAPI.getSceneElements());
+		}
+	}, [excalidrawAPI]);
+
+	return { setExcalidrawAPI, excalidrawAPI, saveChanges, onLiveCollaboration };
 };
