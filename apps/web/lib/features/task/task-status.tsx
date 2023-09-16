@@ -15,6 +15,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, {
 	Fragment,
+	MutableRefObject,
 	PropsWithChildren,
 	useCallback,
 	useEffect,
@@ -69,6 +70,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		placeholder?: string;
 		defaultValues?: ITaskStatusStack[T][];
 		taskStatusClassName?: string;
+		latestLabels?: MutableRefObject<string[]>;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -682,6 +684,7 @@ export function TaskLabelsDropdown({
 	placeholder = 'Label',
 	defaultValues,
 	taskStatusClassName,
+	latestLabels,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -693,6 +696,13 @@ export function TaskLabelsDropdown({
 		defaultValues,
 	});
 
+	const handleOnChange = (labels: any) => {
+		onChange(labels);
+		if (latestLabels) {
+			latestLabels.current = labels;
+		}
+	};
+
 	return (
 		<MultipleStatusDropdown
 			sidebarUI={sidebarUI}
@@ -701,7 +711,7 @@ export function TaskLabelsDropdown({
 			items={items}
 			value={item}
 			defaultItem={!item ? (placeholder as any) : undefined}
-			onChange={onChange as any}
+			onChange={handleOnChange}
 			multiple={multiple}
 			values={values}
 			showButtonOnly
