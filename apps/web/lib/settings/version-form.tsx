@@ -84,7 +84,7 @@ export const VersionForm = ({
 					reset();
 				});
 			}
-			if (edit && values.name !== edit.name) {
+			if (edit && values.name !== edit.name?.split('-').join(' ')) {
 				editTaskVersion(edit.id, {
 					name: values.name,
 					// color: values.color,
