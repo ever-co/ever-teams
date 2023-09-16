@@ -17,6 +17,8 @@ export const exportToBackend = async (
 	appState: Partial<AppState>,
 	files: BinaryFiles
 ): Promise<ExportToBackendResult> => {
+	console.log(EXCALIDRAW_BACKEND_POST_URL, EXCALIDRAW_APP_DOMAIN);
+
 	if (!EXCALIDRAW_BACKEND_POST_URL || !EXCALIDRAW_APP_DOMAIN) {
 		return { url: null, errorMessage: 'could Not Create Shareable Link' };
 	}

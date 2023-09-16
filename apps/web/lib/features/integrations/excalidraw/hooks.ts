@@ -5,6 +5,7 @@ import {
 	BinaryFiles,
 } from '@excalidraw/excalidraw/types/types';
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { exportToBackend } from './export-to-backend';
 
 export const useWhiteboard = () => {
 	const loaded = useRef(false);
@@ -56,7 +57,15 @@ export const useWhiteboard = () => {
 
 	const onLiveCollaboration = useCallback(() => {
 		if (excalidrawAPI?.ready) {
-			console.log(excalidrawAPI.getSceneElements());
+			exportToBackend(
+				excalidrawAPI.getSceneElements(),
+				excalidrawAPI.getAppState(),
+				excalidrawAPI.getFiles()
+			).then((res) => {
+				if (res.url) {
+					window.open(res.url, '_blank');
+				}
+			});
 		}
 	}, [excalidrawAPI]);
 
