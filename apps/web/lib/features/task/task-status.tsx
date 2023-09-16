@@ -70,7 +70,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		placeholder?: string;
 		defaultValues?: ITaskStatusStack[T][];
 		taskStatusClassName?: string;
-		latestLabels: MutableRefObject<string[]>;
+		latestLabels?: MutableRefObject<string[]>;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -698,7 +698,9 @@ export function TaskLabelsDropdown({
 
 	const handleOnChange = (labels: any) => {
 		onChange(labels);
-		latestLabels.current = labels;
+		if (latestLabels) {
+			latestLabels.current = labels;
+		}
 	};
 
 	return (
