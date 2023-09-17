@@ -245,13 +245,16 @@ export function useStatusValue<T extends ITaskStatusField>({
 			// Handle multiple select
 			let values: ITaskStatusStack[T][] = [];
 			if (multipleRef.current) {
-				setValues(value);
-				values = value;
-				// setValues((arr) => {
-				// 	const exists = arr.includes(value);
-				// 	values = exists ? arr.filter((v) => v !== value) : [...arr, value];
-				// 	return values;
-				// });
+				if (typeof value === 'string') {
+					setValues((arr) => {
+						const exists = arr.includes(value);
+						values = exists ? arr.filter((v) => v !== value) : [...arr, value];
+						return values;
+					});
+				} else {
+					setValues(value);
+					values = value;
+				}
 			} else {
 				setValue(value);
 			}
