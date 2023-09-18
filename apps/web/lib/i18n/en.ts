@@ -29,6 +29,7 @@ export const en = {
 		OPEN: 'Open',
 		NOW: 'Now',
 		CLOSED: 'Closed',
+		CLOSE: 'Close',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Title',
 		CREATE_TASK: 'Create new task',
@@ -94,6 +95,8 @@ export const en = {
 		CHANGE_PARENT: 'Change Parent',
 		RELATED_ISSUES: 'Related Issues',
 		CHILD_ISSUES: 'Child Issues',
+		REOPEN: 'Reopen',
+		NO_TASKS: 'No Tasks',
 	},
 	pages: {
 		home: {

@@ -16,16 +16,13 @@ export function TimerButton({ onClick, running, disabled, className }: Props) {
 		<Button
 			onClick={onClick}
 			className={clsxm(
-				running ? ['bg-primary'] : ['bg-white'],
+				running
+					? ['bg-rose-600 dark:bg-rose-600 border-none']
+					: ['bg-white dark:bg-dark-lighter'],
 				'w-14 h-14 rounded-full inline-block min-w-[14px] !px-0 !py-0',
 				'flex justify-center items-center border border-[#0000001A] dark:border-[0.125rem] dark:border-[#28292F]',
 				'shadow-primary/30 shadow-xl drop-shadow-3xl dark:shadow-lgcard-white',
 				disabled && ['opacity-70 cursor-default'],
-				running
-					? [
-							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue border-none',
-					  ]
-					: ['dark:bg-dark-lighter'],
 
 				className
 			)}

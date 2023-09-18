@@ -18,7 +18,6 @@ import { Card, ListItem } from "../../../../components"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography, useAppTheme } from "../../../../theme"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import AllTaskStatuses from "../../../../components/AllTaskStatuses"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import {
@@ -35,6 +34,7 @@ import { TimeProgressBar } from "./TimeProgressBar"
 import { useNavigation } from "@react-navigation/native"
 import { WorkedOnTask } from "./WorkedOnTask"
 import UnassignedTasksList from "./UnassignedTaskList"
+import { translate } from "../../../../i18n"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -46,7 +46,11 @@ interface IcontentProps {
 	onPressIn?: () => unknown
 }
 
-export interface Props extends ListItemProps {}
+export interface Props extends ListItemProps {
+	index: number
+	openMenuIndex: number | null
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
+}
 
 export const ListItemContent: React.FC<IcontentProps> = observer(
 	({ memberInfo, taskEdition, onPressIn }) => {
@@ -122,19 +126,16 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 const ListCardItem: React.FC<Props> = observer((props) => {
 	const { colors } = useAppTheme()
 	// // STATS
-	const [showMenu, setShowMenu] = React.useState(false)
 	const memberInfo = useTeamMemberCard(props.member)
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask)
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false)
-
-	const { isTeamManager } = useOrganizationTeam()
 
 	const navigation = useNavigation()
 
 	const onPressIn = () => {
 		taskEdition.setEditMode(false)
 		taskEdition.setEstimateEditMode(false)
-		setShowMenu(false)
+		props.setOpenMenuIndex(null)
 		navigation.navigate(
 			"Profile" as never,
 			{ userId: memberInfo.memberUser.id, activeTab: "worked" } as never,
@@ -187,72 +188,97 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 								marginRight: 17,
 								backgroundColor: colors.background,
 								minWidth: spacing.huge * 2,
-								...(!showMenu ? { display: "none" } : {}),
+								...(props.index !== props.openMenuIndex ? { display: "none" } : {}),
 							}}
 						>
 							<View style={{ marginVertical: 10 }}>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										taskEdition.setEditMode(true)
-										setShowMenu(false)
-									}}
-								>
-									Edit Task
-								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										taskEdition.setEstimateEditMode(true)
-										setShowMenu(false)
-									}}
-								>
-									Estimate
-								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										setShowUnassignedList(true)
-										setShowMenu(false)
-									}}
-								>
-									Assign Task
-								</ListItem>
-								<ListItem
-									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-									onPress={() => {
-										memberInfo.unassignTask(taskEdition.task)
-										setShowMenu(false)
-									}}
-								>
-									Unassign Task
-								</ListItem>
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+										onPress={() => {
+											taskEdition.setEditMode(true)
+											props.setOpenMenuIndex(null)
+										}}
+									>
+										{translate("tasksScreen.editTaskLabel")}
+									</ListItem>
+								)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+										onPress={() => {
+											taskEdition.setEstimateEditMode(true)
+											props.setOpenMenuIndex(null)
+										}}
+									>
+										{translate("myWorkScreen.estimateLabel")}
+									</ListItem>
+								)}
 
-								{isTeamManager ? (
-									<>
-										{!memberInfo.isAuthUser && (
-											<ListItem
-												textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-												onPress={() => {
-													setShowMenu(false)
-													memberInfo.makeMemberManager()
-												}}
-											>
-												Make a Manager
-											</ListItem>
-										)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+									memberInfo.memberUnassignTasks.length > 0 && (
 										<ListItem
-											textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
-											style={{}}
+											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 											onPress={() => {
-												setShowMenu(false)
-												memberInfo.removeMemberFromTeam()
+												setShowUnassignedList(true)
+												props.setOpenMenuIndex(null)
 											}}
 										>
-											Remove
+											{translate("tasksScreen.assignTaskButton")}
 										</ListItem>
-									</>
-								) : null}
+									)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+									!!memberInfo.memberTask && (
+										<ListItem
+											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+											onPress={() => {
+												memberInfo.unassignTask(taskEdition.task)
+												props.setOpenMenuIndex(null)
+											}}
+										>
+											{translate("tasksScreen.unassignTaskLabel")}
+										</ListItem>
+									)}
+
+								{memberInfo.isAuthTeamManager &&
+									!memberInfo.isAuthUser &&
+									!memberInfo.isTeamCreator && (
+										<>
+											{memberInfo.isTeamManager ? (
+												<ListItem
+													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+													onPress={() => {
+														props.setOpenMenuIndex(null)
+														memberInfo.unMakeMemberManager()
+													}}
+												>
+													{translate("tasksScreen.unMakeManager")}
+												</ListItem>
+											) : (
+												<ListItem
+													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+													onPress={() => {
+														props.setOpenMenuIndex(null)
+														memberInfo.makeMemberManager()
+													}}
+												>
+													{translate("tasksScreen.makeManager")}
+												</ListItem>
+											)}
+										</>
+									)}
+								{!memberInfo.isTeamOwner && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
+										style={{}}
+										onPress={() => {
+											props.setOpenMenuIndex(null)
+											memberInfo.removeMemberFromTeam()
+										}}
+									>
+										{translate("tasksScreen.remove")}
+									</ListItem>
+								)}
 							</View>
 						</View>
 						{showUnassignedList ? (
@@ -264,8 +290,12 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 								<Ionicons name="chevron-back" size={24} color={colors.primary} />
 							</TouchableOpacity>
 						) : (
-							<TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-								{!showMenu ? (
+							<TouchableOpacity
+								onPress={() =>
+									props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
+								}
+							>
+								{props.openMenuIndex !== props.index ? (
 									<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
 								) : (
 									<Entypo name="cross" size={24} color={colors.primary} />
