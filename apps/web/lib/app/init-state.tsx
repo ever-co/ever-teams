@@ -110,7 +110,7 @@ function InitState() {
 
 			useRefreshInterval(
 				myInvitations,
-				five_seconds,
+				10 * 1000,
 				true /* used as loadTeamTasksData deepCheck param */
 			);
 
