@@ -98,6 +98,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 				visible={openModal}
 				setSelectedLabel={(e) => onChangeLabel(e)}
 				onDismiss={() => setOpenModal(false)}
+				canCreateLabel={true}
 			/>
 			{task?.tags.length > 0 ? (
 				<View>
