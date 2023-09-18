@@ -1,15 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
-import {
-	TouchableOpacity,
-	View,
-	Text,
-	StyleSheet,
-	ViewStyle,
-	Dimensions,
-	FlatList,
-} from "react-native"
+import React, { FC, useRef, useState } from "react"
+import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList } from "react-native"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
@@ -18,7 +10,6 @@ import { useAppTheme, typography } from "../../../../theme"
 import TaskLabelPopup from "../../../../components/TaskLabelPopup"
 import { ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
 import { translate } from "../../../../i18n"
-import { useTaskLabelValue } from "../../../../components/StatusType"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { SvgUri } from "react-native-svg"
 
@@ -44,16 +35,12 @@ interface IndividualTaskLabel {
 	updatedAt: string
 }
 
-const TaskLabels: FC<TaskLabelProps> = observer(({ task, containerStyle, labels, setLabels }) => {
+const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
 	const [openModal, setOpenModal] = useState(false)
-
-	const allTaskLabels = useTaskLabelValue()
-	const label = task && task.tags?.length > 1 ? (task?.tags[0] as ITaskLabelItem) : null
-
-	const currentLabel =
-		allTaskLabels[task ? label?.name.split("-").join(" ") : labels?.split("-").join(" ")]
+	const flatListRef = useRef<FlatList>(null)
+	const [labelIndex, setLabelIndex] = useState<number>(0)
 
 	const onChangeLabel = async (text: ITaskLabelItem) => {
 		if (task) {
@@ -74,6 +61,36 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, containerStyle, labels,
 		}
 	}
 
+	const scrollToIndexWithDelay = (index: number) => {
+		console.log("index: ", index)
+
+		flatListRef.current?.scrollToIndex({
+			animated: true,
+			index: index < 0 ? 0 : index,
+			viewPosition: 0,
+		})
+	}
+
+	const onNextPressed = () => {
+		if (labelIndex !== task?.tags.length - 2) {
+			scrollToIndexWithDelay(labelIndex + 1)
+		}
+	}
+
+	const onPrevPressed = () => {
+		if (labelIndex > 0) {
+			const newIndex = labelIndex - 2
+			scrollToIndexWithDelay(newIndex)
+		}
+	}
+
+	const handleScroll = (event: any) => {
+		const offsetX = event.nativeEvent.contentOffset.x
+		const currentIndex = Math.round(offsetX / 90)
+		setLabelIndex(currentIndex)
+		// console.log(labelIndex)
+	}
+
 	return (
 		<>
 			<TaskLabelPopup
@@ -82,28 +99,51 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, containerStyle, labels,
 				setSelectedLabel={(e) => onChangeLabel(e)}
 				onDismiss={() => setOpenModal(false)}
 			/>
-			{/* <TouchableOpacity
-				onPress={() => {
-					setOpenModal(true)
-					labelsLog()
-				}}
-			>
-				<View
-					style={{
-						...styles.container,
-						...containerStyle,
-						borderColor: colors.border,
-						backgroundColor: currentLabel?.bgColor,
+			{task?.tags.length > 0 ? (
+				<View>
+					<FlatList
+						ref={flatListRef}
+						data={task?.tags}
+						renderItem={({ item }) => <Label item={item} setOpenModal={setOpenModal} />}
+						horizontal={true}
+						keyExtractor={(_, index) => index.toString()}
+						showsHorizontalScrollIndicator={false}
+						ItemSeparatorComponent={() => (
+							<View style={{ width: 10, backgroundColor: "transparent" }}></View>
+						)}
+						onScroll={handleScroll}
+					/>
+					{labelIndex >= task?.tags.length - 2 || task?.tags.length < 3 ? null : (
+						<TouchableOpacity
+							activeOpacity={0.7}
+							style={[styles.scrollButtons, { backgroundColor: colors.background, right: 0 }]}
+							onPress={() => onNextPressed()}
+						>
+							<AntDesign name="right" size={18} color={colors.primary} />
+						</TouchableOpacity>
+					)}
+					{labelIndex >= 1 ? (
+						<TouchableOpacity
+							activeOpacity={0.7}
+							style={[styles.scrollButtons, { left: 0, backgroundColor: colors.background }]}
+							onPress={() => onPrevPressed()}
+						>
+							<AntDesign name="left" size={18} color={colors.primary} />
+						</TouchableOpacity>
+					) : null}
+				</View>
+			) : (
+				<TouchableOpacity
+					onPress={() => {
+						setOpenModal(true)
 					}}
 				>
-					{currentLabel ? (
-						<View style={styles.wrapStatus}>
-							{currentLabel.icon}
-							<Text style={{ ...styles.text, marginLeft: 10 }}>
-								{limitTextCharaters({ text: currentLabel.name, numChars: 15 })}
-							</Text>
-						</View>
-					) : (
+					<View
+						style={{
+							...styles.container,
+							borderColor: colors.border,
+						}}
+					>
 						<View style={styles.wrapStatus}>
 							<Entypo name="circle" size={12} color={colors.primary} />
 							<Text style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}></Text>
@@ -111,22 +151,11 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, containerStyle, labels,
 								{translate("settingScreen.labelScreen.labels")}
 							</Text>
 						</View>
-					)}
-					<AntDesign name="down" size={14} color={colors.primary} />
-				</View>
-			</TouchableOpacity> */}
-			<View>
-				<FlatList
-					data={task?.tags}
-					renderItem={({ item }) => <Label item={item} setOpenModal={setOpenModal} />}
-					horizontal={true}
-					keyExtractor={(_, index) => index.toString()}
-					showsHorizontalScrollIndicator={false}
-					ItemSeparatorComponent={() => (
-						<View style={{ width: 10, backgroundColor: "transparent" }}></View>
-					)}
-				/>
-			</View>
+
+						<AntDesign name="down" size={14} color={colors.primary} />
+					</View>
+				</TouchableOpacity>
+			)}
 		</>
 	)
 })
@@ -155,11 +184,10 @@ const Label: FC<ILabel> = ({ item, setOpenModal }) => {
 					paddingHorizontal: 8,
 				}}
 			>
-				<SvgUri width={10} height={10} uri={item?.fullIconUrl} />
+				<SvgUri width={14} height={14} uri={item?.fullIconUrl} />
 				<Text
 					style={{
 						color: "#292D32",
-						left: 5,
 						fontSize: 10,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 						marginLeft: 10,
@@ -171,19 +199,35 @@ const Label: FC<ILabel> = ({ item, setOpenModal }) => {
 		</TouchableOpacity>
 	)
 }
-const { width } = Dimensions.get("window")
+
 const styles = StyleSheet.create({
 	container: {
 		alignItems: "center",
-		borderColor: "rgba(0, 0, 0, 0.13)",
 		borderRadius: 10,
 		borderWidth: 1,
 		flexDirection: "row",
 		height: 32,
 		justifyContent: "space-between",
+		marginVertical: 20,
 		paddingHorizontal: 12,
 		paddingVertical: 7,
-		width: width / 3,
+		width: 160,
+	},
+	scrollButtons: {
+		alignItems: "center",
+		backgroundColor: "#fff",
+		borderRadius: 20,
+		bottom: 23,
+		elevation: 10,
+		height: 27,
+		justifyContent: "center",
+		padding: 5,
+		position: "absolute",
+		shadowColor: "rgba(0,0,0,0.16)",
+		shadowOffset: { width: 0, height: 5 },
+		shadowOpacity: 1,
+		shadowRadius: 15,
+		width: 28,
 	},
 	text: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
