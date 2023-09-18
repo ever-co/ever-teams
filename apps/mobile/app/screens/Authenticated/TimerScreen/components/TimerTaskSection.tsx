@@ -18,13 +18,14 @@ import EstimateTime from "./EstimateTime"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import TaskPriorities from "../../../../components/TaskPriority"
-import TaskLabel from "../../../../components/TaskLabel"
+// import TaskLabel from "../../../../components/TaskLabel"
 import { typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
 import TaskStatus from "../../../../components/TaskStatus"
 import TimerCard from "../../../../components/TimerCard"
 import TaskSize from "../../../../components/TaskSize"
 import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
+import TaskLabels from "./TaskLabels"
 
 const TimerTaskSection = observer(
 	({ taskInput, outsideClick }: { taskInput: RTuseTaskInput; outsideClick: () => unknown }) => {
@@ -169,7 +170,7 @@ const TimerTaskSection = observer(
 								/>
 							</View>
 
-							<TaskLabel
+							<TaskLabels
 								task={activeTask}
 								containerStyle={{
 									...styles.sizeContainer,

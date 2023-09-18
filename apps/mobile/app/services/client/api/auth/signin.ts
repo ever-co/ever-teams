@@ -54,6 +54,7 @@ export async function signIn(params: ISignInDataAPI) {
 					refresh_token: data.refresh_token,
 					tenantId,
 					organizationId: organization.organizationId,
+					user: data.user,
 				},
 			},
 		},
