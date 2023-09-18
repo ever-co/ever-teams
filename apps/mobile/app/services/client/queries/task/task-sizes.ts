@@ -17,8 +17,6 @@ const fetchAllSizes = async (params: IGetTaskSizeParams) => {
 		},
 		authToken,
 	)
-	console.log("api getting active team id:", activeTeamId)
-
 	return data
 }
 
