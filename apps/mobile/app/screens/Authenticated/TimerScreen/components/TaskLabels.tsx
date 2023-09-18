@@ -62,8 +62,6 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 	}
 
 	const scrollToIndexWithDelay = (index: number) => {
-		console.log("index: ", index)
-
 		flatListRef.current?.scrollToIndex({
 			animated: true,
 			index: index < 0 ? 0 : index,
@@ -84,11 +82,10 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 		}
 	}
 
-	const handleScroll = (event: any) => {
+	const handleScrollEnd = (event: any) => {
 		const offsetX = event.nativeEvent.contentOffset.x
-		const currentIndex = Math.round(offsetX / 90)
+		const currentIndex = Math.round(offsetX / 100) // Assuming 100 is the item width
 		setLabelIndex(currentIndex)
-		// console.log(labelIndex)
 	}
 
 	return (
@@ -112,7 +109,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 						ItemSeparatorComponent={() => (
 							<View style={{ width: 10, backgroundColor: "transparent" }}></View>
 						)}
-						onScroll={handleScroll}
+						onMomentumScrollEnd={handleScrollEnd}
 					/>
 					{labelIndex >= task?.tags.length - 2 || task?.tags.length < 3 ? null : (
 						<TouchableOpacity
