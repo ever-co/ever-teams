@@ -261,7 +261,7 @@ export function useTeamTasks() {
 			setActiveTask("")
 			setActiveTaskId("")
 		}
-	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId])
+	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId, allTasks])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {

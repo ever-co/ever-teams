@@ -148,7 +148,7 @@ function DueDates() {
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
-					buttonClassName={'p-0 decoration-transparent h-[0.875rem]'}
+					buttonClassName={'p-0 decoration-transparent h-[0.875rem] w-20'}
 					// Calenar Props
 					customInput={
 						<div
@@ -201,7 +201,7 @@ function DueDates() {
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
-					buttonClassName={'p-0 decoration-transparent h-[0.875rem]'}
+					buttonClassName={'p-0 decoration-transparent h-[0.875rem] w-20'}
 					// Calenar Props
 					customInput={
 						<div
