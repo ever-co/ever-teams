@@ -3,7 +3,12 @@ import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
-import { Avatar, ConfirmDropdown, SpinnerLoader } from 'lib/components';
+import {
+	Avatar,
+	ConfirmDropdown,
+	SpinnerLoader,
+	Tooltip,
+} from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
@@ -92,12 +97,18 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 				<div onClick={(e) => e.stopPropagation()}>
 					{task?.status !== 'closed' && (
-						<ConfirmDropdown
-							onConfirm={() => handleChange('closed')}
-							confirmText={'Confirm'}
+						<Tooltip
+							label={`${trans.common.CLOSE} ${trans.common.TASK}`}
+							enabled
+							placement="left"
 						>
-							{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
-						</ConfirmDropdown>
+							<ConfirmDropdown
+								onConfirm={() => handleChange('closed')}
+								confirmText={'Confirm'}
+							>
+								{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
+							</ConfirmDropdown>
+						</Tooltip>
 					)}
 
 					{task?.status === 'closed' && (
@@ -105,9 +116,16 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 							{updateLoading ? (
 								<SpinnerLoader size={20} />
 							) : (
-								<button onClick={() => handleChange('todo')}>
-									<RefreshIcon />
-								</button>
+								<Tooltip
+									label={`${trans.common.REOPEN} ${trans.common.TASK}`}
+									enabled
+									placement="left"
+									className="min-w-10"
+								>
+									<button onClick={() => handleChange('todo')}>
+										<RefreshIcon />
+									</button>
+								</Tooltip>
 							)}
 						</>
 					)}

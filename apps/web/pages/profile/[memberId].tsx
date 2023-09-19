@@ -131,9 +131,12 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 									? 'online'
 									: !member?.totalTodayTasks?.length
 									? 'idle'
+									: member?.totalTodayTasks?.length
+									? 'pause'
 									: member?.timerStatus || 'idle'
 							}
 							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
+							tooltipClassName="mt-24 dark:mt-20 mr-3"
 						/>
 					</Avatar>
 				) : (

@@ -151,9 +151,6 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
 	},
-	keyboardAvoidingContainer: {
-		flex: 1,
-	},
 	mainContainer: {
 		alignItems: "center",
 		borderColor: "#1B005D0D",

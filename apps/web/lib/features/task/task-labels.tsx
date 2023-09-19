@@ -4,6 +4,8 @@ import { Button, Card, Modal } from 'lib/components';
 import { PlusIcon } from 'lib/components/svgs';
 import { TaskLabelForm } from 'lib/settings';
 import { TaskLabelsDropdown } from './task-status';
+import { debounce, isEqual } from 'lodash';
+import { useCallback, useRef } from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -20,17 +22,31 @@ export function TaskLabels({
 	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const modal = useModal();
+	const latestLabels = useRef<string[]>([]);
 
-	function onValuesChange(_: any, values: string[] | undefined) {
-		if (!task) return;
+	const onValuesChange = useCallback(
+		(_: any, values: string[] | undefined) => {
+			const debounceOnValuesChange = debounce(
+				(_: any, values: string[] | undefined) => {
+					if (!task) return;
 
-		updateTask({
-			...task,
-			tags: taskLabels.filter((tag) =>
-				tag.name ? values?.includes(tag.name) : false
-			) as any,
-		});
-	}
+					if (!isEqual(latestLabels.current, values)) {
+						return;
+					}
+
+					updateTask({
+						...task,
+						tags: taskLabels.filter((tag) =>
+							tag.name ? values?.includes(tag.name) : false
+						) as any,
+					});
+				},
+				2000
+			);
+			debounceOnValuesChange(_, values);
+		},
+		[task, taskLabels, updateTask, latestLabels]
+	);
 
 	const tags = (task?.tags as typeof taskLabels | undefined)?.map(
 		(tag) => tag.name || ''
@@ -47,6 +63,7 @@ export function TaskLabels({
 				forDetails={forDetails}
 				sidebarUI={forDetails}
 				taskStatusClassName={taskStatusClassName}
+				latestLabels={latestLabels}
 			>
 				<Button
 					className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"

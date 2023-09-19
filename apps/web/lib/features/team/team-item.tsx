@@ -4,7 +4,9 @@ import { IOrganizationTeamList } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, DropdownItem, Tooltip } from 'lib/components';
 import { SettingsOutlineIcon } from 'lib/components/svgs';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import { readableColor } from 'polished';
 import stc from 'string-to-color';
 
 export type TeamItem = DropdownItem<IOrganizationTeamList>;
@@ -31,6 +33,7 @@ export function mapTeamItems(
 								count={team.members.length}
 								className={clsxm(selected && ['font-medium'])}
 								logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+								color={team.color}
 							/>
 						</div>
 
@@ -60,6 +63,7 @@ export function mapTeamItems(
 						count={team.members?.length || 0}
 						className="py-2 mb-0"
 						logo={team.image?.thumbUrl || team.image?.fullUrl || ''}
+						color={team.color}
 					/>
 				</Tooltip>
 			),
@@ -102,6 +106,11 @@ export function TeamItem({
 	disabled?: boolean;
 	logo?: string;
 }) {
+	const { theme } = useTheme();
+	const readableColorHex = readableColor(
+		color || (theme === 'light' ? '#FFF' : '#000')
+	);
+
 	return (
 		<div
 			className={clsxm(
@@ -119,7 +128,11 @@ export function TeamItem({
 						'shadow-md',
 						disabled && ['dark:text-default']
 					)}
-					style={{ background: color || `${stc(title)}80` }}
+					style={{
+						background: color || `${stc(title)}80`,
+
+						...(color ? { color: color ? readableColorHex : undefined } : {}),
+					}}
 				>
 					{logo && isValidUrl(logo) ? (
 						<Avatar

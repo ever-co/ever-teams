@@ -22,7 +22,7 @@ type StatusForm = {
 
 export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const user = useRecoilValue(userState);
-	const { register, setValue, handleSubmit, reset } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
 
@@ -68,16 +68,16 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
-		if (!edit) {
+		if (!edit && !getValues().name) {
 			setValue('name', '');
 			setValue('color', '');
 			setValue('icon', '');
 		}
-	}, [taskSizes, edit, setValue]);
+	}, [taskSizes, edit, setValue, getValues]);
 
 	useEffect(() => {
 		if (edit) {
-			setValue('name', edit.name);
+			setValue('name', edit.name?.split('-').join(' '));
 			setValue('color', edit.color);
 			setValue('icon', edit.icon);
 		} else {
@@ -108,7 +108,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			}
 			if (
 				edit &&
-				(values.name !== edit.name ||
+				(values.name !== edit.name?.split('-').join(' ') ||
 					values.color !== edit.color ||
 					values.icon !== edit.icon)
 			) {

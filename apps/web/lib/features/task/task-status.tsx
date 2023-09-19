@@ -15,6 +15,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
 import React, {
 	Fragment,
+	MutableRefObject,
 	PropsWithChildren,
 	useCallback,
 	useEffect,
@@ -69,6 +70,7 @@ export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 		placeholder?: string;
 		defaultValues?: ITaskStatusStack[T][];
 		taskStatusClassName?: string;
+		latestLabels?: MutableRefObject<string[]>;
 	}>;
 
 export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
@@ -243,11 +245,16 @@ export function useStatusValue<T extends ITaskStatusField>({
 			// Handle multiple select
 			let values: ITaskStatusStack[T][] = [];
 			if (multipleRef.current) {
-				setValues((arr) => {
-					const exists = arr.includes(value);
-					values = exists ? arr.filter((v) => v !== value) : [...arr, value];
-					return values;
-				});
+				if (typeof value === 'string') {
+					setValues((arr) => {
+						const exists = arr.includes(value);
+						values = exists ? arr.filter((v) => v !== value) : [...arr, value];
+						return values;
+					});
+				} else {
+					setValues(value);
+					values = value;
+				}
 			} else {
 				setValue(value);
 			}
@@ -680,6 +687,7 @@ export function TaskLabelsDropdown({
 	placeholder = 'Label',
 	defaultValues,
 	taskStatusClassName,
+	latestLabels,
 }: TTaskStatusesDropdown<'label'>) {
 	const taskLabelsValue = useTaskLabelsValue();
 
@@ -691,22 +699,29 @@ export function TaskLabelsDropdown({
 		defaultValues,
 	});
 
+	const handleOnChange = (labels: any) => {
+		onChange(labels);
+		if (latestLabels) {
+			latestLabels.current = labels;
+		}
+	};
+
 	return (
-		<StatusDropdown
+		<MultipleStatusDropdown
 			sidebarUI={sidebarUI}
 			forDetails={forDetails}
 			className={className}
 			items={items}
 			value={item}
 			defaultItem={!item ? (placeholder as any) : undefined}
-			onChange={onChange}
+			onChange={handleOnChange}
 			multiple={multiple}
 			values={values}
 			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
 		>
 			{children}
-		</StatusDropdown>
+		</MultipleStatusDropdown>
 	);
 }
 
@@ -799,6 +814,7 @@ export function TaskStatus({
 	showIcon = true,
 	sidebarUI = false,
 	realName,
+	isVersion,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -810,6 +826,7 @@ export function TaskStatus({
 			cheched?: boolean;
 			sidebarUI?: boolean;
 			value?: string;
+			isVersion?: boolean;
 		}
 >) {
 	const { theme } = useTheme();
@@ -822,9 +839,7 @@ export function TaskStatus({
 			className={clsxm(
 				`py-2 md:px-3 px-2 flex items-center text-sm relative`,
 
-				sidebarUI
-					? 'text-dark space-x-3 rounded-md font-[500]'
-					: 'space-x-0 rounded-xl',
+				sidebarUI ? 'text-dark rounded-md font-[500]' : 'space-x-0 rounded-xl',
 
 				issueType === 'issue' && ['px-2 text-white'],
 
@@ -867,10 +882,14 @@ export function TaskStatus({
 
 				{name && (issueType !== 'issue' || showIssueLabels) && (
 					<div
-						className={`capitalize text-ellipsis overflow-hidden]`}
-						style={{
-							color: readableColorHex,
-						}}
+						className={`capitalize text-ellipsis overflow-hidden`}
+						style={
+							isVersion
+								? {
+										color: readableColorHex,
+								  }
+								: {}
+						}
 					>
 						{realName || name}
 					</div>
@@ -967,6 +986,7 @@ export function StatusDropdown<T extends TStatusItem>({
 			titleClassName={clsxm(
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
 			)}
+			isVersion={isVersion}
 		>
 			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
@@ -1027,7 +1047,9 @@ export function StatusDropdown<T extends TStatusItem>({
 											)}
 											name={
 												values.length > 0
-													? `Items (${values.length})`
+													? `Item${values.length === 1 ? '' : 's'} (${
+															values.length
+													  })`
 													: defaultValue.name
 											}
 										>
@@ -1119,6 +1141,186 @@ export function StatusDropdown<T extends TStatusItem>({
 							</>
 						);
 					}}
+				</Listbox>
+			</div>
+		</Tooltip>
+	);
+
+	// return showButtonOnly ? button : dropdown; // To disable dropdown when showButton is true
+	return dropdown;
+}
+
+/**
+ * Fc Status drop down
+ */
+export function MultipleStatusDropdown<T extends TStatusItem>({
+	value,
+	onChange,
+	items,
+	className,
+	taskStatusClassName,
+	defaultItem,
+	issueType = 'status',
+	children,
+	forDetails,
+	enabled = true,
+	values = [],
+	disabled,
+	showIcon = true,
+	largerWidth = false,
+	bordered = false,
+	sidebarUI = false,
+	disabledReason = '',
+	isVersion = false,
+	onRemoveSelected,
+}: PropsWithChildren<{
+	value: T | undefined;
+	values?: NonNullable<T['name']>[];
+	onChange?(value: string[]): void;
+	items: T[];
+	className?: string;
+	taskStatusClassName?: string;
+	defaultItem?: ITaskStatusField;
+	issueType?: 'status' | 'issue';
+	forDetails?: boolean;
+	showIssueLabels?: boolean;
+	enabled?: boolean;
+	showButtonOnly?: boolean;
+	multiple?: boolean;
+	disabled?: boolean;
+	showIcon?: boolean;
+	largerWidth?: boolean;
+	bordered?: boolean;
+	sidebarUI?: boolean;
+	disabledReason?: string;
+	isVersion?: boolean;
+	onRemoveSelected?: () => null;
+}>) {
+	const defaultValue: TStatusItem = {
+		bgColor: undefined,
+		icon: (
+			<span>
+				<CircleIcon />
+			</span>
+		),
+		name: defaultItem,
+	};
+
+	const dropdown = (
+		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
+			<div className={clsxm('relative', className)}>
+				<Listbox
+					value={values}
+					onChange={onChange}
+					disabled={disabled}
+					multiple
+				>
+					<Listbox.Button
+						as="div"
+						className={clsxm(
+							!forDetails && 'w-full max-w-[170px]',
+							'cursor-pointer outline-none'
+						)}
+						style={{
+							width: largerWidth ? '160px' : '',
+						}}
+					>
+						<TaskStatus
+							{...defaultValue}
+							active={true}
+							forDetails={forDetails}
+							sidebarUI={sidebarUI}
+							className={clsxm(
+								'justify-between w-full capitalize',
+								sidebarUI && ['text-xs'],
+								'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
+								forDetails &&
+									'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+								taskStatusClassName
+							)}
+							name={
+								values.length > 0
+									? `Item${values.length === 1 ? '' : 's'} (${values.length})`
+									: defaultValue.name
+							}
+						>
+							<ChevronDownIcon
+								className={clsxm('h-5 w-5 text-default dark:text-white')}
+							/>
+						</TaskStatus>
+					</Listbox.Button>
+
+					<Transition
+						enter="transition duration-100 ease-out"
+						enterFrom="transform scale-95 opacity-0"
+						enterTo="transform scale-100 opacity-100"
+						leave="transition duration-75 ease-out"
+						leaveFrom="transform scale-100 opacity-100"
+						leaveTo="transform scale-95 opacity-0"
+						className={clsxm(
+							'absolute right-0 left-0 z-40 min-w-min outline-none',
+							issueType === 'issue' && ['left-auto right-auto']
+						)}
+					>
+						<Listbox.Options className="outline-none">
+							<Card
+								shadow="bigger"
+								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
+							>
+								{items.map((item, i) => {
+									const item_value = item.value || item.name;
+									return (
+										<Listbox.Option
+											key={i}
+											value={item_value}
+											as={Fragment}
+											disabled={disabled}
+										>
+											<li className="cursor-pointer outline-none relative">
+												<TaskStatus
+													showIcon={showIcon}
+													{...item}
+													cheched={
+														item.value ? values.includes(item.value) : false
+													}
+													className={clsxm(
+														issueType === 'issue' && [
+															'rounded-md px-2 text-white',
+														],
+														`${sidebarUI ? 'rounded-[4px]' : ''}`,
+														`${bordered ? 'input-border' : ''}`,
+														isVersion && 'dark:text-white'
+													)}
+												/>
+
+												{value === item_value && issueType !== 'issue' && (
+													<Listbox.Button
+														as="button"
+														onClick={(e: any) => {
+															e.stopPropagation();
+															onRemoveSelected && onRemoveSelected();
+															onChange && onChange(null as any);
+														}}
+														className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+													>
+														<XMarkIcon
+															className="text-dark"
+															height={16}
+															width={16}
+															aria-hidden="true"
+														/>
+													</Listbox.Button>
+												)}
+											</li>
+										</Listbox.Option>
+									);
+								})}
+								{children && (
+									<Listbox.Button as="div">{children}</Listbox.Button>
+								)}
+							</Card>
+						</Listbox.Options>
+					</Transition>
 				</Listbox>
 			</div>
 		</Tooltip>

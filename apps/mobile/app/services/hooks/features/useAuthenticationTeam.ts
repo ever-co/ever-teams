@@ -65,6 +65,8 @@ export function useAuthenticationTeam() {
 			const { response } = await signIn({ email: authEmail, token: tempAuthToken })
 
 			if (response) {
+				setUser(response.data.authStoreData.user)
+				setEmployeeId(response.data.authStoreData.user.employeeId)
 				// Save Auth Token
 				setTenantId(response.data.authStoreData.tenantId)
 				setOrganizationId(response.data.authStoreData.organizationId)
