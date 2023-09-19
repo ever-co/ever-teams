@@ -27,7 +27,10 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 		allStatuses &&
 		Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue)
 
-	const size = allSizes[task?.size]
+	const sizeValue = task?.size?.split("-").join(" ").toLowerCase()
+	const size =
+		allSizes && Object.values(allSizes).find((item) => item?.name.toLowerCase() === sizeValue)
+
 	const priority = allPriorities[task?.priority]
 
 	const taskLabels = task?.tags.map((tag) => allLabels[tag.name])
