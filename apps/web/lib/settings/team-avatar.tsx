@@ -12,13 +12,26 @@ import { IImageAssets } from '@app/interfaces';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
+import { readableColor } from 'polished';
+import { useTheme } from 'next-themes';
 
-export const TeamAvatar = ({ disabled }: { disabled: boolean }) => {
+export const TeamAvatar = ({
+	disabled,
+	bgColor,
+}: {
+	disabled: boolean;
+	bgColor?: string;
+}) => {
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
 	const { updateOrganizationTeam, activeTeam } = useOrganizationTeams();
 	const { createImageAssets } = useImageAssets();
 	const { user } = useAuthenticateUser();
+
+	const { theme } = useTheme();
+	const readableColorHex = readableColor(
+		bgColor || (theme === 'light' ? '#FFF' : '#000')
+	);
 
 	const changeAvatarState = () => {
 		if (avatarBtn) {
@@ -78,7 +91,11 @@ export const TeamAvatar = ({ disabled }: { disabled: boolean }) => {
 										'mt-8'
 									)}
 									style={{
-										backgroundColor: `${stc(activeTeam?.name || '')}80`,
+										backgroundColor:
+											bgColor || `${stc(activeTeam?.name || '')}80`,
+										...(bgColor
+											? { color: bgColor ? readableColorHex : undefined }
+											: {}),
 									}}
 								>
 									{activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl ? (
