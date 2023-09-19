@@ -3,8 +3,10 @@ import { useTheme } from 'next-themes';
 import { EverTeamsLogo, LiveShareIcon } from 'lib/components/svgs';
 import debounce from 'lodash/debounce';
 import { useWhiteboard } from './hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SpinnerLoader } from 'lib/components';
+import { LOCAL_STORAGE_THEME } from './constants';
+import { clsxm } from '@app/utils';
 
 export default function ExcalidrawComponent() {
 	const { theme } = useTheme();
@@ -16,6 +18,12 @@ export default function ExcalidrawComponent() {
 		setLiveLoading(true);
 		onLiveCollaboration().finally(() => setLiveLoading(false));
 	};
+
+	useEffect(() => {
+		if (theme) {
+			localStorage.setItem(LOCAL_STORAGE_THEME, theme);
+		}
+	}, [theme]);
 
 	return (
 		<>
@@ -33,7 +41,9 @@ export default function ExcalidrawComponent() {
 									size={20}
 								/>
 							) : (
-								<LiveShareIcon className={theme ? undefined : 'fill-black'} />
+								<LiveShareIcon
+									className={clsxm(theme ? undefined : 'fill-black', 'w-5 h-5')}
+								/>
 							)}
 						</button>
 					)}
