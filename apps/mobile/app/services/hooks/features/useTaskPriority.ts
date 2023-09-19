@@ -13,6 +13,7 @@ export const useTaskPriority = () => {
 	const queryClient = useQueryClient()
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
+		teamStore: { activeTeamId },
 	} = useStores()
 
 	const [allTaskPriorities, setAllTaskPriorities] = useState<ITaskPriorityItem[]>([])
@@ -25,6 +26,7 @@ export const useTaskPriority = () => {
 	} = useFetchAllPriorities({
 		tenantId,
 		organizationId,
+		activeTeamId,
 		authToken,
 	})
 
@@ -55,7 +57,7 @@ export const useTaskPriority = () => {
 	const createPriority = useCallback(async (data: ITaskPriorityCreate) => {
 		await createPriorityRequest({
 			tenantId,
-			datas: { ...data, organizationId },
+			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken,
 		})
 		queryClient.invalidateQueries("priorities")
