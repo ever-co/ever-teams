@@ -82,7 +82,7 @@ const TaskDetails = () => {
 								{/* <ActivityBlock /> */}
 							</div>
 						</section>
-						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem]">
+						<div className="flex flex-col mt-4 lg:mt-0 3xl:min-w-[24rem] w-[30%]">
 							<div className="bg-white dark:bg-dark--theme-light flex flex-col rounded-xl">
 								<TaskDetailsAside />
 							</div>
