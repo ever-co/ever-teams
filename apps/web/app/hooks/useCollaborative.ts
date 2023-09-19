@@ -7,6 +7,8 @@ import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useAuthenticateUser } from './features/useAuthenticateUser';
 import { useOrganizationTeams } from './features/useOrganizationTeams';
+import { EXCALIDRAW_APP_DOMAIN } from '@app/constants';
+import { useRouter } from 'next/router';
 
 export function useCollaborative(user?: IUser) {
 	const { activeTeam } = useOrganizationTeams();
@@ -17,6 +19,8 @@ export function useCollaborative(user?: IUser) {
 	const [collaborativeMembers, setCollaborativeMembers] = useRecoilState(
 		collaborativeMembersState
 	);
+
+	const url = useRouter();
 
 	const user_selected = useCallback(() => {
 		return collaborativeMembers.some((u) => u.id === user?.id);
@@ -51,10 +55,29 @@ export function useCollaborative(user?: IUser) {
 		return teamName + member;
 	}, [authUser, activeTeam, collaborativeMembers]);
 
+	const onMeetClick = useCallback(() => {
+		const url_encoded = getMeetRoomName();
+		url_encoded
+			? url.push(`/meet?room=${btoa(url_encoded)}`)
+			: url.push('/meet');
+	}, [getMeetRoomName, url]);
+
+	const onBoardClick = useCallback(() => {
+		if (collaborativeMembers.length > 0 && EXCALIDRAW_APP_DOMAIN) {
+			const url = new URL(EXCALIDRAW_APP_DOMAIN);
+			url.searchParams.set('live', 'true');
+			window.open(url.toString(), '_blank', 'noreferrer');
+			return;
+		}
+
+		url.push('/board');
+	}, [collaborativeMembers]);
+
 	return {
 		collaborativeSelect,
 		setCollaborativeSelect,
-
+		onBoardClick,
+		onMeetClick,
 		collaborativeMembers,
 		setCollaborativeMembers,
 		user_selected,

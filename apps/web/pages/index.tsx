@@ -14,9 +14,6 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useCollaborative, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
-import { useRouter } from 'next/router';
-import { useCallback } from 'react';
-import { EXCALIDRAW_APP_DOMAIN } from '@app/constants';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -63,28 +60,11 @@ function Collaborative() {
 		collaborativeSelect,
 		setCollaborativeSelect,
 		setCollaborativeMembers,
-		getMeetRoomName,
-		collaborativeMembers,
+		onMeetClick,
+		onBoardClick,
 	} = useCollaborative();
 
 	const { trans } = useTranslation();
-	const url = useRouter();
-
-	const onMeetClick = useCallback(() => {
-		const url_encoded = getMeetRoomName();
-		url_encoded
-			? url.push(`/meet?room=${btoa(url_encoded)}`)
-			: url.push('/meet');
-	}, [getMeetRoomName, url]);
-
-	const onBoardClick = useCallback(() => {
-		if (collaborativeMembers.length > 0 && EXCALIDRAW_APP_DOMAIN) {
-			window.open(EXCALIDRAW_APP_DOMAIN, '_blank', 'noreferrer');
-			return;
-		}
-
-		url.push('/board');
-	}, [collaborativeMembers]);
 
 	return (
 		<div className="pr-2">

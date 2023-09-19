@@ -63,7 +63,9 @@ export const useWhiteboard = () => {
 				excalidrawAPI.getFiles()
 			).then((res) => {
 				if (res.url) {
-					window.open(res.url, '_blank');
+					const uri = new URL(res.url);
+					uri.searchParams.set('live', 'true');
+					window.open(uri.toString(), '_blank', 'noreferrer');
 				}
 			});
 		}

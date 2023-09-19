@@ -76,8 +76,6 @@ export const saveFilesToFirebase = async ({
 
 	await Promise.all(
 		files.map(async ({ id, buffer }) => {
-			console.log(id);
-
 			try {
 				await firebase
 					.storage()
