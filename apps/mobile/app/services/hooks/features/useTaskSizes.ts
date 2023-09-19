@@ -13,6 +13,7 @@ export function useTaskSizes() {
 	const queryClient = useQueryClient()
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
+		teamStore: { activeTeamId },
 	} = useStores()
 	const [allTaskSizes, setAllTaskSizes] = useState<ITaskSizeItem[]>([])
 	const {
@@ -20,7 +21,7 @@ export function useTaskSizes() {
 		isLoading,
 		isSuccess,
 		isRefetching,
-	} = useFetchAllSizes({ tenantId, organizationId, authToken })
+	} = useFetchAllSizes({ tenantId, organizationId, activeTeamId, authToken })
 
 	// Delete the size
 	const deleteSize = useCallback(async (id: string) => {
@@ -49,7 +50,7 @@ export function useTaskSizes() {
 	const createSize = useCallback(async (data: ITaskSizeCreate) => {
 		await createSizeRequest({
 			tenantId,
-			datas: { ...data, organizationId },
+			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken,
 		})
 		queryClient.invalidateQueries("sizes")
