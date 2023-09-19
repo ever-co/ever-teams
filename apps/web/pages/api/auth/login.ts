@@ -44,7 +44,6 @@ export default async function handler(
 		email: body.email,
 		code: body.code,
 	}).catch(() => void 0);
-
 	/**
 	 * If the invite code verification failed then try again with auth code
 	 */
@@ -98,7 +97,6 @@ export default async function handler(
 				},
 			});
 		}
-
 		loginResponse = acceptInviteRes.data;
 	}
 
