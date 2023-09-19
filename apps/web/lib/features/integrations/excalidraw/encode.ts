@@ -162,17 +162,15 @@ const _encryptAndCompress = async (
  *   ]
  * ]
  */
+
+type OptionalMeta<T> = { metadata?: T };
+type RequiredMeta<T> = { metadata: T };
+type Option<T> = [T] extends [never] ? OptionalMeta<T> : RequiredMeta<T>;
 export const compressData = async <T extends Record<string, any> = never>(
 	dataBuffer: Uint8Array,
 	options: {
 		encryptionKey: string;
-	} & ([T] extends [never]
-		? {
-				metadata?: T;
-		  }
-		: {
-				metadata: T;
-		  })
+	} & Option<T>
 ): Promise<Uint8Array> => {
 	const fileInfo: FileEncodingInfo = {
 		version: 2,
