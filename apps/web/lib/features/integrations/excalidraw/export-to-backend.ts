@@ -1,12 +1,22 @@
 import { serializeAsJSON } from '@excalidraw/excalidraw';
 import { compressData } from './encode';
 import { generateEncryptionKey } from './encryption';
-import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
-import { AppState, BinaryFiles } from '@excalidraw/excalidraw/types/types';
+import {
+	ExcalidrawElement,
+	FileId,
+} from '@excalidraw/excalidraw/types/element/types';
+import {
+	AppState,
+	BinaryFileData,
+	BinaryFiles,
+} from '@excalidraw/excalidraw/types/types';
 import {
 	EXCALIDRAW_APP_DOMAIN,
 	EXCALIDRAW_BACKEND_POST_URL,
 } from '@app/constants';
+import { FILE_UPLOAD_MAX_BYTES } from './constants';
+import { saveFilesToFirebase } from './firebase';
+import { encodeFilesForUpload, isInitializedImageElement } from './files';
 
 type ExportToBackendResult =
 	| { url: null; errorMessage: string }
@@ -33,18 +43,18 @@ export const exportToBackend = async (
 	);
 
 	try {
-		// const filesMap = new Map<FileId, BinaryFileData>();
-		// for (const element of elements) {
-		// 	if (isInitializedImageElement(element) && files[element.fileId]) {
-		// 		filesMap.set(element.fileId, files[element.fileId]);
-		// 	}
-		// }
+		const filesMap = new Map<FileId, BinaryFileData>();
+		for (const element of elements) {
+			if (isInitializedImageElement(element) && files[element.fileId]) {
+				filesMap.set(element.fileId, files[element.fileId]);
+			}
+		}
 
-		// const filesToUpload = await encodeFilesForUpload({
-		// 	files: filesMap,
-		// 	encryptionKey,
-		// 	maxBytes: FILE_UPLOAD_MAX_BYTES,
-		// });
+		const filesToUpload = await encodeFilesForUpload({
+			files: filesMap,
+			encryptionKey,
+			maxBytes: FILE_UPLOAD_MAX_BYTES,
+		});
 
 		const response = await fetch(EXCALIDRAW_BACKEND_POST_URL, {
 			method: 'POST',
@@ -58,10 +68,10 @@ export const exportToBackend = async (
 			url.hash = `json=${json.id},${encryptionKey}`;
 			const urlString = url.toString();
 
-			// await saveFilesToFirebase({
-			// 	prefix: `/files/shareLinks/${json.id}`,
-			// 	files: filesToUpload,
-			// });
+			await saveFilesToFirebase({
+				prefix: `/files/shareLinks/${json.id}`,
+				files: filesToUpload,
+			});
 
 			return { url: urlString, errorMessage: null };
 		} else if (json.error_class === 'RequestTooLargeError') {
