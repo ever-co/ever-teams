@@ -14,6 +14,7 @@ export function useTaskLabels() {
 	const queryClient = useQueryClient()
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
+		teamStore: { activeTeamId },
 	} = useStores()
 
 	const [allTaskLabels, setAllTaskLabels] = useState<ITaskLabelItem[]>([])
@@ -49,7 +50,7 @@ export function useTaskLabels() {
 	const createLabel = useCallback(async (data: ITaskStatusCreate) => {
 		await createLabelRequest({
 			tenantId,
-			datas: { ...data, organizationId },
+			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken,
 		})
 		queryClient.invalidateQueries("labels")

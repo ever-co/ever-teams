@@ -5,13 +5,15 @@ interface IGetTaskStatusesParams {
 	authToken: string
 	tenantId: string
 	organizationId: string
+	activeTeamId: string
 }
 const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
-	const { organizationId, tenantId, authToken } = params
+	const { organizationId, tenantId, activeTeamId, authToken } = params
 	const { data } = await getTaskStatusesRequest(
 		{
 			tenantId,
 			organizationId,
+			activeTeamId,
 		},
 		authToken,
 	)
