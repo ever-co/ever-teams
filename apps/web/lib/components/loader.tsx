@@ -10,7 +10,7 @@ export function SpinnerLoader({
 }: {
 	size?: number;
 	className?: string;
-	variant?: 'primary' | 'light' | 'dark';
+	variant?: 'primary' | 'light' | 'dark' | 'dark-white';
 }) {
 	return (
 		<span
@@ -26,6 +26,10 @@ export function SpinnerLoader({
 					],
 					variant === 'dark' && [
 						'border-t-default border-r-default border-b-transparent border-l-default',
+					],
+					variant === 'dark-white' && [
+						'border-t-default border-r-default border-b-transparent border-l-default',
+						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white',
 					],
 				],
 				className

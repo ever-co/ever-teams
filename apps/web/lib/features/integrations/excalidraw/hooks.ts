@@ -55,9 +55,9 @@ export const useWhiteboard = () => {
 		[]
 	);
 
-	const onLiveCollaboration = useCallback(() => {
+	const onLiveCollaboration = useCallback(async () => {
 		if (excalidrawAPI?.ready) {
-			exportToBackend(
+			await exportToBackend(
 				excalidrawAPI.getSceneElements(),
 				excalidrawAPI.getAppState(),
 				excalidrawAPI.getFiles()
