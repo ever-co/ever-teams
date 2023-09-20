@@ -63,9 +63,13 @@ export function useCollaborative(user?: IUser) {
 	}, [getMeetRoomName, url]);
 
 	const onBoardClick = useCallback(() => {
+		const members = collaborativeMembers.map((m) => m.id).join(',');
+
 		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN) {
 			const url = new URL(BOARD_APP_DOMAIN);
 			url.searchParams.set('live', 'true');
+			url.searchParams.set('members', btoa(members));
+
 			window.open(url.toString(), '_blank', 'noreferrer');
 			return;
 		}
