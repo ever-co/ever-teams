@@ -20,6 +20,7 @@ export interface ITimer {
 	organizationContactId: any;
 	duration: number;
 	isEdited: boolean;
+	organizationTeamId: string | null;
 }
 
 export enum TimerSource {

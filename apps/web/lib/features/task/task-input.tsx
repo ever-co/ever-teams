@@ -8,6 +8,7 @@ import {
 	useTaskInput,
 } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
+import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -31,6 +32,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 
@@ -92,6 +94,10 @@ export function TaskInput(props: Props) {
 	const $onTaskClick = useCallbackRef(props.onTaskClick);
 	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
 	const inputRef = useRef<HTMLDivElement>(null);
+	const timerStatus = useRecoilValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
 		(task: ITeamTask | undefined) =>
@@ -255,6 +261,11 @@ export function TaskInput(props: Props) {
 	const inputField = (
 		<InputField
 			value={taskName}
+			disabled={timerRunningStatus}
+			ref={targetEl}
+			autoFocus={props.autoFocus}
+			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
+			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
 			onFocus={(e) => {
 				setEditMode(true);
 				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
@@ -262,9 +273,6 @@ export function TaskInput(props: Props) {
 			onChange={(event) => {
 				setTaskName(event.target.value);
 			}}
-			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
-			ref={targetEl}
-			autoFocus={props.autoFocus}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
@@ -293,7 +301,6 @@ export function TaskInput(props: Props) {
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
-			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			/* Showing the task number. */
 			leadingNode={
 				showTaskNumber &&
@@ -358,7 +365,13 @@ export function TaskInput(props: Props) {
 		taskCard
 	) : (
 		<Popover className="relative z-30 w-full" ref={inputRef}>
-			{inputField}
+			<Tooltip
+				label={trans.common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING}
+				placement="top"
+				enabled={timerRunningStatus}
+			>
+				{inputField}
+			</Tooltip>
 			{props.children}
 
 			<Transition

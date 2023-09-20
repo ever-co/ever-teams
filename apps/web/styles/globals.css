@@ -6,11 +6,11 @@
 
 :root {
 	--tw-color-dark--theme: #1e2025;
-	--tooltipBackground: #282048;
+	--tooltipBackground: #000;
 }
 
 html.dark {
-	--tooltipBackground: #282048;
+	--tooltipBackground: #000;
 }
 
 @layer base {
@@ -146,7 +146,7 @@ html.dark {
 
 	.tooltip-container,
 	.tooltip-arrow {
-		--tooltipBackground: #282048 !important;
+		--tooltipBackground: #000 !important;
 		@apply !text-white !text-xs;
 	}
 
@@ -160,7 +160,7 @@ html.dark {
 
 	html.dark .tooltip-container,
 	html.dark .tooltip-arrow {
-		--tooltipBackground: #8c7ae4 !important;
+		--tooltipBackground: #000 !important;
 	}
 
 	.scrollbar-hide::-webkit-scrollbar {
