@@ -7,7 +7,7 @@ import {
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { exportToBackend } from './export-to-backend';
 
-export const useWhiteboard = () => {
+export const useBoard = () => {
 	const loaded = useRef(false);
 	// const { user } = useAuthenticateUser();
 	const [excalidrawAPI, setExcalidrawAPI] =
@@ -19,11 +19,11 @@ export const useWhiteboard = () => {
 		}
 
 		const elements = JSON.parse(
-			window.localStorage.getItem('whiteboard-elements') || '[]'
+			window.localStorage.getItem('board-elements') || '[]'
 		);
 
 		const files = JSON.parse(
-			window.localStorage.getItem('whiteboard-files') || '[]'
+			window.localStorage.getItem('board-files') || '[]'
 		);
 
 		excalidrawAPI.readyPromise.then((api) => {
@@ -45,12 +45,9 @@ export const useWhiteboard = () => {
 		) => {
 			if (!loaded.current) return;
 
-			window.localStorage.setItem(
-				'whiteboard-elements',
-				JSON.stringify(elements)
-			);
+			window.localStorage.setItem('board-elements', JSON.stringify(elements));
 
-			window.localStorage.setItem('whiteboard-files', JSON.stringify(files));
+			window.localStorage.setItem('board-files', JSON.stringify(files));
 		},
 		[]
 	);

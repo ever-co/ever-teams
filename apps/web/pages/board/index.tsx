@@ -2,23 +2,23 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import dynamic from 'next/dynamic';
 
-const Excalidraw = dynamic(() => import('lib/features/integrations/boards'), {
+const Board = dynamic(() => import('lib/features/integrations/boards'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />,
 });
 
-function WhiteboardPage() {
+function BoardPage() {
 	return (
 		<>
 			<div className="relative">
 				<Meta title="Board" />
-				<Excalidraw />
+				<Board />
 			</div>
 		</>
 	);
 }
 
-export default withAuthentication(WhiteboardPage, {
-	displayName: 'WhiteboardPage',
+export default withAuthentication(BoardPage, {
+	displayName: 'BoardPage',
 	showPageSkeleton: false,
 });

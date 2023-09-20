@@ -10,10 +10,7 @@ import {
 	BinaryFileData,
 	BinaryFiles,
 } from '@excalidraw/excalidraw/types/types';
-import {
-	EXCALIDRAW_APP_DOMAIN,
-	EXCALIDRAW_BACKEND_POST_URL,
-} from '@app/constants';
+import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL } from '@app/constants';
 import { FILE_UPLOAD_MAX_BYTES } from './constants';
 import { saveFilesToFirebase } from './firebase';
 import { encodeFilesForUpload, isInitializedImageElement } from './files';
@@ -27,9 +24,9 @@ export const exportToBackend = async (
 	appState: Partial<AppState>,
 	files: BinaryFiles
 ): Promise<ExportToBackendResult> => {
-	console.log(EXCALIDRAW_BACKEND_POST_URL, EXCALIDRAW_APP_DOMAIN);
+	console.log(BOARD_BACKEND_POST_URL, BOARD_APP_DOMAIN);
 
-	if (!EXCALIDRAW_BACKEND_POST_URL || !EXCALIDRAW_APP_DOMAIN) {
+	if (!BOARD_BACKEND_POST_URL || !BOARD_APP_DOMAIN) {
 		return { url: null, errorMessage: 'could Not Create Shareable Link' };
 	}
 
@@ -56,13 +53,13 @@ export const exportToBackend = async (
 			maxBytes: FILE_UPLOAD_MAX_BYTES,
 		});
 
-		const response = await fetch(EXCALIDRAW_BACKEND_POST_URL, {
+		const response = await fetch(BOARD_BACKEND_POST_URL, {
 			method: 'POST',
 			body: payload.buffer,
 		});
 		const json = await response.json();
 		if (json.id) {
-			const url = new URL(EXCALIDRAW_APP_DOMAIN);
+			const url = new URL(BOARD_APP_DOMAIN);
 			// We need to store the key (and less importantly the id) as hash instead
 			// of queryParam in order to never send it to the server
 			url.hash = `json=${json.id},${encryptionKey}`;

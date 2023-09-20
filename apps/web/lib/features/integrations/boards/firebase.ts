@@ -1,4 +1,4 @@
-import { EXCALIDRAW_FIREBASE_CONFIG } from '@app/constants';
+import { BOARD_FIREBASE_CONFIG } from '@app/constants';
 import { MIME_TYPES } from '@excalidraw/excalidraw';
 import { FileId } from '@excalidraw/excalidraw/types/element/types';
 import { FILE_CACHE_MAX_AGE_SEC } from './constants';
@@ -17,10 +17,10 @@ const _loadFirebase = async () => {
 
 	if (!isFirebaseInitialized) {
 		try {
-			if (!EXCALIDRAW_FIREBASE_CONFIG) {
+			if (!BOARD_FIREBASE_CONFIG) {
 				throw Error('Invalid Firebase configuration');
 			}
-			firebase.initializeApp(JSON.parse(EXCALIDRAW_FIREBASE_CONFIG));
+			firebase.initializeApp(JSON.parse(BOARD_FIREBASE_CONFIG));
 		} catch (error: any) {
 			// trying initialize again throws. Usually this is harmless, and happens
 			// mainly in dev (HMR)

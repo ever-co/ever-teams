@@ -7,7 +7,7 @@ import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useAuthenticateUser } from './features/useAuthenticateUser';
 import { useOrganizationTeams } from './features/useOrganizationTeams';
-import { EXCALIDRAW_APP_DOMAIN } from '@app/constants';
+import { BOARD_APP_DOMAIN } from '@app/constants';
 import { useRouter } from 'next/router';
 
 export function useCollaborative(user?: IUser) {
@@ -63,8 +63,8 @@ export function useCollaborative(user?: IUser) {
 	}, [getMeetRoomName, url]);
 
 	const onBoardClick = useCallback(() => {
-		if (collaborativeMembers.length > 0 && EXCALIDRAW_APP_DOMAIN) {
-			const url = new URL(EXCALIDRAW_APP_DOMAIN);
+		if (collaborativeMembers.length > 0 && BOARD_APP_DOMAIN) {
+			const url = new URL(BOARD_APP_DOMAIN);
 			url.searchParams.set('live', 'true');
 			window.open(url.toString(), '_blank', 'noreferrer');
 			return;

@@ -2,7 +2,7 @@ import { Excalidraw, THEME } from '@excalidraw/excalidraw';
 import { useTheme } from 'next-themes';
 import { EverTeamsLogo, LiveShareIcon } from 'lib/components/svgs';
 import debounce from 'lodash/debounce';
-import { useWhiteboard } from './hooks';
+import { useBoard } from './hooks';
 import { useEffect, useState } from 'react';
 import { SpinnerLoader } from 'lib/components';
 import { LOCAL_STORAGE_THEME } from './constants';
@@ -12,7 +12,7 @@ export default function ExcalidrawComponent() {
 	const { theme } = useTheme();
 	const [liveLoading, setLiveLoading] = useState(false);
 	const { saveChanges, setExcalidrawAPI, excalidrawAPI, onLiveCollaboration } =
-		useWhiteboard();
+		useBoard();
 
 	const onClickLiveCollaboration = () => {
 		setLiveLoading(true);
