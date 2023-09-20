@@ -14,6 +14,10 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useCollaborative, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
+import {
+	ComputerDesktopIcon,
+	PencilSquareIcon,
+} from '@heroicons/react/24/outline';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -71,25 +75,33 @@ function Collaborative() {
 			{!collaborativeSelect && (
 				<button
 					onClick={() => setCollaborativeSelect(true)}
-					className="text-sm input-border px-1 rounded-sm py-1"
+					className="text-base input-border px-1 rounded-sm py-1"
 				>
 					{trans.common.COLLABORATIVE}
 				</button>
 			)}
 
 			{collaborativeSelect && (
-				<div className="flex space-x-2">
+				<div className="flex space-x-3">
 					<button
 						onClick={onMeetClick}
-						className="text-sm input-border px-1 rounded-sm py-1"
+						className={clsxm(
+							'text-base input-border px-1 rounded-sm py-1 flex',
+							'gap-1 items-center'
+						)}
 					>
+						<ComputerDesktopIcon height={16} width={16} />
 						{trans.common.MEET}
 					</button>
 
 					<button
 						onClick={onBoardClick}
-						className="text-sm input-border px-1 rounded-sm py-1"
+						className={clsxm(
+							'text-base input-border px-1 rounded-sm py-1 flex',
+							'gap-1 items-center'
+						)}
 					>
+						<PencilSquareIcon height={16} width={16} />
 						{trans.common.BOARD}
 					</button>
 
