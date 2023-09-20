@@ -27,9 +27,12 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 	const [openModal, setOpenModal] = useState(false)
 
 	const allTaskSizes = useTaskSizeValue()
-	const currentSize = task
-		? allTaskSizes[task?.size?.split("-").join(" ") || size?.split("-").join(" ")]
-		: null
+
+	const sizeValue = (task?.size?.split("-").join(" ") || size.split("-").join(" ")).toLowerCase()
+
+	const currentSize =
+		allTaskSizes &&
+		Object.values(allTaskSizes).find((item) => item.name.toLowerCase() === sizeValue)
 
 	const onChangeSize = async (text) => {
 		if (task) {
@@ -55,7 +58,7 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 			<TaskSizePopup
 				sizeName={task ? task?.size : size}
 				visible={openModal}
-				setSelectedSize={(e) => onChangeSize(e.name)}
+				setSelectedSize={(e) => onChangeSize(e.value)}
 				onDismiss={() => setOpenModal(false)}
 			/>
 			<TouchableOpacity onPress={() => setOpenModal(true)}>

@@ -26,9 +26,14 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 		const [openModal, setOpenModal] = useState(false)
 
 		const allTaskPriorities = useTaskPriorityValue()
-		const currentPriority = task
-			? allTaskPriorities[task?.priority?.split("-").join(" ") || priority?.split("-").join(" ")]
-			: null
+
+		const sizeValue = (
+			task?.priority?.split("-").join(" ") || priority.split("-").join(" ")
+		).toLowerCase()
+
+		const currentPriority =
+			allTaskPriorities &&
+			Object.values(allTaskPriorities).find((item) => item.name.toLowerCase() === sizeValue)
 
 		const onChangePriority = async (text) => {
 			if (task) {
@@ -48,7 +53,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 				<TaskPriorityPopup
 					priorityName={task?.priority}
 					visible={openModal}
-					setSelectedPriority={(e) => onChangePriority(e.name)}
+					setSelectedPriority={(e) => onChangePriority(e.value)}
 					onDismiss={() => setOpenModal(false)}
 				/>
 				<TouchableOpacity onPress={() => setOpenModal(true)}>

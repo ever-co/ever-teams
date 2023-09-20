@@ -28,9 +28,13 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 		const [openModal, setOpenModal] = useState(false)
 
 		const allStatuses = useTaskStatusValue()
-		const statusItem = task
-			? allStatuses[task?.status?.split("-").join(" ") || status?.split("-").join(" ")]
-			: null
+
+		const statusValue = (
+			task?.status?.split("-").join(" ") || status.split("-").join(" ")
+		).toLowerCase()
+		const statusItem =
+			allStatuses &&
+			Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue)
 
 		const onChangeStatus = async (text) => {
 			if (task) {

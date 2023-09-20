@@ -17,6 +17,8 @@ import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import stc from 'string-to-color';
+import { useRouter } from 'next/router';
+import { getAccessTokenCookie } from '@app/helpers';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -230,6 +232,7 @@ function WorkSpaceScreen({
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
+	const router = useRouter();
 
 	const signInToWorkspace = useCallback(
 		(e: any) => {
@@ -251,6 +254,15 @@ function WorkSpaceScreen({
 			}, 100);
 		}
 	}, [form.workspaces]);
+
+	useEffect(() => {
+		if (form.authScreen.screen === 'workspace') {
+			const accessToken = getAccessTokenCookie();
+			if (accessToken && accessToken.length > 100) {
+				router.reload();
+			}
+		}
+	}, [form.authScreen, router]);
 
 	return (
 		<form
