@@ -2,18 +2,18 @@ import dynamic from 'next/dynamic';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
 import { useOrganizationTeams, useQuery } from '@app/hooks';
-import { getJitsiJwtAuthTokenAPI } from '@app/services/client/api';
+import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 
-const Jitsi = dynamic(() => import('lib/features/integrations/jitsi'), {
+const Jitsi = dynamic(() => import('lib/features/integrations/meet'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />,
 });
 
-function useJitsiJwtToken() {
+function useMeetJwtToken() {
 	const [token, setToken] = useState<string>();
-	const { queryCall, loading } = useQuery(getJitsiJwtAuthTokenAPI);
+	const { queryCall, loading } = useQuery(getMeetJwtAuthTokenAPI);
 
 	useEffect(() => {
 		queryCall().then((res) => setToken(res.data.token));
@@ -23,10 +23,10 @@ function useJitsiJwtToken() {
 	return { loading, token };
 }
 
-function CallPage() {
+function MeetPage() {
 	const router = useRouter();
 	const { activeTeam } = useOrganizationTeams();
-	const { token } = useJitsiJwtToken();
+	const { token } = useMeetJwtToken();
 
 	const room = router.query.room as string | undefined;
 
@@ -43,7 +43,7 @@ function CallPage() {
 
 	return (
 		<>
-			<Meta title="Call" />
+			<Meta title="Meet" />
 			{token && roomName && (
 				<Jitsi jwt={token} roomName={encodeURIComponent(roomName)} />
 			)}
@@ -51,7 +51,7 @@ function CallPage() {
 	);
 }
 
-export default withAuthentication(CallPage, {
-	displayName: 'CallPage',
+export default withAuthentication(MeetPage, {
+	displayName: 'MeetPage',
 	showPageSkeleton: false,
 });
