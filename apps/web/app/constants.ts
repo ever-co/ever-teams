@@ -60,6 +60,11 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	password: SMTP_PASSWORD,
 });
 
+// Cookies
+export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || '')
+	.split(',')
+	.map((d) => d.trim());
+
 // JITSI Constants
 export const JITSI_DOMAIN =
 	process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si';

@@ -13,7 +13,7 @@ import {
 	JITSI_JWT_TOKEN_COOKIE_NAME,
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
-import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+import { deleteCookie, getCookie, setCookie } from './helpers';
 import { chunk, range } from 'lib/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 
