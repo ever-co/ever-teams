@@ -22,10 +22,11 @@ export function TimerStatus({
 }: Props) {
 	return (
 		<Tooltip
-			label={status}
+			label={status === 'online' ? 'Online and Tracking Time' : status}
 			enabled
-			placement="right"
+			placement="auto"
 			className={tooltipClassName}
+			labelClassName="whitespace-nowrap"
 		>
 			<div
 				className={clsxm(
