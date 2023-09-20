@@ -65,12 +65,11 @@ export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || '')
 	.split(',')
 	.map((d) => d.trim());
 
-// JITSI Constants
-export const JITSI_DOMAIN =
-	process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si';
-export const JITSI_JWT_APP_ID = process.env.JITSI_JWT_APP_ID;
-export const JITSI_JWT_APP_SECRET = process.env.JITSI_JWT_APP_SECRET;
-export const JITSI_JWT_TOKEN_COOKIE_NAME = 'jitsi-jwt-session';
+// MEET Constants
+export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.jit.si';
+export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID;
+export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
+export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // EXCALIDRAW board
 export const EXCALIDRAW_APP_DOMAIN =

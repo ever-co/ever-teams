@@ -6,7 +6,7 @@ import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 
-const Jitsi = dynamic(() => import('lib/features/integrations/meet'), {
+const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />,
 });
@@ -45,7 +45,7 @@ function MeetPage() {
 		<>
 			<Meta title="Meet" />
 			{token && roomName && (
-				<Jitsi jwt={token} roomName={encodeURIComponent(roomName)} />
+				<Meet jwt={token} roomName={encodeURIComponent(roomName)} />
 			)}
 		</>
 	);
