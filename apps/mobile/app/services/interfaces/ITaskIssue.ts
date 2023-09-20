@@ -39,3 +39,8 @@ export interface IIssueType {
 	image: string | null
 	fullIconUrl: string
 }
+
+export interface IIssuesList {
+	items: IIssueType[]
+	total: number
+}

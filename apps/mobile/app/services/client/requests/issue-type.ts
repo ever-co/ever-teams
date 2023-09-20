@@ -1,12 +1,16 @@
 /* eslint-disable camelcase */
-import { IIssueTypesCreate, IIssueTypesItemList } from "../../interfaces/ITaskIssue"
+import { IIssueTypesCreate, IIssueTypesItemList, IIssuesList } from "../../interfaces/ITaskIssue"
 import { serverFetch } from "../fetch"
 
-export function createIssueTypeRequest(
-	datas: IIssueTypesCreate,
-	bearer_token: string,
-	tenantId?: any,
-) {
+export function createIssueTypeRequest({
+	datas,
+	bearer_token,
+	tenantId,
+}: {
+	datas: IIssueTypesCreate
+	bearer_token: string
+	tenantId: any
+}) {
 	return serverFetch<IIssueTypesItemList>({
 		path: "/issue-types",
 		method: "POST",
@@ -61,7 +65,7 @@ export function getIssueTypesListRequest<IIssueTypesItemList>(
 	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string,
 ) {
-	return serverFetch({
+	return serverFetch<IIssuesList>({
 		path: `/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: "GET",
 		bearer_token,
