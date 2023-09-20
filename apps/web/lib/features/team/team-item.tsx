@@ -148,22 +148,24 @@ export function TeamItem({
 					)}
 				</div>
 			</div>
-			<span
-				className={clsxm(
-					'text-normal',
-					'whitespace-nowrap text-ellipsis overflow-hidden'
-				)}
-			>
-				{title}
-			</span>
-			<span
-				className={clsxm('text-normal')}
-				style={{
-					marginLeft: 0,
-				}}
-			>
-				{count ? `(${count})` : ''}
-			</span>
+			<div className="flex gap-1">
+				<span
+					className={clsxm(
+						'text-normal',
+						'whitespace-nowrap text-ellipsis overflow-hidden'
+					)}
+				>
+					{title}
+				</span>
+				<span
+					className={clsxm('text-normal')}
+					style={{
+						marginLeft: 0,
+					}}
+				>
+					{count ? `(${count})` : ''}
+				</span>
+			</div>
 		</div>
 	);
 }

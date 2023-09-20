@@ -325,6 +325,10 @@ export const en = {
 	timer: {
 		START_TIMER:
 			'Please, select or create a new task to start tracking the time',
+		TEAM_SWITCH: {
+			STOPPED_TIMER_TOAST_TITLE: 'Timer Stopped',
+			STOPPED_TIMER_TOAST_DESCRIPTION: 'Timer Stopped due to Team Switch',
+		},
 	},
 
 	task: {
