@@ -6,7 +6,6 @@ import {
 	StopCircleIcon,
 	TimerPlayIcon,
 	UserOnlineAndTrackingTimeIcon,
-	UserOnlineIcon,
 } from 'lib/components/svgs';
 
 type Props = {
