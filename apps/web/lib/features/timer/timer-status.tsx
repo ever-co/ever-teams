@@ -5,6 +5,7 @@ import {
 	PauseIcon,
 	StopCircleIcon,
 	TimerPlayIcon,
+	UserOnlineAndTrackingTimeIcon,
 	UserOnlineIcon,
 } from 'lib/components/svgs';
 
@@ -44,14 +45,15 @@ export function TimerStatus({
 				{status === 'pause' && showIcon && (
 					<PauseIcon className="w-5 h-5 p-1 fill-[#B87B1E]" />
 				)}
-
 				{status === 'idle' && showIcon && (
 					<StopCircleIcon className="w-5 h-5 p-1 fill-[#E65B5B]" />
 				)}
 
+				{/* For now until we have realtime we will saw UserOnlineAndTrackingTimeIcon insted of UserOnlineIcon*/}
 				{status === 'online' && showIcon && (
-					<UserOnlineIcon className="w-5 h-5 p-1 fill-green-700" />
+					<UserOnlineAndTrackingTimeIcon className="w-5 h-5 p-1 fill-green-700" />
 				)}
+				{/* <UserOnlineIcon className="w-5 h-5 p-1 fill-green-700" /> */}
 
 				{status === 'suspended' && showIcon && (
 					<StopCircleIcon className="w-5 h-5 p-1 fill-white" />
