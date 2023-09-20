@@ -1,9 +1,9 @@
 import dynamic from 'next/dynamic';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
-import { useOrganizationTeams, useQuery } from '@app/hooks';
+import { useCollaborative, useQuery } from '@app/hooks';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const Meet = dynamic(() => import('lib/features/integrations/meet'), {
@@ -25,21 +25,30 @@ function useMeetJwtToken() {
 
 function MeetPage() {
 	const router = useRouter();
-	const { activeTeam } = useOrganizationTeams();
 	const { token } = useMeetJwtToken();
+	const { randomMeetName } = useCollaborative();
+	const replaced = useRef(false);
 
-	const room = router.query.room as string | undefined;
+	const room = useMemo(() => {
+		const urlParams = router.asPath.substring(router.asPath.indexOf('?'));
+		const searchParams = new URLSearchParams(urlParams);
+
+		return searchParams.get('room');
+	}, [router]);
+
+	useEffect(() => {
+		if (!room && router.asPath.startsWith('/meet') && !replaced.current) {
+			const url = new URL(window.location.href);
+			url.searchParams.set('room', btoa(randomMeetName()));
+
+			router.replace(url.pathname + url.search);
+			replaced.current = true;
+		}
+	}, [room, router, randomMeetName]);
 
 	const roomName = useMemo(() => {
-		const name = room
-			? atob(room)
-			: activeTeam?.name
-					.toLowerCase()
-					.replace(/(?<= )[^\s]|^./g, (a) => a.toUpperCase())
-					.replaceAll(' ', '');
-
-		return name;
-	}, [activeTeam?.name, room]);
+		return room ? atob(room) : undefined;
+	}, [room, randomMeetName]);
 
 	return (
 		<>

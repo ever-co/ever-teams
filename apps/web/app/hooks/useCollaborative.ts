@@ -9,6 +9,7 @@ import { useAuthenticateUser } from './features/useAuthenticateUser';
 import { useOrganizationTeams } from './features/useOrganizationTeams';
 import { BOARD_APP_DOMAIN } from '@app/constants';
 import { useRouter } from 'next/router';
+import { generateRandomString } from '@app/helpers';
 
 export function useCollaborative(user?: IUser) {
 	const { activeTeam } = useOrganizationTeams();
@@ -21,6 +22,8 @@ export function useCollaborative(user?: IUser) {
 	);
 
 	const url = useRouter();
+
+	const randomMeetName = useCallback(() => generateRandomString(15), []);
 
 	const user_selected = useCallback(() => {
 		return collaborativeMembers.some((u) => u.id === user?.id);
@@ -39,7 +42,9 @@ export function useCollaborative(user?: IUser) {
 
 	const getMeetRoomName = useCallback(() => {
 		const teamName = activeTeam?.name;
-		if (!teamName) return;
+		if (!teamName) {
+			return randomMeetName();
+		}
 
 		const authName = authUser?.name || '';
 		const members = collaborativeMembers.map((t) => {
@@ -52,8 +57,8 @@ export function useCollaborative(user?: IUser) {
 				? ' - ' + (authName ? authName + ', ' : '') + members.join(', ')
 				: '';
 
-		return teamName + member;
-	}, [authUser, activeTeam, collaborativeMembers]);
+		return members.length > 0 ? teamName + member : randomMeetName();
+	}, [authUser, randomMeetName, activeTeam, collaborativeMembers]);
 
 	const onMeetClick = useCallback(() => {
 		const url_encoded = getMeetRoomName();
@@ -87,5 +92,6 @@ export function useCollaborative(user?: IUser) {
 		user_selected,
 		onUserSelect,
 		getMeetRoomName,
+		randomMeetName,
 	};
 }
