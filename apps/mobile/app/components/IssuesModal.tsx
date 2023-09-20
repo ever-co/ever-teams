@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from "react"
 import {
 	Text,
@@ -40,6 +41,9 @@ const IssuesModal: FC<IssuesModalProps> = ({ task }) => {
 		}
 	}
 
+	const iconDimension: number =
+		currentIssue?.name === "Epic" || currentIssue?.name === "Task" ? 13 : 15
+
 	return (
 		<>
 			<View
@@ -49,7 +53,7 @@ const IssuesModal: FC<IssuesModalProps> = ({ task }) => {
 					setIsModalOpen(true)
 				}}
 			>
-				<SvgUri width={15} height={15} uri={currentIssue?.fullIconUrl} />
+				<SvgUri width={iconDimension} height={iconDimension} uri={currentIssue?.fullIconUrl} />
 			</View>
 
 			<ModalPopUp visible={isModalOpen} onDismiss={() => setIsModalOpen(false)}>
@@ -121,19 +125,15 @@ const Item = ({ issue, onChangeIssue, closeModal }: IItem) => {
 			}}
 		>
 			<View
-				style={{
-					backgroundColor: issue.color,
-					padding: 20,
-					display: "flex",
-					justifyContent: "center",
-					alignItems: "center",
-					flexDirection: "row",
-					borderRadius: 10,
-					marginVertical: 7,
-				}}
+				style={[
+					styles.issueContainer,
+					{
+						backgroundColor: issue.color,
+					},
+				]}
 			>
 				<SvgUri width={20} height={20} uri={issue.fullIconUrl} />
-				<Text style={{ fontSize: 22, marginHorizontal: 8, color: "#FFFF" }}>{issue.name}</Text>
+				<Text style={styles.issueText}>{issue.name}</Text>
 			</View>
 		</TouchableOpacity>
 	)
@@ -146,17 +146,27 @@ const $modalBackGround: ViewStyle = {
 }
 
 const styles = StyleSheet.create({
+	issueContainer: {
+		alignItems: "center",
+		borderRadius: 10,
+		display: "flex",
+		flexDirection: "row",
+		justifyContent: "flex-start",
+		marginVertical: 7,
+		paddingHorizontal: 25,
+		paddingVertical: 20,
+	},
+	issueText: { color: "#FFFF", fontSize: 22, marginHorizontal: 8 },
 	modalContainer: {
 		alignSelf: "center",
 		backgroundColor: "#fff",
 		borderRadius: 20,
 		height: "auto",
-		padding: 20,
+		padding: 22,
 		width: "40%",
 	},
 	wrapButton: {
 		alignItems: "center",
-
 		borderRadius: 3,
 		height: 20,
 		justifyContent: "center",
