@@ -30,8 +30,9 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 		const allStatuses = useTaskStatusValue()
 
 		const statusValue = (
-			task?.status?.split("-").join(" ") || status.split("-").join(" ")
-		).toLowerCase()
+			task?.status?.split("-").join(" ") ||
+			(status && status.split("-").join(" "))
+		)?.toLowerCase()
 		const statusItem =
 			allStatuses &&
 			Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue)
