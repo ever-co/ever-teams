@@ -14,10 +14,7 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useCollaborative, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
-import {
-	ComputerDesktopIcon,
-	PencilSquareIcon,
-} from '@heroicons/react/24/outline';
+import { PhoneIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -90,7 +87,7 @@ function Collaborative() {
 							'gap-1 items-center'
 						)}
 					>
-						<ComputerDesktopIcon height={16} width={16} />
+						<PhoneIcon height={16} width={16} />
 						{trans.common.MEET}
 					</button>
 
