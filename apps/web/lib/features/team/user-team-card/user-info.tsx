@@ -75,9 +75,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 									? 'pause'
 									: !member?.employee?.isActive && !publicTeam
 									? 'suspended'
-									: member?.employee?.isOnline &&
-									  member?.timerStatus !== 'running'
-									? 'online'
+									: member?.employee?.isOnline
+									? //  && member?.timerStatus !== 'running'
+									  'online'
 									: !member?.totalTodayTasks?.length
 									? 'idle'
 									: member?.totalTodayTasks?.length

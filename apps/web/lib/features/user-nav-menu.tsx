@@ -87,9 +87,9 @@ export function UserNavAvatar() {
 										? 'pause'
 										: !currentUser?.employee?.isActive && !publicTeam
 										? 'suspended'
-										: currentUser?.employee?.isOnline &&
-										  currentUser?.timerStatus !== 'running'
-										? 'online'
+										: currentUser?.employee?.isOnline
+										? // &&  currentUser?.timerStatus !== 'running'
+										  'online'
 										: !currentUser?.totalTodayTasks?.length
 										? 'idle'
 										: currentUser?.totalTodayTasks?.length
@@ -194,9 +194,9 @@ function UserNavMenu() {
 											? 'pause'
 											: !currentUser?.employee?.isActive && !publicTeam
 											? 'suspended'
-											: currentUser?.employee?.isOnline &&
-											  currentUser?.timerStatus !== 'running'
-											? 'online'
+											: currentUser?.employee?.isOnline
+											? // && currentUser?.timerStatus !== 'running'
+											  'online'
 											: !currentUser?.totalTodayTasks?.length
 											? 'idle'
 											: currentUser?.totalTodayTasks?.length
