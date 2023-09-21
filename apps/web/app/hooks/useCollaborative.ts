@@ -46,18 +46,19 @@ export function useCollaborative(user?: IUser) {
 			return randomMeetName();
 		}
 
-		const authName = authUser?.name || '';
+		const authName = authUser?.name;
 		const members = collaborativeMembers.map((t) => {
 			const names = t.name?.split(' ') || [];
 			return (names[0] + ' ' + (names[1]?.at(0) || '').toUpperCase()).trim();
 		});
+		let members_str = '';
 
-		const member =
-			members.length > 0
-				? ' - ' + (authName ? authName + ', ' : '') + members.join(', ')
-				: '';
+		if (members.length > 0) {
+			members_str =
+				' - ' + (authName ? authName + ', ' : '') + members.join(', ');
+		}
 
-		return members.length > 0 ? teamName + member : randomMeetName();
+		return members.length > 0 ? teamName + members_str : randomMeetName();
 	}, [authUser, randomMeetName, activeTeam, collaborativeMembers]);
 
 	const onMeetClick = useCallback(() => {
