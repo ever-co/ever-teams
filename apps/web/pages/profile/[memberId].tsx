@@ -126,9 +126,9 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 									? 'pause'
 									: !member?.employee?.isActive
 									? 'suspended'
-									: member?.employee?.isOnline &&
-									  member?.timerStatus !== 'running'
-									? 'online'
+									: member?.employee?.isOnline
+									? // && member?.timerStatus !== 'running'
+									  'online'
 									: !member?.totalTodayTasks?.length
 									? 'idle'
 									: member?.totalTodayTasks?.length
