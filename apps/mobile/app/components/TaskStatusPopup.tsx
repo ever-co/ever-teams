@@ -106,7 +106,7 @@ interface ItemProps {
 }
 const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) => {
 	const { colors } = useAppTheme()
-	const selected = status.name === currentStatusName
+	const selected = status.value === currentStatusName
 
 	const allStatuses = useTaskStatusValue()
 	const cStatus = allStatuses && allStatuses[status.name.split("-").join(" ")]

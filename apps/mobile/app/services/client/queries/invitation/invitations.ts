@@ -28,7 +28,7 @@ export const useFetchTeamInvitations = (IGetTeamInvitationParams) =>
 	useQuery(
 		["invitations", IGetTeamInvitationParams],
 		() => fetchAllTeamInvitations(IGetTeamInvitationParams),
-		{ refetchInterval: 5000 },
+		{ refetchInterval: 10000 },
 	)
 
 interface IMyInvitationsParams {
@@ -45,6 +45,6 @@ export const useFetchMyInvitations = (IMyInvitationsParams) =>
 		["myInvitations", IMyInvitationsParams],
 		() => fetchAllMyInvitations(IMyInvitationsParams),
 		{
-			refetchInterval: 5000,
+			refetchInterval: 10000,
 		},
 	)

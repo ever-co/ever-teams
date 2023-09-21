@@ -11,9 +11,10 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useOrganizationTeams } from '@app/hooks';
+import { useCollaborative, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
-import { PeopleIcon } from 'lib/components/svgs';
+import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
+import { PhoneIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -24,9 +25,13 @@ function MainPage() {
 	return (
 		<MainLayout>
 			<MainHeader className="pb-1">
-				<div className="flex items-center gap-8">
-					<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
-					<Breadcrumb paths={breadcrumb} className="text-sm" />
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-8">
+						<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
+					</div>
+
+					<Collaborative />
 				</div>
 
 				<UnverifiedEmail />
@@ -48,6 +53,67 @@ function MainPage() {
 
 			<Container>{isTeamMember ? <TeamMembers /> : <NoTeam />}</Container>
 		</MainLayout>
+	);
+}
+
+function Collaborative() {
+	const {
+		collaborativeSelect,
+		setCollaborativeSelect,
+		setCollaborativeMembers,
+		onMeetClick,
+		onBoardClick,
+	} = useCollaborative();
+
+	const { trans } = useTranslation();
+
+	return (
+		<div className="pr-2">
+			{!collaborativeSelect && (
+				<button
+					onClick={() => setCollaborativeSelect(true)}
+					className="text-base input-border px-1 rounded-sm py-1"
+				>
+					{trans.common.COLLABORATIVE}
+				</button>
+			)}
+
+			{collaborativeSelect && (
+				<div className="flex space-x-3">
+					<button
+						onClick={onMeetClick}
+						className={clsxm(
+							'text-base input-border px-1 rounded-sm py-1 flex',
+							'gap-1 items-center'
+						)}
+					>
+						<PhoneIcon height={16} width={16} />
+						{trans.common.MEET}
+					</button>
+
+					<button
+						onClick={onBoardClick}
+						className={clsxm(
+							'text-base input-border px-1 rounded-sm py-1 flex',
+							'gap-1 items-center'
+						)}
+					>
+						<PencilSquareIcon height={16} width={16} />
+						{trans.common.BOARD}
+					</button>
+
+					<button
+						onClick={() => {
+							setCollaborativeSelect(false);
+							setCollaborativeMembers([]);
+						}}
+						className="text-sm input-border px-1 rounded-sm py-1"
+					>
+						<CloseIcon />
+					</button>
+				</div>
+			)}
+		</div>
 	);
 }
 

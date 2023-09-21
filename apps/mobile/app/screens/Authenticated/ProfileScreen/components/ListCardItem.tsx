@@ -24,6 +24,7 @@ import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { secondsToTime } from "../../../../helpers/date"
 import { useTaskStatistics } from "../../../../services/hooks/features/useTaskStatics"
 import { useStores } from "../../../../models"
+import IssuesModal from "../../../../components/IssuesModal"
 
 export type ListItemProps = {
 	active?: boolean
@@ -95,7 +96,12 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 				<View style={{ marginBottom: 16 }}>
 					<View style={styles.wrapperTask}>
-						<TaskTitleDisplay task={props.task} editMode={editTitle} setEditMode={setEditTitle} />
+						<View style={{ flexDirection: "row" }}>
+							<View style={{ marginRight: 3 }}>
+								<IssuesModal task={props.task} readonly={true} />
+							</View>
+							<TaskTitleDisplay task={props.task} editMode={editTitle} setEditMode={setEditTitle} />
+						</View>
 						{!enableEstimate ? (
 							<TouchableOpacity onLongPress={() => setEnableEstimate(true)}>
 								<AnimatedCircularProgress

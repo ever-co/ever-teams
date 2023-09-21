@@ -34,6 +34,7 @@ export * from './features/useOTRefreshInterval';
 export * from './features/useRefreshInterval';
 export * from './features/useIssueTypes';
 export * from './features/useLinkedTasks';
+export * from './useCollaborative';
 
 //export user personal setting
 export * from './features/useSettings';

@@ -25,6 +25,7 @@ import {
 	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamsFetchingState,
+	timerStatusState,
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -189,12 +190,17 @@ export function useOrganizationTeams() {
 	const { firstLoad, firstLoadData: firstLoadTeamsData } = useFirstLoad();
 	const [isTeamMember, setIsTeamMember] = useRecoilState(isTeamMemberState);
 	const { updateUserFromAPI, refreshToken, user } = useAuthenticateUser();
+	const timerStatus = useRecoilValue(timerStatusState);
+
 	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
 
 	const currentUser = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id
 	);
-	const memberActiveTaskId = currentUser?.activeTaskId || null;
+	const memberActiveTaskId =
+		(timerStatus?.running && timerStatus?.lastLog?.taskId) ||
+		currentUser?.activeTaskId ||
+		null;
 	const isTrackingEnabled = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
 	)
@@ -228,7 +234,7 @@ export function useOrganizationTeams() {
 	}, [loading, setTeamsFetching]);
 
 	const setActiveTeam = useCallback(
-		(team: typeof teams[0]) => {
+		(team: (typeof teams)[0]) => {
 			setActiveTeamIdCookie(team.id);
 			setOrganizationIdCookie(team.organizationId);
 			// This must be called at the end (Update store)

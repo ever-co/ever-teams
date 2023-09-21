@@ -28,8 +28,9 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 		const allTaskPriorities = useTaskPriorityValue()
 
 		const sizeValue = (
-			task?.priority?.split("-").join(" ") || priority.split("-").join(" ")
-		).toLowerCase()
+			task?.priority?.split("-").join(" ") ||
+			(priority && priority.split("-").join(" "))
+		)?.toLowerCase()
 
 		const currentPriority =
 			allTaskPriorities &&

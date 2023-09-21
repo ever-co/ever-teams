@@ -102,7 +102,7 @@ interface ItemProps {
 }
 const Item: FC<ItemProps> = ({ currentSizeName, size, onSizeSelected }) => {
 	const { colors } = useAppTheme()
-	const selected = size.name === currentSizeName
+	const selected = size.value === currentSizeName
 	return (
 		<TouchableOpacity onPress={() => onSizeSelected(size)}>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>

@@ -5,6 +5,9 @@ export const en = {
 		PLEASE: 'please',
 		HERE: 'here',
 		PEOPLE: 'People',
+		COLLABORATIVE: 'Collaborative',
+		MEET: 'Meet',
+		BOARD: 'Board',
 		SECURITY_CODE: 'Security Code',
 		CONFIRM: 'Confirm',
 		YOUR_EMAIL: 'your email',
@@ -32,7 +35,7 @@ export const en = {
 		CLOSE: 'Close',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Title',
-		CREATE_TASK: 'Create new task',
+		CREATE_TASK: 'Create New Task',
 		LINK_TASK: 'Select Related Issue',
 		CHILD_ISSUE_TASK: 'Select Child Issue',
 		CREATE_TEAM: 'Create New Team',
@@ -97,6 +100,8 @@ export const en = {
 		CHILD_ISSUES: 'Child Issues',
 		REOPEN: 'Reopen',
 		NO_TASKS: 'No Tasks',
+		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING:
+			'Please stop the Timer before changing the Task',
 	},
 	pages: {
 		home: {

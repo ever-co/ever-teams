@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useMemo, useState } from "react"
 import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
-import { Entypo, EvilIcons, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Entypo, EvilIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing, typography, useAppTheme } from "../../../../theme"
 import DeletePopUp from "./DeletePopUp"
@@ -10,6 +10,7 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import TaskStatus from "../../../../components/TaskStatus"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import IssuesModal from "../../../../components/IssuesModal"
 
 export interface Props {
 	task: ITeamTask
@@ -49,9 +50,8 @@ const IndividualTask: FC<Props> = observer(
 				}}
 			>
 				<View
-					onTouchStart={() => {
+					onTouchEnd={() => {
 						handleActiveTask(task)
-						setEditMode(false)
 					}} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
@@ -61,9 +61,7 @@ const IndividualTask: FC<Props> = observer(
 					}}
 				>
 					<View style={styles.wrapTaskNumber}>
-						<View style={styles.wrapBugIcon}>
-							<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
-						</View>
+						<IssuesModal task={task} readonly={true} />
 						<Text
 							style={{ color: "#9490A0", fontSize: 12, marginLeft: 5 }}
 						>{`#${task.taskNumber}`}</Text>
@@ -74,7 +72,9 @@ const IndividualTask: FC<Props> = observer(
 					</Text>
 				</View>
 				<View
-					onTouchStart={() => handleActiveTask(task)} // added it here because doesn't work when assigned to the parent
+					onTouchEnd={() => {
+						handleActiveTask(task)
+					}} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
 						width: "40%",
@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
 		width: 20,
 	},
 	wrapTaskNumber: {
+		alignItems: "center",
 		flexDirection: "row",
 	},
 })

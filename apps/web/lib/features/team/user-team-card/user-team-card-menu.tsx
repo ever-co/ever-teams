@@ -15,11 +15,7 @@ type Props = IClassName & {
 };
 
 export function UserTeamCardMenu(props: Props) {
-	return (
-		<div className="absolute right-2">
-			<DropdownMenu {...props} />
-		</div>
-	);
+	return <DropdownMenu {...props} />;
 }
 
 function DropdownMenu({ edition, memberInfo }: Props) {

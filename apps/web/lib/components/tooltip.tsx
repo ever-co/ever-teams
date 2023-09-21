@@ -4,11 +4,13 @@ import { Transition } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
 import { usePopperTooltip } from 'react-popper-tooltip';
 import 'react-popper-tooltip/dist/styles.css';
+import { clsx } from 'clsx';
 
 type Props = {
 	label: string;
 	placement?: Placement;
 	enabled?: boolean;
+	labelClassName?: string;
 } & IClassName;
 
 export function Tooltip({
@@ -17,6 +19,7 @@ export function Tooltip({
 	label,
 	placement = 'top',
 	enabled = true,
+	labelClassName,
 }: PropsWithChildren<Props>) {
 	const {
 		getArrowProps,
@@ -48,7 +51,7 @@ export function Tooltip({
 						{...getTooltipProps()}
 						className="tooltip-container w-1/3 md:w-fit"
 					>
-						<span className="text-xs">{label}</span>
+						<span className={clsx(labelClassName, 'text-xs')}>{label}</span>
 						<div {...getArrowProps()} className="tooltip-arrow" />
 					</Transition>
 				</>

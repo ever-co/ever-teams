@@ -9,6 +9,7 @@ import { TaskItem } from './task-item';
 import DeleteTask from './delete-task';
 import TaskFilter from './task-filter';
 import { useTaskInput } from '@app/hooks';
+import { useTranslation } from 'lib/i18n';
 
 export function CreateTaskOption({
 	onClick,
@@ -17,6 +18,7 @@ export function CreateTaskOption({
 	onClick: () => void;
 	loading?: boolean;
 }) {
+	const { trans } = useTranslation();
 	return (
 		<div
 			className="relative cursor-pointer select-none py-2 px-4 text-gray-700"
@@ -30,7 +32,7 @@ export function CreateTaskOption({
 						<PlusIcon className=" font-bold w-[16px] h-[16px]" />
 					)}
 				</span>
-				Create new task
+				{trans.common.CREATE_TASK}
 			</div>
 		</div>
 	);

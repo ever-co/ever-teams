@@ -20,6 +20,6 @@ const fetchAllLabels = async (params: IGetTaskLabelParams) => {
 
 const useFetchAllLabels = (IGetTaskLabelParams) =>
 	useQuery(["labels", IGetTaskLabelParams], () => fetchAllLabels(IGetTaskLabelParams), {
-		refetchInterval: 3000,
+		refetchInterval: 62000,
 	})
 export default useFetchAllLabels

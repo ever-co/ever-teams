@@ -24,6 +24,6 @@ const useFetchAllPriorities = (IGetTaskPrioritiesParams) =>
 	useQuery(
 		["priorities", IGetTaskPrioritiesParams],
 		() => fetchAllPriorities(IGetTaskPrioritiesParams),
-		{ refetchInterval: 3000 },
+		{ refetchInterval: 62000 },
 	)
 export default useFetchAllPriorities

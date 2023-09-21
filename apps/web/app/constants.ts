@@ -9,7 +9,7 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^(\/settings(\/)?)(.*)$/,
 	/^(\/task(\/)?)(.*)$/,
 	/^(\/meet(\/)?)(.*)$/,
-	/^(\/whiteboard(\/)?)(.*)$/,
+	/^(\/board(\/)?)(.*)$/,
 ];
 
 // Cookies
@@ -60,9 +60,20 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	password: SMTP_PASSWORD,
 });
 
-// JITSI Constants
-export const JITSI_DOMAIN =
-	process.env.NEXT_PUBLIC_JITSI_DOMAIN || 'meet.jit.si';
-export const JITSI_JWT_APP_ID = process.env.JITSI_JWT_APP_ID;
-export const JITSI_JWT_APP_SECRET = process.env.JITSI_JWT_APP_SECRET;
-export const JITSI_JWT_TOKEN_COOKIE_NAME = 'jitsi-jwt-session';
+// Cookies
+export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || '')
+	.split(',')
+	.map((d) => d.trim());
+
+// MEET Constants
+export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.jit.si';
+export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID;
+export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
+export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
+
+// BOARD board
+export const BOARD_APP_DOMAIN = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+export const BOARD_BACKEND_POST_URL =
+	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL;
+export const BOARD_FIREBASE_CONFIG =
+	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
