@@ -111,7 +111,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 						)}
 						onMomentumScrollEnd={handleScrollEnd}
 					/>
-					{labelIndex >= task?.tags?.length - 2 || task?.tags?.length < 3 ? null : (
+					{labelIndex >= task?.tags?.length - 3 || task?.tags?.length < 3 ? null : (
 						<TouchableOpacity
 							activeOpacity={0.7}
 							style={[styles.scrollButtons, { backgroundColor: colors.background, right: 0 }]}
