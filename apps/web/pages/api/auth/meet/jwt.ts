@@ -77,6 +77,7 @@ export default async function handler(
 		appkey: MEET_JWT_APP_SECRET,
 	});
 
+	// We don't use this cookie for now
 	// setMeetJwtSessionCookie(new_token, { req, res });
 
 	res.status(200).json({ token: new_token });
