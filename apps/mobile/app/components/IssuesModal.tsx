@@ -19,9 +19,10 @@ import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 
 interface IssuesModalProps {
 	task: ITeamTask
+	readonly?: boolean
 }
 
-const IssuesModal: FC<IssuesModalProps> = ({ task }) => {
+const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false }) => {
 	const { allTaskIssues } = useTaskIssue()
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 	const { updateTask } = useTeamTasks()
@@ -42,15 +43,14 @@ const IssuesModal: FC<IssuesModalProps> = ({ task }) => {
 	}
 
 	const iconDimension: number =
-		currentIssue?.name === "Epic" || currentIssue?.name === "Task" ? 13 : 15
+		currentIssue?.name === "Bug" ? 15 : currentIssue?.name === "Story" ? 14 : 13
 
 	return (
 		<>
 			<View
 				style={[styles.wrapButton, { backgroundColor: currentIssue?.color }]}
 				onTouchStart={() => {
-					console.log(allTaskIssues)
-					setIsModalOpen(true)
+					!readonly && setIsModalOpen(true)
 				}}
 			>
 				<SvgUri width={iconDimension} height={iconDimension} uri={currentIssue?.fullIconUrl} />
@@ -65,6 +65,7 @@ const IssuesModal: FC<IssuesModalProps> = ({ task }) => {
 								onChangeIssue={onChangeIssue}
 								issue={item}
 								closeModal={() => setIsModalOpen(false)}
+								readonly={readonly}
 							/>
 						)}
 					/>
@@ -114,15 +115,17 @@ interface IItem {
 	issue: IIssueType
 	onChangeIssue: (text: string) => void
 	closeModal: () => void
+	readonly?: boolean
 }
 
-const Item = ({ issue, onChangeIssue, closeModal }: IItem) => {
+const Item = ({ issue, onChangeIssue, closeModal, readonly = false }: IItem) => {
 	return (
 		<TouchableOpacity
 			onPress={() => {
 				onChangeIssue(issue.name)
 				closeModal()
 			}}
+			activeOpacity={readonly ? 1 : 0.2}
 		>
 			<View
 				style={[

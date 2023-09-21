@@ -10,11 +10,12 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native"
-import { MaterialCommunityIcons, Feather } from "@expo/vector-icons"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { typography, useAppTheme } from "../../../../theme"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import { I_TeamMemberCardHook } from "../../../../services/hooks/features/useTeamMemberCard"
+import { Feather } from "@expo/vector-icons"
+import IssuesModal from "../../../../components/IssuesModal"
 
 const TaskInfo = ({
 	memberInfo,
@@ -71,7 +72,7 @@ const TaskInfo = ({
 		<TouchableOpacity onLongPress={() => setEditMode(true)}>
 			<View style={{ flexDirection: "row", width: "100%" }}>
 				<View style={styles.wrapBugIcon}>
-					<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
+					<IssuesModal task={task} readonly={true} />
 				</View>
 				{task ? (
 					<Text style={[styles.otherText, { color: colors.primary }]}>
@@ -108,7 +109,6 @@ const styles = StyleSheet.create({
 	},
 	wrapBugIcon: {
 		alignItems: "center",
-		backgroundColor: "#C24A4A",
 		borderRadius: 3,
 		height: 20,
 		justifyContent: "center",
