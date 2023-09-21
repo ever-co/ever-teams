@@ -24,8 +24,6 @@ export const exportToBackend = async (
 	appState: Partial<AppState>,
 	files: BinaryFiles
 ): Promise<ExportToBackendResult> => {
-	console.log(BOARD_BACKEND_POST_URL, BOARD_APP_DOMAIN);
-
 	if (!BOARD_BACKEND_POST_URL || !BOARD_APP_DOMAIN) {
 		return { url: null, errorMessage: 'could Not Create Shareable Link' };
 	}
