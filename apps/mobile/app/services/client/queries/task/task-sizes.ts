@@ -22,6 +22,6 @@ const fetchAllSizes = async (params: IGetTaskSizeParams) => {
 
 const useFetchAllSizes = (IGetTaskSizeParams) =>
 	useQuery(["sizes", IGetTaskSizeParams], () => fetchAllSizes(IGetTaskSizeParams), {
-		refetchInterval: 3000,
+		refetchInterval: 62000,
 	})
 export default useFetchAllSizes

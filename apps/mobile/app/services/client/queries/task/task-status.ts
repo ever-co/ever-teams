@@ -22,6 +22,6 @@ const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
 
 const useFetchAllStatuses = (IGetTaskStatusesParams) =>
 	useQuery(["statuses", IGetTaskStatusesParams], () => fetchAllStatuses(IGetTaskStatusesParams), {
-		refetchInterval: 1000,
+		refetchInterval: 62000,
 	})
 export default useFetchAllStatuses

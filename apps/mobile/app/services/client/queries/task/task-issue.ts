@@ -22,6 +22,6 @@ const fetchAllIssues = async (params: IGetTaskIssuesParams) => {
 
 const useFetchAllIssues = (IGetTaskIssuesParams) =>
 	useQuery(["issues", IGetTaskIssuesParams], () => fetchAllIssues(IGetTaskIssuesParams), {
-		refetchInterval: 5000,
+		refetchInterval: 62000,
 	})
 export default useFetchAllIssues
