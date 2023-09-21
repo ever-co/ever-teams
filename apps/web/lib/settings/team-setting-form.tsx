@@ -228,6 +228,7 @@ export const TeamSettingForm = () => {
 											debounceHandleColorChange();
 										}}
 										isTeamManager={isTeamManager}
+										disabled={!isTeamManager}
 										fullWidthInput
 									/>
 								</div>
@@ -246,6 +247,7 @@ export const TeamSettingForm = () => {
 										}}
 										emoji={activeTeam?.emoji || null}
 										isTeamManager={isTeamManager}
+										disabled={!isTeamManager}
 									/>
 								</div>
 							</div>
@@ -264,6 +266,7 @@ export const TeamSettingForm = () => {
 												handleChange();
 											}}
 											isTeamManager={isTeamManager}
+											disabled={!isTeamManager}
 										/>
 									</div>
 								</div>
