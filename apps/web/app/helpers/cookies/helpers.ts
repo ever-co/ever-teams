@@ -20,9 +20,11 @@ export const getCookie: typeof _getCookie = (key, options) => {
 	return _getCookie(key, options);
 };
 
-export const setCookie: (
-	...params: [...Parameters<typeof _setCookie>, crossSite?: boolean]
-) => void = (key, data, options, crossSite = false) => {
+type SetCookie = (
+	...params: [...Parameters<typeof _setCookie>, ...[crossSite?: boolean]]
+) => void;
+
+export const setCookie: SetCookie = (key, data, options, crossSite) => {
 	_setCookie(key, data, options);
 
 	crossSite &&
