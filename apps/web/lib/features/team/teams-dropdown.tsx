@@ -6,23 +6,49 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useOrganizationTeams,
+	useTimer,
 } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { CreateTeamModal } from './create-team-modal';
 import { useTranslation } from 'lib/i18n';
+import { useToast } from '@components/ui/use-toast';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
 	const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
+	const { timerStatus, stopTimer } = useTimer();
 	const { trans } = useTranslation();
+	const { toast } = useToast();
 
 	const onChangeActiveTeam = useCallback(
 		(item: TeamItem) => {
 			if (item.data) {
+				/**
+				 * If timer started in Teams and user switches the Team, stop the timer
+				 */
+				if (
+					timerStatus &&
+					timerStatus?.running &&
+					timerStatus.lastLog &&
+					timerStatus.lastLog.organizationTeamId &&
+					timerStatus.lastLog.source === 'TEAMS' &&
+					activeTeam &&
+					activeTeam?.id &&
+					timerStatus.lastLog.organizationTeamId === activeTeam?.id
+				) {
+					toast({
+						variant: 'default',
+						title: trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE,
+						description:
+							trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION,
+					});
+					stopTimer();
+				}
+
 				setActiveTeam(item.data);
 			}
 		},
-		[setActiveTeam]
+		[setActiveTeam, timerStatus, stopTimer, activeTeam, toast, trans]
 	);
 
 	const items: TeamItem[] = useMemo(

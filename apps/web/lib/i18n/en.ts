@@ -32,7 +32,7 @@ export const en = {
 		CLOSE: 'Close',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Title',
-		CREATE_TASK: 'Create new task',
+		CREATE_TASK: 'Create New Task',
 		LINK_TASK: 'Select Related Issue',
 		CHILD_ISSUE_TASK: 'Select Child Issue',
 		CREATE_TEAM: 'Create New Team',
@@ -97,6 +97,8 @@ export const en = {
 		CHILD_ISSUES: 'Child Issues',
 		REOPEN: 'Reopen',
 		NO_TASKS: 'No Tasks',
+		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING:
+			'Please stop the Timer before changing the Task',
 	},
 	pages: {
 		home: {
@@ -325,6 +327,10 @@ export const en = {
 	timer: {
 		START_TIMER:
 			'Please, select or create a new task to start tracking the time',
+		TEAM_SWITCH: {
+			STOPPED_TIMER_TOAST_TITLE: 'Timer Stopped',
+			STOPPED_TIMER_TOAST_DESCRIPTION: 'Timer Stopped due to Team Switch',
+		},
 	},
 
 	task: {
