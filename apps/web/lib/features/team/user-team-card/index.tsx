@@ -25,16 +25,16 @@ export function UserTeamCardHeader() {
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{trans.common.NAME}
 			</li>
-			<li className="2xl:w-[20.313rem] text-center w-[21%]">
+			<li className="2xl:w-[20.313rem] 3xl:w-[19rem] text-center w-[21%]">
 				{trans.common.TASK}
 			</li>
-			<li className="2xl:w-48 text-center w-[21%]">
+			<li className="2xl:w-48 3xl:w-60 text-center w-[21%]">
 				{trans.common.WORKED_ON_TASK}
 			</li>
 			<li className="2xl:w-[13.188rem] text-center w-[20.5%]">
 				{trans.common.ESTIMATE}
 			</li>
-			<li className="2xl:w-[11.75rem] text-center w-1/6">
+			<li className="2xl:w-[11.75rem] 3xl:w-[20rem] text-center w-1/6">
 				{trans.common.TOTAL_WORKED_TODAY}
 			</li>
 		</ul>
