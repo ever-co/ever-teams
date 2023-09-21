@@ -9,7 +9,8 @@ import { useAuthenticateUser } from './features/useAuthenticateUser';
 import { useOrganizationTeams } from './features/useOrganizationTeams';
 import { BOARD_APP_DOMAIN } from '@app/constants';
 import { useRouter } from 'next/router';
-import { generateRandomString } from '@app/helpers';
+import { nanoid } from 'nanoid';
+import capitalize from 'lodash/capitalize';
 
 export function useCollaborative(user?: IUser) {
 	const { activeTeam } = useOrganizationTeams();
@@ -23,7 +24,7 @@ export function useCollaborative(user?: IUser) {
 
 	const url = useRouter();
 
-	const randomMeetName = useCallback(() => generateRandomString(15), []);
+	const randomMeetName = useCallback(() => nanoid(15), []);
 
 	const user_selected = useCallback(() => {
 		return collaborativeMembers.some((u) => u.id === user?.id);
@@ -41,31 +42,31 @@ export function useCollaborative(user?: IUser) {
 	}, [user_selected, user, setCollaborativeMembers]);
 
 	const getMeetRoomName = useCallback(() => {
-		const teamName = activeTeam?.name;
-		if (!teamName) {
+		let teamName = activeTeam?.name;
+		if (!teamName || !authUser) {
 			return randomMeetName();
 		}
 
-		const authName = authUser?.name;
-		const members = collaborativeMembers.map((t) => {
-			const names = t.name?.split(' ') || [];
-			return (names[0] + ' ' + (names[1]?.at(0) || '').toUpperCase()).trim();
-		});
-		let members_str = '';
+		teamName = teamName
+			.split(' ')
+			.map((t) => capitalize(t))
+			.join('');
 
-		if (members.length > 0) {
-			members_str =
-				' - ' + (authName ? authName + ', ' : '') + members.join(', ');
-		}
+		const members = collaborativeMembers
+			.concat(authUser)
+			.map((t) => {
+				const names = t.name?.split(' ') || [];
+				return names[0] || '';
+			})
+			.join('-');
 
-		return members.length > 0 ? teamName + members_str : randomMeetName();
+		return `${teamName}-${members}-${randomMeetName()}`;
 	}, [authUser, randomMeetName, activeTeam, collaborativeMembers]);
 
 	const onMeetClick = useCallback(() => {
-		const url_encoded = getMeetRoomName();
-		url_encoded
-			? url.push(`/meet?room=${btoa(url_encoded)}`)
-			: url.push('/meet');
+		const meetName = getMeetRoomName();
+
+		url.push(`/meet?room=${btoa(meetName)}`);
 	}, [getMeetRoomName, url]);
 
 	const onBoardClick = useCallback(() => {
