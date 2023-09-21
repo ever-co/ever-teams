@@ -72,11 +72,11 @@ export const exportToBackend = async (
 		} else if (json.error_class === 'RequestTooLargeError') {
 			return {
 				url: null,
-				errorMessage: 'could Not Create Shareable Link Too Big',
+				errorMessage: 'Shareable Link Too Big',
 			};
 		}
 
-		return { url: null, errorMessage: 'couldNotCreateShareableLink' };
+		return { url: null, errorMessage: 'could Not Create Shareable Link' };
 	} catch (error: any) {
 		console.error(error);
 
