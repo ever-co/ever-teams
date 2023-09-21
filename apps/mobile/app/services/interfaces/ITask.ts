@@ -105,7 +105,7 @@ export type ITaskStatusStack = {
 	size: string
 	label: string
 	priority: string
-	issue: string
+	issueType: string
 	version: string
 	epic: string
 	project: string // TODO: these types are not strings, but rather objects for team and project. To reimplement

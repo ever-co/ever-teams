@@ -28,7 +28,10 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 
 	const allTaskSizes = useTaskSizeValue()
 
-	const sizeValue = (task?.size?.split("-").join(" ") || size.split("-").join(" ")).toLowerCase()
+	const sizeValue = (
+		task?.size?.split("-").join(" ") ||
+		(size && size.split("-").join(" "))
+	)?.toLowerCase()
 
 	const currentSize =
 		allTaskSizes &&
