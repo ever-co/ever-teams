@@ -21,4 +21,4 @@ export * from './employee';
 export * from './roles';
 export * from './role-permissions';
 export * from './task-linked-issue';
-export * from './jitsi-auth';
+export * from './meet-auth';

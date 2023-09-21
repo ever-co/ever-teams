@@ -1,18 +1,19 @@
 import dynamic from 'next/dynamic';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
-import { useQuery } from '@app/hooks';
-import { getJitsiJwtAuthTokenAPI } from '@app/services/client/api';
-import { useEffect, useState } from 'react';
+import { useCollaborative, useQuery } from '@app/hooks';
+import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 
-const Jitsi = dynamic(() => import('lib/features/integrations/jitsi'), {
+const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 	ssr: false,
 	loading: () => <BackdropLoader show />,
 });
 
-function useJitsiJwtToken() {
+function useMeetJwtToken() {
 	const [token, setToken] = useState<string>();
-	const { queryCall, loading } = useQuery(getJitsiJwtAuthTokenAPI);
+	const { queryCall, loading } = useQuery(getMeetJwtAuthTokenAPI);
 
 	useEffect(() => {
 		queryCall().then((res) => setToken(res.data.token));
@@ -22,18 +23,44 @@ function useJitsiJwtToken() {
 	return { loading, token };
 }
 
-function CallPage() {
-	const { token } = useJitsiJwtToken();
+function MeetPage() {
+	const router = useRouter();
+	const { token } = useMeetJwtToken();
+	const { randomMeetName } = useCollaborative();
+	const replaced = useRef(false);
+
+	const room = useMemo(() => {
+		const urlParams = router.asPath.substring(router.asPath.indexOf('?'));
+		const searchParams = new URLSearchParams(urlParams);
+
+		return searchParams.get('room');
+	}, [router]);
+
+	useEffect(() => {
+		if (!room && router.asPath.startsWith('/meet') && !replaced.current) {
+			const url = new URL(window.location.href);
+			url.searchParams.set('room', btoa(randomMeetName()));
+
+			router.replace(url.pathname + url.search);
+			replaced.current = true;
+		}
+	}, [room, router, randomMeetName]);
+
+	const roomName = useMemo(() => {
+		return room ? atob(room) : undefined;
+	}, [room, randomMeetName]);
 
 	return (
 		<>
-			<Meta title="Call" />
-			{token && <Jitsi jwt={token} />}
+			<Meta title="Meet" />
+			{token && roomName && (
+				<Meet jwt={token} roomName={encodeURIComponent(roomName)} />
+			)}
 		</>
 	);
 }
 
-export default withAuthentication(CallPage, {
-	displayName: 'CallPage',
+export default withAuthentication(MeetPage, {
+	displayName: 'MeetPage',
 	showPageSkeleton: false,
 });
