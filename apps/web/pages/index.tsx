@@ -85,7 +85,7 @@ function Collaborative() {
 					variant="outline-dark"
 				>
 					<Profile2UserLinearIcon className="w-4 h-4 stroke-dark dark:stroke-light--theme-light" />
-					{trans.common.COLLABORATIVE}
+					{trans.common.COLLABORATE}
 				</Button>
 			)}
 
