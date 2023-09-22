@@ -54,7 +54,7 @@ const UpdateContactForm = ({
 			}
 		}
 		setIsvalid({ email: true, phone: true })
-	}, [user, onDismiss, editMode])
+	}, [user, onDismiss, editMode, user?.email])
 
 	const debouncedUpdateIsValid = (
 		field: keyof IValidation,
@@ -159,6 +159,8 @@ const UpdateContactForm = ({
 					newEmail={userEmail}
 					visible={showConfirmPopup}
 					onDismiss={() => onDismissPopup()}
+					user={user}
+					onUpdateContactInfo={onUpdateContactInfo}
 				/>
 				<View style={{ flex: 3 }}>
 					<Text style={{ ...styles.formTitle, color: colors.primary }}>

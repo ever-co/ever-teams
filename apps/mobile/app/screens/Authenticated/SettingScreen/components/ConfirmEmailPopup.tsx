@@ -16,11 +16,14 @@ import { CodeInput } from "../../../../components/CodeInput"
 import { Button } from "../../../../components"
 import { translate } from "../../../../i18n"
 import { useUser } from "../../../../services/hooks/features/useUser"
+import { IUser } from "../../../../services/api"
 
 export interface Props {
 	visible: boolean
 	onDismiss: () => unknown
 	newEmail: string
+	user: IUser
+	onUpdateContactInfo: (userBody: IUser) => unknown
 }
 
 const ModalPopUp = ({ visible, children }) => {
@@ -57,7 +60,13 @@ const ModalPopUp = ({ visible, children }) => {
 	)
 }
 
-const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDismiss, newEmail }) {
+const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({
+	visible,
+	onDismiss,
+	newEmail,
+	user,
+	onUpdateContactInfo,
+}) {
 	const { colors, dark } = useAppTheme()
 	const { resendVerifyCode, verifyChangeEmail } = useUser()
 	const [confirmCode, setConfirmCode] = useState("")
@@ -67,9 +76,10 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 	const onVerifyEmail = useCallback(() => {
 		if (confirmCode && confirmCode.length === 6) {
 			setLoading(true)
-			verifyChangeEmail(confirmCode).then((e) => {
+			verifyChangeEmail(confirmCode).then(async (e) => {
 				const { response } = e
 				if (response.ok && response.status === 202) {
+					await onUpdateContactInfo({ ...user, email: newEmail }) // Using after update email is executed, in order to  reflect the change to the UI without refresh
 					onDismiss()
 				} else {
 					setError("Invalid code")
