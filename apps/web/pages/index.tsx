@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Card, Container } from 'lib/components';
+import { Breadcrumb, Button, Card, Container } from 'lib/components';
 import {
 	AuthUserTaskInput,
 	TeamInvitations,
@@ -13,8 +13,13 @@ import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useCollaborative, useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
-import { CloseIcon, PeopleIcon } from 'lib/components/svgs';
-import { PhoneIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import {
+	BrushSquareLinearIcon,
+	CallOutGoingLinearIcon,
+	CloseIcon,
+	PeopleIcon,
+	Profile2UserLinearIcon,
+} from 'lib/components/svgs';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -25,7 +30,7 @@ function MainPage() {
 	return (
 		<MainLayout>
 			<MainHeader className="pb-1">
-				<div className="flex items-center justify-between">
+				<div className="flex items-start justify-between h-5">
 					<div className="flex items-center gap-8">
 						<PeopleIcon className="stroke-dark dark:stroke-[#6b7280] h-6 w-6" />
 						<Breadcrumb paths={breadcrumb} className="text-sm" />
@@ -70,47 +75,56 @@ function Collaborative() {
 	return (
 		<div className="pr-2">
 			{!collaborativeSelect && (
-				<button
+				<Button
 					onClick={() => setCollaborativeSelect(true)}
-					className="text-base input-border px-1 rounded-sm py-1"
+					className={clsxm(
+						'rounded-lg py-1 text-sm font-thin',
+						'gap-1 items-center'
+					)}
+					type="button"
+					variant="outline-dark"
 				>
+					<Profile2UserLinearIcon className="w-4 h-4 stroke-dark dark:stroke-light--theme-light" />
 					{trans.common.COLLABORATIVE}
-				</button>
+				</Button>
 			)}
 
 			{collaborativeSelect && (
 				<div className="flex space-x-3">
-					<button
+					<Button
 						onClick={onMeetClick}
 						className={clsxm(
-							'text-base input-border px-1 rounded-sm py-1 flex',
+							'rounded-lg flex min-w-0 py-0 px-5 text-sm font-normal text-primary dark:text-light--theme-light',
 							'gap-1 items-center'
 						)}
+						variant="outline-dark"
 					>
-						<PhoneIcon height={16} width={16} />
+						<CallOutGoingLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
 						{trans.common.MEET}
-					</button>
+					</Button>
 
-					<button
+					<Button
 						onClick={onBoardClick}
 						className={clsxm(
-							'text-base input-border px-1 rounded-sm py-1 flex',
+							'rounded-lg flex min-w-0 py-0 px-5 text-sm font-normal text-primary dark:text-light--theme-light',
 							'gap-1 items-center'
 						)}
+						variant="outline-dark"
 					>
-						<PencilSquareIcon height={16} width={16} />
+						<BrushSquareLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
 						{trans.common.BOARD}
-					</button>
+					</Button>
 
-					<button
+					<Button
 						onClick={() => {
 							setCollaborativeSelect(false);
 							setCollaborativeMembers([]);
 						}}
-						className="text-sm input-border px-1 rounded-sm py-1"
+						className="min-w-0 rounded-lg px-1 w-7 py-1"
+						variant="outline-danger"
 					>
-						<CloseIcon />
-					</button>
+						<CloseIcon className="w-4 stroke-[#EB6961] dark:stroke-[#EB6961]" />
+					</Button>
 				</div>
 			)}
 		</div>
