@@ -3,10 +3,10 @@ import {
 	MEET_JWT_APP_ID,
 	MEET_JWT_APP_SECRET,
 } from '@app/constants';
-import {
-	// getMeetJwtSessionCookie,
-	setMeetJwtSessionCookie,
-} from '@app/helpers';
+// import {
+// 	// getMeetJwtSessionCookie,
+// 	setMeetJwtSessionCookie,
+// } from '@app/helpers';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import jwt from 'jsonwebtoken';
 
@@ -77,7 +77,8 @@ export default async function handler(
 		appkey: MEET_JWT_APP_SECRET,
 	});
 
-	setMeetJwtSessionCookie(new_token, { req, res });
+	// We don't use this cookie for now
+	// setMeetJwtSessionCookie(new_token, { req, res });
 
 	res.status(200).json({ token: new_token });
 }

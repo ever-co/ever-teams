@@ -48,7 +48,7 @@ function MeetPage() {
 
 	const roomName = useMemo(() => {
 		return room ? atob(room) : undefined;
-	}, [room, randomMeetName]);
+	}, [room]);
 
 	return (
 		<>
