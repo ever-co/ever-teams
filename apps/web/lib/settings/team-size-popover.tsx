@@ -24,10 +24,12 @@ const TeamSize = ({
 	defaultValue,
 	onChange,
 	isTeamManager,
+	disabled: disableButton,
 }: {
 	defaultValue: string;
 	onChange: (teamSize: string) => void;
 	isTeamManager: boolean;
+	disabled?: boolean;
 }) => {
 	const [value, setValue] = useState(defaultValue || 'Only me');
 	const buttonRef = useRef<HTMLButtonElement>(null);
@@ -93,13 +95,13 @@ const TeamSize = ({
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
-						// disabled={disabled}
+						disabled={disableButton}
 						onClick={toggleDisabled}
 					>
 						<div
 							className={`relative w-[100%] h-[48px] ${
-								disabled ? 'bg-[#FCFCFC]' : ''
-							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+							} dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<div className="dark:text-white">{defaultValue}</div>

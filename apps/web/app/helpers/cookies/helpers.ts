@@ -20,15 +20,18 @@ export const getCookie: typeof _getCookie = (key, options) => {
 	return _getCookie(key, options);
 };
 
-export const setCookie: typeof _setCookie = (key, data, options) => {
-	if (COOKIE_DOMAINS.length === 0) {
-		_setCookie(key, data, options);
-	}
+type SetCookie = (
+	...params: [...Parameters<typeof _setCookie>, ...[crossSite?: boolean]]
+) => void;
 
-	COOKIE_DOMAINS.forEach((domain) => {
-		_setCookie(key, data, {
-			domain,
-			...options,
+export const setCookie: SetCookie = (key, data, options, crossSite) => {
+	_setCookie(key, data, options);
+
+	crossSite &&
+		COOKIE_DOMAINS.forEach((domain) => {
+			_setCookie(key, data, {
+				domain,
+				...options,
+			});
 		});
-	});
 };
