@@ -14,8 +14,26 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 			checkboxRef.current.click();
 		}
 	};
+
+	let isFirstNodeChecklist = false;
+	// Checking if first element is checklist and if it's styling according that
+	if (element.type === 'checklist') {
+		const nodes = editor.children;
+
+		const index = nodes.findIndex((node) => node === element);
+
+		if (index === 0) {
+			isFirstNodeChecklist = true;
+		}
+	}
+
 	return (
-		<div {...attributes} className="flex flex-row items-center my-[-0.7rem]">
+		<div
+			{...attributes}
+			className={`flex flex-row items-center  ${
+				isFirstNodeChecklist ? 'mt-0 mb-[-0.7rem]' : 'my-[-0.7rem]'
+			}`}
+		>
 			<span contentEditable={false} className="mr-[1.2rem] relative">
 				<input
 					type="checkbox"

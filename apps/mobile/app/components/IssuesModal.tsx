@@ -50,7 +50,9 @@ const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false }) => {
 			<View
 				style={[styles.wrapButton, { backgroundColor: currentIssue?.color }]}
 				onTouchStart={() => {
-					!readonly && setIsModalOpen(true)
+					if (currentIssue.name !== "Epic" && !readonly) {
+						setIsModalOpen(true)
+					}
 				}}
 			>
 				<SvgUri width={iconDimension} height={iconDimension} uri={currentIssue?.fullIconUrl} />
