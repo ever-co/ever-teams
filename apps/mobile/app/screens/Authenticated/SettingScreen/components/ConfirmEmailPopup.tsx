@@ -65,7 +65,7 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 	const [error, setError] = useState(null)
 
 	const onVerifyEmail = useCallback(() => {
-		if (parseInt(confirmCode) && confirmCode.length === 6) {
+		if (confirmCode && confirmCode.length === 6) {
 			setLoading(true)
 			verifyChangeEmail(confirmCode).then((e) => {
 				const { response } = e

@@ -40,7 +40,7 @@ export function useUser() {
 	}, [])
 
 	const verifyChangeEmail = useCallback((code: string) => {
-		return verifyChangemailRequest({ bearer_token: authToken, tenantId, code: parseInt(code) })
+		return verifyChangemailRequest({ bearer_token: authToken, tenantId, code })
 	}, [])
 
 	useEffect(() => {
