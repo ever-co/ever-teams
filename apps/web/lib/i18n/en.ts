@@ -5,7 +5,7 @@ export const en = {
 		PLEASE: 'please',
 		HERE: 'here',
 		PEOPLE: 'People',
-		COLLABORATIVE: 'Collaborative',
+		COLLABORATE: 'Collaborate',
 		MEET: 'Meet',
 		BOARD: 'Board',
 		SECURITY_CODE: 'Security Code',
