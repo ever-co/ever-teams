@@ -1,5 +1,9 @@
 import { imgTitle } from '@app/helpers';
-import { useCollaborative, useOrganizationTeams } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useCollaborative,
+	useOrganizationTeams,
+} from '@app/hooks';
 import { IUser } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import {
@@ -41,13 +45,16 @@ const Collaborate = () => {
 
 	const { trans } = useTranslation();
 
+	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
 	const members: IUser[] = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length
-				? activeTeam.members.map((item) => item.employee.user as IUser)
+				? activeTeam.members
+						.map((item) => item.employee.user as IUser)
+						.filter((item) => item.id !== user?.id)
 				: [],
-		[activeTeam]
+		[activeTeam, user]
 	);
 	const selectedMemberIds = useMemo(() => {
 		return collaborativeMembers.map((item) => item.id);
