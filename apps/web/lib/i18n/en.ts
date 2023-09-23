@@ -102,6 +102,9 @@ export const en = {
 		NO_TASKS: 'No Tasks',
 		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING:
 			'Please stop the Timer before changing the Task',
+
+		COLLABORATE_DIALOG_TITLE: 'Select User(s)',
+		COLLABORATE_DIALOG_SUB_TITLE: 'Invite user(s) and start collaborating.',
 	},
 	pages: {
 		home: {

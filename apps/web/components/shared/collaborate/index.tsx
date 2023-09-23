@@ -1,8 +1,7 @@
 import { imgTitle } from '@app/helpers';
-import { useOrganizationTeams } from '@app/hooks';
-import { OT_Member } from '@app/interfaces';
+import { useCollaborative, useOrganizationTeams } from '@app/hooks';
+import { IUser } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
-// import { Avatar, AvatarFallback, AvatarImage } from '@components/ui/avatar';
 import {
 	Command,
 	CommandEmpty,
@@ -22,14 +21,56 @@ import {
 } from '@components/ui/dialog';
 import { Avatar } from 'lib/components';
 import { Button } from 'lib/components/button';
+import {
+	BrushSquareLinearIcon,
+	CallOutGoingLinearIcon,
+	Profile2UserLinearIcon,
+} from 'lib/components/svgs';
+import { useTranslation } from 'lib/i18n';
 import { Check } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
 
 const Collaborate = () => {
+	const {
+		onMeetClick,
+		onBoardClick,
+		collaborativeMembers,
+		setCollaborativeMembers,
+	} = useCollaborative();
+
+	const { trans } = useTranslation();
+
 	const { activeTeam } = useOrganizationTeams();
-	const members = useMemo(() => activeTeam?.members || [], [activeTeam]);
-	const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([]);
+	const members: IUser[] = useMemo(
+		() =>
+			activeTeam?.members && activeTeam?.members.length
+				? activeTeam.members.map((item) => item.employee.user as IUser)
+				: [],
+		[activeTeam]
+	);
+	const selectedMemberIds = useMemo(() => {
+		return collaborativeMembers.map((item) => item.id);
+	}, [collaborativeMembers]);
+
+	const handleMemberClick = useCallback(
+		(member: IUser) => {
+			if (collaborativeMembers.includes(member)) {
+				return setCollaborativeMembers(
+					collaborativeMembers.filter(
+						(selectedMember) => selectedMember !== member
+					)
+				);
+			}
+
+			return setCollaborativeMembers(
+				[...members].filter((u) =>
+					[...collaborativeMembers, member].includes(u)
+				)
+			);
+		},
+		[collaborativeMembers, members, setCollaborativeMembers]
+	);
 
 	return (
 		<div>
@@ -41,18 +82,18 @@ const Collaborate = () => {
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
 				>
-					Collaborate
+					<Profile2UserLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
+					{trans.common.COLLABORATE}
 				</DialogTrigger>
-				<DialogContent className="gap-0 p-0 outline-none">
+				<DialogContent className="gap-0 p-0 outline-none border-[#0000001A] dark:border-[#26272C]">
 					<DialogHeader className="px-4 pb-4 pt-5">
-						<DialogTitle>New message</DialogTitle>
+						<DialogTitle>{trans.common.COLLABORATE_DIALOG_TITLE}</DialogTitle>
 						<DialogDescription>
-							Invite a user to this thread. This will create a new group
-							message.
+							{trans.common.COLLABORATE_DIALOG_SUB_TITLE}
 						</DialogDescription>
 					</DialogHeader>
-					<Command className="overflow-hidden rounded-t-none border-t">
-						<CommandInput placeholder="Search user..." />
+					<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
+						<CommandInput placeholder="Search member..." />
 						<CommandList>
 							<CommandEmpty>No users found.</CommandEmpty>
 							<CommandGroup className="p-2">
@@ -61,33 +102,9 @@ const Collaborate = () => {
 										key={member.id}
 										className="flex items-center px-2"
 										onSelect={() => {
-											if (selectedMembers.includes(member)) {
-												return setSelectedMembers(
-													selectedMembers.filter(
-														(selectedMember) => selectedMember !== member
-													)
-												);
-											}
-
-											return setSelectedMembers(
-												[...members].filter((u) =>
-													[...selectedMembers, member].includes(u)
-												)
-											);
+											handleMemberClick(member);
 										}}
 									>
-										{/* <Avatar>
-											<AvatarImage
-												src={member.employee.user?.image?.fullUrl}
-												alt="Image"
-											/>
-											<AvatarFallback>
-												{member.employee.user?.name
-													? member.employee.user?.name[0]
-													: ''}
-											</AvatarFallback>
-										</Avatar> */}
-
 										<div
 											className={clsxm(
 												'w-[2.25rem] h-[2.25rem]',
@@ -96,32 +113,30 @@ const Collaborate = () => {
 												'shadow-md text-lg font-normal'
 											)}
 											style={{
-												backgroundColor: `${stc(
-													member.employee.user?.name || ''
-												)}80`,
+												backgroundColor: `${stc(member?.name || '')}80`,
 											}}
 										>
-											{(member.employee.user?.image?.thumbUrl ||
-												member.employee.user?.image?.fullUrl ||
-												member.employee.user?.imageUrl) &&
+											{(member?.image?.thumbUrl ||
+												member?.image?.fullUrl ||
+												member?.imageUrl) &&
 											isValidUrl(
-												member.employee.user?.image?.thumbUrl ||
-													member.employee.user?.image?.fullUrl ||
-													member.employee.user?.imageUrl
+												member?.image?.thumbUrl ||
+													member?.image?.fullUrl ||
+													member?.imageUrl
 											) ? (
 												<Avatar
 													size={36}
 													className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
 													imageUrl={
-														member.employee.user?.image?.thumbUrl ||
-														member.employee.user?.image?.fullUrl ||
-														member.employee.user?.imageUrl
+														member?.image?.thumbUrl ||
+														member?.image?.fullUrl ||
+														member?.imageUrl
 													}
 													alt="Team Avatar"
-													imageTitle={member.employee.user?.name || ''}
+													imageTitle={member?.name || ''}
 												></Avatar>
-											) : member.employee.user?.name ? (
-												imgTitle(member.employee.user?.name || ' ').charAt(0)
+											) : member?.name ? (
+												imgTitle(member?.name || ' ').charAt(0)
 											) : (
 												''
 											)}
@@ -129,24 +144,24 @@ const Collaborate = () => {
 
 										<div className="ml-2">
 											<p className="text-sm font-medium leading-none">
-												{member.employee.user?.name}
+												{member?.name}
 											</p>
-											<p className="text-sm text-muted-foreground">
-												{member.employee.user?.email}
+											<p className="text-xs text-muted-foreground">
+												{member?.email}
 											</p>
 										</div>
-										{selectedMembers.includes(member) ? (
-											<Check className="ml-auto flex h-5 w-5 text-primary" />
+										{selectedMemberIds.includes(member.id) ? (
+											<Check className="ml-auto flex h-5 w-5 text-primary dark:text-white" />
 										) : null}
 									</CommandItem>
 								))}
 							</CommandGroup>
 						</CommandList>
 					</Command>
-					<DialogFooter className="flex items-center border-t p-4 sm:justify-between">
-						{selectedMembers.length > 0 ? (
+					<DialogFooter className="flex items-center border-t border-[#0000001A] dark:border-[#26272C] p-4 sm:justify-between">
+						{collaborativeMembers.length > 0 ? (
 							<div className="flex -space-x-2 overflow-hidden">
-								{selectedMembers.map((member) => (
+								{collaborativeMembers.map((member) => (
 									<div
 										key={member.id}
 										className={clsxm(
@@ -156,32 +171,30 @@ const Collaborate = () => {
 											'shadow-md text-lg font-normal'
 										)}
 										style={{
-											backgroundColor: `${stc(
-												member.employee.user?.name || ''
-											)}80`,
+											backgroundColor: `${stc(member?.name || '')}80`,
 										}}
 									>
-										{(member.employee.user?.image?.thumbUrl ||
-											member.employee.user?.image?.fullUrl ||
-											member.employee.user?.imageUrl) &&
+										{(member?.image?.thumbUrl ||
+											member?.image?.fullUrl ||
+											member?.imageUrl) &&
 										isValidUrl(
-											member.employee.user?.image?.thumbUrl ||
-												member.employee.user?.image?.fullUrl ||
-												member.employee.user?.imageUrl
+											member?.image?.thumbUrl ||
+												member?.image?.fullUrl ||
+												member?.imageUrl
 										) ? (
 											<Avatar
 												size={36}
 												className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
 												imageUrl={
-													member.employee.user?.image?.thumbUrl ||
-													member.employee.user?.image?.fullUrl ||
-													member.employee.user?.imageUrl
+													member?.image?.thumbUrl ||
+													member?.image?.fullUrl ||
+													member?.imageUrl
 												}
 												alt="Team Avatar"
-												imageTitle={member.employee.user?.name || ''}
+												imageTitle={member?.name || ''}
 											></Avatar>
-										) : member.employee.user?.name ? (
-											imgTitle(member.employee.user?.name || ' ').charAt(0)
+										) : member?.name ? (
+											imgTitle(member?.name || ' ').charAt(0)
 										) : (
 											''
 										)}
@@ -190,10 +203,33 @@ const Collaborate = () => {
 							</div>
 						) : (
 							<p className="text-sm text-muted-foreground">
-								Select users to add to this thread.
+								Select member to add to this collaboration.
 							</p>
 						)}
-						<Button>Continue</Button>
+
+						<div className="flex space-x-3">
+							<Button
+								onClick={onMeetClick}
+								className={clsxm(
+									'rounded-lg flex min-w-0',
+									'gap-1 items-center'
+								)}
+							>
+								<CallOutGoingLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
+								{trans.common.MEET}
+							</Button>
+
+							<Button
+								onClick={onBoardClick}
+								className={clsxm(
+									'rounded-lg flex min-w-0',
+									'gap-1 items-center'
+								)}
+							>
+								<BrushSquareLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
+								{trans.common.BOARD}
+							</Button>
+						</div>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
