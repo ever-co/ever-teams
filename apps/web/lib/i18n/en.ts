@@ -103,10 +103,9 @@ export const en = {
 		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING:
 			'Please stop the Timer before changing the Task',
 
-		COLLABORATE_DIALOG_TITLE: 'Select Member(s)',
-		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating.',
-		COLLABORATE_DIALOG_FOOTER_MESSAGE:
-			'Select member(s) to add to this collaboration.',
+		COLLABORATE_DIALOG_TITLE: 'Start Collaboration',
+		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating',
+		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration',
 	},
 	pages: {
 		home: {

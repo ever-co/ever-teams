@@ -218,18 +218,19 @@ const Collaborate = () => {
 							<Button
 								onClick={onMeetClick}
 								className={clsxm(
-									'rounded-lg flex min-w-0 w-28',
+									'rounded-xl flex min-w-0 w-28 h-12',
 									'gap-1 items-center'
 								)}
+								variant="outline"
 							>
-								<CallOutGoingLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
+								<CallOutGoingLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
 								{trans.common.MEET}
 							</Button>
 
 							<Button
 								onClick={onBoardClick}
 								className={clsxm(
-									'rounded-lg flex min-w-0 w-28',
+									'rounded-xl flex min-w-0 w-28 h-12',
 									'gap-1 items-center'
 								)}
 							>
