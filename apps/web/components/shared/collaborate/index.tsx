@@ -211,7 +211,7 @@ const Collaborate = () => {
 							<Button
 								onClick={onMeetClick}
 								className={clsxm(
-									'rounded-lg flex min-w-0',
+									'rounded-lg flex min-w-0 w-28',
 									'gap-1 items-center'
 								)}
 							>
@@ -222,7 +222,7 @@ const Collaborate = () => {
 							<Button
 								onClick={onBoardClick}
 								className={clsxm(
-									'rounded-lg flex min-w-0',
+									'rounded-lg flex min-w-0 w-28',
 									'gap-1 items-center'
 								)}
 							>
