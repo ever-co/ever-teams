@@ -54,7 +54,7 @@ const UpdateContactForm = ({
 			}
 		}
 		setIsvalid({ email: true, phone: true })
-	}, [user, onDismiss, editMode])
+	}, [user, onDismiss, editMode, user?.email])
 
 	const debouncedUpdateIsValid = (
 		field: keyof IValidation,

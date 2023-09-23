@@ -16,6 +16,7 @@ import { CodeInput } from "../../../../components/CodeInput"
 import { Button } from "../../../../components"
 import { translate } from "../../../../i18n"
 import { useUser } from "../../../../services/hooks/features/useUser"
+import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
 
 export interface Props {
 	visible: boolean
@@ -64,12 +65,15 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState(null)
 
+	const { updateUserFromAPI } = useAuthenticateUser()
+
 	const onVerifyEmail = useCallback(() => {
-		if (parseInt(confirmCode) && confirmCode.length === 6) {
+		if (confirmCode && confirmCode.length === 6) {
 			setLoading(true)
-			verifyChangeEmail(confirmCode).then((e) => {
+			verifyChangeEmail(confirmCode).then(async (e) => {
 				const { response } = e
 				if (response.ok && response.status === 202) {
+					updateUserFromAPI()
 					onDismiss()
 				} else {
 					setError("Invalid code")
