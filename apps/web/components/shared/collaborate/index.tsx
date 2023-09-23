@@ -100,7 +100,7 @@ const Collaborate = () => {
 								{members.map((member) => (
 									<CommandItem
 										key={member.id}
-										className="flex items-center px-2"
+										className="flex items-center px-2 cursor-pointer"
 										onSelect={() => {
 											handleMemberClick(member);
 										}}
