@@ -77,7 +77,7 @@ const Collaborate = () => {
 			<Dialog>
 				<DialogTrigger
 					className={clsxm(
-						'flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-lg outline-none',
+						'flex flex-row items-center justify-center py-3.5 px-4 gap-3 rounded-xl outline-none',
 						'bg-primary dark:bg-primary-light text-white text-sm',
 						'disabled:bg-primary-light disabled:opacity-40'
 					)}
@@ -160,12 +160,12 @@ const Collaborate = () => {
 					</Command>
 					<DialogFooter className="flex items-center border-t border-[#0000001A] dark:border-[#26272C] p-4 sm:justify-between">
 						{collaborativeMembers.length > 0 ? (
-							<div className="flex -space-x-2 overflow-hidden">
+							<div className="flex -space-x-3.5 overflow-hidden">
 								{collaborativeMembers.map((member) => (
 									<div
 										key={member.id}
 										className={clsxm(
-											'w-[2.25rem] h-[2.25rem]',
+											'w-[2rem] h-[2rem]',
 											'flex justify-center items-center',
 											'rounded-full text-xs text-default dark:text-white',
 											'shadow-md text-lg font-normal'
@@ -183,7 +183,7 @@ const Collaborate = () => {
 												member?.imageUrl
 										) ? (
 											<Avatar
-												size={36}
+												size={32}
 												className="relative cursor-pointer dark:border-[0.25rem] dark:border-[#26272C]"
 												imageUrl={
 													member?.image?.thumbUrl ||
@@ -203,7 +203,7 @@ const Collaborate = () => {
 							</div>
 						) : (
 							<p className="text-sm text-muted-foreground">
-								Select member to add to this collaboration.
+								{trans.common.COLLABORATE_DIALOG_FOOTER_MESSAGE}
 							</p>
 						)}
 
