@@ -41,7 +41,7 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 			{imageUrl ? (
 				<Avatar.Image size={70} source={{ uri: imageUrl }} />
 			) : (
-				<Avatar.Text size={70} label={imgTitle(user.name)} labelStyle={styles.prefix} />
+				<Avatar.Text size={70} label={imgTitle(user?.name)} labelStyle={styles.prefix} />
 			)}
 			<TouchableOpacity
 				style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}

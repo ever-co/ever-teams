@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -13,6 +14,7 @@ import {
 	TaskSizesDropdown,
 	TaskStatusDropdown,
 } from './task-status';
+import intersection from 'lodash/intersection';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -156,7 +158,12 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 				return keys
 					.filter((k) => statusFilters[k].length > 0)
 					.every((k) => {
-						return statusFilters[k].includes(task[k]);
+						return k === 'label'
+							? intersection(
+									statusFilters[k],
+									task['tags'].map((item) => item.name)
+							  ).length === statusFilters[k].length
+							: statusFilters[k].includes(task[k]);
 					});
 			});
 	}, [tasks, taskName, appliedStatusFilter]);
