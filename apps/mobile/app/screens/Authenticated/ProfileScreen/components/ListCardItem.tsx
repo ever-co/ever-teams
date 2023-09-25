@@ -127,7 +127,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 				<View style={[styles.times, { borderTopColor: colors.border }]}>
 					<View style={styles.wrapButton}>
 						{props.isAuthUser && (
-							<TimerButton isActiveTask={props.activeAuthTask} task={props.task} />
+							<TimerButton
+								isActiveTask={props.activeAuthTask}
+								isTrackingEnabled={props.profile.member.isTrackingEnabled}
+								task={props.task}
+							/>
 						)}
 						{!props.isAssigned && !props.isAuthUser && (
 							<TouchableOpacity

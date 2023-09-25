@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
-import React, { FC } from "react"
+import React, { FC, useMemo } from "react"
 import { LinearGradient } from "expo-linear-gradient"
-import { Image, StyleSheet } from "react-native"
+import { Image, StyleSheet, View } from "react-native"
 import { useStores } from "../../../../models"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import { observer } from "mobx-react-lite"
@@ -13,9 +13,10 @@ import { useAppTheme } from "../../../../theme"
 interface Props {
 	isActiveTask: boolean
 	task: ITeamTask
+	isTrackingEnabled: boolean
 }
 
-const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
+const TimerButton: FC<Props> = observer(({ isActiveTask, task, isTrackingEnabled }) => {
 	const { colors, dark } = useAppTheme()
 	const {
 		TimerStore: { localTimerStatus },
@@ -36,13 +37,21 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 		stopTimer()
 	}
 
+	const key = useMemo(() => `${isTrackingEnabled}`, [isTrackingEnabled])
+
 	if (!dark) {
 		return (
 			<TouchableOpacity
+				key={key}
 				style={[
 					styles.timerBtn,
-					{ backgroundColor: colors.background, borderColor: colors.border },
+					{
+						backgroundColor: colors.background,
+						borderColor: colors.border,
+						opacity: isTrackingEnabled ? 1 : 0.2,
+					},
 				]}
+				disabled={!isTrackingEnabled}
 				onPress={() => handleStartTimer()}
 			>
 				<Image
@@ -59,8 +68,11 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 	}
 
 	return (
-		<LinearGradient colors={["#E93CB9", "#6A71E7"]} style={styles.timerBtn}>
-			<TouchableOpacity onPress={() => handleStartTimer()}>
+		<LinearGradient
+			colors={["#E93CB9", "#6A71E7"]}
+			style={[styles.timerBtn, { opacity: isTrackingEnabled ? 1 : 0.2 }]}
+		>
+			<TouchableOpacity onPress={() => handleStartTimer()} disabled={!isTrackingEnabled}>
 				<Image
 					resizeMode="contain"
 					style={styles.timerIcon}
