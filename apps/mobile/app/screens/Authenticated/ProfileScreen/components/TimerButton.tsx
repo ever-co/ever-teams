@@ -1,7 +1,9 @@
 /* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+
 import React, { FC, useMemo } from "react"
 import { LinearGradient } from "expo-linear-gradient"
-import { Image, StyleSheet, View } from "react-native"
+import { Image, StyleSheet } from "react-native"
 import { useStores } from "../../../../models"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import { observer } from "mobx-react-lite"
@@ -37,7 +39,7 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task, isTrackingEnabled
 		stopTimer()
 	}
 
-	const key = useMemo(() => `${isTrackingEnabled}`, [isTrackingEnabled])
+	const key = useMemo(() => `${isTrackingEnabled}`, [isTrackingEnabled]) // we need this because otherwise in light theme opacity won't update instantly after isTrackingEnabled switch
 
 	if (!dark) {
 		return (
