@@ -36,7 +36,7 @@ function MainPage() {
 						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 
-					<Collaborative />
+					{/* <Collaborative /> */}
 				</div>
 
 				<UnverifiedEmail />

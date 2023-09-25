@@ -82,7 +82,7 @@ export function useCollaborative(user?: IUser) {
 		}
 
 		url.push('/board');
-	}, [collaborativeMembers]);
+	}, [collaborativeMembers, url]);
 
 	return {
 		collaborativeSelect,
