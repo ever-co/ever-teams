@@ -97,7 +97,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 					ref={sheetRef}
 					snapPoints={[340, 174, 0, 611, 276, 335]}
 					borderRadius={24}
-					initialSnap={1}
+					initialSnap={2}
 					callbackNode={fall}
 					enabledGestureInteraction={true}
 					renderContent={() => (
