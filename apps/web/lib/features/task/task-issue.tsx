@@ -92,14 +92,14 @@ export function TaskIssuesDropdown({
 				showIssueLabels={showIssueLabels}
 				taskStatusClassName={taskStatusClassName}
 			>
-				<Button
+				{/* <Button
 					onClick={openModal}
 					className="min-w-[100px] text-xs px-1 py-2 gap-0 w-full"
 					variant="outline-danger"
 				>
 					<PlusIcon className="w-4 h-4" />
 					{trans.common.NEW_ISSUE}
-				</Button>
+				</Button> */}
 			</StatusDropdown>
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />
 		</>
