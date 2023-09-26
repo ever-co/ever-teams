@@ -1,5 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
-import React, { FC } from "react"
+/* eslint-disable react-native/no-inline-styles */
+
+import React, { FC, useMemo } from "react"
 import { LinearGradient } from "expo-linear-gradient"
 import { Image, StyleSheet } from "react-native"
 import { useStores } from "../../../../models"
@@ -41,7 +43,10 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 			<TouchableOpacity
 				style={[
 					styles.timerBtn,
-					{ backgroundColor: colors.background, borderColor: colors.border },
+					{
+						backgroundColor: colors.background,
+						borderColor: colors.border,
+					},
 				]}
 				onPress={() => handleStartTimer()}
 			>

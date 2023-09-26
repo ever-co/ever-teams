@@ -126,7 +126,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 				</View>
 				<View style={[styles.times, { borderTopColor: colors.border }]}>
 					<View style={styles.wrapButton}>
-						{props.isAuthUser && (
+						{props.isAuthUser && props.profile.member.isTrackingEnabled && (
 							<TimerButton isActiveTask={props.activeAuthTask} task={props.task} />
 						)}
 						{!props.isAssigned && !props.isAuthUser && (

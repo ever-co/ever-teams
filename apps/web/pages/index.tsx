@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Breadcrumb, Button, Card, Container } from 'lib/components';
+import { Breadcrumb, Card, Container } from 'lib/components';
 import {
 	AuthUserTaskInput,
 	TeamInvitations,
@@ -11,15 +11,9 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useCollaborative, useOrganizationTeams } from '@app/hooks';
+import { useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
-import {
-	BrushSquareLinearIcon,
-	CallOutGoingLinearIcon,
-	CloseIcon,
-	PeopleIcon,
-	Profile2UserLinearIcon,
-} from 'lib/components/svgs';
+import { PeopleIcon } from 'lib/components/svgs';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -36,7 +30,7 @@ function MainPage() {
 						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 
-					<Collaborative />
+					{/* <Collaborative /> */}
 				</div>
 
 				<UnverifiedEmail />
@@ -58,76 +52,6 @@ function MainPage() {
 
 			<Container>{isTeamMember ? <TeamMembers /> : <NoTeam />}</Container>
 		</MainLayout>
-	);
-}
-
-function Collaborative() {
-	const {
-		collaborativeSelect,
-		setCollaborativeSelect,
-		setCollaborativeMembers,
-		onMeetClick,
-		onBoardClick,
-	} = useCollaborative();
-
-	const { trans } = useTranslation();
-
-	return (
-		<div className="pr-2">
-			{!collaborativeSelect && (
-				<Button
-					onClick={() => setCollaborativeSelect(true)}
-					className={clsxm(
-						'rounded-lg py-1 text-sm font-thin',
-						'gap-1 items-center'
-					)}
-					type="button"
-					variant="outline-dark"
-				>
-					<Profile2UserLinearIcon className="w-4 h-4 stroke-dark dark:stroke-light--theme-light" />
-					{trans.common.COLLABORATE}
-				</Button>
-			)}
-
-			{collaborativeSelect && (
-				<div className="flex space-x-3">
-					<Button
-						onClick={onMeetClick}
-						className={clsxm(
-							'rounded-lg flex min-w-0 py-0 px-5 text-sm font-normal text-primary dark:text-light--theme-light',
-							'gap-1 items-center'
-						)}
-						variant="outline-dark"
-					>
-						<CallOutGoingLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
-						{trans.common.MEET}
-					</Button>
-
-					<Button
-						onClick={onBoardClick}
-						className={clsxm(
-							'rounded-lg flex min-w-0 py-0 px-5 text-sm font-normal text-primary dark:text-light--theme-light',
-							'gap-1 items-center'
-						)}
-						variant="outline-dark"
-					>
-						<BrushSquareLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
-						{trans.common.BOARD}
-					</Button>
-
-					<Button
-						onClick={() => {
-							setCollaborativeSelect(false);
-							setCollaborativeMembers([]);
-						}}
-						className="min-w-0 rounded-lg px-1 w-7 py-1"
-						variant="outline-danger"
-					>
-						<CloseIcon className="w-4 stroke-[#EB6961] dark:stroke-[#EB6961]" />
-					</Button>
-				</div>
-			)}
-		</div>
 	);
 }
 

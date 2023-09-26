@@ -151,7 +151,7 @@ export function TeamItem({
 			<div className="flex gap-1">
 				<span
 					className={clsxm(
-						'text-normal',
+						'text-normal md:max-w-[100px]',
 						'whitespace-nowrap text-ellipsis overflow-hidden'
 					)}
 				>
