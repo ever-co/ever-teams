@@ -35,7 +35,12 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
 import { Node, Element } from 'slate';
-import { Button } from 'lib/components';
+import { Button, InputField } from 'lib/components';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@components/ui/popover';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -318,7 +323,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
 					</span>
 				</Button>
-				{showDropdown && (
+				{/* {showDropdown && (
 					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-dark--theme-light border border-gray-300 dark:border-gray-700 rounded shadow">
 						{blockOptions.map((option) => (
 							<button
@@ -352,7 +357,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 							</button>
 						))}
 					</div>
-				)}
+				)} */}
 			</div>
 			<BlockButton
 				format="checklist"
@@ -365,9 +370,33 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
-			<button onClick={handleLinkIconClick} name="Insert Link">
+			{/* <button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
-			</button>
+			</button> */}
+
+			<Popover>
+				<PopoverTrigger>
+					<LinkIcon />
+				</PopoverTrigger>
+				<PopoverContent className="flex flex-row items-center">
+					<InputField
+						type="text"
+						className="outline-none h-10 text-xs text-[#5000B9] dark:text-primary-light border-r dark:bg-dark--theme-light"
+						wrapperClassName="mb-0"
+						onChange={(e) => setLink(e.target.value)}
+						value={link}
+						ref={inputRef}
+					/>
+					<Button
+						onClick={handleInsertLink}
+						variant="ghost"
+						className="min-w-0 h-10"
+					>
+						<LinkIcon />
+					</Button>
+				</PopoverContent>
+			</Popover>
+
 			{showLinkPopup && (
 				<div
 					onKeyDown={handleInsertLinkOnEnter}
