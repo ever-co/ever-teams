@@ -248,7 +248,12 @@ function WorkSpaceScreen({
 	);
 
 	useEffect(() => {
-		if (form.workspaces.length === 1) {
+		if (
+			form.workspaces.length === 1 &&
+			form.workspaces[0].current_teams.length === 1
+		) {
+			setSelectedWorkspace(0);
+			setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
