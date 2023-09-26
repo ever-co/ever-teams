@@ -12,7 +12,7 @@
 import "./i18n"
 import "./utils/ignoreWarnings"
 import { useFonts } from "expo-font"
-import React from "react"
+import React, { useEffect } from "react"
 import { Provider as PaperProvider } from "react-native-paper"
 
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
@@ -24,6 +24,7 @@ import { customDarkTheme, customFontsToLoad, customLightTheme } from "./theme"
 import { setupReactotron } from "./services/reactotron"
 import Config from "./config"
 import { observer } from "mobx-react-lite"
+import { initCrashReporting } from "./utils/crashReporting"
 
 // Set up Reactotron, which is a free desktop app for inspecting and debugging
 // React Native apps. Learn more here: https://github.com/infinitered/reactotron
@@ -59,6 +60,10 @@ const App = observer((props: AppProps) => {
 	const {
 		authenticationStore: { isDarkMode },
 	} = useStores()
+
+	useEffect(() => {
+		initCrashReporting() // To initialize Sentry.io
+	}, [])
 
 	const [areFontsLoaded] = useFonts(customFontsToLoad)
 
