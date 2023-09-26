@@ -1,16 +1,7 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
-import React, {
-	useEffect,
-	useRef,
-	useState,
-	useMemo,
-	useCallback,
-} from 'react';
-import {
-	insertLink,
-	TextEditorService,
-} from './editor-components/TextEditorService';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { insertLink } from './editor-components/TextEditorService';
 
 import {
 	BoldIcon,
@@ -53,7 +44,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');
 	const [copied, setCopied] = useState(false);
-	const [linkPopupPosition, setLinkPopupPosition] = useState({
+	const [linkPopupPosition] = useState({
 		left: 0,
 		top: 0,
 	});
@@ -62,28 +53,28 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const inputRef = useRef<any>(null);
 	const dropdownRef = useRef<any>(null);
 
-	const handleLinkIconClick = () => {
-		const selection = editor.selection;
-		if (selection) {
-			const domSelection = window.getSelection();
-			const editorContainer = document.getElementById('editor-container');
-			if (
-				domSelection &&
-				domSelection.rangeCount > 0 &&
-				editorContainer &&
-				editorContainer.contains(domSelection.anchorNode) &&
-				editorContainer.contains(domSelection.focusNode)
-			) {
-				const range = domSelection.getRangeAt(0);
-				const rect = range.getBoundingClientRect();
-				setLinkPopupPosition({
-					left: rect.left + window.pageXOffset,
-					top: rect.bottom + window.pageYOffset,
-				});
-			}
-		}
-		setShowLinkPopup(true);
-	};
+	// const handleLinkIconClick = () => {
+	// 	const selection = editor.selection;
+	// 	if (selection) {
+	// 		const domSelection = window.getSelection();
+	// 		const editorContainer = document.getElementById('editor-container');
+	// 		if (
+	// 			domSelection &&
+	// 			domSelection.rangeCount > 0 &&
+	// 			editorContainer &&
+	// 			editorContainer.contains(domSelection.anchorNode) &&
+	// 			editorContainer.contains(domSelection.focusNode)
+	// 		) {
+	// 			const range = domSelection.getRangeAt(0);
+	// 			const rect = range.getBoundingClientRect();
+	// 			setLinkPopupPosition({
+	// 				left: rect.left + window.pageXOffset,
+	// 				top: rect.bottom + window.pageYOffset,
+	// 			});
+	// 		}
+	// 	}
+	// 	setShowLinkPopup(true);
+	// };
 
 	useEffect(() => {
 		if (showLinkPopup) {
@@ -164,18 +155,18 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		};
 	}, [onClickOutsideOfDropdown]);
 
-	const isBlockActiveMemo = useMemo(() => {
-		return (
-			isBlockActive &&
-			((format: string) => {
-				return isBlockActive(
-					editor,
-					format,
-					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-				);
-			})
-		);
-	}, [editor, isBlockActive]);
+	// const isBlockActiveMemo = useMemo(() => {
+	// 	return (
+	// 		isBlockActive &&
+	// 		((format: string) => {
+	// 			return isBlockActive(
+	// 				editor,
+	// 				format,
+	// 				TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+	// 			);
+	// 		})
+	// 	);
+	// }, [editor, isBlockActive]);
 
 	return (
 		<div className="flex flex-row justify-end items-center mt-8 gap-1">
@@ -443,16 +434,16 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 };
 export default Toolbar;
 
-const blockOptions = [
-	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
-	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
-	{ format: 'ol', icon: OrderedListIcon, label: 'Ordered List' },
-	{ format: 'ul', icon: UnorderedListIcon, label: 'Unordered List' },
-	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
-	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
-	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
-	{ format: 'justify', icon: AlignJustifyIcon, label: 'Justify' },
-];
+// const blockOptions = [
+// 	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
+// 	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
+// 	{ format: 'ol', icon: OrderedListIcon, label: 'Ordered List' },
+// 	{ format: 'ul', icon: UnorderedListIcon, label: 'Unordered List' },
+// 	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
+// 	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
+// 	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
+// 	{ format: 'justify', icon: AlignJustifyIcon, label: 'Justify' },
+// ];
 
-const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
-const LIST_TYPES = ['ol', 'ul'];
+// const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
+// const LIST_TYPES = ['ol', 'ul'];

@@ -8,7 +8,6 @@ import { TaskStatusesForm } from './task-statuses-form';
 import { TaskPrioritiesForm } from './task-priorities-form';
 import { TaskSizesForm } from './task-sizes-form';
 import { TaskLabelForm } from './task-labels-form';
-import { RelatedIssueTypeForm } from './related-issue-type-form';
 
 export const IssuesSettings = () => {
 	const { trans } = useTranslation('settingsTeam');
