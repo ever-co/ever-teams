@@ -7,7 +7,6 @@ import {
 	Nullable,
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { PlusIcon } from '@heroicons/react/20/solid';
 import {
 	BackButton,
 	Button,
@@ -73,8 +72,7 @@ export function TaskIssuesDropdown({
 	showIssueLabels?: boolean;
 	taskStatusClassName?: string;
 }) {
-	const { trans } = useTranslation();
-	const { isOpen, openModal, closeModal } = useModal();
+	const { isOpen, closeModal } = useModal();
 	const { item, items, onChange } = useStatusValue<'issueType'>({
 		status: taskIssues,
 		value: defaultValue,
