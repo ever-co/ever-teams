@@ -886,7 +886,7 @@ export function TaskStatus({
 						style={
 							isVersion
 								? {
-										color: readableColorHex,
+										color: theme === 'light' ? '#000' : '#FFF',
 								  }
 								: {}
 						}

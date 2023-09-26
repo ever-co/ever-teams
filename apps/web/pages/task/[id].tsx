@@ -53,7 +53,7 @@ const TaskDetails = () => {
 						<span
 							className="cursor-pointer"
 							onClick={() => {
-								router.back();
+								router.replace('/');
 							}}
 						>
 							<ArrowLeft className="h-6 w-6" />
