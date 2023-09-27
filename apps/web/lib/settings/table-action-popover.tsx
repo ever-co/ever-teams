@@ -39,7 +39,7 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 	// 	setIsOpen(!isOpen);
 	// };
 	return (
-		<Popover className="relative border-none no-underline w-full">
+		<Popover className="border-none no-underline w-full">
 			{() => (
 				<>
 					<Transition
@@ -51,7 +51,7 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 						leaveFrom="opacity-100 translate-y-0"
 						leaveTo="opacity-0 translate-y-1"
 					>
-						<Popover.Panel className="z-10 absolute right-0 bg-white rounded-2xl w-[7.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]">
+						<Popover.Panel className="z-10 absolute right-16 bg-white rounded-2xl w-[7.5rem] flex flex-col pl-5 pr-5 pt-2 pb-2 shadow-xlcard dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]">
 							{/* TODO Dynamic */}
 							{/* Edit */}
 							<div
