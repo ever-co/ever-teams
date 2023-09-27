@@ -55,14 +55,15 @@ export function useAuthenticationTeam() {
 
 	const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
 
-	const signInWorkspace = async () => {
+	const signInWorkspace = async ({ signinAuthToken }: { signinAuthToken?: string } = {}) => {
+		const token = signinAuthToken || tempAuthToken
 		try {
 			setIsSubmitted(true)
 			setAttemptsCount(attemptsCount + 1)
 
 			setIsLoading(true)
 
-			const { response } = await signIn({ email: authEmail, token: tempAuthToken })
+			const { response } = await signIn({ email: authEmail, token })
 
 			if (response) {
 				setUser(response.data.authStoreData.user)

@@ -79,16 +79,32 @@ const PassCode: FC<Props> = observer(
 				const response: VerificationResponse = await verifyEmailAndCodeOrAcceptInvite()
 
 				setTimeout(() => {
-					if (!isLoading && response.data?.workspaces) {
+					if (
+						!isLoading &&
+						response.data?.workspaces &&
+						response.data?.workspaces[0].current_teams.length > 1
+					) {
 						setWorkspaceData(response.data.workspaces)
 						setAuthInviteCode("")
 						setActiveTeamId("")
 						setStep("Tenant")
+					} else if (
+						!isLoading &&
+						response.data?.workspaces &&
+						response.data?.workspaces.length === 1 &&
+						response.data?.workspaces[0].current_teams.length === 1
+					) {
+						// if there is 1 workspace and 1 team -> log the user
+						setTempAuthToken(response.data?.workspaces[0]?.token)
+						setActiveTeamId(response.data?.workspaces[0].current_teams[0]?.team_id)
+
+						// login
+						// @ts-ignore
+						signInWorkspace({ signinAuthToken: response.data?.workspaces[0]?.token })
 					}
 				}, 1000)
 			}
 			if (step === "Tenant") {
-				// joinTeam()
 				signInWorkspace()
 			}
 		}
