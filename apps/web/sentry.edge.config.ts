@@ -5,6 +5,14 @@
 
 import * as Sentry from '@sentry/nextjs';
 
+console.log(
+	'NEXT_PUBLIC_SENTRY_DEBUG',
+	process.env.NEXT_PUBLIC_SENTRY_DEBUG &&
+		process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true'
+		? true
+		: false
+);
+
 Sentry.init({
 	dsn: process.env.NEXT_PUBLIC_SENTRY_DNS,
 
@@ -12,5 +20,9 @@ Sentry.init({
 	tracesSampleRate: 1,
 
 	// Setting this option to true will print useful information to the console while you're setting up Sentry.
-	debug: false,
+	debug:
+		process.env.NEXT_PUBLIC_SENTRY_DEBUG &&
+		process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true'
+			? true
+			: false,
 });
