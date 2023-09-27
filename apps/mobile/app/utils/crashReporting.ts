@@ -23,11 +23,12 @@ import * as Sentry from "sentry-expo"
  *  This is where you put your crash reporting service initialization code to call in `./app/app.tsx`
  */
 export const initCrashReporting = () => {
-	Sentry.init({
-		dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-		enableInExpoDevelopment: true,
-		debug: __DEV__, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
-	})
+	process.env.EXPO_PUBLIC_SENTRY_DSN &&
+		Sentry.init({
+			dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+			enableInExpoDevelopment: true,
+			debug: __DEV__, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
+		})
 	// Bugsnag.start("YOUR API KEY")
 }
 /**
@@ -60,7 +61,7 @@ export const reportCrash = (error: any, type: ErrorType = ErrorType.FATAL) => {
 		// RN
 		// Sentry.captureException(error)
 		// Expo
-		Sentry.Native.captureException(error)
+		process.env.EXPO_PUBLIC_SENTRY_DSN && Sentry.Native.captureException(error)
 		// crashlytics().recordError(error)
 		// Bugsnag.notify(error)
 	}

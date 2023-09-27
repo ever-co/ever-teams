@@ -82,8 +82,8 @@
 				{
 					"file": "sentry-expo/upload-sourcemaps",
 					"config": {
-						"organization": "SENTRY_ORG",
-						"project": "SENTRY_PROJECT"
+						"organization": "ever-co",
+						"project": "ever-teams-mobile"
 					}
 				}
 			]
