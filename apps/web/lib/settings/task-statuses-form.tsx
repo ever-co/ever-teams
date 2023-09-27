@@ -40,10 +40,10 @@ export const TaskStatusesForm = ({
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
 		'x-large',
-		'large',
-		'medium',
-		'small',
-		'tiny',
+		// 'large',
+		// 'medium',
+		// 'small',
+		// 'tiny',
 	]);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
 		'urgent',

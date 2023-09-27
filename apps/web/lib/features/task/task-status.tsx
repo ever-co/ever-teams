@@ -34,7 +34,7 @@ import {
 } from '@app/hooks';
 import Image from 'next/legacy/image';
 import capitalize from 'lodash/capitalize';
-import { CircleIcon } from 'lib/components/svgs';
+import { CategoryIcon, CircleIcon } from 'lib/components/svgs';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { readableColor } from 'polished';
 import { useTheme } from 'next-themes';
@@ -461,10 +461,15 @@ export function EpicPropertiesDropdown({
 		const temp: any = {};
 		tasks.forEach((task) => {
 			if (task.issueType === 'Epic') {
-				temp[task.title] = {
+				temp[`#${task.taskNumber} ${task.title}`] = {
 					id: task.id,
-					name: task.title,
+					name: `#${task.taskNumber} ${task.title}`,
 					value: task.id,
+					icon: (
+						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+							<CategoryIcon />
+						</div>
+					),
 				};
 			}
 		});
@@ -490,6 +495,7 @@ export function EpicPropertiesDropdown({
 			values={values}
 			showButtonOnly
 			taskStatusClassName={taskStatusClassName}
+			isEpic
 		>
 			{children}
 		</StatusDropdown>
@@ -815,6 +821,7 @@ export function TaskStatus({
 	sidebarUI = false,
 	realName,
 	isVersion,
+	isEpic,
 }: PropsWithChildren<
 	TStatusItem &
 		IClassName & {
@@ -827,6 +834,7 @@ export function TaskStatus({
 			sidebarUI?: boolean;
 			value?: string;
 			isVersion?: boolean;
+			isEpic?: boolean;
 		}
 >) {
 	const { theme } = useTheme();
@@ -884,9 +892,9 @@ export function TaskStatus({
 					<div
 						className={`capitalize text-ellipsis overflow-hidden`}
 						style={
-							isVersion
+							isVersion || isEpic
 								? {
-										color: readableColorHex,
+										color: theme === 'light' ? '#000' : '#FFF',
 								  }
 								: {}
 						}
@@ -925,6 +933,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	sidebarUI = false,
 	disabledReason = '',
 	isVersion = false,
+	isEpic = false,
 	onRemoveSelected,
 }: PropsWithChildren<{
 	value: T | undefined;
@@ -947,6 +956,7 @@ export function StatusDropdown<T extends TStatusItem>({
 	sidebarUI?: boolean;
 	disabledReason?: string;
 	isVersion?: boolean;
+	isEpic?: boolean;
 	onRemoveSelected?: () => null;
 }>) {
 	const defaultValue: TStatusItem = {
@@ -987,6 +997,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
 			)}
 			isVersion={isVersion}
+			isEpic={isEpic}
 		>
 			{/* If the issueType equal to status thee render the chevron down icon.  */}
 			{issueType === 'status' && !showButtonOnly && (
@@ -1043,7 +1054,8 @@ export function StatusDropdown<T extends TStatusItem>({
 												'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
 												forDetails &&
 													'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
-												taskStatusClassName
+												taskStatusClassName,
+												'max-w-10'
 											)}
 											name={
 												values.length > 0
@@ -1052,6 +1064,7 @@ export function StatusDropdown<T extends TStatusItem>({
 													  })`
 													: defaultValue.name
 											}
+											isEpic={isEpic}
 										>
 											<ChevronDownIcon
 												className={clsxm(
@@ -1072,7 +1085,8 @@ export function StatusDropdown<T extends TStatusItem>({
 									leaveTo="transform scale-95 opacity-0"
 									className={clsxm(
 										'absolute right-0 left-0 z-40 min-w-min outline-none',
-										issueType === 'issue' && ['left-auto right-auto']
+										issueType === 'issue' && ['left-auto right-auto'],
+										isEpic && '-left-100 right-10'
 									)}
 								>
 									<Listbox.Options className="outline-none">
@@ -1104,7 +1118,7 @@ export function StatusDropdown<T extends TStatusItem>({
 																	],
 																	`${sidebarUI ? 'rounded-[4px]' : ''}`,
 																	`${bordered ? 'input-border' : ''}`,
-																	isVersion && 'dark:text-white'
+																	(isVersion || isEpic) && 'dark:text-white'
 																)}
 															/>
 
@@ -1118,10 +1132,10 @@ export function StatusDropdown<T extends TStatusItem>({
 																			onRemoveSelected && onRemoveSelected();
 																			onChange && onChange(null as any);
 																		}}
-																		className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+																		className="absolute top-2.5 right-2 h-4 w-4 bg-light--theme-light dark:bg-dark--theme-light"
 																	>
 																		<XMarkIcon
-																			className="text-dark"
+																			className="text-dark dark:text-white"
 																			height={16}
 																			width={16}
 																			aria-hidden="true"

@@ -18,6 +18,7 @@ import {
 	createEditor,
 	Element as SlateElement,
 	Descendant,
+	Transforms,
 } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
@@ -78,6 +79,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		} else {
 			value = [{ type: 'paragraph', children: [{ text: '' }] }];
 		}
+		setEditorValue(value);
 		return value;
 	}, [task]);
 
@@ -87,13 +89,33 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		}
 	}, [initialValue, key]);
 
+	const clearUnsavedValues = () => {
+		// Delete all entries leaving 1 empty node
+		Transforms.delete(editor, {
+			at: {
+				anchor: Editor.start(editor, []),
+				focus: Editor.end(editor, []),
+			},
+		});
+
+		// Removes empty node
+		Transforms.removeNodes(editor, {
+			at: [0],
+		});
+
+		// Insert array of children nodes
+		Transforms.insertNodes(editor, initialValue);
+
+		setIsUpdated(false);
+	};
+
 	return (
 		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
 			{task && (
 				<Slate
 					key={key}
 					editor={editor}
-					value={initialValue}
+					value={editorValue}
 					onChange={(e) => {
 						setEditorValue(e);
 						setIsUpdated(true);
@@ -134,6 +156,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 						setIsUpdated={() => setIsUpdated(false)}
 						editorValue={editorValue}
 						editorRef={editorRef}
+						clearUnsavedValues={clearUnsavedValues}
 					/>
 				</Slate>
 			)}
