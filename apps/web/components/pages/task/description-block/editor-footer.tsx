@@ -13,6 +13,7 @@ interface IDFooterProps {
 	setIsUpdated: () => void;
 	editorValue?: any;
 	editorRef: any;
+	clearUnsavedValues: () => void;
 }
 
 const EditorFooter = ({
@@ -20,6 +21,7 @@ const EditorFooter = ({
 	setIsUpdated,
 	editorValue,
 	editorRef,
+	clearUnsavedValues,
 }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
@@ -32,7 +34,10 @@ const EditorFooter = ({
 	);
 
 	const cancelEdit = () => {
-		setIsUpdated();
+		clearUnsavedValues();
+		setTimeout(() => {
+			setIsUpdated();
+		}, 10);
 	};
 
 	useEffect(() => {
@@ -48,6 +53,7 @@ const EditorFooter = ({
 			document.removeEventListener('mousedown', handleClickOutsideEditor);
 		};
 	}, [editorRef, setIsUpdated]);
+
 	return (
 		<div>
 			<div
@@ -57,7 +63,9 @@ const EditorFooter = ({
 			>
 				<Button
 					variant="grey"
-					onClick={cancelEdit}
+					onClick={() => {
+						cancelEdit();
+					}}
 					className=" dark:bg-gray-500 font-medium min-w-[5rem] w-[3rem] text-sm px-6 py-2 m-1 rounded-lg transition-all"
 					disabled={!isUpdated}
 				>

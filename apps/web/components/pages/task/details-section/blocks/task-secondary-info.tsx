@@ -96,7 +96,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full py-1 px-2 text-[0.625rem] mt-3 dark:text-white dark:border-white"
+						className="w-full py-1 px-2 text-[0.625rem] mt-3  dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('version')}
 					>

@@ -1,16 +1,7 @@
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
-import React, {
-	useEffect,
-	useRef,
-	useState,
-	useMemo,
-	useCallback,
-} from 'react';
-import {
-	insertLink,
-	TextEditorService,
-} from './editor-components/TextEditorService';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { insertLink } from './editor-components/TextEditorService';
 
 import {
 	BoldIcon,
@@ -35,7 +26,12 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
 import { Node, Element } from 'slate';
-import { Button } from 'lib/components';
+import { Button, InputField } from 'lib/components';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@components/ui/popover';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -48,7 +44,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');
 	const [copied, setCopied] = useState(false);
-	const [linkPopupPosition, setLinkPopupPosition] = useState({
+	const [linkPopupPosition] = useState({
 		left: 0,
 		top: 0,
 	});
@@ -57,28 +53,28 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const inputRef = useRef<any>(null);
 	const dropdownRef = useRef<any>(null);
 
-	const handleLinkIconClick = () => {
-		const selection = editor.selection;
-		if (selection) {
-			const domSelection = window.getSelection();
-			const editorContainer = document.getElementById('editor-container');
-			if (
-				domSelection &&
-				domSelection.rangeCount > 0 &&
-				editorContainer &&
-				editorContainer.contains(domSelection.anchorNode) &&
-				editorContainer.contains(domSelection.focusNode)
-			) {
-				const range = domSelection.getRangeAt(0);
-				const rect = range.getBoundingClientRect();
-				setLinkPopupPosition({
-					left: rect.left + window.pageXOffset,
-					top: rect.bottom + window.pageYOffset,
-				});
-			}
-		}
-		setShowLinkPopup(true);
-	};
+	// const handleLinkIconClick = () => {
+	// 	const selection = editor.selection;
+	// 	if (selection) {
+	// 		const domSelection = window.getSelection();
+	// 		const editorContainer = document.getElementById('editor-container');
+	// 		if (
+	// 			domSelection &&
+	// 			domSelection.rangeCount > 0 &&
+	// 			editorContainer &&
+	// 			editorContainer.contains(domSelection.anchorNode) &&
+	// 			editorContainer.contains(domSelection.focusNode)
+	// 		) {
+	// 			const range = domSelection.getRangeAt(0);
+	// 			const rect = range.getBoundingClientRect();
+	// 			setLinkPopupPosition({
+	// 				left: rect.left + window.pageXOffset,
+	// 				top: rect.bottom + window.pageYOffset,
+	// 			});
+	// 		}
+	// 	}
+	// 	setShowLinkPopup(true);
+	// };
 
 	useEffect(() => {
 		if (showLinkPopup) {
@@ -159,18 +155,18 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 		};
 	}, [onClickOutsideOfDropdown]);
 
-	const isBlockActiveMemo = useMemo(() => {
-		return (
-			isBlockActive &&
-			((format: string) => {
-				return isBlockActive(
-					editor,
-					format,
-					TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-				);
-			})
-		);
-	}, [editor, isBlockActive]);
+	// const isBlockActiveMemo = useMemo(() => {
+	// 	return (
+	// 		isBlockActive &&
+	// 		((format: string) => {
+	// 			return isBlockActive(
+	// 				editor,
+	// 				format,
+	// 				TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
+	// 			);
+	// 		})
+	// 	);
+	// }, [editor, isBlockActive]);
 
 	return (
 		<div className="flex flex-row justify-end items-center mt-8 gap-1">
@@ -318,7 +314,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
 					</span>
 				</Button>
-				{showDropdown && (
+				{/* {showDropdown && (
 					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-dark--theme-light border border-gray-300 dark:border-gray-700 rounded shadow">
 						{blockOptions.map((option) => (
 							<button
@@ -352,7 +348,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 							</button>
 						))}
 					</div>
-				)}
+				)} */}
 			</div>
 			<BlockButton
 				format="checklist"
@@ -365,9 +361,33 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					) => boolean
 				}
 			/>
-			<button onClick={handleLinkIconClick} name="Insert Link">
+			{/* <button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
-			</button>
+			</button> */}
+
+			<Popover>
+				<PopoverTrigger>
+					<LinkIcon />
+				</PopoverTrigger>
+				<PopoverContent className="flex flex-row items-center">
+					<InputField
+						type="text"
+						className="outline-none h-10 text-xs text-[#5000B9] dark:text-primary-light border-r dark:bg-dark--theme-light"
+						wrapperClassName="mb-0"
+						onChange={(e) => setLink(e.target.value)}
+						value={link}
+						ref={inputRef}
+					/>
+					<Button
+						onClick={handleInsertLink}
+						variant="ghost"
+						className="min-w-0 h-10"
+					>
+						<LinkIcon />
+					</Button>
+				</PopoverContent>
+			</Popover>
+
 			{showLinkPopup && (
 				<div
 					onKeyDown={handleInsertLinkOnEnter}
@@ -414,16 +434,16 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 };
 export default Toolbar;
 
-const blockOptions = [
-	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
-	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
-	{ format: 'ol', icon: OrderedListIcon, label: 'Ordered List' },
-	{ format: 'ul', icon: UnorderedListIcon, label: 'Unordered List' },
-	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
-	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
-	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
-	{ format: 'justify', icon: AlignJustifyIcon, label: 'Justify' },
-];
+// const blockOptions = [
+// 	{ format: 'h1', icon: HeaderOneIcon, label: 'Heading 1' },
+// 	{ format: 'h2', icon: HeaderTwoIcon, label: 'Heading 2' },
+// 	{ format: 'ol', icon: OrderedListIcon, label: 'Ordered List' },
+// 	{ format: 'ul', icon: UnorderedListIcon, label: 'Unordered List' },
+// 	{ format: 'left', icon: AlignLeftIcon, label: 'Align Left' },
+// 	{ format: 'center', icon: AlignCenterIcon, label: 'Align Center' },
+// 	{ format: 'right', icon: AlignRightIcon, label: 'Align Right' },
+// 	{ format: 'justify', icon: AlignJustifyIcon, label: 'Justify' },
+// ];
 
-const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
-const LIST_TYPES = ['ol', 'ul'];
+// const TEXT_ALIGN_TYPES = ['left', 'center', 'right', 'justify'];
+// const LIST_TYPES = ['ol', 'ul'];

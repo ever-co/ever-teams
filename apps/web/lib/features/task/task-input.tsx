@@ -235,6 +235,13 @@ export function TaskInput(props: Props) {
 		} else {
 			updatedTaskList = datas.filteredTasks;
 		}
+
+		if (props.task?.children && props.task?.children?.length) {
+			const childrenTaskIds = props.task?.children?.map((item) => item.id);
+			updatedTaskList = updatedTaskList.filter(
+				(item) => !childrenTaskIds.includes(item.id)
+			);
+		}
 	}
 
 	useEffect(() => {
