@@ -82,7 +82,8 @@ const PassCode: FC<Props> = observer(
 					if (
 						!isLoading &&
 						response.data?.workspaces &&
-						response.data?.workspaces[0].current_teams.length > 1
+						(response.data?.workspaces.length > 1 ||
+							response.data?.workspaces[0].current_teams.length > 1)
 					) {
 						setWorkspaceData(response.data.workspaces)
 						setAuthInviteCode("")
