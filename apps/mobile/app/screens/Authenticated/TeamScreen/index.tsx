@@ -27,7 +27,6 @@ import HomeHeader from "../../../components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
 import CreateTeamModal from "../../../components/CreateTeamModal"
 import { useStores } from "../../../models"
-import { observer } from "mobx-react-lite"
 import InviteCardItem from "./components/InviteCardItem"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
@@ -41,7 +40,7 @@ import VerifyAccountModal from "./components/VerifyAccount"
 import { useVerifyEmail } from "../../../services/hooks/features/useVerifyEmail"
 
 const { width, height } = Dimensions.get("window")
-export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
+export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 	function AuthenticatedTeamScreen(_props) {
 		const { colors, dark } = useAppTheme()
 		LogBox.ignoreAllLogs()
@@ -209,8 +208,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 				</Screen>
 			</>
 		)
-	},
-)
+	}
 
 const $container: ViewStyle = {
 	...GS.flex1,

@@ -165,7 +165,7 @@ export function TaskCard(props: Props) {
 						isAuthUser={isAuthUser}
 						className="flex flex-col gap-2"
 						showTotal={viewType !== 'unassign'}
-						memberInfo={profile?.member}
+						memberInfo={memberInfo}
 					/>
 					{isTrackingEnabled && isAuthUser && task && (
 						<TimerButtonCall
