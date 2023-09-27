@@ -25,5 +25,6 @@ const fetchAllTasks = async (params: IGetAllTasksParams) => {
 const useFetchAllTasks = (IGetAllTasksParams) =>
 	useQuery(["tasks", IGetAllTasksParams], () => fetchAllTasks(IGetAllTasksParams), {
 		refetchInterval: 5000,
+		notifyOnChangeProps: ["data"], // Re-render only when data changes
 	})
 export default useFetchAllTasks

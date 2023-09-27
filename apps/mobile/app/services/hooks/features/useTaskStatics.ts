@@ -4,7 +4,7 @@ import { ITeamTask } from "../../interfaces/ITask"
 import { ITasksTimesheet } from "../../interfaces/ITimer"
 import { useFirstLoad } from "../useFirstLoad"
 import { useSyncRef } from "../useSyncRef"
-import debounce from "lodash/debounce"
+// import debounce from "lodash/debounce"
 import { tasksStatistics } from "../../client/api/timer/tasksStatistics"
 import { useFetchAllTasksStats } from "../../client/queries/task/stats"
 import { Nullable } from "../../interfaces/hooks"
@@ -20,7 +20,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			setStatActiveTask,
 			setFetchingTasks,
 		},
-		TimerStore: { timerStatus },
+		// TimerStore: { timerStatus },
 		authenticationStore: { tenantId, authToken, organizationId, user },
 		teamStore: { activeTeam },
 	} = useStores()
@@ -87,11 +87,11 @@ export function useTaskStatistics(addSeconds = 0) {
 			today: data?.today ? data?.today[0] || null : null,
 		})
 		return data
-	}, [activeTask])
+	}, [activeTask]) // If there are a lot of tasks to load might cause slow load, as fetching a lot, depending on task count
 
-	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [
-		activeTaskId,
-	])
+	// const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [
+	// 	activeTaskId,
+	// ])
 
 	/**
 	 * Get statistics of the active tasks at the component load
@@ -107,11 +107,11 @@ export function useTaskStatistics(addSeconds = 0) {
 	/**
 	 * Get fresh statistic of the active task
 	 */
-	useEffect(() => {
-		if (!firstLoad && initialLoad.current) {
-			debounceLoadActiveTaskStat()
-		}
-	}, [firstLoad, timerStatus, activeTeamTask?.id])
+	// useEffect(() => {
+	// 	if (!firstLoad && initialLoad.current) {
+	// 		debounceLoadActiveTaskStat()
+	// 	}
+	// }, [firstLoad, timerStatus, activeTeamTask?.id])
 
 	/**
 	 * set null to active team stats when active team or active task are changed
