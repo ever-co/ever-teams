@@ -34,5 +34,6 @@ const fetchOrganizationUsers = async (params: IGetOrganizationUsers) => {
 export const useFetchOrganizationUsers = (IGetOrganizationUsers) =>
 	useQuery(["users", IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers), {
 		refetchInterval: 5000,
+		refetchOnMount: true,
 		notifyOnChangeProps: ["data"], // Re-render only when data changes
 	})
