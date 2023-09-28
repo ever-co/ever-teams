@@ -343,7 +343,7 @@ export function useTimer() {
 		) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Team Change
-			if (timerStatusRef.current.lastLog?.source === 'BROWSER') {
+			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {
 				stopTimer();
 			}
 		}
@@ -363,7 +363,7 @@ export function useTimer() {
 		if (canStop && timerStatusRef.current?.running) {
 			// If timer is started at some other source keep the timer running...
 			// If timer is started in the browser Stop the timer on Task Change
-			if (timerStatusRef.current.lastLog?.source === 'BROWSER') {
+			if (timerStatusRef.current.lastLog?.source === TimerSource.TEAMS) {
 				stopTimer();
 			}
 		}

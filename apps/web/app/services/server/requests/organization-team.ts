@@ -1,3 +1,4 @@
+import { TimerSource } from '@app/interfaces';
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import {
 	IOrganizationTeam,
@@ -95,7 +96,7 @@ export function getOrganizationTeamRequest(
 	const params = {
 		organizationId: organizationId,
 		tenantId: tenantId,
-		source: 'BROWSER',
+		source: TimerSource.TEAMS,
 		withLaskWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
 		endDate: moment().endOf('day').toISOString(),
@@ -139,7 +140,7 @@ export function getAllOrganizationTeamRequest(
 	const params = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		source: 'BROWSER',
+		source: TimerSource.TEAMS,
 		withLaskWorkedTask: 'true',
 	} as { [x: string]: string };
 
