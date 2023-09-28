@@ -38,7 +38,7 @@ export const CodeInput: FC<IInput> = (props) => {
 				// Current input has no value
 				if (!inviteCode[active]) {
 					const updatedCode = [...inviteCode]
-					updatedCode[active] = nativeEvent.key
+					updatedCode[active] = nativeEvent.key.toUpperCase()
 					setInviteCode(updatedCode)
 					onChange(updatedCode.join(""))
 				}
@@ -48,6 +48,10 @@ export const CodeInput: FC<IInput> = (props) => {
 					updatedCode[active + 1] = nativeEvent.key.toUpperCase()
 					setInviteCode(updatedCode)
 					onChange(updatedCode.join(""))
+
+					inputsRef.current[active + (active === length - 2 ? 1 : 2)]?.focus()
+					setActive(active + (active === length - 2 ? 1 : 2))
+					return
 				}
 				// Move focus to the next input
 				inputsRef.current[active + 1]?.focus()

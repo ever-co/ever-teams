@@ -70,6 +70,7 @@ const PassCode: FC<Props> = observer(
 				setTimeout(() => {
 					if (!isLoading) {
 						setStep("Code")
+						setAuthInviteCode("")
 					}
 				}, 1000)
 				return
