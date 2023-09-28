@@ -6,8 +6,8 @@
  * https://reactnative.dev/docs/security#storing-sensitive-info
  */
 
-import { GAUZY_PROD_API_SERVER_URL, } from '@env'
+import { GAUZY_API_URL } from "@env"
 
 export default {
-  API_URL: GAUZY_PROD_API_SERVER_URL,
+	API_URL: GAUZY_API_URL,
 }
