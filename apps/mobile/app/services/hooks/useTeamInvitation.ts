@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from "react"
 import { INVITE_CALLBACK_URL } from "@env"
 import isEqual from "lodash/isEqual"
 import { useStores } from "../../models"
-import { inviteByEmailsRequest, resendInvitationEmailRequest } from "../client/requests/invite"
+import {
+	inviteByEmailsRequest,
+	removeTeamInvitationsRequest,
+	resendInvitationEmailRequest,
+} from "../client/requests/invite"
 import { getEmployeeRoleRequest } from "../client/requests/roles"
 import { useFetchTeamInvitations } from "../client/queries/invitation/invitations"
 import { useSyncRef } from "./useSyncRef"
@@ -65,7 +69,15 @@ export function useTeamInvitations() {
 				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
 			},
 			authToken,
-		).then((res) => console.log(res))
+		)
+	}, [])
+
+	const removeSentInvitation = useCallback(async (inviteId: string) => {
+		await removeTeamInvitationsRequest({
+			invitationId: inviteId,
+			bearer_token: authToken,
+			tenantId,
+		})
 	}, [])
 
 	useEffect(() => {
@@ -98,5 +110,6 @@ export function useTeamInvitations() {
 		loading,
 		teamInvitations,
 		resendInvite,
+		removeSentInvitation,
 	}
 }

@@ -24,10 +24,12 @@ const TeamSize = ({
 	defaultValue,
 	onChange,
 	isTeamManager,
+	disabled: disableButton,
 }: {
 	defaultValue: string;
 	onChange: (teamSize: string) => void;
 	isTeamManager: boolean;
+	disabled?: boolean;
 }) => {
 	const [value, setValue] = useState(defaultValue || 'Only me');
 	const buttonRef = useRef<HTMLButtonElement>(null);
@@ -93,13 +95,13 @@ const TeamSize = ({
 					<Popover.Button
 						className="outline-none mb-[15px] w-full"
 						ref={buttonRef}
-						// disabled={disabled}
+						disabled={disableButton}
 						onClick={toggleDisabled}
 					>
 						<div
 							className={`relative w-[100%] h-[48px] ${
-								disabled ? 'bg-[#FCFCFC]' : ''
-							} bg-light--theme-light dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
+								disabled ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
+							} dark:bg-dark--theme-light border rounded-[10px] flex items-center justify-between input-border`}
 						>
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<div className="dark:text-white">{defaultValue}</div>
@@ -131,7 +133,7 @@ const TeamSize = ({
 					>
 						<Popover.Panel
 							ref={panelRef}
-							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow "
+							className="absolute left-1/2 z-10 mt-0 w-[354px] max-w-sm -translate-x-1/2 transform  sm:px-0 lg:max-w-3xl shandow outline-none"
 						>
 							<div className="bg-white shadow rounded-xl text-[14px] font-light p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
 								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
@@ -145,7 +147,7 @@ const TeamSize = ({
 										return (
 											<div
 												key={index}
-												className={`flex gap-3 items-center rounded-sm p-2 ${
+												className={`flex gap-3 items-center rounded-xl px-5 py-2 ${
 													size.name === value &&
 													'bg-primary dark:bg-primary-light'
 												}`}

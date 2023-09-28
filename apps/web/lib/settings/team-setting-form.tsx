@@ -228,6 +228,7 @@ export const TeamSettingForm = () => {
 											debounceHandleColorChange();
 										}}
 										isTeamManager={isTeamManager}
+										disabled={!isTeamManager}
 										fullWidthInput
 									/>
 								</div>
@@ -246,6 +247,7 @@ export const TeamSettingForm = () => {
 										}}
 										emoji={activeTeam?.emoji || null}
 										isTeamManager={isTeamManager}
+										disabled={!isTeamManager}
 									/>
 								</div>
 							</div>
@@ -264,6 +266,7 @@ export const TeamSettingForm = () => {
 												handleChange();
 											}}
 											isTeamManager={isTeamManager}
+											disabled={!isTeamManager}
 										/>
 									</div>
 								</div>
@@ -276,8 +279,8 @@ export const TeamSettingForm = () => {
 								</Text>
 								<div className="flex gap-x-[30px] flex-col sm:flex-row items-center">
 									{isTeamManager && (
-										<div className="items-center w-full flex justify-between sm:block">
-											<div>
+										<div className="items-center w-full flex justify-between sm:block space-y-2">
+											<div className="flex items-center">
 												<input
 													id="team-type-radio-public"
 													{...register('teamType', {
@@ -292,7 +295,7 @@ export const TeamSettingForm = () => {
 												/>
 												<Text.Label>Public Team</Text.Label>
 											</div>
-											<div>
+											<div className="flex items-center">
 												<input
 													id="team-type-radio-private"
 													{...register('teamType', {

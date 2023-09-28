@@ -23,11 +23,15 @@ import stc from 'string-to-color';
 
 const Profile = () => {
 	const profile = useUserProfilePage();
-	const { isTrackingEnabled } = useOrganizationTeams();
+	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 
 	const hook = useTaskFilter(profile);
 
 	const { trans } = useTranslation('profile');
+	const breadcrumb = [
+		{ title: activeTeam?.name || '', href: '/' },
+		...trans.BREADCRUMB,
+	];
 
 	const profileIsAuthUser = useMemo(
 		() => profile.isAuthUser,
@@ -47,7 +51,7 @@ const Profile = () => {
 							<ArrowLeft className="h-6 w-6" />
 						</Link>
 
-						<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 
 					{/* User Profile Detail */}
@@ -122,14 +126,17 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 									? 'pause'
 									: !member?.employee?.isActive
 									? 'suspended'
-									: member?.employee?.isOnline &&
-									  member?.timerStatus !== 'running'
-									? 'online'
+									: member?.employee?.isOnline
+									? // && member?.timerStatus !== 'running'
+									  'online'
 									: !member?.totalTodayTasks?.length
 									? 'idle'
+									: member?.totalTodayTasks?.length
+									? 'pause'
 									: member?.timerStatus || 'idle'
 							}
 							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
+							tooltipClassName="mt-24 dark:mt-20 mr-3"
 						/>
 					</Avatar>
 				) : (

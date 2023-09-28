@@ -19,7 +19,7 @@ export const config = {
 		'/settings/(.*)',
 		'/task(.*)',
 		'/meet(.*)',
-		'/whiteboard(.*)',
+		'/board(.*)',
 	],
 };
 

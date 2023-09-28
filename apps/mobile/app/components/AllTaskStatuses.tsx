@@ -22,9 +22,19 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const allPriorities = useTaskPriorityValue()
 	const allLabels = useTaskLabelValue()
 
-	const status = allStatuses[task?.status.split("-").join(" ")]
-	const size = allSizes[task?.size]
-	const priority = allPriorities[task?.priority]
+	const statusValue = task?.status?.split("-").join(" ").toLowerCase()
+	const status =
+		allStatuses &&
+		Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue)
+
+	const sizeValue = task?.size?.split("-").join(" ").toLowerCase()
+	const size =
+		allSizes && Object.values(allSizes).find((item) => item?.name.toLowerCase() === sizeValue)
+
+	const priorityValue = task?.priority?.split("-").join(" ").toLowerCase()
+	const priority =
+		allPriorities &&
+		Object.values(allPriorities).find((item) => item?.name.toLowerCase() === priorityValue)
 
 	const taskLabels = task?.tags.map((tag) => allLabels[tag.name])
 

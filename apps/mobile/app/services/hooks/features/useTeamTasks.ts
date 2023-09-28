@@ -12,6 +12,7 @@ import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
 import { useSyncRef } from "../useSyncRef"
 import { useFirstLoad } from "../useFirstLoad"
 import isEqual from "lodash/isEqual"
+import { useOrganizationTeam } from "../useOrganization"
 
 export function useTeamTasks() {
 	const {
@@ -27,9 +28,12 @@ export function useTeamTasks() {
 		},
 	} = useStores()
 
+	const { updateOrganizationTeamEmployeeActiveTask, currentUser } = useOrganizationTeam()
+
 	const tasksRef = useSyncRef(teamTasks)
-	const [tasksFetching, setTasksFetching] = useState(false)
-	const [createLoading, setCreateLoading] = useState(false)
+	const [tasksFetching, setTasksFetching] = useState<boolean>(false)
+	const [isUpdatingActiveTask, setIsUpdatingActiveTask] = useState<boolean>(false)
+	const [createLoading, setCreateLoading] = useState<boolean>(false)
 	const activeTeamRef = useSyncRef(activeTeam)
 
 	const { firstLoad, firstLoadData: firstLoadTaskData } = useFirstLoad()
@@ -223,12 +227,41 @@ export function useTeamTasks() {
 	 * Change active task
 	 */
 	const setActiveTeamTask = useCallback(
-		(task: ITeamTask | null) => {
-			setActiveTask(task)
-			setActiveTaskId(task?.id || "")
+		async (task: ITeamTask | null) => {
+			try {
+				setIsUpdatingActiveTask(true)
+				const { response } = await updateOrganizationTeamEmployeeActiveTask(
+					currentUser,
+					task?.id,
+					activeTeamId,
+				)
+				if (response.ok) {
+					const synchedActiveTask = allTasks?.find((task) => task.id === currentUser.activeTaskId)
+					setActiveTask(synchedActiveTask)
+					setActiveTaskId(synchedActiveTask?.id || "")
+				}
+			} catch (error) {
+				console.log(error)
+			} finally {
+				setIsUpdatingActiveTask(false)
+			}
 		},
-		[setActiveTask],
+		[setActiveTask, updateOrganizationTeamEmployeeActiveTask, activeTeamId],
 	)
+
+	useEffect(() => {
+		if (!isUpdatingActiveTask) {
+			const synchedActiveTask =
+				allTasks && currentUser
+					? allTasks?.find((task) => task.id === currentUser.activeTaskId)
+					: null
+			setActiveTask(synchedActiveTask)
+			setActiveTaskId(synchedActiveTask?.id || "")
+		} else {
+			setActiveTask("")
+			setActiveTaskId("")
+		}
+	}, [tasksFetching, isUpdatingActiveTask, isSuccess, currentUser?.activeTaskId, allTasks])
 
 	const deleteEmployeeFromTasks = useCallback(
 		(employeeId: string, organizationTeamId: string) => {

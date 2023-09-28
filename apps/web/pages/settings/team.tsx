@@ -26,7 +26,7 @@ import { Accordian } from 'lib/components/accordian';
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
 	const [user] = useRecoilState(userState);
-	const { isTeamMember } = useOrganizationTeams();
+	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
 
 	return (
@@ -62,7 +62,10 @@ const Team = () => {
 										id="general-settings"
 									>
 										<div className="flex flex-col">
-											<TeamAvatar disabled={!isTeamManager} />
+											<TeamAvatar
+												disabled={!isTeamManager}
+												bgColor={activeTeam?.color}
+											/>
 											<TeamSettingForm />
 										</div>
 									</Accordian>

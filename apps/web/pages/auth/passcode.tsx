@@ -17,6 +17,8 @@ import Link from 'next/link';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import stc from 'string-to-color';
+import { useRouter } from 'next/router';
+import { getAccessTokenCookie } from '@app/helpers';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
@@ -230,6 +232,7 @@ function WorkSpaceScreen({
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
+	const router = useRouter();
 
 	const signInToWorkspace = useCallback(
 		(e: any) => {
@@ -245,12 +248,26 @@ function WorkSpaceScreen({
 	);
 
 	useEffect(() => {
-		if (form.workspaces.length === 1) {
+		if (
+			form.workspaces.length === 1 &&
+			form.workspaces[0].current_teams.length === 1
+		) {
+			setSelectedWorkspace(0);
+			setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
 			setTimeout(() => {
 				document.getElementById('continue-to-workspace')?.click();
 			}, 100);
 		}
 	}, [form.workspaces]);
+
+	useEffect(() => {
+		if (form.authScreen.screen === 'workspace') {
+			const accessToken = getAccessTokenCookie();
+			if (accessToken && accessToken.length > 100) {
+				router.reload();
+			}
+		}
+	}, [form.authScreen, router]);
 
 	return (
 		<form
@@ -298,6 +315,7 @@ function WorkSpaceScreen({
 											)}
 										</span>
 									</div>
+									<span className="bg-[#E5E5E5] w-full h-[1px]"></span>
 									{/* <div className="w-full h-[1px] bg-[#E5E5E5] dark:bg-[#34353D]"></div> */}
 									<div className="flex flex-col gap-4 px-5 py-1.5">
 										{worksace.current_teams.map((team) => (

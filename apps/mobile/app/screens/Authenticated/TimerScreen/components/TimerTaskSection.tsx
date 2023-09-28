@@ -15,16 +15,18 @@ import { ActivityIndicator } from "react-native-paper"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import ComboBox from "./ComboBox"
 import EstimateTime from "./EstimateTime"
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
+import { Feather } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import TaskPriorities from "../../../../components/TaskPriority"
-import TaskLabel from "../../../../components/TaskLabel"
+// import TaskLabel from "../../../../components/TaskLabel"
 import { typography, useAppTheme } from "../../../../theme"
 import { translate } from "../../../../i18n"
 import TaskStatus from "../../../../components/TaskStatus"
 import TimerCard from "../../../../components/TimerCard"
 import TaskSize from "../../../../components/TaskSize"
 import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
+import TaskLabels from "./TaskLabels"
+import IssuesModal from "../../../../components/IssuesModal"
 
 const TimerTaskSection = observer(
 	({ taskInput, outsideClick }: { taskInput: RTuseTaskInput; outsideClick: () => unknown }) => {
@@ -75,9 +77,8 @@ const TimerTaskSection = observer(
 							},
 						]}
 					>
-						<View style={styles.wrapBugIcon}>
-							<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
-						</View>
+						<IssuesModal task={activeTask} />
+
 						<Text style={styles.taskNumberStyle}>
 							{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ""}
 						</Text>
@@ -169,7 +170,7 @@ const TimerTaskSection = observer(
 								/>
 							</View>
 
-							<TaskLabel
+							<TaskLabels
 								task={activeTask}
 								containerStyle={{
 									...styles.sizeContainer,

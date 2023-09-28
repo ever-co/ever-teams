@@ -106,18 +106,18 @@ interface ItemProps {
 }
 const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) => {
 	const { colors } = useAppTheme()
-	const selected = status.name === currentStatusName
+	const selected = status.value === currentStatusName
 
 	const allStatuses = useTaskStatusValue()
-	const cStatus = allStatuses[status.name.split("-").join(" ")]
+	const cStatus = allStatuses && allStatuses[status.name.split("-").join(" ")]
 
 	return (
-		<TouchableOpacity onPress={() => onStatusSelected(cStatus.name)}>
+		<TouchableOpacity onPress={() => onStatusSelected(cStatus.value)}>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
 				{cStatus && (
 					<View style={{ ...styles.colorFrame, backgroundColor: status.color }}>
 						{cStatus.icon}
-						<Text style={styles.text}>{cStatus?.name}</Text>
+						<Text style={styles.text}>{cStatus.name}</Text>
 					</View>
 				)}
 				<View>

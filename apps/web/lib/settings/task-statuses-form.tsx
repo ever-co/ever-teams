@@ -25,7 +25,7 @@ export const TaskStatusesForm = ({
 	onCreated,
 }: StatusForm) => {
 	const [user] = useRecoilState(userState);
-	const { register, setValue, handleSubmit, reset } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
 	const { trans } = useTranslation('settingsTeam');
@@ -40,10 +40,10 @@ export const TaskStatusesForm = ({
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
 		'x-large',
-		'large',
-		'medium',
-		'small',
-		'tiny',
+		// 'large',
+		// 'medium',
+		// 'small',
+		// 'tiny',
 	]);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
 		'urgent',
@@ -70,16 +70,16 @@ export const TaskStatusesForm = ({
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
-		if (!edit) {
+		if (!edit && !getValues().name) {
 			setValue('name', '');
 			setValue('color', '');
 			setValue('icon', '');
 		}
-	}, [taskStatus, edit, setValue]);
+	}, [taskStatus, edit, setValue, getValues]);
 
 	useEffect(() => {
 		if (edit) {
-			setValue('name', edit.name);
+			setValue('name', edit.name?.split('-').join(' '));
 			setValue('color', edit.color);
 			setValue('icon', edit.icon);
 		} else {
@@ -117,7 +117,7 @@ export const TaskStatusesForm = ({
 			}
 			if (
 				edit &&
-				(values.name !== edit.name ||
+				(values.name !== edit.name?.split('-').join(' ') ||
 					values.color !== edit.color ||
 					values.icon !== edit.icon)
 			) {

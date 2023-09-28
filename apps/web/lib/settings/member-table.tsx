@@ -88,7 +88,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 
 	return (
 		<div>
-			<div className="overflow-x-auto  sm:rounded-lg">
+			<div className="sm:rounded-lg">
 				<table className="w-full text-sm text-left text-gray-500 dark:bg-dark--theme-light">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
@@ -222,7 +222,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 										}
 									/>
 								</td>
-								<td className="flex py-4 justify-center items-center absolute">
+								<td className="flex py-4 justify-center items-center">
 									<TableActionPopover member={member} handleEdit={handleEdit} />
 								</td>
 							</tr>

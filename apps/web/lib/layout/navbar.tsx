@@ -11,6 +11,7 @@ import { RequestToJoinModal } from '@components/layout/header/request-to-join-mo
 import { useTranslation } from 'lib/i18n';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
+import Collaborate from '@components/shared/collaborate';
 
 const HeaderSkeleton = () => {
 	return (
@@ -90,6 +91,9 @@ export function Navbar({
 										</Button>
 									)}
 									{showTimer && <MinTimerFrame />}
+
+									<Collaborate />
+
 									{isTeamMember && isTeamDropdownAllowed ? (
 										<TeamsDropDown publicTeam={publicTeam || false} />
 									) : null}

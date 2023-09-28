@@ -7,12 +7,14 @@ import {
 	ActiveTaskVersionDropdown,
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskLabels,
+	TaskStatus,
+	useTaskLabelsValue,
 } from 'lib/features';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import TaskRow from '../components/task-row';
 import { useTranslation } from 'lib/i18n';
-import { Button, Card, Modal } from 'lib/components';
+import { Button, Card, Modal, Tooltip } from 'lib/components';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import {
 	TaskPrioritiesForm,
@@ -71,6 +73,17 @@ const TaskSecondaryInfo = () => {
 		[task, updateTask]
 	);
 
+	const taskLabels = useTaskLabelsValue();
+	const tags = useMemo(() => {
+		return (
+			task?.tags
+				.map((tag) => {
+					return taskLabels[tag.name];
+				})
+				.filter(Boolean) || []
+		);
+	}, [taskLabels, task?.tags]);
+
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			{/* Version */}
@@ -80,10 +93,10 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full py-1 px-2 text-[0.625rem] mt-3 dark:text-white dark:border-white"
+						className="w-full py-1 px-2 text-[0.625rem] mt-3  dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('version')}
 					>
@@ -104,7 +117,7 @@ const TaskSecondaryInfo = () => {
 						className="lg:min-w-[170px] text-black"
 						forDetails={true}
 						sidebarUI={true}
-						taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+						taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 						defaultValue={task.parentId || ''}
 					/>
 				</TaskRow>
@@ -117,7 +130,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
 						className="w-full py-1 px-2 text-xs dark:text-white dark:border-white"
@@ -135,9 +148,32 @@ const TaskSecondaryInfo = () => {
 					task={task}
 					className="lg:min-w-[170px] text-black lg:mt-0"
 					forDetails={true}
-					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				/>
 			</TaskRow>
+			{tags && tags.length > 0 && (
+				<TaskRow>
+					<div className="flex flex-row flex-wrap gap-1 max-w-[10rem]">
+						{tags.map((tag, i) => {
+							return (
+								<Tooltip
+									key={i}
+									label={tag.name?.split('-').join(' ') || ''}
+									placement="auto"
+								>
+									<TaskStatus
+										{...tag}
+										className="rounded-[0.625rem] h-6 max-w-[8rem]"
+										active={true}
+										name={tag.name?.split('-').join(' ')}
+										titleClassName={'text-[0.625rem] font-[500]'}
+									/>
+								</Tooltip>
+							);
+						})}
+					</div>
+				</TaskRow>
+			)}
 
 			{/* Task Size */}
 			<TaskRow labelTitle={trans.SIZE} wrapperClassName="text-black">
@@ -146,7 +182,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[170px] text-black"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
 						className="w-full py-1 px-2 text-xs dark:text-white dark:border-white"
@@ -165,7 +201,7 @@ const TaskSecondaryInfo = () => {
 					className="lg:min-w-[170px] text-black rounded-xl"
 					forDetails={true}
 					sidebarUI={true}
-					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded"
+					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
 						className="w-full text-xs py-1 px-2 dark:text-white dark:border-white"

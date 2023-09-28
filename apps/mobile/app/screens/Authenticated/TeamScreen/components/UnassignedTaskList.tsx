@@ -6,7 +6,6 @@ import { StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-nat
 import { spacing, typography, useAppTheme } from "../../../../theme"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
-import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { ScrollView } from "react-native-gesture-handler"
 import TaskStatus from "../../../../components/TaskStatus"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
@@ -14,6 +13,7 @@ import { I_TeamMemberCardHook } from "../../../../services/hooks/features/useTea
 import { View } from "react-native-animatable"
 import UserHeaderCard from "./UserHeaderCard"
 import { TodayWorkedTime } from "./TodayWorkTime"
+import IssuesModal from "../../../../components/IssuesModal"
 
 interface IUnassignedTasksList {
 	memberInfo: I_TeamMemberCardHook
@@ -65,9 +65,7 @@ const UnassignedTasksList = observer(
 										}}
 									>
 										<View style={styles.wrapTaskNumber}>
-											<View style={styles.wrapBugIcon}>
-												<MaterialCommunityIcons name="bug-outline" size={14} color="#fff" />
-											</View>
+											<IssuesModal task={task} readonly={true} />
 											<Text
 												style={{ color: "#9490A0", fontSize: 12, marginLeft: 5 }}
 											>{`#${task.taskNumber}`}</Text>

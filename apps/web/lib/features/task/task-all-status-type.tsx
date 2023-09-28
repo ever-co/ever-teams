@@ -43,10 +43,10 @@ export function TaskAllStatusTypes({
 	const tags = useMemo(() => {
 		return (
 			task?.tags
-				.map((tag) => {
+				?.map((tag) => {
 					return taskLabels[tag.name];
 				})
-				.filter(Boolean) || []
+				?.filter(Boolean) || []
 		);
 	}, [taskLabels, task?.tags]);
 

@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import {
 	ScrollView,
 	View,
@@ -27,7 +27,6 @@ import HomeHeader from "../../../components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
 import CreateTeamModal from "../../../components/CreateTeamModal"
 import { useStores } from "../../../models"
-import { observer } from "mobx-react-lite"
 import InviteCardItem from "./components/InviteCardItem"
 import { BlurView } from "expo-blur"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
@@ -37,9 +36,11 @@ import TeamScreenSkeleton from "./components/TeamScreenSkeleton"
 import AcceptInviteModal from "./components/AcceptInviteModal"
 import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
 import NoTeam from "../../../components/NoTeam"
+import VerifyAccountModal from "./components/VerifyAccount"
+import { useVerifyEmail } from "../../../services/hooks/features/useVerifyEmail"
 
 const { width, height } = Dimensions.get("window")
-export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = observer(
+export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 	function AuthenticatedTeamScreen(_props) {
 		const { colors, dark } = useAppTheme()
 		LogBox.ignoreAllLogs()
@@ -56,13 +57,22 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 			setShowInviteModal,
 			showCreateTeamModal,
 			showInviteModal,
-			setShowMoreMenu,
+			// setShowMoreMenu,
 			isLoading,
 			isTeamModalOpen,
 			setIsTeamModalOpen,
 		} = useTeamScreenLogic()
 		const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } =
 			useAcceptInviteModal()
+		const [showVerifyAccountModal, setShowVerifyAccountModal] = useState(false)
+
+		const {
+			resendAccountVerificationCode,
+			isLoading: isLoadingEmailVerification,
+			verifyEmailByCode,
+		} = useVerifyEmail()
+
+		const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null)
 
 		return (
 			<>
@@ -81,6 +91,16 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 							<InviteUserModal
 								visible={showInviteModal}
 								onDismiss={() => setShowInviteModal(false)}
+							/>
+							<VerifyAccountModal
+								visible={showVerifyAccountModal}
+								onDismiss={() => setShowVerifyAccountModal(false)}
+								isLoading={isLoadingEmailVerification}
+								verifyEmailByCode={verifyEmailByCode}
+								userEmail={currentUser?.employee.user.email}
+								resendAccountVerificationCode={() =>
+									resendAccountVerificationCode(currentUser.employee.user.email)
+								}
 							/>
 							<AcceptInviteModal
 								visible={openModal && activeInvitation !== null}
@@ -109,15 +129,28 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
+												isAccountVerified={currentUser?.employee.user.isEmailVerified}
 											/>
 										</View>
-										{isTeamManager ? (
+										{isTeamManager && currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
 												style={[$inviteButton, { borderColor: colors.secondary }]}
 												onPress={() => setShowInviteModal(true)}
 											>
 												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
 													{translate("teamScreen.inviteButton")}
+												</Text>
+											</TouchableOpacity>
+										) : isTeamManager && !currentUser.employee.user.isEmailVerified ? (
+											<TouchableOpacity
+												style={[$inviteButton, { borderColor: colors.secondary }]}
+												onPress={() => {
+													setShowVerifyAccountModal(true)
+													resendAccountVerificationCode(currentUser.employee.user.email)
+												}}
+											>
+												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+													{translate("accountVerificationModal.verify")}
 												</Text>
 											</TouchableOpacity>
 										) : null}
@@ -135,15 +168,34 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 												marginBottom: 30,
 											}}
 										>
-											{currentUser && <ListCardItem member={currentUser} />}
+											{currentUser && (
+												<ListCardItem
+													member={currentUser}
+													index={0}
+													openMenuIndex={openMenuIndex}
+													setOpenMenuIndex={setOpenMenuIndex}
+												/>
+											)}
 
 											{$otherMembers.map((member, index) => (
-												<ListCardItem key={index} member={member} />
+												<ListCardItem
+													key={index}
+													member={member}
+													index={index + 1}
+													openMenuIndex={openMenuIndex}
+													setOpenMenuIndex={setOpenMenuIndex}
+												/>
 											))}
 
 											{teamInvitations &&
 												teamInvitations.map((invite, idx) => (
-													<InviteCardItem key={idx} invite={invite} />
+													<InviteCardItem
+														key={idx}
+														invite={invite}
+														index={idx + $otherMembers.length + 1}
+														openMenuIndex={openMenuIndex}
+														setOpenMenuIndex={setOpenMenuIndex}
+													/>
 												))}
 										</View>
 									</ScrollView>
@@ -156,8 +208,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> = 
 				</Screen>
 			</>
 		)
-	},
-)
+	}
 
 const $container: ViewStyle = {
 	...GS.flex1,

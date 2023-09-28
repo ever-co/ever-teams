@@ -5,6 +5,9 @@ export const en = {
 		PLEASE: 'please',
 		HERE: 'here',
 		PEOPLE: 'People',
+		COLLABORATE: 'Collaborate',
+		MEET: 'Meet',
+		BOARD: 'Board',
 		SECURITY_CODE: 'Security Code',
 		CONFIRM: 'Confirm',
 		YOUR_EMAIL: 'your email',
@@ -23,14 +26,16 @@ export const en = {
 		STATUS: 'Status',
 		NAME: 'Name',
 		TASK: 'Task',
+		MY_TASKS: 'My Tasks',
 		WORKED_ON_TASK: 'Worked on Task',
 		TOTAL_WORKED_TODAY: 'Total worked Today',
 		OPEN: 'Open',
 		NOW: 'Now',
 		CLOSED: 'Closed',
+		CLOSE: 'Close',
 		INVITE: 'Invite',
 		TASK_TITTLE: 'Task Title',
-		CREATE_TASK: 'Create new task',
+		CREATE_TASK: 'Create New Task',
 		LINK_TASK: 'Select Related Issue',
 		CHILD_ISSUE_TASK: 'Select Child Issue',
 		CREATE_TEAM: 'Create New Team',
@@ -58,6 +63,7 @@ export const en = {
 		DARK_MODE: 'Dark Mode',
 		SETTINGS: 'Settings',
 		TEAM: 'Team',
+		MY_TEAM: 'My Team',
 		FULL_NAME: 'Full Name',
 		CONTACT: 'Contact',
 
@@ -92,10 +98,18 @@ export const en = {
 		CHANGE_PARENT: 'Change Parent',
 		RELATED_ISSUES: 'Related Issues',
 		CHILD_ISSUES: 'Child Issues',
+		REOPEN: 'Reopen',
+		NO_TASKS: 'No Tasks',
+		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING:
+			'Please stop the Timer before changing the Task',
+
+		COLLABORATE_DIALOG_TITLE: 'Start Collaboration',
+		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating',
+		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration',
 	},
 	pages: {
 		home: {
-			BREADCRUMB: ['Dashboard', 'Team Page'],
+			BREADCRUMB: ['Dashboard'],
 			SENT_EMAIL_VERIFICATION: 'Code Verification has been sent to your email',
 			SENT_EMAIL_VERIFICATION_YOU_NEED_TO: 'You need to ',
 			SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS:
@@ -110,11 +124,11 @@ export const en = {
 		},
 
 		profile: {
-			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Member Tasks'],
+			BREADCRUMB: ['Member Tasks'],
 		},
 
 		taskDetails: {
-			BREADCRUMB: ['Team', 'Task Details'],
+			BREADCRUMB: ['Task Details'],
 			DESCRIPTION: 'Descriptions',
 			ADD_DESCRIPTION: 'Add Description here',
 			TYPE_OF_ISSUE: 'Type of Issue',
@@ -164,6 +178,7 @@ export const en = {
 			LOGIN: 'Login',
 			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
+			WORKSPACES_NOT_FOUND: 'Workspaces Not Found',
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
@@ -319,6 +334,10 @@ export const en = {
 	timer: {
 		START_TIMER:
 			'Please, select or create a new task to start tracking the time',
+		TEAM_SWITCH: {
+			STOPPED_TIMER_TOAST_TITLE: 'Timer Stopped',
+			STOPPED_TIMER_TOAST_DESCRIPTION: 'Timer Stopped due to Team Switch',
+		},
 	},
 
 	task: {

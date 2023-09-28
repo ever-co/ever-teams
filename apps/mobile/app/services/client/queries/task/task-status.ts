@@ -5,13 +5,15 @@ interface IGetTaskStatusesParams {
 	authToken: string
 	tenantId: string
 	organizationId: string
+	activeTeamId: string
 }
 const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
-	const { organizationId, tenantId, authToken } = params
+	const { organizationId, tenantId, activeTeamId, authToken } = params
 	const { data } = await getTaskStatusesRequest(
 		{
 			tenantId,
 			organizationId,
+			activeTeamId,
 		},
 		authToken,
 	)
@@ -20,6 +22,6 @@ const fetchAllStatuses = async (params: IGetTaskStatusesParams) => {
 
 const useFetchAllStatuses = (IGetTaskStatusesParams) =>
 	useQuery(["statuses", IGetTaskStatusesParams], () => fetchAllStatuses(IGetTaskStatusesParams), {
-		refetchInterval: 1000,
+		refetchInterval: 62000,
 	})
 export default useFetchAllStatuses

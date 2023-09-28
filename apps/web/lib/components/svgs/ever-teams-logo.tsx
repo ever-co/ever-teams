@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 type Props = IClassName<{
 	dash?: boolean;
-	color?: 'auto' | 'default' | 'white' | 'white-black' | 'black-white';
+	color?: 'auto' | 'default' | 'white' | 'white-black' | 'black-white' | 'dark';
 }>;
 
 export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
@@ -20,6 +20,7 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 					'cursor-pointer',
 					color === 'auto' && ['dark:brightness-0 dark:invert'],
 					color === 'white' && ['brightness-0 invert'],
+					color === 'dark' && ['brightness-0 invert-0'],
 					color === 'white-black' && ['brightness-0 invert dark:invert-0'],
 					color === 'black-white' && ['brightness-0 invert-0 dark:invert'],
 					className

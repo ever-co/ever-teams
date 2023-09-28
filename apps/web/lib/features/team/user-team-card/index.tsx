@@ -2,10 +2,11 @@ import {
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 	useTaskStatistics,
+	useCollaborative,
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Card, VerticalSeparator, Text } from 'lib/components';
+import { Card, VerticalSeparator, Text, InputField } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
@@ -25,16 +26,16 @@ export function UserTeamCardHeader() {
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{trans.common.NAME}
 			</li>
-			<li className="2xl:w-[20.313rem] text-center w-[21%]">
+			<li className="2xl:w-[20.313rem] 3xl:w-[19rem] text-center w-[21%]">
 				{trans.common.TASK}
 			</li>
-			<li className="2xl:w-48 text-center w-[21%]">
+			<li className="2xl:w-48 3xl:w-60 text-center w-[21%]">
 				{trans.common.WORKED_ON_TASK}
 			</li>
 			<li className="2xl:w-[13.188rem] text-center w-[20.5%]">
 				{trans.common.ESTIMATE}
 			</li>
-			<li className="2xl:w-[11.75rem] text-center w-1/6">
+			<li className="2xl:w-[11.75rem] 3xl:w-[20rem] text-center w-1/6">
 				{trans.common.TOTAL_WORKED_TODAY}
 			</li>
 		</ul>
@@ -56,6 +57,10 @@ export function UserTeamCard({
 }: IUserTeamCard) {
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+
+	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(
+		memberInfo.memberUser
+	);
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -87,8 +92,29 @@ export function UserTeamCard({
 		);
 	}
 
+	const menu = (
+		<>
+			{(!collaborativeSelect || active) && (
+				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+			)}
+
+			{collaborativeSelect && !active && (
+				<InputField
+					type="checkbox"
+					checked={user_selected()}
+					className={clsxm(
+						'border-none w-4 h-4 mr-1 accent-primary-light',
+						'border-2 border-primary-light'
+					)}
+					noWrapper={true}
+					onChange={onUserSelect}
+				/>
+			)}
+		</>
+	);
+
 	return (
-		<div className={`${!active && 'border-2 border-transparent'}`}>
+		<div className={clsxm(!active && 'border-2 border-transparent')}>
 			<Card
 				shadow="bigger"
 				className={clsxm(
@@ -127,7 +153,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+					className="2xl:w-48 3xl:w-60 w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 				/>
 				<VerticalSeparator />
 
@@ -136,7 +162,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					edition={taskEdition}
 					activeAuthTask={true}
-					className="lg:px-3 2xl:w-52 w-1/5"
+					className="lg:px-3 2xl:w-52 3xl:w-64 w-1/5"
 				/>
 				<VerticalSeparator />
 
@@ -148,7 +174,7 @@ export function UserTeamCard({
 				/>
 
 				{/* Card menu */}
-				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+				<div className="absolute right-2">{menu}</div>
 			</Card>
 			<Card
 				shadow="bigger"
@@ -193,7 +219,9 @@ export function UserTeamCard({
 						activeAuthTask={true}
 					/>
 				</div>
-				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
+
+				{/* Card menu */}
+				<div className="absolute right-2">{menu}</div>
 			</Card>
 		</div>
 	);

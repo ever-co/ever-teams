@@ -1,5 +1,10 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import { useAuthenticateUser } from '@app/hooks';
+import {
+	useAuthenticateUser,
+	useOrganizationTeams,
+	useTimer,
+} from '@app/hooks';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -28,6 +33,10 @@ import ThemesPopup from 'lib/components/themes-popup';
 import { ThemeInterface } from '@app/interfaces';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
+import { TimerStatus } from './timer/timer-status';
+import moment from 'moment';
+import { publicState } from '@app/stores';
+import { useRecoilValue } from 'recoil';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
@@ -35,6 +44,13 @@ export function UserNavAvatar() {
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name =
 		user?.name || user?.firstName || user?.lastName || user?.username || '';
+	const { timerStatus } = useTimer();
+	const { activeTeam } = useOrganizationTeams();
+	const publicTeam = useRecoilValue(publicState);
+	const members = activeTeam?.members || [];
+	const currentUser = members.find((m) => {
+		return m.employee.userId === user?.id;
+	});
 
 	return (
 		<Popover className="relative flex items-center">
@@ -57,7 +73,33 @@ export function UserNavAvatar() {
 							imageUrl={imageUrl}
 							alt="Team Avatar"
 							imageTitle={name}
-						/>
+						>
+							<TimerStatus
+								status={
+									!timerStatus?.running &&
+									timerStatus?.lastLog &&
+									timerStatus?.lastLog?.startedAt &&
+									moment().diff(
+										moment(timerStatus?.lastLog?.startedAt),
+										'hours'
+									) < 24 &&
+									timerStatus?.lastLog?.source !== 'TEAMS'
+										? 'pause'
+										: !currentUser?.employee?.isActive && !publicTeam
+										? 'suspended'
+										: currentUser?.employee?.isOnline
+										? // &&  currentUser?.timerStatus !== 'running'
+										  'online'
+										: !currentUser?.totalTodayTasks?.length
+										? 'idle'
+										: currentUser?.totalTodayTasks?.length
+										? 'pause'
+										: currentUser?.timerStatus || 'idle'
+								}
+								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								tooltipClassName="mt-10"
+							/>
+						</Avatar>
 					) : name ? (
 						imgTitle(name).charAt(0)
 					) : (
@@ -106,6 +148,13 @@ function UserNavMenu() {
 		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const name =
 		user?.name || user?.firstName || user?.lastName || user?.username;
+	const { timerStatus } = useTimer();
+	const { activeTeam } = useOrganizationTeams();
+	const publicTeam = useRecoilValue(publicState);
+	const members = activeTeam?.members || [];
+	const currentUser = members.find((m) => {
+		return m.employee.userId === user?.id;
+	});
 
 	return (
 		<Card
@@ -131,7 +180,33 @@ function UserNavMenu() {
 								className="relative cursor-pointer"
 								imageUrl={imageUrl}
 								alt="Team Avatar"
-							/>
+							>
+								<TimerStatus
+									status={
+										!timerStatus?.running &&
+										timerStatus?.lastLog &&
+										timerStatus?.lastLog?.startedAt &&
+										moment().diff(
+											moment(timerStatus?.lastLog?.startedAt),
+											'hours'
+										) < 24 &&
+										timerStatus?.lastLog?.source !== 'TEAMS'
+											? 'pause'
+											: !currentUser?.employee?.isActive && !publicTeam
+											? 'suspended'
+											: currentUser?.employee?.isOnline
+											? // && currentUser?.timerStatus !== 'running'
+											  'online'
+											: !currentUser?.totalTodayTasks?.length
+											? 'idle'
+											: currentUser?.totalTodayTasks?.length
+											? 'pause'
+											: currentUser?.timerStatus || 'idle'
+									}
+									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+									tooltipClassName="mt-10"
+								/>
+							</Avatar>
 						) : name ? (
 							imgTitle(name).charAt(0)
 						) : (
@@ -180,14 +255,14 @@ function UserNavMenu() {
 							className="text-center flex space-x-3 items-center font-normal"
 						>
 							<BriefcaseIcon className="w-5 h-5" />{' '}
-							<span>{trans.common.TASK}</span>
+							<span>{trans.common.MY_TASKS}</span>
 						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="mb-3">
 						<Link href="/" className="flex space-x-3 items-center font-normal">
 							<PeopleIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
-							<span>{trans.common.TEAM}</span>
+							<span>{trans.common.MY_TEAM}</span>
 						</Link>
 					</li>
 					{/* Settings menu */}

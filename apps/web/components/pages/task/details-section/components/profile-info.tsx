@@ -48,7 +48,7 @@ const ProfileInfo = ({
 				)}
 			</div>
 
-			<div className="flex items-center not-italic font-semibold text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white ml-1">
+			<div className="flex items-center not-italic font-semibold text-[0.625rem] 3xl:text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white ml-1">
 				{names}
 			</div>
 		</div>

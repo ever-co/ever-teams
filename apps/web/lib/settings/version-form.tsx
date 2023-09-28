@@ -29,7 +29,7 @@ export const VersionForm = ({
 	const { trans } = useTranslation('settingsTeam');
 
 	const [user] = useRecoilState(userState);
-	const { register, setValue, handleSubmit, reset } = useForm();
+	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskVersionItemList | null>(null);
 
@@ -45,14 +45,14 @@ export const VersionForm = ({
 	const { refetch } = useRefetchData();
 
 	useEffect(() => {
-		if (!edit) {
+		if (!edit && !getValues().name) {
 			setValue('name', '');
 		}
-	}, [taskVersion, edit, setValue]);
+	}, [taskVersion, edit, setValue, getValues]);
 
 	useEffect(() => {
 		if (edit) {
-			setValue('name', edit.name);
+			setValue('name', edit.name?.split('-').join(' '));
 		} else {
 			setValue('name', '');
 		}
@@ -84,7 +84,7 @@ export const VersionForm = ({
 					reset();
 				});
 			}
-			if (edit && values.name !== edit.name) {
+			if (edit && values.name !== edit.name?.split('-').join(' ')) {
 				editTaskVersion(edit.id, {
 					name: values.name,
 					// color: values.color,

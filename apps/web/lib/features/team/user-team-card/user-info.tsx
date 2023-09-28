@@ -75,14 +75,17 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 									? 'pause'
 									: !member?.employee?.isActive && !publicTeam
 									? 'suspended'
-									: member?.employee?.isOnline &&
-									  member?.timerStatus !== 'running'
-									? 'online'
+									: member?.employee?.isOnline
+									? //  && member?.timerStatus !== 'running'
+									  'online'
 									: !member?.totalTodayTasks?.length
 									? 'idle'
+									: member?.totalTodayTasks?.length
+									? 'pause'
 									: member?.timerStatus || 'idle'
 							}
 							className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+							tooltipClassName="mt-10"
 						/>
 					</Avatar>
 				) : (

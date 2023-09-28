@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -13,6 +14,7 @@ import {
 	TaskSizesDropdown,
 	TaskStatusDropdown,
 } from './task-status';
+import intersection from 'lodash/intersection';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -156,7 +158,12 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 				return keys
 					.filter((k) => statusFilters[k].length > 0)
 					.every((k) => {
-						return statusFilters[k].includes(task[k]);
+						return k === 'label'
+							? intersection(
+									statusFilters[k],
+									task['tags'].map((item) => item.name)
+							  ).length === statusFilters[k].length
+							: statusFilters[k].includes(task[k]);
 					});
 			});
 	}, [tasks, taskName, appliedStatusFilter]);
@@ -217,7 +224,13 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 				{/* {hook.filterType !== undefined && <Divider className="mt-4" />} */}
 				{hook.filterType === 'status' && <TaskStatusFilter hook={hook} />}
 				{hook.filterType === 'search' && (
-					<TaskNameFilter value={hook.taskName} setValue={hook.setTaskName} />
+					<TaskNameFilter
+						value={hook.taskName}
+						setValue={hook.setTaskName}
+						close={() => {
+							hook.toggleFilterType('search');
+						}}
+					/>
 				)}
 			</Transition>
 		</div>
@@ -380,17 +393,17 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
 					multiple={true}
 				/>
-			</div>
 
-			<div className="flex space-x-3 mt-4 lg:mt-0">
+				<VerticalSeparator />
+
 				<Button
-					className="py-2 min-w-[6.25rem] rounded-lg"
+					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
 					onClick={hook.applyStatusFilder}
 				>
 					{trans.common.APPLY}
 				</Button>
 				<Button
-					className="py-2 min-w-[6.25rem] rounded-lg"
+					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
 					variant="grey"
 					onClick={() => {
 						setKey((k) => k + 1);
@@ -398,6 +411,15 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 					}}
 				>
 					{trans.common.RESET}
+				</Button>
+				<Button
+					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
+					variant="outline-danger"
+					onClick={() => {
+						hook.toggleFilterType('status');
+					}}
+				>
+					{trans.common.CLOSE}
 				</Button>
 			</div>
 		</div>
@@ -407,13 +429,15 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 function TaskNameFilter({
 	value,
 	setValue,
+	close,
 }: {
 	value: string;
 	setValue: (v: string) => void;
+	close: () => void;
 }) {
 	const { trans } = useTranslation();
 	return (
-		<div className="mt-3 w-1/2 ml-auto">
+		<div className="mt-3 w-1/2 ml-auto flex flex-row gap-2">
 			<InputField
 				value={value}
 				autoFocus={true}
@@ -421,6 +445,13 @@ function TaskNameFilter({
 				placeholder={trans.common.TYPE_SOMETHING + '...'}
 				wrapperClassName="mb-0 dark:bg-transparent"
 			/>
+			<Button
+				className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl"
+				variant="outline-danger"
+				onClick={close}
+			>
+				{trans.common.CLOSE}
+			</Button>
 		</div>
 	);
 }

@@ -13,6 +13,7 @@ export function useTaskStatus() {
 	const queryClient = useQueryClient()
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
+		teamStore: { activeTeamId },
 	} = useStores()
 
 	const [allStatuses, setAllStatuses] = useState<ITaskStatusItem[]>([])
@@ -22,7 +23,7 @@ export function useTaskStatus() {
 		isLoading,
 		isSuccess,
 		isRefetching,
-	} = useFetchAllStatuses({ tenantId, organizationId, authToken })
+	} = useFetchAllStatuses({ tenantId, organizationId, activeTeamId, authToken })
 
 	// Delete the status
 	const deleteStatus = useCallback(async (id: string) => {
@@ -51,7 +52,7 @@ export function useTaskStatus() {
 	const createStatus = useCallback(async (data: ITaskStatusCreate) => {
 		await createStatusRequest({
 			tenantId,
-			datas: { ...data, organizationId },
+			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			bearer_token: authToken,
 		})
 		queryClient.invalidateQueries("statuses")

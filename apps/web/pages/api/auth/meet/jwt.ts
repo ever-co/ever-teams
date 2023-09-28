@@ -1,12 +1,12 @@
 import {
-	JITSI_DOMAIN,
-	JITSI_JWT_APP_ID,
-	JITSI_JWT_APP_SECRET,
+	MEET_DOMAIN,
+	MEET_JWT_APP_ID,
+	MEET_JWT_APP_SECRET,
 } from '@app/constants';
-import {
-	// getJitsiJwtSessionCookie,
-	setJitsiJwtSessionCookie,
-} from '@app/helpers';
+// import {
+// 	// getMeetJwtSessionCookie,
+// 	setMeetJwtSessionCookie,
+// } from '@app/helpers';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import jwt from 'jsonwebtoken';
 
@@ -51,15 +51,15 @@ export default async function handler(
 	const { $res, user } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
-	if (!JITSI_JWT_APP_SECRET || !JITSI_JWT_APP_ID || !JITSI_DOMAIN) {
+	if (!MEET_JWT_APP_SECRET || !MEET_JWT_APP_ID || !MEET_DOMAIN) {
 		return $res.status(400).json('Invalid configuration !');
 	}
 
 	// Check if existing token from cookie is valid
-	// const existing_token = getJitsiJwtSessionCookie({ req, res });
+	// const existing_token = getMeetJwtSessionCookie({ req, res });
 	// if (
 	// 	existing_token &&
-	// 	jwt.verify(existing_token, JITSI_JWT_APP_SECRET, algo)
+	// 	jwt.verify(existing_token, MEET_JWT_APP_SECRET, algo)
 	// ) {
 	// 	return $res.json({ token: existing_token });
 	// }
@@ -72,12 +72,13 @@ export default async function handler(
 		avatar: user.imageUrl,
 		audience: 'jitsi',
 		room: '*',
-		domain: JITSI_DOMAIN,
-		appid: JITSI_JWT_APP_ID,
-		appkey: JITSI_JWT_APP_SECRET,
+		domain: MEET_DOMAIN,
+		appid: MEET_JWT_APP_ID,
+		appkey: MEET_JWT_APP_SECRET,
 	});
 
-	setJitsiJwtSessionCookie(new_token, { req, res });
+	// We don't use this cookie for now
+	// setMeetJwtSessionCookie(new_token, { req, res });
 
 	res.status(200).json({ token: new_token });
 }

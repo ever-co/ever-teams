@@ -8,6 +8,7 @@ import {
 	useTaskInput,
 } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
+import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
@@ -31,6 +32,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
+import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 
@@ -92,6 +94,10 @@ export function TaskInput(props: Props) {
 	const $onTaskClick = useCallbackRef(props.onTaskClick);
 	const $onTaskCreated = useCallbackRef(props.onTaskCreated);
 	const inputRef = useRef<HTMLDivElement>(null);
+	const timerStatus = useRecoilValue(timerStatusState);
+	const timerRunningStatus = useMemo(() => {
+		return Boolean(timerStatus?.running);
+	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
 		(task: ITeamTask | undefined) =>
@@ -229,6 +235,13 @@ export function TaskInput(props: Props) {
 		} else {
 			updatedTaskList = datas.filteredTasks;
 		}
+
+		if (props.task?.children && props.task?.children?.length) {
+			const childrenTaskIds = props.task?.children?.map((item) => item.id);
+			updatedTaskList = updatedTaskList.filter(
+				(item) => !childrenTaskIds.includes(item.id)
+			);
+		}
 	}
 
 	useEffect(() => {
@@ -255,6 +268,11 @@ export function TaskInput(props: Props) {
 	const inputField = (
 		<InputField
 			value={taskName}
+			disabled={timerRunningStatus}
+			ref={targetEl}
+			autoFocus={props.autoFocus}
+			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
+			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
 			onFocus={(e) => {
 				setEditMode(true);
 				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
@@ -262,9 +280,6 @@ export function TaskInput(props: Props) {
 			onChange={(event) => {
 				setTaskName(event.target.value);
 			}}
-			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
-			ref={targetEl}
-			autoFocus={props.autoFocus}
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
@@ -293,46 +308,44 @@ export function TaskInput(props: Props) {
 				'dark:bg-[#1B1D22]',
 				props.initEditMode && 'h-10'
 			)}
-			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
 			/* Showing the task number. */
 			leadingNode={
-				showTaskNumber &&
-				inputTask && (
-					<div
-						className="flex items-center pl-3 space-x-2"
-						ref={ignoreElementRef}
-					>
-						{!datas.hasCreateForm ? (
-							<ActiveTaskIssuesDropdown
-								key={inputTask.id}
-								task={inputTask}
-								forParentChildRelationship={true}
-								taskStatusClassName={clsxm(
-									`${
-										inputTask.issueType === 'Bug'
-											? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-											: '!px-[0.375rem] py-[0.375rem] rounded-sm'
-									} `,
-									'border-none'
-								)}
-							/>
-						) : (
-							<TaskIssuesDropdown
-								taskStatusClassName="!px-1 py-1 rounded-sm"
-								showIssueLabels={false}
-								onValueChange={(v) => {
-									taskIssue.current = v;
-								}}
-							/>
-						)}
+				// showTaskNumber &&
+				// inputTask &&
+				<div
+					className="flex items-center pl-3 space-x-2"
+					ref={ignoreElementRef}
+				>
+					{!datas.hasCreateForm ? (
+						<ActiveTaskIssuesDropdown
+							key={(inputTask && inputTask.id) || ''}
+							task={inputTask}
+							forParentChildRelationship={true}
+							taskStatusClassName={clsxm(
+								`${
+									inputTask && inputTask.issueType === 'Bug'
+										? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
+										: '!px-[0.375rem] py-[0.375rem] rounded-sm'
+								} `,
+								'border-none'
+							)}
+						/>
+					) : (
+						<TaskIssuesDropdown
+							taskStatusClassName="!px-1 py-1 rounded-sm"
+							showIssueLabels={false}
+							onValueChange={(v) => {
+								taskIssue.current = v;
+							}}
+						/>
+					)}
 
-						{!datas.hasCreateForm && (
-							<span className="text-sm text-gray-500">
-								#{inputTask.taskNumber}
-							</span>
-						)}
-					</div>
-				)
+					{!datas.hasCreateForm && (
+						<span className="text-sm text-gray-500">
+							#{(inputTask && inputTask.taskNumber) || ''}
+						</span>
+					)}
+				</div>
 			}
 		/>
 	);
@@ -358,7 +371,13 @@ export function TaskInput(props: Props) {
 		taskCard
 	) : (
 		<Popover className="relative z-30 w-full" ref={inputRef}>
-			{inputField}
+			<Tooltip
+				label={trans.common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING}
+				placement="top"
+				enabled={timerRunningStatus}
+			>
+				{inputField}
+			</Tooltip>
 			{props.children}
 
 			<Transition
@@ -536,6 +555,15 @@ function TaskCard({
 								</li>
 							);
 						})}
+
+					{(forParentChildRelationship &&
+						updatedTaskList &&
+						updatedTaskList.length === 0) ||
+						(!forParentChildRelationship &&
+							datas?.filteredTasks &&
+							datas.filteredTasks.length === 0 && (
+								<div className="text-center">{trans.common.NO_TASKS}</div>
+							))}
 				</ul>
 			</Card>
 

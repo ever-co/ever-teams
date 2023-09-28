@@ -8,7 +8,6 @@ import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNa
 import HomeHeader from "../../../components/HomeHeader"
 import DropDown from "../../../components/TeamDropdown/DropDown"
 import CreateTeamModal from "../../../components/CreateTeamModal"
-import { observer } from "mobx-react-lite"
 import TimerTaskSection from "./components/TimerTaskSection"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import useTimerScreenLogic from "./logics/useTimerScreenLogic"
@@ -19,7 +18,7 @@ import { useTaskInput } from "../../../services/hooks/features/useTaskInput"
 import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
 import NoTeam from "../../../components/NoTeam"
 
-export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> = observer(
+export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> =
 	function AuthenticatedTimerScreen(_props) {
 		// HOOKS
 		const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
@@ -83,6 +82,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 												setIsOpen={setIsTeamModalOpen}
 												resized={false}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
+												isAccountVerified={taskInput.user.isEmailVerified}
 											/>
 										</View>
 
@@ -97,8 +97,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 				</TouchableWithoutFeedback>
 			</Screen>
 		)
-	},
-)
+	}
 
 const $container: ViewStyle = {
 	flex: 1,

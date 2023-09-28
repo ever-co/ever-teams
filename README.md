@@ -156,6 +156,10 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 
 <img src="https://contributors-img.web.app/image?repo=ever-co/ever-teams" />
 
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/ever-teams&type=Date)](https://star-history.com/#ever-co/ever-teams&Date)
+
 ## ❤️ Powered By
 
 <p>
@@ -166,7 +170,7 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 
 <p>
 	<a href="https://vercel.com/?utm_source=ever-co&utm_campaign=oss">
-  	  <img src="https://raw.githubusercontent.com/abumalick/powered-by-vercel/master/powered-by-vercel.svg">
+  	  <img src=".github/vercel-logo.svg" alt="Powered by Vercel" />
 	</a>
 </p>
 

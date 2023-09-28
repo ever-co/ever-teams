@@ -29,7 +29,11 @@ export type ListItemProps = {
 	onPressIn?: () => unknown
 }
 
-export interface Props extends ListItemProps {}
+export interface Props extends ListItemProps {
+	index: number
+	openMenuIndex: number | null
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
+}
 
 export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPressIn }) => {
 	// HOOKS
@@ -122,11 +126,20 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 const ListCardItem: React.FC<Props> = (props) => {
 	const { colors } = useAppTheme()
 	const { isTeamManager } = useOrganizationTeam()
-	const { resendInvite } = useTeamInvitations()
+	const { resendInvite, removeSentInvitation } = useTeamInvitations()
 	// STATS
-	const [showMenu, setShowMenu] = React.useState(false)
+	const [showConfirm, setShowConfirm] = React.useState(false)
+	const [showCard, setShowCard] = React.useState(true)
 
 	const { invite } = props
+
+	const handleRemoveInvitation = (inviteId: string) => {
+		removeSentInvitation(inviteId)
+		setShowConfirm(false)
+		props.setOpenMenuIndex(null)
+		setShowCard(false)
+	}
+
 	return (
 		<Card
 			style={{
@@ -134,6 +147,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 				...GS.mt5,
 				paddingTop: 4,
 				backgroundColor: "#DCD6D6",
+				display: showCard ? "flex" : "none",
 			}}
 			HeadingComponent={
 				<View
@@ -168,7 +182,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 								marginRight: 17,
 								backgroundColor: colors.background,
 								minWidth: spacing.huge * 2,
-								...(!showMenu ? { display: "none" } : {}),
+								...(props.index !== props.openMenuIndex ? { display: "none" } : {}),
 							}}
 						>
 							<View style={{}}>
@@ -176,16 +190,29 @@ const ListCardItem: React.FC<Props> = (props) => {
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
 										resendInvite(invite.id)
-										setShowMenu(!showMenu)
+										props.setOpenMenuIndex(null)
 									}}
 								>
-									Resend
+									{translate("tasksScreen.resendInvitation")}
+								</ListItem>
+								<ListItem
+									textStyle={[styles.dropdownTxt, { color: "#ef4444" }]}
+									onPress={() => {
+										setShowConfirm(!showConfirm)
+									}}
+								>
+									{translate("tasksScreen.remove")}
 								</ListItem>
 							</View>
 						</View>
 
-						<TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-							{!showMenu ? (
+						<TouchableOpacity
+							onPress={() => {
+								props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
+								setShowConfirm(false)
+							}}
+						>
+							{props.openMenuIndex !== props.index ? (
 								<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
 							) : (
 								<Entypo name="cross" size={24} color={colors.primary} />
@@ -194,7 +221,26 @@ const ListCardItem: React.FC<Props> = (props) => {
 					</View>
 				</View>
 			}
-			ContentComponent={<ListItemContent {...props} onPressIn={() => setShowMenu(!showMenu)} />}
+			ContentComponent={
+				<>
+					<ListItemContent
+						{...props}
+						onPressIn={() =>
+							props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
+						}
+					/>
+					{showConfirm && (
+						<View style={[styles.confirmContainer, { backgroundColor: colors.background }]}>
+							<TouchableOpacity onPress={() => handleRemoveInvitation(invite.id)}>
+								<Text style={[styles.confirmText, { color: colors.secondary }]}>Confirm</Text>
+							</TouchableOpacity>
+							<TouchableOpacity onPress={() => setShowConfirm(false)}>
+								<Text>Cancel</Text>
+							</TouchableOpacity>
+						</View>
+					)}
+				</>
+			}
 		/>
 	)
 }
@@ -211,11 +257,29 @@ const $listCard: ViewStyle = {
 }
 
 const styles = StyleSheet.create({
+	confirmContainer: {
+		borderRadius: 5,
+		elevation: 5,
+		padding: 10,
+		position: "absolute",
+		right: 207,
+		shadowColor: "#2979FF",
+		shadowOffset: { width: 1, height: 1.5 },
+		shadowOpacity: 0.5,
+		shadowRadius: 5,
+		top: 60,
+	},
+	confirmText: {
+		fontSize: 16,
+		fontWeight: "bold",
+		marginBottom: 5,
+	},
 	dropdownTxt: {
 		color: "#282048",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
 	},
+
 	firstContainer: {
 		alignItems: "center",
 		flexDirection: "row",

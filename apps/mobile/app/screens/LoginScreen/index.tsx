@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import { observer } from "mobx-react-lite"
 import { Dimensions, View, ViewStyle } from "react-native"
 
@@ -33,9 +33,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 		verifyEmailByCode,
 		resendEmailVerificationCode,
 		joinError,
-		joinTeam,
+		signInWorkspace,
 		getAuthCode,
+		verifyEmailAndCodeOrAcceptInvite,
 	} = useAuthenticationTeam()
+
+	const [isWorkspaceScreen, setIsWorkspaceScreen] = useState<boolean>(false)
 
 	return (
 		<Screen
@@ -48,7 +51,11 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 			KeyboardAvoidingViewProps={{}}
 		>
 			<View style={$header}>
-				<LoginHeader withTeam={withteam} screenStatus={screenstatus} />
+				<LoginHeader
+					withTeam={withteam}
+					screenStatus={screenstatus}
+					workspaceScreen={isWorkspaceScreen}
+				/>
 			</View>
 			<View style={$bottom}>
 				{screenstatus.screen === 1 && !withteam ? (
@@ -76,12 +83,14 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 				) : (
 					<PassCode
 						joinError={joinError}
-						joinTeam={joinTeam}
+						signInWorkspace={signInWorkspace}
 						getAuthCode={getAuthCode}
+						verifyEmailAndCodeOrAcceptInvite={verifyEmailAndCodeOrAcceptInvite}
 						setScreenStatus={setScreenStatus}
 						errors={errors}
 						setWithTeam={setWithTeam}
 						isLoading={isLoading}
+						setIsWorkspaceScreen={setIsWorkspaceScreen}
 					/>
 				)}
 				<LoginBottom />

@@ -11,6 +11,7 @@ export const ColorPicker = ({
 	onChange,
 	fullWidthInput,
 	isTeamManager,
+	disabled: disableButton,
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | null) => void;
@@ -72,13 +73,15 @@ export const ColorPicker = ({
 					<Popover.Button
 						className={'outline-none mb-[15px] w-full'}
 						ref={buttonRef}
-						// disabled={disabled && fullWidthInput}
+						disabled={disableButton}
 						onClick={toggleDisabled}
 					>
 						<div
-							className={` relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
-								disabled ? 'bg-[#FCFCFC]' : ''
-							} bg-light--theme-light dark:bg-dark--theme-light`}
+							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
+								disabled || disableButton
+									? 'bg-[#FCFCFC]'
+									: 'bg-light--theme-light'
+							}  dark:bg-dark--theme-light`}
 						>
 							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
 								<div

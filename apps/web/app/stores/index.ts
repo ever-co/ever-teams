@@ -7,6 +7,7 @@ export * from './team-tasks';
 
 export * from './languages';
 export * from './timezones';
+export * from './collaborative';
 
 export * from './task-status';
 export * from './task-version';

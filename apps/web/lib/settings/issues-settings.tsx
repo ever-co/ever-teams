@@ -8,7 +8,6 @@ import { TaskStatusesForm } from './task-statuses-form';
 import { TaskPrioritiesForm } from './task-priorities-form';
 import { TaskSizesForm } from './task-sizes-form';
 import { TaskLabelForm } from './task-labels-form';
-import { RelatedIssueTypeForm } from './related-issue-type-form';
 
 export const IssuesSettings = () => {
 	const { trans } = useTranslation('settingsTeam');
@@ -190,12 +189,12 @@ export const IssuesSettings = () => {
 			>
 				<TaskLabelForm />
 			</div>
-			<div
+			{/* <div
 				id="related-issue-types"
 				className="flex w-full items-center justify-between gap-[2rem]"
 			>
 				<RelatedIssueTypeForm />
-			</div>
+			</div> */}
 		</div>
 	);
 };

@@ -85,6 +85,7 @@ const HamburgerMenu = observer((props: any) => {
 								setIsOpen={setIsTeamModalOpen}
 								resized={true}
 								onCreateTeam={() => setShowCreateTeamModal(true)}
+								isAccountVerified={user?.isEmailVerified}
 							/>
 						) : null}
 					</View>

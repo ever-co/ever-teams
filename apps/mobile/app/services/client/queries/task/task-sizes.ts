@@ -5,13 +5,15 @@ interface IGetTaskSizeParams {
 	authToken: string
 	tenantId: string
 	organizationId: string
+	activeTeamId: string
 }
 const fetchAllSizes = async (params: IGetTaskSizeParams) => {
-	const { organizationId, tenantId, authToken } = params
+	const { organizationId, tenantId, activeTeamId, authToken } = params
 	const { data } = await getAllTaskSizesRequest(
 		{
 			tenantId,
 			organizationId,
+			activeTeamId,
 		},
 		authToken,
 	)
@@ -20,6 +22,6 @@ const fetchAllSizes = async (params: IGetTaskSizeParams) => {
 
 const useFetchAllSizes = (IGetTaskSizeParams) =>
 	useQuery(["sizes", IGetTaskSizeParams], () => fetchAllSizes(IGetTaskSizeParams), {
-		refetchInterval: 3000,
+		refetchInterval: 62000,
 	})
 export default useFetchAllSizes

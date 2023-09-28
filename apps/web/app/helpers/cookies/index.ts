@@ -10,10 +10,10 @@ import {
 	ACTIVE_USER_TASK_COOKIE_NAME,
 	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 	ACTIVE_USER_ID_COOKIE_NAME,
-	JITSI_JWT_TOKEN_COOKIE_NAME,
+	MEET_JWT_TOKEN_COOKIE_NAME,
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
-import { deleteCookie, getCookie, setCookie } from 'cookies-next';
+import { deleteCookie, getCookie, setCookie } from './helpers';
 import { chunk, range } from 'lib/utils';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -38,7 +38,8 @@ export const setLargeStringInCookies = (
 	COOKIE_NAME: string,
 	largeString: string,
 	req: NextApiRequest,
-	res: NextApiResponse
+	res: NextApiResponse,
+	crossSite = false
 ) => {
 	const chunkSize = 4000;
 	const chunks = chunk<string>(Array.from(largeString), chunkSize);
@@ -46,9 +47,15 @@ export const setLargeStringInCookies = (
 	chunks.forEach((chunk, index) => {
 		const cookieValue = chunk.join('');
 
-		setCookie(`${COOKIE_NAME}${index}`, cookieValue, { res, req });
+		setCookie(`${COOKIE_NAME}${index}`, cookieValue, { res, req }, crossSite);
 	});
-	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, { res, req });
+
+	setCookie(
+		`${COOKIE_NAME}_totalChunks`,
+		chunks.length,
+		{ res, req },
+		crossSite
+	);
 };
 
 export const getLargeStringFromCookies = (
@@ -97,12 +104,12 @@ export function setAuthCookies(
 	// Handle Large Access Token
 	// Cookie can support upto 4096 characters only!
 	if (access_token.length <= 4096) {
-		setCookie(TOKEN_COOKIE_NAME, access_token, { res, req });
+		setCookie(TOKEN_COOKIE_NAME, access_token, { res, req }, true); // cross site cookie
 	} else {
-		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, req, res);
+		setLargeStringInCookies(TOKEN_COOKIE_NAME, access_token, req, res, true); // cross site cookie
 	}
 
-	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, { res, req });
+	setCookie(REFRESH_TOKEN_COOKIE_NAME, refresh_token.token, { res, req }, true); // cross site cookie
 	setCookie(ACTIVE_TEAM_COOKIE_NAME, teamId, { res, req });
 	setCookie(TENANT_ID_COOKIE_NAME, tenantId, { res, req });
 	setCookie(ORGANIZATION_ID_COOKIE_NAME, organizationId, { res, req });
@@ -161,7 +168,7 @@ export function getRefreshTokenCookie(ctx?: NextCtx) {
 }
 
 export function setAccessTokenCookie(accessToken: string, ctx?: NextCtx) {
-	return setCookie(TOKEN_COOKIE_NAME, accessToken, { ...(ctx || {}) });
+	return setCookie(TOKEN_COOKIE_NAME, accessToken, { ...(ctx || {}) }, true); // cross site cookie
 }
 
 // Active team id
@@ -258,9 +265,9 @@ export function getActiveTimezoneIdCookie(ctx?: NextCtx) {
 }
 
 // Jitsi
-export function setJitsiJwtSessionCookie(token: string, ctx?: NextCtx) {
-	return setCookie(JITSI_JWT_TOKEN_COOKIE_NAME, token, { ...(ctx || {}) });
+export function setMeetJwtSessionCookie(token: string, ctx?: NextCtx) {
+	return setCookie(MEET_JWT_TOKEN_COOKIE_NAME, token, { ...(ctx || {}) });
 }
-export function getJitsiJwtSessionCookie(ctx?: NextCtx) {
-	return getCookie(JITSI_JWT_TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
+export function getMeetJwtSessionCookie(ctx?: NextCtx) {
+	return getCookie(MEET_JWT_TOKEN_COOKIE_NAME, { ...(ctx || {}) }) as string;
 }

@@ -14,10 +14,8 @@ const fetchCurrentUserData = async (params: IGetUserDataParams) => {
 }
 
 export const useFetchCurrentUserData = (IGetUserDataParams) =>
-	useQuery(["user", IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams), {
-		refetchInterval: 5000,
-	})
-
+	useQuery(["user", IGetUserDataParams], () => fetchCurrentUserData(IGetUserDataParams), {})
+// removed refetchOnMount: 5000
 interface IGetOrganizationUsers {
 	authToken: string
 	tenantId: string
@@ -36,4 +34,5 @@ const fetchOrganizationUsers = async (params: IGetOrganizationUsers) => {
 export const useFetchOrganizationUsers = (IGetOrganizationUsers) =>
 	useQuery(["users", IGetOrganizationUsers], () => fetchOrganizationUsers(IGetOrganizationUsers), {
 		refetchInterval: 5000,
+		notifyOnChangeProps: ["data"], // Re-render only when data changes
 	})
