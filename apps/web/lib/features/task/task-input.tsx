@@ -310,43 +310,42 @@ export function TaskInput(props: Props) {
 			)}
 			/* Showing the task number. */
 			leadingNode={
-				showTaskNumber &&
-				inputTask && (
-					<div
-						className="flex items-center pl-3 space-x-2"
-						ref={ignoreElementRef}
-					>
-						{!datas.hasCreateForm ? (
-							<ActiveTaskIssuesDropdown
-								key={inputTask.id}
-								task={inputTask}
-								forParentChildRelationship={true}
-								taskStatusClassName={clsxm(
-									`${
-										inputTask.issueType === 'Bug'
-											? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
-											: '!px-[0.375rem] py-[0.375rem] rounded-sm'
-									} `,
-									'border-none'
-								)}
-							/>
-						) : (
-							<TaskIssuesDropdown
-								taskStatusClassName="!px-1 py-1 rounded-sm"
-								showIssueLabels={false}
-								onValueChange={(v) => {
-									taskIssue.current = v;
-								}}
-							/>
-						)}
+				// showTaskNumber &&
+				// inputTask &&
+				<div
+					className="flex items-center pl-3 space-x-2"
+					ref={ignoreElementRef}
+				>
+					{!datas.hasCreateForm ? (
+						<ActiveTaskIssuesDropdown
+							key={(inputTask && inputTask.id) || ''}
+							task={inputTask}
+							forParentChildRelationship={true}
+							taskStatusClassName={clsxm(
+								`${
+									inputTask && inputTask.issueType === 'Bug'
+										? '!px-[0.3312rem] py-[0.2875rem] rounded-sm'
+										: '!px-[0.375rem] py-[0.375rem] rounded-sm'
+								} `,
+								'border-none'
+							)}
+						/>
+					) : (
+						<TaskIssuesDropdown
+							taskStatusClassName="!px-1 py-1 rounded-sm"
+							showIssueLabels={false}
+							onValueChange={(v) => {
+								taskIssue.current = v;
+							}}
+						/>
+					)}
 
-						{!datas.hasCreateForm && (
-							<span className="text-sm text-gray-500">
-								#{inputTask.taskNumber}
-							</span>
-						)}
-					</div>
-				)
+					{!datas.hasCreateForm && (
+						<span className="text-sm text-gray-500">
+							#{(inputTask && inputTask.taskNumber) || ''}
+						</span>
+					)}
+				</div>
 			}
 		/>
 	);
