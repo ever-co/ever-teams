@@ -27,7 +27,8 @@
 					"savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
 					"isAccessMediaLocationEnabled": true
 				}
-			]
+			],
+			"sentry-expo"
 		],
 		"android": {
 			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
@@ -75,6 +76,17 @@
 			"eas": {
 				"projectId": "9f38f768-16f6-4c47-b354-9745ebda1335"
 			}
+		},
+		"hooks": {
+			"postPublish": [
+				{
+					"file": "sentry-expo/upload-sourcemaps",
+					"config": {
+						"organization": "ever-co",
+						"project": "ever-teams-mobile"
+					}
+				}
+			]
 		},
 		"runtimeVersion": "exposdk:48.0.0"
 	}
