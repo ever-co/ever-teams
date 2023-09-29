@@ -1,10 +1,14 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native"
 import { translate } from "../../../../i18n"
 import { ITaskSizeCreate, ITaskSizeItem } from "../../../../services/interfaces/ITaskSize"
 import { typography, useAppTheme } from "../../../../theme"
-import ColorDropDown from "./ColorDropDown"
 import IconDropDown from "./IconDropDown"
+import ColorPickerModal from "../../../../components/ColorPickerModal"
+import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
 
 const TaskSizeForm = ({
 	isEdit,
@@ -23,6 +27,7 @@ const TaskSizeForm = ({
 	const [sizeName, setSizeName] = useState<string>(null)
 	const [sizeColor, setSizeColor] = useState<string>(null)
 	const [sizeIcon, setSizeIcon] = useState<string>(null)
+	const [modalVisible, setModalVisible] = useState<boolean>(false)
 
 	useEffect(() => {
 		if (isEdit) {
@@ -60,6 +65,10 @@ const TaskSizeForm = ({
 		onDismiss()
 	}
 
+	const onDismissModal = () => {
+		setModalVisible(false)
+	}
+
 	return (
 		<View
 			style={{
@@ -70,6 +79,8 @@ const TaskSizeForm = ({
 				height: 452,
 			}}
 		>
+			<ColorPickerModal visible={modalVisible} onDismiss={onDismissModal} setColor={setSizeColor} />
+
 			<Text style={{ ...styles.formTitle, color: colors.primary }}>
 				{translate("settingScreen.sizeScreen.createNewSizeText")}
 			</Text>
@@ -77,13 +88,27 @@ const TaskSizeForm = ({
 				style={{ ...styles.statusNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.sizeScreen.sizeNamePlaceholder")}
-				defaultValue={sizeName}
+				defaultValue={formatName(sizeName)}
 				onChangeText={(text) => setSizeName(text)}
 			/>
 
 			<IconDropDown icon={sizeIcon} setIcon={setSizeIcon} />
 
-			<ColorDropDown color={sizeColor} setColor={setSizeColor} />
+			{/* Color Picker button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<Badge size={24} style={{ backgroundColor: sizeColor || "#D9D9D9" }} />
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+						}}
+					>
+						{sizeColor?.toUpperCase() ||
+							translate("settingScreen.statusScreen.statusColorPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			<View style={styles.wrapButtons}>
 				<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
@@ -123,6 +148,18 @@ const styles = StyleSheet.create({
 		color: "#1A1C1E",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
+	},
+	colorModalButton: {
+		alignItems: "center",
+		borderColor: "#DCE4E8",
+		borderRadius: 12,
+		borderWidth: 1,
+		flexDirection: "row",
+		height: 57,
+		justifyContent: "space-between",
+		marginTop: 16,
+		paddingHorizontal: 18,
+		width: "100%",
 	},
 	createBtn: {
 		alignItems: "center",

@@ -101,6 +101,7 @@
 		"reactotron-react-js": "^3.3.7",
 		"reactotron-react-native": "5.0.3",
 		"reanimated-bottom-sheet": "^1.0.0-alpha.22",
+		"reanimated-color-picker": "^2.3.4",
 		"sentry-expo": "~6.2.0",
 		"validator": "^13.11.0"
 	},

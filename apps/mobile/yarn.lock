@@ -12728,6 +12728,11 @@ reanimated-bottom-sheet@^1.0.0-alpha.22:
   resolved "https://registry.yarnpkg.com/reanimated-bottom-sheet/-/reanimated-bottom-sheet-1.0.0-alpha.22.tgz#01a200946f1a461f01f1e773e5b4961c2df2e53b"
   integrity sha512-NxecCn+2iA4YzkFuRK5/b86GHHS2OhZ9VRgiM4q18AC20YE/psRilqxzXCKBEvkOjP5AaAvY0yfE7EkEFBjTvw==
 
+reanimated-color-picker@^2.3.4:
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/reanimated-color-picker/-/reanimated-color-picker-2.3.4.tgz#50f08e61ab32f10421323014edf845d1a431f3ad"
+  integrity sha512-9xAXnVIynqAKtzgZxaL0E6uYL5hsS3Tneoj+JLBmgNOM5gsIgW4qgs2c8o/gFkyu1zwQol2+sQ73ZTgMjB+lCQ==
+
 recast@^0.20.4:
   version "0.20.5"
   resolved "https://registry.yarnpkg.com/recast/-/recast-0.20.5.tgz#8e2c6c96827a1b339c634dd232957d230553ceae"
