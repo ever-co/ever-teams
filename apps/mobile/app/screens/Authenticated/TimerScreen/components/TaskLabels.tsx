@@ -17,7 +17,8 @@ interface TaskLabelProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
 	labels?: string
-	setLabels?: (label: string) => unknown
+	setLabels?: (label: ITaskLabelItem) => unknown
+	newTaskLabels?: ITaskLabelItem[] | undefined
 }
 
 interface IndividualTaskLabel {
@@ -35,7 +36,7 @@ interface IndividualTaskLabel {
 	updatedAt: string
 }
 
-const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
+const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabels }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
 	const [openModal, setOpenModal] = useState(false)
@@ -57,7 +58,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 			}
 			await updateTask(taskEdit, task.id)
 		} else {
-			setLabels(text.name?.split("-").join(" "))
+			setLabels(text)
 		}
 	}
 
@@ -91,17 +92,18 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 	return (
 		<>
 			<TaskLabelPopup
-				labelNames={task?.tags}
+				labelNames={task?.tags || newTaskLabels}
 				visible={openModal}
 				setSelectedLabel={(e) => onChangeLabel(e)}
 				onDismiss={() => setOpenModal(false)}
 				canCreateLabel={true}
 			/>
-			{task?.tags !== undefined && task?.tags?.length > 0 ? (
+			{(task?.tags !== undefined || newTaskLabels !== undefined) &&
+			(task?.tags?.length > 0 || newTaskLabels?.length > 0) ? (
 				<View>
 					<FlatList
 						ref={flatListRef}
-						data={task?.tags}
+						data={task?.tags || newTaskLabels}
 						renderItem={({ item }) => <Label item={item} setOpenModal={setOpenModal} />}
 						horizontal={true}
 						keyExtractor={(_, index) => index.toString()}
@@ -111,7 +113,9 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 						)}
 						onMomentumScrollEnd={handleScrollEnd}
 					/>
-					{labelIndex >= task?.tags?.length - 3 || task?.tags?.length < 3 ? null : (
+					{labelIndex >= (task?.tags?.length - 3 || newTaskLabels?.length - 3) ||
+					task?.tags?.length < 3 ||
+					newTaskLabels?.length < 3 ? null : (
 						<TouchableOpacity
 							activeOpacity={0.7}
 							style={[styles.scrollButtons, { backgroundColor: colors.background, right: 0 }]}
