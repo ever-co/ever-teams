@@ -38,10 +38,10 @@ interface ColorObj {
 interface IColorPicker {
 	visible: boolean
 	onDismiss: () => void
-	setStatusColor: React.Dispatch<React.SetStateAction<string>>
+	setColor: React.Dispatch<React.SetStateAction<string>>
 }
 
-const ColorPickerModal: FC<IColorPicker> = ({ visible, onDismiss, setStatusColor }) => {
+const ColorPickerModal: FC<IColorPicker> = ({ visible, onDismiss, setColor }) => {
 	const { dark, colors } = useAppTheme()
 
 	const customSwatches = new Array(6).fill("#fff").map(() => colorKit.randomRgbColor().hex())
@@ -87,7 +87,7 @@ const ColorPickerModal: FC<IColorPicker> = ({ visible, onDismiss, setStatusColor
 							backgroundColor: dark ? "#6755C9" : "#3826A6",
 						}}
 						onPress={() => {
-							setStatusColor(selectedColor.value)
+							setColor(selectedColor.value)
 							onDismiss()
 						}}
 					>

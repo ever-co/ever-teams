@@ -81,7 +81,7 @@ const TaskStatusForm = ({
 			<ColorPickerModal
 				visible={modalVisible}
 				onDismiss={onDismissModal}
-				setStatusColor={setStatusColor}
+				setColor={setStatusColor}
 			/>
 			<Text style={{ ...styles.formTitle, color: colors.primary }}>
 				{translate("settingScreen.statusScreen.createNewStatusText")}
