@@ -176,16 +176,7 @@ const styles = StyleSheet.create({
 	},
 	panelStyle: {
 		borderRadius: 16,
-
 		elevation: 5,
-		// shadowColor: "#000",
-		// shadowOffset: {
-		// 	width: 0,
-		// 	height: 2,
-		// },
-		// shadowOpacity: 0.25,
-
-		// shadowRadius: 3.84,
 	},
 	previewTxtContainer: {
 		borderColor: "#bebdbe",
@@ -196,16 +187,7 @@ const styles = StyleSheet.create({
 	sliderStyle: {
 		borderRadius: 20,
 		elevation: 5,
-
 		marginTop: 20,
-		// shadowColor: "#000",
-		// shadowOffset: {
-		// 	width: 0,
-		// 	height: 2,
-		// },
-		// shadowOpacity: 0.25,
-
-		// shadowRadius: 3.84,
 	},
 	swatchStyle: {
 		borderRadius: 20,
