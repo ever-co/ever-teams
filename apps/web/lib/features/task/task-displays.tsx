@@ -36,18 +36,18 @@ export function TaskNameInfoDisplay({
 									task={task}
 								/>
 							</div>
-							<span
-								className={clsxm(
-									'text-gray-500 mr-1 font-normal',
-									taskNumberClassName
-								)}
-							>
-								#{task.taskNumber} {dash && '-'}
-							</span>
 						</div>
 					</div>
 				)}
 				<span className={clsxm('font-normal', taskTitleClassName)}>
+					<span
+						className={clsxm(
+							'text-gray-500 mr-1 font-normal',
+							taskNumberClassName
+						)}
+					>
+						#{task?.taskNumber} {dash && '-'}
+					</span>
 					{task?.title}
 				</span>
 			</span>
