@@ -86,13 +86,16 @@ export function Navbar({
 							{!notFound && (
 								<div className="flex items-center gap-10">
 									{publicTeam && (
-										<Button className="rounded-lg" onClick={openModal}>
+										<Button
+											className="py-3.5 px-4 gap-3 rounded-xl outline-none"
+											onClick={openModal}
+										>
 											{trans.common.JOIN_REQUEST}
 										</Button>
 									)}
 									{showTimer && <MinTimerFrame />}
 
-									<Collaborate />
+									{!publicTeam && <Collaborate />}
 
 									{isTeamMember && isTeamDropdownAllowed ? (
 										<TeamsDropDown publicTeam={publicTeam || false} />
