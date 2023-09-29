@@ -11,6 +11,7 @@ import { typography, useAppTheme } from "../../../../theme"
 import IconDropDown from "./IconDropDown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
 
 const TaskPriorityForm = ({
 	isEdit,
@@ -91,10 +92,10 @@ const TaskPriorityForm = ({
 				{translate("settingScreen.priorityScreen.createNewPriorityText")}
 			</Text>
 			<TextInput
-				style={{ ...styles.statusNameInput, color: colors.primary }}
+				style={{ ...styles.statusNameInput, color: colors.primary, textTransform: "capitalize" }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.priorityScreen.priorityNamePlaceholder")}
-				defaultValue={priorityName}
+				defaultValue={formatName(priorityName)}
 				onChangeText={(text) => setPriorityName(text)}
 			/>
 

@@ -8,6 +8,7 @@ import { typography, useAppTheme } from "../../../../theme"
 import IconDropDown from "./IconDropDown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
 
 const TaskSizeForm = ({
 	isEdit,
@@ -87,7 +88,7 @@ const TaskSizeForm = ({
 				style={{ ...styles.statusNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.sizeScreen.sizeNamePlaceholder")}
-				defaultValue={sizeName}
+				defaultValue={formatName(sizeName)}
 				onChangeText={(text) => setSizeName(text)}
 			/>
 

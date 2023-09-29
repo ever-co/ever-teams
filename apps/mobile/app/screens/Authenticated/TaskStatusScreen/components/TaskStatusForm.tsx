@@ -8,6 +8,7 @@ import { typography, useAppTheme } from "../../../../theme"
 import IconDropDown from "./IconDropdown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
 
 const TaskStatusForm = ({
 	isEdit,
@@ -90,7 +91,7 @@ const TaskStatusForm = ({
 				style={{ ...styles.statusNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.statusScreen.statusNamePlaceholder")}
-				defaultValue={statusName}
+				defaultValue={formatName(statusName)}
 				onChangeText={(text) => setStatusName(text)}
 			/>
 			<IconDropDown icon={statusIcon} setIcon={setStatusIcon} />

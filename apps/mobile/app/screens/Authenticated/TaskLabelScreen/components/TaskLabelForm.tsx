@@ -8,6 +8,7 @@ import { typography, useAppTheme } from "../../../../theme"
 import IconDropDown from "./IconDropdown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
 
 const TaskLabelForm = ({
 	isEdit,
@@ -30,7 +31,7 @@ const TaskLabelForm = ({
 
 	useEffect(() => {
 		if (isEdit) {
-			setLabelName(item.value)
+			setLabelName(item.name)
 			setLabelColor(item.color)
 			setLabelIcon(item.icon)
 		} else {
@@ -91,7 +92,7 @@ const TaskLabelForm = ({
 				style={{ ...styles.statusNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.labelScreen.labelNamePlaceholder")}
-				defaultValue={labelName}
+				defaultValue={formatName(labelName)}
 				onChangeText={(text) => setLabelName(text)}
 			/>
 
