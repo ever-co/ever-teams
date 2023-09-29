@@ -10,7 +10,7 @@ import { InputField } from './input';
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
 export type AuthCodeProps = {
-	allowedCharacters?: typeof allowedCharactersValues[number];
+	allowedCharacters?: (typeof allowedCharactersValues)[number];
 	ariaLabel?: string;
 	autoFocus?: boolean;
 	containerClassName?: string;
@@ -134,6 +134,9 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			const {
 				target: { value, nextElementSibling },
 			} = e;
+
+			e.target.value = value.toUpperCase();
+
 			if (value.length > 1) {
 				e.target.value = value.charAt(0);
 				if (nextElementSibling !== null) {

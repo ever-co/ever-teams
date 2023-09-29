@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Avatar, InputField, Text } from 'lib/components';
+import { Avatar, InputField, Text, Tooltip } from 'lib/components';
 import { imgTitle } from '@app/helpers';
 import { clsxm } from '@app/utils';
 import stc from 'string-to-color';
@@ -13,6 +13,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { useSettings } from '@app/hooks';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { organizationTeamsState, activeTeamIdState } from '@app/stores';
+import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const {
@@ -168,12 +169,12 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									) : (
 										''
 									)}
-									<div className="pl-3 flex flex-col gap-1">
+									<div className="pl-3 flex flex-col gap-1 ">
 										{editMember && editMember.id === member.id ? (
 											<InputField
 												type="text"
 												placeholder={'Enter Name'}
-												className="mb-0 h-5 border-none pl-0 py-0 rounded-none border-b-1"
+												className="mb-0 h-5 border-none max-w-[12rem] 3xl:max-w-[14rem] pl-0 py-0 rounded-none border-b-1"
 												noWrapper
 												autoFocus
 												defaultValue={member.employee.fullName}
@@ -182,18 +183,37 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 												onKeyUp={handleOnKeyUp}
 											/>
 										) : (
-											<div
-												className="text-sm font-semibold text-[#282048] dark:text-white"
-												onDoubleClick={() => {
-													handleEdit(member);
-												}}
+											<Tooltip
+												label={member.employee.fullName.trim()}
+												placement="auto"
+												enabled={
+													member.employee.fullName.trim().length >
+													CHARACTER_LIMIT_TO_SHOW
+												}
 											>
-												{member.employee.fullName}
-											</div>
+												<div
+													className="text-sm font-semibold text-[#282048] dark:text-white max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap"
+													onDoubleClick={() => {
+														handleEdit(member);
+													}}
+												>
+													{member.employee.fullName}
+												</div>
+											</Tooltip>
 										)}
-										<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal">
-											{member.employee.user?.email || ''}
-										</Text>
+
+										<Tooltip
+											label={(member.employee.user?.email || '').trim()}
+											placement="auto"
+											enabled={
+												(member.employee.user?.email || '').trim().length >
+												CHARACTER_LIMIT_TO_SHOW
+											}
+										>
+											<Text className="text-xs dark:text-white text-[#B1AEBC] font-normal max-w-[12.5rem] 3xl:max-w-[14.25rem] overflow-hidden text-ellipsis whitespace-nowrap">
+												{member.employee.user?.email || ''}
+											</Text>
+										</Tooltip>
 									</div>
 								</th>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">

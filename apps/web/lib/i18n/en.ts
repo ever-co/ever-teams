@@ -84,7 +84,7 @@ export const en = {
 		EXISTING_MEMBER: 'Already a Member',
 		NEW_MEMBER: 'Become a Member',
 		BACK: 'Back',
-		JOIN_REQUEST: 'Request to join',
+		JOIN_REQUEST: 'Request To Join',
 		PERMISSION: 'Permission',
 		SEARCH: 'Search',
 		ADD_PARENT: 'Add Parent',
