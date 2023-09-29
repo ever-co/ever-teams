@@ -107,7 +107,8 @@ const TaskLabelForm = ({
 							color: colors.primary,
 						}}
 					>
-						{labelColor || translate("settingScreen.statusScreen.statusColorPlaceholder")}
+						{labelColor?.toUpperCase() ||
+							translate("settingScreen.statusScreen.statusColorPlaceholder")}
 					</Text>
 				</View>
 			</TouchableOpacity>

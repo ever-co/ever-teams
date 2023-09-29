@@ -94,6 +94,7 @@ const TaskStatusForm = ({
 				onChangeText={(text) => setStatusName(text)}
 			/>
 			<IconDropDown icon={statusIcon} setIcon={setStatusIcon} />
+
 			{/* Color Picker button */}
 			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -104,7 +105,8 @@ const TaskStatusForm = ({
 							color: colors.primary,
 						}}
 					>
-						{statusColor || translate("settingScreen.statusScreen.statusColorPlaceholder")}
+						{statusColor?.toUpperCase() ||
+							translate("settingScreen.statusScreen.statusColorPlaceholder")}
 					</Text>
 				</View>
 			</TouchableOpacity>
