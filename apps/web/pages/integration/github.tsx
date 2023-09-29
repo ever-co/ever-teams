@@ -9,7 +9,7 @@ const GitHub = () => {
 		<div className="flex flex-col p-3">
 			{!router.query.code && (
 				<Link
-					href={'https://github.com/apps/<APP>'}
+					href={'https://github.com/apps/ever-gauzy-demo'}
 					className="bg-primary dark:bg-primary-light text-white text-sm p-3 rounded-xl mb-5 w-52 text-center"
 				>
 					Connect to GitHub

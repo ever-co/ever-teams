@@ -28,3 +28,5 @@ export * from './task-sizes';
 export * from './task-labels';
 export * from './issue-type';
 export * from './task-related-issue-type';
+
+export * from './integrations/github';
