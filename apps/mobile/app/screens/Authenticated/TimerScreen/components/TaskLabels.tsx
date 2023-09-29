@@ -17,7 +17,7 @@ interface TaskLabelProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
 	labels?: string
-	setLabels?: (label: ITaskLabelItem) => unknown
+	setLabels?: (label: ITaskLabelItem[]) => unknown
 	newTaskLabels?: ITaskLabelItem[] | undefined
 }
 
@@ -58,7 +58,12 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 			}
 			await updateTask(taskEdit, task.id)
 		} else {
-			setLabels(text)
+			const exist = newTaskLabels?.find((label) => label.id === text.id)
+			if (exist) {
+				setLabels(newTaskLabels?.filter((label) => label.id !== text.id))
+			} else {
+				setLabels([...(newTaskLabels || []), text])
+			}
 		}
 	}
 

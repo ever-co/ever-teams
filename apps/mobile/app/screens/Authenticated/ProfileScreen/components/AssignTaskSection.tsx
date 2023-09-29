@@ -97,8 +97,6 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 		}
 	}
 
-	// console.log(newTask)
-
 	const handleChangeText = (value: string) => {
 		setTaskInputText(value)
 	}
@@ -226,7 +224,7 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									setLabels={(e) =>
 										setNewTask({
 											...newTask,
-											tags: [...(newTask?.tags || []), e],
+											tags: e,
 										})
 									}
 									containerStyle={{
