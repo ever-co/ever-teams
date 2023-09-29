@@ -82,7 +82,7 @@ export function Navbar({
 				>
 					<Container>
 						<div className="w-full flex justify-between items-center min-h-[90px]">
-							<EverTeamsLogo dash className="w-4/5 md:w-full" />
+							<EverTeamsLogo dash />
 							{!notFound && (
 								<div className="flex items-center gap-10">
 									{publicTeam && (
