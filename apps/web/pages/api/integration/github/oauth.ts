@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import { installGitHubIntegration } from '@app/services/server/requests';
+import { oAuthEndpointAuthorization } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -10,18 +10,19 @@ export default async function handler(
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
-	const { installation_id, setup_action } = req.body;
+	const { installation_id, setup_action, code } = req.body;
 
 	if (req.method !== 'POST') {
 		return $res.status(405).json({});
 	}
 
-	const response = await installGitHubIntegration(
+	const response = await oAuthEndpointAuthorization(
 		{
 			tenantId,
 			organizationId,
 			installation_id,
 			setup_action,
+			code,
 		},
 		access_token
 	);
