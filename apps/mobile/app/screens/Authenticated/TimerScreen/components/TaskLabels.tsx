@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useRef, useState } from "react"
+import React, { FC, useEffect, useRef, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList } from "react-native"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
@@ -12,6 +12,7 @@ import { ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
 import { translate } from "../../../../i18n"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { SvgUri } from "react-native-svg"
+import { isEqual } from "lodash"
 
 interface TaskLabelProps {
 	task?: ITeamTask
@@ -42,30 +43,45 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 	const [openModal, setOpenModal] = useState(false)
 	const flatListRef = useRef<FlatList>(null)
 	const [labelIndex, setLabelIndex] = useState<number>(0)
+	const [tempLabels, setTempLabels] = useState<ITaskLabelItem[] | []>(
+		task?.tags || newTaskLabels || [],
+	)
+	const [arrayChanged, setArrayChanged] = useState<boolean>(false)
 
-	const onChangeLabel = async (text: ITaskLabelItem) => {
+	const saveLabels = async () => {
 		if (task) {
-			let tags = []
-			const exist = task?.tags.find((label) => label.id === text.id)
-			if (exist) {
-				tags = task.tags.filter((label) => label.id !== text.id)
-			} else {
-				tags = [...task.tags, text]
-			}
 			const taskEdit = {
 				...task,
-				tags,
+				tags: tempLabels,
 			}
 			await updateTask(taskEdit, task.id)
 		} else {
-			const exist = newTaskLabels?.find((label) => label.id === text.id)
-			if (exist) {
-				setLabels(newTaskLabels?.filter((label) => label.id !== text.id))
-			} else {
-				setLabels([...(newTaskLabels || []), text])
-			}
+			setLabels(tempLabels)
+		}
+		setOpenModal(false)
+	}
+
+	const addOrRemoveLabelsInTempArray = (tag: ITaskLabelItem): void => {
+		const exist = tempLabels.find((label) => label.id === tag.id)
+		if (exist) {
+			setTempLabels(tempLabels.filter((label) => label.id !== tag.id))
+		} else {
+			setTempLabels([...tempLabels, tag])
 		}
 	}
+
+	const arraysHaveSameValues = (
+		array1: ITaskLabelItem[] | [],
+		array2: ITaskLabelItem[] | [],
+	): void => {
+		const areArraysEqual = isEqual(array1, array2)
+
+		setArrayChanged(!areArraysEqual)
+	}
+
+	useEffect(() => {
+		arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || [])
+	}, [tempLabels])
 
 	const scrollToIndexWithDelay = (index: number) => {
 		flatListRef.current?.scrollToIndex({
@@ -97,9 +113,11 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 	return (
 		<>
 			<TaskLabelPopup
-				labelNames={task?.tags || newTaskLabels}
+				labelNames={tempLabels}
 				visible={openModal}
-				setSelectedLabel={(e) => onChangeLabel(e)}
+				saveLabels={saveLabels}
+				arrayChanged={arrayChanged}
+				addOrRemoveLabels={addOrRemoveLabelsInTempArray}
 				onDismiss={() => setOpenModal(false)}
 				canCreateLabel={true}
 			/>

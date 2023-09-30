@@ -22,7 +22,7 @@ export type ITeamTask = {
 	creatorId: string
 	members: IEmployee[]
 	selectedTeam?: IOrganizationTeamList
-	tags: Tag[]
+	tags: ITaskLabelItem[]
 	teams: SelectedTeam[]
 	creator: Creator
 	taskNumber: string

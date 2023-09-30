@@ -24,11 +24,13 @@ export interface Props {
 	visible: boolean
 	onDismiss: () => unknown
 	labelNames: ITaskLabelItem[]
-	setSelectedLabel: (label: ITaskLabelItem) => unknown
+	saveLabels: () => void
+	arrayChanged: boolean
+	addOrRemoveLabels: (label: ITaskLabelItem) => void
 	canCreateLabel?: boolean
 }
 
-const ModalPopUp = ({ visible, children, onDismiss }) => {
+const ModalPopUp = ({ visible, children }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
 
@@ -53,7 +55,7 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
-			<TouchableWithoutFeedback onPress={() => onDismiss()}>
+			<TouchableWithoutFeedback>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
 				</View>
@@ -65,7 +67,9 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 	visible,
 	onDismiss,
-	setSelectedLabel,
+	saveLabels,
+	arrayChanged,
+	addOrRemoveLabels,
 	labelNames,
 	canCreateLabel = false,
 }) {
@@ -76,17 +80,11 @@ const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 	const [createTaskMode, setCreateTaskMode] = useState<boolean>(false)
 
 	const onLabelSelected = (label: ITaskLabelItem) => {
-		setSelectedLabel(label)
-		onDismiss()
+		addOrRemoveLabels(label)
 	}
 
 	return (
-		<ModalPopUp
-			visible={visible}
-			onDismiss={() => {
-				!createTaskMode && onDismiss()
-			}}
-		>
+		<ModalPopUp visible={visible}>
 			<View
 				style={{
 					...styles.container,
@@ -114,7 +112,7 @@ const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 							showsVerticalScrollIndicator={true}
 							keyExtractor={(_, index) => index.toString()}
 						/>
-						{canCreateLabel && (
+						{canCreateLabel && !arrayChanged ? (
 							<TouchableOpacity
 								style={{ ...styles.createButton, borderColor: dark ? "#6755C9" : "#3826A6" }}
 								onPress={() => setCreateTaskMode(true)}
@@ -124,6 +122,23 @@ const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 									{translate("settingScreen.labelScreen.createNewLabelText")}
 								</Text>
 							</TouchableOpacity>
+						) : (
+							<View style={styles.wrapButtons}>
+								<TouchableOpacity
+									onPress={onDismiss}
+									style={[styles.button, { backgroundColor: "#E6E6E9" }]}
+								>
+									<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>
+										{translate("common.cancel")}
+									</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									onPress={saveLabels}
+									style={[styles.button, { backgroundColor: "#3826A6" }]}
+								>
+									<Text style={styles.buttonText}>{translate("common.save")}</Text>
+								</TouchableOpacity>
+							</View>
 						)}
 					</>
 				) : (
@@ -182,6 +197,19 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		fontStyle: "normal",
 	},
+	button: {
+		alignItems: "center",
+		borderRadius: 11,
+		height: 55,
+		justifyContent: "center",
+		padding: 10,
+		width: 140,
+	},
+	buttonText: {
+		color: "#FFF",
+		fontFamily: typography.primary.semiBold,
+		fontSize: 18,
+	},
 	colorFrame: {
 		borderRadius: 10,
 		height: 44,
@@ -213,6 +241,12 @@ const styles = StyleSheet.create({
 		fontSize: spacing.medium - 2,
 		marginBottom: 16,
 		marginHorizontal: 10,
+	},
+	wrapButtons: {
+		flexDirection: "row",
+		gap: 20,
+		justifyContent: "center",
+		marginTop: 10,
 	},
 	wrapperItem: {
 		alignItems: "center",
