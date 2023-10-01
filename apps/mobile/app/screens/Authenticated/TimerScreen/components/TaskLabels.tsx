@@ -48,6 +48,12 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 	)
 	const [arrayChanged, setArrayChanged] = useState<boolean>(false)
 
+	const freshOpenModal = () => {
+		setOpenModal(true)
+		setTempLabels(task?.tags || newTaskLabels || [])
+		arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || [])
+	}
+
 	const saveLabels = async () => {
 		if (task) {
 			const taskEdit = {
@@ -74,7 +80,10 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 		array1: ITaskLabelItem[] | [],
 		array2: ITaskLabelItem[] | [],
 	): void => {
-		const areArraysEqual = isEqual(array1, array2)
+		const sortedArray1 = array1.slice().sort((a, b) => a.id.localeCompare(b.id))
+		const sortedArray2 = array2.slice().sort((a, b) => a.id.localeCompare(b.id))
+
+		const areArraysEqual = isEqual(sortedArray1, sortedArray2)
 
 		setArrayChanged(!areArraysEqual)
 	}
@@ -127,7 +136,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 					<FlatList
 						ref={flatListRef}
 						data={task?.tags || newTaskLabels}
-						renderItem={({ item }) => <Label item={item} setOpenModal={setOpenModal} />}
+						renderItem={({ item }) => <Label item={item} freshOpenModal={freshOpenModal} />}
 						horizontal={true}
 						keyExtractor={(_, index) => index.toString()}
 						showsHorizontalScrollIndicator={false}
@@ -158,11 +167,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 					) : null}
 				</View>
 			) : (
-				<TouchableOpacity
-					onPress={() => {
-						setOpenModal(true)
-					}}
-				>
+				<TouchableOpacity onPress={freshOpenModal}>
 					<View
 						style={{
 							...styles.container,
@@ -187,13 +192,13 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 
 interface ILabel {
 	item: IndividualTaskLabel | null
-	setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
+	freshOpenModal: () => void
 }
 
-const Label: FC<ILabel> = ({ item, setOpenModal }) => {
+const Label: FC<ILabel> = ({ item, freshOpenModal }) => {
 	const { colors } = useAppTheme()
 	return (
-		<TouchableOpacity style={{}} onPress={() => setOpenModal(true)}>
+		<TouchableOpacity style={{}} onPress={freshOpenModal}>
 			<View
 				style={{
 					flexDirection: "row",

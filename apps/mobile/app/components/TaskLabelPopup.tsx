@@ -30,7 +30,7 @@ export interface Props {
 	canCreateLabel?: boolean
 }
 
-const ModalPopUp = ({ visible, children }) => {
+const ModalPopUp = ({ visible, children, onDismiss }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
 
@@ -55,7 +55,7 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
-			<TouchableWithoutFeedback>
+			<TouchableWithoutFeedback onPress={onDismiss}>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
 				</View>
@@ -84,7 +84,7 @@ const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 	}
 
 	return (
-		<ModalPopUp visible={visible}>
+		<ModalPopUp visible={visible} onDismiss={onDismiss}>
 			<View
 				style={{
 					...styles.container,
