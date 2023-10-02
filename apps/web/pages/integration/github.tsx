@@ -30,16 +30,12 @@ const GitHub = () => {
 			setTimeout(() => {
 				installGitHub(
 					router.query.installation_id as string,
-					router.query.setup_action as string
-				);
-				oAuthGitHub(
-					router.query.installation_id as string,
 					router.query.setup_action as string,
 					router.query.code as string
 				);
 			}, 100);
 		}
-	}, [installGitHub, oAuthGitHub, router]);
+	}, [installGitHub, router]);
 
 	return (
 		<div className="flex flex-col p-3">

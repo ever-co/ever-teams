@@ -18,12 +18,13 @@ export function useGitHubIntegration() {
 	);
 
 	const installGitHub = useCallback(
-		(installation_id: string, setup_action: string) => {
+		(installation_id: string, setup_action: string, code: string) => {
 			return installQueryCall({
 				tenantId: user?.tenantId as string,
 				organizationId: user?.employee?.organizationId as string,
 				installation_id,
 				setup_action,
+				code,
 			});
 		},
 		[installQueryCall, user]
