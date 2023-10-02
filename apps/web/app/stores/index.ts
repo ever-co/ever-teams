@@ -24,4 +24,5 @@ export * from './public';
 
 export * from './integration-tenant';
 export * from './integration-github';
+export * from './integration-types';
 export * from './integration';

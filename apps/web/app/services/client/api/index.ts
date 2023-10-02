@@ -25,4 +25,5 @@ export * from './meet-auth';
 
 export * from './integrations/github';
 export * from './integrations/integration-tenant';
+export * from './integrations/types';
 export * from './integrations';

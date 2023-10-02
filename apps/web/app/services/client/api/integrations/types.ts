@@ -1,6 +1,6 @@
 import api from '../../axios';
 
 // TODO Type
-export function getIntegrationTenantAPI() {
+export function getIntegrationTypesAPI() {
 	return api.get<any>(`/integration/types`);
 }

@@ -1,8 +1,14 @@
 import {
+	getGithubIntegrationMetadataAPI,
+	getGithubIntegrationRepositoriesAPI,
 	installGitHubIntegrationAPI,
 	oAuthEndpointAuthorizationAPI,
 } from '@app/services/client/api/integrations/github';
-import { userState } from '@app/stores';
+import {
+	integrationGithubMetadataState,
+	integrationGithubRepositoriesState,
+	userState,
+} from '@app/stores';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
@@ -10,12 +16,22 @@ import { useQuery } from '../useQuery';
 export function useGitHubIntegration() {
 	const [user] = useRecoilState(userState);
 
+	const [integrationGithubMetadata, setIntegrationGithubMetadata] =
+		useRecoilState(integrationGithubMetadataState);
+	const [integrationGithubRepositories, setIntegrationGithubRepositories] =
+		useRecoilState(integrationGithubRepositoriesState);
+
 	const { loading: installLoading, queryCall: installQueryCall } = useQuery(
 		installGitHubIntegrationAPI
 	);
 	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(
 		oAuthEndpointAuthorizationAPI
 	);
+	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(
+		getGithubIntegrationMetadataAPI
+	);
+	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } =
+		useQuery(getGithubIntegrationRepositoriesAPI);
 
 	const installGitHub = useCallback(
 		(installation_id: string, setup_action: string, code: string) => {
@@ -41,6 +57,22 @@ export function useGitHubIntegration() {
 		},
 		[oAuthQueryCall, user]
 	);
+	const metaData = useCallback(
+		(integrationId: string) => {
+			return metadataQueryCall(integrationId).then((response) => {
+				setIntegrationGithubMetadata(response.data);
+			});
+		},
+		[metadataQueryCall, setIntegrationGithubMetadata]
+	);
+	const getRepositories = useCallback(
+		(integrationId: string) => {
+			return repositoriesQueryCall(integrationId).then((response) => {
+				setIntegrationGithubRepositories(response.data);
+			});
+		},
+		[repositoriesQueryCall, setIntegrationGithubRepositories]
+	);
 
 	return {
 		installLoading,
@@ -49,5 +81,11 @@ export function useGitHubIntegration() {
 		oAuthLoading,
 		oAuthQueryCall,
 		oAuthGitHub,
+		metaData,
+		metadataLoading,
+		getRepositories,
+		repositoriesLoading,
+		integrationGithubMetadata,
+		integrationGithubRepositories,
 	};
 }

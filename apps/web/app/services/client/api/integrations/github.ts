@@ -11,6 +11,14 @@ export function oAuthEndpointAuthorizationAPI(body: any) {
 }
 
 // TODO Type
-export function getGithubIntegrationMetadataAPI() {
-	return api.get<any>(`/integration/github`);
+export function getGithubIntegrationMetadataAPI(integrationId: string) {
+	return api.get<any>(
+		`/integration/github/metadata?integrationId=${integrationId}`
+	);
+}
+// TODO Type
+export function getGithubIntegrationRepositoriesAPI(integrationId: string) {
+	return api.get<any>(
+		`/integration/github/repositories?integrationId=${integrationId}`
+	);
 }

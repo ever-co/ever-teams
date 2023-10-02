@@ -23,7 +23,7 @@ export function oAuthEndpointAuthorization(data: any, bearer_token: string) {
 }
 
 export function getGithubIntegrationMetadataRequest(
-	{ tenantId, organizationId }: any,
+	{ tenantId, organizationId, integrationId }: any,
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({
@@ -31,7 +31,23 @@ export function getGithubIntegrationMetadataRequest(
 		organizationId,
 	});
 	return serverFetch<any>({
-		path: `/integration/github?${query.toString()}`,
+		path: `/integration/github/${integrationId}/metadata?${query.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: tenantId,
+	});
+}
+
+export function getGithubIntegrationRepositoriesRequest(
+	{ tenantId, organizationId, integrationId }: any,
+	bearer_token: string
+) {
+	const query = new URLSearchParams({
+		tenantId,
+		organizationId,
+	});
+	return serverFetch<any>({
+		path: `/integration/github/${integrationId}/repositories?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId,

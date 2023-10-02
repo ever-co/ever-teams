@@ -55,3 +55,8 @@ export * from './features/useTaskRelatedIssueType';
 
 export * from './features/useRolePermissions';
 export * from './features/useRefetchData';
+
+export * from './integrations/useGitHubIntegration';
+export * from './integrations/useIntegration';
+export * from './integrations/useIntegrationTenant';
+export * from './integrations/useIntegrationTypes';

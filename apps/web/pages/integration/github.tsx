@@ -1,16 +1,31 @@
+import { useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegration';
+import { useIntegration } from '@app/hooks/integrations/useIntegration';
 import { withAuthentication } from 'lib/app/authenticator';
-import { Button } from 'lib/components';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 
 const GitHub = () => {
 	const router = useRouter();
 
-	const [authLoader, setAuthLoader] = useState(false);
+	const { installGitHub, installLoading } = useGitHubIntegration();
+	const {
+		getIntegration,
+		loading: integrationLoading,
+		integration,
+	} = useIntegration();
+	const {
+		getIntegrationTenant,
+		loading: integrationTenantLoading,
+		integrationTenant,
+	} = useIntegrationTenant();
 
-	const { installGitHub, oAuthGitHub } = useGitHubIntegration();
+	const {
+		loading: loadingIntegrationTypes,
+		integrationTypes,
+		getIntegrationTypes,
+	} = useIntegrationTypes();
 
 	const params = {
 		state: 'TEST',
@@ -36,6 +51,10 @@ const GitHub = () => {
 			}, 100);
 		}
 	}, [installGitHub, router]);
+
+	// 1. Integration Types
+	// 2. Integration with Gihub searchQuery
+	// 3. Repo
 
 	return (
 		<div className="flex flex-col p-3">

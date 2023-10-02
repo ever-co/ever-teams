@@ -1,5 +1,5 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import { getGithubIntegrationMetadataRequest } from '@app/services/server/requests';
+import { getGithubIntegrationRepositoriesRequest } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(
@@ -16,7 +16,7 @@ export default async function handler(
 
 	const { integrationId } = req.query;
 
-	const response = await getGithubIntegrationMetadataRequest(
+	const response = await getGithubIntegrationRepositoriesRequest(
 		{
 			tenantId,
 			organizationId,

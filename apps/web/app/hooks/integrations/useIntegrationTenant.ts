@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 
-export function useGitHubIntegration() {
+export function useIntegrationTenant() {
 	const [integrationTenant, setIntegrationTenant] = useRecoilState(
 		integrationTenantState
 	);
