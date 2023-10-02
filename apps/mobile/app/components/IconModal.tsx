@@ -19,14 +19,14 @@ import { generateIconList } from "../helpers/generate-icon"
 import { IIcon } from "../services/interfaces/IIcon"
 import { SvgUri } from "react-native-svg"
 
-interface IColorPicker {
+interface IModal {
 	visible: boolean
 	onDismiss: () => void
 	setIcon: React.Dispatch<React.SetStateAction<string>>
 	setAllIcons: React.Dispatch<React.SetStateAction<IIcon[]>>
 }
 
-const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon, setAllIcons }) => {
+const IconModal: FC<IModal> = ({ visible, onDismiss, setIcon, setAllIcons }) => {
 	const { colors } = useAppTheme()
 	const [searchText, setSearchText] = useState<string>("")
 
