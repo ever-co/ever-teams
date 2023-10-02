@@ -52,13 +52,13 @@ const TaskStatusForm = ({
 
 		if (isEdit) {
 			await onUpdateStatus(item?.id, {
-				icon: null,
+				icon: statusIcon,
 				color: statusColor,
 				name: statusName,
 			})
 		} else {
 			await onCreateStatus({
-				icon: null,
+				icon: statusIcon,
 				color: statusColor,
 				name: statusName,
 			})
