@@ -30,3 +30,5 @@ export * from './issue-type';
 export * from './task-related-issue-type';
 
 export * from './integrations/github';
+export * from './integrations/integration-tenant';
+export * from './integrations/types';

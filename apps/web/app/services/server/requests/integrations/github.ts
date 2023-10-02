@@ -21,3 +21,19 @@ export function oAuthEndpointAuthorization(data: any, bearer_token: string) {
 		tenantId: data.tenantId,
 	});
 }
+
+export function getGithubIntegrationMetadataRequest(
+	{ tenantId, organizationId }: any,
+	bearer_token: string
+) {
+	const query = new URLSearchParams({
+		tenantId,
+		organizationId,
+	});
+	return serverFetch<any>({
+		path: `/integration/github?${query.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId: tenantId,
+	});
+}

@@ -9,3 +9,8 @@ export function installGitHubIntegrationAPI(body: any) {
 export function oAuthEndpointAuthorizationAPI(body: any) {
 	return api.post<any>('/integration/github/oauth', body);
 }
+
+// TODO Type
+export function getGithubIntegrationMetadataAPI() {
+	return api.get<any>(`/integration/github`);
+}

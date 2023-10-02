@@ -21,3 +21,7 @@ export * from './roles';
 export * from './role-permissions';
 export * from './request-to-join';
 export * from './public';
+
+export * from './integration-tenant';
+export * from './integration-github';
+export * from './integration';

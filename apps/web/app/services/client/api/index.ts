@@ -22,3 +22,7 @@ export * from './roles';
 export * from './role-permissions';
 export * from './task-linked-issue';
 export * from './meet-auth';
+
+export * from './integrations/github';
+export * from './integrations/integration-tenant';
+export * from './integrations';
