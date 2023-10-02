@@ -55,6 +55,7 @@ const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon, setAllIcons 
 
 	useEffect(() => {
 		setAllIcons(iconList)
+		setSearchText("")
 	}, [visible])
 
 	return (
