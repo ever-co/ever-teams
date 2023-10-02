@@ -5,10 +5,12 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-nativ
 import { translate } from "../../../../i18n"
 import { ITaskStatusCreate, ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
 import { typography, useAppTheme } from "../../../../theme"
-import IconDropDown from "./IconDropdown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
 import { formatName } from "../../../../helpers/name-format"
+import IconModal from "../../../../components/IconModal"
+import { SvgUri } from "react-native-svg"
+import { IIcon } from "../../../../services/interfaces/IIcon"
 
 const TaskStatusForm = ({
 	isEdit,
@@ -27,7 +29,9 @@ const TaskStatusForm = ({
 	const [statusName, setStatusName] = useState<string>(null)
 	const [statusColor, setStatusColor] = useState<string>(null)
 	const [statusIcon, setStatusIcon] = useState<string>(null)
-	const [modalVisible, setModalVisible] = useState<boolean>(false)
+	const [colorModalVisible, setColorModalVisible] = useState<boolean>(false)
+	const [iconModalVisible, setIconModalVisible] = useState<boolean>(false)
+	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
 		if (isEdit) {
@@ -66,7 +70,8 @@ const TaskStatusForm = ({
 	}
 
 	const onDismissModal = () => {
-		setModalVisible(false)
+		setColorModalVisible(false)
+		setIconModalVisible(false)
 	}
 
 	return (
@@ -79,8 +84,14 @@ const TaskStatusForm = ({
 				height: 452,
 			}}
 		>
+			<IconModal
+				visible={iconModalVisible}
+				onDismiss={onDismissModal}
+				setIcon={setStatusIcon}
+				setAllIcons={setAllIcons}
+			/>
 			<ColorPickerModal
-				visible={modalVisible}
+				visible={colorModalVisible}
 				onDismiss={onDismissModal}
 				setColor={setStatusColor}
 			/>
@@ -94,10 +105,30 @@ const TaskStatusForm = ({
 				defaultValue={formatName(statusName)}
 				onChangeText={(text) => setStatusName(text)}
 			/>
-			<IconDropDown icon={statusIcon} setIcon={setStatusIcon} />
+
+			{/* Icon Modal button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setIconModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<SvgUri
+						width={20}
+						height={20}
+						uri={allIcons?.find((icon) => icon.path === statusIcon)?.fullUrl}
+					/>
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+							textTransform: "capitalize",
+						}}
+					>
+						{allIcons?.find((icon) => icon.path === statusIcon)?.title?.replace("-", " ") ||
+							translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			{/* Color Picker button */}
-			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setColorModalVisible(true)}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					<Badge size={24} style={{ backgroundColor: statusColor || "#D9D9D9" }} />
 					<Text
