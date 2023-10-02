@@ -32,8 +32,9 @@ import {
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { Check } from 'lucide-react';
-import { useCallback, useMemo } from 'react';
+import {useCallback, useMemo} from 'react';
 import stc from 'string-to-color';
+import {JitsuAnalytics} from "../../../lib/components/services/jitsu-analytics";
 
 const Collaborate = () => {
 	const {
@@ -81,6 +82,7 @@ const Collaborate = () => {
 
 	return (
 		<div>
+			<JitsuAnalytics user={user} />
 			<Dialog>
 				<DialogTrigger
 					className={clsxm(

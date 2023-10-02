@@ -77,3 +77,7 @@ export const BOARD_BACKEND_POST_URL =
 	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL;
 export const BOARD_FIREBASE_CONFIG =
 	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
+
+// Jitsu
+export const JITSU_BROWSER_URL = process.env.JITSU_BROWSER_URL;
+export const JITSU_BROWSER_WRITE_KEY = process.env.JITSU_BROWSER_WRITE_KEY;

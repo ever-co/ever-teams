@@ -9,6 +9,12 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { SkeletonTheme } from 'react-loading-skeleton';
+import { JitsuProvider } from '@jitsu/jitsu-react';
+import React from 'react';
+import {JitsuAnalytics} from "../lib/components/services/jitsu-analytics";
+import {JITSU_BROWSER_URL, JITSU_BROWSER_WRITE_KEY} from "@app/constants";
+
+
 
 export default function MyApp({ Component, pageProps }: AppProps) {
 	return (
@@ -31,15 +37,32 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 					crossOrigin=""
 				/>
 			</Head>
+        <JitsuProvider
+            options={
+							JITSU_BROWSER_URL && JITSU_BROWSER_WRITE_KEY ?
+					{
+                disabled: false,
+                debug: false,
+                host: JITSU_BROWSER_URL,
+				writeKey:JITSU_BROWSER_WRITE_KEY
+            }:{
+								disabled: true,
+						}
+            }
+
+        >
 			<RecoilRoot>
 				<ThemeProvider attribute="class">
 					<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
 						<AppState />
+						<JitsuAnalytics user={pageProps?.user} />
 						<Component {...pageProps} />
 					</SkeletonTheme>
 				</ThemeProvider>
 			</RecoilRoot>
-			<Analytics />
+				</JitsuProvider>
+				<Analytics />
+
 		</>
 	);
 }
