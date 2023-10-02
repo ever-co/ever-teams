@@ -13,7 +13,9 @@ export function useIntegration() {
 	const getIntegration = useCallback(
 		(name: string) => {
 			return queryCall(name).then((response) => {
-				setIntegration(response.data);
+				setIntegration(response.data.data);
+
+				return response.data.data;
 			});
 		},
 		[queryCall, setIntegration]

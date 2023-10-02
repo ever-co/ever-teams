@@ -7,7 +7,7 @@ export const integrationGithubMetadataState = atom<any>({
 });
 
 // TODO Type
-export const integrationGithubRepositoriesState = atom<any[]>({
+export const integrationGithubRepositoriesState = atom<any>({
 	key: 'integrationGithubRepositoriesState',
-	default: [],
+	default: null,
 });

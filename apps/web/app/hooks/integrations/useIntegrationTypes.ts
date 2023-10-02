@@ -15,7 +15,9 @@ export function useIntegrationTypes() {
 
 	const getIntegrationTypes = useCallback(() => {
 		return queryCall().then((response) => {
-			setIntegrationTypes(response.data);
+			setIntegrationTypes(response.data.data);
+
+			return response.data.data;
 		});
 	}, [queryCall, setIntegrationTypes]);
 

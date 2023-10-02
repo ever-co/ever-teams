@@ -60,7 +60,9 @@ export function useGitHubIntegration() {
 	const metaData = useCallback(
 		(integrationId: string) => {
 			return metadataQueryCall(integrationId).then((response) => {
-				setIntegrationGithubMetadata(response.data);
+				setIntegrationGithubMetadata(response.data.data);
+
+				return response.data.data;
 			});
 		},
 		[metadataQueryCall, setIntegrationGithubMetadata]
@@ -68,7 +70,9 @@ export function useGitHubIntegration() {
 	const getRepositories = useCallback(
 		(integrationId: string) => {
 			return repositoriesQueryCall(integrationId).then((response) => {
-				setIntegrationGithubRepositories(response.data);
+				setIntegrationGithubRepositories(response.data.data);
+
+				return response.data.data;
 			});
 		},
 		[repositoriesQueryCall, setIntegrationGithubRepositories]

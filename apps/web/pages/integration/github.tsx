@@ -9,7 +9,13 @@ import { useEffect } from 'react';
 const GitHub = () => {
 	const router = useRouter();
 
-	const { installGitHub, installLoading } = useGitHubIntegration();
+	const {
+		installGitHub,
+		installLoading,
+		getRepositories,
+		integrationGithubRepositories,
+		repositoriesLoading,
+	} = useGitHubIntegration();
 	const {
 		getIntegration,
 		loading: integrationLoading,
@@ -52,9 +58,34 @@ const GitHub = () => {
 		}
 	}, [installGitHub, router]);
 
-	// 1. Integration Types
-	// 2. Integration with Gihub searchQuery
-	// 3. Repo
+	useEffect(() => {
+		if (
+			!integrationTenantLoading &&
+			integrationTenant &&
+			integrationTenant?.id
+		) {
+			getRepositories(integrationTenant.id);
+		}
+	}, [integrationTenantLoading, integrationTenant, getRepositories]);
+
+	useEffect(() => {
+		if (!loadingIntegrationTypes && integrationTypes.length === 0) {
+			getIntegrationTypes().then((types) => {
+				// TODO
+				const allIntegrations = types.find(
+					(item: any) => item.name === 'All Integrations'
+				);
+				if (allIntegrations && allIntegrations?.id) {
+					getIntegrationTenant('Github');
+				}
+			});
+		}
+	}, [
+		loadingIntegrationTypes,
+		integrationTypes,
+		getIntegrationTypes,
+		getIntegrationTenant,
+	]);
 
 	return (
 		<div className="flex flex-col p-3">
@@ -75,6 +106,15 @@ const GitHub = () => {
 			{router.query.installation_id && (
 				<p>installation_id: {router.query.installation_id}</p>
 			)}
+
+			{integrationGithubRepositories?.repositories.map((item: any) => (
+				<div key={item.id}>{item.name}</div>
+			))}
+
+			{(loadingIntegrationTypes ||
+				integrationLoading ||
+				integrationTenantLoading ||
+				repositoriesLoading) && <>Loading...</>}
 		</div>
 	);
 };

@@ -16,7 +16,9 @@ export function useIntegrationTenant() {
 	const getIntegrationTenant = useCallback(
 		(name: string) => {
 			return queryCall(name).then((response) => {
-				setIntegrationTenant(response.data);
+				setIntegrationTenant(response.data.data);
+
+				return response.data.data;
 			});
 		},
 		[queryCall, setIntegrationTenant]
