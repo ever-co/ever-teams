@@ -13,6 +13,8 @@ import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
 import { formatName } from "../../../../helpers/name-format"
 import IconModal from "../../../../components/IconModal"
+import { IIcon } from "../../../../services/interfaces/IIcon"
+import { SvgUri } from "react-native-svg"
 
 const TaskPriorityForm = ({
 	isEdit,
@@ -33,6 +35,7 @@ const TaskPriorityForm = ({
 	const [priorityIcon, setPriorityIcon] = useState<string>(null)
 	const [colorModalVisible, setColorModalVisible] = useState<boolean>(false)
 	const [iconModalVisible, setIconModalVisible] = useState<boolean>(false)
+	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
 		if (isEdit) {
@@ -75,10 +78,6 @@ const TaskPriorityForm = ({
 		setIconModalVisible(false)
 	}
 
-	// console.log("name:", priorityName)
-	// console.log("color:", priorityColor)
-	// console.log("icon:", priorityIcon)
-
 	return (
 		<View
 			style={{
@@ -89,7 +88,12 @@ const TaskPriorityForm = ({
 				height: 452,
 			}}
 		>
-			<IconModal visible={iconModalVisible} onDismiss={onDismissModal} setIcon={setPriorityIcon} />
+			<IconModal
+				visible={iconModalVisible}
+				onDismiss={onDismissModal}
+				setIcon={setPriorityIcon}
+				setAllIcons={setAllIcons}
+			/>
 			<ColorPickerModal
 				visible={colorModalVisible}
 				onDismiss={onDismissModal}
@@ -107,17 +111,22 @@ const TaskPriorityForm = ({
 			/>
 
 			{/* Icon Modal button */}
-
 			<TouchableOpacity style={styles.colorModalButton} onPress={() => setIconModalVisible(true)}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
-					<Badge size={24} style={{ backgroundColor: priorityColor || "#D9D9D9" }} />
+					<SvgUri
+						width={20}
+						height={20}
+						uri={allIcons?.find((icon) => icon.path === priorityIcon)?.fullUrl}
+					/>
 					<Text
 						style={{
 							marginLeft: 10,
 							color: colors.primary,
+							textTransform: "capitalize",
 						}}
 					>
-						{priorityIcon || translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+						{allIcons?.find((icon) => icon.path === priorityIcon)?.title?.replace("-", " ") ||
+							translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
 					</Text>
 				</View>
 			</TouchableOpacity>

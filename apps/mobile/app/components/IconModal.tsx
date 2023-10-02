@@ -1,33 +1,32 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import {
 	View,
 	ViewStyle,
 	Modal,
 	Animated,
 	StyleSheet,
-	Text,
 	TouchableOpacity,
 	TouchableWithoutFeedback,
-	FlatList,
 	TextInput,
 } from "react-native"
 
-import { useAppTheme, typography } from "../theme"
+import { useAppTheme } from "../theme"
 import { translate } from "../i18n"
 import { generateIconList } from "../helpers/generate-icon"
 import { IIcon } from "../services/interfaces/IIcon"
-import { Image, SvgUri } from "react-native-svg"
+import { SvgUri } from "react-native-svg"
 
 interface IColorPicker {
 	visible: boolean
 	onDismiss: () => void
 	setIcon: React.Dispatch<React.SetStateAction<string>>
+	setAllIcons: React.Dispatch<React.SetStateAction<IIcon[]>>
 }
 
-const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon }) => {
-	const { dark, colors } = useAppTheme()
+const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon, setAllIcons }) => {
+	const { colors } = useAppTheme()
 	const [searchText, setSearchText] = useState<string>("")
 
 	const taskStatusIconList: IIcon[] = generateIconList("task-statuses", [
@@ -52,30 +51,23 @@ const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon }) => {
 		"low",
 	])
 
-	// console.log(searchText)
-
 	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList]
 
+	useEffect(() => {
+		setAllIcons(iconList)
+	}, [visible])
+
 	return (
-		<ModalPopUp visible={visible}>
+		<ModalPopUp visible={visible} onDismiss={onDismiss}>
 			<View style={[styles.container, { backgroundColor: colors.background2 }]}>
 				<TextInput
-					placeholder="Search Icon"
-					style={{ fontSize: 18, marginBottom: 10 }}
+					placeholder={translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					style={styles.textInput}
 					value={searchText}
 					onChangeText={(text) => setSearchText(text)}
 				/>
-				<View
-					style={{ height: 1, backgroundColor: "#b1aebc80", width: "100%", marginBottom: 10 }}
-				/>
-				<View
-					style={{
-						display: "flex",
-						flexDirection: "row",
-						flexWrap: "wrap",
-						gap: 13.5,
-					}}
-				>
+				<View style={styles.divider} />
+				<View style={styles.iconsContainer}>
 					{iconList
 						.filter((item) =>
 							item.title.toLowerCase().split("-").join(" ").includes(searchText.toLowerCase()),
@@ -93,22 +85,6 @@ const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon }) => {
 							</TouchableOpacity>
 						))}
 				</View>
-
-				{/* <View style={styles.wrapButtons}>
-					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
-						<Text style={styles.cancelTxt}>
-							{translate("settingScreen.statusScreen.cancelButtonText")}
-						</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={{
-							...styles.confirmBtn,
-							backgroundColor: dark ? "#6755C9" : "#3826A6",
-						}}
-					>
-						<Text style={styles.createTxt}>{translate("common.confirm")}</Text>
-					</TouchableOpacity>
-				</View> */}
 			</View>
 		</ModalPopUp>
 	)
@@ -116,7 +92,7 @@ const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon }) => {
 
 export default IconModal
 
-const ModalPopUp = ({ visible, children }) => {
+const ModalPopUp = ({ visible, children, onDismiss }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
 
@@ -141,7 +117,7 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
-			<TouchableWithoutFeedback>
+			<TouchableWithoutFeedback onPress={onDismiss}>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
 				</View>
@@ -157,42 +133,19 @@ const $modalBackGround: ViewStyle = {
 }
 
 const styles = StyleSheet.create({
-	// cancelBtn: {
-	// 	alignItems: "center",
-	// 	backgroundColor: "#E6E6E9",
-	// 	borderRadius: 12,
-	// 	height: 57,
-	// 	justifyContent: "center",
-	// 	width: "48%",
-	// },
-	// cancelTxt: {
-	// 	color: "#1A1C1E",
-	// 	fontFamily: typography.primary.semiBold,
-	// 	fontSize: 18,
-	// },
-	// confirmBtn: {
-	// 	alignItems: "center",
-	// 	backgroundColor: "#3826A6",
-	// 	borderRadius: 12,
-	// 	height: 57,
-	// 	justifyContent: "center",
-	// 	width: "48%",
-	// },
 	container: {
 		alignSelf: "center",
 		borderRadius: 20,
+		height: 300,
 		padding: 20,
 		width: "90%",
 	},
-	// createTxt: {
-	// 	color: "#FFF",
-	// 	fontFamily: typography.primary.semiBold,
-	// 	fontSize: 18,
-	// },
-	// wrapButtons: {
-	// 	flexDirection: "row",
-	// 	justifyContent: "space-between",
-	// 	marginTop: 20,
-	// 	width: "100%",
-	// },
+	divider: { backgroundColor: "#b1aebc80", height: 1, marginBottom: 10, width: "100%" },
+	iconsContainer: {
+		display: "flex",
+		flexDirection: "row",
+		flexWrap: "wrap",
+		gap: 13.5,
+	},
+	textInput: { fontSize: 18, marginBottom: 10 },
 })
