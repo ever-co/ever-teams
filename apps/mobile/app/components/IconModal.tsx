@@ -10,6 +10,7 @@ import {
 	TouchableOpacity,
 	TouchableWithoutFeedback,
 	TextInput,
+	ScrollView,
 } from "react-native"
 
 import { useAppTheme } from "../theme"
@@ -68,24 +69,26 @@ const IconModal: FC<IColorPicker> = ({ visible, onDismiss, setIcon, setAllIcons 
 					onChangeText={(text) => setSearchText(text)}
 				/>
 				<View style={styles.divider} />
-				<View style={styles.iconsContainer}>
-					{iconList
-						.filter((item) =>
-							item.title.toLowerCase().split("-").join(" ").includes(searchText.toLowerCase()),
-						)
-						.map((item, idx) => (
-							<TouchableOpacity
-								style={{ padding: 8 }}
-								key={idx}
-								onPress={() => {
-									setIcon(item.path)
-									onDismiss()
-								}}
-							>
-								<SvgUri width={30} height={30} uri={item.fullUrl} />
-							</TouchableOpacity>
-						))}
-				</View>
+				<ScrollView style={{ maxHeight: 220 }}>
+					<View style={styles.iconsContainer}>
+						{iconList
+							.filter((item) =>
+								item.title.toLowerCase().split("-").join(" ").includes(searchText.toLowerCase()),
+							)
+							.map((item, idx) => (
+								<TouchableOpacity
+									style={{ padding: 8 }}
+									key={idx}
+									onPress={() => {
+										setIcon(item.path)
+										onDismiss()
+									}}
+								>
+									<SvgUri width={30} height={30} uri={item.fullUrl} />
+								</TouchableOpacity>
+							))}
+					</View>
+				</ScrollView>
 			</View>
 		</ModalPopUp>
 	)
