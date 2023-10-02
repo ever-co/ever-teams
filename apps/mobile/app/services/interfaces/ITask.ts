@@ -1,5 +1,6 @@
 import { IEmployee } from "./IEmployee"
 import { IOrganizationTeamList } from "./IOrganizationTeam"
+import { ITaskLabelItem } from "./ITaskLabel"
 
 export type ITeamTask = {
 	id: string
@@ -21,7 +22,7 @@ export type ITeamTask = {
 	creatorId: string
 	members: IEmployee[]
 	selectedTeam?: IOrganizationTeamList
-	tags: Tag[]
+	tags: ITaskLabelItem[]
 	teams: SelectedTeam[]
 	creator: Creator
 	taskNumber: string
@@ -125,7 +126,7 @@ export interface ICreateTask {
 	estimateMinutes?: string
 	dueDate?: string
 	description: string
-	tags: { id: string }[]
+	tags: ITaskLabelItem[]
 	teams: { id: string }[]
 	estimate: number
 	organizationId: string
