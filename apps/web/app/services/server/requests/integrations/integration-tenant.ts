@@ -1,6 +1,6 @@
+import { IIntegrationTenant } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
 
-// TODO Type/Interface
 /**
  * Get integration tenant request
  *
@@ -9,7 +9,11 @@ import { serverFetch } from '../../fetch';
  * @returns
  */
 export function getIntegrationTenantRequest(
-	{ tenantId, organizationId, name }: any,
+	{
+		tenantId,
+		organizationId,
+		name,
+	}: { tenantId: string; organizationId: string; name: string },
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({
@@ -17,7 +21,7 @@ export function getIntegrationTenantRequest(
 		organizationId,
 		name,
 	});
-	return serverFetch<any>({
+	return serverFetch<IIntegrationTenant>({
 		path: `/integration-tenant/remember/state?${query.toString()}`,
 		method: 'GET',
 		bearer_token,

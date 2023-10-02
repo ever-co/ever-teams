@@ -1,6 +1,6 @@
+import { IIntegrationType } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
 
-// TODO Type/Interface
 /**
  * Get integration types request
  *
@@ -9,10 +9,14 @@ import { serverFetch } from '../../fetch';
  * @returns
  */
 export function getIntegrationTypesRequest(
-	{ tenantId }: any,
+	{
+		tenantId,
+	}: {
+		tenantId: string;
+	},
 	bearer_token: string
 ) {
-	return serverFetch<any>({
+	return serverFetch<IIntegrationType>({
 		path: `/integration/types`,
 		method: 'GET',
 		bearer_token,

@@ -1,7 +1,7 @@
+import { IIntegrationTenant } from '@app/interfaces';
 import { atom } from 'recoil';
 
-// TODO Type
-export const integrationTenantState = atom<any>({
+export const integrationTenantState = atom<IIntegrationTenant | null>({
 	key: 'integrationTenantState',
 	default: null,
 });

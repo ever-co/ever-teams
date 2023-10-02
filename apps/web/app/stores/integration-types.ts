@@ -1,7 +1,7 @@
+import { IIntegrationType } from '@app/interfaces';
 import { atom } from 'recoil';
 
-// TODO Type
-export const integrationTypesState = atom<[]>({
+export const integrationTypesState = atom<IIntegrationType[]>({
 	key: 'integrationTypesState',
 	default: [],
 });

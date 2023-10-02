@@ -1,13 +1,13 @@
+import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
 import { atom } from 'recoil';
 
-// TODO Type
-export const integrationGithubMetadataState = atom<any>({
+export const integrationGithubMetadataState = atom<IGithubMetadata | null>({
 	key: 'integrationGithubMetadataState',
 	default: null,
 });
 
-// TODO Type
-export const integrationGithubRepositoriesState = atom<any>({
-	key: 'integrationGithubRepositoriesState',
-	default: null,
-});
+export const integrationGithubRepositoriesState =
+	atom<IGithubRepositories | null>({
+		key: 'integrationGithubRepositoriesState',
+		default: null,
+	});

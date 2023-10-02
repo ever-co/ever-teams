@@ -1,7 +1,15 @@
+import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
 
-// TODO Types/Interface
-export function installGitHubIntegration(data: any, bearer_token: string) {
+export function installGitHubIntegration(
+	data: {
+		tenantId: string;
+		organizationId: string;
+		installation_id: string;
+		setup_action: string;
+	},
+	bearer_token: string
+) {
 	return serverFetch<any>({
 		path: '/integration/github/install',
 		method: 'POST',
@@ -11,7 +19,6 @@ export function installGitHubIntegration(data: any, bearer_token: string) {
 	});
 }
 
-// TODO Types/Interface
 export function oAuthEndpointAuthorization(data: any, bearer_token: string) {
 	return serverFetch<any>({
 		path: '/integration/github/oauth',
@@ -23,14 +30,22 @@ export function oAuthEndpointAuthorization(data: any, bearer_token: string) {
 }
 
 export function getGithubIntegrationMetadataRequest(
-	{ tenantId, organizationId, integrationId }: any,
+	{
+		tenantId,
+		organizationId,
+		integrationId,
+	}: {
+		tenantId: string;
+		organizationId: string;
+		integrationId: string;
+	},
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({
 		tenantId,
 		organizationId,
 	});
-	return serverFetch<any>({
+	return serverFetch<IGithubMetadata>({
 		path: `/integration/github/${integrationId}/metadata?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
@@ -39,14 +54,22 @@ export function getGithubIntegrationMetadataRequest(
 }
 
 export function getGithubIntegrationRepositoriesRequest(
-	{ tenantId, organizationId, integrationId }: any,
+	{
+		tenantId,
+		organizationId,
+		integrationId,
+	}: {
+		tenantId: string;
+		organizationId: string;
+		integrationId: string;
+	},
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({
 		tenantId,
 		organizationId,
 	});
-	return serverFetch<any>({
+	return serverFetch<IGithubRepositories>({
 		path: `/integration/github/${integrationId}/repositories?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
