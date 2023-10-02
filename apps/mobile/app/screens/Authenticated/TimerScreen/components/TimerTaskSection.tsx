@@ -144,7 +144,6 @@ const TimerTaskSection = observer(
 									}}
 								/>
 							</View>
-
 							<View
 								style={{
 									flexDirection: "row",
@@ -169,7 +168,6 @@ const TimerTaskSection = observer(
 									}}
 								/>
 							</View>
-
 							<TaskLabels
 								task={activeTask}
 								containerStyle={{
@@ -179,7 +177,6 @@ const TimerTaskSection = observer(
 									marginVertical: 20,
 								}}
 							/>
-
 							<TimerCard />
 						</View>
 					)}

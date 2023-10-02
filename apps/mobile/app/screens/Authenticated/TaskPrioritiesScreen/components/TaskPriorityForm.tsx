@@ -1,3 +1,5 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native"
 import { translate } from "../../../../i18n"
@@ -6,8 +8,10 @@ import {
 	ITaskPriorityItem,
 } from "../../../../services/interfaces/ITaskPriority"
 import { typography, useAppTheme } from "../../../../theme"
-import ColorDropDown from "./ColorDropDown"
 import IconDropDown from "./IconDropDown"
+import ColorPickerModal from "../../../../components/ColorPickerModal"
+import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
 
 const TaskPriorityForm = ({
 	isEdit,
@@ -26,6 +30,7 @@ const TaskPriorityForm = ({
 	const [priorityName, setPriorityName] = useState<string>(null)
 	const [priorityColor, setPriorityColor] = useState<string>(null)
 	const [priorityIcon, setPriorityIcon] = useState<string>(null)
+	const [modalVisible, setModalVisible] = useState<boolean>(false)
 
 	useEffect(() => {
 		if (isEdit) {
@@ -63,6 +68,10 @@ const TaskPriorityForm = ({
 		onDismiss()
 	}
 
+	const onDismissModal = () => {
+		setModalVisible(false)
+	}
+
 	return (
 		<View
 			style={{
@@ -73,20 +82,40 @@ const TaskPriorityForm = ({
 				height: 452,
 			}}
 		>
+			<ColorPickerModal
+				visible={modalVisible}
+				onDismiss={onDismissModal}
+				setColor={setPriorityColor}
+			/>
+
 			<Text style={{ ...styles.formTitle, color: colors.primary }}>
 				{translate("settingScreen.priorityScreen.createNewPriorityText")}
 			</Text>
 			<TextInput
-				style={{ ...styles.statusNameInput, color: colors.primary }}
+				style={{ ...styles.statusNameInput, color: colors.primary, textTransform: "capitalize" }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.priorityScreen.priorityNamePlaceholder")}
-				defaultValue={priorityName}
+				defaultValue={formatName(priorityName)}
 				onChangeText={(text) => setPriorityName(text)}
 			/>
 
 			<IconDropDown icon={priorityIcon} setIcon={setPriorityIcon} />
 
-			<ColorDropDown color={priorityColor} setColor={setPriorityColor} />
+			{/* Color Picker button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<Badge size={24} style={{ backgroundColor: priorityColor || "#D9D9D9" }} />
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+						}}
+					>
+						{priorityColor?.toUpperCase() ||
+							translate("settingScreen.statusScreen.statusColorPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			<View style={styles.wrapButtons}>
 				<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
@@ -126,6 +155,18 @@ const styles = StyleSheet.create({
 		color: "#1A1C1E",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
+	},
+	colorModalButton: {
+		alignItems: "center",
+		borderColor: "#DCE4E8",
+		borderRadius: 12,
+		borderWidth: 1,
+		flexDirection: "row",
+		height: 57,
+		justifyContent: "space-between",
+		marginTop: 16,
+		paddingHorizontal: 18,
+		width: "100%",
 	},
 	createBtn: {
 		alignItems: "center",

@@ -17,9 +17,9 @@ import {
 import { typography, useAppTheme } from "../../../../theme"
 import { ActivityIndicator } from "react-native-paper"
 import { QueryClient } from "react-query"
-import TaskLabel from "../../../../components/TaskLabel"
 import TaskPriorities from "../../../../components/TaskPriority"
 import TaskSize from "../../../../components/TaskSize"
+import TaskLabels from "../../TimerScreen/components/TaskLabels"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { translate } from "../../../../i18n"
 import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
@@ -219,10 +219,20 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 								/>
 							</View>
 							<View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
-								<TaskLabel
-									// labels={newTask?.tags[0].id}
-									// setLabels={(e) => console.log(e)}
-									containerStyle={{ width: "100%" }}
+								<TaskLabels
+									newTaskLabels={newTask?.tags}
+									setLabels={(e) =>
+										setNewTask({
+											...newTask,
+											tags: e,
+										})
+									}
+									containerStyle={{
+										...styles.labelsContainer,
+										width: "100%",
+										borderColor: colors.border,
+										marginVertical: 20,
+									}}
 								/>
 							</View>
 						</View>
@@ -277,6 +287,14 @@ const styles = StyleSheet.create({
 		color: "#FFF",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
+	},
+	labelsContainer: {
+		alignItems: "center",
+		borderColor: "rgba(255, 255, 255, 0.13)",
+		borderWidth: 1,
+		height: 32,
+		paddingHorizontal: 9,
+		width: width / 2.7,
 	},
 	loading: {
 		position: "absolute",
