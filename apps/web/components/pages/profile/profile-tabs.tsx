@@ -5,7 +5,7 @@ export type IProfileTabs = 'worked' | 'assigned' | 'unassigned';
 
 export function ProfileTabs({
 	tab,
-	setTab,
+	setTab
 }: {
 	tab: IProfileTabs;
 	setTab: Dispatch<SetStateAction<IProfileTabs>>;

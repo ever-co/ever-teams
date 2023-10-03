@@ -4,7 +4,7 @@ import { PropsWithChildren } from 'react';
 
 export function Container({
 	children,
-	className,
+	className
 }: PropsWithChildren<IClassName>) {
 	return <div className={clsxm('x-container', className)}>{children}</div>;
 }

@@ -5,7 +5,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import {
 	getEmployeeRoleRequest,
 	getTeamInvitationsRequest,
-	inviteByEmailsRequest,
+	inviteByEmailsRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -30,7 +30,7 @@ export default async function handler(
 	const { data: employeeRole } = await getEmployeeRoleRequest({
 		tenantId,
 		role: 'EMPLOYEE',
-		bearer_token: access_token,
+		bearer_token: access_token
 	});
 
 	const date = new Date();
@@ -51,7 +51,7 @@ export default async function handler(
 			callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
 			organizationId,
 			tenantId,
-			startedWorkOn: date.toISOString(),
+			startedWorkOn: date.toISOString()
 		},
 		access_token
 	);
@@ -61,7 +61,7 @@ export default async function handler(
 			tenantId,
 			teamId,
 			organizationId,
-			role: 'EMPLOYEE',
+			role: 'EMPLOYEE'
 		},
 		access_token
 	);

@@ -14,7 +14,7 @@ export const EmojiPicker = ({
 	emoji,
 	onChange,
 	isTeamManager,
-	disabled: disableButton,
+	disabled: disableButton
 }: {
 	emoji: string | null;
 	onChange: (emoji: string) => void;

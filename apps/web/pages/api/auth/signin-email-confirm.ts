@@ -1,7 +1,7 @@
 import {
 	generateToken,
 	setAuthCookies,
-	setNoTeamPopupShowCookie,
+	setNoTeamPopupShowCookie
 } from '@app/helpers';
 import { authFormValidate } from '@app/helpers/validations';
 import { ILoginResponse } from '@app/interfaces';
@@ -10,7 +10,7 @@ import {
 	getAllOrganizationTeamRequest,
 	getUserOrganizationsRequest,
 	signInEmailConfirmRequest,
-	verifyInviteCodeRequest,
+	verifyInviteCodeRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -40,7 +40,7 @@ export default async function handler(
 	 */
 	const inviteReq = await verifyInviteCodeRequest({
 		email: body.email,
-		code: body.code,
+		code: body.code
 	}).catch(() => void 0);
 
 	// General a random password with 8 chars
@@ -56,8 +56,8 @@ export default async function handler(
 			user: {
 				firstName: names[0],
 				lastName: names[1] || '',
-				email: body.email,
-			},
+				email: body.email
+			}
 		}).catch(() => void 0);
 
 		if (
@@ -69,8 +69,8 @@ export default async function handler(
 		) {
 			return res.status(400).json({
 				errors: {
-					email: 'Authentication code or email address invalid',
-				},
+					email: 'Authentication code or email address invalid'
+				}
 			});
 		}
 		loginResponse = acceptInviteRes.data;
@@ -78,8 +78,8 @@ export default async function handler(
 		if (!loginResponse) {
 			return res.status(400).json({
 				errors: {
-					email: 'Authentication code or email address invalid',
-				},
+					email: 'Authentication code or email address invalid'
+				}
 			});
 		}
 	}
@@ -103,8 +103,8 @@ export default async function handler(
 			return res.status(400).json({
 				errors: {
 					email:
-						'Your account is not yet ready to be used on the Ever Teams Platform',
-				},
+						'Your account is not yet ready to be used on the Ever Teams Platform'
+				}
 			});
 		}
 		const { data: teams } = await getAllOrganizationTeamRequest(
@@ -120,14 +120,14 @@ export default async function handler(
 			{
 				access_token: loginResponse.token,
 				refresh_token: {
-					token: loginResponse.refresh_token,
+					token: loginResponse.refresh_token
 				},
 				teamId: team?.id,
 				tenantId,
 				organizationId: organization?.organizationId,
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
-				userId,
+				userId
 			},
 			req,
 			res
@@ -138,7 +138,7 @@ export default async function handler(
 
 	const { data } = await signInEmailConfirmRequest({
 		code: body.code,
-		email: body.email,
+		email: body.email
 	});
 
 	res.json(data);

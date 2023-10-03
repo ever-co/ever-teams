@@ -17,7 +17,7 @@ export default async function handler(
 	if (activeTask && !taskId) {
 		return $res.json({
 			global: [],
-			today: [],
+			today: []
 		});
 	}
 
@@ -27,7 +27,7 @@ export default async function handler(
 			organizationId,
 			employeeIds: employeeId ? [employeeId] : [],
 			defaultRange: 'false',
-			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
+			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {})
 		},
 		access_token
 	);
@@ -39,13 +39,13 @@ export default async function handler(
 			employeeIds: employeeId ? [employeeId] : [],
 			defaultRange: 'true',
 			...(activeTask && taskId ? { 'taskIds[0]': taskId } : {}),
-			unitOfTime: 'day',
+			unitOfTime: 'day'
 		},
 		access_token
 	);
 
 	return $res.json({
 		global: data,
-		today: todayData,
+		today: todayData
 	});
 }

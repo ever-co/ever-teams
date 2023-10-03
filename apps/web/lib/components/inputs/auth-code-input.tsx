@@ -3,7 +3,7 @@ import React, {
 	useRef,
 	useEffect,
 	useImperativeHandle,
-	forwardRef,
+	forwardRef
 } from 'react';
 import { InputField } from './input';
 
@@ -45,13 +45,13 @@ const propsMap: { [key: string]: InputProps } = {
 	alpha: {
 		type: 'text',
 		inputMode: 'text',
-		pattern: '[a-zA-Z]{1}',
+		pattern: '[a-zA-Z]{1}'
 	},
 
 	alphanumeric: {
 		type: 'text',
 		inputMode: 'text',
-		pattern: '[a-zA-Z0-9]{1}',
+		pattern: '[a-zA-Z0-9]{1}'
 	},
 
 	numeric: {
@@ -59,8 +59,8 @@ const propsMap: { [key: string]: InputProps } = {
 		inputMode: 'numeric',
 		pattern: '[0-9]{1}',
 		min: '0',
-		max: '9',
-	},
+		max: '9'
+	}
 };
 
 export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
@@ -77,7 +77,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 			placeholder,
 			onChange,
 			defaultValue,
-			hintType,
+			hintType
 		},
 		ref
 	) => {
@@ -114,7 +114,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 					inputsRef.current[0].focus();
 				}
 				sendResult();
-			},
+			}
 		}));
 
 		useEffect(() => {
@@ -132,7 +132,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 
 		const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 			const {
-				target: { value, nextElementSibling },
+				target: { value, nextElementSibling }
 			} = e;
 
 			e.target.value = value.toUpperCase();
@@ -205,7 +205,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		const hintColor = {
 			success: '#4BB543',
 			error: '#FF9494',
-			warning: '#ffcc00',
+			warning: '#ffcc00'
 		} as const;
 
 		const inputs = [];
@@ -239,7 +239,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 					style={{
 						transitionDuration: hintType ? `${i + 10}90ms` : undefined,
 						transitionTimingFunction: hintType ? 'ease-in-out' : undefined,
-						borderColor: hintType ? hintColor[hintType] : undefined,
+						borderColor: hintType ? hintColor[hintType] : undefined
 					}}
 				/>
 			);

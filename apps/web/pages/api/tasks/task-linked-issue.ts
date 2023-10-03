@@ -2,7 +2,7 @@ import { ITaskLinkedIssue, LinkedTaskIssue } from '@app/interfaces/ITask';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	createTaskLinkedIsssue,
-	updateTaskLinkedIssue,
+	updateTaskLinkedIssue
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 

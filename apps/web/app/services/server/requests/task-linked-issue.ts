@@ -1,7 +1,7 @@
 import {
 	ITaskLinkedIssue,
 	ITaskLinkedIssueResponse,
-	LinkedTaskIssue,
+	LinkedTaskIssue
 } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
@@ -15,7 +15,7 @@ export function createTaskLinkedIsssue(
 		method: 'POST',
 		body: data,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -29,6 +29,6 @@ export function updateTaskLinkedIssue(
 		method: 'PUT',
 		body: data,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

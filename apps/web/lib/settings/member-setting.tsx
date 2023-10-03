@@ -5,7 +5,7 @@ import { MemberTable } from './member-table';
 import {
 	useAuthenticateUser,
 	useModal,
-	useOrganizationTeams,
+	useOrganizationTeams
 } from '@app/hooks';
 import { ChangeEvent, useState } from 'react';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';

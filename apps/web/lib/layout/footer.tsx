@@ -20,7 +20,7 @@ export function Footer({ className }: IClassName) {
 				{trans.layout.footer.RIGHTS_RESERVERD}
 			</p>
 
-			<div className=''>
+			<div className="">
 				<ThemeToggler />
 			</div>
 		</footer>

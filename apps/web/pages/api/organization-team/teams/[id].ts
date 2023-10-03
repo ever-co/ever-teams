@@ -21,7 +21,7 @@ export default async function handler(
 					await removeUserFromAllTeam({
 						userId: id as string,
 						bearer_token: access_token,
-						tenantId,
+						tenantId
 					})
 				);
 			}

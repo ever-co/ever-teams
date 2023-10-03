@@ -14,7 +14,7 @@ export const SidebarAccordian = ({
 	title,
 	className,
 	wrapperClassName,
-	textClassName,
+	textClassName
 }: isProps) => {
 	return (
 		<div className="w-full ">

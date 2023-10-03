@@ -1,15 +1,15 @@
 import {
 	CreateReponse,
 	DeleteReponse,
-	IIssueTypesCreate,
+	IIssueTypesCreate
 } from '@app/interfaces';
 import api from '../axios';
 
 export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
 	return api.post<CreateReponse<IIssueTypesCreate>>('/issue-types', data, {
 		headers: {
-			'Tenant-Id': tenantId,
-		},
+			'Tenant-Id': tenantId
+		}
 	});
 }
 
@@ -20,8 +20,8 @@ export function editIssueTypeAPI(
 ) {
 	return api.put<CreateReponse<IIssueTypesCreate>>(`/issue-types/${id}`, data, {
 		headers: {
-			'Tenant-Id': tenantId,
-		},
+			'Tenant-Id': tenantId
+		}
 	});
 }
 

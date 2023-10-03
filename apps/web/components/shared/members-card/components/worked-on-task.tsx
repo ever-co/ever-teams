@@ -4,7 +4,7 @@ import { ITeamTask } from '@app/interfaces/ITask';
 
 export function WorkedOnTask({
 	memberTask,
-	isAuthUser,
+	isAuthUser
 }: {
 	memberTask: ITeamTask | null;
 	isAuthUser: boolean;

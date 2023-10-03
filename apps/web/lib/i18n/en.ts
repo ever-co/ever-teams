@@ -105,7 +105,7 @@ export const en = {
 
 		COLLABORATE_DIALOG_TITLE: 'Start Collaboration',
 		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating',
-		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration',
+		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration'
 	},
 	pages: {
 		home: {
@@ -120,11 +120,11 @@ export const en = {
 			CONFIRM_ACCEPT_INVITATION:
 				'Are you sure you want to accept the invitation?',
 			CONFIRM_REJECT_INVITATION:
-				'Are you sure you want to reject the invitation?',
+				'Are you sure you want to reject the invitation?'
 		},
 
 		profile: {
-			BREADCRUMB: ['Member Tasks'],
+			BREADCRUMB: ['Member Tasks']
 		},
 
 		taskDetails: {
@@ -159,7 +159,7 @@ export const en = {
 
 			TASK_IS_ALREADY_EPIC: 'Epic Task Type can not be changed.',
 			TASK_HAS_PARENT:
-				'Task Type can not be changed as Task has already Parent.',
+				'Task Type can not be changed as Task has already Parent.'
 		},
 
 		auth: {
@@ -178,12 +178,12 @@ export const en = {
 			LOGIN: 'Login',
 			SELECT_WORKSPACE: 'Select Workspace',
 			ENTER_EMAIL: 'Enter Email',
-			WORKSPACES_NOT_FOUND: 'Workspaces Not Found',
+			WORKSPACES_NOT_FOUND: 'Workspaces Not Found'
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
 			HEADING_DESCRIPTION:
-				'Please enter email and invitation code to join existing team.',
+				'Please enter email and invitation code to join existing team.'
 		},
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
@@ -191,7 +191,7 @@ export const en = {
 
 			WORKSPACE: 'Workspace',
 			HEADING_WORKSPACE_LINE1: 'The email associated with multiple workspaces,',
-			HEADING_WORKSPACE_LINE2: 'please select one to continue',
+			HEADING_WORKSPACE_LINE2: 'please select one to continue'
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
@@ -202,13 +202,13 @@ export const en = {
 			INPUT_TEAM_NAME: 'Input your team name',
 			JOIN_EXISTING_TEAM: 'Joining existing team?',
 			CREATE_FIRST_TEAM: 'Create your first team',
-			CREATE_TEAM: 'Create team',
+			CREATE_TEAM: 'Create team'
 		},
 		settings: {
 			BREADCRUMB: [{ title: 'Dashboard', href: '/' }, 'Settings'],
 			DANDER_ZONE: 'Danger Zone',
 			HEADING_DESCRIPTION: 'Setting dan manage your personal dashboard here',
-			ARE_YOU_SURE_TO_DELETE_USER: 'Are you sure you want to delete this user?',
+			ARE_YOU_SURE_TO_DELETE_USER: 'Are you sure you want to delete this user?'
 		},
 		settingsPersonal: {
 			HEADING_TITLE: 'General Settings',
@@ -218,7 +218,7 @@ export const en = {
 			SUBSCRIPTION: 'Subscription',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
 			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
-			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?',
+			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?'
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'General Settings',
@@ -317,18 +317,18 @@ export const en = {
 			VIEW_DETAILS: 'View Details',
 
 			NO_INVITATIONS: 'There are no Invitations at the moment!',
-			NO_MEMBERS: 'There are no Members at the moment!',
+			NO_MEMBERS: 'There are no Members at the moment!'
 		},
 		invite: {
 			HEADING_TITLE: 'Invite member to your team',
 			HEADING_DESCRIPTION: 'Send invitation to a team member by email',
 			SEND_INVITE: 'Send Invitation',
 			ERROR_WHILE_ACCEPTING_INVITATION: 'Error while accepting invitation',
-			ERROR_WHILE_REJECTING_INVITATION: 'Error while rejecting invitation',
+			ERROR_WHILE_REJECTING_INVITATION: 'Error while rejecting invitation'
 		},
 		permissions: {
-			SELECT_ROLES: 'Select Roles',
-		},
+			SELECT_ROLES: 'Select Roles'
+		}
 	},
 
 	timer: {
@@ -336,8 +336,8 @@ export const en = {
 			'Please, select or create a new task to start tracking the time',
 		TEAM_SWITCH: {
 			STOPPED_TIMER_TOAST_TITLE: 'Timer Stopped',
-			STOPPED_TIMER_TOAST_DESCRIPTION: 'Timer Stopped due to Team Switch',
-		},
+			STOPPED_TIMER_TOAST_DESCRIPTION: 'Timer Stopped due to Team Switch'
+		}
 	},
 
 	task: {
@@ -346,8 +346,8 @@ export const en = {
 			ASSIGNED_DESCRIPTION: 'This tab shows all tasks that are assigned to you',
 			UNASSIGNED_DESCRIPTION:
 				'This tab shows all tasks that are not assigned to you',
-			NO_TASK_USER_ASSIGNED: 'No one assigned  to this Task',
-		},
+			NO_TASK_USER_ASSIGNED: 'No one assigned  to this Task'
+		}
 	},
 
 	form: {
@@ -360,19 +360,19 @@ export const en = {
 		TASK_INPUT_PLACEHOLDER: 'What you working on?',
 
 		TEAM_MEMBER_NAME_PLACEHOLDER: 'Team member name',
-		TEAM_MEMBER_EMAIL_PLACEHOLDER: 'Team member email address',
+		TEAM_MEMBER_EMAIL_PLACEHOLDER: 'Team member email address'
 	},
 
 	layout: {
 		footer: {
-			RIGHTS_RESERVERD: 'All rights reserved.',
-		},
+			RIGHTS_RESERVERD: 'All rights reserved.'
+		}
 	},
 
 	errors: {
 		NETWORK_ISSUE: 'network issue, please try again later',
-		ERROR_WHILE_VERIFY_CODE: 'Error while verifying code.',
-	},
+		ERROR_WHILE_VERIFY_CODE: 'Error while verifying code.'
+	}
 };
 
 export type Translations = typeof en;

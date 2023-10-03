@@ -16,7 +16,7 @@ const ProfileInfo = ({
 	profilePicSrc,
 	names,
 	wrapperClassName,
-	profilePicSize,
+	profilePicSize
 }: Props) => {
 	const size = profilePicSize || 20;
 
@@ -32,7 +32,7 @@ const ProfileInfo = ({
 					'shadow-md text-md font-normal'
 				)}
 				style={{
-					backgroundColor: `${stc(names)}80`,
+					backgroundColor: `${stc(names)}80`
 				}}
 			>
 				{profilePicSrc && isValidUrl(profilePicSrc) ? (

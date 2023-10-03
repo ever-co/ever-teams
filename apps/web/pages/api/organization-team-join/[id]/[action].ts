@@ -23,7 +23,7 @@ export default async function handler(
 						id: id as string,
 						bearer_token: access_token,
 						tenantId,
-						action: action as IRequestToJoinActionEnum,
+						action: action as IRequestToJoinActionEnum
 					})
 				);
 			}

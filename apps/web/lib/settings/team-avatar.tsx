@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import {
 	useAuthenticateUser,
 	useImageAssets,
-	useOrganizationTeams,
+	useOrganizationTeams
 } from '@app/hooks';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ import { useTheme } from 'next-themes';
 
 export const TeamAvatar = ({
 	disabled,
-	bgColor,
+	bgColor
 }: {
 	disabled: boolean;
 	bgColor?: string;
@@ -53,7 +53,7 @@ export const TeamAvatar = ({
 						updateOrganizationTeam(activeTeam, {
 							...activeTeam,
 							imageId: d.id,
-							image: d,
+							image: d
 						});
 					})
 					.finally(() => {
@@ -69,7 +69,7 @@ export const TeamAvatar = ({
 			updateOrganizationTeam(activeTeam, {
 				...activeTeam,
 				imageId: null,
-				image: null,
+				image: null
 			});
 			setAvatarBtn(false);
 		}
@@ -95,7 +95,7 @@ export const TeamAvatar = ({
 											bgColor || `${stc(activeTeam?.name || '')}80`,
 										...(bgColor
 											? { color: bgColor ? readableColorHex : undefined }
-											: {}),
+											: {})
 									}}
 								>
 									{activeTeam?.image?.thumbUrl || activeTeam?.image?.fullUrl ? (

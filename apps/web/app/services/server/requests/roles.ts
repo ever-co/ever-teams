@@ -4,7 +4,7 @@ import { serverFetch } from '../fetch';
 export function getEmployeeRoleRequest({
 	bearer_token,
 	role,
-	tenantId,
+	tenantId
 }: {
 	bearer_token: string;
 	role: 'EMPLOYEE';
@@ -14,13 +14,13 @@ export function getEmployeeRoleRequest({
 		path: `/roles/options?name=${role}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function getRolesRequest({
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	bearer_token: string;
 	tenantId: string;
@@ -29,14 +29,14 @@ export function getRolesRequest({
 		path: `/roles`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function createRoleRequest({
 	bearer_token,
 	tenantId,
-	data,
+	data
 }: {
 	data: IRole;
 	bearer_token: string;
@@ -47,14 +47,14 @@ export function createRoleRequest({
 		method: 'POST',
 		bearer_token,
 		tenantId,
-		body: data,
+		body: data
 	});
 }
 
 export function deleteRoleRequest({
 	bearer_token,
 	tenantId,
-	id,
+	id
 }: {
 	id: string;
 	bearer_token: string;
@@ -64,14 +64,14 @@ export function deleteRoleRequest({
 		path: `/roles/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function updateRoleRequest({
 	bearer_token,
 	tenantId,
-	data,
+	data
 }: {
 	data: IRole;
 	bearer_token: string;
@@ -82,6 +82,6 @@ export function updateRoleRequest({
 		method: 'PUT',
 		bearer_token,
 		tenantId,
-		body: data,
+		body: data
 	});
 }

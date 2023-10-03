@@ -1,6 +1,6 @@
 import {
 	DeleteReponse,
-	PaginationResponse,
+	PaginationResponse
 } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';

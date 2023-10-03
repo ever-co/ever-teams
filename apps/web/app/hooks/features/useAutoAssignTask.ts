@@ -30,8 +30,8 @@ export function useAutoAssignTask() {
 				...task,
 				members: [
 					...task.members,
-					(employeeId ? { id: employeeId } : {}) as any,
-				],
+					(employeeId ? { id: employeeId } : {}) as any
+				]
 			});
 		},
 		[updateTask, updateLoadingRef]
@@ -44,6 +44,6 @@ export function useAutoAssignTask() {
 	}, [activeTeamTask, timerStatus, authUser, firstLoad]);
 
 	return {
-		firstLoadData,
+		firstLoadData
 	};
 }

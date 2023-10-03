@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTimerStatusRequest,
-	syncTimeSlotRequest,
+	syncTimeSlotRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -26,7 +26,7 @@ export default async function handler(
 			logType: 'TRACKED',
 			source,
 			employeeId: user.employee.id,
-			duration: 5,
+			duration: 5
 		},
 		access_token
 	);

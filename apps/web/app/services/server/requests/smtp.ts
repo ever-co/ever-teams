@@ -4,7 +4,7 @@ import { serverFetch } from '../fetch';
 
 export function createTenantSmtpRequest({
 	tenantId,
-	access_token,
+	access_token
 }: {
 	tenantId: string;
 	access_token: string;
@@ -15,13 +15,13 @@ export function createTenantSmtpRequest({
 		method: 'POST',
 		body: config,
 		bearer_token: access_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function countTenantTenantSmtpRequest({
 	tenantId,
-	access_token,
+	access_token
 }: {
 	tenantId: string;
 	access_token: string;
@@ -30,6 +30,6 @@ export function countTenantTenantSmtpRequest({
 		path: '/smtp',
 		method: 'GET',
 		bearer_token: access_token,
-		tenantId,
+		tenantId
 	});
 }

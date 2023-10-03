@@ -3,7 +3,7 @@ import {
 	createRoleAPI,
 	deleteRoleAPI,
 	getRolesAPI,
-	updateRoleAPI,
+	updateRoleAPI
 } from '@app/services/client/api';
 import { rolesState } from '@app/stores/';
 import { useCallback } from 'react';
@@ -75,6 +75,6 @@ export const useRoles = () => {
 		deleteRoleLoading,
 
 		updateRole,
-		updateRoleLoading,
+		updateRoleLoading
 	};
 };

@@ -4,7 +4,7 @@ import { Element } from 'domhandler';
 
 export const configHtmlToSlate: HtmlToSlateConfig = {
 	elementStyleMap: {
-		align: 'textAlign',
+		align: 'textAlign'
 	},
 
 	elementTags: {
@@ -12,7 +12,7 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 			type: 'link',
 			linkType: el && getAttributeValue(el, 'data-link-type'),
 			newTab: el && getAttributeValue(el, 'target') === '_blank',
-			href: el && getAttributeValue(el, 'href'),
+			href: el && getAttributeValue(el, 'href')
 		}),
 		blockquote: () => ({ type: 'blockquote' }),
 		h1: () => ({ type: 'h1' }),
@@ -35,12 +35,12 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 					checked: checkbox && checkbox.attribs.checked === 'true',
 					children: [
 						//@ts-ignore
-						{ text: textNode && textNode.firstChild.data },
-					],
+						{ text: textNode && textNode.firstChild.data }
+					]
 				};
 			}
 			return undefined;
-		},
+		}
 	},
 	textTags: {
 		code: () => ({ code: true }),
@@ -50,12 +50,12 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 		i: () => ({ italic: true }),
 		s: () => ({ strikethrough: true }),
 		strong: () => ({ bold: true }),
-		u: () => ({ underline: true }),
+		u: () => ({ underline: true })
 	},
 	htmlPreProcessString: (html) =>
 		html.replace(/<pre[^>]*>/g, '<code>').replace(/<\/pre>/g, '</code>'),
 	filterWhitespaceNodes: true,
-	convertBrToLineBreak: true,
+	convertBrToLineBreak: true
 };
 
 const ELEMENT_NAME_TAG_MAP = {
@@ -70,7 +70,7 @@ const ELEMENT_NAME_TAG_MAP = {
 	ul: 'ul',
 	ol: 'ol',
 	li: 'li',
-	blockquote: 'blockquote',
+	blockquote: 'blockquote'
 };
 
 const MARK_ELEMENT_TAG_MAP = {
@@ -78,7 +78,7 @@ const MARK_ELEMENT_TAG_MAP = {
 	bold: ['strong'],
 	underline: ['u'],
 	italic: ['i'],
-	code: ['pre', 'code'],
+	code: ['pre', 'code']
 };
 
 export const configSlateToHtml: SlateToDomConfig = {
@@ -98,29 +98,29 @@ export const configSlateToHtml: SlateToDomConfig = {
 				'a',
 				{
 					href: node.href,
-					...attrs,
+					...attrs
 				},
 				children
 			);
 		},
 		checklist: ({ node, children = [] }) => {
 			const containerAttrs = {
-				class: 'checklist-container',
+				class: 'checklist-container'
 			};
 
 			const inputAttrs = {
 				type: 'checkbox',
-				checked: node.checked ? 'true' : 'false',
+				checked: node.checked ? 'true' : 'false'
 			};
 
 			const textNode = new Element('span', {}, children);
 			const inputNode = new Element('input', inputAttrs);
 			const containerNode = new Element('div', containerAttrs, [
 				inputNode,
-				textNode,
+				textNode
 			]);
 
 			return containerNode;
-		},
-	},
+		}
+	}
 };

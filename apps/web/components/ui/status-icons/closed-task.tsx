@@ -1,5 +1,5 @@
 export const ClosedTaskIcon = ({
-	color = '#9ea7ad',
+	color = '#9ea7ad'
 }: {
 	color?: string;
 	background: string;

@@ -21,7 +21,7 @@ export function mapTimezoneItems(timezones: string[]) {
 					className="py-2 mb-0"
 				/>
 			),
-			data: timezone,
+			data: timezone
 		};
 	});
 
@@ -30,7 +30,7 @@ export function mapTimezoneItems(timezones: string[]) {
 
 export function TimezoneItem({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

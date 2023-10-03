@@ -13,7 +13,7 @@ import { useTranslation } from 'lib/i18n';
 
 export function CreateTaskOption({
 	onClick,
-	loading,
+	loading
 }: {
 	onClick: () => void;
 	loading?: boolean;
@@ -39,7 +39,7 @@ export function CreateTaskOption({
 }
 
 export function TasksList({
-	onClickTask,
+	onClickTask
 }: {
 	onClickTask?: (task: ITeamTask) => void;
 }) {
@@ -63,7 +63,7 @@ export function TasksList({
 		handleReopenTask,
 		isModalOpen,
 		closeModal,
-		closeableTask,
+		closeableTask
 	} = useTaskInput();
 
 	const [combxShow, setCombxShow] = useState<true | undefined>(undefined);
@@ -213,7 +213,7 @@ function InputTaskItem({
 	selected,
 	item,
 	onDelete,
-	onReopen,
+	onReopen
 }: {
 	selected: boolean;
 	item: ITeamTask;

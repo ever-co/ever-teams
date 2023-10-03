@@ -2,13 +2,13 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useOrganizationTeams,
-	useTeamInvitations,
+	useTeamInvitations
 } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import {
 	InvitedCard,
-	InviteUserTeamCard,
+	InviteUserTeamCard
 } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';

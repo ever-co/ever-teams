@@ -3,13 +3,13 @@ import {
 	createTaskRelatedIssueTypeAPI,
 	getTaskRelatedIssueTypeList,
 	deleteTaskRelatedIssueTypeAPI,
-	editTaskRelatedIssueTypeAPI,
+	editTaskRelatedIssueTypeAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskRelatedIssueTypeFetchingState,
 	taskRelatedIssueTypeListState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -25,11 +25,11 @@ export function useTaskRelatedIssueType() {
 	const { loading, queryCall } = useQuery(getTaskRelatedIssueTypeList);
 	const {
 		loading: createTaskRelatedIssueTypeLoading,
-		queryCall: createQueryCall,
+		queryCall: createQueryCall
 	} = useQuery(createTaskRelatedIssueTypeAPI);
 	const {
 		loading: deleteTaskRelatedIssueTypeLoading,
-		queryCall: deleteQueryCall,
+		queryCall: deleteQueryCall
 	} = useQuery(deleteTaskRelatedIssueTypeAPI);
 	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } =
 		useQuery(editTaskRelatedIssueTypeAPI);
@@ -83,7 +83,7 @@ export function useTaskRelatedIssueType() {
 			createQueryCall,
 			createTaskRelatedIssueTypeLoading,
 			deleteTaskRelatedIssueTypeLoading,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -109,7 +109,7 @@ export function useTaskRelatedIssueType() {
 			createTaskRelatedIssueTypeLoading,
 			deleteTaskRelatedIssueTypeLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -146,6 +146,6 @@ export function useTaskRelatedIssueType() {
 		editTaskRelatedIssueTypeLoading,
 		editTaskRelatedIssueType,
 		setTaskRelatedIssueType,
-		loadTaskRelatedIssueTypeData,
+		loadTaskRelatedIssueTypeData
 	};
 }

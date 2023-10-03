@@ -7,12 +7,12 @@ import {
 	useTaskLabelsValue,
 	useTaskPrioritiesValue,
 	useTaskSizesValue,
-	useTaskStatusValue,
+	useTaskStatusValue
 } from './task-status';
 
 export function TaskAllStatusTypes({
 	task,
-	showStatus = false,
+	showStatus = false
 }: {
 	task?: Nullable<ITeamTask>;
 	showStatus?: boolean;
@@ -28,10 +28,10 @@ export function TaskAllStatusTypes({
 		scrollNext,
 		prevBtnEnabled,
 		scrollPrev,
-		emblaApi,
+		emblaApi
 	} = useCustomEmblaCarousel(0, {
 		dragFree: true,
-		containScroll: 'trimSnaps',
+		containScroll: 'trimSnaps'
 	});
 
 	const emblaApiRef = useSyncRef(emblaApi);

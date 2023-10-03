@@ -8,18 +8,18 @@ import { PeriodItem, mapPeriodItems } from './period-items';
 
 export const PeriodDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IPeriod | null;
 }) => {
 	const [PeriodList, setPeriod] = useState<IPeriod[]>([
 		{
-			title: 'Private',
+			title: 'Private'
 		},
 		{
-			title: 'Public',
-		},
+			title: 'Public'
+		}
 	]);
 
 	const items: any = useMemo(() => mapPeriodItems(PeriodList), [PeriodList]);

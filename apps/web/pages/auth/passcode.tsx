@@ -9,7 +9,7 @@ import {
 	Card,
 	InputField,
 	SpinnerLoader,
-	Text,
+	Text
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
@@ -65,7 +65,7 @@ export default function AuthPasscode() {
 
 function EmailScreen({
 	form,
-	className,
+	className
 }: { form: TAuthenticationPasscode } & IClassName) {
 	const { trans } = useTranslation();
 
@@ -126,7 +126,7 @@ function EmailScreen({
 
 function PasscodeScreen({
 	form,
-	className,
+	className
 }: { form: TAuthenticationPasscode } & IClassName) {
 	const { trans } = useTranslation();
 
@@ -226,7 +226,7 @@ function PasscodeScreen({
 
 function WorkSpaceScreen({
 	form,
-	className,
+	className
 }: { form: TAuthenticationPasscode } & IClassName) {
 	const { trans } = useTranslation();
 

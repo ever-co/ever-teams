@@ -2,7 +2,7 @@ import {
 	ITaskLabel,
 	ITaskPriority,
 	ITaskSize,
-	ITaskStatus,
+	ITaskStatus
 } from '@app/interfaces';
 import { ClockIcon } from '@heroicons/react/20/solid';
 import {
@@ -21,117 +21,117 @@ import {
 	MediumSizeIcon,
 	SmallSizeIcon,
 	TinySizeIcon,
-	XlargeIcon,
+	XlargeIcon
 } from 'lib/components/svgs';
 import { TStatus } from './task-status';
 
 export const taskStatus: TStatus<ITaskStatus> = {
 	todo: {
 		icon: <LoginIcon />,
-		bgColor: '#D6E4F9',
+		bgColor: '#D6E4F9'
 	},
 	'in-progress': {
 		icon: <TimerIcon />,
-		bgColor: '#ECE8FC',
+		bgColor: '#ECE8FC'
 	},
 	'in review': {
 		icon: <SearchStatusIcon />,
-		bgColor: ' #F3D8B0',
+		bgColor: ' #F3D8B0'
 	},
 	ready: {
 		icon: <ClockIcon />,
-		bgColor: '#F5F1CB',
+		bgColor: '#F5F1CB'
 	},
 	completed: {
 		icon: <TickCircleIcon className="stroke-[#292D32]" />,
-		bgColor: '#D4EFDF',
+		bgColor: '#D4EFDF'
 	},
 	blocked: {
 		icon: <CloseCircleIcon />,
-		bgColor: '#F5B8B8',
+		bgColor: '#F5B8B8'
 	},
 	backlog: {
 		icon: <CircleIcon />,
-		bgColor: '#F2F2F2',
+		bgColor: '#F2F2F2'
 	},
 	closed: {
 		icon: <TickCircleIcon className="stroke-[#acacac]" />,
-		bgColor: '#eaeaea',
+		bgColor: '#eaeaea'
 	},
-	open: {},
+	open: {}
 };
 
 export const taskPriorities: TStatus<ITaskPriority> = {
 	Highest: {
 		icon: <HighestIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	High: {
 		icon: <HighIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Medium: {
 		icon: <MediumIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Low: {
 		icon: <LowIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Lowest: {
 		icon: <LowestIcon />,
 		bgColor: 'transparent',
-		bordered: true,
-	},
+		bordered: true
+	}
 };
 
 export const taskSizes: TStatus<ITaskSize> = {
 	'X-Large': {
 		icon: <XlargeIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Large: {
 		icon: <LargeIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Medium: {
 		icon: <MediumSizeIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Small: {
 		icon: <SmallSizeIcon />,
 		bgColor: 'transparent',
-		bordered: true,
+		bordered: true
 	},
 	Tiny: {
 		icon: <TinySizeIcon />,
 		bgColor: 'transparent',
-		bordered: true,
-	},
+		bordered: true
+	}
 };
 
 export const taskLabels: TStatus<ITaskLabel> = {
 	'UI/UX': {
 		icon: <ClockIcon />,
-		bgColor: '#c2b1c6',
+		bgColor: '#c2b1c6'
 	},
 	Mobile: {
 		icon: <ClockIcon />,
-		bgColor: '#7c7ab7',
+		bgColor: '#7c7ab7'
 	},
 	WEB: {
 		icon: <ClockIcon />,
-		bgColor: '#97b7c1',
+		bgColor: '#97b7c1'
 	},
 	Tablet: {
 		icon: <ClockIcon />,
-		bgColor: '#b0c8a8',
-	},
+		bgColor: '#b0c8a8'
+	}
 };

@@ -8,7 +8,7 @@ import cloneDeep from 'lodash/cloneDeep';
 
 function CreateParentTask({
 	modal,
-	task,
+	task
 }: {
 	modal: IHookModal;
 	task: ITeamTask;
@@ -27,7 +27,7 @@ function CreateParentTask({
 			await updateTask({
 				...childTask,
 				parentId: parentTask.id,
-				parent: parentTask,
+				parent: parentTask
 			});
 
 			loadTeamTasksData(false).finally(() => {

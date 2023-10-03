@@ -19,7 +19,7 @@ export function Modal({
 	title,
 	description,
 	className,
-	alignCloseIcon,
+	alignCloseIcon
 }: Props) {
 	const refDiv = useRef(null);
 

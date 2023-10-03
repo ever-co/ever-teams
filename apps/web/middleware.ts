@@ -3,7 +3,7 @@ import {
 	DEFAULT_MAIN_PATH,
 	PROTECTED_APP_URL_PATHS,
 	REFRESH_TOKEN_COOKIE_NAME,
-	TOKEN_COOKIE_NAME,
+	TOKEN_COOKIE_NAME
 } from '@app/constants';
 import { cookiesKeys } from '@app/helpers/cookies';
 import { currentAuthenticatedUserRequest } from '@app/services/server/requests/auth';
@@ -19,8 +19,8 @@ export const config = {
 		'/settings/(.*)',
 		'/task(.*)',
 		'/meet(.*)',
-		'/board(.*)',
-	],
+		'/board(.*)'
+	]
 };
 
 export async function middleware(request: NextRequest) {
@@ -76,7 +76,7 @@ export async function middleware(request: NextRequest) {
 		// Next condition, if all tokens are presents
 	} else if (protected_path && access_token) {
 		const res = await currentAuthenticatedUserRequest({
-			bearer_token: access_token,
+			bearer_token: access_token
 		}).catch(() => {
 			deny_redirect();
 		});

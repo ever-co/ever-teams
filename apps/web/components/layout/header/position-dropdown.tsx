@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 export const PositionDropDown = ({
 	currentPosition,
 	onChangePosition,
-	disabled,
+	disabled
 }: {
 	currentPosition: string | null;
 	onChangePosition: any;
@@ -16,31 +16,31 @@ export const PositionDropDown = ({
 	const [newPosition, setNewPosition] = useState<string>('');
 	const [positions, setPositions] = useState<IPosition[]>([
 		{
-			title: 'UIUX Designer',
+			title: 'UIUX Designer'
 		},
 		{
-			title: 'Data Analyst',
+			title: 'Data Analyst'
 		},
 		{
-			title: 'Engineer',
+			title: 'Engineer'
 		},
 		{
-			title: 'Front End Developer',
+			title: 'Front End Developer'
 		},
 		{
-			title: 'Back End Developer',
+			title: 'Back End Developer'
 		},
 		{
-			title: 'CTO',
-		},
+			title: 'CTO'
+		}
 	]);
 	const handleAddNew = (position: string) => {
 		setNewPosition(position);
 		setPositions([
 			...positions,
 			{
-				title: position,
-			},
+				title: position
+			}
 		]);
 	};
 

@@ -17,7 +17,7 @@ export function EstimateTime() {
 		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
 		setValue({
 			hours: h.toString(),
-			minutes: pad(m).toString(),
+			minutes: pad(m).toString()
 		});
 	}, [activeTeamTask]);
 
@@ -45,7 +45,7 @@ export function EstimateTime() {
 			setValue((vls) => {
 				return {
 					...vls,
-					[c]: tm,
+					[c]: tm
 				};
 			});
 		};
@@ -55,7 +55,7 @@ export function EstimateTime() {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				hours: oldVa.hours !== '0' ? oldVa.hours : '',
+				hours: oldVa.hours !== '0' ? oldVa.hours : ''
 			};
 		});
 		setEditableMode(true);
@@ -65,7 +65,7 @@ export function EstimateTime() {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				hours: oldVa.hours !== '' ? oldVa.hours : '0',
+				hours: oldVa.hours !== '' ? oldVa.hours : '0'
 			};
 		});
 	};
@@ -74,7 +74,7 @@ export function EstimateTime() {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '' ? pad(+oldVa.minutes) : pad(0),
+				minutes: oldVa.minutes !== '' ? pad(+oldVa.minutes) : pad(0)
 			};
 		});
 	};
@@ -83,7 +83,7 @@ export function EstimateTime() {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '00' ? oldVa.minutes : '',
+				minutes: oldVa.minutes !== '00' ? oldVa.minutes : ''
 			};
 		});
 		setEditableMode(true);
@@ -114,7 +114,7 @@ export function EstimateTime() {
 			...activeTeamTask,
 			estimateHours: hours,
 			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60, // time seconds
+			estimate: hours * 60 * 60 + minutes * 60 // time seconds
 		});
 
 		setEditableMode(false);

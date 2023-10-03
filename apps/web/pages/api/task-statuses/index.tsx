@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	createStatusRequest,
-	getTaskStatusListRequest,
+	getTaskStatusListRequest
 } from '@app/services/server/requests/taskStatus';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,7 +19,7 @@ export default async function handler(
 	const par = {
 		tenantId,
 		organizationId,
-		activeTeamId: (activeTeamId as string) || null,
+		activeTeamId: (activeTeamId as string) || null
 	};
 
 	switch (req.method) {

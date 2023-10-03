@@ -1,11 +1,11 @@
 import {
 	ExcalidrawElement,
 	FileId,
-	InitializedExcalidrawImageElement,
+	InitializedExcalidrawImageElement
 } from '@excalidraw/excalidraw/types/element/types';
 import {
 	BinaryFileData,
-	BinaryFileMetadata,
+	BinaryFileMetadata
 } from '@excalidraw/excalidraw/types/types';
 import { compressData } from './encode';
 
@@ -18,7 +18,7 @@ export const isInitializedImageElement = (
 export const encodeFilesForUpload = async ({
 	files,
 	maxBytes,
-	encryptionKey,
+	encryptionKey
 }: {
 	files: Map<FileId, BinaryFileData>;
 	maxBytes: number;
@@ -38,8 +38,8 @@ export const encodeFilesForUpload = async ({
 				id,
 				mimeType: fileData.mimeType,
 				created: Date.now(),
-				lastRetrieved: Date.now(),
-			},
+				lastRetrieved: Date.now()
+			}
 		});
 
 		if (buffer.byteLength > maxBytes) {
@@ -50,7 +50,7 @@ export const encodeFilesForUpload = async ({
 
 		processedFiles.push({
 			id,
-			buffer: encodedFile,
+			buffer: encodedFile
 		});
 	}
 

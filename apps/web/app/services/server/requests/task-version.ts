@@ -11,7 +11,7 @@ export function createVersionRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -19,7 +19,7 @@ export function editTaskVersionRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	datas: ITaskVersionCreate;
@@ -31,14 +31,14 @@ export function editTaskVersionRequest({
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskVersionRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -48,7 +48,7 @@ export function deleteTaskVersionRequest({
 		path: `/task-versions/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -56,7 +56,7 @@ export function getTaskVersionListRequest<ITaskVersionItemList>(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: {
 		tenantId: string;
 		organizationId: string;
@@ -67,6 +67,6 @@ export function getTaskVersionListRequest<ITaskVersionItemList>(
 	return serverFetch({
 		path: `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }

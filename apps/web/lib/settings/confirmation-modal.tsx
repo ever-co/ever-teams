@@ -6,7 +6,7 @@ export const ConfirmationModal = ({
 	close,
 	title,
 	onAction,
-	loading,
+	loading
 }: {
 	open: boolean;
 	close: () => void;

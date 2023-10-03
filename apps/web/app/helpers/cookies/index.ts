@@ -10,7 +10,7 @@ import {
 	ACTIVE_USER_TASK_COOKIE_NAME,
 	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 	ACTIVE_USER_ID_COOKIE_NAME,
-	MEET_JWT_TOKEN_COOKIE_NAME,
+	MEET_JWT_TOKEN_COOKIE_NAME
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from './helpers';
@@ -96,7 +96,7 @@ export function setAuthCookies(
 		languageId,
 		// timezone,
 		noTeamPopup,
-		userId,
+		userId
 	} = datas;
 
 	// const expires = addHours(6, changeTimezone(new Date(), timezone));
@@ -129,7 +129,7 @@ export function cookiesKeys() {
 		ACTIVE_LANGUAGE_COOKIE_NAME,
 		NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 		ACTIVE_USER_TASK_COOKIE_NAME,
-		ACTIVE_USER_ID_COOKIE_NAME,
+		ACTIVE_USER_ID_COOKIE_NAME
 	];
 }
 
@@ -158,7 +158,7 @@ export function getAccessTokenCookie(ctx?: NextCtx) {
 
 export function getTotalChunksCookie(COOKIE_NAME: string, ctx?: NextCtx) {
 	return getCookie(`${COOKIE_NAME}_totalChunks`, {
-		...(ctx || {}),
+		...(ctx || {})
 	}) as string;
 }
 
@@ -215,7 +215,7 @@ export function setActiveUserIdCookie(userId: string, ctx?: NextCtx) {
 
 export function getNoTeamPopupShowCookie(ctx?: NextCtx) {
 	return getCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, {
-		...(ctx || {}),
+		...(ctx || {})
 	}) as boolean;
 }
 export function setNoTeamPopupShowCookie(show: boolean, ctx?: NextCtx) {
@@ -227,13 +227,13 @@ export function setActiveUserTaskCookie(
 	ctx?: NextCtx
 ) {
 	return setCookie(ACTIVE_USER_TASK_COOKIE_NAME, JSON.stringify(data), {
-		...(ctx || {}),
+		...(ctx || {})
 	});
 }
 
 export function getActiveUserTaskCookie(ctx?: NextCtx) {
 	const data = getCookie(ACTIVE_USER_TASK_COOKIE_NAME, {
-		...(ctx || {}),
+		...(ctx || {})
 	});
 
 	try {
@@ -252,7 +252,7 @@ export function getActiveLanguageIdCookie(ctx?: NextCtx) {
 
 export function setActiveLanguageIdCookie(languageIds: string, ctx?: NextCtx) {
 	return setCookie(ACTIVE_LANGUAGE_COOKIE_NAME, languageIds, {
-		...(ctx || {}),
+		...(ctx || {})
 	});
 }
 

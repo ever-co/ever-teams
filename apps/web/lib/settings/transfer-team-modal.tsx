@@ -12,7 +12,7 @@ import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
  */
 export function TransferTeamModal({
 	open,
-	closeModal,
+	closeModal
 }: {
 	open: boolean;
 	closeModal: () => void;
@@ -37,12 +37,12 @@ export function TransferTeamModal({
 						...activeTeamManagers
 							.filter((manager) => manager.employee.userId !== user?.id)
 							.map((manager) => manager.employeeId),
-						selectedMember.id,
+						selectedMember.id
 					],
 					memberIds: activeTeam.members.map((member) => member.employeeId),
 					tenantId: activeTeam.tenantId,
 					organizationId: activeTeam.organizationId,
-					name: activeTeam.name,
+					name: activeTeam.name
 				})
 					.then(closeModal)
 					.catch(closeModal);
@@ -54,7 +54,7 @@ export function TransferTeamModal({
 			user,
 			activeTeamManagers,
 			closeModal,
-			editOrganizationTeam,
+			editOrganizationTeam
 		]
 	);
 
@@ -80,7 +80,7 @@ export function TransferTeamModal({
 										id: member.employeeId,
 										name: member?.employee?.user?.name || '',
 										title: member?.employee?.user?.name || '',
-										userId: member?.employee?.userId,
+										userId: member?.employee?.userId
 									}))}
 								selectedMember={selectedMember}
 							/>

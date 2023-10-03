@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 
 export default function MeetPage({
 	jwt,
-	roomName,
+	roomName
 }: {
 	jwt: string;
 	roomName: string;
@@ -20,10 +20,10 @@ export default function MeetPage({
 				startWithVideoMuted: true,
 				disableModeratorIndicator: false,
 				startScreenSharing: false,
-				enableEmailInStats: false,
+				enableEmailInStats: false
 			}}
 			interfaceConfigOverwrite={{
-				DISABLE_JOIN_LEAVE_NOTIFICATIONS: false,
+				DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
 			}}
 			jwt={jwt}
 			onApiReady={(externalApi) => {

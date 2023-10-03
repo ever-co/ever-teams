@@ -1,7 +1,7 @@
 import {
 	IInvitation,
 	IRequestToJoin,
-	IRequestToJoinActionEnum,
+	IRequestToJoinActionEnum
 } from '@app/interfaces';
 import moment from 'moment';
 import { usePagination } from '@app/hooks/features/usePagination';
@@ -14,7 +14,7 @@ import { InvitationTableStatus } from './invitation-table-status';
 import { useRequestToJoinTeam } from '@app/hooks';
 
 export const InvitationTable = ({
-	invitations,
+	invitations
 }: {
 	invitations: (IInvitation | IRequestToJoin)[];
 }) => {
@@ -25,7 +25,7 @@ export const InvitationTable = ({
 		itemOffset,
 		endOffset,
 		setItemsPerPage,
-		currentItems,
+		currentItems
 	} = usePagination<IInvitation | IRequestToJoin>(invitations);
 
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
@@ -96,7 +96,7 @@ export const InvitationTable = ({
 											'shadow-md font-normal'
 										)}
 										style={{
-											backgroundColor: `${stc(invitation.fullName || '')}80`,
+											backgroundColor: `${stc(invitation.fullName || '')}80`
 										}}
 									>
 										{imgTitle(invitation.fullName)}

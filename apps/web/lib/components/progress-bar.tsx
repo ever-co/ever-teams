@@ -4,7 +4,7 @@ export function ProgressBar({
 	width,
 	progress,
 	className,
-	showPercents,
+	showPercents
 }: {
 	width: number | string;
 	progress: number | string;

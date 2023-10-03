@@ -5,7 +5,7 @@ import { ProgressBar } from '@components/ui/progress-bar';
 import { useRecoilValue } from 'recoil';
 
 export function EstimationProgress({
-	isAuthUser,
+	isAuthUser
 }: {
 	memberTask: ITeamTask | null;
 	isAuthUser: boolean;

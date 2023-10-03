@@ -51,7 +51,7 @@ export function Navbar({
 	className,
 	showTimer,
 	publicTeam,
-	notFound,
+	notFound
 }: IClassName & {
 	showTimer?: boolean;
 	publicTeam?: boolean;

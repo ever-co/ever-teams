@@ -3,17 +3,17 @@ import { atom, selector } from 'recoil';
 
 export const issueTypesListState = atom<IIssueTypesItemList[]>({
 	key: 'issueTypesListState',
-	default: [],
+	default: []
 });
 
 export const activeIssueTypesIdState = atom<string | null>({
 	key: 'activeIssueTypesIdState',
-	default: null,
+	default: null
 });
 
 export const issueTypesFetchingState = atom<boolean>({
 	key: 'issueTypesFetchingState',
-	default: false,
+	default: false
 });
 
 export const activeIssueTypesState = selector<IIssueTypesItemList | null>({
@@ -26,5 +26,5 @@ export const activeIssueTypesState = selector<IIssueTypesItemList | null>({
 			issueTypes[0] ||
 			null
 		);
-	},
+	}
 });

@@ -42,7 +42,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 					isJitsuEnvsPresent
 						? { ...jitsuConfiguration }
 						: {
-								disabled: true,
+								disabled: true
 						  }
 				}
 			>

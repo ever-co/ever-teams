@@ -8,21 +8,21 @@ import { IChoose } from '@app/interfaces';
 
 export const ChooseDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IChoose | null;
 }) => {
 	const [chooseList, setChoose] = useState<IChoose[]>([
 		{
-			title: 'Option 1',
+			title: 'Option 1'
 		},
 		{
-			title: 'Option 2',
+			title: 'Option 2'
 		},
 		{
-			title: 'Option 3',
-		},
+			title: 'Option 3'
+		}
 	]);
 
 	const items: any = useMemo(() => mapChooseItems(chooseList), [chooseList]);

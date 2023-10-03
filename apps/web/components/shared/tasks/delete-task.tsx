@@ -12,7 +12,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 		if (task) {
 			await updateTask({
 				...task,
-				status: 'closed',
+				status: 'closed'
 			});
 		}
 		closeModal();

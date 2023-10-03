@@ -1,7 +1,7 @@
 import {
 	CreateReponse,
 	DeleteReponse,
-	ITaskVersionCreate,
+	ITaskVersionCreate
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -11,8 +11,8 @@ export function createTaskVersionAPI(
 ) {
 	return api.post<CreateReponse<ITaskVersionCreate>>('/task-versions', data, {
 		headers: {
-			'Tenant-Id': tenantId,
-		},
+			'Tenant-Id': tenantId
+		}
 	});
 }
 
@@ -26,8 +26,8 @@ export function editTaskVersionAPI(
 		data,
 		{
 			headers: {
-				'Tenant-Id': tenantId,
-			},
+				'Tenant-Id': tenantId
+			}
 		}
 	);
 }

@@ -8,7 +8,7 @@ import {
 	forwardRef,
 	RefObject,
 	SetStateAction,
-	useCallback,
+	useCallback
 } from 'react';
 import { MC_EditableValues } from '../types';
 import { EstimationProgress } from './estimation-progress';
@@ -38,7 +38,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 			loading,
 			onSubmitEstimation,
 			onChangeEstimate,
-			clickIgnoreEl,
+			clickIgnoreEl
 		},
 		ref
 	) => {

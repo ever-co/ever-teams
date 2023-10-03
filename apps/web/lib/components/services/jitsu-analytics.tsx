@@ -12,7 +12,7 @@ export function JitsuAnalytics({ user }: { user?: IUser }) {
 				email: user.email,
 				name: user.name,
 				tenant: user?.tenant?.name,
-				tenantId: user?.tenant?.id,
+				tenantId: user?.tenant?.id
 			});
 		}
 	}, [user, analytics, router.asPath]);
@@ -23,8 +23,8 @@ export function JitsuAnalytics({ user }: { user?: IUser }) {
 				email: user?.email,
 				name: user?.name,
 				tenant: user?.tenant?.name,
-				tenantId: user?.tenant?.id,
-			},
+				tenantId: user?.tenant?.id
+			}
 		});
 	}, [router.asPath, user, analytics]);
 	return <React.Fragment />;

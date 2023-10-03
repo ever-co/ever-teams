@@ -8,7 +8,7 @@ import React, {
 	PropsWithChildren,
 	SetStateAction,
 	useMemo,
-	useState,
+	useState
 } from 'react';
 import { usePopper } from 'react-popper';
 import DeleteTask from '@components/shared/tasks/delete-task';
@@ -34,7 +34,7 @@ interface IDropdownUserProps {
 function OptionPopover({
 	setEdit,
 	setEstimateEdit,
-	children,
+	children
 }: PropsWithChildren<IDropdownUserProps>) {
 	const [referenceElement, setReferenceElement] = useState<
 		Element | null | undefined
@@ -43,44 +43,44 @@ function OptionPopover({
 		HTMLElement | null | undefined
 	>();
 	const { styles, attributes } = usePopper(referenceElement, popperElement, {
-		placement: 'left',
+		placement: 'left'
 	});
 
 	const options: IOption[] = [
 		{
 			name: 'Edit',
-			handleClick: setEdit,
+			handleClick: setEdit
 		},
 		{
 			name: 'Estimate',
-			handleClick: setEstimateEdit,
+			handleClick: setEstimateEdit
 		},
 		{
 			name: 'Assign new task',
 			handleClick: () => {
 				//
 			},
-			extramenu: true,
+			extramenu: true
 		},
 		{
 			name: 'Unassign task',
 			handleClick: () => {
 				//
 			},
-			extramenu: true,
+			extramenu: true
 		},
 		{
 			name: 'Make a manager ',
 			handleClick: () => {
 				//
-			},
+			}
 		},
 		{
 			name: 'Remove',
 			handleClick: () => {
 				//
-			},
-		},
+			}
+		}
 	];
 
 	return (
@@ -162,7 +162,7 @@ function OptionPopover({
 
 const UserCardMenu = ({
 	setEstimateEdit,
-	setEdit,
+	setEdit
 }: IDropdownUserProps & { member: IMember }) => {
 	const {
 		editMode,
@@ -181,7 +181,7 @@ const UserCardMenu = ({
 		handleReopenTask,
 		isModalOpen,
 		closeModal,
-		closeableTask,
+		closeableTask
 	} = useTaskInput({});
 
 	const reversedTask = useMemo(() => {

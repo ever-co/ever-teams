@@ -45,6 +45,6 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 		targetEl,
 		ignoreElementRef,
 		refs,
-		onOutsideClick,
+		onOutsideClick
 	};
 }

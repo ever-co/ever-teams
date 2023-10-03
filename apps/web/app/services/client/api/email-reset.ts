@@ -5,7 +5,7 @@ export function emailResetRequestAPI(email: string) {
 	return api.post<CreateReponse<ISuccessResponse>>(
 		`/email-reset/request-change-email`,
 		{
-			email,
+			email
 		}
 	);
 }

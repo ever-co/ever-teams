@@ -123,7 +123,7 @@ export enum IssueType {
 	EPIC = 'Epic',
 	STORY = 'Story',
 	TASK = 'Task',
-	BUG = 'Bug',
+	BUG = 'Bug'
 }
 
 export type ITaskStatusField =
@@ -194,5 +194,5 @@ export enum TaskRelatedIssuesRelationEnum {
 	CLONES = 4,
 	IS_DUPLICATED_BY = 5,
 	DUPLICATES = 6,
-	RELATES_TO = 7,
+	RELATES_TO = 7
 }

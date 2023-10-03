@@ -2,14 +2,14 @@ import {
 	CreateReponse,
 	DeleteReponse,
 	ISuccessResponse,
-	PaginationResponse,
+	PaginationResponse
 } from '@app/interfaces/IDataResponse';
 
 import {
 	IOrganizationTeamList,
 	IOrganizationTeamWithMStatus,
 	IOrganizationTeamUpdate,
-	IOrganizationTeam,
+	IOrganizationTeam
 } from '@app/interfaces';
 import api from '../axios';
 

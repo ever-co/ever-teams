@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	deleteOrganizationTeamEmployeeRequest,
-	updateOrganizationTeamEmployeeRequest,
+	updateOrganizationTeamEmployeeRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -25,7 +25,7 @@ export default async function handler(
 						tenantId,
 						organizationId,
 						employeeId: employeeId as string,
-						organizationTeamId: teamId,
+						organizationTeamId: teamId
 					})
 				);
 			}
@@ -38,7 +38,7 @@ export default async function handler(
 						id: id as string,
 						bearer_token: access_token,
 						tenantId,
-						body: req.body,
+						body: req.body
 					})
 				);
 			}

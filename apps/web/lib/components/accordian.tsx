@@ -14,7 +14,7 @@ export const Accordian = ({
 	title,
 	className,
 	isDanger,
-	id,
+	id
 }: isProps) => {
 	return (
 		<div className="w-full" id={id}>

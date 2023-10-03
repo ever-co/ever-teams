@@ -139,7 +139,7 @@ const TeamPageSkeleton = () => {
 					<InviteUserTeamCardSkeleton />
 				</Container>
 			</MainLayout>
-			<MainLayout className='sm:hidden relative'>
+			<MainLayout className="sm:hidden relative">
 				<MainHeader>
 					<Container>
 						<div className="w-full flex flex-col p-4 pb-0 rounded-2xl dark:bg-[#1F2126]">

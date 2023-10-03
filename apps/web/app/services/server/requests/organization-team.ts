@@ -5,7 +5,7 @@ import {
 	IOrganizationTeamCreate,
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus,
+	IOrganizationTeamWithMStatus
 } from '@app/interfaces/IOrganizationTeam';
 import moment from 'moment';
 import { serverFetch } from '../fetch';
@@ -20,7 +20,7 @@ export async function createOrganizationTeamRequest(
 		{
 			name: datas.name,
 			tenantId: datas.tenantId,
-			organizationId: datas.organizationId,
+			organizationId: datas.organizationId
 		},
 		bearer_token
 	);
@@ -31,7 +31,7 @@ export async function createOrganizationTeamRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId: datas.tenantId,
+		tenantId: datas.tenantId
 	});
 }
 
@@ -53,7 +53,7 @@ export function updateOrganizationTeamRequest(
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId: datas.tenantId,
+		tenantId: datas.tenantId
 	});
 }
 
@@ -61,7 +61,7 @@ export function deleteOrganizationTeamRequest({
 	id,
 	bearer_token,
 	tenantId,
-	organizationId,
+	organizationId
 }: {
 	id: string;
 	bearer_token: string;
@@ -72,7 +72,7 @@ export function deleteOrganizationTeamRequest({
 		path: `/organization-team/${id}?organizationId=${organizationId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -88,8 +88,8 @@ export function getOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
-			'projects',
-		],
+			'projects'
+		]
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string
 ) {
@@ -99,7 +99,7 @@ export function getOrganizationTeamRequest(
 		source: TimerSource.TEAMS,
 		withLaskWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
-		endDate: moment().endOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {
@@ -111,7 +111,7 @@ export function getOrganizationTeamRequest(
 		path: `/organization-team/${teamId}?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -132,8 +132,8 @@ export function getAllOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
-			'projects',
-		],
+			'projects'
+		]
 	}: TeamRequestParams,
 	bearer_token: string
 ) {
@@ -141,7 +141,7 @@ export function getAllOrganizationTeamRequest(
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
 		source: TimerSource.TEAMS,
-		withLaskWorkedTask: 'true',
+		withLaskWorkedTask: 'true'
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {
@@ -154,14 +154,14 @@ export function getAllOrganizationTeamRequest(
 		path: `/organization-team?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function removeEmployeeOrganizationTeamRequest({
 	employeeId,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	employeeId: string;
 	bearer_token: string;
@@ -171,14 +171,14 @@ export function removeEmployeeOrganizationTeamRequest({
 		path: `/organization-team-employee/${employeeId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function removeUserFromAllTeam({
 	userId,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	userId: string;
 	bearer_token: string;
@@ -188,6 +188,6 @@ export function removeUserFromAllTeam({
 		path: `/organization-team/teams/${userId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

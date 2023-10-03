@@ -26,7 +26,7 @@ export const h_filter = (status: ITaskStatus, filters: 'closed' | 'open') => {
 export function useTaskInput({
 	task,
 	initEditMode,
-	tasks: customTasks,
+	tasks: customTasks
 }: {
 	tasks?: ITeamTask[];
 	task?: Nullable<ITeamTask>;
@@ -45,7 +45,7 @@ export function useTaskInput({
 		tasksFetching,
 		updateLoading,
 		createTask,
-		updateTask,
+		updateTask
 	} = useTeamTasks();
 
 	const { user } = useAuthenticateUser();
@@ -84,7 +84,7 @@ export function useTaskInput({
 		async (concernedTask: ITeamTask) => {
 			return updateTask({
 				...concernedTask,
-				status: 'open',
+				status: 'open'
 			});
 		},
 		[updateTask]
@@ -127,7 +127,7 @@ export function useTaskInput({
 	const handleTaskCreation = ({
 		autoActiveTask = true,
 		autoAssignTaskAuth = true,
-		assignToUsers = [],
+		assignToUsers = []
 	}: {
 		autoActiveTask?: boolean;
 		autoAssignTaskAuth?: boolean;
@@ -145,7 +145,7 @@ export function useTaskInput({
 		return createTask(
 			{
 				taskName: query.trim(),
-				issueType: taskIssue.current || undefined,
+				issueType: taskIssue.current || undefined
 			},
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
@@ -164,7 +164,7 @@ export function useTaskInput({
 
 			return updateTask({
 				...itask,
-				title,
+				title
 			});
 		},
 		[updateTask, userRef]
@@ -206,7 +206,7 @@ export function useTaskInput({
 		updateTaskTitleHandler,
 		taskIssue,
 		user,
-		userRef,
+		userRef
 	};
 }
 

@@ -1,37 +1,37 @@
 import {
 	IOrganizationTeamList,
 	OT_Member,
-	RoleNameEnum,
+	RoleNameEnum
 } from '@app/interfaces/IOrganizationTeam';
 import { atom, selector } from 'recoil';
 
 export const organizationTeamsState = atom<IOrganizationTeamList[]>({
 	key: 'organizationTeamsState',
-	default: [],
+	default: []
 });
 
 export const activeTeamIdState = atom<string | null>({
 	key: 'activeTeamIdState',
-	default: null,
+	default: null
 });
 
 export const teamsFetchingState = atom<boolean>({
 	key: 'teamsFetchingState',
-	default: false,
+	default: false
 });
 
 export const isTeamMemberState = atom<boolean>({
 	key: 'isTeamMember',
-	default: true,
+	default: true
 });
 
 export const isOTRefreshingState = atom<boolean>({
 	key: 'isOTRefreshing',
-	default: false,
+	default: false
 });
 export const OTRefreshIntervalState = atom<number>({
 	key: 'OTRefreshInterval',
-	default: undefined,
+	default: undefined
 });
 
 export const activeTeamState = selector<IOrganizationTeamList | null>({
@@ -40,16 +40,16 @@ export const activeTeamState = selector<IOrganizationTeamList | null>({
 		const teams = get(organizationTeamsState);
 		const activeId = get(activeTeamIdState);
 		return teams.find((team) => team.id === activeId) || teams[0] || null;
-	},
+	}
 });
 export const memberActiveTaskIdState = atom<string | null>({
 	key: 'memberActiveTaskIdState',
-	default: null,
+	default: null
 });
 
 export const publicactiveTeamState = atom<IOrganizationTeamList | undefined>({
 	key: 'publicactiveTeamState',
-	default: undefined,
+	default: undefined
 });
 
 export const activeTeamManagersState = selector<OT_Member[]>({
@@ -65,5 +65,5 @@ export const activeTeamManagersState = selector<OT_Member[]>({
 					member?.role?.name === RoleNameEnum.ADMIN
 			) || []
 		);
-	},
+	}
 });

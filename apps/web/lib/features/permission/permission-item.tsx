@@ -7,7 +7,7 @@ export function PermissonItem({
 	title,
 	className,
 	disabled,
-	onClick,
+	onClick
 }: {
 	title?: string;
 	className?: string;

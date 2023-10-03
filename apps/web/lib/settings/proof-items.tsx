@@ -17,7 +17,7 @@ export function mapPropfItems(ProofList: IProof[]) {
 				</div>
 			),
 			selectedLabel: <ProofItem title={proof.title} className="py-2 mb-0" />,
-			data: proof,
+			data: proof
 		};
 	});
 
@@ -34,7 +34,7 @@ export function mapPropfItems(ProofList: IProof[]) {
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -46,7 +46,7 @@ export function ProofItem({
 	// count,
 	// color,
 	// disabled,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

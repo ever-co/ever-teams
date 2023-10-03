@@ -21,7 +21,7 @@ export default async function handler(
 	await removeEmployeeOrganizationTeamRequest({
 		bearer_token: access_token,
 		tenantId,
-		employeeId: id.toString(),
+		employeeId: id.toString()
 	});
 
 	return;

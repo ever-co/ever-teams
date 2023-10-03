@@ -5,7 +5,7 @@ import {
 	LeftSideSettingMenu,
 	ProfileAvatar,
 	PersonalSettingForm,
-	DangerZone,
+	DangerZone
 	// TaskLabelsForm
 } from 'lib/settings';
 

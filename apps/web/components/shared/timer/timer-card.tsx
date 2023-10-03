@@ -13,7 +13,7 @@ const Timer = () => {
 		startTimer,
 		stopTimer,
 		canRunTimer,
-		timerSeconds,
+		timerSeconds
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);

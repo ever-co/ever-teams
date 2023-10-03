@@ -1,7 +1,7 @@
 import {
 	CreateReponse,
 	DeleteReponse,
-	ITaskRelatedIssueTypeCreate,
+	ITaskRelatedIssueTypeCreate
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -14,8 +14,8 @@ export function createTaskRelatedIssueTypeAPI(
 		data,
 		{
 			headers: {
-				'Tenant-Id': tenantId,
-			},
+				'Tenant-Id': tenantId
+			}
 		}
 	);
 }
@@ -30,8 +30,8 @@ export function editTaskRelatedIssueTypeAPI(
 		data,
 		{
 			headers: {
-				'Tenant-Id': tenantId,
-			},
+				'Tenant-Id': tenantId
+			}
 		}
 	);
 }

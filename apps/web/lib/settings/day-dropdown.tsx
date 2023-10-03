@@ -8,18 +8,18 @@ import { DayItem, mapDayItems } from './day-items';
 
 export const DayDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IDay | null;
 }) => {
 	const [DayList, setDay] = useState<IDay[]>([
 		{
-			title: '7 days',
+			title: '7 days'
 		},
 		{
-			title: '14 days',
-		},
+			title: '14 days'
+		}
 	]);
 
 	const items: any = useMemo(() => mapDayItems(DayList), [DayList]);

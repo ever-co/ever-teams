@@ -1,7 +1,7 @@
 import {
 	I_TeamMemberCardHook,
 	useOrganizationTeams,
-	useTaskStatistics,
+	useTaskStatistics
 } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { timerSecondsState } from '@app/stores';
@@ -12,7 +12,7 @@ export function TaskProgressBar({
 	isAuthUser,
 	task,
 	activeAuthTask,
-	showPercents,
+	showPercents
 }: // memberInfo,
 {
 	isAuthUser: boolean | undefined;

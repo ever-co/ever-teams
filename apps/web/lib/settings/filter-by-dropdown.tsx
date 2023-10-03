@@ -5,7 +5,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
-	useState,
+	useState
 } from 'react';
 
 import { IFilter } from '@app/interfaces/IFilter';
@@ -15,27 +15,27 @@ import { MemberSettingfilterByType } from '@app/interfaces/IMemberSetting';
 
 export const FilterDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: Dispatch<SetStateAction<MemberSettingfilterByType>>;
 	active?: IFilter | null;
 }) => {
 	const [filterList, setFilter] = useState<IFilter[]>([
 		{
-			title: 'Name',
+			title: 'Name'
 		},
 		{
-			title: 'Title',
+			title: 'Title'
 		},
 		{
-			title: 'Roles',
+			title: 'Roles'
 		},
 		{
-			title: 'Joined/Left',
+			title: 'Joined/Left'
 		},
 		{
-			title: 'Status',
-		},
+			title: 'Status'
+		}
 	]);
 
 	const items: any = useMemo(() => mapFilterItems(filterList), [filterList]);

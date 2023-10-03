@@ -66,7 +66,7 @@ export const ProfileAvatar = () => {
 										'mt-8'
 									)}
 									style={{
-										backgroundColor: `${stc(user?.name || '')}80`,
+										backgroundColor: `${stc(user?.name || '')}80`
 									}}
 								>
 									{user?.imageId ? (

@@ -19,7 +19,7 @@ export function useEmailVerifyToken() {
 	 */
 	const verifyEmailRequest = ({
 		email,
-		token,
+		token
 	}: {
 		email: string;
 		token: string;
@@ -42,7 +42,7 @@ export function useEmailVerifyToken() {
 		if (query.email && query.token) {
 			verifyEmailRequest({
 				email: query.email as string,
-				token: query.token as string,
+				token: query.token as string
 			});
 
 			loginFromQuery.current = true;
@@ -52,6 +52,6 @@ export function useEmailVerifyToken() {
 	return {
 		errors,
 		infiniteLoading,
-		loading,
+		loading
 	};
 }

@@ -34,7 +34,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	}, [
 		memberUser?.image?.thumbUrl,
 		memberUser?.image?.fullUrl,
-		memberUser?.imageUrl,
+		memberUser?.imageUrl
 	]);
 
 	const { timerStatus } = useTimer();
@@ -52,7 +52,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					'shadow-md text-2xl font-normal'
 				)}
 				style={{
-					backgroundColor: `${stc(fullname)}80`,
+					backgroundColor: `${stc(fullname)}80`
 				}}
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (

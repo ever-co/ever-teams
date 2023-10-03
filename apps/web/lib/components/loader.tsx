@@ -6,7 +6,7 @@ import { Card } from './card';
 export function SpinnerLoader({
 	size = 31,
 	className,
-	variant = 'primary',
+	variant = 'primary'
 }: {
 	size?: number;
 	className?: string;
@@ -19,18 +19,18 @@ export function SpinnerLoader({
 				[
 					variant === 'primary' && [
 						'border-t-primary border-r-primary border-b-transparent border-l-primary',
-						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white',
+						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white'
 					],
 					variant === 'light' && [
-						'border-t-white border-r-white border-b-transparent border-l-white',
+						'border-t-white border-r-white border-b-transparent border-l-white'
 					],
 					variant === 'dark' && [
-						'border-t-default border-r-default border-b-transparent border-l-default',
+						'border-t-default border-r-default border-b-transparent border-l-default'
 					],
 					variant === 'dark-white' && [
 						'border-t-default border-r-default border-b-transparent border-l-default',
-						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white',
-					],
+						'dark:border-t-white dark:border-r-white dark:border-b-transparent dark:border-l-white'
+					]
 				],
 				className
 			)}
@@ -41,7 +41,7 @@ export function SpinnerLoader({
 				borderWidth: '2px',
 				borderStyle: 'solid',
 				borderImage: 'initial',
-				display: 'inline-block',
+				display: 'inline-block'
 			}}
 		/>
 	);
@@ -51,7 +51,7 @@ export function BackdropLoader({
 	title,
 	show,
 	fadeIn = true,
-	canCreatePortal = true,
+	canCreatePortal = true
 }: {
 	title?: string;
 	show?: boolean;
@@ -69,7 +69,7 @@ export function BackdropLoader({
 				[
 					show
 						? [fadeIn ? ['fade-in'] : ['opacity-100'], 'h-full w-full']
-						: ['fade-out h-0 w-0'],
+						: ['fade-out h-0 w-0']
 				]
 			)}
 		>

@@ -3,13 +3,13 @@ import {
 	createIssueTypeAPI,
 	getIssueTypeList,
 	deleteIssueTypeAPI,
-	editIssueTypeAPI,
+	editIssueTypeAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	issueTypesFetchingState,
 	issueTypesListState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -80,7 +80,7 @@ export function useIssueType() {
 			createQueryCall,
 			createIssueTypeLoading,
 			deleteIssueTypeLoading,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -106,7 +106,7 @@ export function useIssueType() {
 			createIssueTypeLoading,
 			deleteIssueTypeLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -141,6 +141,6 @@ export function useIssueType() {
 		deleteIssueTypeLoading,
 		deleteIssueType,
 		editIssueTypeLoading,
-		editIssueType,
+		editIssueType
 	};
 }

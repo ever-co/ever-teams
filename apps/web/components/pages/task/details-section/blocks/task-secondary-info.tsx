@@ -8,7 +8,7 @@ import {
 	EpicPropertiesDropdown as TaskEpicDropdown,
 	TaskLabels,
 	TaskStatus,
-	useTaskLabelsValue,
+	useTaskLabelsValue
 } from 'lib/features';
 import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -19,7 +19,7 @@ import { PlusIcon } from '@heroicons/react/20/solid';
 import {
 	TaskPrioritiesForm,
 	TaskSizesForm,
-	TaskStatusesForm,
+	TaskStatusesForm
 } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
 import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
@@ -67,7 +67,7 @@ const TaskSecondaryInfo = () => {
 			await updateTask({
 				...childTask,
 				parentId: parentTask.id ? parentTask.id : null,
-				parent: parentTask.id ? parentTask : null,
+				parent: parentTask.id ? parentTask : null
 			} as any);
 		},
 		[task, updateTask]
@@ -111,7 +111,7 @@ const TaskSecondaryInfo = () => {
 					<TaskEpicDropdown
 						onValueChange={(d) => {
 							onTaskSelect({
-								id: d,
+								id: d
 							} as ITeamTask);
 						}}
 						className="lg:min-w-[170px] text-black"

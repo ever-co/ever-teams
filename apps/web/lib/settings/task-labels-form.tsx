@@ -32,10 +32,10 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'ready',
 		'in-review',
 		'blocked',
-		'completed',
+		'completed'
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
+		'x-large'
 		// 'large',
 		// 'medium',
 		// 'small',
@@ -45,13 +45,13 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'urgent',
 		'high',
 		'medium',
-		'low',
+		'low'
 	]);
 
 	const iconList: IIcon[] = [
 		...taskStatusIconList,
 		...taskSizesIconList,
-		...taskPrioritiesIconList,
+		...taskPrioritiesIconList
 	];
 
 	const {
@@ -61,7 +61,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		createTaskLabels,
 		editTaskLabels,
 		createTaskLabelsLoading,
-		editTaskLabelsLoading,
+		editTaskLabelsLoading
 	} = useTaskLabels();
 
 	useEffect(() => {
@@ -93,7 +93,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
-					icon: values.icon,
+					icon: values.icon
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
@@ -111,7 +111,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				editTaskLabels(edit.id, {
 					name: values.name,
 					color: values.color,
-					icon: values.icon,
+					icon: values.icon
 				})?.then(() => {
 					setEdit(null);
 				});
@@ -125,7 +125,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			editTaskLabels,
 			user,
 			reset,
-			createTaskLabels,
+			createTaskLabels
 		]
 	);
 

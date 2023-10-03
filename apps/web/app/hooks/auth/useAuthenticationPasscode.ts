@@ -5,7 +5,7 @@ import {
 	signInEmailAPI,
 	signInEmailConfirmAPI,
 	signInWithEmailAndCodeAPI,
-	signInWorkspaceAPI,
+	signInWorkspaceAPI
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
@@ -42,11 +42,11 @@ export function useAuthenticationPasscode() {
 		useQuery(signInEmailAPI);
 	const {
 		queryCall: signInEmailConfirmQueryCall,
-		loading: signInEmailConfirmLoading,
+		loading: signInEmailConfirmLoading
 	} = useQuery(signInEmailConfirmAPI);
 	const {
 		queryCall: signInWorkspaceQueryCall,
-		loading: signInWorkspaceLoading,
+		loading: signInWorkspaceLoading
 	} = useQuery(signInWorkspaceAPI);
 
 	const { queryCall, loading, infiniteLoading } = useQuery(
@@ -63,7 +63,7 @@ export function useAuthenticationPasscode() {
 	 */
 	const verifySignInEmailConfirmRequest = async ({
 		email,
-		code,
+		code
 	}: {
 		email: string;
 		code: string;
@@ -90,7 +90,7 @@ export function useAuthenticationPasscode() {
 						signInToWorkspaceRequest({
 							email: email,
 							token: currentWorkspace?.token as string,
-							selectedTeam: query.teamId as string,
+							selectedTeam: query.teamId as string
 						});
 					}
 				}
@@ -124,7 +124,7 @@ export function useAuthenticationPasscode() {
 	const signInToWorkspaceRequest = ({
 		email,
 		token,
-		selectedTeam,
+		selectedTeam
 	}: {
 		email: string;
 		token: string;
@@ -161,7 +161,7 @@ export function useAuthenticationPasscode() {
 
 		verifySignInEmailConfirmRequest({
 			email: formValues.email,
-			code: formValues.code,
+			code: formValues.code
 		});
 	};
 
@@ -182,7 +182,7 @@ export function useAuthenticationPasscode() {
 
 		verifyPasscodeRequest({
 			email: formValues.email,
-			code: formValues.code,
+			code: formValues.code
 		});
 	};
 
@@ -205,7 +205,7 @@ export function useAuthenticationPasscode() {
 		signInToWorkspaceRequest({
 			email: formValues.email,
 			token,
-			selectedTeam,
+			selectedTeam
 		});
 	};
 
@@ -218,7 +218,7 @@ export function useAuthenticationPasscode() {
 
 			verifyPasscodeRequest({
 				email: query.email as string,
-				code: query.code as string,
+				code: query.code as string
 			});
 
 			loginFromQuery.current = true;
@@ -265,7 +265,7 @@ export function useAuthenticationPasscode() {
 		sendCodeQueryCall,
 		signInWorkspaceLoading,
 		queryCall,
-		handleWorkspaceSubmit,
+		handleWorkspaceSubmit
 	};
 }
 
