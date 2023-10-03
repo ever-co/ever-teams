@@ -47,7 +47,7 @@ export function useEmailVerifyToken() {
 
 			loginFromQuery.current = true;
 		}
-	}, query);
+	}, [query]);
 
 	return {
 		errors,
