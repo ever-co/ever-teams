@@ -1,12 +1,18 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect } from "react"
-import { Ionicons, FontAwesome5 } from "@expo/vector-icons"
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
 import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import { SvgXml } from "react-native-svg"
+import {
+	peopleIconActive,
+	peopleIconGrey,
+	userActive,
+	userGrey,
+} from "../../../../components/svgs/icons"
 
 interface ISectionTab {
 	id: number
@@ -55,7 +61,7 @@ const Tab = observer(
 		isActiveTab: boolean
 		toggleTab: (tab: number) => unknown
 	}) => {
-		const { colors } = useAppTheme()
+		const { colors, dark } = useAppTheme()
 		const { activeTeam } = useOrganizationTeam()
 		return (
 			<TouchableOpacity
@@ -63,7 +69,10 @@ const Tab = observer(
 					isActiveTab
 						? [
 								styles.activeSection,
-								{ backgroundColor: colors.background, borderColor: colors.secondary },
+								{
+									backgroundColor: colors.background,
+									borderColor: dark ? colors.secondary : "#2A1B8E",
+								},
 						  ]
 						: [styles.inactiveSection]
 				}
@@ -79,17 +88,15 @@ const Tab = observer(
 					}}
 				>
 					{item.id === 1 ? (
-						<Ionicons
-							name="person"
-							size={18}
-							color={isActiveTab ? colors.secondary : colors.tertiary}
-						/>
+						isActiveTab ? (
+							<SvgXml xml={userActive} />
+						) : (
+							<SvgXml xml={userGrey} />
+						)
+					) : isActiveTab ? (
+						<SvgXml xml={peopleIconActive} />
 					) : (
-						<FontAwesome5
-							name="users"
-							size={18}
-							color={isActiveTab ? colors.secondary : colors.tertiary}
-						/>
+						<SvgXml xml={peopleIconGrey} />
 					)}
 					<Text
 						style={[
@@ -116,9 +123,9 @@ const styles = StyleSheet.create({
 		height: 50,
 		justifyContent: "center",
 		shadowColor: "rgba(30, 12, 92, 0.26)",
-		shadowOffset: { width: 10, height: 10 },
+		shadowOffset: { width: 0, height: 7 },
 		shadowOpacity: 1,
-		shadowRadius: 8,
+		shadowRadius: 10,
 		width: 155,
 	},
 	contaniner: {
