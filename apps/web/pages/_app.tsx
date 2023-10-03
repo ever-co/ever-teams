@@ -43,7 +43,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 						? { ...jitsuConfiguration }
 						: {
 								disabled: true
-						  }
+							}
 				}
 			>
 				<RecoilRoot>
