@@ -1,8 +1,11 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
 import { View, Text, StyleSheet } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { ITaskSizeItem } from "../../../../services/interfaces/ITaskSize"
+import { SvgUri } from "react-native-svg"
 
 interface ISizeItem {
 	size: ITaskSizeItem
@@ -20,9 +23,9 @@ const StatusItem: FC<ISizeItem> = ({ size, onDeleteSize, openForEdit }) => {
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.statusContainer, backgroundColor: size.color }}>
-				<AntDesign name="pay-circle-o1" size={20} color="#000" />
-				<Text style={styles.text}>{size.name}</Text>
+			<View style={{ ...styles.statusContainer, backgroundColor: size?.color }}>
+				<SvgUri width={20} height={20} uri={size?.fullIconUrl} />
+				<Text style={styles.text}>{size?.name}</Text>
 			</View>
 			<View style={styles.rightSection}>
 				<AntDesign size={16} name={"edit"} color={colors.primary} onPress={() => openForEdit()} />

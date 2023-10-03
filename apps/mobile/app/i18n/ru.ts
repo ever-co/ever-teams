@@ -190,7 +190,7 @@ const ru = {
 			createPriorityButton: "Create new priority",
 			createNewPriorityText: "Create New Priority",
 			priorityNamePlaceholder: "Priority Name",
-			priorityIconPlaceholder: "Choose Icon",
+			priorityIconPlaceholder: "Search Icon",
 			priorityColorPlaceholder: "Colors",
 			cancelButtonText: "Cancel",
 			createButtonText: "Create",
