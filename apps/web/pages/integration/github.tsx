@@ -9,18 +9,9 @@ import { useEffect } from 'react';
 const GitHub = () => {
 	const router = useRouter();
 
-	const {
-		installGitHub,
-		installLoading,
-		getRepositories,
-		integrationGithubRepositories,
-		repositoriesLoading,
-	} = useGitHubIntegration();
-	const {
-		getIntegration,
-		loading: integrationLoading,
-		integration,
-	} = useIntegration();
+	const { installGitHub, getRepositories, repositoriesLoading } =
+		useGitHubIntegration();
+	const { loading: integrationLoading } = useIntegration();
 	const {
 		getIntegrationTenant,
 		loading: integrationTenantLoading,
@@ -71,7 +62,6 @@ const GitHub = () => {
 	useEffect(() => {
 		if (!loadingIntegrationTypes && integrationTypes.length === 0) {
 			getIntegrationTypes().then((types) => {
-				// TODO
 				const allIntegrations = types.find(
 					(item: any) => item.name === 'All Integrations'
 				);
@@ -106,10 +96,6 @@ const GitHub = () => {
 			{router.query.installation_id && (
 				<p>installation_id: {router.query.installation_id}</p>
 			)}
-
-			{integrationGithubRepositories?.repositories.map((item: any) => (
-				<div key={item.id}>{item.name}</div>
-			))}
 
 			{(loadingIntegrationTypes ||
 				integrationLoading ||
