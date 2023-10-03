@@ -22,6 +22,7 @@ import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../services/hooks/useOrganization"
 import { SvgXml } from "react-native-svg"
 import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from "./svgs/icons"
+// import ToggleThemeAnimation from "../screens/Authenticated/SettingScreen/components/ToggleThemeAnimation"
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
@@ -137,6 +138,7 @@ const HamburgerMenu = observer((props: any) => {
 									{translate("hamburgerMenu.darkMode")}
 								</Text>
 							</View>
+							{/* <ToggleThemeAnimation isDark={dark} toggleTheme={toggleTheme} /> */}
 							<TouchableOpacity
 								onPress={toggleTheme}
 								style={[
