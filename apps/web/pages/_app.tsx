@@ -11,13 +11,12 @@ import { Analytics } from '@vercel/analytics/react';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import React from 'react';
-import {JitsuAnalytics} from "../lib/components/services/jitsu-analytics";
-import { jitsuConfiguration} from "@app/constants";
-
-
+import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
+import { jitsuConfiguration } from '@app/constants';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-	const isJitsuEnvsPresent = jitsuConfiguration.host && jitsuConfiguration.writeKey;
+	const isJitsuEnvsPresent =
+		jitsuConfiguration.host && jitsuConfiguration.writeKey;
 	return (
 		<>
 			<Script
@@ -38,27 +37,26 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 					crossOrigin=""
 				/>
 			</Head>
-        <JitsuProvider
-            options={
-							isJitsuEnvsPresent?{...jitsuConfiguration
-            }:{
+			<JitsuProvider
+				options={
+					isJitsuEnvsPresent
+						? { ...jitsuConfiguration }
+						: {
 								disabled: true,
-							}
-            }
-
-        >
-			<RecoilRoot>
-				<ThemeProvider attribute="class">
-					<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
-						<AppState />
-						<JitsuAnalytics user={pageProps?.user} />
-						<Component {...pageProps} />
-					</SkeletonTheme>
-				</ThemeProvider>
-			</RecoilRoot>
-				</JitsuProvider>
-				<Analytics />
-
+						  }
+				}
+			>
+				<RecoilRoot>
+					<ThemeProvider attribute="class">
+						<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
+							<AppState />
+							<JitsuAnalytics user={pageProps?.user} />
+							<Component {...pageProps} />
+						</SkeletonTheme>
+					</ThemeProvider>
+				</RecoilRoot>
+			</JitsuProvider>
+			<Analytics />
 		</>
 	);
 }

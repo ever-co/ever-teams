@@ -32,10 +32,10 @@ import {
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { Check } from 'lucide-react';
-import {useCallback, useMemo} from 'react';
+import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
-import {JitsuAnalytics} from "../../../lib/components/services/jitsu-analytics";
-import {useJitsu} from "@jitsu/jitsu-react";
+import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
+import { useJitsu } from '@jitsu/jitsu-react';
 
 const Collaborate = () => {
 	const {
@@ -46,8 +46,6 @@ const Collaborate = () => {
 	} = useCollaborative();
 	const { analytics } = useJitsu();
 	const { trans } = useTranslation();
-
-
 
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
@@ -88,15 +86,17 @@ const Collaborate = () => {
 			<JitsuAnalytics user={user} />
 			<Dialog>
 				<DialogTrigger
-					onClick={ () => analytics.track('click-collaborate', {context:{
-						email: user?.email,
-							name: user?.name,
-							tenant: user?.tenant?.name,
-							tenantId: user?.tenant?.id,}
-						})}
-
+					onClick={() =>
+						analytics.track('click-collaborate', {
+							context: {
+								email: user?.email,
+								name: user?.name,
+								tenant: user?.tenant?.name,
+								tenantId: user?.tenant?.id,
+							},
+						})
+					}
 					className={clsxm(
-
 						'flex flex-row items-center justify-center py-3.5 px-4 gap-3 rounded-xl outline-none',
 						'bg-primary dark:bg-primary-light text-white text-sm',
 						'disabled:bg-primary-light disabled:opacity-40'
