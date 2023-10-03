@@ -1,4 +1,5 @@
 import { I_SMTPRequest } from './interfaces/ISmtp';
+import { ExtendedJitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
 
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/team';
@@ -77,3 +78,12 @@ export const BOARD_BACKEND_POST_URL =
 	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL;
 export const BOARD_FIREBASE_CONFIG =
 	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
+
+// Jitsu
+export const jitsuConfiguration: ExtendedJitsuOptions = {
+	host: process.env.JITSU_BROWSER_URL || '',
+	writeKey: process.env.JITSU_BROWSER_WRITE_KEY || '',
+	disabled: false,
+	echoEvents: false, //if enabled - events will be sent to console but no data sent to Jitsu strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
+	debug: false,
+};
