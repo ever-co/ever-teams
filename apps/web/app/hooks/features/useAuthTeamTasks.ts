@@ -36,7 +36,7 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 		return tasks.filter((tsk) => {
 			return totalTodayTasks.includes(tsk.id);
 		});
-	}, [statTasks, tasks]);
+	}, [statTasks, tasks, totalTodayTasks]);
 
 	return {
 		assignedTasks,

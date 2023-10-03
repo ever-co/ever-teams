@@ -41,7 +41,7 @@ export function useAutoAssignTask() {
 		if (firstLoad && timerStatus?.running && activeTeamTask && authUser) {
 			autoAssignTask(activeTeamTask, authUser.employee.id);
 		}
-	}, [activeTeamTask, timerStatus, authUser, firstLoad]);
+	}, [autoAssignTask, activeTeamTask, timerStatus, authUser, firstLoad]);
 
 	return {
 		firstLoadData

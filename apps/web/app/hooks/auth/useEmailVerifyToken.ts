@@ -36,7 +36,7 @@ export function useEmailVerifyToken() {
 	};
 
 	/**
-	 * Verifiy token immediatly if email and token were passed from url
+	 * Verify token immediately if email and token were passed from url
 	 */
 	useEffect(() => {
 		if (query.email && query.token) {
@@ -47,7 +47,7 @@ export function useEmailVerifyToken() {
 
 			loginFromQuery.current = true;
 		}
-	}, [query]);
+	}, query);
 
 	return {
 		errors,
