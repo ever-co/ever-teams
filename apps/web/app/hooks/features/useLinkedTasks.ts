@@ -20,6 +20,6 @@ export function useLinkedTasks(task?: ITeamTask | null) {
 
 	return {
 		tasks,
-		loadRelatedTasks,
+		loadRelatedTasks
 	};
 }

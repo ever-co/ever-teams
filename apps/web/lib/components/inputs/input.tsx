@@ -8,7 +8,7 @@ import {
 	SetStateAction,
 	useEffect,
 	useRef,
-	useState,
+	useState
 } from 'react';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';

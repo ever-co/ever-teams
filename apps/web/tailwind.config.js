@@ -12,7 +12,7 @@ module.exports = {
 			__dirname,
 			'{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'
 		),
-		...createGlobPatternsForDependencies(__dirname),
+		...createGlobPatternsForDependencies(__dirname)
 	],
 	theme: {
 		screens: {
@@ -22,14 +22,14 @@ module.exports = {
 			lg: '992px',
 			xl: '1200px',
 			'2xl': '1400px',
-			'3xl': '1600px',
+			'3xl': '1600px'
 		},
 		container: {
 			center: true,
 			padding: '2rem',
 			screens: {
-				'2xl': '1400px',
-			},
+				'2xl': '1400px'
+			}
 		},
 		extend: {
 			colors: {
@@ -37,16 +37,16 @@ module.exports = {
 				current: 'currentColor',
 				neutral: '#7E7991',
 				default: {
-					DEFAULT: '#282048',
+					DEFAULT: '#282048'
 				},
 				'light--theme': {
 					light: '#fff',
 					DEFAULT: '#f7f7f8',
-					dark: '#E7E7EA',
+					dark: '#E7E7EA'
 				},
 				'dark--theme': {
 					light: '#1E2025',
-					DEFAULT: 'var(--tw-color-dark--theme)',
+					DEFAULT: 'var(--tw-color-dark--theme)'
 				},
 				primary: {
 					DEFAULT: '#3826A6',
@@ -54,12 +54,12 @@ module.exports = {
 					xlight: '#8E76FA',
 					mid: '#483A95',
 
-					foreground: 'hsl(var(--primary-foreground))',
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				dark: {
 					high: '#16171B',
 					lighter: '#1E2430',
-					DEFAULT: '#1A1C1E',
+					DEFAULT: '#1A1C1E'
 				},
 
 				'regal-blue': '#6A71E7',
@@ -73,28 +73,28 @@ module.exports = {
 
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))',
+					foreground: 'hsl(var(--secondary-foreground))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))',
+					foreground: 'hsl(var(--destructive-foreground))'
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',
-					foreground: 'hsl(var(--muted-foreground))',
+					foreground: 'hsl(var(--muted-foreground))'
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))',
+					foreground: 'hsl(var(--accent-foreground))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
-					foreground: 'hsl(var(--popover-foreground))',
+					foreground: 'hsl(var(--popover-foreground))'
 				},
 				card: {
 					DEFAULT: 'hsl(var(--card))',
-					foreground: 'hsl(var(--card-foreground))',
-				},
+					foreground: 'hsl(var(--card-foreground))'
+				}
 			},
 			fontFamily: {
 				PlusJakartaSans: ['Plus-Jakarta-Sans-VariableFont_wght'],
@@ -102,7 +102,7 @@ module.exports = {
 				PlusJakartaSansBold: ['Plus-Jakarta-Sans-Bold'],
 				PlusJakartaSansLight: ['Plus-Jakarta-Sans-Light'],
 				PlusJakartaSansMedium: ['Plus-Jakarta-Sans-Medium'],
-				PlusJakartaSansSemiBold: ['Plus-Jakarta-Sans-SemiBold'],
+				PlusJakartaSansSemiBold: ['Plus-Jakarta-Sans-SemiBold']
 			},
 			boxShadow: {
 				lgcard: '0px 50px 200px rgba(0, 0, 0, 0.1)',
@@ -110,26 +110,26 @@ module.exports = {
 				'lgcard-white': '0px 50px 200px rgba(255, 255, 255, 0.1)',
 				'xlcard-white': '0px 16px 79px rgba(255, 255, 255, 0.12)',
 				darker:
-					'-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)',
+					'-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)',
+				sm: 'calc(var(--radius) - 4px)'
 			},
 			keyframes: {
 				'accordion-down': {
 					from: { height: 0 },
-					to: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
 					from: { height: 'var(--radix-accordion-content-height)' },
-					to: { height: 0 },
-				},
+					to: { height: 0 }
+				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out',
+				'accordion-up': 'accordion-up 0.2s ease-out'
 			},
 			typography: {
 				DEFAULT: {
@@ -144,27 +144,27 @@ module.exports = {
 								lineHeight: '1.25rem',
 								fontSize: '14px',
 								wordSpacing: '-1px',
-								fontWeight: '400',
+								fontWeight: '400'
 							},
 						h1: {
 							fontSize: '1.3rem',
 							marginTop: '0.65rem',
 							marginBottom: '0.65rem',
-							lineHeight: '40px',
+							lineHeight: '40px'
 						},
 						h2: {
 							fontSize: '1.1rem',
 							marginTop: '0.35rem',
 							marginBottom: '0.35rem',
-							lineHeight: '30px',
+							lineHeight: '30px'
 						},
 						'h1 span': { fontSize: '1.3rem' },
 						'h2 span': { fontSize: '1.1rem', fontWeight: 'bold' },
-						'strong span': { fontWeight: '600' },
-					},
-				},
-			},
-		},
+						'strong span': { fontWeight: '600' }
+					}
+				}
+			}
+		}
 	},
-	plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
+	plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')]
 };

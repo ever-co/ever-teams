@@ -23,7 +23,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		itemOffset,
 		endOffset,
 		setItemsPerPage,
-		currentItems,
+		currentItems
 	} = usePagination<OT_Member>(members);
 	const { updateAvatar } = useSettings();
 
@@ -59,7 +59,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 			updateAvatar({
 				firstName: editMember?.employee?.user?.firstName || '',
 				lastName: editMember?.employee?.user?.lastName || '',
-				id: editMember.employee.userId,
+				id: editMember.employee.userId
 			}).then(() => {
 				const teamIndex = organizationTeams.findIndex(
 					(team) => team.id === activeTeamId
@@ -79,7 +79,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 		organizationTeams,
 		activeTeamId,
 		setOrganizationTeams,
-		updateAvatar,
+		updateAvatar
 	]);
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
@@ -161,7 +161,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 											style={{
 												backgroundColor: `${stc(
 													member.employee.user?.name || ''
-												)}80`,
+												)}80`
 											}}
 										>
 											{imgTitle(member.employee.user?.name)}

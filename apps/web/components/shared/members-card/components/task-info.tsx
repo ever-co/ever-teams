@@ -4,7 +4,7 @@ import {
 	ChangeEventHandler,
 	Dispatch,
 	forwardRef,
-	SetStateAction,
+	SetStateAction
 } from 'react';
 import { MC_EditableValues } from '../types';
 
@@ -29,7 +29,7 @@ export const TaskInfo = forwardRef<HTMLInputElement, Props>(
 			onSubmitName,
 			onChangeName,
 			setEditMode,
-			loading,
+			loading
 		},
 		ref
 	) => {

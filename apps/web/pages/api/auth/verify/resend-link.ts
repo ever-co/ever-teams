@@ -24,7 +24,7 @@ export default async function handler(
 		bearer_token: access_token,
 		tenantId,
 		email: user.email,
-		appEmailConfirmationUrl,
+		appEmailConfirmationUrl
 	});
 
 	$res.json(data);

@@ -2,7 +2,7 @@ import { useQuery } from '@app/hooks';
 import {
 	ITeamTask,
 	LinkedTaskIssue,
-	TaskRelatedIssuesRelationEnum,
+	TaskRelatedIssuesRelationEnum
 } from '@app/interfaces';
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
@@ -17,7 +17,7 @@ export function TaskLinkedIssue({
 	task,
 	className,
 	relatedTaskDropdown,
-	issue,
+	issue
 }: {
 	task: ITeamTask;
 	className?: string;
@@ -103,7 +103,7 @@ function mapToActionType(items: ActionType[] = []) {
 			selectedLabel: (
 				<span className="flex text-[0.5rem] 3xl:text-xs">{item.name}</span>
 			),
-			data: item,
+			data: item
 		};
 	});
 }
@@ -120,32 +120,32 @@ function useActionType(
 		() => [
 			{
 				name: trans.common.BLOCKS,
-				value: TaskRelatedIssuesRelationEnum.BLOCKS,
+				value: TaskRelatedIssuesRelationEnum.BLOCKS
 			},
 			{
 				name: trans.common.CLONES,
-				value: TaskRelatedIssuesRelationEnum.CLONES,
+				value: TaskRelatedIssuesRelationEnum.CLONES
 			},
 			{
 				name: trans.common.DUPLICATES,
-				value: TaskRelatedIssuesRelationEnum.DUPLICATES,
+				value: TaskRelatedIssuesRelationEnum.DUPLICATES
 			},
 			{
 				name: trans.common.IS_BLOCKED_BY,
-				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY
 			},
 			{
 				name: trans.common.IS_CLONED_BY,
-				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY
 			},
 			{
 				name: trans.common.IS_DUPLICATED_BY,
-				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY,
+				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY
 			},
 			{
 				name: trans.common.RELATES_TO,
-				value: TaskRelatedIssuesRelationEnum.RELATES_TO,
-			},
+				value: TaskRelatedIssuesRelationEnum.RELATES_TO
+			}
 		],
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[]
@@ -174,7 +174,7 @@ function useActionType(
 
 			queryCall({
 				...issue,
-				action: item.data?.value,
+				action: item.data?.value
 			});
 		},
 		[setActionType, issue, queryCall]
@@ -183,6 +183,6 @@ function useActionType(
 	return {
 		actionTypeItems,
 		actionType,
-		onChange,
+		onChange
 	};
 }

@@ -52,8 +52,8 @@ export function useUserProfilePage() {
 				...task,
 				members: [
 					...task.members,
-					(matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any,
-				],
+					(matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any
+				]
 			});
 		},
 		[updateTask, matchUser]
@@ -65,7 +65,7 @@ export function useUserProfilePage() {
 		userProfile,
 		tasksGrouped,
 		member: matchUser,
-		assignTask,
+		assignTask
 	};
 }
 

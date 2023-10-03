@@ -8,20 +8,20 @@ import { FilterItem } from './filter-items';
 import { IInvitationExpire } from '@app/interfaces/IInvitation_Expire';
 import {
 	mapInvitationExpireItems,
-	InvitationExpireItem,
+	InvitationExpireItem
 } from './invitation-expire-items';
 
 export const InvitationExpireDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IInvitationExpire | null;
 }) => {
 	const [expireList, setExpire] = useState<IFilter[]>([
 		{
-			title: 'name',
-		},
+			title: 'name'
+		}
 	]);
 
 	const items: any = useMemo(

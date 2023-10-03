@@ -9,7 +9,7 @@ export const TransferTeamDropdown = ({
 	active,
 	members,
 	setSelectedMember,
-	selectedMember,
+	selectedMember
 }: {
 	active?: IColor | null;
 	members: any;
@@ -40,7 +40,7 @@ export const TransferTeamDropdown = ({
 		members,
 		members?.length,
 		setSelectedMember,
-		items,
+		items
 	]);
 
 	return (

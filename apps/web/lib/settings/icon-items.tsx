@@ -27,7 +27,7 @@ export function mapIconItems(icons: IIcon[]) {
 					className="py-2 mb-0"
 				/>
 			),
-			data: icon,
+			data: icon
 		};
 	});
 
@@ -47,7 +47,7 @@ export function mapIconItems(icons: IIcon[]) {
 			selectedLabel: (
 				<IconItem title={'Icons'} url={''} className="py-2 mb-0" />
 			),
-			data: { title: 'Icons', fullUrl: '' },
+			data: { title: 'Icons', fullUrl: '' }
 		});
 	}
 
@@ -58,7 +58,7 @@ export function IconItem({
 	title,
 	className,
 	url,
-	disabled,
+	disabled
 }: {
 	title: string;
 	className?: string;
@@ -113,7 +113,7 @@ export function generateIconList(iconFor: string, icons: string[]) {
 		return {
 			fullUrl: `${process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL}/public/ever-icons/${iconFor}/${icon}.svg`,
 			path: `ever-icons/${iconFor}/${icon}.svg`,
-			title: icon,
+			title: icon
 		};
 	});
 }

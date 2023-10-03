@@ -5,7 +5,7 @@ import {
 	Card,
 	InputField,
 	Modal,
-	Text,
+	Text
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useState } from 'react';
@@ -19,7 +19,7 @@ export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
 export function EmailResetModal({
 	open,
 	closeModal,
-	email,
+	email
 }: {
 	open: boolean;
 	closeModal: () => void;
@@ -41,7 +41,7 @@ export function EmailResetModal({
 		emailResetRequestLoading,
 		emailResetRequestQueryCall,
 		verifyChangeEmailRequestLoading,
-		verifyChangeEmailRequestQueryCall,
+		verifyChangeEmailRequestQueryCall
 	} = useEmailReset();
 
 	const onCloseModal = useCallback(() => {
@@ -58,7 +58,7 @@ export function EmailResetModal({
 	}, [
 		emailResetRequestQueryCall,
 		getValues,
-		trans.pages.home.SENT_EMAIL_VERIFICATION,
+		trans.pages.home.SENT_EMAIL_VERIFICATION
 	]);
 	const handleConfirm = useCallback(() => {
 		verifyChangeEmailRequestQueryCall(code).then(() => {
@@ -69,7 +69,7 @@ export function EmailResetModal({
 		code,
 		verifyChangeEmailRequestQueryCall,
 		updateUserFromAPI,
-		onCloseModal,
+		onCloseModal
 	]);
 
 	return (
@@ -92,7 +92,7 @@ export function EmailResetModal({
 									{...register('email', {
 										required: true,
 										pattern:
-											/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+											/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 									})}
 									className={`md:w-[220px] m-0 h-[54px]`}
 								/>

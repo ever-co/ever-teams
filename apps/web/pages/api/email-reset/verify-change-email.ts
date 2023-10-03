@@ -21,7 +21,7 @@ export default async function handler(
 				await verifyChangemailRequest({
 					code,
 					tenantId,
-					bearer_token: access_token,
+					bearer_token: access_token
 				})
 			);
 	}

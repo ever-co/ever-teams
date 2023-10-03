@@ -9,7 +9,7 @@ import { TaskInput } from './task/task-input';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
-	ActiveTaskStatusDropdown,
+	ActiveTaskStatusDropdown
 } from './task/task-status';
 import { useOrganizationTeams } from '@app/hooks';
 import { TaskLabels } from './task/task-labels';

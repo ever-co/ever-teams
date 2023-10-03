@@ -19,7 +19,7 @@ export function mapPositionItems(positions: IPosition[]) {
 			selectedLabel: (
 				<PositionItem title={position.title} className="py-2 mb-0" />
 			),
-			data: position,
+			data: position
 		};
 	});
 
@@ -28,7 +28,7 @@ export function mapPositionItems(positions: IPosition[]) {
 
 export function PositionItem({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	className?: string;

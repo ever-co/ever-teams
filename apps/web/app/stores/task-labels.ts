@@ -3,17 +3,17 @@ import { atom, selector } from 'recoil';
 
 export const taskLabelsListState = atom<ITaskLabelsItemList[]>({
 	key: 'taskLabelsListState',
-	default: [],
+	default: []
 });
 
 export const activeTaskLabelsIdState = atom<string | null>({
 	key: 'activeTaskLabelsIdState',
-	default: null,
+	default: null
 });
 
 export const taskLabelsFetchingState = atom<boolean>({
 	key: 'taskLabelsFetchingState',
-	default: false,
+	default: false
 });
 
 export const activeTaskLabelsState = selector<ITaskLabelsItemList | null>({
@@ -26,5 +26,5 @@ export const activeTaskLabelsState = selector<ITaskLabelsItemList | null>({
 			taskLabels[0] ||
 			null
 		);
-	},
+	}
 });

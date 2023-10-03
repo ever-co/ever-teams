@@ -36,6 +36,6 @@ export const useUser = () => {
 		deleteQueryCall,
 		resetUser,
 		resetUserLoading,
-		resetQueryCall,
+		resetQueryCall
 	};
 };

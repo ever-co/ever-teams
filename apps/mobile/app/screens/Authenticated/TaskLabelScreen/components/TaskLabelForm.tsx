@@ -1,10 +1,16 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-native"
 import { translate } from "../../../../i18n"
 import { ITaskLabelCreate, ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
 import { typography, useAppTheme } from "../../../../theme"
-import ColorDropDown from "./ColorDropDown"
-import IconDropDown from "./IconDropdown"
+import ColorPickerModal from "../../../../components/ColorPickerModal"
+import { Badge } from "react-native-paper"
+import { formatName } from "../../../../helpers/name-format"
+import IconModal from "../../../../components/IconModal"
+import { IIcon } from "../../../../services/interfaces/IIcon"
+import { SvgUri } from "react-native-svg"
 
 const TaskLabelForm = ({
 	isEdit,
@@ -23,10 +29,13 @@ const TaskLabelForm = ({
 	const [labelName, setLabelName] = useState<string>(null)
 	const [labelColor, setLabelColor] = useState<string>(null)
 	const [labelIcon, setLabelIcon] = useState<string>(null)
+	const [colorModalVisible, setColorModalVisible] = useState<boolean>(false)
+	const [iconModalVisible, setIconModalVisible] = useState<boolean>(false)
+	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
 		if (isEdit) {
-			setLabelName(item.value)
+			setLabelName(item.name)
 			setLabelColor(item.color)
 			setLabelIcon(item.icon)
 		} else {
@@ -43,13 +52,13 @@ const TaskLabelForm = ({
 
 		if (isEdit) {
 			await onUpdateLabel(item?.id, {
-				icon: null,
+				icon: labelIcon,
 				color: labelColor,
 				name: labelName,
 			})
 		} else {
 			await onCreateLabel({
-				icon: null,
+				icon: labelIcon,
 				color: labelColor,
 				name: labelName,
 			})
@@ -58,6 +67,11 @@ const TaskLabelForm = ({
 		setLabelName(null)
 		setLabelIcon(null)
 		onDismiss()
+	}
+
+	const onDismissModal = () => {
+		setColorModalVisible(false)
+		setIconModalVisible(false)
 	}
 
 	return (
@@ -70,6 +84,18 @@ const TaskLabelForm = ({
 				height: 452,
 			}}
 		>
+			<IconModal
+				visible={iconModalVisible}
+				onDismiss={onDismissModal}
+				setIcon={setLabelIcon}
+				setAllIcons={setAllIcons}
+			/>
+			<ColorPickerModal
+				visible={colorModalVisible}
+				onDismiss={onDismissModal}
+				setColor={setLabelColor}
+			/>
+
 			<Text style={{ ...styles.formTitle, color: colors.primary }}>
 				{translate("settingScreen.statusScreen.createNewStatusText")}
 			</Text>
@@ -77,13 +103,46 @@ const TaskLabelForm = ({
 				style={{ ...styles.statusNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.labelScreen.labelNamePlaceholder")}
-				defaultValue={labelName}
+				defaultValue={formatName(labelName)}
 				onChangeText={(text) => setLabelName(text)}
 			/>
 
-			<IconDropDown icon={labelIcon} setIcon={setLabelIcon} />
+			{/* Icon Modal button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setIconModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<SvgUri
+						width={20}
+						height={20}
+						uri={allIcons?.find((icon) => icon.path === labelIcon)?.fullUrl}
+					/>
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+							textTransform: "capitalize",
+						}}
+					>
+						{allIcons?.find((icon) => icon.path === labelIcon)?.title?.replace("-", " ") ||
+							translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
-			<ColorDropDown color={labelColor} setColor={setLabelColor} />
+			{/* Color Picker button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setColorModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<Badge size={24} style={{ backgroundColor: labelColor || "#D9D9D9" }} />
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+						}}
+					>
+						{labelColor?.toUpperCase() ||
+							translate("settingScreen.statusScreen.statusColorPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			<View style={styles.wrapButtons}>
 				<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
@@ -123,6 +182,18 @@ const styles = StyleSheet.create({
 		color: "#1A1C1E",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
+	},
+	colorModalButton: {
+		alignItems: "center",
+		borderColor: "#DCE4E8",
+		borderRadius: 12,
+		borderWidth: 1,
+		flexDirection: "row",
+		height: 57,
+		justifyContent: "space-between",
+		marginTop: 16,
+		paddingHorizontal: 18,
+		width: "100%",
 	},
 	createBtn: {
 		alignItems: "center",

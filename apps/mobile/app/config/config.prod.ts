@@ -9,5 +9,5 @@
 import { GAUZY_API_URL } from "@env"
 
 export default {
-	API_URL: GAUZY_API_URL,
+	API_URL: `${GAUZY_API_URL}/api`,
 }

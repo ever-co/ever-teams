@@ -1,23 +1,25 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useRef, useState } from "react"
+import React, { FC, useEffect, useRef, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList } from "react-native"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
-import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
-import { useAppTheme, typography } from "../../../../theme"
-import TaskLabelPopup from "../../../../components/TaskLabelPopup"
-import { ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
-import { translate } from "../../../../i18n"
-import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { ITeamTask } from "../services/interfaces/ITask"
+import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
+import { useAppTheme, typography } from "../theme"
+import TaskLabelPopup from "./TaskLabelPopup"
+import { ITaskLabelItem } from "../services/interfaces/ITaskLabel"
+import { translate } from "../i18n"
+import { limitTextCharaters } from "../helpers/sub-text"
 import { SvgUri } from "react-native-svg"
+import { isEqual } from "lodash"
 
 interface TaskLabelProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
 	labels?: string
-	setLabels?: (label: string) => unknown
+	setLabels?: (label: ITaskLabelItem[]) => unknown
+	newTaskLabels?: ITaskLabelItem[] | undefined
 }
 
 interface IndividualTaskLabel {
@@ -35,31 +37,60 @@ interface IndividualTaskLabel {
 	updatedAt: string
 }
 
-const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
+const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabels }) => {
 	const { colors } = useAppTheme()
 	const { updateTask } = useTeamTasks()
 	const [openModal, setOpenModal] = useState(false)
 	const flatListRef = useRef<FlatList>(null)
 	const [labelIndex, setLabelIndex] = useState<number>(0)
+	const [tempLabels, setTempLabels] = useState<ITaskLabelItem[] | []>(
+		task?.tags || newTaskLabels || [],
+	)
+	const [arrayChanged, setArrayChanged] = useState<boolean>(false)
 
-	const onChangeLabel = async (text: ITaskLabelItem) => {
+	const freshOpenModal = () => {
+		setOpenModal(true)
+		setTempLabels(task?.tags || newTaskLabels || [])
+		arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || [])
+	}
+
+	const saveLabels = async () => {
 		if (task) {
-			let tags = []
-			const exist = task?.tags.find((label) => label.id === text.id)
-			if (exist) {
-				tags = task.tags.filter((label) => label.id !== text.id)
-			} else {
-				tags = [...task.tags, text]
-			}
 			const taskEdit = {
 				...task,
-				tags,
+				tags: tempLabels,
 			}
 			await updateTask(taskEdit, task.id)
 		} else {
-			setLabels(text.name?.split("-").join(" "))
+			setLabels(tempLabels)
+		}
+		setOpenModal(false)
+	}
+
+	const addOrRemoveLabelsInTempArray = (tag: ITaskLabelItem): void => {
+		const exist = tempLabels.find((label) => label.id === tag.id)
+		if (exist) {
+			setTempLabels(tempLabels.filter((label) => label.id !== tag.id))
+		} else {
+			setTempLabels([...tempLabels, tag])
 		}
 	}
+
+	const arraysHaveSameValues = (
+		array1: ITaskLabelItem[] | [],
+		array2: ITaskLabelItem[] | [],
+	): void => {
+		const sortedArray1 = array1.slice().sort((a, b) => a.id.localeCompare(b.id))
+		const sortedArray2 = array2.slice().sort((a, b) => a.id.localeCompare(b.id))
+
+		const areArraysEqual = isEqual(sortedArray1, sortedArray2)
+
+		setArrayChanged(!areArraysEqual)
+	}
+
+	useEffect(() => {
+		arraysHaveSameValues(tempLabels, task?.tags || newTaskLabels || [])
+	}, [tempLabels])
 
 	const scrollToIndexWithDelay = (index: number) => {
 		flatListRef.current?.scrollToIndex({
@@ -91,18 +122,21 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 	return (
 		<>
 			<TaskLabelPopup
-				labelNames={task?.tags}
+				labelNames={tempLabels}
 				visible={openModal}
-				setSelectedLabel={(e) => onChangeLabel(e)}
+				saveLabels={saveLabels}
+				arrayChanged={arrayChanged}
+				addOrRemoveLabels={addOrRemoveLabelsInTempArray}
 				onDismiss={() => setOpenModal(false)}
 				canCreateLabel={true}
 			/>
-			{task?.tags !== undefined && task?.tags?.length > 0 ? (
+			{(task?.tags !== undefined || newTaskLabels !== undefined) &&
+			(task?.tags?.length > 0 || newTaskLabels?.length > 0) ? (
 				<View>
 					<FlatList
 						ref={flatListRef}
-						data={task?.tags}
-						renderItem={({ item }) => <Label item={item} setOpenModal={setOpenModal} />}
+						data={task?.tags || newTaskLabels}
+						renderItem={({ item }) => <Label item={item} freshOpenModal={freshOpenModal} />}
 						horizontal={true}
 						keyExtractor={(_, index) => index.toString()}
 						showsHorizontalScrollIndicator={false}
@@ -111,7 +145,9 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 						)}
 						onMomentumScrollEnd={handleScrollEnd}
 					/>
-					{labelIndex >= task?.tags?.length - 3 || task?.tags?.length < 3 ? null : (
+					{labelIndex >= (task?.tags?.length - 3 || newTaskLabels?.length - 3) ||
+					task?.tags?.length < 3 ||
+					newTaskLabels?.length < 3 ? null : (
 						<TouchableOpacity
 							activeOpacity={0.7}
 							style={[styles.scrollButtons, { backgroundColor: colors.background, right: 0 }]}
@@ -131,11 +167,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 					) : null}
 				</View>
 			) : (
-				<TouchableOpacity
-					onPress={() => {
-						setOpenModal(true)
-					}}
-				>
+				<TouchableOpacity onPress={freshOpenModal}>
 					<View
 						style={{
 							...styles.container,
@@ -160,13 +192,13 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels }) => {
 
 interface ILabel {
 	item: IndividualTaskLabel | null
-	setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
+	freshOpenModal: () => void
 }
 
-const Label: FC<ILabel> = ({ item, setOpenModal }) => {
+const Label: FC<ILabel> = ({ item, freshOpenModal }) => {
 	const { colors } = useAppTheme()
 	return (
-		<TouchableOpacity style={{}} onPress={() => setOpenModal(true)}>
+		<TouchableOpacity style={{}} onPress={freshOpenModal}>
 			<View
 				style={{
 					flexDirection: "row",

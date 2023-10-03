@@ -1,7 +1,7 @@
 import {
 	IOrganizationTeamList,
 	CreateReponse,
-	IDataResponse,
+	IDataResponse
 } from '@app/interfaces';
 import api from '../axios';
 

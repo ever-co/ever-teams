@@ -1,7 +1,7 @@
 import { IUser } from '@app/interfaces';
 import {
 	getAuthenticatedUserDataAPI,
-	updateUserAvatarAPI,
+	updateUserAvatarAPI
 } from '@app/services/client/api';
 import { userState } from '@app/stores';
 
@@ -34,6 +34,6 @@ export function useSettings() {
 		updateAvatar,
 		setUser,
 		updateLoading,
-		refreshUserLoading,
+		refreshUserLoading
 	};
 }

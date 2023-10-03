@@ -3,7 +3,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import {
 	deleteOrganizationTeamRequest,
 	getOrganizationTeamRequest,
-	updateOrganizationTeamRequest,
+	updateOrganizationTeamRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -20,7 +20,7 @@ export default async function handler(
 			{
 				organizationId,
 				tenantId,
-				teamId: teamId,
+				teamId: teamId
 			},
 			access_token
 		);
@@ -44,7 +44,7 @@ export default async function handler(
 						id: id as string,
 						bearer_token: access_token,
 						tenantId,
-						organizationId,
+						organizationId
 					})
 				);
 			}

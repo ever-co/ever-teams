@@ -23,7 +23,7 @@ export default async function handler(
 
 	const { data } = await verifyUserEmailByTokenRequest({
 		token: body.token,
-		email: body.email,
+		email: body.email
 	});
 
 	res.status(200).json(data);

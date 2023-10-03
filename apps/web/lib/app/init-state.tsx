@@ -17,7 +17,7 @@ import {
 	useCallbackRef,
 	useSyncTimer,
 	useTaskRelatedIssueType,
-	useTaskVersion,
+	useTaskVersion
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect, useMemo } from 'react';

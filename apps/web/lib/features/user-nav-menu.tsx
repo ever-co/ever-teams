@@ -3,7 +3,7 @@ import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import {
 	useAuthenticateUser,
 	useOrganizationTeams,
-	useTimer,
+	useTimer
 } from '@app/hooks';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -14,7 +14,7 @@ import {
 	Divider,
 	Text,
 	ThemeToggler,
-	Tooltip,
+	Tooltip
 } from 'lib/components';
 import {
 	BriefcaseIcon,
@@ -22,7 +22,7 @@ import {
 	LogoutIcon2,
 	MoonIcon,
 	PeopleIcon,
-	SettingsOutlineIcon,
+	SettingsOutlineIcon
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useTheme } from 'next-themes';
@@ -63,7 +63,7 @@ export function UserNavAvatar() {
 						'shadow-md text-lg font-normal'
 					)}
 					style={{
-						backgroundColor: `${stc(name || '')}80`,
+						backgroundColor: `${stc(name || '')}80`
 					}}
 				>
 					{imageUrl && isValidUrl(imageUrl) ? (
@@ -171,7 +171,7 @@ function UserNavMenu() {
 							'shadow-md text-4xl font-normal relative cursor-pointer mb-5'
 						)}
 						style={{
-							backgroundColor: `${stc(name || '')}80`,
+							backgroundColor: `${stc(name || '')}80`
 						}}
 					>
 						{imageUrl && isValidUrl(imageUrl) ? (
@@ -333,14 +333,14 @@ function ThemeDropdown() {
 			theme: 'light',
 			text: 'Gauzy Light 2D',
 			image: gauzyLight,
-			enabled: theme === 'light',
+			enabled: theme === 'light'
 		},
 		{
 			theme: 'dark',
 			text: 'Gauzy Dark 2D',
 			image: gauzyDark,
-			enabled: theme === 'dark',
-		},
+			enabled: theme === 'dark'
+		}
 	];
 
 	const selectedThemeText = themes.find(

@@ -10,7 +10,7 @@ export function TaskItem({
 	item,
 	onDelete,
 	onReopen,
-	updateLoading,
+	updateLoading
 }: {
 	selected: boolean;
 	item: ITeamTask;

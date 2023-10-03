@@ -12,6 +12,6 @@ export function useTranslation<
 
 	return {
 		trans: page ? trans['pages'][page] : trans,
-		translations: trans,
+		translations: trans
 	} as any;
 }

@@ -2,7 +2,7 @@ import { ITeamTask } from '@app/interfaces';
 import {
 	activeTaskTimesheetStatisticsAPI,
 	allTaskTimesheetStatisticsAPI,
-	tasksTimesheetStatisticsAPI,
+	tasksTimesheetStatisticsAPI
 } from '@app/services/client/api';
 import {
 	activeTaskStatisticsState,
@@ -10,7 +10,7 @@ import {
 	allTaskStatisticsState,
 	tasksFetchingState,
 	tasksStatisticsState,
-	timerStatusState,
+	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -57,7 +57,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		tasksTimesheetStatisticsAPI(employeeId).then(({ data }) => {
 			setStatTasks({
 				all: data.global || [],
-				today: data.today || [],
+				today: data.today || []
 			});
 		});
 	}, []);
@@ -74,7 +74,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		const stats = statTasksRef.current;
 		return {
 			taskTotalStat: stats.all.find((t) => t.id === task?.id),
-			taskDailyStat: stats.today.find((t) => t.id === task?.id),
+			taskDailyStat: stats.today.find((t) => t.id === task?.id)
 		};
 	}, []);
 
@@ -87,7 +87,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		promise.then(({ data }) => {
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,
-				today: data.today ? data.today[0] || null : null,
+				today: data.today ? data.today[0] || null : null
 			});
 		});
 		promise.finally(() => {
@@ -128,7 +128,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		if (firstLoad && initialLoad.current) {
 			setStatActiveTask({
 				today: null,
-				total: null,
+				total: null
 			});
 		}
 	}, [firstLoad, activeTeamTask?.id]);
@@ -193,7 +193,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTeamTask,
 		addSeconds,
 		getEstimation,
-		allTaskStatistics,
+		allTaskStatistics
 	};
 }
 

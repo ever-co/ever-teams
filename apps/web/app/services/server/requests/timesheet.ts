@@ -19,16 +19,19 @@ export function tasksTimesheetStatisticsRequest(
 
 	const queries = new URLSearchParams({
 		...rest,
-		...employeeIds.reduce((acc, v, i) => {
-			acc[`employeeIds[${i}]`] = v;
-			return acc;
-		}, {} as Record<string, any>),
+		...employeeIds.reduce(
+			(acc, v, i) => {
+				acc[`employeeIds[${i}]`] = v;
+				return acc;
+			},
+			{} as Record<string, any>
+		)
 	});
 
 	return serverFetch<ITasksTimesheet[]>({
 		path: `/timesheet/statistics/tasks?${queries.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId: params.tenantId,
+		tenantId: params.tenantId
 	});
 }

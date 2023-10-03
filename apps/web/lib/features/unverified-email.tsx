@@ -2,7 +2,7 @@ import { getAccessTokenCookie } from '@app/helpers';
 import { useAuthenticateUser, useModal, useQuery } from '@app/hooks';
 import {
 	resentVerifyUserLinkAPI,
-	verifyUserEmailByCodeAPI,
+	verifyUserEmailByCodeAPI
 } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import {
@@ -11,7 +11,7 @@ import {
 	Card,
 	Modal,
 	SpinnerLoader,
-	Text,
+	Text
 } from 'lib/components';
 // import { CloseIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
@@ -104,7 +104,7 @@ export function UnverifiedEmail() {
 
 export function ConfirmUserModal({
 	open,
-	closeModal,
+	closeModal
 }: {
 	open: boolean;
 	closeModal: () => void;

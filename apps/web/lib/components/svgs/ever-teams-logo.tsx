@@ -19,12 +19,12 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 				className={clsxm(
 					'cursor-pointer',
 					color === 'auto' && [
-						'dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white',
+						'dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'
 					],
 					color === 'white' && ['brightness-0 invert'],
 					color === 'dark' && ['brightness-0 invert-0'],
 					color === 'white-black' && [
-						'brightness-0 invert dark:invert-0 fill-white dark:fill-black',
+						'brightness-0 invert dark:invert-0 fill-white dark:fill-black'
 					],
 					color === 'black-white' && ['brightness-0 invert-0 dark:invert'],
 					className

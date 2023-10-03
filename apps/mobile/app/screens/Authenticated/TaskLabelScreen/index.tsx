@@ -1,14 +1,7 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import {
-	View,
-	Text,
-	ViewStyle,
-	TouchableOpacity,
-	StyleSheet,
-	ScrollView,
-	TextInput,
-	Dimensions,
-} from "react-native"
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
+import React, { FC, useState } from "react"
+import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, ScrollView } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { Screen } from "../../../components"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -16,7 +9,6 @@ import { translate } from "../../../i18n"
 import BottomSheet from "reanimated-bottom-sheet"
 import { typography, useAppTheme } from "../../../theme"
 import { ActivityIndicator } from "react-native-paper"
-import { useTaskStatus } from "../../../services/hooks/features/useTaskStatus"
 import Animated from "react-native-reanimated"
 import LabelItem from "./components/LabelItem"
 import TaskLabelForm from "./components/TaskLabelForm"
@@ -34,7 +26,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 		const sheetRef = React.useRef(null)
 
 		// variables
-		const snapPoints = useMemo(() => ["25%", "50%"], [])
+		// const snapPoints = useMemo(() => ["25%", "50%"], [])
 		const fall = new Animated.Value(1)
 		const openForEdit = (item: ITaskLabelItem) => {
 			setEditMode(true)

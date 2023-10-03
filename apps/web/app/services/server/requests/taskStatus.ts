@@ -11,7 +11,7 @@ export function createStatusRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -19,7 +19,7 @@ export function editTaskStatusRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	datas: ITaskStatusCreate;
@@ -31,14 +31,14 @@ export function editTaskStatusRequest({
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskStatusRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -48,7 +48,7 @@ export function deleteTaskStatusRequest({
 		path: `/task-statuses/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -56,7 +56,7 @@ export function getTaskStatusListRequest<ITaskStatusItemList>(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: {
 		tenantId: string;
 		organizationId: string;
@@ -67,6 +67,6 @@ export function getTaskStatusListRequest<ITaskStatusItemList>(
 	return serverFetch({
 		path: `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }

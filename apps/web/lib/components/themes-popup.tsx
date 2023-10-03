@@ -10,7 +10,7 @@ const ThemesPopup = ({
 	image,
 	enabled,
 	setTheme,
-	index,
+	index
 }: IThemesPopup) => {
 	return (
 		<div

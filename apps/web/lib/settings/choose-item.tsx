@@ -17,7 +17,7 @@ export function mapChooseItems(choosList: IChoose[]) {
 				</div>
 			),
 			selectedLabel: <ChooseItem title={choose.title} className="py-2 mb-0" />,
-			data: choose,
+			data: choose
 		};
 	});
 
@@ -34,7 +34,7 @@ export function mapChooseItems(choosList: IChoose[]) {
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -46,7 +46,7 @@ export function ChooseItem({
 	// count,
 	// color,
 	// disabled,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

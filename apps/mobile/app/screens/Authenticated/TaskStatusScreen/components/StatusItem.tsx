@@ -6,6 +6,7 @@ import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
 import { formatName } from "../../../../helpers/name-format"
+import { SvgUri } from "react-native-svg"
 // import { useTaskStatusValue } from "../../../../components/StatusType"
 
 interface IStatusItem {
@@ -27,9 +28,9 @@ const StatusItem: FC<IStatusItem> = ({ status, onDeleteTask, openForEdit }) => {
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.statusContainer, backgroundColor: status.color }}>
-				<AntDesign name="pay-circle-o1" size={20} color="#000" />
-				<Text style={styles.text}>{formatName(status.name)}</Text>
+			<View style={{ ...styles.statusContainer, backgroundColor: status?.color }}>
+				<SvgUri width={20} height={20} uri={status?.fullIconUrl} />
+				<Text style={styles.text}>{formatName(status?.name)}</Text>
 			</View>
 			<View style={styles.rightSection}>
 				<AntDesign size={16} name={"edit"} color={colors.primary} onPress={() => openForEdit()} />

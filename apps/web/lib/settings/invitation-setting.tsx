@@ -2,7 +2,7 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useRequestToJoinTeam,
-	useTeamInvitations,
+	useTeamInvitations
 } from '@app/hooks';
 import { Button, InputField, NoData } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';

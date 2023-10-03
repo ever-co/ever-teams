@@ -1,4 +1,5 @@
 export interface IIcon {
-    title: string;
-    icon: any;
+	title: string
+	fullUrl?: string
+	path?: string
 }

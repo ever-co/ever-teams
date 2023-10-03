@@ -18,11 +18,11 @@ const SettingsPersonalSkeleton = () => {
 				</Container>
 			</div>
 
-			<Container className="mb-10" >
+			<Container className="mb-10">
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-[#191A1F]">
-					<Card
+						<Card
 							className="dark:bg-dark--theme p-[32px] mt-[36px]"
 							shadow="bigger"
 						>

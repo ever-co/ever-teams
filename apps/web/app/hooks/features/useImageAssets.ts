@@ -27,8 +27,8 @@ export function useImageAssets() {
 					{
 						headers: {
 							'tenant-id': tenantId,
-							authorization: `Bearer ${bearer_token}`,
-						},
+							authorization: `Bearer ${bearer_token}`
+						}
 					}
 				)
 				.then(async (res: AxiosResponse) => {
@@ -46,6 +46,6 @@ export function useImageAssets() {
 
 	return {
 		loading,
-		createImageAssets,
+		createImageAssets
 	};
 }

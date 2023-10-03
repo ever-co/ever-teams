@@ -3,7 +3,7 @@ import {
 	TextEditorService,
 	withHtml,
 	withChecklists,
-	isValidSlateObject,
+	isValidSlateObject
 } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
 import React, {
@@ -11,14 +11,14 @@ import React, {
 	useEffect,
 	useMemo,
 	useRef,
-	useState,
+	useState
 } from 'react';
 import {
 	Editor,
 	createEditor,
 	Element as SlateElement,
 	Descendant,
-	Transforms,
+	Transforms
 } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
@@ -35,7 +35,7 @@ const HOTKEYS: { [key: string]: string } = {
 	'mod+b': 'bold',
 	'mod+i': 'italic',
 	'mod+u': 'underline',
-	'mod+`': 'code',
+	'mod+`': 'code'
 };
 
 interface IRichTextProps {
@@ -72,8 +72,8 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 					{
 						//@ts-ignore
 						type: 'paragraph',
-						children: [{ text: task.description as string }],
-					},
+						children: [{ text: task.description as string }]
+					}
 				];
 			}
 		} else {
@@ -94,13 +94,13 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		Transforms.delete(editor, {
 			at: {
 				anchor: Editor.start(editor, []),
-				focus: Editor.end(editor, []),
-			},
+				focus: Editor.end(editor, [])
+			}
 		});
 
 		// Removes empty node
 		Transforms.removeNodes(editor, {
-			at: [0],
+			at: [0]
 		});
 
 		// Insert array of children nodes
@@ -174,7 +174,7 @@ const isBlockActive = (editor: any, format: string, blockType = 'type') => {
 			match: (n) =>
 				!Editor.isEditor(n) &&
 				SlateElement.isElement(n) &&
-				(n as { [key: string]: any })[blockType] === format,
+				(n as { [key: string]: any })[blockType] === format
 		})
 	);
 

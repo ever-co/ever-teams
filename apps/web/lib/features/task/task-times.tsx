@@ -19,7 +19,7 @@ export function TaskTimes({
 	task,
 	memberInfo,
 	showDaily = true,
-	showTotal = true,
+	showTotal = true
 }: Props) {
 	// For public page
 	const { activeTeam } = useOrganizationTeams();
@@ -68,7 +68,7 @@ function TimeInfo({
 	daily,
 	total,
 	showDaily = true,
-	showTotal = true,
+	showTotal = true
 }: {
 	daily: { h: number; m: number };
 	total: { h: number; m: number };
@@ -106,7 +106,7 @@ function TimeInfo({
 
 export function TodayWorkedTime({
 	className,
-	memberInfo,
+	memberInfo
 }: Omit<Props, 'task' | 'activeAuthTask'>) {
 	// Get current timer seconds
 	const { activeTeam } = useOrganizationTeams();

@@ -2,7 +2,7 @@ import { IRequestToJoinCreate } from '@app/interfaces';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getRequestToJoinRequest,
-	requestToJoinRequest,
+	requestToJoinRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -20,7 +20,7 @@ export default async function handler(
 			const requestToJoinData = await getRequestToJoinRequest({
 				bearer_token: access_token,
 				tenantId,
-				organizationId,
+				organizationId
 			});
 			return res.json(requestToJoinData.data);
 		case 'POST':

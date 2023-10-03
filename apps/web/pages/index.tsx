@@ -7,7 +7,7 @@ import {
 	TeamMembers,
 	Timer,
 	UnverifiedEmail,
-	UserTeamCardHeader,
+	UserTeamCardHeader
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -56,7 +56,7 @@ function MainPage() {
 }
 
 function TaskTimerSection({
-	isTrackingEnabled,
+	isTrackingEnabled
 }: {
 	isTrackingEnabled: boolean;
 }) {

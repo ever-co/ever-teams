@@ -9,7 +9,7 @@ import { AxiosError } from 'axios';
 
 const initalValues: IInvite = {
 	email: '',
-	name: '',
+	name: ''
 };
 const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initalValues);
@@ -21,7 +21,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 		setErrors((er) => {
 			return {
 				...er,
-				[name]: '',
+				[name]: ''
 			};
 		});
 		setFormData((prevState) => ({ ...prevState, [name]: value }));

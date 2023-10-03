@@ -16,7 +16,7 @@ const Tooltip: React.FC<TooltipProps> = (props) => {
 		label,
 		enterDelay = 250,
 		leaveDelay = 150,
-		placement = 'bottom',
+		placement = 'bottom'
 	} = props;
 
 	const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +27,7 @@ const Tooltip: React.FC<TooltipProps> = (props) => {
 	);
 	const { styles, attributes } = usePopper(referenceElement, popperElement, {
 		placement,
-		modifiers: [{ name: 'offset', options: { offset: [0, 4] } }],
+		modifiers: [{ name: 'offset', options: { offset: [0, 4] } }]
 	});
 
 	const enterTimeout = useRef<NodeJS.Timeout>();

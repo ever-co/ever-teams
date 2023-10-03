@@ -6,7 +6,7 @@ import {
 	IValidateRequestToJoin,
 	CreateReponse,
 	PaginationResponse,
-	IRequestToJoinActionEnum,
+	IRequestToJoinActionEnum
 } from '@app/interfaces';
 import api from '../axios';
 

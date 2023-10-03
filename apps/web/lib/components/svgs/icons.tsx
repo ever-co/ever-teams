@@ -67,7 +67,7 @@ export function SettingsOutlineIcon({ className }: IClassName) {
 // ============================= MoonIcon ===========================//
 
 export function MoonIcon({
-	className,
+	className
 }: {
 	className?: string;
 	pathClassName?: string;

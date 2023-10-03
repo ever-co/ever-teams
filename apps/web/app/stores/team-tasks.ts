@@ -6,22 +6,22 @@ import { activeTeamState } from './organization-team';
 
 export const teamTasksState = atom<ITeamTask[]>({
 	key: 'teamTasksState',
-	default: [],
+	default: []
 });
 
 export const activeTeamTaskState = atom<ITeamTask | null>({
 	key: 'activeTeamTaskState',
-	default: null,
+	default: null
 });
 
 export const tasksFetchingState = atom<boolean>({
 	key: 'tasksFetchingState',
-	default: false,
+	default: false
 });
 
 export const detailedTaskState = atom<ITeamTask | null>({
 	key: 'detailedTaskState',
-	default: null,
+	default: null
 });
 
 export const tasksByTeamState = selector<ITeamTask[]>({
@@ -37,7 +37,7 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 				});
 			})
 			.sort((a, b) => moment(b.createdAt).diff(a.createdAt));
-	},
+	}
 });
 
 export const tasksStatisticsState = atom<{
@@ -47,8 +47,8 @@ export const tasksStatisticsState = atom<{
 	key: 'tasksStatisticsState',
 	default: {
 		all: [],
-		today: [],
-	},
+		today: []
+	}
 });
 
 export const activeTaskStatisticsState = atom<{
@@ -58,11 +58,11 @@ export const activeTaskStatisticsState = atom<{
 	key: 'activeTaskStatisticsState',
 	default: {
 		total: null,
-		today: null,
-	},
+		today: null
+	}
 });
 
 export const allTaskStatisticsState = atom<ITasksTimesheet[]>({
 	key: 'allTaskStatisticsState',
-	default: [],
+	default: []
 });

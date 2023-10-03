@@ -3,13 +3,13 @@ import {
 	getTaskPrioritiesList,
 	deleteTaskPrioritiesAPI,
 	createTaskPrioritiesAPI,
-	editTaskPrioritiesAPI,
+	editTaskPrioritiesAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskPrioritiesListState,
 	taskPrioritiesFetchingState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -84,7 +84,7 @@ export function useTaskPriorities() {
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -110,7 +110,7 @@ export function useTaskPriorities() {
 			createTaskPrioritiesLoading,
 			deleteTaskPrioritiesLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -145,6 +145,6 @@ export function useTaskPriorities() {
 		editTaskPriorities,
 		editTaskPrioritiesLoading,
 		setTaskPriorities,
-		loadTaskPriorities,
+		loadTaskPriorities
 	};
 }

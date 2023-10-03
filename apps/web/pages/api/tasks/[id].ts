@@ -2,7 +2,7 @@ import { ITeamTask } from '@app/interfaces/ITask';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTeamTasksRequest,
-	updateTaskRequest,
+	updateTaskRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -24,7 +24,7 @@ export default async function handler(
 			await updateTaskRequest(
 				{
 					data: body,
-					id: taskId as string,
+					id: taskId as string
 				},
 				access_token
 			);
@@ -34,7 +34,7 @@ export default async function handler(
 	const { data: tasks } = await getTeamTasksRequest({
 		tenantId,
 		organizationId,
-		bearer_token: access_token,
+		bearer_token: access_token
 	});
 
 	$res.status(200).json(tasks);

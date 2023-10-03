@@ -32,7 +32,7 @@ const Card = ({ member }: { member: IMember }) => {
 		memberName: `${iuser?.firstName} ${iuser?.lastName || ''}`,
 		memberTask: '',
 		estimateHours: 0,
-		estimateMinutes: 0,
+		estimateMinutes: 0
 	});
 
 	useEffect(() => {
@@ -49,7 +49,7 @@ const Card = ({ member }: { member: IMember }) => {
 					...d,
 					memberTask: memberTask.title,
 					estimateHours: h,
-					estimateMinutes: m,
+					estimateMinutes: m
 				};
 			});
 		}
@@ -83,7 +83,7 @@ const Card = ({ member }: { member: IMember }) => {
 			setFormValues((vls) => {
 				return {
 					...vls,
-					[c]: tm,
+					[c]: tm
 				};
 			});
 		};
@@ -93,7 +93,7 @@ const Card = ({ member }: { member: IMember }) => {
 		if (memberTask && memberTask.title !== formValues.memberTask) {
 			await updateTask({
 				...memberTask,
-				title: formValues.memberTask,
+				title: formValues.memberTask
 			});
 		}
 		setTaskEditMode(false);
@@ -129,7 +129,7 @@ const Card = ({ member }: { member: IMember }) => {
 			...memberTask,
 			estimateHours: hours,
 			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60, // time seconds
+			estimate: hours * 60 * 60 + minutes * 60 // time seconds
 		});
 
 		setEstimateEditMode(false);

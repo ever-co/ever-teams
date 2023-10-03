@@ -10,7 +10,7 @@ export default async function handler(
 		$res,
 		user,
 		tenantId,
-		access_token: bearer_token,
+		access_token: bearer_token
 	} = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
@@ -26,7 +26,7 @@ export default async function handler(
 					tenantId,
 					employeeId,
 					organizationTeamId,
-					bearer_token,
+					bearer_token
 				})
 			);
 			break;

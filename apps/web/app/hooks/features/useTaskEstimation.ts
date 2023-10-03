@@ -17,7 +17,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		const { h, m } = secondsToTime($task?.estimate || 0);
 		setValue({
 			hours: h.toString(),
-			minutes: pad(m).toString(),
+			minutes: pad(m).toString()
 		});
 	}, [$task?.estimate]);
 
@@ -44,7 +44,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 			setValue((vls) => {
 				return {
 					...vls,
-					[c]: tm,
+					[c]: tm
 				};
 			});
 		};
@@ -55,7 +55,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				hours: oldVa.hours !== '0' ? oldVa.hours : '',
+				hours: oldVa.hours !== '0' ? oldVa.hours : ''
 			};
 		});
 		setEditableMode(true);
@@ -65,7 +65,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				hours: oldVa.hours !== '' ? oldVa.hours : '0',
+				hours: oldVa.hours !== '' ? oldVa.hours : '0'
 			};
 		});
 	};
@@ -74,7 +74,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '' ? pad(+oldVa.minutes) : pad(0),
+				minutes: oldVa.minutes !== '' ? pad(+oldVa.minutes) : pad(0)
 			};
 		});
 	};
@@ -84,7 +84,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		setValue((oldVa) => {
 			return {
 				...oldVa,
-				minutes: oldVa.minutes !== '00' ? oldVa.minutes : '',
+				minutes: oldVa.minutes !== '00' ? oldVa.minutes : ''
 			};
 		});
 		setEditableMode(true);
@@ -115,7 +115,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 			...$task,
 			estimateHours: hours,
 			estimateMinutes: minutes,
-			estimate: hours * 60 * 60 + minutes * 60, // time seconds
+			estimate: hours * 60 * 60 + minutes * 60 // time seconds
 		});
 
 		setEditableMode(false);
@@ -140,6 +140,6 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		value,
 		handleSubmit,
 		task: $task,
-		updateLoading,
+		updateLoading
 	};
 }

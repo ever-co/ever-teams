@@ -2,7 +2,7 @@ import { TimerSource } from '@app/interfaces/ITimer';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTimerStatusRequest,
-	startTimerRequest,
+	startTimerRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -17,7 +17,7 @@ export default async function handler(
 		access_token,
 		organizationId,
 		taskId,
-		teamId: organizationTeamId,
+		teamId: organizationTeamId
 	} = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
@@ -29,7 +29,7 @@ export default async function handler(
 			logType: 'TRACKED',
 			source: TimerSource.TEAMS,
 			tags: [],
-			organizationTeamId,
+			organizationTeamId
 		},
 		access_token
 	);

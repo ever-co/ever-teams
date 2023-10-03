@@ -17,7 +17,7 @@ export function mapDayItems(DayLIst: IDay[]) {
 				</div>
 			),
 			selectedLabel: <DayItem title={Day.title} className="py-2 mb-0" />,
-			data: Day,
+			data: Day
 		};
 	});
 
@@ -34,7 +34,7 @@ export function mapDayItems(DayLIst: IDay[]) {
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -46,7 +46,7 @@ export function DayItem({
 	// count,
 	// color,
 	// disabled,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

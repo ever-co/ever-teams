@@ -11,7 +11,7 @@ import {
 	Text,
 	TimeInputField,
 	Tooltip,
-	VerticalSeparator,
+	VerticalSeparator
 } from 'lib/components';
 import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
@@ -171,7 +171,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 		removeInviteLoading,
 		removeTeamInvitation,
 		resendTeamInvitation,
-		resendInviteLoading,
+		resendInviteLoading
 	} = useTeamInvitations();
 
 	const loading = removeInviteLoading || resendInviteLoading;
@@ -237,7 +237,7 @@ export function RemoveUserInviteMenu({ invitation }: Props) {
 export function InviteUserTeamCard({
 	className,
 	onClick,
-	active = true,
+	active = true
 }: IClassName & { onClick?: () => void; active?: boolean }) {
 	const { trans } = useTranslation();
 

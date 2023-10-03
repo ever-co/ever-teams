@@ -12,7 +12,7 @@ import {
 	PHONE_REGEX,
 	setActiveLanguageIdCookie,
 	setActiveTimezoneCookie,
-	userTimezone,
+	userTimezone
 } from '@app/helpers';
 import { useSettings } from '@app/hooks';
 import { useTheme } from 'next-themes';
@@ -39,7 +39,7 @@ export const PersonalSettingForm = () => {
 	const [newEmail, setNewEmail] = useState<string>('');
 	const [isValid, setIsValid] = useState<IValidation>({
 		email: true,
-		phone: true,
+		phone: true
 	});
 	const { trans, translations } = useTranslation('settingsPersonal');
 
@@ -49,7 +49,7 @@ export const PersonalSettingForm = () => {
 			updateAvatar({
 				firstName: values.firstName,
 				lastName: values.lastName,
-				id: user.id,
+				id: user.id
 			}).then(() => {
 				setEditFullname(false);
 			});
@@ -80,7 +80,7 @@ export const PersonalSettingForm = () => {
 		if (user && isValid.phone && isValid.email) {
 			updateAvatar({
 				phoneNumber: values.phoneNumber,
-				id: user.id,
+				id: user.id
 			}).then(() => {
 				setEditContacts(false);
 			});
@@ -96,7 +96,7 @@ export const PersonalSettingForm = () => {
 			if (user) {
 				updateAvatar({
 					timeZone: newTimezone || userTimezone(),
-					id: user.id,
+					id: user.id
 				});
 			}
 		},
@@ -140,7 +140,7 @@ export const PersonalSettingForm = () => {
 			if (user) {
 				updateAvatar({
 					preferredLanguage: newLanguage,
-					id: user.id,
+					id: user.id
 				});
 			}
 		},
@@ -175,7 +175,7 @@ export const PersonalSettingForm = () => {
 											placeholder="First Name"
 											{...register('firstName', {
 												required: true,
-												maxLength: 80,
+												maxLength: 80
 											})}
 											className={`w-full m-0 h-[54px] ${
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
@@ -187,7 +187,7 @@ export const PersonalSettingForm = () => {
 											type="text"
 											placeholder="Last Name"
 											{...register('lastName', {
-												maxLength: 80,
+												maxLength: 80
 											})}
 											className={`w-full m-0 h-[54px] ${
 												!editFullname ? 'disabled:bg-[#FCFCFC]' : ''
@@ -237,7 +237,7 @@ export const PersonalSettingForm = () => {
 												{...register('email', {
 													required: true,
 													pattern:
-														/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+														/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 												})}
 												className={`w-full m-0 h-[54px]  ${
 													!editContacts ? 'disabled:bg-[#FCFCFC]' : ''
@@ -258,7 +258,7 @@ export const PersonalSettingForm = () => {
 												type="text"
 												placeholder="Phone Number"
 												{...register('phoneNumber', {
-													valueAsNumber: true,
+													valueAsNumber: true
 												})}
 												className={`w-full m-0 h-[54px] ${
 													!editContacts ? 'disabled:bg-[#FCFCFC]' : ''

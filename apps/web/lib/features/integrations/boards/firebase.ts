@@ -64,7 +64,7 @@ const loadFirebaseStorage = async () => {
 // Save files to firebase
 export const saveFilesToFirebase = async ({
 	prefix,
-	files,
+	files
 }: {
 	prefix: string;
 	files: { id: FileId; buffer: Uint8Array }[];
@@ -82,10 +82,10 @@ export const saveFilesToFirebase = async ({
 					.ref(`${prefix}/${id}`)
 					.put(
 						new Blob([buffer], {
-							type: MIME_TYPES.binary,
+							type: MIME_TYPES.binary
 						}),
 						{
-							cacheControl: `public, max-age=${FILE_CACHE_MAX_AGE_SEC}`,
+							cacheControl: `public, max-age=${FILE_CACHE_MAX_AGE_SEC}`
 						}
 					);
 				savedFiles.set(id, true);

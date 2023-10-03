@@ -2,7 +2,7 @@ import { imgTitle } from '@app/helpers';
 import {
 	useAuthenticateUser,
 	useCollaborative,
-	useOrganizationTeams,
+	useOrganizationTeams
 } from '@app/hooks';
 import { IUser } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
@@ -12,7 +12,7 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
-	CommandList,
+	CommandList
 } from '@components/ui/command';
 import {
 	Dialog,
@@ -21,28 +21,30 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
+	DialogTrigger
 } from '@components/ui/dialog';
 import { Avatar } from 'lib/components';
 import { Button } from 'lib/components/button';
 import {
 	BrushSquareLinearIcon,
 	CallOutGoingLinearIcon,
-	Profile2UserLinearIcon,
+	Profile2UserLinearIcon
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { Check } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import stc from 'string-to-color';
+import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
+import { useJitsu } from '@jitsu/jitsu-react';
 
 const Collaborate = () => {
 	const {
 		onMeetClick,
 		onBoardClick,
 		collaborativeMembers,
-		setCollaborativeMembers,
+		setCollaborativeMembers
 	} = useCollaborative();
-
+	const { analytics } = useJitsu();
 	const { trans } = useTranslation();
 
 	const { user } = useAuthenticateUser();
@@ -81,8 +83,19 @@ const Collaborate = () => {
 
 	return (
 		<div>
+			<JitsuAnalytics user={user} />
 			<Dialog>
 				<DialogTrigger
+					onClick={() =>
+						analytics.track('click-collaborate', {
+							context: {
+								email: user?.email,
+								name: user?.name,
+								tenant: user?.tenant?.name,
+								tenantId: user?.tenant?.id
+							}
+						})
+					}
 					className={clsxm(
 						'flex flex-row items-center justify-center py-3.5 px-4 gap-3 rounded-xl outline-none',
 						'bg-primary dark:bg-primary-light text-white text-sm',
@@ -120,7 +133,7 @@ const Collaborate = () => {
 												'shadow-md text-lg font-normal'
 											)}
 											style={{
-												backgroundColor: `${stc(member?.name || '')}80`,
+												backgroundColor: `${stc(member?.name || '')}80`
 											}}
 										>
 											{(member?.image?.thumbUrl ||
@@ -178,7 +191,7 @@ const Collaborate = () => {
 											'shadow-md text-lg font-normal'
 										)}
 										style={{
-											backgroundColor: `${stc(member?.name || '')}80`,
+											backgroundColor: `${stc(member?.name || '')}80`
 										}}
 									>
 										{(member?.image?.thumbUrl ||

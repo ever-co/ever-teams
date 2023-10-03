@@ -25,7 +25,7 @@ import TaskStatus from "../../../../components/TaskStatus"
 import TimerCard from "../../../../components/TimerCard"
 import TaskSize from "../../../../components/TaskSize"
 import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
-import TaskLabels from "./TaskLabels"
+import TaskLabels from "../../../../components/TaskLabels"
 import IssuesModal from "../../../../components/IssuesModal"
 
 const TimerTaskSection = observer(
@@ -144,7 +144,6 @@ const TimerTaskSection = observer(
 									}}
 								/>
 							</View>
-
 							<View
 								style={{
 									flexDirection: "row",
@@ -169,7 +168,6 @@ const TimerTaskSection = observer(
 									}}
 								/>
 							</View>
-
 							<TaskLabels
 								task={activeTask}
 								containerStyle={{
@@ -179,7 +177,6 @@ const TimerTaskSection = observer(
 									marginVertical: 20,
 								}}
 							/>
-
 							<TimerCard />
 						</View>
 					)}

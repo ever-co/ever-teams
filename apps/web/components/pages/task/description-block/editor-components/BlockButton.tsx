@@ -17,7 +17,7 @@ const BlockButton = ({
 	format,
 	icon: Icon,
 	isBlockActive,
-	className,
+	className
 }: IMarkButtonProps) => {
 	const editor = useSlate();
 

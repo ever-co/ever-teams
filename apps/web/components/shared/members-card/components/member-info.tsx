@@ -9,7 +9,7 @@ export function MemberInfo({
 	editMode,
 	editable,
 	onSubmitName,
-	onChangeName,
+	onChangeName
 }: {
 	member: IUser | undefined;
 	editMode: boolean;

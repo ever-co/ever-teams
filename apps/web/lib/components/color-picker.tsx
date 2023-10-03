@@ -11,7 +11,7 @@ export const ColorPicker = ({
 	onChange,
 	fullWidthInput,
 	isTeamManager,
-	disabled: disableButton,
+	disabled: disableButton
 }: {
 	defaultColor?: string;
 	onChange?: (color?: string | null) => void;
@@ -87,7 +87,7 @@ export const ColorPicker = ({
 								<div
 									className={`w-5 h-5 rounded-xl`}
 									style={{
-										backgroundColor: color || undefined,
+										backgroundColor: color || undefined
 									}}
 								></div>
 								<div className="uppercase dark:text-white">{color || ''}</div>
@@ -158,7 +158,7 @@ export const ColorPicker = ({
 						/>
 						<span className="font-normal">{color || 'Color'}</span>
 					</div>
-				),
+				)
 			}}
 			items={[]}
 			closeOnChildrenClick={false}

@@ -61,5 +61,5 @@ export interface IMyInvitations extends Pick<IInvitation, 'id'> {
 
 export enum MyInvitationActionEnum {
 	ACCEPTED = 'ACCEPTED',
-	REJECTED = 'REJECTED',
+	REJECTED = 'REJECTED'
 }

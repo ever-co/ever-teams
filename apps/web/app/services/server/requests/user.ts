@@ -3,7 +3,7 @@ import { serverFetch } from '../fetch';
 export function deleteUserRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -13,13 +13,13 @@ export function deleteUserRequest({
 		path: `/user/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function resetUserRequest({
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	bearer_token: string | any;
 	tenantId?: string;
@@ -28,6 +28,6 @@ export function resetUserRequest({
 		path: `/user/reset`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

@@ -4,7 +4,7 @@ import { useTranslation } from 'lib/i18n';
 import {
 	CloseIcon,
 	CloseCircleIcon,
-	TickCircleIcon,
+	TickCircleIcon
 } from 'lib/components/svgs';
 import { useModal, useTeamInvitations } from '@app/hooks';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ export function TeamInvitations() {
 		myInvitations,
 		removeMyInvitation,
 		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading,
+		acceptRejectMyInvitationsLoading
 	} = useTeamInvitations();
 	const { isOpen, closeModal, openModal } = useModal();
 	const [action, setAction] = useState<MyInvitationActionEnum>();
@@ -149,7 +149,7 @@ export const ConfirmModal = ({
 	title,
 	onAction,
 	loading,
-	action,
+	action
 }: {
 	open: boolean;
 	close: () => void;

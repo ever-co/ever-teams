@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from 'axios';
 const api = axios.create({
 	baseURL: API_BASE_URL,
 	withCredentials: true,
-	timeout: 60 * 1000,
+	timeout: 60 * 1000
 });
 
 api.interceptors.request.use(

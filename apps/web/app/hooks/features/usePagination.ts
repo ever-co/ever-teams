@@ -21,6 +21,6 @@ export function usePagination<T>(items: T[], defaultItemsPerPage = 10) {
 		itemOffset,
 		endOffset,
 		setItemsPerPage,
-		currentItems,
+		currentItems
 	};
 }

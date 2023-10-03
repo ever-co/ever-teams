@@ -26,7 +26,7 @@ export function mapColorItems(colors: IColor[]) {
 					className="py-2 mb-0"
 				/>
 			),
-			data: color,
+			data: color
 		};
 	});
 
@@ -37,7 +37,7 @@ export function ColorItem({
 	title,
 	className,
 	color,
-	disabled,
+	disabled
 }: {
 	title?: string;
 	className?: string;

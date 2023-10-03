@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	deleteTaskRelatedIssueTypeRequest,
-	editTaskRelatedIssueTypeRequest,
+	editTaskRelatedIssueTypeRequest
 } from '@app/services/server/requests/task-related-issue-type';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -24,7 +24,7 @@ export default async function handler(
 				await deleteTaskRelatedIssueTypeRequest({
 					id,
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 		case 'PUT':
@@ -33,7 +33,7 @@ export default async function handler(
 					id,
 					datas: req.body,
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 	}

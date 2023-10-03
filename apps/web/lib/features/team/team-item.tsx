@@ -40,7 +40,7 @@ export function mapTeamItems(
 						<Link
 							onClick={() => {
 								onChangeActiveTeam({
-									data: team,
+									data: team
 								} as TeamItem);
 							}}
 							href="/settings/team"
@@ -67,7 +67,7 @@ export function mapTeamItems(
 					/>
 				</Tooltip>
 			),
-			data: team,
+			data: team
 		};
 	});
 
@@ -97,7 +97,7 @@ export function TeamItem({
 	className,
 	color,
 	disabled,
-	logo,
+	logo
 }: {
 	title?: string;
 	count?: number;
@@ -131,7 +131,7 @@ export function TeamItem({
 					style={{
 						background: color || `${stc(title)}80`,
 
-						...(color ? { color: color ? readableColorHex : undefined } : {}),
+						...(color ? { color: color ? readableColorHex : undefined } : {})
 					}}
 				>
 					{logo && isValidUrl(logo) ? (
@@ -160,7 +160,7 @@ export function TeamItem({
 				<span
 					className={clsxm('text-normal')}
 					style={{
-						marginLeft: 0,
+						marginLeft: 0
 					}}
 				>
 					{count ? `(${count})` : ''}

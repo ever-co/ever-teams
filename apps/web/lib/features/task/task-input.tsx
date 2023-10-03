@@ -5,7 +5,7 @@ import {
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
-	useTaskInput,
+	useTaskInput
 } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
@@ -19,7 +19,7 @@ import {
 	InputField,
 	OutlineBadge,
 	SpinnerLoader,
-	Tooltip,
+	Tooltip
 } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
@@ -30,7 +30,7 @@ import {
 	useEffect,
 	useMemo,
 	useRef,
-	useState,
+	useState
 } from 'react';
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
@@ -76,13 +76,13 @@ export function TaskInput(props: Props) {
 	const {
 		viewType = 'input-trigger',
 		showTaskNumber = false,
-		showCombobox = true,
+		showCombobox = true
 	} = props;
 
 	const datas = useTaskInput({
 		task: props.task,
 		initEditMode: props.initEditMode,
-		tasks: props.tasks,
+		tasks: props.tasks
 	});
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
@@ -118,7 +118,7 @@ export function TaskInput(props: Props) {
 		updateLoading,
 		updateTaskTitleHandler,
 		setFilter,
-		taskIssue,
+		taskIssue
 	} = datas;
 
 	const inputTaskTitle = useMemo(
@@ -164,7 +164,7 @@ export function TaskInput(props: Props) {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId,
+						tenantId: activeTeam?.tenantId
 					});
 				}
 			}
@@ -218,7 +218,7 @@ export function TaskInput(props: Props) {
 				.handleTaskCreation({
 					autoActiveTask,
 					autoAssignTaskAuth: props.autoAssignTaskAuth,
-					assignToUsers: props.usersTaskCreatedAssignTo || [],
+					assignToUsers: props.usersTaskCreatedAssignTo || []
 				})
 				?.then(onTaskCreated)
 				.finally(() => {
@@ -414,7 +414,7 @@ function TaskCard({
 	handleTaskCreation,
 	cardWithoutShadow,
 	forParentChildRelationship,
-	updatedTaskList,
+	updatedTaskList
 }: {
 	datas: Partial<RTuseTaskInput>;
 	onItemClick?: (task: ITeamTask) => void;
@@ -433,7 +433,7 @@ function TaskCard({
 			window.setTimeout(() => {
 				activeTaskEl?.current?.scrollIntoView({
 					block: 'nearest',
-					inline: 'start',
+					inline: 'start'
 				});
 			}, 10);
 		}
@@ -490,7 +490,7 @@ function TaskCard({
 						<span
 							className={clsxm(
 								datas.filter === 'open' && [
-									'text-primary dark:text-primary-light font-semibold',
+									'text-primary dark:text-primary-light font-semibold'
 								]
 							)}
 						>
@@ -506,7 +506,7 @@ function TaskCard({
 						<span
 							className={clsxm(
 								datas.filter === 'closed' && [
-									'text-primary dark:text-primary-light font-semibold',
+									'text-primary dark:text-primary-light font-semibold'
 								]
 							)}
 						>

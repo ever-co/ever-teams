@@ -37,7 +37,7 @@ export const TeamSettingForm = () => {
 		timeTracking: false,
 		color: null,
 		emoji: null,
-		teamSize: null,
+		teamSize: null
 	});
 
 	useEffect(() => {
@@ -53,7 +53,7 @@ export const TeamSettingForm = () => {
 					timeTracking: activeManager?.isTrackingEnabled || false,
 					color: activeTeam.color,
 					emoji: activeTeam.emoji,
-					teamSize: activeTeam.teamSize,
+					teamSize: activeTeam.teamSize
 				})
 			) {
 				setValue('teamName', activeTeam?.name || '');
@@ -70,7 +70,7 @@ export const TeamSettingForm = () => {
 					timeTracking: activeManager?.isTrackingEnabled || false,
 					color: activeTeam?.color,
 					emoji: activeTeam?.emoji,
-					teamSize: activeTeam?.teamSize,
+					teamSize: activeTeam?.teamSize
 				};
 			}
 		}
@@ -101,7 +101,7 @@ export const TeamSettingForm = () => {
 									m.role.name === RoleNameEnum.ADMIN)
 						)
 						.map((t) => t.employee.id)
-						.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
+						.filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
 				});
 			}
 		},
@@ -148,14 +148,14 @@ export const TeamSettingForm = () => {
 	const handleChange = useCallback(() => {
 		const latestFormData = getValues();
 		onSubmit({
-			...latestFormData,
+			...latestFormData
 		});
 	}, [onSubmit, getValues]);
 
 	/* eslint-disable react-hooks/exhaustive-deps */
 	const debounceHandleColorChange = useCallback(debounce(handleChange, 1000), [
 		handleChange,
-		debounce,
+		debounce
 	]);
 
 	return (
@@ -288,7 +288,7 @@ export const TeamSettingForm = () => {
 													{...register('teamType', {
 														onChange: () => {
 															handleChange();
-														},
+														}
 													})}
 													value="PUBLIC"
 													disabled={!isTeamManager}
@@ -309,7 +309,7 @@ export const TeamSettingForm = () => {
 													{...register('teamType', {
 														onChange: () => {
 															handleChange();
-														},
+														}
 													})}
 													value="PRIVATE"
 													disabled={!isTeamManager}

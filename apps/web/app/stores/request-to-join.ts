@@ -3,5 +3,5 @@ import { atom } from 'recoil';
 
 export const requestToJoinState = atom<IRequestToJoin[]>({
 	key: 'requestToJoinState',
-	default: [],
+	default: []
 });

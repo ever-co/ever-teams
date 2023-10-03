@@ -41,11 +41,11 @@ export function AuthLayout({ children, title, description }: Props) {
 											'ml-[12%] rounded-3xl absolute w-full h-full inset-0',
 											[
 												!image.endsWith('dark.png') && [
-													'opacity-100 dark:opacity-0',
+													'opacity-100 dark:opacity-0'
 												],
 												image.endsWith('dark.png') && [
-													'opacity-0 dark:opacity-100',
-												],
+													'opacity-0 dark:opacity-100'
+												]
 											],
 											'shadow-[-76px_-13px_244px_-42px_rgba(40,32,72,0.55)]',
 											'dark:shadow-[-76px_-13px_244px_-42px_rgba(0,0,0,0.75)]'

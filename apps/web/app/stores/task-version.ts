@@ -3,17 +3,17 @@ import { atom, selector } from 'recoil';
 
 export const taskVersionListState = atom<ITaskVersionItemList[]>({
 	key: 'taskVersionListState',
-	default: [],
+	default: []
 });
 
 export const activeTaskVersionIdState = atom<string | null>({
 	key: 'activeTaskVersionIdState',
-	default: null,
+	default: null
 });
 
 export const taskVersionFetchingState = atom<boolean>({
 	key: 'taskVersionFetchingState',
-	default: false,
+	default: false
 });
 
 export const activeTaskVersionState = selector<ITaskVersionItemList | null>({
@@ -26,5 +26,5 @@ export const activeTaskVersionState = selector<ITaskVersionItemList | null>({
 			taskVersion[0] ||
 			null
 		);
-	},
+	}
 });

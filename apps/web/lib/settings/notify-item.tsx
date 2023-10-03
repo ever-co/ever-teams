@@ -17,7 +17,7 @@ export function mapNotifyItems(NotifyLIst: INotify[]) {
 				</div>
 			),
 			selectedLabel: <NotifyItem title={Notify.title} className="py-2 mb-0" />,
-			data: Notify,
+			data: Notify
 		};
 	});
 
@@ -34,7 +34,7 @@ export function mapNotifyItems(NotifyLIst: INotify[]) {
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -43,7 +43,7 @@ export function mapNotifyItems(NotifyLIst: INotify[]) {
 
 export function NotifyItem({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

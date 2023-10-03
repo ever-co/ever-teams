@@ -4,7 +4,7 @@ import { serverFetch } from '../fetch';
 export function getRolePermissionsRequest({
 	bearer_token,
 	roleId,
-	tenantId,
+	tenantId
 }: {
 	bearer_token: string;
 	roleId: string;
@@ -14,9 +14,9 @@ export function getRolePermissionsRequest({
 		data: JSON.stringify({
 			findInput: {
 				roleId,
-				tenantId,
-			},
-		}),
+				tenantId
+			}
+		})
 	};
 	const query = new URLSearchParams(params);
 
@@ -24,14 +24,14 @@ export function getRolePermissionsRequest({
 		path: `/role-permissions?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function updateRolePermissionRequest({
 	bearer_token,
 	tenantId,
-	data,
+	data
 }: {
 	data: IRolePermissions;
 	bearer_token: string;
@@ -42,6 +42,6 @@ export function updateRolePermissionRequest({
 		method: 'PUT',
 		bearer_token,
 		tenantId,
-		body: data,
+		body: data
 	});
 }

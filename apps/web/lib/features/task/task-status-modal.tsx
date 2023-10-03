@@ -13,7 +13,7 @@ import {
 	useTaskStatusValue,
 	useTaskPrioritiesValue,
 	useTaskSizesValue,
-	useTaskLabelsValue,
+	useTaskLabelsValue
 } from './task-status';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
@@ -22,7 +22,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 	defaultValue,
 	title,
 	children,
-	modal,
+	modal
 }: {
 	types: T;
 	title: string;
@@ -50,13 +50,13 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 		epic: {},
 		team: {},
 		version: {},
-		tags: {},
+		tags: {}
 	};
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status[types],
 		value: defaultValue,
-		onValueChange,
+		onValueChange
 	});
 
 	useEffect(() => {

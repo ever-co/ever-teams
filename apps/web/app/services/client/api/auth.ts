@@ -3,20 +3,20 @@ import { ISuccessResponse } from '@app/interfaces';
 import {
 	ILoginResponse,
 	IRegisterDataAPI,
-	ISigninEmailConfirmResponse,
+	ISigninEmailConfirmResponse
 } from '@app/interfaces/IAuthentication';
 import api from '../axios';
 
 export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
 	return api.post<ILoginResponse>(`/auth/login`, {
 		email,
-		code,
+		code
 	});
 };
 
 export const refreshTokenAPI = () => {
 	return api.post<ILoginResponse>(`/auth/refresh`, {
-		refresh_token: getRefreshTokenCookie(),
+		refresh_token: getRefreshTokenCookie()
 	});
 };
 
@@ -26,12 +26,12 @@ export const registerUserTeamAPI = (data: IRegisterDataAPI) => {
 
 export const sendAuthCodeAPI = (email: string) => {
 	return api.post<{ status: number; message: string }>(`/auth/send-code`, {
-		email,
+		email
 	});
 };
 export const signInEmailAPI = (email: string) => {
 	return api.post<{ status: number; message: string }>(`/auth/signin-email`, {
-		email,
+		email
 	});
 };
 
@@ -45,7 +45,7 @@ export const verifyUserEmailByCodeAPI = (code: string) => {
 export const signInEmailConfirmAPI = (email: string, code: string) => {
 	return api.post<ISigninEmailConfirmResponse>(`/auth/signin-email-confirm`, {
 		email,
-		code,
+		code
 	});
 };
 export const signInWorkspaceAPI = (
@@ -56,7 +56,7 @@ export const signInWorkspaceAPI = (
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 		email,
 		token,
-		teamId: selectedTeam,
+		teamId: selectedTeam
 	});
 };
 

@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 const Board = dynamic(() => import('lib/features/integrations/boards'), {
 	ssr: false,
-	loading: () => <BackdropLoader show />,
+	loading: () => <BackdropLoader show />
 });
 
 function BoardPage() {
@@ -20,5 +20,5 @@ function BoardPage() {
 
 export default withAuthentication(BoardPage, {
 	displayName: 'BoardPage',
-	showPageSkeleton: false,
+	showPageSkeleton: false
 });

@@ -7,7 +7,7 @@ export const RemoveModal = ({
 	close,
 	title,
 	onAction,
-	loading,
+	loading
 }: {
 	open: boolean;
 	close: () => void;

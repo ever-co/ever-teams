@@ -17,7 +17,7 @@ export function TaskLabels({
 	task,
 	className,
 	forDetails,
-	taskStatusClassName,
+	taskStatusClassName
 }: Props) {
 	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
@@ -38,7 +38,7 @@ export function TaskLabels({
 						...task,
 						tags: taskLabels.filter((tag) =>
 							tag.name ? values?.includes(tag.name) : false
-						) as any,
+						) as any
 					});
 				},
 				2000

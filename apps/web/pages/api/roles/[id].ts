@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	deleteRoleRequest,
-	updateRoleRequest,
+	updateRoleRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -28,7 +28,7 @@ export default async function handler(
 				await deleteRoleRequest({
 					id: id as string,
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 
@@ -37,7 +37,7 @@ export default async function handler(
 				await updateRoleRequest({
 					bearer_token: access_token,
 					tenantId,
-					data: req.body,
+					data: req.body
 				})
 			);
 	}

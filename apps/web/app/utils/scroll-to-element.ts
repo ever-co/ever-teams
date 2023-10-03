@@ -4,6 +4,6 @@ export function scrollToElement(rect: DOMRect, diff = 150) {
 			rect.y > 0
 				? rect.y + window.scrollY - diff
 				: window.scrollY - Math.abs(rect.y) - diff,
-		behavior: 'smooth',
+		behavior: 'smooth'
 	});
 }

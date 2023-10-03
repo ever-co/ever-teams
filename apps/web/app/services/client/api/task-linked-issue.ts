@@ -1,7 +1,7 @@
 import {
 	ITaskLinkedIssue,
 	ITaskLinkedIssueResponse,
-	LinkedTaskIssue,
+	LinkedTaskIssue
 } from '@app/interfaces';
 import api from '../axios';
 
