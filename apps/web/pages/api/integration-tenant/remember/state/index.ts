@@ -20,7 +20,7 @@ export default async function handler(
 		{
 			tenantId,
 			organizationId,
-			name,
+			name: name as string,
 		},
 		access_token
 	);

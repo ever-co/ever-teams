@@ -6,8 +6,10 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	const { $res, user, access_token, tenantId, organizationId } =
-		await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(
+		req,
+		res
+	);
 	if (!user) return $res();
 
 	if (req.method !== 'GET') {
@@ -17,7 +19,6 @@ export default async function handler(
 	const response = await getIntegrationTypesRequest(
 		{
 			tenantId,
-			organizationId,
 		},
 		access_token
 	);
