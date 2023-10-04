@@ -40,11 +40,6 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 							disabled={!canRunTimer}
 							onPress={() => startTimer()}
 						>
-							{/* <Image
-								resizeMode="contain"
-								style={[styles.timerIcon, iconStyle]}
-								source={require("../../assets/icons/new/play.png")}
-							/> */}
 							<SvgXml xml={timerLargePlayIcon} />
 						</Pressable>
 					</>
@@ -54,16 +49,6 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 						style={[styles.timerBtnActive, { backgroundColor: "#e11d48" }, containerStyle]}
 					>
 						<SvgXml xml={timerLargeStopIcon} />
-						{/* <LinearGradient
-							colors={["#E93CB9", "#6A71E7"]}
-							style={[styles.timerBtnInactive, containerStyle]}
-						>
-							<Image
-								resizeMode="contain"
-								style={[styles.timerIcon, iconStyle]}
-								source={require("../../assets/icons/new/stop.png")}
-							/>
-						</LinearGradient> */}
 					</Pressable>
 				)}
 			</View>
@@ -83,11 +68,6 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 						disabled={!canRunTimer}
 						onPress={() => (canRunTimer ? startTimer() : {})}
 					>
-						{/* <Image
-							resizeMode="contain"
-							style={[styles.timerIcon, iconStyle]}
-							source={require("../../assets/icons/new/play.png")}
-						/> */}
 						<SvgXml xml={timerLargePlayIcon} />
 					</Pressable>
 				</>
@@ -96,11 +76,6 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 					onPress={() => stopTimer()}
 					style={[styles.timerBtnActive, { backgroundColor: "#e11d48" }, containerStyle]}
 				>
-					{/* <Image
-						resizeMode="contain"
-						style={[styles.timerIcon, iconStyle]}
-						source={require("../../assets/icons/new/stop.png")}
-					/> */}
 					<SvgXml xml={timerLargeStopIcon} />
 				</Pressable>
 			)}
