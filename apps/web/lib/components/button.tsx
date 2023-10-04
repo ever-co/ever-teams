@@ -46,31 +46,31 @@ export function Button({
 				[
 					variant === 'primary' && [
 						'bg-primary dark:bg-primary-light text-white text-sm',
-						'disabled:bg-primary-light disabled:opacity-40',
+						'disabled:bg-primary-light disabled:opacity-40'
 						// 'disabled:bg-primary-light dark:disabled:bg-[#33353E] disabled:opacity-40 dark:disabled:opacity-50',
 					],
 					variant === 'outline' && [
 						'text-primary border border-primary font-medium',
 						'dark:text-white border dark:border-white',
-						'disabled:opacity-40',
+						'disabled:opacity-40'
 					],
 					variant === 'outline-dark' && [
 						'input-border font-medium',
-						'disabled:opacity-40',
+						'disabled:opacity-40'
 					],
 					variant === 'grey' && [
 						'disabled:opacity-40',
 						'bg-light--theme-dark',
 						'dark:bg-light--theme-dark',
-						'dark:text-primary',
+						'dark:text-primary'
 					],
 					variant === 'danger' && [
-						'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold',
+						'disabled:opacity-40 bg-[#EB6961] text-white dark:bg-[#EB6961] text-base font-semibold'
 					],
 					variant === 'outline-danger' && [
 						'text-[#EB6961] border border-[#EB6961] font-medium',
-						'disabled:opacity-40',
-					],
+						'disabled:opacity-40'
+					]
 				],
 				className
 			)}
@@ -112,7 +112,7 @@ export function RoundedButton({
 
 export function BackButton({
 	onClick,
-	className,
+	className
 }: {
 	onClick?: () => void;
 	className?: string;

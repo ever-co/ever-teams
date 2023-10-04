@@ -14,7 +14,7 @@ const ProfileInfoWithTime = ({
 	names,
 	profileInfoWrapperClassName,
 	time,
-	userId,
+	userId
 }: Props) => {
 	return (
 		<div className="flex justify-between items-center w-full">

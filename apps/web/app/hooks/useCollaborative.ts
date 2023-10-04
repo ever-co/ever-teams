@@ -1,7 +1,7 @@
 import { IUser } from '@app/interfaces';
 import {
 	collaborativeMembersState,
-	collaborativeSelectState,
+	collaborativeSelectState
 } from '@app/stores';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
@@ -94,6 +94,6 @@ export function useCollaborative(user?: IUser) {
 		user_selected,
 		onUserSelect,
 		getMeetRoomName,
-		randomMeetName,
+		randomMeetName
 	};
 }

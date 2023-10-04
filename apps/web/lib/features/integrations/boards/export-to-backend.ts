@@ -3,12 +3,12 @@ import { compressData } from './encode';
 import { generateEncryptionKey } from './encryption';
 import {
 	ExcalidrawElement,
-	FileId,
+	FileId
 } from '@excalidraw/excalidraw/types/element/types';
 import {
 	AppState,
 	BinaryFileData,
-	BinaryFiles,
+	BinaryFiles
 } from '@excalidraw/excalidraw/types/types';
 import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL } from '@app/constants';
 import { FILE_UPLOAD_MAX_BYTES } from './constants';
@@ -48,12 +48,12 @@ export const exportToBackend = async (
 		const filesToUpload = await encodeFilesForUpload({
 			files: filesMap,
 			encryptionKey,
-			maxBytes: FILE_UPLOAD_MAX_BYTES,
+			maxBytes: FILE_UPLOAD_MAX_BYTES
 		});
 
 		const response = await fetch(BOARD_BACKEND_POST_URL, {
 			method: 'POST',
-			body: payload.buffer,
+			body: payload.buffer
 		});
 		const json = await response.json();
 		if (json.id) {
@@ -65,14 +65,14 @@ export const exportToBackend = async (
 
 			await saveFilesToFirebase({
 				prefix: `/files/shareLinks/${json.id}`,
-				files: filesToUpload,
+				files: filesToUpload
 			});
 
 			return { url: urlString, errorMessage: null };
 		} else if (json.error_class === 'RequestTooLargeError') {
 			return {
 				url: null,
-				errorMessage: 'Shareable Link Too Big',
+				errorMessage: 'Shareable Link Too Big'
 			};
 		}
 

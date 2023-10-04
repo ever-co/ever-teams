@@ -8,7 +8,7 @@ import { FieldValues, UseFormSetValue } from 'react-hook-form';
 
 export const ColorDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IColor | null;
@@ -16,44 +16,44 @@ export const ColorDropdown = ({
 	const [colors, setColors] = useState<IColor[]>([
 		{
 			color: '#ECE8FC',
-			title: '#ECE8FC',
+			title: '#ECE8FC'
 		},
 		{
 			color: '#D4EFDF',
-			title: '#D4EFDF',
+			title: '#D4EFDF'
 		},
 		{
 			color: '#D6E4F9',
-			title: '#D6E4F9',
+			title: '#D6E4F9'
 		},
 		{
 			color: '#F5B8B8',
-			title: '#F5B8B8',
+			title: '#F5B8B8'
 		},
 		{
 			color: '#F3D8B0',
-			title: '#F3D8B0',
+			title: '#F3D8B0'
 		},
 		{
 			color: '#F2F2F2',
-			title: '#F2F2F2',
+			title: '#F2F2F2'
 		},
 		{
 			color: '#F5F1CB',
-			title: '#F5F1CB',
+			title: '#F5F1CB'
 		},
 		{
 			color: '#4192AB',
-			title: '#4192AB',
+			title: '#4192AB'
 		},
 		{
 			color: '#4E4AE8',
-			title: '#4E4AE8',
+			title: '#4E4AE8'
 		},
 		{
 			color: '#E78F5E',
-			title: '#E78F5E',
-		},
+			title: '#E78F5E'
+		}
 	]);
 
 	const items = useMemo(() => mapColorItems(colors), [colors]);

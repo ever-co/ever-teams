@@ -3,5 +3,5 @@ import { atom } from 'recoil';
 
 export const rolesState = atom<IRole[]>({
 	key: 'rolesState',
-	default: [],
+	default: []
 });

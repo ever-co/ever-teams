@@ -44,7 +44,7 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 						const path = ReactEditor.findPath(editor, element);
 						const newProperties: Partial<SlateElement> = {
 							//@ts-ignore
-							checked: event.target.checked,
+							checked: event.target.checked
 						};
 						Transforms.setNodes(editor, newProperties, { at: path });
 					}}

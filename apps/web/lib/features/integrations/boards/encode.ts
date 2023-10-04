@@ -175,7 +175,7 @@ export const compressData = async <T extends Record<string, any> = never>(
 	const fileInfo: FileEncodingInfo = {
 		version: 2,
 		compression: 'pako@1',
-		encryption: 'AES-GCM',
+		encryption: 'AES-GCM'
 	};
 
 	const encodingMetadataBuffer = new TextEncoder().encode(

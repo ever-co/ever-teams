@@ -5,7 +5,7 @@ import {
 	DetailedHTMLProps,
 	forwardRef,
 	HTMLAttributes,
-	PropsWithChildren,
+	PropsWithChildren
 } from 'react';
 import { IVariant } from './types';
 
@@ -43,7 +43,7 @@ Text.Link = forwardRef<HTMLAnchorElement, LinkProps>(
 						variant === 'primary' && ['text-primary dark:text-primary-light'],
 						variant === 'dark' && ['text-default dark:text-white'],
 						variant === 'light' && ['text-white dark:text-default'],
-						underline && ['underline'],
+						underline && ['underline']
 					],
 					className
 				)}
@@ -104,9 +104,9 @@ Text.Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
 		const elClassName = clsxm(
 			[
 				asel === 'h1' && [
-					'text-3xl font-medium text-[#282048] dark:text-white',
+					'text-3xl font-medium text-[#282048] dark:text-white'
 				],
-				asel === 'h3' && ['text-lg font-medium text-default dark:text-white'],
+				asel === 'h3' && ['text-lg font-medium text-default dark:text-white']
 			],
 			className
 		);
@@ -144,7 +144,7 @@ Text.Heading = forwardRef<HTMLHeadingElement, HeadingProps>(
 						<h6 ref={ref} className={elClassName} {...rest}>
 							{children}
 						</h6>
-					),
+					)
 				} as Record<typeof asel, React.ReactElement>
 			)[asel] || h1
 		);

@@ -1,7 +1,7 @@
 import {
 	CreateReponse,
 	DeleteReponse,
-	ITaskStatusCreate,
+	ITaskStatusCreate
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -11,8 +11,8 @@ export function createTaskStatusAPI(
 ) {
 	return api.post<CreateReponse<ITaskStatusCreate>>('/task-statuses', data, {
 		headers: {
-			'Tenant-Id': tenantId,
-		},
+			'Tenant-Id': tenantId
+		}
 	});
 }
 
@@ -26,8 +26,8 @@ export function editTaskStatusAPI(
 		data,
 		{
 			headers: {
-				'Tenant-Id': tenantId,
-			},
+				'Tenant-Id': tenantId
+			}
 		}
 	);
 }

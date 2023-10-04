@@ -9,7 +9,7 @@ const Input = ({
 	onChange,
 	value,
 	centered = false,
-	errors,
+	errors
 }: IInputProps) => {
 	return (
 		<div>
@@ -45,7 +45,7 @@ const Input = ({
 };
 
 Input.defaultProps = {
-	type: 'text',
+	type: 'text'
 };
 
 export default Input;

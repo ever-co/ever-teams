@@ -4,12 +4,12 @@ import { activeTeamState } from './organization-team';
 
 export const teamInvitationsState = atom<IInvitation[]>({
 	key: 'teamInvitationsState',
-	default: [],
+	default: []
 });
 
 export const myInvitationsState = atom<IMyInvitations[]>({
 	key: 'myInvitationsState',
-	default: [],
+	default: []
 });
 
 export const getTeamInvitationsState = selector<IInvitation[]>({
@@ -22,10 +22,10 @@ export const getTeamInvitationsState = selector<IInvitation[]>({
 		return invitations.filter((invite) => {
 			return !members.find((me) => me?.employee?.user?.email === invite?.email);
 		});
-	},
+	}
 });
 
 export const fetchingTeamInvitationsState = atom<boolean>({
 	key: 'fetchingTeamInvitationsState',
-	default: false,
+	default: false
 });

@@ -28,8 +28,8 @@ export default async function handler(
 	if (!codeSendRes) {
 		return res.status(400).json({
 			errors: {
-				email: "We couldn't find any account associated to this email",
-			},
+				email: "We couldn't find any account associated to this email"
+			}
 		});
 	}
 

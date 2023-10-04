@@ -2,7 +2,7 @@ import { PaginationResponse } from '@app/interfaces/IDataResponse';
 import {
 	IOrganization,
 	IOrganizationCreate,
-	IUserOrganization,
+	IUserOrganization
 } from '@app/interfaces/IOrganization';
 import { serverFetch } from '../fetch';
 
@@ -14,7 +14,7 @@ export function createOrganizationRequest(
 		path: '/organization',
 		method: 'POST',
 		body: datas,
-		bearer_token,
+		bearer_token
 	});
 }
 
@@ -26,14 +26,14 @@ export function getUserOrganizationsRequest(
 		relations: new URLSearchParams([]).toString(),
 		findInput: new URLSearchParams({
 			userId,
-			tenantId,
-		}).toString(),
+			tenantId
+		}).toString()
 	});
 
 	return serverFetch<PaginationResponse<IUserOrganization>>({
 		path: `/user-organization?data=${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

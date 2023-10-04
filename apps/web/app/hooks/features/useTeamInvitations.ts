@@ -5,14 +5,14 @@ import {
 	removeTeamInvitationsAPI,
 	resendTeamInvitationsAPI,
 	getMyInvitationsAPI,
-	acceptRejectMyInvitationsAPI,
+	acceptRejectMyInvitationsAPI
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
 	fetchingTeamInvitationsState,
 	getTeamInvitationsState,
 	myInvitationsState,
-	teamInvitationsState,
+	teamInvitationsState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -53,7 +53,7 @@ export function useTeamInvitations() {
 
 	const {
 		queryCall: acceptRejectMyInvitationsQueryCall,
-		loading: acceptRejectMyInvitationsLoading,
+		loading: acceptRejectMyInvitationsLoading
 	} = useQuery(acceptRejectMyInvitationsAPI);
 
 	const inviteUser = useCallback((email: string, name: string) => {
@@ -138,6 +138,6 @@ export function useTeamInvitations() {
 		myInvitationsList,
 		removeMyInvitation,
 		acceptRejectMyInvitation,
-		acceptRejectMyInvitationsLoading,
+		acceptRejectMyInvitationsLoading
 	};
 }

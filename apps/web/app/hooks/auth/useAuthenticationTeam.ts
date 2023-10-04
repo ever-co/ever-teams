@@ -18,7 +18,7 @@ const initialValues: IRegisterDataAPI = {
 	name: '',
 	email: '',
 	team: '',
-	recaptcha: '',
+	recaptcha: ''
 };
 
 export function useAuthenticationTeam() {
@@ -69,7 +69,7 @@ export function useAuthenticationTeam() {
 			}
 			setFormValues((prevState) => ({
 				...prevState,
-				[name]: value,
+				[name]: value
 			}));
 		},
 		[errors]
@@ -84,6 +84,6 @@ export function useAuthenticationTeam() {
 		SECOND_STEP,
 		setStep,
 		errors,
-		formValues,
+		formValues
 	};
 }

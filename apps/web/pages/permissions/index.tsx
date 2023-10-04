@@ -1,7 +1,7 @@
 import {
 	useIsMemberManager,
 	useOrganizationTeams,
-	useRolePermissions,
+	useRolePermissions
 } from '@app/hooks';
 import { useRoles } from '@app/hooks/features/useRoles';
 import { IRole } from '@app/interfaces';
@@ -14,7 +14,7 @@ import {
 	CommonToggle,
 	Container,
 	Divider,
-	Text,
+	Text
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -47,7 +47,7 @@ const Permissions = () => {
 
 			updateRolePermission({
 				...permission,
-				enabled: !permission.enabled,
+				enabled: !permission.enabled
 			}).then(() => {
 				selectedRole && selectedRole?.id && getRolePermissions(selectedRole.id);
 			});
@@ -56,7 +56,7 @@ const Permissions = () => {
 			rolePermissionsFormated,
 			selectedRole,
 			getRolePermissions,
-			updateRolePermission,
+			updateRolePermission
 		]
 	);
 
@@ -337,5 +337,5 @@ function SelectRole() {
 }
 
 export default withAuthentication(Permissions, {
-	displayName: 'PermissionPage',
+	displayName: 'PermissionPage'
 });

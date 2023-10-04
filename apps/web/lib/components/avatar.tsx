@@ -24,7 +24,7 @@ export function Avatar({
 	children,
 	alt,
 	imageTitle,
-	backgroundColor,
+	backgroundColor
 }: Props) {
 	const [avatar, setAvatar] = useRecoilState(avatarState);
 
@@ -60,9 +60,9 @@ export function Avatar({
 				height: size,
 				...(backgroundColor
 					? {
-							backgroundColor,
+							backgroundColor
 					  }
-					: {}),
+					: {})
 			}}
 		>
 			{imageTitle && !imgUrl && (

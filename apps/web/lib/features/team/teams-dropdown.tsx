@@ -6,7 +6,7 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useOrganizationTeams,
-	useTimer,
+	useTimer
 } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { CreateTeamModal } from './create-team-modal';
@@ -39,8 +39,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 					toast({
 						variant: 'default',
 						title: trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE,
-						description:
-							trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION,
+						description: trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION
 					});
 					stopTimer();
 				}

@@ -10,14 +10,14 @@ import {
 	createTenantSmtpRequest,
 	loginUserRequest,
 	registerUserRequest,
-	refreshTokenRequest,
+	refreshTokenRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
 import { recaptchaVerification } from '@app/services/server/recaptcha';
 import {
 	RECAPTCHA_SECRET_KEY,
-	VERIFY_EMAIL_CALLBACK_PATH,
+	VERIFY_EMAIL_CALLBACK_PATH
 } from '@app/constants';
 
 export default async function handler(
@@ -43,7 +43,7 @@ export default async function handler(
 
 	const { success } = await recaptchaVerification({
 		secret: RECAPTCHA_SECRET_KEY || '',
-		response: body.recaptcha,
+		response: body.recaptcha
 	});
 
 	if (!success) {
@@ -76,9 +76,9 @@ export default async function handler(
 			firstName: names[0],
 			lastName: names[1] || '',
 			email: body.email,
-			timeZone: body.timezone as string,
+			timeZone: body.timezone as string
 		},
-		appEmailConfirmationUrl,
+		appEmailConfirmationUrl
 	});
 	// User Login, get the access token
 	const { data: loginRes } = await loginUserRequest(body.email, password);
@@ -90,7 +90,7 @@ export default async function handler(
 	// Create tenant SMTP
 	await createTenantSmtpRequest({
 		access_token: auth_token,
-		tenantId: tenant.id,
+		tenantId: tenant.id
 	});
 
 	// Create user organization
@@ -99,7 +99,7 @@ export default async function handler(
 			currency: 'USD',
 			name: body.team,
 			tenantId: tenant.id,
-			invitesAllowed: true,
+			invitesAllowed: true
 		},
 		auth_token
 	);
@@ -110,7 +110,7 @@ export default async function handler(
 			organizationId: organization.id,
 			startedWorkOn: new Date().toISOString(),
 			tenantId: tenant.id,
-			userId: user.id,
+			userId: user.id
 		},
 		auth_token
 	);
@@ -122,7 +122,7 @@ export default async function handler(
 			tenantId: tenant.id,
 			organizationId: organization.id,
 			managerIds: [employee.id],
-			public: true, // By default team should be public,
+			public: true // By default team should be public,
 		},
 		auth_token
 	);
@@ -136,14 +136,14 @@ export default async function handler(
 		{
 			access_token: auth_token,
 			refresh_token: {
-				token: loginRes.refresh_token,
+				token: loginRes.refresh_token
 			},
 			timezone: body['timezone'],
 			teamId: team.id,
 			tenantId: tenant.id,
 			organizationId: organization.id,
 			languageId: 'en', // TODO: not sure what should be here
-			userId: user.id,
+			userId: user.id
 		},
 		req,
 		res

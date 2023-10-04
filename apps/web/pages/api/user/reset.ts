@@ -18,7 +18,7 @@ export default async function handler(
 			return $res.json(
 				await resetUserRequest({
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 	}

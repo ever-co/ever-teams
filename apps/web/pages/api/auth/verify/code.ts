@@ -30,7 +30,7 @@ export default async function handler(
 		bearer_token: access_token,
 		tenantId,
 		code: body.code,
-		email: user.email,
+		email: user.email
 	});
 
 	$res.json(data);

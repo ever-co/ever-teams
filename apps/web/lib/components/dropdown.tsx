@@ -40,7 +40,7 @@ export function Dropdown<T extends DropdownItem>({
 	buttonStyle,
 	optionsClassName,
 	publicTeam,
-	closeOnChildrenClick = true,
+	closeOnChildrenClick = true
 }: Props<T>) {
 	return (
 		<div className={clsxm('rounded-xl', className)}>
@@ -137,7 +137,7 @@ export function ConfirmDropdown({
 	children,
 	onConfirm,
 	confirmText = 'Confirm',
-	className,
+	className
 }: PropsWithChildren<
 	{ onConfirm?: () => void; confirmText?: string } & IClassName
 >) {

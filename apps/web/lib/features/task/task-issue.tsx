@@ -4,7 +4,7 @@ import {
 	IssueType,
 	ITaskIssue,
 	ITeamTask,
-	Nullable,
+	Nullable
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import {
@@ -13,13 +13,13 @@ import {
 	Card,
 	InputField,
 	Modal,
-	Text,
+	Text
 } from 'lib/components';
 import {
 	BugReportIcon,
 	CategoryIcon,
 	NoteIcon,
-	TaskSquareIcon,
+	TaskSquareIcon
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import {
@@ -30,30 +30,30 @@ import {
 	TStatusItem,
 	TTaskVersionsDropdown,
 	useActiveTaskStatus,
-	useStatusValue,
+	useStatusValue
 } from './task-status';
 
 export const taskIssues: TStatus<ITaskIssue> = {
 	Bug: {
 		icon: <BugReportIcon />,
 		name: 'Bug',
-		bgColor: '#923535',
+		bgColor: '#923535'
 	},
 	Task: {
 		icon: <TaskSquareIcon />,
 		name: 'Task',
-		bgColor: '#5483BA',
+		bgColor: '#5483BA'
 	},
 	Story: {
 		icon: <NoteIcon />,
 		name: 'Story',
-		bgColor: '#66BB97',
+		bgColor: '#66BB97'
 	},
 	Epic: {
 		icon: <CategoryIcon />,
 		name: 'Custom',
-		bgColor: '#8154BA',
-	},
+		bgColor: '#8154BA'
+	}
 };
 
 /**
@@ -67,7 +67,7 @@ export function TaskIssuesDropdown({
 	defaultValue,
 	onValueChange,
 	showIssueLabels = true,
-	taskStatusClassName,
+	taskStatusClassName
 }: TTaskVersionsDropdown<'issueType'> & {
 	showIssueLabels?: boolean;
 	taskStatusClassName?: string;
@@ -76,7 +76,7 @@ export function TaskIssuesDropdown({
 	const { item, items, onChange } = useStatusValue<'issueType'>({
 		status: taskIssues,
 		value: defaultValue,
-		onValueChange,
+		onValueChange
 	});
 
 	return (
@@ -131,7 +131,7 @@ export function ActiveTaskIssuesDropdown({
 
 		[IssueType.BUG]: items.filter((it) =>
 			[IssueType.STORY, IssueType.TASK].includes(it.value as IssueType)
-		),
+		)
 	};
 	let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
 
@@ -180,7 +180,7 @@ export function ActiveTaskIssuesDropdown({
 export function TaskIssueStatus({
 	task,
 	className,
-	showIssueLabels,
+	showIssueLabels
 }: { task: Nullable<ITeamTask>; showIssueLabels?: boolean } & IClassName) {
 	return (
 		<TaskStatus
@@ -199,7 +199,7 @@ export function TaskIssueStatus({
  */
 export function CreateTaskIssueModal({
 	open,
-	closeModal,
+	closeModal
 }: {
 	open: boolean;
 	closeModal: () => void;

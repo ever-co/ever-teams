@@ -4,14 +4,14 @@ import { ITeamTask } from '@app/interfaces/ITask';
 import {
 	ILocalTimerStatus,
 	ITimerStatus,
-	TimerSource,
+	TimerSource
 } from '@app/interfaces/ITimer';
 import {
 	getTimerStatusAPI,
 	startTimerAPI,
 	stopTimerAPI,
 	toggleTimerAPI,
-	syncTimerAPI,
+	syncTimerAPI
 } from '@app/services/client/api/timer';
 import {
 	activeTaskStatisticsState,
@@ -20,7 +20,7 @@ import {
 	timeCounterState,
 	timerSecondsState,
 	timerStatusFetchingState,
-	timerStatusState,
+	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -109,7 +109,7 @@ function useLocalTimeCounter(
 						localStatus?.runnedDateTime ||
 						0,
 					running: timerStatus.running,
-					lastTaskId: timerStatus.lastLog?.taskId || null,
+					lastTaskId: timerStatus.lastLog?.taskId || null
 				});
 		}
 	}, [firstLoad, timerStatus]);
@@ -158,7 +158,7 @@ function useLocalTimeCounter(
 	return {
 		updateLocalTimerStatus,
 		timeCounter,
-		timerSeconds: timerSeconds,
+		timerSeconds: timerSeconds
 	};
 }
 
@@ -224,7 +224,7 @@ export function useTimer() {
 	const toggleTimer = useCallback(
 		(taskId: string, updateStore = true) => {
 			return toggleQueryCall({
-				taskId,
+				taskId
 			}).then((res) => {
 				if (updateStore && res.data && !isEqual(timerStatus, res.data)) {
 					setTimerStatus(res.data);
@@ -263,7 +263,7 @@ export function useTimer() {
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current,
 			runnedDateTime: Date.now(),
-			running: true,
+			running: true
 		});
 
 		setTimerStatusFetching(true);
@@ -281,7 +281,7 @@ export function useTimer() {
 		) {
 			updateTask({
 				...activeTeamTaskRef.current,
-				status: 'in-progress',
+				status: 'in-progress'
 			});
 		}
 
@@ -295,7 +295,7 @@ export function useTimer() {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
-					tenantId: activeTeam?.tenantId,
+					tenantId: activeTeam?.tenantId
 				});
 			}
 		}
@@ -315,7 +315,7 @@ export function useTimer() {
 		startTimerQueryCall,
 		taskId,
 		updateLocalTimerStatus,
-		updateTask,
+		updateTask
 	]);
 
 	// Stop timer
@@ -323,7 +323,7 @@ export function useTimer() {
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
-			running: false,
+			running: false
 		});
 
 		return stopTimerQueryCall(
@@ -389,7 +389,7 @@ export function useTimer() {
 		timerSeconds,
 		activeTeamTask,
 		syncTimer,
-		syncTimerLoading,
+		syncTimerLoading
 	};
 }
 
@@ -406,7 +406,7 @@ export function useLiveTimerStatus() {
 	return {
 		time: { h, m },
 		seconds,
-		timerStatus,
+		timerStatus
 	};
 }
 
@@ -423,7 +423,7 @@ export function useTimerView() {
 		canRunTimer,
 		timerSeconds,
 		activeTeamTask,
-		syncTimerLoading,
+		syncTimerLoading
 	} = useTimer();
 
 	const { activeTaskEstimation } = useTaskStatistics(timerSeconds);
@@ -451,7 +451,7 @@ export function useTimerView() {
 		disabled: !canRunTimer,
 		startTimer,
 		stopTimer,
-		syncTimerLoading,
+		syncTimerLoading
 	};
 }
 

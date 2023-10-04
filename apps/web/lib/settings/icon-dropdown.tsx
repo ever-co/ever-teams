@@ -9,7 +9,7 @@ import { FieldValues, UseFormSetValue } from 'react-hook-form';
 export const IconDropdown = ({
 	setValue,
 	active,
-	iconList,
+	iconList
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IIcon | null;

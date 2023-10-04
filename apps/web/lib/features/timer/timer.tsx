@@ -12,7 +12,7 @@ import {
 	GlobeAltIcon,
 	ComputerDesktopIcon,
 	ArrowUturnUpIcon,
-	LifebuoyIcon,
+	LifebuoyIcon
 } from '@heroicons/react/24/outline';
 
 export function Timer({ className }: IClassName) {
@@ -26,7 +26,7 @@ export function Timer({ className }: IClassName) {
 		canRunTimer,
 		timerHanlder,
 		timerStatus,
-		disabled,
+		disabled
 	} = useTimerView();
 
 	return (
@@ -104,7 +104,7 @@ export function MinTimerFrame({ className }: IClassName) {
 
 		timerHanlder,
 		timerStatus,
-		disabled,
+		disabled
 	} = useTimerView();
 
 	return (

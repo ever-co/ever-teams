@@ -13,8 +13,8 @@ export function getPublicOrganizationTeamRequest({
 		'members',
 		// 'members.role',
 		'members.employee',
-		'members.employee.user',
-	],
+		'members.employee.user'
+	]
 }: {
 	profileLink: string;
 	teamId: string;
@@ -23,7 +23,7 @@ export function getPublicOrganizationTeamRequest({
 	const params = {
 		withLaskWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
-		endDate: moment().endOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {
@@ -33,14 +33,14 @@ export function getPublicOrganizationTeamRequest({
 	const queries = new URLSearchParams(params || {});
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
-		method: 'GET',
+		method: 'GET'
 	});
 }
 
 export function getPublicOrganizationTeamMiscDataRequest({
 	profileLink,
 	teamId,
-	relations = ['statuses', 'priorities', 'sizes', 'labels', 'issueTypes'],
+	relations = ['statuses', 'priorities', 'sizes', 'labels', 'issueTypes']
 }: {
 	profileLink: string;
 	teamId: string;
@@ -49,7 +49,7 @@ export function getPublicOrganizationTeamMiscDataRequest({
 	const params = {
 		withLaskWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
-		endDate: moment().endOf('day').toISOString(),
+		endDate: moment().endOf('day').toISOString()
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {
@@ -59,6 +59,6 @@ export function getPublicOrganizationTeamMiscDataRequest({
 	const queries = new URLSearchParams(params || {});
 	return serverFetch<IOrganizationTeamWithMStatus>({
 		path: `/public/team/${profileLink}/${teamId}?${queries.toString()}`,
-		method: 'GET',
+		method: 'GET'
 	});
 }

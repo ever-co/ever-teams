@@ -2,12 +2,12 @@ import {
 	VERIFY_EMAIL_CALLBACK_URL,
 	APP_NAME,
 	APP_SIGNATURE,
-	APP_LOGO_URL,
+	APP_LOGO_URL
 } from '@app/constants';
 import { ISuccessResponse } from '@app/interfaces';
 import {
 	ILoginResponse,
-	IRegisterDataRequest,
+	IRegisterDataRequest
 } from '@app/interfaces/IAuthentication';
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
@@ -15,7 +15,7 @@ import { serverFetch } from '../fetch';
 const registerDefaultValue = {
 	appName: APP_NAME,
 	appSignature: APP_SIGNATURE,
-	appLogo: APP_LOGO_URL,
+	appLogo: APP_LOGO_URL
 };
 
 export function registerUserRequest(data: IRegisterDataRequest) {
@@ -23,13 +23,13 @@ export function registerUserRequest(data: IRegisterDataRequest) {
 		...data,
 		...registerDefaultValue,
 		appEmailConfirmationUrl:
-			VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl,
+			VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
 	};
 
 	return serverFetch<IUser>({
 		path: '/auth/register',
 		method: 'POST',
-		body,
+		body
 	});
 }
 
@@ -37,7 +37,7 @@ export function sendAuthCodeRequest(email: string, callbackUrl: string) {
 	return serverFetch<{ status: number; message: string | 'ok' }>({
 		path: '/auth/send-code',
 		method: 'POST',
-		body: { email, callbackUrl },
+		body: { email, callbackUrl }
 	});
 }
 
@@ -45,7 +45,7 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 	return serverFetch<{ status: number; message: string | 'ok' }>({
 		path: '/auth/signin.email',
 		method: 'POST',
-		body: { email, callbackUrl },
+		body: { email, callbackUrl }
 	});
 }
 export const signInEmailConfirmRequest = (data: {
@@ -57,14 +57,14 @@ export const signInEmailConfirmRequest = (data: {
 	return serverFetch<ISuccessResponse>({
 		path: '/auth/signin.email/confirm?includeTeams=true',
 		method: 'POST',
-		body: { code, email },
+		body: { code, email }
 	});
 };
 export function signInWorkspaceRequest(email: string, token: string) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/signin.workspace',
 		method: 'POST',
-		body: { email, token },
+		body: { email, token }
 	});
 }
 
@@ -72,7 +72,7 @@ export function verifyAuthCodeRequest(email: string, code: string) {
 	return serverFetch<ILoginResponse>({
 		path: '/auth/verify-code',
 		method: 'POST',
-		body: { email, code },
+		body: { email, code }
 	});
 }
 
@@ -82,8 +82,8 @@ export const loginUserRequest = (email: string, password: string) => {
 		method: 'POST',
 		body: {
 			email,
-			password,
-		},
+			password
+		}
 	});
 };
 
@@ -91,7 +91,7 @@ export const whetherUserAuthenticatedRequest = (bearer_token: string) => {
 	return serverFetch<boolean>({
 		path: '/user/authenticated',
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 };
 
@@ -102,7 +102,7 @@ type IUEmployeeParam = {
 
 export const currentAuthenticatedUserRequest = ({
 	bearer_token,
-	relations = ['employee', 'role', 'tenant'],
+	relations = ['employee', 'role', 'tenant']
 }: IUEmployeeParam) => {
 	const params = {} as { [x: string]: string };
 
@@ -115,7 +115,7 @@ export const currentAuthenticatedUserRequest = ({
 	return serverFetch<IUser>({
 		path: `/user/me?${query.toString()}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 };
 
@@ -124,8 +124,8 @@ export const refreshTokenRequest = (refresh_token: string) => {
 		path: '/auth/refresh-token',
 		method: 'POST',
 		body: {
-			refresh_token,
-		},
+			refresh_token
+		}
 	});
 };
 
@@ -142,7 +142,7 @@ export const verifyUserEmailByCodeRequest = (data: {
 		method: 'POST',
 		body: { code, email, tenantId },
 		tenantId: data.tenantId,
-		bearer_token,
+		bearer_token
 	});
 };
 
@@ -155,7 +155,7 @@ export const verifyUserEmailByTokenRequest = (data: {
 	return serverFetch<ISuccessResponse>({
 		path: '/auth/email/verify',
 		method: 'POST',
-		body: { token, email },
+		body: { token, email }
 	});
 };
 
@@ -172,7 +172,7 @@ export const resentVerifyUserLinkRequest = (data: {
 		tenantId,
 		...registerDefaultValue,
 		appEmailConfirmationUrl:
-			VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl,
+			VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl
 	};
 
 	return serverFetch<ISuccessResponse>({
@@ -180,6 +180,6 @@ export const resentVerifyUserLinkRequest = (data: {
 		method: 'POST',
 		body,
 		tenantId: data.tenantId,
-		bearer_token,
+		bearer_token
 	});
 };

@@ -12,7 +12,7 @@ import {
 	TaskLabelsDropdown,
 	TaskPropertiesDropdown,
 	TaskSizesDropdown,
-	TaskStatusDropdown,
+	TaskStatusDropdown
 } from './task-status';
 import intersection from 'lodash/intersection';
 
@@ -57,7 +57,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const tasksFiltered: { [x in ITab]: ITeamTask[] } = {
 		unassigned: profile.tasksGrouped.unassignedTasks,
 		assigned: profile.tasksGrouped.assignedTasks,
-		worked: profile.tasksGrouped.workedTasks,
+		worked: profile.tasksGrouped.workedTasks
 	};
 
 	const tasks = tasksFiltered[tab];
@@ -80,20 +80,20 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			tab: 'worked',
 			name: trans.common.WORKED,
 			description: trans.task.tabFilter.WORKED_DESCRIPTION,
-			count: profile.tasksGrouped.workedTasks.length,
+			count: profile.tasksGrouped.workedTasks.length
 		},
 		{
 			tab: 'assigned',
 			name: trans.common.ASSIGNED,
 			description: trans.task.tabFilter.ASSIGNED_DESCRIPTION,
-			count: profile.tasksGrouped.assignedTasks.length,
+			count: profile.tasksGrouped.assignedTasks.length
 		},
 		{
 			tab: 'unassigned',
 			name: trans.common.UNASSIGNED,
 			description: trans.task.tabFilter.UNASSIGNED_DESCRIPTION,
-			count: profile.tasksGrouped.unassignedTasks.length,
-		},
+			count: profile.tasksGrouped.unassignedTasks.length
+		}
 	];
 
 	useEffect(() => {
@@ -118,7 +118,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 			return setStatusFilter((state) => {
 				return {
 					...state,
-					[type]: value,
+					[type]: value
 				};
 			});
 		},
@@ -182,7 +182,7 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		onResetStatusFilter,
 		applyStatusFilder,
 		tasksGrouped: profile.tasksGrouped,
-		outclickFilterCard,
+		outclickFilterCard
 	};
 }
 
@@ -256,7 +256,7 @@ function InputFilters({ hook, profile }: Props) {
 					className={clsxm(
 						'dark:stroke-white',
 						hook.filterType === 'search' && [
-							'stroke-primary-light dark:stroke-primary-light',
+							'stroke-primary-light dark:stroke-primary-light'
 						]
 					)}
 				/>
@@ -429,7 +429,7 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 function TaskNameFilter({
 	value,
 	setValue,
-	close,
+	close
 }: {
 	value: string;
 	setValue: (v: string) => void;

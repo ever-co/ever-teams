@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import {
 	useAuthenticationPasscode,
 	useOrganizationTeams,
-	useRequestToJoinTeam,
+	useRequestToJoinTeam
 } from '@app/hooks';
 import { useTranslation } from 'lib/i18n';
 import {
@@ -12,7 +12,7 @@ import {
 	Card,
 	InputField,
 	AuthCodeInputField,
-	SpinnerLoader,
+	SpinnerLoader
 } from 'lib/components';
 import { clsxm } from '@app/utils';
 import { ArrowLeft } from 'lib/components/svgs';
@@ -21,7 +21,7 @@ import { PositionDropDown } from './position-dropdown';
 
 export const RequestToJoinModal = ({
 	open,
-	closeModal,
+	closeModal
 }: {
 	open: boolean;
 	closeModal: () => void;
@@ -86,7 +86,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 		handleCodeSubmit,
 		sendCodeLoading,
 		sendAuthCodeHandler,
-		inputCodeRef,
+		inputCodeRef
 	} = useAuthenticationPasscode();
 
 	return (
@@ -190,7 +190,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 		errors,
 		setErrors,
 		sendCodeLoading,
-		inputCodeRef,
+		inputCodeRef
 	} = useAuthenticationPasscode();
 	const { activeTeam } = useOrganizationTeams();
 	const {
@@ -199,7 +199,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 		resendCodeRequestToJoinTeam,
 		requestToJoinLoading,
 		resendCodeRequestToJoinLoading,
-		validateRequestToJoinLoading,
+		validateRequestToJoinLoading
 	} = useRequestToJoinTeam();
 	const [message, setMessage] = useState<string>('');
 
@@ -217,7 +217,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 				email: form.get('email') as string,
 				linkAddress: form.get('linkAddress') as string,
 				position,
-				organizationTeamId: activeTeam.id,
+				organizationTeamId: activeTeam.id
 			};
 
 			if (joinButtonAction === 'JOIN') {
@@ -231,13 +231,13 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 					validateRequestToJoinTeam({
 						email: requestToJoinPayload.email,
 						organizationTeamId: requestToJoinPayload.organizationTeamId,
-						code: formValues.code,
+						code: formValues.code
 					}).then((res) => {
 						if (res.data.email && res.data.organizationTeamId) {
 							closeModal();
 						}
 						setErrors({
-							code: trans.errors.ERROR_WHILE_VERIFY_CODE,
+							code: trans.errors.ERROR_WHILE_VERIFY_CODE
 						});
 					});
 				}
@@ -255,7 +255,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 			closeModal,
 			setErrors,
 			trans.pages.home.SENT_EMAIL_VERIFICATION,
-			trans.errors.ERROR_WHILE_VERIFY_CODE,
+			trans.errors.ERROR_WHILE_VERIFY_CODE
 		]
 	);
 

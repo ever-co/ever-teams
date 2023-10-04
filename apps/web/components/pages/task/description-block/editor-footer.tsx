@@ -21,7 +21,7 @@ const EditorFooter = ({
 	setIsUpdated,
 	editorValue,
 	editorRef,
-	clearUnsavedValues,
+	clearUnsavedValues
 }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();

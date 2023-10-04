@@ -3,7 +3,7 @@ import { serverFetch } from '../fetch';
 export function emailResetRequest({
 	bearer_token,
 	tenantId,
-	email,
+	email
 }: {
 	bearer_token: string | any;
 	tenantId?: string;
@@ -14,14 +14,14 @@ export function emailResetRequest({
 		method: 'POST',
 		bearer_token,
 		tenantId,
-		body: { email },
+		body: { email }
 	});
 }
 
 export function verifyChangemailRequest({
 	bearer_token,
 	tenantId,
-	code,
+	code
 }: {
 	bearer_token: string | any;
 	tenantId?: string;
@@ -32,6 +32,6 @@ export function verifyChangemailRequest({
 		method: 'POST',
 		bearer_token,
 		tenantId,
-		body: { code },
+		body: { code }
 	});
 }

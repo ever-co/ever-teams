@@ -2,7 +2,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import {
 	getTimerStatusRequest,
 	stopTimerRequest,
-	toggleTimerRequest,
+	toggleTimerRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -27,7 +27,7 @@ export default async function handler(
 			tenantId,
 			taskId,
 			organizationId,
-			tags: [],
+			tags: []
 		},
 		access_token
 	);
@@ -39,7 +39,7 @@ export default async function handler(
 			taskId,
 			logType: 'TRACKED',
 			source,
-			tags: [],
+			tags: []
 		},
 		access_token
 	);

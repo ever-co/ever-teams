@@ -12,7 +12,7 @@ import {
 	Timer,
 	TimerStatus,
 	UserProfileTask,
-	useTaskFilter,
+	useTaskFilter
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
@@ -30,7 +30,7 @@ const Profile = () => {
 	const { trans } = useTranslation('profile');
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
-		...trans.BREADCRUMB,
+		...trans.BREADCRUMB
 	];
 
 	const profileIsAuthUser = useMemo(
@@ -102,7 +102,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 					'shadow-md text-4xl font-normal'
 				)}
 				style={{
-					backgroundColor: `${stc(userName)}80`,
+					backgroundColor: `${stc(userName)}80`
 				}}
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (

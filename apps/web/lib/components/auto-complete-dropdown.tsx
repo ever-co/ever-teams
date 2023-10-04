@@ -4,7 +4,7 @@ import React, {
 	PropsWithChildren,
 	SetStateAction,
 	useCallback,
-	useState,
+	useState
 } from 'react';
 import { Transition, Combobox } from '@headlessui/react';
 import { clsxm } from '@app/utils';
@@ -48,7 +48,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 	handleAddNew,
 	disabled = false,
 	error = '',
-	useHandleKeyUp = false,
+	useHandleKeyUp = false
 }: Props<T>) {
 	const [query, setQuery] = useState('');
 	let filteredItem = items;

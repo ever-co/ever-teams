@@ -10,7 +10,7 @@ export const PROTECTED_APP_URL_PATHS: RegExp[] = [
 	/^(\/settings(\/)?)(.*)$/,
 	/^(\/task(\/)?)(.*)$/,
 	/^(\/meet(\/)?)(.*)$/,
-	/^(\/board(\/)?)(.*)$/,
+	/^(\/board(\/)?)(.*)$/
 ];
 
 // Cookies
@@ -58,7 +58,7 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	port: parseInt(SMTP_PORT, 10) || 0,
 	secure: SMTP_SECURE === 'true' ? true : false,
 	username: SMTP_USERNAME,
-	password: SMTP_PASSWORD,
+	password: SMTP_PASSWORD
 });
 
 // Cookies
@@ -85,5 +85,5 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 	writeKey: process.env.JITSU_BROWSER_WRITE_KEY || '',
 	disabled: false,
 	echoEvents: false, //if enabled - events will be sent to console but no data sent to Jitsu strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
-	debug: false,
+	debug: false
 };

@@ -3,13 +3,13 @@ import {
 	createTaskStatusAPI,
 	getTaskstatusList,
 	deleteTaskStatusAPI,
-	editTaskStatusAPI,
+	editTaskStatusAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskStatusFetchingState,
 	taskStatusListState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -77,7 +77,7 @@ export function useTaskStatus() {
 			createQueryCall,
 			createTaskStatusLoading,
 			deleteTaskStatusLoading,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -103,7 +103,7 @@ export function useTaskStatus() {
 			createTaskStatusLoading,
 			deleteTaskStatusLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -138,6 +138,6 @@ export function useTaskStatus() {
 		editTaskStatusLoading,
 		editTaskStatus,
 		setTaskStatus,
-		loadTaskStatusData,
+		loadTaskStatusData
 	};
 }

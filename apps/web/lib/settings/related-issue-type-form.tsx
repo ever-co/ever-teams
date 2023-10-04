@@ -28,7 +28,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 		deleteTaskRelatedIssueType,
 		editTaskRelatedIssueType,
 		createTaskRelatedIssueTypeLoading,
-		editTaskRelatedIssueTypeLoading,
+		editTaskRelatedIssueTypeLoading
 	} = useTaskRelatedIssueType();
 	const { refetch } = useRefetchData();
 
@@ -50,7 +50,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 		createTaskRelatedIssueType,
 		editTaskRelatedIssueType,
 		user?.employee?.organizationId,
-		user?.tenantId,
+		user?.tenantId
 	]);
 
 	const onSubmit = useCallback(
@@ -61,7 +61,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 					// color: values.color,
 					// description: '',
 					organizationId: user?.employee?.organizationId,
-					tenantId: user?.tenantId,
+					tenantId: user?.tenantId
 					// icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
@@ -73,7 +73,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 			}
 			if (edit && values.name !== edit.name?.split('-').join(' ')) {
 				editTaskRelatedIssueType(edit.id, {
-					name: values.name,
+					name: values.name
 					// color: values.color,
 					// icon: values.icon,
 				})?.then(() => {
@@ -90,7 +90,7 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 			user,
 			reset,
 			createTaskRelatedIssueType,
-			refetch,
+			refetch
 		]
 	);
 

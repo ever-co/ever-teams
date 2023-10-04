@@ -3,7 +3,7 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useOrganizationEmployeeTeams,
-	useOrganizationTeams,
+	useOrganizationTeams
 } from '@app/hooks';
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from 'lib/components';
@@ -19,7 +19,7 @@ export const DangerZoneTeam = () => {
 	const {
 		isOpen: dangerIsOpen,
 		closeModal: dangerCloseModal,
-		openModal: dangerOpenaModal,
+		openModal: dangerOpenaModal
 	} = useModal();
 	const [removeModalType, setRemoveModalType] = useState<
 		'DISPOSE' | 'QUIT' | null
@@ -29,7 +29,7 @@ export const DangerZoneTeam = () => {
 		useOrganizationTeams();
 	const {
 		deleteOrganizationTeamEmployee,
-		deleteOrganizationEmployeeTeamLoading,
+		deleteOrganizationEmployeeTeamLoading
 	} = useOrganizationEmployeeTeams();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
@@ -52,7 +52,7 @@ export const DangerZoneTeam = () => {
 					id: currentEmployeeDetails.id,
 					employeeId: currentEmployeeDetails.employeeId,
 					organizationId: activeTeam.organizationId,
-					tenantId: activeTeam.tenantId,
+					tenantId: activeTeam.tenantId
 				});
 			}
 		}

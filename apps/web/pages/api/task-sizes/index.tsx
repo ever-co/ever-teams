@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	createSizesRequest,
-	getTaskSizesListRequest,
+	getTaskSizesListRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,7 +19,7 @@ export default async function handler(
 	const par = {
 		tenantId,
 		organizationId,
-		activeTeamId: (activeTeamId as string) || null,
+		activeTeamId: (activeTeamId as string) || null
 	};
 
 	switch (req.method) {

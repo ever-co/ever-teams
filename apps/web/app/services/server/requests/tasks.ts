@@ -1,7 +1,7 @@
 import {
 	DeleteReponse,
 	PaginationResponse,
-	SingleDataResponse,
+	SingleDataResponse
 } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
@@ -21,8 +21,8 @@ export function getTeamTasksRequest({
 		'linkedIssues.taskTo',
 		'linkedIssues.taskFrom',
 		'parent',
-		'children',
-	],
+		'children'
+	]
 }: {
 	tenantId: string;
 	organizationId: string;
@@ -34,7 +34,7 @@ export function getTeamTasksRequest({
 		'where[tenantId]': tenantId,
 		'join[alias]': 'task',
 		'join[leftJoinAndSelect][members]': 'task.members',
-		'join[leftJoinAndSelect][user]': 'members.user',
+		'join[leftJoinAndSelect][user]': 'members.user'
 	} as Record<string, string>;
 
 	relations.forEach((rl, i) => {
@@ -46,14 +46,14 @@ export function getTeamTasksRequest({
 		path: `/tasks/team?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskRequest({
 	tenantId,
 	taskId,
-	bearer_token,
+	bearer_token
 }: {
 	tenantId: string;
 	taskId: string;
@@ -63,13 +63,13 @@ export function deleteTaskRequest({
 		path: `/tasks/${taskId}?tenantId=${tenantId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function getTaskCreator({
 	userId,
-	bearer_token,
+	bearer_token
 }: {
 	userId: string;
 	bearer_token: string;
@@ -77,13 +77,13 @@ export function getTaskCreator({
 	return serverFetch<SingleDataResponse<IUser>>({
 		path: `/user/${userId}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }
 
 export function createTaskRequest({
 	data,
-	bearer_token,
+	bearer_token
 }: {
 	data: ICreateTask;
 	bearer_token: string;
@@ -92,7 +92,7 @@ export function createTaskRequest({
 		path: '/tasks',
 		method: 'POST',
 		body: data,
-		bearer_token,
+		bearer_token
 	});
 }
 
@@ -104,7 +104,7 @@ export function updateTaskRequest<ITeamTask>(
 		path: `/tasks/${id}`,
 		method: 'PUT',
 		body: data,
-		bearer_token,
+		bearer_token
 	});
 }
 
@@ -112,7 +112,7 @@ export function deleteEmployeeFromTasksRequest({
 	tenantId,
 	employeeId,
 	organizationTeamId,
-	bearer_token,
+	bearer_token
 }: {
 	tenantId: string;
 	employeeId: string;
@@ -123,6 +123,6 @@ export function deleteEmployeeFromTasksRequest({
 		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

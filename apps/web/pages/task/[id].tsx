@@ -4,7 +4,7 @@ import { MainLayout } from 'lib/layout';
 import {
 	useOrganizationTeams,
 	useTeamTasks,
-	useUserProfilePage,
+	useUserProfilePage
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import TaskDetailsAside from '@components/pages/task/task-details-aside';
@@ -29,7 +29,7 @@ const TaskDetails = () => {
 
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
-		...trans.BREADCRUMB,
+		...trans.BREADCRUMB
 	];
 
 	useEffect(() => {

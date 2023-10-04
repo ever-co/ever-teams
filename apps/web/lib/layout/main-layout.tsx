@@ -20,7 +20,7 @@ export function MainLayout({
 	publicTeam,
 	notFound,
 	className,
-	childrenClassName,
+	childrenClassName
 }: Props) {
 	return (
 		<>

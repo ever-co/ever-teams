@@ -8,7 +8,7 @@ export const useCustomEmblaCarousel = (
 	const [viewportRef, emblaApi] = useEmblaCarousel({
 		loop: false,
 		startIndex,
-		...options,
+		...options
 	});
 
 	const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
@@ -53,6 +53,6 @@ export const useCustomEmblaCarousel = (
 		selectedIndex,
 		scrollSnaps,
 		scrollTo,
-		emblaApi,
+		emblaApi
 	};
 };

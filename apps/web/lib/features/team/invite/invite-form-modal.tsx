@@ -9,7 +9,7 @@ import {
 	Card,
 	InputField,
 	Modal,
-	Text,
+	Text
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ import { InviteEmailDropdown } from './invite-email-dropdown';
 
 export function InviteFormModal({
 	open,
-	closeModal,
+	closeModal
 }: {
 	open: boolean;
 	closeModal: () => void;
@@ -43,7 +43,7 @@ export function InviteFormModal({
 				workingEmployees
 					.map((item) => ({
 						title: item.user?.email || '',
-						name: item.fullName || '',
+						name: item.fullName || ''
 					}))
 					.filter((item) => !activeTeamMemberEmails.includes(item.title))
 			);
@@ -67,7 +67,7 @@ export function InviteFormModal({
 				(selectedEmail?.title && !isEmail(selectedEmail.title))
 			) {
 				setErrors({
-					email: 'Please enter valid email',
+					email: 'Please enter valid email'
 				});
 				return;
 			}

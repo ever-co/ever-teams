@@ -5,7 +5,7 @@ import {
 	Element as SlateElement,
 	Path,
 	Range,
-	Point,
+	Point
 } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
@@ -47,19 +47,19 @@ export class TextEditorService {
 				//@ts-ignore
 				LIST_TYPES.includes(n.type) &&
 				!TEXT_ALIGN_TYPES.includes(format),
-			split: true,
+			split: true
 		});
 
 		let newProperties: Partial<SlateElement>;
 		if (TEXT_ALIGN_TYPES.includes(format)) {
 			newProperties = {
 				//@ts-ignore
-				align: isActive ? undefined : format,
+				align: isActive ? undefined : format
 			};
 		} else {
 			newProperties = {
 				//@ts-ignore
-				type: isActive ? 'paragraph' : isList ? 'li' : format,
+				type: isActive ? 'paragraph' : isList ? 'li' : format
 			};
 		}
 		Transforms.setNodes<SlateElement>(editor, newProperties);
@@ -99,7 +99,7 @@ const ELEMENT_TAGS: { [key: string]: (el: HTMLElement) => ElementAttributes } =
 		OL: () => ({ type: 'ol' }),
 		P: () => ({ type: 'paragraph' }),
 		PRE: () => ({ type: 'code' }),
-		UL: () => ({ type: 'ul' }),
+		UL: () => ({ type: 'ul' })
 	};
 
 const TEXT_TAGS: { [key: string]: () => { [key: string]: boolean } } = {
@@ -109,7 +109,7 @@ const TEXT_TAGS: { [key: string]: () => { [key: string]: boolean } } = {
 	I: () => ({ italic: true }),
 	S: () => ({ strikethrough: true }),
 	STRONG: () => ({ bold: true }),
-	U: () => ({ underline: true }),
+	U: () => ({ underline: true })
 };
 
 export const deserialize = (el: any): any => {
@@ -190,13 +190,13 @@ export const withHtml = (editor: ReactEditor): ReactEditor => {
 
 const createParagraphNode = (children = [{ text: '' }]) => ({
 	type: 'paragraph',
-	children,
+	children
 });
 
 export const createLinkNode = (href: string, text: string) => ({
 	type: 'link',
 	href,
-	children: [{ text }],
+	children: [{ text }]
 });
 
 export const insertLink = (editor: any, url: string | null) => {
@@ -225,7 +225,7 @@ export const insertLink = (editor: any, url: string | null) => {
 			//@ts-ignore
 			Transforms.insertNodes(editor, createParagraphNode([link]), {
 				at: Path.next(parentPath),
-				select: true,
+				select: true
 			});
 		} else if (Range.isCollapsed(selection)) {
 			// Insert the new link in our last known locatio
@@ -250,7 +250,7 @@ export const removeLink = (editor: BaseEditor, opts = {}) => {
 			!Editor.isEditor(n) &&
 			SlateElement.isElement(n as SlateElement) &&
 			//@ts-ignore
-			n.type === 'link',
+			n.type === 'link'
 	});
 };
 
@@ -267,7 +267,7 @@ export const withChecklists = (editor: any) => {
 					!Editor.isEditor(n) &&
 					SlateElement.isElement(n) &&
 					//@ts-ignore
-					n.type === 'checklist',
+					n.type === 'checklist'
 			});
 
 			if (match) {
@@ -277,14 +277,14 @@ export const withChecklists = (editor: any) => {
 				if (Point.equals(selection.anchor, start)) {
 					const newProperties: Partial<SlateElement> = {
 						//@ts-ignore
-						type: 'paragraph',
+						type: 'paragraph'
 					};
 					Transforms.setNodes(editor, newProperties, {
 						match: (n) =>
 							!Editor.isEditor(n) &&
 							SlateElement.isElement(n) &&
 							//@ts-ignore
-							n.type === 'checklist',
+							n.type === 'checklist'
 					});
 					return;
 				}

@@ -5,17 +5,17 @@ export const taskRelatedIssueTypeListState = atom<
 	ITaskRelatedIssueTypeItemList[]
 >({
 	key: 'taskRelatedIssueTypeListState',
-	default: [],
+	default: []
 });
 
 export const activeTaskRelatedIssueTypeIdState = atom<string | null>({
 	key: 'activeTaskRelatedIssueTypeIdState',
-	default: null,
+	default: null
 });
 
 export const taskRelatedIssueTypeFetchingState = atom<boolean>({
 	key: 'taskRelatedIssueTypeFetchingState',
-	default: false,
+	default: false
 });
 
 export const activeTaskRelatedIssueTypeState =
@@ -31,5 +31,5 @@ export const activeTaskRelatedIssueTypeState =
 				taskRelatedIssueType[0] ||
 				null
 			);
-		},
+		}
 	});

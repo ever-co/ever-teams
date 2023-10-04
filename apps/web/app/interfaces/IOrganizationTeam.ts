@@ -105,5 +105,5 @@ export enum RoleNameEnum {
 	ADMIN = 'ADMIN',
 	MANAGER = 'MANAGER',
 	VIEWER = 'VIEWER',
-	MEMBER = 'MEMBER',
+	MEMBER = 'MEMBER'
 }

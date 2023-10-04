@@ -5,7 +5,7 @@ import {
 	PaginationResponse,
 	ISuccessResponse,
 	IValidateRequestToJoin,
-	IRequestToJoinActionEnum,
+	IRequestToJoinActionEnum
 } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
@@ -19,7 +19,7 @@ export function requestToJoinRequest(body: IRequestToJoinCreate) {
 	return serverFetch<PaginationResponse<IRequestToJoin>>({
 		path: '/organization-team-join',
 		method: 'POST',
-		body,
+		body
 	});
 }
 
@@ -35,7 +35,7 @@ export function validateRequestToJoinRequest(body: IValidateRequestToJoin) {
 	>({
 		path: '/organization-team-join/validate',
 		method: 'POST',
-		body,
+		body
 	});
 }
 
@@ -49,7 +49,7 @@ export function resendCodeRequestToJoinRequest(body: IRequestToJoinCreate) {
 	return serverFetch<IDataResponse<ISuccessResponse>>({
 		path: '/organization-team-join/resend-code',
 		method: 'POST',
-		body,
+		body
 	});
 }
 
@@ -62,7 +62,7 @@ export function resendCodeRequestToJoinRequest(body: IRequestToJoinCreate) {
 export function getRequestToJoinRequest({
 	bearer_token,
 	tenantId,
-	organizationId,
+	organizationId
 }: {
 	bearer_token: string | undefined;
 	tenantId: string | undefined;
@@ -70,7 +70,7 @@ export function getRequestToJoinRequest({
 }) {
 	const params = {
 		'where[organizationId]': organizationId,
-		'where[tenantId]': tenantId,
+		'where[tenantId]': tenantId
 	} as { [x: string]: string };
 	const query = new URLSearchParams(params);
 
@@ -78,7 +78,7 @@ export function getRequestToJoinRequest({
 		path: `/organization-team-join?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -92,7 +92,7 @@ export function acceptRejectRequestToJoinRequest({
 	bearer_token,
 	tenantId,
 	id,
-	action,
+	action
 }: {
 	bearer_token: string | undefined;
 	tenantId: string | undefined;
@@ -103,6 +103,6 @@ export function acceptRejectRequestToJoinRequest({
 		path: `/organization-team-join/${id}/${action}`,
 		method: 'PUT',
 		tenantId,
-		bearer_token,
+		bearer_token
 	});
 }

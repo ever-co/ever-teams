@@ -2,7 +2,7 @@ import { COOKIE_DOMAINS } from '@app/constants';
 import {
 	deleteCookie as _deleteCookie,
 	getCookie as _getCookie,
-	setCookie as _setCookie,
+	setCookie as _setCookie
 } from 'cookies-next';
 
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
@@ -11,7 +11,7 @@ export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	COOKIE_DOMAINS.forEach((domain) => {
 		_deleteCookie(key, {
 			domain,
-			...options,
+			...options
 		});
 	});
 };
@@ -31,7 +31,7 @@ export const setCookie: SetCookie = (key, data, options, crossSite) => {
 		COOKIE_DOMAINS.forEach((domain) => {
 			_setCookie(key, data, {
 				domain,
-				...options,
+				...options
 			});
 		});
 };

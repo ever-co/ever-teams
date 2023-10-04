@@ -7,7 +7,7 @@ import {
 	PeopleIcon,
 	PeopleIconFilled,
 	UserIcon,
-	UserIconFilled,
+	UserIconFilled
 } from 'lib/components/svgs';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { useIsMemberManager } from '@app/hooks';
@@ -19,7 +19,7 @@ const PersonalAccordianData = [
 	{
 		title: 'General',
 		color: '#7E7991',
-		href: '#general',
+		href: '#general'
 	},
 	// {
 	// 	title: 'Work Schedule',
@@ -34,8 +34,8 @@ const PersonalAccordianData = [
 	{
 		title: 'Danger Zone',
 		color: '#DE5536',
-		href: '#danger-zone',
-	},
+		href: '#danger-zone'
+	}
 ];
 
 const TeamAccordianData = [
@@ -43,55 +43,55 @@ const TeamAccordianData = [
 		title: 'General Settings',
 		color: '#7E7991',
 		href: '#general-settings',
-		managerOnly: false,
+		managerOnly: false
 	},
 	{
 		title: 'Invitations',
 		color: '#7E7991',
 		href: '#invitations',
-		managerOnly: true,
+		managerOnly: true
 	},
 	{
 		title: 'Member',
 		color: '#7E7991',
 		href: '#member',
-		managerOnly: true,
+		managerOnly: true
 	},
 	{
 		title: 'Issues Settings',
 		color: '#7E7991',
 		href: '#issues-settings',
-		managerOnly: false,
+		managerOnly: false
 	},
 	{
 		title: 'Statuses',
 		color: '#7E7991',
 		href: '#statuses',
-		managerOnly: false,
+		managerOnly: false
 	},
 	{
 		title: 'Priorities',
 		color: '#7E7991',
 		href: '#priorities',
-		managerOnly: false,
+		managerOnly: false
 	},
 	{
 		title: 'Sizes',
 		color: '#7E7991',
 		href: '#sizes',
-		managerOnly: false,
+		managerOnly: false
 	},
 	{
 		title: 'Labels',
 		color: '#7E7991',
 		href: '#labels',
-		managerOnly: false,
+		managerOnly: false
 	},
 	{
 		title: 'Related Issue Types',
 		color: '#7E7991',
 		href: '#related-issue-types',
-		managerOnly: true,
+		managerOnly: true
 	},
 	// {
 	// 	title: 'Notifications',
@@ -108,8 +108,8 @@ const TeamAccordianData = [
 	{
 		title: 'Danger Zones',
 		color: '#DE5536',
-		href: '#danger-zones',
-	},
+		href: '#danger-zones'
+	}
 ];
 
 export const LeftSideSettingMenu = () => {

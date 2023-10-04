@@ -10,7 +10,7 @@ import { useToast } from '@components/ui/use-toast';
 import {
 	HoverCard,
 	HoverCardContent,
-	HoverCardTrigger,
+	HoverCardTrigger
 } from '@components/ui/hover-card';
 import { useTranslation } from 'lib/i18n';
 import CreateParentTask from '../ParentTask';
@@ -19,7 +19,7 @@ import { ITeamTask } from '@app/interfaces';
 import {
 	CloseAlternateIcon,
 	TickIcon,
-	CopyIconRounded,
+	CopyIconRounded
 } from 'lib/components/svgs';
 
 const TaskTitleBlock = () => {
@@ -61,7 +61,7 @@ const TaskTitleBlock = () => {
 				toast({
 					variant: 'destructive',
 					title: trans.TASK_TITLE_CHARACTER_LIMIT_ERROR_TITLE,
-					description: trans.TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION,
+					description: trans.TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION
 				});
 				return;
 			}

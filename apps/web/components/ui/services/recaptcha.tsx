@@ -7,7 +7,7 @@ export function SiteReCAPTCHA({
 	key = RECAPTCHA_SITE_KEY,
 	onChange,
 	onErrored,
-	onExpired,
+	onExpired
 }: {
 	key?: string;
 	onChange: (token: string | null) => void;

@@ -19,7 +19,7 @@ export function TaskEstimate({
 	className,
 	loadingRef,
 	closeable_fc,
-	wrapperClassName,
+	wrapperClassName
 }: Props) {
 	const {
 		targetEl,
@@ -32,7 +32,7 @@ export function TaskEstimate({
 		handleFocusMinutes,
 		handleBlurMinutes,
 		updateLoading,
-		editableMode,
+		editableMode
 	} = useTaskEstimation(_task);
 
 	const onCloseEditionRef = useCallbackRef(onCloseEdition);

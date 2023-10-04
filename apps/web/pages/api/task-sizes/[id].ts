@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	deleteTaskSizesRequest,
-	editTaskSizesRequest,
+	editTaskSizesRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -24,7 +24,7 @@ export default async function handler(
 				await deleteTaskSizesRequest({
 					id,
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 
@@ -34,7 +34,7 @@ export default async function handler(
 					id,
 					datas: req.body,
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 	}

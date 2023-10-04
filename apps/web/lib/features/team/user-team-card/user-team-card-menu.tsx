@@ -21,7 +21,7 @@ export function UserTeamCardMenu(props: Props) {
 function DropdownMenu({ edition, memberInfo }: Props) {
 	const { onAssignTask, onUnAssignTask, onRemoveMember } = useDropdownAction({
 		edition,
-		memberInfo,
+		memberInfo
 	});
 
 	const { trans } = useTranslation();
@@ -35,7 +35,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				edition.task && edition.setEditMode(true);
 			},
 			active:
-				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task,
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 		},
 		{
 			name: trans.common.ESTIMATE,
@@ -44,7 +44,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				edition.task && edition.setEstimateEditMode(true);
 			},
 			active:
-				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task,
+				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 		},
 		{
 			name: trans.common.ASSIGN_TASK,
@@ -53,7 +53,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 			active:
 				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-				memberInfo.memberUnassignTasks.length > 0,
+				memberInfo.memberUnassignTasks.length > 0
 		},
 		{
 			name: trans.common.UNASSIGN_TASK,
@@ -63,7 +63,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 
 			active:
 				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-				!!memberInfo.memberTask,
+				!!memberInfo.memberTask
 		},
 		{
 			name: memberInfo.isTeamManager
@@ -77,7 +77,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				memberInfo.isAuthTeamManager &&
 				!memberInfo.isAuthUser &&
 				!memberInfo.isTeamCreator,
-			closable: true,
+			closable: true
 		},
 		{
 			name: trans.common.REMOVE,
@@ -87,8 +87,8 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 				memberInfo.isAuthTeamManager &&
 				!memberInfo.isAuthUser &&
 				!memberInfo.isTeamOwner,
-			onClick: onRemoveMember,
-		},
+			onClick: onRemoveMember
+		}
 	].filter((item) => item.active || item.active === undefined);
 
 	return (
@@ -96,7 +96,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 			className="relative"
 			ref={mergeRefs([
 				edition.estimateEditIgnoreElement.ignoreElementRef,
-				edition.taskEditIgnoreElement.ignoreElementRef,
+				edition.taskEditIgnoreElement.ignoreElementRef
 			])}
 		>
 			{!loading && (
@@ -158,7 +158,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 																item.onClick({
 																	task,
 																	closeCombobox1: closeCmbx,
-																	closeCombobox2: close,
+																	closeCombobox2: close
 																});
 														}}
 													>
@@ -210,7 +210,7 @@ type IAssignCall = (params: {
 
 export function useDropdownAction({
 	edition,
-	memberInfo,
+	memberInfo
 }: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(
 		({ task, closeCombobox1, closeCombobox2 }) => {
@@ -245,6 +245,6 @@ export function useDropdownAction({
 	return {
 		onAssignTask,
 		onUnAssignTask,
-		onRemoveMember,
+		onRemoveMember
 	};
 }

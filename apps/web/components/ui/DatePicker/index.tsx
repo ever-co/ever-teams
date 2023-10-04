@@ -9,7 +9,7 @@ import { DayPicker } from 'react-day-picker';
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
+	PopoverTrigger
 } from '@components/ui/popover';
 
 export type CustomCalendarProps = {

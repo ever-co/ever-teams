@@ -1,6 +1,6 @@
 import {
 	ITaskRelatedIssueTypeCreate,
-	ITaskRelatedIssueTypeItemList,
+	ITaskRelatedIssueTypeItemList
 } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
@@ -14,7 +14,7 @@ export function createRelatedIssueTypeRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -22,7 +22,7 @@ export function editTaskRelatedIssueTypeRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	datas: ITaskRelatedIssueTypeCreate;
@@ -34,14 +34,14 @@ export function editTaskRelatedIssueTypeRequest({
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskRelatedIssueTypeRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -51,7 +51,7 @@ export function deleteTaskRelatedIssueTypeRequest({
 		path: `/task-related-issue-types/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -61,7 +61,7 @@ export function getTaskRelatedIssueTypeListRequest<
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: {
 		tenantId: string;
 		organizationId: string;
@@ -72,6 +72,6 @@ export function getTaskRelatedIssueTypeListRequest<
 	return serverFetch({
 		path: `/task-related-issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }

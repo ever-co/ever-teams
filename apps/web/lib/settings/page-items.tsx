@@ -19,7 +19,7 @@ export function mappaginationItems(PaginationList: IPagination[]) {
 			selectedLabel: (
 				<PaginationItems title={page.title} className="py-2 mb-0" />
 			),
-			data: page,
+			data: page
 		};
 	});
 
@@ -28,7 +28,7 @@ export function mappaginationItems(PaginationList: IPagination[]) {
 
 export function PaginationItems({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	className?: string;

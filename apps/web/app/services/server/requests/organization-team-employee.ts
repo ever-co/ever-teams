@@ -7,7 +7,7 @@ export function deleteOrganizationTeamEmployeeRequest({
 	tenantId,
 	organizationId,
 	employeeId,
-	organizationTeamId,
+	organizationTeamId
 }: {
 	id: string;
 	bearer_token: string;
@@ -20,7 +20,7 @@ export function deleteOrganizationTeamEmployeeRequest({
 		path: `/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -28,7 +28,7 @@ export function updateOrganizationTeamEmployeeRequest({
 	id,
 	bearer_token,
 	tenantId,
-	body,
+	body
 }: {
 	id: string;
 	bearer_token: string;
@@ -41,6 +41,6 @@ export function updateOrganizationTeamEmployeeRequest({
 		method: 'PUT',
 		bearer_token,
 		tenantId,
-		body,
+		body
 	});
 }

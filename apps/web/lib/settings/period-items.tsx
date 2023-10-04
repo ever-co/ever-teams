@@ -17,7 +17,7 @@ export function mapPeriodItems(PeriodList: IPeriod[]) {
 				</div>
 			),
 			selectedLabel: <PeriodItem title={Period.title} className="py-2 mb-0" />,
-			data: Period,
+			data: Period
 		};
 	});
 
@@ -34,7 +34,7 @@ export function mapPeriodItems(PeriodList: IPeriod[]) {
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -46,7 +46,7 @@ export function PeriodItem({
 	// count,
 	// color,
 	// disabled,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

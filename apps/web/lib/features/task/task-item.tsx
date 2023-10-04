@@ -7,7 +7,7 @@ import {
 	Avatar,
 	ConfirmDropdown,
 	SpinnerLoader,
-	Tooltip,
+	Tooltip
 } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
@@ -137,7 +137,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 export function TaskAvatars({
 	task,
-	limit = 2,
+	limit = 2
 }: {
 	task: ITeamTask;
 	limit?: number;
@@ -166,7 +166,7 @@ export function TaskAvatars({
 								'shadow-md text-md font-normal'
 							)}
 							style={{
-								backgroundColor: `${stc(userName)}80`,
+								backgroundColor: `${stc(userName)}80`
 							}}
 						>
 							{userImageUrl && isValidUrl(userImageUrl) ? (

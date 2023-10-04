@@ -10,7 +10,7 @@ export function createEmployeeFromUser(
 		method: 'POST',
 		bearer_token,
 		body: data,
-		tenantId: data.tenantId,
+		tenantId: data.tenantId
 	});
 }
 
@@ -22,13 +22,13 @@ export function getOrganizationEmployees(
 	const params = {
 		'where[tenantId]': tenantId,
 		'where[organizationId]': organizationId,
-		'relations[0]': 'user',
+		'relations[0]': 'user'
 	};
 	const query = new URLSearchParams(params);
 	return serverFetch<IEmployee>({
 		path: `/employee/pagination?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

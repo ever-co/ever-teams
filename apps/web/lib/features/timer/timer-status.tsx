@@ -5,7 +5,7 @@ import {
 	PauseIcon,
 	StopCircleIcon,
 	TimerPlayIcon,
-	UserOnlineAndTrackingTimeIcon,
+	UserOnlineAndTrackingTimeIcon
 } from 'lib/components/svgs';
 
 type Props = {
@@ -18,7 +18,7 @@ export function TimerStatus({
 	status,
 	className,
 	showIcon = true,
-	tooltipClassName,
+	tooltipClassName
 }: Props) {
 	return (
 		<Tooltip

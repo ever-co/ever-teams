@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 
 const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 	ssr: false,
-	loading: () => <BackdropLoader show />,
+	loading: () => <BackdropLoader show />
 });
 
 function useMeetJwtToken() {
@@ -62,5 +62,5 @@ function MeetPage() {
 
 export default withAuthentication(MeetPage, {
 	displayName: 'MeetPage',
-	showPageSkeleton: false,
+	showPageSkeleton: false
 });

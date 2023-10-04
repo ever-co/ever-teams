@@ -2,7 +2,7 @@ import { getActiveTeamIdCookie } from '@app/helpers/cookies';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	createTaskRequest,
-	getTeamTasksRequest,
+	getTeamTasksRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -31,23 +31,23 @@ export default async function handler(
 				members: user?.employee?.id ? [{ id: user.employee.id }] : [],
 				teams: [
 					{
-						id: activeTeam,
-					},
+						id: activeTeam
+					}
 				],
 				tags: [],
 				organizationId,
 				tenantId,
 				estimate: 0,
 				...body,
-				title, // this must be called after ...body
-			},
+				title // this must be called after ...body
+			}
 		});
 	}
 
 	const { data: tasks } = await getTeamTasksRequest({
 		tenantId,
 		organizationId,
-		bearer_token: access_token,
+		bearer_token: access_token
 	});
 
 	$res.status(200).json(tasks);

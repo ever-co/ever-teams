@@ -37,7 +37,7 @@ export function TaskEstimateInfo({
 
 function TaskEstimateInput({
 	memberInfo,
-	edition,
+	edition
 }: Omit<Props, 'className' | 'activeAuthTask'>) {
 	const { trans } = useTranslation();
 	const loadingRef = useRef<boolean>(false);
@@ -92,7 +92,7 @@ function TaskEstimateInput({
 					<button
 						ref={mergeRefs([
 							edition.estimateEditIgnoreElement.ignoreElementRef,
-							edition.estimateEditIgnoreElement.targetEl,
+							edition.estimateEditIgnoreElement.targetEl
 						])}
 						onClick={() => task && edition.setEstimateEditMode(true)}
 					>

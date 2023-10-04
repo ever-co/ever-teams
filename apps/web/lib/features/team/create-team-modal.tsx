@@ -5,7 +5,7 @@ import {
 	Card,
 	InputField,
 	Modal,
-	Text,
+	Text
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
@@ -16,7 +16,7 @@ import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 export function CreateTeamModal({
 	open,
 	closeModal,
-	joinTeamModal,
+	joinTeamModal
 }: {
 	open: boolean;
 	closeModal: () => void;

@@ -11,7 +11,7 @@ export function createLabelsRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -19,7 +19,7 @@ export function editTaskLabelsRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	datas: ITaskLabelsCreate;
@@ -31,14 +31,14 @@ export function editTaskLabelsRequest({
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskLabelsRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -48,7 +48,7 @@ export function deleteTaskLabelsRequest({
 		path: `/tags/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -56,19 +56,19 @@ export function getTaskLabelsListRequest<ITaskStatusItemList>(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId: organizationTeamId,
+		activeTeamId: organizationTeamId
 	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
 	const params = new URLSearchParams({
 		tenantId,
 		organizationId,
-		organizationTeamId: organizationTeamId || '',
+		organizationTeamId: organizationTeamId || ''
 	});
 
 	return serverFetch({
 		path: `/tags/level?${params.toString()}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }

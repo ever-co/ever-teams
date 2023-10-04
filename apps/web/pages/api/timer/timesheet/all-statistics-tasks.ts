@@ -15,7 +15,7 @@ export default async function handler(
 			tenantId,
 			organizationId,
 			employeeIds: [],
-			defaultRange: 'false',
+			defaultRange: 'false'
 		},
 		access_token
 	);

@@ -30,7 +30,7 @@ export enum TimerSource {
 	'BROWSER_EXTENSION' = 'BROWSER_EXTENSION',
 	'HUBSTAFF' = 'HUBSTAFF',
 	'UPWORK' = 'UPWORK',
-	'TEAMS' = 'TEAMS',
+	'TEAMS' = 'TEAMS'
 }
 
 export interface ITimerStatus {

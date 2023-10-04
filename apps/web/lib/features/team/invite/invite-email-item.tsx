@@ -21,7 +21,7 @@ export function mapTeamMemberItems(members: IInviteEmail[]) {
 			selectedLabel: (
 				<TeamMemberItem title={member.title} className="py-2 mb-0" />
 			),
-			data: member,
+			data: member
 		};
 	});
 
@@ -30,7 +30,7 @@ export function mapTeamMemberItems(members: IInviteEmail[]) {
 
 export function TeamMemberItem({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	className?: string;

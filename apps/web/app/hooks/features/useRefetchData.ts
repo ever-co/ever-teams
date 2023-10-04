@@ -23,7 +23,7 @@ export function useRefetchData() {
 		loadTaskVersionData,
 		loadTaskPriorities,
 		loadTaskSizes,
-		loadTaskRelatedIssueTypeData,
+		loadTaskRelatedIssueTypeData
 	]);
 
 	return { refetch };

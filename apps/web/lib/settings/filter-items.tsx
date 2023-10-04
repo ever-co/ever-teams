@@ -17,7 +17,7 @@ export function mapFilterItems(FilterLIst: IFilter[]) {
 				</div>
 			),
 			selectedLabel: <FilterItem title={filter.title} className="py-2 mb-0" />,
-			data: filter,
+			data: filter
 		};
 	});
 
@@ -29,7 +29,7 @@ export function mapFilterItems(FilterLIst: IFilter[]) {
 					<FilterItem title={'Filter By'} className="w-full cursor-default" />
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -38,7 +38,7 @@ export function mapFilterItems(FilterLIst: IFilter[]) {
 
 export function FilterItem({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	className?: string;

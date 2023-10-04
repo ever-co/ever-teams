@@ -15,5 +15,5 @@ Sentry.init({
 		process.env.NEXT_PUBLIC_SENTRY_DEBUG &&
 		process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true'
 			? true
-			: false,
+			: false
 });

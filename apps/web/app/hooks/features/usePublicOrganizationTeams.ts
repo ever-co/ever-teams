@@ -1,7 +1,7 @@
 import { ITeamTask } from '@app/interfaces';
 import {
 	getPublicOrganizationTeamsAPI,
-	getPublicOrganizationTeamsMiscDataAPI,
+	getPublicOrganizationTeamsMiscDataAPI
 } from '@app/services/client/api/public-organization-team';
 import { publicactiveTeamState } from '@app/stores';
 import isEqual from 'lodash/isEqual';
@@ -42,16 +42,16 @@ export function usePublicOrganizationTeams() {
 					const newData = [
 						{
 							...updatedTeams[0],
-							...res.data.data,
-						},
+							...res.data.data
+						}
 					];
 
 					if (!isEqual(newData, updatedTeams)) {
 						setTeams([
 							{
 								...updatedTeams[0],
-								...res.data.data,
-							},
+								...res.data.data
+							}
 						]);
 					}
 				} else {
@@ -60,7 +60,7 @@ export function usePublicOrganizationTeams() {
 
 				const newPublicTeamData = {
 					...publicTeam,
-					...res.data.data,
+					...res.data.data
 				};
 				if (!isEqual(newPublicTeamData, publicTeam)) {
 					setPublicTeam(newPublicTeamData);
@@ -109,7 +109,7 @@ export function usePublicOrganizationTeams() {
 			setTaskPriorities,
 			setTaskSizes,
 			setTaskStatus,
-			setTeams,
+			setTeams
 		]
 	);
 
@@ -119,6 +119,6 @@ export function usePublicOrganizationTeams() {
 		loading,
 		loadingMiscData,
 		activeTeam,
-		publicTeam,
+		publicTeam
 	};
 }

@@ -12,7 +12,7 @@ export const Meta = ({
 	title = '',
 	keywords = '',
 	description = '',
-	siteName = en.TITLE,
+	siteName = en.TITLE
 }: Props) => {
 	return (
 		<Head>

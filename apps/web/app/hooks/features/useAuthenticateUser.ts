@@ -3,7 +3,7 @@ import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';
 import {
 	getAuthenticatedUserDataAPI,
-	refreshTokenAPI,
+	refreshTokenAPI
 } from '@app/services/client/api/auth';
 import { userState } from '@app/stores';
 import { useCallback, useMemo, useRef } from 'react';
@@ -59,6 +59,6 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 		refreshUserLoading,
 		logOut,
 		timeToTimeRefreshToken,
-		refreshToken,
+		refreshToken
 	};
 };

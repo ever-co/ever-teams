@@ -19,7 +19,7 @@ export function useEmailVerifyToken() {
 	 */
 	const verifyEmailRequest = ({
 		email,
-		token,
+		token
 	}: {
 		email: string;
 		token: string;
@@ -36,13 +36,13 @@ export function useEmailVerifyToken() {
 	};
 
 	/**
-	 * Verifiy token immediatly if email and token were passed from url
+	 * Verify token immediately if email and token were passed from url
 	 */
 	useEffect(() => {
 		if (query.email && query.token) {
 			verifyEmailRequest({
 				email: query.email as string,
-				token: query.token as string,
+				token: query.token as string
 			});
 
 			loginFromQuery.current = true;
@@ -52,6 +52,6 @@ export function useEmailVerifyToken() {
 	return {
 		errors,
 		infiniteLoading,
-		loading,
+		loading
 	};
 }

@@ -5,7 +5,7 @@ import {
 	getTeamInvitationsRequest,
 	removeTeamInvitationsRequest,
 	getMyInvitationsRequest,
-	acceptRejectMyInvitationsRequest,
+	acceptRejectMyInvitationsRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -35,7 +35,7 @@ export default async function handler(
 			await removeTeamInvitationsRequest({
 				bearer_token: access_token,
 				tenantId: tenantId,
-				invitationId,
+				invitationId
 			});
 
 			const { data } = await getTeamInvitationsRequest(
@@ -43,7 +43,7 @@ export default async function handler(
 					tenantId,
 					teamId,
 					organizationId,
-					role: 'EMPLOYEE',
+					role: 'EMPLOYEE'
 				},
 				access_token
 			);

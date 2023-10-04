@@ -26,26 +26,26 @@ export const IssueTypesForm = () => {
 		'ready',
 		'in-review',
 		'blocked',
-		'completed',
+		'completed'
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
 		'x-large',
 		'large',
 		'medium',
 		'small',
-		'tiny',
+		'tiny'
 	]);
 	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
 		'urgent',
 		'high',
 		'medium',
-		'low',
+		'low'
 	]);
 
 	const iconList: IIcon[] = [
 		...taskStatusIconList,
 		...taskSizesIconList,
-		...taskPrioritiesIconList,
+		...taskPrioritiesIconList
 	];
 
 	const {
@@ -55,7 +55,7 @@ export const IssueTypesForm = () => {
 		deleteIssueType,
 		editIssueType,
 		createIssueTypeLoading,
-		editIssueTypeLoading,
+		editIssueTypeLoading
 	} = useIssueType();
 
 	useEffect(() => {
@@ -82,7 +82,7 @@ export const IssueTypesForm = () => {
 		createIssueType,
 		editIssueType,
 		user?.employee?.organizationId,
-		user?.tenantId,
+		user?.tenantId
 	]);
 
 	const onSubmit = useCallback(
@@ -94,7 +94,7 @@ export const IssueTypesForm = () => {
 					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
-					icon: values.icon,
+					icon: values.icon
 					// projectId: '',
 				})?.then(() => {
 					setCreateNew(false);
@@ -110,7 +110,7 @@ export const IssueTypesForm = () => {
 				editIssueType(edit.id, {
 					name: values.name,
 					color: values.color,
-					icon: values.icon,
+					icon: values.icon
 				})?.then(() => {
 					setEdit(null);
 				});

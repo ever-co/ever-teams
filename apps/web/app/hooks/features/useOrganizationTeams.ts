@@ -1,12 +1,12 @@
 import {
 	getActiveTeamIdCookie,
 	setActiveTeamIdCookie,
-	setOrganizationIdCookie,
+	setOrganizationIdCookie
 } from '@app/helpers/cookies';
 import {
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus,
+	IOrganizationTeamWithMStatus
 } from '@app/interfaces';
 import {
 	createOrganizationTeamAPI,
@@ -15,7 +15,7 @@ import {
 	getOrganizationTeamAPI,
 	getOrganizationTeamsAPI,
 	removeUserFromAllTeamAPI,
-	updateOrganizationTeamAPI,
+	updateOrganizationTeamAPI
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
@@ -25,7 +25,7 @@ import {
 	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamsFetchingState,
-	timerStatusState,
+	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -60,7 +60,7 @@ function useTeamsState() {
 		teams,
 		setTeams,
 		setTeamsUpdate,
-		teamsRef,
+		teamsRef
 	};
 }
 
@@ -119,13 +119,13 @@ function useCreateOrganizationTeam() {
 			setActiveTeamId,
 			setIsTeamMember,
 			setTeams,
-			teamsRef,
+			teamsRef
 		]
 	);
 
 	return {
 		createOrganizationTeam,
-		loading,
+		loading
 	};
 }
 
@@ -156,7 +156,7 @@ function useUpdateOrganizationTeam() {
 				tenantId: team.tenantId,
 				organizationId: team.organizationId,
 				tags: [],
-				...data,
+				...data
 			};
 
 			/* Updating the team state with the data from the API. */
@@ -226,7 +226,7 @@ export function useOrganizationTeams() {
 
 	const {
 		loading: removeUserFromAllTeamLoading,
-		queryCall: removeUserFromAllTeamQueryCall,
+		queryCall: removeUserFromAllTeamQueryCall
 	} = useQuery(removeUserFromAllTeamAPI);
 
 	useEffect(() => {
@@ -295,7 +295,7 @@ export function useOrganizationTeams() {
 					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
 						setTeams([
 							newTeam,
-							...latestTeams.filter((team) => team.id !== newTeam.id),
+							...latestTeams.filter((team) => team.id !== newTeam.id)
 						]);
 					}
 				});
@@ -309,7 +309,7 @@ export function useOrganizationTeams() {
 		setIsTeamMember,
 		setTeams,
 		setTeamsUpdate,
-		teams,
+		teams
 	]);
 
 	/**
@@ -385,6 +385,6 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeam,
 		loadingTeam,
 		isTrackingEnabled,
-		memberActiveTaskId,
+		memberActiveTaskId
 	};
 }

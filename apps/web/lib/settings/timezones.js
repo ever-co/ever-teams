@@ -427,7 +427,7 @@ const timeZones = [
 	'Pacific/Tongatapu',
 	'Pacific/Truk',
 	'Pacific/Wake',
-	'Pacific/Wallis',
+	'Pacific/Wallis'
 ];
 
 export default timeZones;

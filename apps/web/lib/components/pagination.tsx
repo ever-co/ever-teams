@@ -16,7 +16,7 @@ export function Paginate({
 	onPageChange,
 	itemOffset,
 	endOffset,
-	setItemsPerPage,
+	setItemsPerPage
 }: Props) {
 	const pageCount: number = Math.ceil(total / itemsPerPage);
 

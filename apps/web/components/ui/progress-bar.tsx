@@ -1,6 +1,6 @@
 export function ProgressBar({
 	width,
-	progress,
+	progress
 }: {
 	width: number | string;
 	progress: number | string;

@@ -4,7 +4,7 @@ import {
 	IInviteRequest,
 	IMyInvitations,
 	MyInvitationActionEnum,
-	CreateReponse,
+	CreateReponse
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -22,7 +22,7 @@ export function removeTeamInvitationsAPI(invitationId: string) {
 
 export function resendTeamInvitationsAPI(inviteId: string) {
 	return api.post<any>(`/invite/resend`, {
-		inviteId,
+		inviteId
 	});
 }
 

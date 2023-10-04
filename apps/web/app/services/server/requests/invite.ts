@@ -5,7 +5,7 @@ import {
 	IInviteCreate,
 	IInviteVerified,
 	IInviteVerifyCode,
-	MyInvitationActionEnum,
+	MyInvitationActionEnum
 } from '@app/interfaces/IInvite';
 import { serverFetch } from '../fetch';
 
@@ -25,7 +25,7 @@ export function inviteByEmailsRequest(
 		method: 'POST',
 		body,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -38,7 +38,7 @@ export function inviteByEmailsRequest(
 export function removeTeamInvitationsRequest({
 	invitationId,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	invitationId: string;
 	bearer_token: string;
@@ -48,7 +48,7 @@ export function removeTeamInvitationsRequest({
 		path: `/invite/${invitationId}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -75,13 +75,13 @@ export function getTeamInvitationsRequest(
 		'where[organizationId]': organizationId,
 		'where[role][name]': role,
 		'where[teams][id][0]': teamId,
-		'where[status]': 'INVITED',
+		'where[status]': 'INVITED'
 	});
 	return serverFetch<PaginationResponse<IInvitation>>({
 		path: `/invite?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId: tenantId,
+		tenantId: tenantId
 	});
 }
 
@@ -109,7 +109,7 @@ export function resendInvitationEmailRequest(
 		method: 'POST',
 		body: params,
 		bearer_token,
-		tenantId: params.tenantId,
+		tenantId: params.tenantId
 	});
 }
 
@@ -123,7 +123,7 @@ export function verifyInviteCodeRequest(params: IInviteVerifyCode) {
 	return serverFetch<IInviteVerified>({
 		path: '/invite/validate-by-code',
 		method: 'POST',
-		body: params,
+		body: params
 	});
 }
 
@@ -148,7 +148,7 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
 	return serverFetch<ILoginResponse>({
 		path: '/invite/accept',
 		method: 'POST',
-		body: params,
+		body: params
 	});
 }
 
@@ -167,7 +167,7 @@ export function getMyInvitationsRequest(
 		path: `/invite/me`,
 		method: 'GET',
 		bearer_token,
-		tenantId: tenantId,
+		tenantId: tenantId
 	});
 }
 
@@ -181,6 +181,6 @@ export function acceptRejectMyInvitationsRequest(
 		path: `/invite/${invitationId}/${action}`,
 		method: 'PUT',
 		bearer_token,
-		tenantId: tenantId,
+		tenantId: tenantId
 	});
 }

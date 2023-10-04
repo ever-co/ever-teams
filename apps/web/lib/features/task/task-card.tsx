@@ -8,14 +8,14 @@ import {
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 	I_TeamMemberCardHook,
-	useOrganizationEmployeeTeams,
+	useOrganizationEmployeeTeams
 } from '@app/hooks';
 import {
 	IClassName,
 	IOrganizationTeamList,
 	ITeamTask,
 	Nullable,
-	OT_Member,
+	OT_Member
 } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -24,7 +24,7 @@ import {
 	// ConfirmDropdown,
 	SpinnerLoader,
 	Text,
-	VerticalSeparator,
+	VerticalSeparator
 } from 'lib/components';
 import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
@@ -65,7 +65,7 @@ export function TaskCard(props: Props) {
 		viewType = 'default',
 		profile,
 		taskBadgeClassName,
-		taskTitleClassName,
+		taskTitleClassName
 	} = props;
 
 	const [loading, setLoading] = useState(false);
@@ -281,7 +281,7 @@ export function TaskCard(props: Props) {
 
 function UsersTaskAssigned({
 	task,
-	className,
+	className
 }: { task: Nullable<ITeamTask> } & IClassName) {
 	const { trans } = useTranslation();
 	const members = task?.members || [];
@@ -317,7 +317,7 @@ function TimerButtonCall({
 	task,
 	currentMember,
 	activeTeam,
-	className,
+	className
 }: {
 	task: ITeamTask;
 	currentMember: OT_Member | undefined;
@@ -332,7 +332,7 @@ function TimerButtonCall({
 		timerStatus,
 		activeTeamTask,
 		startTimer,
-		stopTimer,
+		stopTimer
 	} = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
@@ -360,7 +360,7 @@ function TimerButtonCall({
 				organizationId: task.organizationId,
 				activeTaskId: task.id,
 				organizationTeamId: activeTeam?.id,
-				tenantId: activeTeam?.tenantId,
+				tenantId: activeTeam?.tenantId
 			});
 		}
 
@@ -375,7 +375,7 @@ function TimerButtonCall({
 		startTimer,
 		stopTimer,
 		currentMember?.id,
-		updateOrganizationTeamEmployee,
+		updateOrganizationTeamEmployee
 	]);
 
 	return loading ? (
@@ -393,7 +393,7 @@ function TimerButtonCall({
 function AssignTaskButtonCall({
 	task,
 	assignTask,
-	className,
+	className
 }: {
 	task: ITeamTask;
 	assignTask: (task: ITeamTask) => Promise<void>;
@@ -403,7 +403,7 @@ function AssignTaskButtonCall({
 		disabled,
 
 		timerStatus,
-		activeTeamTask,
+		activeTeamTask
 	} = useTimerView();
 
 	const activeTaskStatus =
@@ -427,7 +427,7 @@ function TaskInfo({
 	className,
 	task,
 	taskBadgeClassName,
-	taskTitleClassName,
+	taskTitleClassName
 }: IClassName & {
 	task?: Nullable<ITeamTask>;
 	taskBadgeClassName?: string;
@@ -478,7 +478,7 @@ function TaskCardMenu({
 	task,
 	loading,
 	memberInfo,
-	viewType,
+	viewType
 }: {
 	task: ITeamTask;
 	loading?: boolean;

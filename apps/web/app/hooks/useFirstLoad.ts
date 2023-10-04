@@ -11,6 +11,6 @@ export function useFirstLoad() {
 
 	return {
 		firstLoad,
-		firstLoadData,
+		firstLoadData
 	};
 }

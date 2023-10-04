@@ -8,18 +8,18 @@ import { SortItem, mapSortItems } from './sort-items';
 
 export const SortDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: ISort | null;
 }) => {
 	const [sortList, setSort] = useState<ISort[]>([
 		{
-			title: 'name',
+			title: 'name'
 		},
 		{
-			title: 'title',
-		},
+			title: 'title'
+		}
 	]);
 
 	const items: any = useMemo(() => mapSortItems(sortList), [sortList]);

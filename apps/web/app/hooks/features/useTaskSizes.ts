@@ -3,12 +3,12 @@ import {
 	createTaskSizesAPI,
 	deleteTaskSizesAPI,
 	getTaskSizesList,
-	editTaskSizesAPI,
+	editTaskSizesAPI
 } from '@app/services/client/api';
 import { activeTeamIdState, userState } from '@app/stores';
 import {
 	taskSizesFetchingState,
-	taskSizesListState,
+	taskSizesListState
 } from '@app/stores/task-sizes';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -81,7 +81,7 @@ export function useTaskSizes() {
 			createTaskSizesLoading,
 			deleteTaskSizesLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -107,7 +107,7 @@ export function useTaskSizes() {
 			createTaskSizesLoading,
 			deleteTaskSizesLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -143,6 +143,6 @@ export function useTaskSizes() {
 		editTaskSizesLoading,
 		editTaskSizes,
 		setTaskSizes,
-		loadTaskSizes,
+		loadTaskSizes
 	};
 }

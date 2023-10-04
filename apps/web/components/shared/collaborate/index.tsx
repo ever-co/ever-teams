@@ -2,7 +2,7 @@ import { imgTitle } from '@app/helpers';
 import {
 	useAuthenticateUser,
 	useCollaborative,
-	useOrganizationTeams,
+	useOrganizationTeams
 } from '@app/hooks';
 import { IUser } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
@@ -12,7 +12,7 @@ import {
 	CommandGroup,
 	CommandInput,
 	CommandItem,
-	CommandList,
+	CommandList
 } from '@components/ui/command';
 import {
 	Dialog,
@@ -21,14 +21,14 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
+	DialogTrigger
 } from '@components/ui/dialog';
 import { Avatar } from 'lib/components';
 import { Button } from 'lib/components/button';
 import {
 	BrushSquareLinearIcon,
 	CallOutGoingLinearIcon,
-	Profile2UserLinearIcon,
+	Profile2UserLinearIcon
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { Check } from 'lucide-react';
@@ -42,7 +42,7 @@ const Collaborate = () => {
 		onMeetClick,
 		onBoardClick,
 		collaborativeMembers,
-		setCollaborativeMembers,
+		setCollaborativeMembers
 	} = useCollaborative();
 	const { analytics } = useJitsu();
 	const { trans } = useTranslation();
@@ -92,8 +92,8 @@ const Collaborate = () => {
 								email: user?.email,
 								name: user?.name,
 								tenant: user?.tenant?.name,
-								tenantId: user?.tenant?.id,
-							},
+								tenantId: user?.tenant?.id
+							}
 						})
 					}
 					className={clsxm(
@@ -133,7 +133,7 @@ const Collaborate = () => {
 												'shadow-md text-lg font-normal'
 											)}
 											style={{
-												backgroundColor: `${stc(member?.name || '')}80`,
+												backgroundColor: `${stc(member?.name || '')}80`
 											}}
 										>
 											{(member?.image?.thumbUrl ||
@@ -191,7 +191,7 @@ const Collaborate = () => {
 											'shadow-md text-lg font-normal'
 										)}
 										style={{
-											backgroundColor: `${stc(member?.name || '')}80`,
+											backgroundColor: `${stc(member?.name || '')}80`
 										}}
 									>
 										{(member?.image?.thumbUrl ||

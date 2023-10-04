@@ -11,7 +11,7 @@ import { useRecoilState } from 'recoil';
 import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 import {
 	getNoTeamPopupShowCookie,
-	setNoTeamPopupShowCookie,
+	setNoTeamPopupShowCookie
 } from '@app/helpers';
 
 type Params = {

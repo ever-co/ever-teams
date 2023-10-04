@@ -7,7 +7,7 @@ export function deleteOrganizationEmployeeTeamAPI({
 	id,
 	employeeId,
 	organizationId,
-	tenantId,
+	tenantId
 }: {
 	id: string;
 	employeeId: string;

@@ -34,10 +34,10 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'ready',
 		'in-review',
 		'blocked',
-		'completed',
+		'completed'
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
+		'x-large'
 		// 'large',
 		// 'medium',
 		// 'small',
@@ -47,13 +47,13 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		'urgent',
 		'high',
 		'medium',
-		'low',
+		'low'
 	]);
 
 	const iconList: IIcon[] = [
 		...taskStatusIconList,
 		...taskSizesIconList,
-		...taskPrioritiesIconList,
+		...taskPrioritiesIconList
 	];
 
 	const {
@@ -63,7 +63,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		deleteTaskSizes,
 		editTaskSizes,
 		createTaskSizesLoading,
-		editTaskSizesLoading,
+		editTaskSizesLoading
 	} = useTaskSizes();
 	const { refetch } = useRefetchData();
 
@@ -96,7 +96,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
-					icon: values.icon,
+					icon: values.icon
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
@@ -115,7 +115,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				editTaskSizes(edit.id, {
 					name: values.name,
 					color: values.color,
-					icon: values.icon,
+					icon: values.icon
 				})?.then(() => {
 					setEdit(null);
 					refetch();
@@ -131,7 +131,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 			user,
 			reset,
 			createTaskSizes,
-			refetch,
+			refetch
 		]
 	);
 

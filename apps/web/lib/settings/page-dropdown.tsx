@@ -5,7 +5,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
-	useState,
+	useState
 } from 'react';
 
 import { IPagination } from '@app/interfaces/IPagination';
@@ -14,27 +14,27 @@ import { PaginationItems, mappaginationItems } from './page-items';
 
 export const PaginationDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: Dispatch<SetStateAction<number>>;
 	active?: IPagination | null;
 }) => {
 	const [paginationList, setPagination] = useState<IPagination[]>([
 		{
-			title: '10',
+			title: '10'
 		},
 		{
-			title: '20',
+			title: '20'
 		},
 		{
-			title: '30',
+			title: '30'
 		},
 		{
-			title: '40',
+			title: '40'
 		},
 		{
-			title: '50',
-		},
+			title: '50'
+		}
 	]);
 
 	const items: any = useMemo(

@@ -5,7 +5,7 @@ import { PropsWithChildren } from 'react';
 
 export function MainHeader({
 	children,
-	className,
+	className
 }: PropsWithChildren<IClassName>) {
 	return (
 		<>

@@ -11,7 +11,7 @@ import { IconItem } from './icon-items';
 const IconPopover = ({
 	setValue,
 	active,
-	iconList,
+	iconList
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IIcon | null;

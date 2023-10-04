@@ -1,7 +1,7 @@
 import {
 	ILanguageItemList,
 	CreateReponse,
-	PaginationResponse,
+	PaginationResponse
 } from '@app/interfaces';
 import api from '../axios';
 
