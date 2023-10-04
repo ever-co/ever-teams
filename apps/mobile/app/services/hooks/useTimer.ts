@@ -3,7 +3,7 @@ import { convertMsToTime, secondsToTime } from "../../helpers/date"
 import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from "../client/requests/timer"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSyncRef } from "./useSyncRef"
-import { ILocalTimerStatus, ITimerParams, ITimerStatus } from "../interfaces/ITimer"
+import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from "../interfaces/ITimer"
 import { useFirstLoad } from "./useFirstLoad"
 import isEqual from "lodash/isEqual"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -173,13 +173,14 @@ export function useTimer() {
 			employeeId: user?.employee?.id,
 		},
 		timerStatus?.running,
+		timerStatusRef.current?.lastLog?.source,
 	)
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
 			{
 				logType: "TRACKED",
-				source: "MOBILE",
+				source: TimerSource.MOBILE,
 				tags: [],
 				taskId,
 				tenantId,
@@ -217,7 +218,7 @@ export function useTimer() {
 			tenantId,
 			taskId: activeTask?.id,
 			logType: "TRACKED",
-			source: "MOBILE",
+			source: TimerSource.MOBILE,
 			tags: [],
 		}
 
@@ -260,7 +261,7 @@ export function useTimer() {
 			tenantId,
 			taskId: activeTask?.id,
 			logType: "TRACKED",
-			source: "MOBILE",
+			source: timerStatusRef.current.lastLog.source || TimerSource.MOBILE,
 			tags: [],
 		}
 

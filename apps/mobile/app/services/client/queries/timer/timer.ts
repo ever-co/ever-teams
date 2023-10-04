@@ -1,10 +1,14 @@
 import { useQuery } from "react-query"
 import { getTimerStatusRequest, syncTimeSlotRequest } from "../../requests/timer"
-import { ITimerTimeslotParams } from "../../../interfaces/ITimer"
+import { ITimerTimeslotParams, TimerSource } from "../../../interfaces/ITimer"
 
 type IGetTimerStatusParams = ITimerTimeslotParams & { authToken: string }
 
-const fetchTimerStatus = async (params: IGetTimerStatusParams, isTimerRunning: boolean) => {
+const fetchTimerStatus = async (
+	params: IGetTimerStatusParams,
+	isTimerRunning: boolean,
+	lastlogTimerSource: TimerSource | null,
+) => {
 	const { tenantId, organizationId, logType, authToken, employeeId } = params
 
 	if (isTimerRunning) {
@@ -12,7 +16,7 @@ const fetchTimerStatus = async (params: IGetTimerStatusParams, isTimerRunning: b
 			{
 				tenantId,
 				organizationId,
-				source: "MOBILE",
+				source: lastlogTimerSource || TimerSource.MOBILE,
 				employeeId,
 				duration: 5,
 				logType,
@@ -26,10 +30,14 @@ const fetchTimerStatus = async (params: IGetTimerStatusParams, isTimerRunning: b
 	return data
 }
 
-const useFetchTimerStatus = (IGetTimerStatusParams, isTimerRunning: boolean) =>
+const useFetchTimerStatus = (
+	IGetTimerStatusParams,
+	isTimerRunning: boolean,
+	lastlogTimerSource: TimerSource,
+) =>
 	useQuery(
 		["status-timer", IGetTimerStatusParams],
-		() => fetchTimerStatus(IGetTimerStatusParams, isTimerRunning),
+		() => fetchTimerStatus(IGetTimerStatusParams, isTimerRunning, lastlogTimerSource),
 		{
 			refetchInterval: 5000,
 			notifyOnChangeProps: ["data"], // Re-render only when data changes

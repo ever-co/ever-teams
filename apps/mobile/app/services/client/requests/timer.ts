@@ -5,6 +5,7 @@ import {
 	ITimerStatus,
 	ITimerParams,
 	ITimerTimeslotParams,
+	TimerSource,
 } from "../../interfaces/ITimer"
 import { serverFetch } from "../fetch"
 
@@ -42,7 +43,13 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 }
 
 export function toggleTimerRequest(
-	{ source = "MOBILE", logType = "TRACKED", taskId, tenantId, organizationId }: ITimerParams,
+	{
+		source = TimerSource.MOBILE,
+		logType = "TRACKED",
+		taskId,
+		tenantId,
+		organizationId,
+	}: ITimerParams,
 	bearer_token: string,
 ) {
 	return serverFetch<ITimer>({
