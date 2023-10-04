@@ -1,9 +1,9 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 
-import React, { FC, useMemo } from "react"
+import React, { FC } from "react"
 import { LinearGradient } from "expo-linear-gradient"
-import { Image, StyleSheet } from "react-native"
+import { StyleSheet } from "react-native"
 import { useStores } from "../../../../models"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import { observer } from "mobx-react-lite"
@@ -11,6 +11,8 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useAppTheme } from "../../../../theme"
+import { SvgXml } from "react-native-svg"
+import { timerMediumPlayIcon, timerMediumStopIcon } from "../../../../components/svgs/icons"
 
 interface Props {
 	isActiveTask: boolean
@@ -44,39 +46,45 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 				style={[
 					styles.timerBtn,
 					{
-						backgroundColor: colors.background,
-						borderColor: colors.border,
+						backgroundColor:
+							localTimerStatus.running && isActiveTask ? "#e11d48" : colors.background,
+						borderColor: localTimerStatus.running && isActiveTask ? "#e11d48" : colors.background,
 					},
 				]}
 				onPress={() => handleStartTimer()}
 			>
-				<Image
-					resizeMode="contain"
-					style={styles.timerIcon}
-					source={
-						localTimerStatus.running && isActiveTask
-							? require("../../../../../assets/icons/new/stop-blue.png")
-							: require("../../../../../assets/icons/new/play.png")
-					}
-				/>
+				{localTimerStatus.running && isActiveTask ? (
+					<SvgXml xml={timerMediumStopIcon} />
+				) : (
+					<SvgXml xml={timerMediumPlayIcon} />
+				)}
 			</TouchableOpacity>
 		)
 	}
 
 	return (
-		<LinearGradient colors={["#E93CB9", "#6A71E7"]} style={styles.timerBtn}>
-			<TouchableOpacity onPress={() => handleStartTimer()}>
-				<Image
-					resizeMode="contain"
-					style={styles.timerIcon}
-					source={
-						localTimerStatus.running && isActiveTask
-							? require("../../../../../assets/icons/new/stop.png")
-							: require("../../../../../assets/icons/new/play-dark.png")
-					}
-				/>
-			</TouchableOpacity>
-		</LinearGradient>
+		<>
+			{localTimerStatus.running && isActiveTask ? (
+				<TouchableOpacity
+					style={[
+						styles.timerBtn,
+						{
+							backgroundColor: "#e11d48",
+							borderColor: "#e11d48",
+						},
+					]}
+					onPress={() => handleStartTimer()}
+				>
+					<SvgXml xml={timerMediumStopIcon} />
+				</TouchableOpacity>
+			) : (
+				<LinearGradient colors={["#E93CB9", "#6A71E7"]} style={styles.timerBtn}>
+					<TouchableOpacity onPress={() => handleStartTimer()}>
+						<SvgXml xml={timerMediumPlayIcon} />
+					</TouchableOpacity>
+				</LinearGradient>
+			)}
+		</>
 	)
 })
 

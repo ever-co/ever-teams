@@ -2,14 +2,14 @@
 /* eslint-disable react-native/no-color-literals */
 import { observer } from "mobx-react-lite"
 import React from "react"
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { ProgressBar } from "react-native-paper"
 import { pad } from "../helpers/number"
 import { useStores } from "../models"
 import { useTimer } from "../services/hooks/useTimer"
 import { typography, useAppTheme } from "../theme"
 import { SvgXml } from "react-native-svg"
-import { timerSmallStopIcon } from "./svgs/icons"
+import { timerSmallPlayIcon, timerSmallStopIcon } from "./svgs/icons"
 
 const HeaderTimer = observer(() => {
 	const { colors } = useAppTheme()
@@ -57,7 +57,7 @@ const HeaderTimer = observer(() => {
 					// <Image style={styles.btnImage} source={require("../../assets/icons/new/stop-blue.png")} />
 					<SvgXml xml={timerSmallStopIcon} />
 				) : (
-					<Image style={styles.btnImage} source={require("../../assets/icons/new/play.png")} />
+					<SvgXml xml={timerSmallPlayIcon} />
 				)}
 			</TouchableOpacity>
 			<View style={styles.progressContainer}>

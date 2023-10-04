@@ -3,7 +3,7 @@
 // import { LinearGradient } from "expo-linear-gradient"
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
-import { View, StyleSheet, Image, ViewStyle, ImageStyle, Pressable } from "react-native"
+import { View, StyleSheet, ViewStyle, ImageStyle, Pressable } from "react-native"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
@@ -11,7 +11,7 @@ import { useTimer } from "../services/hooks/useTimer"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useAppTheme } from "../theme"
 import { SvgXml } from "react-native-svg"
-import { timerLargeStopIcon } from "./svgs/icons"
+import { timerLargePlayIcon, timerLargeStopIcon } from "./svgs/icons"
 
 type TimerButtonProps = {
 	task?: ITeamTask
@@ -19,7 +19,7 @@ type TimerButtonProps = {
 	iconStyle?: ImageStyle
 }
 
-const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle }) => {
+const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 	const {
 		TimerStore: { localTimerStatus },
 	} = useStores()
@@ -40,11 +40,12 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 							disabled={!canRunTimer}
 							onPress={() => startTimer()}
 						>
-							<Image
+							{/* <Image
 								resizeMode="contain"
 								style={[styles.timerIcon, iconStyle]}
 								source={require("../../assets/icons/new/play.png")}
-							/>
+							/> */}
+							<SvgXml xml={timerLargePlayIcon} />
 						</Pressable>
 					</>
 				) : (
@@ -82,11 +83,12 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 						disabled={!canRunTimer}
 						onPress={() => (canRunTimer ? startTimer() : {})}
 					>
-						<Image
+						{/* <Image
 							resizeMode="contain"
 							style={[styles.timerIcon, iconStyle]}
 							source={require("../../assets/icons/new/play.png")}
-						/>
+						/> */}
+						<SvgXml xml={timerLargePlayIcon} />
 					</Pressable>
 				</>
 			) : (
