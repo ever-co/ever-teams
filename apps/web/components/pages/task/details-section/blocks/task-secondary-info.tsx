@@ -124,25 +124,9 @@ const TaskSecondaryInfo = () => {
 					/>
 				</TaskRow>
 			)}
-			{task &&
-				task.parentId &&
-				(task.issueType === 'Task' || task.issueType === 'Bug') && (
-					<TaskRow labelTitle={trans.EPIC}>
-						<Tooltip
-							label={`#${task.parent?.taskNumber} ${task.parent?.title}`}
-							placement="auto"
-						>
-							<Link href={`/task/${task.parentId}`} target="_blank">
-								<div className="flex items-center w-32">
-									<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
-										<CategoryIcon />
-									</div>
-									<div className="text-xs overflow-hidden text-ellipsis whitespace-nowrap">{`#${task.parent?.taskNumber} ${task.parent?.title}`}</div>
-								</div>
-							</Link>
-						</Tooltip>
-					</TaskRow>
-				)}
+			{task && task.parentId && task.parent?.issueType === 'Epic' && (
+				<EpicParent task={task} />
+			)}
 
 			{/* Task Status */}
 			<TaskRow labelTitle={trans.STATUS}>
@@ -255,6 +239,34 @@ const TaskSecondaryInfo = () => {
 				</Card>
 			</Modal>
 		</section>
+	);
+};
+
+const EpicParent = ({ task }: { task: ITeamTask }) => {
+	const { trans } = useTranslation('taskDetails');
+
+	return (task.issueType === 'Task' ||
+		task.issueType === 'Bug' ||
+		task.issueType === 'Story') &&
+		task.parentId &&
+		task.parent?.issueType === 'Epic' ? (
+		<TaskRow labelTitle={trans.EPIC}>
+			<Tooltip
+				label={`#${task.parent?.taskNumber} ${task.parent?.title}`}
+				placement="auto"
+			>
+				<Link href={`/task/${task.parentId}`} target="_blank">
+					<div className="flex items-center w-32">
+						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+							<CategoryIcon />
+						</div>
+						<div className="text-xs overflow-hidden text-ellipsis whitespace-nowrap">{`#${task.parent?.taskNumber} ${task.parent?.title}`}</div>
+					</div>
+				</Link>
+			</Tooltip>
+		</TaskRow>
+	) : (
+		<></>
 	);
 };
 

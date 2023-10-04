@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 
