@@ -9,10 +9,10 @@ import {
 import { serverFetch } from "../fetch"
 
 export function getTimerStatusRequest(
-	{ source = "MOBILE", tenantId, organizationId }: ITimerStatusParams,
+	{ tenantId, organizationId }: ITimerStatusParams,
 	bearer_token: string,
 ) {
-	const params = new URLSearchParams({ source, tenantId, organizationId })
+	const params = new URLSearchParams({ tenantId, organizationId })
 	return serverFetch<ITimerStatus>({
 		path: `/timesheet/timer/status?${params.toString()}`,
 		method: "GET",

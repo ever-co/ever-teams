@@ -12,6 +12,7 @@ import { ITeamTask } from "../interfaces/ITask"
 import { useTeamTasks } from "./features/useTeamTasks"
 import useFetchTimerStatus from "../client/queries/timer/timer"
 import { useTaskStatistics } from "./features/useTaskStatics"
+import moment from "moment-timezone"
 
 const LOCAL_TIMER_STORAGE_KEY = "local-timer-ever-teams"
 
@@ -70,9 +71,17 @@ function useLocalTimeCounter(
 			;(async () => {
 				const localStatus = await getLocalCounterStatus()
 				localStatus && setLocalTimerStatus(localStatus)
+
+				const timerStatusDate = timerStatus?.lastLog?.createdAt
+					? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 - timerStatus?.lastLog?.duration
+					: 0
+
 				timerStatus &&
 					updateLocalTimerStatus({
-						runnedDateTime: localStatus?.runnedDateTime || (timerStatus.running ? Date.now() : 0),
+						runnedDateTime:
+							(timerStatus.running ? timerStatusDate || Date.now() : 0) ||
+							localStatus?.runnedDateTime ||
+							0,
 						running: timerStatus.running,
 						lastTaskId: timerStatus.lastLog?.taskId || null,
 					})
