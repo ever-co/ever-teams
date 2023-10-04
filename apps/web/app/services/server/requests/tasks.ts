@@ -1,8 +1,9 @@
 import {
+	CreateReponse,
 	DeleteReponse,
 	PaginationResponse,
 	SingleDataResponse
-} from '@app/interfaces/IDataResponse';
+} from '@app/interfaces';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@app/interfaces';
@@ -44,6 +45,53 @@ export function getTeamTasksRequest({
 	const query = new URLSearchParams(obj);
 	return serverFetch<PaginationResponse<ITeamTask>>({
 		path: `/tasks/team?${query.toString()}`,
+		method: 'GET',
+		bearer_token,
+		tenantId
+	});
+}
+
+export function getTaskByIdRequest({
+	tenantId,
+	organizationId,
+	bearer_token,
+	relations = [
+		'tags',
+		'teams',
+		'members',
+		'members.user',
+		'creator',
+		'linkedIssues',
+		'linkedIssues.taskTo',
+		'linkedIssues.taskFrom',
+		'parent',
+		'children'
+	],
+	taskId
+}: {
+	tenantId: string;
+	organizationId: string;
+	bearer_token: string;
+	taskId: string;
+	relations?: string[];
+}) {
+	const obj = {
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId,
+		'join[alias]': 'task',
+		'join[leftJoinAndSelect][members]': 'task.members',
+		'join[leftJoinAndSelect][user]': 'members.user',
+		rootEpic: 'true'
+	} as Record<string, string>;
+
+	relations.forEach((rl, i) => {
+		obj[`relations[${i}]`] = rl;
+	});
+
+	const query = new URLSearchParams(obj);
+
+	return serverFetch<CreateReponse<ITeamTask>>({
+		path: `/tasks/${taskId}?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId

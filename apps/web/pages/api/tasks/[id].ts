@@ -2,7 +2,8 @@ import { ITeamTask } from '@app/interfaces/ITask';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTeamTasksRequest,
-	updateTaskRequest
+	updateTaskRequest,
+	getTaskByIdRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -20,6 +21,14 @@ export default async function handler(
 	delete body.selectedTeam;
 
 	switch (req.method) {
+		case 'GET':
+			await getTaskByIdRequest({
+				taskId: taskId as string,
+				tenantId,
+				organizationId,
+				bearer_token: access_token
+			});
+			break;
 		case 'PUT':
 			await updateTaskRequest(
 				{
