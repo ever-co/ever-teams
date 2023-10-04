@@ -234,11 +234,11 @@ export function useTimer() {
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
-		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== "in progress") {
+		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== "in-progress") {
 			updateTask(
 				{
 					...activeTeamTaskRef.current,
-					status: "in progress",
+					status: "in-progress",
 				},
 				taskId.current,
 			)
