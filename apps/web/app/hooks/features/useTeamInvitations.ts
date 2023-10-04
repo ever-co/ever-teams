@@ -56,12 +56,15 @@ export function useTeamInvitations() {
 		loading: acceptRejectMyInvitationsLoading
 	} = useQuery(acceptRejectMyInvitationsAPI);
 
-	const inviteUser = useCallback((email: string, name: string) => {
-		return inviteQueryCall({ email, name }).then((res) => {
-			setTeamInvitations(res.data?.items || []);
-			return res;
-		});
-	}, []);
+	const inviteUser = useCallback(
+		(email: string, name: string) => {
+			return inviteQueryCall({ email, name }).then((res) => {
+				setTeamInvitations(res.data?.items || []);
+				return res;
+			});
+		},
+		[inviteQueryCall, setTeamInvitations]
+	);
 
 	useEffect(() => {
 		if (activeTeamId && firstLoad && isTeamManager) {
@@ -69,30 +72,36 @@ export function useTeamInvitations() {
 				setTeamInvitations(res.data?.items || []);
 			});
 		}
-	}, [activeTeamId, firstLoad, isTeamManager]);
+	}, [activeTeamId, firstLoad, isTeamManager, queryCall, setTeamInvitations]);
 
 	useEffect(() => {
 		if (firstLoad) {
 			setFetchingInvitations(loading);
 		}
-	}, [loading, firstLoad]);
+	}, [loading, firstLoad, setFetchingInvitations]);
 
-	const removeTeamInvitation = useCallback((invitationId: string) => {
-		removeInviteQueryCall(invitationId).then((res) => {
-			setTeamInvitations(res.data?.items || []);
-		});
-	}, []);
+	const removeTeamInvitation = useCallback(
+		(invitationId: string) => {
+			removeInviteQueryCall(invitationId).then((res) => {
+				setTeamInvitations(res.data?.items || []);
+			});
+		},
+		[removeInviteQueryCall, setTeamInvitations]
+	);
 
-	const resendTeamInvitation = useCallback((invitationId: string) => {
-		resendInviteQueryCall(invitationId);
-	}, []);
+	const resendTeamInvitation = useCallback(
+		(invitationId: string) => {
+			resendInviteQueryCall(invitationId);
+		},
+		[resendInviteQueryCall]
+	);
 
 	const myInvitations = useCallback(() => {
 		myInvitationsQueryCall().then((res) => {
 			setMyInvitationsList(res.data.items);
 			return res.data;
 		});
-	}, [myInvitationsQueryCall]);
+	}, [myInvitationsQueryCall, setMyInvitationsList]);
 	const removeMyInvitation = useCallback(
 		(id: string) => {
 			setMyInvitationsList(
@@ -119,7 +128,12 @@ export function useTeamInvitations() {
 				return res.data;
 			});
 		},
-		[acceptRejectMyInvitationsQueryCall, myInvitationsList]
+		[
+			acceptRejectMyInvitationsQueryCall,
+			myInvitationsList,
+			refreshToken,
+			setMyInvitationsList
+		]
 	);
 
 	return {

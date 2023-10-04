@@ -56,13 +56,13 @@ export function useTaskLabels() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskLabels, taskLabels]);
+	}, [user, activeTeamId, setTaskLabels, taskLabels, queryCall]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
 
 		loadTaskLabels();
-	}, [activeTeamId, firstLoad]);
+	}, [activeTeamId, firstLoad, loadTaskLabels]);
 
 	const createTaskLabels = useCallback(
 		(data: ITaskLabelsCreate) => {
@@ -90,13 +90,7 @@ export function useTaskLabels() {
 			}
 		},
 
-		[
-			createQueryCall,
-			createTaskLabelsLoading,
-			deleteTaskLabelsLoading,
-			user,
-			activeTeamId
-		]
+		[createQueryCall, user, activeTeamId, queryCall, setTaskLabels]
 	);
 
 	const deleteTaskLabels = useCallback(
@@ -115,13 +109,7 @@ export function useTaskLabels() {
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			taskLabels.length,
-			createTaskLabelsLoading,
-			deleteTaskLabelsLoading,
-			user
-		]
+		[deleteQueryCall, user, activeTeamId, queryCall, setTaskLabels]
 	);
 
 	const editTaskLabels = useCallback(
@@ -140,11 +128,10 @@ export function useTaskLabels() {
 				});
 			}
 		},
-		[editTaskLabelsLoading, user]
+		[user, activeTeamId, editQueryCall, queryCall, setTaskLabels]
 	);
 
 	return {
-		// loadTaskStatus,
 		loading: taskLabelsFetching,
 		taskLabels,
 		taskLabelsFetching,

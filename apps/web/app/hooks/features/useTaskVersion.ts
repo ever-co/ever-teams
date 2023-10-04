@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ITaskVersionCreate } from '@app/interfaces';
 import {
 	createTaskVersionAPI,

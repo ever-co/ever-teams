@@ -52,7 +52,7 @@ export function deleteTaskLabelsRequest({
 	});
 }
 
-export function getTaskLabelsListRequest<ITaskStatusItemList>(
+export function getTaskLabelsListRequest(
 	{
 		organizationId,
 		tenantId,

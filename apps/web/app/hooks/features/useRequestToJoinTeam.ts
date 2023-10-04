@@ -44,7 +44,7 @@ export const useRequestToJoinTeam = () => {
 		return getRequestToJoinQueryCall().then((res) => {
 			setRequestToJoin(res.data.items);
 		});
-	}, []);
+	}, [getRequestToJoinQueryCall, setRequestToJoin]);
 
 	const requestToJoinTeam = useCallback(
 		(data: IRequestToJoinCreate) => {
@@ -73,11 +73,11 @@ export const useRequestToJoinTeam = () => {
 
 	const acceptRejectRequestToJoin = useCallback(
 		(id: string, action: IRequestToJoinActionEnum) => {
-			acceptRejectRequestToJoinQueryCall(id, action).then((res) => {
+			acceptRejectRequestToJoinQueryCall(id, action).then(() => {
 				getRequestToJoin();
 			});
 		},
-		[acceptRejectRequestToJoinQueryCall]
+		[acceptRejectRequestToJoinQueryCall, getRequestToJoin]
 	);
 
 	return {

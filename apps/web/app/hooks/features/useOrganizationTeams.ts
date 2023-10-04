@@ -164,7 +164,7 @@ function useUpdateOrganizationTeam() {
 				setTeamsUpdate(res.data);
 			});
 		},
-		[]
+		[queryCall, setTeamsUpdate]
 	);
 
 	return { updateOrganizationTeam, loading };
@@ -308,8 +308,7 @@ export function useOrganizationTeams() {
 		setActiveTeamId,
 		setIsTeamMember,
 		setTeams,
-		setTeamsUpdate,
-		teams
+		teamsRef
 	]);
 
 	/**
@@ -358,7 +357,12 @@ export function useOrganizationTeams() {
 				return res;
 			});
 		},
-		[loadTeamsData, removeUserFromAllTeamQueryCall]
+		[
+			loadTeamsData,
+			removeUserFromAllTeamQueryCall,
+			refreshToken,
+			updateUserFromAPI
+		]
 	);
 
 	return {

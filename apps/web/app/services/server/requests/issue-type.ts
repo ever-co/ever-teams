@@ -52,7 +52,7 @@ export function deleteIssueTypesRequest({
 	});
 }
 
-export function getIssueTypesListRequest<IIssueTypesItemList>(
+export function getIssueTypesListRequest(
 	{
 		organizationId,
 		tenantId,
