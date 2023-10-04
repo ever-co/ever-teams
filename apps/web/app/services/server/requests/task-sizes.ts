@@ -52,7 +52,7 @@ export function deleteTaskSizesRequest({
 	});
 }
 
-export function getTaskSizesListRequest<ITaskSizesItemList>(
+export function getTaskSizesListRequest(
 	{
 		organizationId,
 		tenantId,

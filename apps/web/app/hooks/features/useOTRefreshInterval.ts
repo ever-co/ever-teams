@@ -34,5 +34,5 @@ export function useOTRefreshInterval(
 
 			return () => clearInterval(id);
 		}
-	}, [delay, publicTeam]);
+	}, [delay, publicTeam, callbackRef, interval, setOTRefreshIntervalState]);
 }

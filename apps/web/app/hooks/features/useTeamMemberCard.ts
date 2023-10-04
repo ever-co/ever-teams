@@ -100,7 +100,14 @@ export function useTeamMemberCard(
 		}
 
 		return responseTask;
-	}, [activeTeamTask, isAuthUser, authUser, member, tasks, publicTeam]);
+	}, [
+		isAuthUser,
+		member,
+		tasks,
+		publicTeam,
+		allTaskStatistics,
+		setActiveUserTaskCookieCb
+	]);
 
 	/**
 	 * Give the manager role to the member
@@ -159,7 +166,7 @@ export function useTeamMemberCard(
 				.filter((r) => r.employee.id !== employeeId)
 				.map((r) => r.employee.id)
 		});
-	}, [updateOrganizationTeam, member, activeTeamRef]);
+	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 
 	/**
 	 * Returns all tasks not assigned to the member

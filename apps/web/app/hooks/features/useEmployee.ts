@@ -29,11 +29,15 @@ export const useEmployee = () => {
 				setWorkingEmployeesEmail(items.map((item) => item.user?.email || ''));
 			}
 		});
-	}, [getWorkingEmployeeQueryCall]);
+	}, [
+		getWorkingEmployeeQueryCall,
+		setWorkingEmployees,
+		setWorkingEmployeesEmail
+	]);
 
 	useEffect(() => {
 		getWorkingEmployee();
-	}, []);
+	}, [getWorkingEmployee]);
 
 	return {
 		getWorkingEmployeeQueryCall,

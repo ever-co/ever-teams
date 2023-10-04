@@ -22,5 +22,5 @@ export function useRefreshInterval(
 
 			return () => clearInterval(id);
 		}
-	}, [delay]);
+	}, [delay, callbackRef, params]);
 }

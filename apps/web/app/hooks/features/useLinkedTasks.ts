@@ -16,7 +16,7 @@ export function useLinkedTasks(task?: ITeamTask | null) {
 		if (task?.id) {
 			loadRelatedTasks(task?.id).then((tasks) => setTasks(tasks));
 		}
-	}, [task?.id]);
+	}, [task?.id, loadRelatedTasks]);
 
 	return {
 		tasks,
