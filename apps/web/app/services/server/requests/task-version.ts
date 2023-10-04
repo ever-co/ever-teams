@@ -52,7 +52,7 @@ export function deleteTaskVersionRequest({
 	});
 }
 
-export function getTaskVersionListRequest<ITaskVersionItemList>(
+export function getTaskVersionListRequest(
 	{
 		organizationId,
 		tenantId,

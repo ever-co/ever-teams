@@ -19,7 +19,7 @@ export const useUser = () => {
 				return res;
 			});
 		}
-	}, [user]);
+	}, [user, deleteQueryCall, logOut]);
 
 	const resetUser = useCallback(() => {
 		if (user) {
@@ -28,7 +28,7 @@ export const useUser = () => {
 				return res;
 			});
 		}
-	}, [user]);
+	}, [user, resetQueryCall, logOut]);
 
 	return {
 		deleteUser,

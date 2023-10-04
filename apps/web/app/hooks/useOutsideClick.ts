@@ -12,7 +12,9 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 	useEffect(() => {
 		const onBodyClick = (ev: MouseEvent) => {
 			if (!targetEl.current) return;
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const el = targetEl.current!;
+			// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 			const tnode = ev.target! as Node;
 
 			if (
@@ -31,11 +33,14 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 		return () => {
 			document.body.removeEventListener('click', onBodyClick);
 		};
-	}, []);
+	}, [onClickOuSideRef]);
 
-	const onOutsideClick = useCallback((func: Func) => {
-		onClickOuSideRef.current = func;
-	}, []);
+	const onOutsideClick = useCallback(
+		(func: Func) => {
+			onClickOuSideRef.current = func;
+		},
+		[onClickOuSideRef]
+	);
 
 	const ignoreElementRef = useCallback((el: any) => {
 		refs.current.push(el);

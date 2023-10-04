@@ -17,6 +17,7 @@ export function useQuery<T extends (...params: any[]) => Promise<any>>(
 			setLoading(false);
 		});
 		return promise;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []) as T;
 
 	return { queryCall, loading, infiniteLoading };

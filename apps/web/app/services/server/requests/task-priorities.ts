@@ -55,7 +55,7 @@ export function deleteTaskPrioritiesRequest({
 	});
 }
 
-export function getTaskPrioritiesListRequest<ITaskStatusItemList>(
+export function getTaskPrioritiesListRequest(
 	{
 		organizationId,
 		tenantId,

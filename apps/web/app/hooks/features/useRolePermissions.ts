@@ -42,7 +42,11 @@ export const useRolePermissions = () => {
 				}
 			});
 		},
-		[getRolePermissionsQueryCall]
+		[
+			getRolePermissionsQueryCall,
+			setRolePermissionsFormated,
+			setrolePermissions
+		]
 	);
 
 	const updateRolePermission = useCallback(
@@ -62,7 +66,13 @@ export const useRolePermissions = () => {
 				setrolePermissions(tempRoles);
 			});
 		},
-		[rolePermissions]
+		[
+			rolePermissions,
+			rolePermissionsFormated,
+			setRolePermissionsFormated,
+			setrolePermissions,
+			updateRoleQueryCall
+		]
 	);
 
 	return {
