@@ -152,12 +152,12 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				...GS.mt5,
 				paddingTop: 4,
 				backgroundColor:
-					!timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.startedAt &&
-					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-					props.member?.employee?.isOnline &&
-					timerStatus?.lastLog?.source !== "MOBILE"
+					(!timerStatus?.running &&
+						timerStatus?.lastLog &&
+						timerStatus?.lastLog?.startedAt &&
+						moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
+						timerStatus?.lastLog?.source !== "MOBILE") ||
+					props.member?.employee?.isOnline
 						? "#EBC386"
 						: !props.member?.employee?.isActive
 						? "#F1A2A2"

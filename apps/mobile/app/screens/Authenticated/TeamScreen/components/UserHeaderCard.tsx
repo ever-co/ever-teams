@@ -70,12 +70,14 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 
 	const { timerStatus } = useTimer()
 
-	// console.log(
-	// 	!timerStatus?.running &&
-	// 		timerStatus?.lastLog &&
-	// 		timerStatus?.lastLog?.startedAt &&
-	// 		moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24,
-	// )
+	console.log(
+		!timerStatus?.running &&
+			timerStatus?.lastLog &&
+			timerStatus?.lastLog?.startedAt &&
+			moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
+			member?.employee?.isOnline &&
+			timerStatus?.lastLog?.source !== "MOBILE",
+	)
 
 	return (
 		<View style={styles.wrapProfileImg}>
@@ -97,11 +99,11 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 			)}
 			<TimerStatus
 				status={
-					!timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.startedAt &&
-					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-					member?.employee?.isOnline &&
+					(!timerStatus?.running &&
+						timerStatus?.lastLog &&
+						timerStatus?.lastLog?.startedAt &&
+						moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
+						member?.employee?.isOnline) ||
 					timerStatus?.lastLog?.source !== "MOBILE"
 						? "pause"
 						: !member?.employee?.isActive
