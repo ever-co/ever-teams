@@ -25,8 +25,7 @@ const GitHub = () => {
 	} = useIntegrationTypes();
 
 	const params = {
-		state: 'TEST',
-		redirect_uri: 'http://localhost:3001/integration/github',
+		state: 'http://localhost:3001/integration/github',
 	} as { [x: string]: string };
 
 	const queries = new URLSearchParams(params || {});
