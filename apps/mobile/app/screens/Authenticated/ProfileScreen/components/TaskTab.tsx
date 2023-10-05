@@ -18,7 +18,9 @@ const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, cou
 		<TouchableOpacity
 			style={[
 				$container,
-				isSelected ? { ...$selectedTab, borderBottomColor: colors.secondary } : $unselectedTab,
+				isSelected
+					? { ...$selectedTab, borderBottomColor: dark ? colors.primary : colors.secondary }
+					: $unselectedTab,
 			]}
 			activeOpacity={0.7}
 			onPress={() => setSelectedTab()}
