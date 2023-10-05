@@ -19,11 +19,17 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 	// Get current timer seconds
 	const { isAuthUser, memberTask } = memberInfo
 
-	const { getTaskStat, activeTaskDailyStat, activeTaskTotalStat } = useTaskStatistics()
+	// activeTaskDailyStat and activeTaskTotalStat removed from useTaskStatistics call
+	const { getTaskStat } = useTaskStatistics()
+
+	const { taskTotalStat, taskDailyStat } = getTaskStat(memberTask)
 
 	if (isAuthUser) {
-		const { h: th, m: tm } = secondsToTime(activeTaskTotalStat?.duration || 0)
-		const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0)
+		// const { h: th, m: tm } = secondsToTime(activeTaskTotalStat?.duration || 0)
+		// const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0)
+
+		const { h: th, m: tm } = secondsToTime(taskTotalStat?.duration || 0)
+		const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0)
 		return (
 			<>
 				{period === "Daily" ? (
@@ -44,8 +50,6 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 			</>
 		)
 	}
-
-	const { taskTotalStat, taskDailyStat } = getTaskStat(memberTask)
 
 	const { h: th, m: tm } = secondsToTime(taskTotalStat?.duration || 0)
 	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0)

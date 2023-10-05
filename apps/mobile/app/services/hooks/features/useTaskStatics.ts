@@ -89,6 +89,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		return data
 	}, [activeTask]) // If there are a lot of tasks to load might cause slow load, as fetching a lot, depending on task count
 
+	/*
+   Commented the bellow function as it fetches often causing performance issues
+  */
+
 	// const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), [
 	// 	activeTaskId,
 	// ])
