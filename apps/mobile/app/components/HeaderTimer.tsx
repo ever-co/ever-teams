@@ -1,11 +1,15 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import { observer } from "mobx-react-lite"
 import React from "react"
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { ProgressBar } from "react-native-paper"
 import { pad } from "../helpers/number"
 import { useStores } from "../models"
 import { useTimer } from "../services/hooks/useTimer"
 import { typography, useAppTheme } from "../theme"
+import { SvgXml } from "react-native-svg"
+import { timerSmallPlayIcon, timerSmallStopIcon } from "./svgs/icons"
 
 const HeaderTimer = observer(() => {
 	const { colors } = useAppTheme()
@@ -50,9 +54,10 @@ const HeaderTimer = observer(() => {
 				onPress={() => handleTimer()}
 			>
 				{localTimerStatus.running ? (
-					<Image style={styles.btnImage} source={require("../../assets/icons/new/stop-blue.png")} />
+					// <Image style={styles.btnImage} source={require("../../assets/icons/new/stop-blue.png")} />
+					<SvgXml xml={timerSmallStopIcon} />
 				) : (
-					<Image style={styles.btnImage} source={require("../../assets/icons/new/play.png")} />
+					<SvgXml xml={timerSmallPlayIcon} />
 				)}
 			</TouchableOpacity>
 			<View style={styles.progressContainer}>
@@ -84,17 +89,18 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		elevation: 10,
 		flexDirection: "row",
+		gap: 9,
 		height: 38,
-		justifyContent: "space-around",
+		justifyContent: "center",
 		shadowColor: "rgba(0, 0, 0, 0.1)",
 		shadowOffset: { width: 5, height: 5 },
 		shadowOpacity: 0.3,
 		shadowRadius: 1,
-		width: "100%",
+		width: 126,
 	},
 	progressContainer: {
 		height: 21,
-		width: "60%",
+		width: "65%",
 	},
 	smallTxt: {
 		fontSize: 8,
