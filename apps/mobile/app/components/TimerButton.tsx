@@ -1,15 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import { LinearGradient } from "expo-linear-gradient"
+// import { LinearGradient } from "expo-linear-gradient"
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
-import { View, StyleSheet, Image, ViewStyle, ImageStyle, Pressable } from "react-native"
+import { View, StyleSheet, ViewStyle, ImageStyle, Pressable } from "react-native"
 
 import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
 import { useTimer } from "../services/hooks/useTimer"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useAppTheme } from "../theme"
+import { SvgXml } from "react-native-svg"
+import { timerLargePlayIcon, timerLargeStopIcon } from "./svgs/icons"
 
 type TimerButtonProps = {
 	task?: ITeamTask
@@ -17,7 +19,7 @@ type TimerButtonProps = {
 	iconStyle?: ImageStyle
 }
 
-const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle }) => {
+const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 	const {
 		TimerStore: { localTimerStatus },
 	} = useStores()
@@ -38,25 +40,15 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 							disabled={!canRunTimer}
 							onPress={() => startTimer()}
 						>
-							<Image
-								resizeMode="contain"
-								style={[styles.timerIcon, iconStyle]}
-								source={require("../../assets/icons/new/play.png")}
-							/>
+							<SvgXml xml={timerLargePlayIcon} />
 						</Pressable>
 					</>
 				) : (
-					<Pressable onPress={() => stopTimer()} style={[styles.timerBtnInactive, containerStyle]}>
-						<LinearGradient
-							colors={["#E93CB9", "#6A71E7"]}
-							style={[styles.timerBtnInactive, containerStyle]}
-						>
-							<Image
-								resizeMode="contain"
-								style={[styles.timerIcon, iconStyle]}
-								source={require("../../assets/icons/new/stop.png")}
-							/>
-						</LinearGradient>
+					<Pressable
+						onPress={() => stopTimer()}
+						style={[styles.timerBtnActive, { backgroundColor: "#e11d48" }, containerStyle]}
+					>
+						<SvgXml xml={timerLargeStopIcon} />
 					</Pressable>
 				)}
 			</View>
@@ -76,20 +68,15 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 						disabled={!canRunTimer}
 						onPress={() => (canRunTimer ? startTimer() : {})}
 					>
-						<Image
-							resizeMode="contain"
-							style={[styles.timerIcon, iconStyle]}
-							source={require("../../assets/icons/new/play.png")}
-						/>
+						<SvgXml xml={timerLargePlayIcon} />
 					</Pressable>
 				</>
 			) : (
-				<Pressable onPress={() => stopTimer()} style={[styles.timerBtnInactive, containerStyle]}>
-					<Image
-						resizeMode="contain"
-						style={[styles.timerIcon, iconStyle]}
-						source={require("../../assets/icons/new/stop.png")}
-					/>
+				<Pressable
+					onPress={() => stopTimer()}
+					style={[styles.timerBtnActive, { backgroundColor: "#e11d48" }, containerStyle]}
+				>
+					<SvgXml xml={timerLargeStopIcon} />
 				</Pressable>
 			)}
 		</View>
@@ -99,6 +86,22 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle, iconStyle 
 export default TimerButton
 
 const styles = StyleSheet.create({
+	timerBtnActive: {
+		alignItems: "center",
+		backgroundColor: "#3826A6",
+		borderColor: "rgba(0, 0, 0, 0.1)",
+		borderRadius: 30,
+		borderWidth: 1,
+		elevation: 5,
+		height: 60,
+		justifyContent: "center",
+		marginHorizontal: 15,
+		shadowColor: "#e11d48",
+		shadowOffset: { width: 1, height: 1.5 },
+		shadowOpacity: 0.5,
+		shadowRadius: 5,
+		width: 60,
+	},
 	timerBtnInactive: {
 		alignItems: "center",
 		backgroundColor: "#3826A6",
