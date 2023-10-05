@@ -1,6 +1,6 @@
 import { serverFetch } from '../fetch';
 
-export function getLanguageListRequest<ILanguageItemList>(
+export function getLanguageListRequest(
 	{ is_system, tenantId }: { is_system: boolean; tenantId: string },
 	bearer_token: string
 ) {

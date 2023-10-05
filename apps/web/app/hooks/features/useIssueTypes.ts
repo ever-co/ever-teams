@@ -51,7 +51,14 @@ export function useIssueType() {
 			setIssueTypes(res?.data?.data?.items || []);
 			return res;
 		});
-	}, [activeTeamId, firstLoad]);
+	}, [
+		activeTeamId,
+		firstLoad,
+		queryCall,
+		setIssueTypes,
+		user?.employee?.organizationId,
+		user?.tenantId
+	]);
 
 	const createIssueType = useCallback(
 		(data: IIssueTypesCreate) => {
@@ -78,9 +85,11 @@ export function useIssueType() {
 
 		[
 			createQueryCall,
-			createIssueTypeLoading,
-			deleteIssueTypeLoading,
-			activeTeamId
+			activeTeamId,
+			queryCall,
+			setIssueTypes,
+			user?.employee?.organizationId,
+			user?.tenantId
 		]
 	);
 
@@ -100,14 +109,7 @@ export function useIssueType() {
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			issueTypes.length,
-			createIssueTypeLoading,
-			deleteIssueTypeLoading,
-			user,
-			activeTeamId
-		]
+		[deleteQueryCall, user, activeTeamId, queryCall, setIssueTypes]
 	);
 
 	const editIssueType = useCallback(
@@ -128,7 +130,7 @@ export function useIssueType() {
 				});
 			}
 		},
-		[editIssueTypeLoading, user, activeTeamId]
+		[user, activeTeamId, editQueryCall, queryCall, setIssueTypes]
 	);
 
 	return {

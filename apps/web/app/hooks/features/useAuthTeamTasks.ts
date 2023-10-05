@@ -1,12 +1,11 @@
 import { IUser } from '@app/interfaces';
-import { tasksByTeamState, tasksStatisticsState } from '@app/stores';
+import { tasksByTeamState } from '@app/stores';
 import { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { useOrganizationTeams } from './useOrganizationTeams';
 
 export function useAuthTeamTasks(user: IUser | undefined) {
 	const tasks = useRecoilValue(tasksByTeamState);
-	const statTasks = useRecoilValue(tasksStatisticsState);
 
 	const { activeTeam } = useOrganizationTeams();
 	const currentMember = activeTeam?.members.find(
@@ -27,16 +26,19 @@ export function useAuthTeamTasks(user: IUser | undefined) {
 		});
 	}, [tasks, user]);
 
-	const totalTodayTasks =
-		currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
-			? currentMember?.totalTodayTasks.map((task) => task.id)
-			: [];
+	const totalTodayTasks = useMemo(
+		() =>
+			currentMember?.totalTodayTasks && currentMember?.totalTodayTasks.length
+				? currentMember?.totalTodayTasks.map((task) => task.id)
+				: [],
+		[currentMember]
+	);
 
 	const workedTasks = useMemo(() => {
 		return tasks.filter((tsk) => {
 			return totalTodayTasks.includes(tsk.id);
 		});
-	}, [statTasks, tasks, totalTodayTasks]);
+	}, [tasks, totalTodayTasks]);
 
 	return {
 		assignedTasks,

@@ -2,6 +2,7 @@ import { imgTitle } from '@app/helpers';
 import {
 	useAuthenticateUser,
 	useCollaborative,
+	useModal,
 	useOrganizationTeams
 } from '@app/hooks';
 import { IUser } from '@app/interfaces';
@@ -46,6 +47,7 @@ const Collaborate = () => {
 	} = useCollaborative();
 	const { analytics } = useJitsu();
 	const { trans } = useTranslation();
+	const { isOpen, closeModal, openModal } = useModal();
 
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
@@ -84,9 +86,9 @@ const Collaborate = () => {
 	return (
 		<div>
 			<JitsuAnalytics user={user} />
-			<Dialog>
+			<Dialog open={isOpen} onOpenChange={isOpen ? closeModal : openModal}>
 				<DialogTrigger
-					onClick={() =>
+					onClick={() => {
 						analytics.track('click-collaborate', {
 							context: {
 								email: user?.email,
@@ -94,8 +96,10 @@ const Collaborate = () => {
 								tenant: user?.tenant?.name,
 								tenantId: user?.tenant?.id
 							}
-						})
-					}
+						});
+
+						isOpen ? closeModal() : openModal();
+					}}
 					className={clsxm(
 						'flex flex-row items-center justify-center py-3.5 px-4 gap-3 rounded-xl outline-none',
 						'bg-primary dark:bg-primary-light text-white text-sm',
@@ -229,7 +233,10 @@ const Collaborate = () => {
 
 						<div className="flex space-x-3">
 							<Button
-								onClick={onMeetClick}
+								onClick={() => {
+									closeModal();
+									onMeetClick();
+								}}
 								className={clsxm(
 									'rounded-xl flex min-w-0 w-28 h-12',
 									'gap-1 items-center'
@@ -241,7 +248,10 @@ const Collaborate = () => {
 							</Button>
 
 							<Button
-								onClick={onBoardClick}
+								onClick={() => {
+									closeModal();
+									onBoardClick();
+								}}
 								className={clsxm(
 									'rounded-xl flex min-w-0 w-28 h-12',
 									'gap-1 items-center'

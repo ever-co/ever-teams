@@ -55,9 +55,7 @@ export function deleteTaskRelatedIssueTypeRequest({
 	});
 }
 
-export function getTaskRelatedIssueTypeListRequest<
-	ITaskRelatedIssueTypeItemList
->(
+export function getTaskRelatedIssueTypeListRequest(
 	{
 		organizationId,
 		tenantId,
