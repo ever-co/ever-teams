@@ -70,15 +70,6 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 
 	const { timerStatus } = useTimer()
 
-	console.log(
-		!timerStatus?.running &&
-			timerStatus?.lastLog &&
-			timerStatus?.lastLog?.startedAt &&
-			moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-			member?.employee?.isOnline &&
-			timerStatus?.lastLog?.source !== "MOBILE",
-	)
-
 	return (
 		<View style={styles.wrapProfileImg}>
 			{user.image?.thumbUrl || user.imageUrl || user.image?.fullUrl ? (
