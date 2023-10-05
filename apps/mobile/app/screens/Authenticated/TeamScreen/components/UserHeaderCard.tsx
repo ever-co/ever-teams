@@ -99,12 +99,11 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 			)}
 			<TimerStatus
 				status={
-					(!timerStatus?.running &&
-						timerStatus?.lastLog &&
-						timerStatus?.lastLog?.startedAt &&
-						moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-						member?.employee?.isOnline) ||
-					timerStatus?.lastLog?.source !== "MOBILE"
+					!timerStatus?.running &&
+					timerStatus?.lastLog &&
+					timerStatus?.lastLog?.startedAt &&
+					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
+					(timerStatus?.lastLog?.source !== "MOBILE" || member?.employee?.isOnline)
 						? "pause"
 						: !member?.employee?.isActive
 						? "suspended"
