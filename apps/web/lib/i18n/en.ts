@@ -261,6 +261,7 @@ export const en = {
 			GITHUB: 'GitHub',
 			GITHUB_INTEGRATION_DESCRIPTION:
 				'Connect with GitHub and start Syncing GitHub issues with your Team',
+			SELECT_REPOSITORY: 'Select Repository',
 
 			INSTALL: 'Install',
 

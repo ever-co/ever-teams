@@ -32,17 +32,11 @@ const GitHub = () => {
 	const url = `https://github.com/apps/badal-ever-testing-probot/installations/new?${queries.toString()}`;
 
 	useEffect(() => {
-		if (
-			router &&
-			router.query.code &&
-			router.query.installation_id &&
-			router.query.setup_action
-		) {
+		if (router && router.query.installation_id && router.query.setup_action) {
 			setTimeout(() => {
 				installGitHub(
 					router.query.installation_id as string,
-					router.query.setup_action as string,
-					router.query.code as string
+					router.query.setup_action as string
 				);
 			}, 100);
 		}

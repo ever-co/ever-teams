@@ -95,10 +95,10 @@ export const IntegrationSetting = () => {
 									setSelectedRepo(value);
 								}}
 							>
-								<SelectTrigger className="w-64 h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light">
+								<SelectTrigger className="w-64 h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
 									<SelectValue
-										placeholder="Select Repository"
-										className=" dark:bg-dark--theme-light"
+										placeholder={trans.SELECT_REPOSITORY}
+										className=" dark:bg-dark--theme-light "
 									/>
 								</SelectTrigger>
 								<SelectContent>
@@ -106,7 +106,7 @@ export const IntegrationSetting = () => {
 										<SelectItem
 											key={item.id}
 											value={`${item.id}`}
-											className=" dark:bg-dark--theme-light"
+											className=" dark:bg-dark--theme-light focus:ring-0"
 										>
 											{item.name}
 										</SelectItem>
