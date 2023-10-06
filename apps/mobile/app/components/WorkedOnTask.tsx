@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-unused-styles */
 /* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import { observer } from "mobx-react-lite"
 import React from "react"
 import { View, StyleSheet, Text, ViewStyle, TextStyle } from "react-native"
@@ -8,6 +9,7 @@ import { pad } from "../helpers/number"
 import { useTaskStatistics } from "../services/hooks/features/useTaskStatics"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { typography } from "../theme/typography"
+import { useTheme } from "react-native-paper"
 
 const WorkedOnTask = observer(
 	({
@@ -25,12 +27,15 @@ const WorkedOnTask = observer(
 	}) => {
 		const { getTaskStat } = useTaskStatistics()
 		const { taskTotalStat } = getTaskStat(memberTask)
+		const { dark } = useTheme()
 
 		const { h: dh, m: dm } = secondsToTime(taskTotalStat?.duration || 0)
 
 		return (
 			<View style={containerStyle}>
-				<Text style={styles.totalTimeTitle}>{title} : </Text>
+				<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>
+					{title} :{" "}
+				</Text>
 				<Text style={totalTimeText}>
 					{pad(dh)} h:{pad(dm)} m
 				</Text>
@@ -41,7 +46,6 @@ const WorkedOnTask = observer(
 
 const styles = StyleSheet.create({
 	totalTimeTitle: {
-		color: "#7E7991",
 		fontFamily: typography.secondary.medium,
 		fontSize: 10,
 	},
