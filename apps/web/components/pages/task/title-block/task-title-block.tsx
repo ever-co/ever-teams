@@ -222,10 +222,12 @@ const TaskTitleBlock = () => {
 						)} */}
 						{/* Parent Issue/Task Name */}
 
+						{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
 						{(!task?.issueType ||
 							task?.issueType === 'Task' ||
 							task?.issueType === 'Bug') &&
-							task?.rootEpic && (
+							task?.rootEpic &&
+							task?.parentId !== task?.rootEpic.id && (
 								<ParentTaskBadge
 									task={{
 										...task,
