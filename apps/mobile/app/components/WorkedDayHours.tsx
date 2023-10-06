@@ -16,7 +16,7 @@ const WorkedOnTaskHours = ({
 	memberTask,
 	totalTimeText,
 }: {
-	title: string
+	title?: string
 	memberTask: ITeamTask
 	containerStyle: ViewStyle
 	totalTimeText: TextStyle
@@ -29,9 +29,14 @@ const WorkedOnTaskHours = ({
 
 	return (
 		<View style={containerStyle}>
-			<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>{title} </Text>
+			{title && (
+				<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>
+					{title}{" "}
+				</Text>
+			)}
 			<Text style={totalTimeText}>
-				{pad(dh)} h:{pad(dm)} m
+				{pad(dh)}
+				{title && " h"}:{pad(dm)} {title && "m"}
 			</Text>
 		</View>
 	)
