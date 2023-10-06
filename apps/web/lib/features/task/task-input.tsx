@@ -228,9 +228,21 @@ export function TaskInput(props: Props) {
 
 	let updatedTaskList: ITeamTask[] = [];
 	if (props.forParentChildRelationship) {
-		if (props.task?.issueType === 'Story') {
+		if (
+			// Story can have ParentId set to Epic ID
+			props.task?.issueType === 'Story'
+		) {
 			updatedTaskList = datas.filteredTasks.filter(
 				(item) => item.issueType === 'Epic'
+			);
+		} else if (
+			// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
+			props.task?.issueType === 'Task' ||
+			props.task?.issueType === 'Bug' ||
+			!props.task?.issueType
+		) {
+			updatedTaskList = datas.filteredTasks.filter(
+				(item) => item.issueType === 'Epic' || item.issueType === 'Story'
 			);
 		} else {
 			updatedTaskList = datas.filteredTasks;

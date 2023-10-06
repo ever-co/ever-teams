@@ -34,6 +34,7 @@ export type ITeamTask = {
 	parentId?: string;
 	parent?: ITeamTask;
 	issueType?: string;
+	rootEpic?: ITeamTask | null;
 } & Omit<ITaskStatusStack, 'tags'>;
 
 type SelectedTeam = Pick<

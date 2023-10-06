@@ -221,6 +221,22 @@ const TaskTitleBlock = () => {
 							</div>
 						)} */}
 						{/* Parent Issue/Task Name */}
+
+						{/* Current Issue Type is Task|Bug and Parent Issue is Not an Epic */}
+						{(!task?.issueType ||
+							task?.issueType === 'Task' ||
+							task?.issueType === 'Bug') &&
+							task?.rootEpic &&
+							task?.parentId !== task?.rootEpic.id && (
+								<ParentTaskBadge
+									task={{
+										...task,
+										parentId: task?.rootEpic.id,
+										parent: task?.rootEpic
+									}}
+								/>
+							)}
+
 						<ParentTaskBadge task={task} />
 						<ParentTaskInput task={task} />
 					</div>
@@ -247,10 +263,46 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 				<Link
 					href={`/task/${task.parentId}`}
 					target="_blank"
-					className="bg-[#C24A4A1A] rounded-[0.1875rem] text-center h-5 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5"
+					className={`
+					${task.parent.issueType === 'Epic' ? 'bg-[#8154BA]' : ''}
+					${task.parent.issueType === 'Story' ? 'bg-[#54BA951A]' : ''}
+					${task.parent.issueType === 'Bug' ? 'bg-[#C24A4A1A]' : ''}
+					${
+						task.parent.issueType === 'Task' || !task.parent.issueType
+							? 'bg-[#5483ba]'
+							: ''
+					}
+
+					rounded-[0.1875rem] text-center h-5 3xl:h-6 flex justify-center items-center py-[0.25rem] px-2.5`}
 				>
-					<span className="text-[#C24A4A] font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap">
-						<span className="text-[#C24A4A80]">{`#${task.parent.taskNumber}`}</span>
+					<span
+						className={`
+
+						${task.parent.issueType === 'Epic' ? 'text-white' : ''}
+					${task.parent.issueType === 'Story' ? 'text-[#27AE60]' : ''}
+					${task.parent.issueType === 'Bug' ? 'text-[#C24A4A]' : ''}
+					${
+						task.parent.issueType === 'Task' || !task.parent.issueType
+							? 'text-white'
+							: ''
+					}
+
+						 font-medium text-[0.5rem] 3xl:text-xs max-w-[10rem] overflow-hidden text-ellipsis whitespace-nowrap`}
+					>
+						<span
+							className={`
+
+							${task.parent.issueType === 'Epic' ? 'text-[#FFFFFF80]' : ''}
+					${task.parent.issueType === 'Story' ? 'text-[#27AE6080]' : ''}
+					${task.parent.issueType === 'Bug' ? 'text-[#C24A4A80]' : ''}
+					${
+						task.parent.issueType === 'Task' || !task.parent.issueType
+							? 'text-white'
+							: ''
+					}
+
+							`}
+						>{`#${task.parent.taskNumber || task.parent.number}`}</span>
 						{` - ${task.parent.title}`}
 					</span>
 				</Link>
@@ -259,7 +311,9 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 				<Link href={`/task/${task.parentId}`} target="_blank">
 					<div className="flex justify-between space-x-4">
 						<div className="space-y-1">
-							<h4 className="text-xl font-semibold">{`#${task.parent.taskNumber}`}</h4>
+							<h4 className="text-xl font-semibold">{`#${
+								task.parent.taskNumber || task.parent.number
+							}`}</h4>
 							<p className="text-sm">{task.parent.title}</p>
 						</div>
 					</div>

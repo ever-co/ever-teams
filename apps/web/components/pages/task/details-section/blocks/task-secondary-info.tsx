@@ -24,6 +24,8 @@ import {
 import { VersionForm } from 'lib/settings/version-form';
 import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { cloneDeep } from 'lodash';
+import { CategoryIcon } from 'lib/components/svgs';
+import Link from 'next/link';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -122,6 +124,7 @@ const TaskSecondaryInfo = () => {
 					/>
 				</TaskRow>
 			)}
+			{task && <EpicParent task={task} />}
 
 			{/* Task Status */}
 			<TaskRow labelTitle={trans.STATUS}>
@@ -234,6 +237,37 @@ const TaskSecondaryInfo = () => {
 				</Card>
 			</Modal>
 		</section>
+	);
+};
+
+const EpicParent = ({ task }: { task: ITeamTask }) => {
+	const { trans } = useTranslation('taskDetails');
+
+	if (task.issueType === 'Story') {
+		return <></>;
+	}
+
+	return (!task.issueType ||
+		task.issueType === 'Task' ||
+		task.issueType === 'Bug') &&
+		task?.rootEpic ? (
+		<TaskRow labelTitle={trans.EPIC}>
+			<Tooltip
+				label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}
+				placement="auto"
+			>
+				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
+					<div className="flex items-center w-32">
+						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
+							<CategoryIcon />
+						</div>
+						<div className="text-xs overflow-hidden text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
+					</div>
+				</Link>
+			</Tooltip>
+		</TaskRow>
+	) : (
+		<></>
 	);
 };
 
