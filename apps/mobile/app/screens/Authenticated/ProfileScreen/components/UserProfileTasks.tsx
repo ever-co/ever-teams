@@ -19,14 +19,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 	const { colors, dark } = useAppTheme()
 	const { timerStatus } = useTimer()
 	const tasks = useMemo(() => {
-		const tasks = content.tasksFiltered
-		// if (content.tab === "worked" && profile.activeUserTeamTask) {
-		// 	tasks = tasks.filter((ts) => {
-		// 		return ts.id !== profile.activeUserTeamTask?.id
-		// 	})
-		// }
-
-		return tasks
+		return content.tasksFiltered
 	}, [content, profile])
 
 	return (
