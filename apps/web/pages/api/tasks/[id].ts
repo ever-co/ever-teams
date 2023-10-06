@@ -22,14 +22,17 @@ export default async function handler(
 
 	switch (req.method) {
 		case 'GET':
-			await getTaskByIdRequest({
-				taskId: taskId as string,
-				tenantId,
-				organizationId,
-				bearer_token: access_token
-			});
-			break;
+			return $res.status(200).json(
+				await getTaskByIdRequest({
+					taskId: taskId as string,
+					tenantId,
+					organizationId,
+					bearer_token: access_token
+				})
+			);
+
 		case 'PUT':
+			delete body.rootEpic;
 			await updateTaskRequest(
 				{
 					data: body,

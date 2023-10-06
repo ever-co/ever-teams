@@ -81,7 +81,7 @@ export function getTaskByIdRequest({
 		'join[alias]': 'task',
 		'join[leftJoinAndSelect][members]': 'task.members',
 		'join[leftJoinAndSelect][user]': 'members.user',
-		rootEpic: 'true'
+		includeRootEpic: 'true'
 	} as Record<string, string>;
 
 	relations.forEach((rl, i) => {

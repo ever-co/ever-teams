@@ -124,9 +124,7 @@ const TaskSecondaryInfo = () => {
 					/>
 				</TaskRow>
 			)}
-			{task && task.parentId && task.parent?.issueType === 'Epic' && (
-				<EpicParent task={task} />
-			)}
+			{task && <EpicParent task={task} />}
 
 			{/* Task Status */}
 			<TaskRow labelTitle={trans.STATUS}>
@@ -245,22 +243,25 @@ const TaskSecondaryInfo = () => {
 const EpicParent = ({ task }: { task: ITeamTask }) => {
 	const { trans } = useTranslation('taskDetails');
 
-	return (task.issueType === 'Task' ||
-		task.issueType === 'Bug' ||
-		task.issueType === 'Story') &&
-		task.parentId &&
-		task.parent?.issueType === 'Epic' ? (
+	if (task.issueType === 'Story') {
+		return <></>;
+	}
+
+	return (!task.issueType ||
+		task.issueType === 'Task' ||
+		task.issueType === 'Bug') &&
+		task?.rootEpic ? (
 		<TaskRow labelTitle={trans.EPIC}>
 			<Tooltip
-				label={`#${task.parent?.taskNumber} ${task.parent?.title}`}
+				label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}
 				placement="auto"
 			>
-				<Link href={`/task/${task.parentId}`} target="_blank">
+				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
 					<div className="flex items-center w-32">
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
 							<CategoryIcon />
 						</div>
-						<div className="text-xs overflow-hidden text-ellipsis whitespace-nowrap">{`#${task.parent?.taskNumber} ${task.parent?.title}`}</div>
+						<div className="text-xs overflow-hidden text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
 					</div>
 				</Link>
 			</Tooltip>

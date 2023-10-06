@@ -221,6 +221,20 @@ const TaskTitleBlock = () => {
 							</div>
 						)} */}
 						{/* Parent Issue/Task Name */}
+
+						{(!task?.issueType ||
+							task?.issueType === 'Task' ||
+							task?.issueType === 'Bug') &&
+							task?.rootEpic && (
+								<ParentTaskBadge
+									task={{
+										...task,
+										parentId: task?.rootEpic.id,
+										parent: task?.rootEpic
+									}}
+								/>
+							)}
+
 						<ParentTaskBadge task={task} />
 						<ParentTaskInput task={task} />
 					</div>
@@ -286,7 +300,7 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 					}
 
 							`}
-						>{`#${task.parent.taskNumber}`}</span>
+						>{`#${task.parent.taskNumber || task.parent.number}`}</span>
 						{` - ${task.parent.title}`}
 					</span>
 				</Link>
@@ -295,7 +309,9 @@ const ParentTaskBadge = ({ task }: { task: ITeamTask | null }) => {
 				<Link href={`/task/${task.parentId}`} target="_blank">
 					<div className="flex justify-between space-x-4">
 						<div className="space-y-1">
-							<h4 className="text-xl font-semibold">{`#${task.parent.taskNumber}`}</h4>
+							<h4 className="text-xl font-semibold">{`#${
+								task.parent.taskNumber || task.parent.number
+							}`}</h4>
 							<p className="text-sm">{task.parent.title}</p>
 						</div>
 					</div>
