@@ -10,6 +10,7 @@ import { typography, useAppTheme } from "../../../../theme"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
 import { useTimer } from "../../../../services/hooks/useTimer"
+import WorkedOnTaskHours from "../../../../components/WorkedDayHours"
 interface IUserProfileTasks {
 	profile: IUserProfile
 	content: ITaskFilter
@@ -60,7 +61,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 								borderBottomColor: colors.border,
 							}}
 						/>
-						<View style={{ flexDirection: "row" }}>
+						<View style={{ flexDirection: "row", alignItems: "center" }}>
 							<Text
 								style={{
 									color: colors.primary,
@@ -80,9 +81,12 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 										fontSize: 12,
 									},
 								]}
-							>
-								03:31
-							</Text>
+							></Text>
+							<WorkedOnTaskHours
+								memberTask={profile.activeUserTeamTask}
+								containerStyle={{ alignItems: "center" }}
+								totalTimeText={{ color: colors.primary, fontSize: 12 }}
+							/>
 						</View>
 					</View>
 					<ListCardItem
