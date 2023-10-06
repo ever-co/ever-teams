@@ -35,7 +35,8 @@ const WorkedOnTaskHours = ({
 				</Text>
 			)}
 			<Text style={totalTimeText}>
-				{pad(dh)} {title && "h"}:{pad(dm)} {title && "m"}
+				{pad(dh)}
+				{title && " h"}:{pad(dm)} {title && "m"}
 			</Text>
 		</View>
 	)
