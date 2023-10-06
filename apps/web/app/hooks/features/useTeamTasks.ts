@@ -10,10 +10,12 @@ import {
 	deleteTaskAPI,
 	getTeamTasksAPI,
 	updateTaskAPI,
-	deleteEmployeeFromTasksAPI
+	deleteEmployeeFromTasksAPI,
+	getTasksByIdAPI
 } from '@app/services/client/api';
 import {
 	activeTeamState,
+	detailedTaskState,
 	memberActiveTaskIdState,
 	userState
 } from '@app/stores';
@@ -36,6 +38,7 @@ export function useTeamTasks() {
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
+	const [detailedTask, setDetailedTask] = useRecoilState(detailedTaskState);
 	// const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
@@ -53,6 +56,8 @@ export function useTeamTasks() {
 
 	// Queries hooks
 	const { queryCall, loading } = useQuery(getTeamTasksAPI);
+	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } =
+		useQuery(getTasksByIdAPI);
 
 	const { queryCall: deleteQueryCall, loading: deleteLoading } =
 		useQuery(deleteTaskAPI);
@@ -67,6 +72,16 @@ export function useTeamTasks() {
 		queryCall: deleteEmployeeFromTasksQueryCall,
 		loading: deleteEmployeeFromTasksLoading
 	} = useQuery(deleteEmployeeFromTasksAPI);
+
+	const getTaskById = useCallback(
+		(taskId: string) => {
+			return getTasksByIdQueryCall(taskId).then((res) => {
+				setDetailedTask(res?.data?.data || null);
+				return res;
+			});
+		},
+		[getTasksByIdQueryCall, setDetailedTask]
+	);
 
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: ITeamTask[], deepCheck?: boolean) => {
@@ -195,11 +210,17 @@ export function useTeamTasks() {
 	const updateTask = useCallback(
 		(task: Partial<ITeamTask> & { id: string }) => {
 			return updateQueryCall(task.id, task).then((res) => {
-				deepCheckAndUpdateTasks(res?.data?.items || [], true);
+				const updatedTasks = res?.data?.items || [];
+				deepCheckAndUpdateTasks(updatedTasks, true);
+
+				if (detailedTask) {
+					getTaskById(detailedTask.id);
+				}
+
 				return res;
 			});
 		},
-		[updateQueryCall, deepCheckAndUpdateTasks]
+		[updateQueryCall, deepCheckAndUpdateTasks, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(
@@ -363,6 +384,9 @@ export function useTeamTasks() {
 		setAllTasks,
 		loadTeamTasksData,
 		deleteEmployeeFromTasks,
-		deleteEmployeeFromTasksLoading
+		deleteEmployeeFromTasksLoading,
+		getTaskById,
+		getTasksByIdLoading,
+		detailedTask
 	};
 }

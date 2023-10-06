@@ -1,5 +1,6 @@
 /* eslint-disable react-native/no-unused-styles */
 /* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React from "react"
 import { View, StyleSheet, Text, ViewStyle, TextStyle } from "react-native"
 import { secondsToTime } from "../helpers/date"
@@ -7,6 +8,7 @@ import { pad } from "../helpers/number"
 import { useTaskStatistics } from "../services/hooks/features/useTaskStatics"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { typography } from "../theme/typography"
+import { useTheme } from "react-native-paper"
 
 const WorkedOnTaskHours = ({
 	title,
@@ -14,21 +16,27 @@ const WorkedOnTaskHours = ({
 	memberTask,
 	totalTimeText,
 }: {
-	title: string
+	title?: string
 	memberTask: ITeamTask
 	containerStyle: ViewStyle
 	totalTimeText: TextStyle
 }) => {
 	const { getTaskStat } = useTaskStatistics()
 	const { taskDailyStat } = getTaskStat(memberTask)
+	const { dark } = useTheme()
 
 	const { h: dh, m: dm } = secondsToTime(taskDailyStat?.duration || 0)
 
 	return (
 		<View style={containerStyle}>
-			<Text style={styles.totalTimeTitle}>{title} : </Text>
+			{title && (
+				<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>
+					{title}{" "}
+				</Text>
+			)}
 			<Text style={totalTimeText}>
-				{pad(dh)} h:{pad(dm)} m
+				{pad(dh)}
+				{title && " h"}:{pad(dm)} {title && "m"}
 			</Text>
 		</View>
 	)
@@ -36,7 +44,6 @@ const WorkedOnTaskHours = ({
 
 const styles = StyleSheet.create({
 	totalTimeTitle: {
-		color: "#7E7991",
 		fontFamily: typography.secondary.medium,
 		fontSize: 10,
 	},

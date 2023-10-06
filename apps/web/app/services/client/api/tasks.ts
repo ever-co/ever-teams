@@ -1,10 +1,15 @@
 import {
+	CreateReponse,
 	DeleteReponse,
 	PaginationResponse
 } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import api from '../axios';
+
+export function getTasksByIdAPI(taskId: string) {
+	return api.get<CreateReponse<ITeamTask>>(`/tasks/${taskId}`);
+}
 
 export function getTeamTasksAPI() {
 	return api.get<PaginationResponse<ITeamTask>>('/tasks/team');
