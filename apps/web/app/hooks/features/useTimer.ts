@@ -182,7 +182,8 @@ function useLocalTimeCounter(
 export function useTimer() {
 	const { updateTask, activeTeamId, activeTeam, activeTeamTask } =
 		useTeamTasks();
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { updateOrganizationTeamEmployeeActiveTask } =
+		useOrganizationEmployeeTeams();
 	const { user } = useAuthenticateUser();
 
 	const [timerStatus, setTimerStatus] = useRecoilState(timerStatusState);
@@ -304,7 +305,7 @@ export function useTimer() {
 				(member) => member.employeeId === user?.employee.id
 			);
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
-				updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+				updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 					organizationId: activeTeamTaskRef.current.organizationId,
 					activeTaskId: activeTeamTaskRef.current.id,
 					organizationTeamId: activeTeam?.id,
@@ -319,7 +320,7 @@ export function useTimer() {
 	}, [
 		activeTeamTaskRef,
 		timerStatus,
-		updateOrganizationTeamEmployee,
+		updateOrganizationTeamEmployeeActiveTask,
 		user,
 		activeTeam,
 		setTimerStatus,
