@@ -72,7 +72,7 @@ const ru = {
 		taskFieldPlaceholder: "What you working on",
 		sizeText: "Sizes",
 		prioritiesText: "Priorities",
-		tabCreateTask: "Create new task",
+		tabCreateTask: "Create New Task",
 		labelText: "Label",
 	},
 	teamScreen: {
