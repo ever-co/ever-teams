@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
-import { AntDesign } from "@expo/vector-icons"
+import { AntDesign, Feather } from "@expo/vector-icons"
 import { ITaskStatus, ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
@@ -67,13 +67,13 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								...containerStyle,
 								backgroundColor: !dark ? "#F2F2F2" : colors.background,
 								borderColor: colors.border,
-								borderWidth: 1,
+								borderWidth: iconsOnly ? 0 : 1,
 							},
 							statusItem ? { backgroundColor: statusItem?.bgColor } : null,
 						]}
 					>
 						{statusItem ? (
-							<View style={styles.wrapStatus}>
+							<View style={[styles.wrapStatus, { width: iconsOnly ? "50%" : "70%" }]}>
 								{statusItem.icon}
 								{iconsOnly ? null : (
 									<Text numberOfLines={1} style={{ ...styles.text, marginLeft: 11 }}>
@@ -83,7 +83,11 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 							</View>
 						) : (
 							<Text style={{ ...styles.text, color: colors.primary }}>
-								{translate("settingScreen.statusScreen.statuses")}
+								{iconsOnly ? (
+									<Feather name="circle" size={14} color={colors.divider} />
+								) : (
+									translate("settingScreen.statusScreen.statuses")
+								)}
 							</Text>
 						)}
 						<AntDesign name="down" size={14} color={colors.primary} />
@@ -111,7 +115,6 @@ const styles = StyleSheet.create({
 	wrapStatus: {
 		alignItems: "center",
 		flexDirection: "row",
-		width: "70%",
 	},
 })
 

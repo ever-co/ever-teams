@@ -196,7 +196,14 @@ const $timerSection: ViewStyle = {
 	borderRadius: 16,
 	...GS.noBorder,
 	borderWidth: 1,
-	...GS.shadowSm,
+	shadowColor: "#000",
+	shadowOffset: {
+		width: 0,
+		height: 14,
+	},
+	shadowOpacity: 0.1,
+	shadowRadius: 44,
+	elevation: 8,
 }
 
 const styles = StyleSheet.create({

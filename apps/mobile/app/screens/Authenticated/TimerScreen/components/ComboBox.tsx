@@ -54,7 +54,7 @@ const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeComb
 						/>
 					</Pressable>
 				</View>
-				<ScrollView style={{ maxHeight: 450, paddingBottom: 9 }}>
+				<ScrollView style={{ maxHeight: 315, paddingBottom: 9 }}>
 					{tasksHandler.filteredTasks.map((task, i) => (
 						<IndividualTask
 							key={i}

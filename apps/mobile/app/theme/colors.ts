@@ -76,7 +76,7 @@ export const customLightTheme = {
 		secondary: "#3826A6",
 		tertiary: "#7E7991",
 		background: "#FFFFFF",
-		background2: "#F2F2F2",
+		background2: "#f7f7f8",
 		divider: "rgba(0, 0, 0, 0.06)",
 		border: "rgba(0, 0, 0, 0.13)",
 		secondary2: "#EDF1F3",
