@@ -35,6 +35,8 @@ import { useNavigation } from "@react-navigation/native"
 import { WorkedOnTask } from "./WorkedOnTask"
 import UnassignedTasksList from "./UnassignedTaskList"
 import { translate } from "../../../../i18n"
+import moment from "moment-timezone"
+import { useTimer } from "../../../../services/hooks/useTimer"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -128,6 +130,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	// // STATS
 	const memberInfo = useTeamMemberCard(props.member)
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask)
+	const { timerStatus } = useTimer()
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false)
 
 	const navigation = useNavigation()
@@ -148,13 +151,23 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				...$listCard,
 				...GS.mt5,
 				paddingTop: 4,
-				backgroundColor: !props.member?.employee?.isActive
-					? "suspended"
-					: props.member?.employee?.isOnline || props.member?.timerStatus === "running"
-					? "#9FDAB7"
-					: !props.member?.totalTodayTasks?.length
-					? "#F1A2A2"
-					: "#EBC386",
+				backgroundColor:
+					!timerStatus?.running &&
+					timerStatus?.lastLog &&
+					timerStatus?.lastLog?.startedAt &&
+					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
+					(timerStatus?.lastLog?.source !== "MOBILE" || props.member?.employee?.isOnline)
+						? "#EBC386"
+						: !props.member?.employee?.isActive
+						? "#F1A2A2"
+						: props.member?.employee?.isOnline
+						? //  && props.member?.timerStatus !== 'running'
+						  "#88D1A5"
+						: !props.member?.totalTodayTasks?.length
+						? "#F1A2A2"
+						: props.member?.totalTodayTasks?.length
+						? "#EBC386"
+						: "#F1A2A2",
 			}}
 			HeadingComponent={
 				<View
