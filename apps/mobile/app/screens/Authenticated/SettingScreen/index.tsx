@@ -9,7 +9,10 @@ import { ActivityIndicator } from "react-native-paper"
 // COMPONENTS
 import { Screen } from "../../../components"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
-import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
+import {
+	AuthenticatedDrawerScreenProps,
+	SettingScreenRouteProp,
+} from "../../../navigators/AuthenticatedNavigator"
 import SectionTab from "./components/SectionTab"
 import SettingHeader from "./components/SettingHeader"
 import { useSettings } from "../../../services/hooks/features/useSettings"
@@ -18,6 +21,7 @@ import PersonalSettings from "./Personal"
 import TeamSettings from "./Team"
 import { useAppTheme } from "../../../theme"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { useRoute } from "@react-navigation/native"
 
 export type IPopup =
 	| "Names"
@@ -40,12 +44,13 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<"Sett
 		const { colors } = useAppTheme()
 		const { isLoading } = useSettings()
 		const { activeTeam } = useOrganizationTeam()
+		const route = useRoute<SettingScreenRouteProp<"Setting">>()
 
 		// ref
 		const sheetRef = React.useRef(null)
 
 		// STATES
-		const [activeTab, setActiveTab] = useState(1)
+		const [activeTab, setActiveTab] = useState(route.params?.activeTab || 1)
 		const [isOpen, setIsOpen] = useState(false)
 		const [showPopup, setShowPopup] = useState<IPopup>(null)
 

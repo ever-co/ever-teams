@@ -1,9 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from "react"
 import { Image, TextStyle, View, ViewStyle } from "react-native"
-import { BottomTabScreenProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import {
+	BottomTabScreenProps,
+	createBottomTabNavigator,
+	BottomTabNavigationProp,
+} from "@react-navigation/bottom-tabs"
 import { createDrawerNavigator, DrawerScreenProps } from "@react-navigation/drawer"
-import { CompositeScreenProps } from "@react-navigation/native"
+import type { StackNavigationProp } from "@react-navigation/stack"
+import { CompositeScreenProps, CompositeNavigationProp, RouteProp } from "@react-navigation/native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { Feather } from "@expo/vector-icons"
 
@@ -31,6 +36,7 @@ import { observer } from "mobx-react-lite"
 export type AuthenticatedTabParamList = {
 	Timer: undefined
 	Team: undefined
+	Setting: { activeTab: 1 | 2 }
 	Profile: { userId: string; activeTab: "worked" | "assigned" | "unassigned" }
 }
 
@@ -58,6 +64,17 @@ export type AuthenticatedDrawerScreenProps<T extends keyof AuthenticatedDrawerPa
 		DrawerScreenProps<AuthenticatedDrawerParamList, T>,
 		AppStackScreenProps<keyof AppStackParamList>
 	>
+
+export type SettingScreenNavigationProp<T extends keyof AuthenticatedTabParamList> =
+	CompositeNavigationProp<
+		BottomTabNavigationProp<AuthenticatedTabParamList, T>,
+		StackNavigationProp<AppStackParamList>
+	>
+
+export type SettingScreenRouteProp<T extends keyof AuthenticatedTabParamList> = RouteProp<
+	AuthenticatedTabParamList,
+	T
+>
 
 const Tab = createBottomTabNavigator<AuthenticatedTabParamList>()
 

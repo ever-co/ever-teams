@@ -4,6 +4,7 @@ import React, { FC } from "react"
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
+import { SettingScreenNavigationProp } from "../../navigators/AuthenticatedNavigator"
 
 // STYLES
 import { GLOBAL_STYLE as GS } from "../../../assets/ts/styles"
@@ -14,6 +15,7 @@ import { translate } from "../../i18n"
 import { Avatar } from "react-native-paper"
 import { observer } from "mobx-react-lite"
 import { limitTextCharaters } from "../../helpers/sub-text"
+import { useNavigation } from "@react-navigation/native"
 
 export interface Props {
 	teams: IOrganizationTeamList[]
@@ -116,6 +118,16 @@ const DropItem: FC<IDropItem> = observer(function DropItem({
 	resized,
 }) {
 	const { colors } = useAppTheme()
+
+	const navigation = useNavigation<SettingScreenNavigationProp<"Setting">>()
+
+	const navigateToSettings = (team: IOrganizationTeamList) => {
+		if (isActiveTeam) {
+			navigation.navigate("Setting", { activeTab: 2 })
+		} else {
+			changeTeam(team)
+		}
+	}
 	return (
 		<View style={styles.indDropDown}>
 			<TouchableOpacity
@@ -148,7 +160,7 @@ const DropItem: FC<IDropItem> = observer(function DropItem({
 					{team.members.length})
 				</Text>
 			</TouchableOpacity>
-			<TouchableOpacity>
+			<TouchableOpacity onPress={() => navigateToSettings(team)}>
 				<Ionicons name="settings-outline" size={24} color={colors.primary} />
 			</TouchableOpacity>
 		</View>
