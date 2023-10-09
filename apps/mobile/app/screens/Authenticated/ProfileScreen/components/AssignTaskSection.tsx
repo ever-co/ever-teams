@@ -218,7 +218,7 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									}}
 								/>
 							</View>
-							<View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
+							<View style={{ width: "100%", zIndex: 999 }}>
 								<TaskLabels
 									newTaskLabels={newTask?.tags}
 									setLabels={(e) =>
