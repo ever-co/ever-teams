@@ -994,7 +994,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				isVersion && 'dark:text-white'
 			)}
 			titleClassName={clsxm(
-				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[78%]']
+				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]']
 			)}
 			isVersion={isVersion}
 			isEpic={isEpic}
@@ -1028,7 +1028,7 @@ export function StatusDropdown<T extends TStatusItem>({
 								<Listbox.Button
 									as="div"
 									className={clsxm(
-										!forDetails && 'w-full max-w-[170px]',
+										!forDetails && 'w-full max-w-[190px]',
 										'cursor-pointer outline-none'
 									)}
 									style={{
