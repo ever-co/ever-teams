@@ -37,7 +37,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 		memberUser?.imageUrl
 	]);
 
-	// const { timerStatus } = useTimer();
+	const { timerStatus } = useTimer();
 
 	return (
 		<Link
@@ -64,7 +64,14 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					>
 						<TimerStatus
 							status={
-								!member?.running && member?.lastWorkedTask
+								!timerStatus?.running &&
+								timerStatus?.lastLog &&
+								timerStatus?.lastLog?.startedAt &&
+								moment().diff(
+									moment(timerStatus?.lastLog?.startedAt),
+									'hours'
+								) < 24 &&
+								timerStatus?.lastLog?.source !== 'TEAMS'
 									? 'pause'
 									: !member?.employee?.isActive && !publicTeam
 									? 'suspended'
