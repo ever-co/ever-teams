@@ -4,7 +4,12 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@app/helpers';
-import { ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
+import {
+	ITaskLabelsItemList,
+	ITaskStatusField,
+	ITaskStatusStack,
+	ITeamTask
+} from '@app/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,
@@ -197,13 +202,15 @@ export function useTeamTasks() {
 				issueType,
 				status,
 				priority,
-				size
+				size,
+				tags
 			}: {
 				taskName: string;
 				issueType?: string;
 				status?: string;
 				priority?: string;
 				size?: string;
+				tags?: ITaskLabelsItemList[];
 			},
 			members?: { id: string }[]
 		) => {
@@ -213,6 +220,7 @@ export function useTeamTasks() {
 				status,
 				priority,
 				size,
+				tags,
 				...(members ? { members } : {})
 			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);

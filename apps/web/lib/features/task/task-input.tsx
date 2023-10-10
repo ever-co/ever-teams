@@ -5,7 +5,8 @@ import {
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
-	useTaskInput
+	useTaskInput,
+	useTaskLabels
 } from '@app/hooks';
 import {
 	ITaskPriority,
@@ -41,6 +42,7 @@ import {
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
+import { TaskLabels } from './task-labels';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
@@ -450,8 +452,9 @@ function TaskCard({
 }) {
 	const { trans } = useTranslation();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
+	const { taskLabels: taskLabelsData } = useTaskLabels();
 
-	const { taskStatus, taskPriority, taskSize } = datas;
+	const { taskStatus, taskPriority, taskSize, taskLabels } = datas;
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -513,6 +516,7 @@ function TaskCard({
 									}
 								}}
 								defaultValue={taskStatus?.current as ITaskStatus}
+								task={null}
 							/>
 
 							<ActiveTaskPropertiesDropdown
@@ -524,6 +528,7 @@ function TaskCard({
 									}
 								}}
 								defaultValue={taskPriority?.current as ITaskPriority}
+								task={null}
 							/>
 
 							<ActiveTaskSizesDropdown
@@ -535,14 +540,26 @@ function TaskCard({
 									}
 								}}
 								defaultValue={taskSize?.current as ITaskSize}
+								task={null}
 							/>
 
-							{/* <TaskLabels
+							<TaskLabels
+								className="lg:min-w-[170px] text-xs"
+								forDetails={false}
+								taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+								onValueChange={(_: any, values: string[] | undefined) => {
+									taskLabelsData.filter((tag) =>
+										tag.name ? values?.includes(tag.name) : false
+									);
 
-							className="lg:min-w-[170px] text-xs"
-							forDetails={false}
-							taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
-						/> */}
+									if (taskLabels && values?.length) {
+										taskLabels.current = taskLabelsData.filter((tag) =>
+											tag.name ? values?.includes(tag.name) : false
+										);
+									}
+								}}
+								task={datas.inputTask}
+							/>
 						</div>
 					)}
 				</div>

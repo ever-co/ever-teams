@@ -12,12 +12,14 @@ type Props = {
 	className?: string;
 	forDetails: boolean;
 	taskStatusClassName?: string;
+	onValueChange?: (_: any, values: string[] | undefined) => void;
 };
 export function TaskLabels({
 	task,
 	className,
 	forDetails,
-	taskStatusClassName
+	taskStatusClassName,
+	onValueChange
 }: Props) {
 	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
@@ -55,7 +57,7 @@ export function TaskLabels({
 	return (
 		<>
 			<TaskLabelsDropdown
-				onValueChange={onValuesChange}
+				onValueChange={onValueChange ? onValueChange : onValuesChange}
 				className={className}
 				placeholder="Labels"
 				defaultValues={tags || []}
