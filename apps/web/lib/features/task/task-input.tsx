@@ -66,6 +66,7 @@ type Props = {
 	showCombobox?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
+	fullHeightCombobox?: boolean;
 	placeholder?: string;
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
@@ -385,6 +386,7 @@ export function TaskInput(props: Props) {
 			}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
+			fullHeight={props.fullHeightCombobox}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
 			updatedTaskList={updatedTaskList}
@@ -436,6 +438,7 @@ function TaskCard({
 	onItemClick,
 	inputField,
 	fullWidth,
+	fullHeight,
 	handleTaskCreation,
 	cardWithoutShadow,
 	forParentChildRelationship,
@@ -445,6 +448,7 @@ function TaskCard({
 	onItemClick?: (task: ITeamTask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
+	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
@@ -473,10 +477,11 @@ function TaskCard({
 			<Card
 				shadow="custom"
 				className={clsxm(
-					'rounded-xl md:px-4 md:py-4 max-h-96',
+					'rounded-xl md:px-4 md:py-4',
 					'overflow-auto',
 					!cardWithoutShadow && ['shadow-xlcard'],
-					fullWidth ? ['w-full'] : ['md:w-[500px]']
+					fullWidth ? ['w-full'] : ['md:w-[500px]'],
+					fullHeight ? 'h-full' : 'max-h-96'
 				)}
 			>
 				{inputField}
@@ -491,6 +496,7 @@ function TaskCard({
 										taskDescription.current = e.target.value;
 									}
 								}}
+								className={'dark:bg-[#1B1D22]'}
 							/>
 
 							<div className="flex justify-start gap-2">

@@ -161,6 +161,7 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 																	closeCombobox2: close
 																});
 														}}
+														userProfile={memberInfo.member}
 													>
 														{text}
 													</TaskUnOrAssignPopover>
