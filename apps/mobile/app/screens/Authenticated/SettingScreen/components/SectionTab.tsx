@@ -15,12 +15,18 @@ import {
 } from "../../../../components/svgs/icons"
 
 interface ISectionTab {
-	id: number
+	id: 1 | 2
 	title: string
 }
 
 const SectionTab = observer(
-	({ activeTabId, toggleTab }: { activeTabId: number; toggleTab: (tab: number) => unknown }) => {
+	({
+		activeTabId,
+		toggleTab,
+	}: {
+		activeTabId: number
+		toggleTab: React.Dispatch<React.SetStateAction<1 | 2>>
+	}) => {
 		const { activeTeam } = useOrganizationTeam()
 		const sections: ISectionTab[] = [
 			{
@@ -59,7 +65,7 @@ const Tab = observer(
 	}: {
 		item: ISectionTab
 		isActiveTab: boolean
-		toggleTab: (tab: number) => unknown
+		toggleTab: React.Dispatch<React.SetStateAction<1 | 2>>
 	}) => {
 		const { colors, dark } = useAppTheme()
 		const { activeTeam } = useOrganizationTeam()
