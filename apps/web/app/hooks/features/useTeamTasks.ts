@@ -192,12 +192,27 @@ export function useTeamTasks() {
 
 	const createTask = useCallback(
 		(
-			{ taskName, issueType }: { taskName: string; issueType?: string },
+			{
+				taskName,
+				issueType,
+				status,
+				priority,
+				size
+			}: {
+				taskName: string;
+				issueType?: string;
+				status?: string;
+				priority?: string;
+				size?: string;
+			},
 			members?: { id: string }[]
 		) => {
 			return createQueryCall({
 				title: taskName,
 				issueType,
+				status,
+				priority,
+				size,
 				...(members ? { members } : {})
 			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);

@@ -7,7 +7,13 @@ import {
 	useOutsideClick,
 	useTaskInput
 } from '@app/hooks';
-import { ITeamTask, Nullable } from '@app/interfaces';
+import {
+	ITaskPriority,
+	ITaskSize,
+	ITaskStatus,
+	ITeamTask,
+	Nullable
+} from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -35,6 +41,11 @@ import {
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
+import {
+	ActiveTaskPropertiesDropdown,
+	ActiveTaskSizesDropdown,
+	ActiveTaskStatusDropdown
+} from './task-status';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -440,6 +451,8 @@ function TaskCard({
 	const { trans } = useTranslation();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 
+	const { taskStatus, taskPriority, taskSize } = datas;
+
 	useEffect(() => {
 		if (datas.editMode) {
 			window.setTimeout(() => {
@@ -464,7 +477,7 @@ function TaskCard({
 			>
 				{inputField}
 				{/* Create team button */}
-				<div>
+				<div className="flex flex-col gap-y-2">
 					<Tooltip
 						enabled={!datas.user?.isEmailVerified}
 						label={trans.common.VERIFY_ACCOUNT_MSG}
@@ -479,15 +492,59 @@ function TaskCard({
 								!datas.user?.isEmailVerified
 							}
 							loading={datas.createLoading}
-							className="font-normal text-sm rounded-xl min-w-[240px] inline-flex"
+							className="font-normal text-sm rounded-xl min-w-[240px] max-w-[240px] inline-flex"
 							onClick={handleTaskCreation}
 						>
 							{!datas.createLoading && (
 								<PlusIcon className="w-[16px] h-[16px]" />
-							)}{' '}
+							)}
 							{trans.common.CREATE_TASK}
 						</Button>
 					</Tooltip>
+
+					{datas.hasCreateForm && (
+						<div className="flex justify-start gap-2">
+							<ActiveTaskStatusDropdown
+								className="lg:min-w-[170px]"
+								taskStatusClassName="h-7 text-xs"
+								onValueChange={(v) => {
+									if (v && taskStatus) {
+										taskStatus.current = v;
+									}
+								}}
+								defaultValue={taskStatus?.current as ITaskStatus}
+							/>
+
+							<ActiveTaskPropertiesDropdown
+								className="lg:min-w-[170px]"
+								taskStatusClassName="h-7 text-xs"
+								onValueChange={(v) => {
+									if (v && taskPriority) {
+										taskPriority.current = v;
+									}
+								}}
+								defaultValue={taskPriority?.current as ITaskPriority}
+							/>
+
+							<ActiveTaskSizesDropdown
+								className="lg:min-w-[170px]"
+								taskStatusClassName="h-7 text-xs"
+								onValueChange={(v) => {
+									if (v && taskSize) {
+										taskSize.current = v;
+									}
+								}}
+								defaultValue={taskSize?.current as ITaskSize}
+							/>
+
+							{/* <TaskLabels
+
+							className="lg:min-w-[170px] text-xs"
+							forDetails={false}
+							taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+						/> */}
+						</div>
+					)}
 				</div>
 
 				{/* Task filter buttons  */}

@@ -52,6 +52,9 @@ export function useTaskInput({
 	const userRef = useSyncRef(user);
 
 	const taskIssue = useRef<null | string>(null);
+	const taskStatus = useRef<null | string>(null);
+	const taskPriority = useRef<null | string>(null);
+	const taskSize = useRef<null | string>(null);
 
 	const tasks = customTasks || teamTasks;
 
@@ -145,7 +148,10 @@ export function useTaskInput({
 		return createTask(
 			{
 				taskName: query.trim(),
-				issueType: taskIssue.current || undefined
+				issueType: taskIssue.current || undefined,
+				status: taskStatus.current || undefined,
+				priority: taskPriority.current || undefined,
+				size: taskSize.current || undefined
 			},
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
@@ -205,6 +211,9 @@ export function useTaskInput({
 		filter,
 		updateTaskTitleHandler,
 		taskIssue,
+		taskStatus,
+		taskPriority,
+		taskSize,
 		user,
 		userRef
 	};
