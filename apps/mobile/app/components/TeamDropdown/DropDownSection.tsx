@@ -126,6 +126,7 @@ const DropItem: FC<IDropItem> = observer(function DropItem({
 			navigation.navigate("Setting", { activeTab: 2 })
 		} else {
 			changeTeam(team)
+			navigation.navigate("Setting", { activeTab: 2 })
 		}
 	}
 	return (
