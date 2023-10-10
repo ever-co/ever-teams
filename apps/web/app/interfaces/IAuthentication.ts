@@ -56,4 +56,5 @@ export interface ISigninEmailConfirmResponse {
 	confirmed_email: string;
 	show_popup: boolean;
 	workspaces: ISigninEmailConfirmWorkspaces[];
+	status?: number;
 }

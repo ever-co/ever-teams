@@ -72,6 +72,8 @@ export function useAuthenticationPasscode() {
 			.then((res) => {
 				if (res.data?.workspaces && res.data.workspaces.length) {
 					setWorkspaces(res.data.workspaces);
+
+					setScreen('workspace');
 				}
 
 				// If user tries to login from public Team Page as an Already a Member
@@ -95,7 +97,9 @@ export function useAuthenticationPasscode() {
 					}
 				}
 
-				setScreen('workspace');
+				if (res.data?.status !== 200 && res.data?.status !== 201) {
+					setErrors({ code: 'Invalid Code' });
+				}
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {
