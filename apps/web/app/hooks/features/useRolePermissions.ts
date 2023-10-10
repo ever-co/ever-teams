@@ -1,11 +1,11 @@
 import { IRolePermissions } from '@app/interfaces';
 import {
 	getRolePermissionAPI,
-	updateRolePermissionAPI,
+	updateRolePermissionAPI
 } from '@app/services/client/api';
 import {
 	rolePermissionsFormatedState,
-	rolePermissionsState,
+	rolePermissionsState
 } from '@app/stores/';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
@@ -23,7 +23,7 @@ export const useRolePermissions = () => {
 		useQuery(getRolePermissionAPI);
 	const {
 		loading: updateRolePermissionLoading,
-		queryCall: updateRoleQueryCall,
+		queryCall: updateRoleQueryCall
 	} = useQuery(updateRolePermissionAPI);
 
 	const getRolePermissions = useCallback(
@@ -42,7 +42,11 @@ export const useRolePermissions = () => {
 				}
 			});
 		},
-		[getRolePermissionsQueryCall]
+		[
+			getRolePermissionsQueryCall,
+			setRolePermissionsFormated,
+			setrolePermissions
+		]
 	);
 
 	const updateRolePermission = useCallback(
@@ -62,7 +66,13 @@ export const useRolePermissions = () => {
 				setrolePermissions(tempRoles);
 			});
 		},
-		[rolePermissions]
+		[
+			rolePermissions,
+			rolePermissionsFormated,
+			setRolePermissionsFormated,
+			setrolePermissions,
+			updateRoleQueryCall
+		]
 	);
 
 	return {
@@ -71,6 +81,6 @@ export const useRolePermissions = () => {
 		getRolePermissions,
 		updateRolePermission,
 		updateRolePermissionLoading,
-		rolePermissionsFormated,
+		rolePermissionsFormated
 	};
 };

@@ -1,7 +1,4 @@
-import {
-	Card,
-	VerticalSeparator,
-} from 'lib/components';
+import { Card, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import Skeleton from 'react-loading-skeleton';
 

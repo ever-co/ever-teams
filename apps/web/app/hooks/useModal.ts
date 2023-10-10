@@ -13,7 +13,7 @@ export function useModal() {
 	return {
 		isOpen,
 		closeModal,
-		openModal,
+		openModal
 	};
 }
 

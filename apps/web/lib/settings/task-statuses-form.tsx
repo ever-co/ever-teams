@@ -22,7 +22,7 @@ type StatusForm = {
 
 export const TaskStatusesForm = ({
 	formOnly = false,
-	onCreated,
+	onCreated
 }: StatusForm) => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
@@ -36,10 +36,10 @@ export const TaskStatusesForm = ({
 		'ready',
 		'in-review',
 		'blocked',
-		'completed',
+		'completed'
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
+		'x-large'
 		// 'large',
 		// 'medium',
 		// 'small',
@@ -49,13 +49,13 @@ export const TaskStatusesForm = ({
 		'urgent',
 		'high',
 		'medium',
-		'low',
+		'low'
 	]);
 
 	const iconList: IIcon[] = [
 		...taskStatusIconList,
 		...taskSizesIconList,
-		...taskPrioritiesIconList,
+		...taskPrioritiesIconList
 	];
 
 	const {
@@ -65,7 +65,7 @@ export const TaskStatusesForm = ({
 		deleteTaskStatus,
 		editTaskStatus,
 		createTaskStatusLoading,
-		editTaskStatusLoading,
+		editTaskStatusLoading
 	} = useTaskStatus();
 	const { refetch } = useRefetchData();
 
@@ -93,7 +93,7 @@ export const TaskStatusesForm = ({
 		createTaskStatus,
 		editTaskStatus,
 		user?.employee?.organizationId,
-		user?.tenantId,
+		user?.tenantId
 	]);
 
 	const onSubmit = useCallback(
@@ -105,7 +105,7 @@ export const TaskStatusesForm = ({
 					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
-					icon: values.icon,
+					icon: values.icon
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
@@ -124,7 +124,7 @@ export const TaskStatusesForm = ({
 				editTaskStatus(edit.id, {
 					name: values.name,
 					color: values.color,
-					icon: values.icon,
+					icon: values.icon
 				})?.then(() => {
 					setEdit(null);
 					refetch();
@@ -140,7 +140,7 @@ export const TaskStatusesForm = ({
 			user,
 			reset,
 			createTaskStatus,
-			refetch,
+			refetch
 		]
 	);
 

@@ -2,7 +2,7 @@ import { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
 import {
 	ExcalidrawAPIRefValue,
 	AppState,
-	BinaryFiles,
+	BinaryFiles
 } from '@excalidraw/excalidraw/types/types';
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { exportToBackend } from './export-to-backend';
@@ -29,7 +29,7 @@ export const useBoard = () => {
 		excalidrawAPI.readyPromise.then((api) => {
 			api.addFiles(Object.values(files));
 			api.updateScene({
-				elements: elements,
+				elements: elements
 			});
 			api.scrollToContent();
 

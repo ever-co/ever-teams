@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -9,8 +10,14 @@ import Head from 'next/head';
 import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { SkeletonTheme } from 'react-loading-skeleton';
+import { JitsuProvider } from '@jitsu/jitsu-react';
+import React from 'react';
+import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
+import { jitsuConfiguration } from '@app/constants';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
+	const isJitsuEnvsPresent =
+		jitsuConfiguration.host && jitsuConfiguration.writeKey;
 	return (
 		<>
 			<Script
@@ -31,14 +38,25 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 					crossOrigin=""
 				/>
 			</Head>
-			<RecoilRoot>
-				<ThemeProvider attribute="class">
-					<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
-						<AppState />
-						<Component {...pageProps} />
-					</SkeletonTheme>
-				</ThemeProvider>
-			</RecoilRoot>
+			<JitsuProvider
+				options={
+					isJitsuEnvsPresent
+						? { ...jitsuConfiguration }
+						: {
+								disabled: true
+							}
+				}
+			>
+				<RecoilRoot>
+					<ThemeProvider attribute="class">
+						<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
+							<AppState />
+							<JitsuAnalytics user={pageProps?.user} />
+							<Component {...pageProps} />
+						</SkeletonTheme>
+					</ThemeProvider>
+				</RecoilRoot>
+			</JitsuProvider>
 			<Analytics />
 		</>
 	);

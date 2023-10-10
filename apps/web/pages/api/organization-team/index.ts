@@ -4,7 +4,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import {
 	createOrganizationTeamRequest,
 	getAllOrganizationTeamRequest,
-	getUserOrganizationsRequest,
+	getUserOrganizationsRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -29,7 +29,7 @@ export default async function handler(
 				tenantId,
 				organizationId,
 				managerIds: user?.employee?.id ? [user.employee.id] : [],
-				public: true, // By default team should be public
+				public: true // By default team should be public
 			},
 			access_token
 		);

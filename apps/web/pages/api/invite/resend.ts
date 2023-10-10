@@ -28,7 +28,7 @@ export default async function handler(
 			inviteId: body.inviteId,
 			inviteType: 'TEAM',
 			organizationId,
-			callbackUrl: INVITE_CALLBACK_URL || callbackUrl,
+			callbackUrl: INVITE_CALLBACK_URL || callbackUrl
 		},
 		access_token
 	);

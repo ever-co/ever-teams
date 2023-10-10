@@ -3,12 +3,12 @@ import { atom } from 'recoil';
 
 export const rolePermissionsState = atom<IRolePermissions[]>({
 	key: 'rolePermissionsState',
-	default: [],
+	default: []
 });
 
 export const rolePermissionsFormatedState = atom<{
 	[key: string]: IRolePermissions;
 }>({
 	key: 'rolePermissionsFormatedState',
-	default: {},
+	default: {}
 });

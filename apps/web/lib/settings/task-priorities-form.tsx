@@ -23,7 +23,7 @@ type StatusForm = {
 
 export const TaskPrioritiesForm = ({
 	formOnly = false,
-	onCreated,
+	onCreated
 }: StatusForm) => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
@@ -37,10 +37,10 @@ export const TaskPrioritiesForm = ({
 		'ready',
 		'in-review',
 		'blocked',
-		'completed',
+		'completed'
 	]);
 	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
+		'x-large'
 		// 'large',
 		// 'medium',
 		// 'small',
@@ -50,13 +50,13 @@ export const TaskPrioritiesForm = ({
 		'urgent',
 		'high',
 		'medium',
-		'low',
+		'low'
 	]);
 
 	const iconList: IIcon[] = [
 		...taskStatusIconList,
 		...taskSizesIconList,
-		...taskPrioritiesIconList,
+		...taskPrioritiesIconList
 	];
 
 	const {
@@ -66,7 +66,7 @@ export const TaskPrioritiesForm = ({
 		createTaskPriorities,
 		editTaskPriorities,
 		createTaskPrioritiesLoading,
-		editTaskPrioritiesLoading,
+		editTaskPrioritiesLoading
 	} = useTaskPriorities();
 	const { refetch } = useRefetchData();
 
@@ -99,7 +99,7 @@ export const TaskPrioritiesForm = ({
 					// description: '',
 					organizationId: user?.employee?.organizationId,
 					tenantId: user?.tenantId,
-					icon: values.icon,
+					icon: values.icon
 					// projectId: '',
 				})?.then(() => {
 					!formOnly && setCreateNew(false);
@@ -118,7 +118,7 @@ export const TaskPrioritiesForm = ({
 				editTaskPriorities(edit.id, {
 					name: values.name,
 					color: values.color,
-					icon: values.icon,
+					icon: values.icon
 				})?.then(() => {
 					setEdit(null);
 					refetch();
@@ -134,7 +134,7 @@ export const TaskPrioritiesForm = ({
 			user,
 			reset,
 			createTaskPriorities,
-			refetch,
+			refetch
 		]
 	);
 

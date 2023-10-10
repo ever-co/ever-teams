@@ -1,15 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ITaskVersionCreate } from '@app/interfaces';
 import {
 	createTaskVersionAPI,
 	getTaskversionList,
 	deleteTaskVersionAPI,
-	editTaskVersionAPI,
+	editTaskVersionAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskVersionFetchingState,
 	taskVersionListState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -83,7 +84,7 @@ export function useTaskVersion(
 			createQueryCall,
 			createTaskVersionLoading,
 			deleteTaskVersionLoading,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -109,7 +110,7 @@ export function useTaskVersion(
 			createTaskVersionLoading,
 			deleteTaskVersionLoading,
 			user,
-			activeTeamId,
+			activeTeamId
 		]
 	);
 
@@ -146,6 +147,6 @@ export function useTaskVersion(
 		editTaskVersionLoading,
 		editTaskVersion,
 		setTaskVersion,
-		loadTaskVersionData,
+		loadTaskVersionData
 	};
 }

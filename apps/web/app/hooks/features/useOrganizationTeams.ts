@@ -1,12 +1,12 @@
 import {
 	getActiveTeamIdCookie,
 	setActiveTeamIdCookie,
-	setOrganizationIdCookie,
+	setOrganizationIdCookie
 } from '@app/helpers/cookies';
 import {
 	IOrganizationTeamList,
 	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus,
+	IOrganizationTeamWithMStatus
 } from '@app/interfaces';
 import {
 	createOrganizationTeamAPI,
@@ -15,7 +15,7 @@ import {
 	getOrganizationTeamAPI,
 	getOrganizationTeamsAPI,
 	removeUserFromAllTeamAPI,
-	updateOrganizationTeamAPI,
+	updateOrganizationTeamAPI
 } from '@app/services/client/api';
 import {
 	activeTeamIdState,
@@ -25,7 +25,7 @@ import {
 	memberActiveTaskIdState,
 	organizationTeamsState,
 	teamsFetchingState,
-	timerStatusState,
+	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -60,7 +60,7 @@ function useTeamsState() {
 		teams,
 		setTeams,
 		setTeamsUpdate,
-		teamsRef,
+		teamsRef
 	};
 }
 
@@ -119,13 +119,13 @@ function useCreateOrganizationTeam() {
 			setActiveTeamId,
 			setIsTeamMember,
 			setTeams,
-			teamsRef,
+			teamsRef
 		]
 	);
 
 	return {
 		createOrganizationTeam,
-		loading,
+		loading
 	};
 }
 
@@ -156,7 +156,7 @@ function useUpdateOrganizationTeam() {
 				tenantId: team.tenantId,
 				organizationId: team.organizationId,
 				tags: [],
-				...data,
+				...data
 			};
 
 			/* Updating the team state with the data from the API. */
@@ -164,7 +164,7 @@ function useUpdateOrganizationTeam() {
 				setTeamsUpdate(res.data);
 			});
 		},
-		[]
+		[queryCall, setTeamsUpdate]
 	);
 
 	return { updateOrganizationTeam, loading };
@@ -226,7 +226,7 @@ export function useOrganizationTeams() {
 
 	const {
 		loading: removeUserFromAllTeamLoading,
-		queryCall: removeUserFromAllTeamQueryCall,
+		queryCall: removeUserFromAllTeamQueryCall
 	} = useQuery(removeUserFromAllTeamAPI);
 
 	useEffect(() => {
@@ -295,21 +295,20 @@ export function useOrganizationTeams() {
 					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
 						setTeams([
 							newTeam,
-							...latestTeams.filter((team) => team.id !== newTeam.id),
+							...latestTeams.filter((team) => team.id !== newTeam.id)
 						]);
 					}
 				});
 			return res;
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		queryCall,
 		queryCallTeam,
 		setActiveTeam,
 		setActiveTeamId,
 		setIsTeamMember,
-		setTeams,
-		setTeamsUpdate,
-		teams,
+		setTeams
 	]);
 
 	/**
@@ -322,10 +321,6 @@ export function useOrganizationTeams() {
 			});
 		}
 	}, [activeTeamId, firstLoad, loadingTeamsRef, setTeams, setTeamsUpdate]);
-
-	// Set All managers of current team
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	useEffect(() => {}, [activeTeam]);
 
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {
@@ -358,7 +353,12 @@ export function useOrganizationTeams() {
 				return res;
 			});
 		},
-		[loadTeamsData, removeUserFromAllTeamQueryCall]
+		[
+			loadTeamsData,
+			removeUserFromAllTeamQueryCall,
+			refreshToken,
+			updateUserFromAPI
+		]
 	);
 
 	return {
@@ -385,6 +385,6 @@ export function useOrganizationTeams() {
 		removeUserFromAllTeam,
 		loadingTeam,
 		isTrackingEnabled,
-		memberActiveTaskId,
+		memberActiveTaskId
 	};
 }

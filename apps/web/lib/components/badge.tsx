@@ -5,7 +5,7 @@ import { PropsWithChildren } from 'react';
 export function OutlineBadge({
 	className,
 	children,
-	onClick,
+	onClick
 }: PropsWithChildren<IClassName & { onClick?: () => void }>) {
 	return (
 		<div

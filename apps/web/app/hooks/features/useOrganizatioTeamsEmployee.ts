@@ -2,6 +2,7 @@ import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
 import {
 	deleteOrganizationEmployeeTeamAPI,
 	updateOrganizationEmployeeTeamAPI,
+	updateOrganizationTeamEmployeeActiveTaskAPI
 } from '@app/services/client/api/organization-team-employee';
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
@@ -12,20 +13,25 @@ export function useOrganizationEmployeeTeams() {
 
 	const {
 		loading: deleteOrganizationEmployeeTeamLoading,
-		queryCall: deleteQueryCall,
+		queryCall: deleteQueryCall
 	} = useQuery(deleteOrganizationEmployeeTeamAPI);
 
 	const {
 		loading: updateOrganizationEmployeeTeamLoading,
-		queryCall: updateQueryCall,
+		queryCall: updateQueryCall
 	} = useQuery(updateOrganizationEmployeeTeamAPI);
+
+	const {
+		loading: updateOrganizationTeamEmployeeActiveTaskLoading,
+		queryCall: updateOrganizationTeamEmployeeActiveTaskQueryCall
+	} = useQuery(updateOrganizationTeamEmployeeActiveTaskAPI);
 
 	const deleteOrganizationTeamEmployee = useCallback(
 		({
 			id,
 			employeeId,
 			organizationId,
-			tenantId,
+			tenantId
 		}: {
 			id: string;
 			employeeId: string;
@@ -36,7 +42,7 @@ export function useOrganizationEmployeeTeams() {
 				id,
 				employeeId,
 				organizationId,
-				tenantId,
+				tenantId
 			}).then((res) => {
 				loadTeamsData();
 				return res;
@@ -55,10 +61,24 @@ export function useOrganizationEmployeeTeams() {
 		[loadTeamsData, updateQueryCall]
 	);
 
+	const updateOrganizationTeamEmployeeActiveTask = useCallback(
+		(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) => {
+			updateOrganizationTeamEmployeeActiveTaskQueryCall(id, data).then(
+				(res) => {
+					loadTeamsData();
+					return res;
+				}
+			);
+		},
+		[loadTeamsData, updateOrganizationTeamEmployeeActiveTaskQueryCall]
+	);
+
 	return {
 		deleteOrganizationEmployeeTeamLoading,
 		deleteOrganizationTeamEmployee,
 		updateOrganizationEmployeeTeamLoading,
 		updateOrganizationTeamEmployee,
+		updateOrganizationTeamEmployeeActiveTaskLoading,
+		updateOrganizationTeamEmployeeActiveTask
 	};
 }

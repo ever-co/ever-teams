@@ -2,7 +2,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTimerStatusRequest,
-	stopTimerRequest,
+	stopTimerRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -25,9 +25,9 @@ export default async function handler(
 			// Task id is optional in case timer is already started in another source
 			...(taskId
 				? {
-						taskId,
+						taskId
 				  }
-				: {}),
+				: {})
 		},
 		access_token
 	);

@@ -2,7 +2,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 
 import {
 	createRoleRequest,
-	getRolesRequest,
+	getRolesRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -22,7 +22,7 @@ export default async function handler(
 				(
 					await getRolesRequest({
 						bearer_token: access_token,
-						tenantId,
+						tenantId
 					})
 				).data
 			);
@@ -34,8 +34,8 @@ export default async function handler(
 						tenantId,
 						data: {
 							...req.body,
-							tenantId,
-						},
+							tenantId
+						}
 					})
 				).data
 			);

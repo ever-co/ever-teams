@@ -73,7 +73,7 @@ const fr = {
 		taskFieldPlaceholder: "Sur quoi tu travailles",
 		sizeText: "Tailles",
 		prioritiesText: "Priorités",
-		tabCreateTask: "Créer une nouvelle tâche",
+		tabCreateTask: "Créer une Nouvelle Tâche",
 		labelText: "Étiquette",
 	},
 	teamScreen: {
@@ -193,7 +193,7 @@ const fr = {
 			createPriorityButton: "Create new priority",
 			createNewPriorityText: "Create New Priority",
 			priorityNamePlaceholder: "Priority Name",
-			priorityIconPlaceholder: "Choose Icon",
+			priorityIconPlaceholder: "Search Icon",
 			priorityColorPlaceholder: "Colors",
 			cancelButtonText: "Cancel",
 			createButtonText: "Create",

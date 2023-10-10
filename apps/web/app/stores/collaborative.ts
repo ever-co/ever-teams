@@ -3,10 +3,10 @@ import { atom } from 'recoil';
 
 export const collaborativeSelectState = atom<boolean>({
 	key: 'collaborativeSelectState',
-	default: false,
+	default: false
 });
 
 export const collaborativeMembersState = atom<IUser[]>({
 	key: 'collaborativeMembersState',
-	default: [],
+	default: []
 });

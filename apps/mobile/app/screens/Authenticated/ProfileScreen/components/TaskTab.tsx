@@ -1,6 +1,8 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
-import { TouchableOpacity, Text, View, StyleSheet, TextStyle, ViewStyle } from "react-native"
+import { TouchableOpacity, Text, View, TextStyle, ViewStyle } from "react-native"
 import { typography, useAppTheme } from "../../../../theme"
 
 interface Props {
@@ -16,7 +18,9 @@ const TaskTab: FC<Props> = observer(({ setSelectedTab, isSelected, tabTitle, cou
 		<TouchableOpacity
 			style={[
 				$container,
-				isSelected ? { ...$selectedTab, borderBottomColor: colors.primary } : $unselectedTab,
+				isSelected
+					? { ...$selectedTab, borderBottomColor: dark ? colors.primary : colors.secondary }
+					: $unselectedTab,
 			]}
 			activeOpacity={0.7}
 			onPress={() => setSelectedTab()}

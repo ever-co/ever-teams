@@ -7,7 +7,7 @@ import {
 	useAuthenticateUser,
 	useModal,
 	useTeamMemberCard,
-	useTMCardTaskEdit,
+	useTMCardTaskEdit
 } from '@app/hooks';
 import { OT_Member } from '@app/interfaces';
 import { ConfirmationModal } from './confirmation-modal';
@@ -28,7 +28,7 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 	const { onRemoveMember } = useDropdownAction({
 		edition: taskEdition,
-		memberInfo,
+		memberInfo
 	});
 
 	const { isOpen, openModal, closeModal } = useModal();

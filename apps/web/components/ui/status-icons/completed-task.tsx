@@ -1,5 +1,5 @@
 export const CompletedTaskIcon = ({
-	color = '#a371f7',
+	color = '#a371f7'
 }: {
 	color: string;
 	background: string;

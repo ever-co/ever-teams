@@ -5,26 +5,26 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 const sizeOption = [
 	{
-		name: 'Only me',
+		name: 'Only me'
 	},
 	{
-		name: '2 - 5',
+		name: '2 - 5'
 	},
 	{
-		name: '6 - 20',
+		name: '6 - 20'
 	},
 	{
-		name: '21 - 100',
+		name: '21 - 100'
 	},
 	{
-		name: '100+',
-	},
+		name: '100+'
+	}
 ];
 const TeamSize = ({
 	defaultValue,
 	onChange,
 	isTeamManager,
-	disabled: disableButton,
+	disabled: disableButton
 }: {
 	defaultValue: string;
 	onChange: (teamSize: string) => void;

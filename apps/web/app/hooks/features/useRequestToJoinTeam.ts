@@ -1,14 +1,14 @@
 import {
 	IRequestToJoinActionEnum,
 	IRequestToJoinCreate,
-	IValidateRequestToJoin,
+	IValidateRequestToJoin
 } from '@app/interfaces';
 import {
 	requestToJoinAPI,
 	validateRequestToJoinAPI,
 	resendCodeRequestToJoinAPI,
 	getRequestToJoinAPI,
-	acceptRejectRequestToJoinAPI,
+	acceptRejectRequestToJoinAPI
 } from '@app/services/client/api';
 import { requestToJoinState } from '@app/stores';
 import { useCallback } from 'react';
@@ -23,28 +23,28 @@ export const useRequestToJoinTeam = () => {
 		useQuery(requestToJoinAPI);
 	const {
 		loading: validateRequestToJoinLoading,
-		queryCall: validateRequestToJoinQueryCall,
+		queryCall: validateRequestToJoinQueryCall
 	} = useQuery(validateRequestToJoinAPI);
 	const {
 		loading: resendCodeRequestToJoinLoading,
-		queryCall: resendCodeRequestToJoinQueryCall,
+		queryCall: resendCodeRequestToJoinQueryCall
 	} = useQuery(resendCodeRequestToJoinAPI);
 
 	const {
 		loading: getRequestToJoinLoading,
-		queryCall: getRequestToJoinQueryCall,
+		queryCall: getRequestToJoinQueryCall
 	} = useQuery(getRequestToJoinAPI);
 
 	const {
 		loading: acceptRejectRequestToJoinLoading,
-		queryCall: acceptRejectRequestToJoinQueryCall,
+		queryCall: acceptRejectRequestToJoinQueryCall
 	} = useQuery(acceptRejectRequestToJoinAPI);
 
 	const getRequestToJoin = useCallback(() => {
 		return getRequestToJoinQueryCall().then((res) => {
 			setRequestToJoin(res.data.items);
 		});
-	}, []);
+	}, [getRequestToJoinQueryCall, setRequestToJoin]);
 
 	const requestToJoinTeam = useCallback(
 		(data: IRequestToJoinCreate) => {
@@ -73,11 +73,11 @@ export const useRequestToJoinTeam = () => {
 
 	const acceptRejectRequestToJoin = useCallback(
 		(id: string, action: IRequestToJoinActionEnum) => {
-			acceptRejectRequestToJoinQueryCall(id, action).then((res) => {
+			acceptRejectRequestToJoinQueryCall(id, action).then(() => {
 				getRequestToJoin();
 			});
 		},
-		[acceptRejectRequestToJoinQueryCall]
+		[acceptRejectRequestToJoinQueryCall, getRequestToJoin]
 	);
 
 	return {
@@ -94,6 +94,6 @@ export const useRequestToJoinTeam = () => {
 		getRequestToJoinLoading,
 		requestToJoin,
 		acceptRejectRequestToJoin,
-		acceptRejectRequestToJoinLoading,
+		acceptRejectRequestToJoinLoading
 	};
 };

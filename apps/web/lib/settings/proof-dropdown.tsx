@@ -8,18 +8,18 @@ import { ProofItem, mapPropfItems } from './proof-items';
 
 export const ProofDropdown = ({
 	setValue,
-	active,
+	active
 }: {
 	setValue: UseFormSetValue<FieldValues>;
 	active?: IProof | null;
 }) => {
 	const [ProofList, setProof] = useState<IProof[]>([
 		{
-			title: 'Private',
+			title: 'Private'
 		},
 		{
-			title: 'Public',
-		},
+			title: 'Public'
+		}
 	]);
 
 	const items: any = useMemo(() => mapPropfItems(ProofList), [ProofList]);

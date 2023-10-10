@@ -25,7 +25,7 @@ import TaskStatus from "../../../../components/TaskStatus"
 import TimerCard from "../../../../components/TimerCard"
 import TaskSize from "../../../../components/TaskSize"
 import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
-import TaskLabels from "./TaskLabels"
+import TaskLabels from "../../../../components/TaskLabels"
 import IssuesModal from "../../../../components/IssuesModal"
 
 const TimerTaskSection = observer(
@@ -196,7 +196,14 @@ const $timerSection: ViewStyle = {
 	borderRadius: 16,
 	...GS.noBorder,
 	borderWidth: 1,
-	...GS.shadowSm,
+	shadowColor: "#000",
+	shadowOffset: {
+		width: 0,
+		height: 14,
+	},
+	shadowOpacity: 0.1,
+	shadowRadius: 44,
+	elevation: 8,
 }
 
 const styles = StyleSheet.create({

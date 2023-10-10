@@ -4,7 +4,7 @@ import {
 	ITimerStatus,
 	ITimerParams,
 	ITimerTimeslotParams,
-	TimerSource,
+	TimerSource
 } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 
@@ -17,7 +17,7 @@ export function getTimerStatusRequest(
 		path: `/timesheet/timer/status?${params.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -27,7 +27,7 @@ export function startTimerRequest(params: ITimerParams, bearer_token: string) {
 		method: 'POST',
 		bearer_token,
 		body: params,
-		tenantId: params.tenantId,
+		tenantId: params.tenantId
 	});
 }
 
@@ -37,7 +37,7 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 		method: 'POST',
 		bearer_token,
 		body: params,
-		tenantId: params.tenantId,
+		tenantId: params.tenantId
 	});
 }
 
@@ -47,7 +47,7 @@ export function toggleTimerRequest(
 		logType = 'TRACKED',
 		taskId,
 		tenantId,
-		organizationId,
+		organizationId
 	}: ITimerParams,
 	bearer_token: string
 ) {
@@ -59,10 +59,10 @@ export function toggleTimerRequest(
 			logType,
 			taskId,
 			tenantId,
-			organizationId,
+			organizationId
 		},
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -75,6 +75,6 @@ export function syncTimeSlotRequest(
 		method: 'POST',
 		body: params,
 		bearer_token,
-		tenantId: params.tenantId,
+		tenantId: params.tenantId
 	});
 }

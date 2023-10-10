@@ -6,7 +6,7 @@ import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatio
 import { useOrganizationTeams } from '@app/hooks';
 
 export default function TimeTrackingToggle({
-	activeManager,
+	activeManager
 }: {
 	activeManager: OT_Member | undefined;
 }) {
@@ -20,7 +20,7 @@ export default function TimeTrackingToggle({
 			updateOrganizationTeamEmployee(activeManager.id, {
 				organizationId: activeManager.organizationId,
 				organizationTeamId: activeTeam.id,
-				isTrackingEnabled: !enabled,
+				isTrackingEnabled: !enabled
 			});
 		}
 		setEnabled(!enabled);

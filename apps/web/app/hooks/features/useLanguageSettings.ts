@@ -1,6 +1,6 @@
 import {
 	getActiveLanguageIdCookie,
-	setActiveLanguageIdCookie,
+	setActiveLanguageIdCookie
 } from '@app/helpers/cookies';
 import { getLanguageListAPI } from '@app/services/client/api';
 import {
@@ -8,7 +8,7 @@ import {
 	languagesFetchingState,
 	activeLanguageState,
 	languageListState,
-	userState,
+	userState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -43,7 +43,7 @@ export function useLanguageSettings() {
 	}, [queryCall, setActiveLanguageId, setLanguages, user]);
 
 	const setActiveLanguage = useCallback(
-		(languageId: typeof languages[0]) => {
+		(languageId: (typeof languages)[0]) => {
 			setActiveLanguageIdCookie(languageId.code);
 			setActiveLanguageId(languageId.code);
 		},
@@ -57,6 +57,6 @@ export function useLanguageSettings() {
 		languagesFetching,
 		activeLanguage,
 		setActiveLanguage,
-		firstLoadLanguagesData,
+		firstLoadLanguagesData
 	};
 }

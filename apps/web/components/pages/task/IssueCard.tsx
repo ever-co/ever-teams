@@ -7,7 +7,7 @@ import { IHookModal, useModal, useQuery, useTeamTasks } from '@app/hooks';
 import {
 	ITeamTask,
 	LinkedTaskIssue,
-	TaskRelatedIssuesRelationEnum,
+	TaskRelatedIssuesRelationEnum
 } from '@app/interfaces';
 import { useTranslation } from 'lib/i18n';
 import { useCallback, useMemo, useState } from 'react';
@@ -26,19 +26,22 @@ export const RelatedIssueCard = () => {
 	// const { actionType, actionTypeItems, onChange } = useActionType();
 
 	const linkedTasks = useMemo(() => {
-		const issues = task?.linkedIssues?.reduce((acc, item) => {
-			const $item =
-				tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
+		const issues = task?.linkedIssues?.reduce(
+			(acc, item) => {
+				const $item =
+					tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom;
 
-			if ($item /*&& item.action === actionType?.data?.value*/) {
-				acc.push({
-					issue: item,
-					task: $item,
-				});
-			}
+				if ($item /*&& item.action === actionType?.data?.value*/) {
+					acc.push({
+						issue: item,
+						task: $item
+					});
+				}
 
-			return acc;
-		}, [] as { issue: LinkedTaskIssue; task: ITeamTask }[]);
+				return acc;
+			},
+			[] as { issue: LinkedTaskIssue; task: ITeamTask }[]
+		);
 
 		return issues || [];
 	}, [task, tasks]);
@@ -111,7 +114,7 @@ export const RelatedIssueCard = () => {
 
 function CreateLinkedTask({
 	modal,
-	task,
+	task
 }: {
 	modal: IHookModal;
 	task: ITeamTask;
@@ -133,7 +136,7 @@ function CreateLinkedTask({
 				taskToId: parentTask.id,
 
 				organizationId: task.organizationId,
-				action: TaskRelatedIssuesRelationEnum.RELATES_TO,
+				action: TaskRelatedIssuesRelationEnum.RELATES_TO
 			}).catch(console.error);
 
 			loadTeamTasksData(false).finally(() => {

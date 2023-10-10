@@ -1,7 +1,7 @@
 import {
 	MEET_DOMAIN,
 	MEET_JWT_APP_ID,
-	MEET_JWT_APP_SECRET,
+	MEET_JWT_APP_SECRET
 } from '@app/constants';
 // import {
 // 	// getMeetJwtSessionCookie,
@@ -32,13 +32,13 @@ function generateToken(params: Params): string {
 				id: params.id,
 				avatar: params.avatar,
 				name: params.name,
-				email: params.email,
-			},
+				email: params.email
+			}
 		},
 		aud: params.audience,
 		iss: params.appid,
 		sub: params.domain,
-		room: params.room,
+		room: params.room
 	};
 
 	return jwt.sign(payload, params.appkey, algo);
@@ -74,7 +74,7 @@ export default async function handler(
 		room: '*',
 		domain: MEET_DOMAIN,
 		appid: MEET_JWT_APP_ID,
-		appkey: MEET_JWT_APP_SECRET,
+		appkey: MEET_JWT_APP_SECRET
 	});
 
 	// We don't use this cookie for now

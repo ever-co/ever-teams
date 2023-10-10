@@ -3,7 +3,7 @@ import {
 	createRoleAPI,
 	deleteRoleAPI,
 	getRolesAPI,
-	updateRoleAPI,
+	updateRoleAPI
 } from '@app/services/client/api';
 import { rolesState } from '@app/stores/';
 import { useCallback } from 'react';
@@ -28,7 +28,7 @@ export const useRoles = () => {
 				setRoles(response.data.items);
 			}
 		});
-	}, [getRolesQueryCall]);
+	}, [getRolesQueryCall, setRoles]);
 
 	const createRole = useCallback(
 		async (role: IRole) => {
@@ -36,7 +36,7 @@ export const useRoles = () => {
 				setRoles([response.data, ...roles]);
 			});
 		},
-		[getRolesQueryCall, roles]
+		[roles, createRoleQueryCall, setRoles]
 	);
 
 	const updateRole = useCallback(
@@ -51,7 +51,7 @@ export const useRoles = () => {
 				setRoles(tempRoles);
 			});
 		},
-		[getRolesQueryCall, roles]
+		[roles, setRoles, updateRoleQueryCall]
 	);
 
 	const deleteRole = useCallback(
@@ -60,7 +60,7 @@ export const useRoles = () => {
 				setRoles(roles.filter((role) => role.id !== id));
 			});
 		},
-		[getRolesQueryCall, roles]
+		[deleteRoleQueryCall, setRoles, roles]
 	);
 
 	return {
@@ -75,6 +75,6 @@ export const useRoles = () => {
 		deleteRoleLoading,
 
 		updateRole,
-		updateRoleLoading,
+		updateRoleLoading
 	};
 };

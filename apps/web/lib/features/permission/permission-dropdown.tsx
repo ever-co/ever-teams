@@ -6,7 +6,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
-	useState,
+	useState
 } from 'react';
 import { Button, Card, InputField } from 'lib/components';
 import { PermissonItem } from './permission-item';
@@ -20,7 +20,7 @@ import { IRole } from '@app/interfaces';
 
 export const PermissionDropDown = ({
 	selectedRole,
-	setSelectedRole,
+	setSelectedRole
 }: {
 	selectedRole: IRole | null;
 	setSelectedRole: Dispatch<SetStateAction<IRole | null>>;
@@ -31,7 +31,7 @@ export const PermissionDropDown = ({
 		createRole,
 		createRoleLoading,
 		deleteRole,
-		updateRole,
+		updateRole
 	} = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
@@ -48,7 +48,7 @@ export const PermissionDropDown = ({
 	const handleCreateRole = useCallback(async () => {
 		if (filterValue.length) {
 			await createRole({
-				name: filterValue,
+				name: filterValue
 			});
 			setFilterValue('');
 		}
@@ -64,7 +64,7 @@ export const PermissionDropDown = ({
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setEditRole({
 				...editRole,
-				name: e.target.value,
+				name: e.target.value
 			});
 		},
 		[editRole]
@@ -88,14 +88,14 @@ export const PermissionDropDown = ({
 				? roles
 						.map((role) => ({
 							...role,
-							name: role.name.split('_').join(' '),
+							name: role.name.split('_').join(' ')
 						}))
 						.filter((role) =>
 							role.name.toLowerCase().includes(filterValue.toLowerCase())
 						)
 				: roles.map((role) => ({
 						...role,
-						name: role.name.split('_').join(' '),
+						name: role.name.split('_').join(' ')
 				  })),
 		[roles, filterValue]
 	);

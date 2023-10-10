@@ -2,7 +2,7 @@ import {
 	getActiveTaskIdCookie,
 	getActiveUserTaskCookie,
 	setActiveTaskIdCookie,
-	setActiveUserTaskCookie,
+	setActiveUserTaskCookie
 } from '@app/helpers';
 import { ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
 import {
@@ -11,17 +11,19 @@ import {
 	getTeamTasksAPI,
 	updateTaskAPI,
 	deleteEmployeeFromTasksAPI,
+	getTasksByIdAPI
 } from '@app/services/client/api';
 import {
 	activeTeamState,
+	detailedTaskState,
 	memberActiveTaskIdState,
-	userState,
+	userState
 } from '@app/stores';
 import {
 	activeTeamTaskState,
 	tasksByTeamState,
 	tasksFetchingState,
-	teamTasksState,
+	teamTasksState
 } from '@app/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
@@ -32,10 +34,12 @@ import { useSyncRef } from '../useSyncRef';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 
 export function useTeamTasks() {
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { updateOrganizationTeamEmployeeActiveTask } =
+		useOrganizationEmployeeTeams();
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
+	const [detailedTask, setDetailedTask] = useRecoilState(detailedTaskState);
 	// const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 	const tasksRef = useSyncRef(tasks);
 
@@ -53,6 +57,8 @@ export function useTeamTasks() {
 
 	// Queries hooks
 	const { queryCall, loading } = useQuery(getTeamTasksAPI);
+	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } =
+		useQuery(getTasksByIdAPI);
 
 	const { queryCall: deleteQueryCall, loading: deleteLoading } =
 		useQuery(deleteTaskAPI);
@@ -65,8 +71,18 @@ export function useTeamTasks() {
 
 	const {
 		queryCall: deleteEmployeeFromTasksQueryCall,
-		loading: deleteEmployeeFromTasksLoading,
+		loading: deleteEmployeeFromTasksLoading
 	} = useQuery(deleteEmployeeFromTasksAPI);
+
+	const getTaskById = useCallback(
+		(taskId: string) => {
+			return getTasksByIdQueryCall(taskId).then((res) => {
+				setDetailedTask(res?.data?.data || null);
+				return res;
+			});
+		},
+		[getTasksByIdQueryCall, setDetailedTask]
+	);
 
 	const deepCheckAndUpdateTasks = useCallback(
 		(responseTasks: ITeamTask[], deepCheck?: boolean) => {
@@ -127,12 +143,12 @@ export function useTeamTasks() {
 			if (task?.id && authUser.current?.id) {
 				setActiveUserTaskCookie({
 					taskId: task?.id,
-					userId: authUser.current?.id,
+					userId: authUser.current?.id
 				});
 			} else {
 				setActiveUserTaskCookie({
 					taskId: '',
-					userId: '',
+					userId: ''
 				});
 			}
 		},
@@ -161,7 +177,7 @@ export function useTeamTasks() {
 
 	// Queries calls
 	const deleteTask = useCallback(
-		(task: typeof tasks[0]) => {
+		(task: (typeof tasks)[0]) => {
 			return deleteQueryCall(task.id).then((res) => {
 				const affected = res.data?.affected || 0;
 				if (affected > 0) {
@@ -183,7 +199,7 @@ export function useTeamTasks() {
 			return createQueryCall({
 				title: taskName,
 				issueType,
-				...(members ? { members } : {}),
+				...(members ? { members } : {})
 			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
 				return res;
@@ -195,11 +211,17 @@ export function useTeamTasks() {
 	const updateTask = useCallback(
 		(task: Partial<ITeamTask> & { id: string }) => {
 			return updateQueryCall(task.id, task).then((res) => {
-				deepCheckAndUpdateTasks(res?.data?.items || [], true);
+				const updatedTasks = res?.data?.items || [];
+				deepCheckAndUpdateTasks(updatedTasks, true);
+
+				if (detailedTask) {
+					getTaskById(detailedTask.id);
+				}
+
 				return res;
 			});
 		},
-		[updateQueryCall, deepCheckAndUpdateTasks]
+		[updateQueryCall, deepCheckAndUpdateTasks, detailedTask, getTaskById]
 	);
 
 	const updateTitle = useCallback(
@@ -208,7 +230,7 @@ export function useTeamTasks() {
 				loader && setTasksFetching(true);
 				return updateTask({
 					...task,
-					title: newTitle,
+					title: newTitle
 				}).then((res) => {
 					setTasksFetching(false);
 					return res;
@@ -225,7 +247,7 @@ export function useTeamTasks() {
 				loader && setTasksFetching(true);
 				return updateTask({
 					...task,
-					description: newDescription,
+					description: newDescription
 				}).then((res) => {
 					setTasksFetching(false);
 					return res;
@@ -242,7 +264,7 @@ export function useTeamTasks() {
 				loader && setTasksFetching(true);
 				return updateTask({
 					...task,
-					public: publicity,
+					public: publicity
 				}).then((res) => {
 					setTasksFetching(false);
 					return res;
@@ -268,7 +290,7 @@ export function useTeamTasks() {
 					if (active_user_task?.taskId === task.id) {
 						setActiveUserTaskCookie({
 							taskId: '',
-							userId: '',
+							userId: ''
 						});
 					}
 					const active_task_id = getActiveTaskIdCookie();
@@ -279,7 +301,7 @@ export function useTeamTasks() {
 
 				return updateTask({
 					...task,
-					[field]: status,
+					[field]: status
 				}).then((res) => {
 					setTasksFetching(false);
 					return res;
@@ -307,11 +329,11 @@ export function useTeamTasks() {
 				);
 
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
-						tenantId: activeTeam?.tenantId,
+						tenantId: activeTeam?.tenantId
 					});
 				}
 			}
@@ -319,9 +341,9 @@ export function useTeamTasks() {
 		[
 			setActiveTeamTask,
 			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployee,
+			updateOrganizationTeamEmployeeActiveTask,
 			activeTeam,
-			authUser,
+			authUser
 		]
 	);
 
@@ -364,5 +386,8 @@ export function useTeamTasks() {
 		loadTeamTasksData,
 		deleteEmployeeFromTasks,
 		deleteEmployeeFromTasksLoading,
+		getTaskById,
+		getTasksByIdLoading,
+		detailedTask
 	};
 }

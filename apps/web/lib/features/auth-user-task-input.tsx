@@ -9,7 +9,7 @@ import { TaskInput } from './task/task-input';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
-	ActiveTaskStatusDropdown,
+	ActiveTaskStatusDropdown
 } from './task/task-status';
 import { useOrganizationTeams } from '@app/hooks';
 import { TaskLabels } from './task/task-labels';
@@ -30,35 +30,38 @@ export function AuthUserTaskInput({ className }: IClassName) {
 				autoAssignTaskAuth={isTrackingEnabled}
 			/>
 
-			<div className="flex flex-col lg:flex-row justify-between lg:items-center space-x-3">
-				<div className="flex space-x-3 lg:mb-0 mb-4">
+			<div className="flex flex-col lg:flex-row justify-between lg:items-center gap-5">
+				<div className="flex lg:mb-0 mb-4">
 					<span className="text-gray-500 font-normal">
 						{trans.common.ESTIMATE}:
 					</span>
 					<TaskEstimate />
 				</div>
 
-				<div className="flex-1 md:flex md:justify-between md:space-x-3 justify-center hidden">
+				<div className="flex-1 md:flex justify-end gap-2 hidden">
 					<ActiveTaskStatusDropdown
 						className="lg:min-w-[170px]"
 						disabled={!activeTeamTask}
+						taskStatusClassName="h-7 text-xs"
 					/>
 
 					<ActiveTaskPropertiesDropdown
 						className="lg:min-w-[170px]"
 						disabled={!activeTeamTask}
+						taskStatusClassName="h-7 text-xs"
 					/>
 
 					<ActiveTaskSizesDropdown
 						className="lg:min-w-[170px]"
 						disabled={!activeTeamTask}
+						taskStatusClassName="h-7 text-xs"
 					/>
 
 					<TaskLabels
 						task={activeTeamTask}
-						className="lg:min-w-[170px]"
+						className="lg:min-w-[170px] text-xs"
 						forDetails={false}
-						taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33]"
+						taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
 					/>
 				</div>
 				<div className="grid justify-items-center md:hidden">

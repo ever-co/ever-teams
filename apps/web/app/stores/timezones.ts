@@ -2,17 +2,17 @@ import { atom, selector } from 'recoil';
 
 export const timezoneListState = atom<string[]>({
 	key: 'timezoneListState',
-	default: [],
+	default: []
 });
 
 export const activeTimezoneIdState = atom<string | null>({
 	key: 'activeTimezoneIdState',
-	default: null,
+	default: null
 });
 
 export const timezonesFetchingState = atom<boolean>({
 	key: 'timezonesFetchingState',
-	default: false,
+	default: false
 });
 
 export const activeTimezoneState = selector<string | null>({
@@ -25,5 +25,5 @@ export const activeTimezoneState = selector<string | null>({
 			timezones[0] ||
 			null
 		);
-	},
+	}
 });

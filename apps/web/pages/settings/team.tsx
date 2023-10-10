@@ -6,7 +6,7 @@ import {
 	LeftSideSettingMenu,
 	TeamAvatar,
 	TeamSettingForm,
-	DangerZoneTeam,
+	DangerZoneTeam
 } from 'lib/settings';
 import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkeleton';
 

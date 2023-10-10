@@ -7,7 +7,7 @@ export interface ITimer {
 	startedAt: string
 	stoppedAt: string
 	logType: string
-	source: string
+	source: TimerSource
 	description: any
 	reason: any
 	isBillable: boolean
@@ -20,6 +20,16 @@ export interface ITimer {
 	organizationContactId: any
 	duration: number
 	isEdited: boolean
+}
+
+export enum TimerSource {
+	"MOBILE" = "MOBILE",
+	"BROWSER" = "BROWSER",
+	"DESKTOP" = "DESKTOP",
+	"BROWSER_EXTENSION" = "BROWSER_EXTENSION",
+	"HUBSTAFF" = "HUBSTAFF",
+	"UPWORK" = "UPWORK",
+	"TEAMS" = "TEAMS",
 }
 
 export interface ITimerStatus {
@@ -45,7 +55,7 @@ export type ITimerTimeslotParams = {
 	organizationId: string
 	employeeId: string
 	logType: "TRACKED"
-	source: "MOBILE"
+	source: TimerSource
 	tenantId: string
 	duration?: number
 	recordedAt?: Date | string
@@ -53,7 +63,7 @@ export type ITimerTimeslotParams = {
 }
 
 export type ITimerStatusParams = {
-	source?: "MOBILE"
+	source?: TimerSource
 	tenantId: string
 	organizationId: string
 }
@@ -63,7 +73,7 @@ export type ITimerParams = {
 	tenantId: string
 	taskId: string
 	logType: "TRACKED"
-	source: "MOBILE"
+	source: TimerSource
 	tags: any[]
 }
 

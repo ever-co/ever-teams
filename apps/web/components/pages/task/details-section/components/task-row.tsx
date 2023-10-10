@@ -17,7 +17,7 @@ const TaskRow = ({
 	afterIconPath,
 	labelTitle,
 	wrapperClassName,
-	alignWithIconLabel,
+	alignWithIconLabel
 }: PropsWithChildren<TaskRowProps>) => {
 	return (
 		<div className={clsx('flex', wrapperClassName)}>

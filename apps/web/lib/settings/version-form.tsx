@@ -24,7 +24,7 @@ type StatusForm = {
 export const VersionForm = ({
 	formOnly = false,
 	onCreated,
-	onVersionCreated,
+	onVersionCreated
 }: StatusForm) => {
 	const { trans } = useTranslation('settingsTeam');
 
@@ -40,7 +40,7 @@ export const VersionForm = ({
 		deleteTaskVersion,
 		editTaskVersion,
 		createTaskVersionLoading,
-		editTaskVersionLoading,
+		editTaskVersionLoading
 	} = useTaskVersion(onVersionCreated);
 	const { refetch } = useRefetchData();
 
@@ -62,7 +62,7 @@ export const VersionForm = ({
 		createTaskVersion,
 		editTaskVersion,
 		user?.employee?.organizationId,
-		user?.tenantId,
+		user?.tenantId
 	]);
 
 	const onSubmit = useCallback(
@@ -73,7 +73,7 @@ export const VersionForm = ({
 					color: '#FFFFFF',
 					// description: '',
 					organizationId: user?.employee?.organizationId,
-					tenantId: user?.tenantId,
+					tenantId: user?.tenantId
 					// icon: values.icon,
 					// projectId: '',
 				})?.then(() => {
@@ -86,7 +86,7 @@ export const VersionForm = ({
 			}
 			if (edit && values.name !== edit.name?.split('-').join(' ')) {
 				editTaskVersion(edit.id, {
-					name: values.name,
+					name: values.name
 					// color: values.color,
 					// icon: values.icon,
 				})?.then(() => {
@@ -104,7 +104,7 @@ export const VersionForm = ({
 			user,
 			reset,
 			createTaskVersion,
-			refetch,
+			refetch
 		]
 	);
 

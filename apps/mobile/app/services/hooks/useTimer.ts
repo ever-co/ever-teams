@@ -3,7 +3,7 @@ import { convertMsToTime, secondsToTime } from "../../helpers/date"
 import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from "../client/requests/timer"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSyncRef } from "./useSyncRef"
-import { ILocalTimerStatus, ITimerParams, ITimerStatus } from "../interfaces/ITimer"
+import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from "../interfaces/ITimer"
 import { useFirstLoad } from "./useFirstLoad"
 import isEqual from "lodash/isEqual"
 import AsyncStorage from "@react-native-async-storage/async-storage"
@@ -12,6 +12,7 @@ import { ITeamTask } from "../interfaces/ITask"
 import { useTeamTasks } from "./features/useTeamTasks"
 import useFetchTimerStatus from "../client/queries/timer/timer"
 import { useTaskStatistics } from "./features/useTaskStatics"
+import moment from "moment-timezone"
 
 const LOCAL_TIMER_STORAGE_KEY = "local-timer-ever-teams"
 
@@ -70,9 +71,17 @@ function useLocalTimeCounter(
 			;(async () => {
 				const localStatus = await getLocalCounterStatus()
 				localStatus && setLocalTimerStatus(localStatus)
+
+				const timerStatusDate = timerStatus?.lastLog?.createdAt
+					? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 - timerStatus?.lastLog?.duration
+					: 0
+
 				timerStatus &&
 					updateLocalTimerStatus({
-						runnedDateTime: localStatus?.runnedDateTime || (timerStatus.running ? Date.now() : 0),
+						runnedDateTime:
+							(timerStatus.running ? timerStatusDate || Date.now() : 0) ||
+							localStatus?.runnedDateTime ||
+							0,
 						running: timerStatus.running,
 						lastTaskId: timerStatus.lastLog?.taskId || null,
 					})
@@ -164,13 +173,14 @@ export function useTimer() {
 			employeeId: user?.employee?.id,
 		},
 		timerStatus?.running,
+		timerStatusRef.current?.lastLog?.source,
 	)
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
 			{
 				logType: "TRACKED",
-				source: "MOBILE",
+				source: TimerSource.MOBILE,
 				tags: [],
 				taskId,
 				tenantId,
@@ -208,7 +218,7 @@ export function useTimer() {
 			tenantId,
 			taskId: activeTask?.id,
 			logType: "TRACKED",
-			source: "MOBILE",
+			source: TimerSource.MOBILE,
 			tags: [],
 		}
 
@@ -225,11 +235,11 @@ export function useTimer() {
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
-		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== "in progress") {
+		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== "in-progress") {
 			updateTask(
 				{
 					...activeTeamTaskRef.current,
-					status: "in progress",
+					status: "in-progress",
 				},
 				taskId.current,
 			)
@@ -251,7 +261,7 @@ export function useTimer() {
 			tenantId,
 			taskId: activeTask?.id,
 			logType: "TRACKED",
-			source: "MOBILE",
+			source: timerStatusRef.current.lastLog.source || TimerSource.MOBILE,
 			tags: [],
 		}
 

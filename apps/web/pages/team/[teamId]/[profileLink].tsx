@@ -16,7 +16,7 @@ const Team = () => {
 	const {
 		loadPublicTeamData,
 		loadPublicTeamMiscData,
-		publicTeam: publicTeamData,
+		publicTeam: publicTeamData
 	} = usePublicOrganizationTeams();
 	const { trans } = useTranslation('home');
 	const [publicTeam, setPublic] = useRecoilState(publicState);

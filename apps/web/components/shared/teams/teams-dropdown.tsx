@@ -110,7 +110,7 @@ export const TeamsDropDown = () => {
 };
 
 function CreateNewTeam({
-	setEdit,
+	setEdit
 }: {
 	setEdit: (value: React.SetStateAction<boolean>) => void;
 }) {

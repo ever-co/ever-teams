@@ -11,7 +11,7 @@ export function createSizesRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -19,7 +19,7 @@ export function editTaskSizesRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	datas: ITaskSizesCreate;
@@ -31,14 +31,14 @@ export function editTaskSizesRequest({
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskSizesRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -48,21 +48,21 @@ export function deleteTaskSizesRequest({
 		path: `/task-sizes/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
-export function getTaskSizesListRequest<ITaskSizesItemList>(
+export function getTaskSizesListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
 	return serverFetch({
 		path: `/task-sizes?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }

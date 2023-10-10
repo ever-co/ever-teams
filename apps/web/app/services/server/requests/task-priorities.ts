@@ -1,6 +1,6 @@
 import {
 	ITaskPrioritiesCreate,
-	ITaskPrioritiesItemList,
+	ITaskPrioritiesItemList
 } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
@@ -14,7 +14,7 @@ export function createPrioritiesRequest(
 		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
@@ -22,7 +22,7 @@ export function editTaskPrioritiesRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	datas: ITaskPrioritiesCreate;
@@ -34,14 +34,14 @@ export function editTaskPrioritiesRequest({
 		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
 export function deleteTaskPrioritiesRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	id: string | any;
 	bearer_token: string | any;
@@ -51,21 +51,21 @@ export function deleteTaskPrioritiesRequest({
 		path: `/task-priorities/${id}`,
 		method: 'DELETE',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }
 
-export function getTaskPrioritiesListRequest<ITaskStatusItemList>(
+export function getTaskPrioritiesListRequest(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
 	bearer_token: string
 ) {
 	return serverFetch({
 		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: 'GET',
-		bearer_token,
+		bearer_token
 	});
 }

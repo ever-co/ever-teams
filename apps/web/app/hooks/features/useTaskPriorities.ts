@@ -3,13 +3,13 @@ import {
 	getTaskPrioritiesList,
 	deleteTaskPrioritiesAPI,
 	createTaskPrioritiesAPI,
-	editTaskPrioritiesAPI,
+	editTaskPrioritiesAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskPrioritiesListState,
 	taskPrioritiesFetchingState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -59,13 +59,13 @@ export function useTaskPriorities() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskPriorities, taskPriorities]);
+	}, [user, activeTeamId, setTaskPriorities, taskPriorities, queryCall]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
 
 		loadTaskPriorities();
-	}, [activeTeamId, firstLoad]);
+	}, [activeTeamId, firstLoad, loadTaskPriorities]);
 
 	const createTaskPriorities = useCallback(
 		(data: ITaskPrioritiesCreate) => {
@@ -79,13 +79,7 @@ export function useTaskPriorities() {
 			}
 		},
 
-		[
-			createQueryCall,
-			createTaskPrioritiesLoading,
-			deleteTaskPrioritiesLoading,
-			user,
-			activeTeamId,
-		]
+		[createQueryCall, user, activeTeamId]
 	);
 
 	const deleteTaskPriorities = useCallback(
@@ -104,14 +98,7 @@ export function useTaskPriorities() {
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			taskPriorities.length,
-			createTaskPrioritiesLoading,
-			deleteTaskPrioritiesLoading,
-			user,
-			activeTeamId,
-		]
+		[deleteQueryCall, user, activeTeamId, queryCall, setTaskPriorities]
 	);
 
 	const editTaskPriorities = useCallback(
@@ -130,7 +117,7 @@ export function useTaskPriorities() {
 				});
 			}
 		},
-		[editTaskPrioritiesLoading, user, activeTeamId]
+		[user, activeTeamId, editQueryCall, queryCall, setTaskPriorities]
 	);
 
 	return {
@@ -145,6 +132,6 @@ export function useTaskPriorities() {
 		editTaskPriorities,
 		editTaskPrioritiesLoading,
 		setTaskPriorities,
-		loadTaskPriorities,
+		loadTaskPriorities
 	};
 }

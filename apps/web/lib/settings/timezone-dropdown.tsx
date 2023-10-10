@@ -7,7 +7,7 @@ import { clsxm } from '@app/utils';
 
 export const TimezoneDropDown = ({
 	currentTimezone,
-	onChangeTimezone,
+	onChangeTimezone
 }: {
 	currentTimezone: any;
 	onChangeTimezone: any;

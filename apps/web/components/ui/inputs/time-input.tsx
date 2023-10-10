@@ -25,7 +25,7 @@ export const TimeInput = ({
 	handleEnter,
 	disabled,
 	handleFocus,
-	handleBlur,
+	handleBlur
 }: ITimeInputProps) => {
 	const onEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {

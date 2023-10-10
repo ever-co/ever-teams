@@ -3,13 +3,13 @@ import {
 	createTaskRelatedIssueTypeAPI,
 	getTaskRelatedIssueTypeList,
 	deleteTaskRelatedIssueTypeAPI,
-	editTaskRelatedIssueTypeAPI,
+	editTaskRelatedIssueTypeAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskRelatedIssueTypeFetchingState,
 	taskRelatedIssueTypeListState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -25,11 +25,11 @@ export function useTaskRelatedIssueType() {
 	const { loading, queryCall } = useQuery(getTaskRelatedIssueTypeList);
 	const {
 		loading: createTaskRelatedIssueTypeLoading,
-		queryCall: createQueryCall,
+		queryCall: createQueryCall
 	} = useQuery(createTaskRelatedIssueTypeAPI);
 	const {
 		loading: deleteTaskRelatedIssueTypeLoading,
-		queryCall: deleteQueryCall,
+		queryCall: deleteQueryCall
 	} = useQuery(deleteTaskRelatedIssueTypeAPI);
 	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } =
 		useQuery(editTaskRelatedIssueTypeAPI);
@@ -60,12 +60,18 @@ export function useTaskRelatedIssueType() {
 			}
 			return res;
 		});
-	}, [user, activeTeamId, setTaskRelatedIssueType, taskRelatedIssueType]);
+	}, [
+		user,
+		activeTeamId,
+		setTaskRelatedIssueType,
+		taskRelatedIssueType,
+		queryCall
+	]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
 		loadTaskRelatedIssueTypeData();
-	}, [activeTeamId, firstLoad]);
+	}, [activeTeamId, firstLoad, loadTaskRelatedIssueTypeData]);
 
 	const createTaskRelatedIssueType = useCallback(
 		(data: ITaskRelatedIssueTypeCreate) => {
@@ -79,12 +85,7 @@ export function useTaskRelatedIssueType() {
 			}
 		},
 
-		[
-			createQueryCall,
-			createTaskRelatedIssueTypeLoading,
-			deleteTaskRelatedIssueTypeLoading,
-			activeTeamId,
-		]
+		[createQueryCall, activeTeamId, user]
 	);
 
 	const deleteTaskRelatedIssueType = useCallback(
@@ -103,20 +104,11 @@ export function useTaskRelatedIssueType() {
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			taskRelatedIssueType.length,
-			createTaskRelatedIssueTypeLoading,
-			deleteTaskRelatedIssueTypeLoading,
-			user,
-			activeTeamId,
-		]
+		[deleteQueryCall, user, activeTeamId, queryCall, setTaskRelatedIssueType]
 	);
 
 	const editTaskRelatedIssueType = useCallback(
 		(id: string, data: ITaskRelatedIssueTypeCreate) => {
-			console.log(user);
-
 			if (user?.tenantId) {
 				return editQueryCall(id, data, user?.tenantId || '').then((res) => {
 					queryCall(
@@ -131,7 +123,7 @@ export function useTaskRelatedIssueType() {
 				});
 			}
 		},
-		[editTaskRelatedIssueTypeLoading, user, activeTeamId]
+		[user, activeTeamId, setTaskRelatedIssueType, editQueryCall, queryCall]
 	);
 
 	return {
@@ -146,6 +138,6 @@ export function useTaskRelatedIssueType() {
 		editTaskRelatedIssueTypeLoading,
 		editTaskRelatedIssueType,
 		setTaskRelatedIssueType,
-		loadTaskRelatedIssueTypeData,
+		loadTaskRelatedIssueTypeData
 	};
 }

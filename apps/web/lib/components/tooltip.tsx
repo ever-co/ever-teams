@@ -19,16 +19,16 @@ export function Tooltip({
 	label,
 	placement = 'top',
 	enabled = true,
-	labelClassName,
+	labelClassName
 }: PropsWithChildren<Props>) {
 	const {
 		getArrowProps,
 		getTooltipProps,
 		setTooltipRef,
 		setTriggerRef,
-		visible,
+		visible
 	} = usePopperTooltip({
-		placement,
+		placement
 	});
 
 	return (

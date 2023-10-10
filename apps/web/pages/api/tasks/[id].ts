@@ -3,6 +3,7 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import {
 	getTeamTasksRequest,
 	updateTaskRequest,
+	getTaskByIdRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -20,11 +21,22 @@ export default async function handler(
 	delete body.selectedTeam;
 
 	switch (req.method) {
+		case 'GET':
+			return $res.status(200).json(
+				await getTaskByIdRequest({
+					taskId: taskId as string,
+					tenantId,
+					organizationId,
+					bearer_token: access_token
+				})
+			);
+
 		case 'PUT':
+			delete body.rootEpic;
 			await updateTaskRequest(
 				{
 					data: body,
-					id: taskId as string,
+					id: taskId as string
 				},
 				access_token
 			);
@@ -34,7 +46,7 @@ export default async function handler(
 	const { data: tasks } = await getTeamTasksRequest({
 		tenantId,
 		organizationId,
-		bearer_token: access_token,
+		bearer_token: access_token
 	});
 
 	$res.status(200).json(tasks);

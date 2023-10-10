@@ -5,12 +5,12 @@ import {
 	getAllOrganizationTeamRequest,
 	getUserOrganizationsRequest,
 	signInWorkspaceRequest,
-	verifyInviteCodeRequest,
+	verifyInviteCodeRequest
 } from '@app/services/server/requests';
 import {
 	generateToken,
 	setAuthCookies,
-	setNoTeamPopupShowCookie,
+	setNoTeamPopupShowCookie
 } from '@app/helpers';
 import { ILoginResponse } from '@app/interfaces';
 
@@ -42,7 +42,7 @@ export default async function handler(
 	 */
 	const inviteReq = await verifyInviteCodeRequest({
 		email: body.email,
-		code: body.code,
+		code: body.code
 	}).catch(() => void 0);
 
 	// General a random password with 8 chars
@@ -57,8 +57,8 @@ export default async function handler(
 			user: {
 				firstName: names[0],
 				lastName: names[1] || '',
-				email: body.email,
-			},
+				email: body.email
+			}
 		}).catch(() => void 0);
 
 		if (
@@ -70,8 +70,8 @@ export default async function handler(
 		) {
 			return res.status(400).json({
 				errors: {
-					email: 'Authentication code or email address invalid',
-				},
+					email: 'Authentication code or email address invalid'
+				}
 			});
 		}
 		loginResponse = acceptInviteRes.data;
@@ -79,8 +79,8 @@ export default async function handler(
 		if (!loginResponse) {
 			return res.status(400).json({
 				errors: {
-					email: 'Authentication code or email address invalid',
-				},
+					email: 'Authentication code or email address invalid'
+				}
 			});
 		}
 	}
@@ -104,8 +104,8 @@ export default async function handler(
 			return res.status(400).json({
 				errors: {
 					email:
-						'Your account is not yet ready to be used on the Ever Teams Platform',
-				},
+						'Your account is not yet ready to be used on the Ever Teams Platform'
+				}
 			});
 		}
 		const { data: teams } = await getAllOrganizationTeamRequest(
@@ -121,14 +121,14 @@ export default async function handler(
 			{
 				access_token: loginResponse.token,
 				refresh_token: {
-					token: loginResponse.refresh_token,
+					token: loginResponse.refresh_token
 				},
 				teamId: team?.id,
 				tenantId,
 				organizationId: organization?.organizationId,
 				languageId: 'en', // TODO: not sure what should be here
 				noTeamPopup: true,
-				userId,
+				userId
 			},
 			req,
 			res
@@ -157,8 +157,8 @@ export default async function handler(
 		return res.status(400).json({
 			errors: {
 				email:
-					'Your account is not yet ready to be used on the Ever Teams Platform',
-			},
+					'Your account is not yet ready to be used on the Ever Teams Platform'
+			}
 		});
 	}
 
@@ -166,14 +166,14 @@ export default async function handler(
 		{
 			access_token: data.token,
 			refresh_token: {
-				token: data.refresh_token,
+				token: data.refresh_token
 			},
 			teamId: body.teamId,
 			tenantId,
 			organizationId: organization?.organizationId,
 			languageId: 'en', // TODO: not sure what should be here
 			noTeamPopup: true,
-			userId,
+			userId
 		},
 		req,
 		res

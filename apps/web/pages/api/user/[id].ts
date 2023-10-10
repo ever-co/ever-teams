@@ -2,7 +2,7 @@ import { IUser } from '@app/interfaces/IUserData';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getTaskCreator,
-	updateUserAvatarRequest,
+	updateUserAvatarRequest
 } from '@app/services/server/requests';
 import { deleteUserRequest } from '@app/services/server/requests/user';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -24,7 +24,7 @@ export default async function handler(
 			return $res.json(
 				await getTaskCreator({
 					userId: userId as string,
-					bearer_token: access_token,
+					bearer_token: access_token
 				})
 			);
 		case 'PUT':
@@ -33,7 +33,7 @@ export default async function handler(
 					{
 						data: body,
 						id: user.id as string,
-						tenantId,
+						tenantId
 					},
 					access_token
 				)
@@ -43,7 +43,7 @@ export default async function handler(
 				await deleteUserRequest({
 					id: user.id,
 					bearer_token: access_token,
-					tenantId,
+					tenantId
 				})
 			);
 	}

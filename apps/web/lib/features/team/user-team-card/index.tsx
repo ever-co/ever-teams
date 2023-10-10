@@ -2,7 +2,7 @@ import {
 	useTeamMemberCard,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useCollaborative,
+	useCollaborative
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -53,7 +53,7 @@ export function UserTeamCard({
 	className,
 	active,
 	member,
-	publicTeam = false,
+	publicTeam = false
 }: IUserTeamCard) {
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);

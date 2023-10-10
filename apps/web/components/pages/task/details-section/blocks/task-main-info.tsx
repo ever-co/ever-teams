@@ -8,13 +8,13 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
-	useState,
+	useState
 } from 'react';
 import {
 	useOrganizationTeams,
 	useSyncRef,
 	useTeamMemberCard,
-	useTeamTasks,
+	useTeamTasks
 } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';

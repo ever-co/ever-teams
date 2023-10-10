@@ -7,6 +7,8 @@ import { Avatar } from "react-native-paper"
 import { imgTitle } from "../../../../helpers/img-title"
 import { typography, useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
+import { useTimer } from "../../../../services/hooks/useTimer"
+import moment from "moment-timezone"
 
 interface ITimerStatus {
 	status: "running" | "online" | "idle" | "suspended" | "pause"
@@ -15,10 +17,16 @@ const TimerStatus: FC<ITimerStatus> = ({ status }) => {
 	return (
 		<View>
 			{status === "online" && (
+				/* For now until we have realtime we will use Play icon instead of Online icon */
+				// <Avatar.Image
+				// 	style={styles.statusIcon}
+				// 	size={20}
+				// 	source={require("../../../../../assets/icons/new/online.png")}
+				// />
 				<Avatar.Image
 					style={styles.statusIcon}
 					size={20}
-					source={require("../../../../../assets/icons/new/online.png")}
+					source={require("../../../../../assets/icons/new/play-small.png")}
 				/>
 			)}
 
@@ -60,6 +68,8 @@ const TimerStatus: FC<ITimerStatus> = ({ status }) => {
 const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) => {
 	const { colors } = useAppTheme()
 
+	const { timerStatus } = useTimer()
+
 	return (
 		<View style={styles.wrapProfileImg}>
 			{user.image?.thumbUrl || user.imageUrl || user.image?.fullUrl ? (
@@ -80,12 +90,21 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 			)}
 			<TimerStatus
 				status={
-					!member?.employee?.isActive
+					!timerStatus?.running &&
+					timerStatus?.lastLog &&
+					timerStatus?.lastLog?.startedAt &&
+					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
+					(timerStatus?.lastLog?.source !== "MOBILE" || member?.employee?.isOnline)
+						? "pause"
+						: !member?.employee?.isActive
 						? "suspended"
-						: member?.employee?.isOnline && member?.timerStatus !== "running"
-						? "online"
+						: member?.employee?.isOnline
+						? //  && member?.timerStatus !== 'running'
+						  "online"
 						: !member?.totalTodayTasks?.length
 						? "idle"
+						: member?.totalTodayTasks?.length
+						? "pause"
 						: member?.timerStatus || "idle"
 				}
 			/>

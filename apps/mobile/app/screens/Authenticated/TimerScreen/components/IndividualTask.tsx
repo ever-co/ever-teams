@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite"
 import TaskStatus from "../../../../components/TaskStatus"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import IssuesModal from "../../../../components/IssuesModal"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
 
 export interface Props {
 	task: ITeamTask
@@ -68,7 +69,7 @@ const IndividualTask: FC<Props> = observer(
 					</View>
 
 					<Text style={[styles.taskTitle, { color: colors.primary }]} numberOfLines={2}>
-						{task.title}
+						{limitTextCharaters({ text: task.title, numChars: 20 })}
 					</Text>
 				</View>
 				<View

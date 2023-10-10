@@ -5,10 +5,12 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-nativ
 import { translate } from "../../../../i18n"
 import { ITaskLabelCreate, ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
 import { typography, useAppTheme } from "../../../../theme"
-import IconDropDown from "./IconDropdown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
 import { formatName } from "../../../../helpers/name-format"
+import IconModal from "../../../../components/IconModal"
+import { IIcon } from "../../../../services/interfaces/IIcon"
+import { SvgUri } from "react-native-svg"
 
 const TaskLabelForm = ({
 	isEdit,
@@ -27,7 +29,9 @@ const TaskLabelForm = ({
 	const [labelName, setLabelName] = useState<string>(null)
 	const [labelColor, setLabelColor] = useState<string>(null)
 	const [labelIcon, setLabelIcon] = useState<string>(null)
-	const [modalVisible, setModalVisible] = useState<boolean>(false)
+	const [colorModalVisible, setColorModalVisible] = useState<boolean>(false)
+	const [iconModalVisible, setIconModalVisible] = useState<boolean>(false)
+	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
 		if (isEdit) {
@@ -48,13 +52,13 @@ const TaskLabelForm = ({
 
 		if (isEdit) {
 			await onUpdateLabel(item?.id, {
-				icon: null,
+				icon: labelIcon,
 				color: labelColor,
 				name: labelName,
 			})
 		} else {
 			await onCreateLabel({
-				icon: null,
+				icon: labelIcon,
 				color: labelColor,
 				name: labelName,
 			})
@@ -66,7 +70,8 @@ const TaskLabelForm = ({
 	}
 
 	const onDismissModal = () => {
-		setModalVisible(false)
+		setColorModalVisible(false)
+		setIconModalVisible(false)
 	}
 
 	return (
@@ -79,8 +84,14 @@ const TaskLabelForm = ({
 				height: 452,
 			}}
 		>
+			<IconModal
+				visible={iconModalVisible}
+				onDismiss={onDismissModal}
+				setIcon={setLabelIcon}
+				setAllIcons={setAllIcons}
+			/>
 			<ColorPickerModal
-				visible={modalVisible}
+				visible={colorModalVisible}
 				onDismiss={onDismissModal}
 				setColor={setLabelColor}
 			/>
@@ -96,10 +107,29 @@ const TaskLabelForm = ({
 				onChangeText={(text) => setLabelName(text)}
 			/>
 
-			<IconDropDown icon={labelIcon} setIcon={setLabelIcon} />
+			{/* Icon Modal button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setIconModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<SvgUri
+						width={20}
+						height={20}
+						uri={allIcons?.find((icon) => icon.path === labelIcon)?.fullUrl}
+					/>
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+							textTransform: "capitalize",
+						}}
+					>
+						{allIcons?.find((icon) => icon.path === labelIcon)?.title?.replace("-", " ") ||
+							translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			{/* Color Picker button */}
-			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setColorModalVisible(true)}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					<Badge size={24} style={{ backgroundColor: labelColor || "#D9D9D9" }} />
 					<Text

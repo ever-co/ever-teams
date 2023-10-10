@@ -1,7 +1,7 @@
 import { getWorkingEmployeesAPI } from '@app/services/client/api';
 import {
 	workingEmployeesEmailState,
-	workingEmployeesState,
+	workingEmployeesState
 } from '@app/stores/employee';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
@@ -18,7 +18,7 @@ export const useEmployee = () => {
 
 	const {
 		queryCall: getWorkingEmployeeQueryCall,
-		loading: getWorkingEmployeeLoading,
+		loading: getWorkingEmployeeLoading
 	} = useQuery(getWorkingEmployeesAPI);
 
 	const getWorkingEmployee = useCallback(() => {
@@ -29,16 +29,20 @@ export const useEmployee = () => {
 				setWorkingEmployeesEmail(items.map((item) => item.user?.email || ''));
 			}
 		});
-	}, [getWorkingEmployeeQueryCall]);
+	}, [
+		getWorkingEmployeeQueryCall,
+		setWorkingEmployees,
+		setWorkingEmployeesEmail
+	]);
 
 	useEffect(() => {
 		getWorkingEmployee();
-	}, []);
+	}, [getWorkingEmployee]);
 
 	return {
 		getWorkingEmployeeQueryCall,
 		getWorkingEmployeeLoading,
 		workingEmployees,
-		workingEmployeesEmail,
+		workingEmployeesEmail
 	};
 };

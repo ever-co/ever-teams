@@ -8,7 +8,7 @@ import {
 	Button,
 	SiteReCAPTCHA,
 	BackdropLoader,
-	BackButton,
+	BackButton
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
@@ -24,7 +24,7 @@ export default function AuthTeam() {
 		setStep,
 		errors,
 		formValues,
-		loading,
+		loading
 	} = useAuthenticationTeam();
 
 	const { trans } = useTranslation('authTeam');
@@ -82,7 +82,7 @@ function FillTeamNameForm({
 	form,
 	errors,
 	handleOnChange,
-	className,
+	className
 }: IStepProps & { errors: Record<string, string> } & IClassName) {
 	const { trans, translations } = useTranslation('authTeam');
 
@@ -137,7 +137,7 @@ function FillUserDataForm({
 	handleOnChange,
 	onPreviousStep,
 	loading,
-	className,
+	className
 }: IStepProps & {
 	errors: Record<string, string>;
 	onPreviousStep?: () => void;

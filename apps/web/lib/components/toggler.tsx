@@ -9,7 +9,7 @@ import {
 	MoonIcon,
 	StopIcon,
 	SunDarkIcon,
-	SunIcon,
+	SunIcon
 } from './svgs';
 import { Text } from './typography';
 
@@ -28,7 +28,7 @@ export function Toggler({
 	onClickOne,
 	onClickTwo,
 	firstBtnClassName,
-	secondBtnClassName,
+	secondBtnClassName
 }: Props) {
 	const childrenArr = React.Children.toArray(children);
 
@@ -108,7 +108,7 @@ export function CommonToggle({
 	disabled = false,
 	onChange = () => {
 		return;
-	},
+	}
 }: {
 	enabledText: string | undefined;
 	disabledText: string | undefined;

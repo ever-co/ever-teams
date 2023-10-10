@@ -1,7 +1,7 @@
 import {
 	getActiveTaskIdCookie,
 	setActiveTaskIdCookie,
-	setActiveUserTaskCookie,
+	setActiveUserTaskCookie
 } from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';
@@ -54,7 +54,7 @@ export function useTeamMemberCard(
 			if (task?.id && authUser?.id) {
 				setActiveUserTaskCookie({
 					taskId: task.id,
-					userId: authUser.id,
+					userId: authUser.id
 				});
 				setActiveTaskIdCookie(task.id);
 			}
@@ -100,7 +100,14 @@ export function useTeamMemberCard(
 		}
 
 		return responseTask;
-	}, [activeTeamTask, isAuthUser, authUser, member, tasks, publicTeam]);
+	}, [
+		isAuthUser,
+		member,
+		tasks,
+		publicTeam,
+		allTaskStatistics,
+		setActiveUserTaskCookieCb
+	]);
 
 	/**
 	 * Give the manager role to the member
@@ -115,7 +122,7 @@ export function useTeamMemberCard(
 			managerIds: team.members
 				.filter((r) => r.role && r.role.name === 'MANAGER')
 				.map((r) => r.employee.id)
-				.concat(employeeId),
+				.concat(employeeId)
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
@@ -133,7 +140,7 @@ export function useTeamMemberCard(
 				.filter((r) => r.role && r.role.name === 'MANAGER')
 				.filter((r) => r.employee.id !== employeeId)
 				.map((r) => r.employee.id)
-				.filter((value, index, array) => array.indexOf(value) === index), // To make the array Unique list of ids
+				.filter((value, index, array) => array.indexOf(value) === index) // To make the array Unique list of ids
 		});
 	}, [updateOrganizationTeam, member, activeTeamRef]);
 
@@ -157,9 +164,9 @@ export function useTeamMemberCard(
 			managerIds: team.members
 				.filter((r) => r.role && r.role.name === 'MANAGER')
 				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id),
+				.map((r) => r.employee.id)
 		});
-	}, [updateOrganizationTeam, member, activeTeamRef]);
+	}, [updateOrganizationTeam, member, activeTeamRef, deleteEmployeeFromTasks]);
 
 	/**
 	 * Returns all tasks not assigned to the member
@@ -185,8 +192,8 @@ export function useTeamMemberCard(
 				...task,
 				members: [
 					...task.members,
-					(member?.employeeId ? { id: member?.employeeId } : {}) as any,
-				],
+					(member?.employeeId ? { id: member?.employeeId } : {}) as any
+				]
 			}).then(() => {
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);
@@ -204,7 +211,7 @@ export function useTeamMemberCard(
 
 			return updateTask({
 				...task,
-				members: task.members.filter((m) => m.id !== member.employeeId),
+				members: task.members.filter((m) => m.id !== member.employeeId)
 			}).finally(() => {
 				isAuthUser && setActiveTask(null);
 			});
@@ -227,7 +234,7 @@ export function useTeamMemberCard(
 		unMakeMemberManager,
 		isTeamCreator,
 		unassignTask,
-		isTeamOwner: activeTeam?.createdBy?.id === memberUser?.id,
+		isTeamOwner: activeTeam?.createdBy?.id === memberUser?.id
 	};
 }
 
@@ -248,7 +255,7 @@ export function useTMCardTaskEdit(task: Nullable<ITeamTask>) {
 		estimateEditIgnoreElement,
 		taskEditIgnoreElement,
 		loading,
-		setLoading,
+		setLoading
 	};
 }
 

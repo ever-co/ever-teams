@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	getRolePermissionsRequest,
-	updateRolePermissionRequest,
+	updateRolePermissionRequest
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -29,7 +29,7 @@ export default async function handler(
 					await getRolePermissionsRequest({
 						bearer_token: access_token,
 						tenantId,
-						roleId: id as string,
+						roleId: id as string
 					})
 				).data
 			);
@@ -40,7 +40,7 @@ export default async function handler(
 					await updateRolePermissionRequest({
 						bearer_token: access_token,
 						tenantId,
-						data: req.body,
+						data: req.body
 					})
 				).data
 			);

@@ -9,7 +9,6 @@ import {
 	Dimensions,
 	TouchableWithoutFeedback,
 } from "react-native"
-import { Feather, FontAwesome5, Ionicons } from "@expo/vector-icons"
 import { Text } from "react-native-paper"
 import { DrawerContentScrollView, useDrawerStatus } from "@react-navigation/drawer"
 import { typography, useAppTheme } from "../theme"
@@ -21,7 +20,22 @@ import { translate } from "../i18n"
 import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../services/hooks/useOrganization"
 import { SvgXml } from "react-native-svg"
-import { moonDarkLarge, moonLightLarge, sunDarkLarge, sunLightLarge } from "./svgs/icons"
+import {
+	briefCaseNotFocusedDark2,
+	briefCaseNotFocusedLight,
+	moonDarkLarge,
+	moonDarkMedium,
+	moonLightLarge,
+	moonLightMedium,
+	peopleCaseNotFocusedDark2,
+	peopleNotFocusedLight,
+	settingsIconDark,
+	settingsIconLight,
+	sunDarkLarge,
+	sunLightLarge,
+	userNotFocusedDark2,
+	userNotFocusedLight,
+} from "./svgs/icons"
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
@@ -77,7 +91,7 @@ const HamburgerMenu = observer((props: any) => {
 								marginTop: 4,
 							}}
 						>
-							{user?.email}
+							{user?.email}s
 						</Text>
 						{activeTeam ? (
 							<DropDown
@@ -92,7 +106,7 @@ const HamburgerMenu = observer((props: any) => {
 					<View style={styles.navigationSection}>
 						{activeTeam ? (
 							<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
-								<Ionicons style={styles.icon} name="person" size={24} color={colors.primary} />
+								<SvgXml xml={dark ? userNotFocusedDark2 : userNotFocusedLight} />
 								<Text style={[styles.screenLabel, { color: colors.primary }]}>
 									{translate("myWorkScreen.name")}
 								</Text>
@@ -100,7 +114,7 @@ const HamburgerMenu = observer((props: any) => {
 						) : null}
 
 						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Team")}>
-							<FontAwesome5 style={styles.icon} name="users" size={24} color={colors.primary} />
+							<SvgXml xml={dark ? peopleCaseNotFocusedDark2 : peopleNotFocusedLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate("teamScreen.name")}
 							</Text>
@@ -109,30 +123,20 @@ const HamburgerMenu = observer((props: any) => {
 							style={styles.item}
 							onPress={() => navigation.navigate("Profile", { userId: user?.id, tabIndex: 0 })}
 						>
-							<Ionicons
-								style={styles.icon}
-								name="ios-briefcase-outline"
-								size={24}
-								color={colors.primary}
-							/>
+							<SvgXml xml={dark ? briefCaseNotFocusedDark2 : briefCaseNotFocusedLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate("tasksScreen.name")}
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Setting")}>
-							<Feather style={styles.icon} name="settings" size={24} color={colors.primary} />
+							<SvgXml xml={dark ? settingsIconDark : settingsIconLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate("settingScreen.name")}
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.screenItem}>
 							<View style={{ flexDirection: "row" }}>
-								<Ionicons
-									style={styles.icon}
-									name="moon-outline"
-									size={24}
-									color={colors.primary}
-								/>
+								<SvgXml xml={dark ? moonDarkMedium : moonLightMedium} />
 								<Text style={[styles.screenLabel, { color: colors.primary }]}>
 									{translate("hamburgerMenu.darkMode")}
 								</Text>

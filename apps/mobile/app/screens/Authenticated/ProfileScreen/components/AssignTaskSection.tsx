@@ -19,7 +19,7 @@ import { ActivityIndicator } from "react-native-paper"
 import { QueryClient } from "react-query"
 import TaskPriorities from "../../../../components/TaskPriority"
 import TaskSize from "../../../../components/TaskSize"
-import TaskLabels from "../../TimerScreen/components/TaskLabels"
+import TaskLabels from "../../../../components/TaskLabels"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import { translate } from "../../../../i18n"
 import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
@@ -218,7 +218,7 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									}}
 								/>
 							</View>
-							<View style={{ width: "100%", marginVertical: 20, zIndex: 999 }}>
+							<View style={{ width: "100%", zIndex: 999 }}>
 								<TaskLabels
 									newTaskLabels={newTask?.tags}
 									setLabels={(e) =>

@@ -1,7 +1,7 @@
 export function Spinner({
 	dark = true,
 	height = '20px',
-	width = '20px',
+	width = '20px'
 }: {
 	dark?: boolean;
 	height?: string;

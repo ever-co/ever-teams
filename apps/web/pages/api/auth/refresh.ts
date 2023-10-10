@@ -2,7 +2,7 @@ import { setAccessTokenCookie } from '@app/helpers/cookies';
 import { hasErrors } from '@app/helpers/validations';
 import {
 	currentAuthenticatedUserRequest,
-	refreshTokenRequest,
+	refreshTokenRequest
 } from '@app/services/server/requests/auth';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -20,7 +20,7 @@ export default async function handler(
 	if (!refresh_token || refresh_token.trim().length < 2) {
 		return res.status(401).json(
 			hasErrors({
-				refresh_token: 'The refresh token must be provided on the request body',
+				refresh_token: 'The refresh token must be provided on the request body'
 			})
 		);
 	}
@@ -31,7 +31,7 @@ export default async function handler(
 	}
 
 	const { data: user } = await currentAuthenticatedUserRequest({
-		bearer_token: data.token,
+		bearer_token: data.token
 	});
 
 	setAccessTokenCookie(data.token, { res, req });

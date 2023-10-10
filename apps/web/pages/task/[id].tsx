@@ -4,14 +4,12 @@ import { MainLayout } from 'lib/layout';
 import {
 	useOrganizationTeams,
 	useTeamTasks,
-	useUserProfilePage,
+	useUserProfilePage
 } from '@app/hooks';
 import { withAuthentication } from 'lib/app/authenticator';
 import TaskDetailsAside from '@components/pages/task/task-details-aside';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useRecoilState } from 'recoil';
-import { detailedTaskState } from '@app/stores';
 import TaskTitleBlock from '@components/pages/task/title-block/task-title-block';
 import { ArrowLeft } from 'lib/components/svgs';
 import { RelatedIssueCard } from '@components/pages/task/IssueCard';
@@ -21,26 +19,32 @@ import { ChildIssueCard } from '@components/pages/task/ChildIssueCard';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
-	const { tasks } = useTeamTasks();
-	const [task, setTask] = useRecoilState(detailedTaskState);
 	const { trans } = useTranslation('taskDetails');
 	const router = useRouter();
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const {
+		getTaskById,
+		detailedTask: task,
+		getTasksByIdLoading
+	} = useTeamTasks();
 
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
-		...trans.BREADCRUMB,
+		...trans.BREADCRUMB
 	];
 
 	useEffect(() => {
-		if (router.isReady && router.query?.id && tasks.length > 0) {
-			const foundTask = tasks.find(
-				(x) => x.id === (router.query?.id as string)
-			);
-			// console.log(foundTask);
-			foundTask && setTask(foundTask);
+		if (
+			router.isReady &&
+			// If id is passed in query param
+			router.query?.id &&
+			// Either no task or task id doesn't match query id
+			(!task || (task && task.id !== router.query?.id)) &&
+			!getTasksByIdLoading
+		) {
+			getTaskById(router.query?.id as string);
 		}
-	}, [tasks, router.isReady, router.query?.id, setTask]);
+	}, [getTaskById, router, task, getTasksByIdLoading]);
 
 	return (
 		<MainLayout

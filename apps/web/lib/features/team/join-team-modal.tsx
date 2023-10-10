@@ -6,7 +6,7 @@ import {
 	InputField,
 	Modal,
 	SpinnerLoader,
-	Text,
+	Text
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 
@@ -15,7 +15,7 @@ import { useTranslation } from 'lib/i18n';
  */
 export function JoinTeamModal({
 	open,
-	closeModal,
+	closeModal
 }: {
 	open: boolean;
 	closeModal: () => void;
@@ -29,7 +29,7 @@ export function JoinTeamModal({
 		handleSubmit,
 		sendCodeLoading,
 		sendAuthCodeHandler,
-		inputCodeRef,
+		inputCodeRef
 	} = useAuthenticationPasscode();
 
 	const { translations } = useTranslation('authPasscode');

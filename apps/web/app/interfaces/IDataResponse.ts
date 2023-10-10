@@ -8,7 +8,7 @@ export type IDataResponse<T = any> = IResponseMetadata & T;
 
 export enum ResStatusEnum {
 	error = 'error',
-	success = 'success',
+	success = 'success'
 }
 
 export type PaginationResponse<T> = {

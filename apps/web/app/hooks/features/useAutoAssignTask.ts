@@ -30,8 +30,8 @@ export function useAutoAssignTask() {
 				...task,
 				members: [
 					...task.members,
-					(employeeId ? { id: employeeId } : {}) as any,
-				],
+					(employeeId ? { id: employeeId } : {}) as any
+				]
 			});
 		},
 		[updateTask, updateLoadingRef]
@@ -41,9 +41,9 @@ export function useAutoAssignTask() {
 		if (firstLoad && timerStatus?.running && activeTeamTask && authUser) {
 			autoAssignTask(activeTeamTask, authUser.employee.id);
 		}
-	}, [activeTeamTask, timerStatus, authUser, firstLoad]);
+	}, [autoAssignTask, activeTeamTask, timerStatus, authUser, firstLoad]);
 
 	return {
-		firstLoadData,
+		firstLoadData
 	};
 }

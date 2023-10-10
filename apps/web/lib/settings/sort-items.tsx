@@ -17,7 +17,7 @@ export function mapSortItems(sortList: ISort[]) {
 				</div>
 			),
 			selectedLabel: <SortItem title={sort.title} className="py-2 mb-0" />,
-			data: sort,
+			data: sort
 		};
 	});
 
@@ -34,7 +34,7 @@ export function mapSortItems(sortList: ISort[]) {
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -46,7 +46,7 @@ export function SortItem({
 	// count,
 	// color,
 	// disabled,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

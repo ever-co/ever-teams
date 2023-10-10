@@ -19,19 +19,19 @@ const TaskProgress = () => {
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
+		minutes: 0
 	});
 	const [userTotalTimeToday, setUserTotalTimeToday] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
+		minutes: 0
 	});
 	const [timeRemaining, setTimeRemaining] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
+		minutes: 0
 	});
 	const [groupTotalTime, setGroupTotalTime] = useState<ITime>({
 		hours: 0,
-		minutes: 0,
+		minutes: 0
 	});
 	const [numMembersToShow, setNumMembersToShow] = useState<number>(5);
 
@@ -188,7 +188,7 @@ const TaskProgress = () => {
 export default TaskProgress;
 
 const IndividualMembersTotalTime = ({
-	numMembersToShow,
+	numMembersToShow
 }: {
 	numMembersToShow: number;
 }) => {

@@ -9,6 +9,6 @@ export function createOrganizationProjectRequest(
 		path: '/organization-projects',
 		method: 'POST',
 		body: datas,
-		bearer_token,
+		bearer_token
 	});
 }

@@ -21,7 +21,7 @@ export default async function handler(
 				await emailResetRequest({
 					email,
 					tenantId,
-					bearer_token: access_token,
+					bearer_token: access_token
 				})
 			);
 	}

@@ -3,13 +3,13 @@ import {
 	createTaskStatusAPI,
 	getTaskstatusList,
 	deleteTaskStatusAPI,
-	editTaskStatusAPI,
+	editTaskStatusAPI
 } from '@app/services/client/api';
 import {
 	userState,
 	taskStatusFetchingState,
 	taskStatusListState,
-	activeTeamIdState,
+	activeTeamIdState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -59,7 +59,7 @@ export function useTaskStatus() {
 	useEffect(() => {
 		if (!firstLoad) return;
 		loadTaskStatusData();
-	}, [activeTeamId, firstLoad]);
+	}, [loadTaskStatusData, firstLoad]);
 
 	const createTaskStatus = useCallback(
 		(data: ITaskStatusCreate) => {
@@ -73,12 +73,7 @@ export function useTaskStatus() {
 			}
 		},
 
-		[
-			createQueryCall,
-			createTaskStatusLoading,
-			deleteTaskStatusLoading,
-			activeTeamId,
-		]
+		[createQueryCall, activeTeamId, user]
 	);
 
 	const deleteTaskStatus = useCallback(
@@ -97,14 +92,7 @@ export function useTaskStatus() {
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			taskStatus.length,
-			createTaskStatusLoading,
-			deleteTaskStatusLoading,
-			user,
-			activeTeamId,
-		]
+		[deleteQueryCall, user, activeTeamId, queryCall, setTaskStatus]
 	);
 
 	const editTaskStatus = useCallback(
@@ -123,7 +111,7 @@ export function useTaskStatus() {
 				});
 			}
 		},
-		[editTaskStatusLoading, user, activeTeamId]
+		[user, activeTeamId, editQueryCall, queryCall, setTaskStatus]
 	);
 
 	return {
@@ -138,6 +126,6 @@ export function useTaskStatus() {
 		editTaskStatusLoading,
 		editTaskStatus,
 		setTaskStatus,
-		loadTaskStatusData,
+		loadTaskStatusData
 	};
 }

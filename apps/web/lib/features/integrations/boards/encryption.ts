@@ -31,7 +31,7 @@ export const generateEncryptionKey = async <
 	const key = await window.crypto.subtle.generateKey(
 		{
 			name: 'AES-GCM',
-			length: ENCRYPTION_KEY_BITS,
+			length: ENCRYPTION_KEY_BITS
 		},
 		true, // extractable
 		['encrypt', 'decrypt']
@@ -51,11 +51,11 @@ export const getCryptoKey = (key: string, usage: KeyUsage) =>
 			ext: true,
 			k: key,
 			key_ops: ['encrypt', 'decrypt'],
-			kty: 'oct',
+			kty: 'oct'
 		},
 		{
 			name: 'AES-GCM',
-			length: ENCRYPTION_KEY_BITS,
+			length: ENCRYPTION_KEY_BITS
 		},
 		false, // extractable
 		[usage]
@@ -82,7 +82,7 @@ export const encryptData = async (
 	const encryptedBuffer = await window.crypto.subtle.encrypt(
 		{
 			name: 'AES-GCM',
-			iv,
+			iv
 		},
 		importedKey,
 		buffer as ArrayBuffer | Uint8Array
@@ -100,7 +100,7 @@ export const decryptData = async (
 	return window.crypto.subtle.decrypt(
 		{
 			name: 'AES-GCM',
-			iv,
+			iv
 		},
 		key,
 		encrypted

@@ -3,12 +3,12 @@ import {
 	createTaskSizesAPI,
 	deleteTaskSizesAPI,
 	getTaskSizesList,
-	editTaskSizesAPI,
+	editTaskSizesAPI
 } from '@app/services/client/api';
 import { activeTeamIdState, userState } from '@app/stores';
 import {
 	taskSizesFetchingState,
-	taskSizesListState,
+	taskSizesListState
 } from '@app/stores/task-sizes';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -56,13 +56,13 @@ export function useTaskSizes() {
 
 			return res;
 		});
-	}, [user, activeTeamId, setTaskSizes, taskSizes]);
+	}, [user, activeTeamId, setTaskSizes, taskSizes, queryCall]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
 
 		loadTaskSizes();
-	}, [activeTeamId, firstLoad]);
+	}, [activeTeamId, firstLoad, loadTaskSizes]);
 
 	const createTaskSizes = useCallback(
 		(data: ITaskSizesCreate) => {
@@ -76,13 +76,7 @@ export function useTaskSizes() {
 			}
 		},
 
-		[
-			createQueryCall,
-			createTaskSizesLoading,
-			deleteTaskSizesLoading,
-			user,
-			activeTeamId,
-		]
+		[createQueryCall, user, activeTeamId]
 	);
 
 	const deleteTaskSizes = useCallback(
@@ -101,14 +95,7 @@ export function useTaskSizes() {
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			taskSizes.length,
-			createTaskSizesLoading,
-			deleteTaskSizesLoading,
-			user,
-			activeTeamId,
-		]
+		[deleteQueryCall, user, activeTeamId, queryCall, setTaskSizes]
 	);
 
 	const editTaskSizes = useCallback(
@@ -127,7 +114,7 @@ export function useTaskSizes() {
 				});
 			}
 		},
-		[editTaskSizesLoading, user, activeTeamId]
+		[user, activeTeamId, editQueryCall, queryCall, setTaskSizes]
 	);
 
 	return {
@@ -143,6 +130,6 @@ export function useTaskSizes() {
 		editTaskSizesLoading,
 		editTaskSizes,
 		setTaskSizes,
-		loadTaskSizes,
+		loadTaskSizes
 	};
 }

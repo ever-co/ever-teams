@@ -3,7 +3,7 @@ import {
 	useModal,
 	useAuthenticateUser,
 	useOrganizationTeams,
-	useUser,
+	useUser
 } from '@app/hooks';
 import { Button, Text } from 'lib/components';
 import { useState, useCallback } from 'react';

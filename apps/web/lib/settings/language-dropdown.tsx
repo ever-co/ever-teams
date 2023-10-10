@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const LanguageDropDown = ({
 	currentLanguage,
-	onChangeLanguage,
+	onChangeLanguage
 }: {
 	currentLanguage: string;
 	onChangeLanguage: any;

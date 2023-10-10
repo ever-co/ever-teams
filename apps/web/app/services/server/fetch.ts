@@ -6,7 +6,7 @@ export function serverFetch<T>({
 	body,
 	init,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
 	path: string;
 	method: 'POST' | 'GET' | 'PUT' | 'DELETE';
@@ -17,7 +17,7 @@ export function serverFetch<T>({
 }) {
 	const headers: HeadersInit = {
 		'Content-Type': 'application/json',
-		Accept: 'application/json',
+		Accept: 'application/json'
 	};
 
 	if (bearer_token) {
@@ -38,9 +38,9 @@ export function serverFetch<T>({
 		...(init || {}),
 		headers: {
 			...headers,
-			...(init?.headers || {}),
+			...(init?.headers || {})
 		},
-		method,
+		method
 	}).then(async (res) => {
 		const data = (await res.json().catch(console.error)) as T;
 
@@ -50,7 +50,7 @@ export function serverFetch<T>({
 
 		return {
 			data,
-			response: res,
+			response: res
 		};
 	});
 }

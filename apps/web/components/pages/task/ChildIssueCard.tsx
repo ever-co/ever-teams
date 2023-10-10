@@ -80,7 +80,7 @@ export const ChildIssueCard = () => {
 
 function CreateChildTask({
 	modal,
-	task,
+	task
 }: {
 	modal: IHookModal;
 	task: ITeamTask;
@@ -101,7 +101,7 @@ function CreateChildTask({
 			await updateTask({
 				...childTask,
 				parentId: task.id,
-				parent: task,
+				parent: task
 			});
 
 			loadTeamTasksData(false).finally(() => {

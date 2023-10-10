@@ -1,6 +1,6 @@
 import {
 	getPublicOrganizationTeamMiscDataRequest,
-	getPublicOrganizationTeamRequest,
+	getPublicOrganizationTeamRequest
 } from '@app/services/server/requests/public-organization-team';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -11,7 +11,7 @@ export default async function handler(
 	const {
 		profileLink,
 		teamId,
-		type,
+		type
 	}: { profileLink: string; teamId: string; type: string } = req.query as {
 		profileLink: string;
 		teamId: string;
@@ -24,14 +24,14 @@ export default async function handler(
 				return res.json(
 					await getPublicOrganizationTeamMiscDataRequest({
 						profileLink: profileLink,
-						teamId,
+						teamId
 					})
 				);
 			}
 			return res.json(
 				await getPublicOrganizationTeamRequest({
 					profileLink: profileLink,
-					teamId,
+					teamId
 				})
 			);
 	}

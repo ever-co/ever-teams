@@ -15,7 +15,7 @@ export const statusIcons: { [x: string]: React.ReactElement } = {
 	'For Testing': <TestingTaskIcon color="#E1AB2D" background="#CE930B1A" />,
 	Completed: <CompletedTaskIcon color="#3D9A6D" background="#CFF3E3" />,
 	Closed: <ClosedTaskIcon color="#8F97A1" background="#F2F4F6" />,
-	Unassigned: <UnassignedTaskIcon color="#5f5f5f" />,
+	Unassigned: <UnassignedTaskIcon color="#5f5f5f" />
 };
 
 export function StatusIcon({ status }: { status: ITaskStatus }) {
@@ -29,7 +29,7 @@ export function BadgedTaskStatus({ status }: { status: ITaskStatus }) {
 		<div
 			style={{
 				background: node.props.background,
-				color: node.props.color,
+				color: node.props.color
 			}}
 			className={`px-2 py-1 rounded-2xl text-xs flex items-center justify-center`}
 		>

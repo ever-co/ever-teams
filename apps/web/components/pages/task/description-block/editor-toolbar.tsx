@@ -21,7 +21,7 @@ import {
 	QuoteBlockIcon,
 	ExternalLinkIcon,
 	CheckBoxIcon,
-	ArrowDown,
+	ArrowDown
 } from 'lib/components/svgs';
 import { useTranslation } from 'lib/i18n';
 import { useSlateStatic } from 'slate-react';
@@ -30,7 +30,7 @@ import { Button, InputField } from 'lib/components';
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
+	PopoverTrigger
 } from '@components/ui/popover';
 
 interface IToolbarProps {
@@ -46,7 +46,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	const [copied, setCopied] = useState(false);
 	const [linkPopupPosition] = useState({
 		left: 0,
-		top: 0,
+		top: 0
 	});
 	const [showDropdown, setShowDropdown] = useState(false);
 	const popupRef = useRef<any>(null);
@@ -395,7 +395,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 					className="absolute flex items-center bg-white dark:bg-dark--theme-light p-2 gap-1 rounded-md border border-gray-300 dark:border-[#7B8089] z-10"
 					style={{
 						left: linkPopupPosition.left,
-						top: linkPopupPosition.top + 3,
+						top: linkPopupPosition.top + 3
 					}}
 				>
 					<ExternalLinkIcon />

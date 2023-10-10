@@ -8,10 +8,13 @@ import {
 	ITaskPriorityItem,
 } from "../../../../services/interfaces/ITaskPriority"
 import { typography, useAppTheme } from "../../../../theme"
-import IconDropDown from "./IconDropDown"
+// import IconDropDown from "./IconDropDown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
 import { formatName } from "../../../../helpers/name-format"
+import IconModal from "../../../../components/IconModal"
+import { IIcon } from "../../../../services/interfaces/IIcon"
+import { SvgUri } from "react-native-svg"
 
 const TaskPriorityForm = ({
 	isEdit,
@@ -30,7 +33,9 @@ const TaskPriorityForm = ({
 	const [priorityName, setPriorityName] = useState<string>(null)
 	const [priorityColor, setPriorityColor] = useState<string>(null)
 	const [priorityIcon, setPriorityIcon] = useState<string>(null)
-	const [modalVisible, setModalVisible] = useState<boolean>(false)
+	const [colorModalVisible, setColorModalVisible] = useState<boolean>(false)
+	const [iconModalVisible, setIconModalVisible] = useState<boolean>(false)
+	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
 		if (isEdit) {
@@ -51,13 +56,13 @@ const TaskPriorityForm = ({
 
 		if (isEdit) {
 			await onUpdatePriority(item?.id, {
-				icon: null,
+				icon: priorityIcon,
 				color: priorityColor,
 				name: priorityName,
 			})
 		} else {
 			await onCreatePriority({
-				icon: null,
+				icon: priorityIcon,
 				color: priorityColor,
 				name: priorityName,
 			})
@@ -69,7 +74,8 @@ const TaskPriorityForm = ({
 	}
 
 	const onDismissModal = () => {
-		setModalVisible(false)
+		setColorModalVisible(false)
+		setIconModalVisible(false)
 	}
 
 	return (
@@ -82,12 +88,17 @@ const TaskPriorityForm = ({
 				height: 452,
 			}}
 		>
+			<IconModal
+				visible={iconModalVisible}
+				onDismiss={onDismissModal}
+				setIcon={setPriorityIcon}
+				setAllIcons={setAllIcons}
+			/>
 			<ColorPickerModal
-				visible={modalVisible}
+				visible={colorModalVisible}
 				onDismiss={onDismissModal}
 				setColor={setPriorityColor}
 			/>
-
 			<Text style={{ ...styles.formTitle, color: colors.primary }}>
 				{translate("settingScreen.priorityScreen.createNewPriorityText")}
 			</Text>
@@ -99,10 +110,29 @@ const TaskPriorityForm = ({
 				onChangeText={(text) => setPriorityName(text)}
 			/>
 
-			<IconDropDown icon={priorityIcon} setIcon={setPriorityIcon} />
+			{/* Icon Modal button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setIconModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<SvgUri
+						width={20}
+						height={20}
+						uri={allIcons?.find((icon) => icon.path === priorityIcon)?.fullUrl}
+					/>
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+							textTransform: "capitalize",
+						}}
+					>
+						{allIcons?.find((icon) => icon.path === priorityIcon)?.title?.replace("-", " ") ||
+							translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			{/* Color Picker button */}
-			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setColorModalVisible(true)}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					<Badge size={24} style={{ backgroundColor: priorityColor || "#D9D9D9" }} />
 					<Text
@@ -116,7 +146,6 @@ const TaskPriorityForm = ({
 					</Text>
 				</View>
 			</TouchableOpacity>
-
 			<View style={styles.wrapButtons}>
 				<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
 					<Text style={styles.cancelTxt}>

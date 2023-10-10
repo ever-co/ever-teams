@@ -7,7 +7,7 @@ export function deleteOrganizationEmployeeTeamAPI({
 	id,
 	employeeId,
 	organizationId,
-	tenantId,
+	tenantId
 }: {
 	id: string;
 	employeeId: string;
@@ -25,6 +25,16 @@ export function updateOrganizationEmployeeTeamAPI(
 ) {
 	return api.put<CreateReponse<IOrganizationTeamEmployeeUpdate>>(
 		`/organization-team-employee/${id}`,
+		data
+	);
+}
+
+export function updateOrganizationTeamEmployeeActiveTaskAPI(
+	id: string,
+	data: Partial<IOrganizationTeamEmployeeUpdate>
+) {
+	return api.put<CreateReponse<IOrganizationTeamEmployeeUpdate>>(
+		`/organization-team-employee/${id}/active-task`,
 		data
 	);
 }

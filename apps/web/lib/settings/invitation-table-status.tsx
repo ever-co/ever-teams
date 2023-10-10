@@ -9,7 +9,7 @@ interface isProps {
 export const InvitationTableStatus = ({
 	status,
 	acceptJoinRequest,
-	rejectJoinRequest,
+	rejectJoinRequest
 }: isProps) => {
 	const RenderStatus = (status: string | undefined) => {
 		switch (status) {

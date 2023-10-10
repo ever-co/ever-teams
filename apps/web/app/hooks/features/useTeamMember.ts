@@ -38,6 +38,6 @@ export function useIsMemberManager(user: IUser | undefined | null) {
 		isTeamManager,
 		isTeamCreator,
 		activeTeam,
-		activeManager,
+		activeManager
 	};
 }

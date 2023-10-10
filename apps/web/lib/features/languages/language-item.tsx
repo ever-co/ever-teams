@@ -19,7 +19,7 @@ export function mapLanguageItems(languages: ILanguageItemList[]) {
 			selectedLabel: (
 				<LanguageItem title={language.name} className="py-2 mb-0" />
 			),
-			data: language,
+			data: language
 		};
 	});
 
@@ -31,7 +31,7 @@ export function LanguageItem({
 	// count,
 	// color,
 	// disabled,
-	className,
+	className
 }: {
 	title?: string;
 	count?: number;

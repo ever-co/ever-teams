@@ -5,10 +5,12 @@ import { View, Text, TouchableOpacity, TextInput, StyleSheet } from "react-nativ
 import { translate } from "../../../../i18n"
 import { ITaskSizeCreate, ITaskSizeItem } from "../../../../services/interfaces/ITaskSize"
 import { typography, useAppTheme } from "../../../../theme"
-import IconDropDown from "./IconDropDown"
 import ColorPickerModal from "../../../../components/ColorPickerModal"
 import { Badge } from "react-native-paper"
 import { formatName } from "../../../../helpers/name-format"
+import { SvgUri } from "react-native-svg"
+import IconModal from "../../../../components/IconModal"
+import { IIcon } from "../../../../services/interfaces/IIcon"
 
 const TaskSizeForm = ({
 	isEdit,
@@ -27,7 +29,9 @@ const TaskSizeForm = ({
 	const [sizeName, setSizeName] = useState<string>(null)
 	const [sizeColor, setSizeColor] = useState<string>(null)
 	const [sizeIcon, setSizeIcon] = useState<string>(null)
-	const [modalVisible, setModalVisible] = useState<boolean>(false)
+	const [colorModalVisible, setColorModalVisible] = useState<boolean>(false)
+	const [iconModalVisible, setIconModalVisible] = useState<boolean>(false)
+	const [allIcons, setAllIcons] = useState<IIcon[]>([])
 
 	useEffect(() => {
 		if (isEdit) {
@@ -48,13 +52,13 @@ const TaskSizeForm = ({
 
 		if (isEdit) {
 			await onUpdateSize(item?.id, {
-				icon: null,
+				icon: sizeIcon,
 				color: sizeColor,
 				name: sizeName,
 			})
 		} else {
 			await onCreateSize({
-				icon: null,
+				icon: sizeIcon,
 				color: sizeColor,
 				name: sizeName,
 			})
@@ -66,7 +70,8 @@ const TaskSizeForm = ({
 	}
 
 	const onDismissModal = () => {
-		setModalVisible(false)
+		setColorModalVisible(false)
+		setIconModalVisible(false)
 	}
 
 	return (
@@ -79,7 +84,17 @@ const TaskSizeForm = ({
 				height: 452,
 			}}
 		>
-			<ColorPickerModal visible={modalVisible} onDismiss={onDismissModal} setColor={setSizeColor} />
+			<IconModal
+				visible={iconModalVisible}
+				onDismiss={onDismissModal}
+				setIcon={setSizeIcon}
+				setAllIcons={setAllIcons}
+			/>
+			<ColorPickerModal
+				visible={colorModalVisible}
+				onDismiss={onDismissModal}
+				setColor={setSizeColor}
+			/>
 
 			<Text style={{ ...styles.formTitle, color: colors.primary }}>
 				{translate("settingScreen.sizeScreen.createNewSizeText")}
@@ -92,10 +107,29 @@ const TaskSizeForm = ({
 				onChangeText={(text) => setSizeName(text)}
 			/>
 
-			<IconDropDown icon={sizeIcon} setIcon={setSizeIcon} />
+			{/* Icon Modal button */}
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setIconModalVisible(true)}>
+				<View style={{ flexDirection: "row", alignItems: "center" }}>
+					<SvgUri
+						width={20}
+						height={20}
+						uri={allIcons?.find((icon) => icon.path === sizeIcon)?.fullUrl}
+					/>
+					<Text
+						style={{
+							marginLeft: 10,
+							color: colors.primary,
+							textTransform: "capitalize",
+						}}
+					>
+						{allIcons?.find((icon) => icon.path === sizeIcon)?.title?.replace("-", " ") ||
+							translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					</Text>
+				</View>
+			</TouchableOpacity>
 
 			{/* Color Picker button */}
-			<TouchableOpacity style={styles.colorModalButton} onPress={() => setModalVisible(true)}>
+			<TouchableOpacity style={styles.colorModalButton} onPress={() => setColorModalVisible(true)}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					<Badge size={24} style={{ backgroundColor: sizeColor || "#D9D9D9" }} />
 					<Text

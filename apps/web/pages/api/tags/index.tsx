@@ -1,7 +1,7 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
 import {
 	createLabelsRequest,
-	getTaskLabelsListRequest,
+	getTaskLabelsListRequest
 } from '@app/services/server/requests/task-labels';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -19,7 +19,7 @@ export default async function handler(
 	const par = {
 		tenantId,
 		organizationId,
-		activeTeamId: (activeTeamId as string) || null,
+		activeTeamId: (activeTeamId as string) || null
 	};
 
 	switch (req.method) {
@@ -27,11 +27,7 @@ export default async function handler(
 			return $res.json(await getTaskLabelsListRequest(par, access_token));
 		case 'POST':
 			return $res.json(
-				await createLabelsRequest(
-					req.body,
-					access_token,
-					req.body?.tenantId
-				)
+				await createLabelsRequest(req.body, access_token, req.body?.tenantId)
 			);
 	}
 }

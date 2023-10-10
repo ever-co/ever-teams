@@ -16,7 +16,7 @@ export function TaskNameInfoDisplay({
 	className,
 	taskTitleClassName,
 	taskNumberClassName,
-	dash = false,
+	dash = false
 }: Props) {
 	return (
 		<Tooltip

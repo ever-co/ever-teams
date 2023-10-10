@@ -11,7 +11,7 @@ const TaskLabel: React.FC<TaskLabelProps> = ({
 	labelIconPath,
 	afterIconPath,
 	labelTitle,
-	alignWithIconLabel,
+	alignWithIconLabel
 }) => {
 	return (
 		<div

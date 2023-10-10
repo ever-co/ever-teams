@@ -46,7 +46,7 @@ export const authFormValidate = (
 
 	return {
 		valid: Object.keys(err).length === 0,
-		errors: err,
+		errors: err
 	};
 };
 
@@ -85,7 +85,7 @@ export function validateForm<T extends Ks>(keys: (keyof T)[], data: T) {
 
 	return {
 		errors,
-		isValid: Object.keys(errors).length === 0,
+		isValid: Object.keys(errors).length === 0
 	};
 }
 

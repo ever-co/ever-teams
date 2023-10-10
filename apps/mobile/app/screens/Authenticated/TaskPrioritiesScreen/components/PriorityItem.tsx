@@ -1,9 +1,12 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
+import { View, Text, StyleSheet } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { typography, useAppTheme } from "../../../../theme"
 import { ITaskPriorityItem } from "../../../../services/interfaces/ITaskPriority"
 import { formatName } from "../../../../helpers/name-format"
+import { SvgUri } from "react-native-svg"
 
 interface IPriorityItem {
 	priority: ITaskPriorityItem
@@ -22,9 +25,9 @@ const PriorityItem: FC<IPriorityItem> = ({ priority, onDeletePriority, openForEd
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.statusContainer, backgroundColor: priority.color }}>
-				<AntDesign name="pay-circle-o1" size={20} color="#000" />
-				<Text style={styles.text}>{formatName(priority.name)}</Text>
+			<View style={{ ...styles.statusContainer, backgroundColor: priority?.color }}>
+				<SvgUri width={20} height={20} uri={priority?.fullIconUrl} />
+				<Text style={styles.text}>{formatName(priority?.name)}</Text>
 			</View>
 			<View style={styles.rightSection}>
 				<AntDesign size={16} name={"edit"} color={colors.primary} onPress={() => openForEdit()} />

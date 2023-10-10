@@ -11,12 +11,12 @@ const nextConfig = {
 			'cdn-icons-png.flaticon.com', // Remove this domain once Backend Icons list are added
 			'api.gauzy.co',
 			'apistage.gauzy.co',
-			'gauzy.s3.wasabisys.com',
-		],
+			'gauzy.s3.wasabisys.com'
+		]
 	},
 	experimental: {
-		appDir: true,
-	},
+		appDir: true
+	}
 };
 
 // module.exports = nextConfig;
@@ -35,7 +35,7 @@ module.exports = withSentryConfig(
 		// Suppresses source map uploading logs during build
 		silent: true,
 		org: process.env.SENTRY_ORG,
-		project: process.env.SENTRY_PROJECT,
+		project: process.env.SENTRY_PROJECT
 	},
 	{
 		// For all available options, see:
@@ -54,6 +54,6 @@ module.exports = withSentryConfig(
 		hideSourceMaps: true,
 
 		// Automatically tree-shake Sentry logger statements to reduce bundle size
-		disableLogger: true,
+		disableLogger: true
 	}
 );

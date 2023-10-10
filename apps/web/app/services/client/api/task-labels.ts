@@ -1,7 +1,7 @@
 import {
 	CreateReponse,
 	DeleteReponse,
-	ITaskLabelsCreate,
+	ITaskLabelsCreate
 } from '@app/interfaces';
 import api from '../axios';
 
@@ -11,8 +11,8 @@ export function createTaskLabelsAPI(
 ) {
 	return api.post<CreateReponse<ITaskLabelsCreate>>('/tags', data, {
 		headers: {
-			'Tenant-Id': tenantId,
-		},
+			'Tenant-Id': tenantId
+		}
 	});
 }
 
@@ -23,8 +23,8 @@ export function editTaskLabelsAPI(
 ) {
 	return api.put<CreateReponse<ITaskLabelsCreate>>(`/tags/${id}`, data, {
 		headers: {
-			'Tenant-Id': tenantId,
-		},
+			'Tenant-Id': tenantId
+		}
 	});
 }
 

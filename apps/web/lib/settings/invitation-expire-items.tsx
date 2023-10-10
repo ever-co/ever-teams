@@ -25,7 +25,7 @@ export function mapInvitationExpireItems(
 						className="py-2 mb-0"
 					/>
 				),
-				data: Invitatio_expire,
+				data: Invitatio_expire
 			};
 		}
 	);
@@ -41,7 +41,7 @@ export function mapInvitationExpireItems(
 					/>
 				</div>
 			),
-			disabled: true,
+			disabled: true
 		});
 	}
 
@@ -50,7 +50,7 @@ export function mapInvitationExpireItems(
 
 export function InvitationExpireItem({
 	title,
-	className,
+	className
 }: {
 	title?: string;
 	className?: string;

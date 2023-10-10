@@ -4,7 +4,7 @@ import {
 	useCallback,
 	useEffect,
 	useMemo,
-	useState,
+	useState
 } from 'react';
 import { AutoCompleteDropdown } from 'lib/components';
 import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
@@ -18,7 +18,7 @@ export const InviteEmailDropdown = ({
 	setSelectedEmail,
 	selectedEmail,
 	error,
-	handleAddNew,
+	handleAddNew
 }: {
 	emails: IInviteEmail[];
 	setSelectedEmail: Dispatch<SetStateAction<IInviteEmail | undefined>>;

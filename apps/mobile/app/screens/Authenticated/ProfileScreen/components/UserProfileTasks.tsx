@@ -9,21 +9,17 @@ import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
+import { useTimer } from "../../../../services/hooks/useTimer"
+import WorkedOnTaskHours from "../../../../components/WorkedDayHours"
 interface IUserProfileTasks {
 	profile: IUserProfile
 	content: ITaskFilter
 }
 const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) => {
 	const { colors, dark } = useAppTheme()
+	const { timerStatus } = useTimer()
 	const tasks = useMemo(() => {
-		let tasks = content.tasksFiltered
-		if (content.tab === "worked" && profile.activeUserTeamTask) {
-			tasks = tasks.filter((ts) => {
-				return ts.id !== profile.activeUserTeamTask?.id
-			})
-		}
-
-		return tasks
+		return content.tasksFiltered
 	}, [content, profile])
 
 	return (
@@ -35,7 +31,10 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 			}}
 			bounces={false}
 		>
-			{profile.activeUserTeamTask && content.tab === "worked" ? (
+			{content.tab === "worked" &&
+			profile.activeUserTeamTask &&
+			(profile.member?.timerStatus === "running" ||
+				(profile.isAuthUser && timerStatus?.running)) ? (
 				<>
 					<View
 						style={{
@@ -55,7 +54,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 								borderBottomColor: colors.border,
 							}}
 						/>
-						<View style={{ flexDirection: "row" }}>
+						<View style={{ flexDirection: "row", alignItems: "center" }}>
 							<Text
 								style={{
 									color: colors.primary,
@@ -75,9 +74,12 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 										fontSize: 12,
 									},
 								]}
-							>
-								03:31
-							</Text>
+							></Text>
+							<WorkedOnTaskHours
+								memberTask={profile.activeUserTeamTask}
+								containerStyle={{ alignItems: "center" }}
+								totalTimeText={{ color: colors.primary, fontSize: 12 }}
+							/>
 						</View>
 					</View>
 					<ListCardItem

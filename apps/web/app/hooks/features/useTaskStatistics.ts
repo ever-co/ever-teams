@@ -2,7 +2,7 @@ import { ITeamTask } from '@app/interfaces';
 import {
 	activeTaskTimesheetStatisticsAPI,
 	allTaskTimesheetStatisticsAPI,
-	tasksTimesheetStatisticsAPI,
+	tasksTimesheetStatisticsAPI
 } from '@app/services/client/api';
 import {
 	activeTaskStatisticsState,
@@ -10,7 +10,7 @@ import {
 	allTaskStatisticsState,
 	tasksFetchingState,
 	tasksStatisticsState,
-	timerStatusState,
+	timerStatusState
 } from '@app/stores';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -21,7 +21,6 @@ import { useSyncRef } from '../useSyncRef';
 import { Nullable } from '@app/interfaces';
 import { useRefreshInterval } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
-import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const [statActiveTask, setStatActiveTask] = useRecoilState(
@@ -37,10 +36,6 @@ export function useTaskStatistics(addSeconds = 0) {
 		useFirstLoad();
 
 	const { activeTeam } = useOrganizationTeams();
-	const { user } = useAuthenticateUser();
-	const currentMember = activeTeam?.members?.find(
-		(member) => member?.employeeId === user?.employee?.id
-	);
 
 	// Refs
 	const initialLoad = useRef(false);
@@ -53,30 +48,36 @@ export function useTaskStatistics(addSeconds = 0) {
 	/**
 	 * Get employee all tasks statistics  (API Call)
 	 */
-	const getTasksStatsData = useCallback((employeeId?: string) => {
-		tasksTimesheetStatisticsAPI(employeeId).then(({ data }) => {
-			setStatTasks({
-				all: data.global || [],
-				today: data.today || [],
+	const getTasksStatsData = useCallback(
+		(employeeId?: string) => {
+			tasksTimesheetStatisticsAPI(employeeId).then(({ data }) => {
+				setStatTasks({
+					all: data.global || [],
+					today: data.today || []
+				});
 			});
-		});
-	}, []);
+		},
+		[setStatTasks]
+	);
 	const getAllTasksStatsData = useCallback(() => {
 		allTaskTimesheetStatisticsAPI().then(({ data }) => {
 			setAllTaskStatistics(data);
 		});
-	}, []);
+	}, [setAllTaskStatistics]);
 
 	/**
 	 * Get task timesheet statistics
 	 */
-	const getTaskStat = useCallback((task: Nullable<ITeamTask>) => {
-		const stats = statTasksRef.current;
-		return {
-			taskTotalStat: stats.all.find((t) => t.id === task?.id),
-			taskDailyStat: stats.today.find((t) => t.id === task?.id),
-		};
-	}, []);
+	const getTaskStat = useCallback(
+		(task: Nullable<ITeamTask>) => {
+			const stats = statTasksRef.current;
+			return {
+				taskTotalStat: stats.all.find((t) => t.id === task?.id),
+				taskDailyStat: stats.today.find((t) => t.id === task?.id)
+			};
+		},
+		[statTasksRef]
+	);
 
 	/**
 	 * Get statistics of the active tasks fresh (API Call)
@@ -87,15 +88,16 @@ export function useTaskStatistics(addSeconds = 0) {
 		promise.then(({ data }) => {
 			setStatActiveTask({
 				total: data.global ? data.global[0] || null : null,
-				today: data.today ? data.today[0] || null : null,
+				today: data.today ? data.today[0] || null : null
 			});
 		});
 		promise.finally(() => {
 			setTasksFetching(false);
 		});
 		return promise;
-	}, []);
+	}, [setStatActiveTask, setTasksFetching]);
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debounceLoadActiveTaskStat = useCallback(
 		debounce(getActiveTaskStatData, 100),
 		[]
@@ -110,7 +112,7 @@ export function useTaskStatistics(addSeconds = 0) {
 				initialLoad.current = true;
 			});
 		}
-	}, [firstLoad]);
+	}, [firstLoad, getActiveTaskStatData]);
 
 	/**
 	 * Get fresh statistic of the active task
@@ -119,7 +121,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		if (firstLoad && initialLoad.current) {
 			debounceLoadActiveTaskStat();
 		}
-	}, [firstLoad, timerStatus, activeTeamTask?.id]);
+	}, [firstLoad, timerStatus, activeTeamTask?.id, debounceLoadActiveTaskStat]);
 
 	/**
 	 * set null to active team stats when active team or active task are changed
@@ -128,10 +130,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		if (firstLoad && initialLoad.current) {
 			setStatActiveTask({
 				today: null,
-				total: null,
+				total: null
 			});
 		}
-	}, [firstLoad, activeTeamTask?.id]);
+	}, [firstLoad, activeTeamTask?.id, setStatActiveTask]);
 
 	/**
 	 * Get task estimation in
@@ -141,20 +143,23 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @param addSeconds
 	 * @returns
 	 */
-	const getEstimation = (
-		timeSheet: Nullable<ITasksTimesheet>,
-		_task: Nullable<ITeamTask>,
-		addSeconds: number,
-		estimate = 0
-	) =>
-		Math.min(
-			Math.floor(
-				(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) *
-					100) /
-					(estimate || _task?.estimate || 0)
+	const getEstimation = useCallback(
+		(
+			timeSheet: Nullable<ITasksTimesheet>,
+			_task: Nullable<ITeamTask>,
+			addSeconds: number,
+			estimate = 0
+		) =>
+			Math.min(
+				Math.floor(
+					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) *
+						100) /
+						(estimate || _task?.estimate || 0)
+				),
+				100
 			),
-			100
-		);
+		[]
+	);
 
 	const activeTaskEstimation = useMemo(() => {
 		let totalWorkedTasksTimer = 0;
@@ -174,7 +179,7 @@ export function useTaskStatistics(addSeconds = 0) {
 			totalWorkedTasksTimer,
 			activeTeamTask?.estimate || 0
 		);
-	}, [activeTeam, activeTeamTask, currentMember]);
+	}, [activeTeam, activeTeamTask, getEstimation]);
 
 	const activeTaskDailyEstimation =
 		activeTeamTask && activeTeamTask.estimate
@@ -193,7 +198,7 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTeamTask,
 		addSeconds,
 		getEstimation,
-		allTaskStatistics,
+		allTaskStatistics
 	};
 }
 

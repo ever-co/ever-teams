@@ -4,7 +4,7 @@ import { clsxm } from '@app/utils';
 import {
 	TaskAllStatusTypes,
 	TaskInput,
-	TaskNameInfoDisplay,
+	TaskNameInfoDisplay
 } from 'lib/features';
 import { useRouter } from 'next/router';
 
@@ -18,7 +18,7 @@ export function TaskInfo({
 	className,
 	memberInfo,
 	edition,
-	publicTeam,
+	publicTeam
 }: Props) {
 	return (
 		<div

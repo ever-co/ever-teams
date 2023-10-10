@@ -12,7 +12,7 @@ export const StatusesListCard = ({
 	bgColor,
 	onEdit,
 	onDelete,
-	isStatus,
+	isStatus
 }: IClassName<{
 	statusIcon: string;
 	statusTitle: string;

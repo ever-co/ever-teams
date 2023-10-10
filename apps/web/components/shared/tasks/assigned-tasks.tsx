@@ -24,7 +24,7 @@ const AssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 		getTaskStat,
 		activeTeamTask,
 		activeTaskEstimation,
-		activeTaskTotalStat,
+		activeTaskTotalStat
 	} = useTaskStatistics(timerReconds);
 
 	if (activeTeamTask?.id === task?.id) {

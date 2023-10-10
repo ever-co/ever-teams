@@ -18,14 +18,14 @@ const Profile = () => {
 		{
 			name: 'Tasks',
 			icon: '/assets/svg/profile-icon.svg',
-			link: `/profile/${user?.id}`,
+			link: `/profile/${user?.id}`
 		},
 		{ name: 'Team', icon: '/assets/svg/teams-icon.svg', link: '' },
 		{
 			name: 'Settings',
 			icon: '/assets/svg/settings-icon.svg',
-			link: '',
-		},
+			link: ''
+		}
 	];
 
 	return (
