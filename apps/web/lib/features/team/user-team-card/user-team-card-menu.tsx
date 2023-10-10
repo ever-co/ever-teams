@@ -161,6 +161,12 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 																	closeCombobox2: close
 																});
 														}}
+														userProfile={memberInfo.member}
+														usersTaskCreatedAssignTo={
+															memberInfo.member?.employeeId
+																? [{ id: memberInfo.member?.employeeId }]
+																: undefined
+														}
 													>
 														{text}
 													</TaskUnOrAssignPopover>

@@ -5,6 +5,7 @@ import { Fragment, PropsWithChildren, useRef } from 'react';
 
 type Props = {
 	title?: string;
+	titleClass?: string;
 	description?: string;
 	isOpen: boolean;
 	closeModal: () => void;
@@ -17,6 +18,7 @@ export function Modal({
 	closeModal,
 	children,
 	title,
+	titleClass,
 	description,
 	className,
 	alignCloseIcon
@@ -50,7 +52,9 @@ export function Modal({
 							className
 						)}
 					>
-						{title && <Dialog.Title>{title}</Dialog.Title>}
+						{title && (
+							<Dialog.Title className={clsxm(titleClass)}>{title}</Dialog.Title>
+						)}
 						{description && (
 							<Dialog.Description>{description}</Dialog.Description>
 						)}

@@ -169,7 +169,11 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: task ? task[field] : props.defaultValue || undefined,
+		value: props.defaultValue
+			? props.defaultValue
+			: task
+			? task[field]
+			: props.defaultValue || undefined,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});
@@ -341,7 +345,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={onChange}
+			onChange={props.onValueChange ? props.onValueChange : onChange}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -568,7 +572,7 @@ export function ActiveTaskPropertiesDropdown(
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={onChange}
+			onChange={props.onValueChange ? props.onValueChange : onChange}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -663,7 +667,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={onChange}
+			onChange={props.onValueChange ? props.onValueChange : onChange}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}

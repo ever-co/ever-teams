@@ -11,6 +11,7 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
+import { useTranslation } from 'lib/i18n';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -19,6 +20,8 @@ type AuthCodeRef = {
 
 export function useAuthenticationPasscode() {
 	const { query, pathname } = useRouter();
+
+	const { trans } = useTranslation();
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
@@ -72,6 +75,8 @@ export function useAuthenticationPasscode() {
 			.then((res) => {
 				if (res.data?.workspaces && res.data.workspaces.length) {
 					setWorkspaces(res.data.workspaces);
+
+					setScreen('workspace');
 				}
 
 				// If user tries to login from public Team Page as an Already a Member
@@ -95,7 +100,9 @@ export function useAuthenticationPasscode() {
 					}
 				}
 
-				setScreen('workspace');
+				if (res.data?.status !== 200 && res.data?.status !== 201) {
+					setErrors({ code: trans.pages.auth.INVALID_INVITE_CODE_MESSAGE });
+				}
 			})
 			.catch((err: AxiosError) => {
 				if (err.response?.status === 400) {

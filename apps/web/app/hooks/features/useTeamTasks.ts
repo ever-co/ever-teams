@@ -4,7 +4,12 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@app/helpers';
-import { ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
+import {
+	ITaskLabelsItemList,
+	ITaskStatusField,
+	ITaskStatusStack,
+	ITeamTask
+} from '@app/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,
@@ -193,12 +198,33 @@ export function useTeamTasks() {
 
 	const createTask = useCallback(
 		(
-			{ taskName, issueType }: { taskName: string; issueType?: string },
+			{
+				taskName,
+				issueType,
+				status,
+				priority,
+				size,
+				tags,
+				description
+			}: {
+				taskName: string;
+				issueType?: string;
+				status?: string;
+				priority?: string;
+				size?: string;
+				tags?: ITaskLabelsItemList[];
+				description?: string | null;
+			},
 			members?: { id: string }[]
 		) => {
 			return createQueryCall({
 				title: taskName,
 				issueType,
+				status,
+				priority,
+				size,
+				tags,
+				...(description ? { description: `<p>${description}</p>` } : {}),
 				...(members ? { members } : {})
 			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
