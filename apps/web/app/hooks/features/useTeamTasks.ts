@@ -203,7 +203,8 @@ export function useTeamTasks() {
 				status,
 				priority,
 				size,
-				tags
+				tags,
+				description
 			}: {
 				taskName: string;
 				issueType?: string;
@@ -211,6 +212,7 @@ export function useTeamTasks() {
 				priority?: string;
 				size?: string;
 				tags?: ITaskLabelsItemList[];
+				description?: string | null;
 			},
 			members?: { id: string }[]
 		) => {
@@ -221,6 +223,7 @@ export function useTeamTasks() {
 				priority,
 				size,
 				tags,
+				...(description ? { description: `<p>${description}</p>` } : {}),
 				...(members ? { members } : {})
 			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);

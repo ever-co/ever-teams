@@ -454,7 +454,8 @@ function TaskCard({
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const { taskLabels: taskLabelsData } = useTaskLabels();
 
-	const { taskStatus, taskPriority, taskSize, taskLabels } = datas;
+	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription } =
+		datas;
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -481,6 +482,75 @@ function TaskCard({
 				{inputField}
 				{/* Create team button */}
 				<div className="flex flex-col gap-y-2">
+					{datas.hasCreateForm && (
+						<div>
+							<InputField
+								placeholder="Description"
+								onChange={(e) => {
+									if (taskDescription) {
+										taskDescription.current = e.target.value;
+									}
+								}}
+							/>
+
+							<div className="flex justify-start gap-2">
+								<ActiveTaskStatusDropdown
+									className="lg:min-w-[170px]"
+									taskStatusClassName="h-7 text-xs"
+									onValueChange={(v) => {
+										if (v && taskStatus) {
+											taskStatus.current = v;
+										}
+									}}
+									defaultValue={taskStatus?.current as ITaskStatus}
+									task={null}
+								/>
+
+								<ActiveTaskPropertiesDropdown
+									className="lg:min-w-[170px]"
+									taskStatusClassName="h-7 text-xs"
+									onValueChange={(v) => {
+										if (v && taskPriority) {
+											taskPriority.current = v;
+										}
+									}}
+									defaultValue={taskPriority?.current as ITaskPriority}
+									task={null}
+								/>
+
+								<ActiveTaskSizesDropdown
+									className="lg:min-w-[170px]"
+									taskStatusClassName="h-7 text-xs"
+									onValueChange={(v) => {
+										if (v && taskSize) {
+											taskSize.current = v;
+										}
+									}}
+									defaultValue={taskSize?.current as ITaskSize}
+									task={null}
+								/>
+
+								<TaskLabels
+									className="lg:min-w-[170px] text-xs"
+									forDetails={false}
+									taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+									onValueChange={(_: any, values: string[] | undefined) => {
+										taskLabelsData.filter((tag) =>
+											tag.name ? values?.includes(tag.name) : false
+										);
+
+										if (taskLabels && values?.length) {
+											taskLabels.current = taskLabelsData.filter((tag) =>
+												tag.name ? values?.includes(tag.name) : false
+											);
+										}
+									}}
+									task={datas.inputTask}
+								/>
+							</div>
+						</div>
+					)}
+
 					<Tooltip
 						enabled={!datas.user?.isEmailVerified}
 						label={trans.common.VERIFY_ACCOUNT_MSG}
@@ -504,64 +574,6 @@ function TaskCard({
 							{trans.common.CREATE_TASK}
 						</Button>
 					</Tooltip>
-
-					{datas.hasCreateForm && (
-						<div className="flex justify-start gap-2">
-							<ActiveTaskStatusDropdown
-								className="lg:min-w-[170px]"
-								taskStatusClassName="h-7 text-xs"
-								onValueChange={(v) => {
-									if (v && taskStatus) {
-										taskStatus.current = v;
-									}
-								}}
-								defaultValue={taskStatus?.current as ITaskStatus}
-								task={null}
-							/>
-
-							<ActiveTaskPropertiesDropdown
-								className="lg:min-w-[170px]"
-								taskStatusClassName="h-7 text-xs"
-								onValueChange={(v) => {
-									if (v && taskPriority) {
-										taskPriority.current = v;
-									}
-								}}
-								defaultValue={taskPriority?.current as ITaskPriority}
-								task={null}
-							/>
-
-							<ActiveTaskSizesDropdown
-								className="lg:min-w-[170px]"
-								taskStatusClassName="h-7 text-xs"
-								onValueChange={(v) => {
-									if (v && taskSize) {
-										taskSize.current = v;
-									}
-								}}
-								defaultValue={taskSize?.current as ITaskSize}
-								task={null}
-							/>
-
-							<TaskLabels
-								className="lg:min-w-[170px] text-xs"
-								forDetails={false}
-								taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
-								onValueChange={(_: any, values: string[] | undefined) => {
-									taskLabelsData.filter((tag) =>
-										tag.name ? values?.includes(tag.name) : false
-									);
-
-									if (taskLabels && values?.length) {
-										taskLabels.current = taskLabelsData.filter((tag) =>
-											tag.name ? values?.includes(tag.name) : false
-										);
-									}
-								}}
-								task={datas.inputTask}
-							/>
-						</div>
-					)}
 				</div>
 
 				{/* Task filter buttons  */}

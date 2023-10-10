@@ -55,6 +55,7 @@ export function useTaskInput({
 	const taskStatus = useRef<null | string>(null);
 	const taskPriority = useRef<null | string>(null);
 	const taskSize = useRef<null | string>(null);
+	const taskDescription = useRef<null | string>(null);
 	const taskLabels = useRef<[] | ITaskLabelsItemList[]>([]);
 
 	const tasks = customTasks || teamTasks;
@@ -153,7 +154,8 @@ export function useTaskInput({
 				status: taskStatus.current || undefined,
 				priority: taskPriority.current || undefined,
 				size: taskSize.current || undefined,
-				tags: taskLabels.current || []
+				tags: taskLabels.current || [],
+				description: taskDescription.current
 			},
 			!autoAssignTaskAuth ? assignToUsers : undefined
 		).then((res) => {
@@ -217,6 +219,7 @@ export function useTaskInput({
 		taskPriority,
 		taskSize,
 		taskLabels,
+		taskDescription,
 		user,
 		userRef
 	};
