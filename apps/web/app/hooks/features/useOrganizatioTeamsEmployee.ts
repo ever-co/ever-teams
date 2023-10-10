@@ -1,7 +1,8 @@
 import { IOrganizationTeamEmployeeUpdate } from '@app/interfaces';
 import {
 	deleteOrganizationEmployeeTeamAPI,
-	updateOrganizationEmployeeTeamAPI
+	updateOrganizationEmployeeTeamAPI,
+	updateOrganizationTeamEmployeeActiveTaskAPI
 } from '@app/services/client/api/organization-team-employee';
 import { useCallback } from 'react';
 import { useQuery } from '../useQuery';
@@ -19,6 +20,11 @@ export function useOrganizationEmployeeTeams() {
 		loading: updateOrganizationEmployeeTeamLoading,
 		queryCall: updateQueryCall
 	} = useQuery(updateOrganizationEmployeeTeamAPI);
+
+	const {
+		loading: updateOrganizationTeamEmployeeActiveTaskLoading,
+		queryCall: updateOrganizationTeamEmployeeActiveTaskQueryCall
+	} = useQuery(updateOrganizationTeamEmployeeActiveTaskAPI);
 
 	const deleteOrganizationTeamEmployee = useCallback(
 		({
@@ -55,10 +61,24 @@ export function useOrganizationEmployeeTeams() {
 		[loadTeamsData, updateQueryCall]
 	);
 
+	const updateOrganizationTeamEmployeeActiveTask = useCallback(
+		(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) => {
+			updateOrganizationTeamEmployeeActiveTaskQueryCall(id, data).then(
+				(res) => {
+					loadTeamsData();
+					return res;
+				}
+			);
+		},
+		[loadTeamsData, updateOrganizationTeamEmployeeActiveTaskQueryCall]
+	);
+
 	return {
 		deleteOrganizationEmployeeTeamLoading,
 		deleteOrganizationTeamEmployee,
 		updateOrganizationEmployeeTeamLoading,
-		updateOrganizationTeamEmployee
+		updateOrganizationTeamEmployee,
+		updateOrganizationTeamEmployeeActiveTaskLoading,
+		updateOrganizationTeamEmployeeActiveTask
 	};
 }

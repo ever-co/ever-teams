@@ -28,3 +28,13 @@ export function updateOrganizationEmployeeTeamAPI(
 		data
 	);
 }
+
+export function updateOrganizationTeamEmployeeActiveTaskAPI(
+	id: string,
+	data: Partial<IOrganizationTeamEmployeeUpdate>
+) {
+	return api.put<CreateReponse<IOrganizationTeamEmployeeUpdate>>(
+		`/organization-team-employee/${id}/active-task`,
+		data
+	);
+}
