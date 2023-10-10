@@ -292,6 +292,7 @@ function InputFilters({ hook, profile }: Props) {
 						? [{ id: profile.member?.employeeId }]
 						: undefined
 				}
+				userProfile={profile.member}
 			>
 				<Button
 					loading={loading}
