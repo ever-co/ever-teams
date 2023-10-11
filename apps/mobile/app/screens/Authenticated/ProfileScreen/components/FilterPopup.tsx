@@ -123,6 +123,8 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								taskFilter={hook}
 								showPriorityPopup={showTaskPriority}
 								setShowPriorityPopup={setShowTaskPriority}
+								setSelectedPriorities={updateStatuses}
+								selectedPriorities={selectedStatuses.priority}
 							/>
 						</View>
 
