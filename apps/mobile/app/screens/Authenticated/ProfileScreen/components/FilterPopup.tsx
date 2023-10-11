@@ -141,6 +141,8 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								taskFilter={hook}
 								showLabelPopup={showTaskLabel}
 								setShowLabelPopup={setShowTaskLabel}
+								setSelectedLabels={updateStatuses}
+								selectedLabels={selectedStatuses.labels}
 							/>
 
 							<TaskSizeFilter

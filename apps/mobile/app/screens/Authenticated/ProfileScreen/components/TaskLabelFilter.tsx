@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -22,19 +22,21 @@ import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useTaskLabels } from "../../../../services/hooks/features/useTaskLabels"
 import { ITaskLabelItem } from "../../../../services/interfaces/ITaskLabel"
+import { StatusType } from "./FilterPopup"
 
 interface TaskLabelFilterProps {
 	showLabelPopup: boolean
 	setShowLabelPopup: (value: boolean) => unknown
 	taskFilter: ITaskFilter
+	setSelectedLabels: (newValue: string[], statusType: StatusType) => void
+	selectedLabels: string[]
 }
 
 const { height, width } = Dimensions.get("window")
 
 const TaskStatusFilter: FC<TaskLabelFilterProps> = observer(
-	({ setShowLabelPopup, showLabelPopup, taskFilter }) => {
+	({ setShowLabelPopup, showLabelPopup, taskFilter, selectedLabels, setSelectedLabels }) => {
 		const { colors } = useAppTheme()
-		const [selectedLabels, setSelectedLabels] = useState<string[]>([])
 
 		useEffect(() => {
 			taskFilter.onChangeStatusFilter("label", selectedLabels)
@@ -67,8 +69,8 @@ const TaskStatusFilter: FC<TaskLabelFilterProps> = observer(
 interface DropDownProps {
 	visible: boolean
 	onDismiss: () => unknown
+	setSelectedLabels: (newValue: string[], statusType: StatusType) => void
 	selectedLabels: string[]
-	setSelectedLabels: (s: string[]) => unknown
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
@@ -115,8 +117,8 @@ const DropDownItem = observer(
 		setSelectedLabels,
 	}: {
 		label: ITaskLabelItem
+		setSelectedLabels: (newValue: string[], statusType: StatusType) => void
 		selectedLabels: string[]
-		setSelectedLabels: (s: string[]) => unknown
 	}) => {
 		const allLabels = useTaskLabelValue()
 		const labelItem = allLabels[label.name.split("-").join(" ")]
@@ -127,9 +129,9 @@ const DropDownItem = observer(
 		const onSelectedStatus = () => {
 			if (exist) {
 				const newStatuses = selectedLabels.filter((s) => s !== labelItem.name)
-				setSelectedLabels([...newStatuses])
+				setSelectedLabels([...newStatuses], "labels")
 			} else {
-				setSelectedLabels([...selectedLabels, labelItem.name])
+				setSelectedLabels([...selectedLabels, labelItem.name], "labels")
 			}
 		}
 
