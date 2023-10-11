@@ -80,7 +80,7 @@ export interface OT_Member {
 	isTrackingEnabled?: boolean;
 	totalTodayTasks: ITasksTimesheet[];
 	totalWorkedTasks: ITasksTimesheet[];
-	timerStatus: ITimerStatusEnum;
+	timerStatus?: ITimerStatusEnum;
 	activeTaskId?: string;
 }
 
