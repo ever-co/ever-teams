@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, SetStateAction, useEffect } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -27,14 +27,16 @@ interface TaskStatusFilterProps {
 	showTaskStatus: boolean
 	setShowTaskStatus: (value: boolean) => unknown
 	taskFilter: ITaskFilter
+	selectedStatuses: string[]
+	setSelectedStatuses: React.Dispatch<SetStateAction<string[]>>
 }
 
 const { height, width } = Dimensions.get("window")
 
 const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
-	({ setShowTaskStatus, showTaskStatus, taskFilter }) => {
+	({ setShowTaskStatus, showTaskStatus, taskFilter, selectedStatuses, setSelectedStatuses }) => {
 		const { colors } = useAppTheme()
-		const [selectedStatuses, setSelectedStatus] = useState<string[]>([])
+		// const [selectedStatuses, setSelectedStatus] = useState<string[]>([])
 
 		useEffect(() => {
 			taskFilter.onChangeStatusFilter("status", selectedStatuses)
@@ -57,7 +59,7 @@ const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
 					visible={showTaskStatus}
 					onDismiss={() => setShowTaskStatus(false)}
 					selectedStatus={selectedStatuses}
-					setSelectedStatus={setSelectedStatus}
+					setSelectedStatus={setSelectedStatuses}
 				/>
 			</>
 		)
@@ -122,14 +124,14 @@ const DropDownItem = observer(
 		const statusItem = allStatuses[status.name.split("-").join(" ")]
 		const { dark } = useAppTheme()
 
-		const exist = selectedStatus.find((s) => s === statusItem?.name)
+		const exist = selectedStatus.find((s) => s === statusItem?.value)
 
 		const onSelectedStatus = () => {
 			if (exist) {
-				const newStatuses = selectedStatus.filter((s) => s !== statusItem.name)
+				const newStatuses = selectedStatus.filter((s) => s !== statusItem.value)
 				setSelectedStatus([...newStatuses])
 			} else {
-				setSelectedStatus([...selectedStatus, statusItem.name])
+				setSelectedStatus([...selectedStatus, statusItem.value])
 			}
 		}
 

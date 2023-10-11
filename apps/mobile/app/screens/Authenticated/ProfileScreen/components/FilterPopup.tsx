@@ -76,6 +76,7 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 	const [showTaskLabel, setShowTaskLabel] = useState(false)
 	const [showTaskPriority, setShowTaskPriority] = useState(false)
 	const [showTaskSize, setShowTaskSize] = useState(false)
+	const [selectedStatuses, setSelectedStatuses] = useState<string[]>([])
 
 	return (
 		<ModalPopUp visible={visible}>
@@ -99,6 +100,8 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								showTaskStatus={showTaskStatus}
 								setShowTaskStatus={setShowTaskStatus}
 								taskFilter={hook}
+								setSelectedStatuses={setSelectedStatuses}
+								selectedStatuses={selectedStatuses}
 							/>
 
 							<TaskPriorityFilter
@@ -134,6 +137,7 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 							<TouchableOpacity
 								onPress={() => {
 									hook.onResetStatusFilter()
+									setSelectedStatuses([])
 									onDismiss()
 								}}
 								style={[styles.button, { backgroundColor: "#E6E6E9" }]}
