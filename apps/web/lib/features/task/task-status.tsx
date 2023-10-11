@@ -1283,56 +1283,58 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						<Listbox.Options className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
+								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col"
 							>
-								{items.map((item, i) => {
-									const item_value = item.value || item.name;
-									return (
-										<Listbox.Option
-											key={i}
-											value={item_value}
-											as={Fragment}
-											disabled={disabled}
-										>
-											<li className="cursor-pointer outline-none relative">
-												<TaskStatus
-													showIcon={showIcon}
-													{...item}
-													cheched={
-														item.value ? values.includes(item.value) : false
-													}
-													className={clsxm(
-														issueType === 'issue' && [
-															'rounded-md px-2 text-white'
-														],
-														`${sidebarUI ? 'rounded-[4px]' : ''}`,
-														`${bordered ? 'input-border' : ''}`,
-														isVersion && 'dark:text-white'
-													)}
-												/>
+								<div className="flex flex-col gap-2.5 h-[320px] overflow-scroll scrollbar-hide !border-b-0">
+									{items.map((item, i) => {
+										const item_value = item.value || item.name;
+										return (
+											<Listbox.Option
+												key={i}
+												value={item_value}
+												as={Fragment}
+												disabled={disabled}
+											>
+												<li className="cursor-pointer outline-none relative">
+													<TaskStatus
+														showIcon={showIcon}
+														{...item}
+														cheched={
+															item.value ? values.includes(item.value) : false
+														}
+														className={clsxm(
+															issueType === 'issue' && [
+																'rounded-md px-2 text-white'
+															],
+															`${sidebarUI ? 'rounded-[4px]' : ''}`,
+															`${bordered ? 'input-border' : ''}`,
+															isVersion && 'dark:text-white'
+														)}
+													/>
 
-												{value === item_value && issueType !== 'issue' && (
-													<Listbox.Button
-														as="button"
-														onClick={(e: any) => {
-															e.stopPropagation();
-															onRemoveSelected && onRemoveSelected();
-															onChange && onChange(null as any);
-														}}
-														className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-													>
-														<XMarkIcon
-															className="text-dark"
-															height={16}
-															width={16}
-															aria-hidden="true"
-														/>
-													</Listbox.Button>
-												)}
-											</li>
-										</Listbox.Option>
-									);
-								})}
+													{value === item_value && issueType !== 'issue' && (
+														<Listbox.Button
+															as="button"
+															onClick={(e: any) => {
+																e.stopPropagation();
+																onRemoveSelected && onRemoveSelected();
+																onChange && onChange(null as any);
+															}}
+															className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+														>
+															<XMarkIcon
+																className="text-dark"
+																height={16}
+																width={16}
+																aria-hidden="true"
+															/>
+														</Listbox.Button>
+													)}
+												</li>
+											</Listbox.Option>
+										);
+									})}
+								</div>
 								{children && (
 									<Listbox.Button as="div">{children}</Listbox.Button>
 								)}
