@@ -210,6 +210,7 @@ const PassCode: FC<Props> = observer(
 							onChange={onChangeAuthCode}
 							editable={!isLoading}
 							defaultValue={authInviteCode}
+							loginInput={true}
 						/>
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
 						<TouchableOpacity onPress={() => getAuthCode()}>

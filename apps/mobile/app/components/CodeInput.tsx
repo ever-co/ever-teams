@@ -15,10 +15,11 @@ interface IInput {
 	editable: boolean
 	length?: number
 	defaultValue?: string
+	loginInput?: boolean
 }
 
 export const CodeInput: FC<IInput> = (props) => {
-	const { onChange, editable, length = 6, defaultValue } = props
+	const { onChange, editable, length = 6, defaultValue, loginInput = false } = props
 	const { colors } = useAppTheme()
 	const inputsRef = useRef<TextInput[] | null[]>([])
 	const [active, setActive] = useState<number>(0)
@@ -81,8 +82,22 @@ export const CodeInput: FC<IInput> = (props) => {
 				keyboardType="default"
 				style={[
 					styles.inputStyle,
-					{ backgroundColor: colors.background, color: colors.primary },
-					editable ? { borderColor: active === i ? colors.primary : colors.border } : null,
+					{
+						backgroundColor: loginInput ? "#FFFFFF" : colors.background,
+						color: loginInput ? "#282048" : colors.primary,
+					},
+					editable
+						? {
+								borderColor:
+									active === i
+										? loginInput
+											? "#282048"
+											: colors.primary
+										: loginInput
+										? "#00000021"
+										: colors.border,
+						  }
+						: null,
 				]}
 				onKeyPress={onKeyPress}
 				autoFocus={active === i}
