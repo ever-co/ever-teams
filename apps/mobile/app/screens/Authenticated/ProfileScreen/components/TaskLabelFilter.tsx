@@ -124,14 +124,14 @@ const DropDownItem = observer(
 		const labelItem = allLabels[label.name.split("-").join(" ")]
 		const { dark } = useAppTheme()
 
-		const exist = selectedLabels.find((s) => s === labelItem?.name)
+		const exist = selectedLabels.find((s) => s === labelItem?.value)
 
 		const onSelectedStatus = () => {
 			if (exist) {
-				const newStatuses = selectedLabels.filter((s) => s !== labelItem.name)
+				const newStatuses = selectedLabels.filter((s) => s !== labelItem.value)
 				setSelectedLabels([...newStatuses], "labels")
 			} else {
-				setSelectedLabels([...selectedLabels, labelItem.name], "labels")
+				setSelectedLabels([...selectedLabels, labelItem.value], "labels")
 			}
 		}
 

@@ -149,6 +149,8 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								taskFilter={hook}
 								showSizePopup={showTaskSize}
 								setShowSizePopup={setShowTaskSize}
+								setSelectedSizes={updateStatuses}
+								selectedSizes={selectedStatuses.sizes}
 							/>
 						</View>
 

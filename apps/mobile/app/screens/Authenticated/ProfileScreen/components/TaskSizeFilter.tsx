@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -22,19 +22,21 @@ import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useTaskSizes } from "../../../../services/hooks/features/useTaskSizes"
 import { ITaskSizeItem } from "../../../../services/interfaces/ITaskSize"
+import { StatusType } from "./FilterPopup"
 
 interface TaskSizeFilterProps {
 	showSizePopup: boolean
 	setShowSizePopup: (value: boolean) => unknown
 	taskFilter: ITaskFilter
+	setSelectedSizes: (newValue: string[], statusType: StatusType) => void
+	selectedSizes: string[]
 }
 
 const { height, width } = Dimensions.get("window")
 
 const TaskStatusFilter: FC<TaskSizeFilterProps> = observer(
-	({ setShowSizePopup, showSizePopup, taskFilter }) => {
+	({ setShowSizePopup, showSizePopup, taskFilter, selectedSizes, setSelectedSizes }) => {
 		const { colors } = useAppTheme()
-		const [selectedSizes, setSelectedSizes] = useState<string[]>([])
 
 		useEffect(() => {
 			taskFilter.onChangeStatusFilter("size", selectedSizes)
@@ -67,8 +69,8 @@ const TaskStatusFilter: FC<TaskSizeFilterProps> = observer(
 interface DropDownProps {
 	visible: boolean
 	onDismiss: () => unknown
+	setSelectedSizes: (newValue: string[], statusType: StatusType) => void
 	selectedSizes: string[]
-	setSelectedSizes: (s: string[]) => unknown
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
@@ -115,21 +117,21 @@ const DropDownItem = observer(
 		setSelectedSizes,
 	}: {
 		size: ITaskSizeItem
+		setSelectedSizes: (newValue: string[], statusType: StatusType) => void
 		selectedSizes: string[]
-		setSelectedSizes: (s: string[]) => unknown
 	}) => {
 		const allTaskSizes = useTaskSizeValue()
 		const sizeItem = allTaskSizes[size.name.split("-").join(" ")]
 		const { dark } = useAppTheme()
 
-		const exist = selectedSizes.find((s) => s === sizeItem?.name)
+		const exist = selectedSizes.find((s) => s === sizeItem?.value)
 
 		const onSelectedSize = () => {
 			if (exist) {
-				const newStatuses = selectedSizes.filter((s) => s !== sizeItem.name)
-				setSelectedSizes([...newStatuses])
+				const newStatuses = selectedSizes.filter((s) => s !== sizeItem.value)
+				setSelectedSizes([...newStatuses], "sizes")
 			} else {
-				setSelectedSizes([...selectedSizes, sizeItem.name])
+				setSelectedSizes([...selectedSizes, sizeItem.value], "sizes")
 			}
 		}
 
