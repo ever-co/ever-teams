@@ -301,14 +301,14 @@ export function useOrganizationTeams() {
 				});
 			return res;
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		queryCall,
 		queryCallTeam,
 		setActiveTeam,
 		setActiveTeamId,
 		setIsTeamMember,
-		setTeams,
-		teamsRef
+		setTeams
 	]);
 
 	/**
@@ -321,10 +321,6 @@ export function useOrganizationTeams() {
 			});
 		}
 	}, [activeTeamId, firstLoad, loadingTeamsRef, setTeams, setTeamsUpdate]);
-
-	// Set All managers of current team
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	useEffect(() => {}, [activeTeam]);
 
 	const editOrganizationTeam = useCallback(
 		(data: IOrganizationTeamUpdate) => {

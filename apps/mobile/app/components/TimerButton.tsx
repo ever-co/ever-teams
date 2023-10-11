@@ -5,7 +5,6 @@ import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
 import { View, StyleSheet, ViewStyle, ImageStyle, Pressable } from "react-native"
 
-import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { useStores } from "../models"
 import { useTimer } from "../services/hooks/useTimer"
 import { ITeamTask } from "../services/interfaces/ITask"
@@ -33,7 +32,7 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 					<>
 						<Pressable
 							style={[
-								styles.timerBtnInactive,
+								styles.timerBtnDarkTheme,
 								containerStyle,
 								{ backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 },
 							]}
@@ -46,7 +45,7 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 				) : (
 					<Pressable
 						onPress={() => stopTimer()}
-						style={[styles.timerBtnActive, { backgroundColor: "#e11d48" }, containerStyle]}
+						style={[styles.timerBtnDarkTheme, { backgroundColor: "#e11d48" }, containerStyle]}
 					>
 						<SvgXml xml={timerLargeStopIcon} />
 					</Pressable>
@@ -92,14 +91,29 @@ const styles = StyleSheet.create({
 		borderColor: "rgba(0, 0, 0, 0.1)",
 		borderRadius: 30,
 		borderWidth: 1,
-		elevation: 5,
+		elevation: 8,
 		height: 60,
 		justifyContent: "center",
 		marginHorizontal: 15,
 		shadowColor: "#e11d48",
-		shadowOffset: { width: 1, height: 1.5 },
-		shadowOpacity: 0.5,
-		shadowRadius: 5,
+		shadowOffset: {
+			width: 0,
+			height: 17,
+		},
+		shadowOpacity: 0.3,
+		shadowRadius: 12,
+		width: 60,
+	},
+	timerBtnDarkTheme: {
+		alignItems: "center",
+		backgroundColor: "#3826A6",
+		borderColor: "rgba(0, 0, 0, 0.1)",
+		borderRadius: 30,
+		borderWidth: 1,
+		elevation: 8,
+		height: 60,
+		justifyContent: "center",
+		marginHorizontal: 15,
 		width: 60,
 	},
 	timerBtnInactive: {
@@ -108,11 +122,18 @@ const styles = StyleSheet.create({
 		borderColor: "rgba(0, 0, 0, 0.1)",
 		borderRadius: 30,
 		borderWidth: 1,
+		elevation: 8,
 		height: 60,
 		justifyContent: "center",
 		marginHorizontal: 15,
+		shadowColor: "#3826A6",
+		shadowOffset: {
+			width: 0,
+			height: 17,
+		},
+		shadowOpacity: 0.3,
+		shadowRadius: 12,
 		width: 60,
-		...GS.shadow,
 	},
 	timerIcon: {
 		height: 24,

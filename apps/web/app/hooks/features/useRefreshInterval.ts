@@ -22,5 +22,6 @@ export function useRefreshInterval(
 
 			return () => clearInterval(id);
 		}
-	}, [delay, callbackRef, params]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [delay]);
 }

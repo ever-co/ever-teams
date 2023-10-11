@@ -34,5 +34,6 @@ export function useOTRefreshInterval(
 
 			return () => clearInterval(id);
 		}
-	}, [delay, publicTeam, callbackRef, interval, setOTRefreshIntervalState]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [delay, publicTeam]);
 }
