@@ -266,6 +266,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14,
 		marginLeft: 10,
+		textTransform: "capitalize",
 	},
 	secondContainer: {
 		marginVertical: 16,
