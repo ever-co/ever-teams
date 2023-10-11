@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, SetStateAction, useEffect } from "react"
+import React, { FC, useEffect } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -22,13 +22,14 @@ import { ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
 import { useTaskStatusValue } from "../../../../components/StatusType"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
+import { StatusType } from "./FilterPopup"
 
 interface TaskStatusFilterProps {
 	showTaskStatus: boolean
 	setShowTaskStatus: (value: boolean) => unknown
 	taskFilter: ITaskFilter
 	selectedStatuses: string[]
-	setSelectedStatuses: React.Dispatch<SetStateAction<string[]>>
+	setSelectedStatuses: (newValue: string[], statusType: StatusType) => void
 }
 
 const { height, width } = Dimensions.get("window")
@@ -70,7 +71,7 @@ interface DropDownProps {
 	visible: boolean
 	onDismiss: () => unknown
 	selectedStatus: string[]
-	setSelectedStatus: (s: string[]) => unknown
+	setSelectedStatus: (newValue: string[], statusType: StatusType) => void
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
@@ -118,7 +119,7 @@ const DropDownItem = observer(
 	}: {
 		status: ITaskStatusItem
 		selectedStatus: string[]
-		setSelectedStatus: (s: string[]) => unknown
+		setSelectedStatus: (newValue: string[], statusType: StatusType) => void
 	}) => {
 		const allStatuses = useTaskStatusValue()
 		const statusItem = allStatuses[status.name.split("-").join(" ")]
@@ -129,9 +130,9 @@ const DropDownItem = observer(
 		const onSelectedStatus = () => {
 			if (exist) {
 				const newStatuses = selectedStatus.filter((s) => s !== statusItem.value)
-				setSelectedStatus([...newStatuses])
+				setSelectedStatus([...newStatuses], "taskStatus")
 			} else {
-				setSelectedStatus([...selectedStatus, statusItem.value])
+				setSelectedStatus([...selectedStatus, statusItem.value], "taskStatus")
 			}
 		}
 
