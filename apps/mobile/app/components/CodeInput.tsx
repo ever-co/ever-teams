@@ -83,7 +83,7 @@ export const CodeInput: FC<IInput> = (props) => {
 			charArray.every((currentField) => currentField.match(/^[0-9a-zA-Z]*$/))
 		) {
 			const updatedCode = charArray.map((char) => {
-				return char
+				return char.toUpperCase()
 			})
 			setInviteCode(updatedCode)
 			onChange(updatedCode.join(""))
