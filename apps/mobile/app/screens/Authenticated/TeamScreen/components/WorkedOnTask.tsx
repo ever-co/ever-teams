@@ -47,7 +47,9 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 					</View>
 				) : (
 					<View style={styles.container}>
-						<Text style={styles.totalTimeTitle}>{translate("teamScreen.cardTotalWorkLabel")}</Text>
+						<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>
+							{translate("teamScreen.cardTotalWorkLabel")}
+						</Text>
 						<Text style={[styles.totalTimeText, { color: colors.primary }]}>
 							{pad(th)} h:{pad(tm)} m
 						</Text>
@@ -66,14 +68,16 @@ export const WorkedOnTask: FC<IProps> = observer(({ memberInfo, period }) => {
 					<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>
 						{translate("teamScreen.cardTodayWorkLabel")}
 					</Text>
-					<Text style={styles.totalTimeText}>
+					<Text style={[styles.totalTimeText, { color: colors.primary }]}>
 						{pad(dh)} h:{pad(dm)} m
 					</Text>
 				</View>
 			) : (
 				<View style={styles.container}>
-					<Text style={styles.totalTimeTitle}>{translate("teamScreen.cardTotalWorkLabel")}</Text>
-					<Text style={styles.totalTimeText}>
+					<Text style={[styles.totalTimeTitle, { color: dark ? "#7B8089" : "#7E7991" }]}>
+						{translate("teamScreen.cardTotalWorkLabel")}
+					</Text>
+					<Text style={[styles.totalTimeText, { color: colors.primary }]}>
 						{pad(th)} h:{pad(tm)} m
 					</Text>
 				</View>
