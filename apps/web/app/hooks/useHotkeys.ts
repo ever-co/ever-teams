@@ -17,6 +17,5 @@ export const useHotkeys = (key: string, callback: () => void) => {
 };
 
 export const HostKeys = {
-	START_TIMER: 'ctrl+option+],ctrl+alt+]',
-	STOP_TIMER: 'ctrl+option+[,ctrl+alt+['
+	START_STOP_TIMER: 'ctrl+option+],ctrl+alt+],ctrl+option+[,ctrl+alt+['
 };

@@ -13,7 +13,7 @@ import {
 	ArrowUturnUpIcon,
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export function Timer({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -28,23 +28,30 @@ export function Timer({ className }: IClassName) {
 		timerStatus,
 		disabled
 	} = useTimerView();
+
 	const { os } = useDetectOS();
+	const osSpecificTimerTooltipLabel = useMemo(() => {
+		if (os === 'Mac') {
+			if (!timerStatus?.running) {
+				return 'Ctrl(⌃) + Opt(⌥) + ]';
+			} else {
+				return 'Ctrl(⌃) + Opt(⌥) + [';
+			}
+		}
+
+		if (!timerStatus?.running) {
+			return 'Ctrl + Alt + ]';
+		} else {
+			return 'Ctrl + Alt + [';
+		}
+	}, [os, timerStatus?.running]);
 
 	// Handling Hotkeys
-	const handleStartTimer = useCallback(() => {
-		if (timerStatus?.running) {
-			return;
-		}
+	const handleStartSTOPTimer = useCallback(() => {
 		timerHanlder();
-	}, [timerStatus?.running, timerHanlder]);
-	const handleStopTimer = useCallback(() => {
-		if (!timerStatus?.running) {
-			return;
-		}
-		timerHanlder();
-	}, [timerStatus?.running, timerHanlder]);
-	useHotkeys(HostKeys.START_TIMER, handleStartTimer);
-	useHotkeys(HostKeys.STOP_TIMER, handleStopTimer);
+	}, [timerHanlder]);
+
+	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
 		<div className={clsxm('flex flex-row mb-12 2xl:mb-0', className)}>
@@ -92,11 +99,7 @@ export function Timer({ className }: IClassName) {
 			<div className="ml-5 z-[50]">
 				<Tooltip
 					label={
-						!canRunTimer
-							? trans.timer.START_TIMER
-							: os === 'Mac' && !timerStatus?.running
-							? `Ctrl(⌃) + Opt(⌥) + ]`
-							: 'Ctrl + Alt + ]'
+						!canRunTimer ? trans.timer.START_TIMER : osSpecificTimerTooltipLabel
 					}
 					placement="top-start"
 					// If timer is running at some other source and user may or may not have selected the task
