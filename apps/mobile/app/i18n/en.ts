@@ -106,6 +106,9 @@ const en = {
 		unMakeManager: "Unmake a Manager",
 		makeManager: "Make a Manager",
 		remove: "Remove",
+		filter: "Filter",
+		apply: "Apply",
+		reset: "Reset",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",
