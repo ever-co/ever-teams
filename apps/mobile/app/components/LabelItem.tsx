@@ -16,7 +16,7 @@ const LabelItem: FC<Props> = ({ label, background, icon }) => {
 			<View style={{ flexDirection: "row" }}>
 				{icon}
 				<Text style={[styles.labelTitle, { color: "#282048" }]} numberOfLines={1}>
-					{limitTextCharaters({ text: label, numChars: 18 })}
+					{label}
 				</Text>
 			</View>
 		</View>
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "#D4EFDF",
 		borderRadius: 10,
 		flexDirection: "row",
-		maxWidth: 130,
 		minWidth: 70,
 		paddingHorizontal: 10,
 		paddingVertical: 6,
