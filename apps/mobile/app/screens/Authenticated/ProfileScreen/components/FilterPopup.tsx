@@ -21,6 +21,7 @@ import TaskPriorityFilter from "./TaskPriorityFilter"
 import TaskStatusFilter from "./TaskStatusFilter"
 import TaskLabelFilter from "./TaskLabelFilter"
 import TaskSizeFilter from "./TaskSizeFilter"
+import { translate } from "../../../../i18n"
 
 export interface Props {
 	visible: boolean
@@ -168,7 +169,9 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								}}
 								style={[styles.button, { backgroundColor: "#E6E6E9" }]}
 							>
-								<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>Reset</Text>
+								<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>
+									{translate("tasksScreen.reset")}
+								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
 								style={[styles.button, { backgroundColor: "#3826A6" }]}
@@ -177,7 +180,7 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 									onDismiss()
 								}}
 							>
-								<Text style={styles.buttonText}>Apply</Text>
+								<Text style={styles.buttonText}>{translate("tasksScreen.apply")}</Text>
 							</TouchableOpacity>
 						</View>
 					</View>
