@@ -75,13 +75,15 @@ export const CodeInput: FC<IInput> = (props) => {
 	const onPaste = async () => {
 		const pastedText = await Clipboard.getStringAsync()
 
-		if (pastedText.length === length && inviteCode.every((inviteCode) => inviteCode === "")) {
-			const charArray = pastedText.split("")
-			const updatedCode = charArray.map((char, index) => {
-				if (char.match(/^[0-9a-zA-Z]*$/)) {
-					return char
-				}
-				return inviteCode[index] || ""
+		const charArray = pastedText.split("")
+
+		if (
+			pastedText.length === length &&
+			inviteCode.every((currentField) => currentField === "") &&
+			charArray.every((currentField) => currentField.match(/^[0-9a-zA-Z]*$/))
+		) {
+			const updatedCode = charArray.map((char) => {
+				return char
 			})
 			setInviteCode(updatedCode)
 			onChange(updatedCode.join(""))
