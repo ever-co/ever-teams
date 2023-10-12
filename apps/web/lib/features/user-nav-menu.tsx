@@ -1,4 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
+import { useMemo } from 'react';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import {
 	useAuthenticateUser,
@@ -30,11 +31,10 @@ import Link from 'next/link';
 import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
 import ThemesPopup from 'lib/components/themes-popup';
-import { ThemeInterface } from '@app/interfaces';
+import { ITimerStatusEnum, ThemeInterface } from '@app/interfaces';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
-import { TimerStatus } from './timer/timer-status';
-import moment from 'moment';
+import { getTimerStatusValue, TimerStatus } from './timer/timer-status';
 import { publicState } from '@app/stores';
 import { useRecoilValue } from 'recoil';
 
@@ -48,9 +48,12 @@ export function UserNavAvatar() {
 	const { activeTeam } = useOrganizationTeams();
 	const publicTeam = useRecoilValue(publicState);
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => {
+	const currentMember = members.find((m) => {
 		return m.employee.userId === user?.id;
 	});
+	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
+	}, [timerStatus, currentMember, publicTeam]);
 
 	return (
 		<Popover className="relative flex items-center">
@@ -75,27 +78,7 @@ export function UserNavAvatar() {
 							imageTitle={name}
 						>
 							<TimerStatus
-								status={
-									!timerStatus?.running &&
-									timerStatus?.lastLog &&
-									timerStatus?.lastLog?.startedAt &&
-									moment().diff(
-										moment(timerStatus?.lastLog?.startedAt),
-										'hours'
-									) < 24 &&
-									timerStatus?.lastLog?.source !== 'TEAMS'
-										? 'pause'
-										: !currentUser?.employee?.isActive && !publicTeam
-										? 'suspended'
-										: currentUser?.employee?.isOnline
-										? // &&  currentUser?.timerStatus !== 'running'
-										  'online'
-										: !currentUser?.totalTodayTasks?.length
-										? 'idle'
-										: currentUser?.totalTodayTasks?.length
-										? 'pause'
-										: currentUser?.timerStatus || 'idle'
-								}
+								status={timerStatusValue}
 								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
 								tooltipClassName="mt-10"
 							/>
@@ -152,9 +135,13 @@ function UserNavMenu() {
 	const { activeTeam } = useOrganizationTeams();
 	const publicTeam = useRecoilValue(publicState);
 	const members = activeTeam?.members || [];
-	const currentUser = members.find((m) => {
+	const currentMember = members.find((m) => {
 		return m.employee.userId === user?.id;
 	});
+
+	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+		return getTimerStatusValue(timerStatus, currentMember, publicTeam);
+	}, [timerStatus, currentMember, publicTeam]);
 
 	return (
 		<Card
@@ -182,27 +169,7 @@ function UserNavMenu() {
 								alt="Team Avatar"
 							>
 								<TimerStatus
-									status={
-										!timerStatus?.running &&
-										timerStatus?.lastLog &&
-										timerStatus?.lastLog?.startedAt &&
-										moment().diff(
-											moment(timerStatus?.lastLog?.startedAt),
-											'hours'
-										) < 24 &&
-										timerStatus?.lastLog?.source !== 'TEAMS'
-											? 'pause'
-											: !currentUser?.employee?.isActive && !publicTeam
-											? 'suspended'
-											: currentUser?.employee?.isOnline
-											? // && currentUser?.timerStatus !== 'running'
-											  'online'
-											: !currentUser?.totalTodayTasks?.length
-											? 'idle'
-											: currentUser?.totalTodayTasks?.length
-											? 'pause'
-											: currentUser?.timerStatus || 'idle'
-									}
+									status={timerStatusValue}
 									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
 									tooltipClassName="mt-10"
 								/>
