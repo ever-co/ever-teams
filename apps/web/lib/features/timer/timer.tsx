@@ -1,11 +1,10 @@
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { pad } from '@app/helpers';
-import { IClassName } from '@app/interfaces';
+import { IClassName, TimerSource } from '@app/interfaces';
 import { TimerButton } from './timer-button';
 import { useTranslation } from 'lib/i18n';
-import { useTimerView } from '@app/hooks';
-import { TimerSource } from '@app/interfaces/ITimer';
+import { HostKeys, useHotkeys, useTimerView, useDetectOS } from '@app/hooks';
 
 import {
 	DevicePhoneMobileIcon,
@@ -14,6 +13,7 @@ import {
 	ArrowUturnUpIcon,
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
+import { useCallback } from 'react';
 
 export function Timer({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -28,6 +28,23 @@ export function Timer({ className }: IClassName) {
 		timerStatus,
 		disabled
 	} = useTimerView();
+	const { os } = useDetectOS();
+
+	// Handling Hotkeys
+	const handleStartTimer = useCallback(() => {
+		if (timerStatus?.running) {
+			return;
+		}
+		timerHanlder();
+	}, [timerStatus?.running, timerHanlder]);
+	const handleStopTimer = useCallback(() => {
+		if (!timerStatus?.running) {
+			return;
+		}
+		timerHanlder();
+	}, [timerStatus?.running, timerHanlder]);
+	useHotkeys(HostKeys.START_TIMER, handleStartTimer);
+	useHotkeys(HostKeys.STOP_TIMER, handleStopTimer);
 
 	return (
 		<div className={clsxm('flex flex-row mb-12 2xl:mb-0', className)}>
@@ -74,19 +91,25 @@ export function Timer({ className }: IClassName) {
 
 			<div className="ml-5 z-[50]">
 				<Tooltip
-					label={trans.timer.START_TIMER}
+					label={
+						!canRunTimer
+							? trans.timer.START_TIMER
+							: os === 'Mac' && !timerStatus?.running
+							? `Ctrl(⌃) + Opt(⌥) + ]`
+							: 'Ctrl + Alt + ]'
+					}
 					placement="top-start"
 					// If timer is running at some other source and user may or may not have selected the task
-					enabled={
-						!canRunTimer && timerStatus?.lastLog?.source === TimerSource.TEAMS
-					}
+					// enabled={
+					// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+					// }
 				>
 					<TimerButton
 						onClick={timerHanlder}
 						running={timerStatus?.running}
 						disabled={
 							// If timer is running at some other source and user may or may not have selected the task
-							disabled && timerStatus?.lastLog?.source === TimerSource.TEAMS
+							disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS
 						}
 					/>
 				</Tooltip>

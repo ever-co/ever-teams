@@ -8,6 +8,8 @@ export * from './useModal';
 export * from './useCustomEmblaCarousel';
 export * from './features/useTaskInput';
 export * from './useCallbackRef';
+export * from './useHotkeys';
+export * from './useDetectOS';
 
 export * from './auth/useAuthenticationTeam';
 export * from './auth/useAuthenticationPasscode';
