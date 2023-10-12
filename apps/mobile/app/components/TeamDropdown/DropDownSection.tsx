@@ -46,7 +46,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				{ backgroundColor: colors.background, shadowColor: "rgba(0, 0, 0, 0.12)" },
 			]}
 		>
-			<View style={styles.indDropDown}>
+			{/* <View style={styles.indDropDown}>
 				<View style={{ flexDirection: "row", alignItems: "center" }}>
 					<Avatar.Text
 						style={styles.teamImage}
@@ -68,7 +68,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				<TouchableOpacity>
 					<Ionicons name="settings-outline" size={24} color={colors.primary} />
 				</TouchableOpacity>
-			</View>
+			</View> */}
 
 			{activeTeamId && (
 				<DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />
@@ -87,7 +87,12 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				onPress={() => onCreateTeam()}
 				disabled={!isAccountVerified}
 			>
-				<View style={[styles.buttonStyle, { backgroundColor: colors.background }]}>
+				<View
+					style={[
+						styles.buttonStyle,
+						{ backgroundColor: colors.background, borderColor: colors.secondary },
+					]}
+				>
 					<Ionicons name="add" size={24} color={colors.secondary} />
 					<Text
 						style={{

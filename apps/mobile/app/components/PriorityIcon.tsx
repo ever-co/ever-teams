@@ -31,9 +31,10 @@ export const BadgedTaskPriority = observer(
 						left: 5,
 						fontSize: TextSize,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+						textTransform: "capitalize",
 					}}
 				>
-					{limitTextCharaters({ text: currentPriority?.name, numChars: 12 })}
+					{limitTextCharaters({ text: currentPriority?.name, numChars: 15 }).replace("-", " ")}
 				</Text>
 			</View>
 		)
