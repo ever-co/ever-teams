@@ -32,9 +32,10 @@ export const BadgedTaskLabel = observer(
 						left: 5,
 						fontSize: TextSize,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+						textTransform: "capitalize",
 					}}
 				>
-					{limitTextCharaters({ text: label?.name, numChars: 12 })}
+					{limitTextCharaters({ text: label?.name, numChars: 15 })}
 				</Text>
 			</View>
 		)
