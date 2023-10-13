@@ -8,6 +8,7 @@ import {
 	NativeSyntheticEvent,
 	TextInputKeyPressEventData,
 } from "react-native"
+import * as Clipboard from "expo-clipboard"
 import { colors, typography, useAppTheme } from "../theme"
 
 interface IInput {
@@ -71,6 +72,30 @@ export const CodeInput: FC<IInput> = (props) => {
 		}
 	}
 
+	const onPaste = async () => {
+		const pastedText = await Clipboard.getStringAsync()
+
+		const charArray = pastedText.split("")
+
+		if (
+			pastedText.length === length &&
+			inviteCode.every((currentField) => currentField === "") &&
+			charArray.every((currentField) => currentField.match(/^[0-9a-zA-Z]*$/))
+		) {
+			const updatedCode = charArray.map((char) => {
+				return char.toUpperCase()
+			})
+			setInviteCode(updatedCode)
+			onChange(updatedCode.join(""))
+
+			setActive(length - 1)
+			inputsRef.current[length - 1].focus()
+			for (let i = 0; i < length; i++) {
+				inputsRef.current[i].setNativeProps({ text: updatedCode[i] })
+			}
+		}
+	}
+
 	for (let i = 0; i < length; i++) {
 		const dvalue = validDefaultValue ? defaultValue?.charAt(i) : inviteCode[i]
 		inputs.push(
@@ -106,6 +131,7 @@ export const CodeInput: FC<IInput> = (props) => {
 					inputsRef.current[i] = r
 				}}
 				onChangeText={(char) => onChangeCode(char, i)}
+				onChange={onPaste}
 			/>,
 		)
 	}
