@@ -17,3 +17,5 @@ export const AppMainMenu = React.memo(() => {
 		</MainMenu>
 	);
 });
+
+AppMainMenu.displayName = 'AppMainMenu';
