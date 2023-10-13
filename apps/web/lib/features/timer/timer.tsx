@@ -14,6 +14,7 @@ import {
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
 import { useCallback, useMemo } from 'react';
+import { HotkeysEvent } from 'hotkeys-js';
 
 export function Timer({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -47,9 +48,28 @@ export function Timer({ className }: IClassName) {
 	}, [os, timerStatus?.running]);
 
 	// Handling Hotkeys
-	const handleStartSTOPTimer = useCallback(() => {
-		timerHanlder();
-	}, [timerHanlder]);
+	const handleStartSTOPTimer = useCallback(
+		(e?: KeyboardEvent, h?: HotkeysEvent) => {
+			console.log('h?.shortcut', h?.shortcut);
+			// Start Timer
+
+			if (
+				(h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') &&
+				!timerStatus?.running
+			) {
+				timerHanlder();
+			}
+
+			// Stop Timer
+			if (
+				(h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') &&
+				timerStatus?.running
+			) {
+				timerHanlder();
+			}
+		},
+		[timerHanlder, timerStatus]
+	);
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
