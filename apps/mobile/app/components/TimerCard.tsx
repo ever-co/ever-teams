@@ -12,6 +12,7 @@ import { pad } from "../helpers/number"
 import { typography, useAppTheme } from "../theme"
 import { useTimer } from "../services/hooks/useTimer"
 import TimerButton from "./TimerButton"
+import { useTaskStatistics } from "../services/hooks/features/useTaskStatics"
 
 export interface Props {}
 
@@ -19,21 +20,22 @@ const TimerCard: FC<Props> = observer(() => {
 	const { colors } = useAppTheme()
 	const {
 		TaskStore: { activeTask },
-		TimerStore: { timeCounterState },
 	} = useStores()
 
 	const {
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 	} = useTimer()
+	const { activeTaskTotalStat } = useTaskStatistics()
 
 	const getTimePercentage = () => {
 		if (activeTask) {
 			if (!activeTask.estimate) {
 				return 0
 			}
-			// convert milliseconds to seconds
-			const seconds = timeCounterState / 1000
-			return seconds / activeTask.estimate
+
+			return activeTaskTotalStat?.duration
+				? activeTaskTotalStat?.duration / activeTask?.estimate
+				: 0
 		} else {
 			return 0
 		}
@@ -47,11 +49,13 @@ const TimerCard: FC<Props> = observer(() => {
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
 						<Text style={{ fontSize: 14, fontWeight: "600" }}>:{pad(ms_p)}</Text>
 					</Text>
-					<ProgressBar
-						style={styles.progressBar}
-						progress={getTimePercentage()}
-						color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"}
-					/>
+					<View style={{ width: "79%" }}>
+						<ProgressBar
+							style={styles.progressBar}
+							progress={getTimePercentage()}
+							color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"}
+						/>
+					</View>
 				</View>
 				<View style={[styles.timerBtn, { borderLeftColor: colors.border }]}>
 					<TimerButton />
@@ -78,7 +82,7 @@ const styles = EStyleSheet.create({
 		borderLeftColor: "rgba(0, 0, 0, 0.08)",
 		height: "100%",
 	},
-	progressBar: { backgroundColor: "#E9EBF8", width: "79%", height: 6, borderRadius: 3 },
+	progressBar: { backgroundColor: "#E9EBF8", width: "100%", height: 6, borderRadius: 3 },
 	timeAndProgressBarWrapper: {
 		flexDirection: "column",
 		justifyContent: "space-between",
