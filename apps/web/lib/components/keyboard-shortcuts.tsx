@@ -13,11 +13,14 @@ import {
 	DialogHeader,
 	DialogTitle
 } from '@components/ui/dialog';
+import { useTranslation } from 'lib/i18n';
 import { useCallback } from 'react';
 import { Button } from './button';
 import { FlashCircleLinearIcon } from './svgs';
+import { Tooltip } from './tooltip';
 
 export function KeyboardShortcuts() {
+	const { trans } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
 
 	const { os } = useDetectOS();
@@ -35,14 +38,16 @@ export function KeyboardShortcuts() {
 
 	return (
 		<>
-			<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={toggle}>
-				<FlashCircleLinearIcon className="stroke-black dark:stroke-white w-7 h-7" />
-			</Button>
+			<Tooltip label={trans.common.KEYBOARD_SHORTCUTS} placement="auto">
+				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={toggle}>
+					<FlashCircleLinearIcon className="stroke-black dark:stroke-white w-7 h-7" />
+				</Button>
+			</Tooltip>
 
 			<Dialog open={isOpen} defaultOpen={isOpen} onOpenChange={toggle}>
 				<DialogContent className="border-[#0000001A] dark:border-[#26272C]">
 					<DialogHeader className="flex flex-col gap-5">
-						<DialogTitle>Keyboard Shortcuts</DialogTitle>
+						<DialogTitle>{trans.common.KEYBOARD_SHORTCUTS}</DialogTitle>
 						<DialogDescription className="flex flex-col gap-2">
 							{HostKeysMapping.map((item, index) => (
 								<div key={index} className="flex flex-col gap-2">
