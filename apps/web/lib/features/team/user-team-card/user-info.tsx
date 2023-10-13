@@ -1,17 +1,16 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { I_TeamMemberCardHook, useTimer } from '@app/hooks';
-import { IClassName } from '@app/interfaces';
+import { IClassName, ITimerStatusEnum } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Avatar, Text, Tooltip } from 'lib/components';
 // import { MailIcon } from 'lib/components/svgs';
-import { TimerStatus } from 'lib/features';
+import { getTimerStatusValue, TimerStatus } from 'lib/features';
 import Link from 'next/link';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
 import { MailIcon, UserManagerIcon } from 'lib/components/svgs';
-import moment from 'moment';
 
 type Props = {
 	memberInfo: I_TeamMemberCardHook;
@@ -38,6 +37,9 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	]);
 
 	const { timerStatus } = useTimer();
+	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+		return getTimerStatusValue(timerStatus, member, publicTeam);
+	}, [timerStatus, member, publicTeam]);
 
 	return (
 		<Link
@@ -63,27 +65,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						alt="Team Avatar"
 					>
 						<TimerStatus
-							status={
-								!timerStatus?.running &&
-								timerStatus?.lastLog &&
-								timerStatus?.lastLog?.startedAt &&
-								moment().diff(
-									moment(timerStatus?.lastLog?.startedAt),
-									'hours'
-								) < 24 &&
-								timerStatus?.lastLog?.source !== 'TEAMS'
-									? 'pause'
-									: !member?.employee?.isActive && !publicTeam
-									? 'suspended'
-									: member?.employee?.isOnline
-									? //  && member?.timerStatus !== 'running'
-									  'online'
-									: !member?.totalTodayTasks?.length
-									? 'idle'
-									: member?.totalTodayTasks?.length
-									? 'pause'
-									: member?.timerStatus || 'idle'
-							}
+							status={timerStatusValue}
 							className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
 							tooltipClassName="mt-10"
 						/>
