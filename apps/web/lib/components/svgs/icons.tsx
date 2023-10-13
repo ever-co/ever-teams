@@ -2772,7 +2772,7 @@ export function Profile2UserLinearIcon({ className }: IClassName) {
 	);
 }
 
-export function FlashCircleLinearIcon({ className }: IClassName) {
+export function KeyboardLinearIcon({ className }: IClassName) {
 	return (
 		<svg
 			width="24"
@@ -2783,19 +2783,36 @@ export function FlashCircleLinearIcon({ className }: IClassName) {
 			className={className}
 		>
 			<path
-				d="M8.68006 12.7201H10.4201V16.7701C10.4201 17.3701 11.1601 17.6501 11.5601 17.2001L15.8201 12.3601C16.1901 11.9401 15.8901 11.2801 15.3301 11.2801H13.5901V7.23008C13.5901 6.63008 12.8501 6.35008 12.4501 6.80008L8.19006 11.6401C7.82006 12.0601 8.12006 12.7201 8.68006 12.7201Z"
-				stroke="#292D32"
+				d="M7.5 4H16.5C17.12 4 17.67 4.02 18.16 4.09C20.79 4.38 21.5 5.62 21.5 9V15C21.5 18.38 20.79 19.62 18.16 19.91C17.67 19.98 17.12 20 16.5 20H7.5C6.88 20 6.33 19.98 5.84 19.91C3.21 19.62 2.5 18.38 2.5 15V9C2.5 5.62 3.21 4.38 5.84 4.09C6.33 4.02 6.88 4 7.5 4Z"
 				strokeWidth="1.5"
-				strokeMiterlimit="10"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				className={className}
 			/>
 			<path
-				d="M11.97 22C17.4928 22 21.97 17.5228 21.97 12C21.97 6.47715 17.4928 2 11.97 2C6.44712 2 1.96997 6.47715 1.96997 12C1.96997 17.5228 6.44712 22 11.97 22Z"
-				stroke="#292D32"
+				d="M13.5 10H17"
 				strokeWidth="1.5"
-				strokeMiterlimit="10"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+			<path
+				d="M7 15.5H7.02H17"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+			<path
+				d="M10.0946 10H10.1036"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+				className={className}
+			/>
+			<path
+				d="M7.0946 10H7.10359"
+				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				className={className}

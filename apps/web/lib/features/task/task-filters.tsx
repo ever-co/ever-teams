@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_UserProfilePage, useDetectOS, useOutsideClick } from '@app/hooks';
+import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -245,14 +245,7 @@ function InputFilters({ hook, profile }: Props) {
 	const { trans } = useTranslation();
 	const [loading, setLoading] = useState(false);
 
-	const { os } = useDetectOS();
-	const osSpecificAssignTaskTooltipLabel = useMemo(() => {
-		if (os === 'Mac') {
-			return 'Ctrl(⌃) + Opt(⌥) + A';
-		}
-
-		return 'Ctrl + Alt + [';
-	}, [os]);
+	const osSpecificAssignTaskTooltipLabel = 'A';
 
 	return (
 		<div className="flex lg:space-x-5 space-x-2 items-center mt-8 xs:mt-4">

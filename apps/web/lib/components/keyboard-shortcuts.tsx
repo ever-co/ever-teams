@@ -16,7 +16,7 @@ import {
 import { useTranslation } from 'lib/i18n';
 import { useCallback } from 'react';
 import { Button } from './button';
-import { FlashCircleLinearIcon } from './svgs';
+import { KeyboardLinearIcon } from './svgs';
 import { Tooltip } from './tooltip';
 
 export function KeyboardShortcuts() {
@@ -40,7 +40,7 @@ export function KeyboardShortcuts() {
 		<>
 			<Tooltip label={trans.common.KEYBOARD_SHORTCUTS} placement="auto">
 				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={toggle}>
-					<FlashCircleLinearIcon className="stroke-black dark:stroke-white w-7 h-7" />
+					<KeyboardLinearIcon className="stroke-dark--theme-light dark:stroke-white w-7 h-7" />
 				</Button>
 			</Tooltip>
 
@@ -64,23 +64,18 @@ export function KeyboardShortcuts() {
 												<p className="text-sm font-normal">{keySeq.label}</p>
 											</div>
 											<div className="flex flex-row gap-2">
-												{os === 'Mac'
-													? keySeq.sequence.MAC.map((label) => (
-															<div
-																key={label}
-																className="border rounded-md py-1 px-3 text-dark-high dark:text-white"
-															>
-																{label}
-															</div>
-													  ))
-													: keySeq.sequence.OTHER.map((label) => (
-															<div
-																key={label}
-																className="border rounded-md py-1 px-3 text-dark-high dark:text-white"
-															>
-																{label}
-															</div>
-													  ))}
+												{[
+													...(os === 'Mac'
+														? keySeq.sequence.MAC
+														: keySeq.sequence.OTHER)
+												].map((label) => (
+													<div
+														key={label}
+														className="border rounded-md py-1 px-3 text-dark-high dark:text-white min-w-[2.5rem] text-center"
+													>
+														{label}
+													</div>
+												))}
 											</div>
 										</div>
 									))}

@@ -1,9 +1,9 @@
-import { HostKeys, useDetectOS, useHotkeys, useModal } from '@app/hooks';
+import { HostKeys, useHotkeys, useModal } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Modal } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
-import { PropsWithChildren, useCallback, useMemo } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from './task-input';
 
 export function TaskUnOrAssignPopover({

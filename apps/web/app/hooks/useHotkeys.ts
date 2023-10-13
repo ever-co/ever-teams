@@ -18,8 +18,9 @@ export const useHotkeys = (key: string, callback: () => void) => {
 
 export const HostKeys = {
 	START_STOP_TIMER: 'ctrl+option+],ctrl+alt+],ctrl+option+[,ctrl+alt+[',
-	ASSIGN_TASK: 'ctrl+option+a,ctrl+alt+a',
-	SHORTCUT_LIST: 'shift+h,h'
+	ASSIGN_TASK: 'shift+a,a',
+	SHORTCUT_LIST: 'shift+h,h',
+	CREATE_TASK: 'shift+c,c'
 };
 
 export const HostKeysMapping = [
@@ -60,8 +61,15 @@ export const HostKeysMapping = [
 			{
 				label: 'Assign Task',
 				sequence: {
-					MAC: ['Ctrl(⌃)', 'Opt(⌥)', 'A'],
-					OTHER: ['Ctrl', 'Alt', 'A']
+					MAC: ['A'],
+					OTHER: ['A']
+				}
+			},
+			{
+				label: 'Create Task',
+				sequence: {
+					MAC: ['C'],
+					OTHER: ['C']
 				}
 			}
 		]

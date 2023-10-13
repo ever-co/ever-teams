@@ -1,7 +1,9 @@
 import {
+	HostKeys,
 	RTuseTaskInput,
 	useAuthenticateUser,
 	useCallbackRef,
+	useHotkeys,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
@@ -290,6 +292,16 @@ export function TaskInput(props: Props) {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
+
+	// Handling Hotkeys
+	const handleCommandKeySequence = useCallback(() => {
+		if (!editMode) {
+			setEditMode(true);
+		} else {
+			setEditMode(false);
+		}
+	}, [setEditMode, editMode]);
+	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
 
 	const inputField = (
 		<InputField
