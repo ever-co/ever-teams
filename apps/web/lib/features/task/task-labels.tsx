@@ -5,7 +5,7 @@ import { PlusIcon } from 'lib/components/svgs';
 import { TaskLabelForm } from 'lib/settings';
 import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
@@ -28,7 +28,7 @@ export function TaskLabels({
 	const latestLabels = useRef<string[]>([]);
 
 	const onValuesChange = useCallback(
-		debounce((_: any, values: string[] | undefined) => {
+		(_: any, values: string[] | undefined) => {
 			if (!$task.current) return;
 
 			if (!isEqual(latestLabels.current, values)) {
@@ -49,8 +49,13 @@ export function TaskLabels({
 				taskLabels,
 				values
 			);
-		}, 2000),
+		},
 		[$task, taskLabels, updateTask, latestLabels]
+	);
+
+	const onValuesChangeDebounce = useMemo(
+		() => debounce(onValuesChange, 2000),
+		[onValuesChange]
 	);
 
 	const tags = (task?.tags as typeof taskLabels | undefined)?.map(
@@ -60,7 +65,7 @@ export function TaskLabels({
 	return (
 		<>
 			<TaskLabelsDropdown
-				onValueChange={onValueChange ? onValueChange : onValuesChange}
+				onValueChange={onValueChange ? onValueChange : onValuesChangeDebounce}
 				className={className}
 				placeholder="Labels"
 				defaultValues={tags || []}
