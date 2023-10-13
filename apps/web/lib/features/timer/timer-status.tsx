@@ -1,4 +1,10 @@
-import { IClassName, ITimerStatusEnum } from '@app/interfaces';
+/* eslint-disable no-mixed-spaces-and-tabs */
+import {
+	IClassName,
+	ITimerStatus,
+	ITimerStatusEnum,
+	OT_Member
+} from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
 import {
@@ -7,6 +13,7 @@ import {
 	TimerPlayIcon,
 	UserOnlineAndTrackingTimeIcon
 } from 'lib/components/svgs';
+import moment from 'moment';
 
 type Props = {
 	status: ITimerStatusEnum;
@@ -61,4 +68,28 @@ export function TimerStatus({
 			</div>
 		</Tooltip>
 	);
+}
+
+export function getTimerStatusValue(
+	timerStatus: ITimerStatus | null,
+	member: OT_Member | undefined,
+	publicTeam?: boolean
+): ITimerStatusEnum {
+	return member?.timerStatus === 'pause'
+		? 'pause'
+		: !timerStatus?.running &&
+		  timerStatus?.lastLog &&
+		  timerStatus?.lastLog?.startedAt &&
+		  timerStatus?.lastLog?.employeeId === member?.employeeId &&
+		  moment().diff(moment(timerStatus?.lastLog?.startedAt), 'hours') < 24 &&
+		  timerStatus?.lastLog?.source !== 'TEAMS'
+		? 'pause'
+		: !member?.employee?.isActive && !publicTeam
+		? 'suspended'
+		: member?.employee?.isOnline
+		? //  && member?.timerStatus !== 'running'
+		  'online'
+		: !member?.totalTodayTasks?.length
+		? 'idle'
+		: member?.timerStatus || 'idle';
 }

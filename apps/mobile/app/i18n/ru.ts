@@ -72,7 +72,7 @@ const ru = {
 		taskFieldPlaceholder: "What you working on",
 		sizeText: "Sizes",
 		prioritiesText: "Priorities",
-		tabCreateTask: "Create new task",
+		tabCreateTask: "Create New Task",
 		labelText: "Label",
 	},
 	teamScreen: {
@@ -105,6 +105,9 @@ const ru = {
 		unMakeManager: "Unmake a Manager",
 		makeManager: "Make a Manager",
 		remove: "Remove",
+		filter: "Filter",
+		apply: "Apply",
+		reset: "Reset",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

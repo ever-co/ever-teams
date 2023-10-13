@@ -3,6 +3,7 @@
 import React, { FC, ReactNode } from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { typography } from "../theme"
+import { limitTextCharaters } from "../helpers/sub-text"
 
 interface Props {
 	label: string
@@ -28,9 +29,9 @@ const styles = StyleSheet.create({
 		backgroundColor: "#D4EFDF",
 		borderRadius: 10,
 		flexDirection: "row",
+		minWidth: 70,
 		paddingHorizontal: 10,
 		paddingVertical: 6,
-		width: 97,
 	},
 	labelTitle: {
 		fontFamily: typography.secondary.semiBold,

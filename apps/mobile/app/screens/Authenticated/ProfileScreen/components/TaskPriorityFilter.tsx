@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -22,19 +22,27 @@ import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { useTaskPriority } from "../../../../services/hooks/features/useTaskPriority"
 import { ITaskPriorityItem } from "../../../../services/interfaces/ITaskPriority"
+import { StatusType } from "./FilterPopup"
 
 interface TaskPriorityFilterProps {
 	showPriorityPopup: boolean
 	setShowPriorityPopup: (value: boolean) => unknown
 	taskFilter: ITaskFilter
+	setSelectedPriorities: (newValue: string[], statusType: StatusType) => void
+	selectedPriorities: string[]
 }
 
 const { height, width } = Dimensions.get("window")
 
 const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
-	({ setShowPriorityPopup, showPriorityPopup, taskFilter }) => {
+	({
+		setShowPriorityPopup,
+		showPriorityPopup,
+		taskFilter,
+		selectedPriorities,
+		setSelectedPriorities,
+	}) => {
 		const { colors } = useAppTheme()
-		const [selectedPriorities, setSelectedPriorities] = useState<string[]>([])
 
 		useEffect(() => {
 			taskFilter.onChangeStatusFilter("priority", selectedPriorities)
@@ -68,8 +76,8 @@ const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
 interface DropDownProps {
 	visible: boolean
 	onDismiss: () => unknown
+	setSelectedPriorities: (newValue: string[], statusType: StatusType) => void
 	selectedPriorities: string[]
-	setSelectedPriorities: (s: string[]) => unknown
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
@@ -116,21 +124,21 @@ const DropDownItem = observer(
 		setSelectedPriorities,
 	}: {
 		priority: ITaskPriorityItem
+		setSelectedPriorities: (newValue: string[], statusType: StatusType) => void
 		selectedPriorities: string[]
-		setSelectedPriorities: (s: string[]) => unknown
 	}) => {
 		const allPriorities = useTaskPriorityValue()
 		const priorityItem = allPriorities[priority.name.split("-").join(" ")]
 		const { dark } = useAppTheme()
 
-		const exist = selectedPriorities.find((s) => s === priorityItem?.name)
+		const exist = selectedPriorities.find((s) => s === priorityItem?.value)
 
 		const onSelectedPriority = () => {
 			if (exist) {
-				const newStatuses = selectedPriorities.filter((s) => s !== priorityItem?.name)
-				setSelectedPriorities([...newStatuses])
+				const newStatuses = selectedPriorities.filter((s) => s !== priorityItem?.value)
+				setSelectedPriorities([...newStatuses], "priority")
 			} else {
-				setSelectedPriorities([...selectedPriorities, priorityItem?.name])
+				setSelectedPriorities([...selectedPriorities, priorityItem?.value], "priority")
 			}
 		}
 
@@ -264,6 +272,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14,
 		marginLeft: 10,
+		textTransform: "capitalize",
 	},
 	secondContainer: {
 		marginVertical: 16,

@@ -73,7 +73,7 @@ const fr = {
 		taskFieldPlaceholder: "Sur quoi tu travailles",
 		sizeText: "Tailles",
 		prioritiesText: "Priorités",
-		tabCreateTask: "Créer une nouvelle tâche",
+		tabCreateTask: "Créer une Nouvelle Tâche",
 		labelText: "Étiquette",
 	},
 	teamScreen: {
@@ -107,6 +107,9 @@ const fr = {
 		unMakeManager: "Défaire un manager",
 		makeManager: "Créer un gestionnaire",
 		remove: "Supprimer",
+		filter: "Filtre",
+		apply: "Appliquer",
+		reset: "Réinitialiser",
 	},
 	settingScreen: {
 		name: "Réglages",

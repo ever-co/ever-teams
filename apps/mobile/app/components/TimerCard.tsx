@@ -1,3 +1,6 @@
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable camelcase */
 import React, { FC } from "react"
 import { View } from "react-native"
 import { ProgressBar, Text } from "react-native-paper"
@@ -9,6 +12,7 @@ import { pad } from "../helpers/number"
 import { typography, useAppTheme } from "../theme"
 import { useTimer } from "../services/hooks/useTimer"
 import TimerButton from "./TimerButton"
+import { useTaskStatistics } from "../services/hooks/features/useTaskStatics"
 
 export interface Props {}
 
@@ -16,21 +20,22 @@ const TimerCard: FC<Props> = observer(() => {
 	const { colors } = useAppTheme()
 	const {
 		TaskStore: { activeTask },
-		TimerStore: { timeCounterState },
 	} = useStores()
 
 	const {
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 	} = useTimer()
+	const { activeTaskTotalStat } = useTaskStatistics()
 
 	const getTimePercentage = () => {
 		if (activeTask) {
 			if (!activeTask.estimate) {
 				return 0
 			}
-			// convert milliseconds to seconds
-			const seconds = timeCounterState / 1000
-			return seconds / activeTask.estimate
+
+			return activeTaskTotalStat?.duration
+				? activeTaskTotalStat?.duration / activeTask?.estimate
+				: 0
 		} else {
 			return 0
 		}
@@ -39,16 +44,18 @@ const TimerCard: FC<Props> = observer(() => {
 	return (
 		<View style={[styles.mainContainer, { borderTopColor: colors.border }]}>
 			<View style={styles.horizontal}>
-				<View style={{ justifyContent: "space-around", width: "61%" }}>
+				<View style={styles.timeAndProgressBarWrapper}>
 					<Text style={[styles.timerText, { color: colors.primary }]}>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-						<Text style={{ fontSize: 14 }}>:{pad(ms_p)}</Text>
+						<Text style={{ fontSize: 14, fontWeight: "600" }}>:{pad(ms_p)}</Text>
 					</Text>
-					<ProgressBar
-						style={{ backgroundColor: "#E9EBF8", width: "84%", height: 6, borderRadius: 3 }}
-						progress={getTimePercentage()}
-						color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"}
-					/>
+					<View style={{ width: "79%" }}>
+						<ProgressBar
+							style={styles.progressBar}
+							progress={getTimePercentage()}
+							color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"}
+						/>
+					</View>
 				</View>
 				<View style={[styles.timerBtn, { borderLeftColor: colors.border }]}>
 					<TimerButton />
@@ -70,16 +77,25 @@ const styles = EStyleSheet.create({
 		marginVertical: 4,
 		justifyContent: "center",
 		alignItems: "center",
-		width: "39%",
+		width: "34%",
 		borderLeftWidth: 2,
 		borderLeftColor: "rgba(0, 0, 0, 0.08)",
+		height: "100%",
+	},
+	progressBar: { backgroundColor: "#E9EBF8", width: "100%", height: 6, borderRadius: 3 },
+	timeAndProgressBarWrapper: {
+		flexDirection: "column",
+		justifyContent: "space-between",
+		width: "66%",
+		height: 70,
+		paddingBottom: 0,
 	},
 	horizontal: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
 		width: "100%",
-		height: 60,
+		height: 70,
 	},
 	loading: {
 		position: "absolute",
@@ -88,8 +104,10 @@ const styles = EStyleSheet.create({
 	},
 	timerText: {
 		fontWeight: "600",
-		fontSize: "2rem",
+		fontSize: "2.3rem",
 		color: "#1B005D",
+		marginTop: 0,
+		paddingTop: 0,
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 	},
 })

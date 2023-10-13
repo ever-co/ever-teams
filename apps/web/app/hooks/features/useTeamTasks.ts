@@ -4,7 +4,12 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@app/helpers';
-import { ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
+import {
+	ITaskLabelsItemList,
+	ITaskStatusField,
+	ITaskStatusStack,
+	ITeamTask
+} from '@app/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,
@@ -34,7 +39,8 @@ import { useSyncRef } from '../useSyncRef';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 
 export function useTeamTasks() {
-	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
+	const { updateOrganizationTeamEmployeeActiveTask } =
+		useOrganizationEmployeeTeams();
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
@@ -192,12 +198,33 @@ export function useTeamTasks() {
 
 	const createTask = useCallback(
 		(
-			{ taskName, issueType }: { taskName: string; issueType?: string },
+			{
+				taskName,
+				issueType,
+				status,
+				priority,
+				size,
+				tags,
+				description
+			}: {
+				taskName: string;
+				issueType?: string;
+				status?: string;
+				priority?: string;
+				size?: string;
+				tags?: ITaskLabelsItemList[];
+				description?: string | null;
+			},
 			members?: { id: string }[]
 		) => {
 			return createQueryCall({
 				title: taskName,
 				issueType,
+				status,
+				priority,
+				size,
+				tags,
+				...(description ? { description: `<p>${description}</p>` } : {}),
 				...(members ? { members } : {})
 			}).then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], true);
@@ -328,7 +355,7 @@ export function useTeamTasks() {
 				);
 
 				if (currentEmployeeDetails && currentEmployeeDetails.id) {
-					updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
+					updateOrganizationTeamEmployeeActiveTask(currentEmployeeDetails.id, {
 						organizationId: task.organizationId,
 						activeTaskId: task.id,
 						organizationTeamId: activeTeam?.id,
@@ -340,7 +367,7 @@ export function useTeamTasks() {
 		[
 			setActiveTeamTask,
 			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployee,
+			updateOrganizationTeamEmployeeActiveTask,
 			activeTeam,
 			authUser
 		]
