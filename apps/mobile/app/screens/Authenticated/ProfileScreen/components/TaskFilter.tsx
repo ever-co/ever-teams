@@ -56,7 +56,9 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 					) : (
 						<Image source={require("../../../../../assets/icons/new/setting-light.png")} />
 					)}
-					<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>Filter</Text>
+					<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>
+						{translate("tasksScreen.filter")}
+					</Text>
 				</TouchableOpacity>
 			</View>
 			<ProfileTabs hook={hook} />

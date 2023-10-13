@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect } from "react"
 import {
 	TouchableOpacity,
 	View,
@@ -22,19 +22,22 @@ import { ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
 import { useTaskStatusValue } from "../../../../components/StatusType"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
+import { StatusType } from "./FilterPopup"
 
 interface TaskStatusFilterProps {
 	showTaskStatus: boolean
 	setShowTaskStatus: (value: boolean) => unknown
 	taskFilter: ITaskFilter
+	selectedStatuses: string[]
+	setSelectedStatuses: (newValue: string[], statusType: StatusType) => void
 }
 
 const { height, width } = Dimensions.get("window")
 
 const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
-	({ setShowTaskStatus, showTaskStatus, taskFilter }) => {
+	({ setShowTaskStatus, showTaskStatus, taskFilter, selectedStatuses, setSelectedStatuses }) => {
 		const { colors } = useAppTheme()
-		const [selectedStatuses, setSelectedStatus] = useState<string[]>([])
+		// const [selectedStatuses, setSelectedStatus] = useState<string[]>([])
 
 		useEffect(() => {
 			taskFilter.onChangeStatusFilter("status", selectedStatuses)
@@ -57,7 +60,7 @@ const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
 					visible={showTaskStatus}
 					onDismiss={() => setShowTaskStatus(false)}
 					selectedStatus={selectedStatuses}
-					setSelectedStatus={setSelectedStatus}
+					setSelectedStatus={setSelectedStatuses}
 				/>
 			</>
 		)
@@ -68,7 +71,7 @@ interface DropDownProps {
 	visible: boolean
 	onDismiss: () => unknown
 	selectedStatus: string[]
-	setSelectedStatus: (s: string[]) => unknown
+	setSelectedStatus: (newValue: string[], statusType: StatusType) => void
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
@@ -116,20 +119,20 @@ const DropDownItem = observer(
 	}: {
 		status: ITaskStatusItem
 		selectedStatus: string[]
-		setSelectedStatus: (s: string[]) => unknown
+		setSelectedStatus: (newValue: string[], statusType: StatusType) => void
 	}) => {
 		const allStatuses = useTaskStatusValue()
 		const statusItem = allStatuses[status.name.split("-").join(" ")]
 		const { dark } = useAppTheme()
 
-		const exist = selectedStatus.find((s) => s === statusItem?.name)
+		const exist = selectedStatus.find((s) => s === statusItem?.value)
 
 		const onSelectedStatus = () => {
 			if (exist) {
-				const newStatuses = selectedStatus.filter((s) => s !== statusItem.name)
-				setSelectedStatus([...newStatuses])
+				const newStatuses = selectedStatus.filter((s) => s !== statusItem.value)
+				setSelectedStatus([...newStatuses], "taskStatus")
 			} else {
-				setSelectedStatus([...selectedStatus, statusItem.name])
+				setSelectedStatus([...selectedStatus, statusItem.value], "taskStatus")
 			}
 		}
 
@@ -263,6 +266,7 @@ const styles = StyleSheet.create({
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14,
 		marginLeft: 10,
+		textTransform: "capitalize",
 	},
 	secondContainer: {
 		marginVertical: 16,
