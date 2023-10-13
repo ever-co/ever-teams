@@ -8,7 +8,7 @@ import {
 	Nullable,
 	Tag
 } from '@app/interfaces';
-import { clsxm } from '@app/utils';
+import { Queue, clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -129,6 +129,8 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 	}, [data, bordered]);
 }
 
+export const taskUpdateQueue = new Queue(1);
+
 export function useActiveTaskStatus<T extends ITaskStatusField>(
 	props: IActiveTaskStatuses<T>,
 	status: TStatus<ITaskStatusStack[T]>,
@@ -138,6 +140,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	const { taskLabels } = useTaskLabels();
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
+	const $task = useSyncRef(task);
 
 	/**
 	 * "When the user changes the status of a task, update the status of the task and then call the
@@ -160,11 +163,16 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 			status = [currentTag];
 		}
 
-		handleStatusUpdate(status, updatedField || field, task, true).finally(
-			() => {
+		taskUpdateQueue.task((task) => {
+			return handleStatusUpdate(
+				status,
+				updatedField || field,
+				task.current,
+				true
+			).finally(() => {
 				props.onChangeLoading && props.onChangeLoading(false);
-			}
-		);
+			});
+		}, $task);
 	}
 
 	const { item, items, onChange } = useStatusValue<T>({
