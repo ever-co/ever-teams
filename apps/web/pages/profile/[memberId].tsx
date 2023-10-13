@@ -1,13 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { imgTitle } from '@app/helpers';
 import { useOrganizationTeams, useTimer, useUserProfilePage } from '@app/hooks';
-import { OT_Member } from '@app/interfaces';
+import { ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import {
+	getTimerStatusValue,
 	TaskFilter,
 	Timer,
 	TimerStatus,
@@ -16,7 +17,6 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import moment from 'moment';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
@@ -91,6 +91,9 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
 	const size = 100;
 	const { timerStatus } = useTimer();
+	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
+		return getTimerStatusValue(timerStatus, member, false);
+	}, [timerStatus, member]);
 
 	return (
 		<div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -114,27 +117,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 						imageTitle={userName.charAt(0)}
 					>
 						<TimerStatus
-							status={
-								!timerStatus?.running &&
-								timerStatus?.lastLog &&
-								timerStatus?.lastLog?.startedAt &&
-								moment().diff(
-									moment(timerStatus?.lastLog?.startedAt),
-									'hours'
-								) < 24 &&
-								timerStatus?.lastLog?.source !== 'TEAMS'
-									? 'pause'
-									: !member?.employee?.isActive
-									? 'suspended'
-									: member?.employee?.isOnline
-									? // && member?.timerStatus !== 'running'
-									  'online'
-									: !member?.totalTodayTasks?.length
-									? 'idle'
-									: member?.totalTodayTasks?.length
-									? 'pause'
-									: member?.timerStatus || 'idle'
-							}
+							status={timerStatusValue}
 							className="absolute z-20 bottom-3 right-[10%] -mb-5 border-[0.2956rem] border-white dark:border-[#26272C]"
 							tooltipClassName="mt-24 dark:mt-20 mr-3"
 						/>

@@ -96,10 +96,11 @@ export function getOrganizationTeamRequest(
 	const params = {
 		organizationId: organizationId,
 		tenantId: tenantId,
-		source: TimerSource.TEAMS,
+		// source: TimerSource.TEAMS,
 		withLaskWorkedTask: 'true',
 		startDate: moment().startOf('day').toISOString(),
-		endDate: moment().endOf('day').toISOString()
+		endDate: moment().endOf('day').toISOString(),
+		includeOrganizationTeamId: 'false'
 	} as { [x: string]: string };
 
 	relations.forEach((rl, i) => {
