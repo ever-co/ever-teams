@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { I_UserProfilePage, useOutsideClick } from '@app/hooks';
+import { I_UserProfilePage, useDetectOS, useOutsideClick } from '@app/hooks';
 import { IClassName, ITeamTask } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
@@ -245,6 +245,15 @@ function InputFilters({ hook, profile }: Props) {
 	const { trans } = useTranslation();
 	const [loading, setLoading] = useState(false);
 
+	const { os } = useDetectOS();
+	const osSpecificAssignTaskTooltipLabel = useMemo(() => {
+		if (os === 'Mac') {
+			return 'Ctrl(⌃) + Opt(⌥) + A';
+		}
+
+		return 'Ctrl + Alt + [';
+	}, [os]);
+
 	return (
 		<div className="flex lg:space-x-5 space-x-2 items-center mt-8 xs:mt-4">
 			<button
@@ -294,15 +303,17 @@ function InputFilters({ hook, profile }: Props) {
 				}
 				userProfile={profile.member}
 			>
-				<Button
-					loading={loading}
-					className={clsxm(
-						'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base',
-						'min-w-[11.25rem] h-[2.75rem]'
-					)}
-				>
-					{trans.common.ASSIGN_TASK}
-				</Button>
+				<Tooltip label={osSpecificAssignTaskTooltipLabel} placement="auto">
+					<Button
+						loading={loading}
+						className={clsxm(
+							'dark:bg-gradient-to-tl dark:from-regal-rose dark:to-regal-blue h-full px-4 py-3 rounded-xl text-base',
+							'min-w-[11.25rem] h-[2.75rem]'
+						)}
+					>
+						{trans.common.ASSIGN_TASK}
+					</Button>
+				</Tooltip>
 			</TaskUnOrAssignPopover>
 		</div>
 	);

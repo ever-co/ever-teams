@@ -1,4 +1,11 @@
-import { useDetectOS, useModal } from '@app/hooks';
+/* eslint-disable no-mixed-spaces-and-tabs */
+import {
+	HostKeys,
+	HostKeysMapping,
+	useDetectOS,
+	useHotkeys,
+	useModal
+} from '@app/hooks';
 import {
 	Dialog,
 	DialogContent,
@@ -6,7 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle
 } from '@components/ui/dialog';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { Button } from './button';
 import { FlashCircleLinearIcon } from './svgs';
 
@@ -14,20 +21,6 @@ export function KeyboardShortcuts() {
 	const { isOpen, closeModal, openModal } = useModal();
 
 	const { os } = useDetectOS();
-	const osSpecificStartTimerLabel = useMemo(() => {
-		if (os === 'Mac') {
-			return ['Ctrl(⌃)', 'Opt(⌥)', ']'];
-		}
-
-		return ['Ctrl', 'Alt', ']'];
-	}, [os]);
-	const osSpecificStopTimerLabel = useMemo(() => {
-		if (os === 'Mac') {
-			return ['Ctrl(⌃)', 'Opt(⌥)', '['];
-		}
-
-		return ['Ctrl', 'Alt', '['];
-	}, [os]);
 
 	const toggle = useCallback(() => {
 		if (isOpen) {
@@ -37,6 +30,9 @@ export function KeyboardShortcuts() {
 		}
 	}, [isOpen, closeModal, openModal]);
 
+	// Handling Hotkeys
+	useHotkeys(HostKeys.SHORTCUT_LIST, toggle);
+
 	return (
 		<>
 			<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={toggle}>
@@ -44,41 +40,52 @@ export function KeyboardShortcuts() {
 			</Button>
 
 			<Dialog open={isOpen} defaultOpen={isOpen} onOpenChange={toggle}>
-				<DialogContent>
+				<DialogContent className="border-[#0000001A] dark:border-[#26272C]">
 					<DialogHeader className="flex flex-col gap-5">
 						<DialogTitle>Keyboard Shortcuts</DialogTitle>
 						<DialogDescription className="flex flex-col gap-2">
-							<p className="text-base font-normal text-black">Timer</p>
-							<div className="flex flex-row justify-between items-center">
-								<div>
-									<p className="text-sm font-normal">Start Timer</p>
-								</div>
-								<div className="flex flex-row gap-2">
-									{osSpecificStartTimerLabel.map((label) => (
+							{HostKeysMapping.map((item, index) => (
+								<div key={index} className="flex flex-col gap-2">
+									<p className="text-base font-normal text-black dark:text-light--theme-light">
+										{item.heading}
+									</p>
+
+									{item.keySequence.map((keySeq, keySeqIndex) => (
 										<div
-											key={label}
-											className="border rounded-md py-1 px-3 text-dark-high dark:text-white"
+											className="flex flex-row justify-between items-center"
+											key={`key-seq-${keySeqIndex}`}
 										>
-											{label}
+											<div>
+												<p className="text-sm font-normal">{keySeq.label}</p>
+											</div>
+											<div className="flex flex-row gap-2">
+												{os === 'Mac'
+													? keySeq.sequence.MAC.map((label) => (
+															<div
+																key={label}
+																className="border rounded-md py-1 px-3 text-dark-high dark:text-white"
+															>
+																{label}
+															</div>
+													  ))
+													: keySeq.sequence.OTHER.map((label) => (
+															<div
+																key={label}
+																className="border rounded-md py-1 px-3 text-dark-high dark:text-white"
+															>
+																{label}
+															</div>
+													  ))}
+											</div>
 										</div>
 									))}
+
+									{/* Divider */}
+									{index !== HostKeysMapping.length - 1 && (
+										<div className="h-[0.0625rem] bg-[#F2F2F2] dark:bg-[#26272C] w-full mx-auto"></div>
+									)}
 								</div>
-							</div>
-							<div className="flex flex-row justify-between items-center">
-								<div>
-									<p className="text-sm font-normal">Stop Timer</p>
-								</div>
-								<div className="flex flex-row gap-2">
-									{osSpecificStopTimerLabel.map((label) => (
-										<div
-											key={label}
-											className="border rounded-md py-1 px-3 text-dark-high dark:text-white"
-										>
-											{label}
-										</div>
-									))}
-								</div>
-							</div>
+							))}
 						</DialogDescription>
 					</DialogHeader>
 				</DialogContent>

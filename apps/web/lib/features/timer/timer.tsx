@@ -50,7 +50,6 @@ export function Timer({ className }: IClassName) {
 	const handleStartSTOPTimer = useCallback(() => {
 		timerHanlder();
 	}, [timerHanlder]);
-
 	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
