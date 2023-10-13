@@ -29,8 +29,12 @@ export function TaskUnOrAssignPopover({
 
 	// Handling Hotkeys
 	const handleAssignTask = useCallback(() => {
-		openModal();
-	}, [openModal]);
+		if (isOpen) {
+			closeModal();
+		} else {
+			openModal();
+		}
+	}, [isOpen, openModal, closeModal]);
 	useHotkeys(HostKeys.ASSIGN_TASK, handleAssignTask);
 
 	return (
@@ -70,6 +74,7 @@ export function TaskUnOrAssignPopover({
 					cardWithoutShadow
 					fullWidthCombobox
 					fullHeightCombobox
+					autoFocus
 				/>
 			</Modal>
 		</>
