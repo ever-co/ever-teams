@@ -28,9 +28,9 @@ export function getTeamTasksRequest({
 }: {
 	tenantId: string;
 	organizationId: string;
-	projectId: string;
 	bearer_token: string;
 	relations?: string[];
+	projectId?: string;
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
