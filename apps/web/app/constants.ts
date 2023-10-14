@@ -52,6 +52,7 @@ export const APP_LOGO_URL =
 export const APP_LINK = process.env.APP_LINK || 'https://ever.team/';
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
+
 export const smtpConfiguration: () => I_SMTPRequest = () => ({
 	fromAddress: SMTP_FROM_ADDRESS,
 	host: SMTP_HOST,
@@ -84,6 +85,9 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 	host: process.env.JITSU_BROWSER_URL || '',
 	writeKey: process.env.JITSU_BROWSER_WRITE_KEY || '',
 	disabled: false,
-	echoEvents: false, //if enabled - events will be sent to console but no data sent to Jitsu strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
+	echoEvents: false, //if enabled - events will be sent to the console but no data sent to Jitsu strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
 	debug: false
 };
+
+// Github Integration
+export const GITHUB_APP_NAME = process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';

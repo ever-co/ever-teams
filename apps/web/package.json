@@ -29,6 +29,7 @@
 		"@radix-ui/react-slot": "^1.0.2",
 		"@radix-ui/react-toast": "^1.1.4",
 		"@radix-ui/react-avatar": "^1.0.3",
+		"@radix-ui/react-select": "^2.0.0",
 		"@types/react-google-recaptcha": "^2.1.5",
 		"@vercel/analytics": "^0.1.6",
 		"@sentry/nextjs": "^7.71.0",

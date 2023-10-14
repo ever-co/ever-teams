@@ -58,6 +58,12 @@ const TeamAccordianData = [
 		managerOnly: true
 	},
 	{
+		title: 'Integrations',
+		color: '#7E7991',
+		href: '#integrations',
+		managerOnly: true,
+	},
+	{
 		title: 'Issues Settings',
 		color: '#7E7991',
 		href: '#issues-settings',

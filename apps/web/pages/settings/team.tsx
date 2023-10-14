@@ -22,6 +22,7 @@ import { IssuesSettings } from 'lib/settings/issues-settings';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { MemberSetting } from 'lib/settings/member-setting';
 import { Accordian } from 'lib/components/accordian';
+import { IntegrationSetting } from 'lib/settings/integration-setting';
 
 const Team = () => {
 	const { trans, translations } = useTranslation('settingsTeam');
@@ -94,6 +95,16 @@ const Team = () => {
 										</Accordian>
 									) : (
 										<></>
+									)}
+
+									{isTeamManager && (
+										<Accordian
+											title={trans.INTEGRATIONS}
+											className="dark:bg-dark--theme p-4 mt-4"
+											id="integrations"
+										>
+											<IntegrationSetting />
+										</Accordian>
 									)}
 
 									{/* Issues Settings */}

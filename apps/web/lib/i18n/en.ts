@@ -259,6 +259,14 @@ export const en = {
 			TEAM_REQUEST: 'Team Request',
 			WORK_SCHEDULE: 'Work schedule',
 			MEMBER_AND_ROLES: 'Members & Roles',
+			INTEGRATIONS: 'Integrations',
+
+			GITHUB: 'GitHub',
+			GITHUB_INTEGRATION_DESCRIPTION:
+				'Connect with GitHub and start Syncing GitHub issues with your Team',
+			SELECT_REPOSITORY: 'Select Repository',
+
+			INSTALL: 'Install',
 
 			LIST_OF_STATUSES: 'List of Statuses',
 			LIST_OF_PRIORITIES: 'List of Priorities',
