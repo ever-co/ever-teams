@@ -1293,7 +1293,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 								shadow="bigger"
 								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col"
 							>
-								<div className="flex flex-col gap-2.5 h-[320px] overflow-scroll scrollbar-hide !border-b-0">
+								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-scroll scrollbar-hide !border-b-0">
 									{items.map((item, i) => {
 										const item_value = item.value || item.name;
 										return (
