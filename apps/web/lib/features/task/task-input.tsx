@@ -1,7 +1,9 @@
 import {
+	HostKeys,
 	RTuseTaskInput,
 	useAuthenticateUser,
 	useCallbackRef,
+	useHotkeys,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
@@ -290,6 +292,25 @@ export function TaskInput(props: Props) {
 			document.removeEventListener('mousedown', handleClickOutside);
 		};
 	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
+
+	// Handling Hotkeys
+	const handleCommandKeySequence = useCallback(() => {
+		if (!editMode) {
+			setEditMode(true);
+			if (targetEl.current) {
+				targetEl.current.focus();
+			}
+		} else {
+			setEditMode(false);
+		}
+	}, [setEditMode, editMode, targetEl]);
+	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
+
+	useEffect(() => {
+		if (props.autoFocus && targetEl.current) {
+			targetEl.current.focus();
+		}
+	}, [props.autoFocus, targetEl]);
 
 	const inputField = (
 		<InputField

@@ -12,6 +12,7 @@ import { useTranslation } from 'lib/i18n';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import Collaborate from '@components/shared/collaborate';
+import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 
 const HeaderSkeleton = () => {
 	return (
@@ -100,6 +101,8 @@ export function Navbar({
 									{isTeamMember && isTeamDropdownAllowed ? (
 										<TeamsDropDown publicTeam={publicTeam || false} />
 									) : null}
+
+									<KeyboardShortcuts />
 
 									{!publicTeam && <UserNavAvatar />}
 								</div>
