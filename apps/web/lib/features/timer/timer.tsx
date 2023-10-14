@@ -1,11 +1,10 @@
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
 import { pad } from '@app/helpers';
-import { IClassName } from '@app/interfaces';
+import { IClassName, TimerSource } from '@app/interfaces';
 import { TimerButton } from './timer-button';
 import { useTranslation } from 'lib/i18n';
-import { useTimerView } from '@app/hooks';
-import { TimerSource } from '@app/interfaces/ITimer';
+import { HostKeys, useHotkeys, useTimerView, useDetectOS } from '@app/hooks';
 
 import {
 	DevicePhoneMobileIcon,
@@ -14,6 +13,8 @@ import {
 	ArrowUturnUpIcon,
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
+import { useCallback, useMemo } from 'react';
+import { HotkeysEvent } from 'hotkeys-js';
 
 export function Timer({ className }: IClassName) {
 	const { trans } = useTranslation();
@@ -28,6 +29,48 @@ export function Timer({ className }: IClassName) {
 		timerStatus,
 		disabled
 	} = useTimerView();
+
+	const { os } = useDetectOS();
+	const osSpecificTimerTooltipLabel = useMemo(() => {
+		if (os === 'Mac') {
+			if (!timerStatus?.running) {
+				return 'Ctrl(⌃) + Opt(⌥) + ]';
+			} else {
+				return 'Ctrl(⌃) + Opt(⌥) + [';
+			}
+		}
+
+		if (!timerStatus?.running) {
+			return 'Ctrl + Alt + ]';
+		} else {
+			return 'Ctrl + Alt + [';
+		}
+	}, [os, timerStatus?.running]);
+
+	// Handling Hotkeys
+	const handleStartSTOPTimer = useCallback(
+		(e?: KeyboardEvent, h?: HotkeysEvent) => {
+			console.log('h?.shortcut', h?.shortcut);
+			// Start Timer
+
+			if (
+				(h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') &&
+				!timerStatus?.running
+			) {
+				timerHanlder();
+			}
+
+			// Stop Timer
+			if (
+				(h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') &&
+				timerStatus?.running
+			) {
+				timerHanlder();
+			}
+		},
+		[timerHanlder, timerStatus]
+	);
+	useHotkeys(HostKeys.START_STOP_TIMER, handleStartSTOPTimer);
 
 	return (
 		<div className={clsxm('flex flex-row mb-12 2xl:mb-0', className)}>
@@ -74,19 +117,21 @@ export function Timer({ className }: IClassName) {
 
 			<div className="ml-5 z-[50]">
 				<Tooltip
-					label={trans.timer.START_TIMER}
+					label={
+						!canRunTimer ? trans.timer.START_TIMER : osSpecificTimerTooltipLabel
+					}
 					placement="top-start"
 					// If timer is running at some other source and user may or may not have selected the task
-					enabled={
-						!canRunTimer && timerStatus?.lastLog?.source === TimerSource.TEAMS
-					}
+					// enabled={
+					// 	!canRunTimer && timerStatus?.lastLog?.source !== TimerSource.TEAMS
+					// }
 				>
 					<TimerButton
 						onClick={timerHanlder}
 						running={timerStatus?.running}
 						disabled={
 							// If timer is running at some other source and user may or may not have selected the task
-							disabled && timerStatus?.lastLog?.source === TimerSource.TEAMS
+							disabled && timerStatus?.lastLog?.source !== TimerSource.TEAMS
 						}
 					/>
 				</Tooltip>

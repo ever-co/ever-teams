@@ -1,9 +1,9 @@
-import { useModal } from '@app/hooks';
+import { HostKeys, useHotkeys, useModal } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Modal } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from './task-input';
 
 export function TaskUnOrAssignPopover({
@@ -26,6 +26,16 @@ export function TaskUnOrAssignPopover({
 }>) {
 	const { trans } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
+
+	// Handling Hotkeys
+	const handleAssignTask = useCallback(() => {
+		if (isOpen) {
+			closeModal();
+		} else {
+			openModal();
+		}
+	}, [isOpen, openModal, closeModal]);
+	useHotkeys(HostKeys.ASSIGN_TASK, handleAssignTask);
 
 	return (
 		<>
@@ -64,6 +74,7 @@ export function TaskUnOrAssignPopover({
 					cardWithoutShadow
 					fullWidthCombobox
 					fullHeightCombobox
+					autoFocus
 				/>
 			</Modal>
 		</>

@@ -105,7 +105,9 @@ export const en = {
 
 		COLLABORATE_DIALOG_TITLE: 'Start Collaboration',
 		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating',
-		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration'
+		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration',
+
+		KEYBOARD_SHORTCUTS: 'Keyboard Shortcuts'
 	},
 	pages: {
 		home: {
