@@ -87,3 +87,6 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 	echoEvents: false, //if enabled - events will be sent to console but no data sent to Jitsu strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
 	debug: false
 };
+
+// Github Integration
+export const GITHUB_APP_NAME = process.env.NEXT_PUBLIC_GITHUB_APP_NAME;

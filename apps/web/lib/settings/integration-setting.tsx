@@ -1,22 +1,32 @@
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { Button } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue,
+	SelectValue
 } from '@components/ui/select';
 import {
 	useGitHubIntegration,
 	useIntegrationTenant,
-	useIntegrationTypes,
+	useIntegrationTypes
 } from '@app/hooks';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { GITHUB_APP_NAME } from '@app/constants';
+import Link from 'next/link';
 
 export const IntegrationSetting = () => {
 	const { trans } = useTranslation('settingsTeam');
+
+	const params = useMemo(() => {
+		return {
+			state: `${window.location.origin}/integration/github`
+		} as { [x: string]: string };
+	}, []);
+
+	const queries = new URLSearchParams(params || {});
+	const url = `https://github.com/apps/${GITHUB_APP_NAME}/installations/new?${queries.toString()}`;
 
 	const { integrationGithubRepositories, getRepositories } =
 		useGitHubIntegration();
@@ -24,13 +34,13 @@ export const IntegrationSetting = () => {
 	const {
 		getIntegrationTenant,
 		loading: integrationTenantLoading,
-		integrationTenant,
+		integrationTenant
 	} = useIntegrationTenant();
 
 	const {
 		loading: loadingIntegrationTypes,
 		integrationTypes,
-		getIntegrationTypes,
+		getIntegrationTypes
 	} = useIntegrationTypes();
 
 	useEffect(() => {
@@ -58,7 +68,7 @@ export const IntegrationSetting = () => {
 		loadingIntegrationTypes,
 		integrationTypes,
 		getIntegrationTypes,
-		getIntegrationTenant,
+		getIntegrationTenant
 	]);
 
 	const [selectedRepo, setSelectedRepo] = useState<string>();
@@ -114,7 +124,14 @@ export const IntegrationSetting = () => {
 								</SelectContent>
 							</Select>
 						)}
-					<Button className="min-w-0 w-24">{trans.INSTALL}</Button>
+					{integrationGithubRepositories?.total_count === 0 && (
+						<Link
+							href={url}
+							className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
+						>
+							{trans.INSTALL}
+						</Link>
+					)}
 				</div>
 			</div>
 		</div>

@@ -12,19 +12,19 @@ export function getIntegrationTenantRequest(
 	{
 		tenantId,
 		organizationId,
-		name,
+		name
 	}: { tenantId: string; organizationId: string; name: string },
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({
 		tenantId,
 		organizationId,
-		name,
+		name
 	});
 	return serverFetch<IIntegrationTenant>({
-		path: `/integration-tenant/remember/state?${query.toString()}`,
+		path: `/integration-tenant?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId: tenantId,
+		tenantId: tenantId
 	});
 }
