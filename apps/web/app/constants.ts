@@ -30,13 +30,15 @@ export const NO_TEAM_POPUP_SHOW_COOKIE_NAME = 'no-team-popup-show';
 export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
-export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL;
+export const GAUZY_API_SERVER_URL =
+	process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 
-export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || '';
+export const SMTP_FROM_ADDRESS =
+	process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
 export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
@@ -63,18 +65,22 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 });
 
 // Cookies
-export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || '')
+export const COOKIE_DOMAINS = (
+	process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team'
+)
 	.split(',')
 	.map((d) => d.trim());
 
 // MEET Constants
-export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.jit.si';
-export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID;
+export const MEET_DOMAIN =
+	process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team';
+export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID || 'ever_teams';
 export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
 export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // BOARD board
-export const BOARD_APP_DOMAIN = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN;
+export const BOARD_APP_DOMAIN =
+	process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team';
 export const BOARD_BACKEND_POST_URL =
 	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL;
 export const BOARD_FIREBASE_CONFIG =
@@ -90,4 +96,5 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 };
 
 // Github Integration
-export const GITHUB_APP_NAME = process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+export const GITHUB_APP_NAME =
+	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
