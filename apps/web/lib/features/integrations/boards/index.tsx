@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { SpinnerLoader } from 'lib/components';
 import { LOCAL_STORAGE_THEME } from './constants';
 import { clsxm } from '@app/utils';
+import { AppMainMenu } from './AppMainMenu';
 
 export default function ExcalidrawComponent() {
 	const { theme, resolvedTheme } = useTheme();
@@ -52,7 +53,9 @@ export default function ExcalidrawComponent() {
 							)}
 						</button>
 					)}
-				/>
+				>
+					<AppMainMenu />
+				</Excalidraw>
 			</div>
 
 			{excalidrawAPI?.ready && (
