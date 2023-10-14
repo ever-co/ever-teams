@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import {
 	getActiveTaskIdCookie,
 	getActiveUserTaskCookie,
@@ -224,6 +225,13 @@ export function useTeamTasks() {
 				priority,
 				size,
 				tags,
+				// Set Project Id to cookie
+				// TODO: Make it dynamic when we add Dropdown in Navbar
+				...(activeTeam?.projects && activeTeam?.projects.length > 0
+					? {
+							projectId: activeTeam.projects[0].id
+					  }
+					: {}),
 				...(description ? { description: `<p>${description}</p>` } : {}),
 				...(members ? { members } : {})
 			}).then((res) => {
@@ -231,7 +239,7 @@ export function useTeamTasks() {
 				return res;
 			});
 		},
-		[createQueryCall, deepCheckAndUpdateTasks]
+		[createQueryCall, deepCheckAndUpdateTasks, activeTeam]
 	);
 
 	const updateTask = useCallback(

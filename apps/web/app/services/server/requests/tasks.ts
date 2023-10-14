@@ -11,6 +11,7 @@ import { IUser } from '@app/interfaces';
 export function getTeamTasksRequest({
 	tenantId,
 	organizationId,
+	projectId,
 	bearer_token,
 	relations = [
 		'tags',
@@ -27,12 +28,14 @@ export function getTeamTasksRequest({
 }: {
 	tenantId: string;
 	organizationId: string;
+	projectId: string;
 	bearer_token: string;
 	relations?: string[];
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
+		'where[projectId]': projectId,
 		'join[alias]': 'task',
 		'join[leftJoinAndSelect][members]': 'task.members',
 		'join[leftJoinAndSelect][user]': 'members.user'

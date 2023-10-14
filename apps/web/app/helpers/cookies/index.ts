@@ -10,7 +10,8 @@ import {
 	ACTIVE_USER_TASK_COOKIE_NAME,
 	NO_TEAM_POPUP_SHOW_COOKIE_NAME,
 	ACTIVE_USER_ID_COOKIE_NAME,
-	MEET_JWT_TOKEN_COOKIE_NAME
+	MEET_JWT_TOKEN_COOKIE_NAME,
+	ACTIVE_PROJECT_COOKIE_NAME
 } from '@app/constants';
 import { IDecodedRefreshToken } from '@app/interfaces/IAuthentication';
 import { deleteCookie, getCookie, setCookie } from './helpers';
@@ -178,6 +179,15 @@ export function getActiveTeamIdCookie(ctx?: NextCtx) {
 
 export function setActiveTeamIdCookie(teamIds: string, ctx?: NextCtx) {
 	return setCookie(ACTIVE_TEAM_COOKIE_NAME, teamIds, { ...(ctx || {}) });
+}
+
+// Active Project id
+export function getActiveProjectIdCookie(ctx?: NextCtx) {
+	return getCookie(ACTIVE_PROJECT_COOKIE_NAME, { ...(ctx || {}) }) as string;
+}
+
+export function setActiveProjectIdCookie(teamIds: string, ctx?: NextCtx) {
+	return setCookie(ACTIVE_PROJECT_COOKIE_NAME, teamIds, { ...(ctx || {}) });
 }
 
 // Organization Id
