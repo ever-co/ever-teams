@@ -21,6 +21,7 @@ import TaskPriorityFilter from "./TaskPriorityFilter"
 import TaskStatusFilter from "./TaskStatusFilter"
 import TaskLabelFilter from "./TaskLabelFilter"
 import TaskSizeFilter from "./TaskSizeFilter"
+import { translate } from "../../../../i18n"
 
 export interface Props {
 	visible: boolean
@@ -69,6 +70,8 @@ const ModalPopUp = ({ visible, children }) => {
 	)
 }
 
+export type StatusType = "taskStatus" | "priority" | "sizes" | "labels"
+
 const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }) {
 	const { colors } = useAppTheme()
 
@@ -76,6 +79,20 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 	const [showTaskLabel, setShowTaskLabel] = useState(false)
 	const [showTaskPriority, setShowTaskPriority] = useState(false)
 	const [showTaskSize, setShowTaskSize] = useState(false)
+
+	const [selectedStatuses, setSelectedStatuses] = useState({
+		taskStatus: [],
+		priority: [],
+		sizes: [],
+		labels: [],
+	})
+
+	const updateStatuses = (newValue: string[], statusType: StatusType) => {
+		setSelectedStatuses((prevValues) => ({
+			...prevValues,
+			[statusType]: newValue,
+		}))
+	}
 
 	return (
 		<ModalPopUp visible={visible}>
@@ -99,12 +116,16 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								showTaskStatus={showTaskStatus}
 								setShowTaskStatus={setShowTaskStatus}
 								taskFilter={hook}
+								setSelectedStatuses={updateStatuses}
+								selectedStatuses={selectedStatuses.taskStatus}
 							/>
 
 							<TaskPriorityFilter
 								taskFilter={hook}
 								showPriorityPopup={showTaskPriority}
 								setShowPriorityPopup={setShowTaskPriority}
+								setSelectedPriorities={updateStatuses}
+								selectedPriorities={selectedStatuses.priority}
 							/>
 						</View>
 
@@ -121,12 +142,16 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 								taskFilter={hook}
 								showLabelPopup={showTaskLabel}
 								setShowLabelPopup={setShowTaskLabel}
+								setSelectedLabels={updateStatuses}
+								selectedLabels={selectedStatuses.labels}
 							/>
 
 							<TaskSizeFilter
 								taskFilter={hook}
 								showSizePopup={showTaskSize}
 								setShowSizePopup={setShowTaskSize}
+								setSelectedSizes={updateStatuses}
+								selectedSizes={selectedStatuses.sizes}
 							/>
 						</View>
 
@@ -134,11 +159,19 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 							<TouchableOpacity
 								onPress={() => {
 									hook.onResetStatusFilter()
+									setSelectedStatuses({
+										taskStatus: [],
+										priority: [],
+										sizes: [],
+										labels: [],
+									})
 									onDismiss()
 								}}
 								style={[styles.button, { backgroundColor: "#E6E6E9" }]}
 							>
-								<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>Reset</Text>
+								<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>
+									{translate("tasksScreen.reset")}
+								</Text>
 							</TouchableOpacity>
 							<TouchableOpacity
 								style={[styles.button, { backgroundColor: "#3826A6" }]}
@@ -147,7 +180,7 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 									onDismiss()
 								}}
 							>
-								<Text style={styles.buttonText}>Apply</Text>
+								<Text style={styles.buttonText}>{translate("tasksScreen.apply")}</Text>
 							</TouchableOpacity>
 						</View>
 					</View>

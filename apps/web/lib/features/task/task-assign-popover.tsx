@@ -1,7 +1,9 @@
-import { ITeamTask } from '@app/interfaces';
+import { HostKeys, useHotkeys, useModal } from '@app/hooks';
+import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { Popover, Transition } from '@headlessui/react';
-import { PropsWithChildren } from 'react';
+import { Modal } from 'lib/components';
+import { useTranslation } from 'lib/i18n';
+import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from './task-input';
 
 export function TaskUnOrAssignPopover({
@@ -10,7 +12,8 @@ export function TaskUnOrAssignPopover({
 	onTaskClick,
 	buttonClassName,
 	onTaskCreated,
-	usersTaskCreatedAssignTo
+	usersTaskCreatedAssignTo,
+	userProfile
 }: PropsWithChildren<{
 	tasks?: ITeamTask[];
 	onTaskClick?: (task: ITeamTask, close: () => void) => void;
@@ -19,49 +22,61 @@ export function TaskUnOrAssignPopover({
 	usersTaskCreatedAssignTo?: {
 		id: string;
 	}[];
+	userProfile: OT_Member | undefined;
 }>) {
+	const { trans } = useTranslation();
+	const { isOpen, openModal, closeModal } = useModal();
+
+	// Handling Hotkeys
+	const handleAssignTask = useCallback(() => {
+		if (isOpen) {
+			closeModal();
+		} else {
+			openModal();
+		}
+	}, [isOpen, openModal, closeModal]);
+	useHotkeys(HostKeys.ASSIGN_TASK, handleAssignTask);
+
 	return (
-		<Popover className="relative">
-			<Popover.Button
-				as="div"
+		<>
+			<span
+				onClick={openModal}
 				className={clsxm(
-					'flex items-center mb-2 outline-none border-none cursor-pointer',
+					'flex items-center mb-1.5 outline-none border-none cursor-pointer rounded-xl',
 					buttonClassName
 				)}
 			>
 				{children}
-			</Popover.Button>
+			</span>
 
-			<Transition
-				enter="transition duration-100 ease-out"
-				enterFrom="transform scale-95 opacity-0"
-				enterTo="transform scale-100 opacity-100"
-				leave="transition duration-75 ease-out"
-				leaveFrom="transform scale-100 opacity-100"
-				leaveTo="transform scale-95 opacity-0"
-				className="absolute z-10 md:right-[110%] right-0 md:top-0 top-12"
+			<Modal
+				isOpen={isOpen}
+				closeModal={closeModal}
+				title={
+					userProfile?.employee.user?.name
+						? `${trans.common.ASSIGN_TASK} to ${userProfile?.employee.user?.name}`
+						: ''
+				}
+				className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-[70vw] h-[70vh] justify-start"
+				titleClass="font-normal"
 			>
-				<Popover.Panel>
-					{({ close }) => {
-						return (
-							<TaskInput
-								task={null}
-								tasks={tasks}
-								initEditMode={true}
-								keepOpen={true}
-								autoAssignTaskAuth={false}
-								createOnEnterClick={true}
-								viewType="one-view"
-								onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
-								onTaskCreated={(task) =>
-									onTaskCreated && onTaskCreated(task, close)
-								}
-								usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
-							/>
-						);
-					}}
-				</Popover.Panel>
-			</Transition>
-		</Popover>
+				<TaskInput
+					task={null}
+					tasks={tasks}
+					initEditMode={true}
+					keepOpen={true}
+					autoAssignTaskAuth={false}
+					createOnEnterClick={true}
+					viewType="one-view"
+					onTaskClick={(task) => onTaskClick && onTaskClick(task, close)}
+					onTaskCreated={(task) => onTaskCreated && onTaskCreated(task, close)}
+					usersTaskCreatedAssignTo={usersTaskCreatedAssignTo}
+					cardWithoutShadow
+					fullWidthCombobox
+					fullHeightCombobox
+					autoFocus
+				/>
+			</Modal>
+		</>
 	);
 }

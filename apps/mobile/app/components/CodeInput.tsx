@@ -8,6 +8,7 @@ import {
 	NativeSyntheticEvent,
 	TextInputKeyPressEventData,
 } from "react-native"
+import * as Clipboard from "expo-clipboard"
 import { colors, typography, useAppTheme } from "../theme"
 
 interface IInput {
@@ -15,10 +16,11 @@ interface IInput {
 	editable: boolean
 	length?: number
 	defaultValue?: string
+	loginInput?: boolean
 }
 
 export const CodeInput: FC<IInput> = (props) => {
-	const { onChange, editable, length = 6, defaultValue } = props
+	const { onChange, editable, length = 6, defaultValue, loginInput = false } = props
 	const { colors } = useAppTheme()
 	const inputsRef = useRef<TextInput[] | null[]>([])
 	const [active, setActive] = useState<number>(0)
@@ -70,6 +72,30 @@ export const CodeInput: FC<IInput> = (props) => {
 		}
 	}
 
+	const onPaste = async () => {
+		const pastedText = await Clipboard.getStringAsync()
+
+		const charArray = pastedText.split("")
+
+		if (
+			pastedText.length === length &&
+			inviteCode.every((currentField) => currentField === "") &&
+			charArray.every((currentField) => currentField.match(/^[0-9a-zA-Z]*$/))
+		) {
+			const updatedCode = charArray.map((char) => {
+				return char.toUpperCase()
+			})
+			setInviteCode(updatedCode)
+			onChange(updatedCode.join(""))
+
+			setActive(length - 1)
+			inputsRef.current[length - 1].focus()
+			for (let i = 0; i < length; i++) {
+				inputsRef.current[i].setNativeProps({ text: updatedCode[i] })
+			}
+		}
+	}
+
 	for (let i = 0; i < length; i++) {
 		const dvalue = validDefaultValue ? defaultValue?.charAt(i) : inviteCode[i]
 		inputs.push(
@@ -81,8 +107,22 @@ export const CodeInput: FC<IInput> = (props) => {
 				keyboardType="default"
 				style={[
 					styles.inputStyle,
-					{ backgroundColor: colors.background, color: colors.primary },
-					editable ? { borderColor: active === i ? colors.primary : colors.border } : null,
+					{
+						backgroundColor: loginInput ? "#FFFFFF" : colors.background,
+						color: loginInput ? "#282048" : colors.primary,
+					},
+					editable
+						? {
+								borderColor:
+									active === i
+										? loginInput
+											? "#282048"
+											: colors.primary
+										: loginInput
+										? "#00000021"
+										: colors.border,
+						  }
+						: null,
 				]}
 				onKeyPress={onKeyPress}
 				autoFocus={active === i}
@@ -91,6 +131,7 @@ export const CodeInput: FC<IInput> = (props) => {
 					inputsRef.current[i] = r
 				}}
 				onChangeText={(char) => onChangeCode(char, i)}
+				onChange={onPaste}
 			/>,
 		)
 	}

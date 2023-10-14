@@ -31,9 +31,10 @@ export const BadgedTaskSize = observer(
 						left: 5,
 						fontSize: TextSize,
 						fontFamily: typography.fonts.PlusJakartaSans.semiBold,
+						textTransform: "capitalize",
 					}}
 				>
-					{limitTextCharaters({ text: currentSize?.name, numChars: 12 })}
+					{limitTextCharaters({ text: currentSize?.name, numChars: 15 }).replace("-", " ")}
 				</Text>
 			</View>
 		)

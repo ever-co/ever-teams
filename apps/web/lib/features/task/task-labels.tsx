@@ -1,24 +1,27 @@
-import { useModal, useTaskLabels, useTeamTasks } from '@app/hooks';
+import { useModal, useSyncRef, useTaskLabels, useTeamTasks } from '@app/hooks';
 import { ITeamTask, Nullable } from '@app/interfaces';
 import { Button, Card, Modal } from 'lib/components';
 import { PlusIcon } from 'lib/components/svgs';
 import { TaskLabelForm } from 'lib/settings';
-import { TaskLabelsDropdown } from './task-status';
+import { TaskLabelsDropdown, taskUpdateQueue } from './task-status';
 import { debounce, isEqual } from 'lodash';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 type Props = {
 	task: Nullable<ITeamTask>;
 	className?: string;
 	forDetails: boolean;
 	taskStatusClassName?: string;
+	onValueChange?: (_: any, values: string[] | undefined) => void;
 };
 export function TaskLabels({
 	task,
 	className,
 	forDetails,
-	taskStatusClassName
+	taskStatusClassName,
+	onValueChange
 }: Props) {
+	const $task = useSyncRef(task);
 	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
 	const modal = useModal();
@@ -26,26 +29,33 @@ export function TaskLabels({
 
 	const onValuesChange = useCallback(
 		(_: any, values: string[] | undefined) => {
-			const debounceOnValuesChange = debounce(
-				(_: any, values: string[] | undefined) => {
-					if (!task) return;
+			if (!$task.current) return;
 
-					if (!isEqual(latestLabels.current, values)) {
-						return;
-					}
+			if (!isEqual(latestLabels.current, values)) {
+				return;
+			}
 
-					updateTask({
-						...task,
+			taskUpdateQueue.task(
+				(task, taskLabels, values) => {
+					return updateTask({
+						// eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
+						...task.current!,
 						tags: taskLabels.filter((tag) =>
 							tag.name ? values?.includes(tag.name) : false
 						) as any
 					});
 				},
-				2000
+				$task,
+				taskLabels,
+				values
 			);
-			debounceOnValuesChange(_, values);
 		},
-		[task, taskLabels, updateTask, latestLabels]
+		[$task, taskLabels, updateTask, latestLabels]
+	);
+
+	const onValuesChangeDebounce = useMemo(
+		() => debounce(onValuesChange, 2000),
+		[onValuesChange]
 	);
 
 	const tags = (task?.tags as typeof taskLabels | undefined)?.map(
@@ -55,7 +65,7 @@ export function TaskLabels({
 	return (
 		<>
 			<TaskLabelsDropdown
-				onValueChange={onValuesChange}
+				onValueChange={onValueChange ? onValueChange : onValuesChangeDebounce}
 				className={className}
 				placeholder="Labels"
 				defaultValues={tags || []}
@@ -66,7 +76,7 @@ export function TaskLabels({
 				latestLabels={latestLabels}
 			>
 				<Button
-					className="w-full py-1 px-2 text-xs mt-3 dark:text-white dark:border-white"
+					className="w-full py-1 px-2 text-xs mt-4 dark:text-white dark:border-white"
 					variant="outline"
 					onClick={modal.openModal}
 				>

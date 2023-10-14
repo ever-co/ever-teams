@@ -1,13 +1,22 @@
 import {
+	HostKeys,
 	RTuseTaskInput,
 	useAuthenticateUser,
 	useCallbackRef,
+	useHotkeys,
 	useOrganizationEmployeeTeams,
 	useOrganizationTeams,
 	useOutsideClick,
-	useTaskInput
+	useTaskInput,
+	useTaskLabels
 } from '@app/hooks';
-import { ITeamTask, Nullable } from '@app/interfaces';
+import {
+	ITaskPriority,
+	ITaskSize,
+	ITaskStatus,
+	ITeamTask,
+	Nullable
+} from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
@@ -35,6 +44,12 @@ import {
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
+import { TaskLabels } from './task-labels';
+import {
+	ActiveTaskPropertiesDropdown,
+	ActiveTaskSizesDropdown,
+	ActiveTaskStatusDropdown
+} from './task-status';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -53,6 +68,7 @@ type Props = {
 	showCombobox?: boolean;
 	autoAssignTaskAuth?: boolean;
 	fullWidthCombobox?: boolean;
+	fullHeightCombobox?: boolean;
 	placeholder?: string;
 	autoFocus?: boolean;
 	autoInputSelectText?: boolean;
@@ -277,6 +293,25 @@ export function TaskInput(props: Props) {
 		};
 	}, [inputTask, taskName, updateTaskNameHandler, editMode]);
 
+	// Handling Hotkeys
+	const handleCommandKeySequence = useCallback(() => {
+		if (!editMode) {
+			setEditMode(true);
+			if (targetEl.current) {
+				targetEl.current.focus();
+			}
+		} else {
+			setEditMode(false);
+		}
+	}, [setEditMode, editMode, targetEl]);
+	useHotkeys(HostKeys.CREATE_TASK, handleCommandKeySequence);
+
+	useEffect(() => {
+		if (props.autoFocus && targetEl.current) {
+			targetEl.current.focus();
+		}
+	}, [props.autoFocus, targetEl]);
+
 	const inputField = (
 		<InputField
 			value={taskName}
@@ -372,6 +407,7 @@ export function TaskInput(props: Props) {
 			}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
+			fullHeight={props.fullHeightCombobox}
 			handleTaskCreation={handleTaskCreation}
 			cardWithoutShadow={props.cardWithoutShadow}
 			updatedTaskList={updatedTaskList}
@@ -423,6 +459,7 @@ function TaskCard({
 	onItemClick,
 	inputField,
 	fullWidth,
+	fullHeight,
 	handleTaskCreation,
 	cardWithoutShadow,
 	forParentChildRelationship,
@@ -432,6 +469,7 @@ function TaskCard({
 	onItemClick?: (task: ITeamTask) => void;
 	inputField?: JSX.Element;
 	fullWidth?: boolean;
+	fullHeight?: boolean;
 	handleTaskCreation: () => void;
 	cardWithoutShadow?: boolean;
 	forParentChildRelationship?: boolean;
@@ -439,6 +477,10 @@ function TaskCard({
 }) {
 	const { trans } = useTranslation();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
+	const { taskLabels: taskLabelsData } = useTaskLabels();
+
+	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription } =
+		datas;
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -456,15 +498,86 @@ function TaskCard({
 			<Card
 				shadow="custom"
 				className={clsxm(
-					'rounded-xl md:px-4 md:py-4 max-h-96',
+					'rounded-xl md:px-4 md:py-4',
 					'overflow-auto',
 					!cardWithoutShadow && ['shadow-xlcard'],
-					fullWidth ? ['w-full'] : ['md:w-[500px]']
+					fullWidth ? ['w-full'] : ['md:w-[500px]'],
+					fullHeight ? 'h-full' : 'max-h-96'
 				)}
 			>
 				{inputField}
 				{/* Create team button */}
-				<div>
+				<div className="flex flex-col gap-y-2">
+					{datas.hasCreateForm && (
+						<div>
+							<InputField
+								placeholder="Description"
+								onChange={(e) => {
+									if (taskDescription) {
+										taskDescription.current = e.target.value;
+									}
+								}}
+								className={'dark:bg-[#1B1D22]'}
+							/>
+
+							<div className="flex justify-start gap-2">
+								<ActiveTaskStatusDropdown
+									className="lg:min-w-[170px]"
+									taskStatusClassName="h-7 text-xs"
+									onValueChange={(v) => {
+										if (v && taskStatus) {
+											taskStatus.current = v;
+										}
+									}}
+									defaultValue={taskStatus?.current as ITaskStatus}
+									task={null}
+								/>
+
+								<ActiveTaskPropertiesDropdown
+									className="lg:min-w-[170px]"
+									taskStatusClassName="h-7 text-xs"
+									onValueChange={(v) => {
+										if (v && taskPriority) {
+											taskPriority.current = v;
+										}
+									}}
+									defaultValue={taskPriority?.current as ITaskPriority}
+									task={null}
+								/>
+
+								<ActiveTaskSizesDropdown
+									className="lg:min-w-[170px]"
+									taskStatusClassName="h-7 text-xs"
+									onValueChange={(v) => {
+										if (v && taskSize) {
+											taskSize.current = v;
+										}
+									}}
+									defaultValue={taskSize?.current as ITaskSize}
+									task={null}
+								/>
+
+								<TaskLabels
+									className="lg:min-w-[170px] text-xs"
+									forDetails={false}
+									taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
+									onValueChange={(_: any, values: string[] | undefined) => {
+										taskLabelsData.filter((tag) =>
+											tag.name ? values?.includes(tag.name) : false
+										);
+
+										if (taskLabels && values?.length) {
+											taskLabels.current = taskLabelsData.filter((tag) =>
+												tag.name ? values?.includes(tag.name) : false
+											);
+										}
+									}}
+									task={datas.inputTask}
+								/>
+							</div>
+						</div>
+					)}
+
 					<Tooltip
 						enabled={!datas.user?.isEmailVerified}
 						label={trans.common.VERIFY_ACCOUNT_MSG}
@@ -479,12 +592,12 @@ function TaskCard({
 								!datas.user?.isEmailVerified
 							}
 							loading={datas.createLoading}
-							className="font-normal text-sm rounded-xl min-w-[240px] inline-flex"
+							className="font-normal text-sm rounded-xl min-w-[240px] max-w-[240px] inline-flex"
 							onClick={handleTaskCreation}
 						>
 							{!datas.createLoading && (
 								<PlusIcon className="w-[16px] h-[16px]" />
-							)}{' '}
+							)}
 							{trans.common.CREATE_TASK}
 						</Button>
 					</Tooltip>

@@ -109,6 +109,9 @@ const ar: Translations = {
 		unMakeManager: "إلغاء إنشاء مدير",
 		makeManager: "جعل مديرا",
 		remove: "يزيل",
+		filter: "منقي",
+		apply: "يتقدم",
+		reset: "إعادة ضبط",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

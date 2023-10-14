@@ -108,6 +108,9 @@ const ko: Translations = {
 		unMakeManager: "관리자 만들기 취소",
 		makeManager: "관리자 만들기",
 		remove: "제거",
+		filter: "필터",
+		apply: "적용하다",
+		reset: "초기화",
 	},
 	noTeamScreen: {
 		createYourTeam: "Create your own team or join existed",

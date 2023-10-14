@@ -105,7 +105,9 @@ export const en = {
 
 		COLLABORATE_DIALOG_TITLE: 'Start Collaboration',
 		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating',
-		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration'
+		COLLABORATE_DIALOG_FOOTER_MESSAGE: 'Start Meeting or Board Collaboration',
+
+		KEYBOARD_SHORTCUTS: 'Keyboard Shortcuts'
 	},
 	pages: {
 		home: {
@@ -165,11 +167,12 @@ export const en = {
 		auth: {
 			SEND_CODE: 'send code',
 			JOIN: 'Join',
-			UNRECEIVED_CODE: "Didn't recieve code ?",
+			UNRECEIVED_CODE: "Didn't receive code ?",
 			JOIN_TEAM: 'Join Team',
 			INPUT_INVITE_CODE: 'Input invitation code.',
 			INPUT_INVITE_CODE_DESC:
 				'Enter the invitation code we sent to your email.',
+			INVALID_INVITE_CODE_MESSAGE: 'Invalid Code',
 			WELCOME_TEAMS: 'Welcome to Ever Teams',
 
 			COVER_TITLE: 'Follow your teams work progress in real-time!',

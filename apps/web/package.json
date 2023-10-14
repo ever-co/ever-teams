@@ -78,7 +78,8 @@
 		"tailwind-merge": "^1.14.0",
 		"tailwindcss": "^3.1.8",
 		"tailwindcss-animate": "^1.0.6",
-		"@jitsu/jitsu-react": "^1.3.0"
+		"@jitsu/jitsu-react": "^1.3.0",
+		"hotkeys-js": "^3.12.0"
 	},
 	"devDependencies": {
 		"@tailwindcss/typography": "^0.5.9",

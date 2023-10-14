@@ -8,7 +8,7 @@ import {
 	Nullable,
 	Tag
 } from '@app/interfaces';
-import { clsxm } from '@app/utils';
+import { Queue, clsxm } from '@app/utils';
 import { Listbox, Transition } from '@headlessui/react';
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
@@ -129,6 +129,8 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 	}, [data, bordered]);
 }
 
+export const taskUpdateQueue = new Queue(1);
+
 export function useActiveTaskStatus<T extends ITaskStatusField>(
 	props: IActiveTaskStatuses<T>,
 	status: TStatus<ITaskStatusStack[T]>,
@@ -138,6 +140,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 	const { taskLabels } = useTaskLabels();
 
 	const task = props.task !== undefined ? props.task : activeTeamTask;
+	const $task = useSyncRef(task);
 
 	/**
 	 * "When the user changes the status of a task, update the status of the task and then call the
@@ -160,16 +163,25 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 			status = [currentTag];
 		}
 
-		handleStatusUpdate(status, updatedField || field, task, true).finally(
-			() => {
+		taskUpdateQueue.task((task) => {
+			return handleStatusUpdate(
+				status,
+				updatedField || field,
+				task.current,
+				true
+			).finally(() => {
 				props.onChangeLoading && props.onChangeLoading(false);
-			}
-		);
+			});
+		}, $task);
 	}
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: task ? task[field] : props.defaultValue || undefined,
+		value: props.defaultValue
+			? props.defaultValue
+			: task
+			? task[field]
+			: props.defaultValue || undefined,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});
@@ -341,7 +353,7 @@ export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={onChange}
+			onChange={props.onValueChange ? props.onValueChange : onChange}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -568,7 +580,7 @@ export function ActiveTaskPropertiesDropdown(
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={onChange}
+			onChange={props.onValueChange ? props.onValueChange : onChange}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -663,7 +675,7 @@ export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 			items={items}
 			value={item}
 			defaultItem={!item ? field : undefined}
-			onChange={onChange}
+			onChange={props.onValueChange ? props.onValueChange : onChange}
 			disabled={props.disabled}
 			sidebarUI={props.sidebarUI}
 			forDetails={props.forDetails}
@@ -1279,56 +1291,58 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 						<Listbox.Options className="outline-none">
 							<Card
 								shadow="bigger"
-								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-2.5"
+								className="p-4 md:p-4 shadow-xlcard dark:shadow-lgcard-white dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col"
 							>
-								{items.map((item, i) => {
-									const item_value = item.value || item.name;
-									return (
-										<Listbox.Option
-											key={i}
-											value={item_value}
-											as={Fragment}
-											disabled={disabled}
-										>
-											<li className="cursor-pointer outline-none relative">
-												<TaskStatus
-													showIcon={showIcon}
-													{...item}
-													cheched={
-														item.value ? values.includes(item.value) : false
-													}
-													className={clsxm(
-														issueType === 'issue' && [
-															'rounded-md px-2 text-white'
-														],
-														`${sidebarUI ? 'rounded-[4px]' : ''}`,
-														`${bordered ? 'input-border' : ''}`,
-														isVersion && 'dark:text-white'
-													)}
-												/>
+								<div className="flex flex-col gap-2.5 max-h-[320px] overflow-scroll scrollbar-hide !border-b-0">
+									{items.map((item, i) => {
+										const item_value = item.value || item.name;
+										return (
+											<Listbox.Option
+												key={i}
+												value={item_value}
+												as={Fragment}
+												disabled={disabled}
+											>
+												<li className="cursor-pointer outline-none relative">
+													<TaskStatus
+														showIcon={showIcon}
+														{...item}
+														cheched={
+															item.value ? values.includes(item.value) : false
+														}
+														className={clsxm(
+															issueType === 'issue' && [
+																'rounded-md px-2 text-white'
+															],
+															`${sidebarUI ? 'rounded-[4px]' : ''}`,
+															`${bordered ? 'input-border' : ''}`,
+															isVersion && 'dark:text-white'
+														)}
+													/>
 
-												{value === item_value && issueType !== 'issue' && (
-													<Listbox.Button
-														as="button"
-														onClick={(e: any) => {
-															e.stopPropagation();
-															onRemoveSelected && onRemoveSelected();
-															onChange && onChange(null as any);
-														}}
-														className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
-													>
-														<XMarkIcon
-															className="text-dark"
-															height={16}
-															width={16}
-															aria-hidden="true"
-														/>
-													</Listbox.Button>
-												)}
-											</li>
-										</Listbox.Option>
-									);
-								})}
+													{value === item_value && issueType !== 'issue' && (
+														<Listbox.Button
+															as="button"
+															onClick={(e: any) => {
+																e.stopPropagation();
+																onRemoveSelected && onRemoveSelected();
+																onChange && onChange(null as any);
+															}}
+															className="absolute top-2.5 right-2 h-4 w-4 bg-transparent"
+														>
+															<XMarkIcon
+																className="text-dark"
+																height={16}
+																width={16}
+																aria-hidden="true"
+															/>
+														</Listbox.Button>
+													)}
+												</li>
+											</Listbox.Option>
+										);
+									})}
+								</div>
 								{children && (
 									<Listbox.Button as="div">{children}</Listbox.Button>
 								)}
