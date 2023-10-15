@@ -243,7 +243,7 @@ const ko: Translations = {
 			selectFromFiles: "Select from Files",
 			continueButton: "Continue",
 			logoDeleteConfirmation: "Are you sure you want to delete the logo?",
-			profilePicDeleteConfirmation: "Are you sure you want to delete the profile picture?",
+			avatarDeleteConfirmation: "Are you sure you want to delete the avatar?",
 		},
 		contact: {
 			mainTitle: "Change Your Contact",

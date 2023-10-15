@@ -31,7 +31,9 @@ const ConfirmationModal: FC<IConfirmation> = ({
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={[styles.container, { backgroundColor: colors.background2 }]}>
-				<Text style={{ color: colors.primary, fontSize: 18 }}>{confirmationText}</Text>
+				<Text style={{ color: colors.primary, fontSize: 17, textAlign: "center" }}>
+					{confirmationText}
+				</Text>
 				<View style={styles.wrapButtons}>
 					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
 						<Text style={styles.cancelTxt}>
@@ -103,27 +105,27 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		backgroundColor: "#E6E6E9",
 		borderRadius: 12,
-		height: 57,
+		height: 56,
 		justifyContent: "center",
 		width: "48%",
 	},
 	cancelTxt: {
 		color: "#1A1C1E",
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 17,
 	},
 	confirmBtn: {
 		alignItems: "center",
 		backgroundColor: "#DA5E5E",
 		borderRadius: 12,
-		height: 57,
+		height: 56,
 		justifyContent: "center",
 		width: "48%",
 	},
 	confirmTxt: {
 		color: "#FFF",
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 17,
 	},
 	container: {
 		alignSelf: "center",

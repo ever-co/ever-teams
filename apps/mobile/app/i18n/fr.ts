@@ -236,7 +236,7 @@ const fr = {
 			selectFromFiles: "Sélectionner depuis les fichiers",
 			continueButton: "Continuer",
 			logoDeleteConfirmation: "Êtes-vous sûr de vouloir supprimer le logo?",
-			profilePicDeleteConfirmation: "Êtes-vous sûr de vouloir supprimer la photo de profil?",
+			avatarDeleteConfirmation: "Are you sure you want to delete the avatar?",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",

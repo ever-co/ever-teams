@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useCallback, useMemo } from "react"
+import React, { FC, useCallback, useMemo, useState } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { imgTitle } from "../../../../helpers/img-title"
@@ -9,6 +9,8 @@ import { typography, useAppTheme } from "../../../../theme"
 import { Avatar } from "react-native-paper"
 import { observer } from "mobx-react-lite"
 import { useSettings } from "../../../../services/hooks/features/useSettings"
+import ConfirmationModal from "../../../../components/ConfirmationModal"
+import { translate } from "../../../../i18n"
 
 interface Props {
 	buttonLabel: string
@@ -19,6 +21,9 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	const {
 		authenticationStore: { user },
 	} = useStores()
+
+	const [openConfirmationModal, setOpenConfirmationModal] = useState<boolean>(false)
+
 	const { updateUserInfo } = useSettings()
 	const { colors, dark } = useAppTheme()
 
@@ -51,10 +56,16 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 			</TouchableOpacity>
 			<TouchableOpacity
 				style={[styles.deleteContainer, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}
-				onPress={() => onDeleteAvatar()}
+				onPress={() => setOpenConfirmationModal(true)}
 			>
 				<Ionicons name="trash-outline" size={24} color={colors.primary} />
 			</TouchableOpacity>
+			<ConfirmationModal
+				visible={openConfirmationModal}
+				onDismiss={() => setOpenConfirmationModal(false)}
+				onConfirm={onDeleteAvatar}
+				confirmationText={translate("settingScreen.changeAvatar.avatarDeleteConfirmation")}
+			/>
 		</View>
 	)
 })
