@@ -43,6 +43,8 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 		[activeTeam?.image?.thumb],
 	)
 
+	const isDisabled = !(activeTeam?.image && activeTeam?.imageId && activeTeam?.image)
+
 	return (
 		<>
 			<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
@@ -63,7 +65,11 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 					<Text style={[styles.changeAvatarTxt, { color: colors.secondary }]}>{buttonLabel}</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
-					style={[styles.deleteContainer, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}
+					disabled={isDisabled}
+					style={[
+						styles.deleteContainer,
+						{ backgroundColor: dark ? "#3D4756" : "#E6E6E9", opacity: isDisabled ? 0.5 : 1 },
+					]}
 					onPress={() => setOpenConfirmationModal(true)}
 				>
 					<Ionicons name="trash-outline" size={24} color={colors.primary} />
