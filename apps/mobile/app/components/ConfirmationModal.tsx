@@ -43,7 +43,6 @@ const ConfirmationModal: FC<IConfirmation> = ({
 					<TouchableOpacity
 						style={{
 							...styles.confirmBtn,
-							// backgroundColor: dark ? "#6755C9" : "#3826A6",
 						}}
 						onPress={() => {
 							onConfirm()
