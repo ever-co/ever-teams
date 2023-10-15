@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useCallback, useMemo } from "react"
+import React, { FC, useCallback, useMemo, useState } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
 import { imgTitle } from "../../../../helpers/img-title"
@@ -9,6 +9,8 @@ import { typography, useAppTheme } from "../../../../theme"
 import { Avatar } from "react-native-paper"
 import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+
+import ConfirmationModal from "../../../../components/ConfirmationModal"
 
 interface Props {
 	buttonLabel: string
@@ -21,6 +23,7 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	} = useStores()
 	const { onUpdateOrganizationTeam } = useOrganizationTeam()
 	const { colors, dark } = useAppTheme()
+	const [openConfirmationModal, setOpenConfirmationModal] = useState<boolean>(false)
 
 	const onDeleteLogo = useCallback(async () => {
 		await onUpdateOrganizationTeam({
@@ -40,30 +43,37 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 	)
 
 	return (
-		<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			{imageUrl ? (
-				<Avatar.Image
-					size={70}
-					source={{
-						uri: imageUrl,
-					}}
-				/>
-			) : (
-				<Avatar.Text size={70} label={imgTitle(activeTeam?.name)} labelStyle={styles.prefix} />
-			)}
-			<TouchableOpacity
-				style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}
-				onPress={() => onChange()}
-			>
-				<Text style={[styles.changeAvatarTxt, { color: colors.secondary }]}>{buttonLabel}</Text>
-			</TouchableOpacity>
-			<TouchableOpacity
-				style={[styles.deleteContainer, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}
-				onPress={() => onDeleteLogo()}
-			>
-				<Ionicons name="trash-outline" size={24} color={colors.primary} />
-			</TouchableOpacity>
-		</View>
+		<>
+			<View style={[styles.container, { backgroundColor: colors.background, opacity: 0.9 }]}>
+				{imageUrl ? (
+					<Avatar.Image
+						size={70}
+						source={{
+							uri: imageUrl,
+						}}
+					/>
+				) : (
+					<Avatar.Text size={70} label={imgTitle(activeTeam?.name)} labelStyle={styles.prefix} />
+				)}
+				<TouchableOpacity
+					style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}
+					onPress={() => onChange()}
+				>
+					<Text style={[styles.changeAvatarTxt, { color: colors.secondary }]}>{buttonLabel}</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					style={[styles.deleteContainer, { backgroundColor: dark ? "#3D4756" : "#E6E6E9" }]}
+					onPress={() => setOpenConfirmationModal(true)}
+				>
+					<Ionicons name="trash-outline" size={24} color={colors.primary} />
+				</TouchableOpacity>
+			</View>
+			{/* Confirmation Modal */}
+			<ConfirmationModal
+				visible={openConfirmationModal}
+				onDismiss={() => setOpenConfirmationModal(false)}
+			/>
+		</>
 	)
 })
 
