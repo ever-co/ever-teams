@@ -236,6 +236,8 @@ const es = {
 			selectFromGalery: "Select from galery",
 			selectFromFiles: "Select from Files",
 			continueButton: "Continue",
+			logoDeleteConfirmation: "Are you sure you want to delete the logo?",
+			profilePicDeleteConfirmation: "Are you sure you want to delete the profile picture?",
 		},
 		contact: {
 			mainTitle: "Change Your Contact",

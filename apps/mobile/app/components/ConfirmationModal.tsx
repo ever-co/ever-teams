@@ -17,16 +17,21 @@ import { translate } from "../i18n"
 interface IConfirmation {
 	onDismiss: () => void
 	visible: boolean
+	onConfirm: () => void
+	confirmationText: string
 }
 
-const ConfirmationModal: FC<IConfirmation> = ({ onDismiss, visible }) => {
-	const { dark, colors } = useAppTheme()
+const ConfirmationModal: FC<IConfirmation> = ({
+	onDismiss,
+	visible,
+	onConfirm,
+	confirmationText,
+}) => {
+	const { colors } = useAppTheme()
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={[styles.container, { backgroundColor: colors.background2 }]}>
-				<Text style={{ color: colors.primary, fontSize: 20 }}>
-					Do you want to delete the team logo?
-				</Text>
+				<Text style={{ color: colors.primary, fontSize: 18 }}>{confirmationText}</Text>
 				<View style={styles.wrapButtons}>
 					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
 						<Text style={styles.cancelTxt}>
@@ -36,13 +41,14 @@ const ConfirmationModal: FC<IConfirmation> = ({ onDismiss, visible }) => {
 					<TouchableOpacity
 						style={{
 							...styles.confirmBtn,
-							backgroundColor: dark ? "#6755C9" : "#3826A6",
+							// backgroundColor: dark ? "#6755C9" : "#3826A6",
 						}}
 						onPress={() => {
+							onConfirm()
 							onDismiss()
 						}}
 					>
-						<Text style={styles.confirmTxt}>{translate("common.confirm")}</Text>
+						<Text style={styles.confirmTxt}>Delete</Text>
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -108,7 +114,7 @@ const styles = StyleSheet.create({
 	},
 	confirmBtn: {
 		alignItems: "center",
-		backgroundColor: "#3826A6",
+		backgroundColor: "#DA5E5E",
 		borderRadius: 12,
 		height: 57,
 		justifyContent: "center",

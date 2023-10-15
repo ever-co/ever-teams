@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 
 import ConfirmationModal from "../../../../components/ConfirmationModal"
+import { translate } from "../../../../i18n"
 
 interface Props {
 	buttonLabel: string
@@ -72,6 +73,8 @@ const TeamLogo: FC<Props> = observer(({ buttonLabel, onChange }) => {
 			<ConfirmationModal
 				visible={openConfirmationModal}
 				onDismiss={() => setOpenConfirmationModal(false)}
+				onConfirm={onDeleteLogo}
+				confirmationText={translate("settingScreen.changeAvatar.logoDeleteConfirmation")}
 			/>
 		</>
 	)
