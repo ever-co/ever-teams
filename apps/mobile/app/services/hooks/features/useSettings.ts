@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useStores } from "../../../models"
-import { timezone } from "expo-localization"
 import { useQueryClient } from "react-query"
 import useFetchAllLanguages from "../../client/queries/language"
 
@@ -8,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import I18n from "i18n-js"
 import { updateUserInfoRequest } from "../../client/requests/user"
 import { ILanguageItemList, IUser } from "../../interfaces/IUserData"
+import moment from "moment-timezone"
 
 export function useSettings() {
 	const queryClient = useQueryClient()
@@ -44,13 +44,18 @@ export function useSettings() {
 	}, [])
 
 	const onDetectTimezone = useCallback(async () => {
-		if (timezone) {
+		const detectedTimezone = moment.tz.guess()
+
+		if (detectedTimezone) {
+			const offset = moment.tz(detectedTimezone).format("Z")
+			const formattedTimezoneName = detectedTimezone.replace(/_/g, " ")
+			const timezoneWithUTC = `${formattedTimezoneName} (UTC ${offset})`
 			await updateUserInfoRequest(
 				{
 					id: user.id,
 					data: {
 						...(user as IUser),
-						timeZone: timezone,
+						timeZone: timezoneWithUTC,
 					},
 					tenantId,
 				},
