@@ -59,6 +59,7 @@ export interface IOrganizationTeamList {
 	profile_link?: string;
 	imageId?: string | null;
 	image?: IImageAssets | null;
+	projects?: IProject[];
 }
 
 export type IOrganizationTeamWithMStatus = IOrganizationTeamList;
