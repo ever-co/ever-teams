@@ -229,6 +229,9 @@ const fr = {
 			createButtonText: "Create",
 			updateButtonText: "Update",
 		},
+		membersSettingsScreen: {
+			mainTitle: "Membres et rôles",
+		},
 		changeAvatar: {
 			recentPictures: "Photos récentes",
 			recentFiles: "Fichiers récents",
