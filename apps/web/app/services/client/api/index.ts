@@ -27,3 +27,5 @@ export * from './integrations/github';
 export * from './integrations/integration-tenant';
 export * from './integrations/types';
 export * from './integrations';
+
+export * from './organization-projects';
