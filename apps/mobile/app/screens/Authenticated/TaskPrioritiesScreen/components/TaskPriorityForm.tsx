@@ -121,7 +121,7 @@ const TaskPriorityForm = ({
 					<Text
 						style={{
 							marginLeft: 10,
-							color: colors.primary,
+							color: priorityIcon ? colors.primary : "#7B8089",
 							textTransform: "capitalize",
 						}}
 					>
@@ -138,7 +138,7 @@ const TaskPriorityForm = ({
 					<Text
 						style={{
 							marginLeft: 10,
-							color: colors.primary,
+							color: priorityIcon ? colors.primary : "#7B8089",
 						}}
 					>
 						{priorityColor?.toUpperCase() ||
