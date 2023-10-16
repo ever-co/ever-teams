@@ -72,7 +72,7 @@ const UserTimezone = ({
 				</Text>
 				<TouchableOpacity style={styles.field} onPress={() => setTimezoneModal(true)}>
 					<Text style={{ ...styles.text, color: colors.primary }}>
-						{limitTextCharaters({ text: userTimeZone, numChars: 17 })}
+						{limitTextCharaters({ text: userTimeZone, numChars: 32 })}
 					</Text>
 					<AntDesign name="down" size={20} color={colors.primary} />
 				</TouchableOpacity>

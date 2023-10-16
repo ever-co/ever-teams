@@ -1,6 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-unused-styles */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC, useEffect, useState } from "react"
 import moment from "moment-timezone"
 import {
@@ -14,8 +15,9 @@ import {
 	TouchableWithoutFeedback,
 	Pressable,
 	FlatList,
+	TextInput,
 } from "react-native"
-import { AntDesign, FontAwesome } from "@expo/vector-icons"
+import { AntDesign, FontAwesome, EvilIcons } from "@expo/vector-icons"
 
 // COMPONENTS
 import { translate } from "../../../../i18n"
@@ -74,11 +76,29 @@ const TimezonePopup: FC<Props> = function FilterPopup({
 	const { colors, dark } = useAppTheme()
 	const [timezones, setTimezones] = useState([])
 	const [selectedTimezone, setSelectedTimezone] = useState("")
+	const [searchText, setSearchText] = useState<string>("")
 
 	useEffect(() => {
-		const formattedTimezones = moment.tz.names().map((timezone) => timezone.replace(/_/g, " "))
+		const allTimezones = moment.tz.names()
+		const timezonesWithUTC = allTimezones.map((item) => {
+			const offset = moment.tz(item).format("Z")
+			const formattedItem = item.replace(/_/g, " ")
+			return { name: formattedItem, offset } // Create an object with name and offset
+		})
 
-		setTimezones(formattedTimezones)
+		timezonesWithUTC.sort((a, b) => {
+			if (a.offset < b.offset) {
+				return -1
+			}
+			if (a.offset > b.offset) {
+				return 1
+			}
+			return 0
+		})
+
+		const sortedTimezones = timezonesWithUTC.map((item) => `${item.name} (UTC ${item.offset})`)
+
+		setTimezones(sortedTimezones)
 	}, [])
 
 	const handleTimezoneSelect = (item: string) => {
@@ -94,10 +114,33 @@ const TimezonePopup: FC<Props> = function FilterPopup({
 					<Text style={{ ...styles.mainTitle, color: colors.primary }}>
 						{translate("settingScreen.changeTimezone.selectTimezoneTitle")}
 					</Text>
+					<View
+						style={{
+							paddingHorizontal: 20,
+						}}
+					>
+						<TextInput
+							placeholder="Search Time Zone"
+							placeholderTextColor={dark ? "#5a5b5e" : "#00000021"}
+							style={[
+								styles.textInput,
+								{
+									borderBottomColor: dark ? "#5a5b5e" : "#00000021",
+									borderBottomWidth: 1,
+									color: colors.primary,
+								},
+							]}
+							value={searchText}
+							onChangeText={(text) => setSearchText(text)}
+						/>
+					</View>
+
 					<FlatList
 						style={styles.listContainer}
 						bounces={false}
-						data={timezones}
+						data={timezones.filter((timezone) =>
+							timezone.toLowerCase().includes(searchText.toLowerCase()),
+						)}
 						keyExtractor={(item, index) => item.toString()}
 						initialNumToRender={7}
 						renderItem={({ item }) => (
@@ -183,6 +226,7 @@ const styles = StyleSheet.create({
 		width: 156,
 		zIndex: 1000,
 	},
+	textInput: { fontSize: 18, marginTop: 10 },
 	tzTitle: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
