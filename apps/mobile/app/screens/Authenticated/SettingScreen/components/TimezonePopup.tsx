@@ -70,7 +70,9 @@ const TimezonePopup: FC<Props> = function FilterPopup({ visible, onDismiss, onTi
 	const [selectedTimezone, setSelectedTimezone] = useState("")
 
 	useEffect(() => {
-		setTimezones(moment.tz.names)
+		const formattedTimezones = moment.tz.names().map((timezone) => timezone.replace(/_/g, " "))
+
+		setTimezones(formattedTimezones)
 	}, [])
 
 	const handleTimezoneSelect = (item: string) => {
@@ -103,7 +105,7 @@ const TimezonePopup: FC<Props> = function FilterPopup({ visible, onDismiss, onTi
 									<FontAwesome
 										name="circle-thin"
 										size={24}
-										olor={dark ? "" : "(40, 32, 72, 0.43)"}
+										color={dark ? "#5a5b5e" : "#00000021"}
 									/>
 								)}
 							</Pressable>
