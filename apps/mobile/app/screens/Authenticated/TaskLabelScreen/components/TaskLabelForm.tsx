@@ -118,7 +118,7 @@ const TaskLabelForm = ({
 					<Text
 						style={{
 							marginLeft: 10,
-							color: colors.primary,
+							color: labelIcon ? colors.primary : "#7B8089",
 							textTransform: "capitalize",
 						}}
 					>
@@ -135,7 +135,7 @@ const TaskLabelForm = ({
 					<Text
 						style={{
 							marginLeft: 10,
-							color: colors.primary,
+							color: labelIcon ? colors.primary : "#7B8089",
 						}}
 					>
 						{labelColor?.toUpperCase() ||

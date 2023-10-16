@@ -117,7 +117,7 @@ const TaskStatusForm = ({
 					<Text
 						style={{
 							marginLeft: 10,
-							color: colors.primary,
+							color: statusIcon ? colors.primary : "#7B8089",
 							textTransform: "capitalize",
 						}}
 					>
@@ -134,7 +134,7 @@ const TaskStatusForm = ({
 					<Text
 						style={{
 							marginLeft: 10,
-							color: colors.primary,
+							color: statusIcon ? colors.primary : "#7B8089",
 						}}
 					>
 						{statusColor?.toUpperCase() ||

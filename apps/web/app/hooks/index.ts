@@ -36,6 +36,7 @@ export * from './features/useOTRefreshInterval';
 export * from './features/useRefreshInterval';
 export * from './features/useIssueTypes';
 export * from './features/useLinkedTasks';
+export * from './features/useOrganizationProjects';
 export * from './useCollaborative';
 
 //export user personal setting
@@ -57,3 +58,8 @@ export * from './features/useTaskRelatedIssueType';
 
 export * from './features/useRolePermissions';
 export * from './features/useRefetchData';
+
+export * from './integrations/useGitHubIntegration';
+export * from './integrations/useIntegration';
+export * from './integrations/useIntegrationTenant';
+export * from './integrations/useIntegrationTypes';

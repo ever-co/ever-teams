@@ -169,6 +169,7 @@ export interface ICreateTask {
 	estimate: number;
 	organizationId: string;
 	tenantId: string;
+	projectId?: string | null;
 }
 
 export interface ITaskLinkedIssue {

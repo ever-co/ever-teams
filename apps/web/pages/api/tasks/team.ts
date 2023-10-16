@@ -10,7 +10,7 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-	const { $res, user, tenantId, organizationId, access_token } =
+	const { $res, user, tenantId, organizationId, access_token, projectId } =
 		await authenticatedGuard(req, res);
 	if (!user) return $res();
 
@@ -37,6 +37,7 @@ export default async function handler(
 				tags: [],
 				organizationId,
 				tenantId,
+				projectId,
 				estimate: 0,
 				...body,
 				title // this must be called after ...body
@@ -47,6 +48,7 @@ export default async function handler(
 	const { data: tasks } = await getTeamTasksRequest({
 		tenantId,
 		organizationId,
+		projectId,
 		bearer_token: access_token
 	});
 

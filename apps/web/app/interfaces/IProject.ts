@@ -4,6 +4,7 @@ export interface IProject {
 	updatedAt?: string;
 	tenantId: string;
 	organizationId: string;
+	externalRepositoryId?: number;
 }
 
 export interface IProjectCreate {

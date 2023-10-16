@@ -1,5 +1,6 @@
 import {
 	getActiveTeamIdCookie,
+	setActiveProjectIdCookie,
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@app/helpers/cookies';
@@ -239,6 +240,12 @@ export function useOrganizationTeams() {
 			setOrganizationIdCookie(team.organizationId);
 			// This must be called at the end (Update store)
 			setActiveTeamId(team.id);
+
+			// Set Project Id to cookie
+			// TODO: Make it dynamic when we add Dropdown in Navbar
+			if (team && team.projects && team.projects.length) {
+				setActiveProjectIdCookie(team.projects[0].id);
+			}
 		},
 		[setActiveTeamId]
 	);
@@ -297,6 +304,12 @@ export function useOrganizationTeams() {
 							newTeam,
 							...latestTeams.filter((team) => team.id !== newTeam.id)
 						]);
+
+						// Set Project Id to cookie
+						// TODO: Make it dynamic when we add Dropdown in Navbar
+						if (newTeam && newTeam.projects && newTeam.projects.length) {
+							setActiveProjectIdCookie(newTeam.projects[0].id);
+						}
 					}
 				});
 			return res;
