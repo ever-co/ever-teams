@@ -240,6 +240,8 @@ const en = {
 			selectFromGalery: "Select from galery",
 			selectFromFiles: "Select from Files",
 			continueButton: "Continue",
+			logoDeleteConfirmation: "Are you sure you want to delete the logo?",
+			avatarDeleteConfirmation: "Are you sure you want to delete the avatar?",
 		},
 		contact: {
 			mainTitle: "Change Your Contact",

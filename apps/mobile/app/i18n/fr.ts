@@ -134,6 +134,7 @@ const fr = {
 				"Votre compte sera définitivement supprimé avec la suppression de toutes les équipes",
 			detect: "Détecter",
 		},
+
 		teamSection: {
 			name: "Équipe",
 			teamName: "Nom de l'équipe",
@@ -227,6 +228,15 @@ const fr = {
 			cancelButtonText: "Cancel",
 			createButtonText: "Create",
 			updateButtonText: "Update",
+		},
+		changeAvatar: {
+			recentPictures: "Photos récentes",
+			recentFiles: "Fichiers récents",
+			selectFromGalery: "Sélectionner depuis la galerie",
+			selectFromFiles: "Sélectionner depuis les fichiers",
+			continueButton: "Continuer",
+			logoDeleteConfirmation: "Êtes-vous sûr de vouloir supprimer le logo?",
+			avatarDeleteConfirmation: "Are you sure you want to delete the avatar?",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",
