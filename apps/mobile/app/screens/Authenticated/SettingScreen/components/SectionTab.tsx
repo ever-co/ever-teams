@@ -9,8 +9,10 @@ import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { SvgXml } from "react-native-svg"
 import {
 	peopleIconActive,
+	peopleIconActiveDark,
 	peopleIconGrey,
 	userActive,
+	userActiveDark,
 	userGrey,
 } from "../../../../components/svgs/icons"
 
@@ -95,12 +97,20 @@ const Tab = observer(
 				>
 					{item.id === 1 ? (
 						isActiveTab ? (
-							<SvgXml xml={userActive} />
+							dark ? (
+								<SvgXml xml={userActiveDark} />
+							) : (
+								<SvgXml xml={userActive} />
+							)
 						) : (
 							<SvgXml xml={userGrey} />
 						)
 					) : isActiveTab ? (
-						<SvgXml xml={peopleIconActive} />
+						dark ? (
+							<SvgXml xml={peopleIconActiveDark} />
+						) : (
+							<SvgXml xml={peopleIconActive} />
+						)
 					) : (
 						<SvgXml xml={peopleIconGrey} />
 					)}
