@@ -34,7 +34,9 @@ export const IntegrationSetting = () => {
 
 	const { activeTeam } = useOrganizationTeams();
 
-	const [selectedRepo, setSelectedRepo] = useState<string>();
+	const [selectedRepo, setSelectedRepo] = useState<string | undefined>(
+		undefined
+	);
 
 	useEffect(() => {
 		if (
@@ -146,11 +148,14 @@ export const IntegrationSetting = () => {
 					{integrationGithubRepositories?.total_count &&
 						integrationGithubRepositories.total_count > 0 && (
 							<>
-								<Select value={selectedRepo} onValueChange={handleSelectRepo}>
+								<Select
+									value={selectedRepo || undefined}
+									onValueChange={handleSelectRepo}
+								>
 									<SelectTrigger className="w-80 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
 										<SelectValue
 											placeholder={trans.SELECT_REPOSITORY}
-											className=" dark:bg-dark--theme-light"
+											className="dark:bg-dark--theme-light"
 										/>
 									</SelectTrigger>
 									<SelectContent className="w-80">
