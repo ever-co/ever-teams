@@ -61,6 +61,7 @@ const UserTimezone = ({
 			<TimezonePopup
 				visible={timezoneModal}
 				onDismiss={() => setTimezoneModal(false)}
+				userTimezone={userTimeZone}
 				onTimezoneSelect={(e) => {
 					setUserTimeZone(e)
 				}}

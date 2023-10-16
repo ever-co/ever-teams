@@ -25,6 +25,7 @@ export interface Props {
 	visible: boolean
 	onDismiss: () => unknown
 	onTimezoneSelect: (s: string) => unknown
+	userTimezone: string
 }
 
 export interface IFilter {}
@@ -64,7 +65,12 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	)
 }
 
-const TimezonePopup: FC<Props> = function FilterPopup({ visible, onDismiss, onTimezoneSelect }) {
+const TimezonePopup: FC<Props> = function FilterPopup({
+	visible,
+	onDismiss,
+	onTimezoneSelect,
+	userTimezone,
+}) {
 	const { colors, dark } = useAppTheme()
 	const [timezones, setTimezones] = useState([])
 	const [selectedTimezone, setSelectedTimezone] = useState("")
@@ -77,6 +83,7 @@ const TimezonePopup: FC<Props> = function FilterPopup({ visible, onDismiss, onTi
 
 	const handleTimezoneSelect = (item: string) => {
 		onTimezoneSelect(item)
+		setSelectedTimezone(item)
 		onDismiss()
 	}
 
@@ -99,8 +106,8 @@ const TimezonePopup: FC<Props> = function FilterPopup({ visible, onDismiss, onTi
 								onPress={() => handleTimezoneSelect(item)}
 							>
 								<Text style={{ ...styles.tzTitle, color: colors.primary }}>{item}</Text>
-								{selectedTimezone === item ? (
-									<AntDesign name="checkcircle" color={"#27AE60"} size={24} />
+								{(selectedTimezone || userTimezone) === item ? (
+									<AntDesign name="checkcircle" color={"#27AE60"} size={21.5} />
 								) : (
 									<FontAwesome
 										name="circle-thin"
