@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Dropdown } from 'lib/components';
-import timeZones from './timezones';
+// import timeZones from './timezones';
 import { mapTimezoneItems, TimezoneItem } from 'lib/features';
 import { useTimezoneSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
@@ -14,6 +14,7 @@ export const TimezoneDropDown = ({
 	onChangeTimezone: any;
 }) => {
 	const { activeTimezone, setActiveTimezone } = useTimezoneSettings();
+	const [searchText, setSearchText] = useState<string>('');
 
 	const allTimezonesNames = moment.tz.names();
 	const allTimezonesWithUTC = allTimezonesNames.map((item) => {
@@ -36,7 +37,9 @@ export const TimezoneDropDown = ({
 		(item) => `${item.name} (UTC ${item.offset})`
 	);
 
-	const timeZonesMap: string[] = sortedTimezones; // TODO: we should import here from timeZones
+	const timeZonesMap: string[] = sortedTimezones.filter((item) =>
+		item.toLowerCase().includes(searchText.toLowerCase())
+	);
 
 	const items = useMemo(() => mapTimezoneItems(timeZonesMap), [timeZonesMap]);
 
@@ -62,6 +65,8 @@ export const TimezoneDropDown = ({
 
 	return (
 		<Dropdown
+			searchBar={true}
+			setSearchText={setSearchText}
 			className="md:w-[469px]"
 			buttonClassName={clsxm(
 				'py-0 font-medium h-[54px]',
