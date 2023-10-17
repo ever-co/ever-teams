@@ -113,7 +113,7 @@ export function Dropdown<T extends DropdownItem>({
 								<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
 									<input
 										placeholder="Search Time Zone"
-										className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22]"
+										className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
 										onChange={
 											setSearchText && ((e) => setSearchText(e.target.value))
 										}
