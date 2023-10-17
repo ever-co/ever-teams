@@ -58,13 +58,11 @@ const styles = StyleSheet.create({
 		right: 0,
 	},
 	prefix: {
-		color: "#FFFFFF",
 		fontFamily: typography.fonts.PlusJakartaSans.light,
 		fontSize: 42,
 		fontWeight: "200",
 	},
 	profileImage: {
-		backgroundColor: "#000000",
 		borderColor: "#86DAA9",
 		borderRadius: 200,
 		borderWidth: 3,
