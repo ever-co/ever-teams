@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
 	},
 	teamImage: {
 		alignItems: "center",
-		backgroundColor: "#C1E0EA",
+		backgroundColor: "#82c9e0",
 		borderRadius: 35,
 		elevation: 2,
 		height: 70,

@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
 		top: 10,
 	},
 	teamImage: {
-		backgroundColor: "#C1E0EA",
+		backgroundColor: "#82c9e0",
 	},
 	wrapProfileImg: {
 		alignItems: "center",
