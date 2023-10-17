@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
 		fontWeight: "200",
 	},
 	profileImage: {
+		backgroundColor: "#000000",
 		borderColor: "#86DAA9",
 		borderRadius: 200,
 		borderWidth: 3,
