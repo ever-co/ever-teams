@@ -4,11 +4,11 @@ import { StyleSheet, View, Text } from "react-native"
 import React, { FC } from "react"
 import { IUser } from "../../../../services/interfaces/IUserData"
 import { Avatar } from "react-native-paper"
-import { imgTitle } from "../../../../helpers/img-title"
 import { typography, useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import moment from "moment-timezone"
+import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
 
 interface ITimerStatus {
 	status: "running" | "online" | "idle" | "suspended" | "pause"
@@ -84,7 +84,7 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 				<Avatar.Text
 					style={styles.teamImage}
 					size={40}
-					label={imgTitle(user.name)}
+					label={imgTitleProfileAvatar(user.name)}
 					labelStyle={styles.prefix}
 				/>
 			)}
@@ -126,9 +126,10 @@ const styles = StyleSheet.create({
 		maxWidth: "70%",
 	},
 	prefix: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
-		fontWeight: "600",
+		color: "#FFFFFF",
+		fontFamily: typography.fonts.PlusJakartaSans.light,
+		fontSize: 26,
+		fontWeight: "200",
 	},
 	statusIcon: {
 		marginLeft: -13,

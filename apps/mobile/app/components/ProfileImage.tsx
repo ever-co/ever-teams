@@ -3,9 +3,9 @@
 import React, { FC, useMemo } from "react"
 import { View, StyleSheet } from "react-native"
 import { Avatar, Badge } from "react-native-paper"
-import { imgTitle } from "../helpers/img-title"
 import { IUser } from "../services/interfaces/IUserData"
-import { useAppTheme } from "../theme"
+import { typography, useAppTheme } from "../theme"
+import { imgTitleProfileAvatar } from "../helpers/img-title-profile-avatar"
 
 interface Props {
 	user: IUser
@@ -32,9 +32,10 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 					/>
 				) : (
 					<Avatar.Text
-						label={imgTitle(user?.name)}
+						label={imgTitleProfileAvatar(user?.name)}
 						size={size - 6}
 						style={{ ...styles.profileImage, width: size, height: size }}
+						labelStyle={styles.prefix}
 					/>
 				)}
 				<Badge size={25} style={[styles.onlineIcon, { borderColor: colors.background }]} />
@@ -55,6 +56,12 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		position: "absolute",
 		right: 0,
+	},
+	prefix: {
+		color: "#FFFFFF",
+		fontFamily: typography.fonts.PlusJakartaSans.light,
+		fontSize: 42,
+		fontWeight: "200",
 	},
 	profileImage: {
 		borderColor: "#86DAA9",
