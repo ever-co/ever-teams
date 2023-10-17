@@ -5,6 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { IClassName } from '@app/interfaces';
+import { useTranslation } from 'lib/i18n';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -46,6 +47,7 @@ export function Dropdown<T extends DropdownItem>({
 	searchBar = false,
 	setSearchText
 }: Props<T>) {
+	const { trans } = useTranslation();
 	return (
 		<div className={clsxm('rounded-xl', className)}>
 			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
@@ -112,7 +114,9 @@ export function Dropdown<T extends DropdownItem>({
 							{searchBar && (
 								<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
 									<input
-										placeholder="Search Time Zone"
+										placeholder={
+											trans.pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER
+										}
 										className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
 										onChange={
 											setSearchText && ((e) => setSearchText(e.target.value))
