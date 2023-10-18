@@ -3,7 +3,6 @@
 import React, { FC, useCallback, useMemo, useState } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native"
-import { imgTitle } from "../../../../helpers/img-title"
 import { useStores } from "../../../../models"
 import { typography, useAppTheme } from "../../../../theme"
 import { Avatar } from "react-native-paper"
@@ -11,6 +10,7 @@ import { observer } from "mobx-react-lite"
 import { useSettings } from "../../../../services/hooks/features/useSettings"
 import ConfirmationModal from "../../../../components/ConfirmationModal"
 import { translate } from "../../../../i18n"
+import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
 
 interface Props {
 	buttonLabel: string
@@ -48,7 +48,11 @@ const UserAvatar: FC<Props> = observer(({ buttonLabel, onChange }) => {
 			{imageUrl ? (
 				<Avatar.Image size={70} source={{ uri: imageUrl }} />
 			) : (
-				<Avatar.Text size={70} label={imgTitle(user?.name)} labelStyle={styles.prefix} />
+				<Avatar.Text
+					size={70}
+					label={imgTitleProfileAvatar(user?.name)}
+					labelStyle={styles.prefix}
+				/>
 			)}
 			<TouchableOpacity
 				style={[styles.changeAvatarBtn, { borderColor: colors.secondary }]}
@@ -113,13 +117,12 @@ const styles = StyleSheet.create({
 		width: 70,
 	},
 	prefix: {
-		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 24,
-		fontWeight: "600",
+		fontFamily: typography.fonts.PlusJakartaSans.light,
+		fontSize: 42,
 	},
 	teamImage: {
 		alignItems: "center",
-		backgroundColor: "#C1E0EA",
+		backgroundColor: "#82c9e0",
 		borderRadius: 35,
 		elevation: 2,
 		height: 70,
