@@ -11,11 +11,15 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { observer } from "mobx-react-lite"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import WorkedOnTaskHours from "../../../../components/WorkedDayHours"
+import { useStores } from "../../../../models"
 interface IUserProfileTasks {
 	profile: IUserProfile
 	content: ITaskFilter
 }
 const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) => {
+	const {
+		TaskStore: { activeTaskId },
+	} = useStores()
 	const { colors, dark } = useAppTheme()
 	const { timerStatus } = useTimer()
 	const tasks = useMemo(() => {
@@ -120,7 +124,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 								task={task}
 								isAssigned={true}
 								isAuthUser={profile.isAuthUser}
-								activeAuthTask={false}
+								activeAuthTask={activeTaskId === task?.id}
 								profile={profile}
 							/>
 						</View>

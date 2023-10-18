@@ -1,4 +1,5 @@
 import moment from 'moment';
+import * as momentTimezone from 'moment-timezone';
 
 const months: { [key: string]: string } = {
 	'01': 'January',
@@ -28,7 +29,10 @@ export function changeTimezone(date: Date, ianatz?: string) {
 }
 
 export function userTimezone() {
-	return Intl.DateTimeFormat().resolvedOptions().timeZone;
+	const userTimezone = momentTimezone.tz.guess();
+	const offset = momentTimezone.tz(userTimezone).format('Z');
+	const formattedTimezone = `${userTimezone.replace(/_/, ' ')} (UTC ${offset})`;
+	return formattedTimezone;
 }
 
 export function addHours(numOfHours: number, date = new Date()) {

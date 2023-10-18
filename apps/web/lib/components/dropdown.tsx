@@ -5,6 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
 import { IClassName } from '@app/interfaces';
+import { useTranslation } from 'lib/i18n';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -27,6 +28,8 @@ type Props<T extends DropdownItem> = {
 	publicTeam?: boolean;
 	closeOnChildrenClick?: boolean;
 	cardClassName?: string;
+	searchBar?: boolean;
+	setSearchText?: React.Dispatch<SetStateAction<string>>;
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({
@@ -40,8 +43,11 @@ export function Dropdown<T extends DropdownItem>({
 	buttonStyle,
 	optionsClassName,
 	publicTeam,
-	closeOnChildrenClick = true
+	closeOnChildrenClick = true,
+	searchBar = false,
+	setSearchText
 }: Props<T>) {
+	const { trans } = useTranslation();
 	return (
 		<div className={clsxm('rounded-xl', className)}>
 			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
@@ -100,10 +106,25 @@ export function Dropdown<T extends DropdownItem>({
 						<Card
 							shadow="custom"
 							className={clsxm(
-								'md:px-4 py-4 rounded-x dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]'
+								'md:px-4 py-4 rounded-x  dark:bg-[#1B1D22] dark:border-[0.125rem] border-[#0000001A] dark:border-[#26272C]',
+								searchBar && 'w-96'
 							)}
 							style={{ boxShadow: '0px 14px 39px rgba(0, 0, 0, 0.12)' }}
 						>
+							{searchBar && (
+								<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
+									<input
+										placeholder={
+											trans.pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER
+										}
+										className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
+										onChange={
+											setSearchText && ((e) => setSearchText(e.target.value))
+										}
+									/>
+								</div>
+							)}
+
 							{items.map((Item, index) => (
 								<Listbox.Option
 									key={Item.key ? Item.key : index}
