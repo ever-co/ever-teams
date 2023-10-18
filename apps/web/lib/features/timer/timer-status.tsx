@@ -75,7 +75,9 @@ export function getTimerStatusValue(
 	member: OT_Member | undefined,
 	publicTeam?: boolean
 ): ITimerStatusEnum {
-	return member?.timerStatus === 'pause'
+	return !member?.employee?.isActive && !publicTeam
+		? 'suspended'
+		: member?.timerStatus === 'pause'
 		? 'pause'
 		: !timerStatus?.running &&
 		  timerStatus?.lastLog &&
@@ -84,8 +86,6 @@ export function getTimerStatusValue(
 		  moment().diff(moment(timerStatus?.lastLog?.startedAt), 'hours') < 24 &&
 		  timerStatus?.lastLog?.source !== 'TEAMS'
 		? 'pause'
-		: !member?.employee?.isActive && !publicTeam
-		? 'suspended'
 		: member?.employee?.isOnline
 		? //  && member?.timerStatus !== 'running'
 		  'online'
