@@ -221,7 +221,8 @@ export const en = {
 			SUBSCRIPTION: 'Subscription',
 			ABOUT_TO_CHANGE_EMAIL: 'You are about to change Email',
 			ABOUT_TO_DELETE_ACCOUNT: 'You are about to Delete your account ?',
-			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?'
+			ABOUT_TO_REMOVE_ACCOUNT: 'You are about to Remove your account ?',
+			TIMEZONE_SEARCH_PLACEHOLDER: 'Search Time Zone'
 		},
 		settingsTeam: {
 			HEADING_TITLE: 'General Settings',
