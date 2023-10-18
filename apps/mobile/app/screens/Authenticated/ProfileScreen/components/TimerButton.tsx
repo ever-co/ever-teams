@@ -52,7 +52,7 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 						!dark && styles.shadowTimerRunning,
 						{
 							backgroundColor: "#e11d48",
-							borderColor: "#e11d48",
+							borderColor: dark ? "#28292F" : "#0000001A",
 						},
 					]}
 					onPress={() => handleStartTimer()}
@@ -66,7 +66,7 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 						!dark && styles.shadowTimerNotRunning,
 						{
 							backgroundColor: dark ? "#1e2430" : colors.background,
-							borderColor: dark ? "#1e2430" : colors.background,
+							borderColor: dark ? "#28292F" : "#0000001A",
 						},
 					]}
 					onPress={() => handleStartTimer()}

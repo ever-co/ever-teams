@@ -33,7 +33,11 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 						style={[
 							dark ? styles.timerBtnDarkTheme : styles.timerBtnInactive,
 							containerStyle,
-							{ backgroundColor: dark ? "#1e2430" : "#fff", opacity: canRunTimer ? 1 : 0.4 },
+							{
+								backgroundColor: dark ? "#1e2430" : "#fff",
+								opacity: canRunTimer ? 1 : 0.4,
+								borderColor: dark ? "#28292F" : "#0000001A",
+							},
 						]}
 						disabled={!canRunTimer}
 						onPress={() => startTimer()}
@@ -46,7 +50,7 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 					onPress={() => stopTimer()}
 					style={[
 						dark ? styles.timerBtnDarkTheme : styles.timerBtnActive,
-						{ backgroundColor: "#e11d48" },
+						{ backgroundColor: "#e11d48", borderColor: dark ? "#28292F" : "#0000001A" },
 						containerStyle,
 					]}
 				>
