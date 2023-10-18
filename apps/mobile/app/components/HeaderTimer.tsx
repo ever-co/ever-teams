@@ -9,10 +9,10 @@ import { useStores } from "../models"
 import { useTimer } from "../services/hooks/useTimer"
 import { typography, useAppTheme } from "../theme"
 import { SvgXml } from "react-native-svg"
-import { timerSmallPlayIcon, timerSmallStopIcon } from "./svgs/icons"
+import { timerSmallDarkPlayIcon, timerSmallPlayIcon, timerSmallStopIcon } from "./svgs/icons"
 
 const HeaderTimer = observer(() => {
-	const { colors } = useAppTheme()
+	const { colors, dark } = useAppTheme()
 	const {
 		TimerStore: { timeCounterState, localTimerStatus },
 		TaskStore: { activeTask },
@@ -54,8 +54,9 @@ const HeaderTimer = observer(() => {
 				onPress={() => handleTimer()}
 			>
 				{localTimerStatus.running ? (
-					// <Image style={styles.btnImage} source={require("../../assets/icons/new/stop-blue.png")} />
 					<SvgXml xml={timerSmallStopIcon} />
+				) : dark ? (
+					<SvgXml xml={timerSmallDarkPlayIcon} />
 				) : (
 					<SvgXml xml={timerSmallPlayIcon} />
 				)}
