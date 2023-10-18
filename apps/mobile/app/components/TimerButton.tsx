@@ -11,6 +11,7 @@ import { ITeamTask } from "../services/interfaces/ITask"
 import { useAppTheme } from "../theme"
 import { SvgXml } from "react-native-svg"
 import { timerLargePlayIcon, timerLargeStopIcon } from "./svgs/icons"
+import { LinearGradient } from "expo-linear-gradient"
 
 type TimerButtonProps = {
 	task?: ITeamTask
@@ -30,17 +31,14 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 			<View>
 				{!localTimerStatus.running ? (
 					<>
-						<Pressable
-							style={[
-								styles.timerBtnDarkTheme,
-								containerStyle,
-								{ backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 },
-							]}
-							disabled={!canRunTimer}
-							onPress={() => startTimer()}
+						<LinearGradient
+							colors={["#E93CB9", "#6A71E7"]}
+							style={[styles.timerBtnDarkTheme, containerStyle, { opacity: canRunTimer ? 1 : 0.4 }]}
 						>
-							<SvgXml xml={timerLargePlayIcon} />
-						</Pressable>
+							<Pressable disabled={!canRunTimer} onPress={() => startTimer()}>
+								<SvgXml xml={timerLargePlayIcon} />
+							</Pressable>
+						</LinearGradient>
 					</>
 				) : (
 					<Pressable
@@ -106,7 +104,7 @@ const styles = StyleSheet.create({
 	},
 	timerBtnDarkTheme: {
 		alignItems: "center",
-		backgroundColor: "#3826A6",
+		// backgroundColor: "#3826A6",
 		borderColor: "rgba(0, 0, 0, 0.1)",
 		borderRadius: 30,
 		borderWidth: 1,
