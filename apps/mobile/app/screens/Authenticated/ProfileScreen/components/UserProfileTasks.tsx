@@ -146,6 +146,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 				>
 					{content.tab === "assigned" && (
 						<FlatList
+							showsVerticalScrollIndicator={false}
 							data={content.tasksFiltered}
 							renderItem={({ item, index }) => (
 								<View
@@ -166,6 +167,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 
 					{content.tab === "unassigned" && (
 						<FlatList
+							showsVerticalScrollIndicator={false}
 							data={content.tasksFiltered}
 							initialNumToRender={5}
 							renderItem={({ item, index }) => (
