@@ -10,7 +10,7 @@ import { useTimer } from "../services/hooks/useTimer"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useAppTheme } from "../theme"
 import { SvgXml } from "react-native-svg"
-import { timerLargePlayIcon, timerLargeStopIcon } from "./svgs/icons"
+import { timerLargeDarkPlayIcon, timerLargePlayIcon, timerLargeStopIcon } from "./svgs/icons"
 
 type TimerButtonProps = {
 	task?: ITeamTask
@@ -25,55 +25,34 @@ const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 	const { canRunTimer, startTimer, stopTimer } = useTimer()
 	const { dark } = useAppTheme()
 
-	if (dark) {
-		return (
-			<View>
-				{!localTimerStatus.running ? (
-					<>
-						<Pressable
-							style={[
-								styles.timerBtnDarkTheme,
-								containerStyle,
-								{ backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 },
-							]}
-							disabled={!canRunTimer}
-							onPress={() => startTimer()}
-						>
-							<SvgXml xml={timerLargePlayIcon} />
-						</Pressable>
-					</>
-				) : (
-					<Pressable
-						onPress={() => stopTimer()}
-						style={[styles.timerBtnDarkTheme, { backgroundColor: "#e11d48" }, containerStyle]}
-					>
-						<SvgXml xml={timerLargeStopIcon} />
-					</Pressable>
-				)}
-			</View>
-		)
-	}
-
 	return (
 		<View>
 			{!localTimerStatus.running ? (
 				<>
 					<Pressable
 						style={[
-							styles.timerBtnInactive,
+							dark ? styles.timerBtnDarkTheme : styles.timerBtnInactive,
 							containerStyle,
-							{ backgroundColor: "#fff", opacity: canRunTimer ? 1 : 0.4 },
+							{
+								backgroundColor: dark ? "#1e2430" : "#fff",
+								opacity: canRunTimer ? 1 : 0.4,
+								borderColor: dark ? "#28292F" : "#0000001A",
+							},
 						]}
 						disabled={!canRunTimer}
-						onPress={() => (canRunTimer ? startTimer() : {})}
+						onPress={() => startTimer()}
 					>
-						<SvgXml xml={timerLargePlayIcon} />
+						<SvgXml xml={dark ? timerLargeDarkPlayIcon : timerLargePlayIcon} />
 					</Pressable>
 				</>
 			) : (
 				<Pressable
 					onPress={() => stopTimer()}
-					style={[styles.timerBtnActive, { backgroundColor: "#e11d48" }, containerStyle]}
+					style={[
+						dark ? styles.timerBtnDarkTheme : styles.timerBtnActive,
+						{ backgroundColor: "#e11d48", borderColor: dark ? "#28292F" : "#0000001A" },
+						containerStyle,
+					]}
 				>
 					<SvgXml xml={timerLargeStopIcon} />
 				</Pressable>
@@ -106,7 +85,7 @@ const styles = StyleSheet.create({
 	},
 	timerBtnDarkTheme: {
 		alignItems: "center",
-		backgroundColor: "#3826A6",
+		// backgroundColor: "#3826A6",
 		borderColor: "rgba(0, 0, 0, 0.1)",
 		borderRadius: 30,
 		borderWidth: 1,

@@ -27,6 +27,7 @@ import TaskSize from "../../../../components/TaskSize"
 import { RTuseTaskInput } from "../../../../services/hooks/features/useTaskInput"
 import TaskLabels from "../../../../components/TaskLabels"
 import IssuesModal from "../../../../components/IssuesModal"
+import { useStores } from "../../../../models"
 
 const TimerTaskSection = observer(
 	({ taskInput, outsideClick }: { taskInput: RTuseTaskInput; outsideClick: () => unknown }) => {
@@ -44,6 +45,9 @@ const TimerTaskSection = observer(
 
 		const [combxShow, setCombxShow] = useState<boolean>(false)
 		const inputRef = useRef<TextInput>(null)
+		const {
+			TimerStore: { localTimerStatus },
+		} = useStores()
 
 		const closeCombox = useCallback(() => {
 			setCombxShow(false)
@@ -88,14 +92,19 @@ const TimerTaskSection = observer(
 							placeholderTextColor={colors.tertiary}
 							style={[
 								styles.textInput,
-								{ backgroundColor: colors.background, color: colors.primary, width: "80%" },
+								{
+									backgroundColor: colors.background,
+									color: colors.primary,
+									width: "80%",
+									opacity: localTimerStatus.running ? 0.5 : 1,
+								},
 							]}
 							placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
 							defaultValue={activeTask ? activeTask.title : ""}
 							autoFocus={false}
 							autoCapitalize="none"
 							autoCorrect={false}
-							editable={true}
+							editable={!localTimerStatus.running}
 							onFocus={() => setEditMode(true)}
 							// onBlur={() => setEditMode(false)}
 							onChangeText={(newText) => setQuery(newText)}

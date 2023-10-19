@@ -281,13 +281,13 @@ export function InviteUserTeamCard({
 				<VerticalSeparator />
 
 				{/* Task information */}
-				<Text className="opacity-40 2xl:w-80 w-1/5 px-4 text-center text-xs sm:text-sm">
+				<Text className="opacity-40 2xl:w-80 3xl:w-[32rem] px-4 text-center text-xs sm:text-sm">
 					{trans.common.TASK_TITTLE}
 				</Text>
 				<VerticalSeparator className="ml-2" />
 
 				{/* TaskTime */}
-				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 3xl:w-60 w-1/5 font-normal lg:px-4 px-2 text-xs md:text-sm">
+				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 3xl:w-[12rem] w-1/5 font-normal lg:px-4 px-2 text-xs md:text-sm">
 					<span>{trans.common.TODAY}:</span>
 					<Text>00h : 00m</Text>
 				</div>
