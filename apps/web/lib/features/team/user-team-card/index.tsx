@@ -21,24 +21,30 @@ import { timerSecondsState } from '@app/stores';
 export function UserTeamCardHeader() {
 	const { trans } = useTranslation();
 	return (
-		<ul className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
+		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
-			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
-				{trans.common.NAME}
-			</li>
-			<li className="2xl:w-[20.313rem] 3xl:w-[19rem] text-center w-[21%]">
+			<div className="2xl:w-[20.625rem] text-center">{trans.common.NAME}</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">
 				{trans.common.TASK}
-			</li>
-			<li className="2xl:w-48 3xl:w-60 text-center w-[21%]">
-				{trans.common.WORKED_ON_TASK}
-			</li>
-			<li className="2xl:w-[13.188rem] text-center w-[20.5%]">
+			</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
+				Worked on
+				<br />
+				Task
+			</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-52 3xl:w-64 w-1/5 text-center">
 				{trans.common.ESTIMATE}
-			</li>
-			<li className="2xl:w-[11.75rem] 3xl:w-[20rem] text-center w-1/6">
-				{trans.common.TOTAL_WORKED_TODAY}
-			</li>
-		</ul>
+			</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
+				Total worked
+				<br />
+				Today
+			</div>
+		</div>
 	);
 }
 
@@ -142,7 +148,7 @@ export function UserTeamCard({
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-80 w-1/5 lg:px-4 px-2"
+					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
@@ -153,7 +159,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 3xl:w-60 w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+					className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 				/>
 				<VerticalSeparator />
 
@@ -169,7 +175,7 @@ export function UserTeamCard({
 				{/* TodayWorkedTime */}
 				<TodayWorkedTime
 					isAuthUser={memberInfo.isAuthUser}
-					className="flex-1 lg:text-base text-xs"
+					className="flex-1 lg:text-base text-xs 3xl:w-[12rem]"
 					memberInfo={memberInfo}
 				/>
 
