@@ -166,6 +166,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 										<FlatList
 											data={[currentUser, $otherMembers, teamInvitations]}
 											showsVerticalScrollIndicator={false}
+											bounces={false}
 											keyExtractor={(item, index) => index.toString()}
 											renderItem={({ item, index }) => {
 												if (index === 0) {
@@ -195,6 +196,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 													)
 												}
 											}}
+											ListFooterComponent={<View style={{ marginBottom: 30 }} />}
 										/>
 									</View>
 								</>
