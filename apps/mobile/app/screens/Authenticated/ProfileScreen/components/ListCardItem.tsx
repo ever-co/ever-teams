@@ -103,7 +103,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 							<TaskTitleDisplay task={props.task} editMode={editTitle} setEditMode={setEditTitle} />
 						</View>
 						{!enableEstimate ? (
-							<TouchableOpacity onLongPress={() => setEnableEstimate(true)}>
+							<TouchableOpacity onPress={() => setEnableEstimate(true)}>
 								<AnimatedCircularProgress
 									size={56}
 									width={7}
