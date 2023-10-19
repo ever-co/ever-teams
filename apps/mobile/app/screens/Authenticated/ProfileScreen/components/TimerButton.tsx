@@ -2,7 +2,6 @@
 /* eslint-disable react-native/no-inline-styles */
 
 import React, { FC } from "react"
-import { LinearGradient } from "expo-linear-gradient"
 import { StyleSheet } from "react-native"
 import { useStores } from "../../../../models"
 import { useTimer } from "../../../../services/hooks/useTimer"
@@ -12,7 +11,11 @@ import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useAppTheme } from "../../../../theme"
 import { SvgXml } from "react-native-svg"
-import { timerMediumPlayIcon, timerMediumStopIcon } from "../../../../components/svgs/icons"
+import {
+	timerMediumDarkPlayIcon,
+	timerMediumPlayIcon,
+	timerMediumStopIcon,
+} from "../../../../components/svgs/icons"
 
 interface Props {
 	isActiveTask: boolean
@@ -40,37 +43,16 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 		stopTimer()
 	}
 
-	if (!dark) {
-		return (
-			<TouchableOpacity
-				style={[
-					styles.timerBtn,
-					{
-						backgroundColor:
-							localTimerStatus.running && isActiveTask ? "#e11d48" : colors.background,
-						borderColor: localTimerStatus.running && isActiveTask ? "#e11d48" : colors.background,
-					},
-				]}
-				onPress={() => handleStartTimer()}
-			>
-				{localTimerStatus.running && isActiveTask ? (
-					<SvgXml xml={timerMediumStopIcon} />
-				) : (
-					<SvgXml xml={timerMediumPlayIcon} />
-				)}
-			</TouchableOpacity>
-		)
-	}
-
 	return (
 		<>
 			{localTimerStatus.running && isActiveTask ? (
 				<TouchableOpacity
 					style={[
 						styles.timerBtn,
+						!dark && styles.shadowTimerRunning,
 						{
 							backgroundColor: "#e11d48",
-							borderColor: "#e11d48",
+							borderColor: dark ? "#28292F" : "#0000001A",
 						},
 					]}
 					onPress={() => handleStartTimer()}
@@ -78,30 +60,47 @@ const TimerButton: FC<Props> = observer(({ isActiveTask, task }) => {
 					<SvgXml xml={timerMediumStopIcon} />
 				</TouchableOpacity>
 			) : (
-				<LinearGradient colors={["#E93CB9", "#6A71E7"]} style={styles.timerBtn}>
-					<TouchableOpacity onPress={() => handleStartTimer()}>
-						<SvgXml xml={timerMediumPlayIcon} />
-					</TouchableOpacity>
-				</LinearGradient>
+				<TouchableOpacity
+					style={[
+						styles.timerBtn,
+						!dark && styles.shadowTimerNotRunning,
+						{
+							backgroundColor: dark ? "#1e2430" : colors.background,
+							borderColor: dark ? "#28292F" : "#0000001A",
+						},
+					]}
+					onPress={() => handleStartTimer()}
+				>
+					{dark ? <SvgXml xml={timerMediumDarkPlayIcon} /> : <SvgXml xml={timerMediumPlayIcon} />}
+				</TouchableOpacity>
 			)}
 		</>
 	)
 })
 
 const styles = StyleSheet.create({
+	shadowTimerNotRunning: {
+		elevation: 10,
+		shadowColor: "#3826A6",
+		shadowOffset: { width: 0, height: 10 },
+		shadowOpacity: 0.5,
+		shadowRadius: 10,
+	},
+	shadowTimerRunning: {
+		elevation: 10,
+		shadowColor: "#e11d48",
+		shadowOffset: { width: 0, height: 10 },
+		shadowOpacity: 0.5,
+		shadowRadius: 10,
+	},
 	timerBtn: {
 		alignItems: "center",
 		borderColor: "rgba(0, 0, 0, 0.4)",
 		borderRadius: 20,
 		borderWidth: 1,
-		elevation: 10,
 		height: 42,
 		justifyContent: "center",
 		marginRight: 10,
-		shadowColor: "rgba(0,0,0,0.16)",
-		shadowOffset: { width: 5, height: 10 },
-		shadowOpacity: 1,
-		shadowRadius: 10,
 		width: 42,
 	},
 	timerIcon: {

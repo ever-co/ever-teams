@@ -37,6 +37,7 @@ import UnassignedTasksList from "./UnassignedTaskList"
 import { translate } from "../../../../i18n"
 import moment from "moment-timezone"
 import { useTimer } from "../../../../services/hooks/useTimer"
+import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -133,16 +134,13 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 	const { timerStatus } = useTimer()
 	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false)
 
-	const navigation = useNavigation()
+	const navigation = useNavigation<SettingScreenNavigationProp<"Profile">>()
 
 	const onPressIn = () => {
 		taskEdition.setEditMode(false)
 		taskEdition.setEstimateEditMode(false)
 		props.setOpenMenuIndex(null)
-		navigation.navigate(
-			"Profile" as never,
-			{ userId: memberInfo.memberUser.id, activeTab: "worked" } as never,
-		)
+		navigation.navigate("Profile", { userId: memberInfo.memberUser.id, activeTab: "worked" })
 	}
 
 	return (
