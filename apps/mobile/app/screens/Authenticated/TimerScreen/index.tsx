@@ -45,8 +45,6 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<"Timer">> 
 
 		return (
 			<Screen
-				preset="scroll"
-				ScrollViewProps={{ bounces: false }}
 				contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
 				backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
 				safeAreaEdges={["top"]}
