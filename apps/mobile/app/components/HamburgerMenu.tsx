@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect, useRef } from "react"
+import React, { useEffect } from "react"
 import {
 	View,
 	StyleSheet,
@@ -49,7 +49,6 @@ const HamburgerMenu = observer((props: any) => {
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false)
 	const [containerWidth, setContainerWidth] = React.useState(0)
-	const containerRef = useRef(null)
 
 	const { navigation } = props
 	const isOpen = useDrawerStatus() === "open"
@@ -70,7 +69,6 @@ const HamburgerMenu = observer((props: any) => {
 				const { width } = event.nativeEvent.layout
 				setContainerWidth(width)
 			}}
-			ref={containerRef}
 			onPress={() => setIsTeamModalOpen(false)}
 		>
 			<View
