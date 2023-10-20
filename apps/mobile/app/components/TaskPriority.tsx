@@ -52,7 +52,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 		return (
 			<>
 				<TaskPriorityPopup
-					priorityName={task?.priority}
+					priorityName={task ? task?.priority : priority}
 					visible={openModal}
 					setSelectedPriority={(e) => onChangePriority(e.value)}
 					onDismiss={() => setOpenModal(false)}
@@ -81,7 +81,11 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 								</Text>
 							</View>
 						)}
-						<AntDesign name="down" size={14} color={task?.priority ? "#000000" : colors.primary} />
+						<AntDesign
+							name="down"
+							size={14}
+							color={task?.priority || priority ? "#000000" : colors.primary}
+						/>
 					</View>
 				</TouchableOpacity>
 			</>
