@@ -1,10 +1,9 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import { Text } from "react-native-paper"
-import { View, StyleSheet, Dimensions, TouchableWithoutFeedback, Pressable } from "react-native"
-import { ScrollView } from "react-native-gesture-handler"
+import { View, StyleSheet, TouchableWithoutFeedback, Pressable, FlatList } from "react-native"
 import { Ionicons } from "@expo/vector-icons"
 import TaskDisplayBox from "./TaskDisplayBox"
 import { observer } from "mobx-react-lite"
@@ -18,10 +17,10 @@ export interface Props {
 	closeCombo: () => unknown
 	setEditMode: (val: boolean) => void
 }
-const { height } = Dimensions.get("window")
 
 const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeCombo, setEditMode }) {
 	const { colors } = useAppTheme()
+	const [isScrolling, setIsScrolling] = useState<boolean>(false)
 
 	return (
 		<TouchableWithoutFeedback>
@@ -54,18 +53,25 @@ const ComboBox: FC<Props> = observer(function ComboBox({ tasksHandler, closeComb
 						/>
 					</Pressable>
 				</View>
-				<ScrollView style={{ maxHeight: 315, paddingBottom: 9 }}>
-					{tasksHandler.filteredTasks.map((task, i) => (
-						<IndividualTask
-							key={i}
-							onReopenTask={() => tasksHandler.handleReopenTask(task)}
-							task={task}
-							handleActiveTask={tasksHandler.setActiveTeamTask}
-							closeCombo={closeCombo}
-							setEditMode={setEditMode}
-						/>
-					))}
-				</ScrollView>
+				<View style={{ maxHeight: 315 }}>
+					<FlatList
+						onScrollBeginDrag={() => setIsScrolling(true)}
+						onScrollEndDrag={() => setIsScrolling(false)}
+						showsVerticalScrollIndicator={false}
+						data={tasksHandler.filteredTasks}
+						renderItem={({ item, index }) => (
+							<IndividualTask
+								key={index}
+								onReopenTask={() => tasksHandler.handleReopenTask(item)}
+								task={item}
+								isScrolling={isScrolling}
+								handleActiveTask={tasksHandler.setActiveTeamTask}
+								closeCombo={closeCombo}
+								setEditMode={setEditMode}
+							/>
+						)}
+					/>
+				</View>
 			</View>
 		</TouchableWithoutFeedback>
 	)
@@ -96,20 +102,11 @@ const styles = StyleSheet.create({
 		paddingBottom: 16,
 		width: 232,
 	},
-	loading: {
-		position: "absolute",
-		right: 10,
-		top: 15,
-	},
+
 	mainContainer: {
 		marginTop: 16,
 		width: "100%",
 		zIndex: 5,
-	},
-	wrapList: {
-		marginBottom: 20,
-		maxHeight: height / 3,
-		zIndex: 100,
 	},
 })
 

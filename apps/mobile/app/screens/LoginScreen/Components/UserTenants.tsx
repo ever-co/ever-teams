@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-unused-styles */
 import React, { FC } from "react"
-import { View, Text, StyleSheet, Image } from "react-native"
+import { View, Text, StyleSheet, Image, FlatList } from "react-native"
 import { IWorkspace } from "../../../services/interfaces/IAuthentication"
 import { SvgXml } from "react-native-svg"
 import { grayCircleIcon, greenCircleTickIcon } from "../../../components/svgs/icons"
@@ -57,33 +57,37 @@ const UserTenants: FC<IUserTenants> = ({
 			</View>
 			<View style={{ backgroundColor: "#E5E5E5", height: 1, width: "100%" }} />
 			<View style={{ paddingHorizontal: 10, width: "95%", gap: 5 }}>
-				{data.current_teams.map((team, i) => (
-					<View key={i} style={styles.teamsContainer}>
-						<View style={styles.teamInfoContainer}>
-							<Image
-								source={{ uri: team.team_logo }}
-								style={{ width: 25, height: 25, borderRadius: 100 }}
-							/>
-							<Text style={{ fontSize: 18 }}>
-								{team.team_name}({team.team_member_count})
-							</Text>
+				<FlatList
+					data={data.current_teams}
+					renderItem={({ item }) => (
+						<View style={styles.teamsContainer}>
+							<View style={styles.teamInfoContainer}>
+								<Image
+									source={{ uri: item.team_logo }}
+									style={{ width: 25, height: 25, borderRadius: 100 }}
+								/>
+								<Text style={{ fontSize: 18 }}>
+									{item.team_name}({item.team_member_count})
+								</Text>
+							</View>
+							<View
+								onTouchStart={() => {
+									setActiveTeamId(item.team_id)
+									setSelectedWorkspace(index)
+									setIsValid({ ...isValid, step3: true })
+									setTempAuthToken(data.token)
+								}}
+							>
+								{activeTeamId === item.team_id ? (
+									<SvgXml xml={greenCircleTickIcon} />
+								) : (
+									<SvgXml xml={grayCircleIcon} />
+								)}
+							</View>
 						</View>
-						<View
-							onTouchStart={() => {
-								setActiveTeamId(team.team_id)
-								setSelectedWorkspace(index)
-								setIsValid({ ...isValid, step3: true })
-								setTempAuthToken(data.token)
-							}}
-						>
-							{activeTeamId === team.team_id ? (
-								<SvgXml xml={greenCircleTickIcon} />
-							) : (
-								<SvgXml xml={grayCircleIcon} />
-							)}
-						</View>
-					</View>
-				))}
+					)}
+					keyExtractor={(item, index) => index.toString()}
+				/>
 			</View>
 		</View>
 	)
