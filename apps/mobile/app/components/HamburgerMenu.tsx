@@ -101,7 +101,7 @@ const HamburgerMenu = observer((props: any) => {
 								marginTop: 4,
 							}}
 						>
-							{user?.email}s
+							{user?.email}
 						</Text>
 						{activeTeam ? (
 							<DropDown

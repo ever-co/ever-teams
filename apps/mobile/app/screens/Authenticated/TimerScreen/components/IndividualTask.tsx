@@ -21,10 +21,11 @@ export interface Props {
 	closeCombo?: () => unknown
 	onReopenTask: () => unknown
 	setEditMode: (val: boolean) => void
+	isScrolling: boolean
 }
 
 const IndividualTask: FC<Props> = observer(
-	({ task, handleActiveTask, closeCombo, onReopenTask, setEditMode }) => {
+	({ task, handleActiveTask, closeCombo, onReopenTask, setEditMode, isScrolling }) => {
 		const { colors } = useAppTheme()
 		const [showDel, setShowDel] = useState(false)
 		const { updateTask } = useTeamTasks()
@@ -54,7 +55,7 @@ const IndividualTask: FC<Props> = observer(
 			>
 				<View
 					onTouchEnd={() => {
-						handleActiveTask(task)
+						!isScrolling && handleActiveTask(task)
 					}} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
@@ -76,7 +77,7 @@ const IndividualTask: FC<Props> = observer(
 				</View>
 				<View
 					onTouchEnd={() => {
-						handleActiveTask(task)
+						!isScrolling && handleActiveTask(task)
 					}} // added it here because doesn't work when assigned to the parent
 					style={{
 						flexDirection: "row",
