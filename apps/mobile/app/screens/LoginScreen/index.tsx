@@ -42,12 +42,10 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
 	return (
 		<Screen
-			preset="scroll"
 			contentContainerStyle={{ ...$screenContentContainer, backgroundColor: "#282149" }}
 			backgroundColor={"#282149"}
 			statusBarStyle={"light"}
 			safeAreaEdges={["top"]}
-			ScrollViewProps={{ bounces: false }}
 			KeyboardAvoidingViewProps={{}}
 		>
 			<View style={$header}>

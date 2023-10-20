@@ -2,7 +2,15 @@
 import React, { FC, useEffect, useRef, useState } from "react"
 import * as Animatable from "react-native-animatable"
 import EStyleSheet from "react-native-extended-stylesheet"
-import { View, Text, Dimensions, TextInput, ViewStyle, TouchableOpacity } from "react-native"
+import {
+	View,
+	Text,
+	Dimensions,
+	TextInput,
+	ViewStyle,
+	TouchableOpacity,
+	FlatList,
+} from "react-native"
 import { observer } from "mobx-react-lite"
 import { Feather } from "@expo/vector-icons"
 import { ActivityIndicator } from "react-native-paper"
@@ -15,7 +23,6 @@ import { CodeInput } from "../../../components/CodeInput"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import { EMAIL_REGEX } from "../../../helpers/regex"
 import UserTenants from "./UserTenants"
-import { ScrollView } from "react-native-gesture-handler"
 import { IWorkspace, VerificationResponse } from "../../../services/interfaces/IAuthentication"
 
 interface Props {
@@ -228,12 +235,15 @@ const PassCode: FC<Props> = observer(
 						<Text style={{ ...styles.text, alignSelf: "center" }}>
 							{translate("loginScreen.selectWorkspaceFieldLabel")}
 						</Text>
-						<ScrollView>
-							{workspaceData?.map((workspace: IWorkspace, i: number) => (
+
+						<FlatList
+							data={workspaceData}
+							showsVerticalScrollIndicator={false}
+							renderItem={({ item, index }: { item: IWorkspace; index: number }) => (
 								<UserTenants
-									key={i}
-									index={i}
-									data={workspace}
+									key={index}
+									index={index}
+									data={item}
 									activeTeamId={activeTeamId}
 									setActiveTeamId={setActiveTeamId}
 									selectedWorkspace={selectedWorkspace}
@@ -242,8 +252,8 @@ const PassCode: FC<Props> = observer(
 									setIsValid={setIsValid}
 									setTempAuthToken={setTempAuthToken}
 								/>
-							))}
-						</ScrollView>
+							)}
+						/>
 					</View>
 				)}
 				<View style={styles.buttonsView}>

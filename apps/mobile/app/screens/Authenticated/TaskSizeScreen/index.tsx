@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from "react"
-import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, ScrollView } from "react-native"
+import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, FlatList } from "react-native"
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { Screen } from "../../../components"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
@@ -36,8 +36,6 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 
 		return (
 			<Screen
-				preset="scroll"
-				ScrollViewProps={{ bounces: false }}
 				contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
 				safeAreaEdges={["top"]}
 			>
@@ -52,7 +50,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 							</Text>
 						</View>
 					</View>
-					<ScrollView style={{ width: "100%", padding: 20, maxHeight: "80%" }} bounces={false}>
+					<View style={{ width: "100%", padding: 20, maxHeight: "80%" }}>
 						<View>
 							<Text style={styles.title2}>{translate("settingScreen.sizeScreen.listSizes")}</Text>
 						</View>
@@ -63,23 +61,24 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 									{translate("settingScreen.sizeScreen.noActiveSizes")}
 								</Text>
 							) : null}
-							{sizes?.items?.map((item, index) => (
-								<View
-									key={index}
-									style={{
-										marginBottom: sizes?.items.length === index + 1 ? 40 : 0,
-										width: "100%",
-									}}
-								>
+
+							<FlatList
+								bounces={false}
+								showsVerticalScrollIndicator={false}
+								style={{ width: "100%" }}
+								data={sizes?.items}
+								renderItem={({ item }) => (
 									<SizeItem
 										openForEdit={() => openForEdit(item)}
 										onDeleteSize={() => deleteSize(item.id)}
 										size={item}
 									/>
-								</View>
-							))}
+								)}
+								keyExtractor={(_, index) => index.toString()}
+								ListFooterComponent={() => <View style={{ marginBottom: 40 }} />}
+							/>
 						</View>
-					</ScrollView>
+					</View>
 					<TouchableOpacity
 						style={{ ...styles.createButton, borderColor: dark ? "#6755C9" : "#3826A6" }}
 						onPress={() => {
