@@ -88,7 +88,11 @@ const TaskSize: FC<TaskSizeProps> = observer(({ task, containerStyle, setSize, s
 							</Text>
 						</View>
 					)}
-					<AntDesign name="down" size={14} color={colors.primary} />
+					<AntDesign
+						name="down"
+						size={14}
+						color={task?.size || size ? "#000000" : colors.primary}
+					/>
 				</View>
 			</TouchableOpacity>
 		</>
