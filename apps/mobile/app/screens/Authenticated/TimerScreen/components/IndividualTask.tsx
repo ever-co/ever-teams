@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useMemo, useState } from "react"
-import { View, StyleSheet, Text, Image, ImageStyle, TouchableOpacity } from "react-native"
+import { View, StyleSheet, Text, ImageStyle, TouchableOpacity } from "react-native"
 import { Entypo, EvilIcons } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { colors, spacing, typography, useAppTheme } from "../../../../theme"
@@ -12,6 +12,8 @@ import TaskStatus from "../../../../components/TaskStatus"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import IssuesModal from "../../../../components/IssuesModal"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { Avatar } from "react-native-paper"
+import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
 
 export interface Props {
 	task: ITeamTask
@@ -96,11 +98,29 @@ const IndividualTask: FC<Props> = observer(
 						}}
 					>
 						<View style={{ flexDirection: "row" }}>
-							{assigneeImg1 ? <Image source={{ uri: assigneeImg1 }} style={$usersProfile} /> : null}
+							{assigneeImg1 ? (
+								<Avatar.Image source={{ uri: assigneeImg1 }} size={24} style={$usersProfile} />
+							) : task.members[0] ? (
+								<Avatar.Text
+									label={imgTitleProfileAvatar(task.members[0]?.user?.name)}
+									size={24}
+									style={[$usersProfile, { backgroundColor: "#82c9e0" }]}
+									labelStyle={styles.prefix}
+								/>
+							) : null}
+
 							{assigneeImg2 ? (
-								<Image source={{ uri: assigneeImg2 }} style={$usersProfile2} />
+								<Avatar.Image source={{ uri: assigneeImg2 }} size={24} style={$usersProfile2} />
+							) : task.members[1] ? (
+								<Avatar.Text
+									label={imgTitleProfileAvatar(task.members[1]?.user?.name)}
+									size={24}
+									style={[$usersProfile2, { backgroundColor: "#82c9e0" }]}
+									labelStyle={styles.prefix}
+								/>
 							) : null}
 						</View>
+
 						{task.status === "closed" ? (
 							<EvilIcons name="refresh" size={24} color="#8F97A1" onPress={() => onReopenTask()} />
 						) : (
@@ -132,6 +152,11 @@ const styles = StyleSheet.create({
 		paddingVertical: 12,
 		width: "100%",
 		zIndex: 1000,
+	},
+	prefix: {
+		color: "#FFFFFF",
+		fontFamily: typography.fonts.PlusJakartaSans.light,
+		fontSize: 20,
 	},
 	statusContainer: {
 		alignItems: "center",
