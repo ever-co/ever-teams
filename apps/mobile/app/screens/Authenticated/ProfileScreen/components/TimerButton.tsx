@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
 	shadowTimerNotRunning: {
 		elevation: 10,
 		shadowColor: "#3826A6",
-		shadowOffset: { width: 0, height: 10 },
+		shadowOffset: { width: 0, height: 8 },
 		shadowOpacity: 0.5,
 		shadowRadius: 10,
 	},
