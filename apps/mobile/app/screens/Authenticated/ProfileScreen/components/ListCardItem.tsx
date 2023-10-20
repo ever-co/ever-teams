@@ -258,7 +258,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 	return (
 		<Card
 			style={[
-				{ borderRadius: 14, ...GS.shadow },
+				styles.cardContainer,
 				!dark && activeAuthTask && { borderColor: "#8C7AE4", borderWidth: 3 },
 			]}
 		>
@@ -285,6 +285,14 @@ const ListCardItem: React.FC<Props> = (props) => {
 export default ListCardItem
 
 const styles = StyleSheet.create({
+	cardContainer: {
+		borderRadius: 14,
+		elevation: 24,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 12 },
+		shadowOpacity: 0.05,
+		shadowRadius: 5,
+	},
 	dropdownTxt: {
 		color: "#282048",
 		fontFamily: typography.primary.semiBold,
