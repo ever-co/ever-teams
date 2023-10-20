@@ -268,7 +268,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 					colors={["#B993E6", "#6EB0EC", "#5855D8"]}
 					start={{ x: 0.1, y: 0.5 }}
 					end={{ x: 1, y: 0.5 }}
-					style={{ padding: activeAuthTask ? 3 : 0, borderRadius: 14 }}
+					style={{ padding: activeAuthTask && props.isNowTab ? 3 : 0, borderRadius: 14 }}
 				>
 					<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
 						<ListItemContent {...props} />
