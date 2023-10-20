@@ -81,7 +81,7 @@ const TaskPriority: FC<TaskPriorityProps> = observer(
 								</Text>
 							</View>
 						)}
-						<AntDesign name="down" size={14} color={colors.primary} />
+						<AntDesign name="down" size={14} color={task?.priority ? "#000000" : colors.primary} />
 					</View>
 				</TouchableOpacity>
 			</>

@@ -90,7 +90,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</Text>
 						)}
-						<AntDesign name="down" size={14} color={colors.primary} />
+						<AntDesign name="down" size={14} color={task?.status ? "#000000" : colors.primary} />
 					</View>
 				</TouchableOpacity>
 			</>
