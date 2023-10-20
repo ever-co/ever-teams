@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native"
 import { AntDesign } from "@expo/vector-icons"
-import { colors, useAppTheme } from "../theme"
+import { useAppTheme } from "../theme"
 import LabelItem from "./LabelItem"
 import {
 	useTaskLabelValue,
@@ -16,7 +16,7 @@ import { ITeamTask } from "../services/interfaces/ITask"
 const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 	const flatListRef = useRef<FlatList>(null)
 	const [labelIndex, setLabelIndex] = useState(0)
-	const { dark } = useAppTheme()
+	const { dark, colors } = useAppTheme()
 
 	const allStatuses = useTaskStatusValue()
 	const allSizes = useTaskSizeValue()
@@ -88,7 +88,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 					style={[styles.scrollRight, { backgroundColor: dark ? "#1e2430" : colors.background }]}
 					onPress={() => onNextPressed()}
 				>
-					<AntDesign name="right" size={18} color={colors.background} />
+					<AntDesign name="right" size={18} color={colors.primary} />
 				</TouchableOpacity>
 			)}
 			{labelIndex !== 0 ? (
@@ -100,7 +100,7 @@ const AllTaskStatuses = ({ task }: { task: ITeamTask }) => {
 					]}
 					onPress={() => onPrevPressed()}
 				>
-					<AntDesign name="left" size={18} color={colors.background} />
+					<AntDesign name="left" size={18} color={colors.primary} />
 				</TouchableOpacity>
 			) : null}
 		</View>
