@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import {
 	View,
 	StyleSheet,
@@ -36,6 +36,7 @@ import {
 	userNotFocusedDark2,
 	userNotFocusedLight,
 } from "./svgs/icons"
+import { BlurView } from "expo-blur"
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
@@ -47,6 +48,8 @@ const HamburgerMenu = observer((props: any) => {
 	const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false)
+	const [containerWidth, setContainerWidth] = React.useState(0)
+	const containerRef = useRef(null)
 
 	const { navigation } = props
 	const isOpen = useDrawerStatus() === "open"
@@ -62,7 +65,14 @@ const HamburgerMenu = observer((props: any) => {
 	}, [isOpen])
 
 	return (
-		<TouchableWithoutFeedback onPress={() => setIsTeamModalOpen(false)}>
+		<TouchableWithoutFeedback
+			onLayout={(event) => {
+				const { width } = event.nativeEvent.layout
+				setContainerWidth(width)
+			}}
+			ref={containerRef}
+			onPress={() => setIsTeamModalOpen(false)}
+		>
 			<View
 				style={[
 					styles.container,
@@ -188,6 +198,19 @@ const HamburgerMenu = observer((props: any) => {
 						</View>
 					</TouchableOpacity>
 				</View>
+				{isOpen && (
+					<BlurView
+						intensity={15}
+						tint="dark"
+						style={{
+							position: "absolute",
+							width: "100%",
+							height: "100%",
+							right: containerWidth,
+							zIndex: 1000,
+						}}
+					/>
+				)}
 				{isOpen ? (
 					<TouchableOpacity
 						style={[styles.close, { backgroundColor: colors.background }]}
