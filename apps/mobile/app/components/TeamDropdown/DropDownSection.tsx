@@ -79,7 +79,13 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				data={others}
 				scrollEnabled={false}
 				renderItem={({ item, index }) => (
-					<View style={{ width: "100%", justifyContent: "center", alignItems: "center" }}>
+					<View
+						style={{
+							width: resized ? "100%" : "90%",
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
 						<DropItem
 							key={index}
 							team={item}
