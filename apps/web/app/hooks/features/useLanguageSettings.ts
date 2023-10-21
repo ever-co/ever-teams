@@ -1,3 +1,4 @@
+import { APPLICATION_LANGUAGES_CODE } from '@app/constants';
 import {
 	getActiveLanguageIdCookie,
 	setActiveLanguageIdCookie
@@ -5,9 +6,9 @@ import {
 import { getLanguageListAPI } from '@app/services/client/api';
 import {
 	activeLanguageIdState,
-	languagesFetchingState,
 	activeLanguageState,
 	languageListState,
+	languagesFetchingState,
 	userState
 } from '@app/stores';
 import { useCallback, useEffect } from 'react';
@@ -29,13 +30,27 @@ export function useLanguageSettings() {
 	useEffect(() => {
 		setLanguagesFetching(loading);
 	}, [loading, setLanguagesFetching]);
-
+	const applicationLanguages = [
+		'Arabic',
+		'Bulgaria',
+		'Chinese',
+		'Dutch',
+		'English',
+		'French',
+		'German',
+		'Hebrew',
+		'Portuguese',
+		'Russian',
+		'Spanish'
+	];
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
 			return queryCall(user.role.isSystem).then((res) => {
 				setLanguages(
-					res?.data?.data?.items.filter((item) => item.name === 'English') || []
+					res?.data?.data?.items.filter((item) =>
+						APPLICATION_LANGUAGES_CODE.includes(item.code)
+					) || []
 				);
 				return res;
 			});

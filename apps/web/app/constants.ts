@@ -1,5 +1,5 @@
-import { I_SMTPRequest } from './interfaces/ISmtp';
 import { ExtendedJitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+import { I_SMTPRequest } from './interfaces/ISmtp';
 
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/team';
@@ -99,3 +99,33 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 // Github Integration
 export const GITHUB_APP_NAME =
 	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+
+// Application Languages
+export const APPLICATION_LANGUAGES = [
+	'Arabic',
+	'Bulgaria',
+	'Chinese',
+	'Dutch',
+	'English',
+	'French',
+	'German',
+	'Hebrew',
+	'Portuguese',
+	'Russian',
+	'Spanish'
+];
+export const APPLICATION_LANGUAGES_CODE =[
+	'en',
+	'fr',
+	'ar',
+	'bg',
+	'zh',
+	'nl',
+	'de',
+	'he',
+	'it',
+	'pl',
+	'pt',
+	'ru',
+	'es'
+];

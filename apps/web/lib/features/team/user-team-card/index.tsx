@@ -1,42 +1,42 @@
+import { secondsToTime } from '@app/helpers';
 import {
-	useTeamMemberCard,
+	useCollaborative,
 	useTMCardTaskEdit,
 	useTaskStatistics,
-	useCollaborative
+	useTeamMemberCard
 } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
+import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, VerticalSeparator, Text, InputField } from 'lib/components';
+import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'next-i18next';
+import { useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import { secondsToTime } from '@app/helpers';
-import { useRecoilValue } from 'recoil';
-import { timerSecondsState } from '@app/stores';
 
 export function UserTeamCardHeader() {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	return (
 		<ul className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
-				{trans.common.NAME}
+				{t('common.NAME')}
 			</li>
 			<li className="2xl:w-[20.313rem] 3xl:w-[19rem] text-center w-[21%]">
-				{trans.common.TASK}
+				{t('common.TASK')}
 			</li>
 			<li className="2xl:w-48 3xl:w-60 text-center w-[21%]">
-				{trans.common.WORKED_ON_TASK}
+				{t('common.WORKED_ON_TASK')}
 			</li>
 			<li className="2xl:w-[13.188rem] text-center w-[20.5%]">
-				{trans.common.ESTIMATE}
+				{t('common.ESTIMATE')}
 			</li>
 			<li className="2xl:w-[11.75rem] 3xl:w-[20rem] text-center w-1/6">
-				{trans.common.TOTAL_WORKED_TODAY}
+				{t('common.TOTAL_WORKED_TODAY')}
 			</li>
 		</ul>
 	);

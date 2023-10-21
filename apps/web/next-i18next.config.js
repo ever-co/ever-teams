@@ -10,8 +10,6 @@ module.exports = {
 			'bg',
 			'zh',
 			'nl',
-			'en',
-			'fr',
 			'de',
 			'he',
 			'it',
