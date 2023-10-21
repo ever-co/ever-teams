@@ -199,6 +199,7 @@ const HamburgerMenu = observer((props: any) => {
 				{isOpen && (
 					<BlurView
 						intensity={15}
+						onTouchStart={() => navigation.closeDrawer()}
 						tint="dark"
 						style={{
 							position: "absolute",
@@ -209,14 +210,6 @@ const HamburgerMenu = observer((props: any) => {
 						}}
 					/>
 				)}
-				{isOpen ? (
-					<TouchableOpacity
-						style={[styles.close, { backgroundColor: colors.background }]}
-						onPress={() => navigation.closeDrawer()}
-					>
-						<Text style={{ color: colors.primary }}>X</Text>
-					</TouchableOpacity>
-				) : null}
 			</View>
 		</TouchableWithoutFeedback>
 	)
@@ -244,7 +237,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		paddingHorizontal: 20,
+		paddingHorizontal: 50,
 	},
 	headerIconsContainer: {
 		flexDirection: "row",
