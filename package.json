@@ -79,7 +79,8 @@
 		"doc:serve": "compodoc -s -d dist/docs",
 		"doc:build-serve": "compodoc -p tsconfig.json -d docs -s",
 		"postinstall.electron": "yarn electron-builder install-app-deps && yarn node tools/electron/postinstall",
-		"postinstall.web": "yarn node tools/web/postinstall"
+		"postinstall.web": "yarn node tools/web/postinstall",
+		"spell": "cspell . --config .cspell.json"
 	},
 	"config": {
 		"commitizen": {

@@ -51,6 +51,9 @@
 		"**/*.svg",
 		"tools/build/webpack.config.js",
 		"docker-compose.demo.yml",
-		"docker-compose.yml"
+		"docker-compose.yml",
+		"wait",
+		"apps/web/lib/i18n/*.ts",
+		"apps/mobile/app/i18n/*.ts",
 	]
 }

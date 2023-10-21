@@ -24,13 +24,13 @@
 		"**/node_modules": false,
 		"**/public/**/*.png": true,
 		"**/public/**/*.jpg": true,
-		"**/public/**/*.pdf": true
+		"**/public/**/*.pdf": true,
 	},
 	"search.exclude": {
 		"**/node_modules": true,
 		"**/bower_components": true,
 		"**/*.code-search": true,
-		"**/web/components/**": true
+		"**/web/components/**": true,
 	},
 	"docwriter.style": "Auto-detect"
 }
