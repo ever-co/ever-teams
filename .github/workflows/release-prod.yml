@@ -2,7 +2,7 @@ name: Release Prod
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
 
 jobs:
   release:

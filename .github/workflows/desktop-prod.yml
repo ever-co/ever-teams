@@ -1,9 +1,9 @@
-name: Desktop App Build DEV
+name: Desktop App Build PROD
 
 on:
   workflow_run:
     workflows: ['Release Prod']
-    branches: [develop]
+    branches: [main]
     types:
       - completed
 
