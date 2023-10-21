@@ -7,7 +7,7 @@ module.exports.desktop = (isProd) => {
 		let currentVersion = package.version;
 
 		exec(
-			'git fetch --tags && git tag --sort version:refname | tail -1',
+			'git fetch git@github.com:ever-co/ever-teams.git --tags && git tag --sort version:refname | tail -1',
 			(error, stdout) => {
 				if (error) {
 					console.error(`exec error: ${error}`);
@@ -16,10 +16,15 @@ module.exports.desktop = (isProd) => {
 
 				let newVersion = stdout.trim();
 				console.log('latest tag', newVersion);
+
 				if (newVersion) {
 					// let's remove "v" from version, i.e. first character
 					newVersion = newVersion.substring(1);
 					package.version = newVersion;
+
+					package.build.appId = 'com.ever.everteamsdesktop';
+					package.build.productName = 'Ever Teams Desktop';
+					package.build.linux.executableName = 'ever-teams-desktop';
 
 					if (!isProd) {
 						package.build.publish = [
@@ -33,6 +38,21 @@ module.exports.desktop = (isProd) => {
 								name: 'ever',
 								region: 'sfo3',
 								path: '/ever-teams-desktop-pre',
+								acl: 'public-read'
+							}
+						];
+					} else {
+						package.build.publish = [
+							{
+								provider: 'github',
+								repo: 'ever-teams-desktop',
+								releaseType: 'release'
+							},
+							{
+								provider: 'spaces',
+								name: 'ever',
+								region: 'sfo3',
+								path: '/ever-teams-desktop',
 								acl: 'public-read'
 							}
 						];
