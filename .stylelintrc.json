@@ -2,6 +2,7 @@
 	"extends": "stylelint-config-standard-scss",
 	"plugins": ["stylelint-scss"],
 	"rules": {
+		"selector-type-no-unknown": false,
 		"at-rule-no-unknown": null,
 		"scss/at-rule-no-unknown": true,
 		"scss/dollar-variable-pattern": "^foo",
