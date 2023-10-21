@@ -34,6 +34,7 @@ export type ListItemProps = {
 	activeAuthTask: boolean
 	viewType?: "default" | "unassign"
 	profile?: IUserProfile
+	isNowTab?: boolean
 }
 
 export interface Props extends ListItemProps {}
@@ -259,7 +260,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 		<Card
 			style={[
 				styles.cardContainer,
-				!dark && activeAuthTask && { borderColor: "#8C7AE4", borderWidth: 3 },
+				!dark && activeAuthTask && props.isNowTab && { borderColor: "#8C7AE4", borderWidth: 3 },
 			]}
 		>
 			{dark ? (
@@ -267,7 +268,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 					colors={["#B993E6", "#6EB0EC", "#5855D8"]}
 					start={{ x: 0.1, y: 0.5 }}
 					end={{ x: 1, y: 0.5 }}
-					style={{ padding: activeAuthTask ? 3 : 0, borderRadius: 14 }}
+					style={{ padding: activeAuthTask && props.isNowTab ? 3 : 0, borderRadius: 14 }}
 				>
 					<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
 						<ListItemContent {...props} />
