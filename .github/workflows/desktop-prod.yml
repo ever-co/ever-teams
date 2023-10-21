@@ -76,6 +76,11 @@ jobs:
           DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
+          COMPANY_SITE: 'Ever Teams'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          COMPANY_FACEBOOK_LINK: 'https://www.facebook.com/everteamshq'
+          COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
+          COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
 
   release-mac:
     runs-on: ${{ matrix.os }}
@@ -135,6 +140,11 @@ jobs:
           DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
+          COMPANY_SITE: 'Ever Teams'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          COMPANY_FACEBOOK_LINK: 'https://www.facebook.com/everteamshq'
+          COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
+          COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
 
   release-windows:
     runs-on: ${{ matrix.os }}
@@ -194,3 +204,8 @@ jobs:
           DO_KEY_ID: ${{ secrets.DO_KEY_ID }}
           DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
           NX_NO_CLOUD: true
+          COMPANY_SITE: 'Ever Teams'
+          COMPANY_SITE_LINK: 'https://ever.team'
+          COMPANY_FACEBOOK_LINK: 'https://www.facebook.com/everteamshq'
+          COMPANY_TWITTER_LINK: 'https://twitter.com/ever_teams'
+          COMPANY_LINKEDIN_LINK: 'https://www.linkedin.com/company/ever-co'
