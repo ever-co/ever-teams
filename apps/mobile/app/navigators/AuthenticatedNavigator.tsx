@@ -22,6 +22,7 @@ import {
 	TaskLabelScreen,
 	TaskSizeScreen,
 	TaskPriorityScreen,
+	MembersSettingsScreen,
 } from "../screens"
 
 // HELPERS
@@ -57,6 +58,7 @@ export type AuthenticatedDrawerParamList = {
 	TaskSizeScreen: undefined
 	TaskStatus: undefined
 	TaskPriority: undefined
+	MembersSettingsScreen: undefined
 }
 /**
  * Helper for automatically generating navigation prop types for each route.
@@ -236,6 +238,7 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 			<drawer.Screen name="TaskLabelScreen" component={TaskLabelScreen} />
 			<drawer.Screen name="TaskSizeScreen" component={TaskSizeScreen} />
 			<drawer.Screen name="TaskPriority" component={TaskPriorityScreen} />
+			<drawer.Screen name="MembersSettingsScreen" component={MembersSettingsScreen} />
 		</drawer.Navigator>
 	)
 })

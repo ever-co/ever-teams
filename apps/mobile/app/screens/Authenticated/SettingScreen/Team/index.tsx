@@ -76,7 +76,11 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					}`}
 					onPress={() => navigation.navigate("TaskLabelScreen")}
 				/>
-				<SingleInfo title={translate("settingScreen.teamSection.teamRole")} value={"No"} />
+				<SingleInfo
+					title={translate("settingScreen.teamSection.teamRole")}
+					value={"No"}
+					onPress={() => navigation.navigate("MembersSettingsScreen")}
+				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.workSchedule")}
 					value={translate("settingScreen.teamSection.workScheduleHint")}

@@ -91,6 +91,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 							<ListCardItem
 								task={profile.activeUserTeamTask}
 								isAuthUser={profile.isAuthUser}
+								isNowTab={true}
 								isAssigned={true}
 								activeAuthTask={true}
 								profile={profile}
