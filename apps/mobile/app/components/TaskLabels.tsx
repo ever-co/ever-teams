@@ -38,14 +38,12 @@ interface IndividualTaskLabel {
 }
 
 const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabels }) => {
-	const { colors } = useAppTheme()
+	const { colors, dark } = useAppTheme()
 	const { updateTask } = useTeamTasks()
 	const [openModal, setOpenModal] = useState(false)
 	const flatListRef = useRef<FlatList>(null)
 	const [labelIndex, setLabelIndex] = useState<number>(0)
-	const [tempLabels, setTempLabels] = useState<ITaskLabelItem[] | []>(
-		task?.tags || newTaskLabels || [],
-	)
+	const [tempLabels, setTempLabels] = useState<ITaskLabelItem[]>(task?.tags || newTaskLabels || [])
 	const [arrayChanged, setArrayChanged] = useState<boolean>(false)
 
 	const freshOpenModal = () => {
@@ -150,7 +148,10 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 					newTaskLabels?.length < 3 ? null : (
 						<TouchableOpacity
 							activeOpacity={0.7}
-							style={[styles.scrollButtons, { backgroundColor: colors.background, right: 0 }]}
+							style={[
+								styles.scrollButtons,
+								{ backgroundColor: dark ? "#1e2430" : colors.background, right: 0 },
+							]}
 							onPress={() => onNextPressed()}
 						>
 							<AntDesign name="right" size={18} color={colors.primary} />
@@ -159,7 +160,10 @@ const TaskLabels: FC<TaskLabelProps> = observer(({ task, setLabels, newTaskLabel
 					{labelIndex >= 1 ? (
 						<TouchableOpacity
 							activeOpacity={0.7}
-							style={[styles.scrollButtons, { left: 0, backgroundColor: colors.background }]}
+							style={[
+								styles.scrollButtons,
+								{ left: 0, backgroundColor: dark ? "#1e2430" : colors.background },
+							]}
 							onPress={() => onPrevPressed()}
 						>
 							<AntDesign name="left" size={18} color={colors.primary} />

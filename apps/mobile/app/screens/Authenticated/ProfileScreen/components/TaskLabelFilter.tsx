@@ -7,11 +7,11 @@ import {
 	Text,
 	StyleSheet,
 	ViewStyle,
-	ScrollView,
 	Dimensions,
 	Animated,
 	Modal,
 	TouchableWithoutFeedback,
+	FlatList,
 } from "react-native"
 import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons"
 import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
@@ -92,16 +92,21 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 					>
 						<View style={styles.secondContainer}>
 							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
-							<ScrollView bounces={false} style={{ paddingHorizontal: 16, height: height / 2.55 }}>
-								{allTaskLabels.map((item, idx) => (
-									<DropDownItem
-										selectedLabels={selectedLabels}
-										setSelectedLabels={setSelectedLabels}
-										label={item}
-										key={idx}
-									/>
-								))}
-							</ScrollView>
+							<View style={{ paddingHorizontal: 16, height: height / 2.55 }}>
+								<FlatList
+									bounces={false}
+									showsVerticalScrollIndicator={false}
+									data={allTaskLabels}
+									renderItem={({ item, index }) => (
+										<DropDownItem
+											selectedLabels={selectedLabels}
+											setSelectedLabels={setSelectedLabels}
+											label={item}
+											key={index}
+										/>
+									)}
+								/>
+							</View>
 						</View>
 					</View>
 				</TouchableWithoutFeedback>

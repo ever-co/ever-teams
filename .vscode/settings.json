@@ -17,36 +17,20 @@
 	},
 	"vsicons.presets.angular": true,
 	"deepscan.enable": true,
-	"cSpell.words": [
-		"barcodes",
-		"cacheable",
-		"cloudinary",
-		"clsxm",
-		"dummyimage",
-		"everco",
-		"exposdk",
-		"headlessui",
-		"heroicons",
-		"plasmo",
-		"RECAPTCHA",
-		"svgs",
-		"tailwindcss",
-		"Timesheet",
-		"Vercel"
-	],
+	"cSpell.words": [],
 	"files.exclude": {
 		"**/.git": true,
 		"**/.DS_Store": true,
 		"**/node_modules": false,
 		"**/public/**/*.png": true,
 		"**/public/**/*.jpg": true,
-		"**/public/**/*.pdf": true
+		"**/public/**/*.pdf": true,
 	},
 	"search.exclude": {
 		"**/node_modules": true,
 		"**/bower_components": true,
 		"**/*.code-search": true,
-		"**/web/components/**": true
+		"**/web/components/**": true,
 	},
 	"docwriter.style": "Auto-detect"
 }

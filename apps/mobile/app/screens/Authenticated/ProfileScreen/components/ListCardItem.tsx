@@ -34,6 +34,7 @@ export type ListItemProps = {
 	activeAuthTask: boolean
 	viewType?: "default" | "unassign"
 	profile?: IUserProfile
+	isNowTab?: boolean
 }
 
 export interface Props extends ListItemProps {}
@@ -103,7 +104,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 							<TaskTitleDisplay task={props.task} editMode={editTitle} setEditMode={setEditTitle} />
 						</View>
 						{!enableEstimate ? (
-							<TouchableOpacity onLongPress={() => setEnableEstimate(true)}>
+							<TouchableOpacity onPress={() => setEnableEstimate(true)}>
 								<AnimatedCircularProgress
 									size={56}
 									width={7}
@@ -258,8 +259,8 @@ const ListCardItem: React.FC<Props> = (props) => {
 	return (
 		<Card
 			style={[
-				{ borderRadius: 14, ...GS.shadow },
-				!dark && activeAuthTask && { borderColor: "#8C7AE4", borderWidth: 3 },
+				styles.cardContainer,
+				!dark && activeAuthTask && props.isNowTab && { borderColor: "#8C7AE4", borderWidth: 3 },
 			]}
 		>
 			{dark ? (
@@ -267,7 +268,7 @@ const ListCardItem: React.FC<Props> = (props) => {
 					colors={["#B993E6", "#6EB0EC", "#5855D8"]}
 					start={{ x: 0.1, y: 0.5 }}
 					end={{ x: 1, y: 0.5 }}
-					style={{ padding: activeAuthTask ? 3 : 0, borderRadius: 14 }}
+					style={{ padding: activeAuthTask && props.isNowTab ? 3 : 0, borderRadius: 14 }}
 				>
 					<View style={{ backgroundColor: colors.background, borderRadius: 14 }}>
 						<ListItemContent {...props} />
@@ -285,6 +286,14 @@ const ListCardItem: React.FC<Props> = (props) => {
 export default ListCardItem
 
 const styles = StyleSheet.create({
+	cardContainer: {
+		borderRadius: 14,
+		elevation: 24,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 12 },
+		shadowOpacity: 0.05,
+		shadowRadius: 5,
+	},
 	dropdownTxt: {
 		color: "#282048",
 		fontFamily: typography.primary.semiBold,

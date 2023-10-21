@@ -21,8 +21,8 @@ import { observer } from "mobx-react-lite"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { translate } from "../../../../i18n"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
-import { imgTitle } from "../../../../helpers/img-title"
 import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
+import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
 
 export type ListItemProps = {
 	invite: any
@@ -51,7 +51,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 			>
 				<View style={styles.firstContainer}>
 					<View style={styles.wrapProfileImg}>
-						<Avatar.Text style={{ opacity: 0.2 }} size={40} label={imgTitle(invite.fullName)} />
+						<Avatar.Text
+							style={{ opacity: 0.2 }}
+							size={40}
+							label={imgTitleProfileAvatar(invite.fullName)}
+						/>
 						<Avatar.Image
 							style={styles.statusIcon}
 							size={20}

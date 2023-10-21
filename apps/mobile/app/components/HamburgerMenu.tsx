@@ -36,6 +36,7 @@ import {
 	userNotFocusedDark2,
 	userNotFocusedLight,
 } from "./svgs/icons"
+import { BlurView } from "expo-blur"
 
 const HamburgerMenu = observer((props: any) => {
 	const { colors, dark } = useAppTheme()
@@ -47,6 +48,7 @@ const HamburgerMenu = observer((props: any) => {
 	const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
 	const [showCreateTeamModal, setShowCreateTeamModal] = React.useState(false)
 	const [isTeamModalOpen, setIsTeamModalOpen] = React.useState<boolean>(false)
+	const [containerWidth, setContainerWidth] = React.useState(0)
 
 	const { navigation } = props
 	const isOpen = useDrawerStatus() === "open"
@@ -62,7 +64,13 @@ const HamburgerMenu = observer((props: any) => {
 	}, [isOpen])
 
 	return (
-		<TouchableWithoutFeedback onPress={() => setIsTeamModalOpen(false)}>
+		<TouchableWithoutFeedback
+			onLayout={(event) => {
+				const { width } = event.nativeEvent.layout
+				setContainerWidth(width)
+			}}
+			onPress={() => setIsTeamModalOpen(false)}
+		>
 			<View
 				style={[
 					styles.container,
@@ -91,7 +99,7 @@ const HamburgerMenu = observer((props: any) => {
 								marginTop: 4,
 							}}
 						>
-							{user?.email}s
+							{user?.email}
 						</Text>
 						{activeTeam ? (
 							<DropDown
@@ -188,14 +196,20 @@ const HamburgerMenu = observer((props: any) => {
 						</View>
 					</TouchableOpacity>
 				</View>
-				{isOpen ? (
-					<TouchableOpacity
-						style={[styles.close, { backgroundColor: colors.background }]}
-						onPress={() => navigation.closeDrawer()}
-					>
-						<Text style={{ color: colors.primary }}>X</Text>
-					</TouchableOpacity>
-				) : null}
+				{isOpen && (
+					<BlurView
+						intensity={15}
+						onTouchStart={() => navigation.closeDrawer()}
+						tint="dark"
+						style={{
+							position: "absolute",
+							width: "100%",
+							height: "100%",
+							right: containerWidth,
+							zIndex: 1000,
+						}}
+					/>
+				)}
 			</View>
 		</TouchableWithoutFeedback>
 	)
@@ -223,7 +237,7 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		flex: 1,
-		paddingHorizontal: 20,
+		paddingHorizontal: 50,
 	},
 	headerIconsContainer: {
 		flexDirection: "row",

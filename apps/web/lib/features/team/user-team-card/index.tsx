@@ -21,8 +21,9 @@ import { UserTeamCardMenu } from './user-team-card-menu';
 export function UserTeamCardHeader() {
 	const { t } = useTranslation();
 	return (
-		<ul className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
+		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
 			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
+<<<<<<< HEAD
 			<li className="2xl:w-[22.688rem] text-center w-[28.6%]">
 				{t('common.NAME')}
 			</li>
@@ -39,6 +40,30 @@ export function UserTeamCardHeader() {
 				{t('common.TOTAL_WORKED_TODAY')}
 			</li>
 		</ul>
+=======
+			<div className="2xl:w-[20.625rem] text-center">{trans.common.NAME}</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">
+				{trans.common.TASK}
+			</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
+				Worked on
+				<br />
+				Task
+			</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-52 3xl:w-64 w-1/5 text-center">
+				{trans.common.ESTIMATE}
+			</div>
+			<div className="w-1"></div>
+			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
+				Total worked
+				<br />
+				Today
+			</div>
+		</div>
+>>>>>>> develop
 	);
 }
 
@@ -142,7 +167,7 @@ export function UserTeamCard({
 				<TaskInfo
 					edition={taskEdition}
 					memberInfo={memberInfo}
-					className="2xl:w-80 w-1/5 lg:px-4 px-2"
+					className="2xl:w-80 3xl:w-[32rem] w-1/5 lg:px-4 px-2"
 					publicTeam={publicTeam}
 				/>
 				<VerticalSeparator className="ml-2" />
@@ -153,7 +178,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					task={memberInfo.memberTask}
 					isAuthUser={memberInfo.isAuthUser}
-					className="2xl:w-48 3xl:w-60 w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+					className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
 				/>
 				<VerticalSeparator />
 
@@ -169,7 +194,7 @@ export function UserTeamCard({
 				{/* TodayWorkedTime */}
 				<TodayWorkedTime
 					isAuthUser={memberInfo.isAuthUser}
-					className="flex-1 lg:text-base text-xs"
+					className="flex-1 lg:text-base text-xs 3xl:w-[12rem]"
 					memberInfo={memberInfo}
 				/>
 

@@ -54,7 +54,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 		return (
 			<>
 				<TaskStatusPopup
-					statusName={task?.status}
+					statusName={task ? task?.status : status}
 					visible={openModal}
 					setSelectedStatus={(e) => onChangeStatus(e)}
 					onDismiss={() => setOpenModal(false)}
@@ -90,7 +90,11 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 								)}
 							</Text>
 						)}
-						<AntDesign name="down" size={14} color={colors.primary} />
+						<AntDesign
+							name="down"
+							size={14}
+							color={task?.status || status ? "#000000" : colors.primary}
+						/>
 					</View>
 				</TouchableOpacity>
 			</>

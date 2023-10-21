@@ -225,6 +225,9 @@ const bg = {
 			createButtonText: "Create",
 			updateButtonText: "Update",
 		},
+		membersSettingsScreen: {
+			mainTitle: "Members & Roles",
+		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",
 			lastNamePlaholder: "Last Name",

@@ -16,6 +16,7 @@ import { Avatar } from "react-native-paper"
 import { observer } from "mobx-react-lite"
 import { limitTextCharaters } from "../../helpers/sub-text"
 import { useNavigation } from "@react-navigation/native"
+import { FlatList } from "react-native-gesture-handler"
 
 export interface Props {
 	teams: IOrganizationTeamList[]
@@ -73,15 +74,28 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 			{activeTeamId && (
 				<DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />
 			)}
-			{others.map((item, index) => (
-				<DropItem
-					key={index}
-					team={item}
-					resized={resized}
-					changeTeam={changeTeam}
-					isActiveTeam={false}
-				/>
-			))}
+
+			<FlatList
+				data={others}
+				scrollEnabled={false}
+				renderItem={({ item, index }) => (
+					<View
+						style={{
+							width: resized ? "100%" : "90%",
+							justifyContent: "center",
+							alignItems: "center",
+						}}
+					>
+						<DropItem
+							key={index}
+							team={item}
+							resized={resized}
+							changeTeam={changeTeam}
+							isActiveTeam={false}
+						/>
+					</View>
+				)}
+			/>
 			<TouchableOpacity
 				style={{ width: "90%", opacity: isAccountVerified ? 1 : 0.5 }}
 				onPress={() => onCreateTeam()}

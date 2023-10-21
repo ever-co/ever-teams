@@ -52,6 +52,7 @@
 		"lodash": "^4.17.21",
 		"lucide-react": "^0.263.1",
 		"moment": "^2.29.4",
+		"moment-timezone": "^0.5.42",
 		"nanoid": "5.0.1",
 		"next": "^13.0.5",
 		"next-themes": "^0.2.1",

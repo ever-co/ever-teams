@@ -1,8 +1,8 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from "react"
+/* eslint-disable camelcase */
+import React, { FC, SetStateAction, useState } from "react"
 import {
-	ScrollView,
 	View,
 	TouchableOpacity,
 	ViewStyle,
@@ -10,6 +10,7 @@ import {
 	Text,
 	Dimensions,
 	LogBox,
+	FlatList,
 } from "react-native"
 
 // TYPES
@@ -38,6 +39,8 @@ import { useAcceptInviteModal } from "../../../services/hooks/features/useAccept
 import NoTeam from "../../../components/NoTeam"
 import VerifyAccountModal from "./components/VerifyAccount"
 import { useVerifyEmail } from "../../../services/hooks/features/useVerifyEmail"
+import { OT_Member } from "../../../services/interfaces/IOrganizationTeam"
+import { IInvitation } from "../../../services/interfaces/IInvite"
 
 const { width, height } = Dimensions.get("window")
 export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
@@ -157,48 +160,45 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 									</View>
 
 									{/* Users activity list */}
-									<ScrollView
-										bounces={false}
-										showsVerticalScrollIndicator={false}
-										contentContainerStyle={{ ...GS.px1 }}
+									<View
 										style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
 									>
-										<View
-											style={{
-												marginBottom: 30,
+										<FlatList
+											data={[currentUser, $otherMembers, teamInvitations]}
+											showsVerticalScrollIndicator={false}
+											bounces={false}
+											keyExtractor={(item, index) => index.toString()}
+											renderItem={({ item, index }) => {
+												if (index === 0) {
+													return (
+														<CurrentUserCard
+															member={item as OT_Member}
+															openMenuIndex={openMenuIndex}
+															setOpenMenuIndex={setOpenMenuIndex}
+														/>
+													)
+												} else if (index === 1) {
+													return (
+														<OtherMembersList
+															members={item as OT_Member[]}
+															openMenuIndex={openMenuIndex}
+															setOpenMenuIndex={setOpenMenuIndex}
+														/>
+													)
+												} else {
+													return (
+														<InvitationsList
+															invitations={item as IInvitation[]}
+															$otherMembers={$otherMembers}
+															openMenuIndex={openMenuIndex}
+															setOpenMenuIndex={setOpenMenuIndex}
+														/>
+													)
+												}
 											}}
-										>
-											{currentUser && (
-												<ListCardItem
-													member={currentUser}
-													index={0}
-													openMenuIndex={openMenuIndex}
-													setOpenMenuIndex={setOpenMenuIndex}
-												/>
-											)}
-
-											{$otherMembers.map((member, index) => (
-												<ListCardItem
-													key={index}
-													member={member}
-													index={index + 1}
-													openMenuIndex={openMenuIndex}
-													setOpenMenuIndex={setOpenMenuIndex}
-												/>
-											))}
-
-											{teamInvitations &&
-												teamInvitations.map((invite, idx) => (
-													<InviteCardItem
-														key={idx}
-														invite={invite}
-														index={idx + $otherMembers.length + 1}
-														openMenuIndex={openMenuIndex}
-														setOpenMenuIndex={setOpenMenuIndex}
-													/>
-												))}
-										</View>
-									</ScrollView>
+											ListFooterComponent={<View style={{ marginBottom: 30 }} />}
+										/>
+									</View>
 								</>
 							) : (
 								<NoTeam onPress={() => setShowCreateTeamModal(true)} />
@@ -210,13 +210,79 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 		)
 	}
 
+const CurrentUserCard: FC<{
+	member: OT_Member
+	openMenuIndex: number | null
+	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>
+}> = ({ member, openMenuIndex, setOpenMenuIndex }) => {
+	return (
+		<View style={{ marginHorizontal: 9 }}>
+			<ListCardItem
+				member={member}
+				index={0}
+				openMenuIndex={openMenuIndex}
+				setOpenMenuIndex={setOpenMenuIndex}
+			/>
+		</View>
+	)
+}
+
+const OtherMembersList: FC<{
+	members: OT_Member[]
+	openMenuIndex: number | null
+	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>
+}> = ({ members, openMenuIndex, setOpenMenuIndex }) => {
+	return (
+		<View style={{ marginHorizontal: 9 }}>
+			<FlatList
+				data={members}
+				keyExtractor={(_, index) => index.toString()}
+				renderItem={({ item, index }) => (
+					<ListCardItem
+						key={index}
+						member={item}
+						index={index + 1}
+						openMenuIndex={openMenuIndex}
+						setOpenMenuIndex={setOpenMenuIndex}
+					/>
+				)}
+			/>
+		</View>
+	)
+}
+
+const InvitationsList: FC<{
+	invitations: IInvitation[]
+	$otherMembers: OT_Member[]
+	openMenuIndex: number | null
+	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>
+}> = ({ invitations, $otherMembers, openMenuIndex, setOpenMenuIndex }) => {
+	return (
+		<View style={{ marginHorizontal: 9 }}>
+			<FlatList
+				data={invitations}
+				keyExtractor={(_, index) => ($otherMembers.length + index).toString()}
+				renderItem={({ item, index }) => (
+					<InviteCardItem
+						key={index}
+						invite={item}
+						index={index + $otherMembers.length + 1}
+						openMenuIndex={openMenuIndex}
+						setOpenMenuIndex={setOpenMenuIndex}
+					/>
+				)}
+			/>
+		</View>
+	)
+}
+
 const $container: ViewStyle = {
 	...GS.flex1,
 }
 
 const $cardContainer: ViewStyle = {
 	...GS.flex1,
-	paddingHorizontal: spacing.medium,
+	paddingHorizontal: spacing.small,
 }
 const $blurContainer: ViewStyle = {
 	height,
