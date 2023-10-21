@@ -55,7 +55,7 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.desktop(true))
+            console.log(script.desktopTimer(true))
         env:
           PROJECT_REPO: 'git@github.com:ever-co/ever-teams.git'
           DESKTOP_TIMER_APP_NAME: 'ever-teams-desktop'
@@ -114,7 +114,7 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.desktop(true))
+            console.log(script.desktopTimer(true))
 
       - name: Build Desktop Timer App
         run: 'yarn build:desktop-timer:mac:release'
@@ -167,7 +167,7 @@ jobs:
         with:
           script: |
             const script = require('./.scripts/bump-version-electron.js')
-            console.log(script.desktop(true))
+            console.log(script.desktopTimer(true))
 
       - name: Build Desktop Timer App
         run: 'yarn build:desktop-timer:windows:release:gh'
