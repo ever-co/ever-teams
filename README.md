@@ -86,7 +86,7 @@ There are a few ways to run Ever Teams:
 
 1. Connect it to our live Ever Gauzy APIs using endpoint <https://api.gauzy.co/api> (or to our staging <https://apistage.gauzy.co/api> if you want to just test everything) which is set in the `GAUZY_API_SERVER_URL` env variable (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample> for example). Of course, you will have to register in Ever Gauzy, see <https://app.gauzy.co/#/auth/register> (Note: currently in Alpha version)
 
-2. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting starting instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file. After you get API or Server running, make sure you set the environment variable `GAUZY_API_SERVER_URL` (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample> for example).
+2. Run `yarn build:web` and then `yarn start:web` commands from root of the project to start the Ever Teams (By default it will be connected to <https://api.gauzy.co/api> API endpoint, you)
 
 ## 📄 Content
 
