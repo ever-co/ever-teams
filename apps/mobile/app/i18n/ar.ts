@@ -232,6 +232,9 @@ const ar: Translations = {
 			createButtonText: "Create",
 			updateButtonText: "Update",
 		},
+		membersSettingsScreen: {
+			mainTitle: "الأعضاء والأدوار",
+		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",
 			lastNamePlaholder: "Last Name",
