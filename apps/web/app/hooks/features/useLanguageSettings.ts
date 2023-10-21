@@ -30,19 +30,6 @@ export function useLanguageSettings() {
 	useEffect(() => {
 		setLanguagesFetching(loading);
 	}, [loading, setLanguagesFetching]);
-	const applicationLanguages = [
-		'Arabic',
-		'Bulgaria',
-		'Chinese',
-		'Dutch',
-		'English',
-		'French',
-		'German',
-		'Hebrew',
-		'Portuguese',
-		'Russian',
-		'Spanish'
-	];
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
