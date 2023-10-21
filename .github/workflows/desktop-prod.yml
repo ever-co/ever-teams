@@ -57,7 +57,7 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
-          PROJECT_REPO: 'git@github.com:ever-co/ever-teams.git'
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
           DESKTOP_TIMER_APP_NAME: 'ever-teams-desktop'
           COMPANY_SITE_LINK: 'https://ever.team'
           DESKTOP_TIMER_APP_DESCRIPTION: 'Ever Teams Desktop'
@@ -116,7 +116,7 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
-          PROJECT_REPO: 'git@github.com:ever-co/ever-teams.git'
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
           DESKTOP_TIMER_APP_NAME: 'ever-teams-desktop'
           COMPANY_SITE_LINK: 'https://ever.team'
           DESKTOP_TIMER_APP_DESCRIPTION: 'Ever Teams Desktop'
@@ -175,7 +175,7 @@ jobs:
             const script = require('./.scripts/bump-version-electron.js')
             console.log(script.desktopTimer(true))
         env:
-          PROJECT_REPO: 'git@github.com:ever-co/ever-teams.git'
+          PROJECT_REPO: 'https://github.com/ever-co/ever-teams.git'
           DESKTOP_TIMER_APP_NAME: 'ever-teams-desktop'
           COMPANY_SITE_LINK: 'https://ever.team'
           DESKTOP_TIMER_APP_DESCRIPTION: 'Ever Teams Desktop'
