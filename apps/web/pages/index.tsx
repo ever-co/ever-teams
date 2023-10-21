@@ -1,6 +1,9 @@
+import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
+import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
+import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
 	TeamInvitations,
@@ -11,9 +14,8 @@ import {
 } from 'lib/features';
 import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useOrganizationTeams } from '@app/hooks';
-import NoTeam from '@components/pages/main/no-team';
-import { PeopleIcon } from 'lib/components/svgs';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 function MainPage() {
 	const { trans } = useTranslation('home');
@@ -76,5 +78,17 @@ function TaskTimerSection({
 		</Card>
 	);
 }
-
+export const getStaticProps: GetStaticProps = async (
+	context: GetStaticPropsContext
+) => {
+	const { locale } = context;
+	const translationProps = await serverSideTranslations(locale ?? 'en', [
+		'default'
+	]);
+	return {
+		props: {
+			...translationProps
+		}
+	};
+};
 export default withAuthentication(MainPage, { displayName: 'MainPage' });

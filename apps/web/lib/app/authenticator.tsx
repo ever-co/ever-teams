@@ -1,18 +1,18 @@
+import {
+	getNoTeamPopupShowCookie,
+	setNoTeamPopupShowCookie
+} from '@app/helpers';
 import { useOrganizationTeams } from '@app/hooks';
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
+import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 import { CreateTeamModal } from 'lib/features';
 import { JoinTeamModal } from 'lib/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
-import {
-	getNoTeamPopupShowCookie,
-	setNoTeamPopupShowCookie
-} from '@app/helpers';
 
 type Params = {
 	displayName: string;
