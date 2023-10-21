@@ -80,13 +80,31 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
 
 ## 🚀 Getting Starting
 
-Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you will be interested in the `apps/api` and `apps/server` folders of the mono-repo.
+### Super Quick Start 
 
-There are a few ways to run Ever Teams:
+<https://app.ever.team>
 
-1. Connect it to our live Ever Gauzy APIs using endpoint <https://api.gauzy.co/api> (or to our staging <https://apistage.gauzy.co/api> if you want to just test everything) which is set in the `GAUZY_API_SERVER_URL` env variable (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample> for example). Of course, you will have to register in Ever Gauzy, see <https://app.gauzy.co/#/auth/register> (Note: currently in Alpha version)
+### Quick Start with our live APIs
 
-2. Run `yarn build:web` and then `yarn start:web` commands from root of the project to start the Ever Teams (By default it will be connected to <https://api.gauzy.co/api> API endpoint, you)
+1. Clone this repo
+2. Run `yarn install`
+3. Run `yarn build:web`
+4. Run `yarn start:web`
+
+Note: by default, Ever Teams web frontend will be connected to our production [Ever Gauzy](https://github.com/ever-co/ever-gauzy) API endpoint <https://api.gauzy.co/api>. You can change it in environment variable `GAUZY_API_SERVER_URL`, see below how to run with a Self-hosted Backend.
+
+### Run with a Self-hosted Backend
+
+1. Download and run the Ever Gauzy Server setup (<https://gauzy.co/downloads>) or run the server manually (see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/server>). You can also run only Ever Gauzy APIs (manually), see <https://github.com/ever-co/ever-gauzy/tree/develop/apps/api>. For getting starting instructions, it's best to check the Ever Gauzy [README](https://github.com/ever-co/ever-gauzy/blob/develop/README.md) file.
+2. Clone this repo
+3. After you get the API or Server running, make sure you set the environment variable `GAUZY_API_SERVER_URL` in Ever Teams .env file (see <https://github.com/ever-co/ever-teams/blob/develop/web/.env.sample> for example).
+4. Run `yarn install`
+5. Run `yarn build:web`
+6. Run `yarn start:web`
+
+### Notes
+
+Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you might be interested in the `apps/api` and `apps/server` folders of the mono-repo for the code of Gauzy API & Gauzy Server.
 
 ## 📄 Content
 
