@@ -7,7 +7,7 @@ module.exports.desktop = (isProd) => {
 		let currentVersion = package.version;
 
 		exec(
-			'git fetch git@github.com:ever-co/ever-teams.git --tags && git tag --sort version:refname | tail -1',
+			"git ls-remote --tags git@github.com:ever-co/ever-teams.git | grep -v '^{}' | awk -F'/' '/refs/tags// {print $3}' | grep -E '^v?[0-9]+.[0-9]+.[0-9]+' | sort -V | tail -n1",
 			(error, stdout) => {
 				if (error) {
 					console.error(`exec error: ${error}`);
@@ -21,6 +21,11 @@ module.exports.desktop = (isProd) => {
 					// let's remove "v" from version, i.e. first character
 					newVersion = newVersion.substring(1);
 					package.version = newVersion;
+
+					package.name = 'ever-teams-desktop';
+					package.productName = 'Ever Teams Desktop';
+					package.description = 'Ever Teams Desktop';
+					package.homepage = 'https://ever.team';
 
 					package.build.appId = 'com.ever.everteamsdesktop';
 					package.build.productName = 'Ever Teams Desktop';
