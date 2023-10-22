@@ -31,8 +31,10 @@
 		"TOTAL_WORKED_TODAY": "Total worked Today",
 		"OPEN": "Open",
 		"NOW": "Now",
+		"DETAILS": "Details",
 		"CLOSED": "Closed",
 		"CLOSE": "Close",
+		"USER_NOT_FOUND": "No users found.",
 		"INVITE": "Invite",
 		"TASK_TITTLE": "Task Title",
 		"PUBLIC_TASK": "This task is Public",
@@ -42,6 +44,9 @@
 		"CREATE_TASK": "Create New Task",
 		"LINK_TASK": "Select Related Issue",
 		"LINK": "Link",
+		"LINKS": "Links",
+		"ADD_LINK": "Add Links",
+		"COMMENT": "Comment",
 		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Select Child Issue",
 		"CREATE_TEAM": "Create New Team",
@@ -334,9 +339,12 @@
 		"invite": {
 			"HEADING_TITLE": "Invite member to your team",
 			"HEADING_DESCRIPTION": "Send invitation to a team member by email",
+			"TEAM_MEMBER_EMAIL": "Team Member's Email",
+			"TEAM_MEMBER_FULLNAME": "Team Member's Full Name",
 			"SEND_INVITE": "Send Invitation",
 			"ERROR_WHILE_ACCEPTING_INVITATION": "Error while accepting invitation",
-			"ERROR_WHILE_REJECTING_INVITATION": "Error while rejecting invitation"
+			"ERROR_WHILE_REJECTING_INVITATION": "Error while rejecting invitation",
+			"INVITE_LABEL_SEND": "Send Invite"
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
@@ -401,7 +409,10 @@
 
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Team member name",
 		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Team member email address",
-		"COMPLETION_DESCRIPTION": "Write the description"
+		"COMPLETION_DESCRIPTION": "Write the description",
+		"UPLOAD_FILES": "Upload Files",
+		"ATTACHMENT_FILE": "Attachment files",
+		"ADD_COMMENT": "Add Comment here"
 	},
 
 	"layout": {

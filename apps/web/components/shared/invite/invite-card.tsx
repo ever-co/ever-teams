@@ -1,9 +1,11 @@
-import { useState, Fragment } from 'react';
-import Separator from '@components/ui/separator';
 import InviteModal from '@components/shared/invite/invite-modal';
+import Separator from '@components/ui/separator';
+import { useTranslation } from 'next-i18next';
+import { Fragment, useState } from 'react';
 
 const InviteCard = () => {
 	const [isOpen, setIsOpen] = useState(false);
+	const { t } = useTranslation();
 
 	const closeModal = () => {
 		setIsOpen(false);
@@ -18,12 +20,12 @@ const InviteCard = () => {
 				<div className="rounded-[50%] w-5 h-5 bg-[#E8EBF8]"></div>
 			</div>
 			<div className="w-[235px] h-[48px] flex items-center justify-center">
-				<div className="flex justify-center items-center">
+				<div className="flex items-center justify-center">
 					<button
 						onClick={openModal}
 						className="text-center bg-primary dark:bg-white dark:text-black w-[105px] text-[#FFFFFF] h-[35px] rounded-[8px]"
 					>
-						Invite
+						{t('common.INVITE')}
 					</button>
 				</div>
 				<div className="w-[137px] mx-[20px] h-[48px] flex justify-center items-center"></div>
@@ -44,12 +46,7 @@ const InviteCard = () => {
 				<div className="w-[177px] text-center text-"> </div>
 				<div></div>
 			</div>
-			<InviteModal
-				task={null}
-				isOpen={isOpen}
-				closeModal={closeModal}
-				Fragment={Fragment}
-			/>
+			<InviteModal task={null} isOpen={isOpen} closeModal={closeModal} Fragment={Fragment} />
 		</div>
 	);
 };
