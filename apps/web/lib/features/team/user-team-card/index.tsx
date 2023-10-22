@@ -23,17 +23,17 @@ export function UserTeamCardHeader() {
 			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
 			<div className="w-1"></div>
 			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
-				Worked on
+				{t('task.taskTableHead.TASK_WORK.TITLE')}
 				<br />
-				Task
+				{t('common.TASK')}
 			</div>
 			<div className="w-1"></div>
 			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
 			<div className="w-1"></div>
 			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
-				Total worked
+				{t('task.taskTableHead.TOTAL_WORK.TITLE')}
 				<br />
-				Today
+				{t('common.TODAY')}
 			</div>
 		</div>
 	);
@@ -47,6 +47,7 @@ type IUserTeamCard = {
 } & IClassName;
 
 export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamCard) {
+	const { t } = useTranslation();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
@@ -69,7 +70,7 @@ export function UserTeamCard({ className, active, member, publicTeam = false }: 
 
 		totalWork = (
 			<div className={clsxm('flex space-x-2 items-center font-normal flex-col mr-4')}>
-				<span className="text-xs text-gray-500">Total time:</span>
+				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
 				</Text>
