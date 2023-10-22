@@ -10,46 +10,20 @@ import {
 	useTaskInput,
 	useTaskLabels
 } from '@app/hooks';
-import {
-	ITaskPriority,
-	ITaskSize,
-	ITaskStatus,
-	ITeamTask,
-	Nullable
-} from '@app/interfaces';
+import { ITaskPriority, ITaskSize, ITaskStatus, ITeamTask, Nullable } from '@app/interfaces';
 import { timerStatusState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import {
-	Button,
-	Card,
-	Divider,
-	InputField,
-	OutlineBadge,
-	SpinnerLoader,
-	Tooltip
-} from 'lib/components';
+import { Button, Card, Divider, InputField, OutlineBadge, SpinnerLoader, Tooltip } from 'lib/components';
 import { TickCircleIcon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
-import {
-	MutableRefObject,
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
+import { useTranslation } from 'next-i18next';
+import { MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { ActiveTaskIssuesDropdown, TaskIssuesDropdown } from './task-issue';
 import { TaskItem } from './task-item';
 import { TaskLabels } from './task-labels';
-import {
-	ActiveTaskPropertiesDropdown,
-	ActiveTaskSizesDropdown,
-	ActiveTaskStatusDropdown
-} from './task-status';
+import { ActiveTaskPropertiesDropdown, ActiveTaskSizesDropdown, ActiveTaskStatusDropdown } from './task-status';
 
 type Props = {
 	task?: Nullable<ITeamTask>;
@@ -87,13 +61,9 @@ type Props = {
  */
 
 export function TaskInput(props: Props) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
-	const {
-		viewType = 'input-trigger',
-		showTaskNumber = false,
-		showCombobox = true
-	} = props;
+	const { viewType = 'input-trigger', showTaskNumber = false, showCombobox = true } = props;
 
 	const datas = useTaskInput({
 		task: props.task,
@@ -116,8 +86,7 @@ export function TaskInput(props: Props) {
 	}, [timerStatus]);
 
 	const onTaskCreated = useCallback(
-		(task: ITeamTask | undefined) =>
-			$onTaskCreated.current && $onTaskCreated.current(task),
+		(task: ITeamTask | undefined) => $onTaskCreated.current && $onTaskCreated.current(task),
 		[$onTaskCreated]
 	);
 
@@ -126,21 +95,10 @@ export function TaskInput(props: Props) {
 		[$onTaskClick]
 	);
 
-	const {
-		inputTask,
-		editMode,
-		setEditMode,
-		setQuery,
-		updateLoading,
-		updateTaskTitleHandler,
-		setFilter,
-		taskIssue
-	} = datas;
+	const { inputTask, editMode, setEditMode, setQuery, updateLoading, updateTaskTitleHandler, setFilter, taskIssue } =
+		datas;
 
-	const inputTaskTitle = useMemo(
-		() => inputTask?.title || '',
-		[inputTask?.title]
-	);
+	const inputTaskTitle = useMemo(() => inputTask?.title || '', [inputTask?.title]);
 
 	const [taskName, setTaskName] = useState('');
 
@@ -248,9 +206,7 @@ export function TaskInput(props: Props) {
 			// Story can have ParentId set to Epic ID
 			props.task?.issueType === 'Story'
 		) {
-			updatedTaskList = datas.filteredTasks.filter(
-				(item) => item.issueType === 'Epic'
-			);
+			updatedTaskList = datas.filteredTasks.filter((item) => item.issueType === 'Epic');
 		} else if (
 			// TASK|BUG can have ParentId to be set either to Story ID or Epic ID
 			props.task?.issueType === 'Task' ||
@@ -266,19 +222,13 @@ export function TaskInput(props: Props) {
 
 		if (props.task?.children && props.task?.children?.length) {
 			const childrenTaskIds = props.task?.children?.map((item) => item.id);
-			updatedTaskList = updatedTaskList.filter(
-				(item) => !childrenTaskIds.includes(item.id)
-			);
+			updatedTaskList = updatedTaskList.filter((item) => !childrenTaskIds.includes(item.id));
 		}
 	}
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				inputRef.current &&
-				!inputRef.current.contains(event.target as Node) &&
-				editMode
-			) {
+			if (inputRef.current && !inputRef.current.contains(event.target as Node) && editMode) {
 				inputTask && updateTaskNameHandler(inputTask, taskName);
 				// console.log('func active');
 			}
@@ -319,7 +269,7 @@ export function TaskInput(props: Props) {
 			ref={targetEl}
 			autoFocus={props.autoFocus}
 			wrapperClassName={`rounded-lg dark:bg-[#1B1D22]`}
-			placeholder={props.placeholder || trans.form.TASK_INPUT_PLACEHOLDER}
+			placeholder={props.placeholder || t('form.TASK_INPUT_PLACEHOLDER')}
 			onFocus={(e) => {
 				setEditMode(true);
 				props.autoInputSelectText && setTimeout(() => e?.target?.select(), 10);
@@ -330,8 +280,7 @@ export function TaskInput(props: Props) {
 			onKeyUp={(e) => {
 				if (e.key === 'Enter' && inputTask) {
 					/* If createOnEnterClick is false then updateTaskNameHandler is called. */
-					!props.createOnEnterClick &&
-						updateTaskNameHandler(inputTask, taskName);
+					!props.createOnEnterClick && updateTaskNameHandler(inputTask, taskName);
 
 					props.onEnterKey && props.onEnterKey(taskName, inputTask);
 				}
@@ -359,10 +308,7 @@ export function TaskInput(props: Props) {
 			leadingNode={
 				// showTaskNumber &&
 				// inputTask &&
-				<div
-					className="flex items-center pl-3 space-x-2"
-					ref={ignoreElementRef}
-				>
+				<div className="flex items-center pl-3 space-x-2" ref={ignoreElementRef}>
 					{!datas.hasCreateForm ? (
 						<ActiveTaskIssuesDropdown
 							key={(inputTask && inputTask.id) || ''}
@@ -388,9 +334,7 @@ export function TaskInput(props: Props) {
 					)}
 
 					{!datas.hasCreateForm && (
-						<span className="text-sm text-gray-500">
-							#{(inputTask && inputTask.taskNumber) || ''}
-						</span>
+						<span className="text-sm text-gray-500">#{(inputTask && inputTask.taskNumber) || ''}</span>
 					)}
 				</div>
 			}
@@ -400,11 +344,7 @@ export function TaskInput(props: Props) {
 	const taskCard = (
 		<TaskCard
 			datas={datas}
-			onItemClick={
-				props.task !== undefined || props.onTaskClick
-					? onTaskClick
-					: setAuthActiveTask
-			}
+			onItemClick={props.task !== undefined || props.onTaskClick ? onTaskClick : setAuthActiveTask}
 			inputField={viewType === 'one-view' ? inputField : undefined}
 			fullWidth={props.fullWidthCombobox}
 			fullHeight={props.fullHeightCombobox}
@@ -420,7 +360,7 @@ export function TaskInput(props: Props) {
 	) : (
 		<Popover className="relative z-30 w-full" ref={inputRef}>
 			<Tooltip
-				label={trans.common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING}
+				label={t('common.TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING')}
 				placement="top"
 				enabled={timerRunningStatus}
 			>
@@ -438,10 +378,7 @@ export function TaskInput(props: Props) {
 				leaveTo="transform scale-95 opacity-0"
 			>
 				<Popover.Panel
-					className={clsxm(
-						'absolute -mt-3',
-						props.fullWidthCombobox && ['w-full left-0 right-0']
-					)}
+					className={clsxm('absolute -mt-3', props.fullWidthCombobox && ['w-full left-0 right-0'])}
 					ref={ignoreElementRef}
 				>
 					{taskCard}
@@ -475,12 +412,11 @@ function TaskCard({
 	forParentChildRelationship?: boolean;
 	updatedTaskList?: ITeamTask[];
 }) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const activeTaskEl = useRef<HTMLLIElement | null>(null);
 	const { taskLabels: taskLabelsData } = useTaskLabels();
 
-	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription } =
-		datas;
+	const { taskStatus, taskPriority, taskSize, taskLabels, taskDescription } = datas;
 
 	useEffect(() => {
 		if (datas.editMode) {
@@ -562,9 +498,7 @@ function TaskCard({
 									forDetails={false}
 									taskStatusClassName="dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] h-7 text-xs"
 									onValueChange={(_: any, values: string[] | undefined) => {
-										taskLabelsData.filter((tag) =>
-											tag.name ? values?.includes(tag.name) : false
-										);
+										taskLabelsData.filter((tag) => (tag.name ? values?.includes(tag.name) : false));
 
 										if (taskLabels && values?.length) {
 											taskLabels.current = taskLabelsData.filter((tag) =>
@@ -580,25 +514,19 @@ function TaskCard({
 
 					<Tooltip
 						enabled={!datas.user?.isEmailVerified}
-						label={trans.common.VERIFY_ACCOUNT_MSG}
+						label={t('common.VERIFY_ACCOUNT_MSG')}
 						placement="top-start"
 						className="inline-block"
 					>
 						<Button
 							variant="outline"
-							disabled={
-								!datas.hasCreateForm ||
-								datas.createLoading ||
-								!datas.user?.isEmailVerified
-							}
+							disabled={!datas.hasCreateForm || datas.createLoading || !datas.user?.isEmailVerified}
 							loading={datas.createLoading}
 							className="font-normal text-sm rounded-xl min-w-[240px] max-w-[240px] inline-flex"
 							onClick={handleTaskCreation}
 						>
-							{!datas.createLoading && (
-								<PlusIcon className="w-[16px] h-[16px]" />
-							)}
-							{trans.common.CREATE_TASK}
+							{!datas.createLoading && <PlusIcon className="w-[16px] h-[16px]" />}
+							{t('common.CREATE_TASK')}
 						</Button>
 					</Tooltip>
 				</div>
@@ -609,17 +537,13 @@ function TaskCard({
 						className="py-2 text-xs cursor-pointer input-border"
 						onClick={() => datas.setFilter && datas.setFilter('open')}
 					>
-						<div
-							className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')}
-						/>
+						<div className={clsxm('w-4 h-4 rounded-full opacity-50 bg-green-300')} />
 						<span
 							className={clsxm(
-								datas.filter === 'open' && [
-									'text-primary dark:text-primary-light font-semibold'
-								]
+								datas.filter === 'open' && ['text-primary dark:text-primary-light font-semibold']
 							)}
 						>
-							{datas.openTaskCount || 0} {trans.common.OPEN}
+							{datas.openTaskCount || 0} {t('common.OPEN')}
 						</span>
 					</OutlineBadge>
 
@@ -630,12 +554,10 @@ function TaskCard({
 						<TickCircleIcon className="opacity-50" />
 						<span
 							className={clsxm(
-								datas.filter === 'closed' && [
-									'text-primary dark:text-primary-light font-semibold'
-								]
+								datas.filter === 'closed' && ['text-primary dark:text-primary-light font-semibold']
 							)}
 						>
-							{datas.closedTaskCount || 0} {trans.common.CLOSED}
+							{datas.closedTaskCount || 0} {t('common.CLOSED')}
 						</span>
 					</OutlineBadge>
 				</div>
@@ -681,14 +603,10 @@ function TaskCard({
 							);
 						})}
 
-					{(forParentChildRelationship &&
-						updatedTaskList &&
-						updatedTaskList.length === 0) ||
-						(!forParentChildRelationship &&
-							datas?.filteredTasks &&
-							datas.filteredTasks.length === 0 && (
-								<div className="text-center">{trans.common.NO_TASKS}</div>
-							))}
+					{(forParentChildRelationship && updatedTaskList && updatedTaskList.length === 0) ||
+						(!forParentChildRelationship && datas?.filteredTasks && datas.filteredTasks.length === 0 && (
+							<div className="text-center">{t('common.NO_TASKS')}</div>
+						))}
 				</ul>
 			</Card>
 

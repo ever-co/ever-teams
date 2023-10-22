@@ -2,7 +2,7 @@ import { HostKeys, useHotkeys, useModal } from '@app/hooks';
 import { ITeamTask, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Modal } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'next-i18next';
 import { PropsWithChildren, useCallback } from 'react';
 import { TaskInput } from './task-input';
 
@@ -24,7 +24,7 @@ export function TaskUnOrAssignPopover({
 	}[];
 	userProfile: OT_Member | undefined;
 }>) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { isOpen, openModal, closeModal } = useModal();
 
 	// Handling Hotkeys
@@ -54,7 +54,7 @@ export function TaskUnOrAssignPopover({
 				closeModal={closeModal}
 				title={
 					userProfile?.employee.user?.name
-						? `${trans.common.ASSIGN_TASK} to ${userProfile?.employee.user?.name}`
+						? `${t('common.ASSIGN_TASK_TO')} ${userProfile?.employee.user?.name}`
 						: ''
 				}
 				className="bg-light--theme-light dark:bg-dark--theme-light p-5 rounded-xl w-[70vw] h-[70vh] justify-start"

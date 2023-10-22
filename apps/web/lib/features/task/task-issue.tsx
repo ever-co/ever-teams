@@ -1,27 +1,9 @@
 import { useModal } from '@app/hooks';
-import {
-	IClassName,
-	IssueType,
-	ITaskIssue,
-	ITeamTask,
-	Nullable
-} from '@app/interfaces';
+import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	BackButton,
-	Button,
-	Card,
-	InputField,
-	Modal,
-	Text
-} from 'lib/components';
-import {
-	BugReportIcon,
-	CategoryIcon,
-	NoteIcon,
-	TaskSquareIcon
-} from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
+import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
+import { BugReportIcon, CategoryIcon, NoteIcon, TaskSquareIcon } from 'lib/components/svgs';
+import { useTranslation } from 'next-i18next';
 import {
 	IActiveTaskStatuses,
 	StatusDropdown,
@@ -96,7 +78,7 @@ export function TaskIssuesDropdown({
 					variant="outline-danger"
 				>
 					<PlusIcon className="w-4 h-4" />
-					{trans.common.NEW_ISSUE}
+					{t('common.NEW_ISSUE')}
 				</Button> */}
 			</StatusDropdown>
 			<CreateTaskIssueModal open={isOpen} closeModal={closeModal} />
@@ -109,29 +91,17 @@ export function TaskIssuesDropdown({
  * @param props - IActiveTaskStatuses<'issue'>
  * @returns A dropdown component that allows the user to select a status for the task.
  */
-export function ActiveTaskIssuesDropdown({
-	...props
-}: IActiveTaskStatuses<'issueType'>) {
-	const { trans } = useTranslation('taskDetails');
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		taskIssues,
-		'issueType'
-	);
+export function ActiveTaskIssuesDropdown({ ...props }: IActiveTaskStatuses<'issueType'>) {
+	const { t } = useTranslation();
+	const { item, items, onChange, field } = useActiveTaskStatus(props, taskIssues, 'issueType');
 
 	const validTransitions: Record<IssueType, TStatusItem[]> = {
 		[IssueType.EPIC]: [],
-		[IssueType.STORY]: items.filter((it) =>
-			[IssueType.TASK, IssueType.BUG].includes(it.value as IssueType)
-		),
+		[IssueType.STORY]: items.filter((it) => [IssueType.TASK, IssueType.BUG].includes(it.value as IssueType)),
 
-		[IssueType.TASK]: items.filter((it) =>
-			[IssueType.STORY, IssueType.BUG].includes(it.value as IssueType)
-		),
+		[IssueType.TASK]: items.filter((it) => [IssueType.STORY, IssueType.BUG].includes(it.value as IssueType)),
 
-		[IssueType.BUG]: items.filter((it) =>
-			[IssueType.STORY, IssueType.TASK].includes(it.value as IssueType)
-		)
+		[IssueType.BUG]: items.filter((it) => [IssueType.STORY, IssueType.TASK].includes(it.value as IssueType))
 	};
 	let updatedItemsBasedOnTaskIssueType: TStatusItem[] = [];
 
@@ -140,8 +110,7 @@ export function ActiveTaskIssuesDropdown({
 
 		// If parent task is already Story then user can not assign current task as a Story
 		if (props.task.parent.issueType === 'Story') {
-			updatedItemsBasedOnTaskIssueType =
-				updatedItemsBasedOnTaskIssueType.filter((it) => it.value !== 'Story');
+			updatedItemsBasedOnTaskIssueType = updatedItemsBasedOnTaskIssueType.filter((it) => it.value !== 'Story');
 		}
 	} else if (props.task && props.task?.issueType) {
 		updatedItemsBasedOnTaskIssueType = validTransitions[props.task?.issueType];
@@ -154,18 +123,14 @@ export function ActiveTaskIssuesDropdown({
 		<StatusDropdown
 			sidebarUI={props.sidebarUI}
 			className={props.className}
-			items={
-				props.forParentChildRelationship
-					? updatedItemsBasedOnTaskIssueType
-					: items
-			}
+			items={props.forParentChildRelationship ? updatedItemsBasedOnTaskIssueType : items}
 			value={item || (taskIssues['Task'] as Required<TStatusItem>)}
 			defaultItem={!item ? field : undefined}
 			onChange={onChange}
 			issueType="issue"
 			enabled={item?.name !== 'Epic'}
 			showIssueLabels={props.showIssueLabels}
-			disabledReason={item?.name === 'Epic' ? trans.TASK_IS_ALREADY_EPIC : ''}
+			disabledReason={item?.name === 'Epic' ? t('pages.taskDetails.TASK_IS_ALREADY_EPIC') : ''}
 			taskStatusClassName={props.taskStatusClassName}
 		/>
 	);
@@ -197,43 +162,33 @@ export function TaskIssueStatus({
  * @param  - `open` - a boolean that determines whether the modal is open or not
  * @returns A modal that allows the user to create a task issue.
  */
-export function CreateTaskIssueModal({
-	open,
-	closeModal
-}: {
-	open: boolean;
-	closeModal: () => void;
-}) {
-	const { trans } = useTranslation();
+export function CreateTaskIssueModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
+	const { t } = useTranslation();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 	};
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<form
-				className="w-[98%] md:w-[430px]"
-				autoComplete="off"
-				onSubmit={handleSubmit}
-			>
+			<form className="w-[98%] md:w-[430px]" autoComplete="off" onSubmit={handleSubmit}>
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
-							{trans.common.CREATE_ISSUE}
+							{t('common.CREATE_ISSUE')}
 						</Text.Heading>
 
 						<div className="w-full mt-5">
 							<InputField
 								name="name"
 								autoCustomFocus
-								placeholder={trans.form.ISSUE_NAME_PLACEHOLDER}
+								placeholder={t('form.ISSUE_NAME_PLACEHOLDER')}
 								required
 							/>
 						</div>
 
-						<div className="w-full flex justify-between mt-3 items-center">
+						<div className="flex items-center justify-between w-full mt-3">
 							<BackButton onClick={closeModal} />
-							<Button type="submit">{trans.common.CREATE}</Button>
+							<Button type="submit">{t('common.CREATE')}</Button>
 						</div>
 					</div>
 				</Card>

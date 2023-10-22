@@ -1,22 +1,17 @@
 import { secondsToTime } from '@app/helpers';
 import {
-	useTeamTasks,
-	useTimerView,
-	useTaskStatistics,
-	I_UserProfilePage,
-	useOrganizationTeams,
-	useTeamMemberCard,
-	useTMCardTaskEdit,
 	I_TeamMemberCardHook,
-	useOrganizationEmployeeTeams
+	I_UserProfilePage,
+	useOrganizationEmployeeTeams,
+	useOrganizationTeams,
+	useTMCardTaskEdit,
+	useTaskStatistics,
+	useTeamMemberCard,
+	useTeamTasks,
+	useTimerView
 } from '@app/hooks';
-import {
-	IClassName,
-	IOrganizationTeamList,
-	ITeamTask,
-	Nullable,
-	OT_Member
-} from '@app/interfaces';
+import { IClassName, IOrganizationTeamList, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
+import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import {
@@ -27,20 +22,19 @@ import {
 	VerticalSeparator
 } from 'lib/components';
 import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'next-i18next';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
+import { SetterOrUpdater, useRecoilValue } from 'recoil';
+import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';
 import { TaskAllStatusTypes } from './task-all-status-type';
+import { TaskAssignButton } from './task-assign-button';
 import { TaskNameInfoDisplay } from './task-displays';
+import { TaskAvatars } from './task-item';
 import { ActiveTaskStatusDropdown } from './task-status';
 import { TaskTimes } from './task-times';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { TaskAvatars } from './task-item';
-import { SetterOrUpdater, useRecoilValue } from 'recoil';
-import { timerSecondsState } from '@app/stores';
-import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
-import { TaskAssignButton } from './task-assign-button';
 
 type Props = {
 	active?: boolean;
@@ -67,24 +61,21 @@ export function TaskCard(props: Props) {
 		taskBadgeClassName,
 		taskTitleClassName
 	} = props;
-
+	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const seconds = useRecoilValue(timerSecondsState);
-	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } =
-		useTaskStatistics(seconds);
+	const { activeTaskDailyStat, activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
 	const { isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const members = activeTeam?.members || [];
 	const currentMember = members.find((m) => {
 		return m.employee.user?.id === profile?.userProfile?.id;
 	});
 
-	const { h, m } = secondsToTime(
-		(activeTaskTotalStat?.duration || 0) + addSeconds
-	);
+	const { h, m } = secondsToTime((activeTaskTotalStat?.duration || 0) + addSeconds);
 	const totalWork =
 		isAuthUser && activeAuthTask ? (
 			<div className={clsxm('flex space-x-2 items-center font-normal')}>
-				<span className="text-gray-500 lg:text-sm">Total time:</span>
+				<span className="text-gray-500 lg:text-sm">{t('pages.taskDetails.TOTAL_TIME')}:</span>
 				<Text>
 					{h}h : {m}m
 				</Text>
@@ -94,13 +85,11 @@ export function TaskCard(props: Props) {
 		);
 
 	// Daily work
-	const { h: dh, m: dm } = secondsToTime(
-		(activeTaskDailyStat?.duration || 0) + addSeconds
-	);
+	const { h: dh, m: dm } = secondsToTime((activeTaskDailyStat?.duration || 0) + addSeconds);
 	const todayWork =
 		isAuthUser && activeAuthTask ? (
 			<div className={clsxm('flex flex-col items-start font-normal')}>
-				<span className="text-gray-500 text-xs">Today work</span>
+				<span className="text-xs text-gray-500">{t('common.TOTAL_WORK')}</span>
 				<Text>
 					{dh}h : {dm}m
 				</Text>
@@ -141,11 +130,7 @@ export function TaskCard(props: Props) {
 					<>
 						{/* TaskEstimateInfo */}
 						<div className="flex items-center flex-col justify-center lg:flex-row w-[20%]">
-							<TaskEstimateInfo
-								memberInfo={memberInfo}
-								edition={taskEdition}
-								activeAuthTask={true}
-							/>
+							<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
 						</div>
 					</>
 				)}
@@ -195,12 +180,7 @@ export function TaskCard(props: Props) {
 
 					{/* TaskCardMenu */}
 					{task && memberInfo && currentMember && (
-						<TaskCardMenu
-							task={task}
-							loading={loading}
-							memberInfo={memberInfo}
-							viewType={viewType}
-						/>
+						<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
 					)}
 				</div>
 			</Card>
@@ -214,24 +194,17 @@ export function TaskCard(props: Props) {
 					className
 				)}
 			>
-				<div className="flex justify-between ml-2 mb-4">
+				<div className="flex justify-between mb-4 ml-2">
 					{totalWork}
-					{isTrackingEnabled &&
-						isAuthUser &&
-						viewType === 'unassign' &&
-						task && (
-							<TimerButtonCall
-								activeTeam={activeTeam}
-								currentMember={currentMember}
-								task={task}
-							/>
-						)}
+					{isTrackingEnabled && isAuthUser && viewType === 'unassign' && task && (
+						<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
+					)}
 				</div>
-				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
-					<TaskInfo task={task} className="w-80 px-4 mb-4" />{' '}
+				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
+					<TaskInfo task={task} className="px-4 mb-4 w-80" />{' '}
 					{viewType === 'default' && (
 						<>
-							<div className="flex space-x-2 items-end">
+							<div className="flex items-end space-x-2">
 								<TaskEstimateInfo
 									memberInfo={memberInfo}
 									edition={taskEdition}
@@ -252,52 +225,33 @@ export function TaskCard(props: Props) {
 					<div className="flex space-x-4">
 						{todayWork}
 						{isTrackingEnabled && isAuthUser && task && (
-							<TimerButtonCall
-								activeTeam={activeTeam}
-								currentMember={currentMember}
-								task={task}
-							/>
+							<TimerButtonCall activeTeam={activeTeam} currentMember={currentMember} task={task} />
 						)}
 					</div>
 
-					<ActiveTaskStatusDropdown
-						task={task || null}
-						onChangeLoading={(load) => setLoading(load)}
-					/>
+					<ActiveTaskStatusDropdown task={task || null} onChangeLoading={(load) => setLoading(load)} />
 				</div>
 
 				{task && memberInfo && currentMember && (
-					<TaskCardMenu
-						task={task}
-						loading={loading}
-						memberInfo={memberInfo}
-						viewType={viewType}
-					/>
+					<TaskCardMenu task={task} loading={loading} memberInfo={memberInfo} viewType={viewType} />
 				)}
 			</Card>
 		</>
 	);
 }
 
-function UsersTaskAssigned({
-	task,
-	className
-}: { task: Nullable<ITeamTask> } & IClassName) {
-	const { trans } = useTranslation();
+function UsersTaskAssigned({ task, className }: { task: Nullable<ITeamTask> } & IClassName) {
+	const { t } = useTranslation();
 	const members = task?.members || [];
 
 	return (
 		<div className={clsxm('flex justify-center items-center', className)}>
 			<div className="flex flex-col justify-center">
-				{members.length > 0 && (
-					<span className="mb-1 text-xs text-center">
-						{trans.common.ASSIGNED}
-					</span>
-				)}
-				<span className="font-medium text-center text-sm">
+				{members.length > 0 && <span className="mb-1 text-xs text-center">{t('common.ASSIGNED')}</span>}
+				<span className="text-sm font-medium text-center">
 					{members.length > 0
-						? `${members.length} ${trans.common.PEOPLE}`
-						: trans.task.tabFilter.NO_TASK_USER_ASSIGNED}
+						? `${members.length} ${t('common.PEOPLE')}`
+						: t('task.tabFilter.NO_TASK_USER_ASSIGNED')}
 				</span>
 			</div>
 			{members.length > 0 && task && <TaskAvatars task={task} limit={3} />}
@@ -326,19 +280,11 @@ function TimerButtonCall({
 }) {
 	const [loading, setLoading] = useState(false);
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
-	const {
-		disabled,
-		timerHanlder,
-		timerStatus,
-		activeTeamTask,
-		startTimer,
-		stopTimer
-	} = useTimerView();
+	const { disabled, timerHanlder, timerStatus, activeTeamTask, startTimer, stopTimer } = useTimerView();
 
 	const { setActiveTask } = useTeamTasks();
 
-	const activeTaskStatus =
-		activeTeamTask?.id === task.id ? timerStatus : undefined;
+	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
 
 	/* It's a function that is called when the timer button is clicked. */
 	const startTimerWithTask = useCallback(async () => {
@@ -352,9 +298,7 @@ function TimerButtonCall({
 		setActiveTask(task);
 
 		// Update Current user's active task to sync across multiple devices
-		const currentEmployeeDetails = activeTeam?.members.find(
-			(member) => member.id === currentMember?.id
-		);
+		const currentEmployeeDetails = activeTeam?.members.find((member) => member.id === currentMember?.id);
 		if (currentEmployeeDetails && currentEmployeeDetails.id) {
 			updateOrganizationTeamEmployee(currentEmployeeDetails.id, {
 				organizationId: task.organizationId,
@@ -406,8 +350,7 @@ function AssignTaskButtonCall({
 		activeTeamTask
 	} = useTimerView();
 
-	const activeTaskStatus =
-		activeTeamTask?.id === task.id ? timerStatus : undefined;
+	const activeTaskStatus = activeTeamTask?.id === task.id ? timerStatus : undefined;
 
 	return (
 		<TaskAssignButton
@@ -436,23 +379,14 @@ function TaskInfo({
 	const router = useRouter();
 
 	return (
-		<div
-			className={clsxm(
-				'h-full flex flex-col items-start justify-between gap-[1.0625rem]',
-				className
-			)}
-		>
+		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
-			{!task && <div className="text-center self-center py-1">--</div>}
+			{!task && <div className="self-center py-1 text-center">--</div>}
 			{task && (
 				<div className="w-full h-10 overflow-hidden">
-					<div
-						className={clsxm('h-full flex flex-col items-start justify-start')}
-					>
+					<div className={clsxm('h-full flex flex-col items-start justify-start')}>
 						<div
-							className={clsxm(
-								'text-sm text-ellipsis overflow-hidden w-full cursor-pointer'
-							)}
+							className={clsxm('text-sm text-ellipsis overflow-hidden w-full cursor-pointer')}
 							onClick={() => task && router.push(`/task/${task?.id}`)}
 						>
 							<TaskNameInfoDisplay
@@ -467,7 +401,7 @@ function TaskInfo({
 
 			{/* Task status */}
 			{task && <TaskAllStatusTypes task={task} />}
-			{!task && <div className="text-center self-center py-1">--</div>}
+			{!task && <div className="self-center py-1 text-center">--</div>}
 		</div>
 	);
 }
@@ -485,7 +419,7 @@ function TaskCardMenu({
 	memberInfo?: I_TeamMemberCardHook;
 	viewType: 'default' | 'unassign';
 }) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const handleAssignment = useCallback(() => {
 		if (viewType === 'unassign') {
 			memberInfo?.assignTask(task);
@@ -496,7 +430,7 @@ function TaskCardMenu({
 
 	return (
 		<Popover>
-			<Popover.Button className="flex items-center outline-none border-none">
+			<Popover.Button className="flex items-center border-none outline-none">
 				{!loading && <MoreIcon className="dark:stroke-[#B1AEBC]" />}
 				{loading && <SpinnerLoader size={20} />}
 			</Popover.Button>
@@ -523,7 +457,7 @@ function TaskCardMenu({
 												'hover:font-semibold hover:transition-all'
 											)}
 										>
-											{trans.common.TASK_DETAILS}
+											{t('common.TASK_DETAILS')}
 										</Link>
 									</li>
 									<li className="mb-2">
@@ -535,8 +469,8 @@ function TaskCardMenu({
 											onClick={handleAssignment}
 										>
 											{viewType === 'unassign'
-												? trans.common.ASSIGN_TASK
-												: trans.common.UNASSIGN_TASK}
+												? t('common.ASSIGN_TASK')
+												: t('common.UNASSIGN_TASK')}
 										</span>
 									</li>
 
