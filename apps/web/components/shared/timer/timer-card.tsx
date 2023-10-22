@@ -4,8 +4,10 @@ import { useTimer } from '@app/hooks/features/useTimer';
 import { ProgressBar } from '@components/ui/progress-bar';
 import { PauseIcon } from '@components/ui/svgs/pause-icon';
 import { PlayIcon } from '@components/ui/svgs/play-icon';
+import { useTranslation } from 'next-i18next';
 
 const Timer = () => {
+	const { t } = useTranslation();
 	const {
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 		timerStatus,
@@ -37,21 +39,11 @@ const Timer = () => {
 				<ProgressBar width={284} progress={`${activeTaskEstimation}%`} />
 			</div>
 			<div
-				title={
-					timerStatusFetching || !canRunTimer
-						? 'Please, select or create a new task to start tracking the time'
-						: undefined
-				}
-				className={`cursor-pointer ${
-					timerStatusFetching || !canRunTimer ? 'opacity-30' : ''
-				}`}
+				title={timerStatusFetching || !canRunTimer ? t('timer.START_TIMER') : undefined}
+				className={`cursor-pointer ${timerStatusFetching || !canRunTimer ? 'opacity-30' : ''}`}
 				onClick={!timerStatusFetching ? timerHanlder : undefined}
 			>
-				{timerStatus?.running ? (
-					<PauseIcon width={68} height={68} />
-				) : (
-					<PlayIcon width={68} height={68} />
-				)}
+				{timerStatus?.running ? <PauseIcon width={68} height={68} /> : <PlayIcon width={68} height={68} />}
 			</div>
 		</>
 	);
