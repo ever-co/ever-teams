@@ -1,23 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, Tooltip } from 'lib/components';
-import { mapTeamItems, TeamItem } from './team-item';
-import { PlusIcon } from '@heroicons/react/24/solid';
-import {
-	useAuthenticateUser,
-	useModal,
-	useOrganizationTeams,
-	useTimer
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useTimer } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { CreateTeamModal } from './create-team-modal';
-import { useTranslation } from 'lib/i18n';
 import { useToast } from '@components/ui/use-toast';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { Button, Dropdown, Tooltip } from 'lib/components';
+import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CreateTeamModal } from './create-team-modal';
+import { TeamItem, mapTeamItems } from './team-item';
 
 export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 	const { user } = useAuthenticateUser();
 	const { teams, activeTeam, setActiveTeam } = useOrganizationTeams();
 	const { timerStatus, stopTimer } = useTimer();
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { toast } = useToast();
 
 	const onChangeActiveTeam = useCallback(
@@ -38,8 +33,8 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				) {
 					toast({
 						variant: 'default',
-						title: trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE,
-						description: trans.timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION
+						title: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_TITLE'),
+						description: t('timer.TEAM_SWITCH.STOPPED_TIMER_TOAST_DESCRIPTION')
 					});
 					stopTimer();
 				}
@@ -50,10 +45,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 		[setActiveTeam, timerStatus, stopTimer, activeTeam, toast, trans]
 	);
 
-	const items: TeamItem[] = useMemo(
-		() => mapTeamItems(teams, onChangeActiveTeam),
-		[teams, onChangeActiveTeam]
-	);
+	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
 
 	const [teamItem, setTeamItem] = useState<TeamItem | null>(null);
 
@@ -81,7 +73,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				{!publicTeam && (
 					<Tooltip
 						enabled={!user?.isEmailVerified}
-						label={trans.common.VERIFY_ACCOUNT_MSG}
+						label={t('common.VERIFY_ACCOUNT_MSG')}
 						placement="top-start"
 					>
 						<Button
@@ -91,18 +83,13 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 							disabled={!user?.isEmailVerified}
 						>
 							<PlusIcon className="w-4 h-4" />
-							{trans.common.CREATE_TEAM}
+							{t('common.CREATE_TEAM')}
 						</Button>
 					</Tooltip>
 				)}
 			</Dropdown>
 
-			{!publicTeam && (
-				<CreateTeamModal
-					open={isOpen && !!user?.isEmailVerified}
-					closeModal={closeModal}
-				/>
-			)}
+			{!publicTeam && <CreateTeamModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />}
 		</>
 	);
 };

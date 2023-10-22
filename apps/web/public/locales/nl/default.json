@@ -344,6 +344,18 @@
 			"ASSIGNED_DESCRIPTION": "This tab shows all tasks that are assigned to you",
 			"UNASSIGNED_DESCRIPTION": "This tab shows all tasks that are not assigned to you",
 			"NO_TASK_USER_ASSIGNED": "No one assigned  to this Task"
+		},
+		"taskTableHead": {
+			"TASK_NAME": "Name",
+			"TASK_WORK": {
+				"TITLE": "Worked on",
+				"DESCRIPTION": "Task"
+			},
+			"TASK_TIME": "Estimate",
+			"TOTAL_WORK": {
+				"TITLE": "Total Worked",
+				"DESCRIPTION": "Today"
+			}
 		}
 	},
 

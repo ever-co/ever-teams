@@ -1,11 +1,11 @@
-import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
-import { Listbox, Popover, Transition } from '@headlessui/react';
+import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { Listbox, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { useTranslation } from 'next-i18next';
+import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
-import { IClassName } from '@app/interfaces';
-import { useTranslation } from 'lib/i18n';
 
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key;
@@ -47,7 +47,7 @@ export function Dropdown<T extends DropdownItem>({
 	searchBar = false,
 	setSearchText
 }: Props<T>) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	return (
 		<div className={clsxm('rounded-xl', className)}>
 			<Listbox value={Value} onChange={onChange} disabled={publicTeam}>
@@ -60,20 +60,13 @@ export function Dropdown<T extends DropdownItem>({
 					)}
 					style={buttonStyle}
 				>
-					<div
-						title={Value?.itemTitle}
-						className="overflow-hidden text-ellipsis whitespace-nowrap w-full"
-					>
+					<div title={Value?.itemTitle} className="w-full overflow-hidden text-ellipsis whitespace-nowrap">
 						{Value?.selectedLabel || (Value?.Label && <Value.Label />)}
 					</div>
 
 					{loading ? (
 						<div className="h-[20px] w-[20px]">
-							<SpinnerLoader
-								size={20}
-								variant="primary"
-								className="w-full h-full"
-							/>
+							<SpinnerLoader size={20} variant="primary" className="w-full h-full" />
 						</div>
 					) : !publicTeam ? (
 						<ChevronDownIcon
@@ -114,13 +107,9 @@ export function Dropdown<T extends DropdownItem>({
 							{searchBar && (
 								<div className="sticky top-0 z-40 mb-4 dark:bg-[#1B1D22] bg-white border-b">
 									<input
-										placeholder={
-											trans.pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER
-										}
+										placeholder={t('pages.settingsPersonal.TIMEZONE_SEARCH_PLACEHOLDER')}
 										className="w-full h-7 focus:outline-0 rounded-md dark:bg-[#1B1D22] dark:text-white"
-										onChange={
-											setSearchText && ((e) => setSearchText(e.target.value))
-										}
+										onChange={setSearchText && ((e) => setSearchText(e.target.value))}
 									/>
 								</div>
 							)}
@@ -132,19 +121,13 @@ export function Dropdown<T extends DropdownItem>({
 									disabled={!!Item.disabled}
 								>
 									{({ active, selected }) => {
-										return Item.Label ? (
-											<Item.Label active={active} selected={selected} />
-										) : (
-											<></>
-										);
+										return Item.Label ? <Item.Label active={active} selected={selected} /> : <></>;
 									}}
 								</Listbox.Option>
 							))}
 
 							{/* Additional content */}
-							{closeOnChildrenClick && (
-								<Listbox.Button as="div">{children}</Listbox.Button>
-							)}
+							{closeOnChildrenClick && <Listbox.Button as="div">{children}</Listbox.Button>}
 							{!closeOnChildrenClick && children}
 						</Card>
 					</Listbox.Options>
@@ -159,9 +142,7 @@ export function ConfirmDropdown({
 	onConfirm,
 	confirmText = 'Confirm',
 	className
-}: PropsWithChildren<
-	{ onConfirm?: () => void; confirmText?: string } & IClassName
->) {
+}: PropsWithChildren<{ onConfirm?: () => void; confirmText?: string } & IClassName>) {
 	return (
 		<Popover className="relative">
 			<Popover.Button>{children}</Popover.Button>
@@ -178,12 +159,12 @@ export function ConfirmDropdown({
 				<Popover.Panel>
 					<Card shadow="custom" className="!px-5 shadow-lg text-lg !py-3">
 						<ul className="flex flex-col">
-							<li className="text-primary dark:text-white font-semibold mb-2 w-full">
+							<li className="w-full mb-2 font-semibold text-primary dark:text-white">
 								<Popover.Button className="w-full" onClick={onConfirm}>
 									{confirmText}
 								</Popover.Button>
 							</li>
-							<li className="text-sm w-full">
+							<li className="w-full text-sm">
 								<Popover.Button>Cancel</Popover.Button>
 							</li>
 						</ul>

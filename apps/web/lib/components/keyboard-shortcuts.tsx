@@ -1,26 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	HostKeys,
-	HostKeysMapping,
-	useDetectOS,
-	useHotkeys,
-	useModal
-} from '@app/hooks';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle
-} from '@components/ui/dialog';
-import { useTranslation } from 'lib/i18n';
+import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@app/hooks';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/ui/dialog';
+import { useTranslation } from 'next-i18next';
 import { useCallback } from 'react';
 import { Button } from './button';
 import { KeyboardLinearIcon } from './svgs';
 import { Tooltip } from './tooltip';
 
 export function KeyboardShortcuts() {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
 
 	const { os } = useDetectOS();
@@ -38,8 +26,8 @@ export function KeyboardShortcuts() {
 
 	return (
 		<>
-			<Tooltip label={trans.common.KEYBOARD_SHORTCUTS} placement="auto">
-				<Button variant="ghost" className="p-0 m-0 min-w-0" onClick={toggle}>
+			<Tooltip label={t('common.KEYBOARD_SHORTCUTS')} placement="auto">
+				<Button variant="ghost" className="min-w-0 p-0 m-0" onClick={toggle}>
 					<KeyboardLinearIcon className="stroke-dark--theme-light dark:stroke-white w-7 h-7" />
 				</Button>
 			</Tooltip>
@@ -47,7 +35,7 @@ export function KeyboardShortcuts() {
 			<Dialog open={isOpen} defaultOpen={isOpen} onOpenChange={toggle}>
 				<DialogContent className="border-[#0000001A] dark:border-[#26272C]">
 					<DialogHeader className="flex flex-col gap-5">
-						<DialogTitle>{trans.common.KEYBOARD_SHORTCUTS}</DialogTitle>
+						<DialogTitle>{t('common.KEYBOARD_SHORTCUTS')}</DialogTitle>
 						<DialogDescription className="flex flex-col gap-2">
 							{HostKeysMapping.map((item, index) => (
 								<div key={index} className="flex flex-col gap-2">
@@ -57,25 +45,23 @@ export function KeyboardShortcuts() {
 
 									{item.keySequence.map((keySeq, keySeqIndex) => (
 										<div
-											className="flex flex-row justify-between items-center"
+											className="flex flex-row items-center justify-between"
 											key={`key-seq-${keySeqIndex}`}
 										>
 											<div>
 												<p className="text-sm font-normal">{keySeq.label}</p>
 											</div>
 											<div className="flex flex-row gap-2">
-												{[
-													...(os === 'Mac'
-														? keySeq.sequence.MAC
-														: keySeq.sequence.OTHER)
-												].map((label) => (
-													<div
-														key={label}
-														className="border rounded-md py-1 px-3 text-dark-high dark:text-white min-w-[2.5rem] text-center"
-													>
-														{label}
-													</div>
-												))}
+												{[...(os === 'Mac' ? keySeq.sequence.MAC : keySeq.sequence.OTHER)].map(
+													(label) => (
+														<div
+															key={label}
+															className="border rounded-md py-1 px-3 text-dark-high dark:text-white min-w-[2.5rem] text-center"
+														>
+															{label}
+														</div>
+													)
+												)}
 											</div>
 										</div>
 									))}

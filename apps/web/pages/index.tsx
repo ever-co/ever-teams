@@ -20,7 +20,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const breadcrumb = [t('pages.home.BREADCRUMB.0'), activeTeam?.name || ''];
+	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
 
 	return (
 		<MainLayout>
