@@ -1,11 +1,13 @@
-import TaskMainInfo from './details-section/blocks/task-main-info';
-import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
-import TaskProgress from './details-section/blocks/task-progress';
-import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
-import TaskPublicity from './details-section/blocks/task-publicity';
 import { clsxm } from '@app/utils';
+import { useTranslation } from 'next-i18next';
+import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
+import TaskMainInfo from './details-section/blocks/task-main-info';
+import TaskProgress from './details-section/blocks/task-progress';
+import TaskPublicity from './details-section/blocks/task-publicity';
+import TaskSecondaryInfo from './details-section/blocks/task-secondary-info';
 
 const TaskDetailsAside = () => {
+	const { t } = useTranslation();
 	return (
 		<section
 			className={clsxm(
@@ -15,7 +17,7 @@ const TaskDetailsAside = () => {
 		>
 			<div className="flex justify-between h-[3.25rem] px-[0.9375rem] items-center">
 				<div className="not-italic font-semibold text-base leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-					Details
+					{t('common.DETAILS')}
 				</div>
 
 				{/* TODO */}

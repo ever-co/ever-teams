@@ -41,6 +41,8 @@
 		"PRIVATE_TASK_LABEL": "Make a private",
 		"CREATE_TASK": "Create New Task",
 		"LINK_TASK": "Select Related Issue",
+		"LINK": "Link",
+		"DESCRIPTION": "Description",
 		"CHILD_ISSUE_TASK": "Select Child Issue",
 		"CREATE_TEAM": "Create New Team",
 		"VERIFY_ACCOUNT_MSG": "Please Verify your account before start using the app",
@@ -108,6 +110,12 @@
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invite member(s) and start collaborating",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Start Meeting or Board Collaboration",
+
+		"ACTIVITY": "Activity",
+		"FILTER_ALL": "All",
+		"FILTER_COMMENTS": "Comments",
+		"FILTER_HISTORY": "History",
+		"FILTER_UNSUBSCRIBE": "Unsubscribe",
 
 		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts"
 	},
@@ -299,6 +307,7 @@
 			"RELATED_ISSUE_TYPE": "Related Issue Types",
 			"LIST_OF_RELATED_TYPE": "List of Related Types",
 			"INITIAL": "Initial",
+			"COPY_NUMBER": "Copy Number",
 			"IN_PROGRESS": "In Progress",
 			"FINAL": "Final",
 			"DISPOSE_TEAM": "You are about to Dispose team ?",
@@ -391,7 +400,8 @@
 		"TASK_INPUT_PLACEHOLDER": "What you working on?",
 
 		"TEAM_MEMBER_NAME_PLACEHOLDER": "Team member name",
-		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Team member email address"
+		"TEAM_MEMBER_EMAIL_PLACEHOLDER": "Team member email address",
+		"COMPLETION_DESCRIPTION": "Write the description"
 	},
 
 	"layout": {
