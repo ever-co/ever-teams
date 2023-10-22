@@ -340,10 +340,20 @@
 		"TEAM_SWITCH": {
 			"STOPPED_TIMER_TOAST_TITLE": "Timer Stopped",
 			"STOPPED_TIMER_TOAST_DESCRIPTION": "Timer Stopped due to Team Switch"
+		},
+		"ESTIMATION": {
+			"ESTIMATE_LABEL": "Estimate"
 		}
 	},
 
 	"task": {
+		"TITLE": "Task",
+		"taskLabel": {
+			"WORK_LABEL": "Worked",
+			"TASK_ASSIGNED": "Assigned",
+			"TASK_UNASSIGNED": "Unassigned",
+			"BUTTON_LABEL": "Assign Task"
+		},
 		"tabFilter": {
 			"WORKED_DESCRIPTION": "This tab shows all tasks you started working on",
 			"ASSIGNED_DESCRIPTION": "This tab shows all tasks that are assigned to you",
@@ -352,14 +362,17 @@
 		},
 		"taskTableHead": {
 			"TASK_NAME": "Name",
+			"TASK_STATUS": "Status",
 			"TASK_WORK": {
 				"TITLE": "Worked on",
-				"DESCRIPTION": "Task"
+				"DESCRIPTION": "Task",
+				"LABEL": "Worked on task"
 			},
 			"TASK_TIME": "Estimate",
 			"TOTAL_WORK": {
 				"TITLE": "Total Worked",
-				"DESCRIPTION": "Today"
+				"DESCRIPTION": "Today",
+				"LABEL": "Total worked Today"
 			}
 		}
 	},
@@ -399,6 +412,7 @@
 		"ENTER_TO_VALIDATE": "Press Enter to validate"
 	},
 	"team": {
+		"BACK_LABEL": "Back to Team",
 		"creation": {
 			"NEW": "Create new team"
 		}

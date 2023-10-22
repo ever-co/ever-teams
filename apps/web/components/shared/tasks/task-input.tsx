@@ -1,48 +1,34 @@
-import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Combobox, Transition } from '@headlessui/react';
 import { ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { PlusIcon } from '@heroicons/react/24/solid';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 
+import { useTaskInput } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { TaskItem } from './task-item';
+import { useTranslation } from 'next-i18next';
 import DeleteTask from './delete-task';
 import TaskFilter from './task-filter';
-import { useTaskInput } from '@app/hooks';
-import { useTranslation } from 'lib/i18n';
+import { TaskItem } from './task-item';
 
-export function CreateTaskOption({
-	onClick,
-	loading
-}: {
-	onClick: () => void;
-	loading?: boolean;
-}) {
-	const { trans } = useTranslation();
+export function CreateTaskOption({ onClick, loading }: { onClick: () => void; loading?: boolean }) {
+	const { t } = useTranslation();
 	return (
 		<div
-			className="relative cursor-pointer select-none py-2 px-4 text-gray-700"
+			className="relative px-4 py-2 text-gray-700 cursor-pointer select-none"
 			onClick={!loading ? onClick : undefined}
 		>
 			<div className="flex items-center justify-start cursor-pointer text-primary dark:text-white">
 				<span className="mr-[11px]">
-					{loading ? (
-						<Spinner dark={false} />
-					) : (
-						<PlusIcon className=" font-bold w-[16px] h-[16px]" />
-					)}
+					{loading ? <Spinner dark={false} /> : <PlusIcon className=" font-bold w-[16px] h-[16px]" />}
 				</span>
-				{trans.common.CREATE_TASK}
+				{t('common.CREATE_TASK')}
 			</div>
 		</div>
 	);
 }
 
-export function TasksList({
-	onClickTask
-}: {
-	onClickTask?: (task: ITeamTask) => void;
-}) {
+export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => void }) {
 	const {
 		inputTask,
 		setActiveTask,
@@ -80,19 +66,14 @@ export function TasksList({
 
 	return (
 		<>
-			<Combobox
-				value={inputTask}
-				onChange={onClickTask ? onClickTask : setActiveTask}
-			>
+			<Combobox value={inputTask} onChange={onClickTask ? onClickTask : setActiveTask}>
 				<div className="relative mt-1">
 					<div className="relative w-full cursor-default overflow-hidden rounded-lg  bg-[#EEEFF5] dark:bg-[#1B1B1E] text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm ">
 						<Combobox.Input
 							key={`${editMode}`}
 							className="h-[60px] bg-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
 							displayValue={(task: ITeamTask) => {
-								return task
-									? (!editMode ? `#${task.taskNumber} ` : '') + task.title
-									: '';
+								return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 							}}
 							onFocus={() => setEditMode(true)}
 							onBlur={() => setEditMode(false)}
@@ -113,10 +94,7 @@ export function TasksList({
 							{tasksFetching || createLoading || updateLoading ? (
 								<Spinner dark={false} />
 							) : (
-								<ChevronUpDownIcon
-									className="h-5 w-5 text-gray-400"
-									aria-hidden="true"
-								/>
+								<ChevronUpDownIcon className="w-5 h-5 text-gray-400" aria-hidden="true" />
 							)}
 						</Combobox.Button>
 					</div>
@@ -133,7 +111,7 @@ export function TasksList({
 						}}
 					>
 						<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-							<div className="ml-10 flex items-center justify-start space-x-2 mb-4 mt-2">
+							<div className="flex items-center justify-start mt-2 mb-4 ml-10 space-x-2">
 								<TaskFilter
 									count={openTaskCount}
 									type="open"
@@ -154,10 +132,7 @@ export function TasksList({
 								/>
 							</div>
 							{hasCreateForm ? (
-								<CreateTaskOption
-									onClick={handleTaskCreation}
-									loading={createLoading}
-								/>
+								<CreateTaskOption onClick={handleTaskCreation} loading={createLoading} />
 							) : (
 								<>
 									{filteredTasks.map((task) => {
