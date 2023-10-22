@@ -5,7 +5,9 @@ import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
 import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
@@ -72,4 +74,13 @@ const Team = () => {
 	);
 };
 
+export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+	const { locale } = context;
+	const translationProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	return {
+		props: {
+			...translationProps
+		}
+	};
+};
 export default Team;

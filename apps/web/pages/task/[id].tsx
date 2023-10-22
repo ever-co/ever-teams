@@ -9,7 +9,9 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { MainLayout } from 'lib/layout';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
@@ -133,4 +135,13 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 }
  */
 
+export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+	const { locale } = context;
+	const translationProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	return {
+		props: {
+			...translationProps
+		}
+	};
+};
 export default withAuthentication(TaskDetails, { displayName: 'TaskDetails' });

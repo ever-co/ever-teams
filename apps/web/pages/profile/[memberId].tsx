@@ -7,16 +7,11 @@ import clsx from 'clsx';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
-import {
-	getTimerStatusValue,
-	TaskFilter,
-	Timer,
-	TimerStatus,
-	UserProfileTask,
-	useTaskFilter
-} from 'lib/features';
-import { useTranslation } from 'lib/i18n';
+import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import stc from 'string-to-color';
@@ -27,35 +22,30 @@ const Profile = () => {
 
 	const hook = useTaskFilter(profile);
 
-	const { trans } = useTranslation('profile');
+	const { t } = useTranslation('profile');
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
-		...trans.BREADCRUMB
+		...t('pages.profile.BREADCRUMB', { returnObjects: true })
 	];
 
-	const profileIsAuthUser = useMemo(
-		() => profile.isAuthUser,
-		[profile.isAuthUser]
-	);
+	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
 	const hookFilterType = useMemo(() => hook.filterType, [hook.filterType]);
 
 	return (
 		<>
 			<MainLayout showTimer={!profileIsAuthUser && isTrackingEnabled}>
-				<MainHeader
-					className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}
-				>
+				<MainHeader className={clsxm(hookFilterType && ['pb-0'], 'pb-2', 'pt-20')}>
 					{/* Breadcrumb */}
 					<div className="flex items-center gap-8">
 						<Link href="/">
-							<ArrowLeft className="h-6 w-6" />
+							<ArrowLeft className="w-6 h-6" />
 						</Link>
 
 						<Breadcrumb paths={breadcrumb} className="text-sm" />
 					</div>
 
 					{/* User Profile Detail */}
-					<div className="flex items-center justify-between py-10 xs:flex-row flex-col">
+					<div className="flex flex-col items-center justify-between py-10 xs:flex-row">
 						<UserProfileDetail member={profile.member} />
 
 						{profileIsAuthUser && isTrackingEnabled && (
@@ -86,8 +76,7 @@ const Profile = () => {
 function UserProfileDetail({ member }: { member?: OT_Member }) {
 	const user = useMemo(() => member?.employee.user, [member?.employee.user]);
 	const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
-	const imgUrl =
-		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const imgUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
 	const imageUrl = useMemo(() => imgUrl, [imgUrl]);
 	const size = 100;
 	const { timerStatus } = useTimer();
@@ -96,7 +85,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	}, [timerStatus, member]);
 
 	return (
-		<div className="flex items-center space-x-4 mb-4 md:mb-0">
+		<div className="flex items-center mb-4 space-x-4 md:mb-0">
 			<div
 				className={clsx(
 					`w-[${size}px] h-[${size}px]`,
@@ -137,4 +126,13 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	);
 }
 
+export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+	const { locale } = context;
+	const translateProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	return {
+		props: {
+			...translateProps
+		}
+	};
+};
 export default withAuthentication(Profile, { displayName: 'ProfilePage' });

@@ -1,31 +1,28 @@
 import { withAuthentication } from 'lib/app/authenticator';
-import { MainLayout } from 'lib/layout';
 import { Breadcrumb, Card, Container } from 'lib/components';
+import { MainLayout } from 'lib/layout';
 
-import {
-	LeftSideSettingMenu,
-	TeamAvatar,
-	TeamSettingForm,
-	DangerZoneTeam
-} from 'lib/settings';
 import SettingsTeamSkeleton from '@components/shared/skeleton/SettingsTeamSkeleton';
+import { DangerZoneTeam, LeftSideSettingMenu, TeamAvatar, TeamSettingForm } from 'lib/settings';
 
-import { useTranslation } from 'lib/i18n';
-import { useRecoilState } from 'recoil';
-import { userState } from '@app/stores';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
+import { userState } from '@app/stores';
 import NoTeam from '@components/pages/main/no-team';
-import Link from 'next/link';
 import { ArrowLeft } from 'lib/components/svgs';
+import { useTranslation } from 'next-i18next';
+import Link from 'next/link';
+import { useRecoilState } from 'recoil';
 // import { NotificationSettings } from 'lib/settings/notification-setting';
-import { IssuesSettings } from 'lib/settings/issues-settings';
-import { InvitationSetting } from 'lib/settings/invitation-setting';
-import { MemberSetting } from 'lib/settings/member-setting';
 import { Accordian } from 'lib/components/accordian';
 import { IntegrationSetting } from 'lib/settings/integration-setting';
+import { InvitationSetting } from 'lib/settings/invitation-setting';
+import { IssuesSettings } from 'lib/settings/issues-settings';
+import { MemberSetting } from 'lib/settings/member-setting';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const Team = () => {
-	const { trans, translations } = useTranslation('settingsTeam');
+	const { t } = useTranslation('settingsTeam');
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
@@ -36,7 +33,7 @@ const Team = () => {
 				<SettingsTeamSkeleton />
 			) : (
 				<MainLayout className="items-start pb-1">
-					<div className="bg-white dark:bg-dark--theme pt-12 pb-4">
+					<div className="pt-12 pb-4 bg-white dark:bg-dark--theme">
 						<Container>
 							<div className="flex items-center gap-8">
 								<Link href="/">
@@ -44,7 +41,7 @@ const Team = () => {
 								</Link>
 
 								<Breadcrumb
-									paths={translations.pages.settings.BREADCRUMB}
+									paths={t('pages.settings.BREADCRUMB', { returnObjects: true })}
 									className="text-sm"
 								/>
 							</div>
@@ -52,21 +49,18 @@ const Team = () => {
 					</div>
 
 					<Container className="mb-10">
-						<div className="flex w-full sm:flex-row flex-col">
+						<div className="flex flex-col w-full sm:flex-row">
 							<LeftSideSettingMenu />
 							{isTeamMember ? (
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
 									{/* General Settings */}
 									<Accordian
-										title={trans.HEADING_TITLE}
-										className="dark:bg-dark--theme p-4 mt-8"
+										title={t('pages.settingsTeam.HEADING_TITLE')}
+										className="p-4 mt-8 dark:bg-dark--theme"
 										id="general-settings"
 									>
 										<div className="flex flex-col">
-											<TeamAvatar
-												disabled={!isTeamManager}
-												bgColor={activeTeam?.color}
-											/>
+											<TeamAvatar disabled={!isTeamManager} bgColor={activeTeam?.color} />
 											<TeamSettingForm />
 										</div>
 									</Accordian>
@@ -74,8 +68,8 @@ const Team = () => {
 									{/* Invitations */}
 									{isTeamManager ? (
 										<Accordian
-											title={trans.INVITATION_HEADING_TITLE}
-											className="dark:bg-dark--theme p-4 mt-4"
+											title={t('pages.settingsTeam.INVITATION_HEADING_TITLE')}
+											className="p-4 mt-4 dark:bg-dark--theme"
 											id="invitations"
 										>
 											<InvitationSetting />
@@ -87,8 +81,8 @@ const Team = () => {
 									{/* Members */}
 									{isTeamManager ? (
 										<Accordian
-											title={trans.MEMBER_HEADING_TITLE}
-											className="dark:bg-dark--theme p-4 mt-4"
+											title={t('pages.settingsTeam.MEMBER_HEADING_TITLE')}
+											className="p-4 mt-4 dark:bg-dark--theme"
 											id="member"
 										>
 											<MemberSetting />
@@ -99,8 +93,8 @@ const Team = () => {
 
 									{isTeamManager && (
 										<Accordian
-											title={trans.INTEGRATIONS}
-											className="dark:bg-dark--theme p-4 mt-4"
+											title={t('pages.settingsTeam.INTEGRATIONS')}
+											className="p-4 mt-4 dark:bg-dark--theme"
 											id="integrations"
 										>
 											<IntegrationSetting />
@@ -109,8 +103,8 @@ const Team = () => {
 
 									{/* Issues Settings */}
 									<Accordian
-										title={trans.ISSUES_HEADING_TITLE}
-										className="dark:bg-dark--theme p-4 mt-4"
+										title={t('pages.ISSUES_HEADING_TITLE')}
+										className="p-4 mt-4 dark:bg-dark--theme"
 										id="issues-settings"
 									>
 										<IssuesSettings />
@@ -120,15 +114,15 @@ const Team = () => {
 									{/* Notification Settings */}
 									{/* <Accordian
 										title={trans.NOTIFICATION_HEADING_TITLE}
-										className="dark:bg-dark--theme p-4 mt-4"
+										className="p-4 mt-4 dark:bg-dark--theme"
 									>
 										<NotificationSettings />
 									</Accordian> */}
 
 									{/* Danger Zone */}
 									<Accordian
-										title={translations.pages.settings.DANDER_ZONE}
-										className="dark:bg-dark--theme p-4 mt-4"
+										title={t('pages.settings.DANDER_ZONE')}
+										className="p-4 mt-4 dark:bg-dark--theme"
 										isDanger={true}
 										id="danger-zones"
 									>
@@ -137,11 +131,8 @@ const Team = () => {
 								</div>
 							) : (
 								<div className="flex flex-col w-full sm:mr-[20px] lg:mr-0">
-									<Card
-										className="dark:bg-dark--theme p-[32px] mt-[36px]"
-										shadow="bigger"
-									>
-										<NoTeam className="xs:mt-0 mt-0 p-5" />
+									<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
+										<NoTeam className="p-5 mt-0 xs:mt-0" />
 									</Card>
 								</div>
 							)}
@@ -153,4 +144,13 @@ const Team = () => {
 	);
 };
 
+export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+	const { locale } = context;
+	const translationProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	return {
+		props: {
+			...translationProps
+		}
+	};
+};
 export default withAuthentication(Team, { displayName: 'Team' });
