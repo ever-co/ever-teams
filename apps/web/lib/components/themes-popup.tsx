@@ -1,23 +1,16 @@
-import { Switch } from '@headlessui/react';
-import React from 'react';
-import Image from 'next/image';
 import { ThemesPopup as IThemesPopup } from '@app/interfaces';
+import { Switch } from '@headlessui/react';
+import { useTranslation } from 'next-i18next';
+import Image from 'next/image';
 
-const ThemesPopup = ({
-	theme,
-	currentTheme,
-	text,
-	image,
-	enabled,
-	setTheme,
-	index
-}: IThemesPopup) => {
+const ThemesPopup = ({ theme, currentTheme, text, image, enabled, setTheme, index }: IThemesPopup) => {
+	const { t } = useTranslation();
 	return (
 		<div
 			onClick={() => setTheme(theme)}
-			className="bg-light--theme dark:bg-dark--theme-light font-normal text-sm rounded-lg"
+			className="text-sm font-normal rounded-lg bg-light--theme dark:bg-dark--theme-light"
 		>
-			<div className="flex justify-between my-4 px-4">
+			<div className="flex justify-between px-4 my-4">
 				<h3 className="font-medium">{text}</h3>
 				<Switch
 					checked={enabled}
@@ -26,7 +19,7 @@ const ThemesPopup = ({
 						enabled ? 'bg-primary dark:bg-primary-light' : 'bg-gray-300'
 					} relative inline-flex h-4 w-7 items-center rounded-full`}
 				>
-					<span className="sr-only">Set Theme</span>
+					<span className="sr-only">{t('form.SET_THEME')}</span>
 					<span
 						className={`${
 							enabled ? 'translate-x-3' : 'translate-x-1'

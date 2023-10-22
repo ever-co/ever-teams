@@ -31,6 +31,8 @@
 		"TOTAL_WORKED_TODAY": "Total worked Today",
 		"OPEN": "Open",
 		"NOW": "Now",
+		"NEXT": "Next",
+		"PREV": "Previous",
 		"DETAILS": "Details",
 		"CLOSED": "Closed",
 		"CLOSE": "Close",
@@ -73,6 +75,7 @@
 		"3D_MODE": "3D Mode",
 		"DARK_MODE": "Dark Mode",
 		"SETTINGS": "Settings",
+		"USE_SETTING": "Use setting",
 		"TEAM": "Team",
 		"MY_TEAM": "My Team",
 		"FULL_NAME": "Full Name",
@@ -417,7 +420,8 @@
 		"UPLOAD_FILES": "Upload Files",
 		"ATTACHMENT_FILE": "Attachment files",
 		"ADD_COMMENT": "Add Comment here",
-		"INVALID_ALLOWED_CHARACTER": "'Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric'"
+		"SET_THEME": "Set Theme",
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric"
 	},
 
 	"layout": {
@@ -436,7 +440,9 @@
 
 	"errors": {
 		"NETWORK_ISSUE": "network issue, please try again later",
-		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code."
+		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code.",
+		"LENGTH_NUMBER_ERROR": "Length should be a number and greater than 0",
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Press Enter to validate"

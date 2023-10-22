@@ -1,10 +1,6 @@
 import { clsxm } from '@app/utils';
-import React, {
-	useRef,
-	useEffect,
-	useImperativeHandle,
-	forwardRef
-} from 'react';
+import { useTranslation } from 'next-i18next';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import { InputField } from './input';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
@@ -81,24 +77,19 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 		},
 		ref
 	) => {
+		const { t } = useTranslation();
 		if (isNaN(length) || length < 1) {
-			throw new Error('Length should be a number and greater than 0');
+			throw new Error(t('errors.LENGTH_NUMBER_ERROR'));
 		}
 
 		if (!allowedCharactersValues.some((value) => value === allowedCharacters)) {
-			throw new Error(
-				'Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric'
-			);
+			throw new Error(t('errors.INVALID_ALLOWED_CHARACTER'));
 		}
 
 		const inputsRef = useRef<Array<HTMLInputElement>>([]);
 		const inputProps = propsMap[allowedCharacters];
 		const validDefaultValue =
-			defaultValue &&
-			defaultValue.length === length &&
-			defaultValue.match(inputProps.pattern)
-				? true
-				: false;
+			defaultValue && defaultValue.length === length && defaultValue.match(inputProps.pattern) ? true : false;
 
 		useImperativeHandle(ref, () => ({
 			focus: () => {
@@ -188,10 +179,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 					if (!currentValue) {
 						inputsRef.current[currentInput].value = pastedCharacter;
 						if (inputsRef.current[currentInput].nextElementSibling !== null) {
-							(
-								inputsRef.current[currentInput]
-									.nextElementSibling as HTMLInputElement
-							).focus();
+							(inputsRef.current[currentInput].nextElementSibling as HTMLInputElement).focus();
 							currentInput++;
 						}
 					}
@@ -229,11 +217,7 @@ export const AuthCodeInputField = forwardRef<AuthCodeRef, AuthCodeProps>(
 					maxLength={1}
 					className={clsxm('transition-[border-color]', inputClassName)}
 					autoComplete={i === 0 ? 'one-time-code' : 'off'}
-					aria-label={
-						ariaLabel
-							? `${ariaLabel}. Character ${i + 1}.`
-							: `Character ${i + 1}.`
-					}
+					aria-label={ariaLabel ? `${ariaLabel}. Character ${i + 1}.` : `Character ${i + 1}.`}
 					disabled={disabled}
 					placeholder={placeholder}
 					style={{

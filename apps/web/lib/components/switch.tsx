@@ -1,15 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Switch } from '@headlessui/react';
-import { Text } from './typography';
-import { OT_Member } from '@app/interfaces';
-import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
 import { useOrganizationTeams } from '@app/hooks';
+import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
+import { OT_Member } from '@app/interfaces';
+import { Switch } from '@headlessui/react';
+import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useState } from 'react';
+import { Text } from './typography';
 
-export default function TimeTrackingToggle({
-	activeManager
-}: {
-	activeManager: OT_Member | undefined;
-}) {
+export default function TimeTrackingToggle({ activeManager }: { activeManager: OT_Member | undefined }) {
+	const { t } = useTranslation();
 	const [enabled, setEnabled] = useState(activeManager?.isTrackingEnabled);
 
 	const { updateOrganizationTeamEmployee } = useOrganizationEmployeeTeams();
@@ -40,18 +38,14 @@ export default function TimeTrackingToggle({
 				className={`${enabled ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
           relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
 			>
-				<span className="sr-only">Use setting</span>
+				<span className="sr-only">{t('common.USE_SETTING')}</span>
 				<span
 					aria-hidden="true"
-					className={`${
-						enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'
-					}
+					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 ">
-				{enabled ? 'Activated' : 'Deactivated'}
-			</Text>
+			<Text className="text-gray-400 ">{enabled ? 'Activated' : 'Deactivated'}</Text>
 		</div>
 	);
 }
