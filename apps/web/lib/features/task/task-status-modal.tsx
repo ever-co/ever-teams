@@ -1,19 +1,19 @@
 import { IHookModal, useModal } from '@app/hooks';
 import { ITaskStatusField } from '@app/interfaces';
-import { Modal, Card, Text, Button } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { Button, Card, Modal, Text } from 'lib/components';
+import { useTranslation } from 'next-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { taskIssues } from './task-issue';
 import {
-	TTaskStatusesDropdown,
-	TStatus,
-	useStatusValue,
 	StatusDropdown,
+	TStatus,
+	TTaskStatusesDropdown,
 	TaskStatus,
-	useTaskStatusValue,
+	useStatusValue,
+	useTaskLabelsValue,
 	useTaskPrioritiesValue,
 	useTaskSizesValue,
-	useTaskLabelsValue
+	useTaskStatusValue
 } from './task-status';
 
 export function TaskStatusModal<T extends ITaskStatusField>({
@@ -31,7 +31,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 	const imodal = useModal();
 	const { isOpen, closeModal, openModal } = modal || imodal;
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const [value, setValue] = useState(defaultValue);
 	const checkedRef = useRef<HTMLDivElement | null>(null);
 
@@ -80,8 +80,8 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 			<Modal isOpen={isOpen} closeModal={closeModal}>
 				<div className="w-[98%] md:w-[33rem]">
 					<Card className="w-full" shadow="custom">
-						<div className="flex flex-col justify-between items-center w-full">
-							<Text.Heading as="h3" className="text-center mb-2">
+						<div className="flex flex-col items-center justify-between w-full">
+							<Text.Heading as="h3" className="mb-2 text-center">
 								{title}
 							</Text.Heading>
 
@@ -93,18 +93,13 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 											<li key={i} className="mb-2">
 												<div
 													ref={active ? checkedRef : undefined}
-													className="input-border rounded-xl p-2 flex justify-between w-full cursor-pointer"
+													className="flex justify-between w-full p-2 cursor-pointer input-border rounded-xl"
 													onClick={() => {
 														setValue(item.name as any);
 													}}
 												>
 													<TaskStatus {...item} />
-													<input
-														type="radio"
-														name="status-1"
-														checked={active}
-														readOnly
-													/>
+													<input type="radio" name="status-1" checked={active} readOnly />
 												</div>
 											</li>
 										);
@@ -112,14 +107,14 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 								</ul>
 							</div>
 
-							<div className="flex justify-end w-full gap-2 h-10">
+							<div className="flex justify-end w-full h-10 gap-2">
 								<Button
 									disabled={!value}
 									variant="outline-dark"
 									onClick={closeModal}
 									className="rounded-xl"
 								>
-									{trans.common.CANCEL}
+									{t('common.CANCEL')}
 								</Button>
 
 								<Button
@@ -132,7 +127,7 @@ export function TaskStatusModal<T extends ITaskStatusField>({
 									}}
 									className="rounded-xl"
 								>
-									{trans.common.CONFIRM}
+									{t('common.CONFIRM')}
 								</Button>
 							</div>
 						</div>
