@@ -416,7 +416,8 @@
 		"COMPLETION_DESCRIPTION": "Write the description",
 		"UPLOAD_FILES": "Upload Files",
 		"ATTACHMENT_FILE": "Attachment files",
-		"ADD_COMMENT": "Add Comment here"
+		"ADD_COMMENT": "Add Comment here",
+		"INVALID_ALLOWED_CHARACTER": "'Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric'"
 	},
 
 	"layout": {
