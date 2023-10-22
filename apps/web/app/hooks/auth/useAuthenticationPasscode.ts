@@ -8,10 +8,10 @@ import {
 	signInWorkspaceAPI
 } from '@app/services/client/api';
 import { AxiosError } from 'axios';
+import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery } from '../useQuery';
-import { useTranslation } from 'lib/i18n';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -21,7 +21,7 @@ type AuthCodeRef = {
 export function useAuthenticationPasscode() {
 	const { query, pathname } = useRouter();
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
@@ -101,7 +101,7 @@ export function useAuthenticationPasscode() {
 				}
 
 				if (res.data?.status !== 200 && res.data?.status !== 201) {
-					setErrors({ code: trans.pages.auth.INVALID_INVITE_CODE_MESSAGE });
+					setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
 				}
 			})
 			.catch((err: AxiosError) => {
