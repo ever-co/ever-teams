@@ -1,6 +1,6 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'next-i18next';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 
@@ -16,7 +16,7 @@ type Props = {
  * @returns A component that displays a user's profile page.
  */
 export function UserProfileTask({ profile, tabFiltered }: Props) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	// Get current timer seconds
 	const { time, timerStatus } = useLiveTimerStatus();
 
@@ -28,16 +28,13 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 	return (
 		<div className="mt-10">
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' ||
-					(profile.isAuthUser && timerStatus?.running)) && (
+				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) && (
 					/* Displaying the current time. */
-					<div className="flex space-x-2 items-center mb-3">
-						<Text className="font-normal">{trans.common.NOW}</Text>
+					<div className="flex items-center mb-3 space-x-2">
+						<Text className="font-normal">{t('common.NOW')}</Text>
 						<Divider className="flex-1" />
-						<div className="flex space-x-4 items-center">
-							<Text className="text-gray-500 text-xs font-normal">
-								{trans.common.TOTAL_TIME}:
-							</Text>
+						<div className="flex items-center space-x-4">
+							<Text className="text-xs font-normal text-gray-500">{t('common.TOTAL_TIME')}:</Text>
 
 							{profile.isAuthUser ? (
 								<Text className="font-normal">
@@ -51,8 +48,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				)}
 
 			{tabFiltered.tab === 'worked' &&
-				(profile.member?.timerStatus === 'running' ||
-					(profile.isAuthUser && timerStatus?.running)) && (
+				(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) && (
 					<TaskCard
 						active
 						task={profile.activeUserTeamTask}
@@ -69,9 +65,9 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 				)}
 
 			{tabFiltered.tab === 'worked' && (
-				<div className="flex space-x-2 items-center my-6">
+				<div className="flex items-center my-6 space-x-2">
 					<Text className="font-normal">
-						{trans.common.LAST_24_HOURS} ({tasks.length})
+						{t('common.LAST_24_HOURS')} ({tasks.length})
 					</Text>
 					<Divider className="flex-1" />
 				</div>
@@ -85,9 +81,7 @@ export function UserProfileTask({ profile, tabFiltered }: Props) {
 								task={task}
 								isAuthUser={profile.isAuthUser}
 								activeAuthTask={false}
-								viewType={
-									tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'
-								}
+								viewType={tabFiltered.tab === 'unassigned' ? 'unassign' : 'default'}
 								profile={profile}
 								taskBadgeClassName={`	${
 									task.issueType === 'Bug'
