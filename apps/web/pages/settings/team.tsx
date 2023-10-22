@@ -22,7 +22,7 @@ import { GetStaticProps, GetStaticPropsContext } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const Team = () => {
-	const { t } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);

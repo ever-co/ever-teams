@@ -22,7 +22,7 @@ const Profile = () => {
 
 	const hook = useTaskFilter(profile);
 
-	const { t } = useTranslation('profile');
+	const { t } = useTranslation();
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
 		...t('pages.profile.BREADCRUMB', { returnObjects: true })
