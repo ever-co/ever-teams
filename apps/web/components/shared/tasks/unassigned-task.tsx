@@ -1,13 +1,14 @@
-import { RawStatusDropdown } from '@components/shared/tasks/status-dropdown';
-import { ITeamTask } from '@app/interfaces/ITask';
 import { secondsToTime } from '@app/helpers/date';
+import { ITeamTask } from '@app/interfaces/ITask';
+import { RawStatusDropdown } from '@components/shared/tasks/status-dropdown';
 
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
-import { useRecoilValue } from 'recoil';
-import { timerSecondsState } from '@app/stores';
-import { useRef } from 'react';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
+import { timerSecondsState } from '@app/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
+import { useTranslation } from 'next-i18next';
+import { useRef } from 'react';
+import { useRecoilValue } from 'recoil';
 
 interface ITaskDetailCard {
 	now?: boolean;
@@ -16,16 +17,12 @@ interface ITaskDetailCard {
 }
 const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 	const estimationPourtcent = useRef(0);
+	const { t } = useTranslation();
 	const timerReconds = useRecoilValue(timerSecondsState);
 
 	let taskStat: ITasksTimesheet | null | undefined = null;
 
-	const {
-		getTaskStat,
-		activeTeamTask,
-		activeTaskEstimation,
-		activeTaskTotalStat
-	} = useTaskStatistics(timerReconds);
+	const { getTaskStat, activeTeamTask, activeTaskEstimation, activeTaskTotalStat } = useTaskStatistics(timerReconds);
 
 	if (activeTeamTask?.id === task?.id) {
 		estimationPourtcent.current = activeTaskEstimation;
@@ -34,9 +31,7 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 		const { taskTotalStat } = getTaskStat(task);
 		taskStat = taskTotalStat;
 		estimationPourtcent.current = Math.min(
-			Math.floor(
-				((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)
-			),
+			Math.floor(((taskTotalStat?.duration || 0) * 100) / (task?.estimate || 0)),
 			100
 		);
 	}
@@ -62,15 +57,15 @@ const UnAssignedTask = ({ now = false, task }: ITaskDetailCard) => {
 				</div>
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 				<div className="w-[236px]  text-center text-[#C1BFC9] dark:text-[#FFFFFF] flex flex-col justify-center items-center">
-					<div className="">Assigned By</div>
-					<div className="text-black flex-2">No One Assigned to this Task</div>
+					<div className="">{t('task.ASSIGNED_BY')}</div>
+					<div className="text-black flex-2">{t('task.NO_ONE_FOR_TASK')}</div>
 				</div>
 				<div className="h-[35px] text-[#D7E1EB] border-l border-[#E8EBF8] dark:border-[#27272A] flex justify-center items-center"></div>
 
 				<div className="w-[245px]  flex justify-center items-center">
 					<div>
 						<div className="text-center text-[14px] text-[#C1BFC9]  py-1 font-semibold flex items-center justify-center">
-							<div> Total Time </div>
+							<div> {t('common.TOTAL_TIME')} </div>
 						</div>
 
 						<div className="text-center text-[14px] text-black dark:text-[#FFFFFF]  py-1 font-semibold flex items-center justify-center">

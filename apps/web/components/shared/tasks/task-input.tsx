@@ -51,7 +51,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 		closeModal,
 		closeableTask
 	} = useTaskInput();
-
+	const { t } = useTranslation();
 	const [combxShow, setCombxShow] = useState<true | undefined>(undefined);
 
 	useEffect(() => {
@@ -84,7 +84,7 @@ export function TasksList({ onClickTask }: { onClickTask?: (task: ITeamTask) => 
 								}
 							}}
 							autoComplete="off"
-							placeholder="What you working on?"
+							placeholder={t('form.TASK_INPUT_PLACEHOLDER')}
 							readOnly={tasksFetching}
 						/>
 						<Combobox.Button
