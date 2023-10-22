@@ -1,13 +1,6 @@
 import { useOrganizationTeams } from '@app/hooks';
-import {
-	BackButton,
-	Button,
-	Card,
-	InputField,
-	Modal,
-	Text
-} from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
+import { useTranslation } from 'next-i18next';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
 
 /**
@@ -22,10 +15,9 @@ export function CreateTeamModal({
 	closeModal: () => void;
 	joinTeamModal?: Dispatch<SetStateAction<boolean>>;
 }) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
-	const { createOTeamLoading, createOrganizationTeam, teams } =
-		useOrganizationTeams();
+	const { createOTeamLoading, createOrganizationTeam, teams } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
 
 	const [name, setName] = useState('');
@@ -44,25 +36,16 @@ export function CreateTeamModal({
 	};
 
 	const disabled = useMemo(() => {
-		return (
-			createOTeamLoading ||
-			teams.some((t) =>
-				t.name.trim().toLowerCase().includes(name.toLowerCase().trim())
-			)
-		);
+		return createOTeamLoading || teams.some((t) => t.name.trim().toLowerCase().includes(name.toLowerCase().trim()));
 	}, [createOTeamLoading, name, teams]);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal} alignCloseIcon>
-			<form
-				className="sm:w-[530px] w-[330px]"
-				autoComplete="off"
-				onSubmit={handleSubmit}
-			>
+			<form className="sm:w-[530px] w-[330px]" autoComplete="off" onSubmit={handleSubmit}>
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
-							{trans.common.CREATE_TEAM}
+							{t('common.CREATE_TEAM')}
 						</Text.Heading>
 
 						<div className="w-full mt-5">
@@ -71,36 +54,32 @@ export function CreateTeamModal({
 								autoCustomFocus
 								value={name}
 								onChange={(e) => setName(e.target.value)}
-								placeholder={trans.form.TEAM_NAME_PLACEHOLDER}
+								placeholder={t('form.TEAM_NAME_PLACEHOLDER')}
 								errors={error ? { name: error } : undefined}
 								onKeyUp={() => setError(null)}
 								required
 							/>
 						</div>
 
-						<div className="w-full flex justify-between mt-3 items-center">
+						<div className="flex items-center justify-between w-full mt-3">
 							{!joinTeamModal && <BackButton onClick={closeModal} />}
 
 							{joinTeamModal && (
 								<button
 									type="button"
-									className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
+									className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
 									onClick={() => {
 										joinTeamModal(true);
 									}}
 								>
 									<span className="text-primary dark:text-primary-light">
-										{trans.pages.auth.JOIN_TEAM}
+										{t('pages.auth.JOIN_TEAM')}
 									</span>
 								</button>
 							)}
 
-							<Button
-								type="submit"
-								disabled={disabled}
-								loading={createOTeamLoading}
-							>
-								{trans.common.CREATE}
+							<Button type="submit" disabled={disabled} loading={createOTeamLoading}>
+								{t('common.CREATE')}
 							</Button>
 						</div>
 					</div>

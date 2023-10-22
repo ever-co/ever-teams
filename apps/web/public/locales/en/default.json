@@ -1,6 +1,8 @@
 {
 	"TITLE": "Ever Teams",
 	"common": {
+		"ACCEPT": "Accept",
+		"REJECT": "Reject",
 		"VERIFY": "verify",
 		"PLEASE": "please",
 		"HERE": "here",
@@ -444,7 +446,8 @@
 		"NETWORK_ISSUE": "network issue, please try again later",
 		"ERROR_WHILE_VERIFY_CODE": "Error while verifying code.",
 		"LENGTH_NUMBER_ERROR": "Length should be a number and greater than 0",
-		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric"
+		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric",
+		"VALID_EMAIL": "Please enter valid email"
 	},
 	"placeholders": {
 		"ENTER_TO_VALIDATE": "Press Enter to validate"

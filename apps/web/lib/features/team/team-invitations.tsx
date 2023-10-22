@@ -8,7 +8,7 @@ import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useState } from 'react';
 
 export function TeamInvitations() {
-	const { t } = useTranslation('home');
+	const { t } = useTranslation();
 	const {
 		myInvitationsList,
 		myInvitations,
@@ -84,7 +84,7 @@ export function TeamInvitations() {
 								}}
 							>
 								<TickCircleIcon className="stroke-white" />
-								Accept
+								{t('common.ACCEPT')}
 							</Button>
 							<Button
 								className="pt-2 pb-2 rounded-xl text-primary dark:text-white"
@@ -94,7 +94,7 @@ export function TeamInvitations() {
 								}}
 							>
 								<CloseCircleIcon className="stroke-primary dark:stroke-white" />
-								Reject
+								{t('common.REJECT')}
 							</Button>
 						</div>
 
