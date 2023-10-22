@@ -1,36 +1,16 @@
-import { useCallback, useState } from 'react';
-import {
-	useAuthenticationPasscode,
-	useOrganizationTeams,
-	useRequestToJoinTeam
-} from '@app/hooks';
-import { useTranslation } from 'lib/i18n';
-import {
-	Button,
-	Text,
-	Modal,
-	Card,
-	InputField,
-	AuthCodeInputField,
-	SpinnerLoader
-} from 'lib/components';
-import { clsxm } from '@app/utils';
-import { ArrowLeft } from 'lib/components/svgs';
+import { useAuthenticationPasscode, useOrganizationTeams, useRequestToJoinTeam } from '@app/hooks';
 import { IRequestToJoinCreate } from '@app/interfaces';
+import { clsxm } from '@app/utils';
+import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
+import { ArrowLeft } from 'lib/components/svgs';
+import { useTranslation } from 'next-i18next';
+import { useCallback, useState } from 'react';
 import { PositionDropDown } from './position-dropdown';
 
-export const RequestToJoinModal = ({
-	open,
-	closeModal
-}: {
-	open: boolean;
-	closeModal: () => void;
-}) => {
-	const [currentTab, setCurrentTab] = useState<
-		'ALREADY_MEMBER' | 'BECOME_MEMBER'
-	>('ALREADY_MEMBER');
+export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {
+	const [currentTab, setCurrentTab] = useState<'ALREADY_MEMBER' | 'BECOME_MEMBER'>('ALREADY_MEMBER');
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
@@ -40,43 +20,37 @@ export const RequestToJoinModal = ({
 						as="h3"
 						className={clsxm(
 							'text-center gap-32 pb-4 pr-5 hover:cursor-pointer',
-							currentTab === 'ALREADY_MEMBER' &&
-								'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
+							currentTab === 'ALREADY_MEMBER' && 'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
 						)}
 						onClick={() => {
 							setCurrentTab('ALREADY_MEMBER');
 						}}
 					>
-						{trans.common.EXISTING_MEMBER}
+						{t('common.EXISTING_MEMBER')}
 					</Text.Heading>
 					<Text.Heading
 						as="h3"
 						className={clsxm(
 							'text-center gap-32 pb-4 pl-5 hover:cursor-pointer',
-							currentTab === 'BECOME_MEMBER' &&
-								'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
+							currentTab === 'BECOME_MEMBER' && 'border-primary dark:border-[#FFFFFF29] border-b-[3px]'
 						)}
 						onClick={() => {
 							setCurrentTab('BECOME_MEMBER');
 						}}
 					>
-						{trans.common.NEW_MEMBER}
+						{t('common.NEW_MEMBER')}
 					</Text.Heading>
 				</div>
 
-				{currentTab === 'ALREADY_MEMBER' && (
-					<AlreadyMember closeModal={closeModal} />
-				)}
-				{currentTab === 'BECOME_MEMBER' && (
-					<BecomeMember closeModal={closeModal} />
-				)}
+				{currentTab === 'ALREADY_MEMBER' && <AlreadyMember closeModal={closeModal} />}
+				{currentTab === 'BECOME_MEMBER' && <BecomeMember closeModal={closeModal} />}
 			</Card>
 		</Modal>
 	);
 };
 
 const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const {
 		loading,
 		formValues,
@@ -104,12 +78,10 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 				/>
 			</div>
 			<div className="mt-5">
-				<div className="flex flex-col justify-between items-center">
+				<div className="flex flex-col items-center justify-between">
 					<>
 						<div className="w-full">
-							<p className="text-left text-xs text-gray-500">
-								{trans.pages.auth.INPUT_INVITE_CODE}
-							</p>
+							<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
 							<AuthCodeInputField
 								allowedCharacters="alphanumeric"
 								length={6}
@@ -122,41 +94,34 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 								}}
 							/>
 							{errors['code'] && (
-								<Text.Error className="self-start justify-self-start">
-									{errors['code']}
-								</Text.Error>
+								<Text.Error className="self-start justify-self-start">{errors['code']}</Text.Error>
 							)}
 						</div>
-						<div className="w-full flex justify-between items-center mt-5">
+						<div className="flex items-center justify-between w-full mt-5">
 							<div className="flex flex-col items-start">
-								<div className="text-xs text-gray-500 dark:text-gray-400 font-normal">
-									{trans.pages.auth.UNRECEIVED_CODE}
+								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
+									{t('pages.auth.UNRECEIVED_CODE')}
 									{!sendCodeLoading && (
 										<button
 											type="button"
-											className="text-xs text-gray-500 dark:text-gray-400 font-normal"
+											className="text-xs font-normal text-gray-500 dark:text-gray-400"
 											onClick={sendAuthCodeHandler}
 										>
 											{'Re'}
 											<span className="text-primary dark:text-primary-light">
-												{trans.pages.auth.SEND_CODE}
+												{t('pages.auth.SEND_CODE')}
 											</span>
 										</button>
 									)}
-									{sendCodeLoading && (
-										<SpinnerLoader size={22} className="self-center" />
-									)}
+									{sendCodeLoading && <SpinnerLoader size={22} className="self-center" />}
 								</div>
 							</div>
 						</div>
 					</>
 
-					<div className="w-full flex justify-between mt-5 items-center">
-						<div
-							className="flex justify-around hover:cursor-pointer"
-							onClick={closeModal}
-						>
-							<ArrowLeft /> <p className="ml-5">{trans.common.BACK}</p>
+					<div className="flex items-center justify-between w-full mt-5">
+						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
+							<ArrowLeft /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
 
 						<Button
@@ -167,7 +132,7 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 							loading={loading}
 							disabled={loading || formValues.code.length !== 6}
 						>
-							{trans.pages.auth.JOIN}
+							{t('pages.auth.JOIN')}
 						</Button>
 					</div>
 				</div>
@@ -176,22 +141,12 @@ const AlreadyMember = ({ closeModal }: { closeModal: any }) => {
 	);
 };
 const BecomeMember = ({ closeModal }: { closeModal: any }) => {
-	const [joinButtonAction, setJoinButtonAction] = useState<'JOIN' | 'CONFIRM'>(
-		'JOIN'
-	);
-	const [requestToJoinPayload, setRequestToJoinPayload] =
-		useState<IRequestToJoinCreate | null>(null);
+	const [joinButtonAction, setJoinButtonAction] = useState<'JOIN' | 'CONFIRM'>('JOIN');
+	const [requestToJoinPayload, setRequestToJoinPayload] = useState<IRequestToJoinCreate | null>(null);
 	const [position, setPosition] = useState<string>('');
 
-	const { trans } = useTranslation();
-	const {
-		formValues,
-		setFormValues,
-		errors,
-		setErrors,
-		sendCodeLoading,
-		inputCodeRef
-	} = useAuthenticationPasscode();
+	const { t } = useTranslation();
+	const { formValues, setFormValues, errors, setErrors, sendCodeLoading, inputCodeRef } = useAuthenticationPasscode();
 	const { activeTeam } = useOrganizationTeams();
 	const {
 		requestToJoinTeam,
@@ -223,7 +178,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 			if (joinButtonAction === 'JOIN') {
 				requestToJoinTeam(payload).then(() => {
 					setJoinButtonAction('CONFIRM');
-					setMessage(trans.pages.home.SENT_EMAIL_VERIFICATION);
+					setMessage(t('pages.home.SENT_EMAIL_VERIFICATION'));
 				});
 				setRequestToJoinPayload(payload);
 			} else {
@@ -237,7 +192,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 							closeModal();
 						}
 						setErrors({
-							code: trans.errors.ERROR_WHILE_VERIFY_CODE
+							code: t('errors.ERROR_WHILE_VERIFY_CODE')
 						});
 					});
 				}
@@ -254,8 +209,8 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 			position,
 			closeModal,
 			setErrors,
-			trans.pages.home.SENT_EMAIL_VERIFICATION,
-			trans.errors.ERROR_WHILE_VERIFY_CODE
+			t('pages.home.SENT_EMAIL_VERIFICATION'),
+			t('errors.ERROR_WHILE_VERIFY_CODE')
 		]
 	);
 
@@ -299,21 +254,15 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 					disabled={joinButtonAction === 'CONFIRM'}
 				/>
 
-				{message && (
-					<Text.Error className="self-start justify-self-start">
-						{message}
-					</Text.Error>
-				)}
+				{message && <Text.Error className="self-start justify-self-start">{message}</Text.Error>}
 			</div>
 
 			<div className="mt-5">
-				<div className="flex flex-col justify-between items-center">
+				<div className="flex flex-col items-center justify-between">
 					{joinButtonAction === 'CONFIRM' && (
 						<>
 							<div className="w-full">
-								<p className="text-left text-xs text-gray-500">
-									{trans.pages.auth.INPUT_INVITE_CODE}
-								</p>
+								<p className="text-xs text-left text-gray-500">{t('pages.auth.INPUT_INVITE_CODE')}</p>
 								<AuthCodeInputField
 									allowedCharacters="alphanumeric"
 									length={6}
@@ -326,24 +275,22 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 									}}
 								/>
 								{errors['code'] && (
-									<Text.Error className="self-start justify-self-start">
-										{errors['code']}
-									</Text.Error>
+									<Text.Error className="self-start justify-self-start">{errors['code']}</Text.Error>
 								)}
 							</div>
-							<div className="w-full flex justify-between items-center mt-5">
+							<div className="flex items-center justify-between w-full mt-5">
 								<div className="flex flex-col items-start">
-									<div className="text-xs text-gray-500 dark:text-gray-400 font-normal">
-										{trans.pages.auth.UNRECEIVED_CODE}
+									<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
+										{t('pages.auth.UNRECEIVED_CODE')}
 										{!sendCodeLoading && (
 											<button
 												type="button"
-												className="text-xs text-gray-500 dark:text-gray-400 font-normal"
+												className="text-xs font-normal text-gray-500 dark:text-gray-400"
 												onClick={handleResendCodeRequestToJoinTeam}
 											>
 												{'Re'}
 												<span className="text-primary dark:text-primary-light">
-													{trans.pages.auth.SEND_CODE}
+													{t('pages.auth.SEND_CODE')}
 												</span>
 											</button>
 										)}
@@ -357,12 +304,9 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 						</>
 					)}
 
-					<div className="w-full flex justify-between mt-5 items-center">
-						<div
-							className="flex justify-around hover:cursor-pointer"
-							onClick={closeModal}
-						>
-							<ArrowLeft /> <p className="ml-5">{trans.common.BACK}</p>
+					<div className="flex items-center justify-between w-full mt-5">
+						<div className="flex justify-around hover:cursor-pointer" onClick={closeModal}>
+							<ArrowLeft /> <p className="ml-5">{t('common.BACK')}</p>
 						</div>
 
 						<Button
@@ -377,9 +321,7 @@ const BecomeMember = ({ closeModal }: { closeModal: any }) => {
 								(joinButtonAction === 'CONFIRM' && formValues.code.length !== 6)
 							}
 						>
-							{joinButtonAction === 'JOIN'
-								? trans.common.JOIN_REQUEST
-								: trans.common.CONFIRM}
+							{joinButtonAction === 'JOIN' ? t('common.JOIN_REQUEST') : t('common.CONFIRM')}
 						</Button>
 					</div>
 				</div>

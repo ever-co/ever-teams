@@ -42,7 +42,7 @@ export const TeamsDropDown = ({ publicTeam }: { publicTeam?: boolean }) => {
 				setActiveTeam(item.data);
 			}
 		},
-		[setActiveTeam, timerStatus, stopTimer, activeTeam, toast, trans]
+		[setActiveTeam, timerStatus, stopTimer, activeTeam, toast, t]
 	);
 
 	const items: TeamItem[] = useMemo(() => mapTeamItems(teams, onChangeActiveTeam), [teams, onChangeActiveTeam]);
