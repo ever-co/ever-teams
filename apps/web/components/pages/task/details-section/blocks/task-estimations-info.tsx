@@ -1,23 +1,23 @@
-import { useRecoilState } from 'recoil';
-import TaskRow from '../components/task-row';
 import { detailedTaskState } from '@app/stores';
-import ProfileInfoWithTime from '../components/profile-info-with-time';
-import { TaskEstimate } from 'lib/features';
-import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
 import { Disclosure } from '@headlessui/react';
-import { useTranslation } from 'lib/i18n';
+import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
+import { TaskEstimate } from 'lib/features';
+import { useTranslation } from 'next-i18next';
+import { useRecoilState } from 'recoil';
+import ProfileInfoWithTime from '../components/profile-info-with-time';
+import TaskRow from '../components/task-row';
 // import { useAuthenticateUser } from '@app/hooks';
 import React from 'react';
 
 const TaskEstimationsInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
-	const { trans } = useTranslation('taskDetails');
+	const { t } = useTranslation();
 	// const { user } = useAuthenticateUser();
 
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			<TaskRow
-				labelTitle={trans.ESTIMATIONS}
+				labelTitle={t('pages.taskDetails.ESTIMATIONS')}
 				// TODO
 				// Commented icon temporary, will be enable it in future once dynamic implementation done
 				// afterIconPath="/assets/svg/estimations.svg"
@@ -25,7 +25,7 @@ const TaskEstimationsInfo = () => {
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full mt-[0.125rem]">
-							<Disclosure.Button className="flex justify-between items-center w-full">
+							<Disclosure.Button className="flex items-center justify-between w-full">
 								<TaskEstimate
 									_task={task}
 									className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white"
