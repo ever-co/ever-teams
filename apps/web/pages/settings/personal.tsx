@@ -16,7 +16,8 @@ import { userState } from '@app/stores';
 import Link from 'next/link';
 import { ArrowLeft } from 'lib/components/svgs';
 import { Accordian } from 'lib/components/accordian';
-
+import {GetStaticProps,GetStaticPropsContext} from 'next';
+import {serverSideTranslations} from 'next-i18next/serverSideTranslations'
 const Personal = () => {
 	const { trans, translations } = useTranslation('settingsPersonal');
 	const [user] = useRecoilState(userState);
@@ -96,5 +97,13 @@ const Personal = () => {
 		</>
 	);
 };
-
+export const getStaticProps:GetStaticProps = async (context:GetStaticPropsContext)=>{
+	const {locale} = context;
+	const translateProps = await serverSideTranslations(locale ?? 'en',['default'])
+	return {
+		props:{
+			...translateProps
+		}
+	}
+}
 export default withAuthentication(Personal, { displayName: 'Personal' });

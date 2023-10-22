@@ -1,34 +1,25 @@
+import { pad } from '@app/helpers';
+import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@app/hooks';
+import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
-import { pad } from '@app/helpers';
-import { IClassName, TimerSource } from '@app/interfaces';
+import { useTranslation } from 'next-i18next';
 import { TimerButton } from './timer-button';
-import { useTranslation } from 'lib/i18n';
-import { HostKeys, useHotkeys, useTimerView, useDetectOS } from '@app/hooks';
 
 import {
+	ArrowUturnUpIcon,
+	ComputerDesktopIcon,
 	DevicePhoneMobileIcon,
 	GlobeAltIcon,
-	ComputerDesktopIcon,
-	ArrowUturnUpIcon,
 	LifebuoyIcon
 } from '@heroicons/react/24/outline';
-import { useCallback, useMemo } from 'react';
 import { HotkeysEvent } from 'hotkeys-js';
+import { useCallback, useMemo } from 'react';
 
 export function Timer({ className }: IClassName) {
-	const { trans } = useTranslation();
-	const {
-		hours,
-		minutes,
-		seconds,
-		activeTaskEstimation,
-		ms_p,
-		canRunTimer,
-		timerHanlder,
-		timerStatus,
-		disabled
-	} = useTimerView();
+	const { t } = useTranslation();
+	const { hours, minutes, seconds, activeTaskEstimation, ms_p, canRunTimer, timerHanlder, timerStatus, disabled } =
+		useTimerView();
 
 	const { os } = useDetectOS();
 	const osSpecificTimerTooltipLabel = useMemo(() => {
@@ -53,18 +44,12 @@ export function Timer({ className }: IClassName) {
 			console.log('h?.shortcut', h?.shortcut);
 			// Start Timer
 
-			if (
-				(h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') &&
-				!timerStatus?.running
-			) {
+			if ((h?.shortcut === 'ctrl+option+]' || h?.shortcut === 'ctrl+alt+]') && !timerStatus?.running) {
 				timerHanlder();
 			}
 
 			// Stop Timer
-			if (
-				(h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') &&
-				timerStatus?.running
-			) {
+			if ((h?.shortcut === 'ctrl+option+[' || h?.shortcut === 'ctrl+alt+[') && timerStatus?.running) {
 				timerHanlder();
 			}
 		},
@@ -90,11 +75,7 @@ export function Timer({ className }: IClassName) {
 						<span className="text-sm">:{pad(ms_p)}</span>
 					</Text.Heading>
 
-					<ProgressBar
-						width="100%"
-						className="mt-2"
-						progress={`${activeTaskEstimation}%`}
-					/>
+					<ProgressBar width="100%" className="mt-2" progress={`${activeTaskEstimation}%`} />
 				</div>
 				<div className="w-[0.625rem]">
 					{timerStatus && timerStatus.running && (
@@ -107,9 +88,7 @@ export function Timer({ className }: IClassName) {
 								.toLowerCase()}`}
 							placement="bottom-start"
 						>
-							<TimerRunningSourceIcon
-								source={timerStatus?.lastLog?.source || TimerSource.TEAMS}
-							/>
+							<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || TimerSource.TEAMS} />
 						</Tooltip>
 					)}
 				</div>
@@ -117,9 +96,7 @@ export function Timer({ className }: IClassName) {
 
 			<div className="ml-5 z-[50]">
 				<Tooltip
-					label={
-						!canRunTimer ? trans.timer.START_TIMER : osSpecificTimerTooltipLabel
-					}
+					label={!canRunTimer ? t('timer.START_TIMER') : osSpecificTimerTooltipLabel}
 					placement="top-start"
 					// If timer is running at some other source and user may or may not have selected the task
 					// enabled={
@@ -175,9 +152,7 @@ export function MinTimerFrame({ className }: IClassName) {
 						.toLowerCase()}`}
 					placement="bottom-start"
 				>
-					<TimerRunningSourceIcon
-						source={timerStatus?.lastLog?.source || TimerSource.TEAMS}
-					/>
+					<TimerRunningSourceIcon source={timerStatus?.lastLog?.source || TimerSource.TEAMS} />
 				</Tooltip>
 			)}
 
@@ -198,21 +173,15 @@ export function MinTimerFrame({ className }: IClassName) {
 export function TimerRunningSourceIcon({ source }: { source: TimerSource }) {
 	switch (source) {
 		case TimerSource.MOBILE:
-			return (
-				<DevicePhoneMobileIcon className="w-4 h-4 animate-pulse" color="#888" />
-			);
+			return <DevicePhoneMobileIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		case TimerSource.BROWSER:
 			return <GlobeAltIcon className="w-4 h-4 animate-pulse" />;
 		case TimerSource.BROWSER_EXTENSION:
 			return <GlobeAltIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		case TimerSource.DESKTOP:
-			return (
-				<ComputerDesktopIcon className="w-4 h-4 animate-pulse" color="#888" />
-			);
+			return <ComputerDesktopIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		case TimerSource.UPWORK:
-			return (
-				<ArrowUturnUpIcon className="w-4 h-4 animate-pulse" color="#888" />
-			);
+			return <ArrowUturnUpIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		case TimerSource.HUBSTAFF:
 			return <LifebuoyIcon className="w-4 h-4 animate-pulse" color="#888" />;
 		default:

@@ -12,16 +12,15 @@ import {
 	UnverifiedEmail,
 	UserTeamCardHeader
 } from 'lib/features';
-import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 function MainPage() {
-	const { trans } = useTranslation('home');
-	const { isTeamMember, isTrackingEnabled, activeTeam } =
-		useOrganizationTeams();
-	const breadcrumb = [...trans.BREADCRUMB, activeTeam?.name || ''];
+	const { t } = useTranslation();
+	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const breadcrumb = [t('pages.home.BREADCRUMB.0'), activeTeam?.name || ''];
 
 	return (
 		<MainLayout>
@@ -41,9 +40,7 @@ function MainPage() {
 
 			<div className="sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5">
 				<Container>
-					{isTeamMember ? (
-						<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
-					) : null}
+					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
 					{isTeamMember ? <UserTeamCardHeader /> : null}
 				</Container>
@@ -57,11 +54,7 @@ function MainPage() {
 	);
 }
 
-function TaskTimerSection({
-	isTrackingEnabled
-}: {
-	isTrackingEnabled: boolean;
-}) {
+function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean }) {
 	return (
 		<Card
 			shadow="bigger"
@@ -78,13 +71,9 @@ function TaskTimerSection({
 		</Card>
 	);
 }
-export const getStaticProps: GetStaticProps = async (
-	context: GetStaticPropsContext
-) => {
+export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
 	const { locale } = context;
-	const translationProps = await serverSideTranslations(locale ?? 'en', [
-		'default'
-	]);
+	const translationProps = await serverSideTranslations(locale ?? 'en', ['default']);
 	return {
 		props: {
 			...translationProps
