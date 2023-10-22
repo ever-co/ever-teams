@@ -1,22 +1,16 @@
+import { useTaskInput } from '@app/hooks';
 import { IOrganizationTeamList } from '@app/interfaces/IOrganizationTeam';
 import { ITeamTask } from '@app/interfaces/ITask';
+import { Spinner } from '@components/shared/../ui/loaders/spinner';
+import DeleteTask from '@components/shared/tasks/delete-task';
+import TaskFilter from '@components/shared/tasks/task-filter';
+import { CreateTaskOption } from '@components/shared/tasks/task-input';
+import { TaskItem } from '@components/shared/tasks/task-item';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
-import React, {
-	Dispatch,
-	Fragment,
-	PropsWithChildren,
-	SetStateAction,
-	useMemo,
-	useState
-} from 'react';
+import { useTranslation } from 'next-i18next';
+import React, { Dispatch, Fragment, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
-import DeleteTask from '@components/shared/tasks/delete-task';
-import { Spinner } from '@components/shared/../ui/loaders/spinner';
-import TaskFilter from '@components/shared/tasks/task-filter';
-import { TaskItem } from '@components/shared/tasks/task-item';
-import { CreateTaskOption } from '@components/shared/tasks/task-input';
-import { useTaskInput } from '@app/hooks';
 
 interface IOption {
 	name: string;
@@ -31,52 +25,44 @@ interface IDropdownUserProps {
 	setEstimateEdit: Dispatch<SetStateAction<boolean>>;
 }
 
-function OptionPopover({
-	setEdit,
-	setEstimateEdit,
-	children
-}: PropsWithChildren<IDropdownUserProps>) {
-	const [referenceElement, setReferenceElement] = useState<
-		Element | null | undefined
-	>();
-	const [popperElement, setPopperElement] = useState<
-		HTMLElement | null | undefined
-	>();
+function OptionPopover({ setEdit, setEstimateEdit, children }: PropsWithChildren<IDropdownUserProps>) {
+	const [referenceElement, setReferenceElement] = useState<Element | null | undefined>();
+	const [popperElement, setPopperElement] = useState<HTMLElement | null | undefined>();
 	const { styles, attributes } = usePopper(referenceElement, popperElement, {
 		placement: 'left'
 	});
-
+	const { t } = useTranslation();
 	const options: IOption[] = [
 		{
-			name: 'Edit',
+			name: t('common.EDIT'),
 			handleClick: setEdit
 		},
 		{
-			name: 'Estimate',
+			name: t('common.ESTIMATE'),
 			handleClick: setEstimateEdit
 		},
 		{
-			name: 'Assign new task',
+			name: t('task.ASSIGN_NEW_TASK'),
 			handleClick: () => {
 				//
 			},
 			extramenu: true
 		},
 		{
-			name: 'Unassign task',
+			name: t('task.UNASSIGN_TASK'),
 			handleClick: () => {
 				//
 			},
 			extramenu: true
 		},
 		{
-			name: 'Make a manager ',
+			name: t('task.MAKE_A_MANAGER'),
 			handleClick: () => {
 				//
 			}
 		},
 		{
-			name: 'Remove',
+			name: t('task.MAKE_A_MANAGER'),
 			handleClick: () => {
 				//
 			}
@@ -84,10 +70,10 @@ function OptionPopover({
 	];
 
 	return (
-		<Popover className="relative border-none no-underline">
+		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<Popover.Button className="border-none outline-none active:border-none no-underline">
+					<Popover.Button className="no-underline border-none outline-none active:border-none">
 						<EllipsisVerticalIcon
 							className="h-7 w-7 text-gray-300 dark:text-[#616164] cursor-pointer no-underline"
 							aria-hidden="true"
@@ -115,10 +101,7 @@ function OptionPopover({
 											</button>
 										</React.Fragment>
 									) : (
-										<Popover
-											key={option.name}
-											className="relative border-none no-underline"
-										>
+										<Popover key={option.name} className="relative no-underline border-none">
 											{() => (
 												<>
 													<Popover.Button
@@ -160,10 +143,7 @@ function OptionPopover({
 	);
 }
 
-const UserCardMenu = ({
-	setEstimateEdit,
-	setEdit
-}: IDropdownUserProps & { member: IMember }) => {
+const UserCardMenu = ({ setEstimateEdit, setEdit }: IDropdownUserProps & { member: IMember }) => {
 	const {
 		editMode,
 		setQuery,
@@ -187,7 +167,7 @@ const UserCardMenu = ({
 	const reversedTask = useMemo(() => {
 		return filteredTasks.slice().reverse();
 	}, [filteredTasks]);
-
+	const { t } = useTranslation();
 	return (
 		<>
 			<OptionPopover setEstimateEdit={setEstimateEdit} setEdit={setEdit}>
@@ -200,9 +180,7 @@ const UserCardMenu = ({
 									key={`${editMode}`}
 									className="h-[60px] bg-[#EEEFF5] dark:bg-[#202023] placeholder-[#9490A0] dark:placeholder-[#616164] w-full rounded-[10px] px-[20px] py-[18px] shadow-inner"
 									displayValue={(task: ITeamTask) => {
-										return task
-											? (!editMode ? `#${task.taskNumber} ` : '') + task.title
-											: '';
+										return task ? (!editMode ? `#${task.taskNumber} ` : '') + task.title : '';
 									}}
 									onChange={(event) => setQuery(event.target.value)}
 									onKeyDown={(event: any) => {
@@ -211,15 +189,11 @@ const UserCardMenu = ({
 										}
 									}}
 									autoComplete="off"
-									placeholder="What you working on?"
+									placeholder={t('form.TASK_INPUT_PLACEHOLDER')}
 									readOnly={tasksFetching}
 								/>
 								<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-									{tasksFetching || createLoading || updateLoading ? (
-										<Spinner dark={false} />
-									) : (
-										<></>
-									)}
+									{tasksFetching || createLoading || updateLoading ? <Spinner dark={false} /> : <></>}
 								</Combobox.Button>
 							</div>
 							<Transition
@@ -235,9 +209,7 @@ const UserCardMenu = ({
 								<Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-[#FFFFFF] dark:bg-[#1B1B1E] py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
 									{hasCreateForm && (
 										<CreateTaskOption
-											onClick={() =>
-												handleTaskCreation({ autoActiveTask: false })
-											}
+											onClick={() => handleTaskCreation({ autoActiveTask: false })}
 											loading={createLoading}
 										/>
 									)}
@@ -265,7 +237,7 @@ const UserCardMenu = ({
 
 				{/* task list */}
 				{reversedTask.map((task) => (
-					<div key={task.id} className="px-9 cursor-pointer">
+					<div key={task.id} className="cursor-pointer px-9">
 						<div className="py-2">
 							<TaskItem
 								selected={false}
@@ -280,12 +252,7 @@ const UserCardMenu = ({
 					</div>
 				))}
 			</OptionPopover>
-			<DeleteTask
-				isOpen={isModalOpen}
-				closeModal={closeModal}
-				task={closeableTask}
-				Fragment={Fragment}
-			/>
+			<DeleteTask isOpen={isModalOpen} closeModal={closeModal} task={closeableTask} Fragment={Fragment} />
 		</>
 	);
 };

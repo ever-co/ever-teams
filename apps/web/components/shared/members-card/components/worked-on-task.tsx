@@ -1,26 +1,20 @@
 import { secondsToTime } from '@app/helpers/date';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { ITeamTask } from '@app/interfaces/ITask';
+import { useTranslation } from 'next-i18next';
 
-export function WorkedOnTask({
-	memberTask,
-	isAuthUser
-}: {
-	memberTask: ITeamTask | null;
-	isAuthUser: boolean;
-}) {
-	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } =
-		useTaskStatistics();
-
+export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: ITeamTask | null; isAuthUser: boolean }) {
+	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } = useTaskStatistics();
+	const { t } = useTranslation();
 	if (isAuthUser) {
 		const { h, m } = secondsToTime(activeTaskTotalStat?.duration || 0);
 		const { h: dh, m: dm } = secondsToTime(activeTaskDailyStat?.duration || 0);
 
 		return (
 			<div className="w-[122px]  text-center">
-				Today {dh}h:{dm}m <br />{' '}
+				{t('common.TODAY')} {dh}h:{dm}m <br />{' '}
 				<span className="opacity-60">
-					Total {h}h:{m}m
+					{t('common.TOTAL')} {h}h:{m}m
 				</span>
 			</div>
 		);
@@ -32,9 +26,9 @@ export function WorkedOnTask({
 
 	return (
 		<div className="w-[122px]  text-center">
-			Today {dh}h:{dm}m <br />{' '}
+			{t('common.TODAY')} {dh}h:{dm}m <br />{' '}
 			<span className="opacity-60">
-				Total {h}h:{m}m
+				{t('common.TOTAL')} {h}h:{m}m
 			</span>
 		</div>
 	);
