@@ -327,6 +327,11 @@
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
+		},
+		"page404": {
+			"HEADING_TITLE": "Not Found",
+			"HEADING_DESCRIPTION": "Resource you are looking for not found!",
+			"LINK_LABEL": "Go to homepage"
 		}
 	},
 
@@ -400,7 +405,7 @@
 	},
 	"links": {
 		"common": {
-			"TASK": "Tasks",
+			"TASKS": "Tasks",
 			"TEAM": "Team",
 			"SETTINGS": "Settings"
 		}
