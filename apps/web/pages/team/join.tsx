@@ -1,20 +1,17 @@
 import { AuthCodeInputField, Button, Card, Text } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
+import { useTranslation } from 'next-i18next';
 
 export default function AuthPasscode() {
-	const { trans } = useTranslation('auth');
+	const { t } = useTranslation();
 
 	return (
-		<AuthLayout
-			title={trans.JOIN_TEAM}
-			description={trans.INPUT_INVITE_CODE_DESC}
-		>
+		<AuthLayout title={t('pages.auth.JOIN_TEAM')} description={t('pages.auth.INPUT_INVITE_CODE_DESC')}>
 			<form className="w-[98%] md:w-[530px]" autoComplete="off">
 				<Card className="w-full" shadow="bigger">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
-							{trans.INPUT_INVITE_CODE}
+							{t('pages.auth.INPUT_INVITE_CODE')}
 						</Text.Heading>
 
 						{/* Auth code input */}
@@ -30,25 +27,25 @@ export default function AuthPasscode() {
 							/>
 						</div>
 
-						<div className="w-full flex justify-between mt-10">
+						<div className="flex justify-between w-full mt-10">
 							{/* Send code */}
 							<div className="flex flex-col items-start">
-								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal mb-1">
-									{trans.UNRECEIVED_CODE}
+								<Text className="mb-1 text-xs font-normal text-gray-500 dark:text-gray-400">
+									{t('pages.auth.UNRECEIVED_CODE')}
 								</Text>
 
 								<button
 									type="button"
-									className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
+									className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
 								>
 									{'Re'}
 									<span className="text-primary dark:text-primary-light">
-										{trans.SEND_CODE}
+										{t('pages.auth.SEND_CODE')}
 									</span>
 								</button>
 							</div>
 
-							<Button type="submit">{trans.JOIN}</Button>
+							<Button type="submit">{t('pages.auth.JOIN')}</Button>
 						</div>
 					</div>
 				</Card>

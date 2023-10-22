@@ -4,8 +4,8 @@ import { usePublicOrganizationTeams } from '@app/hooks/features/usePublicOrganiz
 import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
 import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
-import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
+import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
@@ -13,32 +13,21 @@ import { useRecoilState } from 'recoil';
 const Team = () => {
 	const router = useRouter();
 	const query = router.query;
-	const {
-		loadPublicTeamData,
-		loadPublicTeamMiscData,
-		publicTeam: publicTeamData
-	} = usePublicOrganizationTeams();
-	const { trans } = useTranslation('home');
+	const { loadPublicTeamData, loadPublicTeamMiscData, publicTeam: publicTeamData } = usePublicOrganizationTeams();
+	const { t } = useTranslation();
 	const [publicTeam, setPublic] = useRecoilState(publicState);
 
 	useEffect(() => {
 		const userId = getActiveUserIdCookie();
 
-		if (
-			userId &&
-			publicTeamData &&
-			publicTeamData.members.find((member) => member.employee.userId === userId)
-		) {
+		if (userId && publicTeamData && publicTeamData.members.find((member) => member.employee.userId === userId)) {
 			router.replace('/');
 		}
 	}, [publicTeamData, router]);
 
 	const loadData = useCallback(() => {
 		if (query && query.teamId && query.profileLink) {
-			loadPublicTeamData(
-				query.profileLink as string,
-				query.teamId as string
-			).then((res) => {
+			loadPublicTeamData(query.profileLink as string, query.teamId as string).then((res) => {
 				if (res?.data?.data?.status === 404) {
 					router.replace('/404');
 				}
@@ -48,10 +37,7 @@ const Team = () => {
 	}, [loadPublicTeamData, query, router, setPublic]);
 	const loadMicsData = useCallback(() => {
 		if (query && query.teamId && query.profileLink) {
-			loadPublicTeamMiscData(
-				query.profileLink as string,
-				query.teamId as string
-			);
+			loadPublicTeamMiscData(query.profileLink as string, query.teamId as string);
 		}
 	}, [loadPublicTeamMiscData, query]);
 
@@ -68,7 +54,7 @@ const Team = () => {
 	return (
 		<MainLayout publicTeam={publicTeam}>
 			<MainHeader>
-				<Breadcrumb paths={trans.BREADCRUMB} className="text-sm" />
+				<Breadcrumb paths={t('pages.home.BREADCRUMB', { returnObjects: true })} className="text-sm" />
 
 				<UnverifiedEmail />
 
