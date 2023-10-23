@@ -126,7 +126,11 @@ const TimerTaskSection = observer(
 					</View>
 
 					{combxShow ? (
-						<ComboBox closeCombo={closeCombox} setEditMode={setEditMode} tasksHandler={taskInput} />
+						<ComboBox
+							closeCombo={closeCombox}
+							setEditMode={setEditMode}
+							tasksHandler={taskInput}
+						/>
 					) : (
 						<View>
 							<View
@@ -138,13 +142,24 @@ const TimerTaskSection = observer(
 									alignItems: "center",
 								}}
 							>
-								<View style={{ flexDirection: "row", alignItems: "center", width: width / 2.7 }}>
-									<Text style={{ textAlign: "center", fontSize: 12, color: colors.tertiary }}>
+								<View
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+										width: width / 2.7,
+									}}
+								>
+									<Text
+										style={{
+											textAlign: "center",
+											fontSize: 12,
+											color: colors.tertiary,
+										}}
+									>
 										{translate("myWorkScreen.estimateLabel")} :{" "}
 									</Text>
 									<EstimateTime currentTask={activeTask} />
 								</View>
-
 								<TaskSize
 									task={activeTask}
 									containerStyle={{

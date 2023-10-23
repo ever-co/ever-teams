@@ -18,6 +18,7 @@ import { useTaskSizes } from "../services/hooks/features/useTaskSizes"
 import { ITaskSizeItem } from "../services/interfaces/ITaskSize"
 import { BadgedTaskSize } from "./SizeIcon"
 import { translate } from "../i18n"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -51,9 +52,20 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="light"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
-					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+						{children}
+					</Animated.View>
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
@@ -83,7 +95,11 @@ const TaskStatusPopup: FC<Props> = function FilterPopup({
 					data={allTaskSizes}
 					contentContainerStyle={{ paddingHorizontal: 10 }}
 					renderItem={({ item }) => (
-						<Item currentSizeName={sizeName} onSizeSelected={onStatusSelected} size={item} />
+						<Item
+							currentSizeName={sizeName}
+							onSizeSelected={onStatusSelected}
+							size={item}
+						/>
 					)}
 					legacyImplementation={true}
 					showsVerticalScrollIndicator={true}

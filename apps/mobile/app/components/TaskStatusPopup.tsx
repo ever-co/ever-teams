@@ -18,6 +18,7 @@ import { ITaskStatusItem } from "../services/interfaces/ITaskStatus"
 import { spacing, typography, useAppTheme } from "../theme"
 import { translate } from "../i18n"
 import { useTaskStatusValue } from "./StatusType"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -51,9 +52,20 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="light"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
-					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+						{children}
+					</Animated.View>
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
