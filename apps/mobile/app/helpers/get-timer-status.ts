@@ -8,22 +8,23 @@ type timerStatusReturnValue = "pause" | "running" | "idle" | "online" | "suspend
 export const getTimerStatusValue = (
 	timerStatus: ITimerStatus | null,
 	member: OT_Member,
+
 	publicTeam?: boolean,
 ): timerStatusReturnValue => {
 	return !member?.employee?.isActive && !publicTeam
 		? "suspended"
-		: member?.timerStatus === "pause"
-		? "pause"
+		: member?.employee?.isOnline
+		? //  && member?.timerStatus !== 'running'
+		  "online"
 		: !timerStatus?.running &&
 		  timerStatus?.lastLog &&
 		  timerStatus?.lastLog?.startedAt &&
 		  timerStatus?.lastLog?.employeeId === member?.employeeId &&
 		  moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-		  timerStatus?.lastLog?.source !== "TEAMS"
+		  timerStatus?.lastLog?.source !== "MOBILE"
 		? "pause"
-		: member?.employee?.isOnline
-		? //  && member?.timerStatus !== 'running'
-		  "online"
+		: member?.timerStatus === "pause"
+		? "pause"
 		: !member?.totalTodayTasks?.length
 		? "idle"
 		: member?.timerStatus || "idle"
