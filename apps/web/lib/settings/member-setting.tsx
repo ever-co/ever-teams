@@ -1,17 +1,13 @@
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
-import { MemberTable } from './member-table';
-import {
-	useAuthenticateUser,
-	useModal,
-	useOrganizationTeams
-} from '@app/hooks';
-import { ChangeEvent, useState } from 'react';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
+import { useTranslation } from 'next-i18next';
+import { ChangeEvent, useState } from 'react';
+import { MemberTable } from './member-table';
 
 export const MemberSetting = () => {
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const { activeTeam } = useOrganizationTeams();
 	const [filterString, setFilterString] = useState<string>('');
@@ -28,39 +24,33 @@ export const MemberSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<Text className="flex-none flex-grow-0 text-xl text-gray-400 font-normal mb-2 w-1/5 mt-8">
-				{trans.MEMBER_AND_ROLES}
+			<Text className="flex-none flex-grow-0 w-1/5 mt-8 mb-2 text-xl font-normal text-gray-400">
+				{t('pages.settingsTeam.MEMBER_AND_ROLES')}
 			</Text>
 			<div className="flex items-center justify-between w-full mt-8">
 				<div className="w-auto">
 					<InputField
 						type="text"
-						placeholder={trans.SEARCH_MEMBER}
+						placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
 						className="mb-0 h-11"
 						leadingNode={
-							<Button
-								variant="ghost"
-								className="p-0 m-0 ml-[0.9rem] min-w-0"
-								type="submit"
-							>
+							<Button variant="ghost" className="p-0 m-0 ml-[0.9rem] min-w-0" type="submit">
 								<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
 							</Button>
 						}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(
-								e.target.value ? e.target.value.toLowerCase() : ''
-							);
+							setFilterString(e.target.value ? e.target.value.toLowerCase() : '');
 						}}
 					/>
 				</div>
 			</div>
 
 			{members.length > 0 ? (
-				<div className="mt-7 mb-8">
+				<div className="mb-8 mt-7">
 					<MemberTable members={members} />
 				</div>
 			) : (
-				<NoData text={trans.NO_MEMBERS} />
+				<NoData text={t('pages.settingsTeam.NO_MEMBERS')} />
 			)}
 
 			{/* TODO Dynamic */}
@@ -69,33 +59,30 @@ export const MemberSetting = () => {
 				<div className="flex gap-12">
 					<div className="flex w-[26.5rem] items-center justify-between gap-[8.1rem]">
 						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-auto dark:text-white">
-							{trans.POSITION_CUSTOM}
+							{t('pages.settingsTeam.POSITION_CUSTOM')}
 						</Text>
-						<div className="flex flex-row flex-grow-0 items-center justify-between w-auto">
+						<div className="flex flex-row items-center justify-between flex-grow-0 w-auto">
 							<MemberInfo />
 						</div>
 					</div>
 					<ChooseDropdown setValue={() => console.log('')} />
 				</div>
-				<div className="flex w-full items-center justify-between gap-12">
+				<div className="flex items-center justify-between w-full gap-12">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/4 dark:text-white">
-						{trans.HIDE_PERSONAL_MEMBERS_INFOTMATION}
+						{t('pages.settingsTeam.HIDE_PERSONAL_MEMBERS_INFOTMATION')}
 					</Text>
-					<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+					<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
 						<MemberInfo />
 					</div>
 				</div>
-				<div className="flex w-full items-center justify-between gap-12">
+				<div className="flex items-center justify-between w-full gap-12">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 w-1/5 dark:text-white">
-						{trans.WORK_SCHEDULE}
+						{t('pages.settingsTeam.WORK_SCHEDULE')}
 					</Text>
 				</div>
 			</div> */}
 
-			<InviteFormModal
-				open={isOpen && !!user?.isEmailVerified}
-				closeModal={closeModal}
-			/>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</div>
 	);
 };

@@ -1,5 +1,5 @@
-import { Button, Text, Modal, Card } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { Button, Card, Modal, Text } from 'lib/components';
+import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
 
 export const RemoveModal = ({
@@ -15,25 +15,23 @@ export const RemoveModal = ({
 	onAction: () => any;
 	loading: boolean;
 }) => {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
 
 	return (
 		<>
 			<Modal isOpen={open} closeModal={close}>
 				<Card className="w-full md:min-w-[480px]" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
-						<Text.Heading as="h3" className="text-center gap-32 text-2xl">
+					<div className="flex flex-col items-center justify-between">
+						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
 							{title}
 						</Text.Heading>
 
 						{notifyMessage && (
-							<Text.Error className="self-start justify-self-start mt-2">
-								{notifyMessage}
-							</Text.Error>
+							<Text.Error className="self-start mt-2 justify-self-start">{notifyMessage}</Text.Error>
 						)}
 
-						<div className="w-full flex justify-between mt-10 items-center">
+						<div className="flex items-center justify-between w-full mt-10">
 							<Button
 								type="button"
 								onClick={close}
@@ -41,7 +39,7 @@ export const RemoveModal = ({
 									'bg-transparent text-primary dark:text-dark--theme font-medium border border-gray-300 dark:border-0 dark:bg-light--theme-dark rounded-lg md:min-w-[180px]'
 								}
 							>
-								{trans.common.DISCARD}
+								{t('common.DISCARD')}
 							</Button>
 
 							<Button
@@ -61,7 +59,7 @@ export const RemoveModal = ({
 									});
 								}}
 							>
-								{trans.common.CONFIRM}
+								{t('common.CONFIRM')}
 							</Button>
 						</div>
 					</div>

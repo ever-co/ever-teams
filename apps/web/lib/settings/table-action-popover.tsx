@@ -1,18 +1,12 @@
+import { useAuthenticateUser, useModal, useTMCardTaskEdit, useTeamMemberCard } from '@app/hooks';
+import { useRoles } from '@app/hooks/features/useRoles';
+import { OT_Member } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { MenuIcon } from 'lib/components/svgs';
-import { Fragment, useEffect } from 'react';
-import React from 'react';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
-import {
-	useAuthenticateUser,
-	useModal,
-	useTeamMemberCard,
-	useTMCardTaskEdit
-} from '@app/hooks';
-import { OT_Member } from '@app/interfaces';
+import { useTranslation } from 'next-i18next';
+import { Fragment, useEffect } from 'react';
 import { ConfirmationModal } from './confirmation-modal';
-import { useTranslation } from 'lib/i18n';
-import { useRoles } from '@app/hooks/features/useRoles';
 
 type Props = {
 	member: OT_Member;
@@ -22,7 +16,7 @@ type Props = {
 export const TableActionPopover = ({ member, handleEdit }: Props) => {
 	// const [isOpen, setIsOpen] = useState(false);
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { user } = useAuthenticateUser();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
@@ -39,7 +33,7 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 	// 	setIsOpen(!isOpen);
 	// };
 	return (
-		<Popover className="border-none no-underline w-full">
+		<Popover className="w-full no-underline border-none">
 			{() => (
 				<>
 					<Transition
@@ -55,19 +49,19 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 							{/* TODO Dynamic */}
 							{/* Edit */}
 							<div
-								className="flex items-center h-8 w-auto  hover:cursor-pointer"
+								className="flex items-center w-auto h-8 hover:cursor-pointer"
 								onClick={() => {
 									handleEdit(member);
 								}}
 							>
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
-									Edit
+									{t('common.EDIT')}
 								</span>
 							</div>
 
 							{/* TODO Dynamic */}
 							{/* Change Role */}
-							{/* <div className="flex items-center h-8 w-auto  hover:cursor-pointer">
+							{/* <div className="flex items-center w-auto h-8 hover:cursor-pointer">
 								<span className="text-[#282048] text-xs font-semibold dark:text-white">
 									Change Role
 								</span>
@@ -77,7 +71,7 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 							{/* TODO Dynamic */}
 							{/* Need to integrate with API */}
 							{/* Permission */}
-							{/* <div className="flex items-center h-8 w-auto  hover:cursor-pointer">
+							{/* <div className="flex items-center w-auto h-8 hover:cursor-pointer">
 								<Link href={'/permissions'}>
 									<span className="text-[#282048] text-xs font-semibold dark:text-white">
 										Permission
@@ -92,27 +86,21 @@ export const TableActionPopover = ({ member, handleEdit }: Props) => {
 								}`}
 								onClick={isCurrentUser ? () => undefined : () => openModal()}
 							>
-								<span
-									className={`${
-										!isCurrentUser ? 'text-[#E27474]' : ''
-									} text-xs font-semibold`}
-								>
-									Delete
+								<span className={`${!isCurrentUser ? 'text-[#E27474]' : ''} text-xs font-semibold`}>
+									{t('common.DELETE')}
 								</span>
 							</div>
 						</Popover.Panel>
 					</Transition>
-					<Popover.Button className="outline-none w-full mt-2">
+					<Popover.Button className="w-full mt-2 outline-none">
 						<MenuIcon className="stroke-[#292D32] dark:stroke-white" />
 					</Popover.Button>
 					<ConfirmationModal
 						open={isOpen}
 						close={closeModal}
-						title={trans.pages.settings.ARE_YOU_SURE_TO_DELETE_USER}
+						title={t('pages.settings.ARE_YOU_SURE_TO_DELETE_USER')}
 						loading={false}
-						onAction={
-							isCurrentUser ? () => undefined : () => onRemoveMember({})
-						}
+						onAction={isCurrentUser ? () => undefined : () => onRemoveMember({})}
 					/>
 				</>
 			)}
@@ -127,7 +115,7 @@ const RolePopover = () => {
 	}, [getRoles]);
 
 	return (
-		<Popover className="relative border-none no-underline w-full">
+		<Popover className="relative w-full no-underline border-none">
 			<Transition
 				as={Fragment}
 				enter="transition ease-out duration-200"
@@ -142,18 +130,13 @@ const RolePopover = () => {
 					style={{ boxShadow: ' rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 				>
 					{roles.map((role) => (
-						<div
-							className="flex items-center h-8 w-auto  hover:cursor-pointer"
-							key={role.id}
-						>
-							<span className="text-[#282048] text-xs font-semibold dark:text-white">
-								{role.name}
-							</span>
+						<div className="flex items-center w-auto h-8 hover:cursor-pointer" key={role.id}>
+							<span className="text-[#282048] text-xs font-semibold dark:text-white">{role.name}</span>
 						</div>
 					))}
 				</Popover.Panel>
 			</Transition>
-			{/* <Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
+			{/* <Popover.Button className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
 				<span className="text-[#282048] text-xs font-semibold dark:text-white">
 					Change Role
 				</span>

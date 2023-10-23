@@ -1,36 +1,29 @@
-import moment from 'moment';
-import { Avatar, InputField, Text, Tooltip } from 'lib/components';
+import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
 import { imgTitle } from '@app/helpers';
-import { clsxm } from '@app/utils';
-import stc from 'string-to-color';
-import { OT_Member, OT_Role } from '@app/interfaces';
-import { Paginate } from 'lib/components/pagination';
+import { useSettings } from '@app/hooks';
 import { usePagination } from '@app/hooks/features/usePagination';
+import { OT_Member, OT_Role } from '@app/interfaces';
+import { activeTeamIdState, organizationTeamsState } from '@app/stores';
+import { clsxm } from '@app/utils';
+import { Avatar, InputField, Text, Tooltip } from 'lib/components';
+import { Paginate } from 'lib/components/pagination';
+import cloneDeep from 'lodash/cloneDeep';
+import moment from 'moment';
+import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
-import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
-import cloneDeep from 'lodash/cloneDeep';
-import { useSettings } from '@app/hooks';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { organizationTeamsState, activeTeamIdState } from '@app/stores';
-import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
+import { useTranslation } from 'next-i18next';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
-	const {
-		total,
-		onPageChange,
-		itemsPerPage,
-		itemOffset,
-		endOffset,
-		setItemsPerPage,
-		currentItems
-	} = usePagination<OT_Member>(members);
+	const { t } = useTranslation();
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } =
+		usePagination<OT_Member>(members);
 	const { updateAvatar } = useSettings();
 
 	const activeTeamId = useRecoilValue(activeTeamIdState);
-	const [organizationTeams, setOrganizationTeams] = useRecoilState(
-		organizationTeamsState
-	);
+	const [organizationTeams, setOrganizationTeams] = useRecoilState(organizationTeamsState);
 	const [editMember, setEditMember] = useState<OT_Member | null>(null);
 	const handleEdit = (member: OT_Member) => {
 		setEditMember(member);
@@ -61,9 +54,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 				lastName: editMember?.employee?.user?.lastName || '',
 				id: editMember.employee.userId
 			}).then(() => {
-				const teamIndex = organizationTeams.findIndex(
-					(team) => team.id === activeTeamId
-				);
+				const teamIndex = organizationTeams.findIndex((team) => team.id === activeTeamId);
 				const tempOrganizationTeams = cloneDeep(organizationTeams);
 				const memberIndex = tempOrganizationTeams[teamIndex].members.findIndex(
 					(member) => member.id === editMember.id
@@ -74,13 +65,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 				setEditMember(null);
 			});
 		}
-	}, [
-		editMember,
-		organizationTeams,
-		activeTeamId,
-		setOrganizationTeams,
-		updateAvatar
-	]);
+	}, [editMember, organizationTeams, activeTeamId, setOrganizationTeams, updateAvatar]);
 	const handleOnKeyUp = (event: KeyboardEvent<HTMLElement>) => {
 		if (event.key === 'Enter') {
 			handleEditMemberSave();
@@ -97,31 +82,31 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 								scope="col"
 								className="pl-0 py-3 text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-56"
 							>
-								Name
+								{t('common.NAME')}
 							</th>
 							<th
 								scope="col"
 								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-40"
 							>
-								Position
+								{t('common.POSITION')}
 							</th>
 							<th
 								scope="col"
 								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-44"
 							>
-								Roles
+								{t('common.ROLES')}
 							</th>
 							<th
 								scope="col"
 								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-48"
 							>
-								Joined / Left
+								{t('common.JOIN_OR_LEFT')}
 							</th>
 							<th
 								scope="col"
 								className="text-sm font-normal capitalize text-[#B1AEBC] dark:text-white w-32"
 							>
-								Status
+								{t('common.STATUS')}
 							</th>
 							<th
 								scope="col"
@@ -131,13 +116,10 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 					</thead>
 					<tbody className="dark:bg-dark--theme-light">
 						{currentItems.map((member, index) => (
-							<tr
-								className="bg-white dark:bg-dark--theme-light dark:border-gray-700"
-								key={index}
-							>
+							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700" key={index}>
 								<th
 									scope="row"
-									className="flex items-center pl-0 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
 								>
 									{member.employee.user?.imageId ? (
 										<Avatar
@@ -159,9 +141,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 												'shadow-md font-normal'
 											)}
 											style={{
-												backgroundColor: `${stc(
-													member.employee.user?.name || ''
-												)}80`
+												backgroundColor: `${stc(member.employee.user?.name || '')}80`
 											}}
 										>
 											{imgTitle(member.employee.user?.name)}
@@ -169,7 +149,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									) : (
 										''
 									)}
-									<div className="pl-3 flex flex-col gap-1 ">
+									<div className="flex flex-col gap-1 pl-3 ">
 										{editMember && editMember.id === member.id ? (
 											<InputField
 												type="text"
@@ -187,8 +167,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 												label={member.employee.fullName.trim()}
 												placement="auto"
 												enabled={
-													member.employee.fullName.trim().length >
-													CHARACTER_LIMIT_TO_SHOW
+													member.employee.fullName.trim().length > CHARACTER_LIMIT_TO_SHOW
 												}
 											>
 												<div
@@ -220,17 +199,13 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 									{/* TODO Position */}-
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
-									<span className="capitalize">
-										{getRoleString(member.role)}
-									</span>
+									<span className="capitalize">{getRoleString(member.role)}</span>
 								</td>
 								<td className="text-sm font-semibold py-4 text-[#282048] dark:text-white">
 									{/* 12 Feb 2020 12:00 pm */}
-									{moment(member.employee.createdAt).format(
-										'DD MMM YYYY hh:mm a'
-									)}
+									{moment(member.employee.createdAt).format('DD MMM YYYY hh:mm a')}
 								</td>
-								<td className="text-sm font-semibold py-4">
+								<td className="py-4 text-sm font-semibold">
 									{/* TODO dynamic */}
 									<MemberTableStatus
 										status={
@@ -242,7 +217,7 @@ export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 										}
 									/>
 								</td>
-								<td className="flex py-4 justify-center items-center">
+								<td className="flex items-center justify-center py-4">
 									<TableActionPopover member={member} handleEdit={handleEdit} />
 								</td>
 							</tr>

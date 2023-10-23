@@ -1,24 +1,24 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, InputField, Text, ThemeToggler } from 'lib/components';
-import { LanguageDropDown } from './language-dropdown';
-import { TimezoneDropDown } from './timezone-dropdown';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
 import {
+	PHONE_REGEX,
 	getActiveLanguageIdCookie,
 	getActiveTimezoneIdCookie,
-	PHONE_REGEX,
 	setActiveLanguageIdCookie,
 	setActiveTimezoneCookie,
 	userTimezone
 } from '@app/helpers';
 import { useSettings } from '@app/hooks';
+import { userState } from '@app/stores';
+import { Button, InputField, Text, ThemeToggler } from 'lib/components';
+import { useTranslation } from 'next-i18next';
 import { useTheme } from 'next-themes';
-import { useTranslation } from 'lib/i18n';
-import { EmailResetModal } from './email-reset-modal';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 import validator from 'validator';
+import { EmailResetModal } from './email-reset-modal';
+import { LanguageDropDown } from './language-dropdown';
+import { TimezoneDropDown } from './timezone-dropdown';
 
 interface IValidation {
 	email: boolean;
@@ -34,14 +34,13 @@ export const PersonalSettingForm = () => {
 	const { theme } = useTheme();
 	const [editFullname, setEditFullname] = useState<boolean>(false);
 	const [editContacts, setEditContacts] = useState<boolean>(false);
-	const [showEmailResetModal, setShowEmailResetModal] =
-		useState<boolean>(false);
+	const [showEmailResetModal, setShowEmailResetModal] = useState<boolean>(false);
 	const [newEmail, setNewEmail] = useState<string>('');
 	const [isValid, setIsValid] = useState<IValidation>({
 		email: true,
 		phone: true
 	});
-	const { trans, translations } = useTranslation('settingsPersonal');
+	const { t } = useTranslation();
 
 	const handleFullnameChange = useCallback(() => {
 		const values = getValues();
@@ -126,10 +125,7 @@ export const PersonalSettingForm = () => {
 
 	useEffect(() => {
 		setCurrentLanguage(user?.preferredLanguage || getActiveLanguageIdCookie());
-		setValue(
-			'preferredLanguage',
-			user?.preferredLanguage || getActiveLanguageIdCookie()
-		);
+		setValue('preferredLanguage', user?.preferredLanguage || getActiveLanguageIdCookie());
 	}, [setCurrentLanguage, user, user?.preferredLanguage, setValue]);
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
@@ -158,21 +154,18 @@ export const PersonalSettingForm = () => {
 					handleContactChange();
 				}}
 			>
-				<div
-					id="general"
-					className="flex flex-col items-center justify-between"
-				>
+				<div id="general" className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">
-							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row">
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+							<div className="flex flex-col items-center justify-between w-full sm:gap-8 sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{translations.common.FULL_NAME}
+										{t('common.FULL_NAME')}
 									</Text>
-									<div className="flex w-full justify-start">
+									<div className="flex justify-start w-full">
 										<InputField
 											type="text"
-											placeholder="First Name"
+											placeholder={t('form.FIRST_NAME_PLACEHOLDER')}
 											{...register('firstName', {
 												required: true,
 												maxLength: 80
@@ -185,7 +178,7 @@ export const PersonalSettingForm = () => {
 										/>
 										<InputField
 											type="text"
-											placeholder="Last Name"
+											placeholder={t('form.LAST_NAME_PLACEHOLDER')}
 											{...register('lastName', {
 												maxLength: 80
 											})}
@@ -206,7 +199,7 @@ export const PersonalSettingForm = () => {
 													handleFullnameChange();
 												}}
 											>
-												{translations.common.SAVE}
+												{t('common.SAVE')}
 											</Button>
 										) : (
 											<Button
@@ -217,19 +210,19 @@ export const PersonalSettingForm = () => {
 													setEditFullname(true);
 												}}
 											>
-												{translations.common.EDIT}
+												{t('common.EDIT')}
 											</Button>
 										)}
 									</div>
 								</div>
 							</div>
 
-							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{translations.common.CONTACT}
+										{t('common.CONTACT')}
 									</Text>
-									<div className="flex w-full justify-start">
+									<div className="flex justify-start w-full">
 										<div className="relative">
 											<InputField
 												type="email"
@@ -248,8 +241,8 @@ export const PersonalSettingForm = () => {
 												wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5 `}
 											/>
 											{!isValid.email && (
-												<p className="absolute -bottom-5  text-red-500 text-xs">
-													{translations.pages.settingsPersonal.emailNotValid}
+												<p className="absolute text-xs text-red-500 -bottom-5">
+													{t('pages.settingsPersonal.emailNotValid')}
 												</p>
 											)}
 										</div>
@@ -269,8 +262,8 @@ export const PersonalSettingForm = () => {
 												wrapperClassName={`rounded-lg w-[230px] mb-0 mr-5`}
 											/>
 											{!isValid.phone && (
-												<p className="absolute -bottom-5  text-red-500 text-xs">
-													{translations.pages.settingsPersonal.phoneNotValid}
+												<p className="absolute text-xs text-red-500 -bottom-5">
+													{t('pages.settingsPersonal.phoneNotValid')}
 												</p>
 											)}
 										</div>
@@ -285,7 +278,7 @@ export const PersonalSettingForm = () => {
 													handleContactChange();
 												}}
 											>
-												{translations.common.SAVE}
+												{t('common.SAVE')}
 											</Button>
 										) : (
 											<Button
@@ -299,31 +292,31 @@ export const PersonalSettingForm = () => {
 													}, 10);
 												}}
 											>
-												{translations.common.EDIT}
+												{t('common.EDIT')}
 											</Button>
 										)}
 									</div>
 								</div>
 							</div>
 
-							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{translations.common.THEME}
+										{t('common.THEME')}
 									</Text>
 									<div className="flex w-full">
 										<ThemeToggler />
-										<Text className="text-sm font-normal text-gray-400 flex items-center ml-5">
+										<Text className="flex items-center ml-5 text-sm font-normal text-gray-400">
 											{theme === 'light' ? 'Light' : 'Dark'} Mode
 										</Text>
 									</div>
 								</div>
 							</div>
 
-							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{translations.common.LANGUAGE}
+										{t('common.LANGUAGE')}
 									</Text>
 									<div className="flex w-full">
 										<LanguageDropDown
@@ -336,10 +329,10 @@ export const PersonalSettingForm = () => {
 								</div>
 							</div>
 
-							<div className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8">
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+							<div className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{translations.common.TIME_ZONE}
+										{t('common.TIME_ZONE')}
 									</Text>
 									<div className="flex w-full">
 										<TimezoneDropDown
@@ -356,7 +349,7 @@ export const PersonalSettingForm = () => {
 											}}
 											className="min-w-[100px] h-[54px] rounded-[8px] font-[600] ml-5"
 										>
-											{translations.common.DETECT}
+											{t('common.DETECT')}
 										</Button>
 									</div>
 								</div>
@@ -364,28 +357,28 @@ export const PersonalSettingForm = () => {
 
 							<div
 								id="work-schedule"
-								className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8"
+								className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row"
 							>
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{trans.WORK_SCHEDULE}
+										{t('pages.settingsPersonal.WORK_SCHEDULE')}
 									</Text>
 									<div className="flex w-full">
-										<Text className="text-lg font-normal">No</Text>
+										<Text className="text-lg font-normal">{t('common.NO')}</Text>
 									</div>
 								</div>
 							</div>
 
 							<div
 								id="subscription"
-								className="flex items-center justify-between w-full sm:gap-8 flex-col sm:flex-row mt-8"
+								className="flex flex-col items-center justify-between w-full mt-8 sm:gap-8 sm:flex-row"
 							>
-								<div className="flex items-center justify-between w-full sm:gap-4 flex-col sm:flex-row">
+								<div className="flex flex-col items-center justify-between w-full sm:gap-4 sm:flex-row">
 									<Text className="font-normal min-w-[25%] text-gray-400 text-lg justify-center">
-										{trans.SUBSCRIPTION}
+										{t('pages.settingsPersonal.SUBSCRIPTION')}
 									</Text>
 									<div className="flex w-full">
-										<Text className="text-lg font-normal">Basic</Text>
+										<Text className="text-lg font-normal">{t('common.BASIC')}</Text>
 									</div>
 								</div>
 							</div>

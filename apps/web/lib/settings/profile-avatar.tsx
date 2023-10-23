@@ -1,15 +1,17 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Avatar, Button } from 'lib/components';
-import { useCallback, useState } from 'react';
+import { imgTitle } from '@app/helpers';
 import { useAuthenticateUser, useImageAssets, useSettings } from '@app/hooks';
-import { useForm } from 'react-hook-form';
-import Image from 'next/image';
 import { IImageAssets } from '@app/interfaces';
 import { clsxm } from '@app/utils';
+import { Avatar, Button } from 'lib/components';
+import { useTranslation } from 'next-i18next';
+import Image from 'next/image';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import stc from 'string-to-color';
-import { imgTitle } from '@app/helpers';
 
 export const ProfileAvatar = () => {
+	const { t } = useTranslation();
 	const { register } = useForm();
 	const [avatarBtn, setAvatarBtn] = useState(false);
 	const { updateAvatar } = useSettings();
@@ -52,10 +54,10 @@ export const ProfileAvatar = () => {
 
 	return (
 		<>
-			<div className="flex flex-col justify-between items-center">
+			<div className="flex flex-col items-center justify-between">
 				<div className="w-full">
 					<div className="">
-						<div className="flex w-full items-center sm:justify-between justify-center gap-8">
+						<div className="flex items-center justify-center w-full gap-8 sm:justify-between">
 							<div className="relative">
 								<div
 									className={clsxm(
@@ -73,12 +75,8 @@ export const ProfileAvatar = () => {
 										<Avatar
 											size={80}
 											className="relative cursor-pointer"
-											imageUrl={
-												user?.image?.thumbUrl ||
-												user?.image?.fullUrl ||
-												user?.imageUrl
-											}
-											alt="User Avatar"
+											imageUrl={user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl}
+											alt={t('common.USER_AVATAR')}
 										/>
 									) : user?.name ? (
 										imgTitle(user?.name)
@@ -100,10 +98,10 @@ export const ProfileAvatar = () => {
 								</span>
 							</div>
 							{avatarBtn ? (
-								<div className="flex w-full items-center gap-3">
+								<div className="flex items-center w-full gap-3">
 									<div className="mt-6">
 										<label className="flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-xl min-w-[140px] text-primary border-2 border-primary font-medium dark:text-primary-light dark:border-primary-light disabled:opacity-40 cursor-pointer">
-											<span>Change Avatar</span>
+											<span>{t('form.CHANGE_AVATAR')}</span>
 											<input
 												type="file"
 												{...register('imageUrl')}
@@ -113,12 +111,8 @@ export const ProfileAvatar = () => {
 										</label>
 									</div>
 									<div className="mt-6">
-										<Button
-											variant="grey"
-											onClick={() => onDeleteAvatar()}
-											className="rounded-xl"
-										>
-											Delete
+										<Button variant="grey" onClick={() => onDeleteAvatar()} className="rounded-xl">
+											{t('common.DELETE')}
 										</Button>
 									</div>
 								</div>

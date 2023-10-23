@@ -12,10 +12,18 @@
 		"EXPIRED": "Expired",
 		"REQUEST": "Request",
 		"REQUESTED": "Requested",
+		"LABELS": "Labels",
+		"POSITION": "Position",
+		"ROLES": "Roles",
+		"JOIN_OR_LEFT": "Joined / Left",
 		"PLEASE": "please",
 		"HERE": "here",
 		"PEOPLE": "People",
 		"COLLABORATE": "Collaborate",
+		"NO": "No",
+		"YES": "Yes",
+		"BASIC": "Basic",
+		"DELETE": "Delete",
 		"MEET": "Meet",
 		"BOARD": "Board",
 		"SECURITY_CODE": "Security Code",
@@ -67,6 +75,7 @@
 		"LINK_TASK": "Select Related Issue",
 		"LINK": "Link",
 		"LINKS": "Links",
+		"SHOW": "Show",
 		"ADD_LINK": "Add Links",
 		"COMMENT": "Comment",
 		"DESCRIPTION": "Description",
@@ -105,6 +114,7 @@
 		"TEAM": "Team",
 		"MY_TEAM": "My Team",
 		"FULL_NAME": "Full Name",
+		"USER_AVATAR": "User Avatar",
 		"CONTACT": "Contact",
 
 		"THEME": "Theme",
@@ -450,6 +460,8 @@
 
 	"form": {
 		"NAME_PLACEHOLDER": "Enter your name",
+		"FIRST_NAME_PLACEHOLDER": "First Name",
+		"LAST_NAME_PLACEHOLDER": "Last Name",
 		"EMAIL_PLACEHOLDER": "Enter your email address",
 
 		"ISSUE_NAME_PLACEHOLDER": "Issue name",
@@ -464,6 +476,7 @@
 		"ATTACHMENT_FILE": "Attachment files",
 		"ADD_COMMENT": "Add Comment here",
 		"SET_THEME": "Set Theme",
+		"CHANGE_AVATAR": "Change Avatar",
 		"INVALID_ALLOWED_CHARACTER": "Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric"
 	},
 
