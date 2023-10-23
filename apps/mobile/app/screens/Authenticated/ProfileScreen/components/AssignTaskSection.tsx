@@ -25,6 +25,7 @@ import { translate } from "../../../../i18n"
 import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
 import TaskStatus from "../../../../components/TaskStatus"
 import Version from "../../../../components/Version"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -58,11 +59,22 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<KeyboardAvoidingView
 				style={$modalBackGround}
 				behavior={Platform.OS === "ios" ? "padding" : "height"}
 			>
-				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+					{children}
+				</Animated.View>
 			</KeyboardAvoidingView>
 		</Modal>
 	)
@@ -138,7 +150,9 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 								value={taskInputText}
 								onChangeText={(newText) => handleChangeText(newText)}
 							/>
-							{isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
+							{isLoading ? (
+								<ActivityIndicator color="#1B005D" style={styles.loading} />
+							) : null}
 						</View>
 
 						<View>
@@ -157,7 +171,13 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 										alignItems: "center",
 									}}
 								>
-									<Text style={{ textAlign: "center", fontSize: 12, color: "#7E7991" }}>
+									<Text
+										style={{
+											textAlign: "center",
+											fontSize: 12,
+											color: "#7E7991",
+										}}
+									>
 										{translate("myWorkScreen.estimateLabel")}:{" "}
 									</Text>
 									<EstimateTime
@@ -250,7 +270,10 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[styles.button, { backgroundColor: "#3826A6", opacity: isLoading ? 0.6 : 1 }]}
+							style={[
+								styles.button,
+								{ backgroundColor: "#3826A6", opacity: isLoading ? 0.6 : 1 },
+							]}
 							onPress={() => onCreateNewTask()}
 						>
 							<Text style={styles.buttonText}>
