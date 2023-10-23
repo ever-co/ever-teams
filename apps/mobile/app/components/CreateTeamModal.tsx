@@ -148,7 +148,7 @@ const $modalBackGround: ViewStyle = {
 }
 const $modalContainer: ViewStyle = {
 	height,
-	backgroundColor: "rgba(0,0,0,0.6)",
+
 	justifyContent: "flex-end",
 }
 
