@@ -1,36 +1,21 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	useAuthenticateUser,
-	useModal,
-	useOrganizationEmployeeTeams,
-	useOrganizationTeams
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@app/hooks';
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from 'lib/components';
+import { useTranslation } from 'next-i18next';
 import { useCallback, useState } from 'react';
 import { useRecoilValue } from 'recoil';
-import { TransferTeamModal } from './transfer-team-modal';
 import { RemoveModal } from './remove-modal';
-import { useTranslation } from 'lib/i18n';
+import { TransferTeamModal } from './transfer-team-modal';
 
 export const DangerZoneTeam = () => {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
-	const {
-		isOpen: dangerIsOpen,
-		closeModal: dangerCloseModal,
-		openModal: dangerOpenaModal
-	} = useModal();
-	const [removeModalType, setRemoveModalType] = useState<
-		'DISPOSE' | 'QUIT' | null
-	>(null);
+	const { isOpen: dangerIsOpen, closeModal: dangerCloseModal, openModal: dangerOpenaModal } = useModal();
+	const [removeModalType, setRemoveModalType] = useState<'DISPOSE' | 'QUIT' | null>(null);
 
-	const { activeTeam, deleteOrganizationTeam, deleteOrganizationTeamLoading } =
-		useOrganizationTeams();
-	const {
-		deleteOrganizationTeamEmployee,
-		deleteOrganizationEmployeeTeamLoading
-	} = useOrganizationEmployeeTeams();
+	const { activeTeam, deleteOrganizationTeam, deleteOrganizationTeamLoading } = useOrganizationTeams();
+	const { deleteOrganizationTeamEmployee, deleteOrganizationEmployeeTeamLoading } = useOrganizationEmployeeTeams();
 	const { user, isTeamManager } = useAuthenticateUser();
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
 
@@ -42,9 +27,7 @@ export const DangerZoneTeam = () => {
 
 	const handleQuiteTeam = useCallback(() => {
 		if (activeTeam && user) {
-			const currentEmployeeDetails = activeTeam.members.find(
-				(member) => member.employeeId === user.employee.id
-			);
+			const currentEmployeeDetails = activeTeam.members.find((member) => member.employeeId === user.employee.id);
 
 			if (currentEmployeeDetails && currentEmployeeDetails.id) {
 				// Remove from Team API call
@@ -61,17 +44,17 @@ export const DangerZoneTeam = () => {
 
 	return (
 		<>
-			<div className="flex flex-col justify-between items-center">
+			<div className="flex flex-col items-center justify-between">
 				<div className="w-full mt-5">
 					<div className="">
 						{/* Current User is the Manager of the Team and there are more that 1 Managers */}
-						<div className="flex w-full items-center sm:justify-between justify-center gap-6 flex-col sm:flex-row">
+						<div className="flex flex-col items-center justify-center w-full gap-6 sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
-								<Text className="text-xl font-normal">Transfer Ownership</Text>
+								<Text className="text-xl font-normal">{t('common.TRANSFERT_OWNSHIP')}</Text>
 							</div>
 							<div className="flex-auto md:w-64 sm:w-40">
-								<Text className="text-md text-gray-400 font-normal text-center sm:text-left">
-									Transfer full ownership of team to another user
+								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
+									{t('common.TRANSFERT_OWNERSHIP_TO')}
 								</Text>
 							</div>
 							<div className="flex-auto sm:w-10">
@@ -82,22 +65,21 @@ export const DangerZoneTeam = () => {
 									onClick={openModal}
 									disabled={!(isTeamManager && activeTeamManagers.length >= 2)}
 								>
-									Transfer
+									{t('common.TRANSFER')}
 								</Button>
 							</div>
 						</div>
 
 						{/* Current User is the Only Manager of the Team*/}
-						<div className="flex w-full items-center sm:justify-between justify-center gap-6 mt-5 flex-col sm:flex-row">
+						<div className="flex flex-col items-center justify-center w-full gap-6 mt-5 sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
 								<Text className="text-xl font-normal text-center sm:text-left">
-									Remove Team
+									{t('common.REMOVE_TEAM')}
 								</Text>
 							</div>
 							<div className="flex-auto md:w-64 sm:w-40">
-								<Text className="text-md text-gray-400 font-normal text-center sm:text-left">
-									Team will be completely removed for the system and team
-									members lost access
+								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
+									{t('alerts.ALERT_REMOVE_TEAM')}
 								</Text>
 							</div>
 							<div className="flex-auto sm:w-10">
@@ -111,20 +93,20 @@ export const DangerZoneTeam = () => {
 									}}
 									disabled={!(isTeamManager && activeTeamManagers.length === 1)}
 								>
-									Dispose Team
+									{t('common.DISPOSE_TEAM')}
 								</Button>
 							</div>
 						</div>
 
-						<div className="flex w-full items-center sm:justify-between justify-center gap-6 mt-5 flex-col sm:flex-row">
+						<div className="flex flex-col items-center justify-center w-full gap-6 mt-5 sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
 								<Text className="text-xl font-normal text-center sm:text-left">
-									Quit the Team
+									{t('common.QUI_TEAM')}
 								</Text>
 							</div>
 							<div className="flex-auto md:w-64 sm:w-40">
-								<Text className="text-md text-gray-400 font-normal text-center sm:text-left">
-									You are about to quit the team
+								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
+									{t('common.ALERT_QUIT_TEAM')}
 								</Text>
 							</div>
 							<div className="flex-auto sm:w-10">
@@ -146,7 +128,7 @@ export const DangerZoneTeam = () => {
 										)
 									}
 								>
-									Quit
+									{t('common.QUIT')}
 								</Button>
 							</div>
 						</div>
@@ -162,15 +144,11 @@ export const DangerZoneTeam = () => {
 				close={dangerCloseModal}
 				title={
 					removeModalType === 'DISPOSE'
-						? trans.pages.settingsTeam.DISPOSE_TEAM
-						: trans.pages.settingsTeam.QUIT_TEAM
+						? t('pages.settingsTeam.DISPOSE_TEAM')
+						: t('pages.settingsTeam.QUIT_TEAM')
 				}
-				onAction={
-					removeModalType === 'DISPOSE' ? handleDisposeTeam : handleQuiteTeam
-				}
-				loading={
-					deleteOrganizationTeamLoading || deleteOrganizationEmployeeTeamLoading
-				}
+				onAction={removeModalType === 'DISPOSE' ? handleDisposeTeam : handleQuiteTeam}
+				loading={deleteOrganizationTeamLoading || deleteOrganizationEmployeeTeamLoading}
 			/>
 		</>
 	);

@@ -1,24 +1,24 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { StatusesListCard } from './list-card';
-import { PlusIcon } from '@heroicons/react/20/solid';
 import { useIssueType } from '@app/hooks';
-import { Spinner } from '@components/ui/loaders/spinner';
 import { IIcon, IIssueTypesItemList } from '@app/interfaces';
-import { useTranslation } from 'lib/i18n';
+import { userState } from '@app/stores';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
+import { StatusesListCard } from './list-card';
 
 export const IssueTypesForm = () => {
+	const { t } = useTranslation();
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
 	const [createNew, setCreateNew] = useState(false);
 	const [edit, setEdit] = useState<IIssueTypesItemList | null>(null);
-	const { trans } = useTranslation('settingsTeam');
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -28,25 +28,10 @@ export const IssueTypesForm = () => {
 		'blocked',
 		'completed'
 	]);
-	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
-		'x-large',
-		'large',
-		'medium',
-		'small',
-		'tiny'
-	]);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
-		'urgent',
-		'high',
-		'medium',
-		'low'
-	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', ['x-large', 'large', 'medium', 'small', 'tiny']);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
-	const iconList: IIcon[] = [
-		...taskStatusIconList,
-		...taskSizesIconList,
-		...taskPrioritiesIconList
-	];
+	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	const {
 		loading,
@@ -76,14 +61,7 @@ export const IssueTypesForm = () => {
 			setValue('color', '');
 			setValue('icon', '');
 		}
-	}, [
-		edit,
-		setValue,
-		createIssueType,
-		editIssueType,
-		user?.employee?.organizationId,
-		user?.tenantId
-	]);
+	}, [edit, setValue, createIssueType, editIssueType, user?.employee?.organizationId, user?.tenantId]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -101,12 +79,7 @@ export const IssueTypesForm = () => {
 					reset();
 				});
 			}
-			if (
-				edit &&
-				(values.name !== edit.name ||
-					values.color !== edit.color ||
-					values.icon !== edit.icon)
-			) {
+			if (edit && (values.name !== edit.name || values.color !== edit.color || values.icon !== edit.icon)) {
 				editIssueType(edit.id, {
 					name: values.name,
 					color: values.color,
@@ -121,15 +94,11 @@ export const IssueTypesForm = () => {
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-2 w-[200px] text-center sm:text-left">
-							{trans.ISSUE_TYPES}
+							{t('pages.settingsTeam.ISSUE_TYPES')}
 						</Text>
 
 						<div className="flex flex-col items-center sm:items-start">
@@ -145,20 +114,20 @@ export const IssueTypesForm = () => {
 									<span className="mr-[11px]">
 										<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 									</span>
-									{trans.CREATE_NEW_ISSUE_TYPES}
+									{t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-md text-gray-400 font-normal mb-2">
-										{createNew && 'New'}
-										{edit && 'Edit'} Issue Type
+									<Text className="flex-none flex-grow-0 mb-2 font-normal text-gray-400 text-md">
+										{createNew && t('common.NEW')}
+										{edit && t('common.EDIT')} {t('common.ISSUE_TYPE')}
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div className="flex items-center w-full mt-3 gap-x-5">
 										<InputField
 											type="text"
-											placeholder="Create New Issues"
+											placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
@@ -169,9 +138,7 @@ export const IssueTypesForm = () => {
 											setValue={setValue}
 											active={
 												edit
-													? (iconList.find(
-															(icon) => icon.path === edit.icon
-													  ) as IIcon)
+													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
 													: null
 											}
 										/>
@@ -181,42 +148,40 @@ export const IssueTypesForm = () => {
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
 											disabled={createIssueTypeLoading || editIssueTypeLoading}
 											loading={createIssueTypeLoading || editIssueTypeLoading}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 										<Button
 											variant="grey"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											onClick={() => {
 												setCreateNew(false);
 												setEdit(null);
 											}}
 										>
-											Cancel
+											{t('common.CANCEL')}
 										</Button>
 									</div>
 								</>
 							)}
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-								{trans.LIST_OF_STATUSES}
+								{t('pages.settingsTeam.LIST_OF_STATUSES')}
 							</Text>
-							<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+							<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 								{loading && !issueTypes?.length && <Spinner dark={false} />}
 								{issueTypes && issueTypes?.length ? (
 									issueTypes.map((type) => (
 										<StatusesListCard
 											key={type.id}
-											statusTitle={
-												type?.name ? type?.name?.split('-').join(' ') : ''
-											}
+											statusTitle={type?.name ? type?.name?.split('-').join(' ') : ''}
 											bgColor={type?.color || ''}
 											statusIcon={type?.fullIconUrl || ''}
 											onEdit={() => {

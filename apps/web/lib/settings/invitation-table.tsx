@@ -1,92 +1,55 @@
-import {
-	IInvitation,
-	IRequestToJoin,
-	IRequestToJoinActionEnum
-} from '@app/interfaces';
-import moment from 'moment';
-import { usePagination } from '@app/hooks/features/usePagination';
-import { Paginate } from 'lib/components/pagination';
-import { clsxm } from '@app/utils';
-import stc from 'string-to-color';
 import { imgTitle } from '@app/helpers';
-import { Text } from 'lib/components';
-import { InvitationTableStatus } from './invitation-table-status';
 import { useRequestToJoinTeam } from '@app/hooks';
+import { usePagination } from '@app/hooks/features/usePagination';
+import { IInvitation, IRequestToJoin, IRequestToJoinActionEnum } from '@app/interfaces';
+import { clsxm } from '@app/utils';
+import { Text } from 'lib/components';
+import { Paginate } from 'lib/components/pagination';
+import moment from 'moment';
+import { useTranslation } from 'next-i18next';
+import stc from 'string-to-color';
+import { InvitationTableStatus } from './invitation-table-status';
 
-export const InvitationTable = ({
-	invitations
-}: {
-	invitations: (IInvitation | IRequestToJoin)[];
-}) => {
-	const {
-		total,
-		onPageChange,
-		itemsPerPage,
-		itemOffset,
-		endOffset,
-		setItemsPerPage,
-		currentItems
-	} = usePagination<IInvitation | IRequestToJoin>(invitations);
-
+export const InvitationTable = ({ invitations }: { invitations: (IInvitation | IRequestToJoin)[] }) => {
+	const { total, onPageChange, itemsPerPage, itemOffset, endOffset, setItemsPerPage, currentItems } = usePagination<
+		IInvitation | IRequestToJoin
+	>(invitations);
+	const { t } = useTranslation();
 	const { acceptRejectRequestToJoin } = useRequestToJoinTeam();
 
 	return (
 		<div>
-			<div className="overflow-x-auto  sm:rounded-lg">
+			<div className="overflow-x-auto sm:rounded-lg">
 				<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 					<thead className="text-xs text-gray-700 uppercase border-b">
 						<tr>
-							<th
-								scope="col"
-								className="pl-5 py-3 text-sm font-normal capitalize text-[#B1AEBC]"
-							>
-								Name & Email
+							<th scope="col" className="pl-5 py-3 text-sm font-normal capitalize text-[#B1AEBC]">
+								{t('pages.invite.invitationTable.NAME_AND_EMAIL')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
-							>
-								Position
+							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+								{t('pages.invite.invitationTable.POSITION')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
-							>
-								Date & Time Request
+							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+								{t('pages.invite.invitationTable.DATE_AND_TIME_REQUEST')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
-							>
-								CV / Attachement
+							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+								{t('pages.invite.invitationTable.CV_OR_ATTACHMENT')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
-							>
-								Link
+							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+								{t('common.LINK')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
-							>
-								Status
+							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]">
+								{t('common.STATUS')}
 							</th>
-							<th
-								scope="col"
-								className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"
-							></th>
+							<th scope="col" className="text-sm font-normal capitalize py-3 text-[#B1AEBC]"></th>
 						</tr>
 					</thead>
 					<tbody className="dark:bg-dark--theme-light">
 						{currentItems.map((invitation, index) => (
-							<tr
-								className="bg-white dark:bg-dark--theme-light dark:border-gray-700"
-								key={index}
-							>
+							<tr className="bg-white dark:bg-dark--theme-light dark:border-gray-700" key={index}>
 								<th
 									scope="row"
-									className="flex items-center pl-0 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+									className="flex items-center py-4 pl-0 text-gray-900 whitespace-nowrap dark:text-white"
 								>
 									<div
 										className={clsxm(
@@ -101,7 +64,7 @@ export const InvitationTable = ({
 									>
 										{imgTitle(invitation.fullName)}
 									</div>
-									<div className="pl-3 flex flex-col gap-1">
+									<div className="flex flex-col gap-1 pl-3">
 										<div className="text-sm font-semibold text-[#282048] dark:text-white">
 											{invitation.fullName}
 										</div>
@@ -123,20 +86,14 @@ export const InvitationTable = ({
 								<td className="text-xs font-semibold py-4 text-[#1A79D0] dark:text-white">
 									{/* http:// www.borde.. */}-
 								</td>
-								<td className="text-xs font-semibold py-4 ">
+								<td className="py-4 text-xs font-semibold ">
 									<InvitationTableStatus
 										status={invitation.status}
 										acceptJoinRequest={() => {
-											acceptRejectRequestToJoin(
-												invitation.id,
-												IRequestToJoinActionEnum.ACCEPTED
-											);
+											acceptRejectRequestToJoin(invitation.id, IRequestToJoinActionEnum.ACCEPTED);
 										}}
 										rejectJoinRequest={() => {
-											acceptRejectRequestToJoin(
-												invitation.id,
-												IRequestToJoinActionEnum.REJECTED
-											);
+											acceptRejectRequestToJoin(invitation.id, IRequestToJoinActionEnum.REJECTED);
 										}}
 									/>
 								</td>

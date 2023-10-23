@@ -2,8 +2,16 @@
 	"TITLE": "Ever Teams",
 	"common": {
 		"ACCEPT": "Accept",
+		"ACCEPTED": "Accepted",
 		"REJECT": "Reject",
+		"REJECTED": "Rejected",
 		"VERIFY": "verify",
+		"INVITE": "Invite",
+		"INVITED": "Invited",
+		"EXPIRE": "Expire",
+		"EXPIRED": "Expired",
+		"REQUEST": "Request",
+		"REQUESTED": "Requested",
 		"PLEASE": "please",
 		"HERE": "here",
 		"PEOPLE": "People",
@@ -17,10 +25,19 @@
 		"EDIT_TASK": "Edit Task",
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
+		"REMOVE_ACCOUNT": "Remove Account",
+		"REMOVE_EVERYWHERE": "Remove Everywhere",
+		"DELETE_ACCOUNT": "Delete This Account",
 		"UNASSIGN_TASK": "Unassign Task",
 		"MAKE_A_MANAGER": "Make a Manager",
 		"UNMAKE_A_MANAGER": "Unmake a Manager",
+		"TRANSFERT_OWNERSHIP": "Transfer Ownership",
+		"TRANSFERT_OWNERSHIP_TO": "Transfer full ownership of team to another user",
 		"REMOVE": "Remove",
+		"REMOVE_TEAM": "Remove Team",
+		"DISPOSE_TEAM": "Dispose Team",
+		"QUIT_TEAM": "Quit the Team",
+		"QUIT": "Quit",
 		"RESEND_INVITATION": "Resend Invitation",
 		"TODAY": "Today",
 		"TOTAL": "Total",
@@ -41,7 +58,6 @@
 		"CLOSED": "Closed",
 		"CLOSE": "Close",
 		"USER_NOT_FOUND": "No users found.",
-		"INVITE": "Invite",
 		"TASK_TITTLE": "Task Title",
 		"PUBLIC_TASK": "This task is Public",
 		"PRIVATE_TASK": "This task is Private",
@@ -61,6 +77,11 @@
 		"CREATE": "Create",
 		"CREATE_ISSUE": "Create issue",
 		"NEW_ISSUE": "New Issue",
+		"ACTIVATED": "Activated",
+		"DEACTIVATED": "Activated",
+		"PERIOD": "Period",
+		"NEW": "New",
+		"CREATE_VERSION": "Create Version",
 		"LOADING": "Loading",
 		"TOTAL_TIME": "Total time",
 		"LAST_24_HOURS": "Last 24 Hours",
@@ -79,6 +100,7 @@
 		"3D_MODE": "3D Mode",
 		"DARK_MODE": "Dark Mode",
 		"SETTINGS": "Settings",
+		"PERSONAL": "Personal",
 		"USE_SETTING": "Use setting",
 		"TEAM": "Team",
 		"MY_TEAM": "My Team",
@@ -122,7 +144,7 @@
 		"COLLABORATE_DIALOG_TITLE": "Start Collaboration",
 		"COLLABORATE_DIALOG_SUB_TITLE": "Invite member(s) and start collaborating",
 		"COLLABORATE_DIALOG_FOOTER_MESSAGE": "Start Meeting or Board Collaboration",
-
+		"ISSUE_TYPE": "Issue Type",
 		"ACTIVITY": "Activity",
 		"FILTER_ALL": "All",
 		"FILTER_COMMENTS": "Comments",
@@ -130,6 +152,12 @@
 		"FILTER_UNSUBSCRIBE": "Unsubscribe",
 
 		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts"
+	},
+	"alerts": {
+		"ALERT_DELETE_ACCOUNT": "Account will be removed from all teams, except where you are only the manager",
+		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing fromall teams",
+		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
+		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},
 	"pages": {
 		"home": {
@@ -239,6 +267,9 @@
 		"settingsTeam": {
 			"HEADING_TITLE": "General Settings",
 			"MEMBER_HEADING_TITLE": "Members",
+			"PRIORITIES_HEADING": "Priorities",
+			"NOTIFICATION_HEADING": "Notifications",
+			"SIZES_HEADING": "Sizes",
 			"TEAM_NAME": "Team Name",
 			"TEAM_TYPE": "Team Type",
 			"TIME_TRACKING": "Time Tracking",
@@ -273,6 +304,7 @@
 			"WORK_SCHEDULE": "Work schedule",
 			"MEMBER_AND_ROLES": "Members & Roles",
 			"INTEGRATIONS": "Integrations",
+			"DANDER_ZONES": "Danger Zone",
 
 			"GITHUB": "GitHub",
 			"GITHUB_INTEGRATION_DESCRIPTION": "Connect with GitHub and start Syncing GitHub issues with your Team",
@@ -351,7 +383,13 @@
 			"SEND_INVITE": "Send Invitation",
 			"ERROR_WHILE_ACCEPTING_INVITATION": "Error while accepting invitation",
 			"ERROR_WHILE_REJECTING_INVITATION": "Error while rejecting invitation",
-			"INVITE_LABEL_SEND": "Send Invite"
+			"INVITE_LABEL_SEND": "Send Invite",
+			"invitationTable": {
+				"NAME_AND_EMAIL": "Name & Email",
+				"POSITION": "Position",
+				"DATE_AND_TIME_REQUEST": "Date & Time Request",
+				"CV_OR_ATTACHMENT": "CV / Attachement"
+			}
 		},
 		"permissions": {
 			"SELECT_ROLES": "Select Roles"
@@ -371,7 +409,8 @@
 		},
 		"ESTIMATION": {
 			"ESTIMATE_LABEL": "Estimate"
-		}
+		},
+		"DAY_LIST": [{ "title": "7 days" }, { "title": "14 days" }]
 	},
 
 	"task": {
@@ -438,7 +477,8 @@
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Terms of Service",
 			"PRIVACY_POLICY": "Privacy Policy",
-			"COOKIES": "Cookie Policy"
+			"COOKIES": "Cookie Policy",
+			"BY": "By"
 		}
 	},
 

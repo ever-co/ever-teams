@@ -1,5 +1,11 @@
-import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { useTranslation } from 'lib/i18n';
+import { GITHUB_APP_NAME } from '@app/constants';
+import {
+	useGitHubIntegration,
+	useIntegrationTenant,
+	useIntegrationTypes,
+	useOrganizationProjects,
+	useOrganizationTeams
+} from '@app/hooks';
 import {
 	Select,
 	SelectContent,
@@ -7,21 +13,15 @@ import {
 	SelectTrigger,
 	SelectValue
 } from '@components/ui/select';
-import {
-	useGitHubIntegration,
-	useIntegrationTenant,
-	useIntegrationTypes,
-	useOrganizationTeams
-} from '@app/hooks';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { GITHUB_APP_NAME } from '@app/constants';
-import Link from 'next/link';
-import { useOrganizationProjects } from '@app/hooks';
-import { TrashIcon } from 'lib/components/svgs';
+import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import { Button } from 'lib/components';
+import { TrashIcon } from 'lib/components/svgs';
+import { useTranslation } from 'next-i18next';
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const IntegrationSetting = () => {
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const params = useMemo(() => {
 		return {
@@ -123,7 +123,7 @@ export const IntegrationSetting = () => {
 
 	return (
 		<div className="flex flex-col">
-			<div className="flex justify-between items-center mt-8">
+			<div className="flex items-center justify-between mt-8">
 				<div className="flex items-center w-full gap-5">
 					<div className="border-2 border-black p-0.5 rounded-lg bg-black dark:bg-white">
 						<GitHubLogoIcon
@@ -135,11 +135,11 @@ export const IntegrationSetting = () => {
 
 					<div className="flex flex-col ">
 						<div className="font-medium text-black dark:text-light--theme-light">
-							{trans.GITHUB}
+							{t('pages.settingsTeam.GITHUB')}
 						</div>
 						{integrationGithubRepositories?.total_count === 0 && (
 							<div className="text-black dark:text-light--theme-light">
-								{trans.GITHUB_INTEGRATION_DESCRIPTION}
+								{t('pages.settingsTeam.GITHUB_INTEGRATION_DESCRIPTION')}
 							</div>
 						)}
 					</div>
@@ -154,7 +154,7 @@ export const IntegrationSetting = () => {
 								>
 									<SelectTrigger className="w-80 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
 										<SelectValue
-											placeholder={trans.SELECT_REPOSITORY}
+											placeholder={t('pages.settingsTeam.SELECT_REPOSITORY')}
 											className="dark:bg-dark--theme-light"
 										/>
 									</SelectTrigger>
@@ -189,9 +189,9 @@ export const IntegrationSetting = () => {
 						integrationGithubRepositories?.total_count === 0) && (
 						<Link
 							href={url}
-							className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
+							className="flex flex-row items-center justify-center w-24 min-w-0 gap-3 px-4 py-3 text-sm text-white rounded-md bg-primary dark:bg-primary-light"
 						>
-							{trans.INSTALL}
+							{t('pages.settingsTeam.INSTALL')}
 						</Link>
 					)}
 				</div>
