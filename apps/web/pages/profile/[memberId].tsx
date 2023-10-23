@@ -9,7 +9,7 @@ import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
@@ -126,7 +126,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 	);
 }
 
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
 	const { locale } = context;
 	const translateProps = await serverSideTranslations(locale ?? 'en', ['default']);
 	return {
@@ -135,4 +135,5 @@ export const getStaticProps: GetStaticProps = async (context: GetStaticPropsCont
 		}
 	};
 };
+
 export default withAuthentication(Profile, { displayName: 'ProfilePage' });

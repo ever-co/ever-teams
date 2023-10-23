@@ -9,7 +9,7 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { MainLayout } from 'lib/layout';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { GetServerSideProps, GetServerSidePropsContext } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
@@ -135,12 +135,12 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 }
  */
 
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
 	const { locale } = context;
-	const translationProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	const translateProps = await serverSideTranslations(locale ?? 'en', ['default']);
 	return {
 		props: {
-			...translationProps
+			...translateProps
 		}
 	};
 };
