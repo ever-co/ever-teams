@@ -6,6 +6,7 @@ import useFetchUserOrganization from "../client/queries/organizationTeam/organiz
 import {
 	createOrganizationTeamRequest,
 	deleteOrganizationTeamRequest,
+	getOrganizationTeamRequest,
 	removeUserFromAllTeam,
 	updateOrganizationTeamRequest,
 } from "../client/requests/organization-team"
@@ -13,7 +14,11 @@ import {
 	deleteOrganizationTeamEmployeeRequest,
 	updateOrganizationTeamEmployeeRequest,
 } from "../client/requests/organization-team-employee"
-import { IOrganizationTeamList, OT_Member } from "../interfaces/IOrganizationTeam"
+import {
+	IOrganizationTeamList,
+	IOrganizationTeamWithMStatus,
+	OT_Member,
+} from "../interfaces/IOrganizationTeam"
 import useAuthenticateUser from "./features/useAuthentificateUser"
 
 function useCreateOrganizationTeam() {
@@ -92,6 +97,7 @@ export function useOrganizationTeam() {
 
 	const [isTeamManager, setIsTeamManager] = useState(false)
 	const [teamsFetching, setTeamsFetching] = useState(false)
+	const [currentTeam, setCurrentTeam] = useState<IOrganizationTeamWithMStatus | null>(null)
 
 	const members = activeTeam?.members || []
 
@@ -102,6 +108,23 @@ export function useOrganizationTeam() {
 	const $otherMembers = members.filter((m) => {
 		return m.employee.userId !== user?.id
 	})
+
+	useEffect(() => {
+		const getOrganizationTeam = async () => {
+			try {
+				const { data } = await getOrganizationTeamRequest(
+					{ organizationId, tenantId, teamId: activeTeamId },
+					authToken,
+				)
+
+				setCurrentTeam(data)
+			} catch (error) {
+				console.log(error)
+			}
+		}
+
+		getOrganizationTeam()
+	}, [organizationTeams])
 
 	const activeTeamManagers = members?.filter((m) => m.role?.name === "MANAGER")
 
@@ -215,7 +238,8 @@ export function useOrganizationTeam() {
 			if (member.role && managerIds.length < 2) {
 				showMessage({
 					message: "REMOVE FROM ALL TEAMS",
-					description: "You are not able to removed account where you are only the manager!",
+					description:
+						"You are not able to removed account where you are only the manager!",
 					type: "warning",
 				})
 				return
@@ -233,7 +257,8 @@ export function useOrganizationTeam() {
 					} else {
 						showMessage({
 							message: "REMOVE FROM ALL TEAMS",
-							description: "You are not able to removed account where you are only the manager!",
+							description:
+								"You are not able to removed account where you are only the manager!",
 							type: "warning",
 						})
 					}
@@ -349,10 +374,11 @@ export function useOrganizationTeam() {
 			}
 			// UPDATE ACTIVE TEAM
 			const updateActiveTeam =
-				organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams?.items[0]
+				organizationTeams?.items.find((t) => t.id === activeTeamId) ||
+				organizationTeams?.items[0]
 			if (updateActiveTeam) {
-				setActiveTeam(updateActiveTeam)
 				setActiveTeamId(updateActiveTeam.id)
+				setActiveTeam(updateActiveTeam)
 			}
 			setOrganizationTeams(organizationTeams)
 			setTeamsFetching(false)
@@ -363,6 +389,7 @@ export function useOrganizationTeam() {
 
 	return {
 		removeUserFromAllTeams,
+		currentTeam,
 		isTeamManager,
 		members,
 		activeTeam,

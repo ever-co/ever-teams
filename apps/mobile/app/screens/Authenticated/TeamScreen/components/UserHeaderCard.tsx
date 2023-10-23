@@ -7,8 +7,9 @@ import { Avatar } from "react-native-paper"
 import { typography, useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { useTimer } from "../../../../services/hooks/useTimer"
-import moment from "moment-timezone"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import { getTimerStatusValue } from "../../../../helpers/get-timer-status"
 
 interface ITimerStatus {
 	status: "running" | "online" | "idle" | "suspended" | "pause"
@@ -67,6 +68,11 @@ const TimerStatus: FC<ITimerStatus> = ({ status }) => {
 
 const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) => {
 	const { colors } = useAppTheme()
+	const { currentTeam } = useOrganizationTeam()
+
+	const currentMember = currentTeam?.members.find(
+		(currentMember) => currentMember.id === member.id,
+	)
 
 	const { timerStatus } = useTimer()
 
@@ -89,26 +95,13 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 				/>
 			)}
 			<TimerStatus
-				status={
-					!timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.startedAt &&
-					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-					(timerStatus?.lastLog?.source !== "MOBILE" || member?.employee?.isOnline)
-						? "pause"
-						: !member?.employee?.isActive
-						? "suspended"
-						: member?.employee?.isOnline
-						? //  && member?.timerStatus !== 'running'
-						  "online"
-						: !member?.totalTodayTasks?.length
-						? "idle"
-						: member?.totalTodayTasks?.length
-						? "pause"
-						: member?.timerStatus || "idle"
-				}
+				status={getTimerStatusValue(timerStatus, currentMember, currentTeam?.public)}
 			/>
-			<Text style={[styles.name, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
+			<Text
+				style={[styles.name, { color: colors.primary }]}
+				numberOfLines={1}
+				ellipsizeMode="tail"
+			>
 				{user.name}
 			</Text>
 		</View>
