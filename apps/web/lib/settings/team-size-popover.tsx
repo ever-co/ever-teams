@@ -1,6 +1,7 @@
 import { Popover, Transition } from '@headlessui/react';
 import { Button } from 'lib/components';
 import { Edit2Icon } from 'lib/components/svgs';
+import { useTranslation } from 'next-i18next';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 
 const sizeOption = [
@@ -31,6 +32,7 @@ const TeamSize = ({
 	isTeamManager: boolean;
 	disabled?: boolean;
 }) => {
+	const { t } = useTranslation();
 	const [value, setValue] = useState(defaultValue || 'Only me');
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
@@ -59,10 +61,7 @@ const TeamSize = ({
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				panelRef.current &&
-				!panelRef.current.contains(event.target as Node)
-			) {
+			if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
 				setDisabled(true);
 			}
 		};
@@ -89,7 +88,7 @@ const TeamSize = ({
 	}, [defaultValue, onChange]);
 
 	return (
-		<Popover className="relative border-none no-underline w-full">
+		<Popover className="relative w-full no-underline border-none">
 			{() => (
 				<>
 					<Popover.Button
@@ -137,19 +136,18 @@ const TeamSize = ({
 						>
 							<div className="bg-white shadow rounded-xl text-[14px] font-light p-[16px] dark:bg-[#1B1D22] dark:border dark:border-[#FFFFFF33] flex flex-col gap-4">
 								<div className="text-lg text-[#7E7991] dark:text-gray-400 font-[500]">
-									Select Team Size
+									{t('form.SELECT_TEAM_SIZE')}
 								</div>
 								{/* Divider */}
 								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
 
-								<div className="flex flex-col  hover:cursor-pointer">
+								<div className="flex flex-col hover:cursor-pointer">
 									{sizeOption.map((size, index) => {
 										return (
 											<div
 												key={index}
 												className={`flex gap-3 items-center rounded-xl px-5 py-2 ${
-													size.name === value &&
-													'bg-primary dark:bg-primary-light'
+													size.name === value && 'bg-primary dark:bg-primary-light'
 												}`}
 												style={{ gap: 15 }}
 												onClick={() => onSelect(size.name)}
@@ -169,7 +167,7 @@ const TeamSize = ({
 								{/* Divider */}
 								<div className="h-[0.0625rem] bg-[#E5E5E5] dark:bg-[#FFFFFF14]"></div>
 
-								<div className="flex items-center space-x-2 justify-end">
+								<div className="flex items-center justify-end space-x-2">
 									<Button
 										variant="primary"
 										className="font-normal rounded-xl text-md min-w-[90px] bg-[#E6E6E9] text-[#1A1C1E]"
@@ -177,7 +175,7 @@ const TeamSize = ({
 										style={{ background: '#E6E6E9' }}
 										onClick={handleClose}
 									>
-										Cancel
+										{t('common.CANCEL')}
 									</Button>
 									<Button
 										variant="primary"
@@ -185,7 +183,7 @@ const TeamSize = ({
 										type="submit"
 										onClick={handleSave}
 									>
-										Save
+										{t('common.SAVE')}
 									</Button>
 								</div>
 							</div>

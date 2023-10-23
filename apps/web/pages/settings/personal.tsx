@@ -55,7 +55,7 @@ const Personal = () => {
 									id="general"
 								>
 									{/* <Text className="text-base font-normal text-center text-gray-400 sm:text-left">
-										{translations.pages.settings.HEADING_DESCRIPTION}
+										{t('pages.settings.HEADING_DESCRIPTION')}
 									</Text> */}
 									<ProfileAvatar />
 									<PersonalSettingForm />
@@ -74,10 +74,10 @@ const Personal = () => {
 									shadow="bigger"
 								>
 									<Text className="mb-2 text-4xl font-medium">
-										{trans.HEADING_TITLE}
+										{t('pages.settingsPersonal.HEADING_TITLE')}
 									</Text>
 									<Text className="text-base font-normal text-center text-gray-400 sm:text-left">
-										{translations.pages.settings.HEADING_DESCRIPTION}
+										{t('pages.settings.HEADING_DESCRIPTION')}
 									</Text>
 									<ProfileAvatar />
 									<PersonalSettingForm />
@@ -87,7 +87,7 @@ const Personal = () => {
 									shadow="bigger"
 								>
 									<Text className="text-2xl text-[#EB6961] font-normal text-center sm:text-left">
-										{translations.pages.settings.DANDER_ZONE}
+										{t('pages.settings.DANDER_ZONE')}
 									</Text>
 									<DangerZone />
 								</Card> */}

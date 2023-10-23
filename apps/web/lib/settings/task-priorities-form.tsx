@@ -1,35 +1,31 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
 import { userState } from '@app/stores';
+import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useRecoilValue } from 'recoil';
 import { StatusesListCard } from './list-card';
 
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTaskPriorities } from '@app/hooks';
-import { Spinner } from '@components/ui/loaders/spinner';
+import { useRefetchData, useTaskPriorities } from '@app/hooks';
 import { IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
-import { useTranslation } from 'lib/i18n';
+import { clsxm } from '@app/utils';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { useTranslation } from 'next-i18next';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
-import { clsxm } from '@app/utils';
-import { useRefetchData } from '@app/hooks';
 
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
 };
 
-export const TaskPrioritiesForm = ({
-	formOnly = false,
-	onCreated
-}: StatusForm) => {
+export const TaskPrioritiesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const user = useRecoilValue(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskPrioritiesItemList | null>(null);
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -46,18 +42,9 @@ export const TaskPrioritiesForm = ({
 		// 'small',
 		// 'tiny',
 	]);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
-		'urgent',
-		'high',
-		'medium',
-		'low'
-	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
-	const iconList: IIcon[] = [
-		...taskStatusIconList,
-		...taskSizesIconList,
-		...taskPrioritiesIconList
-	];
+	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	const {
 		loading,
@@ -125,31 +112,17 @@ export const TaskPrioritiesForm = ({
 				});
 			}
 		},
-		[
-			edit,
-			createNew,
-			formOnly,
-			editTaskPriorities,
-			onCreated,
-			user,
-			reset,
-			createTaskPriorities,
-			refetch
-		]
+		[edit, createNew, formOnly, editTaskPriorities, onCreated, user, reset, createTaskPriorities, refetch]
 	);
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						{!formOnly && (
 							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-								{trans.TASK_PRIORITIES}
+								{t('pages.settingsTeam.TASK_PRIORITIES')}
 							</Text>
 						)}
 
@@ -164,15 +137,15 @@ export const TaskPrioritiesForm = ({
 									}}
 								>
 									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									{trans.CREATE_NEW_PRIORITY}
+									{t('pages.settingsTeam.CREATE_NEW_PRIORITY')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
-										{createNew && 'New'}
-										{edit && 'Edit'} Priorities
+									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+										{createNew && t('common.NEW')}
+										{edit && t('common.EDIT')} {t('pages.settingsTeam.PRIORITIES_HEADING')}
 									</Text>
 									<div
 										className={clsxm(
@@ -182,7 +155,7 @@ export const TaskPrioritiesForm = ({
 									>
 										<InputField
 											type="text"
-											placeholder={trans.CREATE_NEW_PRIORITY}
+											placeholder={t('pages.settingsTeam.CREATE_NEW_PRIORITY')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
@@ -193,9 +166,7 @@ export const TaskPrioritiesForm = ({
 											setValue={setValue}
 											active={
 												edit
-													? (iconList.find(
-															(icon) => icon.path === edit.icon
-													  ) as IIcon)
+													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
 													: null
 											}
 										/>
@@ -205,31 +176,27 @@ export const TaskPrioritiesForm = ({
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
-											disabled={
-												createTaskPrioritiesLoading || editTaskPrioritiesLoading
-											}
-											loading={
-												createTaskPrioritiesLoading || editTaskPrioritiesLoading
-											}
+											disabled={createTaskPrioritiesLoading || editTaskPrioritiesLoading}
+											loading={createTaskPrioritiesLoading || editTaskPrioritiesLoading}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="px-4 py-4 font-normal rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
 												}}
 											>
-												Cancel
+												{t('common.CANCEL')}
 											</Button>
 										)}
 									</div>
@@ -239,19 +206,15 @@ export const TaskPrioritiesForm = ({
 							{!formOnly && taskPriorities?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{trans.LIST_OF_PRIORITIES}
+										{t('pages.settingsTeam.LIST_OF_PRIORITIES')}
 									</Text>
-									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-										{loading && !taskPriorities?.length && (
-											<Spinner dark={false} />
-										)}
+									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+										{loading && !taskPriorities?.length && <Spinner dark={false} />}
 										{taskPriorities && taskPriorities?.length ? (
 											taskPriorities.map((priority) => (
 												<StatusesListCard
 													statusTitle={
-														priority.name
-															? priority.name?.split('-').join(' ')
-															: ''
+														priority.name ? priority.name?.split('-').join(' ') : ''
 													}
 													bgColor={priority.color || ''}
 													statusIcon={priority.fullIconUrl || ''}

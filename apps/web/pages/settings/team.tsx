@@ -113,7 +113,7 @@ const Team = () => {
 									{/* TODO */}
 									{/* Notification Settings */}
 									{/* <Accordian
-										title={trans.NOTIFICATION_HEADING_TITLE}
+										title={t('pages.settingsTeam.NOTIFICATION_HEADING_TITLE')}
 										className="p-4 mt-4 dark:bg-dark--theme"
 									>
 										<NotificationSettings />

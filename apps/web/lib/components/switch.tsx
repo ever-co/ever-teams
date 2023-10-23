@@ -45,7 +45,7 @@ export default function TimeTrackingToggle({ activeManager }: { activeManager: O
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 ">{enabled ? 'Activated' : 'Deactivated'}</Text>
+			<Text className="text-gray-400 ">{enabled ? t('common.ACTIVATED') : t('common.DEACTIVATED')}</Text>
 		</div>
 	);
 }

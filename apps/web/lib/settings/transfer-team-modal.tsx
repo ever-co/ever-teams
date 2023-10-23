@@ -2,7 +2,7 @@ import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { IOrganizationTeamMember } from '@app/interfaces';
 import { activeTeamManagersState } from '@app/stores';
 import { BackButton, Button, Card, Modal, Text } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'next-i18next';
 import { useCallback, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
@@ -10,21 +10,13 @@ import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
 /**
  * Transfer team modal
  */
-export function TransferTeamModal({
-	open,
-	closeModal
-}: {
-	open: boolean;
-	closeModal: () => void;
-}) {
-	const { trans } = useTranslation();
+export function TransferTeamModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
+	const { t } = useTranslation();
 	const activeTeamManagers = useRecoilValue(activeTeamManagersState);
-	const { activeTeam, editOrganizationTeam, editOrganizationTeamLoading } =
-		useOrganizationTeams();
+	const { activeTeam, editOrganizationTeam, editOrganizationTeamLoading } = useOrganizationTeams();
 	const { user } = useAuthenticateUser();
 
-	const [selectedMember, setSelectedMember] =
-		useState<IOrganizationTeamMember>();
+	const [selectedMember, setSelectedMember] = useState<IOrganizationTeamMember>();
 
 	const handleSubmit = useCallback(
 		(e: React.FormEvent<HTMLFormElement>) => {
@@ -48,27 +40,16 @@ export function TransferTeamModal({
 					.catch(closeModal);
 			}
 		},
-		[
-			activeTeam,
-			selectedMember,
-			user,
-			activeTeamManagers,
-			closeModal,
-			editOrganizationTeam
-		]
+		[activeTeam, selectedMember, user, activeTeamManagers, closeModal, editOrganizationTeam]
 	);
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<form
-				className="w-[98%] md:w-[530px]"
-				autoComplete="off"
-				onSubmit={handleSubmit}
-			>
+			<form className="w-[98%] md:w-[530px]" autoComplete="off" onSubmit={handleSubmit}>
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
-							{trans.common.TRANSFER_TEAM}
+							{t('common.TRANSFER_TEAM')}
 						</Text.Heading>
 
 						<div className="w-full mt-5">
@@ -86,7 +67,7 @@ export function TransferTeamModal({
 							/>
 						</div>
 
-						<div className="w-full flex justify-between mt-3 items-center">
+						<div className="flex items-center justify-between w-full mt-3">
 							<BackButton onClick={closeModal} />
 
 							<Button
@@ -94,7 +75,7 @@ export function TransferTeamModal({
 								disabled={editOrganizationTeamLoading}
 								loading={editOrganizationTeamLoading}
 							>
-								{trans.common.TRANSFER}
+								{t('common.TRANSFER')}
 							</Button>
 						</div>
 					</div>

@@ -1,18 +1,18 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { IIcon, ITaskLabelsItemList } from '@app/interfaces';
 import { useTaskLabels } from '@app/hooks';
-import { StatusesListCard } from './list-card';
+import { IIcon, ITaskLabelsItemList } from '@app/interfaces';
+import { userState } from '@app/stores';
+import { clsxm } from '@app/utils';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { useTranslation } from 'lib/i18n';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
-import { clsxm } from '@app/utils';
+import { StatusesListCard } from './list-card';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -24,7 +24,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskLabelsItemList | null>(null);
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -41,18 +41,9 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		// 'small',
 		// 'tiny',
 	]);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
-		'urgent',
-		'high',
-		'medium',
-		'low'
-	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
-	const iconList: IIcon[] = [
-		...taskStatusIconList,
-		...taskSizesIconList,
-		...taskPrioritiesIconList
-	];
+	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	const {
 		loading,
@@ -117,30 +108,17 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				});
 			}
 		},
-		[
-			edit,
-			createNew,
-			formOnly,
-			onCreated,
-			editTaskLabels,
-			user,
-			reset,
-			createTaskLabels
-		]
+		[edit, createNew, formOnly, onCreated, editTaskLabels, user, reset, createTaskLabels]
 	);
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex justify-center sm:justify-start">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						{!formOnly && (
 							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-								{trans.TASK_LABELS}
+								{t('pages.settingsTeam.TASK_LABELS')}
 							</Text>
 						)}
 
@@ -156,15 +134,15 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 								>
 									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
 
-									{trans.CREATE_NEW_LABEL}
+									{t('pages.settingsTeam.CREATE_NEW_LABEL')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
-										{createNew && 'New'}
-										{edit && 'Edit'} Label
+									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+										{createNew && t('common.NEW')}
+										{edit && t('common.EDIT')} {t('common.LABEL')}
 									</Text>
 									<div
 										className={clsxm(
@@ -174,7 +152,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									>
 										<InputField
 											type="text"
-											placeholder={trans.CREATE_NEW_LABEL}
+											placeholder={t('pages.settingsTeam.CREATE_NEW_LABEL')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
@@ -185,9 +163,7 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 											setValue={setValue}
 											active={
 												edit
-													? (iconList.find(
-															(icon) => icon.path === edit.icon
-													  ) as IIcon)
+													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
 													: null
 											}
 										/>
@@ -197,29 +173,27 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
-											disabled={
-												createTaskLabelsLoading || editTaskLabelsLoading
-											}
+											disabled={createTaskLabelsLoading || editTaskLabelsLoading}
 											loading={createTaskLabelsLoading || editTaskLabelsLoading}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="px-4 py-4 font-normal rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
 												}}
 											>
-												Cancel
+												{t('common.CANCEL')}
 											</Button>
 										)}
 									</div>
@@ -229,16 +203,14 @@ export const TaskLabelForm = ({ formOnly = false, onCreated }: StatusForm) => {
 							{!formOnly && taskLabels?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{trans.LIST_OF_LABELS}
+										{t('pages.settingsTeam.LIST_OF_LABELS')}
 									</Text>
-									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 										{loading && !taskLabels?.length && <Spinner dark={false} />}
 										{taskLabels && taskLabels?.length ? (
 											taskLabels.map((label) => (
 												<StatusesListCard
-													statusTitle={
-														label.name ? label.name?.split('-').join(' ') : ''
-													}
+													statusTitle={label.name ? label.name?.split('-').join(' ') : ''}
 													bgColor={label.color || ''}
 													statusIcon={label.fullIconUrl || ''}
 													onEdit={() => {

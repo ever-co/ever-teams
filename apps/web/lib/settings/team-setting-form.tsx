@@ -1,22 +1,22 @@
-import { Button, ColorPicker, InputField, Text, Tooltip } from 'lib/components';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
-import TimeTrackingToggle from 'lib/components/switch';
 import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
-import isEqual from 'lodash/isEqual';
-import TeamSize from './team-size-popover';
-import { EmojiPicker } from 'lib/components/emoji-picker';
-import debounce from 'lodash/debounce';
 import { RoleNameEnum } from '@app/interfaces';
+import { userState } from '@app/stores';
+import { Button, ColorPicker, InputField, Text, Tooltip } from 'lib/components';
+import { EmojiPicker } from 'lib/components/emoji-picker';
+import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
+import TimeTrackingToggle from 'lib/components/switch';
+import debounce from 'lodash/debounce';
+import isEqual from 'lodash/isEqual';
+import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
+import TeamSize from './team-size-popover';
 
 export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 	const { activeTeam, editOrganizationTeam, loading, loadingTeam } =
 		useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
@@ -165,22 +165,22 @@ export const TeamSettingForm = () => {
 				onSubmit={handleSubmit(onSubmit)}
 				autoComplete="off"
 			>
-				<div className="flex flex-col justify-between items-center">
+				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">
 							{/* Team Name */}
-							<div className="flex w-full items-center justify-between sm:gap-12 flex-col sm:flex-row">
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
-									{trans.TEAM_NAME}
+							<div className="flex flex-col items-center justify-between w-full sm:gap-12 sm:flex-row">
+								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+									{t('pages.settingsTeam.TEAM_NAME')}
 								</Text>
 								<div
 									ref={inputWrapperRef}
-									className="flex flex-row flex-grow-0 items-center justify-between w-4/5"
+									className="flex flex-row items-center justify-between flex-grow-0 w-4/5"
 								>
 									<InputField
 										autoCustomFocus={!disabled}
 										type="text"
-										placeholder={trans.TEAM_NAME}
+										placeholder={t('pages.settingsTeam.TEAM_NAME')}
 										{...register('teamName', { required: true, maxLength: 80 })}
 										className={`${disabled ? 'disabled:bg-[#FCFCFC]' : ''}`}
 										trailingNode={
@@ -216,11 +216,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Team Color */}
-							<div className=" flex w-full items-center justify-between gap-12 z-50">
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
-									{trans.TEAM_COLOR}
+							<div className="z-50 flex items-center justify-between w-full gap-12 ">
+								<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+									{t('pages.settingsTeam.TEAM_COLOR')}
 								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+								<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
 									<ColorPicker
 										defaultColor={activeTeam?.color}
 										onChange={(color: any | null) => {
@@ -235,11 +235,11 @@ export const TeamSettingForm = () => {
 							</div>
 
 							{/* Emoji */}
-							<div className=" flex w-full items-center justify-between gap-12">
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
-									{trans.EMOJI}
+							<div className="flex items-center justify-between w-full gap-12 ">
+								<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+									{t('pages.settingsTeam.EMOJI')}
 								</Text>
-								<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+								<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
 									<EmojiPicker
 										onChange={(emoji: string) => {
 											setValue('emoji', emoji);
@@ -254,11 +254,11 @@ export const TeamSettingForm = () => {
 
 							{/* Team Size */}
 							{
-								<div className=" flex w-full items-center justify-between gap-12 mt-3">
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-1/5">
-										{trans.TEAM_SIZE}
+								<div className="flex items-center justify-between w-full gap-12 mt-3 ">
+									<Text className="flex-none flex-grow-0 w-1/5 mb-2 text-lg font-normal text-gray-400">
+										{t('pages.settingsTeam.TEAM_SIZE')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+									<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
 										<TeamSize
 											defaultValue={activeTeam?.teamSize || ''}
 											onChange={(teamSize: string) => {
@@ -273,13 +273,13 @@ export const TeamSettingForm = () => {
 							}
 
 							{/* Team Type */}
-							<div className="flex w-full items-center sm:gap-12 mt-8 flex-col sm:flex-row">
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 sm:w-1/5">
-									{trans.TEAM_TYPE}
+							<div className="flex flex-col items-center w-full mt-8 sm:gap-12 sm:flex-row">
+								<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400 sm:w-1/5">
+									{t('pages.settingsTeam.TEAM_TYPE')}
 								</Text>
 								<div className="flex gap-x-[30px] flex-col sm:flex-row items-center">
 									{isTeamManager && (
-										<div className="items-center w-full flex justify-between sm:block space-y-2">
+										<div className="flex items-center justify-between w-full space-y-2 sm:block">
 											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
 												<input
 													id="team-type-radio-public"
@@ -298,7 +298,7 @@ export const TeamSettingForm = () => {
 													className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
 													htmlFor="team-type-radio-public"
 												>
-													Public Team
+													{t('team.PUBLIC_TEAM')}
 												</Text.Label>
 											</div>
 											<div className="flex items-center mb-[0.125rem] min-h-[1.5rem] pl-[1.5rem]">
@@ -318,14 +318,14 @@ export const TeamSettingForm = () => {
 													className="mt-px inline-block pl-[0.15rem] hover:cursor-pointer"
 													htmlFor="team-type-radio-private"
 												>
-													Private Team
+													{t('team.PRIVATE_TEAM')}
 												</Text.Label>
 											</div>
 										</div>
 									)}
 									{getTeamLink() && (
-										<div className="flex gap-4 items-center flex-col sm:flex-row">
-											<div className="flex flex-row flex-grow-0 items-center justify-between w-64 mb-0">
+										<div className="flex flex-col items-center gap-4 sm:flex-row">
+											<div className="flex flex-row items-center justify-between flex-grow-0 w-64 mb-0">
 												<Tooltip
 													label={getTeamLink()}
 													placement="auto"
@@ -341,7 +341,7 @@ export const TeamSettingForm = () => {
 													/>
 												</Tooltip>
 											</div>
-											<div className="flex flex-row flex-grow-0 items-center justify-between sm:w-1/5">
+											<div className="flex flex-row items-center justify-between flex-grow-0 sm:w-1/5">
 												<Button
 													variant="outline"
 													className="border-2 rounded-xl h-[54px] min-w-[105px] font-[600] text-[14px]"
@@ -364,11 +364,11 @@ export const TeamSettingForm = () => {
 
 							{/* Time Tracking */}
 							{isTeamManager ? (
-								<div className="flex w-full items-center justify-between gap-12 mt-8">
-									<Text className="flex-none text-gray-400 flex-grow-0 text-lg font-normal md-2 sm:w-1/5">
-										{trans.TIME_TRACKING}
+								<div className="flex items-center justify-between w-full gap-12 mt-8">
+									<Text className="flex-none flex-grow-0 text-lg font-normal text-gray-400 md-2 sm:w-1/5">
+										{t('pages.settingsTeam.TIME_TRACKING')}
 									</Text>
-									<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
+									<div className="flex flex-row items-center justify-between flex-grow-0 w-4/5">
 										<TimeTrackingToggle activeManager={activeManager} />
 									</div>
 								</div>

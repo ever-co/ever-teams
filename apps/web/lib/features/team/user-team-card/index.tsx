@@ -17,7 +17,7 @@ export function UserTeamCardHeader() {
 	const { t } = useTranslation();
 	return (
 		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
-			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
+			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
 			<div className="2xl:w-[20.625rem] text-center">{t('common.NAME')}</div>
 			<div className="w-1"></div>
 			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>

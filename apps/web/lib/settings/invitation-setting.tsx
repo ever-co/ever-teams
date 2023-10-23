@@ -1,18 +1,13 @@
-import {
-	useAuthenticateUser,
-	useModal,
-	useRequestToJoinTeam,
-	useTeamInvitations
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useRequestToJoinTeam, useTeamInvitations } from '@app/hooks';
 import { Button, InputField, NoData } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'next-i18next';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { InvitationTable } from './invitation-table';
 
 export const InvitationSetting = () => {
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const { teamInvitations } = useTeamInvitations();
 	const { getRequestToJoin, requestToJoin } = useRequestToJoinTeam();
@@ -38,21 +33,15 @@ export const InvitationSetting = () => {
 				<div className="w-auto">
 					<InputField
 						type="text"
-						placeholder={trans.SEARCH_MEMBER}
+						placeholder={t('pages.settingsTeam.SEARCH_MEMBER')}
 						className="mb-0 h-11"
 						leadingNode={
-							<Button
-								variant="ghost"
-								className="p-0 m-0 ml-[0.9rem] min-w-0"
-								type="submit"
-							>
+							<Button variant="ghost" className="p-0 m-0 ml-[0.9rem] min-w-0" type="submit">
 								<SearchNormalIcon className="w-[1rem] dark:stroke-[#ffffff] " />
 							</Button>
 						}
 						onChange={(e: ChangeEvent<HTMLInputElement>) => {
-							setFilterString(
-								e.target.value ? e.target.value.toLowerCase() : ''
-							);
+							setFilterString(e.target.value ? e.target.value.toLowerCase() : '');
 						}}
 					/>
 				</div>
@@ -69,11 +58,11 @@ export const InvitationSetting = () => {
 				</div>
 			</div>
 			{invitations.length > 0 ? (
-				<div className="mt-7 mb-8">
+				<div className="mb-8 mt-7">
 					<InvitationTable invitations={invitations} />
 				</div>
 			) : (
-				<NoData text={trans.NO_INVITATIONS} />
+				<NoData text={t('pages.settingsTeam.NO_INVITATIONS')} />
 			)}
 
 			{/* TODO Dynamic */}
@@ -82,7 +71,7 @@ export const InvitationSetting = () => {
 				<div className="flex items-center gap-16">
 					<div className="flex items-start gap-1">
 						<Text className="flex-none font-normal text-[#7E7991] dark:text-white flex-grow-0 text-lg md-2">
-							{trans.INVITATION_EXPIRATION}
+							{t('pages.settingsTeam.INVITATION_EXPIRATION')}
 						</Text>
 						<SettingSimpleGearIcon className="stroke-[#B1AEBC] dark:stroke-white" />
 					</div>
@@ -100,7 +89,7 @@ export const InvitationSetting = () => {
 							<div className="flex flex-row ">
 								<Button
 									variant="outline"
-									className="border-2 rounded-xl h-14 w-28 min-w-max font-semibold text-base p-0"
+									className="p-0 text-base font-semibold border-2 rounded-xl h-14 w-28 min-w-max"
 									type="button"
 									onClick={() => {
 										setCopied(true);
@@ -121,7 +110,7 @@ export const InvitationSetting = () => {
 				<div className="flex items-center ">
 					<div className="flex items-start gap-1 w-[16.5rem]">
 						<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
-							{trans.NOTIFY_IF}
+							{t('pages.settingsTeam.NOTIFY_IF')}
 						</Text>
 					</div>
 					<div className="flex items-center ">
@@ -129,7 +118,7 @@ export const InvitationSetting = () => {
 							<div className="flex flex-row mb-0">
 								<NotifyDropdown setValue={() => console.log('')} />
 							</div>
-							<Text className="font-semibold text-base">Once At</Text>
+							<Text className="text-base font-semibold">Once At</Text>
 						</div>
 						<div>
 							<DayDropdown setValue={() => console.log('')} />
@@ -138,16 +127,13 @@ export const InvitationSetting = () => {
 				</div>
 				<div className="flex items-start gap-20 ">
 					<Text className="flex-none font-normal text-[#7E7991] flex-grow-0 text-lg md-2 dark:text-white">
-						{trans.TEAM_REQUEST}
+						{t('pages.settingsTeam.TEAM_REQUEST')}
 					</Text>
 					<MemberInfo />
 				</div>
 			</div> */}
 
-			<InviteFormModal
-				open={isOpen && !!user?.isEmailVerified}
-				closeModal={closeModal}
-			/>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</div>
 	);
 };

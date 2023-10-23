@@ -487,7 +487,7 @@ function TaskCardMenu({
 													'text-red-500'
 												)}
 											>
-												{trans.common.REMOVE}
+												{t('common.REMOVE')}
 											</Text>
 										</ConfirmDropdown>
 									</li> */}
