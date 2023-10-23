@@ -54,7 +54,7 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 		<Modal animationType="fade" transparent visible={showModal}>
 			<BlurView
 				intensity={15}
-				tint="light"
+				tint="dark"
 				style={{
 					position: "absolute",
 					width: "100%",
@@ -146,7 +146,6 @@ const Item: FC<ItemProps> = ({ currentStatusName, status, onStatusSelected }) =>
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "center",
 }
 

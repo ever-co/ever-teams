@@ -22,7 +22,6 @@ import { colors, typography, useAppTheme } from "../../../../theme"
 import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
 import { translate } from "../../../../i18n"
 import useTeamScreenLogic from "../logics/useTeamScreenLogic"
-import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -55,15 +54,6 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal transparent visible={showModal}>
-			<BlurView
-				intensity={15}
-				tint="light"
-				style={{
-					position: "absolute",
-					width: "100%",
-					height: "100%",
-				}}
-			/>
 			<KeyboardAvoidingView
 				style={$modalBackGround}
 				behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -235,7 +225,6 @@ export default InviteUserModal
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "rgba(0,0,0,0.5)",
 	justifyContent: "flex-end",
 }
 const $modalContainer: ViewStyle = {

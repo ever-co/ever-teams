@@ -210,7 +210,6 @@ export default FilterPopup
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "flex-end",
 }
 

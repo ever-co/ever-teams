@@ -56,7 +56,7 @@ const ModalPopUp = ({ visible, children }) => {
 		<Modal transparent visible={showModal}>
 			<BlurView
 				intensity={15}
-				tint="light"
+				tint="dark"
 				style={{
 					position: "absolute",
 					width: "100%",
@@ -143,7 +143,7 @@ export default CreateTeamModal
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "rgba(0,0,0,0.5)",
+	// backgroundColor: "rgba(0,0,0,0.5)",
 	justifyContent: "flex-end",
 }
 const $modalContainer: ViewStyle = {
