@@ -1,7 +1,6 @@
 import { generateToken } from '@app/helpers/generate-token';
 import { authFormValidate } from '@app/helpers/validations';
 import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
-// import { recaptchaVerification } from "@app/services/server/recaptcha";
 import {
 	createEmployeeFromUser,
 	createOrganizationRequest,
@@ -41,17 +40,18 @@ export default async function handler(
 		return res.status(400).json({ errors });
 	}
 
-	const { success } = await recaptchaVerification({
-		secret: RECAPTCHA_SECRET_KEY || '',
-		response: body.recaptcha
-	});
+	if(RECAPTCHA_SECRET_KEY) {
+		const { success } = await recaptchaVerification({
+			secret: RECAPTCHA_SECRET_KEY || '',
+			response: body.recaptcha ? body.recaptcha : ''
+		});
 
-	if (!success) {
-		return res
-			.status(400)
-			.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
+		if (!success) {
+			return res
+				.status(400)
+				.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
+		}
 	}
-
 	/**
 	 * Verify if the SMTP has been configured
 	 */
