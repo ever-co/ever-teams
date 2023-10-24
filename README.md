@@ -66,11 +66,15 @@ Ever® Teams™ Platform (<https://app.ever.team>) is built on top of our Busine
 
 ## 🧱 Technology Stack and Requirements
 
-- [TypeScript](https://www.typescriptlang.org) language
-- [NodeJs](https://nodejs.org) / [NestJs](https://github.com/nestjs/nest)
-- [Nx](https://nx.dev)
+- [TypeScript](https://www.typescriptlang.org) Language
+- [Nx](https://nx.dev) and [Lerna](https://github.com/lerna/lerna)
+- [NodeJs](https://nodejs.org)
+- [NextJs](https://nextjs.org)
 - [React](https://reactjs.org)
 - [React Native](https://reactnative.dev)
+- [Tailwind](https://tailwindcss.com/) - CSS / Styles
+- [shadcn/ui](https://ui.shadcn.com/) - Component Library
+- [Vercel](https://vercel.com) - Hosting
 
 #### See also README.md and CREDITS.md files in relevant folders for lists of libraries and software included in the Platform, information about licenses, and other details
 
@@ -80,7 +84,7 @@ Please refer to our official [Platform Documentation](https://docs.ever.team) (W
 
 ## 🚀 Getting Starting
 
-### Super Quick Start 
+### Super Quick Start
 
 <https://app.ever.team>
 
@@ -102,9 +106,39 @@ Note: by default, Ever Teams web frontend will be connected to our production [E
 5. Run `yarn build:web`
 6. Run `yarn start:web`
 
-### Notes
+#### Notes
 
 Note: Ever® Teams™ requires access to Ever® Gauzy™ Platform APIs, provided by another project - Ever® Gauzy™ Platform, see <https://github.com/ever-co/ever-gauzy> (and also <https://gauzy.co>). Specifically, you might be interested in the `apps/api` and `apps/server` folders of the mono-repo for the code of Gauzy API & Gauzy Server.
+
+### Run in Gitpod
+
+- Launch a ready-to-use Gitpod workspace (WIP):
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/ever-co/ever-teams)
+
+### Run in DevContainer
+
+DevContainers for VSCode are supported (WIP).
+
+[Click here to get started.](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/ever-co/ever-teams)
+
+### Run in Docker & Docker Compose
+
+WIP
+
+## 🚗 Self Hosting
+
+### Railway
+
+Note: WIP
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/EverTeams)
+
+### Render
+
+Note: WIP
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ever-co/ever-teams)
 
 ## 📄 Content
 
@@ -187,9 +221,9 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 </p>
 
 <p>
-	<a href="https://vercel.com/?utm_source=ever-co&utm_campaign=oss">
-  	  <img src=".github/vercel-logo.svg" alt="Powered by Vercel" />
-	</a>
+ <a href="https://vercel.com/?utm_source=ever-co&utm_campaign=oss">
+     <img src=".github/vercel-logo.svg" alt="Powered by Vercel" />
+ </a>
 </p>
 
 ## ©️ Copyright
