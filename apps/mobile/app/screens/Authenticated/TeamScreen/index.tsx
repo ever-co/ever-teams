@@ -79,7 +79,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
 		return (
 			<>
-				{showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+				{showInviteModal && <BlurView tint="dark" intensity={15} style={$blurContainer} />}
 				<Screen
 					contentContainerStyle={[$container, { backgroundColor: colors.background }]}
 					backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
@@ -123,36 +123,62 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 									<View
 										style={{
 											...$wrapTeam,
-											backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)",
+											backgroundColor: dark
+												? "#191A20"
+												: "rgba(255,255,255,0.6)",
 										}}
 									>
-										<View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
+										<View
+											style={{ width: isTeamManager ? width / 1.9 : "100%" }}
+										>
 											<DropDown
 												isOpen={isTeamModalOpen}
 												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
-												isAccountVerified={currentUser?.employee.user.isEmailVerified}
+												isAccountVerified={
+													currentUser?.employee.user.isEmailVerified
+												}
 											/>
 										</View>
-										{isTeamManager && currentUser.employee.user.isEmailVerified ? (
+										{isTeamManager &&
+										currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
-												style={[$inviteButton, { borderColor: colors.secondary }]}
+												style={[
+													$inviteButton,
+													{ borderColor: colors.secondary },
+												]}
 												onPress={() => setShowInviteModal(true)}
 											>
-												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+												<Text
+													style={[
+														$inviteButtonText,
+														{ color: colors.secondary },
+													]}
+												>
 													{translate("teamScreen.inviteButton")}
 												</Text>
 											</TouchableOpacity>
-										) : isTeamManager && !currentUser.employee.user.isEmailVerified ? (
+										) : isTeamManager &&
+										  !currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
-												style={[$inviteButton, { borderColor: colors.secondary }]}
+												style={[
+													$inviteButton,
+													{ borderColor: colors.secondary },
+												]}
 												onPress={() => {
 													setShowVerifyAccountModal(true)
-													resendAccountVerificationCode(currentUser.employee.user.email)
+													resendAccountVerificationCode(
+														currentUser.employee.user.email,
+													)
 												}}
 											>
-												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+												<Text
+													style={[
+														$inviteButtonText,
+														{ color: colors.secondary },
+													]}
+												>
 													{translate("accountVerificationModal.verify")}
 												</Text>
 											</TouchableOpacity>
@@ -161,7 +187,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
 									{/* Users activity list */}
 									<View
-										style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
+										style={[
+											$cardContainer,
+											{ backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" },
+										]}
 									>
 										<FlatList
 											data={[currentUser, $otherMembers, teamInvitations]}
@@ -196,7 +225,9 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 													)
 												}
 											}}
-											ListFooterComponent={<View style={{ marginBottom: 30 }} />}
+											ListFooterComponent={
+												<View style={{ marginBottom: 30 }} />
+											}
 										/>
 									</View>
 								</>

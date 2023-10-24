@@ -23,6 +23,7 @@ import { useTaskStatusValue } from "../../../../components/StatusType"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
 import { StatusType } from "./FilterPopup"
+import { BlurView } from "expo-blur"
 
 interface TaskStatusFilterProps {
 	showTaskStatus: boolean
@@ -87,12 +88,16 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 							styles.dropdownContainer,
 							{
 								backgroundColor: colors.background,
-								shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
+								shadowColor: dark
+									? "rgba(255, 255, 255, 0.2)"
+									: "rgba(0, 0, 0, 0.2)",
 							},
 						]}
 					>
 						<View style={styles.secondContainer}>
-							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>
+								Statuses
+							</Text>
 							<View style={{ paddingHorizontal: 16, height: height / 2.55 }}>
 								<FlatList
 									bounces={false}
@@ -187,6 +192,15 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
 					<Animated.View
@@ -207,7 +221,6 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "flex-end",
 }
 
