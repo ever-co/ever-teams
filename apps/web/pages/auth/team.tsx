@@ -6,13 +6,13 @@ import {
 	Text,
 	InputField,
 	Button,
-	SiteReCAPTCHA,
+	// SiteReCAPTCHA,
 	BackdropLoader,
 	BackButton
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
-import { useState } from 'react';
+// import { useState } from 'react';
 
 export default function AuthTeam() {
 	const {
@@ -144,7 +144,7 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const { trans, translations } = useTranslation('authTeam');
-	const [feedback, setFeedback] = useState<string>('');
+	// const [feedback, setFeedback] = useState<string>('');
 
 	return (
 		<Card
@@ -179,7 +179,7 @@ function FillUserDataForm({
 						autoComplete="off"
 					/>
 
-					<div className="w-full flex">
+					{/* <div className="w-full flex">
 						<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
 							<SiteReCAPTCHA
 								onChange={(res) => {
@@ -194,7 +194,7 @@ function FillUserDataForm({
 								</Text.Error>
 							)}
 						</div>
-					</div>
+					</div> */}
 				</div>
 
 				<div className="flex justify-between w-full items-center">
