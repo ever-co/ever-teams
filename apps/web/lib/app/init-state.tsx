@@ -1,23 +1,23 @@
 import { DISABLE_AUTO_REFRESH } from '@app/constants';
 import {
+	useAutoAssignTask,
+	useCallbackRef,
+	useIssueType,
 	useLanguageSettings,
+	useOTRefreshInterval,
 	useOrganizationTeams,
+	useRefreshInterval,
+	useSyncTimer,
+	useTaskLabels,
+	useTaskPriorities,
+	useTaskRelatedIssueType,
+	useTaskSizes,
 	useTaskStatistics,
+	useTaskStatus,
+	useTaskVersion,
 	useTeamInvitations,
 	useTeamTasks,
-	useTimer,
-	useAutoAssignTask,
-	useTaskStatus,
-	useTaskPriorities,
-	useTaskSizes,
-	useTaskLabels,
-	useOTRefreshInterval,
-	useIssueType,
-	useRefreshInterval,
-	useCallbackRef,
-	useSyncTimer,
-	useTaskRelatedIssueType,
-	useTaskVersion
+	useTimer
 } from '@app/hooks';
 import { publicState, userState } from '@app/stores';
 import { useEffect, useMemo } from 'react';
@@ -42,13 +42,11 @@ function InitState() {
 
 	const { firstLoadTaskStatusData, loadTaskStatusData } = useTaskStatus();
 	const { firstLoadTaskVersionData, loadTaskVersionData } = useTaskVersion();
-	const { firstLoadTaskPrioritiesData, loadTaskPriorities } =
-		useTaskPriorities();
+	const { firstLoadTaskPrioritiesData, loadTaskPriorities } = useTaskPriorities();
 	const { firstLoadTaskSizesData, loadTaskSizes } = useTaskSizes();
 	const { firstLoadTaskLabelsData, loadTaskLabels } = useTaskLabels();
 	const { firstLoadIssueTypeData } = useIssueType();
-	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } =
-		useTaskRelatedIssueType();
+	const { firstLoadTaskRelatedIssueTypeData, loadTaskRelatedIssueTypeData } = useTaskRelatedIssueType();
 
 	useOneTimeLoad(() => {
 		//To be called once, at the top level component (e.g main.tsx | _app.tsx);
@@ -95,11 +93,7 @@ function InitState() {
 			 */
 			useOTRefreshInterval(loadTeamsData, five_seconds, publicTeam);
 			// Refresh tasks with a deep compare
-			useRefreshInterval(
-				loadTeamTasksData,
-				five_seconds,
-				true /* used as loadTeamTasksData deepCheck param */
-			);
+			useRefreshInterval(loadTeamTasksData, five_seconds, true /* used as loadTeamTasksData deepCheck param */);
 
 			// Timer status
 			// useRefreshInterval(
@@ -108,11 +102,7 @@ function InitState() {
 			// 	true /* used as getTimerStatus deepCheck param */
 			// );
 
-			useRefreshInterval(
-				myInvitations,
-				10 * 1000,
-				true /* used as loadTeamTasksData deepCheck param */
-			);
+			useRefreshInterval(myInvitations, 10 * 1000, true /* used as loadTeamTasksData deepCheck param */);
 
 			useRefreshInterval(loadTaskStatusData, sixty_two_seconds, true);
 			useRefreshInterval(loadTaskPriorities, sixty_two_seconds, true);

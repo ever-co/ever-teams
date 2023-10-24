@@ -146,7 +146,7 @@ const Team = () => {
 
 export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
 	const { locale } = context;
-	const translationProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	const translationProps = await serverSideTranslations(locale ?? 'en', ['common']);
 	return {
 		props: {
 			...translationProps

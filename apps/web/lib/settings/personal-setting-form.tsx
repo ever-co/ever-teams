@@ -103,10 +103,6 @@ export const PersonalSettingForm = () => {
 		},
 		[setCurrentTimezone, setValue, updateAvatar, user]
 	);
-	// Update language in rerender
-	useEffect(() => {
-		changeLanguage(user?.preferredLanguage as string);
-	}, [changeLanguage, user?.preferredLanguage]);
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
 		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());

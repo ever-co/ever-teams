@@ -1,8 +1,5 @@
 import { APPLICATION_LANGUAGES_CODE } from '@app/constants';
-import {
-	getActiveLanguageIdCookie,
-	setActiveLanguageIdCookie
-} from '@app/helpers/cookies';
+import { getActiveLanguageIdCookie, setActiveLanguageIdCookie } from '@app/helpers/cookies';
 import { getLanguageListAPI } from '@app/services/client/api';
 import {
 	activeLanguageIdState,
@@ -14,30 +11,35 @@ import {
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
+import { useLanguage } from '../useLanguage';
 import { useQuery } from '../useQuery';
 
 export function useLanguageSettings() {
 	const [user] = useRecoilState(userState);
 	const { loading, queryCall } = useQuery(getLanguageListAPI);
 	const [languages, setLanguages] = useRecoilState(languageListState);
+	const { changeLanguage } = useLanguage();
 	const activeLanguage = useRecoilValue(activeLanguageState);
 	const [, setActiveLanguageId] = useRecoilState(activeLanguageIdState);
-	const [languagesFetching, setLanguagesFetching] = useRecoilState(
-		languagesFetchingState
-	);
+	const [languagesFetching, setLanguagesFetching] = useRecoilState(languagesFetchingState);
 	const { firstLoadData: firstLoadLanguagesData } = useFirstLoad();
 
 	useEffect(() => {
 		setLanguagesFetching(loading);
 	}, [loading, setLanguagesFetching]);
+	// Update language in rerender
+	useEffect(() => {
+		const language = user?.preferredLanguage || window.localStorage.getItem('preferredLanguage');
+		if (language) {
+			changeLanguage(language, true);
+		}
+	}, []);
 	const loadLanguagesData = useCallback(() => {
 		setActiveLanguageId(getActiveLanguageIdCookie());
 		if (user) {
 			return queryCall(user.role.isSystem).then((res) => {
 				setLanguages(
-					res?.data?.data?.items.filter((item) =>
-						APPLICATION_LANGUAGES_CODE.includes(item.code)
-					) || []
+					res?.data?.data?.items.filter((item) => APPLICATION_LANGUAGES_CODE.includes(item.code)) || []
 				);
 				return res;
 			});
@@ -46,10 +48,11 @@ export function useLanguageSettings() {
 
 	const setActiveLanguage = useCallback(
 		(languageId: (typeof languages)[0]) => {
+			changeLanguage(languageId.code, true);
 			setActiveLanguageIdCookie(languageId.code);
 			setActiveLanguageId(languageId.code);
 		},
-		[setActiveLanguageId]
+		[setActiveLanguageId, changeLanguage]
 	);
 
 	return {

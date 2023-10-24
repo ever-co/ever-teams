@@ -128,7 +128,7 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 
 export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
 	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
 	return {
 		props: {
 			...translateProps

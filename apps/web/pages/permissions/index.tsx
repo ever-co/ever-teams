@@ -297,7 +297,7 @@ function SelectRole() {
 
 export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
 	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['default']);
+	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
 	return {
 		props: {
 			...translateProps

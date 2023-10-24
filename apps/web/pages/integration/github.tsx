@@ -1,6 +1,8 @@
 import { useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegration';
 import { withAuthentication } from 'lib/app/authenticator';
+import { GetStaticProps, GetStaticPropsContext } from 'next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
@@ -9,17 +11,9 @@ const GitHub = () => {
 
 	const { installGitHub, getRepositories } = useGitHubIntegration();
 	// const { loading: integrationLoading } = useIntegration();
-	const {
-		getIntegrationTenant,
-		loading: integrationTenantLoading,
-		integrationTenant
-	} = useIntegrationTenant();
+	const { getIntegrationTenant, loading: integrationTenantLoading, integrationTenant } = useIntegrationTenant();
 
-	const {
-		loading: loadingIntegrationTypes,
-		integrationTypes,
-		getIntegrationTypes
-	} = useIntegrationTypes();
+	const { loading: loadingIntegrationTypes, integrationTypes, getIntegrationTypes } = useIntegrationTypes();
 
 	// const params = {
 	// 	state: 'http://localhost:3001/integration/github'
@@ -31,10 +25,7 @@ const GitHub = () => {
 	useEffect(() => {
 		if (router && router.query.installation_id && router.query.setup_action) {
 			setTimeout(() => {
-				installGitHub(
-					router.query.installation_id as string,
-					router.query.setup_action as string
-				).then(() => {
+				installGitHub(router.query.installation_id as string, router.query.setup_action as string).then(() => {
 					router.replace('/settings/team#integrations');
 				});
 			}, 100);
@@ -42,11 +33,7 @@ const GitHub = () => {
 	}, [installGitHub, router]);
 
 	useEffect(() => {
-		if (
-			!integrationTenantLoading &&
-			integrationTenant &&
-			integrationTenant?.id
-		) {
+		if (!integrationTenantLoading && integrationTenant && integrationTenant?.id) {
 			getRepositories(integrationTenant.id);
 		}
 	}, [integrationTenantLoading, integrationTenant, getRepositories]);
@@ -54,27 +41,20 @@ const GitHub = () => {
 	useEffect(() => {
 		if (!loadingIntegrationTypes && integrationTypes.length === 0) {
 			getIntegrationTypes().then((types) => {
-				const allIntegrations = types.find(
-					(item: any) => item.name === 'All Integrations'
-				);
+				const allIntegrations = types.find((item: any) => item.name === 'All Integrations');
 				if (allIntegrations && allIntegrations?.id) {
 					getIntegrationTenant('Github');
 				}
 			});
 		}
-	}, [
-		loadingIntegrationTypes,
-		integrationTypes,
-		getIntegrationTypes,
-		getIntegrationTenant
-	]);
+	}, [loadingIntegrationTypes, integrationTypes, getIntegrationTypes, getIntegrationTenant]);
 
 	return (
 		<div className="flex flex-col p-3">
 			{/* {!router.query.code && (
 				<Link
 					href={url}
-					className="bg-primary dark:bg-primary-light text-white text-sm p-3 rounded-xl mb-5 w-52 text-center"
+					className="p-3 mb-5 text-sm text-center text-white bg-primary dark:bg-primary-light rounded-xl w-52"
 				>
 					Connect to GitHub
 				</Link>
@@ -95,6 +75,16 @@ const GitHub = () => {
 				repositoriesLoading) && <>Loading...</>} */}
 		</div>
 	);
+};
+
+export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
+	const { locale } = context;
+	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
+	return {
+		props: {
+			...translateProps
+		}
+	};
 };
 
 export default withAuthentication(GitHub, {

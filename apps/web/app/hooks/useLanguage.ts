@@ -14,7 +14,10 @@ export function useLanguage() {
 			setCurrentLanguage(newLanguage);
 			i18n.changeLanguage(newLanguage);
 			// Make sure translation files are loaded
-			i18n.loadNamespaces(currentLanguage);
+			i18n.loadNamespaces('common');
+			if (typeof window !== 'undefined') {
+				window.localStorage.setItem('preferredLanguage', newLanguage);
+			}
 			if (forceRedirect) {
 				// Navigation to force rerender
 				router.push({ pathname: router.pathname, query: router.query }, undefined, { locale: newLanguage });

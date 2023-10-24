@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const isDev = process.env.NODE_ENV === 'development';
 /**@type import('next-i18next').UserConfig */
 module.exports = {
-	debug: process.env.NODE_ENV === 'development',
+	debug: isDev,
 	i18n: {
 		locales: ['en', 'fr', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es'],
 		defaultLocale: 'en'
 	},
-	/** To avoid issues when deploying to some paas (vercel...) */
+	defaultNS: 'common',
+	ns: ['common'],
+	/** To avoid issues when deploying*/
 	localePath: typeof window === 'undefined' ? require('path').resolve('./public/locales') : '/locales',
-	reloadOnPrerender: process.env.NODE_ENV === 'development'
+	reloadOnPrerender: true
 };
