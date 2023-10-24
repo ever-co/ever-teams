@@ -1,3 +1,4 @@
+/* eslint-disable no-void */
 import { EMAIL_REGEX } from "../../../../helpers/regex"
 import { sendAuthCodeRequest } from "../../requests/auth"
 
@@ -14,7 +15,9 @@ export default async function sendAuthCode(email: string) {
 		}
 	}
 
-	const codeSendRes = await sendAuthCodeRequest(email).catch(() => void 0)
+	const codeSendRes = await sendAuthCodeRequest(email)
+		.then(() => void 0)
+		.catch(() => void 0)
 
 	if (!codeSendRes) {
 		return {

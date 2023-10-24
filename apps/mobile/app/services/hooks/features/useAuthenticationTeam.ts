@@ -160,7 +160,13 @@ export function useAuthenticationTeam() {
 	const getAuthCode = useCallback(async () => {
 		setIsSubmitted(true)
 		setIsLoading(true)
-		await sendAuthCode(authEmail).catch((e) => console.log(e))
+		await sendAuthCode(authEmail)
+			.then((res) => {
+				res.status === 400 && setJoinError(res.error)
+			})
+			.catch((e) => {
+				console.log(e)
+			})
 		setIsSubmitted(false)
 		setIsLoading(false)
 	}, [authEmail])
@@ -233,7 +239,9 @@ export function useAuthenticationTeam() {
 				success: response.response.status === 201,
 				data: response.data,
 				error:
-					response.response.status === 401 ? "Authentication code or email address invalid" : null,
+					response.response.status === 401
+						? "Authentication code or email address invalid"
+						: null,
 			}
 		}
 	}
