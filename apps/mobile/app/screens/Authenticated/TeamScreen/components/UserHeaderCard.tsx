@@ -1,5 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import { StyleSheet, View, Text } from "react-native"
 import React, { FC } from "react"
 import { IUser } from "../../../../services/interfaces/IUserData"
@@ -7,66 +8,70 @@ import { Avatar } from "react-native-paper"
 import { typography, useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { useTimer } from "../../../../services/hooks/useTimer"
-import moment from "moment-timezone"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import { getTimerStatusValue } from "../../../../helpers/get-timer-status"
+import { SvgXml } from "react-native-svg"
+import {
+	idleStatusIcon,
+	onlineAndTrackingTimeStatusIcon,
+	pauseStatusIcon,
+	suspendedStatusIcon,
+} from "../../../../components/svgs/icons"
 
 interface ITimerStatus {
 	status: "running" | "online" | "idle" | "suspended" | "pause"
 }
 const TimerStatus: FC<ITimerStatus> = ({ status }) => {
+	let iconSvgXml = ""
+
+	switch (status) {
+		case "online":
+			iconSvgXml = onlineAndTrackingTimeStatusIcon
+			break
+		case "pause":
+			iconSvgXml = pauseStatusIcon
+			break
+		case "idle":
+			iconSvgXml = idleStatusIcon
+			break
+		case "suspended":
+			iconSvgXml = suspendedStatusIcon
+			break
+	}
+
 	return (
-		<View>
-			{status === "online" && (
-				/* For now until we have realtime we will use Play icon instead of Online icon */
-				// <Avatar.Image
-				// 	style={styles.statusIcon}
-				// 	size={20}
-				// 	source={require("../../../../../assets/icons/new/online.png")}
-				// />
-				<Avatar.Image
-					style={styles.statusIcon}
-					size={20}
-					source={require("../../../../../assets/icons/new/play-small.png")}
-				/>
-			)}
-
-			{status === "running" && (
-				<Avatar.Image
-					style={styles.statusIcon}
-					size={20}
-					source={require("../../../../../assets/icons/new/play-small.png")}
-				/>
-			)}
-
-			{status === "idle" && (
-				<Avatar.Image
-					style={styles.statusIcon}
-					size={20}
-					source={require("../../../../../assets/icons/new/away.png")}
-				/>
-			)}
-
-			{status === "suspended" && (
-				<Avatar.Image
-					style={styles.statusIcon}
-					size={20}
-					source={require("../../../../../assets/icons/new/play-small.png")}
-				/>
-			)}
-
-			{status === "pause" && (
-				<Avatar.Image
-					style={styles.statusIcon}
-					size={20}
-					source={require("../../../../../assets/icons/new/on-pause.png")}
-				/>
-			)}
+		<View
+			style={[
+				styles.statusIcon,
+				{
+					padding: 3,
+					borderRadius: 100,
+					borderWidth: 2,
+					borderColor: "white",
+					backgroundColor:
+						status === "online"
+							? "#6EE7B7"
+							: status === "pause"
+							? "#EFCF9E"
+							: status === "idle"
+							? "#F5BEBE"
+							: "#DCD6D6",
+				},
+			]}
+		>
+			<SvgXml xml={iconSvgXml} />
 		</View>
 	)
 }
 
 const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) => {
 	const { colors } = useAppTheme()
+	const { currentTeam } = useOrganizationTeam()
+
+	const currentMember = currentTeam?.members.find(
+		(currentMember) => currentMember.id === member.id,
+	)
 
 	const { timerStatus } = useTimer()
 
@@ -89,26 +94,13 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 				/>
 			)}
 			<TimerStatus
-				status={
-					!timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.startedAt &&
-					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-					(timerStatus?.lastLog?.source !== "MOBILE" || member?.employee?.isOnline)
-						? "pause"
-						: !member?.employee?.isActive
-						? "suspended"
-						: member?.employee?.isOnline
-						? //  && member?.timerStatus !== 'running'
-						  "online"
-						: !member?.totalTodayTasks?.length
-						? "idle"
-						: member?.totalTodayTasks?.length
-						? "pause"
-						: member?.timerStatus || "idle"
-				}
+				status={getTimerStatusValue(timerStatus, currentMember, currentTeam?.public)}
 			/>
-			<Text style={[styles.name, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
+			<Text
+				style={[styles.name, { color: colors.primary }]}
+				numberOfLines={1}
+				ellipsizeMode="tail"
+			>
 				{user.name}
 			</Text>
 		</View>

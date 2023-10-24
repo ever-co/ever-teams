@@ -19,6 +19,7 @@ import { useTaskLabels } from "../services/hooks/features/useTaskLabels"
 import { BadgedTaskLabel } from "./LabelIcon"
 import { translate } from "../i18n"
 import TaskLabelForm from "../screens/Authenticated/TaskLabelScreen/components/TaskLabelForm"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -55,9 +56,20 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={onDismiss}>
 				<View style={$modalBackGround}>
-					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+						{children}
+					</Animated.View>
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
@@ -114,11 +126,23 @@ const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 						/>
 						{canCreateLabel && !arrayChanged ? (
 							<TouchableOpacity
-								style={{ ...styles.createButton, borderColor: dark ? "#6755C9" : "#3826A6" }}
+								style={{
+									...styles.createButton,
+									borderColor: dark ? "#6755C9" : "#3826A6",
+								}}
 								onPress={() => setCreateTaskMode(true)}
 							>
-								<Ionicons name="add" size={24} color={dark ? "#6755C9" : "#3826A6"} />
-								<Text style={{ ...styles.btnText, color: dark ? "#6755C9" : "#3826A6" }}>
+								<Ionicons
+									name="add"
+									size={24}
+									color={dark ? "#6755C9" : "#3826A6"}
+								/>
+								<Text
+									style={{
+										...styles.btnText,
+										color: dark ? "#6755C9" : "#3826A6",
+									}}
+								>
 									{translate("settingScreen.labelScreen.createNewLabelText")}
 								</Text>
 							</TouchableOpacity>
@@ -136,7 +160,9 @@ const TaskLabelPopup: FC<Props> = function TaskLabelPopup({
 									onPress={saveLabels}
 									style={[styles.button, { backgroundColor: "#3826A6" }]}
 								>
-									<Text style={styles.buttonText}>{translate("common.save")}</Text>
+									<Text style={styles.buttonText}>
+										{translate("common.save")}
+									</Text>
 								</TouchableOpacity>
 							</View>
 						)}
@@ -186,7 +212,6 @@ const Item: FC<ItemProps> = ({ currentLabelNames, label, onLabelSelected }) => {
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "center",
 }
 

@@ -51,6 +51,7 @@ export function getOrganizationTeamRequest(
 			"members.employee.user",
 			"createdBy",
 			"createdBy.employee",
+			"projects",
 		],
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string,
@@ -58,7 +59,7 @@ export function getOrganizationTeamRequest(
 	const params = {
 		organizationId,
 		tenantId,
-		source: "BROWSER",
+		// source: "BROWSER",
 		withLaskWorkedTask: "true",
 		startDate: moment().startOf("day").toISOString(),
 		endDate: moment().endOf("day").toISOString(),

@@ -39,7 +39,10 @@ import { useAcceptInviteModal } from "../../../services/hooks/features/useAccept
 import NoTeam from "../../../components/NoTeam"
 import VerifyAccountModal from "./components/VerifyAccount"
 import { useVerifyEmail } from "../../../services/hooks/features/useVerifyEmail"
-import { OT_Member } from "../../../services/interfaces/IOrganizationTeam"
+import {
+	IOrganizationTeamWithMStatus,
+	OT_Member,
+} from "../../../services/interfaces/IOrganizationTeam"
 import { IInvitation } from "../../../services/interfaces/IInvite"
 
 const { width, height } = Dimensions.get("window")
@@ -53,8 +56,14 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 			TimerStore: { localTimerStatus },
 		} = useStores()
 
-		const { $otherMembers, createOrganizationTeam, isTeamManager, currentUser, activeTeam } =
-			useOrganizationTeam()
+		const {
+			$otherMembers,
+			createOrganizationTeam,
+			isTeamManager,
+			currentUser,
+			activeTeam,
+			currentTeam,
+		} = useOrganizationTeam()
 		const {
 			setShowCreateTeamModal,
 			setShowInviteModal,
@@ -79,7 +88,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
 		return (
 			<>
-				{showInviteModal && <BlurView tint="dark" intensity={18} style={$blurContainer} />}
+				{showInviteModal && <BlurView tint="dark" intensity={15} style={$blurContainer} />}
 				<Screen
 					contentContainerStyle={[$container, { backgroundColor: colors.background }]}
 					backgroundColor={dark ? "rgb(16,17,20)" : colors.background}
@@ -123,36 +132,62 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 									<View
 										style={{
 											...$wrapTeam,
-											backgroundColor: dark ? "#191A20" : "rgba(255,255,255,0.6)",
+											backgroundColor: dark
+												? "#191A20"
+												: "rgba(255,255,255,0.6)",
 										}}
 									>
-										<View style={{ width: isTeamManager ? width / 1.9 : "100%" }}>
+										<View
+											style={{ width: isTeamManager ? width / 1.9 : "100%" }}
+										>
 											<DropDown
 												isOpen={isTeamModalOpen}
 												setIsOpen={setIsTeamModalOpen}
 												resized={isTeamManager}
 												onCreateTeam={() => setShowCreateTeamModal(true)}
-												isAccountVerified={currentUser?.employee.user.isEmailVerified}
+												isAccountVerified={
+													currentUser?.employee.user.isEmailVerified
+												}
 											/>
 										</View>
-										{isTeamManager && currentUser.employee.user.isEmailVerified ? (
+										{isTeamManager &&
+										currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
-												style={[$inviteButton, { borderColor: colors.secondary }]}
+												style={[
+													$inviteButton,
+													{ borderColor: colors.secondary },
+												]}
 												onPress={() => setShowInviteModal(true)}
 											>
-												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+												<Text
+													style={[
+														$inviteButtonText,
+														{ color: colors.secondary },
+													]}
+												>
 													{translate("teamScreen.inviteButton")}
 												</Text>
 											</TouchableOpacity>
-										) : isTeamManager && !currentUser.employee.user.isEmailVerified ? (
+										) : isTeamManager &&
+										  !currentUser.employee.user.isEmailVerified ? (
 											<TouchableOpacity
-												style={[$inviteButton, { borderColor: colors.secondary }]}
+												style={[
+													$inviteButton,
+													{ borderColor: colors.secondary },
+												]}
 												onPress={() => {
 													setShowVerifyAccountModal(true)
-													resendAccountVerificationCode(currentUser.employee.user.email)
+													resendAccountVerificationCode(
+														currentUser.employee.user.email,
+													)
 												}}
 											>
-												<Text style={[$inviteButtonText, { color: colors.secondary }]}>
+												<Text
+													style={[
+														$inviteButtonText,
+														{ color: colors.secondary },
+													]}
+												>
 													{translate("accountVerificationModal.verify")}
 												</Text>
 											</TouchableOpacity>
@@ -161,7 +196,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 
 									{/* Users activity list */}
 									<View
-										style={[$cardContainer, { backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" }]}
+										style={[
+											$cardContainer,
+											{ backgroundColor: dark ? "rgb(0,0,0)" : "#F7F7F8" },
+										]}
 									>
 										<FlatList
 											data={[currentUser, $otherMembers, teamInvitations]}
@@ -175,6 +213,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 															member={item as OT_Member}
 															openMenuIndex={openMenuIndex}
 															setOpenMenuIndex={setOpenMenuIndex}
+															currentTeam={currentTeam}
 														/>
 													)
 												} else if (index === 1) {
@@ -183,6 +222,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 															members={item as OT_Member[]}
 															openMenuIndex={openMenuIndex}
 															setOpenMenuIndex={setOpenMenuIndex}
+															currentTeam={currentTeam}
 														/>
 													)
 												} else {
@@ -196,7 +236,9 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<"Team">> =
 													)
 												}
 											}}
-											ListFooterComponent={<View style={{ marginBottom: 30 }} />}
+											ListFooterComponent={
+												<View style={{ marginBottom: 30 }} />
+											}
 										/>
 									</View>
 								</>
@@ -214,7 +256,8 @@ const CurrentUserCard: FC<{
 	member: OT_Member
 	openMenuIndex: number | null
 	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>
-}> = ({ member, openMenuIndex, setOpenMenuIndex }) => {
+	currentTeam: IOrganizationTeamWithMStatus | null
+}> = ({ member, openMenuIndex, setOpenMenuIndex, currentTeam }) => {
 	return (
 		<View style={{ marginHorizontal: 9 }}>
 			<ListCardItem
@@ -222,6 +265,7 @@ const CurrentUserCard: FC<{
 				index={0}
 				openMenuIndex={openMenuIndex}
 				setOpenMenuIndex={setOpenMenuIndex}
+				currentTeam={currentTeam}
 			/>
 		</View>
 	)
@@ -231,7 +275,8 @@ const OtherMembersList: FC<{
 	members: OT_Member[]
 	openMenuIndex: number | null
 	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>
-}> = ({ members, openMenuIndex, setOpenMenuIndex }) => {
+	currentTeam: IOrganizationTeamWithMStatus | null
+}> = ({ members, openMenuIndex, setOpenMenuIndex, currentTeam }) => {
 	return (
 		<View style={{ marginHorizontal: 9 }}>
 			<FlatList
@@ -244,6 +289,7 @@ const OtherMembersList: FC<{
 						index={index + 1}
 						openMenuIndex={openMenuIndex}
 						setOpenMenuIndex={setOpenMenuIndex}
+						currentTeam={currentTeam}
 					/>
 				)}
 			/>

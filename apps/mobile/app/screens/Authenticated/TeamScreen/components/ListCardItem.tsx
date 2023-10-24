@@ -19,7 +19,10 @@ import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
 import { spacing, typography, useAppTheme } from "../../../../theme"
 import EstimateTime from "../../TimerScreen/components/EstimateTime"
 import AllTaskStatuses from "../../../../components/AllTaskStatuses"
-import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
+import {
+	IOrganizationTeamWithMStatus,
+	OT_Member,
+} from "../../../../services/interfaces/IOrganizationTeam"
 import {
 	I_TeamMemberCardHook,
 	I_TMCardTaskEditHook,
@@ -35,9 +38,9 @@ import { useNavigation } from "@react-navigation/native"
 import { WorkedOnTask } from "./WorkedOnTask"
 import UnassignedTasksList from "./UnassignedTaskList"
 import { translate } from "../../../../i18n"
-import moment from "moment-timezone"
 import { useTimer } from "../../../../services/hooks/useTimer"
 import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
+import { getTimerStatusValue } from "../../../../helpers/get-timer-status"
 
 export type ListItemProps = {
 	member: OT_Member
@@ -53,6 +56,7 @@ export interface Props extends ListItemProps {
 	index: number
 	openMenuIndex: number | null
 	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
+	currentTeam: IOrganizationTeamWithMStatus | null
 }
 
 export const ListItemContent: React.FC<IcontentProps> = observer(
@@ -74,7 +78,10 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 					<View style={styles.firstContainer}>
 						<UserHeaderCard user={memberInfo.memberUser} member={memberInfo.member} />
 						<View style={styles.wrapTotalTime}>
-							<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
+							<TodayWorkedTime
+								isAuthUser={memberInfo.isAuthUser}
+								memberInfo={memberInfo}
+							/>
 						</View>
 					</View>
 
@@ -84,7 +91,9 @@ export const ListItemContent: React.FC<IcontentProps> = observer(
 							setEditMode={taskEdition.setEditMode}
 							memberInfo={memberInfo}
 						/>
-						{memberInfo.memberTask ? <AllTaskStatuses task={memberInfo.memberTask} /> : null}
+						{memberInfo.memberTask ? (
+							<AllTaskStatuses task={memberInfo.memberTask} />
+						) : null}
 					</View>
 					<View style={[styles.times, { borderTopColor: colors.divider }]}>
 						<View
@@ -142,6 +151,15 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		props.setOpenMenuIndex(null)
 		navigation.navigate("Profile", { userId: memberInfo.memberUser.id, activeTab: "worked" })
 	}
+	const currentMember = props.currentTeam?.members.find(
+		(currentMember) => currentMember.id === props.member.id,
+	)
+
+	const timerStatusValue = getTimerStatusValue(
+		timerStatus,
+		currentMember,
+		props.currentTeam?.public,
+	)
 
 	return (
 		<Card
@@ -150,22 +168,13 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				...GS.mt5,
 				paddingTop: 4,
 				backgroundColor:
-					!timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.startedAt &&
-					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-					(timerStatus?.lastLog?.source !== "MOBILE" || props.member?.employee?.isOnline)
-						? "#EBC386"
-						: !props.member?.employee?.isActive
+					timerStatusValue === "idle"
 						? "#F1A2A2"
-						: props.member?.employee?.isOnline
-						? //  && props.member?.timerStatus !== 'running'
-						  "#88D1A5"
-						: !props.member?.totalTodayTasks?.length
-						? "#F1A2A2"
-						: props.member?.totalTodayTasks?.length
+						: timerStatusValue === "pause"
 						? "#EBC386"
-						: "#F1A2A2",
+						: timerStatusValue === "online"
+						? "#88D1A5"
+						: "#DCD6D6",
 			}}
 			HeadingComponent={
 				<View
@@ -203,33 +212,44 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 							}}
 						>
 							<View style={{ marginVertical: 10 }}>
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
-									<ListItem
-										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-										onPress={() => {
-											taskEdition.setEditMode(true)
-											props.setOpenMenuIndex(null)
-										}}
-									>
-										{translate("tasksScreen.editTaskLabel")}
-									</ListItem>
-								)}
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
-									<ListItem
-										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-										onPress={() => {
-											taskEdition.setEstimateEditMode(true)
-											props.setOpenMenuIndex(null)
-										}}
-									>
-										{translate("myWorkScreen.estimateLabel")}
-									</ListItem>
-								)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+									taskEdition.task && (
+										<ListItem
+											textStyle={[
+												styles.dropdownTxt,
+												{ color: colors.primary },
+											]}
+											onPress={() => {
+												taskEdition.setEditMode(true)
+												props.setOpenMenuIndex(null)
+											}}
+										>
+											{translate("tasksScreen.editTaskLabel")}
+										</ListItem>
+									)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
+									taskEdition.task && (
+										<ListItem
+											textStyle={[
+												styles.dropdownTxt,
+												{ color: colors.primary },
+											]}
+											onPress={() => {
+												taskEdition.setEstimateEditMode(true)
+												props.setOpenMenuIndex(null)
+											}}
+										>
+											{translate("myWorkScreen.estimateLabel")}
+										</ListItem>
+									)}
 
 								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
 									memberInfo.memberUnassignTasks.length > 0 && (
 										<ListItem
-											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+											textStyle={[
+												styles.dropdownTxt,
+												{ color: colors.primary },
+											]}
 											onPress={() => {
 												setShowUnassignedList(true)
 												props.setOpenMenuIndex(null)
@@ -241,7 +261,10 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
 									!!memberInfo.memberTask && (
 										<ListItem
-											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+											textStyle={[
+												styles.dropdownTxt,
+												{ color: colors.primary },
+											]}
 											onPress={() => {
 												memberInfo.unassignTask(taskEdition.task)
 												props.setOpenMenuIndex(null)
@@ -257,7 +280,10 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 										<>
 											{memberInfo.isTeamManager ? (
 												<ListItem
-													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+													textStyle={[
+														styles.dropdownTxt,
+														{ color: colors.primary },
+													]}
 													onPress={() => {
 														props.setOpenMenuIndex(null)
 														memberInfo.unMakeMemberManager()
@@ -267,7 +293,10 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 												</ListItem>
 											) : (
 												<ListItem
-													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+													textStyle={[
+														styles.dropdownTxt,
+														{ color: colors.primary },
+													]}
 													onPress={() => {
 														props.setOpenMenuIndex(null)
 														memberInfo.makeMemberManager()
@@ -303,11 +332,17 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 						) : (
 							<TouchableOpacity
 								onPress={() =>
-									props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
+									props.setOpenMenuIndex(
+										props.openMenuIndex === props.index ? null : props.index,
+									)
 								}
 							>
 								{props.openMenuIndex !== props.index ? (
-									<Ionicons name="ellipsis-vertical-outline" size={24} color={colors.primary} />
+									<Ionicons
+										name="ellipsis-vertical-outline"
+										size={24}
+										color={colors.primary}
+									/>
 								) : (
 									<Entypo name="cross" size={24} color={colors.primary} />
 								)}
