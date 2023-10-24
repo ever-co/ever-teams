@@ -3,7 +3,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useMemo } from "react"
 import { View, StyleSheet } from "react-native"
-import { Avatar, Badge } from "react-native-paper"
+import { Avatar } from "react-native-paper"
 import { IUser } from "../services/interfaces/IUserData"
 import { typography, useAppTheme } from "../theme"
 import { imgTitleProfileAvatar } from "../helpers/img-title-profile-avatar"
@@ -100,15 +100,14 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 						labelStyle={styles.prefix}
 					/>
 				)}
-				{/* <Badge size={25} style={[styles.onlineIcon, { borderColor: colors.background }]} /> */}
 				<View
 					style={{
-						right: -53,
-						bottom: 20,
+						right: 0,
+						bottom: 0,
 						borderRadius: 100,
-						width: 20,
-						height: 20,
-						// padding: 10,
+						width: 22,
+						height: 22,
+						position: "absolute",
 						backgroundColor: "#EFCF9E",
 						alignItems: "center",
 						justifyContent: "center",
@@ -128,13 +127,6 @@ const styles = StyleSheet.create({
 	container: {
 		alignItems: "center",
 		height: "10%",
-	},
-	onlineIcon: {
-		backgroundColor: "#27AE60",
-		borderWidth: 4,
-		bottom: 0,
-		position: "absolute",
-		right: 0,
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.light,
