@@ -26,9 +26,11 @@ export const authFormValidate = (
 				}
 				break;
 			case 'recaptcha':
-				if (values['recaptcha'].trim().length < 2) {
-					err['recaptcha'] =
-						'Please check the ReCaptcha checkbox before continue';
+				if(values['recaptcha']) {
+					if (values['recaptcha'].trim().length < 2) {
+						err['recaptcha'] =
+							'Please check the ReCaptcha checkbox before continue';
+					}
 				}
 				break;
 			case 'team':
