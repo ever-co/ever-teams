@@ -108,7 +108,14 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 						width: 22,
 						height: 22,
 						position: "absolute",
-						backgroundColor: "#EFCF9E",
+						backgroundColor:
+							status === "online"
+								? "#6EE7B7"
+								: status === "pause"
+								? "#EFCF9E"
+								: status === "idle"
+								? "#F5BEBE"
+								: "#DCD6D6",
 						alignItems: "center",
 						justifyContent: "center",
 						borderColor: colors.background,
