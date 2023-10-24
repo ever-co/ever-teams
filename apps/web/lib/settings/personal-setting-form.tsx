@@ -12,6 +12,7 @@ import { userState } from '@app/stores';
 import { Button, InputField, Text, ThemeToggler } from 'lib/components';
 import { useTranslation } from 'next-i18next';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRecoilState } from 'recoil';
@@ -26,10 +27,11 @@ interface IValidation {
 }
 
 export const PersonalSettingForm = () => {
+	const router = useRouter();
 	const [user] = useRecoilState(userState);
 	const { register, setValue, getValues, setFocus } = useForm();
 	const [currentTimezone, setCurrentTimezone] = useState('');
-	const [currentLanguage, setCurrentLanguage] = useState('');
+	const [currentLanguage, setCurrentLanguage] = useState(user?.preferredLanguage || '');
 	const { updateAvatar } = useSettings();
 	const { theme } = useTheme();
 	const [editFullname, setEditFullname] = useState<boolean>(false);
@@ -40,7 +42,7 @@ export const PersonalSettingForm = () => {
 		email: true,
 		phone: true
 	});
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 
 	const handleFullnameChange = useCallback(() => {
 		const values = getValues();
@@ -101,7 +103,12 @@ export const PersonalSettingForm = () => {
 		},
 		[setCurrentTimezone, setValue, updateAvatar, user]
 	);
-
+	// Update language in rerender
+	useEffect(() => {
+		i18n.changeLanguage(currentLanguage);
+		// Make sure translation files are loaded
+		i18n.loadNamespaces(currentLanguage);
+	}, [i18n, currentLanguage]);
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
 		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
@@ -132,7 +139,10 @@ export const PersonalSettingForm = () => {
 			setActiveLanguageIdCookie(newLanguage);
 			setCurrentLanguage(newLanguage);
 			setValue('preferredLanguage', newLanguage);
-
+			i18n.changeLanguage(newLanguage);
+			// Navigation to force rerender
+			// router.push({ pathname: router.pathname, query: router.query });
+			router.push({ pathname: router.pathname, query: router.query }, undefined, { locale: newLanguage });
 			if (user) {
 				updateAvatar({
 					preferredLanguage: newLanguage,
@@ -140,7 +150,7 @@ export const PersonalSettingForm = () => {
 				});
 			}
 		},
-		[user, setCurrentLanguage, setValue, updateAvatar]
+		[user, setCurrentLanguage, setValue, updateAvatar, i18n]
 	);
 
 	return (
