@@ -125,13 +125,12 @@ export const PersonalSettingForm = () => {
 	}, [user, currentTimezone, currentLanguage, setValue, handleChangeTimezone]);
 
 	useEffect(() => {
-		changeLanguage(user?.preferredLanguage || getActiveLanguageIdCookie());
 		setValue('preferredLanguage', user?.preferredLanguage || getActiveLanguageIdCookie());
-	}, [changeLanguage, user, user?.preferredLanguage, setValue]);
+	}, [user, user?.preferredLanguage, setValue]);
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
 			setActiveLanguageIdCookie(newLanguage);
-			changeLanguage(newLanguage, true);
+			changeLanguage(newLanguage);
 			setValue('preferredLanguage', newLanguage);
 
 			// Navigation to force rerender

@@ -31,7 +31,7 @@ export function useLanguageSettings() {
 	useEffect(() => {
 		const language = user?.preferredLanguage || window.localStorage.getItem('preferredLanguage');
 		if (language) {
-			changeLanguage(language, true);
+			changeLanguage(language);
 		}
 	}, []);
 	const loadLanguagesData = useCallback(() => {
@@ -48,7 +48,7 @@ export function useLanguageSettings() {
 
 	const setActiveLanguage = useCallback(
 		(languageId: (typeof languages)[0]) => {
-			changeLanguage(languageId.code, true);
+			changeLanguage(languageId.code);
 			setActiveLanguageIdCookie(languageId.code);
 			setActiveLanguageId(languageId.code);
 		},
