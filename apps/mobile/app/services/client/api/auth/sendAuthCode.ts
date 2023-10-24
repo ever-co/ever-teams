@@ -15,9 +15,8 @@ export default async function sendAuthCode(email: string) {
 		}
 	}
 
-	const codeSendRes = await sendAuthCodeRequest(email)
-		.then(() => void 0)
-		.catch(() => void 0)
+	// removed the the then() block as it isn't working in stage api, always returning false and causing error message to appear
+	const codeSendRes = await sendAuthCodeRequest(email).catch(() => void 0)
 
 	if (!codeSendRes) {
 		return {
