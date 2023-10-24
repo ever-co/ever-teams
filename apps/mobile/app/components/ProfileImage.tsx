@@ -11,10 +11,10 @@ import { useOrganizationTeam } from "../services/hooks/useOrganization"
 import { useTimer } from "../services/hooks/useTimer"
 import { getTimerStatusValue } from "../helpers/get-timer-status"
 import {
-	idleStatusIcon,
-	onlineAndTrackingTimeStatusIcon,
-	pauseStatusIcon,
-	suspendedStatusIcon,
+	idleStatusIconLarge,
+	onlineAndTrackingTimeStatusIconLarge,
+	pauseStatusIconLarge,
+	suspendedStatusIconLarge,
 } from "./svgs/icons"
 import { SvgXml } from "react-native-svg"
 
@@ -44,16 +44,16 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 
 	switch (status) {
 		case "online":
-			iconSvgXml = onlineAndTrackingTimeStatusIcon
+			iconSvgXml = onlineAndTrackingTimeStatusIconLarge
 			break
 		case "pause":
-			iconSvgXml = pauseStatusIcon
+			iconSvgXml = pauseStatusIconLarge
 			break
 		case "idle":
-			iconSvgXml = idleStatusIcon
+			iconSvgXml = idleStatusIconLarge
 			break
 		case "suspended":
-			iconSvgXml = suspendedStatusIcon
+			iconSvgXml = suspendedStatusIconLarge
 			break
 	}
 
@@ -105,8 +105,8 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 						right: 0,
 						bottom: 0,
 						borderRadius: 100,
-						width: 22,
-						height: 22,
+						width: 25,
+						height: 25,
 						position: "absolute",
 						backgroundColor:
 							status === "online"
@@ -119,7 +119,7 @@ const ProfileImage: FC<Props> = ({ user, size }) => {
 						alignItems: "center",
 						justifyContent: "center",
 						borderColor: colors.background,
-						borderWidth: 2,
+						borderWidth: 3,
 					}}
 				>
 					<SvgXml xml={iconSvgXml} />
