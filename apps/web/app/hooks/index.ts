@@ -10,6 +10,7 @@ export * from './useCustomEmblaCarousel';
 export * from './useDetectOS';
 export * from './useHasMounted';
 export * from './useHotkeys';
+export * from './useLanguage';
 export * from './useModal';
 
 export * from './auth/useAuthenticationPasscode';

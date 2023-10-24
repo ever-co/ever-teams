@@ -7,7 +7,7 @@ import {
 	setActiveTimezoneCookie,
 	userTimezone
 } from '@app/helpers';
-import { useSettings } from '@app/hooks';
+import { useLanguage, useSettings } from '@app/hooks';
 import { userState } from '@app/stores';
 import { Button, InputField, Text, ThemeToggler } from 'lib/components';
 import { useTranslation } from 'next-i18next';
@@ -29,9 +29,9 @@ interface IValidation {
 export const PersonalSettingForm = () => {
 	const router = useRouter();
 	const [user] = useRecoilState(userState);
+	const { currentLanguage, changeLanguage } = useLanguage();
 	const { register, setValue, getValues, setFocus } = useForm();
 	const [currentTimezone, setCurrentTimezone] = useState('');
-	const [currentLanguage, setCurrentLanguage] = useState(user?.preferredLanguage || '');
 	const { updateAvatar } = useSettings();
 	const { theme } = useTheme();
 	const [editFullname, setEditFullname] = useState<boolean>(false);
@@ -42,7 +42,7 @@ export const PersonalSettingForm = () => {
 		email: true,
 		phone: true
 	});
-	const { t, i18n } = useTranslation();
+	const { t } = useTranslation();
 
 	const handleFullnameChange = useCallback(() => {
 		const values = getValues();
@@ -105,10 +105,8 @@ export const PersonalSettingForm = () => {
 	);
 	// Update language in rerender
 	useEffect(() => {
-		i18n.changeLanguage(currentLanguage);
-		// Make sure translation files are loaded
-		i18n.loadNamespaces(currentLanguage);
-	}, [i18n, currentLanguage]);
+		changeLanguage(user?.preferredLanguage as string);
+	}, [changeLanguage, user?.preferredLanguage]);
 	useEffect(() => {
 		setCurrentTimezone(user?.timeZone || getActiveTimezoneIdCookie());
 		setValue('timeZone', user?.timeZone || getActiveTimezoneIdCookie());
@@ -131,15 +129,15 @@ export const PersonalSettingForm = () => {
 	}, [user, currentTimezone, currentLanguage, setValue, handleChangeTimezone]);
 
 	useEffect(() => {
-		setCurrentLanguage(user?.preferredLanguage || getActiveLanguageIdCookie());
+		changeLanguage(user?.preferredLanguage || getActiveLanguageIdCookie());
 		setValue('preferredLanguage', user?.preferredLanguage || getActiveLanguageIdCookie());
-	}, [setCurrentLanguage, user, user?.preferredLanguage, setValue]);
+	}, [changeLanguage, user, user?.preferredLanguage, setValue]);
 	const handleChangeLanguage = useCallback(
 		(newLanguage: string) => {
 			setActiveLanguageIdCookie(newLanguage);
-			setCurrentLanguage(newLanguage);
+			changeLanguage(newLanguage, true);
 			setValue('preferredLanguage', newLanguage);
-			i18n.changeLanguage(newLanguage);
+
 			// Navigation to force rerender
 			// router.push({ pathname: router.pathname, query: router.query });
 			router.push({ pathname: router.pathname, query: router.query }, undefined, { locale: newLanguage });
@@ -150,7 +148,7 @@ export const PersonalSettingForm = () => {
 				});
 			}
 		},
-		[user, setCurrentLanguage, setValue, updateAvatar, i18n]
+		[user, setValue, updateAvatar, changeLanguage]
 	);
 
 	return (
