@@ -1,3 +1,4 @@
+import { RECAPTCHA_SITE_KEY } from '@app/constants';
 import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
@@ -6,13 +7,13 @@ import {
 	Text,
 	InputField,
 	Button,
-	// SiteReCAPTCHA,
+	SiteReCAPTCHA,
 	BackdropLoader,
 	BackButton
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
-// import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 export default function AuthTeam() {
 	const {
@@ -144,7 +145,7 @@ function FillUserDataForm({
 	loading?: boolean;
 } & IClassName) {
 	const { trans, translations } = useTranslation('authTeam');
-	// const [feedback, setFeedback] = useState<string>('');
+	const [feedback, setFeedback] = useState<string>('');
 
 	return (
 		<Card
@@ -178,23 +179,24 @@ function FillUserDataForm({
 						onChange={handleOnChange}
 						autoComplete="off"
 					/>
-
-					{/* <div className="w-full flex">
-						<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
-							<SiteReCAPTCHA
-								onChange={(res) => {
-									handleOnChange({ target: { name: 'recaptcha', value: res } });
-									setFeedback('');
-								}}
-								onErrored={() => setFeedback(translations.errors.NETWORK_ISSUE)}
-							/>
-							{(errors['recaptcha'] || feedback) && (
-								<Text.Error className="self-start justify-self-start">
-									{errors['recaptcha'] || feedback}
-								</Text.Error>
-							)}
+					{ RECAPTCHA_SITE_KEY && 
+						<div className="w-full flex">
+							<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
+								<SiteReCAPTCHA
+									onChange={(res) => {
+										handleOnChange({ target: { name: 'recaptcha', value: res } });
+										setFeedback('');
+									}}
+									onErrored={() => setFeedback(translations.errors.NETWORK_ISSUE)}
+								/>
+								{(errors['recaptcha'] || feedback) && (
+									<Text.Error className="self-start justify-self-start">
+										{errors['recaptcha'] || feedback}
+									</Text.Error>
+								)}
+							</div>
 						</div>
-					</div> */}
+					}
 				</div>
 
 				<div className="flex justify-between w-full items-center">
