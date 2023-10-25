@@ -224,7 +224,7 @@ export const PersonalSettingForm = () => {
 										<div className="relative">
 											<InputField
 												type="email"
-												placeholder="Email Address"
+												placeholder={t('form.EMAIL_PLACEHOLDER')}
 												{...register('email', {
 													required: true,
 													pattern:
@@ -247,7 +247,7 @@ export const PersonalSettingForm = () => {
 										<div className="relative">
 											<InputField
 												type="text"
-												placeholder="Phone Number"
+												placeholder={t('form.PHONE_PLACEHOLDER')}
 												{...register('phoneNumber', {
 													valueAsNumber: true
 												})}
