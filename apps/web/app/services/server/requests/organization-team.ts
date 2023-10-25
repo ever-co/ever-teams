@@ -82,7 +82,8 @@ export function getOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
-			'projects'
+			'projects',
+			'projects.repository'
 		]
 	}: TeamRequestParams & { teamId: string },
 	bearer_token: string
@@ -127,7 +128,8 @@ export function getAllOrganizationTeamRequest(
 			'members.employee.user',
 			'createdBy',
 			'createdBy.employee',
-			'projects'
+			'projects',
+			'projects.repository'
 		]
 	}: TeamRequestParams,
 	bearer_token: string

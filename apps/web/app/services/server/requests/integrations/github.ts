@@ -1,4 +1,4 @@
-import { IGithubMetadata, IGithubRepositories } from '@app/interfaces';
+import { IGithubMetadata, IGithubRepositories, IProjectRepository } from '@app/interfaces';
 import { serverFetch } from '../../fetch';
 
 export function installGitHubIntegration(
@@ -74,5 +74,23 @@ export function getGithubIntegrationRepositoriesRequest(
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId
+	});
+}
+
+export function projectRepositorySyncRequest(
+	body: {
+		integrationId: string;
+		organizationId: string;
+		tenantId: string;
+		repository: IProjectRepository;
+	},
+	bearer_token: string
+) {
+	return serverFetch<any>({
+		path: '/integration/github/repository/sync',
+		method: 'POST',
+		bearer_token,
+		body,
+		tenantId: body.tenantId
 	});
 }
