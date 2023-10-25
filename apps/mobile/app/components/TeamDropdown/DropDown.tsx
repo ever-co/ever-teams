@@ -18,7 +18,7 @@ export interface Props {
 	isOpen: boolean
 	setIsOpen: (value: boolean) => unknown
 	isAccountVerified: boolean
-	isDrawer: boolean
+	isDrawer?: boolean
 }
 
 const DropDown: FC<Props> = observer(function CreateTeamModal({

@@ -24,7 +24,7 @@ export interface Props {
 	onCreateTeam: () => unknown
 	resized: boolean
 	isAccountVerified: boolean
-	isDrawer: boolean
+	isDrawer?: boolean
 }
 
 const DropDownSection: FC<Props> = observer(function DropDownSection({
