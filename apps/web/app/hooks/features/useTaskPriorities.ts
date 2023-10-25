@@ -5,12 +5,7 @@ import {
 	createTaskPrioritiesAPI,
 	editTaskPrioritiesAPI
 } from '@app/services/client/api';
-import {
-	userState,
-	taskPrioritiesListState,
-	taskPrioritiesFetchingState,
-	activeTeamIdState
-} from '@app/stores';
+import { userState, taskPrioritiesListState, taskPrioritiesFetchingState, activeTeamIdState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -23,22 +18,14 @@ export function useTaskPriorities() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskPrioritiesList);
-	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } =
-		useQuery(createTaskPrioritiesAPI);
-	const { loading: deleteTaskPrioritiesLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteTaskPrioritiesAPI);
-	const { loading: editTaskPrioritiesLoading, queryCall: editQueryCall } =
-		useQuery(editTaskPrioritiesAPI);
+	const { loading: createTaskPrioritiesLoading, queryCall: createQueryCall } = useQuery(createTaskPrioritiesAPI);
+	const { loading: deleteTaskPrioritiesLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskPrioritiesAPI);
+	const { loading: editTaskPrioritiesLoading, queryCall: editQueryCall } = useQuery(editTaskPrioritiesAPI);
 
-	const [taskPriorities, setTaskPriorities] = useRecoilState(
-		taskPrioritiesListState
-	);
+	const [taskPriorities, setTaskPriorities] = useRecoilState(taskPrioritiesListState);
 
-	const [taskPrioritiesFetching, setTaskPrioritiesFetching] = useRecoilState(
-		taskPrioritiesFetchingState
-	);
-	const { firstLoadData: firstLoadTaskPrioritiesData, firstLoad } =
-		useFirstLoad();
+	const [taskPrioritiesFetching, setTaskPrioritiesFetching] = useRecoilState(taskPrioritiesFetchingState);
+	const { firstLoadData: firstLoadTaskPrioritiesData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
 		if (firstLoad) {
@@ -70,12 +57,11 @@ export function useTaskPriorities() {
 	const createTaskPriorities = useCallback(
 		(data: ITaskPrioritiesCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeamId },
-					user?.tenantId || ''
-				).then((res) => {
-					return res;
-				});
+				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
+					(res) => {
+						return res;
+					}
+				);
 			}
 		},
 

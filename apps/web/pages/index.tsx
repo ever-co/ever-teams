@@ -1,6 +1,9 @@
+import { useOrganizationTeams } from '@app/hooks';
 import { clsxm } from '@app/utils';
+import NoTeam from '@components/pages/main/no-team';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, Container } from 'lib/components';
+import { PeopleIcon } from 'lib/components/svgs';
 import {
 	AuthUserTaskInput,
 	TeamInvitations,
@@ -9,21 +12,17 @@ import {
 	UnverifiedEmail,
 	UserTeamCardHeader
 } from 'lib/features';
-import { useTranslation } from 'lib/i18n';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { useOrganizationTeams } from '@app/hooks';
-import NoTeam from '@components/pages/main/no-team';
-import { PeopleIcon } from 'lib/components/svgs';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { KanbanView } from '@app/constants';
 import { TableCellsIcon, ListBulletIcon } from '@heroicons/react/24/solid';
 
 
 function MainPage() {
-	const { trans } = useTranslation('home');
-	const { isTeamMember, isTrackingEnabled, activeTeam } =
-		useOrganizationTeams();
-	const breadcrumb = [...trans.BREADCRUMB, activeTeam?.name || ''];
+	const { t } = useTranslation();
+	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
+	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
 	const [view, setView] = useState<KanbanView>(KanbanView.CARD);
 
 	return (
@@ -70,9 +69,7 @@ function MainPage() {
 
 			<div className="sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5">
 				<Container>
-					{isTeamMember ? (
-						<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
-					) : null}
+					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
 					{
 						view  === KanbanView.CARD && isTeamMember ?
@@ -93,11 +90,7 @@ function MainPage() {
 	);
 }
 
-function TaskTimerSection({
-	isTrackingEnabled
-}: {
-	isTrackingEnabled: boolean;
-}) {
+function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean }) {
 	return (
 		<Card
 			shadow="bigger"
@@ -114,5 +107,4 @@ function TaskTimerSection({
 		</Card>
 	);
 }
-
 export default withAuthentication(MainPage, { displayName: 'MainPage' });

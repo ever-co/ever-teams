@@ -17,7 +17,6 @@ function BoardPage() {
 		</>
 	);
 }
-
 export default withAuthentication(BoardPage, {
 	displayName: 'BoardPage',
 	showPageSkeleton: false

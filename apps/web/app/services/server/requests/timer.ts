@@ -8,10 +8,7 @@ import {
 } from '@app/interfaces/ITimer';
 import { serverFetch } from '../fetch';
 
-export function getTimerStatusRequest(
-	{ tenantId, organizationId }: ITimerStatusParams,
-	bearer_token: string
-) {
+export function getTimerStatusRequest({ tenantId, organizationId }: ITimerStatusParams, bearer_token: string) {
 	const params = new URLSearchParams({ tenantId, organizationId });
 	return serverFetch<ITimerStatus>({
 		path: `/timesheet/timer/status?${params.toString()}`,
@@ -42,13 +39,7 @@ export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 }
 
 export function toggleTimerRequest(
-	{
-		source = TimerSource.TEAMS,
-		logType = 'TRACKED',
-		taskId,
-		tenantId,
-		organizationId
-	}: ITimerParams,
+	{ source = TimerSource.TEAMS, logType = 'TRACKED', taskId, tenantId, organizationId }: ITimerParams,
 	bearer_token: string
 ) {
 	return serverFetch<ITimer>({
@@ -66,10 +57,7 @@ export function toggleTimerRequest(
 	});
 }
 
-export function syncTimeSlotRequest(
-	params: ITimerTimeslotParams,
-	bearer_token: string
-) {
+export function syncTimeSlotRequest(params: ITimerTimeslotParams, bearer_token: string) {
 	return serverFetch<ITimer>({
 		path: '/timesheet/time-slot',
 		method: 'POST',

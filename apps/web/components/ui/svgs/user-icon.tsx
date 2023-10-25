@@ -1,21 +1,8 @@
 export default function UserIcon() {
 	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="55.529"
-			height="64.758"
-			viewBox="0 0 55.529 64.758"
-		>
-			<g
-				id="Group_7290"
-				data-name="Group 7290"
-				transform="translate(-923.825 -256)"
-			>
-				<g
-					id="Group_7277"
-					data-name="Group 7277"
-					transform="translate(938.328 256)"
-				>
+		<svg xmlns="http://www.w3.org/2000/svg" width="55.529" height="64.758" viewBox="0 0 55.529 64.758">
+			<g id="Group_7290" data-name="Group 7290" transform="translate(-923.825 -256)">
+				<g id="Group_7277" data-name="Group 7277" transform="translate(938.328 256)">
 					<path
 						id="Path_5619"
 						data-name="Path 5619"
@@ -31,11 +18,7 @@ export default function UserIcon() {
 						fill="#3826a6"
 					/>
 				</g>
-				<g
-					id="Group_7276"
-					data-name="Group 7276"
-					transform="translate(923.825 258.239)"
-				>
+				<g id="Group_7276" data-name="Group 7276" transform="translate(923.825 258.239)">
 					<path
 						id="Path_5620"
 						data-name="Path 5620"

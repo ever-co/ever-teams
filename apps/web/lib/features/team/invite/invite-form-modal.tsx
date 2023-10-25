@@ -3,26 +3,13 @@ import { useEmployee } from '@app/hooks/features/useEmployee';
 import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
-import {
-	BackButton,
-	Button,
-	Card,
-	InputField,
-	Modal,
-	Text
-} from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InviteEmailDropdown } from './invite-email-dropdown';
 
-export function InviteFormModal({
-	open,
-	closeModal
-}: {
-	open: boolean;
-	closeModal: () => void;
-}) {
-	const { trans, translations } = useTranslation('invite');
+export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
+	const { t } = useTranslation();
 	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState<{
 		email?: string;
@@ -35,9 +22,7 @@ export function InviteFormModal({
 
 	useEffect(() => {
 		if (activeTeam?.members) {
-			const activeTeamMemberEmails = activeTeam?.members.map(
-				(member) => member.employee.user?.email
-			);
+			const activeTeamMemberEmails = activeTeam?.members.map((member) => member.employee.user?.email);
 
 			setCurrentOrgEmails(
 				workingEmployees
@@ -62,20 +47,14 @@ export function InviteFormModal({
 
 			const form = new FormData(e.currentTarget);
 
-			if (
-				!selectedEmail?.title ||
-				(selectedEmail?.title && !isEmail(selectedEmail.title))
-			) {
+			if (!selectedEmail?.title || (selectedEmail?.title && !isEmail(selectedEmail.title))) {
 				setErrors({
-					email: 'Please enter valid email'
+					email: t('errors.VALID_EMAIL')
 				});
 				return;
 			}
 
-			inviteUser(
-				selectedEmail.title,
-				form.get('name')?.toString() || selectedEmail.name || ''
-			)
+			inviteUser(selectedEmail.title, form.get('name')?.toString() || selectedEmail.name || '')
 				.then(() => {
 					closeModal();
 
@@ -92,33 +71,26 @@ export function InviteFormModal({
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<form
-				className="w-[98%] md:w-[530px] relative"
-				autoComplete="off"
-				onSubmit={handleSubmit}
-			>
+			<form className="w-[98%] md:w-[530px] relative" autoComplete="off" onSubmit={handleSubmit}>
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						<div className="mb-7">
-							<Text.Heading as="h3" className="text-center mb-3">
-								{trans.HEADING_TITLE}
+							<Text.Heading as="h3" className="mb-3 text-center">
+								{t('pages.invite.HEADING_TITLE')}
 							</Text.Heading>
 
-							<Text className="text-center text-gray-500 text-sm">
-								{trans.HEADING_DESCRIPTION}
+							<Text className="text-sm text-center text-gray-500">
+								{t('pages.invite.HEADING_DESCRIPTION')}
 							</Text>
 						</div>
 
-						<div className="w-full flex flex-col gap-3">
+						<div className="flex flex-col w-full gap-3">
 							<InviteEmailDropdown
 								emails={currentOrgEmails}
 								setSelectedEmail={setSelectedEmail}
 								selectedEmail={selectedEmail}
 								error={
-									(isNotEmpty(errors) &&
-										Object.keys(errors).includes('email') &&
-										errors.email) ||
-									''
+									(isNotEmpty(errors) && Object.keys(errors).includes('email') && errors.email) || ''
 								}
 								handleAddNew={handleAddNew}
 							/>
@@ -126,7 +98,7 @@ export function InviteFormModal({
 							<InputField
 								type="text"
 								name="name"
-								placeholder={translations.form.TEAM_MEMBER_NAME_PLACEHOLDER}
+								placeholder={t('form.TEAM_MEMBER_NAME_PLACEHOLDER')}
 								errors={errors}
 								setErrors={setErrors}
 								required
@@ -134,15 +106,11 @@ export function InviteFormModal({
 							/>
 						</div>
 
-						<div className="w-full flex justify-between mt-3 items-center">
+						<div className="flex items-center justify-between w-full mt-3">
 							<BackButton onClick={closeModal} />
 
-							<Button
-								type="submit"
-								disabled={inviteLoading}
-								loading={inviteLoading}
-							>
-								{trans.SEND_INVITE}
+							<Button type="submit" disabled={inviteLoading} loading={inviteLoading}>
+								{t('pages.invite.SEND_INVITE')}
 							</Button>
 						</div>
 					</div>

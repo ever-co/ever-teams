@@ -1,7 +1,7 @@
 export function changeTimezone(date: Date, ianatz?: string) {
 	const invdate = new Date(
 		date.toLocaleString('en-US', {
-			timeZone: ianatz,
+			timeZone: ianatz
 		})
 	);
 
@@ -32,7 +32,7 @@ export function secondsToTime(secs: number) {
 	return {
 		h: hours,
 		m: minutes,
-		s: seconds,
+		s: seconds
 	};
 }
 
@@ -56,6 +56,6 @@ export function convertMsToTime(milliseconds: number) {
 		minutes,
 		seconds,
 		ms,
-		ms_p: Math.floor((ms * 100) / 1000),
+		ms_p: Math.floor((ms * 100) / 1000)
 	};
 }

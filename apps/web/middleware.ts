@@ -12,15 +12,7 @@ import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 export const config = {
-	matcher: [
-		'/',
-		'/auth/(.*)',
-		'/profile/:path*',
-		'/settings/(.*)',
-		'/task(.*)',
-		'/meet(.*)',
-		'/board(.*)'
-	]
+	matcher: ['/', '/auth/(.*)', '/profile/:path*', '/settings/(.*)', '/task(.*)', '/meet(.*)', '/board(.*)']
 };
 
 export async function middleware(request: NextRequest) {
@@ -29,17 +21,13 @@ export async function middleware(request: NextRequest) {
 
 	let access_token = null;
 
-	const totalChunksCookie = request.cookies
-		.get(`${TOKEN_COOKIE_NAME}_totalChunks`)
-		?.value.trim();
+	const totalChunksCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}_totalChunks`)?.value.trim();
 	if (!totalChunksCookie) {
 		access_token = request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim() || '';
 	} else if (totalChunksCookie) {
 		const totalChunks = parseInt(totalChunksCookie);
 		const chunks = range(totalChunks).map((index) => {
-			const chunkCookie = request.cookies
-				.get(`${TOKEN_COOKIE_NAME}${index}`)
-				?.value.trim();
+			const chunkCookie = request.cookies.get(`${TOKEN_COOKIE_NAME}${index}`)?.value.trim();
 
 			if (!chunkCookie) {
 				return null; // Chunk cookie not found.
@@ -53,9 +41,7 @@ export async function middleware(request: NextRequest) {
 	}
 
 	// request.cookies.get(TOKEN_COOKIE_NAME)?.value.trim();
-	const refresh_token = request.cookies
-		.get(REFRESH_TOKEN_COOKIE_NAME)
-		?.value.trim();
+	const refresh_token = request.cookies.get(REFRESH_TOKEN_COOKIE_NAME)?.value.trim();
 
 	const url = new URL(request.url);
 

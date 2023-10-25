@@ -51,18 +51,10 @@ export const setLargeStringInCookies = (
 		setCookie(`${COOKIE_NAME}${index}`, cookieValue, { res, req }, crossSite);
 	});
 
-	setCookie(
-		`${COOKIE_NAME}_totalChunks`,
-		chunks.length,
-		{ res, req },
-		crossSite
-	);
+	setCookie(`${COOKIE_NAME}_totalChunks`, chunks.length, { res, req }, crossSite);
 };
 
-export const getLargeStringFromCookies = (
-	COOKIE_NAME: string,
-	ctx?: NextCtx
-) => {
+export const getLargeStringFromCookies = (COOKIE_NAME: string, ctx?: NextCtx) => {
 	const totalChunksCookie = getTotalChunksCookie(COOKIE_NAME, ctx);
 	if (!totalChunksCookie) {
 		return null; // Total chunks cookie not found.
@@ -83,11 +75,7 @@ export const getLargeStringFromCookies = (
 	return chunks.join('');
 };
 
-export function setAuthCookies(
-	datas: DataParams,
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export function setAuthCookies(datas: DataParams, req: NextApiRequest, res: NextApiResponse) {
 	const {
 		refresh_token,
 		access_token,
@@ -232,10 +220,7 @@ export function setNoTeamPopupShowCookie(show: boolean, ctx?: NextCtx) {
 	return setCookie(NO_TEAM_POPUP_SHOW_COOKIE_NAME, show, { ...(ctx || {}) });
 }
 
-export function setActiveUserTaskCookie(
-	data: { taskId: string; userId: string },
-	ctx?: NextCtx
-) {
+export function setActiveUserTaskCookie(data: { taskId: string; userId: string }, ctx?: NextCtx) {
 	return setCookie(ACTIVE_USER_TASK_COOKIE_NAME, JSON.stringify(data), {
 		...(ctx || {})
 	});

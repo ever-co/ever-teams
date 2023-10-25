@@ -55,23 +55,14 @@ export function SettingsOutlineIcon({ className }: IClassName) {
 				strokeLinejoin="round"
 				d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
 			/>
-			<path
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-			/>
+			<path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
 		</svg>
 	);
 }
 
 // ============================= MoonIcon ===========================//
 
-export function MoonIcon({
-	className
-}: {
-	className?: string;
-	pathClassName?: string;
-}) {
+export function MoonIcon({ className }: { className?: string; pathClassName?: string }) {
 	return (
 		<svg
 			width="18"
@@ -956,12 +947,7 @@ export function LoginIcon({ className }: IClassName) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M1.5 9H11.16"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M1.5 9H11.16" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 			<path
 				d="M9.48755 6.4873L12 8.99981L9.48755 11.5123"
 				strokeWidth="1.5"
@@ -984,30 +970,15 @@ export function SearchStatusIcon({ className }: IClassName) {
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm('stroke-[#292D32]', className)}
 		>
-			<path
-				d="M10.5 3.75H15"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M10.5 6H12.75"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M10.5 3.75H15" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M10.5 6H12.75" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 			<path
 				d="M15.75 8.625C15.75 12.5625 12.5625 15.75 8.625 15.75C4.6875 15.75 1.5 12.5625 1.5 8.625C1.5 4.6875 4.6875 1.5 8.625 1.5"
 				strokeWidth="1.5"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M16.5 16.5L15 15"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M16.5 16.5L15 15" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -1030,12 +1001,7 @@ export function SearchNormalIcon({ className }: IClassName) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M22 22L20 20"
-				strokeWidth="2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M22 22L20 20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -1086,18 +1052,8 @@ export function CloseCircleIcon({ className }: IClassName) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M6.87744 11.1224L11.1224 6.87744"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M11.1224 11.1224L6.87744 6.87744"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M6.87744 11.1224L11.1224 6.87744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M11.1224 11.1224L6.87744 6.87744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -1136,18 +1092,8 @@ export function CloseIcon({ className }: IClassName) {
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm('stroke-[#7E7991]', className)}
 		>
-			<path
-				d="M4.16748 4.16675L15.8334 15.8326"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M4.16664 15.8326L15.8325 4.16675"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M4.16748 4.16675L15.8334 15.8326" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M4.16664 15.8326L15.8325 4.16675" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -1161,18 +1107,8 @@ export function CloseAlternateIcon({ className }: IClassName) {
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm('dark:stroke-gray-500 stroke-gray-700', className)}
 		>
-			<path
-				d="M9.16992 14.8299L14.8299 9.16992"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M14.8299 14.8299L9.16992 9.16992"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M9.16992 14.8299L14.8299 9.16992" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M14.8299 14.8299L9.16992 9.16992" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -1180,13 +1116,7 @@ export function CloseAlternateIcon({ className }: IClassName) {
 //  ============================= Check Icon ============================= //
 
 export const CheckIcon = ({ className }: IClassName) => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		width={17}
-		height={19}
-		fill="none"
-		viewBox="0 0 14 15"
-	>
+	<svg xmlns="http://www.w3.org/2000/svg" width={17} height={19} fill="none" viewBox="0 0 14 15">
 		<path
 			className={clsxm('fill-[#fff]', className)}
 			d="M5.571 11 2.246 7.675l.831-.831 2.494 2.493 5.352-5.352.831.832L5.571 11Z"
@@ -1485,24 +1415,14 @@ export function TaskSquareIcon({ className }: IClassName) {
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm('stroke-white', className)}
 		>
-			<path
-				d="M5.1543 3.7002H7.3418"
-				stroke="white"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M5.1543 3.7002H7.3418" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
 			<path
 				d="M2.6582 3.7002L2.9707 4.0127L3.9082 3.0752"
 				stroke="white"
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M5.1543 6.6167H7.3418"
-				stroke="white"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M5.1543 6.6167H7.3418" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
 			<path
 				d="M2.6582 6.6167L2.9707 6.9292L3.9082 5.9917"
 				stroke="white"
@@ -1543,18 +1463,8 @@ export function NoteIcon({ className }: IClassName) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M3.3335 5.4165H5.00016"
-				stroke="white"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M3.3335 7.0835H6.66683"
-				stroke="white"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M3.3335 5.4165H5.00016" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M3.3335 7.0835H6.66683" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -1779,10 +1689,7 @@ export function XlargeIcon({ className }: IClassName) {
 				d="M9.71202 17.6L13.4542 11.7942L9.77362 6.12695H11.8372L14.9172 10.8702H14.0394L17.0886 6.12695H19.1522L15.487 11.7942L19.2292 17.6H17.1656L14.0394 12.7336L14.9172 12.749L11.7602 17.6H9.71202Z"
 				fill="#EE6C4D"
 			/>
-			<path
-				d="M20.271 17.6V6.12695H22.0882V15.983H27.047V17.6H20.271Z"
-				fill="#EE6C4D"
-			/>
+			<path d="M20.271 17.6V6.12695H22.0882V15.983H27.047V17.6H20.271Z" fill="#EE6C4D" />
 		</svg>
 	);
 }
@@ -1803,10 +1710,7 @@ export function LargeIcon({ className }: IClassName) {
 				d="M4.99731 17.6L8.73951 11.7942L5.05891 6.12695H7.12251L10.2025 10.8702H9.32471L12.3739 6.12695H14.4375L10.7723 11.7942L14.5145 17.6H12.4509L9.32471 12.7336L10.2025 12.749L7.04551 17.6H4.99731Z"
 				fill="#F2994A"
 			/>
-			<path
-				d="M15.5563 17.6V6.12695H17.3735V15.983H22.3323V17.6H15.5563Z"
-				fill="#F2994A"
-			/>
+			<path d="M15.5563 17.6V6.12695H17.3735V15.983H22.3323V17.6H15.5563Z" fill="#F2994A" />
 		</svg>
 	);
 }
@@ -2199,12 +2103,7 @@ export function LinkIcon({ className }: IClassName) {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 			/>
-			<path
-				d="M6.66675 10.5H13.3334"
-				strokeWidth="1.2"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M6.66675 10.5H13.3334" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }
@@ -2385,20 +2284,8 @@ export function DocumentUploadIcon({ className }: IClassName) {
 			xmlns="http://www.w3.org/2000/svg"
 			className={clsxm(className)}
 		>
-			<path
-				d="M9 17V11L7 13"
-				stroke="#292D32"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="M9 11L11 13"
-				stroke="#292D32"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M9 17V11L7 13" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M9 11L11 13" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 			<path
 				d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14"
 				stroke="#292D32"
@@ -2428,13 +2315,7 @@ export const MenuIcon = ({ className }: IClassName) => (
 );
 
 export const SettingSimpleGearIcon = ({ className }: IClassName) => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		width="19"
-		height="20"
-		viewBox="0 0 19 20"
-		fill="none"
-	>
+	<svg xmlns="http://www.w3.org/2000/svg" width="19" height="20" viewBox="0 0 19 20" fill="none">
 		<path
 			d="M2.375 7.71208V12.28C2.375 13.9583 2.375 13.9583 3.95833 15.0271L8.3125 17.5446C8.96958 17.9246 10.0383 17.9246 10.6875 17.5446L15.0417 15.0271C16.625 13.9583 16.625 13.9583 16.625 12.2879V7.71208C16.625 6.04166 16.625 6.04166 15.0417 4.97291L10.6875 2.45541C10.0383 2.07541 8.96958 2.07541 8.3125 2.45541L3.95833 4.97291C2.375 6.04166 2.375 6.04166 2.375 7.71208Z"
 			// stroke="#B1AEBC"
@@ -2620,13 +2501,7 @@ export function ChevronDownIcon({ className }: IClassName) {
 
 export function UserManagerIcon({ className }: IClassName) {
 	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="24"
-			height="24"
-			viewBox="0 0 24 24"
-			className={className}
-		>
+		<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className={className}>
 			<path
 				fill="none"
 				stroke="currentColor"
@@ -2720,12 +2595,7 @@ export function CallOutGoingLinearIcon({ className }: IClassName) {
 				strokeWidth="1.5"
 				strokeMiterlimit="10"
 			/>
-			<path
-				d="M20 4H15.2M20 4V8.8V4Z"
-				strokeWidth="1.5"
-				strokeLinecap="round"
-				strokeLinejoin="round"
-			/>
+			<path d="M20 4H15.2M20 4V8.8V4Z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
 		</svg>
 	);
 }

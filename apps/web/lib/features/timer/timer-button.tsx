@@ -30,9 +30,7 @@ export function TimerButton({ onClick, running, disabled, className }: Props) {
 			{running ? (
 				<TimerStopIcon className={clsxm('w-[60%] h-[60%]')} />
 			) : (
-				<TimerPlayIcon
-					className={clsxm('w-[60%] h-[60%]', ['fill-primary dark:fill-white'])}
-				/>
+				<TimerPlayIcon className={clsxm('w-[60%] h-[60%]', ['fill-primary dark:fill-white'])} />
 			)}
 		</Button>
 	);

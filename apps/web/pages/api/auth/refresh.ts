@@ -1,15 +1,9 @@
 import { setAccessTokenCookie } from '@app/helpers/cookies';
 import { hasErrors } from '@app/helpers/validations';
-import {
-	currentAuthenticatedUserRequest,
-	refreshTokenRequest
-} from '@app/services/server/requests/auth';
+import { currentAuthenticatedUserRequest, refreshTokenRequest } from '@app/services/server/requests/auth';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
 		return res.status(405).send({});
 	}

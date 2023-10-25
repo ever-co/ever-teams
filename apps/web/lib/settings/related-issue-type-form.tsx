@@ -1,20 +1,19 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Button, InputField, Text } from 'lib/components';
+import { useTranslation } from 'react-i18next';
 import { StatusesListCard } from './list-card';
-import { useTranslation } from 'lib/i18n';
 
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTaskRelatedIssueType } from '@app/hooks';
-import { Spinner } from '@components/ui/loaders/spinner';
+import { useRefetchData, useTaskRelatedIssueType } from '@app/hooks';
 import { ITaskRelatedIssueTypeItemList } from '@app/interfaces';
-import { useRefetchData } from '@app/hooks';
+import { userState } from '@app/stores';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 
 export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset } = useForm();
@@ -82,29 +81,16 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 				});
 			}
 		},
-		[
-			edit,
-			formOnly,
-			createNew,
-			editTaskRelatedIssueType,
-			user,
-			reset,
-			createTaskRelatedIssueType,
-			refetch
-		]
+		[edit, formOnly, createNew, editTaskRelatedIssueType, user, reset, createTaskRelatedIssueType, refetch]
 	);
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
 						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-							{trans.RELATED_ISSUE_TYPE}
+							{t('pages.settingsTeam.RELATED_ISSUE_TYPE')}
 						</Text>
 
 						<div className="flex flex-col w-f">
@@ -118,46 +104,44 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 									}}
 								>
 									<PlusIcon className="font-normal w-[16px] h-[16px]" />
-									{trans.CREATE_NEW_ISSUE_TYPES}
+									{t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
+									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && 'New'}
-										{edit && 'Edit'} {trans.RELATED_TYPE}
+										{edit && 'Edit'} {t('pages.settingsTeam.RELATED_TYPE')}
 									</Text>
-									<div className="flex  w-full gap-x-5 items-center mt-3">
+									<div className="flex items-center w-full mt-3 gap-x-5">
 										<InputField
 											type="text"
-											placeholder={trans.CREATE_NEW_ISSUE_TYPES}
+											placeholder={t('pages.settingsTeam.CREATE_NEW_ISSUE_TYPES')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
 											disabled={
-												createTaskRelatedIssueTypeLoading ||
-												editTaskRelatedIssueTypeLoading
+												createTaskRelatedIssueTypeLoading || editTaskRelatedIssueTypeLoading
 											}
 											loading={
-												createTaskRelatedIssueTypeLoading ||
-												editTaskRelatedIssueTypeLoading
+												createTaskRelatedIssueTypeLoading || editTaskRelatedIssueTypeLoading
 											}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="px-4 py-4 font-normal rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
@@ -173,12 +157,10 @@ export const RelatedIssueTypeForm = ({ formOnly = false } = {}) => {
 							{!formOnly && taskRelatedIssueType?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
-										{trans.LIST_OF_RELATED_TYPE}
+										{t('pages.settingsTeam.LIST_OF_RELATED_TYPE')}
 									</Text>
-									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-										{loading && !taskRelatedIssueType?.length && (
-											<Spinner dark={false} />
-										)}
+									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+										{loading && !taskRelatedIssueType?.length && <Spinner dark={false} />}
 										{taskRelatedIssueType && taskRelatedIssueType?.length ? (
 											taskRelatedIssueType.map((relatedIssueType) => (
 												<StatusesListCard

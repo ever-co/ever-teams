@@ -5,74 +5,65 @@ import {
 	ITimerStatus,
 	ITimerParams,
 	ITimerTimeslotParams,
-	TimerSource,
-} from "../../interfaces/ITimer"
-import { serverFetch } from "../fetch"
+	TimerSource
+} from '../../interfaces/ITimer';
+import { serverFetch } from '../fetch';
 
-export function getTimerStatusRequest(
-	{ tenantId, organizationId }: ITimerStatusParams,
-	bearer_token: string,
-) {
-	const params = new URLSearchParams({ tenantId, organizationId })
+export function getTimerStatusRequest({ tenantId, organizationId }: ITimerStatusParams, bearer_token: string) {
+	const params = new URLSearchParams({ tenantId, organizationId });
 	return serverFetch<ITimerStatus>({
 		path: `/timesheet/timer/status?${params.toString()}`,
-		method: "GET",
+		method: 'GET',
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function startTimerRequest(params: ITimerParams, bearer_token: string) {
 	return serverFetch<ITimer>({
-		path: "/timesheet/timer/start",
-		method: "POST",
+		path: '/timesheet/timer/start',
+		method: 'POST',
 		bearer_token,
 		body: params,
-		tenantId: params.tenantId,
-	})
+		tenantId: params.tenantId
+	});
 }
 
 export function stopTimerRequest(params: ITimerParams, bearer_token: string) {
 	return serverFetch<ITimer>({
-		path: "/timesheet/timer/stop",
-		method: "POST",
+		path: '/timesheet/timer/stop',
+		method: 'POST',
 		bearer_token,
 		body: params,
-		tenantId: params.tenantId,
-	})
+		tenantId: params.tenantId
+	});
 }
 
 export function toggleTimerRequest(
-	{
-		source = TimerSource.MOBILE,
-		logType = "TRACKED",
-		taskId,
-		tenantId,
-		organizationId,
-	}: ITimerParams,
-	bearer_token: string,
+	{ source = TimerSource.MOBILE, logType = 'TRACKED', taskId, tenantId, organizationId }: ITimerParams,
+	bearer_token: string
 ) {
 	return serverFetch<ITimer>({
-		path: "/timesheet/timer/toggle",
-		method: "POST",
+		path: '/timesheet/timer/toggle',
+		method: 'POST',
 		body: {
 			source,
 			logType,
 			taskId,
 			tenantId,
-			organizationId,
+			organizationId
 		},
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function syncTimeSlotRequest(params: ITimerTimeslotParams, bearer_token: string) {
 	return serverFetch<ITimer>({
-		path: "/timesheet/time-slot",
-		method: "POST",
+		path: '/timesheet/time-slot',
+		method: 'POST',
 		body: params,
 		bearer_token,
-		tenantId: params.tenantId,
-	})
+		tenantId: params.tenantId
+	});
 }

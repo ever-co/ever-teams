@@ -1,18 +1,15 @@
+import { getNoTeamPopupShowCookie, setNoTeamPopupShowCookie } from '@app/helpers';
 import { useOrganizationTeams } from '@app/hooks';
 import { useQuery } from '@app/hooks/useQuery';
 import { getAuthenticatedUserDataAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
+import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
 import { CreateTeamModal } from 'lib/features';
 import { JoinTeamModal } from 'lib/features/team/join-team-modal';
 import { GetServerSidePropsContext, NextPage, PreviewData } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
-import TeamPageSkeleton from '@components/shared/skeleton/TeamPageSkeleton';
-import {
-	getNoTeamPopupShowCookie,
-	setNoTeamPopupShowCookie
-} from '@app/helpers';
 
 type Params = {
 	displayName: string;
@@ -20,10 +17,7 @@ type Params = {
 	showPageSkeleton?: boolean;
 };
 
-export function withAuthentication(
-	Component: NextPage<any, any>,
-	params: Params
-) {
+export function withAuthentication(Component: NextPage<any, any>, params: Params) {
 	const { showPageSkeleton = true } = params;
 
 	const AppComponent = (props: any) => {
@@ -33,8 +27,7 @@ export function withAuthentication(
 		const noTeamPopupShow = getNoTeamPopupShowCookie();
 
 		const { isTeamMember } = useOrganizationTeams();
-		const [showCreateTeamModal, setShowCreateTeamModal] =
-			useState<boolean>(false);
+		const [showCreateTeamModal, setShowCreateTeamModal] = useState<boolean>(false);
 		const [showJoinTeamModal, setShowJoinTeamModal] = useState<boolean>(false);
 
 		useEffect(() => {
@@ -97,9 +90,7 @@ export function withAuthentication(
 	return AppComponent;
 }
 
-export function getAuthenticationProps(
-	context: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>
-) {
+export function getAuthenticationProps(context: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>) {
 	let user = null;
 	try {
 		user = JSON.parse(context.res.getHeader('x-user') as string);

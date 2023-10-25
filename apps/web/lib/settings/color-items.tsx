@@ -19,13 +19,7 @@ export function mapColorItems(colors: IColor[]) {
 					</div>
 				</div>
 			),
-			selectedLabel: (
-				<ColorItem
-					title={color.color}
-					color={color.color}
-					className="py-2 mb-0"
-				/>
-			),
+			selectedLabel: <ColorItem title={color.color} color={color.color} className="py-2 mb-0" />,
 			data: color
 		};
 	});
@@ -65,14 +59,7 @@ export function ColorItem({
 					style={{ backgroundColor: color }}
 				></div>
 			</div>
-			<span
-				className={clsxm(
-					'text-normal',
-					'whitespace-nowrap text-ellipsis overflow-hidden'
-				)}
-			>
-				{title}
-			</span>
+			<span className={clsxm('text-normal', 'whitespace-nowrap text-ellipsis overflow-hidden')}>{title}</span>
 		</div>
 	);
 }

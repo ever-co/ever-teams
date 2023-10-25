@@ -20,13 +20,7 @@ export function mapIconItems(icons: IIcon[]) {
 					</div>
 				</div>
 			),
-			selectedLabel: (
-				<IconItem
-					title={icon.title}
-					url={icon.fullUrl || ''}
-					className="py-2 mb-0"
-				/>
-			),
+			selectedLabel: <IconItem title={icon.title} url={icon.fullUrl || ''} className="py-2 mb-0" />,
 			data: icon
 		};
 	});
@@ -36,17 +30,10 @@ export function mapIconItems(icons: IIcon[]) {
 			key: '',
 			Label: () => (
 				<div className="flex justify-between">
-					<IconItem
-						title={''}
-						className="w-full cursor-default"
-						url=""
-						disabled
-					/>
+					<IconItem title={''} className="w-full cursor-default" url="" disabled />
 				</div>
 			),
-			selectedLabel: (
-				<IconItem title={'Icons'} url={''} className="py-2 mb-0" />
-			),
+			selectedLabel: <IconItem title={'Icons'} url={''} className="py-2 mb-0" />,
 			data: { title: 'Icons', fullUrl: '' }
 		});
 	}
@@ -96,12 +83,7 @@ export function IconItem({
 					</div>
 				)}
 			</div>
-			<span
-				className={clsxm(
-					'text-normal',
-					'whitespace-nowrap text-ellipsis overflow-hidden capitalize'
-				)}
-			>
+			<span className={clsxm('text-normal', 'whitespace-nowrap text-ellipsis overflow-hidden capitalize')}>
 				{title}
 			</span>
 		</div>

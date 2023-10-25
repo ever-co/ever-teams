@@ -1,12 +1,9 @@
-import React from 'react'; // Assuming you are using React
-
-import {
-  useAuthenticateUser,
-  useOrganizationTeams
-} from '@app/hooks';
-
+import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
 import { Transition } from '@headlessui/react';
-
+import { InviteFormModal } from './team/invite/invite-form-modal';
+import {
+	InviteUserTeamCard
+} from './team/invite/user-invite-card';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
 import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
@@ -67,6 +64,18 @@ switch (true) {
   default:
     teamMembersView = <TeamMembersCardView teamMembers={members} publicTeam={publicTeam} />;
 }
-
 return teamMembersView;
+}
+
+
+function Invite() {
+	const { user } = useAuthenticateUser();
+	const { openModal, isOpen, closeModal } = useModal();
+
+	return (
+		<>
+			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
+		</>
+	);
 }

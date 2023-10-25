@@ -1,15 +1,8 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import {
-	IOrganization,
-	IOrganizationCreate,
-	IUserOrganization
-} from '@app/interfaces/IOrganization';
+import { IOrganization, IOrganizationCreate, IUserOrganization } from '@app/interfaces/IOrganization';
 import { serverFetch } from '../fetch';
 
-export function createOrganizationRequest(
-	datas: IOrganizationCreate,
-	bearer_token: string
-) {
+export function createOrganizationRequest(datas: IOrganizationCreate, bearer_token: string) {
 	return serverFetch<IOrganization>({
 		path: '/organization',
 		method: 'POST',

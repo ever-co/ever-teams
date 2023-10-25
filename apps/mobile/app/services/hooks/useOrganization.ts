@@ -1,72 +1,68 @@
 /* eslint-disable camelcase */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { showMessage } from "react-native-flash-message"
-import { useStores } from "../../models"
-import useFetchUserOrganization from "../client/queries/organizationTeam/organization"
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { showMessage } from 'react-native-flash-message';
+import { useStores } from '../../models';
+import useFetchUserOrganization from '../client/queries/organizationTeam/organization';
 import {
 	createOrganizationTeamRequest,
 	deleteOrganizationTeamRequest,
 	getOrganizationTeamRequest,
 	removeUserFromAllTeam,
-	updateOrganizationTeamRequest,
-} from "../client/requests/organization-team"
+	updateOrganizationTeamRequest
+} from '../client/requests/organization-team';
 import {
 	deleteOrganizationTeamEmployeeRequest,
-	updateOrganizationTeamEmployeeRequest,
-} from "../client/requests/organization-team-employee"
-import {
-	IOrganizationTeamList,
-	IOrganizationTeamWithMStatus,
-	OT_Member,
-} from "../interfaces/IOrganizationTeam"
-import useAuthenticateUser from "./features/useAuthentificateUser"
+	updateOrganizationTeamEmployeeRequest
+} from '../client/requests/organization-team-employee';
+import { IOrganizationTeamList, IOrganizationTeamWithMStatus, OT_Member } from '../interfaces/IOrganizationTeam';
+import useAuthenticateUser from './features/useAuthentificateUser';
 
 function useCreateOrganizationTeam() {
 	const {
 		authenticationStore: { tenantId, organizationId, authToken, employeeId },
-		teamStore: { teams, setOrganizationTeams, setActiveTeamId },
-	} = useStores()
+		teamStore: { teams, setOrganizationTeams, setActiveTeamId }
+	} = useStores();
 
-	const [createTeamLoading, setCreateTeamLoading] = useState(false)
-	const teamsRef = useRef(teams)
+	const [createTeamLoading, setCreateTeamLoading] = useState(false);
+	const teamsRef = useRef(teams);
 
-	teamsRef.current = useMemo(() => (teamsRef.current = teams), [teams])
+	teamsRef.current = useMemo(() => (teamsRef.current = teams), [teams]);
 
 	const createOrganizationTeam = useCallback(
 		async (name: string) => {
-			const teams = teamsRef.current?.items || []
-			const $name = name.trim()
-			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase())
+			const teams = teamsRef.current?.items || [];
+			const $name = name.trim();
+			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
 
 			if (exits || $name.length < 3) {
 				return {
-					error: "Invalid team name",
-				}
+					error: 'Invalid team name'
+				};
 			}
 
-			setCreateTeamLoading(true)
+			setCreateTeamLoading(true);
 
 			const { data } = await createOrganizationTeamRequest(
 				{
 					name: $name,
 					tenantId,
 					organizationId,
-					managerIds: [employeeId],
+					managerIds: [employeeId]
 				},
-				authToken,
-			)
+				authToken
+			);
 
-			setActiveTeamId(data.id)
-			setCreateTeamLoading(false)
-			return data
+			setActiveTeamId(data.id);
+			setCreateTeamLoading(false);
+			return data;
 		},
-		[setCreateTeamLoading, setActiveTeamId, setOrganizationTeams],
-	)
+		[setCreateTeamLoading, setActiveTeamId, setOrganizationTeams]
+	);
 
 	return {
 		createOrganizationTeam,
-		createTeamLoading,
-	}
+		createTeamLoading
+	};
 }
 
 export function useOrganizationTeam() {
@@ -77,122 +73,122 @@ export function useOrganizationTeam() {
 			setActiveTeam,
 			setOrganizationTeams,
 			activeTeam,
-			setActiveTeamId,
+			setActiveTeamId
 		},
-		authenticationStore: { tenantId, authToken, organizationId },
-	} = useStores()
-	const { user } = useAuthenticateUser()
-	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam()
+		authenticationStore: { tenantId, authToken, organizationId }
+	} = useStores();
+	const { user } = useAuthenticateUser();
+	const { createOrganizationTeam, createTeamLoading } = useCreateOrganizationTeam();
 
 	const {
 		data: organizationTeams,
 		isSuccess,
 		refetch,
-		isRefetching,
+		isRefetching
 	} = useFetchUserOrganization({
 		tenantId,
 		authToken,
-		userId: user?.id,
-	})
+		userId: user?.id
+	});
 
-	const [isTeamManager, setIsTeamManager] = useState(false)
-	const [teamsFetching, setTeamsFetching] = useState(false)
-	const [currentTeam, setCurrentTeam] = useState<IOrganizationTeamWithMStatus | null>(null)
+	const [isTeamManager, setIsTeamManager] = useState(false);
+	const [teamsFetching, setTeamsFetching] = useState(false);
+	const [currentTeam, setCurrentTeam] = useState<IOrganizationTeamWithMStatus | null>(null);
 
-	const members = activeTeam?.members || []
+	const members = activeTeam?.members || [];
 
 	const currentUser = members.find((m) => {
-		return m.employee.userId === user?.id
-	})
+		return m.employee.userId === user?.id;
+	});
 
 	const $otherMembers = members.filter((m) => {
-		return m.employee.userId !== user?.id
-	})
+		return m.employee.userId !== user?.id;
+	});
 
 	useEffect(() => {
 		const getOrganizationTeam = async () => {
 			try {
 				const { data } = await getOrganizationTeamRequest(
 					{ organizationId, tenantId, teamId: activeTeamId },
-					authToken,
-				)
+					authToken
+				);
 
-				setCurrentTeam(data)
+				setCurrentTeam(data);
 			} catch (error) {
-				console.log(error)
+				console.log(error);
 			}
-		}
+		};
 
-		getOrganizationTeam()
-	}, [organizationTeams])
+		getOrganizationTeam();
+	}, [organizationTeams]);
 
-	const activeTeamManagers = members?.filter((m) => m.role?.name === "MANAGER")
+	const activeTeamManagers = members?.filter((m) => m.role?.name === 'MANAGER');
 
 	const isManager = () => {
 		if (activeTeam) {
-			const $u = user
+			const $u = user;
 			const isM = members.find((member) => {
-				const isUser = member.employee.userId === $u?.id
-				return isUser && member.role && member.role.name === "MANAGER"
-			})
-			setIsTeamManager(!!isM)
+				const isUser = member.employee.userId === $u?.id;
+				return isUser && member.role && member.role.name === 'MANAGER';
+			});
+			setIsTeamManager(!!isM);
 		}
-	}
+	};
 
-	const isTrackingEnabled = useMemo(() => currentUser?.isTrackingEnabled, [currentUser])
+	const isTrackingEnabled = useMemo(() => currentUser?.isTrackingEnabled, [currentUser]);
 
 	const makeMemberAsManager = useCallback(
 		async (employeeId: string) => {
 			// Check if user is already manager
-			const member = members.find((m) => m.employeeId === employeeId)
+			const member = members.find((m) => m.employeeId === employeeId);
 
-			if (member.role?.name === "MANAGER") {
+			if (member.role?.name === 'MANAGER') {
 				showMessage({
-					message: "Info",
-					description: "User is already manager",
-					type: "warning",
-				})
-				return
+					message: 'Info',
+					description: 'User is already manager',
+					type: 'warning'
+				});
+				return;
 			}
 
-			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
-			managerIds.push(employeeId)
+			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId);
+			managerIds.push(employeeId);
 
 			const team: IOrganizationTeamList = {
 				...activeTeam,
-				managerIds,
-			}
+				managerIds
+			};
 
 			const { response } = await updateOrganizationTeamRequest({
 				datas: team,
 				id: activeTeamId,
-				bearer_token: authToken,
-			})
+				bearer_token: authToken
+			});
 
 			if (response.ok || response.status === 202) {
 				showMessage({
-					message: "Info",
-					description: "The current user is now manager ! ",
-					type: "success",
-				})
+					message: 'Info',
+					description: 'The current user is now manager ! ',
+					type: 'success'
+				});
 			}
 		},
-		[activeTeamId],
-	)
+		[activeTeamId]
+	);
 
 	const removeMemberFromTeam = useCallback(
 		async (employeeId: string) => {
-			const member = members.find((m) => m.employeeId === employeeId)
-			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
+			const member = members.find((m) => m.employeeId === employeeId);
+			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId);
 
 			// Verify if member is manager And Check if he is the only manager in the active team
 			if (member.role && managerIds.length < 2) {
 				showMessage({
-					message: "Quit the team",
+					message: 'Quit the team',
 					description: "You're the only manager you can't quit the team",
-					type: "warning",
-				})
-				return
+					type: 'warning'
+				});
+				return;
 			}
 
 			await deleteOrganizationTeamEmployeeRequest({
@@ -201,72 +197,65 @@ export function useOrganizationTeam() {
 				organizationId,
 				tenantId,
 				organizationTeamId: activeTeamId,
-				id: member.id,
+				id: member.id
 			})
 				.then((res) => {
-					const { response } = res
-					console.log(JSON.stringify(res))
-					if (
-						!response.ok ||
-						response.status === 401 ||
-						response.status === 402 ||
-						response.status === 403
-					) {
+					const { response } = res;
+					console.log(JSON.stringify(res));
+					if (!response.ok || response.status === 401 || response.status === 402 || response.status === 403) {
 						showMessage({
-							message: "QUIT THE TEAM",
-							description: "Sorry, something went wrong !",
-							type: "warning",
-						})
+							message: 'QUIT THE TEAM',
+							description: 'Sorry, something went wrong !',
+							type: 'warning'
+						});
 					} else {
-						refreshTeams()
+						refreshTeams();
 					}
 				})
-				.catch((e) => console.log(e))
+				.catch((e) => console.log(e));
 		},
-		[activeTeam, isTeamManager],
-	)
+		[activeTeam, isTeamManager]
+	);
 	// console.log(JSON.stringify(user))
 	/**
 	 * Remove user from all teams
 	 */
 	const removeUserFromAllTeams = useCallback(
 		async (userId: string) => {
-			const member = members.find((m) => m.employee?.userId === userId)
-			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId)
+			const member = members.find((m) => m.employee?.userId === userId);
+			const managerIds = members.filter((m) => m.role).map((t) => t.employeeId);
 			// Verify if member is manager And Check if he is the only manager in the active team
 
 			if (member.role && managerIds.length < 2) {
 				showMessage({
-					message: "REMOVE FROM ALL TEAMS",
-					description:
-						"You are not able to removed account where you are only the manager!",
-					type: "warning",
-				})
-				return
+					message: 'REMOVE FROM ALL TEAMS',
+					description: 'You are not able to removed account where you are only the manager!',
+					type: 'warning'
+				});
+				return;
 			}
 
 			await removeUserFromAllTeam({
 				userId,
 				bearer_token: authToken,
-				tenantId,
+				tenantId
 			})
 				.then((res) => {
-					const { response } = res
+					const { response } = res;
 					if (response.ok || response.status === 200) {
-						refreshTeams()
+						refreshTeams();
 					} else {
 						showMessage({
-							message: "REMOVE FROM ALL TEAMS",
-							description:
-								"You are not able to removed account where you are only the manager!",
-							type: "warning",
-						})
+							message: 'REMOVE FROM ALL TEAMS',
+							description: 'You are not able to removed account where you are only the manager!',
+							type: 'warning'
+						});
 					}
 				})
-				.catch((e) => console.log(e))
+				.catch((e) => console.log(e));
 		},
-		[removeUserFromAllTeam],
-	)
+		[removeUserFromAllTeam]
+	);
 
 	/**
 	 * Enable or Disable user time tracking
@@ -278,14 +267,14 @@ export function useOrganizationTeam() {
 				id: user.id,
 				organizationId,
 				organizationTeamId: activeTeamId,
-				isTrackingEnabled: isEnabled,
+				isTrackingEnabled: isEnabled
 			},
 			tenantId,
-			bearer_token: authToken,
-		})
-		refreshTeams()
-		return { data, response }
-	}, [])
+			bearer_token: authToken
+		});
+		refreshTeams();
+		return { data, response };
+	}, []);
 
 	/**
 	 * Update Organization Team Employee
@@ -299,37 +288,34 @@ export function useOrganizationTeam() {
 					id: user.id,
 					organizationId,
 					organizationTeamId: activeTeamId,
-					activeTaskId,
+					activeTaskId
 				},
 				tenantId,
-				bearer_token: authToken,
-			})
+				bearer_token: authToken
+			});
 
-			return { data, response }
+			return { data, response };
 		},
-		[],
-	)
+		[]
+	);
 
 	/**
 	 * Update Organization Team
 	 */
-	const onUpdateOrganizationTeam = useCallback(
-		async ({ id, data }: { id: string; data: IOrganizationTeamList }) => {
-			await updateOrganizationTeamRequest({
-				id,
-				datas: data,
-				bearer_token: authToken,
+	const onUpdateOrganizationTeam = useCallback(async ({ id, data }: { id: string; data: IOrganizationTeamList }) => {
+		await updateOrganizationTeamRequest({
+			id,
+			datas: data,
+			bearer_token: authToken
+		})
+			.then((res) => {
+				const { response } = res;
+				if (response.ok || response.status === 202 || response.status === 200) {
+					refreshTeams();
+				}
 			})
-				.then((res) => {
-					const { response } = res
-					if (response.ok || response.status === 202 || response.status === 200) {
-						refreshTeams()
-					}
-				})
-				.catch((e) => console.log(e))
-		},
-		[],
-	)
+			.catch((e) => console.log(e));
+	}, []);
 
 	/**
 	 * Remove the active team
@@ -339,53 +325,52 @@ export function useOrganizationTeam() {
 			id: teamId,
 			bearer_token: authToken,
 			organizationId,
-			tenantId,
+			tenantId
 		})
 			.then((res) => {
-				const { response } = res
+				const { response } = res;
 				if (response.ok || response.status === 202 || response.status === 200) {
-					refreshTeams()
+					refreshTeams();
 				}
 			})
-			.catch((e) => console.log(e))
-	}, [])
+			.catch((e) => console.log(e));
+	}, []);
 
 	const refreshTeams = useCallback(() => {
 		refetch()
 			.then((res) => {
-				const { isSuccess, data } = res
+				const { isSuccess, data } = res;
 				if (isSuccess) {
-					const currentTeam = data?.items.find((t) => t.id === activeTeamId)
-					setActiveTeam(currentTeam)
-					setOrganizationTeams(data)
+					const currentTeam = data?.items.find((t) => t.id === activeTeamId);
+					setActiveTeam(currentTeam);
+					setOrganizationTeams(data);
 				}
 			})
-			.catch((e) => console.log(e))
-	}, [])
+			.catch((e) => console.log(e));
+	}, []);
 
 	// Load Teams
 	useEffect(() => {
 		if (isSuccess) {
 			// If there no team, user will be logged out
 			if (organizationTeams?.total === 0 || !organizationTeams) {
-				setActiveTeamId("")
-				setActiveTeam(null)
-				return
+				setActiveTeamId('');
+				setActiveTeam(null);
+				return;
 			}
 			// UPDATE ACTIVE TEAM
 			const updateActiveTeam =
-				organizationTeams?.items.find((t) => t.id === activeTeamId) ||
-				organizationTeams?.items[0]
+				organizationTeams?.items.find((t) => t.id === activeTeamId) || organizationTeams?.items[0];
 			if (updateActiveTeam) {
-				setActiveTeamId(updateActiveTeam.id)
-				setActiveTeam(updateActiveTeam)
+				setActiveTeamId(updateActiveTeam.id);
+				setActiveTeam(updateActiveTeam);
 			}
-			setOrganizationTeams(organizationTeams)
-			setTeamsFetching(false)
+			setOrganizationTeams(organizationTeams);
+			setTeamsFetching(false);
 		}
-		isManager()
-		setIsTrackingEnabled(currentUser?.isTrackingEnabled)
-	}, [organizationTeams, isSuccess, isRefetching])
+		isManager();
+		setIsTrackingEnabled(currentUser?.isTrackingEnabled);
+	}, [organizationTeams, isSuccess, isRefetching]);
 
 	return {
 		removeUserFromAllTeams,
@@ -405,6 +390,6 @@ export function useOrganizationTeam() {
 		onUpdateOrganizationTeam,
 		onRemoveTeam,
 		activeTeamManagers,
-		isTrackingEnabled,
-	}
+		isTrackingEnabled
+	};
 }

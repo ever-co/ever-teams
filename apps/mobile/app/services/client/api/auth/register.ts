@@ -1,31 +1,28 @@
-import { generateToken } from "../../../../helpers/generate-token"
-import { authFormValidate } from "../../../../helpers/validations"
-import { IRegisterDataAPI } from "../../../interfaces/IAuthentication"
-import { loginUserRequest, refreshTokenRequest, registerUserRequest } from "../../requests/auth"
-import { createEmployeeFromUser } from "../../requests/employee"
-import { createSmtpTenantRequest } from "../../requests/features/smtp"
-import { createOrganizationRequest } from "../../requests/organization"
-import {
-	createOrganizationTeamRequest,
-	getAllOrganizationTeamRequest,
-} from "../../requests/organization-team"
-import { createTenantRequest } from "../../requests/tenant"
+import { generateToken } from '../../../../helpers/generate-token';
+import { authFormValidate } from '../../../../helpers/validations';
+import { IRegisterDataAPI } from '../../../interfaces/IAuthentication';
+import { loginUserRequest, refreshTokenRequest, registerUserRequest } from '../../requests/auth';
+import { createEmployeeFromUser } from '../../requests/employee';
+import { createSmtpTenantRequest } from '../../requests/features/smtp';
+import { createOrganizationRequest } from '../../requests/organization';
+import { createOrganizationTeamRequest, getAllOrganizationTeamRequest } from '../../requests/organization-team';
+import { createTenantRequest } from '../../requests/tenant';
 
 export async function register(params: IRegisterDataAPI) {
-	const { errors, valid: formValid } = authFormValidate(["email", "name", "team"], params)
+	const { errors, valid: formValid } = authFormValidate(['email', 'name', 'team'], params);
 
 	if (!formValid) {
 		return {
 			response: {
 				statut: 400,
-				errors,
-			},
-		}
+				errors
+			}
+		};
 	}
 
 	// General a random password with 8 chars
-	const password = "123456" || generateToken(8)
-	const names = params.name.split(" ")
+	const password = '123456' || generateToken(8);
+	const names = params.name.split(' ');
 
 	// Register user
 	const { data: user } = await registerUserRequest({
@@ -33,30 +30,30 @@ export async function register(params: IRegisterDataAPI) {
 		confirmPassword: password,
 		user: {
 			firstName: names[0],
-			lastName: names[1] || "",
-			email: params.email,
-		},
-	})
+			lastName: names[1] || '',
+			email: params.email
+		}
+	});
 
-	const { data: loginRes } = await loginUserRequest(params.email, password)
-	const authToken = loginRes.token
+	const { data: loginRes } = await loginUserRequest(params.email, password);
+	const authToken = loginRes.token;
 
 	// Create user tenant
-	const { data: tenant } = await createTenantRequest(params.team, authToken)
+	const { data: tenant } = await createTenantRequest(params.team, authToken);
 
 	// Create STMP for the current Tenant
-	await createSmtpTenantRequest(authToken, tenant.id)
+	await createSmtpTenantRequest(authToken, tenant.id);
 
 	// Create user organization
 	const { data: organization } = await createOrganizationRequest(
 		{
-			currency: "USD",
+			currency: 'USD',
 			name: params.team,
 			tenantId: tenant.id,
-			invitesAllowed: true,
+			invitesAllowed: true
 		},
-		authToken,
-	)
+		authToken
+	);
 
 	// Create employee
 	const { data: employee } = await createEmployeeFromUser(
@@ -64,10 +61,10 @@ export async function register(params: IRegisterDataAPI) {
 			organizationId: organization.id,
 			startedWorkOn: new Date().toISOString(),
 			tenantId: tenant.id,
-			userId: user.id,
+			userId: user.id
 		},
-		authToken,
-	)
+		authToken
+	);
 
 	// Create user organization team
 	const { data: team } = await createOrganizationTeamRequest(
@@ -75,20 +72,20 @@ export async function register(params: IRegisterDataAPI) {
 			name: params.team,
 			tenantId: tenant.id,
 			organizationId: organization.id,
-			managerIds: [employee.id],
+			managerIds: [employee.id]
 		},
-		authToken,
-	)
+		authToken
+	);
 
 	const { data: teams } = await getAllOrganizationTeamRequest(
 		{ tenantId: tenant.id, organizationId: organization.id },
-		authToken,
-	)
+		authToken
+	);
 
-	const createdTeam = teams.items.find((t) => t.id === team.id)
+	const createdTeam = teams.items.find((t) => t.id === team.id);
 
-	const { data: refreshToken } = await refreshTokenRequest(loginRes.refresh_token)
-	loginRes.token = refreshToken.token
+	const { data: refreshToken } = await refreshTokenRequest(loginRes.refresh_token);
+	loginRes.token = refreshToken.token;
 
 	return {
 		response: {
@@ -96,8 +93,8 @@ export async function register(params: IRegisterDataAPI) {
 			data: {
 				team: createdTeam,
 				loginRes,
-				employee,
-			},
-		},
-	}
+				employee
+			}
+		}
+	};
 }

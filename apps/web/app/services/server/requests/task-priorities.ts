@@ -1,14 +1,7 @@
-import {
-	ITaskPrioritiesCreate,
-	ITaskPrioritiesItemList
-} from '@app/interfaces';
+import { ITaskPrioritiesCreate, ITaskPrioritiesItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
-export function createPrioritiesRequest(
-	datas: ITaskPrioritiesCreate,
-	bearer_token: string,
-	tenantId?: any
-) {
+export function createPrioritiesRequest(datas: ITaskPrioritiesCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskPrioritiesItemList>({
 		path: '/task-priorities',
 		method: 'POST',

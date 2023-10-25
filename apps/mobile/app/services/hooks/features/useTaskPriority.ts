@@ -1,44 +1,44 @@
-import { useCallback, useEffect, useState } from "react"
-import { useQueryClient } from "react-query"
-import { useStores } from "../../../models"
-import useFetchAllPriorities from "../../client/queries/task/task-priority"
+import { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
+import { useStores } from '../../../models';
+import useFetchAllPriorities from '../../client/queries/task/task-priority';
 import {
 	createPriorityRequest,
 	deleteTaskPriorityRequest,
-	updateTaskPriorityRequest,
-} from "../../client/requests/task-priority"
-import { ITaskPriorityCreate, ITaskPriorityItem } from "../../interfaces/ITaskPriority"
+	updateTaskPriorityRequest
+} from '../../client/requests/task-priority';
+import { ITaskPriorityCreate, ITaskPriorityItem } from '../../interfaces/ITaskPriority';
 
 export const useTaskPriority = () => {
-	const queryClient = useQueryClient()
+	const queryClient = useQueryClient();
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
-		teamStore: { activeTeamId },
-	} = useStores()
+		teamStore: { activeTeamId }
+	} = useStores();
 
-	const [allTaskPriorities, setAllTaskPriorities] = useState<ITaskPriorityItem[]>([])
+	const [allTaskPriorities, setAllTaskPriorities] = useState<ITaskPriorityItem[]>([]);
 
 	const {
 		data: priorities,
 		isLoading,
 		isSuccess,
-		isRefetching,
+		isRefetching
 	} = useFetchAllPriorities({
 		tenantId,
 		organizationId,
 		activeTeamId,
-		authToken,
-	})
+		authToken
+	});
 
 	// Delete the priority
 	const deletePriority = useCallback(async (id: string) => {
 		await deleteTaskPriorityRequest({
 			id,
 			tenantId,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("priorities")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('priorities');
+	}, []);
 
 	// Update the priority
 
@@ -47,10 +47,10 @@ export const useTaskPriority = () => {
 			id,
 			tenantId,
 			datas: data,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("priorities")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('priorities');
+	}, []);
 
 	// Create the priority
 
@@ -58,18 +58,18 @@ export const useTaskPriority = () => {
 		await createPriorityRequest({
 			tenantId,
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("priorities")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('priorities');
+	}, []);
 
 	useEffect(() => {
 		if (isSuccess) {
 			if (priorities) {
-				setAllTaskPriorities(priorities.items || [])
+				setAllTaskPriorities(priorities.items || []);
 			}
 		}
-	}, [isLoading, isRefetching])
+	}, [isLoading, isRefetching]);
 
 	return {
 		priorities,
@@ -77,6 +77,6 @@ export const useTaskPriority = () => {
 		deletePriority,
 		updatePriority,
 		createPriority,
-		allTaskPriorities,
-	}
-}
+		allTaskPriorities
+	};
+};

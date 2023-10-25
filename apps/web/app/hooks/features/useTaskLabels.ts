@@ -5,12 +5,7 @@ import {
 	createTaskLabelsAPI,
 	editTaskLabelsAPI
 } from '@app/services/client/api';
-import {
-	userState,
-	taskLabelsListState,
-	taskLabelsFetchingState,
-	activeTeamIdState
-} from '@app/stores';
+import { userState, taskLabelsListState, taskLabelsFetchingState, activeTeamIdState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -23,18 +18,13 @@ export function useTaskLabels() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskLabelsList);
-	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } =
-		useQuery(createTaskLabelsAPI);
-	const { loading: deleteTaskLabelsLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteTaskLabelsAPI);
-	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } =
-		useQuery(editTaskLabelsAPI);
+	const { loading: createTaskLabelsLoading, queryCall: createQueryCall } = useQuery(createTaskLabelsAPI);
+	const { loading: deleteTaskLabelsLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskLabelsAPI);
+	const { loading: editTaskLabelsLoading, queryCall: editQueryCall } = useQuery(editTaskLabelsAPI);
 
 	const [taskLabels, setTaskLabels] = useRecoilState(taskLabelsListState);
 
-	const [taskLabelsFetching, setTaskLabelsFetching] = useRecoilState(
-		taskLabelsFetchingState
-	);
+	const [taskLabelsFetching, setTaskLabelsFetching] = useRecoilState(taskLabelsFetchingState);
 	const { firstLoadData: firstLoadTaskLabelsData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {

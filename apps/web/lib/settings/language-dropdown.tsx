@@ -11,19 +11,14 @@ export const LanguageDropDown = ({
 	currentLanguage: string;
 	onChangeLanguage: any;
 }) => {
-	const { languages, activeLanguage, setActiveLanguage, languagesFetching } =
-		useLanguageSettings();
+	const { languages, activeLanguage, setActiveLanguage, languagesFetching } = useLanguageSettings();
 
 	const items = useMemo(() => mapLanguageItems(languages), [languages]);
 
 	const [languageItem, setLanguageItem] = useState<LanguageItem | null>(null);
 
 	useEffect(() => {
-		setLanguageItem(
-			items.find(
-				(t) => t.key === activeLanguage?.code || t.key === currentLanguage
-			) || null
-		);
+		setLanguageItem(items.find((t) => t.key === activeLanguage?.code || t.key === currentLanguage) || null);
 	}, [activeLanguage, items, currentLanguage]);
 
 	const onChange = useCallback(

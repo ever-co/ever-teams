@@ -1,5 +1,5 @@
-import { I_SMTPRequest } from './interfaces/ISmtp';
 import { ExtendedJitsuOptions } from '@jitsu/jitsu-react/dist/useJitsu';
+import { I_SMTPRequest } from './interfaces/ISmtp';
 
 export const API_BASE_URL = '/api';
 export const DEFAULT_APP_PATH = '/auth/team';
@@ -31,27 +31,23 @@ export const ACTIVE_PROJECT_COOKIE_NAME = 'auth-active-project';
 export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_CAPTCHA_SITE_KEY;
 export const RECAPTCHA_SECRET_KEY = process.env.CAPTCHA_SECRET_KEY;
 
-export const GAUZY_API_SERVER_URL =
-	process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
+export const GAUZY_API_SERVER_URL = process.env.GAUZY_API_SERVER_URL || 'https://api.gauzy.co/api';
 export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
 
-export const SMTP_FROM_ADDRESS =
-	process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
+export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
 export const SMTP_HOST = process.env.SMTP_HOST || '';
 export const SMTP_PORT = process.env.SMTP_PORT || '';
 export const SMTP_SECURE = process.env.SMTP_SECURE || '';
 export const SMTP_USERNAME = process.env.SMTP_USERNAME || '';
 export const SMTP_PASSWORD = process.env.SMTP_PASSWORD || '';
-export const DISABLE_AUTO_REFRESH =
-	process.env.NEXT_PUBLIC_DISABLE_AUTO_REFRESH === 'true';
+export const DISABLE_AUTO_REFRESH = process.env.NEXT_PUBLIC_DISABLE_AUTO_REFRESH === 'true';
 
 export const APP_NAME = process.env.APP_NAME || 'Ever Teams';
 export const APP_SIGNATURE = process.env.APP_SIGNATURE || 'Ever Teams';
-export const APP_LOGO_URL =
-	process.env.APP_LOGO_URL || 'https://app.ever.team/assets/gauzy-team.png';
+export const APP_LOGO_URL = process.env.APP_LOGO_URL || 'https://app.ever.team/assets/gauzy-team.png';
 export const APP_LINK = process.env.APP_LINK || 'https://ever.team/';
 
 export const CHARACTER_LIMIT_TO_SHOW = 20;
@@ -66,26 +62,18 @@ export const smtpConfiguration: () => I_SMTPRequest = () => ({
 });
 
 // Cookies
-export const COOKIE_DOMAINS = (
-	process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team'
-)
-	.split(',')
-	.map((d) => d.trim());
+export const COOKIE_DOMAINS = (process.env.NEXT_PUBLIC_COOKIE_DOMAINS || 'ever.team').split(',').map((d) => d.trim());
 
 // MEET Constants
-export const MEET_DOMAIN =
-	process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team';
+export const MEET_DOMAIN = process.env.NEXT_PUBLIC_MEET_DOMAIN || 'meet.ever.team';
 export const MEET_JWT_APP_ID = process.env.MEET_JWT_APP_ID || 'ever_teams';
 export const MEET_JWT_APP_SECRET = process.env.MEET_JWT_APP_SECRET;
 export const MEET_JWT_TOKEN_COOKIE_NAME = 'meet-jwt-session';
 
 // BOARD board
-export const BOARD_APP_DOMAIN =
-	process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team';
-export const BOARD_BACKEND_POST_URL =
-	process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL;
-export const BOARD_FIREBASE_CONFIG =
-	process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
+export const BOARD_APP_DOMAIN = process.env.NEXT_PUBLIC_BOARD_APP_DOMAIN || 'https://board.ever.team';
+export const BOARD_BACKEND_POST_URL = process.env.NEXT_PUBLIC_BOARD_BACKEND_POST_URL;
+export const BOARD_FIREBASE_CONFIG = process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONFIG;
 
 // Jitsu
 export const jitsuConfiguration: ExtendedJitsuOptions = {
@@ -97,8 +85,37 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 };
 
 // Github Integration
-export const GITHUB_APP_NAME =
-	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+export const GITHUB_APP_NAME = process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+
+// Application Languages
+export const APPLICATION_LANGUAGES = [
+	'English',
+	'French',
+	'Arabic',
+	'Bulgaria',
+	'Chinese',
+	'Dutch',
+	'German',
+	'Hebrew',
+	'Portuguese',
+	'Russian',
+	'Spanish'
+];
+export const APPLICATION_LANGUAGES_CODE = [
+	'en',
+	'fr',
+	'ar',
+	'bg',
+	'zh',
+	'nl',
+	'de',
+	'he',
+	'it',
+	'pl',
+	'pt',
+	'ru',
+	'es'
+];
 
 export enum KanbanView {
 	CARD = 'card',

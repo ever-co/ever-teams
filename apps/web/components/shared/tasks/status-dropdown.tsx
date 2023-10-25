@@ -1,10 +1,11 @@
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { Fragment, useCallback, useEffect, useState } from 'react';
-import { Combobox, Transition } from '@headlessui/react';
-import { StatusIcon, statusIcons } from '../../ui/status-icons';
-import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
+import { ITaskStatus, ITeamTask } from '@app/interfaces/ITask';
+import { Combobox, Transition } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { useTranslation } from 'react-i18next';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Spinner } from '../../ui/loaders/spinner';
+import { StatusIcon, statusIcons } from '../../ui/status-icons';
 
 const statusKeys = Object.keys(statusIcons) as ITaskStatus[];
 
@@ -16,9 +17,8 @@ const StatusDropdown = () => {
 
 export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 	const { updateTask, updateLoading } = useTeamTasks();
-	const [selected, setSelected] = useState<ITaskStatus | null>(
-		task?.status || null
-	);
+	const { t } = useTranslation();
+	const [selected, setSelected] = useState<ITaskStatus | null>(task?.status || null);
 
 	useEffect(() => {
 		setSelected(task?.status || null);
@@ -44,11 +44,7 @@ export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 
 	return (
 		<div className="w-[145px] max-w-[150px] h-[30px]">
-			<Combobox
-				value={selected}
-				onChange={handleChange}
-				disabled={task ? false : true}
-			>
+			<Combobox value={selected} onChange={handleChange} disabled={task ? false : true}>
 				<div
 					className={`relative w-full cursor-default overflow-hidden rounded-lg  ${
 						task ? 'bg-[#EEEFF5]' : 'bg-white'
@@ -69,12 +65,12 @@ export function RawStatusDropdown({ task }: { task: ITeamTask | null }) {
 								//
 							}}
 							readOnly
-							placeholder="Status"
+							placeholder={t('common.STATUS')}
 						/>
 					</div>
 					<Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
 						{updateLoading ? (
-							<span className="ml-2 h-5 w-5">
+							<span className="w-5 h-5 ml-2">
 								<Spinner dark={false} />
 							</span>
 						) : (

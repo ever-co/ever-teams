@@ -11,10 +11,7 @@ import stc from 'string-to-color';
 
 export type TeamItem = DropdownItem<IOrganizationTeamList>;
 
-export function mapTeamItems(
-	teams: IOrganizationTeamList[],
-	onChangeActiveTeam: (item: TeamItem) => void
-) {
+export function mapTeamItems(teams: IOrganizationTeamList[], onChangeActiveTeam: (item: TeamItem) => void) {
 	const items = teams.map<TeamItem>((team) => {
 		return {
 			key: team.id,
@@ -22,9 +19,7 @@ export function mapTeamItems(
 				<Tooltip
 					label={team.name || ''}
 					placement="auto"
-					enabled={
-						(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5
-					}
+					enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
 				>
 					<div className="flex justify-between w-full">
 						<div className="max-w-[90%]">
@@ -54,9 +49,7 @@ export function mapTeamItems(
 				<Tooltip
 					label={team.name || ''}
 					placement="auto"
-					enabled={
-						(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5
-					}
+					enabled={(team.name || '').trim().length > CHARACTER_LIMIT_TO_SHOW - 5}
 				>
 					<TeamItem
 						title={team.name}
@@ -107,9 +100,7 @@ export function TeamItem({
 	logo?: string;
 }) {
 	const { theme } = useTheme();
-	const readableColorHex = readableColor(
-		color || (theme === 'light' ? '#FFF' : '#000')
-	);
+	const readableColorHex = readableColor(color || (theme === 'light' ? '#FFF' : '#000'));
 
 	return (
 		<div
@@ -135,12 +126,7 @@ export function TeamItem({
 					}}
 				>
 					{logo && isValidUrl(logo) ? (
-						<Avatar
-							size={27}
-							className="relative cursor-pointer"
-							imageUrl={logo}
-							alt="user avatar"
-						/>
+						<Avatar size={27} className="relative cursor-pointer" imageUrl={logo} alt="user avatar" />
 					) : title ? (
 						imgTitle(title)
 					) : (
@@ -150,10 +136,7 @@ export function TeamItem({
 			</div>
 			<div className="flex gap-1">
 				<span
-					className={clsxm(
-						'text-normal md:max-w-[100px]',
-						'whitespace-nowrap text-ellipsis overflow-hidden'
-					)}
+					className={clsxm('text-normal md:max-w-[100px]', 'whitespace-nowrap text-ellipsis overflow-hidden')}
 				>
 					{title}
 				</span>

@@ -93,10 +93,7 @@ export const ColorDropdown = ({
 			{/* <SketchPicker /> */}
 			<Dropdown
 				className="min-w-[150px] max-w-sm"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-[54px] w-[150px]',
-					colors.length === 0 && ['py-2']
-				)}
+				buttonClassName={clsxm('py-0 font-medium h-[54px] w-[150px]', colors.length === 0 && ['py-2'])}
 				value={colorItem}
 				onChange={onChangeActiveTeam}
 				items={items}

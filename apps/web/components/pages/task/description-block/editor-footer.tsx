@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
 import { useTeamTasks } from '@app/hooks';
-import { useCallback } from 'react';
 import { detailedTaskState } from '@app/stores';
-import { useRecoilState } from 'recoil';
+import { Button } from 'lib/components';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
+import { useCallback, useEffect } from 'react';
+import { useRecoilState } from 'recoil';
 import { slateToHtml } from 'slate-serializers';
 import { configSlateToHtml } from './editor-components/serializerConfigurations';
-import { Button } from 'lib/components';
 
 interface IDFooterProps {
 	isUpdated: boolean;
@@ -16,16 +16,10 @@ interface IDFooterProps {
 	clearUnsavedValues: () => void;
 }
 
-const EditorFooter = ({
-	isUpdated,
-	setIsUpdated,
-	editorValue,
-	editorRef,
-	clearUnsavedValues
-}: IDFooterProps) => {
+const EditorFooter = ({ isUpdated, setIsUpdated, editorValue, editorRef, clearUnsavedValues }: IDFooterProps) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { updateDescription } = useTeamTasks();
-
+	const { t } = useTranslation();
 	const saveDescription = useCallback(
 		(newDescription: string) => {
 			updateDescription(newDescription, task, true);
@@ -56,11 +50,7 @@ const EditorFooter = ({
 
 	return (
 		<div>
-			<div
-				className={`flex justify-end mb-0 ${
-					isUpdated ? 'opacity-100' : 'opacity-0'
-				}`}
-			>
+			<div className={`flex justify-end mb-0 ${isUpdated ? 'opacity-100' : 'opacity-0'}`}>
 				<Button
 					variant="grey"
 					onClick={() => {
@@ -69,7 +59,7 @@ const EditorFooter = ({
 					className=" dark:bg-gray-500 font-medium min-w-[5rem] w-[3rem] text-sm px-6 py-2 m-1 rounded-lg transition-all"
 					disabled={!isUpdated}
 				>
-					Cancel
+					{t('common.CANCEL')}
 				</Button>
 				<Button
 					variant="primary"
@@ -82,13 +72,13 @@ const EditorFooter = ({
 						'bg-primary min-w-[5rem] w-[3rem] text-sm text-white px-6 py-2 m-1 rounded-lg font-medium transition-all'
 					}
 				>
-					Save
+					{t('common.SAVE')}
 				</Button>
 			</div>
 
 			<div className="max-h-[2.1875rem] flex justify-between items-center border-b-[0.0625rem] py-[0.5625rem] px-[0.9375rem] border-b-[#0000001A] dark:border-b-[#FFFFFF29]">
 				<label className="text-xs dark:text-[#7B8089] text-gray-300">
-					Acceptance Criteria
+					{t('pages.settingsTeam.ACCEPTANCE_CRITERIA')}
 				</label>
 				<Image
 					src="/assets/svg/arrow-up.svg"

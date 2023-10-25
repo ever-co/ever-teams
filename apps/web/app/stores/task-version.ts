@@ -21,10 +21,6 @@ export const activeTaskVersionState = selector<ITaskVersionItemList | null>({
 	get: ({ get }) => {
 		const taskVersion = get(taskVersionListState);
 		const activeId = get(activeTaskVersionIdState);
-		return (
-			taskVersion.find((version) => version.id === activeId) ||
-			taskVersion[0] ||
-			null
-		);
+		return taskVersion.find((version) => version.id === activeId) || taskVersion[0] || null;
 	}
 });

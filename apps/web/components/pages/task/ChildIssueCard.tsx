@@ -55,20 +55,9 @@ export const ChildIssueCard = () => {
 			</div>
 
 			{childTasks.length > 0 && (
-				<div
-					className={clsxm(
-						'flex flex-col max-h-80 gap-3',
-						hidden && ['hidden']
-					)}
-				>
+				<div className={clsxm('flex flex-col max-h-80 gap-3', hidden && ['hidden'])}>
 					{childTasks.map((task) => {
-						return (
-							<TaskLinkedIssue
-								key={task.id}
-								task={task}
-								className="dark:bg-[#25272D] py-0"
-							/>
-						);
+						return <TaskLinkedIssue key={task.id} task={task} className="dark:bg-[#25272D] py-0" />;
 					})}
 				</div>
 			)}
@@ -78,13 +67,7 @@ export const ChildIssueCard = () => {
 	);
 };
 
-function CreateChildTask({
-	modal,
-	task
-}: {
-	modal: IHookModal;
-	task: ITeamTask;
-}) {
+function CreateChildTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
 	const { trans } = useTranslation();
 
 	const { tasks, loadTeamTasksData } = useTeamTasks();
@@ -121,23 +104,13 @@ function CreateChildTask({
 			if (isTaskEpic) {
 				return childTask.issueType !== 'Epic';
 			} else if (isTaskStory) {
-				return (
-					childTask.issueType !== 'Epic' && childTask.issueType !== 'Story'
-				);
+				return childTask.issueType !== 'Epic' && childTask.issueType !== 'Story';
 			} else {
-				return (
-					childTask.issueType === 'Bug' ||
-					childTask.issueType === 'Task' ||
-					childTask.issueType === null
-				);
+				return childTask.issueType === 'Bug' || childTask.issueType === 'Task' || childTask.issueType === null;
 			}
 		};
 
-		return (
-			childTask.id !== task.id &&
-			!childTasks.includes(childTask.id) &&
-			hasChild()
-		);
+		return childTask.id !== task.id && !childTasks.includes(childTask.id) && hasChild();
 	});
 
 	return (

@@ -1,11 +1,7 @@
 import { ITaskLabelsCreate, ITaskLabelsItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
-export function createLabelsRequest(
-	datas: ITaskLabelsCreate,
-	bearer_token: string,
-	tenantId?: any
-) {
+export function createLabelsRequest(datas: ITaskLabelsCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskLabelsItemList>({
 		path: '/tags',
 		method: 'POST',

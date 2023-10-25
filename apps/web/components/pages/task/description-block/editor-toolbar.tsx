@@ -1,37 +1,33 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
-import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { insertLink } from './editor-components/TextEditorService';
 
-import {
-	BoldIcon,
-	ItalicIcon,
-	UnderlineIcon,
-	LinkIcon,
-	AlignRightIcon,
-	AlignLeftIcon,
-	AlignCenterIcon,
-	AlignJustifyIcon,
-	CopyIconRounded,
-	HeaderOneIcon,
-	HeaderTwoIcon,
-	UnorderedListIcon,
-	OrderedListIcon,
-	CodeBlockIcon,
-	QuoteBlockIcon,
-	ExternalLinkIcon,
-	CheckBoxIcon,
-	ArrowDown
-} from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
-import { useSlateStatic } from 'slate-react';
-import { Node, Element } from 'slate';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button, InputField } from 'lib/components';
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger
-} from '@components/ui/popover';
+	AlignCenterIcon,
+	AlignJustifyIcon,
+	AlignLeftIcon,
+	AlignRightIcon,
+	ArrowDown,
+	BoldIcon,
+	CheckBoxIcon,
+	CodeBlockIcon,
+	CopyIconRounded,
+	ExternalLinkIcon,
+	HeaderOneIcon,
+	HeaderTwoIcon,
+	ItalicIcon,
+	LinkIcon,
+	OrderedListIcon,
+	QuoteBlockIcon,
+	UnderlineIcon,
+	UnorderedListIcon
+} from 'lib/components/svgs';
+import { useTranslation } from 'react-i18next';
+import { Element, Node } from 'slate';
+import { useSlateStatic } from 'slate-react';
 
 interface IToolbarProps {
 	isMarkActive?: (editor: any, format: string) => boolean;
@@ -39,7 +35,7 @@ interface IToolbarProps {
 }
 
 const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
-	const { trans } = useTranslation('taskDetails');
+	const { t } = useTranslation();
 	const editor = useSlateStatic();
 	const [showLinkPopup, setShowLinkPopup] = useState(false);
 	const [link, setLink] = useState('');
@@ -121,9 +117,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						//@ts-ignore
 						(node.type === 'ul' || node.type === 'ol')
 					) {
-						return node.children
-							.map((child) => `\n${Node.string(child)}\n`)
-							.join('');
+						return node.children.map((child) => `\n${Node.string(child)}\n`).join('');
 					}
 					return Node.string(node);
 				})
@@ -169,9 +163,9 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 	// }, [editor, isBlockActive]);
 
 	return (
-		<div className="flex flex-row justify-end items-center mt-8 gap-1">
+		<div className="flex flex-row items-center justify-end gap-1 mt-8">
 			<p className="flex-1 text-lg font-[500] dark:text-white my-1 hidden md:block">
-				{trans.DESCRIPTION}
+				{t('pages.taskDetails.DESCRIPTION')}
 			</p>
 
 			<MarkButton
@@ -200,122 +194,68 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				className="hidden md:block"
 				format="h1"
 				icon={HeaderOneIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="h2"
 				icon={HeaderTwoIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				format="blockquote"
 				icon={QuoteBlockIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="ol"
 				icon={OrderedListIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="ul"
 				icon={UnorderedListIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 
 			<BlockButton
 				className="hidden md:block"
 				format="left"
 				icon={AlignLeftIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="center"
 				icon={AlignCenterIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="right"
 				icon={AlignRightIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="justify"
 				icon={AlignJustifyIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<div className="relative md:hidden" ref={dropdownRef}>
 				<Button
 					className={`flex items-center text-md px-2 min-w-[3.125rem] py-[2px] bg-transparent dark:bg-dark--theme rounded-md focus:outline-none`}
 					onClick={() => setShowDropdown((prev) => !prev)}
 				>
-					<span className="flex items-center my-0 gap-1 text-black dark:text-white">
+					<span className="flex items-center gap-1 my-0 text-black dark:text-white">
 						More
 						<ArrowDown className={`${showDropdown && 'rotate-180'}`} />
 					</span>
 				</Button>
 				{/* {showDropdown && (
-					<div className="absolute top-full left-0 z-10 w-40 py-2 bg-white dark:bg-dark--theme-light border border-gray-300 dark:border-gray-700 rounded shadow">
+					<div className="absolute left-0 z-10 w-40 py-2 bg-white border border-gray-300 rounded shadow top-full dark:bg-dark--theme-light dark:border-gray-700">
 						{blockOptions.map((option) => (
 							<button
 								key={option.format}
@@ -353,13 +293,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			<BlockButton
 				format="checklist"
 				icon={CheckBoxIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			{/* <button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
@@ -378,11 +312,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						value={link}
 						ref={inputRef}
 					/>
-					<Button
-						onClick={handleInsertLink}
-						variant="ghost"
-						className="min-w-0 h-10"
-					>
+					<Button onClick={handleInsertLink} variant="ghost" className="h-10 min-w-0">
 						<LinkIcon />
 					</Button>
 				</PopoverContent>
@@ -406,10 +336,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						value={link}
 						ref={inputRef}
 					/>
-					<button
-						className="border-none bg-transparent hover:cursor-pointer ml-0"
-						onClick={handleInsertLink}
-					>
+					<button className="ml-0 bg-transparent border-none hover:cursor-pointer" onClick={handleInsertLink}>
 						<LinkIcon />
 					</button>
 				</div>

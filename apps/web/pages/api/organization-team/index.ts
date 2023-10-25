@@ -8,12 +8,8 @@ import {
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, access_token, tenantId, organizationId } =
-		await authenticatedGuard(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res();
 
@@ -35,10 +31,7 @@ export default async function handler(
 		);
 	}
 
-	const { data: organizations } = await getUserOrganizationsRequest(
-		{ tenantId, userId: user.id },
-		access_token
-	);
+	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId: user.id }, access_token);
 
 	const organizationsItems = organizations.items;
 
@@ -50,10 +43,7 @@ export default async function handler(
 	}, [] as IUserOrganization[]);
 
 	const call_teams = filteredOrganization.map((item) => {
-		return getAllOrganizationTeamRequest(
-			{ tenantId, organizationId: item.organizationId },
-			access_token
-		);
+		return getAllOrganizationTeamRequest({ tenantId, organizationId: item.organizationId }, access_token);
 	});
 
 	const teams = await Promise.all(call_teams).then((tms) => {

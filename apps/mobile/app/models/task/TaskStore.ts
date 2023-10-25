@@ -1,13 +1,13 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { IFilter } from "../../screens/Authenticated/ProfileScreen/components/FilterPopup"
-import { ITeamTask } from "../../services/interfaces/ITask"
+import { Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { IFilter } from '../../screens/Authenticated/ProfileScreen/components/FilterPopup';
+import { ITeamTask } from '../../services/interfaces/ITask';
 
 export const TaskStoreModel = types
-	.model("TaskStore")
+	.model('TaskStore')
 	.props({
 		teamTasks: types.array(types.frozen<ITeamTask>()),
 		activeTask: types.frozen<ITeamTask>(),
-		activeTaskId: types.optional(types.string, ""),
+		activeTaskId: types.optional(types.string, ''),
 		assignedTasks: types.array(types.frozen<ITeamTask>()),
 		unassignedTasks: types.array(types.frozen<ITeamTask>()),
 		fetchingTasks: types.optional(types.boolean, false),
@@ -18,45 +18,45 @@ export const TaskStoreModel = types
 			sizes: [],
 			priorities: [],
 			labels: [],
-			apply: false,
-		}),
+			apply: false
+		})
 	})
 	.actions((store) => ({
 		setAssignedTasks(value: any) {
-			store.assignedTasks = value
+			store.assignedTasks = value;
 		},
 
 		setUnassignedTasks(value: any) {
-			store.unassignedTasks = value
+			store.unassignedTasks = value;
 		},
 
 		setActiveTask(task: any) {
-			store.activeTask = task
+			store.activeTask = task;
 		},
 		setActiveTaskId(id: string) {
-			store.activeTaskId = id
+			store.activeTaskId = id;
 		},
 		setTasksStatisticsState(stats: any) {
-			store.tasksStatisticsState = stats
+			store.tasksStatisticsState = stats;
 		},
 		setStatActiveTask(stats: any) {
-			store.statActiveTask = stats
+			store.statActiveTask = stats;
 		},
 		setFilter(filter: IFilter) {
-			store.filter = filter
+			store.filter = filter;
 		},
 		setTeamTasks(tasks: any) {
-			store.teamTasks = tasks
+			store.teamTasks = tasks;
 		},
 		setFetchingTasks(value: boolean) {
-			store.fetchingTasks = value
+			store.fetchingTasks = value;
 		},
 		resetTeamTasksData() {
-			store.activeTask = null
-			store.activeTaskId = ""
-			store.teamTasks.clear()
-		},
-	}))
+			store.activeTask = null;
+			store.activeTaskId = '';
+			store.teamTasks.clear();
+		}
+	}));
 
 export interface TeamStore extends Instance<typeof TaskStoreModel> {}
 export interface TeamStoreSnapshot extends SnapshotOut<typeof TaskStoreModel> {}

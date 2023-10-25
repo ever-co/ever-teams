@@ -1,8 +1,4 @@
-import {
-	ITaskLinkedIssue,
-	ITaskLinkedIssueResponse,
-	LinkedTaskIssue
-} from '@app/interfaces';
+import { ITaskLinkedIssue, ITaskLinkedIssueResponse, LinkedTaskIssue } from '@app/interfaces';
 import api from '../axios';
 
 export function createTaskLinkedIsssueAPI(data: ITaskLinkedIssue) {

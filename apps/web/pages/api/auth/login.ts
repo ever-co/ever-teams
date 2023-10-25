@@ -1,10 +1,7 @@
 import { setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers/cookies';
 import { generateToken } from '@app/helpers/generate-token';
 import { authFormValidate } from '@app/helpers/validations';
-import {
-	ILoginDataAPI,
-	ILoginResponse as ILoginResponse
-} from '@app/interfaces/IAuthentication';
+import { ILoginDataAPI, ILoginResponse as ILoginResponse } from '@app/interfaces/IAuthentication';
 import {
 	acceptInviteRequest,
 	getAllOrganizationTeamRequest,
@@ -21,17 +18,11 @@ const notFound = (res: NextApiResponse) =>
 		}
 	});
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const body = req.body as ILoginDataAPI;
 	let loginResponse: ILoginResponse | null = null;
 
-	const { errors, valid: formValid } = authFormValidate(
-		['email', 'code'],
-		body as any
-	);
+	const { errors, valid: formValid } = authFormValidate(['email', 'code'], body as any);
 
 	if (!formValid) {
 		return res.status(400).json({ errors });
@@ -47,11 +38,7 @@ export default async function handler(
 	/**
 	 * If the invite code verification failed then try again with auth code
 	 */
-	if (
-		!inviteReq ||
-		!inviteReq.response.ok ||
-		(inviteReq.data as any).response?.statusCode
-	) {
+	if (!inviteReq || !inviteReq.response.ok || (inviteReq.data as any).response?.statusCode) {
 		const authReq = await verifyAuthCodeRequest(body.email, body.code);
 
 		if (
@@ -115,18 +102,14 @@ export default async function handler(
 	const access_token = loginResponse.token;
 	const userId = loginResponse.user?.id;
 
-	const { data: organizations } = await getUserOrganizationsRequest(
-		{ tenantId, userId },
-		access_token
-	);
+	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 
 	const organization = organizations?.items[0];
 
 	if (!organization) {
 		return res.status(400).json({
 			errors: {
-				email:
-					'Your account is not yet ready to be used on the Ever Teams Platform'
+				email: 'Your account is not yet ready to be used on the Ever Teams Platform'
 			}
 		});
 	}

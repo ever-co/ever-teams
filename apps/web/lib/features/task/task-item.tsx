@@ -3,16 +3,11 @@ import { useTeamTasks } from '@app/hooks';
 import { IClassName, ITaskStatus, ITeamTask } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
 import clsx from 'clsx';
-import {
-	Avatar,
-	ConfirmDropdown,
-	SpinnerLoader,
-	Tooltip
-} from 'lib/components';
+import { Avatar, ConfirmDropdown, SpinnerLoader, Tooltip } from 'lib/components';
 import { CloseIcon, RefreshIcon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 import { TaskIssueStatus } from './task-issue';
 import { TaskPriorityStatus } from './task-status';
@@ -26,7 +21,7 @@ type Props = {
 
 export function TaskItem({ task, selected, onClick, className }: Props) {
 	const { handleStatusUpdate, updateLoading } = useTeamTasks();
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	const handleChange = useCallback(
 		(status: ITaskStatus) => {
@@ -38,9 +33,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	return (
 		<div
 			className={clsxm('flex justify-between items-center', className)}
-			onClick={() =>
-				onClick && task && task.status !== 'closed' && onClick(task)
-			}
+			onClick={() => onClick && task && task.status !== 'closed' && onClick(task)}
 		>
 			<div
 				className={clsxm(
@@ -49,7 +42,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					selected && ['font-medium text-primary dark:text-primary-light']
 				)}
 			>
-				<div className="inline-flex mr-2 items-center">
+				<div className="inline-flex items-center mr-2">
 					<div className="mr-2">
 						<TaskIssueStatus
 							showIssueLabels={false}
@@ -68,17 +61,13 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 					</div>
 
 					<div>
-						<TaskPriorityStatus
-							showIssueLabels={false}
-							className="px-1 py-1"
-							task={task}
-						/>
+						<TaskPriorityStatus showIssueLabels={false} className="px-1 py-1" task={task} />
 					</div>
 				</div>
 				{task?.title}
 			</div>
 
-			<div className="flex items-center space-x-3 pl-2">
+			<div className="flex items-center pl-2 space-x-3">
 				<div onClick={(e) => e.stopPropagation()}>
 					{/* <TaskStatusDropdown
 						defaultValue={task?.status}
@@ -88,7 +77,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 					<TaskStatusModal
 						types={'status'}
-						title={trans.common.SELECT_STATUS}
+						title={t('common.SELECT_STATUS')}
 						defaultValue={task?.status}
 						onValueChange={handleChange}
 					/>
@@ -97,15 +86,8 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 
 				<div onClick={(e) => e.stopPropagation()}>
 					{task?.status !== 'closed' && (
-						<Tooltip
-							label={`${trans.common.CLOSE} ${trans.common.TASK}`}
-							enabled
-							placement="left"
-						>
-							<ConfirmDropdown
-								onConfirm={() => handleChange('closed')}
-								confirmText={'Confirm'}
-							>
+						<Tooltip label={`${t('common.CLOSE')} ${t('common.TASK')}`} enabled placement="left">
+							<ConfirmDropdown onConfirm={() => handleChange('closed')} confirmText={'Confirm'}>
 								{updateLoading ? <SpinnerLoader size={20} /> : <CloseIcon />}
 							</ConfirmDropdown>
 						</Tooltip>
@@ -117,7 +99,7 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 								<SpinnerLoader size={20} />
 							) : (
 								<Tooltip
-									label={`${trans.common.REOPEN} ${trans.common.TASK}`}
+									label={`${t('common.REOPEN')} ${t('common.TASK')}`}
 									enabled
 									placement="left"
 									className="min-w-10"
@@ -135,25 +117,15 @@ export function TaskItem({ task, selected, onClick, className }: Props) {
 	);
 }
 
-export function TaskAvatars({
-	task,
-	limit = 2
-}: {
-	task: ITeamTask;
-	limit?: number;
-}) {
+export function TaskAvatars({ task, limit = 2 }: { task: ITeamTask; limit?: number }) {
 	const members = task.members;
 
 	return (
-		<div
-			className="avatars flex -space-x-2 min-w-[59px] justify-center"
-			onClick={(e) => e.stopPropagation()}
-		>
+		<div className="avatars flex -space-x-2 min-w-[59px] justify-center" onClick={(e) => e.stopPropagation()}>
 			{members.slice(0, limit).map((member, i) => {
 				const user = member.user;
 				const userName = `${user?.firstName || ''} ${user?.lastName || ''}`;
-				const userImageUrl =
-					user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';
+				const userImageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl || '';
 				const size = 30;
 
 				return (
@@ -186,11 +158,7 @@ export function TaskAvatars({
 			})}
 
 			{members.length > limit && (
-				<Avatar
-					shape="circle"
-					className="border flex items-center justify-center"
-					size={25}
-				>
+				<Avatar shape="circle" className="flex items-center justify-center border" size={25}>
 					<span className="text-xs">+{members.length - limit}</span>
 				</Avatar>
 			)}

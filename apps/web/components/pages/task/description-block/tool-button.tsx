@@ -16,13 +16,7 @@ const ToolButton = (props: IToolButtonProps) => {
 				onClick={props.onSelect}
 			>
 				{props.iconSource && (
-					<Image
-						className="text-white"
-						width={22}
-						height={22}
-						alt="bold"
-						src={props.iconSource}
-					/>
+					<Image className="text-white" width={22} height={22} alt="bold" src={props.iconSource} />
 				)}
 				{props.icon}
 			</button>

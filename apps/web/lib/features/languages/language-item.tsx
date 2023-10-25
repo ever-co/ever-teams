@@ -10,15 +10,10 @@ export function mapLanguageItems(languages: ILanguageItemList[]) {
 			key: language.code,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
-					<LanguageItem
-						title={language.name}
-						className={selected ? 'font-medium' : ''}
-					/>
+					<LanguageItem title={language.name} className={selected ? 'font-medium' : ''} />
 				</div>
 			),
-			selectedLabel: (
-				<LanguageItem title={language.name} className="py-2 mb-0" />
-			),
+			selectedLabel: <LanguageItem title={language.name} className="py-2 mb-0" />,
 			data: language
 		};
 	});
@@ -40,12 +35,7 @@ export function LanguageItem({
 	disabled?: boolean;
 }) {
 	return (
-		<div
-			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4',
-				className
-			)}
-		>
+		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
 			<span className={clsxm('text-normal dark:text-white')}>{title}</span>
 		</div>
 	);

@@ -9,72 +9,34 @@ const DangerZoneSkeleton = () => {
 					<div className="flex w-full items-center justify-between gap-6">
 						<div className="flex-auto">
 							<Text className="text-xl  font-normal">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									height={25}
-									className="dark:bg-[#353741]"
-								/>
+								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#353741]" />
 							</Text>
 						</div>
 						<div className="flex-auto">
 							<Text className="text-md text-gray-400 font-normal">
-								<Skeleton
-									width={400}
-									borderRadius={20}
-									height={15}
-									className="dark:bg-[#353741]"
-								/>
-								<Skeleton
-									width={100}
-									borderRadius={20}
-									height={15}
-									className="dark:bg-[#353741]"
-								/>
+								<Skeleton width={400} borderRadius={20} height={15} className="dark:bg-[#353741]" />
+								<Skeleton width={100} borderRadius={20} height={15} className="dark:bg-[#353741]" />
 							</Text>
 						</div>
 						<div className="flex-auto w-20">
-							<Skeleton
-								className="float-right dark:bg-[#353741]"
-								height={45}
-								borderRadius={8}
-							/>
+							<Skeleton className="float-right dark:bg-[#353741]" height={45} borderRadius={8} />
 						</div>
 					</div>
 					<div className="flex w-full items-center justify-between gap-6 mt-5">
 						<div className="flex-auto">
 							<Text className="text-xl  font-normal">
-								<Skeleton
-									className="dark:bg-[#353741]"
-									width={200}
-									borderRadius={20}
-									height={25}
-								/>
+								<Skeleton className="dark:bg-[#353741]" width={200} borderRadius={20} height={25} />
 							</Text>
 						</div>
 
 						<div className="flex-auto">
 							<Text className="text-md text-gray-400 font-normal">
-								<Skeleton
-									className="dark:bg-[#353741]"
-									width={400}
-									borderRadius={20}
-									height={15}
-								/>
-								<Skeleton
-									className="dark:bg-[#353741]"
-									width={100}
-									borderRadius={20}
-									height={15}
-								/>
+								<Skeleton className="dark:bg-[#353741]" width={400} borderRadius={20} height={15} />
+								<Skeleton className="dark:bg-[#353741]" width={100} borderRadius={20} height={15} />
 							</Text>
 						</div>
 						<div className="flex-auto w-20">
-							<Skeleton
-								height={45}
-								borderRadius={8}
-								className="float-right dark:bg-[#353741]"
-							/>
+							<Skeleton height={45} borderRadius={8} className="float-right dark:bg-[#353741]" />
 						</div>
 					</div>
 				</div>

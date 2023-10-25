@@ -1,42 +1,42 @@
-import React, { FC } from "react"
-import { View, StyleSheet, TouchableOpacity } from "react-native"
-import { AntDesign } from "@expo/vector-icons"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
+import React, { FC } from 'react';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import { ITeamTask } from '../../../../services/interfaces/ITask';
 
 // COMPONENTS
-import { Text } from "../../../../components"
-import { observer } from "mobx-react-lite"
+import { Text } from '../../../../components';
+import { observer } from 'mobx-react-lite';
 
 // STYLES
-import { typography, useAppTheme } from "../../../../theme"
-import TaskStatusList from "./TaskStatusList"
+import { typography, useAppTheme } from '../../../../theme';
+import TaskStatusList from './TaskStatusList';
 
 export interface Props {
-	task: ITeamTask
+	task: ITeamTask;
 }
 
 const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 
-	const [isOpened, setIsOpened] = React.useState(false)
+	const [isOpened, setIsOpened] = React.useState(false);
 
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background }]}>
 			<TouchableOpacity
 				onPress={() => setIsOpened(!isOpened)}
-				style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}
+				style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
 			>
-				<View style={{ flexDirection: "row", alignItems: "center" }}>
+				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 					<Text
 						style={[
 							styles.dropdownItemTxt,
 							{
 								fontSize: 10,
-								color: colors.primary,
-							},
+								color: colors.primary
+							}
 						]}
 					>
-						{task ? task.status : "Status"}
+						{task ? task.status : 'Status'}
 					</Text>
 				</View>
 
@@ -48,22 +48,22 @@ const TaskStatusDropdown: FC<Props> = observer(({ task }) => {
 			</TouchableOpacity>
 			{isOpened && <TaskStatusList onDismiss={() => setIsOpened(false)} />}
 		</View>
-	)
-})
+	);
+});
 
-export default TaskStatusDropdown
+export default TaskStatusDropdown;
 
 const styles = StyleSheet.create({
 	container: {
 		borderRadius: 10,
-		height: "100%",
-		justifyContent: "center",
+		height: '100%',
+		justifyContent: 'center',
 		paddingHorizontal: 12,
-		width: "100%",
-		zIndex: 999,
+		width: '100%',
+		zIndex: 999
 	},
 	dropdownItemTxt: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 10,
-	},
-})
+		fontSize: 10
+	}
+});

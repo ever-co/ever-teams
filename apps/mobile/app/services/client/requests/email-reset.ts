@@ -1,38 +1,38 @@
 /* eslint-disable camelcase */
-import { serverFetch } from "../fetch"
+import { serverFetch } from '../fetch';
 
 export function emailResetRequest({
 	bearer_token,
 	tenantId,
-	email,
+	email
 }: {
-	bearer_token: string | any
-	tenantId?: string
-	email: string
+	bearer_token: string | any;
+	tenantId?: string;
+	email: string;
 }) {
 	return serverFetch<any>({
 		path: `/email-reset/request-change-email`,
-		method: "POST",
+		method: 'POST',
 		bearer_token,
 		tenantId,
-		body: { email },
-	})
+		body: { email }
+	});
 }
 
 export function verifyChangemailRequest({
 	bearer_token,
 	tenantId,
-	code,
+	code
 }: {
-	bearer_token: string | any
-	tenantId?: string
-	code: string | number
+	bearer_token: string | any;
+	tenantId?: string;
+	code: string | number;
 }) {
 	return serverFetch<any>({
 		path: `/email-reset/verify-change-email`,
-		method: "POST",
+		method: 'POST',
 		bearer_token,
 		tenantId,
-		body: { code },
-	})
+		body: { code }
+	});
 }

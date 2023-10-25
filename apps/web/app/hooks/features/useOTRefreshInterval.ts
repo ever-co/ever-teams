@@ -3,14 +3,8 @@ import { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import { useCallbackRef } from '../useCallbackRef';
 
-export function useOTRefreshInterval(
-	callback: any,
-	delay: number,
-	publicTeam = true
-) {
-	const [interval, setOTRefreshIntervalState] = useRecoilState(
-		OTRefreshIntervalState
-	);
+export function useOTRefreshInterval(callback: any, delay: number, publicTeam = true) {
+	const [interval, setOTRefreshIntervalState] = useRecoilState(OTRefreshIntervalState);
 
 	// Remember the latest callback.
 	const callbackRef = useCallbackRef(callback);

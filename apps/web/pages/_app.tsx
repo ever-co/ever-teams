@@ -1,22 +1,23 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import '../styles/globals.css';
 import 'react-loading-skeleton/dist/skeleton.css';
+import '../styles/globals.css';
 
-import type { AppProps } from 'next/app';
-import { ThemeProvider } from 'next-themes';
-import { RecoilRoot } from 'recoil';
+import { jitsuConfiguration } from '@app/constants';
+import { JitsuProvider } from '@jitsu/jitsu-react';
+import { Analytics } from '@vercel/analytics/react';
 import { AppState } from 'lib/app/init-state';
+import ChatwootWidget from 'lib/features/integrations/chatwoot';
+import { ThemeProvider } from 'next-themes';
+import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Script from 'next/script';
-import { Analytics } from '@vercel/analytics/react';
+import { appWithI18Next } from 'ni18n';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import { JitsuProvider } from '@jitsu/jitsu-react';
-import React from 'react';
+import { RecoilRoot } from 'recoil';
 import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
-import { jitsuConfiguration } from '@app/constants';
-import ChatwootWidget from 'lib/features/integrations/chatwoot';
+import { ni18nConfig } from '../ni18n.config';
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+const MyApp = ({ Component, pageProps }: AppProps) => {
 	const isJitsuEnvsPresent = jitsuConfiguration.host && jitsuConfiguration.writeKey;
 	return (
 		<>
@@ -57,4 +58,5 @@ export default function MyApp({ Component, pageProps }: AppProps) {
 			<Analytics />
 		</>
 	);
-}
+};
+export default appWithI18Next(MyApp, ni18nConfig);

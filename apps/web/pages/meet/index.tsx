@@ -1,10 +1,10 @@
-import dynamic from 'next/dynamic';
-import { withAuthentication } from 'lib/app/authenticator';
-import { BackdropLoader, Meta } from 'lib/components';
 import { useCollaborative, useQuery } from '@app/hooks';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { withAuthentication } from 'lib/app/authenticator';
+import { BackdropLoader, Meta } from 'lib/components';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const Meet = dynamic(() => import('lib/features/integrations/meet'), {
 	ssr: false,
@@ -53,9 +53,7 @@ function MeetPage() {
 	return (
 		<>
 			<Meta title="Meet" />
-			{token && roomName && (
-				<Meet jwt={token} roomName={encodeURIComponent(roomName)} />
-			)}
+			{token && roomName && <Meet jwt={token} roomName={encodeURIComponent(roomName)} />}
 		</>
 	);
 }

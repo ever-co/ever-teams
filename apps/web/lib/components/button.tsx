@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'lib/i18n';
 import { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SpinnerLoader } from './loader';
 import { ArrowLeft } from './svgs';
 
@@ -32,13 +32,7 @@ type Props = {
  * @param {Props}  - `children` - The content of the button.
  * @returns A button with a spinner loader inside of it.
  */
-export function Button({
-	children,
-	className,
-	variant = 'primary',
-	loading,
-	...rest
-}: Props) {
+export function Button({ children, className, variant = 'primary', loading, ...rest }: Props) {
 	return (
 		<button
 			className={clsxm(
@@ -54,10 +48,7 @@ export function Button({
 						'dark:text-white border dark:border-white',
 						'disabled:opacity-40'
 					],
-					variant === 'outline-dark' && [
-						'input-border font-medium',
-						'disabled:opacity-40'
-					],
+					variant === 'outline-dark' && ['input-border font-medium', 'disabled:opacity-40'],
 					variant === 'grey' && [
 						'disabled:opacity-40',
 						'bg-light--theme-dark',
@@ -76,25 +67,15 @@ export function Button({
 			)}
 			{...rest}
 		>
-			{loading && (
-				<SpinnerLoader
-					size={17}
-					variant={variant === 'outline' ? 'primary' : 'light'}
-				/>
-			)}
+			{loading && <SpinnerLoader size={17} variant={variant === 'outline' ? 'primary' : 'light'} />}
 			{children}
 		</button>
 	);
 }
 
-type RoundedButtonProps = PropsWithChildren &
-	React.ComponentPropsWithRef<'button'>;
+type RoundedButtonProps = PropsWithChildren & React.ComponentPropsWithRef<'button'>;
 
-export function RoundedButton({
-	children,
-	className,
-	...rest
-}: RoundedButtonProps) {
+export function RoundedButton({ children, className, ...rest }: RoundedButtonProps) {
 	return (
 		<button
 			className={clsxm(
@@ -110,23 +91,13 @@ export function RoundedButton({
 	);
 }
 
-export function BackButton({
-	onClick,
-	className
-}: {
-	onClick?: () => void;
-	className?: string;
-}) {
-	const { trans } = useTranslation();
+export function BackButton({ onClick, className }: { onClick?: () => void; className?: string }) {
+	const { t } = useTranslation();
 
 	return (
-		<button
-			type="button"
-			className={clsxm('flex items-center', className)}
-			onClick={onClick}
-		>
+		<button type="button" className={clsxm('flex items-center', className)} onClick={onClick}>
 			<ArrowLeft className="mr-2" />
-			<span className="text-sm">{trans.common.BACK}</span>
+			<span className="text-sm">{t('common.BACK')}</span>
 		</button>
 	);
 }

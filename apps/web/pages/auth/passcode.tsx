@@ -1,55 +1,42 @@
+import { getAccessTokenCookie } from '@app/helpers';
 import { TAuthenticationPasscode, useAuthenticationPasscode } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	AuthCodeInputField,
-	Avatar,
-	BackButton,
-	Button,
-	Card,
-	InputField,
-	SpinnerLoader,
-	Text
-} from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
+import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
 import Link from 'next/link';
-import { FormEvent, useCallback, useEffect, useState } from 'react';
-import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
-import stc from 'string-to-color';
 import { useRouter } from 'next/router';
-import { getAccessTokenCookie } from '@app/helpers';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import stc from 'string-to-color';
 
 export default function AuthPasscode() {
 	const form = useAuthenticationPasscode();
-	const { trans } = useTranslation('authLogin');
+	const { t } = useTranslation();
 
 	return (
 		<AuthLayout
 			title={
 				form.authScreen.screen === 'workspace'
-					? trans.WORKSPACE
-					: trans.HEADING_TITLE
+					? t('pages.authLogin.WORKSPACE')
+					: t('pages.authLogin.HEADING_TITLE')
 			}
 			description={
 				form.authScreen.screen === 'workspace' ? (
 					<>
-						<span>{trans.HEADING_WORKSPACE_LINE1}</span>
+						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE1')}</span>
 						<br />
-						<span>{trans.HEADING_WORKSPACE_LINE2}</span>
+						<span>{t('pages.authLogin.HEADING_WORKSPACE_LINE2')}</span>
 					</>
 				) : (
-					trans.HEADING_DESCRIPTION
+					t('pages.authLogin.HEADING_DESCRIPTION')
 				)
 			}
 		>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
-				<div
-					className={clsxm('flex flex-row transition-[transform] duration-500')}
-				>
-					{form.authScreen.screen === 'email' && (
-						<EmailScreen form={form} className={clsxm('w-full')} />
-					)}
+				<div className={clsxm('flex flex-row transition-[transform] duration-500')}>
+					{form.authScreen.screen === 'email' && <EmailScreen form={form} className={clsxm('w-full')} />}
 					{form.authScreen.screen === 'passcode' && (
 						<PasscodeScreen form={form} className={clsxm('w-full')} />
 					)}
@@ -63,11 +50,8 @@ export default function AuthPasscode() {
 	);
 }
 
-function EmailScreen({
-	form,
-	className
-}: { form: TAuthenticationPasscode } & IClassName) {
-	const { trans } = useTranslation();
+function EmailScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
+	const { t } = useTranslation();
 
 	const handleSendCode = useCallback(
 		(e: FormEvent<HTMLFormElement>) => {
@@ -83,15 +67,15 @@ function EmailScreen({
 	return (
 		<form className={className} autoComplete="off" onSubmit={handleSendCode}>
 			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col justify-between items-center">
+				<div className="flex flex-col items-center justify-between">
 					<Text.Heading as="h3" className="text-center mb-7">
-						{trans.pages.auth.ENTER_EMAIL}
+						{t('pages.auth.ENTER_EMAIL')}
 					</Text.Heading>
 
 					{/* Email input */}
 					<InputField
 						type="email"
-						placeholder={trans.form.EMAIL_PLACEHOLDER}
+						placeholder={t('form.EMAIL_PLACEHOLDER')}
 						name="email"
 						value={form.formValues.email}
 						onChange={form.handleChange}
@@ -102,7 +86,7 @@ function EmailScreen({
 						className="dark:bg-[#25272D]"
 					/>
 
-					<div className="w-full flex justify-between mt-6 items-center">
+					<div className="flex items-center justify-between w-full mt-6">
 						{/* Send code */}
 						<div className="flex flex-col items-start">
 							<Link href="/auth/team">
@@ -110,12 +94,8 @@ function EmailScreen({
 							</Link>
 						</div>
 
-						<Button
-							type="submit"
-							loading={form.signInEmailLoading}
-							disabled={form.signInEmailLoading}
-						>
-							{trans.common.CONTINUE}
+						<Button type="submit" loading={form.signInEmailLoading} disabled={form.signInEmailLoading}>
+							{t('common.CONTINUE')}
 						</Button>
 					</div>
 				</div>
@@ -124,29 +104,20 @@ function EmailScreen({
 	);
 }
 
-function PasscodeScreen({
-	form,
-	className
-}: { form: TAuthenticationPasscode } & IClassName) {
-	const { trans } = useTranslation();
+function PasscodeScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
+	const { t } = useTranslation();
 
 	return (
-		<form
-			className={className}
-			onSubmit={form.handleCodeSubmit}
-			autoComplete="off"
-		>
+		<form className={className} onSubmit={form.handleCodeSubmit} autoComplete="off">
 			<Card className="w-full dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col justify-between items-center">
-					<Text.Heading as="h3" className="text-center mb-10">
-						{trans.pages.auth.LOGIN}
+				<div className="flex flex-col items-center justify-between">
+					<Text.Heading as="h3" className="mb-10 text-center">
+						{t('pages.auth.LOGIN')}
 					</Text.Heading>
 
 					{/* Auth code input */}
 					<div className="w-full mt-5">
-						<Text className="text-xs text-gray-400 font-normal">
-							{trans.pages.auth.INPUT_INVITE_CODE}
-						</Text>
+						<Text className="text-xs font-normal text-gray-400">{t('pages.auth.INPUT_INVITE_CODE')}</Text>
 
 						<AuthCodeInputField
 							key={form.authScreen.screen}
@@ -175,29 +146,27 @@ function PasscodeScreen({
 						)}
 					</div>
 
-					<div className="w-full flex justify-between mt-10">
+					<div className="flex justify-between w-full mt-10">
 						{/* Send code */}
 						<div className="flex flex-col space-y-2">
-							<div className="flex flex-row items-center space-x-2 mb-1">
-								<Text className="text-xs text-gray-500 dark:text-gray-400 font-normal">
-									{trans.pages.auth.UNRECEIVED_CODE}
+							<div className="flex flex-row items-center mb-1 space-x-2">
+								<Text className="text-xs font-normal text-gray-500 dark:text-gray-400">
+									{t('pages.auth.UNRECEIVED_CODE')}
 								</Text>
 
 								{!form.sendCodeLoading && (
 									<button
 										type="button"
-										className="text-xs text-gray-500 dark:text-gray-400 font-normal cursor-pointer"
+										className="text-xs font-normal text-gray-500 cursor-pointer dark:text-gray-400"
 										onClick={form.sendAuthCodeHandler}
 									>
 										{'Re'}
 										<span className="text-primary dark:text-primary-light">
-											{trans.pages.auth.SEND_CODE}
+											{t('pages.auth.SEND_CODE')}
 										</span>
 									</button>
 								)}
-								{form.sendCodeLoading && (
-									<SpinnerLoader size={15} className="self-center" />
-								)}
+								{form.sendCodeLoading && <SpinnerLoader size={15} className="self-center" />}
 							</div>
 
 							<div>
@@ -215,7 +184,7 @@ function PasscodeScreen({
 							loading={form.signInEmailConfirmLoading}
 							disabled={form.signInEmailConfirmLoading}
 						>
-							{trans.pages.auth.LOGIN}
+							{t('pages.auth.LOGIN')}
 						</Button>
 					</div>
 				</div>
@@ -224,11 +193,8 @@ function PasscodeScreen({
 	);
 }
 
-function WorkSpaceScreen({
-	form,
-	className
-}: { form: TAuthenticationPasscode } & IClassName) {
-	const { trans } = useTranslation();
+function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } & IClassName) {
+	const { t } = useTranslation();
 
 	const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
 	const [selectedTeam, setSelectedTeam] = useState('');
@@ -237,21 +203,14 @@ function WorkSpaceScreen({
 	const signInToWorkspace = useCallback(
 		(e: any) => {
 			if (typeof selectedWorkspace !== 'undefined') {
-				form.handleWorkspaceSubmit(
-					e,
-					form.workspaces[selectedWorkspace].token,
-					selectedTeam
-				);
+				form.handleWorkspaceSubmit(e, form.workspaces[selectedWorkspace].token, selectedTeam);
 			}
 		},
 		[selectedWorkspace, selectedTeam, form]
 	);
 
 	useEffect(() => {
-		if (
-			form.workspaces.length === 1 &&
-			form.workspaces[0].current_teams.length === 1
-		) {
+		if (form.workspaces.length === 1 && form.workspaces[0].current_teams.length === 1) {
 			setSelectedWorkspace(0);
 			setSelectedTeam(form.workspaces[0].current_teams[0].team_id);
 			setTimeout(() => {
@@ -276,9 +235,9 @@ function WorkSpaceScreen({
 			autoComplete="off"
 		>
 			<Card className="w-full max-w-[30rem] dark:bg-[#25272D]" shadow="custom">
-				<div className="flex flex-col justify-between items-center gap-8">
+				<div className="flex flex-col items-center justify-between gap-8">
 					<Text.Heading as="h3" className="text-center">
-						{trans.pages.auth.SELECT_WORKSPACE}
+						{t('pages.auth.SELECT_WORKSPACE')}
 					</Text.Heading>
 
 					<div className="flex flex-col w-full gap-4 max-h-[16.9375rem] overflow-scroll scrollbar-hide">
@@ -286,9 +245,7 @@ function WorkSpaceScreen({
 							<div
 								key={index}
 								className={`w-full flex flex-col border border-[#0000001A] dark:border-[#34353D] ${
-									selectedWorkspace === index
-										? 'bg-[#FCFCFC] dark:bg-[#1F2024]'
-										: ''
+									selectedWorkspace === index ? 'bg-[#FCFCFC] dark:bg-[#1F2024]' : ''
 								} hover:bg-[#FCFCFC] dark:hover:bg-[#1F2024] rounded-xl`}
 							>
 								<div className="text-base font-medium py-[1.25rem] px-4 flex flex-col gap-[1.0625rem]">
@@ -323,7 +280,7 @@ function WorkSpaceScreen({
 												key={`${index}-${team.team_id}`}
 												className="flex items-center justify-between gap-4 min-h-[2.875rem]"
 											>
-												<span className="flex items-center gap-4 justify-between">
+												<span className="flex items-center justify-between gap-4">
 													<Avatar
 														imageTitle={team.team_name}
 														size={34}
@@ -359,7 +316,7 @@ function WorkSpaceScreen({
 						))}
 					</div>
 
-					<div className="w-full flex justify-between items-center">
+					<div className="flex items-center justify-between w-full">
 						<div className="flex flex-col space-y-2">
 							<div>
 								<BackButton
@@ -377,7 +334,7 @@ function WorkSpaceScreen({
 							disabled={form.signInWorkspaceLoading || !selectedTeam}
 							id="continue-to-workspace"
 						>
-							{trans.common.CONTINUE}
+							{t('common.CONTINUE')}
 						</Button>
 					</div>
 				</div>

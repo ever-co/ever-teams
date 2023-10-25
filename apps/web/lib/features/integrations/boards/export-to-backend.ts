@@ -1,23 +1,14 @@
 import { serializeAsJSON } from '@excalidraw/excalidraw';
 import { compressData } from './encode';
 import { generateEncryptionKey } from './encryption';
-import {
-	ExcalidrawElement,
-	FileId
-} from '@excalidraw/excalidraw/types/element/types';
-import {
-	AppState,
-	BinaryFileData,
-	BinaryFiles
-} from '@excalidraw/excalidraw/types/types';
+import { ExcalidrawElement, FileId } from '@excalidraw/excalidraw/types/element/types';
+import { AppState, BinaryFileData, BinaryFiles } from '@excalidraw/excalidraw/types/types';
 import { BOARD_APP_DOMAIN, BOARD_BACKEND_POST_URL } from '@app/constants';
 import { FILE_UPLOAD_MAX_BYTES } from './constants';
 import { saveFilesToFirebase } from './firebase';
 import { encodeFilesForUpload, isInitializedImageElement } from './files';
 
-type ExportToBackendResult =
-	| { url: null; errorMessage: string }
-	| { url: string; errorMessage: null };
+type ExportToBackendResult = { url: null; errorMessage: string } | { url: string; errorMessage: null };
 
 export const exportToBackend = async (
 	elements: readonly ExcalidrawElement[],
@@ -31,9 +22,7 @@ export const exportToBackend = async (
 	const encryptionKey = await generateEncryptionKey('string');
 
 	const payload = await compressData(
-		new TextEncoder().encode(
-			serializeAsJSON(elements, appState, files, 'database')
-		),
+		new TextEncoder().encode(serializeAsJSON(elements, appState, files, 'database')),
 		{ encryptionKey }
 	);
 
