@@ -1,16 +1,9 @@
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import {
-	createVersionRequest,
-	getTaskVersionListRequest
-} from '@app/services/server/requests/task-version';
+import { createVersionRequest, getTaskVersionListRequest } from '@app/services/server/requests/task-version';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, access_token, tenantId, organizationId } =
-		await authenticatedGuard(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res();
 
@@ -26,8 +19,6 @@ export default async function handler(
 		case 'GET':
 			return $res.json(await getTaskVersionListRequest(par, access_token));
 		case 'POST':
-			return $res.json(
-				await createVersionRequest(req.body, access_token, req.body?.tenantId)
-			);
+			return $res.json(await createVersionRequest(req.body, access_token, req.body?.tenantId));
 	}
 }

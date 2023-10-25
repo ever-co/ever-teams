@@ -20,10 +20,6 @@ export const activeTimezoneState = selector<string | null>({
 	get: ({ get }) => {
 		const timezones = get(timezoneListState);
 		const activeId = get(activeTimezoneIdState);
-		return (
-			timezones.find((timezone) => timezone === activeId) ||
-			timezones[0] ||
-			null
-		);
+		return timezones.find((timezone) => timezone === activeId) || timezones[0] || null;
 	}
 });

@@ -18,13 +18,7 @@ export function useRefetchData() {
 		loadTaskPriorities();
 		loadTaskSizes();
 		loadTaskRelatedIssueTypeData();
-	}, [
-		loadTaskStatusData,
-		loadTaskVersionData,
-		loadTaskPriorities,
-		loadTaskSizes,
-		loadTaskRelatedIssueTypeData
-	]);
+	}, [loadTaskStatusData, loadTaskVersionData, loadTaskPriorities, loadTaskSizes, loadTaskRelatedIssueTypeData]);
 
 	return { refetch };
 }

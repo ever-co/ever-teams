@@ -1,9 +1,5 @@
 import { COOKIE_DOMAINS } from '@app/constants';
-import {
-	deleteCookie as _deleteCookie,
-	getCookie as _getCookie,
-	setCookie as _setCookie
-} from 'cookies-next';
+import { deleteCookie as _deleteCookie, getCookie as _getCookie, setCookie as _setCookie } from 'cookies-next';
 
 export const deleteCookie: typeof _deleteCookie = (key, options) => {
 	_deleteCookie(key, options);
@@ -20,9 +16,7 @@ export const getCookie: typeof _getCookie = (key, options) => {
 	return _getCookie(key, options);
 };
 
-type SetCookie = (
-	...params: [...Parameters<typeof _setCookie>, ...[crossSite?: boolean]]
-) => void;
+type SetCookie = (...params: [...Parameters<typeof _setCookie>, ...[crossSite?: boolean]]) => void;
 
 export const setCookie: SetCookie = (key, data, options, crossSite) => {
 	_setCookie(key, data, options);

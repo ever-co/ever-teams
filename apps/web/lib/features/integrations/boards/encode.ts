@@ -6,9 +6,7 @@ import { encryptData } from './encryption';
 // -----------------------------------------------------------------------------
 
 // fast, Buffer-compatible implem
-export const toByteString = (
-	data: string | Uint8Array | ArrayBuffer
-): Promise<string> => {
+export const toByteString = (data: string | Uint8Array | ArrayBuffer): Promise<string> => {
 	return new Promise((resolve, reject) => {
 		const blob =
 			typeof data === 'string'
@@ -55,12 +53,7 @@ const DATA_VIEW_BITS_MAP = { 1: 8, 2: 16, 4: 32 } as const;
 // getter
 function dataView(buffer: Uint8Array, bytes: 1 | 2 | 4, offset: number): number;
 // setter
-function dataView(
-	buffer: Uint8Array,
-	bytes: 1 | 2 | 4,
-	offset: number,
-	value: number
-): Uint8Array;
+function dataView(buffer: Uint8Array, bytes: 1 | 2 | 4, offset: number, value: number): Uint8Array;
 /**
  * abstraction over DataView that serves as a typed getter/setter in case
  * you're using constants for the byte size and want to ensure there's no
@@ -68,12 +61,7 @@ function dataView(
  *
  * DataView serves for an endian-agnostic handling of numbers in ArrayBuffers.
  */
-function dataView(
-	buffer: Uint8Array,
-	bytes: 1 | 2 | 4,
-	offset: number,
-	value?: number
-): Uint8Array | number {
+function dataView(buffer: Uint8Array, bytes: 1 | 2 | 4, offset: number, value?: number): Uint8Array | number {
 	if (value != null) {
 		if (value > Math.pow(2, DATA_VIEW_BITS_MAP[bytes]) - 1) {
 			throw new Error(
@@ -118,12 +106,7 @@ const concatBuffers = (...buffers: Uint8Array[]) => {
 	cursor += VERSION_DATAVIEW_BYTES;
 
 	for (const buffer of buffers) {
-		dataView(
-			bufferView,
-			NEXT_CHUNK_SIZE_DATAVIEW_BYTES,
-			cursor,
-			buffer.byteLength
-		);
+		dataView(bufferView, NEXT_CHUNK_SIZE_DATAVIEW_BYTES, cursor, buffer.byteLength);
 		cursor += NEXT_CHUNK_SIZE_DATAVIEW_BYTES;
 
 		bufferView.set(buffer, cursor);
@@ -137,14 +120,8 @@ const concatBuffers = (...buffers: Uint8Array[]) => {
 // -----------------------------------------------------------------------------
 
 /** @private */
-const _encryptAndCompress = async (
-	data: Uint8Array | string,
-	encryptionKey: string
-) => {
-	const { encryptedBuffer, iv } = await encryptData(
-		encryptionKey,
-		deflate(data)
-	);
+const _encryptAndCompress = async (data: Uint8Array | string, encryptionKey: string) => {
+	const { encryptedBuffer, iv } = await encryptData(encryptionKey, deflate(data));
 
 	return { iv, buffer: new Uint8Array(encryptedBuffer) };
 };
@@ -178,13 +155,9 @@ export const compressData = async <T extends Record<string, any> = never>(
 		encryption: 'AES-GCM'
 	};
 
-	const encodingMetadataBuffer = new TextEncoder().encode(
-		JSON.stringify(fileInfo)
-	);
+	const encodingMetadataBuffer = new TextEncoder().encode(JSON.stringify(fileInfo));
 
-	const contentsMetadataBuffer = new TextEncoder().encode(
-		JSON.stringify(options.metadata || null)
-	);
+	const contentsMetadataBuffer = new TextEncoder().encode(JSON.stringify(options.metadata || null));
 
 	const { iv, buffer } = await _encryptAndCompress(
 		concatBuffers(contentsMetadataBuffer, dataBuffer),

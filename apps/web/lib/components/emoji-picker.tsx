@@ -40,10 +40,7 @@ export const EmojiPicker = ({
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				panelRef.current &&
-				!panelRef.current.contains(event.target as Node)
-			) {
+			if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
 				setDisabled(true);
 			}
 		};
@@ -87,9 +84,7 @@ export const EmojiPicker = ({
 								<div className="flex mr-[0.5rem] gap-3">
 									<button
 										disabled={!isTeamManager}
-										className={`outline-none ${
-											!isTeamManager && 'pointer-events-none'
-										}`}
+										className={`outline-none ${!isTeamManager && 'pointer-events-none'}`}
 										onClick={() => {
 											setDisabled(!disabled);
 										}}
@@ -101,9 +96,7 @@ export const EmojiPicker = ({
 											setValue(null);
 											onChange('');
 										}}
-										className={`outline-none ${
-											!isTeamManager && 'pointer-events-none'
-										}`}
+										className={`outline-none ${!isTeamManager && 'pointer-events-none'}`}
 									>
 										<TrashIcon />
 									</button>

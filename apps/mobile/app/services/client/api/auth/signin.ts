@@ -1,20 +1,20 @@
 /* eslint-disable no-void */
-import { authFormValidate } from "../../../../helpers/validations"
-import { ISignInDataAPI } from "../../../interfaces/IAuthentication"
-import { signInWorkspaceRequest } from "../../requests/auth"
+import { authFormValidate } from '../../../../helpers/validations';
+import { ISignInDataAPI } from '../../../interfaces/IAuthentication';
+import { signInWorkspaceRequest } from '../../requests/auth';
 
-import { getUserOrganizationsRequest } from "../../requests/organization"
+import { getUserOrganizationsRequest } from '../../requests/organization';
 
 export async function signIn(params: ISignInDataAPI) {
-	const { errors, valid: formValid } = authFormValidate(["email"], params as any)
+	const { errors, valid: formValid } = authFormValidate(['email'], params as any);
 
 	if (!formValid) {
 		return {
 			response: {
 				status: 400,
-				errors,
-			},
-		}
+				errors
+			}
+		};
 	}
 
 	/**
@@ -22,28 +22,25 @@ export async function signIn(params: ISignInDataAPI) {
 	 */
 
 	// Get login data
-	const { data } = await signInWorkspaceRequest(params.email, params.token)
+	const { data } = await signInWorkspaceRequest(params.email, params.token);
 
-	const tenantId = data.user?.tenantId || ""
-	const accessToken = data.token
-	const userId = data.user?.id
+	const tenantId = data.user?.tenantId || '';
+	const accessToken = data.token;
+	const userId = data.user?.id;
 
-	const { data: organizations } = await getUserOrganizationsRequest(
-		{ tenantId, userId },
-		accessToken,
-	)
+	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, accessToken);
 
-	const organization = organizations?.items[0]
+	const organization = organizations?.items[0];
 
 	if (!organization) {
 		return {
 			response: {
 				status: 400,
 				errors: {
-					email: "Your account is not yet ready to be used on the Ever Teams Platform",
-				},
-			},
-		}
+					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
+				}
+			}
+		};
 	}
 
 	return {
@@ -54,10 +51,10 @@ export async function signIn(params: ISignInDataAPI) {
 					refresh_token: data.refresh_token,
 					tenantId,
 					organizationId: organization.organizationId,
-					user: data.user,
-				},
-			},
+					user: data.user
+				}
+			}
 		},
-		status: 200,
-	}
+		status: 200
+	};
 }

@@ -1,8 +1,4 @@
-import {
-	ITimerStatus,
-	IToggleTimerParams,
-	TimerSource
-} from '@app/interfaces/ITimer';
+import { ITimerStatus, IToggleTimerParams, TimerSource } from '@app/interfaces/ITimer';
 import api from '../axios';
 
 export function getTimerStatusAPI() {

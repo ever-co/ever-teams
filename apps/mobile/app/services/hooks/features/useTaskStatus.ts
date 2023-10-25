@@ -1,39 +1,39 @@
-import { useCallback, useEffect, useState } from "react"
-import { useQueryClient } from "react-query"
-import { useStores } from "../../../models"
-import useFetchAllStatuses from "../../client/queries/task/task-status"
+import { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
+import { useStores } from '../../../models';
+import useFetchAllStatuses from '../../client/queries/task/task-status';
 import {
 	createStatusRequest,
 	deleteTaskStatusRequest,
-	updateTaskStatusRequest,
-} from "../../client/requests/task-status"
-import { ITaskStatusCreate, ITaskStatusItem } from "../../interfaces/ITaskStatus"
+	updateTaskStatusRequest
+} from '../../client/requests/task-status';
+import { ITaskStatusCreate, ITaskStatusItem } from '../../interfaces/ITaskStatus';
 
 export function useTaskStatus() {
-	const queryClient = useQueryClient()
+	const queryClient = useQueryClient();
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
-		teamStore: { activeTeamId },
-	} = useStores()
+		teamStore: { activeTeamId }
+	} = useStores();
 
-	const [allStatuses, setAllStatuses] = useState<ITaskStatusItem[]>([])
+	const [allStatuses, setAllStatuses] = useState<ITaskStatusItem[]>([]);
 
 	const {
 		data: statuses,
 		isLoading,
 		isSuccess,
-		isRefetching,
-	} = useFetchAllStatuses({ tenantId, organizationId, activeTeamId, authToken })
+		isRefetching
+	} = useFetchAllStatuses({ tenantId, organizationId, activeTeamId, authToken });
 
 	// Delete the status
 	const deleteStatus = useCallback(async (id: string) => {
 		await deleteTaskStatusRequest({
 			id,
 			tenantId,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("statuses")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('statuses');
+	}, []);
 
 	// Update the status
 
@@ -42,10 +42,10 @@ export function useTaskStatus() {
 			id,
 			tenantId,
 			datas: data,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("statuses")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('statuses');
+	}, []);
 
 	// Create the status
 
@@ -53,18 +53,18 @@ export function useTaskStatus() {
 		await createStatusRequest({
 			tenantId,
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("statuses")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('statuses');
+	}, []);
 
 	useEffect(() => {
 		if (isSuccess) {
 			if (statuses) {
-				setAllStatuses(statuses.items || [])
+				setAllStatuses(statuses.items || []);
 			}
 		}
-	}, [isLoading, isRefetching])
+	}, [isLoading, isRefetching]);
 
 	return {
 		statuses,
@@ -72,6 +72,6 @@ export function useTaskStatus() {
 		deleteStatus,
 		updateStatus,
 		allStatuses,
-		createStatus,
-	}
+		createStatus
+	};
 }

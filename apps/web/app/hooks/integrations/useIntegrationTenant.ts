@@ -5,13 +5,9 @@ import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 
 export function useIntegrationTenant() {
-	const [integrationTenant, setIntegrationTenant] = useRecoilState(
-		integrationTenantState
-	);
+	const [integrationTenant, setIntegrationTenant] = useRecoilState(integrationTenantState);
 
-	const { loading: loading, queryCall: queryCall } = useQuery(
-		getIntegrationTenantAPI
-	);
+	const { loading: loading, queryCall: queryCall } = useQuery(getIntegrationTenantAPI);
 
 	const getIntegrationTenant = useCallback(
 		(name: string) => {
@@ -27,6 +23,6 @@ export function useIntegrationTenant() {
 	return {
 		loading,
 		getIntegrationTenant,
-		integrationTenant,
+		integrationTenant
 	};
 }

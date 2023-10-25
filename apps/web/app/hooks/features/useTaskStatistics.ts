@@ -23,17 +23,12 @@ import { useRefreshInterval } from './useRefreshInterval';
 import { useOrganizationTeams } from './useOrganizationTeams';
 
 export function useTaskStatistics(addSeconds = 0) {
-	const [statActiveTask, setStatActiveTask] = useRecoilState(
-		activeTaskStatisticsState
-	);
+	const [statActiveTask, setStatActiveTask] = useRecoilState(activeTaskStatisticsState);
 	const [statTasks, setStatTasks] = useRecoilState(tasksStatisticsState);
 	const setTasksFetching = useSetRecoilState(tasksFetchingState);
-	const [allTaskStatistics, setAllTaskStatistics] = useRecoilState(
-		allTaskStatisticsState
-	);
+	const [allTaskStatistics, setAllTaskStatistics] = useRecoilState(allTaskStatisticsState);
 
-	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } =
-		useFirstLoad();
+	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
 	const { activeTeam } = useOrganizationTeams();
 
@@ -98,10 +93,7 @@ export function useTaskStatistics(addSeconds = 0) {
 	}, [setStatActiveTask, setTasksFetching]);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const debounceLoadActiveTaskStat = useCallback(
-		debounce(getActiveTaskStatData, 100),
-		[]
-	);
+	const debounceLoadActiveTaskStat = useCallback(debounce(getActiveTaskStatData, 100), []);
 
 	/**
 	 * Get statistics of the active tasks at the component load
@@ -144,16 +136,10 @@ export function useTaskStatistics(addSeconds = 0) {
 	 * @returns
 	 */
 	const getEstimation = useCallback(
-		(
-			timeSheet: Nullable<ITasksTimesheet>,
-			_task: Nullable<ITeamTask>,
-			addSeconds: number,
-			estimate = 0
-		) =>
+		(timeSheet: Nullable<ITasksTimesheet>, _task: Nullable<ITeamTask>, addSeconds: number, estimate = 0) =>
 			Math.min(
 				Math.floor(
-					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) *
-						100) /
+					(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
 						(estimate || _task?.estimate || 0)
 				),
 				100
@@ -164,27 +150,17 @@ export function useTaskStatistics(addSeconds = 0) {
 	const activeTaskEstimation = useMemo(() => {
 		let totalWorkedTasksTimer = 0;
 		activeTeam?.members?.forEach((member) => {
-			const totalWorkedTasks =
-				member?.totalWorkedTasks?.find(
-					(item) => item.id === activeTeamTask?.id
-				) || null;
+			const totalWorkedTasks = member?.totalWorkedTasks?.find((item) => item.id === activeTeamTask?.id) || null;
 			if (totalWorkedTasks) {
 				totalWorkedTasksTimer += totalWorkedTasks.duration;
 			}
 		});
 
-		return getEstimation(
-			null,
-			activeTeamTask,
-			totalWorkedTasksTimer,
-			activeTeamTask?.estimate || 0
-		);
+		return getEstimation(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0);
 	}, [activeTeam, activeTeamTask, getEstimation]);
 
 	const activeTaskDailyEstimation =
-		activeTeamTask && activeTeamTask.estimate
-			? getEstimation(statActiveTask.today, activeTeamTask, addSeconds)
-			: 0;
+		activeTeamTask && activeTeamTask.estimate ? getEstimation(statActiveTask.today, activeTeamTask, addSeconds) : 0;
 
 	return {
 		firstLoadtasksStatisticsData,

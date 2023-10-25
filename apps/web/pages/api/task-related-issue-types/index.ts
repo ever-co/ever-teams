@@ -5,12 +5,8 @@ import {
 } from '@app/services/server/requests/task-related-issue-type';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, access_token, tenantId, organizationId } =
-		await authenticatedGuard(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res();
 
@@ -24,16 +20,8 @@ export default async function handler(
 
 	switch (req.method) {
 		case 'GET':
-			return $res.json(
-				await getTaskRelatedIssueTypeListRequest(par, access_token)
-			);
+			return $res.json(await getTaskRelatedIssueTypeListRequest(par, access_token));
 		case 'POST':
-			return $res.json(
-				await createRelatedIssueTypeRequest(
-					req.body,
-					access_token,
-					req.body?.tenantId
-				)
-			);
+			return $res.json(await createRelatedIssueTypeRequest(req.body, access_token, req.body?.tenantId));
 	}
 }

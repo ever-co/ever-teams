@@ -10,29 +10,19 @@ import {
 	useTaskStatusValue
 } from './task-status';
 
-export function TaskAllStatusTypes({
-	task,
-	showStatus = false
-}: {
-	task?: Nullable<ITeamTask>;
-	showStatus?: boolean;
-}) {
+export function TaskAllStatusTypes({ task, showStatus = false }: { task?: Nullable<ITeamTask>; showStatus?: boolean }) {
 	const taskPriorities = useTaskPrioritiesValue();
 	const taskSizes = useTaskSizesValue();
 	const taskLabels = useTaskLabelsValue();
 	const taskStatus = useTaskStatusValue();
 
-	const {
-		viewportRef,
-		nextBtnEnabled,
-		scrollNext,
-		prevBtnEnabled,
-		scrollPrev,
-		emblaApi
-	} = useCustomEmblaCarousel(0, {
-		dragFree: true,
-		containScroll: 'trimSnaps'
-	});
+	const { viewportRef, nextBtnEnabled, scrollNext, prevBtnEnabled, scrollPrev, emblaApi } = useCustomEmblaCarousel(
+		0,
+		{
+			dragFree: true,
+			containScroll: 'trimSnaps'
+		}
+	);
 
 	const emblaApiRef = useSyncRef(emblaApi);
 
@@ -100,19 +90,13 @@ export function TaskAllStatusTypes({
 			</div>
 
 			{nextBtnEnabled && (
-				<RoundedButton
-					onClick={scrollNext}
-					className={'absolute w-6 h-6 -right-3'}
-				>
+				<RoundedButton onClick={scrollNext} className={'absolute w-6 h-6 -right-3'}>
 					{'>'}
 				</RoundedButton>
 			)}
 
 			{prevBtnEnabled && (
-				<RoundedButton
-					onClick={scrollPrev}
-					className={'absolute w-6 h-6 -left-3'}
-				>
+				<RoundedButton onClick={scrollPrev} className={'absolute w-6 h-6 -left-3'}>
 					{'<'}
 				</RoundedButton>
 			)}

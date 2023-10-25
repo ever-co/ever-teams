@@ -1,8 +1,5 @@
 import { IUser } from '@app/interfaces';
-import {
-	collaborativeMembersState,
-	collaborativeSelectState
-} from '@app/stores';
+import { collaborativeMembersState, collaborativeSelectState } from '@app/stores';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useAuthenticateUser } from './features/useAuthenticateUser';
@@ -15,12 +12,8 @@ import capitalize from 'lodash/capitalize';
 export function useCollaborative(user?: IUser) {
 	const { activeTeam } = useOrganizationTeams();
 	const { user: authUser } = useAuthenticateUser();
-	const [collaborativeSelect, setCollaborativeSelect] = useRecoilState(
-		collaborativeSelectState
-	);
-	const [collaborativeMembers, setCollaborativeMembers] = useRecoilState(
-		collaborativeMembersState
-	);
+	const [collaborativeSelect, setCollaborativeSelect] = useRecoilState(collaborativeSelectState);
+	const [collaborativeMembers, setCollaborativeMembers] = useRecoilState(collaborativeMembersState);
 
 	const url = useRouter();
 

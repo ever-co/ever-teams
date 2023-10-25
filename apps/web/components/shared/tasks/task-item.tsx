@@ -21,15 +21,10 @@ export function TaskItem({
 }) {
 	return (
 		<>
-			<span
-				className={`truncate h-[30px] flex items-center ${
-					selected ? 'font-medium' : 'font-normal'
-				}`}
-			>
+			<span className={`truncate h-[30px] flex items-center ${selected ? 'font-medium' : 'font-normal'}`}>
 				<div className="flex items-center justify-between w-full">
 					<div>
-						<span className="text-[#9490A0]">#{item.taskNumber}</span>{' '}
-						{item.title}
+						<span className="text-[#9490A0]">#{item.taskNumber}</span> {item.title}
 					</div>
 					<div className="flex items-center space-x-4">
 						<BadgedTaskStatus status={item.status} />
@@ -72,9 +67,7 @@ export function TaskItem({
 				</div>
 			</span>
 			{selected ? (
-				<span
-					className={`absolute inset-y-0 left-0 flex items-center dark:text-white text-primary pl-3`}
-				>
+				<span className={`absolute inset-y-0 left-0 flex items-center dark:text-white text-primary pl-3`}>
 					<CheckIcon className="h-5 w-5" aria-hidden="true" />
 				</span>
 			) : null}

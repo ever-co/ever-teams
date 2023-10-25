@@ -1,10 +1,10 @@
 export type I_SMTPRequest = {
-    fromAddress: string;
-    host: string;
-    port: number;
-    secure: boolean;
-    username: string;
-    password: string;
+	fromAddress: string;
+	host: string;
+	port: number;
+	secure: boolean;
+	username: string;
+	password: string;
 };
 
 export interface I_SMTP {

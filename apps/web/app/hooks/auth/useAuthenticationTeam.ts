@@ -22,9 +22,7 @@ const initialValues: IRegisterDataAPI = {
 };
 
 export function useAuthenticationTeam() {
-	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(
-		FIRST_STEP
-	);
+	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
 	const [formValues, setFormValues] = useState<IRegisterDataAPI>(initialValues);
 	const [errors, setErrors] = useState(initialValues);
 	const { queryCall, loading, infiniteLoading } = useQuery(registerUserTeamAPI);
@@ -38,10 +36,7 @@ export function useAuthenticationTeam() {
 			return;
 		}
 
-		const { errors, valid } = authFormValidate(
-			['name', 'email', 'recaptcha'],
-			formValues
-		);
+		const { errors, valid } = authFormValidate(['name', 'email', 'recaptcha'], formValues);
 
 		if (!valid) {
 			setErrors(errors as any);

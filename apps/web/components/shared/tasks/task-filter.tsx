@@ -14,21 +14,13 @@ const TaskFilter = ({ type, count, selected, handleChange }: ITaskFilter) => {
 		>
 			{type === 'open' ? (
 				<div
-					className={`w-[10px] h-[10px] ${
-						selected === true ? 'bg-[#28D581]' : 'bg-[#ACB3BB]'
-					} rounded-full`}
+					className={`w-[10px] h-[10px] ${selected === true ? 'bg-[#28D581]' : 'bg-[#ACB3BB]'} rounded-full`}
 				/>
 			) : (
-				<CheckIcon
-					className={`${
-						selected === true ? 'text-primary' : 'text-[#ACB3BB]'
-					} w-[18px]`}
-				/>
+				<CheckIcon className={`${selected === true ? 'text-primary' : 'text-[#ACB3BB]'} w-[18px]`} />
 			)}
 			<div
-				className={`text-[12px] w-full  ${
-					selected ? 'text-primary font-bold' : 'text-[#ACB3BB] font-light'
-				} `}
+				className={`text-[12px] w-full  ${selected ? 'text-primary font-bold' : 'text-[#ACB3BB] font-light'} `}
 			>
 				{count + ' ' + type}
 			</div>

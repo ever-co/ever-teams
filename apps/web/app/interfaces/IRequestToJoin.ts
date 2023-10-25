@@ -6,8 +6,7 @@ export interface IRequestToJoinCreate {
 	organizationTeamId: string;
 }
 
-export interface IValidateRequestToJoin
-	extends Pick<IRequestToJoinCreate, 'email' | 'organizationTeamId'> {
+export interface IValidateRequestToJoin extends Pick<IRequestToJoinCreate, 'email' | 'organizationTeamId'> {
 	code: string;
 }
 

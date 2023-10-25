@@ -10,46 +10,26 @@ const SettingsTeamSkeleton = () => {
 		<MainLayout>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
-					<Skeleton
-						height={20}
-						width={180}
-						borderRadius={10}
-						className="dark:bg-[#272930]"
-					/>
+					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
 				</Container>
 			</div>
 			<Container className="mb-10">
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-[#191A1F]">
-						<Card
-							className="dark:bg-dark--theme p-[32px] mt-[36px]"
-							shadow="bigger"
-						>
+						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-4xl font-medium mb-2">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
-								<Skeleton
-									width={300}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={300} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<div className="w-[98%] md:w-[930px]">
 								<div className="flex flex-col justify-between items-center">
 									<div className="w-full mt-5">
 										<div className="">
 											<div className="flex w-full items-center justify-between gap-12 mt-8">
-												<Skeleton
-													width={200}
-													borderRadius={20}
-													className="dark:bg-[#272930]"
-												/>
+												<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 
 												<div className="flex flex-row flex-grow-0 items-center justify-between w-4/5">
 													<InputField type="text" className="" />
@@ -98,11 +78,7 @@ const SettingsTeamSkeleton = () => {
 												</div>
 											</div>
 											<div className="flex w-full items-center justify-between gap-12 mt-20">
-												<Skeleton
-													width={200}
-													borderRadius={20}
-													className="dark:bg-[#272930]"
-												/>
+												<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 
 												<div className="flex flex-row flex-grow-0 items-center justify-between w-1/2">
 													<InputField type="text" className="" />
@@ -156,42 +132,18 @@ const SettingsTeamSkeleton = () => {
 							<StatusListCard />
 							<div className="w-1/2 mb-8">
 								<div className="flex justify-between items-center mt-12">
-									<Skeleton
-										width={200}
-										borderRadius={20}
-										className="dark:bg-[#272930]"
-									/>
-									<Skeleton
-										width={200}
-										borderRadius={20}
-										className="dark:bg-[#272930]"
-									/>
+									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 								</div>
 								<div className="flex justify-between items-center mt-20 ">
-									<Skeleton
-										width={200}
-										borderRadius={20}
-										className="dark:bg-[#272930]"
-									/>
-									<Skeleton
-										width={200}
-										borderRadius={20}
-										className="dark:bg-[#272930]"
-									/>
+									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
+									<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 								</div>
 							</div>
 						</Card>
-						<Card
-							className="dark:bg-dark--theme p-[32px] mt-[36px]"
-							shadow="bigger"
-						>
+						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-2xl text-[#EB6961] font-normal">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									height={25}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#272930]" />
 							</Text>
 							<DangerZoneSkeleton />
 						</Card>

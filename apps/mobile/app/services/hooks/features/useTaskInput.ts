@@ -1,23 +1,23 @@
 /* eslint-disable camelcase */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { ITeamTask } from "../../interfaces/ITask"
-import { useTeamTasks } from "./useTeamTasks"
-import useAuthenticateUser from "./useAuthentificateUser"
-import { useSyncRef } from "../useSyncRef"
-import { Nullable } from "../../interfaces/hooks"
-import { useModal } from "../useModal"
-import { useStores } from "../../../models"
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ITeamTask } from '../../interfaces/ITask';
+import { useTeamTasks } from './useTeamTasks';
+import useAuthenticateUser from './useAuthentificateUser';
+import { useSyncRef } from '../useSyncRef';
+import { Nullable } from '../../interfaces/hooks';
+import { useModal } from '../useModal';
+import { useStores } from '../../../models';
 
-export const h_filter = (status: string, filters: "closed" | "open") => {
+export const h_filter = (status: string, filters: 'closed' | 'open') => {
 	switch (filters) {
-		case "open":
-			return status !== "closed"
-		case "closed":
-			return status === "closed"
+		case 'open':
+			return status !== 'closed';
+		case 'closed':
+			return status === 'closed';
 		default:
-			return true
+			return true;
 	}
-}
+};
 
 /**
  * It returns a bunch of variables and functions that are used to manage the task input
@@ -28,143 +28,132 @@ export const h_filter = (status: string, filters: "closed" | "open") => {
 export function useTaskInput({
 	task,
 	initEditMode,
-	tasks: customTasks,
+	tasks: customTasks
 }: {
-	tasks?: ITeamTask[]
-	task?: Nullable<ITeamTask>
-	initEditMode?: boolean
+	tasks?: ITeamTask[];
+	task?: Nullable<ITeamTask>;
+	initEditMode?: boolean;
 } = {}) {
 	const {
-		teamStore: { activeTeam },
-	} = useStores()
-	const { isOpen: isModalOpen, openModal, closeModal } = useModal()
-	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(null)
+		teamStore: { activeTeam }
+	} = useStores();
+	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
+	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(null);
 
-	const {
-		teamTasks,
-		createNewTask,
-		activeTask,
-		createLoading,
-		tasksFetching,
-		updateTask,
-		setActiveTeamTask,
-	} = useTeamTasks()
+	const { teamTasks, createNewTask, activeTask, createLoading, tasksFetching, updateTask, setActiveTeamTask } =
+		useTeamTasks();
 
-	const { user } = useAuthenticateUser()
-	const userRef = useSyncRef(user)
+	const { user } = useAuthenticateUser();
+	const userRef = useSyncRef(user);
 
-	const taskIssue = useRef<null | string>(null)
+	const taskIssue = useRef<null | string>(null);
 
-	const tasks = customTasks || (teamTasks as ITeamTask[])
+	const tasks = customTasks || (teamTasks as ITeamTask[]);
 
 	/**
 	 * If task has null value then consider it as value 😄
 	 */
-	const inputTask = task !== undefined ? task : activeTask
+	const inputTask = task !== undefined ? task : activeTask;
 
-	const [filter, setFilter] = useState<"closed" | "open">("open")
-	const [editMode, setEditMode] = useState(initEditMode || false)
+	const [filter, setFilter] = useState<'closed' | 'open'>('open');
+	const [editMode, setEditMode] = useState(initEditMode || false);
 
 	const handleOpenModal = useCallback(
 		(concernedTask: ITeamTask) => {
-			setCloseableTaskTask(concernedTask)
-			openModal()
+			setCloseableTaskTask(concernedTask);
+			openModal();
 		},
-		[setCloseableTaskTask],
-	)
+		[setCloseableTaskTask]
+	);
 
 	const handleReopenTask = useCallback(
 		async (concernedTask: ITeamTask) => {
 			return updateTask(
 				{
 					...concernedTask,
-					status: "open",
+					status: 'open'
 				},
-				concernedTask.id,
-			)
+				concernedTask.id
+			);
 		},
-		[updateTask],
-	)
+		[updateTask]
+	);
 
-	const [query, setQuery] = useState("")
+	const [query, setQuery] = useState('');
 
 	const filteredTasks = useMemo(() => {
-		return query.trim() === ""
+		return query.trim() === ''
 			? tasks.filter((task) => h_filter(task.status, filter))
 			: tasks.filter(
 					(task) =>
 						task.title
 							.trim()
 							.toLowerCase()
-							.replace(/\s+/g, "")
-							.startsWith(query.toLowerCase().replace(/\s+/g, "")) && h_filter(task.status, filter),
-			  )
-	}, [query, filter, editMode, activeTeam])
+							.replace(/\s+/g, '')
+							.startsWith(query.toLowerCase().replace(/\s+/g, '')) && h_filter(task.status, filter)
+			  );
+	}, [query, filter, editMode, activeTeam]);
 
 	const filteredTasks2 = useMemo(() => {
-		return query.trim() === ""
+		return query.trim() === ''
 			? tasks
 			: tasks.filter((task) => {
 					return task.title
 						.trim()
 						.toLowerCase()
-						.replace(/\s+/g, "")
-						.startsWith(query.toLowerCase().replace(/\s+/g, ""))
-			  })
-	}, [query])
+						.replace(/\s+/g, '')
+						.startsWith(query.toLowerCase().replace(/\s+/g, ''));
+			  });
+	}, [query]);
 
-	const hasCreateForm = filteredTasks2.length === 0 && query !== ""
+	const hasCreateForm = filteredTasks2.length === 0 && query !== '';
 
 	const handleTaskCreation = ({
 		autoAssignTaskAuth = true,
-		assignToUsers = [],
+		assignToUsers = []
 	}: {
-		autoActiveTask?: boolean
-		autoAssignTaskAuth?: boolean
+		autoActiveTask?: boolean;
+		autoAssignTaskAuth?: boolean;
 		assignToUsers?: {
-			id: string
-		}[]
+			id: string;
+		}[];
 	} = {}) => {
-		if (
-			query.trim().length < 2 ||
-			inputTask?.title === query.trim() ||
-			!userRef.current?.isEmailVerified
-		)
-			return null
+		if (query.trim().length < 2 || inputTask?.title === query.trim() || !userRef.current?.isEmailVerified)
+			return null;
 
-		setEditMode(false)
+		setEditMode(false);
 		return createNewTask(
 			{
 				taskName: query.trim(),
-				issueType: taskIssue.current || undefined,
+				issueType: taskIssue.current || undefined
 			},
-			!autoAssignTaskAuth ? assignToUsers : undefined,
-		)
-	}
+			!autoAssignTaskAuth ? assignToUsers : undefined
+		);
+	};
 
 	const updateTaskTitleHandler = useCallback((itask: ITeamTask, title: string) => {
-		if (!userRef.current?.isEmailVerified) return null
+		if (!userRef.current?.isEmailVerified) return null;
 
 		return updateTask(
 			{
 				...itask,
-				title,
+				title
 			},
-			itask.id,
-		)
-	}, [])
+			itask.id
+		);
+	}, []);
 
 	const closedTaskCount = filteredTasks2.filter((f_task) => {
-		return f_task.status === "closed"
-	}).length
+		return f_task.status === 'closed';
+	}).length;
 
 	const openTaskCount = filteredTasks2.filter((f_task) => {
-		return f_task.status !== "closed"
-	}).length
+		return f_task.status !== 'closed';
+	}).length;
 
 	useEffect(() => {
-		taskIssue.current = null
-	}, [hasCreateForm])
+		taskIssue.current = null;
+	}, [hasCreateForm]);
 
 	return {
 		closedTaskCount,
@@ -190,8 +179,8 @@ export function useTaskInput({
 		taskIssue,
 		user,
 		userRef,
-		setActiveTeamTask,
-	}
+		setActiveTeamTask
+	};
 }
 
-export type RTuseTaskInput = ReturnType<typeof useTaskInput>
+export type RTuseTaskInput = ReturnType<typeof useTaskInput>;

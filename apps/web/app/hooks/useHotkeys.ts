@@ -1,10 +1,7 @@
 import { useEffect } from 'react';
 import hotkeys, { HotkeysEvent } from 'hotkeys-js';
 
-export const useHotkeys = (
-	key: string,
-	callback: (e?: KeyboardEvent, h?: HotkeysEvent) => void
-) => {
+export const useHotkeys = (key: string, callback: (e?: KeyboardEvent, h?: HotkeysEvent) => void) => {
 	useEffect(() => {
 		hotkeys(key, (event, handler) => {
 			event.preventDefault();

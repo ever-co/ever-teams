@@ -1,13 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef } from "react"
-import { useStores } from "../../../models"
-import { ITeamTask } from "../../interfaces/ITask"
-import { ITasksTimesheet } from "../../interfaces/ITimer"
-import { useFirstLoad } from "../useFirstLoad"
-import { useSyncRef } from "../useSyncRef"
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useStores } from '../../../models';
+import { ITeamTask } from '../../interfaces/ITask';
+import { ITasksTimesheet } from '../../interfaces/ITimer';
+import { useFirstLoad } from '../useFirstLoad';
+import { useSyncRef } from '../useSyncRef';
 // import debounce from "lodash/debounce"
-import { tasksStatistics } from "../../client/api/timer/tasksStatistics"
-import { useFetchAllTasksStats } from "../../client/queries/task/stats"
-import { Nullable } from "../../interfaces/hooks"
+import { tasksStatistics } from '../../client/api/timer/tasksStatistics';
+import { useFetchAllTasksStats } from '../../client/queries/task/stats';
+import { Nullable } from '../../interfaces/hooks';
 
 export function useTaskStatistics(addSeconds = 0) {
 	const {
@@ -18,32 +18,30 @@ export function useTaskStatistics(addSeconds = 0) {
 			setTasksStatisticsState,
 			statActiveTask,
 			setStatActiveTask,
-			setFetchingTasks,
+			setFetchingTasks
 		},
 		// TimerStore: { timerStatus },
 		authenticationStore: { tenantId, authToken, organizationId, user },
-		teamStore: { activeTeam },
-	} = useStores()
+		teamStore: { activeTeam }
+	} = useStores();
 
-	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad()
+	const { firstLoad, firstLoadData: firstLoadtasksStatisticsData } = useFirstLoad();
 
 	const { isRefetching, isSuccess, isLoading, data } = useFetchAllTasksStats({
 		authToken,
 		tenantId,
 		organizationId,
-		activeTaskId,
-	})
+		activeTaskId
+	});
 
-	const currentMember = activeTeam?.members?.find(
-		(member) => member?.employeeId === user?.employee?.id,
-	)
+	const currentMember = activeTeam?.members?.find((member) => member?.employeeId === user?.employee?.id);
 
 	// Refs
-	const initialLoad = useRef(false)
-	const statTasksRef = useSyncRef(tasksStatisticsState)
+	const initialLoad = useRef(false);
+	const statTasksRef = useSyncRef(tasksStatisticsState);
 
 	// Dep status
-	const activeTeamTask = activeTask
+	const activeTeamTask = activeTask;
 
 	/**
 	 * Get employee all tasks statistics  (API Call)
@@ -53,41 +51,41 @@ export function useTaskStatistics(addSeconds = 0) {
 		if (isSuccess) {
 			setTasksStatisticsState({
 				all: data.global || [],
-				today: data.today || [],
-			})
+				today: data.today || []
+			});
 		}
-	}, [isLoading, isRefetching, isSuccess, data])
+	}, [isLoading, isRefetching, isSuccess, data]);
 
 	const getTaskStat = useCallback(
 		(task: ITeamTask | null) => {
-			const stats = statTasksRef.current
+			const stats = statTasksRef.current;
 			return {
 				taskTotalStat: (stats && stats?.all.find((t) => t.id === task?.id)) || [],
-				taskDailyStat: (stats && stats?.today.find((t) => t.id === task?.id)) || [],
-			}
+				taskDailyStat: (stats && stats?.today.find((t) => t.id === task?.id)) || []
+			};
 		},
-		[statTasksRef, data],
-	)
+		[statTasksRef, data]
+	);
 
 	/**
 	 * Get statistics of the active tasks fresh (API Call)
 	 */
 	const getActiveTaskStatData = useCallback(async () => {
-		setFetchingTasks(true)
+		setFetchingTasks(true);
 		const { data } = await tasksStatistics({
 			tenantId,
 			bearer_token: authToken,
 			organizationId,
 			activeTask: true,
-			taskId: activeTask?.id,
-		})
+			taskId: activeTask?.id
+		});
 
 		setStatActiveTask({
 			total: data?.global ? data?.global[0] || null : null,
-			today: data?.today ? data?.today[0] || null : null,
-		})
-		return data
-	}, [activeTask]) // If there are a lot of tasks to load might cause slow load, as fetching a lot, depending on task count
+			today: data?.today ? data?.today[0] || null : null
+		});
+		return data;
+	}, [activeTask]); // If there are a lot of tasks to load might cause slow load, as fetching a lot, depending on task count
 
 	/*
    Commented the bellow function as it fetches often causing performance issues
@@ -103,10 +101,10 @@ export function useTaskStatistics(addSeconds = 0) {
 	useEffect(() => {
 		if (!firstLoad) {
 			getActiveTaskStatData().then(() => {
-				initialLoad.current = true
-			})
+				initialLoad.current = true;
+			});
 		}
-	}, [firstLoad])
+	}, [firstLoad]);
 
 	/**
 	 * Get fresh statistic of the active task
@@ -124,10 +122,10 @@ export function useTaskStatistics(addSeconds = 0) {
 		if (!firstLoad && initialLoad.current) {
 			setStatActiveTask({
 				today: null,
-				total: null,
-			})
+				total: null
+			});
 		}
-	}, [firstLoad, activeTeamTask?.id])
+	}, [firstLoad, activeTeamTask?.id]);
 
 	/**
 	 * Get task estimation in
@@ -141,33 +139,30 @@ export function useTaskStatistics(addSeconds = 0) {
 		timeSheet: Nullable<ITasksTimesheet>,
 		_task: Nullable<ITeamTask>,
 		addSeconds: number,
-		estimate?: number,
+		estimate?: number
 	) =>
 		Math.min(
 			Math.floor(
 				(((_task?.totalWorkedTime || timeSheet?.duration || 0) + addSeconds) * 100) /
-					(estimate || _task?.estimate || 0),
+					(estimate || _task?.estimate || 0)
 			),
-			100,
-		)
+			100
+		);
 
 	const activeTaskEstimation = useMemo(() => {
-		let totalWorkedTasksTimer = 0
+		let totalWorkedTasksTimer = 0;
 		activeTeam?.members?.forEach((member) => {
-			const totalWorkedTasks =
-				member?.totalWorkedTasks?.find((item) => item.id === activeTeamTask?.id) || null
+			const totalWorkedTasks = member?.totalWorkedTasks?.find((item) => item.id === activeTeamTask?.id) || null;
 			if (totalWorkedTasks) {
-				totalWorkedTasksTimer += totalWorkedTasks.duration
+				totalWorkedTasksTimer += totalWorkedTasks.duration;
 			}
-		})
+		});
 
-		return getEstimation(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0)
-	}, [activeTeam, activeTeamTask, currentMember])
+		return getEstimation(null, activeTeamTask, totalWorkedTasksTimer, activeTeamTask?.estimate || 0);
+	}, [activeTeam, activeTeamTask, currentMember]);
 
 	const activeTaskDailyEstimation =
-		activeTeamTask && activeTeamTask.estimate
-			? getEstimation(statActiveTask.today, activeTeamTask, addSeconds)
-			: 0
+		activeTeamTask && activeTeamTask.estimate ? getEstimation(statActiveTask.today, activeTeamTask, addSeconds) : 0;
 
 	return {
 		firstLoadtasksStatisticsData,
@@ -178,6 +173,6 @@ export function useTaskStatistics(addSeconds = 0) {
 		activeTaskDailyEstimation,
 		activeTeamTask,
 		addSeconds,
-		getEstimation,
-	}
+		getEstimation
+	};
 }

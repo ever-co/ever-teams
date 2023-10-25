@@ -21,10 +21,6 @@ export const activeTaskStatusState = selector<ITaskStatusItemList | null>({
 	get: ({ get }) => {
 		const taskStatus = get(taskStatusListState);
 		const activeId = get(activeTaskStatusIdState);
-		return (
-			taskStatus.find((status) => status.id === activeId) ||
-			taskStatus[0] ||
-			null
-		);
+		return taskStatus.find((status) => status.id === activeId) || taskStatus[0] || null;
 	}
 });

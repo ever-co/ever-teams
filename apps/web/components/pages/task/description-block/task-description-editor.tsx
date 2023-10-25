@@ -1,25 +1,8 @@
 import Toolbar from './editor-toolbar';
-import {
-	TextEditorService,
-	withHtml,
-	withChecklists,
-	isValidSlateObject
-} from './editor-components/TextEditorService';
+import { TextEditorService, withHtml, withChecklists, isValidSlateObject } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
-import React, {
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
-import {
-	Editor,
-	createEditor,
-	Element as SlateElement,
-	Descendant,
-	Transforms
-} from 'slate';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Editor, createEditor, Element as SlateElement, Descendant, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
 import EditorFooter from './editor-footer';
@@ -47,10 +30,7 @@ interface IRichTextProps {
 const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const renderElement = useCallback((props: any) => <Element {...props} />, []);
 	const renderLeaf = useCallback((props: any) => <Leaf {...props} />, []);
-	const editor = useMemo(
-		() => withChecklists(withHtml(withHistory(withReact(createEditor())))),
-		[]
-	);
+	const editor = useMemo(() => withChecklists(withHtml(withHistory(withReact(createEditor())))), []);
 	const [task] = useRecoilState(detailedTaskState);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
 	const [key, setKey] = useState(0); // Add key state, we need it as it re-renders the editor
@@ -172,9 +152,7 @@ const isBlockActive = (editor: any, format: string, blockType = 'type') => {
 		Editor.nodes(editor, {
 			at: Editor.unhangRange(editor, selection),
 			match: (n) =>
-				!Editor.isEditor(n) &&
-				SlateElement.isElement(n) &&
-				(n as { [key: string]: any })[blockType] === format
+				!Editor.isEditor(n) && SlateElement.isElement(n) && (n as { [key: string]: any })[blockType] === format
 		})
 	);
 

@@ -9,13 +9,7 @@ interface isProps {
 	isDanger?: boolean;
 	id?: string;
 }
-export const Accordian = ({
-	children,
-	title,
-	className,
-	isDanger,
-	id
-}: isProps) => {
+export const Accordian = ({ children, title, className, isDanger, id }: isProps) => {
 	return (
 		<div className="w-full" id={id}>
 			<div

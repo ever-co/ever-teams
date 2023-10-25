@@ -18,9 +18,7 @@ import { useTeamTasks } from './useTeamTasks';
 
 export function usePublicOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getPublicOrganizationTeamsAPI);
-	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(
-		getPublicOrganizationTeamsMiscDataAPI
-	);
+	const { loading: loadingMiscData, queryCall: queryCallMiscData } = useQuery(getPublicOrganizationTeamsMiscDataAPI);
 	const { activeTeam, teams, setTeams } = useOrganizationTeams();
 	const { setAllTasks } = useTeamTasks();
 	const { setTaskStatus } = useTaskStatus();
@@ -103,14 +101,7 @@ export function usePublicOrganizationTeams() {
 				return res;
 			});
 		},
-		[
-			queryCallMiscData,
-			setTaskLabels,
-			setTaskPriorities,
-			setTaskSizes,
-			setTaskStatus,
-			setTeams
-		]
+		[queryCallMiscData, setTaskLabels, setTaskPriorities, setTaskSizes, setTaskStatus, setTeams]
 	);
 
 	return {

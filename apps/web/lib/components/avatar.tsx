@@ -28,8 +28,7 @@ export function Avatar({
 }: Props) {
 	const [avatar, setAvatar] = useRecoilState(avatarState);
 
-	const imagePathName =
-		imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
+	const imagePathName = imageUrl && isValidUrl(imageUrl) ? new URL(imageUrl).pathname : '';
 
 	const avatarPresent = hasOwn(avatar, imagePathName);
 
@@ -65,11 +64,7 @@ export function Avatar({
 					: {})
 			}}
 		>
-			{imageTitle && !imgUrl && (
-				<span className="uppercase font-normal text-lg">
-					{imageTitle[0] || ''}
-				</span>
-			)}
+			{imageTitle && !imgUrl && <span className="uppercase font-normal text-lg">{imageTitle[0] || ''}</span>}
 
 			{imgUrl && (
 				<Image

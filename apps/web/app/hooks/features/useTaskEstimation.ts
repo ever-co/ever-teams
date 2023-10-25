@@ -5,8 +5,7 @@ import { useOutsideClick } from '../useOutsideClick';
 import { useTeamTasks } from './useTeamTasks';
 
 export function useTaskEstimation(task?: Nullable<ITeamTask>) {
-	const { activeTeamTask, updateTask, updateLoading, activeTeamId } =
-		useTeamTasks();
+	const { activeTeamTask, updateTask, updateLoading, activeTeamId } = useTeamTasks();
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
@@ -103,9 +102,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(
-			$task.estimate || 0
-		);
+		const { h: estimateHours, m: estimateMinutes } = secondsToTime($task.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			return;
@@ -125,8 +122,7 @@ export function useTaskEstimation(task?: Nullable<ITeamTask>) {
 		if (updateLoading || !editableMode) return;
 		handleSubmit();
 	}, [updateLoading, editableMode, handleSubmit]);
-	const { targetEl, ignoreElementRef } =
-		useOutsideClick<HTMLDivElement>(handleOutsideClick);
+	const { targetEl, ignoreElementRef } = useOutsideClick<HTMLDivElement>(handleOutsideClick);
 
 	return {
 		targetEl,

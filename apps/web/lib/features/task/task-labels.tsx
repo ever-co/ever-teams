@@ -14,13 +14,7 @@ type Props = {
 	taskStatusClassName?: string;
 	onValueChange?: (_: any, values: string[] | undefined) => void;
 };
-export function TaskLabels({
-	task,
-	className,
-	forDetails,
-	taskStatusClassName,
-	onValueChange
-}: Props) {
+export function TaskLabels({ task, className, forDetails, taskStatusClassName, onValueChange }: Props) {
 	const $task = useSyncRef(task);
 	const { updateTask } = useTeamTasks();
 	const { taskLabels } = useTaskLabels();
@@ -40,9 +34,7 @@ export function TaskLabels({
 					return updateTask({
 						// eslint-disable-next-line  @typescript-eslint/no-non-null-assertion
 						...task.current!,
-						tags: taskLabels.filter((tag) =>
-							tag.name ? values?.includes(tag.name) : false
-						) as any
+						tags: taskLabels.filter((tag) => (tag.name ? values?.includes(tag.name) : false)) as any
 					});
 				},
 				$task,
@@ -53,14 +45,9 @@ export function TaskLabels({
 		[$task, taskLabels, updateTask, latestLabels]
 	);
 
-	const onValuesChangeDebounce = useMemo(
-		() => debounce(onValuesChange, 2000),
-		[onValuesChange]
-	);
+	const onValuesChangeDebounce = useMemo(() => debounce(onValuesChange, 2000), [onValuesChange]);
 
-	const tags = (task?.tags as typeof taskLabels | undefined)?.map(
-		(tag) => tag.name || ''
-	);
+	const tags = (task?.tags as typeof taskLabels | undefined)?.map((tag) => tag.name || '');
 
 	return (
 		<>

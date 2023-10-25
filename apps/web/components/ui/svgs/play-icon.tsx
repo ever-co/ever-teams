@@ -12,13 +12,7 @@ export const PlayIcon = ({ width, height }: IIconProps) => {
 			className="fill-primary dark:fill-white "
 		>
 			<g id="Group_9197" data-name="Group 9197" transform="translate(0 0)">
-				<circle
-					id="Ellipse_226"
-					data-name="Ellipse 226"
-					cx="32"
-					cy="32"
-					r="32"
-				/>
+				<circle id="Ellipse_226" data-name="Ellipse 226" cx="32" cy="32" r="32" />
 				<path
 					id="Icon_awesome-play"
 					data-name="Icon awesome-play"

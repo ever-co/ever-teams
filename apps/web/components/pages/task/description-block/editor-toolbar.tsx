@@ -3,11 +3,7 @@ import BlockButton from './editor-components/BlockButton';
 import MarkButton from './editor-components/MarkButton';
 import { insertLink } from './editor-components/TextEditorService';
 
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger
-} from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 import { Button, InputField } from 'lib/components';
 import {
 	AlignCenterIcon,
@@ -121,9 +117,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						//@ts-ignore
 						(node.type === 'ul' || node.type === 'ol')
 					) {
-						return node.children
-							.map((child) => `\n${Node.string(child)}\n`)
-							.join('');
+						return node.children.map((child) => `\n${Node.string(child)}\n`).join('');
 					}
 					return Node.string(node);
 				})
@@ -200,109 +194,55 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 				className="hidden md:block"
 				format="h1"
 				icon={HeaderOneIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="h2"
 				icon={HeaderTwoIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				format="blockquote"
 				icon={QuoteBlockIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="ol"
 				icon={OrderedListIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="ul"
 				icon={UnorderedListIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 
 			<BlockButton
 				className="hidden md:block"
 				format="left"
 				icon={AlignLeftIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="center"
 				icon={AlignCenterIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="right"
 				icon={AlignRightIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<BlockButton
 				className="hidden md:block"
 				format="justify"
 				icon={AlignJustifyIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			<div className="relative md:hidden" ref={dropdownRef}>
 				<Button
@@ -353,13 +293,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 			<BlockButton
 				format="checklist"
 				icon={CheckBoxIcon}
-				isBlockActive={
-					isBlockActive as (
-						editor: any,
-						format: any,
-						blockType?: string | undefined
-					) => boolean
-				}
+				isBlockActive={isBlockActive as (editor: any, format: any, blockType?: string | undefined) => boolean}
 			/>
 			{/* <button onClick={handleLinkIconClick} name="Insert Link">
 				<LinkIcon />
@@ -378,11 +312,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						value={link}
 						ref={inputRef}
 					/>
-					<Button
-						onClick={handleInsertLink}
-						variant="ghost"
-						className="h-10 min-w-0"
-					>
+					<Button onClick={handleInsertLink} variant="ghost" className="h-10 min-w-0">
 						<LinkIcon />
 					</Button>
 				</PopoverContent>
@@ -406,10 +336,7 @@ const Toolbar = ({ isMarkActive, isBlockActive }: IToolbarProps) => {
 						value={link}
 						ref={inputRef}
 					/>
-					<button
-						className="ml-0 bg-transparent border-none hover:cursor-pointer"
-						onClick={handleInsertLink}
-					>
+					<button className="ml-0 bg-transparent border-none hover:cursor-pointer" onClick={handleInsertLink}>
 						<LinkIcon />
 					</button>
 				</div>

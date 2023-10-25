@@ -58,10 +58,7 @@ export const PeriodDropdown = ({
 		<>
 			<Dropdown
 				className="min-w-[150px] max-w-sm"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-[54px] w-[150px]',
-					PeriodList.length === 0 && ['py-2']
-				)}
+				buttonClassName={clsxm('py-0 font-medium h-[54px] w-[150px]', PeriodList.length === 0 && ['py-2'])}
 				value={PeriodItem}
 				onChange={onChangeActiveTeam}
 				items={items}

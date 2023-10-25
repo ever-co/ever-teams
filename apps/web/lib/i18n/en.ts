@@ -77,8 +77,7 @@ export const en = {
 		TRANSFER_TEAM: 'Transfer Team',
 		TEAM_MEMBERS: 'Team Members',
 		NO_TEAM: 'Create your own team or join existed',
-		NO_TEAM_SUB:
-			'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
+		NO_TEAM_SUB: 'Lorem ipsum dolor sit amet consectetur. Blandit lobortis dui risus neque.',
 		CANCEL: 'Cancel',
 		DISCARD: 'Discard',
 		EXISTING_MEMBER: 'Already a Member',
@@ -100,8 +99,7 @@ export const en = {
 		CHILD_ISSUES: 'Child Issues',
 		REOPEN: 'Reopen',
 		NO_TASKS: 'No Tasks',
-		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING:
-			'Please stop the Timer before changing the Task',
+		TASK_INPUT_DISABLED_MESSAGE_WHEN_TIMER_RUNNING: 'Please stop the Timer before changing the Task',
 
 		COLLABORATE_DIALOG_TITLE: 'Start Collaboration',
 		COLLABORATE_DIALOG_SUB_TITLE: 'Invite member(s) and start collaborating',
@@ -116,13 +114,10 @@ export const en = {
 			SENT_EMAIL_VERIFICATION_YOU_NEED_TO: 'You need to ',
 			SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS:
 				' your email address. The verification code should already be send to your email, but feel free to click ',
-			SENT_EMAIL_VERIFICATION_RESEND:
-				' to resend the code, if you did not received it.',
+			SENT_EMAIL_VERIFICATION_RESEND: ' to resend the code, if you did not received it.',
 			INVITATIONS: "You've been invited to join",
-			CONFIRM_ACCEPT_INVITATION:
-				'Are you sure you want to accept the invitation?',
-			CONFIRM_REJECT_INVITATION:
-				'Are you sure you want to reject the invitation?'
+			CONFIRM_ACCEPT_INVITATION: 'Are you sure you want to accept the invitation?',
+			CONFIRM_REJECT_INVITATION: 'Are you sure you want to reject the invitation?'
 		},
 
 		profile: {
@@ -160,8 +155,7 @@ export const en = {
 			TASK_TITLE_CHARACTER_LIMIT_ERROR_DESCRIPTION: `Task Title can't exceed 255 characters.`,
 
 			TASK_IS_ALREADY_EPIC: 'Epic Task Type can not be changed.',
-			TASK_HAS_PARENT:
-				'Task Type can not be changed as Task has already Parent.'
+			TASK_HAS_PARENT: 'Task Type can not be changed as Task has already Parent.'
 		},
 
 		auth: {
@@ -170,8 +164,7 @@ export const en = {
 			UNRECEIVED_CODE: "Didn't receive code ?",
 			JOIN_TEAM: 'Join Team',
 			INPUT_INVITE_CODE: 'Input invitation code.',
-			INPUT_INVITE_CODE_DESC:
-				'Enter the invitation code we sent to your email.',
+			INPUT_INVITE_CODE_DESC: 'Enter the invitation code we sent to your email.',
 			INVALID_INVITE_CODE_MESSAGE: 'Invalid Code',
 			WELCOME_TEAMS: 'Welcome to Ever Teams',
 
@@ -185,8 +178,7 @@ export const en = {
 		},
 		authPasscode: {
 			HEADING_TITLE: 'Join existing Team',
-			HEADING_DESCRIPTION:
-				'Please enter email and invitation code to join existing team.'
+			HEADING_DESCRIPTION: 'Please enter email and invitation code to join existing team.'
 		},
 		authLogin: {
 			HEADING_TITLE: 'Login to the Team',
@@ -198,8 +190,7 @@ export const en = {
 		},
 		authTeam: {
 			HEADING_TITLE: 'Create New Team',
-			HEADING_DESCRIPTION:
-				'Please enter your team details to create a new team.',
+			HEADING_DESCRIPTION: 'Please enter your team details to create a new team.',
 			LOADING_TEXT: 'We are now creating your new workplace, hold on...',
 			VERIFY_EMAIL_LOADING_TEXT: 'We are verifying your email, hold on...',
 			INPUT_TEAM_NAME: 'Input your team name',
@@ -263,8 +254,7 @@ export const en = {
 			INTEGRATIONS: 'Integrations',
 
 			GITHUB: 'GitHub',
-			GITHUB_INTEGRATION_DESCRIPTION:
-				'Connect with GitHub and start Syncing GitHub issues with your Team',
+			GITHUB_INTEGRATION_DESCRIPTION: 'Connect with GitHub and start Syncing GitHub issues with your Team',
 			SELECT_REPOSITORY: 'Select Repository',
 
 			INSTALL: 'Install',
@@ -344,8 +334,7 @@ export const en = {
 	},
 
 	timer: {
-		START_TIMER:
-			'Please, select or create a new task to start tracking the time',
+		START_TIMER: 'Please, select or create a new task to start tracking the time',
 		TEAM_SWITCH: {
 			STOPPED_TIMER_TOAST_TITLE: 'Timer Stopped',
 			STOPPED_TIMER_TOAST_DESCRIPTION: 'Timer Stopped due to Team Switch'
@@ -356,8 +345,7 @@ export const en = {
 		tabFilter: {
 			WORKED_DESCRIPTION: 'This tab shows all tasks you started working on',
 			ASSIGNED_DESCRIPTION: 'This tab shows all tasks that are assigned to you',
-			UNASSIGNED_DESCRIPTION:
-				'This tab shows all tasks that are not assigned to you',
+			UNASSIGNED_DESCRIPTION: 'This tab shows all tasks that are not assigned to you',
 			NO_TASK_USER_ASSIGNED: 'No one assigned  to this Task'
 		}
 	},

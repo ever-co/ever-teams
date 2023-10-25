@@ -22,39 +22,29 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 
 export function useTeamInvitations() {
 	const setTeamInvitations = useSetRecoilState(teamInvitationsState);
-	const [myInvitationsList, setMyInvitationsList] =
-		useRecoilState(myInvitationsState);
+	const [myInvitationsList, setMyInvitationsList] = useRecoilState(myInvitationsState);
 
 	const teamInvitations = useRecoilValue(getTeamInvitationsState);
-	const [fetchingInvitations, setFetchingInvitations] = useRecoilState(
-		fetchingTeamInvitationsState
-	);
+	const [fetchingInvitations, setFetchingInvitations] = useRecoilState(fetchingTeamInvitationsState);
 
 	const activeTeamId = useRecoilValue(activeTeamIdState);
-	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } =
-		useFirstLoad();
+	const { firstLoad, firstLoadData: firstLoadTeamInvitationsData } = useFirstLoad();
 
 	const { isTeamManager, refreshToken } = useAuthenticateUser();
 
 	// Queries
 	const { queryCall, loading } = useQuery(getTeamInvitationsAPI);
 
-	const { queryCall: inviteQueryCall, loading: inviteLoading } =
-		useQuery(inviteByEmailsAPI);
+	const { queryCall: inviteQueryCall, loading: inviteLoading } = useQuery(inviteByEmailsAPI);
 
-	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } =
-		useQuery(removeTeamInvitationsAPI);
+	const { queryCall: removeInviteQueryCall, loading: removeInviteLoading } = useQuery(removeTeamInvitationsAPI);
 
-	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } =
-		useQuery(resendTeamInvitationsAPI);
+	const { queryCall: resendInviteQueryCall, loading: resendInviteLoading } = useQuery(resendTeamInvitationsAPI);
 
-	const { queryCall: myInvitationsQueryCall, loading: myInvitationsLoading } =
-		useQuery(getMyInvitationsAPI);
+	const { queryCall: myInvitationsQueryCall, loading: myInvitationsLoading } = useQuery(getMyInvitationsAPI);
 
-	const {
-		queryCall: acceptRejectMyInvitationsQueryCall,
-		loading: acceptRejectMyInvitationsLoading
-	} = useQuery(acceptRejectMyInvitationsAPI);
+	const { queryCall: acceptRejectMyInvitationsQueryCall, loading: acceptRejectMyInvitationsLoading } =
+		useQuery(acceptRejectMyInvitationsAPI);
 
 	const inviteUser = useCallback(
 		(email: string, name: string) => {
@@ -104,9 +94,7 @@ export function useTeamInvitations() {
 	}, [myInvitationsQueryCall, setMyInvitationsList]);
 	const removeMyInvitation = useCallback(
 		(id: string) => {
-			setMyInvitationsList(
-				myInvitationsList.filter((invitation) => invitation.id !== id)
-			);
+			setMyInvitationsList(myInvitationsList.filter((invitation) => invitation.id !== id));
 		},
 		[myInvitationsList, setMyInvitationsList]
 	);
@@ -122,18 +110,11 @@ export function useTeamInvitations() {
 						window.location.reload();
 					});
 				}
-				setMyInvitationsList(
-					myInvitationsList.filter((invitation) => invitation.id !== id)
-				);
+				setMyInvitationsList(myInvitationsList.filter((invitation) => invitation.id !== id));
 				return res.data;
 			});
 		},
-		[
-			acceptRejectMyInvitationsQueryCall,
-			myInvitationsList,
-			refreshToken,
-			setMyInvitationsList
-		]
+		[acceptRejectMyInvitationsQueryCall, myInvitationsList, refreshToken, setMyInvitationsList]
 	);
 
 	return {

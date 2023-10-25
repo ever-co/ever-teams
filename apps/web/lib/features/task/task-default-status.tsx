@@ -1,9 +1,4 @@
-import {
-	ITaskLabel,
-	ITaskPriority,
-	ITaskSize,
-	ITaskStatus
-} from '@app/interfaces';
+import { ITaskLabel, ITaskPriority, ITaskSize, ITaskStatus } from '@app/interfaces';
 import { ClockIcon } from '@heroicons/react/20/solid';
 import {
 	LoginIcon,

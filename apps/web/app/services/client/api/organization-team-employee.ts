@@ -19,14 +19,8 @@ export function deleteOrganizationEmployeeTeamAPI({
 	);
 }
 
-export function updateOrganizationEmployeeTeamAPI(
-	id: string,
-	data: Partial<IOrganizationTeamEmployeeUpdate>
-) {
-	return api.put<CreateReponse<IOrganizationTeamEmployeeUpdate>>(
-		`/organization-team-employee/${id}`,
-		data
-	);
+export function updateOrganizationEmployeeTeamAPI(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) {
+	return api.put<CreateReponse<IOrganizationTeamEmployeeUpdate>>(`/organization-team-employee/${id}`, data);
 }
 
 export function updateOrganizationTeamEmployeeActiveTaskAPI(
