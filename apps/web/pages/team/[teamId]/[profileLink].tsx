@@ -51,10 +51,11 @@ const Team = () => {
 	useRefreshInterval(loadData, 10 * 1000, true);
 	useRefreshInterval(loadMicsData, 30 * 1000, true);
 
+	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true })];
 	return (
 		<MainLayout publicTeam={publicTeam}>
 			<MainHeader>
-				<Breadcrumb paths={t('pages.home.BREADCRUMB', { returnObjects: true })} className="text-sm" />
+				<Breadcrumb paths={breadcrumb} className="text-sm" />
 
 				<UnverifiedEmail />
 
