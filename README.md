@@ -147,8 +147,8 @@ Note: WIP
 ## 📄 Content
 
 -   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
--   `/website` - NextJs-based (React) public website at <https://ever.team> (deployed from `main` branch)
 -   `/mobile` - Expo (ReactNative) powered mobile app
+-   `/desktop` - Electron based Desktop Application (customized build from [Ever Gauzy Desktop Timer App](https://github.com/ever-co/ever-gauzy/tree/develop/apps/desktop-timer))
 -   `/extensions` - Browser Extensions (powered by <https://github.com/PlasmoHQ/plasmo>)
 
 ## 💌 Contact Us
