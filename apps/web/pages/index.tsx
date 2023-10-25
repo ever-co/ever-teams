@@ -14,12 +14,17 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useOrganizationTeams } from '@app/hooks';
 import NoTeam from '@components/pages/main/no-team';
 import { PeopleIcon } from 'lib/components/svgs';
+import { useState } from 'react';
+import { KanbanView } from '@app/constants';
+import { TableCellsIcon, ListBulletIcon } from '@heroicons/react/24/solid';
+
 
 function MainPage() {
 	const { trans } = useTranslation('home');
 	const { isTeamMember, isTrackingEnabled, activeTeam } =
 		useOrganizationTeams();
 	const breadcrumb = [...trans.BREADCRUMB, activeTeam?.name || ''];
+	const [view, setView] = useState<KanbanView>(KanbanView.CARD);
 
 	return (
 		<MainLayout>
@@ -31,11 +36,37 @@ function MainPage() {
 					</div>
 
 					{/* <Collaborative /> */}
+					<div className="flex items-end gap-1">
+					<button
+						className={clsxm(
+							'rounded-md px-3 py-1 text-sm font-medium',
+						view === KanbanView.CARD
+								? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+								: 'text-gray-700 dark:text-gray-300'
+						)}
+						onClick={() => setView(KanbanView.CARD)}
+					>
+						<TableCellsIcon className="w-5 h-5 inline -ml-1 mr-1" />
+					</button>
+					<button
+						className={clsxm(
+							'rounded-md px-3 py-1 text-sm font-medium',
+							view === KanbanView.TABLE
+								? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+								: 'text-gray-700 dark:text-gray-300'
+						)}
+						onClick={() => setView(KanbanView.TABLE)}
+					>
+						<ListBulletIcon className="w-5 h-5 inline -ml-1 mr-1" />
+					</button>
+					</div>
+
 				</div>
 
 				<UnverifiedEmail />
 				<TeamInvitations />
 			</MainHeader>
+
 
 			<div className="sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5">
 				<Container>
@@ -43,14 +74,21 @@ function MainPage() {
 						<TaskTimerSection isTrackingEnabled={isTrackingEnabled} />
 					) : null}
 					{/* Header user card list */}
-					{isTeamMember ? <UserTeamCardHeader /> : null}
+					{
+						view  === KanbanView.CARD && isTeamMember ?
+							 <UserTeamCardHeader /> :
+							 null
+					}
 				</Container>
 
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 			</div>
 
-			<Container>{isTeamMember ? <TeamMembers /> : <NoTeam />}</Container>
+			<Container
+			className='height-[calc(100vh-5rem)] overflow-y-auto'
+
+			>{isTeamMember ? <TeamMembers kabanView={view}/> : <NoTeam />}</Container>
 		</MainLayout>
 	);
 }

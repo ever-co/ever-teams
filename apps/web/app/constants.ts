@@ -99,3 +99,9 @@ export const jitsuConfiguration: ExtendedJitsuOptions = {
 // Github Integration
 export const GITHUB_APP_NAME =
 	process.env.NEXT_PUBLIC_GITHUB_APP_NAME || 'ever-github';
+
+export enum KanbanView {
+	CARD = 'card',
+	TABLE = 'table',
+	BOARD = 'board'
+}
