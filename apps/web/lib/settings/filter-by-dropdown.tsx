@@ -1,12 +1,5 @@
 import { Dropdown } from 'lib/components';
-import {
-	Dispatch,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IFilter } from '@app/interfaces/IFilter';
 import { clsxm } from '@app/utils';

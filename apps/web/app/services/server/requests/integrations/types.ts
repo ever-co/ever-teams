@@ -10,7 +10,7 @@ import { serverFetch } from '../../fetch';
  */
 export function getIntegrationTypesRequest(
 	{
-		tenantId,
+		tenantId
 	}: {
 		tenantId: string;
 	},
@@ -20,6 +20,6 @@ export function getIntegrationTypesRequest(
 		path: `/integration/types`,
 		method: 'GET',
 		bearer_token,
-		tenantId: tenantId,
+		tenantId: tenantId
 	});
 }

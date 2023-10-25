@@ -1,14 +1,6 @@
-import {
-	VERIFY_EMAIL_CALLBACK_URL,
-	APP_NAME,
-	APP_SIGNATURE,
-	APP_LOGO_URL
-} from '@app/constants';
+import { VERIFY_EMAIL_CALLBACK_URL, APP_NAME, APP_SIGNATURE, APP_LOGO_URL } from '@app/constants';
 import { ISuccessResponse } from '@app/interfaces';
-import {
-	ILoginResponse,
-	IRegisterDataRequest
-} from '@app/interfaces/IAuthentication';
+import { ILoginResponse, IRegisterDataRequest } from '@app/interfaces/IAuthentication';
 import { IUser } from '@app/interfaces/IUserData';
 import { serverFetch } from '../fetch';
 
@@ -22,8 +14,7 @@ export function registerUserRequest(data: IRegisterDataRequest) {
 	const body = {
 		...data,
 		...registerDefaultValue,
-		appEmailConfirmationUrl:
-			VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
+		appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || data.appEmailConfirmationUrl
 	};
 
 	return serverFetch<IUser>({
@@ -48,10 +39,7 @@ export function signInEmailRequest(email: string, callbackUrl: string) {
 		body: { email, callbackUrl }
 	});
 }
-export const signInEmailConfirmRequest = (data: {
-	code: string;
-	email: string;
-}) => {
+export const signInEmailConfirmRequest = (data: { code: string; email: string }) => {
 	const { code, email } = data;
 
 	return serverFetch<ISuccessResponse>({
@@ -146,10 +134,7 @@ export const verifyUserEmailByCodeRequest = (data: {
 	});
 };
 
-export const verifyUserEmailByTokenRequest = (data: {
-	token: string;
-	email: string;
-}) => {
+export const verifyUserEmailByTokenRequest = (data: { token: string; email: string }) => {
 	const { token, email } = data;
 
 	return serverFetch<ISuccessResponse>({
@@ -171,8 +156,7 @@ export const resentVerifyUserLinkRequest = (data: {
 		email,
 		tenantId,
 		...registerDefaultValue,
-		appEmailConfirmationUrl:
-			VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl
+		appEmailConfirmationUrl: VERIFY_EMAIL_CALLBACK_URL || appEmailConfirmationUrl
 	};
 
 	return serverFetch<ISuccessResponse>({

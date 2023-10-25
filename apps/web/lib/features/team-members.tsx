@@ -1,15 +1,7 @@
-import {
-	useAuthenticateUser,
-	useModal,
-	useOrganizationTeams,
-	useTeamInvitations
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
-import {
-	InvitedCard,
-	InviteUserTeamCard
-} from './team/invite/user-invite-card';
+import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
@@ -134,10 +126,7 @@ function Invite() {
 	return (
 		<>
 			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
-			<InviteFormModal
-				open={isOpen && !!user?.isEmailVerified}
-				closeModal={closeModal}
-			/>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
 }

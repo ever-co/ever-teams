@@ -85,12 +85,7 @@ export interface OT_Member {
 	activeTaskId?: string;
 }
 
-export type ITimerStatusEnum =
-	| 'running'
-	| 'idle'
-	| 'pause'
-	| 'online'
-	| 'suspended';
+export type ITimerStatusEnum = 'running' | 'idle' | 'pause' | 'online' | 'suspended';
 
 export interface OT_Role {
 	id: string;

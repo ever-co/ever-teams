@@ -1,10 +1,7 @@
 import { DEFAULT_APP_PATH } from '@app/constants';
 import { removeAuthCookies } from '@app/helpers/cookies';
 import { IUser } from '@app/interfaces/IUserData';
-import {
-	getAuthenticatedUserDataAPI,
-	refreshTokenAPI
-} from '@app/services/client/api/auth';
+import { getAuthenticatedUserDataAPI, refreshTokenAPI } from '@app/services/client/api/auth';
 import { userState } from '@app/stores';
 import { useCallback, useMemo, useRef } from 'react';
 import { useRecoilState } from 'recoil';
@@ -19,8 +16,7 @@ export const useAuthenticateUser = (defaultUser?: IUser) => {
 
 	const { isTeamManager } = useIsMemberManager(user);
 
-	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } =
-		useQuery(getAuthenticatedUserDataAPI);
+	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } = useQuery(getAuthenticatedUserDataAPI);
 
 	const updateUserFromAPI = useCallback(() => {
 		refreshUserQueryCall().then((res) => {

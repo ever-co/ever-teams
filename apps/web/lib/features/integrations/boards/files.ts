@@ -3,10 +3,7 @@ import {
 	FileId,
 	InitializedExcalidrawImageElement
 } from '@excalidraw/excalidraw/types/element/types';
-import {
-	BinaryFileData,
-	BinaryFileMetadata
-} from '@excalidraw/excalidraw/types/types';
+import { BinaryFileData, BinaryFileMetadata } from '@excalidraw/excalidraw/types/types';
 import { compressData } from './encode';
 
 export const isInitializedImageElement = (
@@ -43,9 +40,7 @@ export const encodeFilesForUpload = async ({
 		});
 
 		if (buffer.byteLength > maxBytes) {
-			throw new Error(
-				`file Too Big, maxSize: ${Math.trunc(maxBytes / 1024 / 1024)}MB`
-			);
+			throw new Error(`file Too Big, maxSize: ${Math.trunc(maxBytes / 1024 / 1024)}MB`);
 		}
 
 		processedFiles.push({

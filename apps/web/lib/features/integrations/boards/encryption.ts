@@ -23,9 +23,7 @@ export const createIV = () => {
 	return window.crypto.getRandomValues(arr);
 };
 
-export const generateEncryptionKey = async <
-	T extends 'string' | 'cryptoKey' = 'string'
->(
+export const generateEncryptionKey = async <T extends 'string' | 'cryptoKey' = 'string'>(
 	returnAs?: T
 ): Promise<T extends 'cryptoKey' ? CryptoKey : string> => {
 	const key = await window.crypto.subtle.generateKey(
@@ -37,9 +35,7 @@ export const generateEncryptionKey = async <
 		['encrypt', 'decrypt']
 	);
 	return (
-		returnAs === 'cryptoKey'
-			? key
-			: (await window.crypto.subtle.exportKey('jwk', key)).k
+		returnAs === 'cryptoKey' ? key : (await window.crypto.subtle.exportKey('jwk', key)).k
 	) as T extends 'cryptoKey' ? CryptoKey : string;
 };
 
@@ -65,8 +61,7 @@ export const encryptData = async (
 	key: string | CryptoKey,
 	data: Uint8Array | ArrayBuffer | Blob | File | string
 ): Promise<{ encryptedBuffer: ArrayBuffer; iv: Uint8Array }> => {
-	const importedKey =
-		typeof key === 'string' ? await getCryptoKey(key, 'encrypt') : key;
+	const importedKey = typeof key === 'string' ? await getCryptoKey(key, 'encrypt') : key;
 	const iv = createIV();
 	const buffer: ArrayBuffer | Uint8Array =
 		typeof data === 'string'

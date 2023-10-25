@@ -1,8 +1,4 @@
-import {
-	IOrganizationTeamList,
-	OT_Member,
-	RoleNameEnum
-} from '@app/interfaces/IOrganizationTeam';
+import { IOrganizationTeamList, OT_Member, RoleNameEnum } from '@app/interfaces/IOrganizationTeam';
 import { atom, selector } from 'recoil';
 
 export const organizationTeamsState = atom<IOrganizationTeamList[]>({

@@ -1,18 +1,7 @@
-export const ClosedTaskIcon = ({
-	color = '#9ea7ad'
-}: {
-	color?: string;
-	background: string;
-}) => {
+export const ClosedTaskIcon = ({ color = '#9ea7ad' }: { color?: string; background: string }) => {
 	// "#8e8e8e"
 	return (
-		<svg
-			className="mr-1"
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 16 16"
-			width="13"
-			height="13"
-		>
+		<svg className="mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="13" height="13">
 			<path
 				fillRule="evenodd"
 				fill={color}

@@ -1,15 +1,15 @@
 import { useEmailVerifyToken } from '@app/hooks';
 import { BackdropLoader } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
 import { MainLayout } from 'lib/layout';
+import { useTranslation } from 'react-i18next';
 
 export default function VerifyEmail() {
 	const { loading } = useEmailVerifyToken();
-	const { trans } = useTranslation('authTeam');
+	const { t } = useTranslation();
 
 	return (
 		<MainLayout>
-			<BackdropLoader show={loading} title={trans.VERIFY_EMAIL_LOADING_TEXT} />
+			<BackdropLoader show={loading} title={t('pages.authTeam.VERIFY_EMAIL_LOADING_TEXT')} />
 		</MainLayout>
 	);
 }

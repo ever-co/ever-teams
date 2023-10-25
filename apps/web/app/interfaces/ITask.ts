@@ -39,15 +39,7 @@ export type ITeamTask = {
 
 type SelectedTeam = Pick<
 	IOrganizationTeamList,
-	| 'id'
-	| 'createdAt'
-	| 'name'
-	| 'organizationId'
-	| 'tenantId'
-	| 'updatedAt'
-	| 'prefix'
-	| 'image'
-	| 'imageId'
+	'id' | 'createdAt' | 'name' | 'organizationId' | 'tenantId' | 'updatedAt' | 'prefix' | 'image' | 'imageId'
 >;
 
 export type LinkedTaskIssue = {

@@ -1,9 +1,10 @@
-import React, { FC, useEffect, useState } from "react"
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
+import React, { FC, useEffect } from 'react';
 import {
 	View,
 	ViewStyle,
 	Modal,
-	Image,
 	StyleSheet,
 	TextInput,
 	Animated,
@@ -11,62 +12,59 @@ import {
 	TouchableOpacity,
 	FlatList,
 	KeyboardAvoidingView,
-	Platform,
-} from "react-native"
-import { Text } from "react-native-paper"
+	Platform
+} from 'react-native';
+import { Text } from 'react-native-paper';
 // COMPONENTS
 // STYLES
-import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography, useAppTheme } from "../../../../theme"
-import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
-import { showMessage } from "react-native-flash-message"
-import { EMAIL_REGEX } from "../../../../helpers/regex"
-import { translate } from "../../../../i18n"
-import useTeamScreenLogic from "../logics/useTeamScreenLogic"
+import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
+import { colors, typography, useAppTheme } from '../../../../theme';
+import { useTeamInvitations } from '../../../../services/hooks/useTeamInvitation';
+import { translate } from '../../../../i18n';
+import useTeamScreenLogic from '../logics/useTeamScreenLogic';
 
 export interface Props {
-	visible: boolean
-	onDismiss: () => unknown
+	visible: boolean;
+	onDismiss: () => unknown;
 }
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get('window');
 
 const ModalPopUp = ({ visible, children }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal transparent visible={showModal}>
-			<KeyboardAvoidingView
-				style={$modalBackGround}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
-			>
-				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+			<KeyboardAvoidingView style={$modalBackGround} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+				<Animated.View style={[$modalContainer, { transform: [{ scale: scaleValue }] }]}>
+					{children}
+				</Animated.View>
 			</KeyboardAvoidingView>
 		</Modal>
-	)
-}
+	);
+};
 
 const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
-	const { inviterMember, loading } = useTeamInvitations()
+	const { inviterMember } = useTeamInvitations();
 	const {
 		memberEmail,
 		memberName,
@@ -77,39 +75,39 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 		handleNameInput,
 		emailsSuggest,
 		setEmailSuggests,
-		errors,
-	} = useTeamScreenLogic()
-	const { colors } = useAppTheme()
+		errors
+	} = useTeamScreenLogic();
+	const { colors } = useAppTheme();
 
 	const handleSubmit = async () => {
-		await inviterMember({ email: memberEmail, name: memberName })
-		setMemberEmail("")
-		setMemberName("")
-		onDismiss()
-	}
+		await inviterMember({ email: memberEmail, name: memberName });
+		setMemberEmail('');
+		setMemberName('');
+		onDismiss();
+	};
 
 	useEffect(() => {
 		setErrors({
 			emailError: null,
-			nameError: null,
-		})
-		setMemberEmail("")
-		setMemberName("")
-		setEmailSuggests([])
-	}, [])
+			nameError: null
+		});
+		setMemberEmail('');
+		setMemberName('');
+		setEmailSuggests([]);
+	}, []);
 
 	const renderEmailCompletions = (emails: string[]) => (
 		<View
 			style={{
-				position: "absolute",
+				position: 'absolute',
 				bottom: 62,
-				width: "85%",
+				width: '85%',
 				maxHeight: 200,
 				paddingVertical: 5,
 				borderRadius: 10,
 				backgroundColor: colors.background,
 				...GS.shadow,
-				zIndex: 1000,
+				zIndex: 1000
 			}}
 		>
 			<FlatList
@@ -119,20 +117,20 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 					<TouchableOpacity onPress={() => handleEmailInput(item)}>
 						<View
 							style={{
-								width: "100%",
+								width: '100%',
 								paddingVertical: 5,
-								paddingHorizontal: 16,
+								paddingHorizontal: 16
 							}}
 						>
 							<Text
 								style={{
 									color: colors.primary,
 									fontFamily: typography.primary.bold,
-									fontSize: 14,
+									fontSize: 14
 								}}
 							>
 								{memberEmail}
-								<Text style={{ color: "#B1AEBC" }}>{item.replace(memberEmail, "")}</Text>
+								<Text style={{ color: '#B1AEBC' }}>{item.replace(memberEmail, '')}</Text>
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -140,155 +138,127 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 				extraData={emailsSuggest}
 			/>
 		</View>
-	)
+	);
 	const canSubmit =
-		memberEmail.trim().length > 0 &&
-		memberName.trim().length > 0 &&
-		!errors.emailError &&
-		!errors.nameError
+		memberEmail.trim().length > 0 && memberName.trim().length > 0 && !errors.emailError && !errors.nameError;
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
-				<View style={{ width: "100%", marginBottom: 20 }}>
+				<View style={{ width: '100%', marginBottom: 20 }}>
 					<Text style={[styles.mainTitle, { color: colors.primary }]}>
-						{translate("teamScreen.inviteModalTitle")}
+						{translate('teamScreen.inviteModalTitle')}
 					</Text>
-					<Text style={styles.hint}>{translate("teamScreen.inviteModalHint")}</Text>
+					<Text style={styles.hint}>{translate('teamScreen.inviteModalHint')}</Text>
 				</View>
-				<View style={{ width: "100%" }}>
+				<View style={{ width: '100%' }}>
 					<View>
 						{emailsSuggest.length > 0 && renderEmailCompletions(emailsSuggest)}
 						<TextInput
 							placeholderTextColor={colors.tertiary}
 							style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
-							autoCapitalize={"none"}
+							autoCapitalize={'none'}
 							keyboardType="email-address"
 							value={memberEmail}
 							autoCorrect={false}
-							placeholder={translate("teamScreen.inviteEmailFieldPlaceholder")}
+							placeholder={translate('teamScreen.inviteEmailFieldPlaceholder')}
 							onChangeText={(text) => handleEmailInput(text)}
 						/>
-						<Text style={[styles.hint, { color: "red" }]}>{errors.emailError}</Text>
+						<Text style={[styles.hint, { color: 'red' }]}>{errors.emailError}</Text>
 					</View>
 					<View>
 						<TextInput
 							placeholderTextColor={colors.tertiary}
-							autoCapitalize={"none"}
+							autoCapitalize={'none'}
 							autoCorrect={false}
 							style={[
 								styles.textInput,
-								{ marginTop: 16, borderColor: colors.border, color: colors.primary },
+								{
+									marginTop: 16,
+									borderColor: colors.border,
+									color: colors.primary
+								}
 							]}
-							placeholder={translate("teamScreen.inviteNameFieldPlaceholder")}
+							placeholder={translate('teamScreen.inviteNameFieldPlaceholder')}
 							onChangeText={(text) => handleNameInput(text)}
 						/>
-						<Text style={[styles.hint, { color: "red" }]}>{errors.nameError}</Text>
+						<Text style={[styles.hint, { color: 'red' }]}>{errors.nameError}</Text>
 					</View>
 					<View style={styles.wrapButtons}>
 						<TouchableOpacity
 							onPress={() => onDismiss()}
-							style={[styles.button, { backgroundColor: "#E6E6E9" }]}
+							style={[styles.button, { backgroundColor: '#E6E6E9' }]}
 						>
-							<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>
-								{translate("common.cancel")}
-							</Text>
+							<Text style={[styles.buttonText, { color: '#1A1C1E' }]}>{translate('common.cancel')}</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[styles.button, { backgroundColor: "#3826A6", opacity: !canSubmit ? 0.3 : 1 }]}
+							style={[styles.button, { backgroundColor: '#3826A6', opacity: !canSubmit ? 0.3 : 1 }]}
 							onPress={() => (canSubmit ? handleSubmit() : {})}
 						>
-							<Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
+							<Text style={styles.buttonText}>{translate('teamScreen.sendButton')}</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default InviteUserModal
+export default InviteUserModal;
 
-const $container: ViewStyle = {
-	...GS.flex1,
-	paddingTop: spacing.extraLarge + spacing.large,
-	paddingHorizontal: spacing.large,
-}
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "rgba(0,0,0,0.5)",
-	justifyContent: "flex-end",
-}
+	justifyContent: 'flex-end'
+};
 const $modalContainer: ViewStyle = {
-	width: "100%",
 	height,
-	backgroundColor: "white",
-	paddingHorizontal: 30,
-	paddingVertical: 30,
-	borderRadius: 30,
-	elevation: 20,
-	justifyContent: "center",
-}
+	justifyContent: 'flex-end'
+};
 
 const styles = StyleSheet.create({
 	button: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderRadius: 11,
 		height: 57,
-		justifyContent: "center",
+		justifyContent: 'center',
 		padding: 10,
-		width: width / 2.5,
+		width: width / 2.5
 	},
 	buttonText: {
-		color: "#FFF",
+		color: '#FFF',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
-	},
-	crossIcon: {
-		position: "absolute",
-		right: 10,
-		top: 10,
+		fontSize: 18
 	},
 	hint: {
-		color: "#7E7991",
+		color: '#7E7991',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 12,
-	},
-
-	loading: {
-		bottom: "12%",
-		left: "15%",
-		position: "absolute",
+		fontSize: 12
 	},
 	mainContainer: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderTopLeftRadius: 24,
 		borderTopRightRadius: 24,
 		height: 374,
 		paddingHorizontal: 20,
 		paddingVertical: 30,
-		width: "100%",
+		width: '100%'
 	},
 	mainTitle: {
 		color: colors.primary,
 		fontFamily: typography.primary.semiBold,
-		fontSize: 24,
+		fontSize: 24
 	},
 	textInput: {
-		borderColor: "rgba(0, 0, 0, 0.1)",
+		borderColor: 'rgba(0, 0, 0, 0.1)',
 		borderRadius: 10,
 		borderWidth: 1,
 		color: colors.primary,
 		height: 45,
 		paddingHorizontal: 13,
-		width: "100%",
-	},
-	theTextField: {
-		borderWidth: 0,
-		width: "100%",
+		width: '100%'
 	},
 	wrapButtons: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginTop: 40,
-	},
-})
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginTop: 40
+	}
+});

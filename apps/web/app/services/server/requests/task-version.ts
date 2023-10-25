@@ -1,11 +1,7 @@
 import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
-export function createVersionRequest(
-	datas: ITaskVersionCreate,
-	bearer_token: string,
-	tenantId?: any
-) {
+export function createVersionRequest(datas: ITaskVersionCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskVersionItemList>({
 		path: '/task-versions',
 		method: 'POST',

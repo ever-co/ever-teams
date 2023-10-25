@@ -1,5 +1,5 @@
 export enum TimerStateEnum {
-  running,
-  paused,
-  stopped
+	running,
+	paused,
+	stopped
 }

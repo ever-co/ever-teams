@@ -18,14 +18,10 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 				id="ever-teams-logo"
 				className={clsxm(
 					'cursor-pointer',
-					color === 'auto' && [
-						'dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'
-					],
+					color === 'auto' && ['dark:brightness-0 dark:invert fill-[#3E1DAD] dark:fill-white'],
 					color === 'white' && ['brightness-0 invert'],
 					color === 'dark' && ['brightness-0 invert-0'],
-					color === 'white-black' && [
-						'brightness-0 invert dark:invert-0 fill-white dark:fill-black'
-					],
+					color === 'white-black' && ['brightness-0 invert dark:invert-0 fill-white dark:fill-black'],
 					color === 'black-white' && ['brightness-0 invert-0 dark:invert'],
 					className
 				)}
@@ -35,15 +31,8 @@ export function EverTeamsLogo({ className, dash, color = 'auto' }: Props) {
 						{`@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@1,300');`}
 					</style>
 				</defs>
-				<g
-					className="g-gauzy-logo-default"
-					transform="translate(-218.189 -3662.039)"
-				>
-					<g
-						className="g-logo-ever"
-						data-name="logo ever"
-						transform="translate(218.189 3666.449)"
-					>
+				<g className="g-gauzy-logo-default" transform="translate(-218.189 -3662.039)">
+					<g className="g-logo-ever" data-name="logo ever" transform="translate(218.189 3666.449)">
 						<path
 							className="g-combined-shape"
 							d="M473.886,3715.556a3.522,3.522,0,1,1-3.492,3.551v-.03a3.507,3.507,0,0,1,3.492-3.522Zm0,.469a3.052,3.052,0,1,0,3.027,3.078v-.026a3.039,3.039,0,0,0-3.026-3.052Zm-.951,1.058h1.121a1.242,1.242,0,0,1,.892.3.937.937,0,0,1,.257.812,1.071,1.071,0,0,1-.254.621,1.394,1.394,0,0,1-.6.405l.578,1.586v.033h-.513l-.521-1.521h-.86l-.261,1.52h-.484Zm.412.407-.246,1.423h.706a.98.98,0,0,0,.621-.2.77.77,0,0,0,.3-.528.611.611,0,0,0-.128-.506.682.682,0,0,0-.505-.188Z"

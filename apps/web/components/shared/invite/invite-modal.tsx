@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
+import Input from '@components/ui/inputs/input';
+import { Spinner } from '@components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';
+import { AxiosError } from 'axios';
+import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
 import { IInvite, IInviteProps } from '../../../app/interfaces/hooks';
 import UserIcon from '../../ui/svgs/user-icon';
-import Input from '@components/ui/inputs/input';
-import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
-import { Spinner } from '@components/ui/loaders/spinner';
-import { AxiosError } from 'axios';
 
 const initalValues: IInvite = {
 	email: '',
@@ -15,7 +16,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	const [formData, setFormData] = useState<IInvite>(initalValues);
 	const { inviteUser, inviteLoading } = useTeamInvitations();
 	const [errors, setErrors] = useState({});
-
+	const { t } = useTranslation();
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setErrors((er) => {
@@ -43,10 +44,7 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog as="div" className="relative z-50" onClose={closeModal}>
-				<div
-					className="fixed inset-0 backdrop-brightness-50 backdrop-blur-sm"
-					aria-hidden="true"
-				/>
+				<div className="fixed inset-0 backdrop-brightness-50 backdrop-blur-sm" aria-hidden="true" />
 				<Transition.Child
 					as={Fragment}
 					enter="ease-out duration-300"
@@ -56,11 +54,11 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black blur-xl bg-opacity-25" />
+					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
 				</Transition.Child>
 
 				<div className="fixed inset-0 overflow-y-auto">
-					<div className="flex min-h-full items-center justify-center p-4 text-center">
+					<div className="flex items-center justify-center min-h-full p-4 text-center">
 						<Transition.Child
 							as={Fragment}
 							enter="ease-out duration-300"
@@ -71,25 +69,21 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 							leaveTo="opacity-0 scale-95"
 						>
 							<Dialog.Panel className="w-full px-[70px] py-[46px] max-w-md transform overflow-hidden rounded-[40px] bg-white dark:bg-[#18181B] text-left align-middle shadow-xl transition-all">
-								<div className="flex justify-center items-center w-full">
+								<div className="flex items-center justify-center w-full">
 									<UserIcon />
 								</div>
 								<div className="text-primary dark:text-white mt-[22px] text-center font-bold text-[22px]">
-									Invite member to your team
+									{t('pages.invite.HEADING_TITLE')}
 								</div>
 								<div className="font-light w-full mt-[5px] text-[14px] text-[#ACB3BB] text-center">
-									Send an invitation to a team member by email
+									{t('pages.invite.HEADING_DESCRIPTION')}
 								</div>
 
-								<form
-									onSubmit={handleSubmit}
-									method="post"
-									className="mt-[50px]"
-								>
+								<form onSubmit={handleSubmit} method="post" className="mt-[50px]">
 									<Input
 										name="email"
 										type="email"
-										label="Team Member's Email"
+										label={t('pages.invite.TEAM_MEMBER_EMAIL')}
 										placeholder="example@domain.com"
 										required={true}
 										value={formData.email}
@@ -101,8 +95,8 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 										<Input
 											name="name"
 											type="text"
-											label="Team Member's Full Name"
-											placeholder="Team Member's Full Name"
+											label={t('pages.invite.TEAM_MEMBER_FULLNAME')}
+											placeholder={t('pages.invite.TEAM_MEMBER_FULLNAME')}
 											value={formData.name}
 											required={true}
 											onChange={handleChange}
@@ -110,14 +104,14 @@ const InviteModal = ({ isOpen, Fragment, closeModal }: IInviteProps) => {
 										/>
 									</div>
 
-									<div className="flex justify-between items-center">
+									<div className="flex items-center justify-between">
 										<div />
 										<button
 											className="w-full flex justify-center items-center mt-10 px-4 font-bold h-[55px] py-2 rounded-[12px] tracking-wide text-white dark:text-primary transition-colors duration-200 transform bg-primary dark:bg-white hover:text-opacity-90 focus:outline-none text-[18px]"
 											type="submit"
 											disabled={inviteLoading}
 										>
-											<span>Send Invite</span>{' '}
+											<span>{t('pages.invite.INVITE_LABEL_SEND')}</span>{' '}
 											{inviteLoading && (
 												<span className="ml-2">
 													<Spinner />

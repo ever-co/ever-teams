@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-unused-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState } from 'react';
 import {
 	View,
 	Text,
@@ -11,48 +11,48 @@ import {
 	Dimensions,
 	TouchableWithoutFeedback,
 	Pressable,
-	FlatList,
-} from "react-native"
-import { AntDesign, FontAwesome } from "@expo/vector-icons"
+	FlatList
+} from 'react-native';
+import { AntDesign, FontAwesome } from '@expo/vector-icons';
 
 // COMPONENTS
-import { ILanguageItemList } from "../../../../services/interfaces/IUserData"
-import { useSettings } from "../../../../services/hooks/features/useSettings"
-import { translate } from "../../../../i18n"
-import { typography, useAppTheme } from "../../../../theme"
+import { ILanguageItemList } from '../../../../services/interfaces/IUserData';
+import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { translate } from '../../../../i18n';
+import { typography, useAppTheme } from '../../../../theme';
 
 export interface Props {
-	visible: boolean
-	onDismiss: () => unknown
-	preferredLanguage: ILanguageItemList
-	onLanguageSelect: (language: ILanguageItemList) => unknown
+	visible: boolean;
+	onDismiss: () => unknown;
+	preferredLanguage: ILanguageItemList;
+	onLanguageSelect: (language: ILanguageItemList) => unknown;
 }
 
-const { height } = Dimensions.get("window")
+const { height } = Dimensions.get('window');
 const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
@@ -62,40 +62,35 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
-const LanguageModal: FC<Props> = function FilterPopup({
-	visible,
-	onDismiss,
-	onLanguageSelect,
-	preferredLanguage,
-}) {
-	const { colors, dark } = useAppTheme()
-	const { languageList } = useSettings()
-	const [selectedLanguage, setSelectedLanguage] = useState<ILanguageItemList>()
+const LanguageModal: FC<Props> = function FilterPopup({ visible, onDismiss, onLanguageSelect, preferredLanguage }) {
+	const { colors, dark } = useAppTheme();
+	const { languageList } = useSettings();
+	const [selectedLanguage, setSelectedLanguage] = useState<ILanguageItemList>();
 
 	const handleTimezoneSelect = (item: ILanguageItemList) => {
-		setSelectedLanguage(item)
-		onLanguageSelect(item)
+		setSelectedLanguage(item);
+		onLanguageSelect(item);
 
 		setTimeout(() => {
-			onDismiss()
-		}, 100)
-	}
+			onDismiss();
+		}, 100);
+	};
 
 	useEffect(() => {
 		if (!selectedLanguage) {
-			setSelectedLanguage(preferredLanguage)
+			setSelectedLanguage(preferredLanguage);
 		}
-	}, [])
+	}, []);
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
 			<TouchableWithoutFeedback onPress={() => {}}>
 				<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 					<Text style={{ ...styles.mainTitle, color: colors.primary }}>
-						{translate("settingScreen.changeLanguage.selectLanguageTitle")}
+						{translate('settingScreen.changeLanguage.selectLanguageTitle')}
 					</Text>
 					<FlatList
 						style={styles.listContainer}
@@ -110,12 +105,12 @@ const LanguageModal: FC<Props> = function FilterPopup({
 							>
 								<Text style={{ ...styles.tzTitle, color: colors.primary }}>{item.name}</Text>
 								{selectedLanguage?.id === item.id ? (
-									<AntDesign name="checkcircle" color={"#27AE60"} size={24} />
+									<AntDesign name="checkcircle" color={'#27AE60'} size={24} />
 								) : (
 									<FontAwesome
 										name="circle-thin"
 										size={24}
-										color={dark ? colors.border : "rgba(40, 32, 72, 0.43)"}
+										color={dark ? colors.border : 'rgba(40, 32, 72, 0.43)'}
 									/>
 								)}
 							</Pressable>
@@ -124,75 +119,75 @@ const LanguageModal: FC<Props> = function FilterPopup({
 				</View>
 			</TouchableWithoutFeedback>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default LanguageModal
+export default LanguageModal;
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
-	justifyContent: "center",
-}
+	backgroundColor: '#000000AA',
+	justifyContent: 'center'
+};
 
 const styles = StyleSheet.create({
 	buttonText: {
-		color: "#FFF",
+		color: '#FFF',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 18
 	},
 	item: {
-		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.13)",
+		alignItems: 'center',
+		borderColor: 'rgba(0,0,0,0.13)',
 		borderRadius: 10,
 		borderWidth: 1,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 42,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		marginBottom: 10,
 		paddingHorizontal: 16,
-		width: "100%",
+		width: '100%'
 	},
 	listContainer: {
 		marginVertical: 16,
 		paddingHorizontal: 20,
-		width: "100%",
+		width: '100%'
 	},
 	mainContainer: {
-		alignSelf: "center",
-		backgroundColor: "yellow",
-		borderColor: "#1B005D0D",
+		alignSelf: 'center',
+		backgroundColor: 'yellow',
+		borderColor: '#1B005D0D',
 		borderRadius: 24,
 		borderTopRightRadius: 24,
 		borderWidth: 2,
 		height: height / 2,
 		paddingVertical: 16,
-		shadowColor: "#1B005D0D",
+		shadowColor: '#1B005D0D',
 		shadowOffset: { width: 10, height: 10 },
 		shadowRadius: 10,
-		width: "90%",
-		zIndex: 1000,
+		width: '90%',
+		zIndex: 1000
 	},
 	mainTitle: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 24,
 		marginBottom: 10,
-		paddingHorizontal: 20,
+		paddingHorizontal: 20
 	},
 	statusContainer: {
 		height: 57,
 		paddingHorizontal: 16,
 		paddingVertical: 10,
 		width: 156,
-		zIndex: 1000,
+		zIndex: 1000
 	},
 	tzTitle: {
 		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
+		fontSize: 14
 	},
 	wrapForm: {
 		marginTop: 16,
-		width: "100%",
-		zIndex: 100,
-	},
-})
+		width: '100%',
+		zIndex: 100
+	}
+});

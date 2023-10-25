@@ -1,109 +1,105 @@
 /* eslint-disable react-native/no-inline-styles */
-import { ScrollView, Text, TextStyle, View, ViewStyle } from "react-native"
-import React, { FC } from "react"
-import { typography } from "../../../../theme/typography"
-import SingleInfo from "../components/SingleInfo"
-import { translate } from "../../../../i18n"
-import { useSettings } from "../../../../services/hooks/features/useSettings"
-import { useStores } from "../../../../models"
-import { IPopup } from "../../.."
-import FlashMessage from "react-native-flash-message"
-import { useAppTheme } from "../../../../theme"
-import UserAvatar from "./UserAvatar"
-import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
+import { ScrollView, Text, TextStyle, View, ViewStyle } from 'react-native';
+import React, { FC } from 'react';
+import { typography } from '../../../../theme/typography';
+import SingleInfo from '../components/SingleInfo';
+import { translate } from '../../../../i18n';
+import { useSettings } from '../../../../services/hooks/features/useSettings';
+import { useStores } from '../../../../models';
+import { IPopup } from '../../..';
+import FlashMessage from 'react-native-flash-message';
+import { useAppTheme } from '../../../../theme';
+import UserAvatar from './UserAvatar';
+import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
 
 interface IPersonalProps {
-	onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown
+	onOpenBottomSheet: (sheet: IPopup, snapPoint: number) => unknown;
 }
 
 const PersonalSettings: FC<IPersonalProps> = ({ onOpenBottomSheet }) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 	const {
-		authenticationStore: { toggleTheme },
-	} = useStores()
-	const { preferredLanguage, onDetectTimezone } = useSettings()
-	const { user } = useAuthenticateUser()
+		authenticationStore: { toggleTheme }
+	} = useStores();
+	const { preferredLanguage, onDetectTimezone } = useSettings();
+	const { user } = useAuthenticateUser();
 	const openBottomSheet = (name: IPopup, snapPoint: number) => {
-		onOpenBottomSheet(name, snapPoint)
-	}
+		onOpenBottomSheet(name, snapPoint);
+	};
 
 	return (
 		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
-			<ScrollView
-				bounces={false}
-				style={{ width: "100%", height: "100%" }}
-				showsVerticalScrollIndicator={false}
-			>
+			<ScrollView bounces={false} style={{ width: '100%', height: '100%' }} showsVerticalScrollIndicator={false}>
 				<UserAvatar
-					buttonLabel={translate("settingScreen.personalSection.changeAvatar")}
-					onChange={() => openBottomSheet("Avatar", 1)}
+					buttonLabel={translate('settingScreen.personalSection.changeAvatar')}
+					onChange={() => openBottomSheet('Avatar', 1)}
 				/>
 				<SingleInfo
-					title={translate("settingScreen.personalSection.fullName")}
+					title={translate('settingScreen.personalSection.fullName')}
 					value={user?.name}
-					onPress={() => openBottomSheet("Names", 0)}
+					onPress={() => openBottomSheet('Names', 0)}
 				/>
 				<SingleInfo
-					title={translate("settingScreen.personalSection.yourContact")}
-					value={translate("settingScreen.personalSection.yourContactHint")}
-					onPress={() => openBottomSheet("Contact", 0)}
+					title={translate('settingScreen.personalSection.yourContact')}
+					value={translate('settingScreen.personalSection.yourContactHint')}
+					onPress={() => openBottomSheet('Contact', 0)}
 				/>
 				<SingleInfo
 					onPress={() => toggleTheme()}
-					title={translate("settingScreen.personalSection.themes")}
-					value={translate("settingScreen.personalSection.lightModeToDark")}
+					title={translate('settingScreen.personalSection.themes')}
+					value={translate('settingScreen.personalSection.lightModeToDark')}
 				/>
 				<SingleInfo
-					onPress={() => openBottomSheet("Language", 4)}
-					title={translate("settingScreen.personalSection.language")}
+					onPress={() => openBottomSheet('Language', 4)}
+					title={translate('settingScreen.personalSection.language')}
 					value={preferredLanguage?.name}
 				/>
 				<SingleInfo
-					title={translate("settingScreen.personalSection.timeZone")}
+					title={translate('settingScreen.personalSection.timeZone')}
 					value={user?.timeZone}
 					onDetectTimezone={() => onDetectTimezone()}
-					onPress={() => openBottomSheet("TimeZone", 4)}
+					onPress={() => openBottomSheet('TimeZone', 4)}
 				/>
 				<SingleInfo
-					title={translate("settingScreen.personalSection.workSchedule")}
-					value={translate("settingScreen.personalSection.workScheduleHint")}
+					title={translate('settingScreen.personalSection.workSchedule')}
+					value={translate('settingScreen.personalSection.workScheduleHint')}
 				/>
 
 				<View style={$dangerZoneContainer}>
-					<Text style={$dangerZoneTitle}>{translate("settingScreen.dangerZone")}</Text>
+					<Text style={$dangerZoneTitle}>{translate('settingScreen.dangerZone')}</Text>
 					<SingleInfo
-						title={translate("settingScreen.personalSection.removeAccount")}
-						value={translate("settingScreen.personalSection.removeAccountHint")}
-						onPress={() => openBottomSheet("Remove Account", 5)}
+						title={translate('settingScreen.personalSection.removeAccount')}
+						value={translate('settingScreen.personalSection.removeAccountHint')}
+						onPress={() => openBottomSheet('Remove Account', 5)}
 					/>
 					<SingleInfo
-						title={translate("settingScreen.personalSection.deleteAccount")}
-						value={translate("settingScreen.personalSection.deleteAccountHint")}
-						onPress={() => openBottomSheet("Delete Account", 5)}
+						title={translate('settingScreen.personalSection.deleteAccount')}
+						value={translate('settingScreen.personalSection.deleteAccountHint')}
+						onPress={() => openBottomSheet('Delete Account', 5)}
 					/>
 				</View>
 			</ScrollView>
-			<FlashMessage position={"bottom"} />
+			<FlashMessage position={'bottom'} />
 		</View>
-	)
-}
+	);
+};
 
-export default PersonalSettings
+export default PersonalSettings;
 
 const $contentContainer: ViewStyle = {
-	width: "100%",
-	alignItems: "center",
-}
+	width: '100%',
+	alignItems: 'center'
+};
 
 const $dangerZoneContainer: ViewStyle = {
-	borderTopColor: "rgba(0, 0, 0, 0.09)",
+	borderTopColor: 'rgba(0, 0, 0, 0.09)',
 	borderTopWidth: 1,
 	paddingTop: 32,
 	marginTop: 32,
-	marginBottom: 40,
-}
+	marginBottom: 40
+};
 const $dangerZoneTitle: TextStyle = {
-	color: "#DA5E5E",
+	color: '#DA5E5E',
 	fontSize: 20,
-	fontFamily: typography.primary.semiBold,
-}
+	fontFamily: typography.primary.semiBold
+};

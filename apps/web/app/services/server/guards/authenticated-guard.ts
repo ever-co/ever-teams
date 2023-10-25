@@ -9,10 +9,7 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import { currentAuthenticatedUserRequest } from '../requests/auth';
 
-export async function authenticatedGuard(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export async function authenticatedGuard(req: NextApiRequest, res: NextApiResponse) {
 	const access_token = getAccessTokenCookie({ req, res });
 	const tenantId = getTenantIdCookie({ req, res });
 	const organizationId = getOrganizationIdCookie({ req, res });

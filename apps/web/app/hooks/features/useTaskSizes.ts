@@ -1,15 +1,7 @@
 import { ITaskSizesCreate } from '@app/interfaces';
-import {
-	createTaskSizesAPI,
-	deleteTaskSizesAPI,
-	getTaskSizesList,
-	editTaskSizesAPI
-} from '@app/services/client/api';
+import { createTaskSizesAPI, deleteTaskSizesAPI, getTaskSizesList, editTaskSizesAPI } from '@app/services/client/api';
 import { activeTeamIdState, userState } from '@app/stores';
-import {
-	taskSizesFetchingState,
-	taskSizesListState
-} from '@app/stores/task-sizes';
+import { taskSizesFetchingState, taskSizesListState } from '@app/stores/task-sizes';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -22,19 +14,14 @@ export function useTaskSizes() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskSizesList);
-	const { loading: createTaskSizesLoading, queryCall: createQueryCall } =
-		useQuery(createTaskSizesAPI);
-	const { loading: deleteTaskSizesLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteTaskSizesAPI);
-	const { loading: editTaskSizesLoading, queryCall: editQueryCall } =
-		useQuery(editTaskSizesAPI);
+	const { loading: createTaskSizesLoading, queryCall: createQueryCall } = useQuery(createTaskSizesAPI);
+	const { loading: deleteTaskSizesLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskSizesAPI);
+	const { loading: editTaskSizesLoading, queryCall: editQueryCall } = useQuery(editTaskSizesAPI);
 
 	const [taskSizes, setTaskSizes] = useRecoilState(taskSizesListState);
 	// const activeTaskStatus = useRecoilValue(activeTaskStatusState);
 	// const [, setActiveTaskStatusId] = useRecoilState(activeTaskStatusIdState);
-	const [taskSizesFetching, setTaskSizesFetching] = useRecoilState(
-		taskSizesFetchingState
-	);
+	const [taskSizesFetching, setTaskSizesFetching] = useRecoilState(taskSizesFetchingState);
 	const { firstLoadData: firstLoadTaskSizesData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
@@ -67,12 +54,11 @@ export function useTaskSizes() {
 	const createTaskSizes = useCallback(
 		(data: ITaskSizesCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeamId },
-					user?.tenantId || ''
-				).then((res) => {
-					return res;
-				});
+				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
+					(res) => {
+						return res;
+					}
+				);
 			}
 		},
 

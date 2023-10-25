@@ -1,34 +1,30 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { StatusesListCard } from './list-card';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTaskStatus } from '@app/hooks';
-import { Spinner } from '@components/ui/loaders/spinner';
+import { useRefetchData, useTaskStatus } from '@app/hooks';
 import { IIcon, ITaskStatusItemList } from '@app/interfaces';
-import { useTranslation } from 'lib/i18n';
+import { userState } from '@app/stores';
+import { clsxm } from '@app/utils';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useRecoilState } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
-import { clsxm } from '@app/utils';
-import { useRefetchData } from '@app/hooks';
+import { StatusesListCard } from './list-card';
 
 type StatusForm = {
 	formOnly?: boolean;
 	onCreated?: () => void;
 };
 
-export const TaskStatusesForm = ({
-	formOnly = false,
-	onCreated
-}: StatusForm) => {
+export const TaskStatusesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskStatusItemList | null>(null);
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -45,18 +41,9 @@ export const TaskStatusesForm = ({
 		// 'small',
 		// 'tiny',
 	]);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
-		'urgent',
-		'high',
-		'medium',
-		'low'
-	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
-	const iconList: IIcon[] = [
-		...taskStatusIconList,
-		...taskSizesIconList,
-		...taskPrioritiesIconList
-	];
+	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	const {
 		loading,
@@ -87,14 +74,7 @@ export const TaskStatusesForm = ({
 			setValue('color', '');
 			setValue('icon', '');
 		}
-	}, [
-		edit,
-		setValue,
-		createTaskStatus,
-		editTaskStatus,
-		user?.employee?.organizationId,
-		user?.tenantId
-	]);
+	}, [edit, setValue, createTaskStatus, editTaskStatus, user?.employee?.organizationId, user?.tenantId]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -131,31 +111,17 @@ export const TaskStatusesForm = ({
 				});
 			}
 		},
-		[
-			edit,
-			createNew,
-			formOnly,
-			editTaskStatus,
-			onCreated,
-			user,
-			reset,
-			createTaskStatus,
-			refetch
-		]
+		[edit, createNew, formOnly, editTaskStatus, onCreated, user, reset, createTaskStatus, refetch]
 	);
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						{!formOnly && (
 							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-								{trans.TASK_STATUSES}
+								{t('pages.settingsTeam.TASK_STATUSES')}
 							</Text>
 						)}
 
@@ -170,15 +136,15 @@ export const TaskStatusesForm = ({
 									}}
 								>
 									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									{trans.CREATE_NEW_STATUS}
+									{t('pages.settingsTeam.CREATE_NEW_STATUS')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
-										{createNew && 'New'}
-										{edit && 'Edit'} Statuses
+									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+										{createNew && t('common.NEW')}
+										{edit && t('common.EDIT')} {t('common.STATUSES')}
 									</Text>
 									<div
 										className={clsxm(
@@ -188,7 +154,7 @@ export const TaskStatusesForm = ({
 									>
 										<InputField
 											type="text"
-											placeholder={trans.CREATE_NEW_STATUS}
+											placeholder={t('pages.settingsTeam.CREATE_NEW_STATUS')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
@@ -199,9 +165,7 @@ export const TaskStatusesForm = ({
 											setValue={setValue}
 											active={
 												edit
-													? (iconList.find(
-															(icon) => icon.path === edit.icon
-													  ) as IIcon)
+													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
 													: null
 											}
 										/>
@@ -211,28 +175,26 @@ export const TaskStatusesForm = ({
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
-											disabled={
-												createTaskStatusLoading || editTaskStatusLoading
-											}
+											disabled={createTaskStatusLoading || editTaskStatusLoading}
 											loading={createTaskStatusLoading || editTaskStatusLoading}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="px-4 py-4 font-normal rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
 												}}
 											>
-												Cancel
+												{t('common.CANCEL')}
 											</Button>
 										)}
 									</div>
@@ -242,17 +204,15 @@ export const TaskStatusesForm = ({
 							{!formOnly && taskStatus?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{trans.LIST_OF_STATUSES}
+										{t('pages.settingsTeam.LIST_OF_STATUSES')}
 									</Text>
-									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 										{loading && !taskStatus?.length && <Spinner dark={false} />}
 										{taskStatus && taskStatus?.length ? (
 											taskStatus.map((status) => (
 												<StatusesListCard
 													key={status.id}
-													statusTitle={
-														status.name ? status.name?.split('-').join(' ') : ''
-													}
+													statusTitle={status.name ? status.name?.split('-').join(' ') : ''}
 													bgColor={status.color || ''}
 													statusIcon={status.fullIconUrl || ''}
 													onEdit={() => {

@@ -21,8 +21,6 @@ export const activeTaskSizesState = selector<ITaskSizesItemList | null>({
 	get: ({ get }) => {
 		const taskSizes = get(taskSizesListState);
 		const activeId = get(activeTaskSizesIdState);
-		return (
-			taskSizes.find((size) => size.id === activeId) || taskSizes[0] || null
-		);
+		return taskSizes.find((size) => size.id === activeId) || taskSizes[0] || null;
 	}
 });

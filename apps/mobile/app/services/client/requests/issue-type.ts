@@ -1,73 +1,73 @@
 /* eslint-disable camelcase */
-import { IIssueTypesCreate, IIssueTypesItemList, IIssuesList } from "../../interfaces/ITaskIssue"
-import { serverFetch } from "../fetch"
+import { IIssueTypesCreate, IIssueTypesItemList, IIssuesList } from '../../interfaces/ITaskIssue';
+import { serverFetch } from '../fetch';
 
 export function createIssueTypeRequest({
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	datas: IIssueTypesCreate
-	bearer_token: string
-	tenantId: any
+	datas: IIssueTypesCreate;
+	bearer_token: string;
+	tenantId: any;
 }) {
 	return serverFetch<IIssueTypesItemList>({
-		path: "/issue-types",
-		method: "POST",
+		path: '/issue-types',
+		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function editIssueTypesRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	datas: IIssueTypesCreate
-	bearer_token: string
-	tenantId?: any
+	id: string | any;
+	datas: IIssueTypesCreate;
+	bearer_token: string;
+	tenantId?: any;
 }) {
 	return serverFetch<IIssueTypesItemList>({
 		path: `/issue-types/${id}`,
-		method: "PUT",
+		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function deleteIssueTypesRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	bearer_token: string | any
-	tenantId?: any
+	id: string | any;
+	bearer_token: string | any;
+	tenantId?: any;
 }) {
 	return serverFetch<IIssueTypesItemList>({
 		path: `/issue-types/${id}`,
-		method: "DELETE",
+		method: 'DELETE',
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function getIssueTypesListRequest<IIssueTypesItemList>(
 	{
 		organizationId,
 		tenantId,
-		activeTeamId,
+		activeTeamId
 	}: { tenantId: string; organizationId: string; activeTeamId: string | null },
-	bearer_token: string,
+	bearer_token: string
 ) {
 	return serverFetch<IIssuesList>({
 		path: `/issue-types?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
-		method: "GET",
-		bearer_token,
-	})
+		method: 'GET',
+		bearer_token
+	});
 }

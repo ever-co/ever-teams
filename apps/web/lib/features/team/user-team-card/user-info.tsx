@@ -19,22 +19,11 @@ type Props = {
 
 export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 	const { memberUser, member } = memberInfo;
-	const fullname = `${memberUser?.firstName || ''} ${
-		memberUser?.lastName || ''
-	}`;
+	const fullname = `${memberUser?.firstName || ''} ${memberUser?.lastName || ''}`;
 
 	const imageUrl = useMemo(() => {
-		return (
-			memberUser?.image?.thumbUrl ||
-			memberUser?.image?.fullUrl ||
-			memberUser?.imageUrl ||
-			''
-		);
-	}, [
-		memberUser?.image?.thumbUrl,
-		memberUser?.image?.fullUrl,
-		memberUser?.imageUrl
-	]);
+		return memberUser?.image?.thumbUrl || memberUser?.image?.fullUrl || memberUser?.imageUrl || '';
+	}, [memberUser?.image?.thumbUrl, memberUser?.image?.fullUrl, memberUser?.imageUrl]);
 
 	const { timerStatus } = useTimer();
 	const timerStatusValue: ITimerStatusEnum = useMemo(() => {
@@ -58,12 +47,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 				}}
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (
-					<Avatar
-						size={50}
-						className="relative cursor-pointer"
-						imageUrl={imageUrl}
-						alt="Team Avatar"
-					>
+					<Avatar size={50} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar">
 						<TimerStatus
 							status={timerStatusValue}
 							className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
@@ -85,11 +69,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 						as="h3"
 						className="overflow-hidden text-ellipsis whitespace-nowrap w-full text-base lg:text-lg flex gap-2"
 					>
-						{publicTeam ? (
-							<span className="flex capitalize">{fullname.slice(0, 1)} </span>
-						) : (
-							fullname
-						)}
+						{publicTeam ? <span className="flex capitalize">{fullname.slice(0, 1)} </span> : fullname}
 
 						{(member?.role?.name === 'MANAGER' ||
 							member?.role?.name === 'SUPER_ADMIN' ||
@@ -113,10 +93,7 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 					<Tooltip
 						label={`${memberUser?.email || ''} `.trim()}
 						placement="auto"
-						enabled={
-							`${memberUser?.email || ''} `.trim().length >
-							CHARACTER_LIMIT_TO_SHOW
-						}
+						enabled={`${memberUser?.email || ''} `.trim().length > CHARACTER_LIMIT_TO_SHOW}
 					>
 						<Text className="text-gray-400 flex items-center text-sm space-x-1">
 							<MailIcon />{' '}

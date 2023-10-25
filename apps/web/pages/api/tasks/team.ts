@@ -1,17 +1,10 @@
 import { getActiveTeamIdCookie } from '@app/helpers/cookies';
 import { authenticatedGuard } from '@app/services/server/guards/authenticated-guard';
-import {
-	createTaskRequest,
-	getTeamTasksRequest
-} from '@app/services/server/requests';
+import { createTaskRequest, getTeamTasksRequest } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, tenantId, organizationId, access_token, projectId } =
-		await authenticatedGuard(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, tenantId, organizationId, access_token, projectId } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	if (req.method === 'POST') {

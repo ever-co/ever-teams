@@ -114,9 +114,7 @@ const Card = ({ member }: { member: IMember }) => {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(
-			memberTask.estimate || 0
-		);
+		const { h: estimateHours, m: estimateMinutes } = secondsToTime(memberTask.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			setEstimateEditMode(false);
@@ -147,13 +145,14 @@ const Card = ({ member }: { member: IMember }) => {
 	/**
 	 * On click outside task edit
 	 */
-	const { targetEl: editTaskInputEl, ignoreElementRef: ignoreElementTaskIRef } =
-		useOutsideClick<HTMLInputElement>(() => {
+	const { targetEl: editTaskInputEl, ignoreElementRef: ignoreElementTaskIRef } = useOutsideClick<HTMLInputElement>(
+		() => {
 			setEstimateEditMode(false);
 			if (!updateLoading) {
 				handleTaskEdit();
 			}
-		});
+		}
+	);
 
 	return (
 		<div
@@ -168,12 +167,7 @@ const Card = ({ member }: { member: IMember }) => {
 			</div>
 
 			{/* User info */}
-			<MemberInfo
-				member={iuser}
-				editMode={false}
-				editable={formValues}
-				onChangeName={handleChange}
-			/>
+			<MemberInfo member={iuser} editMode={false} editable={formValues} onChangeName={handleChange} />
 			<Separator />
 
 			{/* Task info */}
@@ -214,10 +208,7 @@ const Card = ({ member }: { member: IMember }) => {
 			<div className="w-[184px]  flex items-center">
 				<Worked24Hours isAuthUser={isAuthUser} />
 				{isTeamManager && (
-					<div
-						className="mr-[20px]"
-						ref={mergeRefs([ignoreElementRef, ignoreElementTaskIRef])}
-					>
+					<div className="mr-[20px]" ref={mergeRefs([ignoreElementRef, ignoreElementTaskIRef])}>
 						<DropdownUser
 							member={member}
 							setEdit={() => hasEditMode && setTaskEditMode(true)}

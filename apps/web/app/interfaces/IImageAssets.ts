@@ -16,7 +16,6 @@ export interface IImageAssets {
 	thumbUrl?: string | null;
 }
 
-export interface ICreateImageAssets
-	extends Pick<IImageAssets, 'tenantId' | 'organizationId'> {
+export interface ICreateImageAssets extends Pick<IImageAssets, 'tenantId' | 'organizationId'> {
 	file: File;
 }

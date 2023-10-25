@@ -1,147 +1,143 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useState } from "react"
-import {
-	View,
-	ViewStyle,
-	TouchableOpacity,
-	StyleSheet,
-	TouchableWithoutFeedback,
-} from "react-native"
-import { Ionicons, Entypo } from "@expo/vector-icons"
+import React, { useState } from 'react';
+import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { Ionicons, Entypo } from '@expo/vector-icons';
 
 // COMPONENTS
-import { Card, ListItem } from "../../../../components"
+import { Card, ListItem } from '../../../../components';
 
 // STYLES
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { spacing, typography, useAppTheme } from "../../../../theme"
-import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import AllTaskStatuses from "../../../../components/AllTaskStatuses"
-import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
+import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
+import { spacing, typography, useAppTheme } from '../../../../theme';
+import EstimateTime from '../../TimerScreen/components/EstimateTime';
+import AllTaskStatuses from '../../../../components/AllTaskStatuses';
+import { IOrganizationTeamWithMStatus, OT_Member } from '../../../../services/interfaces/IOrganizationTeam';
 import {
 	I_TeamMemberCardHook,
 	I_TMCardTaskEditHook,
 	useTeamMemberCard,
-	useTMCardTaskEdit,
-} from "../../../../services/hooks/features/useTeamMemberCard"
-import UserHeaderCard from "./UserHeaderCard"
-import TaskInfo from "./TaskInfo"
-import { observer } from "mobx-react-lite"
-import { TodayWorkedTime } from "./TodayWorkTime"
-import { TimeProgressBar } from "./TimeProgressBar"
-import { useNavigation } from "@react-navigation/native"
-import { WorkedOnTask } from "./WorkedOnTask"
-import UnassignedTasksList from "./UnassignedTaskList"
-import { translate } from "../../../../i18n"
-import moment from "moment-timezone"
-import { useTimer } from "../../../../services/hooks/useTimer"
-import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
+	useTMCardTaskEdit
+} from '../../../../services/hooks/features/useTeamMemberCard';
+import UserHeaderCard from './UserHeaderCard';
+import TaskInfo from './TaskInfo';
+import { observer } from 'mobx-react-lite';
+import { TodayWorkedTime } from './TodayWorkTime';
+import { TimeProgressBar } from './TimeProgressBar';
+import { useNavigation } from '@react-navigation/native';
+import { WorkedOnTask } from './WorkedOnTask';
+import UnassignedTasksList from './UnassignedTaskList';
+import { translate } from '../../../../i18n';
+import { useTimer } from '../../../../services/hooks/useTimer';
+import { SettingScreenNavigationProp } from '../../../../navigators/AuthenticatedNavigator';
+import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
 
 export type ListItemProps = {
-	member: OT_Member
-}
+	member: OT_Member;
+};
 
 interface IcontentProps {
-	memberInfo: I_TeamMemberCardHook
-	taskEdition: I_TMCardTaskEditHook
-	onPressIn?: () => unknown
+	memberInfo: I_TeamMemberCardHook;
+	taskEdition: I_TMCardTaskEditHook;
+	onPressIn?: () => unknown;
 }
 
 export interface Props extends ListItemProps {
-	index: number
-	openMenuIndex: number | null
-	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
+	index: number;
+	openMenuIndex: number | null;
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>;
+	currentTeam: IOrganizationTeamWithMStatus | null;
 }
 
-export const ListItemContent: React.FC<IcontentProps> = observer(
-	({ memberInfo, taskEdition, onPressIn }) => {
-		// HOOKS
-		const { colors, dark } = useAppTheme()
-		return (
-			<TouchableWithoutFeedback onPress={() => onPressIn()}>
-				<View
-					style={[
-						{
-							...GS.p3,
-							...GS.positionRelative,
-							backgroundColor: dark ? "#1E2025" : colors.background,
-						},
-						{ borderRadius: 14 },
-					]}
-				>
-					<View style={styles.firstContainer}>
-						<UserHeaderCard user={memberInfo.memberUser} member={memberInfo.member} />
-						<View style={styles.wrapTotalTime}>
-							<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
-						</View>
-					</View>
-
-					<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
-						<TaskInfo
-							editMode={taskEdition.editMode}
-							setEditMode={taskEdition.setEditMode}
-							memberInfo={memberInfo}
-						/>
-						{memberInfo.memberTask ? <AllTaskStatuses task={memberInfo.memberTask} /> : null}
-					</View>
-					<View style={[styles.times, { borderTopColor: colors.divider }]}>
-						<View
-							style={{
-								flexDirection: "row",
-								justifyContent: "space-between",
-								alignItems: "center",
-								height: 48,
-								width: "100%",
-							}}
-						>
-							<View style={{ ...GS.alignCenter }}>
-								<WorkedOnTask period="Daily" memberInfo={memberInfo} />
-							</View>
-
-							<View style={{ ...GS.alignCenter }}>
-								<WorkedOnTask period="Total" memberInfo={memberInfo} />
-							</View>
-
-							{memberInfo.memberTask && taskEdition.estimateEditMode ? (
-								<View style={styles.estimate}>
-									<EstimateTime
-										setEditEstimate={taskEdition.setEstimateEditMode}
-										currentTask={memberInfo.memberTask}
-									/>
-								</View>
-							) : (
-								<TimeProgressBar
-									isAuthUser={memberInfo.isAuthUser}
-									memberInfo={memberInfo}
-									onPress={() => taskEdition.setEstimateEditMode(true)}
-								/>
-							)}
-						</View>
+export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, taskEdition, onPressIn }) => {
+	// HOOKS
+	const { colors, dark } = useAppTheme();
+	return (
+		<TouchableWithoutFeedback onPress={() => onPressIn()}>
+			<View
+				style={[
+					{
+						...GS.p3,
+						...GS.positionRelative,
+						backgroundColor: dark ? '#1E2025' : colors.background
+					},
+					{ borderRadius: 14 }
+				]}
+			>
+				<View style={styles.firstContainer}>
+					<UserHeaderCard user={memberInfo.memberUser} member={memberInfo.member} />
+					<View style={styles.wrapTotalTime}>
+						<TodayWorkedTime isAuthUser={memberInfo.isAuthUser} memberInfo={memberInfo} />
 					</View>
 				</View>
-			</TouchableWithoutFeedback>
-		)
-	},
-)
+
+				<View style={[styles.wrapTaskTitle, { borderTopColor: colors.divider }]}>
+					<TaskInfo
+						editMode={taskEdition.editMode}
+						setEditMode={taskEdition.setEditMode}
+						memberInfo={memberInfo}
+					/>
+					{memberInfo.memberTask ? <AllTaskStatuses task={memberInfo.memberTask} /> : null}
+				</View>
+				<View style={[styles.times, { borderTopColor: colors.divider }]}>
+					<View
+						style={{
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							height: 48,
+							width: '100%'
+						}}
+					>
+						<View style={{ ...GS.alignCenter }}>
+							<WorkedOnTask period="Daily" memberInfo={memberInfo} />
+						</View>
+
+						<View style={{ ...GS.alignCenter }}>
+							<WorkedOnTask period="Total" memberInfo={memberInfo} />
+						</View>
+
+						{memberInfo.memberTask && taskEdition.estimateEditMode ? (
+							<View style={styles.estimate}>
+								<EstimateTime
+									setEditEstimate={taskEdition.setEstimateEditMode}
+									currentTask={memberInfo.memberTask}
+								/>
+							</View>
+						) : (
+							<TimeProgressBar
+								isAuthUser={memberInfo.isAuthUser}
+								memberInfo={memberInfo}
+								onPress={() => taskEdition.setEstimateEditMode(true)}
+							/>
+						)}
+					</View>
+				</View>
+			</View>
+		</TouchableWithoutFeedback>
+	);
+});
 
 const ListCardItem: React.FC<Props> = observer((props) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 	// // STATS
-	const memberInfo = useTeamMemberCard(props.member)
-	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask)
-	const { timerStatus } = useTimer()
-	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false)
+	const memberInfo = useTeamMemberCard(props.member);
+	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
+	const { timerStatus } = useTimer();
+	const [showUnassignedList, setShowUnassignedList] = useState<boolean>(false);
 
-	const navigation = useNavigation<SettingScreenNavigationProp<"Profile">>()
+	const navigation = useNavigation<SettingScreenNavigationProp<'Profile'>>();
 
 	const onPressIn = () => {
-		taskEdition.setEditMode(false)
-		taskEdition.setEstimateEditMode(false)
-		props.setOpenMenuIndex(null)
-		navigation.navigate("Profile", { userId: memberInfo.memberUser.id, activeTab: "worked" })
-	}
+		taskEdition.setEditMode(false);
+		taskEdition.setEstimateEditMode(false);
+		props.setOpenMenuIndex(null);
+		navigation.navigate('Profile', { userId: memberInfo.memberUser.id, activeTab: 'worked' });
+	};
+	const currentMember = props.currentTeam?.members.find((currentMember) => currentMember.id === props.member.id);
+
+	const timerStatusValue = getTimerStatusValue(timerStatus, currentMember, props.currentTeam?.public);
 
 	return (
 		<Card
@@ -150,22 +146,13 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 				...GS.mt5,
 				paddingTop: 4,
 				backgroundColor:
-					!timerStatus?.running &&
-					timerStatus?.lastLog &&
-					timerStatus?.lastLog?.startedAt &&
-					moment().diff(moment(timerStatus?.lastLog?.startedAt), "hours") < 24 &&
-					(timerStatus?.lastLog?.source !== "MOBILE" || props.member?.employee?.isOnline)
-						? "#EBC386"
-						: !props.member?.employee?.isActive
-						? "#F1A2A2"
-						: props.member?.employee?.isOnline
-						? //  && props.member?.timerStatus !== 'running'
-						  "#88D1A5"
-						: !props.member?.totalTodayTasks?.length
-						? "#F1A2A2"
-						: props.member?.totalTodayTasks?.length
-						? "#EBC386"
-						: "#F1A2A2",
+					timerStatusValue === 'idle'
+						? '#F1A2A2'
+						: timerStatusValue === 'pause'
+						? '#EBC386'
+						: timerStatusValue === 'online'
+						? '#88D1A5'
+						: '#DCD6D6'
 			}}
 			HeadingComponent={
 				<View
@@ -175,13 +162,13 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 						...GS.r0,
 						...GS.pt5,
 						...GS.pr3,
-						...GS.zIndexFront,
+						...GS.zIndexFront
 					}}
 				>
 					<View
 						style={{
 							...GS.positionRelative,
-							...GS.zIndexFront,
+							...GS.zIndexFront
 						}}
 					>
 						<View
@@ -192,14 +179,14 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 								...GS.r0,
 								...GS.zIndexFront,
 								...GS.shadowLg,
-								shadowColor: "rgba(0, 0, 0, 0.52)",
+								shadowColor: 'rgba(0, 0, 0, 0.52)',
 								borderRadius: 14,
 								width: 172,
 								marginTop: -5,
 								marginRight: 17,
 								backgroundColor: colors.background,
 								minWidth: spacing.huge * 2,
-								...(props.index !== props.openMenuIndex ? { display: "none" } : {}),
+								...(props.index !== props.openMenuIndex ? { display: 'none' } : {})
 							}}
 						>
 							<View style={{ marginVertical: 10 }}>
@@ -207,22 +194,22 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 									<ListItem
 										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 										onPress={() => {
-											taskEdition.setEditMode(true)
-											props.setOpenMenuIndex(null)
+											taskEdition.setEditMode(true);
+											props.setOpenMenuIndex(null);
 										}}
 									>
-										{translate("tasksScreen.editTaskLabel")}
+										{translate('tasksScreen.editTaskLabel')}
 									</ListItem>
 								)}
 								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
 									<ListItem
 										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 										onPress={() => {
-											taskEdition.setEstimateEditMode(true)
-											props.setOpenMenuIndex(null)
+											taskEdition.setEstimateEditMode(true);
+											props.setOpenMenuIndex(null);
 										}}
 									>
-										{translate("myWorkScreen.estimateLabel")}
+										{translate('myWorkScreen.estimateLabel')}
 									</ListItem>
 								)}
 
@@ -231,25 +218,24 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 										<ListItem
 											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 											onPress={() => {
-												setShowUnassignedList(true)
-												props.setOpenMenuIndex(null)
+												setShowUnassignedList(true);
+												props.setOpenMenuIndex(null);
 											}}
 										>
-											{translate("tasksScreen.assignTaskButton")}
+											{translate('tasksScreen.assignTaskButton')}
 										</ListItem>
 									)}
-								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-									!!memberInfo.memberTask && (
-										<ListItem
-											textStyle={[styles.dropdownTxt, { color: colors.primary }]}
-											onPress={() => {
-												memberInfo.unassignTask(taskEdition.task)
-												props.setOpenMenuIndex(null)
-											}}
-										>
-											{translate("tasksScreen.unassignTaskLabel")}
-										</ListItem>
-									)}
+								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && !!memberInfo.memberTask && (
+									<ListItem
+										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
+										onPress={() => {
+											memberInfo.unassignTask(taskEdition.task);
+											props.setOpenMenuIndex(null);
+										}}
+									>
+										{translate('tasksScreen.unassignTaskLabel')}
+									</ListItem>
+								)}
 
 								{memberInfo.isAuthTeamManager &&
 									!memberInfo.isAuthUser &&
@@ -259,35 +245,35 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 												<ListItem
 													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 													onPress={() => {
-														props.setOpenMenuIndex(null)
-														memberInfo.unMakeMemberManager()
+														props.setOpenMenuIndex(null);
+														memberInfo.unMakeMemberManager();
 													}}
 												>
-													{translate("tasksScreen.unMakeManager")}
+													{translate('tasksScreen.unMakeManager')}
 												</ListItem>
 											) : (
 												<ListItem
 													textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 													onPress={() => {
-														props.setOpenMenuIndex(null)
-														memberInfo.makeMemberManager()
+														props.setOpenMenuIndex(null);
+														memberInfo.makeMemberManager();
 													}}
 												>
-													{translate("tasksScreen.makeManager")}
+													{translate('tasksScreen.makeManager')}
 												</ListItem>
 											)}
 										</>
 									)}
 								{!memberInfo.isTeamOwner && (
 									<ListItem
-										textStyle={[styles.dropdownTxt, { color: "#DE5536" }]}
+										textStyle={[styles.dropdownTxt, { color: '#DE5536' }]}
 										style={{}}
 										onPress={() => {
-											props.setOpenMenuIndex(null)
-											memberInfo.removeMemberFromTeam()
+											props.setOpenMenuIndex(null);
+											memberInfo.removeMemberFromTeam();
 										}}
 									>
-										{translate("tasksScreen.remove")}
+										{translate('tasksScreen.remove')}
 									</ListItem>
 								)}
 							</View>
@@ -295,7 +281,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 						{showUnassignedList ? (
 							<TouchableOpacity
 								onPress={() => {
-									setShowUnassignedList(false)
+									setShowUnassignedList(false);
 								}}
 							>
 								<Ionicons name="chevron-back" size={24} color={colors.primary} />
@@ -319,24 +305,17 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 			ContentComponent={
 				<>
 					{!showUnassignedList ? (
-						<ListItemContent
-							taskEdition={taskEdition}
-							memberInfo={memberInfo}
-							onPressIn={onPressIn}
-						/>
+						<ListItemContent taskEdition={taskEdition} memberInfo={memberInfo} onPressIn={onPressIn} />
 					) : (
-						<UnassignedTasksList
-							memberInfo={memberInfo}
-							setShowUnassignedList={setShowUnassignedList}
-						/>
+						<UnassignedTasksList memberInfo={memberInfo} setShowUnassignedList={setShowUnassignedList} />
 					)}
 				</>
 			}
 		/>
-	)
-})
+	);
+});
 
-export default ListCardItem
+export default ListCardItem;
 
 const $listCard: ViewStyle = {
 	...GS.flex1,
@@ -345,52 +324,52 @@ const $listCard: ViewStyle = {
 	...GS.shadowSm,
 	...GS.roundedMd,
 	minHeight: null,
-	shadowOffset: { width: 0, height: 0 },
-}
+	shadowOffset: { width: 0, height: 0 }
+};
 
 const styles = StyleSheet.create({
 	dropdownTxt: {
-		color: "#282048",
+		color: '#282048',
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
 		height: 38,
-		width: "100%",
+		width: '100%'
 	},
 	estimate: {
-		alignItems: "center",
-		backgroundColor: "#E8EBF8",
+		alignItems: 'center',
+		backgroundColor: '#E8EBF8',
 		borderRadius: 5,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginLeft: "auto",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginLeft: 'auto',
 		marginRight: 10,
-		paddingVertical: 2,
+		paddingVertical: 2
 	},
 	firstContainer: {
-		alignItems: "center",
-		flexDirection: "row",
-		width: "95%",
+		alignItems: 'center',
+		flexDirection: 'row',
+		width: '95%'
 	},
 
 	times: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderTopWidth: 1,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		paddingTop: 16,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		paddingTop: 16
 	},
 
 	wrapTaskTitle: {
 		borderTopWidth: 1,
 		marginTop: 16,
 		paddingVertical: 16,
-		width: "98%",
+		width: '98%'
 	},
 	wrapTotalTime: {
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		marginRight: 30,
-		position: "absolute",
-		right: 0,
-	},
-})
+		position: 'absolute',
+		right: 0
+	}
+});

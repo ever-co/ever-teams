@@ -11,11 +11,11 @@ rounded
 transition
 ease-in-out
 m-0
-focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none`
+focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none`;
 
 export const underlineInput = `bg-transparent 
 border-0 border-grey-300 border-b-2 
 outline-none
-focus:ring-0 p-0 pl-[0.2rem]`
+focus:ring-0 p-0 pl-[0.2rem]`;
 
-export const textEllipsis =  `overflow-hidden whitespace-nowrap text-ellipsis`
+export const textEllipsis = `overflow-hidden whitespace-nowrap text-ellipsis`;

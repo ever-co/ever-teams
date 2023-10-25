@@ -12,7 +12,7 @@ export function getIntegrationRequest(
 	{
 		searchQuery,
 		integrationTypeId,
-		tenantId,
+		tenantId
 	}: {
 		searchQuery: string;
 		integrationTypeId: string;
@@ -23,13 +23,13 @@ export function getIntegrationRequest(
 	const query = new URLSearchParams({
 		filters: JSON.stringify({
 			searchQuery,
-			integrationTypeId,
-		}),
+			integrationTypeId
+		})
 	});
 	return serverFetch<IIntegration>({
 		path: `/integration?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
-		tenantId: tenantId,
+		tenantId: tenantId
 	});
 }

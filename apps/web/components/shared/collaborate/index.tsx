@@ -1,20 +1,8 @@
 import { imgTitle } from '@app/helpers';
-import {
-	useAuthenticateUser,
-	useCollaborative,
-	useModal,
-	useOrganizationTeams
-} from '@app/hooks';
+import { useAuthenticateUser, useCollaborative, useModal, useOrganizationTeams } from '@app/hooks';
 import { IUser } from '@app/interfaces';
 import { clsxm, isValidUrl } from '@app/utils';
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList
-} from '@components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@components/ui/command';
 import {
 	Dialog,
 	DialogContent,
@@ -24,29 +12,20 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from '@components/ui/dialog';
+import { useJitsu } from '@jitsu/jitsu-react';
 import { Avatar } from 'lib/components';
 import { Button } from 'lib/components/button';
-import {
-	BrushSquareLinearIcon,
-	CallOutGoingLinearIcon,
-	Profile2UserLinearIcon
-} from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
+import { BrushSquareLinearIcon, CallOutGoingLinearIcon, Profile2UserLinearIcon } from 'lib/components/svgs';
 import { Check } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
-import { useJitsu } from '@jitsu/jitsu-react';
 
 const Collaborate = () => {
-	const {
-		onMeetClick,
-		onBoardClick,
-		collaborativeMembers,
-		setCollaborativeMembers
-	} = useCollaborative();
+	const { onMeetClick, onBoardClick, collaborativeMembers, setCollaborativeMembers } = useCollaborative();
 	const { analytics } = useJitsu();
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
 
 	const { user } = useAuthenticateUser();
@@ -54,9 +33,7 @@ const Collaborate = () => {
 	const members: IUser[] = useMemo(
 		() =>
 			activeTeam?.members && activeTeam?.members.length
-				? activeTeam.members
-						.map((item) => item.employee.user as IUser)
-						.filter((item) => item.id !== user?.id)
+				? activeTeam.members.map((item) => item.employee.user as IUser).filter((item) => item.id !== user?.id)
 				: [],
 		[activeTeam, user]
 	);
@@ -68,17 +45,11 @@ const Collaborate = () => {
 		(member: IUser) => {
 			if (collaborativeMembers.includes(member)) {
 				return setCollaborativeMembers(
-					collaborativeMembers.filter(
-						(selectedMember) => selectedMember !== member
-					)
+					collaborativeMembers.filter((selectedMember) => selectedMember !== member)
 				);
 			}
 
-			return setCollaborativeMembers(
-				[...members].filter((u) =>
-					[...collaborativeMembers, member].includes(u)
-				)
-			);
+			return setCollaborativeMembers([...members].filter((u) => [...collaborativeMembers, member].includes(u)));
 		},
 		[collaborativeMembers, members, setCollaborativeMembers]
 	);
@@ -107,19 +78,17 @@ const Collaborate = () => {
 					)}
 				>
 					<Profile2UserLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
-					{trans.common.COLLABORATE}
+					{t('common.COLLABORATE')}
 				</DialogTrigger>
 				<DialogContent className="gap-0 p-0 outline-none border-[#0000001A] dark:border-[#26272C]">
-					<DialogHeader className="px-4 pb-4 pt-5">
-						<DialogTitle>{trans.common.COLLABORATE_DIALOG_TITLE}</DialogTitle>
-						<DialogDescription>
-							{trans.common.COLLABORATE_DIALOG_SUB_TITLE}
-						</DialogDescription>
+					<DialogHeader className="px-4 pt-5 pb-4">
+						<DialogTitle>{t('common.COLLABORATE_DIALOG_TITLE')}</DialogTitle>
+						<DialogDescription>{t('common.COLLABORATE_DIALOG_SUB_TITLE')}</DialogDescription>
 					</DialogHeader>
 					<Command className="overflow-hidden rounded-t-none border-t border-[#0000001A] dark:border-[#26272C]">
 						<CommandInput placeholder="Search member..." />
 						<CommandList>
-							<CommandEmpty>No users found.</CommandEmpty>
+							<CommandEmpty>{t('common.USER_NOT_FOUND')}</CommandEmpty>
 							<CommandGroup className="p-2">
 								{members.map((member) => (
 									<CommandItem
@@ -140,13 +109,9 @@ const Collaborate = () => {
 												backgroundColor: `${stc(member?.name || '')}80`
 											}}
 										>
-											{(member?.image?.thumbUrl ||
-												member?.image?.fullUrl ||
-												member?.imageUrl) &&
+											{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
 											isValidUrl(
-												member?.image?.thumbUrl ||
-													member?.image?.fullUrl ||
-													member?.imageUrl
+												member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
 											) ? (
 												<Avatar
 													size={36}
@@ -167,15 +132,11 @@ const Collaborate = () => {
 										</div>
 
 										<div className="ml-2">
-											<p className="text-sm font-medium leading-none">
-												{member?.name}
-											</p>
-											<p className="text-xs text-muted-foreground">
-												{member?.email}
-											</p>
+											<p className="text-sm font-medium leading-none">{member?.name}</p>
+											<p className="text-xs text-muted-foreground">{member?.email}</p>
 										</div>
 										{selectedMemberIds.includes(member.id) ? (
-											<Check className="ml-auto flex h-5 w-5 text-primary dark:text-white" />
+											<Check className="flex w-5 h-5 ml-auto text-primary dark:text-white" />
 										) : null}
 									</CommandItem>
 								))}
@@ -198,13 +159,9 @@ const Collaborate = () => {
 											backgroundColor: `${stc(member?.name || '')}80`
 										}}
 									>
-										{(member?.image?.thumbUrl ||
-											member?.image?.fullUrl ||
-											member?.imageUrl) &&
+										{(member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl) &&
 										isValidUrl(
-											member?.image?.thumbUrl ||
-												member?.image?.fullUrl ||
-												member?.imageUrl
+											member?.image?.thumbUrl || member?.image?.fullUrl || member?.imageUrl
 										) ? (
 											<Avatar
 												size={32}
@@ -227,7 +184,7 @@ const Collaborate = () => {
 							</div>
 						) : (
 							<p className="text-sm text-muted-foreground">
-								{trans.common.COLLABORATE_DIALOG_FOOTER_MESSAGE}
+								{t('common.COLLABORATE_DIALOG_FOOTER_MESSAGE')}
 							</p>
 						)}
 
@@ -237,14 +194,11 @@ const Collaborate = () => {
 									closeModal();
 									onMeetClick();
 								}}
-								className={clsxm(
-									'rounded-xl flex min-w-0 w-28 h-12',
-									'gap-1 items-center'
-								)}
+								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 								variant="outline"
 							>
 								<CallOutGoingLinearIcon className="w-4 h-4 stroke-primary dark:stroke-light--theme-light" />
-								{trans.common.MEET}
+								{t('common.MEET')}
 							</Button>
 
 							<Button
@@ -252,13 +206,10 @@ const Collaborate = () => {
 									closeModal();
 									onBoardClick();
 								}}
-								className={clsxm(
-									'rounded-xl flex min-w-0 w-28 h-12',
-									'gap-1 items-center'
-								)}
+								className={clsxm('rounded-xl flex min-w-0 w-28 h-12', 'gap-1 items-center')}
 							>
 								<BrushSquareLinearIcon className="w-4 h-4 stroke-white dark:stroke-light--theme-light" />
-								{trans.common.BOARD}
+								{t('common.BOARD')}
 							</Button>
 						</div>
 					</DialogFooter>

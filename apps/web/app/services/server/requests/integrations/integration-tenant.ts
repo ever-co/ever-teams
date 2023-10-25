@@ -9,11 +9,7 @@ import { serverFetch } from '../../fetch';
  * @returns
  */
 export function getIntegrationTenantRequest(
-	{
-		tenantId,
-		organizationId,
-		name
-	}: { tenantId: string; organizationId: string; name: string },
+	{ tenantId, organizationId, name }: { tenantId: string; organizationId: string; name: string },
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({

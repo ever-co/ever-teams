@@ -1,11 +1,7 @@
 import { IIssueTypesCreate, IIssueTypesItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
-export function createIssueTypeRequest(
-	datas: IIssueTypesCreate,
-	bearer_token: string,
-	tenantId?: any
-) {
+export function createIssueTypeRequest(datas: IIssueTypesCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<IIssueTypesItemList>({
 		path: '/issue-types',
 		method: 'POST',

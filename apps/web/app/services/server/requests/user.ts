@@ -17,13 +17,7 @@ export function deleteUserRequest({
 	});
 }
 
-export function resetUserRequest({
-	bearer_token,
-	tenantId
-}: {
-	bearer_token: string | any;
-	tenantId?: string;
-}) {
+export function resetUserRequest({ bearer_token, tenantId }: { bearer_token: string | any; tenantId?: string }) {
 	return serverFetch<any>({
 		path: `/user/reset`,
 		method: 'DELETE',

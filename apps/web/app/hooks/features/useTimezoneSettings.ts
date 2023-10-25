@@ -1,10 +1,5 @@
 import { setActiveTimezoneCookie } from '@app/helpers';
-import {
-	activeTimezoneState,
-	timezoneListState,
-	activeTimezoneIdState,
-	timezonesFetchingState
-} from '@app/stores';
+import { activeTimezoneState, timezoneListState, activeTimezoneIdState, timezonesFetchingState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
@@ -12,9 +7,7 @@ export function useTimezoneSettings() {
 	const [timezones, setTimezone] = useRecoilState(timezoneListState);
 	const activeTimezone = useRecoilValue(activeTimezoneState);
 	const [, setActiveTimezoneId] = useRecoilState(activeTimezoneIdState);
-	const [timezonesFetching, setTimezoneFetching] = useRecoilState(
-		timezonesFetchingState
-	);
+	const [timezonesFetching, setTimezoneFetching] = useRecoilState(timezonesFetchingState);
 
 	useEffect(() => {
 		setTimezone(timezones);

@@ -28,10 +28,7 @@ export function useAutoAssignTask() {
 
 			return updateTask({
 				...task,
-				members: [
-					...task.members,
-					(employeeId ? { id: employeeId } : {}) as any
-				]
+				members: [...task.members, (employeeId ? { id: employeeId } : {}) as any]
 			});
 		},
 		[updateTask, updateLoadingRef]

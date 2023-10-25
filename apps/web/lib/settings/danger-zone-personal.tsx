@@ -1,26 +1,18 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	useModal,
-	useAuthenticateUser,
-	useOrganizationTeams,
-	useUser
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@app/hooks';
 import { Button, Text } from 'lib/components';
-import { useState, useCallback } from 'react';
-import { useTranslation } from 'lib/i18n';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RemoveModal } from './remove-modal';
 
 export const DangerZone = () => {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { isOpen, closeModal, openModal } = useModal();
-	const [removeModalType, setRemoveModalType] = useState<
-		'REMOVE' | 'DELETE' | null
-	>(null);
+	const [removeModalType, setRemoveModalType] = useState<'REMOVE' | 'DELETE' | null>(null);
 
 	const { deleteUser, deleteUserLoading } = useUser();
 	const { user } = useAuthenticateUser();
-	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } =
-		useOrganizationTeams();
+	const { removeUserFromAllTeam, removeUserFromAllTeamLoading } = useOrganizationTeams();
 
 	const handleRemoveUser = useCallback(() => {
 		if (user) {
@@ -30,17 +22,16 @@ export const DangerZone = () => {
 
 	return (
 		<>
-			<div className="flex flex-col justify-between items-center">
+			<div className="flex flex-col items-center justify-between">
 				<div className="w-full mt-5">
 					<div className="">
-						<div className="flex w-full items-center justify-between gap-6 flex-col sm:flex-row">
+						<div className="flex flex-col items-center justify-between w-full gap-6 sm:flex-row">
 							<div className="flex-auto sm:w-64">
-								<Text className="text-xl font-normal">Remove Account</Text>
+								<Text className="text-xl font-normal">{t('common.REMOVE_ACCOUNT')}</Text>
 							</div>
 							<div className="flex-auto sm:w-64">
-								<Text className="text-md text-gray-400 font-normal">
-									Account will be removed from all teams, except where you are
-									only the manager
+								<Text className="font-normal text-gray-400 text-md">
+									{t('alerts.ALERT_DELETE_ACCOUNT')}
 								</Text>
 							</div>
 							<div className="flex-auto w-32">
@@ -53,20 +44,19 @@ export const DangerZone = () => {
 										openModal();
 									}}
 								>
-									Remove Everywhere
+									{t('common.REMOVE_EVERYWHERE')}
 								</Button>
 							</div>
 						</div>
-						<div className="flex w-full items-center justify-between gap-6 mt-5 flex-col sm:flex-row">
+						<div className="flex flex-col items-center justify-between w-full gap-6 mt-5 sm:flex-row">
 							<div className="flex-auto w-64">
 								<Text className="text-xl font-normal text-center sm:text-left">
-									Delete Account
+									{t('common.REMOVE_ACCOUNT')}
 								</Text>
 							</div>
 							<div className="flex-auto sm:w-64">
-								<Text className="text-md text-gray-400 font-normal text-center sm:text-left">
-									Your Account will be deleted permanently with removing from
-									all teams
+								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
+									{t('alerts.ALERT_ACCOUNT_PERMANENT_DELETE')}
 								</Text>
 							</div>
 							<div className="flex-auto w-32">
@@ -79,7 +69,7 @@ export const DangerZone = () => {
 										openModal();
 									}}
 								>
-									Delete This Account
+									{t('common.DELETE_ACCOUNT')}
 								</Button>
 							</div>
 						</div>
@@ -91,12 +81,10 @@ export const DangerZone = () => {
 					close={closeModal}
 					title={
 						removeModalType === 'DELETE'
-							? trans.pages.settingsPersonal.ABOUT_TO_DELETE_ACCOUNT
-							: trans.pages.settingsPersonal.ABOUT_TO_REMOVE_ACCOUNT
+							? t('pages.settingsPersonal.ABOUT_TO_DELETE_ACCOUNT')
+							: t('pages.settingsPersonal.ABOUT_TO_REMOVE_ACCOUNT')
 					}
-					onAction={
-						removeModalType === 'DELETE' ? deleteUser : handleRemoveUser
-					}
+					onAction={removeModalType === 'DELETE' ? deleteUser : handleRemoveUser}
 					loading={deleteUserLoading || removeUserFromAllTeamLoading}
 				/>
 			</div>

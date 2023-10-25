@@ -1,46 +1,31 @@
+import { useModal, useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
+import { userState } from '@app/stores';
 import { clsxm } from '@app/utils';
+import { RequestToJoinModal } from '@components/layout/header/request-to-join-modal';
+import Collaborate from '@components/shared/collaborate';
 import { Button, Container } from 'lib/components';
+import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
-import Skeleton from 'react-loading-skeleton';
-import { useOrganizationTeams, useModal } from '@app/hooks';
-import { useRecoilState } from 'recoil';
-import { userState } from '@app/stores';
-import { RequestToJoinModal } from '@components/layout/header/request-to-join-modal';
-import { useTranslation } from 'lib/i18n';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
-import Collaborate from '@components/shared/collaborate';
-import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
+import { useTranslation } from 'react-i18next';
+import Skeleton from 'react-loading-skeleton';
+import { useRecoilState } from 'recoil';
 
 const HeaderSkeleton = () => {
 	return (
 		<nav className="bg-white dark:bg-dark-high w-full nav-items--shadow fixed z-[999]">
 			<Container>
 				<div className="w-full flex justify-between items-center min-h-[70px]">
-					<Skeleton
-						height={45}
-						width={200}
-						borderRadius={20}
-						className="dark:bg-[#272930]"
-					/>
-					<div className="flex space-x-5 items-center">
+					<Skeleton height={45} width={200} borderRadius={20} className="dark:bg-[#272930]" />
+					<div className="flex items-center space-x-5">
 						<div className="hidden sm:block">
-							<Skeleton
-								height={45}
-								width={175}
-								borderRadius={20}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton height={45} width={175} borderRadius={20} className="dark:bg-[#272930]" />
 						</div>
 
-						<Skeleton
-							circle={true}
-							height={45}
-							width={45}
-							className="dark:bg-[#272930]"
-						/>
+						<Skeleton circle={true} height={45} width={45} className="dark:bg-[#272930]" />
 					</div>
 				</div>
 			</Container>
@@ -58,7 +43,7 @@ export function Navbar({
 	publicTeam?: boolean;
 	notFound?: boolean;
 }) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const { isTeamMember } = useOrganizationTeams();
 	const [user] = useRecoilState(userState);
 	const { isOpen, closeModal, openModal } = useModal();
@@ -91,7 +76,7 @@ export function Navbar({
 											className="py-3.5 px-4 gap-3 rounded-xl outline-none"
 											onClick={openModal}
 										>
-											{trans.common.JOIN_REQUEST}
+											{t('common.JOIN_REQUEST')}
 										</Button>
 									)}
 									{showTimer && <MinTimerFrame />}

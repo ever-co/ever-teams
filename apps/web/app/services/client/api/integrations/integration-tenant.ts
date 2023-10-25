@@ -1,4 +1,4 @@
-import {  IIntegrationTenant, PaginationResponse, CreateReponse } from '@app/interfaces';
+import { IIntegrationTenant, PaginationResponse, CreateReponse } from '@app/interfaces';
 import api from '../../axios';
 
 export function getIntegrationTenantAPI(name: string) {

@@ -11,15 +11,13 @@ import { useOrganizationTeams } from './useOrganizationTeams';
 export function useOrganizationEmployeeTeams() {
 	const { loadTeamsData } = useOrganizationTeams();
 
-	const {
-		loading: deleteOrganizationEmployeeTeamLoading,
-		queryCall: deleteQueryCall
-	} = useQuery(deleteOrganizationEmployeeTeamAPI);
+	const { loading: deleteOrganizationEmployeeTeamLoading, queryCall: deleteQueryCall } = useQuery(
+		deleteOrganizationEmployeeTeamAPI
+	);
 
-	const {
-		loading: updateOrganizationEmployeeTeamLoading,
-		queryCall: updateQueryCall
-	} = useQuery(updateOrganizationEmployeeTeamAPI);
+	const { loading: updateOrganizationEmployeeTeamLoading, queryCall: updateQueryCall } = useQuery(
+		updateOrganizationEmployeeTeamAPI
+	);
 
 	const {
 		loading: updateOrganizationTeamEmployeeActiveTaskLoading,
@@ -63,12 +61,10 @@ export function useOrganizationEmployeeTeams() {
 
 	const updateOrganizationTeamEmployeeActiveTask = useCallback(
 		(id: string, data: Partial<IOrganizationTeamEmployeeUpdate>) => {
-			updateOrganizationTeamEmployeeActiveTaskQueryCall(id, data).then(
-				(res) => {
-					loadTeamsData();
-					return res;
-				}
-			);
+			updateOrganizationTeamEmployeeActiveTaskQueryCall(id, data).then((res) => {
+				loadTeamsData();
+				return res;
+			});
 		},
 		[loadTeamsData, updateOrganizationTeamEmployeeActiveTaskQueryCall]
 	);

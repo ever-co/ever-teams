@@ -16,9 +16,7 @@ const Input = ({
 			{value.length > 0 && (
 				<label
 					htmlFor={name}
-					className={`block ${
-						centered && 'text-center'
-					} text-[14px] font-light text-[#ACB3BB]`}
+					className={`block ${centered && 'text-center'} text-[14px] font-light text-[#ACB3BB]`}
 				>
 					{label}
 				</label>
@@ -37,9 +35,7 @@ const Input = ({
          border-[#D7E1EB] dark:focus:border-[#D7E1EB] bg-white pb-1
         font-medium text-primary dark:text-white outline-none dark:bg-transparent`}
 			/>
-			{errors && errors[name] && (
-				<span className="text-sm text-red-600 font-light">{errors[name]}</span>
-			)}
+			{errors && errors[name] && <span className="text-sm text-red-600 font-light">{errors[name]}</span>}
 		</div>
 	);
 };

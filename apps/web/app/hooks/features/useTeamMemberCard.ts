@@ -1,8 +1,4 @@
-import {
-	getActiveTaskIdCookie,
-	setActiveTaskIdCookie,
-	setActiveUserTaskCookie
-} from '@app/helpers';
+import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
 import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
@@ -22,22 +18,17 @@ import cloneDeep from 'lodash/cloneDeep';
  * @param {IOrganizationTeamList['members'][number] | undefined} member -
  * IOrganizationTeamList['members'][number] | undefined
  */
-export function useTeamMemberCard(
-	member: IOrganizationTeamList['members'][number] | undefined
-) {
-	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks } =
-		useTeamTasks();
+export function useTeamMemberCard(member: IOrganizationTeamList['members'][number] | undefined) {
+	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks } = useTeamTasks();
 
 	const publicTeam = useRecoilValue(getPublicState);
 	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 
-	const { user: authUser, isTeamManager: isAuthTeamManager } =
-		useAuthenticateUser();
+	const { user: authUser, isTeamManager: isAuthTeamManager } = useAuthenticateUser();
 
 	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 
-	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } =
-		useOrganizationTeams();
+	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
 
 	const activeTeamRef = useSyncRef(activeTeam);
 
@@ -78,9 +69,7 @@ export function useTeamMemberCard(
 			cTask = tasks.find((t) => t.id === member.lastWorkedTask?.id);
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		} else {
-			cTask = tasks.find((t) =>
-				t.members.some((m) => m.userId === member.employee.userId)
-			);
+			cTask = tasks.find((t) => t.members.some((m) => m.userId === member.employee.userId));
 			find = cTask?.members.some((m) => m.id === member.employee.id);
 		}
 
@@ -93,21 +82,12 @@ export function useTeamMemberCard(
 		const responseTask = find ? cloneDeep(cTask) : null;
 
 		if (responseTask) {
-			const taskStatistics = allTaskStatistics.find(
-				(statistics) => statistics.id === responseTask.id
-			);
+			const taskStatistics = allTaskStatistics.find((statistics) => statistics.id === responseTask.id);
 			responseTask.totalWorkedTime = taskStatistics?.duration || 0;
 		}
 
 		return responseTask;
-	}, [
-		isAuthUser,
-		member,
-		tasks,
-		publicTeam,
-		allTaskStatistics,
-		setActiveUserTaskCookieCb
-	]);
+	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb]);
 
 	/**
 	 * Give the manager role to the member
@@ -156,9 +136,7 @@ export function useTeamMemberCard(
 		deleteEmployeeFromTasks(employeeId, team.id); // Unassign all the task
 		updateOrganizationTeam(activeTeamRef.current, {
 			// remove from members
-			memberIds: team.members
-				.filter((r) => r.employee.id !== employeeId)
-				.map((r) => r.employee.id),
+			memberIds: team.members.filter((r) => r.employee.id !== employeeId).map((r) => r.employee.id),
 
 			// remove from managers
 			managerIds: team.members
@@ -190,10 +168,7 @@ export function useTeamMemberCard(
 
 			return updateTask({
 				...task,
-				members: [
-					...task.members,
-					(member?.employeeId ? { id: member?.employeeId } : {}) as any
-				]
+				members: [...task.members, (member?.employeeId ? { id: member?.employeeId } : {}) as any]
 			}).then(() => {
 				if (isAuthUser && !activeTeamTask) {
 					setActiveTask(task);

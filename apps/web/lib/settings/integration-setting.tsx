@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
 import { useGitHubIntegration, useIntegrationTenant, useIntegrationTypes, useOrganizationTeams } from '@app/hooks';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
@@ -14,7 +14,7 @@ import { Switch } from '@headlessui/react';
 import debounce from 'lodash/debounce';
 
 export const IntegrationSetting = () => {
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const [isTasksAutoSync, setIsTasksAutoSync] = useState<boolean>();
 	const [isTasksAutoSyncOnLabel, setIsTasksAutoSyncOnLabel] = useState<boolean>();
@@ -156,10 +156,12 @@ export const IntegrationSetting = () => {
 						</div>
 
 						<div className="flex flex-row">
-							<div className="font-medium text-black dark:text-light--theme-light">{trans.GITHUB}</div>
+							<div className="font-medium text-black dark:text-light--theme-light">
+								{t('pages.settingsTeam.GITHUB')}
+							</div>
 							{integrationGithubRepositories?.total_count === 0 && (
 								<div className="text-black dark:text-light--theme-light">
-									{trans.GITHUB_INTEGRATION_DESCRIPTION}
+									{t('pages.settingsTeam.GITHUB_INTEGRATION_DESCRIPTION')}
 								</div>
 							)}
 						</div>
@@ -169,7 +171,7 @@ export const IntegrationSetting = () => {
 						<Select value={selectedRepo || undefined} onValueChange={handleSelectRepo}>
 							<SelectTrigger className="w-80 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
 								<SelectValue
-									placeholder={trans.SELECT_REPOSITORY}
+									placeholder={t('pages.settingsTeam.SELECT_REPOSITORY')}
 									className="dark:bg-dark--theme-light"
 								/>
 							</SelectTrigger>
@@ -265,7 +267,7 @@ export const IntegrationSetting = () => {
 						href={url}
 						className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
 					>
-						{trans.INSTALL}
+						{t('pages.settingsTeam.INSTALL')}
 					</Link>
 				)}
 			</div>

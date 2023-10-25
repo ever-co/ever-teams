@@ -1,6 +1,7 @@
 import { IPagination } from '@app/interfaces/IPagination';
 import { clsxm } from '@app/utils';
 import { DropdownItem } from 'lib/components';
+import { useTranslation } from 'react-i18next';
 
 export type PaginationItems = DropdownItem<IPagination>;
 
@@ -10,15 +11,10 @@ export function mappaginationItems(PaginationList: IPagination[]) {
 			key: page.title,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
-					<PaginationItems
-						title={page.title}
-						className={selected ? 'font-medium' : ''}
-					/>
+					<PaginationItems title={page.title} className={selected ? 'font-medium' : ''} />
 				</div>
 			),
-			selectedLabel: (
-				<PaginationItems title={page.title} className="py-2 mb-0" />
-			),
+			selectedLabel: <PaginationItems title={page.title} className="py-2 mb-0" />,
 			data: page
 		};
 	});
@@ -26,21 +22,13 @@ export function mappaginationItems(PaginationList: IPagination[]) {
 	return items;
 }
 
-export function PaginationItems({
-	title,
-	className
-}: {
-	title?: string;
-	className?: string;
-}) {
+export function PaginationItems({ title, className }: { title?: string; className?: string }) {
+	const { t } = useTranslation();
 	return (
-		<div
-			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2',
-				className
-			)}
-		>
-			<span className={clsxm('text-normal mb-0')}>Show {title}</span>
+		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2', className)}>
+			<span className={clsxm('text-normal mb-0')}>
+				{t('common.SHOW')} {title}
+			</span>
 		</div>
 	);
 }

@@ -1,11 +1,7 @@
 import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	TaskAllStatusTypes,
-	TaskInput,
-	TaskNameInfoDisplay
-} from 'lib/features';
+import { TaskAllStatusTypes, TaskInput, TaskNameInfoDisplay } from 'lib/features';
 import { useRouter } from 'next/router';
 
 type Props = IClassName & {
@@ -14,39 +10,18 @@ type Props = IClassName & {
 	publicTeam?: boolean;
 };
 
-export function TaskInfo({
-	className,
-	memberInfo,
-	edition,
-	publicTeam
-}: Props) {
+export function TaskInfo({ className, memberInfo, edition, publicTeam }: Props) {
 	return (
-		<div
-			className={clsxm(
-				'h-full flex flex-col items-start justify-between gap-[1.0625rem]',
-				className
-			)}
-		>
+		<div className={clsxm('h-full flex flex-col items-start justify-between gap-[1.0625rem]', className)}>
 			{/* task */}
-			<div
-				className={clsxm(
-					'w-full h-10',
-					edition.editMode ? [''] : ['overflow-hidden']
-				)}
-			>
+			<div className={clsxm('w-full h-10', edition.editMode ? [''] : ['overflow-hidden'])}>
 				{edition.task && (
-					<TaskDetailAndEdition
-						memberInfo={memberInfo}
-						edition={edition}
-						publicTeam={publicTeam}
-					/>
+					<TaskDetailAndEdition memberInfo={memberInfo} edition={edition} publicTeam={publicTeam} />
 				)}
 				{!edition.task && <div className="text-center">--</div>}
 			</div>
 
-			{edition.task && (
-				<TaskAllStatusTypes showStatus={true} task={edition.task} />
-			)}
+			{edition.task && <TaskAllStatusTypes showStatus={true} task={edition.task} />}
 			{!edition.task && <div className="text-center self-center">--</div>}
 		</div>
 	);
@@ -73,28 +48,19 @@ function TaskDetailAndEdition({ edition, publicTeam }: Props) {
 					'text-xs lg:text-sm text-ellipsis overflow-hidden cursor-pointer',
 					hasEditMode && ['hidden']
 				)}
-				onClick={
-					publicTeam
-						? () => null
-						: () => task && router.push(`/task/${task?.id}`)
-				}
+				onClick={publicTeam ? () => null : () => task && router.push(`/task/${task?.id}`)}
 			>
 				<TaskNameInfoDisplay
 					task={task}
 					className={`${
-						task?.issueType === 'Bug'
-							? '!px-[0.3312rem] py-[0.2875rem]'
-							: '!px-[0.375rem] py-[0.375rem]'
+						task?.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]'
 					} rounded-sm`}
 					taskTitleClassName="mt-[0.0625rem]"
 				/>
 			</div>
 
 			{/* Show task input combobox when in edit mode */}
-			<div
-				ref={edition.taskEditIgnoreElement.ignoreElementRef}
-				className={clsxm(!hasEditMode && ['hidden'])}
-			>
+			<div ref={edition.taskEditIgnoreElement.ignoreElementRef} className={clsxm(!hasEditMode && ['hidden'])}>
 				{hasEditMode && (
 					<TaskInput
 						task={task}

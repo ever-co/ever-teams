@@ -1,18 +1,10 @@
-import { useAuthenticationTeam, IStepProps } from '@app/hooks';
+import { IStepProps, useAuthenticationTeam } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	Card,
-	Text,
-	InputField,
-	Button,
-	SiteReCAPTCHA,
-	BackdropLoader,
-	BackButton
-} from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthTeam() {
 	const {
@@ -27,13 +19,10 @@ export default function AuthTeam() {
 		loading
 	} = useAuthenticationTeam();
 
-	const { trans } = useTranslation('authTeam');
+	const { t } = useTranslation();
 
 	return (
-		<AuthLayout
-			title={trans.HEADING_TITLE}
-			description={trans.HEADING_DESCRIPTION}
-		>
+		<AuthLayout title={t('pages.authTeam.HEADING_TITLE')} description={t('pages.authTeam.HEADING_DESCRIPTION')}>
 			<div className="w-[98%] md:w-[550px] overflow-x-hidden">
 				<form onSubmit={handleSubmit} autoComplete="off">
 					<div
@@ -43,11 +32,7 @@ export default function AuthTeam() {
 						)}
 					>
 						<div className="w-1/2">
-							<FillTeamNameForm
-								errors={errors}
-								handleOnChange={handleOnChange}
-								form={formValues}
-							/>
+							<FillTeamNameForm errors={errors} handleOnChange={handleOnChange} form={formValues} />
 						</div>
 
 						<div
@@ -67,7 +52,7 @@ export default function AuthTeam() {
 					</div>
 				</form>
 			</div>
-			<BackdropLoader show={loading} title={trans.LOADING_TEXT} />
+			<BackdropLoader show={loading} title={t('pages.authTeam.LOADING_TEXT')} />
 		</AuthLayout>
 	);
 }
@@ -84,16 +69,13 @@ function FillTeamNameForm({
 	handleOnChange,
 	className
 }: IStepProps & { errors: Record<string, string> } & IClassName) {
-	const { trans, translations } = useTranslation('authTeam');
+	const { t } = useTranslation();
 
 	return (
-		<Card
-			className={clsxm('w-full dark:bg-[#25272D]', className)}
-			shadow="custom"
-		>
-			<div className="flex flex-col justify-between items-center">
+		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="custom">
+			<div className="flex flex-col items-center justify-between">
 				<Text.Heading as="h3" className="text-center mb-7">
-					{trans.INPUT_TEAM_NAME}
+					{t('pages.authTeam.INPUT_TEAM_NAME')}
 				</Text.Heading>
 
 				<InputField
@@ -101,24 +83,19 @@ function FillTeamNameForm({
 					value={form.team}
 					errors={errors}
 					onChange={handleOnChange}
-					placeholder={translations.form.TEAM_NAME_PLACEHOLDER}
+					placeholder={t('form.TEAM_NAME_PLACEHOLDER')}
 					autoComplete="off"
 					wrapperClassName="dark:bg-[#25272D]"
 					className="dark:bg-[#25272D]"
 					required
 				/>
 
-				<div className="w-full flex justify-between mt-6 items-center">
-					<Text.Link
-						href="/auth/passcode"
-						underline
-						variant="primary"
-						className="font-normal"
-					>
-						{translations.pages.auth.LOGIN}
+				<div className="flex items-center justify-between w-full mt-6">
+					<Text.Link href="/auth/passcode" underline variant="primary" className="font-normal">
+						{t('pages.auth.LOGIN')}
 					</Text.Link>
 
-					<Button type="submit">{translations.common.CONTINUE}</Button>
+					<Button type="submit">{t('common.CONTINUE')}</Button>
 				</div>
 			</div>
 		</Card>
@@ -143,22 +120,19 @@ function FillUserDataForm({
 	onPreviousStep?: () => void;
 	loading?: boolean;
 } & IClassName) {
-	const { trans, translations } = useTranslation('authTeam');
+	const { t } = useTranslation();
 	const [feedback, setFeedback] = useState<string>('');
 
 	return (
-		<Card
-			className={clsxm('w-full dark:bg-[#25272D]', className)}
-			shadow="bigger"
-		>
-			<div className="flex flex-col justify-between items-center h-full">
-				<Text.Heading as="h3" className="text-center mb-10">
-					{trans.CREATE_FIRST_TEAM}
+		<Card className={clsxm('w-full dark:bg-[#25272D]', className)} shadow="bigger">
+			<div className="flex flex-col items-center justify-between h-full">
+				<Text.Heading as="h3" className="mb-10 text-center">
+					{t('pages.authTeam.CREATE_FIRST_TEAM')}
 				</Text.Heading>
 
 				<div className="w-full mb-8">
 					<InputField
-						placeholder={translations.form.NAME_PLACEHOLDER}
+						placeholder={t('form.NAME_PLACEHOLDER')}
 						name="name"
 						value={form.name}
 						errors={errors}
@@ -169,7 +143,7 @@ function FillUserDataForm({
 					/>
 					<InputField
 						type="email"
-						placeholder={translations.form.EMAIL_PLACEHOLDER}
+						placeholder={t('form.EMAIL_PLACEHOLDER')}
 						className="dark:bg-[#25272D]"
 						wrapperClassName="mb-5 dark:bg-[#25272D]"
 						name="email"
@@ -179,14 +153,14 @@ function FillUserDataForm({
 						autoComplete="off"
 					/>
 
-					<div className="w-full flex">
+					<div className="flex w-full">
 						<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
 							<SiteReCAPTCHA
 								onChange={(res) => {
 									handleOnChange({ target: { name: 'recaptcha', value: res } });
 									setFeedback('');
 								}}
-								onErrored={() => setFeedback(translations.errors.NETWORK_ISSUE)}
+								onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
 							/>
 							{(errors['recaptcha'] || feedback) && (
 								<Text.Error className="self-start justify-self-start">
@@ -197,11 +171,11 @@ function FillUserDataForm({
 					</div>
 				</div>
 
-				<div className="flex justify-between w-full items-center">
+				<div className="flex items-center justify-between w-full">
 					<BackButton onClick={onPreviousStep} />
 
 					<Button type="submit" disabled={loading}>
-						{trans.CREATE_TEAM}
+						{t('pages.authTeam.CREATE_TEAM')}
 					</Button>
 				</div>
 			</div>
