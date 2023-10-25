@@ -21,6 +21,9 @@ export interface IProject {
 	organizationId: string;
 	repositoryId?: number;
 	repository?: IProjectRepository;
+	isTasksAutoSync?: boolean;
+	isTasksAutoSyncOnLabel?: boolean;
+	syncTag?: string;
 }
 
 export interface IProjectCreate {
