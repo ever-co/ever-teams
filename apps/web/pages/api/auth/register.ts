@@ -14,15 +14,9 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import { setAuthCookies } from '@app/helpers/cookies';
 import { recaptchaVerification } from '@app/services/server/recaptcha';
-import {
-	RECAPTCHA_SECRET_KEY,
-	VERIFY_EMAIL_CALLBACK_PATH
-} from '@app/constants';
+import { RECAPTCHA_SECRET_KEY, VERIFY_EMAIL_CALLBACK_PATH } from '@app/constants';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
 		return res.status(405).json({});
 	}
@@ -52,11 +46,9 @@ export default async function handler(
 			response: body.recaptcha ? body.recaptcha : ''
 		});
 
-		if (!success) {
-			return res
-				.status(400)
-				.json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
-		}
+	if (!success) {
+		return res.status(400).json({ errors: { recaptcha: 'Invalid reCAPTCHA. Please try again' } });
+	}
 	}
 	/**
 	 * Verify if the SMTP has been configured
@@ -133,9 +125,7 @@ export default async function handler(
 		auth_token
 	);
 
-	const { data: refreshTokenRes } = await refreshTokenRequest(
-		loginRes.refresh_token
-	);
+	const { data: refreshTokenRes } = await refreshTokenRequest(loginRes.refresh_token);
 	auth_token = refreshTokenRes.token;
 
 	setAuthCookies(

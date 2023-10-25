@@ -10,8 +10,7 @@ export interface IOrganizationTeamEmployeeCreate {
 	isTrackingEnabled?: boolean;
 	activeTaskId?: string;
 }
-export interface IOrganizationTeamEmployeeUpdate
-	extends IOrganizationTeamEmployeeCreate {
+export interface IOrganizationTeamEmployeeUpdate extends IOrganizationTeamEmployeeCreate {
 	id: string;
 }
 

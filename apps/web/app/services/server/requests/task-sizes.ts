@@ -1,11 +1,7 @@
 import { ITaskSizesCreate, ITaskSizesItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
-export function createSizesRequest(
-	datas: ITaskSizesCreate,
-	bearer_token: string,
-	tenantId?: any
-) {
+export function createSizesRequest(datas: ITaskSizesCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskSizesItemList>({
 		path: '/task-sizes',
 		method: 'POST',

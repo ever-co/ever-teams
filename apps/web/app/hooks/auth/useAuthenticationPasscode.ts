@@ -10,8 +10,8 @@ import {
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '../useQuery';
-import { useTranslation } from 'lib/i18n';
 
 type AuthCodeRef = {
 	focus: () => void;
@@ -21,16 +21,12 @@ type AuthCodeRef = {
 export function useAuthenticationPasscode() {
 	const { query, pathname } = useRouter();
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	const loginFromQuery = useRef(false);
 	const inputCodeRef = useRef<AuthCodeRef | null>(null);
-	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>(
-		'email'
-	);
-	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>(
-		[]
-	);
+	const [screen, setScreen] = useState<'email' | 'passcode' | 'workspace'>('email');
+	const [workspaces, setWorkspaces] = useState<ISigninEmailConfirmWorkspaces[]>([]);
 	const [authenticated, setAuthenticated] = useState(false);
 
 	const [formValues, setFormValues] = useState({ email: '', code: '' });
@@ -38,23 +34,14 @@ export function useAuthenticationPasscode() {
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
 	// Queries
-	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } =
-		useQuery(sendAuthCodeAPI);
+	const { queryCall: sendCodeQueryCall, loading: sendCodeLoading } = useQuery(sendAuthCodeAPI);
 
-	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } =
-		useQuery(signInEmailAPI);
-	const {
-		queryCall: signInEmailConfirmQueryCall,
-		loading: signInEmailConfirmLoading
-	} = useQuery(signInEmailConfirmAPI);
-	const {
-		queryCall: signInWorkspaceQueryCall,
-		loading: signInWorkspaceLoading
-	} = useQuery(signInWorkspaceAPI);
+	const { queryCall: signInEmailQueryCall, loading: signInEmailLoading } = useQuery(signInEmailAPI);
+	const { queryCall: signInEmailConfirmQueryCall, loading: signInEmailConfirmLoading } =
+		useQuery(signInEmailConfirmAPI);
+	const { queryCall: signInWorkspaceQueryCall, loading: signInWorkspaceLoading } = useQuery(signInWorkspaceAPI);
 
-	const { queryCall, loading, infiniteLoading } = useQuery(
-		signInWithEmailAndCodeAPI
-	);
+	const { queryCall, loading, infiniteLoading } = useQuery(signInWithEmailAndCodeAPI);
 
 	const handleChange = (e: any) => {
 		const { name, value } = e.target;
@@ -64,13 +51,7 @@ export function useAuthenticationPasscode() {
 	/**
 	 * Verify auth request
 	 */
-	const verifySignInEmailConfirmRequest = async ({
-		email,
-		code
-	}: {
-		email: string;
-		code: string;
-	}) => {
+	const verifySignInEmailConfirmRequest = async ({ email, code }: { email: string; code: string }) => {
 		signInEmailConfirmQueryCall(email, code)
 			.then((res) => {
 				if (res.data?.workspaces && res.data.workspaces.length) {
@@ -81,15 +62,10 @@ export function useAuthenticationPasscode() {
 
 				// If user tries to login from public Team Page as an Already a Member
 				// Redirect to the current team automatically
-				if (
-					pathname === '/team/[teamId]/[profileLink]' &&
-					res.data.workspaces.length
-				) {
+				if (pathname === '/team/[teamId]/[profileLink]' && res.data.workspaces.length) {
 					if (query.teamId) {
 						const currentWorkspace = res.data.workspaces.find((workspace) =>
-							workspace.current_teams
-								.map((item) => item.team_id)
-								.includes(query.teamId as string)
+							workspace.current_teams.map((item) => item.team_id).includes(query.teamId as string)
 						);
 
 						signInToWorkspaceRequest({
@@ -101,7 +77,7 @@ export function useAuthenticationPasscode() {
 				}
 
 				if (res.data?.status !== 200 && res.data?.status !== 201) {
-					setErrors({ code: trans.pages.auth.INVALID_INVITE_CODE_MESSAGE });
+					setErrors({ code: t('pages.auth.INVALID_INVITE_CODE_MESSAGE') });
 				}
 			})
 			.catch((err: AxiosError) => {
@@ -154,10 +130,7 @@ export function useAuthenticationPasscode() {
 	const handleCodeSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setErrors({});
-		const { errors, valid } = authFormValidate(
-			['email', 'code'],
-			formValues as any
-		);
+		const { errors, valid } = authFormValidate(['email', 'code'], formValues as any);
 
 		if (!valid) {
 			setErrors(errors);
@@ -175,10 +148,7 @@ export function useAuthenticationPasscode() {
 	const handleSubmit = (e: any) => {
 		e.preventDefault();
 		setErrors({});
-		const { errors, valid } = authFormValidate(
-			['email', 'code'],
-			formValues as any
-		);
+		const { errors, valid } = authFormValidate(['email', 'code'], formValues as any);
 
 		if (!valid) {
 			setErrors(errors);
@@ -193,11 +163,7 @@ export function useAuthenticationPasscode() {
 		});
 	};
 
-	const handleWorkspaceSubmit = (
-		e: any,
-		token: string,
-		selectedTeam: string
-	) => {
+	const handleWorkspaceSubmit = (e: any, token: string, selectedTeam: string) => {
 		e.preventDefault();
 		setErrors({});
 		const { errors, valid } = authFormValidate(['email'], formValues as any);
@@ -276,6 +242,4 @@ export function useAuthenticationPasscode() {
 	};
 }
 
-export type TAuthenticationPasscode = ReturnType<
-	typeof useAuthenticationPasscode
->;
+export type TAuthenticationPasscode = ReturnType<typeof useAuthenticationPasscode>;

@@ -1,73 +1,69 @@
-import { PaginationResponse } from "../../interfaces/IDataResponse"
-import { ITaskPriorityCreate, ITaskPriorityItem } from "../../interfaces/ITaskPriority"
-import { serverFetch } from "../fetch"
+import { PaginationResponse } from '../../interfaces/IDataResponse';
+import { ITaskPriorityCreate, ITaskPriorityItem } from '../../interfaces/ITaskPriority';
+import { serverFetch } from '../fetch';
 
 export function createPriorityRequest({
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	datas: ITaskPriorityCreate
-	bearer_token: string
-	tenantId?: any
+	datas: ITaskPriorityCreate;
+	bearer_token: string;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskPriorityItem>({
-		path: "/task-priorities",
-		method: "POST",
+		path: '/task-priorities',
+		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function updateTaskPriorityRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	datas: ITaskPriorityCreate
-	bearer_token: string
-	tenantId?: any
+	id: string | any;
+	datas: ITaskPriorityCreate;
+	bearer_token: string;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskPriorityItem>({
 		path: `/task-priorities/${id}`,
-		method: "PUT",
+		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function deleteTaskPriorityRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	bearer_token: string | any
-	tenantId?: any
+	id: string | any;
+	bearer_token: string | any;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskPriorityItem>({
 		path: `/task-priorities/${id}`,
-		method: "DELETE",
+		method: 'DELETE',
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function getTaskAllPrioritiesRequest(
-	{
-		organizationId,
-		tenantId,
-		activeTeamId,
-	}: { tenantId: string; organizationId: string; activeTeamId: string },
-	bearer_token: string,
+	{ organizationId, tenantId, activeTeamId }: { tenantId: string; organizationId: string; activeTeamId: string },
+	bearer_token: string
 ) {
 	return serverFetch<PaginationResponse<ITaskPriorityItem>>({
 		path: `/task-priorities?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
-		method: "GET",
-		bearer_token,
-	})
+		method: 'GET',
+		bearer_token
+	});
 }

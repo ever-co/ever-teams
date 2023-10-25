@@ -1,29 +1,25 @@
 /* eslint-disable camelcase */
-import { convertMsToTime, secondsToTime } from "../../helpers/date"
-import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from "../client/requests/timer"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSyncRef } from "./useSyncRef"
-import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from "../interfaces/ITimer"
-import { useFirstLoad } from "./useFirstLoad"
-import isEqual from "lodash/isEqual"
-import AsyncStorage from "@react-native-async-storage/async-storage"
-import { useStores } from "../../models"
-import { ITeamTask } from "../interfaces/ITask"
-import { useTeamTasks } from "./features/useTeamTasks"
-import useFetchTimerStatus from "../client/queries/timer/timer"
-import { useTaskStatistics } from "./features/useTaskStatics"
-import moment from "moment-timezone"
+import { convertMsToTime, secondsToTime } from '../../helpers/date';
+import { startTimerRequest, stopTimerRequest, toggleTimerRequest } from '../client/requests/timer';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSyncRef } from './useSyncRef';
+import { ILocalTimerStatus, ITimerParams, ITimerStatus, TimerSource } from '../interfaces/ITimer';
+import { useFirstLoad } from './useFirstLoad';
+import isEqual from 'lodash/isEqual';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useStores } from '../../models';
+import { ITeamTask } from '../interfaces/ITask';
+import { useTeamTasks } from './features/useTeamTasks';
+import useFetchTimerStatus from '../client/queries/timer/timer';
+import { useTaskStatistics } from './features/useTaskStatics';
+import moment from 'moment-timezone';
 
-const LOCAL_TIMER_STORAGE_KEY = "local-timer-ever-teams"
+const LOCAL_TIMER_STORAGE_KEY = 'local-timer-ever-teams';
 
 /**
  * Don't modify this function unless you know what you're doing
  */
-function useLocalTimeCounter(
-	timerStatus: ITimerStatus | null,
-	activeTeamTask: ITeamTask | null,
-	firstLoad: boolean,
-) {
+function useLocalTimeCounter(timerStatus: ITimerStatus | null, activeTeamTask: ITeamTask | null, firstLoad: boolean) {
 	const {
 		TimerStore: {
 			timeCounterInterval,
@@ -32,49 +28,49 @@ function useLocalTimeCounter(
 			timeCounterState,
 			timerSecondsState,
 			setTimerSecondsState,
-			setTimerCounterState,
+			setTimerCounterState
 		},
-		TaskStore: { statActiveTask },
-	} = useStores()
+		TaskStore: { statActiveTask }
+	} = useStores();
 
-	const activeTaskStat = statActiveTask // active task statistics status
+	const activeTaskStat = statActiveTask; // active task statistics status
 
 	// Refs
-	const timerStatusRef = useSyncRef(timerStatus)
-	const timeCounterIntervalRef = useSyncRef(timeCounterInterval)
-	const timerSecondsRef = useRef(0)
-	const seconds = Math.floor(timeCounterState / 1000)
+	const timerStatusRef = useSyncRef(timerStatus);
+	const timeCounterIntervalRef = useSyncRef(timeCounterInterval);
+	const timerSecondsRef = useRef(0);
+	const seconds = Math.floor(timeCounterState / 1000);
 
 	const updateLocalStorage = useCallback((status: ILocalTimerStatus) => {
-		AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status))
-	}, [])
+		AsyncStorage.setItem(LOCAL_TIMER_STORAGE_KEY, JSON.stringify(status));
+	}, []);
 
 	const updateLocalTimerStatus = useCallback((status: ILocalTimerStatus) => {
-		updateLocalStorage(status) // the order is important (first update localstorage, then update the store state)
-		setLocalTimerStatus(status)
-	}, [])
+		updateLocalStorage(status); // the order is important (first update localstorage, then update the store state)
+		setLocalTimerStatus(status);
+	}, []);
 
 	const getLocalCounterStatus = useCallback(async () => {
-		let data: ILocalTimerStatus | null = null
+		let data: ILocalTimerStatus | null = null;
 		try {
-			const localCounterStatus = await AsyncStorage.getItem(LOCAL_TIMER_STORAGE_KEY)
-			data = JSON.parse(localCounterStatus || "null")
+			const localCounterStatus = await AsyncStorage.getItem(LOCAL_TIMER_STORAGE_KEY);
+			data = JSON.parse(localCounterStatus || 'null');
 		} catch (error) {
-			console.log(error)
+			console.log(error);
 		}
-		return data
-	}, [])
+		return data;
+	}, []);
 
 	// Update local time status (storage and store) only when global timerStatus changes
 	useEffect(() => {
 		if (!firstLoad) {
-			;(async () => {
-				const localStatus = await getLocalCounterStatus()
-				localStatus && setLocalTimerStatus(localStatus)
+			(async () => {
+				const localStatus = await getLocalCounterStatus();
+				localStatus && setLocalTimerStatus(localStatus);
 
 				const timerStatusDate = timerStatus?.lastLog?.createdAt
 					? moment(timerStatus?.lastLog?.createdAt).unix() * 1000 - timerStatus?.lastLog?.duration
-					: 0
+					: 0;
 
 				timerStatus &&
 					updateLocalTimerStatus({
@@ -83,59 +79,59 @@ function useLocalTimeCounter(
 							localStatus?.runnedDateTime ||
 							0,
 						running: timerStatus.running,
-						lastTaskId: timerStatus.lastLog?.taskId || null,
-					})
-			})()
+						lastTaskId: timerStatus.lastLog?.taskId || null
+					});
+			})();
 		}
-	}, [firstLoad, timerStatus])
+	}, [firstLoad, timerStatus]);
 
 	// THis is form constant update of the progress line
 	timerSecondsRef.current = useMemo(() => {
-		if (firstLoad) return 0
+		if (firstLoad) return 0;
 		if (seconds > timerSecondsRef.current) {
-			return seconds
+			return seconds;
 		}
 		if (timerStatusRef.current && !timerStatusRef.current.running) {
-			return 0
+			return 0;
 		}
-		return timerSecondsRef.current
-	}, [seconds, activeTaskStat, firstLoad])
+		return timerSecondsRef.current;
+	}, [seconds, activeTaskStat, firstLoad]);
 
 	useEffect(() => {
 		if (!firstLoad) {
-			timerSecondsRef.current = 0
-			setTimerSecondsState(0)
+			timerSecondsRef.current = 0;
+			setTimerSecondsState(0);
 		}
-	}, [activeTeamTask?.id, firstLoad])
+	}, [activeTeamTask?.id, firstLoad]);
 
 	useEffect(() => {
 		if (!firstLoad) {
-			setTimerSecondsState(timerSecondsRef.current)
+			setTimerSecondsState(timerSecondsRef.current);
 		}
-	}, [timerSecondsRef.current, firstLoad])
+	}, [timerSecondsRef.current, firstLoad]);
 
 	// Time Counter
 	useEffect(() => {
-		if (firstLoad || !localTimerStatus) return clearInterval(timeCounterIntervalRef.current)
-		let timerFuntion
+		if (firstLoad || !localTimerStatus) return clearInterval(timeCounterIntervalRef.current);
+		let timerFuntion;
 
 		if (localTimerStatus.running) {
 			timerFuntion = setInterval(() => {
-				const now = Date.now()
-				setTimerCounterState(now - localTimerStatus.runnedDateTime)
-			}, 50)
+				const now = Date.now();
+				setTimerCounterState(now - localTimerStatus.runnedDateTime);
+			}, 50);
 		} else {
-			clearInterval(timerFuntion)
-			setTimerCounterState(0)
+			clearInterval(timerFuntion);
+			setTimerCounterState(0);
 		}
-		return () => clearInterval(timerFuntion)
-	}, [localTimerStatus, firstLoad])
+		return () => clearInterval(timerFuntion);
+	}, [localTimerStatus, firstLoad]);
 
 	return {
 		updateLocalTimerStatus,
 		timeCounterState,
-		timerSecondsState,
-	}
+		timerSecondsState
+	};
 }
 
 export function useTimer() {
@@ -143,141 +139,141 @@ export function useTimer() {
 		authenticationStore: { tenantId, authToken, organizationId, user },
 		TaskStore: { activeTask },
 		teamStore: { activeTeamId, activeTeam },
-		TimerStore: { timerStatus, setTimerStatusFetching, timerStatusFetchingState, setTimerStatus },
-	} = useStores()
+		TimerStore: { timerStatus, setTimerStatusFetching, timerStatusFetchingState, setTimerStatus }
+	} = useStores();
 
-	const [stopTimerLoading, setStopTimerLoading] = useState(false)
+	const [stopTimerLoading, setStopTimerLoading] = useState(false);
 
-	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad()
-	const { updateTask } = useTeamTasks()
+	const { firstLoad, firstLoadData: firstLoadTimerData } = useFirstLoad();
+	const { updateTask } = useTeamTasks();
 	// // const wasRunning = timerStatus?.running || false;
-	const timerStatusRef = useSyncRef(timerStatus)
-	const taskId = useSyncRef(activeTask?.id)
-	const activeTeamTaskRef = useSyncRef(activeTask)
-	const lastActiveTeamId = useRef<string | null>(null)
-	const lastActiveTaskId = useRef<string | null>(null)
-	const canRunTimer = !!activeTask?.id && activeTask.status !== "Closed"
+	const timerStatusRef = useSyncRef(timerStatus);
+	const taskId = useSyncRef(activeTask?.id);
+	const activeTeamTaskRef = useSyncRef(activeTask);
+	const lastActiveTeamId = useRef<string | null>(null);
+	const lastActiveTaskId = useRef<string | null>(null);
+	const canRunTimer = !!activeTask?.id && activeTask.status !== 'Closed';
 
 	// // Local time status
 	const { timeCounterState, updateLocalTimerStatus, timerSecondsState } = useLocalTimeCounter(
 		timerStatus,
 		activeTask,
-		firstLoad,
-	)
+		firstLoad
+	);
 
 	const { isSuccess, data: timerStatusData } = useFetchTimerStatus(
 		{
 			authToken,
 			tenantId,
 			organizationId,
-			employeeId: user?.employee?.id,
+			employeeId: user?.employee?.id
 		},
 		timerStatus?.running,
-		timerStatusRef.current?.lastLog?.source,
-	)
+		timerStatusRef.current?.lastLog?.source
+	);
 
 	const toggleTimer = useCallback(async (taskId: string) => {
 		const response = await toggleTimerRequest(
 			{
-				logType: "TRACKED",
+				logType: 'TRACKED',
 				source: TimerSource.MOBILE,
 				tags: [],
 				taskId,
 				tenantId,
-				organizationId,
+				organizationId
 			},
-			authToken,
-		)
+			authToken
+		);
 		const status: ITimerStatus = {
 			duration: response?.data.duration,
-			running: response?.data.isRunning,
-		}
-		setTimerStatus(status)
-	}, [])
+			running: response?.data.isRunning
+		};
+		setTimerStatus(status);
+	}, []);
 
 	useEffect(() => {
-		setTimerStatusFetching(stopTimerLoading)
-	}, [stopTimerLoading])
+		setTimerStatusFetching(stopTimerLoading);
+	}, [stopTimerLoading]);
 
 	// Start timer
 	const startTimer = useCallback(async () => {
 		if (!taskId.current) {
-			return {}
+			return {};
 		}
 
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current,
 			runnedDateTime: Date.now(),
-			running: true,
-		})
+			running: true
+		});
 
-		setTimerStatusFetching(true)
+		setTimerStatusFetching(true);
 
 		const params: ITimerParams = {
 			organizationId,
 			tenantId,
 			taskId: activeTask?.id,
-			logType: "TRACKED",
+			logType: 'TRACKED',
 			source: TimerSource.MOBILE,
-			tags: [],
-		}
+			tags: []
+		};
 
-		const { data } = await startTimerRequest(params, authToken)
+		const { data } = await startTimerRequest(params, authToken);
 
 		const status: ITimerStatus = {
 			duration: data?.duration,
 			running: data?.isRunning,
-			lastLog: data,
-		}
-		setTimerStatus(status)
-		setTimerStatusFetching(false)
+			lastLog: data
+		};
+		setTimerStatus(status);
+		setTimerStatusFetching(false);
 
 		/**
 		 *  Updating the task status to "In Progress" when the timer is started.
 		 */
-		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== "in-progress") {
+		if (activeTeamTaskRef.current && activeTeamTaskRef.current.status !== 'in-progress') {
 			updateTask(
 				{
 					...activeTeamTaskRef.current,
-					status: "in-progress",
+					status: 'in-progress'
 				},
-				taskId.current,
-			)
+				taskId.current
+			);
 		}
 
-		return data
-	}, [taskId.current])
+		return data;
+	}, [taskId.current]);
 
 	// Stop timer
 	const stopTimer = useCallback(async () => {
 		updateLocalTimerStatus({
 			lastTaskId: taskId.current || null,
 			runnedDateTime: 0,
-			running: false,
-		})
+			running: false
+		});
 
 		const params: ITimerParams = {
 			organizationId,
 			tenantId,
 			taskId: activeTask?.id,
-			logType: "TRACKED",
+			logType: 'TRACKED',
 			source: timerStatusRef.current.lastLog.source || TimerSource.MOBILE,
-			tags: [],
-		}
+			tags: []
+		};
 
-		setStopTimerLoading(true)
+		setStopTimerLoading(true);
 
-		const { data } = await stopTimerRequest(params, authToken)
+		const { data } = await stopTimerRequest(params, authToken);
 
-		setStopTimerLoading(false)
+		setStopTimerLoading(false);
 
 		const status: ITimerStatus = {
 			duration: data.duration,
 			running: data.isRunning,
-			lastLog: data,
-		}
-		setTimerStatus(status)
-	}, [taskId.current])
+			lastLog: data
+		};
+		setTimerStatus(status);
+	}, [taskId.current]);
 
 	// If active team changes then stop the timer
 	useEffect(() => {
@@ -287,36 +283,36 @@ export function useTimer() {
 			!firstLoad &&
 			timerStatusRef.current?.running
 		) {
-			stopTimer()
+			stopTimer();
 		}
 		if (activeTeamId) {
-			lastActiveTeamId.current = activeTeamId
+			lastActiveTeamId.current = activeTeamId;
 		}
-	}, [firstLoad, activeTeamId, activeTeam])
+	}, [firstLoad, activeTeamId, activeTeam]);
 
 	// If active task changes then stop the timer
 	useEffect(() => {
-		const taskId = activeTask?.id
+		const taskId = activeTask?.id;
 		if (
 			lastActiveTaskId.current !== null &&
 			taskId !== lastActiveTaskId.current &&
 			!firstLoad &&
 			timerStatusRef.current?.running
 		) {
-			stopTimer()
+			stopTimer();
 		}
 		if (taskId) {
-			lastActiveTaskId.current = taskId
+			lastActiveTaskId.current = taskId;
 		}
-	}, [firstLoad, activeTask?.id])
+	}, [firstLoad, activeTask?.id]);
 
 	useEffect(() => {
 		if (isSuccess) {
 			if (!isEqual(timerStatus, timerStatusData)) {
-				setTimerStatus(timerStatusData)
+				setTimerStatus(timerStatusData);
 			}
 		}
-	}, [timerStatusData])
+	}, [timerStatusData]);
 
 	return {
 		fomatedTimeCounter: convertMsToTime(timeCounterState),
@@ -329,8 +325,8 @@ export function useTimer() {
 		firstLoad,
 		toggleTimer,
 		timerSecondsState,
-		activeTeamTask: activeTask,
-	}
+		activeTeamTask: activeTask
+	};
 }
 
 /**
@@ -339,16 +335,16 @@ export function useTimer() {
  */
 export function useLiveTimerStatus() {
 	const {
-		TimerStore: { timerSecondsState: seconds, timerStatus },
-	} = useStores()
+		TimerStore: { timerSecondsState: seconds, timerStatus }
+	} = useStores();
 
-	const { h, m } = secondsToTime((timerStatus?.duration || 0) + seconds)
+	const { h, m } = secondsToTime((timerStatus?.duration || 0) + seconds);
 
 	return {
 		time: { h, m },
 		seconds,
-		timerStatus,
-	}
+		timerStatus
+	};
 }
 
 /**
@@ -363,19 +359,19 @@ export function useTimerView() {
 		stopTimer,
 		canRunTimer,
 		timerSecondsState,
-		activeTeamTask,
-	} = useTimer()
+		activeTeamTask
+	} = useTimer();
 
-	const { activeTaskEstimation } = useTaskStatistics(timerSecondsState)
+	const { activeTaskEstimation } = useTaskStatistics(timerSecondsState);
 
 	const timerHanlder = () => {
-		if (timerStatusFetchingState || !canRunTimer) return
+		if (timerStatusFetchingState || !canRunTimer) return;
 		if (timerStatus?.running) {
-			stopTimer()
+			stopTimer();
 		} else {
-			startTimer()
+			startTimer();
 		}
-	}
+	};
 
 	return {
 		hours,
@@ -390,6 +386,6 @@ export function useTimerView() {
 		activeTeamTask,
 		disabled: !canRunTimer,
 		startTimer,
-		stopTimer,
-	}
+		stopTimer
+	};
 }

@@ -1,28 +1,16 @@
+import { calculateRemainingDays, formatDateString } from '@app/helpers';
+import { useOrganizationTeams, useSyncRef, useTeamMemberCard, useTeamTasks } from '@app/hooks';
+import { ITeamTask, OT_Member } from '@app/interfaces';
 import { detailedTaskState } from '@app/stores';
+import { clsxm } from '@app/utils';
+import { Popover, Transition } from '@headlessui/react';
+import { TrashIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
+import { useTranslation } from 'react-i18next';
+import { Fragment, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';
-import {
-	forwardRef,
-	Fragment,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
-import {
-	useOrganizationTeams,
-	useSyncRef,
-	useTeamMemberCard,
-	useTeamTasks
-} from '@app/hooks';
-import { ITeamTask, OT_Member } from '@app/interfaces';
-import { Popover, Transition } from '@headlessui/react';
-import { formatDateString, calculateRemainingDays } from '@app/helpers';
 import TaskRow from '../components/task-row';
-import { useTranslation } from 'lib/i18n';
-import { TrashIcon } from 'lib/components/svgs';
-import { clsxm } from '@app/utils';
 
 import { DatePicker } from 'components/ui/DatePicker';
 import Link from 'next/link';
@@ -30,14 +18,11 @@ import Link from 'next/link';
 const TaskMainInfo = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
-	const { translations } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
-			<TaskRow
-				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle={translations.pages.taskDetails.TYPE_OF_ISSUE}
-			>
+			<TaskRow labelIconPath="/assets/svg/calendar-2.svg" labelTitle={t('pages.taskDetails.TYPE_OF_ISSUE')}>
 				<ActiveTaskIssuesDropdown
 					key={task?.id}
 					task={task}
@@ -47,41 +32,24 @@ const TaskMainInfo = () => {
 					forParentChildRelationship={true}
 				/>
 			</TaskRow>
-			<TaskRow
-				labelIconPath="/assets/svg/profile.svg"
-				labelTitle={translations.pages.taskDetails.CREATOR}
-			>
+			<TaskRow labelIconPath="/assets/svg/profile.svg" labelTitle={t('pages.taskDetails.CREATOR')}>
 				{task?.creator && (
 					<Link
-						title={`${task?.creator?.firstName || ''} ${
-							task?.creator?.lastName || ''
-						}`}
+						title={`${task?.creator?.firstName || ''} ${task?.creator?.lastName || ''}`}
 						href={`/profile/${task.creatorId}`}
 					>
 						<ProfileInfo
 							profilePicSrc={task?.creator?.imageUrl}
-							names={`${task?.creator?.firstName || ''} ${
-								task?.creator?.lastName || ''
-							}`}
+							names={`${task?.creator?.firstName || ''} ${task?.creator?.lastName || ''}`}
 						/>
 					</Link>
 				)}
 			</TaskRow>
-			<TaskRow
-				labelIconPath="/assets/svg/people.svg"
-				labelTitle={translations.pages.taskDetails.ASSIGNEES}
-			>
+			<TaskRow labelIconPath="/assets/svg/people.svg" labelTitle={t('pages.taskDetails.ASSIGNEES')}>
 				<div className="flex flex-col gap-3">
 					{task?.members?.map((member: any) => (
-						<Link
-							key={member.id}
-							title={member.fullName}
-							href={`/profile/${member.userId}`}
-						>
-							<ProfileInfo
-								names={member.fullName}
-								profilePicSrc={member.user?.imageUrl}
-							/>
+						<Link key={member.id} title={member.fullName} href={`/profile/${member.userId}`}>
+							<ProfileInfo names={member.fullName} profilePicSrc={member.user?.imageUrl} />
 						</Link>
 					))}
 
@@ -94,32 +62,24 @@ const TaskMainInfo = () => {
 	);
 };
 
-const DateCustomInput = forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
-	(props, ref) => {
-		return <div {...props} ref={ref} />;
-	}
-);
+const DateCustomInput = forwardRef<HTMLDivElement, React.ComponentProps<'div'>>((props, ref) => {
+	return <div {...props} ref={ref} />;
+});
 
 DateCustomInput.displayName = 'DateCustomInput';
 
 function DueDates() {
 	const { updateTask } = useTeamTasks();
 	const [task] = useRecoilState(detailedTaskState);
-	const { translations } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 	const [startDate, setStartDate] = useState<Date | null>(null);
 	const [dueDate, setDueDate] = useState<Date | null>(null);
 
-	const $startDate = useSyncRef(
-		startDate || (task?.startDate ? new Date(task.startDate) : null)
-	);
+	const $startDate = useSyncRef(startDate || (task?.startDate ? new Date(task.startDate) : null));
 
-	const $dueDate = useSyncRef(
-		dueDate || (task?.dueDate ? new Date(task.dueDate) : null)
-	);
+	const $dueDate = useSyncRef(dueDate || (task?.dueDate ? new Date(task.dueDate) : null));
 
-	const remainingDays = task
-		? calculateRemainingDays(new Date().toISOString(), task.dueDate)
-		: undefined;
+	const remainingDays = task ? calculateRemainingDays(new Date().toISOString(), task.dueDate) : undefined;
 
 	const handleResetDate = useCallback(
 		(date: 'startDate' | 'dueDate') => {
@@ -141,10 +101,7 @@ function DueDates() {
 
 	return (
 		<div className="flex flex-col gap-[0.4375rem]">
-			<TaskRow
-				labelIconPath="/assets/svg/calendar-2.svg"
-				labelTitle={translations.pages.taskDetails.START_DATE}
-			>
+			<TaskRow labelIconPath="/assets/svg/calendar-2.svg" labelTitle={t('pages.taskDetails.START_DATE')}>
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
@@ -164,11 +121,7 @@ function DueDates() {
 								: 'Set Start Date'}
 						</div>
 					}
-					selected={
-						$startDate.current
-							? (new Date($startDate.current) as Date)
-							: undefined
-					}
+					selected={$startDate.current ? (new Date($startDate.current) as Date) : undefined}
 					onSelect={(date) => {
 						if (date && (!$dueDate.current || date <= $dueDate.current)) {
 							setStartDate(date);
@@ -182,7 +135,7 @@ function DueDates() {
 				/>
 				{task?.startDate ? (
 					<span
-						className="text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
+						className="flex flex-row items-center justify-center text-xs border-0 cursor-pointer"
 						onClick={() => {
 							handleResetDate('startDate');
 						}}
@@ -194,10 +147,7 @@ function DueDates() {
 				)}
 			</TaskRow>
 
-			<TaskRow
-				labelTitle={translations.pages.taskDetails.DUE_DATE}
-				alignWithIconLabel={true}
-			>
+			<TaskRow labelTitle={t('pages.taskDetails.DUE_DATE')} alignWithIconLabel={true}>
 				<DatePicker
 					// Button Props
 					buttonVariant={'link'}
@@ -217,9 +167,7 @@ function DueDates() {
 								: 'Set Due Date'}
 						</div>
 					}
-					selected={
-						$dueDate.current ? (new Date($dueDate.current) as Date) : undefined
-					}
+					selected={$dueDate.current ? (new Date($dueDate.current) as Date) : undefined}
 					onSelect={(date) => {
 						// const cdate = new Date();
 
@@ -237,7 +185,7 @@ function DueDates() {
 				/>
 				{task?.dueDate ? (
 					<span
-						className="text-xs border-0 flex flex-row items-center justify-center cursor-pointer"
+						className="flex flex-row items-center justify-center text-xs border-0 cursor-pointer"
 						onClick={() => {
 							handleResetDate('dueDate');
 						}}
@@ -250,14 +198,9 @@ function DueDates() {
 			</TaskRow>
 
 			{task?.dueDate && (
-				<TaskRow
-					labelTitle={translations.pages.taskDetails.DAYS_REMAINING}
-					alignWithIconLabel={true}
-				>
+				<TaskRow labelTitle={t('pages.taskDetails.DAYS_REMAINING')} alignWithIconLabel={true}>
 					<div className="not-italic font-semibold text-[0.625rem] leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
-						{remainingDays !== undefined && remainingDays < 0
-							? 0
-							: remainingDays}
+						{remainingDays !== undefined && remainingDays < 0 ? 0 : remainingDays}
 					</div>
 				</TaskRow>
 			)}
@@ -265,11 +208,8 @@ function DueDates() {
 	);
 }
 
-const ManageMembersPopover = (
-	memberList: OT_Member[],
-	task: ITeamTask | null
-) => {
-	const { trans } = useTranslation('settingsTeam');
+const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) => {
+	const { t } = useTranslation();
 	const [member, setMember] = useState<OT_Member>();
 	const [memberToRemove, setMemberToRemove] = useState<boolean>(false);
 	const [memberToAdd, setMemberToAdd] = useState<boolean>(false);
@@ -279,11 +219,7 @@ const ManageMembersPopover = (
 	const unassignedMembers = useMemo(
 		() =>
 			memberList.filter((member) =>
-				member.employee
-					? !task?.members
-							.map((item) => item.userId)
-							.includes(member.employee.userId)
-					: false
+				member.employee ? !task?.members.map((item) => item.userId).includes(member.employee.userId) : false
 			),
 		[memberList, task?.members]
 	);
@@ -291,11 +227,7 @@ const ManageMembersPopover = (
 	const assignedTaskMembers = useMemo(
 		() =>
 			memberList.filter((member) =>
-				member.employee
-					? task?.members
-							.map((item) => item.userId)
-							.includes(member.employee?.userId)
-					: false
+				member.employee ? task?.members.map((item) => item.userId).includes(member.employee?.userId) : false
 			),
 		[memberList, task?.members]
 	);
@@ -329,7 +261,7 @@ const ManageMembersPopover = (
 	return (
 		<>
 			{task && memberList.length > 1 ? (
-				<Popover className="relative border-none no-underline w-full">
+				<Popover className="relative w-full no-underline border-none">
 					<Transition
 						as={Fragment}
 						enter="transition ease-out duration-200"
@@ -347,7 +279,7 @@ const ManageMembersPopover = (
 								<div className="">
 									{assignedTaskMembers.map((member, index) => (
 										<div
-											className="flex items-center justify-between gap-1 h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 mt-1"
+											className="flex items-center justify-between w-auto h-8 gap-1 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
 											onClick={() => {
 												setMember(member);
 												setMemberToRemove(true);
@@ -365,7 +297,7 @@ const ManageMembersPopover = (
 									))}
 									{unassignedMembers.map((member, index) => (
 										<div
-											className="flex items-center justify-between h-8 w-auto hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105 mt-1"
+											className="flex items-center justify-between w-auto h-8 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
 											onClick={() => {
 												setMember(member);
 												setMemberToAdd(true);
@@ -384,10 +316,10 @@ const ManageMembersPopover = (
 						</Popover.Panel>
 					</Transition>
 
-					<Popover.Button className="flex items-center h-8 w-auto hover:cursor-pointer outline-none">
-						<div className="flex w-full items-center justify-center text-black dark:text-white border border-gray-200 rounded-full px-2 py-0 cursor-pointer">
+					<Popover.Button className="flex items-center w-auto h-8 outline-none hover:cursor-pointer">
+						<div className="flex items-center justify-center w-full px-2 py-0 text-black border border-gray-200 rounded-full cursor-pointer dark:text-white">
 							<p className="font-semibold text-[0.625rem] leading-none m-[6px]">
-								{trans.MANAGE_ASSIGNEES}
+								{t('pages.settingsTeam.MANAGE_ASSIGNEES')}
 							</p>
 						</div>
 					</Popover.Button>

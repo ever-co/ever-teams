@@ -34,14 +34,7 @@ export const TransferTeamDropdown = ({
 		if (selectedMember) {
 			setMemberItem(items.find((item: any) => item.key === selectedMember.id));
 		}
-	}, [
-		selectedMember,
-		active,
-		members,
-		members?.length,
-		setSelectedMember,
-		items
-	]);
+	}, [selectedMember, active, members, members?.length, setSelectedMember, items]);
 
 	return (
 		<>

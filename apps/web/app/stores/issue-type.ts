@@ -21,10 +21,6 @@ export const activeIssueTypesState = selector<IIssueTypesItemList | null>({
 	get: ({ get }) => {
 		const issueTypes = get(issueTypesListState);
 		const activeId = get(activeIssueTypesIdState);
-		return (
-			issueTypes.find((issueType) => issueType.id === activeId) ||
-			issueTypes[0] ||
-			null
-		);
+		return issueTypes.find((issueType) => issueType.id === activeId) || issueTypes[0] || null;
 	}
 });

@@ -8,10 +8,7 @@ type Err = { [x in keyof IRegisterDataAPI]: string | undefined };
 
 type Ks = { [x: string]: string };
 
-export const authFormValidate = (
-	keys: (keyof IRegisterDataAPI)[],
-	values: IRegisterDataAPI
-) => {
+export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegisterDataAPI) => {
 	const err = {} as Err;
 	keys.forEach((key) => {
 		switch (key) {
@@ -95,11 +92,7 @@ export function validSMTPConfig() {
 
 	const keys = Object.keys(SMTPConfig) as (keyof I_SMTPRequest)[];
 
-	if (
-		keys.some(
-			(key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined
-		)
-	) {
+	if (keys.some((key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined)) {
 		return null;
 	}
 

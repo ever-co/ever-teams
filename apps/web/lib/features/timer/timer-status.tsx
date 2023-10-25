@@ -1,18 +1,8 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import {
-	IClassName,
-	ITimerStatus,
-	ITimerStatusEnum,
-	OT_Member
-} from '@app/interfaces';
+import { IClassName, ITimerStatus, ITimerStatusEnum, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Tooltip } from 'lib/components';
-import {
-	PauseIcon,
-	StopCircleIcon,
-	TimerPlayIcon,
-	UserOnlineAndTrackingTimeIcon
-} from 'lib/components/svgs';
+import { PauseIcon, StopCircleIcon, TimerPlayIcon, UserOnlineAndTrackingTimeIcon } from 'lib/components/svgs';
 import moment from 'moment';
 
 type Props = {
@@ -21,12 +11,7 @@ type Props = {
 	tooltipClassName?: string;
 } & IClassName;
 
-export function TimerStatus({
-	status,
-	className,
-	showIcon = true,
-	tooltipClassName
-}: Props) {
+export function TimerStatus({ status, className, showIcon = true, tooltipClassName }: Props) {
 	return (
 		<Tooltip
 			label={status === 'online' ? 'Online and Tracking Time' : status}
@@ -46,15 +31,9 @@ export function TimerStatus({
 					className
 				)}
 			>
-				{status === 'running' && showIcon && (
-					<TimerPlayIcon className="w-5 h-5 p-1 fill-green-700" />
-				)}
-				{status === 'pause' && showIcon && (
-					<PauseIcon className="w-5 h-5 p-1 fill-[#B87B1E]" />
-				)}
-				{status === 'idle' && showIcon && (
-					<StopCircleIcon className="w-5 h-5 p-1 fill-[#E65B5B]" />
-				)}
+				{status === 'running' && showIcon && <TimerPlayIcon className="w-5 h-5 p-1 fill-green-700" />}
+				{status === 'pause' && showIcon && <PauseIcon className="w-5 h-5 p-1 fill-[#B87B1E]" />}
+				{status === 'idle' && showIcon && <StopCircleIcon className="w-5 h-5 p-1 fill-[#E65B5B]" />}
 
 				{/* For now until we have realtime we will saw UserOnlineAndTrackingTimeIcon insted of UserOnlineIcon*/}
 				{status === 'online' && showIcon && (
@@ -62,9 +41,7 @@ export function TimerStatus({
 				)}
 				{/* <UserOnlineIcon className="w-5 h-5 p-1 fill-green-700" /> */}
 
-				{status === 'suspended' && showIcon && (
-					<StopCircleIcon className="w-5 h-5 p-1 fill-white" />
-				)}
+				{status === 'suspended' && showIcon && <StopCircleIcon className="w-5 h-5 p-1 fill-white" />}
 			</div>
 		</Tooltip>
 	);

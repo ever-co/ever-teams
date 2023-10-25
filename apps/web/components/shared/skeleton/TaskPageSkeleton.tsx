@@ -12,12 +12,7 @@ const TaskPageSkeleton = () => {
 		<MainLayout>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
-					<Skeleton
-						height={20}
-						width={180}
-						borderRadius={10}
-						className="dark:bg-[#272930]"
-					/>
+					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
 					<div className="flex items-center justify-between">
 						<div className="w-full flex flex-col">
 							<div className="flex items-center">

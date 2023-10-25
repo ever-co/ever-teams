@@ -5,12 +5,7 @@ import {
 	deleteTaskStatusAPI,
 	editTaskStatusAPI
 } from '@app/services/client/api';
-import {
-	userState,
-	taskStatusFetchingState,
-	taskStatusListState,
-	activeTeamIdState
-} from '@app/stores';
+import { userState, taskStatusFetchingState, taskStatusListState, activeTeamIdState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -23,17 +18,12 @@ export function useTaskStatus() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskstatusList);
-	const { loading: createTaskStatusLoading, queryCall: createQueryCall } =
-		useQuery(createTaskStatusAPI);
-	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteTaskStatusAPI);
-	const { loading: editTaskStatusLoading, queryCall: editQueryCall } =
-		useQuery(editTaskStatusAPI);
+	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(createTaskStatusAPI);
+	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskStatusAPI);
+	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(editTaskStatusAPI);
 
 	const [taskStatus, setTaskStatus] = useRecoilState(taskStatusListState);
-	const [taskStatusFetching, setTaskStatusFetching] = useRecoilState(
-		taskStatusFetchingState
-	);
+	const [taskStatusFetching, setTaskStatusFetching] = useRecoilState(taskStatusFetchingState);
 	const { firstLoadData: firstLoadTaskStatusData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
@@ -64,12 +54,11 @@ export function useTaskStatus() {
 	const createTaskStatus = useCallback(
 		(data: ITaskStatusCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeamId },
-					user?.tenantId || ''
-				).then((res) => {
-					return res;
-				});
+				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
+					(res) => {
+						return res;
+					}
+				);
 			}
 		},
 

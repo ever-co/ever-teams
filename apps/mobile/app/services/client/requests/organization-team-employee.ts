@@ -1,5 +1,5 @@
-import { IOrganizationTeamEmployeeUpdate } from "../../interfaces/IOrganizationEmployeeTeam"
-import { serverFetch } from "../fetch"
+import { IOrganizationTeamEmployeeUpdate } from '../../interfaces/IOrganizationEmployeeTeam';
+import { serverFetch } from '../fetch';
 
 export function deleteOrganizationTeamEmployeeRequest({
 	id,
@@ -7,39 +7,39 @@ export function deleteOrganizationTeamEmployeeRequest({
 	tenantId,
 	organizationId,
 	employeeId,
-	organizationTeamId,
+	organizationTeamId
 }: {
-	id: string
-	bearer_token: string
-	tenantId: string
-	organizationId: string
-	employeeId: string
-	organizationTeamId: string
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+	organizationId: string;
+	employeeId: string;
+	organizationTeamId: string;
 }) {
 	return serverFetch<IOrganizationTeamEmployeeUpdate>({
 		path: `/organization-team-employee/${id}?tenantId=${tenantId}&employeeId=${employeeId}&organizationId=${organizationId}&organizationTeamId=${organizationTeamId}`,
-		method: "DELETE",
+		method: 'DELETE',
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function updateOrganizationTeamEmployeeRequest({
 	id,
 	bearer_token,
 	tenantId,
-	body,
+	body
 }: {
-	id: string
-	bearer_token: string
-	tenantId: string
-	body: IOrganizationTeamEmployeeUpdate
+	id: string;
+	bearer_token: string;
+	tenantId: string;
+	body: IOrganizationTeamEmployeeUpdate;
 }) {
 	return serverFetch<IOrganizationTeamEmployeeUpdate>({
 		path: `/organization-team-employee/${id}`,
-		method: "PUT",
+		method: 'PUT',
 		bearer_token,
 		tenantId,
-		body,
-	})
+		body
+	});
 }

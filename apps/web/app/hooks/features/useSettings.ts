@@ -1,8 +1,5 @@
 import { IUser } from '@app/interfaces';
-import {
-	getAuthenticatedUserDataAPI,
-	updateUserAvatarAPI
-} from '@app/services/client/api';
+import { getAuthenticatedUserDataAPI, updateUserAvatarAPI } from '@app/services/client/api';
 import { userState } from '@app/stores';
 
 import { useCallback } from 'react';
@@ -11,11 +8,9 @@ import { useQuery } from '../useQuery';
 
 export function useSettings() {
 	const [, setUser] = useRecoilState(userState);
-	const { queryCall: updateAvatarQueryCall, loading: updateLoading } =
-		useQuery(updateUserAvatarAPI);
+	const { queryCall: updateAvatarQueryCall, loading: updateLoading } = useQuery(updateUserAvatarAPI);
 
-	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } =
-		useQuery(getAuthenticatedUserDataAPI);
+	const { queryCall: refreshUserQueryCall, loading: refreshUserLoading } = useQuery(getAuthenticatedUserDataAPI);
 
 	//Call API for update user profile
 	const updateAvatar = useCallback(

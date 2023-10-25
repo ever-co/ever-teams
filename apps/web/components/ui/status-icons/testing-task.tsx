@@ -1,17 +1,6 @@
-export const TestingTaskIcon = ({
-	color = '#736efb'
-}: {
-	color: string;
-	background: string;
-}) => {
+export const TestingTaskIcon = ({ color = '#736efb' }: { color: string; background: string }) => {
 	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			viewBox="0 0 16 16"
-			width="13"
-			height="13"
-			className="mr-1"
-		>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="13" height="13" className="mr-1">
 			<path
 				fillRule="evenodd"
 				fill={color}

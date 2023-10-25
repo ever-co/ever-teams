@@ -5,12 +5,7 @@ import {
 	setActiveTaskIdCookie,
 	setActiveUserTaskCookie
 } from '@app/helpers';
-import {
-	ITaskLabelsItemList,
-	ITaskStatusField,
-	ITaskStatusStack,
-	ITeamTask
-} from '@app/interfaces';
+import { ITaskLabelsItemList, ITaskStatusField, ITaskStatusStack, ITeamTask } from '@app/interfaces';
 import {
 	createTeamTaskAPI,
 	deleteTaskAPI,
@@ -19,18 +14,8 @@ import {
 	deleteEmployeeFromTasksAPI,
 	getTasksByIdAPI
 } from '@app/services/client/api';
-import {
-	activeTeamState,
-	detailedTaskState,
-	memberActiveTaskIdState,
-	userState
-} from '@app/stores';
-import {
-	activeTeamTaskState,
-	tasksByTeamState,
-	tasksFetchingState,
-	teamTasksState
-} from '@app/stores';
+import { activeTeamState, detailedTaskState, memberActiveTaskIdState, userState } from '@app/stores';
+import { activeTeamTaskState, tasksByTeamState, tasksFetchingState, teamTasksState } from '@app/stores';
 import isEqual from 'lodash/isEqual';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
@@ -40,8 +25,7 @@ import { useSyncRef } from '../useSyncRef';
 import { useOrganizationEmployeeTeams } from './useOrganizatioTeamsEmployee';
 
 export function useTeamTasks() {
-	const { updateOrganizationTeamEmployeeActiveTask } =
-		useOrganizationEmployeeTeams();
+	const { updateOrganizationTeamEmployeeActiveTask } = useOrganizationEmployeeTeams();
 
 	const setAllTasks = useSetRecoilState(teamTasksState);
 	const tasks = useRecoilValue(tasksByTeamState);
@@ -56,29 +40,22 @@ export function useTeamTasks() {
 	const activeTeam = useRecoilValue(activeTeamState);
 	const activeTeamRef = useSyncRef(activeTeam);
 
-	const [activeTeamTask, setActiveTeamTask] =
-		useRecoilState(activeTeamTaskState);
+	const [activeTeamTask, setActiveTeamTask] = useRecoilState(activeTeamTaskState);
 
 	const { firstLoad, firstLoadData: firstLoadTasksData } = useFirstLoad();
 
 	// Queries hooks
 	const { queryCall, loading } = useQuery(getTeamTasksAPI);
-	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } =
-		useQuery(getTasksByIdAPI);
+	const { queryCall: getTasksByIdQueryCall, loading: getTasksByIdLoading } = useQuery(getTasksByIdAPI);
 
-	const { queryCall: deleteQueryCall, loading: deleteLoading } =
-		useQuery(deleteTaskAPI);
+	const { queryCall: deleteQueryCall, loading: deleteLoading } = useQuery(deleteTaskAPI);
 
-	const { queryCall: createQueryCall, loading: createLoading } =
-		useQuery(createTeamTaskAPI);
+	const { queryCall: createQueryCall, loading: createLoading } = useQuery(createTeamTaskAPI);
 
-	const { queryCall: updateQueryCall, loading: updateLoading } =
-		useQuery(updateTaskAPI);
+	const { queryCall: updateQueryCall, loading: updateLoading } = useQuery(updateTaskAPI);
 
-	const {
-		queryCall: deleteEmployeeFromTasksQueryCall,
-		loading: deleteEmployeeFromTasksLoading
-	} = useQuery(deleteEmployeeFromTasksAPI);
+	const { queryCall: deleteEmployeeFromTasksQueryCall, loading: deleteEmployeeFromTasksLoading } =
+		useQuery(deleteEmployeeFromTasksAPI);
 
 	const getTaskById = useCallback(
 		(taskId: string) => {
@@ -113,9 +90,7 @@ export function useTeamTasks() {
 					})
 					.sort((a, b) => a.title.localeCompare(b.title));
 
-				const activeTeamTasks = tasksRef.current
-					.slice()
-					.sort((a, b) => a.title.localeCompare(b.title));
+				const activeTeamTasks = tasksRef.current.slice().sort((a, b) => a.title.localeCompare(b.title));
 
 				if (!isEqual(latestActiveTeamTasks, activeTeamTasks)) {
 					setAllTasks(responseTasks);
@@ -372,13 +347,7 @@ export function useTeamTasks() {
 				}
 			}
 		},
-		[
-			setActiveTeamTask,
-			setActiveUserTaskCookieCb,
-			updateOrganizationTeamEmployeeActiveTask,
-			activeTeam,
-			authUser
-		]
+		[setActiveTeamTask, setActiveUserTaskCookieCb, updateOrganizationTeamEmployeeActiveTask, activeTeam, authUser]
 	);
 
 	const deleteEmployeeFromTasks = useCallback(
@@ -389,9 +358,7 @@ export function useTeamTasks() {
 	);
 
 	useEffect(() => {
-		const memberActiveTask = tasks.find(
-			(item) => item.id === memberActiveTaskId
-		);
+		const memberActiveTask = tasks.find((item) => item.id === memberActiveTaskId);
 		if (memberActiveTask) {
 			setActiveTeamTask(memberActiveTask);
 		}

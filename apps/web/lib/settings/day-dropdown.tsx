@@ -4,23 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { IDay } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { DayItem, mapDayItems } from './day-items';
 
-export const DayDropdown = ({
-	setValue,
-	active
-}: {
-	setValue: UseFormSetValue<FieldValues>;
-	active?: IDay | null;
-}) => {
-	const [DayList, setDay] = useState<IDay[]>([
-		{
-			title: '7 days'
-		},
-		{
-			title: '14 days'
-		}
-	]);
+export const DayDropdown = ({ setValue, active }: { setValue: UseFormSetValue<FieldValues>; active?: IDay | null }) => {
+	const { t } = useTranslation();
+	const [DayList, setDay] = useState<IDay[]>(t('timer.DAY_LIST', { returnObjects: true }));
 
 	const items: any = useMemo(() => mapDayItems(DayList), [DayList]);
 

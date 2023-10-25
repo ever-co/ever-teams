@@ -8,27 +8,14 @@ const StatusListCard = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64  flex gap-12">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
-							<Skeleton
-								width={200}
-								borderRadius={20}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 						</Text>
 
 						<div className="flex flex-col">
-							<Skeleton
-								width={250}
-								borderRadius={8}
-								height={45}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton width={250} borderRadius={8} height={45} className="dark:bg-[#272930]" />
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<div className="flex gap-3 mt-4">
 								<InputField
@@ -66,27 +53,14 @@ const StatusListCard = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64  flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
-							<Skeleton
-								width={200}
-								borderRadius={20}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 						</Text>
 
 						<div className="flex flex-col">
-							<Skeleton
-								width={250}
-								borderRadius={8}
-								height={45}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton width={250} borderRadius={8} height={45} className="dark:bg-[#272930]" />
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<div className="flex w-full gap-3 mt-4">
 								<InputField
@@ -132,27 +106,14 @@ const StatusListCard = () => {
 				<div className="flex">
 					<div className="rounded-md m-h-64  flex gap-x-[2rem]">
 						<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mt-4 w-[200px]">
-							<Skeleton
-								width={200}
-								borderRadius={20}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 						</Text>
 
 						<div className="flex flex-col">
-							<Skeleton
-								width={250}
-								borderRadius={8}
-								height={45}
-								className="dark:bg-[#272930]"
-							/>
+							<Skeleton width={250} borderRadius={8} height={45} className="dark:bg-[#272930]" />
 
 							<Text className="flex-none flex-grow-0 text-md text-gray-400 font-medium mb-[1rem] w-full mt-[2.4rem]">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<div className="flex w-full gap-3 mt-4">
 								<InputField

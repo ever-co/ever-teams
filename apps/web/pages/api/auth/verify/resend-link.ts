@@ -3,20 +3,14 @@ import { authenticatedGuard } from '@app/services/server/guards/authenticated-gu
 import { resentVerifyUserLinkRequest } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
 		return res.status(405).json({ status: 'fail' });
 	}
 
 	const appEmailConfirmationUrl = `${req.headers.origin}${VERIFY_EMAIL_CALLBACK_PATH}`;
 
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(
-		req,
-		res
-	);
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res();
 

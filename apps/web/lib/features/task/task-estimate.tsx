@@ -13,14 +13,7 @@ type Props = {
 	wrapperClassName?: string;
 };
 
-export function TaskEstimate({
-	_task,
-	onCloseEdition,
-	className,
-	loadingRef,
-	closeable_fc,
-	wrapperClassName
-}: Props) {
+export function TaskEstimate({ _task, onCloseEdition, className, loadingRef, closeable_fc, wrapperClassName }: Props) {
 	const {
 		targetEl,
 		value,
@@ -53,10 +46,7 @@ export function TaskEstimate({
 	}, [updateLoading, loadingRef, closeable_fcRef]);
 
 	return (
-		<div
-			className={clsxm('flex items-center space-x-1', className)}
-			ref={targetEl}
-		>
+		<div className={clsxm('flex items-center space-x-1', className)} ref={targetEl}>
 			<TimeInputField
 				value={value['hours']}
 				onChange={onChange('hours')}

@@ -1,12 +1,4 @@
-import {
-	Editor,
-	BaseEditor,
-	Transforms,
-	Element as SlateElement,
-	Path,
-	Range,
-	Point
-} from 'slate';
+import { Editor, BaseEditor, Transforms, Element as SlateElement, Path, Range, Point } from 'slate';
 import { ReactEditor } from 'slate-react';
 import { jsx } from 'slate-hyperscript';
 
@@ -32,11 +24,7 @@ export class TextEditorService {
 		LIST_TYPES: string[],
 		TEXT_ALIGN_TYPES: string[]
 	) {
-		const isActive = isBlockActive(
-			editor,
-			format,
-			TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type'
-		);
+		const isActive = isBlockActive(editor, format, TEXT_ALIGN_TYPES.includes(format) ? 'align' : 'type');
 
 		const isList = LIST_TYPES.includes(format);
 
@@ -84,23 +72,22 @@ interface ElementAttributes {
 	[key: string]: string | null;
 }
 
-const ELEMENT_TAGS: { [key: string]: (el: HTMLElement) => ElementAttributes } =
-	{
-		A: (el) => ({ type: 'link', url: el.getAttribute('href') }),
-		BLOCKQUOTE: () => ({ type: 'quote' }),
-		H1: () => ({ type: 'h1' }),
-		H2: () => ({ type: 'h2' }),
-		// H3: () => ({ type: 'heading-three' }),
-		// H4: () => ({ type: 'heading-four' }),
-		// H5: () => ({ type: 'heading-five' }),
-		// H6: () => ({ type: 'heading-six' }),
-		// IMG: (el) => ({ type: 'image', url: el.getAttribute('src') }),
-		LI: () => ({ type: 'li' }),
-		OL: () => ({ type: 'ol' }),
-		P: () => ({ type: 'paragraph' }),
-		PRE: () => ({ type: 'code' }),
-		UL: () => ({ type: 'ul' })
-	};
+const ELEMENT_TAGS: { [key: string]: (el: HTMLElement) => ElementAttributes } = {
+	A: (el) => ({ type: 'link', url: el.getAttribute('href') }),
+	BLOCKQUOTE: () => ({ type: 'quote' }),
+	H1: () => ({ type: 'h1' }),
+	H2: () => ({ type: 'h2' }),
+	// H3: () => ({ type: 'heading-three' }),
+	// H4: () => ({ type: 'heading-four' }),
+	// H5: () => ({ type: 'heading-five' }),
+	// H6: () => ({ type: 'heading-six' }),
+	// IMG: (el) => ({ type: 'image', url: el.getAttribute('src') }),
+	LI: () => ({ type: 'li' }),
+	OL: () => ({ type: 'ol' }),
+	P: () => ({ type: 'paragraph' }),
+	PRE: () => ({ type: 'code' }),
+	UL: () => ({ type: 'ul' })
+};
 
 const TEXT_TAGS: { [key: string]: () => { [key: string]: boolean } } = {
 	CODE: () => ({ code: true }),
@@ -124,11 +111,7 @@ export const deserialize = (el: any): any => {
 	const { nodeName } = el;
 	let parent = el;
 
-	if (
-		nodeName === 'PRE' &&
-		el.childNodes[0] &&
-		el.childNodes[0].nodeName === 'CODE'
-	) {
+	if (nodeName === 'PRE' && el.childNodes[0] && el.childNodes[0].nodeName === 'CODE') {
 		parent = el.childNodes[0];
 	}
 	let children = Array.from(parent.childNodes).map(deserialize).flat();
@@ -208,10 +191,7 @@ export const insertLink = (editor: any, url: string | null) => {
 	ReactEditor.focus(editor);
 	//@ts-nocheck //add !!selection if not working
 	if (selection) {
-		const [parentNode, parentPath] = Editor.parent(
-			editor,
-			selection.focus?.path
-		);
+		const [parentNode, parentPath] = Editor.parent(editor, selection.focus?.path);
 
 		// Remove the Link node if we're inserting a new link node inside of another
 		// link.

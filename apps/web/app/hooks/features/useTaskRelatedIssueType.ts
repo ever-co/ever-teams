@@ -23,24 +23,18 @@ export function useTaskRelatedIssueType() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskRelatedIssueTypeList);
-	const {
-		loading: createTaskRelatedIssueTypeLoading,
-		queryCall: createQueryCall
-	} = useQuery(createTaskRelatedIssueTypeAPI);
-	const {
-		loading: deleteTaskRelatedIssueTypeLoading,
-		queryCall: deleteQueryCall
-	} = useQuery(deleteTaskRelatedIssueTypeAPI);
+	const { loading: createTaskRelatedIssueTypeLoading, queryCall: createQueryCall } =
+		useQuery(createTaskRelatedIssueTypeAPI);
+	const { loading: deleteTaskRelatedIssueTypeLoading, queryCall: deleteQueryCall } =
+		useQuery(deleteTaskRelatedIssueTypeAPI);
 	const { loading: editTaskRelatedIssueTypeLoading, queryCall: editQueryCall } =
 		useQuery(editTaskRelatedIssueTypeAPI);
 
-	const [taskRelatedIssueType, setTaskRelatedIssueType] = useRecoilState(
-		taskRelatedIssueTypeListState
+	const [taskRelatedIssueType, setTaskRelatedIssueType] = useRecoilState(taskRelatedIssueTypeListState);
+	const [taskRelatedIssueTypeFetching, setTaskRelatedIssueTypeFetching] = useRecoilState(
+		taskRelatedIssueTypeFetchingState
 	);
-	const [taskRelatedIssueTypeFetching, setTaskRelatedIssueTypeFetching] =
-		useRecoilState(taskRelatedIssueTypeFetchingState);
-	const { firstLoadData: firstLoadTaskRelatedIssueTypeData, firstLoad } =
-		useFirstLoad();
+	const { firstLoadData: firstLoadTaskRelatedIssueTypeData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
 		if (firstLoad) {
@@ -60,13 +54,7 @@ export function useTaskRelatedIssueType() {
 			}
 			return res;
 		});
-	}, [
-		user,
-		activeTeamId,
-		setTaskRelatedIssueType,
-		taskRelatedIssueType,
-		queryCall
-	]);
+	}, [user, activeTeamId, setTaskRelatedIssueType, taskRelatedIssueType, queryCall]);
 
 	useEffect(() => {
 		if (!firstLoad) return;
@@ -76,12 +64,11 @@ export function useTaskRelatedIssueType() {
 	const createTaskRelatedIssueType = useCallback(
 		(data: ITaskRelatedIssueTypeCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeamId },
-					user?.tenantId || ''
-				).then((res) => {
-					return res;
-				});
+				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
+					(res) => {
+						return res;
+					}
+				);
 			}
 		},
 

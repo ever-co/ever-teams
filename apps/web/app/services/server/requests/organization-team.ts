@@ -11,10 +11,7 @@ import moment from 'moment';
 import { serverFetch } from '../fetch';
 import { createOrganizationProjectRequest } from './project';
 
-export async function createOrganizationTeamRequest(
-	datas: IOrganizationTeamCreate,
-	bearer_token: string
-) {
+export async function createOrganizationTeamRequest(datas: IOrganizationTeamCreate, bearer_token: string) {
 	// Create project
 	const { data: project } = await createOrganizationProjectRequest(
 		{
@@ -42,10 +39,7 @@ export async function createOrganizationTeamRequest(
  * @param {string} bearer_token - The token that is used to authenticate the user.
  * @returns IOrganizationTeam
  */
-export function updateOrganizationTeamRequest(
-	datas: IOrganizationTeamUpdate & { id: string },
-	bearer_token: string
-) {
+export function updateOrganizationTeamRequest(datas: IOrganizationTeamUpdate & { id: string }, bearer_token: string) {
 	const { id } = datas;
 
 	return serverFetch<IOrganizationTeamUpdate>({

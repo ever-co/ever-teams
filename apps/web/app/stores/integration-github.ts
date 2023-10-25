@@ -3,11 +3,10 @@ import { atom } from 'recoil';
 
 export const integrationGithubMetadataState = atom<IGithubMetadata | null>({
 	key: 'integrationGithubMetadataState',
-	default: null,
+	default: null
 });
 
-export const integrationGithubRepositoriesState =
-	atom<IGithubRepositories | null>({
-		key: 'integrationGithubRepositoriesState',
-		default: null,
-	});
+export const integrationGithubRepositoriesState = atom<IGithubRepositories | null>({
+	key: 'integrationGithubRepositoriesState',
+	default: null
+});

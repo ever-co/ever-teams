@@ -1,25 +1,16 @@
 import { getWorkingEmployeesAPI } from '@app/services/client/api';
-import {
-	workingEmployeesEmailState,
-	workingEmployeesState
-} from '@app/stores/employee';
+import { workingEmployeesEmailState, workingEmployeesState } from '@app/stores/employee';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 
 import { useQuery } from '../useQuery';
 
 export const useEmployee = () => {
-	const [workingEmployees, setWorkingEmployees] = useRecoilState(
-		workingEmployeesState
-	);
-	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useRecoilState(
-		workingEmployeesEmailState
-	);
+	const [workingEmployees, setWorkingEmployees] = useRecoilState(workingEmployeesState);
+	const [workingEmployeesEmail, setWorkingEmployeesEmail] = useRecoilState(workingEmployeesEmailState);
 
-	const {
-		queryCall: getWorkingEmployeeQueryCall,
-		loading: getWorkingEmployeeLoading
-	} = useQuery(getWorkingEmployeesAPI);
+	const { queryCall: getWorkingEmployeeQueryCall, loading: getWorkingEmployeeLoading } =
+		useQuery(getWorkingEmployeesAPI);
 
 	const getWorkingEmployee = useCallback(() => {
 		getWorkingEmployeeQueryCall().then((data) => {
@@ -29,11 +20,7 @@ export const useEmployee = () => {
 				setWorkingEmployeesEmail(items.map((item) => item.user?.email || ''));
 			}
 		});
-	}, [
-		getWorkingEmployeeQueryCall,
-		setWorkingEmployees,
-		setWorkingEmployeesEmail
-	]);
+	}, [getWorkingEmployeeQueryCall, setWorkingEmployees, setWorkingEmployeesEmail]);
 
 	useEffect(() => {
 		getWorkingEmployee();

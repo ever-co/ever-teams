@@ -2,14 +2,9 @@ import { pad } from '@app/helpers/number';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/ui/loaders/spinner';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/legacy/image';
-import {
-	Dispatch,
-	forwardRef,
-	RefObject,
-	SetStateAction,
-	useCallback
-} from 'react';
+import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
 import { MC_EditableValues } from '../types';
 import { EstimationProgress } from './estimation-progress';
 
@@ -42,6 +37,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 		},
 		ref
 	) => {
+		const { t } = useTranslation();
 		const canEditMode = useCallback(() => {
 			hasEditMode && setEditMode(true);
 		}, [setEditMode, hasEditMode]);
@@ -54,20 +50,14 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 						{!editMode && (
 							<div className="flex items-center">
 								<div>
-									Estimate : {editable.estimateHours}h{' '}
-									{pad(editable.estimateMinutes)}m
+									{t('common.ESTIMATE')} : {editable.estimateHours}h {pad(editable.estimateMinutes)}m
 								</div>
 								<span
 									className="ml-[15px] flex items-center cursor-pointer"
 									onClick={canEditMode}
 									ref={clickIgnoreEl}
 								>
-									<Image
-										src="/assets/png/edit.png"
-										width={20}
-										height={20}
-										alt="edit icon"
-									/>
+									<Image src="/assets/png/edit.png" width={20} height={20} alt="edit icon" />
 								</span>
 							</div>
 						)}
@@ -102,9 +92,7 @@ export const EstimateTimeInfo = forwardRef<HTMLDivElement, Props>(
 										m
 									</div>
 								</div>{' '}
-								<span className="w-3 h-5 ml-2">
-									{loading && <Spinner dark={false} />}
-								</span>
+								<span className="w-3 h-5 ml-2">{loading && <Spinner dark={false} />}</span>
 							</div>
 						)}
 					</div>

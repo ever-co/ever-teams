@@ -7,12 +7,8 @@ import {
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, organizationId, access_token, tenantId, teamId } =
-		await authenticatedGuard(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, organizationId, access_token, tenantId, teamId } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	const getTeamStatus = async () => {

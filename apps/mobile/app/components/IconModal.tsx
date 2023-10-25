@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState } from 'react';
 import {
 	View,
 	ViewStyle,
@@ -10,60 +10,55 @@ import {
 	TouchableOpacity,
 	TouchableWithoutFeedback,
 	TextInput,
-	ScrollView,
-} from "react-native"
+	ScrollView
+} from 'react-native';
 
-import { useAppTheme } from "../theme"
-import { translate } from "../i18n"
-import { generateIconList } from "../helpers/generate-icon"
-import { IIcon } from "../services/interfaces/IIcon"
-import { SvgUri } from "react-native-svg"
+import { useAppTheme } from '../theme';
+import { translate } from '../i18n';
+import { generateIconList } from '../helpers/generate-icon';
+import { IIcon } from '../services/interfaces/IIcon';
+import { SvgUri } from 'react-native-svg';
 
 interface IModal {
-	visible: boolean
-	onDismiss: () => void
-	setIcon: React.Dispatch<React.SetStateAction<string>>
-	setAllIcons: React.Dispatch<React.SetStateAction<IIcon[]>>
+	visible: boolean;
+	onDismiss: () => void;
+	setIcon: React.Dispatch<React.SetStateAction<string>>;
+	setAllIcons: React.Dispatch<React.SetStateAction<IIcon[]>>;
 }
 
 const IconModal: FC<IModal> = ({ visible, onDismiss, setIcon, setAllIcons }) => {
-	const { colors } = useAppTheme()
-	const [searchText, setSearchText] = useState<string>("")
+	const { colors } = useAppTheme();
+	const [searchText, setSearchText] = useState<string>('');
 
-	const taskStatusIconList: IIcon[] = generateIconList("task-statuses", [
-		"open",
-		"in-progress",
-		"ready",
-		"in-review",
-		"blocked",
-		"completed",
-	])
-	const taskSizesIconList: IIcon[] = generateIconList("task-sizes", [
-		"x-large",
+	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
+		'open',
+		'in-progress',
+		'ready',
+		'in-review',
+		'blocked',
+		'completed'
+	]);
+	const taskSizesIconList: IIcon[] = generateIconList('task-sizes', [
+		'x-large'
 		// 'large',
 		// 'medium',
 		// 'small',
 		// 'tiny',
-	])
-	const taskPrioritiesIconList: IIcon[] = generateIconList("task-priorities", [
-		"urgent",
-		"high",
-		"medium",
-		"low",
-	])
+	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
-	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList]
+	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	useEffect(() => {
-		setAllIcons(iconList)
-		setSearchText("")
-	}, [visible])
+		setAllIcons(iconList);
+		setSearchText('');
+	}, [visible]);
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
 			<View style={[styles.container, { backgroundColor: colors.background2 }]}>
 				<TextInput
-					placeholder={translate("settingScreen.priorityScreen.priorityIconPlaceholder")}
+					placeholder={translate('settingScreen.priorityScreen.priorityIconPlaceholder')}
 					style={styles.textInput}
 					value={searchText}
 					onChangeText={(text) => setSearchText(text)}
@@ -73,15 +68,15 @@ const IconModal: FC<IModal> = ({ visible, onDismiss, setIcon, setAllIcons }) => 
 					<View style={styles.iconsContainer}>
 						{iconList
 							.filter((item) =>
-								item.title.toLowerCase().split("-").join(" ").includes(searchText.toLowerCase()),
+								item.title.toLowerCase().split('-').join(' ').includes(searchText.toLowerCase())
 							)
 							.map((item, idx) => (
 								<TouchableOpacity
 									style={{ padding: 8 }}
 									key={idx}
 									onPress={() => {
-										setIcon(item.path)
-										onDismiss()
+										setIcon(item.path);
+										onDismiss();
 									}}
 								>
 									<SvgUri width={30} height={30} uri={item.fullUrl} />
@@ -91,34 +86,34 @@ const IconModal: FC<IModal> = ({ visible, onDismiss, setIcon, setAllIcons }) => 
 				</ScrollView>
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default IconModal
+export default IconModal;
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<TouchableWithoutFeedback onPress={onDismiss}>
@@ -127,29 +122,29 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
-	justifyContent: "center",
-}
+	backgroundColor: '#000000AA',
+	justifyContent: 'center'
+};
 
 const styles = StyleSheet.create({
 	container: {
-		alignSelf: "center",
+		alignSelf: 'center',
 		borderRadius: 20,
 		height: 300,
 		padding: 20,
-		width: "90%",
+		width: '90%'
 	},
-	divider: { backgroundColor: "#b1aebc80", height: 1, marginBottom: 10, width: "100%" },
+	divider: { backgroundColor: '#b1aebc80', height: 1, marginBottom: 10, width: '100%' },
 	iconsContainer: {
-		display: "flex",
-		flexDirection: "row",
-		flexWrap: "wrap",
-		gap: 13.5,
+		display: 'flex',
+		flexDirection: 'row',
+		flexWrap: 'wrap',
+		gap: 13.5
 	},
-	textInput: { fontSize: 18, marginBottom: 10 },
-})
+	textInput: { fontSize: 18, marginBottom: 10 }
+});

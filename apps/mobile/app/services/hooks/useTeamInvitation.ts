@@ -1,38 +1,38 @@
-import { useCallback, useEffect, useState } from "react"
-import { INVITE_CALLBACK_URL } from "@env"
-import isEqual from "lodash/isEqual"
-import { useStores } from "../../models"
+import { useCallback, useEffect, useState } from 'react';
+import { INVITE_CALLBACK_URL } from '@env';
+import isEqual from 'lodash/isEqual';
+import { useStores } from '../../models';
 import {
 	inviteByEmailsRequest,
 	removeTeamInvitationsRequest,
-	resendInvitationEmailRequest,
-} from "../client/requests/invite"
-import { getEmployeeRoleRequest } from "../client/requests/roles"
-import { useFetchTeamInvitations } from "../client/queries/invitation/invitations"
-import { useSyncRef } from "./useSyncRef"
+	resendInvitationEmailRequest
+} from '../client/requests/invite';
+import { getEmployeeRoleRequest } from '../client/requests/roles';
+import { useFetchTeamInvitations } from '../client/queries/invitation/invitations';
+import { useSyncRef } from './useSyncRef';
 
 export function useTeamInvitations() {
 	const {
 		authenticationStore: { user, organizationId, tenantId, authToken },
-		teamStore: { activeTeamId, teamInvitations, setTeamInvitations, teams },
-	} = useStores()
+		teamStore: { activeTeamId, teamInvitations, setTeamInvitations, teams }
+	} = useStores();
 	const {
 		isFetching,
 		isSuccess,
 		refetch,
 		isRefetching,
-		data: invitations,
-	} = useFetchTeamInvitations({ authToken, tenantId, organizationId, activeTeamId })
+		data: invitations
+	} = useFetchTeamInvitations({ authToken, tenantId, organizationId, activeTeamId });
 
-	const [loading, setLoading] = useState<boolean>(false)
-	const invitationsRef = useSyncRef(teamInvitations || [])
+	const [loading, setLoading] = useState<boolean>(false);
+	const invitationsRef = useSyncRef(teamInvitations || []);
 	const inviterMember = async ({ name, email }: { name: string; email: string }) => {
-		setLoading(true)
+		setLoading(true);
 		const { data: employeeRole } = await getEmployeeRoleRequest({
 			tenantId,
-			role: "EMPLOYEE",
-			bearer_token: authToken,
-		})
+			role: 'EMPLOYEE',
+			bearer_token: authToken
+		});
 
 		const { response } = await inviteByEmailsRequest(
 			{
@@ -42,55 +42,55 @@ export function useTeamInvitations() {
 				departmentIds: [],
 				organizationContactIds: [],
 				emailIds: [email],
-				roleId: employeeRole?.id || "",
-				invitationExpirationPeriod: "Never",
-				inviteType: "TEAM",
+				roleId: employeeRole?.id || '',
+				invitationExpirationPeriod: 'Never',
+				inviteType: 'TEAM',
 				appliedDate: null,
 				invitedById: user.id,
 				teamIds: [activeTeamId],
 				projectIds: [],
 				fullName: name,
-				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {})
 			},
-			authToken,
-		)
-		refetch()
-		setLoading(false)
-		return response
-	}
+			authToken
+		);
+		refetch();
+		setLoading(false);
+		return response;
+	};
 
 	const resendInvite = useCallback(async (inviteId: string) => {
 		await resendInvitationEmailRequest(
 			{
 				tenantId,
 				inviteId,
-				inviteType: "TEAM",
+				inviteType: 'TEAM',
 				organizationId,
-				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {}),
+				...(INVITE_CALLBACK_URL ? { callbackUrl: INVITE_CALLBACK_URL } : {})
 			},
-			authToken,
-		)
-	}, [])
+			authToken
+		);
+	}, []);
 
 	const removeSentInvitation = useCallback(async (inviteId: string) => {
 		await removeTeamInvitationsRequest({
 			invitationId: inviteId,
 			bearer_token: authToken,
-			tenantId,
-		})
-	}, [])
+			tenantId
+		});
+	}, []);
 
 	useEffect(() => {
 		if (isSuccess) {
-			const latestTeamInvitations = invitations || []
+			const latestTeamInvitations = invitations || [];
 
 			const latestTeamInvitationsSorted = latestTeamInvitations
 				.slice()
-				.sort((a, b) => a.email.localeCompare(b.email))
+				.sort((a, b) => a.email.localeCompare(b.email));
 
 			const teamInvitationsRefSorted = invitationsRef.current
 				.slice()
-				.sort((a, b) => a.email.localeCompare(b.email))
+				.sort((a, b) => a.email.localeCompare(b.email));
 
 			/**
 			 * Check deep equality,
@@ -100,16 +100,16 @@ export function useTeamInvitations() {
 			 * Use tinvitationsRef to make we always get the lastest value
 			 */
 			if (!isEqual(latestTeamInvitationsSorted, teamInvitationsRefSorted)) {
-				setTeamInvitations(invitations)
+				setTeamInvitations(invitations);
 			}
 		}
-	}, [activeTeamId, teams, loading, user, isFetching, isRefetching])
+	}, [activeTeamId, teams, loading, user, isFetching, isRefetching]);
 
 	return {
 		inviterMember,
 		loading,
 		teamInvitations,
 		resendInvite,
-		removeSentInvitation,
-	}
+		removeSentInvitation
+	};
 }

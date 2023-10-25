@@ -43,10 +43,7 @@ export const ColorPicker = ({
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				panelRef.current &&
-				!panelRef.current.contains(event.target as Node)
-			) {
+			if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
 				setDisabled(true);
 			}
 		};
@@ -78,9 +75,7 @@ export const ColorPicker = ({
 					>
 						<div
 							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
-								disabled || disableButton
-									? 'bg-[#FCFCFC]'
-									: 'bg-light--theme-light'
+								disabled || disableButton ? 'bg-[#FCFCFC]' : 'bg-light--theme-light'
 							}  dark:bg-dark--theme-light`}
 						>
 							<div className={`flex gap-[8px] h-[40px] items-center pl-[15px]`}>
@@ -96,9 +91,7 @@ export const ColorPicker = ({
 								<div className="flex mr-[0.5rem] gap-3">
 									<button
 										disabled={!isTeamManager}
-										className={`outline-none ${
-											!isTeamManager && 'pointer-events-none'
-										} z-50`}
+										className={`outline-none ${!isTeamManager && 'pointer-events-none'} z-50`}
 										onClick={() => {
 											setDisabled(!disabled);
 										}}
@@ -144,18 +137,13 @@ export const ColorPicker = ({
 	) : (
 		<Dropdown
 			className={`min-w-[150px] max-w-sm z-50`}
-			buttonClassName={clsxm(
-				`py-0 font-medium h-[54px] w-[150px] dark:bg-dark--theme-light`
-			)}
+			buttonClassName={clsxm(`py-0 font-medium h-[54px] w-[150px] dark:bg-dark--theme-light`)}
 			value={{
 				key: color || '',
 				// eslint-disable-next-line react/no-unstable-nested-components
 				Label: () => (
 					<div className="flex items-center space-x-2">
-						<span
-							className="w-5 h-5 rounded-full block"
-							style={{ backgroundColor: color || '#000' }}
-						/>
+						<span className="w-5 h-5 rounded-full block" style={{ backgroundColor: color || '#000' }} />
 						<span className="font-normal">{color || 'Color'}</span>
 					</div>
 				)

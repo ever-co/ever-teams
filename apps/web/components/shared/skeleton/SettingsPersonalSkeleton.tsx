@@ -9,12 +9,7 @@ const SettingsPersonalSkeleton = () => {
 		<MainLayout>
 			<div className="bg-white dark:bg-dark--theme pt-16 -mt-8 pb-4">
 				<Container>
-					<Skeleton
-						height={20}
-						width={180}
-						borderRadius={10}
-						className="dark:bg-[#272930]"
-					/>
+					<Skeleton height={20} width={180} borderRadius={10} className="dark:bg-[#272930]" />
 				</Container>
 			</div>
 
@@ -22,23 +17,12 @@ const SettingsPersonalSkeleton = () => {
 				<div className="flex w-full">
 					<LeftSideSettingMenuSkeleton />
 					<div className="flex flex-col w-full dark:bg-[#191A1F]">
-						<Card
-							className="dark:bg-dark--theme p-[32px] mt-[36px]"
-							shadow="bigger"
-						>
+						<Card className="dark:bg-dark--theme p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-4xl font-medium mb-2">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={200} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<Text className="text-base font-normal text-gray-400">
-								<Skeleton
-									width={300}
-									borderRadius={20}
-									className="dark:bg-[#272930]"
-								/>
+								<Skeleton width={300} borderRadius={20} className="dark:bg-[#272930]" />
 							</Text>
 							<div className="flex flex-col justify-between items-center">
 								<div className="w-full">
@@ -198,17 +182,9 @@ const SettingsPersonalSkeleton = () => {
 								</div>
 							</div>
 						</Card>
-						<Card
-							className="dark:bg-[#272930] p-[32px] mt-[36px]"
-							shadow="bigger"
-						>
+						<Card className="dark:bg-[#272930] p-[32px] mt-[36px]" shadow="bigger">
 							<Text className="text-2xl text-[#EB6961] font-normal">
-								<Skeleton
-									width={200}
-									borderRadius={20}
-									height={25}
-									className="dark:bg-[#353741]"
-								/>
+								<Skeleton width={200} borderRadius={20} height={25} className="dark:bg-[#353741]" />
 							</Text>
 							<DangerZoneSkeleton />
 						</Card>

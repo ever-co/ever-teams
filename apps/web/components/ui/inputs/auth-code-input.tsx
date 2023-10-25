@@ -1,9 +1,5 @@
-import React, {
-	useRef,
-	useEffect,
-	useImperativeHandle,
-	forwardRef
-} from 'react';
+import { useTranslation } from 'react-i18next';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;
 
@@ -75,14 +71,13 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 		},
 		ref
 	) => {
+		const { t } = useTranslation();
 		if (isNaN(length) || length < 1) {
 			throw new Error('Length should be a number and greater than 0');
 		}
 
 		if (!allowedCharactersValues.some((value) => value === allowedCharacters)) {
-			throw new Error(
-				'Invalid value for allowedCharacters. Use alpha, numeric, or alphanumeric'
-			);
+			throw new Error(t('form.INVALID_ALLOWED_CHARACTER'));
 		}
 
 		const inputsRef = useRef<Array<HTMLInputElement>>([]);
@@ -171,10 +166,7 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 					if (!currentValue) {
 						inputsRef.current[currentInput].value = pastedCharacter;
 						if (inputsRef.current[currentInput].nextElementSibling !== null) {
-							(
-								inputsRef.current[currentInput]
-									.nextElementSibling as HTMLInputElement
-							).focus();
+							(inputsRef.current[currentInput].nextElementSibling as HTMLInputElement).focus();
 							currentInput++;
 						}
 					}
@@ -202,11 +194,7 @@ const AuthCodeInput = forwardRef<AuthCodeRef, AuthCodeProps>(
 					maxLength={1}
 					className={inputClassName}
 					autoComplete={i === 0 ? 'one-time-code' : 'off'}
-					aria-label={
-						ariaLabel
-							? `${ariaLabel}. Character ${i + 1}.`
-							: `Character ${i + 1}.`
-					}
+					aria-label={ariaLabel ? `${ariaLabel}. Character ${i + 1}.` : `Character ${i + 1}.`}
 					disabled={disabled}
 					placeholder={placeholder}
 				/>

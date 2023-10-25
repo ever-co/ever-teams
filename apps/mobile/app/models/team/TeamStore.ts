@@ -1,46 +1,46 @@
-import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { IInvitation } from "../../services/interfaces/IInvite"
-import { IOrganizationTeamList } from "../../services/interfaces/IOrganizationTeam"
-import { ITeamsOut } from "./Team"
+import { Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { IInvitation } from '../../services/interfaces/IInvite';
+import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
+import { ITeamsOut } from './Team';
 
 export const TeamStoreModel = types
-	.model("TeamStore")
+	.model('TeamStore')
 	.props({
 		teams: types.frozen<ITeamsOut>(),
 		activeTeam: types.frozen<IOrganizationTeamList>(),
-		activeTeamId: types.optional(types.string, ""),
+		activeTeamId: types.optional(types.string, ''),
 		teamInvitations: types.optional(types.frozen<IInvitation[]>(), []),
 		teamsFetching: types.optional(types.boolean, false),
-		isTrackingEnabled: types.optional(types.boolean, false),
+		isTrackingEnabled: types.optional(types.boolean, false)
 	})
 	.actions((store) => ({
 		setActiveTeam(team: IOrganizationTeamList) {
-			store.activeTeam = team
-			store.activeTeamId = team?.id || ""
+			store.activeTeam = team;
+			store.activeTeamId = team?.id || '';
 		},
 		setActiveTeamId(id: string) {
-			store.activeTeamId = id
+			store.activeTeamId = id;
 		},
 		setOrganizationTeams(teams: ITeamsOut) {
-			store.teams = teams
+			store.teams = teams;
 		},
 		setTeamInvitations(invitations: any) {
-			store.teamInvitations = invitations
+			store.teamInvitations = invitations;
 		},
 		setTeamsFetching(value: boolean) {
-			store.teamsFetching = value
+			store.teamsFetching = value;
 		},
 		setIsTrackingEnabled(value: boolean) {
-			store.isTrackingEnabled = value
+			store.isTrackingEnabled = value;
 		},
 		clearStoredTeamData() {
-			store.teams = { items: [], total: 0 }
-			store.activeTeam = null
-			store.activeTeamId = ""
-			store.teamInvitations = null
-			store.isTrackingEnabled = false
-		},
-	}))
+			store.teams = { items: [], total: 0 };
+			store.activeTeam = null;
+			store.activeTeamId = '';
+			store.teamInvitations = null;
+			store.isTrackingEnabled = false;
+		}
+	}));
 
 export interface TeamStore extends Instance<typeof TeamStoreModel> {}
 export interface TeamStoreSnapshot extends SnapshotOut<typeof TeamStoreModel> {}

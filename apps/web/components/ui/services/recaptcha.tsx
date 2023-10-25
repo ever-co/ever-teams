@@ -14,12 +14,5 @@ export function SiteReCAPTCHA({
 	onExpired?: () => void;
 	onErrored?: () => void;
 }) {
-	return (
-		<ReactReCAPTCHA
-			sitekey={key}
-			onChange={onChange}
-			onExpired={onExpired}
-			onErrored={onErrored}
-		/>
-	);
+	return <ReactReCAPTCHA sitekey={key} onChange={onChange} onExpired={onExpired} onErrored={onErrored} />;
 }

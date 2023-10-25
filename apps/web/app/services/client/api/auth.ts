@@ -1,10 +1,6 @@
 import { getRefreshTokenCookie } from '@app/helpers/cookies';
 import { ISuccessResponse } from '@app/interfaces';
-import {
-	ILoginResponse,
-	IRegisterDataAPI,
-	ISigninEmailConfirmResponse
-} from '@app/interfaces/IAuthentication';
+import { ILoginResponse, IRegisterDataAPI, ISigninEmailConfirmResponse } from '@app/interfaces/IAuthentication';
 import api from '../axios';
 
 export const signInWithEmailAndCodeAPI = (email: string, code: string) => {
@@ -48,11 +44,7 @@ export const signInEmailConfirmAPI = (email: string, code: string) => {
 		code
 	});
 };
-export const signInWorkspaceAPI = (
-	email: string,
-	token: string,
-	selectedTeam: string
-) => {
+export const signInWorkspaceAPI = (email: string, token: string, selectedTeam: string) => {
 	return api.post<ILoginResponse>(`/auth/signin-workspace`, {
 		email,
 		token,

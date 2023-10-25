@@ -1,43 +1,37 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React from "react"
-import {
-	View,
-	ViewStyle,
-	TouchableOpacity,
-	StyleSheet,
-	TouchableWithoutFeedback,
-} from "react-native"
-import { Avatar, Text } from "react-native-paper"
-import { Ionicons, Entypo } from "@expo/vector-icons"
+import React from 'react';
+import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { Avatar, Text } from 'react-native-paper';
+import { Ionicons, Entypo } from '@expo/vector-icons';
 
 // COMPONENTS
-import { Card, ListItem } from "../../../../components"
+import { Card, ListItem } from '../../../../components';
 
 // STYLES
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { spacing, typography, useAppTheme } from "../../../../theme"
-import { observer } from "mobx-react-lite"
-import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
-import { translate } from "../../../../i18n"
-import { AnimatedCircularProgress } from "react-native-circular-progress"
-import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
-import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
+import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
+import { spacing, typography, useAppTheme } from '../../../../theme';
+import { observer } from 'mobx-react-lite';
+import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { translate } from '../../../../i18n';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+import { useTeamInvitations } from '../../../../services/hooks/useTeamInvitation';
+import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
 
 export type ListItemProps = {
-	invite: any
-	onPressIn?: () => unknown
-}
+	invite: any;
+	onPressIn?: () => unknown;
+};
 
 export interface Props extends ListItemProps {
-	index: number
-	openMenuIndex: number | null
-	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
+	index: number;
+	openMenuIndex: number | null;
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPressIn }) => {
 	// HOOKS
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 
 	return (
 		<TouchableWithoutFeedback onPress={() => onPressIn()}>
@@ -46,7 +40,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 					...GS.p3,
 					...GS.positionRelative,
 					backgroundColor: colors.background,
-					borderRadius: 10,
+					borderRadius: 10
 				}}
 			>
 				<View style={styles.firstContainer}>
@@ -59,16 +53,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 						<Avatar.Image
 							style={styles.statusIcon}
 							size={20}
-							source={require("../../../../../assets/icons/new/invite-status-icon.png")}
+							source={require('../../../../../assets/icons/new/invite-status-icon.png')}
 						/>
 					</View>
 					<Text style={[styles.name, { color: colors.primary }]}>{invite.fullName}</Text>
 					{/* ENABLE ESTIMATE INPUTS */}
 					<View style={styles.wrapTotalTime}>
-						<View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
-							<Text style={styles.totalTimeTitle}>
-								{translate("teamScreen.cardTotalTimeLabel")}
-							</Text>
+						<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
+							<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTotalTimeLabel')}</Text>
 							<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
 								20 h:30 m
 							</Text>
@@ -84,26 +76,22 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 				<View style={[styles.times, { borderTopColor: colors.divider }]}>
 					<View
 						style={{
-							flexDirection: "row",
-							justifyContent: "space-between",
-							alignItems: "center",
+							flexDirection: 'row',
+							justifyContent: 'space-between',
+							alignItems: 'center',
 							height: 48,
-							width: "100%",
+							width: '100%'
 						}}
 					>
-						<View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
-							<Text style={styles.totalTimeTitle}>
-								{translate("teamScreen.cardTodayWorkLabel")}
-							</Text>
+						<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
+							<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTodayWorkLabel')}</Text>
 							<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
 								20 h:30 m
 							</Text>
 						</View>
 						<View style={{ ...GS.alignCenter }}>
-							<View style={{ ...GS.alignCenter, height: "80%", justifyContent: "space-between" }}>
-								<Text style={styles.totalTimeTitle}>
-									{translate("teamScreen.cardTotalWorkLabel")}
-								</Text>
+							<View style={{ ...GS.alignCenter, height: '80%', justifyContent: 'space-between' }}>
+								<Text style={styles.totalTimeTitle}>{translate('teamScreen.cardTotalWorkLabel')}</Text>
 								<Text style={[styles.totalTimeText, { color: colors.primary, fontSize: 14 }]}>
 									20 h:30 m
 								</Text>
@@ -124,25 +112,25 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 				</View>
 			</View>
 		</TouchableWithoutFeedback>
-	)
-})
+	);
+});
 
 const ListCardItem: React.FC<Props> = (props) => {
-	const { colors } = useAppTheme()
-	const { isTeamManager } = useOrganizationTeam()
-	const { resendInvite, removeSentInvitation } = useTeamInvitations()
+	const { colors } = useAppTheme();
+	const { isTeamManager } = useOrganizationTeam();
+	const { resendInvite, removeSentInvitation } = useTeamInvitations();
 	// STATS
-	const [showConfirm, setShowConfirm] = React.useState(false)
-	const [showCard, setShowCard] = React.useState(true)
+	const [showConfirm, setShowConfirm] = React.useState(false);
+	const [showCard, setShowCard] = React.useState(true);
 
-	const { invite } = props
+	const { invite } = props;
 
 	const handleRemoveInvitation = (inviteId: string) => {
-		removeSentInvitation(inviteId)
-		setShowConfirm(false)
-		props.setOpenMenuIndex(null)
-		setShowCard(false)
-	}
+		removeSentInvitation(inviteId);
+		setShowConfirm(false);
+		props.setOpenMenuIndex(null);
+		setShowCard(false);
+	};
 
 	return (
 		<Card
@@ -150,8 +138,8 @@ const ListCardItem: React.FC<Props> = (props) => {
 				...$listCard,
 				...GS.mt5,
 				paddingTop: 4,
-				backgroundColor: "#DCD6D6",
-				display: showCard ? "flex" : "none",
+				backgroundColor: '#DCD6D6',
+				display: showCard ? 'flex' : 'none'
 			}}
 			HeadingComponent={
 				<View
@@ -162,13 +150,13 @@ const ListCardItem: React.FC<Props> = (props) => {
 						...GS.pt5,
 						...GS.pr3,
 						...GS.zIndexFront,
-						...(!isTeamManager ? { display: "none" } : {}),
+						...(!isTeamManager ? { display: 'none' } : {})
 					}}
 				>
 					<View
 						style={{
 							...GS.positionRelative,
-							...GS.zIndexFront,
+							...GS.zIndexFront
 						}}
 					>
 						<View
@@ -186,34 +174,34 @@ const ListCardItem: React.FC<Props> = (props) => {
 								marginRight: 17,
 								backgroundColor: colors.background,
 								minWidth: spacing.huge * 2,
-								...(props.index !== props.openMenuIndex ? { display: "none" } : {}),
+								...(props.index !== props.openMenuIndex ? { display: 'none' } : {})
 							}}
 						>
 							<View style={{}}>
 								<ListItem
 									textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 									onPress={() => {
-										resendInvite(invite.id)
-										props.setOpenMenuIndex(null)
+										resendInvite(invite.id);
+										props.setOpenMenuIndex(null);
 									}}
 								>
-									{translate("tasksScreen.resendInvitation")}
+									{translate('tasksScreen.resendInvitation')}
 								</ListItem>
 								<ListItem
-									textStyle={[styles.dropdownTxt, { color: "#ef4444" }]}
+									textStyle={[styles.dropdownTxt, { color: '#ef4444' }]}
 									onPress={() => {
-										setShowConfirm(!showConfirm)
+										setShowConfirm(!showConfirm);
 									}}
 								>
-									{translate("tasksScreen.remove")}
+									{translate('tasksScreen.remove')}
 								</ListItem>
 							</View>
 						</View>
 
 						<TouchableOpacity
 							onPress={() => {
-								props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
-								setShowConfirm(false)
+								props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index);
+								setShowConfirm(false);
 							}}
 						>
 							{props.openMenuIndex !== props.index ? (
@@ -246,10 +234,10 @@ const ListCardItem: React.FC<Props> = (props) => {
 				</>
 			}
 		/>
-	)
-}
+	);
+};
 
-export default ListCardItem
+export default ListCardItem;
 
 const $listCard: ViewStyle = {
 	...GS.flex1,
@@ -257,98 +245,98 @@ const $listCard: ViewStyle = {
 	...GS.noBorder,
 	...GS.shadowSm,
 	minHeight: null,
-	borderRadius: 14,
-}
+	borderRadius: 14
+};
 
 const styles = StyleSheet.create({
 	confirmContainer: {
 		borderRadius: 5,
 		elevation: 5,
 		padding: 10,
-		position: "absolute",
+		position: 'absolute',
 		right: 207,
-		shadowColor: "#2979FF",
+		shadowColor: '#2979FF',
 		shadowOffset: { width: 1, height: 1.5 },
 		shadowOpacity: 0.5,
 		shadowRadius: 5,
-		top: 60,
+		top: 60
 	},
 	confirmText: {
 		fontSize: 16,
-		fontWeight: "bold",
-		marginBottom: 5,
+		fontWeight: 'bold',
+		marginBottom: 5
 	},
 	dropdownTxt: {
-		color: "#282048",
+		color: '#282048',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
+		fontSize: 14
 	},
 
 	firstContainer: {
-		alignItems: "center",
-		flexDirection: "row",
+		alignItems: 'center',
+		flexDirection: 'row'
 	},
 	name: {
-		color: "#1B005D",
+		color: '#1B005D',
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 12,
 		left: 15,
-		opacity: 0.2,
+		opacity: 0.2
 	},
 	otherText: {
-		color: "#282048",
+		color: '#282048',
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14,
-		fontStyle: "normal",
+		fontStyle: 'normal',
 		lineHeight: 15,
 		opacity: 0.2,
-		width: "100%",
+		width: '100%'
 	},
 	progessText: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
-		opacity: 0.2,
+		opacity: 0.2
 	},
 	statusIcon: {
 		bottom: 0,
-		position: "absolute",
-		right: -4,
+		position: 'absolute',
+		right: -4
 	},
 	times: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderTopWidth: 1,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		paddingTop: 16,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		paddingTop: 16
 	},
 	totalTimeText: {
-		color: "#282048",
+		color: '#282048',
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 12,
-		opacity: 0.2,
+		opacity: 0.2
 	},
 	totalTimeTitle: {
-		color: "#7E7991",
+		color: '#7E7991',
 		fontFamily: typography.fonts.PlusJakartaSans.medium,
 		fontSize: 10,
-		fontWeight: "500",
+		fontWeight: '500',
 		marginBottom: 9,
-		opacity: 0.2,
+		opacity: 0.2
 	},
 	wrapProfileImg: {
-		flexDirection: "row",
+		flexDirection: 'row'
 	},
 	wrapTaskTitle: {
 		borderTopWidth: 1,
 		marginTop: 16,
 		paddingVertical: 16,
-		width: "100%",
+		width: '100%'
 	},
 	wrapTotalTime: {
-		alignItems: "center",
-		justifyContent: "center",
+		alignItems: 'center',
+		justifyContent: 'center',
 		marginRight: 30,
-		position: "absolute",
-		right: 0,
-	},
-})
+		position: 'absolute',
+		right: 0
+	}
+});

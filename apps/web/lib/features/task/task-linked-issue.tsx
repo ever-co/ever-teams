@@ -1,15 +1,11 @@
 import { useQuery } from '@app/hooks';
-import {
-	ITeamTask,
-	LinkedTaskIssue,
-	TaskRelatedIssuesRelationEnum
-} from '@app/interfaces';
+import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@app/interfaces';
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { Card, Dropdown, DropdownItem } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 
@@ -30,21 +26,13 @@ export function TaskLinkedIssue({
 	);
 
 	return (
-		<Card
-			shadow="custom"
-			className={clsxm(
-				'flex justify-between items-center py-3 px-0 md:px-0',
-				className
-			)}
-		>
+		<Card shadow="custom" className={clsxm('flex justify-between items-center py-3 px-0 md:px-0', className)}>
 			<Link href={`/task/${task.id}`}>
 				<TaskNameInfoDisplay
 					task={task}
 					dash
 					className={clsxm(
-						task.issueType === 'Bug'
-							? '!px-[0.3312rem] py-[0.2875rem]'
-							: '!px-[0.375rem] py-[0.375rem]',
+						task.issueType === 'Bug' ? '!px-[0.3312rem] py-[0.2875rem]' : '!px-[0.375rem] py-[0.375rem]',
 						'rounded-full'
 					)}
 					// className="px-1 md:px-1 flex mr-2.5"
@@ -100,50 +88,45 @@ function mapToActionType(items: ActionType[] = []) {
 					</button>
 				);
 			},
-			selectedLabel: (
-				<span className="flex text-[0.5rem] 3xl:text-xs">{item.name}</span>
-			),
+			selectedLabel: <span className="flex text-[0.5rem] 3xl:text-xs">{item.name}</span>,
 			data: item
 		};
 	});
 }
 
-function useActionType(
-	defaultValue: TaskRelatedIssuesRelationEnum,
-	issue: LinkedTaskIssue | undefined
-) {
-	const { trans } = useTranslation();
+function useActionType(defaultValue: TaskRelatedIssuesRelationEnum, issue: LinkedTaskIssue | undefined) {
+	const { t } = useTranslation();
 
 	const { queryCall } = useQuery(updateTaskLinkedIssueAPI);
 
 	const actionsTypes = useMemo(
 		() => [
 			{
-				name: trans.common.BLOCKS,
+				name: t('common.BLOCKS'),
 				value: TaskRelatedIssuesRelationEnum.BLOCKS
 			},
 			{
-				name: trans.common.CLONES,
+				name: t('common.CLONES'),
 				value: TaskRelatedIssuesRelationEnum.CLONES
 			},
 			{
-				name: trans.common.DUPLICATES,
+				name: t('common.DUPLICATES'),
 				value: TaskRelatedIssuesRelationEnum.DUPLICATES
 			},
 			{
-				name: trans.common.IS_BLOCKED_BY,
+				name: t('common.IS_BLOCKED_BY'),
 				value: TaskRelatedIssuesRelationEnum.IS_BLOCKED_BY
 			},
 			{
-				name: trans.common.IS_CLONED_BY,
+				name: t('common.IS_CLONED_BY'),
 				value: TaskRelatedIssuesRelationEnum.IS_CLONED_BY
 			},
 			{
-				name: trans.common.IS_DUPLICATED_BY,
+				name: t('common.IS_DUPLICATED_BY'),
 				value: TaskRelatedIssuesRelationEnum.IS_DUPLICATED_BY
 			},
 			{
-				name: trans.common.RELATES_TO,
+				name: t('common.RELATES_TO'),
 				value: TaskRelatedIssuesRelationEnum.RELATES_TO
 			}
 		],
@@ -151,19 +134,14 @@ function useActionType(
 		[]
 	);
 
-	const actionTypeItems = useMemo(
-		() => mapToActionType(actionsTypes),
-		[actionsTypes]
-	);
+	const actionTypeItems = useMemo(() => mapToActionType(actionsTypes), [actionsTypes]);
 
 	const relatedToItem = useMemo(
 		() => actionTypeItems.find((t) => t.key === defaultValue),
 		[actionTypeItems, defaultValue]
 	);
 
-	const [actionType, setActionType] = useState<ActionTypeItem | null>(
-		relatedToItem || null
-	);
+	const [actionType, setActionType] = useState<ActionTypeItem | null>(relatedToItem || null);
 
 	const onChange = useCallback(
 		(item: ActionTypeItem) => {

@@ -1,9 +1,4 @@
-import {
-	CreateReponse,
-	DeleteReponse,
-	PaginationResponse,
-	SingleDataResponse
-} from '@app/interfaces';
+import { CreateReponse, DeleteReponse, PaginationResponse, SingleDataResponse } from '@app/interfaces';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { serverFetch } from '../fetch';
 import { IUser } from '@app/interfaces';
@@ -120,13 +115,7 @@ export function deleteTaskRequest({
 	});
 }
 
-export function getTaskCreator({
-	userId,
-	bearer_token
-}: {
-	userId: string;
-	bearer_token: string;
-}) {
+export function getTaskCreator({ userId, bearer_token }: { userId: string; bearer_token: string }) {
 	return serverFetch<SingleDataResponse<IUser>>({
 		path: `/user/${userId}`,
 		method: 'GET',
@@ -134,13 +123,7 @@ export function getTaskCreator({
 	});
 }
 
-export function createTaskRequest({
-	data,
-	bearer_token
-}: {
-	data: ICreateTask;
-	bearer_token: string;
-}) {
+export function createTaskRequest({ data, bearer_token }: { data: ICreateTask; bearer_token: string }) {
 	return serverFetch({
 		path: '/tasks',
 		method: 'POST',
@@ -149,10 +132,7 @@ export function createTaskRequest({
 	});
 }
 
-export function updateTaskRequest<ITeamTask>(
-	{ data, id }: { data: ITeamTask; id: string },
-	bearer_token: string
-) {
+export function updateTaskRequest<ITeamTask>({ data, id }: { data: ITeamTask; id: string }, bearer_token: string) {
 	return serverFetch({
 		path: `/tasks/${id}`,
 		method: 'PUT',

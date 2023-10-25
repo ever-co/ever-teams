@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect } from 'react';
 import {
 	TouchableOpacity,
 	View,
@@ -11,49 +11,44 @@ import {
 	Animated,
 	Modal,
 	TouchableWithoutFeedback,
-	FlatList,
-} from "react-native"
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons"
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { observer } from "mobx-react-lite"
-import { typography, useAppTheme } from "../../../../theme"
-import { useTaskPriorityValue } from "../../../../components/StatusType"
-import { limitTextCharaters } from "../../../../helpers/sub-text"
-import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
-import { useTaskPriority } from "../../../../services/hooks/features/useTaskPriority"
-import { ITaskPriorityItem } from "../../../../services/interfaces/ITaskPriority"
-import { StatusType } from "./FilterPopup"
+	FlatList
+} from 'react-native';
+import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
+import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
+import { observer } from 'mobx-react-lite';
+import { typography, useAppTheme } from '../../../../theme';
+import { useTaskPriorityValue } from '../../../../components/StatusType';
+import { limitTextCharaters } from '../../../../helpers/sub-text';
+import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { useTaskPriority } from '../../../../services/hooks/features/useTaskPriority';
+import { ITaskPriorityItem } from '../../../../services/interfaces/ITaskPriority';
+import { StatusType } from './FilterPopup';
+import { BlurView } from 'expo-blur';
 
 interface TaskPriorityFilterProps {
-	showPriorityPopup: boolean
-	setShowPriorityPopup: (value: boolean) => unknown
-	taskFilter: ITaskFilter
-	setSelectedPriorities: (newValue: string[], statusType: StatusType) => void
-	selectedPriorities: string[]
+	showPriorityPopup: boolean;
+	setShowPriorityPopup: (value: boolean) => unknown;
+	taskFilter: ITaskFilter;
+	setSelectedPriorities: (newValue: string[], statusType: StatusType) => void;
+	selectedPriorities: string[];
 }
 
-const { height, width } = Dimensions.get("window")
+const { height, width } = Dimensions.get('window');
 
 const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
-	({
-		setShowPriorityPopup,
-		showPriorityPopup,
-		taskFilter,
-		selectedPriorities,
-		setSelectedPriorities,
-	}) => {
-		const { colors } = useAppTheme()
+	({ setShowPriorityPopup, showPriorityPopup, taskFilter, selectedPriorities, setSelectedPriorities }) => {
+		const { colors } = useAppTheme();
 
 		useEffect(() => {
-			taskFilter.onChangeStatusFilter("priority", selectedPriorities)
-			taskFilter.applyStatusFilter()
-		}, [selectedPriorities])
+			taskFilter.onChangeStatusFilter('priority', selectedPriorities);
+			taskFilter.applyStatusFilter();
+		}, [selectedPriorities]);
 
 		return (
 			<>
 				<TouchableOpacity onPress={() => setShowPriorityPopup(!showPriorityPopup)}>
 					<View style={{ ...styles.container, borderColor: colors.divider }}>
-						<View style={{ flexDirection: "row", alignItems: "center" }}>
+						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 							<Text style={{ marginRight: 10, color: colors.primary }}>Priorities</Text>
 							{selectedPriorities.length === 0 ? null : (
 								<FontAwesome name="circle" size={24} color={colors.secondary} />
@@ -69,21 +64,21 @@ const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
 					setSelectedPriorities={setSelectedPriorities}
 				/>
 			</>
-		)
-	},
-)
+		);
+	}
+);
 
 interface DropDownProps {
-	visible: boolean
-	onDismiss: () => unknown
-	setSelectedPriorities: (newValue: string[], statusType: StatusType) => void
-	selectedPriorities: string[]
+	visible: boolean;
+	onDismiss: () => unknown;
+	setSelectedPriorities: (newValue: string[], statusType: StatusType) => void;
+	selectedPriorities: string[];
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 	({ visible, onDismiss, setSelectedPriorities, selectedPriorities }) => {
-		const { colors, dark } = useAppTheme()
-		const { allTaskPriorities } = useTaskPriority()
+		const { colors, dark } = useAppTheme();
+		const { allTaskPriorities } = useTaskPriority();
 
 		return (
 			<ModalPopUp visible={visible} onDismiss={onDismiss}>
@@ -93,8 +88,8 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 							styles.dropdownContainer,
 							{
 								backgroundColor: colors.background,
-								shadowColor: dark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.2)",
-							},
+								shadowColor: dark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
+							}
 						]}
 					>
 						<View style={styles.secondContainer}>
@@ -118,38 +113,38 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 					</View>
 				</TouchableWithoutFeedback>
 			</ModalPopUp>
-		)
-	},
-)
+		);
+	}
+);
 
 const DropDownItem = observer(
 	({
 		priority,
 		selectedPriorities,
-		setSelectedPriorities,
+		setSelectedPriorities
 	}: {
-		priority: ITaskPriorityItem
-		setSelectedPriorities: (newValue: string[], statusType: StatusType) => void
-		selectedPriorities: string[]
+		priority: ITaskPriorityItem;
+		setSelectedPriorities: (newValue: string[], statusType: StatusType) => void;
+		selectedPriorities: string[];
 	}) => {
-		const allPriorities = useTaskPriorityValue()
-		const priorityItem = allPriorities[priority.name.split("-").join(" ")]
-		const { dark } = useAppTheme()
+		const allPriorities = useTaskPriorityValue();
+		const priorityItem = allPriorities[priority.name.split('-').join(' ')];
+		const { dark } = useAppTheme();
 
-		const exist = selectedPriorities.find((s) => s === priorityItem?.value)
+		const exist = selectedPriorities.find((s) => s === priorityItem?.value);
 
 		const onSelectedPriority = () => {
 			if (exist) {
-				const newStatuses = selectedPriorities.filter((s) => s !== priorityItem?.value)
-				setSelectedPriorities([...newStatuses], "priority")
+				const newStatuses = selectedPriorities.filter((s) => s !== priorityItem?.value);
+				setSelectedPriorities([...newStatuses], 'priority');
 			} else {
-				setSelectedPriorities([...selectedPriorities, priorityItem?.value], "priority")
+				setSelectedPriorities([...selectedPriorities, priorityItem?.value], 'priority');
 			}
-		}
+		};
 
 		return (
 			<TouchableOpacity
-				style={{ ...styles.itemContainer, backgroundColor: dark && "#2E3138" }}
+				style={{ ...styles.itemContainer, backgroundColor: dark && '#2E3138' }}
 				onPress={() => onSelectedPriority()}
 			>
 				<View style={{ ...styles.dropdownItem, backgroundColor: priorityItem?.bgColor }}>
@@ -164,43 +159,52 @@ const DropDownItem = observer(
 					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
 				)}
 			</TouchableOpacity>
-		)
-	},
-)
+		);
+	}
+);
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: 'absolute',
+					width: '100%',
+					height: '100%'
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
 					<Animated.View
 						style={{
 							transform: [{ scale: scaleValue }],
 							flex: 1,
-							justifyContent: "center",
-							alignItems: "center",
+							justifyContent: 'center',
+							alignItems: 'center'
 						}}
 					>
 						{children}
@@ -208,80 +212,79 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
-	justifyContent: "flex-end",
-}
+	justifyContent: 'flex-end'
+};
 
 const styles = StyleSheet.create({
 	container: {
-		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.16)",
+		alignItems: 'center',
+		borderColor: 'rgba(0,0,0,0.16)',
 		borderRadius: 10,
 		borderWidth: 1,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 57,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		minHeight: 30,
 		minWidth: 100,
 		paddingHorizontal: 16,
 		paddingVertical: 10,
 		width: width / 2.4,
-		zIndex: 1000,
+		zIndex: 1000
 	},
 	dropdownContainer: {
 		borderRadius: 20,
 		minHeight: height / 2.3,
-		width: "95%",
+		width: '95%',
 		zIndex: 1001,
 		...GS.noBorder,
 		borderWidth: 1,
 		elevation: 10,
 		shadowOffset: { width: 0, height: 3 },
 		shadowOpacity: 1,
-		shadowRadius: 10,
+		shadowRadius: 10
 	},
 	dropdownItem: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderRadius: 10,
 		elevation: 10,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 44,
 		paddingHorizontal: 16,
-		width: "60%",
+		width: '60%'
 	},
 	dropdownTitle: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
 		marginBottom: 5,
-		marginLeft: 16,
+		marginLeft: 16
 	},
 	itemContainer: {
-		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.2)",
+		alignItems: 'center',
+		borderColor: 'rgba(0,0,0,0.2)',
 		borderRadius: 10,
 		borderWidth: 1,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 56,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		marginVertical: 5,
 		paddingLeft: 6,
 		paddingRight: 18,
-		width: "100%",
+		width: '100%'
 	},
 	itemText: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14,
 		marginLeft: 10,
-		textTransform: "capitalize",
+		textTransform: 'capitalize'
 	},
 	secondContainer: {
-		marginVertical: 16,
-	},
-})
+		marginVertical: 16
+	}
+});
 
-export default TaskPriorityFilter
+export default TaskPriorityFilter;

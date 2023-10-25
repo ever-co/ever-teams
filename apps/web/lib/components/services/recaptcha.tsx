@@ -17,12 +17,6 @@ export function SiteReCAPTCHA({
 	theme?: string;
 }) {
 	return (
-		<ReactReCAPTCHA
-			sitekey={key}
-			onChange={onChange}
-			onExpired={onExpired}
-			onErrored={onErrored}
-			theme={theme}
-		/>
+		<ReactReCAPTCHA sitekey={key} onChange={onChange} onExpired={onExpired} onErrored={onErrored} theme={theme} />
 	);
 }

@@ -1,8 +1,4 @@
-import {
-	MEET_DOMAIN,
-	MEET_JWT_APP_ID,
-	MEET_JWT_APP_SECRET
-} from '@app/constants';
+import { MEET_DOMAIN, MEET_JWT_APP_ID, MEET_JWT_APP_SECRET } from '@app/constants';
 // import {
 // 	// getMeetJwtSessionCookie,
 // 	setMeetJwtSessionCookie,
@@ -44,10 +40,7 @@ function generateToken(params: Params): string {
 	return jwt.sign(payload, params.appkey, algo);
 }
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const { $res, user } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 

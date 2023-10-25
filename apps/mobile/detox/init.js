@@ -1,20 +1,20 @@
-const detox = require("detox")
-const config = require("../package.json").detox
-const adapter = require("detox/runners/jest/adapter")
+const detox = require('detox');
+const config = require('../package.json').detox;
+const adapter = require('detox/runners/jest/adapter');
 
-jest.setTimeout(120000)
-jasmine.getEnv().addReporter(adapter)
+jest.setTimeout(120000);
+jasmine.getEnv().addReporter(adapter);
 
 beforeAll(async () => {
-  await detox.init(config)
-  await device.launchApp()
-})
+	await detox.init(config);
+	await device.launchApp();
+});
 
 beforeEach(async () => {
-  await adapter.beforeEach()
-})
+	await adapter.beforeEach();
+});
 
 afterAll(async () => {
-  await adapter.afterAll()
-  await detox.cleanup()
-})
+	await adapter.afterAll();
+	await detox.cleanup();
+});

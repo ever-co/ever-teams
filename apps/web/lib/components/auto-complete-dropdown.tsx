@@ -1,11 +1,4 @@
-import React, {
-	Dispatch,
-	KeyboardEvent,
-	PropsWithChildren,
-	SetStateAction,
-	useCallback,
-	useState
-} from 'react';
+import React, { Dispatch, KeyboardEvent, PropsWithChildren, SetStateAction, useCallback, useState } from 'react';
 import { Transition, Combobox } from '@headlessui/react';
 import { clsxm } from '@app/utils';
 import { Card } from './card';
@@ -55,9 +48,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 
 	if (query !== '') {
 		filteredItem = items.filter((item) => {
-			return `${item?.data?.title || ''}`
-				.toLowerCase()
-				.includes(query.toLowerCase());
+			return `${item?.data?.title || ''}`.toLowerCase().includes(query.toLowerCase());
 		});
 	}
 
@@ -128,11 +119,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 									disabled={Item.disabled}
 								>
 									{({ active, selected }) => {
-										return Item.Label ? (
-											<Item.Label active={active} selected={selected} />
-										) : (
-											<></>
-										);
+										return Item.Label ? <Item.Label active={active} selected={selected} /> : <></>;
 									}}
 								</Combobox.Option>
 							))}
@@ -143,11 +130,7 @@ export function AutoCompleteDropdown<T extends DropdownItem>({
 					</Combobox.Options>
 				</Transition>
 			</Combobox>
-			{error && (
-				<Text.Error className="self-start justify-self-start">
-					{error}
-				</Text.Error>
-			)}
+			{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
 		</div>
 	);
 }

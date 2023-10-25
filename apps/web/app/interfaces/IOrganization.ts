@@ -68,10 +68,7 @@ export interface IOrganization {
 	contactId: string;
 }
 
-export type IUserOrganization = Pick<
-	IOrganization,
-	'id' | 'isActive' | 'isDefault' | 'tenantId'
-> & {
+export type IUserOrganization = Pick<IOrganization, 'id' | 'isActive' | 'isDefault' | 'tenantId'> & {
 	userId: string;
 	organizationId: string;
 	updatedAt: string;

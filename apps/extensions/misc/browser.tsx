@@ -1,3 +1,3 @@
-const browser = chrome
+const browser = chrome;
 
-export default browser
+export default browser;
