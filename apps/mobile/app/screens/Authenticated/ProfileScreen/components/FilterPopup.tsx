@@ -22,6 +22,7 @@ import TaskStatusFilter from "./TaskStatusFilter"
 import TaskLabelFilter from "./TaskLabelFilter"
 import TaskSizeFilter from "./TaskSizeFilter"
 import { translate } from "../../../../i18n"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -63,8 +64,19 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<View style={$modalBackGround}>
-				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+					{children}
+				</Animated.View>
 			</View>
 		</Modal>
 	)
@@ -100,7 +112,9 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 				<TouchableWithoutFeedback>
 					<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 						<View style={{ width: "100%", marginBottom: 10 }}>
-							<Text style={{ ...styles.mainTitle, color: colors.primary }}>Filter</Text>
+							<Text style={{ ...styles.mainTitle, color: colors.primary }}>
+								Filter
+							</Text>
 						</View>
 
 						<View
@@ -180,7 +194,9 @@ const FilterPopup: FC<Props> = function FilterPopup({ visible, onDismiss, hook }
 									onDismiss()
 								}}
 							>
-								<Text style={styles.buttonText}>{translate("tasksScreen.apply")}</Text>
+								<Text style={styles.buttonText}>
+									{translate("tasksScreen.apply")}
+								</Text>
 							</TouchableOpacity>
 						</View>
 					</View>
@@ -194,7 +210,6 @@ export default FilterPopup
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "flex-end",
 }
 

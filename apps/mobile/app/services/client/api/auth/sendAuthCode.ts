@@ -1,3 +1,4 @@
+/* eslint-disable no-void */
 import { EMAIL_REGEX } from "../../../../helpers/regex"
 import { sendAuthCodeRequest } from "../../requests/auth"
 
@@ -14,6 +15,7 @@ export default async function sendAuthCode(email: string) {
 		}
 	}
 
+	// removed the the then() block as it isn't working in stage api, always returning false and causing error message to appear
 	const codeSendRes = await sendAuthCodeRequest(email).catch(() => void 0)
 
 	if (!codeSendRes) {

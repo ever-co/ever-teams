@@ -18,6 +18,7 @@ import { BadgedTaskPriority } from "./PriorityIcon"
 import { useTaskPriority } from "../services/hooks/features/useTaskPriority"
 import { ITaskPriorityItem } from "../services/interfaces/ITaskPriority"
 import { translate } from "../i18n"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -51,9 +52,20 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
-					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+						{children}
+					</Animated.View>
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
@@ -128,7 +140,6 @@ const Item: FC<ItemProps> = ({ currentSizeName, priority, onPrioritySelected }) 
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "center",
 }
 

@@ -87,7 +87,12 @@ const HamburgerMenu = observer((props: any) => {
 						<View style={{ marginBottom: 40 }}>
 							<ProfileImage size={76} user={user} />
 						</View>
-						<Text style={[styles.userProfileName, { color: colors.primary, marginTop: 30 }]}>
+						<Text
+							style={[
+								styles.userProfileName,
+								{ color: colors.primary, marginTop: 30 },
+							]}
+						>
 							{user?.name}
 						</Text>
 						<Text
@@ -113,7 +118,10 @@ const HamburgerMenu = observer((props: any) => {
 					</View>
 					<View style={styles.navigationSection}>
 						{activeTeam ? (
-							<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Timer")}>
+							<TouchableOpacity
+								style={styles.item}
+								onPress={() => navigation.navigate("Timer")}
+							>
 								<SvgXml xml={dark ? userNotFocusedDark2 : userNotFocusedLight} />
 								<Text style={[styles.screenLabel, { color: colors.primary }]}>
 									{translate("myWorkScreen.name")}
@@ -121,22 +129,34 @@ const HamburgerMenu = observer((props: any) => {
 							</TouchableOpacity>
 						) : null}
 
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Team")}>
-							<SvgXml xml={dark ? peopleCaseNotFocusedDark2 : peopleNotFocusedLight} />
+						<TouchableOpacity
+							style={styles.item}
+							onPress={() => navigation.navigate("Team")}
+						>
+							<SvgXml
+								xml={dark ? peopleCaseNotFocusedDark2 : peopleNotFocusedLight}
+							/>
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate("teamScreen.name")}
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.item}
-							onPress={() => navigation.navigate("Profile", { userId: user?.id, tabIndex: 0 })}
+							onPress={() =>
+								navigation.navigate("Profile", { userId: user?.id, tabIndex: 0 })
+							}
 						>
-							<SvgXml xml={dark ? briefCaseNotFocusedDark2 : briefCaseNotFocusedLight} />
+							<SvgXml
+								xml={dark ? briefCaseNotFocusedDark2 : briefCaseNotFocusedLight}
+							/>
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate("tasksScreen.name")}
 							</Text>
 						</TouchableOpacity>
-						<TouchableOpacity style={styles.item} onPress={() => navigation.navigate("Setting")}>
+						<TouchableOpacity
+							style={styles.item}
+							onPress={() => navigation.navigate("Setting")}
+						>
 							<SvgXml xml={dark ? settingsIconDark : settingsIconLight} />
 							<Text style={[styles.screenLabel, { color: colors.primary }]}>
 								{translate("settingScreen.name")}
@@ -153,7 +173,9 @@ const HamburgerMenu = observer((props: any) => {
 								onPress={toggleTheme}
 								style={[
 									styles.toggle,
-									dark ? { backgroundColor: "#1D222A" } : { backgroundColor: "#E7E7EA" },
+									dark
+										? { backgroundColor: "#1D222A" }
+										: { backgroundColor: "#E7E7EA" },
 								]}
 							>
 								{dark ? (
@@ -163,10 +185,20 @@ const HamburgerMenu = observer((props: any) => {
 									</View>
 								) : (
 									<View style={styles.iconsContainer}>
-										<View style={[styles.iconWrapper, { backgroundColor: "white" }]}>
+										<View
+											style={[
+												styles.iconWrapper,
+												{ backgroundColor: "white" },
+											]}
+										>
 											<SvgXml xml={sunLightLarge} />
 										</View>
-										<View style={[styles.iconWrapper, { backgroundColor: "transparent" }]}>
+										<View
+											style={[
+												styles.iconWrapper,
+												{ backgroundColor: "transparent" },
+											]}
+										>
 											<SvgXml xml={moonLightLarge} />
 										</View>
 									</View>

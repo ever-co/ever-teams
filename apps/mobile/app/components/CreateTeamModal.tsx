@@ -20,6 +20,7 @@ import { GLOBAL_STYLE as GS } from "../../assets/ts/styles"
 import { typography, useAppTheme } from "../theme"
 import { TextInput } from "react-native-gesture-handler"
 import { translate } from "../i18n"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -53,6 +54,15 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<KeyboardAvoidingView
 				style={$modalBackGround}
 				behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -79,14 +89,19 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 		<ModalPopUp visible={visible}>
 			<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 				<View style={{ ...GS.w100 }}>
-					<Text style={[styles.mainTitle, { color: colors.primary }]}>{"Enter new team name"}</Text>
+					<Text style={[styles.mainTitle, { color: colors.primary }]}>
+						{"Enter new team name"}
+					</Text>
 					<View>
 						<TextInput
 							placeholderTextColor={colors.tertiary}
 							autoCapitalize={"none"}
 							autoCorrect={false}
 							value={teamText}
-							style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
+							style={[
+								styles.textInput,
+								{ borderColor: colors.border, color: colors.primary },
+							]}
 							placeholder={"Please enter your team name"}
 							onChangeText={(text) => setTeamText(text)}
 						/>
@@ -105,12 +120,17 @@ const CreateTeamModal: FC<Props> = function CreateTeamModal({ visible, onDismiss
 						<TouchableOpacity
 							style={[
 								styles.button,
-								{ backgroundColor: "#3826A6", opacity: teamText.trim().length < 3 ? 0.5 : 1 },
+								{
+									backgroundColor: "#3826A6",
+									opacity: teamText.trim().length < 3 ? 0.5 : 1,
+								},
 							]}
 							disabled={teamText.trim().length < 3}
 							onPress={() => handleSubmit()}
 						>
-							<Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
+							<Text style={styles.buttonText}>
+								{translate("teamScreen.sendButton")}
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -123,12 +143,12 @@ export default CreateTeamModal
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "rgba(0,0,0,0.5)",
+	// backgroundColor: "rgba(0,0,0,0.5)",
 	justifyContent: "flex-end",
 }
 const $modalContainer: ViewStyle = {
 	height,
-	backgroundColor: "rgba(0,0,0,0.6)",
+
 	justifyContent: "flex-end",
 }
 

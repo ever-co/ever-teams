@@ -1,9 +1,10 @@
-import React, { FC, useEffect, useState } from "react"
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
+import React, { FC, useEffect } from "react"
 import {
 	View,
 	ViewStyle,
 	Modal,
-	Image,
 	StyleSheet,
 	TextInput,
 	Animated,
@@ -16,11 +17,9 @@ import {
 import { Text } from "react-native-paper"
 // COMPONENTS
 // STYLES
-import { CONSTANT_SIZE, GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { colors, spacing, typography, useAppTheme } from "../../../../theme"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { colors, typography, useAppTheme } from "../../../../theme"
 import { useTeamInvitations } from "../../../../services/hooks/useTeamInvitation"
-import { showMessage } from "react-native-flash-message"
-import { EMAIL_REGEX } from "../../../../helpers/regex"
 import { translate } from "../../../../i18n"
 import useTeamScreenLogic from "../logics/useTeamScreenLogic"
 
@@ -59,14 +58,16 @@ const ModalPopUp = ({ visible, children }) => {
 				style={$modalBackGround}
 				behavior={Platform.OS === "ios" ? "padding" : "height"}
 			>
-				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+				<Animated.View style={[$modalContainer, { transform: [{ scale: scaleValue }] }]}>
+					{children}
+				</Animated.View>
 			</KeyboardAvoidingView>
 		</Modal>
 	)
 }
 
 const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss }) {
-	const { inviterMember, loading } = useTeamInvitations()
+	const { inviterMember } = useTeamInvitations()
 	const {
 		memberEmail,
 		memberName,
@@ -132,7 +133,9 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 								}}
 							>
 								{memberEmail}
-								<Text style={{ color: "#B1AEBC" }}>{item.replace(memberEmail, "")}</Text>
+								<Text style={{ color: "#B1AEBC" }}>
+									{item.replace(memberEmail, "")}
+								</Text>
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -160,7 +163,10 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 						{emailsSuggest.length > 0 && renderEmailCompletions(emailsSuggest)}
 						<TextInput
 							placeholderTextColor={colors.tertiary}
-							style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
+							style={[
+								styles.textInput,
+								{ borderColor: colors.border, color: colors.primary },
+							]}
 							autoCapitalize={"none"}
 							keyboardType="email-address"
 							value={memberEmail}
@@ -177,7 +183,11 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 							autoCorrect={false}
 							style={[
 								styles.textInput,
-								{ marginTop: 16, borderColor: colors.border, color: colors.primary },
+								{
+									marginTop: 16,
+									borderColor: colors.border,
+									color: colors.primary,
+								},
 							]}
 							placeholder={translate("teamScreen.inviteNameFieldPlaceholder")}
 							onChangeText={(text) => handleNameInput(text)}
@@ -194,10 +204,15 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[styles.button, { backgroundColor: "#3826A6", opacity: !canSubmit ? 0.3 : 1 }]}
+							style={[
+								styles.button,
+								{ backgroundColor: "#3826A6", opacity: !canSubmit ? 0.3 : 1 },
+							]}
 							onPress={() => (canSubmit ? handleSubmit() : {})}
 						>
-							<Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
+							<Text style={styles.buttonText}>
+								{translate("teamScreen.sendButton")}
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -208,25 +223,13 @@ const InviteUserModal: FC<Props> = function InviteUserModal({ visible, onDismiss
 
 export default InviteUserModal
 
-const $container: ViewStyle = {
-	...GS.flex1,
-	paddingTop: spacing.extraLarge + spacing.large,
-	paddingHorizontal: spacing.large,
-}
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "rgba(0,0,0,0.5)",
 	justifyContent: "flex-end",
 }
 const $modalContainer: ViewStyle = {
-	width: "100%",
 	height,
-	backgroundColor: "white",
-	paddingHorizontal: 30,
-	paddingVertical: 30,
-	borderRadius: 30,
-	elevation: 20,
-	justifyContent: "center",
+	justifyContent: "flex-end",
 }
 
 const styles = StyleSheet.create({
@@ -243,21 +246,10 @@ const styles = StyleSheet.create({
 		fontFamily: typography.primary.semiBold,
 		fontSize: 18,
 	},
-	crossIcon: {
-		position: "absolute",
-		right: 10,
-		top: 10,
-	},
 	hint: {
 		color: "#7E7991",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 12,
-	},
-
-	loading: {
-		bottom: "12%",
-		left: "15%",
-		position: "absolute",
 	},
 	mainContainer: {
 		alignItems: "center",
@@ -280,10 +272,6 @@ const styles = StyleSheet.create({
 		color: colors.primary,
 		height: 45,
 		paddingHorizontal: 13,
-		width: "100%",
-	},
-	theTextField: {
-		borderWidth: 0,
 		width: "100%",
 	},
 	wrapButtons: {

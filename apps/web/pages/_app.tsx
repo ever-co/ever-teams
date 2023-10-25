@@ -6,6 +6,7 @@ import { jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
 import { AppState } from 'lib/app/init-state';
+import ChatwootWidget from 'lib/features/integrations/chatwoot';
 import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
@@ -48,6 +49,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 						<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
 							<AppState />
 							<JitsuAnalytics user={pageProps?.user} />
+							<ChatwootWidget />
 							<Component {...pageProps} />
 						</SkeletonTheme>
 					</ThemeProvider>

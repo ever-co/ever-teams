@@ -23,6 +23,7 @@ import { translate } from "../../../../i18n"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { useStores } from "../../../../models"
+import { BlurView } from "expo-blur"
 
 export interface Props {
 	visible: boolean
@@ -55,8 +56,19 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<View style={$modalBackGround}>
-				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
+				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+					{children}
+				</Animated.View>
 			</View>
 		</Modal>
 	)
@@ -152,7 +164,9 @@ const TransferOwnership: FC<Props> = function TransferOwnership({ visible, onDis
 							>
 								{memberName}
 								<Text style={{ color: "#B1AEBC" }}>
-									{item.employee.fullName.toLowerCase().replace(memberName.toLowerCase(), "")}
+									{item.employee.fullName
+										.toLowerCase()
+										.replace(memberName.toLowerCase(), "")}
 								</Text>
 							</Text>
 						</View>
@@ -185,7 +199,10 @@ const TransferOwnership: FC<Props> = function TransferOwnership({ visible, onDis
 							autoCapitalize={"none"}
 							autoCorrect={false}
 							value={memberName}
-							style={[styles.textInput, { borderColor: colors.border, color: colors.primary }]}
+							style={[
+								styles.textInput,
+								{ borderColor: colors.border, color: colors.primary },
+							]}
 							placeholder={translate("teamScreen.inviteNameFieldPlaceholder")}
 							onChangeText={(text) => setMemberName(text)}
 						/>
@@ -201,10 +218,15 @@ const TransferOwnership: FC<Props> = function TransferOwnership({ visible, onDis
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[styles.button, { backgroundColor: "#3826A6", opacity: !canSubmit ? 0.3 : 1 }]}
+							style={[
+								styles.button,
+								{ backgroundColor: "#3826A6", opacity: !canSubmit ? 0.3 : 1 },
+							]}
 							onPress={() => (canSubmit ? handleSubmit() : {})}
 						>
-							<Text style={styles.buttonText}>{translate("teamScreen.sendButton")}</Text>
+							<Text style={styles.buttonText}>
+								{translate("teamScreen.sendButton")}
+							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -217,7 +239,6 @@ export default TransferOwnership
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "rgba(0,0,0,0.5)",
 	justifyContent: "flex-end",
 }
 
