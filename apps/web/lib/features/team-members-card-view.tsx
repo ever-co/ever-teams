@@ -25,9 +25,7 @@ const TeamMembersCardView: React.FC<Props> = ({ teamMembers, publicTeam=false })
 	});
 	const { activeTeam, teamsFetching } = useOrganizationTeams();
 	const members = activeTeam?.members || [];
-	const $members = members.filter((m) => {
-		return m.employee.user?.id !== user?.id;
-	});
+
 	const { teamInvitations } = useTeamInvitations();
 	const $teamsFetching = teamsFetching && members.length === 0;
 	return(
@@ -48,7 +46,7 @@ const TeamMembersCardView: React.FC<Props> = ({ teamMembers, publicTeam=false })
 			</Transition>
 
 			{/* Team members list */}
-			{$members.map((member) => {
+			{members.map((member) => {
 				return (
 					<Transition
 						key={member.id}

@@ -1,9 +1,5 @@
-import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks';
+import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { Transition } from '@headlessui/react';
-import { InviteFormModal } from './team/invite/invite-form-modal';
-import {
-	InviteUserTeamCard
-} from './team/invite/user-invite-card';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
 import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
@@ -26,10 +22,11 @@ export function TeamMembers({ publicTeam = false, kabanView = KanbanView.CARD }:
 
 const $members = members.filter((m) => m.employee.user?.id !== user?.id);
 
+
 let teamMembersView;
 
 switch (true) {
-  case $members.length === 0:
+  case members.length === 0:
     teamMembersView = (
       <div className="">
         <div className="lg:block hidden">
@@ -44,7 +41,7 @@ switch (true) {
     );
     break;
   case kabanView === KanbanView.CARD:
-    teamMembersView = <TeamMembersCardView teamMembers={members} publicTeam={publicTeam} />;
+    teamMembersView = <TeamMembersCardView teamMembers={$members} publicTeam={publicTeam} />;
     break;
   case kabanView === KanbanView.TABLE:
     teamMembersView = (
@@ -65,17 +62,4 @@ switch (true) {
     teamMembersView = <TeamMembersCardView teamMembers={members} publicTeam={publicTeam} />;
 }
 return teamMembersView;
-}
-
-
-function Invite() {
-	const { user } = useAuthenticateUser();
-	const { openModal, isOpen, closeModal } = useModal();
-
-	return (
-		<>
-			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
-			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
-		</>
-	);
 }
