@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const isDev = process.env.NODE_ENV === 'development';
-/**@type import('next-i18next').UserConfig */
+/**@type import('react-i18next').UserConfig */
 module.exports = {
 	debug: isDev,
 	i18n: {

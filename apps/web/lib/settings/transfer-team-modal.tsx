@@ -2,8 +2,8 @@ import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
 import { IOrganizationTeamMember } from '@app/interfaces';
 import { activeTeamManagersState } from '@app/stores';
 import { BackButton, Button, Card, Modal, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import { TransferTeamDropdown } from './transfer-team/transfer-team-dropdown';
 

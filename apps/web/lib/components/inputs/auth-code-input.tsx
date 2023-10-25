@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'next-i18next';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InputField } from './input';
 
 const allowedCharactersValues = ['alpha', 'numeric', 'alphanumeric'] as const;

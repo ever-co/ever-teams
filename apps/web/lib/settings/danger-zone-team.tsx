@@ -2,8 +2,8 @@
 import { useAuthenticateUser, useModal, useOrganizationEmployeeTeams, useOrganizationTeams } from '@app/hooks';
 import { activeTeamManagersState } from '@app/stores';
 import { Button, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import { RemoveModal } from './remove-modal';
 import { TransferTeamModal } from './transfer-team-modal';
@@ -50,7 +50,7 @@ export const DangerZoneTeam = () => {
 						{/* Current User is the Manager of the Team and there are more that 1 Managers */}
 						<div className="flex flex-col items-center justify-center w-full gap-6 sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
-								<Text className="text-xl font-normal">{t('common.TRANSFERT_OWNSHIP')}</Text>
+								<Text className="text-xl font-normal">{t('common.TRANSFERT_OWNERSHIP')}</Text>
 							</div>
 							<div className="flex-auto md:w-64 sm:w-40">
 								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
@@ -101,12 +101,12 @@ export const DangerZoneTeam = () => {
 						<div className="flex flex-col items-center justify-center w-full gap-6 mt-5 sm:justify-between sm:flex-row">
 							<div className="flex-auto md:w-64">
 								<Text className="text-xl font-normal text-center sm:text-left">
-									{t('common.QUI_TEAM')}
+									{t('common.QUIT_TEAM')}
 								</Text>
 							</div>
 							<div className="flex-auto md:w-64 sm:w-40">
 								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
-									{t('common.ALERT_QUIT_TEAM')}
+									{t('alerts.ALERT_QUIT_TEAM')}
 								</Text>
 							</div>
 							<div className="flex-auto sm:w-10">

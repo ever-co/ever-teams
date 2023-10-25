@@ -1,5 +1,5 @@
 import { CommonToggle, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 export const NotificationSettings = () => {
 	const { t } = useTranslation();

@@ -1,8 +1,8 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useAuthenticateUser, useModal, useOrganizationTeams, useUser } from '@app/hooks';
 import { Button, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RemoveModal } from './remove-modal';
 
 export const DangerZone = () => {

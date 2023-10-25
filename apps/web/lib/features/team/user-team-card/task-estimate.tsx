@@ -5,8 +5,8 @@ import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { EditIcon, TickSaveIcon } from 'lib/components/svgs';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
-import { useTranslation } from 'next-i18next';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;

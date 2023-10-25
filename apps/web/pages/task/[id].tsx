@@ -9,11 +9,9 @@ import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Container } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { MainLayout } from 'lib/layout';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const TaskDetails = () => {
 	const profile = useUserProfilePage();
@@ -135,13 +133,4 @@ function IssueModal({ task }: { task: ITeamTask | null }) {
 }
  */
 
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
-};
 export default withAuthentication(TaskDetails, { displayName: 'TaskDetails' });

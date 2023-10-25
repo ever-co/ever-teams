@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { Paginate } from 'lib/components/pagination';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 import { InvitationTableStatus } from './invitation-table-status';
 

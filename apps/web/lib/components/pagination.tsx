@@ -1,6 +1,6 @@
 import { PaginationDropdown } from 'lib/settings/page-dropdown';
-import { useTranslation } from 'next-i18next';
 import { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactPaginate, { ReactPaginateProps } from 'react-paginate';
 
 type Props = {

@@ -4,8 +4,8 @@ import { IInviteEmail } from '@app/interfaces';
 import { AxiosError } from 'axios';
 import { isEmail, isNotEmpty } from 'class-validator';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { InviteEmailDropdown } from './invite-email-dropdown';
 
 export function InviteFormModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {

@@ -1,6 +1,6 @@
 import { Button, Card, Modal, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const RemoveModal = ({
 	open,

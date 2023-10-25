@@ -2,8 +2,8 @@ import { useAuthenticateUser, useModal, useOrganizationTeams } from '@app/hooks'
 import { Button, InputField, NoData, Text } from 'lib/components';
 import { SearchNormalIcon } from 'lib/components/svgs';
 import { InviteFormModal } from 'lib/features/team/invite/invite-form-modal';
-import { useTranslation } from 'next-i18next';
 import { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MemberTable } from './member-table';
 
 export const MemberSetting = () => {

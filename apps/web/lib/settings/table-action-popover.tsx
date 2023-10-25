@@ -4,8 +4,8 @@ import { OT_Member } from '@app/interfaces';
 import { Popover, Transition } from '@headlessui/react';
 import { MenuIcon } from 'lib/components/svgs';
 import { useDropdownAction } from 'lib/features/team/user-team-card/user-team-card-menu';
-import { useTranslation } from 'next-i18next';
 import { Fragment, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ConfirmationModal } from './confirmation-modal';
 
 type Props = {

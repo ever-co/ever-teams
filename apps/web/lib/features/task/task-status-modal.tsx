@@ -1,8 +1,8 @@
 import { IHookModal, useModal } from '@app/hooks';
 import { ITaskStatusField } from '@app/interfaces';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { taskIssues } from './task-issue';
 import {
 	StatusDropdown,

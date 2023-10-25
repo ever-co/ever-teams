@@ -9,11 +9,9 @@ import { Avatar, Breadcrumb, Container, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
 import { TaskFilter, Timer, TimerStatus, UserProfileTask, getTimerStatusValue, useTaskFilter } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 
 const Profile = () => {
@@ -125,15 +123,5 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		</div>
 	);
 }
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
-};
 
 export default withAuthentication(Profile, { displayName: 'ProfilePage' });

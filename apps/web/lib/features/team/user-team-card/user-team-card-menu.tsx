@@ -6,8 +6,8 @@ import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
 import { MoreIcon } from 'lib/components/svgs';
 import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
-import { useTranslation } from 'next-i18next';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;

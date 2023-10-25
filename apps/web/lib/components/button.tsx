@@ -1,6 +1,6 @@
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'next-i18next';
 import { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SpinnerLoader } from './loader';
 import { ArrowLeft } from './svgs';
 

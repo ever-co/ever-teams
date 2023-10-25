@@ -3,7 +3,7 @@ import { HostKeys, useDetectOS, useHotkeys, useTimerView } from '@app/hooks';
 import { IClassName, TimerSource } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { ProgressBar, Text, Tooltip, VerticalSeparator } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { TimerButton } from './timer-button';
 
 import {

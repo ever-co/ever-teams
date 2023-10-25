@@ -9,8 +9,8 @@ import { useIsMemberManager, useOrganizationTeams } from '@app/hooks';
 import { userState } from '@app/stores';
 import NoTeam from '@components/pages/main/no-team';
 import { ArrowLeft } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 // import { NotificationSettings } from 'lib/settings/notification-setting';
 import { Accordian } from 'lib/components/accordian';
@@ -18,15 +18,13 @@ import { IntegrationSetting } from 'lib/settings/integration-setting';
 import { InvitationSetting } from 'lib/settings/invitation-setting';
 import { IssuesSettings } from 'lib/settings/issues-settings';
 import { MemberSetting } from 'lib/settings/member-setting';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const Team = () => {
 	const { t } = useTranslation();
 	const [user] = useRecoilState(userState);
 	const { isTeamMember, activeTeam } = useOrganizationTeams();
 	const { isTeamManager } = useIsMemberManager(user);
-
+	const breadcrumb = [...t('pages.settings.BREADCRUMB', { returnObjects: true })];
 	return (
 		<>
 			{!user ? (
@@ -40,10 +38,7 @@ const Team = () => {
 									<ArrowLeft className="w-6 h-6" />
 								</Link>
 
-								<Breadcrumb
-									paths={t('pages.settings.BREADCRUMB', { returnObjects: true })}
-									className="text-sm"
-								/>
+								<Breadcrumb paths={breadcrumb} className="text-sm" />
 							</div>
 						</Container>
 					</div>
@@ -103,7 +98,7 @@ const Team = () => {
 
 									{/* Issues Settings */}
 									<Accordian
-										title={t('pages.ISSUES_HEADING_TITLE')}
+										title={t('pages.settingsTeam.ISSUES_HEADING_TITLE')}
 										className="p-4 mt-4 dark:bg-dark--theme"
 										id="issues-settings"
 									>
@@ -144,13 +139,4 @@ const Team = () => {
 	);
 };
 
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translationProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translationProps
-		}
-	};
-};
 export default withAuthentication(Team, { displayName: 'Team' });

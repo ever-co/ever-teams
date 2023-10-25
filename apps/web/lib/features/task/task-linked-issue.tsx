@@ -3,9 +3,9 @@ import { ITeamTask, LinkedTaskIssue, TaskRelatedIssuesRelationEnum } from '@app/
 import { updateTaskLinkedIssueAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
 import { Card, Dropdown, DropdownItem } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TaskNameInfoDisplay } from './task-displays';
 import { ActiveTaskStatusDropdown } from './task-status';
 

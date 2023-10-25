@@ -3,7 +3,7 @@ import { IClassName, IssueType, ITaskIssue, ITeamTask, Nullable } from '@app/int
 import { clsxm } from '@app/utils';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { BugReportIcon, CategoryIcon, NoteIcon, TaskSquareIcon } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import {
 	IActiveTaskStatuses,
 	StatusDropdown,

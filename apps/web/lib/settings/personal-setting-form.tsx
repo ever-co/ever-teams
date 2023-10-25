@@ -10,11 +10,10 @@ import {
 import { useLanguage, useSettings } from '@app/hooks';
 import { userState } from '@app/stores';
 import { Button, InputField, Text, ThemeToggler } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 import validator from 'validator';
 import { EmailResetModal } from './email-reset-modal';
@@ -27,7 +26,6 @@ interface IValidation {
 }
 
 export const PersonalSettingForm = () => {
-	const router = useRouter();
 	const [user] = useRecoilState(userState);
 	const { currentLanguage, changeLanguage } = useLanguage();
 	const { register, setValue, getValues, setFocus } = useForm();
@@ -133,9 +131,6 @@ export const PersonalSettingForm = () => {
 			changeLanguage(newLanguage);
 			setValue('preferredLanguage', newLanguage);
 
-			// Navigation to force rerender
-			// router.push({ pathname: router.pathname, query: router.query });
-			router.push({ pathname: router.pathname, query: router.query }, undefined, { locale: newLanguage });
 			if (user) {
 				updateAvatar({
 					preferredLanguage: newLanguage,

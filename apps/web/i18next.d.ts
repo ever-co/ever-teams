@@ -9,3 +9,11 @@ declare module 'i18next' {
 		};
 	}
 }
+
+declare module 'react-i18next' {
+	export interface I18n {
+		changeLanguage: (language: string) => Promise<void>;
+
+		loadNamespaces: (namespace: string) => Promise<void>;
+	}
+}

@@ -10,11 +10,11 @@ import { Paginate } from 'lib/components/pagination';
 import cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { ChangeEvent, KeyboardEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import stc from 'string-to-color';
 import { MemberTableStatus } from './member-table-status';
 import { TableActionPopover } from './table-action-popover';
-import { useTranslation } from 'next-i18next';
 
 export const MemberTable = ({ members }: { members: OT_Member[] }) => {
 	const { t } = useTranslation();

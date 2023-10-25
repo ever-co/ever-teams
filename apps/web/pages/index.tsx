@@ -13,14 +13,13 @@ import {
 	UserTeamCardHeader
 } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'react-i18next';
 
 function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
+	console.log(breadcrumb);
 
 	return (
 		<MainLayout>
@@ -71,13 +70,4 @@ function TaskTimerSection({ isTrackingEnabled }: { isTrackingEnabled: boolean })
 		</Card>
 	);
 }
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translationProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translationProps
-		}
-	};
-};
 export default withAuthentication(MainPage, { displayName: 'MainPage' });

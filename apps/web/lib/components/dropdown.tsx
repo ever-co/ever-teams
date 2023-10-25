@@ -2,8 +2,8 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Listbox, Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'next-i18next';
 import React, { Dispatch, PropsWithChildren, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card } from './card';
 import { SpinnerLoader } from './loader';
 

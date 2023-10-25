@@ -17,10 +17,10 @@ import {
 	SettingsOutlineIcon
 } from 'lib/components/svgs';
 import ThemesPopup from 'lib/components/themes-popup';
-import { useTranslation } from 'next-i18next';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import stc from 'string-to-color';
 import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';

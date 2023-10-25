@@ -4,8 +4,8 @@ import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from 'lib/components';
 // import { CloseIcon } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();

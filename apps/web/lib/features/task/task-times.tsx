@@ -3,7 +3,7 @@ import { I_TeamMemberCardHook, useOrganizationTeams } from '@app/hooks';
 import { IClassName, ITeamTask, Nullable, OT_Member } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
 	task: Nullable<ITeamTask>;

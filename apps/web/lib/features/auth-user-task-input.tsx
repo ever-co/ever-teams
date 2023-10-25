@@ -3,7 +3,7 @@ import { useOrganizationTeams } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { activeTeamTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
 import { TaskEstimate } from './task/task-estimate';
 import { TaskInput } from './task/task-input';

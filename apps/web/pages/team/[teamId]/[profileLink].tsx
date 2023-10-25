@@ -5,11 +5,9 @@ import { publicState } from '@app/stores/public';
 import { Breadcrumb, Container } from 'lib/components';
 import { TeamMembers, UnverifiedEmail, UserTeamCardHeader } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { GetServerSideProps, GetServerSidePropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 
 const Team = () => {
@@ -72,16 +70,6 @@ const Team = () => {
 			</Container>
 		</MainLayout>
 	);
-};
-
-export const getServerSideProps: GetServerSideProps = async (context: GetServerSidePropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
 };
 
 export default Team;

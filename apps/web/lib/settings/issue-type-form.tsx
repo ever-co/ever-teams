@@ -2,7 +2,7 @@
 import { Button, InputField, Text } from 'lib/components';
 import { StatusesListCard } from './list-card';
 
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 export const IssueTypeForm = () => {
 	const { t } = useTranslation();

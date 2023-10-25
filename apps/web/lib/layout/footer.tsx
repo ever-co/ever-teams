@@ -1,7 +1,8 @@
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text, ThemeToggler } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { LangSwitcher } from 'lib/components/LangSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export function Footer({ className }: IClassName) {
 	const { t } = useTranslation();
@@ -18,6 +19,7 @@ export function Footer({ className }: IClassName) {
 			<div className="">
 				<ThemeToggler />
 			</div>
+			<LangSwitcher />
 		</footer>
 	);
 }

@@ -5,12 +5,10 @@ import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Avatar, BackButton, Button, Card, InputField, SpinnerLoader, Text } from 'lib/components';
 import { CircleIcon, TickCircleIconV2 } from 'lib/components/svgs';
 import { AuthLayout } from 'lib/layout';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 
 export default function AuthPasscode() {
@@ -344,13 +342,3 @@ function WorkSpaceScreen({ form, className }: { form: TAuthenticationPasscode } 
 		</form>
 	);
 }
-
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
-};

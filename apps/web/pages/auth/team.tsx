@@ -3,10 +3,8 @@ import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from 'lib/components';
 import { AuthLayout } from 'lib/layout';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthTeam() {
 	const {
@@ -184,13 +182,3 @@ function FillUserDataForm({
 		</Card>
 	);
 }
-
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
-};

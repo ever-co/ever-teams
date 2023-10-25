@@ -1,5 +1,5 @@
 import { CheckIcon, CloseIcon } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 interface isProps {
 	status: string | undefined;
 	acceptJoinRequest: () => void;

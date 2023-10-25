@@ -1,7 +1,7 @@
 import { useOrganizationTeams } from '@app/hooks';
 import { BackButton, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Create team modal

@@ -8,9 +8,9 @@ import { Button, Container } from 'lib/components';
 import { KeyboardShortcuts } from 'lib/components/keyboard-shortcuts';
 import { EverTeamsLogo } from 'lib/components/svgs';
 import { MinTimerFrame, TeamsDropDown, UserNavAvatar } from 'lib/features';
-import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Skeleton from 'react-loading-skeleton';
 import { useRecoilState } from 'recoil';
 

@@ -22,10 +22,10 @@ import {
 	VerticalSeparator
 } from 'lib/components';
 import { DraggerIcon, MoreIcon } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from '../team/user-team-card/task-estimate';
 import { TimerButton } from '../timer/timer-button';

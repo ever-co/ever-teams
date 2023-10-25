@@ -2,8 +2,8 @@ import { useModal } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import { Avatar, Button, Text } from 'lib/components';
 import { CreateTeamModal } from 'lib/features';
-import { useTranslation } from 'next-i18next';
 import { PropsWithChildren } from 'react';
+import { useTranslation } from 'react-i18next';
 import noTeamImg from '../../../public/assets/svg/no-team.svg';
 
 type Props = PropsWithChildren & React.ComponentPropsWithRef<'div'>;

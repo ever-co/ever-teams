@@ -7,9 +7,9 @@ import { Edit2Icon, TickSquareIcon } from 'lib/components/svgs';
 import TimeTrackingToggle from 'lib/components/switch';
 import debounce from 'lodash/debounce';
 import isEqual from 'lodash/isEqual';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 import TeamSize from './team-size-popover';
 
@@ -17,8 +17,7 @@ export const TeamSettingForm = () => {
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, getValues } = useForm();
 	const { t } = useTranslation();
-	const { activeTeam, editOrganizationTeam, loading, loadingTeam } =
-		useOrganizationTeams();
+	const { activeTeam, editOrganizationTeam, loading, loadingTeam } = useOrganizationTeams();
 	const { isTeamManager, activeManager } = useIsMemberManager(user);
 	const [copied, setCopied] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(true);
@@ -110,10 +109,7 @@ export const TeamSettingForm = () => {
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (
-				inputWrapperRef.current &&
-				!inputWrapperRef.current.contains(event.target as Node)
-			) {
+			if (inputWrapperRef.current && !inputWrapperRef.current.contains(event.target as Node)) {
 				setDisabled(true);
 			}
 		};
@@ -134,12 +130,7 @@ export const TeamSettingForm = () => {
 	}, []);
 
 	const getTeamLink = useCallback(() => {
-		if (
-			typeof window !== 'undefined' &&
-			activeTeam &&
-			activeTeam.id &&
-			activeTeam.profile_link
-		) {
+		if (typeof window !== 'undefined' && activeTeam && activeTeam.id && activeTeam.profile_link) {
 			return `${window.location.origin}/team/${activeTeam.id}/${activeTeam.profile_link}`;
 		}
 		return '';
@@ -153,18 +144,11 @@ export const TeamSettingForm = () => {
 	}, [onSubmit, getValues]);
 
 	/* eslint-disable react-hooks/exhaustive-deps */
-	const debounceHandleColorChange = useCallback(debounce(handleChange, 1000), [
-		handleChange,
-		debounce
-	]);
+	const debounceHandleColorChange = useCallback(debounce(handleChange, 1000), [handleChange, debounce]);
 
 	return (
 		<>
-			<form
-				className="w-[98%] md:w-[930px] mt-8"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-[98%] md:w-[930px] mt-8" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex flex-col items-center justify-between">
 					<div className="w-full mt-5">
 						<div className="">

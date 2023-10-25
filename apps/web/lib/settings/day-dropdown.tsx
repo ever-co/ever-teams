@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IDay } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'next-i18next';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { DayItem, mapDayItems } from './day-items';
 
 export const DayDropdown = ({ setValue, active }: { setValue: UseFormSetValue<FieldValues>; active?: IDay | null }) => {

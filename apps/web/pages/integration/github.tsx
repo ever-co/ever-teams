@@ -1,8 +1,6 @@
 import { useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegration';
 import { withAuthentication } from 'lib/app/authenticator';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 
@@ -75,16 +73,6 @@ const GitHub = () => {
 				repositoriesLoading) && <>Loading...</>} */}
 		</div>
 	);
-};
-
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
 };
 
 export default withAuthentication(GitHub, {

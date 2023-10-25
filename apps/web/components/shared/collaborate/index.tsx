@@ -17,8 +17,8 @@ import { Avatar } from 'lib/components';
 import { Button } from 'lib/components/button';
 import { BrushSquareLinearIcon, CallOutGoingLinearIcon, Profile2UserLinearIcon } from 'lib/components/svgs';
 import { Check } from 'lucide-react';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 import { JitsuAnalytics } from '../../../lib/components/services/jitsu-analytics';
 

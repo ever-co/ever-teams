@@ -4,12 +4,12 @@ import { useAuthenticateUser, useImageAssets, useOrganizationTeams } from '@app/
 import { IImageAssets } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, Button } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { readableColor } from 'polished';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 
 export const TeamAvatar = ({ disabled, bgColor }: { disabled: boolean; bgColor?: string }) => {

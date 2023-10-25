@@ -1,6 +1,6 @@
 import { Button, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 function NotFound() {
 	const { t } = useTranslation();
 	return (

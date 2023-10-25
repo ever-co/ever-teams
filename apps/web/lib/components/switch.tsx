@@ -2,8 +2,8 @@ import { useOrganizationTeams } from '@app/hooks';
 import { useOrganizationEmployeeTeams } from '@app/hooks/features/useOrganizatioTeamsEmployee';
 import { OT_Member } from '@app/interfaces';
 import { Switch } from '@headlessui/react';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text } from './typography';
 
 export default function TimeTrackingToggle({ activeManager }: { activeManager: OT_Member | undefined }) {

@@ -6,8 +6,8 @@ import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
 import intersection from 'lodash/intersection';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TaskUnOrAssignPopover } from './task-assign-popover';
 import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 

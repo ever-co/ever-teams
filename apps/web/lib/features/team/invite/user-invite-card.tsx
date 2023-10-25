@@ -15,7 +15,7 @@ import {
 } from 'lib/components';
 import { DraggerIcon, MailIcon, MoreIcon } from 'lib/components/svgs';
 import { TimerStatus } from 'lib/features/timer/timer-status';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 type Props = IClassName & { invitation: IInvitation };
 

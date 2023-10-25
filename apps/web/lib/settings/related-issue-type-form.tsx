@@ -1,6 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { Button, InputField, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { StatusesListCard } from './list-card';
 
 import { useRefetchData, useTaskRelatedIssueType } from '@app/hooks';

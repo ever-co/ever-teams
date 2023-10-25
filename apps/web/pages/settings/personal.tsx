@@ -13,14 +13,13 @@ import { userState } from '@app/stores';
 import SettingsPersonalSkeleton from '@components/shared/skeleton/SettingsPersonalSkeleton';
 import { Accordian } from 'lib/components/accordian';
 import { ArrowLeft } from 'lib/components/svgs';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 const Personal = () => {
 	const { t } = useTranslation();
 	const [user] = useRecoilState(userState);
+	const breadcrumb = [...t('pages.settings.BREADCRUMB', { returnObjects: true })];
 
 	return (
 		<>
@@ -35,12 +34,7 @@ const Personal = () => {
 									<ArrowLeft className="w-6 h-6" />
 								</Link>
 
-								<Breadcrumb
-									paths={t('pages.settings.BREADCRUMB', {
-										returnObjects: true
-									})}
-									className="text-sm"
-								/>
+								<Breadcrumb paths={breadcrumb} className="text-sm" />
 							</div>
 						</Container>
 					</div>
@@ -98,14 +92,5 @@ const Personal = () => {
 			)}
 		</>
 	);
-};
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
 };
 export default withAuthentication(Personal, { displayName: 'Personal' });

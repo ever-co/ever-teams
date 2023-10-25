@@ -6,10 +6,8 @@ import NotFound from '@components/pages/404';
 import { withAuthentication } from 'lib/app/authenticator';
 import { Breadcrumb, Card, CommonToggle, Container, Divider, Text } from 'lib/components';
 import { MainHeader, MainLayout } from 'lib/layout';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { useTranslation } from 'next-i18next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 
 const Permissions = () => {
@@ -295,15 +293,6 @@ function SelectRole() {
 	);
 }
 
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
-};
 export default withAuthentication(Permissions, {
 	displayName: 'PermissionPage'
 });

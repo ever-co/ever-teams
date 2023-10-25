@@ -1,7 +1,7 @@
 import { ThemesPopup as IThemesPopup } from '@app/interfaces';
 import { Switch } from '@headlessui/react';
-import { useTranslation } from 'next-i18next';
 import Image from 'next/image';
+import { useTranslation } from 'react-i18next';
 
 const ThemesPopup = ({ theme, currentTheme, text, image, enabled, setTheme, index }: IThemesPopup) => {
 	const { t } = useTranslation();

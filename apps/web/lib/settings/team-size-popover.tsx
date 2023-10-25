@@ -1,8 +1,8 @@
 import { Popover, Transition } from '@headlessui/react';
 import { Button } from 'lib/components';
 import { Edit2Icon } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const sizeOption = [
 	{

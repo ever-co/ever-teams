@@ -1,6 +1,6 @@
 import { I_UserProfilePage, useLiveTimerStatus } from '@app/hooks';
 import { Divider, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { TaskCard } from './task/task-card';
 import { I_TaskFilter } from './task/task-filters';
 

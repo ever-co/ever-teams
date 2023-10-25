@@ -13,7 +13,7 @@ import { useRecoilState } from 'recoil';
 
 import { useRefetchData } from '@app/hooks';
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 type StatusForm = {
 	formOnly?: boolean;

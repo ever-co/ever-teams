@@ -5,8 +5,8 @@ import { Popover, Transition } from '@headlessui/react';
 import { PlusIcon } from '@heroicons/react/24/solid';
 import { Button, Card, InputField } from 'lib/components';
 import { ArrowDown, Edit2Icon, TrashIcon } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
 import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PermissonItem } from './permission-item';
 
 export const PermissionDropDown = ({

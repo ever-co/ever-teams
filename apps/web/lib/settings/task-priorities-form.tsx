@@ -11,7 +11,7 @@ import { IIcon, ITaskPrioritiesItemList } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { PlusIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
 

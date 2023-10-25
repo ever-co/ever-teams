@@ -3,8 +3,8 @@ import { IRequestToJoinCreate } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { AuthCodeInputField, Button, Card, InputField, Modal, SpinnerLoader, Text } from 'lib/components';
 import { ArrowLeft } from 'lib/components/svgs';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PositionDropDown } from './position-dropdown';
 
 export const RequestToJoinModal = ({ open, closeModal }: { open: boolean; closeModal: () => void }) => {

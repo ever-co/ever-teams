@@ -4,10 +4,10 @@ import { useAuthenticateUser, useImageAssets, useSettings } from '@app/hooks';
 import { IImageAssets } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Avatar, Button } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import Image from 'next/image';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import stc from 'string-to-color';
 
 export const ProfileAvatar = () => {

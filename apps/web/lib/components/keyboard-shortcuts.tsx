@@ -1,8 +1,8 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { HostKeys, HostKeysMapping, useDetectOS, useHotkeys, useModal } from '@app/hooks';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@components/ui/dialog';
-import { useTranslation } from 'next-i18next';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from './button';
 import { KeyboardLinearIcon } from './svgs';
 import { Tooltip } from './tooltip';

@@ -2,8 +2,6 @@ import { useCollaborative, useQuery } from '@app/hooks';
 import { getMeetJwtAuthTokenAPI } from '@app/services/client/api';
 import { withAuthentication } from 'lib/app/authenticator';
 import { BackdropLoader, Meta } from 'lib/components';
-import { GetStaticProps, GetStaticPropsContext } from 'next';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -59,16 +57,6 @@ function MeetPage() {
 		</>
 	);
 }
-
-export const getStaticProps: GetStaticProps = async (context: GetStaticPropsContext) => {
-	const { locale } = context;
-	const translateProps = await serverSideTranslations(locale ?? 'en', ['common']);
-	return {
-		props: {
-			...translateProps
-		}
-	};
-};
 
 export default withAuthentication(MeetPage, {
 	displayName: 'MeetPage',

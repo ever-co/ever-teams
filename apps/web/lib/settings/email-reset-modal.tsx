@@ -1,8 +1,8 @@
 import { useAuthenticateUser, useEmailReset } from '@app/hooks';
 import { AuthCodeInputField, Button, Card, InputField, Modal, Text } from 'lib/components';
-import { useTranslation } from 'next-i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
 
