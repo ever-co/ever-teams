@@ -31,8 +31,14 @@ export default async function handler(
 
 	const body = req.body as IRegisterDataAPI;
 
+	const noRecaptchaArray = ['email', 'name', 'team'];
+
+	const withRecaptchaArray = [...noRecaptchaArray, "recaptcha"];
+
+	const validationFields = RECAPTCHA_SECRET_KEY ? withRecaptchaArray : noRecaptchaArray
+
 	const { errors, valid: formValid } = authFormValidate(
-		['email', 'name', 'recaptcha', 'team'],
+		validationFields,
 		body
 	);
 
