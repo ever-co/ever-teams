@@ -24,6 +24,7 @@ export interface Props {
 	onCreateTeam: () => unknown
 	resized: boolean
 	isAccountVerified: boolean
+	isDrawer?: boolean
 }
 
 const DropDownSection: FC<Props> = observer(function DropDownSection({
@@ -32,6 +33,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 	changeTeam,
 	resized,
 	isAccountVerified,
+	isDrawer,
 }) {
 	const {
 		teamStore: { activeTeamId, activeTeam },
@@ -72,7 +74,12 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 			</View> */}
 
 			{activeTeamId && (
-				<DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />
+				<DropItem
+					resized={resized}
+					team={activeTeam}
+					changeTeam={changeTeam}
+					isActiveTeam={true}
+				/>
 			)}
 
 			<FlatList
@@ -84,6 +91,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 							width: resized ? "100%" : "90%",
 							justifyContent: "center",
 							alignItems: "center",
+							paddingRight: isDrawer && 3.5,
 						}}
 					>
 						<DropItem
@@ -173,7 +181,9 @@ const DropItem: FC<IDropItem> = observer(function DropItem({
 						color: colors.primary,
 						paddingLeft: "5%",
 						fontSize: 16,
-						fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal,
+						fontFamily: isActiveTeam
+							? typography.primary.semiBold
+							: typography.primary.normal,
 					}}
 				>
 					{limitTextCharaters({ text: team.name, numChars: resized ? 12 : 20 })} (
