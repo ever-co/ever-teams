@@ -95,6 +95,7 @@ export function useGitHubIntegration() {
 		getRepositories,
 		repositoriesLoading,
 		integrationGithubMetadata,
-		integrationGithubRepositories
+		integrationGithubRepositories,
+		syncGitHubRepository
 	};
 }

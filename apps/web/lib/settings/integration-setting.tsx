@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import { useTranslation } from 'lib/i18n';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select';
@@ -33,7 +34,6 @@ export const IntegrationSetting = () => {
 	const [selectedRepo, setSelectedRepo] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
-
 		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setIsTasksAutoSync(activeTeam?.projects[0].isTasksAutoSync);
 			setIsTasksAutoSyncOnLabel(activeTeam?.projects[0].isTasksAutoSyncOnLabel);
@@ -41,14 +41,13 @@ export const IntegrationSetting = () => {
 			if (activeTeam?.projects[0].syncTag) {
 				setSyncTag(activeTeam?.projects[0].syncTag);
 			}
-			if(activeTeam?.projects[0]?.repository?.repositoryId) {
+			if (activeTeam?.projects[0]?.repository?.repositoryId) {
 				setSelectedRepo(`${activeTeam?.projects[0]?.repository?.repositoryId}`);
 			}
 		}
 	}, [activeTeam]);
 
 	const { integrationGithubRepositories, getRepositories } = useGitHubIntegration();
-
 
 	const { editOrganizationProjectSetting, editOrganizationProject } = useOrganizationProjects();
 
@@ -81,8 +80,6 @@ export const IntegrationSetting = () => {
 				setSelectedRepo(value);
 
 				const repo = integrationGithubRepositories?.repositories.find((item) => item.id === +value);
-				console.log(repo);
-
 
 				editOrganizationProjectSetting(projectId, {
 					repository: {
@@ -91,10 +88,11 @@ export const IntegrationSetting = () => {
 						fullName: repo?.full_name,
 						owner: repo?.owner.login,
 						integrationId: integrationTenant[0].id,
-						...(activeTeam?.projects && activeTeam?.projects?.length ? {
-							...activeTeam?.projects[0].repository || {}
-						}:{})
-
+						...(activeTeam?.projects && activeTeam?.projects?.length
+							? {
+									...(activeTeam?.projects[0].repository || {})
+							  }
+							: {})
 					},
 					isTasksAutoSync: true,
 					isTasksAutoSyncOnLabel: true,
@@ -149,53 +147,58 @@ export const IntegrationSetting = () => {
 	);
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col gap-2">
 			<div className="flex justify-between items-center mt-8">
-				<div className="flex items-center w-full gap-5">
-					<div className="border-2 border-black p-0.5 rounded-lg bg-black dark:bg-white">
-						<GitHubLogoIcon width={40} height={40} className="text-white dark:text-black" />
+				<div className="flex items-center w-full gap-5 justify-between">
+					<div className="flex flex-row items-center gap-2">
+						<div className="border-2 border-black p-0.5 rounded-lg bg-black dark:bg-white">
+							<GitHubLogoIcon width={40} height={40} className="text-white dark:text-black" />
+						</div>
+
+						<div className="flex flex-row">
+							<div className="font-medium text-black dark:text-light--theme-light">{trans.GITHUB}</div>
+							{integrationGithubRepositories?.total_count === 0 && (
+								<div className="text-black dark:text-light--theme-light">
+									{trans.GITHUB_INTEGRATION_DESCRIPTION}
+								</div>
+							)}
+						</div>
 					</div>
 
-					<div className="flex flex-col ">
-						<div className="font-medium text-black dark:text-light--theme-light">{trans.GITHUB}</div>
-						{integrationGithubRepositories?.total_count === 0 && (
-							<div className="text-black dark:text-light--theme-light">
-								{trans.GITHUB_INTEGRATION_DESCRIPTION}
-							</div>
+					<div className="flex flex-row">
+						<Select value={selectedRepo || undefined} onValueChange={handleSelectRepo}>
+							<SelectTrigger className="w-80 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
+								<SelectValue
+									placeholder={trans.SELECT_REPOSITORY}
+									className="dark:bg-dark--theme-light"
+								/>
+							</SelectTrigger>
+							<SelectContent className="w-80">
+								{integrationGithubRepositories?.repositories?.map((item) => (
+									<SelectItem
+										key={item.id}
+										value={`${item.id}`}
+										className=" dark:bg-dark--theme-light focus:ring-0"
+									>
+										{item.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{selectedRepo && (
+							<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
+								<TrashIcon />
+							</Button>
 						)}
 					</div>
 				</div>
-				<div className="flex flex-row items-center gap-3">
-					{integrationGithubRepositories?.total_count && integrationGithubRepositories.total_count > 0 && (
-						<div className="flex flex-col">
-							<div className="flex flex-row">
-								<Select value={selectedRepo || undefined} onValueChange={handleSelectRepo}>
-									<SelectTrigger className="w-80 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
-										<SelectValue
-											placeholder={trans.SELECT_REPOSITORY}
-											className="dark:bg-dark--theme-light"
-										/>
-									</SelectTrigger>
-									<SelectContent className="w-80">
-										{integrationGithubRepositories?.repositories?.map((item) => (
-											<SelectItem
-												key={item.id}
-												value={`${item.id}`}
-												className=" dark:bg-dark--theme-light focus:ring-0"
-											>
-												{item.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-
-								{selectedRepo && (
-									<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
-										<TrashIcon />
-									</Button>
-								)}
-							</div>
-							<div className="flex flex-row items-center gap-2">
+			</div>
+			<div className="flex flex-row items-center gap-3">
+				{integrationGithubRepositories?.total_count && integrationGithubRepositories.total_count > 0 && (
+					<div className="flex flex-col w-full">
+						<div className="flex flex-row items-center justify-between gap-2">
+							<div className="w-1/4">
 								<Switch
 									checked={isTasksAutoSync}
 									onChange={() => {
@@ -217,7 +220,9 @@ export const IntegrationSetting = () => {
 									/>
 								</Switch>
 								<Text className="text-gray-400 ">Auto Sync Tasks</Text>
+							</div>
 
+							<div className="w-1/4">
 								<Switch
 									checked={isTasksAutoSyncOnLabel}
 									onChange={() => {
@@ -242,21 +247,27 @@ export const IntegrationSetting = () => {
 								</Switch>
 								<Text className="text-gray-400 ">Auto-sync Tasks On Label</Text>
 							</div>
-							<div className="flex flex-row items-center gap-2">
-								<InputField onChange={debounce(handleEditSyncTag, 1000)} defaultValue={syncTag} />
+
+							<div className="w-2/4">
+								<InputField
+									onChange={debounce(handleEditSyncTag, 1000)}
+									defaultValue={syncTag}
+									placeholder="Select Auto-sync Label"
+									className="h-10"
+								/>
 							</div>
 						</div>
-					)}
+					</div>
+				)}
 
-					{(!integrationGithubRepositories || integrationGithubRepositories?.total_count === 0) && (
-						<Link
-							href={url}
-							className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
-						>
-							{trans.INSTALL}
-						</Link>
-					)}
-				</div>
+				{(!integrationGithubRepositories || integrationGithubRepositories?.total_count === 0) && (
+					<Link
+						href={url}
+						className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
+					>
+						{trans.INSTALL}
+					</Link>
+				)}
 			</div>
 		</div>
 	);
