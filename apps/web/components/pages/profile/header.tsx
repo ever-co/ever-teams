@@ -2,7 +2,7 @@ import { IUser } from '@app/interfaces/IUserData';
 import TimerCard from '@components/shared/timer/timer-card';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import capitalize from 'lodash/capitalize';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/legacy/image';
 import Link from 'next/link';
 

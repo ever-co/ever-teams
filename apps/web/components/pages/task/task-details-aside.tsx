@@ -1,5 +1,5 @@
 import { clsxm } from '@app/utils';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import TaskEstimationsInfo from './details-section/blocks/task-estimations-info';
 import TaskMainInfo from './details-section/blocks/task-main-info';
 import TaskProgress from './details-section/blocks/task-progress';

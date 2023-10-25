@@ -2,7 +2,7 @@ import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
 import { IInviteProps } from '@app/interfaces/hooks';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useCallback } from 'react';
 
 const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {

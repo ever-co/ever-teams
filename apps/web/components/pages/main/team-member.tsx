@@ -4,7 +4,7 @@ import { useTeamInvitations } from '@app/hooks/features/useTeamInvitations';
 import InviteCard from '@components/shared/invite/invite-card';
 import { InvitedCard } from '@components/shared/invite/invited-card';
 import UsersCard from '@components/shared/members-card/members-card';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 const TeamMemberSection = () => {
 	const { isTeamManager, user } = useAuthenticateUser();
 	const { activeTeam, teamsFetching } = useOrganizationTeams();

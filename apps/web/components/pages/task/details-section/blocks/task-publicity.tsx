@@ -3,7 +3,7 @@ import { detailedTaskState } from '@app/stores';
 import { clsxm } from '@app/utils';
 import { GlobIcon, LockIcon } from 'lib/components/svgs';
 import { debounce } from 'lodash';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 

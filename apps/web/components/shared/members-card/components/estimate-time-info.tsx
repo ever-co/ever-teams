@@ -2,7 +2,7 @@ import { pad } from '@app/helpers/number';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/legacy/image';
 import { Dispatch, forwardRef, RefObject, SetStateAction, useCallback } from 'react';
 import { MC_EditableValues } from '../types';

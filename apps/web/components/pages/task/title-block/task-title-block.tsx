@@ -6,7 +6,7 @@ import { useToast } from '@components/ui/use-toast';
 import { Button, Tooltip } from 'lib/components';
 import { CloseAlternateIcon, CopyIconRounded, TickIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';

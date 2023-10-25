@@ -2,7 +2,7 @@ import { detailedTaskState } from '@app/stores';
 import { Disclosure } from '@headlessui/react';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
 import { TaskEstimate } from 'lib/features';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useRecoilState } from 'recoil';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import TaskRow from '../components/task-row';

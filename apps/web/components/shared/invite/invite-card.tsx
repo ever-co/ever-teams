@@ -1,6 +1,6 @@
 import InviteModal from '@components/shared/invite/invite-modal';
 import Separator from '@components/ui/separator';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { Fragment, useState } from 'react';
 
 const InviteCard = () => {

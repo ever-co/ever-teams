@@ -6,7 +6,7 @@ import { timerSecondsState } from '@app/stores';
 import { RawStatusDropdown } from '@components/shared/tasks/status-dropdown';
 import { ProgressBar } from '@components/ui/progress-bar';
 import Separator from '@components/ui/separator';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
 import { useRecoilValue } from 'recoil';
 

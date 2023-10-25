@@ -2,7 +2,7 @@ import { Card } from 'lib/components';
 import { useState } from 'react';
 // import ToolButton from '@components/pages/task/description-block/tool-button';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 const CompletionBlock = () => {
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);

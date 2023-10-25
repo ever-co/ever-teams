@@ -5,7 +5,7 @@ import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 export function EstimateTime() {

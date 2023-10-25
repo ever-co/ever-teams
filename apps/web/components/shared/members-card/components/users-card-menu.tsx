@@ -8,7 +8,7 @@ import { CreateTaskOption } from '@components/shared/tasks/task-input';
 import { TaskItem } from '@components/shared/tasks/task-item';
 import { Combobox, Popover, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import React, { Dispatch, Fragment, PropsWithChildren, SetStateAction, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
 

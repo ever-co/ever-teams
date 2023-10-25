@@ -7,7 +7,7 @@ import { clsxm } from '@app/utils';
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lib/components/svgs';
 import { TaskInput, TaskLinkedIssue } from 'lib/features';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 

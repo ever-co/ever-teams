@@ -1,4 +1,4 @@
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import ToggleThemeContainer from '../toggleThemeBtns';
 const Footer = () => {
 	const { t } = useTranslation();

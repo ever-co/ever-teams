@@ -17,7 +17,7 @@ import {
 import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/settings';
 import { VersionForm } from 'lib/settings/version-form';
 import { cloneDeep } from 'lodash';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';

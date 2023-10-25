@@ -6,7 +6,7 @@ import { clsxm } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { TrashIcon } from 'lib/components/svgs';
 import { ActiveTaskIssuesDropdown } from 'lib/features';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { Fragment, forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import ProfileInfo from '../components/profile-info';

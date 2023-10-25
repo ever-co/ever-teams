@@ -1,6 +1,6 @@
 import { ITeamTask } from '@app/interfaces';
 import moment from 'moment';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 const TaskProperties = ({ task }: { task: ITeamTask | null }) => {
 	const { t } = useTranslation();

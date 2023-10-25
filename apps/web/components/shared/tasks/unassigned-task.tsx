@@ -6,7 +6,7 @@ import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { timerSecondsState } from '@app/stores';
 import { PlayIcon } from '@heroicons/react/20/solid';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
 import { useRecoilValue } from 'recoil';
 

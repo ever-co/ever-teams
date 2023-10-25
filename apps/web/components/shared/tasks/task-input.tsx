@@ -6,7 +6,7 @@ import { Fragment, useCallback, useEffect, useState } from 'react';
 import { useTaskInput } from '@app/hooks';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { Spinner } from '@components/ui/loaders/spinner';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import DeleteTask from './delete-task';
 import TaskFilter from './task-filter';
 import { TaskItem } from './task-item';

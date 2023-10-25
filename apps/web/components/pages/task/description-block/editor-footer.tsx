@@ -1,7 +1,7 @@
 import { useTeamTasks } from '@app/hooks';
 import { detailedTaskState } from '@app/stores';
 import { Button } from 'lib/components';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState } from 'recoil';

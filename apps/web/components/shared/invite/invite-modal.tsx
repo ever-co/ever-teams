@@ -3,7 +3,7 @@ import Input from '@components/ui/inputs/input';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { Dialog, Transition } from '@headlessui/react';
 import { AxiosError } from 'axios';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { IInvite, IInviteProps } from '../../../app/interfaces/hooks';
 import UserIcon from '../../ui/svgs/user-icon';

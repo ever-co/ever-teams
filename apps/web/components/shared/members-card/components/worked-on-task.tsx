@@ -1,7 +1,7 @@
 import { secondsToTime } from '@app/helpers/date';
 import { useTaskStatistics } from '@app/hooks/features/useTaskStatistics';
 import { ITeamTask } from '@app/interfaces/ITask';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 
 export function WorkedOnTask({ memberTask, isAuthUser }: { memberTask: ITeamTask | null; isAuthUser: boolean }) {
 	const { activeTaskDailyStat, activeTaskTotalStat, getTaskStat } = useTaskStatistics();

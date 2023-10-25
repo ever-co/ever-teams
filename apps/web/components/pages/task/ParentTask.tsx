@@ -3,7 +3,7 @@ import { ITeamTask } from '@app/interfaces';
 import { Card, Modal, SpinnerLoader, Text } from 'lib/components';
 import { TaskInput } from 'lib/features';
 import cloneDeep from 'lodash/cloneDeep';
-import { useTranslation } from 'next-i18next';
+import { useTranslation } from 'react-i18next';
 import { useCallback, useState } from 'react';
 
 function CreateParentTask({ modal, task }: { modal: IHookModal; task: ITeamTask }) {
