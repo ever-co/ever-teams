@@ -13,7 +13,7 @@ import {
 } from 'lib/components';
 import { useTranslation } from 'lib/i18n';
 import { AuthLayout } from 'lib/layout';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 export default function AuthTeam() {
 	const {
