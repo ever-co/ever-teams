@@ -49,8 +49,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const teams = await Promise.all(call_teams).then((tms) => {
 		return tms.reduce(
 			(acc, { data }) => {
-				acc.items.push(...data.items);
-				acc.total += data.total;
+				if (data && data.items) {
+					acc.items.push(...data.items);
+					acc.total += data.total;
+				}
+
 				return acc;
 			},
 			{ items: [] as IOrganizationTeamList[], total: 0 }

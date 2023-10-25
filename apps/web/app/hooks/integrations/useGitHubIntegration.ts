@@ -2,12 +2,14 @@ import {
 	getGithubIntegrationMetadataAPI,
 	getGithubIntegrationRepositoriesAPI,
 	installGitHubIntegrationAPI,
-	oAuthEndpointAuthorizationAPI
+	oAuthEndpointAuthorizationAPI,
+	syncGitHubRepositoryAPI
 } from '@app/services/client/api/integrations/github';
 import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@app/stores';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
+import { IProjectRepository } from '@app/interfaces';
 
 export function useGitHubIntegration() {
 	const [user] = useRecoilState(userState);
@@ -23,6 +25,8 @@ export function useGitHubIntegration() {
 	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
 		getGithubIntegrationRepositoriesAPI
 	);
+	const { loading: syncGitHubRepositoryLoading, queryCall: syncGitHubRepositoryQueryCall } =
+		useQuery(syncGitHubRepositoryAPI);
 
 	const installGitHub = useCallback(
 		(installation_id: string, setup_action: string) => {
@@ -67,6 +71,17 @@ export function useGitHubIntegration() {
 		},
 		[repositoriesQueryCall, setIntegrationGithubRepositories]
 	);
+	const syncGitHubRepository = useCallback(
+		(integrationId: string, repository: IProjectRepository) => {
+			return syncGitHubRepositoryQueryCall({
+				integrationId,
+				repository
+			}).then((response) => {
+				return response.data.data;
+			});
+		},
+		[syncGitHubRepositoryQueryCall]
+	);
 
 	return {
 		installLoading,
@@ -80,6 +95,8 @@ export function useGitHubIntegration() {
 		getRepositories,
 		repositoriesLoading,
 		integrationGithubMetadata,
-		integrationGithubRepositories
+		integrationGithubRepositories,
+		syncGitHubRepository,
+		syncGitHubRepositoryLoading
 	};
 }

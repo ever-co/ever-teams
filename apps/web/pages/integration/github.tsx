@@ -31,8 +31,8 @@ const GitHub = () => {
 	}, [installGitHub, router]);
 
 	useEffect(() => {
-		if (!integrationTenantLoading && integrationTenant && integrationTenant?.id) {
-			getRepositories(integrationTenant.id);
+		if (!integrationTenantLoading && integrationTenant && integrationTenant.length && integrationTenant[0]?.id) {
+			getRepositories(integrationTenant[0].id);
 		}
 	}, [integrationTenantLoading, integrationTenant, getRepositories]);
 

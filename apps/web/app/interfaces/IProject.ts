@@ -1,10 +1,29 @@
+export interface IProjectRepository {
+	id: string;
+	createdAt?: string;
+	updatedAt?: string;
+	isActive: boolean;
+	isArchived: boolean;
+	tenantId: string;
+	organizationId: string;
+	repositoryId: number;
+	name: string;
+	fullName: string;
+	owner: string;
+	integrationId: string;
+}
+
 export interface IProject {
 	id: string;
 	createdAt?: string;
 	updatedAt?: string;
 	tenantId: string;
 	organizationId: string;
-	externalRepositoryId?: number;
+	repositoryId?: number;
+	repository?: IProjectRepository;
+	isTasksAutoSync?: boolean;
+	isTasksAutoSyncOnLabel?: boolean;
+	syncTag?: string;
 }
 
 export interface IProjectCreate {

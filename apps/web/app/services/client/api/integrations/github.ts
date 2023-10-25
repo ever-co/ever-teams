@@ -19,3 +19,7 @@ export function getGithubIntegrationRepositoriesAPI(integrationId: string) {
 		`/integration/github/repositories?integrationId=${integrationId}`
 	);
 }
+
+export function syncGitHubRepositoryAPI(body: any) {
+	return api.post<any>('/integration/github/repository/sync', body);
+}
