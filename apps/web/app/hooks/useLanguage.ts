@@ -18,7 +18,6 @@ export function useLanguage() {
 		(newLanguage: string, forceRedirect = false) => {
 			setCurrentLanguage(newLanguage);
 			i18n.changeLanguage(newLanguage);
-			// Make sure translation files are loaded
 			if (typeof window !== 'undefined') {
 				window.localStorage.setItem('preferredLanguage', newLanguage);
 			}
