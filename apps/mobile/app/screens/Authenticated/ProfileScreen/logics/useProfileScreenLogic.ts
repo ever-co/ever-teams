@@ -85,7 +85,9 @@ export const useProfileScreenLogic = ({
 			return updateTask(
 				{
 					...task,
-					members: [...task.members.filter((member) => member.id !== matchUser?.employeeId)],
+					members: [
+						...task.members.filter((member) => member.id !== matchUser?.employeeId),
+					],
 				},
 				task.id,
 			)
