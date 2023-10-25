@@ -1,18 +1,14 @@
+import { useModal, useTeamInvitations } from '@app/hooks';
+import { MyInvitationActionEnum } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Button, Card, Modal, Text } from 'lib/components';
-import { useTranslation } from 'lib/i18n';
-import {
-	CloseIcon,
-	CloseCircleIcon,
-	TickCircleIcon
-} from 'lib/components/svgs';
-import { useModal, useTeamInvitations } from '@app/hooks';
-import { useCallback, useEffect, useState } from 'react';
-import { MyInvitationActionEnum } from '@app/interfaces';
+import { CloseCircleIcon, CloseIcon, TickCircleIcon } from 'lib/components/svgs';
 import cloneDeep from 'lodash/cloneDeep';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function TeamInvitations() {
-	const { trans } = useTranslation('home');
+	const { t } = useTranslation();
 	const {
 		myInvitationsList,
 		myInvitations,
@@ -27,12 +23,9 @@ export function TeamInvitations() {
 	const [removedInvitations, setRemovedInvitations] = useState<string[]>([]);
 
 	useEffect(() => {
-		const sessionRemovedInvitations =
-			sessionStorage.getItem('removedInvitations');
+		const sessionRemovedInvitations = sessionStorage.getItem('removedInvitations');
 		if (sessionRemovedInvitations) {
-			const removedInvitations = JSON.parse(
-				sessionRemovedInvitations
-			) as string[];
+			const removedInvitations = JSON.parse(sessionRemovedInvitations) as string[];
 			setRemovedInvitations(removedInvitations);
 		}
 	}, []);
@@ -46,10 +39,7 @@ export function TeamInvitations() {
 			return acceptRejectMyInvitation(actionInvitationId, action);
 		}
 	}, [action, actionInvitationId, acceptRejectMyInvitation]);
-	const handleOpenModal = (
-		invitationid: string,
-		action: MyInvitationActionEnum
-	) => {
+	const handleOpenModal = (invitationid: string, action: MyInvitationActionEnum) => {
 		setAction(action);
 		setActionInvitationId(invitationid);
 		openModal();
@@ -61,10 +51,7 @@ export function TeamInvitations() {
 
 			const clonedRemovedInvitations = cloneDeep(removedInvitations);
 			clonedRemovedInvitations.push(invitationId);
-			sessionStorage.setItem(
-				'removedInvitations',
-				JSON.stringify(clonedRemovedInvitations)
-			);
+			sessionStorage.setItem('removedInvitations', JSON.stringify(clonedRemovedInvitations));
 			setRemovedInvitations(clonedRemovedInvitations);
 		},
 		[removeMyInvitation, removedInvitations]
@@ -85,35 +72,29 @@ export function TeamInvitations() {
 						key={index}
 					>
 						<Text className="mt-auto mb-auto">
-							{trans.INVITATIONS}{' '}
+							{t('pages.home.INVITATIONS')}{' '}
 							<span className="font-semibold">{invitation.teams[0].name}</span>
 						</Text>
 
-						<div className="flex flex-row gap-3 justify-items-end ml-auto mr-5">
+						<div className="flex flex-row gap-3 ml-auto mr-5 justify-items-end">
 							<Button
-								className="rounded-xl pt-2 pb-2"
+								className="pt-2 pb-2 rounded-xl"
 								onClick={() => {
-									handleOpenModal(
-										invitation.id,
-										MyInvitationActionEnum.ACCEPTED
-									);
+									handleOpenModal(invitation.id, MyInvitationActionEnum.ACCEPTED);
 								}}
 							>
 								<TickCircleIcon className="stroke-white" />
-								Accept
+								{t('common.ACCEPT')}
 							</Button>
 							<Button
-								className="rounded-xl text-primary dark:text-white pt-2 pb-2"
+								className="pt-2 pb-2 rounded-xl text-primary dark:text-white"
 								variant="outline-dark"
 								onClick={() => {
-									handleOpenModal(
-										invitation.id,
-										MyInvitationActionEnum.REJECTED
-									);
+									handleOpenModal(invitation.id, MyInvitationActionEnum.REJECTED);
 								}}
 							>
 								<CloseCircleIcon className="stroke-primary dark:stroke-white" />
-								Reject
+								{t('common.REJECT')}
 							</Button>
 						</div>
 
@@ -134,8 +115,8 @@ export function TeamInvitations() {
 				loading={acceptRejectMyInvitationsLoading}
 				title={
 					action === MyInvitationActionEnum.ACCEPTED
-						? trans.CONFIRM_ACCEPT_INVITATION
-						: trans.CONFIRM_REJECT_INVITATION
+						? t('pages.home.CONFIRM_ACCEPT_INVITATION')
+						: t('pages.home.CONFIRM_REJECT_INVITATION')
 				}
 				action={action || MyInvitationActionEnum.ACCEPTED}
 			/>
@@ -158,7 +139,7 @@ export const ConfirmModal = ({
 	loading: boolean;
 	action: MyInvitationActionEnum;
 }) => {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const [notifyMessage, setNotifyMessage] = useState<string>('');
 
 	const handleOnClose = () => {
@@ -170,18 +151,16 @@ export const ConfirmModal = ({
 		<>
 			<Modal isOpen={open} closeModal={handleOnClose}>
 				<Card className="w-full md:min-w-[480px]" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
-						<Text.Heading as="h3" className="text-center gap-32 text-2xl">
+					<div className="flex flex-col items-center justify-between">
+						<Text.Heading as="h3" className="gap-32 text-2xl text-center">
 							{title}
 						</Text.Heading>
 
 						{notifyMessage && (
-							<Text.Error className="self-start justify-self-start mt-2">
-								{notifyMessage}
-							</Text.Error>
+							<Text.Error className="self-start mt-2 justify-self-start">{notifyMessage}</Text.Error>
 						)}
 
-						<div className="w-full flex justify-between mt-10 items-center">
+						<div className="flex items-center justify-between w-full mt-10">
 							<Button
 								variant="danger"
 								type="button"
@@ -190,15 +169,11 @@ export const ConfirmModal = ({
 									'bg-transparent text-primary dark:text-dark--theme font-medium border border-gray-300 dark:border-0 dark:bg-light--theme-dark rounded-lg md:min-w-[180px]'
 								}
 							>
-								{trans.common.DISCARD}
+								{t('common.DISCARD')}
 							</Button>
 
 							<Button
-								variant={
-									action === MyInvitationActionEnum.ACCEPTED
-										? 'primary'
-										: 'danger'
-								}
+								variant={action === MyInvitationActionEnum.ACCEPTED ? 'primary' : 'danger'}
 								type="submit"
 								className="font-medium rounded-lg  md:min-w-[180px]"
 								disabled={loading}
@@ -209,10 +184,8 @@ export const ConfirmModal = ({
 											setNotifyMessage(
 												res?.message ||
 													(MyInvitationActionEnum.ACCEPTED
-														? trans.pages.invite
-																.ERROR_WHILE_ACCEPTING_INVITATION
-														: trans.pages.invite
-																.ERROR_WHILE_REJECTING_INVITATION)
+														? t('pages.invite.ERROR_WHILE_ACCEPTING_INVITATION')
+														: t('pages.invite.ERROR_WHILE_REJECTING_INVITATION'))
 											);
 											return;
 										}
@@ -221,7 +194,7 @@ export const ConfirmModal = ({
 									});
 								}}
 							>
-								{trans.common.CONFIRM}
+								{t('common.CONFIRM')}
 							</Button>
 						</div>
 					</div>

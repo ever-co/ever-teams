@@ -2,10 +2,10 @@
 import { Button, InputField, Text } from 'lib/components';
 import { StatusesListCard } from './list-card';
 
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'react-i18next';
 
 export const IssueTypeForm = () => {
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	return (
 		<>
@@ -13,40 +13,37 @@ export const IssueTypeForm = () => {
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
 						<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-							{trans.ISSUETYPE}
+							{t('pages.settingsTeam.ISSUETYPE')}
 						</Text>
 
 						<div className="flex flex-col w-full">
 							<>
-								<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-full">
-									New Issue
+								<Text className="flex-none flex-grow-0 w-full mb-2 text-lg font-normal text-gray-400">
+									{t('common.NEW_ISSUE')}
 								</Text>
-								<div className="flex  w-full gap-x-5 items-center mt-3">
+								<div className="flex items-center w-full mt-3 gap-x-5">
 									<InputField
 										type="text"
-										placeholder="Create Version"
-										className="mb-0 w-full"
+										placeholder={t('common.CREATE_VERSION')}
+										className="w-full mb-0"
 										wrapperClassName="mb-0 w-full"
 									/>
 								</div>
-								<div className="flex gap-x-4 mt-5">
+								<div className="flex mt-5 gap-x-4">
 									<Button
 										variant="primary"
-										className="font-normal py-4 px-4 rounded-xl text-md"
+										className="px-4 py-4 font-normal rounded-xl text-md"
 										type="submit"
 									>
-										Create
+										{t('common.CREATE')}
 									</Button>
-									<Button
-										variant="grey"
-										className="font-normal py-4 px-4 rounded-xl text-md"
-									>
-										Cancel
+									<Button variant="grey" className="px-4 py-4 font-normal rounded-xl text-md">
+										{t('common.CANCEL')}
 									</Button>
 								</div>
 							</>
 							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem]">
-								{trans.LIST_OF_ISSUES}
+								{t('pages.settingsTeam.LIST_OF_ISSUES')}
 							</Text>
 							<div className="flex flex-wrap w-full gap-3">
 								<StatusesListCard

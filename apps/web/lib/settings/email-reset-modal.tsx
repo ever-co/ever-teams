@@ -1,31 +1,16 @@
 import { useAuthenticateUser, useEmailReset } from '@app/hooks';
-import {
-	AuthCodeInputField,
-	Button,
-	Card,
-	InputField,
-	Modal,
-	Text
-} from 'lib/components';
-import { useTranslation } from 'lib/i18n';
+import { AuthCodeInputField, Button, Card, InputField, Modal, Text } from 'lib/components';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export type ISteps = 'EMAIL' | 'CODE_VERIFICATION';
 
 /**
  * Email Reset modal
  */
-export function EmailResetModal({
-	open,
-	closeModal,
-	email
-}: {
-	open: boolean;
-	closeModal: () => void;
-	email: string;
-}) {
-	const { trans } = useTranslation();
+export function EmailResetModal({ open, closeModal, email }: { open: boolean; closeModal: () => void; email: string }) {
+	const { t } = useTranslation();
 	const { register, setValue, getValues } = useForm();
 	const [code, setCode] = useState('');
 	const [step, setStep] = useState<ISteps>('EMAIL');
@@ -52,38 +37,25 @@ export function EmailResetModal({
 	const handleContinue = useCallback(() => {
 		const newEmail = getValues().email;
 		emailResetRequestQueryCall(newEmail).then(() => {
-			setMessage(trans.pages.home.SENT_EMAIL_VERIFICATION);
+			setMessage(t('pages.home.SENT_EMAIL_VERIFICATION'));
 			setStep('CODE_VERIFICATION');
 		});
-	}, [
-		emailResetRequestQueryCall,
-		getValues,
-		trans.pages.home.SENT_EMAIL_VERIFICATION
-	]);
+	}, [emailResetRequestQueryCall, getValues, t]);
 	const handleConfirm = useCallback(() => {
 		verifyChangeEmailRequestQueryCall(code).then(() => {
 			updateUserFromAPI();
 			onCloseModal();
 		});
-	}, [
-		code,
-		verifyChangeEmailRequestQueryCall,
-		updateUserFromAPI,
-		onCloseModal
-	]);
+	}, [code, verifyChangeEmailRequestQueryCall, updateUserFromAPI, onCloseModal]);
 
 	return (
 		<Modal isOpen={open} closeModal={onCloseModal}>
-			<form
-				className="w-[98%] md:w-[480px]"
-				autoComplete="off"
-				onSubmit={handleConfirm}
-			>
+			<form className="w-[98%] md:w-[480px]" autoComplete="off" onSubmit={handleConfirm}>
 				{step === 'EMAIL' && (
 					<Card className="w-full" shadow="custom">
 						<div className="flex flex-col items-center justify-between">
 							<Text.Heading as="h3" className="gap-32 text-center">
-								{trans.pages.settingsPersonal.ABOUT_TO_CHANGE_EMAIL}
+								{t('pages.settingsPersonal.ABOUT_TO_CHANGE_EMAIL')}
 							</Text.Heading>
 							<div className="w-full mt-5">
 								<InputField
@@ -97,9 +69,7 @@ export function EmailResetModal({
 									className={`md:w-[220px] m-0 h-[54px]`}
 								/>
 								{message && (
-									<Text.Error className="self-start justify-self-start">
-										{message}
-									</Text.Error>
+									<Text.Error className="self-start justify-self-start">{message}</Text.Error>
 								)}
 							</div>
 							<div className="flex items-center justify-between w-full mt-5">
@@ -112,21 +82,19 @@ export function EmailResetModal({
 										'bg-transparent text-primary dark:text-dark--theme font-medium border border-gray-300 md:min-w-[180px] dark:border-0 dark:bg-light--theme-dark rounded-xl'
 									}
 								>
-									{trans.common.CANCEL}
+									{t('common.CANCEL')}
 								</Button>
 
 								<Button
 									type="button"
 									disabled={emailResetRequestLoading}
 									loading={emailResetRequestLoading}
-									className={
-										'font-medium border border-primary md:min-w-[180px] rounded-xl'
-									}
+									className={'font-medium border border-primary md:min-w-[180px] rounded-xl'}
 									onClick={() => {
 										handleContinue();
 									}}
 								>
-									{trans.common.CONTINUE}
+									{t('common.CONTINUE')}
 								</Button>
 							</div>
 						</div>
@@ -137,7 +105,7 @@ export function EmailResetModal({
 					<Card className="w-full" shadow="custom">
 						<div className="flex flex-col items-center justify-between">
 							<Text.Heading as="h3" className="text-center">
-								{trans.common.SECURITY_CODE}
+								{t('common.SECURITY_CODE')}
 							</Text.Heading>
 							<div className="w-full mt-5">
 								<AuthCodeInputField
@@ -150,9 +118,7 @@ export function EmailResetModal({
 									}}
 								/>
 								{message && (
-									<Text.Error className="self-start justify-self-start">
-										{message}
-									</Text.Error>
+									<Text.Error className="self-start justify-self-start">{message}</Text.Error>
 								)}
 							</div>
 							<div className="flex items-center justify-between w-full mt-5">
@@ -167,7 +133,7 @@ export function EmailResetModal({
 											>
 												{'Re'}
 												<span className="text-primary dark:text-primary-light">
-													{trans.pages.auth.SEND_CODE}
+													{t('pages.auth.SEND_CODE')}
 												</span>
 											</button>
 										)}
@@ -184,7 +150,7 @@ export function EmailResetModal({
 										'bg-transparent text-primary dark:text-dark--theme font-medium border border-gray-300 md:min-w-[180px] dark:border-0 dark:bg-light--theme-dark rounded-xl'
 									}
 								>
-									{trans.common.DISCARD}
+									{t('common.DISCARD')}
 								</Button>
 
 								<Button
@@ -196,7 +162,7 @@ export function EmailResetModal({
 									}
 									onClick={handleConfirm}
 								>
-									{trans.common.CONFIRM}
+									{t('common.CONFIRM')}
 								</Button>
 							</div>
 						</div>

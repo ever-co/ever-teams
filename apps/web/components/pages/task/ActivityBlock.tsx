@@ -1,15 +1,16 @@
-import { useState } from 'react';
-import { Card } from 'lib/components';
-import clsx from 'clsx';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import clsx from 'clsx';
+import { Card } from 'lib/components';
+import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
+import { useState } from 'react';
 
 const ActivityBlock = () => {
 	const [selectedAll, setSelectedAll] = useState<boolean>(true);
 	const [selectedComments, setSelectedComments] = useState<boolean>(false);
 	const [selectedHistory, setSelectedHistory] = useState<boolean>(false);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-
+	const { t } = useTranslation();
 	const onAllSelect = () => {
 		setSelectedAll(true);
 		setSelectedComments(false);
@@ -30,9 +31,9 @@ const ActivityBlock = () => {
 
 	return (
 		<Card className="w-full mt-8" shadow="bigger">
-			<div className="flex justify-between sm:flex-row flex-col">
-				<div className="flex sm:flex-row flex-col">
-					<h4 className="text-lg font-semibold mr-2">Activity </h4>
+			<div className="flex flex-col justify-between sm:flex-row">
+				<div className="flex flex-col sm:flex-row">
+					<h4 className="mr-2 text-lg font-semibold">{t('common.ACTIVITY')} </h4>
 					<div className="flex ">
 						<div
 							className={clsx(
@@ -47,7 +48,7 @@ const ActivityBlock = () => {
 									selectedAll ? 'text-black' : 'text-[#A5A2B2]'
 								)}
 							>
-								All
+								{t('common.FILTER_ALL')}
 							</span>
 						</div>
 						<div
@@ -63,7 +64,7 @@ const ActivityBlock = () => {
 									selectedComments ? 'text-black' : 'text-[#A5A2B2]'
 								)}
 							>
-								Comments
+								{t('common.FILTER_COMMENTS')}
 							</span>
 						</div>
 						<div
@@ -79,33 +80,21 @@ const ActivityBlock = () => {
 									selectedHistory ? 'text-black' : 'text-[#A5A2B2]'
 								)}
 							>
-								History
+								{t('common.FILTER_HISTORY')}
 							</span>
 						</div>
 					</div>
 				</div>
 				<div className="flex items-center">
 					<button className="flex items-center justify-center text-[#B1AEBC] text-sm mr-2 mt-4">
-						<Image
-							className="mr-1"
-							width={22}
-							height={22}
-							alt="bold"
-							src="/assets/svg/unsubscribe.svg"
-						/>{' '}
-						Unsubscribe
+						<Image className="mr-1" width={22} height={22} alt="bold" src="/assets/svg/unsubscribe.svg" />{' '}
+						{t('common.FILTER_UNSUBSCRIBE')}
 					</button>
-					<Image
-						src="/assets/svg/line-up.svg"
-						alt="line"
-						width={18}
-						height={18}
-						style={{ height: '18px' }}
-					/>
+					<Image src="/assets/svg/line-up.svg" alt="line" width={18} height={18} style={{ height: '18px' }} />
 					<ChevronUpIcon className="h-5 w-5 text-[#292D32] cursor-pointer" />
 				</div>
 			</div>
-			<div className="mt-4 h-32">
+			<div className="h-32 mt-4">
 				<input
 					className="text-sm text-[#A5A2B2] w-full py-4 bg-[#F9F9F9] border rounded-md outline-0 px-2 dark:bg-dark--theme"
 					type="text"
@@ -120,10 +109,10 @@ const ActivityBlock = () => {
 							onClick={() => setIsUpdated(false)}
 							className="font-medium transition-all hover:font-semibold"
 						>
-							Cancel
+							{t('common.CANCEL')}
 						</button>
-						<button className="bg-green-500 text-white px-4 py-1 m-2 rounded font-medium hover:bg-green-600 transition-all">
-							Save
+						<button className="px-4 py-1 m-2 font-medium text-white transition-all bg-green-500 rounded hover:bg-green-600">
+							{t('common.SAVE')}
 						</button>
 					</div>
 				)}

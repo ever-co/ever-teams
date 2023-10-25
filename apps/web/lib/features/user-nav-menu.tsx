@@ -1,22 +1,13 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useMemo } from 'react';
 import { CHARACTER_LIMIT_TO_SHOW } from '@app/constants';
-import {
-	useAuthenticateUser,
-	useOrganizationTeams,
-	useTimer
-} from '@app/hooks';
+import { imgTitle } from '@app/helpers';
+import { useAuthenticateUser, useOrganizationTeams, useTimer } from '@app/hooks';
+import { ITimerStatusEnum, ThemeInterface } from '@app/interfaces';
+import { publicState } from '@app/stores';
 import { clsxm, isValidUrl } from '@app/utils';
 import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import {
-	Avatar,
-	Card,
-	Divider,
-	Text,
-	ThemeToggler,
-	Tooltip
-} from 'lib/components';
+import { Avatar, Card, Divider, Text, ThemeToggler, Tooltip } from 'lib/components';
 import {
 	BriefcaseIcon,
 	DevicesIcon,
@@ -25,25 +16,21 @@ import {
 	PeopleIcon,
 	SettingsOutlineIcon
 } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
+import ThemesPopup from 'lib/components/themes-popup';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
-import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
-import ThemesPopup from 'lib/components/themes-popup';
-import { ITimerStatusEnum, ThemeInterface } from '@app/interfaces';
-import stc from 'string-to-color';
-import { imgTitle } from '@app/helpers';
-import { getTimerStatusValue, TimerStatus } from './timer/timer-status';
-import { publicState } from '@app/stores';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRecoilValue } from 'recoil';
+import stc from 'string-to-color';
+import gauzyDark from '../../public/assets/themeImages/gauzyDark.png';
+import gauzyLight from '../../public/assets/themeImages/gauzyLight.png';
+import { TimerStatus, getTimerStatusValue } from './timer/timer-status';
 
 export function UserNavAvatar() {
 	const { user } = useAuthenticateUser();
-	const imageUrl =
-		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
-	const name =
-		user?.name || user?.firstName || user?.lastName || user?.username || '';
+	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const name = user?.name || user?.firstName || user?.lastName || user?.username || '';
 	const { timerStatus } = useTimer();
 	const { activeTeam } = useOrganizationTeams();
 	const publicTeam = useRecoilValue(publicState);
@@ -99,7 +86,7 @@ export function UserNavAvatar() {
 				leaveFrom="transform scale-100 opacity-100"
 				leaveTo="transform scale-95 opacity-0"
 			>
-				<Popover.Panel className="absolute z-50 right-0 xl:-right-5 mt-5">
+				<Popover.Panel className="absolute right-0 z-50 mt-5 xl:-right-5">
 					<MenuIndicator />
 					<UserNavMenu />
 				</Popover.Panel>
@@ -126,11 +113,9 @@ function MenuIndicator() {
 
 function UserNavMenu() {
 	const { user, logOut } = useAuthenticateUser();
-	const { trans } = useTranslation();
-	const imageUrl =
-		user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
-	const name =
-		user?.name || user?.firstName || user?.lastName || user?.username;
+	const { t } = useTranslation();
+	const imageUrl = user?.image?.thumbUrl || user?.image?.fullUrl || user?.imageUrl;
+	const name = user?.name || user?.firstName || user?.lastName || user?.username;
 	const { timerStatus } = useTimer();
 	const { activeTeam } = useOrganizationTeams();
 	const publicTeam = useRecoilValue(publicState);
@@ -148,7 +133,7 @@ function UserNavMenu() {
 			shadow="custom"
 			className="w-[308px] flex flex-col nav-items--shadow z-10 rounded-[10px] shadow-xlcard dark:bg-[#1B1D22] border-[0.125rem] border-transparent dark:border-[#26272C]"
 		>
-			<div className="flex flex-col justify-center items-center">
+			<div className="flex flex-col items-center justify-center">
 				<Link href={`/settings/personal`}>
 					<div
 						className={clsxm(
@@ -162,12 +147,7 @@ function UserNavMenu() {
 						}}
 					>
 						{imageUrl && isValidUrl(imageUrl) ? (
-							<Avatar
-								size={72}
-								className="relative cursor-pointer"
-								imageUrl={imageUrl}
-								alt="Team Avatar"
-							>
+							<Avatar size={72} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar">
 								<TimerStatus
 									status={timerStatusValue}
 									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
@@ -182,21 +162,15 @@ function UserNavMenu() {
 					</div>
 				</Link>
 
-				<Link href={`/settings/personal`} className="text-center  w-full">
+				<Link href={`/settings/personal`} className="w-full text-center">
 					<Tooltip
-						label={
-							`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''
-						}
+						label={`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || ''}
 						enabled={
-							`${user?.firstName || ''} ${user?.lastName || ''}`.trim().length >
-							CHARACTER_LIMIT_TO_SHOW
+							`${user?.firstName || ''} ${user?.lastName || ''}`.trim().length > CHARACTER_LIMIT_TO_SHOW
 						}
 						placement="auto"
 					>
-						<Text.Heading
-							as="h3"
-							className="overflow-hidden text-ellipsis whitespace-nowrap"
-						>
+						<Text.Heading as="h3" className="overflow-hidden text-ellipsis whitespace-nowrap">
 							{user?.firstName} {user?.lastName}
 						</Text.Heading>
 					</Tooltip>
@@ -216,39 +190,33 @@ function UserNavMenu() {
 
 				<ul className="w-full mt-4">
 					{/* Task menu */}
-					<li className=" mb-3">
+					<li className="mb-3 ">
 						<Link
 							href={`/profile/${user?.id}`}
-							className="text-center flex space-x-3 items-center font-normal"
+							className="flex items-center space-x-3 font-normal text-center"
 						>
-							<BriefcaseIcon className="w-5 h-5" />{' '}
-							<span>{trans.common.MY_TASKS}</span>
+							<BriefcaseIcon className="w-5 h-5" /> <span>{t('common.MY_TASKS')}</span>
 						</Link>
 					</li>
 					{/* Team menu */}
 					<li className="mb-3">
-						<Link href="/" className="flex space-x-3 items-center font-normal">
+						<Link href="/" className="flex items-center space-x-3 font-normal">
 							<PeopleIcon className="w-5 h-5 stroke-default dark:stroke-white" />{' '}
-							<span>{trans.common.MY_TEAM}</span>
+							<span>{t('common.MY_TEAM')}</span>
 						</Link>
 					</li>
 					{/* Settings menu */}
 
 					<li className="mb-3">
-						<Link
-							href={'/settings/personal'}
-							className="flex space-x-3 items-center font-normal"
-						>
-							<SettingsOutlineIcon className="w-5 h-5" />{' '}
-							<span>{trans.common.SETTINGS}</span>
+						<Link href={'/settings/personal'} className="flex items-center space-x-3 font-normal">
+							<SettingsOutlineIcon className="w-5 h-5" /> <span>{t('common.SETTINGS')}</span>
 						</Link>
 					</li>
 
 					{/* Darkmode menu */}
-					<li className="flex space-x-3 items-center justify-between font-normal mb-3">
-						<div className="flex-1 flex items-center space-x-3">
-							<MoonIcon className="w-5 h-5" />{' '}
-							<span>{trans.common.DARK_MODE}</span>
+					<li className="flex items-center justify-between mb-3 space-x-3 font-normal">
+						<div className="flex items-center flex-1 space-x-3">
+							<MoonIcon className="w-5 h-5" /> <span>{t('common.DARK_MODE')}</span>
 						</div>
 						<ThemeToggler className="scale-75" />
 					</li>
@@ -257,8 +225,8 @@ function UserNavMenu() {
 					{/* TODO
 					- Uncomment it when we have 3D mode ready
 					*/}
-					{/* <li className="flex space-x-3 items-center font-normal mb-3">
-						<div className="flex-1 flex items-center space-x-3">
+					{/* <li className="flex items-center mb-3 space-x-3 font-normal">
+						<div className="flex items-center flex-1 space-x-3">
 							<BoxIcon className="w-5 h-5" />{' '}
 							<span>{trans.common['3D_MODE']}</span>
 						</div>
@@ -266,10 +234,9 @@ function UserNavMenu() {
 					</li> */}
 
 					{/* Themes menu */}
-					<li className="flex space-x-3 items-center font-normal mb-3">
-						<div className="flex-1 flex space-x-3">
-							<DevicesIcon className="w-5 h-5" />{' '}
-							<span>{trans.common.THEMES}</span>
+					<li className="flex items-center mb-3 space-x-3 font-normal">
+						<div className="flex flex-1 space-x-3">
+							<DevicesIcon className="w-5 h-5" /> <span>{t('common.THEMES')}</span>
 						</div>
 						<ThemeDropdown />
 					</li>
@@ -282,8 +249,7 @@ function UserNavMenu() {
 							className="flex space-x-3 items-center font-normal mb-3 text-[#DE437B]"
 							onClick={logOut}
 						>
-							<LogoutIcon2 className="w-5 h-5 stroke-[#DE437B]" />{' '}
-							<span>{trans.common.LOGOUT}</span>
+							<LogoutIcon2 className="w-5 h-5 stroke-[#DE437B]" /> <span>{t('common.LOGOUT')}</span>
 						</button>
 					</li>
 				</ul>
@@ -310,16 +276,12 @@ function ThemeDropdown() {
 		}
 	];
 
-	const selectedThemeText = themes.find(
-		(item: ThemeInterface): boolean => item.theme === theme
-	)?.text;
+	const selectedThemeText = themes.find((item: ThemeInterface): boolean => item.theme === theme)?.text;
 
 	return (
 		<Popover className="relative z-30">
 			<Popover.Button className="flex items-center">
-				<p className="text-sm text-neutral">
-					{selectedThemeText?.replace('2D', '')}
-				</p>
+				<p className="text-sm text-neutral">{selectedThemeText?.replace('2D', '')}</p>
 				<ChevronDownIcon
 					className={clsxm(
 						'ml-1 h-5 w-5 dark:text-white transition duration-150 ease-in-out group-hover:text-opacity-80'
@@ -372,7 +334,7 @@ function ThemeDropdown() {
 // 	return (
 // 		<div className="relative">
 // 			<Listbox value={selected} onChange={setTheme as any}>
-// 				<Listbox.Button className="flex text-sm items-center text-gray-500 dark:text-gray-300">
+// 				<Listbox.Button className="flex items-center text-sm text-gray-500 dark:text-gray-300">
 // 					{selected}{' '}
 // 					<ChevronDownIcon
 // 						className={clsxm(
@@ -387,7 +349,7 @@ function ThemeDropdown() {
 // 							<Listbox.Option
 // 								key={key}
 // 								value={key}
-// 								className="text-sm text-gray-600 dark:text-white cursor-pointer"
+// 								className="text-sm text-gray-600 cursor-pointer dark:text-white"
 // 							>
 // 								{themes[key as keyof typeof themes]}
 // 							</Listbox.Option>

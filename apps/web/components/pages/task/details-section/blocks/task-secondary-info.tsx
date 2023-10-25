@@ -1,5 +1,9 @@
 import { useModal, useSyncRef, useTeamTasks } from '@app/hooks';
+import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
 import { detailedTaskState, taskVersionListState } from '@app/stores';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { Button, Card, Modal, Tooltip } from 'lib/components';
+import { CategoryIcon } from 'lib/components/svgs';
 import {
 	ActiveTaskPropertiesDropdown,
 	ActiveTaskSizesDropdown,
@@ -10,22 +14,14 @@ import {
 	TaskStatus,
 	useTaskLabelsValue
 } from 'lib/features';
+import { TaskPrioritiesForm, TaskSizesForm, TaskStatusesForm } from 'lib/settings';
+import { VersionForm } from 'lib/settings/version-form';
+import { cloneDeep } from 'lodash';
+import { useTranslation } from 'react-i18next';
+import Link from 'next/link';
 import { useCallback, useMemo, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import TaskRow from '../components/task-row';
-import { useTranslation } from 'lib/i18n';
-import { Button, Card, Modal, Tooltip } from 'lib/components';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import {
-	TaskPrioritiesForm,
-	TaskSizesForm,
-	TaskStatusesForm
-} from 'lib/settings';
-import { VersionForm } from 'lib/settings/version-form';
-import { ITaskVersionCreate, ITeamTask } from '@app/interfaces';
-import { cloneDeep } from 'lodash';
-import { CategoryIcon } from 'lib/components/svgs';
-import Link from 'next/link';
 
 type StatusType = 'version' | 'epic' | 'status' | 'label' | 'size' | 'priority';
 
@@ -37,7 +33,7 @@ const TaskSecondaryInfo = () => {
 
 	const { handleStatusUpdate } = useTeamTasks();
 
-	const { trans } = useTranslation('taskDetails');
+	const { t } = useTranslation();
 
 	const modal = useModal();
 	const [formTarget, setFormTarget] = useState<StatusType | null>(null);
@@ -89,7 +85,7 @@ const TaskSecondaryInfo = () => {
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
 			{/* Version */}
-			<TaskRow labelTitle={trans.VERSION}>
+			<TaskRow labelTitle={t('pages.taskDetails.VERSION')}>
 				<ActiveTaskVersionDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
@@ -109,7 +105,7 @@ const TaskSecondaryInfo = () => {
 
 			{/* Epic */}
 			{task && task.issueType === 'Story' && (
-				<TaskRow labelTitle={trans.EPIC}>
+				<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
 					<TaskEpicDropdown
 						onValueChange={(d) => {
 							onTaskSelect({
@@ -127,7 +123,7 @@ const TaskSecondaryInfo = () => {
 			{task && <EpicParent task={task} />}
 
 			{/* Task Status */}
-			<TaskRow labelTitle={trans.STATUS}>
+			<TaskRow labelTitle={t('pages.taskDetails.STATUS')}>
 				<ActiveTaskStatusDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
@@ -136,7 +132,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full py-1 px-2 text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('status')}
 					>
@@ -146,7 +142,7 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Task Labels */}
-			<TaskRow labelTitle={trans.LABELS}>
+			<TaskRow labelTitle={t('pages.taskDetails.LABELS')}>
 				<TaskLabels
 					task={task}
 					className="lg:min-w-[170px] text-black lg:mt-0"
@@ -159,11 +155,7 @@ const TaskSecondaryInfo = () => {
 					<div className="flex flex-row flex-wrap gap-1 max-w-[10rem]">
 						{tags.map((tag, i) => {
 							return (
-								<Tooltip
-									key={i}
-									label={tag.name?.split('-').join(' ') || ''}
-									placement="auto"
-								>
+								<Tooltip key={i} label={tag.name?.split('-').join(' ') || ''} placement="auto">
 									<TaskStatus
 										{...tag}
 										className="rounded-[0.625rem] h-6 max-w-[8rem]"
@@ -179,7 +171,7 @@ const TaskSecondaryInfo = () => {
 			)}
 
 			{/* Task Size */}
-			<TaskRow labelTitle={trans.SIZE} wrapperClassName="text-black">
+			<TaskRow labelTitle={t('pages.taskDetails.SIZE')} wrapperClassName="text-black">
 				<ActiveTaskSizesDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black"
@@ -188,7 +180,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full py-1 px-2 text-xs dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('size')}
 					>
@@ -198,7 +190,7 @@ const TaskSecondaryInfo = () => {
 			</TaskRow>
 
 			{/* Task Properties */}
-			<TaskRow labelTitle={trans.PRIORITY} wrapperClassName="text-black">
+			<TaskRow labelTitle={t('pages.taskDetails.PRIORITY')} wrapperClassName="text-black">
 				<ActiveTaskPropertiesDropdown
 					task={task}
 					className="lg:min-w-[170px] text-black rounded-xl"
@@ -207,7 +199,7 @@ const TaskSecondaryInfo = () => {
 					taskStatusClassName="text-[0.625rem] h-[1.5625rem] max-w-[7.6875rem] rounded 3xl:text-xs"
 				>
 					<Button
-						className="w-full text-xs py-1 px-2 dark:text-white dark:border-white"
+						className="w-full px-2 py-1 text-xs dark:text-white dark:border-white"
 						variant="outline"
 						onClick={openModalEditionHandle('priority')}
 					>
@@ -219,21 +211,11 @@ const TaskSecondaryInfo = () => {
 			<Modal isOpen={modal.isOpen} closeModal={modal.closeModal}>
 				<Card className="sm:w-[530px] w-[330px]" shadow="custom">
 					{formTarget === 'version' && (
-						<VersionForm
-							onVersionCreated={onVersionCreated}
-							onCreated={modal.closeModal}
-							formOnly={true}
-						/>
+						<VersionForm onVersionCreated={onVersionCreated} onCreated={modal.closeModal} formOnly={true} />
 					)}
-					{formTarget === 'status' && (
-						<TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />
-					)}
-					{formTarget === 'priority' && (
-						<TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />
-					)}
-					{formTarget === 'size' && (
-						<TaskSizesForm onCreated={modal.closeModal} formOnly={true} />
-					)}
+					{formTarget === 'status' && <TaskStatusesForm onCreated={modal.closeModal} formOnly={true} />}
+					{formTarget === 'priority' && <TaskPrioritiesForm onCreated={modal.closeModal} formOnly={true} />}
+					{formTarget === 'size' && <TaskSizesForm onCreated={modal.closeModal} formOnly={true} />}
 				</Card>
 			</Modal>
 		</section>
@@ -241,27 +223,21 @@ const TaskSecondaryInfo = () => {
 };
 
 const EpicParent = ({ task }: { task: ITeamTask }) => {
-	const { trans } = useTranslation('taskDetails');
+	const { t } = useTranslation();
 
 	if (task.issueType === 'Story') {
 		return <></>;
 	}
 
-	return (!task.issueType ||
-		task.issueType === 'Task' ||
-		task.issueType === 'Bug') &&
-		task?.rootEpic ? (
-		<TaskRow labelTitle={trans.EPIC}>
-			<Tooltip
-				label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}
-				placement="auto"
-			>
+	return (!task.issueType || task.issueType === 'Task' || task.issueType === 'Bug') && task?.rootEpic ? (
+		<TaskRow labelTitle={t('pages.taskDetails.EPIC')}>
+			<Tooltip label={`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`} placement="auto">
 				<Link href={`/task/${task?.rootEpic?.id}`} target="_blank">
 					<div className="flex items-center w-32">
 						<div className="bg-[#8154BA] p-1 rounded-sm mr-1">
 							<CategoryIcon />
 						</div>
-						<div className="text-xs overflow-hidden text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
+						<div className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</div>
 					</div>
 				</Link>
 			</Tooltip>
