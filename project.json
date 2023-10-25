@@ -9,13 +9,6 @@
 		"web": {
 			"tags": []
 		},
-		"website-e2e": {
-			"tags": [],
-			"implicitDependencies": ["web"]
-		},
-		"website": {
-			"tags": []
-		},
 		"mobile": {
 			"tags": []
 		},

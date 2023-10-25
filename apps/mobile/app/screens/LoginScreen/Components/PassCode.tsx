@@ -224,7 +224,7 @@ const PassCode: FC<Props> = observer(
 							<Text style={styles.resendText}>
 								{translate("loginScreen.codeNotReceived")}
 								{translate("loginScreen.sendCode").substring(0, 2)}
-								<Text style={{ color: colors.primary }}>
+								<Text style={{ color: colors.secondary }}>
 									{translate("loginScreen.sendCode").substring(2)}
 								</Text>
 							</Text>
