@@ -1,111 +1,98 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import { observer } from "mobx-react-lite"
-import React, { useEffect, useState } from "react"
-import {
-	View,
-	Text,
-	TouchableOpacity,
-	TextInput,
-	StyleSheet,
-	ActivityIndicator,
-} from "react-native"
-import { translate } from "../../../../i18n"
-import { useStores } from "../../../../models"
-import { IUser } from "../../../../services/interfaces/IUserData"
-import { typography, useAppTheme } from "../../../../theme"
+import { observer } from 'mobx-react-lite';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
+import { translate } from '../../../../i18n';
+import { useStores } from '../../../../models';
+import { IUser } from '../../../../services/interfaces/IUserData';
+import { typography, useAppTheme } from '../../../../theme';
 
 interface IValidation {
-	firstname: boolean
-	lastName: boolean
+	firstname: boolean;
+	lastName: boolean;
 }
 const UpdateFullNameForm = observer(
-	({
-		onDismiss,
-		onUpdateFullName,
-	}: {
-		onDismiss: () => unknown
-		onUpdateFullName: (userBody: IUser) => unknown
-	}) => {
-		const { colors, dark } = useAppTheme()
+	({ onDismiss, onUpdateFullName }: { onDismiss: () => unknown; onUpdateFullName: (userBody: IUser) => unknown }) => {
+		const { colors, dark } = useAppTheme();
 		const {
-			authenticationStore: { user },
-		} = useStores()
-		const [userFirstName, setUserFirstName] = useState("")
-		const [userLastName, setUserLastName] = useState("")
-		const [isLoading, setIsLoading] = useState(false)
+			authenticationStore: { user }
+		} = useStores();
+		const [userFirstName, setUserFirstName] = useState('');
+		const [userLastName, setUserLastName] = useState('');
+		const [isLoading, setIsLoading] = useState(false);
 		const [isValid, setIsvalid] = useState<IValidation>({
 			firstname: true,
-			lastName: true,
-		})
+			lastName: true
+		});
 
 		useEffect(() => {
 			if (user) {
-				setUserFirstName(user?.firstName)
-				setUserLastName(user?.lastName)
+				setUserFirstName(user?.firstName);
+				setUserLastName(user?.lastName);
 			}
-		}, [user])
+		}, [user]);
 
 		const onChangeFistName = (text: string) => {
 			if (text.trim().length > 2) {
 				setIsvalid({
 					...isValid,
-					firstname: true,
-				})
+					firstname: true
+				});
 			} else {
 				setIsvalid({
 					...isValid,
-					firstname: false,
-				})
+					firstname: false
+				});
 			}
-			setUserFirstName(text)
-		}
+			setUserFirstName(text);
+		};
 
 		const onChaneLastName = (text: string) => {
 			if (text.trim().length > 2) {
 				setIsvalid({
 					...isValid,
-					lastName: true,
-				})
+					lastName: true
+				});
 			} else {
 				setIsvalid({
 					...isValid,
-					lastName: false,
-				})
+					lastName: false
+				});
 			}
-			setUserLastName(text)
-		}
+			setUserLastName(text);
+		};
 
 		const handleSubmit = async () => {
 			if (userFirstName.trim().length < 3) {
 				setIsvalid({
 					...isValid,
-					firstname: false,
-				})
-				return
+					firstname: false
+				});
+				return;
 			}
 
 			if (userLastName.trim().length < 3) {
 				setIsvalid({
 					...isValid,
-					lastName: false,
-				})
-				return
+					lastName: false
+				});
+				return;
 			}
 
 			if (userFirstName.trim() === user?.firstName && userLastName.trim() === user?.lastName) {
-				return
+				return;
 			}
 
-			setIsLoading(true)
+			setIsLoading(true);
 			await onUpdateFullName({
 				...user,
 				firstName: userFirstName,
-				lastName: userLastName,
-			})
-			setIsLoading(false)
-			onDismiss()
-		}
+				lastName: userLastName
+			});
+			setIsLoading(false);
+			onDismiss();
+		};
 
 		return (
 			<View
@@ -114,27 +101,27 @@ const UpdateFullNameForm = observer(
 					paddingHorizontal: 25,
 					paddingTop: 26,
 					paddingBottom: 40,
-					height: 349,
+					height: 349
 				}}
 			>
 				<View style={{ flex: 3 }}>
 					<Text style={{ ...styles.formTitle, color: colors.primary }}>
-						{translate("settingScreen.changeFullName.mainTitle")}
+						{translate('settingScreen.changeFullName.mainTitle')}
 					</Text>
 					<TextInput
 						style={{
 							...styles.styleInput,
 							color: colors.primary,
-							borderColor: isValid.firstname ? "#DCE4E8" : "red",
+							borderColor: isValid.firstname ? '#DCE4E8' : 'red'
 						}}
-						placeholderTextColor={"#7B8089"}
-						placeholder={translate("settingScreen.changeFullName.firstNamePlaceholder")}
+						placeholderTextColor={'#7B8089'}
+						placeholder={translate('settingScreen.changeFullName.firstNamePlaceholder')}
 						value={userFirstName}
 						editable={!isLoading}
-						autoComplete={"off"}
+						autoComplete={'off'}
 						autoFocus={false}
 						autoCorrect={false}
-						autoCapitalize={"none"}
+						autoCapitalize={'none'}
 						onChangeText={(text) => onChangeFistName(text)}
 					/>
 					{!isValid.firstname ? (
@@ -142,8 +129,8 @@ const UpdateFullNameForm = observer(
 							style={{
 								fontFamily: typography.primary.medium,
 								fontSize: 12,
-								color: "red",
-								marginTop: 5,
+								color: 'red',
+								marginTop: 5
 							}}
 						>
 							Provide a valid last name
@@ -154,15 +141,15 @@ const UpdateFullNameForm = observer(
 						style={{
 							...styles.styleInput,
 							color: colors.primary,
-							borderColor: isValid.lastName ? "#DCE4E8" : "red",
+							borderColor: isValid.lastName ? '#DCE4E8' : 'red'
 						}}
-						placeholderTextColor={"#7B8089"}
-						placeholder={translate("settingScreen.changeFullName.lastNamePlaholder")}
+						placeholderTextColor={'#7B8089'}
+						placeholder={translate('settingScreen.changeFullName.lastNamePlaholder')}
 						value={userLastName}
 						autoCorrect={false}
-						autoComplete={"off"}
+						autoComplete={'off'}
 						editable={!isLoading}
-						autoCapitalize={"none"}
+						autoCapitalize={'none'}
 						onChangeText={(text) => onChaneLastName(text)}
 					/>
 					{!isValid.lastName ? (
@@ -170,8 +157,8 @@ const UpdateFullNameForm = observer(
 							style={{
 								fontFamily: typography.primary.medium,
 								fontSize: 12,
-								color: "red",
-								marginTop: 5,
+								color: 'red',
+								marginTop: 5
 							}}
 						>
 							Provide a valid last name
@@ -181,67 +168,67 @@ const UpdateFullNameForm = observer(
 
 				<View style={styles.wrapButtons}>
 					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
-						<Text style={styles.cancelTxt}>{translate("common.cancel")}</Text>
+						<Text style={styles.cancelTxt}>{translate('common.cancel')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={{
 							...styles.createBtn,
-							backgroundColor: dark ? "#6755C9" : "#3826A6",
-							opacity: isLoading ? 0.7 : 1,
+							backgroundColor: dark ? '#6755C9' : '#3826A6',
+							opacity: isLoading ? 0.7 : 1
 						}}
 						onPress={() => handleSubmit()}
 					>
 						{isLoading ? (
 							<ActivityIndicator
-								style={{ position: "absolute", left: 10 }}
-								size={"small"}
-								color={"#fff"}
+								style={{ position: 'absolute', left: 10 }}
+								size={'small'}
+								color={'#fff'}
 							/>
 						) : null}
-						<Text style={styles.createTxt}>{translate("common.save")}</Text>
+						<Text style={styles.createTxt}>{translate('common.save')}</Text>
 					</TouchableOpacity>
 				</View>
 			</View>
-		)
-	},
-)
+		);
+	}
+);
 
 const styles = StyleSheet.create({
 	cancelBtn: {
-		alignItems: "center",
-		backgroundColor: "#E6E6E9",
+		alignItems: 'center',
+		backgroundColor: '#E6E6E9',
 		borderRadius: 12,
 		height: 57,
-		justifyContent: "center",
-		width: "48%",
+		justifyContent: 'center',
+		width: '48%'
 	},
 	cancelTxt: {
-		color: "#1A1C1E",
+		color: '#1A1C1E',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 18
 	},
 	createBtn: {
-		alignItems: "center",
-		backgroundColor: "#3826A6",
+		alignItems: 'center',
+		backgroundColor: '#3826A6',
 		borderRadius: 12,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 57,
-		justifyContent: "center",
-		width: "48%",
+		justifyContent: 'center',
+		width: '48%'
 	},
 	createTxt: {
-		color: "#FFF",
+		color: '#FFF',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 18
 	},
 	formTitle: {
-		color: "#1A1C1E",
+		color: '#1A1C1E',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 24,
+		fontSize: 24
 	},
 	styleInput: {
-		alignItems: "center",
-		borderColor: "#DCE4E8",
+		alignItems: 'center',
+		borderColor: '#DCE4E8',
 		borderRadius: 12,
 		borderWidth: 1,
 		fontFamily: typography.primary.medium,
@@ -249,15 +236,15 @@ const styles = StyleSheet.create({
 		height: 57,
 		marginTop: 16,
 		paddingHorizontal: 18,
-		width: "100%",
+		width: '100%'
 	},
 	wrapButtons: {
-		flexDirection: "row",
+		flexDirection: 'row',
 		flex: 1,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		marginTop: 40,
-		width: "100%",
-	},
-})
+		width: '100%'
+	}
+});
 
-export default UpdateFullNameForm
+export default UpdateFullNameForm;

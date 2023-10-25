@@ -1,19 +1,19 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { Button, ColorPicker, InputField, Text } from 'lib/components';
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilValue } from 'recoil';
-import { StatusesListCard } from './list-card';
-import { PlusIcon } from '@heroicons/react/20/solid';
-import { Spinner } from '@components/ui/loaders/spinner';
+import { useRefetchData } from '@app/hooks';
 import { useTaskSizes } from '@app/hooks/features/useTaskSizes';
 import { IIcon, ITaskSizesItemList } from '@app/interfaces';
-import { useTranslation } from 'lib/i18n';
+import { userState } from '@app/stores';
+import { clsxm } from '@app/utils';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { Button, ColorPicker, InputField, Text } from 'lib/components';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { useRecoilValue } from 'recoil';
 import { generateIconList } from './icon-items';
 import IconPopover from './icon-popover';
-import { clsxm } from '@app/utils';
-import { useRefetchData } from '@app/hooks';
+import { StatusesListCard } from './list-card';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -26,7 +26,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 	const [createNew, setCreateNew] = useState(formOnly);
 	const [edit, setEdit] = useState<ITaskSizesItemList | null>(null);
 
-	const { trans } = useTranslation('settingsTeam');
+	const { t } = useTranslation();
 
 	const taskStatusIconList: IIcon[] = generateIconList('task-statuses', [
 		'open',
@@ -43,18 +43,9 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 		// 'small',
 		// 'tiny',
 	]);
-	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', [
-		'urgent',
-		'high',
-		'medium',
-		'low'
-	]);
+	const taskPrioritiesIconList: IIcon[] = generateIconList('task-priorities', ['urgent', 'high', 'medium', 'low']);
 
-	const iconList: IIcon[] = [
-		...taskStatusIconList,
-		...taskSizesIconList,
-		...taskPrioritiesIconList
-	];
+	const iconList: IIcon[] = [...taskStatusIconList, ...taskSizesIconList, ...taskPrioritiesIconList];
 
 	const {
 		loading,
@@ -122,31 +113,17 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 				});
 			}
 		},
-		[
-			edit,
-			createNew,
-			formOnly,
-			editTaskSizes,
-			onCreated,
-			user,
-			reset,
-			createTaskSizes,
-			refetch
-		]
+		[edit, createNew, formOnly, editTaskSizes, onCreated, user, reset, createTaskSizes, refetch]
 	);
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] flex-col sm:flex-row items-center sm:items-start">
 						{!formOnly && (
 							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px] text-center sm:text-left">
-								{trans.TASK_SIZES}
+								{t('pages.settingsTeam.TASK_SIZES')}
 							</Text>
 						)}
 
@@ -161,15 +138,15 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									}}
 								>
 									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									{trans.CREATE_NEW_SIZE}
+									{t('pages.settingsTeam.CREATE_NEW_SIZE')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
-										{createNew && 'New'}
-										{edit && 'Edit'} Sizes
+									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
+										{createNew && t('common.NEW')}
+										{edit && t('common.EDIT')} {t('pages.settingsTeam.SIZES_HEADING')}
 									</Text>
 									<div
 										className={clsxm(
@@ -179,7 +156,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 									>
 										<InputField
 											type="text"
-											placeholder={trans.CREATE_NEW_SIZE}
+											placeholder={t('pages.settingsTeam.CREATE_NEW_SIZE')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
@@ -190,9 +167,7 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 											setValue={setValue}
 											active={
 												edit
-													? (iconList.find(
-															(icon) => icon.path === edit.icon
-													  ) as IIcon)
+													? (iconList.find((icon) => icon.path === edit.icon) as IIcon)
 													: null
 											}
 										/>
@@ -202,27 +177,27 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 											onChange={(color) => setValue('color', color)}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
 											disabled={createTaskSizesLoading || editTaskSizesLoading}
 											loading={createTaskSizesLoading || editTaskSizesLoading}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="px-4 py-4 font-normal rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
 												}}
 											>
-												Cancel
+												{t('common.CANCEL')}
 											</Button>
 										)}
 									</div>
@@ -232,17 +207,15 @@ export const TaskSizesForm = ({ formOnly = false, onCreated }: StatusForm) => {
 							{!formOnly && taskSizes?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{trans.LIST_OF_SIZES}
+										{t('pages.settingsTeam.LIST_OF_SIZES')}
 									</Text>
-									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
+									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
 										{loading && !taskSizes && <Spinner dark={false} />}
 										{taskSizes && taskSizes?.length ? (
 											taskSizes.map((size) => (
 												<StatusesListCard
 													key={size.id}
-													statusTitle={
-														size.name ? size.name?.split('-').join(' ') : ''
-													}
+													statusTitle={size.name ? size.name?.split('-').join(' ') : ''}
 													bgColor={size.color || ''}
 													statusIcon={size.fullIconUrl || ''}
 													onEdit={() => {

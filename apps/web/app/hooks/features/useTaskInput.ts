@@ -33,9 +33,7 @@ export function useTaskInput({
 	initEditMode?: boolean;
 } = {}) {
 	const { isOpen: isModalOpen, openModal, closeModal } = useModal();
-	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(
-		null
-	);
+	const [closeableTask, setCloseableTaskTask] = useState<ITeamTask | null>(null);
 
 	const {
 		tasks: teamTasks,
@@ -108,8 +106,7 @@ export function useTaskInput({
 					.trim()
 					.toLowerCase()
 					.replace(/\s+/g, '')
-					.startsWith(query.toLowerCase().replace(/\s+/g, '')) &&
-				h_filter(task.status, filter)
+					.startsWith(query.toLowerCase().replace(/\s+/g, '')) && h_filter(task.status, filter)
 		);
 	}, [query, tasks, filter]);
 
@@ -140,12 +137,7 @@ export function useTaskInput({
 			id: string;
 		}[];
 	} = {}) => {
-		if (
-			query.trim().length < 2 ||
-			inputTask?.title === query.trim() ||
-			!userRef.current?.isEmailVerified
-		)
-			return;
+		if (query.trim().length < 2 || inputTask?.title === query.trim() || !userRef.current?.isEmailVerified) return;
 
 		return createTask(
 			{

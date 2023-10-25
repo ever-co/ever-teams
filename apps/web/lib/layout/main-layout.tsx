@@ -1,8 +1,8 @@
-import { Footer, Navbar } from '.';
-import { Container, Divider, Meta } from 'lib/components';
-import { PropsWithChildren } from 'react';
 import { clsxm } from '@app/utils';
 import { Toaster } from '@components/ui/toaster';
+import { Container, Divider, Meta } from 'lib/components';
+import { PropsWithChildren } from 'react';
+import { Footer, Navbar } from '.';
 
 type Props = PropsWithChildren<{
 	title?: string;
@@ -13,15 +13,7 @@ type Props = PropsWithChildren<{
 	childrenClassName?: string;
 }>;
 
-export function MainLayout({
-	children,
-	title,
-	showTimer,
-	publicTeam,
-	notFound,
-	className,
-	childrenClassName
-}: Props) {
+export function MainLayout({ children, title, showTimer, publicTeam, notFound, className, childrenClassName }: Props) {
 	return (
 		<>
 			<style jsx global>
@@ -46,9 +38,7 @@ export function MainLayout({
 					className
 				)}
 			>
-				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>
-					{children}
-				</div>
+				<div className={clsxm('lg:flex-1 lg:w-full', childrenClassName)}>{children}</div>
 
 				<Container>
 					<Divider />

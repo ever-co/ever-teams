@@ -1,15 +1,7 @@
 import { mergeRefs } from '@app/helpers';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
-import {
-	Dispatch,
-	forwardRef,
-	ReactNode,
-	SetStateAction,
-	useEffect,
-	useRef,
-	useState
-} from 'react';
+import { Dispatch, forwardRef, ReactNode, SetStateAction, useEffect, useRef, useState } from 'react';
 import { SpinnerLoader } from '../loader';
 import { Text } from '../typography';
 
@@ -103,20 +95,12 @@ export const InputField = forwardRef<HTMLInputElement, Props>(
 						notValidBorder ? 'border border-red-500' : 'input-border'
 					} rounded-[10px] flex justify-between h-auto bg-light--theme-light dark:bg-transparent`}
 				>
-					{leadingNode && (
-						<div className="flex items-center">{leadingNode}</div>
-					)}
+					{leadingNode && <div className="flex items-center">{leadingNode}</div>}
 					<div className="flex-1">{inputElement}</div>
-					{trailingNode && (
-						<div className="flex items-center">{trailingNode}</div>
-					)}
+					{trailingNode && <div className="flex items-center">{trailingNode}</div>}
 				</div>
 
-				{error && (
-					<Text.Error className="self-start justify-self-start">
-						{error}
-					</Text.Error>
-				)}
+				{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
 			</div>
 		);
 	}
@@ -137,19 +121,7 @@ type ITimeProps = {
 	React.ComponentPropsWithRef<'input'>;
 
 export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
-	(
-		{
-			className,
-			type = 'text',
-			label,
-			dash = '__',
-			wrapperClassName,
-			value,
-			loading,
-			...res
-		},
-		ref
-	) => {
+	({ className, type = 'text', label, dash = '__', wrapperClassName, value, loading, ...res }, ref) => {
 		return (
 			<div className="flex items-center">
 				<div className={clsxm('relative isolate w-7', wrapperClassName)}>
@@ -159,18 +131,11 @@ export const TimeInputField = forwardRef<HTMLInputElement, ITimeProps>(
 						defaultValue={value === undefined ? '00' : undefined}
 						value={value}
 						{...res}
-						className={clsxm(
-							'outline-none p-0 bg-transparent w-full text-center',
-							className
-						)}
+						className={clsxm('outline-none p-0 bg-transparent w-full text-center', className)}
 					/>
-					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">
-						{dash}
-					</span>
+					<span className="absolute left-0 w-full text-center -z-10 dark:text-[#7E7991] mt-1">{dash}</span>
 				</div>
-				<span className="pl-1">
-					{!loading ? label : <SpinnerLoader size={15} />}
-				</span>
+				<span className="pl-1">{!loading ? label : <SpinnerLoader size={15} />}</span>
 			</div>
 		);
 	}
@@ -183,18 +148,7 @@ TimeInputField.displayName = 'TimeInputField';
  */
 
 export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
-	(
-		{
-			className,
-			type = 'radio',
-			errors,
-			name,
-			wrapperClassName,
-			noWrapper,
-			...res
-		},
-		ref
-	) => {
+	({ className, type = 'radio', errors, name, wrapperClassName, noWrapper, ...res }, ref) => {
 		const [error, setError] = useState<string | undefined>(undefined);
 
 		useEffect(() => {
@@ -226,11 +180,7 @@ export const RadioButtonField = forwardRef<HTMLInputElement, Props>(
 		) : (
 			<div className={clsxm('w-full', wrapperClassName)}>
 				{inputElement}
-				{error && (
-					<Text.Error className="self-start justify-self-start">
-						{error}
-					</Text.Error>
-				)}
+				{error && <Text.Error className="self-start justify-self-start">{error}</Text.Error>}
 			</div>
 		);
 	}

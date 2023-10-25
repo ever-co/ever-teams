@@ -52,8 +52,7 @@ export const configHtmlToSlate: HtmlToSlateConfig = {
 		strong: () => ({ bold: true }),
 		u: () => ({ underline: true })
 	},
-	htmlPreProcessString: (html) =>
-		html.replace(/<pre[^>]*>/g, '<code>').replace(/<\/pre>/g, '</code>'),
+	htmlPreProcessString: (html) => html.replace(/<pre[^>]*>/g, '<code>').replace(/<\/pre>/g, '</code>'),
 	filterWhitespaceNodes: true,
 	convertBrToLineBreak: true
 };
@@ -115,10 +114,7 @@ export const configSlateToHtml: SlateToDomConfig = {
 
 			const textNode = new Element('span', {}, children);
 			const inputNode = new Element('input', inputAttrs);
-			const containerNode = new Element('div', containerAttrs, [
-				inputNode,
-				textNode
-			]);
+			const containerNode = new Element('div', containerAttrs, [inputNode, textNode]);
 
 			return containerNode;
 		}

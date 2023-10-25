@@ -1,9 +1,9 @@
 import { clsxm } from '@app/utils';
 import { Meta, Text } from 'lib/components';
 import { EverTeamsLogo } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
 import Image from 'next/legacy/image';
 import { PropsWithChildren, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Footer } from './footer';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 } & PropsWithChildren;
 
 export function AuthLayout({ children, title, description }: Props) {
-	const { trans, translations } = useTranslation('auth');
+	const { t } = useTranslation();
 	return (
 		<>
 			<Meta title={title} />
@@ -23,13 +23,13 @@ export function AuthLayout({ children, title, description }: Props) {
 						'fixed h-full min-h-screen w-1/2 hidden lg:flex lg:flex-col lg:justify-between bg-primary dark:bg-primary-xlight overflow-hidden'
 					)}
 				>
-					<div className="absolute w-10 -right-10 top-0 h-full  z-10 shadow-2xl shadow-black" />
+					<div className="absolute top-0 z-10 w-10 h-full shadow-2xl -right-10 shadow-black" />
 
 					<div className="overflow-hidden h-[100vh]">
-						<div className="p-9 pt-4">
-							<EverTeamsLogo color="white-black" className="mt-3 ml-7 mb-1" />
-							<Text className="text-xs ml-7 text-gray-300 dark:text-default">
-								{trans.WELCOME_TEAMS}
+						<div className="pt-4 p-9">
+							<EverTeamsLogo color="white-black" className="mt-3 mb-1 ml-7" />
+							<Text className="text-xs text-gray-300 ml-7 dark:text-default">
+								{t('pages.auth.WELCOME_TEAMS')}
 							</Text>
 						</div>
 
@@ -40,12 +40,8 @@ export function AuthLayout({ children, title, description }: Props) {
 										className={clsxm(
 											'ml-[12%] rounded-3xl absolute w-full h-full inset-0',
 											[
-												!image.endsWith('dark.png') && [
-													'opacity-100 dark:opacity-0'
-												],
-												image.endsWith('dark.png') && [
-													'opacity-0 dark:opacity-100'
-												]
+												!image.endsWith('dark.png') && ['opacity-100 dark:opacity-0'],
+												image.endsWith('dark.png') && ['opacity-0 dark:opacity-100']
 											],
 											'shadow-[-76px_-13px_244px_-42px_rgba(40,32,72,0.55)]',
 											'dark:shadow-[-76px_-13px_244px_-42px_rgba(0,0,0,0.75)]'
@@ -58,7 +54,7 @@ export function AuthLayout({ children, title, description }: Props) {
 											objectFit="fill"
 											width={2880}
 											height={2840}
-											alt={translations.TITLE}
+											alt={t('TITLE')}
 											className={
 												'rounded-3xl origin-top-left scale-[0.95] 2xl:scale-[0.85] bg-transparent'
 											}
@@ -69,16 +65,16 @@ export function AuthLayout({ children, title, description }: Props) {
 						</div>
 					</div>
 
-					<div className="h-1/3 w-full bg-primary-mid self-end p-9">
+					<div className="self-end w-full h-1/3 bg-primary-mid p-9">
 						<Text.Heading
 							as="h3"
 							className="text-white xl:text-3xl 2xl:text-4xl font-normal leading-[120%] px-9 text-ellipsis mb-5"
 						>
-							{trans.COVER_TITLE}
+							{t('pages.auth.COVER_TITLE')}
 						</Text.Heading>
 
-						<Text className="text-gray-400 px-9 text-ellipsis text-sm">
-							{trans.COVER_DESCRIPTION}
+						<Text className="text-sm text-gray-400 px-9 text-ellipsis">
+							{t('pages.auth.COVER_DESCRIPTION')}
 						</Text>
 					</div>
 				</div>
@@ -90,13 +86,10 @@ export function AuthLayout({ children, title, description }: Props) {
 						'flex flex-col items-center justify-between ml-auto'
 					)}
 				>
-					<div className="mt-20 lg:mt-23 flex flex-col justify-center items-center w-full">
+					<div className="flex flex-col items-center justify-center w-full mt-20 lg:mt-23">
 						<div className="w-11/12">
 							{title && (
-								<Text.Heading
-									as="h1"
-									className="mb-3 text-center min-w-[400px]"
-								>
+								<Text.Heading as="h1" className="mb-3 text-center min-w-[400px]">
 									{title}
 								</Text.Heading>
 							)}

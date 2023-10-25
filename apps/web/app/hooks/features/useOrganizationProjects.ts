@@ -7,19 +7,13 @@ import { useQuery } from '../useQuery';
 export function useOrganizationProjects() {
 	const [user] = useRecoilState(userState);
 
-	const {
-		loading: editOrganizationProjectSettingLoading,
-		queryCall: editOrganizationProjectSettingQueryCall
-	} = useQuery(editOrganizationProjectSettingAPI);
+	const { loading: editOrganizationProjectSettingLoading, queryCall: editOrganizationProjectSettingQueryCall } =
+		useQuery(editOrganizationProjectSettingAPI);
 
 	const editOrganizationProjectSetting = useCallback(
 		(id: string, data: any) => {
 			if (user?.tenantId) {
-				return editOrganizationProjectSettingQueryCall(
-					id,
-					data,
-					user?.tenantId || ''
-				).then((res) => {
+				return editOrganizationProjectSettingQueryCall(id, data, user?.tenantId || '').then((res) => {
 					return res;
 				});
 			}

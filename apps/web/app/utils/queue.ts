@@ -10,10 +10,7 @@ export class Queue {
 		return () => func(...params);
 	}
 
-	public task<F extends any[], T extends (...params: F) => void>(
-		func: T,
-		...params: F
-	) {
+	public task<F extends any[], T extends (...params: F) => void>(func: T, ...params: F) {
 		this.queues.push(this._task(func, ...params));
 
 		if (this.running === false) {

@@ -4,14 +4,13 @@ import { Popover, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/24/solid';
+import { useTranslation } from 'react-i18next';
 import { Fragment, useState } from 'react';
 import { Spinner } from '../../ui/loaders/spinner';
-
 export const TeamsDropDown = () => {
 	const [edit, setEdit] = useState<boolean>(false);
-	const { teams, activeTeam, setActiveTeam, teamsFetching } =
-		useOrganizationTeams();
-
+	const { teams, activeTeam, setActiveTeam, teamsFetching } = useOrganizationTeams();
+	const { t } = useTranslation();
 	return (
 		<div className="w-[290px] max-w-sm">
 			<Popover className="relative">
@@ -22,7 +21,7 @@ export const TeamsDropDown = () => {
                 ${open ? '' : 'text-opacity-90'}
                 group inline-flex items-center rounded-[12px] bg-[#E8EBF8] dark:bg-[#18181B] px-3 py-2 text-base font-medium text-white hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
 						>
-							<div className="w-full flex items-center justify-between">
+							<div className="flex items-center justify-between w-full">
 								<div className="flex items-center justify-center space-x-4">
 									<div className="w-[32px] h-[32px] rounded-full bg-white text-primary flex justify-center items-center text-[10px]">
 										{activeTeam ? imgTitle(activeTeam.name) : ''}
@@ -60,7 +59,7 @@ export const TeamsDropDown = () => {
 											return (
 												<div
 													key={item.id}
-													className="cursor-pointer font-light"
+													className="font-light cursor-pointer"
 													onClick={() => {
 														setActiveTeam(item);
 														close();
@@ -94,7 +93,7 @@ export const TeamsDropDown = () => {
 													<span className="mr-[11px]">
 														<PlusIcon className="text-primary dark:text-white font-bold w-[16px] h-[16px]" />
 													</span>
-													Create new team
+													{t('team.creation.NEW')}
 												</div>
 											</button>
 										</div>
@@ -109,13 +108,10 @@ export const TeamsDropDown = () => {
 	);
 };
 
-function CreateNewTeam({
-	setEdit
-}: {
-	setEdit: (value: React.SetStateAction<boolean>) => void;
-}) {
+function CreateNewTeam({ setEdit }: { setEdit: (value: React.SetStateAction<boolean>) => void }) {
 	const { createOTeamLoading, createOrganizationTeam } = useOrganizationTeams();
 	const [error, setError] = useState<string | null>(null);
+	const { t } = useTranslation();
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
@@ -133,10 +129,7 @@ function CreateNewTeam({
 
 	return (
 		<div className="bg-white dark:bg-[#202023] p-4 border-t border-[#9490A0] border-opacity-10 ">
-			<form
-				onSubmit={handleSubmit}
-				className="relative text-gray-600 focus-within:text-gray-400"
-			>
+			<form onSubmit={handleSubmit} className="relative text-gray-600 focus-within:text-gray-400">
 				<input
 					autoFocus
 					className="w-full h-[40px] pr-[20px] dark:text-white text-primary bg-[#EEEFF5] border border-[#EEEFF5] dark:bg-[#1B1B1E] placeholder-[#9490A0] placeholder:font-light placeholder:text-sm dark:placeholder-[#616164] rounded-[10px] pl-[10px] shadow-inner "
@@ -150,7 +143,7 @@ function CreateNewTeam({
 						<Spinner dark={false} />
 					) : (
 						<XMarkIcon
-							className="w-6 h-6 px-1 hover:bg-gray-300 hover:text-primary cursor-pointer mr-1 rounded-lg flex justify-center items-center"
+							className="flex items-center justify-center w-6 h-6 px-1 mr-1 rounded-lg cursor-pointer hover:bg-gray-300 hover:text-primary"
 							onClick={() => setEdit(false)}
 						/>
 					)}
@@ -159,9 +152,7 @@ function CreateNewTeam({
 			{error ? (
 				<span className="text-xs text-red-400 pl-[10px]">{error}</span>
 			) : (
-				<span className="text-xs text-[#9490A0] pl-[10px]">
-					Press Enter to validate
-				</span>
+				<span className="text-xs text-[#9490A0] pl-[10px]">{t('placeholders.ENTER_TO_VALIDATE')}</span>
 			)}
 		</div>
 	);

@@ -39,9 +39,7 @@ export function MemberInfo({
 						value={editable.memberName}
 						name="memberName"
 						onChange={onChangeName}
-						onKeyPress={(event) =>
-							event.key === 'Enter' && onSubmitName && onSubmitName()
-						}
+						onKeyPress={(event) => event.key === 'Enter' && onSubmitName && onSubmitName()}
 						className="w-full h-[40px] rounded-lg px-2 shadow-inner border border-[#D7E1EB] dark:border-[#27272A]"
 					/>
 				) : (

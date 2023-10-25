@@ -108,10 +108,7 @@ export const formatDateString = (dateTimeString?: string) => {
 	return '';
 };
 
-export const calculateRemainingDays = (
-	startDate: string,
-	endDate: string
-): number | undefined => {
+export const calculateRemainingDays = (startDate: string, endDate: string): number | undefined => {
 	if (!endDate || !startDate) {
 		return undefined;
 	}

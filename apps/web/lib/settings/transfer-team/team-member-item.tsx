@@ -11,16 +11,11 @@ export function mapTeamMemberItems(members: IOrganizationTeamMember[]) {
 			Label: ({ selected }: { selected: boolean }) => (
 				<div className="flex justify-between w-full">
 					<div className="max-w-[90%]">
-						<TeamMemberItem
-							title={member.name || ''}
-							className={clsxm(selected && ['font-medium'])}
-						/>
+						<TeamMemberItem title={member.name || ''} className={clsxm(selected && ['font-medium'])} />
 					</div>
 				</div>
 			),
-			selectedLabel: (
-				<TeamMemberItem title={member.name || ''} className="py-2 mb-0" />
-			),
+			selectedLabel: <TeamMemberItem title={member.name || ''} className="py-2 mb-0" />,
 			data: member
 		};
 	});
@@ -28,14 +23,7 @@ export function mapTeamMemberItems(members: IOrganizationTeamMember[]) {
 	return items;
 }
 
-export function TeamMemberItem({
-	title,
-	className
-}: {
-	title?: string;
-	className?: string;
-	disabled?: boolean;
-}) {
+export function TeamMemberItem({ title, className }: { title?: string; className?: string; disabled?: boolean }) {
 	return (
 		<div
 			title={title}
@@ -45,14 +33,7 @@ export function TeamMemberItem({
 				className
 			)}
 		>
-			<span
-				className={clsxm(
-					'text-normal',
-					'whitespace-nowrap text-ellipsis overflow-hidden'
-				)}
-			>
-				{title}
-			</span>
+			<span className={clsxm('text-normal', 'whitespace-nowrap text-ellipsis overflow-hidden')}>{title}</span>
 		</div>
 	);
 }

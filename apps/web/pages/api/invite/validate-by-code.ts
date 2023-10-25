@@ -4,16 +4,10 @@ import { verifyInviteCodeRequest } from '@app/services/server/requests';
 
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	const body = req.body as IInviteVerifyCode;
 
-	const { errors, isValid: formValid } = validateForm(
-		['code', 'email'],
-		body as any
-	);
+	const { errors, isValid: formValid } = validateForm(['code', 'email'], body as any);
 
 	if (!formValid) {
 		return res.status(400).json({ errors });

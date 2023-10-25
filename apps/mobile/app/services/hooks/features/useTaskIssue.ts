@@ -1,44 +1,44 @@
-import { useCallback, useEffect, useState } from "react"
-import { useQueryClient } from "react-query"
-import { useStores } from "../../../models"
-import useFetchAllIssues from "../../client/queries/task/task-issue"
+import { useCallback, useEffect, useState } from 'react';
+import { useQueryClient } from 'react-query';
+import { useStores } from '../../../models';
+import useFetchAllIssues from '../../client/queries/task/task-issue';
 import {
 	createIssueTypeRequest,
 	deleteIssueTypesRequest,
-	editIssueTypesRequest,
-} from "../../client/requests/issue-type"
-import { IIssueTypesItemList, IIssueType, IIssuesList } from "../../interfaces/ITaskIssue"
+	editIssueTypesRequest
+} from '../../client/requests/issue-type';
+import { IIssueTypesItemList, IIssueType, IIssuesList } from '../../interfaces/ITaskIssue';
 
 export const useTaskIssue = () => {
-	const queryClient = useQueryClient()
+	const queryClient = useQueryClient();
 	const {
 		authenticationStore: { authToken, tenantId, organizationId },
-		teamStore: { activeTeamId },
-	} = useStores()
+		teamStore: { activeTeamId }
+	} = useStores();
 
-	const [allTaskIssues, setAllTaskIssues] = useState<IIssueType[]>([])
+	const [allTaskIssues, setAllTaskIssues] = useState<IIssueType[]>([]);
 
 	const {
 		data: issues,
 		isLoading,
 		isSuccess,
-		isRefetching,
+		isRefetching
 	} = useFetchAllIssues({
 		tenantId,
 		organizationId,
 		activeTeamId,
-		authToken,
-	})
+		authToken
+	});
 
 	// Delete the issue
 	const deleteIssue = useCallback(async (id: string) => {
 		await deleteIssueTypesRequest({
 			id,
 			tenantId,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("issues")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('issues');
+	}, []);
 
 	// Update the issue
 
@@ -47,10 +47,10 @@ export const useTaskIssue = () => {
 			id,
 			tenantId,
 			datas: data,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("issues")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('issues');
+	}, []);
 
 	// Create the issue
 
@@ -58,19 +58,19 @@ export const useTaskIssue = () => {
 		await createIssueTypeRequest({
 			datas: { ...data, organizationId, organizationTeamId: activeTeamId },
 			tenantId,
-			bearer_token: authToken,
-		})
-		queryClient.invalidateQueries("issues")
-	}, [])
+			bearer_token: authToken
+		});
+		queryClient.invalidateQueries('issues');
+	}, []);
 
 	useEffect(() => {
 		if (isSuccess) {
 			if (issues) {
-				const typedIssues = issues as IIssuesList
-				setAllTaskIssues(typedIssues.items || [])
+				const typedIssues = issues as IIssuesList;
+				setAllTaskIssues(typedIssues.items || []);
 			}
 		}
-	}, [isLoading, isRefetching])
+	}, [isLoading, isRefetching]);
 
 	return {
 		issues,
@@ -78,6 +78,6 @@ export const useTaskIssue = () => {
 		deleteIssue,
 		updateIssue,
 		createIssue,
-		allTaskIssues,
-	}
-}
+		allTaskIssues
+	};
+};

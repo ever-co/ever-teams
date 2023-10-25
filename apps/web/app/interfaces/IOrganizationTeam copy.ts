@@ -34,10 +34,7 @@ export interface IOrganizationTeamList {
 	members: OT_Member[];
 }
 
-export type IOrganizationTeamWithMStatus = Omit<
-	IOrganizationTeamList,
-	'members'
-> & {
+export type IOrganizationTeamWithMStatus = Omit<IOrganizationTeamList, 'members'> & {
 	members: MS_Member[];
 };
 

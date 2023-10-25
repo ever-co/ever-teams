@@ -7,9 +7,7 @@ export function NoData({ text }: { text: string }) {
 				<Text className="text-3xl text-primary font-semibold">0</Text>
 			</div>
 
-			<Text className="text-lg font-normal text-center  text-[#282048] dark:text-light--theme">
-				{text}
-			</Text>
+			<Text className="text-lg font-normal text-center  text-[#282048] dark:text-light--theme">{text}</Text>
 		</div>
 	);
 }

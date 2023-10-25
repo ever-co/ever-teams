@@ -2,13 +2,9 @@ import {
 	getGithubIntegrationMetadataAPI,
 	getGithubIntegrationRepositoriesAPI,
 	installGitHubIntegrationAPI,
-	oAuthEndpointAuthorizationAPI,
+	oAuthEndpointAuthorizationAPI
 } from '@app/services/client/api/integrations/github';
-import {
-	integrationGithubMetadataState,
-	integrationGithubRepositoriesState,
-	userState,
-} from '@app/stores';
+import { integrationGithubMetadataState, integrationGithubRepositoriesState, userState } from '@app/stores';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
@@ -16,22 +12,17 @@ import { useQuery } from '../useQuery';
 export function useGitHubIntegration() {
 	const [user] = useRecoilState(userState);
 
-	const [integrationGithubMetadata, setIntegrationGithubMetadata] =
-		useRecoilState(integrationGithubMetadataState);
-	const [integrationGithubRepositories, setIntegrationGithubRepositories] =
-		useRecoilState(integrationGithubRepositoriesState);
+	const [integrationGithubMetadata, setIntegrationGithubMetadata] = useRecoilState(integrationGithubMetadataState);
+	const [integrationGithubRepositories, setIntegrationGithubRepositories] = useRecoilState(
+		integrationGithubRepositoriesState
+	);
 
-	const { loading: installLoading, queryCall: installQueryCall } = useQuery(
-		installGitHubIntegrationAPI
+	const { loading: installLoading, queryCall: installQueryCall } = useQuery(installGitHubIntegrationAPI);
+	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(oAuthEndpointAuthorizationAPI);
+	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(getGithubIntegrationMetadataAPI);
+	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } = useQuery(
+		getGithubIntegrationRepositoriesAPI
 	);
-	const { loading: oAuthLoading, queryCall: oAuthQueryCall } = useQuery(
-		oAuthEndpointAuthorizationAPI
-	);
-	const { loading: metadataLoading, queryCall: metadataQueryCall } = useQuery(
-		getGithubIntegrationMetadataAPI
-	);
-	const { loading: repositoriesLoading, queryCall: repositoriesQueryCall } =
-		useQuery(getGithubIntegrationRepositoriesAPI);
 
 	const installGitHub = useCallback(
 		(installation_id: string, setup_action: string) => {
@@ -39,7 +30,7 @@ export function useGitHubIntegration() {
 				tenantId: user?.tenantId as string,
 				organizationId: user?.employee?.organizationId as string,
 				installation_id,
-				setup_action,
+				setup_action
 			});
 		},
 		[installQueryCall, user]
@@ -51,7 +42,7 @@ export function useGitHubIntegration() {
 				organizationId: user?.employee?.organizationId as string,
 				installation_id,
 				setup_action,
-				code,
+				code
 			});
 		},
 		[oAuthQueryCall, user]
@@ -89,6 +80,6 @@ export function useGitHubIntegration() {
 		getRepositories,
 		repositoriesLoading,
 		integrationGithubMetadata,
-		integrationGithubRepositories,
+		integrationGithubRepositories
 	};
 }

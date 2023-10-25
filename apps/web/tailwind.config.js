@@ -8,10 +8,7 @@ module.exports = {
 		'./components/**/*.{ts,tsx}',
 		'./app/**/*.{ts,tsx}',
 		'./src/**/*.{ts,tsx}',
-		join(
-			__dirname,
-			'{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'
-		),
+		join(__dirname, '{src,pages,components,lib}/**/*!(*.stories|*.spec).{ts,tsx,html}'),
 		...createGlobPatternsForDependencies(__dirname)
 	],
 	theme: {
@@ -109,8 +106,7 @@ module.exports = {
 				xlcard: '0px 16px 79px rgba(0, 0, 0, 0.12)',
 				'lgcard-white': '0px 50px 200px rgba(255, 255, 255, 0.1)',
 				'xlcard-white': '0px 16px 79px rgba(255, 255, 255, 0.12)',
-				darker:
-					'-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)'
+				darker: '-8px -9px 14px rgba(255, 255, 255, 0.05), 10px 14px 34px rgba(0, 0, 0, 0.6), 0px 4px 24px rgba(0, 0, 0, 0.25)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -137,15 +133,14 @@ module.exports = {
 						maxWidth: '100ch',
 						// Add margin top and bottom for all HTML tags if needed
 
-						'h3, h4, h5, h6, p, span, em, ul, ol, dl, blockquote, code, figure, pre':
-							{
-								marginTop: '0.5rem',
-								marginBottom: '0.5rem',
-								lineHeight: '1.25rem',
-								fontSize: '14px',
-								wordSpacing: '-1px',
-								fontWeight: '400'
-							},
+						'h3, h4, h5, h6, p, span, em, ul, ol, dl, blockquote, code, figure, pre': {
+							marginTop: '0.5rem',
+							marginBottom: '0.5rem',
+							lineHeight: '1.25rem',
+							fontSize: '14px',
+							wordSpacing: '-1px',
+							fontWeight: '400'
+						},
 						h1: {
 							fontSize: '1.3rem',
 							marginTop: '0.65rem',

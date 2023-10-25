@@ -1,22 +1,13 @@
-import {
-	ChangeEvent,
-	Dispatch,
-	KeyboardEvent,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
-import { Button, Card, InputField } from 'lib/components';
-import { PermissonItem } from './permission-item';
-import { clsxm } from '@app/utils';
-import { useTranslation } from 'lib/i18n';
-import { Popover, Transition } from '@headlessui/react';
-import { ArrowDown, Edit2Icon, TrashIcon } from 'lib/components/svgs';
-import { PlusIcon } from '@heroicons/react/24/solid';
 import { useRoles } from '@app/hooks/features/useRoles';
 import { IRole } from '@app/interfaces';
+import { clsxm } from '@app/utils';
+import { Popover, Transition } from '@headlessui/react';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { Button, Card, InputField } from 'lib/components';
+import { ArrowDown, Edit2Icon, TrashIcon } from 'lib/components/svgs';
+import { ChangeEvent, Dispatch, KeyboardEvent, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { PermissonItem } from './permission-item';
 
 export const PermissionDropDown = ({
 	selectedRole,
@@ -25,14 +16,7 @@ export const PermissionDropDown = ({
 	selectedRole: IRole | null;
 	setSelectedRole: Dispatch<SetStateAction<IRole | null>>;
 }) => {
-	const {
-		getRoles,
-		roles,
-		createRole,
-		createRoleLoading,
-		deleteRole,
-		updateRole
-	} = useRoles();
+	const { getRoles, roles, createRole, createRoleLoading, deleteRole, updateRole } = useRoles();
 	const [filterValue, setFilterValue] = useState<string>('');
 
 	const [editRole, setEditRole] = useState<IRole | null>(null);
@@ -90,9 +74,7 @@ export const PermissionDropDown = ({
 							...role,
 							name: role.name.split('_').join(' ')
 						}))
-						.filter((role) =>
-							role.name.toLowerCase().includes(filterValue.toLowerCase())
-						)
+						.filter((role) => role.name.toLowerCase().includes(filterValue.toLowerCase()))
 				: roles.map((role) => ({
 						...role,
 						name: role.name.split('_').join(' ')
@@ -100,15 +82,13 @@ export const PermissionDropDown = ({
 		[roles, filterValue]
 	);
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	return (
 		<>
 			<Popover className="relative bg-light--theme-light dark:bg-dark--theme-light">
 				<Popover.Button className="md:min-w-[10.75rem] flex justify-between items-center px-4 py-3 text-sm border text-[#B1AEBC] outline-none rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
-					{selectedRole
-						? selectedRole.name
-						: trans.pages.permissions.SELECT_ROLES}
+					{selectedRole ? selectedRole.name : t('pages.permissions.SELECT_ROLES')}
 					<ArrowDown />
 				</Popover.Button>
 
@@ -120,7 +100,7 @@ export const PermissionDropDown = ({
 					leaveFrom="transform scale-100 opacity-100"
 					leaveTo="transform scale-95 opacity-0"
 				>
-					<Popover.Panel className="absolute z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light w-full">
+					<Popover.Panel className="absolute w-full z-12 rounded-xl bg-light--theme-light dark:bg-dark--theme-light">
 						{({ close }) => (
 							<Card
 								shadow="custom"
@@ -131,7 +111,7 @@ export const PermissionDropDown = ({
 								<div className="flex items-center justify-between w-full">
 									<InputField
 										type="text"
-										placeholder={trans.common.SEARCH}
+										placeholder={t('common.SEARCH')}
 										className="mb-0 h-11"
 										wrapperClassName={'mb-0'}
 										onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -142,16 +122,13 @@ export const PermissionDropDown = ({
 								</div>
 
 								{rolesList.map((role) => (
-									<div
-										className="flex justify-between w-full py-3"
-										key={role.name}
-									>
+									<div className="flex justify-between w-full py-3" key={role.name}>
 										<div className="max-w-[90%]">
 											{editRole && editRole.id === role.id ? (
 												<InputField
 													type="text"
 													placeholder={'Enter Role Name'}
-													className="w-full mb-0 h-5 border-none pl-0 py-0 rounded-none border-b-1"
+													className="w-full h-5 py-0 pl-0 mb-0 border-none rounded-none border-b-1"
 													noWrapper
 													autoFocus
 													defaultValue={role.name}
@@ -192,14 +169,14 @@ export const PermissionDropDown = ({
 								))}
 
 								<Button
-									className="w-full text-xs mt-3 dark:text-white dark:border-white rounded-xl"
+									className="w-full mt-3 text-xs dark:text-white dark:border-white rounded-xl"
 									variant="outline"
 									onClick={handleCreateRole}
 									disabled={createRoleLoading || !filterValue.length}
 									loading={createRoleLoading}
 								>
 									<PlusIcon className="w-[16px] h-[16px]" />
-									{trans.common.CREATE}
+									{t('common.CREATE')}
 									{!rolesList.length ? ` "${filterValue}"` : ''}
 								</Button>
 							</Card>

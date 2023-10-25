@@ -55,10 +55,7 @@ export interface IEmployee {
 	isOnline?: boolean;
 }
 
-export type ICreateEmployee = Pick<
-	IEmployee,
-	'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'
->;
+export type ICreateEmployee = Pick<IEmployee, 'tenantId' | 'userId' | 'organizationId' | 'startedWorkOn'>;
 
 export interface IRole {
 	id?: string;

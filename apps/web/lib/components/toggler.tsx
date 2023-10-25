@@ -3,14 +3,7 @@ import { clsxm } from '@app/utils';
 import { Switch } from '@headlessui/react';
 import { useTheme } from 'next-themes';
 import React, { PropsWithChildren } from 'react';
-import {
-	BoxIcon,
-	MoonDarkIcon,
-	MoonIcon,
-	StopIcon,
-	SunDarkIcon,
-	SunIcon
-} from './svgs';
+import { BoxIcon, MoonDarkIcon, MoonIcon, StopIcon, SunDarkIcon, SunIcon } from './svgs';
 import { Text } from './typography';
 
 type Props = {
@@ -22,14 +15,7 @@ type Props = {
 	secondBtnClassName?: string;
 } & PropsWithChildren;
 
-export function Toggler({
-	children,
-	className,
-	onClickOne,
-	onClickTwo,
-	firstBtnClassName,
-	secondBtnClassName
-}: Props) {
+export function Toggler({ children, className, onClickOne, onClickTwo, firstBtnClassName, secondBtnClassName }: Props) {
 	const childrenArr = React.Children.toArray(children);
 
 	return (
@@ -71,11 +57,7 @@ export function ThemeToggler({ className }: IClassName) {
 	const { setTheme } = useTheme();
 
 	return (
-		<Toggler
-			className={className}
-			onClickOne={() => setTheme('light')}
-			onClickTwo={() => setTheme('dark')}
-		>
+		<Toggler className={className} onClickOne={() => setTheme('light')} onClickTwo={() => setTheme('dark')}>
 			<>
 				<SunDarkIcon className="hidden dark:inline-block" />
 				<SunIcon className="dark:hidden inline-block" />
@@ -90,11 +72,7 @@ export function ThemeToggler({ className }: IClassName) {
 
 export function TreeModeToggler({ className }: IClassName) {
 	return (
-		<Toggler
-			className={className}
-			firstBtnClassName="dark:bg-[#3B4454]"
-			secondBtnClassName="dark:bg-transparent"
-		>
+		<Toggler className={className} firstBtnClassName="dark:bg-[#3B4454]" secondBtnClassName="dark:bg-transparent">
 			<StopIcon className="dark:stroke-white" />
 			<BoxIcon className="stroke-[#7E7991] dark:stroke-[#969CA6]" />
 		</Toggler>
@@ -127,15 +105,11 @@ export function CommonToggle({
 			>
 				<span
 					aria-hidden="true"
-					className={`${
-						enabled ? 'translate-x-9 bg-[#3826A6]' : 'translate-x-1'
-					}
+					className={`${enabled ? 'translate-x-9 bg-[#3826A6]' : 'translate-x-1'}
             pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
 				/>
 			</Switch>
-			<Text className="text-gray-400 text-md font-normal">
-				{enabled ? enabledText : disabledText}
-			</Text>
+			<Text className="text-gray-400 text-md font-normal">{enabled ? enabledText : disabledText}</Text>
 		</div>
 	);
 }

@@ -12,8 +12,7 @@ import { AppMainMenu } from './AppMainMenu';
 export default function ExcalidrawComponent() {
 	const { theme, resolvedTheme } = useTheme();
 	const [liveLoading, setLiveLoading] = useState(false);
-	const { saveChanges, setExcalidrawAPI, excalidrawAPI, onLiveCollaboration } =
-		useBoard();
+	const { saveChanges, setExcalidrawAPI, excalidrawAPI, onLiveCollaboration } = useBoard();
 
 	const $theme = !theme || theme === 'system' ? resolvedTheme : theme;
 
@@ -38,18 +37,9 @@ export default function ExcalidrawComponent() {
 					renderTopRightUI={() => (
 						<button onClick={onClickLiveCollaboration}>
 							{liveLoading ? (
-								<SpinnerLoader
-									variant={$theme ? undefined : 'dark'}
-									className="mt-2"
-									size={20}
-								/>
+								<SpinnerLoader variant={$theme ? undefined : 'dark'} className="mt-2" size={20} />
 							) : (
-								<LiveShareIcon
-									className={clsxm(
-										$theme ? undefined : 'fill-black',
-										'w-5 h-5'
-									)}
-								/>
+								<LiveShareIcon className={clsxm($theme ? undefined : 'fill-black', 'w-5 h-5')} />
 							)}
 						</button>
 					)}

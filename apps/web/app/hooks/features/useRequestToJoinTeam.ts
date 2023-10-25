@@ -1,8 +1,4 @@
-import {
-	IRequestToJoinActionEnum,
-	IRequestToJoinCreate,
-	IValidateRequestToJoin
-} from '@app/interfaces';
+import { IRequestToJoinActionEnum, IRequestToJoinCreate, IValidateRequestToJoin } from '@app/interfaces';
 import {
 	requestToJoinAPI,
 	validateRequestToJoinAPI,
@@ -19,26 +15,16 @@ import { useQuery } from '../useQuery';
 export const useRequestToJoinTeam = () => {
 	const [requestToJoin, setRequestToJoin] = useRecoilState(requestToJoinState);
 
-	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } =
-		useQuery(requestToJoinAPI);
-	const {
-		loading: validateRequestToJoinLoading,
-		queryCall: validateRequestToJoinQueryCall
-	} = useQuery(validateRequestToJoinAPI);
-	const {
-		loading: resendCodeRequestToJoinLoading,
-		queryCall: resendCodeRequestToJoinQueryCall
-	} = useQuery(resendCodeRequestToJoinAPI);
+	const { loading: requestToJoinLoading, queryCall: requestToJoinQueryCall } = useQuery(requestToJoinAPI);
+	const { loading: validateRequestToJoinLoading, queryCall: validateRequestToJoinQueryCall } =
+		useQuery(validateRequestToJoinAPI);
+	const { loading: resendCodeRequestToJoinLoading, queryCall: resendCodeRequestToJoinQueryCall } =
+		useQuery(resendCodeRequestToJoinAPI);
 
-	const {
-		loading: getRequestToJoinLoading,
-		queryCall: getRequestToJoinQueryCall
-	} = useQuery(getRequestToJoinAPI);
+	const { loading: getRequestToJoinLoading, queryCall: getRequestToJoinQueryCall } = useQuery(getRequestToJoinAPI);
 
-	const {
-		loading: acceptRejectRequestToJoinLoading,
-		queryCall: acceptRejectRequestToJoinQueryCall
-	} = useQuery(acceptRejectRequestToJoinAPI);
+	const { loading: acceptRejectRequestToJoinLoading, queryCall: acceptRejectRequestToJoinQueryCall } =
+		useQuery(acceptRejectRequestToJoinAPI);
 
 	const getRequestToJoin = useCallback(() => {
 		return getRequestToJoinQueryCall().then((res) => {

@@ -10,10 +10,7 @@ export function mapDayItems(DayLIst: IDay[]) {
 			key: Day.title,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
-					<DayItem
-						title={Day.title}
-						className={selected ? 'font-medium' : ''}
-					/>
+					<DayItem title={Day.title} className={selected ? 'font-medium' : ''} />
 				</div>
 			),
 			selectedLabel: <DayItem title={Day.title} className="py-2 mb-0" />,
@@ -26,12 +23,7 @@ export function mapDayItems(DayLIst: IDay[]) {
 			key: 0,
 			Label: () => (
 				<div className="flex justify-between">
-					<DayItem
-						title={'Select Days'}
-						className="w-full cursor-default"
-						color="#F5F5F5"
-						disabled
-					/>
+					<DayItem title={'Select Days'} className="w-full cursor-default" color="#F5F5F5" disabled />
 				</div>
 			),
 			disabled: true
@@ -55,12 +47,7 @@ export function DayItem({
 	disabled?: boolean;
 }) {
 	return (
-		<div
-			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2',
-				className
-			)}
-		>
+		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2', className)}>
 			<span className={clsxm('text-normal mb-0')}>{title}</span>
 		</div>
 	);

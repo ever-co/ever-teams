@@ -13,13 +13,7 @@ export function ProgressBar({
 }) {
 	return (
 		<>
-			<div
-				className={clsxm(
-					'flex justify-between items-center relative',
-					className
-				)}
-				style={{ width }}
-			>
+			<div className={clsxm('flex justify-between items-center relative', className)} style={{ width }}>
 				<div
 					className="bg-green-600 dark:bg-green-400 h-2 rounded-full absolute z-[1]"
 					style={{ width: progress }}

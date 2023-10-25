@@ -9,12 +9,8 @@ import {
 } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, organizationId, access_token, teamId, tenantId } =
-		await authenticatedGuard(req, res);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, organizationId, access_token, teamId, tenantId } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	const callbackUrl = `${req.headers.origin}${INVITE_CALLBACK_PATH}`;

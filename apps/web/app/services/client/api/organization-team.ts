@@ -1,9 +1,4 @@
-import {
-	CreateReponse,
-	DeleteReponse,
-	ISuccessResponse,
-	PaginationResponse
-} from '@app/interfaces/IDataResponse';
+import { CreateReponse, DeleteReponse, ISuccessResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 
 import {
 	IOrganizationTeamList,
@@ -14,16 +9,11 @@ import {
 import api from '../axios';
 
 export function getOrganizationTeamsAPI() {
-	return api.get<PaginationResponse<IOrganizationTeamList>>(
-		'/organization-team'
-	);
+	return api.get<PaginationResponse<IOrganizationTeamList>>('/organization-team');
 }
 
 export function createOrganizationTeamAPI(name: string) {
-	return api.post<PaginationResponse<IOrganizationTeamList>>(
-		'/organization-team',
-		{ name }
-	);
+	return api.post<PaginationResponse<IOrganizationTeamList>>('/organization-team', { name });
 }
 
 export function getOrganizationTeamAPI(teamId: string) {
@@ -33,27 +23,17 @@ export function getOrganizationTeamAPI(teamId: string) {
 export function editOrganizationTeamAPI(data: IOrganizationTeamUpdate) {
 	return api.put<IOrganizationTeamList>(`/organization-team/${data.id}`, data);
 }
-export function updateOrganizationTeamAPI(
-	teamId: string,
-	data: Partial<IOrganizationTeamUpdate>
-) {
-	return api.put<IOrganizationTeamWithMStatus>(
-		`/organization-team/${teamId}`,
-		data
-	);
+export function updateOrganizationTeamAPI(teamId: string, data: Partial<IOrganizationTeamUpdate>) {
+	return api.put<IOrganizationTeamWithMStatus>(`/organization-team/${teamId}`, data);
 }
 
 export function deleteOrganizationTeamAPI(id: string) {
-	return api.delete<CreateReponse<IOrganizationTeam>>(
-		`/organization-team/${id}`
-	);
+	return api.delete<CreateReponse<IOrganizationTeam>>(`/organization-team/${id}`);
 }
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {
-	return api.delete<DeleteReponse | CreateReponse<ISuccessResponse>>(
-		`/organization-team/teams/${userId}`
-	);
+	return api.delete<DeleteReponse | CreateReponse<ISuccessResponse>>(`/organization-team/teams/${userId}`);
 }

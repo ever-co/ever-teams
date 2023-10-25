@@ -1,16 +1,7 @@
 export default function LockIcon() {
 	return (
-		<svg
-			xmlns="http://www.w3.org/2000/svg"
-			width="68"
-			height="65.997"
-			viewBox="0 0 68 65.997"
-		>
-			<g
-				id="Group_7289"
-				data-name="Group 7289"
-				transform="translate(-1988.503 1442.874)"
-			>
+		<svg xmlns="http://www.w3.org/2000/svg" width="68" height="65.997" viewBox="0 0 68 65.997">
+			<g id="Group_7289" data-name="Group 7289" transform="translate(-1988.503 1442.874)">
 				<path
 					id="Path_5627"
 					data-name="Path 5627"

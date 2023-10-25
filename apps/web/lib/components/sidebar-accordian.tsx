@@ -9,13 +9,7 @@ interface isProps {
 	wrapperClassName?: string;
 	textClassName?: string;
 }
-export const SidebarAccordian = ({
-	children,
-	title,
-	className,
-	wrapperClassName,
-	textClassName
-}: isProps) => {
+export const SidebarAccordian = ({ children, title, className, wrapperClassName, textClassName }: isProps) => {
 	return (
 		<div className="w-full ">
 			<div

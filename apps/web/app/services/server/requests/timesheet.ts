@@ -11,10 +11,7 @@ type TTasksTimesheetStatisticsParams = {
 	'taskIds[0]'?: string;
 	unitOfTime?: 'day';
 };
-export function tasksTimesheetStatisticsRequest(
-	params: TTasksTimesheetStatisticsParams,
-	bearer_token: string
-) {
+export function tasksTimesheetStatisticsRequest(params: TTasksTimesheetStatisticsParams, bearer_token: string) {
 	const { employeeIds, ...rest } = params;
 
 	const queries = new URLSearchParams({

@@ -6,8 +6,8 @@ import { Popover, Transition } from '@headlessui/react';
 import { Card, ConfirmDropdown, SpinnerLoader, Text } from 'lib/components';
 import { MoreIcon } from 'lib/components/svgs';
 import { TaskUnOrAssignPopover } from 'lib/features/task/task-assign-popover';
-import { useTranslation } from 'lib/i18n';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -24,69 +24,53 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 		memberInfo
 	});
 
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const loading = edition.loading || memberInfo.updateOTeamLoading;
 
 	const menu = [
 		{
-			name: trans.common.EDIT_TASK,
+			name: t('common.EDIT_TASK'),
 			closable: true,
 			onClick: () => {
 				edition.task && edition.setEditMode(true);
 			},
-			active:
-				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
+			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 		},
 		{
-			name: trans.common.ESTIMATE,
+			name: t('common.ESTIMATE'),
 			closable: true,
 			onClick: () => {
 				edition.task && edition.setEstimateEditMode(true);
 			},
-			active:
-				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
+			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && edition.task
 		},
 		{
-			name: trans.common.ASSIGN_TASK,
+			name: t('common.ASSIGN_TASK'),
 			action: 'assign',
 			onClick: onAssignTask,
 
-			active:
-				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-				memberInfo.memberUnassignTasks.length > 0
+			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && memberInfo.memberUnassignTasks.length > 0
 		},
 		{
-			name: trans.common.UNASSIGN_TASK,
+			name: t('common.UNASSIGN_TASK'),
 			action: 'unassign',
 			closable: true,
 			onClick: onUnAssignTask,
 
-			active:
-				(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) &&
-				!!memberInfo.memberTask
+			active: (memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && !!memberInfo.memberTask
 		},
 		{
-			name: memberInfo.isTeamManager
-				? trans.common.UNMAKE_A_MANAGER
-				: trans.common.MAKE_A_MANAGER,
+			name: memberInfo.isTeamManager ? t('common.UNMAKE_A_MANAGER') : t('common.MAKE_A_MANAGER'),
 			// MAke or unmake member a manager
-			onClick: memberInfo.isTeamManager
-				? memberInfo.unMakeMemberManager
-				: memberInfo.makeMemberManager,
-			active:
-				memberInfo.isAuthTeamManager &&
-				!memberInfo.isAuthUser &&
-				!memberInfo.isTeamCreator,
+			onClick: memberInfo.isTeamManager ? memberInfo.unMakeMemberManager : memberInfo.makeMemberManager,
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamCreator,
 			closable: true
 		},
 		{
-			name: trans.common.REMOVE,
+			name: t('common.REMOVE'),
 			type: 'danger',
 			action: 'remove',
-			active:
-				memberInfo.isAuthTeamManager &&
-				!memberInfo.isAuthUser &&
-				!memberInfo.isTeamOwner,
+			active: memberInfo.isAuthTeamManager && !memberInfo.isAuthUser && !memberInfo.isTeamOwner,
 			onClick: onRemoveMember
 		}
 	].filter((item) => item.active || item.active === undefined);
@@ -208,16 +192,9 @@ function DropdownMenu({ edition, memberInfo }: Props) {
 	);
 }
 
-type IAssignCall = (params: {
-	task?: ITeamTask;
-	closeCombobox1?: () => void;
-	closeCombobox2?: () => void;
-}) => void;
+type IAssignCall = (params: { task?: ITeamTask; closeCombobox1?: () => void; closeCombobox2?: () => void }) => void;
 
-export function useDropdownAction({
-	edition,
-	memberInfo
-}: Pick<Props, 'edition' | 'memberInfo'>) {
+export function useDropdownAction({ edition, memberInfo }: Pick<Props, 'edition' | 'memberInfo'>) {
 	const onAssignTask: IAssignCall = useCallback(
 		({ task, closeCombobox1, closeCombobox2 }) => {
 			if (!task) return;
@@ -235,9 +212,7 @@ export function useDropdownAction({
 		if (!memberInfo.memberTask) return;
 		edition.setLoading(true);
 
-		memberInfo
-			.unassignTask(memberInfo.memberTask)
-			.finally(() => edition.setLoading(false));
+		memberInfo.unassignTask(memberInfo.memberTask).finally(() => edition.setLoading(false));
 	}, [memberInfo, edition]);
 
 	const onRemoveMember = useCallback(

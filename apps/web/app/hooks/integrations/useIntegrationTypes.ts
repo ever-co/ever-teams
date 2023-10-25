@@ -5,13 +5,9 @@ import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 
 export function useIntegrationTypes() {
-	const [integrationTypes, setIntegrationTypes] = useRecoilState(
-		integrationTypesState
-	);
+	const [integrationTypes, setIntegrationTypes] = useRecoilState(integrationTypesState);
 
-	const { loading: loading, queryCall: queryCall } = useQuery(
-		getIntegrationTypesAPI
-	);
+	const { loading: loading, queryCall: queryCall } = useQuery(getIntegrationTypesAPI);
 
 	const getIntegrationTypes = useCallback(() => {
 		return queryCall().then((response) => {
@@ -24,6 +20,6 @@ export function useIntegrationTypes() {
 	return {
 		loading,
 		getIntegrationTypes,
-		integrationTypes,
+		integrationTypes
 	};
 }

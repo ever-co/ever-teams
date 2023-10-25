@@ -25,9 +25,7 @@ export function useUserProfilePage() {
 
 	const isAuthUser = auth?.employee?.userId === memberId;
 
-	const activeUserTeamTask = isAuthUser
-		? activeTeamTask
-		: matchUser?.lastWorkedTask;
+	const activeUserTeamTask = isAuthUser ? activeTeamTask : matchUser?.lastWorkedTask;
 
 	const userProfile = isAuthUser ? auth : matchUser?.employee.user;
 
@@ -50,10 +48,7 @@ export function useUserProfilePage() {
 
 			return updateTask({
 				...task,
-				members: [
-					...task.members,
-					(matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any
-				]
+				members: [...task.members, (matchUser?.employeeId ? { id: matchUser?.employeeId } : {}) as any]
 			});
 		},
 		[updateTask, matchUser]

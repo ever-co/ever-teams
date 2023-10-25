@@ -1,16 +1,6 @@
 import { IIssueTypesCreate } from '@app/interfaces';
-import {
-	createIssueTypeAPI,
-	getIssueTypeList,
-	deleteIssueTypeAPI,
-	editIssueTypeAPI
-} from '@app/services/client/api';
-import {
-	userState,
-	issueTypesFetchingState,
-	issueTypesListState,
-	activeTeamIdState
-} from '@app/stores';
+import { createIssueTypeAPI, getIssueTypeList, deleteIssueTypeAPI, editIssueTypeAPI } from '@app/services/client/api';
+import { userState, issueTypesFetchingState, issueTypesListState, activeTeamIdState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -21,17 +11,12 @@ export function useIssueType() {
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getIssueTypeList);
-	const { loading: createIssueTypeLoading, queryCall: createQueryCall } =
-		useQuery(createIssueTypeAPI);
-	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteIssueTypeAPI);
-	const { loading: editIssueTypeLoading, queryCall: editQueryCall } =
-		useQuery(editIssueTypeAPI);
+	const { loading: createIssueTypeLoading, queryCall: createQueryCall } = useQuery(createIssueTypeAPI);
+	const { loading: deleteIssueTypeLoading, queryCall: deleteQueryCall } = useQuery(deleteIssueTypeAPI);
+	const { loading: editIssueTypeLoading, queryCall: editQueryCall } = useQuery(editIssueTypeAPI);
 
 	const [issueTypes, setIssueTypes] = useRecoilState(issueTypesListState);
-	const [issueTypeFetching, setIssueTypesFetching] = useRecoilState(
-		issueTypesFetchingState
-	);
+	const [issueTypeFetching, setIssueTypesFetching] = useRecoilState(issueTypesFetchingState);
 	const { firstLoadData: firstLoadIssueTypeData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
@@ -43,54 +28,37 @@ export function useIssueType() {
 	useEffect(() => {
 		if (!firstLoad) return;
 
-		queryCall(
-			user?.tenantId as string,
-			user?.employee?.organizationId as string,
-			activeTeamId || null
-		).then((res) => {
-			setIssueTypes(res?.data?.data?.items || []);
-			return res;
-		});
-	}, [
-		activeTeamId,
-		firstLoad,
-		queryCall,
-		setIssueTypes,
-		user?.employee?.organizationId,
-		user?.tenantId
-	]);
+		queryCall(user?.tenantId as string, user?.employee?.organizationId as string, activeTeamId || null).then(
+			(res) => {
+				setIssueTypes(res?.data?.data?.items || []);
+				return res;
+			}
+		);
+	}, [activeTeamId, firstLoad, queryCall, setIssueTypes, user?.employee?.organizationId, user?.tenantId]);
 
 	const createIssueType = useCallback(
 		(data: IIssueTypesCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeamId },
-					user?.tenantId || ''
-				).then((res) => {
-					if (res?.data?.data && res?.data?.data?.name) {
-						queryCall(
-							user?.tenantId as string,
-							user?.employee?.organizationId as string,
-							activeTeamId || null
-						).then((res) => {
-							setIssueTypes(res?.data?.data?.items || []);
-							return res;
-						});
-					}
+				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
+					(res) => {
+						if (res?.data?.data && res?.data?.data?.name) {
+							queryCall(
+								user?.tenantId as string,
+								user?.employee?.organizationId as string,
+								activeTeamId || null
+							).then((res) => {
+								setIssueTypes(res?.data?.data?.items || []);
+								return res;
+							});
+						}
 
-					return res;
-				});
+						return res;
+					}
+				);
 			}
 		},
 
-		[
-			createQueryCall,
-			activeTeamId,
-			queryCall,
-			setIssueTypes,
-			user?.employee?.organizationId,
-			user?.tenantId
-		]
+		[createQueryCall, activeTeamId, queryCall, setIssueTypes, user?.employee?.organizationId, user?.tenantId]
 	);
 
 	const deleteIssueType = useCallback(

@@ -21,13 +21,7 @@ export function Tooltip({
 	enabled = true,
 	labelClassName
 }: PropsWithChildren<Props>) {
-	const {
-		getArrowProps,
-		getTooltipProps,
-		setTooltipRef,
-		setTriggerRef,
-		visible
-	} = usePopperTooltip({
+	const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({
 		placement
 	});
 

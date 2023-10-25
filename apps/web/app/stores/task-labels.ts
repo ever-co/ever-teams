@@ -21,10 +21,6 @@ export const activeTaskLabelsState = selector<ITaskLabelsItemList | null>({
 	get: ({ get }) => {
 		const taskLabels = get(taskLabelsListState);
 		const activeId = get(activeTaskLabelsIdState);
-		return (
-			taskLabels.find((priority) => priority.id === activeId) ||
-			taskLabels[0] ||
-			null
-		);
+		return taskLabels.find((priority) => priority.id === activeId) || taskLabels[0] || null;
 	}
 });

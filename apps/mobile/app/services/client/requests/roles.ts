@@ -4,7 +4,7 @@ import { serverFetch } from '../fetch';
 export function getEmployeeRoleRequest({
 	bearer_token,
 	role,
-	tenantId,
+	tenantId
 }: {
 	bearer_token: string;
 	role: 'EMPLOYEE';
@@ -14,6 +14,6 @@ export function getEmployeeRoleRequest({
 		path: `/roles/options?name=${role}`,
 		method: 'GET',
 		bearer_token,
-		tenantId,
+		tenantId
 	});
 }

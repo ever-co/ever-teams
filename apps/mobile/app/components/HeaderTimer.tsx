@@ -1,51 +1,51 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import { observer } from "mobx-react-lite"
-import React from "react"
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
-import { ProgressBar } from "react-native-paper"
-import { pad } from "../helpers/number"
-import { useStores } from "../models"
-import { useTimer } from "../services/hooks/useTimer"
-import { typography, useAppTheme } from "../theme"
-import { SvgXml } from "react-native-svg"
-import { timerSmallDarkPlayIcon, timerSmallPlayIcon, timerSmallStopIcon } from "./svgs/icons"
+import { observer } from 'mobx-react-lite';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ProgressBar } from 'react-native-paper';
+import { pad } from '../helpers/number';
+import { useStores } from '../models';
+import { useTimer } from '../services/hooks/useTimer';
+import { typography, useAppTheme } from '../theme';
+import { SvgXml } from 'react-native-svg';
+import { timerSmallDarkPlayIcon, timerSmallPlayIcon, timerSmallStopIcon } from './svgs/icons';
 
 const HeaderTimer = observer(() => {
-	const { colors, dark } = useAppTheme()
+	const { colors, dark } = useAppTheme();
 	const {
 		TimerStore: { timeCounterState, localTimerStatus },
-		TaskStore: { activeTask },
-	} = useStores()
+		TaskStore: { activeTask }
+	} = useStores();
 	const {
 		canRunTimer,
 		fomatedTimeCounter: { hours, minutes, seconds, ms_p },
 		startTimer,
-		stopTimer,
-	} = useTimer()
+		stopTimer
+	} = useTimer();
 
 	const handleTimer = () => {
-		if (!canRunTimer) return
+		if (!canRunTimer) return;
 
 		if (localTimerStatus.running) {
-			stopTimer()
+			stopTimer();
 		} else {
-			startTimer()
+			startTimer();
 		}
-	}
+	};
 
 	const getTimePercentage = () => {
 		if (activeTask) {
 			if (!activeTask.estimate) {
-				return 0
+				return 0;
 			}
 			// convert milliseconds to seconds
-			const seconds = timeCounterState / 1000
-			return seconds / activeTask.estimate
+			const seconds = timeCounterState / 1000;
+			return seconds / activeTask.estimate;
 		} else {
-			return 0
+			return 0;
 		}
-	}
+	};
 
 	return (
 		<View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -67,49 +67,49 @@ const HeaderTimer = observer(() => {
 					<Text style={styles.smallTxt}>:{pad(ms_p)}</Text>
 				</Text>
 				<ProgressBar
-					style={{ backgroundColor: "#E9EBF8", height: 4, borderRadius: 3 }}
+					style={{ backgroundColor: '#E9EBF8', height: 4, borderRadius: 3 }}
 					progress={getTimePercentage()}
-					color={activeTask && activeTask.estimate > 0 ? "#27AE60" : "#F0F0F0"}
+					color={activeTask && activeTask.estimate > 0 ? '#27AE60' : '#F0F0F0'}
 				/>
 			</View>
 		</View>
-	)
-})
+	);
+});
 
 const styles = StyleSheet.create({
 	btnImage: {},
 	buttonStyle: {
 		// paddingHorizontal: 13,
-		paddingVertical: 10,
+		paddingVertical: 10
 	},
 	container: {
-		alignItems: "center",
-		backgroundColor: "#fff",
-		borderColor: "rgba(0, 0, 0, 0.1)",
+		alignItems: 'center',
+		backgroundColor: '#fff',
+		borderColor: 'rgba(0, 0, 0, 0.1)',
 		borderRadius: 9,
 		borderWidth: 1,
 		elevation: 10,
-		flexDirection: "row",
+		flexDirection: 'row',
 		gap: 9,
 		height: 38,
-		justifyContent: "center",
-		shadowColor: "rgba(0, 0, 0, 0.1)",
+		justifyContent: 'center',
+		shadowColor: 'rgba(0, 0, 0, 0.1)',
 		shadowOffset: { width: 5, height: 5 },
 		shadowOpacity: 0.3,
 		shadowRadius: 1,
-		width: 126,
+		width: 126
 	},
 	progressContainer: {
 		height: 21,
-		width: "65%",
+		width: '65%'
 	},
 	smallTxt: {
-		fontSize: 8,
+		fontSize: 8
 	},
 	timerText: {
 		fontFamily: typography.secondary.medium,
-		fontSize: 12,
-	},
-})
+		fontSize: 12
+	}
+});
 
-export default HeaderTimer
+export default HeaderTimer;

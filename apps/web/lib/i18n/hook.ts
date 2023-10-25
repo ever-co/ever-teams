@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { en, Translations } from '.';
 
-export function useTranslation<
-	T extends keyof Translations['pages'] | undefined = undefined
->(
+export function useTranslation<T extends keyof Translations['pages'] | undefined = undefined>(
 	page?: T
 ): T extends undefined
 	? { trans: Translations }

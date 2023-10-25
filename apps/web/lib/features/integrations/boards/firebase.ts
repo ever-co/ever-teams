@@ -4,16 +4,13 @@ import { FileId } from '@excalidraw/excalidraw/types/element/types';
 import { FILE_CACHE_MAX_AGE_SEC } from './constants';
 
 // Varibales
-let firebasePromise: Promise<typeof import('firebase/app').default> | null =
-	null;
+let firebasePromise: Promise<typeof import('firebase/app').default> | null = null;
 let isFirebaseInitialized = false;
 let firebaseStoragePromise: Promise<any> | null | true = null;
 
 // Load lazily Firebase App
 const _loadFirebase = async () => {
-	const firebase = (
-		await import(/* webpackChunkName: "firebase" */ 'firebase/app')
-	).default;
+	const firebase = (await import(/* webpackChunkName: "firebase" */ 'firebase/app')).default;
 
 	if (!isFirebaseInitialized) {
 		try {
@@ -37,9 +34,7 @@ const _loadFirebase = async () => {
 };
 
 // Instanciate Firebase app and keep in memory
-const _getFirebase = async (): Promise<
-	typeof import('firebase/app').default
-> => {
+const _getFirebase = async (): Promise<typeof import('firebase/app').default> => {
 	if (!firebasePromise) {
 		firebasePromise = _loadFirebase();
 	}
@@ -50,9 +45,7 @@ const _getFirebase = async (): Promise<
 const loadFirebaseStorage = async () => {
 	const firebase = await _getFirebase();
 	if (!firebaseStoragePromise) {
-		firebaseStoragePromise = import(
-			/* webpackChunkName: "storage" */ 'firebase/storage'
-		);
+		firebaseStoragePromise = import(/* webpackChunkName: "storage" */ 'firebase/storage');
 	}
 	if (firebaseStoragePromise !== true) {
 		await firebaseStoragePromise;

@@ -16,16 +16,11 @@ export const taskPrioritiesFetchingState = atom<boolean>({
 	default: false
 });
 
-export const activeTaskPrioritiesState =
-	selector<ITaskPrioritiesItemList | null>({
-		key: 'activeTaskPrioritiesState',
-		get: ({ get }) => {
-			const taskPriorities = get(taskPrioritiesListState);
-			const activeId = get(activeTaskPrioritiesIdState);
-			return (
-				taskPriorities.find((priority) => priority.id === activeId) ||
-				taskPriorities[0] ||
-				null
-			);
-		}
-	});
+export const activeTaskPrioritiesState = selector<ITaskPrioritiesItemList | null>({
+	key: 'activeTaskPrioritiesState',
+	get: ({ get }) => {
+		const taskPriorities = get(taskPrioritiesListState);
+		const activeId = get(activeTaskPrioritiesIdState);
+		return taskPriorities.find((priority) => priority.id === activeId) || taskPriorities[0] || null;
+	}
+});

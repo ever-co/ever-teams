@@ -1,12 +1,12 @@
 import { mergeRefs, secondsToTime } from '@app/helpers';
-import { I_TeamMemberCardHook, I_TMCardTaskEditHook } from '@app/hooks';
+import { I_TMCardTaskEditHook, I_TeamMemberCardHook } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { Text } from 'lib/components';
 import { EditIcon, TickSaveIcon } from 'lib/components/svgs';
 import { TaskEstimate, TaskProgressBar } from 'lib/features';
-import { useTranslation } from 'lib/i18n';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = IClassName & {
 	memberInfo: I_TeamMemberCardHook;
@@ -14,11 +14,7 @@ type Props = IClassName & {
 	activeAuthTask: boolean;
 };
 
-export function TaskEstimateInfo({
-	className,
-	activeAuthTask,
-	...rest
-}: Props) {
+export function TaskEstimateInfo({ className, activeAuthTask, ...rest }: Props) {
 	return (
 		<div className={className}>
 			<div className="flex items-center flex-col gap-y-[2rem] justify-center">
@@ -35,11 +31,8 @@ export function TaskEstimateInfo({
 	);
 }
 
-function TaskEstimateInput({
-	memberInfo,
-	edition
-}: Omit<Props, 'className' | 'activeAuthTask'>) {
-	const { trans } = useTranslation();
+function TaskEstimateInput({ memberInfo, edition }: Omit<Props, 'className' | 'activeAuthTask'>) {
+	const { t } = useTranslation();
 	const loadingRef = useRef<boolean>(false);
 	const task = edition.task || memberInfo.memberTask;
 
@@ -62,11 +55,7 @@ function TaskEstimateInput({
 			>
 				{task && (
 					<>
-						<TaskEstimate
-							_task={task}
-							loadingRef={loadingRef}
-							closeable_fc={closeFn}
-						/>
+						<TaskEstimate _task={task} loadingRef={loadingRef} closeable_fc={closeFn} />
 						<button
 							className={`ml-2 ${loadingRef.current && 'hidden'}`}
 							onClick={() => task && edition.setEstimateEditMode(false)}
@@ -83,7 +72,7 @@ function TaskEstimateInput({
 					hasEditMode && ['hidden']
 				)}
 			>
-				<span className="text-gray-500">{trans.common.ESTIMATED}:</span>
+				<span className="text-gray-500">{t('common.ESTIMATED')}:</span>
 				<Text>
 					{h}h {m}m
 				</Text>

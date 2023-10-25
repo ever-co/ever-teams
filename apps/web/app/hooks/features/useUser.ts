@@ -6,11 +6,9 @@ import { useAuthenticateUser } from './useAuthenticateUser';
 export const useUser = () => {
 	const { user, logOut } = useAuthenticateUser();
 
-	const { loading: deleteUserLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteUserAPI);
+	const { loading: deleteUserLoading, queryCall: deleteQueryCall } = useQuery(deleteUserAPI);
 
-	const { loading: resetUserLoading, queryCall: resetQueryCall } =
-		useQuery(resetUserAPI);
+	const { loading: resetUserLoading, queryCall: resetQueryCall } = useQuery(resetUserAPI);
 
 	const deleteUser = useCallback(() => {
 		if (user) {

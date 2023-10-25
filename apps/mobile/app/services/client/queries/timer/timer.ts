@@ -1,15 +1,15 @@
-import { useQuery } from "react-query"
-import { getTimerStatusRequest, syncTimeSlotRequest } from "../../requests/timer"
-import { ITimerTimeslotParams, TimerSource } from "../../../interfaces/ITimer"
+import { useQuery } from 'react-query';
+import { getTimerStatusRequest, syncTimeSlotRequest } from '../../requests/timer';
+import { ITimerTimeslotParams, TimerSource } from '../../../interfaces/ITimer';
 
-type IGetTimerStatusParams = ITimerTimeslotParams & { authToken: string }
+type IGetTimerStatusParams = ITimerTimeslotParams & { authToken: string };
 
 const fetchTimerStatus = async (
 	params: IGetTimerStatusParams,
 	isTimerRunning: boolean,
-	lastlogTimerSource: TimerSource | null,
+	lastlogTimerSource: TimerSource | null
 ) => {
-	const { tenantId, organizationId, logType, authToken, employeeId } = params
+	const { tenantId, organizationId, logType, authToken, employeeId } = params;
 
 	if (isTimerRunning) {
 		await syncTimeSlotRequest(
@@ -19,29 +19,25 @@ const fetchTimerStatus = async (
 				source: lastlogTimerSource || TimerSource.MOBILE,
 				employeeId,
 				duration: 5,
-				logType,
+				logType
 			},
-			authToken,
-		)
+			authToken
+		);
 	}
 
-	const { data } = await getTimerStatusRequest({ tenantId, organizationId }, authToken)
+	const { data } = await getTimerStatusRequest({ tenantId, organizationId }, authToken);
 
-	return data
-}
+	return data;
+};
 
-const useFetchTimerStatus = (
-	IGetTimerStatusParams,
-	isTimerRunning: boolean,
-	lastlogTimerSource: TimerSource,
-) =>
+const useFetchTimerStatus = (IGetTimerStatusParams, isTimerRunning: boolean, lastlogTimerSource: TimerSource) =>
 	useQuery(
-		["status-timer", IGetTimerStatusParams],
+		['status-timer', IGetTimerStatusParams],
 		() => fetchTimerStatus(IGetTimerStatusParams, isTimerRunning, lastlogTimerSource),
 		{
 			refetchInterval: 5000,
-			notifyOnChangeProps: ["data"], // Re-render only when data changes
-			notifyOnChangePropsExclusions: ["isFetching"],
-		},
-	)
-export default useFetchTimerStatus
+			notifyOnChangeProps: ['data'], // Re-render only when data changes
+			notifyOnChangePropsExclusions: ['isFetching']
+		}
+	);
+export default useFetchTimerStatus;

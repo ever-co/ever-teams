@@ -3,5 +3,5 @@ import { atom } from 'recoil';
 
 export const integrationState = atom<IIntegration[]>({
 	key: 'integrationState',
-	default: [],
+	default: []
 });

@@ -11,11 +11,7 @@ Sentry.init({
 	tracesSampleRate: 1,
 
 	// Setting this option to true will print useful information to the console while you're setting up Sentry.
-	debug:
-		process.env.NEXT_PUBLIC_SENTRY_DEBUG &&
-		process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true'
-			? true
-			: false,
+	debug: process.env.NEXT_PUBLIC_SENTRY_DEBUG && process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true' ? true : false,
 
 	replaysOnErrorSampleRate: 1.0,
 
