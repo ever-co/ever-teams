@@ -33,18 +33,22 @@ export const IntegrationSetting = () => {
 	const [selectedRepo, setSelectedRepo] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
-		if (activeTeam?.projects && activeTeam?.projects?.length && activeTeam?.projects[0]?.repository?.repositoryId) {
+
+		if (activeTeam?.projects && activeTeam?.projects?.length) {
 			setIsTasksAutoSync(activeTeam?.projects[0].isTasksAutoSync);
 			setIsTasksAutoSyncOnLabel(activeTeam?.projects[0].isTasksAutoSyncOnLabel);
+
 			if (activeTeam?.projects[0].syncTag) {
 				setSyncTag(activeTeam?.projects[0].syncTag);
 			}
-
-			setSelectedRepo(`${activeTeam?.projects[0]?.repository?.repositoryId}`);
+			if(activeTeam?.projects[0]?.repository?.repositoryId) {
+				setSelectedRepo(`${activeTeam?.projects[0]?.repository?.repositoryId}`);
+			}
 		}
 	}, [activeTeam]);
 
 	const { integrationGithubRepositories, getRepositories } = useGitHubIntegration();
+
 
 	const { editOrganizationProjectSetting, editOrganizationProject } = useOrganizationProjects();
 
@@ -53,8 +57,8 @@ export const IntegrationSetting = () => {
 	const { loading: loadingIntegrationTypes, integrationTypes, getIntegrationTypes } = useIntegrationTypes();
 
 	useEffect(() => {
-		if (!integrationTenantLoading && integrationTenant && integrationTenant?.id) {
-			getRepositories(integrationTenant.id);
+		if (!integrationTenantLoading && integrationTenant && integrationTenant.length) {
+			getRepositories(integrationTenant[0].id);
 		}
 	}, [integrationTenantLoading, integrationTenant, getRepositories]);
 
@@ -77,9 +81,21 @@ export const IntegrationSetting = () => {
 				setSelectedRepo(value);
 
 				const repo = integrationGithubRepositories?.repositories.find((item) => item.id === +value);
+				console.log(repo);
+
 
 				editOrganizationProjectSetting(projectId, {
-					repository: repo,
+					repository: {
+						repositoryId: repo?.id,
+						name: repo?.name,
+						fullName: repo?.full_name,
+						owner: repo?.owner.login,
+						integrationId: integrationTenant[0].id,
+						...(activeTeam?.projects && activeTeam?.projects?.length ? {
+							...activeTeam?.projects[0].repository || {}
+						}:{})
+
+					},
 					isTasksAutoSync: true,
 					isTasksAutoSyncOnLabel: true,
 					tenantId: activeTeam?.tenantId,
@@ -87,7 +103,7 @@ export const IntegrationSetting = () => {
 				});
 			}
 		},
-		[activeTeam, editOrganizationProjectSetting, integrationGithubRepositories]
+		[activeTeam, editOrganizationProjectSetting, integrationGithubRepositories, integrationTenant]
 	);
 	const handleRemoveRepo = useCallback(() => {
 		const projectId = getActiveProjectIdCookie();
