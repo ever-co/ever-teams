@@ -6,7 +6,7 @@ import { Disclosure } from '@headlessui/react';
 import { useCallback, useEffect, useState } from 'react';
 import ProfileInfoWithTime from '../components/profile-info-with-time';
 import { useAuthenticateUser, useOrganizationTeams } from '@app/hooks';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'react-i18next';
 import { secondsToTime } from '@app/helpers';
 import { ITasksTimesheet, ITime, OT_Member } from '@app/interfaces';
 import { ChevronDownIcon, ChevronUpIcon } from 'lib/components/svgs';
@@ -15,7 +15,7 @@ const TaskProgress = () => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
-	const { trans } = useTranslation('taskDetails');
+	const { t } = useTranslation();
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
 		hours: 0,
@@ -45,8 +45,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTask = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalWorkedTasks?.find((object) => object.id === task?.id)
-				?.duration || 0;
+			currentUser?.totalWorkedTasks?.find((object) => object.id === task?.id)?.duration || 0;
 
 		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
@@ -59,8 +58,7 @@ const TaskProgress = () => {
 
 	const userTotalTimeOnTaskToday = useCallback((): void => {
 		const totalOnTaskInSeconds: number =
-			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)
-				?.duration || 0;
+			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)?.duration || 0;
 
 		const { h, m } = secondsToTime(totalOnTaskInSeconds);
 
@@ -73,8 +71,7 @@ const TaskProgress = () => {
 
 	useEffect(() => {
 		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
-			(member) =>
-				task?.members.some((taskMember) => taskMember.id === member.employeeId)
+			(member) => task?.members.some((taskMember) => taskMember.id === member.employeeId)
 		);
 
 		const usersTaskArray: ITasksTimesheet[] | undefined = matchingMembers
@@ -87,9 +84,7 @@ const TaskProgress = () => {
 		);
 
 		const usersTotalTime: number =
-			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined
-				? 0
-				: usersTotalTimeInSeconds;
+			usersTotalTimeInSeconds === null || usersTotalTimeInSeconds === undefined ? 0 : usersTotalTimeInSeconds;
 
 		const timeObj = secondsToTime(usersTotalTime);
 		const { h: hoursTotal, m: minutesTotal } = timeObj;
@@ -112,7 +107,7 @@ const TaskProgress = () => {
 
 	return (
 		<section className="flex flex-col gap-4 p-[0.9375rem]">
-			<TaskRow labelTitle={trans.PROGRESS}>
+			<TaskRow labelTitle={t('pages.taskDetails.PROGRESS')}>
 				<TaskProgressBar
 					task={task}
 					isAuthUser={true}
@@ -121,22 +116,22 @@ const TaskProgress = () => {
 					// memberInfo={memberInfo}
 				/>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TOTAL_TIME}>
+			<TaskRow labelTitle={t('pages.taskDetails.TOTAL_TIME')}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{userTotalTime.hours}h : {userTotalTime.minutes}m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TIME_TODAY}>
+			<TaskRow labelTitle={t('pages.taskDetails.TIME_TODAY')}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
 				</div>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TOTAL_GROUP_TIME}>
+			<TaskRow labelTitle={t('pages.taskDetails.TOTAL_GROUP_TIME')}>
 				<Disclosure>
 					{({ open }) => (
 						<div className="flex flex-col w-full mt-[0.1875rem]">
 							{task?.members && task?.members.length > 1 ? (
-								<Disclosure.Button className="flex justify-between items-center w-full">
+								<Disclosure.Button className="flex items-center justify-between w-full">
 									<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 										{groupTotalTime.hours}h : {groupTotalTime.minutes}m
 									</div>
@@ -154,29 +149,24 @@ const TaskProgress = () => {
 							)}
 							{task?.members && task?.members.length > 0 && (
 								<Disclosure.Panel>
-									<IndividualMembersTotalTime
-										numMembersToShow={numMembersToShow}
-									/>
-									{task?.members?.length > 0 &&
-										task?.members?.length - 1 >= numMembersToShow && (
-											<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
-												<button
-													onClick={() =>
-														setNumMembersToShow((prev) => prev + 5)
-													}
-													className="text-xs"
-												>
-													Show More
-												</button>
-											</div>
-										)}
+									<IndividualMembersTotalTime numMembersToShow={numMembersToShow} />
+									{task?.members?.length > 0 && task?.members?.length - 1 >= numMembersToShow && (
+										<div className="w-full flex justify-end my-1 text-[rgba(40,32,72,0.5)]">
+											<button
+												onClick={() => setNumMembersToShow((prev) => prev + 5)}
+												className="text-xs"
+											>
+												Show More
+											</button>
+										</div>
+									)}
 								</Disclosure.Panel>
 							)}
 						</div>
 					)}
 				</Disclosure>
 			</TaskRow>
-			<TaskRow labelTitle={trans.TIME_REMAINING}>
+			<TaskRow labelTitle={t('pages.taskDetails.TIME_REMAINING')}>
 				<div className="not-italic font-semibold text-xs leading-[140%] tracking-[-0.02em] text-[#282048] dark:text-white">
 					{timeRemaining.hours}h : {timeRemaining.minutes}m
 				</div>
@@ -187,23 +177,16 @@ const TaskProgress = () => {
 
 export default TaskProgress;
 
-const IndividualMembersTotalTime = ({
-	numMembersToShow
-}: {
-	numMembersToShow: number;
-}) => {
+const IndividualMembersTotalTime = ({ numMembersToShow }: { numMembersToShow: number }) => {
 	const [task] = useRecoilState(detailedTaskState);
 	const { activeTeam } = useOrganizationTeams();
 
 	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter(
-		(member) =>
-			task?.members.some((taskMember) => taskMember.id === member.employeeId)
+		(member) => task?.members.some((taskMember) => taskMember.id === member.employeeId)
 	);
 
 	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
-		return (
-			user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0
-		);
+		return user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0;
 	};
 
 	return (

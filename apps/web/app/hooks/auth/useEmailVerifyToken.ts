@@ -10,9 +10,7 @@ export function useEmailVerifyToken() {
 
 	const [errors, setErrors] = useState({} as { [x: string]: any });
 
-	const { queryCall, loading, infiniteLoading } = useQuery(
-		verifyUserEmailByTokenAPI
-	);
+	const { queryCall, loading, infiniteLoading } = useQuery(verifyUserEmailByTokenAPI);
 
 	/**
 	 * Verify Email by token request

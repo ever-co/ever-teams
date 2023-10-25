@@ -1,73 +1,69 @@
-import { PaginationResponse } from "../../interfaces/IDataResponse"
-import { ITaskStatusCreate, ITaskStatusItem } from "../../interfaces/ITaskStatus"
-import { serverFetch } from "../fetch"
+import { PaginationResponse } from '../../interfaces/IDataResponse';
+import { ITaskStatusCreate, ITaskStatusItem } from '../../interfaces/ITaskStatus';
+import { serverFetch } from '../fetch';
 
 export function createStatusRequest({
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	datas: ITaskStatusCreate
-	bearer_token: string
-	tenantId: string
+	datas: ITaskStatusCreate;
+	bearer_token: string;
+	tenantId: string;
 }) {
 	return serverFetch<ITaskStatusItem>({
-		path: "/task-statuses",
-		method: "POST",
+		path: '/task-statuses',
+		method: 'POST',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function updateTaskStatusRequest({
 	id,
 	datas,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	datas: ITaskStatusCreate
-	bearer_token: string
-	tenantId?: any
+	id: string | any;
+	datas: ITaskStatusCreate;
+	bearer_token: string;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskStatusItem>({
 		path: `/task-statuses/${id}`,
-		method: "PUT",
+		method: 'PUT',
 		body: datas,
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function deleteTaskStatusRequest({
 	id,
 	bearer_token,
-	tenantId,
+	tenantId
 }: {
-	id: string | any
-	bearer_token: string | any
-	tenantId?: any
+	id: string | any;
+	bearer_token: string | any;
+	tenantId?: any;
 }) {
 	return serverFetch<ITaskStatusItem>({
 		path: `/task-statuses/${id}`,
-		method: "DELETE",
+		method: 'DELETE',
 		bearer_token,
-		tenantId,
-	})
+		tenantId
+	});
 }
 
 export function getTaskStatusesRequest(
-	{
-		organizationId,
-		tenantId,
-		activeTeamId,
-	}: { tenantId: string; organizationId: string; activeTeamId: string },
-	bearer_token: string,
+	{ organizationId, tenantId, activeTeamId }: { tenantId: string; organizationId: string; activeTeamId: string },
+	bearer_token: string
 ) {
 	return serverFetch<PaginationResponse<ITaskStatusItem>>({
 		path: `/task-statuses?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
-		method: "GET",
-		bearer_token,
-	})
+		method: 'GET',
+		bearer_token
+	});
 }

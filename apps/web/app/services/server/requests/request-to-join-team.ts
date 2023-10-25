@@ -30,9 +30,7 @@ export function requestToJoinRequest(body: IRequestToJoinCreate) {
  * @returns
  */
 export function validateRequestToJoinRequest(body: IValidateRequestToJoin) {
-	return serverFetch<
-		PaginationResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>
-	>({
+	return serverFetch<PaginationResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>({
 		path: '/organization-team-join/validate',
 		method: 'POST',
 		body

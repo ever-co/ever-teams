@@ -1,29 +1,18 @@
 import { getAccessTokenCookie } from '@app/helpers';
 import { useAuthenticateUser, useModal, useQuery } from '@app/hooks';
-import {
-	resentVerifyUserLinkAPI,
-	verifyUserEmailByCodeAPI
-} from '@app/services/client/api';
+import { resentVerifyUserLinkAPI, verifyUserEmailByCodeAPI } from '@app/services/client/api';
 import { clsxm } from '@app/utils';
-import {
-	AuthCodeInputField,
-	Button,
-	Card,
-	Modal,
-	SpinnerLoader,
-	Text
-} from 'lib/components';
+import { AuthCodeInputField, Button, Card, Modal, SpinnerLoader, Text } from 'lib/components';
 // import { CloseIcon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();
-	const { trans, translations } = useTranslation('home');
+	const { t } = useTranslation('home');
 	const [verified, setVefified] = useState(true);
 
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } =
-		useQuery(resentVerifyUserLinkAPI);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
 
 	const { openModal, isOpen, closeModal } = useModal();
 
@@ -44,9 +33,7 @@ export function UnverifiedEmail() {
 			return;
 		}
 
-		const closed =
-			window.localStorage.getItem('unverified-message-closed') ===
-			getAccessTokenCookie();
+		const closed = window.localStorage.getItem('unverified-message-closed') === getAccessTokenCookie();
 
 		if (closed) {
 			setVefified(true);
@@ -66,29 +53,24 @@ export function UnverifiedEmail() {
 				)}
 			>
 				<Text>
-					{trans.SENT_EMAIL_VERIFICATION_YOU_NEED_TO}
-					<span
-						className="text-primary dark:text-primary-light cursor-pointer"
-						onClick={openModal}
-					>
-						{translations.common.VERIFY}
+					{t('pages.home.SENT_EMAIL_VERIFICATION_YOU_NEED_TO')}
+					<span className="cursor-pointer text-primary dark:text-primary-light" onClick={openModal}>
+						{t('common.VERIFY')}
 					</span>
-					{trans.SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS}
+					{t('pages.home.SENT_EMAIL_VERIFICATION_YOUR_EMAIL_ADDRESS')}
 
-					{resendLinkLoading && (
-						<SpinnerLoader size={18} className="self-center" />
-					)}
+					{resendLinkLoading && <SpinnerLoader size={18} className="self-center" />}
 
 					{!resendLinkLoading && (
 						<button
 							type="button"
-							className="text-primary dark:text-primary-light cursor-pointer"
+							className="cursor-pointer text-primary dark:text-primary-light"
 							onClick={resendLinkQueryCall}
 						>
-							{translations.common.HERE}
+							{t('common.HERE')}
 						</button>
 					)}
-					{trans.SENT_EMAIL_VERIFICATION_RESEND}
+					{t('pages.home.SENT_EMAIL_VERIFICATION_RESEND')}
 				</Text>
 
 				{/* <button onClick={closeIt}>
@@ -102,19 +84,12 @@ export function UnverifiedEmail() {
 	);
 }
 
-export function ConfirmUserModal({
-	open,
-	closeModal
-}: {
-	open: boolean;
-	closeModal: () => void;
-}) {
+export function ConfirmUserModal({ open, closeModal }: { open: boolean; closeModal: () => void }) {
 	const { loading, queryCall } = useQuery(verifyUserEmailByCodeAPI);
-	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } =
-		useQuery(resentVerifyUserLinkAPI);
+	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
 
 	const [code, setCode] = useState('');
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	const handleVerifyEmail = useCallback(
 		(e: React.MouseEvent<HTMLFormElement, MouseEvent>) => {
@@ -130,15 +105,11 @@ export function ConfirmUserModal({
 
 	return (
 		<Modal isOpen={open} closeModal={closeModal}>
-			<form
-				onSubmit={handleVerifyEmail}
-				className="w-[98%] md:w-[530px]"
-				autoComplete="off"
-			>
+			<form onSubmit={handleVerifyEmail} className="w-[98%] md:w-[530px]" autoComplete="off">
 				<Card className="w-full" shadow="custom">
-					<div className="flex flex-col justify-between items-center">
+					<div className="flex flex-col items-center justify-between">
 						<Text.Heading as="h3" className="text-center">
-							{trans.common.SECURITY_CODE}
+							{t('common.SECURITY_CODE')}
 						</Text.Heading>
 
 						<div className="w-full mt-5">
@@ -153,36 +124,30 @@ export function ConfirmUserModal({
 							/>
 						</div>
 
-						<div className="w-full flex justify-between items-center mt-6">
+						<div className="flex items-center justify-between w-full mt-6">
 							<div className="flex flex-col items-start">
-								<div className="text-xs text-gray-500 dark:text-gray-400 font-normal">
+								<div className="text-xs font-normal text-gray-500 dark:text-gray-400">
 									{"Didn't recieve code ?"}
 								</div>
 
-								{resendLinkLoading && (
-									<SpinnerLoader size={22} className="self-center" />
-								)}
+								{resendLinkLoading && <SpinnerLoader size={22} className="self-center" />}
 
 								{!resendLinkLoading && (
 									<button
 										type="button"
-										className="text-xs text-gray-500 dark:text-gray-400 font-normal"
+										className="text-xs font-normal text-gray-500 dark:text-gray-400"
 										onClick={resendLinkQueryCall}
 									>
 										{'Re'}
 										<span className="text-primary dark:text-primary-light">
-											{trans.pages.auth.SEND_CODE}
+											{t('pages.auth.SEND_CODE')}
 										</span>
 									</button>
 								)}
 							</div>
 
-							<Button
-								disabled={code.length < 6 || loading}
-								type="submit"
-								loading={loading}
-							>
-								{trans.common.CONFIRM}
+							<Button disabled={code.length < 6 || loading} type="submit" loading={loading}>
+								{t('common.CONFIRM')}
 							</Button>
 						</div>
 					</div>

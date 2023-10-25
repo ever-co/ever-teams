@@ -5,6 +5,7 @@ import { useOutsideClick } from '@app/hooks/useOutsideClick';
 import { TimeInput } from '@components/ui/inputs/time-input';
 import { Spinner } from '@components/ui/loaders/spinner';
 import { CheckIcon } from '@heroicons/react/24/outline';
+import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 export function EstimateTime() {
@@ -12,7 +13,7 @@ export function EstimateTime() {
 	const [editableMode, setEditableMode] = useState(false);
 	const [value, setValue] = useState({ hours: '', minutes: '' });
 	const editMode = useRef(false);
-
+	const { t } = useTranslation();
 	useEffect(() => {
 		const { h, m } = secondsToTime(activeTeamTask?.estimate || 0);
 		setValue({
@@ -102,9 +103,7 @@ export function EstimateTime() {
 			return;
 		}
 
-		const { h: estimateHours, m: estimateMinutes } = secondsToTime(
-			activeTeamTask.estimate || 0
-		);
+		const { h: estimateHours, m: estimateMinutes } = secondsToTime(activeTeamTask.estimate || 0);
 
 		if (hours === estimateHours && minutes === estimateMinutes) {
 			return;
@@ -127,9 +126,9 @@ export function EstimateTime() {
 
 	return (
 		<>
-			<div className=" flex items-end">
+			<div className="flex items-end ">
 				<span className="text-[16px] flex text-[#9490A0] dark:text-[#616164] items-end">
-					Estimate :{' '}
+					{t('timer.ESTIMATION.ESTIMATE_LABEL')} :{' '}
 				</span>
 				<div className="flex" ref={targetEl}>
 					<TimeInput

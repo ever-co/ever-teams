@@ -14,10 +14,7 @@ export function AppLogo({ className, dash }: IClassName & { dash?: boolean }) {
 				width="220px"
 				height="39.54px"
 				viewBox="0 0 150 19.54"
-				className={clsxm(
-					'fill-primary dark:fill-white cursor-pointer',
-					className
-				)}
+				className={clsxm('fill-primary dark:fill-white cursor-pointer', className)}
 			>
 				<g>
 					<g>

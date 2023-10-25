@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from "react"
+import React, { FC, useState } from 'react';
 import {
 	View,
 	Text,
@@ -12,129 +12,119 @@ import {
 	Dimensions,
 	TouchableOpacity,
 	KeyboardAvoidingView,
-	Platform,
-} from "react-native"
-import { typography, useAppTheme } from "../../../../theme"
-import { ActivityIndicator } from "react-native-paper"
-import { QueryClient } from "react-query"
-import TaskPriorities from "../../../../components/TaskPriority"
-import TaskSize from "../../../../components/TaskSize"
-import TaskLabels from "../../../../components/TaskLabels"
-import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import { translate } from "../../../../i18n"
-import { ICreateTask, ITeamTask } from "../../../../services/interfaces/ITask"
-import TaskStatus from "../../../../components/TaskStatus"
-import Version from "../../../../components/Version"
-import { BlurView } from "expo-blur"
+	Platform
+} from 'react-native';
+import { typography, useAppTheme } from '../../../../theme';
+import { ActivityIndicator } from 'react-native-paper';
+import { QueryClient } from 'react-query';
+import TaskPriorities from '../../../../components/TaskPriority';
+import TaskSize from '../../../../components/TaskSize';
+import TaskLabels from '../../../../components/TaskLabels';
+import EstimateTime from '../../TimerScreen/components/EstimateTime';
+import { translate } from '../../../../i18n';
+import { ICreateTask, ITeamTask } from '../../../../services/interfaces/ITask';
+import TaskStatus from '../../../../components/TaskStatus';
+import Version from '../../../../components/Version';
+import { BlurView } from 'expo-blur';
 
 export interface Props {
-	visible: boolean
-	isAuthUser: boolean
-	createNewTask: (task: ICreateTask) => Promise<{ data: ITeamTask; response: Response }>
-	onDismiss: () => unknown
+	visible: boolean;
+	isAuthUser: boolean;
+	createNewTask: (task: ICreateTask) => Promise<{ data: ITeamTask; response: Response }>;
+	onDismiss: () => unknown;
 }
-const { width, height } = Dimensions.get("window")
+const { width, height } = Dimensions.get('window');
 const ModalPopUp = ({ visible, children }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<BlurView
 				intensity={15}
 				tint="dark"
 				style={{
-					position: "absolute",
-					width: "100%",
-					height: "100%",
+					position: 'absolute',
+					width: '100%',
+					height: '100%'
 				}}
 			/>
-			<KeyboardAvoidingView
-				style={$modalBackGround}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
-			>
-				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
-					{children}
-				</Animated.View>
+			<KeyboardAvoidingView style={$modalBackGround} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+				<Animated.View style={{ transform: [{ scale: scaleValue }] }}>{children}</Animated.View>
 			</KeyboardAvoidingView>
 		</Modal>
-	)
-}
+	);
+};
 
-const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
-	visible,
-	onDismiss,
-	createNewTask,
-	isAuthUser,
-}) {
-	const queryClient = new QueryClient()
-	const [taskInputText, setTaskInputText] = useState<string>("")
-	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const [newTask, setNewTask] = useState<ICreateTask>(null)
+const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({ visible, onDismiss, createNewTask, isAuthUser }) {
+	const queryClient = new QueryClient();
+	const [taskInputText, setTaskInputText] = useState<string>('');
+	const [isLoading, setIsLoading] = useState<boolean>(false);
+	const [newTask, setNewTask] = useState<ICreateTask>(null);
 
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 
 	const onCreateNewTask = async () => {
 		if (taskInputText.trim().length >= 3) {
-			setIsLoading(true)
+			setIsLoading(true);
 			await createNewTask({
 				...newTask,
 				title: taskInputText,
 				estimate: newTask?.estimate || 0,
-				status: newTask?.status || "open",
-			}).then(() => queryClient.cancelQueries("tasks"))
-			setIsLoading(false)
-			setNewTask(null)
-			setTaskInputText("")
-			onDismiss()
+				status: newTask?.status || 'open'
+			}).then(() => queryClient.cancelQueries('tasks'));
+			setIsLoading(false);
+			setNewTask(null);
+			setTaskInputText('');
+			onDismiss();
 		}
-	}
+	};
 
 	const handleChangeText = (value: string) => {
-		setTaskInputText(value)
-	}
+		setTaskInputText(value);
+	};
 
 	return (
 		<ModalPopUp visible={visible}>
 			<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
-				<View style={{ width: "100%", marginBottom: 20 }}>
+				<View style={{ width: '100%', marginBottom: 20 }}>
 					<Text style={[styles.mainTitle, { color: colors.primary }]}>
 						{isAuthUser
-							? translate("tasksScreen.createTaskButton")
-							: translate("tasksScreen.assignTaskButton")}
+							? translate('tasksScreen.createTaskButton')
+							: translate('tasksScreen.assignTaskButton')}
 					</Text>
 				</View>
-				<View style={{ width: "100%" }}>
+				<View style={{ width: '100%' }}>
 					<View style={{}}>
 						<View
 							style={[
 								styles.wrapInput,
 								{
-									flexDirection: "row",
-									justifyContent: "space-between",
-									alignItems: "center",
+									flexDirection: 'row',
+									justifyContent: 'space-between',
+									alignItems: 'center',
 									backgroundColor: colors.background,
-									borderColor: colors.border,
-								},
+									borderColor: colors.border
+								}
 							]}
 						>
 							<TextInput
@@ -142,49 +132,47 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 								placeholderTextColor={colors.tertiary}
 								style={[
 									styles.textInput,
-									{ color: colors.primary, backgroundColor: colors.background },
+									{ color: colors.primary, backgroundColor: colors.background }
 								]}
 								autoCorrect={false}
-								autoCapitalize={"none"}
-								placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
+								autoCapitalize={'none'}
+								placeholder={translate('myWorkScreen.taskFieldPlaceholder')}
 								value={taskInputText}
 								onChangeText={(newText) => handleChangeText(newText)}
 							/>
-							{isLoading ? (
-								<ActivityIndicator color="#1B005D" style={styles.loading} />
-							) : null}
+							{isLoading ? <ActivityIndicator color="#1B005D" style={styles.loading} /> : null}
 						</View>
 
 						<View>
 							<View
 								style={{
-									width: "100%",
-									flexDirection: "row",
+									width: '100%',
+									flexDirection: 'row',
 									marginVertical: 20,
-									justifyContent: "space-between",
-									alignItems: "center",
+									justifyContent: 'space-between',
+									alignItems: 'center'
 								}}
 							>
 								<View
 									style={{
-										flexDirection: "row",
-										alignItems: "center",
+										flexDirection: 'row',
+										alignItems: 'center'
 									}}
 								>
 									<Text
 										style={{
-											textAlign: "center",
+											textAlign: 'center',
 											fontSize: 12,
-											color: "#7E7991",
+											color: '#7E7991'
 										}}
 									>
-										{translate("myWorkScreen.estimateLabel")}:{" "}
+										{translate('myWorkScreen.estimateLabel')}:{' '}
 									</Text>
 									<EstimateTime
 										setEstimateTime={(e) =>
 											setNewTask({
 												...newTask,
-												estimate: e,
+												estimate: e
 											})
 										}
 										currentTask={undefined}
@@ -195,21 +183,21 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									setStatus={(e) =>
 										setNewTask({
 											...newTask,
-											status: e,
+											status: e
 										})
 									}
 									containerStyle={{
 										width: width / 2.1,
-										height: 32,
+										height: 32
 									}}
 								/>
 							</View>
 							<View
 								style={{
-									flexDirection: "row",
-									width: "100%",
-									justifyContent: "space-between",
-									zIndex: 1000,
+									flexDirection: 'row',
+									width: '100%',
+									justifyContent: 'space-between',
+									zIndex: 1000
 								}}
 							>
 								<TaskSize
@@ -217,7 +205,7 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									setSize={(e) =>
 										setNewTask({
 											...newTask,
-											size: e,
+											size: e
 										})
 									}
 									containerStyle={{ width: width / 3.3 }}
@@ -227,31 +215,31 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									setPriority={(e) =>
 										setNewTask({
 											...newTask,
-											priority: e,
+											priority: e
 										})
 									}
 									containerStyle={{ width: width / 3.3 }}
 								/>
 								<Version
 									containerStyle={{
-										width: width / 5,
+										width: width / 5
 									}}
 								/>
 							</View>
-							<View style={{ width: "100%", zIndex: 999 }}>
+							<View style={{ width: '100%', zIndex: 999 }}>
 								<TaskLabels
 									newTaskLabels={newTask?.tags}
 									setLabels={(e) =>
 										setNewTask({
 											...newTask,
-											tags: e,
+											tags: e
 										})
 									}
 									containerStyle={{
 										...styles.labelsContainer,
-										width: "100%",
+										width: '100%',
 										borderColor: colors.border,
-										marginVertical: 20,
+										marginVertical: 20
 									}}
 								/>
 							</View>
@@ -260,111 +248,106 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 					<View style={styles.wrapButtons}>
 						<TouchableOpacity
 							onPress={() => {
-								setNewTask(null)
-								onDismiss()
+								setNewTask(null);
+								onDismiss();
 							}}
-							style={[styles.button, { backgroundColor: "#E6E6E9" }]}
+							style={[styles.button, { backgroundColor: '#E6E6E9' }]}
 						>
-							<Text style={[styles.buttonText, { color: "#1A1C1E" }]}>
-								{translate("common.cancel")}
-							</Text>
+							<Text style={[styles.buttonText, { color: '#1A1C1E' }]}>{translate('common.cancel')}</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[
-								styles.button,
-								{ backgroundColor: "#3826A6", opacity: isLoading ? 0.6 : 1 },
-							]}
+							style={[styles.button, { backgroundColor: '#3826A6', opacity: isLoading ? 0.6 : 1 }]}
 							onPress={() => onCreateNewTask()}
 						>
 							<Text style={styles.buttonText}>
 								{isAuthUser
-									? translate("tasksScreen.createButton")
-									: translate("tasksScreen.assignButton")}
+									? translate('tasksScreen.createButton')
+									: translate('tasksScreen.assignButton')}
 							</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default AssignTaskFormModal
+export default AssignTaskFormModal;
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	justifyContent: "flex-end",
-}
+	justifyContent: 'flex-end'
+};
 
 const styles = StyleSheet.create({
 	button: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderRadius: 11,
 		height: height / 16,
-		justifyContent: "center",
+		justifyContent: 'center',
 		padding: 10,
-		width: width / 2.5,
+		width: width / 2.5
 	},
 	buttonText: {
-		color: "#FFF",
+		color: '#FFF',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 18
 	},
 	labelsContainer: {
-		alignItems: "center",
-		borderColor: "rgba(255, 255, 255, 0.13)",
+		alignItems: 'center',
+		borderColor: 'rgba(255, 255, 255, 0.13)',
 		borderWidth: 1,
 		height: 32,
 		paddingHorizontal: 9,
-		width: width / 2.7,
+		width: width / 2.7
 	},
 	loading: {
-		position: "absolute",
+		position: 'absolute',
 		right: 10,
-		top: 11,
+		top: 11
 	},
 	mainContainer: {
-		alignItems: "center",
-		backgroundColor: "#fff",
-		borderColor: "#1B005D0D",
+		alignItems: 'center',
+		backgroundColor: '#fff',
+		borderColor: '#1B005D0D',
 		borderTopLeftRadius: 24,
 		borderTopRightRadius: 24,
 		borderWidth: 2,
 		paddingHorizontal: 20,
 		paddingVertical: 30,
-		shadowColor: "#1B005D0D",
+		shadowColor: '#1B005D0D',
 		shadowOffset: { width: 10, height: 10 },
 		shadowRadius: 10,
-		width: "100%",
+		width: '100%'
 	},
 	mainTitle: {
 		fontFamily: typography.primary.semiBold,
-		fontSize: 24,
+		fontSize: 24
 	},
 	textInput: {
-		backgroundColor: "#fff",
+		backgroundColor: '#fff',
 		borderRadius: 10,
-		color: "rgba(40, 32, 72, 0.4)",
+		color: 'rgba(40, 32, 72, 0.4)',
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 12,
 		height: 43,
 		paddingHorizontal: 16,
 		paddingVertical: 13,
-		width: "90%",
+		width: '90%'
 	},
 	wrapButtons: {
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginVertical: 10,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginVertical: 10
 	},
 
 	wrapInput: {
-		backgroundColor: "#fff",
-		borderColor: "rgba(0, 0, 0, 0.1)",
+		backgroundColor: '#fff',
+		borderColor: 'rgba(0, 0, 0, 0.1)',
 		borderRadius: 10,
 		borderWidth: 1,
 		height: 45,
 		paddingVertical: 2,
-		width: "100%",
-	},
-})
+		width: '100%'
+	}
+});

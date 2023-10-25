@@ -1,8 +1,4 @@
-import {
-	CreateReponse,
-	IGithubMetadata,
-	IGithubRepositories,
-} from '@app/interfaces';
+import { CreateReponse, IGithubMetadata, IGithubRepositories } from '@app/interfaces';
 import api from '../../axios';
 
 // TODO
@@ -16,12 +12,14 @@ export function oAuthEndpointAuthorizationAPI(body: any) {
 }
 
 export function getGithubIntegrationMetadataAPI(integrationId: string) {
-	return api.get<CreateReponse<IGithubMetadata>>(
-		`/integration/github/metadata?integrationId=${integrationId}`
-	);
+	return api.get<CreateReponse<IGithubMetadata>>(`/integration/github/metadata?integrationId=${integrationId}`);
 }
 export function getGithubIntegrationRepositoriesAPI(integrationId: string) {
 	return api.get<CreateReponse<IGithubRepositories>>(
 		`/integration/github/repositories?integrationId=${integrationId}`
 	);
+}
+
+export function syncGitHubRepositoryAPI(body: any) {
+	return api.post<any>('/integration/github/repository/sync', body);
 }

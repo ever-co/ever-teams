@@ -11,20 +11,11 @@ type TooltipProps = {
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const Tooltip: React.FC<TooltipProps> = (props) => {
-	const {
-		children,
-		label,
-		enterDelay = 250,
-		leaveDelay = 150,
-		placement = 'bottom'
-	} = props;
+	const { children, label, enterDelay = 250, leaveDelay = 150, placement = 'bottom' } = props;
 
 	const [isOpen, setIsOpen] = useState(false);
-	const [referenceElement, setReferenceElement] =
-		useState<HTMLDivElement | null>(null);
-	const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(
-		null
-	);
+	const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
+	const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
 	const { styles, attributes } = usePopper(referenceElement, popperElement, {
 		placement,
 		modifiers: [{ name: 'offset', options: { offset: [0, 4] } }]
@@ -56,9 +47,7 @@ const Tooltip: React.FC<TooltipProps> = (props) => {
 				ref={setPopperElement}
 				style={styles.popper}
 				{...attributes.popper}
-				className={`transition-opacity ${
-					isOpen ? 'opacity-100' : 'opacity-0'
-				} mt-[5px]`}
+				className={`transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'} mt-[5px]`}
 			>
 				{label}
 			</div>

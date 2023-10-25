@@ -7,17 +7,10 @@ import {
 	signInWorkspaceRequest,
 	verifyInviteCodeRequest
 } from '@app/services/server/requests';
-import {
-	generateToken,
-	setAuthCookies,
-	setNoTeamPopupShowCookie
-} from '@app/helpers';
+import { generateToken, setAuthCookies, setNoTeamPopupShowCookie } from '@app/helpers';
 import { ILoginResponse } from '@app/interfaces';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	if (req.method !== 'POST') {
 		return res.status(405).json({ status: 'fail' });
 	}
@@ -94,17 +87,13 @@ export default async function handler(
 		const access_token = loginResponse.token;
 		const userId = loginResponse.user?.id;
 
-		const { data: organizations } = await getUserOrganizationsRequest(
-			{ tenantId, userId },
-			access_token
-		);
+		const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 		const organization = organizations?.items[0];
 
 		if (!organization) {
 			return res.status(400).json({
 				errors: {
-					email:
-						'Your account is not yet ready to be used on the Ever Teams Platform'
+					email: 'Your account is not yet ready to be used on the Ever Teams Platform'
 				}
 			});
 		}
@@ -146,18 +135,14 @@ export default async function handler(
 	const access_token = data.token;
 	const userId = data.user?.id;
 
-	const { data: organizations } = await getUserOrganizationsRequest(
-		{ tenantId, userId },
-		access_token
-	);
+	const { data: organizations } = await getUserOrganizationsRequest({ tenantId, userId }, access_token);
 
 	const organization = organizations?.items[0];
 
 	if (!organization) {
 		return res.status(400).json({
 			errors: {
-				email:
-					'Your account is not yet ready to be used on the Ever Teams Platform'
+				email: 'Your account is not yet ready to be used on the Ever Teams Platform'
 			}
 		});
 	}

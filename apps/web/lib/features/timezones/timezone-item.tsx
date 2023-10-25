@@ -15,12 +15,7 @@ export function mapTimezoneItems(timezones: string[]) {
 					/>
 				</div>
 			),
-			selectedLabel: (
-				<TimezoneItem
-					title={timezone.split('_').join(' ')}
-					className="py-2 mb-0"
-				/>
-			),
+			selectedLabel: <TimezoneItem title={timezone.split('_').join(' ')} className="py-2 mb-0" />,
 			data: timezone
 		};
 	});
@@ -39,12 +34,7 @@ export function TimezoneItem({
 	disabled?: boolean;
 }) {
 	return (
-		<div
-			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4',
-				className
-			)}
-		>
+		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-4', className)}>
 			<span className={clsxm('text-normal dark:text-white')}>{title}</span>
 		</div>
 	);

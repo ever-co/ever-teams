@@ -1,48 +1,39 @@
-import {
-	useTeamMemberCard,
-	useTMCardTaskEdit,
-	useTaskStatistics,
-	useCollaborative
-} from '@app/hooks';
+import { secondsToTime } from '@app/helpers';
+import { useCollaborative, useTMCardTaskEdit, useTaskStatistics, useTeamMemberCard } from '@app/hooks';
 import { IClassName, IOrganizationTeamList } from '@app/interfaces';
+import { timerSecondsState } from '@app/stores';
 import { clsxm } from '@app/utils';
-import { Card, VerticalSeparator, Text, InputField } from 'lib/components';
+import { Card, InputField, Text, VerticalSeparator } from 'lib/components';
 import { DraggerIcon } from 'lib/components/svgs';
 import { TaskTimes, TodayWorkedTime } from 'lib/features';
-import { useTranslation } from 'lib/i18n';
+import { useTranslation } from 'react-i18next';
+import { useRecoilValue } from 'recoil';
 import { TaskEstimateInfo } from './task-estimate';
 import { TaskInfo } from './task-info';
 import { UserInfo } from './user-info';
 import { UserTeamCardMenu } from './user-team-card-menu';
-import { secondsToTime } from '@app/helpers';
-import { useRecoilValue } from 'recoil';
-import { timerSecondsState } from '@app/stores';
 
 export function UserTeamCardHeader() {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	return (
 		<div className="hidden sm:flex row font-normal justify-between pb-5 pt-8 hidde dark:text-[#7B8089]">
-			{/* <li className="pr-[50px]">{trans.common.STATUS}</li> */}
-			<div className="2xl:w-[20.625rem] text-center">{trans.common.NAME}</div>
+			{/* <li className="pr-[50px]">{t('common.STATUS')}</li> */}
+			<div className="2xl:w-[20.625rem] text-center">{t('common.NAME')}</div>
 			<div className="w-1"></div>
-			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">
-				{trans.common.TASK}
-			</div>
+			<div className="2xl:w-80 3xl:w-[32rem] w-1/5 text-center">{t('common.TASK')}</div>
 			<div className="w-1"></div>
 			<div className="2xl:w-48 3xl:w-[12rem] w-1/5 flex flex-col justify-center text-center">
-				Worked on
+				{t('task.taskTableHead.TASK_WORK.TITLE')}
 				<br />
-				Task
+				{t('common.TASK')}
 			</div>
 			<div className="w-1"></div>
-			<div className="2xl:w-52 3xl:w-64 w-1/5 text-center">
-				{trans.common.ESTIMATE}
-			</div>
+			<div className="w-1/5 text-center 2xl:w-52 3xl:w-64">{t('common.ESTIMATE')}</div>
 			<div className="w-1"></div>
 			<div className="2xl:w-[11.75rem] 3xl:w-[10rem] w-1/6 text-center">
-				Total worked
+				{t('task.taskTableHead.TOTAL_WORK.TITLE')}
 				<br />
-				Today
+				{t('common.TODAY')}
 			</div>
 		</div>
 	);
@@ -55,18 +46,12 @@ type IUserTeamCard = {
 	members?: IOrganizationTeamList['members'];
 } & IClassName;
 
-export function UserTeamCard({
-	className,
-	active,
-	member,
-	publicTeam = false
-}: IUserTeamCard) {
+export function UserTeamCard({ className, active, member, publicTeam = false }: IUserTeamCard) {
+	const { t } = useTranslation();
 	const memberInfo = useTeamMemberCard(member);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
 
-	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(
-		memberInfo.memberUser
-	);
+	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(memberInfo.memberUser);
 
 	const seconds = useRecoilValue(timerSecondsState);
 	const { activeTaskTotalStat, addSeconds } = useTaskStatistics(seconds);
@@ -76,8 +61,7 @@ export function UserTeamCard({
 		const { h, m } = secondsToTime(
 			((member?.totalTodayTasks &&
 				member?.totalTodayTasks.reduce(
-					(previousValue, currentValue) =>
-						previousValue + currentValue.duration,
+					(previousValue, currentValue) => previousValue + currentValue.duration,
 					0
 				)) ||
 				activeTaskTotalStat?.duration ||
@@ -85,12 +69,8 @@ export function UserTeamCard({
 		);
 
 		totalWork = (
-			<div
-				className={clsxm(
-					'flex space-x-2 items-center font-normal flex-col mr-4'
-				)}
-			>
-				<span className="text-gray-500 text-xs">Total time:</span>
+			<div className={clsxm('flex space-x-2 items-center font-normal flex-col mr-4')}>
+				<span className="text-xs text-gray-500">{t('common.TOTAL_TIME')}:</span>
 				<Text className="text-xs">
 					{h}h : {m}m
 				</Text>
@@ -100,18 +80,13 @@ export function UserTeamCard({
 
 	const menu = (
 		<>
-			{(!collaborativeSelect || active) && (
-				<UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />
-			)}
+			{(!collaborativeSelect || active) && <UserTeamCardMenu memberInfo={memberInfo} edition={taskEdition} />}
 
 			{collaborativeSelect && !active && (
 				<InputField
 					type="checkbox"
 					checked={user_selected()}
-					className={clsxm(
-						'border-none w-4 h-4 mr-1 accent-primary-light',
-						'border-2 border-primary-light'
-					)}
+					className={clsxm('border-none w-4 h-4 mr-1 accent-primary-light', 'border-2 border-primary-light')}
 					noWrapper={true}
 					onChange={onUserSelect}
 				/>
@@ -137,11 +112,7 @@ export function UserTeamCard({
 				</div>
 
 				{/* Show user name, email and image */}
-				<UserInfo
-					memberInfo={memberInfo}
-					className="2xl:w-[20.625rem] w-1/4"
-					publicTeam={publicTeam}
-				/>
+				<UserInfo memberInfo={memberInfo} className="2xl:w-[20.625rem] w-1/4" publicTeam={publicTeam} />
 				<VerticalSeparator />
 
 				{/* Task information */}
@@ -168,7 +139,7 @@ export function UserTeamCard({
 					memberInfo={memberInfo}
 					edition={taskEdition}
 					activeAuthTask={true}
-					className="lg:px-3 2xl:w-52 3xl:w-64 w-1/5"
+					className="w-1/5 lg:px-3 2xl:w-52 3xl:w-64"
 				/>
 				<VerticalSeparator />
 
@@ -190,23 +161,14 @@ export function UserTeamCard({
 					className
 				)}
 			>
-				<div className="flex justify-between mb-4 items-center">
-					<UserInfo
-						memberInfo={memberInfo}
-						publicTeam={publicTeam}
-						className="w-9/12"
-					/>
+				<div className="flex items-center justify-between mb-4">
+					<UserInfo memberInfo={memberInfo} publicTeam={publicTeam} className="w-9/12" />
 					{/*@ts-ignore*/}
 					{totalWork}
 				</div>
 
-				<div className="flex justify-between items-start pb-4 border-b flex-wrap">
-					<TaskInfo
-						edition={taskEdition}
-						memberInfo={memberInfo}
-						className="px-4"
-						publicTeam={publicTeam}
-					/>
+				<div className="flex flex-wrap items-start justify-between pb-4 border-b">
+					<TaskInfo edition={taskEdition} memberInfo={memberInfo} className="px-4" publicTeam={publicTeam} />
 				</div>
 
 				<div className="flex justify-between mt-4 mb-4 space-x-5">
@@ -219,11 +181,7 @@ export function UserTeamCard({
 						/>
 					</div>
 
-					<TaskEstimateInfo
-						memberInfo={memberInfo}
-						edition={taskEdition}
-						activeAuthTask={true}
-					/>
+					<TaskEstimateInfo memberInfo={memberInfo} edition={taskEdition} activeAuthTask={true} />
 				</div>
 
 				{/* Card menu */}
@@ -237,14 +195,14 @@ export function UserTeamCardSkeleton() {
 	return (
 		<div
 			role="status"
-			className="p-4 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+			className="p-4 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
 		>
-			<div className="flex justify-between items-center">
+			<div className="flex items-center justify-between">
 				<div className="flex items-center space-x-3">
 					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 					<div className="w-14 h-14 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
 					<div>
-						<div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-32 mb-2"></div>
+						<div className="w-32 h-3 mb-2 bg-gray-200 rounded-full dark:bg-gray-700"></div>
 					</div>
 				</div>
 				<div className="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
@@ -260,12 +218,12 @@ export function InviteUserTeamSkeleton() {
 	return (
 		<div
 			role="status"
-			className="p-4 mt-3 rounded-xl border divide-y divide-gray-200 shadow animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
+			className="p-4 mt-3 border divide-y divide-gray-200 shadow rounded-xl animate-pulse dark:divide-gray-700 md:p-6 dark:border-gray-700"
 		>
-			<div className="flex justify-between items-center">
+			<div className="flex items-center justify-between">
 				<div className="flex items-center space-x-3">
 					<div className="w-5 h-5 mr-8 rounded-[50%] bg-gray-200 dark:bg-gray-700"></div>
-					<div className="w-24 h-9 rounded-xl bg-gray-200 dark:bg-gray-700"></div>
+					<div className="w-24 bg-gray-200 h-9 rounded-xl dark:bg-gray-700"></div>
 				</div>
 			</div>
 		</div>

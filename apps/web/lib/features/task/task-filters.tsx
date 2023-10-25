@@ -5,16 +5,11 @@ import { clsxm } from '@app/utils';
 import { Transition } from '@headlessui/react';
 import { Button, InputField, Tooltip, VerticalSeparator } from 'lib/components';
 import { SearchNormalIcon, Settings4Icon } from 'lib/components/svgs';
-import { useTranslation } from 'lib/i18n';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { TaskUnOrAssignPopover } from './task-assign-popover';
-import {
-	TaskLabelsDropdown,
-	TaskPropertiesDropdown,
-	TaskSizesDropdown,
-	TaskStatusDropdown
-} from './task-status';
 import intersection from 'lodash/intersection';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { TaskUnOrAssignPopover } from './task-assign-popover';
+import { TaskLabelsDropdown, TaskPropertiesDropdown, TaskSizesDropdown, TaskStatusDropdown } from './task-status';
 
 type ITab = 'worked' | 'assigned' | 'unassigned';
 type ITabs = {
@@ -34,23 +29,17 @@ type StatusFilter = { [x in IStatusType]: string[] };
  * component.
  */
 export function useTaskFilter(profile: I_UserProfilePage) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	const defaultValue =
-		typeof window !== 'undefined'
-			? (window.localStorage.getItem('task-tab') as ITab) || null
-			: 'worked';
+		typeof window !== 'undefined' ? (window.localStorage.getItem('task-tab') as ITab) || null : 'worked';
 
 	const [tab, setTab] = useState<ITab>(defaultValue || 'worked');
 	const [filterType, setFilterType] = useState<FilterType>(undefined);
 
-	const [statusFilter, setStatusFilter] = useState<StatusFilter>(
-		{} as StatusFilter
-	);
+	const [statusFilter, setStatusFilter] = useState<StatusFilter>({} as StatusFilter);
 
-	const [appliedStatusFilter, setAppliedStatusFilter] = useState<StatusFilter>(
-		{} as StatusFilter
-	);
+	const [appliedStatusFilter, setAppliedStatusFilter] = useState<StatusFilter>({} as StatusFilter);
 
 	const [taskName, setTaskName] = useState('');
 
@@ -66,11 +55,9 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 		if (filterType === 'search' && taskName.trim().length === 0) {
 			setFilterType(undefined);
 		} else if (filterType === 'status') {
-			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some(
-				(skey) => {
-					return statusFilter[skey] && statusFilter[skey].length > 0;
-				}
-			);
+			const hasStatus = (Object.keys(statusFilter) as IStatusType[]).some((skey) => {
+				return statusFilter[skey] && statusFilter[skey].length > 0;
+			});
 			!hasStatus && setFilterType(undefined);
 		}
 	});
@@ -78,20 +65,20 @@ export function useTaskFilter(profile: I_UserProfilePage) {
 	const tabs: ITabs[] = [
 		{
 			tab: 'worked',
-			name: trans.common.WORKED,
-			description: trans.task.tabFilter.WORKED_DESCRIPTION,
+			name: t('common.WORKED'),
+			description: t('task.tabFilter.WORKED_DESCRIPTION'),
 			count: profile.tasksGrouped.workedTasks.length
 		},
 		{
 			tab: 'assigned',
-			name: trans.common.ASSIGNED,
-			description: trans.task.tabFilter.ASSIGNED_DESCRIPTION,
+			name: t('common.ASSIGNED'),
+			description: t('task.tabFilter.ASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.assignedTasks.length
 		},
 		{
 			tab: 'unassigned',
-			name: trans.common.UNASSIGNED,
-			description: trans.task.tabFilter.UNASSIGNED_DESCRIPTION,
+			name: t('common.UNASSIGNED'),
+			description: t('task.tabFilter.UNASSIGNED_DESCRIPTION'),
 			count: profile.tasksGrouped.unassignedTasks.length
 		}
 	];
@@ -198,12 +185,7 @@ type Props = { hook: I_TaskFilter; profile: I_UserProfilePage };
 export function TaskFilter({ className, hook, profile }: IClassName & Props) {
 	return (
 		<div className="relative z-10">
-			<div
-				className={clsxm(
-					'flex justify-between xs:flex-row flex-col items-center',
-					className
-				)}
-			>
+			<div className={clsxm('flex justify-between xs:flex-row flex-col items-center', className)}>
 				<TabsNav hook={hook} />
 				<InputFilters profile={profile} hook={hook} />
 			</div>
@@ -242,13 +224,13 @@ export function TaskFilter({ className, hook, profile }: IClassName & Props) {
  * @returns A div with a button, a vertical separator, a button, and a button.
  */
 function InputFilters({ hook, profile }: Props) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 
 	const osSpecificAssignTaskTooltipLabel = 'A';
 
 	return (
-		<div className="flex lg:space-x-5 space-x-2 items-center mt-8 xs:mt-4">
+		<div className="flex items-center mt-8 space-x-2 lg:space-x-5 xs:mt-4">
 			<button
 				ref={hook.outclickFilterCard.ignoreElementRef}
 				className={clsxm('outline-none')}
@@ -257,9 +239,7 @@ function InputFilters({ hook, profile }: Props) {
 				<SearchNormalIcon
 					className={clsxm(
 						'dark:stroke-white',
-						hook.filterType === 'search' && [
-							'stroke-primary-light dark:stroke-primary-light'
-						]
+						hook.filterType === 'search' && ['stroke-primary-light dark:stroke-primary-light']
 					)}
 				/>
 			</button>
@@ -276,7 +256,7 @@ function InputFilters({ hook, profile }: Props) {
 				onClick={() => hook.toggleFilterType('status')}
 			>
 				<Settings4Icon className="dark:stroke-white" />
-				<span>{trans.common.FILTER}</span>
+				<span>{t('common.FILTER')}</span>
 			</button>
 
 			{/* Assign task combobox */}
@@ -289,11 +269,7 @@ function InputFilters({ hook, profile }: Props) {
 				tasks={hook.tasksGrouped.unassignedTasks}
 				buttonClassName="mb-0 h-full"
 				onTaskCreated={(_, close) => close()}
-				usersTaskCreatedAssignTo={
-					profile.member?.employeeId
-						? [{ id: profile.member?.employeeId }]
-						: undefined
-				}
+				usersTaskCreatedAssignTo={profile.member?.employeeId ? [{ id: profile.member?.employeeId }] : undefined}
 				userProfile={profile.member}
 			>
 				<Tooltip label={osSpecificAssignTaskTooltipLabel} placement="auto">
@@ -304,7 +280,7 @@ function InputFilters({ hook, profile }: Props) {
 							'min-w-[11.25rem] h-[2.75rem]'
 						)}
 					>
-						{trans.common.ASSIGN_TASK}
+						{t('common.ASSIGN_TASK')}
 					</Button>
 				</Tooltip>
 			</TaskUnOrAssignPopover>
@@ -315,7 +291,7 @@ function InputFilters({ hook, profile }: Props) {
 /* It's a function that returns a nav element. */
 function TabsNav({ hook }: { hook: I_TaskFilter }) {
 	return (
-		<nav className="flex md:space-x-4 space-x-1 mt-4 md:mt-0">
+		<nav className="flex mt-4 space-x-1 md:space-x-4 md:mt-0">
 			{hook.tabs.map((item, i) => {
 				const active = item.tab === hook.tab;
 				return (
@@ -358,54 +334,43 @@ function TabsNav({ hook }: { hook: I_TaskFilter }) {
  */
 function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 	const [key, setKey] = useState(0);
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 
 	return (
-		<div className="mt-4 flex md:justify-between space-x-2 items-center  flex-col md:flex-row">
-			<div className="flex-1 flex space-x-3 flex-wrap justify-center md:justify-start">
+		<div className="flex flex-col items-center mt-4 space-x-2 md:justify-between md:flex-row">
+			<div className="flex flex-wrap justify-center flex-1 space-x-3 md:justify-start">
 				<TaskStatusDropdown
 					key={key + 1}
-					onValueChange={(_, values) =>
-						hook.onChangeStatusFilter('status', values || [])
-					}
+					onValueChange={(_, values) => hook.onChangeStatusFilter('status', values || [])}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskPropertiesDropdown
 					key={key + 2}
-					onValueChange={(_, values) =>
-						hook.onChangeStatusFilter('priority', values || [])
-					}
+					onValueChange={(_, values) => hook.onChangeStatusFilter('priority', values || [])}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskSizesDropdown
 					key={key + 3}
-					onValueChange={(_, values) =>
-						hook.onChangeStatusFilter('size', values || [])
-					}
+					onValueChange={(_, values) => hook.onChangeStatusFilter('size', values || [])}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
 					multiple={true}
 				/>
 
 				<TaskLabelsDropdown
 					key={key + 4}
-					onValueChange={(_, values) =>
-						hook.onChangeStatusFilter('label', values || [])
-					}
+					onValueChange={(_, values) => hook.onChangeStatusFilter('label', values || [])}
 					className="lg:min-w-[170px] mt-4 lg:mt-0"
 					multiple={true}
 				/>
 
 				<VerticalSeparator />
 
-				<Button
-					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
-					onClick={hook.applyStatusFilder}
-				>
-					{trans.common.APPLY}
+				<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9" onClick={hook.applyStatusFilder}>
+					{t('common.APPLY')}
 				</Button>
 				<Button
 					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
@@ -415,7 +380,7 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 						hook.onResetStatusFilter();
 					}}
 				>
-					{trans.common.RESET}
+					{t('common.RESET')}
 				</Button>
 				<Button
 					className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl h-9"
@@ -424,7 +389,7 @@ function TaskStatusFilter({ hook }: { hook: I_TaskFilter }) {
 						hook.toggleFilterType('status');
 					}}
 				>
-					{trans.common.CLOSE}
+					{t('common.CLOSE')}
 				</Button>
 			</div>
 		</div>
@@ -440,22 +405,18 @@ function TaskNameFilter({
 	setValue: (v: string) => void;
 	close: () => void;
 }) {
-	const { trans } = useTranslation();
+	const { t } = useTranslation();
 	return (
-		<div className="mt-3 w-1/2 ml-auto flex flex-row gap-2">
+		<div className="flex flex-row w-1/2 gap-2 mt-3 ml-auto">
 			<InputField
 				value={value}
 				autoFocus={true}
 				onChange={(e) => setValue(e.target.value)}
-				placeholder={trans.common.TYPE_SOMETHING + '...'}
+				placeholder={t('common.TYPE_SOMETHING') + '...'}
 				wrapperClassName="mb-0 dark:bg-transparent"
 			/>
-			<Button
-				className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl"
-				variant="outline-danger"
-				onClick={close}
-			>
-				{trans.common.CLOSE}
+			<Button className="py-2 md:px-3 px-2 min-w-[6.25rem] rounded-xl" variant="outline-danger" onClick={close}>
+				{t('common.CLOSE')}
 			</Button>
 		</div>
 	);

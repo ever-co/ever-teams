@@ -6,12 +6,7 @@ export function useImageAssets() {
 	const [loading, setLoading] = useState(false);
 
 	const createImageAssets = useCallback(
-		async (
-			file: File,
-			folder: string,
-			tenantId: string,
-			organizationId: string
-		) => {
+		async (file: File, folder: string, tenantId: string, organizationId: string) => {
 			const bearer_token = getAccessTokenCookie();
 			const formData = new FormData();
 			formData.append('file', file);
@@ -20,17 +15,12 @@ export function useImageAssets() {
 			setLoading(true);
 
 			return axios
-				.post(
-					process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL +
-						`/api/image-assets/upload/${folder}`,
-					formData,
-					{
-						headers: {
-							'tenant-id': tenantId,
-							authorization: `Bearer ${bearer_token}`
-						}
+				.post(process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL + `/api/image-assets/upload/${folder}`, formData, {
+					headers: {
+						'tenant-id': tenantId,
+						authorization: `Bearer ${bearer_token}`
 					}
-				)
+				})
 				.then(async (res: AxiosResponse) => {
 					return res.data;
 				})

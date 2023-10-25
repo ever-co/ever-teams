@@ -6,35 +6,16 @@ import { cn } from '../../../lib/utils';
 import { Button } from '@components/ui/button';
 import { Calendar } from '@components/ui/calendar';
 import { DayPicker } from 'react-day-picker';
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger
-} from '@components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@components/ui/popover';
 
 export type CustomCalendarProps = {
 	customInput: React.ReactNode;
 	buttonClassName?: string;
-	buttonVariant?:
-		| 'link'
-		| 'default'
-		| 'destructive'
-		| 'outline'
-		| 'secondary'
-		| 'ghost'
-		| null
-		| undefined;
+	buttonVariant?: 'link' | 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | null | undefined;
 };
-export type CalendarProps = React.ComponentProps<typeof DayPicker> &
-	CustomCalendarProps;
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & CustomCalendarProps;
 
-export function DatePicker({
-	customInput,
-	selected,
-	buttonVariant,
-	buttonClassName,
-	...props
-}: CalendarProps) {
+export function DatePicker({ customInput, selected, buttonVariant, buttonClassName, ...props }: CalendarProps) {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>

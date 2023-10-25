@@ -1,13 +1,13 @@
-import { IInviteProps } from '@app/interfaces/hooks';
 import { useTeamTasks } from '@app/hooks/features/useTeamTasks';
-import { useCallback } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { IInviteProps } from '@app/interfaces/hooks';
 import { Spinner } from '@components/ui/loaders/spinner';
+import { Dialog, Transition } from '@headlessui/react';
+import { useTranslation } from 'react-i18next';
+import { useCallback } from 'react';
 
 const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
-	const { updateTask, updateLoading, setActiveTask, activeTeamTask } =
-		useTeamTasks();
-
+	const { updateTask, updateLoading, setActiveTask, activeTeamTask } = useTeamTasks();
+	const { t } = useTranslation();
 	const handleChange = useCallback(async () => {
 		if (task) {
 			await updateTask({
@@ -27,12 +27,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
-			<Dialog
-				as="div"
-				onClick={(e: any) => e.stopPropagation()}
-				className="relative z-10"
-				onClose={onClose}
-			>
+			<Dialog as="div" onClick={(e: any) => e.stopPropagation()} className="relative z-10" onClose={onClose}>
 				<div className="fixed inset-0 blur-xl bg-black/30" aria-hidden="true" />
 				<Transition.Child
 					as={Fragment}
@@ -43,11 +38,11 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 					leaveFrom="opacity-100"
 					leaveTo="opacity-0"
 				>
-					<div className="fixed inset-0 bg-black blur-xl bg-opacity-25" />
+					<div className="fixed inset-0 bg-black bg-opacity-25 blur-xl" />
 				</Transition.Child>
 
 				<div className="fixed inset-0 overflow-y-auto">
-					<div className="flex min-h-full items-center justify-center p-4 text-center">
+					<div className="flex items-center justify-center min-h-full p-4 text-center">
 						<Transition.Child
 							as={Fragment}
 							enter="ease-out duration-300"
@@ -59,7 +54,7 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 						>
 							<Dialog.Panel className="w-[414px] px-[40px] py-[16px] max-w-md transform overflow-hidden rounded-[40px] bg-[#FFFFFF] dark:bg-[#202023] text-left align-middle shadow-xl shadow-[#3E1DAD0D] transition-all">
 								<div className="text-primary text-[18px] dark:text-white text-center mb-4 mt-[30px]">
-									Please confirm if you want to close the task :{' '}
+									{t('task.CONFIRM_CLOSE_TASK')} :{' '}
 									{task?.taskNumber && <span>#{task?.taskNumber} </span>}
 									<span>{task?.title}</span>
 								</div>
@@ -76,14 +71,14 @@ const DeleteTask = ({ isOpen, Fragment, closeModal, task }: IInviteProps) => {
 												<Spinner />
 											</span>
 										)}{' '}
-										Confirm
+										{t('common.CONFIRM')}
 									</button>
 									<button
 										className={`w-[120px] h-[40px] my-4 inline-flex justify-center items-center tracking-wide text-white transition-colors duration-200 transform bg-gray-600 dark:bg-gray-700 rounded-[12px] hover:text-opacity-90 focus:outline-none`}
 										type="submit"
 										onClick={closeModal}
 									>
-										Cancel
+										{t('common.CANCEL')}
 									</button>
 								</div>
 							</Dialog.Panel>

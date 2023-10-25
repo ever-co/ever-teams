@@ -1,10 +1,5 @@
 import { IRole } from '@app/interfaces';
-import {
-	createRoleAPI,
-	deleteRoleAPI,
-	getRolesAPI,
-	updateRoleAPI
-} from '@app/services/client/api';
+import { createRoleAPI, deleteRoleAPI, getRolesAPI, updateRoleAPI } from '@app/services/client/api';
 import { rolesState } from '@app/stores/';
 import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
@@ -15,12 +10,9 @@ export const useRoles = () => {
 	const [roles, setRoles] = useRecoilState(rolesState);
 
 	const { loading, queryCall: getRolesQueryCall } = useQuery(getRolesAPI);
-	const { loading: createRoleLoading, queryCall: createRoleQueryCall } =
-		useQuery(createRoleAPI);
-	const { loading: updateRoleLoading, queryCall: updateRoleQueryCall } =
-		useQuery(updateRoleAPI);
-	const { loading: deleteRoleLoading, queryCall: deleteRoleQueryCall } =
-		useQuery(deleteRoleAPI);
+	const { loading: createRoleLoading, queryCall: createRoleQueryCall } = useQuery(createRoleAPI);
+	const { loading: updateRoleLoading, queryCall: updateRoleQueryCall } = useQuery(updateRoleAPI);
+	const { loading: deleteRoleLoading, queryCall: deleteRoleQueryCall } = useQuery(deleteRoleAPI);
 
 	const getRoles = useCallback(() => {
 		getRolesQueryCall().then((response) => {

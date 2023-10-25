@@ -1,9 +1,10 @@
-import Image from 'next/legacy/image';
-import capitalize from 'lodash/capitalize';
-import { Popover, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import Link from 'next/link';
 import { useAuthenticateUser } from '@app/hooks';
+import { Popover, Transition } from '@headlessui/react';
+import capitalize from 'lodash/capitalize';
+import { useTranslation } from 'react-i18next';
+import Image from 'next/legacy/image';
+import Link from 'next/link';
+import { Fragment } from 'react';
 
 interface IOption {
 	name: string;
@@ -13,33 +14,33 @@ interface IOption {
 
 const Profile = () => {
 	const { logOut, user } = useAuthenticateUser();
-
+	const { t } = useTranslation();
 	const options: IOption[] = [
 		{
-			name: 'Tasks',
+			name: t('links.common.TASKS'),
 			icon: '/assets/svg/profile-icon.svg',
 			link: `/profile/${user?.id}`
 		},
-		{ name: 'Team', icon: '/assets/svg/teams-icon.svg', link: '' },
+		{ name: t('links.common.TEAM'), icon: '/assets/svg/teams-icon.svg', link: '' },
 		{
-			name: 'Settings',
+			name: t('links.common.Settings'),
 			icon: '/assets/svg/settings-icon.svg',
 			link: ''
 		}
 	];
 
 	return (
-		<Popover className="relative border-none no-underline">
+		<Popover className="relative no-underline border-none">
 			{() => (
 				<>
-					<Popover.Button className="p-0 m-0 outline-none mt-1">
+					<Popover.Button className="p-0 m-0 mt-1 outline-none">
 						<div className="cursor-pointer relative w-[48px] h-[48px]">
 							<Image
 								src={user?.imageUrl || ''}
 								alt="User Icon"
 								layout="fill"
 								objectFit="cover"
-								className="rounded-full h-full w-full"
+								className="w-full h-full rounded-full"
 							/>
 						</div>
 					</Popover.Button>
@@ -62,7 +63,7 @@ const Profile = () => {
 												alt="User Icon"
 												width={84}
 												height={84}
-												className="rounded-full flex items-center justify-center"
+												className="flex items-center justify-center rounded-full"
 											/>
 										</div>
 									</div>
@@ -77,11 +78,8 @@ const Profile = () => {
 								<div className="bg-[#EDEEF2] mt-[27px] h-[1px] w-full"></div>
 								<div className="mt-[10px]">
 									{options.map((option) => (
-										<div
-											key={option.name}
-											className="flex items-center space-x-2 "
-										>
-											<div className="mt-1 flex items-center justify-center py-2">
+										<div key={option.name} className="flex items-center space-x-2 ">
+											<div className="flex items-center justify-center py-2 mt-1">
 												<Image
 													src={option.icon}
 													alt={option.name + ' icon'}
@@ -102,7 +100,7 @@ const Profile = () => {
 								<div className="bg-[#EDEEF2] mt-[10px] h-[1px] w-full"></div>
 								<div className="mt-[10px]">
 									<div className="flex items-center space-x-2 ">
-										<div className="mt-1 flex items-center justify-center py-2">
+										<div className="flex items-center justify-center py-2 mt-1">
 											<Image
 												src="/assets/svg/log-out-icon.svg"
 												alt="logout icon"
@@ -115,7 +113,7 @@ const Profile = () => {
 											onClick={logOut}
 											className="hover:text-opacity-75  py-2 mt-1 flex items-center text-[#DE437B] text-[15px] font-normal justify-start w-full"
 										>
-											Logout
+											{t('common.LOGOUT')}
 										</button>
 									</div>
 								</div>

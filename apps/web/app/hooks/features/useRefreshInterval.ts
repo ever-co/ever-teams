@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 import { useCallbackRef } from '../useCallbackRef';
 
-export function useRefreshInterval(
-	callback: any,
-	delay: number,
-	...params: any[]
-) {
+export function useRefreshInterval(callback: any, delay: number, ...params: any[]) {
 	// Remember the latest callback.
 	const callbackRef = useCallbackRef(callback);
 

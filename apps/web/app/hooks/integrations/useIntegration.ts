@@ -7,8 +7,7 @@ import { useQuery } from '../useQuery';
 export function useIntegration() {
 	const [integration, setIntegration] = useRecoilState(integrationState);
 
-	const { loading: loading, queryCall: queryCall } =
-		useQuery(getIntegrationAPI);
+	const { loading: loading, queryCall: queryCall } = useQuery(getIntegrationAPI);
 
 	const getIntegration = useCallback(
 		(name: string) => {
@@ -24,6 +23,6 @@ export function useIntegration() {
 	return {
 		loading,
 		getIntegration,
-		integration,
+		integration
 	};
 }

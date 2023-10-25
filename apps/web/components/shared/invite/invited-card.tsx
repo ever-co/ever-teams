@@ -21,9 +21,7 @@ export function InvitedCard({ invitation }: { invitation: IInvitation }) {
 				</div>
 			</div>
 			<Separator />
-			<div className="w-[334px] text-center font-light text-normal opacity-40 px-[14px]">
-				{invitation.email}
-			</div>
+			<div className="w-[334px] text-center font-light text-normal opacity-40 px-[14px]">{invitation.email}</div>
 			<Separator />
 			<div className="w-[122px]  text-center flex justify-center items-center opacity-40"></div>
 			<Separator />

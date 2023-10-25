@@ -7,18 +7,11 @@ type TaskLabelProps = {
 	alignWithIconLabel?: boolean;
 };
 
-const TaskLabel: React.FC<TaskLabelProps> = ({
-	labelIconPath,
-	afterIconPath,
-	labelTitle,
-	alignWithIconLabel
-}) => {
+const TaskLabel: React.FC<TaskLabelProps> = ({ labelIconPath, afterIconPath, labelTitle, alignWithIconLabel }) => {
 	return (
 		<div
 			className={`flex ${
-				labelTitle === 'Assignees' ||
-				labelTitle === 'Estimations' ||
-				labelTitle === 'Total Group Time'
+				labelTitle === 'Assignees' || labelTitle === 'Estimations' || labelTitle === 'Total Group Time'
 					? 'h-6'
 					: ''
 			} items-center `}
@@ -32,9 +25,7 @@ const TaskLabel: React.FC<TaskLabelProps> = ({
 					style={{ marginRight: '5px', height: '14px' }}
 				/>
 			) : (
-				alignWithIconLabel && (
-					<div style={{ height: '14px', width: '14px', marginRight: '5px' }} />
-				)
+				alignWithIconLabel && <div style={{ height: '14px', width: '14px', marginRight: '5px' }} />
 			)}
 			<div className="details-label">{labelTitle}</div>
 			{afterIconPath && (

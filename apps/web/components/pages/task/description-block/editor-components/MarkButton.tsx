@@ -16,9 +16,7 @@ const MarkButton = ({ format, icon: Icon, isMarkActive }: IMarkButtonProps) => {
 		<button
 			className={clsxm(
 				'my-1 rounded-md transition duration-300 p-[2px]',
-				isMarkActive(editor, format)
-					? 'dark:bg-[#47484D] bg-[#ddd]'
-					: 'bg-transparent'
+				isMarkActive(editor, format) ? 'dark:bg-[#47484D] bg-[#ddd]' : 'bg-transparent'
 			)}
 			onMouseDown={(event) => {
 				event.preventDefault();

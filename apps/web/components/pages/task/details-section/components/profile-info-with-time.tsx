@@ -9,13 +9,7 @@ type Props = {
 	userId: string;
 };
 
-const ProfileInfoWithTime = ({
-	profilePicSrc,
-	names,
-	profileInfoWrapperClassName,
-	time,
-	userId
-}: Props) => {
+const ProfileInfoWithTime = ({ profilePicSrc, names, profileInfoWrapperClassName, time, userId }: Props) => {
 	return (
 		<div className="flex justify-between items-center w-full">
 			<Link href={`/profile/${userId}`} target="_blank">

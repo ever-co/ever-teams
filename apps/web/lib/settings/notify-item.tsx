@@ -10,10 +10,7 @@ export function mapNotifyItems(NotifyLIst: INotify[]) {
 			key: Notify.title,
 			Label: ({ selected }) => (
 				<div className="flex justify-between">
-					<NotifyItem
-						title={Notify.title}
-						className={selected ? 'font-medium' : ''}
-					/>
+					<NotifyItem title={Notify.title} className={selected ? 'font-medium' : ''} />
 				</div>
 			),
 			selectedLabel: <NotifyItem title={Notify.title} className="py-2 mb-0" />,
@@ -26,12 +23,7 @@ export function mapNotifyItems(NotifyLIst: INotify[]) {
 			key: 0,
 			Label: () => (
 				<div className="flex justify-between">
-					<NotifyItem
-						title={'Pending'}
-						className="w-full cursor-default"
-						color="#F5F5F5"
-						disabled
-					/>
+					<NotifyItem title={'Pending'} className="w-full cursor-default" color="#F5F5F5" disabled />
 				</div>
 			),
 			disabled: true
@@ -52,12 +44,7 @@ export function NotifyItem({
 	disabled?: boolean;
 }) {
 	return (
-		<div
-			className={clsxm(
-				'flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2',
-				className
-			)}
-		>
+		<div className={clsxm('flex items-center justify-start space-x-2 text-sm cursor-pointer mb-0 py-2', className)}>
 			<span className={clsxm('text-normal mb-0')}>{title}</span>
 		</div>
 	);

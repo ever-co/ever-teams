@@ -3,7 +3,7 @@
  *   RN   https://docs.sentry.io/platforms/react-native/
  *   Expo https://docs.expo.dev/guides/using-sentry/
  */
-import * as Sentry from "sentry-expo"
+import * as Sentry from 'sentry-expo';
 // import * as Sentry from "@sentry/react-native"
 
 /**
@@ -27,10 +27,10 @@ export const initCrashReporting = () => {
 		Sentry.init({
 			dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
 			enableInExpoDevelopment: true,
-			debug: __DEV__, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
-		})
+			debug: __DEV__ // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
+		});
 	// Bugsnag.start("YOUR API KEY")
-}
+};
 /**
  * Error classifications used to sort errors on error reporting services.
  */
@@ -39,11 +39,11 @@ export enum ErrorType {
 	 * An error that would normally cause a red screen in dev
 	 * and force the user to sign out and restart.
 	 */
-	FATAL = "Fatal",
+	FATAL = 'Fatal',
 	/**
 	 * An error caught by try/catch where defined using Reactotron.tron.error.
 	 */
-	HANDLED = "Handled",
+	HANDLED = 'Handled'
 }
 
 /**
@@ -52,17 +52,17 @@ export enum ErrorType {
 export const reportCrash = (error: any, type: ErrorType = ErrorType.FATAL) => {
 	if (__DEV__) {
 		// Log to console and Reactotron in development
-		const message = error.message || "Unknown"
-		console.error(error)
-		console.log(message, type)
-		console.tron.log(error)
+		const message = error.message || 'Unknown';
+		console.error(error);
+		console.log(message, type);
+		console.tron.log(error);
 	} else {
 		// In production, utilize crash reporting service of choice below:
 		// RN
 		// Sentry.captureException(error)
 		// Expo
-		process.env.EXPO_PUBLIC_SENTRY_DSN && Sentry.Native.captureException(error)
+		process.env.EXPO_PUBLIC_SENTRY_DSN && Sentry.Native.captureException(error);
 		// crashlytics().recordError(error)
 		// Bugsnag.notify(error)
 	}
-}
+};

@@ -1,27 +1,27 @@
-import { useQuery } from "react-query"
-import { getIssueTypesListRequest } from "../../requests/issue-type"
+import { useQuery } from 'react-query';
+import { getIssueTypesListRequest } from '../../requests/issue-type';
 
 interface IGetTaskIssuesParams {
-	authToken: string
-	tenantId: string
-	organizationId: string
-	activeTeamId: string
+	authToken: string;
+	tenantId: string;
+	organizationId: string;
+	activeTeamId: string;
 }
 const fetchAllIssues = async (params: IGetTaskIssuesParams) => {
-	const { organizationId, tenantId, activeTeamId, authToken } = params
+	const { organizationId, tenantId, activeTeamId, authToken } = params;
 	const { data } = await getIssueTypesListRequest(
 		{
 			tenantId,
 			organizationId,
-			activeTeamId,
+			activeTeamId
 		},
-		authToken,
-	)
-	return data
-}
+		authToken
+	);
+	return data;
+};
 
 const useFetchAllIssues = (IGetTaskIssuesParams) =>
-	useQuery(["issues", IGetTaskIssuesParams], () => fetchAllIssues(IGetTaskIssuesParams), {
-		refetchInterval: 62000,
-	})
-export default useFetchAllIssues
+	useQuery(['issues', IGetTaskIssuesParams], () => fetchAllIssues(IGetTaskIssuesParams), {
+		refetchInterval: 62000
+	});
+export default useFetchAllIssues;

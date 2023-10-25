@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC, useCallback, useState } from "react"
+import React, { FC, useCallback, useState } from 'react';
 import {
 	View,
 	ViewStyle,
@@ -9,44 +9,44 @@ import {
 	Animated,
 	StyleSheet,
 	TouchableWithoutFeedback,
-	TouchableOpacity,
-} from "react-native"
-import { colors, typography, useAppTheme } from "../../../../theme"
-import { CodeInput } from "../../../../components/CodeInput"
-import { Button } from "../../../../components"
-import { translate } from "../../../../i18n"
-import { useUser } from "../../../../services/hooks/features/useUser"
-import useAuthenticateUser from "../../../../services/hooks/features/useAuthentificateUser"
+	TouchableOpacity
+} from 'react-native';
+import { colors, typography, useAppTheme } from '../../../../theme';
+import { CodeInput } from '../../../../components/CodeInput';
+import { Button } from '../../../../components';
+import { translate } from '../../../../i18n';
+import { useUser } from '../../../../services/hooks/features/useUser';
+import useAuthenticateUser from '../../../../services/hooks/features/useAuthentificateUser';
 
 export interface Props {
-	visible: boolean
-	onDismiss: () => unknown
-	newEmail: string
+	visible: boolean;
+	onDismiss: () => unknown;
+	newEmail: string;
 }
 
 const ModalPopUp = ({ visible, children }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<TouchableWithoutFeedback>
@@ -55,33 +55,33 @@ const ModalPopUp = ({ visible, children }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDismiss, newEmail }) {
-	const { colors, dark } = useAppTheme()
-	const { resendVerifyCode, verifyChangeEmail } = useUser()
-	const [confirmCode, setConfirmCode] = useState("")
-	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState(null)
+	const { colors, dark } = useAppTheme();
+	const { resendVerifyCode, verifyChangeEmail } = useUser();
+	const [confirmCode, setConfirmCode] = useState('');
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
 
-	const { updateUserFromAPI } = useAuthenticateUser()
+	const { updateUserFromAPI } = useAuthenticateUser();
 
 	const onVerifyEmail = useCallback(() => {
 		if (confirmCode && confirmCode.length === 6) {
-			setLoading(true)
+			setLoading(true);
 			verifyChangeEmail(confirmCode).then(async (e) => {
-				const { response } = e
+				const { response } = e;
 				if (response.ok && response.status === 202) {
-					updateUserFromAPI()
-					onDismiss()
+					updateUserFromAPI();
+					onDismiss();
 				} else {
-					setError("Invalid code")
+					setError('Invalid code');
 				}
-			})
-			setLoading(false)
+			});
+			setLoading(false);
 		}
-	}, [confirmCode])
+	}, [confirmCode]);
 
 	return (
 		<ModalPopUp visible={visible}>
@@ -92,91 +92,89 @@ const ConfirmEmailPopup: FC<Props> = function ConfirmEmailPopup({ visible, onDis
 				<Text style={{ ...styles.text, marginTop: 10 }}>Security code was sent on new email</Text>
 				<View style={styles.wrapResendText}>
 					<Text style={styles.text}>
-						{translate("loginScreen.codeNotReceived") + " "}
-						{translate("loginScreen.sendCode").substring(0, 2)}
+						{translate('loginScreen.codeNotReceived') + ' '}
+						{translate('loginScreen.sendCode').substring(0, 2)}
 					</Text>
 					<TouchableOpacity onPress={() => resendVerifyCode(newEmail)}>
 						<Text style={{ color: colors.secondary }}>
-							{translate("loginScreen.sendCode").substring(2)}
+							{translate('loginScreen.sendCode').substring(2)}
 						</Text>
 					</TouchableOpacity>
 				</View>
 
 				<View style={styles.wrapButtons}>
 					<Button
-						style={{ ...styles.btnStyle, backgroundColor: dark ? "#3D4756" : colors.background }}
+						style={{ ...styles.btnStyle, backgroundColor: dark ? '#3D4756' : colors.background }}
 						onPress={() => onDismiss()}
 					>
-						<Text style={{ ...styles.btnTxt, color: colors.primary }}>
-							{translate("common.discard")}
-						</Text>
+						<Text style={{ ...styles.btnTxt, color: colors.primary }}>{translate('common.discard')}</Text>
 					</Button>
 
 					<Button
 						style={{
 							...styles.btnStyle,
-							backgroundColor: dark ? "#6755C9" : "#3826A6",
-							opacity: loading ? 0.4 : 1,
+							backgroundColor: dark ? '#6755C9' : '#3826A6',
+							opacity: loading ? 0.4 : 1
 						}}
 						onPress={() => onVerifyEmail()}
 					>
-						<Text style={{ ...styles.btnTxt, color: "#fff" }}>{translate("common.confirm")}</Text>
+						<Text style={{ ...styles.btnTxt, color: '#fff' }}>{translate('common.confirm')}</Text>
 					</Button>
 				</View>
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default ConfirmEmailPopup
+export default ConfirmEmailPopup;
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
-	justifyContent: "center",
-}
+	backgroundColor: '#000000AA',
+	justifyContent: 'center'
+};
 
 const styles = StyleSheet.create({
 	btnStyle: {
 		borderRadius: 7,
 		paddingVertical: 10,
-		width: "45%",
+		width: '45%'
 	},
 	btnTxt: {
 		fontFamily: typography.primary.semiBold,
-		fontSize: 16,
+		fontSize: 16
 	},
 	container: {
-		alignSelf: "center",
-		backgroundColor: "#fff",
+		alignSelf: 'center',
+		backgroundColor: '#fff',
 		borderRadius: 20,
 		height: 306,
 		padding: 24,
-		width: "90%",
+		width: '90%'
 	},
 	errorText: {
 		color: colors.error,
-		fontSize: 12,
+		fontSize: 12
 	},
 	text: {
-		color: "#B1AEBC",
+		color: '#B1AEBC',
 		fontSize: 14,
-		marginBottom: 24,
+		marginBottom: 24
 	},
 	title: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 24,
 		marginBottom: 32,
-		textAlign: "center",
-		width: "100%",
+		textAlign: 'center',
+		width: '100%'
 	},
 	wrapButtons: {
 		flex: 1,
-		flexDirection: "row",
-		justifyContent: "space-between",
+		flexDirection: 'row',
+		justifyContent: 'space-between'
 	},
 	wrapResendText: {
-		flexDirection: "row",
-		width: "100%",
-	},
-})
+		flexDirection: 'row',
+		width: '100%'
+	}
+});

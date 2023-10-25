@@ -13,15 +13,7 @@ import { Listbox, Transition } from '@headlessui/react';
 import { Card, Tooltip } from 'lib/components';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 // import { LoginIcon, RecordIcon } from 'lib/components/svgs';
-import React, {
-	Fragment,
-	MutableRefObject,
-	PropsWithChildren,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
+import React, { Fragment, MutableRefObject, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	useCallbackRef,
 	useSyncRef,
@@ -57,10 +49,7 @@ export type TStatus<T extends string> = {
 export type TTaskStatusesDropdown<T extends ITaskStatusField> = IClassName &
 	PropsWithChildren<{
 		defaultValue?: ITaskStatusStack[T];
-		onValueChange?: (
-			v: ITaskStatusStack[T],
-			values?: ITaskStatusStack[T][]
-		) => void;
+		onValueChange?: (v: ITaskStatusStack[T], values?: ITaskStatusStack[T][]) => void;
 		forDetails?: boolean;
 		dynamicValues?: any[];
 		multiple?: boolean;
@@ -78,24 +67,20 @@ export type TTaskVersionsDropdown<T extends ITaskStatusField> = IClassName & {
 	onValueChange?: (v: ITaskStatusStack[T]) => void;
 };
 
-export type IActiveTaskStatuses<T extends ITaskStatusField> =
-	TTaskStatusesDropdown<T> & {
-		onChangeLoading?: (loading: boolean) => void;
-	} & {
-		task?: Nullable<ITeamTask>;
-		showIssueLabels?: boolean;
-		forDetails?: boolean;
-		sidebarUI?: boolean;
+export type IActiveTaskStatuses<T extends ITaskStatusField> = TTaskStatusesDropdown<T> & {
+	onChangeLoading?: (loading: boolean) => void;
+} & {
+	task?: Nullable<ITeamTask>;
+	showIssueLabels?: boolean;
+	forDetails?: boolean;
+	sidebarUI?: boolean;
 
-		forParentChildRelationship?: boolean;
-		taskStatusClassName?: string;
-		showIcon?: boolean;
-	};
+	forParentChildRelationship?: boolean;
+	taskStatusClassName?: string;
+	showIcon?: boolean;
+};
 
-export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
-	data: T[],
-	bordered = false
-): TStatus<any> {
+export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(data: T[], bordered = false): TStatus<any> {
 	return useMemo(() => {
 		return data.reduce((acc, item) => {
 			const value: TStatus<any>[string] = {
@@ -107,13 +92,7 @@ export function useMapToTaskStatusValues<T extends ITaskStatusItemList>(
 				icon: (
 					<div className="relative flex items-center">
 						{item.fullIconUrl && (
-							<Image
-								layout="fixed"
-								src={item.fullIconUrl}
-								height="20"
-								width="16"
-								alt={item.name}
-							/>
+							<Image layout="fixed" src={item.fullIconUrl} height="20" width="16" alt={item.name} />
 						)}
 					</div>
 				)
@@ -156,20 +135,13 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 		props.onChangeLoading && props.onChangeLoading(true);
 		let updatedField: ITaskStatusField = field;
 		if (field === 'label' && task) {
-			const currentTag = taskLabels.find(
-				(label) => label.name === status
-			) as Tag;
+			const currentTag = taskLabels.find((label) => label.name === status) as Tag;
 			updatedField = 'tags';
 			status = [currentTag];
 		}
 
 		taskUpdateQueue.task((task) => {
-			return handleStatusUpdate(
-				status,
-				updatedField || field,
-				task.current,
-				true
-			).finally(() => {
+			return handleStatusUpdate(status, updatedField || field, task.current, true).finally(() => {
 				props.onChangeLoading && props.onChangeLoading(false);
 			});
 		}, $task);
@@ -177,11 +149,7 @@ export function useActiveTaskStatus<T extends ITaskStatusField>(
 
 	const { item, items, onChange } = useStatusValue<T>({
 		status: status,
-		value: props.defaultValue
-			? props.defaultValue
-			: task
-			? task[field]
-			: props.defaultValue || undefined,
+		value: props.defaultValue ? props.defaultValue : task ? task[field] : props.defaultValue || undefined,
 		onValueChange: onItemChange,
 		defaultValues: props.defaultValues
 	});
@@ -212,10 +180,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 	status: TStatus<ITaskStatusStack[T]>;
 	value: ITaskStatusStack[T] | undefined;
 	defaultValues?: ITaskStatusStack[T][];
-	onValueChange?: (
-		v: ITaskStatusStack[T],
-		values?: ITaskStatusStack[T][]
-	) => void;
+	onValueChange?: (v: ITaskStatusStack[T], values?: ITaskStatusStack[T][]) => void;
 	multiple?: boolean;
 }) {
 	const onValueChangeRef = useCallbackRef(onValueChange);
@@ -238,10 +203,7 @@ export function useStatusValue<T extends ITaskStatusField>({
 	const [value, setValue] = useState<ITaskStatusStack[T] | undefined>($value);
 	const [values, setValues] = useState<ITaskStatusStack[T][]>(defaultValues);
 
-	const item: TStatusItem | undefined = useMemo(
-		() => items.find((r) => r.value === value),
-		[items, value]
-	);
+	const item: TStatusItem | undefined = useMemo(() => items.find((r) => r.value === value), [items, value]);
 
 	useEffect(() => {
 		setValue($value);
@@ -341,11 +303,7 @@ export function TaskStatusDropdown({
 export function ActiveTaskStatusDropdown(props: IActiveTaskStatuses<'status'>) {
 	const taskStatusValues = useTaskStatusValue();
 
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		taskStatusValues,
-		'status'
-	);
+	const { item, items, onChange, field } = useActiveTaskStatus(props, taskStatusValues, 'status');
 
 	return (
 		<StatusDropdown
@@ -415,16 +373,10 @@ export function VersionPropertiesDropown({
 	);
 }
 
-export function ActiveTaskVersionDropdown(
-	props: IActiveTaskStatuses<'version'>
-) {
+export function ActiveTaskVersionDropdown(props: IActiveTaskStatuses<'version'>) {
 	const taskVersionValues = useTaskVersionsValue();
 
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		taskVersionValues,
-		'version'
-	);
+	const { item, items, onChange, field } = useActiveTaskStatus(props, taskVersionValues, 'version');
 
 	// Manually removing color to show it properly
 	// As in version it will be always white color
@@ -563,16 +515,10 @@ export function TaskPropertiesDropdown({
 	);
 }
 
-export function ActiveTaskPropertiesDropdown(
-	props: IActiveTaskStatuses<'priority'>
-) {
+export function ActiveTaskPropertiesDropdown(props: IActiveTaskStatuses<'priority'>) {
 	const taskPrioritiesValues = useTaskPrioritiesValue();
 
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		taskPrioritiesValues,
-		'priority'
-	);
+	const { item, items, onChange, field } = useActiveTaskStatus(props, taskPrioritiesValues, 'priority');
 
 	return (
 		<StatusDropdown
@@ -663,11 +609,7 @@ export function TaskSizesDropdown({
 
 export function ActiveTaskSizesDropdown(props: IActiveTaskStatuses<'size'>) {
 	const taskSizesValue = useTaskSizesValue();
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		taskSizesValue,
-		'size'
-	);
+	const { item, items, onChange, field } = useActiveTaskStatus(props, taskSizesValue, 'size');
 
 	return (
 		<StatusDropdown
@@ -743,15 +685,9 @@ export function TaskLabelsDropdown({
 	);
 }
 
-export function ActiveTaskLabelsDropdown(
-	props: IActiveTaskStatuses<'label' | 'tags'>
-) {
+export function ActiveTaskLabelsDropdown(props: IActiveTaskStatuses<'label' | 'tags'>) {
 	const taskLabelsValue = useTaskLabelsValue();
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		taskLabelsValue,
-		'label'
-	);
+	const { item, items, onChange, field } = useActiveTaskStatus(props, taskLabelsValue, 'label');
 
 	return (
 		<StatusDropdown
@@ -773,14 +709,8 @@ export function ActiveTaskLabelsDropdown(
 
 //! =============== Task Project ================= //
 
-export function ActiveTaskProjectDropdown(
-	props: IActiveTaskStatuses<'project'>
-) {
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		{},
-		'project'
-	);
+export function ActiveTaskProjectDropdown(props: IActiveTaskStatuses<'project'>) {
+	const { item, items, onChange, field } = useActiveTaskStatus(props, {}, 'project');
 
 	return (
 		<StatusDropdown
@@ -797,11 +727,7 @@ export function ActiveTaskProjectDropdown(
 //! =============== Task Project ================= //
 
 export function ActiveTaskTeamDropdown(props: IActiveTaskStatuses<'team'>) {
-	const { item, items, onChange, field } = useActiveTaskStatus(
-		props,
-		{},
-		'team'
-	);
+	const { item, items, onChange, field } = useActiveTaskStatus(props, {}, 'team');
 
 	return (
 		<StatusDropdown
@@ -850,9 +776,7 @@ export function TaskStatus({
 		}
 >) {
 	const { theme } = useTheme();
-	const readableColorHex = readableColor(
-		backgroundColor || (theme === 'light' ? '#FFF' : '#000')
-	);
+	const readableColorHex = readableColor(backgroundColor || (theme === 'light' ? '#FFF' : '#000'));
 
 	return (
 		<div
@@ -863,16 +787,11 @@ export function TaskStatus({
 
 				issueType === 'issue' && ['px-2 text-white'],
 
-				active
-					? ['dark:text-default']
-					: [
-							'bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]'
-					  ],
+				active ? ['dark:text-default'] : ['bg-gray-200 dark:bg-gray-700 dark:border dark:border-[#FFFFFF21]'],
 
 				bordered && ['input-border'],
 
-				bordered &&
-					backgroundColor === 'transparent' && ['text-dark dark:text-white'],
+				bordered && backgroundColor === 'transparent' && ['text-dark dark:text-white'],
 
 				className
 			)}
@@ -1005,9 +924,7 @@ export function StatusDropdown<T extends TStatusItem>({
 				taskStatusClassName,
 				isVersion && 'dark:text-white'
 			)}
-			titleClassName={clsxm(
-				hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]']
-			)}
+			titleClassName={clsxm(hasBtnIcon && ['whitespace-nowrap overflow-hidden max-w-[90%]'])}
 			isVersion={isVersion}
 			isEpic={isEpic}
 		>
@@ -1071,17 +988,13 @@ export function StatusDropdown<T extends TStatusItem>({
 											)}
 											name={
 												values.length > 0
-													? `Item${values.length === 1 ? '' : 's'} (${
-															values.length
-													  })`
+													? `Item${values.length === 1 ? '' : 's'} (${values.length})`
 													: defaultValue.name
 											}
 											isEpic={isEpic}
 										>
 											<ChevronDownIcon
-												className={clsxm(
-													'h-5 w-5 text-default dark:text-white'
-												)}
+												className={clsxm('h-5 w-5 text-default dark:text-white')}
 											/>
 										</TaskStatus>
 									)}
@@ -1120,9 +1033,7 @@ export function StatusDropdown<T extends TStatusItem>({
 																showIcon={showIcon}
 																{...item}
 																cheched={
-																	item.value
-																		? values.includes(item.value)
-																		: false
+																	item.value ? values.includes(item.value) : false
 																}
 																className={clsxm(
 																	issueType === 'issue' && [
@@ -1158,9 +1069,7 @@ export function StatusDropdown<T extends TStatusItem>({
 													</Listbox.Option>
 												);
 											})}
-											{children && (
-												<Listbox.Button as="div">{children}</Listbox.Button>
-											)}
+											{children && <Listbox.Button as="div">{children}</Listbox.Button>}
 										</Card>
 									</Listbox.Options>
 								</Transition>
@@ -1235,18 +1144,10 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 	const dropdown = (
 		<Tooltip label={disabledReason} enabled={!enabled} placement="auto">
 			<div className={clsxm('relative', className)}>
-				<Listbox
-					value={values}
-					onChange={onChange}
-					disabled={disabled}
-					multiple
-				>
+				<Listbox value={values} onChange={onChange} disabled={disabled} multiple>
 					<Listbox.Button
 						as="div"
-						className={clsxm(
-							!forDetails && 'w-full max-w-[170px]',
-							'cursor-pointer outline-none'
-						)}
+						className={clsxm(!forDetails && 'w-full max-w-[170px]', 'cursor-pointer outline-none')}
 						style={{
 							width: largerWidth ? '160px' : ''
 						}}
@@ -1260,8 +1161,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 								'justify-between w-full capitalize',
 								sidebarUI && ['text-xs'],
 								'text-dark dark:text-white bg-[#F2F2F2] dark:bg-dark--theme-light',
-								forDetails &&
-									'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
+								forDetails && 'bg-transparent border dark:border-[#FFFFFF33] dark:bg-[#1B1D22]',
 								taskStatusClassName
 							)}
 							name={
@@ -1270,9 +1170,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 									: defaultValue.name
 							}
 						>
-							<ChevronDownIcon
-								className={clsxm('h-5 w-5 text-default dark:text-white')}
-							/>
+							<ChevronDownIcon className={clsxm('h-5 w-5 text-default dark:text-white')} />
 						</TaskStatus>
 					</Listbox.Button>
 
@@ -1307,13 +1205,9 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 													<TaskStatus
 														showIcon={showIcon}
 														{...item}
-														cheched={
-															item.value ? values.includes(item.value) : false
-														}
+														cheched={item.value ? values.includes(item.value) : false}
 														className={clsxm(
-															issueType === 'issue' && [
-																'rounded-md px-2 text-white'
-															],
+															issueType === 'issue' && ['rounded-md px-2 text-white'],
 															`${sidebarUI ? 'rounded-[4px]' : ''}`,
 															`${bordered ? 'input-border' : ''}`,
 															isVersion && 'dark:text-white'
@@ -1343,9 +1237,7 @@ export function MultipleStatusDropdown<T extends TStatusItem>({
 										);
 									})}
 								</div>
-								{children && (
-									<Listbox.Button as="div">{children}</Listbox.Button>
-								)}
+								{children && <Listbox.Button as="div">{children}</Listbox.Button>}
 							</Card>
 						</Listbox.Options>
 					</Transition>

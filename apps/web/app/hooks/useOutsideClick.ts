@@ -25,8 +25,7 @@ export function useOutsideClick<T extends HTMLElement>(onClickOuSide?: Func) {
 			) {
 				return;
 			}
-			onClickOuSideRef.current &&
-				onClickOuSideRef.current(el, ev.target as HTMLElement);
+			onClickOuSideRef.current && onClickOuSideRef.current(el, ev.target as HTMLElement);
 		};
 
 		document.body.addEventListener('click', onBodyClick);

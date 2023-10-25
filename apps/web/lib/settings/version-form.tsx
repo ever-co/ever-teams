@@ -2,18 +2,18 @@
 import { Button, InputField, Text } from 'lib/components';
 import { StatusesListCard } from './list-card';
 
-import { useForm } from 'react-hook-form';
-import { useCallback, useEffect, useState } from 'react';
-import { userState } from '@app/stores';
-import { useRecoilState } from 'recoil';
-import { PlusIcon } from '@heroicons/react/20/solid';
 import { useTaskVersion } from '@app/hooks';
-import { Spinner } from '@components/ui/loaders/spinner';
 import { ITaskVersionCreate, ITaskVersionItemList } from '@app/interfaces';
+import { userState } from '@app/stores';
+import { Spinner } from '@components/ui/loaders/spinner';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useRecoilState } from 'recoil';
 
-import { useTranslation } from 'lib/i18n';
-import { clsxm } from '@app/utils';
 import { useRefetchData } from '@app/hooks';
+import { clsxm } from '@app/utils';
+import { useTranslation } from 'react-i18next';
 
 type StatusForm = {
 	formOnly?: boolean;
@@ -21,12 +21,8 @@ type StatusForm = {
 	onVersionCreated?: (version: ITaskVersionCreate) => void;
 };
 
-export const VersionForm = ({
-	formOnly = false,
-	onCreated,
-	onVersionCreated
-}: StatusForm) => {
-	const { trans } = useTranslation('settingsTeam');
+export const VersionForm = ({ formOnly = false, onCreated, onVersionCreated }: StatusForm) => {
+	const { t } = useTranslation();
 
 	const [user] = useRecoilState(userState);
 	const { register, setValue, handleSubmit, reset, getValues } = useForm();
@@ -56,14 +52,7 @@ export const VersionForm = ({
 		} else {
 			setValue('name', '');
 		}
-	}, [
-		edit,
-		setValue,
-		createTaskVersion,
-		editTaskVersion,
-		user?.employee?.organizationId,
-		user?.tenantId
-	]);
+	}, [edit, setValue, createTaskVersion, editTaskVersion, user?.employee?.organizationId, user?.tenantId]);
 
 	const onSubmit = useCallback(
 		async (values: any) => {
@@ -95,35 +84,21 @@ export const VersionForm = ({
 				});
 			}
 		},
-		[
-			edit,
-			createNew,
-			formOnly,
-			onCreated,
-			editTaskVersion,
-			user,
-			reset,
-			createTaskVersion,
-			refetch
-		]
+		[edit, createNew, formOnly, onCreated, editTaskVersion, user, reset, createTaskVersion, refetch]
 	);
 
 	return (
 		<>
-			<form
-				className="w-full"
-				onSubmit={handleSubmit(onSubmit)}
-				autoComplete="off"
-			>
+			<form className="w-full" onSubmit={handleSubmit(onSubmit)} autoComplete="off">
 				<div className="flex w-full">
 					<div className="rounded-md m-h-64 p-[32px] pl-0 pr-0 flex gap-x-[2rem] w-full">
 						{!formOnly && (
 							<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2 w-[200px]">
-								{trans.VERSIONS}
+								{t('pages.settingsTeam.VERSIONS')}
 							</Text>
 						)}
 
-						<div className="flex flex-col items-center sm:items-start w-full">
+						<div className="flex flex-col items-center w-full sm:items-start">
 							{!createNew && !edit && (
 								<Button
 									variant="outline"
@@ -134,15 +109,15 @@ export const VersionForm = ({
 									}}
 								>
 									<PlusIcon className=" font-normal w-[16px] h-[16px]" />
-									{trans.CREATE_NEW_VERSION}
+									{t('pages.settingsTeam.CREATE_NEW_VERSION')}
 								</Button>
 							)}
 
 							{(createNew || edit) && (
 								<>
-									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-2">
+									<Text className="flex-none flex-grow-0 mb-2 text-lg font-normal text-gray-400">
 										{createNew && 'New'}
-										{edit && 'Edit'} Version
+										{edit && t('common.EDIT')} {t('common.VERSION')}
 									</Text>
 									<div
 										className={clsxm(
@@ -152,37 +127,33 @@ export const VersionForm = ({
 									>
 										<InputField
 											type="text"
-											placeholder={trans.CREATE_NEW_VERSION}
+											placeholder={t('pages.settingsTeam.CREATE_NEW_VERSION')}
 											className="mb-0 min-w-[350px]"
 											wrapperClassName="mb-0 rounded-lg"
 											{...register('name')}
 										/>
 									</div>
-									<div className="flex gap-x-4 mt-5">
+									<div className="flex mt-5 gap-x-4">
 										<Button
 											variant="primary"
-											className="font-normal py-4 px-4 rounded-xl text-md"
+											className="px-4 py-4 font-normal rounded-xl text-md"
 											type="submit"
-											disabled={
-												createTaskVersionLoading || editTaskVersionLoading
-											}
-											loading={
-												createTaskVersionLoading || editTaskVersionLoading
-											}
+											disabled={createTaskVersionLoading || editTaskVersionLoading}
+											loading={createTaskVersionLoading || editTaskVersionLoading}
 										>
-											{edit ? 'Save' : 'Create'}
+											{edit ? t('common.SAVE') : t('common.CREATE')}
 										</Button>
 
 										{!formOnly && (
 											<Button
 												variant="grey"
-												className="font-normal py-4 px-4 rounded-xl text-md"
+												className="px-4 py-4 font-normal rounded-xl text-md"
 												onClick={() => {
 													setCreateNew(false);
 													setEdit(null);
 												}}
 											>
-												Cancel
+												{t('common.CANCEL')}
 											</Button>
 										)}
 									</div>
@@ -192,21 +163,15 @@ export const VersionForm = ({
 							{!formOnly && taskVersion?.length > 0 && (
 								<>
 									<Text className="flex-none flex-grow-0 text-gray-400 text-lg font-normal mb-[1rem] w-full mt-[2.4rem] text-center sm:text-left">
-										{trans.LIST_OF_VERSONS}
+										{t('pages.settingsTeam.LIST_OF_VERSONS')}
 									</Text>
-									<div className="flex flex-wrap w-full gap-3 justify-center sm:justify-start">
-										{loading && !taskVersion?.length && (
-											<Spinner dark={false} />
-										)}
+									<div className="flex flex-wrap justify-center w-full gap-3 sm:justify-start">
+										{loading && !taskVersion?.length && <Spinner dark={false} />}
 										{taskVersion && taskVersion?.length ? (
 											taskVersion.map((version) => (
 												<StatusesListCard
 													key={version.id}
-													statusTitle={
-														version.name
-															? version.name?.split('-').join(' ')
-															: ''
-													}
+													statusTitle={version.name ? version.name?.split('-').join(' ') : ''}
 													bgColor={''}
 													statusIcon={''}
 													onEdit={() => {

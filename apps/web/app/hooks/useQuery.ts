@@ -1,8 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-export function useQuery<T extends (...params: any[]) => Promise<any>>(
-	queryFunction: T
-) {
+export function useQuery<T extends (...params: any[]) => Promise<any>>(queryFunction: T) {
 	const [loading, setLoading] = useState(false);
 	const infiniteLoading = useRef(false);
 

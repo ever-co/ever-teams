@@ -1,12 +1,5 @@
 import { Dropdown } from 'lib/components';
-import {
-	Dispatch,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { IPagination } from '@app/interfaces/IPagination';
 import { clsxm } from '@app/utils';
@@ -37,13 +30,9 @@ export const PaginationDropdown = ({
 		}
 	]);
 
-	const items: any = useMemo(
-		() => mappaginationItems(paginationList),
-		[paginationList]
-	);
+	const items: any = useMemo(() => mappaginationItems(paginationList), [paginationList]);
 
-	const [paginationItem, setPaginationItem] =
-		useState<PaginationItems | null>();
+	const [paginationItem, setPaginationItem] = useState<PaginationItems | null>();
 
 	const onChangeActiveTeam = useCallback(
 		(item: PaginationItems) => {
@@ -62,10 +51,7 @@ export const PaginationDropdown = ({
 	}, [paginationItem, items]);
 
 	useEffect(() => {
-		if (
-			active &&
-			paginationList.every((filter) => filter.title !== active.title)
-		) {
+		if (active && paginationList.every((filter) => filter.title !== active.title)) {
 			setPagination([...paginationList, active]);
 		}
 	}, [paginationList, setPagination, setPaginationItem, active]);

@@ -1,53 +1,47 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { useEffect } from "react"
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
-import { translate } from "../../../../i18n"
-import { typography, useAppTheme } from "../../../../theme"
-import { observer } from "mobx-react-lite"
-import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
-import { SvgXml } from "react-native-svg"
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { translate } from '../../../../i18n';
+import { typography, useAppTheme } from '../../../../theme';
+import { observer } from 'mobx-react-lite';
+import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
+import { SvgXml } from 'react-native-svg';
 import {
 	peopleIconActive,
 	peopleIconActiveDark,
 	peopleIconGrey,
 	userActive,
 	userActiveDark,
-	userGrey,
-} from "../../../../components/svgs/icons"
+	userGrey
+} from '../../../../components/svgs/icons';
 
 interface ISectionTab {
-	id: 1 | 2
-	title: string
+	id: 1 | 2;
+	title: string;
 }
 
 const SectionTab = observer(
-	({
-		activeTabId,
-		toggleTab,
-	}: {
-		activeTabId: number
-		toggleTab: React.Dispatch<React.SetStateAction<1 | 2>>
-	}) => {
-		const { activeTeam } = useOrganizationTeam()
+	({ activeTabId, toggleTab }: { activeTabId: number; toggleTab: React.Dispatch<React.SetStateAction<1 | 2>> }) => {
+		const { activeTeam } = useOrganizationTeam();
 		const sections: ISectionTab[] = [
 			{
 				id: 1,
-				title: translate("settingScreen.personalSection.name"),
+				title: translate('settingScreen.personalSection.name')
 			},
 			{
 				id: 2,
-				title: translate("settingScreen.teamSection.name"),
-			},
-		]
+				title: translate('settingScreen.teamSection.name')
+			}
+		];
 
-		const { colors } = useAppTheme()
+		const { colors } = useAppTheme();
 
 		useEffect(() => {
 			if (!activeTeam) {
-				toggleTab(1)
+				toggleTab(1);
 			}
-		}, [activeTeam])
+		}, [activeTeam]);
 
 		return (
 			<View style={[styles.contaniner, { backgroundColor: colors.background2 }]}>
@@ -55,22 +49,22 @@ const SectionTab = observer(
 					<Tab key={idx} isActiveTab={tab.id === activeTabId} item={tab} toggleTab={toggleTab} />
 				))}
 			</View>
-		)
-	},
-)
+		);
+	}
+);
 
 const Tab = observer(
 	({
 		item,
 		isActiveTab,
-		toggleTab,
+		toggleTab
 	}: {
-		item: ISectionTab
-		isActiveTab: boolean
-		toggleTab: React.Dispatch<React.SetStateAction<1 | 2>>
+		item: ISectionTab;
+		isActiveTab: boolean;
+		toggleTab: React.Dispatch<React.SetStateAction<1 | 2>>;
 	}) => {
-		const { colors, dark } = useAppTheme()
-		const { activeTeam } = useOrganizationTeam()
+		const { colors, dark } = useAppTheme();
+		const { activeTeam } = useOrganizationTeam();
 		return (
 			<TouchableOpacity
 				style={
@@ -79,8 +73,8 @@ const Tab = observer(
 								styles.activeSection,
 								{
 									backgroundColor: colors.background,
-									borderColor: dark ? colors.secondary : "#2A1B8E",
-								},
+									borderColor: dark ? colors.secondary : '#2A1B8E'
+								}
 						  ]
 						: [styles.inactiveSection]
 				}
@@ -89,10 +83,10 @@ const Tab = observer(
 				<View
 					// eslint-disable-next-line react-native/no-inline-styles
 					style={{
-						flexDirection: "row",
-						alignSelf: "center",
-						justifyContent: "center",
-						alignItems: "center",
+						flexDirection: 'row',
+						alignSelf: 'center',
+						justifyContent: 'center',
+						alignItems: 'center'
 					}}
 				>
 					{item.id === 1 ? (
@@ -117,54 +111,54 @@ const Tab = observer(
 					<Text
 						style={[
 							styles.text,
-							isActiveTab ? { fontSize: 14, color: colors.secondary } : { color: colors.tertiary },
+							isActiveTab ? { fontSize: 14, color: colors.secondary } : { color: colors.tertiary }
 						]}
 					>
 						{item.title}
 					</Text>
 				</View>
 			</TouchableOpacity>
-		)
-	},
-)
+		);
+	}
+);
 
 const styles = StyleSheet.create({
 	activeSection: {
-		alignItems: "center",
-		backgroundColor: "#fff",
+		alignItems: 'center',
+		backgroundColor: '#fff',
 		borderRadius: 70,
 		borderWidth: 2,
 		elevation: 10,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 50,
-		justifyContent: "center",
-		shadowColor: "rgba(30, 12, 92, 0.26)",
+		justifyContent: 'center',
+		shadowColor: 'rgba(30, 12, 92, 0.26)',
 		shadowOffset: { width: 0, height: 7 },
 		shadowOpacity: 1,
 		shadowRadius: 10,
-		width: 155,
+		width: 155
 	},
 	contaniner: {
-		backgroundColor: "rgba(217, 217, 217, 0.3)",
+		backgroundColor: 'rgba(217, 217, 217, 0.3)',
 		borderRadius: 70,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 62,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		padding: 6,
-		width: "100%",
+		width: '100%'
 	},
 	inactiveSection: {
-		alignItems: "center",
-		flexDirection: "row",
-		justifyContent: "center",
-		width: 155,
+		alignItems: 'center',
+		flexDirection: 'row',
+		justifyContent: 'center',
+		width: 155
 	},
 	text: {
-		color: "#3826A6",
+		color: '#3826A6',
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
-		marginLeft: 8,
-	},
-})
+		marginLeft: 8
+	}
+});
 
-export default SectionTab
+export default SectionTab;

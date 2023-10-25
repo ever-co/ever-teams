@@ -5,14 +5,8 @@ import {
 } from '@app/services/server/requests/task-related-issue-type';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(
-	req: NextApiRequest,
-	res: NextApiResponse
-) {
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(
-		req,
-		res
-	);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
 
 	if (!user) return $res();
 

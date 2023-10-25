@@ -2,9 +2,7 @@ import { IRolePermissions, PaginationResponse } from '@app/interfaces/';
 import api from '../axios';
 
 export function getRolePermissionAPI(id: string) {
-	return api.get<PaginationResponse<IRolePermissions>>(
-		`/role-permissions/${id}`
-	);
+	return api.get<PaginationResponse<IRolePermissions>>(`/role-permissions/${id}`);
 }
 
 export function updateRolePermissionAPI(data: IRolePermissions) {

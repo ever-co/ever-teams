@@ -28,9 +28,7 @@ export const StatusesListCard = ({
 			<div
 				className={clsxm(
 					'rounded-xl',
-					isStatus || statusTitle.length >= CHARACTER_LIMIT_TO_SHOW
-						? 'w-2/3'
-						: 'w-auto',
+					isStatus || statusTitle.length >= CHARACTER_LIMIT_TO_SHOW ? 'w-2/3' : 'w-auto',
 					'flex items-center p-3 gap-x-2 overflow-hidden mr-1'
 				)}
 				style={{ backgroundColor: bgColor === '' ? undefined : bgColor }}
@@ -51,9 +49,7 @@ export const StatusesListCard = ({
 					label={statusTitle}
 					enabled={statusTitle.length >= CHARACTER_LIMIT_TO_SHOW}
 					placement="auto"
-					className={clsxm(
-						'overflow-hidden text-ellipsis whitespace-nowrap w-full'
-					)}
+					className={clsxm('overflow-hidden text-ellipsis whitespace-nowrap w-full')}
 				>
 					<Text.Label
 						className={clsxm(

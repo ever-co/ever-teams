@@ -28,9 +28,7 @@ const IconPopover = ({
 
 	useEffect(() => {
 		if (active) {
-			setValues(
-				iconList.find((icon: IIcon) => icon?.title === active?.title) || null
-			);
+			setValues(iconList.find((icon: IIcon) => icon?.title === active?.title) || null);
 		}
 	}, [active, iconList]);
 
@@ -43,9 +41,7 @@ const IconPopover = ({
 						<div className="cursor-pointer relative w-[100%] h-[54px] border border-[#00000021] dark:border-[#34353D] rounded-xl flex items-center justify-between">
 							<div className="flex gap-[8px] h-[40px] items-center pl-[15px]">
 								<IconItem
-									title={
-										values?.title ? values.title.split('-').join(' ') : 'Icons'
-									}
+									title={values?.title ? values.title.split('-').join(' ') : 'Icons'}
 									className="w-full cursor-pointer py-2 mb-0"
 									url={values?.fullUrl ? values.fullUrl : ''}
 								/>

@@ -30,9 +30,7 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 	return (
 		<div
 			{...attributes}
-			className={`flex flex-row items-center  ${
-				isFirstNodeChecklist ? 'mt-0 mb-[-0.7rem]' : 'my-[-0.7rem]'
-			}`}
+			className={`flex flex-row items-center  ${isFirstNodeChecklist ? 'mt-0 mb-[-0.7rem]' : 'my-[-0.7rem]'}`}
 		>
 			<span contentEditable={false} className="mr-[1.2rem] relative">
 				<input
@@ -60,11 +58,7 @@ const CheckListElement = ({ attributes, children, element }: any) => {
 					</button>
 				)}
 			</span>
-			<span
-				contentEditable={!readOnly}
-				suppressContentEditableWarning
-				className="flex-1"
-			>
+			<span contentEditable={!readOnly} suppressContentEditableWarning className="flex-1">
 				{children}
 			</span>
 		</div>

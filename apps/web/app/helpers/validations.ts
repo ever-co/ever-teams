@@ -8,10 +8,7 @@ type Err = { [x in keyof IRegisterDataAPI]: string | undefined };
 
 type Ks = { [x: string]: string };
 
-export const authFormValidate = (
-	keys: (keyof IRegisterDataAPI)[],
-	values: IRegisterDataAPI
-) => {
+export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegisterDataAPI) => {
 	const err = {} as Err;
 	keys.forEach((key) => {
 		switch (key) {
@@ -27,8 +24,7 @@ export const authFormValidate = (
 				break;
 			case 'recaptcha':
 				if (values['recaptcha'].trim().length < 2) {
-					err['recaptcha'] =
-						'Please check the ReCaptcha checkbox before continue';
+					err['recaptcha'] = 'Please check the ReCaptcha checkbox before continue';
 				}
 				break;
 			case 'team':
@@ -94,11 +90,7 @@ export function validSMTPConfig() {
 
 	const keys = Object.keys(SMTPConfig) as (keyof I_SMTPRequest)[];
 
-	if (
-		keys.some(
-			(key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined
-		)
-	) {
+	if (keys.some((key) => SMTPConfig[key] === null || SMTPConfig[key] === undefined)) {
 		return null;
 	}
 

@@ -1,16 +1,16 @@
-import { observer } from "mobx-react-lite"
-import React, { FC } from "react"
-import { View, ViewStyle } from "react-native"
-import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
-import { useAppTheme } from "../../../../theme"
-import TaskTab from "./TaskTab"
+import { observer } from 'mobx-react-lite';
+import React, { FC } from 'react';
+import { View, ViewStyle } from 'react-native';
+import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { useAppTheme } from '../../../../theme';
+import TaskTab from './TaskTab';
 
 interface Props {
-	hook: ITaskFilter
+	hook: ITaskFilter;
 }
 
 const ProfileTabs: FC<Props> = observer(({ hook }) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 	return (
 		<View style={{ ...$tabWrapper, backgroundColor: colors.background }}>
 			{hook.tabs.map((item, idx) => (
@@ -23,14 +23,14 @@ const ProfileTabs: FC<Props> = observer(({ hook }) => {
 				/>
 			))}
 		</View>
-	)
-})
+	);
+});
 
 const $tabWrapper: ViewStyle = {
-	flexDirection: "row",
-	width: "100%",
-	justifyContent: "space-between",
-	paddingHorizontal: 20,
-}
+	flexDirection: 'row',
+	width: '100%',
+	justifyContent: 'space-between',
+	paddingHorizontal: 20
+};
 
-export default ProfileTabs
+export default ProfileTabs;

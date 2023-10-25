@@ -6,10 +6,7 @@ import { clsxm } from '@app/utils';
 import { FieldValues, UseFormSetValue } from 'react-hook-form';
 import { FilterItem } from './filter-items';
 import { IInvitationExpire } from '@app/interfaces/IInvitation_Expire';
-import {
-	mapInvitationExpireItems,
-	InvitationExpireItem
-} from './invitation-expire-items';
+import { mapInvitationExpireItems, InvitationExpireItem } from './invitation-expire-items';
 
 export const InvitationExpireDropdown = ({
 	setValue,
@@ -24,10 +21,7 @@ export const InvitationExpireDropdown = ({
 		}
 	]);
 
-	const items: any = useMemo(
-		() => mapInvitationExpireItems(expireList),
-		[expireList]
-	);
+	const items: any = useMemo(() => mapInvitationExpireItems(expireList), [expireList]);
 
 	const [expireItem, setExpireItem] = useState<InvitationExpireItem | null>();
 
@@ -48,10 +42,7 @@ export const InvitationExpireDropdown = ({
 	}, [expireItem, items]);
 
 	useEffect(() => {
-		if (
-			active &&
-			expireList.every((invitation) => invitation.title !== invitation.title)
-		) {
+		if (active && expireList.every((invitation) => invitation.title !== invitation.title)) {
 			setExpire([...expireList, active]);
 		}
 	}, [expireList, setExpire, setExpireItem, active]);
@@ -66,10 +57,7 @@ export const InvitationExpireDropdown = ({
 		<>
 			<Dropdown
 				className="min-w-[150px] max-w-sm z-50"
-				buttonClassName={clsxm(
-					'py-0 font-medium h-[54px] w-[150px]',
-					expireList.length === 0 && ['py-2']
-				)}
+				buttonClassName={clsxm('py-0 font-medium h-[54px] w-[150px]', expireList.length === 0 && ['py-2'])}
 				value={expireItem}
 				onChange={onChangeExpireItem}
 				items={items}

@@ -1,42 +1,42 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useState } from "react"
-import { ViewStyle, LogBox } from "react-native"
-import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
-import { Screen } from "../../../components"
-import HomeHeader from "../../../components/HomeHeader"
-import ProfileHeader from "./components/ProfileHeader"
-import { useStores } from "../../../models"
-import TaskFilter from "./components/TaskFilter"
-import { useTaskFilter } from "../../../services/hooks/features/useTaskFilters"
-import UserProfileTasks from "./components/UserProfileTasks"
-import ProfileScreenSkeleton from "./components/ProfileScreenSkeleton"
-import { useAcceptInviteModal } from "../../../services/hooks/features/useAcceptInviteModal"
-import AcceptInviteModal from "../TeamScreen/components/AcceptInviteModal"
-import NoTeam from "../../../components/NoTeam"
-import CreateTeamModal from "../../../components/CreateTeamModal"
-import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
-import { useProfileScreenLogic } from "./logics/useProfileScreenLogic"
+import React, { FC, useState } from 'react';
+import { ViewStyle, LogBox } from 'react-native';
+import { AuthenticatedTabScreenProps } from '../../../navigators/AuthenticatedNavigator';
+import { Screen } from '../../../components';
+import HomeHeader from '../../../components/HomeHeader';
+import ProfileHeader from './components/ProfileHeader';
+import { useStores } from '../../../models';
+import TaskFilter from './components/TaskFilter';
+import { useTaskFilter } from '../../../services/hooks/features/useTaskFilters';
+import UserProfileTasks from './components/UserProfileTasks';
+import ProfileScreenSkeleton from './components/ProfileScreenSkeleton';
+import { useAcceptInviteModal } from '../../../services/hooks/features/useAcceptInviteModal';
+import AcceptInviteModal from '../TeamScreen/components/AcceptInviteModal';
+import NoTeam from '../../../components/NoTeam';
+import CreateTeamModal from '../../../components/CreateTeamModal';
+import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
+import { useProfileScreenLogic } from './logics/useProfileScreenLogic';
 
-export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile">> =
+export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile'>> =
 	function AuthenticatedProfileScreen(_props) {
-		LogBox.ignoreAllLogs()
+		LogBox.ignoreAllLogs();
 		const {
-			TimerStore: { localTimerStatus },
-		} = useStores()
+			TimerStore: { localTimerStatus }
+		} = useStores();
 
-		const { activeTab, userId } = _props.route.params || { activeTab: "worked" }
+		const { activeTab, userId } = _props.route.params || { activeTab: 'worked' };
 
 		const { openModal, closeModal, activeInvitation, onRejectInvitation, onAcceptInvitation } =
-			useAcceptInviteModal()
-		const profile = useProfileScreenLogic({ activeTab, userId })
-		const hook = useTaskFilter(profile)
-		const { createOrganizationTeam, activeTeam } = useOrganizationTeam()
+			useAcceptInviteModal();
+		const profile = useProfileScreenLogic({ activeTab, userId });
+		const hook = useTaskFilter(profile);
+		const { createOrganizationTeam, activeTeam } = useOrganizationTeam();
 
-		const [showCreateTeamModal, setShowCreateTeamModal] = useState(false)
+		const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
 
 		return (
-			<Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={["top"]}>
+			<Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={['top']}>
 				{profile.isLoading ? (
 					<ProfileScreenSkeleton />
 				) : (
@@ -68,9 +68,9 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<"Profile
 					</>
 				)}
 			</Screen>
-		)
-	}
+		);
+	};
 
 const $container: ViewStyle = {
-	flex: 1,
-}
+	flex: 1
+};

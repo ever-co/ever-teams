@@ -1,4 +1,4 @@
 export interface IColor {
-    title: string;
-    color: string;
+	title: string;
+	color: string;
 }

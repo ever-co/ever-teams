@@ -4,11 +4,7 @@ import {
 	setActiveTeamIdCookie,
 	setOrganizationIdCookie
 } from '@app/helpers/cookies';
-import {
-	IOrganizationTeamList,
-	IOrganizationTeamUpdate,
-	IOrganizationTeamWithMStatus
-} from '@app/interfaces';
+import { IOrganizationTeamList, IOrganizationTeamUpdate, IOrganizationTeamWithMStatus } from '@app/interfaces';
 import {
 	createOrganizationTeamAPI,
 	deleteOrganizationTeamAPI,
@@ -83,9 +79,7 @@ function useCreateOrganizationTeam() {
 		(name: string) => {
 			const teams = teamsRef.current;
 			const $name = name.trim();
-			const exits = teams.find(
-				(t) => t.name.toLowerCase() === $name.toLowerCase()
-			);
+			const exits = teams.find((t) => t.name.toLowerCase() === $name.toLowerCase());
 
 			if (exits || $name.length < 2) {
 				return Promise.reject(new Error('Invalid team name !'));
@@ -113,15 +107,7 @@ function useCreateOrganizationTeam() {
 				return res;
 			});
 		},
-		[
-			isTeamMember,
-			queryCall,
-			refreshToken,
-			setActiveTeamId,
-			setIsTeamMember,
-			setTeams,
-			teamsRef
-		]
+		[isTeamMember, queryCall, refreshToken, setActiveTeamId, setIsTeamMember, setTeams, teamsRef]
 	);
 
 	return {
@@ -138,10 +124,7 @@ function useUpdateOrganizationTeam() {
 	const { setTeamsUpdate } = useTeamsState();
 
 	const updateOrganizationTeam = useCallback(
-		(
-			team: IOrganizationTeamList,
-			data: Partial<IOrganizationTeamUpdate> = {}
-		) => {
+		(team: IOrganizationTeamList, data: Partial<IOrganizationTeamUpdate> = {}) => {
 			const members = team.members;
 
 			const body: Partial<IOrganizationTeamUpdate> = {
@@ -176,9 +159,7 @@ function useUpdateOrganizationTeam() {
  */
 export function useOrganizationTeams() {
 	const { loading, queryCall } = useQuery(getOrganizationTeamsAPI);
-	const { loading: loadingTeam, queryCall: queryCallTeam } = useQuery(
-		getOrganizationTeamAPI
-	);
+	const { loading: loadingTeam, queryCall: queryCallTeam } = useQuery(getOrganizationTeamAPI);
 	const { teams, setTeams, setTeamsUpdate, teamsRef } = useTeamsState();
 	const activeTeam = useRecoilValue(activeTeamState);
 
@@ -195,13 +176,9 @@ export function useOrganizationTeams() {
 
 	const setMemberActiveTaskId = useSetRecoilState(memberActiveTaskIdState);
 
-	const currentUser = activeTeam?.members?.find(
-		(member) => member.employee.userId === user?.id
-	);
+	const currentUser = activeTeam?.members?.find((member) => member.employee.userId === user?.id);
 	const memberActiveTaskId =
-		(timerStatus?.running && timerStatus?.lastLog?.taskId) ||
-		currentUser?.activeTaskId ||
-		null;
+		(timerStatus?.running && timerStatus?.lastLog?.taskId) || currentUser?.activeTaskId || null;
 	const isTrackingEnabled = activeTeam?.members?.find(
 		(member) => member.employee.userId === user?.id && member.isTrackingEnabled
 	)
@@ -213,22 +190,16 @@ export function useOrganizationTeams() {
 	}, [setMemberActiveTaskId, memberActiveTaskId]);
 
 	// Updaters
-	const { createOrganizationTeam, loading: createOTeamLoading } =
-		useCreateOrganizationTeam();
+	const { createOrganizationTeam, loading: createOTeamLoading } = useCreateOrganizationTeam();
 
-	const { updateOrganizationTeam, loading: updateOTeamLoading } =
-		useUpdateOrganizationTeam();
+	const { updateOrganizationTeam, loading: updateOTeamLoading } = useUpdateOrganizationTeam();
 
-	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } =
-		useQuery(editOrganizationTeamAPI);
+	const { loading: editOrganizationTeamLoading, queryCall: editQueryCall } = useQuery(editOrganizationTeamAPI);
 
-	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteOrganizationTeamAPI);
+	const { loading: deleteOrganizationTeamLoading, queryCall: deleteQueryCall } = useQuery(deleteOrganizationTeamAPI);
 
-	const {
-		loading: removeUserFromAllTeamLoading,
-		queryCall: removeUserFromAllTeamQueryCall
-	} = useQuery(removeUserFromAllTeamAPI);
+	const { loading: removeUserFromAllTeamLoading, queryCall: removeUserFromAllTeamQueryCall } =
+		useQuery(removeUserFromAllTeamAPI);
 
 	useEffect(() => {
 		setTeamsFetching(loading);
@@ -260,13 +231,9 @@ export function useOrganizationTeams() {
 			}
 			const latestTeams = res.data?.items || [];
 
-			const latestTeamsSorted = latestTeams
-				.slice()
-				.sort((a, b) => a.name.localeCompare(b.name));
+			const latestTeamsSorted = latestTeams.slice().sort((a, b) => a.name.localeCompare(b.name));
 
-			const teamsRefSorted = teamsRef.current
-				.slice()
-				.sort((a, b) => a.name.localeCompare(b.name));
+			const teamsRefSorted = teamsRef.current.slice().sort((a, b) => a.name.localeCompare(b.name));
 
 			/**
 			 * Check deep equality,
@@ -281,10 +248,7 @@ export function useOrganizationTeams() {
 
 			// Handle case where user might Remove Account from all teams,
 			// In such case need to update active team with Latest list of Teams
-			if (
-				!latestTeams.find((team) => team.id === teamId) &&
-				latestTeams.length
-			) {
+			if (!latestTeams.find((team) => team.id === teamId) && latestTeams.length) {
 				setActiveTeam(latestTeams[0]);
 			} else if (!latestTeams.length) {
 				teamId = '';
@@ -300,10 +264,7 @@ export function useOrganizationTeams() {
 					 * (It prevents unnecessary re-rendering)
 					 */
 					if (!isEqual(latestTeamsSorted, teamsRefSorted)) {
-						setTeams([
-							newTeam,
-							...latestTeams.filter((team) => team.id !== newTeam.id)
-						]);
+						setTeams([newTeam, ...latestTeams.filter((team) => team.id !== newTeam.id)]);
 
 						// Set Project Id to cookie
 						// TODO: Make it dynamic when we add Dropdown in Navbar
@@ -315,14 +276,7 @@ export function useOrganizationTeams() {
 			return res;
 		});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [
-		queryCall,
-		queryCallTeam,
-		setActiveTeam,
-		setActiveTeamId,
-		setIsTeamMember,
-		setTeams
-	]);
+	}, [queryCall, queryCallTeam, setActiveTeam, setActiveTeamId, setIsTeamMember, setTeams]);
 
 	/**
 	 * Get active team profile from api
@@ -366,13 +320,14 @@ export function useOrganizationTeams() {
 				return res;
 			});
 		},
-		[
-			loadTeamsData,
-			removeUserFromAllTeamQueryCall,
-			refreshToken,
-			updateUserFromAPI
-		]
+		[loadTeamsData, removeUserFromAllTeamQueryCall, refreshToken, updateUserFromAPI]
 	);
+
+	useEffect(() => {
+		if (activeTeam?.projects && activeTeam?.projects?.length) {
+			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
+		}
+	}, [activeTeam]);
 
 	return {
 		loadTeamsData,

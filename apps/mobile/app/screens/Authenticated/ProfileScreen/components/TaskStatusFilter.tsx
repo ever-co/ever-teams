@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect } from 'react';
 import {
 	TouchableOpacity,
 	View,
@@ -11,44 +11,44 @@ import {
 	Animated,
 	Modal,
 	TouchableWithoutFeedback,
-	FlatList,
-} from "react-native"
-import { AntDesign, Feather, FontAwesome } from "@expo/vector-icons"
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { observer } from "mobx-react-lite"
-import { typography, useAppTheme } from "../../../../theme"
-import { useTaskStatus } from "../../../../services/hooks/features/useTaskStatus"
-import { ITaskStatusItem } from "../../../../services/interfaces/ITaskStatus"
-import { useTaskStatusValue } from "../../../../components/StatusType"
-import { limitTextCharaters } from "../../../../helpers/sub-text"
-import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
-import { StatusType } from "./FilterPopup"
-import { BlurView } from "expo-blur"
+	FlatList
+} from 'react-native';
+import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons';
+import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
+import { observer } from 'mobx-react-lite';
+import { typography, useAppTheme } from '../../../../theme';
+import { useTaskStatus } from '../../../../services/hooks/features/useTaskStatus';
+import { ITaskStatusItem } from '../../../../services/interfaces/ITaskStatus';
+import { useTaskStatusValue } from '../../../../components/StatusType';
+import { limitTextCharaters } from '../../../../helpers/sub-text';
+import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { StatusType } from './FilterPopup';
+import { BlurView } from 'expo-blur';
 
 interface TaskStatusFilterProps {
-	showTaskStatus: boolean
-	setShowTaskStatus: (value: boolean) => unknown
-	taskFilter: ITaskFilter
-	selectedStatuses: string[]
-	setSelectedStatuses: (newValue: string[], statusType: StatusType) => void
+	showTaskStatus: boolean;
+	setShowTaskStatus: (value: boolean) => unknown;
+	taskFilter: ITaskFilter;
+	selectedStatuses: string[];
+	setSelectedStatuses: (newValue: string[], statusType: StatusType) => void;
 }
 
-const { height, width } = Dimensions.get("window")
+const { height, width } = Dimensions.get('window');
 
 const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
 	({ setShowTaskStatus, showTaskStatus, taskFilter, selectedStatuses, setSelectedStatuses }) => {
-		const { colors } = useAppTheme()
+		const { colors } = useAppTheme();
 		// const [selectedStatuses, setSelectedStatus] = useState<string[]>([])
 
 		useEffect(() => {
-			taskFilter.onChangeStatusFilter("status", selectedStatuses)
-			taskFilter.applyStatusFilter()
-		}, [selectedStatuses])
+			taskFilter.onChangeStatusFilter('status', selectedStatuses);
+			taskFilter.applyStatusFilter();
+		}, [selectedStatuses]);
 		return (
 			<>
 				<TouchableOpacity onPress={() => setShowTaskStatus(!showTaskStatus)}>
 					<View style={{ ...styles.container, borderColor: colors.divider }}>
-						<View style={{ flexDirection: "row", alignItems: "center" }}>
+						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
 							<Text style={{ marginRight: 10, color: colors.primary }}>Status</Text>
 							{selectedStatuses.length === 0 ? null : (
 								<FontAwesome name="circle" size={24} color={colors.secondary} />
@@ -64,21 +64,21 @@ const TaskStatusFilter: FC<TaskStatusFilterProps> = observer(
 					setSelectedStatus={setSelectedStatuses}
 				/>
 			</>
-		)
-	},
-)
+		);
+	}
+);
 
 interface DropDownProps {
-	visible: boolean
-	onDismiss: () => unknown
-	selectedStatus: string[]
-	setSelectedStatus: (newValue: string[], statusType: StatusType) => void
+	visible: boolean;
+	onDismiss: () => unknown;
+	selectedStatus: string[];
+	setSelectedStatus: (newValue: string[], statusType: StatusType) => void;
 }
 
 const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 	({ visible, onDismiss, setSelectedStatus, selectedStatus }) => {
-		const { colors, dark } = useAppTheme()
-		const { allStatuses } = useTaskStatus()
+		const { colors, dark } = useAppTheme();
+		const { allStatuses } = useTaskStatus();
 
 		return (
 			<ModalPopUp visible={visible} onDismiss={onDismiss}>
@@ -88,16 +88,12 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 							styles.dropdownContainer,
 							{
 								backgroundColor: colors.background,
-								shadowColor: dark
-									? "rgba(255, 255, 255, 0.2)"
-									: "rgba(0, 0, 0, 0.2)",
-							},
+								shadowColor: dark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
+							}
 						]}
 					>
 						<View style={styles.secondContainer}>
-							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>
-								Statuses
-							</Text>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
 							<View style={{ paddingHorizontal: 16, height: height / 2.55 }}>
 								<FlatList
 									bounces={false}
@@ -117,45 +113,43 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 					</View>
 				</TouchableWithoutFeedback>
 			</ModalPopUp>
-		)
-	},
-)
+		);
+	}
+);
 
 const DropDownItem = observer(
 	({
 		status,
 		selectedStatus,
-		setSelectedStatus,
+		setSelectedStatus
 	}: {
-		status: ITaskStatusItem
-		selectedStatus: string[]
-		setSelectedStatus: (newValue: string[], statusType: StatusType) => void
+		status: ITaskStatusItem;
+		selectedStatus: string[];
+		setSelectedStatus: (newValue: string[], statusType: StatusType) => void;
 	}) => {
-		const allStatuses = useTaskStatusValue()
-		const statusItem = allStatuses[status.name.split("-").join(" ")]
-		const { dark } = useAppTheme()
+		const allStatuses = useTaskStatusValue();
+		const statusItem = allStatuses[status.name.split('-').join(' ')];
+		const { dark } = useAppTheme();
 
-		const exist = selectedStatus.find((s) => s === statusItem?.value)
+		const exist = selectedStatus.find((s) => s === statusItem?.value);
 
 		const onSelectedStatus = () => {
 			if (exist) {
-				const newStatuses = selectedStatus.filter((s) => s !== statusItem.value)
-				setSelectedStatus([...newStatuses], "taskStatus")
+				const newStatuses = selectedStatus.filter((s) => s !== statusItem.value);
+				setSelectedStatus([...newStatuses], 'taskStatus');
 			} else {
-				setSelectedStatus([...selectedStatus, statusItem.value], "taskStatus")
+				setSelectedStatus([...selectedStatus, statusItem.value], 'taskStatus');
 			}
-		}
+		};
 
 		return (
 			<TouchableOpacity
-				style={{ ...styles.itemContainer, backgroundColor: dark && "#2E3138" }}
+				style={{ ...styles.itemContainer, backgroundColor: dark && '#2E3138' }}
 				onPress={() => onSelectedStatus()}
 			>
 				<View style={{ ...styles.dropdownItem, backgroundColor: statusItem?.bgColor }}>
 					{statusItem?.icon}
-					<Text style={styles.itemText}>
-						{limitTextCharaters({ text: statusItem?.name, numChars: 17 })}
-					</Text>
+					<Text style={styles.itemText}>{limitTextCharaters({ text: statusItem?.name, numChars: 17 })}</Text>
 				</View>
 				{exist ? (
 					<AntDesign name="checkcircle" size={24} color="#27AE60" />
@@ -163,42 +157,42 @@ const DropDownItem = observer(
 					<Feather name="circle" size={24} color="rgba(40, 32, 72, 0.43)" />
 				)}
 			</TouchableOpacity>
-		)
-	},
-)
+		);
+	}
+);
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<BlurView
 				intensity={15}
 				tint="dark"
 				style={{
-					position: "absolute",
-					width: "100%",
-					height: "100%",
+					position: 'absolute',
+					width: '100%',
+					height: '100%'
 				}}
 			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
@@ -207,8 +201,8 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 						style={{
 							transform: [{ scale: scaleValue }],
 							flex: 1,
-							justifyContent: "center",
-							alignItems: "center",
+							justifyContent: 'center',
+							alignItems: 'center'
 						}}
 					>
 						{children}
@@ -216,79 +210,79 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	justifyContent: "flex-end",
-}
+	justifyContent: 'flex-end'
+};
 
 const styles = StyleSheet.create({
 	container: {
-		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.16)",
+		alignItems: 'center',
+		borderColor: 'rgba(0,0,0,0.16)',
 		borderRadius: 10,
 		borderWidth: 1,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 57,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		minHeight: 30,
 		minWidth: 100,
 		paddingHorizontal: 16,
 		paddingVertical: 10,
 		width: width / 2.4,
-		zIndex: 1000,
+		zIndex: 1000
 	},
 	dropdownContainer: {
 		borderRadius: 20,
 		minHeight: height / 2.3,
-		width: "95%",
+		width: '95%',
 		zIndex: 1001,
 		...GS.noBorder,
 		borderWidth: 1,
 		elevation: 10,
 		shadowOffset: { width: 0, height: 3 },
 		shadowOpacity: 1,
-		shadowRadius: 10,
+		shadowRadius: 10
 	},
 	dropdownItem: {
-		alignItems: "center",
+		alignItems: 'center',
 		borderRadius: 10,
 		elevation: 10,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 44,
 		paddingHorizontal: 16,
-		width: "60%",
+		width: '60%'
 	},
 	dropdownTitle: {
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
 		marginBottom: 5,
-		marginLeft: 16,
+		marginLeft: 16
 	},
 	itemContainer: {
-		alignItems: "center",
-		borderColor: "rgba(0,0,0,0.2)",
+		alignItems: 'center',
+		borderColor: 'rgba(0,0,0,0.2)',
 		borderRadius: 10,
 		borderWidth: 1,
-		flexDirection: "row",
+		flexDirection: 'row',
 		height: 56,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		marginVertical: 5,
 		paddingLeft: 6,
 		paddingRight: 18,
-		width: "100%",
+		width: '100%'
 	},
 	itemText: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14,
 		marginLeft: 10,
-		textTransform: "capitalize",
+		textTransform: 'capitalize'
 	},
 	secondContainer: {
-		marginVertical: 16,
-	},
-})
+		marginVertical: 16
+	}
+});
 
-export default TaskStatusFilter
+export default TaskStatusFilter;

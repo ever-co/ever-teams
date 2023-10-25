@@ -33,9 +33,7 @@ export const TimezoneDropDown = ({
 		return 0;
 	});
 
-	const sortedTimezones = allTimezonesWithUTC.map(
-		(item) => `${item.name} (UTC ${item.offset})`
-	);
+	const sortedTimezones = allTimezonesWithUTC.map((item) => `${item.name} (UTC ${item.offset})`);
 
 	const timeZonesMap: string[] = sortedTimezones.filter((item) =>
 		item.toLowerCase().includes(searchText.toLowerCase())
@@ -46,11 +44,7 @@ export const TimezoneDropDown = ({
 	const [timezoneItem, setTimezoneItem] = useState<TimezoneItem | null>(null);
 
 	useEffect(() => {
-		setTimezoneItem(
-			items.find(
-				(t) => t.key === activeTimezone || t.key === currentTimezone
-			) || null
-		);
+		setTimezoneItem(items.find((t) => t.key === activeTimezone || t.key === currentTimezone) || null);
 	}, [activeTimezone, items, currentTimezone]);
 
 	const onChange = useCallback(

@@ -18,13 +18,7 @@ export function getEmployeeRoleRequest({
 	});
 }
 
-export function getRolesRequest({
-	bearer_token,
-	tenantId
-}: {
-	bearer_token: string;
-	tenantId: string;
-}) {
+export function getRolesRequest({ bearer_token, tenantId }: { bearer_token: string; tenantId: string }) {
 	return serverFetch<IRole>({
 		path: `/roles`,
 		method: 'GET',

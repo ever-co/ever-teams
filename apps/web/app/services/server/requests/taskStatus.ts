@@ -1,11 +1,7 @@
 import { ITaskStatusCreate, ITaskStatusItemList } from '@app/interfaces';
 import { serverFetch } from '../fetch';
 
-export function createStatusRequest(
-	datas: ITaskStatusCreate,
-	bearer_token: string,
-	tenantId?: any
-) {
+export function createStatusRequest(datas: ITaskStatusCreate, bearer_token: string, tenantId?: any) {
 	return serverFetch<ITaskStatusItemList>({
 		path: '/task-statuses',
 		method: 'POST',

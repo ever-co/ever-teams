@@ -2,13 +2,7 @@ import { MEET_DOMAIN } from '@app/constants';
 import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useRouter } from 'next/router';
 
-export default function MeetPage({
-	jwt,
-	roomName
-}: {
-	jwt: string;
-	roomName: string;
-}) {
+export default function MeetPage({ jwt, roomName }: { jwt: string; roomName: string }) {
 	const router = useRouter();
 
 	return (

@@ -63,6 +63,7 @@ export function getOrganizationTeamRequest(
 		withLaskWorkedTask: "true",
 		startDate: moment().startOf("day").toISOString(),
 		endDate: moment().endOf("day").toISOString(),
+		includeOrganizationTeamId: "false",
 	} as { [x: string]: string }
 
 	relations.forEach((rl, i) => {

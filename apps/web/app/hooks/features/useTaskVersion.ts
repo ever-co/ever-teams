@@ -6,12 +6,7 @@ import {
 	deleteTaskVersionAPI,
 	editTaskVersionAPI
 } from '@app/services/client/api';
-import {
-	userState,
-	taskVersionFetchingState,
-	taskVersionListState,
-	activeTeamIdState
-} from '@app/stores';
+import { userState, taskVersionFetchingState, taskVersionListState, activeTeamIdState } from '@app/stores';
 import { useCallback, useEffect } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { useFirstLoad } from '../useFirstLoad';
@@ -20,26 +15,19 @@ import isEqual from 'lodash/isEqual';
 import { useCallbackRef } from '../useCallbackRef';
 import { getActiveTeamIdCookie } from '@app/helpers';
 
-export function useTaskVersion(
-	onVersionCreated?: (version: ITaskVersionCreate) => void
-) {
+export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) => void) {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
 	const { loading, queryCall } = useQuery(getTaskversionList);
-	const { loading: createTaskVersionLoading, queryCall: createQueryCall } =
-		useQuery(createTaskVersionAPI);
-	const { loading: deleteTaskVersionLoading, queryCall: deleteQueryCall } =
-		useQuery(deleteTaskVersionAPI);
-	const { loading: editTaskVersionLoading, queryCall: editQueryCall } =
-		useQuery(editTaskVersionAPI);
+	const { loading: createTaskVersionLoading, queryCall: createQueryCall } = useQuery(createTaskVersionAPI);
+	const { loading: deleteTaskVersionLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskVersionAPI);
+	const { loading: editTaskVersionLoading, queryCall: editQueryCall } = useQuery(editTaskVersionAPI);
 
 	const [taskVersion, setTaskVersion] = useRecoilState(taskVersionListState);
 	const $onVersionCreated = useCallbackRef(onVersionCreated);
 
-	const [taskVersionFetching, setTaskVersionFetching] = useRecoilState(
-		taskVersionFetchingState
-	);
+	const [taskVersionFetching, setTaskVersionFetching] = useRecoilState(taskVersionFetchingState);
 	const { firstLoadData: firstLoadTaskVersionData, firstLoad } = useFirstLoad();
 
 	useEffect(() => {
@@ -70,22 +58,15 @@ export function useTaskVersion(
 	const createTaskVersion = useCallback(
 		(data: ITaskVersionCreate) => {
 			if (user?.tenantId) {
-				return createQueryCall(
-					{ ...data, organizationTeamId: activeTeamId },
-					user?.tenantId || ''
-				).then((res) => {
-					return res;
-				});
+				return createQueryCall({ ...data, organizationTeamId: activeTeamId }, user?.tenantId || '').then(
+					(res) => {
+						return res;
+					}
+				);
 			}
 		},
 
-		[
-			$onVersionCreated,
-			createQueryCall,
-			createTaskVersionLoading,
-			deleteTaskVersionLoading,
-			activeTeamId
-		]
+		[$onVersionCreated, createQueryCall, createTaskVersionLoading, deleteTaskVersionLoading, activeTeamId]
 	);
 
 	const deleteTaskVersion = useCallback(
@@ -104,14 +85,7 @@ export function useTaskVersion(
 				});
 			}
 		},
-		[
-			deleteQueryCall,
-			taskVersion.length,
-			createTaskVersionLoading,
-			deleteTaskVersionLoading,
-			user,
-			activeTeamId
-		]
+		[deleteQueryCall, taskVersion.length, createTaskVersionLoading, deleteTaskVersionLoading, user, activeTeamId]
 	);
 
 	const editTaskVersion = useCallback(

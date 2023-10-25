@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC } from "react"
+import React, { FC } from 'react';
 import {
 	View,
 	ViewStyle,
@@ -9,48 +9,48 @@ import {
 	StyleSheet,
 	Text,
 	TouchableOpacity,
-	TouchableWithoutFeedback,
-} from "react-native"
-import { useSharedValue } from "react-native-reanimated"
+	TouchableWithoutFeedback
+} from 'react-native';
+import { useSharedValue } from 'react-native-reanimated';
 import ColorPicker, {
 	Panel1,
 	Swatches,
 	OpacitySlider,
 	HueSlider,
 	colorKit,
-	PreviewText,
-} from "reanimated-color-picker"
-import { useAppTheme, typography } from "../theme"
-import { translate } from "../i18n"
+	PreviewText
+} from 'reanimated-color-picker';
+import { useAppTheme, typography } from '../theme';
+import { translate } from '../i18n';
 
 interface ColorObj {
-	hex: string
-	hsl: string
-	hsla: string
-	hsv: string
-	hsva: string
-	hwb: string
-	hwba: string
-	rgb: string
-	rgba: string
+	hex: string;
+	hsl: string;
+	hsla: string;
+	hsv: string;
+	hsva: string;
+	hwb: string;
+	hwba: string;
+	rgb: string;
+	rgba: string;
 }
 
 interface IColorPicker {
-	visible: boolean
-	onDismiss: () => void
-	setColor: React.Dispatch<React.SetStateAction<string>>
+	visible: boolean;
+	onDismiss: () => void;
+	setColor: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ColorPickerModal: FC<IColorPicker> = ({ visible, onDismiss, setColor }) => {
-	const { dark, colors } = useAppTheme()
+	const { dark, colors } = useAppTheme();
 
-	const customSwatches = new Array(6).fill("#fff").map(() => colorKit.randomRgbColor().hex())
+	const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
 
-	const selectedColor = useSharedValue(customSwatches[0])
+	const selectedColor = useSharedValue(customSwatches[0]);
 
 	const onColorSelect = (color: ColorObj) => {
-		selectedColor.value = color.hex
-	}
+		selectedColor.value = color.hex;
+	};
 
 	return (
 		<ModalPopUp visible={visible}>
@@ -72,58 +72,56 @@ const ColorPickerModal: FC<IColorPicker> = ({ visible, onDismiss, setColor }) =>
 						colors={customSwatches}
 					/>
 					<View style={styles.previewTxtContainer}>
-						<PreviewText style={{ color: dark ? "#ffffff" : "#000000", fontSize: 18 }} />
+						<PreviewText style={{ color: dark ? '#ffffff' : '#000000', fontSize: 18 }} />
 					</View>
 				</ColorPicker>
 				<View style={styles.wrapButtons}>
 					<TouchableOpacity style={styles.cancelBtn} onPress={() => onDismiss()}>
-						<Text style={styles.cancelTxt}>
-							{translate("settingScreen.statusScreen.cancelButtonText")}
-						</Text>
+						<Text style={styles.cancelTxt}>{translate('settingScreen.statusScreen.cancelButtonText')}</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
 						style={{
 							...styles.confirmBtn,
-							backgroundColor: dark ? "#6755C9" : "#3826A6",
+							backgroundColor: dark ? '#6755C9' : '#3826A6'
 						}}
 						onPress={() => {
-							setColor(selectedColor.value)
-							onDismiss()
+							setColor(selectedColor.value);
+							onDismiss();
 						}}
 					>
-						<Text style={styles.createTxt}>{translate("common.confirm")}</Text>
+						<Text style={styles.createTxt}>{translate('common.confirm')}</Text>
 					</TouchableOpacity>
 				</View>
 			</View>
 		</ModalPopUp>
-	)
-}
+	);
+};
 
-export default ColorPickerModal
+export default ColorPickerModal;
 
 const ModalPopUp = ({ visible, children }) => {
-	const [showModal, setShowModal] = React.useState(visible)
-	const scaleValue = React.useRef(new Animated.Value(0)).current
+	const [showModal, setShowModal] = React.useState(visible);
+	const scaleValue = React.useRef(new Animated.Value(0)).current;
 
 	React.useEffect(() => {
-		toggleModal()
-	}, [visible])
+		toggleModal();
+	}, [visible]);
 	const toggleModal = () => {
 		if (visible) {
-			setShowModal(true)
+			setShowModal(true);
 			Animated.spring(scaleValue, {
 				toValue: 1,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		} else {
-			setTimeout(() => setShowModal(false), 200)
+			setTimeout(() => setShowModal(false), 200);
 			Animated.timing(scaleValue, {
 				toValue: 0,
 				duration: 300,
-				useNativeDriver: true,
-			}).start()
+				useNativeDriver: true
+			}).start();
 		}
-	}
+	};
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
 			<TouchableWithoutFeedback>
@@ -132,62 +130,62 @@ const ModalPopUp = ({ visible, children }) => {
 				</View>
 			</TouchableWithoutFeedback>
 		</Modal>
-	)
-}
+	);
+};
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
-	justifyContent: "center",
-}
+	backgroundColor: '#000000AA',
+	justifyContent: 'center'
+};
 
 const styles = StyleSheet.create({
 	cancelBtn: {
-		alignItems: "center",
-		backgroundColor: "#E6E6E9",
+		alignItems: 'center',
+		backgroundColor: '#E6E6E9',
 		borderRadius: 12,
 		height: 57,
-		justifyContent: "center",
-		width: "48%",
+		justifyContent: 'center',
+		width: '48%'
 	},
 	cancelTxt: {
-		color: "#1A1C1E",
+		color: '#1A1C1E',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 18
 	},
 	confirmBtn: {
-		alignItems: "center",
-		backgroundColor: "#3826A6",
+		alignItems: 'center',
+		backgroundColor: '#3826A6',
 		borderRadius: 12,
 		height: 57,
-		justifyContent: "center",
-		width: "48%",
+		justifyContent: 'center',
+		width: '48%'
 	},
 	container: {
-		alignSelf: "center",
+		alignSelf: 'center',
 		borderRadius: 20,
 		padding: 20,
-		width: "90%",
+		width: '90%'
 	},
 	createTxt: {
-		color: "#FFF",
+		color: '#FFF',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 18,
+		fontSize: 18
 	},
 	panelStyle: {
 		borderRadius: 16,
-		elevation: 5,
+		elevation: 5
 	},
 	previewTxtContainer: {
-		borderColor: "#bebdbe",
+		borderColor: '#bebdbe',
 		borderTopWidth: 1,
 		marginTop: 20,
-		paddingTop: 20,
+		paddingTop: 20
 	},
 	sliderStyle: {
 		borderRadius: 20,
 		elevation: 5,
-		marginTop: 20,
+		marginTop: 20
 	},
 	swatchStyle: {
 		borderRadius: 20,
@@ -196,21 +194,21 @@ const styles = StyleSheet.create({
 		marginBottom: 0,
 		marginHorizontal: 0,
 		marginVertical: 0,
-		width: 30,
+		width: 30
 	},
 	swatchesContainer: {
-		alignItems: "center",
-		borderColor: "#bebdbe",
+		alignItems: 'center',
+		borderColor: '#bebdbe',
 		borderTopWidth: 1,
-		flexWrap: "nowrap",
+		flexWrap: 'nowrap',
 		gap: 10,
 		marginTop: 20,
-		paddingTop: 20,
+		paddingTop: 20
 	},
 	wrapButtons: {
-		flexDirection: "row",
-		justifyContent: "space-between",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
 		marginTop: 20,
-		width: "100%",
-	},
-})
+		width: '100%'
+	}
+});

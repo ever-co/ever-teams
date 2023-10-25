@@ -100,10 +100,7 @@ type ResetInviteParams = {
  * @param bearer_token
  * @returns
  */
-export function resendInvitationEmailRequest(
-	params: ResetInviteParams,
-	bearer_token: string
-) {
+export function resendInvitationEmailRequest(params: ResetInviteParams, bearer_token: string) {
 	return serverFetch<PaginationResponse<IInvitation>>({
 		path: '/invite/resend',
 		method: 'POST',
@@ -159,10 +156,7 @@ export function acceptInviteRequest(params: AcceptInviteParams) {
  * @param bearer_token
  * @returns
  */
-export function getMyInvitationsRequest(
-	tenantId: string,
-	bearer_token: string
-) {
+export function getMyInvitationsRequest(tenantId: string, bearer_token: string) {
 	return serverFetch<PaginationResponse<IInvitation>>({
 		path: `/invite/me`,
 		method: 'GET',

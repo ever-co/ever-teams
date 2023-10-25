@@ -1,11 +1,4 @@
-import {
-	Dispatch,
-	SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { AutoCompleteDropdown } from 'lib/components';
 import { InviteEmailItem, mapTeamMemberItems } from './invite-email-item';
 
@@ -43,10 +36,7 @@ export const InviteEmailDropdown = ({
 
 	useEffect(() => {
 		if (selectedEmail) {
-			setEmailItem(
-				$items.current.find((item: any) => item.key === selectedEmail.title) ||
-					null
-			);
+			setEmailItem($items.current.find((item: any) => item.key === selectedEmail.title) || null);
 		}
 	}, [selectedEmail, $items]);
 
@@ -54,9 +44,7 @@ export const InviteEmailDropdown = ({
 		<>
 			<AutoCompleteDropdown
 				className="min-w-[150px] z-10"
-				buttonClassName={clsxm(
-					'font-normal h-[54px] placeholder:font-light focus:outline-none p-4'
-				)}
+				buttonClassName={clsxm('font-normal h-[54px] placeholder:font-light focus:outline-none p-4')}
 				value={emailItem}
 				onChange={onChangeActive}
 				items={items}
