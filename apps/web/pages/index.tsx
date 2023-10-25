@@ -19,7 +19,6 @@ function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
-	console.log(breadcrumb);
 
 	return (
 		<MainLayout>
