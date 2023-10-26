@@ -52,3 +52,6 @@ jobs:
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto
+
+      - name: Upload to Play Store Console
+        run: cd apps/mobile && eas submit -p android --latest --key ${{ secrets.GOOGLE_SERVICE_ACCOUNT }} 
