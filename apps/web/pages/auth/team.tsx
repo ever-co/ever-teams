@@ -1,4 +1,5 @@
-import { IStepProps, useAuthenticationTeam } from '@app/hooks';
+import { RECAPTCHA_SITE_KEY } from '@app/constants';
+import { useAuthenticationTeam, IStepProps } from '@app/hooks';
 import { IClassName } from '@app/interfaces';
 import { clsxm } from '@app/utils';
 import { BackButton, BackdropLoader, Button, Card, InputField, SiteReCAPTCHA, Text } from 'lib/components';
@@ -152,23 +153,24 @@ function FillUserDataForm({
 						onChange={handleOnChange}
 						autoComplete="off"
 					/>
-
-					<div className="flex w-full">
-						<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
-							<SiteReCAPTCHA
-								onChange={(res) => {
-									handleOnChange({ target: { name: 'recaptcha', value: res } });
-									setFeedback('');
-								}}
-								onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
-							/>
-							{(errors['recaptcha'] || feedback) && (
-								<Text.Error className="self-start justify-self-start">
-									{errors['recaptcha'] || feedback}
-								</Text.Error>
-							)}
+					{ RECAPTCHA_SITE_KEY && 
+						<div className="w-full flex">
+							<div className="dark:invert-[0.88] dark:hue-rotate-180 scale-[1] origin-[0]">
+								<SiteReCAPTCHA
+									onChange={(res) => {
+										handleOnChange({ target: { name: 'recaptcha', value: res } });
+										setFeedback('');
+									}}
+									onErrored={() => setFeedback(t('errors.NETWORK_ISSUE'))}
+								/>
+								{(errors['recaptcha'] || feedback) && (
+									<Text.Error className="self-start justify-self-start">
+										{errors['recaptcha'] || feedback}
+									</Text.Error>
+								)}
+							</div>
 						</div>
-					</div>
+					}
 				</div>
 
 				<div className="flex items-center justify-between w-full">
