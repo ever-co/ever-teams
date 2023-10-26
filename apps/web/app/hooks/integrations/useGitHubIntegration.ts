@@ -10,6 +10,7 @@ import { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { useQuery } from '../useQuery';
 import { IProjectRepository } from '@app/interfaces';
+import { editOrganizationProjectSettingAPI } from '@app/services/client/api';
 
 export function useGitHubIntegration() {
 	const [user] = useRecoilState(userState);
@@ -72,11 +73,29 @@ export function useGitHubIntegration() {
 		[repositoriesQueryCall, setIntegrationGithubRepositories]
 	);
 	const syncGitHubRepository = useCallback(
-		(integrationId: string, repository: IProjectRepository) => {
+		(
+			installationId: string,
+			repository: IProjectRepository,
+			projectId: string,
+			tenantId: string,
+			organizationId: string
+		) => {
 			return syncGitHubRepositoryQueryCall({
-				integrationId,
+				installationId,
 				repository
 			}).then((response) => {
+				if (response.data.data.id) {
+					editOrganizationProjectSettingAPI(
+						projectId,
+						{
+							tenantId,
+							organizationId,
+							repositoryId: response.data.data.id
+						},
+						tenantId
+					);
+				}
+
 				return response.data.data;
 			});
 		},
