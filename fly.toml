@@ -1,0 +1,19 @@
+# fly.toml app configuration file generated for ever-teams on 2023-10-26T08:19:45Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "ever-teams"
+primary_region = "lax"
+kill_signal = "SIGINT"
+kill_timeout = "5m0s"
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
