@@ -52,7 +52,7 @@ export function WorkedOnTaskCell({ row }: { row: any }) {
 			memberInfo={memberInfo}
 			task={memberInfo?.memberTask}
 			isAuthUser={memberInfo?.isAuthUser}
-			className="2xl:w-48 3xl:w-[12rem] w-1/5 lg:px-4 px-2 flex flex-col gap-y-[1.125rem] justify-center"
+			className="2xl:w-32 3xl:w-[8rem] w-1/5  flex flex-col gap-y-[1.125rem] justify-center"
 		/>
 	);
 }
@@ -95,7 +95,8 @@ export function ActionMenuCell ({ cell }: {  cell: any}) {
 					checked={user_selected()}
 					className={clsxm(
 						'border-none w-4 h-4 mr-1 accent-primary-light',
-						'border-2 border-primary-light'
+						'border-2 border-primary-light',
+						'2xl:w-[2rem] w-1/5'
 					)}
 					noWrapper={true}
 					onChange={onUserSelect}

@@ -16,7 +16,7 @@ import { MainHeader, MainLayout } from 'lib/layout';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { IssuesView } from '@app/constants';
-import { TableCellsIcon, ListBulletIcon } from '@heroicons/react/24/solid';
+import { TableCellsIcon, QueueListIcon } from '@heroicons/react/24/solid';
 
 function MainPage() {
 	const { t } = useTranslation();
@@ -55,7 +55,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.TABLE)}
 						>
-							<ListBulletIcon className="w-5 h-5 inline -ml-1 mr-1" />
+							<QueueListIcon className="w-5 h-5 inline -ml-1 mr-1" />
 						</button>
 					</div>
 				</div>

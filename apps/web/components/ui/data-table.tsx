@@ -72,7 +72,7 @@ function DataTable<TData, TValue>({
 	})
 
 	return (
-		<Table>
+		<Table className='border-transparent bg-light--theme-light dark:bg-dark--theme-light mt-8 w-full'>
 			<TableHeader>
 				{table.getHeaderGroups().map((headerGroup) => (
 					<TableRow key={headerGroup.id}>
@@ -97,10 +97,12 @@ function DataTable<TData, TValue>({
 						<TableRow
 							key={row.id}
 							data-state={row.getIsSelected() && "selected"}
-							className="mb-4 border-b border-gray-200"
+							className='my-4'
 						>
 							{row.getVisibleCells().map((cell) => (
-								<TableCell key={cell.id}>
+								<TableCell key={cell.id}
+								className="rounded-[16px] my-4">
+
 									{flexRender(
 										cell.column.columnDef.cell,
 										cell.getContext()
