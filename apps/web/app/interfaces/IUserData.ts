@@ -5,7 +5,7 @@ export interface ITeamProps {
 	email: string;
 	name: string;
 	team: string;
-	recaptcha: string;
+	recaptcha?: string;
 }
 
 export interface IUser {
