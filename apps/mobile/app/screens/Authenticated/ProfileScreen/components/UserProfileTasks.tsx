@@ -1,73 +1,74 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import { Dimensions, FlatList, ScrollView, Text, TextStyle, View } from 'react-native';
-import React, { FC, useMemo } from 'react';
-import { IUserProfile } from '../logics/useProfileScreenLogic';
-import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
-import ListCardItem from './ListCardItem';
-import { translate } from '../../../../i18n';
-import { typography, useAppTheme } from '../../../../theme';
-import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
-import { observer } from 'mobx-react-lite';
-import { useTimer } from '../../../../services/hooks/useTimer';
-import WorkedOnTaskHours from '../../../../components/WorkedDayHours';
-import { useStores } from '../../../../models';
+import { Dimensions, FlatList, ScrollView, Text, TextStyle, View } from "react-native"
+import React, { FC, useMemo } from "react"
+import { IUserProfile } from "../logics/useProfileScreenLogic"
+import { ITaskFilter } from "../../../../services/hooks/features/useTaskFilters"
+import ListCardItem from "./ListCardItem"
+import { translate } from "../../../../i18n"
+import { typography, useAppTheme } from "../../../../theme"
+import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
+import { observer } from "mobx-react-lite"
+import { useTimer } from "../../../../services/hooks/useTimer"
+import WorkedOnTaskHours from "../../../../components/WorkedDayHours"
+import { useStores } from "../../../../models"
 interface IUserProfileTasks {
-	profile: IUserProfile;
-	content: ITaskFilter;
+	profile: IUserProfile
+	content: ITaskFilter
 }
 const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) => {
 	const {
-		TaskStore: { activeTaskId }
-	} = useStores();
-	const { colors, dark } = useAppTheme();
-	const { timerStatus } = useTimer();
+		TaskStore: { activeTaskId },
+	} = useStores()
+	const { colors, dark } = useAppTheme()
+	const { timerStatus } = useTimer()
 	const tasks = useMemo(() => {
-		return content.tasksFiltered;
-	}, [content, profile]);
+		return content.tasksFiltered
+	}, [content, profile])
 
 	return (
 		<>
-			{content.tab === 'worked' && (
+			{content.tab === "worked" && (
 				<ScrollView
 					style={{
 						flex: 1,
 						paddingHorizontal: 20,
-						backgroundColor: dark ? 'rgb(16,17,20)' : colors.background2
+						backgroundColor: dark ? "rgb(16,17,20)" : colors.background2,
 					}}
 					bounces={false}
 				>
-					{content.tab === 'worked' &&
+					{content.tab === "worked" &&
 					profile.activeUserTeamTask &&
-					(profile.member?.timerStatus === 'running' || (profile.isAuthUser && timerStatus?.running)) ? (
+					(profile.member?.timerStatus === "running" ||
+						(profile.isAuthUser && timerStatus?.running)) ? (
 						<>
 							<View
 								style={{
-									flexDirection: 'row',
-									justifyContent: 'space-between',
-									marginVertical: 20
+									flexDirection: "row",
+									justifyContent: "space-between",
+									marginVertical: 20,
 								}}
 							>
 								<Text style={[$textLabel, { color: colors.primary }]}>
-									{translate('tasksScreen.now')}
+									{translate("tasksScreen.now")}
 								</Text>
 								<View
 									style={{
 										width: width / 1.8,
-										alignSelf: 'center',
+										alignSelf: "center",
 										borderBottomWidth: 1,
-										borderBottomColor: colors.border
+										borderBottomColor: colors.border,
 									}}
 								/>
-								<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+								<View style={{ flexDirection: "row", alignItems: "center" }}>
 									<Text
 										style={{
 											color: colors.primary,
 											fontSize: 12,
-											fontFamily: typography.secondary.medium
+											fontFamily: typography.secondary.medium,
 										}}
 									>
-										{translate('tasksScreen.totalTimeLabel')}:
+										{translate("tasksScreen.totalTimeLabel")}:
 									</Text>
 									<Text
 										style={[
@@ -76,13 +77,13 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 												marginLeft: 5,
 												color: colors.primary,
 												fontFamily: typography.primary.semiBold,
-												fontSize: 12
-											}
+												fontSize: 12,
+											},
 										]}
 									></Text>
 									<WorkedOnTaskHours
 										memberTask={profile.activeUserTeamTask}
-										containerStyle={{ alignItems: 'center' }}
+										containerStyle={{ alignItems: "center" }}
 										totalTimeText={{ color: colors.primary, fontSize: 12 }}
 									/>
 								</View>
@@ -98,25 +99,25 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 						</>
 					) : null}
 
-					{content.tab === 'worked' && (
+					{content.tab === "worked" && (
 						<View>
 							<View
 								style={{
-									flexDirection: 'row',
-									justifyContent: 'space-between',
-									marginVertical: 20
+									flexDirection: "row",
+									justifyContent: "space-between",
+									marginVertical: 20,
 								}}
 							>
 								<Text style={[$textLabel, { color: colors.primary }]}>
-									{translate('tasksScreen.last24hours')} ({tasks.length})
+									{translate("tasksScreen.last24hours")} ({tasks.length})
 								</Text>
 								<View
 									style={{
 										width: width / 1.5,
-										alignSelf: 'center',
+										alignSelf: "center",
 										top: 3,
 										borderBottomWidth: 1,
-										borderBottomColor: colors.border
+										borderBottomColor: colors.border,
 									}}
 								/>
 							</View>
@@ -136,15 +137,15 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 				</ScrollView>
 			)}
 
-			{(content.tab === 'assigned' || content.tab === 'unassigned') && (
+			{(content.tab === "assigned" || content.tab === "unassigned") && (
 				<View
 					style={{
 						flex: 1,
 						paddingHorizontal: 10,
-						backgroundColor: dark ? 'rgb(16,17,20)' : colors.background2
+						backgroundColor: dark ? "rgb(16,17,20)" : colors.background2,
 					}}
 				>
-					{content.tab === 'assigned' && (
+					{content.tab === "assigned" && (
 						<FlatList
 							showsVerticalScrollIndicator={false}
 							bounces={false}
@@ -152,7 +153,11 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 							renderItem={({ item, index }) => (
 								<View
 									key={index.toString()}
-									style={{ ...GS.mb4, marginHorizontal: 10, marginTop: index === 0 && 20 }}
+									style={{
+										...GS.mb4,
+										marginHorizontal: 10,
+										marginTop: index === 0 && 20,
+									}}
 								>
 									<ListCardItem
 										task={item}
@@ -166,7 +171,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 						/>
 					)}
 
-					{content.tab === 'unassigned' && (
+					{content.tab === "unassigned" && (
 						<FlatList
 							showsVerticalScrollIndicator={false}
 							bounces={false}
@@ -175,11 +180,15 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 							renderItem={({ item, index }) => (
 								<View
 									key={index.toString()}
-									style={{ ...GS.mb4, marginHorizontal: 10, marginTop: index === 0 && 20 }}
+									style={{
+										...GS.mb4,
+										marginHorizontal: 10,
+										marginTop: index === 0 && 20,
+									}}
 								>
 									<ListCardItem
 										task={item}
-										isAssigned={true}
+										isAssigned={false}
 										isAuthUser={profile.isAuthUser}
 										activeAuthTask={false}
 										profile={profile}
@@ -191,14 +200,14 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 				</View>
 			)}
 		</>
-	);
-});
+	)
+})
 
-export default UserProfileTasks;
+export default UserProfileTasks
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window")
 
 const $textLabel: TextStyle = {
 	fontFamily: typography.primary.semiBold,
-	fontSize: 12
-};
+	fontSize: 12,
+}
