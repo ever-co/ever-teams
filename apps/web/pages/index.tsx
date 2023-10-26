@@ -44,7 +44,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.CARDS)}
 						>
-							<TableCellsIcon className="w-5 h-5 inline -ml-1 mr-1" />
+							<TableCellsIcon className="w-5 h-5 inline" />
 						</button>
 						<button
 							className={clsxm(
@@ -55,7 +55,7 @@ function MainPage() {
 							)}
 							onClick={() => setView(IssuesView.TABLE)}
 						>
-							<QueueListIcon className="w-5 h-5 inline -ml-1 mr-1" />
+							<QueueListIcon className="w-5 h-5 inline" />
 						</button>
 					</div>
 				</div>
@@ -64,7 +64,11 @@ function MainPage() {
 				<TeamInvitations />
 			</MainHeader>
 
-			<div className="sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5">
+			<div
+				className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
+					view === IssuesView.TABLE ? 'pb-7' : ''
+				}`}
+			>
 				<Container>
 					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
@@ -75,9 +79,7 @@ function MainPage() {
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 			</div>
 
-			<Container className="height-[calc(100vh-5rem)] overflow-y-auto">
-				{isTeamMember ? <TeamMembers kabanView={view} /> : <NoTeam />}
-			</Container>
+			<Container className="">{isTeamMember ? <TeamMembers kabanView={view} /> : <NoTeam />}</Container>
 		</MainLayout>
 	);
 }

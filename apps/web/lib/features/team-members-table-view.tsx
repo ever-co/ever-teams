@@ -1,5 +1,5 @@
 import * as React from 'react';
-import DataTable from '@components/ui/data-table'
+import DataTable from '@components/ui/data-table';
 import { Column, ColumnDef } from '@tanstack/react-table';
 import { OT_Member } from '@app/interfaces';
 import { UserInfoCell, TaskCell, WorkedOnTaskCell, TaskEstimateInfoCell, ActionMenuCell } from './team-member-cell';
@@ -7,8 +7,15 @@ import { useAuthenticateUser, useModal } from '@app/hooks';
 import { InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 
-
-const TeamMembersTableView= ({ teamMembers, publicTeam=false, active = false }: { teamMembers: OT_Member[], publicTeam?: boolean, active?: boolean }) => {
+const TeamMembersTableView = ({
+	teamMembers,
+	publicTeam = false,
+	active = false
+}: {
+	teamMembers: OT_Member[];
+	publicTeam?: boolean;
+	active?: boolean;
+}) => {
 	const columns = React.useMemo<ColumnDef<OT_Member>[]>(
 		() => [
 			{
@@ -16,9 +23,8 @@ const TeamMembersTableView= ({ teamMembers, publicTeam=false, active = false }: 
 				header: 'Name',
 				cell: UserInfoCell,
 				meta: {
-					publicTeam,
+					publicTeam
 				}
-
 			},
 			{
 				id: 'task',
@@ -39,7 +45,7 @@ const TeamMembersTableView= ({ teamMembers, publicTeam=false, active = false }: 
 				id: 'action',
 				header: 'Action',
 				cell: ActionMenuCell,
-				meta:{
+				meta: {
 					active
 				}
 			}
@@ -47,10 +53,7 @@ const TeamMembersTableView= ({ teamMembers, publicTeam=false, active = false }: 
 		[]
 	);
 
-
-	const footerRows = React.useMemo<React.ReactNode[]>(() => [
-					<Invite  key={0} />,
-	], []);
+	const footerRows = React.useMemo<React.ReactNode[]>(() => [<Invite key={0} />], []);
 
 	return (
 		<DataTable
@@ -59,7 +62,7 @@ const TeamMembersTableView= ({ teamMembers, publicTeam=false, active = false }: 
 			footerRows={footerRows}
 			noResultsMessage={{
 				heading: 'No team members found',
-				content: 'Try adjusting your search or filter to find what you’re looking for.',
+				content: 'Try adjusting your search or filter to find what you’re looking for.'
 			}}
 		/>
 	);
@@ -72,10 +75,7 @@ function Invite() {
 	return (
 		<>
 			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
-			<InviteFormModal
-				open={isOpen && !!user?.isEmailVerified}
-				closeModal={closeModal}
-			/>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
 }
