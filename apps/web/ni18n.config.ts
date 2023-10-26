@@ -1,5 +1,21 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
 const supportedLngs = ['en', 'fr', 'ar', 'bg', 'zh', 'nl', 'de', 'he', 'it', 'pl', 'pt', 'ru', 'es'];
-export const ni18nConfig = {
+
+i18n.use(initReactI18next).init({
+	lng: 'en',
+	fallbackLng: 'en',
+	ns: ['common'],
+	defaultNS: 'common',
 	supportedLngs,
-	ns: ['common']
-};
+	interpolation: {
+		escapeValue: false
+	}
+});
+
+supportedLngs.forEach((lang) => {
+	i18n.addResourceBundle(lang, 'common', require(`/public/locales/${lang}/common.json`));
+});
+
+export default i18n;
