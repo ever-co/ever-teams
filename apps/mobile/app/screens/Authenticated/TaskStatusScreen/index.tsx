@@ -14,6 +14,7 @@ import { useTaskStatus } from "../../../services/hooks/features/useTaskStatus"
 import Animated from "react-native-reanimated"
 import { ITaskStatusItem } from "../../../services/interfaces/ITaskStatus"
 import TaskStatusForm from "./components/TaskStatusForm"
+import { BlurView } from "expo-blur"
 
 export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> =
 	function AuthenticatedDrawerScreen(_props) {
@@ -22,6 +23,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 		const { isLoading, statuses, deleteStatus, updateStatus, createStatus } = useTaskStatus()
 		const [editMode, setEditMode] = useState(false)
 		const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem>(null)
+		const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
 		// ref
 		const sheetRef = React.useRef(null)
 
@@ -29,6 +31,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 		const fall = new Animated.Value(1)
 		const openForEdit = (item: ITaskStatusItem) => {
 			setEditMode(true)
+			setIsSheetOpen(true)
 			setItemToEdit(item)
 			sheetRef.current.snapTo(0)
 		}
@@ -39,7 +42,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 				contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
 				safeAreaEdges={["top"]}
 			>
-				<Animated.View style={{ opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)) }}>
+				<Animated.View>
 					<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 						<View style={[styles.container, { backgroundColor: colors.background }]}>
 							<TouchableOpacity onPress={() => navigation.navigate("Setting")}>
@@ -96,6 +99,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 						}}
 						onPress={() => {
 							setEditMode(false)
+							setIsSheetOpen(true)
 							sheetRef.current.snapTo(0)
 						}}
 					>
@@ -105,6 +109,17 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 						</Text>
 					</TouchableOpacity>
 				</Animated.View>
+				{isSheetOpen && (
+					<BlurView
+						intensity={15}
+						tint="dark"
+						style={{
+							position: "absolute",
+							width: "100%",
+							height: "100%",
+						}}
+					/>
+				)}
 				<BottomSheet
 					ref={sheetRef}
 					snapPoints={[452, 0]}
@@ -117,6 +132,7 @@ export const TaskStatusScreen: FC<AuthenticatedDrawerScreenProps<"TaskStatus">> 
 							item={itemToEdit}
 							onDismiss={() => {
 								setEditMode(false)
+								setIsSheetOpen(false)
 								sheetRef.current.snapTo(1)
 							}}
 							onUpdateStatus={updateStatus}

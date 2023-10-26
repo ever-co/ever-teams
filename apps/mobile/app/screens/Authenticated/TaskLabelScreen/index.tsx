@@ -14,6 +14,7 @@ import LabelItem from "./components/LabelItem"
 import TaskLabelForm from "./components/TaskLabelForm"
 import { ITaskLabelItem } from "../../../services/interfaces/ITaskLabel"
 import { useTaskLabels } from "../../../services/hooks/features/useTaskLabels"
+import { BlurView } from "expo-blur"
 
 export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen">> =
 	function AuthenticatedDrawerScreen(_props) {
@@ -22,6 +23,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 		const { isLoading, labels, deleteLabel, updateLabel, createLabel } = useTaskLabels()
 		const [editMode, setEditMode] = useState(false)
 		const [itemToEdit, setItemToEdit] = useState<ITaskLabelItem>(null)
+		const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
 		// ref
 		const sheetRef = React.useRef(null)
 
@@ -30,6 +32,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 		const fall = new Animated.Value(1)
 		const openForEdit = (item: ITaskLabelItem) => {
 			setEditMode(true)
+			setIsSheetOpen(true)
 			setItemToEdit(item)
 			sheetRef.current.snapTo(0)
 		}
@@ -39,7 +42,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 				contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
 				safeAreaEdges={["top"]}
 			>
-				<Animated.View style={{ opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)) }}>
+				<Animated.View>
 					<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 						<View style={[styles.container, { backgroundColor: colors.background }]}>
 							<TouchableOpacity onPress={() => navigation.navigate("Setting")}>
@@ -96,6 +99,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 						}}
 						onPress={() => {
 							setEditMode(false)
+							setIsSheetOpen(true)
 							sheetRef.current.snapTo(0)
 						}}
 					>
@@ -105,6 +109,17 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 						</Text>
 					</TouchableOpacity>
 				</Animated.View>
+				{isSheetOpen && (
+					<BlurView
+						intensity={15}
+						tint="dark"
+						style={{
+							position: "absolute",
+							width: "100%",
+							height: "100%",
+						}}
+					/>
+				)}
 				<BottomSheet
 					ref={sheetRef}
 					snapPoints={[452, 0]}
@@ -117,6 +132,7 @@ export const TaskLabelScreen: FC<AuthenticatedDrawerScreenProps<"TaskLabelScreen
 							item={itemToEdit}
 							onDismiss={() => {
 								setEditMode(false)
+								setIsSheetOpen(false)
 								sheetRef.current.snapTo(1)
 							}}
 							onUpdateLabel={updateLabel}

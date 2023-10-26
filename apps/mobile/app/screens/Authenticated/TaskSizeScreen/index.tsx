@@ -14,6 +14,7 @@ import { ITaskStatusItem } from "../../../services/interfaces/ITaskStatus"
 import TaskSizeForm from "./components/TaskSizeForm"
 import SizeItem from "./components/SizeItem"
 import { useTaskSizes } from "../../../services/hooks/features/useTaskSizes"
+import { BlurView } from "expo-blur"
 
 export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">> =
 	function AuthenticatedDrawerScreen(_props) {
@@ -22,14 +23,19 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 		const { isLoading, sizes, deleteSize, updateSize, createSize } = useTaskSizes()
 		const [editMode, setEditMode] = useState(false)
 		const [itemToEdit, setItemToEdit] = useState<ITaskStatusItem>(null)
+		const [isSheetOpen, setIsSheetOpen] = useState<boolean>(false)
 		// ref
 		const sheetRef = React.useRef(null)
 
 		// variables
 		// const snapPoints = useMemo(() => ["25%", "50%"], [])
 		const fall = new Animated.Value(1)
+
+		// console.log(fall)
+
 		const openForEdit = (item: ITaskStatusItem) => {
 			setEditMode(true)
+			setIsSheetOpen(true)
 			setItemToEdit(item)
 			sheetRef.current.snapTo(0)
 		}
@@ -39,7 +45,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 				contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
 				safeAreaEdges={["top"]}
 			>
-				<Animated.View style={{ opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)) }}>
+				<Animated.View>
 					<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 						<View style={[styles.container, { backgroundColor: colors.background }]}>
 							<TouchableOpacity onPress={() => navigation.navigate("Setting")}>
@@ -96,6 +102,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 						}}
 						onPress={() => {
 							setEditMode(false)
+							setIsSheetOpen(true)
 							sheetRef.current.snapTo(0)
 						}}
 					>
@@ -105,6 +112,17 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 						</Text>
 					</TouchableOpacity>
 				</Animated.View>
+				{isSheetOpen && (
+					<BlurView
+						intensity={15}
+						tint="dark"
+						style={{
+							position: "absolute",
+							width: "100%",
+							height: "100%",
+						}}
+					/>
+				)}
 				<BottomSheet
 					ref={sheetRef}
 					snapPoints={[452, 0]}
@@ -117,6 +135,7 @@ export const TaskSizeScreen: FC<AuthenticatedDrawerScreenProps<"TaskSizeScreen">
 							item={itemToEdit}
 							onDismiss={() => {
 								setEditMode(false)
+								setIsSheetOpen(false)
 								sheetRef.current.snapTo(1)
 							}}
 							onUpdateSize={updateSize}
