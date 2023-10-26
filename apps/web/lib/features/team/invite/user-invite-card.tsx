@@ -225,9 +225,6 @@ export function InviteUserTeamCard({
 					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
-				{/* <div className="absolute opacity-40 right-2">
-					<MoreIcon />
-				</div> */}
 
 				{/* Show user name, email and image */}
 				<div className="2xl:w-[20.625rem] w-1/4 px-4 flex space-x-3">

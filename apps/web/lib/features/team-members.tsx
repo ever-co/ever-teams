@@ -6,14 +6,14 @@ import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
 
 import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
-import { KanbanView } from '@app/constants';
+import { IssuesView } from '@app/constants';
 
 type TeamMembersProps = {
   publicTeam?: boolean;
-  kabanView?: KanbanView;
+  kabanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kabanView = KanbanView.CARD }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARD }: TeamMembersProps) {
   const { user } = useAuthenticateUser();
   const { activeTeam } = useOrganizationTeams();
 
@@ -40,10 +40,10 @@ switch (true) {
       </div>
     );
     break;
-  case kabanView === KanbanView.CARD:
+  case kabanView === IssuesView.CARD:
     teamMembersView = <TeamMembersCardView teamMembers={$members} publicTeam={publicTeam} />;
     break;
-  case kabanView === KanbanView.TABLE:
+  case kabanView === IssuesView.TABLE:
     teamMembersView = (
       <Transition
         show={!!currentUser}

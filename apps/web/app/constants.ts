@@ -117,7 +117,7 @@ export const APPLICATION_LANGUAGES_CODE = [
 	'es'
 ];
 
-export enum KanbanView {
+export enum IssuesView {
 	CARD = 'card',
 	TABLE = 'table',
 	BOARD = 'board'
