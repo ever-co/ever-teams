@@ -47,11 +47,23 @@ export const IntegrationSetting = () => {
 		}
 	}, [activeTeam]);
 
-	const { integrationGithubRepositories, getRepositories } = useGitHubIntegration();
+	const {
+		integrationGithubRepositories,
+		getRepositories,
+		syncGitHubRepository,
+		integrationGithubMetadata,
+		metaData
+	} = useGitHubIntegration();
 
 	const { editOrganizationProjectSetting, editOrganizationProject } = useOrganizationProjects();
 
 	const { getIntegrationTenant, loading: integrationTenantLoading, integrationTenant } = useIntegrationTenant();
+
+	useEffect(() => {
+		if (integrationTenant && integrationTenant.length) {
+			metaData(integrationTenant[0].id);
+		}
+	}, [metaData, integrationTenant]);
 
 	const { loading: loadingIntegrationTypes, integrationTypes, getIntegrationTypes } = useIntegrationTypes();
 
@@ -81,27 +93,18 @@ export const IntegrationSetting = () => {
 
 				const repo = integrationGithubRepositories?.repositories.find((item) => item.id === +value);
 
-				editOrganizationProjectSetting(projectId, {
-					repository: {
-						repositoryId: repo?.id,
-						name: repo?.name,
-						fullName: repo?.full_name,
-						owner: repo?.owner.login,
-						integrationId: integrationTenant[0].id,
-						...(activeTeam?.projects && activeTeam?.projects?.length
-							? {
-									...(activeTeam?.projects[0].repository || {})
-							  }
-							: {})
-					},
-					isTasksAutoSync: true,
-					isTasksAutoSyncOnLabel: true,
-					tenantId: activeTeam?.tenantId,
-					organizationId: activeTeam?.organizationId
-				});
+				if (repo && integrationGithubMetadata?.id) {
+					syncGitHubRepository(
+						`${integrationGithubMetadata?.id}`,
+						repo as any,
+						projectId,
+						activeTeam?.tenantId as string,
+						activeTeam?.organizationId as string
+					);
+				}
 			}
 		},
-		[activeTeam, editOrganizationProjectSetting, integrationGithubRepositories, integrationTenant]
+		[activeTeam, integrationGithubRepositories, integrationGithubMetadata, syncGitHubRepository]
 	);
 	const handleRemoveRepo = useCallback(() => {
 		const projectId = getActiveProjectIdCookie();
