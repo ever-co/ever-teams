@@ -11,9 +11,23 @@ tmp
 greenkeeper.json
 docker-compose*.yml
 *.md
-.git/
+.git
 .gitignore
 Jenkinsfile
+
+**/.next
+**/build
+**/node_modules/*
+**/dist
+**/out
+
+**/*.log
+
+**/.vscode
+**/.env.local
+**/.env*.local
+
+fly.toml
 
 node_modules
 
@@ -40,3 +54,23 @@ e2e/*.map
 #System Files
 .DS_Store
 Thumbs.db
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Sentry Auth Token
+.sentryclirc
