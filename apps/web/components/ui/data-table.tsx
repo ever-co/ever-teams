@@ -124,7 +124,7 @@ function DataTable<TData, TValue>({
 				footerRows && footerRows?.length > 0 && (
 					<TableFooter className='bg-gray-50 dark:bg-gray-800'>
 						{footerRows.map((row, index) => (
-							<TableRow key={`footer-row-${index}-${JSON.stringify(row)}`}>{row}</TableRow>
+							<TableRow key={`footer-row-${index}}`}>{row}</TableRow>
 						))}
 					</TableFooter>
 				)
