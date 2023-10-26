@@ -21,11 +21,13 @@ import {
 	TableHead,
 	TableCell,
 	TableBody,
+	TableFooter,
 } from './table';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[]
 	data: TData[],
+	footerRows?: React.ReactNode[],
 	isError?: boolean;
 	noResultsMessage?: {
 		heading: string;
@@ -36,6 +38,7 @@ interface DataTableProps<TData, TValue> {
 function DataTable<TData, TValue>({
 	columns,
 	data,
+	footerRows,
 }: DataTableProps<TData, TValue>) {
 
 	const [rowSelection, setRowSelection] = React.useState({})
@@ -88,12 +91,13 @@ function DataTable<TData, TValue>({
 					</TableRow>
 				))}
 			</TableHeader>
-			<TableBody>
+			<TableBody className="divide-y divide-gray-200">
 				{table.getRowModel().rows?.length ? (
 					table.getRowModel().rows.map((row) => (
 						<TableRow
 							key={row.id}
 							data-state={row.getIsSelected() && "selected"}
+							className="mb-4 border-b border-gray-200"
 						>
 							{row.getVisibleCells().map((cell) => (
 								<TableCell key={cell.id}>
@@ -116,6 +120,16 @@ function DataTable<TData, TValue>({
 					</TableRow>
 				)}
 			</TableBody>
+			{
+				footerRows && footerRows?.length > 0 && (
+					<TableFooter className='bg-gray-50 dark:bg-gray-800'>
+						{footerRows.map((row, index) => (
+							<TableRow key={`footer-row-${index}-${JSON.stringify(row)}`}>{row}</TableRow>
+						))}
+					</TableFooter>
+				)
+			}
+
 		</Table>
 	);
 }

@@ -8,6 +8,8 @@ import { TaskInfo } from "./team/user-team-card/task-info";
 import { UserInfo } from "./team/user-team-card/user-info";
 import { UserTeamCardMenu } from "./team/user-team-card/user-team-card-menu";
 import React from "react";
+import get from "lodash/get";
+
 
 export function TaskCell({ row }: { row: any }) {
 	const member = row.original as OT_Member;
@@ -25,10 +27,11 @@ export function TaskCell({ row }: { row: any }) {
 	);
 }
 
-export function UserInfoCell({ row }: { row: any }) {
+export function UserInfoCell({ cell }: {  cell: any}) {
+	const row  = get(cell, 'row', {});
 	const member = row.original as OT_Member;
+	const publicTeam = get(cell, 'column.columnDef.meta.publicTeam', false);
 	const memberInfo = useTeamMemberCard(member);
-	const publicTeam = false;
 
 	return (
 		<UserInfo
@@ -69,15 +72,16 @@ export function TaskEstimateInfoCell({ row }: { row: any }) {
 	);
 }
 
-export function ActionMenuCell ({ row }: { row: any }) {
+export function ActionMenuCell ({ cell }: {  cell: any}) {
+	const row  = get(cell, 'row', {});
 	const member = row.original as OT_Member;
+	const active  = get(cell, 'column.columnDef.meta.active', false);
 	const memberInfo = useTeamMemberCard(member);
 
 	const { collaborativeSelect, user_selected, onUserSelect } = useCollaborative(
 		memberInfo.memberUser
 	);
 	const taskEdition = useTMCardTaskEdit(memberInfo.memberTask);
-	const active = true;
 
 	return (
 		<>

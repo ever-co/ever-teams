@@ -54,7 +54,7 @@ switch (true) {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <TeamMembersTableView teamMembers={members} />
+        <TeamMembersTableView teamMembers={members} publicTeam={publicTeam} active={user?.isEmailVerified} />
       </Transition>
     );
     break;
