@@ -225,9 +225,6 @@ export function InviteUserTeamCard({
 					<DraggerIcon className="fill-[#CCCCCC] dark:fill-[#4F5662]" />
 				</div>
 
-				<div className="absolute opacity-40 right-2">
-					<MoreIcon />
-				</div>
 
 				{/* Show user name, email and image */}
 				<div className="2xl:w-[20.625rem] w-1/4 px-4 flex space-x-3">
@@ -247,59 +244,6 @@ export function InviteUserTeamCard({
 							{t('common.INVITE')}
 						</Button>
 					</Tooltip>
-				</div>
-				<VerticalSeparator />
-
-				{/* Task information */}
-				<Text className="opacity-40 2xl:w-80 3xl:w-[32rem] px-4 text-center text-xs sm:text-sm">
-					{t('common.TASK_TITTLE')}
-				</Text>
-				<VerticalSeparator className="ml-2" />
-
-				{/* TaskTime */}
-				<div className="opacity-40 flex text-center space-x-2 items-center mb-2 2xl:w-48 3xl:w-[12rem] w-1/5 font-normal lg:px-4 px-2 text-xs md:text-sm">
-					<span>{t('common.TODAY')}:</span>
-					<Text>00h : 00m</Text>
-				</div>
-				<VerticalSeparator />
-
-				{/* TaskEstimateInfo */}
-				<div className="relative flex items-center justify-center w-1/5 space-x-1 text-xs opacity-40 2xl:w-52 3xl:w-64 md:text-sm">
-					<TimeInputField defaultValue="00" label="h" />
-					<span>:</span>
-					<TimeInputField defaultValue="00" label="m" />
-					<div className="absolute inset-0" />
-				</div>
-				<VerticalSeparator />
-
-				{/* Card menu */}
-				<div className="flex-1 text-xs font-normal text-center opacity-40 md:text-sm">
-					<Text>0h : 0m</Text>
-				</div>
-			</Card>
-			<Card shadow="bigger" className={clsxm('relative sm:hidden flex flex-col py-3', className)}>
-				<div className="absolute opacity-40 right-2">
-					<MoreIcon />
-				</div>
-				<div className="flex justify-between px-4">
-					<div className="w-10 h-10 rounded-full opacity-40 bg-slate-400" />
-					<Button onClick={onClick}>{t('common.INVITE')}</Button>
-				</div>
-				<Text className="px-4 mt-4 text-left opacity-40">{t('common.TASK_TITTLE')}</Text>
-				<div className="flex items-center w-full px-3 pt-4 mt-4 mb-2 space-x-2 text-xs font-normal text-center border-t opacity-40">
-					<span>{t('common.TODAY')}:</span>
-					<Text>0h : 0m</Text>
-				</div>
-				<div className="flex items-center justify-between">
-					<div className="relative flex items-center justify-center pl-3 space-x-1 text-xs opacity-40">
-						<TimeInputField defaultValue="00" label="h" />
-						<span>:</span>
-						<TimeInputField defaultValue="00" label="m" />
-						<div className="absolute inset-0" />
-					</div>
-					<div className="flex-1 text-xs font-normal opacity-40 text-end">
-						<Text>0h : 0m</Text>
-					</div>
 				</div>
 			</Card>
 		</div>
