@@ -13,7 +13,7 @@ type TeamMembersProps = {
   kabanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARD }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARDS }: TeamMembersProps) {
   const { user } = useAuthenticateUser();
   const { activeTeam } = useOrganizationTeams();
 
@@ -40,7 +40,7 @@ switch (true) {
       </div>
     );
     break;
-  case kabanView === IssuesView.CARD:
+  case kabanView === IssuesView.CARDS:
     teamMembersView = <TeamMembersCardView teamMembers={$members} publicTeam={publicTeam} />;
     break;
   case kabanView === IssuesView.TABLE:

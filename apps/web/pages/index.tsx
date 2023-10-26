@@ -22,7 +22,7 @@ function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
 	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
-	const [view, setView] = useState<IssuesView>(IssuesView.CARD);
+	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 
 	return (
 		<MainLayout>
@@ -38,11 +38,11 @@ function MainPage() {
 						<button
 							className={clsxm(
 								'rounded-md px-3 py-1 text-sm font-medium',
-								view === IssuesView.CARD
+								view === IssuesView.CARDS
 									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
 									: 'text-gray-700 dark:text-gray-300'
 							)}
-							onClick={() => setView(IssuesView.CARD)}
+							onClick={() => setView(IssuesView.CARDS)}
 						>
 							<TableCellsIcon className="w-5 h-5 inline -ml-1 mr-1" />
 						</button>
@@ -68,7 +68,7 @@ function MainPage() {
 				<Container>
 					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
-					{view === IssuesView.CARD && isTeamMember ? <UserTeamCardHeader /> : null}
+					{view === IssuesView.CARDS && isTeamMember ? <UserTeamCardHeader /> : null}
 				</Container>
 
 				{/* Divider */}
