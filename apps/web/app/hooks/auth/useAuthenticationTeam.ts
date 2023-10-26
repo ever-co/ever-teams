@@ -5,6 +5,7 @@ import { registerUserTeamAPI } from '@app/services/client/api';
 import { AxiosError } from 'axios';
 import { useCallback, useState } from 'react';
 import { useQuery } from '../useQuery';
+import { RECAPTCHA_SITE_KEY } from '@app/constants';
 
 const FIRST_STEP = 'STEP1' as const;
 const SECOND_STEP = 'STEP2' as const;
@@ -14,12 +15,18 @@ export interface IStepProps {
 	form: IRegisterDataAPI;
 }
 
-const initialValues: IRegisterDataAPI = {
+const initialValues: IRegisterDataAPI = RECAPTCHA_SITE_KEY  ? {
 	name: '',
 	email: '',
 	team: '',
 	recaptcha: ''
-};
+} :
+{
+	name: '',
+	email: '',
+	team: ''
+}
+;
 
 export function useAuthenticationTeam() {
 	const [step, setStep] = useState<typeof FIRST_STEP | typeof SECOND_STEP>(FIRST_STEP);
@@ -36,8 +43,17 @@ export function useAuthenticationTeam() {
 			return;
 		}
 
-		const { errors, valid } = authFormValidate(['name', 'email', 'recaptcha'], formValues);
+		const noRecaptchaArray = ['email', 'name'];
 
+		const withRecaptchaArray = [...noRecaptchaArray, 'recaptcha'];
+
+		const validationFields = RECAPTCHA_SITE_KEY ? withRecaptchaArray : noRecaptchaArray;
+		
+		const { errors, valid } = authFormValidate(
+			validationFields,
+			formValues
+		);
+		
 		if (!valid) {
 			setErrors(errors as any);
 			return;
@@ -45,7 +61,7 @@ export function useAuthenticationTeam() {
 
 		formValues['timezone'] = userTimezone();
 		infiniteLoading.current = true;
-
+		
 		queryCall(formValues)
 			.then(() => window.location.reload())
 			.catch((err: AxiosError) => {
