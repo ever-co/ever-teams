@@ -11,7 +11,7 @@ tmp
 greenkeeper.json
 docker-compose*.yml
 *.md
-.git
+.git/
 .gitignore
 Jenkinsfile
 
