@@ -79,7 +79,7 @@ export function getGithubIntegrationRepositoriesRequest(
 
 export function projectRepositorySyncRequest(
 	body: {
-		integrationId: string;
+		installationId: string;
 		organizationId: string;
 		tenantId: string;
 		repository: IProjectRepository;
@@ -90,7 +90,12 @@ export function projectRepositorySyncRequest(
 		path: '/integration/github/repository/sync',
 		method: 'POST',
 		bearer_token,
-		body,
+		body: {
+			installation_id: body.installationId,
+			organizationId: body.organizationId,
+			tenantId: body.tenantId,
+			repository: body.repository
+		},
 		tenantId: body.tenantId
 	});
 }
