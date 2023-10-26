@@ -43,6 +43,7 @@ export function getTeamTasksRequest({
 	});
 
 	const query = new URLSearchParams(obj);
+
 	return serverFetch<PaginationResponse<ITeamTask>>({
 		path: `/tasks/team?${query.toString()}`,
 		method: 'GET',

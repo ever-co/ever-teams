@@ -13,9 +13,9 @@ export function getIntegrationTenantRequest(
 	bearer_token: string
 ) {
 	const query = new URLSearchParams({
-		tenantId,
-		organizationId,
-		name
+		'where[organizationId]': organizationId,
+		'where[tenantId]': tenantId,
+		'where[name]': name,
 	});
 	return serverFetch<IIntegrationTenant>({
 		path: `/integration-tenant?${query.toString()}`,

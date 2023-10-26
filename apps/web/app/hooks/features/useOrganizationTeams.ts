@@ -323,6 +323,12 @@ export function useOrganizationTeams() {
 		[loadTeamsData, removeUserFromAllTeamQueryCall, refreshToken, updateUserFromAPI]
 	);
 
+	useEffect(() => {
+		if (activeTeam?.projects && activeTeam?.projects?.length) {
+			setActiveProjectIdCookie(activeTeam?.projects[0]?.id);
+		}
+	}, [activeTeam]);
+
 	return {
 		loadTeamsData,
 		loading,
