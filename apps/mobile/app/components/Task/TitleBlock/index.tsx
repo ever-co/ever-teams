@@ -47,6 +47,7 @@ const TaskTitleBlock = () => {
 		showMessage({
 			message: translate("taskDetailsScreen.copyTitle"),
 			type: "info",
+			backgroundColor: colors.secondary,
 		})
 	}
 
