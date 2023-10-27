@@ -1,10 +1,13 @@
+/* eslint-disable react-native/no-inline-styles */
 import { View, Text, ViewStyle, TouchableOpacity, StyleSheet } from "react-native"
-import React, { FC } from "react"
+import React, { FC, useEffect } from "react"
 import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
 import Animated from "react-native-reanimated"
 import { typography, useAppTheme } from "../../../theme"
 import { AntDesign } from "@expo/vector-icons"
+import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
+import TaskTitleBlock from "../../../components/Task/TitleBlock"
 // import { translate } from "../../../i18n"
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedTabScreenProps<"TaskScreen">> = (_props) => {
@@ -12,6 +15,13 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedTabScreenProps<"TaskScreen
 	const { navigation, route } = _props
 	const { taskId } = route.params
 	const fall = new Animated.Value(1)
+	const { getTaskById, detailedTask: task } = useTeamTasks()
+
+	useEffect(() => {
+		if (route.params.taskId) {
+			getTaskById(taskId)
+		}
+	}, [getTaskById, route, task])
 
 	return (
 		<Screen
@@ -29,7 +39,9 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedTabScreenProps<"TaskScreen
 						<Text style={[styles.title, { color: colors.primary }]}>Task Screen</Text>
 					</View>
 				</View>
-				<Text>Task id: #{taskId}</Text>
+				<View style={{ padding: 20 }}>
+					<TaskTitleBlock />
+				</View>
 			</Animated.View>
 		</Screen>
 	)

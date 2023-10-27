@@ -6,6 +6,7 @@ import {
 	createTaskRequest,
 	deleteEmployeeFromTasksRequest,
 	deleteTaskRequest,
+	getTaskByIdRequest,
 	updateTaskRequest,
 } from "../../client/requests/tasks"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
@@ -25,6 +26,8 @@ export function useTeamTasks() {
 			activeTaskId,
 			setActiveTaskId,
 			activeTask,
+			detailedTask,
+			setDetailedTask,
 		},
 	} = useStores()
 
@@ -102,6 +105,20 @@ export function useTeamTasks() {
 			deepCheckAndUpdateTasks(res?.data || [], true)
 		})
 	}, [activeTeamId, firstLoad])
+
+	const getTaskById = useCallback(
+		async (taskId: string) => {
+			const { data } = await getTaskByIdRequest({
+				tenantId,
+				taskId,
+				bearer_token: authToken,
+				organizationId,
+			})
+
+			setDetailedTask(data)
+		},
+		[setDetailedTask],
+	)
 
 	// Delete a Task
 	const deleteTask = useCallback(
@@ -287,6 +304,8 @@ export function useTeamTasks() {
 
 	return {
 		createNewTask,
+		getTaskById,
+		detailedTask,
 		deleteTask,
 		updateTask,
 		setActiveTeamTask,
