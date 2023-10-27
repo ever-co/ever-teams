@@ -50,7 +50,6 @@ export type AuthenticatedTabParamList = {
 	Team: undefined
 	Setting: { activeTab: 1 | 2 }
 	Profile: { userId: string; activeTab: "worked" | "assigned" | "unassigned" }
-	TaskScreen: { taskId: string }
 }
 
 export type AuthenticatedDrawerParamList = {

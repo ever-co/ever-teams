@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { View, Text, ViewStyle, TouchableOpacity, StyleSheet } from "react-native"
 import React, { FC, useEffect } from "react"
-import { AuthenticatedTabScreenProps } from "../../../navigators/AuthenticatedNavigator"
+import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
 import Animated from "react-native-reanimated"
 import { typography, useAppTheme } from "../../../theme"
@@ -10,7 +10,9 @@ import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import TaskTitleBlock from "../../../components/Task/TitleBlock"
 // import { translate } from "../../../i18n"
 
-export const AuthenticatedTaskScreen: FC<AuthenticatedTabScreenProps<"TaskScreen">> = (_props) => {
+export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScreen">> = (
+	_props,
+) => {
 	const { colors } = useAppTheme()
 	const { navigation, route } = _props
 	const { taskId } = route.params
@@ -33,7 +35,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedTabScreenProps<"TaskScreen
 			<Animated.View style={{ opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)) }}>
 				<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 					<View style={[styles.container, { backgroundColor: colors.background }]}>
-						<TouchableOpacity onPress={() => navigation.navigate("Team")}>
+						<TouchableOpacity onPress={() => navigation.navigate("AuthenticatedTab")}>
 							<AntDesign name="arrowleft" size={24} color={colors.primary} />
 						</TouchableOpacity>
 						<Text style={[styles.title, { color: colors.primary }]}>Task Screen</Text>
