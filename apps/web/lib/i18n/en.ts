@@ -1,6 +1,7 @@
 export const en = {
 	TITLE: 'Ever Teams',
 	common: {
+		COPY_NUMBER: 'Copy Number',
 		VERIFY: 'verify',
 		PLEASE: 'please',
 		HERE: 'here',

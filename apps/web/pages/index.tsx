@@ -21,7 +21,7 @@ import { TableCellsIcon, QueueListIcon } from '@heroicons/react/24/solid';
 function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
+	const breadcrumb = [...(t('pages.home.BREADCRUMB', { returnObjects: true }) as any), activeTeam?.name || ''];
 	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 
 	return (
