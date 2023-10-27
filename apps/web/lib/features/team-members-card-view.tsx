@@ -1,34 +1,22 @@
-import {
-	useAuthenticateUser,
-	useModal,
-	useOrganizationTeams,
-	useTeamInvitations
-} from '@app/hooks';
+import { useAuthenticateUser, useModal, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
-import {
-	InvitedCard,
-	InviteUserTeamCard
-} from './team/invite/user-invite-card';
+import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
 import { InviteUserTeamSkeleton, UserTeamCard, UserTeamCardSkeleton } from '.';
 import { OT_Member } from '@app/interfaces';
 
 interface Props {
 	teamMembers: OT_Member[];
 	publicTeam: boolean;
+	currentUser: OT_Member | undefined;
 }
 
-const TeamMembersCardView: React.FC<Props> = ({ teamMembers, publicTeam=false }) => {
-	const { isTeamManager, user } = useAuthenticateUser();
-	const currentUser = teamMembers.find((m) => {
-		return m.employee.userId === user?.id;
-	});
-	const { activeTeam, teamsFetching } = useOrganizationTeams();
-	const members = activeTeam?.members || [];
-
+const TeamMembersCardView: React.FC<Props> = ({ teamMembers: members, currentUser, publicTeam = false }) => {
+	const { isTeamManager } = useAuthenticateUser();
+	const { teamsFetching } = useOrganizationTeams();
 	const { teamInvitations } = useTeamInvitations();
 	const $teamsFetching = teamsFetching && members.length === 0;
-	return(
+	return (
 		<ul className="mt-7">
 			{/* Current authenticated user members */}
 			<Transition
@@ -109,9 +97,8 @@ const TeamMembersCardView: React.FC<Props> = ({ teamMembers, publicTeam=false })
 				</li>
 			</Transition>
 		</ul>
-	)
-
-}
+	);
+};
 
 function Invite() {
 	const { user } = useAuthenticateUser();
@@ -120,10 +107,7 @@ function Invite() {
 	return (
 		<>
 			<InviteUserTeamCard active={user?.isEmailVerified} onClick={openModal} />
-			<InviteFormModal
-				open={isOpen && !!user?.isEmailVerified}
-				closeModal={closeModal}
-			/>
+			<InviteFormModal open={isOpen && !!user?.isEmailVerified} closeModal={closeModal} />
 		</>
 	);
 }

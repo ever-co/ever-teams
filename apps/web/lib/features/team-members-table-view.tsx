@@ -9,10 +9,12 @@ import { InviteFormModal } from './team/invite/invite-form-modal';
 
 const TeamMembersTableView = ({
 	teamMembers,
+	currentUser,
 	publicTeam = false,
 	active = false
 }: {
 	teamMembers: OT_Member[];
+	currentUser: OT_Member | undefined;
 	publicTeam?: boolean;
 	active?: boolean;
 }) => {
@@ -55,10 +57,16 @@ const TeamMembersTableView = ({
 
 	const footerRows = React.useMemo<React.ReactNode[]>(() => [<Invite key={0} />], []);
 
+	const sortedTeamMembers: OT_Member[] = [];
+	if (currentUser) {
+		sortedTeamMembers.push(currentUser);
+	}
+	sortedTeamMembers.push(...teamMembers);
+
 	return (
 		<DataTable
 			columns={columns as Column<OT_Member>[]}
-			data={teamMembers}
+			data={sortedTeamMembers}
 			footerRows={footerRows}
 			noResultsMessage={{
 				heading: 'No team members found',
