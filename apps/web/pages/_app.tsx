@@ -11,12 +11,11 @@ import { ThemeProvider } from 'next-themes';
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import Script from 'next/script';
-import { appWithI18Next } from 'ni18n';
+import { I18nextProvider } from 'react-i18next';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { RecoilRoot } from 'recoil';
 import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
-import { ni18nConfig } from '../ni18n.config';
-
+import i18n from '../ni18n.config';
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	const isJitsuEnvsPresent = jitsuConfiguration.host && jitsuConfiguration.writeKey;
 	return (
@@ -47,10 +46,12 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 				<RecoilRoot>
 					<ThemeProvider attribute="class">
 						<SkeletonTheme baseColor="#F0F0F0" enableAnimation={false}>
-							<AppState />
-							<JitsuAnalytics user={pageProps?.user} />
-							<ChatwootWidget />
-							<Component {...pageProps} />
+							<I18nextProvider i18n={i18n}>
+								<AppState />
+								<JitsuAnalytics user={pageProps?.user} />
+								<ChatwootWidget />
+								<Component {...pageProps} />
+							</I18nextProvider>
 						</SkeletonTheme>
 					</ThemeProvider>
 				</RecoilRoot>
@@ -59,4 +60,4 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 		</>
 	);
 };
-export default appWithI18Next(MyApp, ni18nConfig);
+export default MyApp;

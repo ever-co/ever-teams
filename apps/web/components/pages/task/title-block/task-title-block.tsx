@@ -226,7 +226,7 @@ const TaskTitleBlock = () => {
 					onClick={copyTaskNumber}
 				>
 					<CopyIconRounded className="stroke-[#B1AEBC]" />
-					{t('common.COPY_NUMBER')}
+					{t('pages.settingsTeam.COPY_NUMBER')}
 				</button>
 			</div>
 		</div>

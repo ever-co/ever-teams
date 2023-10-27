@@ -116,3 +116,9 @@ export const APPLICATION_LANGUAGES_CODE = [
 	'ru',
 	'es'
 ];
+
+export enum IssuesView {
+	CARDS = 'CARDS',
+	TABLE = 'TABLE',
+	BLOCKS = 'BLOCKS'
+}

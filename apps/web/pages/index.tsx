@@ -14,11 +14,15 @@ import {
 } from 'lib/features';
 import { MainHeader, MainLayout } from 'lib/layout';
 import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { IssuesView } from '@app/constants';
+import { TableCellsIcon, QueueListIcon } from '@heroicons/react/24/solid';
 
 function MainPage() {
 	const { t } = useTranslation();
 	const { isTeamMember, isTrackingEnabled, activeTeam } = useOrganizationTeams();
-	const breadcrumb = [...t('pages.home.BREADCRUMB', { returnObjects: true }), activeTeam?.name || ''];
+	const breadcrumb = [...(t('pages.home.BREADCRUMB', { returnObjects: true }) as any), activeTeam?.name || ''];
+	const [view, setView] = useState<IssuesView>(IssuesView.CARDS);
 
 	return (
 		<MainLayout>
@@ -30,24 +34,52 @@ function MainPage() {
 					</div>
 
 					{/* <Collaborative /> */}
+					<div className="flex items-end gap-1">
+						<button
+							className={clsxm(
+								'rounded-md px-3 py-1 text-sm font-medium',
+								view === IssuesView.CARDS
+									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+									: 'text-gray-700 dark:text-gray-300'
+							)}
+							onClick={() => setView(IssuesView.CARDS)}
+						>
+							<TableCellsIcon className="w-5 h-5 inline" />
+						</button>
+						<button
+							className={clsxm(
+								'rounded-md px-3 py-1 text-sm font-medium',
+								view === IssuesView.TABLE
+									? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100'
+									: 'text-gray-700 dark:text-gray-300'
+							)}
+							onClick={() => setView(IssuesView.TABLE)}
+						>
+							<QueueListIcon className="w-5 h-5 inline" />
+						</button>
+					</div>
 				</div>
 
 				<UnverifiedEmail />
 				<TeamInvitations />
 			</MainHeader>
 
-			<div className="sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5">
+			<div
+				className={`sticky top-20 z-50 bg-white dark:bg-[#191A20] pt-5 ${
+					view === IssuesView.TABLE ? 'pb-7' : ''
+				}`}
+			>
 				<Container>
 					{isTeamMember ? <TaskTimerSection isTrackingEnabled={isTrackingEnabled} /> : null}
 					{/* Header user card list */}
-					{isTeamMember ? <UserTeamCardHeader /> : null}
+					{view === IssuesView.CARDS && isTeamMember ? <UserTeamCardHeader /> : null}
 				</Container>
 
 				{/* Divider */}
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 			</div>
 
-			<Container>{isTeamMember ? <TeamMembers /> : <NoTeam />}</Container>
+			<Container className="">{isTeamMember ? <TeamMembers kabanView={view} /> : <NoTeam />}</Container>
 		</MainLayout>
 	);
 }
