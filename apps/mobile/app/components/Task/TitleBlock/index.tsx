@@ -1,12 +1,15 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native"
-import React, { SetStateAction, useEffect, useState } from "react"
+import React, { SetStateAction, useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../models"
 import { useAppTheme } from "../../../theme"
 import { SvgXml } from "react-native-svg"
 import * as Clipboard from "expo-clipboard"
 import { closeIconLight, copyIcon, editIcon, tickIconLight } from "../../svgs/icons"
+import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
+import { showMessage } from "react-native-flash-message"
+import { translate } from "../../../i18n"
 
 const TaskTitleBlock = () => {
 	const {
@@ -18,14 +21,33 @@ const TaskTitleBlock = () => {
 	const [title, setTitle] = useState<string>("")
 	const [edit, setEdit] = useState<boolean>(false)
 
+	const { updateTitle } = useTeamTasks()
+
+	const saveTitle = useCallback((newTitle: string) => {
+		if (newTitle.length > 255) {
+			showMessage({
+				message: translate("taskDetailsScreen.characterLimitErrorTitle"),
+				description: translate("taskDetailsScreen.characterLimitErrorDescription"),
+				type: "danger",
+			})
+			return
+		}
+		updateTitle(newTitle, task, true)
+		setEdit(false)
+	}, [])
+
 	useEffect(() => {
 		if (!edit) {
 			task && setTitle(task?.title)
 		}
-	}, [task, edit])
+	}, [task?.title, edit])
 
 	const copyTitle = () => {
 		Clipboard.setStringAsync(title)
+		showMessage({
+			message: translate("taskDetailsScreen.copyTitle"),
+			type: "info",
+		})
 	}
 
 	return (
@@ -44,7 +66,13 @@ const TaskTitleBlock = () => {
 					onChangeText={(text) => setTitle(text)}
 					value={title}
 				/>
-				<TitleIcons dark={dark} edit={edit} setEdit={setEdit} copyTitle={copyTitle} />
+				<TitleIcons
+					dark={dark}
+					edit={edit}
+					setEdit={setEdit}
+					copyTitle={copyTitle}
+					saveTitle={() => saveTitle(title)}
+				/>
 			</View>
 		</View>
 	)
@@ -57,15 +85,16 @@ interface ITitleIcons {
 	edit: boolean
 	setEdit: React.Dispatch<SetStateAction<boolean>>
 	copyTitle: () => void
+	saveTitle: () => void
 }
 
-const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle }) => {
+const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle, saveTitle }) => {
 	return (
 		<>
 			{edit ? (
 				<View style={{ gap: 5 }}>
 					<TouchableOpacity
-						onPress={() => setEdit(false)}
+						onPress={saveTitle}
 						style={[
 							styles.saveCancelButtons,
 							{
