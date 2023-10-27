@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 export function UnverifiedEmail() {
 	const { user } = useAuthenticateUser();
-	const { t } = useTranslation('home');
+	const { t } = useTranslation();
 	const [verified, setVefified] = useState(true);
 
 	const { loading: resendLinkLoading, queryCall: resendLinkQueryCall } = useQuery(resentVerifyUserLinkAPI);
