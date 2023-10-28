@@ -40,7 +40,7 @@ export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARDS }
 			break;
 		case kabanView === IssuesView.CARDS:
 			teamMembersView = (
-				<TeamMembersCardView teamMembers={members} currentUser={currentUser} publicTeam={publicTeam} />
+				<TeamMembersCardView teamMembers={$members} currentUser={currentUser} publicTeam={publicTeam} />
 			);
 			break;
 		case kabanView === IssuesView.TABLE:
