@@ -1,4 +1,4 @@
-name: Build and Publish Docker Images
+name: Build and Publish Docker Images Prod
 
 on:
   push:
@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   ever-teams-webapp:
-    runs-on: ubuntu-22.04
+    runs-on: buildjet-8vcpu-ubuntu-2204
     steps:
       - name: Checkout
         uses: actions/checkout@v3
