@@ -11,6 +11,7 @@ import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import { showMessage } from "react-native-flash-message"
 import { translate } from "../../../i18n"
 import IssuesModal from "../../IssuesModal"
+import { ITeamTask } from "../../../services/interfaces/ITask"
 
 const TaskTitleBlock = () => {
 	const {
@@ -87,6 +88,20 @@ const TaskTitleBlock = () => {
 						style={{ borderRightWidth: 1, height: 24, borderRightColor: "#DBDBDB" }}
 					/>
 				)}
+
+				{(!task?.issueType || task?.issueType === "Task" || task?.issueType === "Bug") &&
+					task?.rootEpic &&
+					task?.parentId !== task?.rootEpic.id && (
+						<ParentTaskBadge
+							task={{
+								...task,
+								parentId: task?.rootEpic.id,
+								parent: task?.rootEpic,
+							}}
+						/>
+					)}
+
+				<ParentTaskBadge task={task} />
 			</View>
 		</View>
 	)
@@ -141,6 +156,65 @@ const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle, sav
 				</View>
 			)}
 		</>
+	)
+}
+
+const ParentTaskBadge: React.FC<{ task: ITeamTask }> = ({ task }) => {
+	return task?.parentId && task?.parent ? (
+		<View
+			style={{
+				borderRadius: 3,
+				height: 24,
+				paddingHorizontal: 10,
+				paddingVertical: 2,
+				backgroundColor:
+					task?.parent?.issueType === "Epic"
+						? "#8154BA"
+						: task?.parent?.issueType === "Story"
+						? "#54BA951A"
+						: task?.parent?.issueType === "Bug"
+						? "#C24A4A1A"
+						: task?.parent?.issueType === "Task" || !task?.parent?.issueType
+						? "#5483ba"
+						: "",
+			}}
+		>
+			<Text
+				style={{
+					fontSize: 16,
+					color:
+						task?.parent?.issueType === "Epic"
+							? "#FFFFFF"
+							: task?.parent?.issueType === "Story"
+							? "#27AE60"
+							: task?.parent?.issueType === "Bug"
+							? "#C24A4A"
+							: task?.parent?.issueType === "Task" || !task?.parent?.issueType
+							? "#FFFFFF"
+							: "",
+				}}
+			>
+				<Text
+					style={{
+						color:
+							task?.parent?.issueType === "Epic"
+								? "#FFFFFF80"
+								: task?.parent?.issueType === "Story"
+								? "#27AE6080"
+								: task?.parent?.issueType === "Bug"
+								? "#C24A4A80"
+								: task?.parent?.issueType === "Task" || !task?.parent?.issueType
+								? "#FFFFFF"
+								: "",
+					}}
+				>
+					#{task?.parent?.taskNumber || task?.parent.number}
+				</Text>
+				{` - ${task?.parent?.title}`}
+			</Text>
+		</View>
+	) : (
+		<></>
 	)
 }
 
