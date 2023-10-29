@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native"
+import { View, TextInput, StyleSheet, TouchableOpacity, Text } from "react-native"
 import React, { SetStateAction, useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../models"
 import { useAppTheme } from "../../../theme"
@@ -10,6 +10,7 @@ import { closeIconLight, copyIcon, editIcon, tickIconLight } from "../../svgs/ic
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import { showMessage } from "react-native-flash-message"
 import { translate } from "../../../i18n"
+import IssuesModal from "../../IssuesModal"
 
 const TaskTitleBlock = () => {
 	const {
@@ -74,6 +75,18 @@ const TaskTitleBlock = () => {
 					copyTitle={copyTitle}
 					saveTitle={() => saveTitle(title)}
 				/>
+			</View>
+			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+				<View style={styles.taskNumber}>
+					<Text style={{ fontSize: 16 }}>#{task?.number}</Text>
+				</View>
+				<IssuesModal task={task} nameIncluded={true} />
+
+				{task?.issueType !== "Epic" && (
+					<View
+						style={{ borderRightWidth: 1, height: 24, borderRightColor: "#DBDBDB" }}
+					/>
+				)}
 			</View>
 		</View>
 	)
@@ -151,6 +164,14 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		borderWidth: 1,
 		padding: 3,
+	},
+	taskNumber: {
+		backgroundColor: "#D6D6D6",
+		borderRadius: 3,
+		height: 24,
+		paddingHorizontal: 10,
+		paddingVertical: 2,
+		width: 53,
 	},
 	textInput: {
 		borderRadius: 5,
