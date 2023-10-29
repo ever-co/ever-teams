@@ -1,38 +1,42 @@
 {
-  "name": "@ever-teams/extensions",
-  "displayName": "Ever Teams",
-  "version": "0.1.0",
-  "description": "Ever Teams Browser Extensions",
-  "license": "UNLICENSED",
-  "author": "Ever Co. LTD",
-  "scripts": {
-    "dev": "yarn plasmo dev",
-    "start": "yarn dev",
-    "build": "yarn plasmo build"
-  },
-  "dependencies": {
-    "@tailwindcss/forms": "^0.5.3",
-    "@tailwindcss/typography": "^0.5.8",
-    "classnames": "^2.3.2",
-    "plasmo": "^0.59.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "react-timer-hook": "^3.0.5",
-    "tailwindcss": "^3.2.4"
-  },
-  "devDependencies": {
-    "@plasmohq/prettier-plugin-sort-imports": "^3.6.0",
-    "@types/chrome": "^0.0.203",
-    "@types/node": "18.8.3",
-    "@types/react": "18.0.21",
-    "@types/react-dom": "18.0.6",
-    "postcss": "^8.4.19",
-    "prettier": "^2.8.0",
-    "typescript": "4.8.4"
-  },
-  "manifest": {
-    "host_permissions": [
-      "https://*/*"
-    ]
-  }
+	"name": "@ever-teams/extensions",
+	"displayName": "Ever Teams",
+	"version": "0.1.0",
+	"description": "Ever Teams Browser Extensions",
+	"license": "UNLICENSED",
+	"author": "Ever Co. LTD",
+	"scripts": {
+		"dev": "yarn plasmo dev",
+		"start": "yarn dev",
+		"build": "yarn plasmo build"
+	},
+	"dependencies": {
+		"@tailwindcss/forms": "^0.5.3",
+		"@tailwindcss/typography": "^0.5.8",
+		"classnames": "^2.3.2",
+		"plasmo": "^0.59.1",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"react-timer-hook": "^3.0.5",
+		"tailwindcss": "^3.2.4"
+	},
+	"devDependencies": {
+		"@plasmohq/prettier-plugin-sort-imports": "^3.6.0",
+		"@types/chrome": "^0.0.203",
+		"@types/node": "18.8.3",
+		"@types/react": "18.0.21",
+		"@types/react-dom": "18.0.6",
+		"postcss": "^8.4.19",
+		"prettier": "^2.8.0",
+		"typescript": "4.8.4"
+	},
+	"manifest": {
+		"host_permissions": [
+			"https://*/*"
+		]
+	},
+	"engines": {
+		"node": ">=16.0.0",
+		"yarn": ">=1.13.0"
+	}
 }
