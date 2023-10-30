@@ -192,6 +192,8 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 	({ task, responsiveFontSize }) => {
 		const navigation = useNavigation<SettingScreenNavigationProp<"TaskScreen">>()
 
+		const { width } = Dimensions.get("window")
+
 		const navigateToParent = (): void => {
 			navigation.navigate("TaskScreen", { taskId: task?.parentId || task?.parent.id })
 		}
@@ -249,7 +251,10 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 					>
 						#{task?.parent?.taskNumber || task?.parent.number}
 					</Text>
-					{` - ${limitTextCharaters({ text: task?.parent?.title, numChars: 6 })}`}
+					{` - ${limitTextCharaters({
+						text: task?.parent?.title,
+						numChars: width < 391 ? 8 : width <= 410 ? 12 : 18,
+					})}`}
 				</Text>
 			</TouchableOpacity>
 		) : (
