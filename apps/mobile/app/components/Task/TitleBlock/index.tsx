@@ -271,7 +271,7 @@ const ParentTaskInput: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 			<Text style={{ fontSize: responsiveFontSize(), color: "#f07258" }}>
 				{task?.parentId
 					? translate("taskDetailsScreen.changeParent")
-					: translate("taskDetailsScreen.addParent")}
+					: "+ " + translate("taskDetailsScreen.addParent")}
 			</Text>
 
 			<CreateParentTaskModal
