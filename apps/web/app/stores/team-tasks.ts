@@ -28,13 +28,10 @@ export const tasksByTeamState = selector<ITeamTask[]>({
 	key: 'tasksByTeamState',
 	get: ({ get }) => {
 		const tasks = get(teamTasksState);
-		const activeTeam = get(activeTeamState);
 
 		return tasks
-			.filter((task) => {
-				return task.teams.some((tm) => {
-					return tm.id === activeTeam?.id;
-				});
+			.filter(() => {
+				return true
 			})
 			.sort((a, b) => moment(b.createdAt).diff(a.createdAt));
 	}
