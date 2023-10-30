@@ -23,9 +23,15 @@ interface IssuesModalProps {
 	task: ITeamTask
 	readonly?: boolean
 	nameIncluded?: boolean
+	responsiveFontSize?: () => number
 }
 
-const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameIncluded }) => {
+const IssuesModal: FC<IssuesModalProps> = ({
+	task,
+	readonly = false,
+	nameIncluded,
+	responsiveFontSize,
+}) => {
 	const { allTaskIssues } = useTaskIssue()
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 	const { updateTask } = useTeamTasks()
@@ -77,7 +83,16 @@ const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameInclude
 					uri={currentIssue?.fullIconUrl}
 				/>
 
-				{nameIncluded && <Text style={{ color: "#ffffff" }}>{currentIssue?.name}</Text>}
+				{nameIncluded && (
+					<Text
+						style={{
+							color: "#ffffff",
+							fontSize: responsiveFontSize ? responsiveFontSize() : 14,
+						}}
+					>
+						{currentIssue?.name}
+					</Text>
+				)}
 			</View>
 
 			<ModalPopUp visible={isModalOpen} onDismiss={() => setIsModalOpen(false)}>

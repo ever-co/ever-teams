@@ -92,6 +92,8 @@ const en = {
 		characterLimitErrorTitle: "We couldn't update Task Title.",
 		characterLimitErrorDescription: "Task title can't exceed 255 characters.",
 		copyTitle: "Title Copied.",
+		changeParent: "Change Parent",
+		addParent: "Add Parent",
 	},
 	tasksScreen: {
 		name: "Tasks",
