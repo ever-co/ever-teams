@@ -465,10 +465,9 @@
 
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "版权所有。",
+			"RIGHTS_RESERVED": "版权所有。",
 			"COPY_RIGHT1": "© {{date}}-至今,",
-			"COPY_RIGHT2": "永恒团队",
-			"COPY_RIGHT3": "Gauzy团队",
+			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "永恒公司",
 			"COMPANY_NAME": "永恒有限公司",
 			"TERMS": "服务条款",

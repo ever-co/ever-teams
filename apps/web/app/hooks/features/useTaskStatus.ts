@@ -1,7 +1,7 @@
 import { ITaskStatusCreate } from '@app/interfaces';
 import {
 	createTaskStatusAPI,
-	getTaskstatusList,
+	getTaskStatusList,
 	deleteTaskStatusAPI,
 	editTaskStatusAPI
 } from '@app/services/client/api';
@@ -17,7 +17,7 @@ export function useTaskStatus() {
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskstatusList);
+	const { loading, queryCall } = useQuery(getTaskStatusList);
 	const { loading: createTaskStatusLoading, queryCall: createQueryCall } = useQuery(createTaskStatusAPI);
 	const { loading: deleteTaskStatusLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskStatusAPI);
 	const { loading: editTaskStatusLoading, queryCall: editQueryCall } = useQuery(editTaskStatusAPI);

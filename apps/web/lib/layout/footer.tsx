@@ -12,7 +12,7 @@ export function Footer({ className }: IClassName) {
 				{t('layout.footer.COPY_RIGHT1', { date: new Date().getFullYear() })}{' '}
 				<Text.Link href="https://ever.team">{t('TITLE')}</Text.Link> {t('layout.footer.BY')}{' '}
 				<Text.Link href="https://ever.co/">{t('layout.footer.COPY_RIGHT4')}</Text.Link>{' '}
-				{t('layout.footer.RIGHTS_RESERVERD')}
+				{t('layout.footer.RIGHTS_RESERVED')}
 			</p>
 
 			<div className="">
