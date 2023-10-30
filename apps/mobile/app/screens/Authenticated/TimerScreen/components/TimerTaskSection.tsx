@@ -127,7 +127,7 @@ const TimerTaskSection = observer(
 
 					{combxShow ? (
 						<ComboBox
-							closeCombo={closeCombox}
+							closeCombo={() => closeCombox()}
 							setEditMode={setEditMode}
 							tasksHandler={taskInput}
 						/>

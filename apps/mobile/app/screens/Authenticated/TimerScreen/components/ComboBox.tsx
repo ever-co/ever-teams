@@ -17,7 +17,7 @@ export interface Props {
 	tasksHandler: RTuseTaskInput
 	closeCombo: () => unknown
 	setEditMode: (val: boolean) => void
-	parentTasksFilter: boolean
+	parentTasksFilter?: boolean
 	childTask?: ITeamTask
 	onDismiss?: () => void
 }
