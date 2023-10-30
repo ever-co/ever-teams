@@ -1,7 +1,6 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
-
 import { GA_MEASUREMENT_ID, RECAPTCHA_SITE_KEY, jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
@@ -16,12 +15,13 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { RecoilRoot } from 'recoil';
 import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
 import i18n from '../ni18n.config';
+
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	const isJitsuEnvsPresent = jitsuConfiguration.host && jitsuConfiguration.writeKey;
 	return (
 		<>
 			
-			{RECAPTCHA_SITE_KEY && (
+			{GA_MEASUREMENT_ID && (
 				<>
 					<Script
 					strategy="lazyOnload"
