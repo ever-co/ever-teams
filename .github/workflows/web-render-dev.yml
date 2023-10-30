@@ -1,0 +1,16 @@
+on:
+    pull_request:
+    push:
+      branches: [develop]
+  
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Deploy to dev
+              env:
+                deploy_url: ${{ secrets.RENDER_DEV_DEPLOY_HOOK_URL }}
+              run: |
+                curl "$deploy_url"
