@@ -13,6 +13,7 @@
 		"exposdk",
 		"headlessui",
 		"heroicons",
+		"JITSU",
 		"plasmo",
 		"RECAPTCHA",
 		"svgs",
@@ -54,6 +55,6 @@
 		"docker-compose.yml",
 		"wait",
 		"apps/web/lib/i18n/*.ts",
-		"apps/mobile/app/i18n/*.ts",
+		"apps/mobile/app/i18n/*.ts"
 	]
 }
