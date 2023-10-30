@@ -2,7 +2,6 @@ import moment from 'moment';
 import { ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import { atom, selector } from 'recoil';
-import { activeTeamState } from './organization-team';
 
 export const teamTasksState = atom<ITeamTask[]>({
 	key: 'teamTasksState',
