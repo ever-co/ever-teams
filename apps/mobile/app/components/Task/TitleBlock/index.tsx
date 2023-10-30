@@ -266,7 +266,9 @@ const ParentTaskInput: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 				}}
 				onPress={() => setModalVisible(true)}
 			>
-				<Text style={{ fontSize: responsiveFontSize(), color: "#f07258" }}>
+				<Text
+					style={{ fontSize: responsiveFontSize(), color: "#f07258", fontWeight: "600" }}
+				>
 					{task?.parentId
 						? translate("taskDetailsScreen.changeParent")
 						: "+ " + translate("taskDetailsScreen.addParent")}
@@ -316,7 +318,7 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		borderWidth: 1,
 		flex: 1,
-		fontSize: 20,
+		fontSize: 24,
 		fontWeight: "600",
 		maxHeight: 150,
 		textAlignVertical: "top",
