@@ -499,10 +499,9 @@
 
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "Всички права запазени.",
+			"RIGHTS_RESERVED": "Всички права запазени.",
 			"COPY_RIGHT1": "© {{date}}-настояще,",
 			"COPY_RIGHT2": "Ever Teams",
-			"COPY_RIGHT3": "Gauzy Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Общи условия",
