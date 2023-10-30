@@ -36,7 +36,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 				</>
 			)}
 			
-			<Head>
+			<Head>	
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 			</Head>
