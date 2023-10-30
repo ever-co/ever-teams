@@ -6,8 +6,8 @@ import { IUser } from '@app/interfaces';
 export function getTeamTasksRequest({
 	tenantId,
 	organizationId,
-	// TODO
-	// projectId,
+	projectId,
+	teamId,
 	bearer_token,
 	relations = [
 		'tags',
@@ -27,15 +27,16 @@ export function getTeamTasksRequest({
 	bearer_token: string;
 	relations?: string[];
 	projectId?: string;
+	teamId: string
 }) {
 	const obj = {
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		// TODO
-		// 'where[projectId]': projectId,
+		'where[projectId]': projectId,
 		'join[alias]': 'task',
 		'join[leftJoinAndSelect][members]': 'task.members',
-		'join[leftJoinAndSelect][user]': 'members.user'
+		'join[leftJoinAndSelect][user]': 'members.user',
+		'where[teams][0]': teamId
 	} as Record<string, string>;
 
 	relations.forEach((rl, i) => {

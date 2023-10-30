@@ -4,7 +4,7 @@ import { createTaskRequest, getTeamTasksRequest } from '@app/services/server/req
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-	const { $res, user, tenantId, organizationId, access_token, projectId } = await authenticatedGuard(req, res);
+	const { $res, user, tenantId, organizationId, access_token, projectId, teamId } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	if (req.method === 'POST') {
@@ -42,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		tenantId,
 		organizationId,
 		projectId,
+		teamId,
 		bearer_token: access_token
 	});
 
