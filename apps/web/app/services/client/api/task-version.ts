@@ -21,6 +21,6 @@ export function deleteTaskVersionAPI(id: string) {
 	return api.delete<DeleteResponse>(`/task-versions/${id}`);
 }
 
-export function getTaskversionList(tenantId: string, organizationId: string, activeTeamId: string | null) {
+export function getTaskVersionList(tenantId: string, organizationId: string, activeTeamId: string | null) {
 	return api.get(`/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&activeTeamId=${activeTeamId}`);
 }
