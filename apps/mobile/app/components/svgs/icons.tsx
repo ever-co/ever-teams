@@ -591,3 +591,172 @@ export const copyIcon = `<svg width="18" height="18" viewBox="0 0 16 16" fill="n
 <path d="M14.6668 4.60016V7.40016C14.6668 9.7335 13.7335 10.6668 11.4002 10.6668H10.6668V8.60016C10.6668 6.26683 9.7335 5.3335 7.40016 5.3335H5.3335V4.60016C5.3335 2.26683 6.26683 1.3335 8.60016 1.3335H11.4002C13.7335 1.3335 14.6668 2.26683 14.6668 4.60016Z" stroke="#B1AEBC" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `
+// Task Details
+
+export const globeLightTheme = `	<svg
+			width="12"
+			height="12"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+
+		>
+			<path
+				d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+				 stroke="#000000"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M8.0001 3H9.0001C7.0501 8.84 7.0501 15.16 9.0001 21H8.0001"
+				 stroke="#000000"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M15 3C16.95 8.84 16.95 15.16 15 21"
+				 stroke="#000000"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M3 16V15C8.84 16.95 15.16 16.95 21 15V16"
+				stroke="#000000"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M3 8.99998C8.84 7.04998 15.16 7.04998 21 8.99998"
+				 stroke="#000000"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+		</svg>`
+
+export const globeDarkTheme = `	<svg
+			width="12"
+			height="12"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+
+		>
+			<path
+				d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"
+				 stroke="#a6a2b2"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M8.0001 3H9.0001C7.0501 8.84 7.0501 15.16 9.0001 21H8.0001"
+				 stroke="#a6a2b2"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M15 3C16.95 8.84 16.95 15.16 15 21"
+				 stroke="#a6a2b2"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M3 16V15C8.84 16.95 15.16 16.95 21 15V16"
+				stroke="#a6a2b2"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M3 8.99998C8.84 7.04998 15.16 7.04998 21 8.99998"
+				 stroke="#a6a2b2"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+		</svg>`
+
+export const lockLightTheme = `<svg
+			width="12"
+			height="12"
+			viewBox="0 0 12 12"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+
+		>
+			<path
+				d="M3 5V4C3 2.345 3.5 1 6 1C8.5 1 9 2.345 9 4V5"
+				 stroke="#000000"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M6 9.25C6.69036 9.25 7.25 8.69036 7.25 8C7.25 7.30964 6.69036 6.75 6 6.75C5.30964 6.75 4.75 7.30964 4.75 8C4.75 8.69036 5.30964 9.25 6 9.25Z"
+				 stroke="#000000"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M8.5 11H3.5C1.5 11 1 10.5 1 8.5V7.5C1 5.5 1.5 5 3.5 5H8.5C10.5 5 11 5.5 11 7.5V8.5C11 10.5 10.5 11 8.5 11Z"
+				 stroke="#000000"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+		</svg>`
+
+export const lockDarkTheme = `<svg
+			width="12"
+			height="12"
+			viewBox="0 0 12 12"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+
+		>
+			<path
+				d="M3 5V4C3 2.345 3.5 1 6 1C8.5 1 9 2.345 9 4V5"
+				 stroke="#a6a2b2"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M6 9.25C6.69036 9.25 7.25 8.69036 7.25 8C7.25 7.30964 6.69036 6.75 6 6.75C5.30964 6.75 4.75 7.30964 4.75 8C4.75 8.69036 5.30964 9.25 6 9.25Z"
+				 stroke="#a6a2b2"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+			<path
+				d="M8.5 11H3.5C1.5 11 1 10.5 1 8.5V7.5C1 5.5 1.5 5 3.5 5H8.5C10.5 5 11 5.5 11 7.5V8.5C11 10.5 10.5 11 8.5 11Z"
+				 stroke="#a6a2b2"
+				strokeWidth="1.2"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+
+			/>
+		</svg>`

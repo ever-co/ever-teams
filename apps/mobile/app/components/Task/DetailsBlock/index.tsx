@@ -1,11 +1,11 @@
-import { View, Text } from "react-native"
 import React from "react"
 import Accordion from "../../Accordion"
+import TaskPublicity from "./blocks/TaskPublicity"
 
 const DetailsBlock = () => {
 	return (
 		<Accordion title="Details">
-			<Text>details of task</Text>
+			<TaskPublicity />
 		</Accordion>
 	)
 }

@@ -243,6 +243,26 @@ export function useTeamTasks() {
 		[],
 	)
 
+	const updatePublicity = useCallback(
+		(publicity: boolean, task?: ITeamTask | null, loader?: boolean) => {
+			if (task && publicity !== task.public) {
+				loader && setTasksFetching(true)
+				return updateTask(
+					{
+						...task,
+						public: publicity,
+					},
+					task.id,
+				).then((res) => {
+					setTasksFetching(false)
+					return res
+				})
+			}
+			return Promise.resolve()
+		},
+		[setTasksFetching],
+	)
+
 	/**
 	 * Change active task
 	 */
@@ -308,6 +328,7 @@ export function useTeamTasks() {
 		detailedTask,
 		deleteTask,
 		updateTask,
+		updatePublicity,
 		setActiveTeamTask,
 		updateDescription,
 		updateTitle,

@@ -13,7 +13,7 @@ const Accordion = ({ children, title }) => {
 		setExpanded(!expanded)
 	}
 
-	const body = <View>{children}</View>
+	const body = <View style={{ gap: 12 }}>{children}</View>
 	return (
 		<View style={[styles.accordContainer, { backgroundColor: colors.background }]}>
 			<TouchableOpacity style={styles.accordHeader} onPress={toggleItem}>
@@ -25,7 +25,7 @@ const Accordion = ({ children, title }) => {
 				/>
 			</TouchableOpacity>
 			{expanded && (
-				<View style={{ paddingHorizontal: 12 }}>
+				<View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
 					<View
 						style={{
 							width: "100%",
