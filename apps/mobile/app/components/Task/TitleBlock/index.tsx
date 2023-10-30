@@ -15,6 +15,8 @@ import { ITeamTask } from "../../../services/interfaces/ITask"
 import { limitTextCharaters } from "../../../helpers/sub-text"
 import CreateParentTaskModal from "./CreateParentTaskModal"
 import { observer } from "mobx-react-lite"
+import { useNavigation } from "@react-navigation/native"
+import { SettingScreenNavigationProp } from "../../../navigators/AuthenticatedNavigator"
 
 const TaskTitleBlock = observer(() => {
 	const {
@@ -187,8 +189,14 @@ const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle, sav
 
 const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => number }> = observer(
 	({ task, responsiveFontSize }) => {
+		const navigation = useNavigation<SettingScreenNavigationProp<"TaskScreen">>()
+
+		const navigateToParent = (): void => {
+			navigation.navigate("TaskScreen", { taskId: task?.parentId || task?.parent.id })
+		}
 		return task?.parentId && task?.parent ? (
-			<View
+			<TouchableOpacity
+				onPress={navigateToParent}
 				style={{
 					borderRadius: 3,
 					alignItems: "center",
@@ -242,7 +250,7 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 					</Text>
 					{` - ${limitTextCharaters({ text: task?.parent?.title, numChars: 6 })}`}
 				</Text>
-			</View>
+			</TouchableOpacity>
 		) : (
 			<></>
 		)
@@ -252,7 +260,7 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 const ParentTaskInput: React.FC<{ task: ITeamTask; responsiveFontSize: () => number }> = observer(
 	({ task, responsiveFontSize }) => {
 		const [modalVisible, setModalVisible] = useState<boolean>(false)
-		return (
+		return task && task?.issueType !== "Epic" ? (
 			<TouchableOpacity
 				style={{
 					borderRadius: 3,
@@ -280,6 +288,8 @@ const ParentTaskInput: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 					task={task}
 				/>
 			</TouchableOpacity>
+		) : (
+			<></>
 		)
 	},
 )
