@@ -44,7 +44,7 @@ services:
           - key: APP_SIGNATURE
             value: 'Ever Teams'
           - key: APP_LOGO_URL
-            value: 'https://app.ever.team/assets/gauzy-team.png'
+            value: 'https://app.ever.team/assets/ever-teams.png'
           - key: NEXT_PUBLIC_COOKIE_DOMAINS
             value: ever.team
           - key: NEXT_PUBLIC_BOARD_APP_DOMAIN

@@ -494,11 +494,9 @@
 
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "جميع الحقوق محفوظة.",
+			"RIGHTS_RESERVED": "جميع الحقوق محفوظة.",
 			"COPY_RIGHT1": "© {{date}}-حاضر،",
-			"COPY_RIGHT2": "إيفر تيمز",
-			"COPY_RIGHT3": "فِرق جوزي",
-
+			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "إيفر ش.م.م.",
 			"COMPANY_NAME": "إيفر ش.م.م.",
 			"TERMS": "شروط الخدمة",

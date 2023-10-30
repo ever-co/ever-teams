@@ -473,10 +473,9 @@
 	},
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "Todos los derechos reservados.",
+			"RIGHTS_RESERVED": "Todos los derechos reservados.",
 			"COPY_RIGHT1": "© {{date}}-Presente,",
-			"COPY_RIGHT2": "Equipos Siempre ",
-			"COPY_RIGHT3": "Equipos Gauzy",
+			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Términos del servicio",
