@@ -1,8 +1,8 @@
-import { ReactElement } from 'react';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { ReactNode } from 'react';
+import { DragDropContext, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 
 type KanbanBoardProps = {
-    children: ReactElement
+    children: ReactNode
 }
 
 export const KanbanBoard = ({children}: KanbanBoardProps) => {
@@ -18,6 +18,31 @@ export const KanbanBoard = ({children}: KanbanBoardProps) => {
             >
                 { children}
             </DragDropContext>
+        </>
+    )
+}
+
+type KanbanColumnProps = {
+    droppableId: string,
+    children: ReactNode
+}
+
+export const KanbanColumn = ({ droppableId, children }: KanbanColumnProps) => {
+    return (
+        <>
+            <Droppable 
+                droppableId={droppableId}
+            >
+                {(provided: DroppableProvided, snapshop: DroppableStateSnapshot) => (
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        style={{}}
+                    >
+                        { children }
+                    </div>
+                )}
+            </Droppable>
         </>
     )
 }
