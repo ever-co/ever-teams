@@ -3,7 +3,7 @@
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Dimensions } from "react-native"
 import React, { SetStateAction, useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../models"
-import { useAppTheme } from "../../../theme"
+import { typography, useAppTheme } from "../../../theme"
 import { SvgXml } from "react-native-svg"
 import * as Clipboard from "expo-clipboard"
 import { closeIconLight, copyIcon, editIcon, tickIconLight } from "../../svgs/icons"
@@ -63,12 +63,12 @@ const TaskTitleBlock = observer(() => {
 	const responsiveFontSize = (): number => {
 		const baseWidth = 428
 		const scale = width / baseWidth
-		const baseFontSize = 14
+		const baseFontSize = 10
 
 		const fontSize = Math.round(baseFontSize * scale)
 
-		if (fontSize < 12) {
-			return 12
+		if (fontSize < 10) {
+			return 10
 		}
 
 		return fontSize
@@ -85,6 +85,7 @@ const TaskTitleBlock = observer(() => {
 						{
 							color: colors.primary,
 							borderColor: edit ? (dark ? "#464242" : "#e5e7eb") : "transparent",
+							fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 						},
 					]}
 					onChangeText={(text) => setTitle(text)}
@@ -100,7 +101,7 @@ const TaskTitleBlock = observer(() => {
 			</View>
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
 				<View style={styles.taskNumber}>
-					<Text style={{ fontSize: responsiveFontSize() }}>#{task?.number}</Text>
+					<Text style={{ fontSize: 12 }}>#{task?.number}</Text>
 				</View>
 				<IssuesModal
 					task={task}
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		borderWidth: 1,
 		flex: 1,
-		fontSize: 24,
+		fontSize: 20,
 		fontWeight: "600",
 		maxHeight: 150,
 		textAlignVertical: "top",
