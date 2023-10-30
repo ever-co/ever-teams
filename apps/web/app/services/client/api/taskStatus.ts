@@ -1,8 +1,8 @@
-import { CreateReponse, DeleteReponse, ITaskStatusCreate } from '@app/interfaces';
+import { CreateResponse, DeleteResponse, ITaskStatusCreate } from '@app/interfaces';
 import api from '../axios';
 
 export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) {
-	return api.post<CreateReponse<ITaskStatusCreate>>('/task-statuses', data, {
+	return api.post<CreateResponse<ITaskStatusCreate>>('/task-statuses', data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -10,7 +10,7 @@ export function createTaskStatusAPI(data: ITaskStatusCreate, tenantId?: string) 
 }
 
 export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?: string) {
-	return api.put<CreateReponse<ITaskStatusCreate>>(`/task-statuses/${id}`, data, {
+	return api.put<CreateResponse<ITaskStatusCreate>>(`/task-statuses/${id}`, data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -18,7 +18,7 @@ export function editTaskStatusAPI(id: string, data: ITaskStatusCreate, tenantId?
 }
 
 export function deleteTaskStatusAPI(id: string) {
-	return api.delete<DeleteReponse>(`/task-statuses/${id}`);
+	return api.delete<DeleteResponse>(`/task-statuses/${id}`);
 }
 
 export function getTaskstatusList(tenantId: string, organizationId: string, activeTeamId: string | null) {

@@ -1,4 +1,4 @@
-import { CreateReponse, DeleteReponse, ISuccessResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
+import { CreateResponse, DeleteResponse, ISuccessResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 
 import {
 	IOrganizationTeamList,
@@ -28,12 +28,12 @@ export function updateOrganizationTeamAPI(teamId: string, data: Partial<IOrganiz
 }
 
 export function deleteOrganizationTeamAPI(id: string) {
-	return api.delete<CreateReponse<IOrganizationTeam>>(`/organization-team/${id}`);
+	return api.delete<CreateResponse<IOrganizationTeam>>(`/organization-team/${id}`);
 }
 export function removeEmployeeOrganizationTeamAPI(employeeId: string) {
 	return api.delete<boolean>(`/organization-team/employee/${employeeId}`);
 }
 
 export function removeUserFromAllTeamAPI(userId: string) {
-	return api.delete<DeleteReponse | CreateReponse<ISuccessResponse>>(`/organization-team/teams/${userId}`);
+	return api.delete<DeleteResponse | CreateResponse<ISuccessResponse>>(`/organization-team/teams/${userId}`);
 }

@@ -1,10 +1,10 @@
-import { DeleteReponse } from '@app/interfaces';
+import { DeleteResponse } from '@app/interfaces';
 import api from '../axios';
 
 export function deleteUserAPI(id: string) {
-	return api.delete<DeleteReponse>(`/user/${id}`);
+	return api.delete<DeleteResponse>(`/user/${id}`);
 }
 
 export function resetUserAPI() {
-	return api.delete<DeleteReponse>(`/user/reset`);
+	return api.delete<DeleteResponse>(`/user/reset`);
 }
