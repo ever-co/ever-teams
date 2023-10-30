@@ -760,3 +760,30 @@ export const lockDarkTheme = `<svg
 
 			/>
 		</svg>`
+
+export const clipboardIcon = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 6.1001H7.5" stroke="#A5A2B2" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4 8.1001H6.19" stroke="#A5A2B2" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5 3H7C8 3 8 2.5 8 2C8 1 7.5 1 7 1H5C4.5 1 4 1 4 2C4 3 4.5 3 5 3Z" stroke="#A5A2B2" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8 2.01001C9.665 2.10001 10.5 2.71501 10.5 5.00001V8.00001C10.5 10 10 11 7.5 11H4.5C2 11 1.5 10 1.5 8.00001V5.00001C1.5 2.72001 2.335 2.10001 4 2.01001" stroke="#A5A2B2" stroke-width="1.2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`
+
+export const profileIcon = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.07979 5.435C6.02979 5.43 5.96979 5.43 5.91479 5.435C4.72479 5.395 3.77979 4.42 3.77979 3.22C3.77979 1.995 4.76979 1 5.99979 1C7.22479 1 8.21979 1.995 8.21979 3.22C8.21479 4.42 7.26979 5.395 6.07979 5.435Z" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.57986 7.28C2.36986 8.09 2.36986 9.41 3.57986 10.215C4.95486 11.135 7.20986 11.135 8.58486 10.215C9.79486 9.405 9.79486 8.085 8.58486 7.28C7.21486 6.365 4.95986 6.365 3.57986 7.28Z" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
+export const peopleIconSmall = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.00004 3.58C8.97004 3.575 8.93504 3.575 8.90504 3.58C8.21504 3.555 7.66504 2.99 7.66504 2.29C7.66504 1.575 8.24004 1 8.95504 1C9.67004 1 10.245 1.58 10.245 2.29C10.24 2.99 9.69004 3.555 9.00004 3.58Z" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.48522 7.22008C9.17022 7.33508 9.92522 7.21508 10.4552 6.86008C11.1602 6.39008 11.1602 5.62008 10.4552 5.15008C9.92022 4.79508 9.15521 4.67508 8.47021 4.79508" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M2.98524 3.58C3.01524 3.575 3.05023 3.575 3.08023 3.58C3.77023 3.555 4.32023 2.99 4.32023 2.29C4.32023 1.575 3.74524 1 3.03024 1C2.31524 1 1.74023 1.58 1.74023 2.29C1.74523 2.99 2.29524 3.555 2.98524 3.58Z" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.50021 7.22008C2.81521 7.33508 2.06021 7.21508 1.53021 6.86008C0.825215 6.39008 0.825215 5.62008 1.53021 5.15008C2.06521 4.79508 2.83021 4.67508 3.51521 4.79508" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.00004 7.31511C5.97004 7.31011 5.93504 7.31011 5.90504 7.31511C5.21504 7.29011 4.66504 6.72511 4.66504 6.02511C4.66504 5.31011 5.24004 4.73511 5.95504 4.73511C6.67004 4.73511 7.24504 5.31511 7.24504 6.02511C7.24004 6.72511 6.69004 7.29511 6.00004 7.31511Z" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.54486 8.89018C3.83986 9.36018 3.83986 10.1302 4.54486 10.6002C5.34486 11.1352 6.65486 11.1352 7.45486 10.6002C8.15986 10.1302 8.15986 9.36018 7.45486 8.89018C6.65986 8.36018 5.34486 8.36018 4.54486 8.89018Z" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
+export const settingsIconSmall = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.5 4.55493V7.43993C1.5 8.49993 1.5 8.49993 2.5 9.17493L5.25 10.7649C5.665 11.0049 6.34 11.0049 6.75 10.7649L9.5 9.17493C10.5 8.49993 10.5 8.49993 10.5 7.44493V4.55493C10.5 3.49993 10.5 3.49993 9.5 2.82493L6.75 1.23493C6.34 0.994932 5.665 0.994932 5.25 1.23493L2.5 2.82493C1.5 3.49993 1.5 3.49993 1.5 4.55493Z" stroke="#A5A2B2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6 7.5C6.82843 7.5 7.5 6.82843 7.5 6C7.5 5.17157 6.82843 4.5 6 4.5C5.17157 4.5 4.5 5.17157 4.5 6C4.5 6.82843 5.17157 7.5 6 7.5Z" stroke="#A5A2B2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
