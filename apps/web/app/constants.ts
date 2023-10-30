@@ -36,6 +36,7 @@ export const INVITE_CALLBACK_URL = process.env.INVITE_CALLBACK_URL;
 export const INVITE_CALLBACK_PATH = '/auth/passcode';
 export const VERIFY_EMAIL_CALLBACK_URL = process.env.VERIFY_EMAIL_CALLBACK_URL;
 export const VERIFY_EMAIL_CALLBACK_PATH = '/verify-email';
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export const SMTP_FROM_ADDRESS = process.env.SMTP_FROM_ADDRESS || 'noreply@ever.team';
 export const SMTP_HOST = process.env.SMTP_HOST || '';

@@ -270,5 +270,9 @@
 			"react/prop-types": 0,
 			"space-before-function-paren": 0
 		}
+	},
+	"engines": {
+		"node": ">=16.0.0",
+		"yarn": ">=1.13.0"
 	}
 }
