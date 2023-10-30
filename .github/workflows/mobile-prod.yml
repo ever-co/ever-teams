@@ -79,4 +79,4 @@ jobs:
           project_id: "ever-teams-399720"
 
       - name: Upload to Play Store Console
-        run: cd apps/mobile && eas submit -p android --latest --key ${{ secrets.GOOGLE_CREDENTIALS }} 
+        run: cd apps/mobile && eas submit -p android --latest
