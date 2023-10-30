@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../styles/globals.css';
-import { GA_MEASUREMENT_ID, RECAPTCHA_SITE_KEY, jitsuConfiguration } from '@app/constants';
+import { GA_MEASUREMENT_ID, jitsuConfiguration } from '@app/constants';
 import { JitsuProvider } from '@jitsu/jitsu-react';
 import { Analytics } from '@vercel/analytics/react';
 import { AppState } from 'lib/app/init-state';
