@@ -8,6 +8,7 @@ import { typography, useAppTheme } from "../../../theme"
 import { AntDesign } from "@expo/vector-icons"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import TaskTitleBlock from "../../../components/Task/TitleBlock"
+import DetailsBlock from "../../../components/Task/DetailsBlock"
 // import { translate } from "../../../i18n"
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScreen">> = (
@@ -41,8 +42,9 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 						<Text style={[styles.title, { color: colors.primary }]}>Task Screen</Text>
 					</View>
 				</View>
-				<View style={{ padding: 20 }}>
+				<View style={{ padding: 20, gap: 12 }}>
 					<TaskTitleBlock />
+					<DetailsBlock />
 				</View>
 			</Animated.View>
 		</Screen>
