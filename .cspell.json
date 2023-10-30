@@ -5,6 +5,7 @@
 	"words": [
 		"barcodes",
 		"cacheable",
+		"camelcase",
 		"cloudinary",
 		"clsxm",
 		"dummyimage",
@@ -14,6 +15,8 @@
 		"headlessui",
 		"heroicons",
 		"JITSU",
+		"kanban",
+		"passcode",
 		"plasmo",
 		"RECAPTCHA",
 		"svgs",
@@ -54,7 +57,11 @@
 		"docker-compose.demo.yml",
 		"docker-compose.yml",
 		"wait",
+		"signin",
+		"Chatwoot",
+		"CHATWOOT",
 		"apps/web/lib/i18n/*.ts",
+		"apps/web/public/locales/**",
 		"apps/mobile/app/i18n/*.ts"
 	]
 }
