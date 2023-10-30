@@ -57,7 +57,11 @@
 		"docker-compose.demo.yml",
 		"docker-compose.yml",
 		"wait",
+		"signin",
+		"Chatwoot",
+		"CHATWOOT",
 		"apps/web/lib/i18n/*.ts",
+		"apps/web/public/locales/**",
 		"apps/mobile/app/i18n/*.ts"
 	]
 }
