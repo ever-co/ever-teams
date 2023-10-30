@@ -14,8 +14,9 @@ import IssuesModal from "../../IssuesModal"
 import { ITeamTask } from "../../../services/interfaces/ITask"
 import { limitTextCharaters } from "../../../helpers/sub-text"
 import CreateParentTaskModal from "./CreateParentTaskModal"
+import { observer } from "mobx-react-lite"
 
-const TaskTitleBlock = () => {
+const TaskTitleBlock = observer(() => {
 	const {
 		TaskStore: { detailedTask: task },
 	} = useStores()
@@ -130,7 +131,7 @@ const TaskTitleBlock = () => {
 			</View>
 		</View>
 	)
-}
+})
 
 export default TaskTitleBlock
 
@@ -184,43 +185,26 @@ const TitleIcons: React.FC<ITitleIcons> = ({ dark, edit, setEdit, copyTitle, sav
 	)
 }
 
-const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => number }> = ({
-	task,
-	responsiveFontSize,
-}) => {
-	return task?.parentId && task?.parent ? (
-		<View
-			style={{
-				borderRadius: 3,
-				alignItems: "center",
-				justifyContent: "center",
-				height: 24,
-				paddingHorizontal: 8,
-				paddingVertical: 2,
-				backgroundColor:
-					task?.parent?.issueType === "Epic"
-						? "#8154BA"
-						: task?.parent?.issueType === "Story"
-						? "#54BA951A"
-						: task?.parent?.issueType === "Bug"
-						? "#C24A4A1A"
-						: task?.parent?.issueType === "Task" || !task?.parent?.issueType
-						? "#5483ba"
-						: "",
-			}}
-		>
-			<Text
+const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => number }> = observer(
+	({ task, responsiveFontSize }) => {
+		return task?.parentId && task?.parent ? (
+			<View
 				style={{
-					fontSize: responsiveFontSize(),
-					color:
+					borderRadius: 3,
+					alignItems: "center",
+					justifyContent: "center",
+					height: 24,
+					paddingHorizontal: 8,
+					paddingVertical: 2,
+					backgroundColor:
 						task?.parent?.issueType === "Epic"
-							? "#FFFFFF"
+							? "#8154BA"
 							: task?.parent?.issueType === "Story"
-							? "#27AE60"
+							? "#54BA951A"
 							: task?.parent?.issueType === "Bug"
-							? "#C24A4A"
+							? "#C24A4A1A"
 							: task?.parent?.issueType === "Task" || !task?.parent?.issueType
-							? "#FFFFFF"
+							? "#5483ba"
 							: "",
 				}}
 			>
@@ -229,59 +213,74 @@ const ParentTaskBadge: React.FC<{ task: ITeamTask; responsiveFontSize: () => num
 						fontSize: responsiveFontSize(),
 						color:
 							task?.parent?.issueType === "Epic"
-								? "#FFFFFF80"
+								? "#FFFFFF"
 								: task?.parent?.issueType === "Story"
-								? "#27AE6080"
+								? "#27AE60"
 								: task?.parent?.issueType === "Bug"
-								? "#C24A4A80"
+								? "#C24A4A"
 								: task?.parent?.issueType === "Task" || !task?.parent?.issueType
 								? "#FFFFFF"
 								: "",
 					}}
 				>
-					#{task?.parent?.taskNumber || task?.parent.number}
+					<Text
+						style={{
+							fontSize: responsiveFontSize(),
+							color:
+								task?.parent?.issueType === "Epic"
+									? "#FFFFFF80"
+									: task?.parent?.issueType === "Story"
+									? "#27AE6080"
+									: task?.parent?.issueType === "Bug"
+									? "#C24A4A80"
+									: task?.parent?.issueType === "Task" || !task?.parent?.issueType
+									? "#FFFFFF"
+									: "",
+						}}
+					>
+						#{task?.parent?.taskNumber || task?.parent.number}
+					</Text>
+					{` - ${limitTextCharaters({ text: task?.parent?.title, numChars: 6 })}`}
 				</Text>
-				{` - ${limitTextCharaters({ text: task?.parent?.title, numChars: 6 })}`}
-			</Text>
-		</View>
-	) : (
-		<></>
-	)
-}
+			</View>
+		) : (
+			<></>
+		)
+	},
+)
 
-const ParentTaskInput: React.FC<{ task: ITeamTask; responsiveFontSize: () => number }> = ({
-	task,
-	responsiveFontSize,
-}) => {
-	const [modalVisible, setModalVisible] = useState<boolean>(false)
-	return (
-		<TouchableOpacity
-			style={{
-				borderRadius: 3,
-				alignItems: "center",
-				justifyContent: "center",
-				height: 24,
-				paddingHorizontal: 8,
-				paddingVertical: 2,
-				borderWidth: 1,
-				borderColor: "#f07258",
-			}}
-			onPress={() => setModalVisible(true)}
-		>
-			<Text style={{ fontSize: responsiveFontSize(), color: "#f07258" }}>
-				{task?.parentId
-					? translate("taskDetailsScreen.changeParent")
-					: "+ " + translate("taskDetailsScreen.addParent")}
-			</Text>
+const ParentTaskInput: React.FC<{ task: ITeamTask; responsiveFontSize: () => number }> = observer(
+	({ task, responsiveFontSize }) => {
+		const [modalVisible, setModalVisible] = useState<boolean>(false)
+		return (
+			<TouchableOpacity
+				style={{
+					borderRadius: 3,
+					alignItems: "center",
+					justifyContent: "center",
+					height: 24,
+					paddingHorizontal: 8,
+					paddingVertical: 2,
+					borderWidth: 1,
+					borderColor: "#f07258",
+				}}
+				onPress={() => setModalVisible(true)}
+			>
+				<Text style={{ fontSize: responsiveFontSize(), color: "#f07258" }}>
+					{task?.parentId
+						? translate("taskDetailsScreen.changeParent")
+						: "+ " + translate("taskDetailsScreen.addParent")}
+				</Text>
 
-			<CreateParentTaskModal
-				visible={modalVisible}
-				onDismiss={() => setModalVisible(false)}
-				task={task}
-			/>
-		</TouchableOpacity>
-	)
-}
+				<CreateParentTaskModal
+					visible={modalVisible}
+					onDismiss={() => setModalVisible(false)}
+					task={task}
+				/>
+			</TouchableOpacity>
+		)
+	},
+)
 
 const styles = StyleSheet.create({
 	copyButton: {
