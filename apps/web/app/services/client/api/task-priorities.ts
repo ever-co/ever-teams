@@ -1,8 +1,8 @@
-import { CreateReponse, DeleteReponse, ITaskPrioritiesCreate } from '@app/interfaces';
+import { CreateResponse, DeleteResponse, ITaskPrioritiesCreate } from '@app/interfaces';
 import api from '../axios';
 
 export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: string) {
-	return api.post<CreateReponse<ITaskPrioritiesCreate>>('/task-priorities', data, {
+	return api.post<CreateResponse<ITaskPrioritiesCreate>>('/task-priorities', data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -10,7 +10,7 @@ export function createTaskPrioritiesAPI(data: ITaskPrioritiesCreate, tenantId?: 
 }
 
 export function editTaskPrioritiesAPI(id: string, data: ITaskPrioritiesCreate, tenantId?: string) {
-	return api.put<CreateReponse<ITaskPrioritiesCreate>>(`/task-priorities/${id}`, data, {
+	return api.put<CreateResponse<ITaskPrioritiesCreate>>(`/task-priorities/${id}`, data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -18,7 +18,7 @@ export function editTaskPrioritiesAPI(id: string, data: ITaskPrioritiesCreate, t
 }
 
 export function deleteTaskPrioritiesAPI(id: string) {
-	return api.delete<DeleteReponse>(`/task-priorities/${id}`);
+	return api.delete<DeleteResponse>(`/task-priorities/${id}`);
 }
 
 export function getTaskPrioritiesList(tenantId: string, organizationId: string, activeTeamId: string | null) {

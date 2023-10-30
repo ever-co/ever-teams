@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import logoImg from 'data-base64:~assets/logo/gauzy-teams-dark.png';
+import logoImg from 'data-base64:~assets/logo/ever-teams-dark.png';
 import React, { FC, useState } from 'react';
 
 import AppDropdown from '~components/shared/AppDropdown';
