@@ -64,7 +64,7 @@ const TaskMainInfo = () => {
 				))}
 
 				{/* Manage Assignees */}
-				<ManageAssignees memberList={currentTeam?.members} />
+				<ManageAssignees memberList={currentTeam?.members} task={task} />
 			</TaskRow>
 		</View>
 	)

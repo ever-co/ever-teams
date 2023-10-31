@@ -10,21 +10,79 @@ import {
 	ViewStyle,
 	StyleSheet,
 	TouchableOpacity,
+	Dimensions,
 } from "react-native"
-import React, { useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import ProfileInfo from "./ProfileInfo"
 import { SvgXml } from "react-native-svg"
 import { trashIconLarge } from "../../../svgs/icons"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { useTeamMemberCard } from "../../../../services/hooks/features/useTeamMemberCard"
+import { ScrollView } from "react-native-gesture-handler"
 
 interface IManageAssignees {
 	memberList: OT_Member[]
+	task: ITeamTask
 }
 
-const ManageAssignees: React.FC<IManageAssignees> = ({ memberList }) => {
+const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 	const [modalVisible, setModalVisible] = useState<boolean>(false)
+	const [member, setMember] = useState<OT_Member>()
+	const [memberToRemove, setMemberToRemove] = useState<boolean>(false)
+	const [memberToAdd, setMemberToAdd] = useState<boolean>(false)
+
 	const { colors } = useAppTheme()
+	const memberInfo = useTeamMemberCard(member)
+	const { height } = Dimensions.get("window")
+
+	const assignedToTaskMembers = useMemo(
+		() =>
+			memberList?.filter((member) =>
+				member.employee
+					? task?.members.map((item) => item.userId).includes(member.employee?.userId)
+					: false,
+			),
+		[memberList, task?.members],
+	)
+
+	const unassignedMembers = useMemo(
+		() =>
+			memberList?.filter((member) =>
+				member.employee
+					? !task?.members.map((item) => item.userId).includes(member.employee.userId)
+					: false,
+			),
+		[memberList, task?.members],
+	)
+
+	useEffect(() => {
+		if (task && member && memberToRemove) {
+			memberInfo
+				.unassignTask(task)
+				.then(() => {
+					setMember(undefined)
+					setMemberToRemove(false)
+				})
+				.catch(() => {
+					setMember(undefined)
+					setMemberToRemove(false)
+				})
+		} else if (task && member && memberToAdd) {
+			memberInfo
+				.assignTask(task)
+				.then(() => {
+					setMember(undefined)
+					setMemberToAdd(false)
+				})
+				.catch(() => {
+					setMember(undefined)
+					setMemberToAdd(false)
+				})
+		}
+	}, [task, member, memberInfo, memberToAdd, memberToRemove])
+
 	return (
 		<>
 			<TouchableOpacity
@@ -44,22 +102,60 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList }) => {
 				<Text style={{ fontSize: 12, fontWeight: "600" }}>Manage Assignees</Text>
 			</TouchableOpacity>
 
-			<ModalPopUp visible={modalVisible}>
-				<View style={[styles.container, { backgroundColor: colors.background }]}>
-					{memberList?.map((member, index) => (
-						<View key={index} style={styles.memberWrapper}>
-							<ProfileInfo
-								largerProfileInfo={true}
-								profilePicSrc={member?.employee?.user?.imageUrl}
-								names={`${member?.employee?.user?.firstName || ""} ${
-									member?.employee?.user?.lastName || ""
-								}`}
-							/>
-							<TouchableOpacity>
-								<SvgXml xml={trashIconLarge} />
+			<ModalPopUp visible={modalVisible} onDismiss={() => setModalVisible(false)}>
+				<View
+					style={[
+						styles.container,
+						{ backgroundColor: colors.background, maxHeight: height / 2 },
+					]}
+				>
+					<ScrollView>
+						{assignedToTaskMembers?.map((member, index) => (
+							<TouchableOpacity
+								onPress={() => {
+									setMember(member)
+									setMemberToRemove(true)
+									setModalVisible(false)
+								}}
+								key={index}
+								style={styles.memberWrapper}
+							>
+								<View pointerEvents="none">
+									<ProfileInfo
+										largerProfileInfo={true}
+										profilePicSrc={member?.employee?.user?.imageUrl}
+										names={`${member?.employee?.user?.firstName || ""} ${
+											member?.employee?.user?.lastName || ""
+										}`}
+									/>
+								</View>
+								<View pointerEvents="none">
+									<SvgXml xml={trashIconLarge} />
+								</View>
 							</TouchableOpacity>
-						</View>
-					))}
+						))}
+						{unassignedMembers?.map((member, index) => (
+							<TouchableOpacity
+								onPress={() => {
+									setMember(member)
+									setMemberToAdd(true)
+									setModalVisible(false)
+								}}
+								key={index}
+								style={styles.memberWrapper}
+							>
+								<View pointerEvents="none">
+									<ProfileInfo
+										largerProfileInfo={true}
+										profilePicSrc={member?.employee?.user?.imageUrl}
+										names={`${member?.employee?.user?.firstName || ""} ${
+											member?.employee?.user?.lastName || ""
+										}`}
+									/>
+								</View>
+							</TouchableOpacity>
+						))}
+					</ScrollView>
 				</View>
 			</ModalPopUp>
 		</>
@@ -68,7 +164,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList }) => {
 
 export default ManageAssignees
 
-const ModalPopUp = ({ visible, children }) => {
+const ModalPopUp = ({ visible, children, onDismiss }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
 
@@ -93,7 +189,7 @@ const ModalPopUp = ({ visible, children }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
-			<TouchableWithoutFeedback>
+			<TouchableWithoutFeedback onPress={onDismiss}>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
 						{children}
