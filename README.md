@@ -138,9 +138,7 @@ WIP
 
 ### Railway
 
-Note: WIP
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/EverTeams)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=40jeja)
 
 ## 📄 Content
 
