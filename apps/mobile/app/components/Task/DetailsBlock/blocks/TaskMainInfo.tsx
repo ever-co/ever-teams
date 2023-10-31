@@ -5,10 +5,13 @@ import React from "react"
 import { useStores } from "../../../../models"
 import TaskRow from "../components/TaskRow"
 import { SvgXml } from "react-native-svg"
-import { clipboardIcon, peopleIconSmall, profileIcon } from "../../../svgs/icons"
+import { calendarIcon, clipboardIcon, peopleIconSmall, profileIcon } from "../../../svgs/icons"
 import ProfileInfo from "../components/ProfileInfo"
 import ManageAssignees from "../components/ManageAssignees"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
+import CalendarModal from "../components/CalendarModal"
+import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
+import moment from "moment-timezone"
 
 const TaskMainInfo = () => {
 	const {
@@ -16,6 +19,7 @@ const TaskMainInfo = () => {
 	} = useStores()
 
 	const { currentTeam } = useOrganizationTeam()
+	const { updateTask } = useTeamTasks()
 
 	return (
 		<View style={{ paddingHorizontal: 12, gap: 12 }}>
@@ -66,6 +70,53 @@ const TaskMainInfo = () => {
 				{/* Manage Assignees */}
 				<ManageAssignees memberList={currentTeam?.members} task={task} />
 			</TaskRow>
+
+			{/* Manage Start Date */}
+			<TaskRow
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<SvgXml xml={calendarIcon} />
+						<Text style={{ color: "#A5A2B2" }}>Start Date</Text>
+					</View>
+				}
+			>
+				<CalendarModal
+					updateTask={(date) => updateTask({ ...task, startDate: date }, task?.id)}
+					selectedDate={task?.startDate}
+				/>
+			</TaskRow>
+
+			{/* Manage Due Date */}
+			<TaskRow
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<Text style={{ color: "#A5A2B2" }}>Due Date</Text>
+					</View>
+				}
+			>
+				<CalendarModal
+					updateTask={(date) => updateTask({ ...task, dueDate: date }, task?.id)}
+					selectedDate={task?.dueDate}
+					isDueDate={true}
+				/>
+			</TaskRow>
+
+			{/* Days Remaining */}
+			{task?.startDate && task?.dueDate && (
+				<TaskRow
+					labelComponent={
+						<View style={styles.labelComponent}>
+							<Text style={{ color: "#A5A2B2" }}>Days Remaining</Text>
+						</View>
+					}
+				>
+					<Text style={{ fontWeight: "600", fontSize: 12 }}>
+						{moment(task?.dueDate).diff(moment(), "days") < 0
+							? 0
+							: moment(task?.dueDate).diff(moment(), "days")}
+					</Text>
+				</TaskRow>
+			)}
 		</View>
 	)
 }

@@ -53,7 +53,13 @@ const ProfileInfo: React.FC<IProfileInfo> = ({
 				/>
 			)}
 
-			<Text style={{ fontSize: largerProfileInfo ? 16 : 14, color: colors.primary }}>
+			<Text
+				style={{
+					fontSize: largerProfileInfo ? 16 : 14,
+					color: colors.primary,
+					fontWeight: "600",
+				}}
+			>
 				{limitTextCharaters({ text: names.trim(), numChars: 18 })}
 			</Text>
 		</TouchableOpacity>

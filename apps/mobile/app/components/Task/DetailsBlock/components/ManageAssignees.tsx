@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
 		borderRadius: 100,
 		borderWidth: 1,
 		justifyContent: "center",
-		marginHorizontal: 10,
+		marginVertical: 10,
 		paddingHorizontal: 8,
 		paddingVertical: 4,
 		width: 140,
