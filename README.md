@@ -140,6 +140,10 @@ WIP
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=40jeja)
 
+### Fly
+
+[![Deploy on Railway](https://ever.team/fly.png)](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Fly)
+
 ## 📄 Content
 
 -   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
@@ -162,8 +166,8 @@ WIP
 
 ## 🔐 Security
 
-Ever Teams Platform follows good security practices, but 100% security cannot be guaranteed in any software!
-Ever Teams Platform is provided AS IS without any warranty. Use at your own risk!
+**Ever Teams Platform** follows good security practices, but 100% security cannot be guaranteed in any software!
+**Ever Teams Platform** is provided AS IS without any warranty. Use at your own risk!
 See more details in the [LICENSE.md](LICENSE.md).
 
 In a production setup, all client-side to server-side (backend, APIs) communications should be encrypted using HTTPS/WSS/SSL (REST APIs, GraphQL endpoint, Socket.io WebSockets, etc.).
