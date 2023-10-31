@@ -12,6 +12,10 @@ import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 import CalendarModal from "../components/CalendarModal"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
 import moment from "moment-timezone"
+import TaskStatus from "../../../TaskStatus"
+import TaskSize from "../../../TaskSize"
+import TaskPriority from "../../../TaskPriority"
+import TaskLabels from "../../../TaskLabels"
 
 const TaskMainInfo = () => {
 	const {
@@ -22,7 +26,7 @@ const TaskMainInfo = () => {
 	const { updateTask } = useTeamTasks()
 
 	return (
-		<View style={{ paddingHorizontal: 12, gap: 12 }}>
+		<View style={{ paddingHorizontal: 12, gap: 12, paddingBottom: 12 }}>
 			{/* Issue type */}
 			<TaskRow
 				labelComponent={
@@ -89,7 +93,7 @@ const TaskMainInfo = () => {
 			{/* Manage Due Date */}
 			<TaskRow
 				labelComponent={
-					<View style={styles.labelComponent}>
+					<View style={[styles.labelComponent, { marginLeft: 19 }]}>
 						<Text style={{ color: "#A5A2B2" }}>Due Date</Text>
 					</View>
 				}
@@ -105,7 +109,7 @@ const TaskMainInfo = () => {
 			{task?.startDate && task?.dueDate && (
 				<TaskRow
 					labelComponent={
-						<View style={styles.labelComponent}>
+						<View style={[styles.labelComponent, { marginLeft: 19 }]}>
 							<Text style={{ color: "#A5A2B2" }}>Days Remaining</Text>
 						</View>
 					}
@@ -117,6 +121,99 @@ const TaskMainInfo = () => {
 					</Text>
 				</TaskRow>
 			)}
+
+			{/* horizontal separator */}
+			<View
+				style={{
+					borderBottomWidth: 1,
+					width: "100%",
+					borderBottomColor: "#F2F2F2",
+					marginVertical: 10,
+				}}
+			/>
+
+			{/* Version TODO */}
+			{/* Epic TODO */}
+
+			{/* Status */}
+			<TaskRow
+				alignItems={true}
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<Text style={{ color: "#A5A2B2" }}>Status</Text>
+					</View>
+				}
+			>
+				<TaskStatus
+					task={task}
+					containerStyle={{
+						// ...styles.sizeContainer,
+						// borderColor: colors.border,
+						width: "70%",
+						borderRadius: 3,
+					}}
+				/>
+			</TaskRow>
+
+			{/* Labels */}
+			<TaskRow
+				alignItems={true}
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<Text style={{ color: "#A5A2B2" }}>Labels</Text>
+					</View>
+				}
+			>
+				<TaskLabels
+					task={task}
+					containerStyle={{
+						// ...styles.sizeContainer,
+						// borderColor: colors.border,
+						width: "70%",
+						borderRadius: 3,
+					}}
+				/>
+			</TaskRow>
+
+			{/* Size */}
+			<TaskRow
+				alignItems={true}
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<Text style={{ color: "#A5A2B2" }}>Size</Text>
+					</View>
+				}
+			>
+				<TaskSize
+					task={task}
+					containerStyle={{
+						// ...styles.sizeContainer,
+						// borderColor: colors.border,
+						width: "70%",
+						borderRadius: 3,
+					}}
+				/>
+			</TaskRow>
+
+			{/* Priority */}
+			<TaskRow
+				alignItems={true}
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<Text style={{ color: "#A5A2B2" }}>Priority</Text>
+					</View>
+				}
+			>
+				<TaskPriority
+					task={task}
+					containerStyle={{
+						// ...styles.sizeContainer,
+						// borderColor: colors.border,
+						width: "70%",
+						borderRadius: 3,
+					}}
+				/>
+			</TaskRow>
 		</View>
 	)
 }
