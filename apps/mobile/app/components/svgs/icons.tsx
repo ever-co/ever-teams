@@ -787,3 +787,11 @@ export const settingsIconSmall = `<svg width="12" height="12" viewBox="0 0 12 12
 <path d="M6 7.5C6.82843 7.5 7.5 6.82843 7.5 6C7.5 5.17157 6.82843 4.5 6 4.5C5.17157 4.5 4.5 5.17157 4.5 6C4.5 6.82843 5.17157 7.5 6 7.5Z" stroke="#A5A2B2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `
+
+export const trashIconLarge = `<svg width="20" height="20" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.375 3.2391C9.57125 3.06035 7.75667 2.96826 5.9475 2.96826C4.875 2.96826 3.8025 3.02243 2.73 3.13076L1.625 3.2391" stroke="#EE6C4D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.604 2.692L4.72317 1.98242C4.80984 1.46784 4.87484 1.08325 5.79025 1.08325H7.20942C8.12484 1.08325 8.19525 1.4895 8.2765 1.98784L8.39567 2.692" stroke="#EE6C4D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.2104 4.95093L9.8583 10.4055C9.79872 11.2559 9.74997 11.9168 8.23872 11.9168H4.76122C3.24997 11.9168 3.20122 11.2559 3.14163 10.4055L2.78955 4.95093" stroke="#EE6C4D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.59521 8.9375H7.39896" stroke="#EE6C4D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.146 6.77075H7.85433" stroke="#EE6C4D" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`

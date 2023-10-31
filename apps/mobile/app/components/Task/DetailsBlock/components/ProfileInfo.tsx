@@ -15,10 +15,16 @@ import {
 interface IProfileInfo {
 	names: string
 	profilePicSrc: string
-	userId: string
+	userId?: string
+	largerProfileInfo?: boolean
 }
 
-const ProfileInfo: React.FC<IProfileInfo> = ({ profilePicSrc, names, userId }) => {
+const ProfileInfo: React.FC<IProfileInfo> = ({
+	profilePicSrc,
+	names,
+	userId,
+	largerProfileInfo,
+}) => {
 	const alternateNavigation = useNavigation<DrawerNavigationProp<"AuthenticatedTab">>()
 	const navigation = useNavigation<SettingScreenNavigationProp<"Profile">>()
 
@@ -29,23 +35,25 @@ const ProfileInfo: React.FC<IProfileInfo> = ({ profilePicSrc, names, userId }) =
 		}, 50)
 	}
 	return (
-		<TouchableOpacity onPress={navigateToProfile} style={styles.container}>
+		<TouchableOpacity onPress={userId && navigateToProfile} style={styles.container}>
 			{profilePicSrc ? (
 				<Avatar.Image
 					source={{ uri: profilePicSrc }}
-					size={20}
+					size={largerProfileInfo ? 30 : 20}
 					style={styles.profileImage}
 				/>
 			) : (
 				<Avatar.Text
 					label={imgTitleProfileAvatar(names.replace(" ", ""))}
-					size={20}
+					size={largerProfileInfo ? 30 : 20}
 					style={[styles.profileImage, { backgroundColor: "#82c9e0" }]}
-					labelStyle={styles.prefix}
+					labelStyle={[styles.prefix, { fontSize: 14 }]}
 				/>
 			)}
 
-			<Text>{limitTextCharaters({ text: names.trim(), numChars: 18 })}</Text>
+			<Text style={{ fontSize: largerProfileInfo ? 16 : 14 }}>
+				{limitTextCharaters({ text: names.trim(), numChars: 18 })}
+			</Text>
 		</TouchableOpacity>
 	)
 }
@@ -61,7 +69,6 @@ const styles = StyleSheet.create({
 	prefix: {
 		color: "#FFFFFF",
 		fontFamily: typography.fonts.PlusJakartaSans.light,
-		fontSize: 14,
 	},
 	profileImage: {
 		borderRadius: 100,

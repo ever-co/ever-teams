@@ -7,11 +7,15 @@ import TaskRow from "../components/TaskRow"
 import { SvgXml } from "react-native-svg"
 import { clipboardIcon, peopleIconSmall, profileIcon } from "../../../svgs/icons"
 import ProfileInfo from "../components/ProfileInfo"
+import ManageAssignees from "../components/ManageAssignees"
+import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
 
 const TaskMainInfo = () => {
 	const {
 		TaskStore: { detailedTask: task },
 	} = useStores()
+
+	const { currentTeam } = useOrganizationTeam()
 
 	return (
 		<View style={{ paddingHorizontal: 12, gap: 12 }}>
@@ -58,6 +62,9 @@ const TaskMainInfo = () => {
 						names={`${member?.user?.firstName || ""} ${member?.user?.lastName || ""}`}
 					/>
 				))}
+
+				{/* Manage Assignees */}
+				<ManageAssignees memberList={currentTeam?.members} />
 			</TaskRow>
 		</View>
 	)
