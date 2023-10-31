@@ -138,7 +138,7 @@ WIP
 
 ### Railway
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=rfhvcU)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=40jeja)
 
 ## 📄 Content
 
