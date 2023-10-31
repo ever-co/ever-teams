@@ -62,6 +62,8 @@
 		"CHATWOOT",
 		"apps/web/lib/i18n/*.ts",
 		"apps/web/public/locales/**",
-		"apps/mobile/app/i18n/*.ts"
+		"apps/mobile/app/i18n/*.ts",
+		"apps/mobile/android/**",
+		"apps/mobile/ios/**"
 	]
 }
