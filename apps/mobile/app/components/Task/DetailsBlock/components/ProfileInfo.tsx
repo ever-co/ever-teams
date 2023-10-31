@@ -4,7 +4,7 @@ import { Text, StyleSheet, TouchableOpacity } from "react-native"
 import React from "react"
 import { Avatar } from "react-native-paper"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
-import { typography } from "../../../../theme"
+import { typography, useAppTheme } from "../../../../theme"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { useNavigation } from "@react-navigation/native"
 import {
@@ -25,6 +25,8 @@ const ProfileInfo: React.FC<IProfileInfo> = ({
 	userId,
 	largerProfileInfo,
 }) => {
+	const { colors } = useAppTheme()
+
 	const alternateNavigation = useNavigation<DrawerNavigationProp<"AuthenticatedTab">>()
 	const navigation = useNavigation<SettingScreenNavigationProp<"Profile">>()
 
@@ -51,7 +53,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({
 				/>
 			)}
 
-			<Text style={{ fontSize: largerProfileInfo ? 16 : 14 }}>
+			<Text style={{ fontSize: largerProfileInfo ? 16 : 14, color: colors.primary }}>
 				{limitTextCharaters({ text: names.trim(), numChars: 18 })}
 			</Text>
 		</TouchableOpacity>

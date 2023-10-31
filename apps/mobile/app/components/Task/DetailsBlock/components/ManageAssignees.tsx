@@ -85,21 +85,10 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 
 	return (
 		<>
-			<TouchableOpacity
-				onPress={() => setModalVisible(true)}
-				style={{
-					borderRadius: 100,
-					borderWidth: 1,
-					borderColor: "#E5E7EB",
-					paddingHorizontal: 8,
-					paddingVertical: 4,
-					marginTop: 10,
-					justifyContent: "center",
-					alignItems: "center",
-					width: 140,
-				}}
-			>
-				<Text style={{ fontSize: 12, fontWeight: "600" }}>Manage Assignees</Text>
+			<TouchableOpacity onPress={() => setModalVisible(true)} style={styles.button}>
+				<Text style={{ fontSize: 12, fontWeight: "600", color: colors.primary }}>
+					Manage Assignees
+				</Text>
 			</TouchableOpacity>
 
 			<ModalPopUp visible={modalVisible} onDismiss={() => setModalVisible(false)}>
@@ -207,6 +196,17 @@ const $modalBackGround: ViewStyle = {
 }
 
 const styles = StyleSheet.create({
+	button: {
+		alignItems: "center",
+		borderColor: "#E5E7EB",
+		borderRadius: 100,
+		borderWidth: 1,
+		justifyContent: "center",
+		marginHorizontal: 10,
+		paddingHorizontal: 8,
+		paddingVertical: 4,
+		width: 140,
+	},
 	container: {
 		alignSelf: "center",
 		borderRadius: 20,

@@ -17,7 +17,7 @@ const Accordion = ({ children, title }) => {
 	return (
 		<View style={[styles.accordContainer, { backgroundColor: colors.background }]}>
 			<TouchableOpacity style={styles.accordHeader} onPress={toggleItem}>
-				<Text style={styles.accordTitle}>{title}</Text>
+				<Text style={[styles.accordTitle, { color: colors.primary }]}>{title}</Text>
 				<Feather
 					name={expanded ? "chevron-up" : "chevron-down"}
 					size={25}
