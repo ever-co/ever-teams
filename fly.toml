@@ -9,6 +9,7 @@ kill_signal = "SIGINT"
 kill_timeout = "5m0s"
 
 [build]
+  image = "ghcr.io/ever-co/ever-teams-webapp:latest"
 
 [http_service]
   internal_port = 3000
