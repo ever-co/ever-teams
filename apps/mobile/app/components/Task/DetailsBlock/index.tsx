@@ -2,12 +2,15 @@ import React from "react"
 import Accordion from "../../Accordion"
 import TaskPublicity from "./blocks/TaskPublicity"
 import TaskMainInfo from "./blocks/TaskMainInfo"
+import { ScrollView } from "react-native"
 
 const DetailsBlock = () => {
 	return (
 		<Accordion title="Details">
-			<TaskPublicity />
-			<TaskMainInfo />
+			<ScrollView>
+				<TaskPublicity />
+				<TaskMainInfo />
+			</ScrollView>
 		</Accordion>
 	)
 }

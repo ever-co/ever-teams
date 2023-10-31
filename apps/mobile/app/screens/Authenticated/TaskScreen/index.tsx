@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import { View, Text, ViewStyle, TouchableOpacity, StyleSheet } from "react-native"
+import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, ScrollView } from "react-native"
 import React, { FC, useEffect } from "react"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
@@ -42,10 +42,10 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 						<Text style={[styles.title, { color: colors.primary }]}>Task Screen</Text>
 					</View>
 				</View>
-				<View style={{ padding: 20, gap: 12 }}>
+				<ScrollView style={{ padding: 20, gap: 12 }}>
 					<TaskTitleBlock />
 					<DetailsBlock />
-				</View>
+				</ScrollView>
 			</Animated.View>
 		</Screen>
 	)

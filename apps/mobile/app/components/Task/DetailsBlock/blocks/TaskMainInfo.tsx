@@ -157,15 +157,15 @@ const TaskMainInfo = () => {
 
 			{/* Labels */}
 			<TaskRow
-				alignItems={true}
 				labelComponent={
-					<View style={styles.labelComponent}>
+					<View style={[styles.labelComponent, { marginTop: 10 }]}>
 						<Text style={{ color: "#A5A2B2" }}>Labels</Text>
 					</View>
 				}
 			>
 				<TaskLabels
 					task={task}
+					taskScreenButton={true}
 					containerStyle={{
 						// ...styles.sizeContainer,
 						// borderColor: colors.border,
