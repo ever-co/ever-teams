@@ -1,6 +1,6 @@
 import { getActiveTaskIdCookie, setActiveTaskIdCookie, setActiveUserTaskCookie } from '@app/helpers';
 import { IOrganizationTeamList, ITeamTask, Nullable } from '@app/interfaces';
-import { activeTeamTaskState, allTaskStatisticsState } from '@app/stores';
+import { allTaskStatisticsState } from '@app/stores';
 import { getPublicState } from '@app/stores/public';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -11,6 +11,7 @@ import { useOrganizationTeams } from './useOrganizationTeams';
 import { useIsMemberManager } from './useTeamMember';
 import { useTeamTasks } from './useTeamTasks';
 import cloneDeep from 'lodash/cloneDeep';
+import { useTimer } from './useTimer';
 
 /**
  * It returns a bunch of data about a team member, including whether or not the user is the team
@@ -20,13 +21,14 @@ import cloneDeep from 'lodash/cloneDeep';
  */
 export function useTeamMemberCard(member: IOrganizationTeamList['members'][number] | undefined) {
 	const { updateTask, tasks, setActiveTask, deleteEmployeeFromTasks } = useTeamTasks();
+	const {
+		activeTeamTask
+	} = useTimer()
 
 	const publicTeam = useRecoilValue(getPublicState);
 	const allTaskStatistics = useRecoilValue(allTaskStatisticsState);
 
 	const { user: authUser, isTeamManager: isAuthTeamManager } = useAuthenticateUser();
-
-	const activeTeamTask = useRecoilValue(activeTeamTaskState);
 
 	const { activeTeam, updateOrganizationTeam, updateOTeamLoading } = useOrganizationTeams();
 
@@ -79,15 +81,21 @@ export function useTeamMemberCard(member: IOrganizationTeamList['members'][numbe
 			setActiveUserTaskCookieCb(cTask);
 		}
 
-		const responseTask = find ? cloneDeep(cTask) : null;
+		let responseTask = find ? cloneDeep(cTask) : null;
+		if(isAuthUser){
+			responseTask = activeTeamTask
+		}
 
 		if (responseTask) {
-			const taskStatistics = allTaskStatistics.find((statistics) => statistics.id === responseTask.id);
-			responseTask.totalWorkedTime = taskStatistics?.duration || 0;
+			const taskStatistics = allTaskStatistics.find((statistics) => statistics.id === responseTask?.id);
+			responseTask = {
+				...responseTask,
+				totalWorkedTime: taskStatistics?.duration || 0
+			} ;
 		}
 
 		return responseTask;
-	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb]);
+	}, [isAuthUser, member, tasks, publicTeam, allTaskStatistics, setActiveUserTaskCookieCb, activeTeamTask]);
 
 	/**
 	 * Give the manager role to the member
