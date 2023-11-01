@@ -94,6 +94,8 @@ const ko: Translations = {
 		characterLimitErrorTitle: "작업 제목을 업데이트할 수 없습니다.",
 		characterLimitErrorDescription: "작업 제목은 255자를 초과할 수 없습니다.",
 		copyTitle: "제목이 복사되었습니다.",
+		changeParent: "상위 변경",
+		addParent: "상위 추가",
 	},
 	tasksScreen: {
 		name: "작업",

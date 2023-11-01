@@ -20,5 +20,12 @@
     "production": {
       "channel": "production"
     }
+  },
+  "submit":{
+    "android":{
+      "track":"internal",
+      "releaseStatus":"draft",
+      "changesNotSentForReview":false
+    }
   }
 }
