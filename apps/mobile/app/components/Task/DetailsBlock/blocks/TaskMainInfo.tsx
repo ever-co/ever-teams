@@ -16,6 +16,8 @@ import TaskStatus from "../../../TaskStatus"
 import TaskSize from "../../../TaskSize"
 import TaskPriority from "../../../TaskPriority"
 import TaskLabels from "../../../TaskLabels"
+import TaskVersion from "../../../TaskVersion"
+import { useAppTheme } from "../../../../theme"
 
 const TaskMainInfo = () => {
 	const {
@@ -24,6 +26,8 @@ const TaskMainInfo = () => {
 
 	const { currentTeam } = useOrganizationTeam()
 	const { updateTask } = useTeamTasks()
+
+	const { colors } = useAppTheme()
 
 	return (
 		<View style={{ paddingHorizontal: 12, gap: 12, paddingBottom: 12 }}>
@@ -114,7 +118,7 @@ const TaskMainInfo = () => {
 						</View>
 					}
 				>
-					<Text style={{ fontWeight: "600", fontSize: 12 }}>
+					<Text style={{ fontWeight: "600", fontSize: 12, color: colors.primary }}>
 						{moment(task?.dueDate).diff(moment(), "days") < 0
 							? 0
 							: moment(task?.dueDate).diff(moment(), "days")}
@@ -133,6 +137,23 @@ const TaskMainInfo = () => {
 			/>
 
 			{/* Version TODO */}
+			<TaskRow
+				alignItems={true}
+				labelComponent={
+					<View style={styles.labelComponent}>
+						<Text style={{ color: "#A5A2B2" }}>Status</Text>
+					</View>
+				}
+			>
+				<TaskVersion
+					task={task}
+					containerStyle={{
+						width: "70%",
+						borderRadius: 3,
+					}}
+				/>
+			</TaskRow>
+
 			{/* Epic TODO */}
 
 			{/* Status */}
@@ -147,8 +168,6 @@ const TaskMainInfo = () => {
 				<TaskStatus
 					task={task}
 					containerStyle={{
-						// ...styles.sizeContainer,
-						// borderColor: colors.border,
 						width: "70%",
 						borderRadius: 3,
 					}}
@@ -167,8 +186,6 @@ const TaskMainInfo = () => {
 					task={task}
 					taskScreenButton={true}
 					containerStyle={{
-						// ...styles.sizeContainer,
-						// borderColor: colors.border,
 						width: "70%",
 						borderRadius: 3,
 					}}
@@ -187,8 +204,6 @@ const TaskMainInfo = () => {
 				<TaskSize
 					task={task}
 					containerStyle={{
-						// ...styles.sizeContainer,
-						// borderColor: colors.border,
 						width: "70%",
 						borderRadius: 3,
 					}}
@@ -207,8 +222,6 @@ const TaskMainInfo = () => {
 				<TaskPriority
 					task={task}
 					containerStyle={{
-						// ...styles.sizeContainer,
-						// borderColor: colors.border,
 						width: "70%",
 						borderRadius: 3,
 					}}

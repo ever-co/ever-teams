@@ -3,7 +3,6 @@ import { View, Text, ViewStyle, TouchableOpacity, StyleSheet, ScrollView } from 
 import React, { FC, useEffect } from "react"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
-import Animated from "react-native-reanimated"
 import { typography, useAppTheme } from "../../../theme"
 import { AntDesign } from "@expo/vector-icons"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
@@ -17,7 +16,6 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 	const { colors } = useAppTheme()
 	const { navigation, route } = _props
 	const { taskId } = route.params
-	const fall = new Animated.Value(1)
 	const { getTaskById, detailedTask: task } = useTeamTasks()
 
 	useEffect(() => {
@@ -28,12 +26,10 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 
 	return (
 		<Screen
-			preset="scroll"
-			ScrollViewProps={{ bounces: false }}
 			contentContainerStyle={[$container, { backgroundColor: colors.background2 }]}
 			safeAreaEdges={["top"]}
 		>
-			<Animated.View style={{ opacity: Animated.add(0.1, Animated.multiply(fall, 1.0)) }}>
+			<View style={{ flex: 1 }}>
 				<View style={[$headerContainer, { backgroundColor: colors.background }]}>
 					<View style={[styles.container, { backgroundColor: colors.background }]}>
 						<TouchableOpacity onPress={() => navigation.navigate("AuthenticatedTab")}>
@@ -42,11 +38,21 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 						<Text style={[styles.title, { color: colors.primary }]}>Task Screen</Text>
 					</View>
 				</View>
-				<ScrollView style={{ padding: 20, gap: 12 }}>
-					<TaskTitleBlock />
-					<DetailsBlock />
-				</ScrollView>
-			</Animated.View>
+				<View style={styles.screenContentWrapper}>
+					<ScrollView
+						style={{
+							width: "100%",
+							height: "100%",
+							paddingHorizontal: 20,
+						}}
+						bounces={false}
+						showsVerticalScrollIndicator={false}
+					>
+						<TaskTitleBlock />
+						<DetailsBlock />
+					</ScrollView>
+				</View>
+			</View>
 		</Screen>
 	)
 }
@@ -73,6 +79,13 @@ const styles = StyleSheet.create({
 	container: {
 		alignItems: "center",
 		flexDirection: "row",
+		width: "100%",
+	},
+	screenContentWrapper: {
+		alignItems: "center",
+		flex: 4,
+		gap: 12,
+		paddingBottom: 20,
 		width: "100%",
 	},
 
