@@ -29,6 +29,7 @@ import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
 import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
 import TaskEpic from "../../../TaskEpic"
+import IssuesModal from "../../../IssuesModal"
 
 const TaskMainInfo = () => {
 	const {
@@ -51,7 +52,7 @@ const TaskMainInfo = () => {
 					</View>
 				}
 			>
-				<Text>Issue Modal here</Text>
+				<IssuesModal task={task} nameIncluded={true} smallFont={true} />
 			</TaskRow>
 			{/* Creator */}
 			<TaskRow

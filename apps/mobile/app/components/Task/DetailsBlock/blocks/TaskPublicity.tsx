@@ -3,7 +3,7 @@
 import { View, Text, StyleSheet } from "react-native"
 import React, { useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../../models"
-import { translate } from "../../../../i18n"
+// import { translate } from "../../../../i18n"
 import { SvgXml } from "react-native-svg"
 import { globeDarkTheme, globeLightTheme, lockDarkTheme, lockLightTheme } from "../../../svgs/icons"
 import { useAppTheme } from "../../../../theme"
@@ -18,7 +18,7 @@ const TaskPublicity = () => {
 	const { updatePublicity } = useTeamTasks()
 
 	const { dark, colors } = useAppTheme()
-	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined>(task?.publicity)
+	const [isTaskPublic, setIsTaskPublic] = useState<boolean | undefined>(task?.public)
 
 	const handlePublicity = useCallback(
 		(value: boolean) => {

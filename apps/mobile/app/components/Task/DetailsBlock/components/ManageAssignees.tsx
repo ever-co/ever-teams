@@ -21,6 +21,7 @@ import { trashIconLarge } from "../../../svgs/icons"
 import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useTeamMemberCard } from "../../../../services/hooks/features/useTeamMemberCard"
 import { ScrollView } from "react-native-gesture-handler"
+import { BlurView } from "expo-blur"
 
 interface IManageAssignees {
 	memberList: OT_Member[]
@@ -84,7 +85,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 	}, [task, member, memberInfo, memberToAdd, memberToRemove])
 
 	return (
-		<>
+		<View>
 			<TouchableOpacity onPress={() => setModalVisible(true)} style={styles.button}>
 				<Text style={{ fontSize: 12, fontWeight: "600", color: colors.primary }}>
 					Manage Assignees
@@ -147,7 +148,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 					</ScrollView>
 				</View>
 			</ModalPopUp>
-		</>
+		</View>
 	)
 }
 
@@ -178,6 +179,15 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={onDismiss}>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
@@ -191,7 +201,6 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "center",
 }
 
@@ -201,6 +210,7 @@ const styles = StyleSheet.create({
 		borderColor: "#E5E7EB",
 		borderRadius: 100,
 		borderWidth: 1,
+		height: 24,
 		justifyContent: "center",
 		marginVertical: 10,
 		paddingHorizontal: 8,

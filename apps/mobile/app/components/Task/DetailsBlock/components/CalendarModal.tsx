@@ -15,6 +15,7 @@ import { Calendar } from "react-native-calendars"
 import moment from "moment-timezone"
 import { SvgXml } from "react-native-svg"
 import { trashIconSmall } from "../../../svgs/icons"
+import { BlurView } from "expo-blur"
 
 interface ICalendarModal {
 	selectedDate: string
@@ -34,7 +35,7 @@ const CalendarModal: React.FC<ICalendarModal> = ({ selectedDate, isDueDate, upda
 	const formatted = moment(selected).format("DD MMM YYYY")
 
 	return (
-		<>
+		<View>
 			<View style={styles.buttonWrapper}>
 				<TouchableOpacity onPress={() => setModalVisible(true)}>
 					<Text style={{ fontWeight: "600", fontSize: 12, color: colors.primary }}>
@@ -76,7 +77,7 @@ const CalendarModal: React.FC<ICalendarModal> = ({ selectedDate, isDueDate, upda
 					/>
 				</View>
 			</ModalPopUp>
-		</>
+		</View>
 	)
 }
 
@@ -107,6 +108,15 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={onDismiss}>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
@@ -120,7 +130,6 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "center",
 }
 
@@ -128,6 +137,7 @@ const styles = StyleSheet.create({
 	buttonWrapper: {
 		alignItems: "center",
 		flexDirection: "row",
+		height: 14,
 		justifyContent: "space-between",
 		width: 110,
 	},
