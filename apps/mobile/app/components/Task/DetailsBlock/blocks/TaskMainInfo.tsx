@@ -5,7 +5,13 @@ import React from "react"
 import { useStores } from "../../../../models"
 import TaskRow from "../components/TaskRow"
 import { SvgXml } from "react-native-svg"
-import { calendarIcon, clipboardIcon, peopleIconSmall, profileIcon } from "../../../svgs/icons"
+import {
+	calendarIcon,
+	categoryIcon,
+	clipboardIcon,
+	peopleIconSmall,
+	profileIcon,
+} from "../../../svgs/icons"
 import ProfileInfo from "../components/ProfileInfo"
 import ManageAssignees from "../components/ManageAssignees"
 import { useOrganizationTeam } from "../../../../services/hooks/useOrganization"
@@ -18,6 +24,10 @@ import TaskPriority from "../../../TaskPriority"
 import TaskLabels from "../../../TaskLabels"
 import TaskVersion from "../../../TaskVersion"
 import { useAppTheme } from "../../../../theme"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
+import { TouchableOpacity } from "react-native-gesture-handler"
+import { useNavigation } from "@react-navigation/native"
+import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
 
 const TaskMainInfo = () => {
 	const {
@@ -148,6 +158,7 @@ const TaskMainInfo = () => {
 			</TaskRow>
 
 			{/* Epic TODO */}
+			{task && <EpicParent task={task} />}
 
 			{/* Status */}
 			<TaskRow
@@ -226,7 +237,52 @@ const TaskMainInfo = () => {
 
 export default TaskMainInfo
 
+const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
+	const { colors } = useAppTheme()
+
+	const navigation = useNavigation<SettingScreenNavigationProp<"TaskScreen">>()
+
+	const navigateToEpic = () => {
+		navigation.navigate("TaskScreen", { taskId: task?.rootEpic?.id })
+	}
+
+	if (task?.issueType === "Story") {
+		return <></>
+	}
+	return (!task?.issueType || task?.issueType === "Task" || task?.issueType === "Bug") &&
+		task?.rootEpic ? (
+		<TaskRow
+			alignItems={true}
+			labelComponent={
+				<View style={styles.labelComponent}>
+					<Text style={styles.labelText}>Epic</Text>
+				</View>
+			}
+		>
+			<TouchableOpacity onPress={navigateToEpic} style={styles.epicParentButton}>
+				<View style={styles.epicParentIconWrapper}>
+					<SvgXml xml={categoryIcon} />
+				</View>
+				<Text
+					ellipsizeMode="tail"
+					numberOfLines={1}
+					style={{ color: colors.primary, fontSize: 12 }}
+				>{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}dasdasd`}</Text>
+			</TouchableOpacity>
+		</TaskRow>
+	) : (
+		<></>
+	)
+}
+
 const styles = StyleSheet.create({
+	epicParentButton: { alignItems: "center", flexDirection: "row", gap: 4, width: "60%" },
+	epicParentIconWrapper: {
+		backgroundColor: "#8154BA",
+		borderRadius: 4,
+		marginVertical: 5,
+		padding: 4,
+	},
 	horizontalSeparator: {
 		borderBottomColor: "#F2F2F2",
 		borderBottomWidth: 1,

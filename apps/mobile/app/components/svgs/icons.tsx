@@ -814,3 +814,10 @@ export const calendarIcon = `<svg width="12" height="12" viewBox="0 0 12 12" fil
 <path d="M4.14716 8.3501H4.15165" stroke="#A5A2B2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `
+export const categoryIcon = `<svg width="9" height="9" viewBox="0 0 9 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.875 3.75H2.625C3.375 3.75 3.75 3.375 3.75 2.625V1.875C3.75 1.125 3.375 0.75 2.625 0.75H1.875C1.125 0.75 0.75 1.125 0.75 1.875V2.625C0.75 3.375 1.125 3.75 1.875 3.75Z" stroke="#FFFFFF" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.375 3.75H7.125C7.875 3.75 8.25 3.375 8.25 2.625V1.875C8.25 1.125 7.875 0.75 7.125 0.75H6.375C5.625 0.75 5.25 1.125 5.25 1.875V2.625C5.25 3.375 5.625 3.75 6.375 3.75Z" stroke="#FFFFFF" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.375 8.25H7.125C7.875 8.25 8.25 7.875 8.25 7.125V6.375C8.25 5.625 7.875 5.25 7.125 5.25H6.375C5.625 5.25 5.25 5.625 5.25 6.375V7.125C5.25 7.875 5.625 8.25 6.375 8.25Z" stroke="#FFFFFF" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1.875 8.25H2.625C3.375 8.25 3.75 7.875 3.75 7.125V6.375C3.75 5.625 3.375 5.25 2.625 5.25H1.875C1.125 5.25 0.75 5.625 0.75 6.375V7.125C0.75 7.875 1.125 8.25 1.875 8.25Z" stroke="#FFFFFF" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
