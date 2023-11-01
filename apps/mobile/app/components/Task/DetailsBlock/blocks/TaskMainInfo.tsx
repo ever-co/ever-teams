@@ -28,6 +28,7 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { TouchableOpacity } from "react-native-gesture-handler"
 import { useNavigation } from "@react-navigation/native"
 import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
+import TaskEpic from "../../../TaskEpic"
 
 const TaskMainInfo = () => {
 	const {
@@ -139,12 +140,12 @@ const TaskMainInfo = () => {
 			{/* horizontal separator */}
 			<View style={styles.horizontalSeparator} />
 
-			{/* Version TODO */}
+			{/* Version */}
 			<TaskRow
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>Status</Text>
+						<Text style={styles.labelText}>Version</Text>
 					</View>
 				}
 			>
@@ -157,7 +158,25 @@ const TaskMainInfo = () => {
 				/>
 			</TaskRow>
 
-			{/* Epic TODO */}
+			{/* Epic */}
+			{task && task.issueType === "Story" && (
+				<TaskRow
+					alignItems={true}
+					labelComponent={
+						<View style={styles.labelComponent}>
+							<Text style={styles.labelText}>Epic</Text>
+						</View>
+					}
+				>
+					<TaskEpic
+						task={task}
+						containerStyle={{
+							width: "70%",
+							borderRadius: 3,
+						}}
+					/>
+				</TaskRow>
+			)}
 			{task && <EpicParent task={task} />}
 
 			{/* Status */}
@@ -174,6 +193,7 @@ const TaskMainInfo = () => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
+						borderWidth: 0,
 					}}
 				/>
 			</TaskRow>
@@ -189,6 +209,7 @@ const TaskMainInfo = () => {
 				<TaskLabels
 					task={task}
 					taskScreenButton={true}
+					noBorders={true}
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
@@ -210,6 +231,7 @@ const TaskMainInfo = () => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
+						borderWidth: 0,
 					}}
 				/>
 			</TaskRow>
@@ -228,6 +250,7 @@ const TaskMainInfo = () => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
+						borderWidth: 0,
 					}}
 				/>
 			</TaskRow>
@@ -267,7 +290,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 					ellipsizeMode="tail"
 					numberOfLines={1}
 					style={{ color: colors.primary, fontSize: 12 }}
-				>{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}dasdasd`}</Text>
+				>{`#${task?.rootEpic?.number} ${task?.rootEpic?.title}`}</Text>
 			</TouchableOpacity>
 		</TaskRow>
 	) : (

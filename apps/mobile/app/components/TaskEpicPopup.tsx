@@ -1,58 +1,57 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import React, { FC } from "react"
+import React from "react"
+import { BlurView } from "expo-blur"
 import {
-	View,
-	ViewStyle,
-	Modal,
 	Animated,
-	StyleSheet,
+	Modal,
+	TouchableWithoutFeedback,
+	View,
 	Text,
+	ViewStyle,
+	StyleSheet,
 	FlatList,
 	TouchableOpacity,
-	TouchableWithoutFeedback,
 } from "react-native"
 import { Feather, AntDesign } from "@expo/vector-icons"
-import { spacing, useAppTheme } from "../theme"
-import { ITaskPriorityItem } from "../services/interfaces/ITaskPriority"
-// import { translate } from "../i18n"
-import { BlurView } from "expo-blur"
-import { useTaskVersion } from "../services/hooks/features/useTaskVersion"
-import { BadgedTaskVersion } from "./VersionIcon"
-import { ITaskVersionItemList } from "../services/interfaces/ITaskVersion"
+import { useAppTheme } from "../theme"
+import { ITeamTask } from "../services/interfaces/ITask"
+import { formattedEpic } from "./TaskEpic"
 
-export interface Props {
+interface ITaskEpicPopup {
 	visible: boolean
 	onDismiss: () => unknown
-	versionName: string
-	setSelectedVersion: (status: ITaskVersionItemList) => unknown
+	onTaskSelect: (parentTask: ITeamTask | undefined) => Promise<void>
+	epicsList: formattedEpic
+	currentEpic: string
+	teamTasks: ITeamTask[]
 }
 
-const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
+const TaskEpicPopup: React.FC<ITaskEpicPopup> = ({
 	visible,
 	onDismiss,
-	setSelectedVersion,
-	versionName,
-}) {
-	const { taskVersionList } = useTaskVersion()
+	onTaskSelect,
+	epicsList,
+	currentEpic,
+	teamTasks,
+}) => {
 	const { colors } = useAppTheme()
-	const onVersionSelected = (size: ITaskPriorityItem) => {
-		setSelectedVersion(size)
-		onDismiss()
-	}
+
+	const allEpics = Object.values(epicsList)
 
 	return (
 		<ModalPopUp visible={visible} onDismiss={onDismiss}>
 			<View style={{ ...styles.container, backgroundColor: colors.background }}>
-				<Text style={{ ...styles.title, color: colors.primary }}>Versions</Text>
 				<FlatList
-					data={taskVersionList}
+					data={allEpics}
 					contentContainerStyle={{ paddingHorizontal: 10 }}
 					renderItem={({ item }) => (
 						<Item
-							currentVersionName={versionName}
-							onVersionSelected={onVersionSelected}
-							version={item}
+							currentEpicId={currentEpic}
+							onTaskSelect={onTaskSelect}
+							epic={item}
+							teamTasks={teamTasks}
+							onDismiss={onDismiss}
 						/>
 					)}
 					legacyImplementation={true}
@@ -64,28 +63,38 @@ const TaskVersionPopup: FC<Props> = function TaskPriorityPopup({
 	)
 }
 
-export default TaskVersionPopup
+export default TaskEpicPopup
 
 interface ItemProps {
-	currentVersionName: string
-	version: ITaskPriorityItem
-	onVersionSelected: (size: ITaskPriorityItem) => unknown
+	currentEpicId: string
+	onTaskSelect: (parentTask: ITeamTask | undefined) => Promise<void>
+	epic: formattedEpic[keyof formattedEpic]
+	teamTasks: ITeamTask[]
+	onDismiss()
 }
-const Item: FC<ItemProps> = ({ currentVersionName, version, onVersionSelected }) => {
+const Item: React.FC<ItemProps> = ({ currentEpicId, epic, onTaskSelect, teamTasks, onDismiss }) => {
 	const { colors } = useAppTheme()
-	const selected = version.value === currentVersionName
+	const selected = epic.id === currentEpicId
+
+	const epicTask = teamTasks.find((task) => task.id === epic.id)
 
 	return (
-		<TouchableOpacity onPress={() => onVersionSelected(version)}>
+		<TouchableOpacity
+			onPress={() => {
+				onTaskSelect(epicTask)
+				onDismiss()
+			}}
+		>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
-				<View style={{ ...styles.colorFrame, backgroundColor: version.color }}>
-					<BadgedTaskVersion iconSize={16} TextSize={14} version={version.name} />
+				<View style={{ ...styles.colorFrame, backgroundColor: "#FFFFFF" }}>
+					{epic.icon}
+					<Text>{epic.name}</Text>
 				</View>
 				<View>
 					{!selected ? (
-						<Feather name="circle" size={24} color={colors.divider} />
+						<Feather name="circle" size={22} color={colors.divider} />
 					) : (
-						<AntDesign name="checkcircle" size={24} color="#27AE60" />
+						<AntDesign name="checkcircle" size={22} color="#27AE60" />
 					)}
 				</View>
 			</View>
@@ -145,7 +154,10 @@ const $modalBackGround: ViewStyle = {
 
 const styles = StyleSheet.create({
 	colorFrame: {
+		alignItems: "center",
 		borderRadius: 10,
+		flexDirection: "row",
+		gap: 5,
 		height: 44,
 		justifyContent: "center",
 		paddingLeft: 16,
@@ -158,12 +170,7 @@ const styles = StyleSheet.create({
 		maxHeight: 396,
 		paddingHorizontal: 6,
 		paddingVertical: 16,
-		width: "90%",
-	},
-	title: {
-		fontSize: spacing.medium - 2,
-		marginBottom: 16,
-		marginHorizontal: 10,
+		width: "80%",
 	},
 	wrapperItem: {
 		alignItems: "center",
@@ -173,7 +180,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		marginBottom: 10,
-		padding: 6,
+		padding: 2,
 		paddingRight: 18,
 		width: "100%",
 	},

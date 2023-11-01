@@ -21,6 +21,7 @@ interface TaskLabelProps {
 	setLabels?: (label: ITaskLabelItem[]) => unknown
 	newTaskLabels?: ITaskLabelItem[] | undefined
 	taskScreenButton?: boolean
+	noBorders?: boolean
 }
 
 interface IndividualTaskLabel {
@@ -39,7 +40,7 @@ interface IndividualTaskLabel {
 }
 
 const TaskLabels: FC<TaskLabelProps> = observer(
-	({ task, setLabels, newTaskLabels, taskScreenButton }) => {
+	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders }) => {
 		const { colors, dark } = useAppTheme()
 		const { updateTask } = useTeamTasks()
 		const [openModal, setOpenModal] = useState(false)
@@ -193,6 +194,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 							renderItem={({ item }) => (
 								<Label
 									item={item}
+									noBorders={noBorders}
 									freshOpenModal={freshOpenModal}
 									taskScreenButton={taskScreenButton}
 								/>
@@ -213,6 +215,7 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 							style={{
 								...styles.container,
 								borderColor: colors.border,
+								borderWidth: noBorders && 0,
 							}}
 						>
 							<View style={styles.wrapStatus}>
@@ -238,9 +241,10 @@ interface ILabel {
 	item: IndividualTaskLabel | null
 	freshOpenModal: () => void
 	taskScreenButton?: boolean
+	noBorders?: boolean
 }
 
-const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton }) => {
+const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
 	const { colors } = useAppTheme()
 	return (
 		<TouchableOpacity style={{}} onPress={freshOpenModal}>
@@ -255,7 +259,7 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton }) => {
 					maxWidth: taskScreenButton ? 140 : 120,
 					borderRadius: 10,
 					borderColor: colors.border,
-					borderWidth: 1,
+					borderWidth: noBorders ? 0 : 1,
 					paddingHorizontal: 8,
 				}}
 			>
