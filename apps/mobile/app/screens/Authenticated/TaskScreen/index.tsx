@@ -23,7 +23,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 		if (route.params.taskId) {
 			getTaskById(taskId)
 		}
-	}, [getTaskById, route, task])
+	}, [getTaskById, route, task, route.params.taskId])
 
 	return (
 		<Screen
