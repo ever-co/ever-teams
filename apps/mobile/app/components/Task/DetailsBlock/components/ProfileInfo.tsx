@@ -55,7 +55,7 @@ const ProfileInfo: React.FC<IProfileInfo> = ({
 
 			<Text
 				style={{
-					fontSize: largerProfileInfo ? 16 : 14,
+					fontSize: largerProfileInfo ? 16 : 12,
 					color: colors.primary,
 					fontWeight: "600",
 				}}

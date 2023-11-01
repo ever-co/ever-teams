@@ -36,7 +36,7 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={clipboardIcon} />
-						<Text style={{ color: "#A5A2B2" }}>Type of Issue</Text>
+						<Text style={styles.labelText}>Type of Issue</Text>
 					</View>
 				}
 			>
@@ -47,7 +47,7 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={profileIcon} />
-						<Text style={{ color: "#A5A2B2" }}>Creator</Text>
+						<Text style={styles.labelText}>Creator</Text>
 					</View>
 				}
 			>
@@ -62,7 +62,7 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={peopleIconSmall} />
-						<Text style={{ color: "#A5A2B2" }}>Assignees</Text>
+						<Text style={styles.labelText}>Assignees</Text>
 					</View>
 				}
 			>
@@ -84,7 +84,7 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={calendarIcon} />
-						<Text style={{ color: "#A5A2B2" }}>Start Date</Text>
+						<Text style={styles.labelText}>Start Date</Text>
 					</View>
 				}
 			>
@@ -98,7 +98,7 @@ const TaskMainInfo = () => {
 			<TaskRow
 				labelComponent={
 					<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-						<Text style={{ color: "#A5A2B2" }}>Due Date</Text>
+						<Text style={styles.labelText}>Due Date</Text>
 					</View>
 				}
 			>
@@ -114,7 +114,7 @@ const TaskMainInfo = () => {
 				<TaskRow
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-							<Text style={{ color: "#A5A2B2" }}>Days Remaining</Text>
+							<Text style={styles.labelText}>Days Remaining</Text>
 						</View>
 					}
 				>
@@ -127,21 +127,14 @@ const TaskMainInfo = () => {
 			)}
 
 			{/* horizontal separator */}
-			<View
-				style={{
-					borderBottomWidth: 1,
-					width: "100%",
-					borderBottomColor: "#F2F2F2",
-					marginVertical: 10,
-				}}
-			/>
+			<View style={styles.horizontalSeparator} />
 
 			{/* Version TODO */}
 			<TaskRow
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={{ color: "#A5A2B2" }}>Status</Text>
+						<Text style={styles.labelText}>Status</Text>
 					</View>
 				}
 			>
@@ -161,7 +154,7 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={{ color: "#A5A2B2" }}>Status</Text>
+						<Text style={styles.labelText}>Status</Text>
 					</View>
 				}
 			>
@@ -178,7 +171,7 @@ const TaskMainInfo = () => {
 			<TaskRow
 				labelComponent={
 					<View style={[styles.labelComponent, { marginTop: 10 }]}>
-						<Text style={{ color: "#A5A2B2" }}>Labels</Text>
+						<Text style={styles.labelText}>Labels</Text>
 					</View>
 				}
 			>
@@ -197,7 +190,7 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={{ color: "#A5A2B2" }}>Size</Text>
+						<Text style={styles.labelText}>Size</Text>
 					</View>
 				}
 			>
@@ -215,7 +208,7 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={{ color: "#A5A2B2" }}>Priority</Text>
+						<Text style={styles.labelText}>Priority</Text>
 					</View>
 				}
 			>
@@ -234,9 +227,19 @@ const TaskMainInfo = () => {
 export default TaskMainInfo
 
 const styles = StyleSheet.create({
+	horizontalSeparator: {
+		borderBottomColor: "#F2F2F2",
+		borderBottomWidth: 1,
+		marginVertical: 10,
+		width: "100%",
+	},
 	labelComponent: {
 		alignItems: "center",
 		flexDirection: "row",
 		gap: 7,
+	},
+	labelText: {
+		color: "#A5A2B2",
+		fontSize: 12,
 	},
 })
