@@ -69,3 +69,6 @@ Thumbs.db
 /apps/**/.cache
 /packages/**/.cache
 /packages/**/dist
+
+# Local Netlify folder
+.netlify
