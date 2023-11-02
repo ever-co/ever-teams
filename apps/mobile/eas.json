@@ -22,10 +22,12 @@
     }
   },
   "submit":{
-    "android":{
-      "track":"internal",
-      "releaseStatus":"draft",
-      "changesNotSentForReview":false
+    "production":{
+      "android":{
+        "track":"internal",
+        "releaseStatus":"draft",
+        "changesNotSentForReview":false
+      }
     }
   }
 }
