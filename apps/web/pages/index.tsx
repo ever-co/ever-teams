@@ -79,7 +79,7 @@ function MainPage() {
 				<div className="h-0.5 bg-[#FFFFFF14]"></div>
 			</div>
 
-			<Container className="">{isTeamMember ? <TeamMembers kabanView={view} /> : <NoTeam />}</Container>
+			<Container className="">{isTeamMember ? <TeamMembers kanbanView={view} /> : <NoTeam />}</Container>
 		</MainLayout>
 	);
 }

@@ -3,23 +3,23 @@ import { Transition } from '@headlessui/react';
 import UserTeamCardSkeletonCard from '@components/shared/skeleton/UserTeamCardSkeleton';
 import InviteUserTeamCardSkeleton from '@components/shared/skeleton/InviteTeamCardSkeleton';
 import { UserCard } from '@components/shared/skeleton/TeamPageSkeleton';
-
 import TeamMembersTableView from './team-members-table-view';
 import TeamMembersCardView from './team-members-card-view';
 import { IssuesView } from '@app/constants';
 
 type TeamMembersProps = {
 	publicTeam?: boolean;
-	kabanView?: IssuesView;
+	kanbanView?: IssuesView;
 };
 
-export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARDS }: TeamMembersProps) {
+export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
-
+	const { teamsFetching } = useOrganizationTeams();
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members.filter((member) => member.id !== currentUser?.id);
+	const $teamsFetching = teamsFetching && members.length === 0;
 
 	let teamMembersView;
 
@@ -27,7 +27,7 @@ export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARDS }
 		case members.length === 0:
 			teamMembersView = (
 				<div className="">
-					<div className="lg:block hidden">
+					<div className="hidden lg:block">
 						<UserTeamCardSkeletonCard />
 						<InviteUserTeamCardSkeleton />
 					</div>
@@ -38,12 +38,19 @@ export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARDS }
 				</div>
 			);
 			break;
-		case kabanView === IssuesView.CARDS:
+		case kanbanView === IssuesView.CARDS:
 			teamMembersView = (
-				<TeamMembersCardView teamMembers={members} currentUser={currentUser} publicTeam={publicTeam} />
+				<>
+					<TeamMembersCardView
+						teamMembers={$members}
+						currentUser={currentUser}
+						publicTeam={publicTeam}
+						teamsFetching={$teamsFetching}
+					/>
+				</>
 			);
 			break;
-		case kabanView === IssuesView.TABLE:
+		case kanbanView === IssuesView.TABLE:
 			teamMembersView = (
 				<Transition
 					show={!!currentUser}
@@ -65,7 +72,12 @@ export function TeamMembers({ publicTeam = false, kabanView = IssuesView.CARDS }
 			break;
 		default:
 			teamMembersView = (
-				<TeamMembersCardView teamMembers={$members} currentUser={currentUser} publicTeam={publicTeam} />
+				<TeamMembersCardView
+					teamMembers={$members}
+					currentUser={currentUser}
+					publicTeam={publicTeam}
+					teamsFetching={$teamsFetching}
+				/>
 			);
 	}
 	return teamMembersView;

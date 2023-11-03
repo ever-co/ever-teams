@@ -1,8 +1,8 @@
-import { CreateReponse, DeleteReponse, IIssueTypesCreate } from '@app/interfaces';
+import { CreateResponse, DeleteResponse, IIssueTypesCreate } from '@app/interfaces';
 import api from '../axios';
 
 export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
-	return api.post<CreateReponse<IIssueTypesCreate>>('/issue-types', data, {
+	return api.post<CreateResponse<IIssueTypesCreate>>('/issue-types', data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -10,7 +10,7 @@ export function createIssueTypeAPI(data: IIssueTypesCreate, tenantId?: string) {
 }
 
 export function editIssueTypeAPI(id: string, data: IIssueTypesCreate, tenantId?: string) {
-	return api.put<CreateReponse<IIssueTypesCreate>>(`/issue-types/${id}`, data, {
+	return api.put<CreateResponse<IIssueTypesCreate>>(`/issue-types/${id}`, data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -18,7 +18,7 @@ export function editIssueTypeAPI(id: string, data: IIssueTypesCreate, tenantId?:
 }
 
 export function deleteIssueTypeAPI(id: string) {
-	return api.delete<DeleteReponse>(`/issue-types/${id}`);
+	return api.delete<DeleteResponse>(`/issue-types/${id}`);
 }
 
 export function getIssueTypeList(tenantId: string, organizationId: string, activeTeamId: string | null) {

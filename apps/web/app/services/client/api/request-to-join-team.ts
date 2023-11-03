@@ -4,18 +4,18 @@ import {
 	IDataResponse,
 	ISuccessResponse,
 	IValidateRequestToJoin,
-	CreateReponse,
+	CreateResponse,
 	PaginationResponse,
 	IRequestToJoinActionEnum
 } from '@app/interfaces';
 import api from '../axios';
 
 export function requestToJoinAPI(data: IRequestToJoinCreate) {
-	return api.post<CreateReponse<IRequestToJoin>>('/organization-team-join', data);
+	return api.post<CreateResponse<IRequestToJoin>>('/organization-team-join', data);
 }
 
 export function validateRequestToJoinAPI(data: IValidateRequestToJoin) {
-	return api.post<CreateReponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>(
+	return api.post<CreateResponse<Pick<IRequestToJoin, 'email' | 'organizationTeamId'>>>(
 		'/organization-team-join/validate',
 		data
 	);

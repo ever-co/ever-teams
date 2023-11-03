@@ -16,12 +16,12 @@ export type PaginationResponse<T> = {
 	total: number;
 };
 
-export type DeleteReponse = {
+export type DeleteResponse = {
 	raw: string[];
 	affected: number;
 };
 
-export type CreateReponse<T> = {
+export type CreateResponse<T> = {
 	data: T;
 	response: any;
 };

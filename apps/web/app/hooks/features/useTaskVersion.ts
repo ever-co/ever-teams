@@ -2,7 +2,7 @@
 import { ITaskVersionCreate } from '@app/interfaces';
 import {
 	createTaskVersionAPI,
-	getTaskversionList,
+	getTaskVersionList,
 	deleteTaskVersionAPI,
 	editTaskVersionAPI
 } from '@app/services/client/api';
@@ -19,7 +19,7 @@ export function useTaskVersion(onVersionCreated?: (version: ITaskVersionCreate) 
 	const [user] = useRecoilState(userState);
 	const activeTeamId = useRecoilValue(activeTeamIdState);
 
-	const { loading, queryCall } = useQuery(getTaskversionList);
+	const { loading, queryCall } = useQuery(getTaskVersionList);
 	const { loading: createTaskVersionLoading, queryCall: createQueryCall } = useQuery(createTaskVersionAPI);
 	const { loading: deleteTaskVersionLoading, queryCall: deleteQueryCall } = useQuery(deleteTaskVersionAPI);
 	const { loading: editTaskVersionLoading, queryCall: editQueryCall } = useQuery(editTaskVersionAPI);

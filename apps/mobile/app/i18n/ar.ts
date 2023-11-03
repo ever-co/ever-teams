@@ -95,6 +95,8 @@ const ar: Translations = {
 		characterLimitErrorTitle: "لم نتمكن من تحديث عنوان المهمة.",
 		characterLimitErrorDescription: "لا يمكن أن يتجاوز عنوان المهمة 255 حرفًا.",
 		copyTitle: "تم نسخ العنوان.",
+		changeParent: "تغيير الوالدين",
+		addParent: "أضف أحد الوالدين",
 	},
 	tasksScreen: {
 		name: "مهام",

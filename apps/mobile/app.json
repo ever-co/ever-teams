@@ -3,10 +3,10 @@
 	"displayName": "Ever Teams",
 	"expo": {
 		"name": "Ever Teams",
-		"slug": "ever-gauzy-teams-mobile-expo",
+		"slug": "ever-teams-mobile",
 		"version": "0.1.0",
 		"orientation": "portrait",
-		"icon": "./assets/images/gauzy-teams-logo.png",
+		"icon": "./assets/images/ever-teams-logo.png",
 		"splash": {
 			"image": "./assets/images/splash-ever-teams.png",
 			"resizeMode": "cover",
@@ -15,7 +15,7 @@
 		"owner": "everco",
 		"updates": {
 			"fallbackToCacheTimeout": 0,
-			"url": "https://u.expo.dev/9f38f768-16f6-4c47-b354-9745ebda1335"
+			"url": "https://u.expo.dev/2ff924e4-7a91-4b23-9db9-7453a8063bb0"
 		},
 		"jsEngine": "hermes",
 		"assetBundlePatterns": ["**/*"],
@@ -74,7 +74,7 @@
 		},
 		"extra": {
 			"eas": {
-				"projectId": "9f38f768-16f6-4c47-b354-9745ebda1335"
+				"projectId": "2ff924e4-7a91-4b23-9db9-7453a8063bb0"
 			}
 		},
 		"hooks": {

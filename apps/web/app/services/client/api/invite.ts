@@ -1,5 +1,5 @@
 import { PaginationResponse } from '@app/interfaces/IDataResponse';
-import { IInvitation, IInviteRequest, IMyInvitations, MyInvitationActionEnum, CreateReponse } from '@app/interfaces';
+import { IInvitation, IInviteRequest, IMyInvitations, MyInvitationActionEnum, CreateResponse } from '@app/interfaces';
 import api from '../axios';
 
 export function inviteByEmailsAPI(data: IInviteRequest) {
@@ -25,5 +25,5 @@ export function getMyInvitationsAPI() {
 }
 
 export function acceptRejectMyInvitationsAPI(invitationId: string, action: MyInvitationActionEnum) {
-	return api.put<CreateReponse<IInvitation>>(`/invite/${invitationId}?action=${action}`);
+	return api.put<CreateResponse<IInvitation>>(`/invite/${invitationId}?action=${action}`);
 }

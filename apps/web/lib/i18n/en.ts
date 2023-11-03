@@ -366,7 +366,7 @@ export const en = {
 
 	layout: {
 		footer: {
-			RIGHTS_RESERVERD: 'All rights reserved.'
+			RIGHTS_RESERVED: 'All rights reserved.'
 		}
 	},
 

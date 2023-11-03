@@ -4,7 +4,7 @@ import { getTeamTasksRequest, updateTaskRequest, getTaskByIdRequest } from '@app
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-	const { $res, user, tenantId, access_token, organizationId } = await authenticatedGuard(req, res);
+	const { $res, user, tenantId, access_token, organizationId, projectId, teamId} = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	const { id: taskId } = req.query;
@@ -38,6 +38,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	const { data: tasks } = await getTeamTasksRequest({
 		tenantId,
 		organizationId,
+		projectId,
+		teamId,
 		bearer_token: access_token
 	});
 
