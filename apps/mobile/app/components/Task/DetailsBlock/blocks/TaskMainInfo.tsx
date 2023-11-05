@@ -236,6 +236,7 @@ const TaskMainInfo = observer(() => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
+						marginVertical: task?.tags.length ? 20 : 0,
 					}}
 				/>
 			</TaskRow>
