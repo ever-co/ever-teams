@@ -30,8 +30,10 @@ import { useNavigation } from "@react-navigation/native"
 import { SettingScreenNavigationProp } from "../../../../navigators/AuthenticatedNavigator"
 import TaskEpic from "../../../TaskEpic"
 import IssuesModal from "../../../IssuesModal"
+import { observer } from "mobx-react-lite"
+import { translate } from "../../../../i18n"
 
-const TaskMainInfo = () => {
+const TaskMainInfo = observer(() => {
 	const {
 		TaskStore: { detailedTask: task },
 	} = useStores()
@@ -48,7 +50,9 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={clipboardIcon} />
-						<Text style={styles.labelText}>Type of Issue</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.typeIssue")}
+						</Text>
 					</View>
 				}
 			>
@@ -59,7 +63,9 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={profileIcon} />
-						<Text style={styles.labelText}>Creator</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.creator")}
+						</Text>
 					</View>
 				}
 			>
@@ -74,7 +80,9 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={peopleIconSmall} />
-						<Text style={styles.labelText}>Assignees</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.assignees")}
+						</Text>
 					</View>
 				}
 			>
@@ -96,7 +104,9 @@ const TaskMainInfo = () => {
 				labelComponent={
 					<View style={styles.labelComponent}>
 						<SvgXml xml={calendarIcon} />
-						<Text style={styles.labelText}>Start Date</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.startDate")}
+						</Text>
 					</View>
 				}
 			>
@@ -110,7 +120,9 @@ const TaskMainInfo = () => {
 			<TaskRow
 				labelComponent={
 					<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-						<Text style={styles.labelText}>Due Date</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.dueDate")}
+						</Text>
 					</View>
 				}
 			>
@@ -126,7 +138,9 @@ const TaskMainInfo = () => {
 				<TaskRow
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 19 }]}>
-							<Text style={styles.labelText}>Days Remaining</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.daysRemaining")}
+							</Text>
 						</View>
 					}
 				>
@@ -146,7 +160,9 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>Version</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.version")}
+						</Text>
 					</View>
 				}
 			>
@@ -165,7 +181,9 @@ const TaskMainInfo = () => {
 					alignItems={true}
 					labelComponent={
 						<View style={styles.labelComponent}>
-							<Text style={styles.labelText}>Epic</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.epic")}
+							</Text>
 						</View>
 					}
 				>
@@ -185,7 +203,9 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>Status</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.status")}
+						</Text>
 					</View>
 				}
 			>
@@ -203,7 +223,9 @@ const TaskMainInfo = () => {
 			<TaskRow
 				labelComponent={
 					<View style={[styles.labelComponent, { marginTop: 10 }]}>
-						<Text style={styles.labelText}>Labels</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.labels")}
+						</Text>
 					</View>
 				}
 			>
@@ -223,7 +245,7 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>Size</Text>
+						<Text style={styles.labelText}>{translate("taskDetailsScreen.size")}</Text>
 					</View>
 				}
 			>
@@ -242,7 +264,9 @@ const TaskMainInfo = () => {
 				alignItems={true}
 				labelComponent={
 					<View style={styles.labelComponent}>
-						<Text style={styles.labelText}>Priority</Text>
+						<Text style={styles.labelText}>
+							{translate("taskDetailsScreen.priority")}
+						</Text>
 					</View>
 				}
 			>
@@ -257,7 +281,7 @@ const TaskMainInfo = () => {
 			</TaskRow>
 		</View>
 	)
-}
+})
 
 export default TaskMainInfo
 
@@ -279,7 +303,7 @@ const EpicParent: React.FC<{ task: ITeamTask }> = ({ task }) => {
 			alignItems={true}
 			labelComponent={
 				<View style={styles.labelComponent}>
-					<Text style={styles.labelText}>Epic</Text>
+					<Text style={styles.labelText}>{translate("taskDetailsScreen.epic")}</Text>
 				</View>
 			}
 		>

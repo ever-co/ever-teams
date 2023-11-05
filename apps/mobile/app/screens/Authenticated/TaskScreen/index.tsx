@@ -8,7 +8,7 @@ import { AntDesign } from "@expo/vector-icons"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import TaskTitleBlock from "../../../components/Task/TitleBlock"
 import DetailsBlock from "../../../components/Task/DetailsBlock"
-// import { translate } from "../../../i18n"
+import { translate } from "../../../i18n"
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScreen">> = (
 	_props,
@@ -35,7 +35,9 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 						<TouchableOpacity onPress={() => navigation.navigate("AuthenticatedTab")}>
 							<AntDesign name="arrowleft" size={24} color={colors.primary} />
 						</TouchableOpacity>
-						<Text style={[styles.title, { color: colors.primary }]}>Task Screen</Text>
+						<Text style={[styles.title, { color: colors.primary }]}>
+							{translate("taskDetailsScreen.taskScreen")}
+						</Text>
 					</View>
 				</View>
 				<View style={styles.screenContentWrapper}>

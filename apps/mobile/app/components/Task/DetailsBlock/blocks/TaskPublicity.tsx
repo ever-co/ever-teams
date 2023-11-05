@@ -3,7 +3,7 @@
 import { View, Text, StyleSheet } from "react-native"
 import React, { useCallback, useEffect, useState } from "react"
 import { useStores } from "../../../../models"
-// import { translate } from "../../../../i18n"
+import { translate } from "../../../../i18n"
 import { SvgXml } from "react-native-svg"
 import { globeDarkTheme, globeLightTheme, lockDarkTheme, lockLightTheme } from "../../../svgs/icons"
 import { useAppTheme } from "../../../../theme"
@@ -42,11 +42,13 @@ const TaskPublicity = () => {
 					<View style={styles.taskPrivacyWrapper}>
 						<SvgXml xml={dark ? globeDarkTheme : globeLightTheme} />
 						<Text style={{ color: colors.primary, fontSize: 12 }}>
-							This task is Public
+							{translate("taskDetailsScreen.taskPublic")}
 						</Text>
 					</View>
 					<TouchableOpacity onPress={() => handlePublicity(false)}>
-						<Text style={{ color: "#A5A2B2", fontSize: 12 }}>Make a Private</Text>
+						<Text style={{ color: "#A5A2B2", fontSize: 12 }}>
+							{translate("taskDetailsScreen.makePrivate")}
+						</Text>
 					</TouchableOpacity>
 				</View>
 			) : (
@@ -54,11 +56,13 @@ const TaskPublicity = () => {
 					<View style={styles.taskPrivacyWrapper}>
 						<SvgXml xml={dark ? lockDarkTheme : lockLightTheme} />
 						<Text style={{ color: colors.primary, fontSize: 12 }}>
-							This task is Private
+							{translate("taskDetailsScreen.taskPrivate")}
 						</Text>
 					</View>
 					<TouchableOpacity onPress={() => handlePublicity(true)}>
-						<Text style={{ color: "#A5A2B2", fontSize: 12 }}>Make a Public</Text>
+						<Text style={{ color: "#A5A2B2", fontSize: 12 }}>
+							{translate("taskDetailsScreen.makePublic")}
+						</Text>
 					</TouchableOpacity>
 				</View>
 			)}

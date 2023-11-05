@@ -11,6 +11,7 @@ import { SvgXml } from "react-native-svg"
 import { categoryIcon } from "./svgs/icons"
 import TaskEpicPopup from "./TaskEpicPopup"
 import { Entypo } from "@expo/vector-icons"
+import { translate } from "../i18n"
 
 interface ITaskEpic {
 	task: ITeamTask
@@ -124,7 +125,7 @@ const TaskEpic: React.FC<ITaskEpic> = ({ containerStyle, task }) => {
 									marginLeft: 5,
 								}}
 							>
-								Epic
+								{translate("taskDetailsScreen.epic")}
 							</Text>
 						</>
 					)}

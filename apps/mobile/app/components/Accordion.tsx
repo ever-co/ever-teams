@@ -6,7 +6,7 @@ import { Feather } from "@expo/vector-icons"
 import { useAppTheme } from "../theme"
 
 const Accordion = ({ children, title }) => {
-	const [expanded, setExpanded] = useState(false)
+	const [expanded, setExpanded] = useState(true)
 	const { colors } = useAppTheme()
 
 	function toggleItem() {

@@ -7,7 +7,7 @@ import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import { typography, useAppTheme } from "../theme"
-// import { translate } from "../i18n"
+import { translate } from "../i18n"
 import { useTaskVersionValue } from "./StatusType"
 import { limitTextCharaters } from "../helpers/sub-text"
 import TaskVersionPopup from "./TaskVersionPopup"
@@ -85,7 +85,7 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 								<Text
 									style={{ ...styles.text, color: colors.primary, marginLeft: 5 }}
 								>
-									Version
+									{translate("taskDetailsScreen.version")}
 								</Text>
 							</View>
 						)}

@@ -16,6 +16,7 @@ import moment from "moment-timezone"
 import { SvgXml } from "react-native-svg"
 import { trashIconSmall } from "../../../svgs/icons"
 import { BlurView } from "expo-blur"
+import { translate } from "../../../../i18n"
 
 interface ICalendarModal {
 	selectedDate: string
@@ -39,7 +40,11 @@ const CalendarModal: React.FC<ICalendarModal> = ({ selectedDate, isDueDate, upda
 			<View style={styles.buttonWrapper}>
 				<TouchableOpacity onPress={() => setModalVisible(true)}>
 					<Text style={{ fontWeight: "600", fontSize: 12, color: colors.primary }}>
-						{selected ? formatted : isDueDate ? "Set Due Date" : "Set Start Date"}
+						{selected
+							? formatted
+							: isDueDate
+							? translate("taskDetailsScreen.setDueDate")
+							: translate("taskDetailsScreen.setStartDate")}
 					</Text>
 				</TouchableOpacity>
 

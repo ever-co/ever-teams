@@ -22,6 +22,7 @@ import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { useTeamMemberCard } from "../../../../services/hooks/features/useTeamMemberCard"
 import { ScrollView } from "react-native-gesture-handler"
 import { BlurView } from "expo-blur"
+import { translate } from "../../../../i18n"
 
 interface IManageAssignees {
 	memberList: OT_Member[]
@@ -88,7 +89,7 @@ const ManageAssignees: React.FC<IManageAssignees> = ({ memberList, task }) => {
 		<View>
 			<TouchableOpacity onPress={() => setModalVisible(true)} style={styles.button}>
 				<Text style={{ fontSize: 12, fontWeight: "600", color: colors.primary }}>
-					Manage Assignees
+					{translate("taskDetailsScreen.manageAssignees")}
 				</Text>
 			</TouchableOpacity>
 
