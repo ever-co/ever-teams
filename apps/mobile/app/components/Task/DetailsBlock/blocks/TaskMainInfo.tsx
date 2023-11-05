@@ -214,7 +214,7 @@ const TaskMainInfo = observer(() => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
-						borderWidth: 0,
+						borderWidth: !task?.status ? 1 : 0,
 					}}
 				/>
 			</TaskRow>
@@ -254,7 +254,7 @@ const TaskMainInfo = observer(() => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
-						borderWidth: 0,
+						borderWidth: !task?.size ? 1 : 0,
 					}}
 				/>
 			</TaskRow>
@@ -275,7 +275,7 @@ const TaskMainInfo = observer(() => {
 					containerStyle={{
 						width: "70%",
 						borderRadius: 3,
-						borderWidth: 0,
+						borderWidth: !task?.priority ? 1 : 0,
 					}}
 				/>
 			</TaskRow>

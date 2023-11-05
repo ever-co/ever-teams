@@ -40,7 +40,7 @@ interface IndividualTaskLabel {
 }
 
 const TaskLabels: FC<TaskLabelProps> = observer(
-	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders }) => {
+	({ task, setLabels, newTaskLabels, taskScreenButton, noBorders, containerStyle }) => {
 		const { colors, dark } = useAppTheme()
 		const { updateTask } = useTeamTasks()
 		const [openModal, setOpenModal] = useState(false)
@@ -214,8 +214,9 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 						<View
 							style={{
 								...styles.container,
+								...containerStyle,
 								borderColor: colors.border,
-								borderWidth: noBorders && 0,
+								borderWidth: 1,
 							}}
 						>
 							<View style={styles.wrapStatus}>
