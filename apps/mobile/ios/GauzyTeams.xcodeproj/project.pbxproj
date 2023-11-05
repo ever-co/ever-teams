@@ -373,7 +373,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = ever.team;
+				PRODUCT_BUNDLE_IDENTIFIER = co.ever.teams;
 				PRODUCT_NAME = GauzyTeams;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -400,7 +400,7 @@
 					"-lc++",
 				);
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = ever.team;
+				PRODUCT_BUNDLE_IDENTIFIER = co.ever.teams;
 				PRODUCT_NAME = GauzyTeams;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

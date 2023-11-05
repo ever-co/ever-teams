@@ -144,6 +144,10 @@ WIP
 
 [![Deploy on Railway](https://ever.team/fly.png)](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Fly)
 
+### Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ever-co/ever-teams)
+
 ## 📄 Content
 
 -   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)
