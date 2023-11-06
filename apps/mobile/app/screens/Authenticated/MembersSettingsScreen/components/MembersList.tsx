@@ -72,7 +72,6 @@ const MembersList: React.FC<IMembersList> = ({
 					{selectMode ? "Selected:" : "Total members:"}
 				</Text>
 				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
-					{" "}
 					{selectMode ? selectedMembers?.length : teamList?.members.length}
 				</Text>
 			</View>

@@ -1,6 +1,8 @@
 /* eslint-disable camelcase */
+/* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import { View, Text, ViewStyle, TouchableOpacity, StyleSheet } from "react-native"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, SetStateAction, useEffect, useState } from "react"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
 import { typography, useAppTheme } from "../../../theme"
@@ -11,6 +13,9 @@ import MembersList from "./components/MembersList"
 import { OT_Member } from "../../../services/interfaces/IOrganizationTeam"
 import { SvgXml } from "react-native-svg"
 import { moreButtonDark, moreButtonLight } from "../../../components/svgs/icons"
+import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
+import ChangeRoleModal from "./components/ChangeRoleModal"
+import ConfirmationModal from "../../../components/ConfirmationModal"
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSettingsScreen">> = (
 	_props,
@@ -23,6 +28,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 	} = useStores()
 
 	const [selectMode, setSelectMode] = useState<boolean>(false)
+	const [showDropdownMenu, setShowDropdownMenu] = useState<boolean>(false)
 	const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
 
 	const addOrRemoveToSelectedList = (member: OT_Member): void => {
@@ -36,6 +42,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 				setSelectedMembers(updatedSelectedMembers)
 				if (selectedMembers.length === 1) {
 					setSelectMode(false)
+					setShowDropdownMenu(false)
 				}
 			}
 		}
@@ -48,8 +55,6 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 		}
 		setSelectMode(true)
 	}
-
-	// const fall = new Animated.Value(1)
 
 	useEffect(() => {
 		console.log("mode:", selectMode)
@@ -69,13 +74,21 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 					<Text style={[styles.title, { color: colors.primary }]}>
 						{translate("settingScreen.membersSettingsScreen.mainTitle")}
 					</Text>
-					<TouchableOpacity>
-						{selectMode ? (
-							<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
-						) : (
-							<Feather name="plus" size={24} color="black" />
-						)}
-					</TouchableOpacity>
+					<View style={{ position: "relative" }}>
+						<TouchableOpacity
+							onPress={() => selectMode && setShowDropdownMenu(!showDropdownMenu)}
+						>
+							{selectMode ? (
+								<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
+							) : (
+								<Feather name="plus" size={24} color="black" />
+							)}
+						</TouchableOpacity>
+						<MenuDropdown
+							showDropdownMenu={showDropdownMenu && selectMode}
+							setShowDropdownMenu={setShowDropdownMenu}
+						/>
+					</View>
 				</View>
 			</View>
 			<MembersList
@@ -89,13 +102,74 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 	)
 }
 
+interface IMenuDropdown {
+	showDropdownMenu: boolean
+	setShowDropdownMenu: React.Dispatch<SetStateAction<boolean>>
+}
+
+const MenuDropdown: React.FC<IMenuDropdown> = ({ showDropdownMenu, setShowDropdownMenu }) => {
+	const [showRoleModal, setShowRoleModal] = useState<boolean>(false)
+	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
+
+	const { colors } = useAppTheme()
+
+	return showDropdownMenu ? (
+		<>
+			<ChangeRoleModal
+				visible={showRoleModal}
+				onDismiss={() => {
+					setShowRoleModal(false)
+					setShowDropdownMenu(false)
+				}}
+			/>
+			<ConfirmationModal
+				visible={showDeleteConfirmation}
+				onDismiss={() => {
+					setShowDeleteConfirmation(false)
+					setShowDropdownMenu(false)
+				}}
+				onConfirm={() => {
+					setShowDeleteConfirmation(false)
+					setShowDropdownMenu(false)
+				}}
+				confirmationText="Are you sure you want to remove selected user?"
+			/>
+			<View
+				style={[
+					styles.dropdownContainer,
+					{
+						...GS.shadowLg,
+						backgroundColor: colors.background,
+					},
+				]}
+			>
+				<TouchableOpacity
+					onPress={() => {
+						setShowRoleModal(true)
+					}}
+				>
+					<Text style={{ fontSize: 12, color: colors.primary }}>Change Role</Text>
+				</TouchableOpacity>
+				<TouchableOpacity
+					onPress={() => {
+						setShowDeleteConfirmation(true)
+					}}
+				>
+					<Text style={{ fontSize: 12, color: "red" }}>Delete</Text>
+				</TouchableOpacity>
+			</View>
+		</>
+	) : (
+		<></>
+	)
+}
+
 const $container: ViewStyle = {
 	flex: 1,
 }
 
 const $headerContainer: ViewStyle = {
 	padding: 20,
-
 	paddingVertical: 16,
 	shadowColor: "rgba(0, 0, 0, 0.6)",
 	shadowOffset: {
@@ -114,6 +188,17 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		justifyContent: "space-between",
 		width: "100%",
+	},
+	dropdownContainer: {
+		borderRadius: 14,
+		flexDirection: "column",
+		gap: 8,
+		padding: 10,
+		position: "absolute",
+		right: 20,
+		shadowColor: "rgba(0, 0, 0, 0.52)",
+		top: 6,
+		width: 100,
 	},
 
 	title: {
