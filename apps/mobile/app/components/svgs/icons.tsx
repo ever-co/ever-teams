@@ -591,3 +591,17 @@ export const copyIcon = `<svg width="18" height="18" viewBox="0 0 16 16" fill="n
 <path d="M14.6668 4.60016V7.40016C14.6668 9.7335 13.7335 10.6668 11.4002 10.6668H10.6668V8.60016C10.6668 6.26683 9.7335 5.3335 7.40016 5.3335H5.3335V4.60016C5.3335 2.26683 6.26683 1.3335 8.60016 1.3335H11.4002C13.7335 1.3335 14.6668 2.26683 14.6668 4.60016Z" stroke="#B1AEBC" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `
+
+// Member & Roles Screen
+
+export const searchIconLight = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.66671 13.9997C11.1645 13.9997 14 11.1641 14 7.66634C14 4.16854 11.1645 1.33301 7.66671 1.33301C4.1689 1.33301 1.33337 4.16854 1.33337 7.66634C1.33337 11.1641 4.1689 13.9997 7.66671 13.9997Z" stroke="#282048" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.6667 14.6663L13.3334 13.333" stroke="#282048" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
+
+export const searchIconDark = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.66671 13.9997C11.1645 13.9997 14 11.1641 14 7.66634C14 4.16854 11.1645 1.33301 7.66671 1.33301C4.1689 1.33301 1.33337 4.16854 1.33337 7.66634C1.33337 11.1641 4.1689 13.9997 7.66671 13.9997Z" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.6667 14.6663L13.3334 13.333" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`
