@@ -79,7 +79,11 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 							onPress={() => selectMode && setShowDropdownMenu(!showDropdownMenu)}
 						>
 							{selectMode ? (
-								<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
+								showDropdownMenu ? (
+									<AntDesign name="close" size={24} color={colors.primary} />
+								) : (
+									<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
+								)
 							) : (
 								<Feather name="plus" size={24} color="black" />
 							)}
