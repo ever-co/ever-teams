@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from "react-native"
-import React, { SetStateAction, useEffect, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { IOrganizationTeamList, OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { Avatar } from "react-native-paper"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
@@ -13,14 +13,23 @@ import { searchIconDark, searchIconLight } from "../../../../components/svgs/ico
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
+	selectedMembers: OT_Member[]
 	selectMode: boolean
-	setSelectMode: React.Dispatch<SetStateAction<boolean>>
+	setSelectMembersMode: (member: OT_Member) => void
+	addOrRemoveToSelectedList: (member: OT_Member) => void
 }
 
-const MembersList: React.FC<IMembersList> = ({ teamList, selectMode, setSelectMode }) => {
+const MembersList: React.FC<IMembersList> = ({
+	teamList,
+	selectedMembers,
+	addOrRemoveToSelectedList,
+	setSelectMembersMode,
+	selectMode,
+}) => {
 	const [filteredMembersList, setFilteredMembersList] = useState<string>("")
-	const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
-	const { dark } = useAppTheme()
+	// const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
+
+	const { dark, colors } = useAppTheme()
 
 	const membersList = teamList?.members?.filter(
 		(member) =>
@@ -28,43 +37,20 @@ const MembersList: React.FC<IMembersList> = ({ teamList, selectMode, setSelectMo
 			member?.employee?.user?.email.toLowerCase().includes(filteredMembersList.toLowerCase()),
 	)
 
-	const addOrRemoveToSelectedList = (member: OT_Member): void => {
-		if (selectMode) {
-			if (!selectedMembers.includes(member)) {
-				setSelectedMembers([...selectedMembers, member])
-			} else {
-				const updatedSelectedMembers = selectedMembers.filter(
-					(selectedMember) => selectedMember.id !== member.id,
-				)
-				setSelectedMembers(updatedSelectedMembers)
-				if (selectedMembers.length === 1) {
-					setSelectMode(false)
-				}
-			}
-		}
-	}
-
-	const setSelectMembersMode = (member: OT_Member): void => {
-		if (!selectedMembers.some((selectedMember) => selectedMember.id === member.id)) {
-			setSelectedMembers([...selectedMembers, member])
-		}
-		setSelectMode(true)
-	}
-
-	useEffect(() => {
-		console.log("mode:", selectMode)
-		console.log("members list:", selectedMembers)
-	}, [selectedMembers, selectMode])
-
 	return (
 		<View style={styles.container}>
-			<View style={styles.searchContainer}>
+			<View
+				style={[
+					styles.searchContainer,
+					{ borderColor: dark ? colors.border : "#0000001A" },
+				]}
+			>
 				<TextInput
 					placeholder="Search members"
 					value={filteredMembersList}
 					onChangeText={(text) => setFilteredMembersList(text)}
-					style={styles.textInput}
-					placeholderTextColor={"black"}
+					style={[styles.textInput, { color: colors.primary }]}
+					placeholderTextColor={colors.primary}
 				/>
 				<SvgXml xml={dark ? searchIconDark : searchIconLight} style={styles.searchIcon} />
 			</View>
@@ -76,10 +62,20 @@ const MembersList: React.FC<IMembersList> = ({ teamList, selectMode, setSelectMo
 						member={item}
 						addOrRemoveToSelectedList={addOrRemoveToSelectedList}
 						setSelectMembersMode={setSelectMembersMode}
+						selectedMembers={selectedMembers}
 					/>
 				)}
 				keyExtractor={(item, index) => index.toString()}
 			/>
+			<View style={[styles.footerContainer, { backgroundColor: colors.background }]}>
+				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
+					{selectMode ? "Selected:" : "Total members:"}
+				</Text>
+				<Text style={{ fontSize: 14, fontWeight: "400", color: colors.primary }}>
+					{" "}
+					{selectMode ? selectedMembers?.length : teamList?.members.length}
+				</Text>
+			</View>
 		</View>
 	)
 }
@@ -90,22 +86,40 @@ interface IMemberCard {
 	member: OT_Member
 	addOrRemoveToSelectedList: (member: OT_Member) => void
 	setSelectMembersMode: (member: OT_Member) => void
+	selectedMembers: OT_Member[]
 }
 
 const MemberCard: React.FC<IMemberCard> = ({
 	member,
 	addOrRemoveToSelectedList,
 	setSelectMembersMode,
+	selectedMembers,
 }) => {
 	const imageUrl =
 		member?.employee?.user?.image?.thumbUrl ||
 		member?.employee?.user?.image?.fullUrl ||
 		member?.employee?.user?.imageUrl
+
+	const { colors, dark } = useAppTheme()
+
+	let isSelected = useMemo(() => selectedMembers.includes(member), [selectedMembers, member])
 	return (
 		<TouchableOpacity
 			onPress={() => addOrRemoveToSelectedList(member)}
-			onLongPress={() => setSelectMembersMode(member)}
-			style={styles.memberContainer}
+			onLongPress={() => {
+				setSelectMembersMode(member)
+				isSelected = true
+			}}
+			style={[
+				styles.memberContainer,
+				{
+					backgroundColor: isSelected
+						? dark
+							? colors.border
+							: "#F4F4F4"
+						: "transparent",
+				},
+			]}
 		>
 			<View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
 				{imageUrl ? (
@@ -118,7 +132,7 @@ const MemberCard: React.FC<IMemberCard> = ({
 					/>
 				)}
 				<View style={{ gap: 6 }}>
-					<Text style={{ fontSize: 16, fontWeight: "600" }}>
+					<Text style={{ fontSize: 16, fontWeight: "600", color: colors.primary }}>
 						{member?.employee?.fullName}
 					</Text>
 					<Text style={styles.grayedText}>{member?.employee?.user?.email}</Text>
@@ -138,6 +152,20 @@ const MemberCard: React.FC<IMemberCard> = ({
 
 const styles = StyleSheet.create({
 	container: { height: "88%", paddingTop: 10, width: "100%" },
+	footerContainer: {
+		elevation: -1,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		paddingHorizontal: 24,
+		paddingTop: 10,
+		shadowColor: "rgba(0, 0, 0, 0.6)",
+		shadowOffset: {
+			width: 0,
+			height: -5,
+		},
+		shadowOpacity: 0.07,
+		shadowRadius: 10,
+	},
 	grayedText: { color: "#938FA4", fontSize: 12 },
 	memberContainer: {
 		flexDirection: "row",
