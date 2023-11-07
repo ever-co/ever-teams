@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, Text, ViewStyle, TouchableOpacity, StyleSheet } from "react-native"
-import React, { FC, SetStateAction, useEffect, useState } from "react"
+import React, { FC, SetStateAction, useState } from "react"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
 import { typography, useAppTheme } from "../../../theme"
@@ -33,7 +33,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 
 	const addOrRemoveToSelectedList = (member: OT_Member): void => {
 		if (selectMode) {
-			if (!selectedMembers.includes(member)) {
+			if (!selectedMembers.some((selected) => selected.id === member.id)) {
 				setSelectedMembers([...selectedMembers, member])
 			} else {
 				const updatedSelectedMembers = selectedMembers.filter(
@@ -49,17 +49,15 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 	}
 
 	const setSelectMembersMode = (member: OT_Member): void => {
+		if (!selectMode) {
+			setSelectMode(true)
+		}
 		if (!selectedMembers.some((selectedMember) => selectedMember.id === member.id)) {
 			const updatedSelectedMembers = [...selectedMembers, member]
 			setSelectedMembers(updatedSelectedMembers)
 		}
 		setSelectMode(true)
 	}
-
-	useEffect(() => {
-		console.log("mode:", selectMode)
-		console.log("members list:", selectedMembers)
-	}, [selectedMembers, selectMode])
 
 	return (
 		<Screen
@@ -91,6 +89,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 						<MenuDropdown
 							showDropdownMenu={showDropdownMenu && selectMode}
 							setShowDropdownMenu={setShowDropdownMenu}
+							selectedMembers={selectedMembers}
 						/>
 					</View>
 				</View>
@@ -109,9 +108,14 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 interface IMenuDropdown {
 	showDropdownMenu: boolean
 	setShowDropdownMenu: React.Dispatch<SetStateAction<boolean>>
+	selectedMembers: OT_Member[]
 }
 
-const MenuDropdown: React.FC<IMenuDropdown> = ({ showDropdownMenu, setShowDropdownMenu }) => {
+const MenuDropdown: React.FC<IMenuDropdown> = ({
+	showDropdownMenu,
+	setShowDropdownMenu,
+	selectedMembers,
+}) => {
 	const [showRoleModal, setShowRoleModal] = useState<boolean>(false)
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
@@ -147,19 +151,22 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({ showDropdownMenu, setShowDropdo
 					},
 				]}
 			>
-				<TouchableOpacity
-					onPress={() => {
-						setShowRoleModal(true)
-					}}
-				>
-					<Text style={{ fontSize: 12, color: colors.primary }}>Change Role</Text>
-				</TouchableOpacity>
+				{selectedMembers.length === 1 && (
+					<TouchableOpacity
+						onPress={() => {
+							setShowRoleModal(true)
+						}}
+					>
+						<Text style={{ fontSize: 12, color: colors.primary }}>Change Role</Text>
+					</TouchableOpacity>
+				)}
+
 				<TouchableOpacity
 					onPress={() => {
 						setShowDeleteConfirmation(true)
 					}}
 				>
-					<Text style={{ fontSize: 12, color: "red" }}>Delete</Text>
+					<Text style={{ fontSize: 12, color: "#DA5E5E" }}>Delete</Text>
 				</TouchableOpacity>
 			</View>
 		</>

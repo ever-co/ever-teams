@@ -101,13 +101,15 @@ const MemberCard: React.FC<IMemberCard> = ({
 
 	const { colors, dark } = useAppTheme()
 
-	let isSelected = useMemo(() => selectedMembers.includes(member), [selectedMembers, member])
+	const isSelected = useMemo(
+		() => selectedMembers.some((selected) => selected.id === member.id),
+		[selectedMembers, member],
+	)
 	return (
 		<TouchableOpacity
 			onPress={() => addOrRemoveToSelectedList(member)}
 			onLongPress={() => {
 				setSelectMembersMode(member)
-				isSelected = true
 			}}
 			style={[
 				styles.memberContainer,
