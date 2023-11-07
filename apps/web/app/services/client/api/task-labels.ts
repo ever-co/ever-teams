@@ -1,8 +1,8 @@
-import { CreateReponse, DeleteReponse, ITaskLabelsCreate } from '@app/interfaces';
+import { CreateResponse, DeleteResponse, ITaskLabelsCreate } from '@app/interfaces';
 import api from '../axios';
 
 export function createTaskLabelsAPI(data: ITaskLabelsCreate, tenantId?: string) {
-	return api.post<CreateReponse<ITaskLabelsCreate>>('/tags', data, {
+	return api.post<CreateResponse<ITaskLabelsCreate>>('/tags', data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -10,7 +10,7 @@ export function createTaskLabelsAPI(data: ITaskLabelsCreate, tenantId?: string) 
 }
 
 export function editTaskLabelsAPI(id: string, data: ITaskLabelsCreate, tenantId?: string) {
-	return api.put<CreateReponse<ITaskLabelsCreate>>(`/tags/${id}`, data, {
+	return api.put<CreateResponse<ITaskLabelsCreate>>(`/tags/${id}`, data, {
 		headers: {
 			'Tenant-Id': tenantId
 		}
@@ -18,7 +18,7 @@ export function editTaskLabelsAPI(id: string, data: ITaskLabelsCreate, tenantId?
 }
 
 export function deleteTaskLabelsAPI(id: string) {
-	return api.delete<DeleteReponse>(`/tags/${id}`);
+	return api.delete<DeleteResponse>(`/tags/${id}`);
 }
 
 export function getTaskLabelsList(tenantId: string, organizationId: string, activeTeamId: string | null) {

@@ -1,6 +1,6 @@
-import { CreateReponse, IIntegrationType } from '@app/interfaces';
+import { CreateResponse, IIntegrationType } from '@app/interfaces';
 import api from '../../axios';
 
 export function getIntegrationTypesAPI() {
-	return api.get<CreateReponse<IIntegrationType[]>>(`/integration/types`);
+	return api.get<CreateResponse<IIntegrationType[]>>(`/integration/types`);
 }

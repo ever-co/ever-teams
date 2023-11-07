@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { DeleteReponse, PaginationResponse, CreateReponse } from "../../interfaces/IDataResponse"
+import { DeleteResponse, PaginationResponse, CreateResponse } from "../../interfaces/IDataResponse"
 import { ICreateTask, ITeamTask } from "../../interfaces/ITask"
 import { serverFetch } from "../fetch"
 
@@ -75,7 +75,7 @@ export function getTaskByIdRequest({
 
 	const query = new URLSearchParams(obj)
 
-	return serverFetch<CreateReponse<ITeamTask>>({
+	return serverFetch<CreateResponse<ITeamTask>>({
 		path: `/tasks/${taskId}?${query.toString()}`,
 		method: "GET",
 		bearer_token,
@@ -92,7 +92,7 @@ export function deleteTaskRequest({
 	taskId: string
 	bearer_token: string
 }) {
-	return serverFetch<DeleteReponse>({
+	return serverFetch<DeleteResponse>({
 		path: `/tasks/${taskId}?tenantId=${tenantId}`,
 		method: "DELETE",
 		bearer_token,
@@ -138,7 +138,7 @@ export function deleteEmployeeFromTasksRequest({
 	organizationTeamId: string
 	bearer_token: string
 }) {
-	return serverFetch<DeleteReponse>({
+	return serverFetch<DeleteResponse>({
 		path: `/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`,
 		method: "DELETE",
 		bearer_token,

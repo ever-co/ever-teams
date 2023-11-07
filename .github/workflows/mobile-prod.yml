@@ -50,7 +50,7 @@ jobs:
           yarn build:mobile
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --platform android --non-interactive
+        run: cd apps/mobile && eas build --platform all --non-interactive
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto
@@ -58,7 +58,7 @@ jobs:
       - name: Decode Google Credentials
         run: |
           DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
-          echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV          
+          echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
           echo "::add-mask::$DECODED_GOOGLE_CREDENTIALS"
           ESCAPED_GOOGLE_CREDENTIALS=$(echo "$DECODED_GOOGLE_CREDENTIALS" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
           ESCAPED_GOOGLE_CREDENTIALS=$(echo $ESCAPED_GOOGLE_CREDENTIALS | sed 's/\\n/\\\\n/g')
@@ -79,4 +79,7 @@ jobs:
           project_id: "ever-teams-399720"
 
       - name: Upload to Play Store Console
-        run: cd apps/mobile && eas submit -p android --latest --key ${{ secrets.GOOGLE_CREDENTIALS }} 
+        run: cd apps/mobile && eas submit --platform android --latest --non-interactive
+
+      - name: Publish to App Store
+        run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas submit --platform ios --latest --non-interactive

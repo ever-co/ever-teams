@@ -484,10 +484,9 @@
 
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "כל הזכויות שמורות.",
+			"RIGHTS_RESERVED": "כל הזכויות שמורות.",
 			"COPY_RIGHT1": "© {{date}}-היום,",
-			"COPY_RIGHT2": "Ever צוותים",
-			"COPY_RIGHT3": "Gauzy צוותים ",
+			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "תנאי שימוש",

@@ -86,6 +86,12 @@ export type SettingScreenNavigationProp<T extends keyof AuthenticatedTabParamLis
 		StackNavigationProp<AppStackParamList>
 	>
 
+export type DrawerNavigationProp<T extends keyof AuthenticatedDrawerParamList> =
+	CompositeNavigationProp<
+		BottomTabNavigationProp<AuthenticatedDrawerParamList, T>,
+		StackNavigationProp<AppStackParamList>
+	>
+
 export type SettingScreenRouteProp<T extends keyof AuthenticatedTabParamList> = RouteProp<
 	AuthenticatedTabParamList,
 	T

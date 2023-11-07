@@ -488,10 +488,9 @@
 
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "Alle rechten voorbehouden.",
+			"RIGHTS_RESERVED": "Alle rechten voorbehouden.",
 			"COPY_RIGHT1": "© {{date}}-Heden,",
 			"COPY_RIGHT2": "Ever Teams",
-			"COPY_RIGHT3": "Gauzy Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Gebruiksvoorwaarden",
