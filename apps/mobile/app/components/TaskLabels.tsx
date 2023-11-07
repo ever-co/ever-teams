@@ -1,7 +1,15 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useEffect, useRef, useState } from "react"
-import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, FlatList } from "react-native"
+import {
+	TouchableOpacity,
+	View,
+	Text,
+	StyleSheet,
+	ViewStyle,
+	FlatList,
+	Dimensions,
+} from "react-native"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { observer } from "mobx-react-lite"
 import { ITeamTask } from "../services/interfaces/ITask"
@@ -247,6 +255,9 @@ interface ILabel {
 
 const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }) => {
 	const { colors } = useAppTheme()
+
+	const { width } = Dimensions.get("screen")
+
 	return (
 		<TouchableOpacity style={{}} onPress={freshOpenModal}>
 			<View
@@ -256,8 +267,8 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }
 					backgroundColor: item?.color,
 					marginVertical: taskScreenButton ? 3 : 20,
 					height: 32,
-					minWidth: 100,
-					maxWidth: taskScreenButton ? 140 : 120,
+					minWidth: !taskScreenButton && 100,
+					maxWidth: taskScreenButton ? "70%" : 120,
 					borderRadius: 10,
 					borderColor: colors.border,
 					borderWidth: noBorders ? 0 : 1,
@@ -273,7 +284,10 @@ const Label: FC<ILabel> = ({ item, freshOpenModal, taskScreenButton, noBorders }
 						marginLeft: 10,
 					}}
 				>
-					{limitTextCharaters({ text: item?.name, numChars: taskScreenButton ? 15 : 12 })}
+					{limitTextCharaters({
+						text: item?.name,
+						numChars: taskScreenButton && width > 420 ? 15 : 12,
+					})}
 				</Text>
 			</View>
 		</TouchableOpacity>
