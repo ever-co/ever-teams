@@ -50,7 +50,7 @@ jobs:
           yarn build:mobile
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --platform android --non-interactive
+        run: cd apps/mobile && eas build --platform all --non-interactive
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto
@@ -80,3 +80,6 @@ jobs:
 
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
+
+      - name: Publish to App Store
+        run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas submit --platform ios --latest --non-interactive
