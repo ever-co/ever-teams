@@ -9,20 +9,51 @@ import {
 	Animated,
 	ViewStyle,
 	StyleSheet,
+	TouchableOpacity,
 } from "react-native"
 import React from "react"
 import { BlurView } from "expo-blur"
+import { Feather, AntDesign } from "@expo/vector-icons"
+import { useAppTheme } from "../../../../theme"
+import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 
 interface IChangeRoleModal {
 	onDismiss: () => void
 	visible: boolean
+	member: OT_Member
 }
 
-const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible }) => {
+const roles = [
+	{ name: "Member", color: "#D4EFDF" },
+	{ name: "MANAGER", color: "#008080" },
+]
+
+const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible, member }) => {
+	const { colors } = useAppTheme()
+
 	return (
 		<ModalPopUp onDismiss={onDismiss} visible={visible}>
-			<View style={styles.container}>
-				<Text>ChangeRoleModal</Text>
+			<View style={[styles.container, { backgroundColor: colors.background2 }]}>
+				{roles.map((role, index) => (
+					<TouchableOpacity key={index}>
+						<View
+							style={[
+								styles.roleContainer,
+								{
+									backgroundColor: role.color,
+								},
+							]}
+						>
+							<Text>{role.name}</Text>
+							{member?.role?.name.toLowerCase() === role.name.toLowerCase() ||
+							(!member?.role?.name && role.name === "Member") ? (
+								<AntDesign name="checkcircle" size={24} color="#27AE60" />
+							) : (
+								<Feather name="circle" size={24} color="#FFFFFF" />
+							)}
+						</View>
+					</TouchableOpacity>
+				))}
 			</View>
 		</ModalPopUp>
 	)
@@ -85,8 +116,18 @@ const styles = StyleSheet.create({
 		alignSelf: "center",
 		backgroundColor: "#fff",
 		borderRadius: 20,
+		gap: 10,
 		paddingHorizontal: 6,
 		paddingVertical: 16,
-		width: "90%",
+		width: "60%",
+	},
+	roleContainer: {
+		alignItems: "center",
+		borderColor: "rgba(0,0,0,0.13)",
+		borderRadius: 10,
+		borderWidth: 1,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		padding: 10,
 	},
 })

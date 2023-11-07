@@ -16,12 +16,14 @@ import { moreButtonDark, moreButtonLight } from "../../../components/svgs/icons"
 import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import ChangeRoleModal from "./components/ChangeRoleModal"
 import ConfirmationModal from "../../../components/ConfirmationModal"
+import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSettingsScreen">> = (
 	_props,
 ) => {
 	const { colors, dark } = useAppTheme()
 	const { navigation } = _props
+	const { isTeamManager } = useOrganizationTeam()
 
 	const {
 		teamStore: { activeTeam },
@@ -49,6 +51,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 	}
 
 	const setSelectMembersMode = (member: OT_Member): void => {
+		if (!isTeamManager) return
 		if (!selectMode) {
 			setSelectMode(true)
 		}
@@ -83,7 +86,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 									<SvgXml xml={dark ? moreButtonDark : moreButtonLight} />
 								)
 							) : (
-								<Feather name="plus" size={24} color="black" />
+								<Feather name="plus" size={24} color={colors.primary} />
 							)}
 						</TouchableOpacity>
 						<MenuDropdown
@@ -124,17 +127,18 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 	return showDropdownMenu ? (
 		<>
 			<ChangeRoleModal
+				member={selectedMembers[0]}
 				visible={showRoleModal}
 				onDismiss={() => {
 					setShowRoleModal(false)
-					setShowDropdownMenu(false)
+					setTimeout(() => setShowDropdownMenu(false), 300)
 				}}
 			/>
 			<ConfirmationModal
 				visible={showDeleteConfirmation}
 				onDismiss={() => {
 					setShowDeleteConfirmation(false)
-					setShowDropdownMenu(false)
+					setTimeout(() => setShowDropdownMenu(false), 300)
 				}}
 				onConfirm={() => {
 					setShowDeleteConfirmation(false)

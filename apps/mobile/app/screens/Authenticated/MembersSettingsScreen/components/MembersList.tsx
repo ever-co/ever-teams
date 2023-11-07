@@ -141,7 +141,9 @@ const MemberCard: React.FC<IMemberCard> = ({
 			</View>
 			<View style={{ gap: 7, flexDirection: "column" }}>
 				<View style={styles.roleContainer}>
-					<Text style={styles.roleText}>Member</Text>
+					<Text style={styles.roleText}>
+						{member?.role?.name ? member?.role?.name : "Member"}
+					</Text>
 				</View>
 				<Text style={styles.grayedText}>
 					{moment(member?.employee?.createdAt).format("DD MMM YYYY hh:mm a")}
@@ -183,9 +185,9 @@ const styles = StyleSheet.create({
 		backgroundColor: "#D4EFDF",
 		borderRadius: 80,
 		marginLeft: "auto",
+		minWidth: 73,
 		paddingHorizontal: 15,
 		paddingVertical: 4,
-		width: 73,
 	},
 	roleText: { color: "#77846D", fontSize: 10, fontWeight: "700" },
 	searchContainer: {
