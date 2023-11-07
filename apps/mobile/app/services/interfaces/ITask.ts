@@ -17,6 +17,7 @@ export type ITeamTask = {
 	estimateDays?: number
 	estimateHours?: number
 	estimateMinutes?: number
+	startDate?: string
 	dueDate: string
 	projectId: string
 	public: boolean
