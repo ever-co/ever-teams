@@ -18,20 +18,16 @@ import { SvgUri } from "react-native-svg"
 import { IIssueType } from "../services/interfaces/ITaskIssue"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import { useAppTheme } from "../theme"
+import { BlurView } from "expo-blur"
 
 interface IssuesModalProps {
 	task: ITeamTask
 	readonly?: boolean
 	nameIncluded?: boolean
-	responsiveFontSize?: () => number
+	smallFont?: boolean
 }
 
-const IssuesModal: FC<IssuesModalProps> = ({
-	task,
-	readonly = false,
-	nameIncluded,
-	responsiveFontSize,
-}) => {
+const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameIncluded, smallFont }) => {
 	const { allTaskIssues } = useTaskIssue()
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 	const { updateTask } = useTeamTasks()
@@ -56,14 +52,14 @@ const IssuesModal: FC<IssuesModalProps> = ({
 		currentIssue?.name === "Bug" ? 15 : currentIssue?.name === "Story" ? 14 : 13
 
 	return (
-		<>
+		<View>
 			<View
 				style={[
 					styles.wrapButton,
 					{
 						backgroundColor: currentIssue?.color,
 						height: nameIncluded ? 24 : 20,
-						width: nameIncluded ? "auto" : 20,
+						width: nameIncluded ? 65 : 20,
 						paddingVertical: nameIncluded && 2,
 						paddingHorizontal: nameIncluded && 10,
 						flexDirection: "row",
@@ -87,7 +83,7 @@ const IssuesModal: FC<IssuesModalProps> = ({
 					<Text
 						style={{
 							color: "#ffffff",
-							fontSize: responsiveFontSize ? responsiveFontSize() : 14,
+							fontSize: smallFont ? 10 : 14,
 						}}
 					>
 						{currentIssue?.name}
@@ -110,7 +106,7 @@ const IssuesModal: FC<IssuesModalProps> = ({
 					/>
 				</View>
 			</ModalPopUp>
-		</>
+		</View>
 	)
 }
 
@@ -141,6 +137,15 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 	}
 	return (
 		<Modal animationType="fade" transparent visible={showModal}>
+			<BlurView
+				intensity={15}
+				tint="dark"
+				style={{
+					position: "absolute",
+					width: "100%",
+					height: "100%",
+				}}
+			/>
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={$modalBackGround}>
 					<Animated.View style={{ transform: [{ scale: scaleValue }] }}>
@@ -185,7 +190,6 @@ const Item = ({ issue, onChangeIssue, closeModal, readonly = false }: IItem) => 
 
 const $modalBackGround: ViewStyle = {
 	flex: 1,
-	backgroundColor: "#000000AA",
 	justifyContent: "center",
 }
 
