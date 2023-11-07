@@ -16,6 +16,7 @@ import { BlurView } from "expo-blur"
 import { Feather, AntDesign } from "@expo/vector-icons"
 import { useAppTheme } from "../../../../theme"
 import { OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
+import { useTeamMemberCard } from "../../../../services/hooks/features/useTeamMemberCard"
 
 interface IChangeRoleModal {
 	onDismiss: () => void
@@ -30,12 +31,28 @@ const roles = [
 
 const ChangeRoleModal: React.FC<IChangeRoleModal> = ({ onDismiss, visible, member }) => {
 	const { colors } = useAppTheme()
+	const memberActions = useTeamMemberCard(member)
+
+	const changeMemberRole = (roleName: string) => {
+		if (member?.role?.name === "MANAGER" && roleName === "Member") {
+			!memberActions.isAuthUser && memberActions.unMakeMemberManager()
+		} else if (
+			member?.role?.name === "Member" ||
+			(member?.role?.name === undefined && roleName === "MANAGER")
+		) {
+			console.log("executing")
+
+			memberActions.makeMemberManager()
+		}
+
+		onDismiss()
+	}
 
 	return (
 		<ModalPopUp onDismiss={onDismiss} visible={visible}>
 			<View style={[styles.container, { backgroundColor: colors.background2 }]}>
 				{roles.map((role, index) => (
-					<TouchableOpacity key={index}>
+					<TouchableOpacity key={index} onPress={() => changeMemberRole(role.name)}>
 						<View
 							style={[
 								styles.roleContainer,
@@ -117,8 +134,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#fff",
 		borderRadius: 20,
 		gap: 10,
-		paddingHorizontal: 6,
-		paddingVertical: 16,
+		padding: 10,
 		width: "60%",
 	},
 	roleContainer: {

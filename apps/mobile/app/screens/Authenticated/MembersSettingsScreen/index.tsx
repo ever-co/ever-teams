@@ -94,6 +94,8 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 							showDropdownMenu={showDropdownMenu && selectMode}
 							setShowDropdownMenu={setShowDropdownMenu}
 							selectedMembers={selectedMembers}
+							setSelectedMembers={setSelectedMembers}
+							setSelectMode={setSelectMode}
 							setIsNameEditMode={setIsNameEditMode}
 						/>
 					</View>
@@ -117,6 +119,8 @@ interface IMenuDropdown {
 	setShowDropdownMenu: React.Dispatch<SetStateAction<boolean>>
 	selectedMembers: OT_Member[]
 	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
+	setSelectedMembers: React.Dispatch<SetStateAction<OT_Member[]>>
+	setSelectMode: React.Dispatch<SetStateAction<boolean>>
 }
 
 const MenuDropdown: React.FC<IMenuDropdown> = ({
@@ -124,11 +128,18 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 	setShowDropdownMenu,
 	selectedMembers,
 	setIsNameEditMode,
+	setSelectMode,
+	setSelectedMembers,
 }) => {
 	const [showRoleModal, setShowRoleModal] = useState<boolean>(false)
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
 
 	const { colors } = useAppTheme()
+
+	const reset = () => {
+		setSelectMode(false)
+		setSelectedMembers([])
+	}
 
 	return showDropdownMenu ? (
 		<>
@@ -138,6 +149,7 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 				onDismiss={() => {
 					setShowRoleModal(false)
 					setTimeout(() => setShowDropdownMenu(false), 300)
+					reset()
 				}}
 			/>
 			<ConfirmationModal
@@ -145,6 +157,7 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 				onDismiss={() => {
 					setShowDeleteConfirmation(false)
 					setTimeout(() => setShowDropdownMenu(false), 300)
+					reset()
 				}}
 				onConfirm={() => {
 					setShowDeleteConfirmation(false)
