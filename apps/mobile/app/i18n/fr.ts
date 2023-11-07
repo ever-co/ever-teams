@@ -117,6 +117,7 @@ const fr = {
 		manageAssignees: "Gérer les destinataires",
 		setDueDate: "Définir la date d'échéance",
 		setStartDate: "Définir la date de début",
+		items: "Articles",
 	},
 	tasksScreen: {
 		name: "Tâches",

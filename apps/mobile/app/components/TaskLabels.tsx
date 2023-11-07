@@ -196,6 +196,33 @@ const TaskLabels: FC<TaskLabelProps> = observer(
 				  (task?.tags?.length > 0 || newTaskLabels?.length > 0) &&
 				  taskScreenButton ? (
 					<View>
+						<TouchableOpacity onPress={freshOpenModal}>
+							<View
+								style={{
+									...styles.container,
+									...containerStyle,
+									borderColor: colors.border,
+									borderWidth: 1,
+									marginTop: 0,
+									marginBottom: 15,
+								}}
+							>
+								<View style={styles.wrapStatus}>
+									<Entypo name="circle" size={12} color={colors.primary} />
+									<Text
+										style={{
+											...styles.text,
+											color: colors.primary,
+											marginLeft: 5,
+										}}
+									>
+										{translate("taskDetailsScreen.items")} ({task?.tags.length})
+									</Text>
+								</View>
+
+								<AntDesign name="down" size={14} color={colors.primary} />
+							</View>
+						</TouchableOpacity>
 						<FlatList
 							ref={flatListRef}
 							data={task?.tags || newTaskLabels}
