@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
 		borderRadius: 20,
 		height: "auto",
 		padding: 22,
-		width: "40%",
+		width: 170,
 	},
 	wrapButton: {
 		alignItems: "center",

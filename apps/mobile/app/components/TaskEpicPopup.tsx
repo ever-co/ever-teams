@@ -85,7 +85,12 @@ const Item: React.FC<ItemProps> = ({ currentEpicId, epic, onTaskSelect, teamTask
 				onDismiss()
 			}}
 		>
-			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
+			<View
+				style={{
+					...styles.wrapperItem,
+					borderColor: colors.border,
+				}}
+			>
 				<View style={{ ...styles.colorFrame, backgroundColor: "#FFFFFF" }}>
 					{epic.icon}
 					<Text>{epic.name}</Text>
@@ -159,7 +164,6 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		gap: 5,
 		height: 44,
-		justifyContent: "center",
 		paddingLeft: 16,
 		width: 180,
 	},
