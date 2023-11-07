@@ -32,6 +32,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 	const [selectMode, setSelectMode] = useState<boolean>(false)
 	const [showDropdownMenu, setShowDropdownMenu] = useState<boolean>(false)
 	const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
+	const [isNameEditMode, setIsNameEditMode] = useState<boolean>(false)
 
 	const addOrRemoveToSelectedList = (member: OT_Member): void => {
 		if (selectMode) {
@@ -93,6 +94,7 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 							showDropdownMenu={showDropdownMenu && selectMode}
 							setShowDropdownMenu={setShowDropdownMenu}
 							selectedMembers={selectedMembers}
+							setIsNameEditMode={setIsNameEditMode}
 						/>
 					</View>
 				</View>
@@ -100,7 +102,9 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 			<MembersList
 				teamList={activeTeam}
 				selectMode={selectMode}
+				isNameEditMode={isNameEditMode}
 				selectedMembers={selectedMembers}
+				setIsNameEditMode={setIsNameEditMode}
 				setSelectMembersMode={setSelectMembersMode}
 				addOrRemoveToSelectedList={addOrRemoveToSelectedList}
 			/>
@@ -112,12 +116,14 @@ interface IMenuDropdown {
 	showDropdownMenu: boolean
 	setShowDropdownMenu: React.Dispatch<SetStateAction<boolean>>
 	selectedMembers: OT_Member[]
+	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
 }
 
 const MenuDropdown: React.FC<IMenuDropdown> = ({
 	showDropdownMenu,
 	setShowDropdownMenu,
 	selectedMembers,
+	setIsNameEditMode,
 }) => {
 	const [showRoleModal, setShowRoleModal] = useState<boolean>(false)
 	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState<boolean>(false)
@@ -146,16 +152,16 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 				}}
 				confirmationText="Are you sure you want to remove selected user?"
 			/>
-			<View
-				style={[
-					styles.dropdownContainer,
-					{
-						...GS.shadowLg,
-						backgroundColor: colors.background,
-					},
-				]}
-			>
-				{selectedMembers.length === 1 && (
+			{selectedMembers.length === 1 && (
+				<View
+					style={[
+						styles.dropdownContainer,
+						{
+							...GS.shadowLg,
+							backgroundColor: colors.background,
+						},
+					]}
+				>
 					<TouchableOpacity
 						onPress={() => {
 							setShowRoleModal(true)
@@ -163,16 +169,25 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 					>
 						<Text style={{ fontSize: 12, color: colors.primary }}>Change Role</Text>
 					</TouchableOpacity>
-				)}
 
-				<TouchableOpacity
-					onPress={() => {
-						setShowDeleteConfirmation(true)
-					}}
-				>
-					<Text style={{ fontSize: 12, color: "#DA5E5E" }}>Delete</Text>
-				</TouchableOpacity>
-			</View>
+					<TouchableOpacity
+						onPress={() => {
+							setIsNameEditMode(true)
+							setShowDropdownMenu(false)
+						}}
+					>
+						<Text style={{ fontSize: 12, color: colors.primary }}>Edit</Text>
+					</TouchableOpacity>
+
+					<TouchableOpacity
+						onPress={() => {
+							setShowDeleteConfirmation(true)
+						}}
+					>
+						<Text style={{ fontSize: 12, color: "#DA5E5E" }}>Delete</Text>
+					</TouchableOpacity>
+				</View>
+			)}
 		</>
 	) : (
 		<></>

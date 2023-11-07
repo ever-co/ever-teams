@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, TextInput } from "react-native"
-import React, { useMemo, useState } from "react"
+import React, { SetStateAction, useCallback, useMemo, useState } from "react"
 import { IOrganizationTeamList, OT_Member } from "../../../../services/interfaces/IOrganizationTeam"
 import { Avatar } from "react-native-paper"
 import { imgTitleProfileAvatar } from "../../../../helpers/img-title-profile-avatar"
@@ -10,6 +10,8 @@ import { typography, useAppTheme } from "../../../../theme"
 import moment from "moment-timezone"
 import { SvgXml } from "react-native-svg"
 import { searchIconDark, searchIconLight } from "../../../../components/svgs/icons"
+import { useSettings } from "../../../../services/hooks/features/useSettings"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
 
 interface IMembersList {
 	teamList: IOrganizationTeamList
@@ -17,6 +19,8 @@ interface IMembersList {
 	selectMode: boolean
 	setSelectMembersMode: (member: OT_Member) => void
 	addOrRemoveToSelectedList: (member: OT_Member) => void
+	isNameEditMode: boolean
+	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
 }
 
 const MembersList: React.FC<IMembersList> = ({
@@ -25,6 +29,8 @@ const MembersList: React.FC<IMembersList> = ({
 	addOrRemoveToSelectedList,
 	setSelectMembersMode,
 	selectMode,
+	isNameEditMode,
+	setIsNameEditMode,
 }) => {
 	const [filteredMembersList, setFilteredMembersList] = useState<string>("")
 	// const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
@@ -63,6 +69,8 @@ const MembersList: React.FC<IMembersList> = ({
 						addOrRemoveToSelectedList={addOrRemoveToSelectedList}
 						setSelectMembersMode={setSelectMembersMode}
 						selectedMembers={selectedMembers}
+						isNameEditMode={isNameEditMode}
+						setIsNameEditMode={setIsNameEditMode}
 					/>
 				)}
 				keyExtractor={(item, index) => index.toString()}
@@ -86,6 +94,8 @@ interface IMemberCard {
 	addOrRemoveToSelectedList: (member: OT_Member) => void
 	setSelectMembersMode: (member: OT_Member) => void
 	selectedMembers: OT_Member[]
+	isNameEditMode: boolean
+	setIsNameEditMode: React.Dispatch<SetStateAction<boolean>>
 }
 
 const MemberCard: React.FC<IMemberCard> = ({
@@ -93,7 +103,30 @@ const MemberCard: React.FC<IMemberCard> = ({
 	addOrRemoveToSelectedList,
 	setSelectMembersMode,
 	selectedMembers,
+	isNameEditMode,
+	setIsNameEditMode,
 }) => {
+	const { updateUserInfo } = useSettings()
+	const [newName, setNewName] = useState<string>(member?.employee?.fullName)
+
+	const updateUserName = useCallback(
+		async (member: OT_Member): Promise<void> => {
+			if (newName === member?.employee?.fullName) return
+
+			const firstNameIndex = newName?.indexOf(" ")
+			const formattedFirstName = newName?.substring(0, firstNameIndex)
+			const formattedLastName = newName?.substring(firstNameIndex)
+
+			await updateUserInfo({
+				...member?.employee?.user,
+				firstName: formattedFirstName,
+				lastName: formattedLastName,
+			})
+			setIsNameEditMode(false)
+		},
+		[updateUserInfo, newName],
+	)
+
 	const imageUrl =
 		member?.employee?.user?.image?.thumbUrl ||
 		member?.employee?.user?.image?.fullUrl ||
@@ -107,7 +140,11 @@ const MemberCard: React.FC<IMemberCard> = ({
 	)
 	return (
 		<TouchableOpacity
-			onPress={() => addOrRemoveToSelectedList(member)}
+			onPress={() => {
+				addOrRemoveToSelectedList(member)
+				isNameEditMode && updateUserName(member)
+				setIsNameEditMode(false)
+			}}
 			onLongPress={() => {
 				setSelectMembersMode(member)
 			}}
@@ -133,9 +170,19 @@ const MemberCard: React.FC<IMemberCard> = ({
 					/>
 				)}
 				<View style={{ gap: 6 }}>
-					<Text style={{ fontSize: 16, fontWeight: "600", color: colors.primary }}>
-						{member?.employee?.fullName}
-					</Text>
+					{isNameEditMode && isSelected ? (
+						<TextInput
+							value={newName}
+							onChangeText={(text) => setNewName(text)}
+							style={{ fontSize: 16, color: colors.primary, width: 180 }}
+							autoFocus={isNameEditMode}
+						/>
+					) : (
+						<Text style={{ fontSize: 16, fontWeight: "600", color: colors.primary }}>
+							{limitTextCharaters({ text: member?.employee?.fullName, numChars: 24 })}
+						</Text>
+					)}
+
 					<Text style={styles.grayedText}>{member?.employee?.user?.email}</Text>
 				</View>
 			</View>
