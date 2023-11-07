@@ -168,7 +168,6 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 		onUpdateOrganizationTeam({
 			id: activeTeamId,
 			data: {
-				...activeTeam,
 				// remove from members
 				memberIds: team.members
 					.filter((r) => r.employee.id !== employeeId)
@@ -179,6 +178,7 @@ export function useTeamMemberCard(member: IOrganizationTeamList["members"][numbe
 					.filter((r) => r.role && r.role.name === "MANAGER")
 					.filter((r) => r.employee.id !== employeeId)
 					.map((r) => r.employee.id),
+				...activeTeam,
 			},
 		})
 	}, [onUpdateOrganizationTeam, member, activeTeamRef])

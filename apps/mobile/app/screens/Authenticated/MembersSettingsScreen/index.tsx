@@ -17,6 +17,7 @@ import { GLOBAL_STYLE as GS } from "../../../../assets/ts/styles"
 import ChangeRoleModal from "./components/ChangeRoleModal"
 import ConfirmationModal from "../../../components/ConfirmationModal"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
+import { useTeamMemberCard } from "../../../services/hooks/features/useTeamMemberCard"
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSettingsScreen">> = (
 	_props,
@@ -136,6 +137,8 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 
 	const { colors } = useAppTheme()
 
+	const { removeMemberFromTeam } = useTeamMemberCard(selectedMembers[0])
+
 	const reset = () => {
 		setSelectMode(false)
 		setSelectedMembers([])
@@ -160,8 +163,10 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 					reset()
 				}}
 				onConfirm={() => {
+					removeMemberFromTeam()
 					setShowDeleteConfirmation(false)
 					setShowDropdownMenu(false)
+					reset()
 				}}
 				confirmationText="Are you sure you want to remove selected user?"
 			/>
