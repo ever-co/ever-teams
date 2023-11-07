@@ -1,7 +1,15 @@
-import { ReactNode } from 'react';
-import { DragDropContext, Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import { ReactNode, useEffect, useState } from 'react';
+import { DragDropContext, DragDropContextProps, Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProps, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 
 const grid = 8;
+
+const reorder = (list: any[], startIndex:number , endIndex:number ) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+  
+    return result;
+};
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   // some basic styles to make the items look a bit nicer
@@ -27,32 +35,12 @@ type KanbanBoardProps = {
     items: any[]
 }
 
-const reorder = (list: any[], startIndex:number , endIndex:number ) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-  
-    return result;
-};
 
-export const KanbanBoard = ({children, items}: KanbanBoardProps) => {
 
-    
+export const KanbanBoard = ({children}: DragDropContextProps) => {
 
     const onDragEnd = (result: any) => {
-        if (!result.destination) {
-        return;
-      }
-  
-      const allitem = reorder(
-        items,
-        result.source.index,
-        result.destination.index
-      );
-  
-      setItems(
-        allitem
-      );
+     
     }
 
     return (
@@ -66,30 +54,28 @@ export const KanbanBoard = ({children, items}: KanbanBoardProps) => {
     )
 }
 
-type KanbanColumnProps = {
-    droppableId: string,
-    children: ReactNode
-}
-
-export const KanbanColumn = ({ droppableId, children }: KanbanColumnProps) => {
+export const KanbanColumn = ({ children, ...props }: DroppableProps) => {
+    const [enabled, setEnabled] = useState(false);
+  
+    useEffect(() => {
+      const animation = requestAnimationFrame(() => setEnabled(true));
+  
+      return () => {
+        cancelAnimationFrame(animation);
+        setEnabled(false);
+      };
+    }, []);
+  
+    if (!enabled) return null;
+  
     return (
-        <>
-            <Droppable 
-                droppableId={droppableId}
-            >
-                {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-                    <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        style={getListStyle(snapshot.isDraggingOver)}
-                    >
-                        { children }
-                    </div>
-                )}
-            </Droppable>
-        </>
+    <>
+        <Droppable {...props}>
+            {children}
+        </Droppable>
+    </>
     )
-}
+  };
 
 type KanbanCardProps = {
     key: string;
