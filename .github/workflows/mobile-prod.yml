@@ -82,4 +82,6 @@ jobs:
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
 
       - name: Publish to App Store
-        run: EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas submit --platform ios --latest --non-interactive
+        run: eas submit --platform ios --latest --non-interactive
+        env:
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
