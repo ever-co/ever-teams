@@ -81,7 +81,7 @@ jobs:
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
 
-      - name: Publish to App Store
-        run: eas submit --platform ios --latest --non-interactive
+      - name: Deploy to App Store
+        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
         env:
           EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
