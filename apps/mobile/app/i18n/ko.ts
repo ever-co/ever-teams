@@ -117,6 +117,7 @@ const ko: Translations = {
 		manageAssignees: "담당자 관리",
 		setDueDate: "마감일 설정",
 		setStartDate: "시작일 설정",
+		items: "품목",
 	},
 	tasksScreen: {
 		name: "작업",
