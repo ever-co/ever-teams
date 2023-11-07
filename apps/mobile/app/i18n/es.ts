@@ -257,6 +257,9 @@ const es = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "Members & Roles",
+			deleteUserConfirmation: "Are you sure you want to remove selected user?",
+			changeRole: "Change Role",
+			delete: "Delete",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",

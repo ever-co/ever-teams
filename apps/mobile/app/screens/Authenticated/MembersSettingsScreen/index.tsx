@@ -168,7 +168,9 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 					setShowDropdownMenu(false)
 					reset()
 				}}
-				confirmationText="Are you sure you want to remove selected user?"
+				confirmationText={translate(
+					"settingScreen.membersSettingsScreen.deleteUserConfirmation",
+				)}
 			/>
 			{selectedMembers.length === 1 && (
 				<View
@@ -185,7 +187,9 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 							setShowRoleModal(true)
 						}}
 					>
-						<Text style={{ fontSize: 12, color: colors.primary }}>Change Role</Text>
+						<Text style={{ fontSize: 12, color: colors.primary }}>
+							{translate("settingScreen.membersSettingsScreen.changeRole")}
+						</Text>
 					</TouchableOpacity>
 
 					<TouchableOpacity
@@ -194,7 +198,9 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 							setShowDropdownMenu(false)
 						}}
 					>
-						<Text style={{ fontSize: 12, color: colors.primary }}>Edit</Text>
+						<Text style={{ fontSize: 12, color: colors.primary }}>
+							{translate("common.edit")}
+						</Text>
 					</TouchableOpacity>
 
 					<TouchableOpacity
@@ -202,7 +208,9 @@ const MenuDropdown: React.FC<IMenuDropdown> = ({
 							setShowDeleteConfirmation(true)
 						}}
 					>
-						<Text style={{ fontSize: 12, color: "#DA5E5E" }}>Delete</Text>
+						<Text style={{ fontSize: 12, color: "#DA5E5E" }}>
+							{translate("settingScreen.membersSettingsScreen.delete")}
+						</Text>
 					</TouchableOpacity>
 				</View>
 			)}

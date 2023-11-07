@@ -264,6 +264,9 @@ const ar: Translations = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "الأعضاء والأدوار",
+			deleteUserConfirmation: "هل أنت متأكد من رغبتك في إزالة المستخدم المحدد؟",
+			changeRole: "تغيير الدور",
+			delete: "حذف",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",
