@@ -40,14 +40,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 			break;
 		case kanbanView === IssuesView.CARDS:
 			teamMembersView = (
-				<>
-					<TeamMembersCardView
-						teamMembers={$members}
-						currentUser={currentUser}
-						publicTeam={publicTeam}
-						teamsFetching={$teamsFetching}
-					/>
-				</>
+				<TeamMembersCardView
+					teamMembers={$members}
+					currentUser={currentUser}
+					publicTeam={publicTeam}
+					teamsFetching={$teamsFetching}
+				/>
 			);
 			break;
 		case kanbanView === IssuesView.TABLE:
