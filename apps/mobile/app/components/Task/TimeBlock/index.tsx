@@ -1,19 +1,21 @@
 /* eslint-disable camelcase */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
-import { StyleSheet, Text, View } from "react-native"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import React, { useCallback, useEffect, useState } from "react"
 import Accordion from "../../Accordion"
 import { useStores } from "../../../models"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import useAuthenticateUser from "../../../services/hooks/features/useAuthentificateUser"
-import { OT_Member } from "../../../services/interfaces/IOrganizationTeam"
+import { IOrganizationTeamList, OT_Member } from "../../../services/interfaces/IOrganizationTeam"
 import { secondsToTime } from "../../../helpers/date"
 import { ITasksTimesheet } from "../../../services/interfaces/ITimer"
 import TaskRow from "../DetailsBlock/components/TaskRow"
 import { ProgressBar } from "react-native-paper"
 import { ITeamTask } from "../../../services/interfaces/ITask"
+import { Feather } from "@expo/vector-icons"
 import { useAppTheme } from "../../../theme"
+import ProfileInfoWithTime from "../EstimateBlock/components/ProfileInfoWithTime"
 
 export interface ITime {
 	hours: number
@@ -180,16 +182,17 @@ const TimeBlock = () => {
 				{/* Total Group Time */}
 				{/* TODO */}
 				<TaskRow
-					alignItems={true}
 					labelComponent={
-						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
+						<View style={[styles.labelComponent, { marginLeft: 12, marginTop: 3 }]}>
 							<Text style={styles.labelText}>Total Group Time</Text>
 						</View>
 					}
 				>
-					<Text style={[styles.timeValues, { color: colors.primary }]}>
-						{groupTotalTime.hours}h : {groupTotalTime.minutes}m
-					</Text>
+					<TotalGroupTime
+						totalTime={`${groupTotalTime.hours}h : ${groupTotalTime.minutes}m`}
+						task={task}
+						activeTeam={activeTeam}
+					/>
 				</TaskRow>
 				{/* Time Remaining */}
 				<TaskRow
@@ -238,7 +241,77 @@ const Progress: React.FC<IProgress> = ({ task, percent }) => {
 	)
 }
 
+interface ITotalGroupTime {
+	totalTime: string
+	task: ITeamTask
+	activeTeam: IOrganizationTeamList
+}
+
+const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task }) => {
+	const [expanded, setExpanded] = useState(false)
+	const { colors } = useAppTheme()
+
+	function toggleItem() {
+		setExpanded(!expanded)
+	}
+
+	const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
+		task?.members.some((taskMember) => taskMember.id === member.employeeId),
+	)
+
+	const findUserTotalWorked = (user: OT_Member, id: string | undefined) => {
+		return user?.totalWorkedTasks.find((task: any) => task?.id === id)?.duration || 0
+	}
+
+	return (
+		<View style={[styles.accordContainer, { backgroundColor: colors.background }]}>
+			<TouchableOpacity style={styles.accordHeader} onPress={toggleItem}>
+				<Text style={[styles.accordTitle, { color: colors.primary }]}>{totalTime}</Text>
+				<Feather
+					name={expanded ? "chevron-up" : "chevron-down"}
+					size={20}
+					color={colors.primary}
+				/>
+			</TouchableOpacity>
+			{expanded && <View style={{ marginBottom: 5 }} />}
+			<View style={{ gap: 7 }}>
+				{expanded &&
+					matchingMembers?.map((member, idx) => {
+						const taskDurationInSeconds = findUserTotalWorked(member, task?.id)
+
+						const { h, m } = secondsToTime(taskDurationInSeconds)
+
+						const time = `${h}h : ${m}m`
+
+						return (
+							<ProfileInfoWithTime
+								key={idx}
+								names={member?.employee?.fullName}
+								profilePicSrc={member?.employee?.user?.imageUrl}
+								userId={member?.employee?.userId}
+								time={time}
+							/>
+						)
+					})}
+			</View>
+		</View>
+	)
+}
+
 const styles = StyleSheet.create({
+	accordContainer: {
+		paddingRight: 12,
+		width: "100%",
+	},
+	accordHeader: {
+		alignItems: "center",
+		flexDirection: "row",
+		justifyContent: "space-between",
+	},
+	accordTitle: {
+		fontSize: 12,
+		fontWeight: "600",
+	},
 	labelComponent: {
 		alignItems: "center",
 		flexDirection: "row",
@@ -249,5 +322,5 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 	},
 	progressBar: { backgroundColor: "#E9EBF8", borderRadius: 3, height: 6, width: "100%" },
-	timeValues: { fontSize: 12, fontWeight: "500" },
+	timeValues: { fontSize: 12, fontWeight: "600" },
 })
