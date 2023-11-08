@@ -1,8 +1,19 @@
+const path = require('path');
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+	output: process.env.NEXT_BUILD_OUTPUT_TYPE === 'standalone' ? 'standalone' : undefined,
 	reactStrictMode: true,
 	swcMinify: true,
+	webpack: (config, { isServer }) => {
+		config.resolve.alias['@app'] = path.join(__dirname, 'app');
+		config.resolve.alias['@components'] = path.join(__dirname, 'components');
+		config.resolve.alias['app'] = path.join(__dirname, 'app');
+		config.resolve.alias['components'] = path.join(__dirname, 'components');
+		config.resolve.alias['lib'] = path.join(__dirname, 'lib');
+		return config;
+	},
 	images: {
 		domains: [
 			'dummyimage.com',
@@ -14,9 +25,6 @@ const nextConfig = {
 			'apistage.gauzy.co',
 			'gauzy.s3.wasabisys.com'
 		]
-	},
-	experimental: {
-		appDir: true
 	}
 };
 

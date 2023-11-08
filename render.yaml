@@ -1,0 +1,77 @@
+services:
+    - type: web
+      runtime: node
+      env: node
+      name: ever-teams-web
+      region: oregon
+      branch: develop
+      rootDir: ./apps/web
+      buildCommand: yarn; yarn build
+      startCommand: yarn start
+      envVars:
+          - key: RECOIL_DUPLICATE_ATOM_KEY_CHECKING_ENABLED
+            value: false
+          - key: NEXT_PUBLIC_GAUZY_API_SERVER_URL
+            value: https://api.gauzy.co
+          - key: GAUZY_API_SERVER_URL
+            value: https://api.gauzy.co/api
+          - key: NEXT_PUBLIC_GA_MEASUREMENT_ID
+            sync: false
+          - key: NEXT_PUBLIC_CAPTCHA_SITE_KEY
+            sync: false
+          - key: CAPTCHA_SECRET_KEY
+            sync: false
+          - key: INVITE_CALLBACK_URL
+            value: https://app.ever.team/auth/passcode
+          - key: VERIFY_EMAIL_CALLBACK_URL
+            value: https://app.ever.team/verify-email
+          - key: SMTP_FROM_ADDRESS
+            value: noreply@ever.team
+          - key: SMTP_HOST
+            sync: false
+          - key: SMTP_PORT
+            sync: false
+          - key: SMTP_SECURE
+            sync: false
+          - key: SMTP_USERNAME
+            sync: false
+          - key: SMTP_PASSWORD
+            sync: false
+          - key: NEXT_PUBLIC_DISABLE_AUTO_REFRESH
+            value: false
+          - key: APP_NAME
+            value: 'Ever Teams'
+          - key: APP_SIGNATURE
+            value: 'Ever Teams'
+          - key: APP_LOGO_URL
+            value: 'https://app.ever.team/assets/ever-teams.png'
+          - key: NEXT_PUBLIC_COOKIE_DOMAINS
+            value: ever.team
+          - key: NEXT_PUBLIC_BOARD_APP_DOMAIN
+            value: https://board.ever.team
+          - key: NEXT_PUBLIC_BOARD_BACKEND_POST_URL
+            value: 'https://jsonboard.ever.team/api/v2/post/'
+          - key: NEXT_PUBLIC_BOARD_FIREBASE_CONFIG
+            sync: false
+          - key: NEXT_PUBLIC_MEET_DOMAIN
+            value: 'meet.ever.team'
+          - key: MEET_JWT_APP_ID
+            value: ever_teams
+          - key: MEET_JWT_APP_SECRET
+            sync: false
+          - key: SENTRY_ORG
+            value: ever-co
+          - key: SENTRY_PROJECT
+            value: ever-teams-web
+          - key: NEXT_PUBLIC_SENTRY_DNS
+            sync: false
+          - key: NEXT_PUBLIC_SENTRY_DEBUG
+            value: false
+          - key: JITSU_BROWSER_URL
+            sync: false
+          - key: JITSU_BROWSER_WRITE_KEY
+            sync: false
+          - key: NEXT_PUBLIC_GITHUB_APP_NAME
+            value: ever-github
+          - key: NEXT_PUBLIC_CHATWOOT_API_KEY
+            sync: false

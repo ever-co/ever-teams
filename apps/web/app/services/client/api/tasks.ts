@@ -1,10 +1,10 @@
-import { CreateReponse, DeleteReponse, PaginationResponse } from '@app/interfaces/IDataResponse';
+import { CreateResponse, DeleteResponse, PaginationResponse } from '@app/interfaces/IDataResponse';
 import { ICreateTask, ITeamTask } from '@app/interfaces/ITask';
 import { ITasksTimesheet } from '@app/interfaces/ITimer';
 import api from '../axios';
 
 export function getTasksByIdAPI(taskId: string) {
-	return api.get<CreateReponse<ITeamTask>>(`/tasks/${taskId}`);
+	return api.get<CreateResponse<ITeamTask>>(`/tasks/${taskId}`);
 }
 
 export function getTeamTasksAPI() {
@@ -12,7 +12,7 @@ export function getTeamTasksAPI() {
 }
 
 export function deleteTaskAPI(taskId: string) {
-	return api.delete<DeleteReponse>(`/tasks/${taskId}`);
+	return api.delete<DeleteResponse>(`/tasks/${taskId}`);
 }
 
 export function updateTaskAPI(taskId: string, body: Partial<ITeamTask>) {
@@ -40,5 +40,5 @@ export function allTaskTimesheetStatisticsAPI() {
 }
 
 export function deleteEmployeeFromTasksAPI(employeeId: string, organizationTeamId: string) {
-	return api.delete<DeleteReponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
+	return api.delete<DeleteResponse>(`/tasks/employee/${employeeId}?organizationTeamId=${organizationTeamId}`);
 }

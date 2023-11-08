@@ -1,4 +1,4 @@
-import { smtpConfiguration } from '@app/constants';
+import { RECAPTCHA_SITE_KEY, smtpConfiguration } from '@app/constants';
 import { IRegisterDataAPI } from '@app/interfaces/IAuthentication';
 import { I_SMTPRequest } from '@app/interfaces/ISmtp';
 import { PHONE_REGEX, URL_REGEX } from './regex';
@@ -23,8 +23,11 @@ export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegi
 				}
 				break;
 			case 'recaptcha':
-				if (values['recaptcha'].trim().length < 2) {
-					err['recaptcha'] = 'Please check the ReCaptcha checkbox before continue';
+				if(RECAPTCHA_SITE_KEY) {
+					if (!values['recaptcha'] || values['recaptcha'].trim().length < 2) {
+						err['recaptcha'] =
+							'Please check the ReCaptcha checkbox before continue';
+					}
 				}
 				break;
 			case 'team':
@@ -39,7 +42,6 @@ export const authFormValidate = (keys: (keyof IRegisterDataAPI)[], values: IRegi
 				break;
 		}
 	});
-
 	return {
 		valid: Object.keys(err).length === 0,
 		errors: err

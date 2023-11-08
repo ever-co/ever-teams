@@ -478,10 +478,9 @@
 	},
 	"layout": {
 		"footer": {
-			"RIGHTS_RESERVERD": "Tous droits réservés.",
+			"RIGHTS_RESERVED": "Tous droits réservés.",
 			"COPY_RIGHT1": "© {{date}} à nos jours,",
-			"COPY_RIGHT2": "Ever Teams ",
-			"COPY_RIGHT3": "Gauzy Teams",
+			"COPY_RIGHT2": "Ever Teams",
 			"COPY_RIGHT4": "Ever Co.",
 			"COMPANY_NAME": "Ever Co. LTD.",
 			"TERMS": "Conditions d'utilisation",

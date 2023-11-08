@@ -14,6 +14,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    environment: prod
+
     permissions:
       contents: read
 
@@ -48,7 +50,38 @@ jobs:
           yarn build:mobile
 
       - name: Build on EAS
-        run: cd apps/mobile && eas build --platform android --non-interactive
+        run: cd apps/mobile && eas build --platform all --non-interactive
 
       - name: Publish update
         run: cd apps/mobile && eas update --auto
+
+      - name: Decode Google Credentials
+        run: |
+          DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
+          echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
+          echo "::add-mask::$DECODED_GOOGLE_CREDENTIALS"
+          ESCAPED_GOOGLE_CREDENTIALS=$(echo "$DECODED_GOOGLE_CREDENTIALS" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+          ESCAPED_GOOGLE_CREDENTIALS=$(echo $ESCAPED_GOOGLE_CREDENTIALS | sed 's/\\n/\\\\n/g')
+          echo "ESCAPED_GOOGLE_CREDENTIALS=$ESCAPED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
+          echo "::add-mask::$ESCAPED_GOOGLE_CREDENTIALS"
+
+      # See https://github.com/ever-co/ever-teams-boards-store/blob/develop/.github/workflows/deploy.yml
+
+      - name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
+
+      # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
+        with:
+          project_id: "ever-teams-399720"
+
+      - name: Upload to Play Store Console
+        run: cd apps/mobile && eas submit --platform android --latest --non-interactive
+
+      - name: Deploy to App Store
+        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
+        env:
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}

@@ -20,5 +20,17 @@
     "production": {
       "channel": "production"
     }
+  },
+  "submit":{
+    "production":{
+      "android":{
+        "track":"internal",
+        "releaseStatus":"draft",
+        "changesNotSentForReview":false
+      },
+      "ios":{
+        "ascAppId":"6471266037"
+      }
+    }
   }
 }

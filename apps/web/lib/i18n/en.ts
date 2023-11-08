@@ -1,6 +1,7 @@
 export const en = {
 	TITLE: 'Ever Teams',
 	common: {
+		COPY_NUMBER: 'Copy Number',
 		VERIFY: 'verify',
 		PLEASE: 'please',
 		HERE: 'here',
@@ -365,7 +366,7 @@ export const en = {
 
 	layout: {
 		footer: {
-			RIGHTS_RESERVERD: 'All rights reserved.'
+			RIGHTS_RESERVED: 'All rights reserved.'
 		}
 	},
 

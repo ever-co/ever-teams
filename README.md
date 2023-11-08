@@ -132,17 +132,21 @@ WIP
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fever-co%2Fever-teams&project-name=ever-teams&repository-name=ever-teams&output-directory=.next&build-command=yarn%20build&install-command=yarn%20install%20--frozen-lockfile&root-directory=apps%2Fweb)
 
-### Railway
-
-Note: WIP
-
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/EverTeams)
-
 ### Render
 
-Note: WIP
-
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/ever-co/ever-teams)
+
+### Railway
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/7_OfzR?referralCode=40jeja)
+
+### Fly
+
+[![Deploy on Railway](https://ever.team/fly.png)](https://github.com/ever-co/ever-teams/wiki/Deploy-to-Fly)
+
+### Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ever-co/ever-teams)
 
 ## 📄 Content
 
@@ -166,8 +170,8 @@ Note: WIP
 
 ## 🔐 Security
 
-Ever Teams Platform follows good security practices, but 100% security cannot be guaranteed in any software!
-Ever Teams Platform is provided AS IS without any warranty. Use at your own risk!
+**Ever Teams Platform** follows good security practices, but 100% security cannot be guaranteed in any software!
+**Ever Teams Platform** is provided AS IS without any warranty. Use at your own risk!
 See more details in the [LICENSE.md](LICENSE.md).
 
 In a production setup, all client-side to server-side (backend, APIs) communications should be encrypted using HTTPS/WSS/SSL (REST APIs, GraphQL endpoint, Socket.io WebSockets, etc.).
@@ -241,7 +245,7 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 [![Circle CI](https://circleci.com/gh/ever-co/ever-teams.svg?style=svg)](https://circleci.com/gh/ever-co/ever-teams)
 [![codecov](https://codecov.io/gh/ever-co/ever-teams/branch/master/graph/badge.svg)](https://codecov.io/gh/ever-co/ever-teams)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8c46f9eb9df64aa9859dea4d572059ac)](https://www.codacy.com/gh/ever-co/ever-teams/dashboard?utm_source=github.com&utm_medium=referral&utm_content=ever-co/ever-teams&utm_campaign=Badge_Grade)
-[![DeepScan grade](https://deepscan.io/api/teams/3293/projects/16703/branches/363423/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3293&pid=16703&bid=363423)
+[![DeepScan grade](https://deepscan.io/api/teams/3293/projects/25855/branches/814579/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3293&pid=25855&bid=814579)
 [![Known Vulnerabilities](https://snyk.io/test/github/ever-co/ever-teams/badge.svg)](https://snyk.io/test/github/ever-co/ever-teams)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/ever-co/ever-teams.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ever-co/ever-teams/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/ever-co/ever-teams.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/ever-co/ever-teams/context:javascript)
