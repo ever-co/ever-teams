@@ -34,9 +34,5 @@
 		"host_permissions": [
 			"https://*/*"
 		]
-	},
-	"engines": {
-		"node": ">=16.0.0",
-		"yarn": ">=1.13.0"
 	}
 }
