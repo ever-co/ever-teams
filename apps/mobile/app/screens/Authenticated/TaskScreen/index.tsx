@@ -9,6 +9,7 @@ import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 import TaskTitleBlock from "../../../components/Task/TitleBlock"
 import DetailsBlock from "../../../components/Task/DetailsBlock"
 import { translate } from "../../../i18n"
+import EstimateBlock from "../../../components/Task/EstimateBlock"
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScreen">> = (
 	_props,
@@ -52,6 +53,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 					>
 						<TaskTitleBlock />
 						<DetailsBlock />
+						<EstimateBlock />
 					</ScrollView>
 				</View>
 			</View>
