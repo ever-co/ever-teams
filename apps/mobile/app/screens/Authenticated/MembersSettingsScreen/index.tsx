@@ -3,7 +3,11 @@
 /* eslint-disable react-native/no-color-literals */
 import { View, Text, ViewStyle, TouchableOpacity, StyleSheet } from "react-native"
 import React, { FC, SetStateAction, useState } from "react"
-import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
+import {
+	AuthenticatedDrawerScreenProps,
+	DrawerNavigationProp,
+	SettingScreenNavigationProp,
+} from "../../../navigators/AuthenticatedNavigator"
 import { Screen } from "../../../components"
 import { typography, useAppTheme } from "../../../theme"
 import { AntDesign, Feather } from "@expo/vector-icons"
@@ -18,12 +22,13 @@ import ChangeRoleModal from "./components/ChangeRoleModal"
 import ConfirmationModal from "../../../components/ConfirmationModal"
 import { useOrganizationTeam } from "../../../services/hooks/useOrganization"
 import { useTeamMemberCard } from "../../../services/hooks/features/useTeamMemberCard"
+import { useNavigation } from "@react-navigation/native"
 
 export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSettingsScreen">> = (
 	_props,
 ) => {
 	const { colors, dark } = useAppTheme()
-	const { navigation } = _props
+	// const { navigation } = _props
 	const { isTeamManager } = useOrganizationTeam()
 
 	const {
@@ -34,6 +39,9 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 	const [showDropdownMenu, setShowDropdownMenu] = useState<boolean>(false)
 	const [selectedMembers, setSelectedMembers] = useState<OT_Member[]>([])
 	const [isNameEditMode, setIsNameEditMode] = useState<boolean>(false)
+
+	const navigation = useNavigation<SettingScreenNavigationProp<"Profile">>()
+	const alternateNavigation = useNavigation<DrawerNavigationProp<"AuthenticatedTab">>()
 
 	const addOrRemoveToSelectedList = (member: OT_Member): void => {
 		if (selectMode) {
@@ -49,6 +57,14 @@ export const MembersSettingsScreen: FC<AuthenticatedDrawerScreenProps<"MembersSe
 					setShowDropdownMenu(false)
 				}
 			}
+		} else {
+			alternateNavigation.navigate("AuthenticatedTab")
+			setTimeout(() => {
+				navigation.navigate("Profile", {
+					userId: member?.employee?.userId,
+					activeTab: "worked",
+				})
+			}, 50)
 		}
 	}
 

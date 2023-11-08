@@ -62,6 +62,7 @@ const MembersList: React.FC<IMembersList> = ({
 			</View>
 
 			<FlatList
+				bounces={false}
 				data={membersList}
 				renderItem={({ item }) => (
 					<MemberCard
