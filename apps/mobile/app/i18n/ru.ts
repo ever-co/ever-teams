@@ -117,6 +117,11 @@ const ru = {
 		items: "Items",
 		estimate: "Estimate",
 		estimations: "Estimations",
+		time: "Time",
+		progress: "Progress",
+		timeToday: "Time Today",
+		totalGroupTime: "Total Group Time",
+		timeRemaining: "Time Remaining",
 	},
 	tasksScreen: {
 		name: "Tasks",

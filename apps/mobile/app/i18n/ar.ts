@@ -121,6 +121,11 @@ const ar: Translations = {
 		items: "أغراض",
 		estimate: "تقدير",
 		estimations: "التقديرات",
+		time: "الوقت",
+		progress: "التقدم",
+		timeToday: "الوقت اليوم",
+		totalGroupTime: "إجمالي وقت المجموعة",
+		timeRemaining: "الوقت المتبقي",
 	},
 	tasksScreen: {
 		name: "مهام",

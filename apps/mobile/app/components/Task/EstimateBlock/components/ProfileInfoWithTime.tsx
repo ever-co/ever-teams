@@ -18,6 +18,7 @@ interface IProfileInfo {
 	userId?: string
 	largerProfileInfo?: boolean
 	estimationsBlock?: boolean
+	time?: string
 }
 
 const ProfileInfoWithTime: React.FC<IProfileInfo> = ({
@@ -25,6 +26,7 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({
 	names,
 	userId,
 	largerProfileInfo,
+	time,
 }) => {
 	const { colors } = useAppTheme()
 
@@ -38,7 +40,13 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({
 		}, 50)
 	}
 	return (
-		<View style={{ flexDirection: "row", justifyContent: "space-between", paddingRight: 12 }}>
+		<View
+			style={{
+				flexDirection: "row",
+				justifyContent: "space-between",
+				paddingRight: !time && 12,
+			}}
+		>
 			<TouchableOpacity onPress={userId && navigateToProfile} style={styles.container}>
 				{profilePicSrc ? (
 					<Avatar.Image
@@ -68,7 +76,15 @@ const ProfileInfoWithTime: React.FC<IProfileInfo> = ({
 					})}
 				</Text>
 			</TouchableOpacity>
-			<Text style={{ fontSize: 12, fontWeight: "600", color: "#938FA3" }}>6 h: 40 m</Text>
+			<Text
+				style={{
+					fontSize: 12,
+					fontWeight: "600",
+					color: time ? colors.primary : "#938FA3",
+				}}
+			>
+				{time ? time : "6 h: 40 m"}
+			</Text>
 		</View>
 	)
 }
