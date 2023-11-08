@@ -115,6 +115,8 @@ const bg = {
 		setDueDate: "Set Due Date",
 		setStartDate: "Set Start Date",
 		items: "Items",
+		estimate: "Estimate",
+		estimations: "Estimations",
 	},
 	tasksScreen: {
 		name: "Tasks",

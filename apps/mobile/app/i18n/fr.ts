@@ -118,6 +118,8 @@ const fr = {
 		setDueDate: "Définir la date d'échéance",
 		setStartDate: "Définir la date de début",
 		items: "Articles",
+		estimate: "Estimation",
+		estimations: "Estimations",
 	},
 	tasksScreen: {
 		name: "Tâches",
