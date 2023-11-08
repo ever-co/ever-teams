@@ -2,7 +2,7 @@ import { useIntegrationTenant, useIntegrationTypes } from '@app/hooks';
 import { useGitHubIntegration } from '@app/hooks/integrations/useGitHubIntegration';
 import { withAuthentication } from 'lib/app/authenticator';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 const GitHub = () => {
 	const router = useRouter();
@@ -20,7 +20,7 @@ const GitHub = () => {
 	// const queries = new URLSearchParams(params || {});
 	// const url = `https://github.com/apps/badal-ever-testing-probot/installations/new?${queries.toString()}`;
 
-	useEffect(() => {
+	const handleInstallGitHub = useCallback(() => {
 		if (router && router.query.installation_id && router.query.setup_action) {
 			setTimeout(() => {
 				installGitHub(router.query.installation_id as string, router.query.setup_action as string).then(() => {
@@ -29,6 +29,10 @@ const GitHub = () => {
 			}, 100);
 		}
 	}, [installGitHub, router]);
+
+	useEffect(() => {
+		return () => handleInstallGitHub();
+	}, [handleInstallGitHub]);
 
 	useEffect(() => {
 		if (!integrationTenantLoading && integrationTenant && integrationTenant.length && integrationTenant[0]?.id) {
