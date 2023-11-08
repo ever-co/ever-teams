@@ -27,6 +27,9 @@
         "track":"internal",
         "releaseStatus":"draft",
         "changesNotSentForReview":false
+      },
+      "ios":{
+        "ascAppId":"6471266037"
       }
     }
   }

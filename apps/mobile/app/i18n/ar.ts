@@ -118,6 +118,7 @@ const ar: Translations = {
 		manageAssignees: "إدارة المكلفين",
 		setDueDate: "تحديد تاريخ الاستحقاق",
 		setStartDate: "تحديد تاريخ البدء",
+		items: "أغراض",
 	},
 	tasksScreen: {
 		name: "مهام",

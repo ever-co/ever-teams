@@ -114,6 +114,7 @@ const he = {
 		manageAssignees: "Manage Assignees",
 		setDueDate: "Set Due Date",
 		setStartDate: "Set Start Date",
+		items: "Items",
 	},
 	tasksScreen: {
 		name: "Tasks",
