@@ -29,7 +29,8 @@
         "changesNotSentForReview":false
       },
       "ios":{
-        "ascAppId":"6471266037"
+        "ascAppId":"6471266037",
+        "appleId":"6471266037"
       }
     }
   }
