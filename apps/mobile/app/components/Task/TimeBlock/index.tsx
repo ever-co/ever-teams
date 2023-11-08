@@ -16,6 +16,7 @@ import { ITeamTask } from "../../../services/interfaces/ITask"
 import { Feather } from "@expo/vector-icons"
 import { useAppTheme } from "../../../theme"
 import ProfileInfoWithTime from "../EstimateBlock/components/ProfileInfoWithTime"
+import { translate } from "../../../i18n"
 
 export interface ITime {
 	hours: number
@@ -140,14 +141,16 @@ const TimeBlock = () => {
 	}
 
 	return (
-		<Accordion title="Time">
+		<Accordion title={translate("taskDetailsScreen.time")}>
 			<View style={{ paddingBottom: 12, gap: 12 }}>
 				{/* Progress Bar */}
 				<TaskRow
 					alignItems={true}
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>Progress</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.progress")}
+							</Text>
 						</View>
 					}
 				>
@@ -158,7 +161,9 @@ const TimeBlock = () => {
 					alignItems={true}
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>Total Time</Text>
+							<Text style={styles.labelText}>
+								{translate("tasksScreen.totalTimeLabel")}
+							</Text>
 						</View>
 					}
 				>
@@ -171,7 +176,9 @@ const TimeBlock = () => {
 					alignItems={true}
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>Time Today</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.timeToday")}
+							</Text>
 						</View>
 					}
 				>
@@ -184,7 +191,9 @@ const TimeBlock = () => {
 				<TaskRow
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12, marginTop: 3 }]}>
-							<Text style={styles.labelText}>Total Group Time</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.totalGroupTime")}
+							</Text>
 						</View>
 					}
 				>
@@ -199,7 +208,9 @@ const TimeBlock = () => {
 					alignItems={true}
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>Time Remaining</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.timeRemaining")}
+							</Text>
 						</View>
 					}
 				>
@@ -221,14 +232,7 @@ interface IProgress {
 
 const Progress: React.FC<IProgress> = ({ task, percent }) => {
 	return (
-		<View
-			style={{
-				paddingRight: 12,
-				flexDirection: "row",
-				justifyContent: "space-between",
-				alignItems: "center",
-			}}
-		>
+		<View style={styles.progressBarContainer}>
 			<View style={{ width: "79%" }}>
 				<ProgressBar
 					style={styles.progressBar}
@@ -322,5 +326,11 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 	},
 	progressBar: { backgroundColor: "#E9EBF8", borderRadius: 3, height: 6, width: "100%" },
+	progressBarContainer: {
+		alignItems: "center",
+		flexDirection: "row",
+		justifyContent: "space-between",
+		paddingRight: 12,
+	},
 	timeValues: { fontSize: 12, fontWeight: "600" },
 })

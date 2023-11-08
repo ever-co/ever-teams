@@ -120,6 +120,11 @@ const ko: Translations = {
 		items: "품목",
 		estimate: "견적",
 		estimations: "견적들",
+		time: "시간",
+		progress: "진행",
+		timeToday: "오늘의 시간",
+		totalGroupTime: "총 그룹 시간",
+		timeRemaining: "남은 시간",
 	},
 	tasksScreen: {
 		name: "작업",
