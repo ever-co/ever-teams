@@ -64,6 +64,19 @@ const TimeBlock = () => {
 		userTotalTimeOnTask()
 	}, [userTotalTimeOnTask])
 
+	const userTotalTimeOnTaskToday = useCallback((): void => {
+		const totalOnTaskInSeconds: number =
+			currentUser?.totalTodayTasks?.find((object) => object.id === task?.id)?.duration || 0
+
+		const { h, m } = secondsToTime(totalOnTaskInSeconds)
+
+		setUserTotalTimeToday({ hours: h, minutes: m })
+	}, [currentUser?.totalTodayTasks, task?.id])
+
+	useEffect(() => {
+		userTotalTimeOnTaskToday()
+	}, [userTotalTimeOnTaskToday])
+
 	useEffect(() => {
 		const matchingMembers: OT_Member[] | undefined = activeTeam?.members.filter((member) =>
 			task?.members.some((taskMember) => taskMember.id === member.employeeId),
