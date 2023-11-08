@@ -122,7 +122,19 @@ export const KanbanView = ({ itemsArray, columns }: { itemsArray: any[], columns
                                       isDraggingFrom={Boolean(snapshot.draggingFromThisWith)}
                                       {...provided.droppableProps}
                                   >
-                                    {item.content}
+                                    {items.map((item, index) => (
+                                      <Draggable draggableId={item.status.id} index={index} key={item.status.id}>
+                                        {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                                          <div
+                                              ref={provided.innerRef}
+                                              {...provided.draggableProps}
+                                              {...provided.dragHandleProps}
+
+                                          >
+                                            {item.content}
+                                          </div>)}
+                                      </Draggable>
+                                    ))}
                                     {provided.placeholder}
                                 </div>
                               )}
