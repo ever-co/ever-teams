@@ -271,6 +271,9 @@ const ko: Translations = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "Members & Roles",
+			deleteUserConfirmation: "선택한 사용자를 삭제하시겠습니까?",
+			changeRole: "역할 변경",
+			delete: "삭제",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",

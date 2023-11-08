@@ -270,6 +270,9 @@ const fr = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "Membres et rôles",
+			deleteUserConfirmation: "Êtes-vous sûr de vouloir supprimer l'utilisateur sélectionné?",
+			changeRole: "Changer le rôle",
+			delete: "Supprimer",
 		},
 		changeAvatar: {
 			recentPictures: "Photos récentes",
