@@ -154,9 +154,9 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		taskEdition.setEstimateEditMode(false)
 		props.setOpenMenuIndex(null)
 
-		if (memberInfo?.memberTask && props.canNavigate) {
+		if (memberInfo.memberTask && props.canNavigate) {
 			isTaskScreen
-				? navigation.navigate("TaskScreen", { taskId: memberInfo?.memberTask?.id })
+				? navigation.navigate("TaskScreen", { taskId: memberInfo.memberTask?.id })
 				: navigation.navigate("Profile", {
 						userId: memberInfo.memberUser.id,
 						activeTab: "worked",
