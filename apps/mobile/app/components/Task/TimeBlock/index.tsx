@@ -13,6 +13,7 @@ import { ITasksTimesheet } from "../../../services/interfaces/ITimer"
 import TaskRow from "../DetailsBlock/components/TaskRow"
 import { ProgressBar } from "react-native-paper"
 import { ITeamTask } from "../../../services/interfaces/ITask"
+import { useAppTheme } from "../../../theme"
 
 export interface ITime {
 	hours: number
@@ -25,6 +26,7 @@ const TimeBlock = () => {
 	} = useStores()
 	const { currentTeam: activeTeam } = useOrganizationTeam()
 	const { user } = useAuthenticateUser()
+	const { colors } = useAppTheme()
 
 	const [userTotalTime, setUserTotalTime] = useState<ITime>({
 		hours: 0,
@@ -124,7 +126,8 @@ const TimeBlock = () => {
 
 	return (
 		<Accordion title="Time">
-			<View style={{ paddingBottom: 12 }}>
+			<View style={{ paddingBottom: 12, gap: 12 }}>
+				{/* Progress Bar */}
 				<TaskRow
 					alignItems={true}
 					labelComponent={
@@ -134,6 +137,59 @@ const TimeBlock = () => {
 					}
 				>
 					<Progress task={task} percent={getTimePercentage} />
+				</TaskRow>
+				{/* Total Time */}
+				<TaskRow
+					alignItems={true}
+					labelComponent={
+						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
+							<Text style={styles.labelText}>Total Time</Text>
+						</View>
+					}
+				>
+					<Text style={[styles.timeValues, { color: colors.primary }]}>
+						{userTotalTime.hours}h : {userTotalTime.minutes}m
+					</Text>
+				</TaskRow>
+				{/* Total Time Today */}
+				<TaskRow
+					alignItems={true}
+					labelComponent={
+						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
+							<Text style={styles.labelText}>Time Today</Text>
+						</View>
+					}
+				>
+					<Text style={[styles.timeValues, { color: colors.primary }]}>
+						{userTotalTimeToday.hours}h : {userTotalTimeToday.minutes}m
+					</Text>
+				</TaskRow>
+				{/* Total Group Time */}
+				{/* TODO */}
+				<TaskRow
+					alignItems={true}
+					labelComponent={
+						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
+							<Text style={styles.labelText}>Total Group Time</Text>
+						</View>
+					}
+				>
+					<Text style={[styles.timeValues, { color: colors.primary }]}>
+						{groupTotalTime.hours}h : {groupTotalTime.minutes}m
+					</Text>
+				</TaskRow>
+				{/* Time Remaining */}
+				<TaskRow
+					alignItems={true}
+					labelComponent={
+						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
+							<Text style={styles.labelText}>Time Remaining</Text>
+						</View>
+					}
+				>
+					<Text style={[styles.timeValues, { color: colors.primary }]}>
+						{timeRemaining.hours}h : {timeRemaining.minutes}m
+					</Text>
 				</TaskRow>
 			</View>
 		</Accordion>
@@ -180,4 +236,5 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 	},
 	progressBar: { backgroundColor: "#E9EBF8", borderRadius: 3, height: 6, width: "100%" },
+	timeValues: { fontSize: 12, fontWeight: "500" },
 })
