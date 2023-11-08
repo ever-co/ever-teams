@@ -7,6 +7,7 @@ import TaskRow from "../DetailsBlock/components/TaskRow"
 import { useStores } from "../../../models"
 import ProfileInfoWithTime from "./components/ProfileInfoWithTime"
 import { useAppTheme } from "../../../theme"
+import { translate } from "../../../i18n"
 
 const EstimateBlock = () => {
 	const {
@@ -15,12 +16,14 @@ const EstimateBlock = () => {
 
 	const { colors } = useAppTheme()
 	return (
-		<Accordion title={"Estimate"}>
+		<Accordion title={translate("taskDetailsScreen.estimate")}>
 			<View style={{ paddingBottom: 12 }}>
 				<TaskRow
 					labelComponent={
 						<View style={[styles.labelComponent, { marginLeft: 12 }]}>
-							<Text style={styles.labelText}>Estimations</Text>
+							<Text style={styles.labelText}>
+								{translate("taskDetailsScreen.estimations")}
+							</Text>
 						</View>
 					}
 				>
