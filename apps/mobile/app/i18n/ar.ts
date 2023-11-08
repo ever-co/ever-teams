@@ -119,6 +119,8 @@ const ar: Translations = {
 		setDueDate: "تحديد تاريخ الاستحقاق",
 		setStartDate: "تحديد تاريخ البدء",
 		items: "أغراض",
+		estimate: "تقدير",
+		estimations: "التقديرات",
 	},
 	tasksScreen: {
 		name: "مهام",

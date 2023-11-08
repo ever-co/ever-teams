@@ -118,6 +118,8 @@ const ko: Translations = {
 		setDueDate: "마감일 설정",
 		setStartDate: "시작일 설정",
 		items: "품목",
+		estimate: "견적",
+		estimations: "견적들",
 	},
 	tasksScreen: {
 		name: "작업",
