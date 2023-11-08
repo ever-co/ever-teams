@@ -118,6 +118,11 @@ const en = {
 		items: "Items",
 		estimate: "Estimate",
 		estimations: "Estimations",
+		time: "Time",
+		progress: "Progress",
+		timeToday: "Time Today",
+		totalGroupTime: "Total Group Time",
+		timeRemaining: "Time Remaining",
 	},
 	tasksScreen: {
 		name: "Tasks",
@@ -264,6 +269,9 @@ const en = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "Members & Roles",
+			deleteUserConfirmation: "Are you sure you want to remove selected user?",
+			changeRole: "Change Role",
+			delete: "Delete",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",

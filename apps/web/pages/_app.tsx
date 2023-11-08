@@ -18,9 +18,10 @@ import i18n from '../ni18n.config';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	const isJitsuEnvsPresent = jitsuConfiguration.host && jitsuConfiguration.writeKey;
+	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
+
 	return (
 		<>
-			
 			{GA_MEASUREMENT_ID && (
 				<>
 					<Script
@@ -35,11 +36,12 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 				</Script>
 				</>
 			)}
-			
+
 			<Head>
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 			</Head>
+
 			<JitsuProvider
 				options={
 					isJitsuEnvsPresent
