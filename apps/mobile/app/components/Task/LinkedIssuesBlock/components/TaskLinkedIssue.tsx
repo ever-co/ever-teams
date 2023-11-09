@@ -10,6 +10,8 @@ import {
 import IssuesModal from "../../../IssuesModal"
 import TaskStatus from "../../../TaskStatus"
 import { translate } from "../../../../i18n"
+import ActionTypesModal from "./ActionTypesModal"
+import { limitTextCharaters } from "../../../../helpers/sub-text"
 
 interface ITaskLinkedIssue {
 	task: ITeamTask
@@ -37,26 +39,43 @@ const TaskLinkedIssue: React.FC<ITaskLinkedIssue> = ({ task, issue, relatedTaskM
 				<Text style={{ fontSize: 8, fontWeight: "600", color: "#BAB8C4", marginLeft: 6 }}>
 					#{task?.number}-
 				</Text>
-				<Text style={{ fontSize: 10, fontWeight: "600" }}>{task?.title}</Text>
+				<Text style={{ fontSize: 10, fontWeight: "600" }}>
+					{limitTextCharaters({
+						text: task?.title,
+						numChars: relatedTaskModal ? 23 : 30,
+					})}
+				</Text>
 			</TouchableOpacity>
-			{relatedTaskModal && issue && (
-				<Text style={{ fontSize: 8 }}>{actionType.data.name}</Text>
-			)}
-			<TaskStatus
-				labelOnly={true}
-				task={task}
-				containerStyle={{
-					...styles.taskStatus,
-					borderWidth: !task?.status ? 1 : 0,
+			<View
+				style={{
+					flexDirection: "row",
+					alignItems: "center",
+					gap: 4,
 				}}
-			/>
+			>
+				{relatedTaskModal && issue && (
+					<ActionTypesModal
+						actionItems={actionTypeItems}
+						actionType={actionType}
+						onChange={onChange}
+					/>
+				)}
+				<TaskStatus
+					labelOnly={true}
+					task={task}
+					containerStyle={{
+						...styles.taskStatus,
+						borderWidth: !task?.status ? 1 : 0,
+					}}
+				/>
+			</View>
 		</View>
 	)
 }
 
 export default TaskLinkedIssue
 
-type ActionType = { name: string; value: TaskRelatedIssuesRelationEnum }
+export type ActionType = { name: string; value: TaskRelatedIssuesRelationEnum }
 export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	key: React.Key
 	Label: (props: { active?: boolean; selected?: boolean }) => JSX.Element
@@ -65,7 +84,7 @@ export type DropdownItem<D = Record<string | number | symbol, any>> = {
 	disabled?: boolean
 	data?: D
 }
-type ActionTypeItem = DropdownItem<ActionType>
+export type ActionTypeItem = DropdownItem<ActionType>
 
 function mapToActionType(items: ActionType[] = []) {
 	return items.map<ActionTypeItem>((item) => {
