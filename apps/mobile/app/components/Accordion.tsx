@@ -45,6 +45,7 @@ export default Accordion
 const styles = StyleSheet.create({
 	accordContainer: {
 		borderRadius: 8,
+		marginVertical: 6,
 		width: "100%",
 	},
 	accordHeader: {

@@ -57,7 +57,12 @@ export const IntegrationSetting = () => {
 
 	const { editOrganizationProjectSetting, editOrganizationProject } = useOrganizationProjects();
 
-	const { getIntegrationTenant, loading: integrationTenantLoading, integrationTenant } = useIntegrationTenant();
+	const {
+		getIntegrationTenant,
+		loading: integrationTenantLoading,
+		integrationTenant,
+		deleteIntegrationTenant
+	} = useIntegrationTenant();
 
 	useEffect(() => {
 		if (integrationTenant && integrationTenant.length) {
@@ -149,6 +154,15 @@ export const IntegrationSetting = () => {
 		[editOrganizationProject]
 	);
 
+	const handleDeleteIntegrationTenant = useCallback(() => {
+		if (integrationTenant && integrationTenant.length) {
+			deleteIntegrationTenant(integrationTenant[0].id).then(() => {
+				getIntegrationTenant('Github');
+				setSelectedRepo(undefined);
+			});
+		}
+	}, [integrationTenant, deleteIntegrationTenant, getIntegrationTenant]);
+
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex justify-between items-center mt-8">
@@ -198,6 +212,9 @@ export const IntegrationSetting = () => {
 										<TrashIcon />
 									</Button>
 								)}
+								<Button variant="outline-danger" onClick={handleDeleteIntegrationTenant}>
+									Delete GitHub Integration
+								</Button>
 							</div>
 						)}
 						<div className="flex flex-row items-center gap-3">

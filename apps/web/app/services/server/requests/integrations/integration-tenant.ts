@@ -15,12 +15,21 @@ export function getIntegrationTenantRequest(
 	const query = new URLSearchParams({
 		'where[organizationId]': organizationId,
 		'where[tenantId]': tenantId,
-		'where[name]': name,
+		'where[name]': name
 	});
 	return serverFetch<IIntegrationTenant>({
 		path: `/integration-tenant?${query.toString()}`,
 		method: 'GET',
 		bearer_token,
 		tenantId: tenantId
+	});
+}
+
+export function deleteIntegrationTenantRequest(integrationId: string, tenantId: string, bearer_token: string) {
+	return serverFetch<IIntegrationTenant>({
+		path: `/integration-tenant/${integrationId}`,
+		method: 'DELETE',
+		bearer_token,
+		tenantId
 	});
 }
