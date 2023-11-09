@@ -1,37 +1,33 @@
 {
-  "build": {
-    "development": {
-      "extends": "production",
-      "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      },
-      "channel": "development"
-    },
-    "preview": {
-      "extends": "production",
-      "distribution": "internal",
-      "channel": "preview",
+	"build": {
+		"development": {
+			"extends": "production",
+			"developmentClient": true,
+			"distribution": "internal",
 			"ios": {
-        "simulator": true
-      }
-    },
-    "production": {
-      "channel": "production"
-    }
-  },
-  "submit":{
-    "production":{
-      "android":{
-        "track":"internal",
-        "releaseStatus":"draft",
-        "changesNotSentForReview":false
-      },
-      "ios":{
-        "ascAppId":"6471266037",
-        "appleId":"6471266037"
-      }
-    }
-  }
+				"simulator": true
+			},
+			"channel": "development"
+		},
+		"preview": {
+			"extends": "production",
+			"distribution": "internal",
+			"channel": "preview",
+			"ios": {
+				"simulator": true
+			}
+		},
+		"production": {
+			"channel": "production"
+		}
+	},
+	"submit": {
+		"production": {
+			"android": {
+				"track": "internal",
+				"releaseStatus": "draft",
+				"changesNotSentForReview": false
+			}
+		}
+	}
 }
