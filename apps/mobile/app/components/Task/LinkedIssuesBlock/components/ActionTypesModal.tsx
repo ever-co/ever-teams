@@ -40,7 +40,7 @@ const ActionTypesModal: React.FC<IActionTypesModal> = ({ actionType, actionItems
 			</TouchableOpacity>
 
 			<ModalPopUp visible={modalOpen} onDismiss={() => setModalOpen(false)}>
-				<View style={styles.container}>
+				<View style={[styles.container, { backgroundColor: colors.background }]}>
 					{actionItems.map((actionItem, idx) => (
 						<Item key={idx} actionItem={actionItem} onChange={onChange} />
 					))}
@@ -140,7 +140,6 @@ const styles = StyleSheet.create({
 	},
 	container: {
 		alignSelf: "center",
-		backgroundColor: "#fff",
 		borderRadius: 20,
 		gap: 5,
 		maxHeight: 396,

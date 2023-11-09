@@ -13,23 +13,31 @@ import {
 	TextInput,
 } from "react-native"
 import React, { useCallback, useEffect, useRef, useState } from "react"
-import ComboBox from "../../../screens/Authenticated/TimerScreen/components/ComboBox"
-import { translate } from "../../../i18n"
-import IssuesModal from "../../IssuesModal"
-import { useStores } from "../../../models"
-import { useTaskInput } from "../../../services/hooks/features/useTaskInput"
-import { typography, useAppTheme } from "../../../theme"
+import ComboBox from "../../../../screens/Authenticated/TimerScreen/components/ComboBox"
+import { translate } from "../../../../i18n"
+import IssuesModal from "../../../IssuesModal"
+import { useStores } from "../../../../models"
+import { useTaskInput } from "../../../../services/hooks/features/useTaskInput"
 import { Feather } from "@expo/vector-icons"
-import { ITeamTask } from "../../../services/interfaces/ITask"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { BlurView } from "expo-blur"
+import { useAppTheme, typography } from "../../../../theme"
 
-interface ICreateParentTaskModal {
+interface ICreateLinkedIssueModal {
 	visible: boolean
 	onDismiss: () => void
 	task: ITeamTask
+	taskItems?: ITeamTask[]
+	onTaskPress?: (childTask: ITeamTask) => void
 }
 
-const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDismiss, task }) => {
+const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
+	visible,
+	onDismiss,
+	task,
+	taskItems,
+	onTaskPress,
+}) => {
 	const { colors } = useAppTheme()
 
 	const taskInput = useTaskInput()
@@ -79,7 +87,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 						},
 					]}
 				>
-					<IssuesModal task={activeTask} />
+					<IssuesModal task={null} />
 
 					<Text style={styles.taskNumberStyle}>
 						{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ""}
@@ -98,7 +106,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 							},
 						]}
 						placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
-						defaultValue={activeTask ? activeTask.title : ""}
+						defaultValue={""}
 						autoFocus={false}
 						autoCapitalize="none"
 						autoCorrect={false}
@@ -124,6 +132,8 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 				</View>
 				{combxShow && (
 					<ComboBox
+						onTaskPress={onTaskPress}
+						linkedTaskItems={taskItems}
 						childTask={task}
 						onDismiss={onDismiss}
 						parentTasksFilter={true}
@@ -137,7 +147,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 	)
 }
 
-export default CreateParentTaskModal
+export default CreateLinkedIssueModal
 
 const ModalPopUp = ({ visible, children, onDismiss }) => {
 	const [showModal, setShowModal] = React.useState(visible)
