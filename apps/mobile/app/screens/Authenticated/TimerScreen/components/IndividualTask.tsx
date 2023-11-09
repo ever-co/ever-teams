@@ -98,7 +98,7 @@ const IndividualTask: FC<Props> = observer(
 				<View
 					onTouchEnd={() => {
 						isLinkedTasks
-							? onTaskPress(task)
+							? !isScrolling && onTaskPress(task)
 							: !parentTasksFilter
 							? !isScrolling && handleActiveTask(task)
 							: !isScrolling && setParent(task, childTask, onDismiss)
@@ -124,7 +124,7 @@ const IndividualTask: FC<Props> = observer(
 				<View
 					onTouchEnd={() => {
 						isLinkedTasks
-							? onTaskPress(task)
+							? !isScrolling && onTaskPress(task)
 							: !parentTasksFilter
 							? !isScrolling && handleActiveTask(task)
 							: !isScrolling && setParent(task, childTask, onDismiss)
