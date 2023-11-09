@@ -165,7 +165,9 @@
 		"FILTER_HISTORY": "היסטוריה",
 		"FILTER_UNSUBSCRIBE": "בטל מנוי",
 
-		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת"
+		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת",
+
+		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",

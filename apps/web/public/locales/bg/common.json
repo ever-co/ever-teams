@@ -164,7 +164,8 @@
 		"FILTER_HISTORY": "История",
 		"FILTER_UNSUBSCRIBE": "Отпиши се",
 
-		"KEYBOARD_SHORTCUTS": "Клавишни комбинации"
+		"KEYBOARD_SHORTCUTS": "Клавишни комбинации",
+		"GITHUB_LOADING_TEXT": "В момента инсталираме вашия GitHub интеграция, изчакайте..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Профилът ще бъде премахнат от всички отбори, освен където сте само мениджър",

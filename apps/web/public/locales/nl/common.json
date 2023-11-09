@@ -165,7 +165,9 @@
 		"FILTER_HISTORY": "Geschiedenis",
 		"FILTER_UNSUBSCRIBE": "Afmelden",
 
-		"KEYBOARD_SHORTCUTS": "Sneltoetsen"
+		"KEYBOARD_SHORTCUTS": "Sneltoetsen",
+
+		"GITHUB_LOADING_TEXT": "We zijn nu uw GitHub-integratie aan het installeren, even geduld..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
