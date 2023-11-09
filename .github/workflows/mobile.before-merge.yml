@@ -31,11 +31,16 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - name: Cancel workflow if PR is from develop to main
+      - name: Skip workflow if PR is from develop to main
         if: github.event.pull_request.head.ref == 'develop' && github.event.pull_request.base.ref == 'main'
         run: |
-          echo "PR is from develop to main. Cancelling the workflow."
-          exit 78
+          echo "PR is from develop to main. Skipping the workflow."
+          echo "::set-output name=skipped::true"
+        id: skip_check
+
+      - name: Check if skipped
+        if: steps.skip_check.outputs.skipped == 'true'
+        run: echo "Workflow was skipped" && exit 0
 
       - name: Use Node.js 18.x
         uses: actions/setup-node@v3
