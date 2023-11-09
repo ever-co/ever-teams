@@ -17,7 +17,7 @@ import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
 import i18n from '../ni18n.config';
 import '../styles/globals.css';
 const MyApp = ({ Component, pageProps }: AppProps) => {
-	const jitsuConf = jitsuConfiguration();
+	const jitsuConf = pageProps?.jitsuConf;
 	console.log('Jutsu Host', pageProps);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
@@ -80,12 +80,13 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 	);
 };
 MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProps>; ctx: NextPageContext }) => {
-	// Récupération des variables d'environnement
+	// Recover environment variables
 	const jitsuHost = process.env.NEXT_JITSU_BROWSER_URL;
 	const jitsuWriteKey = process.env.NEXT_JITSU_BROWSER_WRITE_KEY;
 
-	// Appel de la méthode statique getInitialProps
-	// du composant page si elle existe
+	const jitsuConf = jitsuConfiguration();
+	// Call the static method getInitialProps
+	// of the page component if it exists
 	let pageProps = {};
 	if (Component.getInitialProps) {
 		pageProps = await Component.getInitialProps(ctx);
@@ -93,6 +94,7 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 	return {
 		pageProps: {
 			...pageProps,
+			jitsuConf,
 			jitsuHost,
 			jitsuWriteKey
 		}
