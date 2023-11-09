@@ -36,7 +36,8 @@
 		"Huhn",
 		"appdev",
 		"Chatwoot",
-		"gtag"
+		"gtag",
+		"APPSTORE"
 	],
 	"useGitignore": true,
 	"ignorePaths": [
