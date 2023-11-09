@@ -12,6 +12,7 @@ import TaskStatus from "../../../TaskStatus"
 import { translate } from "../../../../i18n"
 import ActionTypesModal from "./ActionTypesModal"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
+import { useTaskLinkedIssues } from "../../../../services/hooks/features/useTaskLinkedIssue"
 
 interface ITaskLinkedIssue {
 	task: ITeamTask
@@ -109,6 +110,8 @@ function useActionType(
 ) {
 	// const { queryCall } = useQuery(updateTaskLinkedIssueAPI)
 
+	const { updateTaskLinkedIssue } = useTaskLinkedIssues()
+
 	const actionsTypes = useMemo(
 		() => [
 			{
@@ -154,16 +157,17 @@ function useActionType(
 	const [actionType, setActionType] = useState<ActionTypeItem | null>(relatedToItem || null)
 
 	const onChange = useCallback(
-		(item: ActionTypeItem) => {
+		async (item: ActionTypeItem) => {
 			if (!issue || !item.data?.value) {
 				return
 			}
 			setActionType(item)
 
-			// queryCall({
-			// 	...issue,
-			// 	action: item.data?.value,
-			// })
+			const updatedAction = {
+				...issue,
+				action: item.data?.value,
+			}
+			await updateTaskLinkedIssue(updatedAction)
 		},
 		[setActionType, issue],
 	)

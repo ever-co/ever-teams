@@ -88,6 +88,25 @@ export type LinkedTaskIssue = {
 	taskFrom: Omit<ITeamTask, "linkedIssues">
 }
 
+export interface ITaskLinkedIssue {
+	organizationId: string
+	taskToId: string
+	taskFromId: string
+	action: number
+}
+
+export interface ITaskLinkedIssueResponse {
+	tenantId: string
+	organizationId: string
+	action: number
+	taskFromId: string
+	taskToId: string
+	tenant: { id: string }
+	id: string
+	createdAt: string
+	updatedAt: string
+}
+
 export type ITaskPriority = "Highest" | "High" | "Medium" | "Low" | "Lowest"
 
 export type IVersionProperty = "Version 1" | "Version 2"
