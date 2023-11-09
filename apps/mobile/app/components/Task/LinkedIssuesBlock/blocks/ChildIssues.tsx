@@ -14,9 +14,10 @@ const ChildIssues = () => {
 	const {
 		TaskStore: { detailedTask: task },
 	} = useStores()
-	const { teamTasks: tasks } = useTeamTasks()
+	const { teamTasks: tasks, updateTask } = useTeamTasks()
 
 	const [modalOpen, setModalOpen] = useState<boolean>(false)
+	const [isLoading, setIsLoading] = useState<boolean>(false)
 
 	const childTasks = useMemo(() => {
 		const children = task?.children?.reduce((acc, item) => {
@@ -30,9 +31,17 @@ const ChildIssues = () => {
 		return children || []
 	}, [task, tasks])
 
-	const onTaskSelect = useCallback((childTask: ITeamTask | undefined) => {
-		console.log(childTask)
-		setModalOpen(false)
+	const onTaskSelect = useCallback(async (childTask: ITeamTask | undefined) => {
+		setIsLoading(true)
+		const updatedTask: ITeamTask = {
+			...childTask,
+			parentId: task?.id,
+			parent: task,
+		}
+		await updateTask(updatedTask, childTask.id).finally(() => {
+			setIsLoading(false)
+			setModalOpen(false)
+		})
 	}, [])
 
 	const isTaskEpic = task?.issueType === "Epic"
@@ -72,6 +81,7 @@ const ChildIssues = () => {
 
 					{task && (
 						<CreateLinkedIssueModal
+							isLoading={isLoading}
 							onTaskPress={onTaskSelect}
 							taskItems={unchildTasks}
 							task={task}

@@ -12,7 +12,7 @@ import {
 	Pressable,
 	TextInput,
 } from "react-native"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from "react"
 import ComboBox from "../../../../screens/Authenticated/TimerScreen/components/ComboBox"
 import { translate } from "../../../../i18n"
 import IssuesModal from "../../../IssuesModal"
@@ -29,6 +29,7 @@ interface ICreateLinkedIssueModal {
 	task: ITeamTask
 	taskItems?: ITeamTask[]
 	onTaskPress?: (childTask: ITeamTask) => void
+	isLoading?: boolean
 }
 
 const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
@@ -37,6 +38,7 @@ const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
 	task,
 	taskItems,
 	onTaskPress,
+	isLoading,
 }) => {
 	const { colors } = useAppTheme()
 
@@ -74,7 +76,7 @@ const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
 	}, [editMode])
 
 	return (
-		<ModalPopUp visible={visible} onDismiss={onDismiss}>
+		<ModalPopUp visible={visible} onDismiss={onDismiss} isLoading={isLoading}>
 			<View style={[styles.container, { backgroundColor: colors.background }]}>
 				<View
 					style={[
@@ -149,10 +151,18 @@ const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
 
 export default CreateLinkedIssueModal
 
-const ModalPopUp = ({ visible, children, onDismiss }) => {
+interface IModal {
+	visible: boolean
+	children: ReactElement[] | ReactElement
+	onDismiss: () => void
+	isLoading: boolean
+}
+
+const ModalPopUp: React.FC<IModal> = ({ visible, children, onDismiss, isLoading }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
 	const modalRef = useRef(null)
+	const { colors } = useAppTheme()
 
 	React.useEffect(() => {
 		toggleModal()
@@ -199,8 +209,13 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 					position: "absolute",
 					width: "100%",
 					height: "100%",
+					justifyContent: "center",
+					alignItems: "center",
+					zIndex: isLoading && 100,
 				}}
-			/>
+			>
+				{isLoading && <ActivityIndicator size="large" color={colors.secondary} />}
+			</BlurView>
 			<TouchableWithoutFeedback onPress={handlePressOutside}>
 				<View style={$modalBackGround}>
 					<Animated.View ref={modalRef} style={{ transform: [{ scale: scaleValue }] }}>
