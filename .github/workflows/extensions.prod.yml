@@ -1,4 +1,4 @@
-name: 'Extensions Build & Publish'
+name: 'Extensions Build & Publish Prod'
 on:
   push:
     branches:

@@ -1,4 +1,4 @@
-name: Mobile Build & Deploy PROD
+name: Mobile Build, Deploy and Publish PROD
 on:
   push:
     branches:

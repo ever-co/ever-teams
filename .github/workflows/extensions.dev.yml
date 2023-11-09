@@ -1,4 +1,4 @@
-name: 'Extensions Build'
+name: 'Extensions Build Dev'
 on:
   push:
     branches:
