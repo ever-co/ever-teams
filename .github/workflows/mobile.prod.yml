@@ -10,6 +10,10 @@ on:
       - 'yarn.lock'
       - 'README.md'
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -67,16 +71,16 @@ jobs:
 
       # See https://github.com/ever-co/ever-teams-boards-store/blob/develop/.github/workflows/deploy.yml
 
-      - name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v1"
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
 
       # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
         with:
-          project_id: "ever-teams-399720"
+          project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
