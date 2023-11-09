@@ -85,7 +85,10 @@ jobs:
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
 
-      - name: Deploy to App Store
-        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
+      - name: Upload App build to App store
         env:
-          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+          ascAppId: ${{ secrets.APPLE_ID }}
+          ascApiKeyIssuerId: ${{ secrets.APPSTORE_ISSUER_ID }}
+          ascApiKeyId: ${{ secrets.APPSTORE_API_KEY_ID }}
+          ascApiKey: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
