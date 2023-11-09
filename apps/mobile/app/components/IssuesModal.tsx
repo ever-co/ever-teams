@@ -25,9 +25,16 @@ interface IssuesModalProps {
 	readonly?: boolean
 	nameIncluded?: boolean
 	smallFont?: boolean
+	relatedIssueIconDimension?: boolean
 }
 
-const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameIncluded, smallFont }) => {
+const IssuesModal: FC<IssuesModalProps> = ({
+	task,
+	readonly = false,
+	nameIncluded,
+	smallFont,
+	relatedIssueIconDimension,
+}) => {
 	const { allTaskIssues } = useTaskIssue()
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 	const { updateTask } = useTeamTasks()
@@ -51,6 +58,9 @@ const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameInclude
 	const iconDimension: number =
 		currentIssue?.name === "Bug" ? 15 : currentIssue?.name === "Story" ? 14 : 13
 
+	const smallerIconDimension: number =
+		currentIssue?.name === "Bug" ? 10 : currentIssue?.name === "Story" ? 10 : 8
+
 	return (
 		<View>
 			<View
@@ -58,13 +68,14 @@ const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameInclude
 					styles.wrapButton,
 					{
 						backgroundColor: currentIssue?.color,
-						height: nameIncluded ? 24 : 20,
-						width: nameIncluded ? 65 : 20,
+						height: nameIncluded ? 24 : relatedIssueIconDimension ? 16 : 20,
+						width: nameIncluded ? 65 : relatedIssueIconDimension ? 16 : 20,
 						paddingVertical: nameIncluded && 2,
 						paddingHorizontal: nameIncluded && 10,
 						flexDirection: "row",
 						alignItems: "center",
 						gap: 2,
+						borderRadius: relatedIssueIconDimension ? 40 : 3,
 					},
 				]}
 				onTouchStart={() => {
@@ -74,8 +85,8 @@ const IssuesModal: FC<IssuesModalProps> = ({ task, readonly = false, nameInclude
 				}}
 			>
 				<SvgUri
-					width={iconDimension}
-					height={iconDimension}
+					width={relatedIssueIconDimension ? smallerIconDimension : iconDimension}
+					height={relatedIssueIconDimension ? smallerIconDimension : iconDimension}
 					uri={currentIssue?.fullIconUrl}
 				/>
 
@@ -215,7 +226,6 @@ const styles = StyleSheet.create({
 	},
 	wrapButton: {
 		alignItems: "center",
-		borderRadius: 3,
 		justifyContent: "center",
 	},
 })

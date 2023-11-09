@@ -19,7 +19,7 @@ const RelatedIssues = () => {
 				</View>
 			}
 		>
-			<Text>ChildIssues</Text>
+			<Text>Related Issues</Text>
 		</Accordion>
 	)
 }
