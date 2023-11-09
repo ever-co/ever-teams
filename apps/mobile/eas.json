@@ -27,12 +27,6 @@
 				"track": "internal",
 				"releaseStatus": "draft",
 				"changesNotSentForReview": false
-			},
-			"ios": {
-				"ascAppId": "6471266037",
-				"ascApiKeyIssuerId": "69a6de8f-4146-47e3-e053-5b8c7c11a4d1",
-				"ascApiKeyId": "R9QZ5LP8NK",
-				"ascApiKeyPath": "./AuthKey_R9QZ5LP8NK.p8"
 			}
 		}
 	}
