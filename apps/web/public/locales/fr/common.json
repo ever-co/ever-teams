@@ -164,7 +164,8 @@
 		"FILTER_HISTORY": "Historique",
 		"FILTER_UNSUBSCRIBE": "Se désabonner",
 
-		"KEYBOARD_SHORTCUTS": "Raccourcis clavier"
+		"KEYBOARD_SHORTCUTS": "Raccourcis clavier",
+		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",

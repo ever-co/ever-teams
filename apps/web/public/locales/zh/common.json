@@ -165,7 +165,9 @@
 		"FILTER_HISTORY": "历史",
 		"FILTER_UNSUBSCRIBE": "取消订阅",
 
-		"KEYBOARD_SHORTCUTS": "快捷键"
+		"KEYBOARD_SHORTCUTS": "快捷键",
+
+		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "账户将从所有团队中移除,您作为管理员的团队除外",

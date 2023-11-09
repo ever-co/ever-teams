@@ -166,7 +166,8 @@
 		"FILTER_HISTORY": "التاريخ",
 		"FILTER_UNSUBSCRIBE": "إلغاء الاشتراك",
 
-		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح"
+		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح",
+		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",

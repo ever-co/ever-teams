@@ -162,7 +162,8 @@
 		"FILTER_COMMENTS": "Comentarios",
 		"FILTER_HISTORY": "Historial",
 		"FILTER_UNSUBSCRIBE": "Darse de baja",
-		"KEYBOARD_SHORTCUTS": "Atajos de teclado"
+		"KEYBOARD_SHORTCUTS": "Atajos de teclado",
+		"GITHUB_LOADING_TEXT": "Estamos instalando su integración de GitHub, espere..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",
