@@ -1,8 +1,8 @@
-name: "Extensions Build"
+name: 'Extensions Build & Publish Prod'
 on:
   push:
     branches:
-      - develop
+      - main
     paths:
       - '.deploy/extensions/**'
       - '.github/workflows/**'
@@ -10,6 +10,10 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -21,7 +25,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Install Packages
         run: |
@@ -29,7 +33,6 @@ jobs:
 
       - name: Build and zip extension artifact
         run: cd apps/extensions && yarn build -- --zip
-
 #
 #      - name: Browser Platform Publish
 #        uses: PlasmoHQ/bpp@v2

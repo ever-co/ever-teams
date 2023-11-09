@@ -19,7 +19,7 @@ import { useRecoilState } from 'recoil';
 const Personal = () => {
 	const { t } = useTranslation();
 	const [user] = useRecoilState(userState);
-	const breadcrumb = [...t('pages.settings.BREADCRUMB', { returnObjects: true })];
+	const breadcrumb = [...(t('pages.settings.BREADCRUMB', { returnObjects: true }) as any)];
 
 	return (
 		<>

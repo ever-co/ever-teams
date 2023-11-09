@@ -17,7 +17,9 @@ import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
 import i18n from '../ni18n.config';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
-	const isJitsuEnvsPresent = jitsuConfiguration.host && jitsuConfiguration.writeKey;
+	const jitsuConf = jitsuConfiguration();
+	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
+	const isJitsuEnvsPresent: boolean = jitsuConf.host !== '' && jitsuConf.writeKey !== '';
 	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
 
 	return (
@@ -45,7 +47,13 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 			<JitsuProvider
 				options={
 					isJitsuEnvsPresent
-						? { ...jitsuConfiguration }
+						? {
+							host: jitsuConf.host ?? '',
+							writeKey: jitsuConf.writeKey ?? undefined,
+							debug: jitsuConf.debug,
+							cookieDomain: jitsuConf.cookieDomain ?? undefined,
+							echoEvents: jitsuConf.echoEvents,
+						 }
 						: {
 								disabled: true
 						  }

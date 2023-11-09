@@ -165,7 +165,9 @@
 		"FILTER_HISTORY": "History",
 		"FILTER_UNSUBSCRIBE": "Unsubscribe",
 
-		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts"
+		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts",
+
+		"GITHUB_LOADING_TEXT": "Stiamo installando la tua integrazione GitHub, attendi..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Account will be removed from all teams, except where you are only the manager",

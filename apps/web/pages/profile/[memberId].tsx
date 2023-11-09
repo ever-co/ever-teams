@@ -23,7 +23,7 @@ const Profile = () => {
 	const { t } = useTranslation();
 	const breadcrumb = [
 		{ title: activeTeam?.name || '', href: '/' },
-		...t('pages.profile.BREADCRUMB', { returnObjects: true })
+		...(t('pages.profile.BREADCRUMB', { returnObjects: true }) as any)
 	];
 
 	const profileIsAuthUser = useMemo(() => profile.isAuthUser, [profile.isAuthUser]);
