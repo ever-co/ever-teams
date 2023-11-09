@@ -122,6 +122,13 @@ const he = {
 		timeToday: "Time Today",
 		totalGroupTime: "Total Group Time",
 		timeRemaining: "Time Remaining",
+		blocks: "Blocks",
+		clones: "Clones",
+		duplicates: "Duplicates",
+		isBlockedBy: "Is Blocked By",
+		isClonedBy: "Is Cloned By",
+		isDuplicatedBy: "Is Duplicated By",
+		relatesTo: "Relates To",
 	},
 	tasksScreen: {
 		name: "Tasks",

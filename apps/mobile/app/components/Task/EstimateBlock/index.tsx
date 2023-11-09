@@ -30,7 +30,7 @@ const EstimateBlock = () => {
 					<Text
 						style={{
 							fontWeight: "600",
-							fontSize: 14,
+							fontSize: 12,
 							marginLeft: 5,
 							color: colors.primary,
 						}}

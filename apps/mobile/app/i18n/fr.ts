@@ -125,6 +125,13 @@ const fr = {
 		timeToday: "Temps Aujourd'hui",
 		totalGroupTime: "Temps Total du Groupe",
 		timeRemaining: "Temps Restant",
+		blocks: "Blocs",
+		clones: "Clones",
+		duplicates: "Doublons",
+		isBlockedBy: "Est bloqué par",
+		isClonedBy: "Est cloné par",
+		isDuplicatedBy: "Est dupliqué par",
+		relatesTo: "Se rapporte à",
 	},
 	tasksScreen: {
 		name: "Tâches",

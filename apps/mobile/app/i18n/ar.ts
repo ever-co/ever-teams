@@ -126,6 +126,13 @@ const ar: Translations = {
 		timeToday: "الوقت اليوم",
 		totalGroupTime: "إجمالي وقت المجموعة",
 		timeRemaining: "الوقت المتبقي",
+		blocks: "كتل",
+		clones: "استنساخ",
+		duplicates: "تكرار",
+		isBlockedBy: "محظور بواسطة",
+		isClonedBy: "مستنسخ بواسطة",
+		isDuplicatedBy: "مكرر بواسطة",
+		relatesTo: "يتصل بـ",
 	},
 	tasksScreen: {
 		name: "مهام",
