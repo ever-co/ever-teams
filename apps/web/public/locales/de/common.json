@@ -165,7 +165,9 @@
 		"FILTER_HISTORY": "Historie",
 		"FILTER_UNSUBSCRIBE": "Abmelden",
 
-		"KEYBOARD_SHORTCUTS": "Tastenkombinationen"
+		"KEYBOARD_SHORTCUTS": "Tastenkombinationen",
+
+		"GITHUB_LOADING_TEXT": "Wir installieren jetzt Ihre GitHub-Integration, warten Sie..."
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Das Konto wird von allen Teams entfernt, außer wo Sie nur Manager sind",

@@ -1,4 +1,4 @@
-name: Mobile Build & Deploy PROD
+name: Mobile Build, Deploy and Publish PROD
 on:
   push:
     branches:
@@ -9,6 +9,10 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -67,21 +71,24 @@ jobs:
 
       # See https://github.com/ever-co/ever-teams-boards-store/blob/develop/.github/workflows/deploy.yml
 
-      - name: "Authenticate to Google Cloud"
-        uses: "google-github-actions/auth@v1"
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
 
       # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
-      - name: "Set up Cloud SDK"
-        uses: "google-github-actions/setup-gcloud@v1"
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
         with:
-          project_id: "ever-teams-399720"
+          project_id: 'ever-teams-399720'
 
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
 
-      - name: Deploy to App Store
-        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
+      - name: Upload App build to App store
         env:
-          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
+          ascAppId: ${{ secrets.APPLE_ID }}
+          ascApiKeyIssuerId: ${{ secrets.APPSTORE_ISSUER_ID }}
+          ascApiKeyId: ${{ secrets.APPSTORE_API_KEY_ID }}
+          ascApiKey: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive

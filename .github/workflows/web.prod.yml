@@ -1,8 +1,8 @@
-name: Web Build & Deploy DEV
+name: Web Build & Deploy PROD
 on:
   push:
     branches:
-      - develop
+      - main
     paths:
       - '.deploy/web/**'
       - '.github/workflows/**'
@@ -10,6 +10,10 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -37,10 +41,8 @@ jobs:
         with:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} # Required
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Optional
-          GITHUB_DEPLOYMENT_ENV: Preview
-          PRODUCTION: false
+          GITHUB_DEPLOYMENT_ENV: Production
+          PRODUCTION: true
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID}} #Required
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID}} #Required
           WORKING_DIRECTORY: ./
-          # ALIAS_DOMAINS: |
-          #   appdev.ever.team

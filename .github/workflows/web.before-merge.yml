@@ -1,0 +1,47 @@
+name: Web Build Before Merge
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.deploy/web/**'
+      - '.github/workflows/**'
+      - 'apps/web/**'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Skip workflow if PR is from develop to main
+        if: github.event.pull_request.head.ref == 'develop' && github.event.pull_request.base.ref == 'main'
+        run: |
+          echo "PR is from develop to main. Skipping the workflow."
+          echo "::set-output name=skipped::true"
+        id: skip_check
+
+      - name: Check if skipped
+        if: steps.skip_check.outputs.skipped == 'true'
+        run: echo "Workflow was skipped" && exit 0
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install Packages
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Build Web
+        run: |
+          yarn build:web
