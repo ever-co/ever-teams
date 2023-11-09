@@ -22,7 +22,21 @@
 		"svgs",
 		"tailwindcss",
 		"Timesheet",
-		"Vercel"
+		"Vercel",
+		"buildjet",
+		"vcpu",
+		"libappindicator",
+		"binutils",
+		"icnsutils",
+		"graphicsmagick",
+		"setuptools",
+		"gcloud",
+		"mathieudutour",
+		"ncipollo",
+		"Huhn",
+		"appdev",
+		"Chatwoot",
+		"gtag"
 	],
 	"useGitignore": true,
 	"ignorePaths": [

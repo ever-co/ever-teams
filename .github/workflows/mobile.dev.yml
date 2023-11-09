@@ -1,9 +1,8 @@
-name: Mobile Build Before Merge
+name: Mobile Build & Deploy DEV
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
+  push:
+    branches:
+      - develop
     paths:
       - '.github/workflows/**'
       - 'apps/mobile/**'
@@ -11,12 +10,15 @@ on:
       - 'yarn.lock'
       - 'README.md'
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     permissions:
-      pull-requests: write
       contents: read
 
     steps:

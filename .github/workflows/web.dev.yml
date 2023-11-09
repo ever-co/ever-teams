@@ -1,8 +1,8 @@
-name: Web Build & Deploy PROD
+name: Web Build & Deploy DEV
 on:
   push:
     branches:
-      - main
+      - develop
     paths:
       - '.deploy/web/**'
       - '.github/workflows/**'
@@ -10,6 +10,10 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -22,7 +26,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Install Packages
         run: |
@@ -37,9 +41,10 @@ jobs:
         with:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} # Required
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Optional
-          GITHUB_DEPLOYMENT_ENV: Production
-          PRODUCTION: true
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID}}  #Required
+          GITHUB_DEPLOYMENT_ENV: Preview
+          PRODUCTION: false
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID}} #Required
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_WEB_PROJECT_ID}} #Required
           WORKING_DIRECTORY: ./
-
+          # ALIAS_DOMAINS: |
+          #   appdev.ever.team
