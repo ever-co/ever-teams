@@ -21,7 +21,6 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 	console.log('Jutsu Host', pageProps);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
-	console.log('VARIABLE: ', process.env.NEXT);
 	const isJitsuEnvsPresent: boolean = jitsuConf.host !== '' && jitsuConf.writeKey !== '';
 	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
 
