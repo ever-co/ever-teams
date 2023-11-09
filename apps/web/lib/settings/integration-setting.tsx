@@ -164,140 +164,138 @@ export const IntegrationSetting = () => {
 	}, [integrationTenant, deleteIntegrationTenant, getIntegrationTenant]);
 
 	return (
-		<div className="flex flex-col gap-2">
-			<div className="flex justify-between items-center mt-8">
-				<div className="flex items-start w-full gap-5 justify-between">
-					<div className="flex flex-row items-center gap-2 w-1/5">
-						<div className="border-2 border-black p-0.5 rounded-lg bg-black dark:bg-white">
-							<GitHubLogoIcon width={40} height={40} className="text-white dark:text-black" />
+		<div className="flex flex-col gap-5 mt-5">
+			<div className="flex flex-row items-center gap-2 w-full justify-between">
+				<div className="flex flex-row items-center gap-2">
+					<div className="border-2 border-black p-0.5 rounded-lg bg-black dark:bg-white">
+						<GitHubLogoIcon width={40} height={40} className="text-white dark:text-black" />
+					</div>
+
+					{/* Divider */}
+					<div className="h-0.5 bg-[#FFFFFF14]"></div>
+
+					<div className="flex flex-col">
+						<div className="font-medium text-black dark:text-light--theme-light">
+							{t('pages.settingsTeam.GITHUB')}
 						</div>
 
-						<div className="flex flex-row">
-							<div className="font-medium text-black dark:text-light--theme-light">
-								{t('pages.settingsTeam.GITHUB')}
-							</div>
+						<div className="flex flex-col">
 							{integrationGithubRepositories?.total_count === 0 && (
 								<div className="text-black dark:text-light--theme-light">
 									{t('pages.settingsTeam.GITHUB_INTEGRATION_DESCRIPTION')}
 								</div>
 							)}
+
+							<div className="text-black dark:text-light--theme-light">Lorem impsum</div>
 						</div>
 					</div>
+				</div>
 
-					<div className="flex flex-col w-4/5 gap-2">
-						{integrationGithubRepositories && integrationGithubRepositories?.total_count > 0 && (
-							<div className="flex flex-row">
-								<Select value={selectedRepo || undefined} onValueChange={handleSelectRepo}>
-									<SelectTrigger className="w-80 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
-										<SelectValue
-											placeholder={t('pages.settingsTeam.SELECT_REPOSITORY')}
-											className="dark:bg-dark--theme-light"
-										/>
-									</SelectTrigger>
-									<SelectContent className="w-80">
-										{integrationGithubRepositories?.repositories?.map((item) => (
-											<SelectItem
-												key={item.id}
-												value={`${item.id}`}
-												className=" dark:bg-dark--theme-light focus:ring-0"
-											>
-												{item.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
+				<Button variant="outline-danger" onClick={handleDeleteIntegrationTenant} className="w-28 h-8 min-w-0">
+					Remove
+				</Button>
+			</div>
 
-								{selectedRepo && (
-									<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
-										<TrashIcon />
-									</Button>
-								)}
-								<Button variant="outline-danger" onClick={handleDeleteIntegrationTenant}>
-									Delete GitHub Integration
-								</Button>
-							</div>
+			<div className="flex flex-col gap-5">
+				<div className="flex flex-row items-center justify-between">
+					<div className="flex flex-col gap-1">
+						<p className="font-semibold text-black">Auto Synk Tasks</p>
+						<p>
+							Lorem ipsum dolor sit amet consectetur. In gravida egestas quis arcu mauris sed et mauris.
+						</p>
+					</div>
+					<div>
+						<Switch
+							checked={isTasksAutoSync}
+							onChange={() => {
+								handleEditOrganizationProject({
+									autoSync: !isTasksAutoSync
+								});
+								setIsTasksAutoSync(!isTasksAutoSync);
+							}}
+							className={`${isTasksAutoSync ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+						>
+							<span className="sr-only">Use setting</span>
+							<span
+								aria-hidden="true"
+								className={`${isTasksAutoSync ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'}
+            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
+							/>
+						</Switch>
+					</div>
+				</div>
+
+				<div className="flex flex-row items-center justify-between gap-2">
+					<div className="flex flex-col gap-1">
+						<p className="font-semibold text-black">Sync Tasks with specific Label</p>
+						<p>
+							Lorem ipsum dolor sit amet consectetur. In gravida egestas quis arcu mauris sed et mauris.
+						</p>
+					</div>
+					<div>
+						<Switch
+							checked={isTasksAutoSyncOnLabel}
+							onChange={() => {
+								handleEditOrganizationProject({
+									autoSyncOnLabel: !isTasksAutoSyncOnLabel
+								});
+								setIsTasksAutoSyncOnLabel(!isTasksAutoSyncOnLabel);
+							}}
+							className={`${isTasksAutoSyncOnLabel ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
+          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+						>
+							<span className="sr-only">Use setting</span>
+							<span
+								aria-hidden="true"
+								className={`${
+									isTasksAutoSyncOnLabel ? 'translate-x-9 bg-[#3826A6]' : 'bg-white translate-x-1'
+								}
+            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
+							/>
+						</Switch>
+					</div>
+				</div>
+
+				<div className="w-full flex flex-row h-10 justify-end">
+					<div className="flex flex-row items-center gap-2 w-1/2">
+						<Select value={selectedRepo || undefined} onValueChange={handleSelectRepo}>
+							<SelectTrigger className="w-96 overflow-hidden text-ellipsis whitespace-nowrap h-full border-[#00000014] dark:border-[#7B8089] dark:bg-dark--theme-light dark:text-white focus:ring-0">
+								<SelectValue
+									placeholder={t('pages.settingsTeam.SELECT_REPOSITORY')}
+									className="dark:bg-dark--theme-light"
+								/>
+							</SelectTrigger>
+							<SelectContent className="w-96">
+								{integrationGithubRepositories?.repositories?.map((item) => (
+									<SelectItem
+										key={item.id}
+										value={`${item.id}`}
+										className=" dark:bg-dark--theme-light focus:ring-0"
+									>
+										{item.name}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{selectedRepo && (
+							<Button variant="ghost" className="min-w-0" onClick={handleRemoveRepo}>
+								<TrashIcon />
+							</Button>
 						)}
-						<div className="flex flex-row items-center gap-3">
-							{integrationGithubRepositories?.total_count &&
-								integrationGithubRepositories.total_count > 0 && (
-									<div className="flex flex-col w-full">
-										<div className="flex flex-row items-center justify-between gap-2">
-											<div className="w-1/4">
-												<Switch
-													checked={isTasksAutoSync}
-													onChange={() => {
-														handleEditOrganizationProject({
-															autoSync: !isTasksAutoSync
-														});
-														setIsTasksAutoSync(!isTasksAutoSync);
-													}}
-													className={`${isTasksAutoSync ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
-												>
-													<span className="sr-only">Use setting</span>
-													<span
-														aria-hidden="true"
-														className={`${
-															isTasksAutoSync
-																? 'translate-x-9 bg-[#3826A6]'
-																: 'bg-white translate-x-1'
-														}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-													/>
-												</Switch>
-												<Text className="text-gray-400 ">Auto Sync Tasks</Text>
-											</div>
-
-											<div className="w-1/4">
-												<Switch
-													checked={isTasksAutoSyncOnLabel}
-													onChange={() => {
-														handleEditOrganizationProject({
-															autoSyncOnLabel: !isTasksAutoSyncOnLabel
-														});
-														setIsTasksAutoSyncOnLabel(!isTasksAutoSyncOnLabel);
-													}}
-													className={`${
-														isTasksAutoSyncOnLabel ? 'bg-[#DBD3FA]' : 'bg-[#80808061]'
-													}
-          relative inline-flex h-[38px] w-[74px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
-												>
-													<span className="sr-only">Use setting</span>
-													<span
-														aria-hidden="true"
-														className={`${
-															isTasksAutoSyncOnLabel
-																? 'translate-x-9 bg-[#3826A6]'
-																: 'bg-white translate-x-1'
-														}
-            pointer-events-none inline-block h-[30px] w-[30px] mt-[2.5px] transform rounded-full bg-[#3826A6] shadow-lg ring-0 transition duration-200 ease-in-out`}
-													/>
-												</Switch>
-												<Text className="text-gray-400 ">Auto-sync Tasks On Label</Text>
-											</div>
-
-											<div className="w-2/4">
-												<InputField
-													onChange={debounce(handleEditSyncTag, 1000)}
-													defaultValue={syncTag}
-													placeholder="Select Auto-sync Label"
-													className="h-10"
-												/>
-											</div>
-										</div>
-									</div>
-								)}
-
-							{(!integrationGithubRepositories || integrationGithubRepositories?.total_count === 0) && (
-								<Link
-									href={url}
-									className="min-w-0 w-24 bg-primary dark:bg-primary-light text-white text-sm flex flex-row items-center justify-center py-3 px-4 gap-3 rounded-md"
-								>
-									{t('pages.settingsTeam.INSTALL')}
-								</Link>
-							)}
-						</div>
 					</div>
+
+					{integrationGithubRepositories && integrationGithubRepositories?.total_count > 0 && (
+						<div className="flex flex-row items-center gap-2 w-1/2">
+							<InputField
+								onChange={debounce(handleEditSyncTag, 1000)}
+								defaultValue={syncTag}
+								placeholder="Select Auto-sync Label"
+								className="h-10"
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
