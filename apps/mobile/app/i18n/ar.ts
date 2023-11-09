@@ -121,6 +121,11 @@ const ar: Translations = {
 		items: "أغراض",
 		estimate: "تقدير",
 		estimations: "التقديرات",
+		time: "الوقت",
+		progress: "التقدم",
+		timeToday: "الوقت اليوم",
+		totalGroupTime: "إجمالي وقت المجموعة",
+		timeRemaining: "الوقت المتبقي",
 	},
 	tasksScreen: {
 		name: "مهام",
@@ -267,6 +272,9 @@ const ar: Translations = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "الأعضاء والأدوار",
+			deleteUserConfirmation: "هل أنت متأكد من رغبتك في إزالة المستخدم المحدد؟",
+			changeRole: "تغيير الدور",
+			delete: "حذف",
 		},
 		changeFullName: {
 			firstNamePlaceholder: "First Name",

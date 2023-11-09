@@ -57,6 +57,7 @@ export interface Props extends ListItemProps {
 	openMenuIndex: number | null
 	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>
 	currentTeam: IOrganizationTeamWithMStatus | null
+	canNavigate: boolean
 }
 
 export const ListItemContent: React.FC<IcontentProps> = observer(
@@ -152,12 +153,15 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 		taskEdition.setEditMode(false)
 		taskEdition.setEstimateEditMode(false)
 		props.setOpenMenuIndex(null)
-		isTaskScreen
-			? navigation.navigate("TaskScreen", { taskId: memberInfo?.memberTask?.id })
-			: navigation.navigate("Profile", {
-					userId: memberInfo.memberUser.id,
-					activeTab: "worked",
-			  })
+
+		if (memberInfo.memberTask && props.canNavigate) {
+			isTaskScreen
+				? navigation.navigate("TaskScreen", { taskId: memberInfo.memberTask?.id })
+				: navigation.navigate("Profile", {
+						userId: memberInfo.memberUser.id,
+						activeTab: "worked",
+				  })
+		}
 	}
 	const currentMember = props.currentTeam?.members.find(
 		(currentMember) => currentMember.id === props.member.id,

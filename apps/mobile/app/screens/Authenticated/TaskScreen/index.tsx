@@ -10,6 +10,7 @@ import TaskTitleBlock from "../../../components/Task/TitleBlock"
 import DetailsBlock from "../../../components/Task/DetailsBlock"
 import { translate } from "../../../i18n"
 import EstimateBlock from "../../../components/Task/EstimateBlock"
+import TimeBlock from "../../../components/Task/TimeBlock"
 import LinkedIssuesBlock from "../../../components/Task/LinkedIssuesBlock"
 
 export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScreen">> = (
@@ -55,6 +56,7 @@ export const AuthenticatedTaskScreen: FC<AuthenticatedDrawerScreenProps<"TaskScr
 						<TaskTitleBlock />
 						<DetailsBlock />
 						<EstimateBlock />
+						<TimeBlock />
 						<LinkedIssuesBlock />
 					</ScrollView>
 				</View>

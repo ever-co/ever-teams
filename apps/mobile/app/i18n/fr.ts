@@ -120,6 +120,11 @@ const fr = {
 		items: "Articles",
 		estimate: "Estimation",
 		estimations: "Estimations",
+		time: "Temps",
+		progress: "Progrès",
+		timeToday: "Temps Aujourd'hui",
+		totalGroupTime: "Temps Total du Groupe",
+		timeRemaining: "Temps Restant",
 	},
 	tasksScreen: {
 		name: "Tâches",
@@ -265,6 +270,9 @@ const fr = {
 		},
 		membersSettingsScreen: {
 			mainTitle: "Membres et rôles",
+			deleteUserConfirmation: "Êtes-vous sûr de vouloir supprimer l'utilisateur sélectionné?",
+			changeRole: "Changer le rôle",
+			delete: "Supprimer",
 		},
 		changeAvatar: {
 			recentPictures: "Photos récentes",
