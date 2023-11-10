@@ -79,7 +79,7 @@ const Item: React.FC<IItem> = ({ actionItem, onChange, onDismiss }) => {
 					onDismiss()
 				}}
 			>
-				<Text>{actionItem.data.name}</Text>
+				<Text style={{ color: colors.primary }}>{actionItem.data.name}</Text>
 			</TouchableOpacity>
 		</View>
 	)

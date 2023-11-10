@@ -13,6 +13,7 @@ import { translate } from "../../../../i18n"
 import ActionTypesModal from "./ActionTypesModal"
 import { limitTextCharaters } from "../../../../helpers/sub-text"
 import { useTaskLinkedIssues } from "../../../../services/hooks/features/useTaskLinkedIssue"
+import { useAppTheme } from "../../../../theme"
 
 interface ITaskLinkedIssue {
 	task: ITeamTask
@@ -25,6 +26,7 @@ const TaskLinkedIssue: React.FC<ITaskLinkedIssue> = ({ task, issue, relatedTaskM
 		issue?.action || TaskRelatedIssuesRelationEnum.RELATES_TO,
 		issue,
 	)
+	const { colors } = useAppTheme()
 
 	return (
 		<View
@@ -40,7 +42,7 @@ const TaskLinkedIssue: React.FC<ITaskLinkedIssue> = ({ task, issue, relatedTaskM
 				<Text style={{ fontSize: 8, fontWeight: "600", color: "#BAB8C4", marginLeft: 6 }}>
 					#{task?.number}-
 				</Text>
-				<Text style={{ fontSize: 10, fontWeight: "600" }}>
+				<Text style={{ fontSize: 10, fontWeight: "600", color: colors.primary }}>
 					{limitTextCharaters({
 						text: task?.title,
 						numChars: relatedTaskModal ? 23 : 30,
