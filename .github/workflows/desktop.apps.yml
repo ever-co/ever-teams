@@ -1,15 +1,15 @@
-name: Desktop App Build PROD
+name: Desktop App Build Apps
 
 on:
   workflow_run:
-    workflows: ['Release Prod']
-    branches: [main]
+    workflows: ['Release Apps']
+    branches: [apps]
     types:
       - completed
   push:
     paths:
       - 'apps/desktop/**'
-      - '.github/workflows/desktop.prod.yml'
+      - '.github/workflows/desktop.apps.yml'
       - 'package.json'
       - 'yarn.lock'
 
@@ -98,7 +98,7 @@ jobs:
           DESKTOP_TIMER_APP_REPO_OWNER: 'ever-co'
           DESKTOP_TIMER_APP_WELCOME_TITLE: 'Welcome to Ever Teams'
           DESKTOP_TIMER_APP_WELCOME_CONTENT: 'Ever Teams is a productivity tool that helps you to stay focused on your work and manage your team work better.'
-          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop'
+          I18N_FILES_URL: 'https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/desktop/i18n'
           PLATFORM_LOGO: 'https://app.ever.team/assets/ever-teams.png'
           GAUZY_DESKTOP_LOGO_512X512: 'https://raw.githubusercontent.com/ever-co/ever-gauzy/develop/apps/desktop-timer/src/assets/icons/icon_512x512.png'
 
