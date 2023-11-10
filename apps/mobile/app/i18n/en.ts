@@ -130,6 +130,7 @@ const en = {
 		isClonedBy: "Is Cloned By",
 		isDuplicatedBy: "Is Duplicated By",
 		relatesTo: "Relates To",
+		linkedIssues: "Linked Issues",
 	},
 	tasksScreen: {
 		name: "Tasks",

@@ -132,6 +132,7 @@ const ko: Translations = {
 		isClonedBy: "복제됨",
 		isDuplicatedBy: "복제됨",
 		relatesTo: "관련이 있다",
+		linkedIssues: "연결된 이슈",
 	},
 	tasksScreen: {
 		name: "작업",

@@ -132,6 +132,7 @@ const fr = {
 		isClonedBy: "Est cloné par",
 		isDuplicatedBy: "Est dupliqué par",
 		relatesTo: "Se rapporte à",
+		linkedIssues: "Problèmes liés",
 	},
 	tasksScreen: {
 		name: "Tâches",

@@ -133,6 +133,7 @@ const ar: Translations = {
 		isClonedBy: "مستنسخ بواسطة",
 		isDuplicatedBy: "مكرر بواسطة",
 		relatesTo: "يتصل بـ",
+		linkedIssues: "المسائل المرتبطة",
 	},
 	tasksScreen: {
 		name: "مهام",
