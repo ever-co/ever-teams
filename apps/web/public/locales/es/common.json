@@ -163,7 +163,10 @@
 		"FILTER_HISTORY": "Historial",
 		"FILTER_UNSUBSCRIBE": "Darse de baja",
 		"KEYBOARD_SHORTCUTS": "Atajos de teclado",
-		"GITHUB_LOADING_TEXT": "Estamos instalando su integración de GitHub, espere..."
+		"GITHUB_LOADING_TEXT": "Estamos instalando su integración de GitHub, espere...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronice automáticamente tareas en su aplicación para actualizaciones fluidas y eficientes.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronice tareas de manera selectiva asociándolas con una etiqueta específica.",
+		"GITHUB_AUTO_SYNC_LABEL": "Seleccionar etiqueta de sincronización automática"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "La cuenta será eliminada de todos los equipos, excepto donde eres sólo el administrador",

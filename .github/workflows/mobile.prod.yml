@@ -4,11 +4,10 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/mobile.prod.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -45,6 +44,35 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      - name: Set Apple Store Credentials
+        run: |
+          echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "::add-mask::$APPLE_ID"
+          echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
+          echo "::add-mask::$APPSTORE_ISSUER_ID"
+          echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
+          echo "::add-mask::$APPSTORE_API_KEY_ID"
+
+      - name: Replace Secrets in eas.json
+        run: |
+          sed -i 's/APPLE_ID_PLACEHOLDER/${{ secrets.APPLE_ID }}/' ./apps/mobile/eas.json
+          sed -i 's/APPSTORE_ISSUER_ID_PLACEHOLDER/${{ secrets.APPSTORE_ISSUER_ID }}/' ./apps/mobile/eas.json
+          sed -i 's/APPSTORE_API_KEY_ID_PLACEHOLDER/${{ secrets.APPSTORE_API_KEY_ID }}/' ./apps/mobile/eas.json
+
+      - name: Create Apple API Key File
+        run: |
+          echo ${{ secrets.APPSTORE_API_PRIVATE_KEY }} > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
+
+      - name: Decode Google Credentials
+        run: |
+          DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
+          echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
+          echo "::add-mask::$DECODED_GOOGLE_CREDENTIALS"
+          ESCAPED_GOOGLE_CREDENTIALS=$(echo "$DECODED_GOOGLE_CREDENTIALS" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+          ESCAPED_GOOGLE_CREDENTIALS=$(echo $ESCAPED_GOOGLE_CREDENTIALS | sed 's/\\n/\\\\n/g')
+          echo "ESCAPED_GOOGLE_CREDENTIALS=$ESCAPED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
+          echo "::add-mask::$ESCAPED_GOOGLE_CREDENTIALS"
+
       - name: Install Packages
         run: |
           yarn install --frozen-lockfile
@@ -59,17 +87,8 @@ jobs:
       - name: Publish update
         run: cd apps/mobile && eas update --auto
 
-      - name: Decode Google Credentials
-        run: |
-          DECODED_GOOGLE_CREDENTIALS=$(echo '${{ secrets.GOOGLE_CREDENTIALS }}' | base64 --decode)
-          echo "DECODED_GOOGLE_CREDENTIALS=$DECODED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
-          echo "::add-mask::$DECODED_GOOGLE_CREDENTIALS"
-          ESCAPED_GOOGLE_CREDENTIALS=$(echo "$DECODED_GOOGLE_CREDENTIALS" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
-          ESCAPED_GOOGLE_CREDENTIALS=$(echo $ESCAPED_GOOGLE_CREDENTIALS | sed 's/\\n/\\\\n/g')
-          echo "ESCAPED_GOOGLE_CREDENTIALS=$ESCAPED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
-          echo "::add-mask::$ESCAPED_GOOGLE_CREDENTIALS"
-
-      # See https://github.com/ever-co/ever-teams-boards-store/blob/develop/.github/workflows/deploy.yml
+      - name: Upload App build to App store
+        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
 
       - name: 'Authenticate to Google Cloud'
         uses: 'google-github-actions/auth@v1'
@@ -84,11 +103,3 @@ jobs:
 
       - name: Upload to Play Store Console
         run: cd apps/mobile && eas submit --platform android --latest --non-interactive
-
-      - name: Upload App build to App store
-        env:
-          ascAppId: ${{ secrets.APPLE_ID }}
-          ascApiKeyIssuerId: ${{ secrets.APPSTORE_ISSUER_ID }}
-          ascApiKeyId: ${{ secrets.APPSTORE_API_KEY_ID }}
-          ascApiKey: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
-        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
