@@ -167,7 +167,10 @@
 
 		"KEYBOARD_SHORTCUTS": "快捷键",
 
-		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等..."
+		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "在您的应用程序中自动同步任务，实现无缝和高效的更新。",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
+		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "账户将从所有团队中移除,您作为管理员的团队除外",
