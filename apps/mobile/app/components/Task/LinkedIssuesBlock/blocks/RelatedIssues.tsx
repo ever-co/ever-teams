@@ -6,14 +6,21 @@ import Accordion from "../../../Accordion"
 import { AntDesign, Entypo } from "@expo/vector-icons"
 import { useStores } from "../../../../models"
 import { useTeamTasks } from "../../../../services/hooks/features/useTeamTasks"
-import { ITeamTask, LinkedTaskIssue } from "../../../../services/interfaces/ITask"
+import {
+	ITeamTask,
+	LinkedTaskIssue,
+	TaskRelatedIssuesRelationEnum,
+} from "../../../../services/interfaces/ITask"
 import TaskLinkedIssue from "../components/TaskLinkedIssue"
 import CreateLinkedIssueModal from "../components/CreateLinkedIssueModal"
+import { useTaskLinkedIssues } from "../../../../services/hooks/features/useTaskLinkedIssue"
 
 const RelatedIssues = () => {
 	const {
 		TaskStore: { detailedTask: task },
 	} = useStores()
+
+	const { createTaskLinkedIssue, loading } = useTaskLinkedIssues()
 
 	const { teamTasks: tasks } = useTeamTasks()
 
@@ -21,7 +28,7 @@ const RelatedIssues = () => {
 
 	const linkedTasks = useMemo(() => {
 		const issues = task?.linkedIssues?.reduce((acc, item) => {
-			const $item = tasks.find((ts) => ts.id === item.taskFrom.id) || item.taskFrom
+			const $item = tasks.find((ts) => ts?.id === item?.taskFrom?.id) || item.taskFrom
 
 			if ($item /* && item.action === actionType?.data?.value */) {
 				acc.push({
@@ -36,14 +43,18 @@ const RelatedIssues = () => {
 		return issues || []
 	}, [task, tasks])
 
-	const onTaskSelect = useCallback((childTask: ITeamTask | undefined) => {
-		console.log(childTask)
-		setModalOpen(false)
+	const onTaskSelect = useCallback(async (childTask: ITeamTask | undefined) => {
+		await createTaskLinkedIssue({
+			action: TaskRelatedIssuesRelationEnum.RELATES_TO,
+			organizationId: task?.organizationId,
+			taskFromId: childTask?.id,
+			taskToId: task?.id,
+		}).finally(() => setModalOpen(false))
 	}, [])
 
 	const isTaskEpic = task?.issueType === "Epic"
 	const isTaskStory = task?.issueType === "Story"
-	const linkedTasksItems = task?.linkedIssues?.map((t) => t.taskFrom.id) || []
+	const linkedTasksItems = task?.linkedIssues?.map((t) => t?.taskFrom?.id) || []
 
 	const unlinkedTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
@@ -60,7 +71,7 @@ const RelatedIssues = () => {
 			}
 		}
 
-		return childTask.id !== task.id && !linkedTasksItems.includes(childTask.id) && hasChild()
+		return childTask?.id !== task?.id && !linkedTasksItems.includes(childTask?.id) && hasChild()
 	})
 
 	return (
@@ -78,6 +89,7 @@ const RelatedIssues = () => {
 
 					{task && (
 						<CreateLinkedIssueModal
+							isLoading={loading}
 							onTaskPress={onTaskSelect}
 							taskItems={unlinkedTasks}
 							task={task}

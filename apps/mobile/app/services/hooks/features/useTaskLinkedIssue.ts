@@ -4,6 +4,7 @@ import {
 	updateTaskLinkedIssue,
 } from "../../client/requests/task-linked-issue"
 import { useStores } from "../../../models"
+import { ITaskLinkedIssue, LinkedTaskIssue } from "../../interfaces/ITask"
 
 export const useTaskLinkedIssues = () => {
 	const {
@@ -13,7 +14,7 @@ export const useTaskLinkedIssues = () => {
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState(null)
 
-	const createTaskLinkedIssueRequest = async (data) => {
+	const createTaskLinkedIssueRequest = async (data: ITaskLinkedIssue) => {
 		try {
 			setLoading(true)
 			await createTaskLinkedIsssue(data, authToken, tenantId)
@@ -24,7 +25,7 @@ export const useTaskLinkedIssues = () => {
 		}
 	}
 
-	const updateTaskLinkedIssueRequest = async (data) => {
+	const updateTaskLinkedIssueRequest = async (data: LinkedTaskIssue) => {
 		try {
 			setLoading(true)
 			await updateTaskLinkedIssue(data, authToken, tenantId)

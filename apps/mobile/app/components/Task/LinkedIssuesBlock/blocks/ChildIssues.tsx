@@ -21,7 +21,7 @@ const ChildIssues = () => {
 
 	const childTasks = useMemo(() => {
 		const children = task?.children?.reduce((acc, item) => {
-			const $item = tasks.find((ts) => ts.id === item.id) || item
+			const $item = tasks.find((ts) => ts?.id === item?.id) || item
 			if ($item) {
 				acc.push($item)
 			}
@@ -38,7 +38,7 @@ const ChildIssues = () => {
 			parentId: task?.id,
 			parent: task,
 		}
-		await updateTask(updatedTask, childTask.id).finally(() => {
+		await updateTask(updatedTask, childTask?.id).finally(() => {
 			setIsLoading(false)
 			setModalOpen(false)
 		})
@@ -46,7 +46,7 @@ const ChildIssues = () => {
 
 	const isTaskEpic = task?.issueType === "Epic"
 	const isTaskStory = task?.issueType === "Story"
-	const childrenTasks = task?.children?.map((t) => t.id) || []
+	const childrenTasks = task?.children?.map((t) => t?.id) || []
 
 	const unchildTasks = tasks.filter((childTask) => {
 		const hasChild = () => {
@@ -63,7 +63,7 @@ const ChildIssues = () => {
 			}
 		}
 
-		return childTask.id !== task.id && !childrenTasks.includes(childTask.id) && hasChild()
+		return childTask?.id !== task?.id && !childrenTasks.includes(childTask?.id) && hasChild()
 	})
 
 	return (

@@ -42,7 +42,12 @@ const ActionTypesModal: React.FC<IActionTypesModal> = ({ actionType, actionItems
 			<ModalPopUp visible={modalOpen} onDismiss={() => setModalOpen(false)}>
 				<View style={[styles.container, { backgroundColor: colors.background }]}>
 					{actionItems.map((actionItem, idx) => (
-						<Item key={idx} actionItem={actionItem} onChange={onChange} />
+						<Item
+							key={idx}
+							actionItem={actionItem}
+							onChange={onChange}
+							onDismiss={() => setModalOpen(false)}
+						/>
 					))}
 				</View>
 			</ModalPopUp>
@@ -55,9 +60,10 @@ export default ActionTypesModal
 interface IItem {
 	actionItem: ActionTypeItem
 	onChange: (item: ActionTypeItem) => void
+	onDismiss: () => void
 }
 
-const Item: React.FC<IItem> = ({ actionItem, onChange }) => {
+const Item: React.FC<IItem> = ({ actionItem, onChange, onDismiss }) => {
 	const { colors } = useAppTheme()
 	return (
 		<View>
@@ -68,7 +74,10 @@ const Item: React.FC<IItem> = ({ actionItem, onChange }) => {
 					borderColor: colors.border,
 					borderRadius: 10,
 				}}
-				onPress={() => onChange(actionItem)}
+				onPress={() => {
+					onChange(actionItem)
+					onDismiss()
+				}}
 			>
 				<Text>{actionItem.data.name}</Text>
 			</TouchableOpacity>
