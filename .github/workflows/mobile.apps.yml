@@ -1,10 +1,10 @@
-name: Mobile Build, Deploy and Publish PROD
+name: Mobile Build, Deploy and Publish Apps
 on:
   push:
     branches:
-      - main
+      - apps
     paths:
-      - '.github/workflows/mobile.prod.yml'
+      - '.github/workflows/mobile.apps.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
@@ -77,3 +77,26 @@ jobs:
       - name: Build Mobile
         run: |
           yarn build:mobile
+
+      - name: Build on EAS
+        run: cd apps/mobile && eas build --platform all --non-interactive
+
+      - name: Publish update
+        run: cd apps/mobile && eas update --auto
+
+      - name: Upload App build to App store
+        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
+
+      # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          project_id: 'ever-teams-399720'
+
+      - name: Upload to Play Store Console
+        run: cd apps/mobile && eas submit --platform android --latest --non-interactive
