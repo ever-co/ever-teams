@@ -47,11 +47,8 @@ jobs:
       - name: Set Apple Store Credentials
         run: |
           echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
-          echo "::add-mask::$APPLE_ID"
           echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
-          echo "::add-mask::$APPSTORE_ISSUER_ID"
           echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
-          echo "::add-mask::$APPSTORE_API_KEY_ID"
 
       - name: Replace Secrets in eas.json
         run: |
@@ -61,7 +58,7 @@ jobs:
 
       - name: Create Apple API Key File
         run: |
-          echo ${{ secrets.APPSTORE_API_PRIVATE_KEY }} > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
+          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
 
       - name: Decode Google Credentials
         run: |
