@@ -167,7 +167,10 @@
 		"FILTER_UNSUBSCRIBE": "إلغاء الاشتراك",
 
 		"KEYBOARD_SHORTCUTS": "اختصارات لوحة المفاتيح",
-		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل."
+		"GITHUB_LOADING_TEXT": "نحن الآن في عملية تثبيت التكامل الخاص بك على GitHub، توكّل.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "قم بمزامنة المهام تلقائيًا في تطبيقك لتحديثات سلسة وفعّالة.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "تزامن المهام بشكل انتقائي عن طريق ربطها بتصنيف معين.",
+		"GITHUB_AUTO_SYNC_LABEL": "اختر تسمية التزامن التلقائي"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "سيتم إزالة الحساب من جميع الفرق، باستثناء حيث أنت المدير فقط",

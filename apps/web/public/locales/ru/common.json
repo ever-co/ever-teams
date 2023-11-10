@@ -167,7 +167,10 @@
 
 		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts",
 
-		"GITHUB_LOADING_TEXT": "Мы сейчас устанавливаем вашу интеграцию GitHub, подождите..."
+		"GITHUB_LOADING_TEXT": "Мы сейчас устанавливаем вашу интеграцию GitHub, подождите...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Автоматическая синхронизация задач в вашем приложении для бесперебойных и эффективных обновлений.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Синхронизация задач выборочно путем ассоциирования их с конкретной меткой.",
+		"GITHUB_AUTO_SYNC_LABEL": "Выберите метку автосинхронизации"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Account will be removed from all teams, except where you are only the manager",
