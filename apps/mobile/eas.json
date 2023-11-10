@@ -18,7 +18,13 @@
 			}
 		},
 		"production": {
-			"channel": "production"
+			"channel": "production",
+			"ios": {
+				"ascAppId": "APPLE_ID_PLACEHOLDER",
+				"ascApiKeyIssuerId": "APPSTORE_ISSUER_ID_PLACEHOLDER",
+				"ascApiKeyId": "APPSTORE_API_KEY_ID_PLACEHOLDER",
+				"ascApiKeyPath": "./AuthKey_R9QZ5LP8NK.p8"
+			}
 		}
 	},
 	"submit": {
