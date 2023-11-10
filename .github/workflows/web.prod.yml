@@ -5,11 +5,10 @@ on:
       - main
     paths:
       - '.deploy/web/**'
-      - '.github/workflows/**'
+      - '.github/workflows/web.prod.yml'
       - 'apps/web/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}

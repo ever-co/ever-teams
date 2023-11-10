@@ -6,6 +6,12 @@ on:
     branches: [main]
     types:
       - completed
+  push:
+    paths:
+      - 'apps/desktop/**'
+      - '.github/workflows/desktop.prod.yml'
+      - 'package.json'
+      - 'yarn.lock'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}

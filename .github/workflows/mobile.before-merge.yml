@@ -3,11 +3,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/mobile.before-merge.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}

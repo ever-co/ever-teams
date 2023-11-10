@@ -4,11 +4,10 @@ on:
     types: [opened, synchronize, reopened]
     paths:
       - '.deploy/web/**'
-      - '.github/workflows/**'
+      - '.github/workflows/web.before-merge.yml'
       - 'apps/web/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
