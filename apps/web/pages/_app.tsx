@@ -16,6 +16,7 @@ import { RecoilRoot } from 'recoil';
 import { JitsuAnalytics } from '../lib/components/services/jitsu-analytics';
 import i18n from '../ni18n.config';
 import '../styles/globals.css';
+
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	const jitsuConf = pageProps?.jitsuConf;
 	console.log('Jutsu Host', pageProps);
@@ -78,6 +79,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 		</>
 	);
 };
+
 MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProps>; ctx: NextPageContext }) => {
 	// Recover environment variables
 	const jitsuHost = process.env.NEXT_JITSU_BROWSER_URL;
@@ -99,4 +101,5 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 		}
 	};
 };
+
 export default MyApp;
