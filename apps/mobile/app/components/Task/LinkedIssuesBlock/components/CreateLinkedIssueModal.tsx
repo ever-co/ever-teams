@@ -12,24 +12,34 @@ import {
 	Pressable,
 	TextInput,
 } from "react-native"
-import React, { useCallback, useEffect, useRef, useState } from "react"
-import ComboBox from "../../../screens/Authenticated/TimerScreen/components/ComboBox"
-import { translate } from "../../../i18n"
-import IssuesModal from "../../IssuesModal"
-import { useStores } from "../../../models"
-import { useTaskInput } from "../../../services/hooks/features/useTaskInput"
-import { typography, useAppTheme } from "../../../theme"
+import React, { ReactElement, useCallback, useEffect, useRef, useState } from "react"
+import ComboBox from "../../../../screens/Authenticated/TimerScreen/components/ComboBox"
+import { translate } from "../../../../i18n"
+import IssuesModal from "../../../IssuesModal"
+import { useStores } from "../../../../models"
+import { useTaskInput } from "../../../../services/hooks/features/useTaskInput"
 import { Feather } from "@expo/vector-icons"
-import { ITeamTask } from "../../../services/interfaces/ITask"
+import { ITeamTask } from "../../../../services/interfaces/ITask"
 import { BlurView } from "expo-blur"
+import { useAppTheme, typography } from "../../../../theme"
 
-interface ICreateParentTaskModal {
+interface ICreateLinkedIssueModal {
 	visible: boolean
 	onDismiss: () => void
 	task: ITeamTask
+	taskItems?: ITeamTask[]
+	onTaskPress?: (childTask: ITeamTask) => void
+	isLoading?: boolean
 }
 
-const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDismiss, task }) => {
+const CreateLinkedIssueModal: React.FC<ICreateLinkedIssueModal> = ({
+	visible,
+	onDismiss,
+	task,
+	taskItems,
+	onTaskPress,
+	isLoading,
+}) => {
 	const { colors } = useAppTheme()
 
 	const taskInput = useTaskInput()
@@ -66,7 +76,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 	}, [editMode])
 
 	return (
-		<ModalPopUp visible={visible} onDismiss={onDismiss}>
+		<ModalPopUp visible={visible} onDismiss={onDismiss} isLoading={isLoading}>
 			<View style={[styles.container, { backgroundColor: colors.background }]}>
 				<View
 					style={[
@@ -79,7 +89,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 						},
 					]}
 				>
-					<IssuesModal task={activeTask} />
+					<IssuesModal task={null} />
 
 					<Text style={styles.taskNumberStyle}>
 						{!editMode && activeTask ? `#${activeTask.taskNumber} ` : ""}
@@ -98,7 +108,7 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 							},
 						]}
 						placeholder={translate("myWorkScreen.taskFieldPlaceholder")}
-						defaultValue={activeTask ? activeTask.title : ""}
+						defaultValue={""}
 						autoFocus={false}
 						autoCapitalize="none"
 						autoCorrect={false}
@@ -124,6 +134,8 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 				</View>
 				{combxShow && (
 					<ComboBox
+						onTaskPress={onTaskPress}
+						linkedTaskItems={taskItems}
 						childTask={task}
 						onDismiss={onDismiss}
 						parentTasksFilter={true}
@@ -137,12 +149,20 @@ const CreateParentTaskModal: React.FC<ICreateParentTaskModal> = ({ visible, onDi
 	)
 }
 
-export default CreateParentTaskModal
+export default CreateLinkedIssueModal
 
-const ModalPopUp = ({ visible, children, onDismiss }) => {
+interface IModal {
+	visible: boolean
+	children: ReactElement[] | ReactElement
+	onDismiss: () => void
+	isLoading: boolean
+}
+
+const ModalPopUp: React.FC<IModal> = ({ visible, children, onDismiss, isLoading }) => {
 	const [showModal, setShowModal] = React.useState(visible)
 	const scaleValue = React.useRef(new Animated.Value(0)).current
 	const modalRef = useRef(null)
+	const { colors } = useAppTheme()
 
 	React.useEffect(() => {
 		toggleModal()
@@ -189,8 +209,13 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 					position: "absolute",
 					width: "100%",
 					height: "100%",
+					justifyContent: "center",
+					alignItems: "center",
+					zIndex: isLoading && 100,
 				}}
-			/>
+			>
+				{isLoading && <ActivityIndicator size="large" color={colors.secondary} />}
+			</BlurView>
 			<TouchableWithoutFeedback onPress={handlePressOutside}>
 				<View style={$modalBackGround}>
 					<Animated.View ref={modalRef} style={{ transform: [{ scale: scaleValue }] }}>
