@@ -19,10 +19,10 @@ import '../styles/globals.css';
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
 	const jitsuConf = pageProps?.jitsuConf;
-	console.log('Jutsu Host', pageProps);
+	console.log('Jitsu Host', pageProps);
 	console.log(`Jitsu Configuration: ${JSON.stringify(jitsuConf)}`);
 
-	const isJitsuEnvsPresent: boolean = jitsuConf.host !== '' && jitsuConf.writeKey !== '';
+	const isJitsuEnvsPresent: boolean = jitsuConf?.host !== '' && jitsuConf?.writeKey !== '';
 	console.log(`Jitsu Enabled: ${isJitsuEnvsPresent}`);
 
 	return (
@@ -89,9 +89,11 @@ MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProp
 	// Call the static method getInitialProps
 	// of the page component if it exists
 	let pageProps = {};
+
 	if (Component.getInitialProps) {
 		pageProps = await Component.getInitialProps(ctx);
 	}
+
 	return {
 		pageProps: {
 			...pageProps,
