@@ -5,7 +5,6 @@ import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
