@@ -20,6 +20,8 @@ export interface Props {
 	parentTasksFilter?: boolean
 	childTask?: ITeamTask
 	onDismiss?: () => void
+	linkedTaskItems?: ITeamTask[]
+	onTaskPress?: (relatedTask: ITeamTask) => void
 }
 
 const ComboBox: FC<Props> = observer(function ComboBox({
@@ -29,6 +31,8 @@ const ComboBox: FC<Props> = observer(function ComboBox({
 	parentTasksFilter,
 	childTask,
 	onDismiss,
+	linkedTaskItems,
+	onTaskPress,
 }) {
 	const { colors } = useAppTheme()
 	const [isScrolling, setIsScrolling] = useState<boolean>(false)
@@ -70,13 +74,16 @@ const ComboBox: FC<Props> = observer(function ComboBox({
 						onScrollEndDrag={() => setIsScrolling(false)}
 						showsVerticalScrollIndicator={false}
 						data={
-							parentTasksFilter
+							linkedTaskItems ||
+							(parentTasksFilter
 								? tasksHandler.filteredEpicTasks
-								: tasksHandler.filteredTasks
+								: tasksHandler.filteredTasks)
 						}
 						renderItem={({ item, index }) => (
 							<IndividualTask
+								onTaskPress={onTaskPress}
 								parentTasksFilter={parentTasksFilter}
+								isLinkedTasks={!!linkedTaskItems}
 								childTask={childTask}
 								onDismiss={onDismiss}
 								key={index}

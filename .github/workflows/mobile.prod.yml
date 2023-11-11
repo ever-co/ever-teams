@@ -4,11 +4,10 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/**'
+      - '.github/workflows/mobile.prod.yml'
       - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -45,19 +44,21 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Install Packages
+      - name: Set Apple Store Credentials
         run: |
-          yarn install --frozen-lockfile
+          echo "APPLE_ID=${{ secrets.APPLE_ID }}" >> $GITHUB_ENV
+          echo "APPSTORE_ISSUER_ID=${{ secrets.APPSTORE_ISSUER_ID }}" >> $GITHUB_ENV
+          echo "APPSTORE_API_KEY_ID=${{ secrets.APPSTORE_API_KEY_ID }}" >> $GITHUB_ENV
 
-      - name: Build Mobile
+      - name: Replace Secrets in eas.json
         run: |
-          yarn build:mobile
+          sed -i 's/APPLE_ID_PLACEHOLDER/${{ secrets.APPLE_ID }}/' ./apps/mobile/eas.json
+          sed -i 's/APPSTORE_ISSUER_ID_PLACEHOLDER/${{ secrets.APPSTORE_ISSUER_ID }}/' ./apps/mobile/eas.json
+          sed -i 's/APPSTORE_API_KEY_ID_PLACEHOLDER/${{ secrets.APPSTORE_API_KEY_ID }}/' ./apps/mobile/eas.json
 
-      - name: Build on EAS
-        run: cd apps/mobile && eas build --platform all --non-interactive
-
-      - name: Publish update
-        run: cd apps/mobile && eas update --auto
+      - name: Create Apple API Key File
+        run: |
+          echo "${{ secrets.APPSTORE_API_PRIVATE_KEY }}" > ./apps/mobile/AuthKey_R9QZ5LP8NK.p8
 
       - name: Decode Google Credentials
         run: |
@@ -69,26 +70,10 @@ jobs:
           echo "ESCAPED_GOOGLE_CREDENTIALS=$ESCAPED_GOOGLE_CREDENTIALS" >> $GITHUB_ENV
           echo "::add-mask::$ESCAPED_GOOGLE_CREDENTIALS"
 
-      # See https://github.com/ever-co/ever-teams-boards-store/blob/develop/.github/workflows/deploy.yml
+      - name: Install Packages
+        run: |
+          yarn install --frozen-lockfile
 
-      - name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: ${{ env.DECODED_GOOGLE_CREDENTIALS }}
-
-      # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
-        with:
-          project_id: 'ever-teams-399720'
-
-      - name: Upload to Play Store Console
-        run: cd apps/mobile && eas submit --platform android --latest --non-interactive
-
-      - name: Upload App build to App store
-        env:
-          ascAppId: ${{ secrets.APPLE_ID }}
-          ascApiKeyIssuerId: ${{ secrets.APPSTORE_ISSUER_ID }}
-          ascApiKeyId: ${{ secrets.APPSTORE_API_KEY_ID }}
-          ascApiKey: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
-        run: cd apps/mobile && eas submit --platform ios --latest --non-interactive
+      - name: Build Mobile
+        run: |
+          yarn build:mobile

@@ -165,7 +165,10 @@
 		"FILTER_UNSUBSCRIBE": "Se désabonner",
 
 		"KEYBOARD_SHORTCUTS": "Raccourcis clavier",
-		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter..."
+		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisez automatiquement les tâches dans votre application pour des mises à jour fluides et efficaces.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
+		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",

@@ -192,7 +192,7 @@ const ModalPopUp = ({ visible, children, onDismiss }) => {
 				}}
 			/>
 			<TouchableWithoutFeedback onPress={handlePressOutside}>
-				<View onTouchEnd={onDismiss} style={$modalBackGround}>
+				<View style={$modalBackGround}>
 					<Animated.View ref={modalRef} style={{ transform: [{ scale: scaleValue }] }}>
 						{children}
 					</Animated.View>
