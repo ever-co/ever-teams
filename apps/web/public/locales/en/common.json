@@ -168,7 +168,7 @@
 		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts",
 
 		"GITHUB_LOADING_TEXT": "We are now installing your GitHub Integration, hold on...",
-		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub integration for project & repository sync",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
 		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatically synchronize tasks in your application for seamless and efficient updates.",
 		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronize tasks selectively by associating them with specific label.",
 		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label"
