@@ -26,6 +26,8 @@ export interface Props {
 	parentTasksFilter: boolean
 	childTask?: ITeamTask
 	onDismiss?: () => void
+	onTaskPress?: (relatedTask: ITeamTask) => void
+	isLinkedTasks: boolean
 }
 
 const IndividualTask: FC<Props> = observer(
@@ -39,6 +41,8 @@ const IndividualTask: FC<Props> = observer(
 		parentTasksFilter,
 		childTask,
 		onDismiss,
+		onTaskPress,
+		isLinkedTasks,
 	}) => {
 		const { colors } = useAppTheme()
 		const [showDel, setShowDel] = useState(false)
@@ -93,7 +97,9 @@ const IndividualTask: FC<Props> = observer(
 			>
 				<View
 					onTouchEnd={() => {
-						!parentTasksFilter
+						isLinkedTasks
+							? !isScrolling && onTaskPress(task)
+							: !parentTasksFilter
 							? !isScrolling && handleActiveTask(task)
 							: !isScrolling && setParent(task, childTask, onDismiss)
 					}} // added it here because doesn't work when assigned to the parent
@@ -117,7 +123,9 @@ const IndividualTask: FC<Props> = observer(
 				</View>
 				<View
 					onTouchEnd={() => {
-						!parentTasksFilter
+						isLinkedTasks
+							? !isScrolling && onTaskPress(task)
+							: !parentTasksFilter
 							? !isScrolling && handleActiveTask(task)
 							: !isScrolling && setParent(task, childTask, onDismiss)
 					}} // added it here because doesn't work when assigned to the parent
