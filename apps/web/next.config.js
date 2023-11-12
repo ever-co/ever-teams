@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -32,7 +33,8 @@ const nextConfig = {
 
 // Injected content via Sentry wizard below
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// Injected content via Sentry wizard below
+
 const { withSentryConfig } = require('@sentry/nextjs');
 
 module.exports = withSentryConfig(
