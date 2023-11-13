@@ -66,7 +66,17 @@ const DescriptionBlock = () => {
 									borderTopWidth: 5,
 								}),
 							}}
-							options="full"
+							options={[
+								["bold", "italic", "underline", "code", "blockquote"],
+
+								[
+									{ header: "1" },
+									{ header: "2" },
+									{ list: "ordered" },
+									{ list: "bullet" },
+									{ align: [] },
+								],
+							]}
 							theme="light"
 						/>
 					</View>
@@ -84,7 +94,7 @@ const styles = StyleSheet.create({
 		borderWidth: 0,
 		flex: 1,
 		marginVertical: 5,
-		minHeight: 120,
+		minHeight: 230,
 		padding: 0,
 	},
 })
