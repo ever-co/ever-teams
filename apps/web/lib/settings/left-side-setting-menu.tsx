@@ -5,7 +5,6 @@ import { scrollToElement } from '@app/utils';
 import { Text } from 'lib/components';
 import { SidebarAccordian } from 'lib/components/sidebar-accordian';
 import { PeopleIcon, PeopleIconFilled, UserIcon, UserIconFilled } from 'lib/components/svgs';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -41,7 +40,6 @@ export const LeftSideSettingMenu = () => {
 
 	const onLinkClick = useCallback(
 		(e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-			// if(router.pathname )
 			const url = new URL(e.currentTarget.href);
 			if (url.pathname !== router.pathname) {
 				return;
@@ -94,7 +92,7 @@ export const LeftSideSettingMenu = () => {
 						<div className="flex flex-col">
 							{PersonalAccordianData.map((ad, index) => {
 								return (
-									<Link onClick={onLinkClick} href={`/settings/personal${ad.href}`} key={index}>
+									<a onClick={onLinkClick} href={`/settings/personal${ad.href}`} key={index}>
 										<Text
 											className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 											key={index}
@@ -102,7 +100,7 @@ export const LeftSideSettingMenu = () => {
 										>
 											{ad.title}
 										</Text>
-									</Link>
+									</a>
 								);
 							})}
 						</div>
@@ -138,7 +136,7 @@ export const LeftSideSettingMenu = () => {
 							{TeamAccordianData.filter((ad) => (!isTeamManager && !ad.managerOnly) || isTeamManager).map(
 								(ad, index) => {
 									return (
-										<Link onClick={onLinkClick} href={`/settings/team${ad.href}`} key={index}>
+										<a onClick={onLinkClick} href={`/settings/team${ad.href}`} key={index}>
 											<Text
 												className={`text-[${ad.color}] text-lg font-normal flex items-center p-4 pr-1 pl-5`}
 												key={index}
@@ -146,7 +144,7 @@ export const LeftSideSettingMenu = () => {
 											>
 												{ad.title}
 											</Text>
-										</Link>
+										</a>
 									);
 								}
 							)}

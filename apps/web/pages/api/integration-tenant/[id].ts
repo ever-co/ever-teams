@@ -3,7 +3,7 @@ import { deleteIntegrationTenantRequest } from '@app/services/server/requests';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-	const { $res, user, access_token, tenantId } = await authenticatedGuard(req, res);
+	const { $res, user, access_token, tenantId, organizationId } = await authenticatedGuard(req, res);
 	if (!user) return $res();
 
 	const { id } = req.query;
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 	}
 
 	if (id) {
-		const response = await deleteIntegrationTenantRequest(id as string, tenantId, access_token);
+		const response = await deleteIntegrationTenantRequest(id as string, tenantId, organizationId, access_token);
 
 		return $res.status(200).json(response);
 	}

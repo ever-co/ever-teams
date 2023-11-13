@@ -25,9 +25,14 @@ export function getIntegrationTenantRequest(
 	});
 }
 
-export function deleteIntegrationTenantRequest(integrationId: string, tenantId: string, bearer_token: string) {
+export function deleteIntegrationTenantRequest(
+	integrationId: string,
+	tenantId: string,
+	organizationId: string,
+	bearer_token: string
+) {
 	return serverFetch<IIntegrationTenant>({
-		path: `/integration-tenant/${integrationId}`,
+		path: `/integration-tenant/${integrationId}?organizationId=${organizationId}&tenantId=${tenantId}`,
 		method: 'DELETE',
 		bearer_token,
 		tenantId
