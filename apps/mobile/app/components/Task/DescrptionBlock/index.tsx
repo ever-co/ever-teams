@@ -19,6 +19,7 @@ import { copyIcon } from "../../svgs/icons"
 import * as Clipboard from "expo-clipboard"
 import { showMessage } from "react-native-flash-message"
 import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
+import { useClickOutside } from "react-native-click-outside"
 
 const DescriptionBlock = () => {
 	const _editor: RefObject<QuillEditor> = React.useRef()
@@ -39,10 +40,6 @@ const DescriptionBlock = () => {
 	React.useEffect(() => {
 		setEditorKey((prevKey) => prevKey + 1)
 	}, [colors, task?.description])
-
-	React.useEffect(() => {
-		console.log("hto:", htmlValue)
-	}, [htmlValue])
 
 	const handleHtmlChange = (html: string) => {
 		setHtmlValue(html)
@@ -93,6 +90,10 @@ const DescriptionBlock = () => {
 		})
 	}
 
+	const editorContainerOutsidePressRef = useClickOutside<View>(() => {
+		_editor.current?.blur()
+		setActionButtonsVisible(false)
+	})
 	return (
 		<Accordion
 			setAccordionExpanded={setAccordionExpanded}
@@ -107,7 +108,7 @@ const DescriptionBlock = () => {
 				)
 			}
 		>
-			<View style={{ paddingBottom: 12 }}>
+			<View style={{ paddingBottom: 12 }} ref={editorContainerOutsidePressRef}>
 				<QuillEditor
 					key={editorKey}
 					style={styles.editor}
@@ -128,7 +129,7 @@ const DescriptionBlock = () => {
 						placeholder: "#e0e0e0",
 					}}
 				/>
-				<ScrollView>
+				<ScrollView keyboardShouldPersistTaps="never">
 					<View style={{ paddingHorizontal: 12 }}>
 						<View style={styles.horizontalSeparator} />
 						<QuillToolbar
