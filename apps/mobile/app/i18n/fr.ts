@@ -133,6 +133,8 @@ const fr = {
 		isDuplicatedBy: "Est dupliqué par",
 		relatesTo: "Se rapporte à",
 		linkedIssues: "Problèmes liés",
+		description: "Description",
+		descriptionBlockPlaceholder: "Écrivez une description complète de votre projet...",
 	},
 	tasksScreen: {
 		name: "Tâches",
