@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
-import { View, StyleSheet, ScrollView } from "react-native"
+import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from "react-native"
 import React, { RefObject } from "react"
 import Accordion from "../../Accordion"
 import QuillEditor, { QuillToolbar } from "react-native-cn-quill"
@@ -12,6 +12,7 @@ const DescriptionBlock = () => {
 	const _editor: RefObject<QuillEditor> = React.useRef()
 
 	const [editorKey, setEditorKey] = React.useState(1)
+	const [actionButtonsVisible, setActionButtonsVisible] = React.useState<boolean>(false)
 
 	const {
 		TaskStore: { detailedTask: task },
@@ -21,7 +22,45 @@ const DescriptionBlock = () => {
 
 	React.useEffect(() => {
 		setEditorKey((prevKey) => prevKey + 1)
-	}, [colors])
+	}, [colors, task?.description])
+
+	const handleEditorChange = async () => {
+		const currentHtml = await _editor.current?.getText()
+		console.log(currentHtml)
+	}
+
+	const handleHtmlChange = (event) => {
+		console.log("HTML Content:", event)
+		console.log("DB Value:", task?.description)
+		console.log("Interesting:", transformHtmlForSlate(event))
+	}
+
+	function transformHtmlForSlate(html) {
+		// Replace <pre> with <p> and the content inside <pre> with <code>,
+		// excluding <a> tags from modification
+		const modifiedHtml = html
+			.replace(
+				/<pre class="ql-syntax" spellcheck="false">([\s\S]*?)<\/pre>/g,
+				(_, content) => {
+					const codeContent = content.replace(/(<a .*?<\/a>)/g, "PLACEHOLDER_FOR_A_TAG")
+					return `<p><pre><code>${codeContent}</code></pre></p>`
+				},
+			)
+			.replace(/PLACEHOLDER_FOR_A_TAG/g, (_, content) => content)
+			.replace(/class="ql-align-(.*?)"/g, (_, alignmentClass) => {
+				return `style="text-align:${alignmentClass}"`
+			})
+
+		return modifiedHtml
+	}
+
+	const onPressCancel = async (): Promise<void> => {
+		await _editor.current
+			.setContents("")
+			.then(() => _editor.current.dangerouslyPasteHTML(0, task?.description))
+			.then(() => _editor.current.blur())
+			.finally(() => setTimeout(() => setActionButtonsVisible(false), 100))
+	}
 
 	return (
 		<Accordion title={translate("taskDetailsScreen.description")}>
@@ -29,6 +68,10 @@ const DescriptionBlock = () => {
 				<QuillEditor
 					key={editorKey}
 					style={styles.editor}
+					onEditorChange={handleEditorChange}
+					onHtmlChange={(event) => handleHtmlChange(event.html)}
+					onTextChange={() => setActionButtonsVisible(true)}
+					webview={{ allowsLinkPreview: true }}
 					ref={_editor}
 					initialHtml={task?.description ? task?.description : ""}
 					quill={{
@@ -56,14 +99,11 @@ const DescriptionBlock = () => {
 										borderLeftWidth: 0,
 										borderRightWidth: 0,
 										borderBottomWidth: 0,
-
-										// backgroundColor: colors.background,
 									}),
 									root: (provided) => ({
 										...provided,
 										backgroundColor: colors.background,
 										width: "100%",
-										// height: "100%",
 									}),
 								},
 								separator: (provided) => ({
@@ -95,6 +135,27 @@ const DescriptionBlock = () => {
 							]}
 							theme={dark ? "dark" : "light"}
 						/>
+						{actionButtonsVisible && (
+							<View style={styles.actionButtonsWrapper}>
+								<TouchableOpacity
+									style={{
+										...styles.actionButton,
+										backgroundColor: "#E7E7EA",
+									}}
+									onPress={onPressCancel}
+								>
+									<Text style={{ fontSize: 12 }}>Cancel</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={{
+										...styles.actionButton,
+										backgroundColor: colors.secondary,
+									}}
+								>
+									<Text style={{ color: "white", fontSize: 12 }}>Save</Text>
+								</TouchableOpacity>
+							</View>
+						)}
 					</View>
 				</ScrollView>
 			</View>
@@ -105,6 +166,19 @@ const DescriptionBlock = () => {
 export default DescriptionBlock
 
 const styles = StyleSheet.create({
+	actionButton: {
+		alignItems: "center",
+		borderRadius: 8,
+		height: 30,
+		justifyContent: "center",
+		width: 80,
+	},
+	actionButtonsWrapper: {
+		flexDirection: "row",
+		gap: 5,
+		justifyContent: "flex-end",
+		marginVertical: 5,
+	},
 	editor: {
 		backgroundColor: "white",
 		borderWidth: 0,
