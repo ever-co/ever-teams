@@ -1,18 +1,30 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
-import { View, StyleSheet, ScrollView, TouchableOpacity, Text } from "react-native"
+import {
+	View,
+	StyleSheet,
+	ScrollView,
+	TouchableOpacity,
+	Text,
+	TouchableWithoutFeedback,
+} from "react-native"
 import React, { RefObject } from "react"
 import Accordion from "../../Accordion"
 import QuillEditor, { QuillToolbar } from "react-native-cn-quill"
 import { useStores } from "../../../models"
 import { useAppTheme } from "../../../theme"
 import { translate } from "../../../i18n"
+import { SvgXml } from "react-native-svg"
+import { copyIcon } from "../../svgs/icons"
+import * as Clipboard from "expo-clipboard"
+import { showMessage } from "react-native-flash-message"
 
 const DescriptionBlock = () => {
 	const _editor: RefObject<QuillEditor> = React.useRef()
 
 	const [editorKey, setEditorKey] = React.useState(1)
 	const [actionButtonsVisible, setActionButtonsVisible] = React.useState<boolean>(false)
+	const [accordionExpanded, setAccordionExpanded] = React.useState<boolean>(true)
 
 	const {
 		TaskStore: { detailedTask: task },
@@ -62,8 +74,30 @@ const DescriptionBlock = () => {
 			.finally(() => setTimeout(() => setActionButtonsVisible(false), 100))
 	}
 
+	const copyDescription = async () => {
+		const descriptionPlainText = await _editor.current.getText()
+		Clipboard.setStringAsync(descriptionPlainText)
+		showMessage({
+			message: translate("taskDetailsScreen.copyDescription"),
+			type: "info",
+			backgroundColor: colors.secondary,
+		})
+	}
+
 	return (
-		<Accordion title={translate("taskDetailsScreen.description")}>
+		<Accordion
+			setAccordionExpanded={setAccordionExpanded}
+			title={translate("taskDetailsScreen.description")}
+			headerElement={
+				accordionExpanded && (
+					<TouchableWithoutFeedback>
+						<TouchableOpacity onPress={copyDescription}>
+							<SvgXml xml={copyIcon} />
+						</TouchableOpacity>
+					</TouchableWithoutFeedback>
+				)
+			}
+		>
 			<View style={{ paddingBottom: 12 }}>
 				<QuillEditor
 					key={editorKey}
@@ -144,7 +178,9 @@ const DescriptionBlock = () => {
 									}}
 									onPress={onPressCancel}
 								>
-									<Text style={{ fontSize: 12 }}>Cancel</Text>
+									<Text style={{ fontSize: 12 }}>
+										{translate("common.cancel")}
+									</Text>
 								</TouchableOpacity>
 								<TouchableOpacity
 									style={{
@@ -152,7 +188,9 @@ const DescriptionBlock = () => {
 										backgroundColor: colors.secondary,
 									}}
 								>
-									<Text style={{ color: "white", fontSize: 12 }}>Save</Text>
+									<Text style={{ color: "white", fontSize: 12 }}>
+										{translate("common.save")}
+									</Text>
 								</TouchableOpacity>
 							</View>
 						)}

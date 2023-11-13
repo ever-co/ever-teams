@@ -135,6 +135,7 @@ const fr = {
 		linkedIssues: "Problèmes liés",
 		description: "Description",
 		descriptionBlockPlaceholder: "Écrivez une description complète de votre projet...",
+		copyDescription: "Description copiée.",
 	},
 	tasksScreen: {
 		name: "Tâches",

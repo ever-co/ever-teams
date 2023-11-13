@@ -136,6 +136,7 @@ const ar: Translations = {
 		linkedIssues: "المسائل المرتبطة",
 		description: "الوصف",
 		descriptionBlockPlaceholder: "اكتب وصفاً كاملاً لمشروعك...",
+		copyDescription: "تم نسخ الوصف.",
 	},
 	tasksScreen: {
 		name: "مهام",
