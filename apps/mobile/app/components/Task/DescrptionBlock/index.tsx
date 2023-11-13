@@ -18,6 +18,7 @@ import { SvgXml } from "react-native-svg"
 import { copyIcon } from "../../svgs/icons"
 import * as Clipboard from "expo-clipboard"
 import { showMessage } from "react-native-flash-message"
+import { useTeamTasks } from "../../../services/hooks/features/useTeamTasks"
 
 const DescriptionBlock = () => {
 	const _editor: RefObject<QuillEditor> = React.useRef()
@@ -25,6 +26,9 @@ const DescriptionBlock = () => {
 	const [editorKey, setEditorKey] = React.useState(1)
 	const [actionButtonsVisible, setActionButtonsVisible] = React.useState<boolean>(false)
 	const [accordionExpanded, setAccordionExpanded] = React.useState<boolean>(true)
+	const [htmlValue, setHtmlValue] = React.useState<string>("")
+
+	const { updateDescription } = useTeamTasks()
 
 	const {
 		TaskStore: { detailedTask: task },
@@ -36,18 +40,15 @@ const DescriptionBlock = () => {
 		setEditorKey((prevKey) => prevKey + 1)
 	}, [colors, task?.description])
 
-	const handleEditorChange = async () => {
-		const currentHtml = await _editor.current?.getText()
-		console.log(currentHtml)
+	React.useEffect(() => {
+		console.log("hto:", htmlValue)
+	}, [htmlValue])
+
+	const handleHtmlChange = (html: string) => {
+		setHtmlValue(html)
 	}
 
-	const handleHtmlChange = (event) => {
-		console.log("HTML Content:", event)
-		console.log("DB Value:", task?.description)
-		console.log("Interesting:", transformHtmlForSlate(event))
-	}
-
-	function transformHtmlForSlate(html) {
+	function transformHtmlForSlate(html: string) {
 		// Replace <pre> with <p> and the content inside <pre> with <code>,
 		// excluding <a> tags from modification
 		const modifiedHtml = html
@@ -72,6 +73,14 @@ const DescriptionBlock = () => {
 			.then(() => _editor.current.dangerouslyPasteHTML(0, task?.description))
 			.then(() => _editor.current.blur())
 			.finally(() => setTimeout(() => setActionButtonsVisible(false), 100))
+	}
+
+	const onPressSave = async (): Promise<void> => {
+		const formattedValue = transformHtmlForSlate(htmlValue)
+		await updateDescription(formattedValue, task).finally(() => {
+			_editor.current.blur()
+			setActionButtonsVisible(false)
+		})
 	}
 
 	const copyDescription = async () => {
@@ -102,7 +111,6 @@ const DescriptionBlock = () => {
 				<QuillEditor
 					key={editorKey}
 					style={styles.editor}
-					onEditorChange={handleEditorChange}
 					onHtmlChange={(event) => handleHtmlChange(event.html)}
 					onTextChange={() => setActionButtonsVisible(true)}
 					webview={{ allowsLinkPreview: true }}
@@ -183,6 +191,7 @@ const DescriptionBlock = () => {
 									</Text>
 								</TouchableOpacity>
 								<TouchableOpacity
+									onPress={onPressSave}
 									style={{
 										...styles.actionButton,
 										backgroundColor: colors.secondary,
