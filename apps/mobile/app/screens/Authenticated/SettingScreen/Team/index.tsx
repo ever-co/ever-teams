@@ -58,7 +58,9 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 				{isTeamManager ? <SwithTimeTracking /> : null}
 				<SingleInfo
 					title={"Task Versions"}
-					value={`There are ${versions?.total} active versions`}
+					value={`There ${versions?.total === 1 ? "is" : "are"} ${
+						versions?.total
+					} active ${versions?.total === 1 ? "version" : "versions"} versions`}
 					onPress={() => navigation.navigate("TaskVersion")}
 				/>
 				<SingleInfo
@@ -78,7 +80,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.taskLabel")}
-					value={`There ${labels?.total < 2 ? "is" : "are"} ${labels?.total} active ${
+					value={`There ${labels?.total === 1 ? "is" : "are"} ${labels?.total} active ${
 						labels?.total === 1 ? "label" : "labels"
 					}`}
 					onPress={() => navigation.navigate("TaskLabelScreen")}
