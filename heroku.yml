@@ -1,6 +1,6 @@
 build:
   docker:
-    web: ghcr.io/ever-co/ever-teams-webapp:latest
+    web: Dockerfile
 
 run:
   web: node apps/web/server.js
