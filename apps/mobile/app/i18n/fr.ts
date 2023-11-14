@@ -136,6 +136,7 @@ const fr = {
 		description: "Description",
 		descriptionBlockPlaceholder: "Écrivez une description complète de votre projet...",
 		copyDescription: "Description copiée.",
+		showMore: "Afficher plus",
 	},
 	tasksScreen: {
 		name: "Tâches",
