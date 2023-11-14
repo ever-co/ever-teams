@@ -223,6 +223,17 @@ const en = {
 			korean: "Korean",
 			hebrew: "Hebrew",
 		},
+		versionScreen: {
+			mainTitle: "Task Versions",
+			listOfVersions: "List of Versions",
+			noActiveVersions: "There are no active versions",
+			createNewVersionButton: "Create new version",
+			createNewVersionText: "Create New Version",
+			versionNamePlaceholder: "Version Name",
+			cancelButtonText: "Cancel",
+			createButtonText: "Create",
+			updateButtonText: "Update",
+		},
 		statusScreen: {
 			mainTitle: "Task Statuses",
 			statuses: "Statuses",

@@ -13,7 +13,7 @@ import {
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { Screen } from "../../../components"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
-// import { translate } from "../../../i18n"
+import { translate } from "../../../i18n"
 import { typography, useAppTheme } from "../../../theme"
 import BottomSheet from "reanimated-bottom-sheet"
 import Animated from "react-native-reanimated"
@@ -57,14 +57,16 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">
 								<AntDesign name="arrowleft" size={24} color={colors.primary} />
 							</TouchableOpacity>
 							<Text style={[styles.title, { color: colors.primary }]}>
-								Task Versions
+								{translate("settingScreen.versionScreen.mainTitle")}
 							</Text>
 						</View>
 					</View>
 
 					<View style={{ width: "100%", padding: 20, height: "80%" }}>
 						<View>
-							<Text style={styles.title2}>List of Versions</Text>
+							<Text style={styles.title2}>
+								{translate("settingScreen.versionScreen.listOfVersions")}
+							</Text>
 						</View>
 						<View
 							style={{
@@ -78,7 +80,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">
 							) : null}
 							{!isLoading && versions?.total === 0 ? (
 								<Text style={{ ...styles.noVersionTxt, color: colors.primary }}>
-									There are not active verisons
+									{translate("settingScreen.versionScreen.noActiveVersions")}
 								</Text>
 							) : null}
 
@@ -112,7 +114,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">
 					>
 						<Ionicons name="add" size={24} color={dark ? "#6755C9" : "#3826A6"} />
 						<Text style={{ ...styles.btnText, color: dark ? "#6755C9" : "#3826A6" }}>
-							Create new version
+							{translate("settingScreen.versionScreen.createNewVersionButton")}
 						</Text>
 					</TouchableOpacity>
 				</Animated.View>

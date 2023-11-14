@@ -65,11 +65,13 @@ const TaskVersionForm = ({
 				height: 452,
 			}}
 		>
-			<Text style={{ ...styles.formTitle, color: colors.primary }}>Create New version</Text>
+			<Text style={{ ...styles.formTitle, color: colors.primary }}>
+				{translate("settingScreen.versionScreen.createNewVersionText")}
+			</Text>
 			<TextInput
 				style={{ ...styles.versionNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
-				placeholder="Version Name"
+				placeholder={translate("settingScreen.versionScreen.versionNamePlaceholder")}
 				defaultValue={formatName(versionName)}
 				onChangeText={(text) => setVersionName(text)}
 			/>
@@ -83,7 +85,7 @@ const TaskVersionForm = ({
 					}}
 				>
 					<Text style={styles.cancelTxt}>
-						{translate("settingScreen.statusScreen.cancelButtonText")}
+						{translate("settingScreen.versionScreen.cancelButtonText")}
 					</Text>
 				</TouchableOpacity>
 				<TouchableOpacity
@@ -100,8 +102,8 @@ const TaskVersionForm = ({
 				>
 					<Text style={styles.createTxt}>
 						{isEdit
-							? translate("settingScreen.statusScreen.updateButtonText")
-							: translate("settingScreen.statusScreen.createButtonText")}
+							? translate("settingScreen.versionScreen.updateButtonText")
+							: translate("settingScreen.versionScreen.createButtonText")}
 					</Text>
 				</TouchableOpacity>
 			</View>
