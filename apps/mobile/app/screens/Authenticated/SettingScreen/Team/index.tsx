@@ -16,6 +16,7 @@ import { useTaskStatus } from "../../../../services/hooks/features/useTaskStatus
 import { useTaskPriority } from "../../../../services/hooks/features/useTaskPriority"
 import { useTaskSizes } from "../../../../services/hooks/features/useTaskSizes"
 import { useTaskLabels } from "../../../../services/hooks/features/useTaskLabels"
+import { useTaskVersion } from "../../../../services/hooks/features/useTaskVersion"
 
 interface ITeamSettingProps {
 	props: any
@@ -35,6 +36,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 	const { priorities } = useTaskPriority()
 	const { sizes } = useTaskSizes()
 	const { labels } = useTaskLabels()
+	const { versions } = useTaskVersion()
 
 	return (
 		<View style={[$contentContainer, { backgroundColor: colors.background, opacity: 0.9 }]}>
@@ -54,6 +56,11 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					onPress={() => onOpenBottomSheet("Team Name", 4)}
 				/>
 				{isTeamManager ? <SwithTimeTracking /> : null}
+				<SingleInfo
+					title={"Task Versions"}
+					value={`There are ${versions?.total} active versions`}
+					onPress={() => navigation.navigate("TaskVersion")}
+				/>
 				<SingleInfo
 					title={translate("settingScreen.teamSection.taskStatuses")}
 					value={`There are ${statuses?.total} active statuses`}
