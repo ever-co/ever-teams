@@ -78,7 +78,7 @@ const Item: FC<ItemProps> = ({ currentVersionName, version, onVersionSelected })
 	return (
 		<TouchableOpacity onPress={() => onVersionSelected(version)}>
 			<View style={{ ...styles.wrapperItem, borderColor: colors.border }}>
-				<View style={{ ...styles.colorFrame, backgroundColor: version.color }}>
+				<View style={{ ...styles.colorFrame, backgroundColor: "transparent" }}>
 					<BadgedTaskVersion iconSize={16} TextSize={14} version={version.name} />
 				</View>
 				<View>
