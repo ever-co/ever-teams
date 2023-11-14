@@ -29,18 +29,11 @@ const nextConfig = {
 	}, // Optional build-time configuration options
 	sentry: {
 		// See the sections below for information on the following options:
-		//   'Configure Source Maps':
-		//
+		//   - 'Configure Source Maps':
 		// disableServerWebpackPlugin: true,
 		// disableClientWebpackPlugin: true,
 		//     - hideSourceMaps
 		// hideSourceMaps: true,
-		//     - widenClientFileUpload
-		//   'Configure Legacy Browser Support':
-		//     - transpileClientSDK
-		//   'Configure Serverside Auto-instrumentation':
-		//     - autoInstrumentServerFunctions
-		//     - excludeServerRoutes
 		//   'Configure Tunneling to avoid Ad-Blockers':
 		//     - tunnelRoute
 		// tunnelRoute: '/monitoring-tunnel'
@@ -51,14 +44,9 @@ const nextConfig = {
 
 // Injected content via Sentry wizard below
 
-// Injected content via Sentry wizard below
-
 const { withSentryConfig } = require('@sentry/nextjs');
 const sentryWebpackPluginOptions = {
-	// Additional config options for the Sentry webpack plugin. Keep in mind that
-	// the following options are set automatically, and overriding them is not
-	// recommended:
-	//   release, url, configFile, stripPrefix, urlPrefix, include, ignore
+	// Additional config options for the Sentry webpack plugin. Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 
 	org: process.env.SENTRY_ORG,
 	project: process.env.SENTRY_PROJECT,
@@ -67,14 +55,10 @@ const sentryWebpackPluginOptions = {
 	authToken: process.env.SENTRY_AUTH_TOKEN,
 
 	silent: true // Suppresses all logs
-
-	// For all available options, see:
-	// https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions, {
-	// For all available options, see:
-	// https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+	// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
 	// Upload a larger set of source maps for prettier stack traces (increases build time)
 	widenClientFileUpload: true,
