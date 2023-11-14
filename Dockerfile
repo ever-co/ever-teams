@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1
+# syntax = docker/dockerfile:1.4
 
 # Adjust NODE_VERSION as desired
 ARG NODE_VERSION=18.17.1
@@ -30,15 +30,15 @@ RUN apt-get update -qq && \
 RUN npm install -g yarn --force
 
 # Install node modules
-COPY package.json ./
-COPY yarn.lock ./
-COPY apps/web/package.json ./apps/web/package.json
+COPY --link package.json ./
+COPY --link yarn.lock ./
+COPY --link apps/web/package.json ./apps/web/package.json
 
 RUN cd apps/web && \
     yarn install --ignore-scripts
 
 # Copy application code
-COPY . .
+COPY --link . .
 
 ENV NODE_ENV=production
 
