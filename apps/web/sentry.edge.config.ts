@@ -6,12 +6,16 @@
 import * as Sentry from '@sentry/nextjs';
 
 const SENTRY_DNS = process.env.SENTRY_DNS || process.env.NEXT_PUBLIC_SENTRY_DNS;
-Sentry.init({
-	dsn: SENTRY_DNS,
 
-	// Adjust this value in production, or use tracesSampler for greater control
-	tracesSampleRate: 1,
-
-	// Setting this option to true will print useful information to the console while you're setting up Sentry.
-	debug: process.env.NEXT_PUBLIC_SENTRY_DEBUG && process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true' ? true : false
-});
+if (SENTRY_DNS) 
+{
+	Sentry.init({
+		dsn: SENTRY_DNS,
+	
+		// Adjust this value in production, or use tracesSampler for greater control
+		tracesSampleRate: 1,
+	
+		// Setting this option to true will print useful information to the console while you're setting up Sentry.
+		debug: process.env.NEXT_PUBLIC_SENTRY_DEBUG && process.env.NEXT_PUBLIC_SENTRY_DEBUG === 'true' ? true : false
+	});
+}
