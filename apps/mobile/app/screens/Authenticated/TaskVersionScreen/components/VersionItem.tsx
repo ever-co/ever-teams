@@ -24,7 +24,7 @@ const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit }) =
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.statusContainer, backgroundColor: colors.background }}>
+			<View style={{ ...styles.versionContainer, backgroundColor: colors.background }}>
 				<Text style={{ ...styles.text, color: colors.primary }}>
 					{formatName(version?.name)}
 				</Text>
@@ -66,7 +66,12 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 		width: "16%",
 	},
-	statusContainer: {
+	text: {
+		fontFamily: typography.primary.medium,
+		fontSize: 14,
+		marginLeft: 13.5,
+	},
+	versionContainer: {
 		alignItems: "center",
 		backgroundColor: "#D4EFDF",
 		borderRadius: 10,
@@ -75,10 +80,5 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16,
 		paddingVertical: 12,
 		width: "60%",
-	},
-	text: {
-		fontFamily: typography.primary.medium,
-		fontSize: 14,
-		marginLeft: 13.5,
 	},
 })

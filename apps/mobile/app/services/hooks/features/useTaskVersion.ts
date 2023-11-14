@@ -27,7 +27,11 @@ export function useTaskVersion() {
 
 	const createTaskVersion = useCallback(
 		async (data: ITaskVersionCreate) => {
-			await createVersionRequest(data, authToken, tenantId)
+			await createVersionRequest(
+				{ ...data, organizationId, organizationTeamId: activeTeamId },
+				authToken,
+				tenantId,
+			)
 			queryClient.invalidateQueries("versions")
 		},
 		[authToken, tenantId, queryClient],
@@ -43,8 +47,13 @@ export function useTaskVersion() {
 	)
 
 	const updateTaskVersion = useCallback(
-		async ({ id, data }) => {
-			await editTaskVersionRequest({ id, datas: data, bearer_token: authToken, tenantId })
+		async (id: string, data: ITaskVersionCreate) => {
+			await editTaskVersionRequest({
+				id,
+				datas: { ...data, organizationId, organizationTeamId: activeTeamId },
+				bearer_token: authToken,
+				tenantId,
+			})
 			queryClient.invalidateQueries("versions")
 		},
 		[authToken, tenantId, queryClient],

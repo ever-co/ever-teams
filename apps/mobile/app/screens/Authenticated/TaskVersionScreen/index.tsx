@@ -13,14 +13,15 @@ import {
 import { AntDesign, Ionicons } from "@expo/vector-icons"
 import { Screen } from "../../../components"
 import { AuthenticatedDrawerScreenProps } from "../../../navigators/AuthenticatedNavigator"
-import { translate } from "../../../i18n"
+// import { translate } from "../../../i18n"
 import { typography, useAppTheme } from "../../../theme"
-
+import BottomSheet from "reanimated-bottom-sheet"
 import Animated from "react-native-reanimated"
 import { useTaskVersion } from "../../../services/hooks/features/useTaskVersion"
 import { ITaskVersionItemList } from "../../../services/interfaces/ITaskVersion"
 import { BlurView } from "expo-blur"
 import VersionItem from "./components/VersionItem"
+import TaskVersionForm from "./components/TaskVersionForm"
 
 export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">> =
 	function AuthenticatedDrawerScreen(_props) {
@@ -36,6 +37,7 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">
 
 		const sheetRef = useRef(null)
 
+		const fall = new Animated.Value(1)
 		const openForEdit = (item: ITaskVersionItemList) => {
 			setEditMode(true)
 			setIsSheetOpen(true)
@@ -75,8 +77,8 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">
 								<ActivityIndicator size={"small"} color={"#3826A6"} />
 							) : null}
 							{!isLoading && versions?.total === 0 ? (
-								<Text style={{ ...styles.noStatusTxt, color: colors.primary }}>
-									{translate("settingScreen.statusScreen.noActiveStatuses")}
+								<Text style={{ ...styles.noVersionTxt, color: colors.primary }}>
+									There are not active verisons
 								</Text>
 							) : null}
 
@@ -125,6 +127,27 @@ export const TaskVersionScreen: FC<AuthenticatedDrawerScreenProps<"TaskVersion">
 						}}
 					/>
 				)}
+				<BottomSheet
+					ref={sheetRef}
+					snapPoints={[280, 0]}
+					borderRadius={24}
+					initialSnap={1}
+					callbackNode={fall}
+					enabledGestureInteraction={true}
+					renderContent={() => (
+						<TaskVersionForm
+							item={itemToEdit}
+							onDismiss={() => {
+								setEditMode(false)
+								setIsSheetOpen(false)
+								sheetRef.current.snapTo(1)
+							}}
+							onUpdateVersion={updateTaskVersion}
+							onCreateVersion={createTaskVersion}
+							isEdit={editMode}
+						/>
+					)}
+				/>
 			</Screen>
 		)
 	}
@@ -170,7 +193,7 @@ const styles = StyleSheet.create({
 		padding: 16,
 		width: "90%",
 	},
-	noStatusTxt: {
+	noVersionTxt: {
 		color: "#7E7991",
 		fontFamily: typography.primary.semiBold,
 		fontSize: 16,
