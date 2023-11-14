@@ -148,6 +148,10 @@ WIP
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/ever-co/ever-teams)
 
+### Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 ## 📄 Content
 
 -   `/web` - NextJs-based (React) Web App at <https://app.ever.team> (deployed from `main` branch)

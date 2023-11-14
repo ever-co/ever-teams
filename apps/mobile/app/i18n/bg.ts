@@ -130,6 +130,10 @@ const bg = {
 		isDuplicatedBy: "Is Duplicated By",
 		relatesTo: "Relates To",
 		linkedIssues: "Linked Issues",
+		description: "Description",
+		descriptionBlockPlaceholder: "Write a complete description of your project...",
+		copyDescription: "Description Copied.",
+		showMore: "Show More",
 	},
 	tasksScreen: {
 		name: "Tasks",

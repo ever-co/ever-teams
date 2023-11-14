@@ -1,0 +1,12 @@
+{
+    "name": "Ever Teams",
+    "description": "Open Work and Project Management Platform.",
+    "repository": "https://github.com/ever-co/ever-teams",
+    "logo": "https://raw.githubusercontent.com/ever-co/ever-teams/develop/apps/web/public/assets/ever-teams.png",
+    "keywords": [
+        "node",
+        "nextjs",
+        "tailwind"
+    ],
+    "stack": "container"
+}

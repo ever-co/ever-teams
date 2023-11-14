@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
-import React, { ReactElement, useState } from "react"
+import React, { ReactElement, useState, useEffect } from "react"
 import { Feather } from "@expo/vector-icons"
 import { useAppTheme } from "../theme"
 
@@ -11,6 +11,7 @@ interface IAccordion {
 	titleFontSize?: number
 	arrowSize?: number
 	headerElement?: ReactElement
+	setAccordionExpanded?: (isExpanded: boolean) => void
 }
 
 const Accordion: React.FC<IAccordion> = ({
@@ -19,13 +20,19 @@ const Accordion: React.FC<IAccordion> = ({
 	arrowSize,
 	titleFontSize,
 	headerElement,
+	setAccordionExpanded,
 }) => {
 	const [expanded, setExpanded] = useState(true)
 	const { colors } = useAppTheme()
 
 	function toggleItem() {
 		setExpanded(!expanded)
+		setAccordionExpanded && setAccordionExpanded(expanded)
 	}
+
+	useEffect(() => {
+		setAccordionExpanded && setAccordionExpanded(expanded)
+	}, [expanded])
 
 	const body = <View style={{ gap: 12 }}>{children}</View>
 	return (

@@ -134,6 +134,10 @@ const ar: Translations = {
 		isDuplicatedBy: "مكرر بواسطة",
 		relatesTo: "يتصل بـ",
 		linkedIssues: "المسائل المرتبطة",
+		description: "الوصف",
+		descriptionBlockPlaceholder: "اكتب وصفاً كاملاً لمشروعك...",
+		copyDescription: "تم نسخ الوصف.",
+		showMore: "أظهر المزيد",
 	},
 	tasksScreen: {
 		name: "مهام",
