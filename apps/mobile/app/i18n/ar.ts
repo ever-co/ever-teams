@@ -137,6 +137,7 @@ const ar: Translations = {
 		description: "الوصف",
 		descriptionBlockPlaceholder: "اكتب وصفاً كاملاً لمشروعك...",
 		copyDescription: "تم نسخ الوصف.",
+		showMore: "أظهر المزيد",
 	},
 	tasksScreen: {
 		name: "مهام",

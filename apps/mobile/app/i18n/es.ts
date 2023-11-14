@@ -133,6 +133,7 @@ const es = {
 		description: "Description",
 		descriptionBlockPlaceholder: "Write a complete description of your project...",
 		copyDescription: "Description Copied.",
+		showMore: "Show More",
 	},
 	tasksScreen: {
 		name: "Tasks",
