@@ -82,8 +82,8 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
 MyApp.getInitialProps = async ({ Component, ctx }: { Component: NextPage<AppProps>; ctx: NextPageContext }) => {
 	// Recover environment variables
-	const jitsuHost = process.env.NEXT_JITSU_BROWSER_URL;
-	const jitsuWriteKey = process.env.NEXT_JITSU_BROWSER_WRITE_KEY;
+	const jitsuHost = process.env.NEXT_PUBLIC_JITSU_BROWSER_URL;
+	const jitsuWriteKey = process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY;
 
 	const jitsuConf = jitsuConfiguration();
 	// Call the static method getInitialProps
