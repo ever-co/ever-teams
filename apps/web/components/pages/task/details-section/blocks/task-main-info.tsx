@@ -106,7 +106,7 @@ function DueDates() {
 					// Button Props
 					buttonVariant={'link'}
 					buttonClassName={'p-0 decoration-transparent h-[0.875rem] w-20'}
-					// Calenar Props
+					// Calendar Props
 					customInput={
 						<div
 							className={clsxm(
@@ -152,7 +152,7 @@ function DueDates() {
 					// Button Props
 					buttonVariant={'link'}
 					buttonClassName={'p-0 decoration-transparent h-[0.875rem] w-20'}
-					// Calenar Props
+					// Calendar Props
 					customInput={
 						<div
 							className={clsxm(
@@ -169,8 +169,6 @@ function DueDates() {
 					}
 					selected={$dueDate.current ? (new Date($dueDate.current) as Date) : undefined}
 					onSelect={(date) => {
-						// const cdate = new Date();
-
 						if (
 							(!$startDate.current && date) ||
 							($startDate.current && date && date >= $startDate.current)
@@ -276,7 +274,7 @@ const ManageMembersPopover = (memberList: OT_Member[], task: ITeamTask | null) =
 							style={{ boxShadow: 'rgba(0, 0, 0, 0.12) -24px 17px 49px' }}
 						>
 							{({ close }) => (
-								<div className="max-h-72 scrollbar-hide overflow-y-scroll">
+								<div className="overflow-y-scroll max-h-72 scrollbar-hide">
 									{assignedTaskMembers.map((member, index) => (
 										<div
 											className="flex items-center justify-between w-auto h-8 gap-1 mt-1 hover:cursor-pointer hover:brightness-95 dark:hover:brightness-105"
