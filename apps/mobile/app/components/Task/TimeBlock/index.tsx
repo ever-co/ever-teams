@@ -308,7 +308,7 @@ const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task
 							<Text
 								style={{ fontSize: 10, fontWeight: "600", color: colors.primary }}
 							>
-								Show More
+								{translate("taskDetailsScreen.showMore")}
 							</Text>
 						</TouchableOpacity>
 					)}
