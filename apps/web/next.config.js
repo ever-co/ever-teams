@@ -21,7 +21,7 @@ const nextConfig = {
 			'res.cloudinary.com',
 			'localhost',
 			'127.0.0.1',
-			'cdn-icons-png.flaticon.com', // Remove this domain once Backend Icons list are added
+			'cdn-icons-png.flaticon.com', // Remove this domain once the Backend Icons list is added
 			'api.gauzy.co',
 			'apistage.gauzy.co',
 			'gauzy.s3.wasabisys.com'
@@ -40,13 +40,12 @@ const nextConfig = {
 	}
 };
 
-// module.exports = nextConfig;
-
 // Injected content via Sentry wizard below
-
 const { withSentryConfig } = require('@sentry/nextjs');
+
 const sentryWebpackPluginOptions = {
-	// Additional config options for the Sentry webpack plugin. Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
+	// Additional config options for the Sentry Webpack plugin. 
+	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 
 	org: process.env.SENTRY_ORG,
 	project: process.env.SENTRY_PROJECT,
