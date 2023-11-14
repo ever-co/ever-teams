@@ -28,25 +28,29 @@ const nextConfig = {
 		]
 	}, // Optional build-time configuration options
 	sentry: {
-		// See the sections below for information on the following options:
-		//   - 'Configure Source Maps':
-		// disableServerWebpackPlugin: true,
-		// disableClientWebpackPlugin: true,
-		//     - hideSourceMaps
-		// hideSourceMaps: true,
-		//   'Configure Tunneling to avoid Ad-Blockers':
-		//     - tunnelRoute
-		// tunnelRoute: '/monitoring-tunnel'
+		// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+	
+		// Upload a larger set of source maps for prettier stack traces (increases build time)
+		widenClientFileUpload: true,
+	
+		// Transpiles SDK to be compatible with IE11 (increases bundle size)
+		transpileClientSDK: true,
+	
+		// Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
+		tunnelRoute: '/monitoring',
+	
+		// Hides source maps from generated client bundles
+		hideSourceMaps: true,
+	
+		// Automatically tree-shake Sentry logger statements to reduce bundle size
+		disableLogger: true
 	}
 };
 
 // Injected content via Sentry wizard below
 const { withSentryConfig } = require('@sentry/nextjs');
 
-const sentryWebpackPluginOptions = {
-	// Additional config options for the Sentry Webpack plugin. 
-	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
-
+const sentryWebpackPluginOptions = {	
 	org: process.env.SENTRY_ORG,
 	project: process.env.SENTRY_PROJECT,
 
@@ -54,23 +58,10 @@ const sentryWebpackPluginOptions = {
 	authToken: process.env.SENTRY_AUTH_TOKEN,
 
 	silent: true // Suppresses all logs
+
+	// Additional config options for the Sentry Webpack plugin. 
+	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions, {
-	// For all available options, see: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-	// Upload a larger set of source maps for prettier stack traces (increases build time)
-	widenClientFileUpload: true,
-
-	// Transpiles SDK to be compatible with IE11 (increases bundle size)
-	transpileClientSDK: true,
-
-	// Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-	tunnelRoute: '/monitoring',
-
-	// Hides source maps from generated client bundles
-	hideSourceMaps: true,
-
-	// Automatically tree-shake Sentry logger statements to reduce bundle size
-	disableLogger: true
-});
+// Make sure adding Sentry options is the last code to run before exporting
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
