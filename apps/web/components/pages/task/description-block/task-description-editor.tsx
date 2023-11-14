@@ -33,7 +33,6 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 	const editor = useMemo(() => withChecklists(withHtml(withHistory(withReact(createEditor())))), []);
 	const [task] = useRecoilState(detailedTaskState);
 	const [isUpdated, setIsUpdated] = useState<boolean>(false);
-	const [key, setKey] = useState(0); // Add key state, we need it as it re-renders the editor
 	const [editorValue, setEditorValue] = useState<any>();
 	const editorRef = useRef<HTMLDivElement>(null);
 
@@ -63,12 +62,6 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		return value;
 	}, [task]);
 
-	useEffect(() => {
-		if (key < 6) {
-			setKey((prev) => prev + 1);
-		}
-	}, [initialValue, key]);
-
 	const clearUnsavedValues = () => {
 		// Delete all entries leaving 1 empty node
 		Transforms.delete(editor, {
@@ -93,7 +86,7 @@ const RichTextEditor = ({ readonly }: IRichTextProps) => {
 		<div className="flex flex-col prose dark:prose-invert" ref={editorRef}>
 			{task && (
 				<Slate
-					key={key}
+					key={task?.id}
 					editor={editor}
 					value={editorValue}
 					onChange={(e) => {
