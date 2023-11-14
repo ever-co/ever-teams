@@ -57,11 +57,14 @@ const sentryWebpackPluginOptions = {
 	// An auth token is required for uploading source maps.
 	authToken: process.env.SENTRY_AUTH_TOKEN,
 
-	silent: true // Suppresses all logs
+	silent: true, // Suppresses all logs
 
+    dryRun: process.env.NODE_ENV !== "production"
+	
 	// Additional config options for the Sentry Webpack plugin. 
 	// Keep in mind that https://github.com/getsentry/sentry-webpack-plugin#options.
 };
 
 // Make sure adding Sentry options is the last code to run before exporting
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
+module.exports = process.env.NODE_ENV === "production" && process.env.SENTRY_DSN
+	? withSentryConfig(nextConfig, sentryWebpackPluginOptions) : nextConfig
