@@ -1,7 +1,7 @@
 import Toolbar from './editor-toolbar';
 import { TextEditorService, withHtml, withChecklists, isValidSlateObject } from './editor-components/TextEditorService';
 import isHotkey from 'is-hotkey';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Editor, createEditor, Element as SlateElement, Descendant, Transforms } from 'slate';
 import { withHistory } from 'slate-history';
 import { Editable, withReact, Slate } from 'slate-react';
