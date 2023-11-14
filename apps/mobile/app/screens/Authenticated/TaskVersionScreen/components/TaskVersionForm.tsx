@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react"
 import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard } from "react-native"
 import { translate } from "../../../../i18n"
 import { typography, useAppTheme } from "../../../../theme"
-import { formatName } from "../../../../helpers/name-format"
 
 import {
 	ITaskVersionCreate,
@@ -29,7 +28,7 @@ const TaskVersionForm = ({
 
 	useEffect(() => {
 		if (isEdit) {
-			setVersionName(item.value)
+			setVersionName(item.name)
 		} else {
 			setVersionName(null)
 		}
@@ -72,7 +71,7 @@ const TaskVersionForm = ({
 				style={{ ...styles.versionNameInput, color: colors.primary }}
 				placeholderTextColor={"#7B8089"}
 				placeholder={translate("settingScreen.versionScreen.versionNamePlaceholder")}
-				defaultValue={formatName(versionName)}
+				defaultValue={versionName}
 				onChangeText={(text) => setVersionName(text)}
 			/>
 

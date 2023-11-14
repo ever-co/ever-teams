@@ -24,7 +24,12 @@ const VersionItem: FC<IVersionItem> = ({ version, onDeleteTask, openForEdit }) =
 				borderColor: "rgba(0,0,0,0.13)",
 			}}
 		>
-			<View style={{ ...styles.versionContainer, backgroundColor: colors.background }}>
+			<View
+				style={{
+					...styles.versionContainer,
+					backgroundColor: dark ? "#181C24" : colors.background,
+				}}
+			>
 				<Text style={{ ...styles.text, color: colors.primary }}>
 					{formatName(version?.name)}
 				</Text>
