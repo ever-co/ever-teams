@@ -1,13 +1,6 @@
 /* eslint-disable react-native/no-inline-styles  */
 /* eslint-disable react-native/no-color-literals  */
-import {
-	View,
-	StyleSheet,
-	ScrollView,
-	TouchableOpacity,
-	Text,
-	TouchableWithoutFeedback,
-} from "react-native"
+import { View, StyleSheet, TouchableOpacity, Text, TouchableWithoutFeedback } from "react-native"
 import React, { RefObject } from "react"
 import Accordion from "../../Accordion"
 import QuillEditor, { QuillToolbar } from "react-native-cn-quill"
@@ -129,83 +122,93 @@ const DescriptionBlock = () => {
 						placeholder: "#e0e0e0",
 					}}
 				/>
-				<ScrollView keyboardShouldPersistTaps="never">
-					<View style={{ paddingHorizontal: 12 }}>
-						<View style={styles.horizontalSeparator} />
-						<QuillToolbar
-							editor={_editor}
-							styles={{
-								toolbar: {
-									provider: (provided) => ({
-										...provided,
-										borderTopWidth: 0,
-										borderLeftWidth: 0,
-										borderRightWidth: 0,
-										borderBottomWidth: 0,
-									}),
-									root: (provided) => ({
-										...provided,
-										backgroundColor: colors.background,
-										width: "100%",
-									}),
-								},
-								separator: (provided) => ({
-									...provided,
-									width: "50%",
-									borderTopWidth: 5,
-								}),
-								selection: {
-									root: (provided) => ({
-										...provided,
-										backgroundColor: colors.background,
-									}),
-								},
-							}}
-							options={[
-								[
-									"bold",
-									"italic",
-									"underline",
-									"code",
-									"blockquote",
 
-									{ header: "1" },
-									{ header: "2" },
-									{ list: "ordered" },
-									{ list: "bullet" },
-									{ align: [] },
-								],
-							]}
-							theme={dark ? "dark" : "light"}
-						/>
-						{actionButtonsVisible && (
-							<View style={styles.actionButtonsWrapper}>
-								<TouchableOpacity
-									style={{
-										...styles.actionButton,
-										backgroundColor: "#E7E7EA",
-									}}
-									onPress={onPressCancel}
-								>
-									<Text style={{ fontSize: 12 }}>
-										{translate("common.cancel")}
-									</Text>
-								</TouchableOpacity>
-								<TouchableOpacity
-									onPress={onPressSave}
-									style={{
-										...styles.actionButton,
-										backgroundColor: colors.secondary,
-									}}
-								>
-									<Text style={{ color: "white", fontSize: 12 }}>
-										{translate("common.save")}
-									</Text>
-								</TouchableOpacity>
-							</View>
-						)}
-					</View>
-				</ScrollView>
+				<View style={{ paddingHorizontal: 12 }}>
+					<View style={styles.horizontalSeparator} />
+					<QuillToolbar
+						editor={_editor}
+						styles={{
+							toolbar: {
+								provider: (provided) => ({
+									...provided,
+									borderTopWidth: 0,
+									borderLeftWidth: 0,
+									borderRightWidth: 0,
+									borderBottomWidth: 0,
+								}),
+								root: (provided) => ({
+									...provided,
+									backgroundColor: colors.background,
+									width: "100%",
+								}),
+							},
+							separator: (provided) => ({
+								...provided,
+								color: colors.secondary,
+							}),
+							selection: {
+								root: (provided) => ({
+									...provided,
+									backgroundColor: colors.background,
+								}),
+							},
+						}}
+						options={[
+							[
+								"bold",
+								"italic",
+								"underline",
+								"code",
+								"blockquote",
+
+								{ header: "1" },
+								{ header: "2" },
+								{ list: "ordered" },
+								{ list: "bullet" },
+								{ align: [] },
+							],
+						]}
+						theme={
+							dark
+								? {
+										background: "#1c1e21",
+										color: "#ebedf0",
+										overlay: "rgba(255, 255, 255, .15)",
+										size: 28,
+								  }
+								: {
+										background: "#ebedf0",
+										color: "#1c1e21",
+										overlay: "rgba(55,99,115, .1)",
+										size: 28,
+								  }
+						}
+					/>
+					{actionButtonsVisible && (
+						<View style={styles.actionButtonsWrapper}>
+							<TouchableOpacity
+								style={{
+									...styles.actionButton,
+									backgroundColor: "#E7E7EA",
+								}}
+								onPress={onPressCancel}
+							>
+								<Text style={{ fontSize: 12 }}>{translate("common.cancel")}</Text>
+							</TouchableOpacity>
+							<TouchableOpacity
+								onPress={onPressSave}
+								style={{
+									...styles.actionButton,
+									backgroundColor: colors.secondary,
+								}}
+							>
+								<Text style={{ color: "white", fontSize: 12 }}>
+									{translate("common.save")}
+								</Text>
+							</TouchableOpacity>
+						</View>
+					)}
+				</View>
 			</View>
 		</Accordion>
 	)
@@ -238,7 +241,7 @@ const styles = StyleSheet.create({
 	horizontalSeparator: {
 		borderTopColor: "#F2F2F2",
 		borderTopWidth: 1,
-		marginBottom: 12,
+		marginBottom: 10,
 		width: "100%",
 	},
 })
