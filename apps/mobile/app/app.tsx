@@ -26,6 +26,7 @@ import Config from "./config"
 import { observer } from "mobx-react-lite"
 import { initCrashReporting } from "./utils/crashReporting"
 import FlashMessage from "react-native-flash-message"
+import { ClickOutsideProvider } from "react-native-click-outside"
 
 // Set up Reactotron, which is a free desktop app for inspecting and debugging
 // React Native apps. Learn more here: https://github.com/infinitered/reactotron
@@ -94,11 +95,13 @@ const App = observer((props: AppProps) => {
 			<PaperProvider theme={theme}>
 				<ErrorBoundary catchErrors={Config.catchErrors}>
 					<FlashMessage position="top" />
-					<AppNavigator
-						theme={theme}
-						initialState={initialNavigationState}
-						onStateChange={onNavigationStateChange}
-					/>
+					<ClickOutsideProvider>
+						<AppNavigator
+							theme={theme}
+							initialState={initialNavigationState}
+							onStateChange={onNavigationStateChange}
+						/>
+					</ClickOutsideProvider>
 				</ErrorBoundary>
 			</PaperProvider>
 		</SafeAreaProvider>

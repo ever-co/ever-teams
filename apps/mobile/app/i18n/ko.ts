@@ -133,6 +133,9 @@ const ko: Translations = {
 		isDuplicatedBy: "복제됨",
 		relatesTo: "관련이 있다",
 		linkedIssues: "연결된 이슈",
+		description: "설명",
+		descriptionBlockPlaceholder: "프로젝트에 대한 완전한 설명을 작성하세요...",
+		copyDescription: "설명이 복사되었습니다.",
 	},
 	tasksScreen: {
 		name: "작업",
