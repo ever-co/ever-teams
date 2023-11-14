@@ -60,7 +60,7 @@ const TeamSettings: FC<ITeamSettingProps> = observer(({ props, onOpenBottomSheet
 					title={"Task Versions"}
 					value={`There ${versions?.total === 1 ? "is" : "are"} ${
 						versions?.total
-					} active ${versions?.total === 1 ? "version" : "versions"} versions`}
+					} active ${versions?.total === 1 ? "version" : "versions"}`}
 					onPress={() => navigation.navigate("TaskVersion")}
 				/>
 				<SingleInfo
