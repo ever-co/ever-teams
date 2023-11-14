@@ -30,15 +30,15 @@ RUN apt-get update -qq && \
 RUN npm install -g yarn --force
 
 # Install node modules
-COPY --link package.json ./
-COPY --link yarn.lock ./
-COPY --link apps/web/package.json ./apps/web/package.json
+COPY package.json ./
+COPY yarn.lock ./
+COPY apps/web/package.json ./apps/web/package.json
 
 RUN cd apps/web && \
     yarn install --ignore-scripts
 
 # Copy application code
-COPY --link . .
+COPY . .
 
 ENV NODE_ENV=production
 
