@@ -24,6 +24,7 @@ import {
 	TaskPriorityScreen,
 	MembersSettingsScreen,
 	AuthenticatedTaskScreen,
+	TaskVersionScreen,
 } from "../screens"
 
 // HELPERS
@@ -60,6 +61,7 @@ export type AuthenticatedDrawerParamList = {
 	TaskSizeScreen: undefined
 	TaskStatus: undefined
 	TaskPriority: undefined
+	TaskVersion: undefined
 	MembersSettingsScreen: undefined
 	TaskScreen: { taskId: string }
 }
@@ -252,6 +254,7 @@ export const AuthenticatedNavigator = observer(function AuthenticatedNavigator()
 			<drawer.Screen name="AuthenticatedTab" component={TabNavigator} />
 			<drawer.Screen name="TaskScreen" component={AuthenticatedTaskScreen} />
 			<drawer.Screen name="Setting" component={AuthenticatedSettingScreen} />
+			<drawer.Screen name="TaskVersion" component={TaskVersionScreen} />
 			<drawer.Screen name="TaskStatus" component={TaskStatusScreen} />
 			<drawer.Screen name="TaskLabelScreen" component={TaskLabelScreen} />
 			<drawer.Screen name="TaskSizeScreen" component={TaskSizeScreen} />

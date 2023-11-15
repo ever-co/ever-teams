@@ -3,7 +3,7 @@
 import React, { FC, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
 import { AntDesign, Feather } from "@expo/vector-icons"
-import { ITaskStatus, ITeamTask } from "../services/interfaces/ITask"
+import { ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import TaskStatusPopup from "./TaskStatusPopup"
@@ -38,12 +38,11 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 			allStatuses &&
 			Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue)
 
-		const onChangeStatus = async (text) => {
+		const onChangeStatus = async (text: string) => {
 			if (task) {
-				const value: ITaskStatus = text
 				const taskEdit = {
 					...task,
-					status: value,
+					status: task?.status === text ? null : text,
 				}
 
 				await updateTask(taskEdit, task.id)

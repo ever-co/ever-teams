@@ -225,6 +225,17 @@ const ko: Translations = {
 			korean: "Korean",
 			hebrew: "Hebrew",
 		},
+		versionScreen: {
+			mainTitle: "작업 버전",
+			listOfVersions: "버전 목록",
+			noActiveVersions: "활성 버전이 없습니다",
+			createNewVersionButton: "새 버전 생성",
+			createNewVersionText: "새 버전 생성",
+			versionNamePlaceholder: "버전 이름",
+			cancelButtonText: "취소",
+			createButtonText: "생성",
+			updateButtonText: "업데이트",
+		},
 		statusScreen: {
 			mainTitle: "Task Statuses",
 			statuses: "Statuses",

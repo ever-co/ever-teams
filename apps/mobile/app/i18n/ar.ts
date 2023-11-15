@@ -226,6 +226,17 @@ const ar: Translations = {
 			korean: "Korean",
 			hebrew: "Hebrew",
 		},
+		versionScreen: {
+			mainTitle: "نسخ المهمة",
+			listOfVersions: "قائمة النسخ",
+			noActiveVersions: "لا توجد نسخ نشطة",
+			createNewVersionButton: "إنشاء نسخة جديدة",
+			createNewVersionText: "إنشاء نسخة جديدة",
+			versionNamePlaceholder: "اسم النسخة",
+			cancelButtonText: "إلغاء",
+			createButtonText: "إنشاء",
+			updateButtonText: "تحديث",
+		},
 		statusScreen: {
 			mainTitle: "Task Statuses",
 			statuses: "Statuses",

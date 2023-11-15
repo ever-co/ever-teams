@@ -196,7 +196,7 @@ const TimerTaskSection = observer(
 								task={activeTask}
 								containerStyle={{
 									...styles.sizeContainer,
-									width: "100%",
+									width: activeTask?.tags.length ? "100%" : 160,
 									borderColor: colors.border,
 									marginVertical: 20,
 								}}
