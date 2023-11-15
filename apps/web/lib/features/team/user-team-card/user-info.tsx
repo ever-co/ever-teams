@@ -38,25 +38,26 @@ export function UserInfo({ className, memberInfo, publicTeam = false }: Props) {
 			<div
 				className={clsxm(
 					'w-[50px] h-[50px]',
-					'flex justify-center items-center',
-					'rounded-full text-xs text-default dark:text-white',
-					'shadow-md text-2xl font-normal'
+					'flex justify-center items-center relative',
+					'rounded-full text-white',
+					'shadow-md text-[2.063rem] font-thin font-PlusJakartaSans'
 				)}
 				style={{
 					backgroundColor: `${stc(fullname)}80`
 				}}
 			>
 				{imageUrl && isValidUrl(imageUrl) ? (
-					<Avatar size={50} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar">
-						<TimerStatus
-							status={timerStatusValue}
-							className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
-							tooltipClassName="mt-10"
-						/>
-					</Avatar>
+					<Avatar size={50} className="relative cursor-pointer" imageUrl={imageUrl} alt="Team Avatar" />
 				) : (
-					imgTitle(fullname).charAt(0)
+					<div className="w-[50px] h-[50px] flex justify-center items-center rounded-full">
+						{imgTitle(fullname).charAt(0)}
+					</div>
 				)}
+				<TimerStatus
+					status={timerStatusValue}
+					className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+					tooltipClassName="absolute right-0 bottom-3 -mb-3 w-[1.3rem] h-[1.3rem] rounded-full"
+				/>
 			</div>
 
 			<div className="lg:w-64 w-1/2 flex flex-col gap-1.5">
