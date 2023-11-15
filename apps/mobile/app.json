@@ -28,7 +28,17 @@
 					"isAccessMediaLocationEnabled": true
 				}
 			],
-			"sentry-expo"
+			"sentry-expo",
+			[
+				"expo-build-properties",
+				{
+					"android": {
+						"enableProguardInReleaseBuilds": true,
+						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
+						"allowBackup": false
+					}
+				}
+			]
 		],
 		"android": {
 			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
