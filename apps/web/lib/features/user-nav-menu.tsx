@@ -49,8 +49,8 @@ export function UserNavAvatar() {
 					className={clsxm(
 						'w-[3rem] h-[3rem]',
 						'flex justify-center items-center',
-						'rounded-full text-xs text-default dark:text-white',
-						'shadow-md text-lg font-normal'
+						'rounded-full text-white',
+						'shadow-md text-[2.063rem] dark:text-[1.75rem] text-thin font-PlusJakartaSans '
 					)}
 					style={{
 						backgroundColor: `${stc(name || '')}80`
@@ -71,7 +71,14 @@ export function UserNavAvatar() {
 							/>
 						</Avatar>
 					) : name ? (
-						imgTitle(name).charAt(0)
+						<div className="w-[3rem] h-[3rem] flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-[#26272C] text-white">
+							{imgTitle(name).charAt(0)}
+							<TimerStatus
+								status={timerStatusValue}
+								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								tooltipClassName="mt-10"
+							/>
+						</div>
 					) : (
 						''
 					)}
