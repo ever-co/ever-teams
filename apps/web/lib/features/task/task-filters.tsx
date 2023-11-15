@@ -406,12 +406,31 @@ function TaskNameFilter({
 	close: () => void;
 }) {
 	const { t } = useTranslation();
+
+	const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
+	const [tempValue, setTempValue] = useState<string>('');
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const inputValue = e.target.value;
+		setTempValue(inputValue);
+
+		if (typingTimeout) {
+			clearTimeout(typingTimeout);
+		}
+
+		const newTimeout = setTimeout(() => {
+			setValue(inputValue);
+		}, 300);
+
+		setTypingTimeout(newTimeout);
+	};
+
 	return (
 		<div className="flex flex-row w-1/2 gap-2 mt-3 ml-auto">
 			<InputField
-				value={value}
+				value={tempValue}
 				autoFocus={true}
-				onChange={(e) => setValue(e.target.value)}
+				onChange={(e) => handleInputChange(e)}
 				placeholder={t('common.TYPE_SOMETHING') + '...'}
 				wrapperClassName="mb-0 dark:bg-transparent"
 			/>
