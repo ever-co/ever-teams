@@ -76,7 +76,8 @@ export function UserNavAvatar() {
 							<TimerStatus
 								status={timerStatusValue}
 								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
-								tooltipClassName="mt-10"
+								tooltipClassName="mt-8"
+								labelContainerClassName="mr-8"
 							/>
 						</div>
 					) : (
