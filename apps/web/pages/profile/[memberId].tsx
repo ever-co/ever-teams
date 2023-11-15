@@ -86,10 +86,10 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 		<div className="flex items-center mb-4 space-x-4 md:mb-0">
 			<div
 				className={clsx(
-					`w-[${size}px] h-[${size}px]`,
-					'flex justify-center items-center',
-					'rounded-full text-xs text-default dark:text-white',
-					'shadow-md text-4xl font-normal'
+					`w-[100px] h-[100px]`, // removed the size variable from width and height, as passing variables is not supported by tailwind
+					'flex justify-center items-center relative',
+					'rounded-full text-white',
+					'shadow-md text-7xl font-thin font-PlusJakartaSans '
 				)}
 				style={{
 					backgroundColor: `${stc(userName)}80`
@@ -110,7 +110,14 @@ function UserProfileDetail({ member }: { member?: OT_Member }) {
 						/>
 					</Avatar>
 				) : (
-					imgTitle(userName).charAt(0)
+					<>
+						{imgTitle(userName).charAt(0)}
+						<TimerStatus
+							status={timerStatusValue}
+							className="absolute z-20 border-[0.2956rem] border-white dark:border-[#26272C]"
+							tooltipClassName="absolute -bottom-[10px] right-[10%] w-[1.875rem] h-[1.875rem] rounded-full"
+						/>
+					</>
 				)}
 			</div>
 
