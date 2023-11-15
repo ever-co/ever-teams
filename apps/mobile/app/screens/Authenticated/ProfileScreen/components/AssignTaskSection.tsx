@@ -254,7 +254,7 @@ const AssignTaskFormModal: FC<Props> = function AssignTaskFormModal({
 									}
 									containerStyle={{
 										...styles.labelsContainer,
-										width: "100%",
+										width: newTask?.tags.length ? "100%" : width / 3.3,
 										borderColor: colors.border,
 										marginVertical: 20,
 									}}
