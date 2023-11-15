@@ -253,6 +253,7 @@ interface ITotalGroupTime {
 
 const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task }) => {
 	const [expanded, setExpanded] = useState(false)
+	const [numMembersToShow, setNumMembersToShow] = useState<number>(5)
 	const { colors } = useAppTheme()
 
 	function toggleItem() {
@@ -280,7 +281,7 @@ const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task
 			{expanded && <View style={{ marginBottom: 5 }} />}
 			<View style={{ gap: 7 }}>
 				{expanded &&
-					matchingMembers?.map((member, idx) => {
+					matchingMembers?.slice(0, numMembersToShow).map((member, idx) => {
 						const taskDurationInSeconds = findUserTotalWorked(member, task?.id)
 
 						const { h, m } = secondsToTime(taskDurationInSeconds)
@@ -297,6 +298,20 @@ const TotalGroupTime: React.FC<ITotalGroupTime> = ({ totalTime, activeTeam, task
 							/>
 						)
 					})}
+				{task?.members.length > 0 &&
+					task?.members?.length - 2 >= numMembersToShow &&
+					expanded && (
+						<TouchableOpacity
+							onPress={() => setNumMembersToShow((prev) => prev + 5)}
+							style={{ marginLeft: "auto" }}
+						>
+							<Text
+								style={{ fontSize: 10, fontWeight: "600", color: colors.primary }}
+							>
+								{translate("taskDetailsScreen.showMore")}
+							</Text>
+						</TouchableOpacity>
+					)}
 			</View>
 		</View>
 	)

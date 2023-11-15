@@ -164,6 +164,7 @@ export interface ICreateTask {
 	estimateDays?: number
 	estimateHours?: string
 	estimateMinutes?: string
+	version?: string
 	dueDate?: string
 	description: string
 	tags: ITaskLabelItem[]

@@ -131,6 +131,10 @@ const en = {
 		isDuplicatedBy: "Is Duplicated By",
 		relatesTo: "Relates To",
 		linkedIssues: "Linked Issues",
+		description: "Description",
+		descriptionBlockPlaceholder: "Write a complete description of your project...",
+		copyDescription: "Description Copied.",
+		showMore: "Show More",
 	},
 	tasksScreen: {
 		name: "Tasks",
@@ -218,6 +222,17 @@ const en = {
 			spanish: "Spanish",
 			korean: "Korean",
 			hebrew: "Hebrew",
+		},
+		versionScreen: {
+			mainTitle: "Task Versions",
+			listOfVersions: "List of Versions",
+			noActiveVersions: "There are no active versions",
+			createNewVersionButton: "Create new version",
+			createNewVersionText: "Create New Version",
+			versionNamePlaceholder: "Version Name",
+			cancelButtonText: "Cancel",
+			createButtonText: "Create",
+			updateButtonText: "Update",
 		},
 		statusScreen: {
 			mainTitle: "Task Statuses",

@@ -133,6 +133,10 @@ const ko: Translations = {
 		isDuplicatedBy: "복제됨",
 		relatesTo: "관련이 있다",
 		linkedIssues: "연결된 이슈",
+		description: "설명",
+		descriptionBlockPlaceholder: "프로젝트에 대한 완전한 설명을 작성하세요...",
+		copyDescription: "설명이 복사되었습니다.",
+		showMore: "더 보기",
 	},
 	tasksScreen: {
 		name: "작업",
@@ -220,6 +224,17 @@ const ko: Translations = {
 			spanish: "Spanish",
 			korean: "Korean",
 			hebrew: "Hebrew",
+		},
+		versionScreen: {
+			mainTitle: "작업 버전",
+			listOfVersions: "버전 목록",
+			noActiveVersions: "활성 버전이 없습니다",
+			createNewVersionButton: "새 버전 생성",
+			createNewVersionText: "새 버전 생성",
+			versionNamePlaceholder: "버전 이름",
+			cancelButtonText: "취소",
+			createButtonText: "생성",
+			updateButtonText: "업데이트",
 		},
 		statusScreen: {
 			mainTitle: "Task Statuses",

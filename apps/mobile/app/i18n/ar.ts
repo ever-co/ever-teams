@@ -134,6 +134,10 @@ const ar: Translations = {
 		isDuplicatedBy: "مكرر بواسطة",
 		relatesTo: "يتصل بـ",
 		linkedIssues: "المسائل المرتبطة",
+		description: "الوصف",
+		descriptionBlockPlaceholder: "اكتب وصفاً كاملاً لمشروعك...",
+		copyDescription: "تم نسخ الوصف.",
+		showMore: "أظهر المزيد",
 	},
 	tasksScreen: {
 		name: "مهام",
@@ -221,6 +225,17 @@ const ar: Translations = {
 			spanish: "Spanish",
 			korean: "Korean",
 			hebrew: "Hebrew",
+		},
+		versionScreen: {
+			mainTitle: "نسخ المهمة",
+			listOfVersions: "قائمة النسخ",
+			noActiveVersions: "لا توجد نسخ نشطة",
+			createNewVersionButton: "إنشاء نسخة جديدة",
+			createNewVersionText: "إنشاء نسخة جديدة",
+			versionNamePlaceholder: "اسم النسخة",
+			cancelButtonText: "إلغاء",
+			createButtonText: "إنشاء",
+			updateButtonText: "تحديث",
 		},
 		statusScreen: {
 			mainTitle: "Task Statuses",

@@ -78,8 +78,8 @@ export const BOARD_FIREBASE_CONFIG = process.env.NEXT_PUBLIC_BOARD_FIREBASE_CONF
 
 // Jitsu
 export const jitsuConfiguration: () => JitsuOptions = () => ({
-	host: process.env.NEXT_JITSU_BROWSER_URL || '',
-	writeKey: process.env.NEXT_JITSU_BROWSER_WRITE_KEY || '',
+	host: process.env.NEXT_PUBLIC_JITSU_BROWSER_URL || '',
+	writeKey: process.env.NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY || '',
 	// if enabled - events will be sent to the console but no data sent to Jitsu.
 	// Strange this is not mentioned in the documentation https://github.com/jitsucom/jitsu/blob/35c4ecaff54d61a87853381cb17262b7bfbd4a6e/libs/jitsu-js/src/jitsu.ts#L40
 	echoEvents: false,

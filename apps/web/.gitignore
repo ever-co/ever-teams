@@ -35,5 +35,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Sentry Auth Token
+# Sentry Config File with Auth Token
 .sentryclirc
