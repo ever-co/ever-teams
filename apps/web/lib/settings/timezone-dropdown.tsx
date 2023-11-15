@@ -59,7 +59,7 @@ export const TimezoneDropDown = ({
 	);
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const debouncedSetSearchText = useCallback(_debounce(setSearchText, 500), []);
+	const debouncedSetSearchText = useCallback(_debounce(setSearchText, 300), []);
 
 	const handleSearchChange = (e: string) => {
 		debouncedSetSearchText(e);
