@@ -9,9 +9,10 @@ type Props = {
 	status: ITimerStatusEnum;
 	showIcon?: boolean;
 	tooltipClassName?: string;
+	labelContainerClassName?: string;
 } & IClassName;
 
-export function TimerStatus({ status, className, showIcon = true, tooltipClassName }: Props) {
+export function TimerStatus({ status, className, showIcon = true, tooltipClassName, labelContainerClassName }: Props) {
 	return (
 		<Tooltip
 			label={status === 'online' ? 'Online and Tracking Time' : status}
@@ -19,6 +20,7 @@ export function TimerStatus({ status, className, showIcon = true, tooltipClassNa
 			placement="auto"
 			className={tooltipClassName}
 			labelClassName="whitespace-nowrap"
+			labelContainerClassName={labelContainerClassName}
 		>
 			<div
 				className={clsxm(

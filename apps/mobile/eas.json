@@ -18,7 +18,11 @@
 			}
 		},
 		"production": {
-			"channel": "production"
+			"channel": "production",
+			"env": {
+				"GAUZY_API_URL": "https://api.gauzy.co",
+				"INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode"
+			}
 		}
 	},
 	"submit": {

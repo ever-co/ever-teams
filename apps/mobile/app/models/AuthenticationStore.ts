@@ -26,17 +26,17 @@ export const AuthenticationStoreModel = types
 		get validationErrors() {
 			return {
 				authEmail: (function () {
-					if (store.authEmail.length === 0) return "This filed can't be blank";
+					if (store.authEmail.length === 0) return "This field can't be blank";
 					if (store.authEmail.length < 6) return 'Must be at least 6 characters';
 					if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(store.authEmail)) return 'Must be a valid email address';
 					return '';
 				})(),
 				authTeamName: (function () {
-					if (store.authTeamName.length === 0) return "This filed can't be blank";
+					if (store.authTeamName.length === 0) return "This field can't be blank";
 					return '';
 				})(),
 				authUsername: (function () {
-					if (store.authUsername.length === 0) return "This filed can't be blank";
+					if (store.authUsername.length === 0) return "This field can't be blank";
 					return '';
 				})()
 			};

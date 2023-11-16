@@ -58,6 +58,7 @@
 		"expo": "~48.0.9",
 		"expo-application": "~5.1.1",
 		"expo-blur": "~12.2.2",
+		"expo-build-properties": "~0.6.0",
 		"expo-clipboard": "~4.1.2",
 		"expo-constants": "~14.2.1",
 		"expo-device": "~5.2.1",
@@ -168,10 +169,31 @@
 		"@types/react-native": "0.69.6"
 	},
 	"prettier": {
-		"printWidth": 100,
-		"semi": false,
-		"singleQuote": false,
-		"trailingComma": "all"
+		"printWidth": 120,
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": true,
+		"tabWidth": 4,
+		"arrowParens": "always",
+		"trailingComma": "none",
+		"quoteProps": "as-needed",
+		"trimTrailingWhitespace": true,
+		"overrides": [
+			{
+				"files": "*.scss",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			},
+			{
+				"files": "*.yml",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			}
+		]
 	},
 	"detox": {
 		"test-runner": "jest",

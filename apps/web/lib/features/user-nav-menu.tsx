@@ -49,8 +49,8 @@ export function UserNavAvatar() {
 					className={clsxm(
 						'w-[3rem] h-[3rem]',
 						'flex justify-center items-center',
-						'rounded-full text-xs text-default dark:text-white',
-						'shadow-md text-lg font-normal'
+						'rounded-full text-white',
+						'shadow-md text-[2.063rem] dark:text-[1.75rem] text-thin font-PlusJakartaSans '
 					)}
 					style={{
 						backgroundColor: `${stc(name || '')}80`
@@ -71,7 +71,15 @@ export function UserNavAvatar() {
 							/>
 						</Avatar>
 					) : name ? (
-						imgTitle(name).charAt(0)
+						<div className="w-[3rem] h-[3rem] flex justify-center items-center relative rounded-full dark:border-[0.25rem] dark:border-[#26272C] text-white">
+							{imgTitle(name).charAt(0)}
+							<TimerStatus
+								status={timerStatusValue}
+								className="w-[1.3rem] h-[1.3rem] absolute bottom-3 -right-2 -mb-4 border-[0.125rem] border-white dark:border-[#26272C]"
+								tooltipClassName="mt-8"
+								labelContainerClassName="mr-8"
+							/>
+						</div>
 					) : (
 						''
 					)}
@@ -138,9 +146,9 @@ function UserNavMenu() {
 					<div
 						className={clsxm(
 							'w-[72px] h-[72px]',
-							'flex justify-center items-center',
-							'rounded-full text-xs text-default dark:text-white',
-							'shadow-md text-4xl font-normal relative cursor-pointer mb-5'
+							'flex justify-center items-center relative',
+							'rounded-full text-xs text-white',
+							'shadow-md text-5xl font-thin relative font-PlusJakartaSans cursor-pointer mb-5'
 						)}
 						style={{
 							backgroundColor: `${stc(name || '')}80`
@@ -155,7 +163,15 @@ function UserNavMenu() {
 								/>
 							</Avatar>
 						) : name ? (
-							imgTitle(name).charAt(0)
+							<div className="relative w-[72px] h-[72px] flex justify-center items-center">
+								{imgTitle(name).charAt(0)}
+								<TimerStatus
+									status={timerStatusValue}
+									className="w-[1.3rem] h-[1.3rem] absolute z-20 bottom-3 -right-1 -mb-3 border-[0.125rem] border-white dark:border-[#26272C]"
+									tooltipClassName="mt-2 "
+									labelContainerClassName="mr-14"
+								/>
+							</div>
 						) : (
 							''
 						)}
