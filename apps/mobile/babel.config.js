@@ -11,7 +11,7 @@ const plugins = [
 			envName: 'APP_ENV',
 			moduleName: '@env',
 			path: '.env',
-			allowUndefined: true
+			allowUndefined: false
 		}
 	],
 	['@babel/plugin-proposal-optional-catch-binding'],
