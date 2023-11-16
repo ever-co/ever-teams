@@ -1,7 +1,7 @@
 import React, { ComponentType, forwardRef, Ref, useImperativeHandle, useRef } from 'react';
 import { StyleProp, TextInput, TextInputProps, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { isRTL, translate } from '../i18n';
-import { colors, spacing, typography } from '../theme';
+import { colors, spacing, typography, useAppTheme } from '../theme';
 import { Text, TextProps } from './Text';
 
 export interface TextFieldAccessoryProps {
@@ -152,6 +152,8 @@ export const TextField = forwardRef(function TextField(props: TextFieldProps, re
 
 	useImperativeHandle(ref, () => input.current);
 
+	const { colors: appThemeColors, dark } = useAppTheme();
+
 	return (
 		<TouchableOpacity
 			activeOpacity={1}
@@ -188,7 +190,7 @@ export const TextField = forwardRef(function TextField(props: TextFieldProps, re
 					placeholderTextColor={colors.textDim}
 					{...TextInputProps}
 					editable={!disabled}
-					style={$inputStyles}
+					style={[$inputStyles, { color: dark ? appThemeColors.primary : colors.text }]}
 				/>
 
 				{!!RightAccessory && (

@@ -8,7 +8,7 @@ import EStyleSheet from 'react-native-extended-stylesheet';
 // Components
 import { translate } from '../../../i18n';
 import { Button, TextField } from '../../../components';
-import { spacing, typography } from '../../../theme';
+import { spacing, typography, useAppTheme } from '../../../theme';
 import { useStores } from '../../../models';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 
@@ -22,18 +22,32 @@ interface Props {
 const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStatus, setWithTeam }) => {
 	const authTeamInput = useRef<TextInput>();
 
+	const { colors, dark } = useAppTheme();
+
 	const {
 		authenticationStore: { authTeamName, setAuthTeamName }
 	} = useStores();
 
 	return (
-		<Animatable.View animation={'zoomIn'} delay={100} style={styles.form}>
-			<Text style={styles.text}>{translate('loginScreen.step1Title')}</Text>
+		<Animatable.View
+			animation={'zoomIn'}
+			delay={100}
+			style={{
+				...styles.form,
+				backgroundColor: colors.background,
+				...(!dark && GS.shadowSm)
+			}}
+		>
+			<Text style={{ ...styles.text, color: colors.primary }}>{translate('loginScreen.step1Title')}</Text>
 			<TextField
 				placeholder={translate('loginScreen.teamNameFieldPlaceholder')}
 				containerStyle={styles.textField}
-				placeholderTextColor={'rgba(40, 32, 72, 0.4)'}
-				inputWrapperStyle={styles.inputStyleOverride}
+				placeholderTextColor={dark ? '#7B8089' : '#28204866'}
+				inputWrapperStyle={{
+					...styles.inputStyleOverride,
+					backgroundColor: colors.background,
+					borderColor: colors.border
+				}}
 				ref={authTeamInput}
 				value={authTeamName}
 				onChangeText={setAuthTeamName}
@@ -46,10 +60,17 @@ const FillTeamNameForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 			/>
 			<View style={styles.buttonsView}>
 				<TouchableOpacity style={{ width: 130 }} onPress={() => setWithTeam(true)}>
-					<Text style={styles.joinExistedText}>{translate('loginScreen.joinExistTeam')}</Text>
+					<Text style={{ ...styles.joinExistedText, color: colors.secondary }}>
+						{translate('loginScreen.joinExistTeam')}
+					</Text>
 				</TouchableOpacity>
 				<Button
-					style={{ ...$tapButton, opacity: authTeamName.length < 3 ? 0.5 : 1 }}
+					style={{
+						...$tapButton,
+						opacity: authTeamName.length < 3 ? 0.5 : 1,
+						backgroundColor: colors.secondary,
+						borderWidth: 0
+					}}
 					textStyle={styles.tapButtonText}
 					onPress={() =>
 						setScreenStatus({
@@ -73,8 +94,8 @@ const { width } = Dimensions.get('window');
 const $tapButton: ViewStyle = {
 	marginTop: spacing.extraSmall,
 	width: width / 3,
-	borderRadius: 10,
-	backgroundColor: '#3826A6'
+	borderRadius: 10
+	// backgroundColor: '#3826A6'
 };
 
 const styles = EStyleSheet.create({
@@ -92,8 +113,7 @@ const styles = EStyleSheet.create({
 		justifyContent: 'flex-start',
 		borderWidth: 1,
 		borderColor: 'rgba(0,0,0,0.1)',
-		zIndex: 1000,
-		...GS.shadowSm
+		zIndex: 1000
 	},
 	text: {
 		fontSize: '1.5rem',
@@ -125,8 +145,7 @@ const styles = EStyleSheet.create({
 	},
 	joinExistedText: {
 		fontSize: '0.75rem',
-		fontFamily: typography.primary.semiBold,
-		color: '#3826A6'
+		fontFamily: typography.primary.semiBold
 	},
 	tapButtonText: {
 		color: '#fff',

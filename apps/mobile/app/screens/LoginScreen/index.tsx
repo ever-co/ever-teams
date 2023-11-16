@@ -7,7 +7,7 @@ import { Dimensions, View, ViewStyle } from 'react-native';
 // Components
 import { Screen } from '../../components';
 import { AppStackScreenProps } from '../../navigators';
-import { spacing } from '../../theme';
+import { spacing, useAppTheme } from '../../theme';
 import FillTeamNameForm from './Components/FillTeamNameForm';
 import { useAuthenticationTeam } from '../../services/hooks/features/useAuthenticationTeam';
 import FillUserInfoForm from './Components/FillUserInfoForm';
@@ -38,6 +38,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 		verifyEmailAndCodeOrAcceptInvite
 	} = useAuthenticationTeam();
 
+	const { colors } = useAppTheme();
+
 	const [isWorkspaceScreen, setIsWorkspaceScreen] = useState<boolean>(false);
 
 	return (
@@ -51,7 +53,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 			<View style={$header}>
 				<LoginHeader withTeam={withteam} screenStatus={screenstatus} workspaceScreen={isWorkspaceScreen} />
 			</View>
-			<View style={$bottom}>
+			<View style={{ ...$bottom, backgroundColor: colors.background2 }}>
 				{screenstatus.screen === 1 && !withteam ? (
 					<FillTeamNameForm
 						setWithTeam={setWithTeam}
