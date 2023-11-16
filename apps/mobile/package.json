@@ -169,10 +169,31 @@
 		"@types/react-native": "0.69.6"
 	},
 	"prettier": {
-		"printWidth": 100,
-		"semi": false,
-		"singleQuote": false,
-		"trailingComma": "all"
+		"printWidth": 120,
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": true,
+		"tabWidth": 4,
+		"arrowParens": "always",
+		"trailingComma": "none",
+		"quoteProps": "as-needed",
+		"trimTrailingWhitespace": true,
+		"overrides": [
+			{
+				"files": "*.scss",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			},
+			{
+				"files": "*.yml",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			}
+		]
 	},
 	"detox": {
 		"test-runner": "jest",
