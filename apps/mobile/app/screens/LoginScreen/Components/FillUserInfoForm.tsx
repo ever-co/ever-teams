@@ -10,7 +10,7 @@ import { ActivityIndicator } from 'react-native-paper';
 
 import { translate } from '../../../i18n';
 import { Button, TextField } from '../../../components';
-import { spacing, typography } from '../../../theme';
+import { spacing, typography, useAppTheme } from '../../../theme';
 import { useStores } from '../../../models';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 
@@ -28,14 +28,28 @@ const FillUserInfoForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 		authenticationStore: { authEmail, setAuthEmail, authUsername, setAuthUsername }
 	} = useStores();
 
+	const { colors, dark } = useAppTheme();
+
 	return (
-		<Animatable.View animation={'zoomIn'} delay={100} style={styles.form}>
-			<Text style={styles.text}>{translate('loginScreen.step2Title')}</Text>
+		<Animatable.View
+			animation={'zoomIn'}
+			delay={100}
+			style={{
+				...styles.form,
+				backgroundColor: colors.background,
+				...(!dark && GS.shadowSm)
+			}}
+		>
+			<Text style={{ ...styles.text, color: colors.primary }}>{translate('loginScreen.step2Title')}</Text>
 			<TextField
 				placeholder={translate('loginScreen.userNameFieldPlaceholder')}
 				containerStyle={styles.textField}
-				placeholderTextColor={'rgba(40, 32, 72, 0.4)'}
-				inputWrapperStyle={styles.inputStyleOverride}
+				placeholderTextColor={dark ? '#7B8089' : '#28204866'}
+				inputWrapperStyle={{
+					...styles.inputStyleOverride,
+					backgroundColor: colors.background,
+					borderColor: colors.border
+				}}
 				ref={authTeamInput}
 				value={authUsername}
 				onChangeText={setAuthUsername}
@@ -49,8 +63,12 @@ const FillUserInfoForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 			<TextField
 				placeholder={translate('loginScreen.emailFieldPlaceholder')}
 				containerStyle={[styles.textField, { marginTop: 20 }]}
-				placeholderTextColor={'rgba(40, 32, 72, 0.4)'}
-				inputWrapperStyle={styles.inputStyleOverride}
+				placeholderTextColor={dark ? '#7B8089' : '#28204866'}
+				inputWrapperStyle={{
+					...styles.inputStyleOverride,
+					backgroundColor: colors.background,
+					borderColor: colors.border
+				}}
 				ref={authTeamInput}
 				value={authEmail}
 				onChangeText={setAuthEmail}
@@ -76,13 +94,21 @@ const FillUserInfoForm: FC<Props> = observer(({ isLoading, errors, setScreenStat
 						})
 					}
 				>
-					<Feather name="arrow-left" size={24} color={'#3826A6'} />
-					<Text style={[styles.backButtonText, { color: '#282048', fontSize: 14 }]}>
+					<Feather name="arrow-left" size={24} color={dark ? colors.primary : '#3826A6'} />
+					<Text style={[styles.backButtonText, { color: dark ? colors.primary : '#282048', fontSize: 14 }]}>
 						{translate('common.back')}
 					</Text>
 				</TouchableOpacity>
 				<Button
-					style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
+					style={[
+						$tapButton,
+						{
+							width: width / 2.1,
+							opacity: isLoading ? 0.5 : 1,
+							borderWidth: 0,
+							backgroundColor: colors.secondary
+						}
+					]}
 					textStyle={styles.tapButtonText}
 					onPress={() => createNewTeam()}
 				>
@@ -125,8 +151,7 @@ const styles = EStyleSheet.create({
 		justifyContent: 'flex-start',
 		borderWidth: 1,
 		borderColor: 'rgba(0,0,0,0.1)',
-		zIndex: 1000,
-		...GS.shadowSm
+		zIndex: 1000
 	},
 	text: {
 		fontSize: '1.5rem',
