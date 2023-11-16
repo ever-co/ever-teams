@@ -1,4 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import React, { FC, useEffect, useRef, useState } from 'react';
 import * as Animatable from 'react-native-animatable';
 import EStyleSheet from 'react-native-extended-stylesheet';
@@ -41,7 +42,7 @@ const PassCode: FC<Props> = observer(
 		signInWorkspace,
 		setIsWorkspaceScreen
 	}) => {
-		const { colors } = useAppTheme();
+		const { colors, dark } = useAppTheme();
 		const {
 			authenticationStore: { authEmail, setAuthEmail, setAuthInviteCode, authInviteCode, setTempAuthToken },
 			teamStore: { activeTeamId, setActiveTeamId }
@@ -173,15 +174,29 @@ const PassCode: FC<Props> = observer(
 		}, [step]);
 
 		return (
-			<Animatable.View animation={'zoomIn'} delay={100} style={styles.form}>
+			<Animatable.View
+				animation={'zoomIn'}
+				delay={100}
+				style={{
+					...styles.form,
+					backgroundColor: colors.background,
+					...(!dark && GS.shadowSm)
+				}}
+			>
 				{step === 'Email' ? (
 					<>
-						<Text style={styles.text}>{translate('loginScreen.inviteStepLabel')}</Text>
+						<Text style={{ ...styles.text, color: colors.primary }}>
+							{translate('loginScreen.inviteStepLabel')}
+						</Text>
 						<TextField
 							placeholder={translate('loginScreen.emailFieldPlaceholder')}
 							containerStyle={styles.textField}
-							placeholderTextColor={'rgba(40, 32, 72, 0.4)'}
-							inputWrapperStyle={styles.inputStyleOverride}
+							placeholderTextColor={dark ? '#7B8089' : '#28204866'}
+							inputWrapperStyle={{
+								...styles.inputStyleOverride,
+								backgroundColor: colors.background,
+								borderColor: colors.border
+							}}
 							ref={authTeamInput}
 							value={authEmail}
 							onChangeText={onChangeEmail}
@@ -195,15 +210,10 @@ const PassCode: FC<Props> = observer(
 					</>
 				) : step === 'Code' ? (
 					<View>
-						<Text style={{ ...styles.text, alignSelf: 'center' }}>
+						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
 							{translate('loginScreen.inviteCodeFieldLabel')}
 						</Text>
-						<CodeInput
-							onChange={onChangeAuthCode}
-							editable={!isLoading}
-							defaultValue={authInviteCode}
-							loginInput={true}
-						/>
+						<CodeInput onChange={onChangeAuthCode} editable={!isLoading} defaultValue={authInviteCode} />
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
 						<TouchableOpacity onPress={() => getAuthCode()}>
 							<Text style={styles.resendText}>
@@ -217,7 +227,7 @@ const PassCode: FC<Props> = observer(
 					</View>
 				) : (
 					<View style={styles.tenantsContainer}>
-						<Text style={{ ...styles.text, alignSelf: 'center' }}>
+						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
 							{translate('loginScreen.selectWorkspaceFieldLabel')}
 						</Text>
 
@@ -251,8 +261,12 @@ const PassCode: FC<Props> = observer(
 						}}
 						onPress={() => onPrevStep()}
 					>
-						<Feather name="arrow-left" size={24} color={'#3826A6'} />
-						<Text style={styles.backButtonText}>{translate('common.back')}</Text>
+						<Feather name="arrow-left" size={24} color={dark ? colors.primary : '#3826A6'} />
+						<Text
+							style={[styles.backButtonText, { color: dark ? colors.primary : '#282048', fontSize: 14 }]}
+						>
+							{translate('common.back')}
+						</Text>
 					</TouchableOpacity>
 					<Button
 						style={[
@@ -265,7 +279,9 @@ const PassCode: FC<Props> = observer(
 									(step === 'Code' && !isValid.step2) ||
 									(step === 'Tenant' && !isValid.step3)
 										? 0.5
-										: 1
+										: 1,
+								backgroundColor: colors.secondary,
+								borderWidth: 0
 							}
 						]}
 						textStyle={styles.tapButtonText}
@@ -315,13 +331,11 @@ const styles = EStyleSheet.create({
 		justifyContent: 'flex-start',
 		borderWidth: 1,
 		borderColor: 'rgba(0,0,0,0.1)',
-		zIndex: 1000,
-		...GS.shadowSm
+		zIndex: 1000
 	},
 	text: {
 		fontSize: '1.5rem',
 		marginBottom: '2rem',
-		color: '#1A1C1E',
 		width: '100%',
 		textAlign: 'center',
 		fontFamily: typography.primary.semiBold
