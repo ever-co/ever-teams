@@ -54,7 +54,7 @@ export function useAuthenticationTeam() {
 	const { firstLoadData } = useFirstLoad()
 
 	const errors: typeof validationErrors = isSubmitted ? validationErrors : ({} as any)
-	console.log(process.env.DEV_API_URL)
+
 	const signInWorkspace = async ({ signinAuthToken }: { signinAuthToken?: string } = {}) => {
 		const token = signinAuthToken || tempAuthToken
 		try {
