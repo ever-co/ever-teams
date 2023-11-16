@@ -29,7 +29,7 @@ type Props<T extends DropdownItem> = {
 	closeOnChildrenClick?: boolean;
 	cardClassName?: string;
 	searchBar?: boolean;
-	setSearchText?: React.Dispatch<SetStateAction<string>>;
+	setSearchText?: React.Dispatch<React.SetStateAction<string>> | ((e: string) => void);
 } & PropsWithChildren;
 
 export function Dropdown<T extends DropdownItem>({

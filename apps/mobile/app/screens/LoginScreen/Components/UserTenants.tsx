@@ -6,6 +6,7 @@ import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
 import { IWorkspace } from '../../../services/interfaces/IAuthentication';
 import { SvgXml } from 'react-native-svg';
 import { grayCircleIcon, greenCircleTickIcon } from '../../../components/svgs/icons';
+import { useAppTheme } from '../../../theme';
 
 interface IValid {
 	step1: boolean;
@@ -35,10 +36,11 @@ const UserTenants: FC<IUserTenants> = ({
 	setIsValid,
 	setTempAuthToken
 }) => {
+	const { colors } = useAppTheme();
 	return (
-		<View style={styles.tenantContainer}>
+		<View style={{ ...styles.tenantContainer, backgroundColor: colors.background, borderColor: colors.border }}>
 			<View style={styles.tenantNameContainer}>
-				<Text style={{ fontSize: 17 }}>{data.user.tenant.name}</Text>
+				<Text style={{ fontSize: 17, color: colors.primary }}>{data.user.tenant.name}</Text>
 				<View
 					onTouchStart={() => {
 						setSelectedWorkspace(index);
@@ -66,7 +68,7 @@ const UserTenants: FC<IUserTenants> = ({
 									source={{ uri: item.team_logo }}
 									style={{ width: 25, height: 25, borderRadius: 100 }}
 								/>
-								<Text style={{ fontSize: 18 }}>
+								<Text style={{ fontSize: 18, color: colors.primary }}>
 									{item.team_name}({item.team_member_count})
 								</Text>
 							</View>

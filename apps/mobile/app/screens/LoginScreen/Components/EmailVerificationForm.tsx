@@ -1,4 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
+/* eslint-disable react-native/no-color-literals */
 import React, { FC } from 'react';
 import { View, Text, Dimensions, ViewStyle, TouchableOpacity } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
@@ -24,13 +25,25 @@ interface Props {
 
 const EmailVerificationForm: FC<Props> = observer(
 	({ isLoading, setScreenStatus, verificationError, verifyEmailByCode, resendEmailVerificationCode }) => {
-		const { colors } = useAppTheme();
+		const { colors, dark } = useAppTheme();
 		const {
 			authenticationStore: { setAuthConfirmCode }
 		} = useStores();
 
 		return (
-			<Animatable.View animation={'zoomIn'} delay={100} style={styles.form}>
+			<Animatable.View
+				animation={'zoomIn'}
+				delay={100}
+				style={{
+					...styles.form,
+					backgroundColor: colors.background,
+					elevation: !dark && 10,
+					shadowColor: !dark && 'rgba(0,0,0,0.1)',
+					shadowOffset: !dark && { width: 10, height: 10 },
+					shadowOpacity: !dark && 5,
+					shadowRadius: !dark && 9
+				}}
+			>
 				<Text style={styles.text}>{translate('loginScreen.step3Title')}</Text>
 				<View>
 					<CodeInput onChange={setAuthConfirmCode} editable={!isLoading} />
@@ -60,11 +73,20 @@ const EmailVerificationForm: FC<Props> = observer(
 							})
 						}
 					>
-						<Feather name="arrow-left" size={24} color={'#3826A6'} />
-						<Text style={styles.backButtonText}>{translate('common.back')}</Text>
+						<Feather name="arrow-left" size={24} color={dark ? colors.primary : '#3826A6'} />
+						<Text style={{ ...styles.backButtonText, color: colors.primary }}>
+							{translate('common.back')}
+						</Text>
 					</TouchableOpacity>
 					<Button
-						style={[$tapButton, { width: width / 2.1, opacity: isLoading ? 0.5 : 1 }]}
+						style={[
+							$tapButton,
+							{
+								width: width / 2.1,
+								opacity: isLoading ? 0.5 : 1,
+								backgroundColor: colors.secondary
+							}
+						]}
 						textStyle={styles.tapButtonText}
 						onPress={() => verifyEmailByCode()}
 					>
@@ -97,17 +119,11 @@ const styles = EStyleSheet.create({
 		top: '-32%',
 		padding: '1.5rem',
 		alignSelf: 'center',
-		backgroundColor: '#fff',
 		alignItems: 'center',
 		borderRadius: '1rem',
 		justifyContent: 'flex-start',
 		borderWidth: 1,
 		borderColor: 'rgba(0,0,0,0.1)',
-		elevation: 10,
-		shadowColor: 'rgba(0,0,0,0.1)',
-		shadowOffset: { width: 10, height: 10 },
-		shadowOpacity: 5,
-		shadowRadius: 9,
 		zIndex: 1000
 	},
 	text: {
@@ -132,8 +148,7 @@ const styles = EStyleSheet.create({
 	},
 	backButtonText: {
 		fontSize: '0.87rem',
-		fontFamily: typography.primary.semiBold,
-		color: '#3826A6'
+		fontFamily: typography.primary.semiBold
 	},
 	tapButtonText: {
 		color: '#fff',

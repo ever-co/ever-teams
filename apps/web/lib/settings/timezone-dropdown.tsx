@@ -5,6 +5,7 @@ import { mapTimezoneItems, TimezoneItem } from 'lib/features';
 import { useTimezoneSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import moment from 'moment-timezone';
+import _debounce from 'lodash/debounce';
 
 export const TimezoneDropDown = ({
 	currentTimezone,
@@ -57,10 +58,17 @@ export const TimezoneDropDown = ({
 		[setActiveTimezone, onChangeTimezone]
 	);
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const debouncedSetSearchText = useCallback(_debounce(setSearchText, 300), []);
+
+	const handleSearchChange = (e: string) => {
+		debouncedSetSearchText(e);
+	};
+
 	return (
 		<Dropdown
 			searchBar={true}
-			setSearchText={setSearchText}
+			setSearchText={handleSearchChange}
 			className="md:w-[469px]"
 			buttonClassName={clsxm(
 				'py-0 font-medium h-[54px]',

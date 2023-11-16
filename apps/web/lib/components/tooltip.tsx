@@ -11,6 +11,7 @@ type Props = {
 	placement?: Placement;
 	enabled?: boolean;
 	labelClassName?: string;
+	labelContainerClassName?: string;
 } & IClassName;
 
 export function Tooltip({
@@ -19,7 +20,8 @@ export function Tooltip({
 	label,
 	placement = 'top',
 	enabled = true,
-	labelClassName
+	labelClassName,
+	labelContainerClassName
 }: PropsWithChildren<Props>) {
 	const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } = usePopperTooltip({
 		placement
@@ -43,7 +45,7 @@ export function Tooltip({
 						leaveTo="transform scale-95 opacity-0"
 						ref={setTooltipRef}
 						{...getTooltipProps()}
-						className="tooltip-container w-1/3 md:w-fit"
+						className={clsx('tooltip-container w-1/3 md:w-fit', labelContainerClassName)}
 					>
 						<span className={clsx(labelClassName, 'text-xs')}>{label}</span>
 						<div {...getArrowProps()} className="tooltip-arrow" />
