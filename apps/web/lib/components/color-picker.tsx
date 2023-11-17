@@ -72,6 +72,7 @@ export const ColorPicker = ({
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}
+						as="div"
 					>
 						<div
 							className={`relative w-[100%] h-[48px] border rounded-[10px] flex items-center justify-between input-border ${
