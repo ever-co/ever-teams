@@ -89,7 +89,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 				StatusBarProps={{ backgroundColor: 'black' }}
 				safeAreaEdges={['top']}
 			>
-				<StatusBar barStyle="default" />
+				<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 				{isLoading ? (
 					<TeamScreenSkeleton />
 				) : (

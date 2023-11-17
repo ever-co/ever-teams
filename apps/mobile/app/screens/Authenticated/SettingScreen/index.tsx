@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox } from 'react-native';
+import { View, ViewStyle, Dimensions, TouchableWithoutFeedback, LogBox, StatusBar } from 'react-native';
 import Animated from 'react-native-reanimated';
 import BottomSheet from 'reanimated-bottom-sheet';
 import { BlurView } from 'expo-blur';
@@ -38,7 +38,7 @@ export type IPopup =
 export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Setting'>> =
 	function AuthenticatedDrawerScreen(_props) {
 		LogBox.ignoreAllLogs();
-		const { colors } = useAppTheme();
+		const { colors, dark } = useAppTheme();
 		const { isLoading } = useSettings();
 		const { activeTeam } = useOrganizationTeam();
 		const route = useRoute<SettingScreenRouteProp<'Setting'>>();
@@ -64,6 +64,7 @@ export const AuthenticatedSettingScreen: FC<AuthenticatedDrawerScreenProps<'Sett
 				contentContainerStyle={[$container, { backgroundColor: colors.background }]}
 				safeAreaEdges={['top']}
 			>
+				<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 				<View style={{ flex: 1 }}>
 					{isOpen && (
 						<TouchableWithoutFeedback
