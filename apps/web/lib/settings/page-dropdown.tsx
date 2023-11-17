@@ -70,7 +70,7 @@ export const PaginationDropdown = ({
 					'py-0 font-medium h-[45px] w-[145px] z-10 outline-none dark:bg-dark--theme-light',
 					paginationList.length === 0 && ['py-2']
 				)}
-				value={paginationItem}
+				value={paginationItem || null}
 				onChange={onChangeActiveTeam}
 				items={items}
 				optionsClassName={'outline-none'}
