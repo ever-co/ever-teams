@@ -55,7 +55,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 							style={styles.teamImage}
 							size={40}
 							source={{
-								uri: activeTeam.image?.thumbUrl || activeTeam.logo || activeTeam.image?.fullUrl
+								uri: activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl
 							}}
 						/>
 					) : (

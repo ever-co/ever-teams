@@ -75,25 +75,25 @@ const UserHeaderCard = ({ member, user }: { member: OT_Member; user: IUser }) =>
 
 	return (
 		<View style={styles.wrapProfileImg}>
-			{user.image?.thumbUrl || user.imageUrl || user.image?.fullUrl ? (
+			{user?.image?.thumbUrl || user?.imageUrl || user?.image?.fullUrl ? (
 				<Avatar.Image
 					style={styles.teamImage}
 					size={40}
 					source={{
-						uri: user.image?.thumbUrl || user.imageUrl || user.image?.fullUrl
+						uri: user?.image?.thumbUrl || user?.imageUrl || user?.image?.fullUrl
 					}}
 				/>
 			) : (
 				<Avatar.Text
 					style={styles.teamImage}
 					size={40}
-					label={imgTitleProfileAvatar(user.name)}
+					label={imgTitleProfileAvatar(user?.name)}
 					labelStyle={styles.prefix}
 				/>
 			)}
 			<TimerStatus status={getTimerStatusValue(timerStatus, currentMember, currentTeam?.public)} />
 			<Text style={[styles.name, { color: colors.primary }]} numberOfLines={1} ellipsizeMode="tail">
-				{user.name}
+				{user?.name}
 			</Text>
 		</View>
 	);
