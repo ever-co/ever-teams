@@ -143,11 +143,11 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 	return (
 		<View style={styles.indDropDown}>
 			<TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => changeTeam(team)}>
-				{team.image?.thumbUrl || team.logo || team.image?.fullUrl ? (
+				{team?.image?.thumbUrl || team?.logo || team?.image?.fullUrl ? (
 					<Avatar.Image
 						style={styles.teamImage}
 						size={30}
-						source={{ uri: team.image?.thumbUrl || team.logo || team.image?.fullUrl }}
+						source={{ uri: team?.image?.thumbUrl || team?.logo || team.image?.fullUrl }}
 					/>
 				) : (
 					<Avatar.Text
@@ -165,7 +165,7 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 						fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal
 					}}
 				>
-					{limitTextCharaters({ text: team.name, numChars: resized ? 12 : 20 })} ({team.members.length})
+					{limitTextCharaters({ text: team?.name, numChars: resized ? 12 : 20 })} ({team?.members.length})
 				</Text>
 			</TouchableOpacity>
 			<TouchableOpacity onPress={() => navigateToSettings(team)}>

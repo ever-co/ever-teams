@@ -62,7 +62,7 @@ export const ProofDropdown = ({
 					'py-0 font-medium h-[54px] w-[150px] w-full',
 					ProofList.length === 0 && ['py-2']
 				)}
-				value={ProofItem}
+				value={ProofItem || null}
 				onChange={onChangeActiveTeam}
 				items={items}
 			></Dropdown>
