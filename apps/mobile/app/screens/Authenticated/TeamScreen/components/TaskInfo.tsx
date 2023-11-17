@@ -13,11 +13,13 @@ import IssuesModal from '../../../../components/IssuesModal';
 const TaskInfo = ({
 	memberInfo,
 	editMode,
-	setEditMode
+	setEditMode,
+	onPressIn
 }: {
 	memberInfo: I_TeamMemberCardHook;
 	editMode: boolean;
 	setEditMode: (value: boolean) => unknown;
+	onPressIn: () => void;
 }) => {
 	const task = memberInfo.memberTask;
 	const { colors } = useAppTheme();
@@ -62,7 +64,7 @@ const TaskInfo = ({
 	}
 
 	return (
-		<TouchableOpacity onLongPress={() => setEditMode(true)}>
+		<TouchableOpacity onLongPress={() => setEditMode(true)} onPress={onPressIn}>
 			<View style={{ flexDirection: 'row', width: '100%' }}>
 				<View style={styles.wrapBugIcon}>
 					<IssuesModal task={task} readonly={true} />
