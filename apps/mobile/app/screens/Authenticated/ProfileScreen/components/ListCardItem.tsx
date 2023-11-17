@@ -25,6 +25,8 @@ import { secondsToTime } from '../../../../helpers/date';
 import { useTaskStatistics } from '../../../../services/hooks/features/useTaskStatics';
 import { useStores } from '../../../../models';
 import IssuesModal from '../../../../components/IssuesModal';
+import { SettingScreenNavigationProp } from '../../../../navigators/AuthenticatedNavigator';
+import { useNavigation } from '@react-navigation/native';
 
 export type ListItemProps = {
 	active?: boolean;
@@ -60,6 +62,12 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 		return (activeTaskTotalStat?.duration * 100) / props.task?.estimate || 0;
 	}, [timerStatus, props.activeAuthTask, activeTaskTotalStat]);
+
+	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
+
+	const navigateToTask = (taskId: string) => {
+		!editTitle && navigation.navigate('TaskScreen', { taskId });
+	};
 
 	return (
 		<TouchableNativeFeedback
@@ -97,12 +105,20 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 				<View style={{ marginBottom: 16 }}>
 					<View style={styles.wrapperTask}>
-						<View style={{ flexDirection: 'row', width: '80%' }}>
-							<View style={{ marginRight: 3 }}>
-								<IssuesModal task={props.task} readonly={true} />
+						<TouchableOpacity onPress={() => navigateToTask(props.task?.id)}>
+							<View style={{ flexDirection: 'row', width: '80%' }}>
+								<View style={{ marginRight: 3 }}>
+									<IssuesModal task={props.task} readonly={true} />
+								</View>
+
+								<TaskTitleDisplay
+									task={props.task}
+									editMode={editTitle}
+									setEditMode={setEditTitle}
+									navigateToTask={navigateToTask}
+								/>
 							</View>
-							<TaskTitleDisplay task={props.task} editMode={editTitle} setEditMode={setEditTitle} />
-						</View>
+						</TouchableOpacity>
 						{!enableEstimate ? (
 							<TouchableOpacity onPress={() => setEnableEstimate(true)}>
 								<AnimatedCircularProgress
