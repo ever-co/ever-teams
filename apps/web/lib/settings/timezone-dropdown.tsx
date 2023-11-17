@@ -43,7 +43,7 @@ export const TimezoneDropDown = ({
 		);
 
 		return mapTimezoneItems(timeZonesMap);
-	}, []);
+	}, [searchText]);
 
 	const [timezoneItem, setTimezoneItem] = useState<TimezoneItem | null>(null);
 
