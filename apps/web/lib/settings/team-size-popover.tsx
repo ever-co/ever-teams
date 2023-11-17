@@ -96,6 +96,7 @@ const TeamSize = ({
 						ref={buttonRef}
 						disabled={disableButton}
 						onClick={toggleDisabled}
+						as="div"
 					>
 						<div
 							className={`relative w-[100%] h-[48px] ${

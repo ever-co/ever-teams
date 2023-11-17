@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { ViewStyle, View, LogBox, TouchableWithoutFeedback } from 'react-native';
+import { ViewStyle, View, LogBox, TouchableWithoutFeedback, StatusBar } from 'react-native';
 
 // COMPONENTS
 import { Screen } from '../../../components';
@@ -48,6 +48,7 @@ export const AuthenticatedTimerScreen: FC<AuthenticatedTabScreenProps<'Timer'>> 
 			backgroundColor={dark ? 'rgb(16,17,20)' : colors.background}
 			safeAreaEdges={['top']}
 		>
+			<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 			<TouchableWithoutFeedback onPress={() => onClickOutside()}>
 				<View style={{ flex: 1 }}>
 					{isLoading ? (
