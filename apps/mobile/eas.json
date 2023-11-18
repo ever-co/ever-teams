@@ -1,4 +1,7 @@
 {
+	"cli": {
+		"appVersionSource": "remote"
+	},
 	"build": {
 		"development": {
 			"extends": "production",
@@ -6,6 +9,9 @@
 			"distribution": "internal",
 			"ios": {
 				"simulator": true
+			},
+			"android": {
+				"buildType": "apk"
 			},
 			"channel": "development"
 		},
@@ -15,9 +21,13 @@
 			"channel": "preview",
 			"ios": {
 				"simulator": true
+			},
+			"android": {
+				"buildType": "apk"
 			}
 		},
 		"production": {
+			"autoIncrement": true,
 			"channel": "production",
 			"env": {
 				"GAUZY_API_URL": "https://api.gauzy.co",
