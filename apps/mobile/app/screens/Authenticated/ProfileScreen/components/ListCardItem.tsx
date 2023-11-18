@@ -37,6 +37,9 @@ export type ListItemProps = {
 	viewType?: 'default' | 'unassign';
 	profile?: IUserProfile;
 	isNowTab?: boolean;
+	index: number;
+	openMenuIndex: number | null;
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>;
 };
 
 export interface Props extends ListItemProps {}
@@ -49,7 +52,6 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 	const [editTitle, setEditTitle] = useState(false);
 	const [enableEstimate, setEnableEstimate] = useState(false);
-	const [showMenu, setShowMenu] = React.useState(false);
 
 	const { h, m } = secondsToTime(props.task.estimate || 0);
 	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics();
@@ -72,7 +74,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 	return (
 		<TouchableNativeFeedback
 			onPressIn={() => {
-				setShowMenu(false);
+				props.setOpenMenuIndex(null);
 				setEditTitle(false);
 				setEnableEstimate(false);
 			}}
@@ -94,8 +96,11 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						containerStyle={{ flexDirection: 'row', alignItems: 'center' }}
 						totalTimeText={{ color: colors.primary }}
 					/>
-					<TouchableOpacity onPress={() => setShowMenu(!showMenu)} style={{ height: 20 }}>
-						{!showMenu ? (
+					<TouchableOpacity
+						onPress={() => props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)}
+						style={{ height: 20 }}
+					>
+						{props.index !== props.openMenuIndex ? (
 							<Ionicons name="ellipsis-vertical-outline" size={20} color={colors.primary} />
 						) : (
 							<Entypo name="cross" size={20} color={colors.primary} />
@@ -176,10 +181,10 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 					</View>
 					<TaskStatus containerStyle={styles.statusContainer} task={props.task} />
 				</View>
-				{showMenu && (
+				{props.index === props.openMenuIndex && (
 					<SidePopUp
 						setEditTitle={setEditTitle}
-						setShowMenu={() => setShowMenu(false)}
+						setShowMenu={() => props.setOpenMenuIndex(null)}
 						setEnableEstimate={setEnableEstimate}
 						props={props}
 					/>
