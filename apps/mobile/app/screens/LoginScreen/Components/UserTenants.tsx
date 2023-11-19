@@ -1,12 +1,13 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-unused-styles */
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
 import { IWorkspace } from '../../../services/interfaces/IAuthentication';
 import { SvgXml } from 'react-native-svg';
 import { grayCircleIcon, greenCircleTickIcon } from '../../../components/svgs/icons';
 import { useAppTheme } from '../../../theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IValid {
 	step1: boolean;
@@ -37,6 +38,26 @@ const UserTenants: FC<IUserTenants> = ({
 	setTempAuthToken
 }) => {
 	const { colors } = useAppTheme();
+
+	useEffect(() => {
+		const getDefaultTeamId = async () => {
+			try {
+				const defaultTeamId = await AsyncStorage.getItem('defaultTeamId');
+				if (defaultTeamId) {
+					setActiveTeamId(defaultTeamId);
+				} else if (data.current_teams.length > 0) {
+					setActiveTeamId(data.current_teams[0].team_id);
+				}
+				setIsValid({ ...isValid, step3: true });
+				setTempAuthToken(data.token);
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		getDefaultTeamId();
+	}, [data.current_teams]);
+
 	return (
 		<View style={{ ...styles.tenantContainer, backgroundColor: colors.background, borderColor: colors.border }}>
 			<View style={styles.tenantNameContainer}>
