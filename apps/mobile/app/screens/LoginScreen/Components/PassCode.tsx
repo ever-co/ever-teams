@@ -55,7 +55,7 @@ const PassCode: FC<Props> = observer(
 			step2: false,
 			step3: false
 		});
-		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
+		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(null);
 		const [workspaceData, setWorkspaceData] = useState(null);
 
 		const onNextStep = async () => {

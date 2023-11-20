@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-unused-styles */
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, FlatList } from 'react-native';
 import { IWorkspace } from '../../../services/interfaces/IAuthentication';
 import { SvgXml } from 'react-native-svg';
@@ -39,17 +39,20 @@ const UserTenants: FC<IUserTenants> = ({
 }) => {
 	const { colors } = useAppTheme();
 
+	const [autoSetWorkspace, setAutoSetWorkspace] = useState<boolean>(true);
+
 	useEffect(() => {
 		const getDefaultTeamId = async () => {
 			try {
 				const defaultTeamId = await AsyncStorage.getItem('defaultTeamId');
 				if (defaultTeamId) {
 					setActiveTeamId(defaultTeamId);
-				} else if (data.current_teams.length > 0) {
-					setActiveTeamId(data.current_teams[0].team_id);
 				}
+				setActiveTeamId(data?.current_teams[0]?.team_id);
+
 				setIsValid({ ...isValid, step3: true });
-				setTempAuthToken(data.token);
+
+				setTempAuthToken(data?.token);
 			} catch (error) {
 				console.error(error);
 			}
@@ -58,12 +61,25 @@ const UserTenants: FC<IUserTenants> = ({
 		getDefaultTeamId();
 	}, [data.current_teams]);
 
+	useEffect(() => {
+		if (autoSetWorkspace) {
+			const selectedIndex = data.current_teams.findIndex((team) => team.team_id === activeTeamId);
+			if (selectedIndex !== -1) {
+				setSelectedWorkspace(index);
+			} else {
+				setSelectedWorkspace(0);
+			}
+		}
+		setTimeout(() => setAutoSetWorkspace(false), 500);
+	}, [activeTeamId]);
+
 	return (
 		<View style={{ ...styles.tenantContainer, backgroundColor: colors.background, borderColor: colors.border }}>
 			<View style={styles.tenantNameContainer}>
 				<Text style={{ fontSize: 17, color: colors.primary }}>{data.user.tenant.name}</Text>
 				<View
 					onTouchStart={() => {
+						autoSetWorkspace && setAutoSetWorkspace(false);
 						setSelectedWorkspace(index);
 						selectedWorkspace !== index && setActiveTeamId(data.current_teams[0].team_id);
 						data.current_teams.filter((team) => team.team_id === activeTeamId) &&
@@ -95,6 +111,7 @@ const UserTenants: FC<IUserTenants> = ({
 							</View>
 							<View
 								onTouchStart={() => {
+									autoSetWorkspace && setAutoSetWorkspace(false);
 									setActiveTeamId(item.team_id);
 									setSelectedWorkspace(index);
 									setIsValid({ ...isValid, step3: true });
