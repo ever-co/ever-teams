@@ -33,6 +33,7 @@ module.exports = {
 				transparent: 'transparent',
 				current: 'currentColor',
 				neutral: '#7E7991',
+				chetwodeBlue: '#8C7AE4',
 				default: {
 					DEFAULT: '#282048'
 				},
