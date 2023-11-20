@@ -1,11 +1,18 @@
 import NotFound from '@components/pages/404';
-import { MainLayout } from 'lib/layout';
+import { AuthLayout } from 'lib/layout';
+import { useTranslation } from 'react-i18next';
 
 const NotFoundPage = () => {
+
+	const { t } = useTranslation();
+	
 	return (
-		<MainLayout notFound={true}>
+		<AuthLayout 
+			title={t('pages.page404.HEADING_TITLE')} 
+			isAuthPage={false}
+			>
 			<NotFound />
-		</MainLayout>
+		</AuthLayout>
 	);
 };
 
