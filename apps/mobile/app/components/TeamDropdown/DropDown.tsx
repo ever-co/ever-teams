@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import { observer } from 'mobx-react-lite';
 import React, { FC } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native';
 import { Avatar } from 'react-native-paper';
 import { AntDesign } from '@expo/vector-icons';
 import { imgTitle } from '../../helpers/img-title';
@@ -53,7 +53,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 					{activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl ? (
 						<Avatar.Image
 							style={styles.teamImage}
-							size={40}
+							size={30}
 							source={{
 								uri: activeTeam?.image?.thumbUrl || activeTeam?.logo || activeTeam?.image?.fullUrl
 							}}
@@ -61,7 +61,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 					) : (
 						<Avatar.Text
 							style={styles.teamImage}
-							size={40}
+							size={30}
 							label={imgTitle(activeTeam?.name)}
 							labelStyle={styles.prefix}
 						/>
@@ -69,14 +69,14 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 
 					<Text style={[styles.activeTeamTxt, { color: colors.primary }]}>{`${limitTextCharaters({
 						text: activeTeam?.name,
-						numChars: resized ? 9 : 30
+						numChars: resized ? (Platform.OS === 'android' ? 9 : 10) : 26
 					})} (${activeTeam?.members.length})`}</Text>
 				</View>
 
 				{isOpen ? (
-					<AntDesign name="up" size={24} color={colors.primary} />
+					<AntDesign name="up" size={16} color={colors.primary} />
 				) : (
-					<AntDesign name="down" size={24} color={colors.primary} />
+					<AntDesign name="down" size={16} color={colors.primary} />
 				)}
 			</TouchableOpacity>
 
@@ -97,7 +97,7 @@ const DropDown: FC<Props> = observer(function CreateTeamModal({
 const styles = StyleSheet.create({
 	activeTeamTxt: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
+		fontSize: 12,
 		fontWeight: '600',
 		left: 12
 	},
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
 	},
 	prefix: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
+		fontSize: 12,
 		fontWeight: '600'
 	},
 	teamImage: {
