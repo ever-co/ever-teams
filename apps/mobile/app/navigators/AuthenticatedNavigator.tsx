@@ -34,6 +34,8 @@ import { SvgXml } from 'react-native-svg';
 import {
 	briefCaseNotFocusedDark,
 	briefCaseNotFocusedLight,
+	peopleFocusedDark,
+	peopleFocusedLight,
 	peopleNotFocusedDark,
 	peopleNotFocusedLight,
 	userFocusedDark,
@@ -189,13 +191,7 @@ const TabNavigator = observer(function TabNavigator() {
 						!focused ? (
 							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
 						) : (
-							<Image
-								source={
-									!dark
-										? require('../../assets/icons/new/people-active.png')
-										: require('../../assets/icons/new/people-active-dark.png')
-								}
-							/>
+							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
 						),
 					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
 				}}
