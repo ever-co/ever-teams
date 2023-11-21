@@ -2994,13 +2994,6 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-native@0.71.5":
-  version "0.71.5"
-  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.71.5.tgz#229bc670433f97fe1e03d62758d4fccf34a07714"
-  integrity sha512-Tp5druh7DGwNDvWYH09PCE++hbH4zYz0OOvGFb3/QFIFKXgfezaT/txJeKlBkbiqs45QJzllp9S0qo0WpWyijA==
-  dependencies:
-    "@types/react" "*"
-
 "@types/react@*", "@types/react@18.0.0":
   version "18.0.0"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.0.tgz#4be8aa3a2d04afc3ac2cc1ca43d39b0bd412890c"
@@ -6461,7 +6454,7 @@ expo-media-library@~15.2.3:
   resolved "https://registry.yarnpkg.com/expo-media-library/-/expo-media-library-15.2.3.tgz#188f3c77f58b354f0ea6250f6756ac1e1a226291"
   integrity sha512-Oz8b8Xsvfj7YcutUBtI84NUIqSnt7iCM5HZ5DyKoWKKiDK/+aUuj3RXNQELG8jUw6pQPgEwgbZ1+J8SdH/y9jw==
 
-expo-modules-autolinking@1.1.2, expo-modules-autolinking@~1.1.0:
+expo-modules-autolinking@1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/expo-modules-autolinking/-/expo-modules-autolinking-1.1.2.tgz#a81c65c63bd281922410c6d8c3ad6255b6305246"
   integrity sha512-oOlkAccVnHwwR5ccvF/F/x4Omj9HWzSimMUlIVz0SVGdNBEqTPyn0L/d4uIufhyQbEWvrarqL8o5Yz11wEI0SQ==
@@ -6476,14 +6469,6 @@ expo-modules-core@1.2.6:
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/expo-modules-core/-/expo-modules-core-1.2.6.tgz#921abc8031fe0e5474ee48905071902b9627d051"
   integrity sha512-vyleKepkP8F6L+D55B/E4FbZ8x9pdy3yw/mdbGBkDkrmo2gmeMjOM1mKLSszOkLIqet05O7Wy8m0FZHZTo0VBg==
-  dependencies:
-    compare-versions "^3.4.0"
-    invariant "^2.2.4"
-
-expo-modules-core@~1.2.7:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/expo-modules-core/-/expo-modules-core-1.2.7.tgz#c80627b13a8f1c94ae9da8eea41e1ef1df5788c8"
-  integrity sha512-sulqn2M8+tIdxi6QFkKppDEzbePAscgE2LEHocYoQOgHxJpeT7axE0Hkzc+81EeviQilZzGeFZMtNMGh3c9yJg==
   dependencies:
     compare-versions "^3.4.0"
     invariant "^2.2.4"
