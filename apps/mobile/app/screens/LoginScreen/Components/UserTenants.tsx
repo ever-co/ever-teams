@@ -8,6 +8,7 @@ import { SvgXml } from 'react-native-svg';
 import { grayCircleIcon, greenCircleTickIcon } from '../../../components/svgs/icons';
 import { useAppTheme } from '../../../theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { defaultUserInfoType } from './PassCode';
 
 interface IValid {
 	step1: boolean;
@@ -24,6 +25,7 @@ interface IUserTenants {
 	isValid: IValid;
 	setIsValid: React.Dispatch<React.SetStateAction<IValid>>;
 	setTempAuthToken: (token: string) => void;
+	setDefaultUserInfo: React.Dispatch<React.SetStateAction<defaultUserInfoType>>;
 }
 
 const UserTenants: FC<IUserTenants> = ({
@@ -35,7 +37,8 @@ const UserTenants: FC<IUserTenants> = ({
 	selectedWorkspace,
 	isValid,
 	setIsValid,
-	setTempAuthToken
+	setTempAuthToken,
+	setDefaultUserInfo
 }) => {
 	const { colors } = useAppTheme();
 
@@ -45,10 +48,18 @@ const UserTenants: FC<IUserTenants> = ({
 		const getDefaultTeamId = async () => {
 			try {
 				const defaultTeamId = await AsyncStorage.getItem('defaultTeamId');
-				if (defaultTeamId) {
+				const defaultUserInfoString = await AsyncStorage.getItem('defaultUserInfo');
+				const defaultUserInfoObj: defaultUserInfoType = JSON.parse(defaultUserInfoString);
+
+				if (
+					defaultTeamId &&
+					data?.user?.id === defaultUserInfoObj?.defaultUserId &&
+					data?.user?.tenant?.id === defaultUserInfoObj?.defaultUserTenantId
+				) {
 					setActiveTeamId(defaultTeamId);
+				} else {
+					index === 0 && setActiveTeamId(data?.current_teams[0]?.team_id);
 				}
-				setActiveTeamId(data?.current_teams[0]?.team_id);
 
 				setIsValid({ ...isValid, step3: true });
 
@@ -80,11 +91,15 @@ const UserTenants: FC<IUserTenants> = ({
 				<View
 					onTouchStart={() => {
 						autoSetWorkspace && setAutoSetWorkspace(false);
+						setDefaultUserInfo({
+							defaultUserId: data?.user?.id,
+							defaultUserTenantId: data?.user?.tenant?.id
+						});
 						setSelectedWorkspace(index);
-						selectedWorkspace !== index && setActiveTeamId(data.current_teams[0].team_id);
-						data.current_teams.filter((team) => team.team_id === activeTeamId) &&
+						selectedWorkspace !== index && setActiveTeamId(data?.current_teams[0].team_id);
+						data?.current_teams.filter((team) => team.team_id === activeTeamId) &&
 							setIsValid({ ...isValid, step3: true });
-						setTempAuthToken(data.token);
+						setTempAuthToken(data?.token);
 					}}
 				>
 					{selectedWorkspace === index ? (
@@ -112,10 +127,14 @@ const UserTenants: FC<IUserTenants> = ({
 							<View
 								onTouchStart={() => {
 									autoSetWorkspace && setAutoSetWorkspace(false);
+									setDefaultUserInfo({
+										defaultUserId: data?.user?.id,
+										defaultUserTenantId: data?.user?.tenant?.id
+									});
 									setActiveTeamId(item.team_id);
 									setSelectedWorkspace(index);
 									setIsValid({ ...isValid, step3: true });
-									setTempAuthToken(data.token);
+									setTempAuthToken(data?.token);
 								}}
 							>
 								{activeTeamId === item.team_id ? (

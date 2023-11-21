@@ -17,6 +17,7 @@ import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import { EMAIL_REGEX } from '../../../helpers/regex';
 import UserTenants from './UserTenants';
 import { IWorkspace, VerificationResponse } from '../../../services/interfaces/IAuthentication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
 	isLoading: boolean;
@@ -29,6 +30,11 @@ interface Props {
 	signInWorkspace: () => unknown;
 	setIsWorkspaceScreen: React.Dispatch<React.SetStateAction<boolean>>;
 }
+export type defaultUserInfoType = {
+	defaultUserId: string;
+	defaultUserTenantId: string;
+};
+
 const { width } = Dimensions.get('window');
 const PassCode: FC<Props> = observer(
 	({
@@ -57,6 +63,10 @@ const PassCode: FC<Props> = observer(
 		});
 		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(null);
 		const [workspaceData, setWorkspaceData] = useState(null);
+		const [defaultUserInfo, setDefaultUserInfo] = useState<defaultUserInfoType>({
+			defaultUserId: '',
+			defaultUserTenantId: ''
+		});
 
 		const onNextStep = async () => {
 			if (step === 'Email') {
@@ -100,6 +110,7 @@ const PassCode: FC<Props> = observer(
 				}, 1000);
 			}
 			if (step === 'Tenant') {
+				await AsyncStorage.setItem('defaultUserInfo', JSON.stringify(defaultUserInfo));
 				signInWorkspace();
 			}
 		};
@@ -241,6 +252,7 @@ const PassCode: FC<Props> = observer(
 									data={item}
 									activeTeamId={activeTeamId}
 									setActiveTeamId={setActiveTeamId}
+									setDefaultUserInfo={setDefaultUserInfo}
 									selectedWorkspace={selectedWorkspace}
 									setSelectedWorkspace={setSelectedWorkspace}
 									isValid={isValid}
