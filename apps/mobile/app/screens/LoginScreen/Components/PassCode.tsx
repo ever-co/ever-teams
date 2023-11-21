@@ -12,11 +12,11 @@ import { translate } from '../../../i18n';
 import { Button, TextField } from '../../../components';
 import { spacing, typography, useAppTheme } from '../../../theme';
 import { useStores } from '../../../models';
-import { CodeInput } from '../../../components/CodeInput';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import { EMAIL_REGEX } from '../../../helpers/regex';
 import UserTenants from './UserTenants';
 import { IWorkspace, VerificationResponse } from '../../../services/interfaces/IAuthentication';
+import { CodeInputField } from '../../../components/CodeField';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
@@ -150,6 +150,7 @@ const PassCode: FC<Props> = observer(
 
 		const onChangeAuthCode = (text: string) => {
 			setAuthInviteCode(text);
+
 			if (text.length === 6) {
 				setIsValid({
 					...isValid,
@@ -224,7 +225,7 @@ const PassCode: FC<Props> = observer(
 						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
 							{translate('loginScreen.inviteCodeFieldLabel')}
 						</Text>
-						<CodeInput onChange={onChangeAuthCode} editable={!isLoading} defaultValue={authInviteCode} />
+						<CodeInputField editable onChange={onChangeAuthCode} defaultValue={authInviteCode} />
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
 						<TouchableOpacity onPress={() => getAuthCode()}>
 							<Text style={styles.resendText}>
