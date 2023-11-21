@@ -26,7 +26,16 @@ function getStyle(provided, style) {
       ...provided.draggableProps.style,
       ...style,
     };
-  }
+}
+
+// this function changes column header color when dragged
+function headerStyleChanger(snapshot: DraggableStateSnapshot){
+    const backgroundColor = snapshot.isDragging ? '#000' : '#fff';
+
+    return {
+        backgroundColor
+    }
+}
 
 function QuoteItem(props: any) {
     const {
@@ -133,7 +142,15 @@ export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
                     isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
                     {...dropProvided.droppableProps}
                 >
-                    <InnerList quotes={content} title={title} dropProvided={dropProvided} />
+                    <section
+                        style={{
+                            overflowX: 'hidden',
+                            overflowY: 'auto',
+                            maxHeight: '50px'
+                        }}
+                    >
+                        <InnerList quotes={content} title={title} dropProvided={dropProvided} />
+                    </section>
                 </div>
             )}
         </Droppable>
@@ -164,10 +181,11 @@ const KanbanDraggable = ({key, index, draggableId, title, content}: {
                             snapshot.isDragging,
                             provided.draggableProps.style
                         )}
-                        className="flex flex-col gap-2"
+                        className="flex flex-col gap-2 w-60"
                     >
                         <header
-                            className="flex flex-row justify-center items-center h-20"
+                            className="flex flex-row justify-center items-center h-10 bg-primary"
+                            style={headerStyleChanger(snapshot)}
                             isDragging={snapshot.isDragging}
                         >
                             <h2 
@@ -183,7 +201,7 @@ const KanbanDraggable = ({key, index, draggableId, title, content}: {
                             droppableId={title} 
                             type={'TASK'} 
                             style={{
-                                backgroundColor: snapshot.isDragging ? 'red' : null,
+                                backgroundColor: snapshot.isDragging ? '#fff' : null,
                               }}   
                             content={content}                     
                         />

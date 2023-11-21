@@ -137,7 +137,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className="flex flex-row gap-[20px] min-h-screen"
+                  className="flex flex-row gap-[20px] h-full p-2 bg-transparent"
                   ref={provided.innerRef}
                   style={getListStyle(snapshot.isDraggingOver)}
                   {...provided.droppableProps}
