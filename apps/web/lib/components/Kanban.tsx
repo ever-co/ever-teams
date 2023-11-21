@@ -28,9 +28,28 @@ function getStyle(provided, style) {
     };
 }
 
+export const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
+    if (isDraggingOver) {
+      return {
+        backgroundColor: '#FFEBE6',
+        height: '150px'
+    }
+    }
+    if (isDraggingFrom) {
+      return {
+        backgroundColor:  '#E6FCFF',
+        height: '150px'
+    }
+    }
+    return {
+        backgroundColor:  '#EBECF0',
+        height: '150px'
+    }
+};
+
 // this function changes column header color when dragged
 function headerStyleChanger(snapshot: DraggableStateSnapshot){
-    const backgroundColor = snapshot.isDragging ? '#000' : '#fff';
+    const backgroundColor = snapshot.isDragging ? '#0000ee' : '#fffee';
 
     return {
         backgroundColor
@@ -93,18 +112,20 @@ function InnerQuoteList({quotes}: {
 function InnerList(props: {
     title: string, 
     quotes: any[],
-    dropProvided: any
+    dropProvided: any,
+    dropSnapshot: any
 }) {
-    const { quotes, dropProvided } = props;
-    const title = props.title ? <h2>{props.title}</h2> : null;
+    const { quotes, dropProvided, dropSnapshot } = props;
   
     return (
-      <section>
-        <div ref={dropProvided.innerRef}>
+   
+        <div 
+        style={getBackgroundColor(dropSnapshot.isDraggingOver, dropSnapshot.draggingFromThisWith)}
+        ref={dropProvided.innerRef}>
           <InnerQuoteList quotes={quotes} />
           {dropProvided.placeholder}
         </div>
-      </section>
+      
     );
 }
 
@@ -136,21 +157,22 @@ export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
         >
             {(dropProvided, dropSnapshot) => (
                 <div
-                    style={style}
+                    style={getBackgroundColor(dropSnapshot.isDraggingOver, dropSnapshot.draggingFromThisWith)}
                     isDraggingOver={dropSnapshot.isDraggingOver}
                     isDropDisabled={false}
                     isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
                     {...dropProvided.droppableProps}
                 >
-                    <section
-                        style={{
-                            overflowX: 'hidden',
-                            overflowY: 'auto',
-                            maxHeight: '50px'
-                        }}
-                    >
-                        <InnerList quotes={content} title={title} dropProvided={dropProvided} />
-                    </section>
+                    {/* <section
+                        className="overflow-x-hidden overflow-y-auto h-14"
+                        style={style}
+                        isDraggingOver={dropSnapshot.isDraggingOver}
+                        isDropDisabled={false}
+                        isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
+                        {...dropProvided.droppableProps}
+                    > */}
+                        <InnerList quotes={content} title={title} dropProvided={dropProvided} dropSnapshot={dropSnapshot} />
+                    {/* </section> */}
                 </div>
             )}
         </Droppable>
@@ -201,8 +223,8 @@ const KanbanDraggable = ({key, index, draggableId, title, content}: {
                             droppableId={title} 
                             type={'TASK'} 
                             style={{
-                                backgroundColor: snapshot.isDragging ? '#fff' : null,
-                              }}   
+                                backgroundColor: snapshot.isDragging ? '#000' : 'null',
+                            }}   
                             content={content}                     
                         />
                     </div>
