@@ -1,3 +1,5 @@
+import LeftArrowTailessIcon from '@components/ui/svgs/left-arrow-tailess';
+import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
@@ -280,6 +282,49 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
     )
 };
 
+const KanbanDraggableHeader = ({title, items, snapshot, provided}: {
+    title: string,
+    items: any,
+    snapshot: DraggableStateSnapshot,
+    provided: DraggableProvided
+}) => {
+    return (
+        <>
+            <header
+                className={"flex flex-row justify-between items-center rounded-lg px-4 py-2 bg-primary"}
+                style={headerStyleChanger(snapshot)}
+                isDragging={snapshot.isDragging}
+            >
+                <div
+                    className="flex flex-row gap-2.5 items-center"
+                >
+                    <h2 
+                        className="text-base font-bold not-italic text-white font-PlusJakartaSansBold capitalize"
+                        isDragging={snapshot.isDragging}
+                        {...provided.dragHandleProps}
+                        aria-label={`${title} quote list`}
+                    >
+                        {title}
+                    </h2>
+                    <div
+                        className="
+                        flex flex-col items-center justify-center px-[10px] text-xs py-1 text-white 
+                        bg-transparentWhite rounded-[20px]"
+                    >
+                        {items.length}
+                    </div>
+                </div>
+                <div
+                    className="flex flex-row items-center gap-2"
+                >
+                    <ThreeDotIcon/>
+                    <LeftArrowTailessIcon/>
+                </div>
+            </header>
+        </>
+    )
+}
+
 /**
  * column within the kanban board
  * @param param0 
@@ -314,19 +359,12 @@ const KanbanDraggable = ({index,title, items}: {
                         >
                             { items.length > 0 ?
                                 <>
-                                    <header
-                                        className="flex flex-row justify-center items-center h-10 bg-primary"
-                                        style={headerStyleChanger(snapshot)}
-                                        isDragging={snapshot.isDragging}
-                                    >
-                                        <h2 
-                                            isDragging={snapshot.isDragging}
-                                            {...provided.dragHandleProps}
-                                            aria-label={`${title} quote list`}
-                                        >
-                                            {title}
-                                        </h2>
-                                    </header>
+                                    <KanbanDraggableHeader 
+                                        title={title} 
+                                        items={items} 
+                                        snapshot={snapshot} 
+                                        provided={provided}
+                                    />
                                     <KanbanDroppable 
                                         title={title} 
                                         droppableId={title} 
