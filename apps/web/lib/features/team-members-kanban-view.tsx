@@ -1,6 +1,6 @@
-import { KanbanBoard, KanbanCard, KanbanColumn } from "lib/components/Kanban"
-import { useEffect, useState } from "react";
-import { DragDropContext, Draggable, DraggableProvided, DraggableStateSnapshot, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
+import KanbanDraggable from "lib/components/Kanban"
+import {  useState } from "react";
+import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
 const reorder = (list: any[], startIndex:number , endIndex:number ) => {
   const result = Array.from(list);
@@ -12,154 +12,159 @@ const reorder = (list: any[], startIndex:number , endIndex:number ) => {
 
 const grid = 0;
 
-const getItemStyle = (isDragging: any, draggableStyle: any) => ({
-  // some basic styles to make the items look a bit nicer
-  userSelect: "none",
-  padding: grid * 2,
-  margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
-
-  // styles we need to apply on draggables
-  ...draggableStyle
-});
-
 const getListStyle = (isDraggingOver: any) => ({
   background: isDraggingOver ? "lightblue" : "lightgrey",
   padding: grid,
   width: '100%'
 });
 
+export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
+  const current = [...quoteMap[source.droppableId]];
+  const next = [...quoteMap[destination.droppableId]];
+  const target = current[source.index];
 
-export const KanbanView = ({ itemsArray, columns }: { itemsArray: any[], columns: any[]}) => {
+  // moving to same list
+  if (source.droppableId === destination.droppableId) {
+    const reordered = reorder(current, source.index, destination.index);
+    const result = {
+      ...quoteMap,
+      [source.droppableId]: reordered,
+    };
+    return {
+      quoteMap: result,
+    };
+  }
 
-    const [items, setItems] = useState<any[]>(itemsArray);
+  // moving to different list
 
+  // remove from original
+  current.splice(source.index, 1);
+  // insert into next
+  next.splice(destination.index, 0, target);
+
+  const result = {
+    ...quoteMap,
+    [source.droppableId]: current,
+    [destination.droppableId]: next,
+  };
+
+  return {
+    quoteMap: result,
+  };
+};
+
+
+export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
+
+    const [items, setItems] = useState<any>(itemsArray);
+
+    const [columnn, setColumns ] = useState<any>(Object.keys(itemsArray))
+
+    /**
+     * This function handles all drag and drop logic
+     * on the kanban board.
+     * @param result 
+     * @returns 
+     */
     const onDragEnd = (result: DropResult) => {
-          if (!result.destination) {
-            return;
-          }
 
-          const allitem = reorder(
-            items,
-            result.source.index,
-            result.destination.index
-          );
-    
-          setItems(allitem);
-        console.log('dragEnd')
+      if (result.combine) {
+        if (result.type === 'COLUMN') {
+          const shallow = [...columnn];
+          shallow.splice(result.source.index, 1);
+          setColumns(shallow);
+          return;
+        }
+  
+        const item = items.filter((item)=> item.status.name === result.source.droppableId);
+        const withQuoteRemoved = [...item];
+  
+        withQuoteRemoved.splice(result.source.index, 1);
+  
+        const orderedColumns = [
+          ...items,
+          // [result.source.droppableId]: withQuoteRemoved,
+        ];
+        setItems(orderedColumns);
+        return;
+      }
+
+      // dropped nowhere
+      if (!result.destination) {
+        return;
+      }
+
+      const source = result.source;
+      const destination = result.destination;
+  
+      // did not move anywhere - can bail early
+      if (
+        source.droppableId === destination.droppableId &&
+        source.index === destination.index
+      ) {
+        return;
+      }
+  
+      // reordering column
+      if (result.type === 'COLUMN') {
+        const reorderedorder = reorder(items, source.index, destination.index);
+  
+        setItems(reorderedorder);
+  
+        return;
+      }
+  
+      const data = reorderQuoteMap({
+        quoteMap: items,
+        source,
+        destination,
+      });
+  
+      setItems(data.quoteMap);
+       
     }
-
-    const onDragStart = () => {
-        console.log('dragStart')
-    }
-
-    // useEffect(() => {
-    //     const animation = requestAnimationFrame(() => setEnabled(true));
-    
-    //     return () => {
-    //       cancelAnimationFrame(animation);
-    //       setEnabled(false);
-    //     };
-    // }, []);
-
-    // if (!enabled) return null;
 
     return (
         <>
            <DragDropContext 
                 onDragEnd={onDragEnd}
             >
-              { items.length > 0 && 
-              <KanbanColumn 
+              { columnn.length > 0 && 
+              <Droppable 
                 droppableId="droppable"
                 type="COLUMN"
                 direction="horizontal"
               >
-               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-                 <div
-                      className="flex flex-row gap-[20px]"
-                      ref={provided.innerRef}
-                      style={getListStyle(snapshot.isDraggingOver)}
-                      {...provided.droppableProps}
-                  >
-                  {items.length > 0 ?
+              {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+                <div
+                  className="flex flex-row gap-[20px] min-h-screen"
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                  {...provided.droppableProps}
+                >
+                  {columnn.length > 0 ?
                   <>
-                  {items.map((item, index) => (
-                      <Draggable draggableId={item.status.id} index={index} key={item.status.id}>
-                        {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                            <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                style={getItemStyle(
-                                    snapshot.isDragging,
-                                    provided.draggableProps.style
-                                )}
-                            >
-                              <div
-                                  isDragging={snapshot.isDragging}
-                                  {...provided.dragHandleProps}
-                              >
-                                {item.status.name}
-                              </div>
-                              <KanbanColumn 
-                                droppableId={item.id}
-                                type="ITEM"
-                                renderClone={
-                                  (provided, snapshot, descriptor) => (
-                                      <p>{item.content}</p>
-                                  )
-                                }
-                                // direction="horizontal"
-                              >
-                              {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
-                                <div
-                                      ref={provided.innerRef}
-                                      style={getListStyle(snapshot.isDraggingOver)}
-                                   
-                                      isDraggingOver={snapshot.isDraggingOver}
-                                      isDraggingFrom={Boolean(snapshot.draggingFromThisWith)}
-                                      {...provided.droppableProps}
-                                  >
-                                    {items.map((item, index) => (
-                                      <Draggable draggableId={item.status.id} index={index} key={item.status.id}>
-                                        {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                                          <div
-                                              ref={provided.innerRef}
-                                              {...provided.draggableProps}
-                                              {...provided.dragHandleProps}
-
-                                          >
-                                            {item.content}
-                                          </div>)}
-                                      </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                              )}
-                              </KanbanColumn> 
-                            </div>)}
-                      </Draggable>
+                  {columnn.map((column, index) => (
+                    <KanbanDraggable 
+                      key={column} 
+                      index={index} 
+                      title={column}
+                      draggableId={column} 
+                      content={items[column]}
+                    />
                   ))}
                   </>
                   :
                   null
                   }
                   {provided.placeholder}
-                  </div>
-
+                </div>
               )}
-              </KanbanColumn> 
+              </Droppable> 
               }
             </DragDropContext>
         </>
     )
 }
 
-{/* <KanbanCard 
-  key={item.id} 
-  index={index} 
-  draggableId={item.id} 
-  content={item.content} 
-/> */}
+
