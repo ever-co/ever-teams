@@ -36,7 +36,7 @@
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
 		"REMOVE_ACCOUNT": "Remove Account",
-		"REMOVE_EVERYWHERE": "Remove Everywhere",
+		"REMOVE_EVERYWHERE": "Remove From All Teams",
 		"DELETE_ACCOUNT": "Delete This Account",
 		"UNASSIGN_TASK": "Unassign Task",
 		"MAKE_A_MANAGER": "Make a Manager",
@@ -173,8 +173,8 @@
 		"GITHUB_AUTO_SYNC_LABEL": "Selecionar rótulo de sincronização automática"
 	},
 	"alerts": {
-		"ALERT_DELETE_ACCOUNT": "Account will be removed from all teams, except where you are only the manager",
-		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing fromall teams",
+		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
+		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
 		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},

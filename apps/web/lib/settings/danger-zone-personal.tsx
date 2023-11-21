@@ -26,9 +26,7 @@ export const DangerZone = () => {
 				<div className="w-full mt-5">
 					<div className="">
 						<div className="flex flex-col items-center justify-between w-full gap-6 sm:flex-row">
-							<div className="flex-auto sm:w-64">
-								<Text className="text-xl font-normal">{t('common.REMOVE_ACCOUNT')}</Text>
-							</div>
+							<div className="flex-auto sm:w-64"></div>
 							<div className="flex-auto sm:w-64">
 								<Text className="font-normal text-gray-400 text-md">
 									{t('alerts.ALERT_DELETE_ACCOUNT')}
@@ -38,7 +36,7 @@ export const DangerZone = () => {
 								<Button
 									variant="danger"
 									type="submit"
-									className="float-right w-full bg-[#DE5536]"
+									className="float-right w-full !bg-[#FF9B50]"
 									onClick={() => {
 										setRemoveModalType('REMOVE');
 										openModal();
@@ -49,11 +47,7 @@ export const DangerZone = () => {
 							</div>
 						</div>
 						<div className="flex flex-col items-center justify-between w-full gap-6 mt-5 sm:flex-row">
-							<div className="flex-auto w-64">
-								<Text className="text-xl font-normal text-center sm:text-left">
-									{t('common.REMOVE_ACCOUNT')}
-								</Text>
-							</div>
+							<div className="flex-auto w-64"></div>
 							<div className="flex-auto sm:w-64">
 								<Text className="font-normal text-center text-gray-400 text-md sm:text-left">
 									{t('alerts.ALERT_ACCOUNT_PERMANENT_DELETE')}
