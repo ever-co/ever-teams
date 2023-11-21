@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
-import { Image, Platform, TextStyle, View, ViewStyle } from 'react-native';
+import { Platform, TextStyle, View, ViewStyle } from 'react-native';
 import { BottomTabScreenProps, createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -32,8 +32,12 @@ import { useStores } from '../models';
 import { observer } from 'mobx-react-lite';
 import { SvgXml } from 'react-native-svg';
 import {
+	briefCaseFocusedDark,
+	briefCaseFocusedLight,
 	briefCaseNotFocusedDark,
 	briefCaseNotFocusedLight,
+	peopleFocusedDark,
+	peopleFocusedLight,
 	peopleNotFocusedDark,
 	peopleNotFocusedLight,
 	userFocusedDark,
@@ -166,13 +170,7 @@ const TabNavigator = observer(function TabNavigator() {
 					tabBarLabel: translate('tasksScreen.name'),
 					tabBarIcon: ({ focused }) =>
 						focused ? (
-							<Image
-								source={
-									!dark
-										? require('../../assets/icons/new/briefcase-active.png')
-										: require('../../assets/icons/new/briefcase-active-dark.png')
-								}
-							/>
+							<SvgXml xml={dark ? briefCaseFocusedDark : briefCaseFocusedLight} />
 						) : (
 							<SvgXml xml={dark ? briefCaseNotFocusedDark : briefCaseNotFocusedLight} />
 						),
@@ -189,13 +187,7 @@ const TabNavigator = observer(function TabNavigator() {
 						!focused ? (
 							<SvgXml xml={dark ? peopleNotFocusedDark : peopleNotFocusedLight} />
 						) : (
-							<Image
-								source={
-									!dark
-										? require('../../assets/icons/new/people-active.png')
-										: require('../../assets/icons/new/people-active-dark.png')
-								}
-							/>
+							<SvgXml xml={dark ? peopleFocusedDark : peopleFocusedLight} />
 						),
 					tabBarActiveTintColor: dark ? '#8C7AE4' : '#3826A6'
 				}}
