@@ -88,6 +88,7 @@
 		"react-native-circular-progress": "^1.3.8",
 		"react-native-click-outside": "^0.1.1",
 		"react-native-cn-quill": "^0.7.18",
+		"react-native-confirmation-code-field": "^7.3.2",
 		"react-native-dotenv": "^3.4.8",
 		"react-native-dropdown-picker": "^5.4.6",
 		"react-native-extended-stylesheet": "^0.12.0",
