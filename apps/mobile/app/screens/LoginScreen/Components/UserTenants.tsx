@@ -47,6 +47,7 @@ const UserTenants: FC<IUserTenants> = ({
 	useEffect(() => {
 		const getDefaultTeamId = async () => {
 			try {
+				setAutoSetWorkspace(true);
 				const defaultTeamId = await AsyncStorage.getItem('defaultTeamId');
 				const defaultUserInfoString = await AsyncStorage.getItem('defaultUserInfo');
 				const defaultUserInfoObj: defaultUserInfoType = JSON.parse(defaultUserInfoString);
@@ -77,11 +78,8 @@ const UserTenants: FC<IUserTenants> = ({
 			const selectedIndex = data.current_teams.findIndex((team) => team.team_id === activeTeamId);
 			if (selectedIndex !== -1) {
 				setSelectedWorkspace(index);
-			} else {
-				setSelectedWorkspace(0);
 			}
 		}
-		setTimeout(() => setAutoSetWorkspace(false), 500);
 	}, [activeTeamId]);
 
 	return (
