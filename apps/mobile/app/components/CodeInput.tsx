@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useRef, useState } from 'react';
-import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
+import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { colors, typography, useAppTheme } from '../theme';
 
@@ -38,7 +38,7 @@ export const CodeInput: FC<IInput> = (props) => {
 					onChange(updatedCode.join(''));
 				}
 				// Current input has value
-				if (inviteCode[active]) {
+				else if (inviteCode[active] && nativeEvent.key !== inviteCode[active]) {
 					const updatedCode = [...inviteCode];
 					updatedCode[active + 1] = nativeEvent.key.toUpperCase();
 					setInviteCode(updatedCode);
@@ -87,6 +87,8 @@ export const CodeInput: FC<IInput> = (props) => {
 				inputsRef.current[i].setNativeProps({ text: updatedCode[i] });
 			}
 		}
+
+		Platform.OS === 'android' && (await Clipboard.setStringAsync(''));
 	};
 
 	for (let i = 0; i < length; i++) {
