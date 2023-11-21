@@ -1,15 +1,8 @@
-import { ReactNode, useEffect, useState } from 'react';
-import { DragDropContext, DragDropContextProps, Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProps, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
 
 const grid = 8;
-
-const reorder = (list: any[], startIndex:number , endIndex:number ) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-  
-    return result;
-};
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   // some basic styles to make the items look a bit nicer
@@ -24,37 +17,95 @@ const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   ...draggableStyle
 });
 
-const getListStyle = (isDraggingOver: any) => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250
-});
-
-type KanbanBoardProps = {
-    children: ReactNode;
-    items: any[]
-}
-
-
-
-export const KanbanBoard = ({children}: DragDropContextProps) => {
-
-    const onDragEnd = (result: any) => {
-     
+function getStyle(provided, style) {
+    if (!style) {
+      return provided.draggableProps.style;
     }
+  
+    return {
+      ...provided.draggableProps.style,
+      ...style,
+    };
+  }
 
+function QuoteItem(props: any) {
+    const {
+      quote,
+      isDragging,
+      isGroupedOver,
+      provided,
+      style,
+      isClone,
+      index,
+    } = props;
+  
+    return (
+      <section
+        href={``}
+        isDragging={isDragging}
+        isGroupedOver={isGroupedOver}
+        isClone={isClone}
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        style={getStyle(provided, style)}
+        data-is-dragging={isDragging}
+        data-testid={quote.id}
+        data-index={index}
+        aria-label={`${quote.status.name} quote ${quote.content}`}
+      >
+        {quote.content}
+      </section>
+    );
+  }
+
+function InnerQuoteList({quotes}: {
+    quotes: any[]
+}) {
     return (
         <>
-            <DragDropContext 
-                onDragEnd={onDragEnd}
-            >
-                { children}
-            </DragDropContext>
-        </>
-    )
+        {quotes.map((quote, index) => (
+            <Draggable key={quote.id} draggableId={quote.id} index={index}>
+                {(dragProvided, dragSnapshot) => (
+                <QuoteItem
+                    key={quote.id}
+                    quote={quote}
+                    isDragging={dragSnapshot.isDragging}
+                    isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
+                    provided={dragProvided}
+                />
+                )}
+            </Draggable>
+        ))
+    }
+    </>
+)};
+
+function InnerList(props: {
+    title: string, 
+    quotes: any[],
+    dropProvided: any
+}) {
+    const { quotes, dropProvided } = props;
+    const title = props.title ? <h2>{props.title}</h2> : null;
+  
+    return (
+      <section>
+        <div ref={dropProvided.innerRef}>
+          <InnerQuoteList quotes={quotes} />
+          {dropProvided.placeholder}
+        </div>
+      </section>
+    );
 }
 
-export const KanbanColumn = ({ children, ...props }: DroppableProps) => {
+export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
+    title: string,
+    droppableId: string,
+    type: string,
+    style: any,
+    content: any[]
+} ) => {
     const [enabled, setEnabled] = useState(false);
   
     useEffect(() => {
@@ -70,21 +121,33 @@ export const KanbanColumn = ({ children, ...props }: DroppableProps) => {
   
     return (
     <>
-        <Droppable {...props}>
-            {children}
+        <Droppable
+            droppableId={droppableId}
+            type={type}
+        >
+            {(dropProvided, dropSnapshot) => (
+                <div
+                    style={style}
+                    isDraggingOver={dropSnapshot.isDraggingOver}
+                    isDropDisabled={false}
+                    isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
+                    {...dropProvided.droppableProps}
+                >
+                    <InnerList quotes={content} title={title} dropProvided={dropProvided} />
+                </div>
+            )}
         </Droppable>
     </>
     )
-  };
+};
 
-type KanbanCardProps = {
+const KanbanDraggable = ({key, index, draggableId, title, content}: {
     key: string;
     index: number;
     draggableId: string;
-    content: string;
-}
-
-export const KanbanCard = ({key, index, draggableId, content}: KanbanCardProps) => {
+    title: string;
+    content: any[];
+}) => {
     return (
         <>
             <Draggable
@@ -101,11 +164,34 @@ export const KanbanCard = ({key, index, draggableId, content}: KanbanCardProps) 
                             snapshot.isDragging,
                             provided.draggableProps.style
                         )}
+                        className="flex flex-col gap-2"
                     >
-                        {content}
+                        <header
+                            className="flex flex-row justify-center items-center h-20"
+                            isDragging={snapshot.isDragging}
+                        >
+                            <h2 
+                                isDragging={snapshot.isDragging}
+                                {...provided.dragHandleProps}
+                                aria-label={`${title} quote list`}
+                            >
+                                {title}
+                            </h2>
+                        </header>
+                        <KanbanDroppable 
+                            title={title} 
+                            droppableId={title} 
+                            type={'TASK'} 
+                            style={{
+                                backgroundColor: snapshot.isDragging ? 'red' : null,
+                              }}   
+                            content={content}                     
+                        />
                     </div>
                 )}
             </Draggable>
         </>
     )
 }
+
+export default KanbanDraggable;
