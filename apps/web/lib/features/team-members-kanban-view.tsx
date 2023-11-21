@@ -1,5 +1,5 @@
 import { clsxm } from "@app/utils";
-import KanbanDraggable from "lib/components/Kanban"
+import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
 import {  useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
@@ -152,13 +152,29 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                 >
                   {column.length > 0 ?
                   <>
-                  {column.map((column: any, index: number) => (
-                    <KanbanDraggable 
-                      index={index} 
-                      title={column}
-                      items={items[column]}
-                    />
-                  ))}
+                  {column.map((column: any, index: number) => {
+                    return (
+                      <>
+                      { items[column].length > 0 ?
+                      <>
+                        <KanbanDraggable 
+                          index={index} 
+                          title={column}
+                          items={items[column]}
+                        />
+                      </>
+                      :
+                      <div className={'order-last'}>
+                      <EmptyKanbanDroppable 
+                          index={index} 
+                          title={column}
+                          items={items[column]}
+                      />
+                      </div>
+                    }
+                    </>
+                    )
+})}
                   </>
                   :
                   null

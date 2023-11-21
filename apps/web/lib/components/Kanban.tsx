@@ -201,16 +201,29 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
 };
 
 /**
- * column within the kanban board
+ * wrapper to allow inner column act as
+ * a droppable area for cards being dragged
  * @param param0 
  * @returns 
  */
-const KanbanDraggable = ({index,title, items}: {
+export const EmptyKanbanDroppable = ({index,title, items}: {
     index: number;
     title: string;
     items: any;
-}) => {
-
+})=> {
+    const [enabled, setEnabled] = useState(false);
+  
+    useEffect(() => {
+      const animation = requestAnimationFrame(() => setEnabled(true));
+  
+      return () => {
+        cancelAnimationFrame(animation);
+        setEnabled(false);
+      };
+    }, []);
+  
+    if (!enabled) return null;
+  
     return (
         <>
             { title.length > 0 &&
@@ -233,6 +246,72 @@ const KanbanDraggable = ({index,title, items}: {
                             
                         >
                             { title.length > 0 ?
+                                <>
+                                    <header
+                                        className="flex flex-row justify-center items-center h-10 bg-primary"
+                                        style={headerStyleChanger(snapshot)}
+                                        isDragging={snapshot.isDragging}
+                                    >
+                                        <h2 
+                                            isDragging={snapshot.isDragging}
+                                            {...provided.dragHandleProps}
+                                            aria-label={`${title} quote list`}
+                                        >
+                                            {title}
+                                        </h2>
+                                    </header>
+                                    <KanbanDroppable 
+                                        title={title} 
+                                        droppableId={title} 
+                                        type={'TASK'} 
+                                        content={items}                     
+                                    />
+                                </>
+                                    : 
+                                null
+                            }
+                        </div>
+                    
+                    )}
+                </Draggable>
+            }
+        </>
+    )
+};
+
+/**
+ * column within the kanban board
+ * @param param0 
+ * @returns 
+ */
+const KanbanDraggable = ({index,title, items}: {
+    index: number;
+    title: string;
+    items: any;
+}) => {
+
+    return (
+        <>
+            { items.length > 0 &&
+                <Draggable
+                    key={title}
+                    index={index}
+                    draggableId={title}
+                >
+                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                    
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                            )}
+                            className="flex flex-col gap-2 w-60"
+                            
+                        >
+                            { items.length > 0 ?
                                 <>
                                     <header
                                         className="flex flex-row justify-center items-center h-10 bg-primary"
