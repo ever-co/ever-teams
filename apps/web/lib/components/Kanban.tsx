@@ -7,7 +7,6 @@ const grid = 8;
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   // some basic styles to make the items look a bit nicer
   userSelect: "none",
-  padding: grid * 2,
   margin: `0 0 ${grid}px 0`,
 
   // change background colour if dragging
@@ -103,6 +102,7 @@ function InnerItemList({items}: {
 }) {
     return (
         <>
+        <section className="flex flex-col gap-2.5">
         {items.map((item: any, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided, dragSnapshot) => (
@@ -116,7 +116,8 @@ function InnerItemList({items}: {
                 )}
             </Draggable>
         ))
-    }
+        }
+         </section>
     </>
 )};
 
@@ -308,7 +309,7 @@ const KanbanDraggable = ({index,title, items}: {
                                 snapshot.isDragging,
                                 provided.draggableProps.style
                             )}
-                            className="flex flex-col gap-2 w-60"
+                            className="flex flex-col gap-5 w-[325px]"
                             
                         >
                             { items.length > 0 ?
