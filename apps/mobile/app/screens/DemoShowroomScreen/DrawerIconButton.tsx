@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { Pressable, PressableProps, ViewStyle } from 'react-native';
+import { ImageStyle, Pressable, PressableProps, TextStyle, ViewStyle } from 'react-native';
 import Animated, { interpolate, interpolateColor, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
+import type { AnimateStyle, AnimatedStyleProp, SharedValue } from 'react-native-reanimated';
 import { isRTL } from '../../i18n';
 import { colors, spacing } from '../../theme';
 
@@ -20,7 +20,7 @@ export function DrawerIconButton(props: DrawerIconButtonProps) {
 
 		return {
 			transform: [{ translateX }]
-		};
+		} as AnimatedStyleProp<ViewStyle | ImageStyle | TextStyle>;
 	});
 
 	const animatedTopBarStyles = useAnimatedStyle(() => {
@@ -36,7 +36,7 @@ export function DrawerIconButton(props: DrawerIconButtonProps) {
 			marginBottom,
 			width,
 			transform: [{ rotate: `${rotate}deg` }]
-		};
+		} as AnimateStyle<TextStyle>;
 	});
 
 	const animatedMiddleBarStyles = useAnimatedStyle(() => {
@@ -62,7 +62,7 @@ export function DrawerIconButton(props: DrawerIconButtonProps) {
 			width,
 			marginTop,
 			transform: [{ rotate: `${rotate}deg` }]
-		};
+		} as AnimateStyle<TextStyle>;
 	});
 
 	useEffect(() => {
@@ -71,11 +71,11 @@ export function DrawerIconButton(props: DrawerIconButtonProps) {
 
 	return (
 		<AnimatedPressible {...PressableProps} style={[$container, animatedContainerStyles]}>
-			<Animated.View style={[$topBar, animatedTopBarStyles]} />
+			<Animated.View style={[$topBar, animatedTopBarStyles] as AnimateStyle<ViewStyle>} />
 
 			<Animated.View style={[$middleBar, animatedMiddleBarStyles]} />
 
-			<Animated.View style={[$bottomBar, animatedBottomBarStyles]} />
+			<Animated.View style={[$bottomBar, animatedBottomBarStyles] as AnimateStyle<ViewStyle>} />
 		</AnimatedPressible>
 	);
 }
