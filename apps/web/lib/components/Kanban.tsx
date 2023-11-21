@@ -28,7 +28,7 @@ function getStyle(provided, style) {
     };
 }
 
-export const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
+const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
     if (isDraggingOver) {
       return {
         backgroundColor: '#FFEBE6',
@@ -56,9 +56,15 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot){
     }
 }
 
-function QuoteItem(props: any) {
+
+/**
+ * card that represent each task
+ * @param props 
+ * @returns 
+ */
+function Item(props: any) {
     const {
-      quote,
+      item,
       isDragging,
       isGroupedOver,
       provided,
@@ -78,26 +84,31 @@ function QuoteItem(props: any) {
         {...provided.dragHandleProps}
         style={getStyle(provided, style)}
         data-is-dragging={isDragging}
-        data-testid={quote.id}
+        data-testid={item.id}
         data-index={index}
-        aria-label={`${quote.status.name} quote ${quote.content}`}
+        aria-label={`${item.status.name} ${item.content}`}
       >
-        {quote.content}
+        {item.content}
       </section>
     );
-  }
+}
 
-function InnerQuoteList({quotes}: {
-    quotes: any[]
+/**
+ * wrapper to ensure card is draggable
+ * @param param0 
+ * @returns 
+ */
+function InnerItemList({items}: {
+    items: any[]
 }) {
     return (
         <>
-        {quotes.map((quote, index) => (
-            <Draggable key={quote.id} draggableId={quote.id} index={index}>
+        {items.map((item: any, index: number) => (
+            <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided, dragSnapshot) => (
-                <QuoteItem
-                    key={quote.id}
-                    quote={quote}
+                <Item
+                    key={item.id}
+                    item={item}
                     isDragging={dragSnapshot.isDragging}
                     isGroupedOver={Boolean(dragSnapshot.combineTargetFor)}
                     provided={dragProvided}
@@ -109,32 +120,43 @@ function InnerQuoteList({quotes}: {
     </>
 )};
 
+/**
+ * inner column within a kanaban column,
+ * it holds all cards underneath the name of the column
+ * @param props 
+ * @returns 
+ */
 function InnerList(props: {
     title: string, 
-    quotes: any[],
+    items: any,
     dropProvided: any,
     dropSnapshot: any
 }) {
-    const { quotes, dropProvided, dropSnapshot } = props;
+    const { items, dropProvided, dropSnapshot } = props;
   
     return (
    
         <div 
         style={getBackgroundColor(dropSnapshot.isDraggingOver, dropSnapshot.draggingFromThisWith)}
         ref={dropProvided.innerRef}>
-          <InnerQuoteList quotes={quotes} />
+          <InnerItemList items={items} />
           {dropProvided.placeholder}
         </div>
       
     );
 }
 
-export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
+/**
+ * wrapper to allow inner column act as
+ * a droppable area for cards being dragged
+ * @param param0 
+ * @returns 
+ */
+export const KanbanDroppable = ({ title, droppableId, type, content }: {
     title: string,
     droppableId: string,
     type: string,
-    style: any,
-    content: any[]
+    content: any
 } ) => {
     const [enabled, setEnabled] = useState(false);
   
@@ -164,7 +186,12 @@ export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
                     {...dropProvided.droppableProps}
                 >
                    
-                        <InnerList quotes={content} title={title} dropProvided={dropProvided} dropSnapshot={dropSnapshot} />
+                        <InnerList 
+                            items={content} 
+                            title={title} 
+                            dropProvided={dropProvided} 
+                            dropSnapshot={dropSnapshot} 
+                        />
                    
                 </div>
             )}
@@ -173,10 +200,15 @@ export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
     )
 };
 
-const KanbanDraggable = ({index,title, content}: {
+/**
+ * column within the kanban board
+ * @param param0 
+ * @returns 
+ */
+const KanbanDraggable = ({index,title, items}: {
     index: number;
     title: string;
-    content: any;
+    items: any;
 }) => {
 
     return (
@@ -219,10 +251,7 @@ const KanbanDraggable = ({index,title, content}: {
                                         title={title} 
                                         droppableId={title} 
                                         type={'TASK'} 
-                                        style={{
-                                            backgroundColor: snapshot.isDragging ? '#000' : 'null',
-                                        }}   
-                                        content={content}                     
+                                        content={items}                     
                                     />
                                 </>
                                     : 

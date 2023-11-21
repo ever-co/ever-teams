@@ -26,8 +26,6 @@ const Kanban= () => {
         id: 'status-4',
         name: 'DONE'
     }
-    // this array holds all the columns
-    const status = [todo, ongoing, review, done];
 
     const demoData = {
         todo: [

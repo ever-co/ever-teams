@@ -1,3 +1,4 @@
+import { clsxm } from "@app/utils";
 import KanbanDraggable from "lib/components/Kanban"
 import {  useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
@@ -10,28 +11,24 @@ const reorder = (list: any[], startIndex:number , endIndex:number ) => {
   return result;
 };
 
-const grid = 0;
-
-const getListStyle = (isDraggingOver: any) => ({
-  background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: '100%'
-});
-
-export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
-  const current = [...quoteMap[source.droppableId]];
-  const next = [...quoteMap[destination.droppableId]];
+const reorderItemMap = ({ itemMap, source, destination }: {
+  itemMap: any,
+  source: any,
+  destination: any
+}) => {
+  const current = [...itemMap[source.droppableId]];
+  const next = [...itemMap[destination.droppableId]];
   const target = current[source.index];
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
     const reordered = reorder(current, source.index, destination.index);
     const result = {
-      ...quoteMap,
+      ...itemMap,
       [source.droppableId]: reordered,
     };
     return {
-      quoteMap: result,
+      quoteItem: result,
     };
   }
 
@@ -43,22 +40,21 @@ export const reorderQuoteMap = ({ quoteMap, source, destination }) => {
   next.splice(destination.index, 0, target);
 
   const result = {
-    ...quoteMap,
+    ...itemMap,
     [source.droppableId]: current,
     [destination.droppableId]: next,
   };
 
   return {
-    quoteMap: result,
+    quoteItem: result,
   };
 };
-
 
 export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
 
     const [items, setItems] = useState<any>(itemsArray);
 
-    const [columnn, setColumns ] = useState<any>(Object.keys(itemsArray))
+    const [column, setColumn] = useState<any>(Object.keys(itemsArray))
 
     /**
      * This function handles all drag and drop logic
@@ -70,22 +66,22 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
 
       if (result.combine) {
         if (result.type === 'COLUMN') {
-          const shallow = [...columnn];
+          const shallow = [...column];
           shallow.splice(result.source.index, 1);
-          setColumns(shallow);
+          setColumn(shallow);
           return;
         }
   
-        const item = items.filter((item)=> item.status.name === result.source.droppableId);
-        const withQuoteRemoved = [...item];
+        const item = items[result.source.droppableId];
+        const withItemRemoved = [...item];
   
-        withQuoteRemoved.splice(result.source.index, 1);
+        withItemRemoved.splice(result.source.index, 1);
   
-        const orderedColumns = [
+        const orderedItems = {
           ...items,
-          // [result.source.droppableId]: withQuoteRemoved,
-        ];
-        setItems(orderedColumns);
+          [result.source.droppableId]: withItemRemoved,
+        };
+        setItems(orderedItems);
         return;
       }
 
@@ -107,20 +103,20 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
   
       // reordering column
       if (result.type === 'COLUMN') {
-        const reorderedorder = reorder(items, source.index, destination.index);
+        const reorderedItem = reorder(items, source.index, destination.index);
   
-        setItems(reorderedorder);
+        setItems(reorderedItem);
   
         return;
       }
   
-      const data = reorderQuoteMap({
-        quoteMap: items,
+      const data = reorderItemMap({
+        itemMap: items,
         source,
         destination,
       });
   
-      setItems(data.quoteMap);
+      setItems(data.quoteItem);
        
     }
 
@@ -142,7 +138,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
            <DragDropContext 
                 onDragEnd={onDragEnd}
             >
-              { columnn.length > 0 && 
+              { column.length > 0 && 
               <Droppable 
                 droppableId="droppable"
                 type="COLUMN"
@@ -150,18 +146,17 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className="flex flex-row gap-[20px] h-full p-2 bg-transparent"
+                  className={clsxm("flex flex-row gap-[20px] w-full h-full p-[20px] bg-transparent", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
                   ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
                   {...provided.droppableProps}
                 >
-                  {columnn.length > 0 ?
+                  {column.length > 0 ?
                   <>
-                  {columnn.map((column, index) => (
+                  {column.map((column: any, index: number) => (
                     <KanbanDraggable 
                       index={index} 
                       title={column}
-                      content={items[column]}
+                      items={items[column]}
                     />
                   ))}
                   </>
