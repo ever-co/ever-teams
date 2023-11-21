@@ -1,5 +1,5 @@
 import KanbanDraggable from "lib/components/Kanban"
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
 const reorder = (list: any[], startIndex:number , endIndex:number ) => {
@@ -124,6 +124,19 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
        
     }
 
+    const [enabled, setEnabled] = useState(false);
+  
+    useEffect(() => {
+      const animation = requestAnimationFrame(() => setEnabled(true));
+  
+      return () => {
+        cancelAnimationFrame(animation);
+        setEnabled(false);
+      };
+    }, []);
+  
+    if (!enabled) return null;
+    
     return (
         <>
            <DragDropContext 
@@ -146,10 +159,8 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                   <>
                   {columnn.map((column, index) => (
                     <KanbanDraggable 
-                      key={column} 
                       index={index} 
                       title={column}
-                      draggableId={column} 
                       content={items[column]}
                     />
                   ))}

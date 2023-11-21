@@ -163,16 +163,9 @@ export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
                     isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
                     {...dropProvided.droppableProps}
                 >
-                    {/* <section
-                        className="overflow-x-hidden overflow-y-auto h-14"
-                        style={style}
-                        isDraggingOver={dropSnapshot.isDraggingOver}
-                        isDropDisabled={false}
-                        isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
-                        {...dropProvided.droppableProps}
-                    > */}
+                   
                         <InnerList quotes={content} title={title} dropProvided={dropProvided} dropSnapshot={dropSnapshot} />
-                    {/* </section> */}
+                   
                 </div>
             )}
         </Droppable>
@@ -180,56 +173,66 @@ export const KanbanDroppable = ({ title, droppableId, type, style, content }: {
     )
 };
 
-const KanbanDraggable = ({key, index, draggableId, title, content}: {
-    key: string;
+const KanbanDraggable = ({index,title, content}: {
     index: number;
-    draggableId: string;
     title: string;
-    content: any[];
+    content: any;
 }) => {
+
     return (
         <>
-            <Draggable
-                key={key}
-                index={index}
-                draggableId={draggableId}
-            >
-                {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
-                     <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        style={getItemStyle(
-                            snapshot.isDragging,
-                            provided.draggableProps.style
-                        )}
-                        className="flex flex-col gap-2 w-60"
-                    >
-                        <header
-                            className="flex flex-row justify-center items-center h-10 bg-primary"
-                            style={headerStyleChanger(snapshot)}
-                            isDragging={snapshot.isDragging}
+            { title.length > 0 &&
+                <Draggable
+                    key={title}
+                    index={index}
+                    draggableId={title}
+                >
+                    {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
+                    
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                                snapshot.isDragging,
+                                provided.draggableProps.style
+                            )}
+                            className="flex flex-col gap-2 w-60"
+                            
                         >
-                            <h2 
-                                isDragging={snapshot.isDragging}
-                                {...provided.dragHandleProps}
-                                aria-label={`${title} quote list`}
-                            >
-                                {title}
-                            </h2>
-                        </header>
-                        <KanbanDroppable 
-                            title={title} 
-                            droppableId={title} 
-                            type={'TASK'} 
-                            style={{
-                                backgroundColor: snapshot.isDragging ? '#000' : 'null',
-                            }}   
-                            content={content}                     
-                        />
-                    </div>
-                )}
-            </Draggable>
+                            { title.length > 0 ?
+                                <>
+                                    <header
+                                        className="flex flex-row justify-center items-center h-10 bg-primary"
+                                        style={headerStyleChanger(snapshot)}
+                                        isDragging={snapshot.isDragging}
+                                    >
+                                        <h2 
+                                            isDragging={snapshot.isDragging}
+                                            {...provided.dragHandleProps}
+                                            aria-label={`${title} quote list`}
+                                        >
+                                            {title}
+                                        </h2>
+                                    </header>
+                                    <KanbanDroppable 
+                                        title={title} 
+                                        droppableId={title} 
+                                        type={'TASK'} 
+                                        style={{
+                                            backgroundColor: snapshot.isDragging ? '#000' : 'null',
+                                        }}   
+                                        content={content}                     
+                                    />
+                                </>
+                                    : 
+                                null
+                            }
+                        </div>
+                    
+                    )}
+                </Draggable>
+            }
         </>
     )
 }
