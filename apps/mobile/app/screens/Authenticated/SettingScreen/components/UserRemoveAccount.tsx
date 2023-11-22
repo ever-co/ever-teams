@@ -1,10 +1,10 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import { View, Text, Image, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import React, { useCallback } from 'react';
-import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
-import { useUser } from '../../../../services/hooks/features/useUser';
+import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { translate } from '../../../../i18n';
+import { useUser } from '../../../../services/hooks/features/useUser';
+import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
 import { typography, useAppTheme } from '../../../../theme';
 
 const UserRemoveAccount = ({

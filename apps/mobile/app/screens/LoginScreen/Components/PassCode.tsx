@@ -12,11 +12,12 @@ import { translate } from '../../../i18n';
 import { Button, TextField } from '../../../components';
 import { spacing, typography, useAppTheme } from '../../../theme';
 import { useStores } from '../../../models';
-import { CodeInput } from '../../../components/CodeInput';
 import { GLOBAL_STYLE as GS } from '../../../../assets/ts/styles';
 import { EMAIL_REGEX } from '../../../helpers/regex';
 import UserTenants from './UserTenants';
 import { IWorkspace, VerificationResponse } from '../../../services/interfaces/IAuthentication';
+import { CodeInputField } from '../../../components/CodeField';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface Props {
 	isLoading: boolean;
@@ -29,6 +30,11 @@ interface Props {
 	signInWorkspace: () => unknown;
 	setIsWorkspaceScreen: React.Dispatch<React.SetStateAction<boolean>>;
 }
+export type defaultUserInfoType = {
+	defaultUserId: string;
+	defaultUserTenantId: string;
+};
+
 const { width } = Dimensions.get('window');
 const PassCode: FC<Props> = observer(
 	({
@@ -55,8 +61,12 @@ const PassCode: FC<Props> = observer(
 			step2: false,
 			step3: false
 		});
-		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
+		const [selectedWorkspace, setSelectedWorkspace] = useState<number>(null);
 		const [workspaceData, setWorkspaceData] = useState(null);
+		const [defaultUserInfo, setDefaultUserInfo] = useState<defaultUserInfoType>({
+			defaultUserId: '',
+			defaultUserTenantId: ''
+		});
 
 		const onNextStep = async () => {
 			if (step === 'Email') {
@@ -100,6 +110,7 @@ const PassCode: FC<Props> = observer(
 				}, 1000);
 			}
 			if (step === 'Tenant') {
+				await AsyncStorage.setItem('defaultUserInfo', JSON.stringify(defaultUserInfo));
 				signInWorkspace();
 			}
 		};
@@ -139,6 +150,7 @@ const PassCode: FC<Props> = observer(
 
 		const onChangeAuthCode = (text: string) => {
 			setAuthInviteCode(text);
+
 			if (text.length === 6) {
 				setIsValid({
 					...isValid,
@@ -213,7 +225,7 @@ const PassCode: FC<Props> = observer(
 						<Text style={{ ...styles.text, alignSelf: 'center', color: colors.primary }}>
 							{translate('loginScreen.inviteCodeFieldLabel')}
 						</Text>
-						<CodeInput onChange={onChangeAuthCode} editable={!isLoading} defaultValue={authInviteCode} />
+						<CodeInputField editable onChange={onChangeAuthCode} defaultValue={authInviteCode} />
 						{joinError ? <Text style={styles.verifyError}>{joinError}</Text> : null}
 						<TouchableOpacity onPress={() => getAuthCode()}>
 							<Text style={styles.resendText}>
@@ -241,6 +253,7 @@ const PassCode: FC<Props> = observer(
 									data={item}
 									activeTeamId={activeTeamId}
 									setActiveTeamId={setActiveTeamId}
+									setDefaultUserInfo={setDefaultUserInfo}
 									selectedWorkspace={selectedWorkspace}
 									setSelectedWorkspace={setSelectedWorkspace}
 									isValid={isValid}

@@ -175,6 +175,7 @@
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_REMOVE_TEAM": "הצוות יוסר לחלוטין מהמערכת וחברי הצוות יאבדו גישה",
 		"ALERT_QUIT_TEAM": "אתה עומד לעזוב את הצוות"
 	},

@@ -13,6 +13,7 @@ import {
 	ViewStyle
 } from 'react-native';
 import Animated, {
+	AnimatedStyleProp,
 	Extrapolate,
 	interpolate,
 	useAnimatedStyle,
@@ -35,94 +36,94 @@ const rnrImage2 = require('../../assets/images/rnr-image-2.png');
 const rnrImage3 = require('../../assets/images/rnr-image-3.png');
 const rnrImages = [rnrImage1, rnrImage2, rnrImage3];
 
-export const DemoPodcastListScreen: FC<DemoTabScreenProps<'DemoPodcastList'>> = observer(
-	function DemoPodcastListScreen(_props) {
-		const { episodeStore } = useStores();
+export const DemoPodcastListScreen: FC<DemoTabScreenProps<'DemoPodcastList'>> = observer(function DemoPodcastListScreen(
+	_props
+) {
+	const { episodeStore } = useStores();
 
-		const [refreshing, setRefreshing] = React.useState(false);
-		const [isLoading, setIsLoading] = React.useState(false);
+	const [refreshing, setRefreshing] = React.useState(false);
+	const [isLoading, setIsLoading] = React.useState(false);
 
-		// initially, kick off a background refresh without the refreshing UI
-		useEffect(() => {
-			(async function load() {
-				setIsLoading(true);
-				await episodeStore.fetchEpisodes();
-				setIsLoading(false);
-			})();
-		}, [episodeStore]);
+	// initially, kick off a background refresh without the refreshing UI
+	useEffect(() => {
+		(async function load() {
+			setIsLoading(true);
+			await episodeStore.fetchEpisodes();
+			setIsLoading(false);
+		})();
+	}, [episodeStore]);
 
-		// simulate a longer refresh, if the refresh is too fast for UX
-		async function manualRefresh() {
-			setRefreshing(true);
-			await Promise.all([episodeStore.fetchEpisodes(), delay(750)]);
-			setRefreshing(false);
-		}
-
-		return (
-			<Screen preset="fixed" safeAreaEdges={['top']} contentContainerStyle={$screenContentContainer}>
-				<FlatList<Episode>
-					data={episodeStore.episodesForList}
-					extraData={episodeStore.favorites.length + episodeStore.episodes.length}
-					contentContainerStyle={$flatListContentContainer}
-					refreshing={refreshing}
-					onRefresh={manualRefresh}
-					ListEmptyComponent={
-						isLoading ? (
-							<ActivityIndicator />
-						) : (
-							<EmptyState
-								preset="generic"
-								style={$emptyState}
-								headingTx={
-									episodeStore.favoritesOnly
-										? 'demoPodcastListScreen.noFavoritesEmptyState.heading'
-										: undefined
-								}
-								contentTx={
-									episodeStore.favoritesOnly
-										? 'demoPodcastListScreen.noFavoritesEmptyState.content'
-										: undefined
-								}
-								button={episodeStore.favoritesOnly ? null : undefined}
-								buttonOnPress={manualRefresh}
-								imageStyle={$emptyStateImage}
-								ImageProps={{ resizeMode: 'contain' }}
-							/>
-						)
-					}
-					ListHeaderComponent={
-						<View style={$heading}>
-							<Text preset="heading" tx="demoPodcastListScreen.title" />
-							{(episodeStore.favoritesOnly || episodeStore.episodesForList.length > 0) && (
-								<View style={$toggle}>
-									<Toggle
-										value={episodeStore.favoritesOnly}
-										onValueChange={() =>
-											episodeStore.setProp('favoritesOnly', !episodeStore.favoritesOnly)
-										}
-										variant="switch"
-										labelTx="demoPodcastListScreen.onlyFavorites"
-										labelPosition="left"
-										labelStyle={$labelStyle}
-										accessibilityLabel={translate('demoPodcastListScreen.accessibility.switch')}
-									/>
-								</View>
-							)}
-						</View>
-					}
-					renderItem={({ item }) => (
-						<EpisodeCard
-							key={item.guid}
-							episode={item}
-							isFavorite={episodeStore.hasFavorite(item)}
-							onPressFavorite={() => episodeStore.toggleFavorite(item)}
-						/>
-					)}
-				/>
-			</Screen>
-		);
+	// simulate a longer refresh, if the refresh is too fast for UX
+	async function manualRefresh() {
+		setRefreshing(true);
+		await Promise.all([episodeStore.fetchEpisodes(), delay(750)]);
+		setRefreshing(false);
 	}
-);
+
+	return (
+		<Screen preset="fixed" safeAreaEdges={['top']} contentContainerStyle={$screenContentContainer}>
+			<FlatList<Episode>
+				data={episodeStore.episodesForList}
+				extraData={episodeStore.favorites.length + episodeStore.episodes.length}
+				contentContainerStyle={$flatListContentContainer}
+				refreshing={refreshing}
+				onRefresh={manualRefresh}
+				ListEmptyComponent={
+					isLoading ? (
+						<ActivityIndicator />
+					) : (
+						<EmptyState
+							preset="generic"
+							style={$emptyState}
+							headingTx={
+								episodeStore.favoritesOnly
+									? 'demoPodcastListScreen.noFavoritesEmptyState.heading'
+									: undefined
+							}
+							contentTx={
+								episodeStore.favoritesOnly
+									? 'demoPodcastListScreen.noFavoritesEmptyState.content'
+									: undefined
+							}
+							button={episodeStore.favoritesOnly ? null : undefined}
+							buttonOnPress={manualRefresh}
+							imageStyle={$emptyStateImage}
+							ImageProps={{ resizeMode: 'contain' }}
+						/>
+					)
+				}
+				ListHeaderComponent={
+					<View style={$heading}>
+						<Text preset="heading" tx="demoPodcastListScreen.title" />
+						{(episodeStore.favoritesOnly || episodeStore.episodesForList.length > 0) && (
+							<View style={$toggle}>
+								<Toggle
+									value={episodeStore.favoritesOnly}
+									onValueChange={() =>
+										episodeStore.setProp('favoritesOnly', !episodeStore.favoritesOnly)
+									}
+									variant="switch"
+									labelTx="demoPodcastListScreen.onlyFavorites"
+									labelPosition="left"
+									labelStyle={$labelStyle}
+									accessibilityLabel={translate('demoPodcastListScreen.accessibility.switch')}
+								/>
+							</View>
+						)}
+					</View>
+				}
+				renderItem={({ item }) => (
+					<EpisodeCard
+						key={item.guid}
+						episode={item}
+						isFavorite={episodeStore.hasFavorite(item)}
+						onPressFavorite={() => episodeStore.toggleFavorite(item)}
+					/>
+				)}
+			/>
+		</Screen>
+	);
+});
 
 const EpisodeCard = observer(function EpisodeCard({
 	episode,
@@ -148,7 +149,7 @@ const EpisodeCard = observer(function EpisodeCard({
 				}
 			],
 			opacity: interpolate(liked.value, [0, 1], [1, 0], Extrapolate.CLAMP)
-		};
+		} as AnimatedStyleProp<ViewStyle | TextStyle | ImageStyle>;
 	});
 
 	// Pink heart
@@ -160,7 +161,7 @@ const EpisodeCard = observer(function EpisodeCard({
 				}
 			],
 			opacity: liked.value
-		};
+		} as AnimatedStyleProp<ViewStyle | TextStyle | ImageStyle>;
 	});
 
 	/**
@@ -207,14 +208,28 @@ const EpisodeCard = observer(function EpisodeCard({
 			function ButtonLeftAccessory() {
 				return (
 					<View>
-						<Animated.View style={[$iconContainer, StyleSheet.absoluteFill, animatedLikeButtonStyles]}>
+						<Animated.View
+							style={
+								[
+									$iconContainer,
+									StyleSheet.absoluteFill,
+									animatedLikeButtonStyles
+								] as AnimatedStyleProp<ViewStyle | TextStyle | ImageStyle>
+							}
+						>
 							<Icon
 								icon="heart"
 								size={ICON_SIZE}
 								color={colors.palette.neutral800} // dark grey
 							/>
 						</Animated.View>
-						<Animated.View style={[$iconContainer, animatedUnlikeButtonStyles]}>
+						<Animated.View
+							style={
+								[$iconContainer, animatedUnlikeButtonStyles] as AnimatedStyleProp<
+									ViewStyle | TextStyle | ImageStyle
+								>
+							}
+						>
 							<Icon
 								icon="heart"
 								size={ICON_SIZE}

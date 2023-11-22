@@ -17,6 +17,8 @@ import { translate } from '../../../../i18n';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { useTeamInvitations } from '../../../../services/hooks/useTeamInvitation';
 import { imgTitleProfileAvatar } from '../../../../helpers/img-title-profile-avatar';
+import { SvgXml } from 'react-native-svg';
+import { invitedStatusIcon } from '../../../../components/svgs/icons';
 
 export type ListItemProps = {
 	invite: any;
@@ -50,11 +52,9 @@ export const ListItemContent: React.FC<ListItemProps> = observer(({ invite, onPr
 							size={40}
 							label={imgTitleProfileAvatar(invite.fullName)}
 						/>
-						<Avatar.Image
-							style={styles.statusIcon}
-							size={20}
-							source={require('../../../../../assets/icons/new/invite-status-icon.png')}
-						/>
+						<View style={styles.statusIcon}>
+							<SvgXml width={10} height={10} xml={invitedStatusIcon} />
+						</View>
 					</View>
 					<Text style={[styles.name, { color: colors.primary }]}>{invite.fullName}</Text>
 					{/* ENABLE ESTIMATE INPUTS */}
@@ -298,7 +298,14 @@ const styles = StyleSheet.create({
 		opacity: 0.2
 	},
 	statusIcon: {
+		alignItems: 'center',
+		backgroundColor: '#DCD6D6',
+		borderColor: 'white',
+		borderRadius: 100,
+		borderWidth: 2,
 		bottom: 0,
+		justifyContent: 'center',
+		padding: 2,
 		position: 'absolute',
 		right: -4
 	},

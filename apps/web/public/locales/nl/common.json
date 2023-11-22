@@ -175,6 +175,7 @@
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_REMOVE_TEAM": "Team wordt volledig verwijderd uit het systeem en teamleden verliezen toegang",
 		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten"
 	},
