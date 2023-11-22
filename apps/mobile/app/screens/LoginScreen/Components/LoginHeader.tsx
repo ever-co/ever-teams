@@ -1,11 +1,11 @@
 /* eslint-disable react-native/no-inline-styles */
-import { View, Text, Dimensions } from 'react-native';
+import { View, Text, Dimensions, Platform } from 'react-native';
 import { translate } from '../../../i18n';
 import React, { FC } from 'react';
 import EStyleSheet from 'react-native-extended-stylesheet';
 import { typography } from '../../../theme';
 import { SvgXml } from 'react-native-svg';
-import { everTeamsLogoDarkTheme } from '../../../components/svgs/icons';
+import { everTeamsLogoDarkTheme, everTeamsLogoDarkThemeAndroid } from '../../../components/svgs/icons';
 
 interface Props {
 	withTeam: boolean;
@@ -15,7 +15,7 @@ interface Props {
 const LoginHeader: FC<Props> = ({ withTeam, screenStatus, workspaceScreen }) => {
 	return (
 		<>
-			<SvgXml xml={everTeamsLogoDarkTheme} />
+			<SvgXml xml={Platform.OS === 'android' ? everTeamsLogoDarkThemeAndroid : everTeamsLogoDarkTheme} />
 			{withTeam ? (
 				<View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
 					{workspaceScreen ? (
