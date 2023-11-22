@@ -32,11 +32,39 @@ const Kanban= () => {
             {
                 id: '1',
                 content: 'demo content',
+                tags: [
+                    {
+                        id: 'tag-1',
+                        title: 'User Profile',
+                        backgroundColor: '#8154BA',
+                        color: '#fff'
+                    },
+                    {
+                        id: 'tag-2',
+                        title: 'BackEnd',
+                        backgroundColor: '#EAD2D5',
+                        color: '#DD2F44'
+                    },
+                ],
                 status: todo
             },
             {
                 id: '4',
                 content: 'demo content2',
+                tags: [
+                    {
+                        id: 'tag-1',
+                        title: 'User Profile',
+                        backgroundColor: '#D7EBDF',
+                        color: '#3D9360'
+                    },
+                    {
+                        id: 'tag-2',
+                        title: 'BackEnd',
+                        backgroundColor: '#EAD9EE',
+                        color: '#9641AB'
+                    },
+                ],
                 status: todo
             }
         ],
@@ -44,11 +72,39 @@ const Kanban= () => {
             {
                 id: '2',
                 content: 'another content',
+                tags: [
+                    {
+                        id: 'tag-1',
+                        title: 'User Profile',
+                        backgroundColor: '#EAD9EE',
+                        color: '#9641AB'
+                    },
+                    {
+                        id: 'tag-2',
+                        title: 'BackEnd',
+                        backgroundColor: '#EAD2D5',
+                        color: '#DD2F44'
+                    },
+                ],
                 status: ongoing
             },
             {
                 id: '5',
                 content: 'another content2',
+                tags: [
+                    {
+                        id: 'tag-1',
+                        title: 'User Profile',
+                        backgroundColor: '#8154BA',
+                        color: '#fff'
+                    },
+                    {
+                        id: 'tag-2',
+                        title: 'BackEnd',
+                        backgroundColor: '#D7EBDF',
+                        color: '#3D9360'
+                    },
+                ],
                 status: ongoing
             }
         ],
@@ -56,11 +112,39 @@ const Kanban= () => {
             {
                 id: '3',
                 content: 'a simple tes',
+                tags: [
+                    {
+                        id: 'tag-1',
+                        title: 'User Profile',
+                        backgroundColor: '#D7EBDF',
+                        color: '#3D9360'
+                    },
+                    {
+                        id: 'tag-2',
+                        title: 'BackEnd',
+                        backgroundColor: '#D7EBDF',
+                        color: '#3D9360'
+                    },
+                ],
                 status: review
             },
             {
                 id: '6',
                 content: 'a simple tes',
+                tags: [
+                    {
+                        id: 'tag-1',
+                        title: 'User Profile',
+                        backgroundColor: '#D7EBDF',
+                        color: '#3D9360'
+                    },
+                    {
+                        id: 'tag-2',
+                        title: 'BackEnd',
+                        backgroundColor: '#D7EBDF',
+                        color: '#3D9360'
+                    },
+                ],
                 status: review
             }
         ]}

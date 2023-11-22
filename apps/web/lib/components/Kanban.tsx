@@ -3,6 +3,7 @@ import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
+import Item from './kanban-card';
 
 const grid = 8;
 
@@ -12,22 +13,13 @@ const getItemStyle = (isDragging: any, draggableStyle: any) => ({
   margin: `0 0 ${grid}px 0`,
 
   // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
+  background: isDragging ? "lightgreen" : null,
 
   // styles we need to apply on draggables
   ...draggableStyle
 });
 
-function getStyle(provided, style) {
-    if (!style) {
-      return provided.draggableProps.style;
-    }
-  
-    return {
-      ...provided.draggableProps.style,
-      ...style,
-    };
-}
+
 
 const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
     if (isDraggingOver) {
@@ -43,7 +35,7 @@ const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
     }
     }
     return {
-        backgroundColor:  '#EBECF0',
+        backgroundColor:  '',
         height: '150px'
     }
 };
@@ -55,43 +47,6 @@ function headerStyleChanger(snapshot: DraggableStateSnapshot){
     return {
         backgroundColor
     }
-}
-
-
-/**
- * card that represent each task
- * @param props 
- * @returns 
- */
-function Item(props: any) {
-    const {
-      item,
-      isDragging,
-      isGroupedOver,
-      provided,
-      style,
-      isClone,
-      index,
-    } = props;
-  
-    return (
-      <section
-        href={``}
-        isDragging={isDragging}
-        isGroupedOver={isGroupedOver}
-        isClone={isClone}
-        ref={provided.innerRef}
-        {...provided.draggableProps}
-        {...provided.dragHandleProps}
-        style={getStyle(provided, style)}
-        data-is-dragging={isDragging}
-        data-testid={item.id}
-        data-index={index}
-        aria-label={`${item.status.name} ${item.content}`}
-      >
-        {item.content}
-      </section>
-    );
 }
 
 /**
