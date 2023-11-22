@@ -53,7 +53,12 @@ apiDirect.interceptors.request.use(
 	}
 );
 apiDirect.interceptors.response.use(
-	(response: AxiosResponse) => response,
+	(response: AxiosResponse) => {
+		return {
+			...response,
+			data: response
+		};
+	},
 	async (error: { response: AxiosResponse }) => {
 		const statusCode = error.response?.status;
 
