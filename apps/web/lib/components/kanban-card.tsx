@@ -1,4 +1,5 @@
 import { clsxm } from "@app/utils";
+import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 
 function getStyle(provided, style) {
     if (!style) {
@@ -88,19 +89,25 @@ export default function Item(props: any) {
         data-index={index}
         aria-label={`${item.status.name} ${item.content}`}
       >
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
             <div className="flex flex-col gap-5 grow">
                 <TagList tags={item.tags}/>
                 <div>
                     {item.content}
                 </div>
             </div>
-            <div className="flex-none w-[48px]">
-                
+            <div className="flex flex-col w-[48px] items-end">
+                <VerticalThreeDot/>
             </div>
         </div>
-        <div>
+        <div className="flex flex-row justify-between items-center pt-4">
+            <div className="flex flex-row items-center gap-2">
+                <small className="text-[#7E7991] text-xs text-normal">Worked:</small>
+                <p className="text-black font-medium text-sm">0 h 0 m </p>
+            </div>
+            <div>
 
+            </div>
         </div>
       </section>
     );
