@@ -5,6 +5,7 @@
 	"$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
 	"words": [
 		"appdev",
+		"signin",
 		"APPSTORE",
 		"barcodes",
 		"binutils",

@@ -176,6 +176,7 @@
 		"ALERT_DELETE_ACCOUNT": "Das Konto wird von allen Teams entfernt, außer wo Sie nur Manager sind",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Ihr Konto wird dauerhaft gelöscht und von allen Teams entfernt",
 		"ALERT_REMOVE_TEAM": "Das Team wird vollständig aus dem System entfernt und die Teammitglieder verlieren den Zugriff",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_QUIT_TEAM": "Sie sind im Begriff, das Team zu verlassen"
 	},
 	"pages": {
@@ -282,7 +283,9 @@
 			"TIMEZONE_SEARCH_PLACEHOLDER": "Ihre Zeitzone",
 			"ABOUT_TO_CHANGE_EMAIL": "Sie sind im Begriff, die E-Mail zu ändern",
 			"ABOUT_TO_DELETE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu löschen?",
-			"ABOUT_TO_REMOVE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu entfernen?"
+			"ABOUT_TO_REMOVE_ACCOUNT": "Sie sind im Begriff, Ihr Konto zu entfernen?",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Allgemeine Einstellungen",

@@ -163,7 +163,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 									style={{
 										...GS.mb4,
 										marginHorizontal: 10,
-										marginTop: index === 0 && 20
+										marginTop: index === 0 ? 20 : undefined
 									}}
 								>
 									<ListCardItem
@@ -193,7 +193,7 @@ const UserProfileTasks: FC<IUserProfileTasks> = observer(({ profile, content }) 
 									style={{
 										...GS.mb4,
 										marginHorizontal: 10,
-										marginTop: index === 0 && 20
+										marginTop: index === 0 ? 20 : undefined
 									}}
 								>
 									<ListCardItem
