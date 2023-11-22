@@ -1,12 +1,17 @@
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import HeaderTimer from './HeaderTimer';
 import { useAppTheme } from '../theme';
 import { useOrganizationTeam } from '../services/hooks/useOrganization';
 import { SvgXml } from 'react-native-svg';
-import { everTeamsLogoDarkTheme, everTeamsLogoLightTheme } from './svgs/icons';
+import {
+	everTeamsLogoDarkTheme,
+	everTeamsLogoDarkThemeAndroid,
+	everTeamsLogoLightTheme,
+	everTeamsLogoLightThemeAndroid
+} from './svgs/icons';
 
 interface Props {
 	showTimer: boolean;
@@ -19,7 +24,13 @@ const HomeHeader: FC<Props> = ({ props, showTimer }) => {
 	return (
 		<View style={[styles.mainContainer, { backgroundColor: dark ? colors.background2 : colors.background }]}>
 			<View style={[styles.secondContainer, { backgroundColor: dark ? colors.background2 : colors.background }]}>
-				{dark ? <SvgXml xml={everTeamsLogoDarkTheme} /> : <SvgXml xml={everTeamsLogoLightTheme} />}
+				{dark ? (
+					<SvgXml xml={Platform.OS === 'android' ? everTeamsLogoDarkThemeAndroid : everTeamsLogoDarkTheme} />
+				) : (
+					<SvgXml
+						xml={Platform.OS === 'android' ? everTeamsLogoLightThemeAndroid : everTeamsLogoLightTheme}
+					/>
+				)}
 				{showTimer && activeTeam && (
 					<View style={{ width: 126 }}>
 						<HeaderTimer />
