@@ -70,6 +70,10 @@ apiDirect.interceptors.response.use(
 	}
 );
 
+function get(endpoint: string, isDirect: boolean) {
+	return isDirect && process.env.NEXT_PUBLIC_GAUZY_API_SERVER_URL ? apiDirect.get(endpoint) : api.get(endpoint);
+}
+
 export default api;
 
-export { apiDirect };
+export { apiDirect, get };
