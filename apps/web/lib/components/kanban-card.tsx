@@ -1,4 +1,5 @@
 import { clsxm } from "@app/utils";
+import BugIcon from "@components/ui/svgs/bug";
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 
 function getStyle(provided, style) {
@@ -26,6 +27,7 @@ function Tag({title, backgroundColor, color}: {
                     backgroundColor: `${backgroundColor}`
                 }}
             >
+               
                 <p 
                     className={`text-xs `}
                     style={{
@@ -92,8 +94,13 @@ export default function Item(props: any) {
         <div className="flex gap-1.5 border-b border-b-gray-200 pb-4">
             <div className="flex flex-col gap-5 grow">
                 <TagList tags={item.tags}/>
-                <div>
-                    {item.content}
+                <div className="flex flex-row items-center gap-2 text-sm not-italic font-semibold">
+                    <div className="bg-indianRed rounded p-1">
+                        <BugIcon/>
+                    </div>
+                    <p className="text-grey">#213</p>
+                    <p className="text-black capitalize">{item.content}</p>
+                    
                 </div>
             </div>
             <div className="flex flex-col w-[48px] items-end">
