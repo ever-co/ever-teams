@@ -201,23 +201,47 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                 snapshot.isDragging,
                                 provided.draggableProps.style
                             )}
-                            className="flex flex-col gap-2 w-60"
+                            className="flex flex-row w-fit h-full"
                             
                         >
                             { title.length > 0 ?
                                 <>
-                                    <header
-                                        className="flex flex-row justify-center items-center h-10 bg-primary"
+                                   <header
+                                        className={"flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
                                         style={headerStyleChanger(snapshot)}
                                         isDragging={snapshot.isDragging}
                                     >
-                                        <h2 
-                                            isDragging={snapshot.isDragging}
-                                            {...provided.dragHandleProps}
-                                            aria-label={`${title} quote list`}
+                                        <div
+                                            className="flex flex-col items-center  gap-2"
                                         >
-                                            {title}
-                                        </h2>
+                                            <span className="rotate-180">
+                                            <LeftArrowTailessIcon/>
+                                            </span>
+                                            <ThreeDotIcon/>
+                                          
+                                        </div>
+                                        <div
+                                            className="flex flex-col w-7 items-center gap-2.5 "
+                                        >
+                                            <div
+                                                className="
+                                                flex flex-col items-center justify-center px-[10px] text-xs py-1 text-white 
+                                                bg-transparentWhite rounded-[20px]"
+                                            >
+                                                {items.length}
+                                            </div>
+                                            <div className="origin-top-right -translate-x-3/4 -rotate-90">
+                                            <h2 
+                                                className="text-base font-bold not-italic h-full text-white font-PlusJakartaSansBold capitalize"
+                                                isDragging={snapshot.isDragging}
+                                                {...provided.dragHandleProps}
+                                                aria-label={`${title} quote list`}
+                                            >
+                                                {title}
+                                            </h2>
+                                            </div>
+                                        </div>
+                                        
                                     </header>
                                     <KanbanDroppable 
                                         title={title} 
