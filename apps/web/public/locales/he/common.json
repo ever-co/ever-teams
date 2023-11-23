@@ -165,11 +165,17 @@
 		"FILTER_HISTORY": "היסטוריה",
 		"FILTER_UNSUBSCRIBE": "בטל מנוי",
 
-		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת"
+		"KEYBOARD_SHORTCUTS": "קיצורי מקלדת",
+
+		"GITHUB_LOADING_TEXT": "אנו מתקינים כעת את אינטגרציית ה-GitHub שלך, המתינו.",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "סנכרן משימות באופן אוטומטי באפליקציה שלך לעדכונים חלקים ויעילים.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "סנכרן משימות באופן בררני על ידי הקשרתן לתג מסוים.",
+		"GITHUB_AUTO_SYNC_LABEL": "בחר תגית אוטומטית לסנכרון"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "החשבון יוסר מכל הצוותים, למעט היכן שאתה רק המנהל",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "החשבון שלך יימחק לצמיתות עם הסרה מכל הצוותים",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_REMOVE_TEAM": "הצוות יוסר לחלוטין מהמערכת וחברי הצוות יאבדו גישה",
 		"ALERT_QUIT_TEAM": "אתה עומד לעזוב את הצוות"
 	},

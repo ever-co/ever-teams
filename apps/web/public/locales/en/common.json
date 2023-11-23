@@ -36,8 +36,9 @@
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
 		"REMOVE_ACCOUNT": "Remove Account",
-		"REMOVE_EVERYWHERE": "Remove Everywhere",
+		"REMOVE_EVERYWHERE": "Remove From All Teams",
 		"DELETE_ACCOUNT": "Delete This Account",
+		"DELETE_ALL_DATA": "Delete All Data",
 		"UNASSIGN_TASK": "Unassign Task",
 		"MAKE_A_MANAGER": "Make a Manager",
 		"UNMAKE_A_MANAGER": "Unmake a Manager",
@@ -165,11 +166,18 @@
 		"FILTER_HISTORY": "History",
 		"FILTER_UNSUBSCRIBE": "Unsubscribe",
 
-		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts"
+		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts",
+
+		"GITHUB_LOADING_TEXT": "We are now installing your GitHub Integration, hold on...",
+		"GITHUB_INTEGRATION_SUBTITLE_TEXT": "Activate GitHub Integration for project & repository sync",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Automatically synchronize tasks in your application for seamless and efficient updates.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronize tasks selectively by associating them with specific label.",
+		"GITHUB_AUTO_SYNC_LABEL": "Select Auto-Sync Label"
 	},
 	"alerts": {
-		"ALERT_DELETE_ACCOUNT": "Account will be removed from all teams, except where you are only the manager",
-		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing fromall teams",
+		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
+		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
 		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},
@@ -274,10 +282,11 @@
 			"phoneNotValid": "Please provide a valid Phone Number",
 			"WORK_SCHEDULE": "Work Schedule",
 			"SUBSCRIPTION": "Subscription",
-			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
 			"ABOUT_TO_CHANGE_EMAIL": "You are about to change Email",
 			"ABOUT_TO_DELETE_ACCOUNT": "You are about to Delete your account ?",
-			"ABOUT_TO_REMOVE_ACCOUNT": "You are about to Remove your account ?"
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "General Settings",

@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { IOrganizationTeamList } from '../../services/interfaces/IOrganizationTeam';
 import { SettingScreenNavigationProp } from '../../navigators/AuthenticatedNavigator';
@@ -16,7 +16,7 @@ import { Avatar } from 'react-native-paper';
 import { observer } from 'mobx-react-lite';
 import { limitTextCharaters } from '../../helpers/sub-text';
 import { useNavigation } from '@react-navigation/native';
-import { FlatList } from 'react-native-gesture-handler';
+// import { FlatList } from 'react-native-gesture-handler';
 
 export interface Props {
 	teams: IOrganizationTeamList[];
@@ -32,8 +32,8 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 	onCreateTeam,
 	changeTeam,
 	resized,
-	isAccountVerified,
-	isDrawer
+	isAccountVerified
+	// isDrawer
 }) {
 	const {
 		teamStore: { activeTeamId, activeTeam }
@@ -74,7 +74,11 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 				<DropItem resized={resized} team={activeTeam} changeTeam={changeTeam} isActiveTeam={true} />
 			)}
 
-			<FlatList
+			{others.map((item, index) => (
+				<DropItem key={index} team={item} resized={resized} changeTeam={changeTeam} isActiveTeam={false} />
+			))}
+
+			{/* <FlatList
 				data={others}
 				scrollEnabled={false}
 				renderItem={({ item, index }) => (
@@ -95,7 +99,7 @@ const DropDownSection: FC<Props> = observer(function DropDownSection({
 						/>
 					</View>
 				)}
-			/>
+			/> */}
 			<TouchableOpacity
 				style={{ width: '90%', opacity: isAccountVerified ? 1 : 0.5 }}
 				onPress={() => onCreateTeam()}
@@ -143,11 +147,11 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 	return (
 		<View style={styles.indDropDown}>
 			<TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }} onPress={() => changeTeam(team)}>
-				{team.image?.thumbUrl || team.logo || team.image?.fullUrl ? (
+				{team?.image?.thumbUrl || team?.logo || team?.image?.fullUrl ? (
 					<Avatar.Image
 						style={styles.teamImage}
 						size={30}
-						source={{ uri: team.image?.thumbUrl || team.logo || team.image?.fullUrl }}
+						source={{ uri: team?.image?.thumbUrl || team?.logo || team.image?.fullUrl }}
 					/>
 				) : (
 					<Avatar.Text
@@ -161,15 +165,19 @@ const DropItem: FC<IDropItem> = observer(function DropItem({ team, changeTeam, i
 					style={{
 						color: colors.primary,
 						paddingLeft: '5%',
-						fontSize: 16,
+						fontSize: 14,
 						fontFamily: isActiveTeam ? typography.primary.semiBold : typography.primary.normal
 					}}
 				>
-					{limitTextCharaters({ text: team.name, numChars: resized ? 12 : 20 })} ({team.members.length})
+					{limitTextCharaters({
+						text: team?.name,
+						numChars: resized ? (Platform.OS === 'android' ? 10 : 12) : Platform.OS === 'android' ? 17 : 20
+					})}{' '}
+					({team?.members.length})
 				</Text>
 			</TouchableOpacity>
 			<TouchableOpacity onPress={() => navigateToSettings(team)}>
-				<Ionicons name="settings-outline" size={24} color={colors.primary} />
+				<Ionicons name="settings-outline" size={20} color={colors.primary} />
 			</TouchableOpacity>
 		</View>
 	);

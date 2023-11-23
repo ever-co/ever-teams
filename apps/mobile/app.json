@@ -28,7 +28,17 @@
 					"isAccessMediaLocationEnabled": true
 				}
 			],
-			"sentry-expo"
+			"sentry-expo",
+			[
+				"expo-build-properties",
+				{
+					"android": {
+						"enableProguardInReleaseBuilds": true,
+						"extraProguardRules": "-keep public class com.horcrux.svg.** {*;}",
+						"allowBackup": false
+					}
+				}
+			]
 		],
 		"android": {
 			"icon": "./assets/images/app-icon-android-legacy-ever-teams.png",
@@ -51,7 +61,7 @@
 		"ios": {
 			"icon": "./assets/images/app-icon-ios-ever-teams.png",
 			"supportsTablet": true,
-			"bundleIdentifier": "ever.team",
+			"bundleIdentifier": "co.ever.teams",
 			"splash": {
 				"image": "./assets/images/splash-ever-teams.png",
 				"tabletImage": "./assets/images/splash-logo-ever-teams-ios-tablet.png",

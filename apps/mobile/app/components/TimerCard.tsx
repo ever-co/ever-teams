@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable camelcase */
 import React, { FC } from 'react';
-import { View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import { ProgressBar, Text } from 'react-native-paper';
 import EStyleSheet from 'react-native-extended-stylesheet';
 
@@ -16,6 +16,7 @@ import { useTaskStatistics } from '../services/hooks/features/useTaskStatics';
 
 export interface Props {}
 
+const { width: screenWidth } = Dimensions.get('window');
 const TimerCard: FC<Props> = observer(() => {
 	const { colors } = useAppTheme();
 	const {
@@ -45,9 +46,9 @@ const TimerCard: FC<Props> = observer(() => {
 				<View style={styles.timeAndProgressBarWrapper}>
 					<Text style={[styles.timerText, { color: colors.primary }]}>
 						{pad(hours)}:{pad(minutes)}:{pad(seconds)}
-						<Text style={{ fontSize: 14, fontWeight: '600' }}>:{pad(ms_p)}</Text>
+						<Text style={{ fontSize: screenWidth * 0.03, fontWeight: '600' }}>:{pad(ms_p)}</Text>
 					</Text>
-					<View style={{ width: '79%' }}>
+					<View style={{ width: '85%' }}>
 						<ProgressBar
 							style={styles.progressBar}
 							progress={getTimePercentage()}
@@ -55,6 +56,7 @@ const TimerCard: FC<Props> = observer(() => {
 						/>
 					</View>
 				</View>
+				<View style={{ height: '100%', width: 2, backgroundColor: colors.border }} />
 				<View style={[styles.timerBtn, { borderLeftColor: colors.border }]}>
 					<TimerButton />
 				</View>
@@ -75,16 +77,12 @@ const styles = EStyleSheet.create({
 		marginVertical: 4,
 		justifyContent: 'center',
 		alignItems: 'center',
-		width: '34%',
-		borderLeftWidth: 2,
-		borderLeftColor: 'rgba(0, 0, 0, 0.08)',
 		height: '100%'
 	},
 	progressBar: { backgroundColor: '#E9EBF8', width: '100%', height: 6, borderRadius: 3 },
 	timeAndProgressBarWrapper: {
 		flexDirection: 'column',
 		justifyContent: 'space-between',
-		width: '66%',
 		height: 70,
 		paddingBottom: 0
 	},
@@ -102,7 +100,7 @@ const styles = EStyleSheet.create({
 	},
 	timerText: {
 		fontWeight: '600',
-		fontSize: '2.3rem',
+		fontSize: screenWidth * 0.082,
 		color: '#1B005D',
 		marginTop: 0,
 		paddingTop: 0,

@@ -3,7 +3,7 @@
 // import { LinearGradient } from "expo-linear-gradient"
 import { observer } from 'mobx-react-lite';
 import React, { FC } from 'react';
-import { View, StyleSheet, ViewStyle, ImageStyle, Pressable } from 'react-native';
+import { View, StyleSheet, ViewStyle, ImageStyle, Pressable, Dimensions, PixelRatio } from 'react-native';
 
 import { useStores } from '../models';
 import { useTimer } from '../services/hooks/useTimer';
@@ -17,6 +17,10 @@ type TimerButtonProps = {
 	containerStyle?: ViewStyle;
 	iconStyle?: ImageStyle;
 };
+
+const { width: screenWidth } = Dimensions.get('window');
+
+const pixelDensity = PixelRatio.get();
 
 const TimerButton: FC<TimerButtonProps> = observer(({ containerStyle }) => {
 	const {
@@ -73,7 +77,7 @@ const styles = StyleSheet.create({
 		elevation: 8,
 		height: 60,
 		justifyContent: 'center',
-		marginHorizontal: 15,
+		marginRight: screenWidth * 0.0467 * (pixelDensity / 3),
 		shadowColor: '#e11d48',
 		shadowOffset: {
 			width: 0,
@@ -92,7 +96,7 @@ const styles = StyleSheet.create({
 		elevation: 8,
 		height: 60,
 		justifyContent: 'center',
-		marginHorizontal: 15,
+		marginRight: screenWidth * 0.0467 * (pixelDensity / 3),
 		width: 60
 	},
 	timerBtnInactive: {
@@ -104,7 +108,7 @@ const styles = StyleSheet.create({
 		elevation: 8,
 		height: 60,
 		justifyContent: 'center',
-		marginHorizontal: 15,
+		marginRight: screenWidth * 0.0467 * (pixelDensity / 3),
 		shadowColor: '#3826A6',
 		shadowOffset: {
 			width: 0,

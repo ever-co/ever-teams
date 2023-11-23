@@ -1,24 +1,53 @@
 {
-  "build": {
-    "development": {
-      "extends": "production",
-      "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      },
-      "channel": "development"
-    },
-    "preview": {
-      "extends": "production",
-      "distribution": "internal",
-      "channel": "preview",
+	"cli": {
+		"appVersionSource": "remote"
+	},
+	"build": {
+		"development": {
+			"extends": "production",
+			"developmentClient": true,
+			"distribution": "internal",
 			"ios": {
-        "simulator": true
-      }
-    },
-    "production": {
-      "channel": "production"
-    }
-  }
+				"simulator": true
+			},
+			"android": {
+				"buildType": "apk"
+			},
+			"channel": "development"
+		},
+		"preview": {
+			"extends": "production",
+			"distribution": "internal",
+			"channel": "preview",
+			"ios": {
+				"simulator": true
+			},
+			"android": {
+				"buildType": "apk"
+			}
+		},
+		"production": {
+			"autoIncrement": true,
+			"channel": "production",
+			"env": {
+				"GAUZY_API_URL": "https://api.gauzy.co",
+				"INVITE_CALLBACK_URL": "https://app.ever.team/auth/passcode"
+			}
+		}
+	},
+	"submit": {
+		"production": {
+			"android": {
+				"track": "internal",
+				"releaseStatus": "draft",
+				"changesNotSentForReview": false
+			},
+			"ios": {
+				"ascAppId": "APPLE_ID_PLACEHOLDER",
+				"ascApiKeyIssuerId": "APPSTORE_ISSUER_ID_PLACEHOLDER",
+				"ascApiKeyId": "APPSTORE_API_KEY_ID_PLACEHOLDER",
+				"ascApiKeyPath": "./AuthKey_R9QZ5LP8NK.p8"
+			}
+		}
+	}
 }

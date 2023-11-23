@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useRef, useState } from 'react';
-import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData } from 'react-native';
+import { TextInput, View, StyleSheet, NativeSyntheticEvent, TextInputKeyPressEventData, Platform } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { colors, typography, useAppTheme } from '../theme';
 
@@ -10,11 +10,10 @@ interface IInput {
 	editable: boolean;
 	length?: number;
 	defaultValue?: string;
-	loginInput?: boolean;
 }
 
 export const CodeInput: FC<IInput> = (props) => {
-	const { onChange, editable, length = 6, defaultValue, loginInput = false } = props;
+	const { onChange, editable, length = 6, defaultValue } = props;
 	const { colors } = useAppTheme();
 	const inputsRef = useRef<TextInput[] | null[]>([]);
 	const [active, setActive] = useState<number>(0);
@@ -39,7 +38,7 @@ export const CodeInput: FC<IInput> = (props) => {
 					onChange(updatedCode.join(''));
 				}
 				// Current input has value
-				if (inviteCode[active]) {
+				else if (inviteCode[active] && nativeEvent.key !== inviteCode[active]) {
 					const updatedCode = [...inviteCode];
 					updatedCode[active + 1] = nativeEvent.key.toUpperCase();
 					setInviteCode(updatedCode);
@@ -88,6 +87,8 @@ export const CodeInput: FC<IInput> = (props) => {
 				inputsRef.current[i].setNativeProps({ text: updatedCode[i] });
 			}
 		}
+
+		Platform.OS === 'android' && (await Clipboard.setStringAsync(''));
 	};
 
 	for (let i = 0; i < length; i++) {
@@ -102,19 +103,12 @@ export const CodeInput: FC<IInput> = (props) => {
 				style={[
 					styles.inputStyle,
 					{
-						backgroundColor: loginInput ? '#FFFFFF' : colors.background,
-						color: loginInput ? '#282048' : colors.primary
+						backgroundColor: colors.background,
+						color: colors.primary
 					},
 					editable
 						? {
-								borderColor:
-									active === i
-										? loginInput
-											? '#282048'
-											: colors.primary
-										: loginInput
-										? '#00000021'
-										: colors.border
+								borderColor: active === i ? colors.primary : colors.border
 						  }
 						: null
 				]}

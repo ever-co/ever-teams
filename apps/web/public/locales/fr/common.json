@@ -164,12 +164,17 @@
 		"FILTER_HISTORY": "Historique",
 		"FILTER_UNSUBSCRIBE": "Se désabonner",
 
-		"KEYBOARD_SHORTCUTS": "Raccourcis clavier"
+		"KEYBOARD_SHORTCUTS": "Raccourcis clavier",
+		"GITHUB_LOADING_TEXT": "Nous installons actuellement votre intégration GitHub, veuillez patienter...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchronisez automatiquement les tâches dans votre application pour des mises à jour fluides et efficaces.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchronisez sélectivement les tâches en les associant à une étiquette spécifique.",
+		"GITHUB_AUTO_SYNC_LABEL": "Sélectionner l'étiquette de synchronisation automatique"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Le compte sera supprimé de toutes les équipes, sauf si vous êtes uniquement le gestionnaire",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Votre compte sera supprimé définitivement avec suppression de toutes les équipes",
 		"ALERT_REMOVE_TEAM": "L'équipe sera complètement supprimée du système et les membres de l'équipe perdront l'accès",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_QUIT_TEAM": "Vous êtes sur le point de quitter l'équipe"
 	},
 	"pages": {
@@ -272,7 +277,10 @@
 			"SUBSCRIPTION": "Abonnement",
 			"ABOUT_TO_CHANGE_EMAIL": "Vous êtes sur le point de changer d'e-mail",
 			"ABOUT_TO_DELETE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
-			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?"
+			"ABOUT_TO_REMOVE_ACCOUNT": "Vous êtes sur le point de supprimer votre compte ?",
+			"TIMEZONE_SEARCH_PLACEHOLDER": "Your Timezone",
+			"ABOUT_TO_REMOVE_FROM_ALL_TEAMS": "You're about to be removed from all teams, unless you're the only manager ?",
+			"ABOUT_TO_DELETE_ALL_ACCOUNT_DATA": "You are about to Delete your account and all your data ?"
 		},
 		"settingsTeam": {
 			"HEADING_TITLE": "Paramètres généraux",

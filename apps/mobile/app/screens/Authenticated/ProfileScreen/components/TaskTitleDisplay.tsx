@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from 'react';
-import { View, StyleSheet, Text, TextInput, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { typography, useAppTheme } from '../../../../theme';
@@ -12,9 +12,10 @@ interface Props {
 	editMode: boolean;
 	setEditMode: (s: boolean) => unknown;
 	task: ITeamTask;
+	navigateToTask: (taskId: string) => void;
 }
 
-const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
+const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task, navigateToTask }) => {
 	const { colors } = useAppTheme();
 	const { updateTask } = useTeamTasks();
 	const [taskTitle, setTaskTitle] = useState(task.title);
@@ -60,7 +61,7 @@ const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
 	}
 
 	return (
-		<Pressable onLongPress={() => setEditMode(true)}>
+		<TouchableOpacity onLongPress={() => setEditMode(true)} onPress={() => navigateToTask(task?.id)}>
 			<View style={styles.container}>
 				<View style={styles.titleContainer}>
 					<Text style={[styles.totalTimeTitle, { marginRight: 5 }]}>#{task.number}</Text>
@@ -72,7 +73,7 @@ const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
 					</Text>
 				</View>
 			</View>
-		</Pressable>
+		</TouchableOpacity>
 	);
 };
 

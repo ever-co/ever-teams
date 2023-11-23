@@ -1,4 +1,4 @@
-import { useAuthenticateUser, useModal, useOrganizationTeams, useTeamInvitations } from '@app/hooks';
+import { useAuthenticateUser, useModal, useTeamInvitations } from '@app/hooks';
 import { Transition } from '@headlessui/react';
 import { InviteFormModal } from './team/invite/invite-form-modal';
 import { InvitedCard, InviteUserTeamCard } from './team/invite/user-invite-card';
@@ -9,13 +9,19 @@ interface Props {
 	teamMembers: OT_Member[];
 	publicTeam: boolean;
 	currentUser: OT_Member | undefined;
+	teamsFetching: boolean;
 }
 
-const TeamMembersCardView: React.FC<Props> = ({ teamMembers: members, currentUser, publicTeam = false }) => {
+const TeamMembersCardView: React.FC<Props> = ({
+	teamMembers: members,
+	currentUser,
+	teamsFetching = false,
+	publicTeam = false
+}) => {
 	const { isTeamManager } = useAuthenticateUser();
-	const { teamsFetching } = useOrganizationTeams();
+
 	const { teamInvitations } = useTeamInvitations();
-	const $teamsFetching = teamsFetching && members.length === 0;
+
 	return (
 		<ul className="mt-7">
 			{/* Current authenticated user members */}
@@ -62,7 +68,7 @@ const TeamMembersCardView: React.FC<Props> = ({ teamMembers: members, currentUse
 
 			{/* Loader skeleton */}
 			<Transition
-				show={$teamsFetching}
+				show={teamsFetching}
 				enter="transition-opacity duration-75"
 				enterFrom="opacity-0"
 				enterTo="opacity-100"

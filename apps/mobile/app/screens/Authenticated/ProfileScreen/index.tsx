@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { FC, useState } from 'react';
-import { ViewStyle, LogBox } from 'react-native';
+import { ViewStyle, LogBox, StatusBar } from 'react-native';
 import { AuthenticatedTabScreenProps } from '../../../navigators/AuthenticatedNavigator';
 import { Screen } from '../../../components';
 import HomeHeader from '../../../components/HomeHeader';
@@ -17,6 +17,7 @@ import NoTeam from '../../../components/NoTeam';
 import CreateTeamModal from '../../../components/CreateTeamModal';
 import { useOrganizationTeam } from '../../../services/hooks/useOrganization';
 import { useProfileScreenLogic } from './logics/useProfileScreenLogic';
+import { useAppTheme } from '../../../theme';
 
 export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile'>> =
 	function AuthenticatedProfileScreen(_props) {
@@ -24,6 +25,8 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile
 		const {
 			TimerStore: { localTimerStatus }
 		} = useStores();
+
+		const { dark, colors } = useAppTheme();
 
 		const { activeTab, userId } = _props.route.params || { activeTab: 'worked' };
 
@@ -36,7 +39,13 @@ export const AuthenticatedProfileScreen: FC<AuthenticatedTabScreenProps<'Profile
 		const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
 
 		return (
-			<Screen preset="fixed" contentContainerStyle={$container} safeAreaEdges={['top']}>
+			<Screen
+				preset="fixed"
+				contentContainerStyle={$container}
+				safeAreaEdges={['top']}
+				backgroundColor={dark ? 'rgb(16,17,20)' : colors.background}
+			>
+				<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 				{profile.isLoading ? (
 					<ProfileScreenSkeleton />
 				) : (

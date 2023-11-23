@@ -36,7 +36,7 @@
 		"ASSIGN_TASK": "Assign Task",
 		"ASSIGN_TASK_TO": "Assign Task",
 		"REMOVE_ACCOUNT": "Remove Account",
-		"REMOVE_EVERYWHERE": "Remove Everywhere",
+		"REMOVE_EVERYWHERE": "Remove From All Teams",
 		"DELETE_ACCOUNT": "Delete This Account",
 		"UNASSIGN_TASK": "Unassign Task",
 		"MAKE_A_MANAGER": "Make a Manager",
@@ -165,11 +165,17 @@
 		"FILTER_HISTORY": "History",
 		"FILTER_UNSUBSCRIBE": "Unsubscribe",
 
-		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts"
+		"KEYBOARD_SHORTCUTS": "Keyboard Shortcuts",
+
+		"GITHUB_LOADING_TEXT": "Stiamo installando la tua integrazione GitHub, attendi...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Sincronizza automaticamente le attività nella tua applicazione per aggiornamenti senza intoppi ed efficienti.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Sincronizza le attività in modo selettivo associandole a un'etichetta specifica.",
+		"GITHUB_AUTO_SYNC_LABEL": "Seleziona etichetta di sincronizzazione automatica"
 	},
 	"alerts": {
-		"ALERT_DELETE_ACCOUNT": "Account will be removed from all teams, except where you are only the manager",
-		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing fromall teams",
+		"ALERT_DELETE_ACCOUNT": "You will be removed from all teams, except where you are the only manager in the team",
+		"ALERT_ACCOUNT_PERMANENT_DELETE": "Your Account will be deleted permanently with removing from all teams",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_REMOVE_TEAM": "Team will be completely removed for the system and team members lost access",
 		"ALERT_QUIT_TEAM": "You are about to quit the team"
 	},

@@ -9,7 +9,8 @@ import {
 	ViewStyle,
 	TouchableWithoutFeedback,
 	Dimensions,
-	Pressable
+	Pressable,
+	Platform
 } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
@@ -28,6 +29,7 @@ import { RTuseTaskInput } from '../../../../services/hooks/features/useTaskInput
 import TaskLabels from '../../../../components/TaskLabels';
 import IssuesModal from '../../../../components/IssuesModal';
 import { useStores } from '../../../../models';
+import { limitTextCharaters } from '../../../../helpers/sub-text';
 
 const TimerTaskSection = observer(
 	({ taskInput, outsideClick }: { taskInput: RTuseTaskInput; outsideClick: () => unknown }) => {
@@ -100,7 +102,13 @@ const TimerTaskSection = observer(
 								}
 							]}
 							placeholder={translate('myWorkScreen.taskFieldPlaceholder')}
-							defaultValue={activeTask ? activeTask.title : ''}
+							defaultValue={
+								activeTask
+									? Platform.OS === 'android'
+										? limitTextCharaters({ text: activeTask.title, numChars: 25 })
+										: activeTask.title
+									: ''
+							}
 							autoFocus={false}
 							autoCapitalize="none"
 							autoCorrect={false}
@@ -124,7 +132,7 @@ const TimerTaskSection = observer(
 					</View>
 
 					{combxShow ? (
-						<ComboBox closeCombo={closeCombox} setEditMode={setEditMode} tasksHandler={taskInput} />
+						<ComboBox closeCombo={() => closeCombox()} setEditMode={setEditMode} tasksHandler={taskInput} />
 					) : (
 						<View>
 							<View
@@ -190,7 +198,7 @@ const TimerTaskSection = observer(
 								task={activeTask}
 								containerStyle={{
 									...styles.sizeContainer,
-									width: '100%',
+									width: activeTask?.tags.length ? '100%' : 160,
 									borderColor: colors.border,
 									marginVertical: 20
 								}}
@@ -273,7 +281,7 @@ const styles = StyleSheet.create({
 	taskNumberStyle: {
 		color: '#7B8089',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
+		fontSize: 12,
 		marginLeft: 5
 	},
 	textInput: {
@@ -284,7 +292,7 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		height: 43,
 		paddingHorizontal: 6,
-		paddingVertical: 13,
+		paddingVertical: 0,
 		width: '80%'
 	},
 	textInputOne: {

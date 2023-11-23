@@ -110,8 +110,8 @@ const AcceptInviteModal: FC<Props> = function InviteUserModal({
 			<View style={[styles.mainContainer, { backgroundColor: colors.background }]}>
 				<View style={{ width: '100%' }}>
 					<View style={styles.contentContainer}>
-						{invitation?.teams[0].image ? (
-							<Avatar.Image size={70} source={{ uri: invitation.teams[0].image.thumbUrl }} />
+						{invitation?.teams[0]?.image ? (
+							<Avatar.Image size={70} source={{ uri: invitation.teams[0].image?.thumbUrl }} />
 						) : (
 							<Avatar.Text size={70} label={imgTitle(invitation?.teams[0].name || '')} />
 						)}

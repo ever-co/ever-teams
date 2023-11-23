@@ -15,10 +15,11 @@ type TeamMembersProps = {
 export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = IssuesView.CARDS }: TeamMembersProps) {
 	const { user } = useAuthenticateUser();
 	const { activeTeam } = useOrganizationTeams();
-
+	const { teamsFetching } = useOrganizationTeams();
 	const members = activeTeam?.members || [];
 	const currentUser = members.find((m) => m.employee.userId === user?.id);
 	const $members = members.filter((member) => member.id !== currentUser?.id);
+	const $teamsFetching = teamsFetching && members.length === 0;
 
 	let teamMembersView;
 
@@ -39,7 +40,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 			break;
 		case kanbanView === IssuesView.CARDS:
 			teamMembersView = (
-				<TeamMembersCardView teamMembers={$members} currentUser={currentUser} publicTeam={publicTeam} />
+				<TeamMembersCardView
+					teamMembers={$members}
+					currentUser={currentUser}
+					publicTeam={publicTeam}
+					teamsFetching={$teamsFetching}
+				/>
 			);
 			break;
 		case kanbanView === IssuesView.TABLE:
@@ -64,7 +70,12 @@ export function TeamMembers({ publicTeam = false, kanbanView: kanbanView = Issue
 			break;
 		default:
 			teamMembersView = (
-				<TeamMembersCardView teamMembers={$members} currentUser={currentUser} publicTeam={publicTeam} />
+				<TeamMembersCardView
+					teamMembers={$members}
+					currentUser={currentUser}
+					publicTeam={publicTeam}
+					teamsFetching={$teamsFetching}
+				/>
 			);
 	}
 	return teamMembersView;

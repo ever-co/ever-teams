@@ -115,6 +115,7 @@ export function useGitHubIntegration() {
 		repositoriesLoading,
 		integrationGithubMetadata,
 		integrationGithubRepositories,
+		setIntegrationGithubRepositories,
 		syncGitHubRepository,
 		syncGitHubRepositoryLoading
 	};

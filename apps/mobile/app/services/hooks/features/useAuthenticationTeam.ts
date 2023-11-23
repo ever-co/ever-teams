@@ -12,6 +12,7 @@ import {
 import { useFirstLoad } from '../useFirstLoad';
 import { signIn } from '../../client/api/auth/signin';
 import { VerificationResponse } from '../../interfaces/IAuthentication';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function useAuthenticationTeam() {
 	const authTeamInput = useRef<TextInput>();
@@ -48,7 +49,7 @@ export function useAuthenticationTeam() {
 			setEmployeeId,
 			setRefreshToken
 		},
-		teamStore: { setActiveTeam, setActiveTeamId }
+		teamStore: { setActiveTeam, setActiveTeamId, activeTeamId }
 	} = useStores();
 
 	const { firstLoadData } = useFirstLoad();
@@ -73,6 +74,8 @@ export function useAuthenticationTeam() {
 				setOrganizationId(response.data.authStoreData.organizationId);
 				setAuthToken(response.data.authStoreData.access_token);
 				setRefreshToken(response.data.authStoreData.refresh_token);
+
+				await AsyncStorage.setItem('defaultTeamId', activeTeamId);
 
 				// Reset all fields
 				setIsSubmitted(false);

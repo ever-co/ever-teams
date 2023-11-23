@@ -2,7 +2,17 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable camelcase */
 import React, { FC, SetStateAction, useState } from 'react';
-import { View, TouchableOpacity, ViewStyle, TextStyle, Text, Dimensions, LogBox, FlatList } from 'react-native';
+import {
+	View,
+	TouchableOpacity,
+	ViewStyle,
+	TextStyle,
+	Text,
+	Dimensions,
+	LogBox,
+	FlatList,
+	StatusBar
+} from 'react-native';
 
 // TYPES
 import { AuthenticatedTabScreenProps } from '../../../navigators/AuthenticatedNavigator';
@@ -59,6 +69,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 	} = useTeamScreenLogic();
 	const { openModal, closeModal, activeInvitation, onAcceptInvitation, onRejectInvitation } = useAcceptInviteModal();
 	const [showVerifyAccountModal, setShowVerifyAccountModal] = useState(false);
+	const [isScrolling, setIsScrolling] = useState(false);
 
 	const {
 		resendAccountVerificationCode,
@@ -78,6 +89,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 				StatusBarProps={{ backgroundColor: 'black' }}
 				safeAreaEdges={['top']}
 			>
+				<StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
 				{isLoading ? (
 					<TeamScreenSkeleton />
 				) : (
@@ -120,10 +132,10 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 											setIsOpen={setIsTeamModalOpen}
 											resized={isTeamManager}
 											onCreateTeam={() => setShowCreateTeamModal(true)}
-											isAccountVerified={currentUser?.employee.user.isEmailVerified}
+											isAccountVerified={currentUser?.employee?.user?.isEmailVerified}
 										/>
 									</View>
-									{isTeamManager && currentUser.employee.user.isEmailVerified ? (
+									{isTeamManager && currentUser?.employee?.user?.isEmailVerified ? (
 										<TouchableOpacity
 											style={[$inviteButton, { borderColor: colors.secondary }]}
 											onPress={() => setShowInviteModal(true)}
@@ -132,7 +144,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 												{translate('teamScreen.inviteButton')}
 											</Text>
 										</TouchableOpacity>
-									) : isTeamManager && !currentUser.employee.user.isEmailVerified ? (
+									) : isTeamManager && !currentUser?.employee?.user?.isEmailVerified ? (
 										<TouchableOpacity
 											style={[$inviteButton, { borderColor: colors.secondary }]}
 											onPress={() => {
@@ -150,6 +162,8 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 								{/* Users activity list */}
 								<View style={[$cardContainer, { backgroundColor: dark ? 'rgb(0,0,0)' : '#F7F7F8' }]}>
 									<FlatList
+										onScrollEndDrag={() => setIsScrolling(false)}
+										onScrollBeginDrag={() => setIsScrolling(true)}
 										data={[currentUser, $otherMembers, teamInvitations]}
 										showsVerticalScrollIndicator={false}
 										bounces={false}
@@ -162,6 +176,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 														openMenuIndex={openMenuIndex}
 														setOpenMenuIndex={setOpenMenuIndex}
 														currentTeam={currentTeam}
+														canNavigate={!isScrolling}
 													/>
 												);
 											} else if (index === 1) {
@@ -171,6 +186,7 @@ export const AuthenticatedTeamScreen: FC<AuthenticatedTabScreenProps<'Team'>> = 
 														openMenuIndex={openMenuIndex}
 														setOpenMenuIndex={setOpenMenuIndex}
 														currentTeam={currentTeam}
+														canNavigate={!isScrolling}
 													/>
 												);
 											} else {
@@ -203,7 +219,8 @@ const CurrentUserCard: FC<{
 	openMenuIndex: number | null;
 	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>;
 	currentTeam: IOrganizationTeamWithMStatus | null;
-}> = ({ member, openMenuIndex, setOpenMenuIndex, currentTeam }) => {
+	canNavigate: boolean;
+}> = ({ member, openMenuIndex, setOpenMenuIndex, currentTeam, canNavigate }) => {
 	return (
 		<View style={{ marginHorizontal: 9 }}>
 			<ListCardItem
@@ -212,6 +229,7 @@ const CurrentUserCard: FC<{
 				openMenuIndex={openMenuIndex}
 				setOpenMenuIndex={setOpenMenuIndex}
 				currentTeam={currentTeam}
+				canNavigate={canNavigate}
 			/>
 		</View>
 	);
@@ -222,7 +240,8 @@ const OtherMembersList: FC<{
 	openMenuIndex: number | null;
 	setOpenMenuIndex: React.Dispatch<SetStateAction<number | null>>;
 	currentTeam: IOrganizationTeamWithMStatus | null;
-}> = ({ members, openMenuIndex, setOpenMenuIndex, currentTeam }) => {
+	canNavigate: boolean;
+}> = ({ members, openMenuIndex, setOpenMenuIndex, currentTeam, canNavigate }) => {
 	return (
 		<View style={{ marginHorizontal: 9 }}>
 			<FlatList
@@ -236,6 +255,7 @@ const OtherMembersList: FC<{
 						openMenuIndex={openMenuIndex}
 						setOpenMenuIndex={setOpenMenuIndex}
 						currentTeam={currentTeam}
+						canNavigate={canNavigate}
 					/>
 				)}
 			/>

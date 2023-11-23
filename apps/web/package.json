@@ -31,7 +31,7 @@
 		"@radix-ui/react-select": "^2.0.0",
 		"@radix-ui/react-slot": "^1.0.2",
 		"@radix-ui/react-toast": "^1.1.4",
-		"@sentry/nextjs": "^7.71.0",
+		"@sentry/nextjs": "^7.80.0",
 		"@tanstack/react-table": "^8.10.7",
 		"@types/react-google-recaptcha": "^2.1.5",
 		"@vercel/analytics": "^0.1.6",
@@ -103,6 +103,33 @@
 		"eslint": "^8.28.0",
 		"eslint-config-next": "^13.1.6",
 		"typescript": "^4.9.4"
+	},
+	"prettier": {
+		"printWidth": 120,
+		"singleQuote": true,
+		"semi": true,
+		"useTabs": true,
+		"tabWidth": 4,
+		"arrowParens": "always",
+		"trailingComma": "none",
+		"quoteProps": "as-needed",
+		"trimTrailingWhitespace": true,
+		"overrides": [
+			{
+				"files": "*.scss",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			},
+			{
+				"files": "*.yml",
+				"options": {
+					"useTabs": false,
+					"tabWidth": 2
+				}
+			}
+		]
 	},
 	"engines": {
 		"node": ">=16.0.0",
