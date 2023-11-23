@@ -1,11 +1,13 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useCallback } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { translate } from '../../../../i18n';
 import { useUser } from '../../../../services/hooks/features/useUser';
 import { useOrganizationTeam } from '../../../../services/hooks/useOrganization';
 import { typography, useAppTheme } from '../../../../theme';
+import { SvgXml } from 'react-native-svg';
+import { danGerZoneRemoveUserIcon } from '../../../../components/svgs/icons';
 
 const UserRemoveAccount = ({
 	onDismiss,
@@ -36,8 +38,8 @@ const UserRemoveAccount = ({
 			<TouchableWithoutFeedback onPress={() => onDismiss()}>
 				<View style={styles.transparentContainer}>
 					<TouchableWithoutFeedback>
-						<View style={{ ...styles.circleFrame, shadowColor: colors.border }}>
-							<Image source={require('../../../../../assets/images/new/user-remove.png')} />
+						<View style={{ ...styles.circleFrame, shadowColor: dark ? 'transparent' : colors.border }}>
+							<SvgXml xml={danGerZoneRemoveUserIcon} />
 						</View>
 					</TouchableWithoutFeedback>
 				</View>

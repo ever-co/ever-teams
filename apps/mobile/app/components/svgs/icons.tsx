@@ -981,3 +981,14 @@ export const moreButtonDark = `<svg width="24" height="24" viewBox="0 0 24 24" f
 <path d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" stroke="#FFFFFF" stroke-width="1.5"/>
 </svg>
 `;
+
+// Settings Screen Icons //
+
+export const danGerZoneRemoveUserIcon = `<svg width="45" height="44" viewBox="0 0 45 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.4997 22.0001C27.5623 22.0001 31.6663 17.896 31.6663 12.8334C31.6663 7.7708 27.5623 3.66675 22.4997 3.66675C17.4371 3.66675 13.333 7.7708 13.333 12.8334C13.333 17.896 17.4371 22.0001 22.4997 22.0001Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M6.75195 40.3333C6.75195 33.2383 13.8103 27.5 22.5003 27.5C24.2603 27.5 25.9653 27.7383 27.5603 28.1783" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M40.8337 33.0001C40.8337 33.5867 40.7603 34.1551 40.6137 34.7051C40.4487 35.4384 40.1553 36.1534 39.7703 36.7767C38.5053 38.9034 36.177 40.3334 33.5003 40.3334C31.612 40.3334 29.907 39.6184 28.6237 38.445C28.0737 37.9684 27.597 37.4001 27.2303 36.7767C26.552 35.6767 26.167 34.3751 26.167 33.0001C26.167 31.0201 26.9553 29.2051 28.2387 27.8851C29.577 26.5101 31.447 25.6667 33.5003 25.6667C35.6637 25.6667 37.6253 26.6018 38.9453 28.1051C40.1187 29.4068 40.8337 31.1301 40.8337 33.0001Z" stroke="white" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M35.3888 31.0566L31.5205 34.9249" stroke="white" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M31.5576 31.0933L35.4443 34.9616" stroke="white" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;
