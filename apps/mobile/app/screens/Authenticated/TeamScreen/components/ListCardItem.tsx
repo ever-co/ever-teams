@@ -298,7 +298,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 							>
 								<Ionicons name="chevron-back" size={24} color={colors.primary} />
 							</TouchableOpacity>
-						) : (
+						) : memberInfo.isAuthTeamManager || memberInfo.isAuthUser ? (
 							<TouchableOpacity
 								onPress={() =>
 									props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)
@@ -310,7 +310,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 									<Entypo name="cross" size={24} color={colors.primary} />
 								)}
 							</TouchableOpacity>
-						)}
+						) : null}
 					</View>
 				</View>
 			}
