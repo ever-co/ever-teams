@@ -4,6 +4,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
 import Item from './kanban-card';
+import { AddIcon } from './svgs';
 
 const grid = 8;
 
@@ -25,18 +26,18 @@ const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
     if (isDraggingOver) {
       return {
         backgroundColor: '#FFEBE6',
-        height: '150px'
+        height: '100%'
     }
     }
     if (isDraggingFrom) {
       return {
         backgroundColor:  '#E6FCFF',
-        height: '150px'
+        height: '100%'
     }
     }
     return {
         backgroundColor:  '',
-        height: '150px'
+        height: '100%'
     }
 };
 
@@ -326,10 +327,13 @@ const KanbanDraggable = ({index,title, items}: {
                                         type={'TASK'} 
                                         content={items}                     
                                     />
+                                 
+                                    
                                 </>
                                     : 
                                 null
                             }
+
                         </div>
                     
                     )}
