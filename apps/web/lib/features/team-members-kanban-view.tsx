@@ -1,5 +1,6 @@
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
+import { AddIcon } from "lib/components/svgs";
 import {  useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
@@ -157,11 +158,17 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                       <>
                       { items[column].length > 0 ?
                       <>
+                        <div className="flex flex-col">
                         <KanbanDraggable 
                           index={index} 
                           title={column}
                           items={items[column]}
                         />
+                        <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white p-4">
+                            <AddIcon/>
+                            <p>Create Issues</p>
+                        </div>
+                        </div>
                       </>
                       :
                       <div className={'order-last'}>
