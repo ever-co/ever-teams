@@ -34,6 +34,7 @@ module.exports = {
 				current: 'currentColor',
 				neutral: '#7E7991',
 				indianRed: '#D95F5F',
+				grey: '#868296',
 				transparentWhite: 'rgba(255, 255, 255, 0.30)',
 				default: {
 					DEFAULT: '#282048'
