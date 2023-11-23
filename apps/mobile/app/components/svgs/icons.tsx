@@ -650,6 +650,28 @@ export const pauseStatusIconLarge = `<svg
 			<path d="M8.70566 7.92772V2.07242C8.70566 1.51654 8.47096 1.29419 7.87802 1.29419H6.38331C5.79449 1.29419 5.55566 1.51654 5.55566 2.07242V7.92772C5.55566 8.4836 5.79037 8.70595 6.38331 8.70595H7.87802C8.47096 8.70595 8.70566 8.4836 8.70566 7.92772Z" />
 		</svg>`;
 
+// Profile Screen //
+
+export const filterLightIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.8334 3.79175H9.33337" stroke="#282048" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.49996 3.79175H1.16663" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.83329 5.83333C6.96087 5.83333 7.87496 4.91925 7.87496 3.79167C7.87496 2.66409 6.96087 1.75 5.83329 1.75C4.70571 1.75 3.79163 2.66409 3.79163 3.79167C3.79163 4.91925 4.70571 5.83333 5.83329 5.83333Z" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.8333 10.2083H10.5" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.66663 10.2083H1.16663" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.16667 12.2501C9.29425 12.2501 10.2083 11.336 10.2083 10.2084C10.2083 9.08083 9.29425 8.16675 8.16667 8.16675C7.03909 8.16675 6.125 9.08083 6.125 10.2084C6.125 11.336 7.03909 12.2501 8.16667 12.2501Z" stroke="#292D32" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;
+
+export const filterDarkIcon = `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.8334 3.79163H9.33337" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M3.49996 3.79163H1.16663" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.83329 5.83333C6.96087 5.83333 7.87496 4.91925 7.87496 3.79167C7.87496 2.66409 6.96087 1.75 5.83329 1.75C4.70571 1.75 3.79163 2.66409 3.79163 3.79167C3.79163 4.91925 4.70571 5.83333 5.83329 5.83333Z" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M12.8333 10.2084H10.5" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.66663 10.2084H1.16663" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M8.16667 12.25C9.29425 12.25 10.2083 11.3359 10.2083 10.2083C10.2083 9.08071 9.29425 8.16663 8.16667 8.16663C7.03909 8.16663 6.125 9.08071 6.125 10.2083C6.125 11.3359 7.03909 12.25 8.16667 12.25Z" stroke="white" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;
+
 // Task Screen //
 // Task Title
 export const tickIconLight = `<svg
@@ -990,5 +1012,17 @@ export const danGerZoneRemoveUserIcon = `<svg width="45" height="44" viewBox="0 
 <path d="M40.8337 33.0001C40.8337 33.5867 40.7603 34.1551 40.6137 34.7051C40.4487 35.4384 40.1553 36.1534 39.7703 36.7767C38.5053 38.9034 36.177 40.3334 33.5003 40.3334C31.612 40.3334 29.907 39.6184 28.6237 38.445C28.0737 37.9684 27.597 37.4001 27.2303 36.7767C26.552 35.6767 26.167 34.3751 26.167 33.0001C26.167 31.0201 26.9553 29.2051 28.2387 27.8851C29.577 26.5101 31.447 25.6667 33.5003 25.6667C35.6637 25.6667 37.6253 26.6018 38.9453 28.1051C40.1187 29.4068 40.8337 31.1301 40.8337 33.0001Z" stroke="white" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M35.3888 31.0566L31.5205 34.9249" stroke="white" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M31.5576 31.0933L35.4443 34.9616" stroke="white" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;
+
+export const galleryLightIcon = `<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.1799 16.9599L19.0499 9.64988C17.9899 7.16988 16.0399 7.06988 14.7299 9.42988L12.8399 12.8399C11.8799 14.5699 10.0899 14.7199 8.84993 13.1699L8.62993 12.8899C7.33993 11.2699 5.51993 11.4699 4.58993 13.3199L2.86993 16.7699C1.65993 19.1699 3.40993 21.9999 6.08993 21.9999H18.8499C21.4499 21.9999 23.1999 19.3499 22.1799 16.9599Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.46973 8C9.12658 8 10.4697 6.65685 10.4697 5C10.4697 3.34315 9.12658 2 7.46973 2C5.81287 2 4.46973 3.34315 4.46973 5C4.46973 6.65685 5.81287 8 7.46973 8Z" stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+`;
+
+export const galleryDarkIcon = `<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.1799 16.96L19.0499 9.65001C17.9899 7.17001 16.0399 7.07001 14.7299 9.43001L12.8399 12.84C11.8799 14.57 10.0899 14.72 8.84993 13.17L8.62993 12.89C7.33993 11.27 5.51993 11.47 4.58993 13.32L2.86993 16.77C1.65993 19.17 3.40993 22 6.08993 22H18.8499C21.4499 22 23.1999 19.35 22.1799 16.96Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7.46973 8C9.12658 8 10.4697 6.65685 10.4697 5C10.4697 3.34315 9.12658 2 7.46973 2C5.81287 2 4.46973 3.34315 4.46973 5C4.46973 6.65685 5.81287 8 7.46973 8Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 `;
