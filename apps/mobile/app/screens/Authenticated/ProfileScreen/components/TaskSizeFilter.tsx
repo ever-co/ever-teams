@@ -24,6 +24,7 @@ import { useTaskSizes } from '../../../../services/hooks/features/useTaskSizes';
 import { ITaskSizeItem } from '../../../../services/interfaces/ITaskSize';
 import { StatusType } from './FilterPopup';
 import { BlurView } from 'expo-blur';
+import { translate } from '../../../../i18n';
 
 interface TaskSizeFilterProps {
 	showSizePopup: boolean;
@@ -48,7 +49,9 @@ const TaskStatusFilter: FC<TaskSizeFilterProps> = observer(
 				<TouchableOpacity onPress={() => setShowSizePopup(!showSizePopup)}>
 					<View style={{ ...styles.container, borderColor: colors.divider }}>
 						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-							<Text style={{ marginRight: 10, color: colors.primary }}>Sizes</Text>
+							<Text style={{ marginRight: 10, color: colors.primary }}>
+								{translate('settingScreen.sizeScreen.sizes')}
+							</Text>
 							{selectedSizes.length === 0 ? null : (
 								<FontAwesome name="circle" size={24} color={colors.secondary} />
 							)}
@@ -92,7 +95,9 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 						]}
 					>
 						<View style={styles.secondContainer}>
-							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>
+								{translate('settingScreen.sizeScreen.sizes')}
+							</Text>
 							<View style={{ paddingHorizontal: 16, height: height / 2.55 }}>
 								<FlatList
 									bounces={false}
