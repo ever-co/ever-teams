@@ -102,7 +102,7 @@ export default function Item(props: any) {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         style={getStyle(provided, style)}
-        className="flex flex-col rounded-2xl bg-white p-4 relative"
+        className="flex flex-col rounded-2xl bg-white dark:bg-dark--theme-light p-4 relative"
         data-is-dragging={isDragging}
         data-testid={item.id}
         data-index={index}
@@ -115,8 +115,8 @@ export default function Item(props: any) {
                     <div className="bg-indianRed rounded p-1">
                         <BugIcon/>
                     </div>
-                    <p className="text-grey">#213</p>
-                    <p className="text-black capitalize">{item.content}</p>
+                    <p className="text-grey text-normal">#213</p>
+                    <p className="text-black dark:text-white text-normal capitalize">{item.content}</p>
                     
                 </div>
             </div>
@@ -126,8 +126,8 @@ export default function Item(props: any) {
         </div>
         <div className="flex flex-row justify-between items-center pt-4">
             <div className="flex flex-row items-center gap-2">
-                <small className="text-[#7E7991] text-xs text-normal">Worked:</small>
-                <p className="text-black font-medium text-sm">0 h 0 m </p>
+                <small className="text-grey text-xs text-normal">Worked:</small>
+                <p className="text-black dark:text-white font-medium text-sm">0 h 0 m </p>
             </div>
             <div className="relative">
                 <div className="w-10 flex flex-row justify-end items-center relative bg-primary">
