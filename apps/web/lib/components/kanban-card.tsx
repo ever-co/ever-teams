@@ -1,7 +1,8 @@
 import BugIcon from "@components/ui/svgs/bug";
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
+import { DraggableProvided } from "react-beautiful-dnd";
 
-function getStyle(provided, style) {
+function getStyle(provided: DraggableProvided, style: any) {
     if (!style) {
       return provided.draggableProps.style;
     }

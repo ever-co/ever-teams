@@ -2,33 +2,27 @@ import LeftArrowTailessIcon from '@components/ui/svgs/left-arrow-tailess';
 import ThreeDotIcon from '@components/ui/svgs/three-dot';
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable } from 'react-beautiful-dnd';
+import { Draggable, DraggableProvided, DraggableStateSnapshot, Droppable, DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd';
 import Item from './kanban-card';
 
 const grid = 8;
 
 const getItemStyle = (isDragging: any, draggableStyle: any) => ({
-  // some basic styles to make the items look a bit nicer
   userSelect: "none",
   margin: `0 0 ${grid}px 0`,
-
-  // change background colour if dragging
   background: isDragging ? "lightgreen" : null,
-
-  // styles we need to apply on draggables
   ...draggableStyle
 });
 
-
-
-const getBackgroundColor = (isDraggingOver, isDraggingFrom) => {
-    if (isDraggingOver) {
+const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
+    
+    if (dropSnapshot.isDraggingOver) {
       return {
         backgroundColor: '#FFEBE6',
         height: '100%'
     }
     }
-    if (isDraggingFrom) {
+    if (dropSnapshot.draggingFromThisWith) {
       return {
         backgroundColor:  '#E6FCFF',
         height: '100%'
@@ -62,7 +56,7 @@ function InnerItemList({items}: {
         <section className="flex flex-col gap-2.5">
         {items.map((item: any, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
-                {(dragProvided, dragSnapshot) => (
+                {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
                 <Item
                     key={item.id}
                     item={item}
@@ -87,18 +81,20 @@ function InnerItemList({items}: {
 function InnerList(props: {
     title: string, 
     items: any,
-    dropProvided: any,
-    dropSnapshot: any
+    dropProvided: DroppableProvided,
+    dropSnapshot: DroppableStateSnapshot
 }) {
     const { items, dropProvided, dropSnapshot } = props;
   
     return (
    
         <div 
-        style={getBackgroundColor(dropSnapshot.isDraggingOver, dropSnapshot.draggingFromThisWith)}
+        style={getBackgroundColor(dropSnapshot)}
         ref={dropProvided.innerRef}>
           <InnerItemList items={items} />
-          {dropProvided.placeholder}
+            <>
+            {dropProvided.placeholder}
+            </>
         </div>
       
     );
@@ -135,12 +131,12 @@ export const KanbanDroppable = ({ title, droppableId, type, content }: {
             droppableId={droppableId}
             type={type}
         >
-            {(dropProvided, dropSnapshot) => (
+            {(dropProvided: DroppableProvided, dropSnapshot: DroppableStateSnapshot) => (
                 <div
-                    style={getBackgroundColor(dropSnapshot.isDraggingOver, dropSnapshot.draggingFromThisWith)}
-                    isDraggingOver={dropSnapshot.isDraggingOver}
-                    isDropDisabled={false}
-                    isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
+                    style={getBackgroundColor(dropSnapshot)}
+                    data-isDragging={dropSnapshot.isDraggingOver}
+                    data-isDropDisabled={false}
+                    data-isDraggingFrom={Boolean(dropSnapshot.draggingFromThisWith)}
                     {...dropProvided.droppableProps}
                 >
                    
@@ -208,7 +204,7 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                    <header
                                         className={"flex flex-col gap-8 items-between text-center rounded-lg w-fit h-full px-2 py-4 bg-indianRed"}
                                         style={headerStyleChanger(snapshot)}
-                                        isDragging={snapshot.isDragging}
+                                        data-isDragging={snapshot.isDragging}
                                     >
                                         <div
                                             className="flex flex-col items-center  gap-2"
@@ -232,7 +228,7 @@ export const EmptyKanbanDroppable = ({index,title, items}: {
                                             <div className="origin-top-right -translate-x-3/4 -rotate-90">
                                             <h2 
                                                 className="text-base font-bold not-italic h-full text-white font-PlusJakartaSansBold capitalize"
-                                                isDragging={snapshot.isDragging}
+                                                data-isDragging={snapshot.isDragging}
                                                 {...provided.dragHandleProps}
                                                 aria-label={`${title} quote list`}
                                             >
@@ -272,14 +268,14 @@ const KanbanDraggableHeader = ({title, items, snapshot, provided}: {
             <header
                 className={"flex flex-row justify-between items-center rounded-lg px-4 py-2 bg-primary"}
                 style={headerStyleChanger(snapshot)}
-                isDragging={snapshot.isDragging}
+                data-isDragging={snapshot.isDragging}
             >
                 <div
                     className="flex flex-row gap-2.5 items-center"
                 >
                     <h2 
                         className="text-base font-bold not-italic text-white font-PlusJakartaSansBold capitalize"
-                        isDragging={snapshot.isDragging}
+                        data-isDragging={snapshot.isDragging}
                         {...provided.dragHandleProps}
                         aria-label={`${title} quote list`}
                     >

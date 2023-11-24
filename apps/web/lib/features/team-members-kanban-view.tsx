@@ -188,7 +188,9 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                   :
                     null
                   }
+                  <>
                   {provided.placeholder}
+                  </>
                 </div>
               )}
               </Droppable> 
