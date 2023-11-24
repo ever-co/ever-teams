@@ -160,6 +160,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                       <>
                         <div className="flex flex-col">
                         <KanbanDraggable 
+                          key={index}
                           index={index} 
                           title={column}
                           items={items[column]}
@@ -173,6 +174,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                       :
                       <div className={'order-last'}>
                       <EmptyKanbanDroppable 
+                          key={index}
                           index={index} 
                           title={column}
                           items={items[column]}

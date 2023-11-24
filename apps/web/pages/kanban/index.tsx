@@ -22,11 +22,6 @@ const Kanban= () => {
         name: 'REVIEW'
     }
 
-    const done = {
-        id: 'status-4',
-        name: 'DONE'
-    }
-
     const demoData = {
         todo: [
             {
@@ -150,11 +145,11 @@ const Kanban= () => {
         ]}
 
     useEffect(() => {
-        if(demoData) {
+        if(demoData.ongoing.length > 0 && demoData.todo.length > 0 && demoData.review.length > 0) {
             setwinReady(true);
         }
        
-    }, [router.isReady, demoData]);
+    }, [router.isReady]);
 
     return (
         <>
@@ -168,6 +163,5 @@ const Kanban= () => {
     )
 }
 
-// export default withAuthentication(Kanban, { displayName: 'Kanban'});
-export default Kanban;
+export default withAuthentication(Kanban, { displayName: 'Kanban'});
 
