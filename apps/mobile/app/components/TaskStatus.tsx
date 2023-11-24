@@ -3,7 +3,7 @@
 import React, { FC, useState } from "react"
 import { TouchableOpacity, View, Text, StyleSheet, ViewStyle, TextStyle } from "react-native"
 import { AntDesign, Feather } from "@expo/vector-icons"
-import { ITaskStatus, ITeamTask } from "../services/interfaces/ITask"
+import { ITeamTask } from "../services/interfaces/ITask"
 import { observer } from "mobx-react-lite"
 import { useTeamTasks } from "../services/hooks/features/useTeamTasks"
 import TaskStatusPopup from "./TaskStatusPopup"
@@ -17,12 +17,13 @@ interface TaskStatusProps {
 	containerStyle?: ViewStyle
 	statusTextSyle?: TextStyle
 	iconsOnly?: boolean
+	labelOnly?: boolean
 	status?: string
 	setStatus?: (status: string) => unknown
 }
 
 const TaskStatus: FC<TaskStatusProps> = observer(
-	({ task, containerStyle, status, setStatus, iconsOnly }) => {
+	({ task, containerStyle, status, setStatus, iconsOnly, labelOnly }) => {
 		const { colors, dark } = useAppTheme()
 		const { updateTask } = useTeamTasks()
 		const [openModal, setOpenModal] = useState(false)
@@ -37,12 +38,11 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 			allStatuses &&
 			Object.values(allStatuses).find((item) => item?.name.toLowerCase() === statusValue)
 
-		const onChangeStatus = async (text) => {
+		const onChangeStatus = async (text: string) => {
 			if (task) {
-				const value: ITaskStatus = text
 				const taskEdit = {
 					...task,
-					status: value,
+					status: task?.status === text ? null : text,
 				}
 
 				await updateTask(taskEdit, task.id)
@@ -74,11 +74,15 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 					>
 						{statusItem ? (
 							<View style={[styles.wrapStatus, { width: iconsOnly ? "50%" : "70%" }]}>
-								{statusItem.icon}
+								{!labelOnly && statusItem.icon}
 								{iconsOnly ? null : (
 									<Text
 										numberOfLines={1}
-										style={{ ...styles.text, marginLeft: 11 }}
+										style={{
+											...styles.text,
+											marginLeft: labelOnly ? 0 : 11,
+											fontSize: labelOnly ? 8 : 10,
+										}}
 									>
 										{limitTextCharaters({
 											text: statusItem?.name,
@@ -98,7 +102,7 @@ const TaskStatus: FC<TaskStatusProps> = observer(
 						)}
 						<AntDesign
 							name="down"
-							size={14}
+							size={labelOnly ? 8 : 14}
 							color={task?.status || status ? "#000000" : colors.primary}
 						/>
 					</View>

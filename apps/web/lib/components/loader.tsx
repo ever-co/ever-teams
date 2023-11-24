@@ -67,7 +67,7 @@ export function BackdropLoader({
 		>
 			<div>
 				<Card className="w-[98%] md:min-w-[130px] flex items-center justify-center" shadow="custom">
-					<div className="flex space-x-4">
+					<div className="flex space-x-4 items-center">
 						<div className="w-[31px] h-[31px]">
 							<SpinnerLoader className="mr-1" />
 						</div>

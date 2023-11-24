@@ -24,6 +24,7 @@ import { useTaskPriority } from '../../../../services/hooks/features/useTaskPrio
 import { ITaskPriorityItem } from '../../../../services/interfaces/ITaskPriority';
 import { StatusType } from './FilterPopup';
 import { BlurView } from 'expo-blur';
+import { translate } from '../../../../i18n';
 
 interface TaskPriorityFilterProps {
 	showPriorityPopup: boolean;
@@ -49,7 +50,9 @@ const TaskPriorityFilter: FC<TaskPriorityFilterProps> = observer(
 				<TouchableOpacity onPress={() => setShowPriorityPopup(!showPriorityPopup)}>
 					<View style={{ ...styles.container, borderColor: colors.divider }}>
 						<View style={{ flexDirection: 'row', alignItems: 'center' }}>
-							<Text style={{ marginRight: 10, color: colors.primary }}>Priorities</Text>
+							<Text style={{ marginRight: 10, color: colors.primary }}>
+								{translate('settingScreen.priorityScreen.priorities')}
+							</Text>
 							{selectedPriorities.length === 0 ? null : (
 								<FontAwesome name="circle" size={24} color={colors.secondary} />
 							)}
@@ -93,7 +96,9 @@ const TaskStatusFilterDropDown: FC<DropDownProps> = observer(
 						]}
 					>
 						<View style={styles.secondContainer}>
-							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>Statuses</Text>
+							<Text style={[styles.dropdownTitle, { color: colors.primary }]}>
+								{translate('settingScreen.priorityScreen.priorities')}
+							</Text>
 							<View style={{ paddingHorizontal: 16, height: height / 2.55 }}>
 								<FlatList
 									bounces={false}

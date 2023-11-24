@@ -16,11 +16,11 @@ interface TaskVersionProps {
 	task?: ITeamTask
 	containerStyle?: ViewStyle
 	version?: string
-	setPriority?: (priority: string) => unknown
+	setVersion?: (priority: string) => unknown
 }
 
 const TaskVersion: FC<TaskVersionProps> = observer(
-	({ task, containerStyle, version, setPriority }) => {
+	({ task, containerStyle, version, setVersion }) => {
 		const { colors } = useAppTheme()
 		const { updateTask } = useTeamTasks()
 		const [openModal, setOpenModal] = useState(false)
@@ -33,16 +33,16 @@ const TaskVersion: FC<TaskVersionProps> = observer(
 			allTaskVersions &&
 			Object.values(allTaskVersions).find((item) => item.value.toLowerCase() === versionValue)
 
-		const onChangeVersion = async (text) => {
+		const onChangeVersion = async (text: string) => {
 			if (task) {
 				const taskEdit = {
 					...task,
-					version: text,
+					version: task?.version === text ? null : text,
 				}
 
 				await updateTask(taskEdit, task.id)
 			} else {
-				setPriority(text)
+				setVersion(text)
 			}
 		}
 

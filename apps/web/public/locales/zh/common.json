@@ -165,12 +165,18 @@
 		"FILTER_HISTORY": "历史",
 		"FILTER_UNSUBSCRIBE": "取消订阅",
 
-		"KEYBOARD_SHORTCUTS": "快捷键"
+		"KEYBOARD_SHORTCUTS": "快捷键",
+
+		"GITHUB_LOADING_TEXT": "我们正在安装您的 GitHub 集成，请稍等...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "在您的应用程序中自动同步任务，实现无缝和高效的更新。",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "通过将任务与特定标签关联，有选择地进行同步。",
+		"GITHUB_AUTO_SYNC_LABEL": "选择自动同步标签"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "账户将从所有团队中移除,您作为管理员的团队除外",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "您的账户将被永久删除,并从所有团队中移除",
 		"ALERT_REMOVE_TEAM": "团队将被完全移除出系统,成员也将失去访问权限",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_QUIT_TEAM": "您将要退出团队"
 	},
 	"pages": {

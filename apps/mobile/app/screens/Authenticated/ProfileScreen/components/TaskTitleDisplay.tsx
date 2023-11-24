@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useState } from 'react';
-import { View, StyleSheet, Text, TextInput, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { limitTextCharaters } from '../../../../helpers/sub-text';
 import { ITeamTask } from '../../../../services/interfaces/ITask';
 import { typography, useAppTheme } from '../../../../theme';
@@ -12,9 +12,12 @@ interface Props {
 	editMode: boolean;
 	setEditMode: (s: boolean) => unknown;
 	task: ITeamTask;
+	navigateToTask: (taskId: string) => void;
 }
 
-const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
+const { width: screenWidth } = Dimensions.get('screen');
+
+const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task, navigateToTask }) => {
 	const { colors } = useAppTheme();
 	const { updateTask } = useTeamTasks();
 	const [taskTitle, setTaskTitle] = useState(task.title);
@@ -60,11 +63,15 @@ const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
 	}
 
 	return (
-		<Pressable onLongPress={() => setEditMode(true)}>
+		<TouchableOpacity onLongPress={() => setEditMode(true)} onPress={() => navigateToTask(task?.id)}>
 			<View style={styles.container}>
 				<View style={styles.titleContainer}>
 					<Text style={[styles.totalTimeTitle, { marginRight: 5 }]}>#{task.number}</Text>
-					<Text style={[styles.totalTimeTitle, { color: colors.primary }]}>
+					<Text
+						numberOfLines={1}
+						ellipsizeMode="tail"
+						style={[styles.totalTimeTitle, { color: colors.primary }]}
+					>
 						{limitTextCharaters({
 							text: task.title,
 							numChars: 43
@@ -72,12 +79,12 @@ const TaskTitleDisplay: FC<Props> = ({ editMode, setEditMode, task }) => {
 					</Text>
 				</View>
 			</View>
-		</Pressable>
+		</TouchableOpacity>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {},
+	container: { width: '90%' },
 	titleContainer: {
 		flexDirection: 'row',
 		width: '100%'
@@ -92,8 +99,7 @@ const styles = StyleSheet.create({
 	totalTimeTitle: {
 		color: '#7E7991',
 		fontFamily: typography.secondary.medium,
-		fontSize: 14,
-		maxWidth: '78%'
+		fontSize: screenWidth * 0.0327
 	},
 	wrapTitleInput: {
 		alignItems: 'center',

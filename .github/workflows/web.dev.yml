@@ -5,11 +5,14 @@ on:
       - develop
     paths:
       - '.deploy/web/**'
-      - '.github/workflows/**'
+      - '.github/workflows/web.dev.yml'
       - 'apps/web/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   deploy:

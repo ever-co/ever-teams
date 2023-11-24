@@ -63,13 +63,13 @@ services:
             value: ever-co
           - key: SENTRY_PROJECT
             value: ever-teams-web
-          - key: NEXT_PUBLIC_SENTRY_DNS
+          - key: NEXT_PUBLIC_SENTRY_DSN
             sync: false
           - key: NEXT_PUBLIC_SENTRY_DEBUG
             value: false
-          - key: JITSU_BROWSER_URL
+          - key: NEXT_PUBLIC_JITSU_BROWSER_URL
             sync: false
-          - key: JITSU_BROWSER_WRITE_KEY
+          - key: NEXT_PUBLIC_JITSU_BROWSER_WRITE_KEY
             sync: false
           - key: NEXT_PUBLIC_GITHUB_APP_NAME
             value: ever-github

@@ -25,6 +25,8 @@ import { useOrganizationTeam } from '../../../../services/hooks/useOrganization'
 import { useStores } from '../../../../models';
 import { observer } from 'mobx-react-lite';
 import LoadingModal from '../../../../components/LoadingModal';
+import { SvgXml } from 'react-native-svg';
+import { galleryDarkIcon, galleryLightIcon } from '../../../../components/svgs/icons';
 
 const ChangeTeamLogo = observer(({ onDismiss, onExtend }: { onDismiss: () => unknown; onExtend: () => unknown }) => {
 	const { colors, dark } = useAppTheme();
@@ -109,9 +111,7 @@ const ChangeTeamLogo = observer(({ onDismiss, onExtend }: { onDismiss: () => unk
 		setSelectedImage(null);
 	}, [onDismiss]);
 
-	const image = dark
-		? require('../../../../../assets/images/new/image-dark.png')
-		: require('../../../../../assets/images/new/image-light.png');
+	const galleryImage = dark ? <SvgXml xml={galleryDarkIcon} /> : <SvgXml xml={galleryLightIcon} />;
 
 	return (
 		<>
@@ -132,7 +132,7 @@ const ChangeTeamLogo = observer(({ onDismiss, onExtend }: { onDismiss: () => unk
 					</TouchableOpacity>
 					<TouchableOpacity style={styles.wrapCirclePic} onPress={() => pickImageFromGalery()}>
 						<View style={[styles.circlePic, { backgroundColor: dark ? '#303540' : '#fff' }]}>
-							<Image source={image} />
+							{galleryImage}
 						</View>
 						<Text style={styles.selectText}>
 							{translate('settingScreen.changeAvatar.selectFromGalery')}

@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import { PaginationResponse } from "../../interfaces/IDataResponse"
 import { ITaskVersionCreate, ITaskVersionItemList } from "../../interfaces/ITaskVersion"
 import { serverFetch } from "../fetch"
 
@@ -65,7 +66,7 @@ export function getTaskVersionListRequest(
 	},
 	bearer_token: string,
 ) {
-	return serverFetch({
+	return serverFetch<PaginationResponse<ITaskVersionItemList>>({
 		path: `/task-versions?tenantId=${tenantId}&organizationId=${organizationId}&organizationTeamId=${activeTeamId}`,
 		method: "GET",
 		bearer_token,

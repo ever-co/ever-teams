@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import { Text, TouchableOpacity, Image, View, TextStyle, ViewStyle, Dimensions } from 'react-native';
+import { Text, TouchableOpacity, View, TextStyle, ViewStyle, Dimensions } from 'react-native';
 import React, { useState } from 'react';
 import { typography, useAppTheme } from '../../../../theme';
 import { translate } from '../../../../i18n';
@@ -8,6 +8,8 @@ import ProfileTabs from './ProfileTabs';
 import AssignTaskFormModal from './AssignTaskSection';
 import FilterPopup from './FilterPopup';
 import { ITaskFilter } from '../../../../services/hooks/features/useTaskFilters';
+import { SvgXml } from 'react-native-svg';
+import { filterDarkIcon, filterLightIcon } from '../../../../components/svgs/icons';
 
 const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilter }) => {
 	const { colors, dark } = useAppTheme();
@@ -26,14 +28,14 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 			<FilterPopup hook={hook} visible={showFilterPopup} onDismiss={() => setShowFilterPopup(false)} />
 			<View style={{ ...$wrapButtons, backgroundColor: colors.background }}>
 				<TouchableOpacity
-					disabled={!profile.userProfile.isEmailVerified}
+					disabled={!profile.userProfile?.isEmailVerified}
 					onPress={() => setShowModal(true)}
 					style={[
 						$assignStyle,
 						{
 							backgroundColor: colors.background,
 							borderColor: colors.secondary,
-							opacity: profile.userProfile.isEmailVerified ? 1 : 0.5
+							opacity: profile.userProfile?.isEmailVerified ? 1 : 0.5
 						}
 					]}
 				>
@@ -47,11 +49,7 @@ const TaskFilter = ({ profile, hook }: { profile: IUserProfile; hook: ITaskFilte
 					style={{ ...$filterButton, borderColor: colors.border }}
 					onPress={() => setShowFilterPopup(true)}
 				>
-					{dark ? (
-						<Image source={require('../../../../../assets/icons/new/setting-dark.png')} />
-					) : (
-						<Image source={require('../../../../../assets/icons/new/setting-light.png')} />
-					)}
+					{dark ? <SvgXml xml={filterDarkIcon} /> : <SvgXml xml={filterLightIcon} />}
 					<Text style={{ ...$createTaskTitle, color: colors.primary, marginLeft: 10 }}>
 						{translate('tasksScreen.filter')}
 					</Text>

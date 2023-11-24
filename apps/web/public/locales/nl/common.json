@@ -165,11 +165,17 @@
 		"FILTER_HISTORY": "Geschiedenis",
 		"FILTER_UNSUBSCRIBE": "Afmelden",
 
-		"KEYBOARD_SHORTCUTS": "Sneltoetsen"
+		"KEYBOARD_SHORTCUTS": "Sneltoetsen",
+
+		"GITHUB_LOADING_TEXT": "We zijn nu uw GitHub-integratie aan het installeren, even geduld...",
+		"GITHUB_INTEGRATION_AUTO_SYNC_TASK_TEXT": "Synchroniseer taken automatisch in uw applicatie voor naadloze en efficiënte updates.",
+		"GITHUB_INTEGRATION_LABEL_SYNC_TASK_TEXT": "Synchroniseer taken selectief door ze te koppelen aan een specifiek label.",
+		"GITHUB_AUTO_SYNC_LABEL": "Selecteer Auto-Sync-label"
 	},
 	"alerts": {
 		"ALERT_DELETE_ACCOUNT": "Account wordt verwijderd van alle teams, behalve waar u alleen manager bent",
 		"ALERT_ACCOUNT_PERMANENT_DELETE": "Uw account wordt permanent verwijderd en uit alle teams verwijderd",
+		"ALERT_REMOVE_ALL_DATA": "All Account Data will be removed from all teams where you are ONLY one existed manager",
 		"ALERT_REMOVE_TEAM": "Team wordt volledig verwijderd uit het systeem en teamleden verliezen toegang",
 		"ALERT_QUIT_TEAM": "U staat op het punt het team te verlaten"
 	},

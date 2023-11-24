@@ -30,6 +30,7 @@ export interface IWorkspace {
 interface IUserMultiTenant {
 	email: string;
 	name: string;
+	id: string;
 	imageUrl: string;
 	tenant: ITenant;
 }

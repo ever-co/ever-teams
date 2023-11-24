@@ -1,20 +1,24 @@
-name: Web Build Before Merge
+name: Mobile Build & Deploy DEV
 on:
-  pull_request:
-    types:
-      - opened
-      - edited
+  push:
+    branches:
+      - develop
     paths:
-      - '.deploy/web/**'
-      - '.github/workflows/**'
-      - 'apps/web/**'
+      - '.github/workflows/mobile.dev.yml'
+      - 'apps/mobile/**'
       - 'package.json'
       - 'yarn.lock'
-      - 'README.md'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@v3
@@ -23,12 +27,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          cache: "yarn"
+          cache: 'yarn'
 
       - name: Install Packages
         run: |
           yarn install --frozen-lockfile
 
-      - name: Build Web
+      - name: Build Mobile
         run: |
-          yarn build:web
+          yarn build:mobile

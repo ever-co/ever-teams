@@ -1,72 +1,82 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
-import React, { FC, useMemo, useState } from "react"
-import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from "react-native"
-import { Ionicons, Entypo } from "@expo/vector-icons"
-import { Card, Text } from "react-native-paper"
-import { LinearGradient } from "expo-linear-gradient"
-import { AnimatedCircularProgress } from "react-native-circular-progress"
+import React, { FC, useMemo, useState } from 'react';
+import { View, TouchableNativeFeedback, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { Ionicons, Entypo } from '@expo/vector-icons';
+import { Card, Text } from 'react-native-paper';
+import { LinearGradient } from 'expo-linear-gradient';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
 // COMPONENTS
-import { ListItem } from "../../../../components"
-import { GLOBAL_STYLE as GS } from "../../../../../assets/ts/styles"
-import { spacing, typography, useAppTheme } from "../../../../theme"
-import { ITeamTask } from "../../../../services/interfaces/ITask"
-import WorkedOnTask from "../../../../components/WorkedOnTask"
-import TaskStatus from "../../../../components/TaskStatus"
-import TimerButton from "./TimerButton"
-import { observer } from "mobx-react-lite"
-import { IUserProfile } from "../logics/useProfileScreenLogic"
-import TaskTitleDisplay from "./TaskTitleDisplay"
-import AllTaskStatuses from "../../../../components/AllTaskStatuses"
-import WorkedOnTaskHours from "../../../../components/WorkedDayHours"
-import EstimateTime from "../../TimerScreen/components/EstimateTime"
-import { secondsToTime } from "../../../../helpers/date"
-import { useTaskStatistics } from "../../../../services/hooks/features/useTaskStatics"
-import { useStores } from "../../../../models"
-import IssuesModal from "../../../../components/IssuesModal"
+import { ListItem } from '../../../../components';
+import { GLOBAL_STYLE as GS } from '../../../../../assets/ts/styles';
+import { spacing, typography, useAppTheme } from '../../../../theme';
+import { ITeamTask } from '../../../../services/interfaces/ITask';
+import WorkedOnTask from '../../../../components/WorkedOnTask';
+import TaskStatus from '../../../../components/TaskStatus';
+import TimerButton from './TimerButton';
+import { observer } from 'mobx-react-lite';
+import { IUserProfile } from '../logics/useProfileScreenLogic';
+import TaskTitleDisplay from './TaskTitleDisplay';
+import AllTaskStatuses from '../../../../components/AllTaskStatuses';
+import WorkedOnTaskHours from '../../../../components/WorkedDayHours';
+import EstimateTime from '../../TimerScreen/components/EstimateTime';
+import { secondsToTime } from '../../../../helpers/date';
+import { useTaskStatistics } from '../../../../services/hooks/features/useTaskStatics';
+import { useStores } from '../../../../models';
+import IssuesModal from '../../../../components/IssuesModal';
+import { SettingScreenNavigationProp } from '../../../../navigators/AuthenticatedNavigator';
+import { useNavigation } from '@react-navigation/native';
 
 export type ListItemProps = {
-	active?: boolean
-	task?: ITeamTask
-	isAssigned?: boolean
-	isAuthUser: boolean
-	activeAuthTask: boolean
-	viewType?: "default" | "unassign"
-	profile?: IUserProfile
-	isNowTab?: boolean
-}
+	active?: boolean;
+	task?: ITeamTask;
+	isAssigned?: boolean;
+	isAuthUser: boolean;
+	activeAuthTask: boolean;
+	viewType?: 'default' | 'unassign';
+	profile?: IUserProfile;
+	isNowTab?: boolean;
+	index: number;
+	openMenuIndex: number | null;
+	setOpenMenuIndex: React.Dispatch<React.SetStateAction<number | null>>;
+};
 
 export interface Props extends ListItemProps {}
 
 export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
-	const { colors } = useAppTheme()
+	const { colors } = useAppTheme();
 	const {
-		TimerStore: { timerStatus },
-	} = useStores()
+		TimerStore: { timerStatus }
+	} = useStores();
 
-	const [editTitle, setEditTitle] = useState(false)
-	const [enableEstimate, setEnableEstimate] = useState(false)
-	const [showMenu, setShowMenu] = React.useState(false)
+	const [editTitle, setEditTitle] = useState(false);
+	const [enableEstimate, setEnableEstimate] = useState(false);
 
-	const { h, m } = secondsToTime(props.task.estimate || 0)
-	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics()
-	const { taskTotalStat } = getTaskStat(props.task)
+	const { h, m } = secondsToTime(props.task.estimate || 0);
+	const { getTaskStat, activeTaskTotalStat } = useTaskStatistics();
+	const { taskTotalStat } = getTaskStat(props.task);
 
 	const progress = useMemo(() => {
 		if (!props.isAuthUser) {
-			return (taskTotalStat?.duration * 100) / props.task?.estimate
+			return (taskTotalStat?.duration * 100) / props.task?.estimate;
 		}
 
-		return (activeTaskTotalStat?.duration * 100) / props.task?.estimate || 0
-	}, [timerStatus, props.activeAuthTask, activeTaskTotalStat])
+		return (activeTaskTotalStat?.duration * 100) / props.task?.estimate || 0;
+	}, [timerStatus, props.activeAuthTask, activeTaskTotalStat]);
+
+	const navigation = useNavigation<SettingScreenNavigationProp<'TaskScreen'>>();
+
+	const navigateToTask = (taskId: string) => {
+		!editTitle && navigation.navigate('TaskScreen', { taskId });
+	};
 
 	return (
 		<TouchableNativeFeedback
 			onPressIn={() => {
-				setShowMenu(false)
-				setEditTitle(false)
-				setEnableEstimate(false)
+				props.setOpenMenuIndex(null);
+				setEditTitle(false);
+				setEnableEstimate(false);
 			}}
 		>
 			<View
@@ -74,7 +84,7 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 					...GS.p3,
 					...GS.positionRelative,
 					backgroundColor: colors.background,
-					borderRadius: 14,
+					borderRadius: 14
 				}}
 			>
 				<View style={styles.firstContainer}>
@@ -82,17 +92,16 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						memberTask={props.task}
 						isAuthUser={props.profile.isAuthUser}
 						isActiveTask={props.activeAuthTask}
-						title={"Total time"}
-						containerStyle={{ flexDirection: "row", alignItems: "center" }}
+						title={'Total time'}
+						containerStyle={{ flexDirection: 'row', alignItems: 'center' }}
 						totalTimeText={{ color: colors.primary }}
 					/>
-					<TouchableOpacity onPress={() => setShowMenu(!showMenu)}>
-						{!showMenu ? (
-							<Ionicons
-								name="ellipsis-vertical-outline"
-								size={20}
-								color={colors.primary}
-							/>
+					<TouchableOpacity
+						onPress={() => props.setOpenMenuIndex(props.openMenuIndex === props.index ? null : props.index)}
+						style={{ height: 20 }}
+					>
+						{props.index !== props.openMenuIndex ? (
+							<Ionicons name="ellipsis-vertical-outline" size={20} color={colors.primary} />
 						) : (
 							<Entypo name="cross" size={20} color={colors.primary} />
 						)}
@@ -101,16 +110,26 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 
 				<View style={{ marginBottom: 16 }}>
 					<View style={styles.wrapperTask}>
-						<View style={{ flexDirection: "row", width: "80%" }}>
-							<View style={{ marginRight: 3 }}>
-								<IssuesModal task={props.task} readonly={true} />
+						<TouchableOpacity onPress={() => navigateToTask(props.task?.id)} style={{ width: '80%' }}>
+							<View
+								style={{
+									flexDirection: 'row',
+									width: '80%',
+									alignItems: 'center'
+								}}
+							>
+								<View style={{ marginRight: 3 }}>
+									<IssuesModal task={props.task} readonly={true} />
+								</View>
+
+								<TaskTitleDisplay
+									task={props.task}
+									editMode={editTitle}
+									setEditMode={setEditTitle}
+									navigateToTask={navigateToTask}
+								/>
 							</View>
-							<TaskTitleDisplay
-								task={props.task}
-								editMode={editTitle}
-								setEditMode={setEditTitle}
-							/>
-						</View>
+						</TouchableOpacity>
 						{!enableEstimate ? (
 							<TouchableOpacity onPress={() => setEnableEstimate(true)}>
 								<AnimatedCircularProgress
@@ -121,19 +140,14 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 									backgroundColor="#F0F0F0"
 								>
 									{() => (
-										<Text
-											style={{ ...styles.progessText, color: colors.primary }}
-										>
-											{h !== 0 ? h + "h" : m !== 0 ? m + "m" : h + "h"}
+										<Text style={{ ...styles.progessText, color: colors.primary }}>
+											{h !== 0 ? h + 'h' : m !== 0 ? m + 'm' : h + 'h'}
 										</Text>
 									)}
 								</AnimatedCircularProgress>
 							</TouchableOpacity>
 						) : (
-							<EstimateTime
-								setEditEstimate={setEnableEstimate}
-								currentTask={props.task}
-							/>
+							<EstimateTime setEditEstimate={setEnableEstimate} currentTask={props.task} />
 						)}
 					</View>
 					<AllTaskStatuses task={props.task} />
@@ -145,30 +159,26 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 						)}
 						{!props.isAssigned && !props.isAuthUser && (
 							<TouchableOpacity
-								style={[styles.timerBtn, { backgroundColor: "#fff" }]}
+								style={[styles.timerBtn, { backgroundColor: '#fff' }]}
 								onPress={() => props.profile.assignTask(props.task)}
 							>
 								<Image
 									resizeMode="contain"
 									style={styles.timerIcon}
-									source={require("../../../../../assets/icons/new/arrow-right.png")}
+									source={require('../../../../../assets/icons/new/arrow-right.png')}
 								/>
 							</TouchableOpacity>
 						)}
 						{props.isAssigned ? (
 							<WorkedOnTaskHours
 								memberTask={props.task}
-								title={"Today Work"}
-								containerStyle={{ alignItems: "center" }}
+								title={'Today Work'}
+								containerStyle={{ alignItems: 'center' }}
 								totalTimeText={{ color: colors.primary }}
 							/>
 						) : (
-							<View
-								style={{ left: 12, justifyContent: "center", alignItems: "center" }}
-							>
-								<Text style={[styles.timeHeading, { color: colors.tertiary }]}>
-									Assigned
-								</Text>
+							<View style={{ left: 12, justifyContent: 'center', alignItems: 'center' }}>
+								<Text style={[styles.timeHeading, { color: colors.tertiary }]}>Assigned</Text>
 								<Text style={[styles.timeNumber, { color: colors.primary }]}>
 									{props.task.members.length} people
 								</Text>
@@ -177,28 +187,28 @@ export const ListItemContent: React.FC<ListItemProps> = observer((props) => {
 					</View>
 					<TaskStatus containerStyle={styles.statusContainer} task={props.task} />
 				</View>
-				{showMenu && (
+				{props.index === props.openMenuIndex && (
 					<SidePopUp
 						setEditTitle={setEditTitle}
-						setShowMenu={() => setShowMenu(false)}
+						setShowMenu={() => props.setOpenMenuIndex(null)}
 						setEnableEstimate={setEnableEstimate}
 						props={props}
 					/>
 				)}
 			</View>
 		</TouchableNativeFeedback>
-	)
-})
+	);
+});
 
 interface IMenuProps {
-	setShowMenu: () => unknown
-	setEditTitle: (value: boolean) => unknown
-	setEnableEstimate: (value: boolean) => unknown
-	props: ListItemProps
+	setShowMenu: () => unknown;
+	setEditTitle: (value: boolean) => unknown;
+	setEnableEstimate: (value: boolean) => unknown;
+	props: ListItemProps;
 }
 const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnableEstimate }) => {
-	const { colors } = useAppTheme()
-	const { isAssigned, task, profile } = props
+	const { colors } = useAppTheme();
+	const { isAssigned, task, profile } = props;
 	return (
 		<View
 			style={{
@@ -216,15 +226,15 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 				shadowColor: colors.border,
 				marginRight: 27,
 				backgroundColor: colors.background,
-				minWidth: spacing.huge * 2,
+				minWidth: spacing.huge * 2
 			}}
 		>
 			<View style={{}}>
 				<ListItem
 					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 					onPress={() => {
-						setEditTitle(true)
-						setShowMenu()
+						setEditTitle(true);
+						setShowMenu();
 					}}
 				>
 					Edit Task
@@ -232,8 +242,8 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 				<ListItem
 					textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 					onPress={() => {
-						setEnableEstimate(true)
-						setShowMenu()
+						setEnableEstimate(true);
+						setShowMenu();
 					}}
 				>
 					Estimate
@@ -243,8 +253,8 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 					<ListItem
 						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 						onPress={() => {
-							profile.assignTask(task)
-							setShowMenu()
+							profile.assignTask(task);
+							setShowMenu();
 						}}
 					>
 						Assign Task
@@ -255,8 +265,8 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 					<ListItem
 						textStyle={[styles.dropdownTxt, { color: colors.primary }]}
 						onPress={() => {
-							profile.unassignTask(task)
-							setShowMenu()
+							profile.unassignTask(task);
+							setShowMenu();
 						}}
 					>
 						Unassign Task
@@ -264,27 +274,25 @@ const SidePopUp: FC<IMenuProps> = ({ props, setShowMenu, setEditTitle, setEnable
 				)}
 			</View>
 		</View>
-	)
-}
+	);
+};
 
 const ListCardItem: React.FC<Props> = (props) => {
-	const { colors, dark } = useAppTheme()
+	const { colors, dark } = useAppTheme();
 	// STATS
 
-	const { activeAuthTask } = props
+	const { activeAuthTask } = props;
 
 	return (
 		<Card
 			style={[
 				styles.cardContainer,
-				!dark &&
-					activeAuthTask &&
-					props.isNowTab && { borderColor: "#8C7AE4", borderWidth: 3 },
+				!dark && activeAuthTask && props.isNowTab && { borderColor: '#8C7AE4', borderWidth: 3 }
 			]}
 		>
 			{dark ? (
 				<LinearGradient
-					colors={["#B993E6", "#6EB0EC", "#5855D8"]}
+					colors={['#B993E6', '#6EB0EC', '#5855D8']}
 					start={{ x: 0.1, y: 0.5 }}
 					end={{ x: 1, y: 0.5 }}
 					style={{ padding: activeAuthTask && props.isNowTab ? 3 : 0, borderRadius: 14 }}
@@ -299,90 +307,90 @@ const ListCardItem: React.FC<Props> = (props) => {
 				</View>
 			)}
 		</Card>
-	)
-}
+	);
+};
 
-export default ListCardItem
+export default ListCardItem;
 
 const styles = StyleSheet.create({
 	cardContainer: {
 		borderRadius: 14,
-		elevation: 24,
-		shadowColor: "#000",
+		elevation: 5,
+		shadowColor: '#000',
 		shadowOffset: { width: 0, height: 12 },
 		shadowOpacity: 0.05,
-		shadowRadius: 5,
+		shadowRadius: 5
 	},
 	dropdownTxt: {
-		color: "#282048",
+		color: '#282048',
 		fontFamily: typography.primary.semiBold,
-		fontSize: 14,
+		fontSize: 14
 	},
 	firstContainer: {
-		alignItems: "center",
-		flexDirection: "row",
-		justifyContent: "space-between",
-		marginBottom: 10,
+		alignItems: 'center',
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		marginBottom: 10
 	},
 	progessText: {
 		fontFamily: typography.primary.semiBold,
-		fontSize: 12,
+		fontSize: 12
 	},
 	statusContainer: {
-		alignItems: "center",
-		borderColor: "transparent",
+		alignItems: 'center',
+		borderColor: 'transparent',
 		height: 33,
 		paddingHorizontal: 9,
-		width: 120,
+		width: 120
 	},
 	timeHeading: {
-		color: "#7E7991",
+		color: '#7E7991',
 		fontFamily: typography.fonts.PlusJakartaSans.medium,
-		fontSize: 10,
+		fontSize: 10
 	},
 	timeNumber: {
-		color: "#282048",
+		color: '#282048',
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
-		fontSize: 14,
+		fontSize: 14
 	},
 	timerBtn: {
-		alignItems: "center",
-		borderColor: "rgba(0, 0, 0, 0.4)",
+		alignItems: 'center',
+		borderColor: 'rgba(0, 0, 0, 0.4)',
 		borderRadius: 20,
 		borderWidth: 1,
 		elevation: 10,
 		height: 42,
-		justifyContent: "center",
+		justifyContent: 'center',
 		marginRight: 10,
 		// shadowColor: "rgba(0,0,0,0.16)",
 		// shadowOffset: { width: 5, height: 10 },
 		// shadowOpacity: 1,
 		// shadowRadius: 10,
 		...GS.shadowSm,
-		width: 42,
+		width: 42
 	},
 	timerIcon: {
 		height: 21,
-		width: 21,
+		width: 21
 	},
 	times: {
-		alignItems: "center",
-		borderTopColor: "rgba(0, 0, 0, 0.06)",
+		alignItems: 'center',
+		borderTopColor: 'rgba(0, 0, 0, 0.06)',
 		borderTopWidth: 1,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		paddingTop: 14,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		paddingTop: 14
 	},
 	wrapButton: {
-		alignItems: "center",
-		flexDirection: "row",
+		alignItems: 'center',
+		flexDirection: 'row'
 	},
 	wrapperTask: {
-		alignItems: "center",
-		flexDirection: "row",
+		alignItems: 'center',
+		flexDirection: 'row',
 		height: 42,
-		justifyContent: "space-between",
+		justifyContent: 'space-between',
 		paddingRight: 10,
-		width: "100%",
-	},
-})
+		width: '100%'
+	}
+});

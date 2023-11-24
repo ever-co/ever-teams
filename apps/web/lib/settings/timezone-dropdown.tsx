@@ -5,6 +5,9 @@ import { mapTimezoneItems, TimezoneItem } from 'lib/features';
 import { useTimezoneSettings } from '@app/hooks';
 import { clsxm } from '@app/utils';
 import moment from 'moment-timezone';
+import _debounce from 'lodash/debounce';
+
+const allTimezonesNames = moment.tz.names();
 
 export const TimezoneDropDown = ({
 	currentTimezone,
@@ -16,30 +19,31 @@ export const TimezoneDropDown = ({
 	const { activeTimezone, setActiveTimezone } = useTimezoneSettings();
 	const [searchText, setSearchText] = useState<string>('');
 
-	const allTimezonesNames = moment.tz.names();
-	const allTimezonesWithUTC = allTimezonesNames.map((item) => {
-		const offset = moment.tz(item).format('Z');
-		return { name: item, offset: offset };
-	});
+	const items = useMemo(() => {
+		const allTimezonesWithUTC = allTimezonesNames.map((item) => {
+			const offset = moment.tz(item).format('Z');
+			return { name: item, offset: offset };
+		});
 
-	allTimezonesWithUTC.sort((a, b) => {
-		// Compare the offsets for sorting
-		if (a.offset < b.offset) {
-			return -1;
-		}
-		if (a.offset > b.offset) {
-			return 1;
-		}
-		return 0;
-	});
+		allTimezonesWithUTC.sort((a, b) => {
+			// Compare the offsets for sorting
+			if (a.offset < b.offset) {
+				return -1;
+			}
+			if (a.offset > b.offset) {
+				return 1;
+			}
+			return 0;
+		});
 
-	const sortedTimezones = allTimezonesWithUTC.map((item) => `${item.name} (UTC ${item.offset})`);
+		const sortedTimezones = allTimezonesWithUTC.map((item) => `${item.name} (UTC ${item.offset})`);
 
-	const timeZonesMap: string[] = sortedTimezones.filter((item) =>
-		item.toLowerCase().includes(searchText.toLowerCase())
-	);
+		const timeZonesMap: string[] = sortedTimezones.filter((item) =>
+			item.toLowerCase().includes(searchText.toLowerCase())
+		);
 
-	const items = useMemo(() => mapTimezoneItems(timeZonesMap), [timeZonesMap]);
+		return mapTimezoneItems(timeZonesMap);
+	}, [searchText]);
 
 	const [timezoneItem, setTimezoneItem] = useState<TimezoneItem | null>(null);
 
@@ -57,10 +61,17 @@ export const TimezoneDropDown = ({
 		[setActiveTimezone, onChangeTimezone]
 	);
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const debouncedSetSearchText = useCallback(_debounce(setSearchText, 300), []);
+
+	const handleSearchChange = (e: string) => {
+		debouncedSetSearchText(e);
+	};
+
 	return (
 		<Dropdown
 			searchBar={true}
-			setSearchText={setSearchText}
+			setSearchText={handleSearchChange}
 			className="md:w-[469px]"
 			buttonClassName={clsxm(
 				'py-0 font-medium h-[54px]',
