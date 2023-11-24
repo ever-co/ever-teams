@@ -61,9 +61,10 @@ function TagList({tags}: {
     )
 }
 
-let imageRadius = 20;
 
 const stackImages = (index: number, length: number) => {
+    const imageRadius = 20;
+    
     const total_length = ((length+1) * imageRadius);
    
     return {
