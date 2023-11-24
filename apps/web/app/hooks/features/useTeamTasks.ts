@@ -105,7 +105,9 @@ export function useTeamTasks() {
 	const loadTeamTasksData = useCallback(
 		(deepCheck?: boolean) => {
 			if (loadingRef.current) {
-				return;
+				return new Promise((response) => {
+					response(true);
+				});
 			}
 			return queryCall().then((res) => {
 				deepCheckAndUpdateTasks(res?.data?.items || [], deepCheck);
