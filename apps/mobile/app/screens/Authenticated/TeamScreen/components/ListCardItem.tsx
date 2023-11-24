@@ -201,7 +201,7 @@ const ListCardItem: React.FC<Props> = observer((props) => {
 								...(props.index !== props.openMenuIndex ? { display: 'none' } : {})
 							}}
 						>
-							<View style={{ marginVertical: 10 }}>
+							<View style={{ marginVertical: 8 }}>
 								{(memberInfo.isAuthTeamManager || memberInfo.isAuthUser) && taskEdition.task && (
 									<ListItem
 										textStyle={[styles.dropdownTxt, { color: colors.primary }]}
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
 		color: '#282048',
 		fontFamily: typography.primary.semiBold,
 		fontSize: 14,
-		height: 38,
+		height: 36,
 		width: '100%'
 	},
 	estimate: {

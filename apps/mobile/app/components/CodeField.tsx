@@ -1,7 +1,7 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react-native/no-color-literals */
 import React, { FC, useEffect, useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Dimensions, PixelRatio, Platform } from 'react-native';
 import { colors, typography, useAppTheme } from '../theme';
 import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 
@@ -11,6 +11,9 @@ interface ICodeField {
 	length?: number;
 	defaultValue?: string;
 }
+
+const { height: screeHeight } = Dimensions.get('screen');
+const screenDimension = PixelRatio.get();
 
 export const CodeInputField: FC<ICodeField> = (props) => {
 	const { onChange, editable, length = 6 } = props;
@@ -54,7 +57,8 @@ export const CodeInputField: FC<ICodeField> = (props) => {
 								flexDirection: 'column',
 								justifyContent: 'center',
 								alignItems: 'center',
-								lineHeight: 52
+								lineHeight:
+									Platform.OS === 'ios' ? screeHeight * 0.055 * (screenDimension / 3) : undefined
 							}
 						]}
 						onLayout={getCellOnLayoutHandler(index)}
