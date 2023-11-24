@@ -148,7 +148,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
               >
               {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
-                  className={clsxm("flex flex-row gap-[20px] w-full h-full p-[32px] bg-transparent", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
+                  className={clsxm("flex flex-row gap-[20px] w-full h-full p-[32px] bg-transparent dark:bg-[#181920]", snapshot.isDraggingOver ? "lightblue" : "#F7F7F8")}
                   ref={provided.innerRef}
                   {...provided.droppableProps}
                 >
@@ -165,8 +165,8 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                               title={column}
                               items={items[column]}
                             />
-                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white p-4">
-                                <AddIcon/>
+                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white dark:bg-dark--theme-light p-4">
+                                <AddIcon height={20} width={20}/>
                                 <p>Create Issues</p>
                             </div>
                           </div>
