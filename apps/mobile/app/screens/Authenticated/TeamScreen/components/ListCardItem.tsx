@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-color-literals */
 /* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
-import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { View, ViewStyle, TouchableOpacity, StyleSheet, TouchableWithoutFeedback, Platform } from 'react-native';
 import { Ionicons, Entypo } from '@expo/vector-icons';
 
 // COMPONENTS
@@ -32,6 +32,7 @@ import { translate } from '../../../../i18n';
 import { useTimer } from '../../../../services/hooks/useTimer';
 import { SettingScreenNavigationProp } from '../../../../navigators/AuthenticatedNavigator';
 import { getTimerStatusValue } from '../../../../helpers/get-timer-status';
+import { useClickOutside } from 'react-native-click-outside';
 
 export type ListItemProps = {
 	member: OT_Member;
@@ -54,6 +55,7 @@ export interface Props extends ListItemProps {
 export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, taskEdition, onPressIn }) => {
 	// HOOKS
 	const { colors, dark } = useAppTheme();
+	const clickOutsideTaskEstimationInputRef = useClickOutside<View>(() => taskEdition.setEstimateEditMode(false));
 	return (
 		<TouchableWithoutFeedback>
 			<View
@@ -85,38 +87,48 @@ export const ListItemContent: React.FC<IcontentProps> = observer(({ memberInfo, 
 					</View>
 				</View>
 				<View style={[styles.times, { borderTopColor: colors.divider }]}>
-					<View
-						style={{
-							flexDirection: 'row',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-							height: 48,
-							width: '100%'
+					<TouchableWithoutFeedback
+						onPress={(event) => {
+							if (Platform.OS === 'android' && taskEdition.estimateEditMode) {
+								event.stopPropagation();
+								taskEdition.setEstimateEditMode(false);
+							}
 						}}
 					>
-						<View style={{ ...GS.alignCenter }}>
-							<WorkedOnTask period="Daily" memberInfo={memberInfo} />
-						</View>
-
-						<View style={{ ...GS.alignCenter }}>
-							<WorkedOnTask period="Total" memberInfo={memberInfo} />
-						</View>
-
-						{memberInfo.memberTask && taskEdition.estimateEditMode ? (
-							<View style={styles.estimate}>
-								<EstimateTime
-									setEditEstimate={taskEdition.setEstimateEditMode}
-									currentTask={memberInfo.memberTask}
-								/>
+						<View
+							style={{
+								flexDirection: 'row',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								height: 48,
+								width: '100%',
+								gap: 10
+							}}
+						>
+							<View style={{ ...GS.alignCenter }}>
+								<WorkedOnTask period="Daily" memberInfo={memberInfo} />
 							</View>
-						) : (
-							<TimeProgressBar
-								isAuthUser={memberInfo.isAuthUser}
-								memberInfo={memberInfo}
-								onPress={() => taskEdition.setEstimateEditMode(true)}
-							/>
-						)}
-					</View>
+
+							<View style={{ ...GS.alignCenter }}>
+								<WorkedOnTask period="Total" memberInfo={memberInfo} />
+							</View>
+
+							{memberInfo.memberTask && taskEdition.estimateEditMode ? (
+								<View style={styles.estimate} ref={clickOutsideTaskEstimationInputRef}>
+									<EstimateTime
+										setEditEstimate={taskEdition.setEstimateEditMode}
+										currentTask={memberInfo.memberTask}
+									/>
+								</View>
+							) : (
+								<TimeProgressBar
+									isAuthUser={memberInfo.isAuthUser}
+									memberInfo={memberInfo}
+									onPress={() => taskEdition.setEstimateEditMode(true)}
+								/>
+							)}
+						</View>
+					</TouchableWithoutFeedback>
 				</View>
 			</View>
 		</TouchableWithoutFeedback>
@@ -353,7 +365,6 @@ const styles = StyleSheet.create({
 	},
 	estimate: {
 		alignItems: 'center',
-		backgroundColor: '#E8EBF8',
 		borderRadius: 5,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
