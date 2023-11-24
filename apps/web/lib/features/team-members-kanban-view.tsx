@@ -153,40 +153,39 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                 >
                   {column.length > 0 ?
                   <>
-                  {column.map((column: any, index: number) => {
-                    return (
-                      <>
-                      { items[column].length > 0 ?
-                      <>
-                        <div className="flex flex-col">
-                        <KanbanDraggable 
-                          key={index}
-                          index={index} 
-                          title={column}
-                          items={items[column]}
-                        />
-                        <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white p-4">
-                            <AddIcon/>
-                            <p>Create Issues</p>
+                    {column.map((column: any, index: number) => {
+                      return (
+                        <>
+                        { items[column].length > 0 ?
+                        <>
+                          <div className="flex flex-col"  key={index}>
+                            <KanbanDraggable 
+                              index={index} 
+                              title={column}
+                              items={items[column]}
+                            />
+                            <div className="flex flex-row items-center text-base not-italic font-semibold rounded-2xl gap-4 bg-white p-4">
+                                <AddIcon/>
+                                <p>Create Issues</p>
+                            </div>
+                          </div>
+                        </>
+                        :
+                        <div className={'order-last'} key={index}>
+                          <EmptyKanbanDroppable 
+                              
+                              index={index} 
+                              title={column}
+                              items={items[column]}
+                          />
                         </div>
-                        </div>
+                      }
                       </>
-                      :
-                      <div className={'order-last'}>
-                      <EmptyKanbanDroppable 
-                          key={index}
-                          index={index} 
-                          title={column}
-                          items={items[column]}
-                      />
-                      </div>
-                    }
-                    </>
-                    )
-})}
+                      )
+                    })}
                   </>
                   :
-                  null
+                    null
                   }
                   {provided.placeholder}
                 </div>
