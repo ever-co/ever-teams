@@ -1,6 +1,7 @@
 import { clsxm } from "@app/utils";
 import KanbanDraggable, { EmptyKanbanDroppable } from "lib/components/Kanban"
 import { AddIcon } from "lib/components/svgs";
+import React from "react";
 import {  useEffect, useState } from "react";
 import { DragDropContext, DropResult, Droppable, DroppableProvided, DroppableStateSnapshot } from "react-beautiful-dnd";
 
@@ -155,7 +156,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                   <>
                     {column.map((column: any, index: number) => {
                       return (
-                        <>
+                        <React.Fragment key={index}>
                         { items[column].length > 0 ?
                         <>
                           <div className="flex flex-col"  key={index}>
@@ -180,7 +181,7 @@ export const KanbanView = ({ itemsArray }: { itemsArray: any}) => {
                           />
                         </div>
                       }
-                      </>
+                      </React.Fragment>
                       )
                     })}
                   </>
