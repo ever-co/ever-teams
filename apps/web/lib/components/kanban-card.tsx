@@ -1,4 +1,5 @@
 import BugIcon from "@components/ui/svgs/bug";
+import Image from 'next/image';
 import VerticalThreeDot from "@components/ui/svgs/vertical-three-dot";
 import { DraggableProvided } from "react-beautiful-dnd";
 
@@ -60,12 +61,26 @@ function TagList({tags}: {
     )
 }
 
+let imageRadius = 20;
+
+const stackImages = (index: number, length: number) => {
+    const total_length = ((length+1) * imageRadius);
+   
+    return {
+        zIndex: (index+1).toString(),
+        right:  `calc(${total_length -(imageRadius * (index + 2))}px)`
+    }
+}
+
 /**
  * card that represent each task
  * @param props 
  * @returns 
  */
 export default function Item(props: any) {
+
+   
+
     const {
       item,
       isDragging,
@@ -86,7 +101,7 @@ export default function Item(props: any) {
         {...provided.draggableProps}
         {...provided.dragHandleProps}
         style={getStyle(provided, style)}
-        className="flex flex-col rounded-2xl bg-white p-4"
+        className="flex flex-col rounded-2xl bg-white p-4 relative"
         data-is-dragging={isDragging}
         data-testid={item.id}
         data-index={index}
@@ -113,10 +128,46 @@ export default function Item(props: any) {
                 <small className="text-[#7E7991] text-xs text-normal">Worked:</small>
                 <p className="text-black font-medium text-sm">0 h 0 m </p>
             </div>
-            <div>
-
+            <div className="relative">
+                <div className="w-10 flex flex-row justify-end items-center relative bg-primary">
+                {images.map((image: any, index: number)=> {
+                    return (
+                        <Image 
+                            src={image.url} 
+                            alt={""} 
+                            height={40} 
+                            width={40} 
+                            className="absolute rounded-full border-2 border-white"
+                            style={stackImages(index, images.length)}
+                        />
+                    )
+                })}
+               </div>
             </div>
         </div>
       </section>
     );
 }
+
+const images = [
+    {
+        id: 0,
+        url: '/assets/cover/auth-bg-cover-dark.png'
+    },
+    {
+        id: 1,
+        url: '/assets/cover/auth-bg-cover-dark.png'
+    },
+    {
+        id: 2,
+        url: '/assets/cover/auth-bg-cover-dark.png'
+    },
+    {
+        id: 3,
+        url: '/assets/cover/auth-bg-cover-dark.png'
+    },
+    {
+        id: 4,
+        url: '/assets/cover/auth-bg-cover-dark.png'
+    },
+]
