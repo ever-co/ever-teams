@@ -133,6 +133,7 @@ export default function Item(props: any) {
                 {images.map((image: any, index: number)=> {
                     return (
                         <Image 
+                            key={index}
                             src={image.url} 
                             alt={""} 
                             height={40} 
