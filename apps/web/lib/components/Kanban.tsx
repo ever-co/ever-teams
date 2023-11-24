@@ -19,18 +19,16 @@ const getBackgroundColor = (dropSnapshot: DroppableStateSnapshot) => {
     if (dropSnapshot.isDraggingOver) {
       return {
         backgroundColor: '#FFEBE6',
-        height: '100%'
     }
     }
     if (dropSnapshot.draggingFromThisWith) {
       return {
         backgroundColor:  '#E6FCFF',
-        height: '100%'
     }
     }
     return {
         backgroundColor:  '',
-        height: '100%'
+      
     }
 };
 
@@ -53,7 +51,7 @@ function InnerItemList({items}: {
 }) {
     return (
         <>
-        <section className="flex flex-col gap-2.5">
+        <section className="flex flex-col gap-2.5 max-h-[520px] overflow-scroll ">
         {items.map((item: any, index: number) => (
             <Draggable key={item.id} draggableId={item.id} index={index}>
                 {(dragProvided: DraggableProvided, dragSnapshot: DraggableStateSnapshot) => (
