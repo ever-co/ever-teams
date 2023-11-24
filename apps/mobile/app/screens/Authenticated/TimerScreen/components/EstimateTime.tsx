@@ -174,15 +174,7 @@ const EstimateTime: FC<Props> = ({ setEditEstimate, currentTask, setEstimateTime
 				</View>
 			</View>
 			<Text style={[styles.suffix, { color: colors.primary }]}>{' m'}</Text>
-			{showCheckIcon && (
-				<Feather
-					style={styles.thickIconStyle}
-					size={25}
-					color={'green'}
-					name="check"
-					onPress={() => handleSubmit()}
-				/>
-			)}
+			{showCheckIcon && <Feather size={25} color={'green'} name="check" onPress={() => handleSubmit()} />}
 			{isLoading ? <ActivityIndicator size={14} color="#1B005D" style={styles.loading} /> : null}
 		</View>
 	);
@@ -197,8 +189,8 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		marginLeft: 'auto',
-		marginRight: 10
+		marginLeft: 'auto'
+		// marginRight: 10
 	},
 	estimateInput: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
@@ -207,16 +199,11 @@ const styles = StyleSheet.create({
 		textAlign: 'center'
 	},
 	loading: {
-		position: 'absolute',
-		right: -18
+		marginLeft: 2
 	},
 	suffix: {
 		fontFamily: typography.fonts.PlusJakartaSans.semiBold,
 		fontSize: 14
-	},
-	thickIconStyle: {
-		position: 'absolute',
-		right: -26
 	},
 	wrapDash: { flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 2 }
 });
